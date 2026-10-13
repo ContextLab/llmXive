@@ -1,242 +1,126 @@
 # Tasks: Mindfulness Components and Delivery Formats in ASD Social Skills
 
-**Input**: Design documents from `/specs/001-mindfulness-asd-social-skills/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/cleaned_study.schema.yaml`, `contracts/effect_size.schema.yaml`.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Layout authority**: All source code lives under `code/` (per the constitution's Reproducibility Requirements, which pin `pyproject.toml` at `projects/PROJ-008-psychology-research/code/`). The `src/` tree shown in plan.md's Project Structure section is superseded; every `src/...` path in the plan maps to the corresponding `code/...` path here. (Plan-root cause; flagged for kickback.)
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
+**Spec discrepancies flagged for kickback** (plan-root causes; tasks follow the methodologically correct plan behavior and the spec must be amended to match):
+- FR-008/US1 specify proportional control splitting; the plan (and T004 below) instead select a single primary control group per treatment arm to avoid double-counting participants and unit-of-analysis error. Spec FR-008 must be amended to record this override.
+- FR-003 specifies regex-pattern extraction; the plan (and T004 below) use a structured keyword-based pipeline with confidence scoring and manual-verification flags. Spec FR-003 must be amended to record this override.
+- `contracts/effect_size.schema.yaml` omits `unknown` from `format_tag` while `cleaned_study.schema.yaml` permits `delivery_format: unknown`. T005 handles this by excluding unknown-format studies from `effect_sizes.csv` (logged in `data/raw/excluded_studies.log`) pending a contract amendment adding `unknown` to the `format_tag` enum.
+- Prior reviewer records referencing a 33-task `specs/001-psychology-research/tasks.md` are stale relative to the current `specs/002` artifacts and must be reconciled by the platform per Constitution Principle V before review points are awarded.
 
-## Format: `[ID] [P?] [Story] Description`
+## Task ordering
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e., US1, US2, US3)
-- Include exact file paths in descriptions
+- T001 and T003 are parallel-safe setup tasks.
+- T002 depends on T001. T004 depends on T001–T003. T005 depends on T004. T006 depends on T005. T007 depends on T006. T008 depends on T006. T009 depends on T007 and T008. T012 depends on T004–T008.
+- T011 (checksum baseline) depends on T002, T004–T009, and T012 — it must run AFTER all data/raw/, data/processed/, and data/results/ files exist.
+- T010 (CI workflow) depends on T001–T009, T011, and T012 and must run LAST.
 
-## Path Conventions
+## Phase 1: Setup and first end-to-end analysis
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+**Goal**: Establish the environment and run a "thin slice" of the pipeline to prove the data flow from API retrieval to a basic effect size result.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T001 [P] Establish project layout under `code/` (the authoritative layout; see header note), install pinned dependencies from `code/pyproject.toml`, and document the execution flow in `quickstart.md`.
+    - Verify: `mkdir -p code/{data,analysis,viz,lib} data/{raw,processed,results} docs contracts tests/{unit,integration,contract}` executes without error.
+- [ ] T002 [US1, US2] Implement a thin-slice pipeline in `code/data/collector.py`, `code/data/cleaner.py`, and `code/analysis/effect_sizes.py` that fetches one real record from ClinicalTrials.gov, cleans it, and calculates a Hedges' $g$ effect size.
+    - Output: `data/results/thin_slice_result.json` containing `study_id` and `hedges_g`.
+    - Verify: The script executes end-to-end on a real API record without fabrication.
+- [ ] T003 [P] Implement the schema validation utility in `code/lib/validation.py` to enforce the contracts defined in `contracts/cleaned_study.schema.yaml` and `contracts/effect_size.schema.yaml`.
+    - Verify: A test script in `tests/contract/test_schemas.py` confirms that a valid record passes and a record with an invalid `age_min` (e.g., 5) fails.
 
-**Purpose**: Project initialization and basic structure
+**Checkpoint**: The plumbing is verified. A single real record can move from the registry to a calculated metric.
 
-- [X] T001 [P] Create the full project directory structure for `projects/PROJ-008-psychology-research/` relative to the repository root. This includes: `code/`, `data/` (with `raw/`, `processed/`, `interim/`), `docs/`, `tests/` (with `unit/`, `integration/`, `contract/`), `contracts/`, `scripts/`, `.github/workflows/`. **Execute `mkdir -p projects/PROJ-008-psychology-research/{code,data/{raw,processed,interim},docs,tests/{unit,integration,contract},contracts,scripts,.github/workflows}`. Do NOT create empty placeholder files.**
-- [X] T001a [P] Create valid `__init__.py` files in all `code/` and `tests/` subdirectories to ensure Python package recognition.
-- [X] T001b [P] Create `data/raw/.gitkeep` file to ensure the directory is tracked.
+## Phase 2: Complete the study and validate its evidence
 
-- [X] T002 [P] Create `pyproject.toml` at `projects/PROJ-008-psychology-research/` with: build-system (setuptools>=61.0), python version `>=3.11`, and dependencies list with **PINNED versions** (e.g., `pandas==2.0.0`, `scikit-learn==1.3.0`, `statsmodels==0.14.0`, `matplotlib==3.7.0`, `requests==2.31.0`, `pyyaml==6.0`, `pytest==7.4.0`, `bayesmeta==0.1.0`, `pdfplumber==0.10.0`). **No version ranges (>=) are permitted.** Also generate `requirements.txt` at the same location by extracting these pinned dependencies to ensure reproducibility on fresh runners (SC-005). Verify that `requirements.txt` contains exact versions for all packages.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools. **Create `.ruff.toml` at `projects/PROJ-008-psychology-research/.ruff.toml` with `line-length = 88`, `target-version = "py311"`, and `select = ["E", "F", "W", "I"]`. Create `pypy.toml` sections `[tool.black]` (line-length=88, target-version=['py311']) and `[tool.ruff]` matching the `.ruff.toml` rules. Ensure `pyproject.toml` is updated if it does not exist.**
+- [ ] T004 [US1] Implement the full data collection and cleaning pipeline in `code/data/collector.py` and `code/data/cleaner.py`.
+    - Requirements:
+        - Fetch from ClinicalTrials.gov and OSF only (Constitution Principle VI), with rate-limiting and exponential backoff on all API calls (FR-002); log every retry.
+        - Filter for ASD diagnosis, age 6-12, and social skill outcomes.
+        - Handle multi-arm studies by selecting a single primary control group per treatment arm to avoid double-counting participants and unit-of-analysis error (documented override of spec FR-008; see header).
+        - Extract intervention components (breathing, body_scan, mindful_movement, combined) using a structured keyword-based pipeline with confidence scoring; entries with low confidence are flagged for manual verification (documented override of spec FR-003; see header).
+        - Extract `delivery_format` (caregiver_mediated, child_led, hybrid, unknown) and `social_skill_domain` (FR-010).
+        - Implement abstract-only text extraction fallback when full text is unavailable; no full-text OCR (FR-009).
+        - Log the search query strings and retrieval timestamps for every study in the retrieval log (Constitution Principle VI).
+    - Outputs: `data/raw/verified_snapshot_2026.json` (canonical baseline), `data/processed/cleaned_studies.csv`, `data/raw/excluded_studies.log` (exclusion audit trail with reasons, per US1), and `data/raw/search_retrieval_log.json` (query strings + retrieval timestamps per included study).
+    - Verify: `data/processed/cleaned_studies.csv` validates against `cleaned_study.schema.yaml`; `data/raw/excluded_studies.log` lists every excluded study with a reason; `data/raw/search_retrieval_log.json` contains a query string and timestamp for every included study; retrieval logs show only ClinicalTrials.gov and OSF endpoints.
+- [ ] T005 [US2] Implement the effect size engine in `code/analysis/effect_sizes.py` to compute Hedges' $g$ with small-sample correction for all included studies (FR-004, FR-013).
+    - Requirements: Studies with `delivery_format = "unknown"` are excluded from `effect_sizes.csv` and recorded in `data/raw/excluded_studies.log` (schema contradiction handling; see header) — they remain in `cleaned_studies.csv` and are excluded only from subgroup analysis per Principle VII.
+    - Output: `data/processed/effect_sizes.csv`.
+    - Verify: `data/processed/effect_sizes.csv` validates against `effect_size.schema.yaml` and values match a manual calculation for a sample row (unit test in `tests/unit/test_effect_sizes.py`).
+- [ ] T006 [US2] Implement the meta-analysis core in `code/analysis/meta_analysis.py` to calculate pooled effect sizes and heterogeneity.
+    - Requirements:
+        - Use random-effects model if $I^2 > 50\%$, otherwise fixed-effects (reported as sensitivity check).
+        - Calculate $I^2$ and Cochran's $Q$ statistic with p-value.
+        - Pin all random seeds (e.g., `random.seed(42)`, `numpy.random.seed(42)`) in `code/` per Constitution Principle I.
+    - Output: `data/results/meta_analysis_summary.json`.
+    - Verify: A unit test in `tests/unit/test_meta_analysis.py` reproduces the pooled $g$, $I^2$, and $Q$ from a fixed two-study fixture within tolerance.
+- [ ] T007 [US2] Implement subgroup analysis and conditional meta-regression in `code/analysis/meta_analysis.py`.
+    - Requirements:
+        - Compare mindfulness components (breathing, body_scan, mindful_movement, combined) — data produced by T004.
+        - Compare delivery formats (caregiver_mediated vs child_led): the PRIMARY subgroup/meta-regression comparison MUST exclude `delivery_format = "unknown"` entries per Constitution Principle VII.
+        - Compare social skill domains (FR-011).
+        - Compare follow-up duration (3-month vs others) (FR-012).
+        - Apply Bonferroni correction to all subgroup p-values (plan Risk Mitigation).
+        - FR-014 conditional: if $N < 10$ studies, suppress meta-regression entirely and record a descriptive-synthesis flag in the output; if $N \ge 10$, run delivery-format meta-regression (Hedges' $g$ as effect metric, per Principle VII).
+    - Output: `data/results/subgroup_analysis.json` (including a `meta_regression` block or an explicit `suppressed_reason` when $N < 10$).
+    - Verify: A test in `tests/unit/test_subgroups.py` confirms (a) unknown-format entries are absent from the delivery-format subgroup, (b) Bonferroni-corrected p-values are reported, and (c) the meta-regression block is suppressed when the fixture has fewer than 10 studies.
+- [ ] T008 [US3] Implement visualization and bias assessment in `code/viz/plotting.py` and `code/analysis/bias.py`.
+    - Requirements:
+        - Generate forest plots (study CIs + pooled diamond) (FR-006).
+        - Generate funnel plots and run Egger's test ONLY if $N \ge 10$ (US3 / FR-006 gating; distinct from FR-014's meta-regression suppression, which is handled in T007).
+    - Output: `data/results/forest_plot.png` and `data/results/funnel_plot.png` (only if $N \ge 10$).
+    - Verify: A test in `tests/unit/test_plotting.py` asserts the funnel plot file is absent when $N < 10$ and present when $N \ge 10$.
+- [ ] T012 [P] Implement the report generator module `code/reporting/generate_report.py` that renders `docs/results.md` from the JSON artifacts in `data/results/` (single source of truth; no hand-typed numbers, Constitution Principle IV).
+    - Verify: A test in `tests/integration/test_report.py` confirms every number in a generated report matches the corresponding JSON value.
 
----
+**Checkpoint**: All scientific computations are complete. Results are stored in `data/results/` and figures are generated.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 3: Reproducible results and paper handoff
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T009 [US3] Generate the final research report in `docs/results.md` using the T012 generator, synthesizing all findings.
+    - Requirements:
+        - If $N = 0$: state "No studies found" and stop (plan Task 12).
+        - If $N < 10$: provide a descriptive narrative synthesis and explicitly state that meta-regression, funnel plots, and Egger's test were suppressed.
+        - If $N \ge 10$: include the pooled effect size table, subgroup tables, and embedded figures.
+        - Link every result to the specific file in `data/results/`.
+    - Verify: `tests/integration/test_report.py` covers the $N=0$, $N<10$, and $N\ge10$ branches with fixture inputs.
+- [ ] T011 Record the checksum baseline for all data artifacts (Constitution Principle III).
+    - Requirements: Generate `data/checksums.sha256` (SHA-256, `sha256sum` format) covering all files under `data/raw/`, `data/processed/`, and `data/results/`. This task MUST run after T002, T004–T009, and T012 so the hashed files exist; raw data is never modified in place afterwards.
+    - Output: `data/checksums.sha256`.
+    - Verify: `sha256sum -c data/checksums.sha256` passes against the current tree.
+- [ ] T010 Implement the CI reproducibility workflow in `.github/workflows/ci.yml`.
+    - Requirements:
+        - The workflow must load `data/raw/verified_snapshot_2026.json` to ensure the analysis is deterministic.
+        - Execute all tests in `tests/` and the full analysis pipeline (T002–T009).
+        - After the pipeline run, re-compute `data/checksums.sha256` via `code/lib/verify_ci.py` and compare against the committed baseline from T011; the run fails on any mismatch.
+    - Verify: A successful CI run produces artifacts whose SHA-256 hashes match the committed `data/checksums.sha256` baseline (mechanism: `code/lib/verify_ci.py --baseline data/checksums.sha256` exits 0).
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+## Dependencies and requirement coverage
 
-- [X] T004 [P] Create base Pydantic models for `Study`, `EffectSize`, and `MetaAnalysisResult` in `code/data/models.py`. **Include docstrings describing the purpose of each field.**
-- [X] T005 [P] Implement structured logging infrastructure in `code/utils/logging.py` (FR-007)
-- [X] T006 [P] Setup configuration management and seed pinning in `code/utils/config.py`
-- [X] T007a [P] **Create** `contracts/cleaned_study.schema.yaml` with **FULL JSON Schema (Draft 7) in YAML format**. Write the following content to the file:
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-type: object
-required:
- - id
- - title
- - registry
- - age_range
- - diagnosis
- - outcomes
- - intervention_components
- - delivery_format
- - social_skill_domain
-properties:
- id: { type: string }
- title: { type: string }
- registry: { type: string, enum: ["ClinicalTrials.gov", "OSF"] }
- age_range:
- type: object
- required: [min, max]
- properties:
- min: { type: integer, minimum: 6 }
- max: { type: integer, maximum: 12 }
- diagnosis: { type: string, const: "ASD" }
- outcomes: { type: array, items: { type: string } }
- intervention_components: { type: array, items: { type: string, enum: ["breathing", "body scan", "mindful movement", "mindful eating", "none"] } }
- delivery_format: { type: string, enum: ["caregiver-mediated", "child-led", "mixed", "not-reported"] }
- follow_up: { type: string, nullable: true }
- abstract_text: { type: string, nullable: true }
- social_skill_domain: { type: string, enum: ["communication", "peer interaction", "emotional regulation", "mixed", "other"] }
- domain_notes: { type: string, nullable: true, description: "Unmatched domain descriptions captured when no keyword match found" }
- blinded_assessment_flag: { type: boolean, description: "True if outcome assessment was blinded to intervention status" }
- rater_type: { type: string, enum: ["blinded", "unblinded", "mixed"], description: "Type of rater used for primary outcome" }
-```
- **Verify file with `pyyaml` validator.**
-- [X] T007b [P] **Create** `contracts/effect_size.schema.yaml` with **FULL JSON Schema (Draft 7) in YAML format**. Write the following content to the file:
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-type: object
-required:
- - study_id
- - hedges_g
- - se
- - ci_lower
- - ci_upper
- - n_treatment
- - n_control
-properties:
- study_id: { type: string }
- hedges_g: { number }
- se: { number }
- ci_lower: { number }
- ci_upper: { number }
- n_treatment: { integer, minimum: 1 }
- n_control: { integer, minimum: 1 }
- rater_blinding_status: { type: string, enum: ["blinded", "unblinded", "unknown"], description: "Blinding status of the outcome rater" }
-```
- **Verify file with `pyyaml` validator.**
-- [X] T008 [P] Implement artifact hashing utility in `scripts/hash_artifacts.py` for Constitution Principle V
-- [X] T009 [P] Create `docs/ethics_determination.md` documenting the 'Exempt' status for secondary analysis of de-identified public registry data (ClinicalTrials.gov, OSF) and justification for no IRB requirement
-- [X] T010 [P] Create `docs/analysis-plan.md` detailing missing-data-handling and imputation strategies. **Must include sections: Missing Data Strategy (with table of methods), Imputation Method (with formula), Sensitivity Analysis (with criteria).** **Verify file contains regex `Missing Data Strategy` and `Imputation Method`.**
+Every functional requirement, user story, and constitutional principle in `spec.md` maps to exactly one row below, pointing at the implementing task and its verification artifact.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Collection and Cleaning Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Ingest raw study data from ClinicalTrials.gov and OSF, validate against inclusion criteria, and extract standardized variables into a clean CSV.
-
-**Independent Test**: The pipeline can be tested by running it against a known set of mock study records with predefined inclusion/exclusion flags and verifying that the output CSV contains the expected included records.
-
-### Implementation for User Story 1 (Data Generation & Collection)
-
-- [X] T015b [P] [US1] **Create TEST-ONLY Mock Data Generator**: Generate `data/raw/mock_registry_response.json` containing a representative set of records. **THIS IS TEST-ONLY DATA. Do NOT include this file in final `data/` checksums or production analysis. Add `data/raw/mock_registry_response.json` to `.gitignore` (or equivalent exclusion) to ensure isolation.**
- 1. Record 1: Valid study, age 8, ASD, social outcome, abstract present.
- 2. Record 2: Valid study, age 10, ASD, social outcome, **NO abstract** (to trigger T020 exclusion logic if metadata is missing).
- 3. Record 3: Invalid study, age 15 (out of range), ASD, social outcome.
- **Ensure JSON structure matches the API response format expected by T016. Required fields: id, title, registry, age_range (min, max), diagnosis, outcomes (array), abstract (nullable), intervention_components (array), delivery_format, social_skill_domain, follow_up, rater_type, blinded_assessment_flag. Verify JSON structure against `contracts/cleaned_study.schema.yaml` before saving.**
-- [X] T015c [P] [US1] **Create TEST-ONLY Blinded Mock Data**: Generate `data/raw/mock_blinded_response.json` containing a small set of mock records derived from Record 1. **THIS IS TEST-ONLY DATA. Do NOT include this file in final `data/` checksums or production analysis. Add `data/raw/mock_blinded_response.json` to `.gitignore` (or equivalent exclusion) to ensure isolation.**
- 1. Record A: Same study, but explicitly labeled `rater_type: "unblinded"` and `blinded_assessment_flag: false`.
- 2. Record B: Same study, but explicitly labeled `rater_type: "blinded"` and `blinded_assessment_flag: true`.
- **This data is for testing the blinding comparison logic in T022.**
-
-### Implementation for User Story 1 (Core Pipeline)
-
-- [X] T016 [US1] depends on T007a, T007b, T006: Implement API collector in `code/data/collector.py` (FR-001, FR-002) with rate-limiting (requests per minute per API) and exponential backoff (base s, max bounded duration) for **ClinicalTrials.gov and OSF ONLY** per Constitution Principle VI. **Logic:
- 1. For Production Runs: Fetch directly from ClinicalTrials.gov and OSF APIs. Log search query strings and retrieval timestamps to `data/raw/retrieval_log.json`.
- 2. For CI/Testing Runs: The CI environment MUST set `CI_MODE=true`. In this mode, the script MUST load a **verified, checksummed snapshot** of real data (e.g, `data/raw/verified_snapshot_2026.json`) that was previously fetched from the canonical sources.
- 3. **NO MOCK DATA**: The script MUST NOT load `data/raw/mock_registry_response.json` in any production or CI scenario. If a mock file is detected, the script MUST raise a `RuntimeError` with message "Mock data detected in production/CI run; aborting."
- 4. **Fresh Runner Setup**: To test on a fresh runner, the CI workflow must first download the verified snapshot from a secure artifact storage (e.g., GitHub Actions cache) and place it at `data/raw/verified_snapshot_2026.json`.
- 5. **Error Handling**: If the API fetch fails, the script MUST raise an error. Do NOT fall back to mock data.**
-- [X] T017a [US1] depends on T007a, T007b: Implement data extractor for intervention components in `code/data/extractor.py` (FR-003). **Logic: Scan the 'description' and 'abstract' fields of registry metadata. Use case-insensitive, whole-word regex patterns to detect: 'breathing', 'body scan', 'mindful movement', 'mindful eating'. Output: List of detected components in `intervention_components` column.**
-- [X] T017b [US1] depends on T007a, T007b: Implement data extractor for social skill domains in `code/data/extractor.py` (FR-010). **Logic: Scan the 'description' and 'abstract' fields. Use regex patterns to detect keywords mapping to exactly three domains: 'communication' (keywords: speech, language, verbal, non-verbal), 'peer interaction' (keywords: peer, social, group, play), 'emotional regulation' (keywords: emotion, affect, regulation, tantrum). Assign the first matching domain found. If multiple, assign 'mixed'. If a valid domain is described but not in the keyword list, assign 'other' AND populate the `domain_notes` field with the original text description. Output: `social_skill_domain` column with values restricted to [communication, peer interaction, emotional regulation, mixed, other] and `domain_notes` column for unmatched descriptions.**
-- [X] T018 [US1] depends on T007a, T007b, T016: Implement data cleaner in `code/data/cleaner.py` (FR-007) to validate age **6-12 (per US1 in spec.md)**, ASD diagnosis, and social skill outcomes. **Logic: Validate `outcomes` field by checking if any item in the array contains the phrase 'social skill' (case-insensitive) or matches known validated measure patterns (e.g., 'SRS', 'ABC', 'SSIS', 'PEP'). If no match is found, flag the study in `data/raw/excluded_studies.log` (JSONL format: `[{study_id: str, reason: "INVALID_OUTCOME", timestamp: str}])`.**
-- [X] T019 [US1] depends on T007a, T007b: Implement multi-arm study handling logic in `code/data/cleaner.py` (FR-008) to split control groups proportionally.
-- [X] T020 [US1] depends on T007a, T007b, T016, T017a, T017b, T018, T019, T022: Implement **Abstract-only text extraction fallback** in `code/data/extractor.py` (FR-009). **Logic:
- 1. Define 'insufficient metadata' as the absence of ANY of the three mandatory inclusion fields: `age_range`, `diagnosis`, OR `outcomes`.
- 2. **STRICT EXCLUSION**: If ANY of these three fields are missing in the primary metadata, the study MUST be EXCLUDED immediately. **DO NOT attempt to extract missing fields from the abstract.** This preserves the integrity of the inclusion criteria.
- 3. **Null Handling**: If the `abstract` field is missing or null in the API response, log the study as excluded with reason "INSUFFICIENT_METADATA_NO_ABSTRACT".
- 4. **Regex Patterns**: (For future use if abstract extraction is ever permitted, though currently excluded): Age: 'aged [0-9]+', 'children [0-9]+', 'mean age [0-9]+'; Diagnosis: 'ASD', 'Autism Spectrum', 'PDD-NOS', 'Autistic'; Outcomes: 'SRS', 'ABC', 'SSIS', 'social skill', 'communication'.
- 5. **Output**: Flag the study in `data/raw/excluded_studies.log` (JSONL: `[{study_id: str, reason: "INSUFFICIENT_METADATA_NO_ABSTRACT" OR "MISSING_PRIMARY_FIELD", timestamp: str}])`.**
-- [X] T022 [US1] depends on T007a, T007b, T015c: **Implement Blinded Assessment Logic**: Extract `rater_type` and `blinded_assessment_flag` from registry metadata (or mock data). **Logic: Identify if a study reports blinded vs. unblinded raters. If a study reports both (e.g., primary outcome unblinded, secondary blinded), flag as 'mixed'. If the blinding information is missing or null in the metadata, flag the study as 'unknown' (do not fail). Output: Add `rater_type` and `blinded_assessment_flag` columns to `data/processed/cleaned_studies.csv`.**
-- [X] T052 [US1] depends on T016, T017a, T017b, T018, T019, T020, T022, T007a, T007b: **Generate Verified Real Data Snapshot**: Run T016 in a controlled environment against real ClinicalTrials.gov/OSF APIs to produce a valid, checksummed snapshot. Save output as `data/raw/verified_snapshot_2026.json`. **This artifact MUST be uploaded to GitHub Actions cache/artifacts for use by T044 (CI Pipeline). This task ensures Constitution Principle I (Reproducibility) is met by providing the real data source for CI runs.**
-- [ ] T021 [US1] depends on T052, T016, T017a, T017b, T018, T019, T020, T022, T007a, T007b: **Verify and archive output**: Create script `scripts/verify_output.py` that checks for existence of `data/processed/cleaned_studies.csv` and `data/raw/excluded_studies.log`. **Verify CSV schema compliance against `contracts/cleaned_study.schema.yaml`. If CSV is empty (0 rows), verify that `data/raw/verified_snapshot_2026.json` exists (indicating CI mode) OR that no studies matched criteria (real mode); do NOT fail on empty CSV. If CSV has rows, verify row count > 0. Exits 0 on success, 1 on failure.**
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Effect Size Calculation and Meta-Analysis (Priority: P2)
-
-**Goal**: Calculate Hedges' *g* effect sizes, perform random-effects meta-analysis, and conduct subgroup analyses comparing mindfulness components and delivery formats.
-
-**Independent Test**: The calculation module can be tested by providing a synthetic dataset of studies with known means and standard deviations, verifying that the calculated Hedges' *g* matches the manual calculation within a tolerance of a sufficiently small magnitude.
-
-### Tests for User Story 2 (REQUIRED) ⚠️
-
-- [X] T025 [P] [US2] Contract test for effect size schema in `tests/contract/test_effect_size_schema.py`
-- [X] T026 [P] [US2] Unit test for Hedges' *g* calculation accuracy against `statsmodels` or manual calc in `tests/unit/test_effect_sizes.py`
-- [X] T027 [P] [US2] Unit test for random-effects model selection logic (I² > 50%) in `tests/unit/test_meta_analysis.py`
-- [X] T027b [P] [US2] **Unit test for Blinding Bias Detection**: Create `tests/unit/test_blinding_bias.py`. **Logic: Simulate a dataset where 'unblinded' studies show a substantially larger effect size and 'blinded' studies show a smaller effect size. Verify that the analysis correctly identifies a statistically significant difference between these two groups with p-value < 0.05.**
-
-### Implementation for User Story 2
-
-- [X] T028 [US2] depends on T016, T017a, T017b, T018, T019, T020, T021, T022, T007a, T007b: Implement Hedges' *g* calculator in `code/analysis/effect_sizes.py` (FR-004, FR-013) with small-sample correction
-- [X] T029 [US2] depends on T028, T016, T017a, T017b, T018, T019, T020, T021, T022, T007a, T007b: Implement random-effects meta-analysis engine in `code/analysis/meta_analysis.py` (FR-005) using `statsmodels`. **Logic: Use `statsmodels.stats.meta_analysis.combine_effects` to calculate pooled effect. Calculate I². If I² > 0.5, use random-effects model; otherwise, use fixed-effects model. Output: Pooled effect size, heterogeneity statistics.**
-- [X] T030 [US2] depends on T028, T017a, T017b, T007a, T007b: Implement subgroup analysis (Cochran's Q) for mindfulness components and delivery formats in `code/analysis/meta_analysis.py` (FR-005). **Logic: Use `scipy.stats.chi2` for Cochran's Q test. Categorize 'mindfulness components' as binary (present/absent) based on `intervention_components` column. Categorize 'delivery formats' by mapping `delivery_format` column values (caregiver-mediated vs. child-led) to groups. Output: Subgroup effect sizes and heterogeneity statistics for each group. (Note: This task does NOT depend on T029; it consumes T028 directly).**
-- [X] T031a [US2] depends on T017b, T007a, T007b: **Implement Social Skill Domain Extraction**: Create function in `code/analysis/meta_analysis.py` to extract and validate `social_skill_domain` values from the cleaned CSV. **Logic: Ensure all values in `social_skill_domain` column are one of [communication, peer interaction, emotional regulation, mixed, other]. Flag any 'other' entries for manual review.**
-- [X] T031b [US2] depends on T031a, T028: **Implement Social Skill Domain Subgroup Analysis**: Create function in `code/analysis/meta_analysis.py` to calculate subgroup effect sizes for each `social_skill_domain`. **Logic: Group studies by `social_skill_domain` column. Calculate subgroup effect sizes and heterogeneity statistics for each domain. Output: Subgroup effect sizes and heterogeneity statistics for each domain.**
-- [X] T032 [US2] depends on T028, T007a, T007b: Implement follow-up duration subgroup analysis (3-month vs. others) in `code/analysis/meta_analysis.py` (FR-012). **Logic: Parse `follow_up` string field to days (e.g., '3 months' -> 90, '6 months' -> 180). Group studies into <90 days vs >=90 days. Output: Subgroup effect sizes for each group. (Note: This task does NOT depend on T029; it consumes T028 directly).**
-- [X] T033 [US2] depends on T028, T029, T030, T031b, T032, T007a, T007b: Implement conditional logic to suppress subgroup/meta-regression if N < 10 and switch to descriptive synthesis (FR-014)
-- [X] T033b [US2] depends on T022, T028, T007a, T007b: **Implement Blinding Bias Quantification**: Extend `code/analysis/meta_analysis.py` to perform a specific subgroup analysis comparing `blinded_assessment_flag = true` vs `false`. **Logic:
- 1. If N >= 10 (global threshold per FR-014), calculate the difference in pooled effect sizes between the two groups.
- 2. If N < 10, SKIP the analysis and log a warning to `docs/results.md` stating "Insufficient studies (N < 10) for blinding bias quantification."
- 3. Output: Quantify the difference and report it in `docs/results.md`. (Cites Constitution Principle VII and FR-005). Verify that the analysis correctly identifies a statistically significant difference with p-value < 0.05 in the test dataset. (Note: This task does NOT depend on T029; it consumes T028 directly).**
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Visualization and Publication Bias Assessment (Priority: P3)
-
-**Goal**: Generate forest plots and funnel plots (if N ≥ 10) to assess publication bias and interpret meta-analysis results.
-
-**Independent Test**: The visualization module can be tested by running it on a small dataset and verifying that the forest plot correctly displays the study-specific effect sizes and confidence intervals, and that the funnel plot is suppressed if N < 10.
-
-### Tests for User Story 3 (REQUIRED) ⚠️
-
-- [ ] T034 [P] [US3] Unit test for forest plot generation in `tests/unit/test_plots.py`
-- [ ] T035 [P] [US3] Unit test for funnel plot suppression logic when N < 10 in `tests/unit/test_plots.py`
-- [ ] T036 [P] [US3] Integration test for publication bias assessment (Egger's test) in `tests/integration/test_bias.py`
-
-### Implementation for User Story 3
-
-- [ ] T037 [US3] depends on T028-T033, T033b: Implement forest plot generator in `code/viz/plots.py` (FR-006) displaying study-specific CIs and pooled effect diamond
-- [ ] T038 [US3] depends on T028-T033, T033b: Implement funnel plot generator in `code/viz/plots.py` (FR-006) with asymmetry visual cues (only if N ≥ 10)
-- [ ] T039 [US3] depends on T028-T033: Implement Egger's test and publication bias assessment in `code/analysis/bias.py` (FR-006)
-- [ ] T040 [US3] depends on T039: Implement conditional logic to suppress funnel plot/Egger's test if N < 10 and add warning to report (FR-014)
-- [ ] T041 [US3] depends on T037, T038: Generate `data/processed/forest_plot.png` and `data/processed/funnel_plot.png` at a high resolution using matplotlib savefig() with explicit dpi parameter (FR-006).
-- [ ] T042 [US3] depends on T039, T041: Generate `docs/results.md` containing: 1) Executive Summary, 2) Forest Plot (T037), 3) Funnel Plot (T038), 4) Heterogeneity Statistics (I², Q), 5) Subgroup Analysis Results (table with columns `Domain`, `N`, `Effect Size`), 6) Narrative Synthesis if N<10. **Logic for Section 5:
- 1. Check if `data/processed/cleaned_studies.csv` exists.
- 2. If file DOES NOT EXIST: Section 5 must state "Data pipeline failed to produce output - unable to perform subgroup analysis".
- 3. If file EXISTS but has 0 data rows: Section 5 must state "No studies found (N=0) - unable to perform subgroup analysis".
- 4. If file EXISTS with data rows: Read unique values from `social_skill_domain` column. If file exists but has 0 data rows, Section 5 must state "No studies found (N=0) - unable to perform subgroup analysis". If file is missing, Section 5 must state "Data pipeline failed to produce output - unable to perform subgroup analysis".
- 5. Generate the table with columns `Domain`, `N`, `Effect Size` based on the data.**
-- [ ] T043 [US3] depends on T042, T033b: **Add Blinding Bias Visualization**: Update `docs/results.md` and `code/viz/plots.py` to include a specific visualization (e.g., a side-by-side forest plot or a bar chart) comparing the pooled effect sizes of Blinded vs. Unblinded studies.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories and address current spec requirements
-
-- [ ] T044 [P] Create `.github/workflows/ci.yml` at `projects/PROJ-008-psychology-research/.github/workflows/ci.yml` to automate pipeline execution on a fresh runner, verifying reproducibility (SC-005). **Ensure the workflow downloads `data/raw/verified_snapshot_2026.json` from the GitHub Actions cache/artifacts (populated by T052) before running T016 in CI_MODE.
-  **FALLBACK LOGIC FOR INITIAL RUN**: If the snapshot is missing from the cache on the initial CI run (first time):
-  1. The workflow must detect the missing artifact.
-  2. Trigger a temporary manual override step (or a specific 'bootstrap' job) that runs T016 directly against real APIs (bypassing the CI_MODE check) to generate `data/raw/verified_snapshot_2026.json`.
-  3. Upload the generated snapshot to the GitHub Actions cache/artifacts.
-  4. Proceed with the standard CI pipeline execution.**
-- [ ] T045 [P] Create `scripts/validate_contracts.py` to run schema validation on `data/processed/cleaned_studies.csv` against `contracts/cleaned_study.schema.yaml`.
-- [ ] T046 [P] Generate `docs/protocol.md` containing the full methodology as per PRISMA guidelines.
-- [ ] T047 [P] Create `quickstart.md` in root to document environment setup and verification steps.
-- [ ] T048 [P] Add `LICENSE` file specifying research data usage terms and ensure all data artifacts have corresponding license headers.
-
----
-
-## Phase 7: Revision & Artifact Hygiene (Addressing Prior Reviews)
-
-**Purpose**: Resolve critical gaps identified in prior research-stage reviews regarding missing artifacts, task completion mismatches, and blinding bias quantification.
-
-- [ ] T053 [P] **Resolve Session Count Conflict**: Update `docs/protocol.md` to explicitly state the final session count.
-- [ ] T054 [P] **Verify Citations**: Review `docs/protocol.md` and `research.md` to ensure all citations are verified.
-- [ ] T056 [P] **Test Execution Verification**: Run all unit and contract tests using the command `pytest tests/ -v --tb=short`.
-- [ ] T058 [P] **Bootstrap CI Snapshot**: **Manual Step**: A human developer must run T016 (in non-CI mode) against real APIs, validate the output, and manually upload the resulting `data/raw/verified_snapshot_2026.json` to the GitHub Actions cache/artifacts. This task breaks the circular dependency for T044 by providing the initial snapshot. **Document the exact command and upload steps in `docs/CI_bootstrap.md`.**
+| Requirement | Task | Verification |
+|-------------|------|--------------|
+| US1 (Collection) | T002, T004 | `data/processed/cleaned_studies.csv` exists and is schema-valid; `data/raw/excluded_studies.log` exists |
+| US2 (Analysis) | T002, T005, T006, T007 | `data/results/meta_analysis_summary.json` contains $I^2$ and pooled $g$ |
+| US3 (Visualization) | T008, T009 | `data/results/forest_plot.png` exists; `docs/results.md` contains synthesis |
+| FR-001 (API sources) | T004 | `data/raw/search_retrieval_log.json` shows only ClinicalTrials.gov and OSF |
+| FR-002 (Backoff/rate-limit) | T004 | Retry log entries present in `data/raw/search_retrieval_log.json` |
+| FR-003 (Component extraction) | T004 | `component_tag` values in `cleaned_studies.csv` (keyword pipeline; spec override flagged) |
+| FR-004 (Hedges' g small-sample correction) | T002, T005 | Unit tests in `tests/unit/test_effect_sizes.py` |
+| FR-005 (Random-effects + heterogeneity) | T006 | `meta_analysis_summary.json` contains model_used, $I^2$, $Q$ |
+| FR-006 (Forest/funnel plots) | T008 | Plot files present; funnel gated on $N \ge 10$ |
+| FR-007 (Schema validation) | T003 | `tests/contract/test_schemas.py` passes |
+| FR-008 (Multi-arm handling) | T004 | Single primary control per arm (spec override flagged in header) |
+| FR-009 (Abstract-only fallback) | T004 | Fallback path exercised in `tests/unit/test_cleaner.py` |
+| FR-010 (Domain extraction) | T004 | `social_skill_domain` column populated in `cleaned_studies.csv` |
+| FR-011 (Domain subgroups) | T007 | `subgroup_analysis.json` domain blocks |
+| FR-012 (Follow-up subgroups) | T007 | `subgroup_analysis.json` follow-up block |
+| FR-013 (Effect sizes from summary statistics) | T002, T005 | Unit tests in `tests/unit/test_effect_sizes.py`; `effect_sizes.csv` schema-valid |
+| FR-014 (Suppress meta-regression if N<10) | T007 | `subgroup_analysis.json` `suppressed_reason` when N<10; `meta_regression` block when N≥10 |
+| Const. Principle I (Seeds) | T006 | Pinned seeds in `code/analysis/meta_analysis.py` |
+| Const. Principle III (Checksums) | T011 | `sha256sum -c data/checksums.sha256` passes |
+| Const. Principle VI (Retrieval log) | T004 | `data/raw/search_retrieval_log.json` per-study queries + timestamps |
+| Const. Principle VII (Delivery) | T004, T007 | `delivery_format` column present; unknown-format entries excluded from primary subgroup analysis |
+| SC-005 (Reproducibility) | T010, T011 | CI run matches committed `data/checksums.sha256` baseline |
