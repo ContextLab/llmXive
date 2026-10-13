@@ -1,0 +1,19 @@
+status: none
+intent: openneuro python package download ds000246 ds001600 Nilearn fetch_atlas_schaefer_2018
+  python package dataset
+required_fields:
+- subject_id
+- session_id
+- run_number
+- task_name
+- bold_nifti_path
+- repetition_time
+- slice_timing
+- motion_parameters
+- confound_regressors
+- anatomical_t1_path
+- atlas_name
+- roi_labels
+cache_key: 3453a421d69ab6e8721866c851218d824327292a9b513efb9ce4d4f4e3283925
+searched_at: '2026-10-13T12:15:22.471022+00:00'
+retry_count: 1

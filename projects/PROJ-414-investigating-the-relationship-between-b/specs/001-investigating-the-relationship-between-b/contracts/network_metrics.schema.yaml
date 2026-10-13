@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dynamic Network Metrics per Window"
+type: object
+required:
+  - subject_id
+  - window_id
+  - global_efficiency
+  - modularity
+  - participation_coefficient
+properties:
+  subject_id:
+    type: string
+    description: "Identifier of the participant."
+  window_id:
+    type: integer
+    description: "Sliding‑window index (starting at 0)."
+  global_efficiency:
+    type: number
+    description: "Weighted global efficiency of the functional graph."
+  modularity:
+    type: number
+    description: "Modularity (Louvain) of the graph."
+  participation_coefficient:
+    type: number
+    description: "Mean participation coefficient across all nodes."
+additionalProperties: false
