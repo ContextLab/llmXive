@@ -4,3 +4,4 @@ statsmodels==0.14.1
 pandas==2.2.0
 pytest==7.4.0
 ucimlrepo
+pyyaml==6.0

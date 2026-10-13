@@ -10,7 +10,7 @@
 - [ ] T001 [P] [US1] Create project skeleton, add `requirements.txt` (numpy, scipy, pandas, statsmodels, pytest, pyyaml) and document the runnable command in `quickstart.md`.  
   *Verification*: `pip install -r requirements.txt` succeeds; `quickstart.md` contains a command that runs the simulation end‑to‑end without error.
 
-- [ ] T002 [P] [US1] Implement `code/config.py` with the full simulation schema, default values (`ICC_RANGE = [0.0,0.1,0.2,0.3,0.4,0.5]`, `ALPHA_LEVELS = [0.01,0.05,0.10]`, `N_CLUSTERS = 100`, `N_ITERATIONS = 1000`, `SEED = 42`) and validation helpers (`validate_config`, `validate_alpha_levels`).  
+- [X] T002 [P] [US1] Implement `code/config.py` with the full simulation schema, default values (`ICC_RANGE = [0.0,0.1,0.2,0.3,0.4,0.5]`, `ALPHA_LEVELS = [0.01,0.05,0.10]`, `N_CLUSTERS = 100`, `N_ITERATIONS = 1000`, `SEED = 42`) and validation helpers (`validate_config`, `validate_alpha_levels`).  
   *Verification*: `python -c "import code.config as cfg; cfg.validate_config()"` exits with status 0.
 
 - [ ] T003 [P] [US1] Create `code/data_generator.py` that draws cluster sizes (log‑normal), generates a random‑intercept outcome `Y_ij = μ + u_i + ε_ij` with a target ICC, and assigns treatment at the cluster level. Handles ICC = 0 and unbalanced clusters.  
@@ -22,7 +22,7 @@
   * `run_block_permutation` (cluster‑level label permutation with 1 000 permutations).  
   *Verification*: `tests/unit/test_estimators.py` asserts correct p‑value ranges on a tiny handcrafted dataset.
 
-- [ ] T005 [ ] [US1 US2] Implement `code/simulation_runner.py` that loops over the configuration grid, calls the three estimators, writes individual run results to `data/derived/simulation_results_raw.csv` (conforms to `simulation_run.schema.yaml`), and additionally records per‑iteration wall‑clock time to `data/timing.csv` and peak memory usage to `data/memory.csv`. The task respects the 6‑hour wall‑clock & 7 GB RAM limits (pre‑run memory check).  
+- [ ] T005 [ ] [US1 US2] Implement `code/simulation_runner.py` that loops over the configuration grid, calls the three estimators, writes individual run results to `data/derived/simulation_results_raw.csv` (conforms to `simulation_run.schema.yaml`), and additionally records per‑iteration wall‑clock time to `data/timing.csv` and peak memory usage to `data/memory.csv`. The task respects the 6‑hour wall‑clock & 7 GB RAM limits (pre‑run memory check).   <!-- FAILED-IN-EXECUTION: code/simulation_runner.py exit=1 -->
   *Verification*: Integration test `tests/integration/test_end_to_end.py` runs a reduced configuration (2 ICC × 1 α × 10 iterations) and finishes in < 60 s; the generated `timing.csv` and `memory.csv` contain matching rows.
 
 - [ ] T006 [P] [US3] Create `code/analysis.py` that aggregates raw runs into `data/derived/aggregated_metrics.csv` (conforms to `simulation_results.schema.yaml`) using Clopper‑Pearson 95 % CIs and provides a helper `write_config_snapshot()` that stores the exact JSON config used.  

@@ -1,110 +1,86 @@
 # Quickstart Guide: Evaluating Statistical Significance with Non-Independent Observations
 
-This guide walks you through running the complete analysis pipeline.
-
 ## Prerequisites
 
-- Python 3.11
-- Install dependencies: `pip install -r requirements.txt`
+- Python 3.11+
+- `pip` or `conda`
+- Git
 
-## Running the Pipeline
+## Installation
 
-The pipeline consists of several stages. Run them in order:
+1. **Clone the repository** (if applicable) or navigate to the project directory.
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+ *Dependencies include: `numpy`, `pandas`, `scipy`, `statsmodels`, `pytest`, `pyyaml`, `ucimlrepo`.*
 
-### 1. Generate Synthetic Cluster Structure
+## Running the Simulation
 
-This script generates synthetic cluster sizes based on UCI Online Retail summary statistics.
+The simulation is designed to run end‑to‑end on a standard CPU.
 
-```bash
-python code/synthetic_cluster_params.py
-```
+1. **Generate Synthetic Cluster Structure**
 
-**Output**: `data/derived/synthetic_cluster_structure.csv`
+ This script generates synthetic cluster sizes based on UCI Online Retail summary statistics. [UNRESOLVED-CLAIM: c_b9663c65 — status=not_enough_info]
+ ```bash
+ python code/synthetic_cluster_params.py
+ ```
+ **Output**: `data/derived/synthetic_cluster_structure.csv`
 
-### 2. Run Baseline Simulation
+2. **Run Baseline Simulation**
 
-Runs the naive t-test simulation (violates cluster-aware inference for baseline comparison).
+ Executes the naive t‑test simulation (violates cluster‑aware inference for baseline comparison).
+ ```bash
+ python code/run_simulation_baseline.py
+ ```
+ **Output**: `data/derived/baseline_results.csv`
 
-```bash
-python code/run_simulation_baseline.py
-```
+3. **Run Robust Simulation**
 
-**Output**: `data/derived/baseline_results.csv`
+ Runs the cluster‑robust and block permutation test simulations.
+ ```bash
+ python code/run_simulation_robust.py
+ ```
+ **Output**: `data/derived/robust_results.csv`
 
-### 3. Run Robust Simulation
+4. **Run Full Simulation & Generate Final Report**
 
-Runs the cluster-robust and block permutation test simulations.
+ Orchestrates the full Monte‑Carlo run across all ICC levels and writes the consolidated
+ report (`final_report.csv`). This step replaces the previous ad‑hoc merging script and
+ guarantees the report is produced without schema mismatches.
+ ```bash
+ python code/simulation_runner.py \
+ --icc-range 0.0,0.1,0.2,0.3,0.4,0.5 \
+ --iterations 1000
+ ```
+ **Output**: `data/derived/final_report.csv`
 
-```bash
-python code/run_simulation_robust.py
-```
+5. **Generate Research Report**
 
-**Output**: `data/derived/robustResults.csv`
-
-### 4. Merge Results and Generate Final Report
-
-Combines baseline and robust results, computes error rates, and generates the final report.
-
-```bash
-python code/scripts/merge_results.py
-```
-
-**Output**: `data/derived/final_report.csv`
-
-### 5. Generate Research Report
-
-Creates the final research report with visualizations.
-
-```bash
-python code/generate_report.py
-```
-
-**Outputs**:
-- `specs/001-evaluating-the-statistical-significance/research.md`
-- `data/derived/error_rate_vs_icc.png`
-
-## Full Pipeline Execution
-
-To run the entire pipeline from start to finish:
-
-```bash
-# 1. Generate cluster structure
-python code/synthetic_cluster_params.py
-
-# 2. Run baseline simulation
-python code/run_simulation_baseline.py
-
-# 3. Run robust simulation
-python code/run_simulation_robust.py
-
-# 4. Merge results
-python code/scripts/merge_results.py
-
-# 5. Generate final report
-python code/generate_report.py
-```
+ Creates the final research report with visualizations.
+ ```bash
+ python code/generate_report.py
+ ```
+ **Outputs**:
+ - `specs/001-evaluating-the-statistical-significance/research.md`
+ - `data/derived/error_rate_vs_icc.png`
 
 ## Running Tests
+
+Ensure the simulation logic is correct before running the full suite.
 
 ```bash
 pytest tests/ -v
 ```
 
-## Configuration
+## Interpreting Results
 
-Most scripts accept CLI arguments for customization:
-
-- `--icc`: Specific ICC value to test
-- `--icc-range`: Comma-separated list of ICC values
-- `--icc-step`: Step size for ICC range
-- `--alpha`: Significance level (default: 0.05)
-- `--alpha-list`: Comma-separated significance levels
-- `--iterations`: Number of simulation iterations
-- `--seed`: Random seed
-- `--n-clusters`: Number of clusters
-- `--n-obs-per-cluster`: Observations per cluster
-
-Example:
-```bash
-python code/run_simulation_baseline.py --icc 0.1 --iterations 100 --seed 42
-```
+- **Standard T‑Test**: If the `empirical_error_rate` is significantly higher than `alpha`
+ (e.g., 0.15 when `alpha=0.05`), it indicates Type I error inflation due to ICC.
+- **Robust Methods**: If `cluster_robust` or `block_permutation` error rates are close to
+ `alpha` (e.g., 0.05 ± 0.01), the method successfully corrects for the correlation.

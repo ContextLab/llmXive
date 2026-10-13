@@ -6667,7 +6667,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-08T12:49:15Z'
 - artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
   attempts: 1
@@ -6938,7 +6938,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-08T12:58:49Z'
 - artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
   attempts: 1
@@ -6979,3 +6979,38 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-08T13:00:48Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/quickstart.md
+  attempts: 1
+  canonical: synthetic cluster sizes are generated based on UCI Online Retail summary
+    statistics
+  claim_id: c_c1aa76c7
+  context: The quickstart guide describes generating synthetic cluster structure using
+    a script that bases cluster sizes on UCI Online Retail summary statistics.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: This script generates synthetic cluster sizes based on UCI Online Retail
+    summary statistics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-13T11:31:52Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/quickstart.md
+  attempts: 1
+  canonical: synthetic cluster sizes generated from UCI Online Retail summary statistics
+  claim_id: c_b9663c65
+  context: In the 'Generate Synthetic Cluster Structure' step, the script creates
+    synthetic cluster sizes using external data.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: This script generates synthetic cluster sizes based on UCI Online Retail
+    summary statistics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-13T11:34:33Z'

@@ -1,0 +1,62 @@
+T001:
+  reason: "Checked `requirements.txt` (contains the required packages) and `quickstart.md`\
+    \ (lists commands but provides no execution logs). There is no evidence that `pip\
+    \ install -r requirements.txt` actually succeeded, nor proof that the documented\
+    \ command(s) run the full simulation end\u2011to\u2011end without error (e.g.,\
+    \ missing run logs or the expected final_report.csv)."
+  task: ea3c46b31a4f0fa19a16446004dcee753f79cfa37076618d8fd6aff474d6eece
+T002:
+  task: 7ad8e0c3386a41ab1e81ef8d49765d934aea66de2d7f00f2189c0bdd2ba671be
+T003:
+  reason: "The repository contains `code/data_generator.py` that implements log\u2011\
+    normal cluster sizes, a random\u2011intercept model, ICC\u202F=\u202F0 handling,\
+    \ and cluster\u2011level treatment assignment. However, the supplied unit test\
+    \ `tests/unit/test_data_generator.py` does **not** compute or verify the empirical\
+    \ ICC against the requested value, nor is there any other test or evidence that\
+    \ the ICC tolerance requirement (\xB10.02) is satisfied. A test (or execution\
+    \ evidence) checking the ICC is required to meet the task\u2019s verification\
+    \ criterion."
+  task: 64993ade3b2067ec5e9332bfa0757103c018f08e02f8003bb2add4c1dca446ee
+T004:
+  reason: "The `code/estimators.py` file exists and the naive t\u2011test and block\u2011\
+    permutation functions meet the test expectations, but `run_cluster_robust_ttest`\
+    \ does **not** use the CR2 estimator from `statsmodels.stats.api` as required\u2014\
+    it only fits an OLS model with `cov_type='cluster'`. The task explicitly demanded\
+    \ the CR2 estimator, so the implementation is incomplete."
+  task: 194d650fe87d8dae1214019e315e2b49cb4764215fa208f315da70d9cdc65fca
+T005:
+  reason: 'Requested task execution failed; rerun successfully: code/simulation_runner.py
+    exit=1'
+  task: 1a3c74ddf4bd274856b3d6fd8bd874414f032da3939c40eff03a014296b092aa
+T006:
+  task: 9d7876b681b1082a3574290a75040f145286bb9781950d7e45d04581e96d593b
+T007:
+  task: 8a85a30445b77800af41659afc19727a5c61d4aec775f31a8c5728a3103dab96
+T008:
+  task: 827cd76db16cf7372031eb906669b931b666c23211acdb66caaaf4e602d6cff9
+T009:
+  task: 0b1f2e555dca7c714353d6c5146f52bf8503746a6b669149c93a12770d7db6bb
+T010:
+  task: fba2da646e342b0628727e20946b8f2946002254b7d81115e117d33c72a3764f
+T011:
+  task: 6507dca1b7ba6386ddd0c4f261603a25f726a100887a8436df66def90fdce9f0
+T012:
+  task: fadecd9067a9141162bd8d89b416a0c06399529b8d12f73068e70f558d3fd0b0
+T013:
+  task: 0ed70bb9a24e39d820dc7383fd10fb9340a715b1b2d810759e1428b511a31d26
+T014:
+  task: 05fcbdd646bdf329d6c1ada643f3e5ff08cff38740777706eaad9064733a5f30
+T015:
+  task: defafd64480d7f4055bc3d9275bd416af504ebf62634f2d60a2a33625fd0c360
+T016:
+  task: ae61a707e318ddebbbc5321d51d6fb27c52783dc7a3f780b7f95a1e8ac3970fe
+T017:
+  task: fbe82ea35b7647bb62740b14badc1bedbe95b4d26520811c8d1f47a8a35e9260
+T018:
+  task: 80e46d52c4379a01677018dbb74b0fa63998ccd12533e712168e2764e04ab6d6
+T019:
+  task: 6dda74e214189303c58344b2578fd388782a92828ff2706c91db323c12e1700e
+T020:
+  task: 15f3145647dd99c8f08d08d73bd0433414c80a12c2044baeaa2af7f7784ba475
+T021:
+  task: 83b68f6ab64fd662d3421a96df18b3247ff74066a6e61cc209334d12d06c70d0
