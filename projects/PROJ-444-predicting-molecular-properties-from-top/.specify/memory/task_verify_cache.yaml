@@ -25,11 +25,14 @@ T004:
     \ was presented. Without these artifacts the task\u2019s requirement cannot be\
     \ confirmed."
 T014:
-  c: true
-  h: eef5fdab7ea2a2b2e2a52cd53b3370012508cfeb641829fbc25983fed2511039
-  r: "Checked `code/tests/test_dataset_schema.py`, the raw dataset `data/raw/esol.csv`,\
-    \ and the contract schema `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`;\
-    \ the test script validates the CSV\u2019s existence, column names, non\u2011\
-    null values, field types, and minimum row count against the schema, and all required\
-    \ artifacts are present and correctly formatted."
-  sig: c37f0fb1544c07ce3b0232d4680b043330765ada2662909864c8e9506f965519
+  c: false
+  h: 41d824427c761d638b484339ac32ced5818b83625cd3a67c92d7bfedb49397d5
+  r: "The required input `data/raw/esol.csv` is MISSING, and the test works around\
+    \ this by silently materializing a different dataset (skfp lipophilicity) in its\
+    \ place \u2014 that is a fabricated stand-in, not the ESOL data the schema contract\
+    \ describes, and it would mask the missing artifact rather than validate it. Additionally,\
+    \ there is no execution evidence that `pytest code/tests/test_dataset_schema.py`\
+    \ actually passes (no test output, and the test depends on the skfp package being\
+    \ installed). The implementer must provide the real `data/raw/esol.csv` (ESOL\
+    \ solubility data with the schema's columns),"
+  sig: a16d64d55561bab96112f16d125a31ff7184a44eacbb18094160141e1f5962f1

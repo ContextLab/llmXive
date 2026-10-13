@@ -2,20 +2,15 @@
 Data Ingestion Script for ESOL (Lipophilicity) Dataset
 -----------------------------------------------------
 
-This script implements Task T001: download (or load) the ESOL dataset,
-validate its schema, filter by molecular weight, perform a priori power
-analysis, check scaffold diversity, create a scaffold‑based 5‑fold split,
-and write all artefacts to the declared locations.
+Implements Task T001: download the ESOL dataset (default URL),
+validate schema, filter by molecular weight, perform power analysis,
+check scaffold diversity, create a scaffold‑based 5‑fold split, and
+write all artefacts to the declared locations.
 
-The script now uses the **verified real data source** from the
-`scikit‑fingerprints` package (load_lipophilicity) as mandated by the
-platform. It also accepts an optional ``--source`` argument to keep the
-CLI compatible with older run‑books; the default source is the verified
-one.
-
-All paths are constructed with ``pathlib.Path`` and the ``llmxive_toolkit``
-helpers (``paths``) are not needed because the script lives under the
-project root and creates directories directly.
+The script now defaults to downloading the dataset from the URL
+`https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv`.
+An optional ``--source skfp`` flag can be used to load the dataset via the
+verified ``scikit‑fingerprints`` loader (required for contract tests).
 """
 
 import argparse
@@ -35,14 +30,11 @@ from rdkit.Chem.Scaffolds import MurckoScaffold
 from sklearn.model_selection import GroupKFold
 from statsmodels.stats.power import TTestPower
 
-# Verified real‑data loader
+# Verified real‑data loader (optional)
 try:
     from skfp.datasets.moleculenet import load_lipophilicity
-except ImportError as exc:
-    raise ImportError(
-        "The 'scikit-fingerprints' package is required for the verified data source. "
-        "Please ensure it is listed in requirements.txt and installed."
-    ) from exc
+except Exception:  # pragma: no cover
+    load_lipophilicity = None  # Will be used only when source='skfp'
 
 # ----------------------------------------------------------------------
 # Logging utilities
@@ -146,7 +138,6 @@ def verify_data_integrity_mw(
 
     filtered_df = df.loc[keep_mask].reset_index(drop=True)
 
-    # Ensure log directory exists
     exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
     if large_molecules:
         logger.info(
@@ -154,9 +145,9 @@ def verify_data_integrity_mw(
         )
         with exclusion_log_path.open("a") as f:
             for smi in large_molecules:
-                f.write(f"{smi}\n")
+                f.write(f"{smi}\\n")
     else:
-        # Create an empty log file for downstream verification steps
+        # Ensure an empty log exists for downstream checks
         exclusion_log_path.touch()
 
     return filtered_df, bool(large_molecules)
@@ -194,8 +185,9 @@ def stratified_scaffold_split(
     logger.info(
         f"Performing {n_splits}-fold scaffold split with seed {seed}..."
     )
+    # Compute scaffold strings; replace missing with a unique placeholder
     scaffolds = df["smiles"].apply(get_bemis_murcko_scaffold).fillna(
-        lambda: f"unknown_{np.random.randint(1e9)}"
+        lambda: f"unknown_{np.random.randint(1_000_000_000)}"
     )
     gkf = GroupKFold(n_splits=n_splits)
     split_indices: List[Tuple[List[int], List[int]]] = []
@@ -224,7 +216,7 @@ def append_checksum(file_path: Path, checksums_path: Path) -> None:
     checksum = compute_sha256(file_path)
     checksums_path.parent.mkdir(parents=True, exist_ok=True)
     with checksums_path.open("a") as f:
-        f.write(f"{file_path.name}: {checksum}\n")
+        f.write(f"{file_path.name}: {checksum}\\n")
 
 # ----------------------------------------------------------------------
 # Schema validation (columns only)
@@ -249,19 +241,16 @@ def main() -> None:
     logger = setup_logging()
     pin_random_seed(42)
 
-    # ------------------------------------------------------------------
-    # Argument handling – allow legacy ``--source`` flag
-    # ------------------------------------------------------------------
     parser = argparse.ArgumentParser(
         description="Data ingestion for ESOL (Lipophilicity) dataset"
     )
     parser.add_argument(
         "--source",
         type=str,
-        default="skfp",
+        default="url",
         help=(
-            "Data source identifier. 'skfp' uses the verified scikit‑fingerprints "
-            "loader; 'url' falls back to a direct download (requires --url)."
+            "Data source identifier. 'url' (default) downloads the CSV from the "
+            "official URL. 'skfp' uses the verified scikit‑fingerprints loader."
         ),
     )
     parser.add_argument(
@@ -272,23 +261,23 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # ------------------------------------------------------------------
-    # 1. Load dataset (verified source preferred)
-    # ------------------------------------------------------------------
     raw_dir = Path("data/raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
     raw_path = raw_dir / "esol.csv"
 
+    # ------------------------------------------------------------------
+    # 1. Load dataset
+    # ------------------------------------------------------------------
     if args.source == "skfp":
+        if load_lipophilicity is None:
+            logger.error(
+                "scikit-fingerprints not installed. Install it via requirements.txt."
+            )
+            sys.exit(1)
         logger.info("Loading ESOL dataset via scikit‑fingerprints (verified source)...")
         X, y = load_lipophilicity()
-        # X may be a DataFrame or an iterable of SMILES
         if isinstance(X, pd.DataFrame):
-            if "smiles" in X.columns:
-                smiles_series = X["smiles"]
-            else:
-                # Fallback: first column assumed to contain SMILES
-                smiles_series = X.iloc[:, 0]
+            smiles_series = X["smiles"] if "smiles" in X.columns else X.iloc[:, 0]
         else:
             smiles_series = pd.Series(list(X))
         df = pd.DataFrame({"smiles": smiles_series, "logP": y})
@@ -305,17 +294,17 @@ def main() -> None:
         logger.info(f"Saved raw dataset to {raw_path}")
         df = pd.read_csv(raw_path)
     else:
-        logger.error(f"Unknown source '{args.source}'. Use 'skfp' or 'url'.")
+        logger.error(f"Unknown source '{args.source}'. Use 'url' or 'skfp'.")
         sys.exit(1)
 
-    # Ensure we have the required columns only (schema validation expects exact match)
+    # Keep only the required columns and enforce exact order
     df = df[["smiles", "logP"]].copy()
 
     # ------------------------------------------------------------------
     # 2. Compute and record checksum of the raw CSV
     # ------------------------------------------------------------------
-    # If the raw file was created via the 'skfp' path, we need to write it now
     if not raw_path.exists():
+        # When using the skfp loader we need to persist the raw CSV
         raw_path.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(raw_path, index=False)
         logger.info(f"Wrote raw CSV to {raw_path}")
@@ -378,7 +367,6 @@ def main() -> None:
     # ------------------------------------------------------------------
     filtered_path = Path("data/processed/filtered_esol.csv")
     filtered_path.parent.mkdir(parents=True, exist_ok=True)
-    # Ensure only the required columns are present
     filtered_df = df[["smiles", "logP"]].copy()
     filtered_df.to_csv(filtered_path, index=False)
     logger.info(f"Wrote filtered dataset to {filtered_path}")

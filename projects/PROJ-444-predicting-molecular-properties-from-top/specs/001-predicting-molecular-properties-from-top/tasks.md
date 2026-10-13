@@ -6,7 +6,7 @@ The goal is to deliver a complete, reproducible study that satisfies every funct
 
 ---
 
-- [ ] **T001** **[ ]** *Data ingestion, provenance, and split creation*
+- [ ] **T001** **[ ]** *Data ingestion, provenance, and split creation* <!-- FAILED-IN-EXECUTION: code/01_data_ingestion.py exit=1 -->
   - Download the ESOL dataset (default URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv`) in `code/01_data_ingestion.py` with a `--url` argument.  
   - Verify that the CSV contains **exactly** the columns `smiles` and `logP` (conforms to `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`).  
   - Compute and append the SHA‑256 checksum of `data/raw/esol.csv` to `data/checksums.txt`.  
@@ -22,7 +22,7 @@ The goal is to deliver a complete, reproducible study that satisfies every funct
     4. A quick script confirms scaffold exclusivity across the five folds.  
     5. `grep -v '' data/logs/large_molecule_exclusions.log` is non‑empty only if exclusions occurred.
 
-- [X] **T014** **[ ]** *Dataset schema contract test*  
+- [ ] **T014** **[ ]** *Dataset schema contract test*  
   - Add `code/tests/test_dataset_schema.py` that loads `data/raw/esol.csv` and validates it against `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`.  
   - **Verification**: `pytest code/tests/test_dataset_schema.py` passes.
 

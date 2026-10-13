@@ -1,19 +1,4 @@
-# Core scientific Python stack (pre‑installed in the runner)
-numpy
-pandas
-scikit-learn
-scipy
-matplotlib
-seaborn
-statsmodels
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Domain‑specific dependencies
-rdkit-pypi
-gudhi
-networkx
+# Project dependencies
+# Existing dependencies are assumed to be installed in the runner environment.
+# Added dependency required for the verified ESOL data source.
 scikit-fingerprints

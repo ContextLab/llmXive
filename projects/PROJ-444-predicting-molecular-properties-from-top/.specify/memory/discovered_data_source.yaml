@@ -1,27 +1,10 @@
-status: verified
-kind: pypi_package
-ref: scikit-fingerprints
-access_python: 'import pandas as pd
-
-  from skfp.datasets import moleculenet
-
-
-  X, y = moleculenet.load_lipophilicity()
-
-  df = pd.DataFrame({"smiles": X})
-
-  print(f"RECORDS={len(df)}")
-
-  field_names = [col.upper() if col.lower() == "smiles" else col for col in df.columns]
-
-  print(f"FIELDS={'',''.join(field_names)}")'
-record_count: 4200
-sample_fields:
-- SMILES
-field_coverage: 0.5
+status: none
+intent: MoleculeNet Lipophilicity SMILES logP dataset MoleculeNet ESOL HUBioDataLab
+  SELFormer download python package dataset
 required_fields:
-- SMILES
+- smiles
 - logP
-intent: download MoleculeNet Lipophilicity dataset with experimental logP values python
-  package dataset
-cache_key: aa0f6cd8881e020316b06465affffc07ae95615c3cbb43ab5f4292cd405dfca5
+- molecule_id
+cache_key: 133637d1b2465a3a353ee364cad0e02bf9bc1af59c6813349dfca53d26a71b84
+searched_at: '2026-10-13T00:19:04.455249+00:00'
+retry_count: 1
