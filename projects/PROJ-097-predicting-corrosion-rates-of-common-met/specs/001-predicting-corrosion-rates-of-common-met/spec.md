@@ -29,7 +29,7 @@ A researcher needs to construct explicit interaction features (e.g., pH × s
 
 **Why this priority**: The core research question asks for the *interaction* between factors. Training a model without engineered interactions would not address this aspect. This step enables hypothesis testing about non‑linear dependencies.
 
-**Independent Test**: Verify that the feature matrix includes engineered interaction columns, that both a Full Model (with interactions) and a Null Model (additive only) are trained, and that a statistical test confirms any performance gain.
+**Independent Test**: Verify that the feature matrix includes engineered interaction columns, that both a Full Model (with interactions) and a Null Model (same algorithm without interaction columns) are trained, and that a permutation test confirms any performance gain.
 
 **Acceptance Scenarios**  
 
@@ -66,17 +66,18 @@ A researcher needs to generate SHAP interaction values and partial‑dependence 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest tabular data from public repositories (Zenodo/OpenML), validate the presence of required columns (pH, salinity, temperature, material composition, corrosion rate), and harmonize corrosion‑rate values to a standard unit (mm / year) while flagging records with non‑standard measurement methods. “Crystal structure” is optional; if missing, the system logs a limitation but proceeds. *(See US-1)*  
-- **FR-002**: System MUST explicitly engineer interaction features (e.g., `pH * salinity`, `temperature * composition_ratio`) and polynomial features (degree 2) before model training. It MUST also train a **Null Model** defined as a linear regression with only additive terms and perform a permutation test (target‑permutation, RMSE change as statistic) to report the variance difference (ΔR²) between the Full and Null models to validate the interaction hypothesis. *(See US-2)*  
-- **FR-003**: System MUST train interpretable regression models (Random Forest or Gradient Boosting) using scikit‑learn with constraints: `max_depth ≤ 5`, `n_estimators ≤ 200`, **NO** GPU acceleration or 8‑bit quantization libraries. If peak RSS > 7 GB (detected via psutil), the system MUST trigger the stratified‑sampling strategy defined in Edge Cases. *(See US-2)*  
-- **FR-004**: System MUST generate SHAP Interaction Values (2‑D matrix) and partial‑dependence plots to quantify and visualize each feature’s and interaction term’s contribution to the predicted corrosion rate. SHAP Interaction Values serve as a cross‑check to the engineered interaction columns; the primary quantification of interaction contribution comes from the Full‑vs‑Null ΔR² metric. *(See US-3)*  
-- **FR-005**: System MUST apply the Benjamini‑Hochberg (BH) multiple‑comparison correction to feature‑importance p‑values. For tree‑based models, empirical p‑values are obtained via a target‑permutation test (1 000 permutations, statistic = change in RMSE) before BH correction. *(See US-3, SC-004)*  
-- **FR-006**: System MUST detect collinear predictors (Variance Inflation Factor > 5) and emit a diagnostic warning listing correlated pairs, ensuring they are not interpreted as independent drivers. This check excludes interaction terms to avoid flagging structural collinearity. *(See US-3)*  
-- **FR-007**: System MUST perform a sensitivity analysis on model hyperparameters. Specifically, it MUST sweep `max_depth` ∈ {3, 4, 5} (respecting FR‑003) and report how the top‑5 feature list changes across the sweep, using a Jaccard similarity ≥ 0.8 as the stability criterion (community‑standard for feature‑set stability). *(See US-3)*  
-- **FR-008**: System MUST impute missing non‑target values (median for numeric, mode for categorical), scale numeric predictors to standard scores (mean = 0, std = 1), and one‑hot encode categorical metal types as part of the preprocessing pipeline. *(See US-1)*  
-- **FR-009**: System MUST split the dataset into training and test folds using a **group‑aware** strategy: no samples from the same experimental batch or source study may appear in both sets. Implemented via `GroupKFold` (5 folds) based on a `source_id` column. *(See US-2)*  
-- **FR-010**: System MUST perform 5‑fold **GroupKFold** cross‑validation and conduct a constrained grid‑search over hyperparameters (`max_depth` ∈ {3, 4, 5}, `n_estimators` ∈ {50, 100, 150}) within the limits of FR‑003. The best model is selected by highest cross‑validated R². *(See US-2)*  
-- **FR-011**: System MUST record provenance for every ingested dataset: store the dataset DOI, URL, and a SHA‑256 checksum in a `metadata/` directory to ensure reproducibility. *(See US-1)*  
+- **FR-001**: System MUST ingest tabular data from public repositories (Zenodo/OpenML), validate the presence of required columns (pH, salinity, temperature, material composition, corrosion rate), and harmonize corrosion‑rate values to a standard unit (mm / year) while flagging records with non‑standard measurement methods. “Crystal structure” is optional; if missing, the system logs a limitation but proceeds. *(See US-1)*
+- **FR-002**: System MUST explicitly engineer interaction features (e.g., `pH * salinity`, `temperature * composition_ratio`) and polynomial features (degree 2) before model training. It MUST also train a **Null Model** that uses the same Random Forest algorithm **without** the engineered interaction columns, and perform a permutation test (target‑permutation, RMSE change as statistic) to report the variance difference (ΔR²) between the Full and Null models to validate the interaction hypothesis. *(See US-2)*
+- **FR-003**: System MUST train interpretable regression models (Random Forest or Gradient Boosting) using scikit‑learn with constraints: `max_depth ≤ 5`, `n_estimators ≤ 200`, **NO** GPU acceleration or 8‑bit quantization libraries. If peak RSS > 7 GB (detected via psutil), the system MUST trigger the stratified‑sampling strategy defined in Edge Cases. *(See US-2)*
+- **FR-004**: System MUST generate SHAP Interaction Values (2‑D matrix) and partial‑dependence plots **for interpretation only**; these visualizations aid understanding but are not used as independent validation of interaction importance. *(See US-3)*
+- **FR-005**: System MUST apply the Benjamini‑Hochberg (BH) multiple‑comparison correction to feature‑importance p‑values. For tree‑based models, empirical p‑values are obtained via a target‑permutation test (1 000 permutations, statistic = change in RMSE) before BH correction. *(See US-3, SC-004)*
+- **FR-006**: System MUST detect collinear predictors (Variance Inflation Factor > 5) and emit a diagnostic warning listing correlated pairs, ensuring they are not interpreted as independent drivers. This check excludes interaction terms to avoid flagging structural collinearity. *(See US-3)*
+- **FR-007**: System MUST perform a sensitivity analysis on model hyperparameters. Specifically, it MUST sweep `max_depth` ∈ {3, 4, 5} (respecting FR‑003) and report how the top‑5 feature list changes across the sweep, using a Jaccard similarity ≥ 0.8 as the stability criterion (community‑standard for feature‑set stability). *(See US-3)*
+- **FR-008**: System MUST impute missing non‑target values (median for numeric, mode for categorical), scale numeric predictors to standard scores (mean = 0, std = 1), and one‑hot encode categorical metal types as part of the preprocessing pipeline. *(See US-1)*
+- **FR-009**: System MUST split the dataset into training and test folds using a **group‑aware** strategy: no samples from the same experimental batch or source study may appear in both sets. Implemented via `GroupKFold` (5 folds) based on a `source_id` column. *(See US-2)*
+- **FR-010**: System MUST perform 5‑fold **GroupKFold** cross‑validation and conduct a constrained grid‑search over hyperparameters (`max_depth` ∈ {3, 4, 5}, `n_estimators` ∈ {50, 100, 150}) within the limits of FR‑003. The best model is selected by highest cross‑validated R². *(See US-2)*
+- **FR-011**: System MUST record provenance for every ingested dataset: store the dataset DOI, URL, and a SHA‑256 checksum in a `metadata/` directory to ensure reproducibility. *(See US-1)*
+- **FR-012**: System MUST perform an independent permutation‑importance test on each engineered interaction column (shuffling the column values while keeping all others fixed) and report a p‑value for its contribution to model performance; significance is assessed after Benjamini‑Hochberg correction. This provides a non‑circular validation of interaction relevance. *(See US-3)*
 
 ### Key Entities
 
@@ -88,12 +89,13 @@ A researcher needs to generate SHAP interaction values and partial‑dependence 
 
 ### Measurable Outcomes
 
-- **SC-001**: Predictive performance (R² and RMSE) measured on a **group‑aware 5‑fold cross‑validation** must exceed the baseline mean‑only model by **≥ 0.05** in R² (or improve RMSE by **≥ 10 %**). *(See US-2)*  
-- **SC-002**: The incremental variance explained by interaction terms must be demonstrated by a permutation test comparing the Full Model to the Null Model with significance **α ≤ 0.05**. *(See US-2)*  
-- **SC-003**: The entire pipeline (data download, cleaning, training, SHAP analysis, and report generation) must complete within **6 hours** on a free‑tier GitHub Actions runner (2 vCPUs, 7 GB RAM). *(See US-2)*  
-- **SC-004**: Benjamini‑Hochberg correction must be applied to all feature‑importance p‑values derived from the permutation test. *(See US-3)*  
-- **SC-005**: Hyperparameter sensitivity must yield a Jaccard similarity **≥ 0.8** between the top‑5 feature lists across the `max_depth` sweep, indicating stable importance rankings. *(See US-3)*  
-- **SC-006**: All visualizations and textual conclusions must contain an explicit disclaimer that findings are **associational** (not causal) because the data are observational. *(See US-3)*  
+- **SC-001**: Predictive performance (R² and RMSE) measured on a **group‑aware 5‑fold cross‑validation** must exceed the baseline mean‑only model (which predicts the training‑set mean corrosion rate for every test sample) by **≥ 0.05** in R² (or improve RMSE by **≥ 10 %**). The baseline model is trained on the identical training folds and evaluated on the same test folds as the Full Model. *(See US-2)*
+- **SC-002**: The incremental variance explained by interaction terms must be demonstrated by a permutation test comparing the Full Model (Random Forest with interaction columns) to the Null Model (Random Forest without interaction columns) with significance **α ≤ 0.05**. *(See US-2)*
+- **SC-003**: The entire pipeline (data download, cleaning, training, SHAP analysis, and report generation) must complete within **6 hours** on a free‑tier GitHub Actions runner (2 vCPUs, 7 GB RAM). *(See US-2)*
+- **SC-004**: Benjamini‑Hochberg correction must be applied to all feature‑importance p‑values derived from the permutation test. *(See US-3)*
+- **SC-005**: Hyperparameter sensitivity must yield a Jaccard similarity **≥ 0.8** between the top‑5 feature lists across the `max_depth` sweep, indicating stable importance rankings. *(See US-3)*
+- **SC-006**: All visualizations and textual conclusions must contain an explicit disclaimer that findings are **associational** (not causal) because the data are observational. *(See US-3)*
+- **SC-007**: The data ingestion, validation, and harmonization pipeline (US‑1) is considered successful when it (a) completes without runtime errors, (b) produces a DataFrame containing **all required columns** with **zero nulls** in those columns, and (c) reports unit harmonization for corrosion rate. Success is measured on a held‑out validation CSV and must achieve **[deferred]** pass rate on these checks. *(See US-1)*
 
 ## Assumptions
 
@@ -104,4 +106,5 @@ A researcher needs to generate SHAP interaction values and partial‑dependence 
 - **Threshold Justification** – The Jaccard similarity threshold of 0.8 for feature‑set stability follows community practice for assessing robustness of importance rankings; the top‑5 feature selection threshold (cumulative SHAP contribution > 90 %) is also a widely used standard. Both thresholds are validated via the sensitivity analysis (FR‑007).  
 - **Measurement Validity** – Corrosion‑rate values can be harmonized to a common unit (mm / year). Records derived from non‑standard measurement techniques (e.g., electrochemical polarization vs. mass loss) will be flagged and either analyzed separately or excluded to avoid heteroscedasticity bias.  
 - **Variable Completeness** – Only datasets that provide pH, salinity, and temperature as distinct columns are included; datasets that aggregate these into a single index are excluded, causing the ingestion pipeline to halt with a clear error (FR‑001).  
-- **Provenance Recording** – All ingested datasets will have their DOI, URL, and SHA‑256 checksum recorded as mandated by FR‑011 to satisfy reproducibility requirements.
+- **Provenance Recording** – All ingested datasets will have their DOI, URL, and SHA‑256 checksum recorded as mandated by FR‑011 to satisfy reproducibility requirements.  
+
