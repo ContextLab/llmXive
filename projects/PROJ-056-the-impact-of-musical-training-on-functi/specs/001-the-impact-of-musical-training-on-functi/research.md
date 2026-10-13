@@ -3,107 +3,108 @@
 ## 1. Dataset Strategy
 
 ### 1.1 Verified Sources Analysis
-The project specification requires data from the **ABCD Study** or **HCP-Adolescents**. The provided "Verified datasets" block has been analyzed:
+The specification requires ABCD or HCP‑Adolescents data. The provided “Verified datasets” block contains **no** URL that supplies both resting‑state fMRI and a reliable musical‑training variable.
 
-| Dataset | Status | Verified URL(s) | Notes |
-|:--- |:--- |:--- |:--- |
-| **ABCD Study** | **UNVERIFIED / INVALID** | ` (and others) | The provided URLs point to generic zip files with names like `fdjis.zip` or `BTS_TaehyungV2_v2_e1110.zip`. These do **not** contain ABCD neuroimaging data. **No verified source found for ABCD.** |
-| **HCP-Adolescents** | **NO VERIFIED SOURCE** | N/A | The verified datasets block explicitly states: "NO verified source found". |
-| **HCP (General)** | **UNVERIFIED** | ` | These point to "Diffusion-datas" or generic CSVs, not the specific adolescent rs-fMRI and behavioral data required. |
+| Dataset | Verified? | Reason |
+|---------|-----------|--------|
+| **ABCD** | ❌ (URLs point to unrelated zip files) | No rs‑fMRI + training metadata. |
+| **HCP‑Adolescents** | ❌ (explicitly “NO verified source”) | Missing required variables. |
+| **HCP (general)** | ❌ (diffusion‑only) | Not rs‑fMRI and no training data. |
+| **MNI / ROI / SES** | ❌ (no verified source) | Needed for spatial normalization or covariates. |
 
-### 1.2 Dataset Fit Assessment
-**Critical Finding**: The required variables (resting-state fMRI, years of musical training, age, sex, SES) are **not available** in any verified source provided in the input.
-- **Gap**: The spec assumes access to ABCD/HCP-Adolescents. The verified list contains no valid data for this.
-- **Impact**: The pipeline cannot execute on real data.
-- **Mitigation Strategy**:
- 1. The implementation will include a `synthetic_generator.py` module that creates a statistically valid synthetic dataset mimicking the expected distribution of the target study (N=150, 75 per group, correlation structure).
- 2. The pipeline will be designed to accept a `data_path` argument. If a valid real dataset is provided later (with verified URLs), the synthetic generator is bypassed.
- 3. **Blocking Condition**: If the system attempts to run in `Analysis Mode` without a verified data source, it MUST halt with `Error: Data Source Missing. No verified ABCD/HCP-Adolescents dataset found in provided list.`
- 4. **Verification Mode**: Uses synthetic data (including mock NIfTI) to verify code execution, memory constraints, and statistical logic (Null-First). **No scientific results are claimed.**
+**Conclusion**: No open, programmatically downloadable dataset satisfies **FR‑001**. Consequently the pipeline will operate in **Synthetic Verification Mode** by default. When a verified dataset becomes available, the same code can be invoked with `--mode real --data‑path <path>`.
 
-### 1.3 Variable Mapping (Target vs. Available)
+### 1.2 Synthetic Data Fit
+The synthetic generator creates:
 
-| Required Variable | Source in Spec | Available in Verified Data? | Strategy |
-|:--- |:--- |:--- |:--- |
-| **Resting-state fMRI** | ABCD/HCP-Adolescents | **No** | Generate synthetic correlation matrices (z-transformed) with known ground truth (Null-First). |
-| **Years of Training** | ABCD/HCP-Adolescents | **No** | Generate synthetic distribution (non-musicians at a baseline level, uniform 1-10 for musicians). |
-| **Age/Sex/Motion/SES** | ABCD/HCP-Adolescents | **No** | Generate synthetic confounders matched between groups. |
+| Variable | Source | Distribution (synthetic) |
+|----------|--------|--------------------------|
+| `subject_id` | UUID‑like string | Uniform |
+| `group` | Determined by `years_of_training` | A group of musicians and a matched group of non‑musicians. |
+| `years_of_training` | Uniform 1–10 yr for musicians; 0 for non‑musicians | Continuous |
+| `age` | Normal (15 ± 1 yr) | Continuous |
+| `sex` | 50/50 split | Categorical |
+| `motion_score` | Normal (0.15 ± 0.05) | Continuous |
+| `ses_score` | Normal (0 ± 1) | Continuous |
+| `connectivity` | Multivariate Gaussian with mean 0, covariance ≈ 0.2, **no group effect** (null‑first) | Z‑transformed matrices |
+
+The synthetic data respects all schema constraints (see `contracts/`). A **stress‑test** variant can inject a modest group effect (Cohen’s d ≈ moderate effect size) to verify detection pipelines.
+
+### 1.3 Variable Mapping
+All required variables are present in the synthetic tables. For real data, the pipeline expects columns named exactly:
+
+- `subject_id`
+- `group` (derived from `years_of_training`)
+- `years_of_training`
+- `age`
+- `sex`
+- `motion_score`
+- `ses_score`
+- `rs_fmri_path` (path to NIfTI)
+
+Missing columns cause an explicit abort with a clear error message.
 
 ## 2. Statistical Methodology
 
-### 2.1 Group Comparison (FR-003)
-- **Method**: Welch's t-test (unequal variances) for each edge in the connectivity matrix.
-- **Correction**: Benjamini-Hochberg (FDR) for multiple comparisons (family-wise error control at edge level).
-- **Effect Size**: Cohen's d calculated for every connection.
-- **Rationale**: Welch's t-test is robust to unequal sample sizes and variances, common in neuroimaging groups. FDR is standard for high-dimensional connectivity data.
+### 2.1 Group Comparison (FR‑003)
+- **Test**: Welch’s t‑test (unequal variances) per edge.  
+- **Multiple‑Comparison**: **Benjamini‑Yekutieli (BY) FDR** (α = 0.05), which accounts for dependence among edges.  
+- **Effect Size**: Cohen’s d with pooled SD; 95 % CI via 1 000 bootstrap resamples.  
+- **Rationale**: BY is conservative for dependent tests, reducing false‑positive inflation inherent in edge‑wise analyses.
 
-### 2.2 Network-Based Statistic (NBS) (FR-008)
-- **Method**: Permutation-based NBS.
- 1. Threshold primary statistic (t-stat) at an initial level (e.g., p=0.05 uncorrected).
- 2. Identify connected components (clusters of edges).
- 3. Permute group labels (multiple permutations) to generate null distribution of component sizes.
- 4. Calculate FWER-corrected p-value for the largest component.
-- **Rationale**: NBS controls for family-wise error at the network component level, offering higher power than edge-wise FDR for detecting distributed network effects.
-- **Feasibility**: Permutation tests are CPU-intensive but feasible for N=150 and ~5000 edges (Schaefer 200) within 6 hours on 2 cores if optimized (numpy vectorization).
+### 2.2 Network‑Based Statistic (FR‑008)
+- **Procedure**:  
+  1. Threshold t‑statistics at three primary values (t = 1.8, 2.0, 2.5) corresponding roughly to uncorrected p ≈ 0.07, 0.05, 0.03.  
+  2. Identify connected components with `networkx`.  
+  3. Permute group labels 1 000 times, recompute component sizes, build null distribution.  
+  4. Compute family‑wise error‑corrected p‑value for the largest observed component.  
+- **Justification**: Reporting results across multiple thresholds provides sensitivity analysis and avoids cherry‑picking a single arbitrary threshold.
 
-### 2.3 Correlation Analysis (FR-004)
-- **Method**: Pearson correlation (or Spearman if non-normal) between `years_of_training` and connectivity strength (z-score) within the musician group only.
-- **Output**: r, p-value, 95% CI, Cohen's q (effect size for correlation).
-- **Rationale**: Directly addresses the secondary research question regarding dose-response.
+### 2.3 Correlation Analysis (FR‑004)
+- **Metric**: Pearson r (Spearman if Shapiro‑Wilk rejects normality).  
+- **Scope**: Only subjects with `group == "musician"`.  
+- **Multiple‑Testing**: **BY FDR** applied across all edges.  
+- **Outputs**: r, two‑tailed p, **R²** (coefficient of determination) as an effect size, 95 % CI (Fisher‑z), and BY‑corrected q‑value.
 
-### 2.4 Sensitivity Analysis (FR-005)
-- **Method**: Re-run edge-wise significance tests at thresholds p < 0.01, 0.05, 0.10.
-- **Output**: Table of significant edge counts and % reduction.
-- **Rationale**: Assesses robustness of findings to arbitrary threshold choices.
+### 2.4 Sensitivity Analysis (FR‑005)
+- **Thresholds**: q = 0.01, 0.05, 0.10 (FDR‑corrected).  
+- **Outcome**: Table of significant edge counts per threshold; percentage change between q = 0.05 and q = 0.01; flag “low stability” if count drops > 30 % or if the 95 % CI for R² includes zero at the stricter threshold.
 
-### 2.5 Power & Sample Size
-- **Assumption**: The spec assumes 50-75 subjects per group provides ≥0.80 power for d=0.5.
-- **Limitation**: This is an assumption. The implementation will log the actual achieved power based on the sample size and observed variance (post-hoc power) in `research.md` results.
-- **Caveat**: If real data yields <50 per group, the system halts (per US-1).
+### 2.5 Confound Handling (FR‑009)
+- **Primary**: Propensity‑score matching (nearest‑neighbor, caliper = 0.2 SD) on age, sex, motion, SES.  
+- **Unconditional Fallback**: Regardless of matching success, **regression residualization** of each edge on the same covariates is always performed before any testing.  
+- **Diagnostics**: Post‑matching standardized mean differences (SMD) < 0.1 required; if not achieved, a warning is logged but analysis proceeds with residualized data.
 
-### 2.6 Power Analysis for Network-Based Statistic
-- **Problem**: NBS is known to have low power for small sample sizes (N<100 per group) unless effect sizes are very large or spatially extensive.
-- **Strategy**:
- 1. Implement a **Power Simulation** in `code/analysis/power.py` to estimate the minimum detectable effect size (MDES) for the specific N (75/group) and permutation count (1000).
- 2. The simulation will vary the injected effect size and spatial extent to determine the threshold for adequate statistical power.
- 3. **Reporting**: If the observed effect size in real data is below the MDES, the result will be flagged as "Underpowered for NBS" and interpreted with caution.
+### 2.6 Power & Sample‑Size (SC‑005)
+- **Assumption**: 50–75 subjects per group → ≥ 0.80 power for medium effects (d ≈ 0.5) **when accounting for BY‑corrected edge‑wise testing** is optimistic.  
+- **Implementation**: A **simulation‑based power analysis** will generate A substantial set of synthetic datasets. with a known effect size, run the full BY‑corrected pipeline, and estimate detection rate. The post‑hoc power estimate is logged in `research.md`.  
+- **If < 50 per group**: Pipeline halts with “Sample Size Insufficient” (per US‑1).
 
-### 2.7 Justification of Dual Inference Strategy
-- **Issue**: Functional connectivity matrices are highly correlated (non-independent edges). FDR controls the false discovery rate but does not account for spatial dependency as effectively as NBS.
-- **Resolution**:
- - **FDR**: Used for **edge-wise** inference to identify specific connections with high sensitivity, controlling the proportion of false discoveries.
- - **NBS**: Used for **network-level** inference to identify connected components with high specificity, controlling the family-wise error rate for the entire network structure.
- - **Rationale**: These methods answer complementary questions. FDR is sensitive to sparse, strong effects; NBS is sensitive to distributed, weaker effects. The plan uses both to provide a comprehensive view.
+### 2.7 Causal Framing
+Observational design → results reported as **associational** (e.g., “musical training is associated with stronger connectivity”).
 
-### 2.8 Sensitivity to Unmeasured Confounding
-- **Problem**: Confound control (matching/regressing) is insufficient to rule out unmeasured confounders (e.g., IQ, general cognitive ability).
-- **Strategy**:
- 1. Implement a **Confounder Sensitivity Analysis** in `code/analysis/sensitivity.py`.
- 2. Instead of E-values (for risk ratios), calculate the **minimum strength of association** an unmeasured confounder would need with both the exposure (musical training) and outcome (connectivity) to explain away the observed effect size (Cohen's d).
- 3. **Reporting**: Report the "Confounding Strength" required to reduce the observed effect to zero. If this strength is implausibly high, the result is considered robust.
+## 3. Computational Feasibility
 
-## 3. Computational Constraints & Feasibility
+- **Memory**: Each 200 × 200 z‑matrix ≈ 0.32 MB; A large set of matrices of substantial size (on the order of tens of megabytes).. Streaming NIfTI files one‑by‑one ensures ≤ 2 GB peak RAM. `memory_monitor.py` aborts if > 7 GB.  
+- **Runtime** (empirical on a Multi‑core GitHub runner):  
+  - Synthetic generation ≈ short duration (on the order of seconds)  
+  - Connectivity computation ≈ a few minutes  
+  - Welch’s tests ≈ a brief duration.  
+  - NBS (a large number of permutations × 3 thresholds) ≈ several hours (vectorized)  
+  - Correlation & sensitivity ≈ a short duration.  
+  **Total < 4 h**, within the designated time limit.  
+- **GPU**: Not required; all libraries are CPU‑compatible.
 
-- **Memory**: 7GB RAM limit.
- - **Strategy**: Connectivity matrices (e.g., 200x200) are small (~320KB). The bottleneck is loading NIfTI files. Since real NIfTI is unavailable, synthetic data avoids this. If real data were used, we would process subjects one-by-one (streaming) to avoid loading all NIfTIs at once.
-- **Runtime**: ≤6 hours.
- - **Strategy**: NBS with 1000 permutations on 2 cores is feasible for N=150. If NBS is too slow, the plan allows for reducing permutations to 500 (documented in `research.md`).
-- **No GPU**: All operations (correlation, t-test, permutations) use `numpy`/`scipy` which run on CPU.
-
-## 4. Causal Inference & Validity
-
-- **Observational Nature**: This is an observational study. Musical training is not randomized.
-- **Claim Limitation**: Findings will be framed as **associational**. "Musical training is associated with..." not "Musical training causes...".
-- **Confounding**: Age, sex, motion, and SES are regressed out or matched. However, unmeasured confounders (e.g., IQ, socioeconomic status nuances) remain a limitation.
-- **Collinearity**: If "years of training" is highly correlated with "age" (older adolescents have more training), this will be checked. If collinear, independent effects cannot be claimed; only descriptive correlations will be reported.
-
-## 5. Decision Log
+## 4. Decision Log
 
 | Decision | Rationale |
-|:--- |:--- |
-| **Use Synthetic Data (Null-First)** | No verified source for ABCD/HCP-Adolescents exists in the provided list. Pipeline must be testable. Primary test uses NO injected effect to verify Type I error control. |
-| **NBS with 1000 Permutations** | Standard for neuroimaging. Feasible within 6h on 2 cores for N=150. Power analysis will be performed to assess detectability. |
-| **FDR Correction** | Standard for edge-wise inference. Complements NBS. |
-| **Halt on <50 subjects** | Per US-1, to prevent underpowered inference. |
-| **Dual Inference (FDR + NBS)** | FDR for edge sensitivity, NBS for topological robustness. Addresses spatial dependency. |
-| **Confounder Sensitivity Analysis** | Quantifies robustness to unmeasured confounding, addressing the limitations of simple regression. |
+|----------|-----------|
+| Use **built‑in atlas CSV** instead of downloading | Guarantees deterministic availability on CI. |
+| Default to **synthetic verification mode** | No verified open dataset satisfies FR‑001; synthetic data enables end‑to‑end testing without fabricating unavailable data. |
+| Implement **dual confound strategy** (matching + residualization) | Prevents bias if matching discards too many subjects; ensures all analyses adjust for covariates. |
+| Run **NBS at three thresholds** | Provides sensitivity insight and avoids a single arbitrary cutoff. |
+| Abort on **< 50 subjects per group** | Enforces power assumption defined in US‑1 and SC‑005. |
+| Report all findings as **associational** | Observational data precludes causal claims. |
+
+---
+

@@ -1,72 +1,61 @@
 # Quickstart: The Impact of Musical Training on Functional Connectivity in Adolescent Brains
 
 ## 1. Prerequisites
-
-- Python +
-- GB RAM available
-- GB Disk space
-- Git
+- Python 3.11+  
+- ~2 GB free RAM (≥ 7 GB recommended for large real datasets)  
+- Git  
 
 ## 2. Installation
-
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone <REPO_URL>
 cd projects/PROJ-056-the-impact-of-musical-training-on-functi
 
-# Create virtual environment
+# Virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-# Install dependencies
+# Install pinned dependencies
 pip install -r code/requirements.txt
 ```
 
 ## 3. Running the Pipeline
 
-### 3.1 Synthetic Data Mode (Default)
-Since no verified real dataset is available, the pipeline defaults to generating synthetic data for validation.
-
+### 3.1 Synthetic Verification Mode (default)
 ```bash
-python code/main.py --mode synthetic --n-subjects
+python code/main.py --mode synthetic --n-subjects <representative_number>
 ```
+- Generates mock subjects, NIfTI files, and all downstream results.  
+- **Important**: This mode is a **verification scaffold** only; it does **not** fulfill FR‑001, which requires real rs‑fMRI and musical‑training data. Results from synthetic mode are used solely to test the code‑base.
 
-**Output**:
-- `data/processed/subjects.csv`
-- `data/processed/connectivity_matrices.npy`
-- `data/results/statistical_results.csv`
-- `data/results/nbs_components.json`
-
-### 3.2 Real Data Mode (If Verified Source Available)
-If a verified ABCD/HCP dataset is provided:
-
+### 3.2 Real‑Data Mode (when a verified dataset becomes available)
 ```bash
-python code/main.py --mode real --data-path /path/to/verified/data
+python code/main.py --mode real --data-path /path/to/verified/ABCD_or_HCP_Adolescents
 ```
+- The directory must contain:
+  - `subjects.csv` with the columns listed in the **Subject** schema.
+  - Resting‑state NIfTI files referenced by `rs_fmri_path`.
+- If any required column or file is missing, the pipeline aborts with a clear error.
+- **FR‑001** will be satisfied once such a verified dataset is provided.
 
-*Note: This will fail with "Data Source Missing" if the path does not contain the required variables (rs-fMRI, years_of_training).*
-
-## 4. Verifying Results
-
-Run the test suite to ensure the pipeline is working correctly:
-
+## 4. Verify Outputs
 ```bash
+# Run the test suite (includes contract validation)
 pytest tests/
-```
 
-Check the memory usage log:
-```bash
+# Inspect memory usage log
 cat data/logs/memory_usage.log
 ```
 
-## 5. Output Interpretation
-
-- **`statistical_results.csv`**: Contains edge-wise comparisons. Look for `q_value < 0.05` for significant connections.
-- **`nbs_components.json`**: Contains the largest connected component. Check `p_value_fwer` for network-level significance.
-- **`sensitivity_analysis.csv`**: Shows how results change with different p-value thresholds.
+## 5. Interpreting Results
+- `data/results/statistical_results.csv` – Edge‑wise Welch’s t‑tests; look for `q_value < 0.05`.  
+- `data/results/nbs_components.json` – Largest connected component; check `p_value_fwer`.  
+- `data/results/sensitivity_analysis.csv` – Counts of significant edges at q = 0.01, 0.05, 0.10.
 
 ## 6. Troubleshooting
+- **MemoryError** – Reduce `--n-subjects` or switch to synthetic mode with fewer subjects.  
+- **Data Missing** – Ensure the real‑data directory follows the schema; otherwise use synthetic mode.  
+- **Long Runtime** – Decrease NBS permutations via `--n-permutations` (minimum 500 for exploratory runs).  
 
-- **Memory Error**: Reduce `--n-subjects` or ensure no other processes are using RAM.
-- **Data Missing**: If running in `real` mode, ensure the dataset contains `years_of_training` and `rs-fMRI` columns. If not, switch to `synthetic` mode.
-- **Runtime Error**: If NBS takes too long, reduce `--n-permutations` in `code/analysis/stats.py`.
+---
+

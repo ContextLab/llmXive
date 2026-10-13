@@ -1,158 +1,129 @@
 # Implementation Plan: The Impact of Musical Training on Functional Connectivity in Adolescent Brains
 
-**Branch**: `001-musical-training-connectivity` | **Date**: 2024-05-21 | **Spec**: `spec.md`
+**Branch**: `001-musical-training-connectivity` | **Date**: 2024-10-13 | **Spec**: `specs/001-musical-training-connectivity/spec.md`  
 **Input**: Feature specification from `/specs/001-musical-training-connectivity/spec.md`
-**Status**: **BLOCKED ON DATA** (Prototype/Validation Phase Only)
 
 ## Summary
-
-This project implements a computational pipeline to investigate the association between musical training history and resting-state functional connectivity (rs-fc) in adolescent brains. The system ingests neuroimaging and behavioral data, computes connectivity matrices for auditory, motor, and executive control networks, and performs robust statistical comparisons between "musician" (≥1 year training) and "non-musician" groups. The analysis includes Network-Based Statistic (NBS) for topological validation, correlation analysis with training duration, and sensitivity checks across significance thresholds.
-
-**CRITICAL SCOPE NOTE**: Due to the absence of a verified real-world dataset (ABCD/HCP-Adolescents) in the provided "Verified datasets" block, this project is currently in a **Prototype/Validation Phase**. The pipeline is implemented and tested using **synthetic data** strictly for **Software Verification** (code correctness, memory constraints, and statistical logic). **No scientific results** regarding biological effects of musical training are claimed or generated in this phase. The project will transition to "Scientific Validation" only upon sourcing a verified, compliant dataset.
+The project will implement a reproducible, CPU‑first pipeline that (1) ingests resting‑state fMRI and behavioral metadata (synthetic by default, real if a verified source becomes available), (2) filters and matches subjects into “musician” (≥1 yr training) and “non‑musician” groups while controlling for age, sex, motion, and SES, (3) computes ROI‑wise functional connectivity matrices, (4) performs edge‑wise Welch’s t‑tests with **Benjamini‑Yekutieli (BY) FDR** correction, (5) runs Network‑Based Statistic (NBS) for topological validation across multiple primary thresholds, (6) correlates connectivity strength with years of training within musicians using BY‑corrected results, and (7) conducts a threshold‑sensitivity sweep (q = 0.01, 0.05, 0.10). All steps respect the 7 GB RAM limit and the ≤6 h runtime budget on a GitHub Actions free‑tier runner.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `nibabel`, `networkx`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`  
-**Storage**: Local file system (`data/` for raw/processed, `code/` for scripts), CSV/Parquet for tabular data, NIfTI for imaging.  
-**Testing**: `pytest` (unit tests for data filters, statistical outputs; integration tests for pipeline end-to-end on synthetic data).  
-**Target Platform**: Linux (GitHub Actions runner).  
-**Performance Goals**: Total runtime ≤ 6 hours; Peak memory ≤ 7 GB; No GPU usage.  
-**Constraints**: 
-- **Dataset Fit**: The spec requires "years of musical training" and "resting-state fMRI" from ABCD/HCP. The verified datasets block contains *no* verified source for HCP-Adolescents and only generic/unrelated files for "ABCD". 
-- **Compute**: No CUDA, no large model loading. Connectivity computed via Pearson correlation on CPU.
-- **Data Volume**: Data must be sampled/subsetted to fit available system memory.
-- **Execution Modes**: 
-  - `Verification Mode` (Default): Uses synthetic data to verify code execution and statistical logic. **No scientific claims.**
-  - `Analysis Mode`: Requires a verified real dataset path. Halts with `Data Source Missing` if path is invalid or data is absent.
-
-> **Critical Constraint Note**: The pipeline defaults to `Verification Mode` (synthetic data) to ensure the codebase is functional and reproducible. However, the `Analysis Mode` (real data) is fully implemented and documented to satisfy FR-001. The project is **blocked** on scientific validation until a verified dataset is sourced.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `numpy`, `pandas`, `scipy`, `statsmodels`, `nibabel`, `networkx`, `matplotlib`, `seaborn`, `pyyaml`, `tqdm`, `jsonschema`  
+- **Storage**: Local file system (`data/`); CSV/Parquet for tabular data, NumPy `.npy` for matrices, JSON for NBS components.  
+- **Testing**: `pytest` (unit, integration, contract validation).  
+- **Target Platform**: Linux (GitHub Actions runner).  
+- **Performance Goals**: Peak RAM ≤ 7 GB; total wall‑clock ≤ 6 h; CPU‑only (no GPU required).  
+- **Constraints**: No open dataset currently satisfies FR‑001; therefore **FR‑001 is deferred** until such a dataset is available. Synthetic mode provides a verification scaffold but does **not** replace the requirement for real data.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Action/Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. `requirements.txt` pinned. Pipeline runs on fresh runner. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` are limited to verified URLs or explicit "NO VERIFIED SOURCE" statements. Synthetic results are explicitly labeled as "Simulation". |
-| **III. Data Hygiene** | **PASS** | Raw data (simulated or real) checksummed. No in-place modification. PII scan enabled. |
-| **IV. Single Source of Truth** | **PASS** | All stats derived from `data/` artifacts. No hand-typed numbers in paper. |
-| **V. Versioning Discipline** | **PASS** | Content hashes tracked in state YAML. |
-| **VI. Neuroimaging Data Integrity** | **PASS** | Raw NIfTI preserved (simulated or real). Preprocessing parameters logged. |
-| **VII. Behavioral Assessment** | **PASS** | "Years of training" derived via script from raw input. |
+| Principle | Status | Note |
+|-----------|--------|------|
+| I. Reproducibility | PASS | Random seeds fixed; `requirements.txt` pinned; pipeline runnable on fresh CI runner. |
+| II. Verified Accuracy | PASS | All citations limited to verified URLs; missing variables are reported, not fabricated. |
+| III. Data Hygiene | PASS | Checksums recorded; no in‑place mutation; PII scan enforced. |
+| IV. Single Source of Truth | PASS | All statistics derived from files under `data/`; no manual transcription. |
+| V. Versioning Discipline | PASS | Content hashes tracked in project state YAML. |
+| VI. Neuroimaging Data Integrity | PASS | Raw (or mock) NIfTI files preserved; preprocessing parameters logged. |
+| VII. Behavioral Assessment Standardization | PASS | Synthetic “years_of_training” generated from a defined distribution; real‑data mode expects validated questionnaire scores. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-musical-training-connectivity/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
     ├── subject.schema.yaml
     ├── connectivity.schema.yaml
-    └── statistical_result.schema.yaml
-```
+    ├── statistical_result.schema.yaml
+    └── network_component.schema.yaml
 
-### Source Code (repository root)
-
-```text
-projects/PROJ-056-the-impact-of-musical-training-on-functi/
-├── code/
-│   ├── requirements.txt
-│   ├── __init__.py
-│   ├── data/
-│   │   ├── download.py          # Data ingestion (real or synthetic)
-│   │   ├── preprocess.py        # Filtering, matching, confounder handling
-│   │   ├── synthetic_generator.py # Data generation for validation (Null-First)
-│   │   └── mock_nifti.py        # Mock NIfTI generator for format testing
-│   ├── analysis/
-│   │   ├── connectivity.py      # Pearson corr, Fisher z-transform
-│   │   ├── stats.py             # Welch's t-test, FDR, NBS
-│   │   ├── correlation.py       # Training duration correlation, sensitivity
-│   │   └── sensitivity.py       # Confounder sensitivity analysis
-│   ├── utils/
-│   │   ├── logging.py
-│   │   └── memory_monitor.py
-│   └── main.py                  # Entry point
+code/
+├── requirements.txt
+├── __init__.py
 ├── data/
-│   ├── raw/                     # Raw NIfTI/CSV (if available)
-│   ├── processed/               # Cleaned CSVs, Connectivity matrices
-│   └── checksums.txt
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── contract/
-└── README.md
-```
+│   ├── synthetic_generator.py      # Generates mock subjects, NIfTI, and CSVs
+│   ├── preprocess.py               # Filtering, matching, regression residualization
+│   └── mock_nifti.py               # Minimal NIfTI writer for schema compliance
+├── analysis/
+│   ├── atlas.py                    # Loads bundled Schaefer‑200 CSV (no download)
+│   ├── connectivity.py             # Pearson correlation + Fisher‑z
+│   ├── stats.py                    # Welch’s t‑test, BY FDR, effect sizes, NBS
+│   ├── correlation.py              # Correlation (Pearson or Spearman) + BY FDR
+│   └── sensitivity.py              # Threshold sweep & reporting
+├── utils/
+│   ├── logging.py
+│   └── memory_monitor.py           # Logs peak RAM usage
+└── main.py                         # CLI entry point (synthetic vs real mode)
 
-**Structure Decision**: Single project structure. The `code/` directory is modularized by functional domain (data, analysis, utils) to ensure separation of concerns and testability. This aligns with the requirement for a reproducible research pipeline.
+data/
+├── raw/            # Populated only when a verified dataset is supplied
+├── processed/
+│   ├── subjects.parquet
+│   ├── connectivity_matrices.npy
+│   └── logs/
+└── results/
+    ├── statistical_results.csv
+    ├── nbs_components.json
+    └── sensitivity_analysis.csv
+
+tests/
+├── unit/
+├── integration/
+└── contract/
+```
 
 ## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Synthetic Data Generator (Null-First)** | Real ABCD/HCP data is unavailable. A robust pipeline must be testable. | A pipeline that only runs on real data cannot be validated during CI/CD or unit testing without external dependencies. The "Null-First" approach ensures we test the *absence* of signal, not just the presence. |
-| **NBS Implementation** | FR-008 requires Network-Based Statistic for topological validation. | Standard t-tests on individual edges do not account for the network structure (family-wise error at component level). |
-| **Memory Monitor** | FR-006 mandates ≤7GB RAM. | Without active monitoring, large matrices (N=400 ROIs) could exceed RAM if not chunked or sampled. |
-| **Confounder Sensitivity Analysis** | FR-009 requires robust confound control. | Simple regression is insufficient for unmeasured confounding. Sensitivity analysis quantifies the robustness of results. |
+| FR / SC | Phase / Task | Reason for Inclusion |
+|--------|--------------|----------------------|
+| FR‑001 | Phase 1 – `data/synthetic_generator.py` & `data/preprocess.py` | Loads (or generates) data, applies ≥1 yr threshold, matches confounders. **Deferred** until real data available. |
+| FR‑002 | Phase 2 – `analysis/connectivity.py` | Computes ROI‑wise Pearson correlations and Fisher‑z transform. |
+| FR‑003 | Phase 2 – `analysis/stats.py` (Welch’s t‑test) | Edge‑wise group comparison with BY FDR. |
+| FR‑004 | Phase 2 – `analysis/correlation.py` | Correlates connectivity with years of training (musician only) with BY FDR. |
+| FR‑005 | Phase 2 – `analysis/sensitivity.py` | Sweeps significance thresholds (q = 0.01, 0.05, 0.10) and reports counts. |
+| FR‑006 | Phase 1 – `utils/memory_monitor.py` | Enforces ≤7 GB RAM; aborts if exceeded. |
+| FR‑007 | Phase 2 – `analysis/stats.py` & `analysis/correlation.py` | Computes Cohen’s d (group) and reports R² for correlations; 95 % CIs via bootstrap. |
+| FR‑008 | Phase 2 – `analysis/stats.py` (NBS) | Identifies largest connected component; runs NBS at three primary thresholds (t = 1.8, 2.0, 2.5). |
+| FR‑009 | Phase 1 – `data/preprocess.py` (propensity‑score matching **and** regression residualization) | Balances age, sex, motion, SES; residualization always applied to avoid bias if matching fails. |
+| SC‑001 | Phase 2 – NBS output (`nbs_components.json`) | Size of largest component vs. null distribution. |
+| SC‑002 | Phase 2 – Correlation output (`statistical_results.csv`) | r vs. null hypothesis of zero correlation. |
+| SC‑003 | Phase 2 – Sensitivity table (`sensitivity_analysis.csv`) | Counts at three q‑thresholds. |
+| SC‑004 | Phase 3 – `utils/memory_monitor.py` log & runtime timer | Peak RAM & total runtime recorded. |
+| SC‑005 | Phase 0 & Phase 3 – Power simulation (edge‑wise BY‑corrected) | Post‑hoc power estimate logged; acknowledges multiple‑comparison burden. |
 
 ## Phase Plan
 
-### Phase 0: Research & Data Strategy
-- **Goal**: Confirm data availability, define statistical power, and establish the "Prototype" status.
-- **Action**: 
-  1. Verify the "Verified datasets" block. **Result**: HCP-Adolescents has NO verified source. ABCD entries are invalid/unrelated.
-  2. **Decision**: The pipeline will be implemented to accept a **verified** dataset path if provided later, but for the current implementation, it will generate **synthetic data** that mimics the statistical properties of the target study to validate the code.
-  3. **Scientific Scope Statement**: This phase is **Software Verification Only**. No scientific claims regarding musical training effects will be made. The project is **BLOCKED** on scientific validation until a verified dataset is sourced.
-  4. **Synthetic Strategy**: 
-     - **Primary Test (Null-First)**: Generate data with **NO** injected effect to verify the pipeline correctly returns non-significant results (Type I error control).
-     - **Secondary Test (Stress)**: Generate data with a **known, independent** effect (not hard-coded to group labels) to verify code robustness and NBS detection logic.
-  5. Document the "Dataset Fit" gap in `research.md`.
-  6. Define the simulation parameters (N=150, 75 per group) to meet power requirements (d=0.5).
+### Phase 0 – Research & Data Strategy
+1. **Dataset Fit Audit** – Verify that no verified source provides required rs‑fMRI + musical‑training metadata (see `research.md`).  
+2. **Decision** – Default to **Synthetic Verification Mode**; expose a `--mode real` flag for future verified data.  
+3. **Synthetic Specification** – Generate an adequately sized cohort (balanced groups) with realistic confound distributions; create mock NIfTI files (3 D volumes of random noise) to satisfy `nibabel` loader.  
+4. **Documentation** – Record the “prototype‑only” status; flag SC‑005 as conditionally satisfied.
 
-### Phase 1: Data Model & Contracts
-- **Goal**: Define schemas for subjects, connectivity, and results.
-- **Action**: 
-  1. Create `contracts/` YAML schemas.
-  2. Implement `Subject` and `ConnectivityMatrix` data structures.
-  3. **Mandatory**: Ensure code validates against `contracts/subject.schema.yaml`, `contracts/connectivity.schema.yaml`, and `contracts/statistical_result.schema.yaml` before proceeding to Phase 2.
+### Phase 1 – Data Model & Contracts
+- Create JSON‑Schema files under `contracts/` (subject, connectivity, statistical_result, **network_component**).  
+- Implement `data/synthetic_generator.py` to produce `subjects.parquet` and mock NIfTI files adhering to the schemas.  
+- Implement `data/preprocess.py` to (a) filter by `years_of_training ≥ 1` for musicians, (b) drop subjects missing any required field, (c) attempt propensity‑score matching (caliper = 0.2 SD) on age, sex, motion, SES; regardless of matching outcome, **regress out** these covariates from each edge of the connectivity matrix; if matching reduces a group below 50, log a warning but continue with residualized data.  
 
-### Phase 2: Implementation (Data & Analysis)
-- **Goal**: Build the pipeline with dual execution paths.
-- **Action**: 
-  1. **Data Ingestion**: 
-     - Implement `download.py` to load from a local path (real data) OR generate synthetic data.
-     - Implement `mock_nifti.py` to generate mock NIfTI files for format testing (US-1).
-     - **Real Data Path**: Implement "compliant access workflows" (e.g., `abcd-data` package) for FR-001. If data is missing, raise `Data Source Missing` error.
-  2. **Preprocessing**: 
-     - Implement `preprocess.py` for filtering (≥1 year) and matching (age/sex).
-     - **Confounder Handling**: Implement **Propensity Score Matching (PSM)** and **Linear Regression with Residualization** to satisfy FR-009 (matching OR regressing).
-  3. **Connectivity**: Implement `connectivity.py` using `numpy` for Pearson correlation and Fisher z-transform.
-     - **Double-Dipping Prevention**: Ensure atlas (Schaefer) is pre-defined and fixed *a priori*.
-  4. **Statistics**: 
-     - Implement `stats.py` with `scipy.stats` for Welch's t-test, `statsmodels` for FDR, and a custom NBS implementation (permutation-based) that fits in RAM.
-     - Implement **Power Analysis for NBS** to estimate detectable effect sizes.
-  5. **Correlation**: Implement `correlation.py` for training duration correlation and sensitivity analysis.
-  6. **Sensitivity**: Implement `sensitivity.py` for confounder sensitivity analysis (continuous outcome).
-  7. **Memory**: Add `memory_monitor.py` to log peak usage.
+### Phase 2 – Core Analysis (CPU‑only)
+1. **Atlas Loading** – `analysis/atlas.py` reads a bundled CSV (`data/atlas/schaefer200.csv`) containing ROI indices and network assignments; **no external download**.  
+2. **Connectivity Computation** – `analysis/connectivity.py` extracts ROI time‑series from each NIfTI (or mock NIfTI) using the atlas, computes Pearson correlation matrix, applies Fisher‑z.  
+3. **Group Comparison** – `analysis/stats.py` runs Welch’s t‑test per edge, applies **Benjamini‑Yekutieli (BY) FDR** (α = 0.05), computes Cohen’s d and 95 % CI via 1 000 bootstrap resamples.  
+4. **NBS** – Same module implements permutation‑based NBS (1 000 permutations) at **three primary t‑thresholds** (t = 1.8, 2.0, 2.5). Largest component size and FWER‑corrected p‑value saved to `data/results/nbs_components.json`.  
+5. **Correlation & Effect Size** – `analysis/correlation.py` computes Pearson (or Spearman if Shapiro‑Wilk fails) between `years_of_training` and each edge within musicians; applies **BY FDR** across edges; reports r, 95 % CI, R², and q‑value.  
+6. **Sensitivity** – `analysis/sensitivity.py` repeats edge‑wise testing using **q‑values** at thresholds 0.01, 0.05, 0.10; aggregates counts into `sensitivity_analysis.csv`; flags “low stability” if the count drops > 30 % between 0.05 and 0.01 or if the 95 % CI for R² includes zero at the stricter threshold.  
+7. **Memory Guard** – `utils/memory_monitor.py` wraps each heavy step; aborts with clear error if RAM > 7 GB.
 
-### Phase 3: Validation & Testing
-- **Goal**: Ensure correctness and constraints.
-- **Action**: 
-  1. Run unit tests on synthetic data (a representative cohort of subjects)..
-  2. Run integration test (full pipeline on a set of synthetic subjects).
-  3. **Contract Validation**: Verify output schemas match `contracts/`.
-  4. Verify memory < 7GB and runtime < 6h.
-  5. **Null-First Test**: Verify that synthetic data with NO effect yields non-significant results (Type I error control).
+### Phase 3 – Validation & Testing
+- **Unit Tests** – Validate each module on a tiny synthetic subset (N = 4).  
+- **Integration Test** – Run full pipeline in synthetic mode; assert that output files conform to their JSON‑Schemas via `jsonschema`.  
+- **Performance Check** – Record runtime and peak RAM; ensure limits respected.  
+- **Power Simulation** – Run 500 simulated datasets with known effect size d ≈ 0.5, apply full BY‑corrected pipeline, estimate detection rate; log result as post‑hoc power estimate (addresses SC‑005).  
 
-### Phase 4: Documentation & Handoff
-- **Goal**: Finalize `quickstart.md` and `research.md`.
-- **Action**: 
-  1. Document how to swap synthetic data for real data (if verified source becomes available).
-  2. Ensure `research.md` explicitly states the dataset limitation and the "Prototype" status.
-  3. **Success Criteria Update**: SC-005 is conditionally satisfied by "Code Correctness on Synthetic Null Data" in this phase. It will be re-evaluated if real data is sourced.
+### Phase 4 – Documentation & Handoff
+- Finalize `quickstart.md` with commands for synthetic and (future) real modes.  
+- Update `research.md` to explicitly state the dataset limitation, the deferred status of FR‑001, and the power‑simulation approach.  
+- Ensure all artifacts are listed in `README.md` and version‑hashed in the project state YAML.
+
+---
+

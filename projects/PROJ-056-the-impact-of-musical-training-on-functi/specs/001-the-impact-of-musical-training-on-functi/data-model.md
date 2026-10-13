@@ -1,77 +1,71 @@
 # Data Model: The Impact of Musical Training on Functional Connectivity in Adolescent Brains
 
 ## 1. Overview
+Defines the canonical entities, their attributes, constraints, and file representations used throughout the pipeline. All artifacts are version‑controlled, checksummed, and validated against JSON‑Schema contracts.
 
-This document defines the data structures, schemas, and relationships used in the project. All data artifacts are versioned and checksummed. The model supports the generation of synthetic data for validation and the ingestion of real data if a verified source becomes available.
-
-## 2. Entity Definitions
+## 2. Entities
 
 ### 2.1 Subject
-Represents an individual participant.
-- **Attributes**:
-  - `subject_id`: Unique identifier (string).
-  - `group`: Categorical (`"musician"`, `"non_musician"`).
-  - `years_of_training`: Float (0.0 for non-musicians, ≥1.0 for musicians).
-  - `age`: Float (years).
-  - `sex`: Categorical (`"M"`, `"F"`).
-  - `motion_score`: Float (FD or similar metric).
-  - `ses_score`: Float (socioeconomic status proxy).
-- **Constraints**:
-  - `group` must be `"musician"` if `years_of_training` ≥ 1.0.
-  - `years_of_training` must be 0.0 if `group` is `"non_musician"`.
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `subject_id` | string | Unique identifier | Must be unique |
+| `group` | string (`"musician"` / `"non_musician"`) | Group assignment | Consistent with `years_of_training` |
+| `years_of_training` | number ≥ 0 | Training duration (0 for non‑musicians) | `years_of_training ≥ 1` ⇔ `group == "musician"` |
+| `age` | number | Age in years | – |
+| `sex` | string (`"M"` / `"F"`) | Sex | – |
+| `motion_score` | number | Head‑motion metric (e.g., FD) | – |
+| `ses_score` | number | Socio‑economic status proxy | – |
 
 ### 2.2 ConnectivityMatrix
-Represents the functional connectivity data for a subject.
-- **Attributes**:
-  - `subject_id`: Link to Subject.
-  - `atlas`: Name of parcellation (e.g., `"Schaefer200"`).
-  - `n_rois`: Integer (number of regions).
-  - `z_matrix`: 2D Array (n_rois x n_rois) of Fisher z-transformed correlations.
-  - `networks`: Dictionary mapping network names (e.g., `"auditory"`, `"motor"`, `"executive"`) to lists of ROI indices.
-- **Constraints**:
-  - Matrix must be symmetric.
-  - Diagonal must be 0 (or 1 if correlation, but z-transform of 1 is infinite, so typically 0).
-  - Values must be within valid z-score range (typically -3 to 3).
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `subject_id` | string | FK → Subject | Must exist in Subject table |
+| `atlas` | string | Parcellation name (e.g., `"Schaefer200"`) | Fixed across dataset |
+| `n_rois` | integer ≥ 1 | Number of ROIs | Matches matrix dimensions |
+| `z_matrix` | 2‑D array of numbers | Fisher‑z transformed correlation matrix | Symmetric, diagonal = 0 |
+| `networks` | object (dict) | Mapping network name → list of ROI indices | Network names limited to `"auditory"`, `"motor"`, `"executive"` |
 
 ### 2.3 StatisticalResult
-Represents the output of a hypothesis test.
-- **Attributes**:
-  - `connection_id`: String (e.g., `"ROI_1_ROI_2"`).
-  - `network`: String (e.g., `"auditory"`).
-  - `test_statistic`: Float (t-value).
-  - `p_value`: Float (uncorrected).
-  - `q_value`: Float (FDR-corrected).
-  - `effect_size`: Float (Cohen's d).
-  - `confidence_interval`: Tuple (lower, upper).
-  - `is_significant`: Boolean (based on primary threshold).
-  - `threshold_sensitivity`: Dictionary mapping thresholds to significance status.
+| Field | Type | Description |
+|-------|------|-------------|
+| `connection_id` | string | `"ROI1_ROI2"` |
+| `network` | string | Network label |
+| `test_statistic` | number | t‑value |
+| `p_value` | number ∈ [0,1] | Uncorrected |
+| `q_value` | number ∈ [0,1] | BY‑corrected |
+| `effect_size` | number | Cohen’s d |
+| `confidence_interval` | array[2] of numbers | 95 % CI for effect |
+| `is_significant` | boolean | `q_value < 0.05` |
+| `threshold_sensitivity` | object | `{ "0.01": bool, "0.05": bool, "0.10": bool }` |
 
-### 2.4 NetworkComponent
-Represents a connected component from NBS.
-- **Attributes**:
-  - `component_id`: Integer.
-  - `size`: Integer (number of edges).
-  - `p_value_fwer`: Float (family-wise error corrected).
-  - `edges`: List of `connection_id`.
+### 2.4 NetworkComponent (NBS Output)
+| Field | Type | Description |
+|-------|------|-------------|
+| `component_id` | integer | Sequential ID |
+| `size` | integer | Number of edges in the component |
+| `p_value_fwer` | number ∈ [0,1] | Family‑wise error corrected |
+| `edges` | array of strings | List of `connection_id` belonging to the component |
 
 ## 3. File Formats
 
-### 3.1 Input Data (Synthetic or Real)
-- **Format**: CSV (for tabular data), NIfTI (for imaging, if real).
-- **Location**: `data/raw/`
-
-### 3.2 Processed Data
-- **Format**: Parquet (for tabular data), NumPy `.npy` (for matrices).
-- **Location**: `data/processed/`
-
-### 3.3 Output Results
-- **Format**: CSV (for statistical results), JSON (for NBS components).
-- **Location**: `data/results/`
+| Artifact | Format | Location |
+|----------|--------|----------|
+| Raw behavioral & imaging data | CSV + NIfTI | `data/raw/` |
+| Processed subject table | Parquet | `data/processed/subjects.parquet` |
+| Connectivity matrices | NumPy `.npy` (shape: N × n_rois × n_rois) | `data/processed/connectivity_matrices.npy` |
+| Statistical results | CSV | `data/results/statistical_results.csv` |
+| NBS components | JSON | `data/results/nbs_components.json` |
+| Sensitivity analysis | CSV | `data/results/sensitivity_analysis.csv` |
+| Checksums & logs | TXT | `data/logs/` |
 
 ## 4. Data Flow
+1. `synthetic_generator.py` → `subjects.parquet`, mock NIfTI files.  
+2. `preprocess.py` → filtered, matched `subjects.parquet`.  
+3. `connectivity.py` → `connectivity_matrices.npy`.  
+4. `stats.py` / `correlation.py` → `statistical_results.csv`, `nbs_components.json`.  
+5. `sensitivity.py` → `sensitivity_analysis.csv`.  
 
-1. **Ingestion**: `download.py` loads raw data or generates synthetic data.
-2. **Preprocessing**: `preprocess.py` filters subjects, matches confounders, and generates `Subject` records.
-3. **Connectivity**: `connectivity.py` computes `ConnectivityMatrix` for each subject.
-4. **Analysis**: `stats.py` and `correlation.py` generate `StatisticalResult` and `NetworkComponent`.
-5. **Validation**: `tests/contract/` verifies output against schemas.
+All steps log their output hashes for constitution‑compliant versioning. The `NetworkComponent` entity is validated against the contract located at `contracts/network_component.schema.yaml`.
+
+---
+
