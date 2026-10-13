@@ -1,17 +1,17 @@
 status: none
-intent: Juliet Test Suite SARD Devign CodeXGLUE vulnerable code python package dataset
+intent: download Devign and Juliet Test Suite SARD vulnerable code python package
+  dataset
 required_fields:
 - code_snippet
 - programming_language
 - cwe_id
 - vulnerability_type
 - function_name
-- source_file_path
-- unit_test_cases
-- metadata_fields
-- prompt_text
-- generated_code_snippet
-- generation_timestamp
-cache_key: 61857e04a6c47acb509cb637415ebba45f86d332de2e375884e40451dfd2e299
-searched_at: '2026-10-13T10:10:29.820397+00:00'
+- file_path
+- metadata (e.g., repository, commit hash)
+- associated_unit_tests
+- severity_score
+- line_numbers
+cache_key: 2e1480da537782dee0debb92c287bccb2e4fe2136e8a877a4485092073465ba0
+searched_at: '2026-10-13T12:12:06.399277+00:00'
 retry_count: 1

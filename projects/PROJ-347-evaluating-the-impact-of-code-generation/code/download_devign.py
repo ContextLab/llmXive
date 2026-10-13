@@ -34,9 +34,15 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Updated URL: the repository now uses the default branch `main` instead of `master`.
-DEVIGN_ZIP_URL = (
+# The Devign repository historically used the `master` branch.  Some mirrors
+# may have switched to `main`.  We try the `main` URL first; if it returns a
+# 404 we fall back to `master`.  This logic is defensive but still fails
+# loudly if both attempts are unsuccessful.
+DEVIGN_ZIP_URL_MAIN = (
     "https://github.com/anishathalye/devign-dataset/archive/refs/heads/main.zip"
+)
+DEVIGN_ZIP_URL_MASTER = (
+    "https://github.com/anishathalye/devign-dataset/archive/refs/heads/master.zip"
 )
 # Destination locations (all under the project root)
 ZIP_PATH = paths.data("raw", "devign", "devign.zip")
@@ -80,6 +86,31 @@ def save_checksums(path: Path, data: dict) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, sort_keys=True)
 
+def _determine_download_url() -> str:
+    """
+    Return a working download URL for the Devign zip archive.
+    Tries the `main` branch first; on HTTP 404 falls back to `master`.
+    Any other HTTP error is propagated.
+    """
+    for url in (DEVIGN_ZIP_URL_MAIN, DEVIGN_ZIP_URL_MASTER):
+        try:
+            # Use a HEAD request to check existence without downloading the whole file.
+            with requests.head(url, timeout=10) as resp:
+                if resp.status_code == 200:
+                    log.info(f"Selected Devign archive URL: {url}")
+                    return url
+                if resp.status_code == 404:
+                    log.debug(f"URL not found (404): {url}")
+                    continue
+                resp.raise_for_status()
+        except requests.RequestException as exc:
+            # If the request fails for reasons other than 404, re‑raise.
+            log.debug(f"HEAD request failed for {url}: {exc}")
+            raise
+    raise RuntimeError(
+        "Unable to locate a valid Devign dataset archive. Tried both main and master branches."
+    )
+
 # ----------------------------------------------------------------------
 # Main workflow
 # ----------------------------------------------------------------------
@@ -109,9 +140,12 @@ def main() -> None:
             )
             CSV_DEST.unlink()  # remove corrupted / outdated file
 
-    # At this point the CSV is missing or invalid – ensure we have the zip.
+    # Determine which URL to use (main or master)
+    download_url = _determine_download_url()
+
+    # Ensure we have the zip archive
     if not ZIP_PATH.is_file():
-        download_file(DEVIGN_ZIP_URL, ZIP_PATH)
+        download_file(download_url, ZIP_PATH)
     else:
         log.info(f"Using existing zip archive at {ZIP_PATH}")
 
