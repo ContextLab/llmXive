@@ -1,15 +1,16 @@
 """Download OpenNeuro fMRI dataset ds000246 and prepare manifest & checksums.
 
 This script:
-1. Downloads the full ds000246 archive from OpenNeuro (tries several known URLs).
-2. Extracts functional NIfTI files and the top‑level ``participants.tsv``.
+1. Queries the OpenNeuro API for the file list of ds000246 (version 1.0.0).
+2. Downloads ``participants.tsv`` and the functional BOLD NIfTI files for the
+   first 20 subjects that have **both** an ``Improv`` and a ``Scripted`` run.
 3. Builds a ``manifest.json`` containing ``subject_id``, ``run_label``,
    ``age``, ``years_training``, ``fd`` (placeholder).
-4. Computes SHA‑256 checksums for every downloaded NIfTI file and writes them to
-   ``data/raw/checksums.json`` using the key format ``<subject_id>_<run_label>.nii.gz``.
-5. Validates that at least 20 distinct subjects are present and that each has
-   both an ``Improv`` and a ``Scripted`` run. On validation failure a clear
-   ``ValueError`` is raised.
+4. Computes SHA‑256 checksums for every downloaded NIfTI file and writes them
+   to ``data/raw/checksums.json`` using the key format
+   ``<subject_id>_<run_label>.nii.gz``.
+5. Validates that at least 20 subjects are present and that each has both
+   required runs; on validation failure a clear ``ValueError`` is raised.
 """
 import csv
 import json
@@ -114,8 +115,6 @@ def _extract_archive(archive_path: Path, dest_dir: Path) -> None:
     elif archive_path.suffix == ".zip":
         log.info(f"Extracting zip archive {archive_path}")
         with zipfile.ZipFile(archive_path, "r") as zip_ref:
-            # Basic safety check – zipfile does not have built‑in traversal protection,
-            # so we verify each member.
             for member in zip_ref.namelist():
                 member_path = dest_dir / member
                 if not str(member_path.resolve()).startswith(str(dest_dir.resolve())):
@@ -125,88 +124,129 @@ def _extract_archive(archive_path: Path, dest_dir: Path) -> None:
         raise ValueError(f"Unsupported archive format: {archive_path}")
 
 
+def _list_openneuro_files(dataset_id: str, version: str) -> List[Dict]:
+    """
+    Query the OpenNeuro API for the file list of a specific dataset version.
+    Returns a list of dicts, each containing at least a ``filename`` key.
+    """
+    api_url = f"https://openneuro.org/crn/datasets/{dataset_id}/versions/{version}/files"
+    log.info(f"Requesting OpenNeuro file list from {api_url}")
+    resp = requests.get(api_url, timeout=120)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def _download_openneuro_file(dataset_id: str, version: str, filename: str, dest: Path) -> None:
+    """
+    Download a single file from OpenNeuro.
+    ``filename`` is the path relative to the dataset root (e.g. ``sub-01/...``).
+    The actual download URL appends ``?download=1`` to trigger raw file delivery.
+    """
+    url = f"https://openneuro.org/crn/datasets/{dataset_id}/versions/{version}/files/{filename}?download=1"
+    download_file(url, dest)
+
 
 def main() -> None:
     dataset_id = "ds000246"
+    version = "1.0.0"  # known public release
 
-    # Destination directory for raw NIfTI files (BIDS‑style)
+    # Destination directory for raw BIDS‑style files
     raw_dir: Path = paths.data("raw", "openneuro", dataset_id)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
-    # 1. Download the full dataset archive (try a few known URLs)
+    # 1. Retrieve full file list from the OpenNeuro API
     # ------------------------------------------------------------------
-    possible_urls = [
-        # Preferred: direct zip download (works for most OpenNeuro datasets)
-        f"https://openneuro.org/crn/datasets/{dataset_id}/versions/latest/download?downloadType=zip",
-        # Fallback to known version number (most recent public release)
-        f"https://openneuro.org/crn/datasets/{dataset_id}/versions/1.0.0/download",
-    ]
-
-    archive_path: Optional[Path] = None
-    for url in possible_urls:
-        try:
-            with tempfile.TemporaryDirectory() as tmpdir:
-                tmp_path = Path(tmpdir) / f"{dataset_id}_download"
-                # Preserve original extension if possible
-                if url.endswith(".zip"):
-                    tmp_path = tmp_path.with_suffix(".zip")
-                else:
-                    tmp_path = tmp_path.with_suffix(".tar.gz")
-                download_file(url, tmp_path)
-                archive_path = tmp_path
-                log.info(f"Successfully downloaded archive from {url}")
-                break
-        except Exception as e:
-            log.warning(f"Failed to download from {url}: {e}")
-            continue
-
-    if archive_path is None:
+    try:
+        file_list = _list_openneuro_files(dataset_id, version)
+    except Exception as exc:
         raise RuntimeError(
-            f"All attempts to download dataset {dataset_id} failed. "
-            "Check internet connectivity and the OpenNeuro URL."
-        )
+            f"Failed to retrieve file list for dataset {dataset_id} version {version}: {exc}"
+        ) from exc
 
     # ------------------------------------------------------------------
-    # 2. Extract archive safely
+    # 2. Identify and download participants.tsv first
     # ------------------------------------------------------------------
-    _extract_archive(archive_path, raw_dir)
-
-    # ------------------------------------------------------------------
-    # 3. Locate participants.tsv (top‑level) and parse it
-    # ------------------------------------------------------------------
+    participants_entry = next(
+        (f for f in file_list if f.get("filename", "").endswith("participants.tsv")),
+        None,
+    )
+    if participants_entry is None:
+        raise RuntimeError("participants.tsv not found in the dataset file list.")
     participants_path = raw_dir / "participants.tsv"
+    _download_openneuro_file(
+        dataset_id, version, participants_entry["filename"], participants_path
+    )
+    log.info(f"Downloaded participants.tsv to {participants_path}")
+
+    # Parse participant metadata
     subject_meta = parse_participants_tsv(participants_path)
 
     # ------------------------------------------------------------------
-    # 4. Identify functional NIfTI files (BIDS pattern)
+    # 3. Gather functional BOLD files (Improv and Scripted) per subject
     # ------------------------------------------------------------------
-    nifti_files: List[Path] = list(raw_dir.rglob("*_bold.nii.gz")) + list(
-        raw_dir.rglob("*_bold.nii")
+    bold_pattern = re.compile(
+        r"sub-(?P<sid>[^_/]+).*task-(?P<task>[^_/]+)_bold\.nii(\.gz)?$", re.IGNORECASE
     )
-    if not nifti_files:
-        raise RuntimeError("No functional NIfTI files found after extraction.")
+    # Map subject -> {run_label -> file_entry}
+    subject_runs: Dict[str, Dict[str, Dict]] = {}
+
+    for entry in file_list:
+        filename = entry.get("filename", "")
+        m = bold_pattern.search(filename)
+        if not m:
+            continue
+        sid = f"sub-{m.group('sid')}"
+        task_raw = m.group("task")
+        run_label = (
+            "Improv"
+            if task_raw.lower() in ("improv", "improvisation")
+            else "Scripted"
+            if task_raw.lower() in ("scripted", "control")
+            else task_raw
+        )
+        subject_runs.setdefault(sid, {})[run_label] = entry
 
     # ------------------------------------------------------------------
-    # 5. Build manifest and compute checksums
+    # 4. Select subjects that have **both** Improv and Scripted runs
+    # ------------------------------------------------------------------
+    eligible_subjects = [
+        sid for sid, runs in subject_runs.items() if {"Improv", "Scripted"}.issubset(runs)
+    ]
+    if len(eligible_subjects) < 20:
+        raise ValueError(
+            f"Only {len(eligible_subjects)} subjects have both Improv and Scripted runs; "
+            "at least 20 are required."
+        )
+    selected_subjects = sorted(eligible_subjects)[:20]
+
+    # ------------------------------------------------------------------
+    # 5. Download the selected BOLD files
+    # ------------------------------------------------------------------
+    nifti_paths: List[Path] = []
+    for sid in selected_subjects:
+        runs = subject_runs[sid]
+        for run_label in ("Improv", "Scripted"):
+            entry = runs[run_label]
+            rel_path = entry["filename"]
+            dest_path = raw_dir / rel_path
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            _download_openneuro_file(dataset_id, version, rel_path, dest_path)
+            nifti_paths.append(dest_path)
+            log.info(f"Downloaded {run_label} BOLD for {sid} → {dest_path}")
+
+    # ------------------------------------------------------------------
+    # 6. Build manifest and compute checksums
     # ------------------------------------------------------------------
     manifest: List[Dict] = []
     checksums: Dict[str, str] = {}
 
-    # Regex to extract subject and task from BIDS filename:
-    #   sub-01_ses-01_task-improv_bold.nii.gz
-    fname_regex = re.compile(
-        r"sub-(?P<sid>[A-Za-z0-9]+).*task-(?P<task>[A-Za-z]+).*bold",
-        re.IGNORECASE,
-    )
-
-    for nifti_path in nifti_files:
+    for nifti_path in nifti_paths:
         filename = nifti_path.name
-        m = fname_regex.search(filename)
+        # Re‑use the same regex to extract subject and task
+        m = bold_pattern.search(str(nifti_path.relative_to(raw_dir)))
         if not m:
-            log.debug(f"Skipping file that does not match BIDS pattern: {filename}")
             continue
-
         subject_id = f"sub-{m.group('sid')}"
         run_label_raw = m.group("task")
         run_label = (
@@ -216,17 +256,12 @@ def main() -> None:
             if run_label_raw.lower() in ("scripted", "control")
             else run_label_raw
         )
-
-        # Retrieve metadata for this subject (age, years_training)
         meta = subject_meta.get(subject_id, {"age": None, "years_training": None})
         age = meta["age"]
         years_training = meta["years_training"]
         fd = None  # placeholder – real FD will be computed later
 
-        # Compute checksum
         checksum = compute_sha256(nifti_path)
-
-        # Store checksum using the key format expected by the test suite
         checksum_key = f"{subject_id}_{run_label}.nii.gz"
         checksums[checksum_key] = checksum
 
@@ -241,33 +276,27 @@ def main() -> None:
         )
 
     # ------------------------------------------------------------------
-    # 6. Write manifest.json inside the dataset folder
+    # 7. Write manifest.json inside the dataset folder
     # ------------------------------------------------------------------
     manifest_path = raw_dir / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2))
     log.info(f"Wrote manifest with {len(manifest)} entries to {manifest_path}")
 
     # ------------------------------------------------------------------
-    # 7. Write checksums.json at the top‑level raw folder
+    # 8. Write checksums.json at the top‑level raw folder
     # ------------------------------------------------------------------
     checksums_path = paths.data("raw", "checksums.json")
     checksums_path.write_text(json.dumps(checksums, indent=2))
     log.info(f"Wrote checksums for {len(checksums)} files to {checksums_path}")
 
     # ------------------------------------------------------------------
-    # 8. Validation
+    # 9. Validation (subjects count already ensured)
     # ------------------------------------------------------------------
     subjects = {entry["subject_id"] for entry in manifest}
-    if len(subjects) < 20:
-        raise ValueError(
-            f"Dataset contains only {len(subjects)} subjects; at least 20 are required."
-        )
     log.info(f"Found {len(subjects)} unique subjects (>=20 required).")
-
     runs_by_subject: Dict[str, set] = {}
     for entry in manifest:
         runs_by_subject.setdefault(entry["subject_id"], set()).add(entry["run_label"])
-
     missing = {
         sid: runs
         for sid, runs in runs_by_subject.items()
@@ -280,8 +309,7 @@ def main() -> None:
         raise ValueError(
             f"The following subjects lack required runs (Improv & Scripted): {missing_str}"
         )
-    log.info("All subjects contain both Improv and Scripted runs.")
-
+    log.info("All selected subjects contain both Improv and Scripted runs.")
     log.info("OpenNeuro download and verification completed successfully.")
 
 
