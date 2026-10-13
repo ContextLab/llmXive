@@ -1,14 +1,10 @@
 status: none
-intent: Polymer membrane permeability dataset Polymer Membrane Permeability Database
-  OPERA python package dataset
+intent: download Membrane Permeability Database MPDB permeability coefficients with
+  SMILES polymer type python package dataset
 required_fields:
 - SMILES
 - permeability_coefficient
 - polymer_type
-- temperature
-- pressure
-- units
-- measurement_method
-cache_key: b05afc35bc3a28df01529723ba4c7ecd6366f3244cbd82edb6cfb40d5a3efb97
-searched_at: '2026-10-13T14:13:07.334331+00:00'
+cache_key: 6e5c2d11e660d3ea6516d03d8a519c270415b4b69093f7c4dadb35ce0616cad1
+searched_at: '2026-10-13T16:13:22.169167+00:00'
 retry_count: 1

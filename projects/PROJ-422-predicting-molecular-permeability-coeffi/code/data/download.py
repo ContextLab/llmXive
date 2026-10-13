@@ -6,7 +6,7 @@ validates that the required SMILES and target columns are present,
 writes the raw CSV file to ``data/raw/`` and records a SHA‑256 checksum
 in ``data/raw/checksums.json``.
 
-The chosen dataset is the ESOL solubility dataset, which provides
+The chosen dataset is the **Delaney solubility dataset**, which provides
 SMILES strings and a numeric solubility measurement. The solubility
 value is used as a proxy target for permeability (as described in the
 project plan). The script fails loudly if the expected columns are
@@ -27,7 +27,9 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 VERIFIED_DATASET_CONFIG = {
     "source": "huggingface",
-    "dataset_id": "esol",  # ESOL solubility dataset
+    # The Delaney solubility dataset is publicly available and contains
+    # the required SMILES column and a numeric target column.
+    "dataset_id": "delaney",
     "split": "train",
     "smiles_column": "smiles",
     "target_column": "measured log solubility in mols per litre",
@@ -67,6 +69,8 @@ class DataLoader:
         try:
             from datasets import load_dataset
 
+            # Use streaming only if the dataset is expected to be >7 GB.
+            # The Delaney dataset is small, so we load it normally.
             hf_dataset = load_dataset(
                 self.config["dataset_id"],
                 split=self.config.get("split", "train"),
