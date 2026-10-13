@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "ce4e6be5b3a3e74e451537edca16811d238286a241a50722e885b09ae0c241b6",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/main.py': imports nonexistent names from sibling files: `from code.utils.plotting import main` (available: Optional, Tuple, get_results_path, logger, logging, np, pd, plot_variability_vs_flexibility...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

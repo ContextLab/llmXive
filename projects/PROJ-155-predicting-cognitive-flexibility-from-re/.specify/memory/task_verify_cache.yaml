@@ -1,11 +1,8 @@
 T001:
   c: false
-  h: 6ddbc225798ba7549d61486463a5343b319dd52a22ec44b27a9d4606d9b4ce31
+  h: 7a351274b422fe32ba9b5221e11eebdc44687ac6d3bc2d3c1a0b894695364856
   r: "The required directories, `requirements.txt`, `.ruff.toml`, and `code/config.py`\
-    \ all exist with correct content, but the core verification requirement fails:\
-    \ `data/logs/ruff.log` (735KB) is full of lint errors (E501, F401, I001, UP035,\
-    \ W291, etc. across `code/analysis/fdr_correction.py` and other files) and does\
-    \ not contain \"\u2714 No errors\". The implementer must fix the lint violations\
-    \ (or adjust the config appropriately) and re-run `ruff check . > data/logs/ruff.log`\
-    \ until the log reports no errors."
-  sig: 4b3bcd237ba314ff8389240933e360146d682da78657805c357b66e4f4c2cc36
+    \ are present and correct, but the `data/logs/ruff.log` contains numerous lint\
+    \ warnings/errors and does not include the \u201C\u2714 No errors\u201D message,\
+    \ so the linting verification step failed."
+  sig: 4267442607bacf1d882fd058c31c580d1fcb63a307ddedd88d7b7ae3701a9161
