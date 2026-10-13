@@ -19,23 +19,15 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m code.src.pipeline.ingest -> rc=1
 
-2026-10-13 06:53:10,757 INFO __main__: === PPMI input validation (FR-001) ===
-2026-10-13 06:53:10,758 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
-2026-10-13 06:53:10,758 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+2026-10-13 08:20:36,613 INFO __main__: === PPMI input validation (FR-001) ===
+2026-10-13 08:20:36,614 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+2026-10-13 08:20:36,614 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
 
 - python -m code.src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 -> rc=1
-^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 262, in main
-    report = validate_inputs(asv_path, clinical_path)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 198, in validate_inputs
-    asv_path = _choose_path(
-               ^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 81, in _choose_path
-    _fail(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 52, in _fail
-    raise FileNotFoundError(message)
-FileNotFoundError: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+
+2026-10-13 08:20:37,764 INFO src.pipeline.ingest: === PPMI input validation (FR-001) ===
+2026-10-13 08:20:37,764 ERROR src.pipeline.ingest: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+2026-10-13 08:20:37,764 ERROR __main__: Ingest stage failed: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
 
 - python -m code.src.pipeline.run_us3 --iterations 1000 --seed 42 -> rc=1
 ^^^^^
@@ -68,7 +60,7 @@ FAILED code/tests/test_preprocess.py::test_zero_variance_covariate_detected
 FAILED code/tests/test_runtime_budget.py::test_runtime_logging_and_budget - A...
 FAILED code/tests/test_slopes.py::test_compute_outcome_slopes_simple - assert...
 ERROR code/tests/test_runtime_budget.py::test_runtime_logging_and_budget - At...
-5 failed, 22 passed, 8 warnings, 1 error in 1.64s
+5 failed, 22 passed, 8 warnings, 1 error in 1.71s
 
 
 

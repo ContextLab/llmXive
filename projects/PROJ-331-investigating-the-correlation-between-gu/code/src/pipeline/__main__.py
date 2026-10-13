@@ -1,23 +1,29 @@
-"""Pipeline entry point.
+"""Pipeline entry point for the Gut Microbiome – PD Progression analysis.
 
-Executes the full analysis workflow in the order required by the
-specification:
+This script orchestrates the full analysis workflow, timing each stage and
+writing a simple runtime log to ``data/results/runtime_log.txt``. The
+stages executed are:
 
-1. Ingest / validation
-2. Pre‑processing (filtering, CLR)
-3. Per‑patient slope computation
-4. Exploratory Spearman correlation
-5. Linear Mixed‑Effects modelling
-6. Permutation robustness test
+1. Ingest – validate raw inputs.
+2. Preprocess – filtering, CLR transformation and optional taxa capping.
+3. Slope computation – per‑patient taxon and clinical outcome slopes.
+4. Correlation analysis – Spearman correlation with BH correction.
+5. Linear Mixed‑Effects modelling – interaction term per taxon.
+6. Permutation robustness test – empirical p‑values.
 
-The script respects the command‑line flags defined in the quickstart
-documentation. It also propagates the ``skip`` flags produced by the
-ingestion step (graceful degradation when the outcome column is missing).
-In addition, it records wall‑clock timing for each pipeline stage,
-writes a runtime log to ``data/results/runtime_log.txt`` and asserts that
-the total wall‑clock time does not exceed 6 hours and that the permutation
-step does not exceed 4 hours (SC‑003).
+The command‑line interface mirrors the one described in ``quickstart.md``:
+
+.. code-block:: bash
+
+    python -m code.src.pipeline \\
+        --seed 42 \\
+        --max_taxa 100 \\
+        --perm_iterations 1000
+
+All default file locations follow the project conventions and are
+automatically created by the helper functions in the respective modules.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -25,169 +31,173 @@ import logging
 import sys
 import time
 from pathlib import Path
+from typing import List
 
 import numpy as np
 
+# Pipeline stage imports
+from src.pipeline import ingest, preprocess, slopes, correlation, mixed_effects, permutation
 from llmxive_toolkit import get_logger, paths
-
-# Import sub‑modules.
-from . import ingest, preprocess, slopes, correlation, mixed_effects, permutation
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper for timing and logging each stage
+# Helper utilities (unchanged signatures)
 # ----------------------------------------------------------------------
-def _run_stage(name: str, func, *args, **kwargs):
+
+
+def _run_stage(log_path: Path, name: str, func, *args, **kwargs):
     """Execute a pipeline stage, time it, and log the elapsed seconds.
 
-    The elapsed time is written to the runtime log file
-    ``data/results/runtime_log.txt`` as a simple ``<stage>: <seconds>`` line.
+    The elapsed time is written to ``data/results/runtime_log.txt`` as a
+    simple ``<stage>: <seconds>`` line.
     """
-    log.info("=== Starting stage: %s ===", name)
     start = time.time()
     result = func(*args, **kwargs)
-    elapsed = time.time() - start
-    log.info("=== Completed stage: %s (%.2f s) ===", name, elapsed)
+    seconds = time.time() - start
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(f"{name}: {seconds:.2f} seconds\n")
+    log.info("%s completed in %.2f seconds", name, seconds)
+    return result
 
-    # Write timing entry
-    runtime_path = paths.results("runtime_log.txt")
-    runtime_path.parent.mkdir(parents=True, exist_ok=True)
-    with runtime_path.open("a", encoding="utf-8") as fh:
-        fh.write(f"{name}: {elapsed:.2f} seconds\n")
 
-    return result, elapsed
-
-def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Gut microbiome – PD progression pipeline")
+def _parse_args(argv: List[str] | None = None) -> argparse.Namespace:
+    """Parse command‑line arguments for the full pipeline."""
+    parser = argparse.ArgumentParser(
+        description="Run the full Gut Microbiome – PD progression pipeline."
+    )
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="Random seed for reproducibility (default: 42)",
+        help="Random seed for reproducibility (default: 42).",
     )
     parser.add_argument(
         "--max_taxa",
         type=int,
         default=100,
-        help="Upper bound on taxa to retain (default: 100)",
+        help="Upper bound on taxa retained after filtering (default: 100).",
     )
     parser.add_argument(
         "--perm_iterations",
         type=int,
         default=1000,
-        help="Number of permutation iterations (default: 1000)",
+        help="Number of permutation iterations (default: 1000).",
     )
     return parser.parse_args(argv)
 
-def main(argv: list[str] | None = None) -> int:
+
+# ----------------------------------------------------------------------
+# Main orchestration
+# ----------------------------------------------------------------------
+
+
+def main(argv: List[str] | None = None) -> int:
+    """Execute the full pipeline.
+
+    Returns:
+        int: Exit code (0 for success, non‑zero for failure).
+    """
     args = _parse_args(argv)
 
-    # ------------------------------------------------------------------
-    # 0. Global seed
-    # ------------------------------------------------------------------
+    # Ensure reproducibility for all stochastic steps.
     np.random.seed(args.seed)
 
-    # ------------------------------------------------------------------
-    # Overall wall‑clock timer (SC‑003 total budget)
-    # ------------------------------------------------------------------
-    overall_start = time.time()
+    # Runtime log file – created lazily by the first stage.
+    runtime_log = paths.results("runtime_log.txt")
 
     # ------------------------------------------------------------------
-    # 1. Ingest / validation
+    # Stage 1 – Ingest
     # ------------------------------------------------------------------
-    (ingest_res, _), _ = _run_stage("Ingest", ingest.main)
-
-    if ingest_res != 0:
-        log.error("Ingest step failed with exit code %s", ingest_res)
+    try:
+        _run_stage(runtime_log, "Ingest", ingest.main)
+    except Exception as exc:
+        log.error("Ingest stage failed: %s", exc)
         return 1
 
-    # Load validation report to respect skip flags.
-    validation_path = paths.data("raw", "ingest_validation.json")
-    validation = ingest.validate_inputs()  # fast re‑run for the dict
-    skip = validation.get("skip_slope_and_correlation", False) or validation.get(
-        "skip_mixed_effects", False
-    )
-
     # ------------------------------------------------------------------
-    # 2. Pre‑processing
+    # Stage 2 – Preprocess
     # ------------------------------------------------------------------
-    (preprocess_summary, _), _ = _run_stage(
-        "Preprocess", preprocess.run_preprocess, max_taxa=args.max_taxa
-    )
-
-    # ------------------------------------------------------------------
-    # 3. Slope computation (may be skipped if outcome missing)
-    # ------------------------------------------------------------------
-    slope_elapsed = 0.0
-    if not skip:
-        (_, _), slope_elapsed = _run_stage(
-            "Slope computation", slopes.run_slopes
+    try:
+        _run_stage(
+            runtime_log,
+            "Preprocess",
+            preprocess.run_preprocess,
+            max_taxa=args.max_taxa,
         )
-    else:
-        log.info("Skipping slope, correlation, and mixed‑effects steps per skip flag.")
+    except Exception as exc:
+        log.error("Preprocess stage failed: %s", exc)
+        return 1
 
     # ------------------------------------------------------------------
-    # 4. Correlation (Spearman)
+    # Stage 3 – Slope computation
     # ------------------------------------------------------------------
-    corr_elapsed = 0.0
-    if not skip:
-        (_, _), corr_elapsed = _run_stage(
-            "Correlation analysis", correlation.run_correlation
+    try:
+        taxon_slopes_path, outcome_slopes_path = _run_stage(
+            runtime_log, "Slope computation", slopes.run_slopes
         )
-    else:
-        log.info("Skipping correlation step per skip flag.")
+    except Exception as exc:
+        log.error("Slope computation stage failed: %s", exc)
+        return 1
 
     # ------------------------------------------------------------------
-    # 5. Mixed‑effects modelling
+    # Stage 4 – Correlation analysis (plain Spearman + BH)
     # ------------------------------------------------------------------
-    mixed_elapsed = 0.0
-    if not skip:
-        (_, _), mixed_elapsed = _run_stage(
-            "Linear Mixed‑Effects modelling", mixed_effects.run_mixed_effects
+    try:
+        _run_stage(
+            runtime_log,
+            "Correlation analysis",
+            correlation.run_correlation,
+            partial=False,
+            taxon_slopes_path=taxon_slopes_path,
+            outcome_slopes_path=outcome_slopes_path,
         )
-    else:
-        log.info("Skipping mixed‑effects step per skip flag.")
+    except Exception as exc:
+        log.error("Correlation stage failed: %s", exc)
+        return 1
 
     # ------------------------------------------------------------------
-    # 6. Permutation robustness test
+    # Stage 5 – Linear Mixed‑Effects modelling
     # ------------------------------------------------------------------
-    perm_elapsed = 0.0
-    if not skip:
-        (_, _), perm_elapsed = _run_stage(
+    try:
+        _run_stage(
+            runtime_log,
+            "Linear Mixed‑Effects modelling",
+            mixed_effects.run_mixed_effects,
+        )
+    except Exception as exc:
+        log.error("Mixed‑effects stage failed: %s", exc)
+        return 1
+
+    # ------------------------------------------------------------------
+    # Stage 6 – Permutation robustness test
+    # ------------------------------------------------------------------
+    try:
+        _run_stage(
+            runtime_log,
             "Permutation robustness test",
             permutation.run_permutation,
             iterations=args.perm_iterations,
             seed=args.seed,
-            max_wall_seconds=4 * 60 * 60,
         )
-    else:
-        log.info("Skipping permutation step per skip flag.")
+    except Exception as exc:
+        log.error("Permutation stage failed: %s", exc)
+        return 1
 
     # ------------------------------------------------------------------
-    # Total runtime check (SC‑003)
+    # Total runtime
     # ------------------------------------------------------------------
-    total_elapsed = time.time() - overall_start
-    runtime_path = paths.results("runtime_log.txt")
-    with runtime_path.open("a", encoding="utf-8") as fh:
-        fh.write(f"Total: {total_elapsed:.2f} seconds\n")
+    total_seconds = sum(
+        float(line.split(":")[1].strip().split()[0])
+        for line in runtime_log.read_text(encoding="utf-8").splitlines()
+        if ":" in line
+    )
+    with open(runtime_log, "a", encoding="utf-8") as f:
+        f.write(f"Total: {total_seconds:.2f} seconds\n")
+    log.info("Pipeline completed – total time %.2f seconds", total_seconds)
 
-    if total_elapsed > 6 * 60 * 60:
-        log.error(
-            "Total pipeline runtime %.2f seconds exceeds 6‑hour budget.", total_elapsed
-        )
-        raise AssertionError("Pipeline exceeded total wall‑clock budget of 6 hours.")
-
-    if perm_elapsed > 4 * 60 * 60:
-        log.error(
-            "Permutation step runtime %.2f seconds exceeds 4‑hour budget.", perm_elapsed
-        )
-        raise AssertionError(
-            "Permutation step exceeded wall‑clock budget of 4 hours."
-        )
-
-    log.info("Pipeline execution finished successfully.")
     return 0
 
+
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

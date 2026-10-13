@@ -16,12 +16,12 @@ The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis
   *Implementation*: `code/src/pipeline/ingest.py` checks that `data/raw/ppmi_asv.csv` and `data/raw/ppmi_clinical.parquet` contain the required columns and are readable. If a file is missing or malformed the script exits with a non‑zero status and a clear error message; if the `MDS_UPDRS_Total` column is absent it logs a warning and sets a skip‑flag for downstream correlation/LME steps (FR‑001, FR‑004).  
   *Verification*: Unit tests in `code/tests/test_ingest.py` cover (a) successful load, (b) missing file, (c) missing outcome column. The runnable command is documented in `specs/001-investigating-the-correlation-between-gu/quickstart.md`.
 
-- [X] T002 **Filtering, CLR transformation, and memory‑cap handling**  
+- [ ] T002 **Filtering, CLR transformation, and memory‑cap handling**  
   *Implementation*: `code/src/pipeline/preprocess.py` (a) loads the raw files using **pandas + pyarrow**, (b) merges on `patient_id` + `visit_date`, (c) retains only PD patients with **≥ 2 visits** (logs exclusion count, FR‑002), (d) drops taxa whose counts are zero across all retained samples (warning logged), (e) adds a small pseudocount (1e‑6) and applies a centered‑log‑ratio (CLR) transform via `scikit_bio` (FR‑003), (f) detects zero‑variance covariates (e.g., constant levodopa dose) and removes them with a warning, (g) if the number of retained taxa would exceed the RAM budget, selects the **top 100 most abundant taxa** (FR‑010).  
   *Outputs*: `data/processed/filtered_samples.parquet`, `data/processed/clr_abundances.parquet`.  
   *Verification*: `code/tests/test_preprocess.py` checks patient‑visit filtering, zero‑taxa removal, correct CLR shape, and that the top‑100 subsampling rule is applied when needed.
 
-- [X] T003 **Per‑patient slope computation (taxa & clinical outcome)**  
+- [ ] T003 **Per‑patient slope computation (taxa & clinical outcome)**  
   *Implementation*: `code/src/pipeline/slopes.py` parses `visit_date` with `pd.to_datetime`, computes elapsed time in **exact years** (`(date - first_date).dt.days / 365.25`), then fits a simple linear regression for each patient‑taxon pair on the CLR‑transformed abundances to obtain a slope (FR‑004). It also fits a regression of `MDS_UPDRS_Total` vs. time per patient to obtain the clinical slope; if the outcome column was flagged missing by T001 a warning is emitted and the clinical‑slope file is omitted.  
   *Outputs*: `data/processed/patient_taxon_slopes.parquet`, `data/processed/patient_outcome_slopes.parquet` (the latter only when the outcome exists).  
   *Verification*: `code/tests/test_slopes.py` validates correct handling of exactly two visits, correct year calculation, and proper exclusion of single‑visit patients.
@@ -30,17 +30,17 @@ The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis
   *Implementation*: `code/src/pipeline/correlation.py` (a) loads the slope files, (b) directly computes a Spearman rank correlation **between the per‑patient taxon‑slope vector and the per‑patient clinical‑slope vector** for each taxon (no covariate adjustment, satisfying FR‑004), (c) applies Benjamini‑Hochberg FDR correction across all taxa (FR‑006). The raw Spearman results and BH‑adjusted p‑values are written to `data/results/taxa_correlations.csv` matching the contract schema. An optional exploratory file `data/results/partial_spearman_exploratory.csv` contains the unadjusted correlations for reference only.  
   *Verification*: Contract test `code/tests/contract/test_contracts.py` validates the CSV schema; `code/tests/test_correlation.py` checks monotonicity of BH‑adjusted p‑values and that the residual‑free correlation differs from a covariate‑adjusted version when covariates vary.
 
-- [ ] T005 **Linear Mixed‑Effects modeling with proper imports and covariate handling**  
+- [ ] T005 **Linear Mixed‑Effects modeling with proper imports and covariate handling**   <!-- FAILED-IN-EXECUTION: tests/test_mixed_effects_execution.py exit=5 -->
   *Implementation*: `code/src/pipeline/mixed_effects.py` imports `statsmodels.api as sm` and `statsmodels.formula.api as smf`. It fits, for each retained taxon, a mixed‑effects model on the **longitudinal observation level** (`MDS_UPDRS_Total ~ Time * Taxon + Age + Sex + Levodopa_Dose + (1|Patient)`). Zero‑variance covariates are dropped with a logged warning. For each taxon the fixed‑effect coefficient of the `Time:Taxon` interaction, its standard error, and raw p‑value are extracted. BH correction across taxa yields `bh_adj_p`.  
   *Output*: `data/results/mixed_effects_summary.csv` (schema‑compliant).  
   *Verification*: Unit test `code/tests/test_mixed_effects.py` fits the model on a tiny synthetic dataset with a known interaction and asserts the recovered coefficient is within tolerance; contract test validates the CSV.
 
-- [~] T006 **Permutation robustness test preserving within‑patient temporal order**  
+- [ ] T006 **Permutation robustness test preserving within‑patient temporal order**  
   *Implementation*: `code/src/pipeline/permutation.py` (a) seeds `np.random.seed(42)`, (b) for 1 000 iterations shuffles **patient identifiers** while keeping each patient’s internal time series of `MDS_UPDRS_Total` intact, (c) re‑fits the same mixed‑effects model as in T005 on the permuted data, (d) records the `Time:Taxon` interaction p‑value for each taxon per iteration, (e) computes empirical p‑values as the proportion of permuted p‑values ≤ the observed raw p‑value, (f) aborts gracefully if the permutation block exceeds **4 hours**, writes any partial results, and logs the breach (FR‑007, SC‑003).  
   *Output*: `data/results/permutation_pvalues.csv`.  
   *Verification*: `code/tests/test_permutation.py` confirms that (i) patient‑level time ordering is unchanged after shuffling, (ii) empirical p‑values lie in [0, 1], (iii) the runtime guard triggers appropriately on a tiny timed mock run.
 
-- [~] T007 **Runtime and resource monitoring**  
+- [ ] T007 **Runtime and resource monitoring**  
   *Implementation*: `code/src/pipeline/__main__.py` wraps each pipeline stage (ingest, preprocess, slopes, correlation, mixed‑effects, permutation) with a wall‑clock timer, logs per‑stage elapsed time to `data/results/runtime_log.txt`, and after the full run asserts total wall‑clock ≤ 6 h and permutation ≤ 4 h (SC‑003).  
   *Verification*: `code/tests/test_runtime_budget.py` runs a reduced‑size pipeline and checks that the log file contains the expected timing entries and that the assertions pass.
 

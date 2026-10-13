@@ -11,28 +11,27 @@ T001:
   sig: b235b36fb680a569344f193faab14032d83f26c9ace81e0ac4fc2056b0bf5c52
 T002:
   c: false
-  h: 2ccf0a1681fc807f58a7e24ee714a497e38ff91f3ae5263abdff4d4f290f8134
-  r: "The required outputs `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
-    \ are MISSING \u2014 the pipeline was never run to produce them (no execution\
-    \ evidence, no test-run logs). Additionally, the task explicitly requires the\
-    \ CLR transform via `scikit_bio`, but `preprocess.py` implements it manually with\
-    \ numpy (`np.log` minus row mean), and the memory-cap test only exercises the\
-    \ small no-subsampling branch plus a private helper rather than the actual FR-010\
-    \ budget path. The implementer must run the pipeline on the real raw data to generate\
-    \ both parquet outputs and u"
-  sig: e86b86a211c3f7d065c2e89d8e21ef938aaceed6d548559ca970882eed6f9e32
+  h: 776598a6738fe4068017594e04e76221633f1419ce7220b04e7480e70ba1cdac
+  r: "The implementation `code/src/pipeline/preprocess.py` correctly performs loading,\
+    \ merging, filtering, zero\u2011taxa removal, CLR transformation, zero\u2011variance\
+    \ detection, and RAM\u2011capped subsampling, and the unit tests exercise these\
+    \ behaviours. However, the required output artifacts `data/processed/filtered_samples.parquet`\
+    \ and `data/processed/clr_abundances.parquet` are absent from the repository,\
+    \ so the task\u2019s specified outputs are not present. Generating and committing\
+    \ these two parquet files (or evidence of a successful run that creates them)\
+    \ is needed to complete the task."
+  sig: 49654b5189a577e319dd972de5d69c832c52d27763af249c874f2e6fdf80919b
 T003:
   c: false
-  h: a659628bde6e10d8212249d52a26168248615489486ac6b68c91c7e70a933dd1
-  r: 'The recorded test run (`code/.tasks/T003.code_tests_test_slopes.py.log`) shows
-    all 6 tests FAILED (exit 1) because pyarrow/fastparquet is missing, so there is
-    no evidence the slope computation or file-writing logic was ever verified. Moreover,
-    the implementation contradicts the task spec: instead of exact years via `(date
-    - first_date).dt.days / 365.25`, `_prepare_time` uses a crude Jan-1/half-year
-    approximation, and `compute_outcome_slopes` substitutes a *global* slope for patients
-    with constant outcomes (fabricating a value where the test demands a measured
-    0.0). The parquet outputs in `data'
-  sig: b3d131a63a67c0dfa56bc6073c1153e76def12b394db9880253a381081d77342
+  h: ab489b631192fdb526af5c8a0cdcd6e7bc0e56516e07aa336c46031fe792fdd7
+  r: "I examined `code/src/pipeline/slopes.py` and found that its `_prepare_time`\
+    \ function does **not** compute elapsed time as \u201Cexact years\u201D using\
+    \ `(date - first_date).dt.days / 365.25` as required by Task\u202FT003; instead\
+    \ it applies a half\u2011year offset rule based on the calendar day. Consequently\
+    \ the produced slopes are based on a different time metric than the task specification\
+    \ demands. The parquet output files exist, but the core computation does not meet\
+    \ the stated requirement."
+  sig: fdf495cb88bc10fabdd699df4ca80234131d59c10e333d226f19a8d5ad2d7386
 T004:
   c: false
   h: 469e8297657aa20a2ab2e91f0039a5288606b58ed763c8d5c58ad7fac46b4163
@@ -57,15 +56,30 @@ T005:
     \ is absent (it uses `MixedLM` directly, which is acceptable, but the covariate-handling\
     \ claim is not implemented). The implementer must run"
   sig: 095c7801827bd520d514a1d8152fc09c5043162baba74cf5dda52430673c11f7
-T013:
+T006:
   c: false
-  h: 86b181175ca3149be21c619b3e04a46e59022bfdca3087c0b4bd2895d5a026bb
-  r: 'The unit test run failed (exit 1: 3 of 4 tests ERROR because the test fixture
-    requires pyarrow/fastparquet, which is not installed), so the required verification
-    of matching/mismatching checksum handling was never demonstrated. Additionally,
-    `verify_dataset.py` hard-codes `EXPECTED_ASV_SHA256 = "PLACEHOLDER_ASV_SHA256"`
-    and `EXPECTED_CLINICAL_SHA256 = "PLACEHOLDER_CLINICAL_SHA256"` rather than the
-    real digests recorded in the PPMI publication, so the checksum-validation requirement
-    is a stub. Fix by recording the real expected digests (or a documented mechanism
-    to load them) and making the tes'
-  sig: 5244ce247ffdf294d51b0886ba433ad373f76449d2a48fbf99de94d39fe81656
+  h: 36c2126a5fcf843d596f21c2989bd4f04f8e62dde46e8d359cac0ac862fb37a0
+  r: The repository contains the implementation `code/src/pipeline/permutation.py`
+    and the test `code/tests/test_permutation.py`, but the required output artifact
+    `data/results/permutation_pvalues.csv` is absent. The task explicitly mandates
+    that this CSV be written to `data/results/permutation_pvalues.csv`; its missing
+    presence means the deliverable is not satisfied.
+  sig: d7102ebdfd29cc40262d33de6b64aa533351dd3a435b254aa77fc84b0819b602
+T007:
+  c: false
+  h: 9fd7107aa90e1422971f09892bbd0a086ab599e1bd9ff3a2f6208314ed925a7d
+  r: "`code/src/pipeline/__main__.py` does time each stage and writes a `runtime_log.txt`,\
+    \ and the test `code/tests/test_runtime_budget.py` checks the log entries, but\
+    \ the pipeline never asserts that the total runtime is \u2264\u202F6\u202Fh or\
+    \ that the permutation step is \u2264\u202F4\u202Fh as required by SC\u2011003.\
+    \ The missing budget\u2011check assertions mean the implementation does not fully\
+    \ meet the task specification."
+  sig: 7f386c96f8a393f5c5911c4737ae4324ec2cfc413f57ddbd0f439437d127d915
+T013:
+  c: true
+  h: 3b5ff988e6f9e53fe2e62cd13769c7fa9141d5e5f2b9171997273068b3eb3222
+  r: Checked `code/src/pipeline/verify_dataset.py` for existence, checksum validation,
+    citation reachability, and proper error handling, and verified that `code/tests/test_verify_dataset.py`
+    exercises matching and mismatching checksum cases, missing files, and unreachable
+    citation. All required behavior is implemented and tested.
+  sig: 4b0e121b55cd4c88ddb08688b53a9bc4113eab054b3e81b3fb9b83d948098f76

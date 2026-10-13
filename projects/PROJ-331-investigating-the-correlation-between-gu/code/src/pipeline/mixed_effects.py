@@ -22,6 +22,7 @@ a warning is logged, and an empty CSV (only header) is written.
 """
 from __future__ import annotations
 
+import argparse
 import logging
 from pathlib import Path
 from typing import List, Tuple
@@ -71,7 +72,6 @@ def _encode_sex(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     if "sex" not in df.columns:
         raise ValueError("Clinical data must contain a 'sex' column.")
-    # Simple encoding: male -> 0, female -> 1; any other value raises.
     mapping = {"M": 0, "F": 1}
     if not set(df["sex"]).issubset(mapping.keys()):
         raise ValueError(f"Unexpected values in 'sex' column: {set(df['sex'])}")
@@ -87,11 +87,10 @@ def _fit_taxon_model(
     outcome_col: str = "MDS_UPDRS_Total",
 ) -> Tuple[float, float, float]:
     """Fit a MixedLM for a single taxon and return (coef, std_err, pval)."""
-    # Build design matrix
     df = merged.copy()
     df["interaction"] = df["time_years"] * df[taxon]
 
-    # Fixed‑effects columns (include intercept automatically)
+    # Fixed‑effects columns (intercept added automatically by statsmodels)
     exog_cols = [
         "time_years",
         taxon,
@@ -104,8 +103,6 @@ def _fit_taxon_model(
     exog = sm.add_constant(exog, has_constant="add")
 
     endog = df[outcome_col]
-
-    # Random intercept per patient
     groups = df["patient_id"]
 
     model = MixedLM(endog, exog, groups=groups, exog_re=None)
@@ -118,9 +115,19 @@ def _fit_taxon_model(
     # Extract interaction term statistics
     coef = result.params["interaction"]
     std_err = result.bse["interaction"]
-    t_stat = coef / std_err if std_err != 0 else np.nan
-    # Two‑sided p‑value from normal approximation (large df)
-    pval = 2 * (1 - stats.norm.cdf(abs(t_stat))) if not np.isnan(t_stat) else np.nan
+
+    # Prefer the p‑value reported by statsmodels if available.
+    # MixedLM results include a ``pvalues`` attribute for fixed effects.
+    if hasattr(result, "pvalues") and "interaction" in result.pvalues:
+        pval = result.pvalues["interaction"]
+    else:
+        # Fall back to a normal‑approximation (large‑df) calculation.
+        t_stat = coef / std_err if std_err != 0 else np.nan
+        pval = (
+            2 * (1 - stats.norm.cdf(abs(t_stat)))
+            if not np.isnan(t_stat)
+            else np.nan
+        )
     return float(coef), float(std_err), float(pval)
 
 def _bh_adjust(pvals: pd.Series) -> pd.Series:
@@ -159,7 +166,6 @@ def run_mixed_effects(
             "Outcome column 'MDS_UPDRS_Total' missing – LME step will be skipped."
         )
         out_path = out_path or paths.results("mixed_effects_summary.csv")
-        # Write empty CSV with header
         pd.DataFrame(
             columns=[
                 "taxon_name",
@@ -238,8 +244,6 @@ def run_mixed_effects(
     return out_path
 
 def _parse_args(argv: List[str] | None = None) -> argparse.Namespace:
-    import argparse
-
     parser = argparse.ArgumentParser(
         description="Run Linear Mixed‑Effects modeling for each taxon."
     )

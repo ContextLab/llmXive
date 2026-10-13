@@ -1,14 +1,16 @@
 status: none
-intent: Parkinson's disease gut microbiome longitudinal UPDRS dataset Zenodo NCBI
-  BioProject download python package dataset
+intent: open longitudinal Parkinson's disease gut microbiome ASV counts with UPDRS
+  scores python package dataset
 required_fields:
 - sample_id
 - patient_id
-- visit_id
-- collection_date
-- asv_counts_per_taxon (one column per taxon)
-- taxon_id_or_taxonomy
-- mds_updrs_total_score
-cache_key: ee25761371b6010afb27d7253aade3235c39ab28d920fe302890e7d5c7c4c972
-searched_at: '2026-10-13T06:53:57.773630+00:00'
+- visit_date
+- visit_number
+- asv_id
+- asv_count
+- mds_updrs_total
+- age
+- sex
+cache_key: 850058b7301c22a3bd0d7a4c948c40c37acd4180c49771f056515a1e33a10871
+searched_at: '2026-10-13T08:21:53.263590+00:00'
 retry_count: 1
