@@ -1,12 +1,7 @@
-last_used: linus-pauling
-last_used_at: '2026-10-13T20:10:25.046017+00:00'
+last_used: marie-curie
+last_used_at: '2026-10-13T22:05:37.825374+00:00'
 last_outcome: committed
 history:
-- slug: ada-lovelace
-  started_at: '2026-06-25T10:37:39.695647+00:00'
-  ended_at: '2026-06-25T11:26:51.118388+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: alan-turing
   started_at: '2026-06-25T11:26:51.118388+00:00'
   ended_at: '2026-06-25T12:19:56.820319+00:00'
@@ -1254,3 +1249,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-743-ambient-temperature-influence-on-moral-d/reviews/research/linus-pauling-simulated__2026-10-13__research.md
+- slug: marie-curie
+  started_at: '2026-10-13T20:10:25.046017+00:00'
+  ended_at: '2026-10-13T22:05:37.825374+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/reviews/research/marie-curie-simulated__2026-10-13__research.md
