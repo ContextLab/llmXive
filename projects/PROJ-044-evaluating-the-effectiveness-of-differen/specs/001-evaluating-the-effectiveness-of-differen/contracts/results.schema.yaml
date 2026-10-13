@@ -5,7 +5,7 @@ type: "object"
 properties:
   run_id:
     type: "string"
-    description: "Unique identifier for the run."
+    description: "Unique identifier for the run (e.g., '0.1_1.0_42_DP')."
   dataset:
     type: "string"
     enum:
@@ -15,8 +15,11 @@ properties:
     type: "number"
     description: "Dirichlet concentration parameter."
   epsilon:
-    type: "number"
-    description: "Privacy budget (ε)."
+    anyOf:
+      - type: "number"
+      - type: "string"
+        enum: ["inf"]
+    description: "Target privacy budget (ε) or the string \"inf\" for non‑DP baseline."
   seed:
     type: "integer"
     description: "Random seed."
@@ -40,16 +43,19 @@ properties:
     description: "Average accuracy of minority clients."
   delta:
     type: "number"
-    description: "Privacy parameter δ."
+    description: "Privacy parameter δ (fixed to 1e‑5)."
   actual_epsilon:
     type: "number"
-    description: "Calculated ε from Moments Accountant."
-  degradation:
-    type: "number"
-    description: "Accuracy_NonDP - Accuracy_DP."
+    description: "Cumulative ε from Moments Accountant."
+  is_dp:
+    type: "boolean"
+    description: "True for DP runs, False for baseline."
   is_time_limited:
     type: "boolean"
-    description: "True if training was truncated due to time limit."
+    description: "True if early‑stop triggered by time budget."
+  degradation:
+    type: "number"
+    description: "Accuracy_NonDP - Accuracy_DP (computed post‑hoc)."
 required:
   - run_id
   - dataset
@@ -62,6 +68,8 @@ required:
   - minority_accuracy
   - delta
   - actual_epsilon
-  - degradation
+  - is_dp
   - is_time_limited
+  - degradation
 additionalProperties: false
+

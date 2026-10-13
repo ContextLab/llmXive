@@ -9,15 +9,15 @@ properties:
       type: "integer"
       minimum: 0
       maximum: 255
-    description: "Flattened 28x28 image pixels."
+    description: "Flattened pixel values of a fixed resolution and intensity range."
   label:
     type: "integer"
     minimum: 0
     maximum: 61
-    description: "Class label (0-61 for digits + letters)."
+    description: "Class label (representing digits and letters)."
   client_id:
     type: "string"
-    description: "Original LEAF client identifier."
+    description: "Original LEAF client identifier (kept for provenance)."
 required:
   - image
   - label
