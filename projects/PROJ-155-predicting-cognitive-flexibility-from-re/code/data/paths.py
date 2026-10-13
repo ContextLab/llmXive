@@ -1,81 +1,42 @@
 """
-Utility functions for accessing project data directories.
-
-This module provides a thin wrapper around ``llmxive_toolkit.paths`` to
-expose the directory paths used throughout the codebase. It also offers
-a simple ``ensure_dir`` helper that creates a directory (including any
-missing parents) for a given path.
-
-The functions return string paths because the existing codebase mixes
-``str`` and ``pathlib.Path`` usage. Returning ``str`` keeps backward
-compatibility while still leveraging the robust path handling of
-``llmxive_toolkit.paths``.
+Helper utilities that expose the project's data directories.
+The functions return ``Path`` objects rooted at the repository's top‑level
+``paths.root`` (provided by ``llmxive_toolkit``).  They are deliberately tiny
+to avoid circular imports and to keep the public API stable for the other
+modules.
 """
-
 from pathlib import Path
 from llmxive_toolkit import paths
 
 
-def get_project_root() -> str:
+def get_raw_path() -> Path:
     """
-    Return the absolute path to the project root directory.
+    Return the absolute path to ``data/raw``.
 
-    The original ``code.data.__init__`` expected this symbol, so we
-    provide it here to satisfy the import.
+    The rest of the codebase expects a concrete ``Path`` object, not a
+    string, so we keep the return type explicit.
     """
-    return str(paths.root)
+    return paths.data("raw")
 
 
-def get_raw_path() -> str:
+def get_processed_path() -> Path:
     """
-    Path to the raw HCP (or simulated) data directory.
-
-    Returns:
-        str: ``<project>/data/raw/HCP_1200``
+    Return the absolute path to ``data/processed``.
     """
-    raw_path = paths.data("raw", "HCP_1200")
-    raw_path.mkdir(parents=True, exist_ok=True)
-    return str(raw_path)
+    return paths.data("processed")
 
 
-def get_processed_path() -> str:
+def get_results_path() -> Path:
     """
-    Path to the processed data directory.
-
-    Returns:
-        str: ``<project>/data/processed``
+    Return the absolute path to ``data/results``.
     """
-    proc_path = paths.data("processed")
-    proc_path.mkdir(parents=True, exist_ok=True)
-    return str(proc_path)
+    return paths.data("results")
 
 
-def get_results_path() -> str:
+def ensure_dir(p: Path) -> None:
     """
-    Path to the results directory (used for JSON summaries, etc.).
-
-    Returns:
-        str: ``<project>/data/results``
+    Convenience wrapper that creates ``p`` and all parent directories if they
+    do not already exist.  This mirrors the behaviour of ``paths.<folder>()``
+    but works with arbitrary ``Path`` objects.
     """
-    res_path = paths.data("results")
-    res_path.mkdir(parents=True, exist_ok=True)
-    return str(res_path)
-
-
-def ensure_dir(p: Path | str) -> None:
-    """
-    Ensure that the directory ``p`` exists.
-
-    Args:
-        p: Path or string representing a directory.
-    """
-    Path(p).mkdir(parents=True, exist_ok=True)
-
-
-__all__ = [
-    "get_project_root",
-    "get_raw_path",
-    "get_processed_path",
-    "get_results_path",
-    "ensure_dir",
-]
+    p.mkdir(parents=True, exist_ok=True)

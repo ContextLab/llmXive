@@ -1,11 +1,10 @@
 T001:
-  c: true
-  h: 56924d50a09a5cda85c30cfabd57c0b075eb5f0930a0915da4fa239c67553305
-  r: All required directories (code/, data/raw/, data/processed/, data/results/, docs/,
-    tests/) exist and are non-empty; requirements.txt contains all 11 specified packages
-    (plus extras); .ruff.toml configures linting; code/config.py pins seed=42, window=60s,
-    step=1s, FD_threshold=0.2; and plan.md's Constitution Check marks window length
-    as "DEVIATION (Justified in technical-design.md)" and phase-shuffling as "REJECTED"
-    as required. The verification commands (tree/ruff) are not evidenced as run, but
-    all substantive artifacts are present and correct.
-  sig: 0954cc4806bf1eafde4766c26916bd528fa99ad2767eb9b7444dac06abf545e1
+  c: false
+  h: 68c7c523353ba622b52c1183e2b0b4cbeb75b0b7df36df10b6e1173f45fea60c
+  r: "The required directories and files (`code/`, `data/raw/`, `data/processed/`,\
+    \ `data/results/`, `docs/`, `tests/`, `requirements.txt`, `.ruff.toml`, `code/config.py`,\
+    \ and the updated `plan.md`) are present and correctly populated, but there is\
+    \ no provided evidence that the linting step (`ruff check .`) was run and passed.\
+    \ A command\u2011line output or test result confirming that the codebase complies\
+    \ with the `.ruff.toml` configuration is needed to satisfy the verification requirement."
+  sig: 4bf016a148c17640a2743b43d2fe736f4fbe7a502754539fed26f3d83a438b63

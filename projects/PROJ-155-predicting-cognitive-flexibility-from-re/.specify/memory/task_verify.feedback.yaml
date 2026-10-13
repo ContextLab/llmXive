@@ -1,4 +1,10 @@
 T001:
+  reason: "The required directories and files (`code/`, `data/raw/`, `data/processed/`,\
+    \ `data/results/`, `docs/`, `tests/`, `requirements.txt`, `.ruff.toml`, `code/config.py`,\
+    \ and the updated `plan.md`) are present and correctly populated, but there is\
+    \ no provided evidence that the linting step (`ruff check .`) was run and passed.\
+    \ A command\u2011line output or test result confirming that the codebase complies\
+    \ with the `.ruff.toml` configuration is needed to satisfy the verification requirement."
   task: 436cf559f918fc6c0f94366fbddaf6304a5bec8fd0006a5614c6baf503a7643d
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1;
