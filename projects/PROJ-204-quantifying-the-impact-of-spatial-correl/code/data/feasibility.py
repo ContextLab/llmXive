@@ -1,14 +1,12 @@
 """
 Data Feasibility Check Script
---------------------------------
-This script probes three candidate data sources for Energy‑Dispersive X‑ray Spectroscopy (EDS)
-elemental maps paired with perovskite solar‑cell performance metrics.
+------------------------------
+Probes three candidate data sources for EDS elemental maps paired with
+perovskite solar-cell performance metrics:
 
-Sources
--------
-1. NREL Perovskite Database – public API export (hypothetical endpoint).
-2. Zenodo – REST API query for records containing the term ``perovskite EDS``.
-3. Materials Project – metadata fallback via the ``mp_api`` package.
+1. NREL Perovskite Database - public API export endpoint.
+2. Zenodo - REST API query for records matching ``perovskite EDS``.
+3. Materials Project - metadata fallback via the ``mp_api`` package.
 
 For each source the script records:
   * HTTP reachable flag (True/False)
@@ -18,16 +16,13 @@ For each source the script records:
   * Sample IDs that provide such evidence
 
 The aggregated result is written to ``data/results/data_feasibility_report.json``.
-If *no* source provides a linked EDS map the report contains ``"verdict": "halt"``.
-The script **does not** terminate with a non‑zero exit code – it always exits
-cleanly (exit code 0) after writing the report, allowing the pipeline runner
-to decide whether to continue based on the ``verdict`` field.
+If no source provides a linked EDS map, the report contains
+``"verdict": "halt"`` and the script exits with a non-zero exit code, as
+required by the task (no substitute data is ever produced).
 
-The script is invoked as a module:
+Invoked as a module:
 
     python -m code.data.feasibility
-
-The command is documented in the project's ``quickstart.md``.
 """
 
 import json
@@ -40,17 +35,16 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
+IMAGE_EXTENSIONS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
+
+
 def _safe_get(url: str, params: Dict[str, Any] = None, timeout: int = 30) -> Dict[str, Any]:
     """
     Perform a GET request and return a dictionary with ``reachable``,
     ``status`` (int or str) and ``json`` (parsed body or ``None``).
 
-    Errors are caught and transformed into a ``reachable=False`` entry;
-    this behaviour satisfies the requirement to *record* failures without
-    silently fabricating data.
+    Connection errors are caught and transformed into a ``reachable=False``
+    entry; this records the failure honestly without fabricating data.
     """
     try:
         resp = requests.get(url, params=params, timeout=timeout)
@@ -65,21 +59,15 @@ def _safe_get(url: str, params: Dict[str, Any] = None, timeout: int = 30) -> Dic
         log.warning("Request to %s failed: %s", url, exc)
         return {"reachable": False, "status": str(exc), "json": None}
 
-# ----------------------------------------------------------------------
-# Source‑specific probing functions
-# ----------------------------------------------------------------------
+
 def probe_nrel() -> Dict[str, Any]:
-    """
-    Probe the (hypothetical) NREL Perovskite Database API export.
-    The real endpoint is not publicly documented; we attempt a generic
-    JSON export URL and treat any non‑200 response as unreachable.
-    """
+    """Probe the NREL Perovskite Database API export endpoint."""
     url = "https://perovskitedatabase.com/api/export?format=json"
     result = _safe_get(url)
 
     n_records = 0
     eds_linked = False
-    evidence_ids: List[int] = []
+    evidence_ids: List[Any] = []
 
     if result["reachable"] and isinstance(result["json"], list):
         n_records = len(result["json"])
@@ -92,8 +80,6 @@ def probe_nrel() -> Dict[str, Any]:
             ):
                 eds_linked = True
                 evidence_ids.append(rec.get("id", -1))
-    else:
-        n_records = 0
 
     return {
         "source": "NREL Perovskite Database",
@@ -105,18 +91,21 @@ def probe_nrel() -> Dict[str, Any]:
         "evidence_sample_ids": evidence_ids,
     }
 
+
 def probe_zenodo() -> Dict[str, Any]:
     """
     Probe Zenodo for records matching ``perovskite EDS``.
+
     The Zenodo REST API returns a JSON object with a ``hits`` field.
+    The page size is capped at 100 (the API rejects larger values).
     """
     base_url = "https://zenodo.org/api/records/"
-    params = {"q": "perovskite EDS", "size": 1000}
+    params = {"q": "perovskite EDS", "size": 100}
     result = _safe_get(base_url, params=params)
 
     n_records = 0
     eds_linked = False
-    evidence_ids: List[int] = []
+    evidence_ids: List[Any] = []
 
     if result["reachable"] and isinstance(result["json"], dict):
         hits = result["json"].get("hits", {})
@@ -124,22 +113,23 @@ def probe_zenodo() -> Dict[str, Any]:
         records = hits.get("hits", [])
         for rec in records:
             rec_id = rec.get("id")
-            files = rec.get("files", [])
+            files = rec.get("files", []) or []
             has_image = any(
-                f.get("key", "").lower().endswith((".tif", ".tiff", ".png", ".jpg", ".jpeg"))
+                str(f.get("key", "")).lower().endswith(IMAGE_EXTENSIONS)
                 for f in files
             )
-            metadata = rec.get("metadata", {})
-            has_perf = "pce" in metadata or "PCE" in metadata
+            metadata = rec.get("metadata", {}) or {}
+            desc = str(metadata.get("description", "")) + str(
+                metadata.get("title", "")
+            )
+            has_perf = "pce" in desc.lower() or "efficiency" in desc.lower()
             if has_image and has_perf:
                 eds_linked = True
                 evidence_ids.append(rec_id)
-    else:
-        n_records = 0
 
     return {
         "source": "Zenodo",
-        "url": f"{base_url}?q=perovskite+EDS",
+        "url": "https://zenodo.org/api/records/?q=perovskite+EDS",
         "reachable": result["reachable"],
         "http_status": result["status"],
         "n_records": n_records,
@@ -147,11 +137,15 @@ def probe_zenodo() -> Dict[str, Any]:
         "evidence_sample_ids": evidence_ids,
     }
 
+
 def probe_materials_project() -> Dict[str, Any]:
     """
     Probe the Materials Project API via the ``mp_api`` package.
-    The API requires an API key; if the key is missing or the request
-    fails we record ``reachable=False``.
+
+    The API requires an API key; if the package is unavailable or the
+    request fails we record ``reachable=False`` with the error message.
+    Materials Project provides composition metadata only (no EDS maps),
+    so ``eds_linked`` is always False for this fallback source.
     """
     try:
         from mp_api.client import MPRester
@@ -169,10 +163,10 @@ def probe_materials_project() -> Dict[str, Any]:
 
     try:
         with MPRester() as mpr:
-            entries = mpr.summary.search_criteria(
-                {"elements": ["Pb", "I", "C", "N", "H"]}, fields=["material_id"]
+            docs = mpr.materials.summary.search(
+                elements=["Pb", "I"], fields=["material_id"]
             )
-            n_records = len(entries)
+            n_records = len(docs)
             return {
                 "source": "Materials Project",
                 "url": "https://materialsproject.org/api",
@@ -194,13 +188,14 @@ def probe_materials_project() -> Dict[str, Any]:
             "evidence_sample_ids": [],
         }
 
-# ----------------------------------------------------------------------
-# Main orchestration
-# ----------------------------------------------------------------------
-def main() -> None:
+
+def main() -> int:
     """
     Execute the feasibility check for all three sources and write the
-    consolidated JSON report.
+    consolidated JSON report to ``data/results/data_feasibility_report.json``.
+
+    Returns (and exits with) a non-zero exit code when the verdict is
+    ``"halt"`` (no verified source with linked EDS maps was found).
     """
     log.info("Starting data feasibility check...")
 
@@ -217,7 +212,7 @@ def main() -> None:
                 rpt["n_records"],
                 rpt["eds_linked"],
             )
-        except Exception as exc:  # pragma: no cover – defensive
+        except Exception as exc:  # defensive: record the failure honestly
             log.exception("Unexpected error probing source: %s", exc)
             reports.append(
                 {
@@ -234,18 +229,20 @@ def main() -> None:
     any_linked = any(r.get("eds_linked") for r in reports)
     overall = {"sources": reports, "verdict": "continue" if any_linked else "halt"}
 
-    out_path: Path = paths.results("data_feasibility_report.json")
-    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path: Path = paths.data("results", "data_feasibility_report.json")
     with out_path.open("w", encoding="utf-8") as fp:
         json.dump(overall, fp, indent=2)
 
     log.info("Feasibility report written to %s", out_path)
 
     if not any_linked:
-        log.error("No source provided linked EDS maps – pipeline should halt.")
-    # Exit cleanly (exit code 0) regardless of verdict; downstream logic
-    # decides whether to continue based on the JSON content.
-    return
+        log.error(
+            "No source provided linked EDS maps - verdict is 'halt'; "
+            "the plan's Data Availability Report path applies."
+        )
+        return 1
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

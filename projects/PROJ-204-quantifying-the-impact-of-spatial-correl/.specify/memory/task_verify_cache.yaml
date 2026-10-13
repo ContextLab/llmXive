@@ -1,8 +1,0 @@
-T100:
-  c: false
-  h: 8d826ead934d3a33b6029a0479d1a5bf6578b48c43747e7b81d91040cde51e8f
-  r: "The script writes the report to `results/data_feasibility_report.json` instead\
-    \ of the required `data/results/data_feasibility_report.json`, and it always exits\
-    \ with code\u202F0 even when the verdict is `\"halt\"`\u2014the task mandates\
-    \ a non\u2011zero exit in that case. These mismatches must be fixed."
-  sig: d13a0daac5b0cd6b3f3a8f3fa4f2dbcc72b15698c3db4607a677c9ab3e9d10d2

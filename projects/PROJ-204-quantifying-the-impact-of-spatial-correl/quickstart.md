@@ -28,15 +28,24 @@
 
 ## Data Setup
 
-1. **Check data feasibility**:
- Before any download attempt, verify that a real source with linked EDS maps exists.
+1. **Check data feasibility** (Task T100):
+ Before any download attempt, verify that a real source with linked EDS
+ maps exists.
 
  ```bash
  python -m code.data.feasibility
  ```
 
- The script writes `data/results/data_feasibility_report.json`. If the
- report contains `"verdict": "halt"` the pipeline cannot proceed.
+ The script probes the NREL Perovskite Database, the Zenodo REST API
+ (`https://zenodo.org/api/records/?q=perovskite+EDS`), and the Materials
+ Project API, and writes `data/results/data_feasibility_report.json`
+ containing, per source: the probed URL, reachability, HTTP status,
+ record count, whether EDS image files are programmatically linked to
+ performance metrics, and evidence sample IDs.
+
+ If the report contains `"verdict": "halt"` the script exits non-zero
+ (no substitute data is produced) and the pipeline cannot proceed; the
+ plan's Data Availability Report path applies.
 
 2. **Download Raw Data**:
  Run the ingestion script to fetch verified JSONs and attempt EDS downloads.
@@ -57,7 +66,7 @@
 Execute the full analysis pipeline:
 
 ```bash
-python code/main_pipeline.py
+python code/main_pipeline.py --config <path-to-config.yaml>
 ```
 
 This script performs the following steps in order:
@@ -87,6 +96,7 @@ pytest tests/integration/test_pipeline.py -v
 
 ## Output
 
+- **Feasibility Report**: `data/results/data_feasibility_report.json`.
 - **Processed Data**: `data/processed/` (Aligned maps, derived metrics).
 - **Results**: `results/summary_report.csv` (Correlation coefficients, p-values, robustness metrics).
 - **Ingestion Metrics**: `results/ingestion_metrics.json` (Global ingestion success rate as per SC-004).

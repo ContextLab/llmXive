@@ -1,18 +1,14 @@
 status: none
-intent: NREL Perovskite Database elemental maps Pb I MA performance metrics PCE J_sc
-  V_oc Zenodo Materials Project python package dataset
+intent: NREL perovskite solar cell database with EDS elemental maps and performance
+  metrics python package dataset
 required_fields:
 - sample_id
-- element_pb_map_path
-- element_i_map_path
-- element_ma_map_path
+- pb_eds_map
+- i_eds_map
+- ma_eds_map
 - pce
 - j_sc
 - v_oc
-- pixel_grid_width
-- pixel_grid_height
-- metadata_source
-- acquisition_date
-cache_key: 0066791cef53e679cc7a682bb405df485d168a5c8460130150926c009984b8e1
-searched_at: '2026-10-12T21:33:49.349612+00:00'
+cache_key: 593db9ae2f6ca1edcab44e81f3e1dd0f5a13a8dae83d3bee470022c66ba30e93
+searched_at: '2026-10-13T06:17:27.469330+00:00'
 retry_count: 1

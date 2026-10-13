@@ -12,7 +12,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/data/models.py: synthetic/fake INPUT data not authorized by the spec — “…erformance]:     """     Generate synthetic performance records for…”; 3 command(s) failed: python code/main_pipeline.py (rc=1); python -m pytest tests/unit/test_spatial_metrics.py -v (rc=1); python -m pytest tests/integration/test_pipeline.py -v (rc=4); 4 declared deliverable(s) absent: data/processed/spatial_metrics.csv; data/processed/unified_dataset.csv; data/results/data_feasibility_report.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/data/models.py: synthetic/fake INPUT data not authorized by the spec — “…erformance]:     """     Generate synthetic performance records for…”; 3 command(s) failed: python code/main_pipeline.py (rc=1); python -m pytest tests/unit/test_spatial_metrics.py -v (rc=1); python -m pytest tests/integration/test_pipeline.py -v (rc=4); 3 declared deliverable(s) absent: data/processed/spatial_metrics.csv; data/processed/unified_dataset.csv; data/results/ingestion_stats.json
 
 ## Failing / missing run-book commands
 
@@ -38,7 +38,7 @@ platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.6.0 -- /home/runner/wor
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-204-quantifying-the-impact-of-spatial-correl
 configfile: pyproject.toml
-plugins: typeguard-4.6.0, platformdirs-4.13.0
+plugins: platformdirs-4.13.0
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================
@@ -51,7 +51,6 @@ ERROR: file or directory not found: tests/integration/test_pipeline.py
 
 - data/processed/spatial_metrics.csv
 - data/processed/unified_dataset.csv
-- data/results/data_feasibility_report.json
 - data/results/ingestion_stats.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -71,10 +70,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/quickstart_validator.py` — NOT invoked by the run-book
     - `code/validation/co_location.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/unified_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/results/data_feasibility_report.json` is declared but was NOT written. Scripts referencing it:
-    - `code/data/feasibility.py` — NOT invoked by the run-book
-    - `code/data/ingest.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/data_feasibility_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/ingestion_stats.json` is declared but was NOT written. Scripts referencing it:
     - `code/data/ingest.py` — NOT invoked by the run-book
     - `code/main_pipeline.py` — IS a run-book command

@@ -1,9 +1,7 @@
 T100:
-  reason: "The script writes the report to `results/data_feasibility_report.json`\
-    \ instead of the required `data/results/data_feasibility_report.json`, and it\
-    \ always exits with code\u202F0 even when the verdict is `\"halt\"`\u2014the task\
-    \ mandates a non\u2011zero exit in that case. These mismatches must be fixed."
-  task: fcacb71f153e8d61b89ddd3238c57fd9257bdd1b4a4ddc41a6e28fc89d001b84
+  reason: 'Requested task execution failed; rerun successfully: code/data/feasibility.py
+    exit=1'
+  task: 082400cb176d6920164d012953f47dcffbb32a196c176a04aba682a0b4e9f0ab
 T101:
   reason: 'Requested task execution failed; rerun successfully: code/data/ingest.py
     exit=1; code/main_pipeline.py exit=1'
