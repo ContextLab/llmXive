@@ -13,13 +13,13 @@ T005:
 T006:
   task: 3eced8a1ff1ca2b4bd9cec9ae3c6f689cf4f8e2eb3048512af6b75a5254a1c6b
 T007:
-  reason: 'The logger and test exist and the test passes, but the task''s verification
-    requirement is not met: `training_run.schema.yaml` is MISSING, so the test cannot
-    validate against it (the test''s docstring even admits it "should satisfy the
-    contract schemas" without checking any schema). Additionally, the test round-trips
-    empty payload dicts rather than a dummy `TrainingRun` record, so no actual record
-    fields are exercised. The implementer must add the schema file and have the test
-    validate the logged record against it.'
+  reason: The required schema `contracts/training_run.schema.yaml` is MISSING, so
+    the test's schema validation cannot work; moreover the test reads it with `json.load`
+    despite the `.yaml` extension. The actual execution record shows the test run
+    failed (exit 4) due to a malformed `code/pyproject.toml` ("Cannot overwrite a
+    value at line 61"), so there is no evidence the round-trip test ever passed. Fix
+    the pyproject config, create the schema file (and parse it as YAML), and re-run
+    the test to completion.
   task: d5ca8a19dd361dbbdd528295b209fc0175a57685986505c2ca6550c84c37c3b7
 T008:
   reason: "Both files exist and do fail loudly on import errors (no mock fallback),\

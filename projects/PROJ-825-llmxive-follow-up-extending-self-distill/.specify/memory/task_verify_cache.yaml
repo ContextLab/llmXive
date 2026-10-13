@@ -1,11 +1,12 @@
 T001:
   c: true
-  h: 4c27f56aacc56a1af22d43964afeebde35e63537e029926d0bcb02c20f75d793
+  h: 26c7620e719fcf73a56d4387a04d785fc046210f0b1e7964932807d1e22512ae
   r: 'All required directories exist and are non-empty: `code/` with `agents/`, `environments/`,
     `metrics/`, `utils/`, `tests/`, `models/` subdirectories (each containing files),
-    `code/config.py` (5813 bytes of real configuration code), and `data/` with `data/processed/`.
-    The task only asked for the project root structure, which is fully present.'
-  sig: dc87bde20f891c524213c5b1ecaa7fd2af47242334e4786cfcf8a29eaffb78fb
+    a substantive 5813-byte `code/config.py` with real configuration content, and
+    `data/` with `data/processed/` populated with run artifacts. The structure matches
+    the task''s stated plan.md layout.'
+  sig: abb8f9a6733a5c8fd162774b8c6ea5415f4c9240bce621c2402ec1dba4279697
 T004:
   c: true
   h: bb46065c7c5ac0aeef6c8f1aed39c4694a470ae5d5a3a7f2d28e7bd7456a7e2c
@@ -30,15 +31,15 @@ T006:
   sig: a0942592e9bbee11e320e3cdf6b117a043d0c02d2c025b19135ebc84853dbc50
 T007:
   c: false
-  h: 0041f3894f96e6485f297b1e4819cc2f21cf1321ca6b2272552afbf98294a3f6
-  r: 'The logger and test exist and the test passes, but the task''s verification
-    requirement is not met: `training_run.schema.yaml` is MISSING, so the test cannot
-    validate against it (the test''s docstring even admits it "should satisfy the
-    contract schemas" without checking any schema). Additionally, the test round-trips
-    empty payload dicts rather than a dummy `TrainingRun` record, so no actual record
-    fields are exercised. The implementer must add the schema file and have the test
-    validate the logged record against it.'
-  sig: 113b732b0a845fab5b64e918bff107f1ec1c8c3ef18d7b2e961bdcf345bca6b6
+  h: 95425911f780c2f30a6b8a2682fe4b78956255809851340bd06fb3a1212672ec
+  r: The required schema `contracts/training_run.schema.yaml` is MISSING, so the test's
+    schema validation cannot work; moreover the test reads it with `json.load` despite
+    the `.yaml` extension. The actual execution record shows the test run failed (exit
+    4) due to a malformed `code/pyproject.toml` ("Cannot overwrite a value at line
+    61"), so there is no evidence the round-trip test ever passed. Fix the pyproject
+    config, create the schema file (and parse it as YAML), and re-run the test to
+    completion.
+  sig: e20d9db1b25e1d09c9ae1ec0c431cb8d1cb202e10f54b52c6ce543a19e8bb705
 T008:
   c: false
   h: cf5551ebc2b437f60365719052f4c16926753a3eff8b53422370e275e3c7de31

@@ -1,7 +1,10 @@
 """
 WebShop Environment Wrapper.
 
-Implements T008 requirements.
+Implements T008 requirements: verifies that the ``webshop`` package is installed,
+constructs a real WebShop environment, and forwards ``reset`` and ``step`` calls
+to the underlying environment. No synthetic fallback is provided – any import
+or instantiation error is raised immediately.
 """
 # Verify that the WebShop package is installed at import time.
 try:
@@ -16,21 +19,39 @@ from typing import Any, Dict, Optional, Tuple, List
 class WebShopWrapper:
     """
     Wrapper for the WebShop environment.
+
+    The wrapper lazily creates a ``WebShopEnv`` (the standard WebShop
+    environment class) using the optional ``config`` dictionary. All
+    interactions are delegated directly to the underlying environment.
     """
 
     def __init__(self, config: Optional[Dict] = None):
+        """
+        Args:
+            config: Optional dictionary of keyword arguments passed to the
+                underlying ``WebShopEnv`` constructor (e.g. ``seed``,
+                ``max_steps``). If omitted, defaults are used.
+        """
         self.config = config or {}
-        self.env = None
+        self.env: Any = None
         self._initialized = False
 
+    # ------------------------------------------------------------------ #
+    # Public API expected by the training loop / tests
+    # ------------------------------------------------------------------ #
     def reset(self) -> Tuple[str, Dict]:
-        """Reset the environment."""
+        """
+        Reset the environment and return the initial observation and an info dict.
+
+        Returns:
+            observation: The initial textual observation.
+            info: Additional information about the reset (contains at least a
+                ``status`` field).
+        """
         if not self._initialized:
             self._initialize_env()
 
-        # Placeholder for actual WebShop reset logic
-        observation = "Reset WebShop environment"
-        info = {"status": "reset"}
+        observation, info = self.env.reset()
         return observation, info
 
     def step(self, action: str) -> Tuple[str, float, bool, Dict]:
@@ -38,30 +59,49 @@ class WebShopWrapper:
         Take a step in the environment.
 
         Args:
-            action: The action string to execute.
+            action: The textual action to execute.
 
         Returns:
-            observation, reward, done, info
+            observation: The next observation string.
+            reward: Float reward for the step.
+            done: Boolean indicating episode termination.
+            info: Additional step information.
         """
         if not self._initialized:
             self._initialize_env()
 
-        # Placeholder for actual WebShop step logic
-        observation = f"Executed: {action}"
-        reward = 0.0
-        done = False
-        info = {"action": action}
-
+        observation, reward, done, info = self.env.step(action)
         return observation, reward, done, info
 
-    def _initialize_env(self):
-        """Initialize the WebShop environment."""
-        # The import check already happened at module load time; here we could
-        # perform any additional runtime initialization if needed.
+    # ------------------------------------------------------------------ #
+    # Internal helpers
+    # ------------------------------------------------------------------ #
+    def _initialize_env(self) -> None:
+        """
+        Lazily instantiate the underlying WebShop environment.
+
+        The WebShop package provides the ``WebShopEnv`` class. If the class
+        cannot be imported, a clear ``RuntimeError`` is raised – there is no
+        silent fallback.
+        """
+        try:
+            # The canonical class name in the webshop package.
+            from webshop import WebShopEnv
+        except Exception as e:
+            raise RuntimeError(
+                "Failed to import WebShopEnv from the webshop package. "
+                "Ensure you have a compatible version installed."
+            ) from e
+
+        self.env = WebShopEnv(**self.config)
         self._initialized = True
 
-    def close(self):
-        """Close the environment."""
+    def close(self) -> None:
+        """
+        Close the environment and release resources.
+        """
+        if self._initialized and hasattr(self.env, "close"):
+            self.env.close()
         self._initialized = False
 
 __all__ = ["WebShopWrapper"]
