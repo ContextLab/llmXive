@@ -14,6 +14,7 @@ from typing import Tuple, Optional
 
 import pandas as pd
 import scipy.stats as stats
+import numpy as np
 from llmxive_toolkit import paths
 
 logger = logging.getLogger(__name__)
@@ -60,13 +61,26 @@ def _compute_spearman(taxon_slopes: pd.DataFrame, outcome_slopes: pd.DataFrame) 
 
 
 def _bh_adjust(pvals: pd.Series) -> pd.Series:
-    """Benjamini‑Hochberg FDR adjustment (FR‑006)."""
-    n = len(pvals)
-    order = pvals.argsort()
-    rank = pd.Series(range(1, n + 1), index=order)
-    bh = pvals * n / rank
-    bh = bh.cummin()[::-1].clip(upper=1.0)
-    return bh.reindex(pvals.index)
+    """Benjamini‑Hochberg FDR adjustment (FR‑006).
+
+    Returns a Series of adjusted p‑values aligned with the original index.
+    """
+    p = pvals.values.astype(float)
+    n = len(p)
+    if n == 0:
+        return pd.Series([], dtype=float, index=pvals.index)
+
+    order = np.argsort(p)               # indices that would sort p ascending
+    rank = np.arange(1, n + 1)          # 1‑based ranks after sorting
+    bh = p[order] * n / rank            # raw BH values in sorted order
+    # Ensure monotonicity (non‑decreasing with increasing raw p)
+    bh = np.minimum.accumulate(bh[::-1])[::-1]
+    bh = np.clip(bh, 0, 1)
+
+    # Re‑order to original index
+    adj = np.empty_like(bh)
+    adj[order] = bh
+    return pd.Series(adj, index=pvals.index)
 
 
 def _partial_spearman(
@@ -81,8 +95,7 @@ def _partial_spearman(
     # Residualise taxon and outcome w.r.t covariates
     from sklearn.linear_model import LinearRegression
 
-    cov_names = list(covariates.columns)
-    cov_names.remove("patient_id")
+    cov_names = [c for c in covariates.columns if c != "patient_id"]
     reg = LinearRegression()
     residual_taxon = {}
     for taxon in taxon_wide.columns:

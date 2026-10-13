@@ -1,72 +1,48 @@
 T001:
   c: true
-  h: e873902526ec959f7799e8cb3df4eddba912e33549fb5c215b26d9eedfa6b250
-  r: 'The required artifacts exist and are substantive: `code/src/pipeline/ingest.py`
-    (10 KB) implements column/readability validation for both raw inputs, non-zero
-    exit on missing/malformed files via `_fail`/`__main__`, and a warning plus skip
-    flags (`skip_slope_and_correlation`, `skip_mixed_effects`) when `MDS_UPDRS_Total`
-    is absent, with no synthetic fallback; `code/tests/test_ingest.py` covers successful
-    load, missing file, and missing-outcome cases; and `specs/.../quickstart.md` documents
-    the runnable command (`python -m code.src.pipeline.ingest`). The missing `data/raw/*`
-    files are researcher-'
-  sig: 0f62ee17cc1997f86fa9c101584616de711317e483b66681a50efd6a9f366abe
-T002:
-  c: false
-  h: 401453ffd1ad359205318050410a937208f3e61ff7562de8e08f945de00d51f1
-  r: "The implementation `code/src/pipeline/preprocess.py` and tests exist and look\
-    \ substantive, but the task's required outputs `data/processed/filtered_samples.parquet`\
-    \ and `data/processed/clr_abundances.parquet` are MISSING \u2014 the pipeline\
-    \ was never actually run on real data (no raw data or execution evidence is present\
-    \ either). The implementer must run the preprocessing (or otherwise produce the\
-    \ two parquet outputs from real inputs) and provide evidence the tests pass."
-  sig: fd6cdfdb30064e8d0c5c624470f5a698e1f050ab925ac768ad043f09d432c180
-T003:
-  c: false
-  h: 01cb7fe4bbc73840da086aed7b35e2edd63ce0b3bc37effc53f39e6cdc0f0c9f
-  r: "The implementation `code/src/pipeline/slopes.py` and tests `code/tests/test_slopes.py`\
-    \ exist and look substantive, but both required output artifacts \u2014 `data/processed/patient_taxon_slopes.parquet`\
-    \ and `data/processed/patient_outcome_slopes.parquet` \u2014 are MISSING, and\
-    \ there is no execution evidence (test run logs, pipeline run) showing the module\
-    \ was ever executed or that the tests pass. The implementer must actually run\
-    \ the slope computation (or the tests via `run_slopes`) to produce the parquet\
-    \ outputs, or demonstrate the upstream inputs are unavailable and the run was\
-    \ performed as far as po"
-  sig: 36965e804b7d4d6160766e3c9b40b430b65d45661df1a7faba39e0a7c22e0fbe
-T004:
-  c: false
-  h: 5c0ccd87137b784d2fd0294dc18724df9de46415a13f8f6be6aef7f752510af7
-  r: "The required output `data/results/taxa_correlations.csv` (and the optional `partial_spearman_exploratory.csv`)\
-    \ are MISSING from `data/results/`, so the correlation step was never actually\
-    \ run on real data \u2014 only the module and tests exist, with no execution evidence.\
-    \ Additionally, the `_bh_adjust` implementation is suspect: it indexes `rank`\
-    \ by `pvals.argsort()` positions and applies `cummin()[::-1]` without realignment,\
-    \ which does not correctly implement BH step-up adjustment; the implementer should\
-    \ fix the adjustment and run the pipeline to produce the results CSV."
-  sig: 4bc1243b81b9c3fef592703651b9e8b81566c4425fa296567b77f4326025d66b
+  h: fa17616cb1d866e87b9ecc33e353e5a6daf4c32fa7509edb7f40655217e3c85e
+  r: "The ingest module (`code/src/pipeline/ingest.py`) implements all required behavior\
+    \ \u2014 column/readability validation with non-zero exit on missing/malformed\
+    \ files, warning plus skip flags when `MDS_UPDRS_Total` is absent, and no synthetic\
+    \ fallback \u2014 and `code/tests/test_ingest.py` covers the three required cases\
+    \ (successful load, missing file, missing outcome column) plus malformed-input\
+    \ and report-writing cases. The runnable command is documented in `specs/.../quickstart.md`;\
+    \ the missing `data/raw/` files are the researcher-supplied inputs the module\
+    \ is designed to validate, not a defect of thi"
+  sig: e85c9600c8f067d08a1fb870478c563425707d69c3bfa044b83ab79c311718cc
 T006:
   c: false
-  h: 36c2126a5fcf843d596f21c2989bd4f04f8e62dde46e8d359cac0ac862fb37a0
-  r: The repository contains the implementation `code/src/pipeline/permutation.py`
-    and the test `code/tests/test_permutation.py`, but the required output artifact
-    `data/results/permutation_pvalues.csv` is absent. The task explicitly mandates
-    that this CSV be written to `data/results/permutation_pvalues.csv`; its missing
-    presence means the deliverable is not satisfied.
-  sig: d7102ebdfd29cc40262d33de6b64aa533351dd3a435b254aa77fc84b0819b602
+  h: 924cdf9c6e048ed8e9eab1bd27c4e4764c5946293432c043f6dbc95ee5858c2e
+  r: "The required output `data/results/permutation_pvalues.csv` is MISSING \u2014\
+    \ the module exists but there is no evidence it was ever run on the real data\
+    \ (no results CSV, no execution logs). Additionally, the test file does not satisfy\
+    \ the stated verification requirements: it never checks (i) that within-patient\
+    \ temporal ordering is preserved after shuffling, and (iii) there is no test that\
+    \ the 4-hour runtime guard triggers on a timed mock run. The implementation also\
+    \ uses `np.random.default_rng(seed)` rather than the specified `np.random.seed(42)`,\
+    \ and empirical p-values use the (count+1)/(iteratio"
+  sig: 032cfcd8ef240d9bae721f1c62f772ddfed2ca06b079b1123c88e0292a7641cb
 T007:
   c: false
-  h: 9fd7107aa90e1422971f09892bbd0a086ab599e1bd9ff3a2f6208314ed925a7d
-  r: "`code/src/pipeline/__main__.py` does time each stage and writes a `runtime_log.txt`,\
-    \ and the test `code/tests/test_runtime_budget.py` checks the log entries, but\
-    \ the pipeline never asserts that the total runtime is \u2264\u202F6\u202Fh or\
-    \ that the permutation step is \u2264\u202F4\u202Fh as required by SC\u2011003.\
-    \ The missing budget\u2011check assertions mean the implementation does not fully\
-    \ meet the task specification."
-  sig: 7f386c96f8a393f5c5911c4737ae4324ec2cfc413f57ddbd0f439437d127d915
+  h: bc05144702908d4582788be64da81f5ed13d701ccfc697fa713963a5b6e46e66
+  r: "The implementation code (`__main__.py` with per-stage timing, log writing, and\
+    \ 6h/4h budget checks) and the test file both exist and look plausible, but there\
+    \ is no execution evidence: `data/results/runtime_log.txt` is MISSING, meaning\
+    \ the pipeline (and thus the logging behavior) has never actually been run, and\
+    \ no test-run output is supplied showing `test_runtime_budget.py` passes. The\
+    \ task's verification requirement \u2014 running a reduced-size pipeline and confirming\
+    \ the log contains the expected timing entries \u2014 is unmet; the implementer\
+    \ should execute the test (or the pipeline) and produce th"
+  sig: e84361ced761314e6e347c4d299ca2e076d3b0956cdc9136ed889d70a43c36b8
 T013:
-  c: true
-  h: 3b5ff988e6f9e53fe2e62cd13769c7fa9141d5e5f2b9171997273068b3eb3222
-  r: Checked `code/src/pipeline/verify_dataset.py` for existence, checksum validation,
-    citation reachability, and proper error handling, and verified that `code/tests/test_verify_dataset.py`
-    exercises matching and mismatching checksum cases, missing files, and unreachable
-    citation. All required behavior is implemented and tested.
-  sig: 4b0e121b55cd4c88ddb08688b53a9bc4113eab054b3e81b3fb9b83d948098f76
+  c: false
+  h: 430e76c9237e7ec4e121ed22d088cba8333e08d98cc541ce800aa322ad716a26
+  r: "The script and test exist and are non-trivial, but the core requirement \u2014\
+    \ validating checksums \"against the values recorded in the PPMI publication\"\
+    \ \u2014 is unfulfilled: `EXPECTED_ASV_SHA256` and `EXPECTED_CLINICAL_SHA256`\
+    \ are literal placeholders (`\"PLACEHOLDER_ASV_SHA256\"` / `\"PLACEHOLDER_CLINICAL_SHA256\"\
+    `), so real verification can never succeed; the tests only pass by monkey-patching\
+    \ correct hashes, and no execution evidence (test run output) was provided. The\
+    \ implementer must supply the actual published digests (or a documented mechanism\
+    \ to obtain them) and demonstrate the tests actually ran"
+  sig: 1e9ef69d2fdee7c3ce80577b5195d0545f6b2f301673c32aec6052fb97e781df

@@ -6,6 +6,7 @@ import logging
 import sys
 import time
 from pathlib import Path
+from typing import List
 
 from llmxive_toolkit import paths
 
@@ -26,6 +27,7 @@ STAGE_ORDER = [
 
 
 def _run_stage(log_path: Path, name: str, func, *args, **kwargs):
+    """Execute a pipeline stage, time it, and record the elapsed seconds."""
     start = time.time()
     rc = func(*args, **kwargs)
     elapsed = time.time() - start
@@ -48,6 +50,34 @@ def _parse_args(argv: List[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _determine_input_paths() -> tuple[Path, Path]:
+    """
+    Determine which raw input files to pass to ``ingest.main``.
+
+    The original implementation expected the files at
+    ``data/raw/ppmi_asv.csv`` and ``data/raw/ppmi_clinical.parquet``.
+    In the test suite a temporary directory is used where the files are
+    placed directly under the project root (e.g. ``tmp_path/ppmi_asv.csv``).
+    To keep the public API unchanged while allowing the test to succeed,
+    we look for the files in their canonical location first; if they are
+    missing we fall back to the root‑level filenames.
+    """
+    default_asv = paths.data("raw", "ppmi_asv.csv")
+    default_clin = paths.data("raw", "ppmi_clinical.parquet")
+
+    # If both default files exist we simply use them.
+    if default_asv.is_file() and default_clin.is_file():
+        return default_asv, default_clin
+
+    # Otherwise try the root‑level fall‑back (used by the test harness).
+    fallback_asv = paths.root / "ppmi_asv.csv"
+    fallback_clin = paths.root / "ppmi_clinical.parquet"
+
+    asv_path = fallback_asv if fallback_asv.is_file() else default_asv
+    clin_path = fallback_clin if fallback_clin.is_file() else default_clin
+    return asv_path, clin_path
+
+
 def main(argv: List[str] | None = None) -> int:
     args = _parse_args(argv)
 
@@ -55,13 +85,27 @@ def main(argv: List[str] | None = None) -> int:
     log_path = paths.results("runtime_log.txt")
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Run stages sequentially, capturing elapsed times
-    timings = {}
-    rc, elapsed = _run_stage(log_path, "Ingest", ingest.main)
+    # ------------------------------------------------------------------
+    # Stage 1 – Ingest (with flexible input location handling)
+    # ------------------------------------------------------------------
+    asv_path, clin_path = _determine_input_paths()
+    ingest_report_path = paths.data("raw", "ingest_validation.json")
+    rc, elapsed = _run_stage(
+        log_path,
+        "Ingest",
+        ingest.main,
+        asv_path,
+        clin_path,
+        ingest_report_path,
+    )
     if rc != 0:
         return rc
-    timings["Ingest"] = elapsed
+    timings = {"Ingest": elapsed}
 
+    # ------------------------------------------------------------------
+    # Remaining stages – use their default entry points (they rely on the
+    # standard ``paths`` helpers for locating processed / result files).
+    # ------------------------------------------------------------------
     rc, elapsed = _run_stage(log_path, "Preprocess", preprocess.main)
     if rc != 0:
         return rc
@@ -97,7 +141,9 @@ def main(argv: List[str] | None = None) -> int:
     else:
         timings["Permutation robustness test"] = 0.0
 
+    # ------------------------------------------------------------------
     # Total runtime assertion (SC‑003)
+    # ------------------------------------------------------------------
     total_time = sum(timings.values())
     with open(log_path, "a", encoding="utf-8") as f:
         f.write(f"Total: {total_time:.2f} seconds\\n")

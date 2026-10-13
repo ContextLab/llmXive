@@ -10,7 +10,7 @@ import argparse
 import logging
 import time
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -62,6 +62,7 @@ def _permute_clinical(clinical_df: pd.DataFrame, rng: np.random.Generator) -> pd
     shuffled_patients = rng.permutation(patients)
     mapping = dict(zip(patients, shuffled_patients))
     outcome_series["patient_id"] = outcome_series["patient_id"].map(mapping)
+
     # Re‑attach other covariates (they stay with original patient IDs)
     covariates = clinical_df.drop(columns=["MDS_UPDRS_Total", "visit_date"])
     permuted = outcome_series.merge(covariates, on="patient_id", how="left")
@@ -127,7 +128,10 @@ def run_permutation(
         clr = clr.drop(columns=zero_covs)
         clinical = clinical.drop(columns=zero_covs)
 
-    taxon_columns = [c for c in clr.columns if c not in ("sample_id", "patient_id", "visit_date", "time_years", "sex")]
+    taxon_columns = [
+        c for c in clr.columns
+        if c not in ("sample_id", "patient_id", "visit_date", "time_years", "sex")
+    ]
     empirical_counts = {taxon: 0 for taxon in taxon_columns}
     raw_pvals = {}
 
@@ -137,7 +141,9 @@ def run_permutation(
 
     for i in range(iterations):
         if time.time() - start_time > max_wall_seconds:
-            logger.warning("Permutation step exceeded wall‑time budget; aborting after %d iterations.", i)
+            logger.warning(
+                "Permutation step exceeded wall‑time budget; aborting after %d iterations.", i
+            )
             break
         permuted_clinical = _permute_clinical(clinical, rng)
         merged_perm = clr.merge(permuted_clinical, on=["patient_id", "visit_date"], how="inner")

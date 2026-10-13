@@ -1,15 +1,16 @@
 status: none
-intent: Qiita Parkinson disease microbiome longitudinal ASV UPDRS dataset MGnify NCBI
-  SRA python package dataset
+intent: Parkinson disease gut microbiome longitudinal UPDRS dataset Qiita MGnify python
+  package dataset
 required_fields:
 - sample_id
 - patient_id
-- visit_date
-- timepoint
-- taxon_id
-- taxonomic_classification
-- asv_count
-- mds_updrs_total
-cache_key: b6c13a3a8df5e1941cda77c3fee9aade0ee4d17d85e81f1e6df7cd9457563b55
-searched_at: '2026-10-13T15:11:35.162192+00:00'
+- visit_number
+- collection_date
+- asv_counts
+- taxonomy
+- updrs_total
+- age
+- sex
+cache_key: 46d7dfe239a356000a25c23fd8263ecded4d23f7de7d8c0d2ea13de213d49cdb
+searched_at: '2026-10-13T21:11:39.019207+00:00'
 retry_count: 1

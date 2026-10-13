@@ -8,7 +8,7 @@ The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [X] T013 **Verify PPMI dataset citation and provenance**  
+- [ ] T013 **Verify PPMI dataset citation and provenance**  
   *Implementation*: `code/src/pipeline/verify_dataset.py` checks that the two raw files exist, validates their SHA‑256 checksums against the values recorded in the PPMI publication, and confirms the citation is reachable via the Reference‑Validator Agent (Principle II). If verification fails, the script aborts with an informative error.  
   *Verification*: Unit test `code/tests/test_verify_dataset.py` ensures correct handling of matching and mismatching checksums.
 
@@ -44,7 +44,7 @@ The goal is to implement a reproducible, CPU‑tractable end‑to‑end analysis
   *Implementation*: `code/src/pipeline/__main__.py` wraps each pipeline stage (ingest, preprocess, slopes, correlation, mixed‑effects, permutation) with a wall‑clock timer, logs per‑stage elapsed time to `data/results/runtime_log.txt`, and after the full run asserts total wall‑clock ≤ 6 h and permutation ≤ 4 h (SC‑003).  
   *Verification*: `code/tests/test_runtime_budget.py` runs a reduced‑size pipeline and checks that the log file contains the expected timing entries and that the assertions pass.
 
-- [ ] T008a **Execute US1 pipeline (Correlation only)**   <!-- FAILED: unspecified -->
+- [ ] T008a **Execute US1 pipeline (Correlation only)**   <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/src/pipeline/run_us1.py exit=1 -->
   *Command*: `python -m code.src.pipeline.run_us1` (or equivalent wrapper) which sequentially invokes T001 → T002 → T003 → T004 and writes `data/results/taxa_correlations.csv` plus runtime log.  
   *Pre‑conditions*: Raw PPMI files present and verified by T013.  
   *Verification*: After execution, a sanity‑check script confirms `taxa_correlations.csv` contains a row for every retained taxon and that runtime limits are respected.
