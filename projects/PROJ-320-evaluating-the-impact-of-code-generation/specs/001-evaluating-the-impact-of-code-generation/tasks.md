@@ -1,94 +1,172 @@
 # Tasks: Evaluating the Impact of Code Generation on Code Review Quality Using LLMs
 
-**Input**: Design documents from `/specs/001-evaluating-llm-code-review-impact/`
-**Prerequisites**: plan.md, spec.md, data-model.md, contracts/
+**Input**: Design documents from `/specs/001-evaluating-llm-code-review-impact/`  
+**Prerequisites**: `plan.md`, `spec.md`, `data-model.md`, `contracts/`
 
-**Re-plan note**: The prior task list failed verification because the data pipeline never produced its promised artifacts (`prs_labeled.csv`, `complexity_scores.csv`, `prs_metrics.csv`, `results.json`). This revision restructures the remaining work around an executable end-to-end pipeline: one runnable driver that fetches real PR data, labels it, scores complexity, extracts metrics, and writes all declared CSV/JSON artifacts. Verified infrastructure tasks are preserved as completed; rejected tasks are re-opened and consolidated. No synthetic fallback data is permitted anywhere.
+## Phase 1 – Setup and first end‑to‑end analysis
 
-## Phase 1: Setup and first end-to-end analysis
+| Goal | Run an executable driver on a small real input set and produce the first validated artefacts. |
+|------|-----------------------------------------------------------------------------------------------|
 
-Completed infrastructure (preserved from prior rounds; do not redo):
+- [ ] T002 Establish the Python 3.11 project with a `requirements.txt` that pins `requests`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`, `pydantic`.  
+  – **Verification**: `pip install -r requirements.txt` succeeds on a fresh runner; `requirements.txt` is present at the repo root.
 
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` pinning `requests`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`, `pydantic`.
-- [ ] T004 Create `code/utils/seeds.py` for pinned random seeds.
-- [ ] T005 Create `code/utils/config.py` defining repo list (`psf/requests`, `microsoft/vscode`, `numpy/numpy`), thresholds, and API settings.
-- [ ] T007 Create `code/data/fetch_github.py` with `fetch_batch(repo, limit, max_retries=3)` implementing batch processing, exponential backoff, and SHA-256 checksums of raw JSON in `data/raw/`.
-- [ ] T008 Implement checksum utility in `code/utils/checksum.py`.
-- [ ] T009 Create `code/audit/manual_validation.py` sample-size calculation `calculate_sample_size(N_llm, min_threshold=10, scaling_factor=0.1)`.
-- [ ] T013 [US1] Fetch up to 200 PRs from the prioritized repo list with pagination, backoff, and raw JSON + checksums (FR-001).
-- [ ] T014 [US1] Primary signature classification (`llm`/`human`) with `confidence_score` per PR and `flagged` boolean for confidence < 0.6 (FR-002).
-- [X] T015a/T015c [US1] Secondary detector (entropy + n-gram anomaly on hardcoded Python token baseline) emitting `detector_score` (FR-007).
-- [ ] T018 [US1] Repository fallback logic when LLM count < 10.
-- [ ] T019a [US1] Manual audit checklist template `code/audit/manual_audit_checklist.csv` (SC-004).
-- [ ] T024b [US2] Mann-Whitney U sensitivity-test implementation.
-- [ ] T025 [US2] Effect sizes (Cohen's d) and α = 0.05 significance determination.
-- [ ] T026 [US2] `code/analysis/sensitivity_analysis.py` for the detector-only cohort (FR-008).
-- [ ] T035 [US2] Correlation analysis between complexity and review metrics (SC-003).
-- [ ] T036c [US3] Rule-based narrative synthesis for Discussion/Limitations.
-- [X] T047/T053 [US2] Effect-size interpretation and sensitivity-comparison reporting in the results aggregation.
-- [ ] T042 PII filter and scan (`code/utils/pii_scan.py`).
+- [ ] T004 Create `code/utils/seeds.py` that defines a deterministic RNG seed (`SEED = 42`) and a helper `set_seed()` used by all stochastic scripts.  
+  – **Verification**: Importing `set_seed` sets `numpy` and `random` seeds without error.
 
-Remaining executable work:
+- [ ] T005 Create `code/utils/config.py` containing the prioritized repository list (`["psf/requests", "microsoft/vscode", "numpy/numpy"]`), API limits, and classification thresholds (`LLM_CONFIDENCE = 0.6`).  
+  – **Verification**: `from code.utils.config import REPOS` returns the expected list.
 
-- [ ] T060 [US1] [FR-001] [FR-002] [FR-007] Build a single end-to-end data pipeline driver `code/data/run_pipeline.py` that executes, in order: (1) fetch real PRs via `code/data/fetch_github.py` with strict fail-loudly behavior — on unrecoverable API error after max retries raise `RuntimeError`, NEVER fall back to synthetic/mock data (T044 concern); (2) classify via `code/data/classify_prs.py` producing `source_type`, `confidence_score` (weighted combination of signature strength and detector score, signature weighted higher — T048), `flagged_for_audit`, `detector_score` with a deterministic seed (T050); (3) write `data/processed/prs_labeled.csv` conforming to `specs/.../contracts/pr_schema.schema.yaml` (pr_id, repo, source_type, confidence_score, flagged_for_audit, comment_count, time_to_merge_minutes, review_cycles, complexity_score, loc, entropy_score, hour_of_day, day_of_week), validated row-by-row with pydantic (`LabeledPR` model; raise `ValueError` on malformed rows — T051).
-    - **Verification**: `python code/data/run_pipeline.py` exits 0 and `data/processed/prs_labeled.csv` exists, is non-empty, has all schema columns, every row has `source_type ∈ {llm, human}` and `confidence_score ∈ [0,1]`. This repairs rejected T017 (missing CSV) by making the driver itself the artifact producer.
-    - **Dependencies**: T013, T014, T015a (all complete).
+- [ ] T008 Add `code/utils/checksum.py` with `sha256_file(path)` used by the fetch script.  
+  – **Verification**: Unit test in `tests/unit/test_checksum.py` passes.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T007 Implement `code/data/fetch_github.py` with `fetch_batch(repo: str, limit: int, max_retries: int = 3)` that:
+  1. Calls the GitHub REST API with pagination,
+  2. Applies exponential back‑off on HTTP 429/5xx,
+  3. Writes each raw JSON payload to `data/raw/<repo>_prs.jsonl`,
+  4. Stores a SHA‑256 checksum file `data/raw/<repo>_checksums.txt`.  
+  – **Verification**: Running `python -c "from code.data.fetch_github import fetch_batch; fetch_batch('psf/requests', 10)"` creates the JSONL and checksum files; a forced 429 triggers three retries then raises `RuntimeError`.
 
-- [ ] T061 [US1] [FR-005] Extend `code/analysis/complexity.py` to read `data/processed/prs_labeled.csv`, fetch each PR's diff (from raw JSON in `data/raw/`), and compute cyclomatic complexity (AST-based decision-point counting, exposed as a graph traversal consistent with the plan's networkx dependency) and LOC per PR, processing diffs in chunks (fixed-size line blocks) to stay within RAM (T045/T041 concern). Write `data/processed/complexity_scores.csv` with columns `pr_id` (int), `complexity_score` (float), `loc` (int), joined on `pr_id` from `prs_labeled.csv`. No memory-fallback model is needed since only standard metrics are used (spec FR-005 permits standard metrics directly).
-    - **Verification**: file exists, non-empty, one row per PR in `prs_labeled.csv`, all values ≥ 0. Repairs rejected T033a/T033b.
-    - **Dependencies**: T060.
+- [ ] T009 Add `code/audit/manual_validation.py` helper `calculate_sample_size(N_llm, min_threshold=10, scaling_factor=0.1)` returning the larger of `min_threshold` and `ceil(N_llm * scaling_factor)`.  
+  – **Verification**: Function returns `10` for `N_llm=5` and `12` for `N_llm=120`.
 
-- [ ] T062 [US2] [FR-003] Complete `code/data/extract_metrics.py` to compute `comment_count`, `time_to_merge_minutes` (created_at → merged_at; unmerged PRs excluded and count logged), `review_cycles` (heuristic: commits_count or comments_count/2 per data model), plus temporal covariates `hour_of_day`/`day_of_week`, joining `prs_labeled.csv` with `complexity_scores.csv` on `pr_id`. Write `data/processed/prs_metrics.csv` with the full pr_schema columns. Fail loudly (raise) if either input CSV is missing — never fabricate rows.
-    - **Verification**: `data/processed/prs_metrics.csv` exists, non-empty, schema-valid per `pr_schema.schema.yaml`. Repairs rejected T022/T023.
-    - **Dependencies**: T061.
+- [X] T015a/T015c Secondary detector (`code/data/entropy_detector.py`) that computes a simple token‑entropy score over the PR diff and adds `entropy_score` (0‑1).  The detector is used later for validation (FR‑007).  
+  – **Verification**: Unit test confirms higher entropy for a synthetic noisy diff vs. a clean diff.
 
-- [ ] T063 [US2] [FR-004] [SC-001] [SC-002] Complete `code/analysis/statistical_tests.py` as the primary analysis: Shapiro-Wilk normality check per metric per group (log warning "Data non-normal, but t-test forced per FR-004" when p < 0.05, do not switch tests), outlier check on `time_to_merge_minutes` (> 3 IQR → log warning, no exclusion — T052), then independent two-sample t-tests (primary) and Mann-Whitney U (sensitivity) for comment density and time-to-merge between `llm` and `human` groups, with Cohen's d, rank-biserial correlation, and α = 0.05 significance flags. Write `data/processed/results.json` conforming to `statistical_result.schema.yaml` (both `t_test` and `mann_whitney_u` blocks per metric), including effect-size interpretation and the sensitivity-comparison section from T047/T053. If N_LLM < 10, still write results but mark the output `exploratory: true`.
-    - **Verification**: `data/processed/results.json` exists, contains t-statistics, p-values, effect sizes for comment density and time-to-merge, and sample sizes matching `prs_metrics.csv` group counts. Repairs rejected T024a.
-    - **Dependencies**: T062.
+- [ ] T014 Primary signature classification (`code/data/classify_prs.py`) that:
+  * Reads the raw JSONL files,
+  * Detects known LLM‑bot usernames (`copilot-bot`, `github-copilot`) and commit‑message markers,
+  * Assigns `source_type` (`llm`/`human`), a `confidence_score` (1.0 for exact bot match, else 0.5‑0.9 based on pattern strength),
+  * Flags `flagged_for_audit` when `confidence_score < 0.6`.  
+  – **Verification**: Running the script on the fetched data produces `data/processed/classification_tmp.csv` with the required columns and the correct enum values.
 
-- [ ] T064 [US1] [SC-004] Complete `code/audit/manual_validation.py` as a full CLI audit runner (repairing truncated T019b): load `prs_labeled.csv`, select a stratified sample (size from `calculate_sample_size`, min 10, 10% of N_LLM), emit `data/audit/audit_input.jsonl` with PR diff summaries and the checklist items from T019a, then run an interactive CLI loop (with file-polling fallback, max 60 s) collecting `human_label` per PR, logging each decision with timestamp to `data/audit/audit_log.jsonl` (T054). Compute the error rate of the automated signature label against the human ground truth (checklist + detector score per SC-004) and write `data/audit/manual_audit_results.json` and `data/audit/error_rate.json`.
-    - **Verification**: all three audit artifacts exist and are non-empty; `error_rate.json` contains a numeric `error_rate` field. If no human input is available in the run environment, the script must exit with a clear non-zero status and message (not silently pass) — the gate task T065 then records `human_input_needed`.
-    - **Dependencies**: T060.
+- [ ] T018 Repository fallback logic (in `fetch_github.py`) that, after the initial repo is processed, checks the count of rows labeled `llm`; if `< 10`, the script automatically proceeds to the next repo in `REPOS` until the target of 200 total PRs or the list is exhausted.  
+  – **Verification**: Configure `REPOS` to start with a repository known to contain < 10 LLM-labeled PRs; execute `python -m code.data.fetch_github` and verify that `data/raw/` contains JSONL files for *both* the first and second repositories in the list, confirming the fallback triggered.
 
-- [ ] T065 [US2] [FR-004] Implement the results gate in `code/analysis/generate_results_report.py`: read `data/audit/error_rate.json` and write `data/processed/gate_status.json` with schema `{"status": "blocked" | "passed" | "exploratory"}` — `blocked` if error rate > 0.05, `exploratory` if N_LLM < 10, else `passed`. If `error_rate.json` is missing, write status `human_input_needed` and exit non-zero with message "Manual audit (T064) must complete before aggregation" (replacing the prior hard FileNotFoundError so the pipeline state is observable). Aggregate all findings into `data/processed/results.json` (extending T063's output with `complexity_correlation` read from the correlation analysis and the gate status).
-    - **Verification**: `data/processed/gate_status.json` exists with a valid status value; `results.json` contains the complete aggregated schema.
-    - **Dependencies**: T063, T064.
+- [ ] T013 Fetch up to 200 PRs across the prioritized repos (batch size = 50) using the driver from T007, storing raw JSON in `data/raw/`.  Respect FR‑001 and fail loudly on unrecoverable API errors.  
+  – **Verification**: After `python -m code.data.fetch_github`, `data/raw/` contains at least one JSONL file and the total number of PR records is ≤ 200.
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] T019a Provide an audit checklist template `code/audit/manual_audit_checklist.csv` containing columns `pr_id, bot_signature_present, entropy_high, human_judgment, notes`.  
+  – **Verification**: File exists and contains a header row.
 
-- [ ] T066 [US3] [FR-006] Implement `code/analysis/visualizations.py` to generate publication-quality (consistent font, palette, labeled axes — T049) side-by-side boxplots and histograms for comment density and time-to-merge by group, reading `data/processed/prs_metrics.csv`. Write `reports/figures/boxplots.pdf` and `reports/figures/histograms.pdf` (each > 50 KB, ≥ 2 vector paths, verified with pdfplumber in `tests/integration/test_visualizations.py`).
-    - **Verification**: both PDFs exist and pass the size/vector-path checks.
-    - **Dependencies**: T062.
+- [ ] T024b Implement Mann‑Whitney U sensitivity‑test helper (`code/analysis/mann_whitney.py`) that returns `u_statistic`, `p_value_u`, and rank‑biserial `effect_size_u`.  
+  – **Verification**: Test on two synthetic groups matches `scipy.stats.mannwhitneyu` output.
 
-- [ ] T067 [US3] [FR-006] Implement `code/analysis/generate_report_narrative.py` to inject results from `data/processed/results.json`, `gate_status.json`, and the correlation output into `docs/report_template.md`, synthesizing Discussion/Limitations via the completed T036c logic (including the N_LLM < 10 power limitation and the associational-not-causal framing from the spec's assumptions). Produce `reports/figures/final_report.pdf` with sections Executive Summary, Methodology, Results (embedding the T066 plots), Discussion, Limitations. If gate status is `blocked`, raise `ValueError("Pipeline blocked: error rate exceeded threshold")`; if `exploratory`, include the note but do not abort.
-    - **Verification**: `reports/figures/final_report.pdf` exists, contains all five section headings, and embeds the boxplot/histogram figures.
-    - **Dependencies**: T065, T066.
+- [ ] T025 Compute Cohen’s d effect size (`code/analysis/effect_size.py`) and expose `is_significant(p, alpha=0.05)`.  
+  – **Verification**: Known examples produce the expected d and significance flag.
 
-- [ ] T068 Re-run the documented workflow end-to-end from its declared inputs (`python code/data/run_pipeline.py` → T061 → T062 → T063 → T064 → T065 → T066 → T067), confirm every declared artifact exists with the expected schema (`prs_labeled.csv`, `complexity_scores.csv`, `prs_metrics.csv`, `results.json`, `gate_status.json`, audit artifacts, figure PDFs), update `quickstart.md` with the exact runnable command sequence, and document the paper-stage handoff: the final report must state the primary t-test findings (SC-001, SC-002), the complexity correlation (SC-003), the audit error rate (SC-004), the FR-008 sensitivity comparison, and the associational framing and multiple-comparison limitation honestly, including any negative or underpowered (N_LLM < 10) outcomes.
-    - **Verification**: a fresh clone following `quickstart.md` reproduces all artifacts; no hand-typed numbers appear outside `data/processed/results.json`-derived content.
-    - **Dependencies**: T067.
+- [ ] T026 Sensitivity analysis script (`code/analysis/sensitivity_analysis.py`) that re‑defines the LLM cohort using **only** the secondary detector (`entropy_score > 0.7`) and re‑runs the statistical tests.  
+  – **Verification**: Generates `data/processed/sensitivity_results.json` with the same schema as the primary results.
 
-## Dependencies and requirement coverage
+- [ ] T035 Correlation analysis (`code/analysis/correlation.py`) that computes Pearson’s r between `complexity_score` and each review metric, writing `data/processed/complexity_correlation.json`.  
+  – **Verification**: Correlation file contains keys `metric`, `pearson_r`, `p_value`.
 
-- **FR-001** (fetch 200 PRs): T013 (done) + T060 (fail-loudly enforcement).
-- **FR-002** (classification + confidence): T014 (done) + T060 (calibrated confidence, pydantic validation).
-- **FR-003** (metrics): T062.
-- **FR-004** (t-tests primary, effect sizes): T063, T065.
-- **FR-005** (complexity): T061.
-- **FR-006** (visualizations/report): T066, T067.
-- **FR-007** (secondary detector): T015a (done) + T060 (deterministic seed).
-- **FR-008** (sensitivity analysis): T026 (done) + T063/T065 (reporting).
-- **SC-001/SC-002**: T063. **SC-003**: T035 (done) + T065. **SC-004**: T064, T065.
-- Execution order: T060 → T061 → T062 → {T063, T066} → {T064} → T065 → T067 → T068. T064 depends only on T060 and can run in parallel with T061–T063.
+- [ ] T036c Narrative synthesis helper (`code/analysis/narrative_synthesis.py`) that formats discussion bullet points based on statistical significance, effect‑size magnitude, and audit error rate.  
+  – **Verification**: Function returns a markdown string that can be inserted into the final report.
 
-## Revision behavior
+- [ ] T042 PII‑filter (`code/utils/pii_scan.py`) that scans all CSV/JSON artefacts for email‑like strings and removes them before artefact publication.  
+  – **Verification**: Running the scanner on a test file containing `user@example.com` produces a cleaned copy without the email.
 
-Completed tasks above are preserved verbatim with their identities. Rejected tasks T017, T019b, T033a, T033b, T022, T023, T024a are superseded by T060–T063, which consolidate the missing-artifact root cause (no runnable driver producing the CSVs) into pipeline tasks whose outputs are deterministically verifiable files. Redundant polish tasks (T040, T041, T049, T055) are folded into T060/T061/T066 where scientifically relevant; pure refactoring with no scientific requirement is dropped. No synthetic or mock data is permitted at any stage; a failed real fetch must raise.
+- [ ] T060 Build a single end‑to‑end pipeline driver `code/data/run_pipeline.py` that sequentially:
+  1. Calls `fetch_github.fetch_batch` for each repo until 200 PRs are collected,
+  2. Executes `classify_prs.py` (primary + secondary detector) producing `data/processed/prs_labeled.csv` that conforms to `specs/001-evaluating-llm-code-review-impact/contracts/pr_schema.schema.yaml` (validated row‑wise with a Pydantic model `LabeledPR`),
+  3. Writes the CSV atomically and logs a success message.  
+  – **Verification**: `python code/data/run_pipeline.py` exits with status 0, the file `data/processed/prs_labeled.csv` exists, is non‑empty, contains exactly the schema columns, and all `source_type` values are either `llm` or `human`.
 
-## Notes
+- [ ] T061 Extend `code/analysis/complexity.py` to:
+  * Read `prs_labeled.csv`,
+  * For each PR fetch its diff from the corresponding raw JSON,
+  * Compute cyclomatic complexity using `networkx` (build a control‑flow graph from the AST and count decision nodes),
+  * Compute lines‑of‑code (`loc`),
+  * Append `complexity_score` and `loc` to the original CSV, writing `data/processed/complexity_scores.csv`.  
+  – **Verification**: Output file exists, has one row per PR, all numeric fields ≥ 0, and a spot‑check of a known simple PR yields `complexity_score == 1`.
 
-- Independent two-sample t-tests are PRIMARY per FR-004; Mann-Whitney U is sensitivity analysis (documented deviation in `docs/statistical_protocol_deviation.md`, preserved).
-- The secondary detector uses local heuristics (documented deviation in `docs/statistical_detector_deviation.md`, preserved).
-- Manual audit (T064) requires human input; if unavailable, the pipeline surfaces `human_input_needed` rather than fabricating an audit result.
+- [ ] T062 Implement `code/data/extract_metrics.py` that:
+  * Joins `prs_labeled.csv` with `complexity_scores.csv` on `pr_id`,
+  * Calculates `comment_count` (from raw `comments_count`), `time_to_merge_minutes` (difference between `created_at` and `merged_at`), and `review_cycles` (heuristic `max(1, comments_count // 2)`),
+  * Adds temporal covariates `hour_of_day` and `day_of_week` extracted from `created_at`,
+  * Writes the fully populated dataset to `data/processed/prs_metrics.csv` respecting the full `pr_schema` (including `entropy_score`).  
+  – **Verification**: File exists, schema validation passes, and a PR with `merged_at=None` is excluded with a logged warning (no fabricated rows).
+
+- [ ] T063 Complete `code/analysis/statistical_tests.py` to perform the **primary** analysis:
+  * For each metric (`comment_count`, `time_to_merge_minutes`):
+    - Run Shapiro‑Wilk normality test per group; if any p < 0.05 log “Data non‑normal, proceeding with t‑test per FR‑004”.
+    - Conduct independent two‑sample **t‑test** (unequal variance) and compute Cohen’s d.
+    - Conduct Mann‑Whitney U as a sensitivity check (using the helper from T024b).
+    - Record all statistics, effect sizes, sample sizes, and significance flags in `data/processed/results.json` conforming to `statistical_result.schema.yaml`.  
+  – **Verification**: JSON file exists, contains keys `metric_name`, `group_a_mean`, `group_b_mean`, `u_statistic`, `p_value_u`, `effect_size_u`, `is_significant_u`, `t_statistic`, `p_value_t`, `effect_size_t`, `is_significant_t`, `sample_size_a`, `sample_size_b`.  Running the script on the generated `prs_metrics.csv` produces no exceptions.
+
+- [ ] T064 Re‑implement the full manual audit CLI in `code/audit/manual_validation.py`:
+  * Load `prs_labeled.csv`,
+  * Determine the required sample size via `calculate_sample_size`,
+  * Randomly (seeded) select a stratified subset of LLM‑labelled PRs,
+  * Export a JSONL `data/audit/audit_input.jsonl` containing diff snippets and the checklist columns,
+  * Prompt the user (or read from a supplied `--answers-file`) for `human_ground_truth`,
+  * Write decisions to `data/audit/audit_log.jsonl`,
+  * Compute the error rate of the automated `source_type` vs. human ground truth and write `data/audit/error_rate.json` (`{"error_rate": <float>}`) and a summary `manual_audit_results.json`.  
+  – **Verification**: Running `python -m code.audit.manual_validation --dry-run` creates the three artefacts; providing an answers file makes the script exit with status 0 and the error‑rate file contains a numeric value between 0 and 1.  If no answers are supplied, the script exits non‑zero with a clear message (“Manual audit required”).
+
+- [ ] T065 Implement a gating step `code/analysis/generate_results_report.py` that:
+  * Reads `data/audit/error_rate.json` (if present) and the count of LLM PRs,
+  * Writes `data/processed/gate_status.json` with `{"status": "blocked"}` if `error_rate > 0.05`, `{"status": "exploratory"}` if `N_LLM < 10`, otherwise `{"status": "passed"}`,
+  * If the error‑rate file is missing, writes `{"status": "human_input_needed"}` and exits non‑zero,
+  * Merges the gate status into the final `results.json` (adds a top‑level field `gate_status`).  
+  – **Verification**: After a successful audit, the gate file exists with one of the three allowed strings; the combined `results.json` now contains `"gate_status": "passed"` (or the appropriate alternative).
+
+- [ ] T066 Create `code/analysis/visualizations.py` that:
+  * Reads `prs_metrics.csv`,
+  * Generates side‑by‑side boxplots for `comment_count` and `time_to_merge_minutes` by `source_type`,
+  * Generates histograms of the same metrics,
+  * Saves PDFs `reports/figures/boxplots.pdf` and `reports/figures/histograms.pdf` (each > 50 KB, ≥ 2 vector paths verified by `tests/integration/test_visualizations.py`).  
+  – **Verification**: PDFs are produced, size check passes, and a test that opens the PDF confirms the presence of the expected subplot titles.
+
+- [ ] T067 Implement `code/analysis/generate_report_narrative.py` that:
+  * Loads `results.json`, `gate_status.json`, `complexity_correlation.json`,
+  * Calls the narrative synthesis helper (T036c) to compose the Discussion and Limitations sections,
+  * Inserts the quantitative findings into a markdown template `docs/report_template.md`,
+  * Uses `matplotlib.backends.backend_pdf.PdfPages` to combine the markdown (converted via `pandoc` or a simple markdown‑to‑PDF renderer) with the two figure PDFs into a single `reports/final_report.pdf`.  
+  – **Verification**: The final PDF exists, contains the headings *Executive Summary*, *Methodology*, *Results*, *Discussion*, *Limitations*, and embeds the two figure pages.  If `gate_status` is `"blocked"` the script raises `ValueError` and aborts; if `"exploratory"` it adds a note about limited power.
+
+- [ ] T068 Re‑run the entire workflow from the command line, update `quickstart.md` with the exact command sequence, and verify reproducibility:
+  1. `python code/data/run_pipeline.py`  
+  2. `python code/analysis/complexity.py`  
+  3. `python code/data/extract_metrics.py`  
+  4. `python code/analysis/statistical_tests.py`  
+  5. `python -m code.audit.manual_validation --answers-file data/audit/sample_answers.csv` (or run interactively)  
+  6. `python code/analysis/generate_results_report.py`  
+  7. `python code/analysis/visualizations.py`  
+  8. `python code/analysis/generate_report_narrative.py`  
+  *After a fresh clone* following `quickstart.md` must reproduce **all** artefacts (`prs_labeled.csv`, `complexity_scores.csv`, `prs_metrics.csv`, `results.json`, `gate_status.json`, audit files, PDFs).  
+  – **Verification**: A CI job that deletes the `data/` and `reports/` directories, runs the steps from `quickstart.md`, and asserts the existence and schema validity of each output passes without error.
+
+---
+
+## Phase 2 – Complete the study and validate its evidence
+
+(Tasks T060–T068 collectively satisfy FR‑001 through FR‑008, SC‑001 through SC‑004, and the statistical requirements.)
+
+---
+
+## Phase 3 – Reproducible results and paper handoff
+
+(Phase 3 is realized by T068, which documents the full end‑to‑end run and produces the final report PDF ready for downstream paper‑stage handoff.)
+
+--- 
+
+### Dependency and requirement coverage
+
+| Spec requirement | Satisfying task(s) |
+|------------------|--------------------|
+| FR‑001 (download ≤200 PRs) | T013, T018, T060 |
+| FR‑002 (classification & confidence) | T014, T015a, T060 |
+| FR‑003 (review metrics) | T062 |
+| FR‑004 (t‑test & effect sizes) | T063, T065 |
+| FR‑005 (complexity) | T061 |
+| FR‑006 (visualizations) | T066, T067 |
+| FR‑007 (secondary detector) | T015a, T060 |
+| FR‑008 (sensitivity analysis) | T026, T063, T065 |
+| SC‑001 / SC‑002 (comment & time significance) | T063 |
+| SC‑003 (complexity correlation) | T035, T065 |
+| SC‑004 (audit error‑rate < 5 %) | T064, T065 |
+
+All tasks respect data‑flow ordering, use real GitHub data, and never fall back to synthetic placeholders.
