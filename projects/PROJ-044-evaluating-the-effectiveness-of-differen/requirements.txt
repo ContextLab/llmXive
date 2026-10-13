@@ -1,23 +1,13 @@
-# Python 3.10+ Project Dependencies
-# Core ML & Federated Learning
-torch==2.3.0
-opacus==1.4.0
-
-# Data Handling & Processing
-datasets==2.18.0
-pandas==2.2.1
-numpy==1.26.4
-
-# Statistical Analysis
-scipy==1.13.0
-statsmodels==0.14.2
-
-# Visualization
-matplotlib==3.8.4
-
-# Development & Tooling (Optional but recommended)
-# pre-commit, black, and ruff are typically installed in dev environments
-# but included here for completeness if running full pipeline
-black==24.3.0
-ruff==0.3.4
-pre-commit==3.7.0
+# PROJ-044: Evaluating the Effectiveness of Differential Privacy in Federated Learning
+# Python 3.10+
+torch>=2.3.0
+opacus>=1.4.0
+datasets>=2.19.0
+pandas>=2.0
+numpy>=1.24
+scipy>=1.10
+statsmodels>=0.14
+matplotlib>=3.7
+pyarrow>=14.0
+# Note: pytest, seaborn, PyYAML, requests, jsonschema, psutil are provided
+# by the platform environment and are not repeated here.

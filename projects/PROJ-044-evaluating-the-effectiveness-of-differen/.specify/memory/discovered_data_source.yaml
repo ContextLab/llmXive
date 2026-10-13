@@ -1,21 +1,11 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "import datasets\n\nds = datasets.load_dataset(\"flwrlabs/femnist\"\
-  , split=\"train\")\nprint(f\"RECORDS={len(ds)}\")\n# Map dataset column names to\
-  \ the required field names\nmapped = []\nfor col in ds.column_names:\n    if col\
-  \ == \"client_id\":\n        mapped.append(\"writer_id\")\n    else:\n        mapped.append(col)\n\
-  print(\"FIELDS=\" + \",\".join(mapped))"
-record_count: 814277
-sample_fields:
-- image
-- writer_id
-- hsf_id
-- character
-field_coverage: 0.667
+status: none
+intent: FEMNIST dataset parquet download python package dataset
 required_fields:
 - image
 - label
-- writer_id
-intent: FEMNIST parquet download for federated learning python package dataset
-cache_key: 8a969c2f06448a02a5ec56fdbd8b9879b10f6798cfee9ef39da50e34c61d0a35
+- client_id
+- partition_id
+- metadata
+cache_key: 91fb4d39d938d339205eda8299ae537cfa78a268cee806099865ab66a5ebe63d
+searched_at: '2026-10-13T09:51:49.280892+00:00'
+retry_count: 1
