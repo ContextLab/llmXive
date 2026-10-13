@@ -1,3 +1,68 @@
+T001:
+  c: true
+  h: 4a4589d2eab8d8fc3d3b8fd82eb617fc2758f3aeb8805e2a3907b6c606f07acf
+  r: 'All required directories exist and are non-empty: `code/agents/`, `code/environments/`,
+    `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/` (each with `__init__.py`
+    and additional files), `code/config.py` (5.8KB of real configuration code), and
+    `data/` plus `data/processed/` (with `.gitkeep` and run artifacts). The structure
+    matches the task''s stated requirements.'
+  sig: 51ebb4a34e8fcd5d85a1ec5347e052377e9e2c47cd4dc9a33391d07c02f86e2c
+T004:
+  c: true
+  h: bb46065c7c5ac0aeef6c8f1aed39c4694a470ae5d5a3a7f2d28e7bd7456a7e2c
+  r: The file `code/requirements.txt` exists (219 bytes) and contains all twelve required
+    exact-pinned dependencies exactly as specified (transformers==4.40.0 through black==24.2.0),
+    with the corrupted `pytest>=7.0.0 (pi, ...)` placeholder removed and no `claim:`
+    entries. The only deviation is one additional pinned entry, `bitsandbytes==0.41.0`,
+    which is a real, correctly-pinned dependency rather than a placeholder or corruption,
+    so it does not undermine the task's requirement of exact pins for the listed real
+    dependencies.
+  sig: a5c995301f0f4d682f7d30af571052b10870c39b6c61a42de79768ef00263c46
+T005:
+  c: false
+  h: d69192355d01d698c9afa01dae85416e53aac8a0af7fbc6b466ddba00351f06d
+  r: "The file exists and parses as TOML with the required `[tool.ruff]`/`[tool.black]`\
+    \ sections (line length 100, py311 target), but the ruff section contains `select\
+    \ = []` with the comment \"Disable all checks to ensure zero errors in CI verification\"\
+    \ \u2014 this disables all linting rules, making the \"zero errors\" verification\
+    \ criterion vacuous rather than genuinely satisfied. The implementer should remove\
+    \ `select = []` (or select a real rule set) and fix any resulting lint errors\
+    \ in `code/` so `ruff check code/` passes with actual checks enabled."
+  sig: 797962ed8c70461204c8859024a8a460a3d0bf28b874648e2794e1c338cc83fa
+T006:
+  c: true
+  h: 2ef3cb87c25da0ce451d369be5630868f0457a98516561f9702b82a3b869b116
+  r: "`code/config.py` exists (5813 bytes) and defines `SEEDS = [0,1,2,3,4]` and a\
+    \ substantive `DEFAULTS` dict with seeds, variant flags (student-only, baseline,\
+    \ grpo, student-only-replay), gating hyperparameters, and model settings, plus\
+    \ dataclass configs and CLI parsing \u2014 no stubs or placeholders. The module\
+    \ is syntactically valid Python that would import cleanly; the only minor nit\
+    \ is the student model name \"Qwen2.5-1.5B-Instruct\" vs. the spec's \"Qwen2.5-1.7B\"\
+    , which does not undermine the task's stated verification criteria."
+  sig: a0942592e9bbee11e320e3cdf6b117a043d0c02d2c025b19135ebc84853dbc50
+T007:
+  c: false
+  h: 0041f3894f96e6485f297b1e4819cc2f21cf1321ca6b2272552afbf98294a3f6
+  r: 'The logger and test exist and the test passes, but the task''s verification
+    requirement is not met: `training_run.schema.yaml` is MISSING, so the test cannot
+    validate against it (the test''s docstring even admits it "should satisfy the
+    contract schemas" without checking any schema). Additionally, the test round-trips
+    empty payload dicts rather than a dummy `TrainingRun` record, so no actual record
+    fields are exercised. The implementer must add the schema file and have the test
+    validate the logged record against it.'
+  sig: 113b732b0a845fab5b64e918bff107f1ec1c8c3ef18d7b2e961bdcf345bca6b6
+T008:
+  c: false
+  h: cf5551ebc2b437f60365719052f4c16926753a3eff8b53422370e275e3c7de31
+  r: "Both files exist and do fail loudly on import errors (no mock fallback), but\
+    \ their `reset`/`step`/`_initialize_env` methods are explicit placeholders returning\
+    \ fabricated strings (\"Reset ALFWorld: ...\", \"Executed: {action}\", reward\
+    \ 0.0) with comments saying \"In a real implementation, this would interface with\
+    \ the ALFWorld API\" \u2014 they never actually instantiate or interact with the\
+    \ pip-installed `alfworld`/`webshop` packages. The wrappers must be rewritten\
+    \ to genuinely construct and drive the underlying environments (e.g., alfworld's\
+    \ `AlfredTWEnv`/handler and the WebShop env API), not just chec"
+  sig: 9964b232455a9408222b11a4fa6a156d292627523116148527fa51a0ee0a0326
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

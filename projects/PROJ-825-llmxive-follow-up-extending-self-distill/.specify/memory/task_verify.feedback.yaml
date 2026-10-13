@@ -7,18 +7,42 @@ T003:
 T004:
   task: 377fe2f0f8e382aaaed5e7c0a303d5808399070058d4386982059eca185daa9c
 T005:
+  reason: "The file exists and parses as TOML with the required `[tool.ruff]`/`[tool.black]`\
+    \ sections (line length 100, py311 target), but the ruff section contains `select\
+    \ = []` with the comment \"Disable all checks to ensure zero errors in CI verification\"\
+    \ \u2014 this disables all linting rules, making the \"zero errors\" verification\
+    \ criterion vacuous rather than genuinely satisfied. The implementer should remove\
+    \ `select = []` (or select a real rule set) and fix any resulting lint errors\
+    \ in `code/` so `ruff check code/` passes with actual checks enabled."
   task: a0d054ab2f1bcf6983c044e177c0d4c70761dac7e3989cdcb06ae8b843ce777b
 T006:
   task: 3eced8a1ff1ca2b4bd9cec9ae3c6f689cf4f8e2eb3048512af6b75a5254a1c6b
 T007:
+  reason: 'The logger and test exist and the test passes, but the task''s verification
+    requirement is not met: `training_run.schema.yaml` is MISSING, so the test cannot
+    validate against it (the test''s docstring even admits it "should satisfy the
+    contract schemas" without checking any schema). Additionally, the test round-trips
+    empty payload dicts rather than a dummy `TrainingRun` record, so no actual record
+    fields are exercised. The implementer must add the schema file and have the test
+    validate the logged record against it.'
   task: d5ca8a19dd361dbbdd528295b209fc0175a57685986505c2ca6550c84c37c3b7
 T008:
+  reason: "Both files exist and do fail loudly on import errors (no mock fallback),\
+    \ but their `reset`/`step`/`_initialize_env` methods are explicit placeholders\
+    \ returning fabricated strings (\"Reset ALFWorld: ...\", \"Executed: {action}\"\
+    , reward 0.0) with comments saying \"In a real implementation, this would interface\
+    \ with the ALFWorld API\" \u2014 they never actually instantiate or interact with\
+    \ the pip-installed `alfworld`/`webshop` packages. The wrappers must be rewritten\
+    \ to genuinely construct and drive the underlying environments (e.g., alfworld's\
+    \ `AlfredTWEnv`/handler and the WebShop env API), not just chec"
   task: ba733a71d5516e1fd99b632b5eb0d75f3ca0b488b83878855c9ebc844636b861
 T009:
   task: 78c10ba4845ef84b856db68c26dc12f3507b7d199326bdb879a3a4c18fdf99de
 T010:
   task: 89ba5e27ee3aa60fd8bac6fe40e63aff622dacaaa729490e868eb4199357701b
 T011:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/dry_run_memory_check.py
+    exit=1'
   task: 9ffd29fedad9e09f1f685cf5e23c364b38c0bdcb94482298dd84aaf01e5c2d0c
 T012:
   task: 05456f8e6c673d8bc28731ca1869e5dc3fe4e807cfa2face99c7aef09a081402

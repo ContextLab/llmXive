@@ -1,3 +1,3 @@
 """
-Models subpackage.
+Package marker for the models submodule.
 """

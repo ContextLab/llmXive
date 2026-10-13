@@ -5,9 +5,9 @@
 
 ## Phase 1: Setup and first end-to-end analysis
 
-- [ ] T001 Create project root structure `code/` with subdirectories `code/agents/`, `code/environments/`, `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/`, `code/config.py`, and `data/`, `data/processed/` per plan.md structure.
+- [X] T001 Create project root structure `code/` with subdirectories `code/agents/`, `code/environments/`, `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/`, `code/config.py`, and `data/`, `data/processed/` per plan.md structure.
 
-- [ ] T004 [P] Repair `code/requirements.txt` to contain **exact pinned** versions of the real dependencies:
+- [X] T004 [P] Repair `code/requirements.txt` to contain **exact pinned** versions of the real dependencies:
   ```
   transformers==4.40.0
   datasets==2.14.0
@@ -28,7 +28,7 @@
 - [ ] T005 [P] Create real linting/formatting configuration artifacts: `code/pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections (line length 100, target Python 3.11).  
   **Verification**: file exists, parses as valid TOML, and `ruff check code/` runs with zero errors (ruff installed via T004).  
 
-- [ ] T006 [P] Configure `code/config.py` (seeds, hyperparameters, variant flags).  
+- [X] T006 [P] Configure `code/config.py` (seeds, hyperparameters, variant flags).  
   **Verification**: `python -c "import code.config"` imports cleanly; the module defines `SEEDS = [0,1,2,3,4]` and a `DEFAULTS` dict matching plan hyperparameters.
 
 - [ ] T007 [P] Implement JSON/CSV logging infrastructure in `code/utils/logging.py` for `TrainingRun` and `GatingSignal` artifacts.  
@@ -37,13 +37,13 @@
 - [ ] T008 [P] Set up environment wrappers `code/environments/alfworld_env.py` and `code/environments/webshop_env.py` using pip‑installable packages; loaders fail loudly on fetch errors (no synthetic fallback).  
   **Verification**: importing each wrapper raises an exception if the underlying package cannot be imported; no try/except fallback to mock data.
 
-- [ ] T009 Create base agent class `code/agents/base_agent.py` defining the RL loop interface.  
+- [~] T009 Create base agent class `code/agents/base_agent.py` defining the RL loop interface.  
   **Verification**: `python -c "from code.agents.base_agent import BaseAgent"` imports without error; a minimal subclass passes a sanity‑check run.
 
-- [ ] T010 Set up cost profiling utility `code/metrics/cost_profiler.py` tracking CPU time and RSS memory per step.  
+- [~] T010 Set up cost profiling utility `code/metrics/cost_profiler.py` tracking CPU time and RSS memory per step.  
   **Verification**: `code/tests/test_cost_profiler.py` asserts that the profiler records `cpu_time_sec` and `peak_memory_mb` for a dummy loop.
 
-- [ ] T011 [P] [US1] REDO (verifier‑rejected): create `code/scripts/dry_run_memory_check.py` that (a) loads Qwen2.5‑1.7B 8‑bit quantized via `transformers` (`load_in_8bit=True`), (b) loads the quantized `sentence‑transformers/all‑MiniLM‑L6‑v2` retriever, (c) runs one real forward pass through each, and (d) records peak RSS memory (via `psutil`) to `data/processed/memory_dry_run.json`.  
+- [ ] T011 [P] [US1] REDO (verifier‑rejected): create `code/scripts/dry_run_memory_check.py` that (a) loads Qwen2.5‑1.7B 8‑bit quantized via `transformers` (`load_in_8bit=True`), (b) loads the quantized `sentence‑transformers/all‑MiniLM‑L6‑v2` retriever, (c) runs one real forward pass through each, and (d) records peak RSS memory (via `psutil`) to `data/processed/memory_dry_run.json`.   <!-- FAILED-IN-EXECUTION: code/scripts/dry_run_memory_check.py exit=1 -->
   The script **exits non‑zero** if peak RSS exceeds **7 GB** (Constitution VI). If CPU loading fails, the script raises the exception so the execution stage can off‑load to Kaggle GPU (`device="cuda"`).  
   **Verification**: script file exists, its JSON output contains numeric `peak_rss_mb`, and the process exit code respects the 7 GB gate.  
   **Ordering**: runs after T004 (requirements installed).

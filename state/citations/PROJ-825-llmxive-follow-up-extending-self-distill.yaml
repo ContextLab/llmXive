@@ -1,4 +1,4 @@
-- artifact_hash: c52732bac3674282d85e7072246621bcbeb3142438567539b51ba22f5191ff18
+- artifact_hash: b2818fdd70efc0e2f67449de9fc1cd8c4306a3912f26cf3601d2c4a5427617c4
   artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://en.wikipedia.org/wiki/Pi
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-10-13T08:25:12.296436Z'
+  verified_at: '2026-10-13T08:38:20.926077Z'
