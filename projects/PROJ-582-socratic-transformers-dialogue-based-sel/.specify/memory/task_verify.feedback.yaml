@@ -1,4 +1,9 @@
 T001:
+  reason: The collector confirms `code/src/`, `code/data/raw/`, `code/data/processed/`,
+    `code/data/results/`, and `code/tests/` exist, but `code/state/` is explicitly
+    reported MISSING, so the required directory tree is incomplete. The implementer
+    must create `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/state/`
+    (e.g., with a `.gitkeep`) for the verification script to pass.
   task: d952ca40e8f9b5b565a3233d8273a163669b6326e36381891f083d29de813688
 T002:
   task: 506540b3836d07866983eee3ed4d77328bb97f9c7468e734c87a3d2d9610f635

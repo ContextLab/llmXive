@@ -1,16 +1,19 @@
 T001:
-  c: true
-  h: b552b02b51e7d01de35f8071a5f0c3bc52d93a954463c5f65fdc6ee04e7ff710
-  r: "Checked the listed directories under `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code`\
-    \ \u2013 `src`, `data/raw`, `data/processed`, `data/results`, `tests`, and `state`\
-    \ all exist (as shown in the collector\u2019s directory listings and the successful\
-    \ `create_project_tree.py` log)."
-  sig: baf3da50372875d2e5ea08285995cd397ee277910bd6953eba5deb5c3589e986
+  c: false
+  h: 2b092f7f04d9fbff74f9c0631ac63876de69cc04ce215ad9d68ec5309fbd61ef
+  r: The collector confirms `code/src/`, `code/data/raw/`, `code/data/processed/`,
+    `code/data/results/`, and `code/tests/` exist, but `code/state/` is explicitly
+    reported MISSING, so the required directory tree is incomplete. The implementer
+    must create `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/state/`
+    (e.g., with a `.gitkeep`) for the verification script to pass.
+  sig: d7558ea77224b936d4f09d9c3803d5d36078f9dcdcfd112a7f2776c834edf5de
 T002:
   c: true
-  h: c908fe5655731f2c0f34480e6d02d3f163a5fc1eaf3e64bb6c4d17487d27abbc
-  r: Checked `code/requirements.txt` (contains all required packages), `code/pyproject.toml`
-    (has project metadata plus `[tool.black]` and `[tool.ruff]` sections), and `code/ruff.toml`
-    (configures ruff to target `src/` and `tests/`). All files exist and meet the
-    specifications.
-  sig: 0bf5041c9be249366e2758c1f26e499c3d360984592e524e447672aec85de16a
+  h: dfde7d0672cd76e1f08268cf720900885c8497a018f5b8bc724097bf77232b37
+  r: 'All three required files exist and are non-empty: `code/requirements.txt` lists
+    all nine required packages (transformers, peft, bitsandbytes, datasets, scikit-learn,
+    pandas, pytest, ruff, black), `code/pyproject.toml` contains project metadata
+    plus `[tool.black]` and `[tool.ruff]` sections, and `code/ruff.toml` configures
+    ruff to target `src/` and `tests/` via its include patterns. The verification
+    command''s checks are all satisfied by the observed contents.'
+  sig: f0fb36c1fda79c370c80c0a151a8cc9d8c82fa34e0d840670fd96b8cbfd6d353

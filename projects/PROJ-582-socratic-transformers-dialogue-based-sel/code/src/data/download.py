@@ -115,8 +115,10 @@ def download_dataset(dataset_cfg: Dict[str, Any]) -> Optional[Path]:
         # and caching. The ``name`` argument corresponds to the config name.
         ds = load_dataset(hf_id, name=config_name, split=split, streaming=False)
     except Exception as exc:
-        print(f"ERROR: Failed to download {hf_id} (config={config_name}, split={split}): {exc}",
-              file=sys.stderr)
+        print(
+            f"ERROR: Failed to download {hf_id} (config={config_name}, split={split}): {exc}",
+            file=sys.stderr,
+        )
         raise
 
     # Convert to pandas DataFrame; ``datasets`` guarantees a deterministic order.
@@ -128,7 +130,8 @@ def download_dataset(dataset_cfg: Dict[str, Any]) -> Optional[Path]:
 
     output_path = RAW_DATA_DIR / output_name
     try:
-        df.to_parquet(output_path, index=False)
+        # Explicitly use the pyarrow engine to avoid dependence on optional backends.
+        df.to_parquet(output_path, index=False, engine="pyarrow")
     except Exception as exc:
         print(f"ERROR: Failed to write parquet file {output_path}: {exc}", file=sys.stderr)
         raise
