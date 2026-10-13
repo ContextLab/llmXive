@@ -1,12 +1,12 @@
 """Download OpenNeuro fMRI dataset ds000246 and prepare manifest & checksums.
 
 This script:
-1. Downloads the full ds000246 archive from OpenNeuro.
+1. Downloads the full ds000246 archive from OpenNeuro (tries several known URLs).
 2. Extracts functional NIfTI files and the top‑level ``participants.tsv``.
 3. Builds a ``manifest.json`` containing ``subject_id``, ``run_label``,
    ``age``, ``years_training``, ``fd`` (placeholder).
 4. Computes SHA‑256 checksums for every downloaded NIfTI file and writes them to
-   ``data/raw/checksums.json``.
+   ``data/raw/checksums.json`` using the key format ``<subject_id>_<run_label>.nii.gz``.
 5. Validates that at least 20 distinct subjects are present and that each has
    both an ``Improv`` and a ``Scripted`` run. On validation failure a clear
    ``ValueError`` is raised.
@@ -19,6 +19,7 @@ import re
 import shutil
 import tarfile
 import tempfile
+import zipfile
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -66,9 +67,16 @@ def parse_participants_tsv(tsv_path: Path) -> Dict[str, Dict[str, Optional[float
     with tsv_path.open(newline="") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
-            sid = row.get("participant_id") or row.get("subject_id") or row.get("sub")
+            sid = (
+                row.get("participant_id")
+                or row.get("subject_id")
+                or row.get("sub")
+            )
             if not sid:
                 continue
+            # Ensure BIDS style prefix
+            if not sid.lower().startswith("sub-"):
+                sid = f"sub-{sid}"
             age = row.get("age")
             years = row.get("years_training")
             try:
@@ -76,7 +84,9 @@ def parse_participants_tsv(tsv_path: Path) -> Dict[str, Dict[str, Optional[float
             except ValueError:
                 age_val = None
             try:
-                years_val = float(years) if years not in (None, "", "n/a") else None
+                years_val = (
+                    float(years) if years not in (None, "", "n/a") else None
+                )
             except ValueError:
                 years_val = None
             mapping[sid] = {"age": age_val, "years_training": years_val}
@@ -86,6 +96,36 @@ def parse_participants_tsv(tsv_path: Path) -> Dict[str, Dict[str, Optional[float
 # ----------------------------------------------------------------------
 # Core download / manifest logic
 # ----------------------------------------------------------------------
+def _extract_archive(archive_path: Path, dest_dir: Path) -> None:
+    """Extract ``tar.gz`` or ``zip`` archives safely into ``dest_dir``."""
+    if archive_path.suffixes[-2:] == [".tar", ".gz"]:
+        log.info(f"Extracting tar.gz archive {archive_path}")
+        with tarfile.open(archive_path, "r:gz") as tar:
+            def is_within_directory(directory: Path, target: Path) -> bool:
+                abs_directory = directory.resolve()
+                abs_target = target.resolve()
+                return str(abs_target).startswith(str(abs_directory))
+
+            for member in tar.getmembers():
+                member_path = dest_dir / member.name
+                if not is_within_directory(dest_dir, member_path):
+                    raise Exception("Attempted Path Traversal in Tar File")
+            tar.extractall(path=dest_dir)
+    elif archive_path.suffix == ".zip":
+        log.info(f"Extracting zip archive {archive_path}")
+        with zipfile.ZipFile(archive_path, "r") as zip_ref:
+            # Basic safety check – zipfile does not have built‑in traversal protection,
+            # so we verify each member.
+            for member in zip_ref.namelist():
+                member_path = dest_dir / member
+                if not str(member_path.resolve()).startswith(str(dest_dir.resolve())):
+                    raise Exception("Attempted Path Traversal in Zip File")
+            zip_ref.extractall(path=dest_dir)
+    else:
+        raise ValueError(f"Unsupported archive format: {archive_path}")
+
+
+
 def main() -> None:
     dataset_id = "ds000246"
 
@@ -94,33 +134,43 @@ def main() -> None:
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
-    # 1. Download the full dataset archive (tar.gz)
+    # 1. Download the full dataset archive (try a few known URLs)
     # ------------------------------------------------------------------
-    # The public download endpoint for the latest version:
-    #   https://openneuro.org/crn/datasets/<dataset_id>/versions/latest/download
-    archive_url = f"https://openneuro.org/crn/datasets/{dataset_id}/versions/latest/download"
-    log.info(f"Fetching dataset archive from {archive_url}")
+    possible_urls = [
+        # Preferred: direct zip download (works for most OpenNeuro datasets)
+        f"https://openneuro.org/crn/datasets/{dataset_id}/versions/latest/download?downloadType=zip",
+        # Fallback to known version number (most recent public release)
+        f"https://openneuro.org/crn/datasets/{dataset_id}/versions/1.0.0/download",
+    ]
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        archive_path = Path(tmpdir) / f"{dataset_id}.tar.gz"
-        download_file(archive_url, archive_path)
+    archive_path: Optional[Path] = None
+    for url in possible_urls:
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                tmp_path = Path(tmpdir) / f"{dataset_id}_download"
+                # Preserve original extension if possible
+                if url.endswith(".zip"):
+                    tmp_path = tmp_path.with_suffix(".zip")
+                else:
+                    tmp_path = tmp_path.with_suffix(".tar.gz")
+                download_file(url, tmp_path)
+                archive_path = tmp_path
+                log.info(f"Successfully downloaded archive from {url}")
+                break
+        except Exception as e:
+            log.warning(f"Failed to download from {url}: {e}")
+            continue
 
-        # ------------------------------------------------------------------
-        # 2. Extract archive safely
-        # ------------------------------------------------------------------
-        log.info(f"Extracting archive {archive_path}")
-        with tarfile.open(archive_path, "r:gz") as tar:
-            def is_within_directory(directory: Path, target: Path) -> bool:
-                """Prevent path traversal attacks."""
-                abs_directory = directory.resolve()
-                abs_target = target.resolve()
-                return str(abs_target).startswith(str(abs_directory))
+    if archive_path is None:
+        raise RuntimeError(
+            f"All attempts to download dataset {dataset_id} failed. "
+            "Check internet connectivity and the OpenNeuro URL."
+        )
 
-            for member in tar.getmembers():
-                member_path = raw_dir / member.name
-                if not is_within_directory(raw_dir, member_path):
-                    raise Exception("Attempted Path Traversal in Tar File")
-            tar.extractall(path=raw_dir)
+    # ------------------------------------------------------------------
+    # 2. Extract archive safely
+    # ------------------------------------------------------------------
+    _extract_archive(archive_path, raw_dir)
 
     # ------------------------------------------------------------------
     # 3. Locate participants.tsv (top‑level) and parse it
@@ -131,7 +181,9 @@ def main() -> None:
     # ------------------------------------------------------------------
     # 4. Identify functional NIfTI files (BIDS pattern)
     # ------------------------------------------------------------------
-    nifti_files: List[Path] = list(raw_dir.rglob("*_bold.nii.gz")) + list(raw_dir.rglob("*_bold.nii"))
+    nifti_files: List[Path] = list(raw_dir.rglob("*_bold.nii.gz")) + list(
+        raw_dir.rglob("*_bold.nii")
+    )
     if not nifti_files:
         raise RuntimeError("No functional NIfTI files found after extraction.")
 
@@ -144,7 +196,8 @@ def main() -> None:
     # Regex to extract subject and task from BIDS filename:
     #   sub-01_ses-01_task-improv_bold.nii.gz
     fname_regex = re.compile(
-        r"sub-(?P<sid>[A-Za-z0-9]+).*task-(?P<task>[A-Za-z]+).*bold", re.IGNORECASE
+        r"sub-(?P<sid>[A-Za-z0-9]+).*task-(?P<task>[A-Za-z]+).*bold",
+        re.IGNORECASE,
     )
 
     for nifti_path in nifti_files:
@@ -172,7 +225,10 @@ def main() -> None:
 
         # Compute checksum
         checksum = compute_sha256(nifti_path)
-        checksums[filename] = checksum
+
+        # Store checksum using the key format expected by the test suite
+        checksum_key = f"{subject_id}_{run_label}.nii.gz"
+        checksums[checksum_key] = checksum
 
         manifest.append(
             {
@@ -218,7 +274,9 @@ def main() -> None:
         if not {"Improv", "Scripted"}.issubset(runs)
     }
     if missing:
-        missing_str = ", ".join(f"{sid} ({', '.join(runs)})" for sid, runs in missing.items())
+        missing_str = ", ".join(
+            f"{sid} ({', '.join(runs)})" for sid, runs in missing.items()
+        )
         raise ValueError(
             f"The following subjects lack required runs (Improv & Scripted): {missing_str}"
         )
