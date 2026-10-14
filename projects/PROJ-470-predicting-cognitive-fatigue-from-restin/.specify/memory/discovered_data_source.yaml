@@ -1,15 +1,14 @@
 status: none
-intent: PhysioNet resting state EEG dataset with fatigue ratings psychomotor vigilance
-  task python package dataset
+intent: PhysioNet resting state EEG fatigue rating dataset with PVT python package
+  dataset
 required_fields:
 - participant_id
-- eeg_data
+- eeg_signal
 - sampling_rate
 - fatigue_rating_pre
 - fatigue_rating_post
-- task_name
-- recording_start_time
-- recording_end_time
-cache_key: c237947979dccaf64356d15513c911e50a21d6d5f1b118fbffbc823f7b77565e
-searched_at: '2026-10-14T16:32:16.813163+00:00'
+- task_condition
+- timestamp
+cache_key: 2bfd569fc8bf6ec83ba44556b59b2aa6991452dd33523a75d047c1c7511c56ae
+searched_at: '2026-10-14T16:34:44.892470+00:00'
 retry_count: 1

@@ -1,3 +1,10 @@
+T001:
+  c: false
+  h: c090ed0c0cd6b4fa6de1afa972eac7121521c1a1c456b8a418d53b57619521ae
+  r: "The required directories are present, but the verification test `tests/unit/test_setup.py`\
+    \ that should confirm the structure is missing, so the task\u2019s stated verification\
+    \ step is not satisfied."
+  sig: ef5effe5b313563fa99ccde9fbe053090e0fd57c820f6de8743466c888f8dcf7
 T006:
   c: false
   h: 564ebc9cedad23a0e1609502879aafe8552f9536995795c65d312c7cbf2b8743

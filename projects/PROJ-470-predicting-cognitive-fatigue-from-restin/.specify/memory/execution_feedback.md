@@ -7,9 +7,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download.py --validate -> rc=1
-2026-10-14 16:31:12,857 - download - INFO - Checking metadata availability at https://physionet.org/api/files/sleep-edfx/1.0.0/...
-2026-10-14 16:31:13,599 - download - ERROR - HTTP error checking metadata: 404 Not Found
-2026-10-14 16:31:13,600 - download - ERROR - Metadata check failed. Aborting.
+2026-10-14 16:33:51,327 - download - INFO - Checking metadata availability at https://physionet.org/api/files/sleep-edfx/1.0.0/...
+2026-10-14 16:33:52,483 - download - ERROR - HTTP error checking metadata: 404 Not Found
+2026-10-14 16:33:52,484 - download - ERROR - Metadata check failed. Aborting.
 
 
 - python code/preprocess.py -> rc=1
@@ -17,15 +17,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/features.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/features.py", line 17, in <module>
-    from pyentropy import perm_entropy
-ModuleNotFoundError: No module named 'pyentropy'
 
 - python code/analysis.py -> rc=1
-2026-10-14 16:31:14,669 - __main__ - INFO - Starting analysis pipeline.
-2026-10-14 16:31:14,669 - __main__ - INFO - Starting input validation for analysis pipeline.
-2026-10-14 16:31:14,669 - __main__ - ERROR - CRITICAL: Required data files are missing. Analysis cannot proceed.
+2026-10-14 16:33:53,334 - __main__ - INFO - Starting analysis pipeline.
+2026-10-14 16:33:53,334 - __main__ - INFO - Starting input validation for analysis pipeline.
+2026-10-14 16:33:53,334 - __main__ - ERROR - CRITICAL: Required data files are missing. Analysis cannot proceed.
 Missing files:
   - cleaned_eeg_dir: data/processed/cleaned_eeg/
   - complexity_metrics: data/analysis/complexity_metrics.csv
@@ -44,10 +40,11 @@ Available files:
 
 
 - python -m pytest tests/ -v -> rc=2
+rt test summary info ============================
+ERROR tests/test_features.py
 ERROR tests/test_t012_preprocess.py
 ERROR tests/integration/test_analysis.py
 ERROR tests/integration/test_features.py
-ERROR tests/integration/test_features_e2e.py
 ERROR tests/integration/test_features_integration.py
 ERROR tests/integration/test_preprocess.py
 ERROR tests/integration/test_preprocess_artifacts.py
@@ -59,7 +56,6 @@ ERROR tests/unit/test_download.py
 ERROR tests/unit/test_download_validation.py
 ERROR tests/unit/test_edge_cases.py
 ERROR tests/unit/test_edge_cases_integration.py
-ERROR tests/unit/test_features.py
 ERROR tests/unit/test_features_lzc.py
 ERROR tests/unit/test_logging.py
 ERROR tests/unit/test_missing_data.py
@@ -69,8 +65,8 @@ ERROR tests/unit/test_report.py
 ERROR tests/unit/test_segment_length_validation.py
 ERROR tests/unit/test_t014_segment_validation.py
 ERROR tests/unit/test_validation_gate.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 26 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 5 warnings, 26 errors in 1.46s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 24 errors during collection !!!!!!!!!!!!!!!!!!!
+======================== 5 warnings, 24 errors in 0.86s ========================
 
 
 

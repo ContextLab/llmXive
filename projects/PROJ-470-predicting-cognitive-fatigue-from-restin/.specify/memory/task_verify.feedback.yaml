@@ -1,4 +1,7 @@
 T001:
+  reason: "The required directories are present, but the verification test `tests/unit/test_setup.py`\
+    \ that should confirm the structure is missing, so the task\u2019s stated verification\
+    \ step is not satisfied."
   task: 7c376436d3c73b3a388964fba5596b23cffa240ba6b447103efdb6e928b202fd
 T002:
   task: afafaabe1d3c7a3f770216d307e1b5c2aeeadb95bc5e747258e8fdda14f70b99
