@@ -1,11 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-10-14T14:07:12.803638+00:00'
+last_used: david-krakauer
+last_used_at: '2026-10-14T16:06:15.174110+00:00'
 last_outcome: committed
 history:
-- slug: geoffrey-west
-  started_at: '2026-06-25T19:19:28.066765+00:00'
-  ended_at: '2026-06-25T20:20:30.419593+00:00'
-  outcome: malformed_response
 - slug: geoffrey-west
   started_at: '2026-06-25T20:20:30.419593+00:00'
   ended_at: '2026-06-25T21:07:47.130860+00:00'
@@ -1266,3 +1262,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/reviews/research/daniel-kahneman-simulated__2026-10-14__research.md
+- slug: david-krakauer
+  started_at: '2026-10-14T14:07:12.803638+00:00'
+  ended_at: '2026-10-14T16:06:15.174110+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-152-evaluating-the-impact-of-code-generation/reviews/research/david-krakauer-simulated__2026-10-14__research.md
