@@ -1,13 +1,49 @@
 T001:
   c: false
-  h: 676343f5821a551500c78e0e323b3ff3d6070bf66017de095a14bed8211ed818
-  r: The `specs/001-structural-mismatch-cost/quickstart.md` does not contain the required
-    runnable command `python -m code.main`, and there is no evidence (e.g., a log
-    or command output) that `ruff check code/` runs without errors. Additionally,
-    the `specs/001-structural-mismatch-cost/contracts/` directory is empty, lacking
-    any placeholder file (e.g., a `.gitkeep`). These missing artifacts prevent the
-    task from being considered complete.
-  sig: 29b9653377f70443b23f7ab5da84d92ffa4c15fa861cfe5359794eef8f54fb05
+  h: 442c76ed883881a0fba059b1d0638c1cb8dae3a84cce7f3cbcf27b1f6600a7d9
+  r: The project skeleton and required files (directories, quickstart.md, requirements.txt,
+    .ruff.toml, pyproject.toml) are present, but there is no evidence that `ruff check
+    code/` was executed and passed; the task explicitly requires a successful lint
+    run. Provide the command output (or a test) showing that `ruff` reports no errors.
+  sig: ef889887351a89077b3266449023760027525a732b10cd23bc0c749135ef161d
+T004:
+  c: false
+  h: 4920ccd7b0b07839802acb65e9e7678eb96f61bfae3d6078e15db854c2d7972f
+  r: "The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,\
+    \ `execution_metric.schema.yaml`, `statistics-result.schema.yaml`) are all reported\
+    \ as MISSING, and no sample data rows or validation output are provided. Consequently\
+    \ the task of creating/repairing the schemas and validating them with\u202Fpyyaml\u202F\
+    +\u202Fjsonschema is not satisfied."
+  sig: f7c1e121373d0935f9070edc83d99ce88919a67c915a66ab6d44ea5ce1ab15ed
+T005:
+  c: false
+  h: 57eb16adacab5dda958fe613b7f55f10fbe9f76d0b5b733aa7552d30248f0257
+  r: "Checked `code/config.py` (provides seeds, directories, throttling) and `code/utils/data_fetcher.py`.\
+    \ The data fetcher contains a critical bug: it calls `load_dataset(name, name=config_name,\
+    \ \u2026)`, passing the `name` argument twice, which raises a `TypeError` and\
+    \ prevents any real dataset from being fetched (even before network access). Consequently\
+    \ real fetching never succeeds and the fallback logic is never exercised as intended.\
+    \ The module also fails to import in the test environment due to a missing compatible\
+    \ `pyarrow`/NumPy version, indicating it is not runnable as\u2011is. The task\
+    \ therefore is"
+  sig: 433a4d534507307998d7ef8cc90fdbe132ccb1bce8912e324319c64c782b4116
+T006:
+  c: false
+  h: 32c964cd415decbc29e371c5d113a4269d66680552df8a3c8467f8e843346b2e
+  r: "The generator script exists and caps depths with a warning, but the required\
+    \ schema file `query_instance.schema.yaml` is missing, so we cannot verify that\
+    \ `generation_log.json` conforms to it. Moreover, the provided excerpt of `generation_log.json`\
+    \ only shows queries with `complexity_level`\u202F=\u202F1; there is no evidence\
+    \ that queries for depths\u202F2,\u202F3, and\u202F4+ were generated as required."
+  sig: 785baf86867a18c88b2eca725e916d911494908af64bbc6baa57278edcebe99a
+T007:
+  c: true
+  h: 8504297f656e8fc9cbf61c1f08681ea6d93bf513df9ff88ceb3bc16ec32a4107
+  r: "Checked `code/generators/reference_engine.py` (4377\u202Fbytes) which implements\
+    \ a deterministic greedy engine selecting the step with minimum `estimated_cost`\
+    \ and, on ties, the smallest `depth`. The accompanying unit\u2011test log shows\
+    \ both tests (cost/depth ordering and fallback without steps) pass."
+  sig: 99ee1b2d17e1a771e38cefca1d65b9a96071b95c46d34f307a5c14aa69a70478
 T020:
   c: false
   h: 01292f74bbe027f31fee22235d5b1234e07bbbc856c2aab04766d90aeebec70e
@@ -24,3 +60,15 @@ T021:
     \ does not show any logic that writes raw metrics to the CSV or aggregated stats\
     \ to the JSON. Consequently, the claimed data\u2011persistence feature is not\
     \ actually implemented."
+T022:
+  c: false
+  h: 6744f703566ffb7f8e69ddf34d8afb4a576ed7f4b74f0aafe0ca8cab2eb3f418
+  r: "The `code/router/sut_router.py` file exists and implements a heuristic\u2011\
+    based `sut_plan` and writes it back to the JSON file, but the unit test `test_router_enriches_file`\
+    \ fails because the script uses `paths.path`, which rejects input/output files\
+    \ located outside the project directory (the temporary test file). This path\u2011\
+    validation bug prevents the router from correctly enriching arbitrary `generation_log.json`\
+    \ files, so the implementation does not fully satisfy the task\u2019s requirement.\
+    \ Fix the path handling (e.g., use plain `Path` or allow external paths) and rerun\
+    \ the tests."
+  sig: 74e4ccad2462be315a33920b068b0fe2ade3a98f03ccf103dba75ed68f9b09a2

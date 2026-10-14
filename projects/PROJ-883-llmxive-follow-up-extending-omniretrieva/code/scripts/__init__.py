@@ -1,1 +1,1 @@
-"""Script modules."""
+"""Scripts subpackage."""

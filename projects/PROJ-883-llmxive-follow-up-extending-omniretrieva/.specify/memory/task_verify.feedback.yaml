@@ -1,18 +1,32 @@
 T001:
-  reason: The `specs/001-structural-mismatch-cost/quickstart.md` does not contain
-    the required runnable command `python -m code.main`, and there is no evidence
-    (e.g., a log or command output) that `ruff check code/` runs without errors. Additionally,
-    the `specs/001-structural-mismatch-cost/contracts/` directory is empty, lacking
-    any placeholder file (e.g., a `.gitkeep`). These missing artifacts prevent the
-    task from being considered complete.
+  reason: The project skeleton and required files (directories, quickstart.md, requirements.txt,
+    .ruff.toml, pyproject.toml) are present, but there is no evidence that `ruff check
+    code/` was executed and passed; the task explicitly requires a successful lint
+    run. Provide the command output (or a test) showing that `ruff` reports no errors.
   task: eb8380d842da885e28c9626b73bce40ed6e7a00e34359b9ffb7253b561596cf1
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/validate_schemas.py
-    exit=1'
+  reason: "The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,\
+    \ `execution_metric.schema.yaml`, `statistics-result.schema.yaml`) are all reported\
+    \ as MISSING, and no sample data rows or validation output are provided. Consequently\
+    \ the task of creating/repairing the schemas and validating them with\u202Fpyyaml\u202F\
+    +\u202Fjsonschema is not satisfied."
   task: 237f33ad5aae5bbcc0d59f7ce2a726f5d0fe5dcc4ddb0243c1e899e9c9dea1a0
 T005:
+  reason: "Checked `code/config.py` (provides seeds, directories, throttling) and\
+    \ `code/utils/data_fetcher.py`. The data fetcher contains a critical bug: it calls\
+    \ `load_dataset(name, name=config_name, \u2026)`, passing the `name` argument\
+    \ twice, which raises a `TypeError` and prevents any real dataset from being fetched\
+    \ (even before network access). Consequently real fetching never succeeds and\
+    \ the fallback logic is never exercised as intended. The module also fails to\
+    \ import in the test environment due to a missing compatible `pyarrow`/NumPy version,\
+    \ indicating it is not runnable as\u2011is. The task therefore is"
   task: e7317a562eeb5d71cf741fddff540cbd60e63829cdeb0347373f8fa17115e200
 T006:
+  reason: "The generator script exists and caps depths with a warning, but the required\
+    \ schema file `query_instance.schema.yaml` is missing, so we cannot verify that\
+    \ `generation_log.json` conforms to it. Moreover, the provided excerpt of `generation_log.json`\
+    \ only shows queries with `complexity_level`\u202F=\u202F1; there is no evidence\
+    \ that queries for depths\u202F2,\u202F3, and\u202F4+ were generated as required."
   task: 89ef8ef7a7de3ca26e5c74606be13900bdfeb5f552d222e825fdeeee3cf81434
 T007:
   task: 85c536ec641841533d86bd41d67564b70effb51e973f7dbb9ae844a908952289
@@ -25,8 +39,17 @@ T018:
 T020:
   task: 9817371bced803cdb721e91bd6ed9b1f0f821a088655692dad4c6149791a5fe5
 T021:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 5e98a32ea3fb3b5c5c3bc8f75502682334f7d153fd28741b5342e54eb7174d20
 T022:
+  reason: "The `code/router/sut_router.py` file exists and implements a heuristic\u2011\
+    based `sut_plan` and writes it back to the JSON file, but the unit test `test_router_enriches_file`\
+    \ fails because the script uses `paths.path`, which rejects input/output files\
+    \ located outside the project directory (the temporary test file). This path\u2011\
+    validation bug prevents the router from correctly enriching arbitrary `generation_log.json`\
+    \ files, so the implementation does not fully satisfy the task\u2019s requirement.\
+    \ Fix the path handling (e.g., use plain `Path` or allow external paths) and rerun\
+    \ the tests."
   task: 1fb599c65257d88d34448819679dd4dc31d19a4364f85e3b9baba3a178ba16b0
 T023:
   task: d52c38943fe3eb46c4ce0328b3c25acb21e4ee5a1d77aa46e47b8d96a6bd90c0

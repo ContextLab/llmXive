@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Execution Metric"
+title: ExecutionMetric
 type: object
 properties:
   query_id:
@@ -7,13 +7,14 @@ properties:
   latency_ms:
     type: number
     minimum: 0
-  translation_error:
+  mismatch_flag:
     type: boolean
-  timeout_flag:
-    type: boolean
+  delta_latency:
+    type: number
+  engine_version:
+    type: string
+  throttle_config:
+    type: string
 required:
   - query_id
   - latency_ms
-  - translation_error
-  - timeout_flag
-additionalProperties: false

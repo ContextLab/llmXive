@@ -1,1 +1,1 @@
-"""Query generation modules."""
+"""Generators subpackage."""

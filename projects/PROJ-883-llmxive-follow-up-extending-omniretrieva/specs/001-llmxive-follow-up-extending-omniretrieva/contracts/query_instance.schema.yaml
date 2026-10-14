@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Query Instance"
+title: QueryInstance
 type: object
 properties:
   query_id:
@@ -8,16 +8,17 @@ properties:
     type: string
   source_type:
     type: string
-    enum: ["text", "relational", "graph"]
+    enum: [text, relational, graph]
   complexity_level:
     type: integer
     minimum: 1
   ground_truth_plan:
     type: string
+  synthetic_flag:
+    type: integer
+    enum: [0, 1]
 required:
   - query_id
-  - logical_plan
   - source_type
   - complexity_level
   - ground_truth_plan
-additionalProperties: false

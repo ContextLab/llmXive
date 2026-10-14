@@ -1,59 +1,80 @@
-"""
-Synthetic Query Generator.
+"""Synthetic query generator.
 
-Implements T006 and T017.
-Generates queries with exact integer plan depths (1, 2, 3, 4+).
-Calls ReferenceEngine to assign ground_truth_plan.
+Generates queries with integer plan depths and attaches a deterministic
+ground‑truth plan using the ReferenceEngine. The generated queries are
+written to a JSON file that conforms to ``query_instance.schema.yaml``.
 """
 
 import json
-import os
 import random
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
+from llmxive_toolkit import get_logger, paths
 from .reference_engine import ReferenceEngine
 
+log = get_logger(__name__)
+
+# The maximum depth we support for synthetic generation.  If a caller
+# requests a larger depth we cap it and emit a warning.
+MAX_DEPTH = 4
+
+
 class SyntheticQueryGenerator:
-    """Generates synthetic queries with ground-truth plans."""
+    """Generate synthetic queries with integer depth."""
 
-    def __init__(self, reference_engine: ReferenceEngine, seed: int = 42):
-        random.seed(seed)
-        self.reference_engine = reference_engine
-
-    def generate(self, num_queries: int = 100) -> List[Dict[str, Any]]:
+    def __init__(self, levels: List[int], count_per_level: int = 10, seed: int = 42):
         """
-        Generate a set of synthetic queries.
-        Each query has:
-        - id
-        - source_type (text, relational, graph)
-        - complexity_level (integer: 1, 2, 3, 4+)
-        - ground_truth_plan (from ReferenceEngine)
+        Parameters
+        ----------
+        levels: List[int]
+            Desired plan depths (e.g., [1, 2, 3, 4]).
+        count_per_level: int
+            How many queries to emit for each depth level.
+        seed: int
+            Random seed for reproducibility.
         """
-        queries = []
-        source_types = ["text", "relational", "graph"]
+        self.levels = levels
+        self.count_per_level = count_per_level
+        self.rng = random.Random(seed)
+        self.ref_engine = ReferenceEngine()
 
-        for i in range(num_queries):
-            source_type = random.choice(source_types)
-            # Complexity level: 1, 2, 3, 4+ (capped at 5 for simulation)
-            complexity = random.randint(1, 5)
+    def _effective_level(self, level: int) -> int:
+        """Return a depth that does not exceed ``MAX_DEPTH``; log if capped."""
+        if level > MAX_DEPTH:
+            log.warning(
+                "Requested depth %d exceeds maximum %d – capping to %d",
+                level,
+                MAX_DEPTH,
+                MAX_DEPTH,
+            )
+            return MAX_DEPTH
+        return level
 
-            # Generate ground truth plan
-            plan = self.reference_engine.generate_plan(source_type, complexity)
-
-            query = {
-                "id": f"q_{i}",
-                "source_type": source_type,
-                "complexity_level": complexity,
-                "ground_truth_plan": plan,
-                "payload": f"Query payload for {source_type} at level {complexity}"
-            }
-            queries.append(query)
-
+    def generate(self) -> List[Dict[str, Any]]:
+        """Create a list of query definitions."""
+        queries: List[Dict[str, Any]] = []
+        for level in self.levels:
+            eff_level = self._effective_level(level)
+            for _ in range(self.count_per_level):
+                qid = f"q_{level}_{self.rng.randint(0, 1_000_000)}"
+                query: Dict[str, Any] = {
+                    "query_id": qid,
+                    "source_type": self.rng.choice(["text", "relational", "graph"]),
+                    "complexity_level": int(eff_level),  # persisted as integer
+                    "logical_plan": {"steps": []},  # placeholder – schema allows empty steps
+                }
+                # Attach deterministic ground‑truth plan using the reference engine.
+                gt_plan = self.ref_engine.generate_plan(query)
+                query["ground_truth_plan"] = gt_plan
+                queries.append(query)
         return queries
 
-    def main(self):
-        """Entry point."""
-        print("Synthetic Query Generator initialized.")
+    def write_to_file(self, filepath: str) -> None:
+        """Write the generated queries to ``filepath`` as JSON.
 
-if __name__ == "__main__":
-    main()
+        The directory hierarchy is created if it does not already exist.
+        """
+        path = paths.path(filepath)  # ensures the path is under the project root
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(self.generate(), f, indent=2)

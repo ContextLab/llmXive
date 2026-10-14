@@ -1,89 +1,217 @@
-"""
-Data Fetching Module.
+"""Data fetching utilities for real datasets.
 
-Handles real dataset downloads from URLs defined in config.py.
-Verifies checksums and handles partial downloads.
+This module provides:
+- checksum calculation
+- dataset fetching from HuggingFace `datasets` with streaming support
+- verification of required datasets
+- a CLI entry point for on‑demand fetching
 """
 
-import os
+import argparse
 import hashlib
-import shutil
-import tempfile
+import json
+import logging
+import os
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
-import requests
+from typing import Optional, Union
 
-from config import DATASET_URLS
+from datasets import load_dataset, Dataset, DatasetDict, DownloadConfig, DownloadMode
 
-class DataFetchError(Exception):
-    """Exception raised when data fetching fails."""
+from llmxive_toolkit import get_logger, paths
+
+log = get_logger(__name__)
+
+class DataFetchError(RuntimeError):
+    """Raised when a dataset cannot be fetched and synthetic fallback is not allowed."""
     pass
 
-def calculate_checksum(filepath: str, algorithm: str = "sha256") -> str:
-    """Calculate checksum of a file."""
-    hash_func = hashlib.getbyname(algorithm)
-    with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
 
-def fetch_dataset(url: str, dest_path: str, expected_checksum: Optional[str] = None) -> str:
+def calculate_checksum(filepath: Union[str, Path], algorithm: str = "sha256") -> str:
+    """Calculate the checksum of a file.
+
+    Parameters
+    ----------
+    filepath: str or Path
+        Path to the file whose checksum should be calculated.
+    algorithm: str, optional
+        Hash algorithm supported by ``hashlib`` (default ``sha256``).
+
+    Returns
+    -------
+    str
+        Hexadecimal digest of the file.
     """
-    Fetch a dataset from a URL.
-    Verifies checksum if provided.
+    file_path = Path(filepath)
+    if not file_path.is_file():
+        raise FileNotFoundError(f"File not found for checksum: {file_path}")
+
+    h = hashlib.new(algorithm)
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _write_streamed_dataset(
+    ds: Union[Dataset, DatasetDict],
+    dest_path: Path,
+    synthetic_flag: int = 0,
+) -> None:
+    """Write a streamed HuggingFace dataset to a JSON‑Lines file.
+
+    Each record is written as a single JSON object per line.
+    """
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    with dest_path.open("w", encoding="utf-8") as out_f:
+        # If a DatasetDict (multiple splits), concatenate them
+        if isinstance(ds, DatasetDict):
+            iterator = (example for split in ds.values() for example in split)
+        else:
+            iterator = ds
+
+        for example in iterator:
+            # Attach synthetic flag if needed
+            if synthetic_flag:
+                example = dict(example)
+                example["synthetic_flag"] = synthetic_flag
+            out_f.write(json.dumps(example, ensure_ascii=False) + "\n")
+
+
+def fetch_dataset(
+    name: str,
+    config_name: Optional[str] = None,
+    split: str = "train",
+    dest_path: Union[str, Path] = None,
+    allow_synthetic: bool = False,
+) -> Path:
+    """Fetch a dataset from HuggingFace and persist it locally.
+
+    Parameters
+    ----------
+    name: str
+        The HuggingFace dataset identifier (e.g., ``"microsoft/ms_marco"``).
+    config_name: str, optional
+        Configuration name for datasets that expose multiple configs.
+    split: str, optional
+        Which split to download (default ``"train"``).
+    dest_path: str or Path, optional
+        Destination file path. If ``None``, a sensible path under
+        ``paths.data("raw")`` is chosen based on the dataset name.
+    allow_synthetic: bool, optional
+        If ``True`` and the real fetch fails, a tiny synthetic graph
+        (a list of triples) is written instead with ``synthetic_flag=1``.
+
+    Returns
+    -------
+    Path
+        Path to the written JSON‑Lines file.
+
+    Raises
+    ------
+    DataFetchError
+        If the dataset cannot be fetched and ``allow_synthetic`` is ``False``.
     """
     try:
-        # Stream download
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
+        log.info(f"Attempting to fetch dataset: {name} (config={config_name}, split={split})")
+        # Use streaming to keep memory usage low
+        ds = load_dataset(
+            name,
+            name=config_name,
+            split=split,
+            streaming=True,
+            download_config=DownloadConfig(
+                # Force download mode to raise on failure rather than using cache
+                download_mode=DownloadMode.FORCE_DOWNLOAD
+            ),
+        )
+        # Resolve destination path
+        if dest_path is None:
+            safe_name = name.replace("/", "_")
+            if config_name:
+                safe_name += f"_{config_name}"
+            dest_path = paths.data("raw", f"{safe_name}_{split}.jsonl")
+        dest_path = Path(dest_path)
+        _write_streamed_dataset(ds, dest_path)
+        log.info(f"Dataset written to {dest_path}")
+        return dest_path
+    except Exception as exc:
+        log.error(f"Failed to fetch dataset {name}: {exc}")
+        if allow_synthetic:
+            log.warning("Falling back to synthetic dataset generation (synthetic_flag=1).")
+            synthetic_path = Path(dest_path) if dest_path else paths.data(
+                "raw", f"synthetic_{name.replace('/', '_')}.jsonl"
+            )
+            _generate_synthetic_graph(synthetic_path)
+            return synthetic_path
+        else:
+            raise DataFetchError(
+                f"Unable to fetch dataset {name} and synthetic fallback is disabled."
+            ) from exc
 
-        # Save to temp file first
-        fd, temp_path = tempfile.mkstemp()
-        try:
-            with os.fdopen(fd, "wb") as tmp:
-                shutil.copyfileobj(response.raw, tmp)
-            
-            # Move to final destination
-            Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(temp_path, dest_path)
 
-            # Verify checksum
-            if expected_checksum:
-                actual_checksum = calculate_checksum(dest_path)
-                if actual_checksum != expected_checksum:
-                    raise DataFetchError(f"Checksum mismatch for {url}. Expected {expected_checksum}, got {actual_checksum}")
-            
-            return dest_path
-        finally:
-            if os.exists(temp_path):
-                os.unlink(temp_path)
+def _generate_synthetic_graph(dest_path: Path) -> None:
+    """Generate a tiny synthetic graph and write it as JSON‑Lines.
 
-    except requests.RequestException as e:
-        raise DataFetchError(f"Failed to download {url}: {e}")
-
-def verify_all_datasets() -> None:
+    The synthetic graph consists of a few triples of the form
+    ``{'head': 'nodeX', 'relation': 'relY', 'tail': 'nodeZ', 'synthetic_flag': 1}``.
     """
-    Verify all datasets in DATASET_URLS.
-    If any fail, raise DataFetchError.
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    synthetic_triples = [
+        {"head": "Alice", "relation": "knows", "tail": "Bob", "synthetic_flag": 1},
+        {"head": "Bob", "relation": "likes", "tail": "Charlie", "synthetic_flag": 1},
+        {"head": "Charlie", "relation": "works_at", "tail": "AcmeCorp", "synthetic_flag": 1},
+    ]
+    with dest_path.open("w", encoding="utf-8") as f:
+        for triple in synthetic_triples:
+            f.write(json.dumps(triple, ensure_ascii=False) + "\n")
+    log.info(f"Synthetic graph written to {dest_path}")
+
+
+def verify_all_datasets(allow_synthetic: bool = False) -> None:
+    """Ensure that all required datasets are present under ``data/raw``.
+
+    The function attempts to fetch each dataset if it does not already exist.
     """
-    for name, url in DATASET_URLS.items():
-        # In a real implementation, we would have checksums here
-        # For now, we just check reachability
-        try:
-            response = requests.head(url)
-            if response.status_code != 200:
-                raise DataFetchError(f"Dataset {name} at {url} returned status {response.status_code}")
-        except Exception as e:
-            raise DataFetchError(f"Failed to verify dataset {name}: {e}")
+    required = [
+        # (dataset name, config, split)
+        ("microsoft/ms_marco", "v1.1", "train"),
+        ("xlangai/spider", None, "train"),
+        ("wikidata5m/wikidata5m", None, "train"),
+    ]
 
-def main():
-    """Entry point for data fetcher."""
-    try:
-        verify_all_datasets()
-        print("All datasets verified.")
-    except DataFetchError as e:
-        print(f"Data fetch error: {e}")
-        raise
+    for name, cfg, split in required:
+        safe_name = name.replace("/", "_")
+        if cfg:
+            safe_name += f"_{cfg}"
+        expected_path = paths.data("raw", f"{safe_name}_{split}.jsonl")
+        if not expected_path.is_file():
+            log.info(f"Dataset file {expected_path} missing – fetching.")
+            fetch_dataset(
+                name=name,
+                config_name=cfg,
+                split=split,
+                dest_path=expected_path,
+                allow_synthetic=allow_synthetic,
+            )
+        else:
+            log.info(f"Dataset file {expected_path} already present.")
 
-if __name__ == "__main__":
-    main()
+
+def main() -> None:
+    """CLI entry point.
+
+    Usage:
+        python -m code.utils.data_fetcher [--allow-synthetic]
+
+    The command fetches all required datasets into ``data/raw``.
+    """
+    parser = argparse.ArgumentParser(
+        description="Fetch required benchmark datasets."
+    )
+    parser.add_argument(
+        "--allow-synthetic",
+        action="store_true",
+        help="Generate a tiny synthetic graph if any real dataset cannot be fetched.",
+    )
+    args = parser.parse_args()
+    verify_all_datasets(allow_synthetic=args.allow_synthetic)

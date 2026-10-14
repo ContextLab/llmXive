@@ -1,3 +1,19 @@
-# Project specific dependencies (beyond the platform defaults)
-pyyaml
+# Core scientific stack (already available in the base image)
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+pytest
+PyYAML
+requests
 jsonschema
+psutil
+
+# Additional packages required for the executors
+datasets
+rdflib
+networkx
+# ``sqlite3`` is part of the Python stdlib and does not need to be listed.

@@ -1,73 +1,62 @@
-"""
-Graph Executor.
+"""Graph executor – runs a tiny SPARQL query over a real RDF dump.
 
-Implements T011.
-Uses NetworkX/RDFLib for synthetic graph generation and multi-hop traversal.
+The executor downloads a small, publicly‑available RDF file (a FOAF example)
+via ``rdflib`` and executes a simple SPARQL SELECT.  The latency measured is
+the time required to perform the query on a genuine graph dataset.
 """
 
-import os
 import time
-import random
-import json
-import hashlib
-from typing import Dict, Any, List, Optional
+from typing import Dict
 
-from executors.base import BaseExecutor, ExecutionResult
+from llmxive_toolkit import get_logger
+from rdflib import Graph
 
-try:
-    import networkx as nx
-    HAS_NETWORKX = True
-except ImportError:
-    HAS_NETWORKX = False
+from .base import BaseExecutor, ExecutionResult
+
+log = get_logger(__name__)
 
 class GraphExecutor(BaseExecutor):
-    """Executes graph queries."""
+    """Executor for the graph source (RDFLib over a real FOAF dataset)."""
 
-    def __init__(self):
-        super().__init__()
-        self.graph = None
-        if HAS_NETWORKX:
-            self._init_graph()
+    # A small, stable FOAF RDF file hosted on GitHub (≈ 9 KB)
+    FOAF_RDF_URL = "https://raw.githubusercontent.com/linkeddata/linkeddata.github.io/master/data/foaf.rdf"
 
-    def _init_graph(self):
-        """Initialize synthetic graph."""
-        self.graph = nx.Graph()
-        # Create a simple chain graph
-        for i in range(100):
-            self.graph.add_node(i)
-            if i > 0:
-                self.graph.add_edge(i-1, i)
+    def __init__(self, timeout_seconds: int = 60):
+        super().__init__(timeout_seconds=timeout_seconds)
+        log.info("Loading FOAF RDF graph from %s", self.FOAF_RDF_URL)
+        self.graph = Graph()
+        self.graph.parse(self.FOAF_RDF_URL, format="xml")
+        log.info("Graph loaded – %d triples.", len(self.graph))
 
-    def execute(self, query: Dict[str, Any]) -> ExecutionResult:
-        """Execute graph query."""
+    def execute(self, query: Dict) -> ExecutionResult:
+        """Run a simple SPARQL query that selects a person.
+
+        The actual query text is stored as the ``executed_plan`` for later
+        analysis.
+        """
+        sparql = """
+        SELECT ?s WHERE {
+            ?s a <http://xmlns.com/foaf/0.1/Person> .
+        } LIMIT 1
+        """
         start = time.time()
-        complexity = query.get("complexity_level", 1)
+        try:
+            result_set = list(self.graph.query(sparql))
+            executed_plan = sparql.strip()
+            success = len(result_set) > 0
+        except Exception as exc:  # pylint: disable=broad-except
+            log.error("SPARQL execution failed: %s", exc)
+            executed_plan = None
+            success = False
+        latency_ms = (time.time() - start) * 1000.0
 
-        if HAS_NETWORKX and self.graph:
-            # Simulate multi-hop traversal
-            for _ in range(complexity):
-                # Random walk
-                node = random.choice(list(self.graph.nodes))
-                neighbors = list(self.graph.neighbors(node))
-                if neighbors:
-                    next_node = random.choice(neighbors)
-        else:
-            # Fallback if NetworkX not available
-            time.sleep(0.001 * complexity)
-
-        end = time.time()
-        latency = (end - start) * 1000
-
-        plan = query.get("ground_truth_plan", "Unknown")
-
-        return ExecutionResult(
-            status="success",
-            latency=latency,
-            plan=plan
+        exec_result = ExecutionResult(
+            query_id=query.get("query_id", "unknown"),
+            source_type="graph",
+            complexity_level=int(query.get("complexity_level", -1)),
+            executed_plan=executed_plan,
+            latency_ms=latency_ms,
+            success=success,
+            timeout=False,
         )
-
-    def main(self):
-        print("Graph Executor initialized.")
-
-if __name__ == "__main__":
-    main()
+        return exec_result

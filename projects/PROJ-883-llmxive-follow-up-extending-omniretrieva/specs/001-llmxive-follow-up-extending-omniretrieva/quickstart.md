@@ -4,7 +4,7 @@
 
 - Python 3.11+
 - Access to a Linux environment (GitHub Actions or local Linux).
-- 7GB+ RAM, 2+ CPU cores.
+- 7GB+ RAM, Multiple CPU cores.
 - Internet access to download HuggingFace datasets and DBpedia.
 
 ## Installation
@@ -40,7 +40,7 @@ python code/data_loader.py --prepare
 ### 2. Generate Queries & Ground Truth
 Generates synthetic queries with known complexity levels and computes ground truth plans.
 ```bash
-python code/query_generator.py --levels 1 2 3 4 --count 500 --seed 42
+python code/query_generator.py --levels 1 2 3 4 --count [sufficient sample size] --seed 42
 python code/ground_truth_engine.py --input data/processed/generation_log.json --output data/processed/generation_log.json
 ```
 *Output*: `data/processed/generation_log.json` (with `ground_truth_plan` populated).
@@ -64,6 +64,12 @@ python code/stats.py --input data/processed/execution_logs.csv
 Generates the interaction plot.
 ```bash
 python code/visualize.py --input data/processed/execution_logs.csv --output data/results/interaction_plot.png
+```
+
+## Running the Pipeline via Module
+The entire pipeline can also be executed with:
+```bash
+python -m code.main
 ```
 
 ## Troubleshooting

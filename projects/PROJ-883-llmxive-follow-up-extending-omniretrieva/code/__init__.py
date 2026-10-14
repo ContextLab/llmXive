@@ -1,1 +1,1 @@
-"""Initialize the code package."""
+"""Top-level package for the project."""

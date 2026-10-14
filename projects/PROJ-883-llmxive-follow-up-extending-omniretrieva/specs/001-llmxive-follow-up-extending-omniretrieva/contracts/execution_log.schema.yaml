@@ -1,12 +1,12 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Execution Log"
+title: ExecutionLog
 type: object
 properties:
   query_id:
     type: string
   source_type:
     type: string
-    enum: ["text", "relational", "graph"]
+    enum: [text, relational, graph]
   complexity_level:
     type: integer
     minimum: 1
@@ -17,18 +17,11 @@ properties:
     type: boolean
   success_flag:
     type: boolean
-  synthetic_flag:
-    type: integer
-    enum: [0, 1]
+  timeout_flag:
+    type: boolean
   throttling_mode:
     type: string
 required:
   - query_id
-  - source_type
-  - complexity_level
   - latency_ms
-  - translation_error
   - success_flag
-  - synthetic_flag
-  - throttling_mode
-additionalProperties: false

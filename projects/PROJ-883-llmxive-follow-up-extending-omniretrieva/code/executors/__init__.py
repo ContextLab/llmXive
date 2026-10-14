@@ -1,1 +1,1 @@
-"""Execution engine modules."""
+"""Executors subpackage."""

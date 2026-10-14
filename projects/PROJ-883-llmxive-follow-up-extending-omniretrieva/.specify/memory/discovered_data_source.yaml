@@ -1,11 +1,12 @@
 status: none
-intent: download Spider dataset MS MARCO subset DBpedia 10 RDF python package dataset
+intent: Spider dataset download DBpedia-10 RDF dataset pip install python package
+  dataset
 required_fields:
 - query_id
-- query_text
+- query_sql
 - plan_depth
 - source_type
 - latency_ms
-cache_key: 16bb2f96c4a08a6deb91b24cba8c0dd9d60af3365b50d5cf1d508fac3c04790b
-searched_at: '2026-10-14T05:21:01.291680+00:00'
+cache_key: 16a929ced96cac14d76febc2271af58c3d220a60d41cd4ecd17c8cea105b9d5c
+searched_at: '2026-10-14T05:26:07.030665+00:00'
 retry_count: 1
