@@ -5,7 +5,7 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T011a_Gate [US1] **REDO (verifier‑rejected; consolidates T011a/T011c/T011d/T011e)**: Implement and execute `code/data/atomic_gate.py` performing ALL FR‑009 validations and download in one script.  
+- [ ] T011a_Gate [US1] **REDO (verifier‑rejected; consolidates T011a/T011c/T011d/T011e)**: Implement and execute `code/data/atomic_gate.py` performing ALL FR‑009 validations and download in one script.   <!-- FAILED-IN-EXECUTION: code/data/atomic_gate.py exit=1 -->
   **File**: `code/data/atomic_gate.py`  
   **Verification**: Generates `data/raw/sn1_raw_merged.parquet`, `data/processed/exclusion_raw.log`, `data/processed/.pipeline_status`; aborts with `ABORTED` on missing metadata.
 

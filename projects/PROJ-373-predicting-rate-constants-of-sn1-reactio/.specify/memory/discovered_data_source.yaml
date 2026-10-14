@@ -1,11 +1,14 @@
 status: none
-intent: download SN2 kinetic dataset from HuggingFace as python package dataset
+intent: download SN kinetic dataset from HuggingFace with temperature solvent substrate
+  class python package dataset
 required_fields:
 - SMILES
 - rate_constant
 - temperature
 - solvent
 - substrate_class
-cache_key: bfc9ed95f862b3bb995e62822713bfe81adfd51a1d0f0433f42f8f507e190b7b
-searched_at: '2026-10-03T04:17:23.272444+00:00'
+- gasteiger_partial_charges
+- topological_indices
+cache_key: 8741e213135e33ca0f3e57ddd3f78e58447b6daf3ca6a48153bccd9b9e5ddfe9
+searched_at: '2026-10-14T10:27:40.038088+00:00'
 retry_count: 1
