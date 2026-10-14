@@ -5,13 +5,15 @@ required:
   - doc_id
   - plain_text
   - layout_annotations
+  - image_path
+  - source
 properties:
   doc_id:
     type: string
     description: "Unique identifier for the page."
   plain_text:
     type: string
-    description: "Full OCR‑extracted text of the page."
+    description: "OCR‑extracted text of the page."
   layout_annotations:
     type: array
     description: "List of bounding‑box annotations for visual elements."
@@ -26,7 +28,7 @@ properties:
       properties:
         type:
           type: string
-          enum: [figure, table, equation, text_block]
+          enum: [text_block, table]
           description: "Element type."
         x0:
           type: number
@@ -40,10 +42,17 @@ properties:
         y1:
           type: number
           description: "Normalized bottom coordinate."
+  image_path:
+    type: string
+    description: "Filesystem path to the raw scanned image (PNG/JPEG)."
+  source:
+    type: string
+    enum: [real]
+    description: "Provenance of the document (always real in this project)."
   visual_latent:
     type: array
     description: "Optional 768‑dimensional latent vector from frozen visual encoder."
-    items:
-      type: number
     minItems: 768
     maxItems: 768
+    items:
+      type: number

@@ -1,18 +1,12 @@
 status: none
-intent: PubLayNet DocBank MixSub-LLaMA-3.2 layout annotated scientific document datasets
-  python package dataset
+intent: download PubLayNet scientific document layout dataset with bounding box annotations
+  python package
 required_fields:
 - document_id
-- page_number
-- image_path_or_bytes
-- raw_text
-- bounding_boxes_x0
-- bounding_boxes_y0
-- bounding_boxes_x1
-- bounding_boxes_y1
-- bounding_box_label
-- page_width
-- page_height
-cache_key: b0dd241b4c6918598761dfbfa15ce39fc66e5ac63d83528156a7c6e4fe7a2d65
-searched_at: '2026-10-14T13:12:41.451511+00:00'
+- page_image_path_or_bytes
+- extracted_text
+- layout_bounding_boxes
+- annotation_labels
+cache_key: 0547a73fbc720eebe3534948281698036a62ff500ddddf2855ba052e848043d1
+searched_at: '2026-10-14T13:19:16.852091+00:00'
 retry_count: 1

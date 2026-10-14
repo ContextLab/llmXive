@@ -1,6 +1,6 @@
 # Quickstart: llmXive follow-up: extending "Scalable Visual Pretraining for Language Intelligence"
 
-This guide gets you from a fresh GitHub Actions runner to a complete end‑to‑end run of the pipeline.
+This guide walks a fresh GitHub Actions runner through the complete end‑to‑end pipeline.
 
 ## 1. Setup Environment
 ```bash
@@ -15,45 +15,45 @@ pip install -r code/requirements.txt
 ## 2. Verify Data Availability
 ```bash
 python -m src.data.download \
-    --primary-name docbank \
-    --fallback-name pubmed-layout
+    --dataset-name publaynet \
+    --output-dir data/raw
 ```
-*The script will attempt to fetch the named datasets. If the combined page count < 10 000, it will abort with a clear error (FR‑007).*
+*Downloads the verified PubLayNet dataset from the URL listed in the “# Verified datasets” block. If the download fails, the script exits with a clear error message.*
 
-## 3. Preprocess & Validate
+## 3. Preprocess Documents
 ```bash
 python -m src.data.preprocess \
-    --input-dir data/raw \
-    --output-path data/processed/document_pairs.parquet \
+    --input-dir data/raw/publaynet \
+    --output-parquet data/processed/document_pairs.parquet \
     --schema contracts/documentpair.schema.yaml
 ```
-*Checksums are recorded; any missing `layout_annotations` generate a warning and the page is skipped.*
+*Extracts OCR text (using Tesseract), loads the provided layout annotations, validates each record against the schema, and writes a Parquet file. Any validation failure aborts the run with a detailed log.*
 
 ## 4. Generate Visual Latents (CPU‑only)
 ```bash
 python -m src.data.latent_generator \
-    --input-path data/processed/document_pairs.parquet \
-    --output-path data/processed/document_pairs_with_latent.parquet \
+    --input-parquet data/processed/document_pairs.parquet \
+    --output-parquet data/processed/document_pairs_with_latent.parquet \
     --encoder-name layoutlmv3-base \
     --device cpu
 ```
-*If the encoder cannot be loaded on CPU, the script exits with an informative message (edge case handling).*
+*If the encoder cannot be loaded on CPU, the script exits with an informative error (edge‑case handling).*
 
 ## 5. Create Consistent Train/Val/Test Splits
 ```bash
 python -m src.utils.split_generator \
-    --input-path data/processed/document_pairs_with_latent.parquet \
+    --input-parquet data/processed/document_pairs_with_latent.parquet \
     --output-dir data/splits \
     --seed 42 \
     --train-ratio 0.8 --val-ratio 0.1 --test-ratio 0.1
 ```
-*Generates `data/splits/train_idx.json`, `val_idx.json`, `test_idx.json` used by both distilled and baseline models.*
+*Generates `train_idx.json`, `val_idx.json`, `test_idx.json` used by both distilled and baseline training scripts.*
 
-## 6. Train Distilled Model (several seeds)
+## 6. Train Distilled Model (30 seeds)
 ```bash
-for SEED in {42..56}; do
+for SEED in {42..71}; do
   python -m src.models.distilled \
-      --data-path data/processed/document_pairs_with_latent.parquet \
+      --data-parquet data/processed/document_pairs_with_latent.parquet \
       --splits-dir data/splits \
       --seed $SEED \
       --output-dir artifacts/models/distilled_$SEED \
@@ -61,13 +61,13 @@ for SEED in {42..56}; do
       --batch-size 16
 done
 ```
-*Training respects the 7 GB RAM ceiling; batch size may be auto‑reduced if OOM is detected.*
+*Training respects the RAM ceiling; batch size auto‑reduces on OOM detection.*
 
-## 7. Train Baseline Models (one per seed)
+## 7. Train Baseline Models (30 seeds, padded input)
 ```bash
-for SEED in {42..56}; do
+for SEED in {42..71}; do
   python -m src.models.baseline \
-      --data-path data/processed/document_pairs.parquet \
+      --data-parquet data/processed/document_pairs.parquet \
       --splits-dir data/splits \
       --seed $SEED \
       --output-dir artifacts/models/baseline_$SEED \
@@ -76,32 +76,37 @@ for SEED in {42..56}; do
 done
 ```
 
-## 8. Downstream Evaluation (optional)
+## 8. Download Downstream Benchmark (DocVQA)
 ```bash
-# Run only if a verified downstream reasoning benchmark is available.
-if [ -f data/processed/downstream_test.parquet ]; then
-  python -m src.eval.downstream \
-      --distilled-dir artifacts/models/distilled_*/ \
-      --baseline-dir artifacts/models/baseline_*/ \
-      --test-data data/processed/downstream_test.parquet \
-      --results-path artifacts/eval/downstream_results.json
-fi
+python -m src.data.download \
+    --dataset-name docvqa \
+    --output-dir data/raw/docvqa
 ```
-*The script computes accuracy/F1 for both models, runs a paired t‑test (or Wilcoxon if normality fails) across the fifteen seeds, and writes a JSON report.*
+*Verified open benchmark; exits with clear error if unavailable.*
 
-## 9. Inspect Results
+## 9. Downstream Evaluation
+```bash
+python -m src.eval.downstream \
+    --distilled-dir artifacts/models/distilled_*/ \
+    --baseline-dir artifacts/models/baseline_*/ \
+    --test-data data/raw/docvqa/test.parquet \
+    --results-path artifacts/eval/downstream_results.json
+```
+*Computes Exact Match and F1 for both models, runs paired statistical tests (Bonferroni‑corrected), and reports Mutual Information and Pearson r between predicted latents and text embeddings.*
+
+## 10. Inspect Results
 ```bash
 cat artifacts/eval/downstream_results.json | python -m json.tool
 ```
-*Key fields: `mean_accuracy_augmented`, `mean_accuracy_baseline`, `p_value`, `validation_mse`. All must satisfy the success criteria (SC‑001…SC‑007).*
+*Key fields: `mean_em_augmented`, `mean_em_baseline`, `p_value`, `mi`, `pearson_r`, `validation_mse`. All must satisfy the success criteria (SC‑001 – SC‑007).*
 
-## 10. Reproducibility Check
-Run the full CI workflow locally (or rely on GitHub Actions) to ensure that the same hashes and results are reproduced.
+## 11. Reproducibility Check
+Run the full CI workflow locally (or rely on GitHub Actions) to ensure identical hashes and results:
 
 ```bash
 pytest -k "contract" tests/
 ```
-*Contract tests validate that `documentpair.schema.yaml` matches the actual parquet schema.*
+*Contract tests validate that `documentpair.schema.yaml` matches the actual Parquet schema and that all checksums are correct.*
 
 ---
 

@@ -1,81 +1,59 @@
-- artifact_hash: b22c814b5a36308a2afee818a40dbd5bf3ab7b92c35521b5071dd862bbb340de
+- artifact_hash: 15b4de34aa7cd1d1a0a8b800ff1621b8d0c667157d20f68d027747ba2ba6565f
   artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/docbank
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/docbank/datasets
-  verified_at: '2026-10-10T18:26:43.791252Z'
-- artifact_hash: b22c814b5a36308a2afee818a40dbd5bf3ab7b92c35521b5071dd862bbb340de
+  value: https://huggingface.co/datasets/allenai/pubmed-layout`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/allenai/pubmed-layout
+  verified_at: '2026-10-14T13:35:09.216132Z'
+- artifact_hash: 15b4de34aa7cd1d1a0a8b800ff1621b8d0c667157d20f68d027747ba2ba6565f
   artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/plan.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/pubmed-layout
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/pubmed-layout/datasets
-  verified_at: '2026-10-10T18:26:43.791252Z'
-- artifact_hash: b22c814b5a36308a2afee818a40dbd5bf3ab7b92c35521b5071dd862bbb340de
+  value: https://huggingface.co/datasets/allenai/pubmed-layout
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/allenai/pubmed-layout
+  verified_at: '2026-10-14T13:35:09.216132Z'
+- artifact_hash: 15b4de34aa7cd1d1a0a8b800ff1621b8d0c667157d20f68d027747ba2ba6565f
   artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/plan.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: train-00000-of-00001.parquet
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67e62aa67dac83cb62dbeb68/56dfb335c9b1ba64858f209c312c0679964a3d5c6320deb1457b008fe0b28e85?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&xip=8JKuKjamSgk&Expires=1791660404&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdlNjJhYTY3ZGFjODNjYjYyZGJlYjY4LzU2ZGZiMzM1YzliMWJhNjQ4NThmMjA5YzMxMmMwNjc5OTY0YTNkNWM2MzIwZGViMTQ1N2IwMDhmZTBiMjhlODVcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmeGlwPThKS3VLamFtU2drIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE2NjA0MDR9fX1dfQ__&Signature=MEQCIHysMul7psvhW3Ytu-aWuggHbwutUAyHxhKa414rO0iAAiArRXDEhxDZcvYwrYPlEiTHwEhVS7KFfB-6nwhtUdJZAg__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-10T18:26:43.791252Z'
-- artifact_hash: b22c814b5a36308a2afee818a40dbd5bf3ab7b92c35521b5071dd862bbb340de
-  artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/plan.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: schema#
-  kind: url
-  value: http://json-schema.org/draft-07/schema#
-  verification_status: pending
-  verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-10T18:26:43.791252Z'
-- artifact_hash: e0f54d7d5ff8869239b3f2dd7f725399da03a9d745a94b0ae01b60f26bdd3804
+  value: https://huggingface.co/datasets/docvqa
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/docvqa/datasets
+  verified_at: '2026-10-14T13:35:09.216132Z'
+- artifact_hash: af4b52a7ebbf51afaa5367ff62f0bc040ceaf59ace32ce7eff08de5bb805779c
   artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/docbank
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/docbank/datasets
-  verified_at: '2026-10-10T18:27:00.544272Z'
-- artifact_hash: e0f54d7d5ff8869239b3f2dd7f725399da03a9d745a94b0ae01b60f26bdd3804
+  value: https://huggingface.co/datasets/allenai/pubmed-layout
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/allenai/pubmed-layout
+  verified_at: '2026-10-14T13:35:38.145308Z'
+- artifact_hash: af4b52a7ebbf51afaa5367ff62f0bc040ceaf59ace32ce7eff08de5bb805779c
   artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/pubmed-layout
+  value: https://huggingface.co/datasets/docvqa
   verification_status: mismatch
-  verified_against_url: https://huggingface.co/pubmed-layout/datasets
-  verified_at: '2026-10-10T18:27:00.544272Z'
-- artifact_hash: e0f54d7d5ff8869239b3f2dd7f725399da03a9d745a94b0ae01b60f26bdd3804
-  artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67e62aa67dac83cb62dbeb68/56dfb335c9b1ba64858f209c312c0679964a3d5c6320deb1457b008fe0b28e85?user_id=public&X-Xet-Cas-Uid=public&xip=8JKuKjamSgk&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&Expires=1791660420&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdlNjJhYTY3ZGFjODNjYjYyZGJlYjY4LzU2ZGZiMzM1YzliMWJhNjQ4NThmMjA5YzMxMmMwNjc5OTY0YTNkNWM2MzIwZGViMTQ1N2IwMDhmZTBiMjhlODVcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9OEpLdUtqYW1TZ2smcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE2NjA0MjB9fX1dfQ__&Signature=MEUCIQDooMqXP0mePtFzk%7EmwKcvYbGiYGsjXc2cdEf2TYOQF9gIgUKa15e9kJ48JjeEoBnRbyYWSOBVFv6netdInk32v0YY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-10T18:27:00.544272Z'
-- artifact_hash: 02fe1f50ebbbbb8522056f3483a5e81dd500ab052b2738e70ffe1cdc54117c18
+  verified_against_url: https://huggingface.co/docvqa/datasets
+  verified_at: '2026-10-14T13:35:38.145308Z'
+- artifact_hash: a5bc433cb300b227336037826c245c1e4bc9d6ae24b29d84cda59240b7caa100
   artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/data-model.md
   cite_id: c-001
   cited_authors: []
@@ -85,4 +63,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-10T18:27:21.689940Z'
+  verified_at: '2026-10-14T13:35:55.394870Z'
