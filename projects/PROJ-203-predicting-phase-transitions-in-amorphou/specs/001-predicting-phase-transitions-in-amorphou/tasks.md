@@ -16,7 +16,7 @@ The checklist below follows the canonical format `- [ ] T### [P?] [USx?] descrip
   - **Requirement**: The plan must explicitly state the pilot‑study exception.  
   - **Verification**: Grep “Critical Scope Resolution” and confirm the text mentions *N = 24*.
 
-- [ ] **T002** [US1] Edit `plan.md` to add the “Critical Scope Resolution” paragraph and update the “Success Criteria” section to note that RMSE/ROC‑AUC targets are evaluated via null‑model and permutation tests on the pilot set.  
+- [X] **T002** [US1] Edit `plan.md` to add the “Critical Scope Resolution” paragraph and update the “Success Criteria” section to note that RMSE/ROC‑AUC targets are evaluated via null‑model and permutation tests on the pilot set.  
   - **Path**: `plan.md` (in‑place edit)  
   - **Requirement**: The plan must be consistent with the spec’s FR‑001 while acknowledging the compute constraint.  
   - **Verification**: Re‑run the check from **T001**; it must now succeed.
@@ -28,7 +28,7 @@ The checklist below follows the canonical format `- [ ] T### [P?] [USx?] descrip
 | Goal: Create a reproducible directory layout and core utilities that all later tasks depend on. |
 |------|
 
-- [ ] **T003**  Initialise project directories (`data/raw/`, `data/processed/`, `data/logs/`, `code/`, `code/data/`, `code/models/`, `code/utils/`, `artifacts/models/`, `artifacts/figures/`, `artifacts/reports/`, `tests/`, `docs/`).  
+- [X] **T003**  Initialise project directories (`data/raw/`, `data/processed/`, `data/logs/`, `code/`, `code/data/`, `code/models/`, `code/utils/`, `artifacts/models/`, `artifacts/figures/`, `artifacts/reports/`, `tests/`, `docs/`).  
   - **Path**: filesystem (created by script `code/setup_structure.py`).  
   - **Verification**: `tree` output contains all listed folders.
 
@@ -36,19 +36,19 @@ The checklist below follows the canonical format `- [ ] T### [P?] [USx?] descrip
   - **Path**: `code/requirements.txt`  
   - **Verification**: `pip install -r code/requirements.txt` completes without errors.
 
-- [ ] **T005**  Implement `code/config.py` – a thin dataclass exposing paths, random seeds, simulation parameters (cooling rate, MD step limits), and enum definitions for `Family`.  
+- [X] **T005**  Implement `code/config.py` – a thin dataclass exposing paths, random seeds, simulation parameters (cooling rate, MD step limits), and enum definitions for `Family`.  
   - **Path**: `code/config.py`  
   - **Verification**: Importing `code.config` succeeds and `Config().data_raw` points to `data/raw/`.
 
-- [ ] **T006**  Implement `code/utils/validators.py` with functions `check_nan(df)`, `check_physical_bounds(descriptor_row)`.  
+- [X] **T006**  Implement `code/utils/validators.py` with functions `check_nan(df)`, `check_physical_bounds(descriptor_row)`.  
   - **Path**: `code/utils/validators.py`  
   - **Verification**: Unit test in `tests/unit/test_validators.py` passes.
 
-- [ ] **T007**  Implement `code/utils/logging_config.py` that creates a logger writing to `data/logs/pipeline.log` with timestamps and log‑level INFO.  
+- [X] **T007**  Implement `code/utils/logging_config.py` that creates a logger writing to `data/logs/pipeline.log` with timestamps and log‑level INFO.  
   - **Path**: `code/utils/logging_config.py`  
   - **Verification**: After calling `setup_logger()`, a test log entry appears in the file.
 
-- [ ] **T008**  Implement `code/utils/timeout_enforcer.py` – a context manager `PipelineTimeout(hours=6)` that raises `TimeoutError` if the wrapped block exceeds the wall‑clock limit.  
+- [~] **T008**  Implement `code/utils/timeout_enforcer.py` – a context manager `PipelineTimeout(hours=6)` that raises `TimeoutError` if the wrapped block exceeds the wall‑clock limit.  
   - **Path**: `code/utils/timeout_enforcer.py`  
   - **Verification**: A small script deliberately sleeping >6 h triggers the exception (tested with a 1‑second timeout for speed).
 
@@ -59,11 +59,11 @@ The checklist below follows the canonical format `- [ ] T### [P?] [USx?] descrip
 | Goal: Produce a validated, fully‑featured dataset (`final_dataset.parquet`) that satisfies FR‑001, FR‑002, and FR‑008. |
 |------|
 
-- [ ] **T009** [US1] Validate the presence and integrity of `data/raw/literature_subset.csv`.  
+- [~] **T009** [US1] Validate the presence and integrity of `data/raw/literature_subset.csv`.  
   - **Path**: `code/data/validate_literature_subset.py` → checksums `data/raw/literature_subset.csv`.  
   - **Verification**: Script exits with code 0; missing or corrupted file raises `FileNotFoundError` and aborts the run.
 
-- [ ] **T010** [US1] Run MD simulations for each pilot composition (`data/raw/pilot_compositions.csv`) using LAMMPS (via `pylammps`). Enforce a 30‑minute CPU cap per composition; if exceeded, truncate to the final 500 steps and flag `simulation_status="truncated"` in metadata.  
+- [ ] **T010** [US1] Run MD simulations for each pilot composition (`data/raw/pilot_compositions.csv`) using LAMMPS (via `pylammps`). Enforce a 30‑minute CPU cap per composition; if exceeded, truncate to the final 500 steps and flag `simulation_status="truncated"` in metadata.   <!-- FAILED-IN-EXECUTION: code/data/run_md_sim.py exit=1 -->
   - **Path**: `code/data/run_md_sim.py` → outputs trajectories to `data/raw/md_trajectories/` and a log file `data/logs/simulation_times.json`.  
   - **Verification**: All 24 entries in `simulation_times.json` have `status` in {`complete`,`truncated`,`failed`} and no entry exceeds 1800 s.
 

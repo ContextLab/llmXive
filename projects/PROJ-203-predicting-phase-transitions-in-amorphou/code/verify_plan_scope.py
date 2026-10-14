@@ -1,48 +1,43 @@
-"""Verify that plan.md contains a “Critical Scope Resolution” section
-documenting the reduction to 24 compositions.
-
-The script exits with status code 0 if the verification passes.
-If the required text is missing, it raises a RuntimeError and exits
-with a non‑zero status.
 """
-import re
+verify_plan_scope.py
+
+Checks that `plan.md` contains a “Critical Scope Resolution” section and that the
+section explicitly mentions the pilot size N = 24. Exits with status 0 if both
+conditions are met, otherwise prints an error message and exits with status 1.
+"""
+
 import sys
-from llmxive_toolkit import paths
-
-def _load_plan() -> str:
-    """Load the contents of plan.md as a string."""
-    plan_path = paths.path("plan.md")
-    if not plan_path.is_file():
-        raise FileNotFoundError(f"plan.md not found at expected location: {plan_path}")
-    return plan_path.read_text(encoding="utf-8")
-
-def _verify_critical_scope(plan_text: str) -> bool:
-    """Return True if the required section and N=24 text are present."""
-    # Check for the heading (case‑insensitive)
-    if not re.search(r"Critical\s+Scope\s+Resolution", plan_text, re.IGNORECASE):
-        raise RuntimeError(
-            "Missing 'Critical Scope Resolution' section in plan.md."
-        )
-    # Check for a mention of N = 24 (allow spaces around =)
-    if not re.search(r"N\s*=\s*24", plan_text):
-        raise RuntimeError(
-            "The 'Critical Scope Resolution' section does not mention N = 24."
-        )
-    return True
+import re
+from pathlib import Path
 
 def main() -> None:
-    """Entry point for the verification script."""
-    try:
-        plan_text = _load_plan()
-        _verify_critical_scope(plan_text)
-    except Exception as exc:
-        # Print the error to stderr for visibility and exit non‑zero
-        print(f"Verification failed: {exc}", file=sys.stderr)
+    # Resolve the project root (assumes this script lives in <project>/code/)
+    project_root = Path(__file__).resolve().parent.parent
+    plan_path = project_root / "plan.md"
+
+    if not plan_path.is_file():
+        print(f"ERROR: plan.md not found at expected location: {plan_path}", file=sys.stderr)
         sys.exit(1)
-    else:
-        # Success
-        print("Verification passed: plan.md contains the required section and N = 24.")
-        sys.exit(0)
+
+    try:
+        content = plan_path.read_text(encoding="utf-8")
+    except Exception as e:
+        print(f"ERROR: Could not read plan.md: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Condition 1: Presence of the Critical Scope Resolution heading/paragraph
+    if not re.search(r"Critical\s+Scope\s+Resolution", content, re.IGNORECASE):
+        print("ERROR: 'Critical Scope Resolution' section not found in plan.md", file=sys.stderr)
+        sys.exit(1)
+
+    # Condition 2: Explicit mention of the pilot size N = 24 (allow spaces around =)
+    if not re.search(r"N\s*=\s*24", content):
+        print("ERROR: Pilot size 'N = 24' not mentioned in the Critical Scope Resolution section", file=sys.stderr)
+        sys.exit(1)
+
+    # All checks passed
+    print("plan.md verification passed: Critical Scope Resolution present and N = 24 documented.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

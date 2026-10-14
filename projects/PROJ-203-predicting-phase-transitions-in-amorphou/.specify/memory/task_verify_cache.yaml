@@ -1,3 +1,54 @@
+T002:
+  c: true
+  h: d8373b9ca9e674ca1870c7e2399e05652878eda336ab00a467dea851ec9a446d
+  r: "Checked `plan.md` (12877\u202Fbytes) which contains the required \u201CCritical\
+    \ Scope Resolution\u201D paragraph and the updated \u201CSuccess Criteria\u201D\
+    \ entries mentioning null\u2011model and permutation\u2011test evaluation of RMSE\
+    \ and ROC\u2011AUC, and the verification log shows the scope check passed."
+  sig: b9e04a68a307903998796b0c77ae462a8bf68f27d35dce7239c4798744fb3d13
+T003:
+  c: true
+  h: a45e599d4722905d18695b1aeef286bbab07456c95dc6bce47c8b5f992e92266
+  r: "Checked the presence of all required directories under the project root (e.g.,\
+    \ `data/raw/`, `data/processed/`, `data/logs/`, `code/`, `code/data/`, `code/models/`,\
+    \ `code/utils/`, `artifacts/models/`, `artifacts/figures/`, `artifacts/reports/`,\
+    \ `tests/`, `docs/`) as shown by the collector listings and the successful run\
+    \ of `code/setup_structure.py`. All listed folders exist and are non\u2011empty\
+    \ where appropriate."
+  sig: 21eb64cf11b635d7c16f572ea0593e2e52ac302b59c7a2c390fd9d1bbae50e5e
+T004:
+  c: false
+  h: 3aeefa112fc06fa2147d4e724571e58f47ce909b90a28a97c0f49f350daf7a52
+  r: Checked `code/requirements.txt`; it pins many scientific packages but the required
+    `lammps` entry is only a commented note and not an actual pinned version, so the
+    file does not contain pinned versions for all packages the spec lists. The missing
+    active `lammps==...` line means the task requirement is not fully satisfied.
+  sig: 4888095d4530b97e5cc8c53f5d199e8dce26539514f62b76848a3a77447c25c0
+T005:
+  c: true
+  h: d8a684b27f1a063c546cba86d4b4add5d6f7ef8a69e6307a229d3bc0211dff78
+  r: "Checked the provided `code/config.py` (7326\u202Fbytes) which defines the required\
+    \ dataclasses, simulation parameters, random\u2011seed fields, and the `Family`\
+    \ enum, and verified that the `Config().data_raw` shortcut resolves to the existing\
+    \ `data/raw/` directory. All required artifacts are present and functional."
+  sig: 224e266ffdbf79152a3c8430da4c1ab153947b618c5784caf255022eeaca0d25
+T006:
+  c: true
+  h: fa089170c93d1f4c01028da68b3cb3f7eb9d0ca3464306f0d7713930ff7cf691
+  r: "The file `code/utils/validators.py` contains the required `check_nan` and `check_physical_bounds`\
+    \ implementations, and the unit test `tests/unit/test_validators.py` runs successfully\
+    \ (log shows both tests passed). The functions behave as specified, returning\
+    \ the correct columns with NaNs and out\u2011of\u2011bounds descriptor fields."
+  sig: 50c1f7e19a91cf98b293175de47607d74c1a534d0995ffeb608dd1276522a787
+T007:
+  c: true
+  h: a674b8e9b1da0b232b3dcf56255311804f31a55443c8e4ebfcb3c4a778f523d3
+  r: "Checked `code/utils/logging_config.py` which defines `setup_logger()` to write\
+    \ INFO\u2011level, timestamped messages to `data/logs/pipeline.log`, and the recorded\
+    \ pytest run (`tests/test_logging_config.py`) passed, confirming that a log entry\
+    \ is created in that file. The absence of a pre\u2011existing `pipeline.log` file\
+    \ is acceptable because it is generated at runtime."
+  sig: 18d6736dce7a39c16acbb51093f6960483e56b28315ea225bf2ccdc3f3c39d3b
 T012:
   c: false
   h: 1331b65ce418d76fcb3cd3d5128eb97bab3ebbacefcc80df359a22c426697bce

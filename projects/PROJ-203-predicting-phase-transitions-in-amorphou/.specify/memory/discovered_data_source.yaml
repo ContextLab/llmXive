@@ -1,12 +1,15 @@
 status: none
-intent: Reproducible Ground Truth glass transition temperature dataset download python
-  package
+intent: download Reproducible Ground Truth glass transition temperature dataset python
+  package dataset
 required_fields:
-- composition
-- glass_transition_temperature_Tg
-- crystallization_temperature_Tx_or_label
-- material_id
-- reference_source
-cache_key: 780e40b719543d971543dbe37b4171d8b26c6d125a073639dbdd3a0be3311c1f
-searched_at: '2026-10-14T22:23:17.621069+00:00'
+- composition_formula
+- rdf_peak_position
+- rdf_peak_width
+- bond_angle_variance
+- coordination_number
+- experimental_Tg
+- crystallization_label
+- simulation_status_flag
+cache_key: b56f8a02ed77c0088a9f36a851fa03695a06179dea370463221f99f7ab0f50d4
+searched_at: '2026-10-14T22:31:31.710173+00:00'
 retry_count: 1

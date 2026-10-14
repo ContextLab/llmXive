@@ -7,6 +7,11 @@ T002:
 T003:
   task: d66fdd1e0a95c0d5a51147f5053cc90b6ca3ec2bce39a7b8f7068727d2158931
 T004:
+  reason: Checked `code/requirements.txt`; it pins many scientific packages but the
+    required `lammps` entry is only a commented note and not an actual pinned version,
+    so the file does not contain pinned versions for all packages the spec lists.
+    The missing active `lammps==...` line means the task requirement is not fully
+    satisfied.
   task: c7801c632814ab5ed3a0665f9897ca258dc0d18622dce9c45a64233c14f7e302
 T005:
   task: f7e930cd83d9813cd74d2235c58c1c5f16a2e3966984b7e03976ee3807f4cfdc
@@ -19,6 +24,8 @@ T008:
 T009:
   task: 72d709e1b33f346a3408798288dab809e4e4399cf7d0ebfafa34257740f561c5
 T010:
+  reason: 'Requested task execution failed; rerun successfully: code/data/run_md_sim.py
+    exit=1'
   task: d7071c8fc8c9bf78d42e9e6ca9e22b3286e273ef6b042f6229627979e672d9ab
 T011:
   task: afc03cddaf15f4d1d3684978530b9627ef6cd7cfb1b8a8688d76c8cc447249ed
