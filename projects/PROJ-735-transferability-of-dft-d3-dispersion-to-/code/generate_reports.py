@@ -3,14 +3,16 @@ Report generation module for the DFT-D3 transferability study.
 Generates benchmark and correlation reports from analysis results.
 Updated to include a programmatically generated "Calibration Procedure"
 section that extracts numeric values from `data/derived/raw_energies.csv`
-and `data/derived/scaling_factor.txt`.
+and `data/derived/scaling_factor.txt`, and to generate the correlation
+report from a CSV source (`data/derived/correlation_results.csv`).
 """
 
 import os
 import json
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
 import pandas as pd
+import numpy as np
 from logger import get_logger, info, warning, error
 
 # Import helpers from sibling modules
@@ -20,7 +22,7 @@ from load_data import load_synthetic_dataset
 logger = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper functions
+# Helper functions for the benchmark report
 # ----------------------------------------------------------------------
 
 
@@ -104,7 +106,7 @@ def load_scaling_value(scaling_path: Path) -> float:
 
 def generate_calibration_section(
     raw_df: pd.DataFrame, scaling_factor: float
-) -> list[str]:
+) -> List[str]:
     """
     Build the Markdown lines for the "Calibration Procedure" section.
     The section states that no re‑calibration of D3 parameters was performed,
@@ -176,119 +178,99 @@ def generate_benchmark_report(
 
 
 # ----------------------------------------------------------------------
-# Correlation report helpers (unchanged)
+# Correlation report helpers (now CSV‑based)
 # ----------------------------------------------------------------------
 
 
-def load_correlation_results(filepath: str) -> Dict[str, Any]:
+def load_correlation_results(csv_path: Path) -> pd.DataFrame:
     """
-    Load the correlation analysis results from the JSON export.
-    Expected structure: {
-      "correlations": [
-        {
-          "metric": "Raw D3 vs Density",
-          "pearson_r": float,
-          "pearson_p": float,
-          "spearman_rho": float,
-          "spearman_p": float,
-          "pearson_ci_95": [low, high],
-          "spearman_ci_95": [low, high],
-          "adj_p_pearson": float,
-          "adj_p_spearman": float
-        },
-        ...
-      ]
-    }
+    Load the correlation analysis results from the CSV export.
+    Expected columns:
+    test_name,coefficient,r_squared,raw_p_value,adjusted_p_value,ci_lower,ci_upper,n,significance
     """
-    path = Path(filepath)
-    if not path.exists():
-        error(f"Correlation results file not found: {filepath}")
-        raise FileNotFoundError(f"Correlation results file not found: {filepath}")
-    with open(path, "r") as f:
-        data = json.load(f)
-    logger.info(f"Loaded correlation results from {filepath}")
-    return data
+    if not csv_path.exists():
+        error(f"Correlation results CSV not found: {csv_path}")
+        raise FileNotFoundError(f"Correlation results CSV not found: {csv_path}")
+
+    df = pd.read_csv(csv_path)
+    logger.info(f"Loaded correlation results from {csv_path}")
+    return df
 
 
 def generate_correlation_report(
-    correlation_json: Dict[str, Any], output_path: str
+    correlation_df: pd.DataFrame, output_path: str
 ) -> None:
     """
-    Generate correlation_report.md with coefficients, R², p-values, CIs, and adjusted p-values.
+    Generate `correlation_report.md` from the CSV data.
+    The markdown mirrors the previously static report but is fully
+    generated from the CSV to satisfy task T066.
     """
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    correlations = correlation_json.get("correlations", [])
-    if not correlations:
-        error("No correlation data found in input JSON.")
-        raise ValueError("No correlation data found in input JSON.")
-
     lines = [
         "# Correlation Report: Dispersion Terms vs Bulk Properties",
         "",
-        "This report details the statistical association between DFT-D3 dispersion terms "
-        "(raw and scaled) and experimental bulk properties (density, viscosity).",
+        "## 1. Overview",
         "",
-        "## Methodology",
+        "This report analyzes the correlation between DFT-D3 dispersion terms (raw and scaled)",
+        "and experimental bulk properties (density and viscosity) for the ionic liquid benchmark set.",
         "",
-        "- **Correlation Coefficients**: Pearson (r) and Spearman (ρ)",
-        "- **Confidence Intervals**: 95% CI via bootstrap resampling (1,000 replicates)",
-        "- **Significance**: Bonferroni-adjusted p-values",
+        "## 2. Statistical Power Warning",
         "",
-        "## Results",
+        "> **Statistical Power Warning**: The dataset used for this analysis consists of",
+        "> 20 ion pairs. This is significantly lower than the ≥100 pairs recommended in",
+        "> the project specification for robust statistical inference. Consequently, the",
+        "> reported confidence intervals and p-values should be interpreted with caution",
+        "> and are primarily descriptive for this specific sample.",
+        "",
+        "## 3. Correlation Results",
+        "",
     ]
 
-    for entry in correlations:
-        metric_name = entry.get("metric", "Unknown")
-        lines.append(f"### {metric_name}")
+    # Group rows by test (ignoring method suffix)
+    for _, row in correlation_df.iterrows():
+        test_name = row["test_name"]
+        coeff = row["coefficient"]
+        r_sq = row["r_squared"]
+        raw_p = row["raw_p_value"]
+        adj_p = row["adjusted_p_value"]
+        ci_low = row["ci_lower"]
+        ci_high = row["ci_upper"]
+        significance = "Yes" if row["significance"] else "No"
+
+        lines.append(f"### {test_name}")
         lines.append("")
-
-        # Pearson
-        r_val = entry.get("pearson_r", 0.0)
-        r_sq = r_val ** 2
-        p_val_raw = entry.get("pearson_p", 1.0)
-        p_val_adj = entry.get("adj_p_pearson", 1.0)
-        ci = entry.get("pearson_ci_95", [0.0, 0.0])
-
-        lines.append(f"**Pearson Correlation (r):** {r_val:.4f}")
+        lines.append(f"- **Coefficient**: {coeff:.4f}")
         lines.append(f"- **R²**: {r_sq:.4f}")
-        lines.append(f"- **Raw p-value**: {p_val_raw:.4e}")
-        lines.append(f"- **Bonferroni-adjusted p-value**: {p_val_adj:.4e}")
-        lines.append(f"- **95% CI**: [{ci[0]:.4f}, {ci[1]:.4f}]")
-        lines.append("")
-
-        # Spearman
-        rho_val = entry.get("spearman_rho", 0.0)
-        p_val_rho_raw = entry.get("spearman_p", 1.0)
-        p_val_rho_adj = entry.get("adj_p_spearman", 1.0)
-        ci_rho = entry.get("spearman_ci_95", [0.0, 0.0])
-
-        lines.append(f"**Spearman Rank Correlation (ρ):** {rho_val:.4f}")
-        lines.append(f"- **Raw p-value**: {p_val_rho_raw:.4e}")
-        lines.append(f"- **Bonferroni-adjusted p-value**: {p_val_rho_adj:.4e}")
-        lines.append(f"- **95% CI**: [{ci_rho[0]:.4f}, {ci_rho[1]:.4f}]")
+        lines.append(f"- **Raw p-value**: {raw_p:.4e}")
+        lines.append(f"- **Adjusted p-value**: {adj_p:.4e}")
+        lines.append(f"- **95% CI**: [{ci_low:.4f}, {ci_high:.4f}]")
+        lines.append(f"- **Significance**: {significance}")
         lines.append("")
         lines.append("---")
         lines.append("")
 
     lines.extend(
         [
-            "## Conclusion",
+            "## 4. Bonferroni Correction",
             "",
-            "The statistical significance of the correlations is determined by the "
-            "Bonferroni-adjusted p-values. A value < 0.05 indicates a statistically "
-            "significant association after correcting for multiple testing.",
+            "P-values were adjusted using the Bonferroni correction to account for multiple",
+            "hypothesis testing across the family of correlation tests performed.",
             "",
-            "*Note: The dataset size is limited to 20 ion pairs due to CI constraints, "
-            "which may impact the statistical power of these tests.*",
+            "## 5. Conclusion",
+            "",
+            "The correlations between dispersion terms and bulk properties provide insight",
+            "into the physical relevance of the DFT-D3 dispersion energy for ionic liquids.",
+            "Further data is required to confirm statistical significance.",
+            "",
         ]
     )
 
     with open(output, "w") as f:
         f.write("\n".join(lines))
 
-    logger.info(f"Generated correlation report: {output}")
+    logger.info(f"Generated correlation report at {output}")
 
 
 # ----------------------------------------------------------------------
@@ -309,7 +291,7 @@ def main() -> None:
     # Paths to required inputs
     raw_energies_path = data_dir / "raw_energies.csv"
     scaling_factor_path = data_dir / "scaling_factor.txt"
-    correlation_path = data_dir / "correlation_results.json"
+    correlation_csv_path = data_dir / "correlation_results.csv"
 
     # Output report locations
     benchmark_report_path = docs_dir / "benchmark_report.md"
@@ -325,12 +307,12 @@ def main() -> None:
         # Generate Benchmark Report with Calibration Procedure
         generate_benchmark_report(raw_df, scaling_factor, str(benchmark_report_path))
 
-        # Generate Correlation Report if data is available
-        if correlation_path.exists():
-            corr_data = load_correlation_results(str(correlation_path))
-            generate_correlation_report(corr_data, str(correlation_report_path))
+        # Generate Correlation Report if CSV is available
+        if correlation_csv_path.exists():
+            corr_df = load_correlation_results(correlation_csv_path)
+            generate_correlation_report(corr_df, str(correlation_report_path))
         else:
-            warning(f"Correlation results not found at {correlation_path}. Skipping correlation report.")
+            warning(f"Correlation results not found at {correlation_csv_path}. Skipping correlation report.")
 
     except Exception as e:
         error(f"Failed to generate reports: {e}")

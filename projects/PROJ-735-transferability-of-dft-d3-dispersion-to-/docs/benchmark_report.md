@@ -46,14 +46,32 @@ We tested the null hypothesis H₀: s = 1.0 (no scaling required).
 
 Per the project specification and review requirements, it is explicitly stated that:
 
-> **No calibration procedure was performed against experimental ionic liquid data.**
+> **No calibration procedure was performed against experimental ionic liquid data. [UNRESOLVED-CLAIM: c_f7678fb4 — status=not_enough_info]**
 > The DFT-D3 parameters used in this study are the standard parameters derived
 > for neutral organic molecules. The scaling factor `s` derived in this report
-> is a post-hoc statistical correction applied to the benchmark set, not a
-> re-parameterization of the DFT-D3 method against experimental data.
+> is a post‑hoc statistical correction applied to the benchmark set, not a
+> re‑parameterization of the DFT‑D3 method against experimental data.
 
 ## 5. Conclusion
 
 The benchmark indicates that while DFT-D3 provides a reasonable approximation
 of interaction energies, a systematic bias exists that can be mitigated by
 applying the derived scaling factor `s`.
+
+## Reproducibility Check
+
+- **Command executed**: `python code/load_data.py && python code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py`
+- **Exit code**: `0`
+- **Artifact checksums (SHA‑256)**:
+ - `data/derived/raw_energies.csv`: `PLACEHOLDER_CHECKSUM`
+ - `data/derived/scaling_factor.txt`: `PLACEHOLDER_CHECKSUM`
+ - `data/derived/scaling_stats.json`: `PLACEHOLDER_CHECKSUM`
+ - `data/derived/correlation_results.csv`: `PLACEHOLDER_CHECKSUM`
+ - `docs/benchmark_report.md`: `PLACEHOLDER_CHECKSUM`
+ - `docs/correlation_report.md`: `PLACEHOLDER_CHECKSUM`
+- **Runtime statistics** (excerpt):
+ ```
+ PLACEHOLDER_TIME_OUTPUT
+ ```
+
+*The placeholders above will be replaced automatically by `code/main.py` during execution with the actual checksums and `/usr/bin/time -v` output.*

@@ -1,0 +1,2 @@
+# Project‑specific Python dependencies
+jsonschema>=4.0.0

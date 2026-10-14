@@ -1,15 +1,34 @@
-T060a:
-  c: false
-  h: 2f974478df9870c566ca0d5891993552d5ec75ba187854cb9871b7ebea8dc5f6
-  r: "The provided `code/lint_report.txt` contains only \u201CExit code: 0\u201D and\
-    \ does not include the full flake8 output (list of any findings). No evidence\
-    \ is shown that re\u2011running `flake8 code/ tests/` yields zero issues, nor\
-    \ that all reported problems were fixed. The task therefore remains incomplete."
-  sig: 320f2bb5dc1c47ea91b9aa645609594d5211b8b0484572d0462c0337a58c32db
 T060b:
-  c: true
-  h: 9d1536e7d872fdb05ef6a003dda76863c5d147291e42e35513e97dd199ffcb30
-  r: "Checked `code/format_diff.txt` (contains the diff) and the task log `code/.tasks/T060b.code_run_black_format.py.log`\
-    \ showing Black was run in check\u2011diff mode, the diff saved, and then all\
-    \ source files (including those in `tests/`) were reformatted successfully."
-  sig: 63f506ebe6f54f87e6a06d357a38c418a52907735e657b0e6a2385926837685d
+  c: false
+  h: 2dc3582c381c9dda5e66c1ece9214ce5a1f2179e4ad5442a87309123e9ea02bc
+  r: "The repository contains `code/format_diff.txt` with a diff, satisfying the \u201C\
+    save diff\u201D part, but there is no artifact showing that `black --check code/\
+    \ tests/` was re\u2011run after formatting and exited with status\u202F0 (e.g.,\
+    \ a log file, command output, or a passing exit\u2011code record). Likewise, no\
+    \ evidence is provided that the `tests/` directory was actually reformatted. The\
+    \ next implementer should add a verification artifact (e.g., `lint_report.txt`\
+    \ or a CI log) confirming that `black --check` now succeeds with exit\u202F0 for\
+    \ both `code/` and `tests/`."
+  sig: 35d7ef42bd2edbe9eb68dec14f02a7004eac86830bf4f6fef4656fa1ec922dd0
+T066:
+  c: false
+  h: f064c2cb8927325599939762fd2346b428d32a0dfe074cbd4bcb351c308f519d
+  r: "The repository contains a static `docs/correlation_report.md` that lists only\
+    \ Pearson/Spearman coefficients, adjusted p\u2011values and CI, but omits the\
+    \ required raw p\u2011value, sample size\u202F(n), and significance verdict, and\
+    \ it does not follow the schema described in the task. Moreover, `code/generate_reports.py`\
+    \ expects a CSV at `data/derived/correlation_results.csv` to generate the report,\
+    \ but this CSV is missing, so the script cannot actually regenerate the markdown\
+    \ as required. The missing CSV and the mismatched report content must be added/fixed\
+    \ for the task to be complete."
+  sig: c65d5e69255501ecd650ca6629eaff599b33e99ad5c7a304ee9c4509dc14c1e4
+T069:
+  c: false
+  h: 789e1c7daa4ad7240ce0e2268f016ad3b5032910585c23aea7a22f2f564e9370
+  r: "The repository contains `code/correlate_bulk.py` with the `--include-energy-error`\
+    \ flag and logic to write `data/derived/correlation_results.csv`, but the CSV\
+    \ file is missing, and the test suite fails before reaching the correlation step\
+    \ (FileNotFoundError for a synthetic dataset). Consequently no output rows (including\
+    \ \u201CInteractionError_vs_Viscosity\u201D) are present, and the required markdown\
+    \ report is absent. The task\u2019s output artifacts have not been produced."
+  sig: 35d663f6e4797c274185d7abe85de8123d807888e47b5fe5ae1d3d195269dcff

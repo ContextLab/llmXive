@@ -9,7 +9,6 @@ from logger import get_logger, info, warning, error
 
 logger = get_logger(__name__)
 
-
 def load_energies_csv(filepath: str) -> pd.DataFrame:
     """Load raw energies CSV."""
     path = Path(filepath)
@@ -45,7 +44,9 @@ def load_bulk_properties(filepath: str) -> pd.DataFrame:
 
 
 def merge_data(
-    energies_df: pd.DataFrame, bulk_df: pd.DataFrame, scaling_data: Dict[str, Any]
+    energies_df: pd.DataFrame,
+    bulk_df: pd.DataFrame,
+    scaling_data: Dict[str, Any],
 ) -> pd.DataFrame:
     """
     Merge energy results with bulk properties.
@@ -76,8 +77,17 @@ def merge_data(
         )
         energies_df["dispersion_only_error"] = np.nan
 
+    # Ensure the signed interaction‑energy error column exists
+    if "signed_error" not in energies_df.columns:
+        if "dft_total_energy" in energies_df.columns and "reference_energy" in energies_df.columns:
+            energies_df["signed_error"] = (
+                energies_df["dft_total_energy"] - energies_df["reference_energy"]
+            )
+            logger.info("Computed missing signed_error column from energies.")
+        else:
+            logger.warning("signed_error column missing and cannot be computed.")
+
     # Merge on pair_id (assuming common key)
-    # Identify the key column
     key_col = "pair_id" if "pair_id" in energies_df.columns else "id"
 
     merged = pd.merge(
@@ -85,7 +95,6 @@ def merge_data(
     )
 
     # Handle missing bulk property data
-    # Identify columns that are expected from bulk_df but might be NaN after merge
     bulk_cols = [c for c in bulk_df.columns if c != key_col]
     missing_mask = merged[bulk_cols].isna().any(axis=1)
 
@@ -100,7 +109,9 @@ def merge_data(
     return merged
 
 
-def compute_correlations(df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
+def compute_correlations(
+    df: pd.DataFrame, include_energy_error: bool = False
+) -> Dict[str, Dict[str, float]]:
     """
     Compute Pearson and Spearman correlations.
     Returns a nested dict: {variable_pair: {method: value}}
@@ -108,12 +119,14 @@ def compute_correlations(df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
     results = {}
 
     # Define pairs to test
-    # Raw D3 vs Density
     pairs = [
-        ("d3_dispersion_energy", "density", "Raw D3 vs Density"),
-        ("scaled_d3_term", "density", "Scaled D3 vs Density"),
-        ("dispersion_only_error", "viscosity", "Dispersion Error vs Viscosity"),
+        ("d3_dispersion_energy", "density", "Raw_D3_vs_Density"),
+        ("scaled_d3_term", "density", "Scaled_D3_vs_Density"),
     ]
+
+    # Add interaction‑energy error vs viscosity if requested
+    if include_energy_error:
+        pairs.append(("signed_error", "viscosity_cP", "InteractionError_vs_Viscosity"))
 
     for col_x, col_y, label in pairs:
         if col_x not in df.columns or col_y not in df.columns:
@@ -149,7 +162,10 @@ def compute_correlations(df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
 
 
 def bootstrap_correlation(
-    df: pd.DataFrame, n_replicates: int = 1000, random_state: int = 42
+    df: pd.DataFrame,
+    n_replicates: int = 1000,
+    random_state: int = 42,
+    include_energy_error: bool = False,
 ) -> Dict[str, Dict[str, Any]]:
     """
     Bootstrap resampling for confidence intervals of correlation coefficients.
@@ -158,10 +174,14 @@ def bootstrap_correlation(
     results = {}
 
     pairs = [
-        ("d3_dispersion_energy", "density", "Raw D3 vs Density"),
-        ("scaled_d3_term", "density", "Scaled D3 vs Density"),
-        ("dispersion_only_error", "viscosity", "Dispersion Error vs Viscosity"),
+        ("d3_dispersion_energy", "density", "Raw_D3_vs_Density"),
+        ("scaled_d3_term", "density", "Scaled_D3_vs_Density"),
     ]
+
+    if include_energy_error:
+        pairs.append(
+            ("signed_error", "viscosity_cP", "InteractionError_vs_Viscosity")
+        )
 
     for col_x, col_y, label in pairs:
         if col_x not in df.columns or col_y not in df.columns:
@@ -189,13 +209,13 @@ def bootstrap_correlation(
             try:
                 r_p, _ = stats.pearsonr(x_boot, y_boot)
                 boot_r_pearson.append(r_p)
-            except:
+            except Exception:
                 pass
 
             try:
                 r_s, _ = stats.spearmanr(x_boot, y_boot)
                 boot_r_spearman.append(r_s)
-            except:
+            except Exception:
                 pass
 
         if boot_r_pearson:
@@ -220,12 +240,83 @@ def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[fl
     return adjusted
 
 
+def _export_correlation_csv(
+    corr_results: Dict[str, Dict[str, float]],
+    boot_results: Dict[str, Dict[str, Any]],
+    df: pd.DataFrame,
+    output_path: Path,
+) -> None:
+    """
+    Export correlation results to a CSV file that matches the contract schema.
+    Columns:
+      test_name, coefficient, r_squared, raw_p_value, adjusted_p_value,
+      ci_lower, ci_upper, n, significance
+    """
+    rows = []
+    # Mapping from label to the column pair used for n calculation
+    pair_to_columns = {
+        "Raw_D3_vs_Density": ("d3_dispersion_energy", "density"),
+        "Scaled_D3_vs_Density": ("scaled_d3_term", "density"),
+        "InteractionError_vs_Viscosity": ("signed_error", "viscosity_cP"),
+    }
+
+    for key, val in corr_results.items():
+        # key format: "<Label>_Pearson" or "<Label>_Spearman"
+        if "_" not in key:
+            continue
+        label, method = key.rsplit("_", 1)
+        coeff = val["r"]
+        r_sq = coeff ** 2
+        raw_p = val["p"]
+        # Adjusted p will be filled later; placeholder for now
+        adj_p = None
+
+        # CI extraction
+        ci_key = f"{label}_{method}_CI"
+        ci = boot_results.get(ci_key, {}).get("ci_95", (np.nan, np.nan))
+        ci_low, ci_high = ci
+
+        # Sample size for this pair
+        cols = pair_to_columns.get(label, (None, None))
+        if cols[0] and cols[1]:
+            n_samples = int(df[[cols[0], cols[1]]].dropna().shape[0])
+        else:
+            n_samples = np.nan
+
+        rows.append(
+            {
+                "test_name": label,
+                "coefficient": coeff,
+                "r_squared": r_sq,
+                "raw_p_value": raw_p,
+                "adjusted_p_value": adj_p,  # to be filled after Bonferroni
+                "ci_lower": ci_low,
+                "ci_upper": ci_high,
+                "n": n_samples,
+                "significance": None,  # to be filled after adjustment
+            }
+        )
+
+    # Apply Bonferroni correction across all raw p-values
+    raw_ps = [row["raw_p_value"] for row in rows]
+    adjusted_ps = bonferroni_correction(raw_ps)
+    for row, adj in zip(rows, adjusted_ps):
+        row["adjusted_p_value"] = adj
+        row["significance"] = adj < 0.05
+
+    # Write CSV
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(rows).to_csv(output_path, index=False)
+    logger.info(f"Wrote correlation CSV to {output_path}")
+
+
 def analyze_and_export(
     energies_path: str,
     scaling_path: str,
     bulk_path: str,
     output_dir: str,
     n_replicates: int = 1000,
+    include_energy_error: bool = False,
 ) -> str:
     """
     Main orchestration function for US3.
@@ -245,46 +336,37 @@ def analyze_and_export(
         return ""
 
     # Compute correlations
-    corr_results = compute_correlations(merged_df)
+    corr_results = compute_correlations(
+        merged_df, include_energy_error=include_energy_error
+    )
 
     # Bootstrap CIs
-    boot_results = bootstrap_correlation(merged_df, n_replicates=n_replicates)
+    boot_results = bootstrap_correlation(
+        merged_df,
+        n_replicates=n_replicates,
+        include_energy_error=include_energy_error,
+    )
 
-    # Collect p-values for Bonferroni
-    p_values = []
-    for key, val in corr_results.items():
-        if "p" in val:
-            p_values.append(val["p"])
+    # Export CSV according to contract
+    csv_output_path = Path(output_dir) / "correlation_results.csv"
+    _export_correlation_csv(corr_results, boot_results, merged_df, csv_output_path)
 
-    adjusted_p_values = bonferroni_correction(p_values)
-
-    # Map adjusted p-values back to results
-    # This is a simple linear mapping based on order of extraction
-    idx = 0
-    for key in corr_results:
-        if "p" in corr_results[key]:
-            corr_results[key]["p_adjusted"] = adjusted_p_values[idx]
-            idx += 1
-
-    # Prepare final results dictionary
+    # Also keep previous JSON export for backward compatibility (optional)
+    json_output_path = Path(output_dir) / "correlation_results.json"
     final_results = {
         "correlations": corr_results,
         "bootstrap_ci": boot_results,
         "n_samples": len(merged_df),
         "n_replicates": n_replicates,
     }
-
-    # Export to JSON
-    output_path = Path(output_dir) / "correlation_results.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    json_output_path.parent.mkdir(parents=True, exist_ok=True)
     import json
 
-    with open(output_path, "w") as f:
+    with open(json_output_path, "w") as f:
         json.dump(final_results, f, indent=2, default=str)
 
-    logger.info(f"Correlation analysis complete. Results saved to {output_path}")
-    return str(output_path)
+    logger.info(f"Correlation analysis complete. Results saved to {csv_output_path}")
+    return str(csv_output_path)
 
 
 def main():
@@ -307,11 +389,21 @@ def main():
     parser.add_argument("--bulk", type=str, default=str(bulk_path))
     parser.add_argument("--output", type=str, default=str(output_dir))
     parser.add_argument("--replicates", type=int, default=1000)
+    parser.add_argument(
+        "--include-energy-error",
+        action="store_true",
+        help="Include interaction‑energy error vs viscosity correlation (FR‑009(c))",
+    )
 
     args = parser.parse_args()
 
     analyze_and_export(
-        args.energies, args.scaling, args.bulk, args.output, args.replicates
+        args.energies,
+        args.scaling,
+        args.bulk,
+        args.output,
+        n_replicates=args.replicates,
+        include_energy_error=args.include_energy_error,
     )
 
 
