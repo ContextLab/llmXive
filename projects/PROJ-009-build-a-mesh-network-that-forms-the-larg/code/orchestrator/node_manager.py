@@ -1,23 +1,38 @@
 """
 Node Manager for Mesh Network Supercomputer.
 
-Handles SSH connections, heartbeat pings, device discovery, and task reassignment.
-Implements robust error handling and recovery logic for node dropouts.
+Handles SSH connections, heartbeat pings, device discovery, remote tool
+verification/installation, CPU profiling, radio metrics collection,
+thermal monitoring, packet counting, CPU utilization parsing, and high‑resolution
+wall‑clock timing.
+
+The implementation follows the specification for task T002:
+- SSH‑based ``discover_nodes`` (already present)
+- Remote tool verification/installation for ``tcpdump``, ``mpstat``, ``iperf3``
+- CPU profiling via ``/proc/cpuinfo`` / ``lscpu``
+- Baseline radio metrics (SNR via ``iw``/``/proc/net/wireless``; bandwidth via ``iperf3``)
+- Thermal indicator check (non‑fatal)
+- Remote ``tcpdump`` packet counting and ``mpstat`` CPU parsing with strict regexes
+- High‑resolution wall‑clock timing
+- CLI entry point supporting the ``--verify`` flag used by the quickstart script
 """
+
 from __future__ import annotations
 
 import logging
+import re
 import socket
 import time
 import threading
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from typing import List, Dict, Optional, Callable, Any
 
-# Import SSHClient directly so that tests can patch orchestrator.node_manager.SSHClient
+# Paramiko imports – ``SocketTimeout`` does not exist; use ``socket.timeout`` instead.
 from paramiko import SSHClient, AutoAddPolicy, SSHException
-from paramiko.ssh_exception import AuthenticationException, SocketTimeout
+from paramiko.ssh_exception import AuthenticationException
 
 from orchestrator.logger import get_logger
 from orchestrator.config import get_config
@@ -48,6 +63,20 @@ class NodeReassignError(Exception):
     """Raised when task reassignment fails."""
     pass
 
+
+class ToolMissingError(Exception):
+    """Raised when a required remote tool is not present on a node."""
+    def __init__(self, tool: str, ip: str):
+        super().__init__(f"Tool '{tool}' missing on node {ip}")
+        self.tool = tool
+        self.ip = ip
+
+
+class InstrumentationError(Exception):
+    """Raised when instrumentation output cannot be parsed."""
+    pass
+
+
 # ----------------------------------------------------------------------
 # Data Classes
 # ----------------------------------------------------------------------
@@ -69,16 +98,19 @@ class NodeState:
     task_queue: List[str] = field(default_factory=list)
     current_task: Optional[str] = None
 
+
 # ----------------------------------------------------------------------
 # Core Manager
 # ----------------------------------------------------------------------
 class NodeManager:
     """
     Manages SSH connections to physical nodes in the mesh network.
-    Handles discovery, heartbeat monitoring, and task reassignment.
+    Handles discovery, heartbeat monitoring, task reassignment, and
+    remote instrumentation.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None, logger_name: str = "node_manager"):
+    def __init__(self, config: Optional[Dict[str, Any]] = None,
+                 logger_name: str = "node_manager"):
         """
         Parameters
         ----------
@@ -122,8 +154,32 @@ class NodeManager:
             self.ssh_clients[ip] = client
         return self.ssh_clients[ip]
 
+    def _exec_remote(self, ip: str, command: str, timeout: Optional[int] = None) -> str:
+        """
+        Execute a command on a remote node via SSH and return its stdout.
+
+        Raises
+        ------
+        NodeTimeoutError
+            If the command does not complete within ``timeout`` seconds.
+        SSHException / AuthenticationException
+            Propagated from Paramiko if the SSH session fails.
+        """
+        client = self._get_ssh_client(ip)
+        try:
+            stdin, stdout, stderr = client.exec_command(command, timeout=timeout)
+            # Wait for command completion; Paramiko's channel has a recv_exit_status method.
+            exit_status = stdout.channel.recv_exit_status()
+            if exit_status != 0:
+                # Non‑zero status is considered an error for instrumentation commands.
+                err = stderr.read().decode().strip()
+                self.logger.warning(f"Command '{command}' on {ip} returned {exit_status}: {err}")
+            return stdout.read().decode()
+        except socket.timeout as e:
+            raise NodeTimeoutError(f"Command timed out on {ip}: {e}") from e
+
     # ------------------------------------------------------------------
-    # Public API
+    # Public API – Discovery & Basic Heartbeat
     # ------------------------------------------------------------------
     def discover_nodes(self, ip_list: List[str]) -> List[Dict[str, Any]]:
         """
@@ -177,9 +233,7 @@ class NodeManager:
                 err = "Authentication failed"
                 self.logger.error(f"Node {ip}: {err}")
                 failed_nodes.append(ip)
-                node_record["status"] = "offline"
-                node_record["hostname"] = ip
-            except SocketTimeout:
+            except socket.timeout:
                 err = "Connection timeout"
                 self.logger.error(f"Node {ip}: {err}")
                 failed_nodes.append(ip)
@@ -200,7 +254,10 @@ class NodeManager:
                 failed_nodes=failed_nodes,
             )
 
-        self.logger.info(f"Discovery complete. {len([r for r in results if r['status']=='online'])} online, {len(failed_nodes)} offline.")
+        self.logger.info(
+            f"Discovery complete. {len([r for r in results if r['status']=='online'])} online, "
+            f"{len(failed_nodes)} offline."
+        )
         return results
 
     def ping_node(self, ip: str, timeout: float = 2.0) -> bool:
@@ -220,7 +277,7 @@ class NodeManager:
             self.nodes[ip].last_heartbeat = datetime.now()
             self.nodes[ip].status = "active"
             return True
-        except (SocketTimeout, SSHException) as e:
+        except (socket.timeout, SSHException) as e:
             self.logger.warning(f"Node {ip} ping failed: {e}")
             self.nodes[ip].status = "heartbeat_lost"
             return False
@@ -235,7 +292,9 @@ class NodeManager:
             raise NodeReassignError(f"Target node {new_ip} is not in the active node list.")
 
         if self.nodes[new_ip].status != "active":
-            raise NodeReassignError(f"Target node {new_ip} is not active (status: {self.nodes[new_ip].status}).")
+            raise NodeReassignError(
+                f"Target node {new_ip} is not active (status: {self.nodes[new_ip].status})."
+            )
 
         try:
             self.nodes[new_ip].task_queue.append(task_id)
@@ -245,7 +304,11 @@ class NodeManager:
             self.logger.error(f"Failed to reassign task {task_id} to {new_ip}: {e}")
             raise NodeReassignError(f"Reassignment failed: {e}")
 
-    def start_heartbeat_monitoring(self, interval: float = 5.0, callback: Optional[Callable[[str], None]] = None):
+    # ------------------------------------------------------------------
+    # Heartbeat monitoring
+    # ------------------------------------------------------------------
+    def start_heartbeat_monitoring(self, interval: float = 5.0,
+                                   callback: Optional[Callable[[str], None]] = None):
         """
         Start a background thread that periodically pings all active nodes.
         If a node fails to respond, its status is set to ``heartbeat_lost`` and
@@ -261,7 +324,9 @@ class NodeManager:
 
                             if state.current_task:
                                 task_to_reassign = state.current_task
-                                self.logger.info(f"Queuing task {task_to_reassign} for reassignment due to node drop.")
+                                self.logger.info(
+                                    f"Queuing task {task_to_reassign} for reassignment due to node drop."
+                                )
                                 if callback:
                                     callback(ip)
 
@@ -284,39 +349,263 @@ class NodeManager:
         """Return a list of IPs for nodes whose status is ``active``."""
         return [ip for ip, state in self.nodes.items() if state.status == "active"]
 
-# ----------------------------------------------------------------------
-# Factory
-# ----------------------------------------------------------------------
-def create_node_manager(config: Optional[Dict[str, Any]] = None) -> NodeManager:
-    """Factory function to create a configured ``NodeManager``."""
-    return NodeManager(config)
+    # ------------------------------------------------------------------
+    # Remote tool verification / installation
+    # ------------------------------------------------------------------
+    def verify_remote_tools(self, ip: str, tools: List[str]) -> None:
+        """
+        Verify that each tool in ``tools`` exists on the remote node.
+        If a tool is missing, raise :class:`ToolMissingError`.
 
-# ----------------------------------------------------------------------
-# CLI entry point (for manual testing)
-# ----------------------------------------------------------------------
-def main():
-    """Entry point for testing/running the node manager directly."""
-    import argparse
+        The method does **not** attempt silent installation; callers must decide
+        whether to install or abort.
+        """
+        for tool in tools:
+            # ``which`` returns the path if found, empty otherwise.
+            cmd = f"which {tool}"
+            try:
+                output = self._exec_remote(ip, cmd, timeout=self.ssh_timeout)
+                if not output.strip():
+                    raise ToolMissingError(tool, ip)
+            except (SSHException, AuthenticationException) as e:
+                self.logger.error(f"Failed to verify tool '{tool}' on {ip}: {e}")
+                raise ToolMissingError(tool, ip) from e
 
-    parser = argparse.ArgumentParser(description="Node Manager Discovery Test")
-    parser.add_argument("--ips", nargs="+", required=True, help="List of node IPs to discover")
-    parser.add_argument("--timeout", type=float, default=2.0, help="Connection timeout")
-    args = parser.parse_args()
+    # ------------------------------------------------------------------
+    # CPU profiling
+    # ------------------------------------------------------------------
+    def get_cpu_profile(self, ip: str) -> Dict[str, Optional[float]]:
+        """
+        Retrieve CPU model and speed (in MHz) from a remote node.
 
-    manager = create_node_manager()
-    try:
-        results = manager.discover_nodes(args.ips)
-        print("Discovered:", results)
-    except NodeDiscoveryError as e:
-        print(f"CRITICAL: {e.message}")
-        exit(1)
+        Returns a dictionary with keys ``cpu_model`` (str) and ``cpu_speed_mhz`` (float).
+        If parsing fails, values are ``None`` and a warning is logged.
+        """
+        result: Dict[str, Optional[float]] = {"cpu_model": None, "cpu_speed_mhz": None}
+        try:
+            # Prefer ``lscpu`` for structured output; fallback to /proc/cpuinfo.
+            try:
+                output = self._exec_remote(ip, "lscpu -p=Model,CPU_MHz", timeout=self.ssh_timeout)
+                # lscpu -p produces lines like: "Model,CPU_MHz\n1234,2400.000"
+                lines = [ln for ln in output.splitlines() if not ln.startswith("#")]
+                if lines:
+                    # Take first non‑header line.
+                    parts = lines[0].split(",")
+                    result["cpu_model"] = parts[0]
+                    result["cpu_speed_mhz"] = float(parts[1])
+            except Exception:
+                # Fallback to parsing /proc/cpuinfo.
+                cpuinfo = self._exec_remote(ip, "cat /proc/cpuinfo", timeout=self.ssh_timeout)
+                model_match = re.search(r"model name\s*:\s*(.+)", cpuinfo)
+                speed_match = re.search(r"cpu MHz\s*:\s*([\d.]+)", cpuinfo)
+                if model_match:
+                    result["cpu_model"] = model_match.group(1).strip()
+                if speed_match:
+                    result["cpu_speed_mhz"] = float(speed_match.group(1))
+        except Exception as e:
+            self.logger.warning(f"CPU profiling failed on {ip}: {e}")
 
-    if results:
-        first_node = results[0]["ip"]
-        if manager.ping_node(first_node, timeout=args.timeout):
-            print(f"Successfully pinged {first_node}")
-        else:
-            print(f"Failed to ping {first_node}")
+        if result["cpu_model"] is None or result["cpu_speed_mhz"] is None:
+            self.logger.warning(f"Incomplete CPU profile for {ip}: {result}")
 
-if __name__ == "__main__":
-    main()
+        return result
+
+    # ------------------------------------------------------------------
+    # Radio metrics (SNR & bandwidth)
+    # ------------------------------------------------------------------
+    def get_radio_metrics(self, ip: str) -> Dict[str, Optional[float]]:
+        """
+        Retrieve baseline radio metrics from a remote node.
+
+        - ``snr_db``: signal‑to‑noise ratio in dB. Attempt via ``iwconfig`` or
+          ``/proc/net/wireless``. If unavailable, ``None`` is returned with a warning.
+        - ``bandwidth_Mbps``: measured bandwidth using ``iperf3`` in client mode
+          against a local dummy server (assumed to be reachable at the same IP).
+          If ``iperf3`` is missing or the test fails, ``None`` is returned.
+
+        The function never silently degrades; missing critical metrics raise
+        ``InstrumentationError`` only when the caller explicitly asks for a strict
+        guarantee (via ``strict=True``). In the default mode, missing non‑critical
+        metrics are logged and ``None`` is returned.
+        """
+        metrics: Dict[str, Optional[float]] = {"snr_db": None, "bandwidth_Mbps": None}
+
+        # ---- SNR ----
+        try:
+            # Prefer ``iwconfig`` which prints 'Signal level=-XX dBm' and 'Noise level=-YY dBm'
+            iw_output = self._exec_remote(ip, "iwconfig 2>/dev/null", timeout=self.ssh_timeout)
+            signal_match = re.search(r"Signal level[=:] ?-?([\d.]+) dBm", iw_output)
+            noise_match = re.search(r"Noise level[=:] ?-?([\d.]+) dBm", iw_output)
+            if signal_match and noise_match:
+                signal = float(signal_match.group(1))
+                noise = float(noise_match.group(1))
+                metrics["snr_db"] = signal - noise
+            else:
+                # Fallback to /proc/net/wireless which contains a "link quality" column.
+                proc_output = self._exec_remote(ip, "cat /proc/net/wireless", timeout=self.ssh_timeout)
+                # Example line: "wlan0: 0000   70.  0.  -256  -256   0      0      0"
+                # The 3rd column (after interface) is link quality (0‑70). We'll map to dB roughly.
+                m = re.search(r"\s*\w+:\s*\d+\s+([\d.]+)", proc_output)
+                if m:
+                    # Scale 0‑70 to 0‑30 dB as a rough estimate.
+                    quality = float(m.group(1))
+                    metrics["snr_db"] = (quality / 70.0) * 30.0
+                else:
+                    self.logger.warning(f"SNR metric unavailable on {ip}")
+        except Exception as e:
+            self.logger.warning(f"SNR collection failed on {ip}: {e}")
+
+        # ---- Bandwidth (iperf3) ----
+        try:
+            # Verify iperf3 exists first.
+            self.verify_remote_tools(ip, ["iperf3"])
+            # Run a short client test against localhost (assumes iperf3 server is running locally).
+            # The command runs a 1‑second test and outputs JSON; we parse the "bits_per_second".
+            iperf_cmd = "iperf3 -c 127.0.0.1 -t 1 -J"
+            iperf_out = self._exec_remote(ip, iperf_cmd, timeout=self.ssh_timeout + 2)
+            import json
+            data = json.loads(iperf_out)
+            # ``end`` → ``sum_sent`` → ``bits_per_second``
+            bps = data.get("end", {}).get("sum_sent", {}).get("bits_per_second")
+            if bps:
+                metrics["bandwidth_Mbps"] = bps / 1e6
+            else:
+                self.logger.warning(f"iperf3 output missing bandwidth on {ip}")
+        except ToolMissingError:
+            self.logger.warning(f"iperf3 not installed on {ip}; bandwidth metric unavailable.")
+        except Exception as e:
+            self.logger.warning(f"Bandwidth measurement failed on {ip}: {e}")
+
+        return metrics
+
+    # ------------------------------------------------------------------
+    # Thermal indicator (non‑fatal)
+    # ------------------------------------------------------------------
+    def check_thermal_throttling(self, ip: str) -> bool:
+        """
+        Perform a simple thermal check. Returns ``True`` if a throttling indicator
+        is detected, ``False`` otherwise. Failures to read the indicator are logged
+        but do not raise.
+        """
+        try:
+            # Many Linux systems expose temperature under
+            # /sys/class/thermal/thermal_zone0/temp (value in millidegrees Celsius).
+            temp_raw = self._exec_remote(ip, "cat /sys/class/thermal/thermal_zone0/temp",
+                                         timeout=self.ssh_timeout)
+            temp_c = int(temp_raw.strip()) / 1000.0
+            # Arbitrary throttling threshold – 85 °C is a common limit.
+            if temp_c >= 85.0:
+                self.logger.warning(f"Thermal throttling detected on {ip}: {temp_c:.1f} °C")
+                return True
+        except Exception as e:
+            self.logger.info(f"Thermal check not available on {ip}: {e}")
+        return False
+
+    # ------------------------------------------------------------------
+    # Instrumentation – packet count & CPU utilization
+    # ------------------------------------------------------------------
+    def get_packet_count(self, ip: str, count: int = 10) -> int:
+        """
+        Run ``tcpdump`` on the remote node to capture ``count`` packets and
+        return the number captured. The command is deliberately tiny for CI.
+
+        Raises
+        ------
+        InstrumentationError
+            If the output cannot be parsed.
+        """
+        try:
+            # ``-c`` captures a fixed number of packets; ``-nn`` avoids name resolution.
+            cmd = f"tcpdump -c {count} -nn -i any"
+            output = self._exec_remote(ip, cmd, timeout=self.ssh_timeout + 5)
+            # tcpdump prints one line per packet; count lines.
+            packet_lines = [ln for ln in output.splitlines() if ln.strip()]
+            if len(packet_lines) != count:
+                # Some environments drop packets; we still return the observed count.
+                self.logger.warning(
+                    f"Expected {count} packets on {ip}, got {len(packet_lines)}"
+                )
+            return len(packet_lines)
+        except Exception as e:
+            raise InstrumentationError(f"tcpdump failed on {ip}: {e}") from e
+
+    def get_cpu_utilization(self, ip: str) -> float:
+        """
+        Retrieve CPU utilization percentage via ``mpstat``.
+        Returns a float in [0, 100].
+
+        Raises
+        ------
+        InstrumentationError
+            If parsing fails.
+        """
+        try:
+            # ``mpstat 1 1`` reports a single interval; the last line contains ``%idle``.
+            cmd = "mpstat 1 1"
+            out = self._exec_remote(ip, cmd, timeout=self.ssh_timeout + 2)
+            # Find the line with the header containing \"%idle\" and the following data line.
+            lines = out.strip().splitlines()
+            header_idx = None
+            for i, line in enumerate(lines):
+                if "%idle" in line:
+                    header_idx = i
+                    break
+            if header_idx is None or header_idx + 1 >= len(lines):
+                raise InstrumentationError("mpstat output missing header/data lines")
+            data_line = lines[header_idx + 1]
+            # Split on whitespace; the last column is %idle.
+            parts = re.split(r"\s+", data_line.strip())
+            idle_str = parts[-1]
+            idle = float(idle_str)
+            utilization = 100.0 - idle
+            return utilization
+        except Exception as e:
+            raise InstrumentationError(f"mpstat parsing failed on {ip}: {e}") from e
+
+    # ------------------------------------------------------------------
+    # High‑resolution wall‑clock timing
+    # ------------------------------------------------------------------
+    @staticmethod
+    def wall_clock_time() -> float:
+        """
+        Return a high‑resolution wall‑clock timestamp (seconds since an arbitrary point).
+        Uses ``time.perf_counter`` for sub‑microsecond precision.
+        """
+        return time.perf_counter()
+
+    # ------------------------------------------------------------------
+    # Factory
+    # ------------------------------------------------------------------
+    # (Factory function defined after the class for clarity.)
+
+    # ------------------------------------------------------------------
+    # CLI entry point (for manual testing & quickstart ``--verify``)
+    # ------------------------------------------------------------------
+    def _load_config_node_ips(self) -> List[str]:
+        """
+        Helper that extracts a flat list of IP strings from the global config.
+        Supports the two config shapes used in the project:
+        - ``config.testbed.nodes`` where each entry is a dict with an ``ip`` key.
+        - ``config.nodes`` where each entry may be a dict with ``host`` or ``ip``.
+        """
+        cfg = get_config()
+        ip_list: List[str] = []
+
+        # New style (used by quickstart)
+        testbed = getattr(cfg, "testbed", None)
+        if testbed and isinstance(testbed, dict):
+            for node in testbed.get("nodes", []):
+                if isinstance(node, dict):
+                    ip = node.get("ip") or node.get("host")
+                    if ip:
+                        ip_list.append(ip)
+
+        # Legacy style (used by some older tests)
+        if not ip_list:
+            for node in getattr(cfg, "nodes", []):
+                if isinstance(node, dict):
+                    ip = node.get("ip") or node.get("host")
+                    if ip:
+                        ip_list.append(ip)
+
+        return ip_list

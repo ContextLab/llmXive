@@ -1,0 +1,17 @@
+type: object
+properties:
+  coefficients:
+    type: object
+  p_values:
+    type: object
+  r_squared:
+    type: number
+  residuals:
+    type: array
+    items:
+      type: number
+required:
+  - coefficients
+  - p_values
+  - r_squared
+  - residuals

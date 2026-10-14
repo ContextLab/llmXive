@@ -1,0 +1,21 @@
+type: object
+properties:
+  id:
+    type: string
+  hostname:
+    type: string
+  ip_address:
+    type: string
+  status:
+    type: string
+  available_memory_mb:
+    type: integer
+  cpu_cores:
+    type: integer
+required:
+  - id
+  - hostname
+  - ip_address
+  - status
+  - available_memory_mb
+  - cpu_cores

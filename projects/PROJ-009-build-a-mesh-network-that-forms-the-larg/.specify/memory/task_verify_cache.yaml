@@ -1,25 +1,25 @@
 T001:
   c: false
-  h: b410406e58552de47d1fc1667e2c32643ad2e2d3a2e4061c05ba18abdbccd3f8
-  r: Checked the project layout, config loader, mock node generator, logger, models,
-    CLI help output, and the `timeout_guard.py` decorator. The `data/raw/`, `data/processed/`,
-    and `data/results/` directories lack the required `__init__.py` files (and `data/results/`
-    is missing entirely), there is no `code/.gitignore`, the contract YAML schema
-    files are absent causing all `pytest code/tests/contract/` tests to fail, and
-    several functions in `timeout_guard.py` are left as `pass`. These missing/unfinished
-    artifacts prevent the task from being fully satisfied.
-  sig: f5054b1a50fcc757031c4f6cc71e83f2a512e57587dd4f0ceb435fe518db9581
+  h: 63a8c9d1663da378cfce58725618a6ca7a5534e3cb54a6d28429d0c3f8e72714
+  r: "The project layout directories and most source files exist, but the required\
+    \ `code/.gitignore` is absent, the three contract YAML schema files are missing\
+    \ (causing `pytest code/tests/contract/` to fail), and the quickstart does not\
+    \ document the exact runnable command `python -m code.orchestrator.cli --help`.\
+    \ These missing artifacts prevent the task\u2019s verification criteria from being\
+    \ satisfied."
+  sig: d602d2d21619b974dec50906de4420ab059a9d59a077f4d0e58be3149b10a66e
 T002:
   c: false
-  h: dce9ef07dbdbbe3b59a8df162bd24f44dc6ab7ed1b73b587d25cea748d9893d7
-  r: "The provided `code/orchestrator/node_manager.py` only implements SSH discovery,\
-    \ ping, heartbeat monitoring, and task reassignment; it lacks the required remote\u2011\
-    tool verification/installation (tcpdump, mpstat, iperf3), CPU profiling, radio\u2011\
-    metric collection, thermal checks, packet\u2011counting/CPU\u2011parsing with\
-    \ strict regexes, and high\u2011resolution timing. Corresponding unit tests for\
-    \ those features are also absent, so the module does not meet the task\u2019s\
-    \ specifications."
-  sig: 4f7a163799a430415143fd16e593ad418c1a4372e03e70bebe44cf5e4d3ed703
+  h: 9aefb64ca7acdcdd70ae60c39828a29b96d5190b582637d338cf03f3d4e06865
+  r: "The `code/orchestrator/node_manager.py` module exists and implements most of\
+    \ the required functions, but the accompanying unit test suite `code/tests/unit/test_node_manager.py`\
+    \ is broken: it imports a non\u2011existent `create_node_manager` factory, makes\
+    \ incorrect assumptions about the mocked SSH client (e.g., expecting `stdout.channel`\
+    \ and a `close()` call that the code never makes), and does not test the required\
+    \ instrumentation features (tcpdump, mpstat, radio metrics, thermal checks). Consequently\
+    \ the tests do not pass, violating the task\u2019s verification condition. The\
+    \ missing factory function "
+  sig: 10accbe0d695e09a29e05d800c15a61346b127c609e76cc3af19e18d65b5294f
 T003:
   c: false
   h: 03434cf8a8ed47292fcaa30351432db99a83af34fcca57a6ed04c89a9124dc31

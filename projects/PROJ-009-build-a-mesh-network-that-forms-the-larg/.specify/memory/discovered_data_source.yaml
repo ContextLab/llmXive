@@ -1,12 +1,19 @@
 status: none
-intent: Google and Alibaba Cluster Trace CPU utilization packet count logs download
+intent: PhysicalNode TaskChunk edge computing execution logs packet counts CPU utilization
   python package dataset
 required_fields:
 - node_id
+- ip_address
+- timestamp
 - task_id
-- wall_clock_time
-- packet_count
-- cpu_utilization
-cache_key: 65e1e61451130564576ce6086a1ac5ed916d104e6321af15b539b236f6d15f90
-searched_at: '2026-10-14T16:20:09.843781+00:00'
+- task_chunk_id
+- packet_count_sent
+- packet_count_received
+- cpu_utilization_percent
+- memory_usage_percent
+- heartbeat_timestamp
+- task_status
+- reassignment_timestamp
+cache_key: 72992112eafca55636c00b99137ec337e49f6c6dd64bbb9e2921cf7a3c7df09e
+searched_at: '2026-10-14T16:23:43.393439+00:00'
 retry_count: 1

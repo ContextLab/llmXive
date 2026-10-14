@@ -1,20 +1,20 @@
 T001:
-  reason: Checked the project layout, config loader, mock node generator, logger,
-    models, CLI help output, and the `timeout_guard.py` decorator. The `data/raw/`,
-    `data/processed/`, and `data/results/` directories lack the required `__init__.py`
-    files (and `data/results/` is missing entirely), there is no `code/.gitignore`,
-    the contract YAML schema files are absent causing all `pytest code/tests/contract/`
-    tests to fail, and several functions in `timeout_guard.py` are left as `pass`.
-    These missing/unfinished artifacts prevent the task from being fully satisfied.
+  reason: "The project layout directories and most source files exist, but the required\
+    \ `code/.gitignore` is absent, the three contract YAML schema files are missing\
+    \ (causing `pytest code/tests/contract/` to fail), and the quickstart does not\
+    \ document the exact runnable command `python -m code.orchestrator.cli --help`.\
+    \ These missing artifacts prevent the task\u2019s verification criteria from being\
+    \ satisfied."
   task: dc37f9d721b2ecda461e709079232cf81d928d17a7aae55199c64bcb2abe4877
 T002:
-  reason: "The provided `code/orchestrator/node_manager.py` only implements SSH discovery,\
-    \ ping, heartbeat monitoring, and task reassignment; it lacks the required remote\u2011\
-    tool verification/installation (tcpdump, mpstat, iperf3), CPU profiling, radio\u2011\
-    metric collection, thermal checks, packet\u2011counting/CPU\u2011parsing with\
-    \ strict regexes, and high\u2011resolution timing. Corresponding unit tests for\
-    \ those features are also absent, so the module does not meet the task\u2019s\
-    \ specifications."
+  reason: "The `code/orchestrator/node_manager.py` module exists and implements most\
+    \ of the required functions, but the accompanying unit test suite `code/tests/unit/test_node_manager.py`\
+    \ is broken: it imports a non\u2011existent `create_node_manager` factory, makes\
+    \ incorrect assumptions about the mocked SSH client (e.g., expecting `stdout.channel`\
+    \ and a `close()` call that the code never makes), and does not test the required\
+    \ instrumentation features (tcpdump, mpstat, radio metrics, thermal checks). Consequently\
+    \ the tests do not pass, violating the task\u2019s verification condition. The\
+    \ missing factory function"
   task: 3e9778df17e71a207d3a96c08f5686b718c12a9ce0ff122ac865fe144e543e86
 T003:
   reason: "The `code/orchestrator/scheduler.py` module exists but lacks the required\

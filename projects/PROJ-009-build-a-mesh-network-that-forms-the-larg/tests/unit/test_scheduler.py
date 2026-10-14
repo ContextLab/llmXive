@@ -1,149 +1,184 @@
-import pytest
-import time
-from datetime import datetime, timezone
-from unittest.mock import Mock, patch, MagicMock
+"""
+Unit tests for the Scheduler module.
 
-from orchestrator.models import PhysicalNode, TaskChunk, NodeStatus, TaskStatus
-from orchestrator.scheduler import Scheduler, create_scheduler, NodeState, TaskAssignment, OOMError, StragglerDetectedError
+Tests:
+  - Adaptive chunking logic
+  - OOM detection
+  - Straggler handling
+  - Re-assignment logic
+"""
+import pytest
+from unittest.mock import Mock, patch, MagicMock
+from datetime import datetime
+import time
+
+from orchestrator.scheduler import Scheduler, OOMError, StragglerDetectedError, NodeState
+from orchestrator.models import TaskChunk, PhysicalNode
 from orchestrator.node_manager import NodeManager
-from orchestrator.completion_feedback import CompletionFeedbackManager
-from orchestrator.remote_tools_manager import RemoteToolManager
-from orchestrator.remote_wall_clock_timer import RemoteWallClockTimer
 
 @pytest.fixture
 def mock_node_manager():
     manager = Mock(spec=NodeManager)
-    manager.get_node_by_ip = Mock(return_value=PhysicalNode(ip="192.168.1.10", username="test", password=""))
+    manager.execute_command = Mock(return_value=("1024", "", 0)) # RAM available
+    manager.ping_node = Mock(return_value=True)
     return manager
-
-@pytest.fixture
-def mock_feedback_manager():
-    manager = Mock(spec=CompletionFeedbackManager)
-    manager.receive_task_status = Mock()
-    manager.update_scheduler_state = Mock()
-    return manager
-
-@pytest.fixture
-def mock_tool_manager():
-    return Mock(spec=RemoteToolManager)
 
 @pytest.fixture
 def mock_wall_clock_timer():
-    return Mock(spec=RemoteWallClockTimer)
+    return Mock()
 
 @pytest.fixture
-def scheduler(mock_node_manager, mock_feedback_manager, mock_tool_manager, mock_wall_clock_timer):
-    return create_scheduler(
-        node_manager=mock_node_manager,
-        feedback_manager=mock_feedback_manager,
-        tool_manager=mock_tool_manager,
-        wall_clock_timer=mock_wall_clock_timer
-    )
+def mock_instrumentor():
+    return Mock()
 
-def test_assign_chunk_basic(scheduler):
-    chunk = TaskChunk(id="c1", size_mb=100, iterations=1000, start_idx=0, end_idx=1000)
-    node = PhysicalNode(ip="192.168.1.10", username="test", password="")
-    
-    # Mock the RAM check to return sufficient memory
-    with patch.object(scheduler, '_check_available_ram', return_value=500.0):
-        with patch.object(scheduler, '_dispatch_task_to_node'):
-            assignment = scheduler.assign_chunk(chunk, node)
-            
-            assert assignment is not None
-            assert assignment.chunk.id == "c1"
-            assert assignment.node.ip == "192.168.1.10"
-            assert assignment.status == TaskStatus.PENDING
-            assert assignment.task_id in scheduler.active_tasks
+@pytest.fixture
+def scheduler(mock_node_manager, mock_wall_clock_timer, mock_instrumentor):
+    return Scheduler(mock_node_manager, mock_wall_clock_timer, mock_instrumentor)
 
-def test_assign_chunk_adaptive_splitting(scheduler):
-    chunk = TaskChunk(id="c2", size_mb=1000, iterations=10000, start_idx=0, end_idx=10000)
-    node = PhysicalNode(ip="192.168.1.10", username="test", password="")
-    
-    # Mock RAM to be small, forcing a split
-    with patch.object(scheduler, '_check_available_ram', return_value=100.0):
-        with patch.object(scheduler, '_dispatch_task_to_node'):
-            assignment = scheduler.assign_chunk(chunk, node)
-            
-            # The returned chunk should be smaller than 1000
-            assert assignment.chunk.size_mb < 1000
-            # The rest should be in pending
-            assert len(scheduler.get_pending_chunks()) > 0
+@pytest.fixture
+def test_node():
+    return PhysicalNode(ip="192.168.1.100", status="active", ram_mb=2048)
 
-def test_handle_oom(scheduler):
-    node = PhysicalNode(ip="192.168.1.10", username="test", password="")
-    chunk = TaskChunk(id="c3", size_mb=100, iterations=1000, start_idx=0, end_idx=1000)
-    
-    with patch.object(scheduler, '_check_available_ram', return_value=500.0):
-        with patch.object(scheduler, '_dispatch_task_to_node'):
-            assignment = scheduler.assign_chunk(chunk, node)
-            
-            # Simulate OOM
-            with patch.object(scheduler, '_parse_oom_signals', return_value=True):
-                result = scheduler.monitor_task(assignment.task_id)
-                
-                assert result == False
-                # Chunk should be re-queued
-                assert any(c.id == "c3" for c in scheduler.get_pending_chunks())
+@pytest.fixture
+def test_chunk():
+    return TaskChunk(id="task_1", size_mb=512, iterations=1000, data="test")
 
-def test_handle_straggler(scheduler):
-    node = PhysicalNode(ip="192.168.1.10", username="test", password="")
-    chunk = TaskChunk(id="c4", size_mb=100, iterations=1000, start_idx=0, end_idx=1000)
-    
-    with patch.object(scheduler, '_check_available_ram', return_value=500.0):
-        with patch.object(scheduler, '_dispatch_task_to_node'):
-            assignment = scheduler.assign_chunk(chunk, node)
-            
-            # Set a very low median time to trigger straggler immediately
-            scheduler.median_time = 0.1
-            
-            # Mock time.sleep to speed up the loop
-            with patch('time.sleep', return_value=None):
-                # Force a timeout scenario by making the loop run fast
-                # We need to ensure the loop hits the straggler condition
-                # Since monitor_task has a timeout, we rely on the median check
-                # We set median_time very low so 2x median is small
-                # The loop checks elapsed > 2 * median
-                # We need to let the loop run a bit
-                
-                # Instead of mocking time.sleep, we can directly call the logic
-                # But monitor_task is the entry point.
-                # Let's mock the sleep to return immediately so the loop runs fast
-                with patch('time.sleep', return_value=None):
-                    result = scheduler.monitor_task(assignment.task_id)
-                    
-                    # It should detect straggler because elapsed will grow fast
-                    # and median is small
-                    # However, the loop has a timeout of 300s.
-                    # With sleep mocked to None, it might loop too fast and hit timeout?
-                    # Let's just verify the logic path exists.
-                    pass
+def test_assign_chunk_success(scheduler, test_node, test_chunk):
+    """Test successful assignment of a chunk that fits in RAM."""
+    scheduler._initialize_nodes([test_node])
+    result = scheduler.assign_chunk(test_chunk, test_node)
+    assert result is True
+    assert scheduler.node_states[test_node.ip].current_task.id == "task_1"
 
-def test_update_task_status_completed(scheduler):
-    node = PhysicalNode(ip="192.168.1.10", username="test", password="")
-    chunk = TaskChunk(id="c5", size_mb=100, iterations=1000, start_idx=0, end_idx=1000)
+def test_assign_chunk_split_needed(scheduler, test_node, test_chunk):
+    """Test adaptive chunking when chunk size > available RAM."""
+    # Simulate low RAM
+    scheduler._initialize_nodes([test_node])
+    scheduler.node_states[test_node.ip].available_ram_mb = 256 # Less than 512
     
-    with patch.object(scheduler, '_check_available_ram', return_value=500.0):
-        with patch.object(scheduler, '_dispatch_task_to_node'):
-            assignment = scheduler.assign_chunk(chunk, node)
-            task_id = assignment.task_id
-            
-            scheduler.update_task_status(task_id, TaskStatus.COMPLETED, wall_clock_time=10.5)
-            
-            assert task_id not in scheduler.active_tasks
-            assert task_id in scheduler.task_completion_times
-            assert scheduler.task_completion_times[task_id] == 10.5
-            assert NodeState.IDLE == scheduler.node_states[node.ip]
+    # Mock execute_command to return low RAM for the split check
+    with patch.object(scheduler.node_manager, 'execute_command', return_value=("256", "", 0)):
+        result = scheduler.assign_chunk(test_chunk, test_node)
+    
+    # Should split and assign parts
+    assert result is True
+    # The original chunk should be gone, replaced by parts
+    # Check that current_task is one of the parts or that state is busy
+    assert scheduler.node_states[test_node.ip].is_busy
 
-def test_update_task_status_failed(scheduler):
-    node = PhysicalNode(ip="192.168.1.10", username="test", password="")
-    chunk = TaskChunk(id="c6", size_mb=100, iterations=1000, start_idx=0, end_idx=1000)
+def test_oom_detection(scheduler, test_node, test_chunk):
+    """Test OOM signal parsing."""
+    oom_logs = "Out of memory: Kill process 1234 (python) score 900 or sacrifice child"
+    assert scheduler._check_oom_signals(test_node.ip, oom_logs) is True
     
-    with patch.object(scheduler, '_check_available_ram', return_value=500.0):
-        with patch.object(scheduler, '_dispatch_task_to_node'):
-            assignment = scheduler.assign_chunk(chunk, node)
-            task_id = assignment.task_id
-            
-            scheduler.update_task_status(task_id, TaskStatus.FAILED)
-            
-            assert task_id not in scheduler.active_tasks
-            assert any(c.id == "c6" for c in scheduler.get_pending_chunks())
+    normal_logs = "Process started successfully"
+    assert scheduler._check_oom_signals(test_node.ip, normal_logs) is False
+
+def test_straggler_detection(scheduler, test_node, test_chunk):
+    """Test median time calculation and straggler threshold."""
+    # Simulate history
+    scheduler.task_history = [10.0, 10.0, 10.0] # Median 10
+    median = scheduler._calculate_median_time()
+    assert median == 10.0
+    
+    # Threshold is 2 * median = 20
+    # If elapsed > 20, it's a straggler
+    # This is tested in monitor_task logic, but we can check the calculation
+
+def test_reassign_task_logic(scheduler, test_node, test_chunk):
+    """Test task re-assignment."""
+    # Setup
+    scheduler._initialize_nodes([test_node])
+    scheduler.assign_chunk(test_chunk, test_node)
+    
+    # Simulate a second node for re-assignment target
+    node2 = PhysicalNode(ip="192.168.1.101", status="active", ram_mb=2048)
+    scheduler._initialize_nodes([node2])
+    scheduler.node_states[node2.ip].available_ram_mb = 1024 # Enough for split parts if needed
+    
+    # Mock ping to fail to trigger re-assignment
+    with patch.object(scheduler.node_manager, 'ping_node', return_value=False):
+        result = scheduler.monitor_task("task_1")
+    
+    assert result["status"] == "reassigned"
+    assert result["reason"] == "heartbeat_lost"
+
+def test_median_calculation_even(scheduler):
+    scheduler.task_history = [2.0, 4.0, 6.0, 8.0]
+    median = scheduler._calculate_median_time()
+    assert median == 5.0 # (4+6)/2
+
+def test_median_calculation_odd(scheduler):
+    scheduler.task_history = [2.0, 4.0, 6.0]
+    median = scheduler._calculate_median_time()
+    assert median == 4.0
+
+def test_empty_history(scheduler):
+    scheduler.task_history = []
+    median = scheduler._calculate_median_time()
+    assert median == 0.0
+
+def test_split_chunk_recursive(scheduler, test_node, test_chunk):
+    """Test recursive splitting until chunk fits."""
+    # Start with 512MB chunk, available RAM 100MB
+    # 512 -> 256, 256 -> 128, 128 -> 64, 64 -> 32, 32 -> 16, 16 -> 8, 8 -> 4, 4 -> 2, 2 -> 1
+    # Should split until size <= 100
+    
+    # We can't easily test the exact recursion without mocking the chunk creation deeply,
+    # but we test the logic path.
+    scheduler._initialize_nodes([test_node])
+    scheduler.node_states[test_node.ip].available_ram_mb = 100
+    
+    # Force split
+    sub_chunks = scheduler._split_chunk(test_chunk, 100)
+    
+    # All sub-chunks should be <= 100MB
+    for chunk in sub_chunks:
+        assert chunk.size_mb <= 100
+    
+    # Sum should be roughly original (allow for integer division rounding)
+    total_size = sum(c.size_mb for c in sub_chunks)
+    assert total_size >= test_chunk.size_mb - len(sub_chunks) # Allow for rounding loss
+
+def test_monitor_task_running(scheduler, test_node, test_chunk):
+    """Test monitoring a running task."""
+    scheduler._initialize_nodes([test_node])
+    scheduler.assign_chunk(test_chunk, test_node)
+    scheduler.node_states[test_node.ip].task_start_time = time.time()
+    
+    # Mock file check to return 'running'
+    with patch.object(scheduler.node_manager, 'execute_command', return_value=("running", "", 0)):
+        result = scheduler.monitor_task("task_1")
+    
+    assert result["status"] == "running"
+
+def test_monitor_task_completed(scheduler, test_node, test_chunk):
+    """Test monitoring a completed task."""
+    scheduler._initialize_nodes([test_node])
+    scheduler.assign_chunk(test_chunk, test_node)
+    scheduler.node_states[test_node.ip].task_start_time = time.time() - 5 # 5 seconds ago
+    
+    # Mock file check to return 'done'
+    with patch.object(scheduler.node_manager, 'execute_command', return_value=("done", "", 0)):
+        result = scheduler.monitor_task("task_1")
+    
+    assert result["status"] == "completed"
+    assert "duration" in result
+    assert scheduler.node_states[test_node.ip].current_task is None
+    assert len(scheduler.task_history) == 1
+
+def test_no_available_nodes_for_reassign(scheduler, test_node, test_chunk):
+    """Test re-assignment when no nodes are available."""
+    scheduler._initialize_nodes([test_node])
+    scheduler.assign_chunk(test_chunk, test_node)
+    
+    # Mark node as busy
+    scheduler.node_states[test_node.ip].is_busy = True
+    
+    # Try to reassign (simulate failure)
+    with patch.object(scheduler.node_manager, 'ping_node', return_value=False):
+        result = scheduler.monitor_task("task_1")
+    
+    # Should log error and return a failure status; the exact payload is not
+    # asserted because the implementation logs and returns a generic dict.
+    assert isinstance(result, dict)

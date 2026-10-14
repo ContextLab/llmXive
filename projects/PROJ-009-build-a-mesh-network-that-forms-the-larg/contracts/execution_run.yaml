@@ -1,0 +1,31 @@
+type: object
+properties:
+  id:
+    type: string
+  timestamp:
+    type: string
+    format: date-time
+  node_count:
+    type: integer
+  granularity:
+    type: string
+  injected_latency_ms:
+    type: number
+  packet_loss_rate:
+    type: number
+  throughput_ops:
+    type: number
+  latency_ms:
+    type: number
+  status:
+    type: string
+required:
+  - id
+  - timestamp
+  - node_count
+  - granularity
+  - injected_latency_ms
+  - packet_loss_rate
+  - throughput_ops
+  - latency_ms
+  - status
