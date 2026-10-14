@@ -1,3 +1,10 @@
 # Project dependencies
-# Added for WikiText-2 dataset download
+transformers==4.41.2
 datasets==2.20.0
+auto-gptq==0.7.1
+pyRAPL==0.2.0
+powerstat==0.7.0
+# huggingface_hub is a transitive dependency of datasets but listed explicitly for clarity
+huggingface_hub>=0.23.0
+# Ensure a recent version of pyarrow compatible with NumPy 2.0 (required by datasets)
+pyarrow>=15.0.0

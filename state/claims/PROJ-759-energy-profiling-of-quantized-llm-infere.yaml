@@ -98,3 +98,53 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-14T14:41:04Z'
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/code/quickstart.md
+  attempts: 1
+  canonical: expected runtime on CI runner is approximately 4.5 hours
+  claim_id: c_e7e1aade
+  context: "Run the Full Benchmark ... Expected runtime on the CI runner: \u2248\u202F\
+    4.5\u202Fh."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected runtime on the CI runner: \u2248\u202F4.5\u202Fh."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T15:15:12Z'
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/code/quickstart.md
+  attempts: 1
+  canonical: pyRAPL library loads and prints 'pyRAPL available' on dry run
+  claim_id: c_19940102
+  context: "Before running the full benchmark you can confirm that the energy\u2011\
+    measurement library loads correctly on this runner: ... You should see the output:\
+    \ pyRAPL available."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'You should see the output: pyRAPL available.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T15:15:12Z'
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/code/quickstart.md
+  attempts: 1
+  canonical: unit-level contract tests all pass confirming JSON/CSV schema compliance
+  claim_id: c_5971bada
+  context: "Run the Unit\u2011Level Contract Tests (optional) ... All tests should\
+    \ pass, confirming that generated JSON/CSV files conform to the schemas in contracts/."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass, confirming that generated JSON/CSV files conform
+    to the schemas in contracts/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T15:15:12Z'

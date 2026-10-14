@@ -1,17 +1,19 @@
-T001:
-  c: false
-  h: 63fb886f3919d003b01199aef05abe226f82226af55de5df137ab16ccc1ee4cb
-  r: "The required file `code/quickstart.md` is missing (only a root\u2011level `quickstart.md`\
-    \ exists) and the contract test `test_pyrapl_load` fails on the GitHub Actions\
-    \ runner, indicating that pyRAPL does not load successfully. Both the documentation\
-    \ artifact and the verification step are therefore not satisfied."
-  sig: c4e823419ba447b81b0d1b5ad280aec3d2d94763eac1504861cee07674bf4d7b
 T002:
   c: false
-  h: 5ca6566aaee3fe32a16044793fda65c8ff22a97cceedcf4fa450cf41d1ab1917
-  r: "The required artifacts `data/raw/wikitext2.parquet` and `data/raw/README.md`\
-    \ are both MISSING \u2014 only the loader script `code/utils/data_loader.py` exists,\
-    \ and it was never executed to produce the dataset or checksum. There is also\
-    \ no test file or pytest run evidence for `test_wikitext2_download`, so the verification\
-    \ requirement is unmet."
-  sig: f31227b19b73c666bdab399a53eb79a30ff509cdce6be03cb74e9937fe35d156
+  h: 01e101180542a3e625ad9199b08f38302d760862818b68d9d0b4f53e39d53aa5
+  r: "The required files `data/raw/wikitext2.parquet` and `data/raw/README.md` are\
+    \ missing; no evidence of a successful download or checksum recording is provided,\
+    \ so the task\u2019s core requirement is not met."
+  sig: f256449ff1f27ddbe0c4e8b1960c898d256e490337c3a540c605a3977fd2cdad
+T003:
+  c: false
+  h: d686be30c95fb31f1b99bf0ea11b01c17074f270f784d0101cdc0c5127b7c5f8
+  r: "The `data/configs/` directory contains JSON files, but they were written without\
+    \ actually quantizing the models (auto\u2011gptq was unavailable) and many have\
+    \ `load_success: false` with placeholder checkpoint paths. No INT8/4\u2011bit\
+    \ checkpoint files were produced, and there is no `logs/model_load.log` showing\
+    \ OOM attempts for 7\u202FB models. The schema file lives under `specs/.../contracts/`\
+    \ instead of the required top\u2011level `contracts/config.schema.yaml`, causing\
+    \ the contract test to fail, and the expected `gptneo-125M_fp16.json` file is\
+    \ missing. These omissions mean the task\u2019s core requirements are not "
+  sig: 519d81d522327f3bfad4a313827f7d59c0d072b7244b7f47fecfb9d661571bf6

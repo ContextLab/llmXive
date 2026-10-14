@@ -19,11 +19,13 @@ unparseable command (shlex)
 - python -m code.benchmark  --prompt-length 500  --repetitions 5  --output-dir data/results  --log-dir logs -> rc=2
 
 usage: benchmark.py [-h] --config CONFIG [--dry-run]
+                    [--prompt-length PROMPT_LENGTH]
+                    [--repetitions REPETITIONS] [--output-dir OUTPUT_DIR]
+                    [--log-dir LOG_DIR]
 benchmark.py: error: the following arguments are required: --config
 
 - python -m pytest -q tests/contract -> rc=2
-__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
+package, level)
 tests/contract/test_wikitext2_download.py:12: in <module>
     from utils.data_loader import download_wikitext2
 code/utils/data_loader.py:16: in <module>
@@ -38,9 +40,10 @@ pyarrow/lib.pyx:42: in init pyarrow.lib
     ???
 E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 =========================== short test summary info ============================
+ERROR tests/contract/test_quantize_config.py - FileNotFoundError: [Errno 2] N...
 ERROR tests/contract/test_wikitext2_download.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-1 error in 0.60s
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+2 errors in 2.07s
 
 
 

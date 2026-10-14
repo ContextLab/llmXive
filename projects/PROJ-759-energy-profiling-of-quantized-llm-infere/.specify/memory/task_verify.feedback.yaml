@@ -1,19 +1,25 @@
 T001:
-  reason: "The required file `code/quickstart.md` is missing (only a root\u2011level\
-    \ `quickstart.md` exists) and the contract test `test_pyrapl_load` fails on the\
-    \ GitHub Actions runner, indicating that pyRAPL does not load successfully. Both\
-    \ the documentation artifact and the verification step are therefore not satisfied."
+  reason: The required `code/quickstart.md` exists and documents the command, but
+    there is no evidence that the `pyRAPL` library actually loads (no pytest output,
+    CI logs, or test file). Moreover, the referenced config file `data/configs/125M_4bit.json`
+    is missing, so the documented command cannot be run as specified. Provide a passing
+    `test_pyrapl_load` result (or CI log) and the correct config file to satisfy the
+    task.
   task: defffaf048b4c101e4c107be061c3f2cf31a8cd6854cb8fd38ed9cc285a53796
 T002:
-  reason: "The required artifacts `data/raw/wikitext2.parquet` and `data/raw/README.md`\
-    \ are both MISSING \u2014 only the loader script `code/utils/data_loader.py` exists,\
-    \ and it was never executed to produce the dataset or checksum. There is also\
-    \ no test file or pytest run evidence for `test_wikitext2_download`, so the verification\
-    \ requirement is unmet."
+  reason: "The required files `data/raw/wikitext2.parquet` and `data/raw/README.md`\
+    \ are missing; no evidence of a successful download or checksum recording is provided,\
+    \ so the task\u2019s core requirement is not met."
   task: b331e1d4489704c714465e84e2798eeb8c589bea798b7c19c1798df02c03d5cf
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/utils/quantize.py
-    exit=1'
+  reason: "The `data/configs/` directory contains JSON files, but they were written\
+    \ without actually quantizing the models (auto\u2011gptq was unavailable) and\
+    \ many have `load_success: false` with placeholder checkpoint paths. No INT8/4\u2011\
+    bit checkpoint files were produced, and there is no `logs/model_load.log` showing\
+    \ OOM attempts for 7\u202FB models. The schema file lives under `specs/.../contracts/`\
+    \ instead of the required top\u2011level `contracts/config.schema.yaml`, causing\
+    \ the contract test to fail, and the expected `gptneo-125M_fp16.json` file is\
+    \ missing. These omissions mean the task\u2019s core requirements are not"
   task: dae401c6e1ab23f250d7c24f4445d34ee792d7f751c7b9f9e6afce92e061bb69
 T004:
   task: 9ab39e90776772afcfafad05bffe5f36b2bf605fa5ceeb59055a81eefcfecc7f

@@ -1,0 +1,8 @@
+{
+  "model_name": "gpt-neo-350M",
+  "model_size_m": 350,
+  "quantization": "fp16",
+  "checkpoint_path": "data/models/gpt-neo-350M/fp16/missing_fp16",
+  "load_success": false,
+  "seed": 42
+}

@@ -1,8 +1,8 @@
 {
-  "checkpoint_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-759-energy-profiling-of-quantized-llm-infere/data/models/gpt-neo-125M/fp16",
-  "load_success": false,
   "model_name": "gpt-neo-125M",
   "model_size_m": 125,
   "quantization": "4bit",
+  "checkpoint_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-759-energy-profiling-of-quantized-llm-infere/data/models/gpt-neo-125M/fp16",
+  "load_success": false,
   "seed": 42
 }

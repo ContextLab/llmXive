@@ -1,0 +1,8 @@
+{
+  "model_name": "gpt-neo-1.3B",
+  "model_size_m": 1300,
+  "quantization": "4bit",
+  "checkpoint_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-759-energy-profiling-of-quantized-llm-infere/data/models/gpt-neo-1.3B/fp16",
+  "load_success": false,
+  "seed": 42
+}

@@ -1,12 +1,10 @@
 status: none
-intent: huggingface datasets wikitext-2 gpt-neo model hub python package dataset
+intent: download WikiText-2 test split parquet file from HuggingFace datasets python
+  package dataset
 required_fields:
-- prompt_text
-- token_ids
-- prompt_length
+- text
 - split
-- source
-- checksum
-cache_key: 5cb5a1e4af278266fd950c1e8fe3d077cef6170f15e47a69bbb20b099095c71b
-searched_at: '2026-10-14T14:42:56.823249+00:00'
+- id
+cache_key: ce7e1ac08e2f57d0a292220e5fc2f155532bca95416edb1271b5eab21cb4e6ad
+searched_at: '2026-10-14T15:20:20.481102+00:00'
 retry_count: 1
