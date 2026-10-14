@@ -1,12 +1,12 @@
 status: none
-intent: Human Connectome Project S1200 resting-state fMRI NIH Toolbox scores download
-  AWS OpenData python package dataset
+intent: nilearn fetch_hcp_rest dataset NIH Toolbox DCCS scores Schaefer atlas python
+  package dataset
 required_fields:
 - subject_id (string)
-- sex (string)
+- rsfc_value (float)
 - age (integer)
-- dccs_score (float)
-- rsfc_mean (float)
-cache_key: 3bd3bb3cc8551eb543c56a1e0d0ec7e18a44f7f3eb0c0edcca5f1401cee1328d
-searched_at: '2026-10-14T11:08:57.020651+00:00'
+- gender (string)
+- nih_dccs_score (float)
+cache_key: 3645981ee28c543c0a0c5b2c0ac2a7da83b92803a692e2c629d69cc2593caa1f
+searched_at: '2026-10-14T22:12:58.790536+00:00'
 retry_count: 1

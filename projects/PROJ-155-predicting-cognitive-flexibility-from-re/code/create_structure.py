@@ -1,33 +1,29 @@
 """
-Simple utility to create the required directory structure for the project.
-This script is not automatically invoked by the pipeline but can be
-run manually if the folders are missing.
+Create the required project directory skeleton.
 """
 from pathlib import Path
 
 from llmxive_toolkit import paths
 
 
-def ensure_dir(path: Path) -> None:
-    """
-    Ensure that *path* exists as a directory.
-    """
+def ensure_dir(path: Path):
     path.mkdir(parents=True, exist_ok=True)
 
-def main() -> None:
-    """
-    Create all top‑level directories required by the specification.
-    """
-    for sub in [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "figures",
-        "docs",
-        "tests",
-    ]:
-        ensure_dir(paths.path(sub))
+def main():
+    # Directories explicitly required by T001
+    dirs = [
+        paths.code(),
+        paths.data("raw"),
+        paths.data("processed"),
+        paths.data("results"),
+        paths.figures(),
+        paths.docs(),
+        paths.tests(),
+        paths.data("logs"), # Needed for linting output
+    ]
+    for d in dirs:
+        ensure_dir(d)
+    print("Project skeleton created successfully.")
 
 if __name__ == "__main__":
     main()
