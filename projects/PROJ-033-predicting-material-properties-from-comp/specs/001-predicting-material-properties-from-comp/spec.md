@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Core Prediction Pipeline (Priority: P1)
+### User Story 1 - Core Prediction Pipeline (Priority: P1) (US-1)
 
 The researcher needs to load a subset of the Materials Project Open Data, construct a composition-only graph representation for each material, train a lightweight GNN on CPU, and generate predictions for band gap and hardness to establish a baseline performance metric.
 
@@ -17,40 +17,40 @@ The researcher needs to load a subset of the Materials Project Open Data, constr
 
 **Acceptance Scenarios**:
 
-1. **Given** the Materials Project data subset (≤10,000 records) is available locally, **When** the composition-only graph builder and GNN trainer are executed on a CPU-only environment, **Then** the system outputs a `results_composition_only.json` file containing R², MAE, and RMSE for band gap and hardness, and reports the comparison against a Random Forest baseline.
-2. **Given** a new chemical formula not in the training set, **When** the trained model performs inference, **Then** it returns a predicted band gap and hardness value with a timestamp and a confidence interval calculated as mean ± 1.96 * std derived from the R² scores across the 5-fold cross-validation folds.
+1. **Given** the Materials Project data subset (≤10,000 records) is available locally, **When** the composition-only graph builder and GNN trainer are executed on a CPU‑only environment, **Then** the system outputs a `results_composition_only.json` file containing R², MAE, and RMSE for band gap and hardness, and reports the comparison against a Random Forest baseline.
+2. **Given** a new chemical formula not in the training set, **When** the trained model performs inference, **Then** it returns a predicted band gap and hardness value with a timestamp and a confidence interval calculated as mean ± 1.96 × std of predictions across the 5‑fold cross‑validation folds.
 3. **Given** the training process exceeds 30 minutes per epoch or 6 hours total runtime, **When** the job is monitored, **Then** the system logs a timeout warning and halts execution to prevent CI resource exhaustion.
 
 ---
 
-### User Story 2 - Structure-Aware Baseline Comparison (Priority: P2)
+### User Story 2 - Structure‑Aware Baseline Comparison (Priority: P2) (US-2)
 
-The researcher needs to construct a full crystal graph for a smaller, representative subset (≤2,000 materials, strictly drawn from the ≤10,000 records in US-1), train a structure-aware GNN, and compute the performance gap (ΔR²) between the composition-only and structure-aware models to quantify information loss.
+The researcher needs to construct a full crystal graph for a smaller, representative subset (≤2,000 materials, strictly drawn from the ≤10,000 records in US‑1), train a structure‑aware GNN, and compute the performance gap (ΔR²) between the composition‑only and structure‑aware models to quantify information loss.
 
 **Why this priority**: This story provides the critical comparative analysis required to answer the research question ("how much information is lost"). It is dependent on the P1 pipeline but adds the necessary structural context to validate the hypothesis about information loss.
 
-**Independent Test**: The comparison can be tested by running the baseline training on the [deferred]-material subset, generating a `results_structure_aware.json` file, and verifying that the system correctly calculates and logs the ΔR² between the two model outputs.
+**Independent Test**: The comparison can be tested by running the baseline training on the structure‑aware subset, generating a `results_structure_aware.json` file, and verifying that the system correctly calculates and logs the ΔR² between the two model outputs.
 
 **Acceptance Scenarios**:
 
-1. **Given** the composition-only model results and the structure-aware model results, **When** the comparison utility is executed, **Then** it outputs a `comparison_summary.csv` containing the ΔR², ΔMAE, and ΔRMSE for both band gap and hardness.
+1. **Given** the composition‑only model results and the structure‑aware model results, **When** the comparison utility is executed, **Then** it outputs a `comparison_summary.csv` containing the ΔR², ΔMAE, and ΔRMSE for both band gap and hardness.
 2. **Given** a specific crystal system (e.g., monoclinic), **When** the error analysis is run, **Then** the system isolates the error metrics for that system and reports the calculated ΔR² value for hardness.
 3. **Given** the structural data files (CIFs) are missing for a material in the subset, **When** the graph builder processes the list, **Then** it skips that material, logs a warning, and continues processing the remaining valid entries without crashing.
 
 ---
 
-### User Story 3 - Interpretability & Embedding Analysis (Priority: P3)
+### User Story 3 - Interpretability & Embedding Analysis (Priority: P3) (US-3)
 
-The researcher needs to extract the learned node embeddings from the composition-only GNN, perform PCA, and correlate the principal components with known periodic properties (electronegativity, atomic radius) OR derived properties NOT used as input features to verify that the model learned chemically meaningful representations without circular validation.
+The researcher needs to extract the learned node embeddings from the composition‑only GNN, perform PCA, and correlate the principal components with known periodic properties (electronegativity, atomic radius) **or** derived properties **not** used as input features (e.g., formation energy, bulk modulus) to verify that the model learned chemically meaningful representations without circular validation.
 
 **Why this priority**: This story addresses the "why" behind the predictions, ensuring the model isn't just a black box. While not strictly necessary for the primary performance metrics (P1/P2), it validates the scientific soundness of the representation learning approach.
 
-**Independent Test**: The analysis can be tested by running the embedding extraction script on the trained P1 model and verifying that the output includes a correlation matrix showing significant Pearson correlations (p < 0.05) between at least one principal component and a property not used as an input feature.
+**Independent Test**: The analysis can be tested by running the embedding extraction script on the trained P1 model and verifying that the output includes a correlation matrix showing significant Pearson correlations (p < 0.05) between at least one principal component and a property not used as an input feature.
 
 **Acceptance Scenarios**:
 
 1. **Given** the trained GNN weights and the validation set, **When** the embedding extractor runs, **Then** it outputs a `node_embeddings.npy` file containing vectors for each element in the composition.
-2. **Given** the embeddings and a lookup table of properties not used as input features, **When** the PCA and correlation analysis are performed, **Then** the system generates a `interpretability_report.md` listing principal components with p-value < 0.05.
+2. **Given** the embeddings and a lookup table of properties not used as input features, **When** the PCA and correlation analysis are performed, **Then** the system generates a `interpretability_report.md` listing principal components with p‑value < 0.05.
 3. **Given** the correlation analysis shows no significant relationship between embeddings and the target properties, **When** the report is generated, **Then** it explicitly flags the result as "Low Interpretability" and suggests potential causes (e.g., overfitting, insufficient training).
 
 ---
@@ -59,52 +59,51 @@ The researcher needs to extract the learned node embeddings from the composition
 
 - What happens when the input dataset contains a chemical formula with an element not present in the periodic table feature lookup (e.g., a typo or hypothetical element)?
 - How does the system handle materials with zero band gap (metals) where the regression target is exactly 0, potentially skewing MAE/RMSE?
-- How does the system handle the case where the composition-only and structure-aware models yield identical performance (ΔR² ≈ 0), contradicting the hypothesis?
+- How does the system handle the case where the composition‑only and structure‑aware models yield identical performance (ΔR² ≈ 0), contradicting the hypothesis?
 - What happens if the chunked loading logic fails to deduplicate materials with the same formula but different crystal structures (polymorphs)?
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST load Materials Project data in chunks to ensure peak RAM usage does not exceed 6 GB during the ingestion of ≤10,000 records (See US-1).
-- **FR-002**: System MUST construct a composition-only graph where nodes represent unique elements with features [atomic number, electronegativity, valence electrons, atomic radius] and edges represent a fully connected clique including self-loops, weighted by periodic table distance. This design choice models all pairwise elemental interactions in a composition-only context (See US-1).
-- **FR-003**: System MUST implement a lightweight GNN with ≤3 graph convolution layers, hidden dimension ≤128, and train on CPU by default; GPU support is optional and not required for CI verification. Training must use Adam optimizer (lr=1e-3) with early stopping patience=10 (See US-1).
+- **FR-001**: System MUST load Materials Project data in chunks to ensure peak RAM usage does not exceed 6 GB during the ingestion of ≤10,000 records (See US-1).
+- **FR-002**: System MUST construct a composition‑only graph where nodes represent unique elements with features [atomic number, electronegativity, valence electrons, atomic radius] and edges represent a fully connected clique including self‑loops, weighted by periodic‑table distance. This design choice models all pairwise elemental interactions in a composition‑only context (See US-1).
+- **FR-003**: System MUST implement a lightweight GNN with ≤3 graph convolution layers, hidden dimension ≤128, and train on CPU by default; GPU support is optional and not required for CI verification. Training must use Adam optimizer (lr = 1e‑3) with early stopping patience = 10 (See US-1).
 - **FR-004**: System MUST perform a stratified 80/10/10 train/validation/test split by crystal system and ensure no material ID appears in both training and test sets (See US-1).
-- **FR-005**: System MUST construct a structure-aware graph for a subset of ≤2,000 materials using atom positions and coordination information from CIF files for baseline comparison (See US-2).
-- **FR-006**: System MUST calculate and output R², MAE, and RMSE for both band gap and hardness, and explicitly compute the performance gap (ΔR²) between composition-only and structure-aware models (See US-2).
-- **FR-007**: System MUST perform k-fold cross-validation to estimate variance and report the standard deviation of R² across folds (See US-1).
-- **FR-008**: System MUST extract node embeddings and perform PCA, then calculate Pearson correlation coefficients between principal components and periodic properties (or derived properties not used as input) with a significance threshold of p < 0.05 (See US-3).
-- **FR-009**: System MUST enforce a runtime limit of 30 minutes per epoch (log warning and continue) and 6 hours total runtime (log warning and halt) to ensure CI feasibility (See US-1).
-- **FR-010**: System MUST handle missing structural data for specific materials by logging a warning and excluding them from the structure-aware analysis without terminating the job (See US-2).
+- **FR-005**: System MUST construct a structure‑aware graph for a subset of ≤2,000 materials using atom positions and coordination information extracted from CIF files downloaded from the Materials Project API (publicly available under the CC‑BY‑4.0 license). The pipeline will automatically retrieve missing CIFs, cache them locally, and skip any material whose CIF cannot be obtained, logging a warning (See US-2).
+- **FR-006**: System MUST calculate and output R², MAE, and RMSE for both band gap and hardness for each model, and explicitly compute the performance gap ΔR² = R²_composition − R²_structure‑aware (and analogous ΔMAE, ΔRMSE) on the shared test set (See US-2).
+- **FR-007**: System MUST perform k‑fold (k = 5) cross‑validation, report the mean and standard deviation of R² across folds, and compute 95 % confidence intervals for predictions as mean ± 1.96 × std of predicted values across folds (See US-1).
+- **FR-008**: System MUST extract node embeddings, perform PCA, and calculate Pearson correlation coefficients between principal components and **properties not used as input features** (e.g., formation energy, bulk modulus) with a significance threshold of p < 0.05 (See US-3).
+- **FR-009**: System MUST enforce a runtime limit of 30 minutes per epoch (log warning and continue) and 6 hours total runtime (log warning and halt) to ensure CI feasibility (See US-1).
+- **FR-010**: System MUST handle missing structural data for specific materials by logging a warning and excluding them from the structure‑aware analysis without terminating the job (See US-2).
+- **FR-011**: System MUST download CIF files for the structure‑aware subset via the Materials Project REST API (`https://materialsproject.org/rest/v2/materials/{mpid}/cif`) and verify integrity (checksum) before graph construction (See FR-005).
 
 ### Key Entities
 
 - **Material**: A crystalline compound identified by a unique ID, containing a chemical formula, crystal system, band gap (eV), hardness (GPa), and optional structural coordinates.
-- **CompositionGraph**: A graph representation derived solely from the chemical formula, containing element nodes and periodic-distance edges.
+- **CompositionGraph**: A graph representation derived solely from the chemical formula, containing element nodes and periodic‑distance edges.
 - **StructureGraph**: A graph representation derived from the full crystal structure, containing atom nodes with 3D coordinates and coordination edges.
-- **ModelMetrics**: A record containing R², MAE, RMSE, and fold-variance for a specific model (composition-only or structure-aware) and target property.
+- **ModelMetrics**: A record containing R², MAE, RMSE, and fold‑variance for a specific model (composition‑only or structure‑aware) and target property.
 - **EmbeddingVector**: A numeric vector representing the learned latent representation of an element or material node.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The R² score of the composition-only model for band gap prediction is measured against the baseline Random Forest model trained on the same compositional features (See FR-006).
-- **SC-002**: The performance gap (ΔR²) between the composition-only and structure-aware models is measured and reported to quantify information loss (See FR-006).
-- **SC-003**: The peak memory usage during data loading and training is measured against the 6 GB RAM limit of the CI runner environment (See FR-001).
-- **SC-004**: The total execution time of the pipeline is measured against the 6-hour CI job limit (See FR-009).
-- **SC-005**: The correlation coefficient between PCA components and periodic properties is measured against the statistical significance threshold of p < 0.05 (See FR-008).
-- **SC-006**: The variance of R² across 5 cross-validation folds is measured to ensure the model is not overfitting to a specific data split (See FR-007).
+- **SC-001**: The R² score of the composition‑only model for band gap prediction is measured against the baseline Random Forest model trained on the same compositional features (See FR-006).
+- **SC-002**: The performance gap (ΔR²) between the composition‑only and structure‑aware models is measured and reported to quantify information loss (See FR-006).
+- **SC-003**: The peak memory usage during data loading and training is measured against the 6 GB RAM limit of the CI runner environment (See FR-001).
+- **SC-004**: The total execution time of the pipeline is measured against the 6‑hour CI job limit (See FR-009).
+- **SC-005**: The correlation coefficient between PCA components and periodic properties not used as inputs is measured against the statistical significance threshold of p < 0.05 (See FR-008).
+- **SC-006**: The variance of R² across 5 cross‑validation folds is measured to ensure the model is not overfitting to a specific data split (See FR-007).
 
 ## Assumptions
 
-- The Materials Project Open Data is accessible via the specified URL and contains valid, parseable CIF files for the structural subset.
-- The dataset contains all necessary periodic table properties (electronegativity, valence electrons, atomic radius) for every element present in the [deferred] materials; if an element is missing, the pipeline will skip that material.
-- The "hardness" values in the dataset are derived from DFT calculations or experimental data with sufficient consistency to serve as a regression target; no additional cleaning for outliers beyond the standard 1.5*IQR rule is assumed.
-- The PyTorch Geometric library is available in the CI environment and supports CPU-only graph convolution operations without requiring CUDA.
-- The "structure-aware" baseline comparison assumes that the subset of [deferred] materials is representative of the full dataset's distribution of crystal systems and properties.
-- The inference task does not require real-time latency; batch processing of the test set is acceptable.
+- The Materials Project Open Data is accessible via the specified URL and contains valid, parseable CIF files for the structural subset; the pipeline will automatically download missing CIFs from the Materials Project API.
+- The dataset contains all necessary periodic table properties (electronegativity, valence electrons, atomic radius) for every element present in the materials; if an element is missing, the pipeline will skip that material.
+- The "hardness" values in the dataset are derived from DFT calculations or experimental data with sufficient consistency to serve as a regression target; no additional cleaning for outliers beyond the standard 1.5 × IQR rule is assumed.
+- The PyTorch Geometric library is available in the CI environment and supports CPU‑only graph convolution operations without requiring CUDA.
+- The "structure‑aware" baseline comparison assumes that the subset of ≤2,000 materials is representative of the full dataset's distribution of crystal systems and properties.
+- The inference task does not require real‑time latency; batch processing of the test set is acceptable.
