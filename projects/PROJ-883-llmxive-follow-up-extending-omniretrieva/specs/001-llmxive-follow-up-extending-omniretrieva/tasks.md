@@ -13,7 +13,7 @@
 
 ## Phase 1: Setup and first end-to-end analysis
 
-- [ ] T001 Establish the project skeleton with real, non‑empty directories and placeholder files (`code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `specs/001-structural-mismatch-cost/contracts/`). Do **not** create any schema files here; schema creation is handled by T004. Document the runnable pipeline command (`python -m code.main`) in `specs/001-structural-mismatch-cost/quickstart.md`. Include a minimal `requirements.txt` and lint config (`.ruff.toml`, `pyproject.toml`). `ruff check code/` must run successfully.
+- [ ] T001 Establish the project skeleton with real, non‑empty directories and placeholder files (`code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `specs/001-structural-mismatch-cost/contracts/`). Do **not** create any schema files here; schema creation is handled by T004. Document the runnable pipeline command (`python -m code.main`) in `specs/001-structural-mismatch-cost/quickstart.md`. Include a minimal `requirements.txt` and lint config (`.ruff.toml`, `pyproject.toml`). `ruff check code/` must run successfully. <!-- FAILED-IN-EXECUTION: code/ground_truth_engine.py exit=1; code/visualize.py exit=1; code/main.py exit=1 -->
 
 - [ ] T004 Create/repair the data schemas in `specs/001-structural-mismatch-cost/contracts/`: `query_instance.schema.yaml`, `execution_log.schema.yaml`, `execution_metric.schema.yaml`, `statistics-result.schema.yaml`. Validate a sample row against each schema with `pyyaml` + `jsonschema`. **Do not** create `analysis_result.schema.yaml` or `gam_results.schema.yaml` – they are deprecated.
 

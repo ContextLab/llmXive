@@ -1,0 +1,52 @@
+- artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/quickstart.md
+  attempts: 1
+  canonical: all dependencies are OK
+  claim_id: c_4d3b1f65
+  context: Running the verification command prints 'All dependencies OK' indicating
+    dependencies are satisfied.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All dependencies OK
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T06:09:29Z'
+- artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/quickstart.md
+  attempts: 1
+  canonical: benchmark runner falls back to synthetic mode when cgroups unavailable
+    and still produces required CSV
+  claim_id: c_cd9f6de1
+  context: "The notes state that if cgroups cannot be applied, the benchmark runner\
+    \ falls back to a synthetic mode and logs a warning \u2013 the pipeline still\
+    \ produces the required CSV."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "If cgroups cannot be applied, the benchmark runner falls back to a synthetic\
+    \ mode and logs a warning \u2013 the pipeline still produces the required CSV."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T06:09:29Z'
+- artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/quickstart.md
+  attempts: 1
+  canonical: synthetic query data is deterministic with seed 42 and conforms to schema
+  claim_id: c_a9700e76
+  context: "The synthetic data used for queries is deterministic (seed\u202F=\u202F\
+    42) and conforms to ``query_instance.schema.yaml``."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The synthetic data used for queries is deterministic (seed = 42) and conforms
+    to query_instance.schema.yaml.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T06:09:29Z'

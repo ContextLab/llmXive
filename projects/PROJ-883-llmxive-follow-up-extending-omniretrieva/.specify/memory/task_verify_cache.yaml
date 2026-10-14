@@ -21,12 +21,15 @@ T006:
   sig: 785baf86867a18c88b2eca725e916d911494908af64bbc6baa57278edcebe99a
 T007:
   c: true
-  h: 8504297f656e8fc9cbf61c1f08681ea6d93bf513df9ff88ceb3bc16ec32a4107
-  r: "Checked `code/generators/reference_engine.py` (4377\u202Fbytes) which implements\
-    \ a deterministic greedy engine selecting the step with minimum `estimated_cost`\
-    \ and, on ties, the smallest `depth`. The accompanying unit\u2011test log shows\
-    \ both tests (cost/depth ordering and fallback without steps) pass."
-  sig: 99ee1b2d17e1a771e38cefca1d65b9a96071b95c46d34f307a5c14aa69a70478
+  h: b4ef789e0b62d3be86965dafafbe6b60f170782b6f220ca9ab0660b701352944
+  r: 'The artifact `code/generators/reference_engine.py` exists (4377 bytes) and implements
+    the FR-008 requirement: a deterministic `ReferenceEngine` whose `_select_next_step`
+    greedily picks the minimum `estimated_cost` and breaks ties by smallest `depth`
+    (explicit or positional), with `generate_plan` producing a reproducible ground-truth
+    plan identifier from the ordered selected step IDs. The tie-breaking fallback
+    preserves original ordering so the earliest remaining step is still chosen, and
+    behavior is deterministic with no stubs or placeholders.'
+  sig: 3f35b63a6ad0d5c57a76057818d8bcdbce257e614bc644eb2a4d903642bd453e
 T008:
   c: false
   h: fa3689d76f5bd39274540d06f70e8ed801387d4915d10176f505128eb882989c
@@ -40,13 +43,14 @@ T008:
   sig: ce05a4a0a84eecfbb105b7bba32dd6f99a7dd0fc5975d57954e4b5b4856b693d
 T016:
   c: true
-  h: 9dff08b26d536d19baaa57d3decc0606ece48fe0a40efebc30cf270c4ec55b03
-  r: "Checked `code/utils/cpu_throttle.py` (11850\u202Fbytes) \u2013 it defines the\
-    \ required constants, creates a cgroup limiting to 2\u202FCPU cores and 7\u202F\
-    GB RAM, logs the mode and limits, aborts with exit code\u202F1 and an error message\
-    \ when cgroup setup fails, and contains no RLIMIT fallback. Unit\u2011test log\
-    \ shows the throttling checks and error handling pass."
-  sig: 1edc49a1f9c0f8702cc6bc12a5f353cf244c9f4107face6f9025c727e81643f8
+  h: 994db96902950cd598c05aea3468f5222353271ee216313810fc69deb6d3caac
+  r: The artifact `code/utils/cpu_throttle.py` exists (11,850 bytes) and implements
+    cgroups-v2-based throttling with the required 2-core/7 GB defaults, `EXIT_CODE_THROTTLING_FAILURE
+    = 1` with a clear error message on failure, no RLIMIT fallback, and logs the mode
+    (`mode=cgroups`) and configured core/RAM limits. The implementation is substantive
+    (cgroup creation, cpu.max/memory.max limits, process migration, cleanup, CLI),
+    not a stub.
+  sig: 9219207781a169a8aa8e2949b3933990f6fdb3696c6652404eb9981062c59ac1
 T020:
   c: false
   h: 01292f74bbe027f31fee22235d5b1234e07bbbc856c2aab04766d90aeebec70e
@@ -65,10 +69,12 @@ T021:
     \ actually implemented."
 T022:
   c: true
-  h: 4c39eecdc635160dd727c358cc3dc251d0fd7bd11e2d6856939df3eb6f88c13b
-  r: "Checked `code/router/sut_router.py` \u2013 it reads a JSON list of query definitions,\
-    \ generates a `sut_plan` for each using a depth\u20111 cost heuristic (base cost\u202F\
-    \xD7\u202Fcomplexity, steps list), inserts the plan into each entry, and writes\
-    \ the enriched JSON back (as confirmed by the successful run log). The required\
-    \ artifact exists, is non\u2011empty, and implements the specified behavior."
-  sig: 7ee78007ac9ace55ce6af8edd9f668aa16b67cc296cc03391fde4b3dd56add1c
+  h: 5d5e6cf4d2f4295653005ad41c5c5b2b7d80ad80b0746278a682a7f4f4a7ae02
+  r: "The artifact `code/router/sut_router.py` exists (4767 bytes) and implements\
+    \ a working limited-lookahead (depth-1) heuristic router: it reads a query-definition\
+    \ JSON, generates a `sut_plan` (steps matching `complexity_level`, estimated cost\
+    \ = base_cost \xD7 complexity per source type), and writes the `sut_plan` back\
+    \ into each entry of `generation_log.json` via CLI, matching the task's requirement\
+    \ for a system-generated plan (FR-004). The code is real, non-stub, handles unknown\
+    \ source types, and preserves existing fields."
+  sig: 55b8a10968408e1cfa7c7c7f47147da9fe2ace8000f2090ff76f837c796531c2

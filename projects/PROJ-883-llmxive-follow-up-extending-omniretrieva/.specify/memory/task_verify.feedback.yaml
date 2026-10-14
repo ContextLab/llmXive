@@ -1,9 +1,6 @@
 T001:
-  reason: "The project skeleton and documentation files are present, but the integration\
-    \ lint test shows `ruff check code/` fails (e.g., import ordering, deprecated\
-    \ typing hints, and other style violations in `code/analysis/metrics.py`). The\
-    \ task requires a successful `ruff` run, which is not met. Fix the lint errors\
-    \ (or adjust the code) so that `ruff check code/` returns exit code\u202F0."
+  reason: 'Requested task execution failed; rerun successfully: code/ground_truth_engine.py
+    exit=1; code/visualize.py exit=1; code/main.py exit=1'
   task: eb8380d842da885e28c9626b73bce40ed6e7a00e34359b9ffb7253b561596cf1
 T004:
   reason: "The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,\
