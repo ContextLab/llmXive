@@ -9,11 +9,12 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/processed/exclusion_report.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- data/processed/exclusion_report.csv: column(s) row_index, reason, original_smiles are EMPTY in every one of 6 rows — that measure was never recorded
+- every produced artifact is gitignored (data/processed/exclusion_mapped.json, data/processed/exclusion_report.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/exclusion_report.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 10 command(s) failed: python code/data/schema_check.py --dataset-name "author/DTS-SN1-15-01-2024" --output data/processed/schema_check.log (rc=1); python code/data/download.py --schema-pass --output data/raw/sn1_raw.parquet (rc=1); python code/data/mapping.py --input data/raw/sn1_raw.parquet --output data/processed/intermediate_sn1.csv --exclusion-log data/processed/exclusion_raw.log (rc=1); 3 declared deliverable(s) absent: data/processed/cleaned_intermediate.csv; data/processed/descriptors.csv; data/raw/sn1_raw_merged.parquet
+**Summary**: 1 hollow-result signal(s) — the analysis ran but computed nothing: data/processed/exclusion_report.csv: column(s) row_index, reason, original_smiles are EMPTY in every one of 6 rows — that measure was never recorded; every produced artifact is gitignored (data/processed/exclusion_mapped.json, data/processed/exclusion_report.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 8 command(s) failed: python code/data/schema_check.py --dataset-name "author/DTS-SN1-15-01-2024" --output data/processed/schema_check.log (rc=1); python code/data/download.py --schema-pass --output data/raw/sn1_raw.parquet (rc=1); python code/data/mapping.py --input data/raw/sn1_raw.parquet --output data/processed/intermediate_sn1.csv --exclusion-log data/processed/exclusion_raw.log (rc=1); 3 declared deliverable(s) absent: data/processed/cleaned_intermediate.csv; data/processed/descriptors.csv; data/raw/sn1_raw_merged.parquet
 
 ## Failing / missing run-book commands
 
@@ -37,35 +38,23 @@ ImportError: cannot import name 'setup_logging' from 'utils.logger' (/home/runne
 
 - python code/data/mapping.py --input data/raw/sn1_raw.parquet --output data/processed/intermediate_sn1.csv --exclusion-log data/processed/exclusion_raw.log -> rc=1
 
-2026-10-14 10:26:48,426 - mapping - INFO - Starting mapping and cleaning process...
-2026-10-14 10:26:48,426 - mapping - INFO - Starting mapping and cleaning process...
-2026-10-14 10:26:48,426 - mapping - INFO - Loading raw data from data/raw/sn1_raw.parquet
-2026-10-14 10:26:48,426 - mapping - INFO - Loading raw data from data/raw/sn1_raw.parquet
-2026-10-14 10:26:48,426 - mapping - ERROR - Raw data file not found: data/raw/sn1_raw.parquet
-2026-10-14 10:26:48,426 - mapping - ERROR - Raw data file not found: data/raw/sn1_raw.parquet
-2026-10-14 10:26:48,426 - mapping - ERROR - Fatal error: Raw data file not found: data/raw/sn1_raw.parquet
-2026-10-14 10:26:48,426 - mapping - ERROR - Fatal error: Raw data file not found: data/raw/sn1_raw.parquet
+2026-10-14 10:28:13,026 - mapping - INFO - Starting mapping and cleaning process...
+2026-10-14 10:28:13,026 - mapping - INFO - Starting mapping and cleaning process...
+2026-10-14 10:28:13,026 - mapping - INFO - Loading raw data from data/raw/sn1_raw.parquet
+2026-10-14 10:28:13,026 - mapping - INFO - Loading raw data from data/raw/sn1_raw.parquet
+2026-10-14 10:28:13,026 - mapping - ERROR - Raw data file not found: data/raw/sn1_raw.parquet
+2026-10-14 10:28:13,026 - mapping - ERROR - Raw data file not found: data/raw/sn1_raw.parquet
+2026-10-14 10:28:13,026 - mapping - ERROR - Fatal error: Raw data file not found: data/raw/sn1_raw.parquet
+2026-10-14 10:28:13,026 - mapping - ERROR - Fatal error: Raw data file not found: data/raw/sn1_raw.parquet
 
 - python code/data/init_exclusion_log.py --output data/processed/exclusion_raw.log -> rc=1
 
-2026-10-14 10:26:48,507 - __main__ - INFO - Starting exclusion log initialization...
-2026-10-14 10:26:48,507 - __main__ - ERROR - Error reading pipeline status: [Errno 21] Is a directory: 'data/processed/.pipeline_status'
-2026-10-14 10:26:48,507 - __main__ - ERROR - Exclusion log initialization failed or was aborted.
+2026-10-14 10:28:13,097 - __main__ - INFO - Starting exclusion log initialization...
+2026-10-14 10:28:13,097 - __main__ - ERROR - Pipeline status file not found. Pipeline has not been initialized.
+2026-10-14 10:28:13,097 - __main__ - ERROR - Exclusion log initialization failed or was aborted.
 
 - python code/data/clean.py --input data/processed/intermediate_sn1.csv --output data/processed/cleaned_intermediate.csv --exclusion-log data/processed/exclusion_raw.log -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/code/data/clean.py", line 252, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/code/data/clean.py", line 243, in main
-    success = clean_and_filter_data(input_path, output_path, exclusion_log_path, clean_log_path, status_path)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/code/data/clean.py", line 146, in clean_and_filter_data
-    write_aborted_status(status_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/code/data/clean.py", line 68, in write_aborted_status
-    with open(status_path, 'w') as f:
-         ^^^^^^^^^^^^^^^^^^^^^^
-IsADirectoryError: [Errno 21] Is a directory: 'data/processed/.pipeline_status'
 
 - python code/data/descriptors.py --input data/processed/cleaned_intermediate.csv --output data/processed/descriptors.csv --exclusion-log data/processed/exclusion_raw.log -> rc=1
 
@@ -75,16 +64,6 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/code/utils/__init__.py", line 1, in <module>
     from .logger import setup_logging, get_logger
 ImportError: cannot import name 'setup_logging' from 'utils.logger' (/home/runner/work/llmXive/llmXive/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/code/utils/logger.py)
-
-- python code/data/exclusion_report.py --input data/processed/exclusion_raw.log --schema specs/001-predict-sn1-rate-constants/contracts/exclusion_report.schema.yaml --output data/processed/exclusion_validation.log -> rc=1
-
-2026-10-14 10:26:48,937 - INFO - Starting exclusion report aggregation...
-2026-10-14 10:26:48,937 - ERROR - Input file not found: data/processed/exclusion_raw.log
-
-- python code/data/exclusion_report.py --aggregate --clean-log data/processed/clean.log --raw-log data/processed/exclusion_raw.log --output data/processed/exclusion_report.csv -> rc=1
-
-2026-10-14 10:26:48,986 - INFO - Starting exclusion report aggregation...
-2026-10-14 10:26:48,986 - ERROR - Upstream files missing. Writing blocked status.
 
 - python code/data/finalize_dataset.py  --input-path data/processed/cleaned_intermediate.csv  --intermediate-path data/processed/intermediate_sn1.csv  --output-path data/processed/cleaned_sn1.csv  --exclusion-path data/processed/exclusion_report.csv  --success-rate-path data/processed/success_rate.json  --checksum-path data/processed/cleaned_sn1.csv.sha256 -> rc=1
 

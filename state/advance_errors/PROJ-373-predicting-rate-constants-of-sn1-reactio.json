@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
+  "stage": "in_progress",
+  "class": "transient",
+  "fingerprint": "unknown",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-14T10:28:57.273892+00:00",
+  "last_seen": "2026-10-14T10:28:57.273892+00:00",
+  "retry_after": "2026-10-14T10:38:57.273892+00:00",
+  "last_error": "no implementation progress: no stage change or verified task completion",
+  "evidence": "no implementation progress: no stage change or verified task completion",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
+}

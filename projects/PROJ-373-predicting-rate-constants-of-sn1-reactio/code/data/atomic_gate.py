@@ -47,6 +47,12 @@ REQUIRED_COLUMNS = ["temperature", "solvent", "substrate_class"]
 # -------------------------------------------------------------------------
 def write_status(status_path: Path, status: str) -> None:
     """Write the pipeline status string to the given path."""
+    # If a directory exists at the status path, remove it first.
+    if status_path.is_dir():
+        # This situation should not happen, but we clean it up to avoid IsADirectoryError.
+        for child in status_path.iterdir():
+            child.unlink()
+        status_path.rmdir()
     status_path.parent.mkdir(parents=True, exist_ok=True)
     status_path.write_text(status, encoding="utf-8")
 
@@ -82,11 +88,11 @@ def main() -> None:
     for ds_name in DATASET_NAMES:
         logger.info(f"Starting download (streaming) for dataset: {ds_name}")
         try:
+            # Removed trust_remote_code as it is no longer supported.
             ds = load_dataset(
                 ds_name,
                 split="train",
-                streaming=True,
-                trust_remote_code=True
+                streaming=True
             )
         except Exception as e:
             logger.error(f"Failed to load dataset {ds_name}: {e}")
