@@ -1,0 +1,15 @@
+status: none
+intent: download NCBI Pathogen Detection E coli S aureus genome and AST dataset python
+  package dataset
+required_fields:
+- isolate_id
+- species
+- assembly_accession
+- genome_sequence_path
+- antibiotic
+- phenotypic_result
+- arg_gene_symbol
+- arg_presence_binary
+cache_key: 76906dd41b9919af4df574783dbf89ae47257141250bd1ecb2c753cde867c750
+searched_at: '2026-10-14T13:24:51.441842+00:00'
+retry_count: 1

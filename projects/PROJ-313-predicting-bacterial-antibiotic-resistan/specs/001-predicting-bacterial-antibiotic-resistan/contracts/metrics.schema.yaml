@@ -1,0 +1,142 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Metrics Contract"
+type: object
+required:
+  - model_id
+  - species
+  - antibiotic
+  - model_type
+  - cv_folds
+  - overall_metrics
+properties:
+  model_id:
+    type: string
+    description: "UUID of the trained model artifact."
+  species:
+    type: string
+    enum: ["E_coli", "S_aureus"]
+    description: "Bacterial species the model was trained on."
+  antibiotic:
+    type: string
+    description: "Target antibiotic (e.g., ampicillin, ciprofloxacin)."
+  model_type:
+    type: string
+    enum: ["xgboost_baseline", "xgboost_integrated"]
+    description: "Indicates whether only ARGs or full feature set were used."
+  cv_folds:
+    type: integer
+    minimum: 5
+    description: "Number of cross‑validation folds (fixed at 5)."
+  overall_metrics:
+    type: object
+    required:
+      - auc_roc
+      - precision
+      - recall
+      - f1_score
+    properties:
+      auc_roc:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Mean AUC‑ROC across CV folds."
+      precision:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Mean Precision across CV folds."
+      recall:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Mean Recall across CV folds."
+      f1_score:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Mean F1‑score across CV folds."
+  per_fold_metrics:
+    type: array
+    description: "Metrics for each individual CV fold."
+    items:
+      type: object
+      required:
+        - fold
+        - auc_roc
+        - precision
+        - recall
+        - f1_score
+      properties:
+        fold:
+          type: integer
+          minimum: 1
+        auc_roc:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        precision:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        recall:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        f1_score:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+  threshold_analysis:
+    type: object
+    description: "False‑positive / false‑negative rates for each probability threshold."
+    required:
+      - thresholds
+    properties:
+      thresholds:
+        type: array
+        items:
+          type: object
+          required:
+            - prob_threshold
+            - false_positive_rate
+            - false_negative_rate
+          properties:
+            prob_threshold:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+            false_positive_rate:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+            false_negative_rate:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+  power_analysis:
+    type: object
+    description: "Result of the a priori power calculation."
+    required:
+      - required_n
+      - observed_n
+      - effect_size
+      - power
+      - sufficient
+    properties:
+      required_n:
+        type: integer
+        description: "Sample size needed for [deferred] power at effect size 0.1."
+      observed_n:
+        type: integer
+        description: "Actual number of isolates used."
+      effect_size:
+        type: number
+        description: "Cohen's d assumed for the analysis (0.1)."
+      power:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Achieved power given observed sample size."
+      sufficient:
+        type: boolean
+        description: "True if power ≥ 0.8, else False."
