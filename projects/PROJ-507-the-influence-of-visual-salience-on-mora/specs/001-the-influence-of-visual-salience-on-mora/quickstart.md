@@ -26,27 +26,37 @@
    huggingface-cli download moral_d --local-dir data/raw/moral_d_subset
    ```
 
-4. **Run Pilot Power Analysis** (Phase 0):
+4. **Ingest and Filter Raw Images**:
+   ```bash
+   python code/01_ingest_and_filter.py --num-samples 10 --tags social conflict
+   ```
+   This command streams the chosen dataset, selects up to 10 images whose
+   metadata contain the tags ``social`` or ``conflict``, downloads the
+   images into ``data/raw/`` and writes
+   ``data/processed/candidates_filtered.csv`` together with a checksum file
+   ``data/raw/sample_metadata.json``.
+
+5. **Run Pilot Power Analysis** (Phase 0):
    ```bash
    python code/00_pilot_power_analysis.py --config config/pilot.yaml
    ```
 
-5. **Run Human Coding Simulation** (for pilot):
+6. **Run Human Coding Simulation** (for pilot):
    ```bash
    python code/02_human_coding.py --config config/human_coding.yaml
    ```
 
-6. **Generate Stimuli**:
+7. **Generate Stimuli**:
    ```bash
    python code/03_manipulate_stimuli.py --config config/manipulation.yaml
    ```
 
-7. **Run Survey Pilot** (simulated):
+8. **Run Survey Pilot** (simulated):
    ```bash
    python code/04_survey_deployment.py --mode pilot --num-participants 10
    ```
 
-8. **Clean Data and Run Analysis**:
+9. **Clean Data and Run Analysis**:
    ```bash
    python code/05_data_cleaning.py --input data/processed/responses.csv --output data/processed/cleaned_responses.csv
    python code/06_analysis_clmm.py --input data/processed/cleaned_responses.csv --output data/processed/results.json
@@ -57,14 +67,14 @@
 - **`config/pilot.yaml`**: Pilot parameters for power analysis.
 - **`config/human_coding.yaml`**: Ambiguity thresholds (mean ≥3.5, κ ≥0.6).
 - **`config/manipulation.yaml`**: Salience levels, contrast/brightness parameters.
-- **`config/pre_registration.yaml`**: Precision threshold and other pre-registered values.
+- **`config/pre_registration.yaml`**: Precision threshold and other pre‑registered values.
 - **`config/analysis.yaml`**: CLMM settings, correction methods.
 
 ## Validation
 
 - **Stimulus Integrity**: Check `data/processed/stimuli/` for CLIP similarity ≥0.95, RMS contrast ≥15%, and Moral Intent Preservation score ≥0.90.
 - **Data Cleaning**: Verify excluded participants in `data/processed/cleaned_responses.csv`.
-- **Analysis Output**: Confirm CLMM table with odds ratios and p-values in `data/processed/results.json`.
+- **Analysis Output**: Confirm CLMM table with odds ratios and p‑values in `data/processed/results.json`.
 
 ## Troubleshooting
 

@@ -6,23 +6,3 @@ T014:
     \ of metadata filtering for \u201Csocial\u201D/\u201Cconflict\u201D tags or loading\
     \ of external validation data. The task\u2019s core functionality and expected\
     \ output are therefore missing."
-T015a:
-  c: false
-  h: 5c0d36a022ee568f75ff60b38a9f12fd07e499217c12855e9c14ddcddd2dca78
-  r: "The required output file `data/processed/human_coding_annotations.csv` does\
-    \ not exist, and the provided `code/human_coding_ui.py` is incomplete (truncated)\
-    \ so we cannot confirm it enforces the \u22653 annotator rule or implements the\
-    \ majority\u2011vote logic. The task therefore remains unfinished."
-T021:
-  c: false
-  h: 6245411e1df1dd19299402802e5e20d1fbe9d7c7c4805aa126e9550abc563075
-  r: "The required file `tests/unit/test_data_schema.py` does not exist, so no unit\
-    \ test for validating the data schema (participant_id, image_id, salience, rating)\
-    \ is present. The task\u2019s core deliverable is missing."
-T026b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or test artifacts were provided that create or check
-    the `data/survey/` and `data/synth/` directories, enforce naming conventions,
-    or raise a `DataHygieneError` for misplaced files. The required enforcement logic
-    and verification are missing.

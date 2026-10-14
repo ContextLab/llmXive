@@ -1,0 +1,11 @@
+# Core scientific stack (already available in the environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+# Additional dependencies required for data ingestion
+datasets
+requests
