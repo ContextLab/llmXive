@@ -1,12 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-10-14T16:06:15.174110+00:00'
+last_used: eric-kandel
+last_used_at: '2026-10-14T18:07:10.647288+00:00'
 last_outcome: committed
 history:
-- slug: geoffrey-west
-  started_at: '2026-06-25T20:20:30.419593+00:00'
-  ended_at: '2026-06-25T21:07:47.130860+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: john-von-neumann
   started_at: '2026-06-25T21:07:47.130860+00:00'
   ended_at: '2026-06-25T22:06:07.468749+00:00'
@@ -1269,3 +1264,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-152-evaluating-the-impact-of-code-generation/reviews/research/david-krakauer-simulated__2026-10-14__research.md
+- slug: eric-kandel
+  started_at: '2026-10-14T16:06:15.174110+00:00'
+  ended_at: '2026-10-14T18:07:10.647288+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-132-statistical-analysis-of-publicly-availab/reviews/research/eric-kandel-simulated__2026-10-14__research.md
