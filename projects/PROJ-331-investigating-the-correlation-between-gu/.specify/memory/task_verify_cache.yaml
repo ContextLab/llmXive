@@ -10,6 +10,30 @@ T001:
     \ the missing `data/raw/` files are the researcher-supplied inputs the module\
     \ is designed to validate, not a defect of thi"
   sig: e85c9600c8f067d08a1fb870478c563425707d69c3bfa044b83ab79c311718cc
+T002:
+  c: false
+  h: 13453d420abf514142346bd0c92024d54b59dec59b172fa92e7354a84ca838db
+  r: "The repository contains a full `preprocess.py` implementation, and the unit\
+    \ tests exercise most steps (filtering, zero\u2011taxa removal, CLR shape, pseudocount,\
+    \ zero\u2011variance detection). However, the required output files `data/processed/filtered_samples.parquet`\
+    \ and `data/processed/clr_abundances.parquet` are absent, and the tests write\
+    \ outputs only to a temporary directory, not to the mandated locations. Moreover,\
+    \ the test suite does not verify that the RAM\u2011budget\u2011driven top\u2011\
+    100 taxa subsampling is actually triggered during a real run. These missing artifacts\
+    \ and incomplete verification mean the"
+  sig: e10800b7a2ef6a37db1a16834bf6062abbaae59ad01b2350a75400537e2e46e1
+T003:
+  c: false
+  h: 4b153714b5e60373e0e1217606d9b55b90053a910b68afdb5c51299f652d6f33
+  r: "The core module `code/src/pipeline/slopes.py` is present and implements the\
+    \ required logic, but the required output artifacts `data/processed/patient_taxon_slopes.parquet`\
+    \ and `data/processed/patient_outcome_slopes.parquet` are missing from the project.\
+    \ Without these files the task\u2019s deliverable is not satisfied. The unit\u2011\
+    test suite is provided, but no evidence that it was executed successfully against\
+    \ the real output paths. The next implementer must ensure that running `run_slopes`\
+    \ actually creates the two parquet files at the specified locations (and that\
+    \ the outcome file is omitted only whe"
+  sig: e8b1592d6b4da588cf46c37808032d1e6582a05c4d8b3bdb53a2b7b89f950df7
 T006:
   c: false
   h: 924cdf9c6e048ed8e9eab1bd27c4e4764c5946293432c043f6dbc95ee5858c2e
@@ -35,14 +59,11 @@ T007:
     \ should execute the test (or the pipeline) and produce th"
   sig: e84361ced761314e6e347c4d299ca2e076d3b0956cdc9136ed889d70a43c36b8
 T013:
-  c: false
-  h: 430e76c9237e7ec4e121ed22d088cba8333e08d98cc541ce800aa322ad716a26
-  r: "The script and test exist and are non-trivial, but the core requirement \u2014\
-    \ validating checksums \"against the values recorded in the PPMI publication\"\
-    \ \u2014 is unfulfilled: `EXPECTED_ASV_SHA256` and `EXPECTED_CLINICAL_SHA256`\
-    \ are literal placeholders (`\"PLACEHOLDER_ASV_SHA256\"` / `\"PLACEHOLDER_CLINICAL_SHA256\"\
-    `), so real verification can never succeed; the tests only pass by monkey-patching\
-    \ correct hashes, and no execution evidence (test run output) was provided. The\
-    \ implementer must supply the actual published digests (or a documented mechanism\
-    \ to obtain them) and demonstrate the tests actually ran"
-  sig: 1e9ef69d2fdee7c3ce80577b5195d0545f6b2f301673c32aec6052fb97e781df
+  c: true
+  h: 45628b6495107de3d837e17eddf0dd089a7f74ab9d3efab32f5d9a8fe2dcc218
+  r: Checked `code/src/pipeline/verify_dataset.py` for existence, checksum validation,
+    and citation reachability, and verified that `code/tests/test_verify_dataset.py`
+    provides unit tests covering successful verification, missing files, checksum
+    mismatches, and unreachable citation. All required behavior is implemented and
+    tested.
+  sig: fbd24fce714511301918e6e2b629f76cb2952dd9ae548706285d5ba778734618

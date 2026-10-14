@@ -1,16 +1,17 @@
 status: none
-intent: Parkinson disease gut microbiome longitudinal UPDRS dataset Qiita MGnify python
-  package dataset
+intent: Parkinson disease longitudinal microbiome 16S MDS-UPDRS dataset Qiita download
+  python package dataset
 required_fields:
+- subject_id
 - sample_id
-- patient_id
 - visit_number
-- collection_date
-- asv_counts
-- taxonomy
+- visit_date
 - updrs_total
-- age
-- sex
-cache_key: 46d7dfe239a356000a25c23fd8263ecded4d23f7de7d8c0d2ea13de213d49cdb
-searched_at: '2026-10-13T21:11:39.019207+00:00'
+- updrs_motor
+- updrs_nonmotor
+- asv_id
+- taxonomy
+- asv_count
+cache_key: 7873626be187dd27080fd6244128cbd401f248e02011aadaa02b875eeecb3b22
+searched_at: '2026-10-14T08:24:07.586591+00:00'
 retry_count: 1

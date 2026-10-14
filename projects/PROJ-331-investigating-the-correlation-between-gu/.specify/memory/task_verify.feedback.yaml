@@ -1,23 +1,24 @@
 T001:
   task: c189ec04302c16e0eebf8bb7c042cadbfcdf73884974f5bf79a369206134dbe6
 T002:
-  reason: "The required outputs `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
-    \ are MISSING \u2014 the collector confirmed neither file exists, and there is\
-    \ no execution evidence (logs, test run output) that `run_preprocess` was ever\
-    \ executed successfully. The implementation and tests look plausible, but the\
-    \ task's stated deliverables were not produced; the implementer must run the pipeline\
-    \ on the real raw inputs (or document why raw data is unavailable) and generate\
-    \ the two parquet outputs, plus show passing test execution."
+  reason: "The repository contains a full `preprocess.py` implementation, and the\
+    \ unit tests exercise most steps (filtering, zero\u2011taxa removal, CLR shape,\
+    \ pseudocount, zero\u2011variance detection). However, the required output files\
+    \ `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
+    \ are absent, and the tests write outputs only to a temporary directory, not to\
+    \ the mandated locations. Moreover, the test suite does not verify that the RAM\u2011\
+    budget\u2011driven top\u2011100 taxa subsampling is actually triggered during\
+    \ a real run. These missing artifacts and incomplete verification mean the"
   task: ab5f61bd6cd381c8f27378ea345e52c3b3122e2a34fbdd52604725c76ddcfda6
 T003:
-  reason: "The implementation module `code/src/pipeline/slopes.py` and tests `code/tests/test_slopes.py`\
-    \ exist and look substantive, but both required output artifacts \u2014 `data/processed/patient_taxon_slopes.parquet`\
-    \ and `data/processed/patient_outcome_slopes.parquet` \u2014 are MISSING from\
-    \ disk, and there is no execution evidence (test run logs, pipeline run) showing\
-    \ the module was ever executed or that the tests pass. The implementer must actually\
-    \ run the slope computation (and/or the test suite) to produce the parquet outputs,\
-    \ or provide evidence the upstream CLR/clinical inputs were unavailable so the\
-    \ run"
+  reason: "The core module `code/src/pipeline/slopes.py` is present and implements\
+    \ the required logic, but the required output artifacts `data/processed/patient_taxon_slopes.parquet`\
+    \ and `data/processed/patient_outcome_slopes.parquet` are missing from the project.\
+    \ Without these files the task\u2019s deliverable is not satisfied. The unit\u2011\
+    test suite is provided, but no evidence that it was executed successfully against\
+    \ the real output paths. The next implementer must ensure that running `run_slopes`\
+    \ actually creates the two parquet files at the specified locations (and that\
+    \ the outcome file is omitted only whe"
   task: 58cbcdfee89937dc43253ceab0e2ef19265131c939f473b4ee1b5a1dab6148f1
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_correlation_only.py
@@ -67,12 +68,4 @@ T011:
 T012:
   task: 7ebd3e098671a0bd77b1d665ec48879e59750b56472f66780546e3f77336d85e
 T013:
-  reason: "The script and test exist and are non-trivial, but the core requirement\
-    \ \u2014 validating checksums \"against the values recorded in the PPMI publication\"\
-    \ \u2014 is unfulfilled: `EXPECTED_ASV_SHA256` and `EXPECTED_CLINICAL_SHA256`\
-    \ are literal placeholders (`\"PLACEHOLDER_ASV_SHA256\"` / `\"PLACEHOLDER_CLINICAL_SHA256\"\
-    `), so real verification can never succeed; the tests only pass by monkey-patching\
-    \ correct hashes, and no execution evidence (test run output) was provided. The\
-    \ implementer must supply the actual published digests (or a documented mechanism\
-    \ to obtain them) and demonstrate the tests actually ran"
   task: cec61df2c4aba32df5412eed122d70e657da888c1df7c42f048920f45f05e9d4

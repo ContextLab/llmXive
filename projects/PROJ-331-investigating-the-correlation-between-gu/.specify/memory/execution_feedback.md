@@ -20,9 +20,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m code.src.pipeline.ingest -> rc=1
 
-2026-10-13 21:11:03,533 INFO __main__: === PPMI input validation (FR-001) ===
-2026-10-13 21:11:03,533 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
-2026-10-13 21:11:03,533 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+2026-10-14 08:23:03,217 INFO __main__: === PPMI input validation (FR-001) ===
+2026-10-14 08:23:03,217 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+2026-10-14 08:23:03,218 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
 
 - python -m code.src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 -> rc=1
 e/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 262, in main
@@ -67,7 +67,7 @@ ERROR code/tests/test_runtime_budget.py::test_runtime_logging_and_budget - At...
 ERROR code/tests/test_verify_dataset.py::test_successful_verification - Impor...
 ERROR code/tests/test_verify_dataset.py::test_checksum_mismatch_raises - Impo...
 ERROR code/tests/test_verify_dataset.py::test_unreachable_citation_raises - I...
-16 failed, 5 passed, 11 errors in 5.16s
+16 failed, 5 passed, 11 errors in 3.84s
 
 
 
