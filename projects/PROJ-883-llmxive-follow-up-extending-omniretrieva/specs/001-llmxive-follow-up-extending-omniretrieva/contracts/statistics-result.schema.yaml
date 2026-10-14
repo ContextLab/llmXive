@@ -6,8 +6,10 @@ properties:
     minimum: 1
   spike_point:
     type: number
+    description: "Estimated complexity level where latency spikes."
   slope_change:
     type: number
+    description: "Change in latency slope before and after the spike."
 required:
   - cutoff
   - spike_point

@@ -19,19 +19,20 @@ properties:
     description: "Exact integer plan depth (1, 2, 3, 4+). FR-002 compliance."
   latency_ms:
     type: "number"
-    description: "End-to-end wall-clock latency in milliseconds."
+    description: "End‑to‑end wall‑clock latency in milliseconds."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO‑8601 timestamp when the measurement was taken."
   translation_error:
-    type: "integer"
-    enum:
-      - 0
-      - 1
-    description: "1 if generated plan mismatches ground truth, 0 otherwise."
+    type: "boolean"
+    description: "True if generated plan mismatches ground truth."
   success_flag:
-    type: "integer"
-    enum:
-      - 0
-      - 1
-    description: "1 if query completed successfully, 0 if timeout/failure."
+    type: "boolean"
+    description: "True if query completed successfully."
+  timeout_flag:
+    type: "boolean"
+    description: "True if execution exceeded the 60‑second safety limit."
   synthetic_flag:
     type: "integer"
     enum:
@@ -50,8 +51,10 @@ required:
   - "source_type"
   - "complexity_level"
   - "latency_ms"
+  - "timestamp"
   - "translation_error"
   - "success_flag"
+  - "timeout_flag"
   - "synthetic_flag"
   - "throttling_mode"
 additionalProperties: false

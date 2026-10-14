@@ -12,7 +12,7 @@ properties:
       - "text"
       - "relational"
       - "graph"
-    description: "The type of heterogeneous source used."
+    description: "The source type used."
   complexity_level:
     type: "integer"
     minimum: 1
@@ -32,11 +32,11 @@ properties:
     const: true
     description: "Indicates that CPU throttling was enforced."
 required:
-  - "query_id"
-  - "source_type"
-  - "complexity_level"
-  - "latency_ms"
-  - "translation_error"
-  - "timeout_flag"
-  - "cpu_throttled"
+  - query_id
+  - source_type
+  - complexity_level
+  - latency_ms
+  - translation_error
+  - timeout_flag
+  - cpu_throttled
 additionalProperties: false

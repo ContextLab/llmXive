@@ -17,7 +17,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset of 500 queries partitioned by exact plan depth (1, 2, 3, 4+), **When** executed on a 2-core CPU with 7GB RAM limit enforced via cgroups, **Then** the system must record end-to-end latency for every query instance as a JSON object containing `query_id`, `source_type`, `complexity_level` (exact integer depth), `latency_ms`, and `success_flag`.
+1. **Given** a dataset of 500 queries partitioned by exact plan depth (1, 2, 3, 4+), **When** executed on a multi-core CPU with 7GB RAM limit enforced via cgroups, **Then** the system must record end-to-end latency for every query instance as a JSON object containing `query_id`, `source_type`, `complexity_level` (exact integer depth), `latency_ms`, and `success_flag`.
 2. **Given** the recorded latency data, **When** a two-way ANOVA (or ANCOVA) is performed treating complexity as a continuous variable or multi-level categorical factor, **Then** a statistically significant interaction effect (p < 0.05) must be detectable between query complexity and source type (specifically graph sources) if the hypothesis holds.
 
 ---
