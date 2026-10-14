@@ -1,24 +1,12 @@
 T001:
   c: true
-  h: ab5503600b939602c1ec72ef69e2fcbf894566693b5f6ae241e0cb6e9803e625
-  r: "Checked `code/src/pipeline/ingest.py` (implementation of validation logic),\
-    \ the three unit tests in `code/tests/test_ingest.py` covering successful load,\
-    \ missing file, and missing outcome column, and the quickstart documentation that\
-    \ lists the runnable command. All required artifacts exist, are non\u2011empty,\
-    \ and the code behaves exactly as specified."
-  sig: b9a551565496b7c3564c67d2d268261c3345318103119ae6daa53e02216e4bf3
-T002:
-  c: false
-  h: 13453d420abf514142346bd0c92024d54b59dec59b172fa92e7354a84ca838db
-  r: "The repository contains a full `preprocess.py` implementation, and the unit\
-    \ tests exercise most steps (filtering, zero\u2011taxa removal, CLR shape, pseudocount,\
-    \ zero\u2011variance detection). However, the required output files `data/processed/filtered_samples.parquet`\
-    \ and `data/processed/clr_abundances.parquet` are absent, and the tests write\
-    \ outputs only to a temporary directory, not to the mandated locations. Moreover,\
-    \ the test suite does not verify that the RAM\u2011budget\u2011driven top\u2011\
-    100 taxa subsampling is actually triggered during a real run. These missing artifacts\
-    \ and incomplete verification mean the"
-  sig: e10800b7a2ef6a37db1a16834bf6062abbaae59ad01b2350a75400537e2e46e1
+  h: fa17616cb1d866e87b9ecc33e353e5a6daf4c32fa7509edb7f40655217e3c85e
+  r: "Checked `code/src/pipeline/ingest.py` for proper validation logic, `code/tests/test_ingest.py`\
+    \ for the required unit tests covering success, missing file, and missing outcome\
+    \ column, and `specs/001-investigating-the-correlation-between-gu/quickstart.md`\
+    \ for the documented runnable command. All artifacts exist, contain full implementations,\
+    \ and meet the task\u2019s specifications."
+  sig: 75c83fb9d004f6f2c64f5e430b1478f867c4e911d1c18f5349055455767087c5
 T003:
   c: false
   h: 4b153714b5e60373e0e1217606d9b55b90053a910b68afdb5c51299f652d6f33
@@ -31,18 +19,6 @@ T003:
     \ actually creates the two parquet files at the specified locations (and that\
     \ the outcome file is omitted only whe"
   sig: e8b1592d6b4da588cf46c37808032d1e6582a05c4d8b3bdb53a2b7b89f950df7
-T006:
-  c: false
-  h: 924cdf9c6e048ed8e9eab1bd27c4e4764c5946293432c043f6dbc95ee5858c2e
-  r: "The required output `data/results/permutation_pvalues.csv` is MISSING \u2014\
-    \ the module exists but there is no evidence it was ever run on the real data\
-    \ (no results CSV, no execution logs). Additionally, the test file does not satisfy\
-    \ the stated verification requirements: it never checks (i) that within-patient\
-    \ temporal ordering is preserved after shuffling, and (iii) there is no test that\
-    \ the 4-hour runtime guard triggers on a timed mock run. The implementation also\
-    \ uses `np.random.default_rng(seed)` rather than the specified `np.random.seed(42)`,\
-    \ and empirical p-values use the (count+1)/(iteratio"
-  sig: 032cfcd8ef240d9bae721f1c62f772ddfed2ca06b079b1123c88e0292a7641cb
 T007:
   c: false
   h: bc05144702908d4582788be64da81f5ed13d701ccfc697fa713963a5b6e46e66

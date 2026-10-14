@@ -14,67 +14,72 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/src/pipeline/run_correlation_only.py: synthetic/fake INPUT data not authorized by the spec — “…n.run_correlation`.  The synthetic data is deliberately tiny (2…”; code/src/pipeline/run_correlation_only.py: synthetic/fake INPUT data not authorized by the spec — “…ode."""     # 1️⃣  Write synthetic raw inputs.     asv_path, clin_path…”; code/src/pipeline/run_us1.py: synthetic/fake INPUT data not authorized by the spec — “…lt upper bound; the tiny synthetic data used in tests     )…”; 4 command(s) failed: python -m code.src.pipeline.ingest (rc=1); python -m code.src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 (rc=1); python -m code.src.pipeline.run_us3 --iterations 1000 --seed 42 (rc=1); 8 declared deliverable(s) absent: data/processed/clr_abundances.parquet; data/processed/filtered_samples.parquet; data/processed/patient_outcome_slopes.parquet
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/src/pipeline/run_correlation_only.py: synthetic/fake INPUT data not authorized by the spec — “…n.run_correlation`.  The synthetic data is deliberately tiny (2…”; code/src/pipeline/run_correlation_only.py: synthetic/fake INPUT data not authorized by the spec — “…ode."""     # 1️⃣  Write synthetic raw inputs.     asv_path, clin_path…”; code/src/pipeline/run_us1.py: synthetic/fake INPUT data not authorized by the spec — “…lt upper bound; the tiny synthetic data used in tests     )…”; 4 command(s) failed: python -m code.src.pipeline.ingest (rc=1); python -m code.src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 (rc=1); python -m code.src.pipeline.run_us3 --iterations 1000 --seed 42 (rc=1); 10 declared deliverable(s) absent: data/processed/clr_abundances.parquet; data/processed/filtered_samples.parquet; data/processed/patient_outcome_slopes.parquet
 
 ## Failing / missing run-book commands
 
 - python -m code.src.pipeline.ingest -> rc=1
-clinical.parquet: could not parse as Parquet (Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.).
-2026-10-14 08:26:09,095 ERROR __main__: Input validation FAILED: Malformed clinical file /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_clinical.parquet: could not parse as Parquet (Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.).
+
+2026-10-14 09:18:29,526 INFO __main__: === PPMI input validation (FR-001) ===
+2026-10-14 09:18:29,527 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+2026-10-14 09:18:29,527 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
 
 - python -m code.src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 -> rc=1
-n-gu/code/src/pipeline/ingest.py", line 207, in validate_inputs
-    clinical_report = _validate_clinical(Path(clinical_path))
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 145, in _validate_clinical
-    _fail(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 52, in _fail
-    raise FileNotFoundError(message)
-FileNotFoundError: Malformed clinical file /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_clinical.parquet: could not parse as Parquet (Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.).
+ following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/__main__.py", line 13, in <module>
+    from . import ingest, preprocess, slopes, correlation, mixed_effects, permutation
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/__init__.py", line 40, in __getattr__
+    module = importlib.import_module(f".{name}", __name__)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/preprocess.py", line 32, in <module>
+    raise ImportError(
+ImportError: scikit‑bio is required for CLR transformation. Install it via `pip install scikit-bio`.
 
 - python -m code.src.pipeline.run_us3 --iterations 1000 --seed 42 -> rc=1
-n-gu/code/src/pipeline/ingest.py", line 207, in validate_inputs
-    clinical_report = _validate_clinical(Path(clinical_path))
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 145, in _validate_clinical
-    _fail(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/ingest.py", line 52, in _fail
-    raise FileNotFoundError(message)
-FileNotFoundError: Malformed clinical file /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_clinical.parquet: could not parse as Parquet (Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.).
+t cause of the following exception:
 
-- python -m pytest -q code/tests -> rc=1
-o_slope - I...
-FAILED code/tests/test_slopes.py::test_compute_outcome_slopes_simple - Import...
-FAILED code/tests/test_slopes.py::test_run_slopes_writes_files - ImportError:...
-FAILED code/tests/test_slopes.py::test_run_slopes_missing_outcome - ImportErr...
-ERROR code/tests/contract/test_contracts.py::test_taxa_correlations_contract
-ERROR code/tests/test_correlation.py::test_correlation_produces_results - Imp...
-ERROR code/tests/test_mixed_effects.py::test_mixed_effects_recovers_known_interaction
-ERROR code/tests/test_mixed_effects.py::test_missing_outcome_causes_empty_file
-ERROR code/tests/test_permutation.py::test_permutation_runs - ImportError: Un...
-ERROR code/tests/test_run_us1.py::test_us1_pipeline_produces_correlation_results
-ERROR code/tests/test_run_us1.py::test_us1_pipeline_produces_correlation_results
-ERROR code/tests/test_runtime_budget.py::test_runtime_logging_and_budget - At...
-ERROR code/tests/test_verify_dataset.py::test_successful_verification - Impor...
-ERROR code/tests/test_verify_dataset.py::test_checksum_mismatch_raises - Impo...
-ERROR code/tests/test_verify_dataset.py::test_unreachable_citation_raises - I...
-17 failed, 6 passed, 1 warning, 11 errors in 3.72s
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/run_us3.py", line 29, in <module>
+    from . import ingest, mixed_effects, permutation, preprocess, slopes
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/__init__.py", line 40, in __getattr__
+    module = importlib.import_module(f".{name}", __name__)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/preprocess.py", line 32, in <module>
+    raise ImportError(
+ImportError: scikit‑bio is required for CLR transformation. Install it via `pip install scikit-bio`.
+
+- python -m pytest -q code/tests -> rc=2
+line/preprocess.py:32: in <module>
+    raise ImportError(
+E   ImportError: scikit‑bio is required for CLR transformation. Install it via `pip install scikit-bio`.
+=============================== warnings summary ===============================
+code/tests/test_preprocess_default_output.py:17
+  /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/tests/test_preprocess_default_output.py:17: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.timeout(180)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR code/tests/contract/test_contracts.py
+ERROR code/tests/test_correlation.py
+ERROR code/tests/test_permutation.py
+ERROR code/tests/test_preprocess.py
+ERROR code/tests/test_preprocess_memory_cap.py
+ERROR code/tests/test_run_us1.py
+ERROR code/tests/test_runtime_budget.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+1 warning, 7 errors in 1.23s
 
 
 
@@ -84,6 +89,8 @@ ERROR code/tests/test_verify_dataset.py::test_unreachable_citation_raises - I...
 - data/processed/filtered_samples.parquet
 - data/processed/patient_outcome_slopes.parquet
 - data/processed/patient_taxon_slopes.parquet
+- data/raw/ppmi_asv.csv
+- data/raw/ppmi_clinical.parquet
 - data/results/mixed_effects_summary.csv
 - data/results/partial_spearman_exploratory.csv
 - data/results/permutation_pvalues.csv
@@ -120,6 +127,26 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/pipeline/correlation.py` — NOT invoked by the run-book
     - `code/src/pipeline/slopes.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/patient_taxon_slopes.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/ppmi_asv.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/src/pipeline/__main__.py` — NOT invoked by the run-book
+    - `code/src/pipeline/ingest.py` — IS a run-book command
+    - `code/src/pipeline/preprocess.py` — NOT invoked by the run-book
+    - `code/src/pipeline/run_correlation_only.py` — NOT invoked by the run-book
+    - `code/src/pipeline/run_us1.py` — NOT invoked by the run-book
+    - `code/src/pipeline/verify_dataset.py` — NOT invoked by the run-book
+    - `code/tests/contract/test_contracts.py` — NOT invoked by the run-book
+    - `code/tests/test_correlation.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/ppmi_asv.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/ppmi_clinical.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/src/pipeline/__main__.py` — NOT invoked by the run-book
+    - `code/src/pipeline/correlation.py` — NOT invoked by the run-book
+    - `code/src/pipeline/ingest.py` — IS a run-book command
+    - `code/src/pipeline/mixed_effects.py` — NOT invoked by the run-book
+    - `code/src/pipeline/permutation.py` — NOT invoked by the run-book
+    - `code/src/pipeline/preprocess.py` — NOT invoked by the run-book
+    - `code/src/pipeline/run_correlation_only.py` — NOT invoked by the run-book
+    - `code/src/pipeline/run_us1.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/ppmi_clinical.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/mixed_effects_summary.csv` is declared but was NOT written. Scripts referencing it:
     - `code/src/pipeline/mixed_effects.py` — NOT invoked by the run-book
     - `code/src/pipeline/run_us3.py` — IS a run-book command

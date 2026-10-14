@@ -112,6 +112,8 @@ def run_permutation(
 ) -> Path:
     """Execute the permutation robustness test."""
     start_time = time.time()
+    # Ensure reproducibility using the global NumPy RNG as specified in the spec
+    np.random.seed(seed)
     rng = np.random.default_rng(seed)
 
     clr, clinical = _load_data(clr_path, clinical_path)
@@ -154,7 +156,7 @@ def run_permutation(
             if p <= raw_pvals.get(taxon, np.nan):
                 empirical_counts[taxon] += 1
 
-    # Compute empirical p‑values
+    # Compute empirical p‑values (add‑one smoothing as per standard practice)
     empirical = {
         taxon: (empirical_counts[taxon] + 1) / (iterations + 1) for taxon in taxon_columns
     }

@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-13T21:13:09Z",
+  "updated_at": "2026-10-14T09:19:26Z",
   "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-  "replan_rounds": 1
+  "replan_rounds": 2
 }

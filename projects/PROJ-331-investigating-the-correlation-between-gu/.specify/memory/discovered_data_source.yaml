@@ -1,17 +1,13 @@
 status: none
-intent: Parkinson's disease longitudinal microbiome ASV counts with UPDRS scores MGnify
-  NCBI BioProject python package dataset
+intent: Parkinson's disease gut microbiome longitudinal dataset with UPDRS scores
+  downloadable python package dataset
 required_fields:
 - sample_id
-- subject_id
+- patient_id
 - visit_number
 - visit_date
-- asv_id_1
-- asv_id_2
-- '... (one column per ASV)'
 - MDS_UPDRS_total
-- age
-- sex
-cache_key: 2bc0191a1fe8973d18cd072d27880f1d65e3e794fc80a7616ede9c4dd34c6b04
-searched_at: '2026-10-14T08:27:13.570063+00:00'
+- raw_asv_counts (wide per taxon)
+cache_key: 47c3de1e04684e63e548c497a8de76a2bc0b70e05dfc894d7197de31cf00b21d
+searched_at: '2026-10-14T09:19:06.772622+00:00'
 retry_count: 1

@@ -1,3 +1,12 @@
-# Existing dependencies are provided by the platform.
-# Add scikit-bio for CLR transformation (required by preprocess.py).
-scikit-bio>=0.6,<0.7
+# Project dependencies
+# Core scientific stack (already available in the environment)
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+pyarrow>=16.0.0
+# Additional utilities used by the pipeline
+tqdm
