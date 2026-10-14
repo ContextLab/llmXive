@@ -7,7 +7,7 @@
 
 ## Phase 1 – Data acquisition, preprocessing, and latent generation  
 
-- [ ] **T001** Download primary and fallback corpora from verified HuggingFace URLs and verify integrity.   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1; src/data/preprocess.py exit=1; src/data/latent_generator.py exit=1 -->
+- [ ] **T001** Download primary and fallback corpora from verified HuggingFace URLs and verify integrity.   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1; src/data/preprocess.py exit=1; src/data/latent_generator.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=2 -->
   - **Implementation**: `src/data/download.py` uses `datasets.load_dataset("allenai/pubmed-layout", streaming=False, download_mode="force_redownload")` for the primary PubLayNet subset and, if the post‑filter page count is < 10 000, falls back to `datasets.load_dataset("allenai/pubmed-layout-fallback")`.  
   - **Verification**:  
     - Compute SHA‑256 checksums of each cached file produced by the dataset download (found under `~/.cache/huggingface/datasets/...`) and store them in `artifacts/checksums/downloads.yaml`.  

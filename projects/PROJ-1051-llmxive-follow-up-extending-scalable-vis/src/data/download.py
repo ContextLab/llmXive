@@ -134,7 +134,6 @@ def download_dataset(
         # The canonical PubLayNet repository (public) and a public fallback.
         primary_hfs = [
             "layoutparser/publaynet",          # official PubLayNet on HF
-            "allenai/pubmed-layout",           # alternative source, also public
         ]
         fallback_hfs = [
             "layoutparser/docbank",            # public DocBank dataset
@@ -171,29 +170,49 @@ def download_dataset(
                 f"Insufficient total pages with layout annotations: {total_count} "
                 f"(minimum required is {min_pages}). Pipeline aborting as per FR‑007."
             )
+            # The script will exit with a non‑zero code via the caller.
+            # No need for an explicit sys.exit() here.
+            # The exception will be caught in ``main``.
+            # This keeps the function testable.
+            # The ``main`` wrapper will turn the exception into a proper exit code.
         else:
             print(f"✅ Sufficient pages ({total_count} ≥ {min_pages}) – proceeding.")
     else:
         # Generic download – no layout count required.
-        hf_name = dataset_name
-        print(f"Downloading generic dataset '{hf_name}'...")
+        # For known downstream benchmarks we provide a small list of public mirrors.
+        known_generic = {
+            "docvqa": ["nielsr/docvqa", "docvqa"],  # public mirrors of the DocVQA benchmark
+        }
+
+        hf_names = known_generic.get(dataset_name, [dataset_name])
+
+        print(f"Downloading generic dataset '{dataset_name}' using identifiers: {hf_names}")
         try:
             out_dir = output_dir / dataset_name
             out_dir.mkdir(parents=True, exist_ok=True)
 
-            snapshot_download(
-                repo_id=hf_name,
-                repo_type="dataset",
-                local_dir=out_dir,
-                token=False,
-            )
+            # Try each identifier until one succeeds.
+            for hf_name in hf_names:
+                try:
+                    snapshot_download(
+                        repo_id=hf_name,
+                        repo_type="dataset",
+                        local_dir=out_dir,
+                        token=False,
+                    )
+                    # If we reach this point the download succeeded.
+                    checksum_file = Path("artifacts") / "checksums" / "downloads.yaml"
+                    log_and_store_checksums(hf_name, out_dir, checksum_file)
 
-            checksum_file = Path("artifacts") / "checksums" / "downloads.yaml"
-            log_and_store_checksums(hf_name, out_dir, checksum_file)
-
-            print(f"✅ Dataset '{hf_name}' downloaded successfully to {out_dir}.")
+                    print(f"✅ Dataset '{hf_name}' downloaded successfully to {out_dir}.")
+                    break
+                except Exception as exc:
+                    print(f"⚠️ Warning: Failed to download '{hf_name}': {exc}")
+            else:
+                # All identifiers failed.
+                raise RuntimeError(f"All attempts to download dataset '{dataset_name}' failed.")
         except Exception as exc:
-            raise RuntimeError(f"Failed to download dataset '{hf_name}': {exc}") from exc
+            raise RuntimeError(f"Failed to download dataset '{dataset_name}': {exc}") from exc
 
 
 # ----------------------------------------------------------------------
