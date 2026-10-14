@@ -1,26 +1,28 @@
 T001:
   task: c9444c37fc8152f4cb56bce6775701dcbc8eedb4b4a578a4a56d1a987836f179
 T001a:
-  reason: "The manifest `data/raw/checksums.sha256` lists a checksum for itself (`04224077...`),\
-    \ but the collector reports the file's actual SHA-256 as `f4e873c2...` \u2014\
-    \ the self-referential entry is necessarily wrong/stale, so the manifest does\
-    \ not match all files under `data/raw/` as the verification criterion requires\
-    \ (the function should exclude the manifest file itself). Additionally, no `project_state.yaml`\
-    \ artifact was provided as evidence that the `artifact_hashes` manifest was actually\
-    \ recorded, despite the log claiming it was updated."
+  reason: "The `compute_checksums()` function exists and a run log shows exit 0, and\
+    \ `data/raw/checksums.sha256` exists \u2014 but it contains only a checksum for\
+    \ `.gitkeep`, i.e., there are no actual raw data files under `data/raw/` for it\
+    \ to cover, so the manifest is vacuous. Additionally, there is no on-disk evidence\
+    \ that `project_state.yaml` exists with the `artifact_hashes` entry; the run log's\
+    \ claim is not confirmed by any collected artifact, and the function writes it\
+    \ to a relative CWD path that may not be the project root. The next implementer\
+    \ should place the real raw data files under `data/raw/`, re"
   task: c236289a02008f78cec123f099317a76be0bdd211b26d215947efed260317d37
 T001b:
   task: ae86033444f1502c0eaef950e1e7e027756588892942463f20fea8fd95ea10f4
 T002:
   task: c453ff63651f907b3cc16e9ce5da892c40462e090f6517b59d51c2fd06a6ee28
 T003:
-  reason: "The config files exist and are substantive (`pyproject.toml` has a real\
-    \ `[tool.black]` section; `.ruff.toml` extends it), but the task's verification\
-    \ requirement \u2014 `ruff check .` and `black --check .` returning no violations\
-    \ \u2014 has no passing evidence: the only execution record (`tests/test_linting.py`)\
-    \ timed out after 600s with exit -1 and ok=False. The implementer must re-run\
-    \ the lint/format checks (or fix whatever hangs the linting test) and provide\
-    \ evidence both commands pass cleanly."
+  reason: "The config files exist and contain substantive Black and Ruff settings,\
+    \ but the task's verification requirement \u2014 `ruff check .` and `black --check\
+    \ .` returning no violations \u2014 has no supporting evidence: the only execution\
+    \ record (tests/test_linting.py via pytest) timed out after 600s with exit -1\
+    \ and no output, so there is no record of either linting command passing. The\
+    \ implementer must actually run `ruff check .` and `black --check .` from the\
+    \ project root and capture clean (exit 0) results, and investigate why the linting\
+    \ test hung."
   task: 528a619204f98b9e2de1fbd44e43fb43343f578f5f32772458bbef7d6d2e939e
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/load_data.py

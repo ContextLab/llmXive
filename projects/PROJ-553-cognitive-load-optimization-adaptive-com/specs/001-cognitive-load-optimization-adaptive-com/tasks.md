@@ -31,7 +31,7 @@ All paths are relative to the repository root.
   - Files: `pyproject.toml` (Black config) and `.ruff.toml` (Ruff config).  
   - **Verification**: `ruff check .` and `black --check .` both return no violations.  
 
-- [ ] **T004** [​P​] Implement data loader & label check (`code/load_data.py`)   <!-- FAILED-IN-EXECUTION: code/load_data.py exit=1 -->
+- [ ] **T004** [​P​] Implement data loader & label check (`code/load_data.py`)   <!-- FAILED-IN-EXECUTION: code/load_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/load_data.py exit=1 -->
   - Load public learning‑analytics datasets (ASSISTments, OULAD) via `datasets.load_dataset`.  
   - Verify required interaction columns (latency, error, hint, pause) **and** required timestamped response fields (`response_time_ms`, `timestamp`).  
   - Verify presence of concurrent load label column (e.g., `NASA_TLX`).  

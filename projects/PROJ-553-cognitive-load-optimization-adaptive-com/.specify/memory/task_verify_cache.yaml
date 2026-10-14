@@ -1,13 +1,25 @@
 T001:
   c: true
-  h: c7ac27957d889e884628a7520f31254118a7b4662b388ea838fd5e24fa7be890
+  h: f4cac19e1c1720602487b76bfe74b4bfd15d3b735babf3e9190a22b0bf1fa23a
   r: 'All required directories (`data/raw/`, `data/processed/`, `data/explanation_tiers/`,
     `data/simulation_results/`, `code/`, `tests/`, `docs/`) exist with content, and
     all core files are present and non-empty: `README.md` contains a one-sentence
-    description, `code/__init__.py` and `tests/__init__.py` are package markers, `requirements.txt`
-    lists dependencies, and `docs/README.md` documents the project. Execution logs
-    confirm the setup scripts ran successfully (exit 0).'
-  sig: 2532c3212107050eae2a092d3f7d0ea2b874566f600bede501acc086ab8df12c
+    project description, `code/__init__.py`, `requirements.txt`, `tests/__init__.py`,
+    and `docs/README.md` all have real content. Execution logs confirm the setup scripts
+    ran successfully (exit 0).'
+  sig: 1d734aa4eed856e51aa542f9922f2658faea73fedb09c090c13c0f1bc62a37dc
+T001a:
+  c: false
+  h: 775b717dfd58653690ea79f5984367d775e54771b589bb5c37164037e4b05d0a
+  r: "The `compute_checksums()` function exists and a run log shows exit 0, and `data/raw/checksums.sha256`\
+    \ exists \u2014 but it contains only a checksum for `.gitkeep`, i.e., there are\
+    \ no actual raw data files under `data/raw/` for it to cover, so the manifest\
+    \ is vacuous. Additionally, there is no on-disk evidence that `project_state.yaml`\
+    \ exists with the `artifact_hashes` entry; the run log's claim is not confirmed\
+    \ by any collected artifact, and the function writes it to a relative CWD path\
+    \ that may not be the project root. The next implementer should place the real\
+    \ raw data files under `data/raw/`, re"
+  sig: 3b2f25db72c671ef88e63c949d38fe87e417f653d462cfd9c2a30784dcf4cf20
 T001b:
   c: true
   h: 4793ed46c7132f756222fd7023166524772ee0402bc4da5da6e21f69c7357a9f
@@ -18,24 +30,13 @@ T001b:
   sig: bafd60e49fb00988b51329dcc62084207545246582eda05d9852475613a38dfd
 T002:
   c: true
-  h: 73b575b897e1ffebc4c5b9cac525946fd421ab906e86a08abd53d0ba278bd3ca
+  h: 84a64ebf91bd74b0c3f2ac3e9a4a81f6940cdc59523c122b60411984cd3b60f6
   r: The `requirements.txt` exists at the project root and lists all nine required
     packages (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels,
-    pytest, requests) plus black/ruff. Execution logs show `install_requirements.py`
-    exited 0 and a pytest run on Python 3.11.17 passed import tests for lightgbm,
-    textstat, and datasets, confirming the dependencies install and import successfully.
-  sig: b93663cf9ff7491a82d55c9d48b4caa26e29df074d012dbddf2af4c91a46e7d5
-T003:
-  c: false
-  h: ba1985c0747afa8645879737ace05f9766b0fc8194b32404c72a7f9b25ba8ed0
-  r: "The config files exist and are substantive (`pyproject.toml` has a real `[tool.black]`\
-    \ section; `.ruff.toml` extends it), but the task's verification requirement \u2014\
-    \ `ruff check .` and `black --check .` returning no violations \u2014 has no passing\
-    \ evidence: the only execution record (`tests/test_linting.py`) timed out after\
-    \ 600s with exit -1 and ok=False. The implementer must re-run the lint/format\
-    \ checks (or fix whatever hangs the linting test) and provide evidence both commands\
-    \ pass cleanly."
-  sig: c85a8b81bfaecf313fa84d38e6ccf1775ff90e01a45e34495624a4e792fa7214
+    pytest, requests) plus black/ruff. Execution logs show a successful install run
+    (exit 0) and passing import tests for lightgbm, textstat, and datasets on Python
+    3.11.17.
+  sig: db9db8fc836ccea65857ca3280d74b19d03a02486a4652946e5e7b0f57b02278
 T004:
   c: false
   h: ab90bc05e2ab1942384dc16c06c71ecf2f3b4032db8d5170ae69f8851b5e326f

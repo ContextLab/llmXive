@@ -10,17 +10,6 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/generate_golden_set_template.py: self-declared fabricated metric — “…hetic Data**: Do not generate fake scores. Your expert judgment is req…”
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python code/load_data.py --download`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/generate_golden_set_template.py: self-declared fabricated metric — “…hetic Data**: Do not generate fake scores. Your expert judgment is req…”; 2 command(s) failed: python code/load_data.py --download (rc=1); python code/run_pipeline.py (rc=1); 7 declared deliverable(s) absent: data/explanation_tiers/complex_tiers.csv; data/explanation_tiers/moderate_tiers.csv; data/explanation_tiers/simple_tiers.csv
@@ -28,18 +17,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/load_data.py --download -> rc=1
- - HTTP Request: GET https://huggingface.co/api/datasets/mercer/assistments2017 "HTTP/1.1 401 Unauthorized"
-2026-10-14 09:34:53,270 - __main__ - WARNING - Failed to load ASSISTments: Dataset 'mercer/assistments2017' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
-2026-10-14 09:34:53,273 - __main__ - INFO - Attempting to load dataset: oulearn/oulad
-2026-10-14 09:34:53,319 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/oulearn/oulad "HTTP/1.1 401 Unauthorized"
-2026-10-14 09:34:53,320 - __main__ - WARNING - Failed to load OULAD: Dataset 'oulearn/oulad' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
+ If the repo is private or gated, make sure to log in with `huggingface-cli login`.
+2026-10-14 09:38:33,820 - __main__ - WARNING - No suitable public dataset found. Proceeding with an empty placeholder interactions file.
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/load_data.py", line 410, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/load_data.py", line 425, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/load_data.py", line 347, in main
-    raise RuntimeError(
-RuntimeError: Failed to load and verify any dataset. Both ASSISTments and OULAD are unsuitable.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/load_data.py", line 365, in main
+    interactions_df = create_empty_interactions()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/load_data.py", line 316, in create_empty_interactions
+    empty_df = empty_df.append(placeholder, ignore_index=True)
+               ^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/generic.py", line 6299, in __getattr__
+    return object.__getattribute__(self, name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DataFrame' object has no attribute 'append'. Did you mean: '_append'?
 
 - python code/run_pipeline.py -> rc=1
 thon/3.11.17/x64/lib/python3.11/subprocess.py", line 571, in run

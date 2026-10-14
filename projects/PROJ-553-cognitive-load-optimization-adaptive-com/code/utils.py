@@ -268,16 +268,18 @@ def compute_checksums(raw_dir: Optional[Path] = None) -> Dict[str, str]:
 
     # Walk the directory (non‑recursive as per spec – only direct children)
     for entry in raw_dir.iterdir():
-        if entry.is_file():
-            rel_path = entry.relative_to(raw_dir).as_posix()
-            # Compute SHA‑256
-            hasher = hashlib.sha256()
-            with entry.open("rb") as f:
-                for chunk in iter(lambda: f.read(8192), b""):
-                    hasher.update(chunk)
-            checksum = hasher.hexdigest()
-            checksum_dict[rel_path] = checksum
-            manifest_lines.append(f"{checksum}  {rel_path}")
+        # Skip directories and the manifest file itself
+        if not entry.is_file() or entry.name == "checksums.sha256":
+            continue
+        rel_path = entry.relative_to(raw_dir).as_posix()
+        # Compute SHA‑256
+        hasher = hashlib.sha256()
+        with entry.open("rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                hasher.update(chunk)
+        checksum = hasher.hexdigest()
+        checksum_dict[rel_path] = checksum
+        manifest_lines.append(f"{checksum}  {rel_path}")
 
     # Write the manifest file
     manifest_path = raw_dir / "checksums.sha256"

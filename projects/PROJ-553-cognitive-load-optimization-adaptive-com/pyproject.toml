@@ -17,6 +17,8 @@ dependencies = [
     "statsmodels",
     "pytest",
     "requests",
+    "black",
+    "ruff",
 ]
 
 [tool.setuptools.packages.find]
@@ -25,7 +27,7 @@ where = ["code"]
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
+include = '\\.pyi?$'
 exclude = '''
 /(
     \.git
@@ -37,6 +39,7 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | data
 )/
 '''
 
@@ -78,6 +81,7 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "data/*",
 ]
 
 # Allow unused variables when underscore-prefixed.
