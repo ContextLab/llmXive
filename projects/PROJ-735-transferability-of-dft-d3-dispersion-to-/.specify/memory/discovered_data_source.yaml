@@ -1,12 +1,12 @@
 status: none
-intent: ionic liquid benchmark interaction energies dataset Zenodo CCSD(T) NIST thermophysical
-  properties python package dataset
+intent: download ionic liquid benchmark interaction energies dataset Zenodo python
+  package dataset
 required_fields:
 - pair_id
 - reference_energy
 - xyz_path
 - density
 - viscosity
-cache_key: cb93f15fcd82a9545aedc1d111397bf246e6142ac1d4abc5687d252606240ed0
-searched_at: '2026-10-14T07:46:30.122175+00:00'
+cache_key: f226c9e34bcbbbe652935a7e5efc2301e9da5acf737f2b378844966b1b229bee
+searched_at: '2026-10-14T07:49:28.443990+00:00'
 retry_count: 1

@@ -2,17 +2,17 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 command(s) failed: python -m code.main (rc=1); python code/analyze_energies.py (rc=1); python code/derive_scaling.py (rc=1); 2 declared deliverable(s) absent: data/derived/correlation_results.csv; data/derived/raw_energies.csv
+**Summary**: 6 command(s) failed: python -m code.main (rc=1); python code/analyze_energies.py (rc=1); python code/derive_scaling.py (rc=1); 3 declared deliverable(s) absent: data/derived/correlation_results.csv; data/derived/raw_energies.csv; data/processed/bulk_properties.csv
 
 ## Failing / missing run-book commands
 
 - python -m code.main -> rc=1
 
-2026-10-14 07:44:13,147 INFO __main__: Running pipeline with time wrapper: /usr/bin/time -v bash -c python code/load_data.py && python code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py
-2026-10-14 07:44:13,944 INFO __main__: Runtime report written to data/derived/runtime_report.txt
-2026-10-14 07:44:13,945 INFO __main__: Appended reproducibility section to benchmark_report.md
-2026-10-14 07:44:14,017 INFO __main__: No contracts directory found – skipping validation.
-2026-10-14 07:44:14,017 ERROR __main__: Pipeline failed with exit code 1
+2026-10-14 07:48:46,606 INFO __main__: Running pipeline with time wrapper: /usr/bin/time -v bash -c python code/load_data.py && python code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py
+2026-10-14 07:48:47,406 INFO __main__: Runtime report written to data/derived/runtime_report.txt
+2026-10-14 07:48:47,407 INFO __main__: Appended reproducibility section to benchmark_report.md
+2026-10-14 07:48:47,480 INFO __main__: No contracts directory found – skipping validation.
+2026-10-14 07:48:47,481 ERROR __main__: Pipeline failed with exit code 1
 
 - python code/analyze_energies.py -> rc=1
  found – generating placeholder data.
@@ -107,6 +107,7 @@ ERROR tests/unit/test_scaling.py
 
 - data/derived/correlation_results.csv
 - data/derived/raw_energies.csv
+- data/processed/bulk_properties.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -125,3 +126,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/main.py` — IS a run-book command
     - `code/write_scaling_results.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/derived/raw_energies.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/bulk_properties.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/correlate_bulk.py` — IS a run-book command
+    - `code/generate_reports.py` — IS a run-book command
+    - `code/generate_synthetic_data.py` — NOT invoked by the run-book
+    - `code/load_data.py` — IS a run-book command
+    - `code/retrieve_bulk_properties.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/bulk_properties.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

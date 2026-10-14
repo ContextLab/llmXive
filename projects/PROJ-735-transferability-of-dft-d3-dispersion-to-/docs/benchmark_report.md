@@ -185,3 +185,57 @@ Command exited with non-zero status 1
 	Page size (bytes): 4096
 	Exit status: 1
 ```
+
+## Reproducibility Check
+
+- **Command executed**: `python code/load_data.py && python code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py`
+- **Exit code**: `1`
+- **Artifact checksums (SHA‑256)**:
+  - `data/derived/raw_energies.csv`: `MISSING`
+  - `data/derived/scaling_factor.txt`: `MISSING`
+  - `data/derived/scaling_stats.json`: `MISSING`
+  - `data/derived/correlation_results.csv`: `MISSING`
+  - `docs/benchmark_report.md`: `e1dc7c79165ee47c5fa08a0a72c7019480b087c27b92a659d29541dfadf0dfc8`
+  - `docs/correlation_report.md`: `dc7cef76ad1b10d751980bba03242c20faaf8c91f9cf1228c1865ff26e1c038a`
+
+- **Runtime statistics** (excerpt):
+```
+data/derived/raw_energies.csv not found – generating placeholder data.
+Energy analysis failed: Metadata file not found: /home/runner/work/llmXive/llmXive/projects/data/raw/metadata.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 390, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 369, in main
+    df, stats = analyze_and_export(
+                ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 281, in analyze_and_export
+    df = _generate_placeholder_raw_energies(input_path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 207, in _generate_placeholder_raw_energies
+    raise FileNotFoundError(f"Metadata file not found: {raw_metadata_path}")
+FileNotFoundError: Metadata file not found: /home/runner/work/llmXive/llmXive/projects/data/raw/metadata.csv
+Command exited with non-zero status 1
+	Command being timed: "bash -c python code/load_data.py && python code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py"
+	User time (seconds): 0.79
+	System time (seconds): 0.91
+	Percent of CPU this job got: 214%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.79
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 71524
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 29422
+	Voluntary context switches: 17
+	Involuntary context switches: 510
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+```
