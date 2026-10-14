@@ -1,0 +1,118 @@
+T001a:
+  task: 062cfc9be2d333f746bec858af632869a0b1ad1e48c90d207cdf7f2094bd092b
+T001b:
+  task: 995674389f877717a291ec3f3bd7dbdcab2bf8554e42532f57e17888aa9ea249
+T001c:
+  task: 500fcfe01fa4b3c1df57654a878fcbdc0709670d5c5398dfd1d2edc844bb256a
+T002:
+  reason: "The evidence collector shows no artifacts whatsoever for this task \u2014\
+    \ no `.flake8`, `setup.cfg`, `tox.ini`, `pyproject.toml`, or any lint/format configuration\
+    \ file was found or provided in the project directory. With zero on-disk evidence\
+    \ of flake8/black configuration, the claim of completion cannot be verified; the\
+    \ implementer must actually create the linting/formatting config files (e.g.,\
+    \ a `.flake8`/`pyproject.toml` with flake8 and black settings) in the project\
+    \ root."
+  task: 9d1f279efe1e1408f34738dfe7550954d0efd8b073b5434d0b15d1ab049c4195
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/data/validate_data_availability.py
+    exit=1'
+  task: 1c4a7ac85a0415645a03b6f6551dc6e751392b1e2f3229a378991914674bfcd1
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: data/download.py'
+  task: f7bec41ae43ec7a699f639b80108f65ca7cadb5735671d1ef2fcd5afba4528c4
+T006:
+  reason: 'The required script `data/validate_data.py` does not exist, so there is
+    no validation logic implementing the field checks or the `ValueError`/exit-code-1
+    behavior. The only artifact, `data/validation_report.json`, is a bare 22-byte
+    `{"status": "PASS"}` with no evidence it was produced by any real validation run
+    against the downloaded dataset.'
+  task: 27a8d0fcdd6c58b905a4de114938e3b87eb244c8e2ae101aa4062703be497b1d
+T007:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/data_models.py'
+  task: a04cd458212d096ebbcdb90323e4bc6237d38c3a9565a8d0b9081d4fbf07e6fa
+T008:
+  reason: "The evidence section contains no artifacts at all \u2014 no logging configuration\
+    \ module, no error-handling utilities, no example log output or tests demonstrating\
+    \ the infrastructure works. Since the task is to configure error handling and\
+    \ logging infrastructure, I would expect at least a logging setup module (e.g.,\
+    \ `code/logging_config.py` or similar) with configured handlers/formatters and\
+    \ error-handling wrappers, plus execution evidence (sample log files or test output)\
+    \ showing it functions; none of this exists in the collected evidence, so the\
+    \ claim cannot be verified."
+  task: 8674168352cb3ab80809a0b6d70757a49523493f2c17a2c556c51b292b17dcae
+T009:
+  reason: "The task requires environment configuration management artifacts (a `.env`\
+    \ file for seeds and paths, and presumably a config loader), but the evidence\
+    \ collector lists no artifacts on disk for this task \u2014 no `.env`, no config\
+    \ module, and no execution evidence. Nothing was provided to verify that seeds/paths\
+    \ configuration actually exists or works, so the claim of completion is unsupported."
+  task: 1fad788d64297652f0ef42b07baf2838408a161273ac2dac2cb728b397d13450
+T010:
+  reason: 'The test file exists and is substantive (no stubs), but its path resolution
+    is broken: for a file at `projects/PROJ-179-the-influence-of-metacognitive-awareness/tests/contract/test_data_schema.py`,
+    `Path(__file__).resolve().parents[3]` resolves to the `projects/` directory, not
+    the project root (that would be `parents[2]`). Consequently `repo_root / "code"
+    / "data" / "validate_data.py"` and `repo_root / "data" / "validation_report.json"`
+    point to nonexistent locations (`projects/code/...`, `projects/data/...`), so
+    the subprocess run would fail (returncode 2, failing the `assertIn(..., (0, 1))`'
+  task: e7f7c15e364234d86fab15c839ab2be7351a1a82682017623e655750885fd2f8
+T011:
+  reason: "The file `tests/integration/test_correlation_pipeline.py` exists but is\
+    \ explicitly a self-described \"stub integration test\" that only runs `code/analysis.py`\
+    \ as a subprocess and asserts the exit code is 0 or 1 \u2014 it never verifies\
+    \ any of the task's required behaviors: confidence scores computed via cross-validation,\
+    \ source-monitoring accuracy, or a Pearson r with a 95% bootstrapped CI. Additionally,\
+    \ its path resolution (`parents[3]` from `tests/integration/`) points to the repository\
+    \ root, so it looks for `code/analysis.py` and `code/data/validate_data.py` outside\
+    \ the project directory, and the"
+  task: 2073961b5325b4d4deb01e094781d225886fe344c590279348a7e40ed9b70372
+T012:
+  task: 6cde1bd5023e09fef134229bf894458bbe42253a808836bdec3b2e7997ea7b60
+T013:
+  task: 1652175ab8b6432db3418147be19726480738a30e3959d840f08da24c6704605
+T014:
+  task: fcd9cf21a353b26329e7203343a02556e5a6eb3085fd49aca8e3b44595690d91
+T015:
+  task: 8c6377750f248656e161f6825326b7925ad935b5a8de9d55749a8f6003a99d8b
+T016:
+  task: b21990034f7f14d2d1d74af2ecb25da5d1ec2f61c1497d4375429237cfda39a5
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/confidence_summary.csv,
+    data/derived/accuracy_summary.csv'
+  task: 37c5c0294cd51227b5650c2af74b66c9fa6d80a65ac0b5c62c3d639702824b32
+T018:
+  task: 8738b9aed757aaca7a61c21e0fcc40db20bf97de966360362c895fc56cd87451
+T019:
+  task: 7f3922ca3a26ccbce1f2f898b27a84fe40f9911f37b33d972e3ccea5330a953f
+T020:
+  task: 1645ac8276739816bd59e42877bd78ed04be6cacbe0d216e1129e73ae0b684c3
+T021:
+  task: 8787bb8afa220a52893ed981e626085fc7f6944a3e797bb57845fdd02ca52cc0
+T022:
+  task: 59c54e0f6928796d014813874932846a46e0bbbebd8f706bd5d41e1e9156d80e
+T024:
+  task: 7240451edba78969c50a171040f892e5af3f2a1b27d92ec0269393a89cb28454
+T025:
+  task: 1430212ddebd9a0a2a4eab6e88cf8d83e7e5fe395ceab17b3a5830cbf5bd963d
+T026:
+  task: 0fb141b6e4cd8a744fa36f9739fc2ac1e74662762a38e2faee42ec455b65756b
+T027:
+  task: d58aaddf7d5b5206ba730ab842942d0cf580b50a6cea799c6ffec2d253400d93
+T028:
+  task: 387d76986be2321401e38546e06d12884f0b4cf5b028e524a8532ad69ccf25f1
+T029a:
+  task: 73c1bd16258566a2cf1b3477f913e46067ec81b3c5fdc992805786d67e3420ca
+T029b:
+  task: fad7b3f97e7fad6000dcc25e60119526e6c7b4093f4809802b671b3b95b3c775
+T030:
+  task: c50c1cf06f6e6839ebee1b4791d4aa68508e3a5bdf4a9b0f29f94ddfd6afdc5f
+T031:
+  task: 15c5126d622b16151dc15c1f8bbb214b013b5efd327c4c7c82e4d54f30bc8f1f
+T032:
+  task: 46b3d7a2ad8c58479d47159ef625508657264768d1fc4ab36030fc22a8a02c0a
+T033:
+  task: dfd2b9415be6a1123c9a33db5f7b106bf7b3cc8c9b43fec9b803cb04a40da2f1
+T034:
+  task: 8d9854c7d69077c415316ff9fdd8a8ed47e12f4f170c35a06214244d6add27a0
+T035:
+  task: 6f278aa4c1fd995e91b2ac6693edcde7bdc144f20a0b3572beeb6fe5cc92ab40

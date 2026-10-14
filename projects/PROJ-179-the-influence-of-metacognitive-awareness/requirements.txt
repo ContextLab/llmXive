@@ -1,11 +1,10 @@
-pandas
-numpy
-scikit-learn
-scipy
-statsmodels
-matplotlib
-seaborn
-requests
-pyyaml
-pybids
-# Added for report generation (standard library only, no extra deps)
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.4.2
+scipy==1.13.0
+statsmodels==0.14.2
+matplotlib==3.8.4
+seaborn==0.13.2
+requests==2.32.3
+pyyaml==6.0.1
+pybids==0.4.1

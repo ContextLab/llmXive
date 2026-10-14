@@ -16,59 +16,28 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 hollow-result signal(s) — the analysis ran but computed nothing: data/derived/auditory_trials.csv: header only, ZERO data rows — the analysis produced no rows; data/derived/trial_data.csv: column(s) confidence_rating are EMPTY in every one of 150 rows — that measure was never recorded; data/derived/visual_trials.csv: column(s) confidence_rating are EMPTY in every one of 150 rows — that measure was never recorded
+**Summary**: 4 hollow-result signal(s) — the analysis ran but computed nothing: data/derived/auditory_trials.csv: header only, ZERO data rows — the analysis produced no rows; data/derived/trial_data.csv: column(s) confidence_rating are EMPTY in every one of 150 rows — that measure was never recorded; data/derived/visual_trials.csv: column(s) confidence_rating are EMPTY in every one of 150 rows — that measure was never recorded; 1 command(s) failed: python -m pytest tests/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
+- python -m pytest tests/ -> rc=2
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_validate_data.py:14: in <module>
+    from data.validate_data import (
+E   ImportError: cannot import name 'find_input_file' from 'data.validate_data' (/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/validate_data.py)
+=========================== short test summary info ============================
+ERROR tests/integration/test_quickstart.py
+ERROR tests/integration/test_robustness_report.py - NameError: name 'Optional...
+ERROR tests/test_env_config.py
+ERROR tests/unit/test_download.py
+ERROR tests/unit/test_generate_report.py - NameError: name 'Optional' is not ...
+ERROR tests/unit/test_generate_robustness_report.py - NameError: name 'Option...
+ERROR tests/unit/test_preprocess.py
+ERROR tests/unit/test_validate_data.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 8 errors in 0.97s ===============================
 
-## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
-One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
-
-**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
-
-**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
-
-### class `AppConfig` (in `code/code/config/env_config.py`) — accessed via method/attribute names this round: `get`
-
-`AppConfig` is used like a logger: different scripts call DIFFERENT method names on it, and the set grows every round. Adding only the name(s) above will fail next round on the NEXT name. Make the class tolerant of ANY method name **without removing the ones it already has**, by either:
-  1. defining the full method set explicitly (keep existing methods like the ones already in `code/code/config/env_config.py` AND add the missing ones), or
-  2. adding a permissive fallback so unknown attributes resolve to a no-op callable, e.g.:
-
-     ```python
-     def __getattr__(self, name):
-         # any logger-style call (.info/.debug/.warning/.error/...) becomes a tolerant no-op
-         def _noop(*args, **kwargs):
-             return None
-         return _noop
-     ```
-
-Whichever you choose, every call site of `AppConfig` across the codebase must stop raising `AttributeError`/`TypeError`.
-
-`AppConfig.get` call sites (25):
-- code/code/performance_optimizer.py: logger.info(f"Regression result: R2={reg_res.get('rsquared', 'N/A')}")
-- code/code/config/env_config.py: return super().get(key, default)
-- code/code/config/env_config.py: return super().get(key)
-- code/code/config/env_config.py: return self.config.get(key, default)
-- code/models/data_models.py: modality_str = str(row.get('stimulus_modality', 'unknown')).lower()
-- code/models/data_models.py: source_str = str(row.get('source_label', 'unknown')).lower()
-- code/models/data_models.py: trial_id=str(row.get('trial_id', str(uuid.uuid4()))),
-- code/models/data_models.py: participant_id=str(row.get('participant_id')),
-- code/models/data_models.py: participant_response=str(row.get('participant_response', '')),
-- code/models/data_models.py: confidence_rating=float(row.get('confidence_rating', 0.0)),
-- code/models/data_models.py: reaction_time=float(row.get('reaction_time')) if row.get('reaction_time') is not None else None
-- code/config/env_config.py: return self.get(key)
-- code/config/env_config.py: return super().get(key, default)
-- code/config/env_config.py: config.get("paths.base", "projects/PROJ-179-the-influence-of-metacognitive-awareness")
-- code/config/env_config.py: current = current.get(part, default)
-- code/data/preprocess.py: "source_label": row.get("species", "unknown"),
-- code/data/preprocess.py: "participant_response": row.get("sepal_width", ""),
-- code/data/preprocess.py: "confidence_rating": row.get("sepal_length", ""),
-- code/data/download.py: expected_checksum = checksums.get(str(DEST_PATH))
-- code/tests/unit/test_generate_report.py: self.assertEqual(output.get("coefficients", []), [])
-- code/tests/unit/test_generate_report.py: self.assertFalse(output["diagnostics"].get("normality_passed", True))
-- code/tests/unit/test_generate_report.py: self.assertFalse(output["diagnostics"].get("homoscedasticity_passed", True))
-- code/tests/unit/test_generate_report.py: self.assertFalse(output["diagnostics"].get("collinearity_flagged", True))
-- code/src/report/generate.py: float(item.get("p_value", 0.0))
-- code/src/analysis/diagnostics.py: base_dir = Path(config.get("paths", {}).get("base", "projects/PROJ-179-the-influence-of-metacognitive-awareness"))

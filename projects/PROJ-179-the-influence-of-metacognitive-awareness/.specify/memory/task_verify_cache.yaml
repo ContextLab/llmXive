@@ -1,0 +1,100 @@
+T001a:
+  c: true
+  h: 48d821108cd26f96c83c242b0f58f63b99cd8bd53515a6165cde25ca190129a5
+  r: The task T001a only required creating the project root directory `projects/PROJ-179-the-influence-of-metacognitive-awareness/`
+    with `data/`, `code/`, and `tests/` subdirectories, and the collector confirms
+    all four directories exist and are non-empty (each containing multiple entries
+    including `.gitkeep` files). The other artifacts (empty results JSONs, iris stand-in
+    data) pertain to later tasks and do not affect this directory-scaffolding task.
+  sig: 6929f7997e420d1f735fd097135b2619f2becb34a5a863f5e3747e8839e301f7
+T001b:
+  c: true
+  h: c6d242c46c1b4eba041b21b904c979f1e14f8dc8f28010121fedc7084909f2c9
+  r: Both `code/__init__.py` and `tests/__init__.py` exist at the resolved project
+    paths, are non-empty package markers with a comment and `pass`, which is exactly
+    what this task (creating package init files) requires.
+  sig: a8e17171f06e8148114b5bc937d47aebb16cb76c5b5aaf463269bd0f04bb92ac
+T001c:
+  c: true
+  h: 378e41da85a6024307a1cc1d3f9b674a66c25ffa90fb4bdffd073e025581e9d8
+  r: The file `projects/PROJ-179-the-influence-of-metacognitive-awareness/requirements.txt`
+    exists (160 bytes) and contains all ten required dependencies (pandas, numpy,
+    scikit-learn, scipy, statsmodels, matplotlib, seaborn, requests, pyyaml, pybids),
+    each with a pinned version using `==`.
+  sig: d26498984756faa1a8493e423668364057d046f42439c2e0cedb3cb47a9b02a9
+T002:
+  c: false
+  h: 2bf11844c4b8b66c996d89d6947a68aab3369e4a8baf1c60d8b4ecef1867ec1c
+  r: "The evidence collector shows no artifacts whatsoever for this task \u2014 no\
+    \ `.flake8`, `setup.cfg`, `tox.ini`, `pyproject.toml`, or any lint/format configuration\
+    \ file was found or provided in the project directory. With zero on-disk evidence\
+    \ of flake8/black configuration, the claim of completion cannot be verified; the\
+    \ implementer must actually create the linting/formatting config files (e.g.,\
+    \ a `.flake8`/`pyproject.toml` with flake8 and black settings) in the project\
+    \ root."
+  sig: 29f6c640a51a6b49e80d2e3bf3b45d2d671c67ce02c7c80083fb5a5e28787d3c
+T004:
+  c: false
+  h: de629720a1b8cca8e3b1370450e7c68d9b02a1387885a467e969a31bc7f1f7fb
+  r: "The required artifact `data/validate_data_availability.py` is explicitly MISSING\
+    \ \u2014 the file does not exist at all, so none of the task's logic (ds003386\
+    \ detection, exit code 1 with the specified ERROR log, fallback dataset search,\
+    \ exit code 0 on success) can have been implemented. The surrounding evidence\
+    \ (empty `robustness_analysis.json`, null correlation results, a `trial_data.csv`\
+    \ with `source_label=unknown` and empty `confidence_rating` values, and a T006\
+    \ report stating \"Dataset not found\") further confirms no valid behavioral dataset\
+    \ validation occurred."
+  sig: c91daef9de2159c4fbda2d587be0fe46ca0478eb35a5df9c964de7f3cce83b21
+T006:
+  c: false
+  h: afe0db4d5585068db87e277e1eb9a01056829cffa718496208863e8e0ceaa75d
+  r: 'The required script `data/validate_data.py` does not exist, so there is no validation
+    logic implementing the field checks or the `ValueError`/exit-code-1 behavior.
+    The only artifact, `data/validation_report.json`, is a bare 22-byte `{"status":
+    "PASS"}` with no evidence it was produced by any real validation run against the
+    downloaded dataset.'
+  sig: 0608829757284fcc127c87b5bd7ce1f151eb8de9b9708e91feaa71df4890aea6
+T008:
+  c: false
+  h: 320ca0c357788a6b03ca542c29948f04770c55bb17abf0dd0ed95f8260abd387
+  r: "The evidence section contains no artifacts at all \u2014 no logging configuration\
+    \ module, no error-handling utilities, no example log output or tests demonstrating\
+    \ the infrastructure works. Since the task is to configure error handling and\
+    \ logging infrastructure, I would expect at least a logging setup module (e.g.,\
+    \ `code/logging_config.py` or similar) with configured handlers/formatters and\
+    \ error-handling wrappers, plus execution evidence (sample log files or test output)\
+    \ showing it functions; none of this exists in the collected evidence, so the\
+    \ claim cannot be verified."
+  sig: 8cb5fe96793a8211884febdc471f0a1453bb1aefd6874b299fcd3d6d8e04bbc4
+T009:
+  c: false
+  h: cb3ae223dcde83963c5bb10e34cbc564ea99ae5858fe0f0638d97ddae4b14767
+  r: "The task requires environment configuration management artifacts (a `.env` file\
+    \ for seeds and paths, and presumably a config loader), but the evidence collector\
+    \ lists no artifacts on disk for this task \u2014 no `.env`, no config module,\
+    \ and no execution evidence. Nothing was provided to verify that seeds/paths configuration\
+    \ actually exists or works, so the claim of completion is unsupported."
+  sig: d27342547e6492fe7a5dd6c0554071e8ab4b37d4ec27046f5de1a84be09241a8
+T010:
+  c: false
+  h: 2296d58a1757af040e723a0a0fff74da08ea5f413dea0b686353ce0ef2fb31e0
+  r: 'The test file exists and is substantive (no stubs), but its path resolution
+    is broken: for a file at `projects/PROJ-179-the-influence-of-metacognitive-awareness/tests/contract/test_data_schema.py`,
+    `Path(__file__).resolve().parents[3]` resolves to the `projects/` directory, not
+    the project root (that would be `parents[2]`). Consequently `repo_root / "code"
+    / "data" / "validate_data.py"` and `repo_root / "data" / "validation_report.json"`
+    point to nonexistent locations (`projects/code/...`, `projects/data/...`), so
+    the subprocess run would fail (returncode 2, failing the `assertIn(..., (0, 1))`'
+  sig: b812f2e9e19d9de1df67826497603bc0343d083399d404a9a99724214000a531
+T011:
+  c: false
+  h: 7dc59cf998fae90ce81e0099a9caca4b7ad17764d479cf77cfed6560d7cc12ab
+  r: "The file `tests/integration/test_correlation_pipeline.py` exists but is explicitly\
+    \ a self-described \"stub integration test\" that only runs `code/analysis.py`\
+    \ as a subprocess and asserts the exit code is 0 or 1 \u2014 it never verifies\
+    \ any of the task's required behaviors: confidence scores computed via cross-validation,\
+    \ source-monitoring accuracy, or a Pearson r with a 95% bootstrapped CI. Additionally,\
+    \ its path resolution (`parents[3]` from `tests/integration/`) points to the repository\
+    \ root, so it looks for `code/analysis.py` and `code/data/validate_data.py` outside\
+    \ the project directory, and the"
+  sig: f727bd60a7acd0844a7216e46a2d1608f517496b233367efde7ab05b8bae0f8d

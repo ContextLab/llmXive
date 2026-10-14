@@ -28,7 +28,7 @@
 - [X] T001a [P] Create `projects/PROJ-179-the-influence-of-metacognitive-awareness/` root directory and `data/`, `code/`, `tests/` subdirectories
 - [X] T001b [P] Create `projects/PROJ-179-the-influence-of-metacognitive-awareness/code/__init__.py` and `tests/__init__.py`
 - [X] T001c [P] Create `projects/PROJ-179-the-influence-of-metacognitive-awareness/requirements.txt` with pinned dependencies (`pandas`, `numpy`, `scikit-learn`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `requests`, `pyyaml`, `pybids`)
-- [X] T002 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T002 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -38,21 +38,21 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. **T004 is a strict sequential gate.**
 
-- [X] T004 [CRITICAL GATE] Implement `data/validate_data_availability.py` to check for the existence of a VALID behavioral dataset containing `confidence_rating` and `source_label`.
- - **Logic**: If {{claim:c_04c88315}} is detected as the only source, the script MUST exit with code 1 and log: "ERROR: Project blocked. {{claim:c_54ea9f66}}. Aborting."
+- [ ] T004 [CRITICAL GATE] Implement `data/validate_data_availability.py` to check for the existence of a VALID behavioral dataset containing `confidence_rating` and `source_label`. <!-- FAILED-IN-EXECUTION: code/data/validate_data_availability.py exit=1 -->
+ - **Logic**: If OpenNeuro ds003386 (structural MRI) is detected as the only source, the script MUST exit with code 1 and log: "ERROR: Project blocked. OpenNeuro ds003386 lacks required behavioral fields. Aborting."
  - **Logic**: If a valid behavioral dataset is found, log success and exit with code 0.
  - **Fallback**: If ds003386 is invalid, search for alternative datasets (e.g., from UCI, OpenNeuro behavioral datasets) and log results. If no valid dataset is found, the project remains blocked.
  - **Note**: This task overrides the contradictory claim in spec.md's Data Constraints section.
  - **Constraint**: This task MUST run BEFORE T005 and T012. No other tasks in this phase can proceed until T004 passes.
-- [X] T005 [Depends on: T004] Implement `data/download.py` to fetch the VALID behavioral dataset identified by T004 (with checksum validation). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T005 [Depends on: T004] Implement `data/download.py` to fetch the VALID behavioral dataset identified by T004 (with checksum validation). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Constraint**: This task assumes T004 has passed. Do NOT attempt to fetch OpenNeuro ds003386 as a "reference" if it is invalid.
  - **Deliverable**: Fetch the dataset. If fetch fails, exit with code 1.
-- [X] T006 [Depends on: T005] Implement `data/validate_data.py` to check for required behavioral fields (`confidence_rating`, `source_label`) in the downloaded dataset. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T006 [Depends on: T005] Implement `data/validate_data.py` to check for required behavioral fields (`confidence_rating`, `source_label`) in the downloaded dataset. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Deliverable**: Output artifact `data/validation_report.json` with status "PASS" or "FAIL".
  - **Logic**: If `confidence_rating` or `source_label` columns are missing, raise `ValueError("Required fields missing: confidence_rating, source_label")` and exit with code 1.
-- [X] T007 [P] Create base data models (Participant, Trial) in `src/models/data_models.py`
-- [X] T008 [P] Configure error handling and logging infrastructure
-- [X] T009 [P] Setup environment configuration management (`.env` for seeds, paths)
+- [ ] T007 [P] Create base data models (Participant, Trial) in `src/models/data_models.py`
+- [ ] T008 [P] Configure error handling and logging infrastructure
+- [ ] T009 [P] Setup environment configuration management (`.env` for seeds, paths)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,26 +68,26 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
-- [X] T011 [P] [US1] Integration test for correlation pipeline in `tests/integration/test_correlation_pipeline.py`
+- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
+- [ ] T011 [P] [US1] Integration test for correlation pipeline in `tests/integration/test_correlation_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `data/preprocess.py` to extract trial-wise source labels and responses from the VALID dataset. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T012 [US1] Implement `data/preprocess.py` to extract trial-wise source labels and responses from the VALID dataset. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Output**: `data/derived/trial_data.csv` containing `participant_id`, `trial_id`, `stimulus_modality`, `source_label`, `participant_response`, `confidence_rating`.
  - **Constraint**: This task MUST succeed only if T006 passes.
-- [X] T013 [US1] [Depends on: T012] Implement `src/utils/stats.py` for Signal Detection Theory (d', criterion) and Type-2 AUC (meta-d') calculation.
+- [~] T013 [US1] [Depends on: T012] Implement `src/utils/stats.py` for Signal Detection Theory (d', criterion) and Type-2 AUC (meta-d') calculation.
  - **Dependency**: Depends on T012 output schema.
  - **Output**: Functions to compute d' and criterion from trial data; function to compute Type-2 AUC (meta-d') from confidence ratings and accuracy on a training split.
-- [X] T014 [US1] [Depends on: T012, T013] Implement `src/analysis/correlation.py`:
+- [~] T014 [US1] [Depends on: T012, T013] Implement `src/analysis/correlation.py`:
  - **Method**: Implement **Hold-Out Accuracy** design (70/30 train/test split) as per plan.md.
  - **Logic**: Split trials into a majority training set and a minority test set. Compute Metacognitive Score (Type-2 AUC) on the **training** split. Compute Reality Testing Accuracy (d') on the **held-out test** split. Rotate across participants if needed, but ensure no trial is used for both predictor and outcome.
  - **Constraint**: STRICTLY enforce Hold-Out design. **MUST NOT** use K-fold CV (FR-010 is superseded by plan.md).
-- [X] T015 [US1] Implement `src/analysis/bootstrap.py` for 1,000 bootstrap resamples to generate 95% CI.
+- [~] T015 [US1] Implement `src/analysis/bootstrap.py` for 1,000 bootstrap resamples to generate 95% CI.
  - **Runtime Check**: Monitor cumulative wall-clock time of the bootstrap loop. Check periodically at regular resample intervals. If runtime > 5.5h, log warning "Runtime limit detected, reducing bootstrap count to 500", update `data/results/bootstrap_config.json` with `bootstrap_count: 500`, and exit with code 0 (success with warning).
  - **Constraint**: Default is a sufficient number of resamples. Reduction to a lower capacity is a staged fallback only if the 5.5h threshold is exceeded.
-- [X] T016 [US1] Implement `src/report/generate.py` to render correlation magnitude, direction, p-value, and CI to `data/results/primary_analysis.json`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [X] T017 [US1] Add validation to ensure `data/derived/confidence_summary.csv` and `data/derived/accuracy_summary.csv` are derived from disjoint trials.
+- [~] T016 [US1] Implement `src/report/generate.py` to render correlation magnitude, direction, p-value, and CI to `data/results/primary_analysis.json`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T017 [US1] Add validation to ensure `data/derived/confidence_summary.csv` and `data/derived/accuracy_summary.csv` are derived from disjoint trials.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,12 +101,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Contract test for regression output schema in `tests/contract/test_regression_schema.py`
-- [X] T019 [P] [US2] Integration test for hierarchical regression in `tests/integration/test_hierarchical_regression.py`
+- [~] T018 [P] [US2] Contract test for regression output schema in `tests/contract/test_regression_schema.py`
+- [~] T019 [P] [US2] Integration test for hierarchical regression in `tests/integration/test_hierarchical_regression.py`
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] [Depends on: T014] Implement `src/analysis/regression.py`:
+- [~] T020 [US2] [Depends on: T014] Implement `src/analysis/regression.py`:
  - **Data Check**: First, check for `working_memory` data in the dataset.
  - **Primary Flow Logic**:
  - **IF** `working_memory` is present: Execute Step 1A (Fit model with age, gender, working-memory) -> Step 2 (Add metacognitive score (Type-2 AUC)).
@@ -114,11 +114,11 @@
  - **Output**: Calculate ΔR² and F-change. Report adjusted R² if n-1 model is used.
  - **Dependency**: Depends on T014.
  - **Note**: This task assumes T004 passed and a valid dataset was used.
-- [X] T021 [US2] [Depends on: T020] Implement `src/analysis/diagnostics.py`:
+- [~] T021 [US2] [Depends on: T020] Implement `src/analysis/diagnostics.py`:
  - Check normality of residuals (Shapiro-Wilk)
  - Check homoscedasticity (Breusch-Pagan)
  - Calculate VIF for collinearity (flag if VIF ≥ 5)
-- [X] T022 [US2] [Depends on: T021] Implement `src/report/generate.py` update to include regression coefficients, SE, t-stat, p-value, and diagnostic flags in `data/results/regression_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [~] T022 [US2] [Depends on: T021] Implement `src/report/generate.py` update to include regression coefficients, SE, t-stat, p-value, and diagnostic flags in `data/results/regression_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,16 +132,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T024 [P] [US3] Contract test for modality filter logic in `tests/contract/test_modality_filter.py`
-- [X] T025 [P] [US3] Integration test for modality-specific correlation in `tests/integration/test_modality_analysis.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T024 [P] [US3] Contract test for modality filter logic in `tests/contract/test_modality_filter.py`
+- [~] T025 [P] [US3] Integration test for modality-specific correlation in `tests/integration/test_modality_analysis.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 3
 
-- [X] T026 [US3] Implement `src/analysis/filter.py` to split data by `stimulus_modality` (visual vs. auditory). <!-- FAILED: unspecified -->
+- [~] T026 [US3] Implement `src/analysis/filter.py` to split data by `stimulus_modality` (visual vs. auditory). <!-- FAILED: unspecified -->
  - **Output**: `data/derived/visual_trials.csv`, `data/derived/auditory_trials.csv`.
-- [X] T027 [US3] [Depends on: T026, T014] Implement `src/analysis/robustness.py` to run the Phase 3 correlation pipeline on each subset independently.
+- [~] T027 [US3] [Depends on: T026, T014] Implement `src/analysis/robustness.py` to run the Phase 3 correlation pipeline on each subset independently.
  - **Constraint**: Do not run in parallel with T026. Must wait for T026 to complete.
-- [X] T028 [US3] [Depends on: T027] Implement `src/report/generate.py` update to apply Bonferroni or Benjamini-Hochberg correction for multiple comparisons (family-wise error) and report corrected p-values in `data/results/robustness_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [~] T028 [US3] [Depends on: T027] Implement `src/report/generate.py` update to apply Bonferroni or Benjamini-Hochberg correction for multiple comparisons (family-wise error) and report corrected p-values in `data/results/robustness_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,13 +151,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T029a [P] Update `README.md` with project overview, setup instructions, and data availability warning.
-- [X] T029b [P] Update `docs/` with API documentation for `src/analysis/` and `data/` modules.
-- [X] T030 [P] Code cleanup and refactoring (remove unused imports, optimize loops)
-- [X] T031 [P] Performance optimization (ensure bootstrap and regression complete within 6h on 2 CPU/7GB RAM)
-- [X] T032 [P] Additional unit tests for statistical helper functions in `tests/unit/`
-- [X] T033 [P] Security hardening (sanitize inputs, secure random seeds)
-- [X] T034 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [~] T029a [P] Update `README.md` with project overview, setup instructions, and data availability warning.
+- [~] T029b [P] Update `docs/` with API documentation for `src/analysis/` and `data/` modules.
+- [~] T030 [P] Code cleanup and refactoring (remove unused imports, optimize loops)
+- [~] T031 [P] Performance optimization (ensure bootstrap and regression complete within 6h on 2 CPU/7GB RAM)
+- [~] T032 [P] Additional unit tests for statistical helper functions in `tests/unit/`
+- [~] T033 [P] Security hardening (sanitize inputs, secure random seeds)
+- [~] T034 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -258,9 +258,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Constraint**: If `data/validate_data_availability.py` (T004) detects that {{claim:c_fcdd3c23}}, the pipeline MUST exit with a clear error message and NOT proceed to analysis tasks.
+- **Data Constraint**: If `data/validate_data_availability.py` (T004) detects that OpenNeuro ds003386 is the only source and it lacks behavioral fields, the pipeline MUST exit with a clear error message and NOT proceed to analysis tasks.
 - **Methodology**: T014 MUST implement the **Hold-Out Accuracy** design (70/30 split) as per plan.md. **FR-010 (K-fold CV) is superseded** and must NOT be used.
 - **Fallbacks**: T020 MUST handle missing working-memory data by switching to an n-1 model and reporting adjusted R². T015 MUST implement a staged fallback for bootstrap count if runtime exceeds 5.5h.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [X] T035 Reconcile run-book vs implementation for `code/analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist. <!-- ATOMIZE: requested -->
+- [~] T035 Reconcile run-book vs implementation for `code/analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist. <!-- ATOMIZE: requested -->
