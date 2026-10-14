@@ -1,12 +1,12 @@
 status: none
-intent: download PubLayNet scientific document layout dataset with bounding box annotations
-  python package
+intent: PubLayNet layout dataset download and DocVQA benchmark python package dataset
 required_fields:
 - document_id
-- page_image_path_or_bytes
-- extracted_text
-- layout_bounding_boxes
-- annotation_labels
-cache_key: 0547a73fbc720eebe3534948281698036a62ff500ddddf2855ba052e848043d1
-searched_at: '2026-10-14T13:19:16.852091+00:00'
+- page_number
+- image_file_path
+- bbox_coordinates
+- bbox_label
+- text_content
+cache_key: 4e270e2f6890d62e69f2797328180ada884828ef2527b2d6b2500e6bbe0ed21e
+searched_at: '2026-10-14T13:39:53.826916+00:00'
 retry_count: 1
