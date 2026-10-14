@@ -33,7 +33,7 @@ The system MUST train multiple regression models (Random Forest, Gradient Boosti
 
 **Acceptance Scenarios**:
 
-1. **Given** a training set of 500 records split 70/15/15 using a **grouped split by polymer‑substrate pair** (see FR-010), **When** the model training job runs with a grid search of 50 combinations, **Then** the system selects the Random Forest model (or equivalent best performer) and reports a validation R² **≥ 0.5** (meeting the scientific target) and a runtime ≤ 3.5 hours.
+1. **Given** a training set of 500 records split 70/15/15 using a **grouped split by polymer‑substrate pair** (see FR-010), **When** the model training job runs with a grid search of multiple combinations, **Then** the system selects the Random Forest model (or equivalent best performer) and reports a validation R² **≥ 0.5** (meeting the scientific target) and a runtime ≤ 3.5 hours.
 2. **Given** the trained models, **When** the evaluation step runs on the held‑out test set, **Then** the system outputs a `test_r2`, `test_rmse`, and `test_mae` for each model, stored in a results JSON file.
 3. **Given** the best performing model, **When** a cross‑validation with multiple folds is re‑run on the full training set, **Then** the mean R² across folds is within 0.05 of the validation R² reported during grid search, confirming stability.
 
@@ -50,7 +50,7 @@ The system MUST perform a permutation test to establish statistical significance
 **Acceptance Scenarios**:
 
 1. **Given** the best model and the test set, **When** a permutation test with 1,000 shuffles is executed, **Then** the system calculates a p‑value and reports it in the final report; if p < 0.05, the relationship is flagged as statistically significant.
-2. **Given** the best model, **When** SHAP analysis is performed, **Then** the system outputs a summary plot (PNG) and a JSON file ranking features by mean absolute SHAP value, clearly identifying the top 3 predictors (e.g., plasma power, exposure time, chemical concentration). For linear models, the system falls back to `shap.LinearExplainer` or `shap.KernelExplainer` as specified in FR-015.
+2. **Given** the best model, **When** SHAP analysis is performed, **Then** the system outputs a summary plot (PNG) and a JSON file ranking features by mean absolute SHAP value, clearly identifying the top predictors (e.g., plasma power, exposure time, chemical concentration). For linear models, the system falls back to `shap.LinearExplainer` or `shap.KernelExplainer` as specified in FR-015.
 3. **Given** the full results, **When** the final report is generated, **Then** it includes a section stating the proportion of variance explained (R²) with 95 % bootstrapped confidence intervals, per‑predictor significance (p < 0.05) where applicable, and a statement on whether the R² ≥ 0.5 target was met. The report also contains the four required visualizations: predicted‑vs‑actual scatter, residual histogram, SHAP summary plot, and parameter‑response curves (see FR-014).
 
 ### Edge Cases
@@ -92,8 +92,8 @@ The system MUST perform a permutation test to establish statistical significance
 - **SC-001**: The proportion of variance in adhesion strength explained by the model is measured against the target of **R² ≥ 0.5**. (See US-2, US-3)
 - **SC-002**: The statistical significance of the model's predictive power is measured against the threshold of **p < 0.05** via permutation test. (See US-3)
 - **SC-003**: The model's predictive accuracy is measured against the test set using **RMSE** and **MAE** metrics. (See US-2)
-- **SC-004**: The feature importance ranking is measured by the stability of SHAP values across 5‑fold cross‑validation (standard deviation of SHAP mean < 0.1). (See US-3)
-- **SC-005**: The total compute time for the entire pipeline (ingestion to reporting) is measured against the **6‑hour free‑tier CI limit**. (See US-1, US-2)
+- **SC-004**: The feature importance ranking is measured by the stability of SHAP values across k‑fold cross‑validation (with the number of folds to be determined during the implementation phase) (standard deviation of SHAP mean < 0.1). (See US-3)
+- **SC-005**: The total compute time for the entire pipeline (ingestion to reporting) is measured against the **Short‑duration free‑tier CI limit**. (See US-1, US-2)
 - **SC-006**: All four required visualizations (predicted‑vs‑actual, residual histogram, SHAP summary, parameter‑response curves) are generated and included in the final report. (See US-3)
 
 ## Assumptions
@@ -101,6 +101,6 @@ The system MUST perform a permutation test to establish statistical significance
 - The public datasets (NIST, Zenodo, Materials Project) contain the required variables: plasma power, exposure time, chemical concentration, polymer surface energy, substrate roughness, and adhesion strength. Because public adhesion corpora are heterogeneous, the ingestion pipeline applies the following concrete rule (community‑standard practice for heterogeneous materials data): (a) if a field is present for **≥ 80 %** of records in a source, missing values are median‑imputed **per substrate class** per FR‑002 and the imputation is logged; (b) if a field is present for **< 80 %** of records, the field is retained but flagged as low‑coverage, and the pipeline reports the per‑field coverage percentage in the final report; (c) any record missing the target `adhesion_strength_mj_m2` is excluded. This coverage‑handling policy is a documented operator‑led design default chosen to preserve the maximum usable corpus while making imputation extent explicit; it does not depend on the specific Zenodo DOI's schema.
 - The relationship between treatment parameters and adhesion strength is primarily associational; causal claims will not be made without randomization data.
 - The dataset size is sufficient for a 70/15/15 split (minimum **200** records) to allow for meaningful model training and testing.
-- The free‑tier GitHub Actions runner (2 CPU, 7 GB RAM) is sufficient for training Random Forest and Gradient Boosting models on a dataset of **< 5,000** records.
+- The free‑tier GitHub Actions runner (Multiple CPUs, 7 GB RAM) is sufficient for training Random Forest and Gradient Boosting models on a dataset of **< 5,000** records.
 - The "best" model is selected solely based on validation R², not on model complexity or training time.
 - SHAP analysis will be performed using the `shap` library's CPU‑compatible `TreeExplainer` for tree‑based models; for linear models the fallback `LinearExplainer` or `KernelExplainer` will be used as required by FR‑015 to ensure feasibility within the 6‑hour limit.

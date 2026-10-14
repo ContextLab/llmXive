@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+type: object
+required:
+  - best_model_type
+  - final_r2
+  - r2_ci_95
+  - final_rmse
+  - final_mae
+  - permutation_p_value
+  - top_predictors
+  - per_predictor_significance
+  - visualizations
+  - run_timestamp
+  - checksum_report
+properties:
+  best_model_type:
+    type: string
+    description: "Model type selected as best (e.g., 'RandomForest')."
+  final_r2:
+    type: number
+    description: "Test‑set R² of the best model."
+  r2_ci_95:
+    type: array
+    minItems: 2
+    maxItems: 2
+    items:
+      type: number
+    description: "95 % bootstrapped confidence interval for R²."
+  final_rmse:
+    type: number
+    description: "Test‑set RMSE of the best model."
+  final_mae:
+    type: number
+    description: "Test‑set MAE of the best model."
+  permutation_p_value:
+    type: number
+    description: "Empirical p‑value from 1 000‑shuffle permutation test."
+  top_predictors:
+    type: array
+    items:
+      type: string
+    description: "Ordered list of top‑3 features by mean absolute SHAP value."
+  per_predictor_significance:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Mapping from feature name to p‑value (linear model coefficients)."
+  visualizations:
+    type: object
+    required:
+      - predicted_vs_actual
+      - residual_histogram
+      - shap_summary
+      - parameter_response_curves
+    properties:
+      predicted_vs_actual:
+        type: string
+        description: "Relative path to PNG of predicted vs. actual scatter plot."
+      residual_histogram:
+        type: string
+        description: "Relative path to PNG of residual histogram."
+      shap_summary:
+        type: string
+        description: "Relative path to PNG of SHAP summary plot."
+      parameter_response_curves:
+        type: string
+        description: "Relative path to PNG of parameter‑response curves."
+  run_timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp of the analysis run."
+  checksum_report:
+    type: object
+    description: "SHA‑256 checksums for all output artifacts."
+    additionalProperties:
+      type: string
+      description: "Hexadecimal SHA‑256 checksum."

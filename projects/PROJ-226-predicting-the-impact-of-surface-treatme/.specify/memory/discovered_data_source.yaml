@@ -1,0 +1,18 @@
+status: none
+intent: NIST Zenodo Materials Project adhesion dataset raw CSV unified format python
+  package dataset
+required_fields:
+- sample_id
+- substrate_material
+- treatment_type
+- plasma_power_W
+- exposure_time_s
+- adhesion_strength_MPa
+- surface_roughness_nm
+- measurement_method
+- temperature_C
+- unit_system
+- timestamp
+cache_key: 7be705b9af3403375f660bad6a9d44ee9d0cee692167a9dbcf752dc5eab94187
+searched_at: '2026-10-14T19:21:33.808177+00:00'
+retry_count: 1
