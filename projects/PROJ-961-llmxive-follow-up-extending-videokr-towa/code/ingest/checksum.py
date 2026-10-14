@@ -8,8 +8,8 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-# Fixed import to use the correct module path
-from code.utils.config import get_path, ensure_dir, PATHS
+# Fixed import to use the correct module path relative to the code/ directory
+from utils.config import get_path, ensure_dir, PATHS
 
 logger = logging.getLogger(__name__)
 

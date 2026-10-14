@@ -10,18 +10,21 @@ in ``data/raw/checksums.json``.
 """
 import logging
 import json
+import sys
 from pathlib import Path
 from typing import List, Dict
 
+# Ensure the code/ directory is in the python path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import requests
 from huggingface_hub import hf_hub_download
-from datasets import load_dataset  # noqa: F401  # imported for side‑effects / future use
+from datasets import load_dataset  # noqa: F401
 
-# Import project configuration utilities using the correct package path.
+# Import project configuration utilities
 from utils.config import get_path, ensure_dir, VIDEO_KR_REPO, PATHS
-
-# Checksum helper from the ingestion utilities.
-from code.ingest.checksum import compute_sha256
+# Fixed import to use the correct module path relative to code/
+from ingest.checksum import compute_sha256
 
 logger = logging.getLogger(__name__)
 
@@ -33,17 +36,6 @@ class DataUnavailableError(RuntimeError):
 def _download_via_hf(repo_id: str, filename: str, target_dir: Path) -> Path:
     """
     Attempt to download a single file from the Hugging Face Hub.
-
-    Args:
-        repo_id (str): Repository identifier on the Hub.
-        filename (str): Name of the file inside the repo.
-        target_dir (Path): Directory where the file should be placed.
-
-    Returns:
-        Path: Path to the downloaded file.
-
-    Raises:
-        DataUnavailableError: If the download fails.
     """
     try:
         logger.info(f"Attempting to download '{filename}' from repo '{repo_id}' via HF Hub.")
@@ -57,6 +49,7 @@ def _download_via_hf(repo_id: str, filename: str, target_dir: Path) -> Path:
         )
         target_path = target_dir / filename
         target_path.parent.mkdir(parents=True, exist_ok=True)
+        # Move file from HF cache to the target_dir
         Path(downloaded_path).replace(target_path)
         logger.info(f"Successfully downloaded {filename} to {target_path}")
         return target_path
@@ -70,16 +63,6 @@ def _download_via_hf(repo_id: str, filename: str, target_dir: Path) -> Path:
 def _download_via_github_raw(url: str, target_path: Path) -> Path:
     """
     Fallback download using a raw GitHub URL.
-
-    Args:
-        url (str): Direct URL to the raw file.
-        target_path (Path): Destination path for the file.
-
-    Returns:
-        Path: Path to the downloaded file.
-
-    Raises:
-        DataUnavailableError: If the HTTP request fails.
     """
     try:
         logger.info(f"Attempting fallback download from {url}")
@@ -100,26 +83,11 @@ def _download_via_github_raw(url: str, target_path: Path) -> Path:
 def _download_file(repo_id: str, filename: str, target_dir: Path) -> Path:
     """
     Download a file, trying HF Hub first and then a GitHub raw fallback.
-
-    Args:
-        repo_id (str): Hub repository identifier.
-        filename (str): Expected filename in the repo.
-        target_dir (Path): Directory to store the file.
-
-    Returns:
-        Path: Path to the downloaded file.
-
-    Raises:
-        DataUnavailableError: If both primary and fallback methods fail.
     """
-    # Primary attempt via Hugging Face Hub
     try:
         return _download_via_hf(repo_id, filename, target_dir)
     except DataUnavailableError:
-        # Construct a plausible GitHub raw URL based on common conventions.
-        # The official VideoKR repository is hosted at:
-        # https://github.com/VideoKR/VideoKR-SFT
-        # Raw files are typically under the 'main' branch.
+        # Construct the official VideoKR GitHub raw URL
         github_raw_url = f"https://raw.githubusercontent.com/VideoKR/VideoKR-SFT/main/{filename}"
         return _download_via_github_raw(github_raw_url, target_dir / filename)
 
@@ -127,10 +95,6 @@ def _download_file(repo_id: str, filename: str, target_dir: Path) -> Path:
 def _write_checksums(entries: List[Dict[str, str]], output_path: Path) -> None:
     """
     Write a list of checksum entries to ``output_path`` as a JSON list.
-
-    Args:
-        entries (List[Dict[str, str]]): List of ``{\"path\": ..., \"sha256\": ...}`` dicts.
-        output_path (Path): Destination file.
     """
     ensure_dir(output_path.parent)
     with open(output_path, "w", encoding="utf-8") as f:
@@ -141,25 +105,18 @@ def _write_checksums(entries: List[Dict[str, str]], output_path: Path) -> None:
 def main() -> None:
     """
     Main entry point for the download module.
-
-    - Downloads ``videokr_sft.json`` and ``knowledge_graph.json`` from the
-      Hugging Face Hub repository defined in ``utils.config.VIDEO_KR_REPO``.
-      If that fails, it falls back to the public GitHub raw URLs.
-    - Computes SHA‑256 checksums for each file.
-    - Writes a combined checksum list to ``data/raw/checksums.json``.
-    - Exits with a non‑zero status code if any download fails.
     """
     raw_dir: Path = PATHS["raw"]
     ensure_dir(raw_dir)
 
-    # Expected filenames in the repository.
+    # Expected filenames in the repository
     filenames = ["videokr_sft.json", "knowledge_graph.json"]
     downloaded_paths: List[Path] = []
 
     for fn in filenames:
         downloaded_paths.append(_download_file(VIDEO_KR_REPO, fn, raw_dir))
 
-    # Compute checksums.
+    # Compute checksums
     checksum_entries = []
     for path in downloaded_paths:
         checksum = compute_sha256(path)
@@ -169,7 +126,7 @@ def main() -> None:
         }
         checksum_entries.append(entry)
 
-    # Write combined checksum file.
+    # Write combined checksum file
     checksum_file = raw_dir / "checksums.json"
     _write_checksums(checksum_entries, checksum_file)
 
@@ -183,5 +140,5 @@ if __name__ == "__main__":
         main()
     except DataUnavailableError as e:
         logger.error(e)
-        # Propagate the error with a non‑zero exit code as required.
-        raise SystemExit(1)
+        # Propagate the error with a non-zero exit code as required
+        sys.exit(1)

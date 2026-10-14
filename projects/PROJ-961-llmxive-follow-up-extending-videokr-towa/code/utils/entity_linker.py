@@ -10,6 +10,12 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
+# Attempt to import sentence_transformers at module level to allow monkeypatching in tests
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:
+    SentenceTransformer = None
+
 from utils.config import get_project_root, get_path, ensure_dir, get_config
 
 def load_graph_from_file(graph_path: Union[str, Path]) -> Dict[Any, Set[Any]]:
@@ -49,7 +55,7 @@ class EntityLinker:
         """
         self.graph = graph
         self.threshold = threshold
-        self.node_names = set(graph.keys())
+        self.node_names = list(graph.keys())
 
     def extract_entities(self, text: str) -> List[str]:
         """
@@ -95,7 +101,6 @@ class EntityLinker:
             return 0.0
 
         overlap = len(entity_words & node_words)
-
         return overlap / max(len(entity_words), len(node_words))
 
     def link_entity(self, entity: str) -> Optional[Tuple[str, float]]:
@@ -169,121 +174,108 @@ def link_dataframe(
     """
     Link entities in a DataFrame to graph nodes.
 
-    This function implements the logic required for task T102:
-    - If the DataFrame already contains a ``node_id`` or ``entity_id`` column,
-      those identifiers are copied to the output column ``entity_node_id`` and
-      a confidence of ``1.0`` is assigned.
-    - Otherwise, each row's ``question`` text is examined.  When the optional
-      ``sentence_transformers`` package is available, cosine similarity of
-      sentence embeddings is used; otherwise a simple fuzzy‑string matching
-      approach (implemented in :class:`EntityLinker`) is employed.
-    - If the best match's confidence is below ``threshold``, ``entity_node_id``
-      is set to ``None`` and confidence to ``0.0``.
-
-    Args:
-        df (pd.DataFrame): Input DataFrame. Must contain a ``question`` column.
-        graph_nodes (Dict[Any, Set[Any]]): Adjacency list of the knowledge graph.
-        threshold (float): Confidence threshold for accepting a match.
-
-    Returns:
-        pd.DataFrame: A copy of ``df`` with two additional columns:
-            ``entity_node_id`` – the linked node identifier (or ``None``) and
-            ``confidence`` – a float in ``[0, 1]``.
+    Implements T102 requirements:
+    - If 'node_id' or 'entity_id' exists, return them with confidence 1.0.
+    - If sentence_transformers is available, use embedding similarity.
+    - Otherwise, use fuzzy string matching.
+    - Results below threshold are set to None.
     """
-    # Work on a copy to avoid side‑effects
     df_out = df.copy()
 
-    # ------------------------------------------------------------------
-    # 1. Short‑circuit if IDs are already present
-    # ------------------------------------------------------------------
-    if 'node_id' in df_out.columns:
-        df_out['entity_node_id'] = df_out['node_id']
-        df_out['confidence'] = 1.0
-        # Preserve None semantics for pandas
-        df_out['entity_node_id'] = pd.Series(df_out['entity_node_id'], dtype=object)
-        return df_out
+    # 1. Check for pre-existing IDs
+    for id_col in ['node_id', 'entity_id']:
+        if id_col in df_out.columns:
+            df_out['entity_node_id'] = df_out[id_col]
+            df_out['confidence'] = 1.0
+            df_out['entity_node_id'] = pd.Series(df_out['entity_node_id'], dtype=object)
+            return df_out
 
-    if 'entity_id' in df_out.columns:
-        df_out['entity_node_id'] = df_out['entity_id']
-        df_out['confidence'] = 1.0
-        df_out['entity_node_id'] = pd.Series(df_out['entity_node_id'], dtype=object)
-        return df_out
-
-    # ------------------------------------------------------------------
-    # 2. Prepare the linker (fuzzy) and optionally the embedding model
-    # ------------------------------------------------------------------
-    linker = EntityLinker(graph_nodes, threshold)
-
-    use_embeddings = False
-    embedding_model = None
-    try:
-        from sentence_transformers import SentenceTransformer  # type: ignore
-        embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-        use_embeddings = True
-    except Exception:
-        # If the import fails or the model cannot be loaded, fall back to fuzzy matching.
-        use_embeddings = False
-
-    # Pre‑encode node names once if we are using embeddings – this saves repeated work.
-    node_embeddings: Dict[str, np.ndarray] = {}
-    if use_embeddings and embedding_model is not None:
-        node_names_list = list(linker.node_names)
-        encoded = embedding_model.encode(node_names_list)
-        for name, vec in zip(node_names_list, encoded):
-            node_embeddings[name] = np.array(vec, dtype=np.float32)
-
-    # Helper that returns (node_id, confidence) for a single text entry.
-    def _link_text(text: Any) -> Tuple[Optional[str], float]:
-        if not isinstance(text, str):
-            return None, 0.0
-
-        # ------------------------------------------------------------------
-        # Embedding based similarity (if available)
-        # ------------------------------------------------------------------
-        if use_embeddings and embedding_model is not None:
-            query_vec = np.array(embedding_model.encode([text])[0], dtype=np.float32)
-
-            best_node: Optional[str] = None
-            best_score = 0.0
-
-            for node, node_vec in node_embeddings.items():
-                denom = (np.linalg.norm(query_vec) * np.linalg.norm(node_vec))
-                if denom == 0:
+    # 2. Determine linking strategy based on availability of sentence_transformers
+    # Note: SentenceTransformer is imported at module level to facilitate testing.
+    if SentenceTransformer is not None:
+        # Embedding path
+        try:
+            model = SentenceTransformer('all-MiniLM-L6-v2')
+            node_names = list(graph_nodes.keys())
+            node_embeddings = model.encode(node_names)
+            
+            entity_ids = []
+            confidences = []
+            
+            for text in df_out['question']:
+                if not isinstance(text, str):
+                    entity_ids.append(None)
+                    confidences.append(0.0)
                     continue
-                sim = float(np.dot(query_vec, node_vec) / denom)
-                if sim > best_score:
-                    best_score = sim
-                    best_node = node
+                
+                query_embedding = model.encode([text])[0]
+                # Cosine similarity: dot product of normalized vectors
+                norm_q = np.linalg.norm(query_embedding)
+                if norm_q == 0:
+                    entity_ids.append(None)
+                    confidences.append(0.0)
+                    continue
+                
+                # Normalize query embedding
+                q_norm = query_embedding / norm_q
+                
+                best_node = None
+                best_score = 0.0
+                
+                for idx, node_emb in enumerate(node_embeddings):
+                    norm_n = np.linalg.norm(node_emb)
+                    if norm_n == 0:
+                        continue
+                    # Dot product of normalized vectors is cosine similarity
+                    sim = np.dot(q_norm, node_emb / norm_n)
+                    if sim > best_score:
+                        best_score = sim
+                        best_node = node_names[idx]
+                
+                if best_score >= threshold:
+                    entity_ids.append(best_node)
+                    confidences.append(float(best_score))
+                else:
+                    entity_ids.append(None)
+                    confidences.append(float(best_score))
+            
+            df_out['entity_node_id'] = pd.Series(entity_ids, dtype=object)
+            df_out['confidence'] = confidences
+            return df_out
+        except Exception as e:
+            logging.warning(f"Embedding linking failed, falling back to fuzzy: {e}")
 
-            if best_node is not None and best_score >= threshold:
-                return best_node, best_score
-            # If embedding similarity is below threshold, fall back to fuzzy matching.
+    # 3. Fuzzy matching path (Fallback or Default)
+    linker = EntityLinker(graph_nodes, threshold)
+    
+    entity_ids = []
+    confidences = []
+    
+    for text in df_out['question']:
+        if not isinstance(text, str):
+            entity_ids.append(None)
+            confidences.append(0.0)
+            continue
+        
+        # We treat the whole question as the entity for the fuzzy linker
+        # since the EntityLinker.link_entity handles similarity.
+        res = linker.link_entity(text)
+        if res:
+            node_id, conf = res
+            entity_ids.append(node_id)
+            confidences.append(conf)
+        else:
+            # Calculate best score even if below threshold for the confidence column
+            best_score = 0.0
+            for node_name in linker.node_names:
+                score = linker.calculate_similarity(text, node_name)
+                if score > best_score:
+                    best_score = score
+            entity_ids.append(None)
+            confidences.append(best_score)
 
-        # ------------------------------------------------------------------
-        # Fuzzy string matching path – use the whole text as the entity
-        # ------------------------------------------------------------------
-        link = linker.link_entity(text)
-        if link:
-            node_id, conf = link
-            return node_id, float(conf)
-
-        return None, 0.0
-
-    # ------------------------------------------------------------------
-    # 3. Apply linking row‑wise
-    # ------------------------------------------------------------------
-    entity_ids: List[Optional[str]] = []
-    confidences: List[float] = []
-
-    for question in df_out.get('question', []):
-        node_id, conf = _link_text(question)
-        entity_ids.append(node_id)
-        confidences.append(conf)
-
-    # Use explicit object dtype to keep None values as None (not NaN)
     df_out['entity_node_id'] = pd.Series(entity_ids, dtype=object)
     df_out['confidence'] = confidences
-
     return df_out
 
 
@@ -292,28 +284,14 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Entity linker utility")
-    parser.add_argument(
-        "graph_path", type=str, help="Path to the JSON graph file"
-    )
-    parser.add_argument(
-        "data_path", type=str, help="Path to a CSV file containing a 'question' column"
-    )
-    parser.add_argument(
-        "--threshold",
-        type=float,
-        default=0.5,
-        help="Confidence threshold for linking (default: 0.5)",
-    )
+    parser.add_argument("graph_path", type=str, help="Path to the JSON graph file")
+    parser.add_argument("data_path", type=str, help="Path to a CSV file containing a 'question' column")
+    parser.add_argument("--threshold", type=float, default=0.5, help="Confidence threshold (default: 0.5)")
     args = parser.parse_args()
 
-    # Load inputs
     graph = load_graph_from_file(args.graph_path)
     df = pd.read_csv(args.data_path)
-
-    # Perform linking
     linked_df = link_dataframe(df, graph, threshold=args.threshold)
-
-    # Print a short summary
     print(linked_df.head())
 
 

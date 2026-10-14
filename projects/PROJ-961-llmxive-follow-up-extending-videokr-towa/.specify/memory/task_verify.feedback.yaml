@@ -1,14 +1,21 @@
 T101:
+  reason: '`code/utils/config.py` correctly defines `SEEDS` (pinned ints for pilot_sampling/oversampling/permutation),
+    `PATHS` (raw/processed), and `SENSITIVITY_THRESHOLDS = [2, 3, 4]`, and the checksum
+    schema is consistently a JSON list of `{path, sha256}` entries with `main()` exiting
+    1 on mismatch. However, `code/ingest/checksum.py` uses `from utils.config import
+    ...`, which only resolves if `code/` is on `sys.path`; running the task''s stated
+    verification command `python code/ingest/checksum.py` from the project root puts
+    `code/ingest` (not `code/`) on the path, so the import would raise `ModuleNotFou'
   task: 124f0ea77e72c354939beda0a391bd830931598c680d04f7228b82b3f161e287
 T102:
-  reason: 'Both required files exist and `link_dataframe` implements the pre-existing-ID,
-    fuzzy, and embedding branches, but there is no execution evidence that `pytest
-    tests/unit/test_entity_linker.py` was run and passed (the task''s explicit verification
-    criterion). Moreover, the embedding-path test is broken as written: it monkeypatches
-    `utils.entity_linker.SentenceTransformer`, but the module imports `SentenceTransformer`
-    inside `link_dataframe` via a function-local `from sentence_transformers import
-    SentenceTransformer`, so the patch never takes effect and the test runs against
-    the real model with a'
+  reason: 'The required verification `pytest tests/unit/test_entity_linker.py` fails:
+    the recorded run (exit 1) shows `test_embedding_path_when_available` failing because
+    the mock''s length-based vectors make "Short" match "VeryLongNodeName" (cosine
+    similarity 1.0 for all positive one-dimensional vectors), so `entity_node_id`
+    is wrong. The test itself is self-admittedly confused (contains "Let''s just verify..."
+    hedging) and needs a mock producing genuinely distinct directions (e.g., orthogonal
+    vectors) so the embedding path''s similarity behavior is actually exercised and
+    passes.'
   task: eb46c77b92d8ade98ad3221f5e603ccd37518053ac27ddb12012ba43927408e3
 T103:
   reason: 'Requested task execution failed; rerun successfully: code/ingest/download_data.py

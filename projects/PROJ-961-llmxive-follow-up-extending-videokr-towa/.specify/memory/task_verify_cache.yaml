@@ -1,24 +1,23 @@
 T101:
-  c: true
-  h: a20a724b91702ba8661bf03a4eec02f0cf0640ae6da26b43034389d252accbfa
-  r: 'Both artifacts exist and match the requirements: `code/utils/config.py` defines
-    `SEEDS` with pinned integers for `pilot_sampling`/`oversampling`/`permutation`,
-    `PATHS` with raw/processed directories, and `SENSITIVITY_THRESHOLDS = [2, 3, 4]`
-    as a list of ints; `code/ingest/checksum.py` uses a consistent list-of-`{path,
-    sha256}` schema in both `generate_checksum_file` and `verify_all_raw_data`, and
-    `main()` performs verification, prints per-file OK/FAIL results, and calls `sys.exit(1)`
-    on any mismatch. The `code/__init__.py` and `code/utils/__init__.py` package markers
-    exist so the `from code.ut'
-  sig: fcfe09a313c86709afda6e4f68594095dedabb137993398dda6151c18d23dea5
+  c: false
+  h: d6023112a56c5c6ba01f1507a210f44b43b4d7371ff5b828cee51a65a43b3b4f
+  r: '`code/utils/config.py` correctly defines `SEEDS` (pinned ints for pilot_sampling/oversampling/permutation),
+    `PATHS` (raw/processed), and `SENSITIVITY_THRESHOLDS = [2, 3, 4]`, and the checksum
+    schema is consistently a JSON list of `{path, sha256}` entries with `main()` exiting
+    1 on mismatch. However, `code/ingest/checksum.py` uses `from utils.config import
+    ...`, which only resolves if `code/` is on `sys.path`; running the task''s stated
+    verification command `python code/ingest/checksum.py` from the project root puts
+    `code/ingest` (not `code/`) on the path, so the import would raise `ModuleNotFou'
+  sig: c14e6f2cea346f5689be04677113c8ebedfd0436d8b7bf8f291734a84df50074
 T102:
   c: false
-  h: 7b8ea54be38ddf4fe512abfeff931236efb7d85ad64d5a227ca3775a59c70c97
-  r: 'Both required files exist and `link_dataframe` implements the pre-existing-ID,
-    fuzzy, and embedding branches, but there is no execution evidence that `pytest
-    tests/unit/test_entity_linker.py` was run and passed (the task''s explicit verification
-    criterion). Moreover, the embedding-path test is broken as written: it monkeypatches
-    `utils.entity_linker.SentenceTransformer`, but the module imports `SentenceTransformer`
-    inside `link_dataframe` via a function-local `from sentence_transformers import
-    SentenceTransformer`, so the patch never takes effect and the test runs against
-    the real model with a '
-  sig: fd81df397816d8f58156bb7cdf6aded3c5cd8fdcd035b6b8c0ae16630cc255f0
+  h: 4b558b940570bf3bc625b5540569ead2219eddd65b29d5d45b89451de2a2bfb4
+  r: 'The required verification `pytest tests/unit/test_entity_linker.py` fails: the
+    recorded run (exit 1) shows `test_embedding_path_when_available` failing because
+    the mock''s length-based vectors make "Short" match "VeryLongNodeName" (cosine
+    similarity 1.0 for all positive one-dimensional vectors), so `entity_node_id`
+    is wrong. The test itself is self-admittedly confused (contains "Let''s just verify..."
+    hedging) and needs a mock producing genuinely distinct directions (e.g., orthogonal
+    vectors) so the embedding path''s similarity behavior is actually exercised and
+    passes.'
+  sig: 1290d0dba5607b0745f20cbe54b7ffc04191eb40e237ca373d6b9ede6f4ffe8c

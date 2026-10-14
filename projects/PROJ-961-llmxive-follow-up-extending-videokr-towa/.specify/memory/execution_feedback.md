@@ -36,13 +36,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=1
 
-2026-10-14 21:09:51,774 - INFO - Pipeline started
-2026-10-14 21:09:51,774 - INFO - Running T013: Annotate graph...
-2026-10-14 21:09:52,738 - ERROR - Data files not found. Run download_data.py first.
+2026-10-14 22:16:27,427 - INFO - Pipeline started
+2026-10-14 22:16:27,427 - INFO - Running T013: Annotate graph...
+2026-10-14 22:16:28,376 - ERROR - Data files not found. Run download_data.py first.
 
 - python code/ingest/annotate_graph.py -> rc=1
 
-2026-10-14 21:09:53,152 - ERROR - Data files not found. Run download_data.py first.
+2026-10-14 22:16:28,788 - ERROR - Data files not found. Run download_data.py first.
 
 - python -m pytest tests/unit/test_graph_utils.py -> rc=1
 
@@ -76,7 +76,7 @@ tests/unit/test_graph_utils.py:140: AssertionError
 =========================== short test summary info ============================
 FAILED tests/unit/test_graph_utils.py::TestGraphUtils::test_calculate_hop_distance
 FAILED tests/unit/test_graph_utils.py::TestGraphUtils::test_get_hop_distribution
-========================= 2 failed, 6 passed in 0.19s ==========================
+========================= 2 failed, 6 passed in 0.18s ==========================
 
 
 - python -m pytest tests/integration/test_pipeline.py -> rc=2
@@ -93,7 +93,7 @@ E   ImportError: cannot import name 'load_binned_accuracy_data' from 'analysis.d
 =========================== short test summary info ============================
 ERROR tests/integration/test_pipeline.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.26s ===============================
+=============================== 1 error in 0.27s ===============================
 
 
 
