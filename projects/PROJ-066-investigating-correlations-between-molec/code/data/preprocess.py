@@ -101,6 +101,37 @@ def validate_dataframe_against_schema(
     return len(errors) == 0, errors
 
 
+# --- Helper to normalize column names from the raw ChEMBL export ---------
+
+def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    The raw ChEMBL SQLite export may use different column names for SMILES
+    or target descriptors. This helper looks for common alternatives and
+    renames them to the canonical names expected by the pipeline.
+    """
+    # Map common SMILES column names to the expected 'SMILES'
+    smiles_candidates = [c for c in df.columns if "smiles" in c.lower()]
+    if "SMILES" not in df.columns and smiles_candidates:
+        chosen = smiles_candidates[0]
+        df = df.rename(columns={chosen: "SMILES"})
+        logger.info(f"Renamed column '{chosen}' to 'SMILES' for pipeline compatibility.")
+
+    # Map common target/value column names to 'Experimental_Value'
+    target_candidates = [c for c in df.columns if "value" in c.lower() or "result" in c.lower()]
+    if "Experimental_Value" not in df.columns and target_candidates:
+        chosen = target_candidates[0]
+        df = df.rename(columns={chosen: "Experimental_Value"})
+        logger.info(f"Renamed column '{chosen}' to 'Experimental_Value'.")
+
+    # Ensure a generic 'Target' column exists for stratification if possible
+    if "Target" not in df.columns:
+        possible_target = [c for c in df.columns if "type" in c.lower() or "standard_type" in c.lower()]
+        if possible_target:
+            df = df.rename(columns={possible_target[0]: "Target"})
+            logger.info(f"Renamed column '{possible_target[0]}' to 'Target' for stratified sampling.")
+    return df
+
+
 # --- Core pipeline functions ---------------------------------------------
 
 def sanitize_molecules(df: pd.DataFrame) -> pd.DataFrame:
@@ -416,11 +447,19 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Preprocess ChEMBL molecular data")
     parser.add_argument(
         "--max-samples",
-        type=int,
-        default=DEFAULT_MAX_MOLECULES,
-        help="Maximum number of molecules to retain after sampling",
+        default=str(DEFAULT_MAX_MOLECULES),
+        help="Maximum number of molecules to retain after sampling (int).",
     )
     args = parser.parse_args()
+
+    # Convert max-samples to int, falling back to default on bad input
+    try:
+        max_samples = int(args.max_samples)
+    except ValueError:
+        logger.warning(
+            f"Invalid --max-samples value '{args.max_samples}'; using default {DEFAULT_MAX_MOLECULES}."
+        )
+        max_samples = DEFAULT_MAX_MOLECULES
 
     logger.info("Starting Preprocessing Pipeline")
     log_pipeline_step("T010", "preprocess_pipeline")
@@ -440,10 +479,13 @@ def main() -> None:
         raise DataInsufficiencyError("No data loaded from database.")
     logger.info(f"Loaded {len(df)} raw activity rows from {RAW_DB_PATH}")
 
+    # Normalize column names to expected canonical ones
+    df = _normalize_columns(df)
+
     df = sanitize_molecules(df)
     df = filter_targets(df)
     df = deduplicate_smiles(df)
-    df = sample_dataset(df, target_size=args.max_samples)
+    df = sample_dataset(df, target_size=max_samples)
     df = calculate_descriptors(df)
     write_processed_data(df, PROCESSED_DATA_PATH)
 

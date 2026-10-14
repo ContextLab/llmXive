@@ -1,8 +1,8 @@
 """
 State management utilities for the llmXive pipeline.
 
-Records artifact hashes for the project in a PROJECT-OWNED location
-(data/processed/artifact_hashes.yaml). The platform owns the top-level
+Records artifact hashes for the project in a project‑owned location
+``data/processed/artifact_hashes.yaml``. The platform owns the top‑level
 ``state/`` directory and derives artifact hashes itself at verification
 time, so this module must NOT create or write any ``state/`` paths.
 """
@@ -17,7 +17,7 @@ import yaml
 # Project root: this file lives at <project>/code/utils/update_state.py
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-# Project-owned artifact hash registry (NOT the platform-owned state/ dir).
+# Project‑owned artifact hash registry (NOT the platform‑owned state/ dir).
 ARTIFACT_REGISTRY_PATH = PROJECT_ROOT / "data" / "processed" / "artifact_hashes.yaml"
 
 DEFAULT_PROJECT_ID = "PROJ-066-investigating-correlations-between-molec"
@@ -56,14 +56,14 @@ def get_artifact_hash(file_path: Path) -> str:
 
 
 def _resolve_registry_path() -> Path:
-    """Return the project-owned artifact registry path, creating dirs."""
+    """Return the project‑owned artifact registry path, creating dirs."""
     ARTIFACT_REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
     return ARTIFACT_REGISTRY_PATH
 
 
 def load_state_file(project_id: str) -> Dict[str, Any]:
     """
-    Loads the project's artifact-hash registry (project-owned file).
+    Loads the project's artifact‑hash registry (project‑owned file).
 
     Creates the registry file and directories if they don't exist.
 
@@ -90,7 +90,7 @@ def load_state_file(project_id: str) -> Dict[str, Any]:
 
 def save_state_file(project_id: str, state: Dict[str, Any]) -> None:
     """
-    Saves the state dictionary to the project-owned registry file.
+    Saves the state dictionary to the project‑owned registry file.
 
     Args:
         project_id: The unique identifier for the project.
@@ -129,14 +129,14 @@ def verify_artifact_integrity(project_id: str, artifact_path: str, expected_hash
 
 def update_state(project_id: str, artifacts: List[Dict[str, Any]]) -> None:
     """
-    Updates the project's artifact-hash registry with new artifact information.
+    Updates the project's artifact‑hash registry with new artifact information.
 
     This function ensures the registry exists, updates the timestamp, and
     appends or updates the provided artifacts list. All output goes to the
-    project-owned registry under data/processed/ — never to state/.
+    project‑owned registry under ``data/processed/`` — never to ``state/``.
 
     Args:
-        project_id: The unique identifier for the project.
+        project_id: The project identifier.
         artifacts: A list of dictionaries, each containing:
             - artifact_path: Relative path to the artifact (required).
             - hash: The SHA-256 hash of the artifact (computed if absent).

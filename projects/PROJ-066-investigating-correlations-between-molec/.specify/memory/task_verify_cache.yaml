@@ -16,6 +16,15 @@ T003a:
     section with `line-length = 88` and `target-version = ['py310']`, matching the
     task's stated requirements.
   sig: 5663656c8b0f906a75bf9e3211b1bd7f86a48c2c2954b8b9469aada95a974f13
+T003b:
+  c: false
+  h: 2577534cf0619c098a12840295299f3ae1efe46f2a418253cbf47a0d4f5acbb6
+  r: "The evidence collector lists no artifacts on disk for this task \u2014 no configuration\
+    \ file (e.g., `.flake8`, `setup.cfg`, or `pyproject.toml` linting section) exists\
+    \ anywhere under the project root, so there is nothing containing the required\
+    \ max-line-length setting and E501 ignore rule. The implementer must actually\
+    \ create the linting configuration file in `projects/PROJ-066-investigating-correlations-between-molec`."
+  sig: 5015f47315a06d805f6e10698fdb6ccab1a00c6de583d09553b36f68b7287316
 T004a:
   c: true
   h: 55a9518377708b9c1ce0650456afdba3978f19b78ab8ea41328b19df9a263e67
@@ -54,53 +63,44 @@ T006:
   sig: d29f02d7363405f75941a2d6c050003961a5f6adddcae3cf07a8cb44b49bfb71
 T008a:
   c: true
-  h: 25bca9f13b73bab14e7936d1c129ef7c65f2ee26144498d553402764ccf50b51
+  h: 2fd718461e0cfebc1256b72ed020c81f31d122d34f7648151776768c75ef8922
   r: The task only required creating the directory `projects/PROJ-066-investigating-correlations-between-molec/data/raw/`,
-    and the collector confirms it exists (non-empty, containing `.gitkeep` plus ChEMBL
-    data files). The execution log shows the directory-creation script ran successfully
-    with exit code 0.
-  sig: e3c4ac6a4d17a4a0024069dd9e193706c27887bb965b7f5c1c2b0461b6ec1a2a
+    and the collector confirms the directory exists and is non-empty (contains `.gitkeep`,
+    `chembl_33.db`, and `chembl_33.sha256`). No content requirements beyond directory
+    creation were specified for this task.
+  sig: 7e936e580256edf17135ec188919fef970fb9047417060de3aaa8e8c786b6808
 T008b:
   c: true
-  h: c1fb93b1572580b2465049cc94a3aa3d3ecbb6b170c3741df141138a8b312046
-  r: The directory `projects/PROJ-066-investigating-correlations-between-molec/data/processed/`
-    exists (confirmed by the collector with a sha256 hash, containing `.gitkeep` and
-    `artifact_hashes.yaml`), and the execution log from `code/utils/ensure_data_processed.py`
-    exited 0 confirming the directory exists. The task only required creating this
-    directory, which is satisfied.
-  sig: 751997ed5691c44f5bf8b114e9514ef6236efc197e8987498b99133bfc87ce59
+  h: c304fc5d012f4c244a151e038b2f35b250b20683ae3209252d4adf0739c60f7e
+  r: The requested directory `projects/PROJ-066-investigating-correlations-between-molec/data/processed/`
+    exists and is non-empty (contains `.gitkeep` and `artifact_hashes.yaml`), which
+    fully satisfies this task's sole requirement of creating that directory.
+  sig: e031ff863d3d03df1b607330c995881d8a45489e952ed35cab23b0b7a9d4b83b
 T008c:
   c: true
-  h: 578e32d1a6a26da6476c16f99014dd679c43b6a82cb2d3a4e3b49628f2bb60a7
-  r: The task only required creating the directory `projects/PROJ-066-investigating-correlations-between-molec/code/data/`,
-    and the collector confirms it exists with 5 entries (.gitkeep, __init__.py, __pycache__,
-    download.py, preprocess.py), corroborated by an execution log (exit 0) listing
-    the directory contents.
-  sig: 0ef4037b446617498d3f196ce4f6b2da0e6809e0e92a8cdbd454ba839610ddef
+  h: 6d58bce4e80c63879e099baaf1e08d7dfcbdeecf61076fd6a1b9832a0c9fb367
+  r: The task only requires creating the directory `projects/PROJ-066-investigating-correlations-between-molec/code/data/`,
+    and the collector confirms the directory exists with 5 entries (including `__init__.py`,
+    `download.py`, `preprocess.py`). The directory is non-empty and matches the stated
+    requirement.
+  sig: 74c1a03e79c92b299a73cbdf5e1350f9ee00e2e105b2669a341a8e642611cf25
 T008d:
   c: true
-  h: f5f47f9b12218caadf0db144528ddf850358c8cb7e54b7455a90b1374cca1dc5
+  h: d5bf2e3a5e71b28046ef90d5586925660a6c04c8efd53031e3f0009f83cf8282
   r: The task only requires creating the directory `projects/PROJ-066-investigating-correlations-between-molec/code/models/`,
-    and the collector confirms it exists with 5 entries (including `__init__.py`,
-    `train.py`, `evaluate.py`, `README.md`, `.gitkeep`). The execution log also shows
-    the directory-existence check ran successfully (exit 0).
-  sig: 8268ef748458ab6c36e273410213d80f74f708d53226c8ed130c3279012ffd94
+    and the collector confirms the directory exists with 5 entries (`.gitkeep`, `README.md`,
+    `__init__.py`, `evaluate.py`, `train.py`). The directory is non-empty and its
+    presence is directly verified on disk.
+  sig: 4bf28a3760be78eae6c16fbeeace1a8c150caf079314a1b567c5c6659c8cdb93
 T008e:
   c: true
-  h: f51b49fea7943cec613f1bb0a0a2c6f8322edd999dca49eb7e8eef10192d7fc6
-  r: The requested directory `projects/PROJ-066-investigating-correlations-between-molec/tests/`
-    exists and is non-empty, containing 17 entries including multiple substantive
-    test files (test_download.py, test_preprocess.py, test_models.py, test_evaluate.py,
-    etc.) plus conftest.py and __init__.py, which matches the task's requirement to
-    create the tests directory.
-  sig: f74ee4019fb8ae14d28eee4fad45a6779418784cd31c0cb9f373e393145700dc
-T009:
-  c: false
-  h: f9c836a6db529ae58c4d532b41a18ab50769765ab05536fe7357ceceaee02e2c
-  r: "The provided `code/data/download.py` is incomplete (truncated, does not download\
-    \ a `.tar.gz`/`.zip`, lacks extraction, checksum\u2011file download, and state\u2011\
-    file update) and the required output files `data/raw/chembl_33.db` and the YAML\
-    \ state file are absent. Consequently the task\u2019s specifications are not met."
+  h: 02e47f89860d1aed7f8bd2fedb591d565f255ba84c5cd8b0cbf6f0e4522deba2
+  r: The task only required creating the `tests/` directory, and the collector confirms
+    it exists with 16 non-empty entries including test files (test_download.py, test_preprocess.py,
+    test_models.py, etc.), a conftest.py, and __init__.py. The directory is populated
+    with substantive test files matching the project's user stories, satisfying the
+    stated requirement.
+  sig: 2a9662eb2472482363151d808786ac57f28adb7fc439bcd7d579b4410905ddcb
 T015:
   c: false
   h: 9f9ed6f721c10daaf63de8029ad99068a57cde7ca21b99ed6f48954f0eaa5991

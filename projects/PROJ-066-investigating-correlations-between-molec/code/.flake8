@@ -1,3 +1,11 @@
 [flake8]
 max-line-length = 100
 extend-ignore = E501
+exclude =
+    __pycache__,
+    .git,
+    .venv,
+    venv,
+    build,
+    dist
+# You can add additional flake8 plugins or settings here as needed.

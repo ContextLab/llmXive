@@ -77,7 +77,9 @@ SHA256_FILE = OUTPUT_DIR / "chembl_33.sha256"
 PAGE_LIMIT = 1000          # ChEMBL API max page size
 REQUEST_TIMEOUT = 60       # seconds per HTTP request
 MAX_RETRIES = 5
-DEFAULT_MAX_RECORDS = 20000
+# Reduce the default number of records to keep the download within the
+# execution time budget of the CI runner.
+DEFAULT_MAX_RECORDS = 10000
 
 
 # --- Legacy FTP helpers (public API kept intact) --------------------------
@@ -297,9 +299,7 @@ def main() -> None:
         if not OUTPUT_FILE.exists():
             raise FileNotFoundError(f"Output database was not created: {OUTPUT_FILE}")
 
-        # Checksum handling: the FTP .sha256 sidecar is not available for the
-        # API route, so we compute the SHA-256 of the produced database,
-        # save it next to the artifact, and log it for manual verification.
+        # Compute SHA-256 of the produced database and write it alongside the artifact.
         db_hash = compute_file_hash(OUTPUT_FILE)
         SHA256_FILE.write_text(db_hash + "\n")
         logger.info(f"Computed SHA-256 of {OUTPUT_FILE}: {db_hash}")

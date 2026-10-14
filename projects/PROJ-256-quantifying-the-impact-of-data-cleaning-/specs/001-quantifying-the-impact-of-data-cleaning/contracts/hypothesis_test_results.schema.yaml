@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Hypothesis Test Results Schema"
+description: "Validates Wilcoxon signed‑rank test results on effect_size_change."
+type: object
+required:
+  - test_factor
+  - test_statistic
+  - p_value_raw
+  - p_value_holm
+  - reject_null
+properties:
+  test_factor:
+    type: string
+    description: "Cleaning factor being tested (e.g., 'outlier_removal')."
+  test_statistic:
+    type: number
+    description: "Wilcoxon signed‑rank statistic."
+  p_value_raw:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Unadjusted p‑value."
+  p_value_holm:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Holm‑adjusted p‑value."
+  reject_null:
+    type: boolean
+    description: "True if Holm‑adjusted p < 0.05."

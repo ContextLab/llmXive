@@ -3,12 +3,11 @@ T001a:
 T003a:
   task: 1d14a09659340e8c3070320163ea39771086e58d1deb2db627af0f9dc44ea64a
 T003b:
-  reason: "The task requires a code linting configuration file (e.g., `.flake8` or\
-    \ equivalent) with a standard max-line-length and E501 ignored, but the evidence\
-    \ collector found no artifact at any path \u2014 no configuration file exists\
-    \ in the project. The implementer must create the linting config (e.g., a `setup.cfg`/`.flake8`\
-    \ with `max-line-length = 100` (or similar standard limit) and `extend-ignore\
-    \ = E501`) in the project root."
+  reason: "The evidence collector lists no artifacts on disk for this task \u2014\
+    \ no configuration file (e.g., `.flake8`, `setup.cfg`, or `pyproject.toml` linting\
+    \ section) exists anywhere under the project root, so there is nothing containing\
+    \ the required max-line-length setting and E501 ignore rule. The implementer must\
+    \ actually create the linting configuration file in `projects/PROJ-066-investigating-correlations-between-molec`."
   task: dcd359aab4ee23b3dd4a6d42389326b228e704ae7d5585e78cc12ae95beeaeae
 T004a:
   task: 8df673e7a01bbfe6920e4b22c4b31571435745c0630f1e47c7efff2f73daf9d6

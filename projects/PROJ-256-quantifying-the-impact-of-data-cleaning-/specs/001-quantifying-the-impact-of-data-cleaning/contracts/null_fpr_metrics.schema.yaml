@@ -1,5 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Null FPR Metrics Schema"
+description: "Validates permutation‑based false‑positive‑rate estimates."
 type: object
 required:
   - dataset_id
@@ -28,3 +29,4 @@ properties:
     type: number
     minimum: 0
     maximum: 1
+additionalProperties: false

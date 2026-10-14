@@ -1,14 +1,13 @@
 status: none
-intent: download ChEMBL oral bioavailability permeability clearance dataset python
+intent: ChEMBL FTP download experimental bioavailability permeability clearance python
   package dataset
 required_fields:
-- SMILES
-- ChEMBL_ID
-- Assay_ID
-- Standard_Type
-- Standard_Value
-- Standard_Units
-- Molecule_Descriptors
-cache_key: 06c3c6c1d8bbee36f7e2c81064b2ac24f6070b985ef0c8db0d0e3913f53d21b0
-searched_at: '2026-10-12T06:57:27.276170+00:00'
+- molecule_chembl_id
+- canonical_smiles
+- assay_type
+- standard_value
+- standard_units
+- standard_relation
+cache_key: be579f3bc8605893f85f4976bcc72f009c9ee04d6f39d83dde83c9c85d05f069
+searched_at: '2026-10-14T21:38:55.695797+00:00'
 retry_count: 1

@@ -1,5 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Comparison Report Schema"
+description: "Aggregates delta metrics across all datasets and cleaning variants."
 type: object
 required:
   - overall_effect_size_change_mean
@@ -9,10 +10,13 @@ required:
 properties:
   overall_effect_size_change_mean:
     type: number
+    description: "Mean of effect_size_change across all dataset‑variant pairs."
   overall_ci_overlap_mean:
     type: number
+    description: "Mean CI overlap across all pairs."
   overall_fpr_mean:
     type: number
+    description: "Mean permutation‑based false‑positive rate."
   variant_summary:
     type: array
     description: "One entry per dataset‑variant pair."

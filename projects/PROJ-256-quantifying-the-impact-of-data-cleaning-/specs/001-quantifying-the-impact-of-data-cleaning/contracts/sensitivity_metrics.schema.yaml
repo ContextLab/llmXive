@@ -1,26 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Sensitivity Metrics Schema"
+description: "Results of the two‑way ANOVA across size bins and missingness levels."
 type: object
 required:
   - size_bin
   - missingness_level
-  - datasets
+  - effect_size_change_mean
+  - anova_f
+  - anova_p
 properties:
   size_bin:
     type: string
-    enum: ["<64", "64-200", ">200"]
+    enum: ["<50", "50-200", ">200"]
   missingness_level:
     type: string
-    enum: ["M0", "M1", "M2", "M3"]
-  datasets:
-    type: array
-    items:
-      type: object
-      required:
-        - dataset
-        - delta_metrics
-      properties:
-        dataset:
-          type: string
-        delta_metrics:
-          $ref: "delta_metrics.schema.yaml"
+    enum: ["none", "MCAR", "MAR", "MNAR"]
+  effect_size_change_mean:
+    type: number
+    description: "Mean effect_size_change within this bin."
+  anova_f:
+    type: number
+    description: "F‑statistic from the two‑way ANOVA."
+  anova_p:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "ANOVA p‑value."

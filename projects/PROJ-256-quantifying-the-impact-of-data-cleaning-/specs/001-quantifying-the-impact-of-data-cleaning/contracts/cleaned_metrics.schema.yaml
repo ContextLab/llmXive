@@ -1,8 +1,9 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Cleaned Metrics Schema"
+description: "Validates metrics for each cleaning variant, including metadata and robustness info."
 type: object
 required:
-  - dataset
+  - dataset_id
   - variant_id
   - p_value
   - adjusted_p_value
@@ -17,11 +18,12 @@ required:
   - robust_test_used
   - metadata
 properties:
-  dataset:
+  dataset_id:
     type: string
+    description: "Matches an entry in dataset_metadata.json."
   variant_id:
     type: string
-    description: "Identifier encoding cleaning steps (e.g., 'outlier_k1.5_imp_mean_enc_onehot')."
+    description: "Encodes active cleaning steps (e.g., 'outlier_k1.5_imp_mean_enc_onehot')."
   p_value:
     type: number
     minimum: 0
@@ -38,7 +40,7 @@ properties:
     type: number
   effect_size_change:
     type: number
-    description: "Absolute change in effect size (baseline vs. cleaned), ≥ 0.001 precision."
+    description: "Absolute change in effect size relative to baseline (≥ 0.001 precision)."
   direction:
     type: string
     enum: ["increase", "decrease"]
@@ -48,12 +50,12 @@ properties:
     maximum: 1
   p_value_delta:
     type: number
-    description: "Baseline p‑value minus cleaned p‑value."
+    description: "Baseline p‑value minus cleaned p‑value (≥ 0.001 precision)."
   assumptions_met:
     type: boolean
   robust_test_used:
     type: string
-    description: "Name of robust test if assumptions not met; empty string otherwise."
+    description: "Name of robust test if assumptions violated; empty string otherwise."
   metadata:
     type: object
     required:
@@ -75,4 +77,13 @@ properties:
         type: number
         minimum: 0
         maximum: 1
+  cohens_d:
+    type: number
+    description: "Cohen's d for t‑test variants (optional)."
+  r_squared:
+    type: number
+    description: "R² for regression variants (optional)."
+  effect_size_cv:
+    type: number
+    description: "Coefficient of variation of the primary effect‑size metric (optional)."
 additionalProperties: false
