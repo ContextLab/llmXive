@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Molecular Dataset Schema
-description: Schema for the raw molecular dataset (ESOL)
+description: Schema for the raw ESOL dataset required by the pipeline
 type: object
 properties:
   smiles:

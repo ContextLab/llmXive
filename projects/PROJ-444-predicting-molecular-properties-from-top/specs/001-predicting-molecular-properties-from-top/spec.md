@@ -49,7 +49,7 @@ As a reviewer, I want to verify that the study design includes sensitivity analy
 
 **Acceptance Scenarios**:
 
-1. **Given** the persistence image generation parameters, **When** the sensitivity analysis script runs, **Then** the system re-runs the prediction with at least three different grid resolutions (e.g., 10x10, 20x20, 30x30) and reports the variance in R² scores across these configurations.
+1. **Given** the persistence image generation parameters, **When** the sensitivity analysis script runs, **Then** the system re-runs the prediction with at least three different grid resolutions (e.g., low, medium, high) and reports the variance in R² scores across these configurations.
 2. **Given** a set of N hypothesis tests (where N is the count of successfully modeled properties), **When** the final statistical reporting step executes, **Then** the p-values are adjusted using the Bonferroni method to control the family-wise error rate.
 3. **Given** the correlation matrix of the input features, **When** the collinearity diagnostic runs, **Then** the system flags any pairs of predictors with a Variance Inflation Factor (VIF) > 5 and reports them in the final analysis summary.
 4. **Given** the feature sets (traditional and topological), **When** the redundancy analysis runs, **Then** the system calculates and reports the mutual information between the two sets to quantify feature overlap.

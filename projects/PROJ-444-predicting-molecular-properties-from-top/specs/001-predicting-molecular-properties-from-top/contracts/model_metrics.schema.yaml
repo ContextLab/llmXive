@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Metrics Schema
-description: Schema for model performance metrics
+description: "Schema for model performance metrics and feature importance produced by 04_model_training.py and 06_feature_importance.py. Includes R², RMSE per fold, and feature importance scores for traditional and topological descriptors."
 type: object
 properties:
   traditional:
@@ -18,6 +18,11 @@ properties:
         type: number
       rmse_mean:
         type: number
+    required:
+      - r2_per_fold
+      - rmse_per_fold
+      - r2_mean
+      - rmse_mean
   topological:
     type: object
     properties:
@@ -33,6 +38,11 @@ properties:
         type: number
       rmse_mean:
         type: number
+    required:
+      - r2_per_fold
+      - rmse_per_fold
+      - r2_mean
+      - rmse_mean
   combined:
     type: object
     properties:
@@ -48,17 +58,28 @@ properties:
         type: number
       rmse_mean:
         type: number
+    required:
+      - r2_per_fold
+      - rmse_per_fold
+      - r2_mean
+      - rmse_mean
   feature_importance:
     type: object
+    description: "Feature importance scores extracted from trained models (FR-010)"
     properties:
       traditional:
         type: array
+        description: "Importance scores for each traditional descriptor"
         items:
           type: number
       topological:
         type: array
+        description: "Importance scores for each topological descriptor"
         items:
           type: number
+    required:
+      - traditional
+      - topological
 required:
   - traditional
   - topological

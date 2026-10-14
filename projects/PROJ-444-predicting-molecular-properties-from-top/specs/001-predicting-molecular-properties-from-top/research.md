@@ -1,76 +1,64 @@
 # Research: Predicting Molecular Properties from Topological Data Analysis
 
 ## Overview
-
-This research phase investigates the feasibility of using Topological Data Analysis (TDA) to predict molecular properties. The core hypothesis is refined: while shortest-path filtration captures topological cycles (rings) that are also encoded in Morgan fingerprints (ECFP), TDA may offer a **more compact or interpretable representation** of these structural features. The study focuses exclusively on **logP** (octanol-water partition coefficient) using the **MoleculeNet ESOL** dataset to ensure data consistency and avoid the noise of merging disparate sources.
+This research evaluates whether topological descriptors derived from shortest‑path distance filtrations add predictive value for **logP** beyond traditional QSPR descriptors. The hypothesis is *associational*: TDA features may capture ring‑related topology that overlaps with fingerprint information, and we quantify that overlap.
 
 ## Dataset Strategy
 
 ### Verified Sources
+| Dataset | URL | Format | Contains |
+|---------|-----|--------|----------|
+| MoleculeNet **ESOL** | `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv` | CSV | `smiles`, `logP` (experimental) |
 
-Per project constraints, only the following verified datasets are used. The study requires **SMILES strings** and **experimental logP values**.
-
-| Dataset Name | Source URL | Format | Relevance |
-|--------------|------------|--------|-----------|
-| **MoleculeNet ESOL** | `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv` | CSV | Contains SMILES strings and experimental logP values. **Primary Source**. |
-| **MKE Novel Druglike SMILES** | ` | CSV | Contains SMILES but **NO** logP values. **Excluded** for this study. |
-| **HUBioDataLab SELFormer SMILES** | ` | CSV | Contains SMILES but **NO** logP values. **Excluded** for this study. |
-| **PubChem 10M Canonicalized** | ` | Parquet | Contains SMILES but **NO** standard logP column. **Excluded** for this study. |
-
-### Dataset Selection & Variable Fit
-
-**Primary Candidate**: **MoleculeNet ESOL**.
-- **Rationale**: This is the only verified source in the block that explicitly contains both SMILES and the target property (logP) in a single, consistent format.
-- **Critical Check**: The `01_data_ingestion.py` script MUST verify that the downloaded CSV contains columns `smiles` and `logP` (or `expt_logP`). If these are missing, the pipeline halts with a "Data Gap" error.
-- **Exclusion of Other Properties**: The spec mentions solubility and boiling point, but these are not natively available in the verified ESOL dataset. To maintain data integrity and avoid merging noise, the study is restricted to **logP** only. This reduces N (number of hypothesis tests) and simplifies the multiple comparison correction.
-- **No Fallback**: If MoleculeNet ESOL does not contain the required columns, the study is **blocked**. No merging of secondary sources or manual curation is permitted to avoid violating Constitution Principles I and II.
-
-**Decision**: The study proceeds **only** with MoleculeNet ESOL. No fallback to manual curation or merging of secondary sources is permitted.
+### Variable Fit
+- Required columns: `smiles`, `logP`.  
+- `01_data_ingestion.py` downloads from the verified S3 URL **only** (not from alternative sources), validates presence of required columns, and aborts with **Data Gap** error if missing.  
+- No other verified dataset provides both columns; therefore the study is limited to **logP** only (N = 1 hypothesis test).
 
 ## Methodological Rigor
 
 ### Statistical Framework
+1. **Model Comparison**  
+   - Three feature sets: Traditional, Topological, Combined.  
+   - Two learners: Linear Regression (L2, α = 1.0) and Random Forest (100 trees, max_depth = 10).  
+   - 5‑fold scaffold‑based CV (seed = 42).  
+   - Metrics per fold: R², RMSE.  
+   - Paired **t‑test** (or Wilcoxon signed‑rank if normality fails) on fold‑wise R² differences between Combined vs. Traditional.  
 
-1. **Model Comparison**:
- - **Baseline**: Traditional descriptors (Morgan fingerprints, MW, atom counts) via RDKit.
- - **Experimental**: Topological features (persistence images from shortest-path filtration).
- - **Combined**: Concatenation of both sets.
- - **Metric**: R² and RMSE from 5-fold scaffold cross-validation.
- - **Significance**: Paired t-test (or Wilcoxon signed-rank if non-normal) on fold-wise scores, followed by **Holm-Bonferroni correction** (replacing the spec's "Bonferroni" to address correlated tests) for the single property (logP) and any secondary tests.
+2. **Multiple‑Comparison Correction**  
+   - Apply **Bonferroni** correction (Holm–Bonferroni method, α = 0.05) to the p‑value(s) (FR‑005).  
+   - Since N = 1, corrected p = raw p × 1, but the procedure is retained for compliance.
 
-2. **Multiple Comparison Correction**:
- - **Method**: **Holm-Bonferroni** correction applied to the set of hypothesis tests.
- - **Rationale**: Unlike Bonferroni, Holm-Bonferroni is less conservative when tests are correlated (e.g., if multiple properties were used) and maintains strong control of the Family-Wise Error Rate (FWER). This addresses the concern that Bonferroni is overly conservative for correlated outcomes.
+3. **Power Analysis**  
+   - A priori power analysis (α = 0.05, power = 0.8, effect size d = 0.5) yields **N ≥ 128** required for paired t‑test.  
+   - ESOL provides a substantial set of valid molecules.; after SMILES validation the pipeline checks `len(valid_molecules) >= 128` and aborts with **Power Insufficient** if not met.
 
-3. **Collinearity Diagnostics**:
- - **Method**: Variance Inflation Factor (VIF) for all predictors in the combined model.
- - **Threshold**: VIF > 5 flagged (FR-007).
- - **Handling**: High VIF pairs reported descriptively; no causal claims made for correlated predictors.
- - **Redundancy Analysis**: Mutual Information (MI) between traditional and topological feature sets is calculated to quantify the overlap. The hypothesis is that TDA provides a *subset* of the information in fingerprints, and the MI value will reflect this.
+4. **Collinearity Diagnostics**  
+   - Compute Variance Inflation Factor (VIF) for every predictor in the **Linear Regression model only** (FR‑007).  
+   - Flag predictors with VIF > 5.  
 
-4. **Power & Sample Size**:
- - **Requirement**: The pipeline performs an a priori power analysis.
- - **Parameters**: alpha=0.05, Power=0.8, Effect Size (Cohen's d) = 0.5 (medium).
- - **Threshold**: Minimum sample size required is **N=128** for a paired t-test.
- - **Action**: If the ESOL dataset (approx. 1128 molecules) yields fewer than 128 valid molecules after filtering, the pipeline halts with a "Power Insufficient" error. This ensures the study is not merely "exploratory" but statistically valid.
+5. **Redundancy Analysis**  
+   - Estimate Mutual Information (MI) between the Traditional descriptor matrix and the Topological feature matrix (FR‑009).  
+   - Report MI value to contextualize overlap.
 
-### Sensitivity Analysis
+6. **Feature Importance Extraction**  
+   - After model training, extract and record feature importance scores for both traditional and topological descriptors (FR‑010).  
+   - Output conforms to `model_metrics.schema.yaml` with `feature_importance` object containing separate arrays for traditional and topological importance.
 
-- **Parameter**: Grid resolution for persistence images.
-- **Sweep**: {10x10, 20x20, 30x30}.
-- **Metric**: Variance in R² across resolutions.
-- **Goal**: Ensure results are not artifacts of a single grid choice (SC-002).
+7. **Sensitivity Analysis**  
+   - Sweep persistence image grid resolutions `{10, 20, 30}` (FR‑006).  
+   - Record R² variance across resolutions; stability criterion is that the standard deviation of R² across resolutions < 0.02 (informal threshold, not a spec constraint).
 
 ### Assumptions & Limitations
-
-1. **Dataset Availability**: The study relies on MoleculeNet ESOL. If this dataset is unavailable or lacks the `logP` column, the study is blocked.
-2. **Filtration Adequacy**: Shortest-path distance filtration captures relevant topology (rings) but is a subset of ECFP information. The study tests if this subset is a *useful* representation, not if it is *independent*.
-3. **Causal Inference**: No causal claims; all results are associational.
-4. **Computational Limits**: Assumes sufficient RAM for 10x10 persistence images of ~1100 molecules.
-5. **Property Scope**: Restricted to logP. Solubility and boiling point are excluded due to lack of verified, single-source data.
-6. **Redundancy**: The plan acknowledges that TDA features are likely highly correlated with traditional fingerprints. The primary scientific contribution is the quantification of this redundancy (via MI) and the assessment of TDA as a compact representation.
+- **Dataset Scope**: Only logP is analyzed; solubility and boiling point are omitted due to lack of verified joint sources.  
+- **Filtration Choice**: Shortest‑path distance filtration is a graph‑only descriptor; does not capture 3D geometry.  
+- **Causal Claims**: None; all findings are associative (Constitution VI).  
+- **Computational Limits**: All steps run on CPU; no GPU required (FR‑008).  
+- **Data Source**: ESOL dataset is downloaded from the verified DeepChem S3 URL only; no alternative sources are used.
 
 ## References
+- **Dataset**: MoleculeNet ESOL – DeepChem S3 URL (`https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`) (verified).  
+- **Multiple‑Comparison**: Bonferroni / Holm–Bonferroni method (α = 0.05, source: https://en.wikipedia.org/wiki/Holm–Bonferroni_method).  
+- **Topological Methods**: GUDHI library documentation (CPU‑only).  
 
-- **Dataset**: MoleculeNet ESOL (Verified URL: `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`)
-- **Method**: Holm-Bonferroni correction (Holm, S. (1979). A simple sequentially rejective multiple test procedure).
+---

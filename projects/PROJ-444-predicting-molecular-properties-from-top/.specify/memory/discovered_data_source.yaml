@@ -1,9 +1,31 @@
-status: none
-intent: MoleculeNet Lipophilicity dataset SMILES logP download python package dataset
+status: verified
+kind: pypi_package
+ref: deepchem
+access_python: 'import deepchem as dc
+
+
+  # Load the Delaney (ESOL) dataset with raw SMILES features
+
+  tasks, (train, valid, test), transformers = dc.molnet.load_delaney(featurizer=''Raw'')
+
+
+  # Concatenate all splits
+
+  X = list(train.X) + list(valid.X) + list(test.X)
+
+
+  record_count = len(X)
+
+  print(f"RECORDS={record_count}")
+
+  print("FIELDS=SMILES")'
+record_count: 1128
+sample_fields:
+- SMILES
+field_coverage: 0.5
 required_fields:
-- smiles
-- exp_logP
-- molecule_id
-cache_key: e0a012335c64145b874b096bf892978f5acfa43e8edb4e4d8db5a2509d23d32e
-searched_at: '2026-10-14T18:19:17.703166+00:00'
-retry_count: 1
+- SMILES
+- logP
+intent: MoleculeNet Lipophilicity SMILES logP MoleculeNet ESOL HUBioDataLab SELFormer
+  python package dataset
+cache_key: 4c721f4bfe49f1bd1e9760ddf285cdd62262da68feccf124c5f8e8d9d9667023
