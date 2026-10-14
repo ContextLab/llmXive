@@ -1,13 +1,9 @@
 status: none
-intent: download GSM8K and logical deduction HuggingFace python package dataset
+intent: gsm8k dataset and bigbench logical deduction subset download python package
+  dataset
 required_fields:
 - question
 - answer
-- solution
-- id
-- premise
-- hypothesis
-- label
-cache_key: f45855ff1bf800d859facc878171779a0de57cf672c3e516f593d9ca88d1e264
-searched_at: '2026-10-14T16:18:17.844458+00:00'
+cache_key: 975aabaf239198ce7dc857e01761194973d8c552f69547a406eb2b8beabfff28
+searched_at: '2026-10-14T16:37:35.166546+00:00'
 retry_count: 1

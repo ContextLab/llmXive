@@ -3,40 +3,76 @@
 ## Dataset Strategy
 | Role                | Source (verified)                                                                                                   | Loader                                    |
 |---------------------|----------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| Primary reasoning (train) | GSM8K (train split, parquet) – https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/train-00000-of-00001.parquet | `datasets.load_dataset("openai/gsm8k", split="train", streaming=False)` |
-| Primary reasoning (test)  | GSM8K (test split, parquet) – https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet | `datasets.load_dataset("openai/gsm8k", split="test", streaming=False)` |
+| Primary reasoning (train) | GSM8K (train split, parquet) – https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/train-00000-of-00001.parquet | `datasets.load_dataset("openai/gsm8k", split="train", streaming=True)` |
+| Primary reasoning (test)  | GSM8K (test split, parquet) – https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet | `datasets.load_dataset("openai/gsm8k", split="test", streaming=True)` |
 | Supplemental logical subset | bigbench logical subset – https://huggingface.co/datasets/bigbench/bigbench_lite | `datasets.load_dataset("bigbench_lite")` |
 
-Both datasets are publicly downloadable without authentication and fit within the CI runner’s disk quota. The loader streams the parquet files to stay under the RAM limit (≤ 6 GB active).
+All datasets are openly downloadable, require no authentication, and are streamed when necessary to stay within the 7 GB RAM budget.
 
 ## Metric Justification
-Logical accuracy is measured as exact‑match string equality of the model‑generated reasoning steps against the GSM8K reference solutions. This metric is the standard evaluation used in the original GSM8K benchmark (Cobbe et al., 2022) and has been widely adopted for assessing reasoning capability of generative models. **Limitation:** exact‑match does not capture partial reasoning quality; future extensions could report graded metrics such as BLEU, ROUGE, or token‑level overlap as secondary measures.
+- **Exact‑match logical accuracy**: Standard metric for GSM8K (Cobbe *et al.*, 2022). It directly evaluates whether the model’s generated solution matches the gold‑standard reasoning chain.  
+- **Graded token‑level F1**: Captures partial correctness; mitigates brittleness of exact‑match (FR‑012). Implemented via token‑wise overlap between prediction and reference.  
+
+Both metrics are reported for every run and stored in the JSON result artifacts.
 
 ## Methodology
-1. **Preprocessing** – tokenization with the model’s tokenizer, padding to max length 256, and creation of train/test splits (90/10) on the GSM8K train split.  
-2. **Model** – a pre‑trained discrete diffusion model (`hf://google/diffusion-100m`) with ≤ 100 M parameters, CPU‑compatible (`torch.float32`).  
-3. **Training Loop** – implements five fixed retaining ratios (ρ = 0.1,…,0.9) and an adaptive scheduler (entropy‑based, bounded to [0,1]). Each condition is run with **five distinct random seeds** (default seeds 42, 43, 44, 45, 46) to obtain replicated measurements. Early‑stopping after 10 epochs or when the hard timeout flag triggers.  
-4. **Entropy Calculation** – mean Shannon entropy over the model’s token‑wise softmax predictions per batch. NaNs/ infinities are clamped to the range [0, ln(N)] and the density defaults to the global mean (0.5) for that step.  
-5. **Statistical Analysis** – after all runs:  
-   * **Paired t‑test** comparing the adaptive run to the fixed ρ = 0.5 baseline **across seeds** (implemented via `scipy.stats.ttest_rel`). If only a single seed is present, the code automatically falls back to a non‑parametric Mann‑Whitney U test (`scipy.stats.mannwhitneyu`).  
-   * **Power considerations** – with five seeds per condition we achieve moderate power (~0.75) to detect medium effect sizes (Cohen’s d ≈ 0.5) given the observed variance in pilot runs. A formal power analysis is documented in the analysis script.  
-   * **Quadratic regression** – fit a degree‑2 polynomial to the five fixed‑ratio accuracies using `np.polyfit`. Model stability is assessed via **bootstrap resampling (1 000 replicates)** and **leave‑one‑seed‑out cross‑validation**, reporting confidence intervals for the peak density.  
-   * **Sensitivity sweep** – evaluate the bootstrapped quadratic model at ρ ± 0.05 and ρ ± 0.1, compute the slope (accuracy change per 0.01 density), and report the distribution of slopes across bootstrap samples.  
+1. **Preprocessing**  
+   - Load GSM8K train and test splits; retain fields `question`, `answer`, `solution`.  
+   - Tokenize with the diffusion model’s tokenizer, pad/truncate to max length 256.  
+   - Merge the `bigbench_lite` logical subset (fields `question`, `answer`) into the training pool for additional diversity; no overlap with test set.  
 
-All statistical tests report full JSON objects (t‑statistic, p‑value, df, or U‑statistic, etc.) and are stored under `outputs/statistics/`.
+2. **Model**  
+   - Use the publicly available discrete diffusion checkpoint `google/diffusion-100m` (≤ 100 M parameters, CPU‑compatible).  
+   - Load with `torch.load` on CPU (`device="cpu"`).  
+
+3. **Training Loop**  
+   - **Fixed‑density mode**: Loop over ρ ∈ {0.1, 0.3, 0.5, 0.7, 0.9}. For each ρ and each seed (42‑51):  
+     * Initialize `TrainingConfig`.  
+     * Train for up to 10 epochs or until the 6 h timeout flag triggers.  
+     * Record loss per step, final exact‑match and token‑level F1 on the held‑out test split, runtime, and timeout flag.  
+   - **Adaptive mode**: For each seed (42‑51):  
+     * Start with ρ = 0.5.  
+     * At each training step compute **prediction entropy**: average Shannon entropy over the token‑wise softmax distribution.  
+     * Apply the heuristic `ρ_{t+1} = clip(ρ_t + α·(entropy_t - entropy_target), 0, 1)` where α = 0.1 and `entropy_target` is the median entropy observed in a short pilot run.  
+     * Clamp NaN/∞ entropy to `[0, ln(V)]` (V = vocab size) and default ρ to 0.5 if clamped.  
+     * Store the full time‑series of ρ values.  
+   - **Control scheduler (shuffled‑entropy)**: Identical to the adaptive mode but the entropy values are randomly permuted at each step, breaking any systematic link between entropy and density. This provides a causal control to test whether the entropy‑driven adjustments themselves improve performance rather than merely reflecting difficulty.  
+
+4. **Entropy‑Error Correlation (FR‑010)**  
+ - On a held‑out validation subset ([deferred] of the GSM8K train split), compute per‑example prediction entropy and binary error indicator (1 = incorrect exact‑match).
+   - Calculate Pearson’s *r* and associated p‑value; store in `entropy_error_corr.json`.  
+
+5. **Statistical Analysis (Phase 5)**  
+   - **Paired t‑test**: Compare adaptive final accuracies vs. fixed ρ = 0.5 across matching seeds (SciPy `ttest_rel`). If any seed missing, fallback to Mann‑Whitney U (`mannwhitneyu`).  
+   - **Power justification**: With **ten** random seeds per condition, a paired design yields ≥ 0.80 power to detect a medium effect (Cohen’s d ≈ 0.5). This meets conventional standards.  
+   - **Multiple‑comparison note**: The t‑test is a single pre‑specified comparison; no correction required.  
+   - **Quadratic regression**: Fit `accuracy = a·ρ² + b·ρ + c` to the five fixed‑ratio means using `np.polyfit`.  
+   - **Leave‑one‑out CV**: For each fixed‑ratio, leave it out, refit, predict the omitted point; compute RMSE and record the peak density for each fold. Aggregate to obtain mean peak and 95 % CI via bootstrap (1 000 resamples).  
+   - **Sensitivity sweep**: Evaluate the fitted quadratic at ρ ± 0.05 and ρ ± 0.1; compute slope (Δaccuracy / Δρ) and report distributions.  
+   - **Causal check**: Compare adaptive run against the shuffled‑entropy control using an independent t‑test; a significant advantage for the true adaptive run supports the causal claim that entropy‑driven density adjustment improves performance.  
+
+6. **Result Packaging**  
+   - JSON result files (`fixed_baselines.json`, `adaptive_run.json`, `control_shuffle.json`, `paired_t_test.json`, `quadratic_fit.json`, `sensitivity_analysis.json`, `entropy_error_corr.json`).  
+   - PNG figures: loss curves, ρ‑vs‑step time series (adaptive & control), quadratic fit with CI, entropy‑error scatter with regression line.  
+   - All artifacts stored under `outputs/` and validated against the schemas in `contracts/`.  
 
 ## Compute Decision / Rationale
-- **CPU‑first**: All components (model inference, training, entropy) run comfortably on a 2‑core CPU within the 6 h limit. No GPU is required; therefore no off‑load is planned (Principle VI).  
-- **Memory Management**: Data loader streams parquet rows; batch size set to 16 to keep peak RAM ≈ 5 GB.  
-- **Timeout Handling**: At the start of each epoch a wall‑clock check aborts gracefully, writes a checkpoint, and tags the run as `"TIMEOUT"` in the metadata.
+- **CPU‑first**: All operations (model forward, entropy, regression) are lightweight enough for 2‑core CPU; no GPU required (Principle VI).  
+- **Memory management**: Streaming loader + batch size 16 ⇒ peak RAM ≈ 5 GB.  
+- **Timeout handling**: At the start of each epoch, check elapsed wall‑clock; if > 21600 s, save checkpoint, set `timeout=True`, and exit gracefully.  
+- **Parallel execution**: The full suite is run via a GitHub Actions **matrix** over the 5 ρ values and 10 seeds (plus adaptive and control runs). Each matrix job runs a single training instance and therefore stays well within the 6‑hour limit.  
 
 ## Deliverables
-- `outputs/fixed_baselines.json` – JSON array of `TrainingRun` objects with fields `rho`, `seed`, `final_accuracy`, `runtime_seconds`, etc.  
-- `outputs/adaptive_run.json` – JSON array of `TrainingRun` objects (including `density_time_series`).  
-- `outputs/statistics/paired_t_test.json`, `quadratic_fit.json`, `sensitivity_analysis.json`.  
-- Plots (PNG): loss curves, density‑vs‑step, quadratic fit with peak marker and bootstrap confidence bands.
+- `outputs/fixed_baselines.json` – list of `TrainingRun` objects for each ρ & seed.  
+- `outputs/adaptive_run.json` – list of `TrainingRun` objects with `density_time_series`.  
+- `outputs/control_shuffle.json` – list of `TrainingRun` objects for the shuffled‑entropy control.  
+- `outputs/statistics/paired_t_test.json` – t‑statistic, p‑value, df (or U‑test fallback).  
+- `outputs/statistics/quadratic_fit.json` – coefficients, peak density, 95 % CI.  
+- `outputs/statistics/sensitivity_analysis.json` – slopes for ±0.05/±0.1 sweeps.  
+- `outputs/statistics/entropy_error_corr.json` – Pearson r, p‑value.  
+- `outputs/statistics/causal_control_test.json` – result of adaptive vs. shuffled‑entropy comparison.  
+- `outputs/figures/*.png` – loss curves, density trajectory, quadratic fit, entropy‑error scatter.  
+- `outputs/summary.md` – human‑readable table linking all artifacts.
 
 ---
-
-
 

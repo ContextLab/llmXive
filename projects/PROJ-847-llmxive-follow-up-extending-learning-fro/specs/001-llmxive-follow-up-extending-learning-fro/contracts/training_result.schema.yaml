@@ -5,6 +5,7 @@ required:
   - config
   - loss_trajectory
   - final_accuracy
+  - final_f1
   - runtime_seconds
   - timeout
 properties:
@@ -24,7 +25,9 @@ properties:
         type: string
         description: "Unique identifier for the run."
       rho_teacher:
-        type: [number, "null"]
+        type:
+          - number
+          - "null"
         description: "Fixed retaining ratio (null for adaptive)."
       adaptive:
         type: boolean
@@ -51,7 +54,10 @@ properties:
     description: "Training loss per step."
   final_accuracy:
     type: number
-    description: "Logical accuracy on the held‑out test set."
+    description: "Exact‑match logical accuracy on the held‑out test set."
+  final_f1:
+    type: number
+    description: "Token‑level F1 (graded accuracy) on the test set."
   runtime_seconds:
     type: number
     description: "Total wall‑clock time of the run."

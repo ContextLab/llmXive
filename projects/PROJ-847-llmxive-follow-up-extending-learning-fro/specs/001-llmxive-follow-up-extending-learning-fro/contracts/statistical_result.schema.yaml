@@ -6,6 +6,7 @@ required:
   - quadratic_coefficients
   - peak_density
   - sensitivity_slopes
+  - entropy_error_correlation
   - analysis_timestamp
 properties:
   t_test_result:
@@ -17,7 +18,7 @@ properties:
     properties:
       t_statistic:
         type: number
-        description: "t‑statistic from **paired** t‑test."
+        description: "t‑statistic from the paired t‑test."
       p_value:
         type: number
         description: "Two‑tailed p‑value."
@@ -33,7 +34,7 @@ properties:
     description: "Coefficients [a, b, c] for a·ρ² + b·ρ + c."
   peak_density:
     type: number
-    description: "ρ that maximizes the quadratic fit."
+    description: "ρ that maximizes the quadratic fit (with CI)."
   sensitivity_slopes:
     type: object
     required:
@@ -54,7 +55,35 @@ properties:
       minus_0.1:
         type: number
         description: "Accuracy change per 0.01 density when ρ is decreased by 0.1."
+  entropy_error_correlation:
+    type: object
+    required:
+      - pearson_r
+      - p_value
+    properties:
+      pearson_r:
+        type: number
+        description: "Pearson correlation coefficient between prediction entropy and per‑example error."
+      p_value:
+        type: number
+        description: "Two‑tailed p‑value for the correlation."
+  causal_control_test:
+    type: object
+    required:
+      - t_statistic
+      - p_value
+      - df
+    properties:
+      t_statistic:
+        type: number
+        description: "t‑statistic comparing adaptive vs. shuffled‑entropy control."
+      p_value:
+        type: number
+        description: "Two‑tailed p‑value for the causal comparison."
+      df:
+        type: integer
+        description: "Degrees of freedom for the causal test."
   analysis_timestamp:
     type: string
     format: date-time
-    description: "ISO‑8601 timestamp of the statistical analysis."
+    description: "ISO‑8601 timestamp of when the statistical analysis was executed."
