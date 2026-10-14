@@ -1,6 +1,6 @@
 status: none
-intent: pip install gsm8k dataset and huggingface logical deduction subset python
-  package dataset
+intent: download GSM8K dataset and HuggingFace synthetic logical deduction subset
+  python package
 required_fields:
 - question
 - answer
@@ -8,6 +8,6 @@ required_fields:
 - premise
 - hypothesis
 - label
-cache_key: 49c79b5eff7336fe1d5b486930965052d9396813fdd4f8a010b1705f8faaf49e
-searched_at: '2026-10-14T08:46:16.844470+00:00'
+cache_key: 68f308427b5c08517096314c69c7b63c3beb8f9454a23963c64180bc1cbb5155
+searched_at: '2026-10-14T09:17:17.704168+00:00'
 retry_count: 1

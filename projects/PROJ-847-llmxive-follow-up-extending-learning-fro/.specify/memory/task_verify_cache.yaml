@@ -1,11 +1,8 @@
 T001:
   c: true
-  h: 5e9ca83e6f3a39be857ef6ecfcdd98b2e4f97e4d91a7f26160e08158359d9051
-  r: The CLI script `code/run_experiments.py` exists, parses the YAML config, seeds
-    RNGs, creates `outputs/`, and prints "Pipeline initialized"; the execution log
-    shows the exact verification command `--config configs/quickstart.yaml` exiting
-    0 with that output and the `outputs/` tree (including `run_config.json`) present
-    on disk. `docs/quickstart.md` covers command line, env vars, and seed control,
-    and the pytest run (3 passed) confirms the behavior. Skipping unimplemented later-task
-    stages is by design for this entry-point task.
-  sig: 942287f61a4b7db155f3ebb2d7cda4678b13ed3f12b4fa6723dc70de9a3d92ac
+  h: ac5e7866c2c90f3e38d2909a9b6a4a774a9e42b2b6ff7cbcf722ca328f15b7ac
+  r: "Checked `code/run_experiments.py` (CLI parses YAML, prints \u201CPipeline initialized\u201D\
+    , creates outputs via `paths.outputs()`), `docs/quickstart.md` (usage, env vars,\
+    \ seed control), and the resulting `outputs/` directory with `run_config.json`\
+    \ confirming the script was executed successfully."
+  sig: f36bebe6871b636d58956e7e2fdfdc1d7452387e74fdccd3ce50b031ad74bd76

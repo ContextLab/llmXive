@@ -7,8 +7,8 @@ describing identifiers and sizes.
 Primary path: HuggingFace ``datasets.load_dataset`` (streaming).
 If the ``datasets``/``pyarrow`` stack is unusable in the current environment
 (e.g. the pyarrow/NumPy ABI mismatch), the SAME real datasets are fetched
-directly from the HuggingFace Hub over HTTPS as JSONL — still real data,
-never synthetic. If both real acquisition paths fail, a RuntimeError is
+directly from the HuggingFace Hub over HTTPS as JSONL or Parquet — still real
+data, never synthetic. If all real acquisition paths fail, a RuntimeError is
 raised: the loader FAILS LOUDLY, there is no synthetic fallback.
 """
 from __future__ import annotations
@@ -17,8 +17,12 @@ import argparse
 import datetime as _dt
 import json
 import sys
+import tempfile
 from pathlib import Path
 from typing import Iterable, Iterator
+
+import pandas as pd
+import requests
 
 from llmxive_toolkit import get_logger, paths
 
@@ -30,11 +34,14 @@ GSM8K_CONFIG = "main"
 BIGBENCH_ID = "tasksource/bigbench"
 BIGBENCH_CONFIG = "logical_deduction_three_objects"
 
-# Real JSONL mirrors on the HuggingFace Hub used when the local
-# `datasets`/`pyarrow` stack cannot be imported (ABI mismatch).
-GSM8K_JSONL_URL = (
-    "https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test.jsonl"
+# Direct URLs used when the local ``datasets``/``pyarrow`` stack cannot be
+# imported (ABI mismatch) or when streaming via ``datasets`` fails.
+# GSM8K is stored as Parquet on the hub; we download the single parquet file.
+GSM8K_PARQUET_URL = (
+    "https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/"
+    "test-00000-of-00001.parquet"
 )
+# BIG-bench logical-deduction subset is available as JSONL.
 BIGBENCH_JSONL_URL = (
     "https://huggingface.co/datasets/lucasmccabe/logical_deduction/"
     "resolve/main/train.jsonl"
@@ -49,8 +56,6 @@ def _fetch_jsonl(url: str, source_name: str) -> Iterator[dict]:
 
     Raises RuntimeError on any HTTP or parsing failure.
     """
-    import requests
-
     try:
         resp = requests.get(url, timeout=120, stream=True)
         resp.raise_for_status()
@@ -69,6 +74,41 @@ def _fetch_jsonl(url: str, source_name: str) -> Iterator[dict]:
             ) from exc
 
 
+def _fetch_parquet(url: str, source_name: str) -> Iterator[dict]:
+    """Download a Parquet file from the hub and stream its rows as dicts.
+
+    The whole file is written to a temporary location and read with pandas.
+    Raises RuntimeError on any HTTP or parsing failure.
+    """
+    try:
+        resp = requests.get(url, timeout=120, stream=True)
+        resp.raise_for_status()
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to download {source_name} from {url}: {exc}"
+        ) from exc
+
+    # Write to a temporary file to let pandas read it.
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        for chunk in resp.iter_content(chunk_size=8192):
+            if chunk:
+                tmp_file.write(chunk)
+        tmp_path = Path(tmp_file.name)
+
+    try:
+        df = pd.read_parquet(tmp_path)
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to parse Parquet file for {source_name}: {exc}"
+        ) from exc
+    finally:
+        # Clean up the temporary file regardless of success.
+        tmp_path.unlink(missing_ok=True)
+
+    for row in df.to_dict(orient="records"):
+        yield row
+
+
 def _load_via_datasets(dataset_id: str, config: str, split: str, streaming: bool):
     """Try the HuggingFace `datasets` library; return None if unusable."""
     try:
@@ -76,7 +116,7 @@ def _load_via_datasets(dataset_id: str, config: str, split: str, streaming: bool
     except Exception as exc:  # pyarrow/numpy ABI mismatch or similar
         log.warning(
             "HuggingFace `datasets` library unusable in this environment (%s); "
-            "falling back to direct Hub JSONL download of the same real data",
+            "falling back to direct Hub download of the same real data",
             exc,
         )
         return None
@@ -85,7 +125,7 @@ def _load_via_datasets(dataset_id: str, config: str, split: str, streaming: bool
     except Exception as exc:
         log.warning(
             "`datasets.load_dataset(%s, %s) failed (%s); falling back to "
-            "direct Hub JSONL download of the same real data",
+            "direct Hub download of the same real data",
             dataset_id,
             config,
             exc,
@@ -101,10 +141,16 @@ def load_gsm8k(split: str = "test", streaming: bool = True) -> Iterable[dict]:
     """
     ds = _load_via_datasets(GSM8K_ID, GSM8K_CONFIG, split, streaming)
     if ds is not None:
-        log.info("GSM8K %s split loaded via `datasets` (streaming=%s)", split, streaming)
+        log.info(
+            "GSM8K %s split loaded via `datasets` (streaming=%s)", split, streaming
+        )
         return ds
-    log.info("GSM8K %s split: fetching real JSONL from the Hub", split)
-    return _fetch_jsonl(GSM8K_JSONL_URL, f"{GSM8K_ID}/{GSM8K_CONFIG}")
+
+    # Fallback: download the parquet file directly.
+    log.info(
+        "GSM8K %s split: fetching real Parquet file from the Hub (fallback)", split
+    )
+    return _fetch_parquet(GSM8K_PARQUET_URL, f"{GSM8K_ID}/{GSM8K_CONFIG}/{split}")
 
 
 def load_bigbench_lite() -> Iterable[dict]:
@@ -150,7 +196,9 @@ def download_all(raw_dir: Path | None = None) -> Path:
     gsm8k_path = raw_dir / "gsm8k_test.jsonl"
     bigbench_path = raw_dir / "bigbench_logical_deduction.jsonl"
 
-    n_gsm = _snapshot_to_jsonl(load_gsm8k(split="test", streaming=True), gsm8k_path)
+    n_gsm = _snapshot_to_jsonl(
+        load_gsm8k(split="test", streaming=True), gsm8k_path
+    )
     n_bb = _snapshot_to_jsonl(load_bigbench_lite(), bigbench_path)
 
     size_gsm = gsm8k_path.stat().st_size
