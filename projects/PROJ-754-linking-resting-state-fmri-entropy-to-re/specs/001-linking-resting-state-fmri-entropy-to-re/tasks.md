@@ -1,260 +1,68 @@
 # Tasks: Linking Resting‑State fMRI Entropy to Real‑World Decision Risk‑Taking
 
-**Input**: Design documents from `/specs/001-linking-resting-state-fmri-entropy-to-re/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: Active `spec.md`, `plan.md`, data-model.md, contracts/, original research idea, and prior verifier feedback (T002 rejected for missing directory evidence).
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Notes on prior state**: Earlier sample/scaffold tasks (T001–T042 in the previous list) are superseded by this consolidated list per the task template. Verified completed items (requirements.txt initialization, ruff/black config, unit tests for credential validation and motion exclusion) are folded into the relevant tasks below and must not be re-implemented from scratch — reuse the existing `requirements.txt`, `pyproject.toml`, and passing tests in `tests/unit/`. The rejected T002 directory requirement is folded into T001. The platform supplies `llmxive_toolkit` (paths, logging); directory creation, logging setup, and installing common scientific packages are never tasks.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Model-architecture decision (spec over plan)**: `plan.md` specifies OLS, but `spec.md` FR‑004 mandates a mixed model with a subject random effect. The spec governs; tasks implement `statsmodels.MixedLM` per FR‑004. Because each subject contributes exactly one row per parcel model, the random intercept is weakly identified; the implementation task records this limitation honestly and reports it in the final report rather than silently reverting to OLS.
 
-## Format: `[ID] [P?] [Story] Description`
+## Phase 1: Setup and first end-to-end analysis
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T001 [US1] Establish the code layout and validate input provenance. Create the source tree `code/src/data/`, `code/src/analysis/`, `code/src/stats/`, `code/src/config/`, `code/src/utils/`, and `code/tests/unit/`, `code/tests/integration/` with module stubs so every directory contains at least one real file (repairs the rejected prior T002: directories must demonstrably exist with content). Reuse the existing pinned `requirements.txt` (numpy, pandas, nibabel, pyentropy, statsmodels, nilearn, scikit-learn, tqdm) and `pyproject.toml`. Document a runnable end-to-end command in the feature's `quickstart.md`. Validation: `pytest code/tests/` collects tests; `quickstart.md` names the exact command.
+  - Verify the HCP access recipe: confirm `HCP_TOKEN` env-var handling in `code/src/config/env_manager.py` (existing passing tests in `tests/unit/test_data_download.py` may be migrated to `code/tests/unit/`), raising `ValueError` on missing/invalid tokens — never falling back to synthetic or mock data (a failed fetch MUST fail loudly).
 
-## Path Conventions
+- [ ] T002 [US1] Implement the HCP data acquisition module in `code/src/data/download_hcp.py` (FR‑001). Download, for a deterministic fixed-seed subset of up to N=200 subjects: minimally preprocessed 4 mm parcellated (Schaefer‑400) resting‑state fMRI time series and the HCP behavioral table containing DSRT scores, age, sex, and mean FD. Use the HCP S3/API access path with `HCP_TOKEN`; process subjects one at a time and write per-subject parquet files under `data/raw/timeseries/` plus `data/raw/behavioral.parquet`, keeping peak disk use within 14 GB (drop or compact per-subject raw files after QC if needed — state the retention rule). If the real fetch fails, the script MUST raise and exit non-zero; no synthetic fallback. Validation: at least the first fetched subject's parquet has shape (timepoints × 400) with real HCP subject IDs; a 5-subject smoke run completes.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T003 [US1] Implement data validation and motion QC in `code/src/data/qc.py` (FR‑002, edge cases). Check required behavioral columns (subject_id, DSRT, age, sex, mean_fd); exit code 1 with an informative message if columns are absent. Exclude subjects with mean FD ≥ 0.2 mm and subjects with missing DSRT, logging exclusion counts and reasons. Outputs conforming to `subject_qc_schema.schema.yaml`: `data/derived/clean_subjects.parquet` (valid cohort, status="valid") and `data/derived/subject_qc.csv`. Migrate/reuse the existing passing motion-exclusion unit test into `code/tests/unit/test_qc.py` and extend it for missing-DSRT handling. Validation: pytest passes; exclusion counts are logged; no subject with FD ≥ 0.2 mm appears in `clean_subjects.parquet`.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T004 [US2] Implement multiscale sample entropy in `code/src/analysis/entropy.py` (FR‑003). Function `multiscale_entropy(ts, scales=(1,2,3,4,5), m=2, r=0.15)` using `pyEntropy`/`EntropyHub`-style sample entropy per coarse-grained scale, averaged across scales 1–5 to one value per parcel. Flag parcels with insufficient timepoints for a given scale as invalid (NaN + parcel ID appended to `data/derived/invalid_parcels.csv`) rather than crashing. Include focused unit tests in `code/tests/unit/test_entropy.py` on real-shaped deterministic series (e.g., sine, noise from a fixed seed — used only as test fixtures, never as analysis data). Validation: pytest passes; a known low-complexity series yields lower entropy than a high-complexity series.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T005 [US1,US2] Connect the end-to-end pipeline and run a small real case. Entry point `code/src/run_pipeline.py --subjects 5` executes download → QC → entropy on the first 5 valid real subjects, producing `data/derived/entropy_matrix.parquet` (subjects × parcels, conforming to `entropy.schema.yaml`: subject_id, parcel_id, entropy) with metadata (n_subjects, n_parcels, scales, r_values, seed). Process parcels in batches (≤50 per batch) to keep peak RAM < 4 GB (SC‑002). Validation: matrix shape is (5, 400) with real subject IDs and finite entropy values for ≥95% of parcels; the quickstart command runs to completion on real HCP data.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+**Checkpoint**: The documented command executes on real data and its numerical outputs can be checked. Do not start report writing from expected or invented results.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+## Phase 2: Complete the study and validate its evidence
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T006 [US2] Run the full-cohort entropy computation (FR‑003). Execute `code/src/run_pipeline.py --subjects 200` (or the full valid cohort if smaller after QC) to produce the complete `data/derived/entropy_matrix.parquet` and `data/derived/covariates.parquet` (subject_id, age, sex, mean_fd, dsrt_score). Record actual runtime and peak memory in `data/results/pipeline_metrics.json` against SC‑001/SC‑002. Validation: matrix rows match the valid cohort from T003; invalid parcels listed in `data/derived/invalid_parcels.csv` are NaN consistently.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T007 [US3] Implement covariate diagnostics and the mass-univariate mixed model in `code/src/stats/model_fitting.py` (FR‑004, SC‑005). Compute VIF for age, sex, mean FD (`statsmodels.stats.outliers_influence.variance_inflation_factor`) and record values; flag VIF ≥ 5. Fit per parcel: `DSRT ~ Entropy + Age + Sex + MeanFD` with a subject random intercept via `statsmodels.MixedLM` per FR‑004 (spec overrides plan's OLS wording); because one row per subject per parcel makes the random intercept weakly identified, fall back to OLS for that parcel only if MixedLM fails to converge, recording which parcels used the fallback in the output. Output per-parcel beta, SE, t, raw p to `data/results/model_coefficients.csv` conforming to `stat_results.schema.yaml` fields. Unit tests in `code/tests/unit/test_stats.py` verify coefficient recovery on a constructed design (test fixture only). Validation: pytest passes; all 400 parcels have a row; VIF values reported.
 
-- [ ] T001 [US0] Initialize project directories and verification artifact: Create root directories `src/`, `tests/`, `data/`, `reports/`, `docs/`, `scripts/`, `state/`. **Action**: Execute a Python script `scripts/init_dirs.py` that creates these directories if missing and writes a JSON file `data/directories_verified.json` containing a timestamp and a list of created paths. **Validation Rule**: CI must verify `data/directories_verified.json` exists and contains the expected keys. **Note**: This task blocks all user stories.
+- [ ] T008 [US3] Implement Freedman–Lane max-t permutation FWE correction in `code/src/stats/permutation_test.py` (FR‑005). Shuffle DSRT residuals, recompute per-parcel t-statistics, take the max-t across parcels per permutation to build the null; start at 500 permutations and expand in steps of 500 up to 10,000 while p-value estimates are unstable (width of the 95% CI on p_fwe > 0.02), with an elapsed-time guard that aborts with a clear timeout error before the 6 h CI limit (SC‑001 edge case) rather than emitting partial results. Outputs: `data/results/max_t_distribution.npy`, `data/results/corrected_pvalues.csv` (parcel_id, p_raw, p_fwe, significant = p_fwe < 0.05). Seed pinned (42). Unit test in `code/tests/unit/test_permutations.py` verifies the null distribution is uniform-ish under a no-effect construction and that max-t ≥ any single-parcel t. Validation: pytest passes; corrected_pvalues.csv has 400 rows.
 
----
+- [ ] T009 [US3] Implement post-hoc power analysis in `code/src/stats/power_analysis.py` (SC‑006). F-test-based power for effect size d=0.3 at the achieved cohort N and alpha=0.05; write `data/results/power_metrics.json` including `power`, `effect_size_d`, `n_subjects`, and an explicit `underpowered: true` flag if power < 0.80. Validation: JSON exists with all fields; the flag is consistent with the computed power.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T010 [US3] Run the primary analysis on the low-motion valid cohort (FR‑002, FR‑006). Execute T007–T009 outputs end-to-end on the QC'd cohort, producing the final `data/results/model_coefficients.csv`, `data/results/corrected_pvalues.csv`, and `data/results/power_metrics.json`. This is the primary scientific deliverable; a null result (zero significant parcels) is a valid outcome and must be reported as such. Validation: files exist, row counts match parcels, and every number traces to the real entropy matrix from T006.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T011 [US3] Run the sensitivity analysis (FR‑008, SC‑004). Driver `code/src/stats/sensitivity_driver.py` sweeps tolerance r ∈ {0.1, 0.15, 0.2} and scale-averaging set τ ∈ {{1}, {1,2}, {1..3}, {1..5}} (embedding dimension m=2 fixed), recomputing entropy from the real time series per grid point and re-running the model with a reduced, fixed 1000 permutations per point (time-budgeted). Output `data/results/sensitivity_grid.csv` with columns [scale_set, tolerance_r, num_significant_parcels, max_beta, mean_p_value]. Validation: grid covers all 12 combinations; counts are real recomputations, not copies of the baseline row.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T012 [US3] Generate figures and maps from validated outputs (SC‑003). `code/src/reporting/figures.py` produces: a parcel-wise β and −log10(p_fwe) brain map `data/results/significant_map.nii.gz` (nilearn, Schaefer‑400 atlas), a histogram of p_fwe, and the sensitivity heatmap `figures/sensitivity_heatmap.png`, all rendered directly from the CSV/NIfTI outputs of T010/T011. Validation: each figure file exists and is regenerable by re-running the script with no manual edits.
 
-Examples of foundational tasks (adjust based on your plan.md):
+## Phase 3: Reproducible results and paper handoff
 
-- [X] T003 [P] [US0] Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, nibabel, pyentropy, statsmodels, nilearn, scikit-learn, tqdm, linearmodels).
-- [X] T004 [P] [US0] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections defining specific rules (e.g., line-length=88, target-version=py311).
-- [ ] T005 [P] [US0] Setup `data/` directory structure and `data/checksums.txt` logging mechanism. **Depends on T001**.
-- [ ] T006 [US0] Implement robust environment variable management in `src/config/env_manager.py`: Check for `HCP_TOKEN` env var. **Validation Rule**: Raise `ValueError` if token is missing OR if `len(token) < 20` or `not token.startswith("hcp_")`. **Note**: This task must complete before T012 (HCP S3 Downloader) can proceed. **Execution Order**: Sequential dependency on T012.
-- [ ] T007 [P] [US0] Setup logging infrastructure in `src/utils/logging_config.py`: Define log format as `%(asctime)s - %(name)s - %(levelname)s - %(message)s` and configure output to `logs/pipeline.log` and console. **Note**: Validates logging configuration for the entire pipeline.
-- [ ] T008 [P] [US0] Create base data entities in `src/entities/models.py`: Define `Subject` class (attributes: subject_id, dsrt_score, age, sex, mean_fd) and `Parcel` class (attributes: parcel_id, time_series).
-- [ ] T009 [US0] Configure deterministic random seed handling: Create `src/utils/seed_manager.py` to set `numpy.random.seed(42)`, `random.seed(42)`, and environment variable `PYTHONHASHSEED=42`. **Note**: This module MUST be imported and called in all stochastic tasks (T012, T020, T029) BEFORE any random operations occur. **Execution Order**: Sequential dependency on T012, T020, T029. **Constraint**: Do NOT mark as [P] as it must run before dependent tasks.
+- [ ] T013 [US3] Write the methods/results account in `reports/results_summary.md`, linked to the actual output cells and figure files: cohort size and exclusions, entropy parameters, model specification (including the MixedLM identifiability limitation and any OLS fallback), permutation count actually used, VIF values, power result with the underpowered flag if triggered, sensitivity table, and explicit associational (non-causal) framing per FR‑006. Report negative findings and limitations honestly. Validation: every number in the summary appears in a results artifact; no invented values.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T014 [US1,US2,US3] Re-run the documented workflow from its declared inputs and document the paper-stage handoff. Re-execute the quickstart command end-to-end, confirm `pytest code/tests/` passes and all artifacts in `data/results/`, `data/derived/`, `figures/`, `reports/` regenerate consistently (seed-pinned). Write the paper-stage handoff in `reports/paper_handoff.md` listing: required report sections (associational framing, power analysis, sensitivity tables, parcel map figure), the artifact paths feeding each, and the underpowered-flag requirement (SC‑006). Research scripts must NOT write to `state/` or modify platform state — artifact hashing is owned by the platform. Validation: a clean re-run reproduces byte-identical CSV/NIfTI results (modulo timestamps); handoff lists all deliverables.
 
----
+## Dependencies and requirement coverage
 
-## Phase 3: User Story 1 - Data Acquisition & Preprocessing Pipeline (Priority: P1) 🎯 MVP
+| Requirement | Task(s) | Demonstrating command |
+|---|---|---|
+| FR‑001 (download, N≤200, 4mm parcellated) | T001, T002 | `python code/src/run_pipeline.py --subjects 5` |
+| FR‑002 (FD < 0.2 mm exclusion) | T003, T010 | `pytest code/tests/unit/test_qc.py` |
+| FR‑003 (mSE m=1–5, averaged) | T004, T005, T006 | `pytest code/tests/unit/test_entropy.py` |
+| FR‑004 (mixed model + covariates) | T007, T010 | `pytest code/tests/unit/test_stats.py` |
+| FR‑005 (Freedman–Lane max-t FWE) | T008, T010 | `pytest code/tests/unit/test_permutations.py` |
+| FR‑006 (associational framing) | T013, T014 | `reports/results_summary.md` |
+| FR‑007 (CPU-only) | all | no CUDA/quantization anywhere in `code/` |
+| FR‑008 (r and scale sweep) | T011 | `data/results/sensitivity_grid.csv` |
+| SC‑001/SC‑002 (runtime/memory) | T005, T006, T008 | `data/results/pipeline_metrics.json` |
+| SC‑003 (map + report) | T012, T013 | `data/results/significant_map.nii.gz` |
+| SC‑004 (sensitivity coverage) | T011 | `data/results/sensitivity_grid.csv` |
+| SC‑005 (VIF < 5) | T007 | VIF columns in model output |
+| SC‑006 (power / underpowered flag) | T009, T013 | `data/results/power_metrics.json` |
 
-**Goal**: Download HCP resting-state fMRI parcellated time series and DSRT scores for a subset of subjects, filter high-motion subjects (FD ≥ 0.2mm), and ensure data quality.
+Execution order: T001 → T002 → T003 → T004 → T005 (checkpoint) → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014. T004 can proceed in parallel with T002/T003 (different files). All tasks run CPU-only on real HCP data; any failed real fetch must fail loudly — never a synthetic fallback.
 
-**Independent Test**: Verify the download of a a subset of subjects and confirm the exclusion of subjects with mean framewise displacement (FD) ≥ 0.2mm.
+## Revision behavior
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T010 [P] [US1] Unit test for HCP credential validation in `tests/unit/test_data_download.py`. **Note**: Validates the specific credential check logic implemented in T012 (checking for `HCP_TOKEN` and raising on missing/invalid).
-- [X] T011 [P] [US1] Unit test for motion threshold exclusion logic in `tests/unit/test_qc.py`. **Note**: Validates the specific filtering logic implemented in T014 (exclusion of subjects with mean FD ≥ 0.2mm).
-
-### Implementation for User Story 1
-
-- [ ] T012 [US1] Implement HCP S3 downloader in `src/data/download_hcp.py` to fetch **minimally preprocessed 4mm parcellated time series** and behavioral data for N=200 subjects, selecting subjects deterministically using a fixed random seed. **Note**: Data is already 4mm; no resampling required. **Depends on T006, T009**.
-- [ ] T013 [US1] Implement data validation script in `src/data/validate_data.py` to check for required columns (subject_id, DSRT, age, sex, mean_fd). **Handling Logic**: If DSRT is missing (NaN/null), **drop rows** and log the exclusion count to `data/validation_report.txt`. If required columns are missing entirely, exit with code 1 and log to `data/validation_report.txt`.
-- [ ] T014 [US1] Implement motion quality control filter in `src/data/filter_motion.py` to process downloaded data: 1) Create `data/cleaned/full_clean.parquet` (all subjects with valid DSRT). 2) Create `data/cleaned/low_motion_subset.parquet` (subjects with mean FD < 0.2mm). Log exclusion counts for both outputs.
-- [ ] T015 [US1] Create aggregated clean dataset in `data/cleaned/subjects_200_filtered.parquet` with schema: [subject_id, DSRT, age, sex, mean_fd], encoding UTF-8. **Selection Logic**: Select the **first 200 subjects** from the list sorted by `subject_id` (after T012 download) to ensure determinism. **Note**: This is a derived artifact; must be checksummed in `data/checksums.txt` and `state/projects/...yaml`.
-- [ ] T016 [US1] Generate checksum for all **downloaded** raw artifacts and append to `data/checksums.txt`
-- [ ] T017 [US1] Generate checksum for **derived** intermediate files `data/cleaned/full_clean.parquet` and `data/cleaned/low_motion_subset.parquet` and append to `data/checksums.txt`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Multiscale Entropy Computation (Priority: P2)
-
-**Goal**: Compute multiscale sample entropy (mSE) for each cortical parcel across the valid subject cohort, averaging across scales m=1–5.
-
-**Independent Test**: Run entropy computation on a small test dataset (a small number of subjects) and verify output shape matches (subjects × parcels).
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [P] [US2] Unit test for mSE calculation on synthetic time series in `tests/unit/test_entropy.py`
-- [ ] T019 [P] [US2] Integration test for parcel-wise processing loop in `tests/integration/test_entropy_pipeline.py`
-
-### Implementation for User Story 2
-
-- [ ] T020 [US2] Implement multiscale sample entropy function in `src/analysis/entropy.py` to compute entropy for **scales 1 through 5**, using **embedding dimension m=2** and tolerance **r=0.15** (baseline configuration). **Note**: Explicitly distinguishes embedding dimension (m=2) from scale range (1-5). **Scope**: This task implements the **baseline** configuration only. The sensitivity analysis (T033) will sweep r and scale parameters.
-- [ ] T021 [US2] Implement parcel-wise processing loop in `src/analysis/compute_entropy.py` to handle parcels in batches of **50 parcels per batch** to ensure peak RAM usage does not exceed **4GB**. **Note**: This task supports parallel processing of batches if memory allows. Implement chunking logic to process N parcels per batch.
-- [ ] T022 [US2] Implement logic to flag and handle parcels with insufficient timepoints (invalid flagging): Append invalid parcel IDs to `data/derived/invalid_parcels.csv`.
-- [ ] T023 [US2] Generate averaged entropy metric by **explicitly averaging across scales 1-5** per parcel per subject and save to `data/derived/entropy_matrix.csv` (subjects × parcels). **Note**: This task replaces T024.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Modeling & Reporting (Priority: P3)
-
-**Goal**: Fit mass-univariate linear models per parcel, perform permutation-based FWE correction, and generate the final report with power analysis, robustness checks, and sensitivity checks.
-
-**Independent Test**: Run the statistical model on the computed entropy data and verify the output includes a PDF report, a NIfTI map of significant parcels, and a power analysis section.
-
-**⚠️ CONTRADICTION ALERT**: The `plan.md` Summary and Phase 3 description incorrectly specify "Ordinary Least Squares (OLS)" regression. **Spec FR-004 MANDATES** a "Linear Mixed Effects (MixedLM)" model with a random effect `(1|Subject)`. The tasks below implement **MixedLM** to satisfy the Spec. The Plan.md must be flagged for correction in the next review cycle.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T025 [P] [US3] Unit test for Mixed Effects model fitting and VIF calculation in `tests/unit/test_stats.py`
-- [ ] T026 [P] [US3] Unit test for max-t permutation logic in `tests/unit/test_permutations.py`
-
-### Implementation for User Story 3
-
-- [ ] T027 [US3] Implement Variance Inflation Factor (VIF) calculation for covariates (Age, Sex, Mean FD) in `src/stats/collinearity.py` using `statsmodels.stats.outliers_influence.variance_inflation_factor`. **Note**: (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917) (SC-005).
-- [ ] T028 [US3] Implement mass-univariate **Linear Mixed Effects (MixedLM)** model per parcel (`DSRT ~ Entropy + Age + Sex + MeanFD + (1|Subject)`) in `src/stats/model_fitting.py`. **Note**: **SPEC FR-004 MANDATES MixedLM with Subject random effect. This overrides the contradictory OLS instruction in Plan.md Summary and Phase 3.** Use `statsmodels` MixedLM. **Note**: Plan.md flagged for correction (Plan-Root-Cause).
-- [ ] T029 [US3] Implement adaptive Freedman-Lane permutation test in `src/stats/permutation_test.py`. **Logic**: Start with pilot N=500 iterations. Check p-value stability (convergence of max-t statistic). If unstable, increase iterations by 500 up to a hard cap of N=10,000. Output `data/results/max_t_distribution.npy` and `data/results/corrected_pvalues.csv`. **Note**: Ensures 'statistically significant' requirement is met dynamically by adapting to data complexity. **Depends on T028**.
-- [ ] T030 [US3] Implement FWE correction logic to threshold p-values at < 0.05 using the distribution from `data/results/max_t_distribution.npy` (produced by T029) and generate `data/results/corrected_pvalues.csv` containing FWE-adjusted p-values. **Note**: Must strictly follow T029. **Depends on T029**.
-- [ ] T031 [US3] Implement post-hoc power analysis (F-test) in `src/stats/power_analysis.py` to calculate power for effect size d=0.3. Save raw metrics to `data/results/power_metrics.json` and explicitly flag the study as 'Underpowered' in the JSON if Power < 0.80.
-- [ ] T032 [US3] Generate parcel-wise NIfTI map of significant clusters in `data/results/significant_map.nii.gz`
-- [ ] T033 [US3] **Sensitivity Analysis Driver**: Create a wrapper script in `src/stats/sensitivity_driver.py` that orchestrates the full pipeline. **Grid**: Sweep **scale parameter τ ∈ {1, 2, 3, 4, 5}** (discrete magnitudes matching m=1–5) and **tolerance r ∈ {0.1, 0.15, 0.2}**. **Constraint**: Keep **embedding dimension m=2** fixed. **Logic**: For each grid point (τ, r), re-compute entropy from raw time series (T020 function) and run statistical model (T028-T030). **Output**: Aggregate results into `data/results/sensitivity_grid.csv` with columns: [scale_tau, tolerance_r, num_significant_parcels, max_beta, mean_p_value]. **Note**: Uses N=1000 pilot permutations per grid point. **Depends on T020, T023** (raw data and entropy matrix), NOT T023 alone. **Note**: Removed [P] tag; strictly sequential after US2.
-- [ ] T034 [US3] **Primary Analysis Execution**: Execute the full statistical pipeline (T028-T032) on the `data/cleaned/low_motion_subset.parquet` dataset to generate the **primary** results. **Output**: Generate `reports/analysis_report.pdf` using filtered data. **Note**: Uses low-motion subset to satisfy FR-002. **Note**: Spec FR-004 (MixedLM) overrides Plan.md (OLS). **This is the main scientific deliverable.**
-- [ ] T035 [US3] **Comparative Robustness Check**: Execute a *separate* statistical pipeline execution on the `data/cleaned/full_clean.parquet` dataset (all valid DSRT). **Logic**: Use a distinct function `fit_model_unfiltered()` to avoid ambiguity with T028's filtered context. **Constraint**: This is strictly a comparative sensitivity check. **MOTION FILTERING**: This task MUST **STILL APPLY** the mean FD < 0.2mm filter to the `full_clean` dataset to ensure consistency with FR-002; it compares "Low Motion Subset" vs "All Valid Subjects (with motion filter)" rather than "Filtered vs Unfiltered". Justified by Constitution Principle VI (Neuroimaging Motion Control) to compare low-motion vs full-clean results. **Note**: Does not re-run T012-T014; consumes existing artifacts from T014. **Note**: This task intentionally relaxes the "subset size" constraint but NOT the "motion filter" constraint.
-- [ ] T036 [US3] Generate final PDF report in `reports/analysis_report.pdf` including associational framing, power analysis, sensitivity tables, and robustness check results. **Explicit Instruction**: Read `data/results/power_metrics.json`. If the 'underpowered' flag is present, **MUST INJECT** the string 'UNDERPOWERED' into the report text (e.g., in the Results or Discussion section) to satisfy SC-006. **Note**: Ensures the flag is visible in the final deliverable.
-- [ ] T037 [US3] Update `state/projects/PROJ-754-...yaml` with SHA-256 hashes of all final artifacts
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T038 [P] [US0] Documentation updates: Create `docs/entropy_method.md` with sections: 'Parameters', 'Dependencies', 'Algorithm', 'Reproducibility'.
-- [ ] T039 [US0] Refactoring: Extract data loading logic into `src/data/loader.py` to improve modularity.
-- [ ] T040 [P] [US0] Performance optimization for the permutation loop using joblib with n_jobs=2 (or optimized serial if 2 cores unavailable)
-- [ ] T041 [P] [US0] Additional unit tests for edge cases in `tests/unit/test_edge_cases.py`: Include `test_empty_dataset`, `test_timeout_trigger`, `test_missing_column`.
-- [ ] T042 [US0] Execute `scripts/validate_quickstart.sh` and ensure exit code 0.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (clean data)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (entropy matrix)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel (except T001 which is sequential)
-- All Foundational tasks marked [P] can run in parallel (within Phase 2) (except T006/T009 which have sequential dependencies)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for HCP credential validation in tests/unit/test_data_download.py"
-Task: "Unit test for motion threshold exclusion logic in tests/unit/test_qc.py"
-
-# Launch all models for User Story 1 together:
-Task: "Create base data entities in src/entities/"
-Task: "Setup environment variable management in src/config/"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data)
- - Developer B: User Story 2 (Entropy)
- - Developer C: User Story 3 (Stats)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies (except where explicitly noted for sequential steps like T001)
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only CI (A minimal virtual environment configured with a small number of CPU cores, a moderate amount of RAM, and limited disk space.). No GPU, no 8-bit quantization, no large model loading.
-- **Data Integrity**: All analysis tasks must use real HCP data downloaded via T012. No synthetic data fabrication.
-- **Sensitivity Analysis**: Task T033 is a driver that re-runs the pipeline with reduced permutations for grid points to fit within 6 hours. **Logic corrected to test scale parameter τ ∈ {1, 2, 3, 4, 5} and tolerance r ∈ {0.1, 0.15, 0.2}**.
-- **Model Architecture**: Task T028 implements Mass-Univariate MixedLM per parcel to satisfy Spec FR-004. **Overrides Plan.md OLS instruction**. **Plan.md flagged for correction**.
-- **Power Analysis**: Task T031 includes explicit logic to flag the study as underpowered if Power < 0.80. Task T036 ensures this flag is injected into the PDF.
-- **Robustness**: T035 runs on `full_clean` (with motion filter applied) while T034 runs on `low_motion_subset` (filtered), enabling valid comparison and satisfying FR-002 for the primary analysis. **T035 is a comparative check, not a primary analysis**.
-- **Plan Correction**: The `plan.md` summary and Phase 3 description incorrectly specify OLS. The implementation MUST follow Spec FR-004 (MixedLM). This task list reflects the Spec requirement.
-- **Permutation Logic**: Task T029 uses an adaptive loop (pilot 500 -> expand to 10k) to ensure statistical significance, replacing hardcoded 5000.
-- **Directory Verification**: T001 now produces `data/directories_verified.json` as an explicit, machine-readable artifact.
-- **Seed Manager**: T009 is sequential and must run before stochastic tasks; [P] tag removed.
+Preserve working artifacts and verified requirements (existing `requirements.txt`, `pyproject.toml`, and passing credential/motion tests are reused, not rebuilt). The rejected prior T002 (missing directories) is repaired inside T001 with real module stubs in `code/src/` and `code/tests/`. The prior task list's 42 scaffold items are consolidated into the 14 substantive tasks above; no acceptance criterion from the specification was dropped. The plan/spec OLS-vs-MixedLM conflict is resolved in favor of the spec (FR‑004) with the identifiability limitation documented rather than silently weakened.
