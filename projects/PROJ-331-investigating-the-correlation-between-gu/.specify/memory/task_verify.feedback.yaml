@@ -1,43 +1,31 @@
 T001:
-  reason: "The ingest module (`code/src/pipeline/ingest.py`) correctly implements\
-    \ the validation logic, but the required raw clinical file `data/raw/open_clinical.parquet`\
-    \ is missing, causing the script to raise a `FileNotFoundError` and exit with\
-    \ a non\u2011zero status. Additionally, the unit\u2011test file `code/tests/test_ingest_preprocessed.py`\
-    \ is absent, so the claim that the tests pass cannot be verified. Supplying a\
-    \ valid `open_clinical.parquet` with the required columns and adding the missing\
-    \ test suite are needed to satisfy the task."
+  reason: "The ingest module exists and implements the required checks, but the essential\
+    \ input files `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet` are\
+    \ missing, so the script cannot run successfully. Additionally, the unit\u2011\
+    test file `code/tests/test_ingest_preprocessed.py` is absent, so the claim that\
+    \ tests pass cannot be verified. These missing artifacts must be provided for\
+    \ the task to be considered complete."
   task: 15966faecaeeda70562cb5a02285f869bbb2fd17f744efa216d9c0796a90ebd9
 T002:
-  reason: "The repository contains `code/src/pipeline/preprocess.py` and the test\
-    \ suite, but the required output artifacts `data/processed/filtered_samples.parquet`\
-    \ and `data/processed/clr_abundances.parquet` are missing. Moreover, the provided\
-    \ `test_preprocess.py` does not actually verify that the RAM\u2011budget cap limits\
-    \ taxa to \u2264\u202F100 (its RAM\u2011cap test expects no subsampling, contradicting\
-    \ the spec). The missing output files and insufficient test coverage mean the\
-    \ task\u2019s requirements are not fully satisfied."
+  reason: "The repository contains a full `preprocess.py` implementation and a passing\
+    \ test suite, but the required output artifacts `data/processed/filtered_samples.parquet`\
+    \ and `data/processed/clr_abundances.parquet` are absent. Without these files\
+    \ present at the specified locations, the task\u2019s deliverable is incomplete."
   task: ad7b9cc8c0acd1722380307b22f28c6a184db66658c888b8459bcaf4e8008a0d
 T003:
   task: c649b0e9a215931cb44d3b50a00141daa72ec6c0bb3edad66a4fbc0610cd0a2c
 T004:
-  reason: "The pipeline writes only `results/taxa_correlations.csv`; the required\
-    \ `results/taxa_correlations_adj.csv` is absent, and the contract schema file\
-    \ `taxa_results.schema.yaml` is missing. Moreover, the covariate\u2011adjusted\
-    \ test (`code/tests/test_correlation_adj.py`) aborts because the environment lacks\
-    \ a Parquet engine, so residualisation is never exercised. These missing artifacts\
-    \ and failing tests mean the task\u2019s requirements are not satisfied."
+  reason: The pipeline code implements residualisation and BH correction, but the
+    required output `results/taxa_correlations_adj.csv` is missing, and the schema
+    file `taxa_results.schema.yaml` (referenced by the contract test) does not exist,
+    causing the verification tests to fail. These artifacts must be generated and
+    the schema provided for the task to be considered complete.
   task: b808b585e4bf139d7dc89b1c21dba609a864f6d01409df8189bd81fdfb1f4083
 T005:
   task: 581a7be89886c2847bb1728d7d5188f66f3223b3e4f56057993bdaad13266159
 T006:
-  reason: "I examined `code/src/pipeline/permutation.py` \u2013 it seeds NumPy, shuffles\
-    \ patient IDs while keeping visit dates, fits the mixed\u2011effects model, aborts\
-    \ after 4\u202Fh, and writes `results/permutation_pvalues.csv`. However the supplied\
-    \ test `code/tests/test_permutation.py` only checks that a CSV is created with\
-    \ the correct columns and that empirical p\u2011values lie in\u202F[0,\u202F1];\
-    \ it does **not** verify (i) that the within\u2011patient temporal order is unchanged\
-    \ after permutation, nor (ii) that the 4\u2011hour wall\u2011time guard triggers\
-    \ on a mocked long run as required by the task\u2019s verification criteria. Consequently\
-    \ th"
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_permutation.py
+    exit=1'
   task: 69b0b4dd54804aadc83c014d49d8b03ebef87cde1a95615757aa86d2391e4a3c
 T007:
   reason: "The repository contains `code/src/pipeline/__main__.py` and a static `results/runtime_log.txt`,\

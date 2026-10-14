@@ -14,7 +14,6 @@ from typing import List, Tuple, Dict, Optional
 
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from llmxive_toolkit import paths
 
@@ -55,19 +54,19 @@ def _encode_sex(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _permute_clinical(clinical_df: pd.DataFrame, rng: np.random.Generator) -> pd.DataFrame:
-    """Shuffle whole per‑patient outcome series while keeping covariates."""
-    # Extract the outcome series per patient
-    outcome_series = clinical_df[["patient_id", "visit_date", "MDS_UPDRS_Total"]].copy()
-    patients = outcome_series["patient_id"].unique()
-    shuffled_patients = rng.permutation(patients)
-    mapping = dict(zip(patients, shuffled_patients))
-    outcome_series["patient_id"] = outcome_series["patient_id"].map(mapping)
+    """Shuffle whole per‑patient outcome series while keeping covariates.
 
-    # Re‑attach other covariates (they stay with original patient IDs)
-    covariates = clinical_df.drop(columns=["MDS_UPDRS_Total", "visit_date"])
-    permuted = outcome_series.merge(covariates, on="patient_id", how="left")
-    # Preserve original visit_date ordering (already datetime)
-    return permuted
+    The permutation is performed by shuffling the ``patient_id`` column
+    across rows, leaving the order of rows (and thus the temporal order
+    within each original patient) untouched.  This guarantees that each
+    patient’s internal visit chronology is preserved.
+    """
+    df = clinical_df.copy()
+    unique_ids = df["patient_id"].unique()
+    shuffled_ids = rng.permutation(unique_ids)
+    mapping = dict(zip(unique_ids, shuffled_ids))
+    df["patient_id"] = df["patient_id"].map(mapping)
+    return df
 
 
 def _detect_zero_variance(df: pd.DataFrame) -> List[str]:

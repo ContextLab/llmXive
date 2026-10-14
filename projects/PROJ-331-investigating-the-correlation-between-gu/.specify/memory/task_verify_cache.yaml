@@ -1,25 +1,3 @@
-T001:
-  c: false
-  h: b2bdfa12244749f337ae815567d02d8970c8f60c821c1a110c7e814b5efa2750
-  r: "The ingest module (`code/src/pipeline/ingest.py`) correctly implements the validation\
-    \ logic, but the required raw clinical file `data/raw/open_clinical.parquet` is\
-    \ missing, causing the script to raise a `FileNotFoundError` and exit with a non\u2011\
-    zero status. Additionally, the unit\u2011test file `code/tests/test_ingest_preprocessed.py`\
-    \ is absent, so the claim that the tests pass cannot be verified. Supplying a\
-    \ valid `open_clinical.parquet` with the required columns and adding the missing\
-    \ test suite are needed to satisfy the task."
-  sig: 17b94e883eff0a0c75b9854f9103be8b8831b364de3adc8aa0cfc40016dbc0cc
-T002:
-  c: false
-  h: 0198146e2d75a986ba52c396e1097ff389c956f12aff4c9dd1a74a412760a936
-  r: "The repository contains `code/src/pipeline/preprocess.py` and the test suite,\
-    \ but the required output artifacts `data/processed/filtered_samples.parquet`\
-    \ and `data/processed/clr_abundances.parquet` are missing. Moreover, the provided\
-    \ `test_preprocess.py` does not actually verify that the RAM\u2011budget cap limits\
-    \ taxa to \u2264\u202F100 (its RAM\u2011cap test expects no subsampling, contradicting\
-    \ the spec). The missing output files and insufficient test coverage mean the\
-    \ task\u2019s requirements are not fully satisfied."
-  sig: 94e7613438921272677808084d2bed041e99e80bebe63ae8a6e570d198484636
 T003:
   c: true
   h: 09e0766dedad41d5a5273aef55aa5dee6a45b0ef1bbce724c7674def5e23608e
@@ -30,16 +8,6 @@ T003:
     s specifications, and the tests confirm correct handling of two\u2011visit patients,\
     \ year calculations, constant outcomes, and file creation."
   sig: 49069d714f3dd06165557b790852aa7b6e78074f596e68d50171e4db77c66d59
-T004:
-  c: false
-  h: d636b3faea590c4012616dd318e1c444141d8f88f016f07426ca1904a124b832
-  r: "The pipeline writes only `results/taxa_correlations.csv`; the required `results/taxa_correlations_adj.csv`\
-    \ is absent, and the contract schema file `taxa_results.schema.yaml` is missing.\
-    \ Moreover, the covariate\u2011adjusted test (`code/tests/test_correlation_adj.py`)\
-    \ aborts because the environment lacks a Parquet engine, so residualisation is\
-    \ never exercised. These missing artifacts and failing tests mean the task\u2019\
-    s requirements are not satisfied."
-  sig: 4697ce36efb53913517764cfc9c9b8e197a6cea1b7b35e60d71d77ceb5b09f18
 T005:
   c: true
   h: 0917c0a8fff5131ff6184adbb545b8dc4172d92180afee747cbadca06eca359d
