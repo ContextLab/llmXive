@@ -64,7 +64,7 @@ ERROR tests/test_config.py
 ERROR tests/test_logging.py
 ERROR tests/unit/test_simulation.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 1.30s ===============================
+============================== 4 errors in 1.23s ===============================
 
 
 
@@ -73,34 +73,6 @@ ERROR tests/unit/test_simulation.py
 - data/processed/comparison_results.json
 - data/processed/power_results.json
 - data/processed/us1_results.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `openml` to the project's `requirements.txt` and `pip install openml`.
-- **Verified**: this loads **768** real records with fields: outcome, covariate1.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import openml, pandas as pd
-# Diabetes dataset (OpenML ID 37)
-ds = openml.datasets.get_dataset(37)
-df = ds.get_data(dataset_format='dataframe')[0]
-records = len(df)
-print(f'RECORDS={records}')
-# Map requested generic fields to actual column names in this dataset
-field_map = {
-    'treatment': [],
-    'outcome': ['class', 'target', 'y'],
-    'covariate1': ['glucose', 'age'],
-    'covariate2': ['bmi', 'blood_pressure']
-}
-present = [generic for generic, cols in field_map.items() if any(col in df.columns for col in cols)]
-print('FIELDS=' + ','.join(present))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

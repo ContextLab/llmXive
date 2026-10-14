@@ -37,10 +37,11 @@ from simulation import permute_treatment_labels, simulate_mar
 from analysis import run_complete_case_analysis
 from metrics import aggregate_results as metrics_aggregate_results
 
-# Configure logging
+# Configure logging (console only; no file handler to avoid missing directory issues)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
@@ -48,15 +49,15 @@ logger = logging.getLogger(__name__)
 # Default configuration – exactly the condition required for US1
 # ----------------------------------------------------------------------
 DEFAULT_CONFIG = {
-    "dataset_id": 42803,            # OpenML ID for the required RCT dataset
-    "mechanism": "MAR",            # Missingness mechanism
-    "rate": 0.20,                  # 20 % missingness
-    "outcome_type": "continuous",  # Outcome type (continuous for this dataset)
-    "iterations": 500,             # Number of Monte Carlo iterations
-    "seed": 42,                    # Fixed random seed for reproducibility
-    "analysis_method": "CC",       # Complete‑Case analysis (required)
+    "dataset_id": 42803,               # OpenML ID for the required RCT dataset
+    "mechanism": "MAR",                # Missingness mechanism
+    "missing_rate": 0.20,              # 20 % missingness
+    "outcome_type": "continuous",      # Outcome type (continuous for this dataset)
+    "n_iterations": 500,               # Number of Monte Carlo iterations
+    "seed": 42,                        # Fixed random seed for reproducibility
+    "analysis_method": "CC",           # Complete‑Case analysis (required)
     "alternative_hypothesis": False,
-    "covariate_for_mar": "age",    # Use observed covariate `age` for MAR
+    "covariate_for_mar": "age",        # Use observed covariate `age` for MAR
 }
 
 def run_single_condition_simulation(
@@ -99,8 +100,8 @@ def run_single_condition_simulation(
     # ------------------------------------------------------------------
     np.random.seed(config.seed)
     mechanism = config.mechanism
-    rate = config.missing_rate
-    iterations = config.iterations
+    missing_rate = config.missing_rate
+    iterations = config.n_iterations
     outcome_col = "outcome"
     treatment_col = "treatment"
     covariate_col = config.covariate_for_mar or "age"
@@ -119,11 +120,11 @@ def run_single_condition_simulation(
         seed_perm = config.seed + i
         df_permuted = permute_treatment_labels(df, seed=seed_perm)
 
-        # b. Simulate MAR missingness using the observed covariate `age`
+        # b. Simulate MAR missingness using the observed covariate
         seed_missing = config.seed + i + 1000
         df_missing = simulate_mar(
             df_permuted,
-            rate=rate,
+            rate=missing_rate,
             seed=seed_missing,
             covariate_col=covariate_col,
         )
@@ -148,7 +149,7 @@ def run_single_condition_simulation(
                 "run_id": str(uuid.uuid4()),
                 "dataset_id": str(config.dataset_id),
                 "mechanism": mechanism,
-                "missing_rate": rate,
+                "missing_rate": missing_rate,
                 "method": config.analysis_method,
                 "p_value": p_val,
                 "is_significant": p_val < 0.05,
@@ -219,16 +220,19 @@ def main() -> None:
         config_dict = DEFAULT_CONFIG.copy()
 
     # Allow selective overrides via individual environment variables
-    for env_key, cfg_key in [
-        ("SIMULATION_DATASET_ID", "dataset_id"),
-        ("SIMULATION_MECHANISM", "mechanism"),
-        ("SIMULATION_RATE", "rate"),
-        ("SIMULATION_ITERATIONS", "iterations"),
-        ("SIMULATION_SEED", "seed"),
-    ]:
+    env_to_cfg = [
+        ("SIMULATION_DATASET_ID", "dataset_id", int),
+        ("SIMULATION_MECHANISM", "mechanism", str),
+        ("SIMULATION_RATE", "missing_rate", float),
+        ("SIMULATION_ITERATIONS", "n_iterations", int),
+        ("SIMULATION_SEED", "seed", int),
+    ]
+    for env_key, cfg_key, cast in env_to_cfg:
         if env_key in os.environ:
-            val = os.environ[env_key]
-            config_dict[cfg_key] = int(val) if cfg_key in ["dataset_id", "iterations", "seed"] else float(val) if cfg_key == "rate" else val
+            try:
+                config_dict[cfg_key] = cast(os.environ[env_key])
+            except Exception as exc:
+                logger.warning(f"Failed to cast env var {env_key}: {exc}")
 
     try:
         results = run_single_condition_simulation(config_dict, output_path)

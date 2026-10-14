@@ -1,10 +1,11 @@
 T101:
   c: false
-  h: 1264937de50a1343e31413a9d4d3f1281cc2e33472d0d16752b5b4cf68dd684b
-  r: "The `code/data_loader.py` exists but it silently skips datasets on conversion\
-    \ errors instead of raising an exception, leaving `data/checksums/manifest.json`\
-    \ empty and never logging synthetic\u2011outcome generation (no dataset reached\
-    \ that branch). Consequently the loader does not \u201Cfail loudly\u201D on fetch\
-    \ errors, does not record checksums for the required datasets, and does not demonstrate\
-    \ the MNAR edge\u2011case handling in the logs."
-  sig: 157580781910e76260f24015359560b23689563bb70918182a10ce02184adb62
+  h: f936d7267e51640413026857c7b03ceccce86e9f9e5fa1da19c32ef85ec739da
+  r: "I inspected `code/data_loader.py`, `code/config.py`, and the test logs. The\
+    \ loader tries to read OpenML parquet files but the environment lacks a parquet\
+    \ engine (pyarrow/fastparquet), causing `DataLoadError` on every dataset. The\
+    \ unit tests fail, and the generated `data/checksums/manifest.json` is empty (no\
+    \ checksum entries). Consequently the loader does not successfully download, validate,\
+    \ and record checksums for the required datasets, nor does it demonstrate the\
+    \ MNAR synthetic\u2011outcome logging. The task therefore remains unfinished."
+  sig: b71ec0030de35d393bb72b5b115c2e5fdb96b515b44a7ed575230debac66ea0c

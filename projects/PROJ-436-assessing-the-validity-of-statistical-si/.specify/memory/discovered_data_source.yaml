@@ -1,24 +1,11 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: "import openml, pandas as pd\n# Diabetes dataset (OpenML ID 37)\nds\
-  \ = openml.datasets.get_dataset(37)\ndf = ds.get_data(dataset_format='dataframe')[0]\n\
-  records = len(df)\nprint(f'RECORDS={records}')\n# Map requested generic fields to\
-  \ actual column names in this dataset\nfield_map = {\n    'treatment': [],\n   \
-  \ 'outcome': ['class', 'target', 'y'],\n    'covariate1': ['glucose', 'age'],\n\
-  \    'covariate2': ['bmi', 'blood_pressure']\n}\npresent = [generic for generic,\
-  \ cols in field_map.items() if any(col in df.columns for col in cols)]\nprint('FIELDS='\
-  \ + ','.join(present))"
-record_count: 768
-sample_fields:
-- outcome
-- covariate1
-field_coverage: 0.5
+status: none
+intent: OpenML Python client download diabetes heart disease datasets python package
+  dataset
 required_fields:
 - treatment
 - outcome
 - covariate1
 - covariate2
-intent: download OpenML Diabetes dataset and OpenML Heart Disease as python package
-  dataset
-cache_key: 927b2c32f0f95fd98058c38d6827c124006d6435e1a3b7809c5103fb313787e1
+cache_key: 80f78a9e88712d17ac8bf6deb926de067229eefca59f8aa17da803b44d47eb03
+searched_at: '2026-10-14T00:35:55.572145+00:00'
+retry_count: 1

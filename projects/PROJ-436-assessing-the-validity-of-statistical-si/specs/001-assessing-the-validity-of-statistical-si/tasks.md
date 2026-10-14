@@ -20,7 +20,7 @@ All paths are relative to the project directory. Source in `code/`, tests in `co
 
   **Verification**: both `code/data_loader.py` and `code/config.py` exist; running `python -c "from code.data_loader import load_datasets; from code.config import load_config"` succeeds; a fetch failure raises an exception; `data/checksums/manifest.json` is created; synthetic‑outcome generation is recorded in logs.
 
-- [ ] T102 Run a thin end‑to‑end analysis on real inputs. Implement **`code/main_us1.py`** (deterministic path) that executes ONE condition: <!-- FAILED-IN-EXECUTION: code/main_us1.py exit=1 -->
+- [ ] T102 Run a thin end‑to‑end analysis on real inputs. Implement **`code/main_us1.py`** (deterministic path) that executes ONE condition: <!-- FAILED-IN-EXECUTION: code/main_us1.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main_us1.py exit=1 -->
   * Dataset ID **42803**
   * Missingness mechanism **MAR** at **20 %** missingness (dependent on observed covariate `age`)
   * Treatment labels **permuted** to enforce a true null hypothesis
