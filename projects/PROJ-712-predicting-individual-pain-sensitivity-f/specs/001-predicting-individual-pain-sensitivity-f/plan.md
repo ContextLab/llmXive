@@ -1,10 +1,10 @@
 # Implementation Plan: Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates
 
-**Branch**: `001-pain-sensitivity-microstates` | **Date**: 2026-10-12 | **Spec**: `specs/001-pain-sensitivity-microstates/spec.md`  
+**Branch**: `001-pain-sensitivity-microstates` | **Date**: 2026-10-13 | **Spec**: `specs/001-pain-sensitivity-microstates/spec.md`  
 **Input**: Feature specification from `/specs/001-pain-sensitivity-microstates/spec.md`
 
 ## Summary
-The project will (1) ingest the **OpenNeuro dataset ds003542**, which provides resting‑state EEG recordings **and** heat‑pain‑threshold measurements, (2) apply the constitution‑mandated EEG preprocessing pipeline (average‑mastoid re‑reference, 1–40 Hz band‑pass, ICA artifact removal), (3) segment the cleaned data into the canonical four microstate maps and extract **30 microstate‑derived features** per participant, (4) conduct a **pilot validation** on a 20‑participant subset to confirm construct validity of the microstate features, (5) train a fixed‑α Elastic Net regression model (α = 0.5) with nested 5‑fold cross‑validation **including age, gender, and EEG‑quality covariates**, (6) evaluate performance with Pearson r, MAE, and bootstrap 95 % CI, (7) generate a global permutation null distribution (≥ 1 000 permutations) and compute an empirical p‑value, (8) compute permutation‑importance‑based feature p‑values and apply **FDR** correction, (9) calculate VIF for all predictors, flagging any VIF > 10, (10) perform a **median‑split sensitivity sweep** using **logistic regression** for the binary outcome and report AUC, accuracy, and calibration, and (11) report all results in reproducible artifacts. All steps are designed to run on a GitHub Actions free‑tier runner (multiple CPU cores, ~7 GB RAM, no GPU) with optional parallelism limited to 2 workers.
+The project will (1) ingest the **OpenNeuro ds003542** dataset, which provides resting‑state EEG recordings **and** heat‑pain‑threshold measurements, (2) apply the constitution‑mandated EEG preprocessing pipeline (average‑mastoid re‑reference, 1–40 Hz band‑pass, ICA artifact removal), (3) segment the cleaned data into the canonical four microstate maps and extract **30 microstate‑derived features** per participant, (4) conduct a **pilot validation** on a 20‑participant subset to confirm construct validity of the microstate features, (5) train a fixed‑α Elastic Net regression model (α = 0.5) with nested 5‑fold cross‑validation **including age, gender, and EEG‑quality covariates**, (6) evaluate performance with Pearson r, MAE, and bootstrap 95 % CI, (7) generate a global permutation null distribution (≥ 1 000 permutations) and compute an empirical p‑value, (8) compute permutation‑importance‑based feature p‑values and apply **FDR** correction, (9) calculate VIF for all predictors, flagging any VIF > 10, (10) perform a **median‑split sensitivity sweep** using **logistic regression** for the binary outcome and report AUC, accuracy, and calibration, and (11) report all results in reproducible artifacts. All steps are designed to run on a GitHub Actions free‑tier runner (multiple CPU cores, ~7 GB RAM, no GPU) with optional parallelism limited to 2 workers.
 
 ### Power Analysis
 Assuming a modest true correlation of **r = 0.30**, α = 0.05 (two‑tailed), and desired power = 0.80, a sample size of **N ≈ 84** is required. We therefore target **≥ 100 participants** (to account for exclusions). If the final sample falls below 30, we will explicitly note the power limitation in the report.
@@ -19,6 +19,7 @@ Assuming a modest true correlation of **r = 0.30**, α = 0.05 (two‑tai
 - **Constraints**: No GPU usage; all random seeds pinned; no writes to platform‑owned `state/` directory.
 
 ## Constitution Check
+
 | Principle | Status | Implementation Strategy |
 |-----------|--------|--------------------------|
 | **I. Reproducibility** | ✅ PASS | Random seeds are fixed in `code/utils.py`; external datasets are fetched programmatically from the verified OpenNeuro URL; `requirements.txt` pins exact versions. |
@@ -118,7 +119,7 @@ projects/PROJ-712-predicting-individual-pain-sensitivity-f/
 
 ## Phase 3 – Statistical Rigor (FR‑005, FR‑006, FR‑007)
 1. **Permutation importance** – Compute importance scores on the original data; generate null distributions by repeating the importance calculation on each permuted dataset from Phase 2. Derive raw p‑values and apply **Benjamini‑Hochberg FDR** correction.  
-2. **VIF diagnostics** – Compute VIF for all 30+ covariate predictors; flag any with VIF > 10 (per FR‑006). Note that VIF = 33 for one predictor (source: Q113106917).  
+2. **VIF diagnostics** – Compute VIF for all 30+ covariate predictors; flag any with VIF > 10 (e.g., one predictor flagged with VIF = 33 – source: Q113106917). No exclusion/re‑training, as Elastic Net handles collinearity.  
 3. **Sensitivity analysis** –  
    - **Median‑split binary outcome**: Convert `heat_pain_threshold` to high/low using the median and the ±0.05 °C / ±0.1 °C offsets. For each cutoff, fit a **logistic regression** (L2‑regularized) using the same predictor set. Report **AUC**, **accuracy**, and **calibration (Brier score)**.  
    - **Regularization sweep** (supplementary): Vary `alpha` ∈ {0.1, 0.3, 0.5, 0.7, 0.9} and `l1_ratio` ∈ {0.1, 0.5, 0.9} to assess stability of Pearson r and MAE.  
@@ -130,16 +131,14 @@ projects/PROJ-712-predicting-individual-pain-sensitivity-f/
 ## Re‑planning for Previously Unverifiable Tasks
 | Task | Issue | Revised Approach |
 |------|-------|------------------|
-| **T001** | Wrote to platform‑owned `state/` | All artifacts now written under `data/`, `artifacts/`, or `figures/`. |
-| **T004** | Wrote `state/log.txt` | Logging handled by `llmxive_toolkit.get_logger()` writing to `artifacts/log.txt`. |
-| **T008** | Missing integration test & output CSV | Added `tests/integration/test_full_preprocess.py` that runs preprocessing on a 5‑participant subset and asserts existence and shape (30 columns, no NaNs) of `data/processed/feature_matrix.csv`. |
-| **T009** | `feature_matrix.csv` missing | Phase 1 now explicitly creates this file; unit test `test_preprocessing.py` checks its schema against `contracts/features.schema.yaml`. |
-| **T010** | α tuned over grid instead of fixed | `modeling.train_nested_cv` now fixes `alpha=0.5` and only tunes `l1_ratio`. Added `tests/unit/test_modeling_cv.py` verifying fixed α. |
-| **T011** | Permutation semantics wrong, insufficient iterations | Implemented `run_global_permutation_test` that shuffles labels **once per permutation** before outer CV, runs **1 000** permutations, and respects runtime guard. Added `tests/unit/test_permutation.py`. |
-| **T012** | Bootstrap CI JSON contains nulls, missing test | `bootstrap_ci` now returns numeric `ci_lower`/`ci_upper`; writes to `artifacts/bootstrap_ci.json`. Added `tests/unit/test_bootstrap.py`. |
-| **T013** | Model result JSON missing MAE & CI, missing test | `compute_empirical_pvalue` now outputs `mae`, `ci_lower`, `ci_upper` in `artifacts/model_results.json`. Added `tests/unit/test_pvalue.py`. |
+| **T001** | No execution evidence for directory‑creation test | Added integration test `tests/integration/test_full_preprocess.py` that runs the directory‑creation script and asserts exit code 0; CI logs will now capture the pass. |
+| **T004** | Missing integration test & output CSV | Added `tests/integration/test_full_preprocess.py` that runs preprocessing on a 5‑participant subset and asserts existence and shape (30 columns, no NaNs) of `data/processed/feature_matrix.csv`. |
+| **T008** | `code/preprocess_execution.yaml` failed | Refactored preprocessing to stream via `DataChunk` and added robust error handling; now exits with code 0 on success. |
+| **T009** | Missing `feature_matrix.csv` and schema test | Phase 1 now explicitly creates `feature_matrix.csv`; added `tests/unit/test_feature_matrix_schema.py` that validates the CSV against `contracts/dataset.schema.yaml`. |
+| **T011** | Missing required symbol `global_permutation_test` | Added alias `global_permutation_test = run_global_permutation_test` in `modeling.py`. |
+| **T012** | Bootstrap CI JSON contained nulls, missing test | Fixed `bootstrap_ci` to return numeric bounds; added `tests/unit/test_bootstrap.py` validating the JSON content. |
+| **T013** | Missing unit test for `compute_empirical_pvalue` | Added `tests/unit/test_pvalue.py` that checks the JSON fields and values against expected ranges. |
 
 All new tests are runnable via `pytest -q` and are part of the CI verification step.
 
 ---
-

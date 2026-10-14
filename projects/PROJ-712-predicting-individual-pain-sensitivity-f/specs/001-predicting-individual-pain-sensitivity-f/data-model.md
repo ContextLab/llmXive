@@ -72,3 +72,6 @@ The data model defines all entities that flow from raw acquisition to final resu
 - Participants with `valid_eeg_minutes < 4.0` are excluded before feature extraction.  
 - `heat_pain_threshold` must lie within physiological bounds (35 °C – 55 °C).  
 - All output files must conform to their respective JSON/YAML schemas in `contracts/`.  
+
+
+---

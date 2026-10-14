@@ -72,7 +72,7 @@ python code/main.py --step diagnostics
 ```bash
 pytest -q
 ```
-- **Unit tests** verify each module’s core functions (e.g., `extract_microstate_features` returns a multi‑column DataFrame containing the extracted microstate features.).  
+- **Unit tests** verify each module’s core functions (e.g., `extract_microstate_features` returns a multi‑column DataFrame containing the extracted microstate features).  
 - **Integration tests** run the full preprocessing on a small participant subset and check that `data/processed/feature_matrix.csv` exists, has multiple feature columns plus covariates, and contains no NaNs.  
 
 ## Output Interpretation
@@ -87,3 +87,7 @@ pytest -q
 - **MemoryError** – Ensure `data/raw/` files are not being fully loaded; the pipeline streams data in `DataChunk` batches automatically.  
 - **ConvergenceWarning** – The script will automatically increase `max_iter` (Edge Case 2). If convergence still fails, the run aborts with an explicit error.  
 - **Blocked status** – Verify that the OpenNeuro ds003542 dataset containing `heat_pain_threshold` has been placed in `data/raw/`. No placeholder data should be used.  
+
+
+
+---

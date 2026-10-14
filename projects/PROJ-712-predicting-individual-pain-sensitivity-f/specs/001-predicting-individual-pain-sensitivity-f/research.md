@@ -19,7 +19,7 @@ The study investigates whether the temporal dynamics of resting‑state EEG micr
 
 ### Phase 1 – Preprocessing (FR‑001, FR‑002, DataChunk usage)
 1. **Ingestion** – Load raw EEG files and `heat_pain_thresholds.csv` via the OpenNeuro loader; verify column presence.  
-2. **Re‑reference** – Average mastoids (fallback to common average).  
+2. **Re‑reference** – Average mastoids (fallback to common average with logged justification).  
 3. **Band‑pass filter** – 1–40 Hz (zero‑phase FIR).  
 4. **ICA** – `FastICA` with automatic component selection based on EOG correlation and spectral kurtosis.  
 5. **Quality check** – Exclude participants with `< 4 min` post‑ICA; log warnings.  
@@ -29,7 +29,7 @@ The study investigates whether the temporal dynamics of resting‑state EEG micr
 9. **Output** – `data/processed/feature_matrix.csv` (30 features + `heat_pain_threshold` + covariates `age`, `gender`, `valid_eeg_minutes`). No NaNs.
 
 ### Phase 2 – Modeling (FR‑003, FR‑004)
-1. **Elastic Net regression** – Fixed `alpha = 0.5`; `l1_ratio` tuned via inner 5‑fold CV. Covariates (age, gender, valid_eeg_minutes) are included alongside microstate features.  
+1. **Elastic Net regression** – Fixed `alpha = 0.5`; `l1_ratio` tuned via inner 5‑fold CV. Covariates (age, gender, valid_eeg_minutes) are concatenated with the 30 microstate features.  
 2. **Nested CV** – Outer 5‑fold CV for unbiased performance; inner CV for `l1_ratio`.  
 3. **Metrics** – Pearson r, MAE, 95 % CI via bootstrap (≥ 200 resamples).  
 4. **Global permutation test** – Shuffle `heat_pain_threshold` **once per permutation** (≥ 1 000) **before** outer CV; recompute nested CV each time; compute empirical p‑value as proportion of permuted r ≥ observed r.  
@@ -39,7 +39,7 @@ The study investigates whether the temporal dynamics of resting‑state EEG micr
 1. **Permutation importance** – Compute importance scores on original data; generate null distributions from each permuted dataset (Phase 2). Derive raw p‑values; apply **Benjamini‑Hochberg FDR** correction.  
 2. **VIF diagnostics** – Compute VIF for all predictors; flag any with VIF > 10 (e.g., one predictor flagged with VIF = 33 – source: Q113106917). No exclusion/re‑training, as Elastic Net handles collinearity.  
 3. **Sensitivity analysis** –  
-   - **Median‑split binary outcome**: Convert continuous thresholds to high/low using median and offsets {median‑0.1, median‑0.05, median, median+0.05, median+0.1} (°C). For each cutoff, fit a **logistic regression** (L2‑regularized) using the same predictor set. Report **AUC**, **accuracy**, and **Brier score** (calibration).  
+   - **Median‑split binary outcome**: Convert continuous thresholds to high/low using the median and offsets {median‑0.1, median‑0.05, median, median+0.05, median+0.1} (°C). For each cutoff, fit a **logistic regression** (L2‑regularized) using the same predictor set. Report **AUC**, **accuracy**, and **Brier score** (calibration).  
    - **Regularization sweep** (supplement): Vary `alpha` ∈ {0.1, 0.3, 0.5, 0.7, 0.9} and `l1_ratio` ∈ {0.1, 0.5, 0.9} to assess stability of Pearson r and MAE.  
 4. **Artifacts** – `artifacts/diagnostics.csv` (coefficients, permutation‑importance scores, raw & FDR‑adjusted p‑values, VIF, flags), `artifacts/sensitivity_report.md` (tables & plots for binary AUC/accuracy across thresholds and regularization sweep).
 
@@ -71,4 +71,3 @@ The study investigates whether the temporal dynamics of resting‑state EEG micr
 - **Observational nature**: All findings are correlational; no causal inference is attempted (per Assumption 7).  
 
 ---
-
