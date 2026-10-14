@@ -1,21 +1,15 @@
-T060a:
-  c: false
-  h: eb1bdfc1975bb0e3140862401a22f0d58a319aa80fcb819b9887cb73f9e03d29
-  r: "The provided `code/lint_report.txt` records an exit code of\u202F1 and lists\
-    \ numerous flake8 violations in both `code/` and `tests/`, showing that the code\
-    \ has not been lint\u2011cleaned. The task requires a zero exit code and no findings\
-    \ after fixing all issues. The artifact therefore does not meet the specification."
-  sig: 1d2857ab010981281c4871623bd6b4a2e5bc08db9e1865dd37fe9e32b705587f
 T060b:
   c: true
-  h: 1f6660f7864994306c13388c9c67f1f10733db14dc91d135678895ffaa3e52f4
-  r: '`code/format_diff.txt` exists (21,684 bytes) and contains a genuine pre-format
-    `black --check --diff` output across multiple source files; the execution log
-    shows the workflow ran `black --check --diff code tests`, applied formatting,
-    and the final `black --check code tests` passed with exit 0. The diff content
-    matches the required deliverable and the run evidence confirms the formatting
-    was actually applied.'
-  sig: 1d1ab3e94ef6b7975e77320690a7a5bd4a26b561cc1bd0fb2c748af6094bdbe6
+  h: 51e956ff733d4bf770d4da07cf8a77b4c0ec1afcb89818d8fc0325c9ca7faa8d
+  r: "`code/format_diff.txt` exists (21,684 bytes) and contains genuine `black --check\
+    \ --diff` output covering multiple files in `code/`, including `run_black_format.py`\
+    \ itself being reformatted (e.g., collapsing the `subprocess.run(...)` calls,\
+    \ adding trailing newline), which demonstrates the diff was captured before formatting\
+    \ was applied. The diff hunks are consistent with real black style changes (blank\
+    \ lines after logger setup, operator precedence `errors**2`, line rewrapping),\
+    \ and the implementing script `run_black_format.py` performs the required sequence:\
+    \ check-diff \u2192 save to `code/format_di"
+  sig: fa017534ffe1d9efc3e172cfe8e9a660c4f34c29a33b23b671ea0339bb041b60
 T066:
   c: false
   h: 074cef3d27eb8fd57ec44c8d025d8dc73c47976a01d42ce893956da27b52ca25
