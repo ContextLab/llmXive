@@ -62,7 +62,7 @@ properties:
   cpu_time_sec:
     type: "number"
     description: "CPU time consumed by this step in seconds (optional per‑step record)."
-  peak_memory_mb:
+  step_peak_memory_mb:
     type: "number"
     description: "Peak memory usage for this step in MB (optional per‑step record)."
   timestamp:
