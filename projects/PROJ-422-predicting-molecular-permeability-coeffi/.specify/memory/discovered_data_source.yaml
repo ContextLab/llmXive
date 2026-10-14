@@ -1,15 +1,13 @@
 status: none
-intent: download polymer gas permeability dataset SMILES coefficients Polymer Permeability
-  Database MoleculeNet python package dataset
+intent: Polymer Gas Permeability Database SMILES coefficients download python package
+  dataset
 required_fields:
-- SMILES
-- permeability_coefficient
+- smiles
 - polymer_type
-- temperature_K
-- pressure_atm
-- measurement_units
-- experimental_method
-- reference_id
-cache_key: d3d2edcf7a6d4c96a7879a873328bad7d86a591c1b60a1876594375147bc0c55
-searched_at: '2026-10-14T12:12:37.430218+00:00'
+- permeability_coefficient
+- gas_type
+- temperature
+- pressure
+cache_key: a1b2daaf21d60574e5bc84e4670b186cd9598930c51a53f62f90b62237b1b2d2
+searched_at: '2026-10-14T12:18:59.418359+00:00'
 retry_count: 1

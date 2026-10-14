@@ -1,128 +1,88 @@
 # Implementation Plan: Predicting Molecular Permeability Coefficients Using Graph Neural Networks and Publicly Available Datasets
 
-**Branch**: `001-molecular-permeability-gnn` | **Date**: 2026-08-26 | **Spec**: `specs/001-molecular-permeability-gnn/spec.md`
+**Branch**: `001-molecular-permeability-gnn` | **Date**: 2026-10-14 | **Spec**: `specs/001-molecular-permeability-gnn/spec.md`
 
 ## Summary
-
-This project implements a comparative analysis of Graph Neural Networks (GNNs) versus classical machine learning (Random Forest) for predicting molecular properties. Due to the absence of verified datasets containing *experimental* permeability coefficients, the study pivots to a **Feasibility Study**: predicting **calculated logP** (a standard molecular descriptor) from SMILES strings. This validates the GNN pipeline's ability to learn structure-property relationships (topology) compared to a baseline using standard descriptors. The system ingests public datasets (SMILES + descriptors), constructs molecular graphs using RDKit, and trains a Message Passing Neural Network (MPNN) alongside a Random Forest baseline. The plan prioritizes CPU-first execution on GitHub Actions free-tier runners. The analysis includes statistical significance testing (paired t-test), effect size calculation (Cohen's d), and interpretability analysis (GNNExplainer/SHAP) to determine if topological features provide incremental predictive value over standard descriptors.
+The project will ingest open‑source chemical datasets containing SMILES strings, compute RDKit‑based molecular descriptors, and construct graph representations for each molecule. Because no verified open dataset provides experimental permeability coefficients, the study pivots to a **Feasibility Study** that predicts the calculated `logP` value (a standard descriptor) as a proxy target. A shallow Message Passing Neural Network (MPNN) will be trained on graph inputs, and a Random Forest (RF) baseline will be trained on standard descriptors. An **ablation RF** will be trained on graph‑derived statistics only. Model performance will be compared using RMSE, MAE, R², and a paired t‑test. Interpretability will be assessed with GNNExplainer (GNN) and SHAP (RF). All steps are designed to run on the GitHub Actions free‑tier CPU runner; no GPU is required.
 
 ## Technical Context
-
-**Language/Version**: Python 3.x  
-**Primary Dependencies**: `rdkit`, `torch`, `torch-geometric`, `scikit-learn`, `shap`, `gnnexplainer`, `pandas`, `datasets` (Hugging Face), `statsmodels`  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`), CSV/Parquet formats  
-**Testing**: `pytest` (unit tests for parsing, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier: multiple vCPUs, substantial RAM, no GPU)  
-**Project Type**: Computational research pipeline / CLI  
-**Performance Goals**: Full pipeline execution ≤ 6 hours; Peak memory ≤ 7 GB.  
-**Constraints**: No local GPU; must handle invalid SMILES gracefully; must stream data if >7GB.  
-**Scale/Scope**: Target dataset size: scalable from small pilot cohorts to larger collections, sufficient to validate the proposed approach. (based on available public permeability datasets); if larger, stream or sample.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `rdkit`, `torch==2.2.0`, `torch-geometric`, `scikit-learn`, `shap`, `pandas`, `datasets`, `statsmodels`, `numpy`, `matplotlib`  
+- **Storage**: Local filesystem under `data/` (raw, processed, interim) and `results/` for metrics/figures.  
+- **Testing**: `pytest` for unit and integration tests.  
+- **Target Platform**: Linux runner on GitHub Actions (2 CPU cores, ≤7 GB RAM, ≤6 h).  
+- **Project Type**: Computational research pipeline (CLI‑driven).  
+- **Performance Goals**: Full pipeline ≤ 6 h, peak RAM ≤ 7 GB.  
+- **Constraints**: CPU‑only execution; streaming mode if any raw file exceeds 7 GB.  
+- **Scale/Scope**: Datasets range from ~200 K to <1 GB; the pipeline will stream when needed.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-- **I. Reproducibility**: The plan mandates pinned `requirements.txt` and deterministic random seeds. All data fetches use canonical HF URLs.
-- **II. Verified Accuracy**: All dataset citations in `research.md` are restricted to the "Verified datasets" block provided in the prompt. No external URLs will be invented.
-- **III. Data Hygiene**: The pipeline will download raw data to `data/raw`, compute checksums, and write derived data to `data/processed` without modifying raw files.
-- **IV. Single Source of Truth**: All metrics (RMSE, MAE, R², Cohen's d, p-values) will be logged to a structured JSON/CSV artifact, which serves as the source for the final report.
-- **V. Versioning Discipline**: Artifacts will be versioned via content hashes in the project state file upon completion.
-- **VI. Graph-Representation Fidelity**: Graph construction relies exclusively on `rdkit` parsing of SMILES strings. No manual edge additions or heuristic simplifications are permitted.
-- **VII. Validation Independence**: The target variable is **calculated logP** (derived from SMILES). The bias check (FR-013) will verify the correlation between inputs and this target. Since the target is a descriptor, a high correlation is expected and will be flagged as "Proxy Target" rather than an error, acknowledging the study's nature as a feasibility test for the GNN architecture.
+| Principle | How the plan satisfies it |
+|-----------|---------------------------|
+| **I. Reproducibility** | Fixed `requirements.txt`, deterministic random seeds (`numpy`, `torch`, `random`), and canonical Hugging Face URLs for all downloads. |
+| **II. Verified Accuracy** | Only the URLs listed in the “Verified datasets” block are used; no external citations are introduced. |
+| **III. Data Hygiene** | Raw files are checksum‑verified; all transformations write to new files under `data/processed/` and `data/interim/`. |
+| **IV. Single Source of Truth** | All quantitative results are logged to `results/metrics.json` and `results/interpretability/` and referenced directly in the final report. |
+| **V. Versioning Discipline** | Artifact hashes are recorded in the project state file after each stage. |
+| **VI. Graph‑Representation Fidelity** | Graphs are generated exclusively via `rdkit.Chem.MolFromSmiles`; no manual edge modifications. |
+| **VII. Validation Independence** | Target is the calculated `logP` (proxy). A bias check (FR‑013) will flag the expected high correlation but will not be treated as a validation error. |
 
 ## Project Structure
-
 ```text
 projects/PROJ-422-predicting-molecular-permeability-coeffi/
-├── code/
-│   ├── __init__.py
-│   ├── data/
-│   │   ├── download.py          # Fetches from HF, checksums
-│   │   ├── preprocess.py        # SMILES -> Graph/Descriptors, cleaning
-│   │   └── split.py             # Stratified split logic
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── gnn.py               # MPNN architecture (PyTorch Geometric)
-│   │   └── rf.py                # Random Forest baseline
-│   ├── analysis/
-│   │   ├── train.py             # Training loop, early stopping
-│   │   ├── evaluate.py          # Metrics, t-test, effect size
-│   │   └── explain.py           # GNNExplainer, SHAP
-│   └── utils/
-│       └── logging.py           # Structured logging
-├── data/
-│   ├── raw/                     # Downloaded datasets (checksummed)
-│   ├── processed/               # Feature matrices, splits
-│   └── interim/                 # Intermediate graph objects
-├── tests/
-│   ├── unit/
-│   │   ├── test_preprocess.py
-│   │   └── test_models.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
-└── README.md
+├─ code/
+│  ├─ __init__.py
+│  ├─ data/
+│  │   ├─ download.py          # Fetches raw files, verifies checksums
+│  │   ├─ preprocess.py        # SMILES → graph + descriptors; retention & bias checks
+│  │   └─ split.py             # Stratified (polymer_type) or random split
+│  ├─ models/
+│  │   ├─ __init__.py
+│  │   ├─ gnn.py               # 3‑layer MPNN (CPU‑friendly)
+│  │   └─ rf.py                # Random Forest baseline & ablation mode
+│  ├─ analysis/
+│  │   ├─ train.py             # Training loops, early stopping
+│  │   ├─ evaluate.py          # Metrics, paired t‑test, effect size, power analysis
+│  │   └─ explain.py           # SHAP (RF) & GNNExplainer (GNN)
+│  └─ utils/
+│      └─ logging.py           # Structured JSON logging
+├─ data/
+│  ├─ raw/                     # Downloaded datasets (checksum‑verified)
+│  ├─ processed/               # Processed feature tables (Parquet/CSV)
+│  └─ interim/                 # Serialized graph objects (optional)
+├─ results/
+│  ├─ metrics.json
+│  └─ interpretability/        # PNG/HTML visualizations
+├─ tests/
+│  ├─ unit/
+│  │   ├─ test_download.py
+│  │   ├─ test_preprocess.py
+│  │   └─ test_models.py
+│  └─ integration/
+│      └─ test_pipeline.py
+├─ requirements.txt
+└─ README.md
 ```
 
-**Structure Decision**: Single project layout under `code/` with clear separation of data, models, and analysis. This minimizes overhead for the CI runner and aligns with the "computational research pipeline" pattern.
-
 ## Complexity Tracking
+All Functional Requirements (FR‑001 – FR‑013) and Success Criteria (SC‑001 – SC‑005) are mapped to concrete phases/steps below. No extra constraints are introduced.
 
-No violations found. The complexity is managed by:
-1. **CPU-First Design**: Using a small MPNN (shallow architecture) and standard RF to fit within 7GB RAM.
-2. **Streaming**: Using `datasets` library streaming to avoid loading massive datasets into RAM.
-3. **Graceful Degradation**: Fallback to random split if stratification fails on small N.
+## Phase Plan & FR/SC Mapping
 
-## Phase Plan
+| Phase | Tasks (high‑level) | FR(s) addressed | SC(s) addressed |
+|-------|-------------------|-----------------|-----------------|
+| **Phase 0 – Research & Data Verification** | 0.1 Verify dataset URLs & variable presence.<br>0.2 Decide “Proxy Mode” if permeability missing. | FR‑001, FR‑002, FR‑013 (bias check) | SC‑005 (data integrity) |
+| **Phase 1 – Data Pipeline** | 1.1 `download.py`: fetch & checksum.<br>1.2 `preprocess.py`: parse SMILES, compute descriptors, build graphs, retention check (≥95 %).<br>1.3 `split.py`: stratified 80/20 split (polymer_type) or fallback random.<br>1.4 Contract validation against `contracts/dataset.schema.yaml`. | FR‑001, FR‑002, FR‑003, FR‑010, FR‑011, FR‑013 | SC‑005 |
+| **Phase 2 – Model Construction** | 2.1 `models/gnn.py`: 3‑layer MPNN, CPU‑only, early stopping (patience = 5).<br>2.2 `models/rf.py`: baseline RF on descriptors; `--ablation` flag trains RF on graph‑derived stats only. | FR‑004, FR‑005, FR‑012 | — |
+| **Phase 3 – Training & Evaluation** | 3.1 `analysis/train.py`: fit GNN & both RF variants, log epoch metrics, enforce max‑epoch = 50.<br>3.2 `analysis/evaluate.py`: compute RMSE, MAE, R²; paired t‑test (FR‑007); effect size (Cohen’s d) and 95 % CI; post‑hoc power analysis.<br>3.3 Enforce runtime ≤ 6 h, RAM ≤ 7 GB; if exceeded, abort with clear error. | FR‑006, FR‑007, FR‑012 | SC‑001, SC‑002, SC‑004 |
+| **Phase 4 – Interpretability** | 4.1 `analysis/explain.py`: SHAP on RF (baseline & ablation).<br>4.2 GNNExplainer on GNN; aggregate substructure importance.<br>4.3 Produce ranked feature list & visualizations (bar chart, heatmap). | FR‑008, FR‑009 | SC‑003 |
+| **Phase 5 – Reporting & Validation** | 5.1 Assemble `results/metrics.json` and `results/interpretability/` figures.<br>5.2 Verify contracts (`results.schema.yaml`).<br>5.3 Run full CI end‑to‑end test; ensure reproducibility (seeded runs). | FR‑004‑FR‑009 (all) | SC‑001‑SC‑005 |
+| **Phase 6 – Cleanup** | 6.1 Delete temporary `interim/` objects, keep only provenance files.<br>6.2 Update artifact hashes in project state. | — | — |
 
-### Phase 0: Research & Data Verification
-- **Goal**: Confirm dataset availability and handle missing targets.
-- **Steps**:
-  1. Inspect verified datasets (HF links) for "permeability" or "logP" columns.
-  2. **Critical Check**: If no experimental permeability column is found (as expected), **Switch to Proxy Mode**. The target will be set to the calculated `logP` column (if available) or a synthetic proxy derived from standard descriptors.
-  3. Document dataset size and missingness patterns.
-  4. Log the switch to Proxy Mode and the implications for the study (Feasibility Study vs. Experimental Prediction).
+### Additional Guarantees
+- **Retention Guard**: `preprocess.py` aborts with a clear error if valid molecules < 95 % (FR‑011).  
+- **Bias Guard**: If |corr| > 0.85, `bias_warning: true` is written to `results/metrics.json` (FR‑013).  
+- **Early‑Stopping Guard**: GNN training stops automatically; if validation loss never improves, a warning is logged and the best epoch is restored (FR‑004).  
+- **Statistical Rigor**: Paired t‑test is performed **only** after both models have predictions on the same test set; multiple‑comparison correction is unnecessary because a single hypothesis is tested (SC‑002).  
 
-### Phase 1: Data Pipeline & Model Architecture
-- **Goal**: Build the ingestion, preprocessing, and baseline model.
-- **Steps**:
-  1. Implement `download.py` with checksum verification.
-  2. Implement `preprocess.py`: SMILES parsing (RDKit), descriptor calculation, graph construction.
-     - **Retention Check**: Calculate the percentage of valid molecules. If retention < 95%, trigger `SystemExit(1)` with a detailed error log (FR-011).
-     - **Bias Check**: Calculate correlation between input descriptors and target. If |r| > 0.85, set `bias_warning: true` in the output (FR-013).
-  3. Implement `split.py`: Stratified split by polymer type (or fallback).
-  4. Implement `models/gnn.py` (MPNN) and `models/rf.py` (Random Forest).
-  5. **Contract**: Validate output schemas for processed data against `contracts/dataset.schema.yaml`.
-
-### Phase 2: Training & Evaluation
-- **Goal**: Train models and compute metrics.
-- **Steps**:
-  1. Implement `analysis/train.py`: Training loop with early stopping.
-     - **Ablation Study**: Train a Random Forest baseline on **graph-derived features only** (flattened graph statistics: mean node degree, graph connectivity, substructure counts) to isolate the incremental value of topology (FR-012).
-  2. Implement `analysis/evaluate.py`: RMSE, MAE, R² calculation.
-  3. Implement statistical test (paired t-test) for FR-007 on prediction errors.
-  4. **Power Analysis Implementation**:
-     - Calculate **Cohen's d** (effect size) for the difference in prediction errors.
-     - Calculate Confidence Intervals for the mean difference.
-     - Perform **post-hoc power analysis** using the observed effect size and sample size.
-     - Log all metrics (p-value, Cohen's d, CI, power) to the results artifact.
-  5. **Constraint Check**: Monitor memory/CPU usage; trigger "GPU escape hatch" only if CUDA error occurs and model is unsolvable on CPU.
-
-### Phase 3: Interpretability & Reporting
-- **Goal**: Explain results and generate final report.
-- **Steps**:
-  1. Implement `analysis/explain.py`: SHAP for RF, GNNExplainer for GNN.
-  2. **Comparative Feature Report**:
-     - Identify substructures with high GNNExplainer scores.
-     - Map these substructures to the RF input space (e.g., check if a detected aromatic ring correlates with a high 'Aromaticity' descriptor).
-     - Highlight substructures that are critical for GNN but have low importance in RF (FR-009).
-  3. Generate comparative visualizations (heatmaps, feature importance bars).
-  4. Run bias check (FR-013) and annotate results with `bias_warning` flag if |r| > 0.85.
-  5. Compile final `results.md` and `paper.md` drafts, ensuring the "Exploratory Feasibility" framing and power analysis limitations are clearly stated.
-
-### Phase 4: Validation & Cleanup
-- **Goal**: Ensure reproducibility and hygiene.
-- **Steps**:
-  1. Run full pipeline end-to-end on CI.
-  2. Verify checksums and artifact hashes.
-  3. Final review against FR/SC list.
+---
