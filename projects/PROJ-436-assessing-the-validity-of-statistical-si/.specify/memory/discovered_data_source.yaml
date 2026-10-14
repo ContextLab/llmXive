@@ -1,27 +1,11 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: "import openml, pandas as pd\n\ndef load_dataset(did):\n    ds = openml.datasets.get_dataset(did,\
-  \ download_all_files=True)\n    X, y, _, _ = ds.get_data(target=ds.default_target_attribute)\n\
-  \    return pd.concat([X, y], axis=1)\n\ndiabetes = load_dataset(37)\nheart = load_dataset(53)\n\
-  df = pd.concat([diabetes, heart], ignore_index=True, sort=False)\nprint(f\"RECORDS={len(df)}\"\
-  )\nrequired = [\"treatment\",\"outcome\",\"covariate_1\",\"covariate_2\"]\nmapping\
-  \ = {\n    \"treatment\": [\"sex\"],\n    \"outcome\": [\"class\", \"target\"],\n\
-  \    \"covariate_1\": [\"age\"],\n    \"covariate_2\": [\"bmi\", \"mass\", \"chol\"\
-  ]\n}\npresent = [r for r in required if any(col in df.columns for col in mapping.get(r,\
-  \ []))]\nprint(\"FIELDS=\"+\",\".join(present))"
-record_count: 1038
-sample_fields:
-- treatment
-- outcome
-- covariate_1
-- covariate_2
-field_coverage: 1.0
+status: none
+intent: download OpenML Diabetes and Heart Disease clinical trial datasets with treatment
+  outcome covariates python package dataset
 required_fields:
 - treatment
 - outcome
 - covariate_1
 - covariate_2
-intent: OpenML python package to download Diabetes and Heart Disease datasets python
-  package dataset
-cache_key: 0c35093219069ef6853d3fdfe4f6db29eeb08cb5d58090b0fa6c37f23c408d45
+cache_key: 77916d44f0a7b7ebb13a16cc5e0a5599579d4b250b792c08480b81dff1f6fbb9
+searched_at: '2026-10-14T03:20:51.138220+00:00'
+retry_count: 1
