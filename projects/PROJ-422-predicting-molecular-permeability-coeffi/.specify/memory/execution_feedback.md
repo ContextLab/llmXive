@@ -18,9 +18,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/download.py -> rc=1
 
-2026-10-13 19:11:17,655 INFO DataLoader: Fetching dataset from https://deepchem.s3.amazonaws.com/molecule_net/lipophilicity.csv.gz
-2026-10-13 19:11:17,706 ERROR DataLoader: Failed to load dataset: HTTP Error 404: Not Found
-2026-10-13 19:11:17,706 ERROR __main__: Data download failed: Unable to fetch dataset from https://deepchem.s3.amazonaws.com/molecule_net/lipophilicity.csv.gz.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/data/download.py", line 38, in <module>
+    class DataLoader:
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/data/download.py", line 66, in DataLoader
+    def validate_columns(self, df: pd.DataFrame) -> Tuple[str, str]:
+                                                    ^^^^^
+NameError: name 'Tuple' is not defined. Did you mean: 'tuple'?
 
 - python code/analysis/train.py --config config.yaml -> rc=1
 
@@ -66,7 +70,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/explain.py` — NOT invoked by the run-book
     - `code/analysis/generate_stratification_report.py` — NOT invoked by the run-book
     - `code/analysis/train.py` — IS a run-book command
-    - `code/data/split.py` — NOT invoked by the run-book
+    - `code/data/download.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/train.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/checksums.json` is declared but was NOT written. Scripts referencing it:
     - `code/data/download.py` — IS a run-book command

@@ -1,14 +1,13 @@
 """
 Data download script for the Molecular Permeability project.
 
-This script fetches a verified public dataset from a reliable source,
+This script fetches a verified public dataset from Hugging Face,
 validates that the required SMILES and target columns are present,
 writes the raw CSV file to `data/raw/` and records a SHA-256 checksum
 in `data/raw/checksums.json`.
 
 Following the project's pivot in plan.md, we use the Lipophilicity dataset
-from MoleculeNet as a proxy for permeability studies, focusing on 
-the logP coefficient.
+as a proxy for permeability studies, focusing on the logP coefficient.
 """
 import hashlib
 import json
@@ -18,22 +17,19 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import pandas as pd
+from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 # ----------------------------------------------------------------------
 # Configuration for the verified dataset
 # ----------------------------------------------------------------------
-# We use the MoleculeNet Lipophilicity dataset. It is a real, publicly
-# accessible dataset containing SMILES and experimental logP values.
+# We use the Lipophilicity dataset from Hugging Face.
+# This is a real, publicly accessible dataset containing SMILES and logP values.
 VERIFIED_DATASET_CONFIG = {
-    "source": "molecule_net",
-    "url": "https://deepchem.s3.amazonaws.com/molecule_net/lipophilicity.csv.gz",
-    "smiles_column": "SMILES",
-    "target_column": "logP",
-    "expected_columns": [
-        "SMILES",
-        "logP",
-    ],
+    "hf_path": "deepchem/lipophilicity",
+    "split": "train",
+    "smiles_keyword": "smiles",
+    "target_keyword": "logp",
     "filename": "permeability_data.csv"
 }
 
@@ -48,48 +44,51 @@ class DataLoader:
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or VERIFIED_DATASET_CONFIG
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.smiles_column = self.config["smiles_column"]
-        self.target_column = self.config["target_column"]
 
     def fetch_dataset(self) -> pd.DataFrame:
         """
-        Load the dataset from the verified URL.
+        Load the dataset from Hugging Face using the datasets library.
         """
-        self.logger.info(f"Fetching dataset from {self.config['url']}")
+        self.logger.info(f"Fetching dataset {self.config['hf_path']} from Hugging Face...")
         try:
-            # The dataset is a .csv.gz file. pandas read_csv handles compression.
-            df = pd.read_csv(self.config["url"])
+            # load_dataset handles downloading and caching.
+            # For datasets > 7GB, streaming=True should be used, but lipophilicity is small.
+            dataset = load_dataset(self.config["hf_path"], split=self.config["split"])
+            df = dataset.to_pandas()
             self.logger.info(f"Successfully loaded {len(df)} rows.")
             return df
         except Exception as exc:
-            self.logger.error(f"Failed to load dataset: {exc}")
+            self.logger.error(f"Failed to load dataset from Hugging Face: {exc}")
             raise RuntimeError(
-                f"Unable to fetch dataset from {self.config['url']}."
+                f"Unable to fetch dataset from {self.config['hf_path']}."
             ) from exc
 
-    def validate_columns(self, df: pd.DataFrame) -> None:
+    def validate_columns(self, df: pd.DataFrame) -> Tuple[str, str]:
         """
-        Ensure that the SMILES and target columns exist. 
+        Ensure that the SMILES and target columns exist (case-insensitive). 
         Fails loudly if the configured target column is missing.
         """
-        missing = [
-            col
-            for col in self.config["expected_columns"]
-            if col not in df.columns
-        ]
-        if missing:
+        cols = df.columns.tolist()
+        
+        # Case-insensitive search for the required columns
+        smiles_col = next((c for c in cols if c.lower() == self.config["smiles_keyword"]), None)
+        target_col = next((c for c in cols if c.lower() == self.config["target_keyword"]), None)
+
+        if not smiles_col or not target_col:
             # FAIL LOUDLY: No proxy fallback permitted within the loader
             raise RuntimeError(
-                f"Missing required columns: {missing}. "
-                f"Available columns: {list(df.columns)}"
+                f"Missing required columns. Found: {cols}. "
+                f"Required: {self.config['smiles_keyword']} and {self.config['target_keyword']}."
             )
         
-        if not pd.api.types.is_numeric_dtype(df[self.target_column]):
+        if not pd.api.types.is_numeric_dtype(df[target_col]):
             raise RuntimeError(
-                f"Target column '{self.target_column}' is not numeric "
-                f"(detected type: {df[self.target_column].dtype})"
+                f"Target column '{target_col}' is not numeric "
+                f"(detected type: {df[target_col].dtype})"
             )
-        self.logger.info("Required columns are present and valid.")
+        
+        self.logger.info(f"Required columns present: SMILES='{smiles_col}', Target='{target_col}'.")
+        return smiles_col, target_col
 
     def compute_checksum(self, file_path: Path) -> str:
         """Compute SHA-256 checksum of `file_path`."""
@@ -148,4 +147,5 @@ def main() -> None:
         sys.exit(1)
 
 if __name__ == "__main__":
+    from typing import Tuple # Needed for type hint in validate_columns
     main()

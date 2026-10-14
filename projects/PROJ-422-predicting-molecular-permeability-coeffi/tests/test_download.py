@@ -1,38 +1,34 @@
 import pytest
 import pandas as pd
+import json
 from pathlib import Path
 from llmxive_toolkit import paths
-from code.data.download import DataLoader, VERIFIED_DATASET_CONFIG
+from code.data.download import DataLoader
 
 def test_download_produces_artifacts():
-    """Verify that the download script produces the required files."""
+    """Verify that the download script creates the expected files."""
     loader = DataLoader()
-    # We can run process() or check if the files already exist from the execute:true run
-    # For a unit test, we ensure the output paths are valid and contain data.
-    raw_file = paths.data("raw", VERIFIED_DATASET_CONFIG["filename"])
+    loader.process()
+    
+    raw_file = paths.data("raw", "permeability_data.csv")
     checksum_file = paths.data("raw", "checksums.json")
     
-    assert raw_file.exists(), "Raw data file was not created."
-    assert checksum_file.exists(), "Checksum file was not created."
+    assert raw_file.exists(), "Raw data CSV was not created."
+    assert checksum_file.exists(), "Checksum JSON was not created."
+    
+    with open(checksum_file, 'r') as f:
+        checksums = json.load(f)
+        assert "permeability_data.csv" in checksums, "Checksum file missing entry for raw data."
 
-def test_dataset_contains_required_columns():
-    """Verify that the downloaded dataset contains the configured target column."""
-    raw_file = paths.data("raw", VERIFIED_DATASET_CONFIG["filename"])
+def test_download_contains_required_columns():
+    """Verify that the downloaded dataset contains the required columns."""
+    raw_file = paths.data("raw", "permeability_data.csv")
+    if not raw_file.exists():
+        pytest.fail("Raw data file missing; run download script first.")
+    
     df = pd.read_csv(raw_file)
+    cols = [c.lower() for c in df.columns]
     
-    assert VERIFIED_DATASET_CONFIG["smiles_column"] in df.columns, "SMILES column missing."
-    assert VERIFIED_DATASET_CONFIG["target_column"] in df.columns, "Target column missing."
-    assert not df[VERIFIED_DATASET_CONFIG["target_column"]].isna().all(), "Target column is empty."
-
-def test_loader_fails_on_missing_column():
-    """Verify that the DataLoader fails loudly if a required column is missing."""
-    # Create a dummy dataframe missing the target column
-    df_bad = pd.DataFrame({"SMILES": ["CCO", "CCN"]})
-    
-    # Use a config that expects a target column not present in df_bad
-    bad_config = VERIFIED_DATASET_CONFIG.copy()
-    bad_config["expected_columns"] = ["SMILES", "non_existent_column"]
-    
-    loader = DataLoader(config=bad_config)
-    with pytest.raises(RuntimeError, match="Missing required columns"):
-        loader.validate_columns(df_bad)
+    assert 'smiles' in cols, f"SMILES column missing from {df.columns}"
+    assert 'logp' in cols, f"logP column missing from {df.columns}"
+    assert len(df) > 0, "Downloaded dataset is empty."

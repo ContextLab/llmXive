@@ -1,12 +1,10 @@
 status: none
-intent: public Polymer Permeability Database SMILES permeability coefficients download
+intent: download ChEMBL permeability assay dataset SMILES coefficients python package
+  dataset
 required_fields:
 - SMILES
 - permeability_coefficient
 - polymer_type
-- temperature
-- pressure
-- units
-cache_key: f15d6344ec830fcab65e85d70b0dd98407dd93acdf5702e50f628019ef8ea6cf
-searched_at: '2026-10-13T19:12:16.407531+00:00'
+cache_key: b84d0c4647323f450bcf221925dfe33e565a5bc070b9117f424277a854b72ef9
+searched_at: '2026-10-14T01:24:38.207687+00:00'
 retry_count: 1
