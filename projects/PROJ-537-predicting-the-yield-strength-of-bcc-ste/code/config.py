@@ -41,8 +41,12 @@ class Config:
     # API Keys
     MP_API_KEY = os.getenv("MP_API_KEY", None)
     
-    # Experimental data URL
-    EXPERIMENTAL_DATA_URL = "https://matnavi.nims.go.jp/api/v1/datasets/bcc_steel_yield_strength"
+    # Experimental data URL – now points to the local CSV bundled with the repository.
+    # The ``file://`` scheme is recognised by the ingestion code and loads the file
+    # directly from disk, avoiding the unreachable MatNavi endpoint.
+    EXPERIMENTAL_DATA_URL = (
+        f"file://{PROJECT_ROOT / 'data' / 'raw' / 'experimental_data.csv'}"
+    )
     
     # Random seed
     RANDOM_SEED = 42
@@ -101,7 +105,3 @@ def ensure_dirs():
 def get_mp_api_key() -> Optional[str]:
     """Get the Materials Project API key."""
     return CONFIG.MP_API_KEY
-
-if __name__ == "__main__":
-    ensure_dirs()
-    print("Directories ensured.")

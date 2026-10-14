@@ -74,14 +74,6 @@ def run_ingestion_pipeline():
         logger.error(f"Ingestion pipeline failed: {exc}", exc_info=True)
         sys.exit(1)
 
-def run_modeling_pipeline():
-    """Placeholder – modeling not needed for T048."""
-    logger.info("Modeling pipeline would run here (not part of T048).")
-
-def run_interpretability_pipeline():
-    """Placeholder – interpretability not needed for T048."""
-    logger.info("Interpretability pipeline would run here (not part of T048).")
-
 def run_full_pipeline():
     """Run the complete pipeline: ingestion → validation → checksums."""
     logger.info("=== Running full pipeline (T048) ===")
