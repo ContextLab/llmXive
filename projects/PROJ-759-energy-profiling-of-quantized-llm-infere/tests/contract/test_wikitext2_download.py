@@ -7,11 +7,12 @@ The test ensures that ``download_wikitext2`` creates a Parquet file at
 """
 
 import hashlib
+import re
 from pathlib import Path
 
 import pytest
 
-from utils.data_loader import download_wikitext2
+from code.utils.data_loader import download_wikitext2
 
 @pytest.fixture(scope="module", autouse=True)
 def ensure_data():
@@ -30,7 +31,6 @@ def test_checksum_matches():
     assert readme_path.is_file(), f"Missing {readme_path}"
     # Extract the checksum from the README (the line containing backticks)
     content = readme_path.read_text(encoding="utf-8")
-    import re
 
     match = re.search(r"`([a-f0-9]{64})`", content)
     assert match, "Checksum not found in README"

@@ -1,19 +1,8 @@
-# Project dependencies
 transformers==4.41.2
-torch==2.3.0
-pyRAPL==0.2.0
 datasets==2.20.0
 auto-gptq==0.7.1
-# Core scientific stack (already available in the execution environment)
-numpy
-pandas
-scipy
-scikit-learn
-statsmodels
-matplotlib
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
+optimum==1.17.1
+accelerate==0.28.0
+numpy==1.26.4
+pyarrow==14.0.1
+torch==2.3.0

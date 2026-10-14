@@ -1,25 +1,24 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/benchmark.py
-    exit=2'
+  reason: "The `code/quickstart.md` exists and documents the dry-run command, and\
+    \ the execution log confirms `python -m code.benchmark --config data/configs/125M_4bit.json\
+    \ --dry-run` exited 0 printing \"pyRAPL available\". However, the task's verification\
+    \ also requires `pytest -k test_pyrapl_load` to pass, and there is no evidence\
+    \ any such test exists (no test file, no pytest run log) \u2014 that requirement\
+    \ is unverified. Additionally, the quickstart's environment setup commands are\
+    \ malformed (`python -m venv.venv`, `source.venv/bin/activate` \u2014 missing\
+    \ spaces), so the documented setup is not actually runnable"
   task: defffaf048b4c101e4c107be061c3f2cf31a8cd6854cb8fd38ed9cc285a53796
 T002:
-  reason: "The required artifacts `data/raw/wikitext2.parquet` and `data/raw/README.md`\
-    \ are both MISSING \u2014 only the loader script `code/utils/data_loader.py` exists,\
-    \ and the recorded test run (`tests/contract/test_wikitext2_download.py`) failed\
-    \ at collection with exit 2 (ImportError: pyarrow requires NumPy 2.0+, found 1.26.4),\
-    \ so the download never executed. The implementer must fix the NumPy/pyarrow dependency\
-    \ conflict (or pin compatible versions) and actually run the download to produce\
-    \ the Parquet file and checksum README."
   task: b331e1d4489704c714465e84e2798eeb8c589bea798b7c19c1798df02c03d5cf
 T003:
-  reason: "The INT8 and 4-bit model variants were never actually generated: `quantize.py`\
-    \ explicitly skips quantization when auto-gptq is unavailable, and every int8/4bit\
-    \ config points at the FP16 checkpoint directory with `load_success: false` \u2014\
-    \ no quantized checkpoints exist on disk. Additionally, the required `logs/model_load.log`\
-    \ with logged 7B OOM attempts is absent, and a stray non-conforming `125M_4bit.json`\
-    \ (wrong filename, relative path) sits in `data/configs/`. The implementer must\
-    \ actually run auto-gptq quantization (or a working CPU fallback) to produce real\
-    \ int8/4-bit checkpoints, and log th"
+  reason: "The execution log shows auto-gptq was unavailable, so no INT8 or 4-bit\
+    \ quantized checkpoints were ever generated \u2014 the int8/4bit config JSONs\
+    \ all point to the FP16 checkpoint directory with `load_success: false`, which\
+    \ is a placeholder, not the required quantized variants. The 350M model failed\
+    \ to download (401/Repository Not Found), leaving only a `missing_fp16` stub path,\
+    \ and the 7B LLaMA \"unexpectedly succeeded\" in loading, so no OOM was logged\
+    \ and there is no evidence `logs/model_load.log` exists with a `load_success:\
+    \ false` OOM entry. A stray non-schema-conforming `data/configs/125M_4bit."
   task: dae401c6e1ab23f250d7c24f4445d34ee792d7f751c7b9f9e6afce92e061bb69
 T004:
   task: 9ab39e90776772afcfafad05bffe5f36b2bf605fa5ceeb59055a81eefcfecc7f

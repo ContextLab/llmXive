@@ -80,9 +80,7 @@ def download_wikitext2(parquet_path: Optional[Path] = None) -> Path:
     parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
     log.info("Downloading WikiText‑2 dataset via ``datasets`` library...")
-    # Load the raw WikiText‑2 (train split). The dataset is small enough
-    # to fit in memory, but we still use the library's streaming API for
-    # robustness.
+    # Load the raw WikiText‑2 (train split).
     dataset = load_dataset(
         "wikitext", "wikitext-2-raw-v1", split="train", streaming=False
     )
@@ -108,6 +106,6 @@ def download_wikitext2(parquet_path: Optional[Path] = None) -> Path:
 
 
 if __name__ == "__main__":
-    # Allow the module to be executed directly for convenience:
-    # ``python -m utils.data_loader``
+    # Allow the module to be executed directly:
+    # ``python code/utils/data_loader.py``
     download_wikitext2()

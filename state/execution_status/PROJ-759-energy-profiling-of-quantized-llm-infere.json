@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-14T17:13:13Z",
-  "project_id": "PROJ-759-energy-profiling-of-quantized-llm-infere"
+  "updated_at": "2026-10-14T19:25:17Z",
+  "project_id": "PROJ-759-energy-profiling-of-quantized-llm-infere",
+  "replan_rounds": 1
 }
