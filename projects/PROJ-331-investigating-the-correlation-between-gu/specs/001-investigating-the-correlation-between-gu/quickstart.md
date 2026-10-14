@@ -1,8 +1,8 @@
 # Quickstart: Gut Microbiome – PD Progression Pipeline
 
 ## Prerequisites
-* Python 3.11 (available on the CI runner)  
-* Internet access only for `pip` package installation; **no automatic dataset download** – the user must provide an **open, verified dataset** as described in `research.md`.
+* Python 3.11 (available on the CI runner)  
+* Internet access **only** for installing packages; the pipeline **does not** download any dataset automatically. You must provide an open, verified ASV table and matching clinical metadata as described in `research.md`.
 
 ## Setup
 ```bash
@@ -10,25 +10,25 @@
 python -m venv .venv
 source .venv/bin/activate
 
-# 2. Install pinned dependencies (includes parquet engine)
+# 2. Install pinned dependencies
 pip install -r requirements.txt
 ```
 
 ## Prepare Input Data
-1. **Microbiome ASV table** – place a CSV file named `ppmi_asv.csv` (or `open_asv.csv`) in `data/raw/`. It must contain at least the columns `sample_id`, `patient_id`, `visit_date`, plus one column per taxon with raw integer counts.  
-2. **Clinical metadata** – place a Parquet file named `ppmi_clinical.parquet` (or `open_clinical.parquet`) in `data/raw/`. Required columns are `patient_id`, `visit_date`, `age`, `sex`, `levodopa_eq_dose`, and `MDS_UPDRS_Total` (the exclusive clinical outcome for this study).
+1. **Microbiome ASV table** – place a CSV named `open_asv.csv` (or `ppmi_asv.csv`) in `data/raw/`. It must contain at least the columns `sample_id`, `patient_id`, `visit_date`, plus one column per taxon with raw integer counts.  
+2. **Clinical metadata** – place a Parquet file named `open_clinical.parquet` (or `ppmi_clinical.parquet`) in `data/raw/`. Required columns are `patient_id`, `visit_date`, `age`, `sex`, `levodopa_eq_dose`, and `MDS_UPDRS_total`.  
 
-The ingest step aborts with a clear error message if any required file or required column is missing. If the outcome column is absent, the pipeline logs a warning and sets skip flags for the correlation and mixed-effects steps. The pipeline never generates synthetic data.
+If either file or any required column is missing, the ingest step aborts with a clear error message.
 
-## Validate Inputs (Phase 0)
+## Validate Inputs (Phase 0)
 ```bash
-python -m code.src.pipeline.ingest
+python -m src.pipeline.ingest
 ```
-*Checks*: file existence, parsability, required columns. A JSON validation record is written to `data/raw/ingest_validation.json`. Exit code 0 → continue; non-zero → fix inputs.
+*Checks*: existence, parsability, required columns. A JSON validation record is written to `data/raw/ingest_validation.json`. Exit code 0 → continue; non‑zero → fix inputs.
 
 ## Run the Full Pipeline
 ```bash
-python -m code.src.pipeline \
+python -m src.pipeline \
     --seed 42 \
     --max_taxa 100 \
     --perm_iterations 1000
@@ -38,40 +38,40 @@ python -m code.src.pipeline \
 | Flag | Meaning | Default |
 |------|---------|---------|
 | `--seed` | Random seed for reproducibility. | 42 |
-| `--max_taxa` | Upper bound on taxa to retain after filtering. | 100 |
-| `--perm_iterations` | Number of permutation iterations. | 1000 |
+| `--max_taxa` | Upper bound on taxa retained after filtering (enforces FR‑010). | 100 |
+| `--perm_iterations` | Number of permutation iterations (FR‑007). | 1000 |
 
-## Run US3 (Permutation Robustness) individually
+The command executes all phases (0 → 6) and writes the four deliverables under `results/`.
+
+## Run the Permutation Robustness Test Separately
 ```bash
-python -m code.src.pipeline.run_us3 --iterations 1000 --seed 42
+python -m src.pipeline.run_permutation --iterations 1000 --seed 42
 ```
-Runs T001 → T002 → T003 → T005 → T006, producing `data/results/mixed_effects_summary.csv` and `data/results/permutation_pvalues.csv`, with per-stage timings appended to `data/results/runtime_log.txt`. The permutation stage is bounded by a 4-hour wall-clock guard (FR-007) and the total run by the 6-hour budget (SC-003).
-
-All deliverables are written under `data/results/`:
-- `taxa_correlations.csv` (Spearman results)  
-- `mixed_effects_summary.csv`  
-- `permutation_pvalues.csv`  
-- `PD_microbiome_progression_report.pdf`  
+This runs phases 0 → 5, producing `mixed_effects_summary.csv` and `permutation_pvalues.csv`. Runtime is bounded by a 4‑hour wall‑clock guard (SC‑003).
 
 ## Verify Outputs
 ```bash
-# Run contract-based tests
-pytest -q code/tests
+# Contract‑based tests
+pytest -q src/tests
 
 # Quick glance at a result file
-head -n 5 data/results/taxa_correlations.csv
+head -n 5 results/taxa_correlations.csv
 ```
 
 ## Expected Runtime (benchmark on CI)
-| Step | Approx. Wall-time |
+| Step | Approx. Wall‑time |
 |------|-------------------|
-| Data validation & loading | < 2 min |
-| Filtering + CLR | < 5 min |
-| Slope computation (≥ 2 visits) | < 3 min |
-| Correlation + BH | < 2 min |
-| Mixed-effects fitting | < 12 min |
-| Permutation (1 000 it., ≤ 100 taxa) | 3–4 h |
-| PDF report generation | < 1 min |
-| **Total** | **≤ 4 h** (well under the 6 h limit) |
+| Data validation & loading | < 2 min |
+| Filtering + CLR | < 5 min |
+| Slope computation | < 3 min |
+| Plain Spearman + BH | < 2 min |
+| Mixed‑effects fitting | < 12 min |
+| Permutation (1 000 it., ≤ 100 taxa) | 3–4 h |
+| PDF report generation | < 1 min |
+| **Total** | **≤ 4 h** (well under the 6 h limit) |
 
-**Important:** The pipeline **requires** the `MDS_UPDRS_Total` column for the correlation, mixed-effects, and permutation steps. If it is missing, those steps are skipped with a logged warning; the researcher must supply the correct clinical file before re-running.
+**Important:** The pipeline **requires** the `MDS_UPDRS_total` column. If it is missing, the pipeline aborts with an informative error; no synthetic data are generated.
+
+---
+
+

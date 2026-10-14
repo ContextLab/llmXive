@@ -1,13 +1,160 @@
-status: none
-intent: Parkinson's disease gut microbiome longitudinal dataset with UPDRS scores
-  downloadable python package dataset
+status: verified
+kind: pypi_package
+ref: pysradb
+access_python: 'import pandas as pd
+
+  from pysradb import SRAweb
+
+
+  sra = SRAweb()
+
+  # Load metadata for a known BioProject (SRP000941) to demonstrate data loading
+
+  df = sra.sra_metadata("SRP000941", detailed=True)
+
+
+  print(f"RECORDS={len(df)}")
+
+  print("FIELDS=" + ",".join(df.columns))'
+record_count: 2207
+sample_fields:
+- run_accession
+- study_accession
+- study_title
+- experiment_accession
+- experiment_title
+- experiment_desc
+- organism_taxid
+- organism_name
+- library_name
+- library_strategy
+- library_source
+- library_selection
+- library_layout
+- sample_accession
+- sample_title
+- biosample
+- bioproject
+- instrument
+- instrument_model
+- instrument_model_desc
+- total_spots
+- total_size
+- run_total_spots
+- run_total_bases
+- experiment_type
+- extraction_protocol
+- extraction_protocol_type_of_sonicator
+- extraction_protocol_sonication_cycles
+- chip_protocol
+- chip_protocol_chromatin_amount
+- chip_protocol_bead_type
+- chip_protocol_bead_amount
+- chip_protocol_antibody_amount
+- chip_antibody
+- chip_antibody_provider
+- chip_antibody_catalog
+- chip_antibody_lot
+- geo accession
+- run_alias
+- public_filename
+- public_url
+- public_size
+- public_date
+- public_md5
+- public_version
+- public_semantic_name
+- public_supertype
+- public_sratoolkit
+- ncbi_url
+- ncbi_free_egress
+- ncbi_access_type
+- aws_url
+- aws_free_egress
+- aws_access_type
+- gcp_url
+- gcp_free_egress
+- gcp_access_type
+- experiment_alias
+- molecule
+- disease
+- biomaterial_provider
+- biomaterial_type
+- line
+- lineage
+- differentiation_stage
+- differentiation_method
+- passage
+- medium
+- sex
+- batch
+- sample_term_id
+- dna_preparation_initial_dna_qnty
+- dna_preparation_fragment_size_range
+- dna_preparation_adaptor_sequence
+- dna_preparation_adaptor_ligation_protocol
+- dna_preparation_post-ligation_fragment_size_selection
+- bisulfite_conversion_protocol
+- bisulfite_conversion_percent
+- library_generation_pcr_template_conc
+- library_generation_pcr_polymerase_type
+- library_generation_pcr_thermocycling_program
+- library_generation_pcr_number_cycles
+- library_generation_pcr_f_primer_sequence
+- library_generation_pcr_r_primer_sequence
+- library_generation_pcr_primer_conc
+- library_generation_pcr_product_isolation_protocol
+- cell_type
+- extraction_protocol_smrna_enrichment
+- smrna_preparation_initial_smrna_qnty
+- rna_preparation_5'_rna_adapter_sequence
+- rna_preparation_3'_rna_adapter_sequence
+- rna_preparation_reverse_transcription_primer_sequence
+- rna_preparation_3'_rna adapter_ligation_protocol
+- rna_preparation_5'_rna_adapter_ligation_protocol
+- rna_preparation_reverse_transcription_protocol
+- library_generation_pcr_template
+- extraction_protocol_mrna_enrichment
+- extraction_protocol_fragmentation
+- mrna_preparation_initial_mrna_qnty
+- mrna_preparation_fragment_size_range
+- rna_preparation_5'_dephosphorylation
+- rna_preparation_5'_phosphorylation
+- tissue_type
+- tissue_depot
+- collection_method
+- donor_id
+- donor_age
+- donor_health_status
+- donor_sex
+- donor_ethnicity
+- cdna_preparation_initial_rna_qnty
+- cdna_preparation_polya_rna/
+- cdna_preparation_fragmentation
+- cdna_preparation_fragment_size_range
+- cdna_preparation_first_strand_synthesis_enzyme
+- cdna_preparation_first_strand_purification
+- cdna_preparation_second_strand_synthesis_enzyme
+- cdna_preparation_second_strand_synthesis_dntp_mix
+- cdna_preparation_purification
+- dna_preparation_adaptor
+- dna_preparation_uracil_dna_glycosylase_digestion
+- library_generation_pcr_primer
+- ena_fastq_http
+- ena_fastq_http_1
+- ena_fastq_http_2
+- ena_fastq_ftp
+- ena_fastq_ftp_1
+- ena_fastq_ftp_2
+field_coverage: 0.571
 required_fields:
 - sample_id
 - patient_id
 - visit_number
 - visit_date
-- MDS_UPDRS_total
-- raw_asv_counts (wide per taxon)
-cache_key: 47c3de1e04684e63e548c497a8de76a2bc0b70e05dfc894d7197de31cf00b21d
-searched_at: '2026-10-14T09:19:06.772622+00:00'
-retry_count: 1
+- asv_id
+- asv_count
+- mds_updrs_total
+intent: open Parkinson disease longitudinal gut microbiome ASV counts UPDRS scores
+  Qiita NCBI SRA python package dataset
+cache_key: 71ccffe47e63b38129fc3ad8ac97b87ecf9cc93d499397e9c65462a6a1e52688
