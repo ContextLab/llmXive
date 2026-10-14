@@ -1,26 +1,17 @@
-status: verified
-kind: pypi_package
-ref: scanpy
-access_python: "import scanpy as sc\n\nadata = sc.datasets.pbmc3k()\nRECORDS = adata.n_obs\n\
-  \nfields = []\nif adata.obs.index.name or adata.obs.index is not None:\n    fields.append(\"\
-  cell_id\")\nif adata.var.index.name or adata.var.index is not None:\n    fields.append(\"\
-  gene_id\")\nif (adata.raw is not None and getattr(adata.raw, \"X\", None) is not\
-  \ None) or getattr(adata, \"X\", None) is not None:\n    fields.append(\"raw_count\"\
-  )\nif \"sample\" in adata.obs.columns:\n    fields.append(\"donor_id\")\nif \"age\"\
-  \ in adata.obs.columns:\n    fields.append(\"developmental_stage\")\n\nprint(f\"\
-  RECORDS={RECORDS}\")\nprint(\"FIELDS=\" + \",\".join(fields))"
-record_count: 2700
-sample_fields:
-- cell_id
-- gene_id
-- raw_count
-field_coverage: 0.6
+status: none
+intent: Human fetal brain single-cell RNA-seq dataset with stage metadata from GEO
+  and BrainSpan python package dataset
 required_fields:
 - cell_id
 - gene_id
-- raw_count
+- raw_counts
+- normalized_counts
 - developmental_stage
 - donor_id
-intent: human fetal brain single-cell RNA-seq with stages from GEO, BrainSpan and
-  GWAS Catalog python package dataset
-cache_key: 1e75e0cb23ad127469c2a03382c858f5cc907185895bd4126e572877e4c8ff3e
+- batch_id
+- cell_type_annotation
+- qc_metrics_n_genes
+- qc_metrics_percent_mito
+cache_key: 6aa594ea8b1cf9ad59a4774cdf7c790352a4b340e4dadcd7f635ea58f02d0e3d
+searched_at: '2026-10-14T03:23:17.595223+00:00'
+retry_count: 1

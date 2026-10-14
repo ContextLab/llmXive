@@ -20,5 +20,12 @@ properties:
       lisi_score:
         type: "number"
         description: "Local Inverse Simpson's Index (target: ≥ 1.2)"
-    required: ["developmental_stage", "donor_id", "lisi_score"]
-required: ["cells", "genes", "metadata"]
+    required:
+      - "developmental_stage"
+      - "donor_id"
+      - "lisi_score"
+required:
+  - "cells"
+  - "genes"
+  - "metadata"
+

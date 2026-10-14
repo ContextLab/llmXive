@@ -1,46 +1,56 @@
 # Data Model: Quantitative Analysis of Gene Expression Dynamics
 
-## Entity Relationship Diagram (Conceptual)
-`DevelopmentalStage` $\rightarrow$ contains $\rightarrow$ `RegulatoryNetwork` $\rightarrow$ produces $\rightarrow$ `RewiringEvent` $\leftarrow$ correlated with $\leftarrow$ `DisorderRiskProfile`
+## Conceptual ER Diagram
+`DevelopmentalStage` → contains → `RegulatoryNetwork` → produces → `RewiringEvent` ← correlated with ← `DisorderRiskProfile`
 
 ## Entity Definitions
 
-### 1. DevelopmentalStage
-Represents a discrete or windowed time point in brain development.
-- `stage_id`: String (e.g., "Fetal_12_16w")
-- `start_age_days`: Integer
-- `end_age_days`: Integer
-- `cell_count`: Integer
-- `centroid_pseudotime`: Float
+### DevelopmentalStage
+| Field | Type | Description |
+|-------|------|-------------|
+| `stage_id` | string | Unique identifier, e.g., `"Fetal_12_16w"` |
+| `start_age_days` | integer | Lower bound of age (days) |
+| `end_age_days` | integer | Upper bound of age (days) |
+| `cell_count` | integer | Number of cells assigned to this window |
+| `centroid_pseudotime` | float | Mean pseudotime of cells in the window |
 
-### 2. RegulatoryNetwork
-A directed graph of TF-target interactions for a specific stage.
-- `stage_id`: String (FK to DevelopmentalStage)
-- `edges`: List of `Edge` objects:
-    - `tf`: String (Gene Symbol)
-    - `target`: String (Gene Symbol)
-    - `weight`: Float (Importance score from GRNBoost2)
-- `hubs`: List of Strings (TFs with degree $\ge$ [deferred] threshold)
+### RegulatoryNetwork
+| Field | Type | Description |
+|-------|------|-------------|
+| `stage_id` | string (FK) | Links to `DevelopmentalStage` |
+| `edges` | list of **Edge** objects | Each edge: `{tf, target, weight}` |
+| `hubs` | list of strings | TFs with degree ≥ 10, or top 20 TFs if fewer than 20 meet threshold |
 
-### 3. RewiringEvent
-A quantified change in network topology between two adjacent stages.
-- `event_id`: String
-- `tf`: String
-- `stage_a`: String (FK)
-- `stage_b`: String (FK)
-- `weight_delta`: Float ($\Delta$ edge weight)
-- `stability_score`: Float (Consistency across sensitivity sweep)
+**Edge** object  
+- `tf`: string (TF gene symbol)  
+- `target`: string (target gene symbol)  
+- `weight`: float (GRNBoost2 importance score, motif-validated)  
 
-### 4. DisorderRiskProfile
-A curated list of genes associated with a neurological condition.
-- `disorder_name`: String (e.g., "Schizophrenia")
-- `risk_genes`: List of Strings (Gene Symbols)
-- `source`: String (e.g., "GWAS Catalog")
-- `evidence_level`: String
+### RewiringEvent
+| Field | Type | Description |
+|-------|------|-------------|
+| `event_id` | string | Unique identifier |
+| `tf` | string | TF undergoing topological change |
+| `stage_a` | string (FK) | Earlier developmental window |
+| `stage_b` | string (FK) | Later developmental window |
+| `weight_delta` | float | Δ(edge weight) between windows (z‑score normalized) |
+| `stability_score` | float | Consistency across sensitivity thresholds |
+
+### DisorderRiskProfile
+| Field | Type | Description |
+|-------|------|-------------|
+| `disorder_name` | string | E.g., `"Schizophrenia"` |
+| `risk_genes` | list of strings | Gene symbols from GWAS |
+| `source` | string | Citation (e.g., `"GWAS Catalog"` ) |
+| `evidence_level` | string | Qualitative confidence |
 
 ## Storage Schema
+- **Processed AnnData**: `data/processed/integrated_atlas.h5ad`  
+- **Networks (GRNBoost2)**: `data/processed/networks/{stage_id}.json` (Adjacency list)  
+- **Networks (Motif-Validated)**: `data/processed/networks_motif/{stage_id}.json` (Adjacency list, filtered for motif evidence)  
+- **Rewiring Table**: `data/processed/rewiring_events.csv`  
+- **Enrichment Results**: `data/processed/disorder_enrichment.csv`  
 
-- **Processed Data**: `data/processed/integrated_atlas.h5ad` (AnnData format)
-- **Networks**: `data/processed/networks/{stage_id}.json` (Adjacency list)
-- **Rewiring**: `data/processed/rewiring_events.csv`
-- **Enrichment**: `data/processed/disorder_enrichment.csv`
+Each file conforms to a JSON or CSV schema located in `contracts/`.
+
+---
