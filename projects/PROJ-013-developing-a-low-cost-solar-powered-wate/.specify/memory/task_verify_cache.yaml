@@ -1,3 +1,46 @@
+T004:
+  c: true
+  h: e3e6036dbea527f9489381a07ae81737b413bc5649265d8797fa0a89e896f9fa
+  r: Checked that `data/raw/`, `data/processed/`, and `data/plots/` directories all
+    exist in the project root and contain placeholder files (`.gitkeep` and sample
+    JSON), confirming the required directory structure is set up.
+  sig: 28eebd7a5caf1a16793d4e8d9260af0a93f7379b7a11a5da3341ac5398620545
+T005:
+  c: true
+  h: 78d1de018195c690fa8eda1a2dc6963a921a29fa25521e6300e248eb06eef221
+  r: "Checked `code/utils.py` (2062\u202Fbytes) which defines custom exception classes\
+    \ for error handling, functions for project, data, code, and tests directory path\
+    \ resolution, a directory\u2011creation helper, and a `setup_logging` utility\
+    \ that configures a logger with stream output and level handling. These fulfill\
+    \ the requested logging, error\u2011handling, and path\u2011resolution helpers."
+  sig: 292a595df6fed4796ae17bcf2501cb0fbb036e8d7d86930389c0bf84e0ef7b30
+T006:
+  c: false
+  h: c8108ccdfed8ff453e1412073f17928587c822568b51a200f2ea3f4d9137f49f
+  r: The `code/config.py` file is present and loads an API key, but it does not provide
+    any mechanism for loading simulation parameters (e.g., time step, duration, geometry
+    settings) as required by the task. Consequently the base configuration loader
+    is only partially implemented.
+  sig: 29c13e7fd4e8c39dd5083b562652797c90305f9ed63fb51639a6e77c4e09f5ac
+T007:
+  c: false
+  h: 8ed5e25b38cba850978476de8e85760f63d401180744a53ae7028084db6e0c9e
+  r: "I examined the repository under `projects/PROJ-013-developing-a-low-cost-solar-powered-wate`\
+    \ and found no `.env` file, no Python code using `python-dotenv` or similar to\
+    \ load NASA POWER API keys, and no documentation of environment variable handling.\
+    \ The required artifact for task T007\u2014environment configuration management\
+    \ supporting `.env` for NASA POWER keys\u2014is absent, so the task is not satisfied."
+  sig: 434f68b23d96b93854d5acd0912d4beea3ebd1055d32270ef00ade67a0efc920
+T008:
+  c: false
+  h: fb303be8162b246cdc5299e4a42b69c871592e151c6611a1cb776b001f6316ca
+  r: "The `code/data_ingestion.py` file exists but its `fetch_solar_irradiance` function\
+    \ merely returns the hard\u2011coded value\u202F550\u202FW/m\xB2 and contains\
+    \ no logic to call the NASA POWER API, construct the required query parameters,\
+    \ or evaluate the length of returned data for the <\u202F30\u2011day fallback.\
+    \ Consequently the task\u2019s core requirement\u2014fetching real solar irradiance\
+    \ profiles with proper endpoint and fallback handling\u2014is not fulfilled."
+  sig: 073f8e619f200de636b9d20230fd291698b685f7acc7f4a7530e5d3637bb0e98
 T011:
   c: false
   h: 5c77ad4f92b5dfc7a48b848b3d0e45fc755482bc364c2c37a83c7e003a467ad3
@@ -29,6 +72,15 @@ T016:
     is no evidence that the output CSV was checked for missing values or that all
     cost entries are positive scalars. The required artifact (a validated CSV or verification
     report) is missing.
+T020b:
+  c: false
+  h: f8d1be1cbfccd638a610ad2df477b18944b4a4b8c15da18fc4d003a2233d758f
+  r: "The `specs/.../spec.md` still contains the original wording \u201Cmodeling slope\
+    \ variations via effective projected area\u201D instead of the required \u201C\
+    modeling slope variations via angle-dependent view factors and convective heat\
+    \ transfer coefficients\u201D, and the required `specs/.../deviations.md` file\
+    \ is missing."
+  sig: be1e8aa46eed545f03ceb8d8cf147efd08508967cbf8f7ec5c90c49324ea68a2
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

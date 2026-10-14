@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure: `code/`, `data/raw/`, `data/processed/`, `data/plots/`, `tests/unit/`, `tests/integration/`. Initialize `README.md` and `.gitignore`. **Initialize `state/...yaml` artifact hash map and generate initial checksums for the directory structure as required by Constitution Principle III.**
+- [ ] T001 Create project structure: `code/`, `data/raw/`, `data/processed/`, `data/plots/`, `tests/unit/`, `tests/integration/`. Initialize `README.md` and `.gitignore`. **Initialize `state/...yaml` artifact hash map and generate initial checksums for the directory structure as required by Constitution Principle III.**
 
 ---
 
@@ -55,9 +55,9 @@
 
 - [X] T004 Setup data directory structure (`data/raw/`, `data/processed/`, `data/plots/`)
 - [X] T005 [P] Implement utility helpers for logging, error handling, and path resolution in `code/utils.py`
-- [X] T006 Create base configuration loader for API keys and simulation parameters in `code/config.py`
-- [X] T007 Setup environment configuration management (`.env` support for NASA POWER keys)
-- [X] T020b [P] **Documentation & Spec Amendment Task**:
+- [ ] T006 Create base configuration loader for API keys and simulation parameters in `code/config.py`
+- [ ] T007 Setup environment configuration management (`.env` support for NASA POWER keys)
+- [ ] T020b [P] **Documentation & Spec Amendment Task**:
  1. **Update `specs/.../spec.md`**: In section FR-003, replace the text "modeling slope variations via effective projected area" with "modeling slope variations via angle-dependent view factors and convective heat transfer coefficients".
  2. **Create `specs/.../deviations.md`**: Create a new file with the following content:
  ```markdown
@@ -69,7 +69,7 @@
  **Status**: Approved by Plan Summary "Note on Spec Constraints".
  ```
  3. **Commit**: Ensure these changes are committed before T020 begins. **This task MUST complete before T020.** **Note**: This task amends the Spec to authorize the implementation in T020. **Verification**: Compute SHA256 of the new `deviations.md` file and log the hash to the build output to verify completion.
-- [X] T008 [US2] **Blocking**: Implement `code/data_ingestion.py`: {{claim:c_fd54f849}}
+- [ ] T008 [US2] **Blocking**: Implement `code/data_ingestion.py`: Fetch solar irradiance profiles from NASA POWER API for a representative Sub-Saharan Africa location (Lat: 5.0, Long: 10.0).
  **Endpoint**: ` (Use the correct, reachable NASA POWER API endpoint for daily solar radiation).
  **Parameters**: `start=YYYY-MM-DD`, `end=YYYY-MM-DD`, `parameters=RSR`, `aggregation=daily`.
  **Traceability**: FR-003, US-2.
@@ -97,17 +97,17 @@ Method: [Method placeholder]
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. These tests verify specific function signatures and logic.
 
-- [X] T009 [US1] Unit test for cost function calculation in `tests/unit/test_data_ingestion.py`: Verify `calculate_cost` exists with signature `(materials: List[MaterialProfile], geometry: GeometryConfig) -> float` and asserts `calculate_cost` returns a float > 0 for valid inputs.
-- [X] T010 [US1] Contract test for material schema validation in `tests/unit/test_material_schema.py`: Verify `load_material_schema` exists with signature `(path: str) -> Schema` and asserts the schema loads correctly for the defined `MaterialProfile`.
+- [~] T009 [US1] Unit test for cost function calculation in `tests/unit/test_data_ingestion.py`: Verify `calculate_cost` exists with signature `(materials: List[MaterialProfile], geometry: GeometryConfig) -> float` and asserts `calculate_cost` returns a float > 0 for valid inputs.
+- [~] T010 [US1] Contract test for material schema validation in `tests/unit/test_material_schema.py`: Verify `load_material_schema` exists with signature `(path: str) -> Schema` and asserts the schema loads correctly for the defined `MaterialProfile`.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data_ingestion.py`: **Fetch and Validate Script**: Fetch raw NIST data for Aluminum (ID: 7429-90-5), Copper (ID: 7440-50-8), Black-painted Steel (mapped to Carbon Steel Alloy 1018), and Plastic (Polyethylene) from the NIST Chemistry WebBook. **This script runs on every execution.** If the local cache checksum fails, re-fetch. **Endpoints**: Use specific NIST property keys: `thermal_conductivity`, `emissivity`, `specific_heat`, `density`. Save the fetched data to `data/raw/nist_materials.json` and compute a SHA256 checksum. Save the checksum to `data/raw/nist_materials.json.sha256`. **Note**: This satisfies FR-001 "retrieve" by fetching from the canonical source on every run. **Prerequisite for T011.**
-- [ ] T013 [US1] Implement `code/data_ingestion.py`: **Fetch Current Prices**: Fetch **current** market prices for the 4 materials from the **World Bank Commodity Prices API** (` Name or service not known)"))] with specific material codes for Aluminum, Copper, Steel, Plastic). **NO STATIC FALLBACKS**. **Edge Case Handling**: If the live API is unreachable or returns no data, the script MUST **FAIL LOUDLY** (raise an exception with a specific error code) and **NOT** proceed with synthetic or static data. Save the fetched data to `data/raw/market_prices.json` and compute a SHA256 checksum. **Note**: This satisfies FR-002 "current market prices" requirement with a verified endpoint. **Prerequisite for T014.** <!-- FAILED: unspecified -->
+- [~] T012 [US1] Implement `code/data_ingestion.py`: **Fetch and Validate Script**: Fetch raw NIST data for Aluminum (ID: 7429-90-5), Copper (ID: 7440-50-8), Black-painted Steel (mapped to Carbon Steel Alloy 1018), and Plastic (Polyethylene) from the NIST Chemistry WebBook. **This script runs on every execution.** If the local cache checksum fails, re-fetch. **Endpoints**: Use specific NIST property keys: `thermal_conductivity`, `emissivity`, `specific_heat`, `density`. Save the fetched data to `data/raw/nist_materials.json` and compute a SHA256 checksum. Save the checksum to `data/raw/nist_materials.json.sha256`. **Note**: This satisfies FR-001 "retrieve" by fetching from the canonical source on every run. **Prerequisite for T011.**
+- [ ] T013 [US1] Implement `code/data_ingestion.py`: **Fetch Current Prices**: Fetch **current** market prices for the 4 materials from the **World Bank Commodity Prices API** (` Name or service not known)"))] with specific material codes for Aluminum, Copper, Steel, Plastic). **NO STATIC FALLBACKS**. **Edge Case Handling**: If the live API is unreachable or returns no data, the script MUST **FAIL LOUDLY** (raise an exception with a specific error code) and **NOT** proceed with synthetic or static data. Save the fetched data to `data/raw/market_prices.json` and compute a SHA256 checksum. **Note**: This satisfies FR-002 "current market prices" requirement with a verified endpoint. **Prerequisite for T014.** <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
 - [ ] T011 [US1] Implement `code/data_ingestion.py`: Load thermal properties (conductivity, emissivity, specific heat, density) for Aluminum, Copper, Black-painted Steel, and Plastic from the **cached JSON file** `data/raw/nist_materials.json` generated in **T012**. **Prerequisite: T012 must complete before T011.** Ensure keys match `data-model.md` (MaterialProfile): `thermal_conductivity`, `emissivity`, `specific_heat`, `density`. **Note**: This loads the fetched data. If the checksum in T012 fails, the file is re-fetched. <!-- FAILED: unspecified -->
-- [X] T014 [US1] Implement cost function logic in `code/data_ingestion.py`: Calculate total cost $C$ for a specific geometry by suming (mass × price) for all components, ensuring all costs are strictly positive. **Strictly follow spec: $C = \sum (mass_i \times price_i)$ without additional complexity factors.** **Prerequisite: T013 (Prices) and T011 (Properties) must complete.** <!-- FAILED: unspecified -->
+- [~] T014 [US1] Implement cost function logic in `code/data_ingestion.py`: Calculate total cost $C$ for a specific geometry by suming (mass × price) for all components, ensuring all costs are strictly positive. **Strictly follow spec: $C = \sum (mass_i \times price_i)$ without additional complexity factors.** **Prerequisite: T013 (Prices) and T011 (Properties) must complete.** <!-- FAILED: unspecified -->
 - [ ] T015 [US1] Generate `data/processed/materials.csv` containing material_id, thermal properties, density, unit price, calculated cost, and a `status` field (e.g., "valid", "invalid_price").
-- [X] T016 [US1] Validate that the output CSV contains no missing values for valid materials and that all costs are positive scalars. **Artifact**: Generate `data/processed/materials_validation.json` with validation results.
+- [ ] T016 [US1] Validate that the output CSV contains no missing values for valid materials and that all costs are positive scalars. **Artifact**: Generate `data/processed/materials_validation.json` with validation results.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -121,7 +121,7 @@ Method: [Method placeholder]
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017 [US2] Unit test for view factor calculation in `tests/unit/test_simulation.py`: Verify `calculate_view_factor` exists with signature `(geometry: GeometryConfig, angle: float) -> float` and asserts the result is within [0, 1].
+- [~] T017 [US2] Unit test for view factor calculation in `tests/unit/test_simulation.py`: Verify `calculate_view_factor` exists with signature `(geometry: GeometryConfig, angle: float) -> float` and asserts the result is within [0, 1].
 - [ ] T018 [US2] Unit test for convective heat transfer coefficient calculation in `tests/unit/test_simulation.py`: Verify `calculate_convective_coeff` exists with signature `(temp_diff: float, geometry: GeometryConfig) -> float` and asserts the result is positive.
 - [ ] T019 [US2] Integration test for energy balance closure in `tests/integration/test_simulation.py`: Verify `run_simulation` returns a result where `input_energy ≈ output_energy + losses` within a tolerance of a minimal margin.
 
@@ -131,10 +131,10 @@ Method: [Method placeholder]
 - [ ] T021 [US2] Implement `code/simulation.py`: Create the 1D transient heat transfer ODE system using `scipy.integrate.solve_ivp`, incorporating solar irradiance boundary conditions from the data fetched in **T008**. **Prerequisite: T020 (GeometryConfig) and T008 (Irradiance) must complete.**
 - [ ] T038 [US2] Verify that `code/simulation.py` explicitly logs the "Energy Balance Closure" error message when the check fails, ensuring the exclusion reason is traceable in `data/processed/validation_log.json`.
 - [ ] T039 [US2] Add a `check_convergence` function in `code/simulation.py` that validates the ODE solver's `status` flag before including a result in `simulation_results.csv`, ensuring non-converged runs are excluded per Edge Case handling.
-- [X] T023a [US2] **Plan Amendment Task**: Update `plan.md` Summary section to explicitly state: "The implementation will use Energy Balance as the primary gate and **FR-006 literature range check as a hard gate** (exclude if failed)." **Prerequisite**: Must be committed before T023b.
+- [~] T023a [US2] **Plan Amendment Task**: Update `plan.md` Summary section to explicitly state: "The implementation will use Energy Balance as the primary gate and **FR-006 literature range check as a hard gate** (exclude if failed)." **Prerequisite**: Must be committed before T023b.
 - [ ] T023b [US2] Implement `code/validation.py`: Perform **Primary Validation**: Check **Energy Balance Closure** (Input Energy = Output Energy + Losses). **If this check fails, exclude the result from data/processed/simulation_results.csv.** Perform **Secondary Validation (FR-006)**: Check if calculated efficiency $\eta$ falls within ±10% of the mean efficiency (0.45) from Duffie & Beckman (**Solar Engineering of Thermal Processes, Chapter 10, Section 10.2**). **If FR-006 check fails, EXCLUDE the result and log an error.** **Note**: This task enforces the Spec's FR-006 as a hard gate, as amended in T023a.
 - [ ] T025 [US2] Generate `data/processed/simulation_results.csv` containing material_id, geometry_id, steady_state_efficiency, total_cost, and convergence_status. **Conditional: Only generate this file if T023b, T038, and T039 validation passes.** **Prerequisite: T023b must complete.**
-- [X] T026 [US2] Run batch simulation for all material-geometry combinations (3 geometries × 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU. [UNRESOLVED-CLAIM: c_8e6a3932 — status=not_enough_info] **Artifact**: Generate `data/processed/batch_runtime_log.json` with runtime metrics. **Note: Angle sweep (0-80°) is removed to respect Spec scope.**
+- [~] T026 [US2] Run batch simulation for all material-geometry combinations (3 geometries × 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU. [UNRESOLVED-CLAIM: c_8e6a3932 — status=not_enough_info] **Artifact**: Generate `data/processed/batch_runtime_log.json` with runtime metrics. **Note: Angle sweep (0-80°) is removed to respect Spec scope.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -158,7 +158,7 @@ Method: [Method placeholder]
 - [ ] T031 [US3] Implement `code/optimization.py`: Calculate the "knee point" as the point on the frontier minimizing Euclidean distance to the ideal point (max $\eta$, min $C$).
 - [ ] T032a [US3] Implement `code/optimization.py`: Calculate the coefficient of determination ($R^2$) of a linear fit to the Pareto frontier points using **Ordinary Least Squares (OLS) via `scipy.stats.linregress`**. **Enforce SC-003**: If $R^2 \ge 0.95$, **flag the result as 'linear_tradeoff'** and log the R² value to `data/processed/optimization_log.json`. **Do NOT exclude the data point.** Report this metric to confirm the trade-off nature (SC-003). **Note**: This preserves valid simulation data while correctly identifying the failure of the trade-off hypothesis.
 - [ ] T033 [US3] Implement `code/utils.py`: Generate a publication-quality scatter plot of efficiency vs. cost with the Pareto frontier highlighted and the knee point explicitly marked.
-- [X] T034 [US3] Save the final plot to `data/plots/pareto_frontier.png` and verify it demonstrates the trade-off relationship (diminishing returns).
+- [ ] T034 [US3] Save the final plot to `data/plots/pareto_frontier.png` and verify it demonstrates the trade-off relationship (diminishing returns).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -168,10 +168,10 @@ Method: [Method placeholder]
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T035 [P] Documentation updates: Update `README.md` with installation steps, `docs/quickstart.md` with pipeline usage, and `docs/api.md` with function signatures.
-- [X] T040 [P] Additional unit tests for edge cases (API failures, convergence issues) in `tests/unit/`
-- [X] T041 Run quickstart.md validation
-- [X] T042 Verify reproducibility: Re-run full pipeline from raw API calls to final plot without manual intervention.
+- [~] T035 [P] Documentation updates: Update `README.md` with installation steps, `docs/quickstart.md` with pipeline usage, and `docs/api.md` with function signatures.
+- [~] T040 [P] Additional unit tests for edge cases (API failures, convergence issues) in `tests/unit/`
+- [~] T041 Run quickstart.md validation
+- [~] T042 Verify reproducibility: Re-run full pipeline from raw API calls to final plot without manual intervention.
 
 ---
 
