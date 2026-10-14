@@ -12,7 +12,7 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
 | Goal | Run an executable analysis on valid, small real inputs early. |
 |------|---------------------------------------------------------------|
 
-- [ ] T001 Validate raw input files and provenance (pre‑processed requirement)  
+- [X] T001 Validate raw input files and provenance (pre‑processed requirement)   <!-- FAILED: unspecified -->
   - **Description**: `code/src/pipeline/ingest.py` checks that `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet` exist, contain the required columns, **and** that the ASV table includes a column `preprocessed` with value `True` indicating it has passed the PPMI QC pipeline. It aborts with a clear error if any check fails.  
   - **File(s)**: `data/raw/open_asv.csv`, `data/raw/open_clinical.parquet`  
   - **Verification**: Unit tests `code/tests/test_ingest_preprocessed.py` pass; the command `python -m code.src.pipeline.ingest` exits with status 0 and logs the SHA‑256 checksums of the raw files.
