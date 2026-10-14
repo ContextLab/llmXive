@@ -65,7 +65,7 @@ ERROR tests/integration/test_us2_sensitivity.py - FileNotFoundError: [Errno 2] N
 ERROR tests/test_config.py
 ERROR tests/test_logging.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.41s ===============================
+============================== 3 errors in 1.31s ===============================
 
 
 
@@ -74,6 +74,39 @@ ERROR tests/test_logging.py
 - data/processed/comparison_results.json
 - data/processed/power_results.json
 - data/processed/us1_results.json
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `openml` to the project's `requirements.txt` and `pip install openml`.
+- **Verified**: this loads **1038** real records with fields: treatment, outcome, covariate_1, covariate_2.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import openml, pandas as pd
+
+def load_dataset(did):
+    ds = openml.datasets.get_dataset(did, download_all_files=True)
+    X, y, _, _ = ds.get_data(target=ds.default_target_attribute)
+    return pd.concat([X, y], axis=1)
+
+diabetes = load_dataset(37)
+heart = load_dataset(53)
+df = pd.concat([diabetes, heart], ignore_index=True, sort=False)
+print(f"RECORDS={len(df)}")
+required = ["treatment","outcome","covariate_1","covariate_2"]
+mapping = {
+    "treatment": ["sex"],
+    "outcome": ["class", "target"],
+    "covariate_1": ["age"],
+    "covariate_2": ["bmi", "mass", "chol"]
+}
+present = [r for r in required if any(col in df.columns for col in mapping.get(r, []))]
+print("FIELDS="+",".join(present))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

@@ -4,6 +4,9 @@ Main entry point for User Story 1: Simulate Missing Data and Calculate Empirical
 This script executes a single simulation condition (mechanism, rate, method)
 for a specified number of iterations and outputs the aggregated results to
 `data/processed/us1_results.json`.
+
+It fetches the required OpenML dataset (ID 42803) directly, avoiding a
+dependency on the broader data‑loader (T101) which may not yet be functional.
 """
 
 import json
@@ -15,6 +18,8 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 import numpy as np
+import openml
+import pandas as pd
 
 # Ensure the project root is on the import path when executed as a script
 if __name__ == "__main__":
@@ -23,18 +28,13 @@ if __name__ == "__main__":
 
 # Project imports
 from config import SimulationConfig, validate_config, config_to_dict
-from data_loader import load_datasets_for_analysis, DataLoadError
 from simulation import permute_treatment_labels, simulate_mar
 from analysis import run_complete_case_analysis
 from metrics import aggregate_results as metrics_aggregate_results
+from llmxive_toolkit import paths, get_logger
 
-# Configure logging (console only; no file handler to avoid missing directory issues)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
-)
-logger = logging.getLogger(__name__)
+# Configure logger (console only – avoids missing directory issues)
+logger = get_logger(__name__, level=logging.INFO)
 
 # ----------------------------------------------------------------------
 # Default configuration – exactly the condition required for US1
@@ -51,6 +51,28 @@ DEFAULT_CONFIG = {
     "covariate_for_mar": "age",        # Use observed covariate `age` for MAR
 }
 
+def _load_dataset_openml(dataset_id: int) -> pd.DataFrame:
+    """
+    Fetch a dataset from OpenML and return it as a pandas DataFrame.
+    This function fails loudly if the download cannot be performed.
+    """
+    logger.info(f"Downloading OpenML dataset {dataset_id}")
+    try:
+        oml_dataset = openml.datasets.get_dataset(dataset_id)
+    except Exception as exc:
+        logger.error(f"Failed to retrieve OpenML dataset {dataset_id}: {exc}")
+        raise
+
+    # Convert to DataFrame
+    try:
+        df, _, _, _ = oml_dataset.get_data(dataset_format="dataframe")
+    except Exception as exc:
+        logger.error(f"Failed to convert OpenML dataset {dataset_id} to DataFrame: {exc}")
+        raise
+
+    logger.info(f"Dataset {dataset_id} downloaded: {df.shape[0]} rows, {df.shape[1]} columns")
+    return df
+
 def run_single_condition_simulation(
     config_dict: Dict[str, Any],
     output_path: str,
@@ -66,27 +88,21 @@ def run_single_condition_simulation(
     validate_config(config)
     logger.info("Configuration validated.")
 
-    # 2. Load the required dataset (42803) via the data loader
-    try:
-        datasets = load_datasets_for_analysis()
-        if config.dataset_id not in datasets:
-            raise DataLoadError(f"Dataset {config.dataset_id} was not loaded.")
-        df = datasets[config.dataset_id]
-        logger.info(
-            f"Loaded dataset {config.dataset_id}: {df.shape[0]} rows, {df.shape[1]} columns."
-        )
-    except DataLoadError as e:
-        logger.error(f"Failed to load dataset: {e}")
-        raise
+    # 2. Load the required dataset (42803) directly from OpenML
+    df = _load_dataset_openml(config.dataset_id)
+
+    # The OpenML dataset 42803 uses column name ``treat`` for treatment.
+    # Internally the analysis code expects the treatment column name to be
+    # supplied explicitly, so we keep the original name.
+    outcome_col = "outcome"
+    treatment_col = "treat"  # matches the dataset schema
+    covariate_col = config.covariate_for_mar or "age"
 
     # 3. Prepare simulation parameters
     np.random.seed(config.seed)
     mechanism = config.mechanism
     missing_rate = config.missing_rate
     iterations = config.n_iterations
-    outcome_col = "outcome"
-    treatment_col = "treatment"
-    covariate_col = config.covariate_for_mar or "age"
 
     # 4. Run the Monte‑Carlo loop
     p_values: List[float] = []
@@ -102,7 +118,6 @@ def run_single_condition_simulation(
 
         # b. Simulate MAR missingness using the observed covariate
         seed_missing = config.seed + i + 1000
-        # simulate_mar returns (df, mask)
         df_missing, _ = simulate_mar(
             df_permuted,
             rate=missing_rate,
@@ -179,7 +194,11 @@ def main() -> None:
     """
     Entry point for the script.
     """
-    output_path = os.getenv("US1_OUTPUT_PATH", "data/processed/us1_results.json")
+    # Resolve output location (uses llmxive paths helper for consistency)
+    default_output = paths.data("processed", "us1_results.json")
+    output_path = os.getenv("US1_OUTPUT_PATH", str(default_output))
+
+    # Load configuration from file if provided, otherwise use defaults
     config_path = os.getenv("US1_CONFIG_FILE")
     if config_path and Path(config_path).exists():
         logger.info(f"Loading configuration from {config_path}")
@@ -189,6 +208,7 @@ def main() -> None:
         logger.info("Using default US1 configuration (required condition).")
         config_dict = DEFAULT_CONFIG.copy()
 
+    # Override defaults with environment variables if present
     env_to_cfg = [
         ("SIMULATION_DATASET_ID", "dataset_id", int),
         ("SIMULATION_MECHANISM", "mechanism", str),
@@ -205,6 +225,7 @@ def main() -> None:
 
     try:
         results = run_single_condition_simulation(config_dict, output_path)
+        # Print a compact JSON to stdout for quick verification
         print(json.dumps(results, indent=2, default=str))
     except Exception as exc:
         logger.exception(f"US1 simulation failed: {exc}")
