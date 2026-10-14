@@ -1,20 +1,18 @@
 T101:
-  c: false
-  h: 6d2a1e34c1277bfe17cdef7a8fc9c4c8587cd812015aa1a09c592946c2a416df
-  r: "Checked `code/utils/config.py` \u2013 it correctly defines `SEEDS`, `PATHS`,\
-    \ and `SENSITIVITY_THRESHOLDS = [2,3,4]`.  \nChecked `code/ingest/checksum.py`\
-    \ \u2013 while the functions now use a list\u2011of\u2011dict schema and `main()`\
-    \ exits non\u2011zero on failures, the script imports `from utils.config import\
-    \ \u2026` which is an invalid import (the module lives at `code/utils/config.py`).\
-    \ This will raise `ModuleNotFoundError`, so the script cannot actually run the\
-    \ verification as claimed. The import must be fixed (e.g., `from code.utils.config\
-    \ import \u2026`) for the task to be complete."
-  sig: aee1abb5722fbee1ef3a16731aa7af45ac6114369dd60c35669bc36f82db3bd7
+  c: true
+  h: 287169cf5ee433b5b88095a402636cd9bb9151e7667c6ed0e8ebe17934ca7087
+  r: "Checked `code/utils/config.py` for the required `SEEDS`, `PATHS`, and `SENSITIVITY_THRESHOLDS\
+    \ = [2,3,4]` definitions, and verified `code/ingest/checksum.py` implements a\
+    \ list\u2011based `{path, sha256}` schema, generates/reads the checksum file,\
+    \ runs verification in `main()`, and exits with a non\u2011zero status on failure\
+    \ (as shown by the execution log)."
+  sig: f90dccb512484e77ef489d24af9bac0e0293adf34be8184dc104d93a34a9e71d
 T102:
   c: false
-  h: 57cd11f9f6b4b6932afbb4acd6d3773b277d677140787266c926cc21ae433c87
-  r: "The `link_dataframe` function is present, but the fuzzy\u2011matching branch\
-    \ does not extract entities from the test sentences, causing the test `test_fuzzy_matching_threshold_behavior`\
-    \ to fail (expected \u201CApple\u201D but got `None`). Consequently the unit\u2011\
-    test suite does not pass, so the task\u2019s verification requirement is not met."
-  sig: 9c098b21b0ae6831f0375e93133236dd2ebeee48856a4f3ad816f393acc1df08
+  h: ca89f227f445f867c388350000b71592386490413670e32b9bc25a3a47e0a4de
+  r: "The `link_dataframe` implementation does not correctly perform the fuzzy\u2011\
+    matching branch: it passes the whole question string to `EntityLinker.link_entity`,\
+    \ which fails to match \u201CI love apples\u201D to the node \u201CApple\u201D\
+    , causing the `test_fuzzy_matching_threshold_behavior` unit test to fail. Consequently\
+    \ the required behavior and the passing test suite are not satisfied."
+  sig: 3d3b6218f21f073bb7feb0ef47a2ba41a432a8487b9ef083b5798c7a00ca12ba

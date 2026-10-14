@@ -8,7 +8,8 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-from utils.config import get_path, ensure_dir, PATHS
+# Fixed import to use the correct module path
+from code.utils.config import get_path, ensure_dir, PATHS
 
 logger = logging.getLogger(__name__)
 
@@ -166,6 +167,7 @@ def main() -> None:
         sys.exit(1)
     else:
         logger.info("All raw data files passed checksum verification.")
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

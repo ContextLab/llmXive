@@ -1,18 +1,11 @@
 T101:
-  reason: "Checked `code/utils/config.py` \u2013 it correctly defines `SEEDS`, `PATHS`,\
-    \ and `SENSITIVITY_THRESHOLDS = [2,3,4]`.  \nChecked `code/ingest/checksum.py`\
-    \ \u2013 while the functions now use a list\u2011of\u2011dict schema and `main()`\
-    \ exits non\u2011zero on failures, the script imports `from utils.config import\
-    \ \u2026` which is an invalid import (the module lives at `code/utils/config.py`).\
-    \ This will raise `ModuleNotFoundError`, so the script cannot actually run the\
-    \ verification as claimed. The import must be fixed (e.g., `from code.utils.config\
-    \ import \u2026`) for the task to be complete."
   task: 124f0ea77e72c354939beda0a391bd830931598c680d04f7228b82b3f161e287
 T102:
-  reason: "The `link_dataframe` function is present, but the fuzzy\u2011matching branch\
-    \ does not extract entities from the test sentences, causing the test `test_fuzzy_matching_threshold_behavior`\
-    \ to fail (expected \u201CApple\u201D but got `None`). Consequently the unit\u2011\
-    test suite does not pass, so the task\u2019s verification requirement is not met."
+  reason: "The `link_dataframe` implementation does not correctly perform the fuzzy\u2011\
+    matching branch: it passes the whole question string to `EntityLinker.link_entity`,\
+    \ which fails to match \u201CI love apples\u201D to the node \u201CApple\u201D\
+    , causing the `test_fuzzy_matching_threshold_behavior` unit test to fail. Consequently\
+    \ the required behavior and the passing test suite are not satisfied."
   task: eb46c77b92d8ade98ad3221f5e603ccd37518053ac27ddb12012ba43927408e3
 T103:
   reason: 'Requested task execution failed; rerun successfully: code/ingest/download_data.py

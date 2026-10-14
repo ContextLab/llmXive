@@ -207,7 +207,7 @@ def link_dataframe(
         return df_out
 
     # ------------------------------------------------------------------
-    # 2. Prepare the linker (fuzzy path) and optionally the embedding model
+    # 2. Prepare the linker (fuzzy) and optionally the embedding model
     # ------------------------------------------------------------------
     linker = EntityLinker(graph_nodes, threshold)
 
@@ -215,12 +215,9 @@ def link_dataframe(
     embedding_model = None
     try:
         from sentence_transformers import SentenceTransformer  # type: ignore
-        # Load a lightweight CPU‑only model; this may raise if the package
-        # is not installed or the model cannot be downloaded.
         embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         use_embeddings = True
     except Exception:
-        # No embedding path – we will fall back to fuzzy matching.
         use_embeddings = False
 
     # Helper that returns (node_id, confidence) for a single text entry.
@@ -232,15 +229,11 @@ def link_dataframe(
         # Embedding based similarity (if available)
         # ------------------------------------------------------------------
         if use_embeddings and embedding_model is not None:
-            # Compute embedding for the whole question; in a real system we would
-            # extract candidate entities first, but for simplicity we treat the
-            # entire question as the query.
             query_vec = embedding_model.encode([text])[0]
             best_node = None
             best_score = 0.0
             for node in linker.node_names:
                 node_vec = embedding_model.encode([node])[0]
-                # Cosine similarity
                 denom = (np.linalg.norm(query_vec) * np.linalg.norm(node_vec))
                 if denom == 0:
                     continue
@@ -253,14 +246,13 @@ def link_dataframe(
             return None, 0.0
 
         # ------------------------------------------------------------------
-        # Fuzzy string matching path
+        # Fuzzy string matching path – use the whole text as the entity
         # ------------------------------------------------------------------
-        links = linker.link_entities(text)
-        if not links:
-            return None, 0.0
-        # ``links`` is a list of (node_id, confidence); pick the best.
-        best_node, best_conf = max(links, key=lambda x: x[1])
-        return best_node, float(best_conf)
+        link = linker.link_entity(text)
+        if link:
+            node_id, conf = link
+            return node_id, float(conf)
+        return None, 0.0
 
     # ------------------------------------------------------------------
     # 3. Apply linking row‑wise
@@ -281,7 +273,6 @@ def link_dataframe(
 
 def main() -> None:
     """Main entry point for entity linker module."""
-    # The module can be used as a CLI for quick sanity checks.
     import argparse
 
     parser = argparse.ArgumentParser(description="Entity linker utility")

@@ -12,10 +12,16 @@ import json
 from pathlib import Path
 from typing import List, Dict
 
-from huggingface_hub import hf_hub_download, HfHubHTTPError
-from utils.config import get_path, ensure_dir, VIDEO_KR_REPO, PATHS
+# huggingface_hub provides the download utility; we only need the function.
+# Importing the specific HTTP error class is version‑dependent, so we catch
+# generic exceptions and re‑raise a consistent ``DataUnavailableError``.
+from huggingface_hub import hf_hub_download
 
-from ingest.checksum import compute_sha256
+# Import project configuration utilities using the correct package path.
+from code.utils.config import get_path, ensure_dir, VIDEO_KR_REPO, PATHS
+
+# Checksum helper from the ingestion utilities.
+from code.ingest.checksum import compute_sha256
 
 logger = logging.getLogger(__name__)
 
@@ -48,23 +54,17 @@ def _download_file(repo_id: str, filename: str, target_dir: Path) -> Path:
             force_download=False,
             resume_download=True,
         )
-        # Move the file into the desired location (ensuring the exact name)
+        # Ensure the file ends up exactly where we expect.
         target_path = target_dir / filename
         target_path.parent.mkdir(parents=True, exist_ok=True)
-        # ``hf_hub_download`` may return a path inside the cache; we copy it.
-        # Using ``replace`` ensures we have a single authoritative copy.
+        # ``hf_hub_download`` may return a cached location; move it to the target.
         Path(downloaded_path).replace(target_path)
         logger.info(f"Successfully downloaded to {target_path}")
         return target_path
-    except HfHubHTTPError as e:
+    except Exception as e:  # Broad catch to handle version differences in HF errors.
         logger.error(f"Failed to download {filename} from {repo_id}: {e}")
         raise DataUnavailableError(
             f"Unable to fetch required file '{filename}' from repository '{repo_id}'."
-        ) from e
-    except Exception as e:
-        logger.error(f"Unexpected error while downloading {filename}: {e}")
-        raise DataUnavailableError(
-            f"Unexpected error during download of '{filename}'."
         ) from e
 
 
@@ -95,27 +95,33 @@ def main() -> None:
     raw_dir: Path = PATHS["raw"]
     ensure_dir(raw_dir)
 
-    # Expected filenames in the repository
+    # Expected filenames in the repository.
     filenames = ["videokr_sft.json", "knowledge_graph.json"]
     downloaded_paths: List[Path] = []
 
     for fn in filenames:
         downloaded_paths.append(_download_file(VIDEO_KR_REPO, fn, raw_dir))
 
-    # Compute checksums
+    # Compute checksums.
     checksum_entries = []
     for path in downloaded_paths:
         checksum = compute_sha256(path)
-        entry = {"path": str(path.relative_to(raw_dir).as_posix()), "sha256": checksum}
+        entry = {
+            "path": str(path.relative_to(raw_dir).as_posix()),
+            "sha256": checksum,
+        }
         checksum_entries.append(entry)
 
-    # Write combined checksum file
+    # Write combined checksum file.
     checksum_file = raw_dir / "checksums.json"
     _write_checksums(checksum_entries, checksum_file)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
     try:
         main()
     except DataUnavailableError as e:
