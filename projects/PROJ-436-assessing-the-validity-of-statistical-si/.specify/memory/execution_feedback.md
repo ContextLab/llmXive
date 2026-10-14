@@ -65,7 +65,7 @@ ERROR tests/integration/test_us2_sensitivity.py - FileNotFoundError: [Errno 2] N
 ERROR tests/test_config.py
 ERROR tests/test_logging.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.42s ===============================
+============================== 3 errors in 1.41s ===============================
 
 
 
@@ -74,6 +74,33 @@ ERROR tests/test_logging.py
 - data/processed/comparison_results.json
 - data/processed/power_results.json
 - data/processed/us1_results.json
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Download / stream** this exact data URL directly (do NOT `pip install` it — it is a data file, not a package): `https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv`
+- **Verified**: streaming a sample yielded **767** real records with fields: Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age, Outcome.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import pandas as pd
+url = "https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv"
+# This CSV contains columns: Age, BMI, Outcome (binary), and others. No explicit treatment column.
+df = pd.read_csv(url)
+# Map to requested names.
+column_map = {
+    'treatment': None,               # not present
+    'outcome': 'Outcome',
+    'age': 'Age',
+    'bmi': 'BMI'
+}
+present = [k for k, v in column_map.items() if v and v in df.columns]
+print(f"RECORDS={len(df)}")
+print("FIELDS=" + ",".join(present))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

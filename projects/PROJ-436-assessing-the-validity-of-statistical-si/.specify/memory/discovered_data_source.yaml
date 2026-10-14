@@ -1,11 +1,30 @@
-status: none
-intent: OpenML Diabetes and OpenML Heart Disease RCT treatment outcome with covariates
-  python package dataset
+status: verified
+kind: data_url
+ref: https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv
+access_python: "import pandas as pd\nurl = \"https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv\"\
+  \n# This CSV contains columns: Age, BMI, Outcome (binary), and others. No explicit\
+  \ treatment column.\ndf = pd.read_csv(url)\n# Map to requested names.\ncolumn_map\
+  \ = {\n    'treatment': None,               # not present\n    'outcome': 'Outcome',\n\
+  \    'age': 'Age',\n    'bmi': 'BMI'\n}\npresent = [k for k, v in column_map.items()\
+  \ if v and v in df.columns]\nprint(f\"RECORDS={len(df)}\")\nprint(\"FIELDS=\" +\
+  \ \",\".join(present))"
+record_count: 767
+sample_fields:
+- Pregnancies
+- Glucose
+- BloodPressure
+- SkinThickness
+- Insulin
+- BMI
+- DiabetesPedigreeFunction
+- Age
+- Outcome
+field_coverage: 0.75
 required_fields:
 - treatment
 - outcome
-- covariate_1
-- covariate_2
-cache_key: 8af930bd6cfdef44318f8cc1390429e4062f5d9e8ea42e0b133f3cc00bae8e73
-searched_at: '2026-10-14T05:17:38.421002+00:00'
-retry_count: 1
+- age
+- BMI
+intent: OpenML diabetes and heart disease datasets download treatment outcome covariates
+  python package dataset
+cache_key: 1257910e4b1c9ad8f7eeaa3645a50593485f34bb6caff7979c4fee81f6c8f02e

@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-14T02:10:54Z",
-  "project_id": "PROJ-436-assessing-the-validity-of-statistical-si"
+  "updated_at": "2026-10-14T08:19:57Z",
+  "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
+  "replan_rounds": 1
 }
