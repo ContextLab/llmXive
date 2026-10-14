@@ -7,7 +7,7 @@
 
 **Goal**: Establish the pipeline and run a thin, executable analysis on a small real-data subset to verify the full data flow from ingestion to prediction.
 
-- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and validate input provenance. <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 -->
+- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and validate input provenance. <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 -->
     - Verify access to American Gut Project (AGP) via `datasets.load_dataset("american_gut_project", streaming=True)` and Health and Retirement Study (HRS) portal.
     - Document the runnable command in `docs/quickstart.md`.
     - Ensure the CPU-only resource guard is active ($\le 7$ GB RAM, $\le 6$ hours).

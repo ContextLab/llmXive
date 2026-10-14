@@ -21,20 +21,44 @@ def check_resources():
         "resource_guard_active": True,
     }
 
+def _attempt_load(ds_id: str):
+    """
+    Try to load a dataset in streaming mode.
+    First attempt without specifying a split (works for datasets that expose a default split).
+    If that fails, fall back to loading the 'train' split explicitly.
+    Returns the dataset object on success, otherwise raises the original exception.
+    """
+    try:
+        log.info(f"Attempting to load dataset '{ds_id}' without explicit split.")
+        ds = load_dataset(ds_id, streaming=True)
+        # Pull a single record to confirm real data access
+        next(iter(ds))
+        log.info(f"Successfully accessed dataset '{ds_id}' (no split).")
+        return ds
+    except Exception as e_no_split:
+        log.debug(f"Loading without split failed for '{ds_id}': {e_no_split}")
+        # Try with explicit 'train' split
+        try:
+            log.info(f"Attempting to load dataset '{ds_id}' with split='train'.")
+            ds = load_dataset(ds_id, split="train", streaming=True)
+            next(iter(ds))
+            log.info(f"Successfully accessed dataset '{ds_id}' with split='train'.")
+            return ds
+        except Exception as e_split:
+            log.debug(f"Loading with split='train' also failed for '{ds_id}': {e_split}")
+            # Raise the original exception for clearer upstream handling
+            raise e_no_split
+
 def verify_agp_access():
     """
     Verify access to the American Gut Project via HuggingFace datasets.
-    Tries known dataset identifiers.
+    Tries known dataset identifiers and confirms at least one yields a real record.
     """
     log.info("Verifying AGP dataset access...")
     dataset_ids = ["american_gut_project", "qiita/16s_gut_microbiome"]
     for ds_id in dataset_ids:
         try:
-            log.info(f"Attempting to load dataset: {ds_id}")
-            # Use streaming mode with an explicit split to ensure we get an iterable
-            ds = load_dataset(ds_id, split="train", streaming=True)
-            # Pull a single record to confirm real data access
-            next(iter(ds))
+            _attempt_load(ds_id)
             log.info(f"AGP access verified via dataset ID: {ds_id}")
             return True, ds_id
         except Exception as e:
