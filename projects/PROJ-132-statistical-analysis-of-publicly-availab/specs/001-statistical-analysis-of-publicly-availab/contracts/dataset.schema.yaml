@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Synthetic Bird Migration and Climate Dataset Schema"
-description: "Schema for the synthetic dataset used to validate the pipeline. Matches the structure of eBird and Daymet data."
+title: "Bird Migration and Climate Dataset Schema"
+description: "Schema for the raw eBird and PRISM datasets used to validate the pipeline. Field names align with the data model definitions."
 type: "object"
 properties:
   migration_records:
@@ -9,7 +9,7 @@ properties:
     items:
       type: "object"
       properties:
-        species:
+        species_id:
           type: "string"
           description: "Scientific name of the bird species"
         latitude:
@@ -35,15 +35,22 @@ properties:
           description: "Unique checklist identifier"
         grid_cell:
           type: "string"
-          description: "Grid cell identifier (lat_lon format)"
+          description: "Grid cell identifier (lat_lon format, at a sub-degree spatial resolution)"
+        checklist_duration:
+          type: "integer"
+          description: "Checklist duration in minutes (effort covariate)"
+        observer_count:
+          type: "integer"
+          description: "Number of observers contributing to the checklist (effort covariate)"
       required:
-        - species
+        - species_id
         - latitude
         - longitude
         - date
         - count
         - checklist_id
         - grid_cell
+      additionalProperties: false
   climate_records:
     type: "array"
     description: "Array of climate records per grid cell and week"
@@ -52,24 +59,23 @@ properties:
       properties:
         grid_cell:
           type: "string"
-          description: "Grid cell identifier (lat_lon format)"
-        week:
-          type: "integer"
-          description: "ISO week number (1-52)"
-          minimum: 1
-          maximum: 52
+          description: "Grid cell identifier (lat_lon format, 0.5° resolution)"
+        week_start:
+          type: "string"
+          format: "date"
+          description: "ISO week start date"
         year:
           type: "integer"
           description: "Year of observation"
           minimum: 2020
           maximum: 2024
-        mean_temp:
+        mean_temperature:
           type: "number"
           description: "Mean temperature in Celsius"
-        total_precip:
+        total_precipitation:
           type: "number"
           description: "Total precipitation in mm"
-        extreme_idx:
+        extreme_weather_index:
           type: "number"
           description: "Extreme weather index (0.0 to 1.0)"
           minimum: 0
@@ -79,13 +85,14 @@ properties:
           description: "True if value was interpolated"
       required:
         - grid_cell
-        - week
+        - week_start
         - year
-        - mean_temp
-        - total_precip
-        - extreme_idx
+        - mean_temperature
+        - total_precipitation
+        - extreme_weather_index
         - imputed
+      additionalProperties: false
 required:
   - migration_records
   - climate_records
-
+additionalProperties: false

@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
 
-The system MUST ingest raw eBird Basic Dataset (EBD) records and NOAA/PRISM climate data, filter them to migratory species and the 2020–2024 period, and aggregate them into a unified, grid-aligned dataset (0.5° × 0.5° cells) with computed phenology metrics (first arrival, median arrival, stopover duration) and seasonal climate averages.
+The system MUST ingest raw eBird Basic Dataset (EBD) records and NOAA/PRISM climate data, filter them to migratory species and the 2020–2024 period, and aggregate them into a unified, grid-aligned dataset using a regular spatial grid of consistent, sub‑degree resolution (e.g., cells on the order of a few tenths of a degree) with computed phenology metrics (first arrival, median arrival, stopover duration) and seasonal climate averages.
 
 **Why this priority**: Without a clean, aligned, and reproducible dataset, no statistical modeling or hypothesis testing can occur. This is the foundational step that enables all subsequent analysis.
 
@@ -47,7 +47,7 @@ The system MUST represent weekly migration centroids as trajectories on a Rieman
 
 **Acceptance Scenarios**:
 
-1. **Given** weekly centroid coordinates for a species, **When** the Riemannian trajectory analysis is executed, **Then** the output includes a shift vector (magnitude and direction) and a p-value derived from 10,000 permutation shuffles, with the computation completing in ≤ 1800 seconds.
+1. **Given** weekly centroid coordinates for a species, **When** the Riemannian trajectory analysis is executed, **Then** the output includes a shift vector (magnitude and direction) and a p-value derived from a large number of permutation shuffles, with the computation completing in ≤ 1800 seconds.
 2. **Given** a set of model predictions, **When** the bootstrapped confidence intervals are aggregated, **Then** the 95% confidence interval width is [deferred] days for the predicted phenology shift, ensuring adequate precision for ecological interpretation.
 
 ---

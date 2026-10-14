@@ -46,7 +46,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "P-value from the block bootstrap permutation test."
+    description: "P‑value from the block bootstrap permutation test."
   is_shift_significant:
     type: boolean
     description: "True if p_value < 0.05."

@@ -1,5 +1,6 @@
 status: none
-intent: download eBird Basic Dataset and NOAA PRISM climate data python package dataset
+intent: eBird Basic Dataset 2020-2024 download and NOAA PRISM climate data python
+  package dataset
 required_fields:
 - species
 - grid_cell
@@ -7,6 +8,6 @@ required_fields:
 - phenology_metric
 - climate_temp
 - climate_precip
-cache_key: ba03d300570acc2d27963b9aa043c3fd787c21e69279000345f329e2554ac21e
-searched_at: '2026-08-19T11:57:12.785700+00:00'
+cache_key: 7dfc9a0614a50460cf0747396d021a2e884b25ad81124ae24fefe1a944c416f2
+searched_at: '2026-10-14T17:54:16.379342+00:00'
 retry_count: 1
