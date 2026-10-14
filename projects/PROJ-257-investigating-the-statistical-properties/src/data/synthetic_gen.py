@@ -133,14 +133,16 @@ def generate_synthetic_catalog(
 
     Primary masses follow a truncated power law, secondary masses are
     uniform on [MASS_MIN, m1], and the two aligned component spins are
-    independent uniforms on [-1, 1]; chi_eff is the mass-weighted mean.
+    independent uniforms on [-1, 1]; chi_eff is the mass‑weighted mean.
     """
     rng = np.random.default_rng(seed)
     m1 = _sample_primary_mass(rng, n_events)
+    # Secondary mass uniform between MASS_MIN and the primary mass.
     m2 = rng.uniform(MASS_MIN, 1.0, n_events) * (m1 - MASS_MIN) + MASS_MIN
     chi1 = rng.uniform(SPIN_MIN, SPIN_MAX, n_events)
     chi2 = rng.uniform(SPIN_MIN, SPIN_MAX, n_events)
     chi_eff = (chi1 * m1 + chi2 * m2) / (m1 + m2)
+
     df = pd.DataFrame(
         {
             "event_id": [f"SIM_{i:04d}" for i in range(n_events)],
@@ -170,6 +172,7 @@ def _validate_catalog(df: pd.DataFrame) -> None:
         raise RuntimeError("mass_ratio outside (0, 1] in simulation catalog")
     if not df["effective_spin"].between(-1.0, 1.0).all():
         raise RuntimeError("effective_spin outside [-1, 1] in simulation catalog")
+
 
 # --- Orchestration ------------------------------------------------------
 

@@ -2,11 +2,11 @@ status: none
 intent: GWTC-1 GWTC-2 posterior samples Zenodo download python package dataset
 required_fields:
 - event_name
-- mass_1_source_frame
-- mass_2_source_frame
 - mass_ratio
-- effective_spin_chi_eff
-- posterior_sample_id
-cache_key: 8905e8cc1a1741ecdbab5f67c8e80481c104cbd4050a2425d036d4497a8b6f73
-searched_at: '2026-10-14T02:18:36.797240+00:00'
+- effective_spin
+- component_mass_1
+- component_mass_2
+- posterior_sample_file
+cache_key: a28cd95179dcab2f607c250909080a09fe4554527e426a6fe089b853ec04b30c
+searched_at: '2026-10-14T03:11:03.589499+00:00'
 retry_count: 1

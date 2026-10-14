@@ -12,13 +12,16 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”; 1 run-book script(s) missing (plan/impl path mismatch): python src/main.py
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”; 1 command(s) failed: python src/main.py (rc=1)
 
 ## Failing / missing run-book commands
 
-- python src/main.py -> rc=2
+- python src/main.py -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-257-investigating-the-statistical-properties/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/src/main.py': [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/src/main.py", line 25, in <module>
+    from src.data.download import download_all
+ModuleNotFoundError: No module named 'src.data.download'
 
 ## Platform-owned paths written inside the project
 

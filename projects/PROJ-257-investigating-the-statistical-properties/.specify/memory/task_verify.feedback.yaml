@@ -1,14 +1,19 @@
 T001:
-  reason: "Checked `src/data/download.py` (implementation present) and `tests/unit/test_download.py`\
-    \ (unit test present and would pass). However the required output files `data/raw/gwtc1.h5`,\
-    \ `data/raw/gwtc2.h5`, and the manifest `data/raw/checksums.json` are missing,\
-    \ so the real\u2011run artifact the task demands does not exist."
+  reason: "The downloaded files are not GWTC posterior samples: `data/raw/gwtc1.h5`\
+    \ begins with a PNG header (an image, ~1 MB) and `data/raw/gwtc2.h5` is a JSON\
+    \ record about a copper-plate inscription from a completely different Zenodo record\
+    \ \u2014 neither is HDF5 GWTC data, so the \"real run\" produced fabricated/wrong\
+    \ artifacts. Additionally, the verification requirement fails: the recorded pytest\
+    \ run of `tests/unit/test_download.py` exited with code 2 (`ModuleNotFoundError:\
+    \ No module named 'requests_mock'`), so the tests do not pass, and the download\
+    \ code never verifies checksums against Zenodo-provided exp"
   task: e125bcd44b2f5eb7a0ae82bf60a9a63afcfcdbbe2d2716db10c6337263eaff7a
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/preprocess.py
     exit=1'
   task: d3f4e2c2c703902a166e24098ec91139de94b3a8f91af723fe378a495e8e7952
 T003:
+  reason: 'Requested task execution failed; rerun successfully: src/main.py exit=1'
   task: e782dd93df1a3073e4aa0f971be03d856554d46546fc0dc145a229263a1a01d7
 T005:
   task: 9c09d3656e88a0086183fc4ca4ff8feabf2e725c27f877761f287ef6cb6c4224

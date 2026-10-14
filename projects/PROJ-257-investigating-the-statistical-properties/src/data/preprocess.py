@@ -98,14 +98,12 @@ def _draw_samples(arr: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     indices = rng.choice(arr.size, size=N_SAMPLES, replace=True)
     return arr[indices]
 
-# ----------------------------------------------------------------------
-# Core preprocessing routine
-# ----------------------------------------------------------------------
 def _ensure_raw_file(path: Path) -> Path:
     """
     Verify that *path* points to a readable HDF5 file. If the file cannot be
-    opened (e.g., because the download was corrupted or the file is missing),
-    attempt to re‑download the entire dataset via :func:`download_all`.
+    opened (e.g., because the download was corrupted, the file is missing,
+    or the file is not a valid HDF5 container), attempt to download all
+    raw datasets via :func:`download_all` and return the verified path.
 
     Parameters
     ----------
@@ -123,35 +121,32 @@ def _ensure_raw_file(path: Path) -> Path:
         If the file still cannot be opened after a re‑download attempt.
     """
     try:
-        # Quick sanity check: opening in read‑only mode will raise OSError if
-        # the signature is not HDF5.
+        # Attempt to open; this also catches missing files.
         with h5py.File(path, "r"):
             pass
         return path
     except Exception as exc:  # pragma: no cover
-        log.warning(f"Raw file {path} appears invalid ({exc}); attempting re‑download.")
+        log.warning(f"Raw file {path} is unavailable or invalid ({exc}); attempting download.")
         if download_all is None:
             raise RuntimeError(
                 f"Unable to open raw file {path} and download helper unavailable."
             ) from exc
-        # Trigger download of all raw files; this will overwrite the corrupted ones.
+        # Trigger download of all raw files; this will overwrite the corrupted/missing ones.
         downloaded = download_all()
-        # The download helper returns a mapping of logical names to absolute Paths.
-        # Find the entry matching the original filename.
         new_path = downloaded.get(path.name)
         if new_path is None or not new_path.exists():
             raise RuntimeError(
-                f"Re‑downloaded file for {path.name} not found."
+                f"Downloaded file for {path.name} not found after retry."
             ) from exc
         # Verify the newly downloaded file.
         try:
             with h5py.File(new_path, "r"):
                 pass
-            log.info(f"Successfully re‑downloaded and verified {new_path}")
+            log.info(f"Successfully downloaded and verified {new_path}")
             return new_path
         except Exception as exc2:  # pragma: no cover
             raise RuntimeError(
-                f"Re‑downloaded file {new_path} is still invalid."
+                f"Downloaded file {new_path} is still invalid."
             ) from exc2
 
 def preprocess() -> dict:
@@ -175,10 +170,7 @@ def preprocess() -> dict:
 
     for filename in RAW_FILES:
         raw_path = raw_dir / filename
-        if not raw_path.exists():
-            raise FileNotFoundError(f"Expected raw file not found: {raw_path}")
-
-        # Ensure the file is a valid HDF5; attempt re‑download if not.
+        # Ensure the file exists and is a valid HDF5; download if necessary.
         raw_path = _ensure_raw_file(raw_path)
 
         log.info(f"Reading raw file: {raw_path}")
@@ -242,7 +234,7 @@ def preprocess() -> dict:
         )
 
     # ------------------------------------------------------------------
-    # Write CSV with point‑estimates
+    # Write CSV with point‑estimate
     # ------------------------------------------------------------------
     csv_path = processed_dir / "obs_point_estimates.csv"
     df = pd.DataFrame(

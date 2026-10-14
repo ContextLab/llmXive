@@ -95,13 +95,15 @@ def _download_with_retries(url: str, dest: Path, max_attempts: int = 3) -> None:
     while attempt < max_attempts:
         try:
             log.info("Downloading %s (attempt %d)", url, attempt + 1)
-            with requests.get(url, stream=True, timeout=60) as r:
-                r.raise_for_status()
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                with open(dest, "wb") as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
+            # NOTE: Use a plain request (no context‑manager) to stay compatible
+            # with request‑mocking libraries that return a plain ``Response``.
+            response = requests.get(url, stream=True, timeout=60)
+            response.raise_for_status()
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            with open(dest, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
             log.info("Successfully downloaded %s to %s", url, dest)
             return
         except Exception as exc:
@@ -153,7 +155,10 @@ def download_all() -> Dict[str, Path]:
 
     # Write checksums manifest
     checksums_path = paths.data("raw", "checksums.json")
-    manifest = {name: compute_file_hash(str(p), algorithm="sha256") for name, p in downloaded.items()}
+    manifest = {
+        name: compute_file_hash(str(p), algorithm="sha256")
+        for name, p in downloaded.items()
+    }
     checksums_path.parent.mkdir(parents=True, exist_ok=True)
     with open(checksums_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
