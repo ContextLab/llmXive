@@ -1,14 +1,13 @@
 status: none
-intent: NHANES 2017-2018 CDC NHANES FTP HuggingFace python package download
+intent: download Pew Research social media use anxiety survey dataset GSS 0-percent-human
+  python package dataset
 required_fields:
 - news_exposure_freq
-- gad7_score
+- anxiety_score
 - baseline_anxiety
 - age
 - gender
-- race_ethnicity
-- education
-- household_income
-cache_key: 2b24896eaff622bc1fba19dc038b55ec329b493d22d09535e470e7f721f28a00
-searched_at: '2026-10-14T12:10:54.577974+00:00'
+- social_media_engagement
+cache_key: 3f66fcc81d55b246f767674396ff6c7694e58310b98d1db87d747d759de8316a
+searched_at: '2026-10-14T12:37:36.884769+00:00'
 retry_count: 1

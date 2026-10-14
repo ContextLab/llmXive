@@ -7,17 +7,16 @@ properties:
     description: "Unique anonymized identifier for the participant."
   news_exposure_freq:
     type: "number"
-    description: "Frequency of negative news consumption on social media (proxy)."
+    description: "Frequency of negative news consumption on social media."
     minimum: 0
   anxiety_score:
     type: "number"
-    description: "Outcome anxiety score (validated scale or proxy)."
+    description: "Outcome anxiety score (validated scale or flagged proxy)."
     minimum: 0
   baseline_anxiety:
-    type: "number"
-    description: "Baseline or trait anxiety score."
+    type: ["number", "null"]
+    description: "Baseline or trait anxiety score; dropped if coupled with outcome."
     minimum: 0
-    nullable: true
   age:
     type: "integer"
     description: "Participant age in years."
@@ -25,26 +24,20 @@ properties:
     maximum: 100
   gender:
     type: "string"
-    enum:
-      - "Male"
-      - "Female"
-      - "Other"
-      - "Non-binary"
     description: "Gender category."
   social_media_engagement:
-    type: "number"
-    description: "Hours per day (or equivalent) of overall social‑media use."
+    type: ["number", "null"]
+    description: "Overall social-media engagement; required only for the robustness check."
     minimum: 0
-    nullable: true
   instrument_source:
     type: "string"
-    description: "Name of the anxiety instrument (e.g., \"GAD-7\")."
+    description: "Name of the anxiety instrument (e.g., GAD-7 or documented proxy)."
   measurement_timepoint:
     type: "string"
-    description: "Timepoint of measurement (e.g., \"pre\", \"post\", \"trait\")."
+    description: "Timepoint of measurement (pre, post, or trait)."
   proxy_flag:
     type: "boolean"
-    description: "True if the anxiety score is used as a proxy for anticipatory anxiety."
+    description: "True if the anxiety score is a proxy for anticipatory anxiety (FR-008)."
   coupling_risk:
     type: "boolean"
     description: "True if baseline and outcome anxiety may be mathematically coupled."
