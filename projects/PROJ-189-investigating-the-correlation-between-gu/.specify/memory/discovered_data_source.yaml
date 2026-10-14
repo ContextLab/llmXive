@@ -1,18 +1,17 @@
 status: none
-intent: American Gut Project 16S data download Health and Retirement Study cognitive
-  data python package dataset
+intent: download American Gut Project 16S taxonomy Health Retirement Study cognitive
+  data SILVA python package dataset
 required_fields:
 - participant_id
 - age
 - sex
-- BMI
-- education
+- bmi
 - cognitive_score
-- genus_A
-- genus_B
-- genus_C
-- genus_D
-- genus_E
-cache_key: fbbf3f64ee874eb084cabc7404a3b3cc2eafa844a3397f4149f63334256f5743
-searched_at: '2026-10-14T12:10:12.326626+00:00'
+- genus_Bacteroides
+- genus_Lactobacillus
+- genus_Faecalibacterium
+- genus_Ruminococcus
+- genus_Eubacterium
+cache_key: 18074b99a69764680fab83b9ccf0895c7b28da0b617586639888cc503ca2913b
+searched_at: '2026-10-14T15:21:04.953835+00:00'
 retry_count: 1

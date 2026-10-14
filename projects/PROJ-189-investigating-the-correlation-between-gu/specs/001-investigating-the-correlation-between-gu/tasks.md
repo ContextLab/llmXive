@@ -7,16 +7,16 @@
 
 **Goal**: Establish the pipeline and run a thin, executable analysis on a small real-data subset to verify the full data flow from ingestion to prediction.
 
-- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and validate input provenance. <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 -->
+- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and validate input provenance. <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED: unspecified -->
     - Verify access to American Gut Project (AGP) via `datasets.load_dataset("american_gut_project", streaming=True)` and Health and Retirement Study (HRS) portal.
     - Document the runnable command in `docs/quickstart.md`.
     - Ensure the CPU-only resource guard is active ($\le 7$ GB RAM, $\le 6$ hours).
-- [ ] T002 Implement the primary research pipeline scripts with granular verification: <!-- FAILED-IN-EXECUTION: code/01_data_ingestion.py exit=1; code/02_preprocessing.py exit=1; code/03_correlation_analysis.py exit=1; code/04_predictive_modeling.py exit=1 -->
+- [ ] T002 Implement the primary research pipeline scripts with granular verification: <!-- FAILED-IN-EXECUTION: code/01_data_ingestion.py exit=1; code/02_preprocessing.py exit=1; code/03_correlation_analysis.py exit=1; code/04_predictive_modeling.py exit=1 --> <!-- FAILED: unspecified -->
     - **Ingestion (`code/01_data_ingestion.py`)**: Stream AGP data, merge with HRS by participant ID. Calculate and log the merge success rate (overlap / total AGP IDs) to satisfy SC-001; fail loudly if overlap $< 500$ samples.
     - **Preprocessing (`code/02_preprocessing.py`)**: Filter age $\ge 60$, collapse to genus, apply Cumulative Sum Scaling (CSS) normalization (per plan.md), and impute BMI via MICE.
     - **Analysis (`code/03_correlation_analysis.py`)**: Apply CLR transformation. Compute Spearman rank correlations (per spec.md) AND SparCC/SPIEC-EASI compositional correlations (per plan.md). Apply Benjamini-Hochberg FDR ($\alpha=0.05$).
     - **Modeling (`code/04_predictive_modeling.py`)**: Train Random Forest regressor. Implement a hyperparameter grid search over `n_estimators` and `max_depth` as required by Constitution VII. Use 5-fold CV on CLR data.
-- [ ] T003 Run a thin end-to-end analysis on a small valid sample (e.g., first 1000 participants) to produce initial results.
+- [ ] T003 Run a thin end-to-end analysis on a small valid sample (e.g., first 1000 participants) to produce initial results. <!-- FAILED: unspecified -->
     - Output: `data/results/thin_run_summary.json` containing sample count, merge success rate, number of significant taxa, and baseline $R^2$.
     - Check: Verify the pipeline completes without OOM errors and produces artifacts conforming to `dataset.schema.yaml` and `correlation.schema.yaml`.
 
@@ -24,7 +24,7 @@
 
 **Goal**: Execute the full-scale analysis on the target population and perform rigorous statistical validation to ensure results are not artifacts of noise or collinearity.
 
-- [ ] T004 Execute the complete analysis on the full target population (age $\ge 60$).
+- [ ] T004 Execute the complete analysis on the full target population (age $\ge 60$). <!-- FAILED: unspecified -->
     - Process the full merged dataset and save `data/processed/merged_age60.csv` and `data/processed/corpus_clr.parquet`.
     - Generate the final association table in `data/processed/correlation_results.csv`, ensuring all significant pairs are labeled as "associational".
     - Check: Verify the output matches the `correlation.schema.yaml` contract.

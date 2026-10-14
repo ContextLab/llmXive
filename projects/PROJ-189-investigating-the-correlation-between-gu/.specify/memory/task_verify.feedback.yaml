@@ -8,8 +8,12 @@ T002:
     code/04_predictive_modeling.py exit=1'
   task: d90ab54f26b2870d14d124d600c0963c1924bd5b1e22eb718051ec674bcc3587
 T003:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/thin_run_summary.json,
+    dataset.schema.yaml, correlation.schema.yaml'
   task: effccb09ddfd2de8f350ac79b0ea8d5cede2b199cd8be8bdccc04753fd86b2d6
 T004:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/merged_age60.csv,
+    data/processed/corpus_clr.parquet, data/processed/correlation_results.csv, correlation.schema.yaml'
   task: b054427b1f75dc5acde435c04d24edef8b0542a59b585e63a7c9f3f9539cfdb2
 T005:
   task: 6947183985ac736b9f867bbbb5900b634a0b3260d20753768309a323273d6b48
