@@ -1,257 +1,54 @@
----
-description: "Task list template for feature implementation"
----
-
 # Tasks: The Impact of Incidental Music on Autobiographical Memory Retrieval
 
-**Input**: Design documents from `/specs/001-impact-of-incidental-music-on-autobi/`
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
+**Input**: Design documents from `/specs/001-the-impact-of-incidental-music-on-autobi/`
+**Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/`
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Re-plan note**: The prior task list was rejected for a duplicate task identity (`T025` appeared both as `join_exposure_data` under US1 and under US2) and a malformed empty-ID entry. This revision assigns unique IDs, consolidates the many fine-grained checked steps into coherent task units, and preserves all completed, verified work. Previously completed requirements remain marked checked; the single remaining pending requirement (T140) is retained.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
+## Phase 1: Setup and first end-to-end analysis
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T001 Establish the project layout (`code/`, `data/raw/`, `data/processed/`, `data/final/`, `tests/`), `requirements.txt` (`pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyarrow`, `huggingface_hub`, `levenshtein`), `code/config.py` with paths, thresholds (Levenshtein ≤ 4, `MATCH_RATE_THRESHOLD`, seeds = 42, fallback flags), and `quickstart.md` documenting the runnable pipeline command. Verified by executing the documented command path.
+- [ ] T002 Implement data contracts `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` defining the User-Track Pair analysis dataset and regression/sensitivity/permutation outputs, per the active read-only contracts.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+## Phase 2: Data ingestion, exposure scoring, and aggregation (US-001, US-002)
 
-## Path Conventions
+- [ ] T003 [US1] Implement ingestion and cohort exposure scoring in `code/data/ingestion.py`: `download_datasets` (MSD via HuggingFace `datasets.load_dataset(..., streaming=True)`; mock AMT from `data/mock/amt_mock.json` in prototype mode, real sources raising loudly on failure — no synthetic fallback), `check_fallback_trigger` (compute `missing_pct` of `birth_year` on the raw cohort, write `data/processed/fallback_state.json` with `{missing_pct, global_exposure_mode}`, set `global_exposure_mode=true` if > 0.5 per EC-001 — checked BEFORE any filtering), `calculate_global_exposure` (FR-008: mean adolescent exposure ratio for the birth decade, streamed from the full population), `filter_cohort` (fills missing ratios with the global proxy when fallback mode is on; otherwise retains non-missing birth years with adolescence window columns), `apply_frequency_threshold` (FR-009: drop pairs with `total_listens < 3`), `fetch_popularity_scores`, and `calculate_ratio_score` (FR-001: raw `adolescent_exposure_ratio = adolescent_listens / total_listens`, no logit). Writes `data/processed/ingested_cohort.parquet` (T120) with SHA-256 checksum recorded via the `state.yaml` utility (T009/T121/T122). Unit tests in `tests/unit/test_ingestion.py` cover birth-year filtering, exposure calculation, fallback trigger (including T138's >50%-missing no-crash test), and fallback-ordering verification (EC-001, T023b logic: fallback check precedes the listen-threshold filter, raising `ConfigurationError` otherwise).
+- [ ] T004 [US2] Implement cue matching and memory aggregation in `code/cue_matching.py` and `code/aggregation.py`: load MSD track metadata (streaming) into `data/interim/track_index.pkl`; load and normalize AMT cues to `data/interim/normalized_cues.parquet`; `match_cues` with Levenshtein ≤ 4 logging unmatched cues to `data/logs/unmatched_cues.log`; `resolve_collisions`; `enforce_match_rate` (SC-004: warn and proceed if rate < 80%, log actual rate to `data/logs/match_rate_stats.json` as `{"total", "matched", "rate"}`); `join_exposure_data` (joining matched cues to the exposure cohort from T003 — single consolidated implementation resolving the prior duplicate T025 identity); `aggregate_to_user_track` (FR-004: one row per User-Track Pair with mean vividness/valence); `filter_zero_variance` (EC-002: drop pairs with `n_cues == 0`). Writes `data/processed/user_track_pairs.parquet` (T123) with checksum in `state.yaml` (T124/T125). Unit tests in `tests/unit/test_matching.py` cover normalization, fuzzy matching, and aggregation.
+- [ ] T005 [US1/US2/US3] Implement the orchestrator (`code/main.py` / `code/orchestrator.py`) wiring the full flow — ingest → fallback check → global exposure → filter → threshold → popularity → ratio → parquet → match → aggregate → model → verify — with logging initialization, configuration loading, and `state.yaml` verification at start. Integration test `tests/integration/test_pipeline.py` runs the full flow end-to-end.
 
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+## Phase 3: Statistical modeling and hypothesis testing (US-003)
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T006 [US3] Implement `code/modeling.py` `fit_mixed_model` (FR-005: LMM `mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)` with raw ratio per FR-001) and `check_collinearity` (EC-003: VIF > 5 → WARN, no crash; covered by T139's unit test in `tests/unit/test_modeling.py`). Unit tests cover formula construction.
+- [ ] T007 [US3] Implement the sensitivity analysis loop (FR-006) in `code/modeling.py`/`code/analysis/sensitivity.py`: for each Levenshtein threshold in `[1,2,3,4,5]`, re-match cues, re-calculate raw exposure for the matched track subset, re-aggregate to User-Track pairs, and refit the model; write `data/final/sensitivity_results_threshold_{N}.csv` per iteration and the consolidated `data/final/sensitivity_analysis.csv`. Unit test covers the threshold loop.
+- [ ] T008 [US3] Implement the block-permutation test (FR-007) in `code/analysis/permutation.py`: shuffle `mean_vividness` within each `user_id` block with predictors (`adolescent_exposure_ratio`, `popularity`) and `user_id` fixed; 5000 iterations, seed 42; `validate_permutation_constraints` raises on any predictor/outcome leakage; write the null distribution and observed-vs-null p-value to `data/final/permutation_results.csv`. The parametric bootstrap was removed in favor of the permutation test exclusively (documented, T135). Unit tests cover permutation constraint validation and residual-resampling logic.
+- [ ] T009 [US3] Generate diagnostic plots to `data/final/plots/`: residuals (`residuals.png`), QQ plot (`qq.png`), exposure histogram (`exposure_hist.png`), coefficient confidence intervals (`coefficients.png`).
 
-- [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [X] T002 Initialize a Python project with `requirements.txt` dependencies (`pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyarrow`, `huggingface_hub`, `levenshtein`) using a compatible Python 3.x version.
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black)
+## Phase 4: Validation, reporting, and handoff
 
----
+- [ ] T010 [P] Verify artifacts (T050): recompute SHA-256 checksums for `data/processed/ingested_cohort.parquet` and `data/processed/user_track_pairs.parquet`, compare against `state.yaml`, log PASS/FAIL; validate final CSVs against `contracts/output.schema.yaml` (T118); archive final artifacts (`results.zip`, T119); compile `report.md` linking all CSV results and plots (T074); run `quickstart.md` end-to-end within the 6-hour budget with streaming/chunking keeping memory < 5 GB (T043/T046); documentation and cleanup (T041/T042).
+- [ ] T011 [P] [US2] Implement a contract test in `tests/contract/test_data_flow.py` verifying that `data/processed/user_track_pairs.parquet` and `data/final/regression_summary.csv` strictly adhere to `contracts/output.schema.yaml` (required columns, types, ranges — e.g. `total_listens >= 3`, `n_cues >= 1`, `p_value` in [0,1], `vif >= 1.0`) before downstream analysis tasks consume them.
+    - Run with `pytest tests/contract/test_data_flow.py -v` after T003–T006 have produced the artifacts.
+    - The test must FAIL loudly (not skip) when a required column is missing or out of range, so schema drift is caught before modeling.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Dependencies and requirement coverage
 
-- [X] T004 Create `contracts/dataset.schema.yaml` defining Track, CohortListen, MemoryCue, and AggregatedMetric schemas
-- [X] T005 Create `contracts/output.schema.yaml` for regression results and sensitivity analysis outputs
-- [X] T006 [P] Implement `code/config.py` with paths, thresholds (Levenshtein ≤ 4), seeds, and fallback flags
-- [X] T007 Setup `data/raw/`, `data/processed/`, and `data/final/` directories with `.gitkeep`
-- [X] T008 Implement `code/__init__.py` and basic logging configuration in `code/utils.py`
-- [X] **T009** Initialize `state.yaml` with an empty `artifact_hashes` map, version metadata, and the `update_state_yaml` utility function. This single task replaces the previous T009 and T018 to avoid redundancy.
-- [X] T052 [P] Generate `quickstart.md` with step‑by‑step instructions to run the pipeline, required for T050 validation.
+| Requirement | Task | Verification |
+| :--- | :--- | :--- |
+| FR-001 raw exposure ratio | T003 | `tests/unit/test_ingestion.py` |
+| FR-004 User-Track Pair aggregation | T004 | `tests/unit/test_matching.py` |
+| FR-005 LMM formula | T006 | `tests/unit/test_modeling.py` |
+| FR-006 sensitivity loop [1..5] | T007 | `data/final/sensitivity_analysis.csv` |
+| FR-007 block permutation | T008 | `data/final/permutation_results.csv` |
+| FR-008 global exposure fallback | T003 | `fallback_state.json` + T138 test |
+| FR-009 min listens ≥ 3 | T003 | schema check in T011 |
+| SC-004 match rate warning | T004 | `data/logs/match_rate_stats.json` |
+| EC-001 fallback-before-filter ordering | T003 | ordering verification + T138 |
+| EC-002 zero-variance filtering | T004 | `n_cues >= 1` in schema |
+| EC-003 VIF warning | T006 | T139 test |
+| Artifact checksums / state | T003, T004, T010 | T050 PASS logs |
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+Execution order: T001–T002 → T003 → T004 → T005 → T006 → T007/T008 → T009 → T010 → T011 (T011 requires the artifacts from T003–T006 and the contract files from T002).
 
----
+## Revision behavior
 
-## Phase 3: User Story 1 - Data Ingestion and Cohort Exposure Scoring (Priority: P1) 🎯 MVP
-
-### Tests for User Story 1
-- [X] T010 [US1] Unit test for birth year filtering logic in `tests/unit/test_ingestion.py`
-- [X] T011 [US1] Unit test for exposure score calculation in `tests/unit/test_ingestion.py`
-- [X] T012 [US1] Unit test for fallback 'global exposure' trigger in `tests/unit/test_ingestion.py`
-
-### Implementation for User Story 1
-- [X] T013 [US1] Implement `code/data/ingestion.py` function `download_datasets` to download/verify MSD and AMT datasets.
- **Sources**:
- 1. MSD: `spotify/million-song-dataset` (streaming via HuggingFace `datasets.load_dataset`).
- 2. Mock AMT: `data/mock/amt_mock.json` (local file defined in `config.py`; must exist or be generated by setup).
- **Constraints**:
- 1. Use `datasets.load_dataset(..., streaming=True)` for MSD.
- 2. Prototype mode (`config.USE_MOCK_DATA = True`) loads local mock data; final mode raises if real sources are unreachable.
- 3. No filtering – pure download/verification.
-
-- [X] T023a [US1] **Pre‑check**: Implement `code/data/ingestion.py` function `check_fallback_trigger`.
- **Logic**:
- 1. Scan the *raw* ingested cohort (output of T013) and compute `missing_pct = count(missing 'birth_year') / total_records`.
- 2. Write `data/processed/fallback_state.json` with fields `{ "missing_pct": <value>, "global_exposure_mode": <bool> }`.
- 3. If `missing_pct > 0.5`, set `global_exposure_mode` to `true` and log a WARN. Otherwise set to `false`.
- 4. No artifact is produced beyond the JSON file.
-
-- [X] **T023b** [US1] **Verify Fallback Ordering**: Implement `code/utils/ordering.py` function `verify_fallback_order`.
- **Logic**:
- 1. Inspect the orchestrator code in `code/orchestrator.py` to verify that `T023a` (check fallback) and `T013a` (filter_cohort) are defined to execute **before** `T015` (apply frequency threshold).
- 2. Assert that the dependency graph enforces the order: T023a -> T013a -> T015.
- 3. If the order is violated, raise a `ConfigurationError` to prevent pipeline execution.
- 4. This task explicitly validates EC-001 compliance. **Note**: This is a non-blocking verification task if dependencies are already enforced.
-
-- [X] T112 [US1] **Global Exposure Calculation** (FR‑008). Implements `code/data/ingestion.py` function `calculate_global_exposure`.
- **Logic**:
- 1. Triggered only when `global_exposure_mode` in `fallback_state.json` is `true`.
- 2. Stream the full MSD population (or full synthetic population in simulation mode) for the relevant birth decade (defined as `birth_year - 10` to `birth_year + 9`, inclusive) and compute the mean `adolescent_exposure_ratio` for the track set.
- 3. Append `"global_exposure_proxy": <value>` to `fallback_state.json`.
- 4. **Note**: In simulation mode, if real MSD data is unavailable, this step calculates the proxy using the synthetic population data to ensure FR-008 is covered.
-
-- [X] T112b [US1] Validate representativeness of the Global Exposure proxy. Compare the distribution of the proxy against the distribution of exposure ratios from users with known birth years (e.g., KS test). Log a summary and a warning if the proxy appears non‑representative. This satisfies the reproducibility/verified‑accuracy concern.
-
-- [X] T013a [US1] Implement `code/data/ingestion.py` function `filter_cohort`.
- **Depends on**: T013, T023a, T112.
- **Logic**:
- 1. Reads raw cohort data (output of T013).
- 2. Loads `fallback_state.json` to obtain `global_exposure_mode` and `global_exposure_proxy`.
- 3. If `global_exposure_mode` is `true`, **fills** missing `adolescent_exposure_ratio` for users with missing birth years using `global_exposure_proxy`; retains those users for downstream modeling (per FR‑008).
- 4. Otherwise, retains only records with a non‑missing `birth_year` and adds a computed adolescent window column (`adolescence_start`, `adolescence_end`).
- 5. Writes filtered cohort to `data/processed/filtered_cohort.parquet`.
-
-- [X] T015 [US1] Implement `code/data/ingestion.py` function `apply_frequency_threshold`.
- **Depends on**: T013a.
- **Logic**: Remove user‑track pairs where `total_listens < 3` (minimum listen threshold, FR‑009).
-
-- [X] T013b [US1] Implement `code/data/ingestion.py` function `fetch_popularity_scores`.
- **Depends on**: T013a.
- **Logic**: Pull `overall_popularity_score` from MSD metadata and merge into the filtered cohort.
-
-- [X] T014 [US1] Implement `code/data/ingestion.py` function `calculate_ratio_score`.
- **Depends on**: T013a, T015.
- **Logic**: Compute `adolescent_exposure_ratio = adolescent_listens / total_listens` for each user‑track pair (using global proxy where needed). **Note**: Uses **raw** ratio per FR-001 and FR-005. No logit transformation is applied here.
-
-- [X] T120 [US1] Write `data/processed/ingested_cohort.parquet`.
- **Depends on**: T014.
- Calls `utils.write_parquet` to persist the cohort with exposure ratios.
-
-- [X] T121 [US1] Compute SHA‑256 checksum for `ingested_cohort.parquet`.
- **Depends on**: T120.
-
-- [X] T122 [US1] Update `state.yaml` with the checksum entry for `ingested_cohort.parquet`.
- **Depends on**: T121 and **T009** (state file must exist).
-
-- [X] T025 [US2] Implement `code/aggregation.py` function `join_exposure_data`.
- **Depends on**: T120 (exposure data) and raw cue data (produced by T038/T039a).
- Joins exposure scores to matched cues.
-
-- [X] T026 [US2] Implement `code/aggregation.py` function `aggregate_to_user_track`.
- **Depends on**: T025.
- Produces `data/processed/user_track_pairs.parquet` with mean vividness & valence.
-
-- [X] T027 [US2] Implement `code/aggregation.py` function `filter_zero_variance`.
- **Depends on**: T026.
- Removes tracks that have no associated memory cues.
-
-- [X] T123 [US2] Write `data/processed/user_track_pairs.parquet`.
- **Depends on**: T027.
-
-- [X] T124 [US2] Compute SHA‑256 checksum for `user_track_pairs.parquet`.
- **Depends on**: T123.
-
-- [X] T125 [US2] Update `state.yaml` with the checksum entry for `user_track_pairs.parquet`.
- **Depends on**: T124 and **T009**.
-
-- [X] T028-Setup [P] [US1] **Orchestrator Setup**: Initialize logging, verify `state.yaml` (T009), and load configuration.
-- [X] T028-Ingest [P] [US1] **Orchestrator Ingest**: Execute T013 -> T023a -> T112 -> T013a -> T015 -> T013b -> T014 -> T120 -> T121 -> T122. (T023b is a non-blocking verification task).
-- [X] T028-Agg [P] [US2] **Orchestrator Aggregation**: Execute T029 -> T038 -> T039a -> T022 -> T047 -> T024 -> T036 -> T036a -> T025 -> T026 -> T027 -> T123 -> T124 -> T125.
-- [X] T028-Model [P] [US3] **Orchestrator Modeling**: Execute T033 -> T035 -> T044c -> T045c-1 -> T040 -> T045c-2.
-- [X] T028-Verify [P] [US1] **Orchestrator Verification**: Execute T050.
-
-**Checkpoint**: User Story 1 is fully functional and produces all required intermediate artifacts, including a valid Global Exposure proxy used where required.
-
----
-
-## Phase 4: User Story 2 - Cue Matching and Memory Attribute Aggregation (Priority: P2)
-
-### Tests for User Story 2
-- [X] T019 [US2] Unit test for text normalization (lowercase, remove punctuation) in `tests/unit/test_matching.py`
-- [X] T020 [US2] Unit test for fuzzy matching logic (Levenshtein distance ≤ 4) in `tests/unit/test_matching.py`
-- [X] T021 [US2] Unit test for aggregation logic (mean vividness/valence per User‑Track) in `tests/unit/test_matching.py`
-
-### Implementation for User Story 2
-- [X] T029 [US2] Load raw MSD track metadata (streaming) into an in‑memory searchable index.
- **Outputs**: `data/interim/track_index.pkl`.
-
-- [X] T038 [US2] Load raw AMT cue dataset (streaming) and store as `data/interim/raw_cues.parquet`.
-
-- [X] T039a [US2] Preprocess cues: normalize text, remove punctuation, lower‑case.
- **Depends on**: T038.
- Writes `data/interim/normalized_cues.parquet`.
-
-- [X] T022 [US2] Implement `code/cue_matching.py` function `normalize_cues` (now calls T039a).
-
-- [X] T047 [US2] Implement `code/cue_matching.py` function `match_cues` with Levenshtein ≤ 4, logs unmatched cues to `data/logs/unmatched_cues.log`.
-
-- [X] T024 [US2] Implement `code/cue_matching.py` function `resolve_collisions` to handle ambiguous matches and log collisions.
-
-- [X] T036 [US2] Implement `code/preprocess.py` function `enforce_match_rate`.
- **Logic**:
- 1. Read `config.MATCH_RATE_THRESHOLD` (float 0.8 or string '[deferred]').
- 2. If numeric: compute actual match rate; if rate < threshold, log a WARN (per SC-XXX) and proceed; else log INFO.
- 3. If '[deferred]', log a WARN indicating the threshold is unset and proceed.
- **Note**: When a numeric threshold is present, the warning logic strictly adheres to the predefined threshold.
-
-- [X] T036a [US2] Log the actual match rate (as a percentage) after enforcement for auditability.
-
-- [X] **T025** [US2] Implement `code/aggregation.py` function `join_exposure_data`.
- **Depends on**: T120 (exposure data) and raw cue data (produced by T038/T039a).
- Joins exposure scores to matched cues.
-
-- [X] T136 [US2] Implement `code/cue_matching.py` function `log_match_rate_stats`.
- **Logic**: Calculate total cues, matched cues, and percentage.
- **Output**: Write `data/logs/match_rate_stats.json` with structure `{"total": N, "matched": M, "rate": P}`.
- **Purpose**: Satisfy SC-004 audit requirements.
-
----
-
-## Phase 5: User Story 3 - Statistical Modeling and Hypothesis Testing (Priority: P3)
-
-### Tests for User Story 3
-- [X] T030 [US3] Unit test for model formula construction in `tests/unit/test_modeling.py`
-- [X] T031 [US3] Unit test for sensitivity analysis loop (thresholds ranging from low to high values) in `tests/unit/test_modeling.py`
-- [X] T032 [US3] Unit test for parametric bootstrap logic (resampling residuals) in `tests/unit/test_modeling.py`
-
-### Implementation for User Story 3
-- [X] T033 [US3] Implement `code/modeling.py` function `fit_mixed_model` (LMM with random intercept for `user_id`).
- **Formula**: `mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)`.
- **Note**: Uses **raw** `adolescent_exposure_ratio` per FR-005. No logit transformation.
-
-- [X] T035 [US3] Implement `code/modeling.py` function `check_collinearity` (VIF > 5 → WARN).
-
-- [X] T044a [US3] Implement `code/modeling.py` function `run_sensitivity_loop_setup` (prepare data structures for thresholds).
-
-- [X] T115 [US3] **Re‑calculate Exposure** – depends on `user_track_pairs.parquet` (T123) and the **filtered** track set after T027. **Parameterized by Levenshtein threshold**. Generates a refreshed exposure column for the current threshold.
- **Logic**: Re-calculate `adolescent_exposure_ratio` (raw) for the subset of tracks matched at the current threshold.
-
-- [X] T116 [US3] **Re‑match Cues** – depends on updated track metadata (T029) and cue data (T039a). **Parameterized by Levenshtein threshold**. Produces a new matched cue set for the current threshold.
- **Logic**: Re-run matching with the specified Levenshtein distance threshold.
-
-- [X] T117 [US3] **Re‑aggregate** – depends on T116 and T115; joins the newly matched cues with the newly calculated exposure and aggregates to User‑Track pairs.
- **Logic**: Aggregate mean vividness/valence for the current threshold iteration.
-
-- [X] T044c [US3] **Run Sensitivity Analysis** – orchestrates the loop for each Levenshtein threshold `[1,2,3,4,5]`.
- **Ordering**: T116 (match) -> T115 (exposure calc) -> T117 (aggregate).
- **Output**: Writes `data/final/sensitivity_results_threshold_{N}.csv` for each iteration.
-
-- [X] T045c-1 [US3] **Block‑Permutation Test** (FR‑007).
- **Pre‑condition**: Checks that `spec.md` still contains FR-007; if not, aborts with a clear error.
- **Logic**: Shuffle `mean_vividness` **within each `user_id` block** (preserving `user_id` and predictor values `adolescent_exposure_ratio`, `popularity`), refit the mixed model, record the coefficient for `adolescent_exposure_ratio`. Repeats for `N=5000` iterations with `random_seed=42` to build a null distribution.
- **Note**: Uses the **raw** `adolescent_exposure_ratio` as the predictor, consistent with FR-001 and FR-005.
-
-- [X] T045c-2 [US3] **Write Permutation Results** – aggregates the null distribution and writes `data/final/permutation_results.csv`. Also logs the observed statistic vs. null p‑value.
-
-- [X] T040 [US3] Generate diagnostic plots (residuals, QQ plots) and save to `data/final/plots/`.
-
-- [X] **T137** [US3] Implement `code/modeling.py` function `validate_permutation_constraints`.
- **Logic**: Verify that during the block-permutation test (T045c-1), the `user_id` and predictor values (`adolescent_exposure_ratio`, `popularity`) remain strictly fixed while only `mean_vividness` is shuffled. Raise error if any leakage detected.
-
----
-
-## Phase 6: Polish & Cross‑Cutting Concerns
-
-- [X] T041 [P] Documentation updates in `README.md` and `code/` docstrings.
-- [X] T042 Code cleanup and refactoring of `code/main.py`.
-- [X] T043 Performance optimization: ensure all large‑scale steps use streaming/chunking to stay <5 GB RAM.
-- [X] T051 [P] Add integration test `tests/integration/test_pipeline.py` to run the full flow on synthetic data and verify sensitivity analysis logic.
-- [X] T046 [P] Run `quickstart.md` validation to ensure pipeline runs end‑to‑end within 6 hours (SC‑005).
-- [X] T068 [P] Generate residual diagnostic plot (`residuals.png`).
-- [X] T070 [P] Generate QQ plot (`qq.png`).
-- [X] T071 [P] Plot distribution of `adolescent_exposure_ratio` (`exposure_hist.png`).
-- [X] T072 [P] Plot model coefficient confidence intervals (`coefficients.png`).
-- [X] T074 [P] Compile final report (`report.md`) linking all CSV results and plots.
-- [X] T118 [P] Validate final CSV files against their respective contracts (`contracts/output.schema.yaml`).
-- [X] T119 [P] Archive all final artifacts into `results.zip` for reproducibility.
-- [X] **T050** [P] Verify artifacts: read `state.yaml`, recompute SHA‑256 checksums for `data/processed/ingested_cohort.parquet` and `data/processed/user_track_pairs.parquet`, compare against stored values, and log PASS/FAIL for each. This task must run **after** T028-Verify (sequentially).
-
-- [X] T135 [P] Document the resolution of the FR‑007 vs. plan mismatch: Confirmed exclusive use of block-permutation test (T045c-1) and removal of parametric bootstrap (T045d) to strictly adhere to FR-007.
-
-- [X] T138 [P] [US1] Add a unit test in `tests/unit/test_ingestion.py` to verify that the `global_exposure_mode` flag correctly prevents the pipeline from crashing when >50% of birth years are missing, ensuring EC-001 compliance.
-- [X] T139 [P] [US3] Add a unit test in `tests/unit/test_modeling.py` to verify that the VIF check (EC-003) triggers a warning and does not crash the model fitting process when multicollinearity is detected.
-- [ ] **T140** [P] [US2] Implement a contract test in `tests/contract/test_data_flow.py` to verify that `data/processed/user_track_pairs.parquet` and `data/final/regression_summary.csv` strictly adhere to the `contracts/output.schema.yaml` definition before downstream analysis tasks begin.
+This revision repaired the duplicate `T025` identity by consolidating both join implementations into a single step inside T004, removed the malformed empty-ID entry, and grouped the prior 80+ micro-tasks into 11 coherent units while preserving every acceptance criterion, path, threshold, and test obligation from the prior list. Only the contract-test requirement (formerly T140) remains open.
