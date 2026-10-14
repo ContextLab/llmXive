@@ -16,7 +16,7 @@
   *Path*: `code/utils/data_loader.py` → writes to `data/raw/wikitext2.parquet`  
   *Verification*: `pytest -k test_wikitext2_download` confirms file exists and checksum matches.
 
-- [ ] T003 [P1] Acquire GPT‑Neo checkpoints for the three model sizes (125 M, 350 M, 1.3 B) and generate INT8 and 4‑bit variants using `auto‑gptq`. For each variant create a **Configuration** JSON file under `data/configs/` and a corresponding entry in `contracts/config.schema.yaml`.  
+- [ ] T003 [P1] Acquire GPT‑Neo checkpoints for the three model sizes (125 M, 350 M, 1.3 B) and generate INT8 and 4‑bit variants using `auto‑gptq`. For each variant create a **Configuration** JSON file under `data/configs/` and a corresponding entry in `contracts/config.schema.yaml`.   <!-- FAILED-IN-EXECUTION: code/utils/quantize.py exit=1 -->
   *Path*: `code/utils/quantize.py` → writes `data/configs/gptneo-125M_fp16.json`, `..._int8.json`, `..._4bit.json`, etc.  
   *Verification*: each JSON validates against `contracts/config.schema.yaml`; OOM attempts for 7 B models are logged in `logs/model_load.log` and marked `load_success: false`.
 

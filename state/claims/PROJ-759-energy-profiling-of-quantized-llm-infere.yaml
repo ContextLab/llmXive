@@ -1,0 +1,52 @@
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/quickstart.md
+  attempts: 1
+  canonical: expected runtime on CI runner 4.5 hours
+  claim_id: c_9c8b6e1b
+  context: The guide states the expected runtime for the full benchmark on the CI
+    runner.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected runtime on the CI runner: \u2248\u202F4.5\u202Fh."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T14:30:09Z'
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/quickstart.md
+  attempts: 1
+  canonical: script automatically detects platform and logs CPU frequency throttling
+    information
+  claim_id: c_ab68aa8b
+  context: "When running on a Raspberry\u202FPi\u202F4, the script is claimed to detect\
+    \ the platform and record CPU frequency and throttling data."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script will automatically detect the platform and log CPU frequency/throttling
+    information.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T14:30:09Z'
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/quickstart.md
+  attempts: 1
+  canonical: all unit-level contract tests pass confirming JSON CSV files conform
+    to schemas
+  claim_id: c_a0d651dd
+  context: "Running the unit\u2011level contract tests is expected to result in all\
+    \ tests passing, indicating schema compliance."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass, confirming that generated JSON/CSV files conform
+    to the schemas in contracts/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T14:30:09Z'

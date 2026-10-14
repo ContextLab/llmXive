@@ -1,0 +1,35 @@
+T001:
+  reason: 'The quickstart.md exists (at project root, acceptable mapping) and documents
+    the command, but the required verification fails: the recorded execution log for
+    `tests/test_pyrapl_load.py` shows exit code 1 with `test_pyrapl_import_and_setup
+    FAILED` (`PyRAPLCantRecordEnergyConsumption` from `pyRAPL.setup()`), so `pytest
+    -k test_pyrapl_load` does not pass. There is also no execution evidence that `python
+    -m code.benchmark --config data/configs/125M_4bit.json --dry-run` prints "pyRAPL
+    available", and the referenced config path `data/configs/125M_4bit.json` does
+    not exist (only `gpt-neo-125M_4bit.js'
+  task: defffaf048b4c101e4c107be061c3f2cf31a8cd6854cb8fd38ed9cc285a53796
+T002:
+  reason: "The required artifacts `data/raw/wikitext2.parquet` and `data/raw/README.md`\
+    \ are both MISSING \u2014 only the loader script `code/utils/data_loader.py` exists,\
+    \ and it was never executed to produce the dataset or checksum. There is also\
+    \ no test file or pytest run evidence for `test_wikitext2_download`, so the verification\
+    \ requirement is unmet."
+  task: b331e1d4489704c714465e84e2798eeb8c589bea798b7c19c1798df02c03d5cf
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/utils/quantize.py
+    exit=1'
+  task: dae401c6e1ab23f250d7c24f4445d34ee792d7f751c7b9f9e6afce92e061bb69
+T004:
+  task: 9ab39e90776772afcfafad05bffe5f36b2bf605fa5ceeb59055a81eefcfecc7f
+T005:
+  task: 0202d3dab18548993ca75295c658fbe0380fc28ab4bab94e82f5f109e06e5220
+T006:
+  task: 49420a407f7633ffd85070438fdb3ef27f0a87a7c946d29e7cb9b47590d7a12e
+T007:
+  task: 2f2f6499043789172b707f2e7c41356f7db4dda51bcfde425dc662312ceedd31
+T008:
+  task: e9c3b6f84c8d7d89392cbf009759dfef45462b87df1f651c52451f917416b971
+T009:
+  task: c720b7f3170cffea597f3c62fc6db706688eadaeaa190240955815fc933e7771
+T010:
+  task: 7ebaba029188a647b562361c1775bcf80417fba0dc95c4e65a02ea00a46796f6

@@ -1,0 +1,21 @@
+T001:
+  c: false
+  h: 767cc666172fe5daf6e42bd66c9cf6659dedac2beccb7f89d3fbd2a9e88ed774
+  r: 'The quickstart.md exists (at project root, acceptable mapping) and documents
+    the command, but the required verification fails: the recorded execution log for
+    `tests/test_pyrapl_load.py` shows exit code 1 with `test_pyrapl_import_and_setup
+    FAILED` (`PyRAPLCantRecordEnergyConsumption` from `pyRAPL.setup()`), so `pytest
+    -k test_pyrapl_load` does not pass. There is also no execution evidence that `python
+    -m code.benchmark --config data/configs/125M_4bit.json --dry-run` prints "pyRAPL
+    available", and the referenced config path `data/configs/125M_4bit.json` does
+    not exist (only `gpt-neo-125M_4bit.js'
+  sig: 8aa2e95d9a92b658076682db7b5838164633f3a1ca71b4f269575e1ca2802f3b
+T002:
+  c: false
+  h: 5ca6566aaee3fe32a16044793fda65c8ff22a97cceedcf4fa450cf41d1ab1917
+  r: "The required artifacts `data/raw/wikitext2.parquet` and `data/raw/README.md`\
+    \ are both MISSING \u2014 only the loader script `code/utils/data_loader.py` exists,\
+    \ and it was never executed to produce the dataset or checksum. There is also\
+    \ no test file or pytest run evidence for `test_wikitext2_download`, so the verification\
+    \ requirement is unmet."
+  sig: f31227b19b73c666bdab399a53eb79a30ff509cdce6be03cb74e9937fe35d156

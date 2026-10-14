@@ -1,0 +1,9 @@
+# Project dependencies (pinned where appropriate)
+transformers==4.41.2
+datasets==2.20.0
+auto-gptq==0.7.1
+torch==2.2.2
+huggingface_hub==0.23.0
+# Core libraries (pre‑installed in the execution environment) are omitted:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn,
+# pytest, pyyaml, requests, jsonschema, psutil, llmxive_toolkit

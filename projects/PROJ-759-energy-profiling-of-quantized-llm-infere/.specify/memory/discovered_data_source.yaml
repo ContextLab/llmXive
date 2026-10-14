@@ -1,18 +1,12 @@
 status: none
-intent: energy consumption inference benchmark dataset WikiText-2 python package dataset
+intent: WikiText-2 test split parquet download Hugging Face datasets python package
+  dataset
 required_fields:
-- model_name
-- model_size_parameters
-- quantization_level
-- input_dataset
-- input_sample_id
-- num_tokens
-- cpu_cores_used
-- ram_usage_mb
-- inference_latency_seconds
-- energy_consumption_joules
-- run_timestamp
-- run_status
-cache_key: 16cf14d96c9e57323d1a8716a68974a5c0ca62f78d54782d0287839a16a8dd39
-searched_at: '2026-10-14T14:12:14.727802+00:00'
+- split
+- original_text
+- token_ids
+- token_count
+- checksum
+cache_key: 926b117b261023ec50bcf8135838fa9071e6db624472ebfebb01f4f21483ff6c
+searched_at: '2026-10-14T14:33:16.192287+00:00'
 retry_count: 1
