@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T21:21:05.096683Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-171-quantifying-neural-representation-drift-
-last_run_id: 143c7d76-ae73-4e46-8570-17f4d68dae7e
+last_run_id: 5071ac2b-943c-4d8d-b39f-9dc2407478d3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-171-quantifying-neural-representation-drift-/specs/001-quantifying-neural-representation-drift
 title: Quantifying Neural Representation Drift During Skill Learning
-updated_at: '2026-10-14T23:24:14.836657Z'
+updated_at: '2026-10-14T23:24:30.344812Z'
