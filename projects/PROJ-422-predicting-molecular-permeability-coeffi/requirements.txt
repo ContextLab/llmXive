@@ -1,1 +1,6 @@
 datasets
+rdkit
+torch
+torch-geometric
+shap
+pyyaml

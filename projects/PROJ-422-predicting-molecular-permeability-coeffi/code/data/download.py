@@ -14,7 +14,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import pandas as pd
 from datasets import load_dataset
@@ -52,7 +52,7 @@ class DataLoader:
         self.logger.info(f"Fetching dataset {self.config['hf_path']} from Hugging Face...")
         try:
             # load_dataset handles downloading and caching.
-            # For datasets > 7GB, streaming=True should be used, but lipophilicity is small.
+            # Lipophilicity is small, but for datasets > 7GB, streaming=True would be used.
             dataset = load_dataset(self.config["hf_path"], split=self.config["split"])
             df = dataset.to_pandas()
             self.logger.info(f"Successfully loaded {len(df)} rows.")
@@ -147,5 +147,4 @@ def main() -> None:
         sys.exit(1)
 
 if __name__ == "__main__":
-    from typing import Tuple # Needed for type hint in validate_columns
     main()
