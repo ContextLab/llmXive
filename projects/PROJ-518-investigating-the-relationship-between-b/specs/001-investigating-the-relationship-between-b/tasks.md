@@ -19,22 +19,22 @@ Paths are relative to the project directory (`projects/PROJ-518-investigating-th
 
 ## Completed work (preserved — verified by prior review receipts)
 
-- [ ] T002 Pinned dependencies in `requirements.txt` (nilearn, networkx, scikit-learn, numpy, pandas, matplotlib, scipy, brainconn, statsmodels).
-- [ ] T005 `code/config.py` with `WINDOW_SIZES = [20,30,40]`, `STEP = 5`, `FWE_METHOD`, and `validate_fwe_config()`.
-- [ ] T006 `code/utils/logging.py` `log_exclusion(reason, subject_id)` writing CSV rows to `data_exclusion_log.txt` with standardized reason codes (`MISSING_SCAN`, `MISSING_SCORE`, `HIGH_MOTION`).
-- [X] T018/T019/T020b Subject filtering (missing scans, missing scores, motion > 0.5 mm FD in > 20 % volumes) with standardized exclusion logging.
+- [X] T002 Pinned dependencies in `requirements.txt` (nilearn, networkx, scikit-learn, numpy, pandas, matplotlib, scipy, brainconn, statsmodels).
+- [X] T005 `code/config.py` with `WINDOW_SIZES = [20,30,40]`, `STEP = 5`, `FWE_METHOD`, and `validate_fwe_config()`.
+- [X] T006 `code/utils/logging.py` `log_exclusion(reason, subject_id)` writing CSV rows to `data_exclusion_log.txt` with standardized reason codes (`MISSING_SCAN`, `MISSING_SCORE`, `HIGH_MOTION`).
+- [ ] T018/T019/T020b Subject filtering (missing scans, missing scores, motion > 0.5 mm FD in > 20 % volumes) with standardized exclusion logging.
 - [ ] T033–T036.3 [US4] CAQ availability validation (`validate_caq_availability`), `run_validation()` in `code/main.py`, `DATA_MISSING_CREATIVITY` error handling with `sys.exit(1)`, and contract tests `tests/contract/test_loader.py`.
 - [ ] T012 `fetch_hcp_data(subject_id)` fetching raw fMRI + behavioral JSON from OpenNeuro (HCP S1200) into `data/raw/hcp_{subject_id}/`.
-- [ ] T013 `preprocess_fmri` in `code/data/preprocess.py` (motion correction, normalization, band‑pass 0.01–0.1 Hz) writing `data/processed/fmri_clean/{subject_id}.nii.gz`.
-- [X] T014/T014.0–T014.6 Sliding‑window connectivity, per‑participant static connectivity strength, covariate construction, and alignment validation in `code/analysis/connectivity.py`.
-- [X] T015/T016 Louvain community detection (γ = 1.0) and whole‑brain flexibility metric in `code/analysis/dynamics.py`.
-- [X] T043/T051/T051b/T017/T017.1/T017.2 OLS regression (`creativity ~ excess_flexibility + age + sex + education + static_strength`), static‑only baseline, ΔR² computation and 4‑decimal formatting, `data/interim/results.csv` with `global_empirical_p_value` from the permutation test.
+- [ ] T013 `preprocess_fmri` in `code/data/preprocess.py` (motion correction, normalization, band‑pass 0.01–0.1 Hz) writing `data/processed/fmri_clean/{subject_id}.nii.gz`. <!-- FAILED-IN-EXECUTION: code/data/run_preprocess.py exit=1 -->
+- [~] T014/T014.0–T014.6 Sliding‑window connectivity, per‑participant static connectivity strength, covariate construction, and alignment validation in `code/analysis/connectivity.py`.
+- [~] T015/T016 Louvain community detection (γ = 1.0) and whole‑brain flexibility metric in `code/analysis/dynamics.py`.
+- [ ] T043/T051/T051b/T017/T017.1/T017.2 OLS regression (`creativity ~ excess_flexibility + age + sex + education + static_strength`), static‑only baseline, ΔR² computation and 4‑decimal formatting, `data/interim/results.csv` with `global_empirical_p_value` from the permutation test.
 - [ ] T022 `plot_flexibility_vs_creativity` with regression line, 95 % confidence band, NaN handling, saved as `docs/outputs/flexibility_vs_creativity.png`.
-- [X] T057/T058 Image compression (≤ 5 MB, `RuntimeError` on failure) and NaN‑robust plotting.
+- [~] T057/T058 Image compression (≤ 5 MB, `RuntimeError` on failure) and NaN‑robust plotting.
 - [ ] T027 Vectorized permutation test (10,000 shuffles, seed 42) returning `empirical_p_value`, `distribution_of_max_stats`, `shuffle_correlations`.
-- [X] T046/T046.1 Sensitivity sweep over window lengths {20, 30, 40} with per‑window connectivity recomputation and `construct_sensitivity_df`.
-- [X] T045/T045.1–T045.3 ROI‑wise correlations and FWE correction (max‑T / Bonferroni).
-- [X] T060/T060.1 Runtime profiling on a real 10‑subject subset, scaling projection, and `docs/outputs/profiling_report.txt` (memory < 7 GB, runtime < 6 h).
+- [~] T046/T046.1 Sensitivity sweep over window lengths {20, 30, 40} with per‑window connectivity recomputation and `construct_sensitivity_df`.
+- [~] T045/T045.1–T045.3 ROI‑wise correlations and FWE correction (max‑T / Bonferroni).
+- [~] T060/T060.1 Runtime profiling on a real 10‑subject subset, scaling projection, and `docs/outputs/profiling_report.txt` (memory < 7 GB, runtime < 6 h).
 - [ ] T041 Dependency security check on `requirements.txt`.
 
 **Note (T007 correction)**: The earlier `code/utils/versioning.py` task that wrote artifact hashes into `state/projects/...yaml` has been removed; hashing now only updates `data/checksums.json`.

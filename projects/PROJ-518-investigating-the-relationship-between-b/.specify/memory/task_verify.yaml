@@ -1,6 +1,11 @@
-T020b: 2
-T023: 2
-T037: 2
-T038: 2
-T040: 2
-T042: 2
+T012: 1
+T013: 1
+? "T018/T019/T020b Subject filtering (missing scans, missing scores, motion > 0.5\u202F\
+  mm FD in >\u202F20\u202F% volumes) with standardized exclusion logging."
+: 1
+"T033\u2013T036.3": 1
+? "T043/T051/T051b/T017/T017.1/T017.2 OLS regression (`creativity ~ excess_flexibility\
+  \ + age + sex + education + static_strength`), static\u2011only baseline, \u0394\
+  R\xB2 computation and 4\u2011decimal formatting, `data/interim/results.csv` with\
+  \ `global_empirical_p_value` from the permutation test."
+: 1

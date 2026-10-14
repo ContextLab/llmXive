@@ -23,6 +23,32 @@ from errors import DataMissingCreativityError
 from data.loader import validate_caq_availability
 from utils.logging import log_exclusion
 
+def run_validation() -> None:
+    """
+    Perform CAQ availability validation.
+    Exits the program with error code 1 if validation fails.
+    """
+    config = get_config()
+    manifest_path = config.DATA_PATH / "manifest.json"
+    behavioral_path = config.DATA_PATH / "behavioral_scores.json"
+
+    logging.info(f"Validating CAQ availability in {manifest_path}...")
+
+    try:
+        validate_caq_availability(str(manifest_path), str(behavioral_path))
+        logging.info("CAQ validation successful.")
+    except DataMissingCreativityError as e:
+        error_msg = f"CRITICAL ERROR: {e}"
+        print(error_msg)
+        logging.error(error_msg)
+        log_exclusion(reason="DATA_MISSING_CREATIVITY", subject_id="SYSTEM")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        error_msg = f"CRITICAL ERROR: Required data files not found. {e}"
+        print(error_msg)
+        logging.error(error_msg)
+        log_exclusion(reason="FILE_NOT_FOUND", subject_id="SYSTEM")
+        sys.exit(1)
 
 def main():
     """
@@ -37,41 +63,12 @@ def main():
             logging.FileHandler(project_root / "data" / "pipeline.log")
         ]
     )
-    
+
     print("Starting Brain Dynamics and Creativity Pipeline...")
     logging.info("Pipeline execution started.")
 
     # 1. Pre-condition: Validate CAQ availability before any data loading
-    config = get_config()
-    manifest_path = config.DATA_PATH / "manifest.json"
-    behavioral_path = config.DATA_PATH / "behavioral_scores.json"
-
-    print(f"Validating CAQ availability in {manifest_path}...")
-    logging.info(f"Validating CAQ availability in {manifest_path}...")
-    
-    try:
-        validate_caq_availability(str(manifest_path), str(behavioral_path))
-        print("CAQ validation successful.")
-        logging.info("CAQ validation successful.")
-    except DataMissingCreativityError as e:
-        error_msg = f"CRITICAL ERROR: {e}"
-        print(error_msg)
-        logging.error(error_msg)
-        
-        # Log the specific error code as required by T036
-        # Using a subject_id of 'SYSTEM' as this is a system-level validation failure
-        log_exclusion(reason="DATA_MISSING_CREATIVITY", subject_id="SYSTEM")
-        
-        sys.exit(1)
-    except FileNotFoundError as e:
-        error_msg = f"CRITICAL ERROR: Required data files not found. {e}"
-        print(error_msg)
-        logging.error(error_msg)
-        
-        # Log the missing file error
-        log_exclusion(reason="FILE_NOT_FOUND", subject_id="SYSTEM")
-        
-        sys.exit(1)
+    run_validation()
 
     # 2. Load and filter subjects
     # (Implementation of subsequent steps would follow here)
@@ -87,7 +84,6 @@ def main():
 
     print("Pipeline execution complete.")
     logging.info("Pipeline execution completed successfully.")
-
 
 if __name__ == "__main__":
     main()

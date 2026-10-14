@@ -1,0 +1,89 @@
+T002:
+  task: c5f2c2df05e09cb98846819599bb88ca61cd231a167870a2bf7d63d02ac9b158
+T005:
+  task: 6de41d786bc69313186005076278b5cfd4832cd1edf76a0fba57908c84771147
+T006:
+  task: d77b0feb8d377937631f5ae45861a38998e5c9efd0f87329d27cad6b7d5053e1
+T012:
+  reason: The evidence contains only a generic project root mapping and no file such
+    as `fetch_hcp_data.py`, a module defining `fetch_hcp_data(subject_id)`, nor any
+    logs, scripts, or downloaded data under `data/raw/hcp_{subject_id}/` demonstrating
+    that raw fMRI and behavioral JSON were retrieved from OpenNeuro. Without the implementation
+    and proof of successful fetching, the task requirement is not met.
+  task: 51f04d48f576d921c680353d9ba5b02b935cf2c320fefa26314b64ccd3038462
+T013:
+  reason: 'Requested task execution failed; rerun successfully: code/data/run_preprocess.py
+    exit=1'
+  task: b25f9c16054a5f2bf9204f5423a57941849578ee1db9fe9590d14ca34c31fd1d
+? "T014/T014.0\u2013T014.6 Sliding\u2011window connectivity, per\u2011participant\
+  \ static connectivity strength, covariate construction, and alignment validation\
+  \ in `code/analysis/connectivity.py`."
+: task: b269aef8206caab58a59a534fa293ed07a3d8557b4e03d7813b0b43228d59946
+"T015/T016 Louvain community detection (\u03B3\u202F=\u202F1.0) and whole\u2011brain flexibility metric in `code/analysis/dynamics.py`.":
+  task: 7dee6592ff52d93cd0ec94d0591ea9fb57a748caa2eae4683f0719859f1ce804
+? "T018/T019/T020b Subject filtering (missing scans, missing scores, motion > 0.5\u202F\
+  mm FD in >\u202F20\u202F% volumes) with standardized exclusion logging."
+: reason: "Checked the project root (`projects/PROJ-518-investigating-the-relationship-between-b`)\
+    \ for any code, configuration, or output that implements subject\u2011level filtering\
+    \ (e.g., a Python script/module, a command\u2011line tool, or an exclusion log\
+    \ file) and found no such artifacts; the only evidence is a generic project location\
+    \ description with no filtering implementation or logging output. Consequently\
+    \ the required functionality for detecting missing scans, missing scores, and\
+    \ high\u2011motion subjects and producing a standardized exclusion log is missing."
+  task: c64645fbf2481df4aa73800593cc43acd58b8e6d97df17a19e7d6b9a00cf9a3f
+T022:
+  task: 017235b4785913f0c0f9c91ba8b09b2c6e54611492958376ca5e24139a8b8eda
+T027:
+  task: c131cae2774e6b266972ffdb4d032bd37abf49c6320e8a4ca85e626e1922ff09
+"T033\u2013T036.3":
+  reason: "The `validate_caq_availability` function raises a locally\u2011defined\
+    \ `DataMissingCreativityError` instead of the one imported from `code.errors`,\
+    \ so `run_validation()` never catches it and does not invoke `sys.exit(1)`. Consequently\
+    \ the contract tests in `tests/contract/test_loader.py` (which expect the error\
+    \ class from `code.errors`) will fail, and the recorded pytest run did not even\
+    \ execute the tests due to unrelated argument errors. The exception class mismatch\
+    \ and failing test execution must be fixed."
+  task: 5c860d88f11d92ba50024b7ed488ca8d41a13d4a46788cac3a4cf922b9106ea8
+T041:
+  task: 00618c7605b5341ae76942ddae5cab8ea17479d4a9d8274bf7e00ad8281c2930
+? "T043/T051/T051b/T017/T017.1/T017.2 OLS regression (`creativity ~ excess_flexibility\
+  \ + age + sex + education + static_strength`), static\u2011only baseline, \u0394\
+  R\xB2 computation and 4\u2011decimal formatting, `data/interim/results.csv` with\
+  \ `global_empirical_p_value` from the permutation test."
+: reason: 'declared artifact(s) missing/empty/invalid: data/interim/results.csv'
+  task: 2e56210a39a2217c917017c2c960d3b38678cbf3fdd33341f713c50e536d81c0
+"T045/T045.1\u2013T045.3 ROI\u2011wise correlations and FWE correction (max\u2011T / Bonferroni).":
+  task: 20ed85e3a0ce01ce3a9b5b89b049a8345d47bcbb645d779d86a55b0665e96207
+? "T046/T046.1 Sensitivity sweep over window lengths {20,\u202F30,\u202F40} with per\u2011\
+  window connectivity recomputation and `construct_sensitivity_df`."
+: task: 4450722989f53e61f78ab1d0993a120ff8d625b9ce2d7e327bcf4a2e5dceff1d
+"T057/T058 Image compression (\u2264\u202F5\u202FMB, `RuntimeError` on failure) and NaN\u2011robust plotting.":
+  task: c2b4c79f9cfe5ff45f108e30042cd9e34948c991de1ec80c237e8cb3c1271242
+? "T060/T060.1 Runtime profiling on a real 10\u2011subject subset, scaling projection,\
+  \ and `docs/outputs/profiling_report.txt` (memory\u202F<\u202F7\u202FGB, runtime\u202F\
+  <\u202F6\u202Fh)."
+: task: fd5956c015c44eed7c15fb29c118894ac3af66127b31a272c147db16726ab06f
+T101:
+  task: 50542c27a57ea8e6783a78d02120de7ada8c0f148da97de298ebc98d533c2e34
+T102:
+  task: c81c08e99e492657f53a36b13913f380c3df7cb8d2f9f9dd1fb04939e7984e45
+T103:
+  task: cfe844e40851662317b5eef898d895c10d8ee542fabf9ab572a7cecd2a22a70c
+T104:
+  task: df54a806a9f8173ef1c8aa0719c9c58534a092b6f47b8195f0549d5e34ba7abf
+T105:
+  task: 2843f21cb5ffdef5de3236de44fed8e6dd1141b876294f5ebe9dcb6ce325f364
+T106:
+  task: 2abefa5ace04bcc72d754ba58b25f8f16f95accbdbb6d189dfd603b794fa281a
+T107:
+  task: f7191b9bc9ddf0444cb031b7cbe8754de35f776353097d359c7f5c626ccf9735
+T108:
+  task: eab483f5c177c88128e3058c822a3959fcf764ff2868a38fe039ec96ed1231b9
+T111:
+  task: 5398075bc35c2c5e4fdf9c12827cd1e7425fe105db4722b153be4f169ebb7202
+T112:
+  task: 7887cb59e0abf8bd01e517713c9a6725f47458b466d6390a7a835bda78b6cc2f
+T113:
+  task: b0e3f4409eefc6edd1760cb36688aeb63b558997618c00d13641a5f90208e1af
+T114:
+  task: bf4c3f770d0aa609e30ec26b246a3db559b24394bbec18bc49949ff7d31a1152
