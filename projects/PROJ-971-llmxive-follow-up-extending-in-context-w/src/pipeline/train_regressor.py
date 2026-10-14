@@ -25,6 +25,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.compose import TransformedTargetRegressor
 
 from llmxive_toolkit import paths, get_logger
 
@@ -57,12 +58,7 @@ def load_dataset(descriptors_path: Path, labels_path: Path) -> pd.DataFrame:
 
 
 def make_split(df: pd.DataFrame, seed: int = SEED):
-    """80/20 split, stratified by ``k`` when possible.
-
-    Stratifying by ``k`` (instead of ``tau``) satisfies the original
-    task specification and ensures the validation set contains a mixture
-    of context‑window lengths.
-    """
+    """80/20 split, stratified by ``k`` when possible."""
     X = df[FEATURES].to_numpy(dtype=float)
     y = df[TARGETS].to_numpy(dtype=float)
     k_labels = df["k"].to_numpy()
@@ -80,31 +76,42 @@ def make_split(df: pd.DataFrame, seed: int = SEED):
 def train_regressor(df: pd.DataFrame, seed: int = SEED):
     """Fit the MLP and compute train/validation/baseline MSE (on ``tau``).
 
+    To prevent overfitting on small datasets and ensure that the larger
+    scale of 'k' does not dominate the loss, we use a compact MLP
+    architecture and scale the targets using TransformedTargetRegressor.
+
     Returns
     -------
     (model, metrics) where metrics is a dict with ``train_mse``, ``val_mse``,
-    ``baseline_mse`` and derived quantities.  The baseline predicts the
-    global‑mean temperature ``tau`` (training split mean) for every input,
-    ignoring ``k``.
+    ``baseline_mse`` and derived quantities.
     """
     X_train, X_val, y_train, y_val = make_split(df, seed=seed)
 
-    # Two‑layer MLP respecting the ≤ 64 hidden‑unit constraint per layer.
-    model = Pipeline(
+    # Compact 2-layer MLP to prevent overfitting on N=40.
+    # L2 regularization (alpha) is increased to stabilize validation performance.
+    mlp_pipe = Pipeline(
         [
             ("scaler", StandardScaler()),
             (
                 "mlp",
                 MLPRegressor(
-                    hidden_layer_sizes=(64, 32),
-                    alpha=1e-3,          # L2 regularisation
+                    hidden_layer_sizes=(16, 8),
+                    alpha=0.5,
                     max_iter=5000,
                     random_state=seed,
-                    solver="lbfgs",      # better convergence on small data
+                    solver="lbfgs",
                 ),
-            ),
+                ),
         ]
     )
+
+    # Use TransformedTargetRegressor to scale targets (tau and k).
+    # This ensures the MLP doesn't ignore tau due to the larger magnitude of k.
+    model = TransformedTargetRegressor(
+        regressor=mlp_pipe,
+        transformer=StandardScaler()
+    )
+    
     model.fit(X_train, y_train)
 
     pred_train = model.predict(X_train)
@@ -163,7 +170,6 @@ def main(argv=None) -> None:
 
     model, metrics = train_regressor(df, seed=SEED)
 
-    # Ensure the output directories exist (paths.* does this automatically)
     with open(args.model_out, "wb") as fh:
         pickle.dump(model, fh)
     log.info("Saved model to %s", args.model_out)
@@ -180,8 +186,7 @@ def main(argv=None) -> None:
     print(f"meets_sc006 (val_mse < 0.9 * baseline_mse) = {metrics['meets_sc006']}")
     if not metrics["meets_sc006"]:
         log.warning(
-            "SC-006 not met: val_mse=%.6f is not below 0.9*baseline_mse=%.6f. "
-            "Consider reviewing label variance or model capacity.",
+            "SC-006 not met: val_mse=%.6f is not below 0.9*baseline_mse=%.6f.",
             metrics["val_mse"],
             0.9 * metrics["baseline_mse"],
         )

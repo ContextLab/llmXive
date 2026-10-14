@@ -1,15 +1,12 @@
 import json
 import pathlib
-
 from src.pipeline.train_regressor import main as train_main
 
-def test_train_regressor_metrics(tmp_path, monkeypatch):
+def test_train_regressor_metrics():
     """
     Run the training script with the default dataset and verify that the
     produced ``metrics.json`` satisfies SC‑006 (val_mse < 0.9 * baseline_mse).
     """
-    # Ensure the script writes to the project's data directory.
-    # The paths utility creates the directory hierarchy automatically.
     # Run the script (it will read the existing CSV files).
     train_main([])
 

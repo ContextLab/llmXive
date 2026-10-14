@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-14T18:26:06Z",
-  "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w"
+  "updated_at": "2026-10-14T18:41:24Z",
+  "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
+  "replan_rounds": 1
 }

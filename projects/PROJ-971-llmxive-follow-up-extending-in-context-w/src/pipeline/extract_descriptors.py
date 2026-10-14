@@ -154,12 +154,6 @@ def extract_all_descriptors(input_dir: Path, output_path: Path) -> None:
     log.info(f"Scanning for clips in {input_dir}")
     npz_files = sorted(input_dir.glob("clip_*.npz"))
     if not npz_files:
-        # Previously this raised an error, which caused the pipeline to fail
-        # when the upstream clip‑generation step produced no files (e.g. during
-        # early CI runs).  Instead we now emit a warning and produce an empty
-        # CSV with only the header.  Down‑stream tasks that require at least one
-        # row will still fail gracefully, but the script itself will exit
-        # successfully, allowing the CI to surface the real upstream problem.
         log.warning(f"No clip files found in {input_dir}. Writing empty descriptor CSV.")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         pd.DataFrame(columns=["clip_id", "variance", "autocorr_lag1", "spectral_density"]).to_csv(

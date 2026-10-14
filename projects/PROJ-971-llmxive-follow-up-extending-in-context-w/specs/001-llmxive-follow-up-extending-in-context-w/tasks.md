@@ -16,7 +16,7 @@ The tasks are organised into research phases that respect data flow and the 6‑
 - [X] T002 [P] [US1] **Generate a small dataset of interaction clips** – implement `src/pipeline/generate_clips.py` to create 50 reproducible clips (`data/raw/clip_*.npz`).  
   - *Verification*: After execution, `ls data/raw/ | wc -l` equals 50 and each `.npz` contains the required arrays (`states`, `actions`, `observations`).
 
-- [ ] T003 [P] [US1] **Extract latent statistical descriptors** – implement `src/pipeline/extract_descriptors.py` that loads each clip, runs the CPU‑only ICWM encoder (`utils/icwm_encoder.py`), computes variance, lag‑1 autocorrelation, and Welch spectral density, and writes `data/descriptors_subset.csv`.   <!-- FAILED-IN-EXECUTION: src/pipeline/extract_descriptors.py exit=1 -->
+- [X] T003 [P] [US1] **Extract latent statistical descriptors** – implement `src/pipeline/extract_descriptors.py` that loads each clip, runs the CPU‑only ICWM encoder (`utils/icwm_encoder.py`), computes variance, lag‑1 autocorrelation, and Welch spectral density, and writes `data/descriptors_subset.csv`.
   - *Verification*: The CSV validates against `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml` and contains no null/NaN entries.
 
 - [X] T004 [P] [US1] **Run the minimal end‑to‑end pipeline** – add a driver `src/pipeline/run_end_to_end.py` that calls the two scripts above and prints a summary table.  
@@ -44,7 +44,7 @@ The tasks are organised into research phases that respect data flow and the 6‑
 
 **Goal**: Apply the trained model to novel configurations, record outcomes, and demonstrate statistically significant improvement over a fixed baseline.
 
-- [X] T013 [P] [US3] **Generate novel interaction clips** – implement `src/pipeline/generate_novel_clips.py` to create a set of unseen clips (`data/raw_novel/clip_*.npz`) matching the size used in the validation protocol.  
+- [~] T013 [P] [US3] **Generate novel interaction clips** – implement `src/pipeline/generate_novel_clips.py` to create a set of unseen clips (`data/raw_novel/clip_*.npz`) matching the size used in the validation protocol.  
   - *Verification*: After execution, `ls data/raw_novel/ | wc -l` equals the expected number (e.g., 200) and each file contains the required arrays.
 
 - [~] T014 [P] [US3] **Extract latent descriptors for novel clips** – implement `src/pipeline/extract_descriptors_novel.py` that processes `data/raw_novel/` with the ICWM encoder and writes `data/descriptors_novel.csv`.  

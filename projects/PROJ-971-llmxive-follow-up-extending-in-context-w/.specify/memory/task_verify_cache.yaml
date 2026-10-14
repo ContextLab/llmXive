@@ -1,29 +1,66 @@
 T001:
   c: true
-  h: e323245aeaafe5c1b83300df2124003aacb0358558a7a103bf5bbfda382a31fa
-  r: "Checked `specs/.../quickstart.md` (describes the single `bash -c \"source scripts/quickstart.sh\
-    \ && ./scripts/run_minimal.sh\"` command) and the generated `data/descriptors_subset.csv`\
-    \ (contains the required columns for 50 clips). The CI log `code/.tasks/T001.run_minimal.sh.log`\
-    \ shows `run_minimal.sh` exited with code\u202F0 and confirms the CSV file was\
-    \ written, proving the command runs without error and produces the expected output."
-  sig: 3be0dc053d94234def42085128fa0813dcb444530e1e449a301c432087ab5549
+  h: ef34883b1abf90217339ea8d04b337f05b134929bdda8b5be17c6f0095e3ce7b
+  r: '`quickstart.md` exists (resolved to the spec''s canonical location) and documents
+    a single command (`bash -c "source scripts/quickstart.sh && ./scripts/run_minimal.sh"`)
+    that runs the minimal pipeline on 50 clips. The historical execution log shows
+    `run_minimal.sh` exited 0 and produced `data/descriptors_subset.csv` with 51 lines
+    (header + 50 clips), and the CSV on disk matches the logged values exactly with
+    the required columns (clip_id, variance, autocorr_lag1, spectral_density) and
+    finite, non-null values.'
+  sig: 8504168e057df8bbb0e13b2853603b83c7df9d5113247e35ce028e0aa565c3b2
 T002:
   c: true
-  h: 5c2baf76c47f495bbfeab8cd8e509044653f7758437f763cb3b9b6d2c0f0d80b
-  r: Checked `src/pipeline/generate_clips.py` (implementation and execution logs)
-    and the `data/raw/` directory containing exactly 50 `.npz` files, each verified
-    to include the `states`, `actions`, and `observations` arrays (as shown in file
-    contents and passing unit test).
-  sig: 51a486d378009d0d09b730e1813b761351fdce16e79c3eb41954aab6b1aed9c2
+  h: b86bfcfadda28b80b753c00fc1f17c51d6e24865973b04cffa0c05ce7bb0e20d
+  r: The script `src/pipeline/generate_clips.py` exists and deterministically generates
+    CartPole clips with the required `states`, `actions`, and `observations` arrays
+    (confirmed in the .npz contents of clip_000 and clip_049). The execution log shows
+    it ran successfully with `--num-clips 50`, `data/raw/` contains exactly 50 `clip_*.npz`
+    files, and the unit test verifying 50 clips with required arrays passed (exit
+    0).
+  sig: f8860b351d6edaa01359094db75bebadd1fd5aeb0fd00ec89b74d7bffee98604
+T003:
+  c: true
+  h: 4c0df0c7d68110d505d931fa4b5d7a66afb28c7482ba8154502a5f5b7eb64e46
+  r: The script `src/pipeline/extract_descriptors.py` exists and implements the required
+    pipeline (loads clips, runs the CPU-only ICWM encoder, computes variance, lag-1
+    autocorrelation, and Welch spectral density, writes the CSV). The output `data/descriptors_subset.csv`
+    contains 50 rows with the schema-required columns (clip_id, variance, autocorr_lag1,
+    spectral_density) and no null/NaN values, and execution logs plus passing tests
+    (schema validation, empty-input handling) confirm it ran successfully.
+  sig: 6c2313e7ff433a8736eba4bbdd2a82e5610adb42d229ea67fd1703e6f005cf3c
 T004:
   c: true
-  h: c5e799db91fd97c45a4f8355459417c3baa81f984881aafab5ff8d71c406a663
-  r: Checked the presence and content of `src/pipeline/run_end_to_end.py`, which correctly
-    orchestrates clip generation and descriptor extraction and prints a table with
-    the required columns. Verified the execution log `code/.tasks/T004.code_run_minimal.sh.log`
-    showing the script run with `--subset 50` and outputting 50 rows containing `clip_id`,
-    `variance`, `autocorr_lag1`, and `spectral_density`.
-  sig: e5c06c93c1d2fbffe715c1b96e9bed5f2982a4c908f784938e4af30e92450d58
+  h: bd6b8a0f53a643f20ac8c9bc522521d42e273247a2e9b7d004da91794bbcfcda
+  r: "The driver `src/pipeline/run_end_to_end.py` exists, calls `generate_clips` and\
+    \ `extract_all_descriptors`, and prints the full summary table with column validation.\
+    \ The execution log (exit 0) shows a printed table with exactly 50 rows (clip_000\u2013\
+    clip_049) and all three descriptor columns (variance, autocorr_lag1, spectral_density)\
+    \ with finite values, matching the CI verification requirement."
+  sig: 794edc3becaf380a982470a7396bdf0fe68559b984c773069ddd44c6b31442ec
+T005:
+  c: false
+  h: 57c9fa5053ad2b083d3338aa1054650f86819f9ce016d7f5c669defe3ed62229
+  r: "The script and `data/labels.csv` exist and the run log matches the CSV values,\
+    \ but the task's verification criterion explicitly requires `labels.csv` to validate\
+    \ against `label.schema.yaml`, and that schema file is MISSING from the project\
+    \ \u2014 so validation cannot be performed. Additionally, the \"ICWM policy\"\
+    \ being grid-searched is a fabricated heuristic (tanh of a mean latent projection\
+    \ with Gaussian noise) rather than any real policy evaluation, and the reported\
+    \ \"success_rate\" is a fraction of timesteps below an MSE tolerance, not a policy\
+    \ success rate; the next implementer should add the sche"
+  sig: ac2433cc37becd9b066162d07ae9554ae587dfe9f1f789fd4fe938d0e4c68f0a
+T006:
+  c: false
+  h: c290f6f3a7ccea0eff3dec4e573cb21b58148b01fff381383a31bebcca09491d
+  r: "The script and artifacts exist and the pipeline runs, but the task's explicit\
+    \ verification condition fails: `data/metrics.json` reports `val_mse = 0.6465`\
+    \ vs `baseline_mse = 0.475` (`meets_sc006: false`), i.e. the model is worse than\
+    \ the global-mean-\u03C4 baseline, and the unit test `test_train_regressor_metrics`\
+    \ failed (exit 1) on exactly this assertion. The implementer must improve the\
+    \ regressor (or its regularization/features) so that `val_mse < 0.9 * baseline_mse`\
+    \ actually holds on the real data."
+  sig: 72066739ce8b528e6413663f1efe4b145a19e78d78af0526334822ad95f41afd
 T007:
   c: true
   h: 6dc740a0b103f086b97543af402e7913da13207c04095916db49494b45f2a95d
