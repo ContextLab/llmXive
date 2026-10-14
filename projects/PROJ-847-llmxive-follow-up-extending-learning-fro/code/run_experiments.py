@@ -1,17 +1,19 @@
 """Entry‑point for the density‑supervision study.
 
-The original implementation accepted only a ``--config`` argument.
-The quick‑start guide (authoritative) expects a richer CLI that
-directly specifies the experiment mode, retaining ratios, seeds and
-output location.  This file now supports both usages:
+This script now supports two modes of operation:
 
-* ``python -m code.run_experiments --config <yaml>`` – legacy mode.
-* ``python -m code.run_experiments --mode fixed --rhos 0.1 0.3 ...`` –
-  fixed‑density baseline runs.
-* ``python -m code.run_experiments --mode adaptive ...`` – placeholder
-  for adaptive runs (not required for T004).
+1. **Legacy config‑driven mode** (used by the quick‑start guide):
+   ``python -m code.run_experiments --config <yaml>``
+   - Loads the YAML configuration.
+   - Creates the ``outputs/`` directory tree defined in the config.
+   - Writes the effective configuration to ``outputs/run_config.json``.
+   - Prints ``Pipeline initialized`` on success.
 
-The script dispatches to the appropriate stage implementation.
+2. **Explicit CLI mode** for fixed‑density or adaptive runs:
+   ``python -m code.run_experiments --mode fixed|adaptive ...``
+   (implemented in other tasks).
+
+The script returns exit code ``0`` on success and ``1`` on error.
 """
 from __future__ import annotations
 
@@ -19,6 +21,9 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any, Dict
+
+import yaml  # PyYAML is pre‑installed in the environment
 
 from llmxive_toolkit import get_logger, paths
 
@@ -68,7 +73,44 @@ def parse_args(argv=None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 # ----------------------------------------------------------------------
-# Helper functions
+# Helper utilities
+# ----------------------------------------------------------------------
+def _load_yaml_config(path: Path) -> Dict[str, Any]:
+    """Load a YAML configuration file and return its contents as a dict."""
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f) or {}
+            if not isinstance(cfg, dict):
+                raise ValueError("Top‑level YAML document must be a mapping")
+            return cfg
+    except Exception as exc:
+        log.error("Failed to load configuration %s: %s", path, exc)
+        raise
+
+def _initialize_outputs(cfg: Dict[str, Any]) -> Path:
+    """Create the ``outputs/`` directory tree defined in the config.
+
+    Returns the path to the top‑level ``outputs`` directory.
+    """
+    output_root = paths.outputs()
+    output_root.mkdir(parents=True, exist_ok=True)
+
+    # Create any sub‑directories listed under ``output_dirs`` in the config.
+    for sub in cfg.get("output_dirs", []):
+        sub_path = output_root / sub
+        sub_path.mkdir(parents=True, exist_ok=True)
+
+    return output_root
+
+def _write_run_config(cfg: Dict[str, Any], output_root: Path) -> None:
+    """Write the effective configuration to ``outputs/run_config.json``."""
+    run_cfg_path = output_root / "run_config.json"
+    with run_cfg_path.open("w", encoding="utf-8") as f:
+        json.dump(cfg, f, indent=2, sort_keys=True)
+    log.info("Wrote effective run configuration to %s", run_cfg_path)
+
+# ----------------------------------------------------------------------
+# Mode implementations
 # ----------------------------------------------------------------------
 def _run_fixed_mode(args: argparse.Namespace) -> None:
     """Execute fixed‑density baseline experiments."""
@@ -106,23 +148,43 @@ def main(argv=None) -> int:
         log.info("Dry‑run mode – parsed arguments: %s", args)
         return 0
 
+    # ------------------------------------------------------------------
+    # Legacy config‑driven path (required for T001 verification)
+    # ------------------------------------------------------------------
     if args.config:
-        # Legacy config‑driven path – not required for T004 but retained.
-        log.info("Loading configuration from %s (legacy mode)", args.config)
         config_path = Path(args.config)
         if not config_path.is_file():
             log.error("Configuration file %s does not exist.", config_path)
             return 1
-        # For simplicity, just echo the config path.
-        print(f"Loaded config from {config_path}")
+
+        try:
+            cfg = _load_yaml_config(config_path)
+        except Exception:
+            return 1
+
+        # Apply any command‑line overrides (seed, etc.) – currently only
+        # ``--seed`` is documented in the quick‑start guide.
+        # (If additional overrides are added later they can be handled here.)
+
+        # Initialise output directories and write the effective config.
+        output_root = _initialize_outputs(cfg)
+        _write_run_config(cfg, output_root)
+
+        # Signal successful initialization as required by the task.
+        print("Pipeline initialized")
         return 0
 
+    # ------------------------------------------------------------------
+    # Explicit mode‑driven path (used by later tasks)
+    # ------------------------------------------------------------------
     if args.mode == "fixed":
         _run_fixed_mode(args)
     elif args.mode == "adaptive":
         _run_adaptive_mode(args)
     else:
-        log.error("No mode specified. Use --mode fixed|adaptive or --config.")
+        log.error(
+            "No mode specified. Use --mode fixed|adaptive or --config."
+        )
         return 1
 
     return 0

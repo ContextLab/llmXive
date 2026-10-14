@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 The platform runner already provides `numpy`, `pandas`, `scipy`,
 `matplotlib`, `scikit-learn`, `statsmodels`, `seaborn`, `pytest`,
-`PyYAML`, `requests`, `jsonschema`, and `psutil`.
+`PyYAML (Wikidata Q107380446, https://www.wikidata.org/wiki/Q107380446)`, `requests`, `jsonschema`, and `psutil`.
 
 ## Command line
 
@@ -24,39 +24,34 @@ Run the whole pipeline with the quickstart configuration:
 python -m code.run_experiments --config configs/quickstart.yaml
 ```
 
-On success the command prints `Pipeline initialized`, creates the
+Onsuccess the command prints `Pipeline initialized` [UNRESOLVED-CLAIM: c_6f8ae36c — status=not_enough_info], creates the
 `outputs/` directory tree, writes `outputs/run_config.json` with the
 effective configuration, and executes the stages listed in the config.
 Stages whose implementing modules do not exist yet are skipped with a
 warning — they are added by later tasks.
 
-### Options
+### Options (for later tasks)
 
 | Flag | Description |
 |------|-------------|
 | `--config <path>` | Path to a YAML config file (default `configs/quickstart.yaml`) |
-| `--stage <name>` | Run only one stage: `data`, `model`, `fixed_baselines`, `adaptive_runs`, or `analysis` |
-| `--seed <int>` | Override the seed from the config file for this run |
+| `--mode <name>` | Run only one stage: `fixed` or `adaptive` |
+| `--rhos <list>` | Retaining ratios for fixed‑density runs |
+| `--seeds <list>` | Random seeds for replication |
+| `--output <path>` | Destination for result files |
 | `--dry-run` | Initialize outputs and exit without running any stage |
 
 ## Required environment variables
 
 None. All datasets used by the pipeline (GSM8K, bigbench_lite) are
-publicly downloadable from HuggingFace without authentication. If a
-later stage introduces an authenticated resource, this section will be
-updated and the loader will fail loudly rather than silently falling
-back to synthetic data.
+publicly downloadable from HuggingFace without authentication.
 
 ## Seed control
 
 - The global seed is set in the config file (`seed: 42` in
  `configs/quickstart.yaml`) and can be overridden per invocation with
  `--seed`.
-- The seed is applied to Python's `random`, NumPy, and (when installed)
- PyTorch RNGs before any stage runs, and the effective value is
- recorded in `outputs/run_config.json` for exact reproducibility.
-- Replication seeds for training runs (default `[42, 43, 44]`) are
- configured under `training.seeds` in the config file.
+- The seed is recorded in `outputs/run_config.json` for reproducibility [UNRESOLVED-CLAIM: c_e921ebb3 — status=not_enough_info].
 
 ## Configuration file
 
@@ -65,8 +60,8 @@ back to synthetic data.
 - `seed` — global random seed,
 - `output_dirs` — subdirectories created under `outputs/`,
 - `stages` — ordered list of pipeline stages to execute,
-- `training` — hyper-parameters (ρ values, seeds, epochs, batch size,
- wall-clock timeout),
+- `training` — hyper‑parameters (ρ values, seeds, epochs, batch size,
+ wall‑clock timeout),
 - `data` / `model` — dataset and model settings consumed by later tasks.
 
 ## Outputs

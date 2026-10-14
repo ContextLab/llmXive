@@ -34,23 +34,30 @@ Trying to import the above resulted in these errors:
  - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv -> rc=1
-/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 372, in _request_wrapper
-    response = _request_wrapper(
-               ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 396, in _request_wrapper
-    hf_raise_for_status(response)
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/huggingface_hub/utils/_errors.py", line 352, in hf_raise_for_status
-    raise RepositoryNotFoundError(message, response) from e
-huggingface_hub.utils._errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6acf54cd-47cc5df223508e1c64016c49;3b182776-86e9-46f9-a648-aa0288ad4f27)
 
-Repository Not Found for url: https://huggingface.co/author/lightdiff-100m/resolve/main/pytorch_model.bin.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated.
-Invalid username or password.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/run_experiments.py", line 30, in <module>
+    from code.trainer import run_fixed_baselines
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/trainer.py", line 35, in <module>
+    from code.model import load_diffusion_model
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/model.py", line 24, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 
 - python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json -> rc=1
 
-2026-10-14 10:09:19,791 ERROR __main__: Adaptive mode not yet implemented in this task.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/run_experiments.py", line 30, in <module>
+    from code.trainer import run_fixed_baselines
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/trainer.py", line 35, in <module>
+    from code.model import load_diffusion_model
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/model.py", line 24, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 
 - python -m code.analysis  --fixed outputs/fixed_baselines.csv  --adaptive outputs/adaptive_run.json  --outdir outputs/statistics -> rc=1
 

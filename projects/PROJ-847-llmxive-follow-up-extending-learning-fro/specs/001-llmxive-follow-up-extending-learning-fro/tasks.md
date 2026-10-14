@@ -8,7 +8,7 @@ The following checklist implements the full experimental pipeline, from data acq
 
 ## Phase 1 – Setup & first end‑to‑end run  
 
-- [ ] **T001** [US‑1] **Create a reproducible entry‑point and quick‑start guide**  
+- [ ] **T001** [US‑1] **Create a reproducible entry‑point and quick‑start guide**   <!-- FAILED-IN-EXECUTION: code/run_experiments.py exit=1 -->
   - Implement a CLI script `code/run_experiments.py` that parses a YAML config and triggers the full pipeline.  
   - Add usage instructions (command line, required env vars, seed control) to `docs/quickstart.md`.  
   - **Verification**: Running the command `python -m code.run_experiments --config configs/quickstart.yaml` prints “Pipeline initialized” and creates the directory `outputs/` without errors.

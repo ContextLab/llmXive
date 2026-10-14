@@ -1,12 +1,6 @@
 T001:
-  reason: "The CLI's `--config` path in `code/run_experiments.py` only checks the\
-    \ file exists and prints \"Loaded config from ...\" \u2014 it never parses the\
-    \ YAML (no `yaml` import), never prints \"Pipeline initialized\", never creates\
-    \ the `outputs/` directory tree, and never writes `outputs/run_config.json`, so\
-    \ the task's explicit verification command fails its stated contract. The existing\
-    \ `outputs/run_config.json` (with seed 7, contradicting the config's seed 42)\
-    \ cannot have been produced by this script and is not execution evidence; `docs/quickstart.md`\
-    \ also documents `--stage` and `--seed` flags the script"
+  reason: 'Requested task execution failed; rerun successfully: code/run_experiments.py
+    exit=1'
   task: 48046a6674a2816ee04df39c338f2a0c914479a3cd11a0fa0fa38663b77a4cda
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data.py exit=1'

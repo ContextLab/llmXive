@@ -16,3 +16,113 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-14T08:38:49Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: command prints 'Pipeline initialized' on success
+  claim_id: c_6f8ae36c
+  context: Run the whole pipeline with the quickstart configuration; on success the
+    command prints `Pipeline initialized`, creates the `outputs/` directory tree,
+    writes `outputs/run_config.json` with the effective configuration.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: On success the command prints `Pipeline initialized`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T11:08:04Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: command creates 'outputs/' directory tree on success
+  claim_id: c_d79ff5f0
+  context: Run the whole pipeline with the quickstart configuration; on success the
+    command prints `Pipeline initialized`, creates the `outputs/` directory tree,
+    writes `outputs/run_config.json` with the effective configuration.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: On success the command creates the `outputs/` directory tree
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T11:08:04Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: global seed is set to 42 in config file
+  claim_id: c_f0ccc91c
+  context: 'The global seed is set in the config file (`seed: 42` in `configs/quickstart.yaml`)
+    and can be overridden per invocation with `--seed`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'The global seed is set in the config file (`seed: 42` in `configs/quickstart.yaml`)'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T11:08:04Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: datasets GSM8K and bigbench_lite are publicly downloadable from HuggingFace
+    without authentication
+  claim_id: c_dedb319e
+  context: All datasets used by the pipeline (GSM8K, bigbench_lite) are publicly downloadable
+    from HuggingFace without authentication.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: All datasets used by the pipeline (GSM8K, bigbench_lite) are publicly
+    downloadable from HuggingFace without authentication
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T11:08:36Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: platform runner provides numpy, pandas, scipy, matplotlib, scikit-learn,
+    statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, and psutil
+  claim_id: c_92e533f2
+  context: The platform runner already provides `numpy`, `pandas`, `scipy`, `matplotlib`,
+    `scikit-learn`, `statsmodels`, `seaborn`, `pytest`, `PyYAML`, `requests`, `jsonschema`,
+    and `psutil`.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: PyYAML
+      source_id: Q107380446
+      url: https://www.wikidata.org/wiki/Q107380446
+      value: PyYAML
+    filled: true
+  kind: entity_fact
+  raw_text: The platform runner already provides `numpy`, `pandas`, `scipy`, `matplotlib`,
+    `scikit-learn`, `statsmodels`, `seaborn`, `pytest`, `PyYAML`, `requests`, `jsonschema`,
+    and `psutil`
+  resolved_value: PyYAML
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-14T11:08:49Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: seed is recorded in outputs/run_config.json for reproducibility
+  claim_id: c_e921ebb3
+  context: The seed is recorded in `outputs/run_config.json` for reproducibility.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The seed is recorded in `outputs/run_config.json` for reproducibility
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T11:08:49Z'
