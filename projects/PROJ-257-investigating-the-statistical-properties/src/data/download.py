@@ -66,8 +66,8 @@ def _fetch_record_metadata(record_id: str) -> dict:
 
 def _select_file_info(record_meta: dict) -> Tuple[str, str]:
     """
-    From the Zenodo record metadata, select the first file entry and return
-    its ``key`` (filename) and direct download URL.
+    From the Zenodo record metadata, select the first **HDF5** file entry
+    and return its ``key`` (filename) and direct download URL.
 
     Zenodo provides a ``links`` dictionary for each file with a ``download``
     entry that forces a download.
@@ -75,10 +75,20 @@ def _select_file_info(record_meta: dict) -> Tuple[str, str]:
     files = record_meta.get("files", [])
     if not files:
         raise RuntimeError("No files listed in Zenodo record metadata.")
-    file_entry = files[0]  # Assume the first file is the posterior sample
-    filename = file_entry["key"]
+
+    # Prefer a file ending with '.h5'; fall back to the first file if none match.
+    h5_file = None
+    for file_entry in files:
+        if file_entry.get("key", "").lower().endswith(".h5"):
+            h5_file = file_entry
+            break
+    if h5_file is None:
+        # No explicit HDF5 file; use the first entry (may raise later when read)
+        h5_file = files[0]
+
+    filename = h5_file["key"]
     # Prefer the explicit download link if present; otherwise construct it.
-    download_url = file_entry.get("links", {}).get("download")
+    download_url = h5_file.get("links", {}).get("download")
     if not download_url:
         # Fallback to the self link with a download query parameter
         download_url = f"https://zenodo.org/records/{record_meta['id']}/files/{filename}?download=1"
@@ -95,8 +105,6 @@ def _download_with_retries(url: str, dest: Path, max_attempts: int = 3) -> None:
     while attempt < max_attempts:
         try:
             log.info("Downloading %s (attempt %d)", url, attempt + 1)
-            # NOTE: Use a plain request (no context‑manager) to stay compatible
-            # with request‑mocking libraries that return a plain ``Response``.
             response = requests.get(url, stream=True, timeout=60)
             response.raise_for_status()
             dest.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,10 @@
+T001:
+  c: false
+  h: 56ad054bd7e337c995000cec33fa0fd086bc97d23a1f5e9934094aee11faf2f1
+  r: "The `src/data/download.py` script exists but the unit test `tests/unit/test_download.py`\
+    \ cannot pass because it mocks a Zenodo record ID (123456) that does not match\
+    \ the DOIs hard\u2011coded in the script (3966973/3966974), so the mocked API\
+    \ calls are never used. Moreover, the required output files `data/raw/gwtc1.h5`,\
+    \ `data/raw/gwtc2.h5`, and `data/raw/checksums.json` are absent. The task\u2019\
+    s verification conditions are therefore not met."
+  sig: e89a2c96649294c622f7666939ff0cf26d067bd14705a276ac82b7b6d758e36d

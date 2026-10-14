@@ -1,12 +1,10 @@
 T001:
-  reason: "The downloaded files are not GWTC posterior samples: `data/raw/gwtc1.h5`\
-    \ begins with a PNG header (an image, ~1 MB) and `data/raw/gwtc2.h5` is a JSON\
-    \ record about a copper-plate inscription from a completely different Zenodo record\
-    \ \u2014 neither is HDF5 GWTC data, so the \"real run\" produced fabricated/wrong\
-    \ artifacts. Additionally, the verification requirement fails: the recorded pytest\
-    \ run of `tests/unit/test_download.py` exited with code 2 (`ModuleNotFoundError:\
-    \ No module named 'requests_mock'`), so the tests do not pass, and the download\
-    \ code never verifies checksums against Zenodo-provided exp"
+  reason: "The `src/data/download.py` script exists but the unit test `tests/unit/test_download.py`\
+    \ cannot pass because it mocks a Zenodo record ID (123456) that does not match\
+    \ the DOIs hard\u2011coded in the script (3966973/3966974), so the mocked API\
+    \ calls are never used. Moreover, the required output files `data/raw/gwtc1.h5`,\
+    \ `data/raw/gwtc2.h5`, and `data/raw/checksums.json` are absent. The task\u2019\
+    s verification conditions are therefore not met."
   task: e125bcd44b2f5eb7a0ae82bf60a9a63afcfcdbbe2d2716db10c6337263eaff7a
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/preprocess.py

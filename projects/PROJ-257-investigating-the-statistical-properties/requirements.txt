@@ -1,9 +1,2 @@
-# Project dependencies
-pandas
-numpy
-scipy
-matplotlib
-requests
-tqdm
-pyyaml
-h5py
+# Additional testing dependency required for the download unit tests
+requests_mock
