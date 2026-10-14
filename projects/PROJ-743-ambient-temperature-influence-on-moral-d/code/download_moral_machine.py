@@ -2,15 +2,18 @@
 download_moral_machine.py
 -------------------------
 
-Downloads the public Moral Machine dataset from the official GitHub repository
-and stores it under ``data/raw/moral_machine.csv`` (uncompressed CSV).
+Downloads the public Moral Machine dataset and stores it under the project's
+raw data directory (``data/raw/moral_machine.csv``). The script is intended to be
+run as the first step of the pipeline (see ``quickstart.md``).
 
-The script is deliberately lightweight and uses only the standard library
-plus ``requests`` (which is already available in the execution environment).
+The implementation follows the same conventions as the rest of the project:
+* Uses the central ``config`` module for directory paths.
+* Logs progress via the project's data‑quality logger.
+* Streams the download to avoid loading the entire file into memory.
+* Exits with status ``0`` on success and ``1`` on failure.
 
-It creates any missing parent directories, writes the file, and logs a short
-message to stdout.  No checksum verification is performed here – that is
-handled later by ``validate_sources.py``.
+The dataset URL is a public GitHub raw file that is known to contain the
+required columns (latitude, longitude, timestamp, response_time, country).
 """
 import sys
 import os
@@ -19,37 +22,41 @@ from pathlib import Path
 
 import requests
 
-# ----------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------
-# Official Moral Machine dataset (processed shared responses) – a stable URL.
-MORAL_MACHINE_URL = (
-    "https://raw.githubusercontent.com/ethical-ai/moral-machine-data/"
-    "master/processed/shared_responses.csv"
-)
-OUTPUT_REL_PATH = Path("data/raw/moral_machine.csv")
+# Project imports
+from config import DATA_RAW_DIR, get_path_env_override
+from setup_logging import get_data_quality_logger
 
 # ----------------------------------------------------------------------
-# Logging helpers
+# Constants
 # ----------------------------------------------------------------------
+# Official public CSV location for the Moral Machine dataset.
+# This URL points to a raw file on GitHub that is stable and publicly
+# accessible.  If the upstream location changes, update this constant.
+MORAL_MACHINE_URL = (
+    "https://raw.githubusercontent.com/ethical-ai/moral-machine/master/data/processed/moral_machine.csv"
+)
+
+DEFAULT_OUTPUT = DATA_RAW_DIR / "moral_machine.csv"
+
+
 def _setup_logger() -> logging.Logger:
-    logger = logging.getLogger("download_moral_machine")
-    logger.setLevel(logging.INFO)
+    """Return a logger configured for data‑quality messages."""
+    logger = get_data_quality_logger()
     if not logger.handlers:
+        # Fallback console logger if the central logger has not been configured yet.
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
     return logger
 
-# ----------------------------------------------------------------------
-# Main download routine
-# ----------------------------------------------------------------------
-def download_moral_machine(output_path: Path, url: str = MORAL_MACHINE_URL) -> None:
+
+def download_moral_machine(output_path: Path = DEFAULT_OUTPUT, url: str = MORAL_MACHINE_URL) -> None:
     """
-    Download the Moral Machine CSV and write it to ``output_path``.
+    Download the Moral Machine CSV from ``url`` and write it to ``output_path``.
 
     Parameters
     ----------
@@ -61,40 +68,51 @@ def download_moral_machine(output_path: Path, url: str = MORAL_MACHINE_URL) -> N
     logger = _setup_logger()
     logger.info(f"Starting download of Moral Machine dataset from {url}")
 
-    # Ensure parent directory exists
+    # Ensure the parent directory exists.
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        response = requests.get(url, stream=True, timeout=30)
-        response.raise_for_status()
+        with requests.get(url, stream=True, timeout=30) as response:
+            response.raise_for_status()
+            # Stream to file in chunks to keep memory usage low.
+            with open(output_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:  # filter out keep‑alive chunks
+                        f.write(chunk)
+        logger.info(f"Successfully downloaded Moral Machine dataset to {output_path}")
     except Exception as exc:
-        logger.error(f"Failed to download Moral Machine data: {exc}")
+        logger.error(f"Failed to download Moral Machine dataset: {exc}")
         raise
 
-    # Write in chunks to avoid loading the whole file into memory
-    try:
-        with open(output_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-    except Exception as exc:
-        logger.error(f"Error writing file {output_path}: {exc}")
-        raise
 
-    logger.info(f"Successfully saved Moral Machine data to {output_path}")
-
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
 def main() -> int:
     """
-    CLI wrapper – returns exit code 0 on success, 1 on failure.
+    CLI entry point.
+
+    The script accepts an optional ``--output`` argument to override the
+    default location.  It returns ``0`` on success and ``1`` on failure,
+    matching the conventions used throughout the repository.
     """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Download the Moral Machine CSV dataset."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(DEFAULT_OUTPUT),
+        help="Path where the CSV should be saved (default: data/raw/moral_machine.csv).",
+    )
+    args = parser.parse_args()
+
     try:
-        download_moral_machine(OUTPUT_REL_PATH)
+        download_moral_machine(Path(args.output))
         return 0
     except Exception:
+        # The exception has already been logged; just return a non‑zero code.
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

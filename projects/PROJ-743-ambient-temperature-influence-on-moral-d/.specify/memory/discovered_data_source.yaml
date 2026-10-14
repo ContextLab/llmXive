@@ -1,15 +1,13 @@
 status: none
-intent: Moral Machine dataset ERA5 reanalysis temperature download python package
-  dataset
+intent: download Moral Machine dataset and ERA5 Reanalysis temperature via Copernicus
+  CDS python package dataset
 required_fields:
-- moral_machine_id
 - scenario_id
-- decision
+- timestamp
 - latitude
 - longitude
-- timestamp
+- response
 - temperature_2m
-- temperature_units
-cache_key: 119ea0a59b5e6ef6fd2f90cce1a924b95f9862410248ed9d4f79d33062d362c5
-searched_at: '2026-10-14T00:22:44.267541+00:00'
+cache_key: 5691bbb06722566acc1fb26af85a09141ce5bd9f0da8f65e4734bbc2dbc805d9
+searched_at: '2026-10-14T06:09:47.252894+00:00'
 retry_count: 1

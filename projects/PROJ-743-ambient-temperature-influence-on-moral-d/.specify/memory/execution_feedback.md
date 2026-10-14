@@ -7,17 +7,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/validate_sources.py --input data/raw/moral_machine.csv --temp data/raw/era5_data/ --output results/logs/validation_report.json -> rc=1
-2026-10-14 00:22:05,278 - data_quality - ERROR - File not found: data/raw/moral_machine.csv
-2026-10-14 00:22:05,282 - data_quality - INFO - Validation report written to results/logs/validation_report.json
+2026-10-14 06:09:03,683 - data_quality - ERROR - File not found: data/raw/moral_machine.csv
+2026-10-14 06:09:03,683 - data_quality - INFO - Validation report written to results/logs/validation_report.json
 
 
 - python code/ingestion.py --input data/raw/moral_machine.csv --temp data/raw/era5_data/ --output data/processed/merged_dataset.parquet -> rc=1
-2026-10-14 00:22:05,709 - ingestion - INFO - Starting ingestion pipeline
-2026-10-14 00:22:05,710 - ingestion - INFO - Input: --input
-2026-10-14 00:22:05,710 - ingestion - INFO - Output: --temp
-2026-10-14 00:22:05,710 - ingestion - INFO - Loading Moral Machine data from --input
-2026-10-14 00:22:05,710 - ingestion - ERROR - Ingestion pipeline failed: Input file not found: --input
-2026-10-14 00:22:05,710 - data_quality - ERROR - Ingestion pipeline failed: Input file not found: --input
+2026-10-14 06:09:03,937 - ingestion - INFO - Starting ingestion pipeline
+2026-10-14 06:09:03,937 - ingestion - INFO - Input: --input
+2026-10-14 06:09:03,938 - ingestion - INFO - Output: --temp
+2026-10-14 06:09:03,938 - ingestion - INFO - Loading Moral Machine data from --input
+2026-10-14 06:09:03,938 - ingestion - ERROR - Ingestion pipeline failed: Input file not found: --input
+2026-10-14 06:09:03,938 - data_quality - ERROR - Ingestion pipeline failed: Input file not found: --input
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-743-ambient-temperature-influence-on-moral-d/code/ingestion.py", line 282, in <module>
@@ -30,20 +30,20 @@ Traceback (most recent call last):
 FileNotFoundError: Input file not found: --input
 
 - python code/preprocessing.py --input data/processed/merged_dataset.parquet --output data/processed/cleaned_dataset.parquet -> rc=1
-2026-10-14 00:22:06,119 - preprocessing - INFO - Starting T033d: Compute Temperature-Adjusted Response Times
-2026-10-14 00:22:06,119 - preprocessing - INFO - Input: data/processed/merged_dataset.parquet
-2026-10-14 00:22:06,119 - preprocessing - INFO - Output: data/processed/cleaned_dataset.parquet
-2026-10-14 00:22:06,129 - preprocessing - ERROR - Failed to load input dataset: [Errno 2] No such file or directory: 'data/processed/merged_dataset.parquet'
+2026-10-14 06:09:04,174 - preprocessing - INFO - Starting T033d: Compute Temperature-Adjusted Response Times
+2026-10-14 06:09:04,174 - preprocessing - INFO - Input: data/processed/merged_dataset.parquet
+2026-10-14 06:09:04,174 - preprocessing - INFO - Output: data/processed/cleaned_dataset.parquet
+2026-10-14 06:09:04,181 - preprocessing - ERROR - Failed to load input dataset: [Errno 2] No such file or directory: 'data/processed/merged_dataset.parquet'
 
 
 - python code/modeling.py --input data/processed/cleaned_dataset.parquet --output results/stats/model_results.json --figs results/figures/ -> rc=1
-2026-10-14 00:22:07,212 - model_diagnostics - INFO - Starting T025: Modeling (Log-transform & Convergence Fallback)
-2026-10-14 00:22:07,213 - model_diagnostics - CRITICAL - Modeling pipeline failed: Required merged dataset not found at data/processed/merged_dataset.parquet. Please ensure T022 (output generation) has been executed successfully.
+2026-10-14 06:09:04,840 - model_diagnostics - INFO - Starting T025: Modeling (Log-transform & Convergence Fallback)
+2026-10-14 06:09:04,840 - model_diagnostics - CRITICAL - Modeling pipeline failed: Required merged dataset not found at data/processed/merged_dataset.parquet. Please ensure T022 (output generation) has been executed successfully.
 
 
 - python code/robustness.py --input data/processed/cleaned_dataset.parquet --output results/stats/sensitivity_analysis.csv -> rc=1
-2026-10-14 00:22:08,317 - __main__ - INFO - Loading data from data/processed/cleaned_dataset.parquet
-2026-10-14 00:22:08,317 - __main__ - ERROR - Bootstrap analysis failed: Input file not found: data/processed/cleaned_dataset.parquet
+2026-10-14 06:09:05,465 - __main__ - INFO - Loading data from data/processed/cleaned_dataset.parquet
+2026-10-14 06:09:05,466 - __main__ - ERROR - Bootstrap analysis failed: Input file not found: data/processed/cleaned_dataset.parquet
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-743-ambient-temperature-influence-on-moral-d/code/robustness.py", line 268, in main
