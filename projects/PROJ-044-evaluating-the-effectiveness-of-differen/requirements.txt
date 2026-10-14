@@ -1,4 +1,8 @@
 torch==2.3.0
 opacus==1.4.0
 datasets==2.19.0
+pandas
+scipy
+statsmodels
 pyarrow
+numpy>=2.0.0

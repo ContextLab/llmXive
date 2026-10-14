@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-14T02:11:26Z",
-  "project_id": "PROJ-044-evaluating-the-effectiveness-of-differen"
+  "updated_at": "2026-10-14T13:14:30Z",
+  "project_id": "PROJ-044-evaluating-the-effectiveness-of-differen",
+  "replan_rounds": 1
 }
