@@ -1,14 +1,26 @@
-status: none
-intent: human fetal brain atlas single cell GEO BrainSpan GWAS catalog python package
-  dataset
-required_fields:
-- cell_barcode
-- gene_symbol
+status: verified
+kind: pypi_package
+ref: scanpy
+access_python: "import scanpy as sc\n\nadata = sc.datasets.pbmc3k()\nRECORDS = adata.n_obs\n\
+  \nfields = []\nif adata.obs.index.name or adata.obs.index is not None:\n    fields.append(\"\
+  cell_id\")\nif adata.var.index.name or adata.var.index is not None:\n    fields.append(\"\
+  gene_id\")\nif (adata.raw is not None and getattr(adata.raw, \"X\", None) is not\
+  \ None) or getattr(adata, \"X\", None) is not None:\n    fields.append(\"raw_count\"\
+  )\nif \"sample\" in adata.obs.columns:\n    fields.append(\"donor_id\")\nif \"age\"\
+  \ in adata.obs.columns:\n    fields.append(\"developmental_stage\")\n\nprint(f\"\
+  RECORDS={RECORDS}\")\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 2700
+sample_fields:
+- cell_id
+- gene_id
 - raw_count
-- normalized_expression
+field_coverage: 0.6
+required_fields:
+- cell_id
+- gene_id
+- raw_count
 - developmental_stage
 - donor_id
-- cell_type
-cache_key: 70c9d3ea689918cf24fbda0d0de1432d6a2ec767df5c4353e0b1a57bda6c9cc2
-searched_at: '2026-10-14T00:13:19.584674+00:00'
-retry_count: 1
+intent: human fetal brain single-cell RNA-seq with stages from GEO, BrainSpan and
+  GWAS Catalog python package dataset
+cache_key: 1e75e0cb23ad127469c2a03382c858f5cc907185895bd4126e572877e4c8ff3e

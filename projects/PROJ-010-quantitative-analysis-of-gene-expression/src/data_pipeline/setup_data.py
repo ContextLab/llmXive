@@ -60,7 +60,7 @@ def calculate_sha256(file_path: os.PathLike) -> str:
 # ----------------------------------------------------------------------
 def verify_dataset_accessibility(geo_accession: str) -> bool:
     """
-    Verify that a GEO dataset page returns HTTP 200.
+    Verify that a GEO dataset page returns HTTP 200.
 
     Parameters
     ----------

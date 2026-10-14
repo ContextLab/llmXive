@@ -10,7 +10,7 @@
     - Ensure `code/`, `data/raw/`, `data/processed/`, and `figures/` directories are initialized.
     - Verify accessibility of the raw scRNA-seq atlas via `datasets` or `GEOparse`.
     - Generate SHA-256 checksums for all raw input files and record them in the project state YAML (Constitution Principle III).
-- [ ] T002 Implement the data acquisition and preprocessing pipeline in `code/data_pipeline.py` producing `data/processed/integrated_atlas.h5ad`. [US-1] <!-- FAILED-IN-EXECUTION: code/data_pipeline.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data_pipeline/preprocess.py exit=1 -->
+- [ ] T002 Implement the data acquisition and preprocessing pipeline in `code/data_pipeline.py` producing `data/processed/integrated_atlas.h5ad`. [US-1] <!-- FAILED-IN-EXECUTION: code/data_pipeline.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data_pipeline/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data_pipeline/preprocess.py exit=1 -->
     - Implement streaming loading of the atlas to fit within 7GB RAM.
     - Implement QC, normalization, and Harmony batch correction (FR-002).
     - Implement gap detection: halt if any developmental window contains $< 10$ cells (FR-011, SC-007).

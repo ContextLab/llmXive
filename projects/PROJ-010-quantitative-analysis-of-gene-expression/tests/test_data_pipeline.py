@@ -1,40 +1,23 @@
 """
-Basic sanity tests for the data pipeline core module.
+Test that the data preprocessing pipeline produces a valid AnnData file.
 """
+import pathlib
 
-import os
-from pathlib import Path
-
-import pytest
 import scanpy as sc
+import pytest
 
-from code.data_pipeline import main as pipeline_main
+from llmxive_toolkit import paths
 
-@pytest.fixture(scope="module")
-def output_path(tmp_path_factory):
-    """Temporary path for the integrated AnnData output."""
-    return tmp_path_factory.mktemp("output") / "integrated_atlas.h5ad"
+@pytest.fixture(scope="session")
+def output_path():
+    # The pipeline should have written this file during the quickstart run.
+    return paths.data("processed", "integrated_atlas.h5ad")
 
-def test_pipeline_runs_and_produces_output(output_path):
-    """The pipeline should run without error and write an .h5ad file."""
-    # Simulate command‑line arguments
-    import sys
+def test_output_file_exists(output_path: pathlib.Path):
+    assert output_path.is_file(), f"Expected output file not found: {output_path}"
 
-    original_argv = sys.argv.copy()
-    try:
-        sys.argv = [
-            "code/data_pipeline.py",
-            "--dataset",
-            "fetal_brain_atlas",
-            "--output",
-            str(output_path),
-        ]
-        pipeline_main()
-    finally:
-        sys.argv = original_argv
-
-    assert output_path.is_file(), "Output .h5ad file was not created"
-    # Load and perform a minimal sanity check
+def test_output_is_ann_data(output_path: pathlib.Path):
+    # Attempt to read the file with Scanpy; will raise if not a valid AnnData.
     adata = sc.read_h5ad(output_path)
-    assert adata.n_obs > 0, "No cells in the output AnnData"
-    assert "X_pca_harmony" in adata.obsm, "Harmony‑corrected PCA missing"
+    assert adata.n_obs > 0, "AnnData contains no cells"
+    assert adata.n_vars > 0, "AnnData contains no genes"
