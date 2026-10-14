@@ -8,12 +8,12 @@ All paths are relative to the repository root.
 
 ## Phase 1 – Project Setup & Core Infrastructure  
 
-- [ ] **T001** [​P​] Initialize project skeleton  
+- [X] **T001** [​P​] Initialize project skeleton  
   - Create directories: `data/raw/`, `data/processed/`, `data/explanation_tiers/`, `data/simulation_results/`, `code/`, `tests/`, `docs/`.  
   - Add core files: `README.md` (one‑sentence description), `code/__init__.py`, `requirements.txt`, `tests/__init__.py`, `docs/README.md`.  
   - **Verification**: `tree` output shows all directories and files; `README.md` contains a one‑sentence project description.  
 
-- [ ] **T001a** [​P​] Compute raw‑data checksums  
+- [ ] **T001a** [​P​] Compute raw‑data checksums   <!-- FAILED-IN-EXECUTION: code/compute_checksums.py exit=1 -->
   - For each file under `data/raw/`, compute SHA‑256 checksum and write to `data/raw/checksums.sha256`.  
   - Record the manifest in project state YAML under `artifact_hashes`.  
   - **Verification**: Script `code/utils.py` provides `compute_checksums()`; after run, the manifest file exists and matches all raw files.  

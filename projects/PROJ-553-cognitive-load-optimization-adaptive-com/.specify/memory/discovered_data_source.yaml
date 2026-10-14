@@ -1,16 +1,15 @@
 status: none
-intent: download ASSISTments and OULAD learning analytics datasets from OpenML python
-  package dataset
+intent: ASSISTments OULAD OpenML HuggingFace interaction logs timestamp error hint
+  pause duration dataset python package
 required_fields:
-- interaction_id
 - student_id
 - problem_id
 - timestamp
-- response_time
-- correctness
-- error_count
-- hint_requested
+- response_latency
+- error_flag
+- hint_usage
 - pause_duration
-cache_key: f6870ea2c6b0dd09382fad2847fe222b3cf7aa03b204b1de894528961c464ce7
-searched_at: '2026-10-14T09:18:46.612753+00:00'
+- correctness
+cache_key: 63d6c9d35878e95ce9abbd164e068f77e3ddcbf27ab2b7bbdc5f26164d9f71e3
+searched_at: '2026-10-14T09:20:43.772294+00:00'
 retry_count: 1

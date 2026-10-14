@@ -1,11 +1,11 @@
 T001:
-  c: false
-  h: 2b3b1475383d14382118093c48288cdfa9482f5235c1374903ddedf74ceb78d0
-  r: The provided artifacts include only three of the required core files (`code/__init__.py`,
-    `requirements.txt`, `tests/__init__.py`) and no evidence of the `README.md` file
-    or any of the required directories (`data/raw/`, `data/processed/`, `data/explanation_tiers/`,
-    `data/simulation_results/`, `code/`, `tests/`, `docs/`). The task is not fully
-    satisfied.
+  c: true
+  h: 99000f851c8da243885a10ce9b0dbc025fd8eebe4519d58b2aec1d84886545cf
+  r: "Checked the presence of all required directories (`data/raw/`, `data/processed/`,\
+    \ `data/explanation_tiers/`, `data/simulation_results/`, `code/`, `tests/`, `docs/`)\
+    \ and core files (`README.md`, `code/__init__.py`, `requirements.txt`, `tests/__init__.py`,\
+    \ `docs/README.md`). The root README contains a single\u2011sentence project description."
+  sig: e46f07c140ac6ee221082c1d8274f75be134a254ce1bdc386ed855e4f8c0104e
 T002:
   c: true
   h: 21588fb8e477ccadb02cd7a8453b199735fca27f15bbe7e2fd0e3e02b1f656e3

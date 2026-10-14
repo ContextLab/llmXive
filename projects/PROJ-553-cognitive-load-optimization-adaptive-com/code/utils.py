@@ -9,6 +9,9 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy import stats
+import hashlib
+import yaml
+from llmxive_toolkit import paths
 
 def setup_logging(name: str = "utils") -> logging.Logger:
     logger = logging.getLogger(name)
@@ -230,3 +233,87 @@ def validate_readiness_for_tier_generation(instructional_units_path: str) -> boo
     except Exception as e:
         logger.error(f"Error reading instructional units: {e}")
         return False
+
+def compute_checksums(raw_dir: Optional[Path] = None) -> Dict[str, str]:
+    """
+    Compute SHA-256 checksums for all files under the raw data directory.
+
+    The function writes a manifest file ``checksums.sha256`` in the same
+    directory, containing lines of the form:
+
+        <checksum>  <relative_path>
+
+    It also records the manifest in a project‑level YAML file
+    ``project_state.yaml`` under the top‑level key ``artifact_hashes``.
+
+    Returns:
+        A dictionary mapping relative file paths (POSIX style) to their
+        SHA‑256 checksum strings.
+    """
+    logger = get_logger(__name__)
+
+    # Determine the raw data directory; default to the project convention.
+    if raw_dir is None:
+        raw_dir = paths.data("raw")
+    else:
+        raw_dir = Path(raw_dir)
+
+    if not raw_dir.is_dir():
+        logger.error(f"Raw data directory does not exist: {raw_dir}")
+        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
+
+    checksum_dict: Dict[str, str] = {}
+    manifest_lines: List[str] = []
+
+    # Walk the directory (non‑recursive as per spec – only direct children)
+    for entry in raw_dir.iterdir():
+        if entry.is_file():
+            rel_path = entry.relative_to(raw_dir).as_posix()
+            # Compute SHA‑256
+            hasher = hashlib.sha256()
+            with entry.open("rb") as f:
+                for chunk in iter(lambda: f.read(8192), b""):
+                    hasher.update(chunk)
+            checksum = hasher.hexdigest()
+            checksum_dict[rel_path] = checksum
+            manifest_lines.append(f"{checksum}  {rel_path}")
+
+    # Write the manifest file
+    manifest_path = raw_dir / "checksums.sha256"
+    with manifest_path.open("w", encoding="utf-8") as mf:
+        mf.write("\n".join(manifest_lines) + ("\n" if manifest_lines else ""))
+
+    logger.info(f"Wrote checksum manifest to {manifest_path}")
+
+    # Record in project state YAML
+    state_path = Path("project_state.yaml")
+    state_data = {}
+    if state_path.exists():
+        try:
+            with state_path.open("r", encoding="utf-8") as sf:
+                state_data = yaml.safe_load(sf) or {}
+        except Exception as e:
+            logger.warning(f"Failed to read existing state file: {e}")
+
+    state_data["artifact_hashes"] = checksum_dict
+    with state_path.open("w", encoding="utf-8") as sf:
+        yaml.safe_dump(state_data, sf, sort_keys=False)
+
+    logger.info(f"Updated project state manifest at {state_path}")
+
+    return checksum_dict
+
+__all__ = [
+    "setup_logging",
+    "get_logger",
+    "load_config_env",
+    "validate_environment",
+    "calculate_vif",
+    "check_vif_threshold",
+    "calculate_flesch_kincaid",
+    "calculate_jaccard_similarity",
+    "calculate_semantic_similarity",
+    "validate_fidelity_scores",
+    "validate_readiness_for_tier_generation",
+    "compute_checksums",
+]

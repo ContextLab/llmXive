@@ -1,1 +1,1 @@
-Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning.
+Adaptive complexity scaling for personalized learning research.

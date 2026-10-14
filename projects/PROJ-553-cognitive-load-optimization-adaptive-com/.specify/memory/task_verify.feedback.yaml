@@ -1,6 +1,8 @@
 T001:
   task: c9444c37fc8152f4cb56bce6775701dcbc8eedb4b4a578a4a56d1a987836f179
 T001a:
+  reason: 'Requested task execution failed; rerun successfully: code/compute_checksums.py
+    exit=1'
   task: c236289a02008f78cec123f099317a76be0bdd211b26d215947efed260317d37
 T001b:
   task: ae86033444f1502c0eaef950e1e7e027756588892942463f20fea8fd95ea10f4

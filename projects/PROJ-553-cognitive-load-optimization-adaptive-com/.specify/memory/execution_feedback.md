@@ -31,18 +31,20 @@ Traceback (most recent call last):
 ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/run_pipeline.py -> rc=1
+thon/3.11.17/x64/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-553-cognitive-load-optimization-adaptive-com/bin/python', '/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/load_data.py', '--download']' returned non-zero exit status 1.
+
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/run_pipeline.py", line 23, in <module>
-    logging.FileHandler(PROJECT_ROOT / "logs" / "pipeline_run.log"),
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
-    return open_func(self.baseFilename, self.mode,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/logs/pipeline_run.log'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/run_pipeline.py", line 139, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/run_pipeline.py", line 114, in main
+    run_stage(stage_name, script_name, args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/run_pipeline.py", line 100, in run_stage
+    raise RuntimeError(f"Stage '{stage_name}' failed with return code {e.returncode}") from e
+RuntimeError: Stage 'Phase 2: Load & Verify Data' failed with return code 1
 
 
 ## Declared deliverables still missing
