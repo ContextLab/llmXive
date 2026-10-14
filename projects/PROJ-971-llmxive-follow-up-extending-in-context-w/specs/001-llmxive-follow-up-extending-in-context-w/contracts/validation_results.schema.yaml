@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Zero‑Shot Validation Results"
+type: object
+required:
+  - clip_id
+  - predicted_tau
+  - predicted_k
+  - auto_success
+  - baseline_success
+  - success_diff
+properties:
+  clip_id:
+    type: string
+    description: "Identifier of the test interaction clip."
+  predicted_tau:
+    type: number
+    description: "Temperature predicted by the regressor."
+  predicted_k:
+    type: integer
+    description: "Context window length predicted by the regressor."
+  auto_success:
+    type: boolean
+    description: "Whether the Auto‑ICWM run succeeded on this clip."
+  baseline_success:
+    type: boolean
+    description: "Whether the fixed‑baseline run succeeded on this clip."
+  success_diff:
+    type: integer
+    description: "1 if auto succeeded and baseline failed, -1 if opposite, 0 if tie."

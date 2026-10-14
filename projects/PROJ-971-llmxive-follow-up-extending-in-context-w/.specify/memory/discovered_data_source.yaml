@@ -1,11 +1,14 @@
 status: none
-intent: download ICWM interaction clips dataset state action observation tuples python
+intent: ICWM interaction clips equivalent Meta-World robot manipulation dataset python
   package dataset
 required_fields:
 - clip_id
-- state_sequence
-- action_sequence
-- observation_sequence
-cache_key: 03ce91418c2c80cb120c6ad8d7774424aa3a8af22752dbd6058d4840c0a2f4f3
-searched_at: '2026-10-14T04:08:49.353256+00:00'
+- states
+- actions
+- observations
+- variance
+- autocorr_lag1
+- spectral_density
+cache_key: 347e8ad142dae9847b1b231de335c4d9762fa01810086d8e31232ec3b2f318e1
+searched_at: '2026-10-14T18:43:32.069227+00:00'
 retry_count: 1

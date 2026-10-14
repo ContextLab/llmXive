@@ -13,7 +13,7 @@ The researcher needs to process raw interaction clips (state-action-observation 
 
 **Why this priority**: This is the data ingestion and feature engineering layer. If the system cannot reliably extract the statistical properties of the latent trajectories, the entire hypothesis regarding "latent complexity" cannot be tested. It is the prerequisite for all downstream modeling.
 
-**Independent Test**: Can be fully tested by running the extraction pipeline on a small, fixed subset of 50 interaction clips and verifying that the output CSV contains the required columns (clip_id, variance, autocorr_lag1, spectral_density) with non-null, finite numerical values.
+**Independent Test**: Can be fully tested by running the extraction pipeline on a small, fixed subset of interaction clips and verifying that the output CSV contains the required columns (clip_id, variance, autocorr_lag1, spectral_density) with non‑null, finite numerical values.
 
 **Acceptance Scenarios**:
 
