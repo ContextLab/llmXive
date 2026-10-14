@@ -54,9 +54,10 @@ exclude = '''
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-# Enable a harmless rule set to guarantee non‑empty select.
-select = ["I001"]
-# Combine ignored codes into a single list.
+# We select 'F' (Pyflakes) as the primary rule set to ensure real checks are enabled
+# while minimizing failures on stylistic issues (like import order) in existing code.
+select = ["F"]
+# Ignore common research-code patterns: module level imports not at top, and ambiguous variable names.
 ignore = ["E402", "E741"]
 
 [tool.pytest.ini_options]

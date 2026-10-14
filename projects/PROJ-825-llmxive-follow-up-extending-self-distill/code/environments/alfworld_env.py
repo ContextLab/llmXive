@@ -39,9 +39,6 @@ class ALFWorldWrapper:
         self.env: Any = None
         self._initialized = False
 
-    # ------------------------------------------------------------------ #
-    # Public API expected by the training loop / tests
-    # ------------------------------------------------------------------ #
     def reset(self) -> Tuple[str, Dict]:
         """
         Reset the environment and return the initial observation and an info dict.
@@ -54,10 +51,8 @@ class ALFWorldWrapper:
         if not self._initialized:
             self._initialize_env()
 
-        # The real ALFWorld environment returns a tuple (observation, info).
-        # We forward that directly.
-        observation, info = self.env.reset()
-        return observation, info
+        # Forward the reset call to the real ALFWorld environment.
+        return self.env.reset()
 
     def step(self, action: str) -> Tuple[str, float, bool, Dict]:
         """
@@ -75,22 +70,17 @@ class ALFWorldWrapper:
         if not self._initialized:
             self._initialize_env()
 
-        observation, reward, done, info = self.env.step(action)
-        return observation, reward, done, info
+        # Forward the step call to the real ALFWorld environment.
+        return self.env.step(action)
 
-    # ------------------------------------------------------------------ #
-    # Internal helpers
-    # ------------------------------------------------------------------ #
     def _initialize_env(self) -> None:
         """
         Lazily instantiate the underlying ALFWorld environment.
 
         The ALFWorld package provides the ``AlfredTWEnv`` class. If the class
-        cannot be imported (e.g. due to version incompatibility), a clear
-        ``RuntimeError`` is raised – there is no silent fallback.
+        cannot be imported, a clear ``RuntimeError`` is raised.
         """
         try:
-            # The canonical class name in the alfworld package.
             from alfworld import AlfredTWEnv
         except Exception as e:
             raise RuntimeError(

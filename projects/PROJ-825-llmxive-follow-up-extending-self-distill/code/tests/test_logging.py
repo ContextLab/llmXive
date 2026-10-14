@@ -10,6 +10,7 @@ record (including fields required by the contract schema) and a minimal
 """
 import json
 import csv
+import yaml
 from pathlib import Path
 
 import jsonschema
@@ -84,7 +85,7 @@ def test_logger_round_trip(tmp_path):
     # 5. Validate the training record against the JSON schema.
     # ------------------------------------------------------------------
     with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
-        schema = json.load(f)
+        schema = yaml.safe_load(f)
 
     jsonschema.validate(instance=training_records[0], schema=schema)
 

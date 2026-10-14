@@ -1,13 +1,12 @@
 T001:
   c: true
-  h: 5073806e1847471539ddc207fe841551e790745f8f56b392274f1c8ac7563be8
+  h: ff98c462993f93e35fb5b44a176e54a6a996caf5294a54f1b541286b0b9e21f4
   r: 'All required directories exist and are non-empty: `code/agents/`, `code/environments/`,
-    `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/` (each with `__init__.py`
-    and real module files), `code/config.py` (5.8KB of substantive configuration code),
-    and `data/` plus `data/processed/` (with `.gitkeep` and run artifacts). The structure
-    matches the plan.md layout; the extra files (main.py, scripts, etc.) are additions
-    from later tasks, not defects.'
-  sig: a1f52dea767477646144775e0b6ef577826f73826a18dd77ce043fd0fc19ec11
+    `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/` (with `__init__.py`
+    package markers), `code/config.py` (5.8KB of real configuration code), and `data/`
+    with `data/processed/` (containing run artifacts). The task only asked for the
+    project root structure, which is fully present.'
+  sig: bcad7ff49e4f85600de80a773f7436911b1f5905606b5b43e23ece9db3f48f1d
 T004:
   c: true
   h: bb46065c7c5ac0aeef6c8f1aed39c4694a470ae5d5a3a7f2d28e7bd7456a7e2c
@@ -30,29 +29,18 @@ T006:
     \ is the student model name \"Qwen2.5-1.5B-Instruct\" vs. the spec's \"Qwen2.5-1.7B\"\
     , which does not undermine the task's stated verification criteria."
   sig: a0942592e9bbee11e320e3cdf6b117a043d0c02d2c025b19135ebc84853dbc50
-T007:
-  c: false
-  h: 95425911f780c2f30a6b8a2682fe4b78956255809851340bd06fb3a1212672ec
-  r: The required schema `contracts/training_run.schema.yaml` is MISSING, so the test's
-    schema validation cannot work; moreover the test reads it with `json.load` despite
-    the `.yaml` extension. The actual execution record shows the test run failed (exit
-    4) due to a malformed `code/pyproject.toml` ("Cannot overwrite a value at line
-    61"), so there is no evidence the round-trip test ever passed. Fix the pyproject
-    config, create the schema file (and parse it as YAML), and re-run the test to
-    completion.
-  sig: e20d9db1b25e1d09c9ae1ec0c431cb8d1cb202e10f54b52c6ce543a19e8bb705
 T008:
   c: false
-  h: cf5551ebc2b437f60365719052f4c16926753a3eff8b53422370e275e3c7de31
-  r: "Both files exist and do fail loudly on import errors (no mock fallback), but\
-    \ their `reset`/`step`/`_initialize_env` methods are explicit placeholders returning\
-    \ fabricated strings (\"Reset ALFWorld: ...\", \"Executed: {action}\", reward\
-    \ 0.0) with comments saying \"In a real implementation, this would interface with\
-    \ the ALFWorld API\" \u2014 they never actually instantiate or interact with the\
-    \ pip-installed `alfworld`/`webshop` packages. The wrappers must be rewritten\
-    \ to genuinely construct and drive the underlying environments (e.g., alfworld's\
-    \ `AlfredTWEnv`/handler and the WebShop env API), not just chec"
-  sig: 9964b232455a9408222b11a4fa6a156d292627523116148527fa51a0ee0a0326
+  h: cfc4ad8d3875690ee748fd856df28252c255be429ade795cc2c283a6ba63e382
+  r: 'The wrapper files exist and do raise `RuntimeError` on missing packages with
+    no mock fallback, but the recorded test run (`code/.tasks/T008...log`, exit 2)
+    shows the `environments` package is broken: `code/environments/__init__.py` tries
+    to import `create_alfworld_env` and `verify_alfworld_install`, which do not exist
+    in `alfworld_env.py`, so importing the wrapper via the package fails with an `ImportError`
+    unrelated to the intended loud-failure behavior. Fix `__init__.py` (or add the
+    missing helpers) and re-run `code/tests/test_environment_wrappers.py` so it passes
+    and actually demonstrates t'
+  sig: 9221932d337bf2e41a94a348952915bc9b27d6c38e6e00fae94ae3a8b8af75a2
 T009:
   c: false
   h: bfac9f2149ee8af4f57eb50ff96760cd521d5f5ffccb072cc407ba1d7ae05f8c
