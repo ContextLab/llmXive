@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T01:43:21.272198Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-118-investigating-the-neural-correlates-of-p
-last_run_id: 8e0e8cf2-db4a-475e-b42c-dc1ba113604b
+last_run_id: 27c63f80-78c8-4335-ba39-bd4d40b48aac
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p
 title: Investigating the Neural Correlates of Predictive Coding Errors in Auditory
   Perception
-updated_at: '2026-10-14T20:25:45.406671Z'
+updated_at: '2026-10-14T20:25:58.558627Z'
