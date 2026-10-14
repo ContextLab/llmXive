@@ -1,12 +1,6 @@
 T001:
-  reason: 'The directory layout is only partially evidenced (code/, data/, tests/
-    exist, but docs/ and contracts/ are not confirmed), and `code/pyproject.toml`
-    lists dependencies without any version pins ("pandas", "matplotlib", etc.), contradicting
-    the requirement to install *pinned* dependencies. There is also no evidence of
-    an actual install (e.g., the `docs/install_log.txt` the quickstart claims is written
-    by `setup_project.py` is not present in the evidence), so the dependency installation
-    claim is unverified. Fix: add version pins to `code/pyproject.toml`/`requirements.txt`,
-    confirm `docs/` and `co'
+  reason: 'Requested task execution failed; rerun successfully: code/setup_project.py
+    exit=1'
   task: f84e5a7f7565df937455ce82d3fea9960f7317d752d2d5ab5b59504f63ac3862
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/thin_slice.py

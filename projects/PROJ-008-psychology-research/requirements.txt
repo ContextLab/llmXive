@@ -1,17 +1,15 @@
-# Root dependency manifest for PROJ-008-psychology-research.
-# Mirrors code/pyproject.toml (the authoritative project config).
-# The platform pre-installs numpy/pandas/scipy/matplotlib/scikit-learn/
-# statsmodels/seaborn/pytest/PyYAML/requests/jsonschema; they are listed
-# here so a fresh environment reproduces the same stack.
-pandas
-numpy
-scipy
-scikit-learn
-statsmodels
-matplotlib
-seaborn
-requests
-pyyaml
-jsonschema
-pydantic
-pytest
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.0
+matplotlib==3.8.4
+scikit-learn==1.5.0
+statsmodels==0.14.2
+requests==2.32.3
+pyyaml==6.0.1
+pytest==8.2.2
+bayesmeta==2.0.0
+pdfplumber==0.10.4
+pytesseract==0.3.10
+pydantic==2.7.1
+ruff==0.4.2
+black==24.3.0

@@ -1,132 +1,123 @@
-"""T001: Establish the authoritative project layout and record an
-environment snapshot proving the pinned dependencies from
-code/pyproject.toml are installed and importable.
-
-Idempotent: safe to re-run. Creates the directory tree required by the
-task verification:
-
-    code/{data,analysis,viz,lib,utils,reporting}
-    data/{raw,processed,results}
-    docs/ contracts/ tests/{unit,integration,contract}
-
-and writes docs/install_log.txt (the install/environment evidence).
+#!/usr/bin/env python
 """
-import sys
-import platform
+Project layout and dependency verification script for T001.
+
+Creates the authoritative directory structure under the project root,
+checks that all pinned dependencies declared in ``code/pyproject.toml``
+are importable, and writes a JSON install log to ``docs/install_log.txt``.
+
+The script is idempotent – running it multiple times will not error
+and will simply ensure the directories exist.
+"""
+
+import importlib
+import json
 from datetime import datetime, timezone
 from pathlib import Path
-from importlib import metadata
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+from llmxive_toolkit import get_logger
 
-DIRECTORIES = [
-    "code/data",
-    "code/analysis",
-    "code/viz",
-    "code/lib",
-    "code/utils",
-    "code/reporting",
-    "data/raw",
-    "data/processed",
-    "data/results",
-    "docs",
-    "contracts",
-    "tests/unit",
-    "tests/integration",
-    "tests/contract",
-]
+log = get_logger(__name__)
 
-# Dependencies pinned in code/pyproject.toml (plus the platform-provided
-# scientific stack the analysis relies on).
-PINNED_DEPENDENCIES = [
-    "pandas",
-    "numpy",
-    "scipy",
-    "scikit-learn",
-    "statsmodels",
-    "matplotlib",
-    "seaborn",
-    "requests",
-    "pyyaml",
-    "jsonschema",
-    "pydantic",
-    "pytest",
-]
 
-def ensure_layout() -> None:
-    """Create every required directory and a .gitkeep placeholder."""
-    for rel in DIRECTORIES:
-        d = PROJECT_ROOT / rel
-        d.mkdir(parents=True, exist_ok=True)
-        keep = d / ".gitkeep"
-        if not any(p for p in d.iterdir() if p.name != ".gitkeep"):
-            keep.touch()
-    print("Directory layout verified:")
-    for rel in DIRECTORIES:
-        print(f"  {rel}/")
+def _load_pyproject_dependencies() -> list[str]:
+    """Parse ``code/pyproject.toml`` and return the raw dependency strings."""
+    import tomllib
 
-def snapshot_environment() -> Path:
-    """Record installed versions of the pinned dependencies.
+    pyproject_path = Path(__file__).resolve().parents[1] / "pyproject.toml"
+    if not pyproject_path.is_file():
+        raise FileNotFoundError(f"pyproject.toml not found at {pyproject_path}")
 
-    Writes docs/install_log.txt with the resolved version of every
-    dependency declared in code/pyproject.toml (plus the scientific
-    stack), failing loudly if any declared dependency is missing.
+    with pyproject_path.open("rb") as f:
+        data = tomllib.load(f)
+
+    deps = data.get("project", {}).get("dependencies", [])
+    if not isinstance(deps, list):
+        raise ValueError("Invalid dependencies format in pyproject.toml")
+    return deps
+
+
+def _verify_dependencies(deps: list[str]) -> dict[str, str]:
     """
-    lines = [
-        "# Install / environment snapshot (T001)",
-        f"generated_at: {datetime.now(timezone.utc).isoformat()}",
-        f"python: {sys.version.split()[0]} ({platform.python_implementation()})",
-        f"platform: {platform.platform()}",
-        "manifest: code/pyproject.toml (authoritative project config)",
-        "",
-        "# Resolved dependency versions",
-    ]
-    missing = []
-    for dep in PINNED_DEPENDENCIES:
-        try:
-            version = metadata.version(dep)
-        except metadata.PackageNotFoundError:
-            missing.append(dep)
-            version = "NOT INSTALLED"
-        lines.append(f"{dep}=={version}")
-        print(f"  {dep}=={version}")
-    if missing:
-        raise RuntimeError(
-            "Pinned dependencies not installed: "
-            + ", ".join(missing)
-            + ". Run: pip install -r requirements.txt"
-        )
-    lines += [
-        "",
-        "# Import check",
-        "import pandas, numpy, scipy, statsmodels, matplotlib, requests OK"
-        if _import_check()
-        else "IMPORT CHECK FAILED",
-    ]
-    out = PROJECT_ROOT / "docs" / "install_log.txt"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"Environment snapshot written to {out}")
-    return out
+    Attempt to import each declared package and record its installed version.
 
-def _import_check() -> bool:
-    try:
-        import pandas  # noqa: F401
-        import numpy  # noqa: F401
-        import scipy  # noqa: F401
-        import statsmodels  # noqa: F401
-        import matplotlib  # noqa: F401
-        import requests  # noqa: F401
-    except Exception as exc:  # pragma: no cover - loud failure path
-        print(f"Import check failed: {exc}")
-        return False
-    return True
+    Raises:
+        RuntimeError: If any package cannot be imported.
+    """
+    missing = []
+    versions: dict[str, str] = {}
+
+    for dep in deps:
+        # Strip version specifiers; we only need the import name.
+        # Handles ``pkg==x.y.z`` and simple extras like ``pkg[extra]==x.y``.
+        pkg = dep.split("[", 1)[0].split("==", 1)[0].split(">=", 1)[0].split("<=", 1)[0].split("~=", 1)[0].strip()
+
+        try:
+            module = importlib.import_module(pkg)
+            ver = getattr(module, "__version__", "unknown")
+            versions[pkg] = ver
+        except Exception:  # pragma: no cover – import failure is fatal
+            missing.append(pkg)
+
+    if missing:
+        raise RuntimeError(f"Missing required dependencies: {', '.join(missing)}")
+    return versions
+
+
+def _create_directories() -> None:
+    """Create all required project folders (idempotent)."""
+    dirs = [
+        Path("code/data"),
+        Path("code/analysis"),
+        Path("code/viz"),
+        Path("code/lib"),
+        Path("data/raw"),
+        Path("data/processed"),
+        Path("data/results"),
+        Path("docs"),
+        Path("contracts"),
+        Path("tests/unit"),
+        Path("tests/integration"),
+        Path("tests/contract"),
+    ]
+
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        log.debug(f"Ensured directory exists: {d}")
+
+
+def _write_install_log(versions: dict[str, str]) -> None:
+    """Write a JSON log documenting the install timestamp and package versions."""
+    log_path = Path("docs/install_log.txt")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "dependencies": versions,
+    }
+
+    with log_path.open("w", encoding="utf-8") as f:
+        json.dump(entry, f, indent=2)
+
+    log.info(f"Install log written to {log_path}")
+
 
 def main() -> None:
-    print(f"Project root: {PROJECT_ROOT}")
-    ensure_layout()
-    snapshot_environment()
-    print("T001 setup complete.")
+    """Entry point for the setup script."""
+    log.info("Starting project layout creation and dependency verification")
+
+    # 1. Create the directory tree
+    _create_directories()
+
+    # 2. Load and verify pinned dependencies
+    deps = _load_pyproject_dependencies()
+    versions = _verify_dependencies(deps)
+
+    # 3. Record the successful verification
+    _write_install_log(versions)
+
+    log.info("Project setup completed successfully")
+
 
 if __name__ == "__main__":
     main()
