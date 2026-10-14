@@ -1,10 +1,12 @@
 T001:
-  reason: "The `src/data/download.py` script exists but the unit test `tests/unit/test_download.py`\
-    \ cannot pass because it mocks a Zenodo record ID (123456) that does not match\
-    \ the DOIs hard\u2011coded in the script (3966973/3966974), so the mocked API\
-    \ calls are never used. Moreover, the required output files `data/raw/gwtc1.h5`,\
-    \ `data/raw/gwtc2.h5`, and `data/raw/checksums.json` are absent. The task\u2019\
-    s verification conditions are therefore not met."
+  reason: "The \"downloaded\" files are not GWTC posterior samples at all: the execution\
+    \ log shows Zenodo record 3966973 served a PNG (\"xem video n\xE0o c\u1EE7a k\xEA\
+    nh youtube...png\") saved as `gwtc1.h5`, and record 3966974 served an `inscription_metadata_1804.json`\
+    \ (Sanskrit epigraphy metadata) saved as `gwtc2.h5` \u2014 the DOIs were unresolved\
+    \ claims pointing at unrelated records, and the code's fallback of \"first file\
+    \ if no .h5\" silently accepted wrong content. Additionally, `pytest tests/unit/test_download.py`\
+    \ FAILED (test_download_all, exit 1), and the \"checksum verification\" only hashes\
+    \ whatever was downloaded ra"
   task: e125bcd44b2f5eb7a0ae82bf60a9a63afcfcdbbe2d2716db10c6337263eaff7a
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/preprocess.py

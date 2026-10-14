@@ -68,9 +68,6 @@ def _select_file_info(record_meta: dict) -> Tuple[str, str]:
     """
     From the Zenodo record metadata, select the first **HDF5** file entry
     and return its ``key`` (filename) and direct download URL.
-
-    Zenodo provides a ``links`` dictionary for each file with a ``download``
-    entry that forces a download.
     """
     files = record_meta.get("files", [])
     if not files:
@@ -83,14 +80,11 @@ def _select_file_info(record_meta: dict) -> Tuple[str, str]:
             h5_file = file_entry
             break
     if h5_file is None:
-        # No explicit HDF5 file; use the first entry (may raise later when read)
         h5_file = files[0]
 
     filename = h5_file["key"]
-    # Prefer the explicit download link if present; otherwise construct it.
     download_url = h5_file.get("links", {}).get("download")
     if not download_url:
-        # Fallback to the self link with a download query parameter
         download_url = f"https://zenodo.org/records/{record_meta['id']}/files/{filename}?download=1"
     return filename, download_url
 
@@ -127,21 +121,12 @@ def _download_with_retries(url: str, dest: Path, max_attempts: int = 3) -> None:
                 backoff,
             )
             time.sleep(backoff)
-            backoff *= 2  # exponential back‑off
+            backoff *= 2
 
-# ----------------------------------------------------------------------
-# Core download routine
-# ----------------------------------------------------------------------
 def download_all() -> Dict[str, Path]:
     """
     Download all configured datasets, verify their integrity, and write a
     ``checksums.json`` manifest.
-
-    Returns
-    -------
-    dict
-        Mapping from logical name (e.g. ``gwtc1.h5``) to the absolute
-        ``Path`` of the downloaded file.
     """
     downloaded: Dict[str, Path] = {}
     for doi, target_name in DATASETS:
@@ -149,19 +134,13 @@ def download_all() -> Dict[str, Path]:
         record_meta = _fetch_record_metadata(record_id)
         source_fname, download_url = _select_file_info(record_meta)
 
-        # Destination path under data/raw/
         dest_path = paths.data("raw", target_name)
-
-        # Perform the download with retries
         _download_with_retries(download_url, dest_path)
 
-        # Verify checksum by computing SHA‑256
         sha256 = compute_file_hash(str(dest_path), algorithm="sha256")
         log.info("SHA‑256 for %s: %s", dest_path.name, sha256)
-
         downloaded[target_name] = dest_path
 
-    # Write checksums manifest
     checksums_path = paths.data("raw", "checksums.json")
     manifest = {
         name: compute_file_hash(str(p), algorithm="sha256")
@@ -174,14 +153,9 @@ def download_all() -> Dict[str, Path]:
 
     return downloaded
 
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
 def main() -> None:
     """
-    Execute the download process. This function is used when the module is
-    run as a script (``python -m src.data.download``) and will raise a
-    ``RuntimeError`` on any failure, causing the pipeline to abort loudly.
+    Execute the download process.
     """
     try:
         download_all()

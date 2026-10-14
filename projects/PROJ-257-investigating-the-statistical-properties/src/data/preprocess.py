@@ -261,8 +261,8 @@ def main() -> None:
     """
     result = preprocess()
     log.info(
-        f"Preprocessing complete. Artifacts:\\n"
-        f"  HDF5 samples: {result['samples_h5']}\\n"
+        f"Preprocessing complete. Artifacts:\n"
+        f"  HDF5 samples: {result['samples_h5']}\n"
         f"  CSV estimates: {result['point_estimates_csv']}"
     )
 
