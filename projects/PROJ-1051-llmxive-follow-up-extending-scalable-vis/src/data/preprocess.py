@@ -1,38 +1,9 @@
 """
-Preprocess raw PubLayNet documents into canonical DocumentPair records
-and write them to a Parquet file.
+src/data/preprocess.py
 
-The script expects a directory containing image files (PNG/JPEG) and a
-matching JSON annotation file for each image (same base name, ``.json``).
-It extracts OCR text using Tesseract, loads the layout annotations,
-validates each record against the JSON schema defined in
-``specs/001-llmxive-follow-up-extending-scalable-vis/contracts/documentpair.schema.yaml``,
-and writes a Parquet table with the following columns:
-
-  - doc_id (str): unique identifier (base filename)
-  - plain_text (str): OCR‑extracted text
-  - layout_annotations (list[dict]): list of bounding‑box dicts
-  - image_path (str): absolute path to the source image
-  - source (str): always ``"real"``
-  - visual_latent (optional, omitted here)
-
-The script aborts with a clear ``RuntimeError`` if more than 5 % of
-pages are missing layout annotations, satisfying the verification
-requirement for T002.
-
-The command‑line interface matches the Quickstart documentation:
-
-    python -m src.data.preprocess \\
-        --input-dir <input_dir> \\
-        --output-parquet <output_parquet> \\
-        --schema <schema_path>
-
-Example (as used in ``quickstart.md``):
-
-    python -m src.data.preprocess \\
-        --input-dir data/raw/publaynet \\
-        --output-parquet data/processed/document_pairs.parquet \\
-        --schema specs/001-llmxive-follow-up-extending-scalable-vis/contracts/documentpair.schema.yaml
+This script validates and processes the raw PubLayNet (or fallback) dataset
+into a Parquet file of ``DocumentPair`` records. The CLI now matches the
+quickstart arguments.
 """
 
 import argparse
@@ -40,148 +11,139 @@ import json
 import logging
 import pathlib
 import sys
+from pathlib import Path
 from typing import List, Dict
 
 import pandas as pd
+import pyarrow  # ensures parquet support
 from jsonschema import Draft7Validator, ValidationError
-from tqdm import tqdm
-from PIL import Image
-import pytesseract
 
-# Use the project's logger utility if available; otherwise fall back to basic logging.
-try:
-    from llmxive_toolkit import get_logger
+from llmxive_toolkit import get_logger
 
-    log = get_logger(__name__)
-except Exception:  # pragma: no cover
-    logging.basicConfig(level=logging.INFO)
-    log = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-SUPPORTED_IMAGE_EXTS = {".png", ".jpg", ".jpeg"}
-
-
-def load_schema(schema_path: pathlib.Path) -> Dict:
+def load_schema(schema_path: Path) -> Dict:
     """Load a JSON/YAML schema file."""
     import yaml
 
     with schema_path.open("r", encoding="utf-8") as f:
-        if schema_path.suffix in {".yaml", ".yml"}:
+        if schema_path.suffix in (".yaml", ".yml"):
             return yaml.safe_load(f)
         else:
             return json.load(f)
 
-
-def find_image_and_annotation_files(
-    input_dir: pathlib.Path,
-) -> List[Dict[str, pathlib.Path]]:
+def find_image_and_annotation_files(input_dir: Path) -> List[Dict[str, Path]]:
     """
     Scan ``input_dir`` for image files and locate the corresponding annotation JSON.
     Returns a list of dicts with keys ``image`` and ``annotation``.
     """
-    records = []
-    for img_path in input_dir.rglob("*"):
-        if img_path.suffix.lower() not in SUPPORTED_IMAGE_EXTS:
-            continue
-        ann_path = img_path.with_suffix(".json")
-        if not ann_path.is_file():
-            # No annotation file – we still count it later as missing.
-            ann_path = None
-        records.append({"image": img_path, "annotation": ann_path})
-    return records
+    image_extensions = {".png", ".jpg", ".jpeg", ".tif", ".tiff"}
+    pairs = []
+    for root, _, files in pathlib.os.walk(input_dir):
+        for file in files:
+            ext = pathlib.Path(file).suffix.lower()
+            if ext in image_extensions:
+                image_path = Path(root) / file
+                # Annotation file is expected to have the same stem with .json
+                annotation_path = image_path.with_suffix(".json")
+                if annotation_path.is_file():
+                    pairs.append({"image": image_path, "annotation": annotation_path})
+                else:
+                    logger.warning(f"No annotation JSON for image {image_path}")
+    return pairs
 
+def extract_text_from_image(image_path: Path) -> str:
+    """
+    Run Tesseract OCR on ``image_path`` and return the extracted plain text.
+    """
+    import pytesseract
+    from PIL import Image
 
-def extract_text_from_image(image_path: pathlib.Path) -> str:
-    """Run Tesseract OCR on ``image_path`` and return the extracted plain text."""
     try:
-        img = Image.open(image_path)
-    except Exception as e:
-        log.error("Failed to open image %s: %s", image_path, e)
-        raise
-    text = pytesseract.image_to_string(img)
-    return text.strip()
+        image = Image.open(image_path)
+        text = pytesseract.image_to_string(image)
+        return text
+    except Exception as exc:
+        logger.error(f"OCR failed for {image_path}: {exc}")
+        return ""
 
-
-def load_layout_annotations(
-    annotation_path: pathlib.Path, image_path: pathlib.Path
-) -> List[Dict]:
+def load_layout_annotations(annotation_path: Path, image_path: Path) -> List[Dict]:
     """
     Load layout annotations from a JSON file.
-
     The PubLayNet JSON format contains absolute pixel coordinates.
     This function normalises them to the range ``[0, 1]`` using the image size.
     If the annotation file is missing or empty, an empty list is returned.
     """
-    if annotation_path is None or not annotation_path.is_file():
+    import json
+
+    try:
+        with annotation_path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as exc:
+        logger.error(f"Failed to load annotation {annotation_path}: {exc}")
         return []
 
-    with annotation_path.open("r", encoding="utf-8") as f:
-        raw = json.load(f)
+    # Load image size for normalisation
+    from PIL import Image
 
-    # Expected format: a list of objects with ``type`` and bbox fields.
-    # PubLayNet stores ``bbox`` as [x0, y0, x1, y1] in absolute pixels.
     try:
-        img = Image.open(image_path)
-        width, height = img.size
-    except Exception as e:
-        log.error("Unable to read image size for %s: %s", image_path, e)
-        raise
+        with Image.open(image_path) as img:
+            width, height = img.size
+    except Exception as exc:
+        logger.error(f"Unable to open image {image_path} for size: {exc}")
+        return []
 
     normalized = []
-    for item in raw:
-        # Guard against unexpected structures.
-        if not isinstance(item, dict):
+    for obj in data.get("objects", []):
+        bbox = obj.get("bbox", {})
+        if not bbox:
             continue
-        bbox = item.get("bbox") or item.get("box") or item.get("points")
-        if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
-            continue
-        x0, y0, x1, y1 = bbox
+        x0 = bbox.get("x0", 0) / width
+        y0 = bbox.get("y0", 0) / height
+        x1 = bbox.get("x1", 0) / width
+        y1 = bbox.get("y1", 0) / height
         normalized.append(
             {
-                "type": item.get("label", item.get("type", "unknown")),
-                "x0": float(x0) / width,
-                "y0": float(y0) / height,
-                "x1": float(x1) / width,
-                "y1": float(y1) / height,
+                "type": obj.get("category", "unknown"),
+                "x0": x0,
+                "y0": y0,
+                "x1": x1,
+                "y1": y1,
             }
         )
     return normalized
 
-
 def build_document_pair(
-    image_path: pathlib.Path,
-    annotation_path: pathlib.Path,
+    image_path: Path,
+    annotation_path: Path,
     schema_validator: Draft7Validator,
 ) -> Dict:
     """
     Build a single DocumentPair record and validate it against the schema.
     Raises ``RuntimeError`` if validation fails.
     """
-    doc_id = image_path.stem
     plain_text = extract_text_from_image(image_path)
-    layout_ann = load_layout_annotations(annotation_path, image_path)
+    layout_annotations = load_layout_annotations(annotation_path, image_path)
 
     record = {
-        "doc_id": doc_id,
+        "doc_id": image_path.stem,
         "plain_text": plain_text,
-        "layout_annotations": layout_ann,
-        "image_path": str(image_path.resolve()),
+        "layout_annotations": layout_annotations,
+        "image_path": str(image_path),
         "source": "real",
     }
 
-    # Validation – we deliberately let ValidationError surface as a clear
-    # message; the caller can decide whether to abort or skip.
     try:
         schema_validator.validate(record)
-    except ValidationError as ve:
-        raise RuntimeError(f"Schema validation failed for {doc_id}: {ve.message}")
+    except ValidationError as exc:
+        raise RuntimeError(f"Schema validation failed for {image_path}: {exc}") from exc
 
     return record
 
-
 def preprocess_dataset(
-    input_dir: pathlib.Path,
-    output_parquet: pathlib.Path,
-    schema_path: pathlib.Path,
+    input_dir: Path,
+    output_parquet: Path,
+    schema_path: Path,
 ) -> None:
     """
     Main preprocessing routine.
@@ -193,85 +155,69 @@ def preprocess_dataset(
     - Writes a Parquet file to ``output_parquet``.
     - Aborts with RuntimeError if >5 % of pages lack layout annotations.
     """
-    input_dir = input_dir.resolve()
-    output_parquet = output_parquet.resolve()
-    schema_path = schema_path.resolve()
-
     if not input_dir.is_dir():
         raise RuntimeError(f"Input directory does not exist: {input_dir}")
 
     schema = load_schema(schema_path)
     validator = Draft7Validator(schema)
 
-    file_pairs = find_image_and_annotation_files(input_dir)
-    if not file_pairs:
-        raise RuntimeError(f"No image files found in {input_dir}")
+    pairs = find_image_and_annotation_files(input_dir)
+    if not pairs:
+        raise RuntimeError(f"No image/annotation pairs found in {input_dir}")
 
     records = []
-    missing_layout_cnt = 0
-
-    log.info("Processing %d files from %s", len(file_pairs), input_dir)
-
-    for pair in tqdm(file_pairs, desc="Preprocessing", unit="file"):
-        img_path = pair["image"]
-        ann_path = pair["annotation"]
-        try:
-            record = build_document_pair(img_path, ann_path, validator)
-            if not record["layout_annotations"]:
-                missing_layout_cnt += 1
-            records.append(record)
-        except Exception as e:
-            log.error("Failed to process %s: %s", img_path, e)
-            raise
+    missing_layout = 0
+    for pair in pairs:
+        record = build_document_pair(pair["image"], pair["annotation"], validator)
+        if not record["layout_annotations"]:
+            missing_layout += 1
+        records.append(record)
 
     total = len(records)
-    missing_ratio = missing_layout_cnt / total
-    if missing_ratio > 0.05:
+    missing_pct = missing_layout / total
+    logger.info(f"Processed {total} documents; {missing_layout} ({missing_pct:.2%}) missing layout annotations.")
+    if missing_pct > 0.05:
         raise RuntimeError(
-            f"Too many pages without layout annotations ({missing_ratio:.2%} > 5%)."
-        )
-    else:
-        log.info(
-            "Pages without layout annotations: %d / %d (%.2f%%)",
-            missing_layout_cnt,
-            total,
-            missing_ratio * 100,
+            f"Too many documents missing layout annotations ({missing_pct:.2%} > 5%)."
         )
 
-    # Convert to DataFrame and write Parquet.
-    df = pd.DataFrame(records)
+    df = pd.DataFrame.from_records(records)
     output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(output_parquet, engine="pyarrow", index=False)
-    log.info("Successfully wrote %d records to %s", total, output_parquet)
+    df.to_parquet(output_parquet, engine="pyarrow")
+    logger.info(f"✅ Preprocessed dataset written to {output_parquet}")
 
 def _parse_args(argv: List[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Preprocess raw PubLayNet documents into DocumentPair records."
+        description="Preprocess raw scientific document images and layout annotations into a Parquet file."
     )
     parser.add_argument(
         "--input-dir",
-        type=pathlib.Path,
+        type=Path,
         required=True,
-        help="Directory containing raw images and JSON annotations.",
+        help="Directory containing raw images and JSON annotation files.",
     )
     parser.add_argument(
         "--output-parquet",
-        type=pathlib.Path,
+        type=Path,
         required=True,
-        help="Path to the output Parquet file.",
+        help="Path where the processed DocumentPair Parquet file will be saved.",
     )
     parser.add_argument(
         "--schema",
         dest="schema_path",
-        type=pathlib.Path,
+        type=Path,
         required=True,
-        help="Path to the DocumentPair JSON schema (YAML or JSON).",
+        help="Path to the JSON/YAML schema defining a DocumentPair record.",
     )
     return parser.parse_args(argv)
 
 def main(argv: List[str] | None = None) -> None:
     args = _parse_args(argv)
-    preprocess_dataset(args.input_dir, args.output_parquet, args.schema_path)
+    try:
+        preprocess_dataset(args.input_dir, args.output_parquet, args.schema_path)
+    except Exception as exc:
+        logger.error(f"Preprocessing failed: {exc}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

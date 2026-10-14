@@ -1,36 +1,33 @@
 """
 src/data/download.py
 
-Script to download the primary and fallback scientific document corpora from HuggingFace
-without relying on the `datasets` library (which pulls in `pyarrow`, incompatible with the
-current NumPy version). It uses `huggingface_hub` to snapshot the dataset repository,
-counts pages with layout annotations by inspecting the downloaded files, and records
-SHA‑256 checksums of all downloaded files in a YAML artifact.
+Updated download script to match the quickstart CLI and handle both layout-rich
+datasets (publaynet) and generic datasets (docvqa). The script now accepts
+`--dataset-name` and `--output-dir` arguments, maps logical dataset names to
+the appropriate HuggingFace identifiers, performs primary/fallback downloads
+when needed, verifies a minimum number of pages with layout annotations, and
+records SHA‑256 checksums for all downloaded files.
 
-Usage:
-    python -m src.data.download --primary-name <logical_name> --fallback-name <logical_name>
-
-Example (as used in the CI):
-    python -m src.data/download \
-        --primary-name pubmed-layout \
-        --fallback-name docbank
+The implementation reuses the helper functions defined earlier (compute_sha256,
+log_and_store_checksums, count_pages_with_layout) and adds a small wrapper
+to orchestrate the download based on the dataset name.
 """
 
 import argparse
-import hashlib
-import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 
 import yaml
-from huggingface_hub import snapshot_download, hf_hub_url
+from huggingface_hub import snapshot_download
 
 # ----------------------------------------------------------------------
-# Helper functions
+# Helper functions (unchanged from the original implementation)
 # ----------------------------------------------------------------------
 def compute_sha256(file_path: Path) -> str:
     """Return the SHA‑256 hex digest of ``file_path``."""
+    import hashlib
+
     h = hashlib.sha256()
     try:
         with file_path.open("rb") as f:
@@ -84,37 +81,32 @@ def count_pages_with_layout(dataset_dir: Path, limit: int = 10_001) -> int:
 def download_and_save(
     logical_name: str,
     hf_names: List[str],
+    target_root: Path,
 ) -> Tuple[int, Optional[Path]]:
     """
     Try a list of HuggingFace dataset identifiers for a logical dataset.
-    The first successful download is saved under ``data/raw/<logical_name>``.
+    The first successful download is saved under ``target_root / logical_name``.
     Returns the number of pages with layout annotations and the path to the saved
     dataset directory (or ``None`` on failure).
     """
     for hf_name in hf_names:
         print(f"Attempting to download logical dataset '{logical_name}' using HF identifier '{hf_name}'...")
         try:
-            # ``snapshot_download`` clones the entire dataset repository locally.
-            out_dir = Path("data/raw") / logical_name
+            out_dir = target_root / logical_name
             out_dir.mkdir(parents=True, exist_ok=True)
 
-            # The download is performed into a temporary directory; we then move it.
+            # ``snapshot_download`` clones the entire dataset repository locally.
             temp_dir = snapshot_download(
                 repo_id=hf_name,
                 repo_type="dataset",
                 local_dir=out_dir,
-                # Pull everything – the datasets are modest in size for the CI runner.
-                # ``allow_patterns`` could be used to narrow the download, but we keep it simple.
                 token=False,
             )
-            # ``snapshot_download`` returns the path it wrote to; it should be ``out_dir``.
             dataset_path = Path(temp_dir)
 
-            # Compute page count using the lightweight heuristic.
             page_count = count_pages_with_layout(dataset_path)
             print(f"Successfully downloaded '{hf_name}'. Pages with layout (estimated): {page_count}")
 
-            # Record checksums.
             checksum_file = Path("artifacts") / "checksums" / "downloads.yaml"
             log_and_store_checksums(hf_name, dataset_path, checksum_file)
 
@@ -126,55 +118,96 @@ def download_and_save(
 
 
 # ----------------------------------------------------------------------
-# Main download routine
+# Main download routine (adapted for the quickstart interface)
 # ----------------------------------------------------------------------
-def download_corpus(
-    primary_name: str,
-    fallback_name: str,
+def download_dataset(
+    dataset_name: str,
+    output_dir: Path,
     min_pages: int = 10_000,
 ) -> None:
     """
-    Download ``primary_name`` and, if necessary, ``fallback_name``.
-    Verify that the combined number of pages with layout annotations meets ``min_pages``.
+    Dispatches the download based on ``dataset_name``.
+    - ``publaynet``: primary = pubmed-layout, fallback = docbank, with a
+      minimum page‑count check.
+    - ``docvqa`` (or any other name): a direct snapshot download without
+      page‑count validation.
     """
-    # Mapping logical names to a list of possible HF identifiers (canonical, mirrors, etc.)
-    name_to_hf: Dict[str, List[str]] = {
-        "docbank": ["docbank", "nielsr/docbank", "layoutparser/docbank"],
-        "pubmed-layout": [
-            "allenai/pubmed-layout",
-            "nielsr/pubmed-layout",
-            "layoutparser/pubmed-layout",
-        ],
-    }
+    dataset_name = dataset_name.lower()
+    if dataset_name == "publaynet":
+        # Mapping logical names to possible HF identifiers.
+        name_to_hf: Dict[str, List[str]] = {
+            "pubmed-layout": [
+                "allenai/pubmed-layout",
+                "nielsr/pubmed-layout",
+                "layoutparser/pubmed-layout",
+            ],
+            "docbank": [
+                "docbank",
+                "nielsr/docbank",
+                "layoutparser/docbank",
+            ],
+        }
 
-    primary_hfs = name_to_hf.get(primary_name, [primary_name])
-    fallback_hfs = name_to_hf.get(fallback_name, [fallback_name])
+        primary_logical = "pubmed-layout"
+        fallback_logical = "docbank"
 
-    # 1. Try primary dataset
-    primary_count, _ = download_and_save(primary_name, primary_hfs)
-    total_count = primary_count
+        primary_hfs = name_to_hf.get(primary_logical, [primary_logical])
+        fallback_hfs = name_to_hf.get(fallback_logical, [fallback_logical])
 
-    # 2. If primary is insufficient or failed, try fallback
-    if total_count < min_pages:
-        print(
-            f"Primary dataset '{primary_name}' provided {total_count} pages, "
-            f"which is less than the minimum {min_pages}. Attempting fallback..."
+        # 1. Try primary dataset
+        primary_count, primary_path = download_and_save(
+            logical_name="publaynet",  # we store under the user‑visible name
+            hf_names=primary_hfs,
+            target_root=output_dir,
         )
-        fallback_count, _ = download_and_save(fallback_name, fallback_hfs)
-        total_count += fallback_count
+        total_count = primary_count
 
-    print("\n=== Summary of layout‑annotation pages ===")
-    print(f"  Primary ({primary_name}): {primary_count}")
-    print(f"  Fallback ({fallback_name}): {total_count - primary_count}")
-    print(f"  TOTAL: {total_count}")
+        # 2. If primary insufficient, try fallback
+        if total_count < min_pages:
+            print(
+                f"Primary dataset provided {total_count} pages, which is less than the required {min_pages}. "
+                "Attempting fallback download..."
+            )
+            fallback_count, _ = download_and_save(
+                logical_name="publaynet",
+                hf_names=fallback_hfs,
+                target_root=output_dir,
+            )
+            total_count += fallback_count
 
-    if total_count < min_pages:
-        raise RuntimeError(
-            f"Insufficient total pages with layout annotations: {total_count} "
-            f"(minimum required is {min_pages}). Pipeline aborting as per FR‑007."
-        )
+        print("\n=== Summary of layout‑annotation pages ===")
+        print(f"  Primary (pubmed-layout): {primary_count}")
+        print(f"  Fallback (docbank) added: {total_count - primary_count}")
+        print(f"  TOTAL: {total_count}")
+
+        if total_count < min_pages:
+            raise RuntimeError(
+                f"Insufficient total pages with layout annotations: {total_count} "
+                f"(minimum required is {min_pages}). Pipeline aborting as per FR‑007."
+            )
+        else:
+            print(f"✅ Sufficient pages ({total_count} ≥ {min_pages}) – proceeding.")
     else:
-        print(f"✅ Sufficient pages ({total_count} ≥ {min_pages}) – proceeding.")
+        # Generic download – no layout count required.
+        hf_name = dataset_name
+        print(f"Downloading generic dataset '{hf_name}'...")
+        try:
+            out_dir = output_dir / dataset_name
+            out_dir.mkdir(parents=True, exist_ok=True)
+
+            snapshot_download(
+                repo_id=hf_name,
+                repo_type="dataset",
+                local_dir=out_dir,
+                token=False,
+            )
+
+            checksum_file = Path("artifacts") / "checksums" / "downloads.yaml"
+            log_and_store_checksums(hf_name, out_dir, checksum_file)
+
+            print(f"✅ Dataset '{hf_name}' downloaded successfully to {out_dir}.")
+        except Exception as exc:
+            raise RuntimeError(f"Failed to download dataset '{hf_name}': {exc}") from exc
 
 
 # ----------------------------------------------------------------------
@@ -182,24 +215,24 @@ def download_corpus(
 # ----------------------------------------------------------------------
 def main(argv: List[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
-        description="Download primary and fallback corpora for the llmXive layout‑distillation pipeline."
+        description="Download datasets required for the llmXive layout‑distillation pipeline."
     )
     parser.add_argument(
-        "--primary-name",
+        "--dataset-name",
         type=str,
         required=True,
-        help="Logical name of the primary corpus (e.g., 'pubmed-layout').",
+        help="Logical dataset identifier expected by the quickstart (e.g., 'publaynet' or 'docvqa').",
     )
     parser.add_argument(
-        "--fallback-name",
-        type=str,
+        "--output-dir",
+        type=Path,
         required=True,
-        help="Logical name of the fallback corpus (e.g., 'docbank').",
+        help="Base directory where the dataset will be stored (e.g., 'data/raw').",
     )
     args = parser.parse_args(argv)
 
     try:
-        download_corpus(args.primary_name, args.fallback_name)
+        download_dataset(args.dataset_name, args.output_dir)
     except Exception as exc:
         print(f"\n❌ ERROR: {exc}", file=sys.stderr)
         sys.exit(1)

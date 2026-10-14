@@ -1,4 +1,4 @@
-# Core scientific stack (already available in the runner)
+# Core dependencies (already available in the environment)
 numpy
 pandas
 scipy
@@ -12,7 +12,6 @@ requests
 jsonschema
 psutil
 
-# Additional dependencies required for latent generation (CPU‑only)
-torch==2.3.0
-transformers==4.44.0
-pillow==10.3.0
+# Additional dependencies required for this feature
+huggingface_hub
+pyarrow

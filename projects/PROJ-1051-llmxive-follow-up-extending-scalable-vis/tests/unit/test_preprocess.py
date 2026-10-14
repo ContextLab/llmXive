@@ -1,64 +1,58 @@
 """
-Unit test for the ``src.data.preprocess`` module.
+Unit test for the preprocessing script.
 
-The test uses a tiny synthetic dataset placed under ``tests/data/sample``.
-The sample consists of a single 1‑pixel white PNG image and a matching
-annotation JSON file.  Because the image is trivial, OCR returns an empty
-string – this is acceptable for the purpose of the test.
-
-The test checks that:
-  * The script runs without raising.
-  * The resulting Parquet file exists.
-  * The record complies with the JSON schema.
+It creates a tiny synthetic PubLayNet‑style directory structure with one
+image and a matching JSON annotation, runs the preprocess script, and checks
+that the resulting Parquet file exists and contains the expected columns.
 """
 
-import pathlib
-import json
+import os
 import shutil
+from pathlib import Path
 
 import pandas as pd
 import pytest
-from jsonschema import Draft7Validator
 
-from src.data import preprocess
+from src.data.preprocess import preprocess_dataset
 
-SAMPLE_ROOT = pathlib.Path(__file__).parent / "data" / "sample"
-OUTPUT_PARQUET = pathlib.Path("data/processed/test_document_pairs.parquet")
+@pytest.fixture
+def tiny_dataset(tmp_path: Path):
+    # Create a minimal image (white 100x100 PNG)
+    img_path = tmp_path / "sample.png"
+    img_path.parent.mkdir(parents=True, exist_ok=True)
+    from PIL import Image
 
-@pytest.fixture(scope="module")
-def prepare_sample(tmp_path_factory):
-    # Copy the tiny sample into a temporary directory to avoid polluting the repo.
-    tmp_dir = tmp_path_factory.mktemp("sample_input")
-    shutil.copytree(SAMPLE_ROOT, tmp_dir, dirs_exist_ok=True)
-    return tmp_dir
+    Image.new("RGB", (100, 100), color="white").save(img_path)
 
-def test_preprocess_runs_and_validates(prepare_sample):
-    schema_path = pathlib.Path(
-        "specs/001-llmxive-follow-up-extending-scalable-vis/contracts/documentpair.schema.yaml"
-    )
-    # Ensure any previous output is removed.
-    if OUTPUT_PARQUET.is_file():
-        OUTPUT_PARQUET.unlink()
+    # Create a matching annotation JSON
+    ann_path = tmp_path / "sample.json"
+    ann_content = {
+        "objects": [
+            {
+                "category": "text_block",
+                "bbox": {"x0": 10, "y0": 10, "x1": 90, "y1": 20},
+            }
+        ]
+    }
+    with ann_path.open("w", encoding="utf-8") as f:
+        import json
 
-    # Run the preprocessing function.
-    preprocess.preprocess_dataset(
-        input_dir=prepare_sample,
-        output_parquet=OUTPUT_PARQUET,
-        schema_path=schema_path,
-    )
+        json.dump(ann_content, f)
 
-    # Verify Parquet file was created.
-    assert OUTPUT_PARQUET.is_file(), "Parquet output was not created"
+    return tmp_path
 
-    # Load the Parquet and validate against the schema.
-    df = pd.read_parquet(OUTPUT_PARQUET, engine="pyarrow")
-    assert not df.empty, "Resulting DataFrame is empty"
+def test_preprocess_creates_parquet(tiny_dataset: Path, tmp_path: Path):
+    output_parquet = tmp_path / "out.parquet"
+    schema_path = Path("contracts/documentpair.schema.yaml")
 
-    schema = json.loads(schema_path.read_text())
-    validator = Draft7Validator(schema)
+    # Run the preprocessing
+    preprocess_dataset(tiny_dataset, output_parquet, schema_path)
 
-    for _, row in df.iterrows():
-        record = row.to_dict()
-        # ``visual_latent`` may be missing – remove it if present for validation.
-        record.pop("visual_latent", None)
-        validator.validate(record)
+    # Verify Parquet output
+    assert output_parquet.is_file()
+    df = pd.read_parquet(output_parquet, engine="pyarrow")
+    expected_cols = {"doc_id", "plain_text", "layout_annotations", "image_path", "source"}
+    assert expected_cols.issubset(set(df.columns))
+    # Basic sanity checks
+    assert len(df) == 1
+    assert df.iloc[0]["doc_id"] == "sample"

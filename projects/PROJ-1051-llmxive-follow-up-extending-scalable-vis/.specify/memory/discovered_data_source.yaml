@@ -1,5 +1,5 @@
 status: none
-intent: download PubLayNet dataset and DocVQA benchmark python package dataset
+intent: PubLayNet layout dataset with DocVQA benchmark python package dataset
 required_fields:
 - document_id
 - page_number
@@ -10,8 +10,8 @@ required_fields:
 - bbox_ymin
 - bbox_xmax
 - bbox_ymax
-- bbox_category
+- category_label
 - associated_text
-cache_key: c15c11e78d7187730c2592bbeb49b5fbe988122198fa38853497459089cb2158
-searched_at: '2026-10-14T13:49:10.142816+00:00'
+cache_key: f462641155ddb963a03e988dfa45fe4d89fe96822b8117777db66df3954e218a
+searched_at: '2026-10-14T14:17:24.823319+00:00'
 retry_count: 1
