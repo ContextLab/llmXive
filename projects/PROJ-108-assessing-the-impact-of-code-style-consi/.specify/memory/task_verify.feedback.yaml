@@ -1,13 +1,6 @@
 T001:
   task: 62cb2feede7c681020f6bcbaa44ba66391b43be99cbb6153f5e4fc7f897c66f1
 T002:
-  reason: "The file `code/requirements.txt` exists and is non-empty, but its dependencies\
-    \ are not pinned \u2014 every entry uses `>=` range constraints (e.g., `torch>=2.0.0`,\
-    \ `radon>=6.0.0`) rather than exact `==` versions, which directly contradicts\
-    \ the task's \"pinned dependencies\" requirement. There is also no evidence of\
-    \ Python 3.10 project initialization (e.g., a `pyproject.toml`/`setup.py` declaring\
-    \ `requires-python = \"3.10\"` or equivalent). Fix by pinning each dependency\
-    \ to an exact version and adding a Python 3.10 project configuration."
   task: dcb54c6522e490e7d936da9b5399282e65b6009af9c638afeaeceedb78cd7f63
 T003:
   reason: "No artifacts were provided or found on disk for this task \u2014 there\
@@ -21,13 +14,10 @@ T003:
 T004:
   task: 886dc0349cf670fa6ed74c6eb992b73bab1d2c426092b7ebdbd4fcda57811e0d
 T005:
-  reason: 'The script `code/00_hash_artifacts.py` exists and is a genuine, functional
-    implementation (SHA-256 hashing, recursive artifact discovery, YAML state update).
-    However, there is no evidence it was ever run or that `state/hashes.yaml` actually
-    contains computed hashes: the collector only confirms the file exists in `state/`
-    without showing its contents, and no execution output/log is supplied. Additionally,
-    the underlying data artifacts are effectively empty (e.g., `data/processed/style_scores_threshold_0.25_0.75.csv`
-    contains only a header row), so a run would have hashed little or no real data'
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
   task: be0d0c8bef8a496203767168e4151377da74a784584a5195245268994038b939
 T006:
   reason: 'The file exists and contains genuine implementations of BLEU, F1, Cohen''s

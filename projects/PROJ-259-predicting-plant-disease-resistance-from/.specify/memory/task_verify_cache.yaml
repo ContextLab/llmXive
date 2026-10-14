@@ -1,18 +1,20 @@
 T002:
-  c: true
-  h: d5ce57fbc75374f9d776e74119151f82c9b7e93c2de02667f530829dc6d278d5
-  r: "Checked `code/download.py` and `code/preprocess.py` (both non\u2011empty and\
-    \ runnable) and the execution logs (`.tasks/T002.code_download.py.log`, `.tasks/T002.code_preprocess.py.log`)\
-    \ showing successful runs that created `data/raw/` with the three CSVs and `data/processed/combined_features.csv`\
-    \ without errors."
-  sig: eaf8a16b7dd0250c703a37bf1c1b2593f9e45df0b6b0b5809c3732414f5c421e
+  c: false
+  h: a6fe9df5db7cecc0019edd0d94de89b4b4912965228323de3c079df8658606be
+  r: "The repository contains `code/download.py` and `code/preprocess.py`, but there\
+    \ is no evidence that they were actually run \u2013 the `data/raw/` and `data/processed/`\
+    \ directories only contain a `.gitkeep` placeholder and no generated CSV files.\
+    \ Execution logs or the expected output files (`genotype.csv`, `metabolomics.csv`,\
+    \ `phenotype.csv`, and `combined_features.csv`) are missing, so the verification\
+    \ step is not satisfied."
+  sig: ded03b6e53360c8769aaa8b2b1e2f9e4779df5be6994f5fa555354a806f3a718
 T003:
   c: true
-  h: 8b09bd246e9aac2ddb69d4ddf48d2d2ac0bcf59406fb19ed14602234d69341c9
-  r: Checked `code/cli.py` which implements the `--demo` flag and writes `data/results/small_demo.csv`,
-    and verified that `small_demo.csv` exists with the required columns `sample_id,feature_1,prediction`
-    and that the execution log shows a successful run of `python -m code.cli --demo`.
-  sig: 9616b5c654a76ba2c40688d02853ea48b038e59a30ac8663a5917a77d8678eef
+  h: 280692b4248c89729f52ade4f2139a40106f990e51b6b1e859c5d2b6421e41db
+  r: Checked `code/cli.py` which implements a `--demo` mode that writes `data/results/small_demo.csv`,
+    and verified that `small_demo.csv` exists and contains the required columns `sample_id`,
+    `feature_1`, and `prediction`.
+  sig: 74d6f5432208354dc2f29fe30d7c2c8f4e57d1ad973a54d21460a1da9cc378b8
 T004:
   c: false
   h: b1e52f89a9ebffc749c822f7328a279713ddf0d4fa5b7290dff5df2db68ff616

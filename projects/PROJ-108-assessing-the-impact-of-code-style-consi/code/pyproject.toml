@@ -1,0 +1,19 @@
+[tool.black]
+# Black's line length should match flake8's max-line-length
+line-length = 88
+# Target Python version
+target-version = ['py310']
+# Exclude directories that should not be formatted
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+  | migrations
+  | data
+  | tests
+)/
+'''
+# Include only Python source files
+include = '\.pyi?$'

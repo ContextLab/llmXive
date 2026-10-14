@@ -1,23 +1,18 @@
 T001:
   c: true
-  h: 1fc0ad26ed9861cb2b18042591ae337999150f4786d3edd8d2c6940fab8c388e
-  r: All eight required directories (`code/`, `data/`, `tests/`, `data/raw/`, `data/processed/`,
-    `data/metadata/`, `tests/unit/`, `tests/integration/`) exist at the project root,
-    each non-empty (containing at least `.gitkeep` and, in several cases, substantive
-    scripts, tests, and data files). The task only asked for directory creation, which
-    is fully satisfied.
-  sig: 53ed9916b2267efd2088b6dc859dd887275937a642a7d40a876b53ba7092497a
+  h: 329e90ca1f64cfd03d6dad19ff1295b18f942d0e554ddb0c859302a05e0e6dee
+  r: "Checked the collector\u2011confirmed listings showing that `code/`, `data/`,\
+    \ `tests/`, `data/raw/`, `data/processed/`, `data/metadata/`, `tests/unit/`, and\
+    \ `tests/integration/` directories all exist in the project root."
+  sig: 455469765db419928ca55d955bcf6a4755c294c496429ce57b562819fcf3e180
 T002:
-  c: false
-  h: 2cc433337ffd94a1dd1761b977218a757c8d3b402d775758fe40d8c4ae6af9de
-  r: "The file `code/requirements.txt` exists and is non-empty, but its dependencies\
-    \ are not pinned \u2014 every entry uses `>=` range constraints (e.g., `torch>=2.0.0`,\
-    \ `radon>=6.0.0`) rather than exact `==` versions, which directly contradicts\
-    \ the task's \"pinned dependencies\" requirement. There is also no evidence of\
-    \ Python 3.10 project initialization (e.g., a `pyproject.toml`/`setup.py` declaring\
-    \ `requires-python = \"3.10\"` or equivalent). Fix by pinning each dependency\
-    \ to an exact version and adding a Python 3.10 project configuration."
-  sig: c5a7c1e6581a5767167d2fba751bd90e44de51f527de41b1c2a6621211b895dd
+  c: true
+  h: df27ee85c97eb4fe505f5da3cec8edec9d630ccca6008584f6a43d52c41f59d5
+  r: "Checked the `code/requirements.txt` file (resolved path `code/requirements.txt`,\
+    \ 445\u202Fbytes) which contains a full list of exact version\u2011pinned dependencies\
+    \ appropriate for a Python\u202F3.10 project. The file is present, non\u2011empty,\
+    \ and meets the task\u2019s requirement."
+  sig: 9ca83e5f4c1435daca236242ba23bc051d1e1753383a6585194df6cb7dbaba48
 T003:
   c: false
   h: 8df8b0688fba9130eb80c18bd83a4b5081d30bab37eb05ce16ae78c407e2051b
@@ -66,6 +61,15 @@ T007:
   r: "No evidence was provided showing that the `data/raw/` and `data/metadata/` directories\
     \ actually exist in the repository, nor that each contains a `.gitkeep` placeholder\
     \ file. The implementer\u2019s claim cannot be verified without these artifacts."
+T008:
+  c: true
+  h: e08cb83f512a4eb4392e64b1b2da09eb5291fac34e736f59648902fd808c5fc1
+  r: "The `code/utils/model_loader.py` file (5847\u202Fbytes) is present and contains\
+    \ concrete implementations for loading a transformer model and tokenizer on CPU\
+    \ only, preparing inputs, and reporting model info, without any CUDA or bitsandbytes\
+    \ dependencies. The module also includes a simple CLI test confirming successful\
+    \ CPU loading, satisfying the task\u2019s requirement."
+  sig: 49dd553069b890f90638ecae1432612305d95e6c86067e53c4f740e20aec2558
 T009:
   c: false
   h: f72563dd63cd222a18cf8963d0ffd32bafb75c482c6a0d7ec2fb049acaebb0a6
@@ -73,6 +77,23 @@ T009:
     \ (`complexity = get_cy`), so it never completes the metadata extraction or writes\
     \ the CSV. Moreover, the required output file `data/metadata/file_metadata.csv`\
     \ does not exist. The task\u2019s core deliverables are therefore missing."
+T010:
+  c: true
+  h: 8eb456f72815af60829e9cc285f5cd21ecb9f0a57f99b17fb47dd2bc707aaf3d
+  r: "Checked the `tests/unit/test_style_scoring.py` file (9272\u202Fbytes) which\
+    \ contains pytest unit tests that verify score ranges for pylint, radon, and the\
+    \ composite style score, as well as tests for metric aggregation (default, custom,\
+    \ and normalized weights). The file fully satisfies the task\u2019s requirement\
+    \ for a unit test covering score range and aggregation logic."
+  sig: 56d85f352aa71829bd93dc62bfc8220907778d1385cf2b893b1c01920fe7652a
+T011:
+  c: true
+  h: 2201cd16ba23edda4a5a2922b742329bb0c714f694f7fb2037bd4945c493a899
+  r: "Checked `tests/unit/test_style_scoring.py`, which contains a `TestParseErrorHandling`\
+    \ suite including `test_main_skips_parse_errors` that creates valid/invalid files,\
+    \ mocks parse errors, runs `main`, and asserts no exception is raised\u2014fulfilling\
+    \ the requirement to verify parse errors are skipped without crashing."
+  sig: 32836d7454f6cdf51001b81f252cab62a83538ca1521f58adb156b37d33b0916
 T012:
   c: false
   h: 4d5ebbb4f5748dc5160a66fa9fe67da3f74c745400e62f21091abbb7264e0f64
@@ -81,6 +102,14 @@ T012:
     \ this file, the task\u2019s requirement to provide a unit test verifying High/Med/Low\
     \ group assignment is unmet. The implementer must add the missing test file with\
     \ appropriate test cases."
+T013:
+  c: true
+  h: 042c6113b8fabd2105d6c3de0500057dc8aae8613e52e5692fe9183326bc303e
+  r: "Checked `code/01_style_scoring.py` \u2013 it runs pylint, uses radon (via library)\
+    \ for cyclomatic complexity, computes line\u2011length scores, extracts file size\
+    \ and cyclomatic complexity, logs errors, and writes `data/metadata/style_scores_raw.csv`\
+    \ with the required columns and real values."
+  sig: b8c756b9c79ff2056d4656d80d0bc8e139af42151a99fce2d7285d92605aa029
 T015:
   c: false
   h: 8eec668ea79575632b0227ce16e0d9dbdf8f9e72b569ce3c4759b14638587d3a

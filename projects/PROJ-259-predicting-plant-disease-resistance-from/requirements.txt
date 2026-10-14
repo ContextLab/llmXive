@@ -1,15 +1,6 @@
-# Project dependencies (pinned versions)
+# Pinning core dependencies for reproducibility
 numpy==1.26.4
 pandas==2.2.2
 scikit-learn==1.5.0
 statsmodels==0.14.2
 PyYAML==6.0.1
-requests==2.31.0
-# The following packages are provided by the platform and do not need to be installed:
-# - scipy
-# - matplotlib
-# - seaborn
-# - pytest
-# - llmxive_toolkit
-# - psutil
-# Add any additional project‑specific dependencies below as needed.

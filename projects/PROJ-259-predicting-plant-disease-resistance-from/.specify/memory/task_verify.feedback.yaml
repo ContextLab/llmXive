@@ -1,10 +1,14 @@
 T001:
-  reason: "The repository contains the required `quickstart.md` file, but there is\
-    \ no evidence of a `Makefile` with a `quickstart` target, no `quickstart_output.txt`\
-    \ generated, and no pinned dependency list (e.g., `requirements.txt`). Without\
-    \ these artifacts and execution evidence, the task\u2019s requirement is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_quickstart.sh
+    exit=2'
   task: ebb5ba4e0007c404e355f93804348ab1374982cd87184a43ee76c25bac42cf9e
 T002:
+  reason: "The repository contains `code/download.py` and `code/preprocess.py`, but\
+    \ there is no evidence that they were actually run \u2013 the `data/raw/` and\
+    \ `data/processed/` directories only contain a `.gitkeep` placeholder and no generated\
+    \ CSV files. Execution logs or the expected output files (`genotype.csv`, `metabolomics.csv`,\
+    \ `phenotype.csv`, and `combined_features.csv`) are missing, so the verification\
+    \ step is not satisfied."
   task: 38b159167df55911a242118532c7695e63c4c1038342277dfb07f62ad7f8d266
 T003:
   task: 3d825dfc64e53bb555cfb16d48eec6e9e814ba6cb661830610978fce93631b08

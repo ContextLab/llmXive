@@ -21,13 +21,13 @@
 
 3.  **Verify environment**:
     ```bash
-    python -c "import scikit_learn, pandas, statsmodels; print('OK')"
+    python -c "import sklearn, pandas, statsmodels; print('OK')"
     ```
 
 ## Running the Pipeline
 
 ### Option A: Standard Run (Real Data Only)
-The pipeline attempts to download real multi-omics data from NCBI SRA/MetaboLights. If no real data is found, it halts with `EX_DATA_INTEGRITY`.
+The pipeline attempts to download real multi‑omics data from NCBI SRA/MetaboLights. If no real data is found, it halts with `EX_DATA_INTEGRITY`.
 
 ```bash
 python code/cli.py run --output-dir results/
@@ -59,7 +59,7 @@ After a successful run, the `results/` directory will contain:
 
 ## Troubleshooting
 
-*   **Error: `EX_DATA_INTEGRITY (02)`**: No real multi-omics dataset found (SNP+Metabolite+Phenotype). The pipeline halted. Use `--ci-mode` for testing.
+*   **Error: `EX_DATA_INTEGRITY (02)`**: No real multi‑omics dataset found (SNP+Metabolite+Phenotype). The pipeline halted. Use `--ci-mode` for testing.
 *   **Error: `EX_POWER_INSUFFICIENT (03)`**: Sample size < 100. Power analysis failed.
 *   **Error: `ModuleNotFoundError`**: Run `pip install -r requirements.txt` again.
 *   **Memory Warning**: If running on < 7GB RAM, ensure no other heavy processes are running. The pipeline attempts to stream data.
