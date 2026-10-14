@@ -13,7 +13,7 @@ The researcher needs to load a subset of the Materials Project Open Data, constr
 
 **Why this priority**: This is the foundational capability. Without the ability to ingest data, build the specific "composition-only" graph, train the model, and produce predictions, no comparison or information-loss analysis can occur. It delivers the primary research output for the composition-only hypothesis.
 
-**Independent Test**: The pipeline can be fully tested by running the training script on a small, fixed subset of 500 materials and verifying that it outputs a JSON file containing R², MAE, and RMSE metrics for both target properties without requiring structural data or GPU resources.
+**Independent Test**: The pipeline can be fully tested by running the training script on a small, fixed subset of materials and verifying that it outputs a JSON file containing R², MAE, and RMSE metrics for both target properties without requiring structural data or GPU resources.
 
 **Acceptance Scenarios**:
 
@@ -72,7 +72,7 @@ The researcher needs to extract the learned node embeddings from the composition
 - **FR-004**: System MUST perform a stratified 80/10/10 train/validation/test split by crystal system and ensure no material ID appears in both training and test sets (See US-1).
 - **FR-005**: System MUST construct a structure-aware graph for a subset of ≤2,000 materials using atom positions and coordination information from CIF files for baseline comparison (See US-2).
 - **FR-006**: System MUST calculate and output R², MAE, and RMSE for both band gap and hardness, and explicitly compute the performance gap (ΔR²) between composition-only and structure-aware models (See US-2).
-- **FR-007**: System MUST perform 5-fold cross-validation to estimate variance and report the standard deviation of R² across folds (See US-1).
+- **FR-007**: System MUST perform k-fold cross-validation to estimate variance and report the standard deviation of R² across folds (See US-1).
 - **FR-008**: System MUST extract node embeddings and perform PCA, then calculate Pearson correlation coefficients between principal components and periodic properties (or derived properties not used as input) with a significance threshold of p < 0.05 (See US-3).
 - **FR-009**: System MUST enforce a runtime limit of 30 minutes per epoch (log warning and continue) and 6 hours total runtime (log warning and halt) to ensure CI feasibility (See US-1).
 - **FR-010**: System MUST handle missing structural data for specific materials by logging a warning and excluding them from the structure-aware analysis without terminating the job (See US-2).

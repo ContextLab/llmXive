@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Composition‑Only GNN Model Metrics"
+type: object
+required:
+  - band_gap
+  - hardness
+properties:
+  band_gap:
+    type: object
+    required:
+      - r2_mean
+      - r2_std
+      - mae_mean
+      - mae_std
+      - rmse_mean
+      - rmse_std
+    properties:
+      r2_mean:
+        type: number
+        description: "Mean R² across CV folds for band gap."
+      r2_std:
+        type: number
+        description: "Standard deviation of R² across CV folds for band gap."
+      mae_mean:
+        type: number
+        description: "Mean MAE across CV folds for band gap."
+      mae_std:
+        type: number
+        description: "Standard deviation of MAE across CV folds for band gap."
+      rmse_mean:
+        type: number
+        description: "Mean RMSE across CV folds for band gap."
+      rmse_std:
+        type: number
+        description: "Standard deviation of RMSE across CV folds for band gap."
+  hardness:
+    type: object
+    required:
+      - r2_mean
+      - r2_std
+      - mae_mean
+      - mae_std
+      - rmse_mean
+      - rmse_std
+    properties:
+      r2_mean:
+        type: number
+        description: "Mean R² across CV folds for hardness."
+      r2_std:
+        type: number
+        description: "Standard deviation of R² across CV folds for hardness."
+      mae_mean:
+        type: number
+        description: "Mean MAE across CV folds for hardness."
+      mae_std:
+        type: number
+        description: "Standard deviation of MAE across CV folds for hardness."
+      rmse_mean:
+        type: number
+        description: "Mean RMSE across CV folds for hardness."
+      rmse_std:
+        type: number
+        description: "Standard deviation of RMSE across CV folds for hardness."
+additionalProperties: false
