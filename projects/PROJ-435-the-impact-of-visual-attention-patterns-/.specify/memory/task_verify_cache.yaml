@@ -7,11 +7,23 @@ T001:
     `tests/`, `state/`) are shown to exist. The required project structure is therefore
     missing.
 T002:
-  c: true
-  h: dcf9eb84226da50662254350a9b8863513c70e79232b7e2d0e22ba28650778a6
-  r: "The provided `requirements.txt` exists, is non\u2011empty, and contains all\
-    \ six required packages (pandas, numpy, scikit-learn, statsmodels, nltk, scipy),\
-    \ satisfying the initialization task."
+  c: false
+  h: e5c1c6dfd4f47a90ce3a27a483cde93ac06585769d747b8de121403adac3bdd6
+  r: "The `requirements.txt` and `pyproject.toml` files exist and contain the required\
+    \ pinned dependencies and `[tool.black]` / `[tool.ruff]` sections, but there is\
+    \ no provided evidence (e.g., command output logs) that `pip install -r requirements.txt`\
+    \ succeeds, that `ruff --version` and `black --version` run without error, or\
+    \ that `ruff check code/` reports zero lint failures. Without this execution evidence\
+    \ the task\u2019s verification criteria are unmet."
+  sig: 5084cc7b20553f0693e69e0dc061af0ca9e964f696c68d21fb473280ffbf8d6e
+T003:
+  c: false
+  h: cc5411c06e4b93eddba50a3297f9e9b296e3256ac53c570ce4df8cd6ab408bed
+  r: The repository contains a correct `.ruff.toml` and a `pyproject.toml` with Black
+    settings, but there is no `.flake8` file present, which is a required artifact
+    for the task. The missing lint configuration prevents the claim from being fully
+    satisfied.
+  sig: 0423f9c2f343e1fca69909a78ea1a06b806e6fa06c3514690ab2126d964ddb31
 T004:
   c: false
   h: 133ccae02c939af8be4cc739adf419fe0ce21ec8dbf300dfdda87e532adefedb
@@ -34,22 +46,6 @@ T006:
   r: "The required file `code/utils/fixation_detection.py` does not exist, so no implementation\
     \ of I\u2011VT/I\u2011DT, no config\u2011reading logic, and no documentation of\
     \ fallback behavior are present. The task is therefore not satisfied."
-T008a:
-  c: false
-  h: 87df7154b705a216bdd05490b331e3398b1864f140e53ec2264e3ce77f2ddca3
-  r: "The provided `code/config/logging_config.yaml` contains a detailed logging dict\
-    \ (version, formatters, handlers, etc.) but it lacks the top\u2011level keys `level`,\
-    \ `format`, and `handlers` that the task explicitly required. Consequently the\
-    \ file does not match the specified concrete schema. The missing required keys\
-    \ must be added (e.g., `level: INFO`, `format: \"...\", handlers: [console, file]`)."
-T008b:
-  c: true
-  h: 21efa5aa2a413156f77cdd3b499511065cd22b277503140ae75c187b57504ca0
-  r: "The repository contains a non\u2011empty `code/utils/logging_init.py` that loads\
-    \ `code/config/logging_config.yaml`, validates the required keys (`version`, `formatters`,\
-    \ `handlers`, `loggers`, `root`), raises `ConfigError` on missing keys, resolves\
-    \ relative file paths, and applies the configuration via `logging.config.dictConfig`.\
-    \ The corresponding `logging_config.yaml` file is present with the expected structure."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -81,53 +77,3 @@ T024:
     \ The next implementer must add the regression script (or notebook) that fits\
     \ the specified three\u2011way interaction, outputs coefficient estimates, significance\
     \ tests, and any diagnostic information."
-T030:
-  c: false
-  h: 97969afb6fd11006fdfe02724132e75522ce35ffa7753f183cc1fe045cb09565
-  r: The required artifact `tests/integration/test_sensitivity_analysis.py` does not
-    exist on disk, so the integration test for threshold sweep stability is missing.
-    The task cannot be considered completed until this file is created with appropriate
-    test code.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No reusable function or class implementing the refactored regression logic with\
-    \ a `fixation_duration_threshold` argument is present, nor any output showing\
-    \ the modeling pipeline (including Holm\u2011Bonferroni correction) and regression\
-    \ statistics. The required artifact is missing entirely."
-T040:
-  c: false
-  h: de870823b16fe1b1022b7131a894bc278a56af3a8ced6b2db0049acab7666983
-  r: "The provided `code/02_data_quality_report.py` is truncated, contains a syntax\
-    \ error (`return exclusio`), and lacks the logic to compute participant counts\
-    \ or write `output/data_quality_report.csv`. Moreover, the required input file\
-    \ `data/derived/preprocessed_gaze.csv` is missing, so the script cannot perform\
-    \ the requested calculations. The task\u2019s core output is therefore not produced."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, or documentation related to \u201Ccode cleanup and refactoring\u201D\
-    \ were provided; the only material shown is a feature specification for eye\u2011\
-    tracking data processing, which does not address the cleanup task. Consequently,\
-    \ the required artifact is missing."
-T047:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No optimized scripts or `output/performance_metrics.json` were found in the provided
-    evidence, and there is no data showing that the runtime and memory constraints
-    were measured and met. The required artifacts are missing, so the task is not
-    satisfied.
-T049:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing that `quickstart.md` was actually run or validated is present;
-    the response only contains a feature specification and no validation results,
-    logs, or confirmation that the quickstart steps succeeded. The required evidence
-    of successful validation is missing.
-T050:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that any artifacts in the `state/` directory
-    have been checksummed; the prompt contains no checksum files, scripts, or listings
-    confirming such verification. Consequently, the requirement to verify all artifacts
-    in `state/` is not satisfied.

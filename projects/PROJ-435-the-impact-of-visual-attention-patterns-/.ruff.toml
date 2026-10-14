@@ -1,13 +1,10 @@
 [lint]
-# Select common error types
+# Select required error types
 select = [
     "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
     "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "W",  # pycodestyle warnings
+    "C90", # mccabe complexity
 ]
 
 # Ignore specific rules that conflict with project style

@@ -1,15 +1,19 @@
 status: none
-intent: Misleading Headlines Eye-Tracking dataset fixation ROI bounding boxes belief
-  ratings python package dataset
+intent: Misleading Headlines Eye-Tracking dataset OpenNeuro download python package
+  dataset
 required_fields:
-- headline_text
-- belief_rating
-- cognitive_reflection_score
-- fixation_duration
-- roi_type
-- bounding_box_coordinates
 - participant_id
+- trial_id
 - timestamp
-cache_key: 46fa4c173911a9c813329ca6ac85be1031db22ab50b74858109114edf6825222
-searched_at: '2026-10-09T02:12:15.220985+00:00'
+- gaze_x
+- gaze_y
+- fixation_start
+- fixation_end
+- fixation_duration
+- roi_id
+- roi_type
+- roi_bbox_x1
+- roi_bbox_y1
+cache_key: 636a3c242b00800a276dfcab7e89950fd55356bb2b15d4715d678b8a5dc1d38b
+searched_at: '2026-10-14T18:22:33.259745+00:00'
 retry_count: 1

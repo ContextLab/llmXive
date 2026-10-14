@@ -1,0 +1,64 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 524f06e71d4395b0d39a9726e15d875703da410ab74e347f281569961e974867
+T002:
+  reason: "The `requirements.txt` and `pyproject.toml` files exist and contain the\
+    \ required pinned dependencies and `[tool.black]` / `[tool.ruff]` sections, but\
+    \ there is no provided evidence (e.g., command output logs) that `pip install\
+    \ -r requirements.txt` succeeds, that `ruff --version` and `black --version` run\
+    \ without error, or that `ruff check code/` reports zero lint failures. Without\
+    \ this execution evidence the task\u2019s verification criteria are unmet."
+  task: 4cf939bbe87a9a4edaf231882e3b0a4dc0d729d49e27b4413bea4d80d0979fd8
+T003:
+  reason: The repository contains a correct `.ruff.toml` and a `pyproject.toml` with
+    Black settings, but there is no `.flake8` file present, which is a required artifact
+    for the task. The missing lint configuration prevents the claim from being fully
+    satisfied.
+  task: c821666cd57bead5f3a5eadd87ae5e32f41ab5d5b4c6d48a62e895ac07b17466
+T004:
+  task: 2d2dcdd6868dea4abe52dd502111013a93cde12011526e579c4e3a71e32eae00
+T005:
+  task: 26a64fcde7a527c411a529b7650721c78d3b7b9a82f182c34b09ae1d812a4d24
+T006:
+  task: 129e0698dbdbef6cfa2ffc2b5ce442e474c27a8be16d15a9cf61539925f0b3ec
+T007:
+  task: 562d1ad75caa473b934d66b7019df2e7e5739350f49e7b67b86d81373306668d
+T008:
+  task: 78b72cfb864abd635055260db7d278213bbf2016df3a4007c0e3f58f9ac2eeac
+T009:
+  task: 4b772cb9bfc5261dfbf91f13a105ca2d75c135fdfda9b32612074d60a2a5f267
+T010:
+  task: ed1b274c9300317471762175180a6fdcbe6a4fa417ef79c1712e495dd931ed0e
+T011:
+  task: 86cb2e1cd938cad91b90b355120897f72ba64f2a7c9d14166f3a84c10007162b
+T012:
+  task: 86fcbc3c2a0393f35be906bfcf835f8fc438ec02f734f959648e643b7aac880d
+T014:
+  task: 8a36ccb1eacb796d35cc3139ee326dc497ef5c45329734f2730072b6dcfe81ef
+T015:
+  task: f9a3e77162ee12a0bb437fd68efe1d319754f9890cc315072ff7972a341a308c
+T016:
+  task: 3fc0af3f842a30cf7fff9656fe6930810b1cd8305b965a251ea71678f3000027
+T017:
+  task: 9268229b8ed1fbbf00a5b7b873bc8c2973e0d7c25663e3b25820be4c56d4df95
+T018:
+  task: d9d4c3b1ab15d730818e68908101d7481c65a676fea69061a54f21638055be10
+T019:
+  task: 90b4afe38918aaf0fe56a690c3a0727dab70c641b89fd1541adc3d6d45ad7ad7
+T020:
+  task: 24ac30215ba56765b9641c49eb05e0a520953d12db8226ee1edd30703bead80a
+T021:
+  task: 25a01ee3c36c13925d505761b13061a4a68fa037e757b2635fe9e164aac4aa4a
+T022:
+  task: ccddc56dbc96551077f23e64d045cd2ccf7dd984b2230a05ac42f05184c532fc
+T023:
+  task: 338e6a0ebfa42c024687082d8c6ff88208911958c1ee1a3109f8b8ed9c489921
+T024:
+  task: bf6565ca3b8c9c55c7bb2942538277beb0c9361b366c4d70b4a65a31ec29ac23
+T025:
+  task: a045583dd4048402df43556152297cdd0a9afdf4a2298262801b0c1cab28bf1c
+T026:
+  task: ab0e568fe4d5cbc6d3421b75c2ad4e525fbb0fdf104ac7b68d0550600990b740
