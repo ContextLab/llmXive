@@ -18,7 +18,7 @@ properties:
       type: "array"
       items:
         type: "number"
-    description: "Symmetric matrix of Fisher z-transformed correlations"
+    description: "Symmetric matrix of Fisher z‑transformed correlations"
   networks:
     type: "object"
     description: "Mapping of network names to ROI indices"

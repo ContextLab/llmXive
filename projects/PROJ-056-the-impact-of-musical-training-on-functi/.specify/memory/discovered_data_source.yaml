@@ -1,17 +1,15 @@
 status: none
-intent: ABCD Study resting-state fMRI dataset with musician training labels download
-  python package dataset
+intent: ABCD Study resting-state fMRI and HCP-Adolescents dataset python package dataset
 required_fields:
 - subject_id
-- group_label
-- music_training_years
+- group_label (musician/non-musician)
+- musical_training_years
 - age
 - sex
 - mean_framewise_displacement
-- resting_state_fmri_path
-- preprocessing_status
-- site
-- scanner_model
-cache_key: 2a7553843738a02c5a7810295eab4f0d5f3062c5b6e1ae1ce81eb13031541a21
-searched_at: '2026-10-14T11:10:08.973312+00:00'
+- resting_state_fmri_nifti_path
+- preprocessed_connectivity_matrix
+- quality_control_flag
+cache_key: c8254d91124ab9e0d3edd9c2880e0bc68dc94b3528fd113e9ed81bf9a1eba787
+searched_at: '2026-10-14T11:15:56.916138+00:00'
 retry_count: 1

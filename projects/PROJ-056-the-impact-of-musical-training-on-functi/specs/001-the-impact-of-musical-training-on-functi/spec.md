@@ -13,7 +13,7 @@ As a researcher, I need to load, filter, and preprocess resting-state fMRI data 
 
 **Why this priority**: Without a valid, filtered dataset that controls for confounders, no statistical analysis can occur. This is the foundational step that determines the feasibility and validity of the entire study.
 
-**Independent Test**: Can be fully tested by running the data ingestion script on a sample of 10 subjects and verifying that the output CSV contains only subjects with valid connectivity matrices, correct group labels, and matched confounders, with memory usage peaking within a moderate range.
+**Independent Test**: Can be fully tested by running the data ingestion script on a representative sample of subjects and verifying that the output CSV contains only subjects with valid connectivity matrices, correct group labels, and matched confounders, with memory usage peaking within a moderate range.
 
 **Acceptance Scenarios**:
 
@@ -100,7 +100,7 @@ As a researcher, I need to correlate connectivity strength with years of musical
 - The ABCD Study or HCP-Adolescents datasets contain sufficient metadata regarding musical training history (specifically "years of training" or a binary "musician/non-musician" flag) to allow for accurate group assignment.
 - The resting-state fMRI data provided by the source datasets is preprocessed (motion correction, normalization, etc.) to a standard level (e.g., MNI space) sufficient for connectivity analysis, requiring only ROI extraction and correlation computation.
 - The selected parcellation (e.g., Schaefer 200/400 or AAL) is appropriate for capturing the auditory, motor, and executive control networks relevant to musical training effects in adolescents.
-- The sample size of 50-75 subjects per group provides adequate statistical power (≥0.80) to detect medium effect sizes (Cohen's d ≈ 0.5) in functional connectivity differences, given the constraints of the free-tier CPU environment.
+- The sample size of 50-75 subjects per group provides adequate statistical power (≥0.80) to detect medium effect sizes (Cohen's d indicating a moderate magnitude) in functional connectivity differences, given the constraints of the free-tier CPU environment.
 - The "years of musical training" variable is recorded consistently across the dataset, and any self-report data is reliable enough for grouping purposes without requiring additional validation steps.
 - The analysis will be conducted as an observational study; therefore, any observed associations between musical training and connectivity will be framed as correlational, not causal, due to the lack of random assignment.
 - The confounding variables (age, sex, motion, SES) are sufficiently recorded in the source datasets to allow for matching or regression.

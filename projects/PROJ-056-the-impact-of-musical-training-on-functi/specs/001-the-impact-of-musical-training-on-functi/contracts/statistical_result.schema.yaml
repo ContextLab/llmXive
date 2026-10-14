@@ -10,17 +10,17 @@ properties:
     description: "Network to which the connection belongs"
   test_statistic:
     type: "number"
-    description: "t-statistic value"
+    description: "t‑statistic value"
   p_value:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Uncorrected p-value"
+    description: "Uncorrected p‑value"
   q_value:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "FDR-corrected q-value"
+    description: "FDR‑corrected q‑value"
   effect_size:
     type: "number"
     description: "Cohen's d effect size"

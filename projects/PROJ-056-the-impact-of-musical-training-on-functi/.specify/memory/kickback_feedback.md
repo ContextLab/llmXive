@@ -1,12 +1,15 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 7 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): Requested task execution failed; rerun successfully: code/run_quickstart_test.py exit=5
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The primary analysis pipeline is executed in **Synthetic Verification Mode** by default, generating mock rs‑fMRI data and artificial training histories. While this validates code correctness, it cannot provide evidence about the real-world relationship between musical training and functional connectivity, which is the core research question. Relying on synthetic data to satisfy FR‑001 and to draw any scientific conclusions makes the methodology unsound.
+- The plan redefines the musician group to require **≥ 2 years** of training (see FR‑001 entry) whereas the specification (FR‑001) mandates a **≥ 1 year** threshold. This inconsistency alters the construct being measured without justification, threatening construct validity and comparability to prior literature.
+- The plan defaults to **Synthetic Verification Mode** because no verified open‑source dataset provides both rs‑fMRI and a reliable musical‑training variable. This means FR‑001 (load real rs‑fMRI with musical‑training metadata) is not satisfied, and the analysis will not answer the core research question on real adolescent brains.
+- The plan defines musicians as having **≥ 2 years of training**, whereas the specification (spec.md) and user stories require a **≥ 1 year** threshold. This inconsistency changes group assignment and violates the documented data model constraints, potentially leading to mismatched labels and invalid downstream analyses.
+- The plan states that `connectivity.py` stores a 3‑D NumPy array (`connectivity_matrices.npy`). This storage format does not provide the per‑subject fields (`subject_id`, `atlas`, `n_rois`, `z_matrix`, `networks`) required by the `ConnectivityMatrix` entity defined in `data-model.md` and enforced by `contracts/connectivity.schema.yaml`.
+- The plan’s Constitution Check table lists PASS/FAIL for each principle but does not explicitly designate a Single Source of Truth (SSoT) artifact, as required by Constitution Principle I. Without a clear SSoT (e.g., a master results CSV or JSON file referenced throughout), the plan violates the SSoT requirement.
+- The plan validates the entire analysis pipeline using a fully synthetic dataset that is generated to satisfy the hypothesis (e.g., optional `--inject-effect` adds a known group effect). Because the outcome (detecting group differences, NBS components, or correlations) is derived from data that can be constructed with the desired effect, the validation is circular/tautological: the pipeline is guaranteed to ‘confirm’ the effect it was seeded with, providing no independent empirical evidence for the real research question. This makes the primary scientific claim non‑testable until a verified real dataset is supplied, yet the plan proceeds as if the synthetic verification fulfills the scientific objectives.
