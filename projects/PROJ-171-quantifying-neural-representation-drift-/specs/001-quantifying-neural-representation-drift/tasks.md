@@ -1,264 +1,82 @@
 # Tasks: Quantifying Neural Representation Drift During Skill Learning
 
-**Input**: Design documents from `/specs/001-quantify-neural-drift/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: Active `spec.md`, `plan.md`, and the read‑only contracts under `specs/001-quantify-neural-drift/contracts/`. This is an explicitly authorized mathematical/simulation study: the plan designates a seeded synthetic generator (random rotation of tuning curves) as the data source, so no external dataset download is required.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Compute**: CPU‑only, ≤2 cores, ≤7 GB RAM, <6 h (FR‑010, SC‑005). No GPU‑dependent libraries.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 0: Foundations
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T001 [P] [US1] Establish the study skeleton and runnable entry point: create `code/src/` (modules `data/`, `analysis/`, `validation/`, `utils/`) and `code/tests/`, and document the runnable command (`python -m code.src.main --stage all`) in `specs/001-quantify-neural-drift/quickstart.md`. Implement `code/src/config.py` with the `primary_model` flag (`linear` default for FR‑005 output; `exponential` for Constitution‑VII prediction input) and a fixed random seed. Verification: `quickstart.md` names the exact command and the seed; `python -c "from code.src.config import CONFIG"` succeeds.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T002 [P] [US1] Implement the seeded synthetic data generator and input validator in `code/src/data/loader.py`: generate per‑subject, per‑day records (`subject_id`, `session_id`, `day_index`, `spike_counts` per unit per 20 ms bin, `trial_success`) for N=20 subjects × 10 days, with known ground‑truth drift injected via random rotation of tuning curves (SC‑001) and known drift–learning‑speed correlation (r≈0.6, US‑2 independent test). Implement `code/src/data/validator.py` enforcing FR‑009: raise a `RuntimeError` naming the missing variable and the step if `spike_counts`, `trial_success`, `subject_id`, or `day_index` is absent — never fall back to placeholder data. Validate every generated record against `specs/001-quantify-neural-representation-drift/contracts/input_schema.schema.yaml` and write records to `data/raw/synthetic_records.jsonl` with a SHA‑256 checksum in `data/raw/checksums.json`. Verification: `pytest code/tests/test_loader.py` passes, including a test that a record missing `trial_success` raises.
 
-## Path Conventions
+- [ ] T003 [P] [US1] Implement preprocessing in `code/src/data/preprocessor.py`: (a) align spikes to trial events in 20 ms bins (FR‑001); (b) retain only units present in ≥80 % of sessions, recording excluded units with reason `low_presence` (FR‑002); (c) exclude performance‑modulated units via regression of unit firing on trial‑error signals, reason `performance_modulated` (FR‑003); (d) linearly interpolate missing behavioral logs and flag subjects with gaps >2 days as incomplete (US‑1 Scenario 3, FR‑009); (e) write one `NeuralPopulationMatrix` per subject/day to `data/processed/neural_matrix_{subject_id}_day{day}.json` conforming to `contracts/neural_population.schema.yaml` (including `excluded_units`, `stability_threshold`, `checksum`). Verification: `pytest code/tests/test_preprocessor.py` checks that a unit present in <80 % of sessions is excluded and that a >2‑day gap flags the subject.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T004 [P] [US1] Compute RDMs and fit the **linear** drift model (primary per `drift_result.schema.yaml`). Use metric implementations from `code/src/utils/metrics.py` (Pearson, Cosine, Mahalanobis). Store per‑subject linear fit results in `data/results/drift_results.json` conforming to `drift_result.schema.yaml` (fields: `subject_id`, `drift_rate_b`, `intercept_a`, `r_squared`, `model_type` set to `"linear"` or `"constant"` on fallback, `convergence_status`, `stability_threshold`, `distance_metric`, `standard_error`). On linear‑fit failure, fallback to a constant model (`model_type: "constant"`). Wire the entry point so `python -m code.src.main --stage drift` runs T002→T004 on a small case (5 subjects) and produces a schema‑compliant result file. Verification: command executes; `data/results/drift_results.json` exists with required fields for each subject.
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
+- [ ] T005 [P] [US1] **Create** `code/src/validation/synthetic.py` and run ground‑truth validation (SC‑001): compare recovered drift rates `b_lin`/`b_exp` against the known rotation‑injected ground truth across all 20 subjects, asserting recovery within 5 % error tolerance, and write the validation table to `data/results/sc001_validation.json` (per‑subject ground truth, estimate, relative error, pass flag). Verification: `pytest code/tests/test_sc001.py` passes on the full generated dataset; the JSON records actual errors, not expected ones.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T006 [P] [US2] Implement the behavioral correlation and hypothesis testing in `code/src/analysis/correlation.py`: derive "time to reach success threshold" from learning curves using a concrete threshold `trial_success ≥ 0.8` (exclude subjects with flat curves, log exclusion reason). Compute Pearson `r` between drift rates (from the primary model defined in `config.primary_model`) and learning speeds, assert `r > 0.5`. Run a permutation test with **10 000** label shuffles (FR‑006, SC‑002) and fit a linear mixed‑effects model with subject random effects via `statsmodels`; apply Bonferroni correction when `metrics_tested` > 1 (FR‑007). Set `power_warning=True` if N < 15. Emit explicit significance labels ("statistically significant at α=0.05") and write the `CorrelationResult` record to `data/results/correlation_results.json` per `contracts/correlation_result.schema.yaml`. Verification: `pytest code/tests/test_correlation.py` verifies that synthetic subjects with known r≈0.6 yield permutation p < 0.05, LMM fixed‑effect significance, and r > 0.5.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T007 [P] [US3] Run robustness and sensitivity suite in `code/src/validation/sensitivity.py`: (a) recompute drift rates under Pearson, Cosine, and Mahalanobis metrics and report variance in `b` across the three; (b) sweep unit‑stability thresholds **both** `{0.70, 0.80, 0.90}` (spec independent test) **and** `{0.75, 0.80, 0.85}` (scenario) and record number of included units and drift rate change; (c) perform split‑half reliability check correlating drift rates from two random halves of the units. Produce a **full** results file `data/results/full_results.json` that conforms to `output_schema.schema.yaml` (includes per‑subject `drift_rate`, `learning_speed`, `correlation_results`, and `robustness` block). Verification: `pytest code/tests/test_sensitivity.py` asserts sign consistency of the drift–learning correlation across metrics and thresholds.
 
-- [ ] T001a [P] Create directory structure: `src/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/paper/`
-- [ ] T001b [P] Create `.gitignore` rules for `data/` and `__pycache__/`
+- [ ] T008 [P] [US1] Generate study figures in `code/src/utils/plots.py` directly from the validated outputs: (a) RDM heatmaps and fitted drift trajectories per subject (`figures/fig_rdm_drift_{subject_id}.png` for 3 representative subjects); (b) drift‑rate vs learning‑speed scatter with fitted LMM trend (`figures/fig_drift_learning_scatter.png`); (c) threshold‑sweep plot showing included units and drift rate vs threshold (`figures/fig_sensitivity_thresholds.png`); (d) split‑half reliability plot (`figures/fig_splithalf.png`). Write all figures to `docs/paper/figures/` as required by Phase 4 deliverable. Verification: each figure file exists after re‑running `python -m code.src.main --stage figures`.
 
----
+- [ ] T009 [P] [US1] Run the performance benchmark (SC‑005, FR‑010): add `code/src/validation/benchmark.py` that executes the full pipeline on the complete 20‑subject dataset, measures wall‑clock time and peak memory (assert ≤7 GB, <6 h), checks that no GPU‑dependent libraries are imported, and verifies Docker container image size ≤2 GB (via task T014). Record `passed`, `runtime_seconds`, `peak_memory_gb`, `container_size_mb`, and `power_warning` (True if N < 15) in `data/results/performance_benchmark.json`. Verification: the JSON records actual measured values and passes all thresholds.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T010 [P] Write the methods and results account to `specs/001-quantify-neural-drift/research.md` (or `paper/results.md` if occupied): link every reported number to the exact rows in `data/results/*.json` and `data/results/lmm_summary.csv`, and to the figure files in `docs/paper/figures/`; state the synthetic‑generator design, the seeded ground truth, actual SC‑001 recovery errors, actual correlation r and p‑values, sensitivity outcomes, and honest limitations (simulation‑based evidence, N=20, power framing). Verification: every claim in the document cites an existing artifact path whose value matches.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T011 [P] Re‑run the documented workflow from its declared inputs and document the paper‑stage handoff: delete `data/results/` and `data/processed/`, re‑run `python -m code.src.main --stage all` per `quickstart.md`, confirm all `pytest code/tests/` pass and the regenerated artifacts match the previously reported values (seeded determinism), and append a "Paper‑stage handoff" section to `quickstart.md` listing the result tables, figures, and open questions (including the non‑linear‑vs‑linear model comparison result from the spec's model‑validity assumption) that the paper pipeline must carry forward. Verification: full re‑run reproduces identical `drift_results.json` and `correlation_results.json` (up to JSON key order).
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+## Additional Coverage Tasks
 
-**⚠️ DEFINITIVE IMPLEMENTATION**: T006 and T007 are the definitive implementations for validation and loading. T030a is the definitive implementation for metrics. No user-story phase tasks may redefine these files.
+- [ ] T012 [P] [US1] Implement `src/models/schemas.py` containing Pydantic wrappers for all contracts (`input_schema`, `neural_population`, `rdm_schema`, `drift_result`, `correlation_result`, `output_schema`). Verification: `pytest code/tests/test_schemas.py` passes.
 
-- [ ] T004 Setup `data/raw/` and `data/processed/` directory structure with `.gitignore` rules
-- [ ] T005 [P] Implement `src/utils/logging.py` for structured logging and progress tracking
-- [ ] T006 [P] Setup `src/data/validator.py` to enforce FR-009 (variable presence check). This is the definitive validator; do not redefine in later phases.
-- [ ] T007 [P] Implement `src/data/loader.py` using `datasets.load_dataset(..., streaming=True)` for HF ingestion. **Must ensure data is prepared for fine-grained temporal alignment** (FR-001, FR-009). This is the definitive loader; do not redefine in later phases.
-- [ ] T008 Configure environment configuration management (`.env` support for dataset IDs)
-- [ ] T009a [P] [Foundational] Implement `src/data/preprocessor.py` alignment logic: Align neural bins to trial events (high-resolution temporal binning) (FR-001). **Depends on T007**.
-- [ ] T009b [P] [Foundational] Implement `src/data/preprocessor.py` unit filtering: Filter units present in <80% of sessions (FR-002). **Depends on T007**.
-- [ ] T009c [P] [Foundational] Implement `src/data/preprocessor.py` exclusion logic: Exclude performance-modulated neurons via regression against error signals (FR-003). **Depends on T007**.
-- [ ] T009d [P] [Foundational] Implement `src/data/preprocessor.py` imputation logic: Implement linear interpolation for missing behavioral logs AND implement explicit logic to flag subjects with gaps > 2 days for exclusion (US-1 Scenario 3, FR-009). **Depends on T007**.
-- [ ] T009e [P] [Foundational] Implement `src/data/preprocessor.py` matrix generation: Generate `NeuralPopulationMatrix` per day and save to `data/processed/neural_matrix_day_{day}.parquet`. **Depends on T009a, T009b, T009c**.
-- [ ] T009f [P] [Foundational] Implement `src/data/preprocessor.py` exclusion flagging: Create a utility to flag and log subjects excluded due to imputation failure (gaps > 2 days) for downstream correlation analysis exclusion. **Depends on T009d**.
-- [ ] T030a [P] [Foundational] Implement `src/utils/metrics.py` with Pearson, Cosine, and Mahalanobis distance functions (FR-007, FR-004). This is the definitive metric utility; do not redefine in later phases.
+- [ ] T013 [P] [US1] Imputation sensitivity analysis: re‑run drift computation with (a) linear interpolation (default) and (b) mean‑imputation of missing behavioral logs; compare drift rates and record impact. Output to `data/results/imputation_sensitivity.json`. (covers FR‑009 sensitivity)
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T014 [P] [US1] Verify Docker container size ≤2 GB. Build the container and record its size in `data/results/container_size.json`. Verification: size ≤2 GB.
 
----
+- [ ] T015 [P] [US1] Store exponential drift fit results in `data/results/drift_exponential_results.json` with fields `subject_id`, `drift_rate_b`, `intercept_a`, `r_squared`, `model_type:"exponential"`, `standard_error`. No schema validation required (secondary artifact).
 
-## Phase 3: User Story 1 - Core Drift Quantification Pipeline (Priority: P1) 🎯 MVP
+- [ ] T016 [P] [US1] Implement distance metrics in `code/src/utils/metrics.py` (Pearson, Cosine, Mahalanobis) as a separate module. Verification: unit tests in `code/tests/test_metrics.py`.
 
-**Goal**: Ingest raw data, process into stable population matrices, and compute the primary drift rate metric `b`.
+- [ ] T017 [P] [US1] Reconcile duplicate NeuralPopulationMatrix schemas: adopt `neural_population.schema.yaml` as canonical, deprecate `neural-population.schema.yaml`. Update validation code to use the chosen schema. Verification: schema validation passes; dead schema ignored.
 
-**Independent Test**: Run on a synthetic dataset with known drift parameters (random rotation of tuning curves) and verify recovered slope `b` matches ground truth within 5% tolerance.
+- [ ] T018 [P] [US1] Apply documented offset correction between behavioral timestamps and neural 20 ms bins; store offset value in `data/processed/offset_correction.json`. Verification: offset value recorded and used in downstream analysis.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T019 [P] [US1] Ingest real electrophysiology and behavioral data (e.g., OpenNeuro ds004xxx). Download raw `.nwb` files, verify with Kilosort2 (CPU‑compatible stub) or accept pre‑sorted data. Validate presence of required variables; raise clear `RuntimeError` if missing. Output raw validated files under `data/raw/real/`. Verification: `pytest code/tests/test_real_ingest.py`.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] T020 [P] [US1] Document model selection: generate `specs/001-quantify-neural-representation-drift/model_decision.md` explaining the conflict between linear (spec) and exponential (constitution) primary metrics and stating which will be used for each downstream analysis. (plan‑root cause; flagged for kickback)
 
-- [ ] T010 [P] [US1] Contract test for data schemas in `tests/contract/test_schemas.py`
-- [ ] T011 [P] [US1] Integration test for synthetic drift recovery in `tests/integration/test_pipeline.py`
+- [ ] T021-A [P] Resolve Conflict‑Resolution sub‑task A: ensure both linear and exponential fits are computed for each subject (covered by T004 and T015). Verification: both result files exist.
 
-### Implementation for User Story 1
+- [ ] T021-B [P] Resolve Conflict‑Resolution sub‑task B: set `config.primary_model` based on `model_decision.md`. Verification: config flag matches documented choice.
 
-- [ ] T014a [US1] Verify `src/data/preprocessor.py` output: Ensure `data/processed/neural_matrix_day_{day}.parquet` files are generated with correct schema (US-1, FR-001, FR-002, FR-003). **Depends on T009e completion.**
-- [ ] T014d [US1] Verify imputation logic: Ensure missing behavioral logs are interpolated and subjects with gaps > 2 days are flagged for exclusion (US-1 Scenario 3). **Depends on T009d, T009f**.
-- [ ] T014e [US1] Verify exclusion logic: Ensure flagged subjects are correctly excluded from correlation analysis inputs. **Depends on T014d**.
-- [ ] T015 [US1] Implement `src/analysis/rdm.py` to compute pairwise Pearson correlation distances and generate RDM (FR-004). **Depends on T030a**. Uses `src/utils/metrics.py` for Pearson distance calculation.
-- [ ] T016 [US1] Implement `src/analysis/drift.py` for the **Primary Linear Model** (FR-005):
-    - Fit linear model `drift(t) = a + b·t` to RDM off-diagonal distances to extract the primary drift rate `b_lin`.
-    - Handle convergence failures by defaulting to a constant fit and flagging the result as "non-drifting".
-    - **Deliverable**: Return `DriftResult` object (schema: `primary_decay_rate: float`, `fit_status: str`) and save to `data/results/drift_results.json`. **Depends on T015**.
-- [ ] T016b [US1] Implement `src/analysis/drift.py` for the **Secondary Exponential Model** (Constitution VII):
-    - Fit exponential decay model `drift(t) = a·exp(−b·t) + c` to RDM off-diagonals to extract the secondary drift rate `b_exp`.
-    - If Exponential fit fails, report `null` for this metric.
-    - **Deliverable**: Append `secondary_decay_rate: float | null` to the `DriftResult` object. **Depends on T016**.
-- [ ] T017 [US1] Add validation and error handling for convergence failures (ensure fallback logic triggers correctly).
-- [ ] T018 [US1] Add logging for preprocessing steps (unit exclusion counts, alignment stats).
+- [ ] T021-C [P] Resolve Conflict‑Resolution sub‑task C: update downstream tasks (T006, T007) to read the primary model as per config. Verification: tasks reference config.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T022 [P] [US1] Align enum values for non‑drifting flag across contracts: generate `code/src/utils/enum_adapter.py` that translates `"constant"` to `"non_drifting"` where needed, and update validation code to accept both. Verification: schema validation passes for both contracts.
 
----
+## Dependencies
 
-## Phase 4: User Story 2 - Behavioral Correlation & Hypothesis Testing (Priority: P2)
-
-**Goal**: Correlate drift rates with learning speeds, perform permutation testing, and fit LMM.
-
-**Independent Test**: Provide pre-computed drift rates and learning speeds for synthetic subjects with known correlation (r=0.6) and verify permutation test returns p < 0.05 and LMM detects significant fixed effect.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T019 [P] [US2] Contract test for correlation output schema in `tests/contract/test_correlation_schema.py`
-- [ ] T020 [P] [US2] Integration test for permutation test power in `tests/integration/test_correlation.py`
-
-### Implementation for User Story 2
-
-- [ ] T021 [US2] Implement `src/analysis/correlation.py` helper to calculate "time to reach success" from behavioral logs (Depends on T009d validated output, T016 validated output)
-- [ ] T022 [US2] Implement robust regression (Huber) in `src/analysis/correlation.py` as a **preprocessing step ONLY to remove outliers before LMM**. **Do not replace LMM; LMM (T024) is the primary method for FR-006 compliance.** (FR-006, Depends on T016, feeds T024)
-- [ ] T023 [US2] Implement permutation test (shuffles) in `src/analysis/correlation.py` to generate null distribution (FR-006)
-- [ ] T024 [US2] Implement Linear Mixed-Effects Model (LMM) fitting in `src/analysis/correlation.py` for subject-level random effects (FR-006). **Return `statsmodels.LMEResults` object and save summary to `data/results/lmm_summary.csv`.**
-- [ ] T025 [US2] Implement Bonferroni correction logic if multiple metrics tested (FR-007)
-- [ ] T026 [US2] Add warning logic for N < 15 subjects (power limitation) (US-2 Acceptance Scenario 3)
-- [ ] T027 [US2] Format results with explicit significance labels (e.g., "statistically significant at α=0.05")
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Robustness Validation & Sensitivity Analysis (Priority: P3)
-
-**Goal**: Verify results are not artifacts of metric choice or threshold selection.
-
-**Independent Test**: Run pipeline with varying thresholds, then verify drift trend direction remains consistent.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T028 [P] [US3] Contract test for robustness output schema in `tests/contract/test_robustness_schema.py`
-- [ ] T029 [P] [US3] Integration test for metric variance in `tests/integration/test_robustness.py`
-
-### Implementation for User Story 3
-
-- [ ] T031 [US3] Implement `src/analysis/robustness.py` to sweep stability threshold across a range of high-confidence values. (derived from FR-008 and US-3 Acceptance Scenario 2 "representative range"). (FR-008)
-- [ ] T032 [US3] Implement logic to re-run drift calculation for each threshold and metric, reporting variance (FR-008)
-- [ ] T033 [US3] Implement split-half reliability check (US-3 Acceptance Scenario 3)
-- [ ] T034 [US3] Generate plots showing drift rate variation across thresholds and metrics using **matplotlib**. **Save to `docs/paper/fig_sensitivity_thresholds.png`.**
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T035a [P] Update `README.md` with CLI usage examples and installation instructions
-- [ ] T035b [P] Add sensitivity analysis plot and methodology to `docs/paper/`
-- [ ] T036 Code cleanup and refactoring of `src/analysis/` modules
-- [ ] T037 [P] Implement performance benchmarking: Run `tracemalloc` on synthetic dataset X, assert peak memory < 7GB and runtime < 6h (SC-005). **Deliverable**: `data/results/performance_benchmark.json` with pass/fail status.
-- [ ] T038 [P] Additional unit tests in `tests/unit/test_rdm.py`, `tests/unit/test_drift.py`
-- [ ] T039 Run `quickstart.md` validation and verify synthetic data generation works
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (drift rates)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 output (drift rates)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data schemas in tests/contract/test_schemas.py"
-Task: "Integration test for synthetic drift recovery in tests/integration/test_pipeline.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement src/data/preprocessor.py (T009a-T009f)"
-Task: "Implement src/analysis/rdm.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently on synthetic data
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Constraint**: Ensure `src/data/loader.py` fails loudly if real data fetch fails; do NOT use synthetic fallbacks.
-- **Compute Constraint**: Ensure all analysis steps (T014-T034) run within CPU-only constraints (no GPU dependencies).
-- **Metric Logic**: All distance calculations (Pearson, Cosine, Mahalanobis) are centralized in `src/utils/metrics.py` (T030a) and used by T015 and T031.
-- **Imputation Logic**: Linear interpolation and flagging for gaps > 2 days are implemented in T009d and T009f.
-- **Drift Model**: Linear model is PRIMARY (FR-005); Exponential model is SECONDARY (Constitution VII).
+- T002, T003 → T001  
+- T004 → T002, T003, T016  
+- T005 → T002  
+- T006 → T004, T005  
+- T007 → T006, T004, T013  
+- T008 → T006, T007  
+- T009 → T006, T008, T014  
+- T010 → T009  
+- T011 → T010  
+- T012 → (none) – used by all validation tasks  
+- T013 → T004  
+- T014 → (none)  
+- T015 → T004  
+- T016 → (none) – used by T004  
+- T017 → (none) – used by T003 validation  
+- T018 → T003  
+- T019 → (none) – satisfies FR‑001 & Constitution VI  
+- T020 → (none) – documentation only  
+- T021‑A → T004, T015  
+- T021‑B → T020  
+- T021‑C → T006, T007  
+- T022 → (none) – used by drift‑result validation
