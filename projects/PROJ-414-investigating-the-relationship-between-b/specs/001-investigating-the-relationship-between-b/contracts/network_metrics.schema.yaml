@@ -19,7 +19,7 @@ properties:
     description: "Weighted global efficiency of the functional graph."
   modularity:
     type: number
-    description: "Modularity (Louvain) of the graph."
+    description: "Louvain modularity score of the graph."
   participation_coefficient:
     type: number
     description: "Mean participation coefficient across all nodes."

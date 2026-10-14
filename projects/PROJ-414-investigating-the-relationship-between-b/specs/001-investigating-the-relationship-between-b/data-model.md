@@ -1,11 +1,11 @@
 # Data Model: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Musical Improvisation Skill
 
 ## Overview
-The data model defines the schema of each artifact produced by the pipeline. Contracts in `contracts/` are used by the test suite to validate file formats, column names, and data types.
+Schemas below define the structure of every artifact produced by the pipeline. Contract tests in `tests/contract/` validate conformity to these schemas.
 
 ## Schemas
 
-### 1. Raw Parquet Dataset (`raw_dataset.schema.yaml`)
+### 1. Raw OpenNeuro Parquet Dataset (`raw_dataset.schema.yaml`)
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Raw OpenNeuro Parquet Dataset"
@@ -20,14 +20,14 @@ required:
 properties:
   subject_id:
     type: string
-    description: "Unique identifier for the participant."
+    description: "Unique participant identifier."
   run_label:
     type: string
     enum: ["Improv", "Scripted"]
-    description: "Task condition label."
+    description: "Task condition."
   age:
     type: number
-    description: "Age of participant in years."
+    description: "Age in years."
   years_training:
     type: number
     description: "Self‑reported years of musical training."
@@ -41,6 +41,21 @@ properties:
   # ...
   roi_100:
     type: number
+  instrument_type:
+    type: string
+    description: "Instrument played by the participant (optional)."
+  genre:
+    type: string
+    description: "Musical genre preference (optional)."
+  practice_intensity:
+    type: number
+    description: "Average weekly practice hours (optional)."
+  education:
+    type: string
+    description: "Highest education level (optional)."
+  improv_rating:
+    type: number
+    description: "Post‑scan improvisation rating (0‑10 scale, optional)."
 additionalProperties: false
 ```
 
@@ -57,7 +72,7 @@ properties:
     type: string
   timepoint:
     type: integer
-    description: "Time point index within the full series."
+    description: "Index of the time point within the run."
   roi_1:
     type: number
   roi_2:
@@ -91,7 +106,7 @@ properties:
     description: "Weighted global efficiency of the functional graph."
   modularity:
     type: number
-    description: "Modularity (Louvain) of the graph."
+    description: "Louvain modularity score of the graph."
   participation_coefficient:
     type: number
     description: "Mean participation coefficient across all nodes."
@@ -137,13 +152,13 @@ properties:
     description: "Principal component identifier (e.g., pc_1)."
   coefficient:
     type: number
-    description: "Estimated regression coefficient for years_training."
+    description: "Regression coefficient for years_training."
   raw_p:
     type: number
     description: "Permutation‑derived p‑value before correction."
   fdr_p:
     type: number
-    description: "FDR‑corrected p‑value."
+    description: "Benjamini‑Hochberg FDR‑corrected p‑value."
   significance:
     type: boolean
     description: "True if fdr_p < 0.05."
@@ -151,11 +166,12 @@ additionalProperties: false
 ```
 
 ## Relationships
-- Each **subject** appears in the raw dataset, the preprocessed time‑series, the network‑metrics files, and the PCA‑scores file.  
-- **Window IDs** link metrics to the corresponding time‑series segment.  
-- **PC identifiers** link regression results to the PCA‑scores.
+- Each **subject** appears in the raw dataset, the preprocessed time‑series, the network‑metrics file, and the PCA‑scores file.  
+- **Window IDs** link metrics to the corresponding time‑window.  
+- **PC identifiers** link regression results to the PCA‑scores.  
 
-All files are stored under `data/` with clear naming conventions (`raw.parquet`, `timeseries_<sub>.csv`, `metrics_<sub>.csv`, `pca_scores.csv`, `regression_results.csv`).
+All files reside under `data/` with clear naming (`raw.parquet`, `timeseries_<sub>.csv`, `metrics_<sub>.csv`, `pca_scores.csv`, `regression_results.csv`).
 
 ---
+
 

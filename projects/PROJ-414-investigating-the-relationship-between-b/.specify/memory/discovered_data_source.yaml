@@ -1,5 +1,5 @@
 status: none
-intent: OpenNeuro ds000246 ds001600 Schaefer 2018 atlas python package dataset
+intent: nilearn openneuro ds000246 ds001600 schaefer atlas python package dataset
 required_fields:
 - subject_id
 - run_label
@@ -13,6 +13,6 @@ required_fields:
 - roi_5
 - roi_6
 - roi_7
-cache_key: 52a11724002326b859eb68e0324678a5bf56fde80384b1cc55110c8dbe5c9c36
-searched_at: '2026-10-14T15:12:40.360778+00:00'
+cache_key: 2d3b89155df8a7eb5ac15f9ad2ff60af2de80909ec457e3df13ae14c47320e9f
+searched_at: '2026-10-14T15:19:21.042650+00:00'
 retry_count: 1
