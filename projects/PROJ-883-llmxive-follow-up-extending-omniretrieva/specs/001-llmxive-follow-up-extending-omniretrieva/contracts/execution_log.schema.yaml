@@ -1,57 +1,34 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Execution Log Schema"
-description: "Schema for data/processed/execution_logs.csv. Validates the structure of the primary metrics file for FR-003 and FR-002."
-type: "object"
+title: "Execution Log"
+type: object
 properties:
   query_id:
-    type: "string"
-    description: "Unique UUID for the query instance."
+    type: string
   source_type:
-    type: "string"
-    enum:
-      - "text"
-      - "relational"
-      - "graph"
-    description: "The type of knowledge source used."
+    type: string
+    enum: ["text", "relational", "graph"]
   complexity_level:
-    type: "integer"
+    type: integer
     minimum: 1
-    description: "Exact integer plan depth (1, 2, 3, 4+). FR-002 compliance."
   latency_ms:
-    type: "number"
-    description: "End-to-end wall-clock latency in milliseconds. Strictly real execution time."
+    type: number
+    minimum: 0
   translation_error:
-    type: "integer"
-    enum:
-      - 0
-      - 1
-    description: "1 if generated plan mismatches ground truth, 0 otherwise."
+    type: boolean
   success_flag:
-    type: "integer"
-    enum:
-      - 0
-      - 1
-    description: "1 if query completed successfully, 0 if timeout/failure."
+    type: boolean
   synthetic_flag:
-    type: "integer"
-    enum:
-      - 0
-      - 1
-    description: "1 if query used synthetic topology fallback. Data Hygiene traceability."
+    type: integer
+    enum: [0, 1]
   throttling_mode:
-    type: "string"
-    enum:
-      - "cgroups"
-      - "time_only"
-      - "failed"
-    description: "Method used for CPU constraint enforcement."
+    type: string
 required:
-  - "query_id"
-  - "source_type"
-  - "complexity_level"
-  - "latency_ms"
-  - "translation_error"
-  - "success_flag"
-  - "synthetic_flag"
-  - "throttling_mode"
+  - query_id
+  - source_type
+  - complexity_level
+  - latency_ms
+  - translation_error
+  - success_flag
+  - synthetic_flag
+  - throttling_mode
 additionalProperties: false

@@ -1,1 +1,1 @@
-"""llmXive research pipeline package."""
+"""Initialize the code package."""

@@ -1,3 +1,13 @@
+T001:
+  c: false
+  h: 676343f5821a551500c78e0e323b3ff3d6070bf66017de095a14bed8211ed818
+  r: The `specs/001-structural-mismatch-cost/quickstart.md` does not contain the required
+    runnable command `python -m code.main`, and there is no evidence (e.g., a log
+    or command output) that `ruff check code/` runs without errors. Additionally,
+    the `specs/001-structural-mismatch-cost/contracts/` directory is empty, lacking
+    any placeholder file (e.g., a `.gitkeep`). These missing artifacts prevent the
+    task from being considered complete.
+  sig: 29b9653377f70443b23f7ab5da84d92ffa4c15fa861cfe5359794eef8f54fb05
 T020:
   c: false
   h: 01292f74bbe027f31fee22235d5b1234e07bbbc856c2aab04766d90aeebec70e

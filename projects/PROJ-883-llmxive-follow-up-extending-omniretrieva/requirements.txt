@@ -1,0 +1,3 @@
+# Project specific dependencies (beyond the platform defaults)
+pyyaml
+jsonschema
