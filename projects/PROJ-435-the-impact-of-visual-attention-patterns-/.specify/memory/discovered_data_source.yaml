@@ -1,5 +1,5 @@
 status: none
-intent: Misleading Headlines Eye-Tracking dataset OpenNeuro download python package
+intent: download Misleading Headlines eye tracking dataset belief ratings python package
   dataset
 required_fields:
 - participant_id
@@ -7,13 +7,13 @@ required_fields:
 - timestamp
 - gaze_x
 - gaze_y
-- fixation_start
-- fixation_end
+- fixation_id
 - fixation_duration
-- roi_id
 - roi_type
-- roi_bbox_x1
-- roi_bbox_y1
-cache_key: 636a3c242b00800a276dfcab7e89950fd55356bb2b15d4715d678b8a5dc1d38b
-searched_at: '2026-10-14T18:22:33.259745+00:00'
+- bounding_box_x1
+- bounding_box_y1
+- bounding_box_x2
+- bounding_box_y2
+cache_key: 77cd372ddbc08c2f5592315603bfa4301782a8801855408ab714c8df7625ffc6
+searched_at: '2026-10-14T18:24:36.609127+00:00'
 retry_count: 1

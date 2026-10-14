@@ -7,19 +7,22 @@ This script creates the following empty directories relative to the project root
   - data/derived/
   - data/processed/
   - tests/
-  - state/
   - output/
   - docs/
 
-It exposes a helper function ``setup_project_structure()`` that can be imported
-by other modules or called directly when the script is executed.
-The function is idempotent – running it multiple times will not raise errors.
+It deliberately **does not** create a ``state/`` directory because that
+location is reserved for the platform’s internal bookkeeping. Creating a
+shadow ``state/`` directory would interfere with the verification process.
+
+The function ``setup_project_structure()`` is idempotent – running it multiple
+times will not raise errors. When the script is executed directly, it logs
+progress and exits with status 0 on success.
 """
 
 import logging
 from pathlib import Path
 
-# Configure a simple logger for this script
+# Simple console logger
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
@@ -53,7 +56,6 @@ def setup_project_structure() -> None:
         root / "data" / "derived",
         root / "data" / "processed",
         root / "tests",
-        root / "state",
         root / "output",
         root / "docs",
     ]
@@ -74,7 +76,7 @@ def main() -> None:
     Any unhandled exception will cause a non‑zero exit code, satisfying the
     verification step that the script must exit cleanly.
     """
-    log.info("Initializing project directory structure...")
+    log.info("Initializing project directory structure (excluding platform‑owned state/)...")
     setup_project_structure()
     log.info("Project structure initialized successfully.")
 

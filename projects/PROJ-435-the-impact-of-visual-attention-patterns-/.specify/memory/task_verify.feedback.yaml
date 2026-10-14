@@ -5,12 +5,8 @@ T001:
     write only project-owned outputs.'
   task: 524f06e71d4395b0d39a9726e15d875703da410ab74e347f281569961e974867
 T002:
-  reason: "The `requirements.txt` and `pyproject.toml` files exist and contain the\
-    \ required pinned dependencies and `[tool.black]` / `[tool.ruff]` sections, but\
-    \ there is no provided evidence (e.g., command output logs) that `pip install\
-    \ -r requirements.txt` succeeds, that `ruff --version` and `black --version` run\
-    \ without error, or that `ruff check code/` reports zero lint failures. Without\
-    \ this execution evidence the task\u2019s verification criteria are unmet."
+  reason: 'Requested task execution failed; rerun successfully: code/verify_requirements.py
+    exit=1'
   task: 4cf939bbe87a9a4edaf231882e3b0a4dc0d729d49e27b4413bea4d80d0979fd8
 T003:
   reason: The repository contains a correct `.ruff.toml` and a `pyproject.toml` with
