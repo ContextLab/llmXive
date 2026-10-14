@@ -2,7 +2,7 @@
 Utility script to compute SHA‑256 checksums for all raw data files.
 
 This script is part of task **T001a**. It invokes the ``compute_checksums``
-function from ``code.utils`` which also records the manifest in the
+function from the utils module which also records the manifest in the
 project‑level ``project_state.yaml`` file.
 """
 import sys

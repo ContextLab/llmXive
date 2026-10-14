@@ -29,10 +29,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/load_data.py --download -> rc=1
  - HTTP Request: GET https://huggingface.co/api/datasets/mercer/assistments2017 "HTTP/1.1 401 Unauthorized"
-2026-10-14 09:22:48,490 - __main__ - WARNING - Failed to load ASSISTments: Dataset 'mercer/assistments2017' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
-2026-10-14 09:22:48,490 - __main__ - INFO - Attempting to load dataset: oulearn/oulad
-2026-10-14 09:22:48,536 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/oulearn/oulad "HTTP/1.1 401 Unauthorized"
-2026-10-14 09:22:48,536 - __main__ - WARNING - Failed to load OULAD: Dataset 'oulearn/oulad' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
+2026-10-14 09:34:53,270 - __main__ - WARNING - Failed to load ASSISTments: Dataset 'mercer/assistments2017' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
+2026-10-14 09:34:53,273 - __main__ - INFO - Attempting to load dataset: oulearn/oulad
+2026-10-14 09:34:53,319 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/oulearn/oulad "HTTP/1.1 401 Unauthorized"
+2026-10-14 09:34:53,320 - __main__ - WARNING - Failed to load OULAD: Dataset 'oulearn/oulad' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-553-cognitive-load-optimization-adaptive-com/code/load_data.py", line 410, in <module>

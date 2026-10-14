@@ -7,4 +7,5 @@ datasets
 statsmodels
 pytest
 requests
-pyarrow==11.0.0
+black
+ruff

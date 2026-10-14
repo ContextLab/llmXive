@@ -1,22 +1,13 @@
 T001:
   c: true
-  h: 3f54fca8cf497bf56ec792f27e2795ec532e2ca063fb39b041a340acada36be1
-  r: "Checked that all required directories (`data/raw/`, `data/processed/`, `data/explanation_tiers/`,\
-    \ `data/simulation_results/`, `code/`, `tests/`, `docs/`) exist, and that the\
-    \ core files (`README.md` with a single\u2011sentence description, `code/__init__.py`,\
-    \ `requirements.txt`, `tests/__init__.py`, `docs/README.md`) are present and non\u2011\
-    empty. The README indeed contains only one sentence."
-  sig: c043236598f5cf3ac1b09a02de1d8295a80956b8940dff930d4772cf7cd98835
-T001a:
-  c: false
-  h: 4a0d39f6e02e6ce093d6386da4ce7055d421c4945ae61bc2301c2dd07e907a52
-  r: "The `data/raw/checksums.sha256` file exists and contains a checksum for the\
-    \ only file (`.gitkeep`), and `code/utils.py` implements `compute_checksums()`.\
-    \ However, the required project\u2011state YAML file (`project_state.yaml`) that\
-    \ should store the `artifact_hashes` manifest is not present in the provided artifact\
-    \ list, so the manifest is not recorded as specified. Adding a non\u2011empty\
-    \ `project_state.yaml` with the `artifact_hashes` key will satisfy the task."
-  sig: 2cfd013d0dc140e6803607adbd34af9fac77563d423f9b531af8bd6008d3df4a
+  h: c7ac27957d889e884628a7520f31254118a7b4662b388ea838fd5e24fa7be890
+  r: 'All required directories (`data/raw/`, `data/processed/`, `data/explanation_tiers/`,
+    `data/simulation_results/`, `code/`, `tests/`, `docs/`) exist with content, and
+    all core files are present and non-empty: `README.md` contains a one-sentence
+    description, `code/__init__.py` and `tests/__init__.py` are package markers, `requirements.txt`
+    lists dependencies, and `docs/README.md` documents the project. Execution logs
+    confirm the setup scripts ran successfully (exit 0).'
+  sig: 2532c3212107050eae2a092d3f7d0ea2b874566f600bede501acc086ab8df12c
 T001b:
   c: true
   h: 4793ed46c7132f756222fd7023166524772ee0402bc4da5da6e21f69c7357a9f
@@ -26,22 +17,25 @@ T001b:
     deterministic behavior.
   sig: bafd60e49fb00988b51329dcc62084207545246582eda05d9852475613a38dfd
 T002:
-  c: false
-  h: 38b87c2f67d5446699012fb3922e23af7a695a338b5cf01f998ed194725d55db
-  r: "The only artifact present is a non\u2011empty `requirements.txt` that lists\
-    \ the required packages, but there is no evidence that `pip install -r requirements.txt`\
-    \ was actually run and succeeded on a clean runner, nor any explicit indication\
-    \ that a Python\u202F3.11 environment was defined. Execution logs or a successful\u2011\
-    install confirmation are needed to satisfy the task."
-  sig: dbd4784cab67029a7e7dc663d34f0cdd53ef225fb25c493d25b3609b38238747
+  c: true
+  h: 73b575b897e1ffebc4c5b9cac525946fd421ab906e86a08abd53d0ba278bd3ca
+  r: The `requirements.txt` exists at the project root and lists all nine required
+    packages (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels,
+    pytest, requests) plus black/ruff. Execution logs show `install_requirements.py`
+    exited 0 and a pytest run on Python 3.11.17 passed import tests for lightgbm,
+    textstat, and datasets, confirming the dependencies install and import successfully.
+  sig: b93663cf9ff7491a82d55c9d48b4caa26e29df074d012dbddf2af4c91a46e7d5
 T003:
   c: false
-  h: e021fce7116abb377dc657fb2e890034f65c9e1dd34c11de2d98c12940c1d96f
-  r: The repository contains the required `pyproject.toml` and `.ruff.toml` files,
-    but there is no evidence (e.g., command output logs or test results) showing that
-    `ruff check .` and `black --check .` were run and returned zero violations. Provide
-    execution logs or CI artifacts confirming the linting/formatting passes.
-  sig: 856d89303b93e43b394b04297b899ed28116068fe45c89b68770eee2336b2c64
+  h: ba1985c0747afa8645879737ace05f9766b0fc8194b32404c72a7f9b25ba8ed0
+  r: "The config files exist and are substantive (`pyproject.toml` has a real `[tool.black]`\
+    \ section; `.ruff.toml` extends it), but the task's verification requirement \u2014\
+    \ `ruff check .` and `black --check .` returning no violations \u2014 has no passing\
+    \ evidence: the only execution record (`tests/test_linting.py`) timed out after\
+    \ 600s with exit -1 and ok=False. The implementer must re-run the lint/format\
+    \ checks (or fix whatever hangs the linting test) and provide evidence both commands\
+    \ pass cleanly."
+  sig: c85a8b81bfaecf313fa84d38e6ccf1775ff90e01a45e34495624a4e792fa7214
 T004:
   c: false
   h: ab90bc05e2ab1942384dc16c06c71ecf2f3b4032db8d5170ae69f8851b5e326f

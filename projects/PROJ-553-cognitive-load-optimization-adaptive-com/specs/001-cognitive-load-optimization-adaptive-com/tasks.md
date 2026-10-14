@@ -23,7 +23,7 @@ All paths are relative to the repository root.
   - Export `SEED = 42` and a helper `set_seed()` used by all stochastic scripts.  
   - **Verification**: Importing `code.seed` and calling `set_seed()` produces deterministic outputs; unit test confirms repeatability of a random number generation.  
 
-- [ ] **T002** [​P​] Add Python 3.11 environment & dependencies  
+- [X] **T002** [​P​] Add Python 3.11 environment & dependencies  
   - File: `requirements.txt` (lists `scikit-learn`, `lightgbm`, `pandas`, `numpy`, `textstat`, `datasets`, `statsmodels`, `pytest`, `requests`).  
   - **Verification**: `pip install -r requirements.txt` succeeds on a clean runner.  
 

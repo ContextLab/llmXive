@@ -1,27 +1,26 @@
 T001:
   task: c9444c37fc8152f4cb56bce6775701dcbc8eedb4b4a578a4a56d1a987836f179
 T001a:
-  reason: "The `data/raw/checksums.sha256` file exists and contains a checksum for\
-    \ the only file (`.gitkeep`), and `code/utils.py` implements `compute_checksums()`.\
-    \ However, the required project\u2011state YAML file (`project_state.yaml`) that\
-    \ should store the `artifact_hashes` manifest is not present in the provided artifact\
-    \ list, so the manifest is not recorded as specified. Adding a non\u2011empty\
-    \ `project_state.yaml` with the `artifact_hashes` key will satisfy the task."
+  reason: "The manifest `data/raw/checksums.sha256` lists a checksum for itself (`04224077...`),\
+    \ but the collector reports the file's actual SHA-256 as `f4e873c2...` \u2014\
+    \ the self-referential entry is necessarily wrong/stale, so the manifest does\
+    \ not match all files under `data/raw/` as the verification criterion requires\
+    \ (the function should exclude the manifest file itself). Additionally, no `project_state.yaml`\
+    \ artifact was provided as evidence that the `artifact_hashes` manifest was actually\
+    \ recorded, despite the log claiming it was updated."
   task: c236289a02008f78cec123f099317a76be0bdd211b26d215947efed260317d37
 T001b:
   task: ae86033444f1502c0eaef950e1e7e027756588892942463f20fea8fd95ea10f4
 T002:
-  reason: "The only artifact present is a non\u2011empty `requirements.txt` that lists\
-    \ the required packages, but there is no evidence that `pip install -r requirements.txt`\
-    \ was actually run and succeeded on a clean runner, nor any explicit indication\
-    \ that a Python\u202F3.11 environment was defined. Execution logs or a successful\u2011\
-    install confirmation are needed to satisfy the task."
   task: c453ff63651f907b3cc16e9ce5da892c40462e090f6517b59d51c2fd06a6ee28
 T003:
-  reason: The repository contains the required `pyproject.toml` and `.ruff.toml` files,
-    but there is no evidence (e.g., command output logs or test results) showing that
-    `ruff check .` and `black --check .` were run and returned zero violations. Provide
-    execution logs or CI artifacts confirming the linting/formatting passes.
+  reason: "The config files exist and are substantive (`pyproject.toml` has a real\
+    \ `[tool.black]` section; `.ruff.toml` extends it), but the task's verification\
+    \ requirement \u2014 `ruff check .` and `black --check .` returning no violations\
+    \ \u2014 has no passing evidence: the only execution record (`tests/test_linting.py`)\
+    \ timed out after 600s with exit -1 and ok=False. The implementer must re-run\
+    \ the lint/format checks (or fix whatever hangs the linting test) and provide\
+    \ evidence both commands pass cleanly."
   task: 528a619204f98b9e2de1fbd44e43fb43343f578f5f32772458bbef7d6d2e939e
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/load_data.py

@@ -1,16 +1,15 @@
 status: none
-intent: assistments OULAD cognitive load expert labeled dataset timestamps hints errors
-  python package dataset
+intent: Assistments and OULAD datasets OpenML download interaction features cognitive
+  load python package dataset
 required_fields:
 - student_id
 - problem_id
 - timestamp
-- response_time
+- response_latency
 - is_correct
-- error_type
+- error_count
 - hint_requested
 - pause_duration
-- cognitive_load_score
-cache_key: 4757d5a035e9ea0c694835739b6f701a33323ef84be43fa784c6109d98201337
-searched_at: '2026-10-14T09:23:46.768460+00:00'
+cache_key: 36c795ddb82b13d9dc91e1d0d519376596e60801f5b162a60216e938919e6b7d
+searched_at: '2026-10-14T09:36:00.057929+00:00'
 retry_count: 1
