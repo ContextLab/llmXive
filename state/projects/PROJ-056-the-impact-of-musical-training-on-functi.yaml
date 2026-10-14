@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T20:32:55.080686Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-056-the-impact-of-musical-training-on-functi
-last_run_id: 23d0f4fa-2a87-4474-a72d-bfdcead983f0
+last_run_id: 87631738-543d-48ee-a804-d8349dc8c524
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-056-the-impact-of-musical-training-on-functi/specs/001-the-impact-of-musical-training-on-functi
 title: The Impact of Musical Training on Functional Connectivity in Adolescent Brains
-updated_at: '2026-10-14T11:30:42.675175Z'
+updated_at: '2026-10-14T11:32:52.846889Z'
