@@ -44,7 +44,8 @@ def main() -> None:
 
     # 3. Run the restoration command
     # We install renv first if it's not available, then call restore()
-    r_cmd = "if (!require('renv', quietly = TRUE)) install.packages('renv', repos='https://cloud.r-project.org'); renv::restore()"
+    # prompt = FALSE is critical for non-interactive CI environments
+    r_cmd = "if (!require('renv', quietly = TRUE)) install.packages('renv', repos='https://cloud.r-project.org'); renv::restore(prompt = FALSE)"
     cmd = [r_exec, "-e", r_cmd]
     
     try:

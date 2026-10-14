@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-13T23:11:20Z",
-  "project_id": "PROJ-055-investigating-the-impact-of-telomere-len"
+  "updated_at": "2026-10-14T02:11:19Z",
+  "project_id": "PROJ-055-investigating-the-impact-of-telomere-len",
+  "replan_rounds": 1
 }

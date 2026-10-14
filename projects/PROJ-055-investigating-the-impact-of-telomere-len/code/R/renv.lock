@@ -1,35 +1,37 @@
 {
   "R": {
-    "Version": "4.3.0"
+    "Version": "4.3.0",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cloud.r-project.org"
+      }
+    ]
   },
   "Packages": {
-    "phylolm": {
-      "Package": "phylolm",
-      "Version": "2.6.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": ""
-    },
     "ape": {
       "Package": "ape",
-      "Version": "5.7-1",
+      "Version": "5.2-3",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": ""
-    },
-    "rotl": {
-      "Package": "rotl",
-      "Version": "3.0.15",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": ""
+      "Repository": "CRAN"
     },
     "caper": {
       "Package": "caper",
       "Version": "1.0.2",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": ""
+      "Repository": "CRAN"
+    },
+    "phylolm": {
+      "Package": "phylolm",
+      "Version": "2.6.2",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "rotl": {
+      "Package": "rotl",
+      "Version": "3.0.15",
+      "Source": "Repository",
+      "Repository": "CRAN"
     }
   }
 }
