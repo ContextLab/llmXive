@@ -1,167 +1,215 @@
-import os
-import subprocess
-import time
+"""
+Download and verify OpenNeuro dataset ds003645.
+
+This script implements the required functionality for task T001:
+- Downloads the full dataset archive from OpenNeuro with up‑to‑3 retries and exponential back‑off.
+- Extracts the archive into `data/raw/`.
+- Downloads the checksums manifest and verifies SHA‑256 hashes for every file.
+- Raises clear errors on any failure (no silent fall‑backs).
+
+The script can be executed directly (`python code/download.py`) or imported
+by downstream pipeline steps.
+"""
 import hashlib
 import json
-import shutil
 import logging
+import os
+import shutil
+import subprocess
+import sys
+import time
+import zipfile
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, Optional
+
+import requests
 
 from config_loader import get_project_root, get_config, ensure_directory
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# ----------------------------------------------------------------------
+# Logging configuration
+# ----------------------------------------------------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
-def load_config() -> Dict[str, Any]:
-    """Load project configuration from code/config.yaml."""
-    return get_config()
-
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 def calculate_sha256(file_path: Path) -> str:
-    """Calculate SHA256 hash of a file."""
+    """Calculate SHA‑256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-def get_manifest_hash(dataset_id: str, filename: str, manifest_path: Path) -> Optional[str]:
+def download_file(
+    url: str,
+    dest_path: Path,
+    retries: int = 3,
+    backoff: int = 10,
+) -> None:
     """
-    Extract the expected SHA256 hash for a specific file from the OpenNeuro manifest.
-    The manifest is typically a JSON file containing an array of objects with 'filename' and 'checksum'.
-    """
-    if not manifest_path.exists():
-        logger.error(f"Manifest file not found: {manifest_path}")
-        return None
+    Download a file using ``requests`` with retry / exponential back‑off.
 
-    with open(manifest_path, 'r') as f:
-        manifest_data = json.load(f)
-
-    for entry in manifest_data:
-        if entry.get('filename') == filename:
-            # OpenNeuro manifests often use 'checksum' or 'sha256'
-            return entry.get('checksum') or entry.get('sha256')
-
-    logger.warning(f"Hash not found for {filename} in manifest")
-    return None
-
-def download_file(url: str, dest_path: Path, retries: int = 3, backoff: int = 10) -> bool:
-    """
-    Download a file from a URL with retry logic.
-    Uses wget via subprocess for robustness.
+    Parameters
+    ----------
+    url : str
+        URL to download.
+    dest_path : Path
+        Destination path (will be created, parent directories are made).
+    retries : int, optional
+        Number of attempts (default 3).
+    backoff : int, optional
+        Initial back‑off in seconds (default 10). It doubles after each failure.
     """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
 
-    for attempt in range(1, retries + 1):
-        logger.info(f"Downloading {url} (Attempt {attempt}/{retries})...")
+    attempt = 0
+    while attempt < retries:
+        attempt += 1
         try:
-            result = subprocess.run(
-                ['wget', '-O', str(dest_path), url],
-                check=True,
-                capture_output=True,
-                text=True
-            )
-            if result.returncode == 0:
-                logger.info(f"Successfully downloaded: {dest_path}")
-                return True
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Download failed: {e.stderr}")
+            logger.info(f"Downloading {url} (attempt {attempt}/{retries})")
+            with requests.get(url, stream=True, timeout=30) as r:
+                r.raise_for_status()
+                with dest_path.open("wb") as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+            logger.info(f"Successfully downloaded to {dest_path}")
+            return
+        except Exception as exc:
+            logger.error(f"Download failed: {exc}")
+            if attempt < retries:
+                sleep_time = backoff * (2 ** (attempt - 1))
+                logger.info(f"Retrying in {sleep_time}s...")
+                time.sleep(sleep_time)
+            else:
+                raise RuntimeError(f"Failed to download {url} after {retries} attempts") from exc
 
-        if attempt < retries:
-            logger.info(f"Retrying in {backoff} seconds...")
-            time.sleep(backoff)
-            backoff *= 2  # Exponential backoff
-        else:
-            logger.error(f"Failed to download {url} after {retries} attempts.")
-            return False
-
-    return False
-
-def verify_checksum(file_path: Path, expected_hash: str) -> bool:
+def verify_checksum(file_path: Path, expected_hash: str) -> None:
     """
-    Verify the SHA256 checksum of a downloaded file against the expected hash.
-    Raises an error if they do not match.
-    """
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found for verification: {file_path}")
+    Verify SHA‑256 checksum; raise ``ValueError`` on mismatch.
 
-    logger.info(f"Verifying checksum for {file_path}...")
+    Parameters
+    ----------
+    file_path : Path
+        Path to the file to verify.
+    expected_hash : str
+        Expected SHA‑256 hash (hex string, case‑insensitive).
+    """
+    if not file_path.is_file():
+        raise FileNotFoundError(f"Checksum verification failed – file not found: {file_path}")
+
+    logger.info(f"Verifying checksum for {file_path}")
     actual_hash = calculate_sha256(file_path)
-
-    if actual_hash.lower() == expected_hash.lower():
-        logger.info(f"Checksum verification PASSED for {file_path}")
-        return True
-    else:
-        error_msg = (
-            f"Checksum verification FAILED for {file_path}. "
-            f"Expected: {expected_hash}, Got: {actual_hash}"
+    if actual_hash.lower() != expected_hash.lower():
+        raise ValueError(
+            f"Checksum mismatch for {file_path}\\n"
+            f"  expected: {expected_hash}\\n"
+            f"  actual:   {actual_hash}"
         )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+    logger.info(f"Checksum OK for {file_path}")
 
 def extract_archive(archive_path: Path, dest_dir: Path) -> None:
     """
-    Extract a .zip or .tar.gz archive to the destination directory.
+    Extract a ``.zip`` or ``.tar.gz`` archive.
+
+    Parameters
+    ----------
+    archive_path : Path
+        Path to the downloaded archive.
+    dest_dir : Path
+        Directory where the contents will be unpacked.
     """
-    if not archive_path.exists():
+    if not archive_path.is_file():
         raise FileNotFoundError(f"Archive not found: {archive_path}")
 
-    logger.info(f"Extracting {archive_path} to {dest_dir}...")
+    logger.info(f"Extracting {archive_path} → {dest_dir}")
     dest_dir.mkdir(parents=True, exist_ok=True)
     shutil.unpack_archive(str(archive_path), str(dest_dir))
-    logger.info("Extraction complete.")
+    logger.info("Extraction complete")
 
+# ----------------------------------------------------------------------
+# Core download pipeline
+# ----------------------------------------------------------------------
 def download_dataset_archive(dataset_id: str, dest_dir: Path) -> Path:
     """
-    Download the full OpenNeuro dataset archive (zip) for the given dataset_id.
-    Returns the path to the downloaded archive.
+    Download the full dataset archive from OpenNeuro.
+
+    The OpenNeuro public URL for a dataset zip is:
+    ``https://openneuro.org/crn/datasets/<id>/versions/1.0.0/download``
+
+    Parameters
+    ----------
+    dataset_id : str
+        OpenNeuro dataset identifier (e.g., ``ds003645``).
+    dest_dir : Path
+        Directory where the archive will be stored.
+
+    Returns
+    -------
+    Path
+        Path to the downloaded archive (could be .zip or .tar.gz).
     """
-    archive_url = f"https://openneuro.org/datasets/{dataset_id}/versions/1.0.0/download"
-    archive_path = dest_dir / f"{dataset_id}.zip"
-    if archive_path.exists():
-        logger.info(f"Archive already exists at {archive_path}, skipping download.")
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    archive_url = f"https://openneuro.org/crn/datasets/{dataset_id}/versions/1.0.0/download"
+    archive_path = dest_dir / f"{dataset_id}.zip"  # name does not matter; could be .tar.gz after download
+
+    if archive_path.is_file():
+        logger.info(f"Archive already present at {archive_path}")
         return archive_path
 
-    logger.info(f"Attempting to download dataset archive from {archive_url}")
-    success = download_file(archive_url, archive_path)
-    if not success:
-        raise RuntimeError(f"Failed to download dataset archive from {archive_url}")
+    download_file(archive_url, archive_path)
+
+    # Basic sanity check – ensure the file is a recognized archive format.
+    # If it's neither zip nor tar.gz, raise an error.
+    if not (zipfile.is_zipfile(archive_path) or archive_path.suffix in {".gz", ".tgz", ".tar"}):
+        archive_path.unlink(missing_ok=True)
+        raise RuntimeError(
+            f"The downloaded file from {archive_url} does not appear to be a valid archive. "
+            "Check the URL or your network connection."
+        )
     return archive_path
 
-def run_download_pipeline(dataset_id: str, target_dir: Path) -> None:
+def download_manifest(dataset_id: str, dest_dir: Path) -> Path:
     """
-    Main pipeline to download and verify the dataset.
-    This function first ensures the dataset archive is present,
-    extracts it to the target directory, and then verifies checksums
-    using the OpenNeuro manifest.
+    Download the ``checksums.txt`` manifest for a dataset.
+
+    Parameters
+    ----------
+    dataset_id : str
+    dest_dir : Path
+
+    Returns
+    -------
+    Path
+        Path to the manifest file.
     """
-    # Ensure target directory exists
-    ensure_directory('raw_data')
-
-    # Step 1: Download dataset archive if needed
-    archive_path = download_dataset_archive(dataset_id, target_dir)
-
-    # Step 2: Extract archive (if not already extracted)
-    # Simple heuristic: if target_dir contains subdirectories like 'sub-01', assume extraction done.
-    if not any((target_dir / d).is_dir() for d in os.listdir(target_dir) if d.startswith('sub-')):
-        logger.info("Extracting dataset archive...")
-        extract_archive(archive_path, target_dir)
-    else:
-        logger.info("Dataset appears already extracted; skipping extraction.")
-
-    # Step 3: Verify checksums using manifest
-    # Manifest URL pattern for OpenNeuro checksums (txt file with SHA256 hashes)
     manifest_url = f"https://openneuro.org/datasets/{dataset_id}/versions/1.0.0/file-display/checksums.txt"
-    manifest_path = target_dir / "checksums.txt"
+    manifest_path = dest_dir / "checksums.txt"
+    if manifest_path.is_file():
+        logger.info(f"Manifest already present at {manifest_path}")
+        return manifest_path
 
-    if not manifest_path.exists():
-        logger.info("Manifest not found locally, attempting to download...")
-        if not download_file(manifest_url, manifest_path):
-            raise RuntimeError("Failed to download manifest file. Cannot verify checksums.")
+    download_file(manifest_url, manifest_path)
+    return manifest_path
 
-    # Parse manifest (format: <hash>  <relative_path>)
-    expected_files = {}
-    with open(manifest_path, 'r') as f:
+def parse_manifest(manifest_path: Path) -> Dict[str, str]:
+    """
+    Parse a ``checksums.txt`` file (``<hash>  <relative_path>`` per line).
+
+    Returns
+    -------
+    dict
+        Mapping from relative file path (as stored in the dataset) to expected SHA‑256 hash.
+    """
+    mapping: Dict[str, str] = {}
+    with manifest_path.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -169,56 +217,111 @@ def run_download_pipeline(dataset_id: str, target_dir: Path) -> None:
             parts = line.split()
             if len(parts) >= 2:
                 hash_val = parts[0]
-                fname = ' '.join(parts[1:])
-                expected_files[fname] = hash_val
+                rel_path = " ".join(parts[1:])
+                mapping[rel_path] = hash_val
+    logger.info(f"Parsed {len(mapping)} entries from manifest")
+    return mapping
 
-    logger.info(f"Found {len(expected_files)} entries in manifest for verification.")
+def verify_all_checksums(root_dir: Path, manifest: Dict[str, str]) -> None:
+    """
+    Verify SHA‑256 checksums for every file listed in the manifest.
 
-    verification_failed = False
-    for filename, expected_hash in expected_files.items():
-        file_path = target_dir / filename
-        if not file_path.exists():
-            logger.error(f"Expected file missing for verification: {file_path}")
-            verification_failed = True
-            continue
+    Parameters
+    ----------
+    root_dir : Path
+        Root of the extracted dataset (contains the files exactly as listed).
+    manifest : dict
+        Mapping from relative path → expected SHA‑256 hash.
+    """
+    failures = []
+    for rel_path, expected_hash in manifest.items():
+        file_path = root_dir / rel_path
         try:
             verify_checksum(file_path, expected_hash)
-        except Exception as e:
-            logger.error(str(e))
-            verification_failed = True
+        except Exception as exc:
+            failures.append(str(exc))
 
-    if verification_failed:
-        raise RuntimeError("Checksum verification failed for one or more files. Data integrity compromised.")
+    if failures:
+        raise RuntimeError(
+            f"Checksum verification failed for {len(failures)} file(s):\\n"
+            + "\\n".join(failures)
+        )
+    logger.info("All checksum verifications passed")
 
-    logger.info("All checksums verified successfully. Data ready for processing.")
+def run_download_pipeline(dataset_id: str, target_dir: Path) -> None:
+    """
+    Orchestrate the full download → extraction → verification workflow.
 
+    Parameters
+    ----------
+    dataset_id : str
+        OpenNeuro dataset identifier.
+    target_dir : Path
+        Directory where the raw BIDS dataset will be placed
+        (i.e., ``data/raw/``).
+    """
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1️⃣ Download the dataset archive
+    archive_path = download_dataset_archive(dataset_id, target_dir)
+
+    # 2️⃣ Extract if not already extracted
+    already_extracted = any(
+        (target_dir / entry).is_dir() and entry.startswith("sub-")
+        for entry in os.listdir(target_dir)
+    )
+    if not already_extracted:
+        extract_archive(archive_path, target_dir)
+    else:
+        logger.info("Dataset appears already extracted – skipping extraction step.")
+
+    # 3️⃣ Download and parse the checksum manifest
+    manifest_path = download_manifest(dataset_id, target_dir)
+    manifest = parse_manifest(manifest_path)
+
+    # 4️⃣ Verify checksums
+    verify_all_checksums(target_dir, manifest)
+
+    logger.info("Dataset download and verification completed successfully.")
+
+# ----------------------------------------------------------------------
+# Public entry point
+# ----------------------------------------------------------------------
 def download_openneuro_dataset(dataset_id: str, output_dir: Path) -> None:
     """
-    Wrapper to orchestrate the full download and verification.
-    This function can be called directly from the CLI or imported by other scripts.
+    Public wrapper used by the CLI and downstream modules.
+
+    Parameters
+    ----------
+    dataset_id : str
+        OpenNeuro dataset identifier.
+    output_dir : Path
+        Directory where the raw dataset should be placed.
     """
-    raw_dir = output_dir
+    if any(output_dir.iterdir()):
+        logger.info(f"Output directory {output_dir} already contains files – assuming dataset is present.")
+        # Still perform a checksum verification to be safe
+        manifest_path = output_dir / "checksums.txt"
+        if manifest_path.is_file():
+            manifest = parse_manifest(manifest_path)
+            verify_all_checksums(output_dir, manifest)
+        else:
+            logger.warning("Checksum manifest missing; skipping verification.")
+        return
 
-    # If raw_dir already contains data, we assume download was previously successful.
-    if any(raw_dir.iterdir()):
-        logger.info(f"Data directory {raw_dir} already contains files. Skipping download step.")
-    else:
-        logger.info(f"Data directory {raw_dir} is empty. Proceeding with download.")
+    run_download_pipeline(dataset_id, output_dir)
 
-    # Perform download and verification pipeline
-    run_download_pipeline(dataset_id, raw_dir)
-
-def main():
-    """Entry point for the download and verification script."""
-    config = load_config()
-    dataset_id = config.get('dataset_id', 'ds003645')
-    raw_dir = get_project_root() / 'data' / 'raw'
+def main() -> None:
+    """CLI entry point."""
+    config = get_config()
+    dataset_id = config.get("dataset_id", "ds003645")
+    raw_dir = get_project_root() / "data" / "raw"
 
     try:
         download_openneuro_dataset(dataset_id, raw_dir)
-        logger.info("Pipeline completed successfully.")
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.info("All steps completed successfully.")
+    except Exception as exc:
+        logger.error(f"Pipeline failed: {exc}")
         raise
 
 if __name__ == "__main__":

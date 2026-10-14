@@ -1,85 +1,51 @@
+T001:
+  reason: "The `data/checksums.txt` file is missing and the BIDS\u2011structured directory\
+    \ tree is not present under `data/raw/` (only a zip and a .gitkeep). Moreover,\
+    \ `code/download.py` uses the Python `requests` library instead of `wget`/`curl`,\
+    \ violating the specified implementation detail. The task\u2019s download and\
+    \ verification requirements are therefore not met."
+  task: b35358fda1c4c7bea048b3fce07b8ef5bac57b9f70d67e3f83a2be7257c6031e
+T002:
+  reason: "The required output file `data/processed/subsampled_raw.fif` is missing,\
+    \ and the unit\u2011test log shows failures (NameError for `np`) indicating the\
+    \ preprocessing functions are not verified to work. The pipeline therefore does\
+    \ not produce the specified subsampled, filtered, re\u2011referenced data."
+  task: a6024ebca3d02adaad2269b4ae2301762749e9e0903ea76ae541ee137a9f5e75
+T003:
+  task: 8aa3b098473e1b6f863e307f90423acfceb261a50a5f7cca8f59c1cc724148de
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess.py
+    exit=1'
+  task: ff1c89d4b9ccb8e17d5531bf7008f5fcea367b3ba6e226d0d10d8591b433bb83
+T005:
+  task: f64935c044648b1c36b736e81e14eca042456200755e14a6d938f63c1c1eefbb
+T006:
+  task: 7fb209f40ab2991b3bd249083f59ff5dee81cacf234bcb1f304af328a2ef89c6
+T007:
+  task: c6f5eec71f98fa8f87664d8804c569e27b3eec0a0522c0f2fe5c40119cde3485
+T008:
+  task: 83125fb424c17b9f87d2a827194fef7390a884cd6e7bb762dbe8ade42c3d79a8
+T009:
+  task: 8044f9338f2466965eb6dcd9f6b9c41d5dd28648eb1ea34101b9598483562fc8
 T010:
-  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
-  task: 63217157394d77e0b3d4a42b34dfee9685be41a5fd2aae60a93ca857c27c4746
+  task: 5ee9eb118cc689ca4e62916663467b39723bb8dd5a61a0514a829f321c82f85f
 T011:
-  task: e88e56800ec5db32d889084827f2c0dbf8947fc1ae9bb67766e99037bf1788b9
+  task: 40f5d5679d31cedccee6291e3d46f6674f93f109b17086e6dc005eb4b016d4a4
+T012:
+  task: a5e7741c43719c79d34f8f0baf1333d97bc70efa873dc3ff35ec585babd7ff91
+T013:
+  task: af5570ace7f531d6836abe3141e6a578ea6ffbde8478161d8fac3c44ab7a9867
+T014:
+  task: 6447c9a100d60d8c653e02351c7ecbf9394af77212c62d39bb277e832500fd06
+T015:
+  task: ba16d6791106a20f872c414d888227dd5e7fe606465d59174409bae6bb3ee370
 T016:
-  task: f9c2aa02ce9edee5fc46b24d5a94eb77e45854af7d255b11132cf6841c2a2928
+  task: b244ba58ed1c659b84bf46bbbc443c529ca430a529d88700dedf337bfdf10e18
 T017:
-  task: 13d4e400da01f915ed110e87af6bdbc1a215740adcad02caae6abea609ba89e6
+  task: 977930ade756d09ad3ab267f6f7a89a5efcfaec6d146a2b0f008692e72fb06e3
 T018:
-  task: a4a4e462e11f1e67cfab2e506970559a264b895defc83aebbfc20a69c75454f3
-? "T019/T020 [US1] [FR-003] ICA blink\u2011component detection (frontal correlation\
-  \ >\u202F0.8) and removal, with removed\u2011component count logged \u2192 `data/processed/epo_clean.fif`.\
-  \ Verified."
-: reason: "Checked for the required output file `data/processed/epo_clean.fif`; the\
-    \ collector reports it as MISSING, so the essential cleaned\u2011epoch file (and\
-    \ any associated log of removed ICA components) is not present."
-  task: 581a111c95fc2a09ca7ea8bc8a3d3b6fd643ca357a91ff9da0c90d2012901ecd
-T021:
-  task: 4e973599d999c0cfe4f147bed00be67b1512edced68e8b75e610c1fa9ddf62f1
-? "T022a/T022b [US2] [FR-004] Per\u2011participant standard/deviant ERPs and difference\
-  \ waves \u2192 `data/processed/diff_wave.fif`. Verified."
-: reason: "The required file `data/processed/diff_wave.fif` is reported as MISSING,\
-    \ so the per\u2011participant ERP and difference\u2011wave data are not present.\
-    \ Without this artifact the task\u2019s deliverable is not satisfied."
-  task: 55810fe8983bb286c26682a7eeb6a51afaf022bb5f36815c2454d2cda8d2762e
-? "T023/T024/T025 [US2] [FR-004] [SC-005] Peak detection (primary 150\u2013250\u202F\
-  ms, fallback 100\u2013300\u202Fms, \u22652.0\u202F\xB5V threshold), `peak_detected`\
-  \ flagging, and SNR computation on difference waves at Fz/FCz. Verified."
-: reason: "No code, data, or result files implementing the required peak\u2011detection\
-    \ (150\u2013250\u202Fms primary window, 100\u2013300\u202Fms fallback, \u2265\
-    2\u202F\xB5V threshold), `peak_detected` flag, or SNR computation on the Fz/FCz\
-    \ difference waves were found in the project tree. The task therefore lacks the\
-    \ essential artifact(s) (e.g., a Python module or script and its output CSV/JSON)\
-    \ to satisfy the specification."
-  task: 1bbb0988672f32dac4bb8d6cc59418f3c9669ba3ec58dc6f9015a8201c36b4d2
-T026:
-  task: 2332738fb74c57b65e8ba8dc108b119d96187a64df8c56a88837a4a13590719f
-? "T029\u2013T035, T039, T039b [US3] [FR-005] [FR-006] Statistical analysis in `code/stats.py`:\
-  \ exclusion filtering, paired t\u2011tests (Wilcoxon fallback), FDR over 4 comparisons,\
-  \ mixed\u2011effects model, cluster\u2011based permutation test (1000 permutations),\
-  \ Cohen's\u202Fd + 95\u202F% CI, prevalence, latency\u2011window validation \u2192\
-  \ `results/statistics.json`, `results/latency_validation.json`. Verified."
-: reason: "`code/stats.py` exists and contains functions for loading, filtering, normality\
-    \ testing, paired t\u2011/Wilcoxon tests, FDR correction, Cohen\u2019s\u202Fd\u202F\
-    +\u202FCI, and prevalence, but the mixed\u2011effects model and cluster\u2011\
-    based permutation test are only placeholders (`'status': 'not_implemented'`).\
-    \ The pipeline never creates the required output files \u2013 both `results/statistics.json`\
-    \ and `results/latency_validation.json` are missing. Consequently the task\u2019\
-    s full statistical analysis and required result artifacts are not provided."
-  task: 9579a2628b120b977e37c81815c751f38611ff261da05127ae1762440a7362a8
-"T036\u2013T038":
-  task: 50db5fe9f6122f21bf44a75e4da97baeaeaae816d52490145252b0cd0db581f7
-T046:
-  task: 6179d3594342c6118c3c8c045a9c187095d9fd701e03f2cf5a68aa1b5fef0f42
-T047:
-  task: 8f6c1e76566a6822e7bd39f815a3912ba8cc631612b64feb6f6bc651cc6b8535
-T048:
-  task: 0599d59e1f318fa92339254558d51b7c5ae3f1659ac5a20d27459063c3febf4b
-T049:
-  task: cbeaf2f188bc02c0c77d831bdec379f50be327e1280d5cde938f4db5add23308
-T050/T051/T052 Integration/unit tests for preprocessing, extraction, FDR, and visualization. Verified.:
-  reason: The evidence provides only the project root location and no concrete files
-    such as test suites, test data, or execution logs for the required integration/unit
-    tests of preprocessing, extraction, FDR correction, and visualization. Consequently,
-    the required test artifacts are missing, so the task is not satisfied.
-  task: eda85cf83b2063dd9c1509993062dd4893550e4214ad0c0bc62a36ae2dddee46
-T050b:
-  task: 5b545825c7214154ae70a5f4d4fb21db6bda5a3ed17ea0e5ca4f07d82155c19f
-T051b:
-  task: f8836cb7dfde1180cadac6c3369bbb48aab27fd6a7e9dbae3d0f00a06421627e
-T052b:
-  task: f2b400ea718b611c7b4d660e6bacb63bc723de32c643930f9c48a54453dfcac0
-T053:
-  task: cfd12e96de86730f269e3a681618ddf28fa7740905022679c6d15d2fe4b0081f
-T054:
-  task: b849b6c9493b4ecc5259690447253524703e58bfe5dad391f34f06ad1a800ba8
-T055:
-  task: b9a69edad686af020867a0134a52b86d042e36128a423c8ed70e71b353b8acfa
-T056:
-  task: ba861e3fb510c891be9b4a74ad4e38be924e2c774a077c9dc5d65821ee2ffff5
-T057:
-  task: ca6c0f9388faa8783da7015ec976056e73e3b0ca90914fd6c231f6de2eb397ff
-T058:
-  task: 0ec7ceb6984485c6caf6c7ac8a40d166093536e9cd99c9ed0e89decb268512e0
+  task: bc206515467988c8deaafd4ee0064c41e081fa71e7c7751b08891f50128c90ed
+T019:
+  task: 9e767d328fafbe994ea13ed09b5601b603b6fe8f70cba8e5bf21bf1639331024
+T020:
+  task: c1e36535185d95e53216b6a898a1b07bfce7745608e9b5c3c8e09eb8cb714b06

@@ -29,7 +29,7 @@ path(s), and the verification step(s) that the verifier will run.
   – File exists and contains only the specified channels (checked via schema).  
   – Filter parameters recorded in `code/config.yaml`.
 
-- [ ] T004 [FR-003] **ICA blink‑component detection & removal**  
+- [ ] T004 [FR-003] **ICA blink‑component detection & removal**   <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
   *Implementation*: `code/preprocess.py` runs ICA on the subsampled continuous data,
   computes correlation of each component with frontal channels (Fz, FCz);
   removes components with correlation > 0.8 or frontal topography.  

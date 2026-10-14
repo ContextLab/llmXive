@@ -4,8 +4,10 @@ Preprocessing pipeline for auditory oddball EEG data.
 This module handles:
 - Channel selection and montage assignment
 - Filtering and re-referencing
+- ICA-based blink artifact detection & removal
 - Epoching
-- ICA-based artifact removal
+- Saving of the subsampled raw data (T002 requirement) and ICA‑cleaned continuous data
+  (T004 requirement).
 """
 import os
 import yaml
@@ -27,12 +29,11 @@ logger = setup_logger(__name__)
 
 def get_standard_montage() -> mne.channels.make_dig_montage:
     """
-    Return the standard 32-channel EEG montage.
+    Return the standard 32‑channel EEG montage.
 
     Returns:
         Standard montage object.
     """
-    # Standard 32-channel montage coordinates
     montage = mne.channels.make_standard_montage('standard_1005')
     return montage
 
@@ -72,7 +73,6 @@ def select_channels(raw: mne.io.Raw, channels: List[str]) -> mne.io.Raw:
     Returns:
         Raw data with only selected channels.
     """
-    # Filter out channels not present in raw
     available = [ch for ch in channels if ch in raw.ch_names]
     missing = [ch for ch in channels if ch not in raw.ch_names]
     if missing:
@@ -83,13 +83,13 @@ def select_channels(raw: mne.io.Raw, channels: List[str]) -> mne.io.Raw:
     return raw
 
 # ----------------------------------------------------------------------
-# Filtering and Re-referencing
+# Filtering and Re‑referencing
 # ----------------------------------------------------------------------
 
-@log_execution_time()
+@log_execution_time
 def apply_filter(raw: mne.io.Raw, l_freq: float = 1.0, h_freq: float = 30.0) -> mne.io.Raw:
     """
-    Apply bandpass filter to raw data.
+    Apply band‑pass filter to raw data.
 
     Args:
         raw: Raw data object.
@@ -103,23 +103,110 @@ def apply_filter(raw: mne.io.Raw, l_freq: float = 1.0, h_freq: float = 30.0) -> 
     logger.info(f"Applied bandpass filter: {l_freq}-{h_freq} Hz")
     return raw
 
-@log_execution_time()
+@log_execution_time
 def rereference(raw: mne.io.Raw, method: str = 'average') -> mne.io.Raw:
     """
-    Re-reference EEG data.
+    Re‑reference EEG data.
 
     Args:
         raw: Raw data object.
-        method: Re-referencing method ('average', 'mastoids', etc.).
+        method: Re‑referencing method ('average', 'mastoids', etc.).
 
     Returns:
-        Re-referenced raw data.
+        Re‑referenced raw data.
     """
     if method == 'average':
         raw.set_eeg_reference(ref_channels='average', projection=True)
     else:
-        raise ValueError(f"Unsupported re-referencing method: {method}")
-    logger.info(f"Re-referenced to {method}")
+        raise ValueError(f"Unsupported re‑referencing method: {method}")
+    logger.info(f"Re‑referenced to {method}")
+    return raw
+
+# ----------------------------------------------------------------------
+# ICA Detection & Removal
+# ----------------------------------------------------------------------
+
+@log_execution_time
+def detect_ica_components(
+    raw: mne.io.Raw,
+    threshold: float = 0.8,
+    frontal_channels: List[str] = ['Fz', 'FCz']
+) -> List[int]:
+    """
+    Detect ICA components that likely correspond to eye‑blink artifacts.
+
+    The detection is based on Pearson correlation between each component's
+    time‑course and the average signal of the specified frontal channels.
+    Components with absolute correlation greater than ``threshold`` are
+    flagged for removal.
+
+    Args:
+        raw: Continuous Raw object (already filtered and re‑referenced).
+        threshold: Correlation threshold for blink detection.
+        frontal_channels: List of channel names to use for correlation.
+
+    Returns:
+        List of component indices to remove.
+    """
+    # Fit ICA on the continuous data
+    ica = mne.preprocessing.ICA(
+        n_components=0.95,
+        method='fastica',
+        random_state=42
+    )
+    ica.fit(raw)
+
+    # Get component time‑courses
+    sources = ica.get_sources(raw).get_data()  # shape (n_components, n_times)
+
+    # Extract frontal channel data (average across the requested channels)
+    picks = mne.pick_channels(raw.info['ch_names'], frontal_channels)
+    if not picks:
+        logger.warning("No frontal channels found for ICA correlation; no components will be removed.")
+        return []
+
+    frontal_data = raw.get_data(picks=picks)  # shape (n_frontal, n_times)
+    frontal_avg = frontal_data.mean(axis=0)   # shape (n_times,)
+
+    # Compute absolute Pearson correlation for each component
+    removed = []
+    for comp_idx in range(sources.shape[0]):
+        comp_ts = sources[comp_idx, :]
+        # Pearson correlation
+        corr = np.corrcoef(comp_ts, frontal_avg)[0, 1]
+        if np.isnan(corr):
+            continue
+        if abs(corr) > threshold:
+            removed.append(comp_idx)
+
+    logger.info(f"ICA detection: {len(removed)} component(s) exceed correlation threshold {threshold}")
+    return removed
+
+@log_execution_time
+def remove_ica_components(raw: mne.io.Raw, components: List[int]) -> mne.io.Raw:
+    """
+    Remove the specified ICA components from the continuous data.
+
+    Args:
+        raw: Continuous Raw object.
+        components: List of component indices to exclude.
+
+    Returns:
+        Cleaned Raw object.
+    """
+    if not components:
+        logger.info("No ICA components to remove.")
+        return raw
+
+    ica = mne.preprocessing.ICA(
+        n_components=0.95,
+        method='fastica',
+        random_state=42
+    )
+    ica.fit(raw)
+    ica.exclude = components
+    ica.apply(raw)
+    logger.info(f"Removed ICA components: {components}")
     return raw
 
 # ----------------------------------------------------------------------
@@ -141,14 +228,15 @@ def find_events(raw: mne.io.Raw, stimulus_channel: str = 'STI 014') -> np.ndarra
     logger.info(f"Found {len(events)} events")
     return events
 
-@log_execution_time()
+@log_execution_time
 def create_epochs(
     raw: mne.io.Raw,
     events: np.ndarray,
     event_id: Dict[str, int],
     tmin: float = -0.2,
     tmax: float = 0.5,
-    baseline: Optional[Tuple[float, float]] = (-0.2, 0.0)
+    baseline: Optional[Tuple[float, float]] = (-0.2, 0.0),
+    config: Optional[Dict[str, Any]] = None
 ) -> mne.Epochs:
     """
     Create epochs from raw data.
@@ -160,6 +248,7 @@ def create_epochs(
         tmin: Start time relative to event (s).
         tmax: End time relative to event (s).
         baseline: Baseline period (start, end) or None.
+        config: Optional configuration dict (currently unused).
 
     Returns:
         Epochs object.
@@ -173,167 +262,140 @@ def create_epochs(
     return epochs
 
 # ----------------------------------------------------------------------
-# ICA Processing
-# ----------------------------------------------------------------------
-
-@log_execution_time()
-def detect_ica_components(epochs: mne.Epochs, threshold: float = 0.8) -> List[int]:
-    """
-    Detect ICA components likely to be artifacts (blinks).
-
-    Args:
-        epochs: Epochs object.
-        threshold: Correlation threshold for blink detection.
-
-    Returns:
-        List of component indices to remove.
-    """
-    # Fit ICA
-    ica = mne.preprocessing.ICA(n_components=0.95, method='fastica', random_state=42)
-    ica.fit(epochs)
-
-    # Find blink components
-    # Note: In a real pipeline, we would use mne.preprocessing.find_blinks or similar
-    # Here we simulate detection based on frontal channel correlation
-    # For this implementation, we'll assume components with high frontal activity are blinks
-    # In production, replace with actual blink detection logic
-    frontal_channels = ['Fp1', 'Fp2', 'AFz', 'Fz']
-    available_frontal = [ch for ch in frontal_channels if ch in epochs.ch_names]
-
-    if not available_frontal:
-        logger.warning("No frontal channels found for ICA blink detection.")
-        return []
-
-    # Find components correlated with frontal channels
-    # This is a simplified heuristic; real implementation uses mne.preprocessing.find_blinks
-    components_to_remove = []
-    for comp_idx in range(len(ica)):
-        # Get component topography
-        comp_map = ica.get_sources(epochs).get_data()[comp_idx]
-        # Check if frontal channels have high amplitude (simplified check)
-        # In real code, we'd correlate with EOG channel or use mne.preprocessing.find_blinks
-        # Here we just mark components that might be artifacts for demonstration
-        # A real implementation would use:
-        # eog_indices, eog_scores = mne.preprocessing.find_blinks(epochs, ch_name='Fp1', threshold=3.0)
-        # components_to_remove = eog_indices
-        pass
-
-    # Placeholder for actual blink detection logic
-    # In a real scenario, we would run:
-    # eog_indices, _ = mne.preprocessing.find_blinks(epochs, ch_name='Fp1')
-    # components_to_remove = list(eog_indices)
-    # For now, we return an empty list to avoid removing real data without proper detection
-    logger.info("ICA component detection complete (placeholder for blink detection).")
-    return components_to_remove
-
-@log_execution_time()
-def remove_ica_components(epochs: mne.Epochs, components: List[int]) -> mne.Epochs:
-    """
-    Remove ICA components from epochs.
-
-    Args:
-        epochs: Epochs object.
-        components: List of component indices to remove.
-
-    Returns:
-        Cleaned epochs object.
-    """
-    if not components:
-        logger.info("No components to remove.")
-        return epochs
-
-    ica = mne.preprocessing.ICA(n_components=0.95, method='fastica', random_state=42)
-    ica.fit(epochs)
-    ica.exclude = components
-    ica.apply(epochs)
-    logger.info(f"Removed {len(components)} ICA components: {components}")
-    return epochs
-
-# ----------------------------------------------------------------------
 # Pipeline Execution
 # ----------------------------------------------------------------------
 
-@log_execution_time()
-def preprocess_pipeline(
-    raw_path: str,
-    output_path: str,
-  config: Optional[Dict[str, Any]] = None
-) -> mne.Epochs:
+@log_execution_time
+def preprocess_subject(subject_id: str, config: Dict[str, Any]) -> mne.Epochs:
     """
-    Run the full preprocessing pipeline.
+    Run preprocessing for a single subject.
+
+    This function now fulfills both:
+    - T002 (subsampled, filtered, re‑referenced continuous data)
+    - T004 (ICA blink‑component detection & removal)
+
+    Steps:
+    1. Load raw FIF file.
+    2. Set standard montage.
+    3. Select MMN‑relevant channels.
+    4. Apply band‑pass filter.
+    5. Re‑reference to common average.
+    6. Save the filtered continuous data (subsampled_raw.fif).
+    7. Run ICA detection on the continuous data.
+    8. Remove detected components and save ICA‑cleaned continuous file
+       (subsampled_clean.fif) plus a log of removed component indices.
+    9. Find events, create epochs, and save cleaned epochs per subject.
 
     Args:
-        raw_path: Path to raw FIF file.
-        output_path: Path to save cleaned epochs.
-        config: Optional configuration dictionary.
+        subject_id: Identifier of the subject (e.g., ``sub-01``).
+        config: Configuration dictionary.
 
     Returns:
-        Cleaned epochs object.
+        Cleaned MNE Epochs object.
     """
-    # Load config if not provided
-    if config is None:
-        config = get_config()
+    project_root = get_project_root()
+    raw_dir = project_root / 'data' / 'raw'
+    processed_dir = project_root / 'data' / 'processed'
+    ensure_directory(processed_dir)
+
+    # Locate the raw FIF file for the given subject
+    raw_pattern = raw_dir / f"{subject_id}/**/*_task-auditory*_raw.fif"
+    raw_files = list(raw_pattern.glob())
+    if not raw_files:
+        raise FileNotFoundError(f"No raw FIF file found for subject {subject_id}")
+    raw_path = raw_files[0]
 
     # Load raw data
-    raw = mne.io.read_raw_fif(raw_path, preload=True)
+    raw = mne.io.read_raw_fif(str(raw_path), preload=True)
 
     # Set montage
     raw = set_montage(raw)
 
-    # Select channels
+    # Select MMN channels
     mmn_channels = get_mmn_montage()
     raw = select_channels(raw, mmn_channels)
 
     # Filter
-    l_freq = config.get('filter', {}).get('l_freq', 1.0)
-    h_freq = config.get('filter', {}).get('h_freq', 30.0)
+    l_freq = config.get('filter', {}).get('lowcut', 1.0)
+    h_freq = config.get('filter', {}).get('highcut', 30.0)
     raw = apply_filter(raw, l_freq, h_freq)
 
-    # Re-reference
-    raw = rereference(raw)
+    # Re‑reference
+    raw = rereference(raw, method='average')
 
-    # Find events
+    # Save subsampled, filtered, re‑referenced continuous data (T002 output)
+    subsampled_path = processed_dir / 'subsampled_raw.fif'
+    raw.save(str(subsampled_path), overwrite=True)
+    logger.info(f"Saved subsampled raw data to {subsampled_path}")
+
+    # ------------------------------------------------------------------
+    # ICA detection & removal (T004)
+    # ------------------------------------------------------------------
+    ica_threshold = config.get('ica', {}).get('threshold', 0.8)
+    components_to_remove = detect_ica_components(raw, ica_threshold)
+
+    # Log removed component indices
+    ica_log_path = processed_dir / 'ica_removed.log'
+    with ica_log_path.open('w') as log_f:
+        if components_to_remove:
+            log_f.write('Removed ICA components: ' + ','.join(map(str, components_to_remove)) + '\\n')
+        else:
+            log_f.write('No ICA components removed.\\n')
+    logger.info(f"ICA removal log written to {ica_log_path}")
+
+    # Apply removal
+    raw = remove_ica_components(raw, components_to_remove)
+
+    # Save ICA‑cleaned continuous data (T004 output)
+    cleaned_path = processed_dir / 'subsampled_clean.fif'
+    raw.save(str(cleaned_path), overwrite=True)
+    logger.info(f"Saved ICA‑cleaned continuous data to {cleaned_path}")
+
+    # ------------------------------------------------------------------
+    # Epoching (uses the ICA‑cleaned continuous data)
+    # ------------------------------------------------------------------
     events = find_events(raw)
 
-    # Create epochs
     event_id = config.get('event_id', {'standard': 1, 'deviant': 2})
     tmin = config.get('epoch', {}).get('tmin', -0.2)
-    tmax = config.get('epoch', {}).get('tmax', 0.5)
+    tmax = config.get('epoch', {}).get('tmax', 0.6)  # 600 ms as per spec
     baseline = tuple(config.get('epoch', {}).get('baseline', [-0.2, 0.0]))
-    epochs = create_epochs(raw, events, event_id, tmin, tmax, baseline)
+    epochs = create_epochs(raw, events, event_id, tmin, tmax, baseline, config=config)
 
-    # ICA
-    threshold = config.get('ica', {}).get('threshold', 0.8)
-    components = detect_ica_components(epochs, threshold)
-    epochs = remove_ica_components(epochs, components)
-
-    # Save
-    ensure_directory(Path(output_path).parent)
-    epochs.save(output_path, overwrite=True)
-    logger.info(f"Saved cleaned epochs to {output_path}")
+    # Save cleaned epochs for the subject
+    epochs_path = processed_dir / f"{subject_id}_epo_raw.fif"
+    epochs.save(str(epochs_path), overwrite=True)
+    logger.info(f"Saved cleaned epochs to {epochs_path}")
 
     return epochs
 
-@log_execution_time()
+@log_execution_time
 def run_preprocessing_pipeline(
-    data_dir: str,
-    output_dir: str,
+    data_dir: Optional[str] = None,
+    output_dir: Optional[str] = None,
     config_path: Optional[str] = None
 ) -> List[str]:
     """
     Run preprocessing on all subjects in a directory.
 
     Args:
-        data_dir: Directory containing raw data.
-        output_dir: Directory to save processed data.
-        config_path: Path to config file.
+        data_dir: Directory containing raw data. If None, defaults to
+                  ``<project_root>/data/raw``.
+        output_dir: Directory to save processed data. If None, defaults to
+                    ``<project_root>/data/processed``.
+        config_path: Path to config file. If None, defaults to
+                     ``<project_root>/code/config.yaml``.
 
     Returns:
         List of output file paths.
     """
     project_root = get_project_root()
+    if data_dir is None:
+        data_dir = str(project_root / 'data' / 'raw')
+    if output_dir is None:
+        output_dir = str(project_root / 'data' / 'processed')
     if config_path is None:
-        config_path = project_root / 'code' / 'config.yaml'
+        config_path = str(project_root / 'code' / 'config.yaml')
 
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
@@ -344,16 +406,17 @@ def run_preprocessing_pipeline(
 
     output_files = []
 
-    for raw_file in data_path.glob('sub-*/ses-*/eeg/*_task-auditory_*-raw.fif'):
-        subject_id = raw_file.parent.parent.parent.name
-        output_file = output_path / f"{subject_id}_epo_clean.fif"
-
-        logger.info(f"Processing {raw_file} -> {output_file}")
+    # Iterate over subject directories
+    for subject_dir in sorted(data_path.iterdir()):
+        if not subject_dir.is_dir() or not subject_dir.name.startswith('sub-'):
+            continue
+        subject_id = subject_dir.name
+        logger.info(f"Processing subject {subject_id}")
         try:
-            preprocess_pipeline(str(raw_file), str(output_file), config)
-            output_files.append(str(output_file))
+            epochs = preprocess_subject(subject_id, config)
+            output_files.append(str(output_path / f"{subject_id}_epo_raw.fif"))
         except Exception as e:
-            logger.error(f"Failed to process {raw_file}: {e}")
+            logger.error(f"Failed to process {subject_id}: {e}")
 
     return output_files
 

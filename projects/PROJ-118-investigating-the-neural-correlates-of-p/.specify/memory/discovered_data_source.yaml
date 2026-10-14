@@ -1,17 +1,17 @@
 status: none
-intent: OpenNeuro ds003645 auditory oddball EEG dataset python package dataset
+intent: OpenNeuro ds003645 auditory oddball EEG dataset mne python package dataset
 required_fields:
-- participant_id
+- subject_id
 - session_id
 - run_id
-- eeg_signal_matrix
-- channel_names
+- eeg_data
 - sampling_rate
-- stimulus_onset_times
-- condition_label
-- event_codes
-- epoch_start_time
-- epoch_end_time
-cache_key: e85cfec406e2df5e15a7ddbab2136698bd27cd89070e037498151cbb5b13a357
-searched_at: '2026-10-14T20:20:31.019546+00:00'
+- channel_names
+- event_type
+- event_onset
+- stimulus_condition
+- montage
+- metadata
+cache_key: 4f68cc9399808ec478c941fab05619764e280ed278096e7aa39b85ed0f4d32cc
+searched_at: '2026-10-14T20:31:35.236199+00:00'
 retry_count: 1
