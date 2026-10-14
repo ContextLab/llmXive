@@ -1,1 +1,1 @@
-"""Utility functions and helpers."""
+"""src.utils package – helper functions and logging configuration."""

@@ -1,1 +1,1 @@
-"""Statistical modeling and inference modules."""
+"""src.stats package – statistical modeling utilities."""

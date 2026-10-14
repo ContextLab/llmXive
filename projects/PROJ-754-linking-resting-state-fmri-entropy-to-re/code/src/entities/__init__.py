@@ -1,1 +1,1 @@
-"""Data entity definitions."""
+"""src.entities package – domain entities (Subject, Parcel, …)."""

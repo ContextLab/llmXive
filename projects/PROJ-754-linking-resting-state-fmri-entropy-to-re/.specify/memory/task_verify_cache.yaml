@@ -1,3 +1,14 @@
+T001:
+  c: false
+  h: 509088a925ce42b2e1ef53956d8c3c9227e5bba8e70fc1036b0fe36a62ab4547
+  r: "The required source and test directories exist with Python files, and `quickstart.md`\
+    \ lists end\u2011to\u2011end commands, but the validation step fails: the recorded\
+    \ pytest run (`code/.tasks/T001.code_tests_unit_test_directory_structure.py.log`)\
+    \ shows `test_required_directories_and_modules` exiting with failure because the\
+    \ expected path `code/code/src/data` is missing. Consequently `pytest code/tests/`\
+    \ does not pass, violating the task\u2019s validation requirement. The implementer\
+    \ must fix the directory layout (or the test) so that the pytest suite succeeds."
+  sig: 95e3ed02adf0f08e0328c5ea918653c0441e4cac60466db999e2f665e180f3a6
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

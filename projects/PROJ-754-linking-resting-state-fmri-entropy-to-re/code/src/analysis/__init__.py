@@ -1,1 +1,1 @@
-"""Entropy computation and analysis modules."""
+"""src.analysis package – contains analysis utilities."""

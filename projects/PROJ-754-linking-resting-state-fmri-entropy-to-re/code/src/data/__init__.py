@@ -1,1 +1,1 @@
-"""Data acquisition and preprocessing modules."""
+"""src.data package – contains data acquisition utilities."""
