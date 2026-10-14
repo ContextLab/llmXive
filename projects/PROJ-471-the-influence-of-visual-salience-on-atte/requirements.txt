@@ -1,13 +1,21 @@
-torch
-ultralytics
-statsmodels
-pandas
-datasets
-numpy
-opencv-python
-pyyaml
-scipy
-simr
-psutil
-ruff
-black
+# Pinned dependencies for reproducibility
+# Python version
+python==3.11
+
+# Core libraries
+torch==2.2.0
+torchvision==0.17.0
+datasets==2.18.0
+scikit-learn==1.4.0
+statsmodels==0.14.2
+opencv-python==4.9.0.80
+ultralytics==8.2.2
+detectron2==0.8
+pandas==2.2.1
+numpy==1.26.4
+pingouin==0.5.4
+psutil==5.9.8
+
+# Formatting / linting tools
+ruff==0.2.2
+black==24.2.0

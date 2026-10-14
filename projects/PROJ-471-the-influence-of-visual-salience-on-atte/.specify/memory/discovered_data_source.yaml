@@ -1,17 +1,18 @@
 status: none
-intent: Moral Foundations eye tracking dataset OpenNeuro ds003123 DeepGaze II model
-  weights YOLOv8 COCO weights python package dataset
+intent: Moral Foundations Eye-Tracking dataset OpenNeuro download python package dataset
 required_fields:
-- image_id
-- image_path
-- image_height
-- image_width
 - participant_id
-- trial_id
-- fixation_x
-- fixation_y
-- fixation_duration
+- run_id
+- stimulus_image_id
+- stimulus_image_path
+- image_width
+- image_height
+- gaze_x
+- gaze_y
 - timestamp
-cache_key: efcdfafdc49bf734fcbb46cc7ce3c09b8969f3659154be4b1be8207a625be1eb
-searched_at: '2026-08-23T17:39:54.384264+00:00'
+- fixation_duration
+- fixation_index
+- moral_foundation_category
+cache_key: dedb1d6a7049e04382e9e624956010cb89a7129f637e8ca964ffd906907f2d82
+searched_at: '2026-10-14T21:23:31.242640+00:00'
 retry_count: 1

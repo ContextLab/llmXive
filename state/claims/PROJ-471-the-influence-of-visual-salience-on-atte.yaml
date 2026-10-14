@@ -408,7 +408,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-26T11:58:56Z'
 - artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
   attempts: 1
@@ -615,3 +615,68 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T12:03:21Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/README.md
+  attempts: 1
+  canonical: script creates required folder structure, writes pinned requirements.txt,
+    and prints directory tree
+  claim_id: c_22930c3b
+  context: The script creates the required folder structure, writes a pinned requirements.txt,
+    and prints a directory tree as proof.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script creates the required folder structure, writes a pinned `requirements.txt`,
+    and prints a directory tree as proof.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T21:20:47Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/README.md
+  attempts: 1
+  canonical: CUDA available is False
+  claim_id: c_2e7e85be
+  context: 'Running the verification command prints the expected output: CUDA available:
+    False.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: '''Expected output: CUDA available: False'''
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T21:20:47Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/README.md
+  attempts: 1
+  canonical: command checks directory layout exists and reports success
+  claim_id: c_4e86db48
+  context: Running the smoke test command checks that the directory layout exists
+    and reports success.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The command checks that the directory layout exists and reports success.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T21:20:47Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/README.md
+  attempts: 1
+  canonical: pipeline aborts with error code DATA_MISSING_001 when dataset missing
+  claim_id: c_60fddb50
+  context: If the dataset is missing, the pipeline will abort with error code DATA_MISSING_001.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If the dataset is missing, the pipeline will abort with error code DATA_MISSING_001.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T21:20:47Z'

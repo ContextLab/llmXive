@@ -1,5 +1,10 @@
-# Extending pyproject.toml for specific editor integrations if needed,
-# but primary config is in pyproject.toml.
-# This file ensures ruff can be invoked directly with `ruff check .`
-# without needing explicit arguments in some environments.
-extend = "pyproject.toml"
+[line-length]
+max-length = 100
+
+[format]
+indent-style = "space"
+indent-width = 4
+
+[lint]
+select = ["E", "F", "W", "C90"]
+ignore = ["E501"]  # line length handled above

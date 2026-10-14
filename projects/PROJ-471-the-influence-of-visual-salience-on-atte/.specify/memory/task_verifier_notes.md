@@ -1,8 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T001a** — No evidence (e.g., directory listing, screenshots, or script output) was provided to show that the required directories (`code/`, `data/raw`, `data/interim`, `data/processed`, `tests/unit`, `tests/integration`, `docs/`) actually exist. Without concrete proof, the task cannot be considered completed.
-- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black settings, `.ruff.toml`, CI workflow modifications) are present, and the provided project excerpt contains no such artifacts. The implementer’s claim lacks any tangible evidence that ruff and black have been set up.
-- **T037a** — No updated `README.md` file was provided; the claim lacks any artifact showing installation steps, data acquisition protocol, or execution commands, which are the explicit deliverables of task T037a. The required README content is missing.
-- **T037b** — No documentation files or updates were presented; there is no evidence that the `docs/` directory now contains a data protocol or processing details as required. The implementer must add the appropriate markdown (or other) files to `docs/` describing dataset acquisition, salience map generation, eye‑tracking preprocessing, and analysis steps.

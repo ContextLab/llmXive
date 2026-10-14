@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "e64f3a06f7c90c809f6aa6ae52498c78650d72425cd3401496b2d35e0c65d270",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/bootstrap.py': SyntaxError at line 43: unexpected character after line continuation character. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 3172"
+}
