@@ -1,15 +1,15 @@
 status: none
-intent: download HEA thermodynamic dataset Materials Project AFLOW Hugging Face python
-  package dataset
+intent: download high entropy alloy thermodynamic data Materials Project AFLOW HuggingFace
+  python package dataset
 required_fields:
 - composition
-- elements
-- atomic_fractions
 - formation_energy_per_atom
 - mixing_enthalpy
-- number_of_elements
-- entry_id
-- source_database
-cache_key: 1977ed5c2942d25b5a00c51e91ee2df534e17e239d9ad548153bd05235e43d00
-searched_at: '2026-10-14T20:14:59.333605+00:00'
+- num_elements
+- element_fraction_vector
+- atomic_number_vector
+- spacegroup
+- energy_above_hull
+cache_key: 700349c71ceafe40462f425a3c20793a0a1557e245c29ec0a0db184784afe532
+searched_at: '2026-10-14T21:13:19.868543+00:00'
 retry_count: 1

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "HEA Training Set Schema"
-description: "Schema for the filtered HEA training dataset (heas_train.csv)"
+description: "Schema for the filtered HEA training dataset (heas_train.csv)."
 type: object
 properties:
   composition_id:
