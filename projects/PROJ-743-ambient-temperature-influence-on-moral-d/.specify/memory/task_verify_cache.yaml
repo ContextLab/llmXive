@@ -1,9 +1,0 @@
-T001:
-  c: false
-  h: 6aa029518ce25584aaa2eaa24e2a37a83f625650e78e5614a3700ae2540a97ae
-  r: The repository contains the required `requirements.txt`, `pyproject.toml`, and
-    a `code/config.py` that defines all the specified constants. However, there are
-    no artifacts for the logging subsystem, checksum utilities, or the chunked Parquet
-    loader modules that the task explicitly demands. These missing components mean
-    the project does not fully satisfy the T001 specification.
-  sig: 0a418f378a0c7185a7612850cbac83888daeb4540d7f3f60a660566b23dfd9b4

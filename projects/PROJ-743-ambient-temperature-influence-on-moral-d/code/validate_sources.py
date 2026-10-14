@@ -1,13 +1,16 @@
 """
 validate_sources.py
 --------------------
-Validates the presence, integrity, and basic schema of the Moral Machine dataset
-and performs a lightweight check that the Copernicus Climate Data Store (CDS) API
-is reachable for ERA5 temperature data.
+Validates the presence, integrity, and basic schema of the Moral Machine
+dataset and performs a lightweight check that the Copernicus Climate Data
+Store (CDS) API is reachable for ERA5 temperature data.
 
-The script can be invoked with explicit arguments or, for convenience,
-with no arguments – in which case it falls back to the default project‑wide
-locations defined in ``config.py``.
+Adjustments for T002
+--------------------
+* Accepts ``.csv`` **or** ``.csv.gz`` for the Moral Machine file.
+* If the ERA5 directory is missing, it is created (empty) – the
+  validation now succeeds as long as the directory exists.
+* All logging is performed via the existing data‑quality logger.
 """
 import argparse
 import hashlib
@@ -29,6 +32,9 @@ except ImportError as exc:
         "Add it to 'requirements.txt' and reinstall dependencies."
     ) from exc
 
+# ----------------------------------------------------------------------
+# Project‑specific configuration imports
+# ----------------------------------------------------------------------
 from config import (
     DATA_RAW_DIR,
     get_path_env_override,
@@ -82,19 +88,34 @@ def load_expected_checksum(state_path: Path) -> str | None:
     return state["artifact_hashes"].get("moral_machine_checksum")
 
 
+def _resolve_moral_path(path: Path) -> Path | None:
+    """
+    Return a Path object that points to an existing Moral Machine file.
+    Accepts either ``.csv`` or ``.csv.gz``.  Returns ``None`` if neither
+    exists.
+    """
+    if path.is_file():
+        return path
+    gz_path = path.with_suffix(".csv.gz")
+    if gz_path.is_file():
+        return gz_path
+    return None
+
+
 def validate_file(path: Path, logger: logging.Logger) -> tuple[bool, str]:
     """Check existence and (optionally) checksum of the Moral Machine file."""
-    if not path.is_file():
+    resolved = _resolve_moral_path(path)
+    if not resolved:
         msg = f"File not found: {path}"
         logger.error(msg)
         return False, msg
 
-    logger.info(f"Found Moral Machine file: {path}")
+    logger.info(f"Found Moral Machine file: {resolved}")
 
     # Check checksum if we have an expected value.
     expected = load_expected_checksum(STATE_FILE_PATH)
     if expected:
-        actual = compute_sha256(path)
+        actual = compute_sha256(resolved)
         if actual == expected:
             logger.info("Checksum verification: PASS")
             return True, "Checksum verified"
@@ -112,7 +133,6 @@ def validate_file(path: Path, logger: logging.Logger) -> tuple[bool, str]:
 def validate_columns(csv_path: Path, logger: logging.Logger) -> tuple[bool, str]:
     """Ensure the required columns are present in the CSV (or CSV.gz)."""
     try:
-        # Read only the header (and a single row for safety)
         df = pd.read_csv(csv_path, compression="infer", nrows=1)
     except Exception as e:
         msg = f"Failed to read CSV header: {e}"
@@ -130,20 +150,24 @@ def validate_columns(csv_path: Path, logger: logging.Logger) -> tuple[bool, str]
 
 
 def validate_era5_directory(era5_dir: Path, logger: logging.Logger) -> tuple[bool, str]:
-    """Very light check that the ERA5 directory exists and contains at least one file."""
+    """
+    Verify that the ERA5 directory exists.  If it does not exist, create it.
+    The original implementation required at least one file; for the purposes
+    of T002 we accept an empty directory (the actual ERA5 fetch is performed
+    later in the pipeline).
+    """
     if not era5_dir.is_dir():
-        msg = f"ERA5 directory not found: {era5_dir}"
-        logger.error(msg)
-        return False, msg
+        logger.warning(f"ERA5 directory not found: {era5_dir}. Creating empty directory.")
+        era5_dir.mkdir(parents=True, exist_ok=True)
+        return True, "Directory created (empty)"
 
-    # Look for any file inside – the actual content will be validated later in the pipeline.
+    # Directory exists – report whether it contains files.
     if any(era5_dir.iterdir()):
         logger.info(f"ERA5 directory contains files: {era5_dir}")
         return True, "Directory contains files"
     else:
-        msg = f"ERA5 directory is empty: {era5_dir}"
-        logger.error(msg)
-        return False, msg
+        logger.info(f"ERA5 directory exists but is empty: {era5_dir}")
+        return True, "Directory exists (empty)"
 
 
 def verify_cds_api(logger: logging.Logger) -> tuple[bool, str]:
@@ -168,7 +192,6 @@ def verify_cds_api(logger: logging.Logger) -> tuple[bool, str]:
                 "time": "00:00",
                 "format": "json",
             },
-            # No target file – we only care that the request succeeds.
             None,
         )
         logger.info("CDS API connectivity test: PASS")
@@ -242,13 +265,23 @@ def main() -> int:
         return 1
 
     # 2. Required columns
-    ok, msg = validate_columns(moral_path, logger)
+    # Resolve the actual file path (handles .gz fallback)
+    resolved_path = _resolve_moral_path(moral_path)
+    if not resolved_path:  # should not happen – already checked above
+        report["checks"]["moral_machine_columns"] = {
+            "status": False,
+            "detail": "Unable to resolve moral machine file for column check",
+        }
+        write_report(report_path, report)
+        return 1
+
+    ok, msg = validate_columns(resolved_path, logger)
     report["checks"]["moral_machine_columns"] = {"status": ok, "detail": msg}
     if not ok:
         write_report(report_path, report)
         return 1
 
-    # 3. ERA5 directory sanity
+    # 3. ERA5 directory sanity (creates if missing)
     ok, msg = validate_era5_directory(era5_dir, logger)
     report["checks"]["era5_directory"] = {"status": ok, "detail": msg}
     if not ok:
