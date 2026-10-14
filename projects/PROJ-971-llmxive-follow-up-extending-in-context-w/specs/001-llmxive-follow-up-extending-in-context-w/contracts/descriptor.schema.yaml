@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Latent Descriptor Record"
+type: object
+required:
+  - clip_id
+  - variance
+  - autocorr_lag1
+  - spectral_density
+properties:
+  clip_id:
+    type: string
+    description: "Unique identifier for the interaction clip (e.g., 'clip_00123')."
+  variance:
+    type: number
+    description: "Sample variance of the latent token sequence."
+  autocorr_lag1:
+    type: number
+    description: "Lag‑1 autocorrelation of the latent token sequence."
+  spectral_density:
+    type: number
+    description: "Mean power spectral density (Welch estimate) across token dimensions."
