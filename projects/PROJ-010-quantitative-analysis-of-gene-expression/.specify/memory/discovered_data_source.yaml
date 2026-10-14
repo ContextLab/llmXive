@@ -1,14 +1,14 @@
 status: none
-intent: download human fetal brain single cell RNA-seq dataset GEO BrainSpan GSE36520
-  scRNA-seq python package dataset
+intent: human fetal brain atlas single cell GEO BrainSpan GWAS catalog python package
+  dataset
 required_fields:
-- cell_id
-- gene_id
-- raw_counts
-- normalized_counts
+- cell_barcode
+- gene_symbol
+- raw_count
+- normalized_expression
 - developmental_stage
 - donor_id
-- batch_id
-cache_key: e78924c0fa34508851d662b9a0c3a5e7b07928e3224d18d3b1eded784738145c
-searched_at: '2026-10-13T22:09:07.421103+00:00'
+- cell_type
+cache_key: 70c9d3ea689918cf24fbda0d0de1432d6a2ec767df5c4353e0b1a57bda6c9cc2
+searched_at: '2026-10-14T00:13:19.584674+00:00'
 retry_count: 1

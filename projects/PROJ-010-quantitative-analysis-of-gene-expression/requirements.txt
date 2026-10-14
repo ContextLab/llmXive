@@ -1,8 +1,1 @@
-# Project dependencies
-GEOparse
-scanpy
-harmonypy
-arboreto
-# The following packages are already available in the runner environment:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+scikit-misc
