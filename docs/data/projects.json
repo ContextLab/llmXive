@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-14T11:18:00.341919+00:00",
+  "generated_at": "2026-10-14T11:24:37.717121+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -90268,7 +90268,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-331-investigating-the-correlation-between-gu.yaml",
         "code": "projects/PROJ-331-investigating-the-correlation-between-gu/code",
-        "data": "projects/PROJ-331-investigating-the-correlation-between-gu/data",
+        "data": null,
         "idea": "projects/PROJ-331-investigating-the-correlation-between-gu/idea/investigating-the-correlation-between-gu.md",
         "paper_figures": null,
         "paper_pdf": null,
