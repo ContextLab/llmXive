@@ -18,7 +18,7 @@ import hashlib
 import json
 import sys
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import List, Tuple
 
 from llmxive_toolkit import paths, get_logger
 
@@ -50,12 +50,13 @@ def _load_via_hf_hub() -> List[Tuple[str, List[dict]]]:
         log.error(f"Failed to import huggingface_hub: {exc}")
         raise
 
-    repo_id = "code_x_glue/defect_detection"
+    # The correct repository identifier for the CodeXGLUE defect‑detection dataset
+    repo_id = "code_x_glue_cc_defect_detection"
     splits = ["train", "validation", "test"]
     result = []
     for split in splits:
         filename = f"{split}.jsonl"
-        log.info(f"Downloading {filename} from the HuggingFace Hub...")
+        log.info(f"Downloading {filename} from the HuggingFace Hub (repo: {repo_id})...")
         file_path = hf_hub_download(repo_id=repo_id, filename=filename)
         records: List[dict] = []
         with open(file_path, "r", encoding="utf-8") as fh:

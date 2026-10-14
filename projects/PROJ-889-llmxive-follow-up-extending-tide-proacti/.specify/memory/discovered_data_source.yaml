@@ -1,13 +1,15 @@
 status: none
-intent: download CodeXGLUE and TIDE datasets with AST depth import count cyclomatic
-  complexity python package dataset
+intent: Python pip package for downloading CodeXGLUE defect detection dataset real
+  python package dataset
 required_fields:
 - code_id
-- code_text
 - ast_depth
 - import_count
 - cyclomatic_complexity
+- dependency_depth
+- semantic_scope
+- syntactic_complexity
 - hidden_problem_label
-cache_key: b8f0e797a93cb334f0c0ddd2112e15a29d916203c5db45916e2d694b1f1541b3
-searched_at: '2026-10-13T18:17:14.432419+00:00'
+cache_key: bf2d2d93626ff538cb680e08e998b2e4fa3c6852786b9ff2954e0acae23ed036
+searched_at: '2026-10-14T20:10:00.565149+00:00'
 retry_count: 1
