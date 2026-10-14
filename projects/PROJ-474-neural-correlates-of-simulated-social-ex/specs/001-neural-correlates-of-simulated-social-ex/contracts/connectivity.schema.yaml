@@ -24,15 +24,15 @@ properties:
       items:
         type: number
     description: "Correlation matrix."
-  strength_signed:
-    type: number
-    description: "Mean signed correlation."
   strength_absolute:
     type: number
-    description: "Mean absolute correlation (descriptive)."
+    description: "Primary metric – mean absolute correlation across ROI edges."
+  strength_signed:
+    type: number
+    description: "Mean signed correlation (provided for descriptive purposes)."
   edges:
     type: object
-    description: "Individual edge correlation values."
+    description: "Individual edge correlation values (signed)."
     additionalProperties:
       type: number
 required:
@@ -40,6 +40,6 @@ required:
   - condition
   - nodes
   - matrix
-  - strength_signed
   - strength_absolute
   - edges
+additionalProperties: false

@@ -1,79 +1,74 @@
 # Quickstart: Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics
 
 ## Prerequisites
-
-- Python 3.11+
+- Python 3.11 or newer
 - Git
-- Docker (required for fMRIPrep)
-- Access to OpenNeuro (or HuggingFace mirror if available)
-- Sufficient disk space (for data download and processing)
+- Docker (required for the optional fMRIPrep container; not needed for the core pipeline)
+- Internet access from the CI runner (to fetch verified datasets)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/your-org/neural-correlates-social-exclusion.git
-    cd neural-correlates-social-exclusion
-    ```
+```bash
+# Clone the repository
+git clone 
+cd neural-correlates-social-exclusion
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+# Install Python dependencies
+pip install -r requirements.txt
+```
 
 ## Data Setup
 
-1.  **Download the dataset**:
-    The pipeline attempts to download `ds000030` from OpenNeuro.
-    ```bash
-    python code/data_loader.py --dataset ds000030 --output data/raw
-    ```
-    *Note: If the dataset is not available in the verified HuggingFace mirrors, ensure you have network access to the OpenNeuro API. If no verified source is found, the pipeline will halt with `ERR_DATA_UNVERIFIED`.*
-
-2.  **Verify data integrity**:
-    ```bash
-    python code/data_loader.py --verify
-    ```
-
-## Running the Pipeline
-
-Execute the full analysis pipeline:
-
 ```bash
-python code/main.py
+# Attempt to download the verified Cyberball dataset
+python code/data_loader.py --dataset ds000030 --output data/raw
 ```
 
-This will:
-1.  Download and verify data.
-2.  Perform motion QC and exclude subjects (>3mm).
-3.  Extract BOLD time-series from DMN ROIs.
-4.  Compute connectivity strength for Inclusion and Exclusion.
-5.  Run the paired permutation test.
-6.  Generate figures and a summary report in `results/report.md`.
+- If the dataset is not present in the verified list, the command will terminate with `ERR_DATA_UNVERIFIED` and the pipeline will stop.  
+- No synthetic data are generated; you must add a verified source for `ds000030` to the project's verified‑datasets block before proceeding.
 
-## Validation
-
-To run unit tests:
+## Running the Full Analysis
 
 ```bash
+python code/main.py --seed 42
+```
+
+The pipeline performs:
+
+1. Data download & integrity check.  
+2. Motion QC (mean FD ≤ 0.2 mm).  
+3. ROI time‑series extraction.  
+4. Static & sliding‑window connectivity computation.  
+5. Paired permutation test (10 000 permutations).  
+6. Generation of all required figures and a summary report (`results/report.md`).
+
+## Validation & Testing
+
+```bash
+# Unit tests
 pytest tests/
-```
 
-To validate data schemas:
-
-```bash
-python -m jsonschema validate data/processed/connectivity.parquet contracts/connectivity.schema.yaml
+# Schema validation (example)
+python - <<'PY'
+import json, jsonschema, pathlib
+schema = yaml.safe_load(open('contracts/connectivity.schema.yaml'))
+data   = json.load(open('data/processed/connectivity_sample.json'))
+jsonschema.validate(instance=data, schema=schema)
+print("Connectivity file validates.")
+PY
 ```
 
 ## Troubleshooting
 
-- **ERR_N_INSUFFICIENT**: The dataset has fewer than 10 subjects after QC. The pipeline halts.
-- **ERR_DATA_UNAVAILABLE**: The dataset could not be downloaded. Check network or verify the dataset ID.
-- **ERR_DATA_UNVERIFIED**: No verified Cyberball dataset source was found in the project's verified dataset block. The study is blocked until a verified source is added.
-- **Memory Error**: Ensure you are using the streaming mode in `data_loader.py` and not loading full NIfTI files into RAM.
+| Symptom | Likely Cause | Action |
+|---------|--------------|--------|
+| `ERR_DATA_UNVERIFIED` | No verified Cyberball dataset in the block. | Add a verified URL for `ds000030` or request a substitute verified dataset. |
+| `ERR_N_INSUFFICIENT` (101897696) | Fewer than 10 subjects passed QC. | Verify motion thresholds or obtain additional subjects. |
+| MemoryError | Attempting to load whole NIfTI into RAM. | Ensure streaming mode (`--stream`) is enabled (default). |
+| Missing figures | Pipeline halted early due to QC failure. | Check logs in `data/processed/qc_log.csv` for exclusion reasons. |
+
+---

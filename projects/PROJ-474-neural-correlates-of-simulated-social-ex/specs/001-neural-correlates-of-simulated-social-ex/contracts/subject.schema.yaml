@@ -6,9 +6,9 @@ properties:
   subject_id:
     type: string
     description: "Unique subject identifier."
-  motion_max:
+  motion_mean:
     type: number
-    description: "Maximum head motion displacement in mm."
+    description: "Mean head motion displacement in mm."
     minimum: 0
   qc_status:
     type: string
@@ -26,6 +26,6 @@ properties:
     description: "List of valid conditions for this subject."
 required:
   - subject_id
-  - motion_max
+  - motion_mean
   - qc_status
   - conditions

@@ -1,17 +1,19 @@
 status: none
-intent: download OpenNeuro ds000030 preprocessed BIDS fMRI dataset python package
-  dataset
+intent: OpenNeuro ds000030 Cyberball preprocessed fMRI download Harvard-Oxford atlas
+  python package dataset
 required_fields:
 - subject_id
-- session_id
-- run
-- task_name
-- condition_label (Inclusion/Exclusion)
-- bold_preprocessed_nifti_path
-- motion_parameters_confounds_tsv_path
+- run_id
+- bold_nifti_path
 - events_tsv_path
-- tr_seconds
-- standard_space_atlas (e.g., MNI)
-cache_key: 292d0543afe2f1dd17d8fcb35bdcf01780e78bfdcb84290d8c28017a8ff3f491
-searched_at: '2026-07-24T20:56:29.547387+00:00'
+- inclusion_event_markers
+- exclusion_event_markers
+- roi_time_series_pcc
+- roi_time_series_mpfc
+- roi_time_series_left_angular_gyrus
+- roi_time_series_right_angular_gyrus
+- framewise_displacement_series
+- mean_framewise_displacement
+cache_key: f027ee4bbb8717176b9695fe6bf92ae3556e5c6bea3f4a5f82b29a851a813a9d
+searched_at: '2026-10-14T09:29:12.144018+00:00'
 retry_count: 1
