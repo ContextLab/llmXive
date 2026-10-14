@@ -1,139 +1,121 @@
-import sys
+"""
+validate_provenance.py
+-----------------------
+
+This script verifies that the required external data sources are reachable
+before the rest of the pipeline is executed.
+
+* American Gut Project (AGP) – accessed via the HuggingFace ``datasets``
+  library using the identifier ``american_gut_project`` (streaming mode).
+
+* Health and Retirement Study (HRS) – a public CSV file hosted by the
+  University of Michigan.  A simple ``HEAD`` request is used to confirm
+  that the URL is reachable.
+
+The script also records a minimal resource‑guard summary (RAM, CPU count)
+and writes the results to ``data/provenance_report.json``.  The output
+format matches the one produced previously so that downstream scripts can
+continue to read it without modification.
+
+The script exits with status ``0`` on success and a non‑zero status on any
+failure, allowing CI to stop early if the data sources are unavailable.
+"""
+
 import json
+import os
+import sys
 from pathlib import Path
 
 import psutil
 import requests
-from datasets import load_dataset
-from llmxive_toolkit import paths, get_logger
+from datasets import load_dataset, DatasetNotFoundError
 
-log = get_logger(__name__)
-
-def check_resources():
-    """Verify CPU‑only resource guards."""
-    mem = psutil.virtual_memory()
-    total_gb = mem.total / (1024 ** 3)
-    log.info(f"System Total RAM: {total_gb:.2f} GB")
-    return {
-        "total_ram_gb": total_gb,
-        "ram_limit_gb": 7.0,
-        "cpu_count": psutil.cpu_count(),
-        "resource_guard_active": True,
-    }
-
-def _attempt_load(ds_id: str):
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def check_agp_access() -> tuple[bool, str | None]:
     """
-    Try to load a dataset in streaming mode.
-    First attempt without specifying a split (works for datasets that expose a default split).
-    If that fails, fall back to loading the 'train' split explicitly.
-    Returns the dataset object on success, otherwise raises the original exception.
+    Attempt to stream a few records from the American Gut Project dataset.
+
+    Returns
+    -------
+    (bool, str | None)
+        ``True`` and the dataset identifier if the load succeeds,
+        ``False`` and ``None`` otherwise.
     """
+    dataset_id = "american_gut_project"
     try:
-        log.info(f"Attempting to load dataset '{ds_id}' without explicit split.")
-        ds = load_dataset(ds_id, streaming=True)
-        # Pull a single record to confirm real data access
+        # ``streaming=True`` returns an iterator that lazily pulls data.
+        # We only need to fetch a single example to prove connectivity.
+        ds = load_dataset(dataset_id, split="train", streaming=True)
+        # Pull the first record – if this raises, the dataset is not usable.
         next(iter(ds))
-        log.info(f"Successfully accessed dataset '{ds_id}' (no split).")
-        return ds
-    except Exception as e_no_split:
-        log.debug(f"Loading without split failed for '{ds_id}': {e_no_split}")
-        # Try with explicit 'train' split
-        try:
-            log.info(f"Attempting to load dataset '{ds_id}' with split='train'.")
-            ds = load_dataset(ds_id, split="train", streaming=True)
-            next(iter(ds))
-            log.info(f"Successfully accessed dataset '{ds_id}' with split='train'.")
-            return ds
-        except Exception as e_split:
-            log.debug(f"Loading with split='train' also failed for '{ds_id}': {e_split}")
-            # Raise the original exception for clearer upstream handling
-            raise e_no_split
+        return True, dataset_id
+    except Exception as exc:
+        # ``DatasetNotFoundError`` or network‑related errors land here.
+        return False, None
 
-def verify_agp_access():
+def check_hrs_access() -> bool:
     """
-    Verify access to the American Gut Project via HuggingFace datasets.
-    Tries known dataset identifiers and confirms at least one yields a real record.
-    """
-    log.info("Verifying AGP dataset access...")
-    # These identifiers are based on public HuggingFace datasets; adjust if newer IDs appear.
-    dataset_ids = [
-        "american_gut_project",
-        "qiita/16s_gut_microbiome",
-        "qiita/16S",
-        "qiita/16S_gut_microbiome",
-    ]
-    for ds_id in dataset_ids:
-        try:
-            _attempt_load(ds_id)
-            log.info(f"AGP access verified via dataset ID: {ds_id}")
-            return True, ds_id
-        except Exception as e:
-            log.warning(f"Access failed for {ds_id}: {e}")
-    log.error("AGP access failed for all known real sources.")
-    return False, None
+    Perform a lightweight ``HEAD`` request to the public HRS CSV URL.
 
-def verify_hrs_portal():
+    Returns
+    -------
+    bool
+        ``True`` if the request returns a 2xx status code, ``False`` otherwise.
     """
-    Verify access to the Health and Retirement Study (HRS) portal.
-    Performs a simple GET request; any HTTP response (even 403) is treated
-    as reachable because the portal may require authentication.
-    """
-    log.info("Verifying HRS portal connectivity...")
-    url = "https://hrs.isr.umich.edu"
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/120.0.0.0 Safari/537.36"
-        )
-    }
+    url = "https://hrs.isr.umich.edu/sites/default/files/data/cognitive_data.csv"
     try:
-        response = requests.get(url, headers=headers, timeout=15)
-        # Consider any response (status < 500) as reachable
-        if response.status_code < 500:
-            log.info(f"HRS portal reachable, status code: {response.status_code}")
-            return True
-        else:
-            log.error(f"HRS portal returned error status: {response.status_code}")
-            return False
-    except Exception as e:
-        log.error(f"HRS portal access failed: {e}")
+        response = requests.head(url, timeout=10)
+        return response.status_code == 200
+    except Exception:
         return False
 
-def main():
-    log.info("Starting provenance and resource validation...")
+# ----------------------------------------------------------------------
+# Main execution block
+# ----------------------------------------------------------------------
+def main() -> None:
+    # Resource information
+    vm = psutil.virtual_memory()
+    total_ram_gb = round(vm.total / (1024 ** 3), 3)
+    # The project specification caps RAM at 7 GB.
+    ram_limit_gb = 7.0
+    cpu_count = os.cpu_count() or 1
+    resource_guard_active = True  # The project always runs the guard.
 
-    agp_ok, agp_id = verify_agp_access()
-    hrs_ok = verify_hrs_portal()
-    resources = check_resources()
+    # Data‑source checks
+    agp_ok, agp_id = check_agp_access()
+    hrs_ok = check_hrs_access()
 
-    results = {
-        "resources": resources,
-        "provenance": {
-            "agp_accessible": agp_ok,
-            "agp_dataset_id": agp_id,
-            "hrs_portal_accessible": hrs_ok,
-        },
+    provenance = {
+        "agp_accessible": agp_ok,
+        "agp_dataset_id": agp_id,
+        "hrs_portal_accessible": hrs_ok,
     }
 
-    # Write report regardless of success/failure
-    report_path = paths.data("provenance_report.json")
-    with open(report_path, "w") as f:
-        json.dump(results, f, indent=2)
+    report = {
+        "resources": {
+            "total_ram_gb": total_ram_gb,
+            "ram_limit_gb": ram_limit_gb,
+            "cpu_count": cpu_count,
+            "resource_guard_active": resource_guard_active,
+        },
+        "provenance": provenance,
+    }
 
-    if not agp_ok or not hrs_ok:
-        # Log the issue but do **not** exit with a non‑zero status.
-        # The purpose of this script is to record provenance; downstream
-        # pipeline steps will decide whether to abort based on the report.
-        log.error(
-            "Provenance validation reported missing access: "
-            f"AGP accessible={agp_ok}, HRS accessible={hrs_ok}"
-        )
-    else:
-        log.info("Provenance validation successful: all sources reachable.")
+    # Write the JSON report to the expected location.
+    output_path = Path("data", "provenance_report.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as fp:
+        json.dump(report, fp, indent=2, sort_keys=False)
 
-    # Exit with status 0 to satisfy the task runner.
-    sys.exit(0)
+    # Print a short human‑readable summary (useful when the script is run
+    # manually).  The CI only cares about the exit code and the file.
+    print(json.dumps(report, indent=2))
+
+    # Exit status: 0 if both sources are reachable, 1 otherwise.
+    if not (agp_ok and hrs_ok):
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

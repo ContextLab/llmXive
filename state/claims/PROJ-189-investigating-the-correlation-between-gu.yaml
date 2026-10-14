@@ -45,3 +45,67 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-14T10:07:55Z'
+- artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/docs/quickstart.md
+  attempts: 1
+  canonical: script exits with status 0 on success and writes JSON report to data/provenance_report.json
+  claim_id: c_786efd16
+  context: "The script checks resource guards and exits with status\u202F0 on success,\
+    \ writing a JSON report to data/provenance_report.json."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The script exits with status\u202F0 on success and writes a JSON report\
+    \ to `data/provenance_report.json`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T12:09:40Z'
+- artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/docs/quickstart.md
+  attempts: 1
+  canonical: downstream steps abort if any source is unavailable
+  claim_id: c_17b217c3
+  context: "The script exits with status\u202F0 on success and writes a JSON report;\
+    \ downstream steps will read that report and abort if any source is unavailable."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Down\u2011stream steps will read that report and abort if any source\
+    \ is unavailable."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T12:09:40Z'
+- artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/docs/quickstart.md
+  attempts: 1
+  canonical: validation report generated at data/provenance_report.json
+  claim_id: c_50d05cf2
+  context: Output section lists that a validation report is generated at data/provenance_report.json.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A validation report is generated at `data/provenance_report.json`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T12:09:40Z'
+- artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/docs/quickstart.md
+  attempts: 1
+  canonical: log file generated at data/processed/run.log
+  claim_id: c_4356da93
+  context: Output section lists that a log file is generated at data/processed/run.log.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A log file is generated at `data/processed/run.log`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T12:09:40Z'
