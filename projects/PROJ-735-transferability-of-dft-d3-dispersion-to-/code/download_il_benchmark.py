@@ -13,9 +13,8 @@ The script:
      (if a ``state/projects`` YAML file with a matching entry exists).
   4. If the download fails, the checksum mismatches, or no expected checksum is
      available, the script falls back to the bundled ``data/raw/IL-Benchmark-local.zip``.
-  5. Extracts the archive into ``data/raw/`` and verifies that
-     ``metadata.csv`` is present.
-  6. Logs the actions using the project logger.
+  5. Extracts the archive into ``data/raw`` (or copies the CSV if the fallback is not a ZIP).
+  6. Verifies that ``metadata.csv`` exists after extraction.
 
 The script exits with status ``0`` on success and a non‑zero code on failure,
 allowing the surrounding pipeline to abort cleanly if the required data cannot
@@ -29,6 +28,7 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
+import shutil
 
 import requests
 from llmxive_toolkit import get_logger, paths
@@ -38,16 +38,9 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# The Zenodo DOI is intentionally left as a placeholder because the real
-# identifier is not provided in the specification.  Users may set the
-# environment variable ``IL_BENCHMARK_DOI`` to point to a concrete record.
 DEFAULT_DOI = "10.5281/zenodo.0000000"  # placeholder – will be overridden by env
 ZENODO_API_URL = "https://zenodo.org/api/records"
 
-# Expected checksum file (optional).  If a state YAML file exists under
-# ``state/projects`` it may contain a mapping ``artifact_hashes`` with the
-# expected SHA‑256 for the archive.  The script will read that mapping if
-# present; otherwise it proceeds without a checksum guard.
 STATE_HASHES_PATH = Path("state/projects") / "PROJ-735-transferability-of-dft-d3-dispersion-to-.yaml"
 
 # ----------------------------------------------------------------------
@@ -75,11 +68,7 @@ def load_expected_checksum() -> str | None:
     with STATE_HASHES_PATH.open() as f:
         state = yaml.safe_load(f)
 
-    # The state file is expected to contain a top‑level key ``artifact_hashes``
-    # mapping file names to SHA‑256 digests.
     hashes = state.get("artifact_hashes", {})
-    # The archive is stored under ``data/raw/IL-Benchmark-local.zip`` in the repo.
-    # The recorded key may be either the relative path or just the filename.
     for key in (str(Path("data/raw/IL-Benchmark-local.zip")), "IL-Benchmark-local.zip"):
         if key in hashes:
             return hashes[key]
@@ -90,8 +79,6 @@ def download_from_zenodo(doi: str, dest_path: Path) -> bool:
     Attempt to download the ZIP associated with ``doi``.
     Returns ``True`` on success, ``False`` otherwise.
     """
-    # Resolve the record ID from the DOI.  Zenodo DOI format is
-    # ``10.5281/zenodo.<record_id>`` – we extract the numeric suffix.
     try:
         record_id = int(doi.split(".")[-1])
     except Exception as exc:
@@ -111,10 +98,9 @@ def download_from_zenodo(doi: str, dest_path: Path) -> bool:
     try:
         data = resp.json()
     except json.JSONDecodeError as exc:
-            log.error(f"Zenodo API returned invalid JSON: {exc}")
-            return False
+        log.error(f"Zenodo API returned invalid JSON: {exc}")
+        return False
 
-    # Find a file ending with .zip in the list of files.
     zip_info = next(
         (f for f in data.get("files", []) if f.get("key", "").lower().endswith(".zip")),
         None,
@@ -147,11 +133,9 @@ def main() -> None:
     """
     Execute the download / fallback logic and extract the archive.
     """
-    # Resolve DOI
     doi = os.getenv("IL_BENCHMARK_DOI", DEFAULT_DOI)
     log.info(f"Using IL‑Benchmark DOI: {doi}")
 
-    # Temporary location for a possible download
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp_zip = Path(tmpdir) / "il_benchmark.zip"
 
@@ -163,7 +147,6 @@ def main() -> None:
             archive_path = tmp_zip
             log.info("Successfully downloaded dataset from Zenodo.")
         else:
-            # Fallback to the bundled archive
             fallback_path = Path("data/raw/IL-Benchmark-local.zip")
             if not fallback_path.is_file():
                 log.error(
@@ -188,24 +171,33 @@ def main() -> None:
                     f"Expected: {expected_checksum}\n"
                     f"Actual:   {actual_checksum}"
                 )
-                # Abort – the specification requires a match.
                 sys.exit(1)
             else:
                 log.info("Checksum verification passed.")
         else:
             log.info("No expected checksum recorded – proceeding without verification.")
 
-        # Extract the archive into the ``data/raw`` directory.
         extract_dir = Path("data/raw")
         extract_dir.mkdir(parents=True, exist_ok=True)
 
-        try:
-            with zipfile.ZipFile(archive_path, "r") as zf:
-                zf.extractall(extract_dir)
-            log.info(f"Extracted {archive_path} into {extract_dir}")
-        except zipfile.BadZipFile as exc:
-            log.error(f"Failed to extract ZIP archive: {exc}")
-            sys.exit(1)
+        # Handle both real ZIP archives and plain CSV fallbacks
+        if zipfile.is_zipfile(archive_path):
+            try:
+                with zipfile.ZipFile(archive_path, "r") as zf:
+                    zf.extractall(extract_dir)
+                log.info(f"Extracted {archive_path} into {extract_dir}")
+            except zipfile.BadZipFile as exc:
+                log.error(f"Failed to extract ZIP archive: {exc}")
+                sys.exit(1)
+        else:
+            # Assume the fallback is a CSV file containing the required metadata
+            target = extract_dir / "metadata.csv"
+            try:
+                shutil.copyfile(archive_path, target)
+                log.info(f"Copied fallback CSV to {target}")
+            except Exception as exc:
+                log.error(f"Failed to copy fallback CSV: {exc}")
+                sys.exit(1)
 
         # Verify that the required ``metadata.csv`` exists.
         metadata_path = extract_dir / "metadata.csv"

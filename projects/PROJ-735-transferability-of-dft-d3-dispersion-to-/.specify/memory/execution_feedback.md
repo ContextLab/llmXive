@@ -8,27 +8,27 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m code.main -> rc=1
 
-2026-10-14 07:41:26,051 INFO __main__: Running pipeline with time wrapper: /usr/bin/time -v bash -c python code/load_data.py && python code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py
-2026-10-14 07:41:26,843 INFO __main__: Runtime report written to data/derived/runtime_report.txt
-2026-10-14 07:41:26,847 INFO __main__: Appended reproducibility section to benchmark_report.md
-2026-10-14 07:41:26,918 INFO __main__: No contracts directory found – skipping validation.
-2026-10-14 07:41:26,918 ERROR __main__: Pipeline failed with exit code 1
+2026-10-14 07:44:13,147 INFO __main__: Running pipeline with time wrapper: /usr/bin/time -v bash -c python code/load_data.py && python code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py
+2026-10-14 07:44:13,944 INFO __main__: Runtime report written to data/derived/runtime_report.txt
+2026-10-14 07:44:13,945 INFO __main__: Appended reproducibility section to benchmark_report.md
+2026-10-14 07:44:14,017 INFO __main__: No contracts directory found – skipping validation.
+2026-10-14 07:44:14,017 ERROR __main__: Pipeline failed with exit code 1
 
 - python code/analyze_energies.py -> rc=1
-ft-d3-dispersion-to-/code/analyze_energies.py", line 342, in <module>
+ found – generating placeholder data.
+Energy analysis failed: Metadata file not found: /home/runner/work/llmXive/llmXive/projects/data/raw/metadata.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 390, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 321, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 369, in main
     df, stats = analyze_and_export(
                 ^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 233, in analyze_and_export
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 281, in analyze_and_export
     df = _generate_placeholder_raw_energies(input_path)
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 201, in _generate_placeholder_raw_energies
-    pairs, _ = load_synthetic_dataset(synthetic_zip)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/load_data.py", line 89, in load_synthetic_dataset
-    raise FileNotFoundError(f"Synthetic dataset not found: {zip_path}")
-FileNotFoundError: Synthetic dataset not found: /home/runner/work/llmXive/llmXive/projects/data/IL-Benchmark-local.zip
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 207, in _generate_placeholder_raw_energies
+    raise FileNotFoundError(f"Metadata file not found: {raw_metadata_path}")
+FileNotFoundError: Metadata file not found: /home/runner/work/llmXive/llmXive/projects/data/raw/metadata.csv
 
 - python code/derive_scaling.py -> rc=1
 
@@ -99,7 +99,7 @@ ERROR tests/unit/test_load_data.py
 ERROR tests/unit/test_parse_psi4.py
 ERROR tests/unit/test_scaling.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.05s ===============================
+============================== 5 errors in 0.93s ===============================
 
 
 

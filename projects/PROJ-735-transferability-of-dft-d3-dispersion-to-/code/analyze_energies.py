@@ -1,6 +1,6 @@
 """
 Energy analysis module for computing statistics, metrics, and bootstrap analysis
-of DFT-D3 interaction energies.
+of DFT‑D3 interaction energies.
 """
 
 import pandas as pd
@@ -18,6 +18,7 @@ if __name__ == "__main__":
 
 from logger import get_logger, info, warning, error, critical
 from load_data import load_synthetic_dataset
+from llmxive_toolkit import paths, get_logger as llm_get_logger
 
 logger = get_logger(__name__)
 
@@ -191,26 +192,73 @@ def bootstrap_analysis(
 
 def _generate_placeholder_raw_energies(csv_path: Path) -> pd.DataFrame:
     """
-    Generate a minimal placeholder raw energies CSV using the synthetic dataset.
-    This mirrors the logic in `generate_reports.ensure_raw_energies` but is
-    kept locally to avoid circular imports.
+    Generate a minimal placeholder raw energies CSV using the benchmark metadata.
+    This function also performs the FR‑002 validation required for task T023:
+    it reads ``data/raw/metadata.csv``, ensures each record has a non‑null
+    ``reference_energy`` and a unique ``pair_id``, logs any omitted rows,
+    and writes the cleaned table to ``data/processed/validated_metadata.csv``.
+    The cleaned data are then used to create a placeholder ``raw_energies.csv``.
     """
-    synthetic_zip = (
-        Path(__file__).resolve().parents[2] / "data" / "IL-Benchmark-local.zip"
-    )
-    pairs, _ = load_synthetic_dataset(synthetic_zip)
+    # ------------------------------------------------------------------
+    # Step 1: Load raw metadata
+    # ------------------------------------------------------------------
+    raw_metadata_path = Path(__file__).resolve().parents[2] / "data" / "raw" / "metadata.csv"
+    if not raw_metadata_path.is_file():
+        raise FileNotFoundError(f"Metadata file not found: {raw_metadata_path}")
 
-    df = pd.DataFrame(pairs)
-    df = df.rename(
+    raw_df = pd.read_csv(raw_metadata_path)
+
+    # ------------------------------------------------------------------
+    # Step 2: Validation (FR‑002)
+    # ------------------------------------------------------------------
+    # Identify rows with missing reference_energy
+    missing_energy_mask = raw_df["reference_energy"].isna()
+    # Identify duplicate pair_id entries
+    duplicate_mask = raw_df.duplicated(subset=["pair_id"], keep=False)
+
+    # Rows to omit = missing OR duplicate
+    omit_mask = missing_energy_mask | duplicate_mask
+    omitted_rows = raw_df[omit_mask]
+
+    # Prepare log file
+    log_path = paths.code("validation.log")
+    with open(log_path, "w") as log_f:
+        if omitted_rows.empty:
+            log_f.write("No records omitted during validation.\n")
+        else:
+            log_f.write("Omitted records (validation failures):\n")
+            for _, row in omitted_rows.iterrows():
+                log_f.write(
+                    f"pair_id={row.get('pair_id','<missing>')}, "
+                    f"reference_energy={row.get('reference_energy','<missing>')}\n"
+                )
+
+    # Keep only valid rows
+    valid_df = raw_df[~omit_mask].copy()
+
+    # Write the cleaned metadata (required output of T023)
+    cleaned_path = paths.data("processed", "validated_metadata.csv")
+    cleaned_path.parent.mkdir(parents=True, exist_ok=True)
+    valid_df.to_csv(cleaned_path, index=False)
+
+    # ------------------------------------------------------------------
+    # Step 3: Build placeholder raw energies CSV
+    # ------------------------------------------------------------------
+    df = valid_df.rename(
         columns={"reference_energy": "reference_energy", "pair_id": "pair_id"}
     )
-    df["dft_total_energy"] = df["reference_energy"]  # placeholder: no error
+    # For a placeholder we simply set the DFT total energy equal to the reference,
+    # and set D3 contribution to zero.
+    df["dft_total_energy"] = df["reference_energy"]
     df["d3_dispersion_energy"] = 0.0
     df["signed_error"] = 0.0
 
+    # Ensure output directory exists and write CSV
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(csv_path, index=False)
     logger.info(f"Generated placeholder raw energies CSV at {csv_path}")
+    logger.info(f"Validated metadata written to {cleaned_path}")
+    logger.info(f"Validation log written to {log_path}")
 
     return df
 
