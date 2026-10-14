@@ -75,3 +75,14 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-08-28T03:23:20.423636Z'
+- artifact_hash: ce8d82359b1bc0c4641070e9ad472667a830398b6dc98f67d80e7f943108277e
+  artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Gaussian filter - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Gaussian_filter
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Gaussian_filter
+  verified_at: '2026-10-14T03:17:53.121177Z'
