@@ -28,8 +28,8 @@ from llmxive_toolkit import paths
 # Configuration
 # ----------------------------------------------------------------------
 API_BASE = "https://clinicaltrials.gov/api/v2/studies"
-# Broadened query to increase chance of finding a study with results
-SEARCH_QUERY = "mindfulness"
+# Broad query to increase chance of finding a study with results
+SEARCH_QUERY = "mindfulness autism"
 MAX_PAGES = 20          # increased to improve hit probability
 PAGE_SIZE = 100
 
@@ -243,7 +243,8 @@ def find_study_with_results() -> dict:
     Attempt to locate a single study with usable summary statistics.
 
     1. Try a short list of known NCT identifiers (fast, deterministic).
-    2. If none succeed, fall back to paging through a generic search.
+    2. If none succeed, fall back to paging through a generic search that
+       explicitly requests studies with results (`hasResults=Yes`).
     """
     # ---- Step 1: Known identifiers -------------------------------------------------
     for nct in KNOWN_NCT_IDS:
@@ -260,6 +261,7 @@ def find_study_with_results() -> dict:
     for _ in range(MAX_PAGES):
         params = {
             "query.cond": SEARCH_QUERY,
+            "hasResults": "Yes",
             "pageSize": PAGE_SIZE,
             "format": "json",
         }

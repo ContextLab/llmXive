@@ -1,8 +1,12 @@
 T001:
-  c: true
-  h: 2f624d0b1c35b6e79064f476275a0d01e743b0fad3050fb5ea1693e9d151a942
-  r: Checked the `code/` and `data/` directory trees (they contain the required subfolders),
-    the successful `setup_project.py` log showing dependency installation and layout
-    verification, and the presence of a detailed `quickstart.md` documenting the execution
-    flow. All required artifacts exist and match the task specifications.
-  sig: 94d6462738824e7de5911f0c3b74031193b903e95f3cc442a82420fc0f171cac
+  c: false
+  h: f06ebbe47d6ec38f7d74fa882b703a1af573539e520cd33dc5e19f5e35a09a9c
+  r: 'The directory layout is only partially evidenced (code/, data/, tests/ exist,
+    but docs/ and contracts/ are not confirmed), and `code/pyproject.toml` lists dependencies
+    without any version pins ("pandas", "matplotlib", etc.), contradicting the requirement
+    to install *pinned* dependencies. There is also no evidence of an actual install
+    (e.g., the `docs/install_log.txt` the quickstart claims is written by `setup_project.py`
+    is not present in the evidence), so the dependency installation claim is unverified.
+    Fix: add version pins to `code/pyproject.toml`/`requirements.txt`, confirm `docs/`
+    and `co'
+  sig: ce66ccc5a2c9bcdd173d357b8de7617683dfd74fb6d3729824b8218348ca6685
