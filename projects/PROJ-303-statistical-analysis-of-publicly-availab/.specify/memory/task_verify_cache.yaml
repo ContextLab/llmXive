@@ -1,17 +1,56 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree, no `__init__.py` files, and no evidence of the `mkdir -p\
-    \ \u2026` command execution were provided. The required project structure and\
-    \ empty init files are missing, so the task is not satisfied."
+  h: b2a826c678805fe0f345337077e7c0a6b65bd5226e9ab972389a1a754c3806b3
+  r: "The root `src/` and `tests/` contain an `__init__.py`, but the required empty\
+    \ `__init__.py` files are missing from each sub\u2011package (e.g., `src/data/__init__.py`,\
+    \ `src/models/__init__.py`, `tests/unit/__init__.py`, etc.). Additionally, the\
+    \ `state` directory specified in the task is not present. These omissions mean\
+    \ the project structure does not fully satisfy T001."
+  sig: c4b10304c4a999b2aeac0f28bc9bd0074c52b4454aaf6fb54f23a4bcb059e454
+T002:
+  c: true
+  h: 2c435a576d29ebda382e75d664c6ed127a2e58784e6879875c037e9e51b33f0e
+  r: "The `requirements.txt` file was found at `projects/PROJ-303-statistical-analysis-of-publicly-availab/requirements.txt`\
+    \ (184\u202Fbytes) and contains all ten required packages (`pandas`, `numpy`,\
+    \ `scipy`, `scikit-learn`, `matplotlib`, `seaborn`, `requests`, `pyyaml`, `geopandas`,\
+    \ `pytest`) with version specifiers, satisfying the initialization task."
+  sig: 1e1b6045da9e1986c519328a068c25ea9f062a9550550d7336f2c3ddad41e108
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or `ruff.toml`, pre\u2011commit hooks, or documentation)\
-    \ are present in the provided evidence, so the requirement to configure Ruff and\
-    \ Black is not satisfied. The implementer must add the appropriate configuration\
-    \ artifacts and verify they are functional."
+  h: 40ecbbf6d955d6aa85736305380218ac3390f9b4da3929d95f4d58b316a1c30e
+  r: "The evidence contains no linting or formatting configuration files (e.g., a\
+    \ `pyproject.toml` or `.ruff.toml` specifying Black and Ruff settings, nor a pre\u2011\
+    commit hook), so the requirement to configure Ruff and Black is not demonstrated.\
+    \ Adding the appropriate configuration files and confirming they are present and\
+    \ non\u2011empty is needed."
+  sig: 768463d28663eb52b921fa1e04626acff231f74090662fda266e011958593822
+T004:
+  c: true
+  h: a72a3c53b9abc308488d5e3794d4f5d60315e24b5b7da724ede00cb06ffa4463
+  r: "The `src/config.py` file (resolved at `code/src/config.py`, 9633\u202Fbytes)\
+    \ defines a `Config` dataclass that includes hyperparameters, directory paths,\
+    \ random seed handling, and a `wall_clock_budget_seconds` set to 6\u202Fhours,\
+    \ with environment\u2011variable and YAML\u2011snapshot loading support. Its helper\
+    \ functions (`get_config`, `set_config`) expose the configuration globally, satisfying\
+    \ the task\u2019s requirement."
+  sig: 255fc15b3231951f1bb37bdd1f970b00429b2ce83367ccddb9d2f8aec385ac2e
+T005:
+  c: true
+  h: 13dd22cbada152629e30876594ec4ea5dd4976592f31bcf782d158dd44e15511
+  r: "Checked the `src/scripts/validate_citations.py` file (4665\u202Fbytes) which\
+    \ defines URL list, performs HTTP GET checks with timeout, logs results, and returns\
+    \ success/failure codes, fulfilling the requirement to verify NOAA GHCN\u2011\
+    Daily URL availability before pipeline execution."
+  sig: ce5a20b6f2cadb9492f3ab4ae2780e14c95cfa49f697f18eb780cb354903de57
+T009:
+  c: true
+  h: 3c9ee89ca208e1a287372a4e30a9786cb2ff0de5371ab1cc988fe049d01efbab
+  r: "Checked `src/pipeline/config.py` (10521\u202Fbytes) which defines `TimeBudgetConfig`,\
+    \ `TimeBudgetMonitor`, a `with_time_limit` decorator, and fallback logic (warning/fallback\
+    \ thresholds, strategy selection, and hard timeout enforcement). The module enforces\
+    \ a wall\u2011clock limit (default 300\u202Fs, overridable) and triggers fallback\
+    \ actions when thresholds are crossed, satisfying task T009."
+  sig: d2c1d4c2d071b4bdc6623af81daa3e14e59e969e4c0695c37663ca92650433ee
 T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

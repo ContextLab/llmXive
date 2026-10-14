@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-24T18:29:36Z",
+  "fetched_at": "2026-10-14T15:19:57Z",
   "field": "linguistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,96 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregressive Drafting in Spe\"",
       "target_n": 5
     },
-    "duration_seconds": 54.625,
-    "ended_at": "2026-08-24T18:29:36Z",
+    "duration_seconds": 79.614,
+    "ended_at": "2026-10-14T15:19:57Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "decoupling causal modeling from autoregressive drafting"
+          "speculative decoding large language models"
         ],
         [
           2,
-          "speculative decoding in large language models"
+          "draft model verification acceleration"
         ],
         [
           3,
-          "non-autoregressive text generation techniques"
+          "autoregressive drafting decoupling"
         ],
         [
           4,
-          "draft-and-verify language model inference"
+          "causal language modeling vs autoregressive generation"
         ],
         [
           5,
-          "parallel text generation with causal constraints"
+          "self-speculative decoding"
         ],
         [
           6,
-          "acceleration of autoregressive LLMs via speculation"
+          "non-autoregressive text generation"
         ],
         [
           7,
-          "Domino algorithm for language model speedup"
+          "LLM inference latency reduction"
         ],
         [
           8,
-          "causal masking in speculative sampling"
+          "parallel token generation language models"
         ],
         [
           9,
-          "two-stage language model generation"
+          "multi-token prediction language models"
         ],
         [
           10,
-          "fast inference strategies for transformer-based language models"
+          "early-exit language model inference"
         ],
         [
           11,
-          "reducing latency in autoregressive text generation"
+          "lookahead decoding"
         ],
         [
           12,
-          "verification-based drafting for LLMs"
+          "blockwise parallel decoding"
         ],
         [
           13,
-          "parallel hypothesis generation in causal models"
+          "language model decoding strategies"
         ],
         [
           14,
-          "speculative execution for natural language generation"
+          "speed-accuracy tradeoff neural text generation"
         ],
         [
           15,
-          "efficiency improvements in causal language modeling"
+          "language modeling computational efficiency"
         ],
         [
           16,
-          "multi-token prediction without autoregressive dependencies"
+          "sequence generation causal masking"
         ],
         [
           17,
-          "decoupled drafting mechanisms for LLMs"
+          "retrieval-augmented speculative generation"
         ],
         [
           18,
-          "speculative decoding algorithms for transformer models"
-        ],
-        [
-          19,
-          "fast text generation via draft verification"
-        ],
-        [
-          20,
-          "alternative inference paradigms for causal language models"
+          "language model distillation for decoding"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "decoupling causal modeling from autoregressive drafting": 1,
         "llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregressive Drafting in Spe\" linguistics": 0,
-        "speculative decoding in large language models": 5
+        "speculative decoding large language models": 5
       },
-      "total_queries_issued": 2
+      "total_queries_issued": 1
     },
     "extracted_queries": [
-      "speculative decoding draft verification acceptance rate",
-      "causal inference autoregressive generation counterfactuals",
-      "language model inference latency throughput benchmarks",
-      "draft verification distributional shift perplexity",
-      "structural causal model counterfactual text generation"
+      "speculative decoding draft model",
+      "diffusion language model text generation",
+      "non-autoregressive parallel decoding LLM",
+      "draft acceptance rate verification latency",
+      "causal factorization autoregressive decoupling generation"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -116,27 +107,32 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "success_after_expansion",
+    "outcome": "exhausted",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2605.01106"
+        "2508.17739"
       ]
     },
     "per_query_hit_count": {
-      "causal inference autoregressive generation counterfactuals": 3,
-      "draft verification distributional shift perplexity": 2,
-      "language model inference latency throughput benchmarks": 3,
+      "causal factorization autoregressive decoupling generation": 3,
+      "diffusion language model text generation": 3,
+      "draft acceptance rate verification latency": 3,
       "llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregressive Drafting in Spe\" linguistics": 3,
-      "speculative decoding draft verification acceptance rate": 3,
-      "structural causal model counterfactual text generation": 2
+      "non-autoregressive parallel decoding LLM": 3,
+      "speculative decoding draft model": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 1,
+      "rejected_count": 2,
       "rejections": [
+        {
+          "primary_pointer": "2610.00223",
+          "rationale": "The candidate paper is about carbon footprint assessment of an Arabic LLM, which shares no mechanism, variables, or methodology with the user's question about decoupling causal modeling from autoregressive drafting in speculative decoding. It is off-domain for the user's linguistics/speed-up research question.",
+          "title": "A Holistic Assessment of the Carbon Footprint of Noor, a Very Large Arabic Language Model"
+        },
         {
           "primary_pointer": "2501.05032",
           "rationale": "The paper focuses on general techniques for improving human-like qualities (emotional intelligence, reasoning patterns) in LLMs, which is a distinct construct from the user's specific question regarding \"Decoupling Causal Modeling from Autoregressive Drafting\" (a specific architectural mechanism for speculative decoding). It fails to address the causal modeling mechanism, the drafting process, or the specific \"Domino\" framework, and thus does not satisfy the criteria for same-mechanism evidence,",
@@ -145,7 +141,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-24T18:28:41Z",
+    "started_at": "2026-10-14T15:18:37Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"domino: decoupling causal modeling from autoregressive drafting in spe\" linguistics",
       "raw": "llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregressive Drafting in Spe\" linguistics"
@@ -165,7 +161,7 @@
           "primary_pointer": "1602.00245"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
@@ -182,7 +178,7 @@
           "primary_pointer": "1601.01126"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
@@ -198,7 +194,7 @@
           "primary_pointer": "2606.14257"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
@@ -216,7 +212,7 @@
           "primary_pointer": "2605.01106"
         },
         "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Component-Aware Self-Speculative Decoding in Hybrid Language Models')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
@@ -237,139 +233,169 @@
           "primary_pointer": "2203.16487"
         },
         "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Speculative Decoding: Exploiting Speculative Execution for Accelerating Seq2seq Generation')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Autoregressive language models suffer from high inference latency due to their sequential decoding nature. Speculative decoding (SD) mitigates this by employing a lightweight draft model to propose candidate tokens, which are selectively verified by a larger target model. While existing methods either adopt multi-draft strategies to increase acceptance rates or block verification techniques to jointly verify multiple tokens, they remain limited by treating these improvements in isolation. In this work, we propose SpecTr-GBV, a novel SD method that unifies multi-draft and greedy block verification (GBV) into a single framework. By formulating the verification step as an optimal transport problem over draft and target token blocks, SpecTr-GBV improves both theoretical efficiency and empirical performance. We theoretically prove that SpecTr-GBV achieves the optimal expected acceptance length physically attainable within the framework of i.i.d. draft generation, and this bound improves as the number of drafts increases. Empirically, we evaluate SpecTr-GBV across five datasets and four baselines. Our method achieves superior speedup and significantly higher block efficiency while preserving output quality. In addition, we perform comprehensive ablation studies to evaluate the impact of various hyperparameters in the model.",
+          "claimed_abstract": "Despite extensive efforts to align Large Language Models (LLMs) with human values and safety rules, jailbreak attacks that exploit certain vulnerabilities continuously emerge, highlighting the need to strengthen existing LLMs with additional safety properties to defend against these attacks. However, tuning large models has become increasingly resource intensive and may have difficulty ensuring consistent performance. We introduce Speculative Safety-Aware Decoding (SSD), a lightweight decoding-time approach that equips LLMs with the desired safety property while accelerating inference. We assume that there exists a small language model that possesses this desired property. SSD integrates speculative sampling during decoding and leverages the match ratio between the small and composite models to quantify jailbreak risks. This enables SSD to dynamically switch between decoding schemes to prioritize utility or safety, to handle the challenge of different model capacities. The output token is then sampled from a new distribution that combines the distributions of the original and the small models. Experimental results show that SSD successfully equips the large model with the desired safety property, and also allows the model to remain helpful to benign queries. Furthermore, SSD accelerates the inference time, thanks to the speculative sampling design.",
           "claimed_authors": [
-            "Yijun Lin",
-            "Jinhao Sheng",
-            "Qingyue Cai",
-            "Feng Zhou"
+            "Xuekang Wang",
+            "Shengyu Zhu",
+            "Xueqi Cheng"
           ],
-          "claimed_title": "SpecTr-GBV: Multi-Draft Block Verification Accelerating Speculative Decoding",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2604.25925"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='SpecTr-GBV: Multi-Draft Block Verification Accelerating Speculative Decoding')",
-        "failed_at": "2026-08-24T18:29:12Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions on the number and cardinality of latent variables and of assuming different functional dependences of the observed variables on the latent ones (in particular, the noise need not be additive). We provide an inductive scheme for classifying functional causal structures into distinct observational equivalence classes. For each observational equivalence class, we provide a procedure for deriving constraints on the joint distribution that are necessary and sufficient conditions for it to arise from a model in that class. We also demonstrate how this sort of approach provides a means of determining which causal parameters are identifiable and how to solve for these. Prospects for expanding the scope of our scheme, in particular to the problem of quantum causal inference, are also discussed.",
-          "claimed_authors": [
-            "Ciarán M. Lee",
-            "Robert W. Spekkens"
-          ],
-          "claimed_title": "Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1506.03880"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables')",
-        "failed_at": "2026-08-24T18:29:12Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Judea Pearl's vision of Structural Causal Models (SCMs) as engines for counterfactual reasoning hinges on faithful abduction: the precise inference of latent exogenous noise. For decades, operationalizing this step for complex, non-linear mechanisms has remained a significant computational challenge. The advent of diffusion models, powerful universal function approximators, offers a promising solution. However, we argue that their standard design, optimized for perceptual generation over logical inference, introduces a fundamental flaw for this classical problem: an inherent information loss we term the Structural Reconstruction Error (SRE). To address this challenge, we formalize the principle of Causal Information Conservation (CIC) as the necessary condition for faithful abduction. We then introduce BELM-MDCM, the first diffusion-based framework engineered to be causally sound by eliminating SRE by construction through an analytically invertible mechanism. To operationalize this framework, a Targeted Modeling strategy provides structural regularization, while a Hybrid Training Objective instills a strong causal inductive bias. Rigorous experiments demonstrate that our Zero-SRE framework not only achieves state-of-the-art accuracy but, more importantly, enables the high-fidelity, individual-level counterfactuals required for deep causal inquiries. Our work provides a foundational blueprint that reconciles the power of modern generative models with the rigor of classical causal theory, establishing a new and more rigorous standard for this emerging field.",
-          "claimed_authors": [
-            "Rui Wu",
-            "Lizheng Wang",
-            "Yongjun Li"
-          ],
-          "claimed_title": "The Causal Round Trip: Generating Authentic Counterfactuals by Eliminating Information Loss",
+          "claimed_title": "Speculative Safety-Aware Decoding",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2511.05236"
+          "primary_pointer": "2508.17739"
         },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='The Causal Round Trip: Generating Authentic Counterfactuals by Eliminating Information Loss')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Speculative Safety-Aware Decoding')",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed as an analogue of the train/test split in correlation-based machine learning and as an enhancement of current causal validation strategies that are consistent with the logic of scientific discovery. The effectiveness of the method is illustrated using Pearl's sprinkler example, before a thorough simulation-based investigation is conducted. Limits of the technique are identified by studying exemplary failing scenarios, which are furthermore used to propose a list of topics for future research and improvements of the presented version of quantitative probing. The code for integrating quantitative probing into causal analysis, as well as the code for the presented simulation-based studies of the effectiveness of quantitative probing is provided in two separate open-source Python packages.",
+          "claimed_abstract": "In this paper, we introduce a novel dIffusion language modEl pre-training framework for text generation, which we call GENIE. GENIE is a large-scale pretrained diffusion language model that consists of an encoder and a diffusion-based decoder, which can generate text by gradually transforming a random noise sequence into a coherent text sequence. To pre-train GENIE on a large-scale language corpus, we design a new continuous paragraph denoise objective, which encourages the diffusion-decoder to reconstruct a clean text paragraph from a corrupted version, while preserving the semantic and syntactic coherence. We evaluate GENIE on four downstream text generation benchmarks, namely XSum, CNN/DailyMail, Gigaword, and CommonGen. Our experimental results show that GENIE achieves comparable performance with the state-of-the-art autoregressive models on these benchmarks, and generates more diverse text samples. The code and models of GENIE are available at https://github.com/microsoft/ProphetNet/tree/master/GENIE.",
           "claimed_authors": [
-            "Daniel Grünbaum",
-            "Maike L. Stern",
-            "Elmar W. Lang"
+            "Zhenghao Lin",
+            "Yeyun Gong",
+            "Yelong Shen",
+            "Tong Wu",
+            "Zhihao Fan",
+            "Chen Lin",
+            "Nan Duan",
+            "Weizhu Chen"
           ],
-          "claimed_title": "Quantitative probing: Validating causal models using quantitative domain knowledge",
+          "claimed_title": "Text Generation with Diffusion Language Models: A Pre-training Approach with Continuous Paragraph Denoise",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2209.03013"
+          "primary_pointer": "2212.11685"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Quantitative probing: Validating causal models using quantitative domain knowledge')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Text Generation with Diffusion Language Models: A Pre-training Approach with Continuous Paragraph Denoise')",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Contextualized or discourse aware commonsense inference is the task of generating coherent commonsense assertions (i.e., facts) from a given story, and a particular sentence from that story. Some problems with the task are: lack of controllability for topics of the inferred facts; lack of commonsense knowledge during training; and, possibly, hallucinated or false facts. In this work, we utilize a transformer model for this task and develop techniques to address the aforementioned problems in the task. We control the inference by introducing a new technique we call \"hinting\". Hinting is a kind of language model prompting, that utilizes both hard prompts (specific words) and soft prompts (virtual learnable templates). This serves as a control signal to advise the language model \"what to talk about\". Next, we establish a methodology for performing joint inference with multiple commonsense knowledge bases. Joint inference of commonsense requires care, because it is imprecise and the level of generality is more flexible. You want to be sure that the results \"still make sense\" for the context. To this end, we align the textual version of assertions from three knowledge graphs (ConceptNet, ATOMIC2020, and GLUCOSE) with a story and a target sentence. This combination allows us to train a single model to perform joint inference with multiple knowledge graphs. We show experimental results for the three knowledge graphs on joint inference. Our final contribution is exploring a GAN architecture that generates the contextualized commonsense assertions and scores them as to their plausibility through a discriminator. The result is an integrated system for contextual commonsense inference in stories, that can controllably generate plausible commonsense assertions, and takes advantage of joint inference between multiple commonsense knowledge bases.",
+          "claimed_abstract": "This survey reviews the progress of diffusion models in generating images from text, ~\\textit{i.e.} text-to-image diffusion models. As a self-contained work, this survey starts with a brief introduction of how diffusion models work for image synthesis, followed by the background for text-conditioned image synthesis. Based on that, we present an organized review of pioneering methods and their improvements on text-to-image generation. We further summarize applications beyond image generation, such as text-guided generation for various modalities like videos, and text-guided image editing. Beyond the progress made so far, we discuss existing challenges and promising future directions.",
           "claimed_authors": [
-            "Pedro Colon-Hernandez",
-            "Henry Lieberman",
-            "Yida Xin",
-            "Claire Yin",
-            "Cynthia Breazeal",
-            "Peter Chin"
+            "Chenshuang Zhang",
+            "Chaoning Zhang",
+            "Mengchun Zhang",
+            "In So Kweon",
+            "Junmo Kim"
           ],
-          "claimed_title": "Adversarial Transformer Language Models for Contextual Commonsense Inference",
+          "claimed_title": "Text-to-image Diffusion Models in Generative AI: A Survey",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2302.05406"
+          "primary_pointer": "2303.07909"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Adversarial Transformer Language Models for Contextual Commonsense Inference')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Text-to-image Diffusion Models in Generative AI: A Survey')",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Wireless information-centric networks consider storage as one of the network primitives, and propose to cache data within the network in order to improve latency and reduce bandwidth consumption. We study the throughput capacity and delay in an information-centric network when the data cached in each node has a limited lifetime. The results show that with some fixed request and cache expiration rates, the order of the data access time does not change with network growth, and the maximum throughput order is inversely proportional to the square root and logarithm of the network size $n$ in cases of grid and random networks, respectively. Comparing these values with the corresponding throughput and latency with no cache capability (throughput inversely proportional to the network size, and latency of order $\\sqrt{n}$ and $\\sqrt{\\frac{n}{\\log n}}$ in grid and random networks, respectively), we can actually quantify the asymptotic advantage of caching. Moreover, we compare these scaling laws for different content discovery mechanisms and illustrate that not much gain is lost when a simple path search is used.",
+          "claimed_abstract": "In the rapidly advancing realm of visual generation, diffusion models have revolutionized the landscape, marking a significant shift in capabilities with their impressive text-guided generative functions. However, relying solely on text for conditioning these models does not fully cater to the varied and complex requirements of different applications and scenarios. Acknowledging this shortfall, a variety of studies aim to control pre-trained text-to-image (T2I) models to support novel conditions. In this survey, we undertake a thorough review of the literature on controllable generation with T2I diffusion models, covering both the theoretical foundations and practical advancements in this domain. Our review begins with a brief introduction to the basics of denoising diffusion probabilistic models (DDPMs) and widely used T2I diffusion models. We then reveal the controlling mechanisms of diffusion models, theoretically analyzing how novel conditions are introduced into the denoising process for conditional generation. Additionally, we offer a detailed overview of research in this area, organizing it into distinct categories from the condition perspective: generation with specific conditions, generation with multiple conditions, and universal controllable generation. For an exhaustive list of the controllable generation literature surveyed, please refer to our curated repository at https://github.com/PRIV-Creation/Awesome-Controllable-T2I-Diffusion-Models.",
           "claimed_authors": [
-            "Bita Azimdoost",
-            "Cedric Westphal",
-            "Hamid R. Sadjadpour"
+            "Pu Cao",
+            "Feng Zhou",
+            "Qing Song",
+            "Lu Yang"
           ],
-          "claimed_title": "Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks",
+          "claimed_title": "Controllable Generation with Text-to-Image Diffusion Models: A Survey",
           "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1210.1185"
+          "claimed_year": 2024,
+          "primary_pointer": "2403.04279"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Controllable Generation with Text-to-Image Diffusion Models: A Survey')",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+          "claimed_abstract": "The auto-regressive decoding of Large Language Models (LLMs) results in significant overheads in their hardware performance. While recent research has investigated various speculative decoding techniques for multi-token generation, these efforts have primarily focused on improving processing speed such as throughput. Crucially, they often neglect other metrics essential for real-life deployments, such as memory consumption and training cost. To overcome these limitations, we propose a novel parallel prompt decoding that requires only $0.0002$% trainable parameters, enabling efficient training on a single A100-40GB GPU in just 16 hours. Inspired by the human natural language generation process, $PPD$ approximates outputs generated at future timesteps in parallel by using multiple prompt tokens. This approach partially recovers the missing conditional dependency information necessary for multi-token generation, resulting in up to a 28% higher acceptance rate for long-range predictions. Furthermore, we present a hardware-aware dynamic sparse tree technique that adaptively optimizes this decoding scheme to fully leverage the computational capacities on different GPUs. Through extensive experiments across LLMs ranging from MobileLlama to Vicuna-13B on a wide range of benchmarks, our approach demonstrates up to 2.49$\\times$ speedup and maintains a minimal runtime memory overhead of just $0.0004$%. More importantly, our parallel prompt decoding can serve as an orthogonal optimization for synergistic integration with existing speculative decoding, showing up to $1.22\\times$ further speed improvement. Our code is available at https://github.com/hmarkc/parallel-prompt-decoding.",
           "claimed_authors": [
-            "Nicolas Zucchet",
-            "Jörg Bornschein",
-            "Stephanie Chan",
-            "Andrew Lampinen",
-            "Razvan Pascanu",
-            "Soham De"
+            "Hao Mark Chen",
+            "Wayne Luk",
+            "Ka Fai Cedric Yiu",
+            "Rui Li",
+            "Konstantin Mishchenko",
+            "Stylianos I. Venieris",
+            "Hongxiang Fan"
           ],
-          "claimed_title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "claimed_title": "Hardware-Aware Parallel Prompt Decoding for Memory-Efficient Acceleration of LLM Inference",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2503.21676"
+          "claimed_year": 2024,
+          "primary_pointer": "2405.18628"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='How do language models learn facts? Dynamics, curricula and hallucinations')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Hardware-Aware Parallel Prompt Decoding for Memory-Efficient Acceleration of LLM Inference')",
+        "failed_at": "2026-10-14T15:19:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Autoregressive sequence models achieve state-of-the-art performance in domains like machine translation. However, due to the autoregressive factorization nature, these models suffer from heavy latency during inference. Recently, non-autoregressive sequence models were proposed to reduce the inference time. However, these models assume that the decoding process of each token is conditionally independent of others. Such a generation process sometimes makes the output sentence inconsistent, and thus the learned non-autoregressive models could only achieve inferior accuracy compared to their autoregressive counterparts. To improve then decoding consistency and reduce the inference cost at the same time, we propose to incorporate a structured inference module into the non-autoregressive models. Specifically, we design an efficient approximation for Conditional Random Fields (CRF) for non-autoregressive sequence models, and further propose a dynamic transition technique to model positional contexts in the CRF. Experiments in machine translation show that while increasing little latency (8~14ms), our model could achieve significantly better translation performance than previous non-autoregressive models on different translation datasets. In particular, for the WMT14 En-De dataset, our model obtains a BLEU score of 26.80, which largely outperforms the previous non-autoregressive baselines and is only 0.61 lower in BLEU than purely autoregressive models.",
+          "claimed_authors": [
+            "Zhiqing Sun",
+            "Zhuohan Li",
+            "Haoqing Wang",
+            "Zi Lin",
+            "Di He",
+            "Zhi-Hong Deng"
+          ],
+          "claimed_title": "Fast Structured Decoding for Sequence Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11555"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Fast Structured Decoding for Sequence Models')",
+        "failed_at": "2026-10-14T15:19:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Entropy coding is essential to data compression, image and video coding, etc. The Range variant of Asymmetric Numeral Systems (rANS) is a modern entropy coder, featuring superior speed and compression rate. As rANS is not designed for parallel execution, the conventional approach to parallel rANS partitions the input symbol sequence and encodes partitions with independent codecs, and more partitions bring extra overhead. This approach is found in state-of-the-art implementations such as DietGPU. It is unsuitable for content-delivery applications, as the parallelism is wasted if the decoder cannot decode all the partitions in parallel, but all the overhead is still transferred.\n  To solve this, we propose Recoil, a parallel rANS decoding approach with decoder-adaptive scalability. We discover that a single rANS-encoded bitstream can be decoded from any arbitrary position if the intermediate states are known. After renormalization, these states also have a smaller upper bound, which can be stored efficiently. We then split the encoded bitstream using a heuristic to evenly distribute the workload, and store the intermediate states and corresponding symbol indices as metadata. The splits can then be combined simply by eliminating extra metadata entries.\n  The main contribution of Recoil is reducing unnecessary data transfer by adaptively scaling parallelism overhead to match the decoder capability. The experiments show that Recoil decoding throughput is comparable to the conventional approach, scaling massively on CPUs and GPUs and greatly outperforming various other ANS-based codecs.",
+          "claimed_authors": [
+            "Fangzheng Lin",
+            "Kasidis Arunruangsirilert",
+            "Heming Sun",
+            "Jiro Katto"
+          ],
+          "claimed_title": "Recoil: Parallel rANS Decoding with Decoder-Adaptive Scalability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.12141"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Recoil: Parallel rANS Decoding with Decoder-Adaptive Scalability')",
+        "failed_at": "2026-10-14T15:19:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As digital media consumption shifts toward large-scale Over-the-Top (OTT) platforms, the efficiency of the control plane, specifically entitlement and identity verification, has become a critical factor in user experience. Current architectures often rely on synchronous cloud-tethered validation flows that introduce significant latency, especially on resource-constrained consumer electronics. This paper proposes a Hybrid Edge-Cloud Entitlement Framework designed to minimize user-perceived friction. By implementing a secure, local caching layer within device middleware and utilizing an Adaptive Entitlement Cache with Proactive Refresh (AEC-PR) algorithm, we decouple the user interaction from backend network variability. We evaluate the performance on ARM Cortex-A series hardware, demonstrating that localized cryptographic verification reduces authorization latency from a mean of 422.8ms to 18.4ms (a 95.6% reduction) while mitigating implementation-level side-channel risks through deterministic Ed25519 arithmetic and TEE isolation.",
+          "claimed_authors": [
+            "Pravin Nagare",
+            "Aditya Sabbineni",
+            "Devendra Dahiphale",
+            "Faiz Gouri",
+            "Pratik Thantharate"
+          ],
+          "claimed_title": "A Hybrid Edge-Cloud Architecture for Low-Latency Entitlement Verification in Resource-Constrained Devices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.10536"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='A Hybrid Edge-Cloud Architecture for Low-Latency Entitlement Verification in Resource-Constrained Devices')",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
@@ -387,95 +413,88 @@
           "primary_pointer": "1809.00626"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Deductive Verification of Unmodified Linux Kernel Library Functions')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This is a draft paper, proving that the inversion process that occurs in DNA mutations, is indeed chaotic as it is defined by the Devaney's theory.",
+          "claimed_abstract": "Speculative decoding accelerates large language model (LLM) inference by using a lightweight draft model to generate multiple candidate tokens that are verified by the target model in a single forward pass. Its speedup is largely determined by the acceptance length, yet existing draft-model training methods mainly optimize cross-entropy or Kullback-Leibler (KL) divergence as proxies. These objectives encourage distribution matching but do not directly optimize acceptance length, and the acceptance mechanism also differs between greedy and sampling-based decoding.\n  In this work, we propose acceptance-length-aware training losses that directly optimize the expected number of accepted tokens within a speculative window. For greedy verification, we derive an expected accepted length (EAL) loss that explicitly maximizes expected acceptance length. For sampling-based decoding, we introduce a window total variation (WTV) loss that optimizes the overlap between temperature-scaled draft and target distributions while accounting for sequential acceptance dependencies. Both objectives can be further combined with a group-relative reinforcement learning stage (GRPO) using simulated acceptance length as the reward.\n  Experiments across different target and draft models, tasks, and decoding settings show that our losses consistently improve acceptance length over KL-based training. WTV provides particularly strong gains under sampling-based decoding, while EAL better matches greedy verification. These results show that directly optimizing the acceptance objective, with losses tailored to the decoding mode, is more effective than conventional distribution-matching objectives.",
           "claimed_authors": [
-            "Jacques M. Bahi",
-            "Nathalie Côté",
-            "Christophe Guyeux"
+            "Tianhua Xia",
+            "Mugilan Ganesan",
+            "Yifei Feng",
+            "Haiyu Wang",
+            "Maximilian Egger",
+            "Sai Qian Zhang"
           ],
-          "claimed_title": "Chaos in DNA inversions (Draft paper)",
+          "claimed_title": "Acceptance-Aware Draft Model Training for Speculative Decoding",
           "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1105.1512"
+          "claimed_year": 2026,
+          "primary_pointer": "2609.24150"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Chaos in DNA inversions (Draft paper)')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Acceptance-Aware Draft Model Training for Speculative Decoding')",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Text-to-image generation has advanced rapidly with large-scale multimodal training, yet fine-grained controllability remains a critical challenge. Counterfactual controllability, defined as the capacity to deliberately generate images that contradict common-sense patterns, remains a major challenge but plays a crucial role in enabling creativity and exploratory applications. In this work, we address this gap with a focus on counterfactual size (e.g., generating a tiny walrus beside a giant button) and propose an automatic prompt engineering framework that adapts base prompts into revised prompts for counterfactual images. The framework comprises three components: an image evaluator that guides dataset construction by identifying successful image generations, a supervised prompt rewriter that produces revised prompts, and a DPO-trained ranker that selects the optimal revised prompt. We construct the first counterfactual size text-image dataset and enhance the image evaluator by extending Grounded SAM with refinements, achieving a 114 percent improvement over its backbone. Experiments demonstrate that our method outperforms state-of-the-art baselines and ChatGPT-4o, establishing a foundation for future research on counterfactual controllability.",
+          "claimed_abstract": "We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed as an analogue of the train/test split in correlation-based machine learning and as an enhancement of current causal validation strategies that are consistent with the logic of scientific discovery. The effectiveness of the method is illustrated using Pearl's sprinkler example, before a thorough simulation-based investigation is conducted. Limits of the technique are identified by studying exemplary failing scenarios, which are furthermore used to propose a list of topics for future research and improvements of the presented version of quantitative probing. The code for integrating quantitative probing into causal analysis, as well as the code for the presented simulation-based studies of the effectiveness of quantitative probing is provided in two separate open-source Python packages.",
           "claimed_authors": [
-            "Aleksa Jelaca",
-            "Ying Jiao",
-            "Chang Tian",
-            "Marie-Francine Moens"
+            "Daniel Grünbaum",
+            "Maike L. Stern",
+            "Elmar W. Lang"
           ],
-          "claimed_title": "Automated Prompt Generation for Creative and Counterfactual Text-to-image Synthesis",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2509.21375"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Automated Prompt Generation for Creative and Counterfactual Text-to-image Synthesis')",
-        "failed_at": "2026-08-24T18:29:12Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We consider the task of counterfactual estimation from observational imaging data given a known causal structure. In particular, quantifying the causal effect of interventions for high-dimensional data with neural networks remains an open challenge. Herein we propose Diff-SCM, a deep structural causal model that builds on recent advances of generative energy-based models. In our setting, inference is performed by iteratively sampling gradients of the marginal and conditional distributions entailed by the causal model. Counterfactual estimation is achieved by firstly inferring latent variables with deterministic forward diffusion, then intervening on a reverse diffusion process using the gradients of an anti-causal predictor w.r.t the input. Furthermore, we propose a metric for evaluating the generated counterfactuals. We find that Diff-SCM produces more realistic and minimal counterfactuals than baselines on MNIST data and can also be applied to ImageNet data. Code is available https://github.com/vios-s/Diff-SCM.",
-          "claimed_authors": [
-            "Pedro Sanchez",
-            "Sotirios A. Tsaftaris"
-          ],
-          "claimed_title": "Diffusion Causal Models for Counterfactual Estimation",
+          "claimed_title": "Quantitative probing: Validating causal models using quantitative domain knowledge",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2202.10166"
+          "primary_pointer": "2209.03013"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Diffusion Causal Models for Counterfactual Estimation')",
-        "failed_at": "2026-08-24T18:29:12Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='Quantitative probing: Validating causal models using quantitative domain knowledge')",
+        "failed_at": "2026-10-14T15:19:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale autoregressive models have demonstrated remarkable capabilities in image generation. However, their sequential raster-scan decoding relies on strictly next-token prediction, making inference prohibitively expensive. Existing acceleration methods typically either introduce entirely new generation paradigms that necessitate costly pre-training from scratch, or enable parallel generation at the expense of a training-inference gap or altered prediction objectives. In this paper, we introduce FlashAR, a lightweight post-training adaptation framework that efficiently adapts a pre-trained raster-scan autoregressive model into a highly parallel generator based on two-way next-token prediction. Our key insight is that effective adaptation should minimize modifications to the pre-trained model's original training objective to preserve its learned prior. Accordingly, we retain the original AR head as a horizontal head for row-wise prediction and introduce a complementary, lightweight vertical head for column-wise prediction. To facilitate efficient adaptation, we branch the vertical head from an intermediate layer rather than the final layer, bypassing the inherent horizontal head bias. Moreover, since horizontal and vertical predictions capture complementary dependencies whose relative importance varies across target positions, we employ a learnable fusion gate to dynamically combine the two predictions at each position. To further reduce adaptation cost, we propose a two-stage adaptation pipeline: the vertical head is first initialized through adaptation from the pre-trained autoregressive model before jointly fine-tuned with backbone to adapt to the new decoding paradigm. Extensive experiments on LlamaGen and Emu3.5 show that FlashAR achieves up to a 22.9x speedup for 512x512 image generation through a lightweight post-training with merely 0.05% of the original training data.",
+          "claimed_authors": [
+            "Junkang Zhou",
+            "Yefei He",
+            "Feng Chen",
+            "Weijie Wang",
+            "Bohan Zhuang"
+          ],
+          "claimed_title": "FlashAR: Efficient Post-Training Acceleration for Autoregressive Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.09430"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='FlashAR: Efficient Post-Training Acceleration for Autoregressive Image Generation')",
+        "failed_at": "2026-10-14T15:19:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent interest in the external validity of prediction models (i.e., the problem of different train and test distributions, known as dataset shift) has produced many methods for finding predictive distributions that are invariant to dataset shifts and can be used for prediction in new, unseen environments. However, these methods consider different types of shifts and have been developed under disparate frameworks, making it difficult to theoretically analyze how solutions differ with respect to stability and accuracy. Taking a causal graphical view, we use a flexible graphical representation to express various types of dataset shifts. Given a known graph of the data generating process, we show that all invariant distributions correspond to a causal hierarchy of graphical operators which disable the edges in the graph that are responsible for the shifts. The hierarchy provides a common theoretical underpinning for understanding when and how stability to shifts can be achieved, and in what ways stable distributions can differ. We use it to establish conditions for minimax optimal performance across environments, and derive new algorithms that find optimal stable distributions. Using this new perspective, we empirically demonstrate that that there is a tradeoff between minimax and average performance.",
+          "claimed_authors": [
+            "Adarsh Subbaswamy",
+            "Bryant Chen",
+            "Suchi Saria"
+          ],
+          "claimed_title": "A Unifying Causal Framework for Analyzing Dataset Shift-stable Learning Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.11374"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Domino: Decoupling Causal Modeling from Autoregres', candidate_title='A Unifying Causal Framework for Analyzing Dataset Shift-stable Learning Algorithms')",
+        "failed_at": "2026-10-14T15:19:22Z",
         "reason": "query_irrelevant"
       }
     ],
     "verified_citations": [
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jianuo Huang",
-            "Yaojie Zhang",
-            "Qituan Zhang",
-            "Hao Lin",
-            "Hanlin Xu",
-            "Linfeng Zhang"
-          ],
-          "title": "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2605.29707",
-        "summary": "Speculative decoding accelerates LLM inference by drafting multiple tokens and verifying them in parallel with the target model. However, its practical speedup is constrained by the trade-off between draft quality and drafting cost: autoregressive drafters model causal dependencies among draft tokens but incur sequential overhead, while parallel drafters reduce drafting cost but weaken intra-block dependency modeling. In this paper, we propose Domino, a speculative decoding framework that decouples causal dependency modeling from expensive autoregressive draft execution. Domino first uses a parallel draft backbone to produce preliminary draft distributions for the entire block, and then applies a lightweight Domino head to refine them with prefix-dependent causal information. To stabilize teacher-forced causal encoding, we further introduce a base-anchored training curriculum that first strengthens the parallel backbone and then gradually shifts optimization toward the causally corrected final distribution. Experiments on Qwen3 models show that Domino achieves up to \\(5.49\\times\\) end-to-end speedup under the Transformers backend and up to \\(5.8\\times\\) throughput speedup under SGLang serving.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.29707",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-24T18:29:17Z"
-        }
-      },
       {
         "bibliographic_info": {
           "authors": [
@@ -494,13 +513,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2605.01106",
           "http_status": 200,
-          "pdf_sample_score": 0.2949,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.8,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-24T18:29:22Z"
+          "verified_at": "2026-10-14T15:19:45Z"
         }
       },
       {
@@ -521,13 +540,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2508.17739",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2678,
           "query_relevance_score": 1.0,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-24T18:29:22Z"
+          "verified_at": "2026-10-14T15:19:45Z"
         }
       },
       {
@@ -557,37 +576,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-24T18:29:23Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Mukul Gagrani",
-            "Raghavv Goel",
-            "Wonseok Jeon",
-            "Junyoung Park",
-            "Mingu Lee",
-            "Christopher Lott"
-          ],
-          "title": "On Speculative Decoding for Multimodal Large Language Models",
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2404.08856",
-        "summary": "Inference with Multimodal Large Language Models (MLLMs) is slow due to their large-language-model backbone which suffers from memory bandwidth bottleneck and generates tokens auto-regressively. In this paper, we explore the application of speculative decoding to enhance the inference efficiency of MLLMs, specifically the LLaVA 7B model. We show that a language-only model can serve as a good draft model for speculative decoding with LLaVA 7B, bypassing the need for image tokens and their associated processing components from the draft model. Our experiments across three different tasks show that speculative decoding can achieve a memory-bound speedup of up to 2.37$\\times$ using a 115M parameter language model that we trained from scratch. Additionally, we introduce a compact LLaVA draft model incorporating an image adapter, which shows marginal performance gains in image captioning while maintaining comparable results in other tasks.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2404.08856",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-24T18:29:23Z"
+          "verified_at": "2026-10-14T15:19:45Z"
         }
       }
     ]

@@ -1,23 +1,45 @@
 """
-Script to create the project directory structure and empty __init__.py files.
-This corresponds to task T001.
+create_project_structure.py
+
+This script creates the required project directory hierarchy and places empty
+``__init__.py`` files in every package directory under ``src`` and ``tests``.
+It is idempotent – running it multiple times will not raise errors or overwrite
+existing files.
 """
+
 import os
 from pathlib import Path
+from typing import List
 
-def main():
-    # Define the base directory (project root)
-    base_dir = Path(__file__).resolve().parent.parent
-    
-    # Define the directory structure relative to the base
-    # Based on T001 description: 
-    # src/{data,models,evaluation,visualization,pipeline,scripts,cli}
-    # tests/{unit,integration,contract}
-    # data/{raw,processed}
-    # outputs/{plots,metrics}
-    # state
-    dirs_to_create = [
-        # Source directories
+def _make_dirs(dirs: List[str]) -> None:
+    """Create each directory in ``dirs`` (including parents)."""
+    for d in dirs:
+        Path(d).mkdir(parents=True, exist_ok=True)
+
+def _touch_init_files(dirs: List[str]) -> None:
+    """Create an empty ``__init__.py`` in each supplied directory."""
+    for d in dirs:
+        init_path = Path(d) / "__init__.py"
+        # ``touch`` with ``exist_ok`` ensures the file exists without truncating it.
+        init_path.touch(exist_ok=True)
+
+def main() -> None:
+    """
+    Create the full project layout required by task T001.
+
+    Directories created:
+        src/{data,models,evaluation,visualization,pipeline,scripts,cli}
+        tests/{unit,integration,contract}
+        data/{raw,processed}
+        outputs/{plots,metrics}
+        state
+
+    An empty ``__init__.py`` file is added to every directory under ``src`` and
+    ``tests`` (including the top‑level ``src`` and ``tests`` folders themselves).
+    """
+    # Base directories to create
+    base_dirs = [
+        "src",
         "src/data",
         "src/models",
         "src/evaluation",
@@ -25,47 +47,24 @@ def main():
         "src/pipeline",
         "src/scripts",
         "src/cli",
-        
-        # Test directories
+        "tests",
         "tests/unit",
         "tests/integration",
         "tests/contract",
-        
-        # Data directories
         "data/raw",
         "data/processed",
-        
-        # Output directories
         "outputs/plots",
         "outputs/metrics",
-        
-        # State directory
-        "state"
+        "state",
     ]
 
-    created_dirs = []
-    init_files_created = []
+    # Create the directories
+    _make_dirs(base_dirs)
 
-    for dir_path in dirs_to_create:
-        full_path = base_dir / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(full_path.relative_to(base_dir)))
-        
-        # Create __init__.py in all src and tests directories
-        if dir_path.startswith("src/") or dir_path.startswith("tests/"):
-            init_file = full_path / "__init__.py"
-            # Create empty file if it doesn't exist, or touch it
-            init_file.touch()
-            init_files_created.append(str(init_file.relative_to(base_dir)))
-
-    print(f"Project structure created in: {base_dir}")
-    print(f"Directories created: {len(created_dirs)}")
-    for d in sorted(created_dirs):
-        print(f"  - {d}")
-    
-    print(f"\n__init__.py files created: {len(init_files_created)}")
-    for f in sorted(init_files_created):
-        print(f"  - {f}")
+    # Directories that should be Python packages (need __init__.py)
+    package_dirs = [d for d in base_dirs if d.startswith("src") or d.startswith("tests")]
+    _touch_init_files(package_dirs)
 
 if __name__ == "__main__":
+    # When executed directly, run the creation routine.
     main()

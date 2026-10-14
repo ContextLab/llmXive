@@ -1,0 +1,52 @@
+T001:
+  reason: "Checked `specs/.../contracts/output.schema.yaml` (valid YAML with required\
+    \ keys) and `code/utils/validators.py` (functions exist and use Pydantic). However\
+    \ `dataset.schema.yaml` is missing, causing `validate_dataset_schema` to fail\
+    \ the required smoke\u2011check, and `code/config.py` lacks the listed constants\
+    \ (`TRAIN_VAL_TEST_SPLIT_RATIOS`, `BATCH_SIZE_ROWS`, `SC003_HIGH_YIELD_PERCENTILE`,\
+    \ `SUBSET_SIZE`). These omissions prevent the task from being fully satisfied."
+  task: f29f51716cb64d029d97c8082f9ee7b129514fb4356b68ed06ba99fdf77ef890
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocessing/download.py
+    exit=1'
+  task: fe91453e9171d9a21f026a483cbb7ce232c2d35564b3ce251a973cfff93cfe55
+T003:
+  task: efe2af6e9e9775064a5a09f93d674ba67df78e8ab0d25f53d846dcd5ffa54440
+T003a:
+  task: eb971b0aaad855c056b7d83b0df35914b34c94077a022b0ba911670a491f2e43
+T003b:
+  task: ed726da8091abad6e7bc473b888d87d62c4301c4769484e320ddd3cfb233c8df
+T003c:
+  task: 657e8beee9f63072223df21ae9471ca38b49ab7f1644f526eb4fc89571df15a8
+T004:
+  task: 5278632503b710f5b7b027b3d6adafa90016c44f5da1db53d8e47803644450d9
+T004a:
+  task: 0c56a3199f3d00a1fe27d26d3d14aca66d73a53662763ada6d5055f3f5e9a291
+T004b:
+  task: 4f4c29f76fa6b48013fb09977e03fbf0cb1599d3286594f991f1d2344596e804
+T004c:
+  task: f6a0a3e3158d3d85e56e77de60251ed429ce5b278dfdfe9007fa8eea406931e9
+T005:
+  task: 629f5e3399ebc2686cd2c487d0e20c527ceb579ec61b313ec036ae93a5b2a4d5
+T005a:
+  task: 15c422e13c826e4c7e109148050989fa7b4b1d324d5b52ca93c8d2e283407c3d
+T006:
+  task: 2d502f193ac2a5f483e1d5fb6a7f2c5850789a502b4052fb12e11b54a8dda6c2
+T007:
+  task: 310ee7ee76a28a180d852da517203bf3cfee961f9e7e95096b4a00e81b36c74b
+T008:
+  task: 79aa40f9483fb2350ff1febcc338d14a9407e0565355c229b1a16bcff6b77ad9
+T008a:
+  task: 1a74731df31e0daf345456cbc180e2d14ef75d00d2fa805d86893b8f0d63ac4e
+T008b:
+  task: 7b0bd5756efeeabc81f5091a09add01d0fd8e5065aebd846e81b05449e3e1e09
+T008c:
+  task: 1d0f1235cc290c918a17a7f68b0e602119b291c0320b56bbbd87136012c08d54
+T009:
+  task: 914f12b4c84acf694ebc55b9c2b744eb6a46ba54795d77eda30af0f8c13540df
+T010:
+  task: cd2413708f117aceec0d31c4dd6a71b4ff69ee150b39096c990414dcdd8ff549
+T011:
+  task: db5bb16236aaf50afdfa29114ae926b0de6ada9e75c61c06ad378c60f31996f3
+T012:
+  task: 5062def26ad576e7a12d825dc1326ac8523ba2a0ab72794227649c90147c8189

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2610.00223",
+  "judged_at": "2026-10-14T15:19:56Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"domino: decoupling causal modeling from autoregressive drafting in spe\" linguistics",
+  "rationale": "The candidate paper is about carbon footprint assessment of an Arabic LLM, which shares no mechanism, variables, or methodology with the user's question about decoupling causal modeling from autoregressive drafting in speculative decoding. It is off-domain for the user's linguistics/speed-up research question.",
+  "relevant": false
+}
