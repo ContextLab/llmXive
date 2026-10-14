@@ -1,17 +1,12 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/verify_plan_scope.py
-    exit=1'
   task: d18dcb0ea7c79370ba27ac492063397f2524a88df2bc90b2fe784ff929c7bc8e
 T002:
   task: 15ed0f146b5659610628e052b3c07535cc8e5f37e7504601a23bb54aca5bd665
 T003:
   task: d66fdd1e0a95c0d5a51147f5053cc90b6ca3ec2bce39a7b8f7068727d2158931
 T004:
-  reason: Checked `code/requirements.txt`; it pins many scientific packages but the
-    required `lammps` entry is only a commented note and not an actual pinned version,
-    so the file does not contain pinned versions for all packages the spec lists.
-    The missing active `lammps==...` line means the task requirement is not fully
-    satisfied.
+  reason: 'Requested task execution failed; rerun successfully: code/data/run_md_sim.py
+    exit=1'
   task: c7801c632814ab5ed3a0665f9897ca258dc0d18622dce9c45a64233c14f7e302
 T005:
   task: f7e930cd83d9813cd74d2235c58c1c5f16a2e3966984b7e03976ee3807f4cfdc
@@ -20,8 +15,24 @@ T006:
 T007:
   task: 680ba56925f7cc97d76c9e5bc9ae8be7b74c371c78416e01c01d8d84cf0dee49
 T008:
+  reason: "The artifact exists and is non-trivial, but it does not implement the required\
+    \ API: the task specifies a context manager `PipelineTimeout(hours=6)`, whereas\
+    \ the file only provides `TimeoutEnforcer(max_seconds=...)` and a `pipeline_timeout`\
+    \ functional wrapper \u2014 there is no `PipelineTimeout` class and no `hours`\
+    \ parameter anywhere. Additionally, no test evidence (e.g., a script sleeping\
+    \ past a 1-second timeout and triggering the exception) was supplied, and the\
+    \ design only checks elapsed time on `__exit__`, so a long-running block is not\
+    \ interrupted mid-execution as the verification scenario imp"
   task: 8064d2dd2d90ea5b7a178bc5aca5d827e529f15f4d0a33f2953973a23c7144de
 T009:
+  reason: "The script `code/data/validate_literature_subset.py` exists and the CSV\
+    \ is present and non-empty, but the task explicitly requires the script to **checksum**\
+    \ `data/raw/literature_subset.csv` (integrity verification via a stored/verified\
+    \ hash), and the script contains no checksum logic whatsoever \u2014 it only checks\
+    \ existence, readability, and column names, so a silently corrupted file with\
+    \ valid columns would pass. It also deviates from the stated failure behavior:\
+    \ the task requires raising `FileNotFoundError` on a missing/corrupted file, whereas\
+    \ the script prints a message and calls `sys.exit(1)"
   task: 72d709e1b33f346a3408798288dab809e4e4399cf7d0ebfafa34257740f561c5
 T010:
   reason: 'Requested task execution failed; rerun successfully: code/data/run_md_sim.py

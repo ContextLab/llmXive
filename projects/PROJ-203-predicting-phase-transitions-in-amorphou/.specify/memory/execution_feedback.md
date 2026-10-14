@@ -14,19 +14,30 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/descriptor_utils.py: self-declared fabricated metric — “…similar     # For now, return mock values consistent with the task con…”; code/data/descriptor_utils.py: self-declared fabricated metric — “…descriptors.")         # Use placeholder values if trajectory loading fails…”; code/data/descriptor_utils.py: synthetic/fake INPUT data not authorized by the spec — “…xist_ok=True)          # Mock trajectory data loading - in production…”; 6 command(s) failed: python -m data.run_md_sim --config config.yaml (rc=1); python -m data.extract_descriptors --input data/raw/md_trajectories/ --output data/processed/descriptors.csv (rc=1); python -m data.merge_labels --descriptors data/processed/descriptors.csv --experimental data/raw/literature_subset.csv --output data/processed/final_dataset.csv (rc=1); 4 declared deliverable(s) absent: data/logs/simulation_times.json; data/processed/descriptors.csv; data/processed/final_dataset.parquet
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/descriptor_utils.py: self-declared fabricated metric — “…similar     # For now, return mock values consistent with the task con…”; code/data/descriptor_utils.py: self-declared fabricated metric — “…descriptors.")         # Use placeholder values if trajectory loading fails…”; code/data/descriptor_utils.py: synthetic/fake INPUT data not authorized by the spec — “…xist_ok=True)          # Mock trajectory data loading - in production…”; 6 command(s) failed: python -m data.run_md_sim --config config.yaml (rc=1); python -m data.extract_descriptors --input data/raw/md_trajectories/ --output data/processed/descriptors.csv (rc=1); python -m data.merge_labels --descriptors data/processed/descriptors.csv --experimental data/raw/literature_subset.csv --output data/processed/final_dataset.csv (rc=1); 3 declared deliverable(s) absent: data/logs/simulation_times.json; data/processed/descriptors.csv; data/processed/final_dataset.parquet
 
 ## Failing / missing run-book commands
 
 - python -m data.run_md_sim --config config.yaml -> rc=1
 
+/home/runner/work/llmXive/llmXive/projects/PROJ-203-predicting-phase-transitions-in-amorphou/code/data/run_md_sim.py:28: DeprecationWarning: 
+Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
+(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
+but was not found to be installed on your system.
+If this would cause problems for you,
+please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
+        
+  import pandas as pd
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-203-predicting-phase-transitions-in-amorphou/code/data/run_md_sim.py", line 253, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-203-predicting-phase-transitions-in-amorphou/code/data/run_md_sim.py", line 254, in <module>
     sys.exit(main())
-    ^^^
-NameError: name 'sys' is not defined
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-203-predicting-phase-transitions-in-amorphou/code/data/run_md_sim.py", line 187, in main
+    pilot_csv = paths.data_raw / "pilot_compositions.csv"
+                ^^^^^^^^^^^^^^
+AttributeError: 'PathConfig' object has no attribute 'data_raw'
 
 - python -m data.extract_descriptors --input data/raw/md_trajectories/ --output data/processed/descriptors.csv -> rc=1
 
@@ -54,7 +65,6 @@ NameError: name 'sys' is not defined
 - data/logs/simulation_times.json
 - data/processed/descriptors.csv
 - data/processed/final_dataset.parquet
-- data/raw/pilot_compositions.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -75,6 +85,3 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/main.py` — NOT invoked by the run-book
     - `code/utils/performance_optimizations.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/final_dataset.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/pilot_compositions.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/data/run_md_sim.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/pilot_compositions.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

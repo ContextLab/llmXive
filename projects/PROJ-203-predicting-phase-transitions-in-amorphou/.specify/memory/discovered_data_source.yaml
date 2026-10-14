@@ -1,15 +1,16 @@
 status: none
-intent: download Reproducible Ground Truth glass transition temperature dataset python
-  package dataset
+intent: Materials Project glass transition temperature dataset amorphous compositions
+  python package dataset
 required_fields:
-- composition_formula
+- composition
 - rdf_peak_position
 - rdf_peak_width
 - bond_angle_variance
 - coordination_number
 - experimental_Tg
 - crystallization_label
-- simulation_status_flag
-cache_key: b56f8a02ed77c0088a9f36a851fa03695a06179dea370463221f99f7ab0f50d4
-searched_at: '2026-10-14T22:31:31.710173+00:00'
+- truncation_flag
+- descriptor_metadata
+cache_key: f615cccb3ecdd24c8c7b2f809ca5408b16f76acfeaec103cbbb42737af3cee1b
+searched_at: '2026-10-14T22:43:30.718410+00:00'
 retry_count: 1

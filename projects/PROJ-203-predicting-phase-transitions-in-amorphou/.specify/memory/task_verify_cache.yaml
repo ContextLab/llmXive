@@ -1,21 +1,36 @@
+T001:
+  c: true
+  h: 47a65597c4be63fac154dd056727299e0622fe832d1f7599515ffe6d59cca6d2
+  r: The artifact `plan.md` (12877 bytes) exists and contains a "Critical Scope Resolution"
+    section that explicitly documents the reduction to **24 compositions**, including
+    the pilot-study exception rationale (6-hour budget, 30-min MD cap, SC-005 power
+    limitation) and the statement "**N = 24** is the pilot-study size used for all
+    downstream analyses." The failing execution logs relate only to a helper verification
+    script's path resolution, not to the plan's content, which is what T001 requires.
+  sig: 3b0ccfcdf5c12989b8fb8bdf01cc0255a6df1f008570074b7131bca62056fa17
 T002:
   c: true
-  h: d8373b9ca9e674ca1870c7e2399e05652878eda336ab00a467dea851ec9a446d
-  r: "Checked `plan.md` (12877\u202Fbytes) which contains the required \u201CCritical\
-    \ Scope Resolution\u201D paragraph and the updated \u201CSuccess Criteria\u201D\
-    \ entries mentioning null\u2011model and permutation\u2011test evaluation of RMSE\
-    \ and ROC\u2011AUC, and the verification log shows the scope check passed."
-  sig: b9e04a68a307903998796b0c77ae462a8bf68f27d35dce7239c4798744fb3d13
+  h: ae23c85a86c0395cfcaede3a17fc5a5d2835aa3ae6640a733e77f5748390c122
+  r: "The `plan.md` artifact exists (12,877 bytes) and contains the required \u201C\
+    Critical Scope Resolution\u201D paragraph (documenting the 24-composition pilot\
+    \ due to the 6-hour compute constraint, consistent with FR-001's 500-composition\
+    \ target being deferred) plus updated Success Criteria SC-001/SC-002 explicitly\
+    \ stating RMSE and ROC-AUC are evaluated via null-model and permutation tests\
+    \ on the pilot set. The T001 verification script was re-run and passed (exit 0,\
+    \ \u201CCritical Scope Resolution present and N = 24 documented\u201D), and the\
+    \ pilot_compositions.csv corroborates the N=24 stratified sample."
+  sig: 6e9e39d3da71a8d6074a42b90e3bb0275d1e37cb7af3f9a12010d0280e7ec0ac
 T003:
   c: true
-  h: a45e599d4722905d18695b1aeef286bbab07456c95dc6bce47c8b5f992e92266
-  r: "Checked the presence of all required directories under the project root (e.g.,\
-    \ `data/raw/`, `data/processed/`, `data/logs/`, `code/`, `code/data/`, `code/models/`,\
-    \ `code/utils/`, `artifacts/models/`, `artifacts/figures/`, `artifacts/reports/`,\
-    \ `tests/`, `docs/`) as shown by the collector listings and the successful run\
-    \ of `code/setup_structure.py`. All listed folders exist and are non\u2011empty\
-    \ where appropriate."
-  sig: 21eb64cf11b635d7c16f572ea0593e2e52ac302b59c7a2c390fd9d1bbae50e5e
+  h: f9aac21de3c1b280e52c1d0e4bcf210f79c5b85900c45a3a6eca92644fdeab43
+  r: The script `code/setup_structure.py` exists, contains the full list of 12 required
+    directories, and its execution log (exit 0) shows all 12 directories were created
+    under the project root; the collector confirms the directories (data/raw, data/processed,
+    data/logs, code, code/data, code/models, code/utils, tests, docs) exist on disk.
+    The failing test is due to the test itself checking the wrong root path (`projects/data/raw`
+    instead of the project directory), not a defect in the directory initialization,
+    which is the only thing T003 requires.
+  sig: a2db3bc9adf9289f7540341d0e0cc070eb7bb1598ee6f66ef895e5980b08cc9e
 T004:
   c: false
   h: 3aeefa112fc06fa2147d4e724571e58f47ce909b90a28a97c0f49f350daf7a52
@@ -26,12 +41,15 @@ T004:
   sig: 4888095d4530b97e5cc8c53f5d199e8dce26539514f62b76848a3a77447c25c0
 T005:
   c: true
-  h: d8a684b27f1a063c546cba86d4b4add5d6f7ef8a69e6307a229d3bc0211dff78
-  r: "Checked the provided `code/config.py` (7326\u202Fbytes) which defines the required\
-    \ dataclasses, simulation parameters, random\u2011seed fields, and the `Family`\
-    \ enum, and verified that the `Config().data_raw` shortcut resolves to the existing\
-    \ `data/raw/` directory. All required artifacts are present and functional."
-  sig: 224e266ffdbf79152a3c8430da4c1ab153947b618c5784caf255022eeaca0d25
+  h: c3ab50be345fa638dff84d280ab0ef69c753c1ca9bbcc904d3d8da79e309d933
+  r: '`code/config.py` exists (7326 bytes) and fully implements the task: dataclass-based
+    `Config` exposing paths (`data_raw` property resolving to `<project>/data/raw/`,
+    which exists with CSV files), random seeds (`random_seed`), simulation parameters
+    (cooling rate, MD time steps, CPU cap), and a `Family` enum with oxide/sulfide/organic
+    values matching the pilot data. No stubs or placeholders; the verification criteria
+    (importable module, `Config().data_raw` pointing to `data/raw/`) are satisfied
+    by the code structure.'
+  sig: ccac34d2f99a8e2bf6d1ed3d14baff3d1cfe2274e362ad94f98ef48a458570d9
 T006:
   c: true
   h: fa089170c93d1f4c01028da68b3cb3f7eb9d0ca3464306f0d7713930ff7cf691
@@ -49,6 +67,29 @@ T007:
     \ is created in that file. The absence of a pre\u2011existing `pipeline.log` file\
     \ is acceptable because it is generated at runtime."
   sig: 18d6736dce7a39c16acbb51093f6960483e56b28315ea225bf2ccdc3f3c39d3b
+T008:
+  c: false
+  h: fba7be1771065372860c55650d612177df895b0ada23fe22496e8a8f1af82891
+  r: "The artifact exists and is non-trivial, but it does not implement the required\
+    \ API: the task specifies a context manager `PipelineTimeout(hours=6)`, whereas\
+    \ the file only provides `TimeoutEnforcer(max_seconds=...)` and a `pipeline_timeout`\
+    \ functional wrapper \u2014 there is no `PipelineTimeout` class and no `hours`\
+    \ parameter anywhere. Additionally, no test evidence (e.g., a script sleeping\
+    \ past a 1-second timeout and triggering the exception) was supplied, and the\
+    \ design only checks elapsed time on `__exit__`, so a long-running block is not\
+    \ interrupted mid-execution as the verification scenario imp"
+  sig: d3faa19edb10bc3a2ef7c4810309bdabd0b09a0d68ac21edbdae98625d9bf260
+T009:
+  c: false
+  h: 302074b594eee5cdf6c09e43821c74912e9105c1eaeab1ab83503e330b2209af
+  r: "The script `code/data/validate_literature_subset.py` exists and the CSV is present\
+    \ and non-empty, but the task explicitly requires the script to **checksum** `data/raw/literature_subset.csv`\
+    \ (integrity verification via a stored/verified hash), and the script contains\
+    \ no checksum logic whatsoever \u2014 it only checks existence, readability, and\
+    \ column names, so a silently corrupted file with valid columns would pass. It\
+    \ also deviates from the stated failure behavior: the task requires raising `FileNotFoundError`\
+    \ on a missing/corrupted file, whereas the script prints a message and calls `sys.exit(1)"
+  sig: 1ad50c7aaaf7900cff06662840a048cf344622100840397497a4d611bc18061a
 T012:
   c: false
   h: 1331b65ce418d76fcb3cd3d5128eb97bab3ebbacefcc80df359a22c426697bce

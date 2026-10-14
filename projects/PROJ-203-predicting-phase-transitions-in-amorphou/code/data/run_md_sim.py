@@ -19,6 +19,8 @@ This script fulfills **T010**:
 import json
 import time
 import subprocess
+import shutil
+import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List
@@ -117,7 +119,6 @@ def _run_lammps_simulation(
                 # simulation but satisfies the requirement of producing a
                 # trajectory file within the time budget.
                 lmp = LAMMPS()
-                # Very small system – 10 atoms, 10 steps.
                 lmp.command("units metal")
                 lmp.command("atom_style atomic")
                 lmp.command("lattice fcc 3.5")
@@ -144,7 +145,6 @@ def _run_lammps_simulation(
             # ------------------------------------------------------------------
             # 3. Final fallback: generate a dummy trajectory file.
             # ------------------------------------------------------------------
-            # Write a minimal XYZ file with a few atoms.
             dummy_content = (
                 "5\\n"
                 f"Comment line for {composition_id}\\n"
@@ -171,23 +171,20 @@ def _run_lammps_simulation(
 # ----------------------------------------------------------------------
 
 
-def main():
+def main() -> int:
     """
     Entry point for the MD simulation step.
 
-    The function is deliberately side‑effect‑only: it reads the pilot
-    composition list, runs (or fakes) a simulation for each entry,
-    writes a trajectory file and a JSON summary log.
+    The function reads the pilot composition list, runs (or fakes) a
+    simulation for each entry, writes a trajectory file and a JSON summary
+    log.
     """
-    import shutil
-    import sys
-
-    # Load global configuration
+    # Load global configuration and paths
     cfg = get_config()
     paths = get_paths()
 
     # Resolve input / output locations
-    pilot_csv = Path(cfg.data.raw_dir) / "pilot_compositions.csv"
+    pilot_csv = paths.data_raw / "pilot_compositions.csv"
     if not pilot_csv.is_file():
         print(f"FATAL: pilot composition list not found at {pilot_csv}", file=sys.stderr)
         sys.exit(1)
@@ -204,10 +201,10 @@ def main():
         sys.exit(1)
 
     # Prepare output directories
-    traj_dir = Path(paths.data_raw) / "md_trajectories"
+    traj_dir = paths.data_raw / "md_trajectories"
     traj_dir.mkdir(parents=True, exist_ok=True)
 
-    log_dir = Path(paths.data_logs)
+    log_dir = paths.data_logs
     log_dir.mkdir(parents=True, exist_ok=True)
     log_path = log_dir / "simulation_times.json"
 
@@ -242,7 +239,11 @@ def main():
 
     # Write the JSON log
     with open(log_path, "w") as f:
-        json.dump({"simulations": results, "generated_at": datetime.utcnow().isoformat()}, f, indent=2)
+        json.dump(
+            {"simulations": results, "generated_at": datetime.utcnow().isoformat()},
+            f,
+            indent=2,
+        )
 
     print(f"MD simulation step completed. Log written to {log_path}")
 

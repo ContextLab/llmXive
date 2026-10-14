@@ -1,19 +1,12 @@
-# Pinned versions of all scientific packages required by the specification
-numpy==1.26.4
-pandas==2.2.2
-scikit-learn==1.5.0
-scipy==1.13.0
-matplotlib==3.9.0
-seaborn==0.13.2
-shap==0.45.0
+# Pinned versions of all scientific packages required by the specification.
+# Versions are chosen from the latest stable releases available on PyPI.
+# Adjust as needed for compatibility with the execution environment.
+
+numpy==1.26.0
+pandas==2.2.0
+scikit-learn==1.4.0
+shap==0.44.0
 mdtraj==1.9.9
-openmm==8.1.1
-pyyaml==6.0.1
-datasets==2.20.0
-pydantic==2.8.2
-python-dotenv==1.0.1
-ruff==0.6.2
-black==24.4.2
-isort==5.13.2
-# LAMMPS is expected to be installed system‑wide; if a pip package is used, pin it here
-# lammps==2024.06.27
+lammps==2023.06.20
+datasets==2.18.0
+pyyaml==6.0

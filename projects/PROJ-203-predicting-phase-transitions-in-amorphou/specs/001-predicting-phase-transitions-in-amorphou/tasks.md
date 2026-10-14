@@ -11,7 +11,7 @@ The checklist below follows the canonical format `- [ ] T### [P?] [USx?] descrip
 | Goal: Ensure the plan reflects the compute‑budget limitation (pilot N=24) while keeping the original specification untouched. |
 |------|
 
-- [ ] **T001** [US1] Verify that `plan.md` contains a “Critical Scope Resolution” section documenting the reduction to 24 compositions.   <!-- FAILED-IN-EXECUTION: code/verify_plan_scope.py exit=1 -->
+- [X] **T001** [US1] Verify that `plan.md` contains a “Critical Scope Resolution” section documenting the reduction to 24 compositions.
   - **Path**: `plan.md`  
   - **Requirement**: The plan must explicitly state the pilot‑study exception.  
   - **Verification**: Grep “Critical Scope Resolution” and confirm the text mentions *N = 24*.
@@ -32,7 +32,7 @@ The checklist below follows the canonical format `- [ ] T### [P?] [USx?] descrip
   - **Path**: filesystem (created by script `code/setup_structure.py`).  
   - **Verification**: `tree` output contains all listed folders.
 
-- [ ] **T004**  Create `code/requirements.txt` with pinned versions of all scientific packages required by the spec (e.g., `numpy`, `pandas`, `scikit-learn`, `shap`, `mdtraj`, `lammps`, `datasets`, `pyyaml`).  
+- [ ] **T004**  Create `code/requirements.txt` with pinned versions of all scientific packages required by the spec (e.g., `numpy`, `pandas`, `scikit-learn`, `shap`, `mdtraj`, `lammps`, `datasets`, `pyyaml`).   <!-- FAILED-IN-EXECUTION: code/data/run_md_sim.py exit=1 -->
   - **Path**: `code/requirements.txt`  
   - **Verification**: `pip install -r code/requirements.txt` completes without errors.
 
@@ -48,7 +48,7 @@ The checklist below follows the canonical format `- [ ] T### [P?] [USx?] descrip
   - **Path**: `code/utils/logging_config.py`  
   - **Verification**: After calling `setup_logger()`, a test log entry appears in the file.
 
-- [~] **T008**  Implement `code/utils/timeout_enforcer.py` – a context manager `PipelineTimeout(hours=6)` that raises `TimeoutError` if the wrapped block exceeds the wall‑clock limit.  
+- [ ] **T008**  Implement `code/utils/timeout_enforcer.py` – a context manager `PipelineTimeout(hours=6)` that raises `TimeoutError` if the wrapped block exceeds the wall‑clock limit.  
   - **Path**: `code/utils/timeout_enforcer.py`  
   - **Verification**: A small script deliberately sleeping >6 h triggers the exception (tested with a 1‑second timeout for speed).
 
@@ -59,7 +59,7 @@ The checklist below follows the canonical format `- [ ] T### [P?] [USx?] descrip
 | Goal: Produce a validated, fully‑featured dataset (`final_dataset.parquet`) that satisfies FR‑001, FR‑002, and FR‑008. |
 |------|
 
-- [~] **T009** [US1] Validate the presence and integrity of `data/raw/literature_subset.csv`.  
+- [ ] **T009** [US1] Validate the presence and integrity of `data/raw/literature_subset.csv`.  
   - **Path**: `code/data/validate_literature_subset.py` → checksums `data/raw/literature_subset.csv`.  
   - **Verification**: Script exits with code 0; missing or corrupted file raises `FileNotFoundError` and aborts the run.
 
