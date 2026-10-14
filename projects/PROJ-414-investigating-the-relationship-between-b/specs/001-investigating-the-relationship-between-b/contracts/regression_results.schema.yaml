@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression and Permutation Test Results"
+type: object
+required:
+  - pc
+  - skill_proxy_used
+  - coefficient
+  - raw_p
+  - fdr_p
+  - significance
+  - null_result_flag
+  - permutation_scheme
+properties:
+  pc:
+    type: string
+    description: "Principal component identifier (e.g. pc_1)."
+  skill_proxy_used:
+    type: string
+    description: "Real column used as skill proxy, or 'none' if no proxy exists (halt path)."
+  coefficient:
+    type: number
+    description: "OLS coefficient for the skill proxy."
+  raw_p:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Permutation p-value (1000 permutations) before correction."
+  fdr_p:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Benjamini-Hochberg FDR-corrected p-value."
+  significance:
+    type: boolean
+    description: "True if fdr_p < 0.05."
+  null_result_flag:
+    type: boolean
+    description: "True when the result is non-significant; null results are valid outputs, not failures."
+  permutation_scheme:
+    type: string
+    description: "Permutation scheme used; must be 'freedman_lane' (residual permutation, valid under covariate adjustment)."
+  covariates_included:
+    type: array
+    items:
+      type: string
+    description: "Covariates actually present in the data and included in the model."
+additionalProperties: false

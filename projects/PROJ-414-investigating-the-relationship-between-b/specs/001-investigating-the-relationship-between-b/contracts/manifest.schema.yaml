@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Master Manifest Row (Single Source of Truth)"
+type: object
+required:
+  - subject_id
+  - excluded
+properties:
+  subject_id:
+    type: string
+    description: "Participant identifier; one row per processed subject."
+  excluded:
+    type: boolean
+    description: "True if the subject was excluded from the association analysis."
+  exclusion_reason:
+    type: string
+    description: "Logged reason for exclusion (e.g. '>20% bad volumes'); empty string if not excluded."
+  mean_global_efficiency:
+    type: number
+    description: "Window-averaged global efficiency descriptor (default 45s/10s setting); vertex-block connectivity descriptor, not a brain-network property. Optional because excluded subjects may have no computed descriptors."
+  mean_modularity:
+    type: number
+    description: "Window-averaged modularity descriptor; vertex-block connectivity descriptor. Optional for excluded subjects."
+  mean_participation_coefficient:
+    type: number
+    description: "Window-averaged participation coefficient descriptor; vertex-block connectivity descriptor. Optional for excluded subjects."
+  age:
+    type: number
+    description: "Age in years, if present in the real data."
+  fd:
+    type: number
+    description: "Motion metric, if present in the real data."
+  years_of_training:
+    type: number
+    description: "Years of musical training, if present in the real data."
+  task_condition:
+    type: string
+    description: "Task condition label (e.g. Improvisation/Scripted), if present in the real data."
+  instrument_type:
+    type: string
+    description: "Instrument type covariate, if present in the real data."
+  musical_genre:
+    type: string
+    description: "Musical genre covariate, if present in the real data."
+  practice_intensity:
+    type: number
+    description: "Practice intensity covariate, if present in the real data."
+  education_level:
+    type: string
+    description: "Education level covariate, if present in the real data."
+  skill_proxy_value:
+    type: number
+    description: "Value of the real skill-proxy column for this subject, if present."
+  skill_proxy_used:
+    type: string
+    description: "Which real column served as skill proxy, or 'none' (expected halt path)."
+  pc_scores:
+    type: object
+    description: "Mapping of PC name (e.g. pc_1) to score; keys are dynamic."
+    additionalProperties:
+      type: number
+  fdr_p_values:
+    type: object
+    description: "Mapping of PC name to FDR-corrected p-value for the association, if computed."
+    additionalProperties:
+      type: number
+  power_status:
+    type: string
+    description: "Power-analysis outcome for this run, e.g. 'adequate', 'underpowered_association_skipped', 'not_applicable_descriptive_only'."
+additionalProperties: true

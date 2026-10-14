@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Vertex-Block Time-Series Rows"
+type: object
+required:
+  - subject_id
+  - timepoint
+  - roi_id
+  - value
+properties:
+  subject_id:
+    type: string
+    description: "Participant identifier."
+  timepoint:
+    type: integer
+    minimum: 0
+    description: "Volume index within the run."
+  roi_id:
+    type: string
+    pattern: "^roi_[1-9][0-9]?$|^roi_100$"
+    description: "Vertex-block identifier from the deterministic 100-block contiguous-vertex scheme. NOTE: blocks are arbitrary contiguous fsLR vertex groupings, NOT neuroanatomical or functionally coherent regions; downstream descriptors inherit this limitation."
+  value:
+    type: number
+    description: "Bandpass-filtered mean BOLD signal for the vertex block at this timepoint."
+additionalProperties: false

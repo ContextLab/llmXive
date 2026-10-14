@@ -1,129 +1,62 @@
-# Quickstart: Running the Brain Network‑Improvisation Analysis
+# Quickstart: Brain Network Dynamics & Improvisation Skill Analysis
 
 ## Prerequisites
-- Python 3.11 (pre‑installed on the CI runner).  
-- Internet connectivity (to download the verified OpenNeuro datasets).  
-- FSL 6.0.5 and AFNI 22.2.07 binaries available in `$PATH` (pre‑installed on the GitHub Actions runner image).  
 
-## 1. Install Dependencies
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt   # includes nilearn, nipype, fslpy, etc.
-```
+- Python 3.11, internet access (one verified parquet URL is downloaded).
+- No FSL/AFNI/GPU required — CPU-only by design.
 
-## 2. Download and Verify Data
-The data are fetched directly from the verified HuggingFace OpenNeuro mirrors. This approach streams the data and verifies required columns without relying on a separate script that previously failed.
-
-```python
-# download_hf.py (run with python)
-from datasets import load_dataset, DatasetDict
-import json, pathlib
-
-datasets_to_load = ["openneuro/ds000246", "openneuro/ds001600"]
-out_dir = pathlib.Path("data/raw")
-out_dir.mkdir(parents=True, exist_ok=True)
-
-required_cols = {
-    "subject_id", "run_label", "age", "years_training", "fd",
-    # ROI columns
-    *{f"roi_{i}" for i in range(1, 101)},
-    # optional covariates
-    "instrument_type", "genre", "practice_intensity", "education", "improv_rating"
-}
-
-for ds_name in datasets_to_load:
-    ds: DatasetDict = load_dataset(ds_name, streaming=True)
-    # Iterate and write to parquet, verifying columns
-    for split, split_ds in ds.items():
-        parquet_path = out_dir / f"{ds_name.replace('/', '_')}_{split}.parquet"
-        # Collect rows that contain all required columns (optional cols may be missing)
-        rows = []
-        for row in split_ds:
-            missing = required_cols - row.keys()
-            if missing - {"instrument_type","genre","practice_intensity","education","improv_rating"}:
-                raise RuntimeError(f"Missing required columns {missing} in {ds_name} {split}")
-            rows.append(row)
-        # Write parquet
-        import pandas as pd
-        pd.DataFrame(rows).to_parquet(parquet_path)
-        # Record checksum
-        import hashlib, json
-        checksum = hashlib.sha256(open(parquet_path, "rb").read()).hexdigest()
-        checksums = {}
-        if (out_dir / "checksums.json").exists():
-            checksums = json.load(open(out_dir / "checksums.json"))
-        checksums[str(parquet_path)] = checksum
-        json.dump(checksums, open(out_dir / "checksums.json", "w"), indent=2)
-print("Download and verification complete.")
-```
-
-Run the script:
+## 1. Install dependencies
 
 ```bash
-python download_hf.py
+python -m venv .venv && source .venv/bin/activate
+pip install -r code/requirements.txt
 ```
 
-The script:
-- Pulls the parquet files from the **verified** HuggingFace URLs `https://huggingface.co/datasets/openneuro/ds000246` and `https://huggingface.co/datasets/openneuro/ds001600` via `datasets.load_dataset`.
-- Writes a checksum manifest to `data/raw/checksums.json`.
-- **Verifies** that the required columns (`subject_id`, `run_label`, `age`, `years_training`, `fd`, `roi_1…roi_100`) are present; aborts with a clear error if any are missing.
-- Retains optional columns (`instrument_type`, `genre`, `practice_intensity`, `education`, `improv_rating`) for downstream covariate control.
+## 2. Download and verify data (redo of previously failed T001)
 
-## 3. Run the Full End‑to‑End Pipeline
 ```bash
-python -m src.pipeline.run_all \
-    --seed 42 \
-    --output_dir data/output \
-    --permutations 1000 \
-    --window_size 45 \
-    --step_size 10
+python code/download_openneuro.py
 ```
-`run_all` orchestrates the phases defined in `plan.md`:
-1. Preprocessing (FSL/AFNI via Nipype).  
-2. Sliding‑window connectivity + Ledoit‑Wolf regularization.  
-3. Graph‑metric computation.  
-4. PCA dimensionality reduction.  
-5. Regression with permutation testing (1 000 permutations) and FDR correction.  
-6. Sensitivity sweep (default parameters are also executed for reporting).  
-7. Visualizations (NetworkX + Matplotlib).  
-8. Generation of `data/output/master_manifest.csv` (the Single Source of Truth).
 
-All intermediate artifacts are written under `data/output/` with timestamps.
+This script:
+- Downloads the **verified** parquet shard directly from
+  `
+  to `data/raw/` (resumable; exits non-zero on HTTP failure).
+- Records its SHA-256 in `data/checksums.json`.
+- Streams the parquet with `pyarrow`, inventories the real columns, and writes `data/raw/column_inventory.json` listing which behavioral/covariate fields actually exist.
+- Exits 0 on success. (The previous version failed because it referenced a non-existent HuggingFace dataset from the OpenNeuro collection.)
 
-## 4. Inspect Results
-- **Metrics table**: `data/output/metrics_summary.csv`  
-- **Regression table**: `data/output/regression_results.csv` (validated against `contracts/network_metrics.schema.yaml`).  
-- **Sensitivity summary**: `data/output/sensitivity_summary.csv`  
-- **Figures**: `data/output/fig_network_topology.png`, `data/output/fig_sensitivity.png`  
-- **Master manifest**: `data/output/master_manifest.csv`
+## 3. Run the full pipeline
 
-## 5. Run Contract Tests
 ```bash
-pytest -q tests/contract
+python code/run_all.py --seed 42 --window 45 --step 10 --permutations 1000
 ```
-The suite checks each output file against its JSON schema in `contracts/`.
 
-## 6. Re‑run a Specific Sensitivity Setting (optional)
+Orchestrates: vertex-block extraction + bandpass + QC → sliding-window Ledoit-Wolf connectivity → vertex-block connectivity descriptors → PCA → power analysis (reporting-only) → conditional association regression (Freedman–Lane permutation + FDR) → sensitivity sweep ({30,45,60}s × {5,10}s) → NetworkX/Matplotlib figures → `results/manifest.csv`.
+
+**Expected path:** if no real skill-proxy column exists in the data (the anticipated outcome), the association stage prints a clear data-mismatch message, records the scope gap in the report, and the remaining stages (descriptor sensitivity, descriptive topology figure, manifest) still complete — the descriptive characterization is the primary deliverable. The power analysis never aborts the pipeline; under-power gates the association stage only.
+
+## 4. Inspect results
+
+- `results/manifest.csv` — master manifest (Single Source of Truth)
+- `results/regression_results.csv` — coefficients, Freedman–Lane permutation p, FDR p, significance (only if the association stage ran)
+- `results/sensitivity_summary.csv` — window/step robustness table (correlation SD marked `not_computable_no_skill_proxy` on the expected path)
+- `results/power_analysis.json` — required vs. available N (correlation/F-test framework)
+- `results/fig_network_topology.png` — descriptive vertex-block topology figure (group comparison only if real task labels exist)
+
+## 5. Run tests
+
 ```bash
-python -m src.pipeline.run_all \
-    --window_size 30 \
-    --step_size 5 \
-    --seed 123 \
-    --output_dir data/output/window30_step5 \
-    --permutations 1000
+pytest -q tests/unit tests/contract
 ```
-Use the same `--seed` for deterministic results.
 
-## 7. Clean Up
+Contract tests validate every output file against `contracts/*.schema.yaml`.
+
+## 6. Re-run one sensitivity setting
+
 ```bash
-rm -rf data/output
+python code/run_all.py --seed 123 --window 30 --step 5 --permutations 1000 \
+    --output_dir results/window30_step5
 ```
-The raw parquet files remain cached in `~/.cache/huggingface/datasets/` for future runs.
 
-**Note**: The entire workflow runs on the CPU‑only GitHub Actions free tier; total runtime is typically < 5 h for 40 subjects.
-
----
-
-
-
+Same seed ⇒ deterministic results (Constitution Principle I).

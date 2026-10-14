@@ -1,22 +1,55 @@
-- artifact_hash: 2668b6c2942daee35a5818ec77c057b529b9e3bd89074814bf3df27ced81c994
+- artifact_hash: 1314490ffb96284a60690ba90da9080ab9107e00fd1f5c96ef55e4c069d4e409
+  artifact_path: projects/PROJ-414-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00016.parquet
+  kind: url
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?xip=10AJsgMo6s8&user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&Expires=1791997228&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD94aXA9MTBBSnNnTW82czgmdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTk3MjI4fX19XX0_&Signature=MEQCIAJRhbeIV1QToo20P1uBwALfqlEYMEZsLh5zIDCbDFqQAiBRceZO4J6Is9jT8yLiZXA-k1ypv41BQmhbIiUNYEDPjg__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T16:00:28.287437Z'
+- artifact_hash: ac0b51f05aa4067807c5f672927c88191cc18f1c2fc43db69f8a7e295ea547cf
   artifact_path: projects/PROJ-414-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: OpenNeuro
+  fetched_title: test-00000-of-00016.parquet
   kind: url
-  value: https://openneuro.org/datasets/ds000246`
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
   verification_status: pending
-  verified_against_url: https://openneuro.org/datasets/ds000246
-  verified_at: '2026-10-13T14:25:52.014232Z'
-- artifact_hash: f2ffedd5a660a27f42ba5ed2aca1e4f48feea661230212d9ed605be515d625e8
-  artifact_path: projects/PROJ-414-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/data-model.md
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?xip=10AJsgMo6s8&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1791997257&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD94aXA9MTBBSnNnTW82czgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTk3MjU3fX19XX0_&Signature=MEUCIBNtV62AGUemmjhJ3TpDOZcv-vvQt8Esclu6SA%7EcNWbEAiEA%7EMCrxS13aXaFJ0dkg8vY9Wi41MR4IYQBs%7ElvkeKIxAM_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T16:00:57.344850Z'
+- artifact_hash: ac0b51f05aa4067807c5f672927c88191cc18f1c2fc43db69f8a7e295ea547cf
+  artifact_path: projects/PROJ-414-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: dataset_dict.json
+  kind: url
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/clane9/openneuro-fslr64k.arrow/5295df2714969c7d29ccb8ee126b4ac8164d94f7/dataset_dict.json?%2Fdatasets%2Fclane9%2Fopenneuro-fslr64k.arrow%2Fresolve%2Fmain%2Fdataset_dict.json=&etag=%2231145eaf92f08c428500ba08c6ee6e186851a3ac%22
+  verified_at: '2026-10-14T16:00:57.344850Z'
+- artifact_hash: ac0b51f05aa4067807c5f672927c88191cc18f1c2fc43db69f8a7e295ea547cf
+  artifact_path: projects/PROJ-414-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: CUB_200_2011.zip
+  kind: url
+  value: https://huggingface.co/datasets/hariknguyen2419/FSL_datasets/resolve/main/CUB_200_2011.zip`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6630958d4dab4dacbc58afeb/0976e23efb05bcf14693752aa7387cb469b9d6f843a58d4ceab3c46704d3523e?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27CUB_200_2011.zip%3B+filename%3D%22CUB_200_2011.zip%22%3B&user_id=public&xip=10AJsgMo6s8&response-content-type=application%2Fzip&Expires=1791997269&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYzMDk1OGQ0ZGFiNGRhY2JjNThhZmViLzA5NzZlMjNlZmIwNWJjZjE0NjkzNzUyYWE3Mzg3Y2I0NjliOWQ2Zjg0M2E1OGQ0Y2VhYjNjNDY3MDRkMzUyM2VcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Q1VCXzIwMF8yMDExLnppcCUzQitmaWxlbmFtZSUzRCUyMkNVQl8yMDBfMjAxMS56aXAlMjIlM0ImdXNlcl9pZD1wdWJsaWMmeGlwPTEwQUpzZ01vNnM4JnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRnppcCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTk3MjY5fX19XX0_&Signature=MEUCIQC7PjwzBBzG78t9NBlqTuVEYlz5Se6zalU50rwz8qq1AgIgH8a6pKIlPWQmTF0mlQHQ6KB8x0DQywpFFQUkKVYoNWE_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T16:00:57.344850Z'
+- artifact_hash: bfa3ca7aa382867a1184cbf644b01e358fa3bccd498f45e045c5e53652bf8c41
+  artifact_path: projects/PROJ-414-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: schema#
+  fetched_title: test-00000-of-00016.parquet
   kind: url
-  value: http://json-schema.org/draft-07/schema#
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
   verification_status: pending
-  verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-13T14:26:14.217246Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?user_id=public&X-Xet-Cas-Uid=public&xip=10AJsgMo6s8&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&Expires=1791997461&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9MTBBSnNnTW82czgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTk3NDYxfX19XX0_&Signature=MEYCIQC3Ea%7Ex0UoD33qhuf-NnpSgcrW3Ha4cUn2E%7E7Uoad65RwIhAL0CrW84s6XFw4tSUM20R3aT6uK7WVAVksfYWF%7E9ihQh&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T16:04:21.447099Z'

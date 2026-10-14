@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PCA Scores per Subject"
+type: object
+required:
+  - subject_id
+  - n_components_retained
+  - variance_explained_total
+properties:
+  subject_id:
+    type: string
+    description: "Participant identifier."
+  n_components_retained:
+    type: integer
+    minimum: 1
+    description: "Number of PCs retained (>=80% cumulative variance)."
+  variance_explained_total:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Cumulative variance explained by retained PCs."
+  pc_scores:
+    type: object
+    description: "Mapping of PC name (e.g. pc_1) to score; keys are dynamic."
+    additionalProperties:
+      type: number
+additionalProperties: false

@@ -1,177 +1,44 @@
 # Data Model: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Musical Improvisation Skill
 
 ## Overview
-Schemas below define the structure of every artifact produced by the pipeline. Contract tests in `tests/contract/` validate conformity to these schemas.
 
-## Schemas
+Schemas for every derived artifact. Contract tests in `tests/contract/` validate outputs against the files in `contracts/`. All behavioral/covariate fields are optional because their presence in the real data is determined at runtime; mandatory fields are only those the pipeline itself derives.
 
-### 1. Raw OpenNeuro Parquet Dataset (`raw_dataset.schema.yaml`)
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Raw OpenNeuro Parquet Dataset"
-type: object
-required:
-  - subject_id
-  - run_label
-  - age
-  - years_training
-  - fd
-  - roi_1
-properties:
-  subject_id:
-    type: string
-    description: "Unique participant identifier."
-  run_label:
-    type: string
-    enum: ["Improv", "Scripted"]
-    description: "Task condition."
-  age:
-    type: number
-    description: "Age in years."
-  years_training:
-    type: number
-    description: "Self‑reported years of musical training."
-  fd:
-    type: number
-    description: "Mean frame‑wise displacement (mm)."
-  roi_1:
-    type: number
-  roi_2:
-    type: number
-  # ...
-  roi_100:
-    type: number
-  instrument_type:
-    type: string
-    description: "Instrument played by the participant (optional)."
-  genre:
-    type: string
-    description: "Musical genre preference (optional)."
-  practice_intensity:
-    type: number
-    description: "Average weekly practice hours (optional)."
-  education:
-    type: string
-    description: "Highest education level (optional)."
-  improv_rating:
-    type: number
-    description: "Post‑scan improvisation rating (0‑10 scale, optional)."
-additionalProperties: false
+## Entities
+
+- **Subject**: `subject_id`, optional real metadata (age, fd, task condition, skill proxy, instrument, genre, practice intensity, education, years of training), exclusion flag + reason, QC metrics.
+- **QCRecord** (`qc_<subject>.json`): per-subject QC summary — fraction of bad volumes, exclusion flag, exclusion reason, motion-proxy description (FD column if present, else amplitude-based scrubbing, documented).
+- **ColumnInventory** (`data/raw/column_inventory.json`): the real parquet column names, plus which expected behavioral/covariate fields (skill proxies, covariates, task labels) were found — this drives the conditional association stage.
+- **ROITimeseries**: per-subject `(timepoints × 100)` matrix, long-format rows keyed by `subject_id`, `timepoint`, `roi_id` (vertex-block id).
+- **NetworkMetric** (vertex-block connectivity descriptor): `subject_id`, `window_id`, `metric_name`, `value` (wide form in files: one row per subject/window).
+- **PCAScores**: per-subject scores on retained principal components.
+- **RegressionResult**: per-PC coefficient, permutation p (Freedman–Lane), FDR p, significance flag, null-result flag.
+- **ManifestRow**: one row per subject in `results/manifest.csv` — the Single Source of Truth (FR-012).
+
+## File Layout
+
+```text
+data/
+├── raw/test-00000-of-00016.parquet   # untouched verified download
+├── raw/column_inventory.json         # real column inventory from download step
+├── checksums.json                    # SHA-256 of raw file
+└── derived/
+    ├── roi_timeseries_<subject>.csv
+    ├── qc_<subject>.json
+    ├── metrics_<subject>.csv
+    └── pca_scores.csv
+results/
+├── manifest.csv
+├── regression_results.csv            # only if association stage ran
+├── sensitivity_summary.csv
+├── power_analysis.json
+└── fig_network_topology.png
 ```
 
-### 2. Preprocessed ROI Time‑Series (`preprocessed_timeseries.schema.yaml`)
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Preprocessed ROI Time‑Series"
-type: object
-required:
-  - subject_id
-  - timepoint
-properties:
-  subject_id:
-    type: string
-  timepoint:
-    type: integer
-    description: "Index of the time point within the run."
-  roi_1:
-    type: number
-  roi_2:
-    type: number
-  # ...
-  roi_100:
-    type: number
-additionalProperties: false
-```
+## Schema Notes
 
-### 3. Network Metrics (`network_metrics.schema.yaml`) – **Primary contract**
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Dynamic Network Metrics per Window"
-type: object
-required:
-  - subject_id
-  - window_id
-  - global_efficiency
-  - modularity
-  - participation_coefficient
-properties:
-  subject_id:
-    type: string
-    description: "Identifier of the participant."
-  window_id:
-    type: integer
-    description: "Sliding‑window index (starting at 0)."
-  global_efficiency:
-    type: number
-    description: "Weighted global efficiency of the functional graph."
-  modularity:
-    type: number
-    description: "Louvain modularity score of the graph."
-  participation_coefficient:
-    type: number
-    description: "Mean participation coefficient across all nodes."
-additionalProperties: false
-```
-
-### 4. PCA Scores (`pca_scores.schema.yaml`)
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Principal Component Scores per Subject"
-type: object
-required:
-  - subject_id
-  - pc_1
-  - pc_2
-  - pc_3
-properties:
-  subject_id:
-    type: string
-  pc_1:
-    type: number
-  pc_2:
-    type: number
-  pc_3:
-    type: number
-additionalProperties: false
-```
-
-### 5. Regression Results (`regression_results.schema.yaml`)
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Regression and Permutation Test Results"
-type: object
-required:
-  - pc
-  - coefficient
-  - raw_p
-  - fdr_p
-  - significance
-properties:
-  pc:
-    type: string
-    description: "Principal component identifier (e.g., pc_1)."
-  coefficient:
-    type: number
-    description: "Regression coefficient for years_training."
-  raw_p:
-    type: number
-    description: "Permutation‑derived p‑value before correction."
-  fdr_p:
-    type: number
-    description: "Benjamini‑Hochberg FDR‑corrected p‑value."
-  significance:
-    type: boolean
-    description: "True if fdr_p < 0.05."
-additionalProperties: false
-```
-
-## Relationships
-- Each **subject** appears in the raw dataset, the preprocessed time‑series, the network‑metrics file, and the PCA‑scores file.  
-- **Window IDs** link metrics to the corresponding time‑window.  
-- **PC identifiers** link regression results to the PCA‑scores.  
-
-All files reside under `data/` with clear naming (`raw.parquet`, `timeseries_<sub>.csv`, `metrics_<sub>.csv`, `pca_scores.csv`, `regression_results.csv`).
-
----
-
-
+- `roi_id` ranges over `roi_1` … `roi_100` (deterministic contiguous fsLR vertex blocks; **not neuroanatomical regions**).
+- `window_id` starts at 0; only windows with ≥30 timepoints are emitted.
+- `skill_proxy_used` records which real column (if any) served as the dependent variable; `"none"` triggers the documented halt path (expected outcome).
+- Excluded subjects appear in the manifest with `excluded=true` and an `exclusion_reason` and may have null metric values, satisfying the edge-case requirement and SC-006 (every processed subject has a row).
+- The manifest carries all available covariate columns and dynamic PC scores; see `contracts/manifest.schema.yaml`.

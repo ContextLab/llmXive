@@ -1,26 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dynamic Network Metrics per Window"
+title: "Dynamic Vertex-Block Connectivity Descriptors per Window"
 type: object
 required:
   - subject_id
   - window_id
+  - window_seconds
+  - step_seconds
   - global_efficiency
   - modularity
   - participation_coefficient
 properties:
   subject_id:
     type: string
-    description: "Identifier of the participant."
+    description: "Participant identifier."
   window_id:
     type: integer
-    description: "Sliding‑window index (starting at 0)."
+    minimum: 0
+    description: "Sliding-window index (starting at 0)."
+  window_seconds:
+    type: number
+    enum: [30, 45, 60]
+    description: "Window size in seconds."
+  step_seconds:
+    type: number
+    enum: [5, 10]
+    description: "Step size in seconds."
   global_efficiency:
     type: number
-    description: "Weighted global efficiency of the functional graph."
+    description: "Weighted global efficiency computed on the vertex-block graph. NOTE: nodes are deterministic contiguous fsLR vertex blocks, NOT neuroanatomical regions; this is a vertex-block connectivity descriptor and must not be interpreted as a brain-network property."
   modularity:
     type: number
-    description: "Louvain modularity score of the graph."
+    description: "Louvain modularity score (seeded) of the vertex-block graph. Vertex-block connectivity descriptor; not a brain-network property."
   participation_coefficient:
     type: number
-    description: "Mean participation coefficient across all nodes."
+    description: "Node-averaged participation coefficient over Louvain communities of the vertex-block graph. Vertex-block connectivity descriptor; not a brain-network property."
 additionalProperties: false
