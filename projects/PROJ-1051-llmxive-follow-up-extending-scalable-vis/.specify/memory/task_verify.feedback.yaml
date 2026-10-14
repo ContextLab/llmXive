@@ -3,8 +3,16 @@ T001:
     exit=1'
   task: b24ec33da198ba18ccec548932a288c6e43f3a5d009ffa4a933fb81509abe69a
 T002:
+  reason: The required output Parquet file `data/processed/document_pairs.parquet`
+    does not exist, and the unit test `tests/unit/test_preprocess.py` fails because
+    the sample data directory is missing, indicating the preprocessing script has
+    not been successfully run and verified. The contract test file is present but
+    only checks schema validity, not the actual data generation. The missing Parquet
+    artifact and failing unit test must be fixed.
   task: 410bb56e6df24ff228adb7814047277dccaabb335d4ff1f1c66ef5a6cddb0e0e
 T003:
+  reason: 'Requested task execution failed; rerun successfully: src/data/latent_generator.py
+    exit=1'
   task: 913f4d262f2e12cd89260a721810953c51f38c2e685c982bc58765a5cde2a06c
 T004:
   task: bbd578043d43dc3805ab3e6faf350b173fe5aacbd8ca84e4adcdba496240585c

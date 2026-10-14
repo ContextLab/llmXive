@@ -13,7 +13,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 8 command(s) failed: python -m src.data.download  --dataset-name publaynet  --output-dir data/raw (rc=2); python -m src.data.preprocess  --input-dir data/raw/publaynet  --output-parquet data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml (rc=1); python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name layoutlmv3-base  --device cpu (rc=1)
+**Summary**: 4 command(s) failed: python -m src.data.download  --dataset-name publaynet  --output-dir data/raw (rc=2); python -m src.data.preprocess  --input-dir data/raw/publaynet  --output-parquet data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml (rc=1); python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name layoutlmv3-base  --device cpu (rc=1)
 
 ## Failing / missing run-book commands
 
@@ -25,31 +25,39 @@ download.py: error: the following arguments are required: --primary-name, --fall
 
 - python -m src.data.preprocess  --input-dir data/raw/publaynet  --output-parquet data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1051-llmxive-follow-up-extending-scalable-vis/bin/python: No module named src.data.preprocess
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/src/data/preprocess.py", line 277, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/src/data/preprocess.py", line 274, in main
+    preprocess_dataset(args.input_dir, args.output_parquet, args.schema_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/src/data/preprocess.py", line 201, in preprocess_dataset
+    raise RuntimeError(f"Input directory does not exist: {input_dir}")
+RuntimeError: Input directory does not exist: /home/runner/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/data/raw/publaynet
 
 - python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name layoutlmv3-base  --device cpu -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1051-llmxive-follow-up-extending-scalable-vis/bin/python: No module named src.data.latent_generator
-
-- python -m src.utils.split_generator  --input-parquet data/processed/document_pairs_with_latent.parquet  --output-dir data/splits  --seed 42  --train-ratio 0.8 --val-ratio 0.1 --test-ratio 0.1 -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1051-llmxive-follow-up-extending-scalable-vis/bin/python: Error while finding module specification for 'src.utils.split_generator' (ModuleNotFoundError: No module named 'src.utils')
-
-- python -m src.models.distilled  --data-parquet data/processed/document_pairs_with_latent.parquet  --splits-dir data/splits  --seed $SEED  --output-dir artifacts/models/distilled_$SEED  --max-epochs 5  --batch-size 16 -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1051-llmxive-follow-up-extending-scalable-vis/bin/python: Error while finding module specification for 'src.models.distilled' (ModuleNotFoundError: No module named 'src.models')
-
-- python -m src.models.baseline  --data-parquet data/processed/document_pairs.parquet  --splits-dir data/splits  --seed $SEED  --output-dir artifacts/models/baseline_$SEED  --max-epochs 5  --batch-size 16 -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1051-llmxive-follow-up-extending-scalable-vis/bin/python: Error while finding module specification for 'src.models.baseline' (ModuleNotFoundError: No module named 'src.models')
+ne 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/src/data/latent_generator.py", line 161, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/src/data/latent_generator.py", line 103, in main
+    df = pd.read_parquet(args.input_parquet)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 651, in read_parquet
+    impl = get_engine(engine)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
+    raise ImportError(
+ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python -m src.data.download  --dataset-name docvqa  --output-dir data/raw/docvqa -> rc=2
 
 usage: download.py [-h] --primary-name PRIMARY_NAME --fallback-name
                    FALLBACK_NAME
 download.py: error: the following arguments are required: --primary-name, --fallback-name
-
-- python -m src.eval.downstream  --distilled-dir artifacts/models/distilled_*/  --baseline-dir artifacts/models/baseline_*/  --test-data data/raw/docvqa/test.parquet  --results-path artifacts/eval/downstream_results.json -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1051-llmxive-follow-up-extending-scalable-vis/bin/python: Error while finding module specification for 'src.eval.downstream' (ModuleNotFoundError: No module named 'src.eval')
 

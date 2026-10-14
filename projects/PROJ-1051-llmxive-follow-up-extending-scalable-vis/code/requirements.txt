@@ -1,7 +1,18 @@
-# Core dependencies (already available in the base environment)
-# - numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-#   seaborn, pytest, PyYAML, requests, jsonschema, psutil
+# Core scientific stack (already available in the runner)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
 
-# Additional dependencies required for this task
-huggingface_hub>=0.23.0
-PyYAML>=6.0
+# Additional dependencies required for latent generation (CPU‑only)
+torch==2.3.0
+transformers==4.44.0
+pillow==10.3.0

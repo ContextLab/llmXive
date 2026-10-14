@@ -21,7 +21,7 @@
     - Skip pages lacking `layout_annotations`; emit a warning and count them (must be ≤ 5 % of total).  
     - Unit test `tests/contract/test_documentpair.py` must pass.  
 
-- [ ] **T003** Generate visual‑layout latents on CPU using the frozen `layoutlmv3‑base` encoder.  
+- [ ] **T003** Generate visual‑layout latents on CPU using the frozen `layoutlmv3‑base` encoder.   <!-- FAILED-IN-EXECUTION: src/data/latent_generator.py exit=1 -->
   - **Implementation**: `src/data/latent_generator.py` loads `layoutlmv3-base` with `torch.load(..., map_location="cpu")` inside `torch.no_grad()`, processes `image_path` from the Parquet file, and appends a `visual_latent` (768‑dim `float32` array) to each row, writing `data/processed/document_pairs_with_latent.parquet`.  
   - **Verification**:  
     - Every row contains a `visual_latent` of length 768 with no NaNs.  

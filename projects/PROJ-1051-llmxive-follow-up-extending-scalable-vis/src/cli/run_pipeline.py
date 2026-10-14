@@ -1,0 +1,1 @@
+"""Placeholder for end‑to‑end CLI (not part of T001)."""

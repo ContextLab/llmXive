@@ -1,0 +1,10 @@
+T002:
+  c: false
+  h: fef01f055f346ed8c3ef75510085355d1444761ab3e1be7b9c688cb312506a33
+  r: The required output Parquet file `data/processed/document_pairs.parquet` does
+    not exist, and the unit test `tests/unit/test_preprocess.py` fails because the
+    sample data directory is missing, indicating the preprocessing script has not
+    been successfully run and verified. The contract test file is present but only
+    checks schema validity, not the actual data generation. The missing Parquet artifact
+    and failing unit test must be fixed.
+  sig: 54e86d31125e3462ffc437d640bb8aa8672462edbdc45cea4457a0889184c45b

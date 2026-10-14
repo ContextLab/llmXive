@@ -1,0 +1,1 @@
+"""Placeholder for split generation (not part of T001)."""
