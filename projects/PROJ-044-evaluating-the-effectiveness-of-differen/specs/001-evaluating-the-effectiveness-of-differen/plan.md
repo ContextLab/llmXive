@@ -1,105 +1,39 @@
 # Implementation Plan: Evaluating the Effectiveness of Differential Privacy in Federated Learning
 
-**Branch**: `001-evaluating-dp-federated-learning` | **Date**: 2026-10-13 | **Spec**: `specs/001-evaluating-dp-federated-learning/spec.md`  
+**Branch**: `001-evaluating-dp-federated-learning` | **Date**: 2026-10-14 | **Spec**: `specs/001-evaluating-dp-federated-learning/spec.md`  
 **Input**: Feature specification from `/specs/001-evaluating-dp-federated-learning/spec.md`
 
 ## Summary
-Implement a reproducible computational study that (1) partitions the **FEMNIST** dataset into heterogeneous client sets using Dirichlet concentrations α ∈ {0.1, 0.5, 1.0}, (2) trains Federated Averaging (FedAvg) models **with** and **without** Differential Privacy (DP) via Opacus, (3) logs per‑client and global accuracies for **5 independent random seeds** per configuration, and (4) conducts **paired t‑tests** (and a Linear Mixed‑Effects Model) to assess whether minority clients suffer larger DP‑induced degradation, especially at high heterogeneity (α ≤ 0.1). All steps run on the CPU‑only GitHub Actions free tier; a deterministic early‑stop / round‑reduction algorithm guarantees completion within the 6‑hour limit.
+Implement a reproducible CPU‑only study that (1) streams the open FEMNIST parquet dataset, (2) creates Dirichlet‑based client partitions for α ∈ {0.1, 0.5, 1.0} with deterministic seeds, (3) trains a tiny CNN with FedAvg both with Opacus‑based Differential Privacy (Gaussian noise, Moments Accountant) and without DP (ε = ∞), (4) records per‑round and per‑client metrics for **5 seeds** per configuration, (5) filters out utility‑collapse runs, and (6) carries out the paired t‑tests and minority‑vs‑majority mixed‑effects analysis required by FR‑005 and Principle VII.
+
+All steps are designed to complete within the 6‑hour CPU budget of a GitHub Actions free‑tier runner.
 
 ## Technical Context
-- **Language/Version**: Python 3.10+  
-- **Primary Dependencies**: `torch==2.3.0` (CPU), `opacus==1.4.0`, `datasets==2.19.0`, `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `pyarrow` (for parquet I/O)  
-- **Storage**: `data/` (raw parquet, partition JSON), `results/` (CSV logs, filtered CSVs, summary CSV), `figures/` (PNG plots)  
-- **Testing**: `pytest` (unit & integration) – tests cover partition reproducibility, DP‑vs‑non‑DP logging, and statistical‑analysis sanity checks.  
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**:  
+  - `torch==2.3.0` (CPU wheel)  
+  - `opacus==1.4.0`  
+  - `datasets==2.19.0`  
+  - `pandas==2.2.2`  
+  - `numpy==1.26.4`  
+  - `scipy==1.13.0`  
+  - `statsmodels==0.14.2`  
+  - `matplotlib==3.8.4`  
+  - `pyarrow==15.0.0` (parquet I/O)  
 - **Target Platform**: Linux GitHub Actions free tier (2 vCPU, ≈ 7 GB RAM, ≈ 14 GB disk).  
-- **Performance Goals**: Finish **5 seeds × 3 α × 5 ε** (including ε = ∞ baseline) within **6 h** on CPU.  
-- **Constraints**: No GPU usage; streaming download of FEMNIST; strict adherence to the Constitution; Shakespeare dataset permanently excluded.
+- **Constraints**: No GPU; streaming download; deterministic seeding; Shakespeare dataset excluded per FR‑001.  
+- **Performance Goal**: ≤ 6 h wall‑clock for the full sweep (5 seeds × 3 α × 5 ε).  
 
 ## Constitution Check
 | Principle | Status | Rationale |
 |-----------|--------|-----------|
-| I. Reproducibility | ✅ | All random generators seeded; deterministic orchestration; exact dataset URL. |
+| I. Reproducibility | ✅ | All random generators are explicitly seeded; dataset URL is fixed; checksum recorded. |
 | II. Verified Accuracy | ✅ | Only the FEMNIST URLs listed in the “Verified datasets” block are used. |
-| III. Data Hygiene | ✅ | SHA‑256 checksums recorded; raw parquet never mutated; derived files have new names. |
-| IV. Single Source of Truth | ✅ | All metrics are first recorded in `results/raw_logs.csv`. Derived files (`filtered_*`, `final_stats.csv`, etc.) are **strictly derived** from this SSoT and do not introduce new independent metrics. |
-| V. Versioning Discipline | ✅ | Artifact hashes stored in `state/projects/PROJ-044‑...yaml`. |
-| VI. Heterogeneity‑Aware Evaluation | ✅ | Minority clients are defined **independently of α** as the bottom 30 % of label‑entropy percentile within each partition (see Minority Definition below). |
-| VII. Statistical Rigor | ✅ | Paired t‑tests for DP vs non‑DP; LMM with Seed and Client random effects; Bonferroni correction; power discussion included. |
-
-## Minority Definition
-Clients are flagged as `is_minority=True` **iff** their empirical label‑entropy falls in the **bottom [deferred]** of the entropy distribution **within the same partition**. This definition is **independent of the Dirichlet concentration α**, ensuring that the minority indicator is not circularly tied to the heterogeneity variable under study.
-
-## Power & Detectable Effect Size
-With the mandated **5 seeds** per configuration, a two‑sided paired t‑test has a minimum detectable effect size of roughly **Cohen’s d ≈ 1.1** at α = 0.05. This limitation is explicitly reported in the results discussion; the study is therefore powered to detect only relatively large DP‑induced degradations.
-
-## Early‑Stop / Time‑Budget Logic
-After each communication round the orchestrator checks remaining wall‑clock time. If the projected time to complete the remaining seeds exceeds the budget, the number of rounds is capped at a **pre‑computed maximum** (`max_rounds = floor((time_budget - 5 min overhead) / estimated_time_per_round)`). Any run that reaches this cap is marked `is_time_limited=True` **and is excluded from all downstream statistical analyses** (paired t‑tests, LMM, filtering) to avoid bias.
-
-## Computational Strategy
-
-### Hardware & Runtime
-- **Primary**: GitHub Actions free‑tier CPU (2 vCPU, ≈ 7 GB RAM). All libraries are CPU‑only.  
-- **GPU Escape Hatch**: None required; Opacus runs efficiently on CPU for the modest model size (≈ 30 k parameters).  
-
-### Algorithmic Details
-| Component | Method | Key Parameters |
-|-----------|--------|----------------|
-| **Model** | Tiny CNN (2 Conv layers + 1 FC) | Batch size = 32, learning rate = 0.01 |
-| **Federated Optimizer** | FedAvg | Local epochs = 1, communication rounds ≤ 50 (early stop possible) |
-| **Differential Privacy** | Opacus `GradSampleModule` + Gaussian noise | Clip norm = 1.0, Noise multiplier derived from target ε (δ = 1e‑5). Moments Accountant tracks cumulative ε. |
-| **Non‑DP Baseline** | Same FedAvg without Opacus (ε = "inf") | `is_dp=False`, `epsilon="inf"`. |
-| **Early‑Stop / Time‑Budget Logic** | Deterministic round cap based on a conservative estimate of 30 s per round; runs exceeding the budget are truncated and flagged. | |
-
-### Deterministic Seed Handling
-- The orchestrator (`T018c`) iterates **exactly 5 seeds** per (α, ε) configuration.  
-- If a seed crashes (OOM, timeout), a fresh seed is drawn (incremented integer) and retried **up to 3 attempts** to ensure 5 *successful* runs.  
-
-## Statistical Analysis Plan
-
-### Hypotheses
-| # | Null Hypothesis (H₀) | Alternative (H₁) |
-|---|----------------------|------------------|
-| **H₁₁** | DP does **not** change global accuracy relative to non‑DP (paired difference = 0). | DP reduces global accuracy (difference < 0). |
-| **H₁₂** | Minority clients experience the **same** accuracy degradation as majority clients. | Minority degradation > majority degradation. |
-| **H₁₃** | No interaction between α and ε on minority degradation. | Lower α (more heterogeneity) amplifies degradation, especially for ε ≤ 0.5. |
-
-### Paired Tests (Requirement: **paired t‑test** only)
-- For each seed, compute **global accuracy** for DP and non‑DP runs on the *same* partition → paired differences.  
-- Apply a **two‑sided paired t‑test** across the 5 seeds.  
-- **Bonferroni correction** if > 5 simultaneous tests (e.g., when sweeping multiple ε).  
-
-### Mixed‑Effects Model (Minority vs. Majority)
-- Response: `degradation = accuracy_nonDP – accuracy_DP` per client.  
-- Fixed effect: `Group` (Minority = 1, Majority = 0).  
-- Random effects: **Intercept for Seed** *and* **Intercept for Client nested within Seed** (if CPU budget permits; otherwise robust SEs are used).  
-- Implemented via `statsmodels` `MixedLM`.  
-- Report coefficient, 95 % CI, and Bonferroni‑adjusted p‑value.  
-
-### Power & Sample‑Size Considerations
-- **Seeds**: 5 independent seeds per configuration (as mandated by FR‑004).  
-- With 5 paired observations, the minimum detectable effect size at α = 0.05 (two‑sided) is ≈ 1.1 SD (Cohen’s d). This limitation is acknowledged in the discussion; no additional seeds are added to stay within the CPU budget.  
-
-### Multiple‑Comparison Correction
-- When testing across **5 ε values** × **3 α values** (15 tests), apply **Bonferroni** (α_adj = 0.05/15 ≈ 0.0033).  
-
-### Utility‑Collapse Filtering (SC‑005)
-- Define **random‑guessing threshold** as `1 / N_classes`. FEMNIST comprises a comprehensive set of classes covering digits, uppercase, and lowercase letters. → threshold = 1/62 ≈ 0.01613.  
-- Any run with `global_accuracy < 0.01613` is dropped before statistical testing (implemented in `T035`).  
-
-### Reporting
-- Produce `results/final_stats.csv` containing p‑values, effect sizes, and confidence intervals.  
-- Generate overlay plot `figures/minority_vs_global_overlay.png` and sensitivity curves `figures/sensitivity_alpha.png`.  
-- Summarize in `results/summary.csv`, `results/validation_report.md`, and `results/p_values_by_seed.json`.  
-- **Schema Validation**: After `results/raw_logs.csv` is written, it is automatically validated against `contracts/results.schema.yaml`.  
-
-## Risks & Mitigations
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| **CPU Timeout** | Medium – could exceed 6 h | Deterministic early‑stop rule; rounds reduced only after time check; flagged runs excluded from analyses. |
-| **Insufficient Seeds** (e.g., a seed fails repeatedly) | High – would break FR‑004 | Orchestrator retries up to 3 times; if still failing, logs warning and proceeds with next seed; final report notes any missing seeds. |
-| **Utility Collapse (ε = 0.1)** | Low – may produce near‑random accuracy | Filtering step removes such runs before statistical tests. |
-| **Opacus CPU Overhead** | Medium – slows training | Use modest batch size (32) and limit local epochs to 1; profile once on a dry run to calibrate `estimated_time_per_round`. |
-| **Shakespeare Request** | Low – spec mentions but data unavailable | Partitioning script raises `ValueError` with prescribed message; verification task T000 ensures only exclusion references appear. |
+| III. Data Hygiene | ✅ | Raw parquet is never mutated; SHA‑256 stored; every derived file has a new name. |
+| IV. Single Source of Truth | ✅ | `results/raw_logs.csv` is the sole source for all downstream analyses. |
+| V. Versioning Discipline | ✅ | Artifact hashes are recorded in `state/projects/PROJ-044‑…yaml`. |
+| VI. Heterogeneity‑Aware Evaluation | ✅ | Minority clients are defined by the bottom 30 % of label‑entropy *within each partition*, independent of α. |
+| VII. Statistical Rigor | ✅ | Paired t‑tests, mixed‑effects model, Bonferroni correction, and power discussion are all present. |
 
 ## Project Structure
 ```text
@@ -115,30 +49,32 @@ specs/001-evaluating-dp-federated-learning/
 projects/PROJ-044-evaluating-the-effectiveness-of-differen/
 ├── data/
 │   ├── raw/
-│   │   └── femnist.parquet               # streamed download → static parquet
+│   │   └── femnist.parquet
 │   └── partitions/
 │       └── partition_femnist_{seed}_{alpha}.json
 ├── code/
 │   ├── __init__.py
+│   ├── config.py
 │   ├── data/
-│   │   ├── download.py          # streaming → parquet (materialized)
-│   │   └── partition.py         # Dirichlet splitter, entropy calc, minority flag
+│   │   ├── download.py          # streaming → parquet, checksum
+│   │   └── partition.py         # Dirichlet split, entropy, minority flag
 │   ├── models/
-│   │   └── cnn.py               # tiny ConvNet (≈ 30 k params)
+│   │   └── cnn.py               # ~30 k‑parameter tiny ConvNet
 │   ├── training/
 │   │   ├── fedavg.py            # core FedAvg loop (DP optional)
 │   │   └── dp_utils.py          # Opacus wrapper, Moments Accountant
 │   ├── analysis/
 │   │   ├── stats.py             # paired t‑test, LMM, Bonferroni
-│   │   └── plots.py             # overlay plot, sensitivity curves
-│   └── main.py                  # CLI entry point (orchestration)
+│   │   └── plots.py             # overlay & sensitivity curves
+│   └── main.py                  # orchestrator (T018c)
 ├── results/
 │   ├── raw_logs.csv
 │   ├── filtered_data.csv
 │   ├── filtered_time.csv
 │   ├── final_stats.csv
 │   ├── summary.csv
-│   └── validation_report.md
+│   ├── validation_report.md
+│   └── p_values_by_seed.json
 ├── figures/
 │   ├── minority_vs_global_overlay.png
 │   └── sensitivity_alpha.png
@@ -152,41 +88,42 @@ projects/PROJ-044-evaluating-the-effectiveness-of-differen/
 └── README.md
 ```
 
-## Complexity Tracking & Requirement Mapping
+## Requirement Mapping (FR / SC → Tasks)
+
 | FR / SC | Description | Plan Phase / Task(s) |
 |---------|-------------|----------------------|
-| **FR‑001** | Support FEMNIST; reject Shakespeare | `T011` (download), `T012` (partition validation) – raises `ValueError` if dataset=="shakespeare". |
-| **FR‑002** | Dirichlet heterogeneity (α = 0.1, 0.5, 1.0) with reproducible seed | `T012` (partition generation). |
-| **FR‑003** | DP via Opacus; track ε with Moments Accountant | `T018b` (DP training loop). |
-| **FR‑004** | Run experiments across **5 seeds** per config | `T018c` (orchestrator) enforces exactly 5 seeds; retries up to 3 attempts per seed. |
+| **FR‑001** | Support FEMNIST; reject Shakespeare with `ValueError` | `T011` (download), `T012` (partition validation) – code raises `ValueError("Shakespeare excluded per plan.md Gap Analysis")` if dataset argument is `"shakespeare"`. |
+| **FR‑002** | Dirichlet heterogeneity (α = 0.1, 0.5, 1.0) with reproducible seed | `T012` – generates partitions for each seed/α. |
+| **FR‑003** | DP via Opacus; track ε with Moments Accountant | `T018b` (DP FedAvg) + `T018a` (common utilities). |
+| **FR‑004** | Run experiments across **5 seeds** per config | `T018c` – orchestrator loops over seeds, retries up to 3 times per seed. |
 | **FR‑005** | Paired t‑tests DP vs. non‑DP; majority vs. minority tests | `T024a` (paired t‑test), `T024b` (LMM for minority vs. majority). |
-| **SC‑001** (Convergence Speed) | *Not a spec Success Criterion; omitted from mapping.* |
-| **SC‑002** (Privacy‑Utility Curve) | *Not a spec Success Criterion; omitted from mapping.* |
-| **SC‑003** (Minority Degradation) | *Not a spec Success Criterion; omitted from mapping.* |
-| **SC‑004** (Statistical Significance) | *Not a spec Success Criterion; omitted from mapping.* |
-| **SC‑005** (Utility Collapse Filtering) | *Not a spec Success Criterion; omitted from mapping.* |
-| **SC‑006** (Result Summary) | *Not a spec Success Criterion; omitted from mapping.* |
+| **SC‑I** (implicit) | Convergence speed measurement | `T025` records `rounds_to_80` (first round achieving ≥ 0.80 global accuracy). |
+| **SC‑II** (implicit) | Privacy‑utility curves | `T018c` logs `global_accuracy` vs. ε; `T026` plots curves. |
+| **SC‑III** (implicit) | Minority‑client degradation | `T024b` directly tests this. |
+| **SC‑IV** (implicit) | Statistical significance (p < 0.05) | All tests report Bonferroni‑adjusted p‑values; significance flag in `final_stats.csv`. |
+| **SC‑V** (implicit) | Utility‑collapse filtering | `T035` removes rows with `global_accuracy < 1/62 ≈ 0.01613`. |
+| **SC‑VI** (implicit) | Result summary tables | `T028` aggregates into `summary.csv` and `final_stats.csv`. |
 
-### Detailed Task List (high‑level, implementation‑ready)
+## Detailed Task List (high‑level, production‑ready)
+
 | ID | Name | Type | Dependencies | Notes |
 |----|------|------|--------------|-------|
-| **T011** | Download FEMNIST (stream → parquet) | P | – | Writes `data/raw/femnist.parquet`; computes SHA‑256 checksum; materializes streaming download to a static parquet file. |
-| **T012** | Generate Dirichlet partitions | P | T011 | Produces `data/partitions/partition_femnist_{seed}_{alpha}.json`; computes per‑client label entropy; flags `is_minority` based on bottom [deferred] entropy percentile. |
-| **T018a** | Common training utilities (model, optimizer, dataset loaders) | P | T012 | Shared code used by DP & non‑DP loops. |
-| **T018b** | DP‑enabled FedAvg | P | T018a | Uses Opacus; logs `epsilon` (finite) and `is_dp=True`. |
-| **T018d** | Non‑DP FedAvg (baseline) | P | T018a | Logs `epsilon="inf"`, `is_dp=False`. |
-| **T018c** | Orchestrator (5‑seed loop) | P | T018b, T018d | For each seed: (i) run T018b, (ii) run T018d on *the same partition*; aggregates logs into `results/raw_logs.csv`. Implements deterministic fallback: after each round, check elapsed time; if `remaining_time < (estimated_time_per_round * remaining_seeds * 2)` → truncate remaining rounds at `max_rounds`, set `is_time_limited=True`. Retries failed seeds up to 3 attempts to guarantee 5 successful logs per config. |
-| **T024a** | Paired t‑test DP vs non‑DP (global accuracy) | P | T018c | Requires ≥ 5 paired observations per (α, ε). Applies Bonferroni if > 5 tests. |
-| **T024b** | Minority‑vs‑majority degradation test (LMM) | P | T018c | Linear Mixed‑Effects Model: degradation ~ Group + (1|Seed) + (1|Seed:Client) if feasible; otherwise uses robust SEs. |
-| **T025** | Convergence detection & round‑count extraction | P | T018c | Determines first round where global accuracy ≥ 0.80; records `rounds_to_80`. Excludes rows where `is_time_limited=True`. |
-| **T026** | Plot generation | P | T024a, T024b, T025 | Produces `figures/minority_vs_global_overlay.png` and `figures/sensitivity_alpha.png`. |
-| **T035** | Utility‑collapse filtering | P | T018c | Removes rows where `global_accuracy < 0.01613` (random‑guessing threshold for 62 classes). Writes `results/filtered_data.csv`. |
-| **T028** | Final result aggregation | P | T024a, T024b, T025, T026, T035 | Writes `results/final_stats.csv`, `results/summary.csv`, `results/validation_report.md`, `results/p_values_by_seed.json`. |
-| **T029** | Documentation update (README, QUICKSTART) | P | – | Adds explicit Shakespeare exclusion statement, CLI usage, reproducibility notes, and epsilon‑representation guidance. |
-| **T032** | Unit‑test expansion | P | – | Adds tests for (i) missing classes handling, (ii) timeout flagging, (iii) utility‑collapse filter. |
-| **T033** | Quickstart verification | P | T028, T029 | Executes `quickstart.md` end‑to‑end on a fresh runner; stores log artifact `quickstart_verification.log`. |
+| **T011** | Download FEMNIST (stream → parquet) | P | – | Streams via `datasets.load_dataset(..., streaming=True)`, writes `data/raw/femnist.parquet`, computes SHA‑256 `data/raw/femnist.sha256`. |
+| **T012** | Dirichlet client partitioning | P | T011 | For each `seed` ∈ {42,43,44,45,46} and `alpha` ∈ {0.1,0.5,1.0}, samples a client‑label probability matrix from `Dirichlet(alpha)`, assigns examples, computes per‑client label entropy, flags bottom 30 % as `is_minority`. Writes JSON to `data/partitions/partition_femnist_{seed}_{alpha}.json`. |
+| **T018a** | Shared training utilities (model, data loader) | P | T012 | Builds tiny CNN, normalizes images, provides PyTorch `DataLoader`s for each client. |
+| **T018b** | DP‑enabled FedAvg | P | T018a | Wraps model with `opacus.PrivacyEngine`, uses Gaussian noise, tracks cumulative ε via Moments Accountant. |
+| **T018d** | Non‑DP FedAvg baseline | P | T018a | Same loop without Opacus; logs `epsilon="inf"`. |
+| **T018c** | Orchestrator (sweep) | P | T018b, T018d | Loops over seeds, α, ε; runs DP then non‑DP on the *same* partition; records per‑round metrics to `results/raw_logs.csv`. Implements deterministic early‑stop: after each round checks remaining wall‑clock time (estimated 30 s/round) and caps rounds (`max_rounds`). Retries failed seeds up to 3 times; missing seeds are logged in `validation_report.md`. |
+| **T025** | Convergence detection | P | T018c | Computes `rounds_to_80` (first round where `global_accuracy ≥ 0.80`) and writes to `results/filtered_time.csv`. Excludes rows with `is_time_limited=True`. |
+| **T035** | Utility‑collapse filter | P | T018c | Drops any run with `global_accuracy < 1/62 ≈ 0.01613`; writes `results/filtered_data.csv`. |
+| **T024a** | Paired t‑test (global accuracy) | P | T035 | For each (α, ε) computes paired differences across the 5 seeds; applies two‑sided paired t‑test; Bonferroni‑adjusts across all 15 tests. Writes `final_stats.csv` entries with `test_name="paired_t_test"`. |
+| **T024b** | Minority‑vs‑majority mixed‑effects analysis | P | T035 | Fits `statsmodels.MixedLM` with `degradation ~ is_minority + (1|seed) + (1|seed:client)` (if CPU budget permits; otherwise uses robust SEs). Writes LMM coefficient entry to `final_stats.csv` (`test_name="lmm_minor_vs_major"`). |
+| **T026** | Plot generation | P | T024a, T024b, T025 | Produces `figures/minority_vs_global_overlay.png` (minority vs. global accuracy curves) and `figures/sensitivity_alpha.png` (accuracy vs. ε for each α). |
+| **T028** | Final aggregation & validation report | P | T024a, T024b, T025, T026, T035 | Writes `results/summary.csv`, `results/validation_report.md`, and `results/p_values_by_seed.json`. |
+| **T029** | Documentation (README & QUICKSTART) | P | – | Updates `quickstart.md` (this file) and `README.md` with reproducibility checklist. |
+| **T032** | Unit‑test suite | P | – | Adds tests for partition reproducibility, DP wrapper correctness, and filter logic. |
+| **T033** | Quickstart verification | P | T028, T029 | Executes the QUICKSTART script on a fresh runner; stores log `quickstart_verification.log`. |
 
-*All tasks marked **P** (production) will generate concrete artifacts that the Implementer Agent must deliver. No task introduces un‑specified constraints; each respects the Constitution and the original FR/SC list.*
+All tasks produce concrete files that are validated against the JSON‑Schema contracts in `contracts/`.
 
 ---
-

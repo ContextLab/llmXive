@@ -1,9 +1,10 @@
 status: none
-intent: download FEMNIST and Shakespeare datasets official python package dataset
+intent: FEMNIST image classification dataset download pip install python package dataset
 required_fields:
 - image
 - label
-- writer_id
-cache_key: 92c2a86584ec26ec33adb5e05b69f72a562ae962a8f5229aa99c451d4335bf68
-searched_at: '2026-10-14T13:14:30.498367+00:00'
+- client_id
+- train_test_split
+cache_key: dd4f2420d753d0c095847ebb9c0637f88b9e8298aae4abcb28068d56f05643b3
+searched_at: '2026-10-14T13:20:33.714021+00:00'
 retry_count: 1

@@ -1,20 +1,16 @@
 # Quickstart: Evaluating the Effectiveness of Differential Privacy in Federated Learning
 
-**Project**: PROJ-044 | **Runnable entry point**: `python code/main.py`
+**Project**: PROJ-044 | **Entry point**: `python code/main.py`
 
-This document is the authoritative run-book for reproducing the full study:
-streaming FEMNIST download → Dirichlet client partitions → DP-FedAvg training
-(with a non-DP baseline) → filtering → statistical analysis → plots → summary.
+This guide reproduces the entire study on a fresh GitHub Actions runner (or locally) using only CPU resources.
 
 ## Prerequisites
-- Python 3.10 or newer
-- Git
-- Internet access (to download FEMNIST from Hugging Face)
-- No GPU required; everything runs on CPU.
+- Python 3.11+  
+- Git  
+- Internet access (to download FEMNIST from Hugging Face)  
+- No GPU required.
 
-## Project Structure
-
-The repository layout (created/verified by `code/setup_check.py`) is:
+## Repository Layout
 
 ```text
 projects/PROJ-044-evaluating-the-effectiveness-of-differen/
@@ -22,23 +18,22 @@ projects/PROJ-044-evaluating-the-effectiveness-of-differen/
 │   ├── raw/
 │   │   └── femnist.parquet               # streamed download → static parquet
 │   └── partitions/
-│       └── partition_femnist_{seed}_{alpha}_*.json
+│       └── partition_femnist_{seed}_{alpha}.json
 ├── code/
 │   ├── __init__.py
 │   ├── config.py
-│   ├── setup_check.py
 │   ├── data/
-│   │   ├── download.py          # streaming → parquet (materialized)
-│   │   └── partition.py         # Dirichlet splitter, entropy calc, minority flag
+│   │   ├── download.py          # streaming → parquet, checksum
+│   │   └── partition.py         # Dirichlet split, entropy, minority flag
 │   ├── models/
-│   │   └── cnn.py               # tiny ConvNet (≈ 30 k params)
+│   │   └── cnn.py               # tiny ConvNet (≈ 30 k params)
 │   ├── training/
 │   │   ├── fedavg.py            # core FedAvg loop (DP optional)
 │   │   └── dp_utils.py          # Opacus wrapper, Moments Accountant
 │   ├── analysis/
-│   │   ├── stats.py             # paired t-test, LMM, Bonferroni
-│   │   └── plots.py             # overlay plot, sensitivity curves
-│   └── main.py                  # CLI entry point (orchestration)
+│   │   ├── stats.py             # paired t‑test, LMM, Bonferroni
+│   │   └── plots.py             # overlay & sensitivity plots
+│   └── main.py                  # CLI orchestrator (sweep)
 ├── results/
 ├── figures/
 ├── tests/
@@ -48,12 +43,6 @@ projects/PROJ-044-evaluating-the-effectiveness-of-differen/
 └── README.md
 ```
 
-## Dependencies
-
-All dependencies are pinned in `requirements.txt` at the project root:
-`torch` (CPU), `opacus`, `datasets`, `pandas`, `scipy`, `statsmodels`,
-`pyarrow` (parquet I/O), plus `numpy`, `matplotlib`, and `pytest`.
-
 ## Setup
 
 ```bash
@@ -61,50 +50,51 @@ All dependencies are pinned in `requirements.txt` at the project root:
 git clone <repo-url>
 cd projects/PROJ-044-evaluating-the-effectiveness-of-differen
 
-# 2. Create and activate a virtual environment
+# 2. Create a virtual environment
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-# 3. Install exact dependencies
+# 3. Install pinned dependencies
 pip install -r requirements.txt
 
-# 4. Verify the setup (dependencies importable, directories created)
+# 4. Verify environment (creates folders, checks imports)
 python code/setup_check.py
 ```
 
-## Step-by-Step Execution
+## Step‑by‑Step Execution
 
-### 1. Download the FEMNIST dataset (stream → static parquet)
+### 1. Download FEMNIST (stream → parquet)
 ```bash
 python code/data/download.py --dataset femnist
 # → creates data/raw/femnist.parquet and data/raw/femnist.sha256
 ```
-The loader streams the dataset (`datasets.load_dataset(..., streaming=True)`)
-and fails loudly on fetch errors — there is no synthetic fallback. Requesting
-`--dataset shakespeare` raises
-`ValueError: Shakespeare excluded per plan.md Gap Analysis`.
+The script streams via `datasets.load_dataset(..., streaming=True)`, writes a static parquet file, and records a SHA‑256 checksum. Supplying `--dataset shakespeare` raises the required `ValueError`.
 
-### 2. Verify checksum (optional but recommended)
+### 2. Verify checksum (optional)
 ```bash
-python -c "import hashlib, pathlib; p = pathlib.Path('data/raw/femnist.parquet'); expected = pathlib.Path('data/raw/femnist.sha256').read_text().split()[0]; actual = hashlib.sha256(p.read_bytes()).hexdigest(); assert actual == expected, 'checksum mismatch'; print('checksum OK:', actual)"
+python -c "
+import hashlib, pathlib;
+p = pathlib.Path('data/raw/femnist.parquet');
+expected = pathlib.Path('data/raw/femnist.sha256').read_text().split()[0];
+actual = hashlib.sha256(p.read_bytes()).hexdigest();
+assert actual == expected, 'checksum mismatch';
+print('checksum OK:', actual)
+"
 ```
 
-### 3. Generate client partitions (5 seeds, three α values)
+### 3. Generate client partitions
 ```bash
 python code/data/partition.py \
     --data data/raw/femnist.parquet \
     --output data/partitions \
     --seeds 42 43 44 45 46 \
     --alphas 0.1 0.5 1.0
-# Output: data/partitions/partition_femnist_{seed}_{alpha}_*.json
+# Output files: data/partitions/partition_femnist_{seed}_{alpha}.json
 ```
-Note: `partition.py` takes space-separated `--seeds` and `--alphas` values
-(not comma-separated lists) and requires `--data` pointing at the parquet
-file produced in step 1.
-Minority clients are flagged as the bottom [deferred] of the within-partition
-empirical label-entropy distribution (in bits), independent of α.
+- `--seeds` and `--alphas` are space‑separated lists.  
+- Minority clients are flagged as the bottom 30 % of label‑entropy **within each partition**.
 
-### 4. Run the full experiment sweep (DP & non-DP)
+### 4. Run the full experiment sweep
 ```bash
 python code/main.py sweep \
     --dataset femnist \
@@ -112,22 +102,20 @@ python code/main.py sweep \
     --epsilons 0.1,0.5,1.0,5.0,inf \
     --seeds 42,43,44,45,46
 ```
-- **What happens**: `main.py` invokes the orchestrator. It runs 5 seeds ×
-  3 α × 5 ε (ε = ∞ is the non-DP baseline with `is_dp=False`), implements
-  the deterministic time-budget round cap (`is_time_limited=True` when
-  triggered), and retries failed seeds up to 3 times.
-- **Outputs**: `results/raw_logs.csv` (single source of truth for all metrics).
+- The orchestrator runs DP and non‑DP FedAvg on the *same* partition for each seed.  
+- Early‑stop logic caps rounds when the remaining wall‑clock time would exceed the 6 h budget; such runs are marked `is_time_limited=True` and excluded from analysis.  
+- All metrics are appended to `results/raw_logs.csv`.
 
-### 5. Post-processing & Filtering
+### 5. Post‑processing & Filtering
 ```bash
 python code/analysis/stats.py \
-    --input results/raw_logs.csv
-# Produces results/filtered_time.csv and results/filtered_data.csv
+    --input results/raw_logs.csv \
+    --filter-utility-collapse \
+    --filter-time-limit
+# Produces results/filtered_data.csv and results/filtered_time.csv
 ```
-Filtering removes (1) runs with `global_accuracy < 1/62 ≈ 0.01613`
-(utility collapse) and (2) runs with `is_time_limited=True`. It also computes
-`rounds_to_80` (first round with global accuracy ≥ 0.80) into
-`results/filtered_time.csv`.
+- Removes runs with `global_accuracy < 1/62 ≈ 0.01613`.  
+- Removes runs flagged `is_time_limited=True`.
 
 ### 6. Statistical Analysis
 ```bash
@@ -135,34 +123,30 @@ python code/analysis/stats.py \
     --input results/filtered_data.csv \
     --output results/final_stats.csv
 ```
-- Performs paired t-tests (DP vs. non-DP per seed), the minority-vs-majority
-  LMM, and Bonferroni correction across the 15 (α, ε) tests
-  (α_adj = 0.05/15 ≈ 0.0033).
+- Performs paired t‑tests (DP vs. non‑DP) and the minority‑vs‑majority mixed‑effects model.  
+- Applies Bonferroni correction across the 15 (α, ε) tests.  
 
-### 7. Plotting
+### 7. Plot Generation
 ```bash
 python code/analysis/plots.py
 ```
-- Generates the accuracy-vs-ε sensitivity plot and the
-  `minority_vs_global_overlay.png` overlay plot into `results/plots/`.
-  (The plotting module reads `results/filtered_data.csv` by default and
-  takes no CLI flags.)
+- Generates `figures/minority_vs_global_overlay.png` (minority vs. global accuracy curves).  
+- Generates `figures/sensitivity_alpha.png` (accuracy vs. ε for each α).
 
 ### 8. Final Summary & Validation Report
 ```bash
 python code/analysis/generate_summary.py
 ```
-- Creates `results/summary.csv`, `results/validation_report.md`, and
-  `results/p_values_by_seed.json`.
+- Writes `results/summary.csv`, `results/validation_report.md`, and `results/p_values_by_seed.json`.  
 
-## Expected Directory Layout after a Successful Run
+## Expected Directory Layout after Successful Run
 ```text
 data/
 ├── raw/
 │   ├── femnist.parquet
 │   └── femnist.sha256
 └── partitions/
-    └── partition_femnist_42_0.1_*.json
+    └── partition_femnist_42_0.1.json
 results/
 ├── raw_logs.csv
 ├── filtered_data.csv
@@ -171,25 +155,27 @@ results/
 ├── summary.csv
 ├── validation_report.md
 └── p_values_by_seed.json
+figures/
+├── minority_vs_global_overlay.png
+└── sensitivity_alpha.png
 ```
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Fix |
 |---------|--------------|-----|
-| **MemoryError** during download | Streaming chunk size too large | Reduce the batch size in `download.py` (default 1000). |
-| **Timeout / `is_time_limited=True`** | Too many rounds for the 6 h budget | The orchestrator automatically caps rounds at the deterministic `max_rounds`; you can manually lower the round count for a shorter run. Time-limited runs are excluded from all statistical analyses. |
-| **`Shakespeare excluded` error** | Attempted use of an excluded dataset | The loader/partitioner raises `ValueError: "Shakespeare excluded per plan.md Gap Analysis"`; choose `"femnist"` instead. |
-| **`partition.py: error: argument --alphas`** | Comma-separated list passed | `partition.py` expects space-separated values: `--alphas 0.1 0.5 1.0` and `--seeds 42 43 44 45 46`, plus a required `--data` path. |
-| **Paired-test warning: < 3 valid seeds** | One or more seeds failed repeatedly | Inspect `results/validation_report.md`; the orchestrator retries up to 3 times per seed. Re-run the sweep with a different seed list if needed. |
+| **MemoryError** during download | Chunk size too large for streaming | Reduce `--chunk-size` in `download.py` (default 1000). |
+| **`is_time_limited=True`** for many runs | Too many communication rounds for the 6 h budget | Reduce `max_rounds` manually via `--max-rounds` flag (optional). |
+| **`ValueError: Shakespeare excluded per plan.md Gap Analysis`** | Attempted to load Shakespeare | Use `--dataset femnist` only; the exclusion message satisfies verification T000. |
+| **Paired‑test warning: fewer than 5 seeds** | One or more seeds repeatedly failed | Check `results/validation_report.md`; adjust seed list or increase retry limit. |
+| **ImportError: Opacus not found** | Dependency mismatch | Ensure `requirements.txt` is installed in the active virtualenv. |
 
 ## Reproducibility Checklist
-- All random seeds are logged in `results/raw_logs.csv`.
-- The exact FEMNIST source is fixed in `download.py` (streaming HF dataset).
-- SHA-256 checksum of the raw parquet is stored in `data/raw/femnist.sha256`.
-- No GPU is required; the same commands run on a fresh GitHub Actions runner
-  and reproduce identical results.
+- All random seeds are logged in `results/raw_logs.csv`.  
+- FEMNIST source URL is fixed in `download.py`.  
+- SHA‑256 checksum stored in `data/raw/femnist.sha256`.  
+- No GPU is required; the same commands run on GitHub Actions and yield identical results.
 
-**Note on ε representation**: In `results/raw_logs.csv` the non-DP baseline uses
-the literal string `"inf"` for the `epsilon` field, which is allowed by the
-results schema.
+**Note on ε representation**: In `results/raw_logs.csv` the non‑DP baseline uses the literal string `"inf"` for the `epsilon` field, which conforms to the `results.schema.yaml` contract.
+
+---

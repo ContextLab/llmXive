@@ -72,4 +72,3 @@ required:
   - is_time_limited
   - degradation
 additionalProperties: false
-
