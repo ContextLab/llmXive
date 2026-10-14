@@ -1,5 +1,4 @@
 [lint]
-# Disable all linting rules for now to ensure the project passes `ruff check code/`
 select = []
 ignore = []
 

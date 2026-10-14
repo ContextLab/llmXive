@@ -1,4 +1,3 @@
-# Core dependencies (pre‑installed in the runner)
 pandas
 numpy
 scipy
@@ -11,7 +10,6 @@ PyYAML
 requests
 jsonschema
 psutil
-
-# Additional libraries required for the executors
 networkx
 rdflib
+datasets
