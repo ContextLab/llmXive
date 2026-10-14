@@ -1,1 +1,2 @@
-# Integration tests package initialization
+# Integration tests package.
+__all__ = []

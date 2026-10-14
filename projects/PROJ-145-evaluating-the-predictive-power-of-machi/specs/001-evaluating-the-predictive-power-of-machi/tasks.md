@@ -19,19 +19,19 @@ specification; unchecked boxes (`[ ]`) are pending.
 
 ## Phase 0 – Project Skeleton  
 
-- [ ] T001 **Project Initialization** – Create root directories (`code/`, `data/raw/`, `data/processed/`, `models/`, `tests/unit/`, `tests/integration/`, `specs/`) and add `__init__.py` files.  
+- [X] T001 **Project Initialization** – Create root directories (`code/`, `data/raw/`, `data/processed/`, `models/`, `tests/unit/`, `tests/integration/`, `specs/`) and add `__init__.py` files.  
   - **Outputs**: Directory tree, empty `__init__.py` files.  
   - **Verification**: `tree` shows required folders; `pytest -q` runs with no collection errors.  
 
-- [ ] T002 **Config Definitions** – Add `code/config.py` with random seed, path constants, and placeholder `EXPECTED_AFLOW_CHECKSUM`.  
+- [X] T002 **Config Definitions** – Add `code/config.py` with random seed, path constants, and placeholder `EXPECTED_AFLOW_CHECKSUM`.  
   - **Outputs**: `code/config.py`.  
   - **Verification**: Import succeeds; `config.RANDOM_SEED == 42`.  
 
-- [ ] T003 **Package Boilerplate** – Implement `code/__init__.py` and ensure `tests/__init__.py` exist.  
+- [X] T003 **Package Boilerplate** – Implement `code/__init__.py` and ensure `tests/__init__.py` exist.  
   - **Outputs**: `code/__init__.py`, `tests/__init__.py`.  
   - **Verification**: `python -c "import code"` runs without error.  
 
-- [ ] T004 **Logging Infrastructure** – Configure basic rotating logger in `code/config.py` (log file `code/logs/app.log`).  
+- [X] T004 **Logging Infrastructure** – Configure basic rotating logger in `code/config.py` (log file `code/logs/app.log`).  
   - **Outputs**: Updated `code/config.py`.  
   - **Verification**: Log file created on first script run; contains timestamped entries.  
 
