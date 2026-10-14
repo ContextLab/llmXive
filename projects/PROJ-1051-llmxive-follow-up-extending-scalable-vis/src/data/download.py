@@ -38,16 +38,17 @@ def log_checksums(dataset_name: str) -> None:
     Attempt to find and log SHA-256 checksums of the downloaded archives
     in the HuggingFace cache.
     """
-    print("\n=== SHA-256 checksums of downloaded archives ===")
+    print(f"\n=== SHA-256 checksums for dataset '{dataset_name}' ===")
     hf_home = os.getenv("HF_HOME", os.path.expanduser("~/.cache/huggingface"))
     datasets_cache = Path(hf_home) / "datasets"
     
     found_any = False
     if datasets_cache.exists():
-        # Search for directories/files matching the dataset name
-        # HF cache structure is complex, so we search recursively for the name
+        # HF cache structure is complex; we search for files containing the dataset identifier
+        # normalized to the cache format (replacing / with ___)
+        normalized_name = dataset_name.replace("/", "___")
         for path in datasets_cache.rglob("*"):
-            if dataset_name.replace("/", "_") in path.name and path.is_file():
+            if normalized_name in path.name and path.is_file():
                 checksum = compute_sha256(path)
                 print(f"{path.name}: {checksum}")
                 found_any = True
@@ -79,38 +80,35 @@ def count_pages_with_layout(ds: Dataset, limit: int = 10001) -> int:
 
 def download_and_save(
     logical_name: str,
-    hf_name: str,
+    hf_names: List[str],
 ) -> Tuple[int, Optional[Path]]:
     """
-    Download a HuggingFace dataset, save it under ``data/raw/<logical_name>``,
-    log its archive checksums, and return the number of pages that contain
-    layout annotations. Returns (0, None) if download fails.
+    Try several HuggingFace identifiers for a logical dataset.
+    Save it under ``data/raw/<logical_name>``, log checksums, 
+    and return the number of pages with layout annotations.
     """
-    print(f"Attempting to download dataset '{logical_name}' from hub identifier '{hf_name}'...")
-    try:
-        # trust_remote_code=True is required for many layout datasets
-        # streaming=False to allow save_to_disk and full counting
-        ds: Dataset = load_dataset(hf_name, split="train", streaming=False, trust_remote_code=True)
-    except Exception as exc:
-        print(f"⚠️ Warning: Failed to download dataset '{hf_name}': {exc}")
-        return 0, None
+    for hf_name in hf_names:
+        print(f"Attempting to download '{logical_name}' using identifier '{hf_name}'...")
+        try:
+            # trust_remote_code=True is required for many layout datasets (e.g. DocBank)
+            ds: Dataset = load_dataset(hf_name, split="train", streaming=False, trust_remote_code=True)
+            
+            # Save raw files for downstream steps
+            out_dir = Path("data/raw") / logical_name
+            out_dir.mkdir(parents=True, exist_ok=True)
+            ds.save_to_disk(str(out_dir))
 
-    # Save raw files for downstream steps
-    out_dir = Path("data/raw") / logical_name
-    out_dir.mkdir(parents=True, exist_ok=True)
-    try:
-        ds.save_to_disk(str(out_dir))
-    except Exception as exc:
-        print(f"⚠️ Warning: Failed to save dataset '{logical_name}' to disk: {exc}")
+            # Log checksums of the cached archive files
+            log_checksums(hf_name)
 
-    # Log checksums of the cached archive files
-    log_checksums(hf_name)
-
-    # Count pages with layout annotations
-    page_count = count_pages_with_layout(ds)
-    print(f"Pages with layout annotations in '{logical_name}': {page_count}")
-
-    return page_count, out_dir
+            # Count pages with layout annotations
+            page_count = count_pages_with_layout(ds)
+            print(f"Successfully downloaded '{hf_name}'. Pages with layout: {page_count}")
+            return page_count, out_dir
+        except Exception as exc:
+            print(f"⚠️ Warning: Failed to download '{hf_name}': {exc}")
+    
+    return 0, None
 
 
 # ----------------------------------------------------------------------
@@ -122,31 +120,27 @@ def download_corpus(
     min_pages: int = 10_000,
 ) -> None:
     """
-    Download ``primary_name`` and, if necessary, ``fallback_name`` from the
-    HuggingFace hub. Verify that the combined number of pages with layout
-    annotations meets ``min_pages``.
+    Download ``primary_name`` and, if necessary, ``fallback_name``.
+    Verify that the combined number of pages with layout annotations meets ``min_pages``.
     """
-    # Updated mapping to use verified public mirrors (nielsr) which are 
-    # more reliable for LayoutLM-style datasets on the HF Hub.
-    name_to_hf: Dict[str, str] = {
-        "docbank": "nielsr/docbank",
-        "pubmed-layout": "nielsr/pubmed-layout",
-        "layoutparser/docbank": "layoutparser/docbank",
-        "layoutparser/pubmed-layout": "layoutparser/pubmed-layout",
+    # Mapping logical names to a list of possible HF identifiers (canonical, mirrors, etc.)
+    name_to_hf: Dict[str, List[str]] = {
+        "docbank": ["docbank", "nielsr/docbank", "layoutparser/docbank"],
+        "pubmed-layout": ["pubmed-layout", "nielsr/pubmed-layout", "layoutparser/pubmed-layout"],
     }
 
-    primary_hf = name_to_hf.get(primary_name, primary_name)
-    fallback_hf = name_to_hf.get(fallback_name, fallback_name)
+    primary_hfs = name_to_hf.get(primary_name, [primary_name])
+    fallback_hfs = name_to_hf.get(fallback_name, [fallback_name])
 
     # 1. Try primary dataset
-    primary_count, _ = download_and_save(primary_name, primary_hf)
+    primary_count, _ = download_and_save(primary_name, primary_hfs)
     total_count = primary_count
 
     # 2. If primary is insufficient or failed, try fallback
     if total_count < min_pages:
         print(f"Primary dataset '{primary_name}' provided {total_count} pages, "
               f"which is less than the minimum {min_pages}. Attempting fallback...")
-        fallback_count, _ = download_and_save(fallback_name, fallback_hf)
+        fallback_count, _ = download_and_save(fallback_name, fallback_hfs)
         total_count += fallback_count
 
     print("\n=== Summary of layout-annotation pages ===")
