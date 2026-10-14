@@ -12,7 +12,7 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Family‑wise error corrected p‑value"
+    description: "Family-wise error corrected p-value"
   edges:
     type: "array"
     items:

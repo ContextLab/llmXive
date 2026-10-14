@@ -10,11 +10,11 @@ properties:
     enum:
       - "musician"
       - "non_musician"
-    description: "Group assignment based on musical training (musician ⇔ years_of_training ≥ 1)"
+    description: "Group assignment (musician if and only if years_of_training >= 1)"
   years_of_training:
     type: "number"
     minimum: 0.0
-    description: "Years of musical training. Must be ≥ 1 for group == 'musician'."
+    description: "Years of musical training; must be >= 1 for group 'musician'"
   age:
     type: "number"
     description: "Age of the subject in years"
@@ -32,7 +32,7 @@ properties:
     description: "Socioeconomic status proxy score"
   rs_fmri_path:
     type: "string"
-    description: "Filesystem path to the subject's resting‑state NIfTI file"
+    description: "Filesystem path to the subject's resting-state NIfTI file"
 required:
   - subject_id
   - group

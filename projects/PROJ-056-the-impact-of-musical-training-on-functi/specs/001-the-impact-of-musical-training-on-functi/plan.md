@@ -1,34 +1,42 @@
 # Implementation Plan: The Impact of Musical Training on Functional Connectivity in Adolescent Brains
 
-**Branch**: `001-musical-training-connectivity` | **Date**: 2024-10-14 | **Spec**: `specs/001-musical-training-connectivity/spec.md`  
-**Input**: Feature specification from `/specs/001-musical-training-connectivity/spec.md`
+**Branch**: `001-musical-training-connectivity` | **Date**: 2026-10-14 | **Spec**: `specs/001-the-impact-of-musical-training-on-functi/spec.md`
+**Input**: Feature specification from `/specs/001-the-impact-of-musical-training-on-functi/spec.md`
 
 ## Summary
-We will deliver a reproducible, CPU‑first analysis pipeline that (1) **verifies code correctness using a synthetic dataset** (synthetic verification mode) and (2) **processes real open‑source data when such a dataset becomes available** (real‑data mode). The synthetic mode is **strictly for pipeline validation**; it does not aim to answer the scientific question. When a verified rs‑fMRI dataset with musical‑training metadata is supplied, the same pipeline can be invoked with `--mode real --data-path <path>` to satisfy FR‑001 and produce the primary scientific results.
+We deliver a reproducible, CPU-only analysis pipeline that (1) **verifies code correctness using a synthetic dataset** (synthetic verification mode, with controlled missingness/corruption injection so quality audits have a real failure mode, and no injected group effect) and (2) **processes real data when a verified open dataset becomes available** (`--mode real`). No verified open source currently provides both adolescent rs-fMRI and a musical-training variable, so the default run validates the pipeline's statistical machinery (false-positive control, NBS, sensitivity analysis) rather than answering the scientific question. **FR-001's real-data requirement and FR-011's real-data validation clause are both DEFERRED and are NOT satisfied by the synthetic runs** under the explicit re-plan trigger below. This revision also repairs the four failing entry points (`code/run_quickstart_test.py`, `code/data/run_synthetic_generator.py`, `code/main.py`, `code/data/real_ingest.py`) identified by the verifier.
+
+## Re-plan trigger (testable condition for the deferred real-data path)
+The deferred real-data mode (FR-001 real clause, FR-011 real-data validation) is activated by re-planning when ALL of the following hold:
+1. A **named dataset** passes the verified-dataset gate: a reachable, programmatically downloadable source (direct URL, Hugging Face dataset, or similar open repository) is confirmed by the Reference-Validator Agent.
+2. That dataset contains **adolescent resting-state fMRI** (preprocessed to a standard sufficient for ROI extraction) **and a musical-training variable** (years of training or an equivalent documented history).
+3. The dataset provides the confounder columns (age, sex, motion, SES) per the Subject schema.
+Until then, `--mode real` remains a graceful-stub that reports data-source unavailability, and **FR-011 remains unmet** — the synthetic permutation runs do not count as satisfying it.
 
 ## Technical Context
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `numpy`, `pandas`, `scipy`, `statsmodels`, `nibabel`, `networkx`, `matplotlib`, `seaborn`, `pyyaml`, `tqdm`, `jsonschema`  
-- **Storage**: Local filesystem under `data/`; CSV/Parquet for tabular data, per‑subject **JSON** for connectivity (conforms to `connectivity.schema.yaml`), JSON for NBS components.  
-- **Testing**: `pytest` (unit, integration, contract validation).  
-- **Target Platform**: Linux (GitHub Actions runner).  
-- **Performance Goals**: Peak RAM ≤ 7 GB; total runtime ≤ 6 h; CPU‑only.  
-- **Constraints**: No open dataset currently provides both rs‑fMRI and a reliable musical‑training variable; therefore the pipeline defaults to **Synthetic Verification Mode**. When a verified dataset becomes available, the same code can be invoked with `--mode real`.
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `numpy`, `pandas`, `scipy`, `statsmodels`, `nibabel`, `networkx`, `matplotlib`, `pyyaml`, `tqdm`, `jsonschema` (pinned in `code/requirements.txt`)
+- **Storage**: Local filesystem under `data/`; Parquet for subject tables, per-subject JSON for connectivity, CSV/JSON for results.
+- **Testing**: `pytest` (unit, integration, contract validation).
+- **Target Platform**: Linux (GitHub Actions 2-core runner).
+- **Performance Goals**: Peak RAM ≤ 7 GB; total runtime ≤ 6 h; CPU-only (no GPU escape hatch needed — all methods have faithful CPU forms).
+- **Constraints**: No open, programmatically downloadable dataset satisfies FR-001's data requirements (see research.md §1.1). Real-data mode is a documented stub that fails gracefully, per the spec's edge case for unavailable data sources.
+- **Scale/Scope**: Default synthetic cohort of 100 subjects (50/group, satisfying the ≥50/group halt rule); 200-ROI atlas.
 
 ## Constitution Check
 | Principle | Status | Note |
 |-----------|--------|------|
-| I. Reproducibility | PASS | Random seeds fixed; `requirements.txt` pinned; pipeline runnable on fresh CI. |
-| II. Verified Accuracy | PASS | All citations limited to verified URLs; no invented sources. |
-| III. Data Hygiene | PASS | Checksums recorded; no in‑place mutation; PII protection enforced. |
-| IV. Single Source of Truth | PASS | **SSoT**: `data/results/master_results.json` aggregates all statistical outputs and is the sole reference for figures and tables. |
-| V. Versioning Discipline | PASS | Content hashes tracked in project state YAML. |
-| VI. Neuroimaging Data Integrity | PASS | Synthetic NIfTI files conform to NIfTI‑1 spec; real‑data mode will preserve raw files unchanged. |
-| VII. Behavioral Assessment Standardization | PASS | Synthetic “years_of_training” generated from a defined distribution; real‑data mode expects validated questionnaire scores. |
+| I. Reproducibility | PASS | Seeds pinned in `code/`; `requirements.txt` pinned; pipeline runs end-to-end on a fresh CI runner. |
+| II. Verified Accuracy | PASS | No dataset URLs cited beyond the verified block; the unverifiable datasets (ABCD/HCP-A) are named without fabricated URLs. |
+| III. Data Hygiene | PASS | Checksums recorded under `data/logs/checksums.txt`; no in-place mutation; no PII in synthetic data. |
+| IV. Single Source of Truth | PASS | `results_summary.csv` (FR-010) is the sole aggregate for downstream reporting; derived numbers never hand-typed. |
+| V. Versioning Discipline | PASS | Content hashes recorded in project state YAML; `updated_at` bumped on artifact change. |
+| VI. Neuroimaging Data Integrity | PASS | Synthetic NIfTI files are spec-compliant; real-data mode preserves raw files unchanged with per-subject preprocessing metadata. |
+| VII. Behavioral Assessment Standardization | PASS | Synthetic `years_of_training` generated from a documented distribution; real-data mode requires validated questionnaire-derived columns per the Subject schema. |
 
 ## Project Structure
 ```text
-specs/001-musical-training-connectivity/
+specs/001-the-impact-of-musical-training-on-functi/
 ├── plan.md
 ├── research.md
 ├── data-model.md
@@ -36,232 +44,104 @@ specs/001-musical-training-connectivity/
 └── contracts/
     ├── subject.schema.yaml
     ├── connectivity.schema.yaml
+    ├── network_metric.schema.yaml
     ├── statistical_result.schema.yaml
     └── network_component.schema.yaml
 
 code/
 ├── requirements.txt
-├── __init__.py
+├── main.py                         # CLI entry point (synthetic vs real mode)
+├── run_quickstart_test.py          # End-to-end smoke test of quickstart commands
 ├── data/
-│   ├── synthetic_generator.py      # Generates mock subjects, NIfTI, and CSVs
-│   ├── preprocess.py               # Filtering, matching, residualization
-│   └── real_ingest.py              # Stub for future real‑data ingestion
+│   ├── run_synthetic_generator.py  # Executable wrapper for synthetic_generator
+│   ├── synthetic_generator.py
+│   ├── preprocess.py
+│   └── real_ingest.py              # Real-data ingestion; fails gracefully, exit 0 with clear message
 ├── analysis/
-│   ├── atlas.py                    # Bundled Schaefer‑200 CSV (no download)
-│   ├── connectivity.py             # Pearson + Fisher‑z; writes per‑subject JSON
-│   ├── stats.py                    # Welch’s t, BY FDR, effect sizes, NBS
-│   ├── correlation.py              # Correlation (Pearson/Spearman) + BY FDR
-│   └── sensitivity.py              # Threshold sweep & reporting
-├── utils/
-│   ├── logging.py
-│   └── memory_monitor.py           # Logs peak RAM usage, aborts >7 GB
-└── main.py                         # CLI entry point (synthetic vs real mode)
+│   ├── atlas.py                    # Bundled Schaefer-200 CSV
+│   ├── connectivity.py
+│   ├── network_metrics.py          # Network-level aggregation (NetworkMetric entity)
+│   ├── stats.py
+│   ├── correlation.py
+│   └── sensitivity.py
+└── utils/
+    ├── logging.py
+    └── memory_monitor.py
 
 data/
-├── raw/            # Populated only when a verified dataset is supplied
+├── raw/
 ├── processed/
 │   ├── subjects.parquet
-│   ├── connectivity/
-│   │   └── <subject_id>.json      # One file per subject, matches ConnectivityMatrix schema
+│   ├── connectivity/<subject_id>.json
+│   ├── network_metrics/<subject_id>.json
 │   └── logs/
 └── results/
     ├── statistical_results.csv
     ├── nbs_components.json
     ├── sensitivity_analysis.csv
-    └── master_results.json        # SSoT aggregating all key outputs
+    └── results_summary.csv         # SSoT (FR-010)
 ```
+
+**Structure Decision**: Single-project layout; analysis modules grouped by pipeline stage; all entry points directly executable (`python code/<script>.py`) so the quickstart smoke test and CI can invoke them without argument errors.
 
 ## Complexity Tracking (FR / SC → Phase / Task)
 
 | FR / SC | Phase / Task | Reason for Inclusion |
 |--------|--------------|----------------------|
-| FR‑001 | Phase 1 – `synthetic_generator.py` & `preprocess.py` (real‑data stub) | Generates (or loads) data, applies ≥ 1 yr threshold, matches confounders. Real‑data mode will satisfy FR‑001 when an open dataset is available. |
-| FR‑002 | Phase 2 – `analysis/connectivity.py` | Computes ROI‑wise Pearson correlations and Fisher‑z transform, writes per‑subject JSON. |
-| FR‑003 | Phase 2 – `analysis/stats.py` (Welch’s t‑test) | Edge‑wise group comparison with BY FDR. |
-| FR‑004 | Phase 2 – `analysis/correlation.py` | Correlates connectivity with years of training (musician only) with BY FDR. |
-| FR‑005 | Phase 2 – `analysis/sensitivity.py` | Sweeps significance thresholds (q = 0.01, 0.05, 0.10). |
-| FR‑006 | Phase 1 – `utils/memory_monitor.py` | Enforces ≤ 7 GB RAM; aborts with clear error if exceeded. |
-| FR‑007 | Phase 2 – `analysis/stats.py` & `analysis/correlation.py` | Computes Cohen’s d (group) and R² (correlation) with 95 % CI via bootstrap. |
-| FR‑008 | Phase 2 – `analysis/stats.py` (NBS) | Identifies largest connected component; runs NBS at three thresholds. |
-| FR‑009 | Phase 1 – `preprocess.py` (propensity‑score matching **and** regression residualization) | Balances age, sex, motion, SES; residualizes edges if matching discards subjects. |
-| SC‑001 | Phase 2 – NBS output (`nbs_components.json`) | Size of largest component vs. null hypothesis. |
-| SC‑002 | Phase 2 – Correlation output (`statistical_results.csv`) | r vs. null hypothesis of zero correlation. |
-| SC‑003 | Phase 2 – Sensitivity table (`sensitivity_analysis.csv`) | Counts at three q‑thresholds. |
-| SC‑004 | Phase 3 – `memory_monitor.py` log & runtime timer | Peak RAM & total runtime recorded. |
-| SC‑005 | Phase 3 – Power simulation (edge‑wise BY‑corrected) | Post‑hoc power estimate logged; acknowledges limitation when real data are absent. |
+| FR-001 | Phase 1 — `run_synthetic_generator.py` + `preprocess.py`; `real_ingest.py` stub | Generates/loads data, applies ≥1 yr threshold, matches confounders, caps at 75/group, halts <50/group. **Real-data clause DEFERRED** (no verified open dataset; see Re-plan trigger). |
+| FR-002 | Phase 2 — `connectivity.py` | ROI-wise Pearson + Fisher-z, per-subject JSON. |
+| FR-003 | Phase 2 — `stats.py` | Welch's t per edge within auditory/motor/executive networks, BH FDR. |
+| FR-004 | Phase 2 — `correlation.py` | Pearson/Spearman vs years of training, musicians only. |
+| FR-005 | Phase 2 — `sensitivity.py` | Threshold sweep {0.01, 0.05, 0.10}. |
+| FR-006 | Phase 1 — `memory_monitor.py` | ≤7 GB enforcement with adaptive fallback: per-subject streaming first, then deterministic seeded subsetting; hard abort only as last resort. |
+| FR-007 | Phase 2 — `stats.py` / `correlation.py` | Cohen's d and 95% CIs for all tests. |
+| FR-008 | Phase 2 — `stats.py` (NBS) | Largest connected component, FWER-corrected p. |
+| FR-009 | Phase 1 — `preprocess.py` | Matching defines the analysis sample; residualization then adjusts the matched sample on age/sex/motion/SES. |
+| FR-010 | Phase 3 — `results_summary.csv` builder | Aggregates all primary outcomes. |
+| FR-011 | **UNMET / DEFERRED (real-data clause)** — no plan element satisfies FR-011 today | FR-011 requires validation **on real data**; no verified real dataset exists, so **no real-input validation is delivered and FR-011 is explicitly not satisfied**. The Phase 3 synthetic-null permutation runs validate only the statistical machinery's false-positive control (FDR/NBS) on synthetic data — they are machinery verification, not FR-011 validation. The real-data validation clause activates solely under the Re-plan trigger above, together with FR-001's real-data clause. No synthetic effect injection is used in these runs. |
+| NetworkMetric entity (spec Key Entities) | Phase 2 — `network_metrics.py` | Per-subject network-level mean connectivity for auditory/motor/executive networks, validated against `contracts/network_metric.schema.yaml`. |
+| SC-001 | Phase 2 — `nbs_components.json` | Component size vs null. |
+| SC-002 | Phase 2 — `statistical_results.csv` | r vs zero-correlation null. |
+| SC-003 | Phase 2 — `sensitivity_analysis.csv` | Counts across thresholds. |
+| SC-004 | Phase 3 — memory/runtime log | Peak RAM and total runtime recorded. |
+| SC-005 | Phase 1 — inclusion-criteria audit | Fraction of final subjects with valid labels + complete data reported; must be ≥90%. Meaningful because the generator injects controlled missingness/corruption; the clean-fraction assertion is additionally only scientifically meaningful in real-data mode. |
 
-## Phase 0 – Research & Data Strategy
-1. **Dataset Fit Audit** – Verify that no verified open source supplies rs‑fMRI + musical‑training metadata (see `research.md`).  
-2. **Decision** – Default to **Synthetic Verification Mode**; expose `--mode real` for future verified data.  
-3. **Synthetic Specification** – Generate a fully compliant dataset for **pipeline verification** (not for scientific inference):
+## Phase 0 — Repair Failing Entry Points (verifier feedback T001–T003, T111)
+1. **Fix `code/main.py` (exit=2)** — correct argparse definition so `--mode synthetic --n-subjects N` runs end-to-end; add `--n-permutations` and `--seed` flags.
+2. **Fix `code/data/run_synthetic_generator.py` (exit=1)** — make it a standalone executable with `if __name__ == "__main__"` and correct relative imports (run as `python code/data/run_synthetic_generator.py` from repo root).
+3. **Fix `code/data/real_ingest.py` (exit=1)** — it must fail *gracefully* per the spec's edge case: when no verified dataset path is supplied, print a clear "data source unavailable" message and exit 0 with a JSON status file, not an unhandled exception.
+4. **Fix `code/run_quickstart_test.py` (exit=5)** — subprocess-invokes the exact quickstart commands; asserts exit 0 and schema-valid outputs.
 
-| Variable | Source | Distribution (synthetic) |
-|----------|--------|--------------------------|
-| `subject_id` | UUID‑like string | Uniform |
-| `group` | Derived from `years_of_training` | `"musician"` if `years_of_training ≥ 1`; otherwise `"non_musician"` |
-| `years_of_training` | Uniform 1–10 yr for musicians; 0 for non‑musicians | Continuous |
-| `age` | Normal (15 ± 1 yr) | Continuous |
-| `sex` | 50/50 split | Categorical |
-| `motion_score` | Normal (0.15 ± 0.05) | Continuous |
-| `ses_score` | Normal (0 ± 1) | Continuous |
-| `rs_fmri_path` | Mock NIfTI path | Generated Gaussian noise volume |
-| Optional **effect injection** | **Disabled by default** (no systematic group effect) | The generator does **not** add a known effect; it is used only to confirm that the pipeline runs without error and controls false‑positive rates. |
+## Phase 1 — Data Model, Contracts & Synthetic Generation
+- Contracts under `contracts/` (subject, connectivity, network_metric, statistical_result, network_component) — drafted; validated in tests via `jsonschema`.
+- **Synthetic generator**: `--n-subjects` (default 100, capped 75/group per FR-001); `years_of_training ~ Uniform(1,10)` for musicians, 0 otherwise; age ~ N(15,1); sex 50/50; motion ~ N(0.15,0.05); SES ~ N(0,1); mock 64³ Gaussian-noise NIfTI per subject. **No systematic group effect by default** (false-positive verification). Optional `--inject-effect` (d≈0.4) exists only for the power simulation, never for primary output.
+- **Controlled quality defects**: the generator injects a small, seeded rate of missing training-history values and corrupted NIfTI files (logged), so the preprocessing exclusions and the SC-005 inclusion audit have a genuine failure mode to detect rather than passing vacuously.
+- **Preprocess**: ≥1 yr threshold (edge case: 0 years + "some experience" → non-musician); drop missing training history with logged exclusion count; skip+log corrupted NIfTI files; propensity matching (nearest-neighbor, caliper 0.2 SD) on age/sex/motion/SES, then edge-wise linear residualization of the matched sample on the same covariates — matching defines the analysis sample (the estimand is the matched-sample group difference), residualization provides additional covariate adjustment within it; halt with "Sample Size Insufficient" (the spec's edge-case-3 string; the log also records the US-1 phrasing "Insufficient Data for Power" for traceability, since the spec itself uses both) if either group <50.
+- **Inclusion audit (SC-005)**: report fraction of subjects with valid labels + complete data after the injected defects are handled; assert ≥90%. The clean-fraction assertion is only scientifically meaningful in real-data mode; on synthetic data it verifies the audit logic against the known injected defect rate.
+- **Memory guard (FR-006)**: `memory_monitor.py` implements the adaptive fallback the FR mandates — per-subject streaming keeps baseline usage low; if a step still approaches 7 GB, the monitor first applies deterministic seeded subsetting (recording the subsetting decision in the log); a hard abort is a last resort only when subsetting cannot reduce usage below the limit.
 
-All synthetic artifacts conform to the JSON‑Schema contracts in `contracts/`. A **stress‑test** variant can inject a known effect for power‑simulation only, but the default run contains **no systematic group differences**, providing an unbiased verification of false‑positive control.
+## Phase 2 — Core Analysis (CPU-only)
+1. Atlas loading from bundled CSV (no download).
+2. Connectivity: Pearson + Fisher-z per subject → per-subject JSON.
+3. **Network metrics (NetworkMetric entity)**: per-subject mean within-network connectivity for auditory, motor, and executive networks → `data/processed/network_metrics/<subject_id>.json`, validated against `contracts/network_metric.schema.yaml`.
+4. Group comparison: Welch's t per edge (auditory/motor/executive), BH FDR (per FR-003), Cohen's d, 95% CI (bootstrap).
+5. NBS: permutation-based (default 1000 permutations), thresholds t ∈ {1.8, 2.0, 2.5}; largest component size + FWER p.
+6. Correlation (musicians only): Pearson (Spearman on non-normality), BH FDR, r, p, q, effect size, 95% CI.
+7. Sensitivity: sweep q ∈ {0.01, 0.05, 0.10}; counts table; "low stability" flag per spec.
 
-4. **Variable Mapping** – The pipeline expects the exact column names listed in the **Subject** schema; missing columns cause an explicit abort.
+## Phase 3 — Validation, Testing & Aggregation
+- Unit tests on tiny subsets (N=4); integration test runs full synthetic pipeline; contract validation of every output.
+- **Machinery verification on synthetic-null data (NOT FR-011 validation)**: null synthetic data must yield FDR/NBS false-positive rates at nominal levels; no effect injection. These runs verify the statistical machinery's false-positive control only — they use no real inputs and therefore do **not** satisfy FR-011's real-data validation requirement. **FR-011's real-data validation clause is UNMET/DEFERRED** — no verified real dataset exists today, so no real-data validation is delivered; the clause activates under the Re-plan trigger above, together with FR-001's real-data clause.
+- Power simulation (separate, effect-injected synthetic datasets) → detection-rate estimate logged as a power limitation acknowledgment.
+- `results_summary.csv` (FR-010) aggregates group stats, network metrics, correlations, sensitivity table, NBS summary.
+- Runtime + peak-RAM recorded (SC-004).
 
-## Phase 1 – Data Model, Contracts & Generation
-- **Contracts**: Create JSON‑Schema files under `contracts/` (subject, connectivity, statistical_result, network_component).  
-- **Synthetic Generator** (`synthetic_generator.py`):  
-  - Accept `--n-subjects` (default = 100).  
-  - Sample `years_of_training` from a **Uniform(1, 10)** distribution for musicians; set to 0 for non‑musicians.  
-  - Enforce the ≥ 1 yr rule when assigning `group`.  
-  - Generate `age`, `sex`, `motion_score`, `ses_score` from realistic distributions.  
-  - Write `subjects.parquet` and a mock NIfTI per subject (3 mm isotropic 64³ volume of random noise).  
-  - Compute and store a checksum file (`data/logs/checksums.txt`).  
-- **Preprocess** (`preprocess.py`):  
-  - Filter by `years_of_training ≥ 1` → musician; others → non‑musician.  
-  - Drop rows with any missing required column.  
-  - Perform propensity‑score matching (nearest‑neighbor, caliper = 0.2 SD) on age, sex, motion, SES; log standardized mean differences.  
-  - Regardless of matching success, regress each edge on the four covariates (linear residualization).  
-  - Abort with a clear “Sample Size Insufficient” error if either group < 50 after filtering.  
+## Phase 4 — Documentation & Handoff
+- `quickstart.md` updated with the exact working commands verified by `run_quickstart_test.py`.
+- `research.md` records dataset limitation, deferred FR-001/FR-011 real-data status, and power-simulation result.
+- All artifacts hashed in project state YAML.
 
-## Phase 2 – Core Analysis (CPU‑only)
-1. **Atlas Loading** – `atlas.py` reads bundled `data/atlas/schaefer200.csv`; no external download.  
-2. **Connectivity Computation** – `connectivity.py` extracts ROI time‑series from each NIfTI, computes Pearson correlation, applies Fisher‑z; writes a **per‑subject JSON file** (`data/processed/connectivity/<subject_id>.json`) that conforms to the `ConnectivityMatrix` schema.  
-3. **Group Comparison** – `stats.py` runs Welch’s t‑test per edge, applies **Benjamini‑Yekutieli (BY) FDR** (α = 0.05), computes Cohen’s d, and obtains 95 % CI via 1 000 bootstrap resamples.  
-4. **NBS** – Same module implements permutation‑based NBS (1 000 permutations) at **t = 1.8, 2.0, 2.5**; saves largest component size and FWER‑corrected p‑value to `nbs_components.json`.  
-5. **Correlation (Musicians Only)** – `correlation.py` computes Pearson (or Spearman if normality fails) between `years_of_training` and each edge; applies BY FDR; reports r, p, q, R², 95 % CI.  
-6. **Sensitivity Analysis** – `sensitivity.py` repeats edge‑wise testing at q = 0.01, 0.05, 0.10; aggregates counts into `sensitivity_analysis.csv`; flags “low stability” if count drops > 30 % between q = 0.05 and q = 0.01 or if the 95 % CI for R² includes zero at the stricter threshold.  
-7. **Memory Guard** – `memory_monitor.py` wraps each heavy step; aborts > 7 GB.  
-
-## Phase 3 – Validation, Testing & Power Simulation
-- **Unit Tests** – Validate each module on a tiny synthetic subset (N = 4).  
-- **Integration Test** – Run full pipeline in synthetic mode; assert that every output file validates against its JSON‑Schema via `jsonschema`.  
-- **Performance Check** – Record runtime and peak RAM; ensure limits respected.  
-- **Power Simulation** – Generate 500 synthetic datasets with a known medium effect (Cohen’s d ≈ 0.5), run the full BY‑corrected pipeline on each, compute detection rate; log as post‑hoc power estimate (addresses SC‑005).  
-- If either group falls below **50 subjects per group** after filtering, the pipeline aborts with “Sample Size Insufficient” (per US‑1).  
-
-## Phase 4 – Documentation & Handoff
-- Finalize `quickstart.md` with concrete commands for synthetic and (future) real modes.  
-- Update `research.md` to explicitly state dataset limitation, deferred FR‑001 status, and power‑simulation results.  
-- Ensure all artifacts are listed in `README.md` and version‑hashed in the project state YAML.  
-
----
-
-
-
-## projects/PROJ-056-the-impact-of-musical-training-on-functi/specs/001-the-impact-of-musical-training-on-functi/research.md===
-# Research: The Impact of Musical Training on Functional Connectivity in Adolescent Brains
-
-## 1. Dataset Strategy
-
-### 1.1 Verified Sources Analysis
-The specification requires rs‑fMRI data with a reliable musical‑training variable. The verified dataset list contains **no** open source that satisfies both requirements:
-
-| Dataset | Verified? | Reason |
-|---------|-----------|--------|
-| **ABCD** | ❌ (URLs point to unrelated zip files) | No rs‑fMRI + training metadata. |
-| **HCP‑Adolescents** | ❌ (explicitly “NO verified source”) | Missing required variables. |
-| **HCP (parquet)** | ❌ (diffusion‑only) | Not rs‑fMRI and no training data. |
-| **MNI / ROI / SES** | ❌ (no verified source) | Not suitable for the primary analysis. |
-
-**Conclusion**: No open, programmatically downloadable dataset meets **FR‑001**. Consequently the pipeline runs in **Synthetic Verification Mode** by default. When a verified dataset becomes available, the same code can be invoked with `--mode real --data-path <path>`.
-
-### 1.2 Synthetic Data Fit
-The synthetic generator creates a fully compliant dataset for **pipeline verification** (not for scientific inference):
-
-| Variable | Source | Distribution (synthetic) |
-|----------|--------|--------------------------|
-| `subject_id` | UUID‑like string | Uniform |
-| `group` | Derived from `years_of_training` | `"musician"` if `years_of_training ≥ 1`; otherwise `"non_musician"` |
-| `years_of_training` | Uniform 1–10 yr for musicians; 0 for non‑musicians | Continuous |
-| `age` | Normal (15 ± 1 yr) | Continuous |
-| `sex` | 50/50 split | Categorical |
-| `motion_score` | Normal (0.15 ± 0.05) | Continuous |
-| `ses_score` | Normal (0 ± 1) | Continuous |
-| `rs_fmri_path` | Mock NIfTI path | Generated Gaussian noise volume |
-| Optional **effect injection** | **Disabled by default** (no systematic group effect) | Adds a modest group effect (Cohen’s d ≈ 0.4) **only for power‑simulation**, not for primary analysis. |
-
-All synthetic artifacts conform to the JSON‑Schema contracts in `contracts/`. A **stress‑test** variant can inject a known effect to confirm detection power, but the default run contains **no systematic group differences**, providing an unbiased verification of false‑positive control.
-
-### 1.3 Variable Mapping
-The pipeline expects the following exact column names in the subject table:
-
-- `subject_id`
-- `group`
-- `years_of_training`
-- `age`
-- `sex`
-- `motion_score`
-- `ses_score`
-- `rs_fmri_path` (path to the mock NIfTI)
-
-Missing columns cause an explicit abort with a clear error message.
-
-## 2. Statistical Methodology
-
-### 2.1 Group Comparison (FR‑003)
-- **Test**: Welch’s t‑test (unequal variances) per edge.  
-- **Multiple‑Comparison**: **Benjamini‑Yekutieli (BY) FDR** (α = 0.05), appropriate for dependent edge tests.  
-- **Effect Size**: Cohen’s d; 95 % CI via 1 000 bootstrap resamples.  
-
-### 2.2 Network‑Based Statistic (FR‑008)
-1. Threshold t‑statistics at **t = 1.8, 2.0, 2.5** (≈ uncorrected p ≈ 0.07, 0.05, 0.03).  
-2. Identify connected components with `networkx`.  
-3. Permute group labels repeatedly, recompute component sizes, build null distribution.  
-4. Compute family‑wise error‑corrected p‑value for the largest observed component.  
-
-Reporting results across three thresholds provides a built‑in sensitivity check.
-
-### 2.3 Correlation Analysis (FR‑004)
-- **Metric**: Pearson r (Spearman if Shapiro‑Wilk rejects normality).  
-- **Scope**: Musicians only (`group == "musician"`).  
-- **Multiple‑Testing**: **BY FDR** across all edges.  
-- **Outputs**: r, two‑tailed p, **R²**, 95 % CI (Fisher‑z), BY‑corrected q‑value.
-
-### 2.4 Sensitivity Analysis (FR‑005)
-- **Thresholds**: q = 0.01, 0.05, 0.10 (FDR‑corrected).  
-- **Outcome**: Table of significant edge counts per threshold; percentage change between q = 0.05 and q = 0.01; flag “low stability” if count drops > 30 % or if the 95 % CI for R² includes zero at the stricter threshold.
-
-### 2.5 Confound Handling (FR‑009)
-- **Primary**: Propensity‑score matching (nearest‑neighbor, caliper = 0.2 SD) on age, sex, motion, SES.  
-- **Fallback**: Regression residualization of each edge on the same covariates, applied regardless of matching outcome.  
-- **Diagnostics**: Standardized mean differences (SMD) < 0.1 required; if not achieved, a warning is logged but analysis proceeds with residualized data.
-
-### 2.6 Power & Sample‑Size (SC‑005)
-- Simulate a substantial number of synthetic datasets with a known medium effect.  
-- Run the full BY‑corrected pipeline on each.  
-- Estimate detection rate → post‑hoc power estimate logged in `research.md`.  
-- If either group falls below **50** subjects after filtering, the pipeline aborts with “Sample Size Insufficient” (per US‑1).
-
-### 2.7 Causal Framing
-Observational design → all findings are reported as **associational** (e.g., “musical training is associated with stronger connectivity”).
-
-## 3. Computational Feasibility
-
-- **Memory**: Each 200 × 200 z‑matrix ≈ 0.32 MB; streaming NIfTI loading ensures peak RAM ≤ 2 GB for synthetic data; memory monitor aborts > 7 GB.  
-- **Runtime** (empirical on a 2‑core GitHub runner):  
-  - Synthetic generation ≈ seconds.  
-  - Connectivity computation ≈ few minutes.  
-  - Welch’s tests ≈ seconds.  
-  - NBS (a large number of permutations × multiple thresholds) requires on the order of a few hours when vectorized.  
-  - Correlation & sensitivity ≈ minutes.  
-  **Total < 4 h**, comfortably within the 6 h limit.  
-- **GPU**: Not required; all libraries are CPU‑compatible.
-
-## 4. Decision Log
-
-| Decision | Rationale |
-|----------|-----------|
-| Keep musician definition at **≥ 1 year** | Aligns with specification (FR‑001) and literature precedent; avoids arbitrary tightening. |
-| Default to **Synthetic Verification Mode** | No open dataset satisfies FR‑001; synthetic data validates pipeline without fabricating unavailable data. |
-| Implement **dual confound strategy** (matching + residualization) | Guarantees covariate control even if matching discards subjects. |
-| Run **NBS at three thresholds** | Provides sensitivity insight and avoids cherry‑picking a single cutoff. |
-| Abort on **< 50 subjects per group** | Enforces power assumptions defined in SC‑005. |
-| Report all findings as **associational** | Observational data precludes causal claims. |
-
----
-
-
+## Scope notes and flagged gaps (not silently resolved)
+- **Reviewer concern (≥1 yr musician cutoff)**: the cutoff is fixed by the spec (FR-001, edge case). The plan does not change it; however, the literature typically uses multi-year, currently-practicing musicians, and a relatively brief cutoff period may dilute effects toward the null. This is flagged as a spec-level gap for future revision; the plan additionally reports the distribution of `years_of_training` within the musician group so any dilution is visible.
+- **Real-data feasibility (FR-001 and FR-011 real-data clauses)**: neither can be met with any verified open dataset today (research.md). The plan delivers the compliant pipeline and a graceful real-data stub; the scientific question and FR-011's real-data validation remain open until the Re-plan trigger fires — this mismatch is stated, not papered over. The spec would ideally add an explicit conditional/deferred clause for FR-011 mirroring the FR-001 treatment; this is flagged for spec kickback.
+- **Halt-message inconsistency in the spec**: US-1 scenario 1 mandates "Insufficient Data for Power" while edge case 3 mandates "Sample Size Insufficient". The plan aligns on the edge-case string "Sample Size Insufficient" and logs both phrasings; the spec should unify the string.
