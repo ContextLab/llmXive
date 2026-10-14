@@ -1,63 +1,25 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Statistical Test Result Schema"
-description: "Schema for KS test results, power analysis, and sensitivity outputs."
+title: "Data Availability Report Schema"
+description: "Re‑purposed schema for GWTC data‑availability reports (used by T002)."
 type: "object"
 properties:
-  parameter_name:
+  source_name:
     type: "string"
-    description: "Name of the parameter tested (e.g., 'mass_ratio')."
-  ks_statistic:
-    type: "number"
-    description: "Kolmogorov-Smirnov D statistic."
-  p_value:
-    type: "number"
-    description: "Raw p-value from the KS test."
-  bonferroni_adjusted_p_value:
-    type: "number"
-    description: "P-value corrected for multiple comparisons."
-  significance_flag:
-    type: "boolean"
-    description: "True if adjusted p-value < alpha threshold."
-  borderline_flag:
-    type: "boolean"
-    description: "True if significance status flips across alpha sweep."
-  alpha_sweep_results:
-    type: "array"
-    description: "Results for each alpha value in the sweep."
-    items:
-      type: "object"
-      properties:
-        alpha:
-          type: "number"
-        is_significant:
-          type: "boolean"
-      required:
-        - alpha
-        - is_significant
-  power_analysis:
-    type: "object"
-    description: "Power limitation and MDES details."
-    properties:
-      power_limitation_flag:
-        type: "boolean"
-        description: "True if simulation sample size is < 50% of observational."
-      minimum_detectable_effect_size:
-        type: "number"
-        description: "MDES value for the given sample sizes."
-      limitation_note:
-        type: "string"
-        description: "Human-readable warning about Type II error risk."
-    required:
-      - power_limitation_flag
-      - minimum_detectable_effect_size
-      - limitation_note
+    description: "Name of the data source."
+  status:
+    type: "string"
+    enum:
+      - "verified"
+      - "unavailable"
+  reason:
+    type: "string"
+    description: "Failure reason when unavailable."
+  checksum:
+    type: "string"
+    description: "SHA‑256 checksum if file was accepted, else null."
 required:
-  - parameter_name
-  - ks_statistic
-  - p_value
-  - bonferroni_adjusted_p_value
-  - significance_flag
-  - borderline_flag
-  - alpha_sweep_results
-  - power_analysis
+  - source_name
+  - status
+  - reason
+  - checksum
 additionalProperties: false

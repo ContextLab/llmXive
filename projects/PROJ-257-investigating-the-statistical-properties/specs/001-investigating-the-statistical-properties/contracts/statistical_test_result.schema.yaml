@@ -1,35 +1,84 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Statistical Test Result Schema
-description: Schema for KS test results and sensitivity analysis
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Test Result Schema"
+description: "Schema for KS test results, including sensitivity and power analysis."
+type: "object"
 properties:
   parameter_name:
-    type: string
-    description: "Parameter being tested (mass_ratio or effective_spin)"
+    type: "string"
+    description: "Parameter being tested (mass_ratio or effective_spin)."
   ks_statistic:
-    type: number
-    description: "Kolmogorov-Smirnov statistic"
+    type: "number"
+    description: "Kolmogorov‑Smirnov D statistic."
+    minimum: 0
+    maximum: 1
   p_value:
-    type: number
-    description: "Raw p-value from the test"
+    type: "number"
+    description: "Empirical p‑value from bootstrap distribution (proportion of bootstrap KS statistics ≥ observed)."
+    minimum: 0
+    maximum: 1
   bonferroni_adjusted_p_value:
-    type: number
-    description: "P-value after Bonferroni correction"
+    type: "number"
+    description: "P‑value after Bonferroni correction."
+    minimum: 0
+    maximum: 1
   significance_flag:
-    type: boolean
-    description: "True if p-value < alpha threshold"
+    type: "boolean"
+    description: "True if adjusted p‑value < α."
   borderline_flag:
-    type: boolean
-    description: "True if significance status flips across alpha sweep"
-  alpha_threshold:
-    type: number
-    description: "Alpha threshold used for this result"
+    type: "boolean"
+    description: "True if significance flips across the α sweep {0.05, 0.06}."
+  alpha_sweep_results:
+    type: "array"
+    description: "Significance status for each α in the sweep."
+    items:
+      type: "object"
+      properties:
+        alpha:
+          type: "number"
+        is_significant:
+          type: "boolean"
+      required:
+        - alpha
+        - is_significant
+      additionalProperties: false
   scope:
-    type: string
-    description: "Scope of the analysis (e.g., 'detection_space', 'intrinsic_space')"
+    type: "string"
+    description: "Selection‑bias correction scope."
     enum:
-      - detection_space
-      - intrinsic_space
+      - "detection_space"
+      - "intrinsic_space"
+  data_status:
+    type: "string"
+    description: "Provenance of the observational input."
+    enum:
+      - "real"
+      - "synthetic"
+  power_analysis:
+    type: "object"
+    description: "Power‑analysis details for the KS test."
+    properties:
+      observational_sample_size:
+        type: "integer"
+        minimum: 0
+      simulation_sample_size:
+        type: "integer"
+        minimum: 0
+      power_limitation_flag:
+        type: "boolean"
+        description: "True if simulation sample size < 50 % of observational."
+      minimum_detectable_effect_size:
+        type: "number"
+        description: "Minimum detectable Kolmogorov distance D at 80 % power (α = 0.05)."
+      limitation_note:
+        type: "string"
+        description: "Human‑readable warning about Type II error risk."
+    required:
+      - observational_sample_size
+      - simulation_sample_size
+      - power_limitation_flag
+      - minimum_detectable_effect_size
+      - limitation_note
+    additionalProperties: false
 required:
   - parameter_name
   - ks_statistic
@@ -37,6 +86,8 @@ required:
   - bonferroni_adjusted_p_value
   - significance_flag
   - borderline_flag
-  - alpha_threshold
+  - alpha_sweep_results
   - scope
+  - data_status
+  - power_analysis
 additionalProperties: false

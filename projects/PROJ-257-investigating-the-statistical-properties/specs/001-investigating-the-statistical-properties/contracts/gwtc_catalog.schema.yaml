@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "GWTC Catalog Schema"
-description: "Schema for preprocessed GWTC observational data"
+description: "Schema for preprocessed GWTC observational data rows."
 type: "object"
 properties:
   event_id:
@@ -14,15 +14,10 @@ properties:
     description: "Secondary component mass in solar masses"
   mass_ratio:
     type: "number"
-    description: "Mass ratio q = m2/m1 (0 < q <= 1)"
+    description: "Mass ratio q = m2 / m1 (0 < q <= 1)"
   effective_spin:
     type: "number"
     description: "Effective aligned spin parameter chi_eff"
-  posterior_samples:
-    type: "array"
-    items:
-      type: "number"
-    description: "List of sampled values for uncertain parameters"
 required:
   - event_id
   - component_mass_1

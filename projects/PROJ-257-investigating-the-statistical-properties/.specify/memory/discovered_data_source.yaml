@@ -1,11 +1,12 @@
 status: none
-intent: GWTC-1 GWTC-2 posterior samples Zenodo download python package dataset
+intent: Gravitational Wave Transient Catalog GWTC-1 GWTC-2 posterior samples Zenodo
+  python package dataset
 required_fields:
-- event_id
+- event_name
 - mass_ratio
 - effective_spin
 - component_mass_1
 - component_mass_2
-cache_key: 8ee750ad00d65e42c17ece5a51aa6148b76b83825185f06e42dc583210b4d367
-searched_at: '2026-10-14T06:18:46.555878+00:00'
+cache_key: a54b5905f7758ce8142059922e7f1ed639677a10f2c7419a43a0e20ee6b25d0a
+searched_at: '2026-10-14T06:27:52.744872+00:00'
 retry_count: 1

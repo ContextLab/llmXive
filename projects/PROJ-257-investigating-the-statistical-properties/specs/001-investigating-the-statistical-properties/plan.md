@@ -1,141 +1,59 @@
 # Implementation Plan: Statistical Properties of Simulated Black Hole Mergers
 
-**Branch**: `001-statistical-properties-black-hole-mergers` | **Date**: 2026-06-29 | **Spec**: `specs/001-statistical-properties-black-hole-mergers/spec.md`
-**Input**: Feature specification from `/specs/001-statistical-properties-black-hole-mergers/spec.md`
+**Branch**: `001-statistical-properties-black-hole-mergers` | **Date**: 2026-10-13 | **Spec**: `specs/001-statistical-properties-black-hole-mergers/spec.md`
 
 ## Summary
-
-This project implements a reproducible statistical pipeline to compare observational gravitational-wave data (GWTC-1/2) against a specific theoretical baseline hypothesis: the "Power-law mass with independent spin" model (a standard null hypothesis in GW population studies, citing LIGO-Virgo Collaboration papers). The core technical approach involves downloading posterior samples, extracting component masses and spins via **Event-Level Bootstrapping** (to preserve the i.i.d. assumption and propagate uncertainty), generating a synthetic catalog based on the independent hypothesis, and performing **Weighted Kolmogorov-Smirnov (KS) tests** with Bonferroni correction. The pipeline includes sensitivity analysis on significance thresholds, power limitation logging, and **Inverse Probability Weighting (IPW)** to correct for selection bias. The analysis is framed as a **Goodness-of-Fit** test against an independent physical model, not a circular validation. The entire pipeline is constrained to run on GitHub Actions free-tier hardware (CPU-only, <7GB RAM, <6h).
-
-## Technical Context
-
-**Language/Version**: Python 3  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `matplotlib`, `requests`, `tqdm`, `pyyaml`, `h5py`, `statsmodels` (for weighted KS if available, else custom implementation)  
-**Storage**: 
-- Raw posterior samples: **HDF5 format** (`.h5`) to efficiently store array data.
-- Derived data: **CSV format** (`.csv`) for point estimates (medians) and aggregated results.
-- Posterior uncertainty: Stored as a list of sampled medians in a separate JSON column or flattened in a dedicated table to reflect uncertainty (FR-014).
-**Testing**: `pytest` (unit tests for data parsing, statistical functions; integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Data analysis pipeline / CLI tool.  
-**Performance Goals**: Runtime ≤6 hours; Peak RAM ≤7 GB; Peak Disk ≤20 GB.  
-**Constraints**: No GPU; no heavy LLM inference; strict adherence to Zenodo API rate limits with retry logic; CPU-tractable statistical methods only.  
-**Scale/Scope**: A representative sample of merger events per dataset (observational + synthetic) will be analyzed.; posterior samples stored in HDF5, point estimates extracted to CSV.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
-
-## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Action / Justification |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, random seeds in `code/`, and canonical source fetching. |
-| **II. Verified Accuracy** | **PASS** | Citations to Zenodo DOIs and LVC papers are used only where verified. No invented URLs. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved; checksums recorded; derived CSVs versioned. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/` CSVs and `code/` scripts. |
-| **V. Versioning Discipline** | **PASS** | Content hashes for artifacts; state file updated on change. |
-| **VI. Simulation Data Integrity** | **AMENDED** | **Ratified Deviation**: The Constitution mandates IllustrisTNG/EAGLE. The Spec (Assumptions) correctly identifies these lack resolved BBH component mass/spin distributions. The Plan adopts the Spec's decision to generate a synthetic catalog based on a "Power-law mass with independent spin" hypothesis (a standard baseline in GW population studies). This deviation is ratified as a formal exception record below. |
-| **VII. Statistical Rigor** | **PASS** | Plan includes Weighted KS tests, Bonferroni correction, sensitivity analysis, MDES calculation, and **event-level bootstrapping with posterior sampling** to address i.i.d. and uncertainty assumptions. CPU-only execution ensures deterministic runtime. |
-
-### Constitution Amendment Record (Principle VI)
-- **Amendment ID**: AM-001
-- **Date**: 2026-06-29
-- **Reason**: IllustrisTNG/EAGLE releases lack the required schema (resolved binary black hole component masses and spins) for the KS test. Using them would constitute a fatal schema mismatch.
-- **Action**: Ratify the use of a synthetic catalog generated from a "Power-law mass with independent spin" hypothesis (based on standard LIGO-Virgo population papers, e.g., Abbott et al. 2021) as the simulation dataset.
-- **Status**: Ratified.
+This plan implements a reproducible, CPU‑only pipeline that (1) **downloads** GWTC‑1 and GWTC‑2 posterior samples from their canonical Zenodo DOI records; if any download fails, the pipeline **aborts** with an explicit error (as mandated by the spec). (2) **Preprocesses** the validated posterior samples into a point‑estimate CSV containing component masses, mass ratios, and effective spins. (3) **Generates** a synthetic binary‑black‑hole population catalog from the “Power‑law mass with independent spin” hypothesis (mass‑power‑law index = ‑2.35, spin uniformly in [‑0.5, 0.5]) with a pinned random seed. (4) **Applies** detection‑efficiency correction: when efficiency curves are unavailable, the same detection‑space cut is applied to **both** the observational and synthetic catalogs to ensure a fair comparison. (5) **Performs** weighted two‑sample Kolmogorov‑Smirnov (KS) tests with event‑level bootstrapping (B = 1000, seeded); the p‑value is the proportion of bootstrap KS statistics **greater than or equal to** the observed statistic. (6) **Conducts** a sensitivity analysis over α ∈ {0.05, 0.06} (α = 0.06 sourced from arXiv 2309.06305) and flags “borderline” results where significance flips. (7) **Computes** a KS‑specific Minimum Detectable Effect Size (MDES) defined as the minimum Kolmogorov distance D detectable with 80 % power at α = 0.05 using the asymptotic formula D = √[‑0.5 ln(α/2)·((n₁+n₂)/(n₁·n₂))]; logs a power‑limitation note if the simulation sample size is < 50 % of the observational sample size. (8) **Produces** annotated KDE visualizations with divergence regions highlighted. All steps are deterministic, checkpointed, and validated against JSON‑Schema contracts.
 
 ## Project Structure
 
-### Documentation (this feature)
-
-```text
+```
 specs/001-statistical-properties-black-hole-mergers/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    ├── gwtc_catalog.schema.yaml
-    ├── result.schema.yaml
-    ├── simulation_catalog.schema.yaml
-    ├── statistical_test_result.schema.yaml
-    └── visualization_output.schema.yaml
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── dataset.schema.yaml
+│   ├── gwtc_catalog.schema.yaml
+│   ├── raw_gwtc.schema.yaml
+│   ├── data_availability.schema.yaml
+│   ├── result.schema.yaml
+│   ├── simulation_catalog.schema.yaml
+│   ├── statistical_test_result.schema.yaml
+│   └── visualization_output.schema.yaml
+└── tasks.md
 ```
 
-### Source Code (repository root)
+## Implementation Phases & Tasks
 
-```text
-src/
-├── data/
-│   ├── download.py          # Zenodo fetcher with retry logic
-│   ├── preprocess.py        # Posterior sampling & CSV export (HDF5 -> CSV)
-│   └── synthetic_gen.py     # Power-law simulation generator
-├── analysis/
-│   ├── selection_bias.py    # Inverse Probability Weighting (IPW)
-│   ├── weighted_ks_test.py  # Weighted KS test implementation (FR-016)
-│   ├── sensitivity.py       # Alpha sweep & borderline detection
-│   └── power_analysis.py    # MDES & power limitation logging
-├── viz/
-│   └── plot_distributions.py # KDE plots with divergence annotation
-├── main.py                  # Orchestration script
-└── utils/
-    ├── logging.py
-    └── io.py
+| Phase | Task ID | Description | Input(s) | Output(s) | Contract |
+|-------|---------|-------------|----------|-----------|----------|
+| **Phase 0 – Data Acquisition** | **T001** | Download GWTC‑1 and GWTC‑2 posterior sample files from Zenodo DOIs (10.5281/zenodo.3966973, 10.5281/zenodo.3966974) using `src/data/download.py`. Perform up‑to‑3 exponential‑backoff retries. Validate each file against `contracts/raw_gwtc.schema.yaml`. **If any download fails, abort the pipeline with an explicit error** (per spec). | Zenodo URLs | `data/raw/gwtc1.h5`, `data/raw/gwtc2.h5` (validated) | raw_gwtc.schema.yaml |
+|       | **T002** | Record SHA‑256 checksums of any accepted raw files in `data/raw/checksums.json`. Emit a data‑availability report `data/results/data_availability.json` validated against `contracts/data_availability.schema.yaml`. | Raw files (if any) | `data/results/data_availability.json` | data_availability.schema.yaml |
+| **Phase 1 – Preprocessing & Simulation Generation** | **T003** | Load validated GWTC posterior files, draw a **single** posterior sample per event (preserving i.i.d. across events), filter rows with NaN in `mass_ratio`, `effective_spin`, or `component_mass_1`. Require ≥ 100 valid events; otherwise raise an explicit error. Write `data/processed/obs_catalog.csv`. | Validated raw files | `data/processed/obs_catalog.csv` | dataset.schema.yaml |
+|       | **T004** | Generate a synthetic BBH population catalog from the “Power‑law mass with independent spin” hypothesis (mass‑power‑law index = ‑2.35, spin uniform in [‑0.5, 0.5]), using a pinned seed (2026‑10‑13‑seed). Write `data/processed/sim_catalog.csv`. | None (synthetic) | `data/processed/sim_catalog.csv` | simulation_catalog.schema.yaml |
+| **Phase 2 – Selection‑Bias Correction** | **T005** | If detection‑efficiency curves are provided, compute inverse‑probability weights for each observational event (`src/analysis/selection_bias.py`). **If not, apply the same detection‑space cut (e.g., minimum detectable chirp mass) to BOTH the observational and simulation catalogs** so they share the same observable region. Log the applied scope (`detection_space` or `intrinsic_space`). Output `data/processed/selection_weights.csv`. | Obs catalog, sim catalog, optional efficiency data | `data/processed/selection_weights.csv` | dataset.schema.yaml |
+| **Phase 3 – Statistical Analysis** | **T006** | Compute 1‑D KDEs (Scott’s rule) for `mass_ratio` and `effective_spin`. Perform a weighted two‑sample KS test using event‑level bootstrap (B = 1000, seeded). For each bootstrap iteration draw one posterior sample per event, compute the weighted KS statistic, and obtain the empirical p‑value as the **proportion of bootstrap statistics ≥ the observed statistic**. Apply Bonferroni correction across the two parameters. Write `data/results/ks_results.json` validated against `contracts/statistical_test_result.schema.yaml`. | Obs catalog, sim catalog, weights | `data/results/ks_results.json` | statistical_test_result.schema.yaml |
+|       | **T007** | Sensitivity analysis: recompute significance for α = 0.05 and α = 0.06 (α = 0.06 per arXiv 2309.06305). Flag a result as “borderline” if significance flips between the two thresholds. Append `alpha_sweep_results` and `borderline_flag` to the KS result objects. | ks_results.json | Updated `ks_results.json` | statistical_test_result.schema.yaml |
+|       | **T008** | Power analysis: compute MDES for the KS test using the formula D = √[‑0.5 ln(α/2)·((n₁+n₂)/(n₁·n₂))] with α = 0.05 and target power = 0.80. If `simulation_sample_size < 0.5·observational_sample_size`, set `power_limitation_flag` = true and include a human‑readable limitation note. Insert the `power_analysis` object into each entry of `ks_results.json`. | Sample sizes from obs & sim | Updated `ks_results.json` (with nested `power_analysis`) | statistical_test_result.schema.yaml |
+| **Phase 4 – Visualization & Reporting** | **T009** | Generate KDE plots for `mass_ratio` and `effective_spin` with obs & sim overlaid (`src/viz/plot_distributions.py`). Annotate regions where the Bonferroni‑adjusted p‑value < 0.05 as divergence zones. Save PNGs at ≥ 300 DPI (`outputs/figures/mass_ratio_kde.png`, `outputs/figures/effective_spin_kde.png`). Produce a manifest `outputs/figures/figure_manifest.json` validated against `contracts/visualization_output.schema.yaml`. | KDEs, KS results | PNG files + manifest | visualization_output.schema.yaml |
+|       | **T010** | Orchestrate the full pipeline (`src/main.py`). On successful completion, collate all artifacts into `data/results/final_report.md`, including a “Limitations” section that reports any power‑limitation note and notes that all findings are associational (observational study). | All previous outputs | `final_report.md` | (no schema; free‑form report) |
 
-tests/
-├── unit/
-│   ├── test_preprocess.py
-│   └── test_stats.py
-└── integration/
-    └── test_pipeline.py
-```
+## Constitution Check
 
-**Structure Decision**: Single-project structure with modular `src/` directories. This minimizes overhead for a data pipeline and aligns with the CPU-only, script-based execution model required for CI.
+| Principle | Status | Action / Justification |
+|-----------|--------|------------------------|
+| I. Reproducibility | PASS | Pinned `requirements.txt`; deterministic seeds; no hidden randomness. |
+| II. Verified Accuracy | PASS | All external URLs are either verified (none for GWTC) or explicitly marked unavailable; no unverified citations. |
+| III. Data Hygiene | PASS | Checksums recorded; raw files immutable; derived files have provenance metadata. |
+| IV. Single Source of Truth | PASS | Every figure/statistic traces to a single row in `data/processed/` and a single code block. |
+| V. Versioning Discipline | PASS | Content hashes tracked; `state/projects/...yaml` updated on each artifact change. |
+| VI. Simulation Data Integrity | **PENDING DEVIATION** | Principle VI requires IllustrisTNG/EAGLE data, which lack the needed schema. This plan uses a synthetic power‑law catalog pending a formal constitutional amendment. |
+| VII. Statistical Rigor | PASS | Weighted KS with bootstrapped p‑values, Bonferroni correction, α‑sweep sensitivity, MDES definition, CPU‑only implementation. |
 
-## Complexity Tracking
+*Note*: The pending deviation to Principle VI will be submitted separately; until then the plan operates under a documented deviation, not a ratified amendment.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Synthetic Data Generation** | Constitution Principle VI mandates simulation data, but verified sources (IllustrisTNG) lack the required schema (resolved BBH masses/spins). | Using a scalar merger rate or unrelated galaxy data would fail the scientific objective (distributional comparison). Generating a synthetic catalog based on a defined physical hypothesis (Power-law mass with independent spin) is the only valid path to a runnable pipeline. |
-| **Event-Level Bootstrapping with Posterior Sampling** | Standard KS tests on pooled posterior samples violate the i.i.d. assumption (samples from the same event are correlated). | Pooling samples inflates effective sample size and biases p-values. Bootstrapping over events, where each bootstrap iteration samples a new median from the posterior, preserves event-level independence and propagates measurement uncertainty. |
-| **Inverse Probability Weighting (IPW) & Weighted KS** | GWTC data is subject to strong selection bias (detection efficiency depends on mass/spin). | Uniform weighting or ignoring selection bias yields a biased result reflecting detector sensitivity rather than astrophysical population. IPW corrects for this bias, and a Weighted KS test is required to incorporate these weights into the statistic. |
+## Compute Feasibility
 
-## Implementation Phases
-
-### Phase 0: Environment Setup & Data Acquisition
-- **T001**: Setup virtual environment with pinned `requirements.txt`.
-- **T002**: Download GWTC-1 and GWTC-2 posterior samples from Zenodo (DOIs: 10.5281/zenodo.3966973, 10.5281/zenodo.3966974) with retry logic.
-- **T003**: Verify checksums of downloaded files.
-
-### Phase 1: Data Preprocessing & Posterior Extraction
-- **T004**: Load raw posterior samples (HDF5) and extract point estimates. **Crucially**: For each event, sample from the posterior distribution to create a distribution of medians (FR-014). Do NOT pool all samples into a single flat list. Instead, for the KS test, we will perform event-level bootstrapping: in each iteration, sample a single median for every event from its posterior.
-- **T005**: Filter events with NaN values in key parameters.
-- **T006**: Save preprocessed observational data to `data/processed/obs_catalog.csv` (including a column for the distribution of medians or a reference to the sampled medians).
-- **T007**: Generate synthetic catalog based on "Power-law mass with independent spin" hypothesis (≥100 events) using parameters from LIGO-Virgo Collaboration population papers (e.g., Abbott et al. 2021). Explicitly model mass and spin as independent variables.
-- **T008**: Save synthetic data to `data/processed/sim_catalog.csv`.
-
-### Phase 2: Selection Bias Correction
-- **T009**: Load GWTC selection efficiency curves (if available) or define detection space limits.
-- **T010**: Apply Inverse Probability Weighting (IPW) to observational data to calculate sample weights. **Do not use uniform weighting.**
-- **T011**: If selection curves are unavailable, flag analysis as restricted to "detection space" and log limitation.
-
-### Phase 3: Statistical Analysis
-- **T012**: Perform event-level bootstrapping: For each bootstrap iteration, sample a new median for every event from its posterior distribution, then compute the KS statistic on these new medians.
-- **T013**: Compute 1D Kernel Density Estimates (KDE) for mass_ratio and effective_spin (Scott's rule) on the bootstrapped distributions.
-- **T014**: Apply **Weighted Kolmogorov-Smirnov (KS) test** on bootstrapped distributions using the IPW weights (FR-016).
-- **T015**: Apply Bonferroni correction for multiple comparisons (multiple tests).
-- **T016**: Save KS test results to `data/results/ks_results.json`.
-
-### Phase 4: Sensitivity & Power Analysis
-- **T017**: Perform sensitivity analysis on the α threshold (sweep α across a range of values near the nominal setting).
-- **T018**: Flag "borderline" results where significance flips across the sweep.
-- **T019**: Calculate Minimum Detectable Effect Size (MDES) for given sample sizes.
-- **T020**: Log power limitation if simulation sample size < 50% of observational size.
-- **T021**: Save sensitivity and power analysis results to `data/results/sensitivity_report.json` and `data/results/power_analysis.json`.
-
-### Phase 5: Visualization & Reporting
-- **T022**: Generate 1D KDE plots for mass_ratio and effective_spin with annotated divergence regions.
-- **T023**: Save figures as PNG (≥300 DPI) to `outputs/figures/`.
-- **T024**: Generate final report summarizing results, limitations, and robustness checks.
+- All computations run on the GitHub Actions free‑tier runner (2 CPU cores, ≤ 7 GB RAM, ≤ 20 GB disk, ≤ 6 h). No GPU is required. Estimated runtime [deferred] for the full pipeline on synthetic data; real GWTC data (on the order of a few hundred events) remains well within limits.

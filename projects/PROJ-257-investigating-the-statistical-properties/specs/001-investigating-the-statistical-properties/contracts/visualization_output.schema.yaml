@@ -1,30 +1,45 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Visualization Output Schema
-description: Schema for generated plot metadata
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Visualization Output Schema"
+description: "Schema for generated figure manifest entries."
+type: "object"
 properties:
   figure_id:
-    type: string
-    description: "Unique identifier for the figure"
+    type: "string"
+    description: "Unique identifier for the figure."
   parameter_name:
-    type: string
-    description: "Parameter visualized (mass_ratio or effective_spin)"
+    type: "string"
+    description: "Parameter visualized ('mass_ratio' or 'effective_spin')."
   format:
-    type: string
-    description: "File format (e.g., PNG)"
+    type: "string"
+    description: "File format."
     enum:
-      - PNG
+      - "PNG"
   resolution_dpi:
-    type: integer
-    description: "Resolution in dots per inch (target >= 300)"
+    type: "integer"
+    description: "Resolution in dots per inch (target >= 300)."
     minimum: 300
   file_path:
-    type: string
-    description: "Relative path to the saved figure"
+    type: "string"
+    description: "Relative path to the saved figure."
+  divergence_regions:
+    type: "array"
+    description: "Regions annotated as statistically significant divergence (p < 0.05)."
+    items:
+      type: "object"
+      properties:
+        lower_bound:
+          type: "number"
+        upper_bound:
+          type: "number"
+      required:
+        - lower_bound
+        - upper_bound
+      additionalProperties: false
 required:
   - figure_id
   - parameter_name
   - format
   - resolution_dpi
   - file_path
+  - divergence_regions
 additionalProperties: false
