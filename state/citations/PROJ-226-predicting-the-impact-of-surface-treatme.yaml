@@ -9,3 +9,25 @@
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
   verified_at: '2026-10-14T19:29:10.392186Z'
+- artifact_hash: f8c4c322203d51815386a5da0d34641a54407cebc4138d36b6ff737c3b93c23e
+  artifact_path: projects/PROJ-226-predicting-the-impact-of-surface-treatme/specs/001-predicting-the-impact-of-surface-treatme/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.18434/T4D12B
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.18434/T4D12B
+  verified_at: '2026-10-14T19:38:38.951470Z'
+- artifact_hash: f8c4c322203d51815386a5da0d34641a54407cebc4138d36b6ff737c3b93c23e
+  artifact_path: projects/PROJ-226-predicting-the-impact-of-surface-treatme/specs/001-predicting-the-impact-of-surface-treatme/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1234567
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
+  verified_at: '2026-10-14T19:38:38.951470Z'
