@@ -1,12 +1,11 @@
 T060a:
   c: false
-  h: d1e20a8cd44bbfea6dc3b8529685a26a11f6aead6c1053349348f8cddf74f936
-  r: '`code/lint_report.txt` exists but records "Exit code: 1" with ~40 flake8 findings
-    across `code/` and `tests/` (E302, F841, W503, E501, F821, etc.), directly contradicting
-    the deliverable''s requirement of exit code 0 and no remaining findings. The issues
-    were not fixed; the implementer only ran the report script without remediating
-    the lint errors.'
-  sig: c46511efa4ec61bdaf44e49ab8e1dd27eb1973886ee51aaf5158e7459d6cecf7
+  h: eb1bdfc1975bb0e3140862401a22f0d58a319aa80fcb819b9887cb73f9e03d29
+  r: "The provided `code/lint_report.txt` records an exit code of\u202F1 and lists\
+    \ numerous flake8 violations in both `code/` and `tests/`, showing that the code\
+    \ has not been lint\u2011cleaned. The task requires a zero exit code and no findings\
+    \ after fixing all issues. The artifact therefore does not meet the specification."
+  sig: 1d2857ab010981281c4871623bd6b4a2e5bc08db9e1865dd37fe9e32b705587f
 T060b:
   c: true
   h: 1f6660f7864994306c13388c9c67f1f10733db14dc91d135678895ffaa3e52f4

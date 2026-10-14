@@ -1,10 +1,10 @@
 status: none
-intent: IL-Benchmark interaction energy dataset and Experimental Bulk Properties dataset
-  Zenodo CCSD(T)/CBS reference values python package dataset
+intent: download IL benchmark interaction energy dataset Zenodo CCSD(T)/CBS ionic
+  liquid pairs python package dataset
 required_fields:
 - identifier
-- reference_energy_ccsd(t)_cbs
+- reference_energy_ccsd_t_cbs
 - xyz_coordinates
-cache_key: d493056cad2f84618033aca741a56ba9ea0fc728cabd6fe6b296e123322ea249
-searched_at: '2026-10-14T05:11:25.027052+00:00'
+cache_key: ee2d09faa49e88f31c68163df870e061c71574cfd29c199fd9d6a31368022e50
+searched_at: '2026-10-14T05:24:44.097863+00:00'
 retry_count: 1

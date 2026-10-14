@@ -5,7 +5,7 @@
   - **Deliverable**: `code/format_diff.txt` contains pre‑format diff; source files are reformatted.
   - **Verification**: `black --check code/ tests/` exits 0; `code/format_diff.txt` present.
 
-- [ ] T060a Run `flake8` on `code/` and `tests/`, fix all reported issues, and write full output (including exit code) to `code/lint_report.txt`.
+- [ ] T060a Run `flake8` on `code/` and `tests/`, fix all reported issues, and write full output (including exit code) to `code/lint_report.txt`. <!-- FAILED: unspecified -->
   - **Deliverable**: `code/lint_report.txt` exists, records exit code 0, and re‑running `flake8 code/ tests/` produces no findings.
 
 ## Phase B: Review‑driven report updates
