@@ -6,7 +6,7 @@
 
 ## Phase 0 – Project scaffolding, synthetic verification mode, and real‑data ingestion  
 
-- [ ] T001 **Document project layout and quick‑start command**   <!-- FAILED-IN-EXECUTION: code/run_quickstart_test.py exit=5 --> <!-- FAILED-IN-EXECUTION: code/run_quickstart_test.py exit=5 -->
+- [ ] T001 **Document project layout and quick‑start command**   <!-- FAILED-IN-EXECUTION: code/run_quickstart_test.py exit=5 --> <!-- FAILED-IN-EXECUTION: code/run_quickstart_test.py exit=5 --> <!-- FAILED-IN-EXECUTION: code/run_quickstart_test.py exit=5 -->
   *Creates* `README.md` and `quickstart.md` that describe the directory structure, required Python version, and the command `python -m code.main --mode verification`.  
   *Verification*: `pytest tests/unit/test_quickstart.py` passes; the README lists all top‑level folders (`code/`, `data/`, `tests/`).  
 
