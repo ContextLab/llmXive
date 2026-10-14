@@ -1,13 +1,4 @@
-# Project dependencies for PROJ-044
-#
-# Core scientific stack (already available in the base environment):
-# numpy, pandas, scipy, statsmodels, matplotlib, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil
-#
-# Additional libraries required for this project:
-torch==2.3.0                # CPU‑only version
+torch==2.3.0
 opacus==1.4.0
 datasets==2.19.0
-pyarrow==12.0.1            # compatible with the pre‑installed NumPy 1.26.x
-# The versions above have been selected to satisfy the project's
-# reproducibility requirements while remaining within the compute budget.
+pyarrow

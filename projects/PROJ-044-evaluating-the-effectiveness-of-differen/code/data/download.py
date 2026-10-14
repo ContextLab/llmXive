@@ -124,16 +124,15 @@ def download_femnist_streaming(output_dir: Path) -> Path:
     retry = 0
     while retry < MAX_RETRIES:
         try:
-            # ``trust_remote_code=True`` is needed for the FEMNIST loading script.
+            # The official FEMNIST dataset on Hugging Face is under the "leaf" namespace.
             ds = load_dataset(
-                "femnist",
+                "leaf/femnist",
                 split="train",
                 streaming=True,
                 trust_remote_code=True,
             )
             records = []
             for i, example in enumerate(ds):
-                # ``user_id`` in the original dataset maps to ``client_id``.
                 client_id = example.get("user_id")
                 label = example.get("label")
                 if client_id is None or label is None:
