@@ -39,7 +39,7 @@ specification; unchecked boxes (`[ ]`) are pending.
 
 ## Phase 1 – Test Infrastructure  
 
-- [ ] T005 **Test Directory Structure & Init Files** – Establish the verification framework by creating:  
+- [X] T005 **Test Directory Structure & Init Files** – Establish the verification framework by creating:  
   - `tests/unit/__init__.py` and `tests/integration/__init__.py`.  
   - `tests/unit/test_ingestion.py` (validating data loading and checksums).  
   - `tests/unit/test_descriptors.py` (validating pymatgen calculations).  
