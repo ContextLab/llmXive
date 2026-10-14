@@ -11,7 +11,7 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [P] [US1] Project scaffolding complete: directories `data/raw/`, `data/processed/`, `data/results/`, `code/`, `code/utils/`, `code/tests/`, `results/paper_figures/` exist; `code/__init__.py`, `code/utils/__init__.py`, `code/tests/__init__.py` present; `code/requirements.txt` pins torch, transformers, datasets, networkx, lifelines, scikit-learn, pandas, numpy, pytest; ruff/black configured and `ruff check --output-format=concise` exits 0. **Verification**: `pip install -r code/requirements.txt` succeeds; `find . -name __init__.py` lists the three files.
+- [ ] T001 [P] [US1] Project scaffolding complete: directories `data/raw/`, `data/processed/`, `data/results/`, `code/`, `code/utils/`, `code/tests/`, `results/paper_figures/` exist; `code/__init__.py`, `code/utils/__init__.py`, `code/tests/__init__.py` present; `code/requirements.txt` pins torch, transformers, datasets, networkx, lifelines, scikit-learn, pandas, numpy, pytest; ruff/black configured and `ruff check --output-format=concise` exits 0. **Verification**: `pip install -r code/requirements.txt` succeeds; `find . -name __init__.py` lists the three files. <!-- FAILED-IN-EXECUTION: code/verify_scaffolding.py exit=1 -->
 
 - [ ] T002 [P] [US1] Contract and integration tests for the puzzle generator exist and **run after** T003. Tests validate schema conformance of `SyntheticPuzzle` and the stratified‑orthogonalization property (|r| < 0.2) on the *generated* dataset. **Verification**: after T003 completes, `pytest code/tests/test_graph_generator.py` passes.
 

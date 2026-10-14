@@ -34,4 +34,4 @@ def test_directories_exist():
 def test_init_files_exist():
     """All required __init__.py files should exist."""
     missing = [str(f) for f in REQUIRED_INIT_FILES if not f.is_file()]
-    assert not missing, f"Missing required __init__ files: {missing}"
+    assert not missing, f"Missing required __init files: {missing}"

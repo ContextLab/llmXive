@@ -7,20 +7,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 -> rc=1
-
+ longest path as ground truth.
+2026-10-14 06:29:55,755 - WARNING - Only one path exists; using longest path as ground truth.
+2026-10-14 06:29:55,756 - WARNING - Only one path exists; using longest path as ground truth.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 418, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 411, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 381, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 379, in main
     primary_records = generate_batch(
                       ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 177, in generate_batch
-    generator = LogicalPuzzleGenerator(seed=seed)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 30, in __init__
-    nx.set_seed(seed)
-    ^^^^^^^^^^^
-AttributeError: module 'networkx' has no attribute 'set_seed'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 252, in generate_batch
+    gt_path, longest = _select_ground_truth_path(G)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 111, in _select_ground_truth_path
+    raise ValueError("No path between source and target in generated DAG.")
+ValueError: No path between source and target in generated DAG.
 
 - python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu -> rc=1
 
@@ -28,7 +29,7 @@ MODEL_PATH not found in .env. Please set it.
 
 - python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 -> rc=1
 
-2026-10-14 06:27:31,801 - __main__ - ERROR - Analysis failed: Execution results file not found: data/processed/execution_log.csv
+2026-10-14 06:29:58,656 - __main__ - ERROR - Analysis failed: Execution results file not found: data/processed/execution_log.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/analyzer.py", line 213, in <module>
     main()

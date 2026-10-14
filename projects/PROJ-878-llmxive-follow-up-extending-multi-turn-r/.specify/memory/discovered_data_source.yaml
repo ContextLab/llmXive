@@ -1,14 +1,15 @@
 status: none
-intent: download RuleTaker ProofWriter CLUTRR GSM8K synthetic logical deduction dataset
-  with topology metadata python package dataset
+intent: download GSM8K logical deduction puzzle dataset with DAG metadata nesting
+  depth branching factor python package dataset
 required_fields:
-- id
+- puzzle_id
 - puzzle_text
+- solution_text
+- dag_nodes
 - dag_edges
 - max_nesting_depth
 - average_branching_factor
-- ground_truth_solution
-- node_count
-cache_key: edc61a18b703eb8886ffb559045d28d013767908edebb500ce58f8c797da9dd4
-searched_at: '2026-10-14T06:28:30.256415+00:00'
+- metadata_json
+cache_key: ba2f2c451a23df993081b3be0d449b2c8e250d088bb7e05b3c8821fa5f73664b
+searched_at: '2026-10-14T06:30:57.778411+00:00'
 retry_count: 1

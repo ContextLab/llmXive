@@ -1,9 +1,6 @@
 T001:
-  reason: "The scaffold directories and `__init__.py` files exist and `requirements.txt`\
-    \ contains the required pins, but there is no provided evidence that `pip install\
-    \ -r code/requirements.txt` actually succeeded nor any log showing `ruff check\
-    \ --output-format=concise` exiting with code\u202F0. These execution confirmations\
-    \ are required to consider the scaffolding task complete."
+  reason: 'Requested task execution failed; rerun successfully: code/verify_scaffolding.py
+    exit=1'
   task: 04beb1208ff2afd2d188ef2b70bd93cede5411d9f9ee2dfa60a911985bc40b23
 T002:
   reason: "The test file `code/tests/test_graph_generator.py` exists, but the recorded\

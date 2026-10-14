@@ -3,6 +3,7 @@ import json
 import random
 import math
 import logging
+import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -26,8 +27,8 @@ class LogicalPuzzleGenerator:
     def __init__(self, seed: int = 42):
         self.seed = seed
         random.seed(self.seed)
-        if seed is not None:
-            nx.set_seed(seed)
+        # networkx does not provide a global seed setter; we rely on Python's random
+        # which is used throughout the generation code.
 
     def _generate_base_dag(self, target_depth: int, target_branching: float) -> nx.DiGraph:
         """
@@ -210,7 +211,6 @@ def generate_batch(
         # Continue with what we have – downstream checks will flag shortfall.
 
     # Orthogonalization: ensure correlation below threshold.
-    # Simple shuffle‑and‑select strategy; repeat if still too high.
     def _correlation(puzzles: List[Dict[str, Any]]) -> float:
         d = [p["nesting_depth"] for p in puzzles]
         b = [p["branching_factor"] for p in puzzles]
@@ -313,13 +313,11 @@ def _write_checksums(files: List[Path], checksum_path: Path) -> None:
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
     with checksum_path.open("w", encoding="utf-8") as out:
         for file_path in files:
-            # Compute checksum
             sha256 = hashlib.sha256()
             with file_path.open("rb") as f:
                 for chunk in iter(lambda: f.read(8192), b""):
                     sha256.update(chunk)
             checksum = sha256.hexdigest()
-            # Write in the format: "<checksum>  <relative_path>"
             rel = file_path.relative_to(Path.cwd())
             out.write(f"{checksum}  {rel}\\n")
 
@@ -391,12 +389,7 @@ def main() -> None:
     output_path = Path(args.output)
     _write_jsonl(primary_records, output_path)
 
-    # Auxiliary generation (depth 7‑10, same branching range) – only if caller requests it
-    # The auxiliary generation is triggered by a separate CLI invocation; we therefore
-    # do not generate it here.
-
     # Validation metrics – only primary metrics are available at this point.
-    # The combined correlation will be computed later when both files exist.
     validation_path = Path("data/validation_metrics.json")
     _write_validation_metrics(
         primary=primary_records,
