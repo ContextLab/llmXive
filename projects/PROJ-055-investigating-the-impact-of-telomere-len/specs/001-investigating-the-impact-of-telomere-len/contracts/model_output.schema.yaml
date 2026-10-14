@@ -1,61 +1,27 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelResult"
-description: "Schema for the output of the PGLS model fitting process."
+description: "Schema for PGLS model output. Statistical fields are null (never placeholder values) when the low‑power message is issued for n_species < 15."
 type: "object"
 properties:
   model_type:
     type: "string"
-    description: "Type of model fitted (PGLS_Base or PGLS_Interaction)."
+    description: "Type of model fitted."
     enum:
       - "PGLS_Base"
       - "PGLS_Interaction"
   fixed_effect_telomere:
-    type: "number"
-    description: "Coefficient estimate for telomere length."
+    type: ["number", "null"]
+    description: "Coefficient estimate for telomere length; null when low‑power message issued."
+  se_telomere:
+    type: ["number", "null"]
+    description: "Standard error of telomere coefficient."
+  ci_lower_telomere:
+    type: ["number", "null"]
+    description: "95 % CI lower bound for telomere coefficient."
+  ci_upper_telomere:
+    type: ["number", "null"]
+    description: "95 % CI upper bound for telomere coefficient."
   fixed_effect_migration:
-    type: "number"
-    description: "Coefficient estimate for migration status (if interaction model)."
-  interaction_effect:
-    type: "number"
-    description: "Interaction coefficient (telomere * migration). Optional if N < 30."
-    nullable: true
-  p_value_telomere:
-    type: "number"
-    description: "P‑value for the telomere effect."
-    minimum: 0.0
-    maximum: 1.0
-  p_value_interaction:
-    type: "number"
-    description: "P‑value for the interaction effect. Optional if N < 30."
-    minimum: 0.0
-    maximum: 1.0
-    nullable: true
-  phylogenetic_lambda:
-    type: "number"
-    description: "Pagel's lambda (phylogenetic signal)."
-    minimum: 0.0
-    maximum: 1.0
-  aic_score:
-    type: "number"
-    description: "Akaike Information Criterion."
-  n_species:
-    type: "integer"
-    description: "Number of species included in the model."
-    minimum: 1
-  low_power_flag:
-    type: "boolean"
-    description: "True if N < 30 or lambda estimation was unstable."
-  power_estimate:
-    type: "number"
-    description: "Estimated statistical power (Partial R‑squared based)."
-    minimum: 0.0
-    maximum: 1.0
-required:
-  - model_type
-  - fixed_effect_telomere
-  - p_value_telomere
-  - phylogenetic_lambda
-  - aic_score
-  - n_species
-  - low_power_flag
-additionalProperties: false
+    type: ["number", "null"]
+    description: "Coefficient for migration status (interaction model only)."
+  se_m...

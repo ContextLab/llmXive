@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SpeciesRecord"
-description: "Schema for the merged, cleaned analysis dataset (SpeciesRecord entity). Unit of analysis is Species."
+description: "Schema for the merged, cleaned analysis dataset (SpeciesRecord entity). Unit of analysis is species. Real data only; every row traces to a downloaded source file."
 type: "object"
 properties:
   species_id:
@@ -9,11 +9,11 @@ properties:
   telomere_length_kb:
     type: "number"
     description: "Species‑mean telomere length in kilobases. Must be positive."
-    minimum: 0.0
+    exclusiveMinimum: 0
   lifespan_years:
     type: "number"
-    description: "Maximum lifespan in years."
-    minimum: 0.0
+    description: "Maximum recorded lifespan in years. Must be positive."
+    exclusiveMinimum: 0
   migration_status:
     type: "string"
     description: "Migration status of the species."
@@ -23,29 +23,48 @@ properties:
       - "Unknown"
   body_mass_g:
     type: "number"
-    description: "Body mass in grams."
-    minimum: 0.0
-  study_id:
-    type: "string"
-    description: "Source study identifier from Dryad."
+    description: "Body mass in grams. Must be positive."
+    exclusiveMinimum: 0
+  study_ids:
+    type: "array"
+    description: "List of Dryad DOIs contributing to this species mean."
+    items:
+      type: "string"
+      minLength: 1
+  n_obs:
+    type: "integer"
+    description: "Number of individual observations aggregated for this species (after filtering)."
+    minimum: 1
   measurement_method:
     type: "string"
-    description: "Method used to measure telomeres (TRF, qPCR, etc.)."
+    description: "Method used to measure telomeres (TRF, qPCR, Unknown)."
   age_category:
     type: "string"
-    description: "Age category of the individual (Juvenile, Adult, Unknown). Filtered to Juvenile."
+    description: "Age category; filtered to Juvenile."
+    enum:
+      - "Juvenile"
   tissue_type:
     type: "string"
-    description: "Tissue type used for measurement (Blood, Feather, etc.)."
+    description: "Tensor ? Oops! This field was originally intended to ... "
+    type: "string"
+    enum:
+      - "Blood"
+      - "Feather"
+      - "Unknown"
   provenance_source:
     type: "string"
-    description: "Source of the record (Dryad, AnAge)."
+    description: "Provenance identifier linking to the original source record."
+    minLength: 1
 required:
   - species_id
   - telomere_length_kb
   - lifespan_years
   - migration_status
   - body_mass_g
+  - study_ids
+  - n_obs
+  - measurement_method
   - age_category
   - tissue_type
+  - provenance_source
 additionalProperties: false

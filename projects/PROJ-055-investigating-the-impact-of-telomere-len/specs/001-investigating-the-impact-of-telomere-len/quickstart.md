@@ -1,98 +1,66 @@
 # Quickstart: Investigating the Impact of Telomere Length on Lifespan Variation in Wild Bird Populations
 
 ## Prerequisites
-- **Python** 3.11+ and **R** 4.3+ installed on the runner (GitHub Actions provides both).  
-- Internet access (required for API calls to Dryad, AnAge, and Open Tree of Life).  
+- Python 3.11+ and R 4.3+ (available on the GitHub Actions runner).
+- Internet access (Dryad API, AnAge export, BirdLife API, Open Tree of Life).
 - No GPU needed.
 
 ## Installation
 
 ```bash
-# Clone the repository
 git clone <repo-url>
 cd projects/PROJ-055-investigating-the-impact-of-telomere-len
-
-# Create a Python virtual environment
 python -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
-
-# Install Python dependencies
 pip install -r code/requirements.txt
+Rscript code/R/install_packages.R   # installs phylolm, ape, rotl, pwr; no renv
 ```
 
-*R packages* will be installed automatically the first time a modeling script runs; they are listed in `code/R/install_packages.R`. No `renv` environment is used, eliminating the previous verification failure.
-
 ## Configuration
-Edit `code/config.yaml` (auto‑generated on first run) to set:
+`code/config.yaml` is committed with only static settings; **the `dataset_ids` list is intentionally empty and will be populated automatically by `01_discover_data.py` at runtime**—no manual editing or placeholder comment is required.
 
 ```yaml
 dryad_api_base: "https://datadryad.org/api/v2"
-anage_url: ""
+anage_export_name: "anage_data"
+birdlife_api_url: "https://birdlife.org/api/v1/ecology"
 seed: 42
 alpha: 0.05
-# The discovery script (`01_discover_data.py`) will populate `dataset_ids` with
-# concrete Dryad DOIs it finds. Do not edit this list manually.
+dataset_ids: []   # will be filled with real DOIs by the discovery step
 ```
-
-The discovery step writes real dataset IDs into `config.yaml`; there is no placeholder list.
 
 ## Running the Full Pipeline
 
 ```bash
-# 0️⃣ Discover available datasets and perform a priori power check (may abort if under‑powered)
-python code/01_discover_data.py
-
-# 1️⃣ Ingest raw CSVs
+python code/01_discover_data.py   # discovers Dryad DOIs; halts on Data Availability Error
 python code/02_ingest_data.py
-
-# 2️⃣ Clean, standardize, and merge
 python code/03_clean_merge.py
-
-# 3️⃣ Fetch the phylogenetic tree
 python code/04_fetch_phylogeny.py
-
-# 4️⃣ Fit the base PGLS model
 python code/05_fit_pgls_base.py
-
-# 5️⃣ Fit the interaction model (may be skipped if low power)
 python code/06_fit_pgls_interaction.py
-
-# 6️⃣ Sensitivity analysis (LOOCV or jackknife)
-python code/07_sensitivity.py
-
-# 7️⃣ Generate figures
+python code/07_sensitivity.py     # LOOCV or jackknife + power report
 python code/08_visualize.py
 ```
-
-Each script prints a concise status line and writes its output under `data/`, `results/`, or `logs/`.
 
 ## Verification Steps
 
 ```bash
-# Verify checksums of all raw and processed files
 python code/utils.py --verify-checksums
 
-# Validate the merged dataset against the schema
 python -c "import pandas, yaml, jsonschema; \
 schema = yaml.safe_load(open('contracts/dataset.schema.yaml')); \
 df = pandas.read_csv('data/processed/merged_analysis.csv'); \
 jsonschema.validate(df.to_dict(orient='records'), schema)"
 ```
 
-Re‑run the entire pipeline; the SHA‑2 family hashes in `state/projects/PROJ-055...yaml` must match the previous run, confirming reproducibility (Constitution I).
+Re‑running the pipeline on unchanged inputs must reproduce identical SHA‑256 hashes (Constitution I). All values in `results/` are real measurements; a low‑species‑count run produces the `"Low Power: Phylogenetic inference unreliable"` message with null statistics — never placeholder numbers.
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Fix |
 |---------|--------------|-----|
-| `Data Availability Error` logged | No Dryad IDs or AnAge CSV reachable | The pipeline will automatically generate synthetic data (see `synthetic_data.py`). |
-| MemoryError during cleaning | Very large raw CSVs (unlikely with open data) | The cleaning script already streams with `chunksize=100_000`. |
-| R package not found | First run on a fresh runner | Run `Rscript code/R/install_packages.R` manually or re‑execute any modeling script (it will self‑install). |
-| Low Power warning (`n_species < 30`) | Insufficient overlapping species | The pipeline aborts with a clear error; consider obtaining more data or accept the synthetic fallback. |
-| Interaction model skipped | `n_species < 30` | Review `results/run_summary.yaml` for the flag `interaction_skipped_low_power`. |
-
-## Notes on Reproducibility
-- All random processes use the seed defined in `config.yaml` (default = 42).  
-- No hard‑coded URLs appear in any script; all external resources are discovered at runtime and recorded in `config.yaml`.  
-- The pipeline avoids `renv` to ensure the R environment can be verified on the CI runner (addresses previous T011 failure).
-
+| `Data Availability Error` | No usable Dryad datasets discovered, or AnAge/BirdLife export unreachable | Inspect `logs/discovery_log.json`; the pipeline halts by design — no synthetic fallback. Raise a scope revision if the source is permanently unavailable. |
+| `MemoryError` during cleaning | Very large raw CSVs | The cleaning script streams with `chunksize=100_000`. |
+| R package not found | Fresh runner | Re‑run `Rscript code/R/install_packages.R`. |
+| Low‑power message in `model_summary.csv` | n_species < 15 | Expected behavior per FR‑004; statistics are null by design. |
+| Interaction model not in output | Base model did not run (data or low‑power halt) | Check `results/run_summary.yaml`. |
+| Interaction model skipped (n < 30) | Interaction model requires ≥ 30 species for reliable λ estimation | Collect more data or note limitation. |
