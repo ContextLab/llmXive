@@ -46,7 +46,9 @@ Traceback (most recent call last):
 FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-436-assessing-the-validity-of-statistical-si/code/logs/main.log'
 
 - python -m pytest tests/ -v -> rc=2
- ???
+p._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
 <frozen importlib._bootstrap>:1176: in _find_and_load
     ???
 <frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
@@ -55,16 +57,15 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXi
     ???
 /home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
     exec(co, module.__dict__)
-tests/unit/test_simulation.py:20: in <module>
-    from simulation import simulate_missingness, permute_treatment_labels
-E   ImportError: cannot import name 'simulate_missingness' from 'simulation' (/home/runner/work/llmXive/llmXive/projects/PROJ-436-assessing-the-validity-of-statistical-si/code/simulation.py)
+tests/test_logging.py:12: in <module>
+    from code import setup_logging
+E   ImportError: cannot import name 'setup_logging' from 'code' (/home/runner/work/llmXive/llmXive/projects/PROJ-436-assessing-the-validity-of-statistical-si/code/__init__.py)
 =========================== short test summary info ============================
 ERROR tests/integration/test_us2_sensitivity.py - FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-436-assessing-the-validity-of-statistical-si/code/logs/main.log'
 ERROR tests/test_config.py
 ERROR tests/test_logging.py
-ERROR tests/unit/test_simulation.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 1.23s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 1.41s ===============================
 
 
 

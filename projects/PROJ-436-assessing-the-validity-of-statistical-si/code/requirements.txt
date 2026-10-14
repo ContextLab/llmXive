@@ -1,0 +1,15 @@
+# Project requirements
+# Core scientific stack (already provided in the environment)
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+requests
+# Additional packages required for this project
+openml
+# miceforest is required elsewhere in the pipeline but is already listed in the quickstart;
+# it is retained here for completeness.
+miceforest

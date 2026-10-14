@@ -1,11 +1,9 @@
 status: none
-intent: OpenML Python client download diabetes heart disease datasets python package
-  dataset
-required_fields:
-- treatment
-- outcome
-- covariate1
-- covariate2
-cache_key: 80f78a9e88712d17ac8bf6deb926de067229eefca59f8aa17da803b44d47eb03
-searched_at: '2026-10-14T00:35:55.572145+00:00'
+intent: '### User Story 1 - Simulate Missing Data Mechanisms and Calculate Empirical
+  Type I Error (Priority: P1) The researcher needs to generate synthetic missing data
+  patterns (MCAR, MAR, MNAR) on real RCT datasets with known ground truth (null hypothesis)
+  to calculate the empirical Type I error rate of co'
+required_fields: []
+cache_key: 225194e0235828c4d3fc946da92439bdfcb66c3e76587e27c604f6a04ea600b1
+searched_at: '2026-10-14T01:36:34.902292+00:00'
 retry_count: 1

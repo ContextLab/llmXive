@@ -4,15 +4,6 @@ Main entry point for User Story 1: Simulate Missing Data and Calculate Empirical
 This script executes a single simulation condition (mechanism, rate, method)
 for a specified number of iterations and outputs the aggregated results to
 `data/processed/us1_results.json`.
-
-It orchestrates the pipeline:
-1. Load configuration (or use defaults for the required US1 condition).
-2. Load the real RCT dataset (OpenML ID 42803) from the data loader.
-3. Run simulation iterations (Permute → Simulate MAR missingness → Complete‑Case analysis).
-4. Aggregate results to calculate the empirical Type I error rate.
-5. Save results to JSON, including per‑iteration p‑value records that conform
-   to the `p_value_distribution.schema.yaml` contract and an aggregated
-   error‑metric record that conforms to `error_metric.schema.yaml`.
 """
 
 import json
@@ -67,22 +58,15 @@ def run_single_condition_simulation(
     """
     Executes a single simulation condition defined by ``config_dict`` and
     writes the results to ``output_path``.
-
-    The function returns the full result dictionary that is also written
-    to disk.
     """
     logger.info(f"Starting US1 simulation with config: {config_dict}")
 
-    # ------------------------------------------------------------------
     # 1. Validate configuration
-    # ------------------------------------------------------------------
     config = SimulationConfig(**config_dict)
     validate_config(config)
     logger.info("Configuration validated.")
 
-    # ------------------------------------------------------------------
     # 2. Load the required dataset (42803) via the data loader
-    # ------------------------------------------------------------------
     try:
         datasets = load_datasets_for_analysis()
         if config.dataset_id not in datasets:
@@ -95,9 +79,7 @@ def run_single_condition_simulation(
         logger.error(f"Failed to load dataset: {e}")
         raise
 
-    # ------------------------------------------------------------------
     # 3. Prepare simulation parameters
-    # ------------------------------------------------------------------
     np.random.seed(config.seed)
     mechanism = config.mechanism
     missing_rate = config.missing_rate
@@ -106,9 +88,7 @@ def run_single_condition_simulation(
     treatment_col = "treatment"
     covariate_col = config.covariate_for_mar or "age"
 
-    # ------------------------------------------------------------------
     # 4. Run the Monte‑Carlo loop
-    # ------------------------------------------------------------------
     p_values: List[float] = []
     pvalue_records: List[Dict[str, Any]] = []
 
@@ -122,7 +102,8 @@ def run_single_condition_simulation(
 
         # b. Simulate MAR missingness using the observed covariate
         seed_missing = config.seed + i + 1000
-        df_missing = simulate_mar(
+        # simulate_mar returns (df, mask)
+        df_missing, _ = simulate_mar(
             df_permuted,
             rate=missing_rate,
             seed=seed_missing,
@@ -139,7 +120,7 @@ def run_single_condition_simulation(
             p_val = float(analysis_res.get("p_value", 1.0))
         except Exception as exc:
             logger.warning(f"Iteration {i} failed during analysis: {exc}")
-            p_val = 1.0  # Treat failure as non‑significant
+            p_val = 1.0
 
         p_values.append(p_val)
 
@@ -160,9 +141,7 @@ def run_single_condition_simulation(
     if not p_values:
         raise RuntimeError("No p‑values were generated; all iterations failed.")
 
-    # ------------------------------------------------------------------
     # 5. Aggregate results (error‑metric)
-    # ------------------------------------------------------------------
     dataset_info = {
         "id": config.dataset_id,
         "shape": list(df.shape),
@@ -176,9 +155,7 @@ def run_single_condition_simulation(
         method=config.analysis_method,
     )
 
-    # ------------------------------------------------------------------
     # 6. Assemble final JSON structure
-    # ------------------------------------------------------------------
     final_results = {
         "p_value_distribution": pvalue_records,
         "error_metric": agg_results,
@@ -189,9 +166,7 @@ def run_single_condition_simulation(
         },
     }
 
-    # ------------------------------------------------------------------
     # 7. Write results to disk
-    # ------------------------------------------------------------------
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     with output_file.open("w", encoding="utf-8") as f:
@@ -203,13 +178,8 @@ def run_single_condition_simulation(
 def main() -> None:
     """
     Entry point for the script.
-    Reads configuration from environment variables if provided,
-    otherwise falls back to the required default configuration.
     """
-    # Output location – can be overridden via env var
     output_path = os.getenv("US1_OUTPUT_PATH", "data/processed/us1_results.json")
-
-    # Load configuration overrides from a JSON file if supplied
     config_path = os.getenv("US1_CONFIG_FILE")
     if config_path and Path(config_path).exists():
         logger.info(f"Loading configuration from {config_path}")
@@ -219,7 +189,6 @@ def main() -> None:
         logger.info("Using default US1 configuration (required condition).")
         config_dict = DEFAULT_CONFIG.copy()
 
-    # Allow selective overrides via individual environment variables
     env_to_cfg = [
         ("SIMULATION_DATASET_ID", "dataset_id", int),
         ("SIMULATION_MECHANISM", "mechanism", str),
@@ -236,7 +205,6 @@ def main() -> None:
 
     try:
         results = run_single_condition_simulation(config_dict, output_path)
-        # Print results to stdout for convenience (not required for verification)
         print(json.dumps(results, indent=2, default=str))
     except Exception as exc:
         logger.exception(f"US1 simulation failed: {exc}")

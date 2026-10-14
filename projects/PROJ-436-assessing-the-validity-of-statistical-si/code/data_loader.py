@@ -8,7 +8,8 @@ dataset raises an exception and aborts the loading process. Datasets with
 fewer than 100 rows are skipped (logged) as per the specification.
 If a dataset’s outcome column is fully observed, a synthetic outcome is
 generated that preserves a Pearson correlation of approximately 0.3 (±0.05)
-with the covariates, and this action is logged.
+with the covariates before missingness simulation, and this action is
+logged.
 """
 
 import hashlib
@@ -116,9 +117,9 @@ def get_openml_dataset(dataset_id: int) -> openml.datasets.OpenMLDataset:
     """
     try:
         logger.info(f"Fetching dataset {dataset_id} from OpenML...")
-        # ``download_data=False`` forces OpenML to keep the raw files cached;
-        # ``get_data`` will handle conversion using pandas (requires pyarrow for parquet).
-        dataset = openml.datasets.get_dataset(dataset_id, download_data=False)
+        # ``download_data=True`` forces OpenML to download the data files
+        # and makes ``dataset.get_data`` work without requiring a parquet engine.
+        dataset = openml.datasets.get_dataset(dataset_id, download_data=True)
         logger.info(
             f"Successfully retrieved dataset: {dataset.name} (ID: {dataset_id})"
         )
