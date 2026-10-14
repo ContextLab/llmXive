@@ -5,21 +5,21 @@ type: "object"
 properties:
   k_est:
     type: "number"
-    description: "Estimated stiffness proxy (ratio of torque derivative to velocity derivative)."
+    description: "Estimated dynamic resistance proxy (ratio of torque derivative to velocity derivative)."
     minimum: 0.0
-    maximum: 1000.0
     exclusiveMinimum: true
+    maximum: 10.0
   filter_applied:
     type: "boolean"
-    description: "Indicates if the moving average filter (window=5) was applied."
+    description: "Indicates whether the moving‑average filter (window=5) was applied."
     const: true
   epsilon_clamped:
     type: "boolean"
-    description: "Indicates if the denominator was clamped to epsilon (1e-4) due to stiction."
-    const: false
+    description: "True if the denominator was clamped to epsilon (1e‑4) due to near‑zero object velocity."
+    const: true
   is_valid:
     type: "boolean"
-    description: "True if k_est is finite and within bounds."
+    description: "True if `k_est` is finite and within the clamped bounds."
     const: true
 required:
   - k_est

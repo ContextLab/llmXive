@@ -1,72 +1,75 @@
 # Quickstart: Virtual Tactile Zero-Shot Adaptation
 
 ## Prerequisites
-
-- Python 3.11+
-- pip
-- A standard GitHub Actions runner (or local machine with sufficient RAM).
+- Python 3.11 or newer  
+- `git`  
+- Internet access (to download the DragMesh‑2 manifest)  
+- A machine (or GitHub Actions runner) with at least **multiple CPU cores** and **7 GB RAM**  
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-    ```bash
-    cd projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p
-    ```
+```bash
+# 1. Clone the repository
+git clone 
+cd llmxive-follow-up-extending-dragmesh-2-p
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins `pybullet`, `torch` (CPU version), `numpy`, `pandas`, `scipy`, and `pytest`.*
+# 3. Install pinned dependencies (CPU‑only PyTorch)
+pip install -r requirements.txt
+```
 
-## Running the Experiment
-
-Execute the full pipeline (generation, training, inference, analysis):
+## Running the Full Experiment
 
 ```bash
-python code/main.py --mode full
+python code/main.py --mode full \
+    --num_objects 10 \
+    --seed 42
 ```
 
 ### Arguments
+| Argument | Default | Description |
+|---|---|---|
+| `--mode` | `full` | `full`, `generate`, `train`, `analyze` |
+| `--num_objects` | `10` | Number of novel objects to generate (must be ≥ 10). |
+| `--seed` | `fixed` | Random seed for reproducibility (pinned for all runs). |
 
-- `--mode`: `full` (default), `generate`, `train`, `analyze`.
-- `--num_objects`: Number of novel objects to generate (default: 50).
-- `--seed`: Random seed for reproducibility (default: 42).
+### Expected Outputs
+- **Generated objects**: `data/generated/novel_objects/` (JSON files).  
+- **Simulation logs**: `data/logs/simulation_run_*.csv`.  
+- **Summary report**: `data/logs/experiment_summary.json`.  
 
-### Expected Output
-
-1.  **Generated Objects**: `data/generated/novel_objects/`
-2.  **Simulation Logs**: `data/logs/simulation_run_*.csv`
-3.  **Summary Report**: `data/logs/experiment_summary.json`
-
-## Verifying Results
-
-To verify the core hypothesis of significant improvement:
+## Verifying Core Hypotheses
 
 ```bash
+# 1. Run the statistical analysis (GLMM + paired t‑test)
 python code/analysis/statistical_test.py --input data/logs/
 ```
 
-**Success Criteria**:
-- The output should show `improvement_pct >= 15.0`.
-- The `p_value` should be `< 0.05`.
+The script prints:
+- **Improvement %** (should be ≥ 15 % for PASS).  
+- **GLMM p‑value** (must be `< 0.05`).  
+- **Paired t‑test p‑value** (must be `< 0.05` per Constitution Principle VII).  
+- **Pearson r** from the correlation experiment (must be ≥ 0.8).  
+
+If any metric fails, the script exits with a non‑zero status and prints a helpful message.
 
 ## Troubleshooting
 
-- **OOM Error**: If you encounter `MemoryError`, reduce `--num_objects` to a lower value.
-- **CUDA Error**: If you see `CUDA out of memory` or similar, ensure you are using the CPU-only version of PyTorch (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-- **Simulation Instability**: If the simulation crashes, check the friction coefficients in `data/generated/novel_objects/` for extreme values.
+| Symptom | Likely Cause | Fix |
+|---|---|---|
+| `MemoryError` or OOM | Too many objects or too long episodes | Reduce `--num_objects` or add `--max_steps` flag (default 500). |
+| `CUDA`‑related error | Accidentally installed GPU PyTorch | Re‑install with CPU‑only: `pip uninstall torch && pip install torch --index-url https://download.pytorch.org/whl/cpu` |
+| Simulation diverges (exploding forces) | Extreme friction values | Ensure friction coefficients are within `[0.0, 2.0]`; the estimator clamps `k_norm`. |
+| GLMM fails to converge | Insufficient data | Increase `--num_objects` (up to 20) – the pipeline will stay within the allocated time budget. |
+| Paired t‑test not significant | Low power | See the power‑analysis note in the plan; run with more objects. |
 
-## Re-running with New Data
-
-To re-run the experiment with a fresh set of objects:
+## Re‑running with New Random Seeds
 
 ```bash
-python code/main.py --mode full --seed $(date +%s)
+python code/main.py --mode full --seed $RANDOM
 ```
+
+Each run is fully reproducible given the seed; the checksum of all generated files will differ, and the new hashes are recorded automatically.
