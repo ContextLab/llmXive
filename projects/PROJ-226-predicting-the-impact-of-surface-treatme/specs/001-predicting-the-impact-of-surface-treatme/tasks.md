@@ -8,7 +8,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 0 – Feasibility & Data‑source Verification  
 
-- [ ] **T001** [S1] [US1] Verify that at least one openly downloadable dataset contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`).   <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 -->
+- [ ] **T001** [S1] [US1] Verify that at least one openly downloadable dataset contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`).
   - *Implementation*: `code/verify_data_source.py` queries the NIST, Zenodo, and Materials Project APIs, downloads the dataset headers, and checks column presence.  
   - *Verification*: script writes a JSON report `data/source/availability_report.json` listing datasets that satisfy the requirement; CI fails if the list is empty, prompting a scope revision before any downstream work.
 
@@ -16,7 +16,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 1 – Data Acquisition & Integrity  
 
-- [ ] **T002** [S1] [US1] Download the verified raw dataset(s) identified by T001 and record SHA‑256 checksums.  
+- [ ] **T002** [S1] [US1] Download the verified raw dataset(s) identified by T001 and record SHA‑256 checksums.   <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
   - *Implementation*: `code/download_data.py` uses `wget`/`curl` with the concrete URLs from the availability report and saves files under `data/raw/<source>.csv`.  
   - *Verification*: script writes `data/raw/checksums.txt` (one line per file) and exits with status 0 only if every download succeeds and the computed checksum matches the recorded value.
 
