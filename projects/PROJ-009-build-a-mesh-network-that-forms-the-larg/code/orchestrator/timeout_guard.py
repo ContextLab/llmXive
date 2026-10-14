@@ -1,11 +1,12 @@
 """
 Timeout enforcement module for the entire pipeline.
-Implements T009.
+Implements FR‑007 (hard CI timeout) and provides utilities used by
+the benchmark and scheduler.
 """
 import signal
 import time
 from datetime import datetime, timezone
-from typing import Callable, Any, Optional, TypeVar
+from typing import Callable, Any, TypeVar
 from functools import wraps
 import threading
 
@@ -20,10 +21,17 @@ class PipelineTimeoutError(Exception):
 
 T = TypeVar('T')
 
-def enforce_pipeline_timeout(timeout_seconds: int):
+def enforce_pipeline_timeout(timeout_seconds: int = None):
     """
     Decorator to enforce a hard timeout for the pipeline.
+
+    If ``timeout_seconds`` is omitted the CI timeout configured in
+    ``orchestrator.config.Config`` is used.
     """
+    if timeout_seconds is None:
+        # Fallback to the global CI timeout
+        timeout_seconds = get_config().ci_timeout_seconds
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @wraps(func)
         def wrapper(*args, **kwargs) -> T:
@@ -51,7 +59,7 @@ def enforce_pipeline_timeout(timeout_seconds: int):
 def run_with_timeout(func: Callable[..., T], timeout: int, *args, **kwargs) -> T:
     """
     Run a function with a timeout using a background thread.
-    Raises PipelineTimeoutError if the function does not complete in time.
+    Raises ``PipelineTimeoutError`` if the function does not complete in time.
     """
     result_container: dict = {}
     exception_container: dict = {}
@@ -70,7 +78,6 @@ def run_with_timeout(func: Callable[..., T], timeout: int, *args, **kwargs) -> T
         raise PipelineTimeoutError(f"Function {func.__name__} timed out after {timeout} seconds")
 
     if 'exception' in exception_container:
-        # Re‑raise the original exception
         raise exception_container['exception']
 
     return result_container.get('result')
@@ -90,7 +97,7 @@ def check_budget_remaining(start_time: datetime, required_seconds: int) -> bool:
     """
     Check whether there is enough remaining budget for an operation that needs
     ``required_seconds`` seconds.
-    Returns True if sufficient budget remains, False otherwise.
+    Returns ``True`` if sufficient budget remains, ``False`` otherwise.
     """
     remaining = calculate_remaining_budget(start_time)
     enough = remaining >= required_seconds

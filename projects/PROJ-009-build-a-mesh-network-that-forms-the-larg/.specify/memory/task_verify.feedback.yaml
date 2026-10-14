@@ -1,12 +1,10 @@
 T001:
-  reason: "Key gaps: (1) `code/.gitignore` with the required entries (`data/raw/*.log`,\
-    \ `__pycache__/`, `*.pyc`, `.env`) is not present in the collected evidence \u2014\
-    \ no artifact confirms it exists; (2) `code/orchestrator/logger.py` contains a\
-    \ real bug \u2014 `heartbeat()` calls `datetime.now(timezone.utc)` but `datetime`/`timezone`\
-    \ are never imported, so that function raises `NameError`; (3) `timeout_guard.py`\
-    \ imports `from orchestrator.logger import ...`, which is inconsistent with the\
-    \ `code.orchestrator` package layout and would fail under `python -m code.orchestrator.cli`;\
-    \ (4) there is no execution evidence"
+  reason: Checked the project layout, config loader, mock node generator, logger,
+    models, timeout guard, and quickstart documentation. The `data/results/` directory
+    is missing, the data directories lack required `__init__.py` files, there is no
+    `code/.gitignore`, and no execution evidence shows that `pytest code/tests/contract/`
+    actually passes. These missing/incorrect artifacts must be added and contract
+    tests verified for the task to be complete.
   task: dc37f9d721b2ecda461e709079232cf81d928d17a7aae55199c64bcb2abe4877
 T002:
   reason: "The module exists and implements most required functions, but the required\

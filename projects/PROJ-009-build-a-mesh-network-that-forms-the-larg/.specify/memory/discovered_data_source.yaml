@@ -1,11 +1,17 @@
 status: none
-intent: Google Cluster Trace dataset task execution logs python package dataset
+intent: download real execution log dataset for heterogeneous device scheduling python
+  package dataset
 required_fields:
 - node_id
+- task_chunk_id
 - timestamp
 - wall_clock_time
 - packet_count
-- cpu_utilization
-cache_key: cafa952376b5b5ec936caed91fd217fcce19a138145b7d61e952c53176478655
-searched_at: '2026-10-14T20:13:16.004457+00:00'
+- cpu_utilization_percent
+- memory_usage_mb
+- heartbeat_status
+- reassignment_timestamp
+- error_code
+cache_key: 5e21636b5decaf91939f570d50653b2255dfd974bdbac3b007f759048c8dac4a
+searched_at: '2026-10-14T23:19:26.883486+00:00'
 retry_count: 1

@@ -2,6 +2,7 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional, Dict, Any
+from datetime import datetime, timezone
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'

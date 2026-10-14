@@ -1,8 +1,8 @@
 """
 Configuration manager for the mesh network supercomputer.
-Provides both the original Config dataclass (used by runtime code) and
-a ConfigManager class (used by unit tests) together with a simple
-ConfigError exception and convenience loader.
+Provides both the original ``Config`` dataclass (used by runtime code) and
+a test‑oriented ``ConfigManager`` class (used by unit tests) together with
+a simple ``ConfigError`` exception and convenience loader.
 """
 import os
 import yaml
@@ -217,3 +217,21 @@ class ConfigManager:
 def load_config(config_path: str) -> ConfigManager:
     """Convenient function used by tests."""
     return ConfigManager(config_path)
+
+# ----------------------------------------------------------------------
+# Additional simple data‑classes used directly by unit tests
+# ----------------------------------------------------------------------
+@dataclass
+class GranularityConfig:
+    """Simple container for granularity values used in the test suite."""
+    fine: int
+    medium: int
+    coarse: int
+
+@dataclass
+class NetworkConfig:
+    """Container for network‑related test parameters."""
+    base_latency_ms: float
+    packet_loss_rate: float
+    bandwidth_mbps: float
+    snr_db: float

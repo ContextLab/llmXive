@@ -1,1 +1,1 @@
-"""Simulation package initialization."""
+"""Package marker for the simulation sub‑module."""

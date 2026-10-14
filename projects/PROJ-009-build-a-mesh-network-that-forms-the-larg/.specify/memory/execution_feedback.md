@@ -15,42 +15,33 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/orchestrator/scheduler.py --config config.yaml --granularity fine --nodes 15 --latency 100 -> rc=1
 
-2026-10-14 20:12:01,919 WARNING __main__: Config file 'config.yaml' not found – using minimal defaults.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 560, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 506, in main
-    all_nodes = _build_physical_nodes(cfg)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 464, in _build_physical_nodes
-    PhysicalNode(
-TypeError: PhysicalNode.__init__() got an unexpected keyword argument 'cpu_speed_mhz'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 34, in <module>
+    from orchestrator.models import PhysicalNode, TaskChunk, TaskStatus
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 12, in <module>
+    from pydantic import BaseModel, Field, validator, root_validator
+ModuleNotFoundError: No module named 'pydantic'
 
 - python code/orchestrator/scheduler.py --config config.yaml --sweep -> rc=1
 
-2026-10-14 20:12:01,984 WARNING __main__: Config file 'config.yaml' not found – using minimal defaults.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 560, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 506, in main
-    all_nodes = _build_physical_nodes(cfg)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 464, in _build_physical_nodes
-    PhysicalNode(
-TypeError: PhysicalNode.__init__() got an unexpected keyword argument 'cpu_speed_mhz'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 34, in <module>
+    from orchestrator.models import PhysicalNode, TaskChunk, TaskStatus
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 12, in <module>
+    from pydantic import BaseModel, Field, validator, root_validator
+ModuleNotFoundError: No module named 'pydantic'
 
 - python code/analysis/theoretical_bound.py --config config.yaml --input data/processed/regression_model.json -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/analysis/theoretical_bound.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/unit/ -v -> rc=2
-, NetworkConfig, load_config
-E   ImportError: cannot import name 'GranularityConfig' from 'orchestrator.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/config.py)
+tor.logger import get_logger, init_logger
+E   ImportError: cannot import name 'init_logger' from 'orchestrator.logger' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/logger.py)
 =========================== short test summary info ============================
-ERROR tests/unit/test_benchmark.py - TypeError: enforce_pipeline_timeout() missing 1 required positional argument: 'timeout_seconds'
 ERROR tests/unit/test_data_aggregator.py
+ERROR tests/unit/test_heartbeat_monitoring.py
+ERROR tests/unit/test_instrumentor_remote.py
 ERROR tests/unit/test_logger.py
 ERROR tests/unit/test_models.py
 ERROR tests/unit/test_monte_carlo.py
@@ -59,15 +50,17 @@ ERROR tests/unit/test_overhead.py
 ERROR tests/unit/test_remote_tool_checker.py
 ERROR tests/unit/test_remote_tools_manager.py - AttributeError: module 'os' has no attribute 'dirname'
 ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
+ERROR tests/unit/test_scheduler.py
 ERROR tests/unit/test_scheduler_execution.py
 ERROR tests/unit/test_scheduler_straggler.py
 ERROR tests/unit/test_sweep_runner.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 13 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 13 errors in 1.11s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 15 errors in 1.23s ==============================
 
 
 - python -m pytest tests/contract/ -v -> rc=2
-dtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+(module_name)
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
 <frozen importlib._bootstrap>:1204: in _gcd_import
     ???
@@ -79,13 +72,16 @@ dtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in impor
     ???
 /home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
     exec(co, module.__dict__)
-tests/contract/test_execution_run.py:12: in <module>
-    from orchestrator.models import ExecutionRun, PhysicalNode, TaskChunk, ExecutionStatus, NodeStatus, TaskStatus
-E   ImportError: cannot import name 'ExecutionStatus' from 'orchestrator.models' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py)
+tests/contract/test_execution_run_schema.py:19: in <module>
+    from orchestrator.models import ExecutionRun, NodeStatus, TaskStatus
+code/orchestrator/models.py:12: in <module>
+    from pydantic import BaseModel, Field, validator, root_validator
+E   ModuleNotFoundError: No module named 'pydantic'
 =========================== short test summary info ============================
 ERROR tests/contract/test_execution_run.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.16s ===============================
+ERROR tests/contract/test_execution_run_schema.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 0.21s ===============================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4

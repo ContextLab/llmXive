@@ -1,90 +1,116 @@
 """
-Data model classes for PhysicalNode, TaskChunk, and ExecutionRun.
+Pydantic data‑model definitions for the core entities used throughout the
+project.  The test‑suite expects these models to raise ``pydantic.ValidationError``
+on invalid input, therefore we implement them as ``BaseModel`` subclasses.
 """
-from dataclasses import dataclass, field
-from datetime import datetime
-from enum import Enum
-from typing import Any, Dict, Optional
+from __future__ import annotations
 
-class NodeStatus(Enum):
-    ONLINE = "online"
-    OFFLINE = "offline"
+from datetime import datetime
+from typing import List, Dict, Any, Optional
+
+from enum import Enum
+from pydantic import BaseModel, Field, validator, root_validator
+
+# ----------------------------------------------------------------------
+# Enum definitions
+# ----------------------------------------------------------------------
+class NodeStatus(str, Enum):
+    IDLE = "idle"
     BUSY = "busy"
+    OFFLINE = "offline"
     ERROR = "error"
 
-class TaskStatus(Enum):
+class TaskStatus(str, Enum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
 
-@dataclass
-class PhysicalNode:
-    ip: str = field(default_factory=str)
-    status: str = "active"
-    ram_mb: int = 4096
+class ExecutionStatus(str, Enum):
+    PLANNED = "planned"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
 
-    # Additional optional metadata retained from the original design
-    id: Optional[str] = None
-    hostname: Optional[str] = None
-    ip_address: Optional[str] = None
-    node_status: NodeStatus = NodeStatus.ONLINE
-    available_memory_mb: Optional[int] = None
-    cpu_cores: Optional[int] = None
-    last_heartbeat: Optional[datetime] = None
+# ----------------------------------------------------------------------
+# Core models
+# ----------------------------------------------------------------------
+class PhysicalNode(BaseModel):
+    node_id: str = Field(..., description="Unique identifier for the node")
+    hostname: str = Field(..., description="IP address or resolvable host name")
+    username: str = Field(..., description="User used for SSH connections")
+    hardware_spec: Dict[str, Any] = Field(..., description="Arbitrary hardware description")
+    port: int = Field(22, ge=1, le=65535, description="SSH port")
+    status: NodeStatus = Field(NodeStatus.IDLE, description="Current node status")
+    latency_ms: float = Field(0.0, ge=0.0, description="Measured network latency")
+    bandwidth_mbps: float = Field(0.0, ge=0.0, description="Measured bandwidth")
 
-    def __post_init__(self) -> None:
-        if not self.ip_address:
-            self.ip_address = self.ip
-        if not self.available_memory_mb:
-            self.available_memory_mb = self.ram_mb
-        if not self.hostname:
-            self.hostname = self.ip
+    @validator('hardware_spec')
+    def hardware_spec_must_be_dict(cls, v):
+        if not isinstance(v, dict):
+            raise ValueError('hardware_spec must be a dict')
+        return v
 
-@dataclass
-class TaskChunk:
-    id: str = field(default_factory=str)
-    size_mb: float = 0.0
-    iterations: int = 0
-    data: Any = None
+class TaskChunk(BaseModel):
+    chunk_id: str = Field(..., description="Unique identifier for the chunk")
+    task_type: str = Field(..., description="Type of task, e.g. 'monte_carlo'")
+    payload: Dict[str, Any] = Field(..., description="Parameters for the task")
+    expected_duration_sec: float = Field(..., gt=0, description="Estimated runtime in seconds")
 
-    # Optional fields from the original implementation
-    payload: Any = None
-    required_memory_mb: int = 512
-    expected_duration: float = 10.0
-    status: TaskStatus = TaskStatus.PENDING
+    @validator('payload')
+    def payload_must_be_dict(cls, v):
+        if not isinstance(v, dict):
+            raise ValueError('payload must be a dict')
+        return v
+
+class ExecutionRun(BaseModel):
+    run_id: str = Field(..., description="Unique identifier for the execution run")
+    node_ids: List[str] = Field(..., min_items=1, description="List of participating node IDs")
+    task_chunks: List[TaskChunk] = Field(default_factory=list, description="Chunks assigned in this run")
+    config_snapshot: Dict[str, Any] = Field(default_factory=dict, description="Copy of the configuration used")
+    status: ExecutionStatus = Field(ExecutionStatus.PLANNED, description="Overall run status")
     start_time: Optional[datetime] = None
-    node_id: Optional[str] = None
+    end_time: Optional[datetime] = None
+    coordination_overhead_ratio: Optional[float] = Field(
+        None, ge=0.0, le=1.0,
+        description="Ratio of coordination overhead to total execution time"
+    )
 
-    # Fields used by the recursive split logic
-    start_idx: int = 0
-    end_idx: int = 0
+    @root_validator
+    def check_node_ids_unique(cls, values):
+        node_ids = values.get('node_ids') or []
+        if len(set(node_ids)) != len(node_ids):
+            raise ValueError('duplicate node IDs are not allowed')
+        return values
 
-    def __post_init__(self) -> None:
-        if self.end_idx == 0 and self.iterations:
-            self.end_idx = self.iterations
+    @root_validator
+    def check_chunk_ids_unique(cls, values):
+        chunks = values.get('task_chunks') or []
+        ids = [c.chunk_id for c in chunks]
+        if len(set(ids)) != len(ids):
+            raise ValueError('duplicate chunk IDs are not allowed')
+        return values
 
-@dataclass
-class ExecutionRun:
-    id: str
-    timestamp: datetime
-    node_count: int
-    granularity: str
-    injected_latency_ms: float
-    packet_loss_rate: float
-    throughput_ops: float
-    latency_ms: float
-    status: TaskStatus = TaskStatus.COMPLETED
+    @root_validator
+    def check_time_consistency(cls, values):
+        start, end = values.get('start_time'), values.get('end_time')
+        if start and end and end < start:
+            raise ValueError('end_time cannot be before start_time')
+        if values.get('status') == ExecutionStatus.COMPLETED:
+            if not end:
+                raise ValueError('completed runs must have an end_time')
+        return values
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "id": self.id,
-            "timestamp": self.timestamp.isoformat(),
-            "node_count": self.node_count,
-            "granularity": self.granularity,
-            "injected_latency_ms": self.injected_latency_ms,
-            "packet_loss_rate": self.packet_loss_rate,
-            "throughput_ops": self.throughput_ops,
-            "latency_ms": self.latency_ms,
-            "status": self.status.value,
-        }
+    @property
+    def total_wall_clock_time_sec(self) -> Optional[float]:
+        if self.start_time and self.end_time:
+            return (self.end_time - self.start_time).total_seconds()
+        return None
+
+    def model_dump(self, **kwargs):
+        """Compatibility wrapper – Pydantic v2 uses ``model_dump``."""
+        return super().model_dump(**kwargs)
+
+    def model_dump_json(self, **kwargs):
+        """Compatibility wrapper for JSON serialisation."""
+        return super().model_dump_json(**kwargs)

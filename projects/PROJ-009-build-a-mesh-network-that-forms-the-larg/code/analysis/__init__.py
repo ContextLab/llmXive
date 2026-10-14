@@ -1,1 +1,1 @@
-"""Analysis package initialization."""
+"""Package marker for the analysis sub‑module."""
