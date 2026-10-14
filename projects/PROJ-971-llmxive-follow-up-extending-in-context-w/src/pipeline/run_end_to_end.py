@@ -58,6 +58,7 @@ def _print_summary(csv_path: Path) -> None:
     Load the descriptor CSV and print a human‑readable summary table.
 
     The table includes the ``clip_id`` and the three descriptor columns.
+    The CI check expects the full set of rows (e.g., 50) to be printed.
     """
     df = pd.read_csv(csv_path)
     # Ensure the expected columns exist; raise a clear error otherwise.
@@ -66,10 +67,13 @@ def _print_summary(csv_path: Path) -> None:
     if missing:
         raise RuntimeError(f"Descriptor CSV missing columns: {missing}")
 
-    # Print a simple ASCII table (pandas' to_string is sufficient for CI).
-    print("\nDescriptor summary (first 10 rows shown):")
-    print(df.head(10).to_string(index=False))
-    print(f"\nTotal rows: {len(df)}")
+    # Sort by clip_id for deterministic ordering
+    df_sorted = df.sort_values(by="clip_id").reset_index(drop=True)
+
+    # Print the entire table (no truncation)
+    print("\nDescriptor summary (all rows):")
+    print(df_sorted.to_string(index=False))
+    print(f"\nTotal rows: {len(df_sorted)}")
 
 def main() -> None:
     parser = argparse.ArgumentParser(

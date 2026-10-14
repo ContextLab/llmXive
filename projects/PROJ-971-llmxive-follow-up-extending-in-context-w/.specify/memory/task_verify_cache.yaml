@@ -1,51 +1,53 @@
 T001:
   c: true
-  h: add4f3ff107af9bbadfe6580a3ba147eee37138dd955aab35b909bdf3f166805
-  r: "Checked the `quickstart.md` (which documents the required single command) and\
-    \ the generated `data/descriptors_subset.csv` (contains the correct columns and\
-    \ 50 rows). The CI log shows `bash -c \"source quickstart.sh && ./run_minimal.sh\"\
-    ` exited with code\u202F0 and the CSV file was created, confirming the command\
-    \ runs successfully."
-  sig: ddf1b17b07e34837f15f90d87ada8cbcd1cfd71842c11bbaefe8cd1863c96cb4
+  h: ca26b99417c2f5d1a0f38a5d6c1dec00d8ead5a842056ef0082f8fa6b97abbd1
+  r: "Checked `quickstart.md` (describes the required single command), the generated\
+    \ `data/descriptors_subset.csv` (contains the correct columns and 50 rows), and\
+    \ the CI log `code/.tasks/T001.run_minimal.sh.log` (shows `run_minimal.sh` executed\
+    \ with exit\u202F0 and confirms the CSV file was created)."
+  sig: 01149df408a9df8439140a1c021a462ff3ac73ccd3c465c930684517bf6f8656
 T002:
   c: true
-  h: 482825ed136156e30160f809192a685ed93901b143ee778d09757ced8e210c30
-  r: Checked `src/pipeline/generate_clips.py` (exists and implements deterministic
-    clip generation), the `data/raw/` directory containing exactly 50 `clip_*.npz`
-    files, and the passing unit test `tests/unit/test_generate_clips.py` which verifies
-    each `.npz` includes the required `states`, `actions`, and `observations` arrays.
-  sig: db785658b08030b19396f7b5afc2422332fd60374ff4d02e19cc88052eaa42c7
+  h: 2b3cdd3456d6838e9cab68fb489f0bab464c79552a09bc1c42ffdeca51d36b0d
+  r: Checked `src/pipeline/generate_clips.py` (implements deterministic clip generation),
+    the `data/raw/` directory containing exactly 50 `.npz` files, and the passing
+    unit test `test_fifty_clips_with_required_arrays` which verifies each file includes
+    the required `states`, `actions`, and `observations` arrays.
+  sig: 629f760af68ecd485bb09e087f7a3e46fc33a687796e5677ef178d263b13b3ee
 T004:
-  c: false
-  h: 49165178213bee0c2831712eb734b300a0ae008042dd3e5fdf9f7e4f65543877
-  r: "The `src/pipeline/run_end_to_end.py` driver exists and calls the two pipeline\
-    \ stages, but its `_print_summary` function only prints the first\u202F10 rows\
-    \ of the descriptor CSV (`df.head(10)`). The task\u2019s verification expects\
-    \ the printed table to list **all 50 rows** with the three descriptor columns,\
-    \ which this script does not provide. The driver must be adjusted to output the\
-    \ full 50\u2011row table (or otherwise satisfy the CI check)."
-  sig: bd5b4eb3f62b583d103c26c5cbaa05e645a3a883971bc75371d1636a1437a81b
+  c: true
+  h: c5e799db91fd97c45a4f8355459417c3baa81f984881aafab5ff8d71c406a663
+  r: Checked the presence and content of `src/pipeline/run_end_to_end.py`, which correctly
+    orchestrates clip generation and descriptor extraction and prints a table with
+    the required columns. Verified the execution log `code/.tasks/T004.code_run_minimal.sh.log`
+    showing the script run with `--subset 50` and outputting 50 rows containing `clip_id`,
+    `variance`, `autocorr_lag1`, and `spectral_density`.
+  sig: e5c06c93c1d2fbffe715c1b96e9bed5f2982a4c908f784938e4af30e92450d58
 T005:
   c: false
-  h: c9b7d90ee6a5a9849d1ca1be7df1d2b48cdc60b898998f848413009eeb6f6fa6
-  r: "The script and `data/labels.csv` exist and ran, but the \"ICWM policy\" is a\
-    \ fabricated stand-in (a static tanh projection of SVD latents with Gaussian noise),\
-    \ and the resulting grid search is degenerate: every clip and every (\u03C4, k)\
-    \ pair yields success_rate 0.0, so all 12 grid points tie and the \"optimal\"\
-    \ selection is meaningless \u2014 the labels carry no real signal. Additionally,\
-    \ the verification requirement cannot be met because `label.schema.yaml` is MISSING\
-    \ from the project, so `labels.csv` cannot validate against it (the passing test\
-    \ log is not credible evidence of schema validation without th"
-  sig: e3dfd390bd059e3b19b8428afbbdcb850c4ea07f66b65b51a77a02c478ed22d5
+  h: 803a33f14d7745c4e982b53c8e889344a02149f0100832d5d93d1c1c1fb35623
+  r: "The grid\u2011search script and the generated `data/labels.csv` exist and contain\
+    \ valid success rates, but the required `label.schema.yaml` file is missing, causing\
+    \ the contract test that validates the CSV against the schema to fail. Add the\
+    \ schema file (and ensure the CSV conforms to it) to satisfy the task."
+  sig: d25e5c4a09a77d45e17cdf8ca507ac5f525efed035c78afed416d05e3d77f941
 T006:
   c: false
-  h: e41f714a4b37aa2fa304b0e4f276b697570bf1f40ef99b6ee687d148d6786f82
-  r: "The script exists and runs, but the verification criterion fails: `data/metrics.json`\
-    \ reports `val_mse = 0.0109` vs `baseline_mse = 0.0` with `meets_sc006: false`\
-    \ \u2014 the required `val_mse < 0.9 * baseline_mse` (\u226510% improvement) is\
-    \ not met. The underlying labels are degenerate (all tau = 0.5, single k value,\
-    \ only 10 clips), so the baseline MSE is zero and the criterion is unsatisfiable\
-    \ with the current data; the implementer must fix the labels/data (non-degenerate\
-    \ tau from grid search) or the pipeline so the regressor genuinely beats the global-mean-tau\
-    \ baseline."
-  sig: fe717e2807da37ad62301a5b618bdc45f65b6da73b8e1f134c48a5f60760bcec
+  h: 681c1f065b8659acd08b82312751ea230076ee366fb07eff61bf88cf6d02fca3
+  r: "The provided `src/pipeline/train_regressor.py` runs and produces `data/metrics.json`,\
+    \ but the JSON shows `val_mse = 0.5199` and `baseline_mse = 0.2539`, so `val_mse\
+    \ < 0.9 * baseline_mse` is false (`meets_sc006: false`). The unit test also fails\
+    \ on this condition. Moreover, the split is stratified by `tau` instead of the\
+    \ required `k`. The task\u2019s verification condition is not satisfied."
+  sig: 8bcd1e3f5d4b0dda6a206ef2d3a5893b7a744a7c59d0617121feef22e3719beb
+T007:
+  c: false
+  h: 51704dce6718c6494e59f25af761785b34bf930f91f940b4fae57a75f0f7fb20
+  r: "The provided `src/pipeline/compute_complexity.py` does not parse scene description\
+    \ files to count distinct sub\u2011goals as required; it fabricates sub\u2011\
+    goal counts from the variance descriptor. Moreover, the unit tests fail (missing\
+    \ expected \u201Cp =\u201D line in the temporary correlation output), indicating\
+    \ the script\u2019s output does not fully meet the specification. The task needs\
+    \ a genuine scene\u2011description parser and corrected correlation\u2011file\
+    \ writing to satisfy the requirements."
+  sig: 508527188480c7b6db40c529b9555e2b7278e2de843920befad5e9ffe2afa2d6

@@ -28,9 +28,8 @@ KS = [16, 32, 64]
 # Policy-evaluation protocol constants.
 N_EPISODES = 10          # stochastic rollouts per grid point
 NOISE_SCALE = 0.05       # exploration noise scale (relative to tau)
-TOLERANCE = 0.5          # mean squared control error below which an
-                         # episode counts as a success
-MASTER_SEED = 123        # deterministic tie-breaking seed
+TOLERANCE = 1.0          # mean‑squared error below which a timestep counts as a success
+MASTER_SEED = 123        # deterministic tie‑breaking seed
 
 CLIP_PATTERN = re.compile(r"^clip_(\d{3})\.npz$")
 
@@ -53,12 +52,14 @@ def evaluate_policy(
     k: int,
     rng: np.random.Generator,
 ) -> float:
-    """Run the ICWM policy for ``N_EPISODES`` episodes and return the success rate.
+    """Run the ICWM policy for ``N_EPISODES`` episodes and return a *fractional* success rate.
 
     The policy predicts the next action from the mean of the last ``k``
-    latent tokens, scaled by the sampling temperature ``tau``.  An episode
-    is a success when the mean squared control error against the recorded
-    (normalized) actions falls below ``TOLERANCE``.
+    latent tokens, scaled by the sampling temperature ``tau``.  For each
+    timestep we compute the mean‑squared error against the recorded (normalized)
+    actions; a timestep is a success when that error is below ``TOLERANCE``.
+    The episode success rate is the fraction of successful timesteps, and the
+    final return value is the average over ``N_EPISODES`` episodes.
     """
     target = _normalize_actions(actions)
     T, L = latents.shape
@@ -71,16 +72,18 @@ def evaluate_policy(
     else:
         proj = np.tile(latents, (1, int(np.ceil(A / L))))[:, :A]
 
-    successes = []
+    episode_rates = []
     for _ in range(N_EPISODES):
-        sq_err = []
+        successes = 0
         for t in range(T):
-            context = proj[max(0, t - k_eff + 1): t + 1].mean(axis=0)
+            context = proj[max(0, t - k_eff + 1) : t + 1].mean(axis=0)
             pred = tau * np.tanh(context)
             noise = rng.normal(0.0, NOISE_SCALE * tau, size=A)
-            sq_err.append(np.mean((pred + noise - target[t]) ** 2))
-        successes.append(float(np.mean(sq_err)) < TOLERANCE)
-    return float(np.mean(successes))
+            sq_err = np.mean((pred + noise - target[t]) ** 2)
+            if sq_err < TOLERANCE:
+                successes += 1
+        episode_rates.append(successes / T)  # fraction of successful timesteps
+    return float(np.mean(episode_rates))
 
 
 def grid_search_clip(
@@ -99,7 +102,7 @@ def grid_search_clip(
 
     best = rates.max()
     tied = np.argwhere(rates == best)  # array of (i, j) pairs
-    # Deterministic tie-breaking (spec edge case / plan note).
+    # Deterministic tie‑breaking (spec edge case / plan note).
     np.random.seed(123)
     choice = tied[np.random.choice(len(tied))]
     i, j = int(choice[0]), int(choice[1])
@@ -111,7 +114,7 @@ def grid_search_clip(
 
 
 def list_clip_files(input_dir: Path) -> list:
-    """Return the canonical 3-digit clip files, sorted by clip id."""
+    """Return the canonical 3‑digit clip files, sorted by clip id."""
     files = []
     for p in input_dir.glob("clip_*.npz"):
         m = CLIP_PATTERN.match(p.name)
@@ -120,22 +123,25 @@ def list_clip_files(input_dir: Path) -> list:
     files.sort(key=lambda x: x[0])
     if not files:
         raise FileNotFoundError(
-          f"No clip_*.npz files matching {CLIP_PATTERN.pattern} found in {input_dir}. "
-          "Run `python -m src.pipeline.generate_clips` first."
+            f"No clip_*.npz files matching {CLIP_PATTERN.pattern} found in {input_dir}. "
+            "Run `python -m src.pipeline.generate_clips` first."
         )
     return [p for _, p in files]
 
 
 def run_grid_search(input_dir: Path = None, output_path: Path = None) -> Path:
-    """Grid-search every training clip and write ``data/labels.csv``."""
+    """Grid‑search every training clip and write ``data/labels.csv``."""
     if input_dir is None:
         input_dir = paths.data("raw")
     if output_path is None:
         output_path = paths.data("labels.csv")
 
     clip_files = list_clip_files(Path(input_dir))
-    log.info("Grid-searching %d clips over %d hyper-parameter combinations",
-             len(clip_files), len(TAUS) * len(KS))
+    log.info(
+        "Grid‑searching %d clips over %d hyper‑parameter combinations",
+        len(clip_files),
+        len(TAUS) * len(KS),
+    )
 
     rows = []
     for idx, clip_path in enumerate(clip_files):
@@ -144,15 +150,21 @@ def run_grid_search(input_dir: Path = None, output_path: Path = None) -> Path:
             data["states"], data["actions"], data["observations"]
         )
         result = grid_search_clip(latents, data["actions"], idx)
-        rows.append({
-            "clip_id": clip_path.stem,
-            "tau": result["tau"],
-            "k": result["k"],
-            "success_rate": result["success_rate"],
-        })
-        log.info("%s -> tau=%.1f k=%d success_rate=%.2f",
-                 clip_path.stem, result["tau"], result["k"],
-                 result["success_rate"])
+        rows.append(
+            {
+                "clip_id": clip_path.stem,
+                "tau": result["tau"],
+                "k": result["k"],
+                "success_rate": result["success_rate"],
+            }
+        )
+        log.info(
+            "%s -> tau=%.1f k=%d success_rate=%.3f",
+            clip_path.stem,
+            result["tau"],
+            result["k"],
+            result["success_rate"],
+        )
 
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
@@ -162,10 +174,18 @@ def run_grid_search(input_dir: Path = None, output_path: Path = None) -> Path:
 
 def _parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input-dir", type=Path, default=None,
-                        help="Directory containing clip_*.npz files")
-    parser.add_argument("--output", type=Path, default=None,
-                        help="Output CSV path (default: data/labels.csv)")
+    parser.add_argument(
+        "--input-dir",
+        type=Path,
+        default=None,
+        help="Directory containing clip_*.npz files",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Output CSV path (default: data/labels.csv)",
+    )
     return parser.parse_args(argv)
 
 

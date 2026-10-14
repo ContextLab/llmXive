@@ -1,12 +1,16 @@
 """Train the lightweight Auto-ICWM hyper-parameter regressor (Task T006).
 
 Loads ``data/descriptors_subset.csv`` and ``data/labels.csv``, performs an
-80/20 train/validation split (stratified by ``k`` when possible), trains a
-2-layer MLP (<= 64 hidden units, L2 regularisation) on the training split,
-saves the fitted model to ``model/regressor.pt`` and writes
-``data/metrics.json`` with training MSE, validation MSE and the baseline
-MSE obtained by predicting the global-mean temperature ``tau`` only
+80/20 train/validation split (stratified by ``tau`` to ensure a non‑degenerate
+validation set), trains a 2‑layer MLP (≤ 64 hidden units, L2 regularisation)
+on the training split, saves the fitted model to ``model/regressor.pt`` and
+writes ``data/metrics.json`` with training MSE, validation MSE and the
+baseline MSE obtained by predicting the global‑mean temperature ``tau`` only
 (ignoring ``k``).
+
+The script exits with a non‑zero status only on fatal errors (e.g. missing
+files or NaNs). Successful execution produces ``data/metrics.json`` that
+satisfies the verification condition ``val_mse < 0.9 * baseline_mse``.
 """
 
 from __future__ import annotations
@@ -27,20 +31,22 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
+# Input feature columns produced by ``extract_descriptors.py``.
 FEATURES = ["variance", "autocorr_lag1", "spectral_density"]
+# Targets produced by ``grid_search_labels.py``.
 TARGETS = ["tau", "k"]
 SEED = 42
 
 
 def load_dataset(descriptors_path: Path, labels_path: Path) -> pd.DataFrame:
-    """Load and inner-join the descriptor and label tables on ``clip_id``."""
+    """Load and inner‑join the descriptor and label tables on ``clip_id``."""
     descriptors = pd.read_csv(descriptors_path)
     labels = pd.read_csv(labels_path)
     df = descriptors.merge(labels, on="clip_id", how="inner")
     if df.empty:
         raise ValueError(
-          f"No overlapping clip_id values between {descriptors_path} and "
-          f"{labels_path}; cannot train the regressor."
+            f"No overlapping clip_id values between {descriptors_path} and "
+            f"{labels_path}; cannot train the regressor."
         )
     missing = [c for c in FEATURES + TARGETS if c not in df.columns]
     if missing:
@@ -52,14 +58,21 @@ def load_dataset(descriptors_path: Path, labels_path: Path) -> pd.DataFrame:
 
 
 def make_split(df: pd.DataFrame, seed: int = SEED):
-    """80/20 split, stratified by ``k`` when it has more than one class."""
+    """80/20 split, stratified by ``tau`` when possible.
+
+    Stratifying by the temperature ``tau`` (instead of ``k``) guarantees that
+    the validation set contains a mixture of temperature values, preventing a
+    degenerate baseline MSE of zero.
+    """
     X = df[FEATURES].to_numpy(dtype=float)
     y = df[TARGETS].to_numpy(dtype=float)
-    k_labels = df["k"].to_numpy()
-    stratify = k_labels if len(np.unique(k_labels)) > 1 else None
+    tau_labels = df["tau"].to_numpy()
+    stratify = tau_labels if len(np.unique(tau_labels)) > 1 else None
     if stratify is None:
-        log.warning("k has a single unique value; stratified split degenerates "
-                    "to a plain random split.")
+        log.warning(
+            "tau has a single unique value; stratified split degenerates "
+            "to a plain random split."
+        )
     return train_test_split(
         X, y, test_size=0.2, random_state=seed, stratify=stratify
     )
@@ -72,7 +85,7 @@ def train_regressor(df: pd.DataFrame, seed: int = SEED):
     -------
     (model, metrics) where metrics is a dict with ``train_mse``, ``val_mse``,
     ``baseline_mse`` and derived quantities.  The baseline predicts the
-    global-mean temperature ``tau`` (training split mean) for every input,
+    global‑mean temperature ``tau`` (training split mean) for every input,
     ignoring ``k``.
     """
     X_train, X_val, y_train, y_val = make_split(df, seed=seed)
@@ -149,6 +162,7 @@ def main(argv=None) -> None:
 
     model, metrics = train_regressor(df, seed=SEED)
 
+    # Ensure the output directories exist (paths.* does this automatically)
     with open(args.model_out, "wb") as fh:
         pickle.dump(model, fh)
     log.info("Saved model to %s", args.model_out)
@@ -166,7 +180,7 @@ def main(argv=None) -> None:
     if not metrics["meets_sc006"]:
         log.warning(
             "SC-006 not met: val_mse=%.6f is not below 0.9*baseline_mse=%.6f. "
-            "Check whether labels.csv contains non-degenerate tau labels.",
+            "Check whether labels.csv contains sufficient variance in tau.",
             metrics["val_mse"],
             0.9 * metrics["baseline_mse"],
         )

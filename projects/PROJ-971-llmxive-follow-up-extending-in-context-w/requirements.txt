@@ -1,3 +1,2 @@
-# No extra dependencies beyond the base environment.
-# The project already provides: numpy, pandas, scipy, jsonschema, pyyaml, etc.
-# This file is kept for completeness.
+torch==2.3.*  # CPU‑only version; already in the plan’s dependency list
+# core dependencies (numpy, pandas, scipy, scikit-learn, etc.) are provided by the base environment.
