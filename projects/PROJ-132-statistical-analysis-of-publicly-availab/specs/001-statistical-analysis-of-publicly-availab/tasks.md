@@ -1,161 +1,79 @@
-# Tasks: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change  
+# Tasks: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
 
-**Inputs**: `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback.  
+**Inputs**: `spec.md`, `plan.md`, original research idea, contracts, and reviewer feedback (task-format rejection: duplicate ID `T005c5`; verifier rejection: T015a produced no real artifacts).
 
-The tasks are organized into research phases.  Each task follows the canonical format  
+This revision consolidates the prior ~70 fragmented tasks into a minimal complete study. The previous task list contained a duplicate ID (`T005c5`) and numerous non-substantive items (linting, pre-commit, README, CI-workflow creation) that the platform already supplies. All scientific requirements from the specification are preserved and regrouped below. Since no working source artifacts exist yet (the verifier confirmed T015a produced no code or data), the study uses the canonical `code/` layout.
 
-```
-- [ ] T### [P] [USx] <description> – <artifact path>
-```  
+## Phase 1: Setup and first end-to-end analysis
 
-`[P]` indicates the task can run in parallel with other tasks (different files, no data‑flow dependency).  
-`[USx]` identifies the user story the task satisfies (US1, US2, US3).  
-A checked box `[X]` denotes a completed task.  
+- [ ] T001 [P] [US1] **Establish project layout, configuration, and data-source provenance** — Create `code/config.py` (grid resolution 0.5°, random seeds, permutation count 10000, CI target, 2020–2024 date filter, migratory-species list constant) and `code/data/fetch_species.py` that downloads the Cornell Lab migratory species list from a real, reachable source (`https://raw.githubusercontent.com/...` or `datasets.load_dataset("vvud/eb-migratory-list")`), writes `data/raw/migratory_list.json`, records its SHA-256 in `data/provenance/ebird_checksums.json`, and RAISES `DataFetchError` on any download failure (no synthetic fallback). Also write `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md` documenting the ratified NOAA→Daymet and full-EBD→sampled-eBird scope deviation, and `data/provenance/spec_plan_deviation.json` with `{"status":"ratified"}`. Document the runnable entry command in the feature's `quickstart.md`.
+  - Verification: `python code/data/fetch_species.py` exits 0 and `data/raw/migratory_list.json` exists as valid JSON with ≥1 species entry; checksum file matches `sha256sum` of the downloaded file.
 
----
+- [ ] T002 [P] [US1] **Implement streaming data acquisition for eBird and climate data** — Create `code/data/download.py` and `code/data/stream_utils.py` that (a) stream the verified eBird sample via `datasets.load_dataset("vvud/eb-data", streaming=True)` in chunks, writing raw records to `data/raw/ebird_sample/` with `checksums.sha256`; (b) fetch Daymet climate data for the available recent years via a real package-based recipe (`datasets` or `weatherdata`/`daymetpy`-style loader), writing `data/raw/daymet/` with checksums; (c) verify endpoint reachability before download and abort loudly (`raise DataFetchError`) if unavailable and the deviation is not ratified. Never fall back to generated/mock data. Write `data/provenance/data_availability_report.json`.
+  - Verification: running the module produces real non-empty files under `data/raw/` whose checksums match; a unit test `code/tests/test_download.py` asserts a forced network failure raises rather than writing placeholder data.
 
-## Phase 0 – Pre‑Implementation & Spec Alignment  
+- [ ] T003 [US1] **Preprocessing: filter, grid-align, compute phenology metrics, and join climate** — Create `code/data/preprocess.py` that streams eBird records, filters to migratory species (T001 list) and 2020–2024, aggregates weekly counts per 0.5°×0.5° grid cell, computes phenology metrics (first arrival, median arrival, stopover duration = days between 10th–90th percentile arrival dates), marks cells with <5 observations as `data_quality="insufficient"` and excludes them from downstream modeling with a log entry, imputes missing climate values via spatial interpolation from neighboring cells within 1° radius with an `imputed` flag, joins climate variables, and writes `data/processed/preprocessed_data.parquet` conforming to `specs/.../contracts/phenology_metric.schema.yaml` and `dataset.schema.yaml`, plus provenance `data/provenance/row_mapping.json` linking rows to original `checklist_id`s. Include focused unit tests `code/tests/test_preprocess.py` (empty input, sparse cell flagging, imputation edge cases).
+  - Verification: parquet exists with required columns (species, grid_cell, year, phenology metrics, climate_temp, climate_precip) and no missing values in critical fields; `pytest code/tests/test_preprocess.py` passes.
+  - Depends on: T001, T002.
 
-| ID | Status | Description |
-|----|--------|-------------|
-- [ ] T001 [P] **Establish project layout & quick‑start command** – Create `docs/quickstart.md` describing how to run the pipeline (`python -m src.cli.run_pipeline --help`).  
-- [ ] T002 [P] **Verify project layout** – Add unit test `tests/unit/test_setup_structure.py` that asserts required directories exist.  
-- [ ] T003a_1 [P] **Create `pyproject.toml`** – Add build system, Black, and Ruff configuration.  
-- [ ] T003a_2 [P] **Verify Ruff config syntax** – Run `ruff check --config pyproject.toml`; succeed = exit 0.  
-- [ ] T003b [P] **Create pre‑commit config** – Add `.pre-commit-config.yaml` with Black & Ruff hooks and reference it in `README.md`.  
-- [ ] T003c [P] **Add `geomstats` dependency** – Append `geomstats>=2.4.0` to `[project].dependencies` in `pyproject.toml`.  
+- [ ] T004 [US1] [US2] **Run a thin end-to-end analysis on a small real subset** — Create `code/cli/run_pipeline.py` entry point and run preprocessing plus a simple linear mixed-effect association (via `statsmodels`) for ONE species on the real sampled data, producing real result rows in `data/results/smoke_run_results.csv` with fields (species_id, climate_variable, coefficient, p_value) computed from actual observations.
+  - Verification: the documented quickstart command executes end-to-end and `data/results/smoke_run_results.csv` contains ≥1 row derived from real data (no placeholder values).
+  - Depends on: T003.
 
-### Data‑source deviation handling (required by the plan)  
-- [ ] T005c4 [M] **Document Plan deviation (NOAA → Daymet, full → sampled eBird)** – Write `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md` with ratification timestamp and JSON field `{"status":"ratified"}`.  
-- [ ] T005c3 [M] **Record deviation in JSON** – Write `data/provenance/spec_plan_deviation.json` (see spec for exact fields).  
-- [ ] T005c1_validate [S] **Validate deviation documents** – Read the Markdown and JSON, output `data/provenance/deviation_validation.json`.  
-- [ ] T005a [S] **Verify raw data availability** – Script `src/data/verify_dataset.py` checks streaming load of `vvud/eb-data` and writes `data/provenance/data_availability_report.json`.  
-- [ ] T005b [S] **Download verified eBird sample** – Stream `vvud/eb-data` into `data/raw/ebird_sample/` and generate `data/raw/ebird_sample/checksums.sha256`.  
-- [ ] T005c1_fetch [S] **Download climate data (primary or fallback)** – Implement `src/data/download.py::fetch_climate_data` that obeys the ratified deviation and writes either `data/raw/noaa_prism/` or `data/raw/daymet/` plus checksums.  
-- [ ] T005d_state_sync [S] **Archive raw inputs & sync state** – Copy raw files to `data/raw/archive/`, generate CI upload snippet (`ci/upload_artifacts.yml`), and update `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml`.  
+## Phase 2: Complete the study and validate its evidence
 
-### Infrastructure utilities  
-- [ ] T045a [S] **File‑based lock implementation** – Create `src/utils/locks.py` exposing `pipeline_lock = filelock.FileLock("data/interim/pipeline.lock")`.  
-- [ ] T045b [S] **Integrate lock into heavy tasks** – Modify GAMM, permutation, and trajectory scripts to acquire `pipeline_lock` before writing shared resources.  
+- [ ] T005 [US2] **Fit GAMMs with species random slopes and a priori Matérn GP spatial effect** — Create `code/models/gamm.py::fit_gamm_gp` reading `data/processed/preprocessed_data.parquet`, fitting phenology metrics as responses with climate variables (March–May mean temperature, total precipitation, extreme weather index) as smooth fixed effects, species-year random intercepts/slopes, and a mandatory a priori Gaussian Process random effect with Matérn covariance for spatial autocorrelation (CPU-tractable implementation via `pygam`/`statsmodels` with an explicit GP kernel on grid coordinates; per-species fit must converge within 600 s or be logged and skipped — never halt the pipeline). Write results to `data/processed/model_results_final.parquet` conforming to `gamm_results.schema.yaml` and `output.schema.yaml` (coefficient, p_value, AIC, convergence_status, gp_included=true, random_slope_present). Include `code/tests/test_gamm_single_species.py` validating recovery of a known association on a synthetic-parameter calibration fixture (within tolerance), and `code/tests/test_convergence_handling.py` asserting failed fits are logged and skipped.
+  - Verification: schema validation passes on the parquet; convergence rate recorded; `pytest` passes.
+  - Depends on: T003.
 
----
+- [ ] T006 [US2] **Permutation tests, Moran's I diagnostics, and FDR correction** — Create `code/models/utils.py` with (a) `run_permutation_chunked` performing 10,000 shuffles of climate series per species-climate coefficient (reduce to 1,000 with a logged justification only if the 6-hour budget is genuinely exceeded), writing `data/results/permutation_results_coefficients.json`; (b) `compute_morans_i` post-hoc diagnostic on GAMM residuals, writing `data/results/morans_i_result.json` and flagging models with Moran's I > 0.15; (c) `apply_fdr_correction` applying Benjamini–Hochberg across ALL hypothesis tests (coefficient and spatial), writing `data/results/model_results_fdr.parquet` with `p_value_fdr` and `is_significant` (p_fdr < 0.05). Unit test `code/tests/test_fdr.py` asserts BH correction on a known p-value vector.
+  - Verification: JSON/parquet outputs exist, FDR-corrected p-values are monotone-consistent with BH, `pytest` passes.
+  - Depends on: T005.
 
-## Phase 1 – Setup & First End‑to‑End Analysis  
+- [ ] T007 [US3] **Route-shift analysis: weekly centroids, Riemannian trajectory statistics, and shift detection** — Create `code/models/trajectory.py` computing weekly migration centroids on the sphere (great-circle Fréchet-mean style discrete centroid method, using `geomstats` or an explicit haversine-based implementation), applying manifold-based trajectory statistics to detect spatial route shifts, and writing `data/interim/weekly_centroids.parquet`, `data/interim/trajectory_statistics.json`, and shift vectors (magnitude in km, direction in radians) to `data/results/trajectory_results.json` conforming to `trajectory.schema.yaml`. Wrap heavy manifold steps in a timeout (≤1800 s) that logs and defers rather than fabricating. Include `code/tests/test_manifold_coords.py` for coordinate conversion and `code/tests/test_trajectory_null.py` asserting a null (label-shuffled) synthetic input yields p > 0.05.
+  - Verification: schema validation passes; null-case test passes.
+  - Depends on: T003.
 
-- [ ] T002a [P] **Create project directory tree** – `src/data`, `src/models`, `src/analysis`, `src/utils`, `src/cli`, `data/raw`, `data/processed`, `data/interim`, `tests/contract`, `tests/unit`, `tests/integration`, `docs`.  
-- [ ] T002b [P] **Unit test for directory existence** – `tests/unit/test_setup_structure.py`.  
+- [ ] T008 [US3] **Block-bootstrap uncertainty quantification for shift p-values and confidence intervals** — Create `code/analysis/routes.py` and `code/analysis/bootstrap.py` performing a moving-block bootstrap (block = 4 weeks, rationale documented in-code) over (a) the centroid estimation process for route-shift permutation p-values (10,000 shuffles, fallback 1,000 with logged justification), writing `data/results/permutation_results_spatial.json`, and (b) GAMM phenology-shift predictions, writing `data/results/uncertainty_quantification.json` with 95% CIs and `data/results/ci_width_report.json` reporting CI width in days.
+  - Verification: CI outputs exist with real resampled intervals; CI width report states the measured width and its comparison to the ≤7-day target with honest fallback reporting.
+  - Depends on: T005, T007.
 
-### Core data‑acquisition (User Story 1)  
-- [ ] T015a [S] [US1] **Retrieve verified migratory species list** – Implement `src/data/fetch_species.py` that downloads `vvud/eb-migratory-list` into `data/raw/migratory_list.json`, records SHA‑256 in `data/provenance/ebird_checksums.json`, and fails loudly if download fails.  
-- [ ] T051 [P] **Streaming utility for full eBird dataset** – Implement `src/data/stream_utils.py` using `datasets.load_dataset(..., streaming=True)` with chunk size ≤ 6 GB.  
-- [ ] T007 [P] **Spatial imputation utility** – Create `src/data/impute.py` with `impute_spatial_missing(df, column, radius=1.0)` returning imputed DataFrame + `is_imputed` flag.  
-- [ ] T009 [P] **Define core data entities** – `src/data/entities.py` with Pydantic models `MigrationRecord`, `PhenologyMetric`, `ClimateVariable`, `Trajectory`.  
-- [ ] T010a [P] **Global constants** – `src/config.py` (grid resolution, seeds, permutation count, CI target, max runtime).  
-- [ ] T010b [P] **Logging infrastructure** – `src/utils/logging.py` exposing `get_logger(name)` writing JSON lines to `logs/pipeline.log`.  
-- [ ] T010c [P] **Test logging format** – `tests/unit/test_logging.py`.  
+- [ ] T009 [US1] [US2] [US3] **Independent correctness, sensitivity, and success-criteria evaluation** — Create `code/analysis/power_analysis.py` (statistical power and MDES given the actual sample size, with the "underpowered to detect effects < X" fallback statement), and `code/analysis/success_metrics.py` computing SC-001–SC-005: power/effect-size stability (SC-001), proportion of insufficient-data cells (SC-002), GAMM convergence rate (SC-003), CI width vs ≤7-day target (SC-004), and total pipeline runtime vs the 6-hour budget (SC-005). Write `data/results/final_success_report.json` aggregating all metrics with actual measured values and honest fallback statements where targets are unmet (no fabricated target attainment).
+  - Verification: report exists with all five SC entries populated from actual measured artifacts; runtime entry matches logged pipeline timings.
+  - Depends on: T006, T008.
 
-#### Pre‑processing pipeline (US1)  
-- [ ] T015b [S] [US1] **Implement preprocessing** – `src/data/preprocess.py` streams eBird via T051, filters with T015a, aggregates to 0.5° × 0.5° grid, computes phenology metrics, flags “insufficient” cells, joins climate (NOAA or Daymet) data, imputes missing climate values (T007), writes provenance `data/provenance/row_mapping.json`, and outputs `data/processed/preprocessed_data.parquet`.  
-- [ ] T013 [S] [US1] **Integration test for ingestion** – `tests/integration/test_data_ingestion.py` (mocks streaming & climate fetch, asserts final parquet schema and no missing critical fields).  
-- [ ] T017d [P] **Validate imputation metadata** – Unit test `tests/unit/test_imputation_metadata.py` checking `data/processed/imputation_metadata.json`.  
+- [ ] T010 [US1] [US2] [US3] **Generate result tables and figures from validated outputs** — Create `code/analysis/figures.py` producing, directly from `data/processed/` and `data/results/` artifacts: (a) a summary table `data/results/species_climate_summary.csv` of significant species-climate associations after FDR; (b) a map of migration centroid shifts per species; (c) time-series plots of phenology metrics with climate covariates and 95% CIs. Save figures under `figures/`. No hand-typed numbers; every figure traces to result files.
+  - Verification: each figure file exists and the generation script runs cleanly from the result artifacts.
+  - Depends on: T009.
 
----
+## Phase 3: Reproducible results and paper handoff
 
-## Phase 2 – Phenology‑Climate Correlation Modeling (User Story 2)  
+- [ ] T011 **Write methods/results account with honest limitations** — Write `specs/001-bird-migration-climate-correlation/research.md` (or `docs/methods_results.md` within the feature) describing the methods (GAMM formulae, random effects, GP specification, permutation/FDR procedure, block bootstrap), linking every reported number to the actual output files under `data/results/` and `figures/`, and stating negative findings, convergence failures, power limitations, and the sampled-data scope deviation honestly.
+  - Verification: every quantitative claim in the document references an existing artifact path.
+  - Depends on: T010.
 
-- [ ] T021 [P] **Test GAMM output schema** – `tests/contract/test_gamm_schemas.py` validates `data/processed/model_results_final.parquet`.  
-- [ ] T022 [P] **Integration test for GAMM convergence** – `tests/integration/test_gamm_convergence.py` runs GAMM on synthetic data, asserts `converged=True`.  
+- [ ] T012 **Re-run the documented workflow end-to-end and document the paper-stage handoff** — Re-execute `python code/cli/run_pipeline.py` from the declared raw inputs, confirm all `code/tests/` tests pass and every promised artifact under `data/results/` and `figures/` regenerates with consistent content, record the exact command and runtime in the feature's `quickstart.md`, and write the paper-stage handoff (required tables, figures, and limitations to carry into the paper pipeline — layout/PDF/publication excluded here).
+  - Verification: a clean re-run reproduces all artifacts; quickstart documents the verified command.
+  - Depends on: T011.
 
-- [ ] T023a_gamm_gp [S] [US2] **Fit GAMM with random slopes & mandatory GP** – `src/models/gamm.py::fit_gamm_gp` reads `data/processed/preprocessed_data.parquet`, fits model with `pyMC` using formula `phenology_metric ~ s(temp) + s(precip) + s(extreme_weather_index) + (1 + temp | species + year)` and a priori Matérn 5/2 GP, acquires `pipeline_lock`, writes `data/processed/model_results_final.parquet`.  
-- [ ] T023d [S] **Compute Moran’s I diagnostic** – `src/models/gamm.py::compute_morans_i` writes `data/interim/morans_i_result.json`.  
-- [ ] T025a [P] **Benchmark permutation runtime** – `src/models/utils.py::benchmark_permutation` writes `data/processed/permutation_benchmark.json`.  
-- [ ] T025d [S] [US2] **Permutation test for GAMM coefficients** – `src/models/utils.run_permutation_chunked` performs 10 000 shuffles (fallback → 1 000 if > 6 h), writes `data/processed/permutation_results_coefficients.json`.  
-- [ ] T025b_spatial [S] [US3] **Permutation test for spatial shift vectors** – Same utility on shift‑vector data, writes `data/processed/permutation_results_spatial.json`.  
-- [ ] T025c [S] [US2] **Apply Benjamini–Hochberg FDR across all tests** – `src/models/utils.py::apply_fdr_correction` reads outputs of T025d & T025b_spatial, writes `data/processed/model_results_fdr.parquet`.  
-- [ ] T025e [S] **Effective power calculation with fallback awareness** – `src/analysis/power_analysis.py::calculate_effective_power` reads permutation results, writes `data/processed/power_with_fallback.json`.  
-- [ ] T027 [S] **Robust convergence handling** – Wrap GAMM fitting in try/except, log failures to `logs/modeling.log`, skip species, and add unit test `tests/unit/test_convergence_handling.py`.  
+## Dependencies and requirement coverage
 
----
+| Requirement | Task(s) | Demonstrating command |
+|---|---|---|
+| FR-001 (data download/cache, versioned) | T001, T002 | `python code/data/download.py` |
+| FR-002 (species filter, grid aggregation) | T001, T003 | `python code/cli/run_pipeline.py --stage preprocess` |
+| FR-003 (phenology + seasonal climate) | T003 | same as above; check `data/processed/preprocessed_data.parquet` |
+| FR-004 (GAMM, random slopes, GP) | T005 | `pytest code/tests/test_gamm_single_species.py` |
+| FR-005 (permutation + BH FDR) | T006 | `pytest code/tests/test_fdr.py` |
+| FR-006 (Riemannian route shifts) | T007 | `pytest code/tests/test_trajectory_null.py` |
+| FR-007 (bootstrapped 95% CIs) | T008 | check `data/results/uncertainty_quantification.json` |
+| SC-001–SC-005 | T009 | check `data/results/final_success_report.json` |
+| US-1/US-2/US-3 acceptance scenarios | T003/T005/T006, T007/T008 | as above |
 
-## Phase 3 – Route‑Shift Analysis & Uncertainty (User Story 3)  
+Execution order: T001, T002 (parallel) → T003 → T004 (smoke result) → T005, T007 (parallel) → T006, T008 → T009 → T010 → T011 → T012.
 
-- [ ] T030 [S] [US3] **Compute weekly centroids on S² manifold** – `src/models/trajectory.py::compute_weekly_centroids` (uses `geomstats`), writes `data/interim/weekly_centroids.parquet`.  
-- [ ] T031a_manifold [S] [US3] **Riemannian trajectory statistics** – Uses centroids from T030, writes `data/interim/trajectory_statistics.json`.  
-- [ ] T031b_manifold [S] [US3] **Detect spatial route shifts** – Consumes trajectory statistics, writes `data/interim/shift_candidates.json`.  
-- [ ] T031c_permutation [S] [US3] **Permutation test on shift vectors** – 10 000 shuffles (fallback → 1 000), writes `data/processed/trajectory_results.json`.  
-- [ ] T028 [P] **Test trajectory output schema** – `tests/contract/test_trajectory_schemas.py` validates `data/processed/trajectory_results.json`.  
-- [ ] T029 [P] **Integration test for route‑shift detection** – `tests/integration/test_trajectory_analysis.py` runs pipeline on null synthetic data, asserts `p_value>0.05`.  
+## Revision behavior
 
-- [ ] T033a [S] **Unified 95 % confidence‑interval generation** – `src/analysis/bootstrap.py::generate_unified_ci` performs moving‑block bootstrap (block = 4 weeks) on GAMM predictions and centroid estimations, writes `data/processed/uncertainty_quantification.json`.  
-- [ ] T033b [S] **Compute CI width metrics** – Reads CI file, writes `data/processed/ci_width_report.json`.  
-
----
-
-## Phase 4 – Success‑Criteria Evaluation (SC‑001 → SC‑005)  
-
-- [ ] T043a [S] **Write target definitions** – Parse success‑criteria section of `plan.md`, output `data/processed/target_definitions.json` (includes spec‑deferred notes).  
-- [ ] T043b [S] **Power‑analysis script** – `src/analysis/power_analysis.py` (different from T025e) calculates statistical power, writes `data/processed/power_report.json`.  
-- [ ] T043c1 [S] **Insufficient‑data proportion report** – Reads preprocessed data, writes `data/processed/insufficient_data_report.json`.  
-- [ ] T043c2 [S] **Model‑convergence rate report** – Reads `logs/modeling.log` & model results, writes `data/processed/convergence_report.json`.  
-- [ ] T043d [S] **CI‑width target report** – Compares CI widths (T033b) to targets, writes `data/processed/ci_width_target_report.json`.  
-- [ ] T043 [S] **Aggregate final success report** – Combines all SC reports plus runtime check (`src/analysis/runtime_validation.py`), writes `data/processed/final_success_report.json`.  
-
----
-
-## Phase 5 – Polishing & Cross‑Cutting Concerns  
-
-- [ ] T036 [P] **Update README** – Add installation steps and pipeline entry point.  
-- [ ] T037 [P] **Generate API docs for preprocessing** – `docs/api.md` with docstrings from `src/data/preprocess.py`.  
-- [ ] T038a [P] **Run Ruff auto‑fix** – Apply `ruff --fix src/`.  
-- [ ] T038b [P] **Add pre‑commit hook for docstring validation** – Update `.pre-commit-config.yaml`.  
-- [ ] T040a [P] **Unit test for empty input handling in preprocessing** – `tests/unit/test_preprocess_empty.py`.  
-- [ ] T040b [P] **Unit test for single‑species GAMM fit** – `tests/unit/test_gamm_single_species.py`.  
-- [ ] T040c [P] **Unit test for imputation edge cases** – `tests/unit/test_imputation_edge_cases.py`.  
-- [ ] T041a [P] **Create CI workflow** – `.github/workflows/ci.yml`.  
-- [ ] T041b [P] **Add task‑ordering validation job** – Calls `src/cli/validate_task_order.py`.  
-- [ ] T041c [P] **Runtime assertion (< 6 h) in CI** – Integrated into `validate_quickstart` job.  
-
-### Validation & Robustness (must run loudly on failure)  
-- [ ] T052 [S] **Enforce loud failure on data‑fetch errors** – Review `src/data/download.py` & `src/data/fetch_species.py` to remove silent fallbacks; raise `DataFetchError` on any download problem.  
-- [ ] T054 [S] **Block‑bootstrap implementation verification** – Ensure `src/analysis/bootstrap.py` uses moving‑block bootstrap for both GAMM predictions and centroids.  
-- [ ] T055 [S] **Explicit NOAA/PRISM availability check** – Extend `src/data/download.py::fetch_climate_data` to verify official API endpoints before download; abort if unavailable and deviation not ratified.  
-- [ ] T060 [S] **Task‑ordering rule for phenology metrics** – `src/cli/validate_task_order.py` must enforce that T015b precedes any modeling or trajectory task.  
-- [ ] T061 [S] **Document streaming strategy** – Add detailed docstring to `src/data/stream_utils.py` and `src/data/preprocess.py`.  
-- [ ] T062 [S] **Verify FDR aggregates across all hypothesis tests** – Review `apply_fdr_correction` to ensure combined p‑value set.  
-- [ ] T063 [S] **Timeout handling for heavy manifold calculations** – Wrap T030 & T031a in a timeout (e.g., `signal.alarm`), log warnings, and mark tasks as deferred if exceeded.  
-- [ ] T064 [S] **Manifold coordinate conversion unit test** – `tests/unit/test_manifold_coords.py`.  
-- [ ] T065 [S] **Document block‑size rationale** – Comment in `src/analysis/bootstrap.py` explaining 4‑week block choice.  
-
----
-
-## Phase 6 – Reporting & Handoff  
-
-- [ ] T052a [S] **Generate methods & results summary** – Write `docs/methods_results.md` linking directly to generated artifact files (tables, figures, JSON reports).  
-- [ ] T052b [S] **Re‑run full pipeline from scratch** – Execute `python -m src.cli.run_pipeline` and confirm all checks pass; record command in `docs/reproducibility.md`.  
-
----
-
-### Dependency Summary (selected)  
-
-| Task | Depends on |
-|------|------------|
-| T015a | T005a (data availability) |
-| T015b | T051, T015a, T005b, T005c1_fetch |
-| T013  | T015b |
-| T023a_gamm_gp | T015b, T045a |
-| T025d | T023a_gamm_gp, T025a, T045a |
-| T025b_spatial | T031b_manifold, T025a, T045a |
-| T025c | T025d, T025b_spatial |
-| T030 | T015b |
-| T031a_manifold | T030 |
-| T031b_manifold | T031a_manifold |
-| T031c_permutation | T031b_manifold, T045a |
-| T033a | T023a_gamm_gp, T030, T045a |
-| T043c1 | T015b |
-| T043c2 | T023a_gamm_gp, T027 |
-| T043d | T033b |
-| T043 | T043a, T043b, T043c1, T043c2, T043d, T025c, T027, T033b |
-
----
-
-**Note** – All pending tasks (unchecked boxes) must be implemented and their output files verified before the pipeline can be considered complete. The most critical pending item is **T015a** (retrieving the verified migratory species list) which underpins the entire preprocessing flow.
+- **task-format rejection (duplicate `T005c5`)**: the prior fragmented task list was replaced by this consolidated set with unique, sequential IDs; no requirement was dropped.
+- **T015a verifier rejection (no real artifacts)**: reopened as T001/T002/T003, which require the actual scripts, real downloaded data, and checkable output files.
+- Platform-owned concerns removed: CI workflow creation, pre-commit/linting, state-file synchronization, README/API-doc scaffolding. Research scripts write only to `data/`, `figures/`, `code/`, and the feature's `specs/` directory.
