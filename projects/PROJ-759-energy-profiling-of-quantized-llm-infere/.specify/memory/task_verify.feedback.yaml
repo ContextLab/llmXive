@@ -1,12 +1,8 @@
 T001:
-  reason: 'The quickstart.md exists (at project root, acceptable mapping) and documents
-    the command, but the required verification fails: the recorded execution log for
-    `tests/test_pyrapl_load.py` shows exit code 1 with `test_pyrapl_import_and_setup
-    FAILED` (`PyRAPLCantRecordEnergyConsumption` from `pyRAPL.setup()`), so `pytest
-    -k test_pyrapl_load` does not pass. There is also no execution evidence that `python
-    -m code.benchmark --config data/configs/125M_4bit.json --dry-run` prints "pyRAPL
-    available", and the referenced config path `data/configs/125M_4bit.json` does
-    not exist (only `gpt-neo-125M_4bit.js'
+  reason: "The required file `code/quickstart.md` is missing (only a root\u2011level\
+    \ `quickstart.md` exists) and the contract test `test_pyrapl_load` fails on the\
+    \ GitHub Actions runner, indicating that pyRAPL does not load successfully. Both\
+    \ the documentation artifact and the verification step are therefore not satisfied."
   task: defffaf048b4c101e4c107be061c3f2cf31a8cd6854cb8fd38ed9cc285a53796
 T002:
   reason: "The required artifacts `data/raw/wikitext2.parquet` and `data/raw/README.md`\

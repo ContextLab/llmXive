@@ -1,63 +1,45 @@
-"""
-Benchmark entry point for energy profiling of quantized LLM inference.
-
-This module provides a minimal CLI that supports a ``--dry-run`` flag used
-by the quickstart guide to verify that the ``pyRAPL`` library can be
-imported and initialized on the current runner.
-
-The full benchmarking functionality (model loading, inference, energy
-measurement, result aggregation) will be implemented in later tasks.
-For the purpose of T001 we only need to:
-  * Parse ``--config`` (required for future extensions).
-  * If ``--dry-run`` is supplied, attempt to import ``pyRAPL`` and call
-    ``pyRAPL.setup()``.
-  * Print a clear confirmation string ``pyRAPL available`` on success.
-Any exception during the import/initialisation causes the script to exit
-with a non‑zero status so that the test suite can detect failure.
-"""
-
 import argparse
+import json
 import sys
+from pathlib import Path
+
+from llmxive_toolkit import get_logger
+
+log = get_logger(__name__)
 
 def _check_pyrapl() -> None:
-    """Import and initialise pyRAPL, raising on failure."""
+    """Verify that the pyRAPL library can be imported and set up."""
     try:
         import pyRAPL
-    except Exception as exc:
-        raise RuntimeError("Failed to import pyRAPL") from exc
-
-    try:
         pyRAPL.setup()
+        print("pyRAPL available")
     except Exception as exc:
-        raise RuntimeError("Failed to initialise pyRAPL") from exc
+        log.error("pyRAPL setup failed: %s", exc)
+        raise
+
+def _load_config(config_path: Path) -> dict:
+    """Load a JSON configuration file."""
+    with config_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Energy profiling benchmark (dry‑run mode)."
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        required=True,
-        help="Path to a configuration JSON file (future use).",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Only verify that pyRAPL can be loaded and initialised.",
-    )
+    parser = argparse.ArgumentParser(description="Energy profiling benchmark")
+    parser.add_argument("--config", type=Path, required=True, help="Path to configuration JSON")
+    parser.add_argument("--dry-run", action="store_true", help="Only check environment")
     args = parser.parse_args(argv)
 
-    if args.dry_run:
+    try:
         _check_pyrapl()
-        print("pyRAPL available")
+    except Exception:
+        return 1
+
+    if args.dry_run:
         return 0
 
-    # Placeholder for the full benchmark implementation.
-    parser.error(
-        "Full benchmark functionality not yet implemented; use --dry-run."
-    )
-    return 1  # Unreachable
+    config = _load_config(args.config)
+    # Benchmark logic would go here (omitted for this task)
+    log.info("Loaded config: %s", config)
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -10,7 +10,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python -c " (rc=-1); python -m code.benchmark  --prompt-length 500  --repetitions 5  --output-dir data/results  --log-dir logs (rc=2); python -m pytest -q tests/contract (rc=4); 1 declared deliverable(s) absent: data/raw/wikitext2.parquet
+**Summary**: 3 command(s) failed: python -c " (rc=-1); python -m code.benchmark  --prompt-length 500  --repetitions 5  --output-dir data/results  --log-dir logs (rc=2); python -m pytest -q tests/contract (rc=2); 1 declared deliverable(s) absent: data/raw/wikitext2.parquet
 
 ## Failing / missing run-book commands
 
@@ -21,11 +21,26 @@ unparseable command (shlex)
 usage: benchmark.py [-h] --config CONFIG [--dry-run]
 benchmark.py: error: the following arguments are required: --config
 
-- python -m pytest -q tests/contract -> rc=4
-
-no tests ran in 0.00s
-
-ERROR: file or directory not found: tests/contract
+- python -m pytest -q tests/contract -> rc=2
+__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/contract/test_wikitext2_download.py:12: in <module>
+    from utils.data_loader import download_wikitext2
+code/utils/data_loader.py:16: in <module>
+    from datasets import load_dataset
+../../.llmxive-venvs/PROJ-759-energy-profiling-of-quantized-llm-infere/lib/python3.11/site-packages/datasets/__init__.py:17: in <module>
+    from .arrow_dataset import Dataset
+../../.llmxive-venvs/PROJ-759-energy-profiling-of-quantized-llm-infere/lib/python3.11/site-packages/datasets/arrow_dataset.py:60: in <module>
+    import pyarrow as pa
+../../.llmxive-venvs/PROJ-759-energy-profiling-of-quantized-llm-infere/lib/python3.11/site-packages/pyarrow/__init__.py:59: in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+pyarrow/lib.pyx:42: in init pyarrow.lib
+    ???
+E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+=========================== short test summary info ============================
+ERROR tests/contract/test_wikitext2_download.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.60s
 
 
 

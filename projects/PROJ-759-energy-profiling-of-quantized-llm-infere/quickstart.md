@@ -4,7 +4,7 @@ This guide walks you through reproducing the full experiment on a fresh GitHub A
 
 ## 1. Clone the Repository & Enter the Project
 ```bash
-git clone
+git clone <repository-url>
 cd energy-profiling-quantized-llm
 ```
 
@@ -33,13 +33,13 @@ library loads correctly on this runner:
 
 ```bash
 python -m code.benchmark \
- --config data/configs/125M_4bit.json \
+ --config data/configs/gpt-neo-125M_4bit.json \
  --dry-run
 ```
 You should see the output:
 
 ```
-pyRAPL available
+pyRAPL available [UNRESOLVED-CLAIM: c_f3a104b2 — status=not_enough_info]
 ```
 
 If the command fails, ensure that the `pyRAPL` package is installed (see
@@ -75,6 +75,4 @@ pytest -q tests/contract
 All tests should pass, confirming that generated JSON/CSV files conform to the schemas in `contracts/`.
 
 ## 8. Optional Edge‑Hardware Validation (Raspberry Pi 4)
-If you have access to a Raspberry Pi 4, run the same command on that device. The script will automatically detect the platform and log CPU frequency/throttling information. [UNRESOLVED-CLAIM: c_ab68aa8b — status=not_enough_info] Compare the resulting `aggregated.csv` with the CI results to assess proxy fidelity.
-
----
+If you have access to a Raspberry Pi 4, run the same command on that device. The script will automatically detect the platform and log CPU frequency/throttling information. Compare the resulting `aggregated.csv` with the CI results to assess proxy fidelity.

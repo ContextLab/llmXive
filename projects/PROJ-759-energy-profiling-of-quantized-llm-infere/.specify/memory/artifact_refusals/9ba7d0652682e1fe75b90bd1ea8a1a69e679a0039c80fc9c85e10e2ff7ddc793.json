@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "c2b8b782d807767fccbc5b6414fa9d8af7fcf7c7bb0f8297ce2a383bd4a76426",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused empty contents without execution: 'tests/contract/__init__.py'"
+}
