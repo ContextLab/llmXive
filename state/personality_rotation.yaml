@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-10-14T06:05:35.624616+00:00'
+last_used: alan-turing
+last_used_at: '2026-10-14T08:05:40.315658+00:00'
 last_outcome: committed
 history:
-- slug: david-krakauer
-  started_at: '2026-06-25T15:32:56.131785+00:00'
-  ended_at: '2026-06-25T16:24:24.043816+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: eric-kandel
   started_at: '2026-06-25T16:24:24.043816+00:00'
   ended_at: '2026-06-25T17:20:07.950190+00:00'
@@ -1260,3 +1255,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-033-predicting-material-properties-from-comp/reviews/research/ada-lovelace-simulated__2026-10-14__research.md
+- slug: alan-turing
+  started_at: '2026-10-14T06:05:35.624616+00:00'
+  ended_at: '2026-10-14T08:05:40.315658+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/reviews/research/alan-turing-simulated__2026-10-14__research.md
