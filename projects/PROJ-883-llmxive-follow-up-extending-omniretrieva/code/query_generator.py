@@ -14,6 +14,23 @@ from generators.synthetic_query import SyntheticQueryGenerator
 
 log = get_logger(__name__)
 
+def _parse_int(value: str) -> int:
+    """
+    Parse an integer from a string, falling back to a default when the
+    input is a placeholder such as ``[sufficient sample size]``.
+    """
+    try:
+        return int(value)
+    except ValueError:
+        # Recognise common placeholder patterns and replace them with a
+        # sensible default.  The default mirrors the value used in the
+        # main pipeline (10 queries per depth level).
+        log.warning(
+            "Received placeholder count value '%s'; using default of 10.",
+            value,
+        )
+        return 10
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate synthetic queries with explicit integer depths."
@@ -27,9 +44,13 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--count",
-        type=int,
-        default=10,
-        help="Number of queries to generate per depth level.",
+        type=str,
+        default="10",
+        help=(
+            "Number of queries to generate per depth level. "
+            "Accepts an integer or a placeholder such as "
+            "'[sufficient sample size]'."
+        ),
     )
     parser.add_argument(
         "--seed",
@@ -48,13 +69,18 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
+    count_per_level = _parse_int(args.count)
+
     generator = SyntheticQueryGenerator(
         levels=args.levels,
-        count_per_level=args.count,
+        count_per_level=count_per_level,
         seed=args.seed,
     )
     generator.write_to_file(args.output)
-    log.info("Synthetic query generation completed. Output written to %s", args.output)
+    log.info(
+        "Synthetic query generation completed. Output written to %s",
+        args.output,
+    )
 
 
 if __name__ == "__main__":

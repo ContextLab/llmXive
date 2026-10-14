@@ -1,30 +1,8 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: StatisticsResult
+description: Schema for statistical analysis results.
 type: object
-properties:
-  source_type:
-    type: string
-    enum: [text, relational, graph]
-  complexity_category:
-    type: string
-    enum: [low, high]
-  mean_delta_latency:
-    type: number
-  std_delta_latency:
-    type: number
-  n_samples:
-    type: integer
-    minimum: 0
-  anova_f_statistic:
-    type: number
-  anova_p_value:
-    type: number
-  interaction_significant:
-    type: boolean
-  segmented_regression_knee_point:
-    type: number
-  segmented_regression_p_value:
-    type: number
+additionalProperties: false
 required:
   - source_type
   - complexity_category
@@ -36,3 +14,46 @@ required:
   - interaction_significant
   - segmented_regression_knee_point
   - segmented_regression_p_value
+properties:
+  source_type:
+    type: string
+    description: Source type the statistics pertain to.
+    enum:
+      - text
+      - relational
+      - graph
+  complexity_category:
+    type: string
+    description: Category of query complexity (e.g., low or high).
+    enum:
+      - low
+      - high
+  mean_delta_latency:
+    type: number
+    description: Mean difference in latency compared to ground truth.
+  std_delta_latency:
+    type: number
+    description: Standard deviation of the latency difference.
+  n_samples:
+    type: integer
+    description: Number of samples used in the analysis.
+    minimum: 0
+  anova_f_statistic:
+    type: number
+    description: F‑statistic from the ANOVA test.
+  anova_p_value:
+    type: number
+    description: P‑value from the ANOVA test.
+    minimum: 0
+    maximum: 1
+  interaction_significant:
+    type: boolean
+    description: Whether the interaction term is statistically significant.
+  segmented_regression_knee_point:
+    type: number
+    description: Estimated knee point (complexity level) of the piecewise regression.
+  segmented_regression_p_value:
+    type: number
+    description: P‑value for the segmented regression model.
+    minimum: 0
+    maximum: 1

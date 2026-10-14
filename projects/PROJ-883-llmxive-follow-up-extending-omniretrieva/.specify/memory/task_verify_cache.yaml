@@ -1,32 +1,15 @@
-T001:
-  c: false
-  h: 442c76ed883881a0fba059b1d0638c1cb8dae3a84cce7f3cbcf27b1f6600a7d9
-  r: The project skeleton and required files (directories, quickstart.md, requirements.txt,
-    .ruff.toml, pyproject.toml) are present, but there is no evidence that `ruff check
-    code/` was executed and passed; the task explicitly requires a successful lint
-    run. Provide the command output (or a test) showing that `ruff` reports no errors.
-  sig: ef889887351a89077b3266449023760027525a732b10cd23bc0c749135ef161d
-T004:
-  c: false
-  h: 4920ccd7b0b07839802acb65e9e7678eb96f61bfae3d6078e15db854c2d7972f
-  r: "The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,\
-    \ `execution_metric.schema.yaml`, `statistics-result.schema.yaml`) are all reported\
-    \ as MISSING, and no sample data rows or validation output are provided. Consequently\
-    \ the task of creating/repairing the schemas and validating them with\u202Fpyyaml\u202F\
-    +\u202Fjsonschema is not satisfied."
-  sig: f7c1e121373d0935f9070edc83d99ce88919a67c915a66ab6d44ea5ce1ab15ed
 T005:
   c: false
-  h: 57eb16adacab5dda958fe613b7f55f10fbe9f76d0b5b733aa7552d30248f0257
-  r: "Checked `code/config.py` (provides seeds, directories, throttling) and `code/utils/data_fetcher.py`.\
-    \ The data fetcher contains a critical bug: it calls `load_dataset(name, name=config_name,\
-    \ \u2026)`, passing the `name` argument twice, which raises a `TypeError` and\
-    \ prevents any real dataset from being fetched (even before network access). Consequently\
-    \ real fetching never succeeds and the fallback logic is never exercised as intended.\
-    \ The module also fails to import in the test environment due to a missing compatible\
-    \ `pyarrow`/NumPy version, indicating it is not runnable as\u2011is. The task\
-    \ therefore is"
-  sig: 433a4d534507307998d7ef8cc90fdbe132ccb1bce8912e324319c64c782b4116
+  h: 15ffed6f45a6d30452b30d0a10257b6e875f13d00ae75fdfcceccb97f0235c92
+  r: "Checked `code/config.py` (present and provides seeds, paths, throttling settings)\
+    \ and `code/utils/data_fetcher.py` (present but calls `load_dataset(name, name=config_name,\
+    \ \u2026)` which passes the `name` argument twice, causing a runtime error and\
+    \ preventing correct fetching of the required datasets). Additionally, the unit\u2011\
+    test import fails because the module tries to import `datasets` (and thus `pyarrow`)\
+    \ in an environment where the required NumPy version is missing. The implementation\
+    \ therefore does not correctly invoke the HuggingFace API nor pass the provided\
+    \ tests."
+  sig: c420db0fa7498d02cec5cddf806b1c949fb5c485879e7e0e89d8f42c9cf08008
 T006:
   c: false
   h: 32c964cd415decbc29e371c5d113a4269d66680552df8a3c8467f8e843346b2e
@@ -44,6 +27,26 @@ T007:
     \ and, on ties, the smallest `depth`. The accompanying unit\u2011test log shows\
     \ both tests (cost/depth ordering and fallback without steps) pass."
   sig: 99ee1b2d17e1a771e38cefca1d65b9a96071b95c46d34f307a5c14aa69a70478
+T008:
+  c: false
+  h: fa3689d76f5bd39274540d06f70e8ed801387d4915d10176f505128eb882989c
+  r: "The evidence only shows that the required files (`base.py`, `text_executor.py`,\
+    \ `relational_executor.py`, `graph_executor.py`) exist, but no content is provided\
+    \ to confirm that `base.py` implements a 60\u2011second timeout abstract executor\
+    \ or that the three concrete wrappers actually use MS\u202FMARCO, in\u2011memory\
+    \ SQLite (Spider), and NetworkX/RDFLib over DBpedia/Wikidata as specified. Without\
+    \ inspecting the file implementations, the task requirements cannot be verified\
+    \ as met."
+  sig: ce05a4a0a84eecfbb105b7bba32dd6f99a7dd0fc5975d57954e4b5b4856b693d
+T016:
+  c: true
+  h: 9dff08b26d536d19baaa57d3decc0606ece48fe0a40efebc30cf270c4ec55b03
+  r: "Checked `code/utils/cpu_throttle.py` (11850\u202Fbytes) \u2013 it defines the\
+    \ required constants, creates a cgroup limiting to 2\u202FCPU cores and 7\u202F\
+    GB RAM, logs the mode and limits, aborts with exit code\u202F1 and an error message\
+    \ when cgroup setup fails, and contains no RLIMIT fallback. Unit\u2011test log\
+    \ shows the throttling checks and error handling pass."
+  sig: 1edc49a1f9c0f8702cc6bc12a5f353cf244c9f4107face6f9025c727e81643f8
 T020:
   c: false
   h: 01292f74bbe027f31fee22235d5b1234e07bbbc856c2aab04766d90aeebec70e
@@ -61,14 +64,11 @@ T021:
     \ to the JSON. Consequently, the claimed data\u2011persistence feature is not\
     \ actually implemented."
 T022:
-  c: false
-  h: 6744f703566ffb7f8e69ddf34d8afb4a576ed7f4b74f0aafe0ca8cab2eb3f418
-  r: "The `code/router/sut_router.py` file exists and implements a heuristic\u2011\
-    based `sut_plan` and writes it back to the JSON file, but the unit test `test_router_enriches_file`\
-    \ fails because the script uses `paths.path`, which rejects input/output files\
-    \ located outside the project directory (the temporary test file). This path\u2011\
-    validation bug prevents the router from correctly enriching arbitrary `generation_log.json`\
-    \ files, so the implementation does not fully satisfy the task\u2019s requirement.\
-    \ Fix the path handling (e.g., use plain `Path` or allow external paths) and rerun\
-    \ the tests."
-  sig: 74e4ccad2462be315a33920b068b0fe2ade3a98f03ccf103dba75ed68f9b09a2
+  c: true
+  h: 4c39eecdc635160dd727c358cc3dc251d0fd7bd11e2d6856939df3eb6f88c13b
+  r: "Checked `code/router/sut_router.py` \u2013 it reads a JSON list of query definitions,\
+    \ generates a `sut_plan` for each using a depth\u20111 cost heuristic (base cost\u202F\
+    \xD7\u202Fcomplexity, steps list), inserts the plan into each entry, and writes\
+    \ the enriched JSON back (as confirmed by the successful run log). The required\
+    \ artifact exists, is non\u2011empty, and implements the specified behavior."
+  sig: 7ee78007ac9ace55ce6af8edd9f668aa16b67cc296cc03391fde4b3dd56add1c

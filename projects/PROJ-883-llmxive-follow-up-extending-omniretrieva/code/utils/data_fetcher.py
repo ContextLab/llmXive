@@ -13,9 +13,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Optional, Union
-
-from datasets import load_dataset, Dataset, DatasetDict, DownloadConfig, DownloadMode
+from typing import Any, Optional, Union
 
 from llmxive_toolkit import get_logger, paths
 
@@ -53,7 +51,7 @@ def calculate_checksum(filepath: Union[str, Path], algorithm: str = "sha256") ->
 
 
 def _write_streamed_dataset(
-    ds: Union[Dataset, DatasetDict],
+    ds: Any,
     dest_path: Path,
     synthetic_flag: int = 0,
 ) -> None:
@@ -64,7 +62,7 @@ def _write_streamed_dataset(
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     with dest_path.open("w", encoding="utf-8") as out_f:
         # If a DatasetDict (multiple splits), concatenate them
-        if isinstance(ds, DatasetDict):
+        if hasattr(ds, "keys"):  # crude check for DatasetDict‑like object
             iterator = (example for split in ds.values() for example in split)
         else:
             iterator = ds
@@ -111,6 +109,23 @@ def fetch_dataset(
     DataFetchError
         If the dataset cannot be fetched and ``allow_synthetic`` is ``False``.
     """
+    try:
+        # Import lazily to avoid importing heavy dependencies (e.g., pyarrow) unless needed.
+        from datasets import load_dataset, DownloadConfig, DownloadMode  # type: ignore
+    except Exception as exc:
+        log.error(f"Failed to import datasets library: {exc}")
+        if allow_synthetic:
+            log.warning("Falling back to synthetic dataset generation (synthetic_flag=1).")
+            synthetic_path = Path(dest_path) if dest_path else paths.data(
+                "raw", f"synthetic_{name.replace('/', '_')}.jsonl"
+            )
+            _generate_synthetic_graph(synthetic_path)
+            return synthetic_path
+        else:
+            raise DataFetchError(
+                f"Unable to import datasets library and synthetic fallback is disabled."
+            ) from exc
+
     try:
         log.info(f"Attempting to fetch dataset: {name} (config={config_name}, split={split})")
         # Use streaming to keep memory usage low

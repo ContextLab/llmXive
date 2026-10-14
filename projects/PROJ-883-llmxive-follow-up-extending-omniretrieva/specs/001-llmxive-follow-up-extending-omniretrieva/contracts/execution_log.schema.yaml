@@ -1,27 +1,20 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: ExecutionLog
+description: Schema for a single execution log entry.
 type: object
-properties:
-  query_id:
-    type: string
-  source_type:
-    type: string
-    enum: [text, relational, graph]
-  complexity_level:
-    type: integer
-    minimum: 1
-  latency_ms:
-    type: number
-    minimum: 0
-  translation_error:
-    type: boolean
-  success_flag:
-    type: boolean
-  timeout_flag:
-    type: boolean
-  throttling_mode:
-    type: string
+additionalProperties: false
 required:
   - query_id
   - latency_ms
   - success_flag
+properties:
+  query_id:
+    type: string
+    description: Identifier of the query.
+  latency_ms:
+    type: number
+    description: Measured latency in milliseconds.
+    minimum: 0
+  success_flag:
+    type: boolean
+    description: Whether the execution succeeded (no timeout or error).

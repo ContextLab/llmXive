@@ -99,8 +99,11 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
-    input_path = paths.path(args.input)
-    output_path = paths.path(args.output)
+    # Use plain pathlib.Path to allow both project‑relative and external
+    # temporary paths (e.g., during unit tests).  ``paths.path`` enforces
+    # the path to be inside the project root, which caused test failures.
+    input_path = Path(args.input)
+    output_path = Path(args.output)
 
     log.info("Reading generation log from %s", input_path)
     with open(input_path, "r", encoding="utf-8") as f:

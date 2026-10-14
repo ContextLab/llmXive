@@ -1,6 +1,5 @@
-"""Placeholder statistical analysis utilities."""
+"""Statistical analysis utilities for execution logs."""
 
-import warnings
 from typing import Dict, Any, List, Optional, Tuple, Union
 from pathlib import Path
 import pandas as pd

@@ -1,20 +1,16 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: ExecutionMetric
+description: Schema for execution metric records (used for downstream analysis).
 type: object
-properties:
-  query_id:
-    type: string
-  latency_ms:
-    type: number
-    minimum: 0
-  mismatch_flag:
-    type: boolean
-  delta_latency:
-    type: number
-  engine_version:
-    type: string
-  throttle_config:
-    type: string
+additionalProperties: false
 required:
   - query_id
   - latency_ms
+properties:
+  query_id:
+    type: string
+    description: Identifier of the query.
+  latency_ms:
+    type: number
+    description: Measured latency in milliseconds.
+    minimum: 0

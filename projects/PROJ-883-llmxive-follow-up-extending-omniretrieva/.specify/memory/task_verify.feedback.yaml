@@ -1,25 +1,26 @@
 T001:
-  reason: The project skeleton and required files (directories, quickstart.md, requirements.txt,
-    .ruff.toml, pyproject.toml) are present, but there is no evidence that `ruff check
-    code/` was executed and passed; the task explicitly requires a successful lint
-    run. Provide the command output (or a test) showing that `ruff` reports no errors.
+  reason: "The project skeleton and documentation files are present, but the integration\
+    \ lint test shows `ruff check code/` fails (e.g., import ordering, deprecated\
+    \ typing hints, and other style violations in `code/analysis/metrics.py`). The\
+    \ task requires a successful `ruff` run, which is not met. Fix the lint errors\
+    \ (or adjust the code) so that `ruff check code/` returns exit code\u202F0."
   task: eb8380d842da885e28c9626b73bce40ed6e7a00e34359b9ffb7253b561596cf1
 T004:
   reason: "The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,\
-    \ `execution_metric.schema.yaml`, `statistics-result.schema.yaml`) are all reported\
-    \ as MISSING, and no sample data rows or validation output are provided. Consequently\
-    \ the task of creating/repairing the schemas and validating them with\u202Fpyyaml\u202F\
-    +\u202Fjsonschema is not satisfied."
+    \ `execution_metric.schema.yaml`, `statistics-result.schema.yaml`) are all missing\
+    \ from `specs/001-structural-mismatch-cost/contracts/`, and the validation test\
+    \ fails because the validation script cannot find these schemas. Consequently\
+    \ the task\u2019s core deliverable is not present."
   task: 237f33ad5aae5bbcc0d59f7ce2a726f5d0fe5dcc4ddb0243c1e899e9c9dea1a0
 T005:
-  reason: "Checked `code/config.py` (provides seeds, directories, throttling) and\
-    \ `code/utils/data_fetcher.py`. The data fetcher contains a critical bug: it calls\
-    \ `load_dataset(name, name=config_name, \u2026)`, passing the `name` argument\
-    \ twice, which raises a `TypeError` and prevents any real dataset from being fetched\
-    \ (even before network access). Consequently real fetching never succeeds and\
-    \ the fallback logic is never exercised as intended. The module also fails to\
-    \ import in the test environment due to a missing compatible `pyarrow`/NumPy version,\
-    \ indicating it is not runnable as\u2011is. The task therefore is"
+  reason: "Checked `code/config.py` (present and provides seeds, paths, throttling\
+    \ settings) and `code/utils/data_fetcher.py` (present but calls `load_dataset(name,\
+    \ name=config_name, \u2026)` which passes the `name` argument twice, causing a\
+    \ runtime error and preventing correct fetching of the required datasets). Additionally,\
+    \ the unit\u2011test import fails because the module tries to import `datasets`\
+    \ (and thus `pyarrow`) in an environment where the required NumPy version is missing.\
+    \ The implementation therefore does not correctly invoke the HuggingFace API nor\
+    \ pass the provided tests."
   task: e7317a562eeb5d71cf741fddff540cbd60e63829cdeb0347373f8fa17115e200
 T006:
   reason: "The generator script exists and caps depths with a warning, but the required\
@@ -31,6 +32,13 @@ T006:
 T007:
   task: 85c536ec641841533d86bd41d67564b70effb51e973f7dbb9ae844a908952289
 T008:
+  reason: "The evidence only shows that the required files (`base.py`, `text_executor.py`,\
+    \ `relational_executor.py`, `graph_executor.py`) exist, but no content is provided\
+    \ to confirm that `base.py` implements a 60\u2011second timeout abstract executor\
+    \ or that the three concrete wrappers actually use MS\u202FMARCO, in\u2011memory\
+    \ SQLite (Spider), and NetworkX/RDFLib over DBpedia/Wikidata as specified. Without\
+    \ inspecting the file implementations, the task requirements cannot be verified\
+    \ as met."
   task: 620b92166fafe8bc4124a59b2210ca4f2a8681159dbc39f52e0f0c6a75d5af32
 T016:
   task: ed9c5dc28e04a1b7a4e29e8c9b6f202a791354f09758bea75cf7bd7ab6d6922e
@@ -42,14 +50,6 @@ T021:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 5e98a32ea3fb3b5c5c3bc8f75502682334f7d153fd28741b5342e54eb7174d20
 T022:
-  reason: "The `code/router/sut_router.py` file exists and implements a heuristic\u2011\
-    based `sut_plan` and writes it back to the JSON file, but the unit test `test_router_enriches_file`\
-    \ fails because the script uses `paths.path`, which rejects input/output files\
-    \ located outside the project directory (the temporary test file). This path\u2011\
-    validation bug prevents the router from correctly enriching arbitrary `generation_log.json`\
-    \ files, so the implementation does not fully satisfy the task\u2019s requirement.\
-    \ Fix the path handling (e.g., use plain `Path` or allow external paths) and rerun\
-    \ the tests."
   task: 1fb599c65257d88d34448819679dd4dc31d19a4364f85e3b9baba3a178ba16b0
 T023:
   task: d52c38943fe3eb46c4ce0328b3c25acb21e4ee5a1d77aa46e47b8d96a6bd90c0

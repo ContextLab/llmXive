@@ -1,24 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: QueryInstance
+description: Schema for a synthetic query instance.
 type: object
-properties:
-  query_id:
-    type: string
-  logical_plan:
-    type: string
-  source_type:
-    type: string
-    enum: [text, relational, graph]
-  complexity_level:
-    type: integer
-    minimum: 1
-  ground_truth_plan:
-    type: string
-  synthetic_flag:
-    type: integer
-    enum: [0, 1]
+additionalProperties: false
 required:
   - query_id
   - source_type
   - complexity_level
   - ground_truth_plan
+properties:
+  query_id:
+    type: string
+    description: Unique identifier for the query.
+  source_type:
+    type: string
+    description: Type of source the query targets.
+    enum:
+      - text
+      - relational
+      - graph
+  complexity_level:
+    type: integer
+    description: Integer plan depth (≥ 1).
+    minimum: 1
+  ground_truth_plan:
+    type: string
+    description: Deterministic ground‑truth execution plan.
