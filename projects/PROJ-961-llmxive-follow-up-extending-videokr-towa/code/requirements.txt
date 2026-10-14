@@ -1,0 +1,5 @@
+huggingface_hub>=0.23
+datasets>=2.18
+# Existing environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil, llmxive_toolkit. No need to repeat them here.

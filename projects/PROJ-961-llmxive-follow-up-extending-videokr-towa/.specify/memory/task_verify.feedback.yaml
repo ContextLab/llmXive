@@ -1,0 +1,46 @@
+T101:
+  reason: "Checked `code/utils/config.py` \u2013 it correctly defines `SEEDS`, `PATHS`,\
+    \ and `SENSITIVITY_THRESHOLDS = [2,3,4]`.  \nChecked `code/ingest/checksum.py`\
+    \ \u2013 while the functions now use a list\u2011of\u2011dict schema and `main()`\
+    \ exits non\u2011zero on failures, the script imports `from utils.config import\
+    \ \u2026` which is an invalid import (the module lives at `code/utils/config.py`).\
+    \ This will raise `ModuleNotFoundError`, so the script cannot actually run the\
+    \ verification as claimed. The import must be fixed (e.g., `from code.utils.config\
+    \ import \u2026`) for the task to be complete."
+  task: 124f0ea77e72c354939beda0a391bd830931598c680d04f7228b82b3f161e287
+T102:
+  reason: "The `link_dataframe` function is present, but the fuzzy\u2011matching branch\
+    \ does not extract entities from the test sentences, causing the test `test_fuzzy_matching_threshold_behavior`\
+    \ to fail (expected \u201CApple\u201D but got `None`). Consequently the unit\u2011\
+    test suite does not pass, so the task\u2019s verification requirement is not met."
+  task: eb46c77b92d8ade98ad3221f5e603ccd37518053ac27ddb12012ba43927408e3
+T103:
+  reason: 'Requested task execution failed; rerun successfully: code/ingest/download_data.py
+    exit=1'
+  task: a7c2f12c81956582d191f4e751109d6b341a88d7e9148ed57689ed496f7f60be
+T104:
+  task: 0c03fa2afdbb8f1cfd1fed764597ec24fccf4a075a7dc6534a99c9395618197c
+T104b:
+  task: 03e65610da245f4f81ddfb946f1659aaebf2e0ea74dfed19c4ccecd147ff519a
+T105:
+  task: 34f076795dd12b3ebbaefe40d7ac6d6eab85cf57c43e23e37e097ff00b89fcd9
+T106:
+  task: 27ab86d90aa35c87f4044a4e3362a438787c27d9d8b53637d89424db504b55d9
+T107:
+  task: 3065546d49067ecdc1ade2652ddd6ed24149cb5d19c63a62efca4ef1998fd07b
+T108:
+  task: 85c61ee0b3328707fe3468cda4fd25566319a282bde84a8500046fc129342950
+T109:
+  task: b6d71917b1754324805026460e4ebfe336f2f86c34a5bcf6894493ee42be5d7c
+T110:
+  task: 5958b119f9fe5207a56c865f545bb11472e2ca22cbcbdc9e0fa8fc767ce17457
+T111:
+  task: bca6233ca821de842871e5a92b3a30a65aa1bd2b411d527cf761cd114af6ffc4
+T112:
+  task: 9df396a2a9dad313aca5c003566dcb9d6ec2e296e602d719516e9545e0e27660
+T113:
+  task: 5624063d510eb7e1e3f37b1227bcef8829848da394049a5543d53e7a483df0e9
+T114:
+  task: 26cc3988583d0e53e855019d9bd9745a0930ecc536f2a9092334fbf51b1e7d55
+T115:
+  task: 394f61d06f8238f2c729557a01aaaa818502fadeec2fdd2afa07bb3f7efbbb78

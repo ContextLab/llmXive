@@ -1,114 +1,124 @@
 """
-Data download module for fetching VideoKR-SFT and Knowledge Graph.
+Data download module for fetching VideoKR‑SFT and Knowledge Graph.
+This script attempts to download the required files from the official
+Hugging Face Hub repository defined in ``utils.config.VIDEO_KR_REPO``.
+If the download fails, a ``DataUnavailableError`` is raised – no synthetic
+fallback is performed.
+After successful download, SHA‑256 checksums for each file are recorded
+in ``data/raw/checksums.json`` using the checksum utilities.
 """
-import hashlib
-import json
 import logging
-import os
-import sys
-import requests
+import json
 from pathlib import Path
-from typing import Dict, Any, Optional, Union
+from typing import List, Dict
+
+from huggingface_hub import hf_hub_download, HfHubHTTPError
+from utils.config import get_path, ensure_dir, VIDEO_KR_REPO, PATHS
+
+from ingest.checksum import compute_sha256
+
+logger = logging.getLogger(__name__)
 
 
-def download_file(
-    url: str,
-    output_path: Union[str, Path],
-    chunk_size: int = 8192
-) -> Optional[Path]:
+class DataUnavailableError(RuntimeError):
+    """Raised when the required dataset or graph cannot be fetched."""
+
+
+def _download_file(repo_id: str, filename: str, target_dir: Path) -> Path:
     """
-    Download a file from a URL.
-    
+    Helper that downloads a single file from the Hugging Face Hub.
+
     Args:
-        url (str): URL to download from.
-        output_path (Union[str, Path]): Path to save the file.
-        chunk_size (int): Chunk size for streaming.
-        
+        repo_id (str): Repository identifier on the Hub.
+        filename (str): Name of the file inside the repo.
+        target_dir (Path): Directory where the file should be placed.
+
     Returns:
-        Optional[Path]: Path to the downloaded file, or None on failure.
+        Path: Path to the downloaded file.
+
+    Raises:
+        DataUnavailableError: If the download fails for any reason.
     """
     try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        
-        output_obj = Path(output_path) if isinstance(output_path, str) else output_path
-        output_obj.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_obj, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=chunk_size):
-                if chunk:
-                    f.write(chunk)
-        
-        return output_obj
+        logger.info(f"Attempting to download '{filename}' from repo '{repo_id}'.")
+        downloaded_path = hf_hub_download(
+            repo_id=repo_id,
+            filename=filename,
+            cache_dir=str(target_dir),
+            force_download=False,
+            resume_download=True,
+        )
+        # Move the file into the desired location (ensuring the exact name)
+        target_path = target_dir / filename
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        # ``hf_hub_download`` may return a path inside the cache; we copy it.
+        # Using ``replace`` ensures we have a single authoritative copy.
+        Path(downloaded_path).replace(target_path)
+        logger.info(f"Successfully downloaded to {target_path}")
+        return target_path
+    except HfHubHTTPError as e:
+        logger.error(f"Failed to download {filename} from {repo_id}: {e}")
+        raise DataUnavailableError(
+            f"Unable to fetch required file '{filename}' from repository '{repo_id}'."
+        ) from e
     except Exception as e:
-        logging.error(f"Failed to download {url}: {e}")
-        return None
+        logger.error(f"Unexpected error while downloading {filename}: {e}")
+        raise DataUnavailableError(
+            f"Unexpected error during download of '{filename}'."
+        ) from e
 
 
-def download_videokr_sft(
-    url: str,
-    output_dir: Union[str, Path]
-) -> Optional[Path]:
+def _write_checksums(entries: List[Dict[str, str]], output_path: Path) -> None:
     """
-    Download the VideoKR-SFT dataset.
-    
+    Write a list of checksum entries to ``output_path`` as a JSON list.
+
     Args:
-        url (str): URL to the dataset.
-        output_dir (Union[str, Path]): Directory to save the dataset.
-        
-    Returns:
-        Optional[Path]: Path to the downloaded file, or None on failure.
+        entries (List[Dict[str, str]]): List of ``{\"path\": ..., \"sha256\": ...}`` dicts.
+        output_path (Path): Destination file.
     """
-    output_path = Path(output_dir) / "videokr_sft.json"
-    return download_file(url, output_path)
-
-
-def download_knowledge_graph(
-    url: str,
-    output_dir: Union[str, Path]
-) -> Optional[Path]:
-    """
-    Download the Knowledge Graph.
-    
-    Args:
-        url (str): URL to the graph.
-        output_dir (Union[str, Path]): Directory to save the graph.
-        
-    Returns:
-        Optional[Path]: Path to the downloaded file, or None on failure.
-    """
-    output_path = Path(output_dir) / "knowledge_graph.json"
-    return download_file(url, output_path)
-
-
-def verify_checksums(
-    file_path: Union[str, Path],
-    expected_hash: str
-) -> bool:
-    """
-    Verify a file's checksum.
-    
-    Args:
-        file_path (Union[str, Path]): Path to the file.
-        expected_hash (str): Expected SHA-256 hash.
-        
-    Returns:
-        bool: True if hash matches, False otherwise.
-    """
-    sha256_hash = hashlib.sha256()
-    path_obj = Path(file_path) if isinstance(file_path, str) else file_path
-    
-    with open(path_obj, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    
-    return sha256_hash.hexdigest() == expected_hash
+    ensure_dir(output_path.parent)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(entries, f, indent=2)
+    logger.info(f"Checksum file written to {output_path}")
 
 
 def main() -> None:
-    """Main entry point for download module."""
-    pass
+    """
+    Main entry point for the download module.
+
+    - Downloads ``videokr_sft.json`` and ``knowledge_graph.json`` from the
+      Hugging Face Hub repository defined in ``utils.config.VIDEO_KR_REPO``.
+    - Computes SHA‑256 checksums for each file.
+    - Writes a combined checksum list to ``data/raw/checksums.json``.
+    - Exits with a non‑zero status code if any download fails.
+    """
+    raw_dir: Path = PATHS["raw"]
+    ensure_dir(raw_dir)
+
+    # Expected filenames in the repository
+    filenames = ["videokr_sft.json", "knowledge_graph.json"]
+    downloaded_paths: List[Path] = []
+
+    for fn in filenames:
+        downloaded_paths.append(_download_file(VIDEO_KR_REPO, fn, raw_dir))
+
+    # Compute checksums
+    checksum_entries = []
+    for path in downloaded_paths:
+        checksum = compute_sha256(path)
+        entry = {"path": str(path.relative_to(raw_dir).as_posix()), "sha256": checksum}
+        checksum_entries.append(entry)
+
+    # Write combined checksum file
+    checksum_file = raw_dir / "checksums.json"
+    _write_checksums(checksum_entries, checksum_file)
 
 
 if __name__ == "__main__":
-    main()
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    try:
+        main()
+    except DataUnavailableError as e:
+        logger.error(e)
+        # Propagate the error with a non‑zero exit code as required.
+        raise SystemExit(1)
