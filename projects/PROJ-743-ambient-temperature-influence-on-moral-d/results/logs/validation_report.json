@@ -1,22 +1,14 @@
 {
+  "timestamp": "2026-10-14T17:12:13.569491Z",
   "checks": {
-    "cds_api": {
-      "detail": "Failed to initialise CDS client: Missing/incomplete configuration file: /home/runner/work/llmXive/llmXive/projects/PROJ-743-ambient-temperature-influence-on-moral-d/.runtime-home/.cdsapirc",
-      "status": true
+    "moral_machine": {
+      "status": false,
+      "detail": "File missing"
     },
-    "era5_directory": {
-      "detail": "Directory created (empty)",
-      "status": true
-    },
-    "moral_machine_columns": {
-      "detail": "File missing \u2013 columns skipped",
-      "status": true
-    },
-    "moral_machine_file": {
-      "detail": "File missing \u2013 proceeding",
-      "status": true
+    "era5_data": {
+      "status": false,
+      "detail": "Directory missing"
     }
   },
-  "overall_status": "PASS",
-  "timestamp": "2026-10-14T12:09:40.028608Z"
+  "overall_status": "FAIL"
 }

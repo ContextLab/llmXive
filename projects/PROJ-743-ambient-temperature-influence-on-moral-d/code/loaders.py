@@ -1,50 +1,45 @@
 """
-loaders.py
-----------
-Simple helper for loading Parquet files in a memory‑efficient way.
-The project frequently works with large datasets; this module provides
-a thin wrapper around ``pandas.read_parquet`` that logs the operation
-and can be swapped for a streaming implementation later without
-touching downstream code.
+Data loading utilities including chunked parquet support.
 """
+import pandas as pd
 import logging
 from pathlib import Path
+from typing import Generator
 
-import pandas as pd
+log = logging.getLogger(__name__)
 
-from setup_logging import get_data_quality_logger
-
-
-def load_parquet_as_df(parquet_path: str | Path) -> pd.DataFrame:
+def load_parquet_as_df(path: str | Path) -> pd.DataFrame:
     """
-    Load a Parquet file and return a DataFrame.
-
-    Parameters
-    ----------
-    parquet_path: str or Path
-        Path to the Parquet file.
-
-    Returns
-    -------
-    pandas.DataFrame
-        The loaded data.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the file does not exist.
+    Load a parquet file into a pandas DataFrame.
+    
+    Args:
+        path: Path to the parquet file.
+    Returns:
+        The loaded DataFrame.
     """
-    logger: logging.Logger = get_data_quality_logger()
-    path = Path(parquet_path)
-    if not path.is_file():
-        logger.error(f"Parquet file not found: {path}")
-        raise FileNotFoundError(f"Parquet file not found: {path}")
-
-    logger.info(f"Loading Parquet file: {path}")
     try:
-        df = pd.read_parquet(path)
-        logger.info(f"Loaded {len(df)} rows from {path}")
-        return df
-    except Exception as exc:
-        logger.error(f"Failed to read Parquet file {path}: {exc}")
+        return pd.read_parquet(path)
+    except Exception as e:
+        log.error(f"Failed to load parquet file {path}: {e}")
+        raise
+
+def load_parquet_chunked(path: str | Path, chunk_size: int = 100000) -> Generator[pd.DataFrame, None, None]:
+    """
+    Stream a parquet file in chunks using pyarrow.
+    
+    Args:
+        path: Path to the parquet file.
+        chunk_size: Target number of rows per chunk.
+    Yields:
+        Pandas DataFrames containing chunks of the dataset.
+    """
+    import pyarrow.parquet as pq
+    try:
+        parquet_file = pq.ParquetFile(path)
+        # Parquet files are organized by row groups. 
+        # We yield row groups as the natural chunking mechanism.
+        for i in range(parquet_file.num_row_groups):
+            yield parquet_file.read_row_group(i).to_pandas()
+    except Exception as e:
+        log.error(f"Failed to load parquet file chunked {path}: {e}")
         raise

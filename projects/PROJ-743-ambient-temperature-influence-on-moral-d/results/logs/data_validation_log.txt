@@ -1,3 +1,6 @@
 [2026-01-15T10:00:00.000000] Source: Moral Machine Dataset (OpenML/GCS), Status: Pass
 [2026-01-15T10:00:01.000000] Source: ERA5 Reanalysis Data, Status: Pass
-[2026-01-15T10:00:02.000000] Source: Copernicus CDS API, Status: Pass
+[2026-01-15T10:00:02.000000] Source: Copernicus CDS API, Status: Pass[2026-10-14T17:12:13.182296Z] Source: Moral Machine Dataset, Status: Fail (File missing)
+[2026-10-14T17:12:13.182357Z] Source: ERA5 Reanalysis Data, Status: Fail (Directory missing)
+[2026-10-14T17:12:13.569848Z] Source: Moral Machine Dataset, Status: Fail (File missing)
+[2026-10-14T17:12:13.569908Z] Source: ERA5 Reanalysis Data, Status: Fail (Directory missing)

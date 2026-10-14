@@ -3,8 +3,8 @@ T001:
     exit=1'
   task: 9ac4154c5ddecb587279531090dbf2869b4801d70573f14e5559b99e9674b38c
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/validate_sources.py
-    exit=1'
+  reason: 'Requested task execution failed; rerun successfully: code/download_moral_machine.py
+    exit=1; code/validate_sources.py exit=1'
   task: 50a0ff6721b706422e54b35dda00644a3e2385f54ce0b6d14318c2d2c4e956b0
 T003:
   task: b2c21ce930a0c659a0c3047bc6fdf6cf9eeb46d2c95c8ac1994ee91cb5413305
