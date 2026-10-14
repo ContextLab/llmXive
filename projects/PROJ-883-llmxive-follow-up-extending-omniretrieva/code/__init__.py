@@ -1,1 +1,3 @@
-"""Code package initialization."""
+"""
+Package marker for the `code` module.
+"""

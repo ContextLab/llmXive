@@ -1,12 +1,12 @@
 status: none
-intent: Huggingface datasets library download MS MARCO Spider DBpedia python package
-  dataset
+intent: download MS MARCO subset and DBpedia RDF as Python packages for latency benchmarking
+  python package dataset
 required_fields:
 - query_id
 - query_text
-- exact_plan_depth
+- plan_depth
 - source_type
-- latency
-cache_key: ae5940d7985888284b67e3c2841e20edd9ed8c342f3d5a53f570a6b79adaebdb
-searched_at: '2026-10-14T13:18:29.514824+00:00'
+- latency_ms
+cache_key: 381b7bc5ad99e9cd2c1b3f92e40f4cf4dfe0ea58d16fea95d1d824e1e085bbc7
+searched_at: '2026-10-14T13:52:20.063095+00:00'
 retry_count: 1

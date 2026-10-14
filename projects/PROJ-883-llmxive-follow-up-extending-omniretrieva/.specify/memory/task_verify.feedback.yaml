@@ -1,75 +1,35 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/ground_truth_engine.py
-    exit=1; code/visualize.py exit=1; code/main.py exit=1'
-  task: eb8380d842da885e28c9626b73bce40ed6e7a00e34359b9ffb7253b561596cf1
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  task: 5473e379875539bab4a72321bd1fa5a75dafe7efdc28ae6ade9ef5ab17f77dc7
+T002:
+  task: 1f4520c0906c3b44759779d8941cfd7a5ff08023d9fd359a2b78224b00f9a6c6
+T003:
+  task: 5939f3dea9e491326c3dc1d03ab907c13a4d5b227199c8d5382eb86a5cf0fa13
 T004:
-  reason: "The evidence collector explicitly reports all four required schemas (`query_instance.schema.yaml`,\
-    \ `execution_log.schema.yaml`, `execution_metric.schema.yaml`, `statistics-result.schema.yaml`)\
-    \ as MISSING at the resolved project path, despite their names appearing in a\
-    \ directory listing \u2014 no readable, non-empty file content was confirmed for\
-    \ any of them. Additionally, the deprecated `analysis_result.schema.yaml` and\
-    \ `gam_results.schema.yaml` are present in the contracts directory, which the\
-    \ task explicitly forbade; the passing test log is not sufficient evidence since\
-    \ the actual schema artifact"
-  task: 237f33ad5aae5bbcc0d59f7ce2a726f5d0fe5dcc4ddb0243c1e899e9c9dea1a0
+  task: cb188582fa561e7e7a596959033ce2e965fc87b835fd7bed02d1725180b0fca0
 T005:
-  reason: "The artifacts exist and structurally cover seeds/paths/throttling, streaming,\
-    \ raising on failure, and the `--allow-synthetic` flag with `synthetic_flag=1`\
-    \ logging. However, the real-fetch path is functionally broken: `DownloadConfig(download_mode=DownloadMode.FORCE_DOWNLOAD)`\
-    \ passes an invalid keyword (`DownloadConfig` has no `download_mode` parameter;\
-    \ `download_mode` belongs to `load_dataset` itself), so every real fetch will\
-    \ raise a `TypeError` and either fail with `DataFetchError` or silently fall back\
-    \ to the 3-triple synthetic graph \u2014 meaning MS MARCO/Spider/Wikidata can\
-    \ never actually be"
-  task: e7317a562eeb5d71cf741fddff540cbd60e63829cdeb0347373f8fa17115e200
+  task: cdf09b5819385582b7bf0128235d136d5bd411298632f09ee4691b9c8c8cb9d1
 T006:
-  reason: "The generator and log exist with integer `complexity_level` values (1\u2013\
-    4), but the work is substantively hollow: every query has an empty `logical_plan.steps`,\
-    \ so the T007 `ReferenceEngine` always hits its no-steps fallback and `ground_truth_plan`\
-    \ is just the fabricated string `\"gt_plan_<query_id>\"` \u2014 no greedy plan\
-    \ is ever computed, making the \"ground truth\" a placeholder. The only execution\
-    \ record is for a different script (`code/query_generator.py`), not `code/generators/synthetic_query.py`,\
-    \ so there's no evidence the delivered module runs; `query_instance.schema.yaml`\
-    \ is missing so schema c"
-  task: 89ef8ef7a7de3ca26e5c74606be13900bdfeb5f552d222e825fdeeee3cf81434
+  task: 146f6144605a06e1537d489ca8d804b6632eaab04d4b040866a7a5e17c043f84
 T007:
-  task: 85c536ec641841533d86bd41d67564b70effb51e973f7dbb9ae844a908952289
+  task: 7766e6b07951e7e9386d5781f1d51cd2a0d9febb81eea4c725ba93b88b828d67
 T008:
-  reason: 'The executor files exist in `code/executors/`, but the recorded unit test
-    run (`tests/unit/test_executors.py`, exit 1) shows `test_timeout_is_enforced`
-    FAILING with `TypeError: BaseExecutor.__init__() takes from 1 to 2 positional
-    arguments but 4 were given`, meaning the required 60-second timeout handling in
-    `base.py` is not correctly implemented (the base executor''s constructor/timeout
-    API doesn''t match the test contract). Fix `BaseExecutor.__init__` (and the timeout
-    enforcement path) so all four executor tests pass.'
-  task: 620b92166fafe8bc4124a59b2210ca4f2a8681159dbc39f52e0f0c6a75d5af32
+  task: c32be59a5f185bce3823f5289b4809cf46c33ed6ad50fcdc9cf8353c482f540b
+T009:
+  task: 4fd833efdaf82ac84ead45cfaaf36f8e91a81ec4dc587e76b43faaacbe2535cc
+T010:
+  task: b7bcf53458ee771dbedc46819ae11512408eec0ac678868014292dbbba6e3691
+T011:
+  task: bdc740275d46d7983060c8348dfacd608f37562f92399d28db204a335d4e3f38
+T012:
+  task: 69dda3ed3e5c0ace8b7afa54c0aafc74cbdc32e100758a2a99e76c4a63a36d57
+T013:
+  task: e29c3bd19e9e149a10e17576f17d8b71926a3db7d67750e389db20669837d24b
+T014:
+  task: 6b6c7a394e993f28343b75b4c483ee5d42dfe6020b83070ec8ed7c48fbb2898c
+T015:
+  task: 8cf76466ea086aebc8484b30114122768b091fef260fd2d97997aa3dc53be70b
 T016:
-  task: ed9c5dc28e04a1b7a4e29e8c9b6f202a791354f09758bea75cf7bd7ab6d6922e
-T018:
-  task: 986cadfde444ad77eff48c9a7bccc0eac18b9abbe51164150f5b6c9a0aeb7939
-T020:
-  task: 9817371bced803cdb721e91bd6ed9b1f0f821a088655692dad4c6149791a5fe5
-T021:
-  reason: "The pipeline ran and produced the CSV/JSONL with 40 queries across depths\
-    \ 1\u20134 and all source types, but the core **translation_error** metric is\
-    \ computed wrongly: `code/main.py` computes `executed_plan != ground_truth_plan`\
-    \ instead of `sut_plan != ground_truth_plan` as the task requires \u2014 the `sut_plan`\
-    \ produced by `enrich_with_sut_plan` is never used in any metric. Consequently\
-    \ every single row in both `execution_logs.csv` and `execution_metrics.jsonl`\
-    \ has `translation_error=True` (executors emit `\"<source>_plan_<id>\"` strings\
-    \ that never match `\"gt_plan_<id>\"`), a trivially fabricated 100% er"
-  task: 5e98a32ea3fb3b5c5c3bc8f75502682334f7d153fd28741b5342e54eb7174d20
-T022:
-  task: 1fb599c65257d88d34448819679dd4dc31d19a4364f85e3b9baba3a178ba16b0
-T023:
-  reason: 'Requested task execution failed; rerun successfully: code/transform_metrics.py
-    exit=1'
-  task: d52c38943fe3eb46c4ce0328b3c25acb21e4ee5a1d77aa46e47b8d96a6bd90c0
-T025:
-  task: 17984f19de290056b96e4ef624fc8523a46e458d3a7e63999d9a020658ab7610
-T030:
-  task: 39aa901e106e3eb19aad1064742de699ccd3f633d1ef0ff8a677f63cc4c635ed
-T033:
-  task: dadab89299a86a89e67d1efb64a5e69d7eeda5067be1f148a2750c5f77bf3cb3
-T037:
-  task: 9c7a50433d775f5a803b0972331f1ba10811ab0262fab9847e99084cf1724934
+  task: 7ed3bcb16f8607f206495107da4dbe8327d960bd86054e8debc8c5e760c32487
+T017:
+  task: 87980cfc4f2b6bcca7c891326ba1df9c6609257591296aaf9ebfa40cb4ea61f8
