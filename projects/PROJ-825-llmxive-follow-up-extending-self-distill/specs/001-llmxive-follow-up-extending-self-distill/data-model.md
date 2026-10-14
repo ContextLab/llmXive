@@ -1,85 +1,77 @@
-# Data Model: llmXive follow-up: extending "Self-Distilled Agentic Reinforcement Learning"
+# Data Model: llmXive follow‑up: extending "Self‑Distilled Agentic Reinforcement Learning"
 
 ## Overview
-
-This document defines the data structures used to represent training runs, gating signals, and metrics. All data is persisted in JSONL format for streaming efficiency and compatibility with statistical analysis tools.
+Defines the structured artifacts produced during training, gating, and analysis. All files are stored in `data/processed/` using JSONL (step‑level) or Parquet (episode‑level) for efficient streaming.
 
 ## Entities
 
 ### 1. TrainingRun
-
-Represents a single execution of the RL loop.
-
-**Attributes**:
-- `run_id`: Unique identifier (UUID).
-- `variant`: "grpo", "baseline", or "student-only".
-- `environment`: "alfworld" or "webshop".
-- `seed`: Random seed used.
-- `start_time`, `end_time`: ISO 8601 timestamps.
-- `total_steps`: Number of training steps.
-- `final_success_rate`: Average success rate over the run.
-- `avg_cpu_time_per_step`: Mean CPU time in seconds.
-- `peak_memory_mb`: Peak RSS memory in MB.
-- `convergence_steps`: Steps to reach reward threshold 0.8 (or null).
-- `early_stopped`: Boolean (True if run terminated due to threshold or step cap).
+| Field | Type | Description |
+|-------|------|-------------|
+| `run_id` | string (UUID) | Unique identifier for the run. |
+| `variant` | string (`"grpo"`, `"baseline"`, `"student-only"`) | Variant executed. |
+| `environment` | string (`"alfworld"`, `"webshop"`) | Environment name. |
+| `seed` | integer | Random seed used. |
+| `start_time` | string (ISO‑8601) | Run start timestamp. |
+| `end_time` | string (ISO‑8601) | Run end timestamp. |
+| `total_steps` | integer | Number of training steps executed. |
+| `final_success_rate` | number ∈ [0, 1] | Mean task success over the run. |
+| `avg_cpu_time_per_step` | number (seconds) | Mean CPU time per step. |
+| `peak_memory_mb` | number | Peak RSS memory in MB. |
+| `convergence_steps` | integer or null | Steps to reach reward ≥ 0.8; null if not reached. |
+| `early_stopped` | boolean | True if terminated early (threshold or cap). |
 
 ### 2. GatingSignal
-
-Represents the computed gate value for a specific token.
-
-**Attributes**:
-- `step_id`: Integer step index.
-- `token_id`: Integer token index.
-- `token_text`: The actual token string.
-- `entropy`: Float ($H_t$).
-- `stability`: Float ($S_t$).
-- `final_gate`: Float ($g_t$).
-- `is_valid`: Boolean (True if no NaN/Inf).
-- `paired_trajectory_id`: UUID (Links to the baseline trajectory if this is a replay).
+| Field | Type | Description |
+|-------|------|-------------|
+| `step_id` | integer | Training step index. |
+| `token_id` | integer | Token position in the generated sequence. |
+| `token_text` | string | Literal token string. |
+| `entropy` | number | Token entropy \(H_t\). |
+| `stability` | number | Context stability \(S_t\). |
+| `final_gate` | number ∈ [0, 1] | Gated score \(g_t\). |
+| `is_valid` | boolean | False if NaN/Inf detected. |
+| `paired_trajectory_id` | string (UUID) or null | Links to baseline trajectory for correlation analysis. |
 
 ### 3. EpisodeMetrics
-
-Aggregated metrics per episode (for bootstrapping).
-
-**Attributes**:
-- `episode_id`: Integer.
-- `cumulative_reward`: Float.
-- `success`: Boolean (0 or 1).
-- `steps`: Integer.
-- `avg_gate`: Float (average $g_t$ for the episode).
-- `avg_entropy`: Float.
-- `avg_stability`: Float.
-- `trajectory_id`: UUID (Unique ID for the trajectory, used for pairing).
+| Field | Type | Description |
+|-------|------|-------------|
+| `episode_id` | integer | Episode identifier. |
+| `cumulative_reward` | number | Sum of rewards in the episode. |
+| `success` | boolean | 1 if goal reached, else 0. |
+| `steps` | integer | Number of timesteps in the episode. |
+| `avg_gate` | number | Mean \(g_t\) across the episode. |
+| `avg_entropy` | number | Mean \(H_t\) across the episode. |
+| `avg_stability` | number | Mean \(S_t\) across the episode. |
+| `trajectory_id` | string (UUID) | Unique ID for the full trajectory (used for pairing). |
 
 ### 4. ComparisonReport
-
-Aggregated results for statistical analysis.
-
-**Attributes**:
-- `variant_grpo`: List of cumulative rewards (all episodes).
-- `variant_baseline`: List of cumulative rewards (all episodes).
-- `variant_student_only`: List of cumulative rewards (all episodes).
-- `p_value`: Float from bootstrapping test.
-- `effect_size`: Float (Cohen's d).
-- `cost_reduction_pct`: Float (percentage reduction in CPU time).
-- `performance_retention_pct`: Float (percentage of baseline performance retained).
-- `correlation_coefficient`: Float (Pearson r between student heuristic and teacher gap on paired data).
+| Field | Type | Description |
+|-------|------|-------------|
+| `variant_grpo` | list[number] | Cumulative rewards (all episodes). |
+| `variant_baseline` | list[number] | Cumulative rewards (all episodes). |
+| `variant_student_only` | list[number] | Cumulative rewards (all episodes). |
+| `p_value` | number | Result of the bootstrapped hypothesis test (α = 0.05). |
+| `effect_size` | number | Cohen’s d for performance difference. |
+| `cost_reduction_pct` | number | % reduction in avg CPU time per step (Student‑Only vs. Baseline). |
+| `performance_retention_pct` | number | % of baseline improvement over GRPO retained by Student‑Only. |
+| `correlation_coefficient` | number | Pearson r between student‑only gate and teacher‑student gap (paired trajectories). |
 
 ## Data Flow
-
-1.  **Input**: Configuration (JSON) + Environment State.
-2.  **Processing**:
-    - `student_only_agent.py` computes $H_t$ and $S_t$.
-    - `cost_profiler.py` captures CPU/Memory.
-    - Metrics are written to `data/processed/<run_id>.jsonl`.
-    - **Paired Replay**: Baseline trajectories are saved. Student-Only agent replays them to generate paired gating signals.
-3.  **Output**:
-    - `data/processed/summary.json` (ComparisonReport).
-    - `data/processed/correlation_analysis.csv` (Pearson correlation of heuristics).
-    - `data/processed/episode_metrics.parquet` (For bootstrapping).
+1. **Input**: Configuration JSON + environment state.  
+2. **Processing**:  
+   * `student_only_agent.py` computes `H_t`, `S_t`, `g_t`.  
+   * `cost_profiler.py` records CPU time & RSS.  
+   * Metrics are streamed to `data/processed/<run_id>.jsonl`.  
+   * Baseline trajectories are saved for paired replay.  
+3. **Output**:  
+   * `data/processed/summary.json` (ComparisonReport).  
+   * `data/processed/correlation_analysis.csv` (Pearson r data).  
+   * `data/processed/episode_metrics.parquet` (for bootstrapping).  
 
 ## Data Hygiene
+* **Checksums**: SHA‑256 stored in `state/projects/PROJ-825-...yaml` for every file under `data/processed/`.  
+* **Immutability**: Raw logs never overwritten; derived files receive new filenames with timestamps.  
+* **PII**: No personally identifying information; token text originates from synthetic environments only.
 
-- **Checksums**: All generated files in `data/processed/` are checksummed (SHA-256).
-- **Immutability**: Raw logs are never modified. Derived statistics are written to new files.
-- **PII**: No PII is expected. Token texts are from synthetic environments.
+---

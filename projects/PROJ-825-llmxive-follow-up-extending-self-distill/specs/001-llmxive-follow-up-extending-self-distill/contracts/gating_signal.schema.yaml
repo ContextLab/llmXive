@@ -8,10 +8,10 @@ properties:
     description: "Training step index."
   token_id:
     type: "integer"
-    description: "Token index in the sequence."
+    description: "Token index in the generated sequence."
   token_text:
     type: "string"
-    description: "The actual token string."
+    description: "Literal token string."
   entropy:
     type: "number"
     description: "Token entropy (H_t)."

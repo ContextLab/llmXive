@@ -17,7 +17,7 @@ As a researcher, I want to train the "Student-Only Gating" variant of SDAR on th
 
 **Acceptance Scenarios**:
 
-1. **Given** the ALFWorld environment is configured and the Qwen2.5-1.7B student model is loaded, **When** the training loop executes for a fixed number of [deferred] training steps OR until the average per-episode cumulative reward reaches 0.8 for 3 consecutive episodes (whichever comes first), **Then** the system must log gating scores ($g_t$) calculated exclusively from token entropy ($H_t$) and context stability ($S_t$) without invoking any teacher model.
+1. **Given** the ALFWorld environment is configured and the A Qwen series student model is loaded., **When** the training loop executes for a fixed number of [deferred] training steps OR until the average per‑episode cumulative reward reaches a high performance threshold for 3 consecutive episodes (whichever comes first), **Then** the system must log gating scores ($g_t$) calculated exclusively from token entropy ($H_t$) and context stability ($S_t$) without invoking any teacher model.
 2. **Given** a training run is active, **When** the retrieved context is noisy or irrelevant, **Then** the student-only gate must correctly down-weight low-confidence tokens based on the cosine similarity metric $S_t$, preventing the accumulation of noisy distillation signals.
 
 ### User Story 2 - Compare Baseline vs. Student-Only Performance (Priority: P2)
@@ -44,7 +44,7 @@ As a researcher, I want to measure the per-step computational cost (CPU time and
 **Acceptance Scenarios**:
 
 1. **Given** the training execution logs, **When** the computational cost is profiled, **Then** the system must report the average CPU time per step and peak memory usage for the student-only variant, showing a reduction of at least 60% compared to the baseline (calculated as the mean of 5 independent runs).
-2. **Given** the final task success rates from 5 independent runs of both variants, **When** a Mann-Whitney U test (or bootstrapping) is performed, **Then** the system must output the p-value to determine if the performance difference is statistically significant at the p < 0.05 level.
+2. **Given** the final task success rates from multiple independent runs of both variants, **When** a Mann-Whitney U test (or bootstrapping) is performed, **Then** the system must output the p-value to determine if the performance difference is statistically significant at the p < 0.05 level.
 
 ### Edge Cases
 

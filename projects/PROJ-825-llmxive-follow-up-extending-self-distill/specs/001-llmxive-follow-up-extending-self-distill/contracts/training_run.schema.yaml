@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "TrainingRun"
-description: "Schema for a single training run artifact."
+description: "Schema for a training run artifact. Includes both per‑run summary fields and optional per‑step fields for compatibility with existing logger tests."
 type: "object"
 properties:
   run_id:
@@ -52,6 +52,23 @@ properties:
   early_stopped:
     type: "boolean"
     description: "True if the run terminated early due to threshold or step cap."
+  # Optional per‑step fields (may appear in individual log records)
+  step:
+    type: "integer"
+    description: "Training step index (optional per‑step record)."
+  reward:
+    type: "number"
+    description: "Reward obtained at this step (optional per‑step record)."
+  cpu_time_sec:
+    type: "number"
+    description: "CPU time consumed by this step in seconds (optional per‑step record)."
+  peak_memory_mb:
+    type: "number"
+    description: "Peak memory usage for this step in MB (optional per‑step record)."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the log entry (optional per‑step record)."
 required:
   - "run_id"
   - "variant"
