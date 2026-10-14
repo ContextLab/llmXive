@@ -4,23 +4,25 @@ ref: datasets
 access_python: 'from datasets import load_dataset
 
 
-  ds_dict = load_dataset(''openai/gsm8k'', ''main'')
+  ds = load_dataset("openai/gsm8k", "main", split="train")
 
-  total_records = sum(len(split) for split in ds_dict.values())
+  count = len(ds)
 
-  print(f''RECORDS={total_records}'')
+  print(f"RECORDS={count}")
 
-  first_split = next(iter(ds_dict.values()))
 
-  print(''FIELDS='' + '',''.join(first_split.column_names))'
-record_count: 8792
+  sample = ds[0] if count else {}
+
+  print("FIELDS=" + ",".join(sample.keys()))'
+record_count: 7473
 sample_fields:
 - question
 - answer
-field_coverage: 0.667
+field_coverage: 0.5
 required_fields:
+- id
 - question
 - answer
-- solution
-intent: download GSM8K and HuggingFace logical deduction subset python package dataset
-cache_key: 56015705f92099540523286d3776608df47051d6f444c45d3f15bcc4f4b52cec
+- split
+intent: huggingface datasets library GSM8K logical deduction python package dataset
+cache_key: d6f38ce3e2eaee1c6d7aae35409bdfd9b522895aa54833caa1378b266b3b0feb
