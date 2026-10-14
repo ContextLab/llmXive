@@ -1,33 +1,33 @@
 T001:
-  reason: The task's required input artifacts `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet`
-    are both MISSING, so the ingest module cannot actually validate real data, and
-    there is no execution record showing `python -m code.src.pipeline.ingest` exiting
-    0 and logging SHA-256 checksums of the raw files (the only historical run is the
-    unit test, which uses synthetic tmp_path fixtures). The ingest code and tests
-    themselves look correct, but the task explicitly requires the real raw files to
-    exist and be validated with logged checksums.
+  reason: The task's required artifacts `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet`
+    are MISSING, so there is nothing to validate and `python -m code.src.pipeline.ingest`
+    would abort with a FileNotFoundError (exit 1), not exit 0 with logged SHA-256
+    checksums. While `ingest.py` and `test_ingest_preprocessed.py` exist and their
+    content matches the required validation logic (preprocessed=True check, clear
+    aborts, checksum computation), there is no evidence the tests were run or passed,
+    and no execution log showing a successful run with checksums. The implementer
+    must place the actual raw in
   task: 15966faecaeeda70562cb5a02285f869bbb2fd17f744efa216d9c0796a90ebd9
 T002:
-  reason: "The required output artifacts `data/processed/filtered_samples.parquet`\
-    \ and `data/processed/clr_abundances.parquet` are MISSING \u2014 the pipeline\
-    \ script and tests exist, but there is no evidence the preprocessing was ever\
-    \ run on real data to produce the deliverables. Additionally, `cap_taxa_by_memory`\
-    \ is implemented so that any caller-supplied `max_taxa != 100` silently skips\
-    \ subsampling entirely (returning the full taxa list), which contradicts FR-010's\
-    \ requirement to cap to the top-100 most abundant taxa when the budget is exceeded;\
-    \ the test only exercises this via the private `_cap_impl` helpe"
+  reason: "The required outputs `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
+    \ are MISSING \u2014 the pipeline was never actually run on real data, and there\
+    \ is no execution evidence (no test-run logs or run artifacts) that `run_preprocess`\
+    \ works end-to-end. Additionally, `cap_taxa_by_memory` is implemented so that\
+    \ any caller-supplied `max_taxa != 100` silently skips subsampling entirely, which\
+    \ contradicts FR-010's requirement to cap taxa to the given budget (the test merely\
+    \ papers over this by calling the private `_cap_impl` directly). The implementer\
+    \ must run the prepr"
   task: ad7b9cc8c0acd1722380307b22f28c6a184db66658c888b8459bcaf4e8008a0d
 T003:
   task: c649b0e9a215931cb44d3b50a00141daa72ec6c0bb3edad66a4fbc0610cd0a2c
 T004:
-  reason: "The required output `results/taxa_correlations_adj.csv` is explicitly MISSING,\
-    \ and the schema file `taxa_results.schema.yaml` (referenced by the contract test)\
-    \ is also absent. While `correlation.py` implements residualization and BH adjustment,\
-    \ the adjusted results file was never actually generated \u2014 only the unadjusted\
-    \ `taxa_correlations.csv` exists (with a trivial 2-taxon synthetic-looking result),\
-    \ and there is no execution evidence that the partial correlation path or the\
-    \ tests were ever run. The implementer must run the pipeline with `--partial`\
-    \ (or `run_correlation(partial=True)`) against"
+  reason: "The required deliverable `results/taxa_correlations_adj.csv` is MISSING\
+    \ on disk, and `taxa_results.schema.yaml` (which the output must conform to and\
+    \ the contract test loads from `contracts/`) is also absent. The module `correlation.py`\
+    \ implements residualization and BH logic, but there is no evidence it was ever\
+    \ run with `--partial` \u2014 only the unadjusted `taxa_correlations.csv` exists\
+    \ (with degenerate \xB11.0 rho values from a 2-patient toy run), and no test execution\
+    \ evidence is provided."
   task: b808b585e4bf139d7dc89b1c21dba609a864f6d01409df8189bd81fdfb1f4083
 T005:
   task: 581a7be89886c2847bb1728d7d5188f66f3223b3e4f56057993bdaad13266159
