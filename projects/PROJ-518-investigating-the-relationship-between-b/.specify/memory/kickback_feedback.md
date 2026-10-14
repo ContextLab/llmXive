@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `task-format` (rejected 1x): Tasker must repair ambiguous task identities while preserving requirements. Malformed: ['- [ ] T018/T019/T020b Subject filtering (missing scans, missing scores, motion > 0.5\u202fmm FD in >\u202f20\u202f% volumes) with standardized exclusion logging.', '- [ ] T043/T051/T051b/T017/T017.1/T017.2 OLS regression (`creativity ~ excess_flexibility + age + sex + education + static_strength`), static‑only baseline, ΔR² computation and 4‑decimal formatting, `data/interim/results.csv` with `global_empirical_p_value` from the permutation test.']; duplicates: []
+- `task-format` (rejected 1x): Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T002', 'T005', 'T006']
 
 ## Required change
 
