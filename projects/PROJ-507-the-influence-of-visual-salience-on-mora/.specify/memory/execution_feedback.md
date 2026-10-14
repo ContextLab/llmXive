@@ -35,22 +35,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_ingest_and_filter.py --num-samples 10 --tags social conflict -> rc=1
-set_module_factory
-    raise e1 from None
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/datasets/load.py", line 1142, in dataset_module_factory
-    raise RuntimeError(f"Dataset scripts are no longer supported, but found {filename}")
-RuntimeError: Dataset scripts are no longer supported, but found visual_genome.py
+ive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/datasets/load.py", line 1134, in dataset_module_factory
+    raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
+datasets.exceptions.DatasetNotFoundError: Dataset 'huggingface/cats_vs_dogs' doesn't exist on the Hub or cannot be accessed.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 275, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 271, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 271, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 267, in main
     ingest_and_filter(num_samples=args.num_samples, tags=args.tags)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 168, in ingest_and_filter
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 166, in ingest_and_filter
     raise DataFetchError(f"Unable to load dataset '{dataset_name}'") from exc
-data_prep.DataFetchError: Unable to load dataset 'visual_genome'
+data_prep.DataFetchError: Unable to load dataset 'huggingface/cats_vs_dogs'
 
 - python code/00_pilot_power_analysis.py --config config/pilot.yaml -> rc=2
 

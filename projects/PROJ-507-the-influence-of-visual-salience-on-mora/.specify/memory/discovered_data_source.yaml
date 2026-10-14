@@ -1,17 +1,17 @@
 status: none
-intent: Visual Genome dataset with region annotations and Moral Stories annotations
-  python package dataset
+intent: visual genome dataset python package dataset moral stories annotations python
+  package dataset
 required_fields:
 - image_id
 - image_url
+- image_path
 - region_id
-- region_bbox
-- region_description
+- bbox
 - object_labels
+- relationship_labels
+- region_description
 - moral_ambiguity_score
-- contrast_level
-- rms_contrast_value
-- semantic_similarity_score
-cache_key: 970847a09e2fe5701dcd875c45ca85cf5f6495ef59016429f8efed35e0c5e31a
-searched_at: '2026-10-14T20:11:05.636878+00:00'
+- annotation_source
+cache_key: 207283e5760e41cb600530a998ffeaf6cb5fdf1d441d1ada218822c5f0219a89
+searched_at: '2026-10-14T21:10:43.394885+00:00'
 retry_count: 1

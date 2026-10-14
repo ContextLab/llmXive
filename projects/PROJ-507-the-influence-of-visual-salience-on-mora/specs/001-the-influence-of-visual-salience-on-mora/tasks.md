@@ -4,7 +4,7 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] Establish the runnable pipeline entry point and verified data ingestion in `code/01_ingest_and_filter.py`. <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 -->
+- [ ] T001 [US1] Establish the runnable pipeline entry point and verified data ingestion in `code/01_ingest_and_filter.py`. <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 -->
   - Fetch real image data from the canonical Hugging Face source (e.g., `datasets.load_dataset("visual_genome", ...)` or the MoralD dataset if a verified source is injected via the `VERIFIED_DATA_SOURCE` environment variable — in that case use that exact recipe as the single source).
   - Stream or sample a real subset (fixed seed 42, first N image records with `social`/`conflict`‑style metadata tags; state the exact sampling rule in the script docstring) so the run fits ≤7 GB RAM; the loader **must raise** `DataFetchError` on any fetch failure — no synthetic fallback of any kind.
   - Output candidate scenario rows to `data/processed/candidates_filtered.csv` conforming to `contracts/dataset.schema.yaml`, with per‑image SHA‑256 checksums in `data/raw/sample_metadata.json`.

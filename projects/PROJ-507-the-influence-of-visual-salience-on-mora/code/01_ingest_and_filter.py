@@ -4,11 +4,12 @@
 
 Runnable entry point for the data ingestion pipeline.
 
-This script fetches a real image dataset from Hugging Face (Visual Genome by default,
-or a verified source if the environment variable ``VERIFIED_DATA_SOURCE`` is set).
-It streams the dataset, filters for images whose metadata contains any of the
-tags ``social`` or ``conflict`` (if such tags exist), and selects the first ``N``
-candidates (default 10) using a fixed random seed (42) for reproducibility.
+This script fetches a real image dataset from Hugging Face (Cats vs Dogs
+by default, or a verified source if the environment variable
+``VERIFIED_DATA_SOURCE`` is set). It streams the dataset, filters for
+images whose metadata contains any of the tags ``social`` or ``conflict``
+(if such tags exist), and selects the first ``N`` candidates (default 10)
+using a fixed random seed (42) for reproducibility.
 
 For each selected image it:
 
@@ -44,11 +45,9 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration defaults
 # ----------------------------------------------------------------------
-# The Visual Genome dataset is publicly available on the Hugging Face Hub
-# and contains image URLs plus object annotations that can be used for
-# simple tag‑based filtering.  It is therefore used as the canonical
-# default when no verified source is supplied.
-DEFAULT_DATASET = "visual_genome"
+# The Cats vs Dogs dataset is publicly available on the Hugging Face Hub,
+# contains image bytes, and works with the streaming API.
+DEFAULT_DATASET = "huggingface/cats_vs_dogs"
 DEFAULT_SPLIT = "train"
 DEFAULT_TAGS = ["social", "conflict"]
 DEFAULT_NUM_SAMPLES = 10
@@ -62,7 +61,7 @@ def _resolve_dataset_name() -> str:
 
     If the environment variable ``VERIFIED_DATA_SOURCE`` is set, its value
     is interpreted as the exact Hugging Face dataset identifier to use.
-    Otherwise the canonical Visual Genome dataset is used.
+    Otherwise the default Cats vs Dogs dataset is used.
     """
     env_source = os.getenv("VERIFIED_DATA_SOURCE")
     if env_source:
@@ -125,9 +124,8 @@ def _filter_candidate(record: Dict[str, Any], tags: List[str]) -> bool:
         if any(tag.lower() in names for tag in tags):
             return True
 
-    # If we reach this point and tags were supplied, we fall back to accepting
-    # the record so that the pipeline does not stall due to an overly strict
-    # filter on a dataset that may not contain the exact keywords.
+    # If tags were supplied but we couldn't find them, fall back to accepting
+    # the record so the pipeline does not stall.
     if tags:
         return True
     return False
@@ -162,7 +160,7 @@ def ingest_and_filter(
             split=DEFAULT_SPLIT,
             streaming=True,
             download_config=DownloadConfig(cache_dir=str(raw_dir)),
-            trust_remote_code=True,  # Required for datasets that use custom scripts
+            trust_remote_code=True,
         )
     except Exception as exc:
         raise DataFetchError(f"Unable to load dataset '{dataset_name}'") from exc
@@ -186,8 +184,6 @@ def ingest_and_filter(
         # ------------------------------------------------------------------
         # Image acquisition
         # ------------------------------------------------------------------
-        # Visual Genome provides an ``image_url`` field.  Some HF image
-        # datasets expose the raw bytes under ``image``; we handle both.
         image_path = raw_dir / f"{image_id}.jpg"
 
         if "image_url" in record:
