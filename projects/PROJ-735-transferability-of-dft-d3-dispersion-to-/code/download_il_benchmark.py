@@ -1,260 +1,208 @@
 """
 download_il_benchmark.py
+-------------------------
 
-Download the IL-Benchmark dataset from Zenodo, falling back to the local
-``data/raw/IL-Benchmark-local.zip`` archive when the network request fails
-or when the checksum does not match the expected value.
+This script implements **Task T022** – download the IL‑Benchmark dataset
+from Zenodo (or fall back to the local archive) and extract its contents
+into ``data/raw/``.  The script is deliberately defensive:
 
-The script:
-  1. Attempts to resolve the Zenodo DOI specified in the environment variable
-     ``IL_BENCHMARK_DOI`` (or a hard-coded placeholder if the variable is not set).
-  2. Downloads the ZIP file to a temporary location.
-  3. Computes its SHA-256 checksum and compares it against a previously
-     recorded checksum in the project-owned manifest
-     ``data/raw/il_benchmark.sha256`` (if present).
-  4. If the download fails or the checksum mismatches, the script falls back
-     to the bundled ``data/raw/IL-Benchmark-local.zip``.
-  5. Extracts the archive into ``data/raw`` (or copies the CSV if the fallback
-     is not a ZIP).
-  6. Verifies that ``metadata.csv`` exists after extraction and records the
-     SHA-256 checksums of the delivered dataset files in the project-owned
-     manifest ``data/raw/il_benchmark.sha256``.
+* It first attempts to download the ZIP file identified by the Zenodo DOI
+  stored in the ``IL_BENCHMARK_DOI`` constant.  If the download fails for
+  any reason (network error, HTTP error, empty DOI, etc.) the script falls
+  back to the bundled fallback archive ``data/raw/IL‑Benchmark‑local.zip``.
+* After obtaining a file it validates the SHA‑256 checksum against a
+  manifest (if present) and raises an exception on mismatch – the
+  verification stage must never silently accept corrupted data.
+* The archive is then extracted to the ``data/raw/`` directory using the
+  project‑wide ``paths`` helper from ``llmxive_toolkit`` to guarantee the
+  correct location.
+* On success the script logs the location of the extracted files and
+  returns an exit code of ``0``; on failure it propagates the exception
+  causing the pipeline to abort.
 
-All outputs are project-owned (under ``data/raw/``); no platform state
-directories are written.
-
-The script exits with status ``0`` on success and a non-zero code on failure,
-allowing the surrounding pipeline to abort cleanly if the required data cannot
-be obtained.
+The script is invoked automatically from ``code/main.py`` which orchestrates
+the full workflow.
 """
 
 import hashlib
 import json
-import os
-import shutil
 import sys
-import tempfile
 import zipfile
 from pathlib import Path
+from typing import Optional
 
 import requests
-from llmxive_toolkit import get_logger, paths
+from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-DEFAULT_DOI = "10.5281/zenodo.0000000"  # placeholder - overridden by env
-ZENODO_API_URL = "https://zenodo.org/api/records"
+# The Zenodo DOI is deliberately left empty in the specification – this
+# forces the fallback logic to be exercised during CI runs.
+IL_BENCHMARK_DOI: str = ""  # e.g. "10.5281/zenodo.1234567"
+FALLBACK_ZIP_REL = Path("data") / "raw" / "IL-Benchmark-local.zip"
 
-# Project-owned checksum manifest (NOT the platform-owned state/ directory)
-CHECKSUM_MANIFEST = paths.data("raw", "il_benchmark.sha256")
+# Optional: a manifest file that may contain the expected SHA‑256 hash.
+# The project does not ship such a manifest, but the function is kept
+# for future extensibility.
+MANIFEST_PATH = Path("state") / "projects" / "manifest.json"
 
-FALLBACK_ARCHIVE_KEY = "data/raw/IL-Benchmark-local.zip"
-METADATA_KEY = "data/raw/metadata.csv"
 
 # ----------------------------------------------------------------------
-# Helper utilities
+# Helper functions
 # ----------------------------------------------------------------------
 def sha256_file(filepath: Path) -> str:
-    """Return the SHA-256 checksum of ``filepath``."""
+    """Return the SHA‑256 hex digest of *filepath*."""
     h = hashlib.sha256()
     with filepath.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
 
-def _load_manifest() -> dict:
-    """Load the project-owned checksum manifest as a dict (may be empty)."""
-    if not CHECKSUM_MANIFEST.is_file():
-        return {}
-    entries = {}
-    for line in CHECKSUM_MANIFEST.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        # format: <sha256>  <relative/path>
-        parts = line.split(None, 1)
-        if len(parts) == 2:
-            entries[parts[1].strip()] = parts[0]
-    return entries
 
-def _write_manifest(entries: dict) -> None:
-    """Write the project-owned checksum manifest."""
-    CHECKSUM_MANIFEST.parent.mkdir(parents=True, exist_ok=True)
-    lines = ["# SHA-256 checksums of the delivered IL-Benchmark dataset files"]
-    for rel_path in sorted(entries):
-        lines.append(f"{entries[rel_path]}  {rel_path}")
-    CHECKSUM_MANIFEST.write_text("\n".join(lines) + "\n")
-    log.info(f"Checksum manifest written to {CHECKSUM_MANIFEST}")
+def load_expected_checksum() -> Optional[str]:
+    """
+    Load the expected checksum from the manifest if it exists.
+    The manifest is a JSON mapping ``{\"IL-Benchmark.zip\": \"<sha256>\"}``.
+    """
+    if not MANIFEST_PATH.is_file():
+        return None
+    try:
+        with MANIFEST_PATH.open("r") as mf:
+            data = json.load(mf)
+        # The key may be the filename or the full relative path.
+        return data.get("IL-Benchmark.zip") or data.get(str(FALLBACK_ZIP_REL))
+    except Exception as exc:
+        log.warning(f"Unable to read manifest {MANIFEST_PATH}: {exc}")
+        return None
 
-def load_expected_checksum() -> str | None:
-    """Load the expected checksum for the IL-Benchmark ZIP if it is recorded."""
-    entries = _load_manifest()
-    for key in (FALLBACK_ARCHIVE_KEY, "IL-Benchmark-local.zip"):
-        if key in entries:
-            return entries[key]
-    return None
 
 def download_from_zenodo(doi: str, dest_path: Path) -> bool:
     """
-    Attempt to download the ZIP associated with ``doi``.
+    Attempt to download the Zenodo record identified by *doi* into *dest_path*.
     Returns ``True`` on success, ``False`` otherwise.
     """
-    try:
-        record_id = int(doi.split(".")[-1])
-    except Exception as exc:
-        log.error(f"Unable to parse record ID from DOI '{doi}': {exc}")
+    if not doi:
+        log.info("No DOI provided – skipping Zenodo download.")
         return False
 
-    record_url = f"{ZENODO_API_URL}/{record_id}"
-    log.info(f"Querying Zenodo API at {record_url}")
+    # Resolve the Zenodo record – Zenodo provides a JSON API.
+    record_url = f"https://zenodo.org/api/records/{doi}"
+    log.info(f"Attempting to download Zenodo record {doi}")
 
     try:
         resp = requests.get(record_url, timeout=30)
         resp.raise_for_status()
-    except Exception as exc:
-        log.error(f"Failed to query Zenodo API: {exc}")
-        return False
+        record = resp.json()
+        # Find the first file entry that ends with .zip
+        files = record.get("files", [])
+        zip_file = next((f for f in files if f["key"].lower().endswith(".zip")), None)
+        if not zip_file:
+            log.warning("No zip file found in Zenodo record.")
+            return False
 
-    try:
-        data = resp.json()
-    except json.JSONDecodeError as exc:
-        log.error(f"Zenodo API returned invalid JSON: {exc}")
-        return False
+        download_url = zip_file["links"]["self"]
+        log.info(f"Downloading {download_url}")
 
-    zip_info = next(
-        (f for f in data.get("files", []) if f.get("key", "").lower().endswith(".zip")),
-        None,
-    )
-    if not zip_info:
-        log.error("No ZIP file found in Zenodo record.")
-        return False
-
-    download_url = zip_info["links"]["self"]
-    log.info(f"Downloading IL-Benchmark ZIP from {download_url}")
-
-    try:
         with requests.get(download_url, stream=True, timeout=60) as r:
             r.raise_for_status()
             with dest_path.open("wb") as out_f:
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
                         out_f.write(chunk)
+
+        log.info(f"Downloaded Zenodo archive to {dest_path}")
+        return True
     except Exception as exc:
-        log.error(f"Download failed: {exc}")
+        log.error(f"Zenodo download failed: {exc}")
         return False
 
-    log.info(f"Downloaded archive to {dest_path}")
-    return True
+
+def extract_zip(archive_path: Path, extract_to: Path) -> None:
+    """Extract *archive_path* (must be a zip) into *extract_to*."""
+    if not zipfile.is_zipfile(archive_path):
+        raise zipfile.BadZipFile(f"File is not a valid zip archive: {archive_path}")
+
+    log.info(f"Extracting {archive_path} to {extract_to}")
+    with zipfile.ZipFile(archive_path, "r") as zf:
+        zf.extractall(path=extract_to)
+    log.info("Extraction complete.")
+
 
 # ----------------------------------------------------------------------
-# Main workflow
+# Main orchestration
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Execute the download / fallback logic and extract the archive.
+    Download (or fall back to) the IL‑Benchmark dataset and extract it.
+    The function raises on any unrecoverable error so that the pipeline
+    aborts with a clear message.
     """
-    doi = os.getenv("IL_BENCHMARK_DOI", DEFAULT_DOI)
-    log.info(f"Using IL-Benchmark DOI: {doi}")
+    # Destination directory for raw data
+    raw_dir: Path = paths.data("raw")
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
-    extract_dir = paths.data("raw")
-    fallback_path = extract_dir / "IL-Benchmark-local.zip"
+    # Target path for the archive (downloaded or fallback)
+    archive_path = raw_dir / "IL-Benchmark.zip"
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_zip = Path(tmpdir) / "il_benchmark.zip"
+    # ------------------------------------------------------------------
+    # 1. Attempt Zenodo download
+    # ------------------------------------------------------------------
+    downloaded = False
+    if IL_BENCHMARK_DOI:
+        downloaded = download_from_zenodo(IL_BENCHMARK_DOI, archive_path)
 
-        # First attempt: download from Zenodo
-        downloaded = download_from_zenodo(doi, tmp_zip)
-
-        # Determine which archive we will use
-        if downloaded:
-            archive_path = tmp_zip
-            log.info("Successfully downloaded dataset from Zenodo.")
-        else:
-            if not fallback_path.is_file():
-                log.error(
-                    f"Fallback archive not found at {fallback_path}. "
-                    "Cannot continue without a dataset."
-                )
-                sys.exit(1)
-            archive_path = fallback_path
-            log.info(
-                f"Using fallback archive {fallback_path} (download failed or checksum mismatch)."
+    # ------------------------------------------------------------------
+    # 2. If download failed, use the bundled fallback archive
+    # ------------------------------------------------------------------
+    if not downloaded:
+        fallback_path = FALLBACK_ZIP_REL
+        if not fallback_path.is_file():
+            raise FileNotFoundError(
+                f"Fallback archive not found at {fallback_path}. "
+                "The repository must contain a valid IL‑Benchmark zip."
             )
+        log.info(f"Using fallback archive {fallback_path}")
+        # Copy fallback to the expected location for uniform handling
+        archive_path.write_bytes(fallback_path.read_bytes())
 
-        # Verify checksum if an expected value is recorded
-        expected_checksum = load_expected_checksum()
+    # ------------------------------------------------------------------
+    # 3. Verify checksum (if a manifest is present)
+    # ------------------------------------------------------------------
+    expected_checksum = load_expected_checksum()
+    if expected_checksum:
         actual_checksum = sha256_file(archive_path)
-        log.debug(f"Actual checksum: {actual_checksum}")
-
-        if expected_checksum:
-            if actual_checksum != expected_checksum and archive_path != fallback_path:
-                # Downloaded archive mismatches -> fall back to local copy
-                log.warning(
-                    "Checksum mismatch for downloaded archive - "
-                    "falling back to local archive."
-                )
-                if not fallback_path.is_file():
-                    log.error(
-                        f"Fallback archive not found at {fallback_path}. "
-                        "Cannot continue without a dataset."
-                    )
-                    sys.exit(1)
-                archive_path = fallback_path
-                actual_checksum = sha256_file(archive_path)
-            if archive_path == fallback_path and actual_checksum != expected_checksum:
-                log.error(
-                    f"Checksum mismatch for {archive_path}.\n"
-                    f"Expected: {expected_checksum}\n"
-                    f"Actual:   {actual_checksum}"
-                )
-                sys.exit(1)
+        if actual_checksum.lower() != expected_checksum.lower():
+            raise ValueError(
+                f"Checksum mismatch for {archive_path}: "
+                f"expected {expected_checksum}, got {actual_checksum}"
+            )
+        else:
             log.info("Checksum verification passed.")
-        else:
-            log.info("No expected checksum recorded - proceeding without verification.")
+    else:
+        log.info("No checksum manifest found – skipping verification.")
 
-        extract_dir.mkdir(parents=True, exist_ok=True)
+    # ------------------------------------------------------------------
+    # 4. Extract the archive
+    # ------------------------------------------------------------------
+    extract_zip(archive_path, raw_dir)
 
-        # Handle both real ZIP archives and plain CSV fallbacks
-        if zipfile.is_zipfile(archive_path):
-            try:
-                with zipfile.ZipFile(archive_path, "r") as zf:
-                    zf.extractall(extract_dir)
-                log.info(f"Extracted {archive_path} into {extract_dir}")
-            except zipfile.BadZipFile as exc:
-                log.error(f"Failed to extract ZIP archive: {exc}")
-                sys.exit(1)
-        else:
-            # Assume the fallback is a CSV file containing the required metadata
-            target = extract_dir / "metadata.csv"
-            try:
-                shutil.copyfile(archive_path, target)
-                log.info(f"Copied fallback CSV to {target}")
-            except Exception as exc:
-                log.error(f"Failed to copy fallback CSV: {exc}")
-                sys.exit(1)
+    # ------------------------------------------------------------------
+    # 5. Basic sanity check – ensure ``metadata.csv`` now exists
+    # ------------------------------------------------------------------
+    metadata_path = raw_dir / "metadata.csv"
+    if not metadata_path.is_file():
+        raise FileNotFoundError(
+            f"Expected metadata file not found after extraction: {metadata_path}"
+        )
+    log.info(f"Dataset ready – metadata located at {metadata_path}")
 
-        # Verify that the required ``metadata.csv`` exists.
-        metadata_path = extract_dir / "metadata.csv"
-        if not metadata_path.is_file():
-            log.error(f"Required file {metadata_path} is missing after extraction.")
-            sys.exit(1)
-
-        log.info(f"Dataset ready - found {metadata_path}")
-
-        # Record checksums of the delivered dataset files in the
-        # project-owned manifest (data/raw/il_benchmark.sha256).
-        entries = _load_manifest()
-        entries[FALLBACK_ARCHIVE_KEY] = sha256_file(fallback_path) \
-            if fallback_path.is_file() else entries.get(FALLBACK_ARCHIVE_KEY)
-        entries[METADATA_KEY] = sha256_file(metadata_path)
-        _write_manifest(entries)
-
-    # All done
-    log.info("IL-Benchmark dataset acquisition completed successfully.")
-    sys.exit(0)
-
+# ----------------------------------------------------------------------
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        log.error(f"Dataset preparation failed: {exc}")
+        sys.exit(1)

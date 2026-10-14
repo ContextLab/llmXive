@@ -21,12 +21,12 @@ T014:
 T015:
   task: 6502f7bdbd1de436a3eb288debcc32b70cac5c28a8398d17c79ee64640f2cf6a
 T022:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/...yaml`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: code/download_il_benchmark.py
+    exit=1; code/main.py exit=1'
   task: feac6535b41ccc4111f5ada3579b176bd29aa4b21b15dd90cb339f7dfab8a3ad
 T023:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/metadata.csv, code/validation.log,
+    data/processed/validated_metadata.csv'
   task: 048ba3c1dc504786def2e4587b1e154faba35a8849e3bef2f2b8a81246a8413f
 T024:
   task: 2b7de76386b77922b9843d1bd3aa65163a742ec540e6798517dfc1dcbce0beed
