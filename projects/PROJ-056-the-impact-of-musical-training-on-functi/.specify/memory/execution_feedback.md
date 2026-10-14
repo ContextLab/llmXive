@@ -56,7 +56,7 @@ ERROR tests/unit/test_download_atlas.py
 ERROR tests/unit/test_nbs_output.py
 ERROR tests/unit/test_nbs_results.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.03s ===============================
+============================== 3 errors in 1.25s ===============================
 
 
 
