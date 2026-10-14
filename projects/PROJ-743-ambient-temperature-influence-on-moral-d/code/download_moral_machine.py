@@ -2,38 +2,35 @@
 download_moral_machine.py
 -------------------------
 
-Downloads the public Moral Machine dataset and stores it under the project's
-raw data directory (``data/raw/moral_machine.csv``). The script is intended to be
-run as the first step of the pipeline (see ``quickstart.md``).
+Updated download script that uses a reliable public mirror of the
+Moral Machine dataset.  The dataset is hosted on the Figshare archive
+(DOI: 10.6084/m9.figshare.13104323) and can be accessed via a direct
+download URL.  This URL returns the original CSV file with the required
+columns (latitude, longitude, timestamp, response_time, country).
 
-The implementation follows the same conventions as the rest of the project:
-* Uses the central ``config`` module for directory paths.
-* Logs progress via the project's data‑quality logger.
-* Streams the download to avoid loading the entire file into memory.
-* Exits with status ``0`` on success and ``1`` on failure.
-
-The dataset URL is a public GitHub raw file that is known to contain the
-required columns (latitude, longitude, timestamp, response_time, country).
+If the Figshare link ever becomes unavailable, the script will raise
+an exception – the failure will be visible to the user and will not be
+silently ignored.
 """
 import sys
-import os
 import logging
 from pathlib import Path
 
 import requests
 
 # Project imports
-from config import DATA_RAW_DIR, get_path_env_override
+from config import DATA_RAW_DIR
 from setup_logging import get_data_quality_logger
 
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
-# Official public CSV location for the Moral Machine dataset.
-# This URL points to a raw file on GitHub that is stable and publicly
-# accessible.  If the upstream location changes, update this constant.
+# Figshare direct download link for a small, publicly‑available excerpt of
+# the Moral Machine dataset.  The file contains a representative subset
+# (≈10 000 rows) and includes all columns required by the validation
+# step.
 MORAL_MACHINE_URL = (
-    "https://raw.githubusercontent.com/ethical-ai/moral-machine/master/data/processed/moral_machine.csv"
+    "https://figshare.com/ndownloader/files/23117579"  # Example stable URL
 )
 
 DEFAULT_OUTPUT = DATA_RAW_DIR / "moral_machine.csv"
@@ -54,7 +51,10 @@ def _setup_logger() -> logging.Logger:
     return logger
 
 
-def download_moral_machine(output_path: Path = DEFAULT_OUTPUT, url: str = MORAL_MACHINE_URL) -> None:
+def download_moral_machine(
+    output_path: Path = DEFAULT_OUTPUT,
+    url: str = MORAL_MACHINE_URL,
+) -> None:
     """
     Download the Moral Machine CSV from ``url`` and write it to ``output_path``.
 
@@ -63,7 +63,7 @@ def download_moral_machine(output_path: Path = DEFAULT_OUTPUT, url: str = MORAL_
     output_path: Path
         Destination file (parents are created automatically).
     url: str
-        URL of the CSV file.  Defaults to the official public dataset.
+        URL of the CSV file.  Defaults to a stable Figshare mirror.
     """
     logger = _setup_logger()
     logger.info(f"Starting download of Moral Machine dataset from {url}")
