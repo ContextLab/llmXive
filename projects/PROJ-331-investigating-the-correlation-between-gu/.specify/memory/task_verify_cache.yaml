@@ -1,42 +1,61 @@
 T001:
-  c: true
-  h: fa17616cb1d866e87b9ecc33e353e5a6daf4c32fa7509edb7f40655217e3c85e
-  r: "Checked `code/src/pipeline/ingest.py` for proper validation logic, `code/tests/test_ingest.py`\
-    \ for the required unit tests covering success, missing file, and missing outcome\
-    \ column, and `specs/001-investigating-the-correlation-between-gu/quickstart.md`\
-    \ for the documented runnable command. All artifacts exist, contain full implementations,\
-    \ and meet the task\u2019s specifications."
-  sig: 75c83fb9d004f6f2c64f5e430b1478f867c4e911d1c18f5349055455767087c5
+  c: false
+  h: 65fd3eeb1d3ed1e10ef90a5dbeaf2c0a11e31a9cdaa259c98565f1a70d4e171b
+  r: "The ingest module exists and implements the required checks, but the two raw\
+    \ data files (`data/raw/open_asv.csv` and `data/raw/open_clinical.parquet`) are\
+    \ missing, so the script cannot exit with status\u202F0 nor log checksums. Additionally,\
+    \ the unit\u2011test file `code/tests/test_ingest_preprocessed.py` is absent,\
+    \ so test pass evidence is unavailable. Provide valid raw input files containing\
+    \ the required columns (including a `preprocessed` column set to\u202FTrue) and\
+    \ add the missing test suite."
+  sig: 4c79ed0c2177f823f9983f1b4464fece732518072f809db6fdcbb02cd1cefad0
+T002:
+  c: false
+  h: 82803758839ea2ed8a736a31a234ef20976bbdfc04b9ce54a57b464f10ed983d
+  r: "The repository contains the preprocessing module and a full test suite, but\
+    \ the required output artifacts `data/processed/filtered_samples.parquet` and\
+    \ `data/processed/clr_abundances.parquet` are absent. Moreover, the CLR transformation\
+    \ is implemented manually instead of using the mandated `scikit\u2011bio` library.\
+    \ Both issues prevent the task from being considered fully completed."
+  sig: 3e518daacc50aff607217727a015ee3c0dfe73f5b096d39b6e2ab2c4760ab309
 T003:
-  c: false
-  h: 4b153714b5e60373e0e1217606d9b55b90053a910b68afdb5c51299f652d6f33
-  r: "The core module `code/src/pipeline/slopes.py` is present and implements the\
-    \ required logic, but the required output artifacts `data/processed/patient_taxon_slopes.parquet`\
-    \ and `data/processed/patient_outcome_slopes.parquet` are missing from the project.\
-    \ Without these files the task\u2019s deliverable is not satisfied. The unit\u2011\
-    test suite is provided, but no evidence that it was executed successfully against\
-    \ the real output paths. The next implementer must ensure that running `run_slopes`\
-    \ actually creates the two parquet files at the specified locations (and that\
-    \ the outcome file is omitted only whe"
-  sig: e8b1592d6b4da588cf46c37808032d1e6582a05c4d8b3bdb53a2b7b89f950df7
-T007:
-  c: false
-  h: bc05144702908d4582788be64da81f5ed13d701ccfc697fa713963a5b6e46e66
-  r: "The implementation code (`__main__.py` with per-stage timing, log writing, and\
-    \ 6h/4h budget checks) and the test file both exist and look plausible, but there\
-    \ is no execution evidence: `data/results/runtime_log.txt` is MISSING, meaning\
-    \ the pipeline (and thus the logging behavior) has never actually been run, and\
-    \ no test-run output is supplied showing `test_runtime_budget.py` passes. The\
-    \ task's verification requirement \u2014 running a reduced-size pipeline and confirming\
-    \ the log contains the expected timing entries \u2014 is unmet; the implementer\
-    \ should execute the test (or the pipeline) and produce th"
-  sig: e84361ced761314e6e347c4d299ca2e076d3b0956cdc9136ed889d70a43c36b8
-T013:
   c: true
-  h: 45628b6495107de3d837e17eddf0dd089a7f74ab9d3efab32f5d9a8fe2dcc218
-  r: Checked `code/src/pipeline/verify_dataset.py` for existence, checksum validation,
-    and citation reachability, and verified that `code/tests/test_verify_dataset.py`
-    provides unit tests covering successful verification, missing files, checksum
-    mismatches, and unreachable citation. All required behavior is implemented and
-    tested.
-  sig: fbd24fce714511301918e6e2b629f76cb2952dd9ae548706285d5ba778734618
+  h: 09e0766dedad41d5a5273aef55aa5dee6a45b0ef1bbce724c7674def5e23608e
+  r: "Checked `code/src/pipeline/slopes.py` which implements exact\u2011year time\
+    \ conversion, per\u2011patient taxon and outcome slope computation, exclusion\
+    \ of single\u2011visit patients, and writes the required parquet files, and `code/tests/test_slopes.py`\
+    \ which validates all of these behaviours. The implementation satisfies the task\u2019\
+    s specifications, and the tests confirm correct handling of two\u2011visit patients,\
+    \ year calculations, constant outcomes, and file creation."
+  sig: 49069d714f3dd06165557b790852aa7b6e78074f596e68d50171e4db77c66d59
+T004:
+  c: false
+  h: 41d5c3fdbd212103d35f25194f1251745369659fd0f64aefb28b6eee5f04c5eb
+  r: "The pipeline writes only `results/taxa_correlations.csv` (unadjusted) and a\
+    \ partial file named `partial_spearman_exploratory.csv`; the required `results/taxa_correlations_adj.csv`\
+    \ is missing, and the contract schema file `taxa_results.schema.yaml` and the\
+    \ test `code/tests/test_correlation_adj.py` are also absent. Consequently the\
+    \ task\u2019s specification (covariate\u2011adjusted Spearman output and its validation)\
+    \ is not fulfilled."
+  sig: 37311e481f98a9a0fbf3ae216e59b47b696f9912ed234bd95dca9db10d8f2ddb
+T005:
+  c: true
+  h: 0917c0a8fff5131ff6184adbb545b8dc4172d92180afee747cbadca06eca359d
+  r: "The `code/src/pipeline/mixed_effects.py` script implements the required mixed\u2011\
+    effects fitting, zero\u2011variance covariate detection, BH correction, and writes\
+    \ `results/mixed_effects_summary.csv` with the correct columns. The accompanying\
+    \ `code/tests/test_mixed_effects.py` validates that a synthetic dataset yields\
+    \ the expected interaction coefficient and that missing outcome data produces\
+    \ an empty results file with only the header. All required artifacts exist, are\
+    \ non\u2011empty where appropriate, and their contents meet the task specifications."
+  sig: 2e3732fc204855cc2d22d5d230aaa93f45171f30519a6c87c09d0de5913e5134
+T006:
+  c: true
+  h: 824aeff7df9d65f73098f77897fba5d96e842aa61f040c233c97ad6166e77e58
+  r: "Checked `code/src/pipeline/permutation.py` \u2013 it seeds NumPy, permutes patient\
+    \ IDs while preserving visit order, refits the mixed\u2011effects model per taxon,\
+    \ computes empirical p\u2011values, aborts after a 4\u2011hour wall\u2011time\
+    \ limit, and writes `results/permutation_pvalues.csv`. The accompanying `code/tests/test_permutation.py`\
+    \ validates that the script creates the CSV with the correct columns and that\
+    \ all empirical p\u2011values lie in\u202F[0,\u202F1]."
+  sig: 641ca81feac29d65462ac88b06c8508552704fc02cca2da4e68edeb37d3ffc32

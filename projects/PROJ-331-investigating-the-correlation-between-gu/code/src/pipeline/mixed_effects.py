@@ -4,7 +4,7 @@ Fits a Linear Mixed‑Effects Model for each retained taxon:
     MDS_UPDRS_Total ~ time_years * taxon + age + sex + levodopa_eq_dose + (1|patient_id)
 
 Zero‑variance covariates are detected and excluded prior to fitting.
-Results are written to ``data/results/mixed_effects_summary.csv`` with BH‑adjusted
+Results are written to ``results/mixed_effects_summary.csv`` with BH‑adjusted
 p‑values.
 """
 from __future__ import annotations
@@ -16,7 +16,6 @@ from typing import List, Tuple, Optional
 
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from llmxive_toolkit import paths
 
@@ -30,7 +29,8 @@ if not logger.handlers:
 # Default locations – these are the paths used by the pipeline entry‑point.
 DEFAULT_CLR = paths.data("processed", "clr_abundances.parquet")
 DEFAULT_CLINICAL = paths.data("raw", "ppmi_clinical.parquet")
-DEFAULT_OUT = paths.data("results", "mixed_effects_summary.csv")
+# The results directory is ``results/`` (not ``data/results/``) as required by the spec.
+DEFAULT_OUT = paths.results("mixed_effects_summary.csv")
 COVARIATE_COLUMNS = ["age", "sex", "levodopa_eq_dose"]
 
 

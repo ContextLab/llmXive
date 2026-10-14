@@ -1,4 +1,4 @@
-"""Run the US1 pipeline (Correlation only).
+"""Execute the US1 pipeline (Correlation only).
 
 This script orchestrates the following stages:
   1. Ingest validation (T001)

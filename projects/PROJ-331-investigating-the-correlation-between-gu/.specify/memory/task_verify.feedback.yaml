@@ -1,64 +1,52 @@
 T001:
-  task: c189ec04302c16e0eebf8bb7c042cadbfcdf73884974f5bf79a369206134dbe6
+  reason: "The ingest module exists and implements the required checks, but the two\
+    \ raw data files (`data/raw/open_asv.csv` and `data/raw/open_clinical.parquet`)\
+    \ are missing, so the script cannot exit with status\u202F0 nor log checksums.\
+    \ Additionally, the unit\u2011test file `code/tests/test_ingest_preprocessed.py`\
+    \ is absent, so test pass evidence is unavailable. Provide valid raw input files\
+    \ containing the required columns (including a `preprocessed` column set to\u202F\
+    True) and add the missing test suite."
+  task: 15966faecaeeda70562cb5a02285f869bbb2fd17f744efa216d9c0796a90ebd9
 T002:
-  reason: 'Requested task execution failed; rerun successfully: data/raw/ppmi_clinical.parquet
-    exit=-1; code/src/pipeline/run_preprocess_default.py exit=1'
-  task: ab5f61bd6cd381c8f27378ea345e52c3b3122e2a34fbdd52604725c76ddcfda6
+  reason: "The repository contains the preprocessing module and a full test suite,\
+    \ but the required output artifacts `data/processed/filtered_samples.parquet`\
+    \ and `data/processed/clr_abundances.parquet` are absent. Moreover, the CLR transformation\
+    \ is implemented manually instead of using the mandated `scikit\u2011bio` library.\
+    \ Both issues prevent the task from being considered fully completed."
+  task: ad7b9cc8c0acd1722380307b22f28c6a184db66658c888b8459bcaf4e8008a0d
 T003:
-  reason: "The core module `code/src/pipeline/slopes.py` is present and implements\
-    \ the required logic, but the required output artifacts `data/processed/patient_taxon_slopes.parquet`\
-    \ and `data/processed/patient_outcome_slopes.parquet` are missing from the project.\
-    \ Without these files the task\u2019s deliverable is not satisfied. The unit\u2011\
-    test suite is provided, but no evidence that it was executed successfully against\
-    \ the real output paths. The next implementer must ensure that running `run_slopes`\
-    \ actually creates the two parquet files at the specified locations (and that\
-    \ the outcome file is omitted only whe"
-  task: 58cbcdfee89937dc43253ceab0e2ef19265131c939f473b4ee1b5a1dab6148f1
+  task: c649b0e9a215931cb44d3b50a00141daa72ec6c0bb3edad66a4fbc0610cd0a2c
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_correlation_only.py
-    exit=1'
-  task: 2cca29a1a1c8c7447d474e968bf85ce4a430c7003843488e5fe1e2a0862cd609
+  reason: "The pipeline writes only `results/taxa_correlations.csv` (unadjusted) and\
+    \ a partial file named `partial_spearman_exploratory.csv`; the required `results/taxa_correlations_adj.csv`\
+    \ is missing, and the contract schema file `taxa_results.schema.yaml` and the\
+    \ test `code/tests/test_correlation_adj.py` are also absent. Consequently the\
+    \ task\u2019s specification (covariate\u2011adjusted Spearman output and its validation)\
+    \ is not fulfilled."
+  task: b808b585e4bf139d7dc89b1c21dba609a864f6d01409df8189bd81fdfb1f4083
 T005:
-  reason: 'Requested task execution failed; rerun successfully: tests/test_mixed_effects_execution.py
-    exit=5'
-  task: b0ba0982f1d1fa7d293e2f04ad42846ffdff12dcd1f7d879bf06d4d71616c92b
+  task: 581a7be89886c2847bb1728d7d5188f66f3223b3e4f56057993bdaad13266159
 T006:
-  reason: The permutation implementation (`code/src/pipeline/permutation.py`) and
-    its test (`code/tests/test_permutation.py`) are present and meet most functional
-    specs, but the required output artifact `data/results/permutation_pvalues.csv`
-    is missing from the repository. The task mandates that this CSV be generated (and
-    persisted) by the pipeline; its absence means the deliverable is incomplete. Generating
-    and committing the results file (or a placeholder with correct schema) will satisfy
-    the requirement.
-  task: 5b18e67601d4e9dcc1690c38a80d7b01d1dea9ca71a0d9c9fb992076d47c79ab
+  task: 69b0b4dd54804aadc83c014d49d8b03ebef87cde1a95615757aa86d2391e4a3c
 T007:
-  reason: "The implementation code (`__main__.py` with per-stage timing, log writing,\
-    \ and 6h/4h budget checks) and the test file both exist and look plausible, but\
-    \ there is no execution evidence: `data/results/runtime_log.txt` is MISSING, meaning\
-    \ the pipeline (and thus the logging behavior) has never actually been run, and\
-    \ no test-run output is supplied showing `test_runtime_budget.py` passes. The\
-    \ task's verification requirement \u2014 running a reduced-size pipeline and confirming\
-    \ the log contains the expected timing entries \u2014 is unmet; the implementer\
-    \ should execute the test (or the pipeline) and produce th"
-  task: 990be87b1cd575a576b9e81657ac65e5a9eebb522e637b53ec3691b7253d7e4c
+  task: e3e1756fd36fb5b166a9c6cf4ab0fd9e6155a8111469ea2fafc00e7ccbf01aa8
 T008a:
   reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_us1.py
     exit=1'
-  task: d3ebfff5804d44ee2cb915b0d41931c367840d954d52e84d278f7053890a38cc
+  task: 7169975254bbe460ce9500e4b11f5f3c1bebb155e54578e423393decffc70358
 T008b:
-  reason: 'declared artifact(s) missing/empty/invalid: data/results/mixed_effects_summary.csv'
-  task: 158f1eb2c179e0605c3d8e19e93167b573cea10d25764134c1c67e07f8747699
+  task: 7d2cd297898aaa00539dd164b548cfb6c15136d360e26abe8781e9c45637a7c2
 T008c:
-  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_us3.py
-    exit=1'
-  task: eadfd07d203488b276f662105e21f23057712d6adb217eef46a7af323151a5d9
+  task: 759b768f72c6fad0a4aca179c8c18ca5b27775317f146235909ded26ec343411
 T009:
-  task: 424973aa0ab73ee26b4efed3a4788d9ac4b499ba05de5b0ef32fdf742f002ddd
+  task: 4238657190925e239d26aea022be81d99006ac52c22a9de31e69ddb416bf0361
 T010:
-  task: 89c2ec58125f30a8cfc88305c75f8f1f9f7559c0f1452968fd03cc5046fae8f5
+  task: 499cc5ec317d5f24a4f189c697bfb6371b1e44438500bd5b62bb759b4be1bbc5
 T011:
-  task: 393a7a02ef68ef5eaff5934ce8a64480bf958be366febb80a7c4433339b59ded
+  task: f95cd7173f29570e8c1ffac0c4a3652ff3807a47e2ceb51bdc7cbb0d9749a2d1
 T012:
-  task: 7ebd3e098671a0bd77b1d665ec48879e59750b56472f66780546e3f77336d85e
+  task: 1e434b9ca3527402a909df5d60c33695407e4413e0ae62ec8a4693a670f6588c
 T013:
-  task: cec61df2c4aba32df5412eed122d70e657da888c1df7c42f048920f45f05e9d4
+  task: f668fe2169850fe3c81fa3e62c5b566ed5fd1054cf51cec553a4caa36a04a5b5
+T014:
+  task: 2511a2fb2af4591fd5e203fb24153d0695e1436ead148390a383e09a0a31d39e

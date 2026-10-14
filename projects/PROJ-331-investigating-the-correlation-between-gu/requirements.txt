@@ -1,12 +1,5 @@
-# Project dependencies
-# Core scientific stack (already available in the environment)
-numpy
-pandas
-scipy
-scikit-learn
-statsmodels
-matplotlib
-seaborn
-pyarrow>=16.0.0
-# Additional utilities used by the pipeline
-tqdm
+scikit-bio==0.6.0
+statsmodels==0.14.0
+reportlab==4.2.0
+pyarrow==16.0.0
+tqdm==4.66.0

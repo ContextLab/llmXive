@@ -2,7 +2,7 @@
 
 Performs block‑wise permutation of patient identifiers while preserving within‑patient
 temporal order, re‑fits the mixed‑effects model for each taxon, and records empirical
-p‑values.  Results are written to ``data/results/permutation_pvalues.csv``.
+p‑values.  Results are written to ``results/permutation_pvalues.csv``.
 """
 from __future__ import annotations
 
@@ -110,7 +110,12 @@ def run_permutation(
     out_path: Optional[Path] = None,
     max_wall_seconds: int = 4 * 60 * 60,
 ) -> Path:
-    """Execute the permutation robustness test."""
+    """Execute the permutation robustness test.
+
+    The function writes the empirical p‑values CSV to the ``results`` directory
+    (``results/permutation_pvalues.csv``) unless an explicit ``out_path`` is
+    provided.
+    """
     start_time = time.time()
     # Ensure reproducibility using the global NumPy RNG as specified in the spec
     np.random.seed(seed)
@@ -164,7 +169,8 @@ def run_permutation(
         {"taxon_name": list(empirical.keys()), "empirical_p": list(empirical.values())}
     )
 
-    out_path = out_path or paths.data("results", "permutation_pvalues.csv")
+    # Default location is the ``results`` folder, not ``data/results``.
+    out_path = out_path or paths.results("permutation_pvalues.csv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df_emp.to_csv(out_path, index=False)
     logger.info("Permutation results written to %s", out_path)

@@ -1,4 +1,16 @@
-"""Pipeline entry point (Task T001‑T006 orchestration)."""
+"""Pipeline entry point with stage timing, runtime logging, and input path determination.
+
+This module provides the command‑line interface for the full analysis pipeline.
+It coordinates the execution of each pipeline stage, records elapsed time per
+stage, writes a runtime log, and enforces the total‑runtime (6 h) and
+permutation‑runtime (4 h) budgets.
+
+The implementation follows the public API contracts defined in the other
+modules.  The crucial fix for Task T008a is that ``_determine_input_paths``
+now respects the project‑root abstraction provided by ``llmxive_toolkit.paths``,
+enabling the test suite (which monkey‑patches ``paths.root``) to locate the
+synthetic raw files placed under ``<tmp_path>/data/raw``.
+"""
 from __future__ import annotations
 
 import argparse
@@ -6,156 +18,277 @@ import logging
 import sys
 import time
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
-from llmxive_toolkit import paths
+from llmxive_toolkit import paths, get_logger
 
-from . import ingest, preprocess, slopes, correlation, mixed_effects, permutation
+log = get_logger(__name__)
 
-logger = logging.getLogger(__name__)
-if not logger.handlers:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-
-STAGE_ORDER = [
-    ("Ingest", ingest.main),
-    ("Preprocess", preprocess.main),
-    ("Slope computation", slopes.main),
-    ("Correlation analysis", correlation.main),
-    ("Linear Mixed‑Effects modelling", mixed_effects.main),
-    ("Permutation robustness test", permutation.main),
-]
-
-
+# ----------------------------------------------------------------------
+# Helper: stage timing and logging
+# ----------------------------------------------------------------------
 def _run_stage(log_path: Path, name: str, func, *args, **kwargs):
-    """Execute a pipeline stage, time it, and record the elapsed seconds."""
+    """Execute a pipeline stage, time it, and record the elapsed seconds.
+
+    Parameters
+    ----------
+    log_path : Path
+        Path to the runtime log file (created if missing).
+    name : str
+        Human‑readable stage name for the log.
+    func : callable
+        The function implementing the stage.
+    *args, **kwargs :
+        Arguments forwarded to ``func``.
+    Returns
+    -------
+    Any
+        Whatever ``func`` returns.
+    """
     start = time.time()
-    rc = func(*args, **kwargs)
+    result = func(*args, **kwargs)
     elapsed = time.time() - start
-    # Append timing info
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(f"{name}: {elapsed:.2f} seconds\\n")
-    return rc, elapsed
+    # Ensure the parent directory exists.
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("a", encoding="utf-8") as f:
+        f.write(f"{name}: {elapsed:.2f} seconds\n")
+    return result
 
+# ----------------------------------------------------------------------
+# Helper: determine raw input file locations
+# ----------------------------------------------------------------------
+def _determine_input_paths() -> Tuple[Path, Path]:
+    """Return the ASV CSV path and the clinical Parquet path.
 
+    The function first checks the canonical PPMI filenames
+    ``ppmi_asv.csv`` / ``ppmi_clinical.parquet`` inside the project's
+    ``data/raw`` directory (as resolved by ``paths.data``).  If those are
+    missing, it falls back to the alternative open‑data filenames
+    ``open_asv.csv`` / ``open_clinical.parquet``.  If neither pair exists,
+    a ``FileNotFoundError`` is raised with a clear message.
+
+    This logic mirrors the behaviour of ``ingest.validate_inputs`` but
+    operates independently so that the wrapper scripts can locate the
+    files before invoking the ingestion step.
+    """
+    raw_dir = paths.data("raw")
+    # Preferred historic filenames
+    primary_asv = raw_dir / "ppmi_asv.csv"
+    primary_clin = raw_dir / "ppmi_clinical.parquet"
+    # Alternative open‑data filenames
+    alt_asv = raw_dir / "open_asv.csv"
+    alt_clin = raw_dir / "open_clinical.parquet"
+
+    if primary_asv.is_file() and primary_clin.is_file():
+        return primary_asv, primary_clin
+    if alt_asv.is_file() and alt_clin.is_file():
+        return alt_asv, alt_clin
+
+    raise FileNotFoundError(
+        f"Required input files not found. Expected either:\n"
+        f"  {primary_asv}\n"
+        f"  {primary_clin}\n"
+        f"or:\n"
+        f"  {alt_asv}\n"
+        f"  {alt_clin}"
+    )
+
+# ----------------------------------------------------------------------
+# Argument parsing
+# ----------------------------------------------------------------------
 def _parse_args(argv: List[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the full gut‑microbiome PD pipeline")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--max_taxa", type=int, default=100, help="Maximum taxa after RAM cap")
+    parser = argparse.ArgumentParser(
+        description="Run the full gut‑microbiome‑PD progression pipeline."
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility (default: 42).",
+    )
+    parser.add_argument(
+        "--max_taxa",
+        type=int,
+        default=100,
+        help="Upper bound on taxa retained after filtering (FR‑010).",
+    )
     parser.add_argument(
         "--perm_iterations",
         type=int,
         default=1000,
-        help="Number of permutation iterations (0 to skip)",
+        help="Number of permutation iterations (FR‑007).",
     )
     return parser.parse_args(argv)
 
-
-def _determine_input_paths() -> tuple[Path, Path]:
-    """
-    Determine which raw input files to pass to ``ingest.main``.
-
-    The original implementation expected the files at
-    ``data/raw/ppmi_asv.csv`` and ``data/raw/ppmi_clinical.parquet``.
-    In the test suite a temporary directory is used where the files are
-    placed directly under the project root (e.g. ``tmp_path/ppmi_asv.csv``).
-    To keep the public API unchanged while allowing the test to succeed,
-    we look for the files in their canonical location first; if they are
-    missing we fall back to the root‑level filenames.
-    """
-    default_asv = paths.data("raw", "ppmi_asv.csv")
-    default_clin = paths.data("raw", "ppmi_clinical.parquet")
-
-    # If both default files exist we simply use them.
-    if default_asv.is_file() and default_clin.is_file():
-        return default_asv, default_clin
-
-    # Otherwise try the root‑level fall‑back (used by the test harness).
-    fallback_asv = paths.root / "ppmi_asv.csv"
-    fallback_clin = paths.root / "ppmi_clinical.parquet"
-
-    asv_path = fallback_asv if fallback_asv.is_file() else default_asv
-    clin_path = fallback_clin if fallback_clin.is_file() else default_clin
-    return asv_path, clin_path
-
-
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main(argv: List[str] | None = None) -> int:
+    """Run the complete pipeline and enforce runtime budgets.
+
+    The stages executed are:
+
+    1. Ingest validation (T001)
+    2. Pre‑processing (T002)
+    3. Slope computation (T003)
+    4. Correlation analysis (T004)
+    5. Linear Mixed‑Effects modelling (T005)
+    6. Permutation robustness test (T006)
+
+    Runtime for each stage is logged to ``results/runtime_log.txt``.
+    After all stages have completed, the total elapsed time is checked
+    against the 6‑hour budget, and the permutation block is checked
+    against the 4‑hour budget.  Non‑compliant runs exit with a non‑zero
+    status code.
+    """
     args = _parse_args(argv)
 
-    # Runtime log path
-    log_path = paths.results("runtime_log.txt")
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    # Set global seed for reproducibility.
+    import numpy as np
+
+    np.random.seed(args.seed)
+
+    # Resolve raw input paths.
+    try:
+        asv_path, clinical_path = _determine_input_paths()
+    except FileNotFoundError as exc:
+        log.error(str(exc))
+        return 1
+
+    # Prepare output locations.
+    processed_dir = paths.data("processed")
+    results_dir = paths.results()
+    runtime_log = results_dir / "runtime_log.txt"
 
     # ------------------------------------------------------------------
-    # Stage 1 – Ingest (with flexible input location handling)
+    # Stage 1 – Ingest
     # ------------------------------------------------------------------
-    asv_path, clin_path = _determine_input_paths()
-    ingest_report_path = paths.data("raw", "ingest_validation.json")
-    rc, elapsed = _run_stage(
-        log_path,
+    ingest_report = paths.data("raw", "ingest_validation.json")
+    rc = _run_stage(
+        runtime_log,
         "Ingest",
-        ingest.main,
+        __import__("code.src.pipeline.ingest", fromlist=["main"]).main,
         asv_path,
-        clin_path,
-        ingest_report_path,
+        clinical_path,
+        ingest_report,
     )
     if rc != 0:
+        log.error("Ingest stage failed (rc=%s).", rc)
         return rc
-    timings = {"Ingest": elapsed}
 
     # ------------------------------------------------------------------
-    # Remaining stages – use their default entry points (they rely on the
-    # standard ``paths`` helpers for locating processed / result files).
+    # Stage 2 – Preprocess
     # ------------------------------------------------------------------
-    rc, elapsed = _run_stage(log_path, "Preprocess", preprocess.main)
-    if rc != 0:
-        return rc
-    timings["Preprocess"] = elapsed
+    _run_stage(
+        runtime_log,
+        "Preprocess",
+        __import__("code.src.pipeline.preprocess", fromlist=["run_preprocess"]).run_preprocess,
+        asv_path,
+        clinical_path,
+        out_dir=processed_dir,
+        max_taxa=args.max_taxa,
+    )
 
-    rc, elapsed = _run_stage(log_path, "Slope computation", slopes.main)
-    if rc != 0:
-        return rc
-    timings["Slope computation"] = elapsed
+    # ------------------------------------------------------------------
+    # Stage 3 – Slope computation
+    # ------------------------------------------------------------------
+    clr_path = processed_dir / "clr_abundances.parquet"
+    taxon_slopes_path, outcome_slopes_path = _run_stage(
+        runtime_log,
+        "Slope computation",
+        __import__("code.src.pipeline.slopes", fromlist=["run_slopes"]).run_slopes,
+        clr_path,
+        clinical_path,
+    )
+    log.info(
+        "Slope files created: %s (taxa) , %s (outcome)",
+        taxon_slopes_path,
+        outcome_slopes_path,
+    )
 
-    rc, elapsed = _run_stage(log_path, "Correlation analysis", correlation.main)
-    if rc != 0:
-        return rc
-    timings["Correlation analysis"] = elapsed
+    # ------------------------------------------------------------------
+    # Stage 4 – Correlation analysis (plain Spearman)
+    # ------------------------------------------------------------------
+    results_path, _ = _run_stage(
+        runtime_log,
+        "Correlation analysis",
+        __import__("code.src.pipeline.correlation", fromlist=["run_correlation"]).run_correlation,
+        partial=False,
+        taxon_slopes_path=taxon_slopes_path,
+        outcome_slopes_path=outcome_slopes_path,
+    )
+    log.info("Correlation results written to %s", results_path)
 
-    rc, elapsed = _run_stage(log_path, "Linear Mixed‑Effects modelling", mixed_effects.main)
-    if rc != 0:
-        return rc
-    timings["Linear Mixed‑Effects modelling"] = elapsed
+    # ------------------------------------------------------------------
+    # Stage 5 – Linear Mixed‑Effects modelling
+    # ------------------------------------------------------------------
+    mixed_path = _run_stage(
+        runtime_log,
+        "Linear Mixed‑Effects modelling",
+        __import__("code.src.pipeline.mixed_effects", fromlist=["run_mixed_effects"]).run_mixed_effects,
+        clr_path,
+        clinical_path,
+    )
+    log.info("Mixed‑effects results written to %s", mixed_path)
 
-    # Permutation step may be skipped via zero iterations
-    if args.perm_iterations > 0:
-        rc, elapsed = _run_stage(
-            log_path,
-            "Permutation robustness test",
-            permutation.main,
-            iterations=args.perm_iterations,
-            seed=args.seed,
+    # ------------------------------------------------------------------
+    # Stage 6 – Permutation robustness test
+    # ------------------------------------------------------------------
+    perm_path = _run_stage(
+        runtime_log,
+        "Permutation robustness test",
+        __import__("code.src.pipeline.permutation", fromlist=["run_permutation"]).run_permutation,
+        iterations=args.perm_iterations,
+        seed=args.seed,
+        clr_path=clr_path,
+        clinical_path=clinical_path,
+    )
+    log.info("Permutation results written to %s", perm_path)
+
+    # ------------------------------------------------------------------
+    # Post‑run budget checks
+    # ------------------------------------------------------------------
+    # Parse the runtime log to obtain total and permutation times.
+    total_seconds = 0.0
+    perm_seconds = 0.0
+    with runtime_log.open("r", encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("Total:"):
+                total_seconds = float(line.split(":")[1].strip().split()[0])
+            elif line.startswith("Permutation robustness test:"):
+                perm_seconds = float(line.split(":")[1].strip().split()[0])
+
+    # If the log does not contain explicit totals, compute from the
+    # accumulated per‑stage entries.
+    if total_seconds == 0.0:
+        # Sum all recorded stage times.
+        with runtime_log.open("r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    secs = float(line.split(":")[1].strip().split()[0])
+                    total_seconds += secs
+                except Exception:
+                    continue
+
+    # Enforce budgets.
+    if total_seconds > 6 * 60 * 60:
+        log.error(
+            "Total pipeline runtime %.2f seconds exceeds the 6‑hour budget.",
+            total_seconds,
         )
-        if rc != 0:
-            return rc
-        timings["Permutation robustness test"] = elapsed
-    else:
-        timings["Permutation robustness test"] = 0.0
+        return 1
+    if perm_seconds > 4 * 60 * 60:
+        log.error(
+            "Permutation step runtime %.2f seconds exceeds the 4‑hour budget.",
+            perm_seconds,
+        )
+        return 1
 
-    # ------------------------------------------------------------------
-    # Total runtime assertion (SC‑003)
-    # ------------------------------------------------------------------
-    total_time = sum(timings.values())
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(f"Total: {total_time:.2f} seconds\\n")
-    if total_time > 6 * 60 * 60:
-        logger.error("Pipeline exceeded total wall‑clock budget of 6 hours.")
-        return 1
-    if timings.get("Permutation robustness test", 0) > 4 * 60 * 60:
-        logger.error("Permutation step exceeded its 4‑hour wall‑clock budget.")
-        return 1
+    # Append a final total line for completeness.
+    with runtime_log.open("a", encoding="utf-8") as f:
+        f.write(f"Total: {total_seconds:.2f} seconds\n")
 
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

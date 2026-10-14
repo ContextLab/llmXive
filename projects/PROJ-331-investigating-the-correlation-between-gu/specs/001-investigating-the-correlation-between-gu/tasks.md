@@ -22,7 +22,7 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
   - **Outputs**: `data/processed/filtered_samples.parquet`, `data/processed/clr_abundances.parquet`  
   - **Verification**: `code/tests/test_preprocess.py` confirms correct patient‑visit filtering, CLR shape, and that the taxa count does not exceed 100 when the RAM guard triggers.
 
-- [ ] T003 Compute per‑patient slopes for taxa abundances and clinical outcome  
+- [X] T003 Compute per‑patient slopes for taxa abundances and clinical outcome  
   - **Description**: `code/src/pipeline/slopes.py` parses `visit_date` to exact years, fits a simple linear regression for each patient‑taxon pair on the CLR‑transformed abundances to obtain a slope (FR‑004), and fits a regression of `MDS_UPDRS_total` vs. time per patient to obtain the clinical slope.  
   - **Outputs**: `data/processed/patient_taxon_slopes.parquet`, `data/processed/patient_outcome_slopes.parquet` (the latter is omitted only if the outcome column is missing, as flagged by T001).  
   - **Verification**: `code/tests/test_slopes.py` checks correct handling of exactly two visits, correct year calculation, and that single‑visit patients are excluded.
@@ -34,24 +34,24 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
   - **Output**: `results/taxa_correlations_adj.csv` conforms to the `correlation` section of `taxa_results.schema.yaml`.  
   - **Verification**: Contract test `code/tests/contract/test_contracts.py` validates the CSV schema; `code/tests/test_correlation_adj.py` asserts that residualization was performed and that BH‑adjusted p‑values are monotonic.
 
-- [ ] T005 Fit Linear Mixed‑Effects models with covariate adjustment and BH correction  
+- [X] T005 Fit Linear Mixed‑Effects models with covariate adjustment and BH correction  
   - **Description**: `code/src/pipeline/mixed_effects.py` builds a long‑format table, drops any zero‑variance covariates with a warning, and for each retained taxon fits a mixed‑effects model  
     `MDS_UPDRS_total ~ Time * Taxon + Age + Sex + Levodopa_Dose + (1|Patient)`  
     using `statsmodels`. It extracts the `Time × Taxon` interaction coefficient, its standard error, raw p‑value, and applies BH correction (FR‑005, FR‑006).  
   - **Output**: `results/mixed_effects_summary.csv` (conforms to the `mixed_effects` section of the schema).  
   - **Verification**: `code/tests/test_mixed_effects.py` fits the model on a tiny synthetic dataset with a known interaction and checks the recovered coefficient; contract test validates the CSV.
 
-- [ ] T006 Perform permutation robustness test (1 000 iterations) preserving within‑patient order  
+- [X] T006 Perform permutation robustness test (1 000 iterations) preserving within‑patient order  
   - **Description**: `code/src/pipeline/permutation.py` seeds `np.random.seed(42)`, shuffles **patient identifiers** while keeping each patient’s internal time series intact, re‑fits the same mixed‑effects model as in T005 for each iteration, records the interaction p‑value, and computes empirical p‑values as the proportion of permuted p‑values ≤ the observed raw p‑value. The script aborts gracefully if the block exceeds **4 hours**, writing any partial results and logging the breach (FR‑007).  
   - **Output**: `results/permutation_pvalues.csv` (conforms to the `permutation` section of the schema).  
   - **Verification**: `code/tests/test_permutation.py` confirms (i) patient‑level time ordering is unchanged after shuffling, (ii) empirical p‑values lie in [0, 1], (iii) the 4‑hour guard triggers on a mocked long run.
 
-- [ ] T007 Runtime and resource monitoring (≤ 6 h total, ≤ 4 h permutation)  
+- [~] T007 Runtime and resource monitoring (≤ 6 h total, ≤ 4 h permutation)  
   - **Description**: `code/src/pipeline/__main__.py` wraps each pipeline stage with a wall‑clock timer, writes per‑stage elapsed times to `results/runtime_log.txt`, and after the full run asserts total wall‑clock ≤ 6 h and permutation ≤ 4 h.  
   - **Output**: `results/runtime_log.txt`  
   - **Verification**: `code/tests/test_runtime_budget.py` runs a reduced‑size pipeline and checks that the log contains entries for every stage and that the assertions pass.
 
-- [ ] T008a Execute User Story 1 (correlation‑only) end‑to‑end pipeline  
+- [ ] T008a Execute User Story 1 (correlation‑only) end‑to‑end pipeline   <!-- FAILED-IN-EXECUTION: code/src/pipeline/run_us1.py exit=1 -->
   - **Command**: `python -m code.src.pipeline.run_us1` (or equivalent wrapper) which sequentially invokes T001 → T002 → T003 → T004 and writes `results/taxa_correlations_adj.csv` plus `results/runtime_log.txt`.  
   - **Verification**: New pytest `code/tests/test_us1_execution.py` asserts that `results/taxa_correlations_adj.csv` contains a row for every retained taxon, that BH‑adjusted p‑values are present, and that `results/runtime_log.txt` records total runtime ≤ 6 h.
 

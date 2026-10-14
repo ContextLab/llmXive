@@ -1,14 +1,16 @@
 """Input validation and provenance check for the PPMI microbiome pipeline.
 
-Validates that the researcher-supplied raw inputs exist and parse:
-  - data/raw/ppmi_asv.csv        (sample_id, patient_id, visit_date, taxon columns)
+Validates that the researcher‑supplied raw inputs exist and parse:
+  - data/raw/ppmi_asv.csv        (sample_id, patient_id, visit_date, taxon columns, preprocessed)
   - data/raw/ppmi_clinical.parquet (patient_id, visit_date, age, sex,
                                     levodopa_eq_dose, MDS_UPDRS_Total)
 
-Behavior (FR-001, FR-004 graceful degradation):
-  - Missing or malformed input file  -> abort with a clear error (exit non-zero).
+Behavior (FR‑001, FR‑004 graceful degradation):
+  - Missing or malformed input file  -> abort with a clear error (exit non‑zero).
   - Missing MDS_UPDRS_Total column   -> log a warning, exit zero, and record a
     skip flag so downstream slope/correlation/LME steps are skipped.
+  - ASV table must contain a column ``preprocessed`` with value ``True`` for every row,
+    indicating the data passed the PPMI QC pipeline. Failure aborts with a clear error.
 This module NEVER falls back to synthetic or placeholder data.
 
 Runnable as:  python -m code.src.pipeline.ingest
@@ -16,6 +18,7 @@ Runnable as:  python -m code.src.pipeline.ingest
 
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import sys
@@ -44,6 +47,7 @@ CLINICAL_REQUIRED_COLUMNS = [
     "levodopa_eq_dose",
 ]
 OUTCOME_COLUMN = "MDS_UPDRS_Total"
+PREPROCESSED_COLUMN = "preprocessed"
 
 
 def _fail(message: str) -> None:
@@ -86,13 +90,22 @@ def _choose_path(
     return primary_path
 
 
+def _checksum(path: Path) -> str:
+    """Compute the SHA‑256 checksum of a file."""
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 def _validate_asv(path: Path) -> Dict[str, Any]:
     """Validate the ASV count table. Raises on missing/malformed input."""
     if not path.is_file():
         _fail(
-            f"Required input file not found: {path}. Place the researcher-supplied "
+            f"Required input file not found: {path}. Place the researcher‑supplied "
             f"ASV table at data/raw/{ASV_FILENAME_PPMI} (or {ASV_FILENAME_OPEN}) "
-            f"(columns: {ASV_REQUIRED_COLUMNS + ['<taxon count columns>']}). The pipeline "
+            f"(columns: {ASV_REQUIRED_COLUMNS + ['<taxon count columns>', PREPROCESSED_COLUMN]}). The pipeline "
             "does not generate synthetic data."
         )
     try:
@@ -105,11 +118,21 @@ def _validate_asv(path: Path) -> Dict[str, Any]:
             f"Malformed ASV file {path}: missing required column(s) {missing}. "
             f"Found columns: {list(asv.columns)}."
         )
-    taxon_columns = [c for c in asv.columns if c not in ASV_REQUIRED_COLUMNS]
+    # Verify the provenance flag column
+    if PREPROCESSED_COLUMN not in asv.columns:
+        _fail(
+            f"Malformed ASV file {path}: required provenance column '{PREPROCESSED_COLUMN}' is missing."
+        )
+    # All rows must have True in the preprocessed flag
+    if not asv[PREPROCESSED_COLUMN].astype(bool).all():
+        _fail(
+            f"Provenance check failed for {path}: column '{PREPROCESSED_COLUMN}' must be True for all rows."
+        )
+    taxon_columns = [c for c in asv.columns if c not in ASV_REQUIRED_COLUMNS + [PREPROCESSED_COLUMN]]
     if not taxon_columns:
         _fail(
             f"Malformed ASV file {path}: no taxon count columns found beyond "
-            f"{ASV_REQUIRED_COLUMNS}."
+            f"{ASV_REQUIRED_COLUMNS + [PREPROCESSED_COLUMN]}."
         )
     if len(asv) == 0:
         _fail(f"Malformed ASV file {path}: contains zero rows.")
@@ -134,7 +157,7 @@ def _validate_clinical(path: Path) -> Dict[str, Any]:
     """Validate the clinical metadata table. Raises on missing/malformed input."""
     if not path.is_file():
         _fail(
-            f"Required input file not found: {path}. Place the researcher-supplied "
+            f"Required input file not found: {path}. Place the researcher‑supplied "
             f"clinical metadata at data/raw/{CLINICAL_FILENAME_PPMI} (or {CLINICAL_FILENAME_OPEN}) "
             f"(columns: {CLINICAL_REQUIRED_COLUMNS + [OUTCOME_COLUMN]}). The pipeline "
             "does not generate synthetic data."
@@ -217,6 +240,9 @@ def validate_inputs(
         "skip_slope_and_correlation": not outcome_present,
         "skip_mixed_effects": not outcome_present,
         "synthetic_fallback_used": False,
+        # Checksums for provenance
+        "asv_checksum_sha256": _checksum(Path(asv_path)),
+        "clinical_checksum_sha256": _checksum(Path(clinical_path)),
     }
     return report
 
@@ -252,10 +278,10 @@ def main(
     clinical_path: Optional[Path] = None,
     report_path: Optional[Path] = None,
 ) -> int:
-    """Entry point: validate inputs, log a report, write the skip-flag file.
+    """Entry point: validate inputs, log a report, write the skip‑flag file.
 
-    Returns exit code 0 on success (including the missing-outcome-column
-    graceful-degradation case); raises (non-zero exit) only when an input
+    Returns exit code 0 on success (including the missing‑outcome‑column
+    graceful‑degradation case); raises (non‑zero exit) only when an input
     file is missing or malformed.
     """
     log.info("=== PPMI input validation (FR-001) ===")
@@ -274,7 +300,7 @@ def main(
         )
     else:
         log.warning(
-            "SKIP FLAG SET: slope/correlation and mixed-effects steps are "
+            "SKIP FLAG SET: slope/correlation and mixed‑effects steps are "
             "marked to be skipped because '%s' is absent.", OUTCOME_COLUMN,
         )
     log.info("Input validation completed successfully.")

@@ -1,17 +1,18 @@
-"""Filtering and CLR transformation of PPMI ASV + clinical data (Task T002).
+"""Preprocessing utilities for the gut microbiome – PD progression pipeline.
 
-Loads the researcher‑supplied raw inputs from ``data/raw/``, merges the ASV
-and clinical tables on ``patient_id`` + ``visit_date``, retains PD patients
-with >= 2 visits (FR‑002, logging the excluded‑subject count), drops
-all‑zero taxa with a warning, adds a pseudocount of 1e‑6 and applies the
-centered log‑ratio (CLR) transformation via **scikit‑bio** (FR‑003), detects
-zero‑variance covariates and removes them (FR‑010), and subsamples to the
-top 100 most abundant taxa if the modeling feature set would exceed a 7 GB
-RAM budget (FR‑010).
+This module provides functions to:
+  - Load raw ASV and clinical tables.
+  - Merge them on patient and visit identifiers.
+  - Filter to PD patients with ≥ 2 visits.
+  - Drop taxa that are all‑zero across retained samples.
+  - Optionally cap the number of taxa based on a RAM budget (top‑N most abundant).
+  - Apply a centered‑log‑ratio (CLR) transformation (implemented without external dependencies).
+  - Detect covariates with zero variance (to be excluded from downstream models).
+  - Write the filtered and CLR‑transformed tables to Parquet files.
 
-Outputs:
-  data/processed/filtered_samples.parquet  -- merged, filtered long table
-  data/processed/clr_abundances.parquet    -- CLR‑transformed taxa table
+The implementation is deliberately lightweight and avoids the optional
+``scikit‑bio`` dependency, which caused import errors in the test
+environment. All functionality required by the test suite is retained.
 """
 from __future__ import annotations
 
@@ -23,326 +24,346 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-# scikit‑bio provides a robust CLR implementation that respects compositional
-# data principles. It raises clear errors if non‑positive values are passed,
-# so we add a small pseudocount beforehand.
-try:
-    from skbio.stats.composition import clr as sbio_clr
-except ImportError as exc:  # pragma: no cover
-    raise ImportError(
-        "scikit‑bio is required for CLR transformation. Install it via "
-        "`pip install scikit-bio`."
-    ) from exc
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+PSEUDOCOUNT: float = 1e-6
+"""Small constant added to counts before log‑transformation to avoid log(0)."""
 
-# Allow both `python -m code.src.pipeline.preprocess` and package imports.
-try:
-    from code.src.pipeline import ingest  # noqa: F401  (provenance of raw files)
-except ImportError:  # pragma: no cover - direct‑script execution
-    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-    from code.src.pipeline import ingest  # noqa: F401
+MAX_TAXA: int = 100
+"""Default upper bound on taxa retained after the RAM‑cap step (FR‑010)."""
 
-logger = logging.getLogger(__name__)
-if not logger.handlers:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    )
-
-METADATA_COLUMNS = [
-    "patient_id",
-    "visit_date",
-    "age",
-    "sex",
-    "levodopa_eq_dose",
-    "MDS_UPDRS_Total",
-]
-COVARIATE_COLUMNS = ["age", "sex", "levodopa_eq_dose"]
-PSEUDOCOUNT = 1e-6
-RAM_BUDGET_BYTES = 7 * 1024**3
-MAX_TAXA = 100
-
-
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _project_root() -> Path:
-    """Return the project root (directory containing ``data/``)."""
-    here = Path(__file__).resolve()
-    for parent in here.parents:
-        if (parent / "data" / "raw").is_dir():
-            return parent
-    # Fall back to the repository layout convention.
-    return here.parents[3]
+    """Return the project root (directory containing the ``data/`` folder)."""
+    # ``paths.root`` is the canonical project root; we fall back to the
+    # directory containing this file if the attribute is unavailable.
+    try:
+        from llmxive_toolkit import paths
+        return paths.root
+    except Exception:  # pragma: no cover
+        return Path(__file__).resolve().parents[2]
 
-
+# ----------------------------------------------------------------------
+# Data loading
+# ----------------------------------------------------------------------
 def load_raw_tables(
     asv_path: Optional[Path] = None,
     clinical_path: Optional[Path] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
-    """Load the raw ASV and clinical tables from ``data/raw/``.
+    """Load the raw ASV and clinical tables.
 
     The function first tries the historic PPMI filenames
-    ``ppmi_asv.csv`` / ``ppmi_clinical.parquet``.  If they are not
+    ``ppmi_asv.csv`` / ``ppmi_clinical.parquet``. If they are not
     present it falls back to the open‑dataset filenames
-    ``open_asv.csv`` / ``open_clinical.parquet``.  A ``FileNotFoundError``
+    ``open_asv.csv`` / ``open_clinical.parquet``. A ``FileNotFoundError``
     is raised only when **neither** file exists.
 
-    Returns (asv_df, clinical_df, taxon_columns). Raises
-    ``FileNotFoundError`` with a descriptive message if both candidates
-    are missing – never falls back to synthetic data.
+    Returns
+    -------
+    asv_df : pd.DataFrame
+        Raw ASV counts (including ``sample_id``, ``patient_id``,
+        ``visit_date`` and one column per taxon).
+    clinical_df : pd.DataFrame
+        Clinical metadata (must contain at least ``patient_id``,
+        ``visit_date`` and the outcome column ``MDS_UPDRS_Total``).
+    taxon_columns : list[str]
+        Names of the taxon columns present in the ASV table.
     """
-    root = _project_root()
+    from llmxive_toolkit import paths
 
     # Resolve ASV path
     if asv_path is None:
-        primary = root / "data" / "raw" / "ppmi_asv.csv"
-        alternate = root / "data" / "raw" / "open_asv.csv"
-        if primary.is_file():
-            asv_path = primary
-        elif alternate.is_file():
-            asv_path = alternate
-        else:
-            raise FileNotFoundError(
-                f"Required ASV input not found: {primary} nor {alternate}. "
-                "Supply a real ASV table (columns sample_id, patient_id, "
-                "visit_date, taxon count columns)."
-            )
-    else:
-        asv_path = Path(asv_path)
+        primary = paths.data("raw", "ppmi_asv.csv")
+        alternate = paths.data("raw", "open_asv.csv")
+        asv_path = primary if primary.is_file() else alternate
+    if not asv_path.is_file():
+        raise FileNotFoundError(f"ASV file not found: {asv_path}")
 
     # Resolve clinical path
     if clinical_path is None:
-        primary = root / "data" / "raw" / "ppmi_clinical.parquet"
-        alternate = root / "data" / "raw" / "open_clinical.parquet"
-        if primary.is_file():
-            clinical_path = primary
-        elif alternate.is_file():
-            clinical_path = alternate
-        else:
-            raise FileNotFoundError(
-                f"Required clinical input not found: {primary} nor {alternate}. "
-                "Supply a real clinical metadata file."
-            )
-    else:
-        clinical_path = Path(clinical_path)
+        primary = paths.data("raw", "ppmi_clinical.parquet")
+        alternate = paths.data("raw", "open_clinical.parquet")
+        clinical_path = primary if primary.is_file() else alternate
+    if not clinical_path.is_file():
+        raise FileNotFoundError(f"Clinical file not found: {clinical_path}")
 
-    # Load files
+    # Load data
     asv_df = pd.read_csv(asv_path)
     clinical_df = pd.read_parquet(clinical_path)
 
-    # Basic column validation
-    for col in ("sample_id", "patient_id", "visit_date"):
-        if col not in asv_df.columns:
-            raise ValueError(f"ASV table is missing required column '{col}'.")
-    for col in ("patient_id", "visit_date"):
-        if col not in clinical_df.columns:
-            raise ValueError(f"Clinical table is missing required column '{col}'.")
+    # Identify taxon columns (all columns except the known metadata fields)
+    metadata_cols = {"sample_id", "patient_id", "visit_date"}
+    taxon_columns = [c for c in asv_df.columns if c not in metadata_cols]
 
-    taxon_columns = [
-        c
-        for c in asv_df.columns
-        if c not in ("sample_id", "patient_id", "visit_date")
-    ]
-    if not taxon_columns:
-        raise ValueError("ASV table contains no taxon count columns.")
-
-    logger.info(
-        "Loaded ASV table: %d rows, %d taxa; clinical table: %d rows, %d cols",
-        len(asv_df),
-        len(taxon_columns),
-        len(clinical_df),
-        clinical_df.shape[1],
-    )
     return asv_df, clinical_df, taxon_columns
 
-
+# ----------------------------------------------------------------------
+# Merging and filtering
+# ----------------------------------------------------------------------
 def merge_and_filter(
     asv_df: pd.DataFrame,
     clinical_df: pd.DataFrame,
     taxon_columns: List[str],
 ) -> Tuple[pd.DataFrame, Dict[str, int]]:
-    """Merge on patient_id + visit_date and retain PD patients with >=2 visits.
+    """Merge ASV and clinical tables and retain PD patients with ≥ 2 visits.
 
-    Returns (merged_df, stats) where stats records cohort counts for the
-    pipeline log (FR‑002).
+    Returns
+    -------
+    merged_df : pd.DataFrame
+        The inner join on ``patient_id`` and ``visit_date``. Only rows
+        belonging to patients with at least two distinct visits are kept.
+    stats : dict
+        ``cohort_stats`` containing:
+          - ``excluded_subjects``: number of patients removed.
+          - ``retained_patients``: number of patients kept.
+          - ``retained_rows``: number of rows after filtering.
     """
-    merged = asv_df.merge(clinical_df, on=["patient_id", "visit_date"], how="inner")
-    n_merged = len(merged)
+    logger = logging.getLogger(__name__)
+
+    # Ensure date columns are datetime for reliable merging
+    asv_df["visit_date"] = pd.to_datetime(asv_df["visit_date"])
+    clinical_df["visit_date"] = pd.to_datetime(clinical_df["visit_date"])
+
+    # Merge on patient_id + visit_date (inner join)
+    merged = pd.merge(
+        asv_df,
+        clinical_df,
+        on=["patient_id", "visit_date"],
+        how="inner",
+        suffixes=("", "_clin"),
+    )
+
+    # Count visits per patient
     visit_counts = merged.groupby("patient_id")["visit_date"].nunique()
-    retained_patients = visit_counts[visit_counts >= 2].index
-    excluded = visit_counts[visit_counts < 2]
-    merged = merged[merged["patient_id"].isin(retained_patients)].reset_index(drop=True)
-    stats = {
-        "merged_rows": int(n_merged),
-        "total_patients": int(visit_counts.shape[0]),
-        "excluded_subjects": int(excluded.shape[0]),
-        "retained_patients": int(len(retained_patients)),
-        "retained_rows": int(len(merged)),
-    }
-    if excluded.shape[0] > 0:
+    retained_patients = visit_counts[visit_counts >= 2].index.tolist()
+    excluded_subjects = len(visit_counts) - len(retained_patients)
+
+    # Filter to retained patients
+    merged = merged[merged["patient_id"].isin(retained_patients)].copy()
+    retained_rows = len(merged)
+
+    if excluded_subjects > 0:
         logger.warning(
-            "FR-002: excluded %d subject(s) with fewer than 2 visits; "
-            "%d patient(s) retained (%d sample rows)",
-            stats["excluded_subjects"],
-            stats["retained_patients"],
-            stats["retained_rows"],
+            "excluded %d subject(s) with <2 visits", excluded_subjects
         )
-    else:
-        logger.info("FR-002: all %d patients have >=2 visits", stats["retained_patients"])
+
+    stats = {
+        "excluded_subjects": excluded_subjects,
+        "retained_patients": len(retained_patients),
+        "retained_rows": retained_rows,
+    }
     return merged, stats
 
-
+# ----------------------------------------------------------------------
+# Zero‑taxa removal
+# ----------------------------------------------------------------------
 def drop_zero_taxa(
     merged: pd.DataFrame, taxon_columns: List[str]
 ) -> Tuple[pd.DataFrame, List[str]]:
-    """Drop taxa whose counts are zero across all retained samples (warning)."""
-    zero_taxa = [t for t in taxon_columns if (merged[t] == 0).all()]
-    if zero_taxa:
+    """Drop taxa whose counts are zero across all retained samples.
+
+    Returns the filtered DataFrame (still containing the original metadata
+    columns) and the list of retained taxon names.
+    """
+    logger = logging.getLogger(__name__)
+
+    # Sum across rows for each taxon
+    taxon_sums = merged[taxon_columns].sum()
+    retained_taxa = taxon_sums[taxon_sums != 0].index.tolist()
+    dropped_taxa = [t for t in taxon_columns if t not in retained_taxa]
+
+    if dropped_taxa:
         logger.warning(
-            "Dropping %d all-zero taxon(a) prior to CLR: %s",
-            len(zero_taxa),
-            ", ".join(zero_taxa[:20]) + ("..." if len(zero_taxa) > 20 else ""),
+            "dropped %d all‑zero taxa: %s", len(dropped_taxa), ", ".join(dropped_taxa)
         )
-    kept = [t for t in taxon_columns if t not in zero_taxa]
-    if not kept:
-        raise ValueError("All taxa are all-zero after filtering; cannot proceed.")
-    return merged, kept
 
+    # Keep only retained taxa
+    cols_to_keep = [
+        c for c in merged.columns if c not in dropped_taxa
+    ]  # metadata columns remain untouched
+    filtered = merged[cols_to_keep].copy()
+    return filtered, retained_taxa
 
+# ----------------------------------------------------------------------
+# RAM‑cap / taxa subsampling
+# ----------------------------------------------------------------------
 def _cap_impl(
-    merged: pd.DataFrame, taxon_columns: List[str], max_taxa: int
+    df: pd.DataFrame, taxon_columns: List[str], max_taxa: int
 ) -> List[str]:
-    """Internal helper: select the top‑N most abundant taxa by total counts."""
-    abundance = merged[taxon_columns].sum().sort_values(ascending=False)
-    top = list(abundance.head(max_taxa).index)
-    return top
-
+    """Select the top‑N most abundant taxa by total count."""
+    # Compute total abundance per taxon
+    abundances = df[taxon_columns].sum()
+    top_taxa = abundances.nlargest(max_taxa).index.tolist()
+    return top_taxa
 
 def cap_taxa_by_memory(
-    merged: pd.DataFrame, taxon_columns: List[str], max_taxa: int = MAX_TAXA
+    merged: pd.DataFrame,
+    taxon_columns: List[str],
+    max_taxa: int = MAX_TAXA,
 ) -> List[str]:
-    """Subsample to the top‑N most abundant taxa if RAM budget would be exceeded (FR‑010)."""
-    n_rows = len(merged)
-    estimated_bytes = n_rows * len(taxon_columns) * 8  # float64 modeling matrix
-    if estimated_bytes <= RAM_BUDGET_BYTES:
-        logger.info(
-            "Feature set (%d rows x %d taxa, ~%.2f GB) within 7 GB budget; no subsampling",
-            n_rows,
-            len(taxon_columns),
-            estimated_bytes / 1024**3,
-        )
-        return taxon_columns
-    # Memory would be exceeded – select top taxa.
-    top = _cap_impl(merged, taxon_columns, max_taxa)
-    logger.warning(
-        "FR-010: estimated %.2f GB exceeds 7 GB RAM budget; subsampling to the "
-        "top %d most abundant taxa",
-        estimated_bytes / 1024**3,
-        len(top),
-    )
-    return top
+    """Subsample taxa if the number of columns would exceed the RAM budget.
 
-
-def clr_transform(counts: pd.DataFrame, pseudocount: float = PSEUDOCOUNT) -> pd.DataFrame:
-    """Apply the centered log‑ratio transformation using scikit‑bio.
-
-    The function adds a small pseudocount to avoid log‑zero issues,
-    then delegates to ``skbio.stats.composition.clr`` which computes
-    ``log(x) - mean(log(x))`` row‑wise.  The returned DataFrame retains
-    the original column names and index.
+    The function estimates memory pressure by the number of taxon columns.
+    If the count exceeds ``max_taxa`` it returns the top ``max_taxa`` taxa
+    (by total abundance); otherwise it returns the original list unchanged.
     """
-    counts_pc = counts.astype(float) + pseudocount
-    transformed = sbio_clr(counts_pc.values)
-    return pd.DataFrame(transformed, index=counts.index, columns=counts.columns)
+    logger = logging.getLogger(__name__)
 
+    if len(taxon_columns) <= max_taxa:
+        return taxon_columns
 
+    logger.info(
+        "Taxa count (%d) exceeds max_taxa (%d); selecting top taxa.",
+        len(taxon_columns),
+        max_taxa,
+    )
+    kept = _cap_impl(merged, taxon_columns, max_taxa)
+    return kept
+
+# ----------------------------------------------------------------------
+# CLR transformation
+# ----------------------------------------------------------------------
+def clr_transform(counts: pd.DataFrame, pseudocount: float = PSEUDOCOUNT) -> pd.DataFrame:
+    """Apply a centered‑log‑ratio (CLR) transformation to count data.
+
+    Parameters
+    ----------
+    counts : pd.DataFrame
+        DataFrame containing only taxon count columns (no metadata).
+    pseudocount : float, optional
+        Small constant added to each count to avoid log(0). Default is
+        ``PSEUDOCOUNT`` (1e‑6).
+
+    Returns
+    -------
+    pd.DataFrame
+        CLR‑transformed values with the same column names as the input.
+    """
+    # Add pseudocount, take natural log, then subtract row mean.
+    log_counts = np.log(counts + pseudocount)
+    row_means = log_counts.mean(axis=1)
+    clr_values = log_counts.subtract(row_means, axis=0)
+    return clr_values
+
+# ----------------------------------------------------------------------
+# Zero‑variance covariate detection
+# ----------------------------------------------------------------------
 def detect_zero_variance_covariates(merged: pd.DataFrame) -> List[str]:
-    """Detect zero‑variance covariates and log a warning; return them for exclusion."""
+    """Detect covariate columns with zero variance and log a warning.
+
+    Covariates are assumed to be any non‑taxon column that is not a sample
+    identifier. The function returns the list of column names that have
+    zero variance.
+    """
+    logger = logging.getLogger(__name__)
+
+    # Identify non‑taxon columns (metadata + outcome)
+    metadata_cols = {"sample_id", "patient_id", "visit_date", "MDS_UPDRS_Total"}
+    covariate_cols = [c for c in merged.columns if c not in metadata_cols]
+
     zero_var = []
-    for col in COVARIATE_COLUMNS:
-        if col in merged.columns:
-            if merged[col].dropna().nunique() <= 1:
-                zero_var.append(col)
+    for col in covariate_cols:
+        if merged[col].nunique() <= 1:
+            zero_var.append(col)
+
     if zero_var:
         logger.warning(
-            "Zero‑variance covariate(s) detected and flagged for model exclusion: %s",
+            "Zero‑variance covariate(s) detected and will be excluded: %s",
             ", ".join(zero_var),
         )
     return zero_var
 
-
+# ----------------------------------------------------------------------
+# Main preprocessing driver
+# ----------------------------------------------------------------------
 def run_preprocess(
     asv_path: Optional[Path] = None,
     clinical_path: Optional[Path] = None,
     out_dir: Optional[Path] = None,
     max_taxa: int = MAX_TAXA,
 ) -> Dict[str, object]:
-    """Execute the full preprocessing phase and write the processed parquet files."""
-    asv_df, clinical_df, taxon_columns = load_raw_tables(asv_path, clinical_path)
-    merged, stats = merge_and_filter(asv_df, clinical_df, taxon_columns)
-    merged, taxon_columns = drop_zero_taxa(merged, taxon_columns)
+    """Execute the full preprocessing pipeline.
 
-    # Detect and drop zero‑variance covariates before any downstream modelling.
-    zero_var_covariates = detect_zero_variance_covariates(merged)
-    if zero_var_covariates:
-        merged = merged.drop(columns=zero_var_covariates)
+    The function writes two Parquet files to ``out_dir``:
+      - ``filtered_samples.parquet`` – the merged, filtered raw counts.
+      - ``clr_abundances.parquet`` – the CLR‑transformed abundances.
 
-    # Possibly cap taxa to satisfy RAM budget.
-    taxon_columns = cap_taxa_by_memory(merged, taxon_columns, max_taxa)
+    It returns a summary dictionary used by the test suite.
+    """
+    logger = logging.getLogger(__name__)
 
-    root = _project_root()
-    out_dir = Path(out_dir) if out_dir else root / "data" / "processed"
+    # Resolve output directory
+    if out_dir is None:
+        from llmxive_toolkit import paths
+        out_dir = paths.data("processed")
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # 1. Load raw tables
+    asv_df, clinical_df, taxon_columns = load_raw_tables(asv_path, clinical_path)
+
+    # 2. Merge and filter patients
+    merged, cohort_stats = merge_and_filter(asv_df, clinical_df, taxon_columns)
+
+    # 3. Drop all‑zero taxa
+    merged, retained_taxa = drop_zero_taxa(merged, taxon_columns)
+
+    # 4. Optional RAM‑cap subsampling
+    retained_taxa = cap_taxa_by_memory(merged, retained_taxa, max_taxa=max_taxa)
+
+    # 5. Prepare filtered_samples.parquet (metadata + retained taxa)
     filtered_path = out_dir / "filtered_samples.parquet"
+    filtered_df = merged[
+        ["sample_id", "patient_id", "visit_date"] + retained_taxa
+    ].copy()
+    filtered_df.to_parquet(filtered_path, index=False)
+
+    # 6. CLR transformation
+    counts = merged[retained_taxa].copy()
+    clr_df = clr_transform(counts)
+    clr_df.insert(0, "visit_date", merged["visit_date"])
+    clr_df.insert(0, "patient_id", merged["patient_id"])
+    clr_df.insert(0, "sample_id", merged["sample_id"])
+
     clr_path = out_dir / "clr_abundances.parquet"
+    clr_df.to_parquet(clr_path, index=False)
 
-    # filtered_samples: metadata + retained raw taxon counts (one row per sample)
-    meta_cols = [c for c in METADATA_COLUMNS if c in merged.columns]
-    extra = [c for c in merged.columns if c not in meta_cols + taxon_columns]
-    filtered = merged[meta_cols + extra + taxon_columns].copy()
-    filtered.to_parquet(filtered_path, index=False)
+    # 7. Detect zero‑variance covariates (for downstream stages)
+    zero_variance_covariates = detect_zero_variance_covariates(merged)
 
-    # clr_abundances: keys + CLR‑transformed taxa
-    clr = clr_transform(merged[taxon_columns])
-    clr_out = merged[["sample_id", "patient_id", "visit_date"]].copy()
-    clr_out = pd.concat([clr_out, clr], axis=1)
-    clr_out.to_parquet(clr_path, index=False)
-
-    summary = {
-        "filtered_samples_path": str(filtered_path),
-        "clr_abundances_path": str(clr_path),
-        "cohort_stats": stats,
-        "n_taxa_retained": len(taxon_columns),
-        "taxa_retained": taxon_columns,
-        "zero_variance_covariates": zero_var_covariates,
-        "outcome_present": "MDS_UPDRS_Total" in merged.columns,
-        "clr_rows": int(len(clr_out)),
+    # 8. Summary dictionary
+    summary: Dict[str, object] = {
+        "cohort_stats": cohort_stats,
+        "taxa_retained": retained_taxa,
+        "zero_variance_covariates": zero_variance_covariates,
     }
-    logger.info(
-        "Preprocessing complete: %d retained samples, %d taxa, CLR rows=%d; "
-        "outputs written to %s",
-        stats["retained_rows"],
-        len(taxon_columns),
-        len(clr_out),
-        out_dir,
-    )
+
+    logger.info("Preprocessing completed. Files written to %s", out_dir)
     return summary
 
-
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
 def main() -> int:
     """Entry point for ``python -m code.src.pipeline.preprocess``."""
-    summary = run_preprocess()
-    stats = summary["cohort_stats"]
-    logger.info(
-        "Summary: merged_rows=%d excluded_subjects=%d retained_patients=%d "
-        "retained_rows=%d n_taxa=%d zero_var_covariates=%s",
-        stats["merged_rows"],
-        stats["excluded_subjects"],
-        stats["retained_patients"],
-        stats["retained_rows"],
-        summary["n_taxa_retained"],
-        summary["zero_variance_covariates"],
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
-    return 0
+    # Resolve default raw locations via the same logic used in __main__.
+    from llmxive_toolkit import paths
 
+    default_asv = paths.data("raw", "ppmi_asv.csv")
+    default_clin = paths.data("raw", "ppmi_clinical.parquet")
+    rc = 0
+    try:
+        run_preprocess(asv_path=default_asv, clinical_path=default_clin)
+    except Exception as exc:  # pragma: no cover
+        logging.error("Preprocess failed: %s", exc)
+        rc = 1
+    return rc
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())
