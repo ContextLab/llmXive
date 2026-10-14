@@ -1,11 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-10-14T08:05:40.315658+00:00'
-last_outcome: committed
+last_used: albert-einstein
+last_used_at: '2026-10-14T10:06:03.667960+00:00'
+last_outcome: abstained
 history:
-- slug: eric-kandel
-  started_at: '2026-06-25T16:24:24.043816+00:00'
-  ended_at: '2026-06-25T17:20:07.950190+00:00'
-  outcome: malformed_response
 - slug: eric-kandel
   started_at: '2026-06-25T17:20:07.950190+00:00'
   ended_at: '2026-06-25T18:18:28.157074+00:00'
@@ -1262,3 +1258,7 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/reviews/research/alan-turing-simulated__2026-10-14__research.md
+- slug: albert-einstein
+  started_at: '2026-10-14T08:05:40.315658+00:00'
+  ended_at: '2026-10-14T10:06:03.667960+00:00'
+  outcome: abstained
