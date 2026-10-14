@@ -18,9 +18,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_data_ingestion.py -> rc=1
-ib/python3.11/site-packages/datasets/load.py", line 1134, in dataset_module_factory
-    raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'qiita/16s_gut_microbiome' doesn't exist on the Hub or cannot be accessed.
+line 1786, in dataset_module_factory
+    raise DatasetNotFoundError(
+datasets.exceptions.DatasetNotFoundError: Dataset 'qiita/16s_gut_microbiome' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
 
 During handling of the above exception, another exception occurred:
 
@@ -32,7 +32,7 @@ Traceback (most recent call last):
              ^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/01_data_ingestion.py", line 42, in fetch_agp_data
     raise DataFetchError(f"Failed to fetch AGP data from real source: {e}")
-utils.data_fetchers.DataFetchError: Failed to fetch AGP data from real source: Dataset 'qiita/16s_gut_microbiome' doesn't exist on the Hub or cannot be accessed.
+utils.data_fetchers.DataFetchError: Failed to fetch AGP data from real source: Dataset 'qiita/16s_gut_microbiome' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
 
 - python code/02_preprocessing.py -> rc=1
 oundError(f"Merged data file not found at {MERGED_DATA_PATH}. "
@@ -52,7 +52,7 @@ Traceback (most recent call last):
 FileNotFoundError: Merged data file not found at data/processed/merged_dataset.parquet. Run data ingestion pipeline first.
 
 - python code/03_correlation_analysis.py -> rc=1
-4 15:20:24 - llmXive_pipeline.__main__ - ERROR - Pipeline failed: Preprocessed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/data/processed/rarefied_genus_table.parquet. Run preprocessing first.
+4 21:13:04 - llmXive_pipeline.__main__ - ERROR - Pipeline failed: Preprocessed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/data/processed/rarefied_genus_table.parquet. Run preprocessing first.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/03_correlation_analysis.py", line 138, in main
     run_analysis_pipeline()
@@ -65,8 +65,8 @@ FileNotFoundError: Preprocessed data not found at /home/runner/work/llmXive/llmX
 
 
 - python code/04_predictive_modeling.py -> rc=1
-2026-10-14 15:20:26 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
-2026-10-14 15:20:26 - llmXive_pipeline.__main__ - INFO - Starting Predictive Modeling Pipeline
+2026-10-14 21:13:05 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
+2026-10-14 21:13:05 - llmXive_pipeline.__main__ - INFO - Starting Predictive Modeling Pipeline
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/04_predictive_modeling.py", line 240, in <module>
