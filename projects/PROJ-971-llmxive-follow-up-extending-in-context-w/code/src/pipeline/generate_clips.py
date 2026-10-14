@@ -15,6 +15,7 @@ seeds, ensuring reproducibility across CI runs.
 """
 
 import argparse
+import sys
 import numpy as np
 import gymnasium as gym
 from pathlib import Path
@@ -78,6 +79,19 @@ def generate_one_clip(clip_id: int, out_dir: Path, seed: int = 42) -> None:
     )
     log.info(f"Generated clip {clip_id:03d} with {states_arr.shape[0]} steps → {clip_path}")
 
+def _clean_output_dir(out_dir: Path) -> None:
+    """
+    Remove any existing ``clip_*.npz`` files in ``out_dir``.
+    This guarantees that after a run exactly ``num_clips`` files exist.
+    """
+    if not out_dir.is_dir():
+        return
+    for npz_file in out_dir.glob("clip_*.npz"):
+        try:
+            npz_file.unlink()
+        except Exception as e:
+            log.warning(f"Failed to delete existing clip file {npz_file}: {e}")
+
 def generate_clips(num_clips: int = 50, out_dir: Path = None) -> None:
     """
     Generate ``num_clips`` reproducible interaction clips.
@@ -93,6 +107,9 @@ def generate_clips(num_clips: int = 50, out_dir: Path = None) -> None:
         out_dir = paths.data("raw")
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # Ensure a clean slate so the directory ends up with exactly ``num_clips`` files.
+    _clean_output_dir(out_dir)
+
     log.info(f"Generating {num_clips} clips in {out_dir}")
 
     for i in range(num_clips):
@@ -100,7 +117,13 @@ def generate_clips(num_clips: int = 50, out_dir: Path = None) -> None:
 
     log.info(f"Finished generating {num_clips} clips.")
 
-def _parse_args():
+def _parse_args(argv=None):
+    """
+    Parse command‑line arguments.
+
+    ``argv`` is optional and useful for programmatic invocation (e.g., in tests).
+    If ``None`` the arguments are taken from ``sys.argv``; unknown arguments are ignored.
+    """
     parser = argparse.ArgumentParser(
         description="Generate a small dataset of interaction clips for the minimal pipeline."
     )
@@ -116,12 +139,15 @@ def _parse_args():
         default=None,
         help="Directory to store the generated .npz files. Defaults to data/raw.",
     )
-    return parser.parse_args()
+    # ``parse_known_args`` returns a tuple (known, unknown); we discard unknown.
+    args, _ = parser.parse_known_args(argv)
+    return args
 
-def main():
-    args = _parse_args()
+def main(argv=None):
+    args = _parse_args(argv)
     out_dir = Path(args.output_dir) if args.output_dir else None
     generate_clips(num_clips=args.num_clips, out_dir=out_dir)
 
 if __name__ == "__main__":
-    main()
+    # When executed as a script, forward the real command‑line arguments.
+    main(sys.argv[1:])

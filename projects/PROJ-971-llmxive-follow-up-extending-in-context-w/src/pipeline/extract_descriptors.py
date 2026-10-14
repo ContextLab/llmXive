@@ -35,7 +35,6 @@ optional CLI flags to customise input / output locations:
 
 The CI quick‑start invokes the script without arguments, relying on the
 default ``paths`` helpers.
-
 """
 
 import argparse
@@ -48,25 +47,22 @@ from scipy.signal import welch
 
 from llmxive_toolkit import paths, get_logger
 
-# The encoder is part of the repository; it provides a CPU‑only ``encode``
-# function that accepts the three raw arrays and returns a 2‑D latent token
-# matrix of shape (T, D) where T is the time dimension and D the latent
-# dimensionality.
+# Import the lightweight encoder we provide in ``src.utils.icwm_encoder``.
 try:
-    # The encoder lives under ``src/utils``.
     from src.utils.icwm_encoder import encode  # type: ignore
 except ImportError as exc:
     raise ImportError(
         "The ICWM encoder could not be imported. Ensure that "
-        "'src/utils/icwm_encoder.py' defines a function ``encode(states, "
-        "actions, observations)`` returning a NumPy array."
+        "'src/utils/icwm_encoder.py' defines a function ``encode``."
     ) from exc
 
 log = get_logger(__name__)
 
+
 def _variance(tokens: np.ndarray) -> float:
     """Return the overall sample variance of the token matrix."""
     return float(np.var(tokens))
+
 
 def _lag1_autocorrelation(tokens: np.ndarray) -> float:
     """
@@ -85,13 +81,12 @@ def _lag1_autocorrelation(tokens: np.ndarray) -> float:
         x = tokens[:-1, dim]
         y = tokens[1:, dim]
         if np.allclose(x, x[0]) and np.allclose(y, y[0]):
-            # Constant series – correlation is undefined; treat as 0.
             corrs.append(0.0)
         else:
             corr = np.corrcoef(x, y)[0, 1]
-            # ``np.corrcoef`` can return nan if variance is zero.
             corrs.append(0.0 if np.isnan(corr) else float(corr))
     return float(np.mean(corrs))
+
 
 def _mean_spectral_density(tokens: np.ndarray) -> float:
     """
@@ -108,6 +103,7 @@ def _mean_spectral_density(tokens: np.ndarray) -> float:
         f, pxx = welch(tokens[:, dim], nperseg=min(256, tokens.shape[0]))
         psd_means.append(float(np.mean(pxx)))
     return float(np.mean(psd_means))
+
 
 def process_clip(clip_path: Path) -> dict:
     """
@@ -130,7 +126,6 @@ def process_clip(clip_path: Path) -> dict:
         log.error(f"Failed to load clip {clip_path}: {exc}")
         raise
 
-    # Expected arrays – the generate_clips script guarantees their presence.
     states = data["states"]
     actions = data["actions"]
     observations = data["observations"]
@@ -144,11 +139,12 @@ def process_clip(clip_path: Path) -> dict:
     spec = _mean_spectral_density(tokens)
 
     return {
-        "clip_id": clip_path.stem,  # e.g. "clip_001"
+        "clip_id": clip_path.stem,
         "variance": var,
         "autocorr_lag1": ac1,
         "spectral_density": spec,
     }
+
 
 def extract_all_descriptors(input_dir: Path, output_path: Path) -> None:
     """
@@ -167,15 +163,13 @@ def extract_all_descriptors(input_dir: Path, output_path: Path) -> None:
         records.append(record)
 
     df = pd.DataFrame.from_records(records)
-    # Ensure schema compliance: correct column order & types.
     df = df[["clip_id", "variance", "autocorr_lag1", "spectral_density"]]
-    # Guard against NaNs – replace with 0.0 (still a valid number).
     df = df.fillna(0.0)
 
-    # Write CSV; ``paths.data`` creates parent directories automatically.
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     log.info(f"Wrote descriptors for {len(df)} clips to {output_path}")
+
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -195,11 +189,11 @@ def _parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
+
 def main() -> None:
     args = _parse_args()
     extract_all_descriptors(args.input_dir, args.output)
 
+
 if __name__ == "__main__":
-    # When executed as a script ``python -m src.pipeline.extract_descriptors``
-    # we honour the CLI arguments.
     main()

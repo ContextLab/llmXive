@@ -1,3 +1,2 @@
 # Existing dependencies are provided by the platform.
-# No additional third‑party packages are required for descriptor extraction.
-# If future tasks add new libraries, they should be appended here.
+# No additional third‑party packages are required for T003.

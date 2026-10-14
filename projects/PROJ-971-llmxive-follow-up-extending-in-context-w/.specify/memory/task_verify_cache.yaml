@@ -1,19 +1,59 @@
 T001:
-  c: true
-  h: 28019a08bf607af9731f6f0e212d6d1b21e4c845282bf7096b801aca02199195
-  r: Checked `specs/.../quickstart.md` for the required command description, the execution
-    logs `code/.tasks/T001.run_minimal.sh.log` showing the command finishes without
-    error, and the presence of `data/descriptors_subset.csv` with the required headers.
-    All required artifacts exist and the CI verification steps are satisfied.
-  sig: 7fa36c2cb0350b0a97ff5d81778ec45d3a05b03a7928d1af527290fdbdd86730
+  c: false
+  h: a3e3835a05dc830450823b276f36ce50b780ca84ec7e2ed8d4a52c77b11109e6
+  r: "The quickstart.md exists and documents the CI command, but the pipeline it documents\
+    \ is explicitly a placeholder: the doc itself states \"The current minimal implementation\
+    \ creates placeholder clip files and a CSV with the required column headers,\"\
+    \ and the run log confirms it writes \"placeholder descriptor CSV\" with dummy/random\
+    \ values rather than computed statistics. Moreover, `data/descriptors_subset.csv`\
+    \ contains only 10 rows (clip_000\u2013clip_009), contradicting the required 50\
+    \ clips despite the log claiming \"Clips created: 50\" \u2014 a fabricated/placeholder\
+    \ stand-in, not the real minimal pipeline"
+  sig: cba798d7bf7edd520efca3e94a8f50115659b2477e0b2a0ceb120692660ad0ea
 T002:
   c: false
-  h: 17c36a4634fd6513b3f81dd1d8f82c0660c575d93042696859f67b40aef0f97d
-  r: "The `generate_clips.py` script correctly creates `.npz` files containing the\
-    \ required `states`, `actions`, and `observations` arrays, but the `data/raw/`\
-    \ directory currently holds 100 clip files (including duplicates like `clip_0000.npz`,\
-    \ `clip_0010.npz`, etc.) instead of the required 50. The task\u2019s verification\
-    \ condition \u201C`ls data/raw/ | wc -l` equals 50\u201D is therefore not met.\
-    \ The directory must be cleaned to contain exactly the 50 reproducible clips (`clip_000.npz`\
-    \ \u2026 `clip_049.npz`)."
-  sig: 025b206def28cdf7e58ca1be4ccec59f3140aad87dfd409b127e90e886760b1f
+  h: f4d573ee57aa1eeb92228911c4d37dc1e48f6c7a4cf43900f3e4da5aec45b30c
+  r: "The verification criterion is `ls data/raw/ | wc -l` equals 50, but the collector\
+    \ confirms only 10 clip files (`clip_000.npz`\u2013`clip_009.npz`) exist in `data/raw/`.\
+    \ The historical run log shows a 50-clip generation, but the current on-disk state\
+    \ has only 10 clips (and the current script's log messages don't match that log,\
+    \ suggesting later edits were not re-run); the script must be re-executed (or\
+    \ fixed to produce 50 clips) so that all 50 `.npz` files with `states`, `actions`,\
+    \ `observations` arrays are present."
+  sig: a66e39a9654b4d887767c21bbe576475540fd497e41c02f260d51c8e90b7c557
+T004:
+  c: true
+  h: bb8b906c8b44b491ae99ef26bee02ee2e032035a800727341f565a165a14a471
+  r: 'The driver `src/pipeline/run_end_to_end.py` exists, calls `generate_clips` and
+    `extract_all_descriptors`, supports `--subset`, and prints a summary table with
+    all four required columns plus a total row count. The unit test log shows `tests/unit/test_run_end_to_end.py`
+    passing (2 passed, exit 0) with the pipeline executed end-to-end for subsets of
+    5 and 10 clips, confirming the orchestration works. One minor caveat: the summary
+    prints only the first 10 rows plus "Total rows: N" rather than all 50 rows, which
+    could matter if CI literally greps for 50 table rows, but the required behavior
+    (callin'
+  sig: 7eff8daa83bb6ef11526c669cee9b36083cb420f13afea8b15701ae2af5a8b0c
+T005:
+  c: false
+  h: c9b7d90ee6a5a9849d1ca1be7df1d2b48cdc60b898998f848413009eeb6f6fa6
+  r: "The script and `data/labels.csv` exist and ran, but the \"ICWM policy\" is a\
+    \ fabricated stand-in (a static tanh projection of SVD latents with Gaussian noise),\
+    \ and the resulting grid search is degenerate: every clip and every (\u03C4, k)\
+    \ pair yields success_rate 0.0, so all 12 grid points tie and the \"optimal\"\
+    \ selection is meaningless \u2014 the labels carry no real signal. Additionally,\
+    \ the verification requirement cannot be met because `label.schema.yaml` is MISSING\
+    \ from the project, so `labels.csv` cannot validate against it (the passing test\
+    \ log is not credible evidence of schema validation without th"
+  sig: e3dfd390bd059e3b19b8428afbbdcb850c4ea07f66b65b51a77a02c478ed22d5
+T006:
+  c: false
+  h: e41f714a4b37aa2fa304b0e4f276b697570bf1f40ef99b6ee687d148d6786f82
+  r: "The script exists and runs, but the verification criterion fails: `data/metrics.json`\
+    \ reports `val_mse = 0.0109` vs `baseline_mse = 0.0` with `meets_sc006: false`\
+    \ \u2014 the required `val_mse < 0.9 * baseline_mse` (\u226510% improvement) is\
+    \ not met. The underlying labels are degenerate (all tau = 0.5, single k value,\
+    \ only 10 clips), so the baseline MSE is zero and the criterion is unsatisfiable\
+    \ with the current data; the implementer must fix the labels/data (non-degenerate\
+    \ tau from grid search) or the pipeline so the regressor genuinely beats the global-mean-tau\
+    \ baseline."
+  sig: fe717e2807da37ad62301a5b618bdc45f65b6da73b8e1f134c48a5f60760bcec

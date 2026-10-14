@@ -1,0 +1,17 @@
+type: object
+properties:
+  clip_id:
+    type: string
+    pattern: "^clip_[0-9]{3}$"
+  tau:
+    type: number
+    enum: [0.5, 1.0, 1.5, 2.0]
+  k:
+    type: integer
+    enum: [16, 32, 64]
+  success_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+required: [clip_id, tau, k, success_rate]
+additionalProperties: false
