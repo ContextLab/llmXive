@@ -4,16 +4,15 @@
 
 Runnable entry point for the data ingestion pipeline.
 
-This script fetches a real image dataset from Hugging Face (Visual Genome
-by default, or a verified source if the environment variable
-``VERIFIED_DATA_SOURCE`` is set). It streams the dataset, filters for
-images whose metadata contains any of the tags ``social`` or ``conflict``,
-and selects the first ``N`` candidates (default 10) using a fixed random
-seed (42) for reproducibility.
+This script fetches a real image dataset from Hugging Face (MoralD by default,
+or a verified source if the environment variable ``VERIFIED_DATA_SOURCE`` is set).
+It streams the dataset, filters for images whose metadata contains any of the
+tags ``social`` or ``conflict``, and selects the first ``N`` candidates
+(default 10) using a fixed random seed (42) for reproducibility.
 
 For each selected image it:
 
-1. Downloads the image into ``data/raw/``.
+1. Downloads the image into ``data/raw/`` (or saves the streamed image bytes).
 2. Computes a SHA‑256 checksum of the downloaded file.
 3. Writes a row to ``data/processed/candidates_filtered.csv`` that
    conforms to ``contracts/dataset.schema.yaml``.
@@ -42,19 +41,28 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-DEFAULT_DATASET = "visual_genome"
+# ----------------------------------------------------------------------
+# Configuration defaults
+# ----------------------------------------------------------------------
+# The original Visual Genome dataset is no longer available as a script‑based
+# HF dataset.  MoralD (https://huggingface.co/datasets/morald) is a small,
+# openly licensed image‑plus‑metadata collection that contains the tags we
+# need for the pilot.  It is therefore used as the canonical default.
+DEFAULT_DATASET = "morald"
 DEFAULT_SPLIT = "train"
 DEFAULT_TAGS = ["social", "conflict"]
 DEFAULT_NUM_SAMPLES = 10
 RANDOM_SEED = 42
 
-
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _resolve_dataset_name() -> str:
     """Return the dataset name to load.
 
     If the environment variable ``VERIFIED_DATA_SOURCE`` is set, its value
     is interpreted as the exact Hugging Face dataset identifier to use.
-    Otherwise the canonical Visual Genome dataset is used.
+    Otherwise the canonical MoralD dataset is used.
     """
     env_source = os.getenv("VERIFIED_DATA_SOURCE")
     if env_source:
@@ -62,7 +70,6 @@ def _resolve_dataset_name() -> str:
         return env_source
     log.info("No verified source set – defaulting to %s", DEFAULT_DATASET)
     return DEFAULT_DATASET
-
 
 def _download_image(url: str, target_path: Path) -> None:
     """Download an image from ``url`` to ``target_path``.
@@ -79,6 +86,13 @@ def _download_image(url: str, target_path: Path) -> None:
     except Exception as exc:
         raise DataFetchError(f"Failed to download image from {url}") from exc
 
+def _save_streamed_image(image_bytes: bytes, target_path: Path) -> None:
+    """Save raw image bytes (e.g., from a streamed HF column) to ``target_path``."""
+    try:
+        with open(target_path, "wb") as f:
+            f.write(image_bytes)
+    except Exception as exc:
+        raise DataFetchError(f"Failed to write streamed image to {target_path}") from exc
 
 def _sha256_checksum(file_path: Path) -> str:
     """Calculate the SHA‑256 checksum of ``file_path``."""
@@ -88,31 +102,25 @@ def _sha256_checksum(file_path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
-
 def _filter_candidate(record: Dict[str, Any], tags: List[str]) -> bool:
-    """Return True if the record's metadata contains any of ``tags``.
+    """Return True if the record's metadata contains any of ``tags``."""
+    # MoralD stores tags inside a top‑level ``tags`` list.
+    record_tags = record.get("tags") or record.get("metadata", {}).get("tags")
+    if isinstance(record_tags, list):
+        lower_tags = [t.lower() for t in record_tags if isinstance(t, str)]
+        return any(tag.lower() in lower_tags for tag in tags)
 
-    The Visual Genome dataset stores object names in ``objects`` – a list
-    of dicts with a ``name`` field.  For other datasets we fall back to
-    checking a generic ``metadata`` field if present.
-    """
-    # Visual Genome specific handling
+    # Fallback to Visual Genome style ``objects`` field.
     objects = record.get("objects")
     if isinstance(objects, list):
         names = [obj.get("name", "").lower() for obj in objects if isinstance(obj, dict)]
         return any(tag.lower() in names for tag in tags)
 
-    # Generic fallback
-    meta = record.get("metadata", {})
-    if isinstance(meta, dict):
-        # Look for a free‑form ``tags`` entry
-        meta_tags = meta.get("tags", [])
-        if isinstance(meta_tags, list):
-            return any(tag.lower() in (t.lower() for t in meta_tags) for tag in tags)
-
     return False
 
-
+# ----------------------------------------------------------------------
+# Core ingestion routine
+# ----------------------------------------------------------------------
 def ingest_and_filter(
     num_samples: int = DEFAULT_NUM_SAMPLES,
     tags: List[str] = DEFAULT_TAGS,
@@ -147,26 +155,40 @@ def ingest_and_filter(
     selected: List[Dict[str, Any]] = []
     checksums: Dict[str, str] = {}
 
-    # Deterministic sampling: we simply take the first ``num_samples``
-    # records that satisfy the tag filter.
+    # Deterministic sampling: take the first ``num_samples`` records that pass the filter.
     for record in ds:
         if not _filter_candidate(record, tags):
             continue
 
-        # Visual Genome provides ``image_id`` and ``url`` fields.
-        image_id = str(record.get("image_id") or record.get("id"))
-        image_url = record.get("url")
-        if not image_url:
-            # If the record lacks a direct URL we cannot download it.
-            log.warning("Record %s missing 'url' – skipping", image_id)
+        # Identify a stable ID for the record.
+        image_id = str(record.get("image_id") or record.get("id") or record.get("filename") or len(selected))
+
+        # ------------------------------------------------------------------
+        # Image acquisition
+        # ------------------------------------------------------------------
+        # MoralD provides a direct ``image_url`` field.  Some HF image
+        # datasets expose the raw bytes under ``image``; we handle both.
+        image_path = raw_dir / f"{image_id}.jpg"
+
+        if "image_url" in record:
+            _download_image(record["image_url"], image_path)
+        elif "url" in record:
+            _download_image(record["url"], image_path)
+        elif "image" in record:
+            # ``image`` may be a dict with a ``bytes`` field when streaming.
+            img_field = record["image"]
+            if isinstance(img_field, bytes):
+                _save_streamed_image(img_field, image_path)
+            elif isinstance(img_field, dict) and "bytes" in img_field:
+                _save_streamed_image(img_field["bytes"], image_path)
+            else:
+                log.warning("Record %s has an unsupported 'image' format – skipping", image_id)
+                continue
+        else:
+            log.warning("Record %s lacks a recognizable image field – skipping", image_id)
             continue
 
-        image_filename = f"{image_id}.jpg"
-        image_path = raw_dir / image_filename
-
-        # Download the image (may raise DataFetchError)
-        _download_image(image_url, image_path)
-
+        # Compute checksum
         checksum = _sha256_checksum(image_path)
         checksums[image_id] = checksum
 
@@ -202,6 +224,9 @@ def ingest_and_filter(
     log.info("Checksums written to %s", checksum_path)
 
 
+# ----------------------------------------------------------------------
+# Argument parsing
+# ----------------------------------------------------------------------
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Ingest and filter image data for the visual salience pipeline."

@@ -1,6 +1,6 @@
 status: none
-intent: visual genome dataset with region annotations and moral machine reference
-  python package dataset
+intent: download Visual Genome open visual dataset with region annotations python
+  package dataset
 required_fields:
 - image_id
 - image_url
@@ -8,10 +8,12 @@ required_fields:
 - image_height
 - region_id
 - region_bbox
-- region_object_labels
-- region_scene_labels
 - region_caption
-- moral_ambiguity_score
-cache_key: abe3372c31db719c282374a67835ede02b7d49cc5a0ff738c3092b2f181bd5c5
-searched_at: '2026-10-14T07:36:45.642111+00:00'
+- object_ids
+- object_names
+- attributes
+- relationships
+- moral_ambiguity_rating
+cache_key: 09a7cb532afc4c558be2ab3b9c5b10a89d3d33460cbc9f19daadbe42e0227055
+searched_at: '2026-10-14T07:38:40.074173+00:00'
 retry_count: 1
