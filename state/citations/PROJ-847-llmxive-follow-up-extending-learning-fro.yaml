@@ -20,14 +20,3 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&xip=9GLLqgRETz4&user_id=public&Expires=1791970053&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnhpcD05R0xMcWdSRVR6NCZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxOTcwMDUzfX19XX0_&Signature=MEQCIGmYDd-GlvxnK%7EkCxivXQqZ2NFcIyrZSZEoVY4XepmTBAiA8Z2TrCuQhY6dcr0gxwfE7ueLnaZdTFVGMFL0QNEq-Tg__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-14T08:27:33.598218Z'
-- artifact_hash: 2cab726f6acb800678326e26504e688526464c41dc9ca3926c0070dd30cb3875
-  artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: PyYAML - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q107380446
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q107380446
-  verified_at: '2026-10-14T11:08:49.255864Z'

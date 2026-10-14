@@ -1,14 +1,28 @@
-status: none
-intent: download GSM8K and synthetic logical deduction subset via HuggingFace datasets
-  python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset
+
+
+  ds = load_dataset("openai/gsm8k", "main")
+
+  total_records = sum(len(split) for split in ds.values())
+
+  print(f"RECORDS={total_records}")
+
+  first_split = next(iter(ds.values()))
+
+  print("FIELDS=" + ",".join(first_split.column_names))'
+record_count: 8792
+sample_fields:
+- question
+- answer
+field_coverage: 0.5
 required_fields:
+- id
 - question
 - answer
 - solution
-- premise
-- hypothesis
-- label
-- split
-cache_key: 56432a94d83cf6d9a8aa46bd7746f343b59cf0cac026ae2a516efd64505505f1
-searched_at: '2026-10-14T11:09:15.452247+00:00'
-retry_count: 1
+intent: download GSM8K dataset and HuggingFace logical deduction subset python package
+  dataset
+cache_key: d531c3e8d91990a041bbf0f8524739df421efed212b2b07ec15461b123271b9b

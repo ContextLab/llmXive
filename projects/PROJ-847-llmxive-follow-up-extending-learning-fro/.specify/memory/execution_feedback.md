@@ -35,29 +35,11 @@ Trying to import the above resulted in these errors:
 
 - python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv -> rc=1
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/run_experiments.py", line 30, in <module>
-    from code.trainer import run_fixed_baselines
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/trainer.py", line 35, in <module>
-    from code.model import load_diffusion_model
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/model.py", line 24, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+2026-10-14 13:09:57,371 ERROR __main__: Failed to import training utilities: No module named 'torch'
 
 - python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json -> rc=1
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/run_experiments.py", line 30, in <module>
-    from code.trainer import run_fixed_baselines
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/trainer.py", line 35, in <module>
-    from code.model import load_diffusion_model
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/model.py", line 24, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+2026-10-14 13:09:57,446 ERROR __main__: Adaptive mode not yet implemented in this task.
 
 - python -m code.analysis  --fixed outputs/fixed_baselines.csv  --adaptive outputs/adaptive_run.json  --outdir outputs/statistics -> rc=1
 
@@ -67,6 +49,26 @@ ModuleNotFoundError: No module named 'torch'
 ## Declared deliverables still missing
 
 - data/results/fixed_baselines.csv
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **8792** real records with fields: question, answer.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("openai/gsm8k", "main")
+total_records = sum(len(split) for split in ds.values())
+print(f"RECORDS={total_records}")
+first_split = next(iter(ds.values()))
+print("FIELDS=" + ",".join(first_split.column_names))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

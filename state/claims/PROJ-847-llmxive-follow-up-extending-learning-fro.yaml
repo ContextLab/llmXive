@@ -126,3 +126,98 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-14T11:08:49Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: PyYAML has Wikidata ID Q107380446
+  claim_id: c_aa02a9f3
+  context: The platform runner already provides numpy, pandas, scipy, matplotlib,
+    scikit-learn, statsmodels, seaborn, pytest, PyYAML (Wikidata Q107380446, https://www.wikidata.org/wiki/Q107380446),
+    requests, jsonschema, and psutil.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q10852208
+        url: https://www.wikidata.org/wiki/Q10852208
+        value: PyYAML
+      quote: 'P1547: Q107380446'
+      source_id: Q107381173
+      url: https://www.wikidata.org/wiki/Q107381173
+      value: Q107380446
+    filled: true
+  kind: entity_fact
+  raw_text: The platform runner already provides PyYAML (Wikidata Q107380446, https://www.wikidata.org/wiki/Q107380446)
+  resolved_value: Q107380446
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-14T13:09:14Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline initialized' on success
+  claim_id: c_28bd2609
+  context: On success the command prints `Pipeline initialized`, creates the `outputs/`
+    directory tree, writes `outputs/run_config.json` with the effective configuration,
+    and executes the stages listed in the config.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: On success the command prints `Pipeline initialized`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T13:09:14Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline creates outputs directory tree
+  claim_id: c_9d62fe20
+  context: On success the command prints `Pipeline initialized`, creates the `outputs/`
+    directory tree, writes `outputs/run_config.json` with the effective configuration,
+    and executes the stages listed in the config.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: creates the `outputs/` directory tree
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T13:09:14Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: GSM8K and bigbench_lite are publicly downloadable from HuggingFace without
+    authentication
+  claim_id: c_56cd4b78
+  context: All datasets used by the pipeline (GSM8K, bigbench_lite) are publicly downloadable
+    from HuggingFace without authentication.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: All datasets used by the pipeline (GSM8K, bigbench_lite) are publicly
+    downloadable from HuggingFace without authentication.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T13:09:47Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: seed is recorded in outputs/run_config.json
+  claim_id: c_edec4965
+  context: The seed is recorded in `outputs/run_config.json` for reproducibility.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The seed is recorded in `outputs/run_config.json` for reproducibility.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T13:09:47Z'

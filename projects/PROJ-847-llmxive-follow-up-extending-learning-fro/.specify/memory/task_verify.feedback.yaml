@@ -1,6 +1,4 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/run_experiments.py
-    exit=1'
   task: 48046a6674a2816ee04df39c338f2a0c914479a3cd11a0fa0fa38663b77a4cda
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data.py exit=1'

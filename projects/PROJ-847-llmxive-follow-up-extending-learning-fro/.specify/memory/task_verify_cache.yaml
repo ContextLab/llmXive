@@ -1,15 +1,14 @@
 T001:
-  c: false
-  h: b1854cba801ec7c09b3c9b7986410a1bac33d446cb526fbe7961f43017646052
-  r: "The CLI's `--config` path in `code/run_experiments.py` only checks the file\
-    \ exists and prints \"Loaded config from ...\" \u2014 it never parses the YAML\
-    \ (no `yaml` import), never prints \"Pipeline initialized\", never creates the\
-    \ `outputs/` directory tree, and never writes `outputs/run_config.json`, so the\
-    \ task's explicit verification command fails its stated contract. The existing\
-    \ `outputs/run_config.json` (with seed 7, contradicting the config's seed 42)\
-    \ cannot have been produced by this script and is not execution evidence; `docs/quickstart.md`\
-    \ also documents `--stage` and `--seed` flags the script "
-  sig: fc9dbade2a22bd3ebe1ca03dbd2525d37e72d28bc3038cf4b2b196535441938a
+  c: true
+  h: bc2178ca9c6a5e1dc682e64209586470e392c75c5c63ae944f8b52393b11fbc3
+  r: The CLI script `code/run_experiments.py` exists, parses the YAML config, creates
+    the `outputs/` tree, and writes `outputs/run_config.json`; the execution log shows
+    `python -m code.run_experiments --config configs/quickstart.yaml` exited 0 printing
+    "Pipeline initialized", and the on-disk `outputs/` directory with `run_config.json`
+    matching the config confirms the run. `docs/quickstart.md` covers command line,
+    env vars, and seed control as required. (The dummy trainer/model are later tasks'
+    concerns, not T001's.)
+  sig: 13e09be3f5d8527490b0ddbc89bff64a52c08c739f57f0075ab4410d810c1c2a
 T003:
   c: false
   h: 0892b42699aa45a69ab2231d22e68ea23c51ac354a32792ca0dd991a26216c86

@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 The platform runner already provides `numpy`, `pandas`, `scipy`,
 `matplotlib`, `scikit-learn`, `statsmodels`, `seaborn`, `pytest`,
-`PyYAML (Wikidata Q107380446, https://www.wikidata.org/wiki/Q107380446)`, `requests`, `jsonschema`, and `psutil`.
+`PyYAML `, `requests`, `jsonschema`, and `psutil`.
 
 ## Command line
 
@@ -24,7 +24,7 @@ Run the whole pipeline with the quickstart configuration:
 python -m code.run_experiments --config configs/quickstart.yaml
 ```
 
-Onsuccess the command prints `Pipeline initialized` [UNRESOLVED-CLAIM: c_6f8ae36c — status=not_enough_info], creates the
+On success the command prints `Pipeline initialized` [UNRESOLVED-CLAIM: c_28bd2609 — status=not_enough_info], creates the
 `outputs/` directory tree, writes `outputs/run_config.json` with the
 effective configuration, and executes the stages listed in the config.
 Stages whose implementing modules do not exist yet are skipped with a
@@ -51,7 +51,7 @@ publicly downloadable from HuggingFace without authentication.
 - The global seed is set in the config file (`seed: 42` in
  `configs/quickstart.yaml`) and can be overridden per invocation with
  `--seed`.
-- The seed is recorded in `outputs/run_config.json` for reproducibility [UNRESOLVED-CLAIM: c_e921ebb3 — status=not_enough_info].
+- The seed is recorded in `outputs/run_config.json` for reproducibility. [UNRESOLVED-CLAIM: c_edec4965 — status=not_enough_info]
 
 ## Configuration file
 

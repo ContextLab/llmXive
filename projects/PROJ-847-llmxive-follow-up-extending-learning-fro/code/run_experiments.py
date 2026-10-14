@@ -11,7 +11,7 @@ This script now supports two modes of operation:
 
 2. **Explicit CLI mode** for fixed‑density or adaptive runs:
    ``python -m code.run_experiments --mode fixed|adaptive ...``
-   (implemented in other tasks).
+   (implemented in later tasks).
 
 The script returns exit code ``0`` on success and ``1`` on error.
 """
@@ -26,8 +26,6 @@ from typing import Any, Dict
 import yaml  # PyYAML is pre‑installed in the environment
 
 from llmxive_toolkit import get_logger, paths
-
-from code.trainer import run_fixed_baselines
 
 log = get_logger(__name__)
 
@@ -120,6 +118,13 @@ def _run_fixed_mode(args: argparse.Namespace) -> None:
         )
         sys.exit(1)
 
+    # Import lazily to avoid heavy dependencies (e.g., torch) when not needed.
+    try:
+        from code.trainer import run_fixed_baselines
+    except Exception as exc:
+        log.error("Failed to import training utilities: %s", exc)
+        sys.exit(1)
+
     log.info(
         "Running fixed‑density baselines: rhos=%s seeds=%s output=%s",
         args.rhos,
@@ -161,10 +166,6 @@ def main(argv=None) -> int:
             cfg = _load_yaml_config(config_path)
         except Exception:
             return 1
-
-        # Apply any command‑line overrides (seed, etc.) – currently only
-        # ``--seed`` is documented in the quick‑start guide.
-        # (If additional overrides are added later they can be handled here.)
 
         # Initialise output directories and write the effective config.
         output_root = _initialize_outputs(cfg)
