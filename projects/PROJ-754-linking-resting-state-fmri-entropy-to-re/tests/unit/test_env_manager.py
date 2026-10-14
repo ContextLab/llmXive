@@ -35,17 +35,8 @@ class TestGetProjectRoot:
         
         # Temporarily change the file location logic by mocking __file__
         # Since we can't easily change __file__ of an imported module,
-        # we rely on the fact that the function walks up from __file__.
-        # For this test, we assume the test is run from a context where
-        # the module's __file__ is inside the tmp_path structure or we mock it.
-        
-        # A more robust way for this specific test is to verify the logic
-        # by creating a scenario where we can control the path.
-        # However, since get_project_root uses __file__, we test the logic
-        # by ensuring the function doesn't crash and returns a Path.
-        
-        # In a real test suite, we might patch the module's __file__ attribute.
-        # Here we just ensure it returns a Path object when run in a repo-like structure.
+        # we rely on the fact that get_project_root uses __file__.
+        # Here we just ensure it returns a Path object.
         root = get_project_root()
         assert isinstance(root, Path)
         assert root.exists()

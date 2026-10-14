@@ -1,21 +1,34 @@
 T001:
-  reason: "The required source and test directories exist with Python files, and `quickstart.md`\
-    \ lists end\u2011to\u2011end commands, but the validation step fails: the recorded\
-    \ pytest run (`code/.tasks/T001.code_tests_unit_test_directory_structure.py.log`)\
-    \ shows `test_required_directories_and_modules` exiting with failure because the\
-    \ expected path `code/code/src/data` is missing. Consequently `pytest code/tests/`\
-    \ does not pass, violating the task\u2019s validation requirement. The implementer\
-    \ must fix the directory layout (or the test) so that the pytest suite succeeds."
+  reason: "The unit\u2011test suite does not pass \u2013 `test_directory_structure.py`\
+    \ fails because it looks for `code/code/src/...` while the project only has `code/src/...`.\
+    \ Consequently the required validation \u201C`pytest code/tests/` passes\u201D\
+    \ is not met. Additionally, `quickstart.md` lists several separate phase commands\
+    \ instead of a single end\u2011to\u2011end command as the specification demands.\
+    \ Both issues must be fixed for the task to be considered complete."
   task: 948be6d16247bbf819931a67279132505982da9fc6ffd5b1b90d282e30cc8d2c
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py
     exit=1'
   task: bfe0198ab2a362808a135648820171e98659925d6ab0eb5270371a274d242920
 T003:
+  reason: The `code/src/data/qc.py` module imports `log_subject_exclusion` from `llmxive_toolkit`,
+    but that symbol does not exist, causing an ImportError during test collection.
+    Consequently `code/tests/unit/test_qc.py` cannot be imported and the pytest suite
+    fails, so the required unit test does not pass and the QC outputs are never verified.
+    Fix the missing import (or remove the dependency) and ensure the tests run and
+    succeed.
   task: 7d9d47bc53805078924a5481ad533b21b39efd8ad1b75ae926aea3f0156e0e07
 T004:
+  reason: "The `entropy.py` implementation matches the required signature and logic,\
+    \ and the unit test file exists and is correctly written. However, running the\
+    \ test suite fails with `ModuleNotFoundError: No module named 'pyentropy'`, meaning\
+    \ the required `pyentropy` dependency (version\u202F0.4.*) is not installed or\
+    \ declared, so pytest does not pass. The missing dependency must be added/installed\
+    \ for the tests to succeed."
   task: ccab806b339a9eb341131bf139c8e1f8e565552bab3bd54fef75c85d814ee5f7
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/src/run_pipeline.py
+    exit=1'
   task: bb6f282a4be2fe3ba11742b685e61b43315c295ffea619ee26ba8f67ace81d6b
 T006:
   task: 5e3b18ea7e8c9b12dd3b275192fa9af94250e1bfddaf6e657a40e19307a10241

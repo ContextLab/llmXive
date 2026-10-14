@@ -2486,3 +2486,181 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-14T01:31:43Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: pipeline produces hcp_timeseries.parquet, dsrt_scores.parquet, clean_subjects.parquet
+  claim_id: c_92b35e7d
+  context: "Step\u2011by\u2011Step 2: Download & QC the data (Phase\u202F1)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Produces `data/raw/hcp_timeseries.parquet`, `data/raw/dsrt_scores.parquet`,
+    and `data/derived/clean_subjects.parquet`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:19Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: pipeline logs exclusions in qc.log and writes checksums to checksums.txt
+  claim_id: c_329b08b0
+  context: "Step\u2011by\u2011Step 2: Download & QC the data (Phase\u202F1)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Logs exclusions in `logs/qc.log` and writes checksums to `data/checksums.txt`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:19Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: pipeline produces model_coefficients.csv, significant_parcels.nii.gz,
+    permutation_null.npy
+  claim_id: c_e71ecafa
+  context: "Step\u2011by\u2011Step 4: Fit parcel\u2011wise models & permutation test\
+    \ (Phase\u202F3)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Produces `results/model_coefficients.csv`, `results/significant_parcels.nii.gz`,
+    and `results/permutation_null.npy`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:20Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: permutation step aborts after exceeding 3 hours and logs timeout warning
+  claim_id: c_55de8b04
+  context: "Step\u2011by\u2011Step 4: Fit parcel\u2011wise models & permutation test\
+    \ (Phase\u202F3)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "If the permutation step exceeds 3\u202Fh, the script aborts and writes\
+    \ a timeout warning to `logs/permutation_timeout.log`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:20Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "tests confirm schema validation passes and mini\u2011dataset reproduces\
+    \ expected shapes"
+  claim_id: c_893d78d2
+  context: "Step\u2011by\u2011Step 6: Verify reproducibility (optional)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Unit and contract tests confirm that schema validation passes and that\
+    \ a mini\u2011dataset workflow reproduces expected shapes."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:20Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "download and QC stage runtime \u226430 minutes and peak RAM \u22642\
+    \ GB"
+  claim_id: c_109e28f6
+  context: "Expected Runtime & Resources (CI\u2011friendly) table."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Download & QC \u2264\u202F30\u202Fmin, \u2264\u202F2\u202FGB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:20Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "entropy stage runtime \u226490 minutes and peak RAM \u22644 GB"
+  claim_id: c_bb3e9e8a
+  context: "Expected Runtime & Resources (CI\u2011friendly) table."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Entropy (full 200) \u2264\u202F90\u202Fmin, \u2264\u202F4\u202FGB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:21Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "modeling and permutations runtime \u2264180 minutes and peak RAM \u2264\
+    5 GB"
+  claim_id: c_89fbf58e
+  context: "Expected Runtime & Resources (CI\u2011friendly) table."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Modeling & Permutations \u2264\u202F180\u202Fmin, \u2264\u202F5\u202F\
+    GB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:21Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "reporting stage runtime \u226430 minutes and peak RAM \u22642 GB"
+  claim_id: c_99269c8b
+  context: "Expected Runtime & Resources (CI\u2011friendly) table."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Reporting \u2264\u202F30\u202Fmin, \u2264\u202F2\u202FGB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:21Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "total pipeline runtime approximately 4 hours and peak RAM \u22645 GB"
+  claim_id: c_e1882e9c
+  context: "Expected Runtime & Resources (CI\u2011friendly) table."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total \u2248\u202F4\u202Fh, \u2264\u202F5\u202FGB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:21Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "pipeline respects CPU\u2011only constraint and stays within free\u2011\
+    tier GitHub Actions limits"
+  claim_id: c_a6e8e96f
+  context: "Expected Runtime & Resources (CI\u2011friendly) summary."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All steps respect the CPU\u2011only constraint (GC\u2011001) and stay\
+    \ within the free\u2011tier GitHub Actions limits."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T01:34:22Z'

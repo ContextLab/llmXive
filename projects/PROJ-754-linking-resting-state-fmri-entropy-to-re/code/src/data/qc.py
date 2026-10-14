@@ -1,0 +1,165 @@
+"""qc.py
+-------
+Data validation and motion quality control (QC) for the HCP dataset.
+
+This script reads the behavioural parquet file produced by
+``src.data.download_hcp`` (``data/raw/dsrt_scores.parquet``), verifies that
+all required columns are present, excludes subjects that do not satisfy
+the motion threshold (mean FD >= 0.2 mm) or that are missing a DSRT score,
+and writes two artefacts:
+
+* ``data/derived/clean_subjects.parquet`` – a parquet table containing only
+  the valid subjects with an additional column ``status`` set to ``valid``.
+* ``data/derived/subject_qc.csv`` – a CSV log of all exclusions with the
+  columns ``subject_id`` and ``reason``.
+
+The module also provides a reusable ``validate_and_filter`` function that
+can be imported by downstream code or tests.
+
+Usage (as a CLI)::
+
+    python -m src.data.qc \\
+        --input data/raw/dsrt_scores.parquet \\
+        --fd-threshold 0.2 \\
+        --output-dir data
+
+The script respects the project‑wide logging configuration via
+``llmxive_toolkit.get_logger`` and records each exclusion with
+``log_subject_exclusion``.
+"""
+import argparse
+from pathlib import Path
+from typing import List, Tuple
+
+import pandas as pd
+
+from llmxive_toolkit import paths, get_logger, log_subject_exclusion
+
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+REQUIRED_COLUMNS = {"subject_id", "age", "sex", "mean_fd", "dsrt_score"}
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _check_required_columns(df: pd.DataFrame) -> None:
+    """Raise a ``ValueError`` if any required column is missing."""
+    missing = REQUIRED_COLUMNS.difference(df.columns)
+    if missing:
+        raise ValueError(f"Missing required columns in behavioural data: {missing}")
+
+def validate_and_filter(
+    df: pd.DataFrame,
+    fd_threshold: float = 0.2,
+) -> Tuple[pd.DataFrame, List[Tuple[str, str]]]:
+    """
+    Validate the behavioural dataframe and filter out subjects that do not
+    meet quality criteria.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input behavioural data containing at least the columns listed in
+        ``REQUIRED_COLUMNS``.
+    fd_threshold : float, optional
+        Maximum allowed mean framewise displacement (default 0.2 mm).
+
+    Returns
+    -------
+    clean_df : pd.DataFrame
+        Subset of ``df`` that passed QC, with an added column ``status``
+        set to ``"valid"``.
+    exclusions : list[tuple[str, str]]
+        List of ``(subject_id, reason)`` tuples for each excluded subject.
+    """
+    _check_required_columns(df)
+
+    exclusions: List[Tuple[str, str]] = []
+
+    # Identify subjects with missing DSRT scores
+    mask_missing_dsrt = df["dsrt_score"].isna()
+    for sid in df.loc[mask_missing_dsrt, "subject_id"]:
+        exclusions.append((sid, "Missing DSRT score"))
+
+    # Identify subjects with excessive motion
+    mask_high_fd = df["mean_fd"] >= fd_threshold
+    for sid in df.loc[mask_high_fd, "subject_id"]:
+        exclusions.append((sid, f"Mean FD >= {fd_threshold} mm"))
+
+    # Combine exclusion masks (a subject may be excluded for both reasons)
+    exclusion_mask = mask_missing_dsrt | mask_high_fd
+    clean_df = df.loc[~exclusion_mask].copy()
+    clean_df["status"] = "valid"
+
+    return clean_df, exclusions
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Validate behavioural data and apply motion QC (FR‑002)."
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=str(paths.data("raw", "dsrt_scores.parquet")),
+        help="Path to the behavioural parquet file produced by download_hcp.",
+    )
+    parser.add_argument(
+        "--fd-threshold",
+        type=float,
+        default=0.2,
+        help="Maximum allowed mean FD (default 0.2 mm).",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data",
+        help="Base output directory (default: 'data').",
+    )
+    args = parser.parse_args()
+
+    logger = get_logger(__name__)
+
+    input_path = Path(args.input)
+    if not input_path.is_file():
+        logger.error("Input behavioural file not found: %s", input_path)
+        raise FileNotFoundError(f"Behavioural file not found: {input_path}")
+
+    logger.info("Reading behavioural data from %s", input_path)
+    behavioural_df = pd.read_parquet(input_path)
+
+    try:
+        clean_df, exclusions = validate_and_filter(
+            behavioural_df, fd_threshold=args.fd_threshold
+        )
+    except Exception as exc:
+        logger.error("QC validation failed: %s", exc)
+        raise
+
+    # ------------------------------------------------------------------
+    # Write outputs
+    # ------------------------------------------------------------------
+    derived_dir = Path(args.output_dir) / "derived"
+    derived_dir.mkdir(parents=True, exist_ok=True)
+
+    clean_path = derived_dir / "clean_subjects.parquet"
+    qc_log_path = derived_dir / "subject_qc.csv"
+
+    logger.info("Writing %d valid subjects to %s", clean_df.shape[0], clean_path)
+    clean_df.to_parquet(clean_path, index=False)
+
+    logger.info("Writing QC log (%d exclusions) to %s", len(exclusions), qc_log_path)
+    qc_log_df = pd.DataFrame(exclusions, columns=["subject_id", "reason"])
+    qc_log_df.to_csv(qc_log_path, index=False)
+
+    # Log each exclusion via the shared logging helper
+    for sid, reason in exclusions:
+        log_subject_exclusion(str(sid), reason, logger=logger)
+
+    logger.info("QC step completed successfully.")
+
+if __name__ == "__main__":
+    main()

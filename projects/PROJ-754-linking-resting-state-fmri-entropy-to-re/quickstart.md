@@ -24,8 +24,8 @@ This guide walks a new user through the end‑to‑end analysis on a fresh GitHu
  --fd-threshold 0.2 \
  --output-dir data/
  ```
- - Produces `data/raw/hcp_timeseries.parquet`, `data/raw/dsrt_scores.parquet`, and `data/derived/clean_subjects.parquet`.
- - Logs exclusions in `logs/qc.log` and writes checksums to `data/checksums.txt`.
+ - Produces `data/raw/hcp_timeseries.parquet`, `data/raw/dsrt_scores.parquet`, and `data/derived/clean_subjects.parquet`. [UNRESOLVED-CLAIM: c_92b35e7d — status=not_enough_info]
+ - Logs exclusions in `logs/qc.log` and writes checksums to `data/checksums.txt`. [UNRESOLVED-CLAIM: c_329b08b0 — status=not_enough_info]
 
 3. **Compute multiscale entropy (Phase 2)**
  ```bash
@@ -49,8 +49,8 @@ This guide walks a new user through the end‑to‑end analysis on a fresh GitHu
  --max-runtime 10800 \
  --output-dir results/
  ```
- - Produces `results/model_coefficients.csv`, `results/significant_parcels.nii.gz`, and `results/permutation_null.npy`.
- - If the permutation step exceeds 3 h, the script aborts and writes a timeout warning to `logs/permutation_timeout.log`.
+ - Produces `results/model_coefficients.csv`, `results/significant_parcels.nii.gz`, and `results/permutation_null.npy`. [UNRESOLVED-CLAIM: c_e71ecafa — status=not_enough_info]
+ - If the permutation step exceeds 3 h, the script aborts and writes a timeout warning to `logs/permutation_timeout.log`. [UNRESOLVED-CLAIM: c_55de8b04 — status=not_enough_info]
 
 5. **Generate the final report (Phase 4)**
  ```bash
@@ -61,13 +61,13 @@ This guide walks a new user through the end‑to‑end analysis on a fresh GitHu
  --power-output results/power_analysis.csv \
  --output reports/link_entropy_risk.pdf
  ```
- - The PDF contains: methods, parcel‑wise β‑maps, sensitivity tables, VIF diagnostics, and the post‑hoc power analysis. [UNRESOLVED-CLAIM: c_f0e224de — status=not_enough_info]
+ - The PDF contains: methods, parcel‑wise β‑maps, sensitivity tables, VIF diagnostics, and the post‑hoc power analysis.
 
 6. **Verify reproducibility (optional)**
  ```bash
  pytest -v tests/
  ```
- - Unit and contract tests confirm that schema validation passes and that the mini‑dataset workflow reproduces expected shapes. [UNRESOLVED-CLAIM: c_ace10a3f — status=not_enough_info]
+ - Unit and contract tests confirm that schema validation passes and that a mini‑dataset workflow reproduces expected shapes. [UNRESOLVED-CLAIM: c_893d78d2 — status=not_enough_info]
 
 ## Expected Runtime & Resources (CI‑friendly)
 
@@ -79,4 +79,4 @@ This guide walks a new user through the end‑to‑end analysis on a fresh GitHu
 | Reporting | ≤ 30 min | ≤ 2 GB |
 | **Total** | **≈ 4 h** | **≤ 5 GB** |
 
-All steps respect the CPU‑only constraint (GC‑001) and stay within the free‑tier GitHub Actions limits.
+All steps respect the CPU‑only constraint (GC‑001) and stay within the free‑tier GitHub Actions limits. [UNRESOLVED-CLAIM: c_a6e8e96f — status=not_enough_info]

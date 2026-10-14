@@ -16,7 +16,7 @@
 - [ ] T004 [US2] Implement multiscale sample entropy in `code/src/analysis/entropy.py` (FR‑003).  
   Use the **pyentropy** library (`pyentropy==0.4.*`) and its `sample_entropy` function. Function signature: `multiscale_entropy(ts, scales=(1,2,3,4,5), m=2, r=0.15)`. Compute sample entropy for each coarse‑grained scale, average across scales 1‑5 to a single value per parcel. Flag parcels with insufficient timepoints (write IDs to `data/derived/invalid_parcels.csv`) and set their entropy to NaN. Include unit tests in `code/tests/unit/test_entropy.py` using deterministic synthetic series (sine, noise). Validation: pytest passes; low‑complexity series yields lower entropy than high‑complexity series.
 
-- [ ] T005 [US1,US2] Connect the end‑to‑end pipeline and run a small real case.  
+- [ ] T005 [US1,US2] Connect the end‑to‑end pipeline and run a small real case.   <!-- FAILED-IN-EXECUTION: code/src/run_pipeline.py exit=1 -->
   Entry point `code/src/run_pipeline.py --subjects 5` executes download → QC → entropy → writes:  
   - `results/entropy_matrix.parquet` (subjects × parcels, conforms to `entropy.schema.yaml` with metadata fields `n_subjects`, `n_parcels`, `scales`, `r_values`, `seed`).  
   - `results/covariates.parquet` (subject_id, age, sex, mean_fd, dsrt_score).  

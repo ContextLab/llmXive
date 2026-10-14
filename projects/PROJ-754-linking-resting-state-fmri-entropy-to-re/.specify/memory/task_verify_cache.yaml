@@ -1,14 +1,13 @@
 T001:
   c: false
-  h: 509088a925ce42b2e1ef53956d8c3c9227e5bba8e70fc1036b0fe36a62ab4547
-  r: "The required source and test directories exist with Python files, and `quickstart.md`\
-    \ lists end\u2011to\u2011end commands, but the validation step fails: the recorded\
-    \ pytest run (`code/.tasks/T001.code_tests_unit_test_directory_structure.py.log`)\
-    \ shows `test_required_directories_and_modules` exiting with failure because the\
-    \ expected path `code/code/src/data` is missing. Consequently `pytest code/tests/`\
-    \ does not pass, violating the task\u2019s validation requirement. The implementer\
-    \ must fix the directory layout (or the test) so that the pytest suite succeeds."
-  sig: 95e3ed02adf0f08e0328c5ea918653c0441e4cac60466db999e2f665e180f3a6
+  h: ce2a3bae80090a94cf5c5b8e36764677e561061fa896abedb6c5c43c66fff307
+  r: "The unit\u2011test suite does not pass \u2013 `test_directory_structure.py`\
+    \ fails because it looks for `code/code/src/...` while the project only has `code/src/...`.\
+    \ Consequently the required validation \u201C`pytest code/tests/` passes\u201D\
+    \ is not met. Additionally, `quickstart.md` lists several separate phase commands\
+    \ instead of a single end\u2011to\u2011end command as the specification demands.\
+    \ Both issues must be fixed for the task to be considered complete."
+  sig: dd0fd87c2f79b2ff4621c95caab4e4a529fe512e410972952477a22d507dd0df
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -17,3 +16,23 @@ T002:
     and `tests/integration` folders are not shown to exist or contain any files. The
     implementer must create these subdirectories (and optionally add placeholder files)
     to satisfy the task.
+T003:
+  c: false
+  h: c4437d7cc7c76980ba9223953dff84d401696cf08b8551e62fd8d2d6c3741950
+  r: The `code/src/data/qc.py` module imports `log_subject_exclusion` from `llmxive_toolkit`,
+    but that symbol does not exist, causing an ImportError during test collection.
+    Consequently `code/tests/unit/test_qc.py` cannot be imported and the pytest suite
+    fails, so the required unit test does not pass and the QC outputs are never verified.
+    Fix the missing import (or remove the dependency) and ensure the tests run and
+    succeed.
+  sig: 289a7faaa50aca661ed71f4b3dd1c773d2f9a736ae4102c5bd0eed7935bcc2db
+T004:
+  c: false
+  h: 7aa837cfe96ccb257ec4175341c65fed84556f4587f8edd88b855ab981b8c10a
+  r: "The `entropy.py` implementation matches the required signature and logic, and\
+    \ the unit test file exists and is correctly written. However, running the test\
+    \ suite fails with `ModuleNotFoundError: No module named 'pyentropy'`, meaning\
+    \ the required `pyentropy` dependency (version\u202F0.4.*) is not installed or\
+    \ declared, so pytest does not pass. The missing dependency must be added/installed\
+    \ for the tests to succeed."
+  sig: d4252da1e032724da1a6668eec64cd967d80fde3add3d34d8504bf1b71f48605

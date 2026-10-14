@@ -1,7 +1,16 @@
+from __future__ import annotations
+
 import subprocess
 import sys
 import argparse
 from pathlib import Path
+from typing import Optional
+
+# Ensure Optional is available at runtime (type hints are postponed,
+# but some environments may still evaluate them during import).
+# The following assignment makes the name explicit in the module
+# globals.
+Optional = Optional
 
 def run_command(cmd: list[str], cwd: Optional[Path] = None) -> int:
     """Run a command and return the exit code."""
