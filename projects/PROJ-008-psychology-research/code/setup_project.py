@@ -19,6 +19,12 @@ from llmxive_toolkit import get_logger
 
 log = get_logger(__name__)
 
+# Mapping from package names (in pyproject.toml) to import names
+IMPORT_MAPPING = {
+    "pyyaml": "yaml",
+    "scikit-learn": "sklearn",
+}
+
 def _load_pyproject_dependencies() -> list[str]:
     """Parse ``code/pyproject.toml`` and return the raw dependency strings."""
     import tomllib
@@ -47,8 +53,7 @@ def _verify_dependencies(deps: list[str]) -> dict[str, str]:
     versions: dict[str, str] = {}
 
     for dep in deps:
-        # Strip version specifiers; we only need the import name.
-        # Handles ``pkg==x.y.z`` and simple extras like ``pkg[extra]==x.y``.
+        # Strip version specifiers; we only need the package name.
         pkg = (
             dep.split("[", 1)[0]
             .split("==", 1)[0]
@@ -58,8 +63,11 @@ def _verify_dependencies(deps: list[str]) -> dict[str, str]:
             .strip()
         )
 
+        # Resolve package name to import name (e.g., scikit-learn -> sklearn)
+        import_name = IMPORT_MAPPING.get(pkg.lower(), pkg)
+
         try:
-            module = importlib.import_module(pkg)
+            module = importlib.import_module(import_name)
             ver = getattr(module, "__version__", "unknown")
             versions[pkg] = ver
         except Exception:  # pragma: no cover – import failure is fatal
@@ -77,6 +85,7 @@ def _create_directories() -> None:
         Path("code/viz"),
         Path("code/lib"),
         Path("code/utils"),
+        Path("code/reporting"),
         Path("data/raw"),
         Path("data/processed"),
         Path("data/results"),
@@ -90,6 +99,15 @@ def _create_directories() -> None:
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
         log.debug(f"Ensured directory exists: {d}")
+
+def _cleanup_corrupted_paths() -> None:
+    """Remove any files that should be files but were created as directories."""
+    # Fix for reported IsADirectoryError: data/processed/cleaned_studies.csv
+    corrupted = Path("data/processed/cleaned_studies.csv")
+    if corrupted.is_dir():
+        log.warning(f"Removing corrupted directory: {corrupted}")
+        import shutil
+        shutil.rmtree(corrupted)
 
 def _write_install_log(versions: dict[str, str]) -> None:
     """Write a JSON log documenting the install timestamp and package versions."""
@@ -109,6 +127,9 @@ def _write_install_log(versions: dict[str, str]) -> None:
 def main() -> None:
     """Entry point for the setup script."""
     log.info("Starting project layout creation and dependency verification")
+
+    # 0. Cleanup potential corrupted paths from previous failed runs
+    _cleanup_corrupted_paths()
 
     # 1. Create the directory tree
     _create_directories()

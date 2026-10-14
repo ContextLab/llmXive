@@ -69,17 +69,17 @@ python code/analysis/meta_analysis.py --input data/processed/effect_sizes.csv --
 
 Notes:
 - The thin-slice script queries the live ClinicalTrials.gov API v2 and
- fails loudly if no real record with usable group summary statistics
- (means, SDs, N) is found; it never fabricates an effect size.
+fails loudly if no real record with usable group summary statistics
+(means, SDs, N) is found; it never fabricates an effect size.
 - In CI, set `CI_MODE=true`; the collector then loads the canonical
- baseline `data/raw/verified_snapshot_2026.json` instead of hitting the
- live APIs, so the analysis is deterministic.
+baseline `data/raw/verified_snapshot_2026.json` instead of hitting the
+live APIs, so the analysis is deterministic.
 - The collector NEVER loads mock data; if
- `data/raw/mock_registry_response.json` exists in a production/CI run,
- the collector aborts loudly.
+`data/raw/mock_registry_response.json` exists in a production/CI run,
+the collector aborts loudly.
 - If fewer than 10 studies are found, the pipeline automatically
- suppresses the funnel plot, Egger's test, and meta-regression, and
- produces a descriptive synthesis instead.
+suppresses the funnel plot, Egger's test, and meta-regression, and
+produces a descriptive synthesis instead.
 
 ## 4. Verify outputs
 
@@ -91,8 +91,8 @@ pytest tests/
 ## Troubleshooting
 
 - **API limits**: the collector uses exponential backoff (max 5 retries).
- If it fails, check connectivity; the full retry history is in the logs.
+If it fails, check connectivity; the full retry history is in the logs.
 - **Empty results**: inspect `data/raw/excluded_studies.log` for exclusion
- reasons (e.g., age-range mismatch, missing social-skill outcomes).
+reasons (e.g., age-range mismatch, missing social-skill outcomes).
 - **Missing modules**: make sure you activated `venv` and ran
- `pip install -r requirements.txt` in the project root.
+`pip install -r requirements.txt` in the project root.

@@ -97,7 +97,7 @@ ERROR tests/unit/test_setup_project.py
 ERROR tests/unit/test_validators.py
 ERROR tests/unit/test_verify_output.py - TypeError: get_data_path() missing 1...
 !!!!!!!!!!!!!!!!!!! Interrupted: 12 errors during collection !!!!!!!!!!!!!!!!!!!
-======================= 13 warnings, 12 errors in 3.40s ========================
+======================= 13 warnings, 12 errors in 3.69s ========================
 
 
 
@@ -117,10 +117,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/effect_sizes.py` — IS a run-book command
     - `code/data/cleaner.py` — IS a run-book command
     - `code/data/verify_output.py` — NOT invoked by the run-book
+    - `code/setup_project.py` — NOT invoked by the run-book
     - `code/viz/plots.py` — NOT invoked by the run-book
     - `scripts/run_cleaner.py` — NOT invoked by the run-book
     - `scripts/run_t019_verification.py` — NOT invoked by the run-book
-    - `scripts/validate_contracts.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/cleaned_studies.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/effect_sizes.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/bias.py` — NOT invoked by the run-book
