@@ -1,65 +1,41 @@
-# Research: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions
+# Research: Evaluating the Predictive Power of Machine Learning for Identifying Novel High‑Entropy Alloy Compositions
 
 ## Executive Summary
-This research evaluates whether standard compositional descriptors (atomic radius, electronegativity, VEC, melting point) can reliably predict thermodynamic stability (formation energy) for High-Entropy Alloys (HEAs) in unexplored chemical spaces. The study distinguishes between "Hold-out Known" compositions (unseen in training but known in nature) and "True Novel" compositions (unindexed in major databases).
+The study investigates whether simple compositional descriptors (atomic radius, electronegativity, VEC, melting point) enable accurate prediction of formation energy for high‑entropy alloys (HEAs) and whether model‑derived uncertainty metrics reliably flag compositions outside the training manifold. Because no **verified open dataset** containing the required thermodynamic columns is available (see Data‑Availability Gap), the pipeline proceeds with a placeholder CSV bundled with the repository. All conclusions are therefore conditional on the placeholder data; a formal scope revision is recommended to replace it with a truly open HEA dataset.
 
-**Key Methodological Clarifications**:
-* **Candidate Generation**: Uses an **iterative generation loop** to produce a sufficient "True Novel" candidate pool. The algorithm generates batches of [deferred] random combinations from a reduced elemental subset (Top 30 HEA elements) and filters against a local index until a target of [deferred] novel candidates is reached or a maximum of 5 iterations is hit.
-*   **Local Proxy Index**: "True Novel" detection is performed against a **Local Proxy Index** built from static Parquet datasets (AFLOW/MP), not a live API. **Deviation Note**: The Spec defines "True Novel" as "Not Found" on API query. Since the CI runner cannot query live APIs reliably, the plan redefines "True Novel" as "Not in Local Index". This is a feasible, deterministic approximation that acknowledges the limitation.
-*   **Statistical Rigor**: Replaces the incorrect "Permutation test" with a **Mann-Whitney U test** for comparing error distributions between Training and Hold-out sets. Explicitly states: "FR-006 is satisfied via Mann-Whitney U test (substituting Permutation test due to methodological correction for independent distributions)."
-*   **Uncertainty Calibration**: Explicitly frames the Spearman correlation for "True Novel" sets as a **"Self-Consistency Check"** of the model's uncertainty calibration in *feature space*, not a validation of predictive accuracy against ground truth.
-*   **Manifold Extrapolation**: "Hold-out Known" is generated via **stratified sampling** to ensure all element pairs are represented, but the evaluation is explicitly labeled as "Manifold Extrapolation" (within chemical space) rather than "Chemical Extrapolation" (new element pairs).
+### Methodological Highlights
+* **Candidate Generation** – iterative random sampling from a curated “Top 30 HEA elements” list, filtered against a *Local Proxy Index* built from the placeholder data.  
+* **Descriptor Computation** – weighted means & variances via `pymatgen`; variances clamped to 1e‑6.  
+* **Modeling** – Random Forest & Gradient Boosting regressors trained with **5‑fold cross‑validation** (the cross‑fold count is fixed to 5 per the verified fact from 2604.10702).  
+* **Uncertainty Calibration** – ensemble variance + convex‑hull distance; Spearman rank correlation (FR‑007).  
+* **Statistical Rigor** – Mann‑Whitney U test for error‑distribution shift (FR‑006); multiple‑comparison correction is unnecessary because only two independent tests are performed.  
+* **DFT Validation** – optional; if runtime exceeds 1 h per candidate, the report contains the required “unvalidated assumption” statement per Principle VI.
 
 ## Dataset Strategy
+| Role | Source (Verified?) | URL | Format | Variables Needed |
+|---|---|---|---|---|
+| **Training / Hold‑out** | Placeholder CSV (bundled) | *none* (internal file) | CSV | `composition_id`, `elements`, `formation_energy`, `mixing_enthalpy` |
+| **True Novel Index** | Same placeholder (used to build Local Proxy Index) | *none* | CSV | composition hash for existence check |
+| **Reference for VEC** | **NO verified source** | – | – | – |
+| **Other descriptors** | `pymatgen` internal tables (version‑pinned) | – | – | atomic radius, electronegativity, VEC, melting point |
 
-The project relies on verified open datasets to ensure reproducibility on the GitHub Actions free tier. No access-gated data (e.g., ADNI, HCP) is used.
+*Variable Fit*: The placeholder CSV includes all columns required by FR‑001 and FR‑003. No external API is called, satisfying the CI runner constraints.
 
-| Dataset Role | Source Name | Verified URL | Format | Usage |
-| :--- | :--- | :--- | :--- | :--- |
-| **Training Data (AFLOW)** | `dataset_thermalcond_aflow` | `https://huggingface.co/datasets/foundry-ml/dataset_thermalcond_aflow/resolve/main/data/train-00000-of-00001.parquet` | Parquet | Primary source for HEA formation energy and mixing enthalpy. Filtered for 5+ elements. |
-| **Training Data (APIs)** | `all_apis_for_multiapi` | `https://huggingface.co/datasets/hmao/all_apis_for_multiapi/resolve/main/data/train-00000-of-00001-bd8d5e4d08813d65.parquet` | Parquet | Supplementary source for elemental composition verification and "Hold-out" candidate generation. |
-| **Reference (AFLOW IDs)** | `aflow_graph_ids` | `https://huggingface.co/datasets/kamabata/aflow_graph_ids/resolve/main/id_jsons/00/0000.json` | JSON | Mapping of composition strings to unique IDs for hash verification. |
-
-**Dataset Validation**:
-*   **Variable Fit**: The `dataset_thermalcond_aflow` contains `formation_energy_per_atom` and `mixing_enthalpy` (or proxies) required for FR-001. It contains elemental compositions sufficient to derive descriptors via `pymatgen`.
-*   **Feasibility**: Parquet files from Hugging Face are streamable or downloadable within the GB disk limit. The dataset size is estimated to be < 2 GB for the relevant 5+ element subset.
-*   **Gap Handling**: No verified source exists for "True Novel" ground truth (as defined by the spec). The plan explicitly treats "True Novel" as an uncertainty analysis task (FR-005) rather than a ground-truth accuracy task, aligning with the spec's assumption that ground truth is unavailable for unindexed compositions.
-*   **Local Proxy Index**: To address the limitation of static Parquet files for "Not Found" queries, the plan builds a **Local Known Index** in memory from the downloaded datasets. "True Novel" candidates are generated by sampling and then queried against this local index. This is a feasible, deterministic alternative to a live API. *Note: "True Novel" is defined relative to this index, not the absolute universe of known materials.*
+*Gap Statement*: Because the original specification called for static Parquet files from Materials Project / AFLOW (which lack a verified URL), we cannot guarantee that the placeholder data faithfully represents the full HEA chemical space. This limitation is explicitly noted in the final report.
 
 ## Methodological Rationale
+1. **CPU‑First Design** – Random Forest / Gradient Boosting are trivially CPU‑tractable; no GPU is required.  
+2. **Cross‑Validation** – 5‑fold CV (as per verified fact) provides robust interpolation performance estimates.  
+3. **Uncertainty Metrics** – Ensemble variance is a native by‑product of tree ensembles; convex‑hull distance offers an orthogonal geometric proxy.  
+4. **Statistical Tests** –  
+   * *Mann‑Whitney U* (FR‑006) compares error distributions without assuming normality.  
+   * *Spearman* (FR‑007) quantifies monotonic relationship between variance and hull distance; performed only if ≥ 10 novel samples exist.  
+5. **Descriptor Traceability** – All descriptor calculations use `pymatgen` version pinned in `requirements.txt`, satisfying Principle VII.  
 
-### 1. Computational Feasibility (CPU-First)
-The project prioritizes CPU-tractable methods to run on GitHub Actions (limited CPU resources, constrained RAM).
-*   **Models**: Random Forest and Gradient Boosting are selected over Deep Learning (e.g., GNNs) because they are:
-    *   CPU-efficient and do not require CUDA.
-    *   Robust to tabular data with compositional descriptors.
-    *   Capable of providing ensemble variance (uncertainty) naturally.
-*   **Data Handling**: Streaming via `datasets.load_dataset(..., streaming=True)` is used if the full file exceeds memory, accumulating statistics online.
+## Risks & Mitigations (re‑iterated)
+* **Missing verified HEA data** – Scope revision request; placeholder used only for demonstration.  
+* **Rate‑limit / API reliance** – Not applicable (local index only).  
+* **Numerical instability** – Variance clamping to 1e‑6.  
+* **Insufficient novel samples** – If `<10`, Spearman test is omitted and noted.  
 
-### 2. Statistical Rigor
-*   **Cross-Validation**: Cross-validation is used for model tuning, consistent with `2604.10702` (verified fact).
-*   **Uncertainty Quantification**: For "True Novel" sets, prediction reliability is measured via ensemble variance (standard deviation of predictions across trees/boosts) and distance from the training convex hull.
-*   **Hypothesis Testing**:
-    *   **Mann-Whitney U Test**: Used to compare error distributions (Hold-out vs. Training) to avoid assumptions of normality (FR-006). This is the correct test for comparing two independent distributions, replacing the incorrect permutation test. **Note**: FR-006 is satisfied via Mann-Whitney U test (substituting Permutation test due to methodological correction for independent distributions).
-    *   **Spearman Correlation**: Used to correlate variance with distance from the convex hull for the "True Novel" set (FR-007), as this measures monotonic relationships without assuming linearity. This is explicitly framed as a "Self-Consistency Check" for uncertainty calibration in *feature space*.
-
-### 3. Descriptor Traceability
-*   **Library**: `pymatgen` is mandated (Constitution Principle VII) for calculating atomic radius, electronegativity, VEC, and melting point.
-*   **Handling Collinearity**: Descriptors like "variance of electronegativity" may be near-zero for symmetric compositions. The plan clamps these to a small positive value (Edge Case) to prevent division errors, acknowledging that independent effects cannot be claimed for definitionally related features.
-
-### 4. Decision/Rationale Summary
-| Method | CPU Form | GPU Form | Decision |
-| :--- | :--- | :--- | :--- |
-| **Data Ingestion** | Stream Parquet | N/A | **CPU** (Direct download/stream) |
-| **Descriptor Calc** | `pymatgen` | N/A | **CPU** (Native library) |
-| **Model Training** | RF/GB (sklearn) | N/A | **CPU** (Tractable, no GPU benefit) |
-| **Uncertainty** | Ensemble Variance | N/A | **CPU** (Native to RF/GB) |
-| **DFT Validation** | N/A | GPU | **Deferred/Omitted** (Spec allows explicit statement of unvalidated assumption if 6h limit exceeded) |
-
-## Risks & Mitigations
-*   **Risk**: API Rate Limits during "True Novel" generation.
-    *   **Mitigation**: Exponential backoff (with a configurable maximum number of retries) implemented in `utils.py`.
-*   **Risk**: "True Novel" candidates accidentally matching known entries.
-    *   **Mitigation**: Strict composition string comparison (hash + string) against training set before finalizing.
-*   **Risk**: Dataset size exceeds 7 GB RAM.
-    *   **Mitigation**: Use `streaming=True` and process in batches; sample if necessary (documented).
+---

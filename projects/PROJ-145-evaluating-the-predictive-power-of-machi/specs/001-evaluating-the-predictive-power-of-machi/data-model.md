@@ -1,69 +1,34 @@
-# Data Model: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions
+# Data Model: Evaluating the Predictive Power of Machine Learning for Identifying Novel High‑Entropy Alloy Compositions
 
 ## Overview
-This document defines the data schemas for the HEA predictive power study. All data is stored in CSV format for portability and interoperability with `pandas` and `scikit-learn`.
+All pipeline artifacts are CSV files, enabling straightforward loading with `pandas`. Schemas are provided in the `contracts/` folder and are validated by the test suite.
 
 ## Entity Definitions
 
-### 1. TrainingSet (`heas_train.csv`)
-The core dataset of known HEA compositions with thermodynamic properties.
-*   **Source**: Filtered `dataset_thermalcond_aflow` and `all_apis_for_multiapi`.
-*   **Filter**: 5+ distinct elements.
-*   **Usage**: Model training and feature engineering baseline.
+| Entity | Filename | Description |
+|---|---|---|
+| **TrainingSet** | `data/processed/heas_train.csv` | Filtered HEA compositions with ground‑truth thermodynamic properties. |
+| **HoldoutKnown** | `data/processed/holdout_known.csv` | Subset of known compositions excluded from training (manifold extrapolation test). |
+| **TrueNovel** | `data/processed/true_novel.csv` | Candidate compositions absent from the Local Proxy Index and geometrically distant from the training centroid. |
+| **FeatureEngineered** | `data/processed/heas_train_features.csv` | Training set augmented with weighted mean/variance descriptors. |
+| **NovelPredictions** | `data/processed/true_novel_predictions.csv` | Model predictions, ensemble variance, and hull distance for each novel candidate. |
+| **Report** | `data/results/report.csv` | Final table of top‑100 novel candidates plus aggregated metrics and statistical test results. |
 
-### 2. HoldoutKnown (`holdout_known.csv`)
-Compositions present in the source API but excluded from the training set.
-*   **Purpose**: Measure extrapolation error relative to the training manifold (Manifold Extrapolation).
-*   **Ground Truth**: Available (from API).
+## Schema Summaries (full JSON‑Schema definitions live in `contracts/`)
 
-### 3. TrueNovel (`true_novel.csv`)
-Compositions that return "Not Found" on query to the **Local Proxy Index** (derived from static datasets).
-*   **Purpose**: Measure uncertainty calibration in unexplored chemical spaces.
-*   **Ground Truth**: **Unavailable** (Analysis limited to uncertainty metrics).
-
-### 4. FeatureEngineering (`heas_train_features.csv`)
-The training set augmented with calculated descriptors.
-*   **Descriptors**: Weighted mean/variance of Atomic Radius, Electronegativity, VEC, Melting Point.
-
-## Schema Definitions
-
-### TrainingSet Schema
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `composition_id` | string | Unique hash of the composition string (e.g., "Al20Cr20...") |
-| `elements` | string | Comma-separated list of elements (e.g., "Al,Cr,Fe,Mn,Ni") |
-| `n_elements` | int | Count of distinct elements (must be ≥ 5) |
-| `formation_energy` | float | Formation energy per atom (eV/atom) |
-| `mixing_enthalpy` | float | Mixing enthalpy (eV/atom) |
-| `source` | string | "aflow" or "mp" |
-
-### FeatureEngineered Schema
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `composition_id` | string | Unique hash |
-| `elements` | string | Comma-separated list |
-| `mean_atomic_radius` | float | Weighted mean of atomic radii |
-| `var_atomic_radius` | float | Weighted variance (clamped to 1e-6) |
-| `mean_electronegativity` | float | Weighted mean electronegativity |
-| `var_electronegativity` | float | Weighted variance (clamped to 1e-6) |
-| `mean_VEC` | float | Weighted mean Valence Electron Count |
-| `var_VEC` | float | Weighted variance (clamped to 1e-6) |
-| `mean_melting_point` | float | Weighted mean melting point (K) |
-| `var_melting_point` | float | Weighted variance (clamped to 1e-6) |
-| `target_energy` | float | Ground truth formation energy |
-
-### NovelCandidate Schema
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `composition_id` | string | Unique hash |
-| `elements` | string | Comma-separated list |
-| `predicted_energy` | float | Model prediction |
-| `prediction_variance` | float | Ensemble variance (uncertainty metric) |
-| `distance_from_hull` | float | Distance from training convex hull |
-| `rank` | int | Rank by lowest uncertainty |
+* **TrainingSet** – `composition_id` (string), `elements` (string), `n_elements` (int ≥ 5), `formation_energy` (float), `mixing_enthalpy` (float), `source` (enum {aflow, mp}).  
+* **FeatureEngineered** – adds `mean_atomic_radius`, `var_atomic_radius`, `mean_electronegativity`, `var_electronegativity`, `mean_VEC`, `var_VEC`, `mean_melting_point`, `var_melting_point`, `target_energy`.  
+* **NovelCandidate** – `composition_id`, `elements`, `predicted_energy`, `prediction_variance`, `distance_from_hull`, `rank`.  
+* **Metrics** – generic schema for any scalar metric (`metric_name`, `value`, optional `p_value`, `test_type`, `dataset`).  
 
 ## Data Flow
-1.  **Ingestion**: Raw Parquet → `heas_train.csv` (filtered).
-2.  **Generation**: `heas_train.csv` + API Query → `holdout_known.csv`, `true_novel.csv`.
-3.  **Engineering**: `heas_train.csv` + `pymatgen` → `heas_train_features.csv`.
-4.  **Prediction**: `heas_train_features.csv` (train) → Model → `holdout_known`/`true_novel` (predict) → `results/report.csv`.
+1. **Ingestion** → `heas_train.csv`.  
+2. **Index Building** → Local Proxy Index (in‑memory).  
+3. **Hold‑out / Novel Generation** → `holdout_known.csv`, `true_novel.csv`.  
+4. **Descriptor Calc** → `heas_train_features.csv`.  
+5. **Model Training** → model pickle files (`models/`).  
+6. **Prediction** → `true_novel_predictions.csv`.  
+7. **Statistical Evaluation** → JSON metric files (`data/results/`).  
+8. **Report Assembly** → `report.csv`.
+
+---

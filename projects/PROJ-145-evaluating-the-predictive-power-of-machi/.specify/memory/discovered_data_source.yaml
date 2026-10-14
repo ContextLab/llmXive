@@ -1,16 +1,15 @@
 status: none
-intent: AFLOW thermodynamics dataset formation energy mixing enthalpy 5+ element systems
-  download python package dataset
+intent: download HEA thermodynamic dataset Materials Project AFLOW Hugging Face python
+  package dataset
 required_fields:
 - composition
-- element_fractions
+- elements
+- atomic_fractions
 - formation_energy_per_atom
 - mixing_enthalpy
-- num_elements
+- number_of_elements
 - entry_id
-- database_source
-- structure_id
-- energy_above_hull
-cache_key: 72a82deda448d24889117a6cde8abde488ae10fec70555ece44d10816ee6f69b
-searched_at: '2026-09-04T10:33:32.501148+00:00'
+- source_database
+cache_key: 1977ed5c2942d25b5a00c51e91ee2df534e17e239d9ad548153bd05235e43d00
+searched_at: '2026-10-14T20:14:59.333605+00:00'
 retry_count: 1

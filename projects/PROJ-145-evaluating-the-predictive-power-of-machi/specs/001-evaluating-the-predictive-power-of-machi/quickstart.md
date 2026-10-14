@@ -1,71 +1,48 @@
-# Quickstart: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions
+# Quickstart: Evaluating the Predictive Power of Machine Learning for Identifying Novel High‑Entropy Alloy Compositions
 
 ## Prerequisites
-*   Python 3.11+
-*   `git`
-*   Access to Hugging Face (for dataset download, no token required for public datasets)
+* Python 3.11+
+* Git
+* Internet access (to download the placeholder CSV bundled with the repo)
 
 ## Installation
 
-1.  **Clone and Setup**
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-145-evaluating-the-predictive-power-of-machi
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
+```bash
+git clone <repo-url>
+cd projects/PROJ-145-evaluating-the-predictive-power-of-machi
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-2.  **Verify Dependencies**
-    Ensure `pymatgen`, `scikit-learn`, and `pandas` are installed:
-    ```bash
-    python -c "import pymatgen; import sklearn; print('Dependencies OK')"
-    ```
-
-## Running the Pipeline
-
-The pipeline is executed via a single entry point script that orchestrates data ingestion, training, and evaluation.
+## Running the Full Pipeline
 
 ```bash
 python code/run_pipeline.py
 ```
 
-### Step-by-Step Breakdown (Manual Execution)
+The script executes the three major stages in order and writes all artifacts under `data/`.
 
-If you wish to run stages individually:
+## Manual Stage Execution (optional)
 
-1.  **Ingest Data** (FR-001, FR-002)
-    ```bash
-    python code/data_ingestion.py
-    # Outputs: data/processed/heas_train.csv, holdout_known.csv, true_novel.csv
-    ```
+| Stage | Command | Output |
+|---|---|---|
+| **0 – Data Ingestion & Candidate Generation** | `python code/data_ingestion.py` | `data/processed/heas_train.csv`, `holdout_known.csv`, `true_novel.csv` |
+| **1 – Feature Engineering** | `python code/feature_engineering.py` | `data/processed/heas_train_features.csv` |
+| **2 – Model Training** | `python code/model_training.py` | `models/rf_model.pkl`, `models/gb_model.pkl` |
+| **3 – Evaluation & Report** | `python code/evaluation.py` | `data/results/report.csv` |
 
-2.  **Feature Engineering** (FR-003)
-    ```bash
-    python code/feature_engineering.py
-    # Outputs: data/processed/heas_train_features.csv
-    ```
-
-3.  **Train Models** (FR-004)
-    ```bash
-    python code/model_training.py
-    # Outputs: models/rf_model.pkl, models/gb_model.pkl
-    ```
-
-4.  **Evaluate** (FR-005-FR-008)
-    ```bash
-    python code/evaluation.py
-    # Outputs: data/results/report.csv
-    ```
-
-## Expected Outputs
-*   `data/processed/heas_train.csv`: Filtered training data.
-*   `data/processed/holdout_known.csv`: Known compositions excluded from training.
-*   `data/processed/true_novel.csv`: Novel candidates.
-*   `data/processed/heas_train_features.csv`: Feature-engineered training data.
-*   `data/results/report.csv`: Final metrics and top novel candidates.
+## Expected Files
+* `data/processed/heas_train.csv`
+* `data/processed/holdout_known.csv`
+* `data/processed/true_novel.csv`
+* `data/processed/heas_train_features.csv`
+* `models/rf_model.pkl`, `models/gb_model.pkl`
+* `data/results/report.csv`
 
 ## Troubleshooting
-*   **API Rate Limits**: The script implements exponential backoff. If it fails after 3 retries, it logs "partial failure" and continues.
-*   **Memory Errors**: If `pandas` crashes due to memory, enable `streaming=True` in `data_ingestion.py` (requires code modification).
-*   **Descriptor Errors**: If `pymatgen` fails to find an element, check the elemental list in `config.py`.
+* **Missing HEA data** – The pipeline aborts with a clear error if the placeholder CSV is absent or its checksum does not match `config.EXPECTED_AFLOW_CHECKSUM`. Replace the file with a correctly formatted CSV and update the checksum in `code/config.py`.  
+* **Memory errors** – If `pandas` raises a MemoryError, set `STREAMING=True` in `code/data_ingestion.py` to enable chunked processing.  
+* **Insufficient novel samples** – If fewer than 10 novel candidates survive the distance filter, the Spearman test is skipped and the report notes “insufficient samples”.
+
+---
