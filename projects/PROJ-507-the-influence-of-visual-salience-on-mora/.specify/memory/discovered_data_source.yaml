@@ -1,19 +1,19 @@
 status: none
-intent: download Visual Genome open visual dataset with region annotations python
-  package dataset
+intent: visual genome dataset pip install python package download with moral ambiguity
+  annotations
 required_fields:
 - image_id
 - image_url
-- image_width
-- image_height
-- region_id
-- region_bbox
-- region_caption
-- object_ids
-- object_names
+- width
+- height
+- objects
+- object_bbox
 - attributes
 - relationships
-- moral_ambiguity_rating
-cache_key: 09a7cb532afc4c558be2ab3b9c5b10a89d3d33460cbc9f19daadbe42e0227055
-searched_at: '2026-10-14T07:38:40.074173+00:00'
+- region_descriptions
+- scene_graph
+- moral_ambiguity_score
+- human_ambiguity_label
+cache_key: 9eddd906ff95e7d7fbf2050791d34a68093baa51c562b5822ebc1f7558e98247
+searched_at: '2026-10-14T18:16:59.638968+00:00'
 retry_count: 1
