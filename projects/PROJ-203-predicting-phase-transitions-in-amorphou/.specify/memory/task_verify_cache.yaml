@@ -13,18 +13,3 @@ T031:
     directory are provided, so there is no evidence that any code cleanup or refactoring
     was actually performed. The required artifact (the cleaned/refactored code) is
     missing.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim contains no concrete artifacts\u2014no generated CSV/Parquet dataset,\
-    \ no training script, model file, or performance report showing the required RMSE\
-    \ \u226415\u202FK and ROC\u2011AUC >\u202F0.7. Without these tangible outputs,\
-    \ the task\u2019s core requirements are not demonstrated."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tests/unit/` files containing additional unit tests for the data validators
-    or labeling logic are present in the provided evidence; the claim lacks any concrete
-    test artifacts, code, or test output to verify that the required tests were added.
-    The implementer must supply the new test files (e.g., `tests/unit/test_validators.py`,
-    `tests/unit/test_labeling.py`) with actual test cases and ensure they run successfully.

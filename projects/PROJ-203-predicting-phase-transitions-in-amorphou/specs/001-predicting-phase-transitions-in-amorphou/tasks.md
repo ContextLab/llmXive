@@ -11,7 +11,7 @@ The checklist below follows the canonical format `- [ ] T### [P?] [USx?] descrip
 | Goal: Ensure the plan reflects the compute‑budget limitation (pilot N=24) while keeping the original specification untouched. |
 |------|
 
-- [ ] **T001** [US1] Verify that `plan.md` contains a “Critical Scope Resolution” section documenting the reduction to 24 compositions.  
+- [ ] **T001** [US1] Verify that `plan.md` contains a “Critical Scope Resolution” section documenting the reduction to 24 compositions.   <!-- FAILED-IN-EXECUTION: code/verify_plan_scope.py exit=1 -->
   - **Path**: `plan.md`  
   - **Requirement**: The plan must explicitly state the pilot‑study exception.  
   - **Verification**: Grep “Critical Scope Resolution” and confirm the text mentions *N = 24*.
