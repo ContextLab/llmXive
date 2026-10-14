@@ -1,14 +1,27 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
-    exit=1'
+  reason: "The script ingests the **Lipophilicity** dataset via `skfp.datasets.moleculenet.load_lipophilicity`\
+    \ (4200 records) rather than the required **ESOL** dataset from the specified\
+    \ deepchem S3 URL \u2014 the `--url` argument is parsed but never used, so `data/raw/esol.csv`\
+    \ actually contains Lipophilicity data mislabeled as ESOL. Additionally, the required\
+    \ \"chunked sparse-matrix fallback\" for processing is entirely absent from the\
+    \ code, and the exclusion log contains duplicated entries (the same 5 SMILES written\
+    \ twice) from repeated appends, indicating the log/checksum append logic isn't\
+    \ idempotent. The"
   task: b229e561fa0112f053eb188efae9dc8ab20dafe932c0b8790a489c485a5ccd91
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/02_tda_computation.py
-    exit=1'
   task: 04058a84286fbe24491ef2930867809e75c10afc111e5df506a32ea0689a362b
 T003:
+  reason: 'The test file exists and is substantive, but the recorded execution log
+    shows `pytest code/tests/test_feature_matrix.py` FAILED (exit 1): `test_feature_matrix_schema`
+    crashes with `ValueError: You are trying to merge on int64 and object columns
+    for key ''molecule_id''` when merging the features CSV with `filtered_esol.csv`.
+    The task''s verification criterion (pytest passes) is not met; fix the merge by
+    casting both `molecule_id` columns to a consistent type (e.g., `astype(str)`)
+    before merging.'
   task: 501ebfbcc6631c9eff6a8e14f853419773959a81585383e2b7a143d62d860d70
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/03_feature_engineering.py
+    exit=1'
   task: 2566a533abbd495dade7016cf9fd2406b99c8c7e6ea1d3bd27f959502575c9d2
 T005:
   task: a5998bc1afe82b2bcd95997bbd118f5d5e38479a0807510280ba64e31ea69fab
@@ -29,13 +42,6 @@ T012:
 T013:
   task: 1ef72eac4390b13c6cb01a63e9065e0356623e5a60ab7e7304975869598aa834
 T014:
-  reason: "The test file, raw CSV, and schema all exist and their contents are mutually\
-    \ consistent (CSV has exactly `smiles,logP` columns matching the schema's required\
-    \ fields, and the test logic correctly validates columns, nulls, types, and n\u2265\
-    128). However, the task's verification criterion is that `pytest code/tests/test_dataset_schema.py`\
-    \ passes, and no execution evidence (pytest output, exit code, or run log) was\
-    \ supplied \u2014 the passing test is only claimed, not demonstrated. Provide\
-    \ a recorded pytest run showing all tests in the file pass to complete this task."
   task: da4b2e9d3074aadfa40af76e3568ecff5c38149a740a185fb247fa1026135a16
 T015:
   task: f277646243fa1ecd38407e73c815f898130d740e0d417daef75e33c7cbe42680

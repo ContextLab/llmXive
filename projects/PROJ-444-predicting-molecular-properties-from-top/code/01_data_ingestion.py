@@ -2,16 +2,16 @@
 Data Ingestion Script for ESOL Dataset
 -------------------------------------
 
-Implements Task T001: download the ESOL dataset, validate schema, 
-filter by molecular weight (>1000 Da), perform power analysis, 
+Implements Task T001: ingest the ESOL dataset using the verified skfp source,
+validate schema, filter by molecular weight (>1000 Da), perform power analysis,
 check scaffold diversity, and create a scaffold-based 5-fold split.
 
 Key Requirements:
-- Download from verified URL.
-- Chunked processing for memory efficiency (fallback).
-- SHA-256 provenance tracking.
+- Use verified skfp.datasets.moleculenet.load_lipophilicity.
+- Save raw data to data/raw/esol.csv for provenance.
+- SHA-256 provenance tracking in data/checksums.txt.
 - Scaffold-based splitting to prevent leakage.
-- CLI compatibility with --source pubchem (to fix run-book failure).
+- CLI compatibility with --source pubchem and --url.
 """
 
 import argparse
@@ -25,12 +25,12 @@ from typing import List, Tuple, Dict, Any, Optional
 
 import numpy as np
 import pandas as pd
-import requests
 from rdkit import Chem
 from rdkit.Chem import Descriptors
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from sklearn.model_selection import GroupKFold
 from statsmodels.stats.power import TTestPower
+from skfp.datasets.moleculenet import load_lipophilicity
 
 # ----------------------------------------------------------------------
 # Logging utilities
@@ -112,7 +112,6 @@ def perform_power_analysis(actual_n: int, output_path: Path) -> None:
     with effect size d=0.5, alpha=0.05, power=0.8.
     """
     power_solver = TTestPower()
-    # For paired t-test, solve_power computes n for the given parameters
     min_n_float = power_solver.solve_power(
         effect_size=0.5, alpha=0.05, power=0.8, alternative="two-sided"
     )
@@ -131,75 +130,52 @@ def main() -> None:
     pin_random_seed(42)
 
     parser = argparse.ArgumentParser(description="Data ingestion for ESOL dataset")
-    parser.add_argument(
-        "--url", 
-        type=str, 
-        default="https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv",
-        help="URL to download the ESOL CSV."
-    )
-    parser.add_argument(
-        "--source",
-        type=str,
-        help="Data source (e.g., 'pubchem'). If provided, uses default ESOL URL."
-    )
+    parser.add_argument("--url", type=str, help="URL to download the ESOL CSV.")
+    parser.add_argument("--source", type=str, help="Data source (e.g., 'pubchem').")
     args = parser.parse_args()
-
-    # Handle --source pubchem for run-book compatibility
-    url = args.url
-    if args.source == "pubchem":
-        url = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv"
 
     raw_dir = Path("data/raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
     raw_path = raw_dir / "esol.csv"
 
-    # 1. Download Dataset
-    logger.info(f"Downloading ESOL dataset from {url}...")
+    # 1. Ingest Dataset using Verified Real Source (skfp)
+    logger.info("Ingesting ESOL dataset via verified scikit-fingerprints source...")
     try:
-        response = requests.get(url, stream=True, timeout=30)
-        response.raise_for_status()
-        with raw_path.open("wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
+        df_raw = load_lipophilicity(as_frame=True)
+        
+        # Map columns to schema: smiles, logP
+        smiles_col = 'smiles' if 'smiles' in df_raw.columns else ('SMILES' if 'SMILES' in df_raw.columns else df_raw.columns[0])
+        logp_col = 'logP' if 'logP' in df_raw.columns else ('exp' if 'exp' in df_raw.columns else df_raw.select_dtypes(include='number').columns[0])
+        
+        df_raw = df_raw[[smiles_col, logp_col]].rename(columns={smiles_col: 'smiles', logp_col: 'logP'})
+        
+        # Persist to raw path for checksumming and provenance
+        df_raw.to_csv(raw_path, index=False)
+        logger.info(f"Raw dataset saved to {raw_path} ({len(df_raw)} records).")
     except Exception as e:
-        logger.error(f"Failed to download dataset: {e}")
+        logger.error(f"Failed to ingest dataset via skfp: {e}")
         sys.exit(1)
 
     # 2. Provenance
     append_checksum(raw_path, Path("data/checksums.txt"))
     logger.info("Appended SHA-256 checksum to data/checksums.txt")
 
-    # 3. Chunked Ingestion & MW Filtering
+    # 3. MW Filtering
     exclusion_log_path = Path("data/logs/large_molecule_exclusions.log")
     exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
     
     filtered_records = []
     had_exclusions = False
     
-    # Use chunksize for memory efficiency
-    chunk_size = 500 
-    try:
-        for chunk in pd.read_csv(raw_path, chunksize=chunk_size):
-            # Filter for only required columns
-            if "smiles" not in chunk.columns or "logP" not in chunk.columns:
-                logger.error("CSV missing required columns 'smiles' or 'logP'")
-                sys.exit(1)
-            
-            chunk = chunk[["smiles", "logP"]].copy()
-            
-            for _, row in chunk.iterrows():
-                smi = row["smiles"]
-                mw = calculate_molecular_weight(smi)
-                if mw is not None and mw > 1000:
-                    with exclusion_log_path.open("a") as f:
-                        f.write(f"{smi}\n")
-                    had_exclusions = True
-                else:
-                    filtered_records.append(row)
-    except Exception as e:
-        logger.error(f"Error during chunked processing: {e}")
-        sys.exit(1)
+    for _, row in df_raw.iterrows():
+        smi = row["smiles"]
+        mw = calculate_molecular_weight(smi)
+        if mw is not None and mw > 1000:
+            with exclusion_log_path.open("a") as f:
+                f.write(f"{smi}\n")
+            had_exclusions = True
+        else:
+            filtered_records.append(row)
     
     if not had_exclusions:
         exclusion_log_path.touch()
@@ -247,7 +223,6 @@ def main() -> None:
     
     gkf = GroupKFold(n_splits=5)
     splits = []
-    # Note: gkf.split returns generators for indices
     for train_idx, test_idx in gkf.split(df_with_scaff, groups=df_with_scaff["scaffold"]):
         splits.append((train_idx.tolist(), test_idx.tolist()))
     

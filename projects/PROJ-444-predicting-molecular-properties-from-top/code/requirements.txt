@@ -1,11 +1,2 @@
-# Project dependencies
-# Core scientific libraries are provided by the platform:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-#
-# Additional third‑party packages required for this project:
 scikit-fingerprints
 rdkit
-networkx
-gudhi
-# The above packages are installed via pip in the CI environment.
