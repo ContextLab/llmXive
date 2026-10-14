@@ -1,7 +1,7 @@
 """Verify R renv environment restoration.
 
 This script runs the R command `renv::restore()` to install the R
-packages listed in `code/R/renv.lock`. It captures stdout and stderr,
+packages listed in the project's `renv.lock`. It captures stdout and stderr,
 logs them via the project's logger, and writes the combined output
 to a log file under the `logs/` directory.
 
@@ -25,7 +25,11 @@ log_path.parent.mkdir(parents=True, exist_ok=True)
 
 def main() -> None:
     """Execute `R -e "renv::restore()"` and record the outcome."""
-    cmd = ["R", "-e", "renv::restore()"]
+    # We use a slightly more robust command that ensures renv is installed 
+    # before attempting restoration, while still performing the required restore() call.
+    r_cmd = "if (!require('renv', quietly = TRUE)) install.packages('renv', repos='https://cloud.r-project.org'); renv::restore()"
+    cmd = ["R", "-e", r_cmd]
+    
     try:
         result = subprocess.run(
             cmd,
@@ -45,7 +49,7 @@ def main() -> None:
 
     except subprocess.CalledProcessError as e:
         # Log failure details
-        log.error("R renv restore failed with non‑zero exit code.")
+        log.error("R renv restore failed with non-zero exit code.")
         log.error(e.stdout or "")
         log.error(e.stderr or "")
         # Write failure output to the log file

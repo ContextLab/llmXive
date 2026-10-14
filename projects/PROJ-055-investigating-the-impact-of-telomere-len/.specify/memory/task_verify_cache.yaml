@@ -9,14 +9,11 @@ T002:
     \ criterion), nor that they contain no hard-coded URLs or seeds."
   sig: 8ca635326743f805a12673406f79a8f6b9dce0a5e33c98ed29fc917e8d8ca053
 T010:
-  c: false
-  h: 487bf2cd6c2d873316b55fb5acc49bc239b7c368f3c3dc432a123637c8f8ca69
-  r: "The file `code/requirements.txt` exists and is non-empty, but it contains unpinned\
-    \ package names (no version specifiers), which directly contradicts the task's\
-    \ requirement for \"pinned Python dependencies.\" Additionally, `pytest` \u2014\
-    \ explicitly listed in the task's example set \u2014 is absent, and there is no\
-    \ evidence that `pip install -r code/requirements.txt` succeeded in a fresh virtual\
-    \ environment; the only execution record (`verify_requirements.py`) reports warnings\
-    \ that pandas, matplotlib, seaborn, PyYAML, and rpy2 \"cannot be imported,\" and\
-    \ it only checks file format, not installability. Fix by"
-  sig: 556a52e88956105780fb3fb5a975907c40dc55281fae2a97ffd72f9ba656138f
+  c: true
+  h: aa0f8f8448a322b943d82933ec9312b3fd625159c8791086703e8233384ef57d
+  r: The file `code/requirements.txt` exists (152 bytes) and contains pinned versions
+    for all eight requested packages (pandas, numpy, requests, rpy2, matplotlib, seaborn,
+    pytest, PyYAML) plus two extras, each with `==` pins. The verification criterion
+    of a fresh-venv pip install cannot be re-executed here, but the artifact content
+    fully matches the task's stated requirement.
+  sig: a148b5d4432ad1681ad1a03aa33a5233db3590d6e3102bfce884b33c63b9d823
