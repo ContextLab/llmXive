@@ -74,6 +74,6 @@ Execution order: T001, T002 (parallel) → T003 → T004 (smoke result) → T005
 
 ## Revision behavior
 
-- **task-format rejection (duplicate `T005c5`)**: the prior fragmented task list was replaced by this consolidated set with unique, sequential IDs; no requirement was dropped.
+- **task-format rejection (duplicate `T005c5`)**: the prior fragmented task list was replaced by this consolidated set with unique, sequential IDs T001–T012; no requirement was dropped.
 - **T015a verifier rejection (no real artifacts)**: reopened as T001–T004, which require the actual scripts, real downloaded data, and checkable output files; each task's verification names a concrete file and schema/content check.
 - Platform-owned concerns removed: CI workflow creation, pre-commit/linting, state-file synchronization, README/API-doc scaffolding. Research scripts write only to `data/`, `figures/`, `code/`, and the feature's `specs/` directory.
