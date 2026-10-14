@@ -7,8 +7,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_data_ingestion.py -> rc=1
-2026-10-14 07:33:41 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
-2026-10-14 07:33:41 - llmXive_pipeline - ERROR - Pipeline failed: enforce_resource_limits() missing 1 required positional argument: 'func'
+2026-10-14 08:14:35 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
+2026-10-14 08:14:35 - llmXive_pipeline - ERROR - Pipeline failed: enforce_resource_limits() missing 1 required positional argument: 'func'
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/01_data_ingestion.py", line 165, in <module>
@@ -18,7 +18,7 @@ Traceback (most recent call last):
 TypeError: enforce_resource_limits() missing 1 required positional argument: 'func'
 
 - python code/02_preprocessing.py -> rc=1
-2026-10-14 07:33:42 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
+2026-10-14 08:14:36 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/02_preprocessing.py", line 272, in <module>
@@ -29,8 +29,8 @@ Traceback (most recent call last):
 NameError: name 'setup_logging' is not defined
 
 - python code/03_correlation_analysis.py -> rc=1
-2026-10-14 07:33:43 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
-2026-10-14 07:33:43 - llmXive_pipeline.__main__ - ERROR - Pipeline failed: enforce_resource_limits() missing 1 required positional argument: 'func'
+2026-10-14 08:14:36 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
+2026-10-14 08:14:36 - llmXive_pipeline.__main__ - ERROR - Pipeline failed: enforce_resource_limits() missing 1 required positional argument: 'func'
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/03_correlation_analysis.py", line 157, in main
     run_analysis_pipeline()
@@ -40,8 +40,8 @@ TypeError: enforce_resource_limits() missing 1 required positional argument: 'fu
 
 
 - python code/04_predictive_modeling.py -> rc=1
-2026-10-14 07:33:44 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
-2026-10-14 07:33:44 - llmXive_pipeline.__main__ - INFO - Starting Predictive Modeling Pipeline
+2026-10-14 08:14:38 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
+2026-10-14 08:14:38 - llmXive_pipeline.__main__ - INFO - Starting Predictive Modeling Pipeline
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/04_predictive_modeling.py", line 252, in <module>
@@ -56,8 +56,8 @@ Traceback (most recent call last):
 FileNotFoundError: Required data file not found: data/processed/corpus_clr.parquet
 
 - python code/05_sensitivity_analysis.py -> rc=1
-2026-10-14 07:33:45 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
-2026-10-14 07:33:45 - llmXive_pipeline.__main__ - INFO - Starting Sensitivity Analysis
+2026-10-14 08:14:39 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
+2026-10-14 08:14:39 - llmXive_pipeline.__main__ - INFO - Starting Sensitivity Analysis
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/05_sensitivity_analysis.py", line 202, in <module>

@@ -8,6 +8,6 @@
   "provenance": {
     "agp_accessible": false,
     "agp_dataset_id": null,
-    "hrs_portal_accessible": false
+    "hrs_portal_accessible": true
   }
 }
