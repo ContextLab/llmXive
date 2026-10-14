@@ -19,31 +19,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.download  --dataset-name publaynet  --output-dir data/raw -> rc=1
-Downloading dataset 'layoutparser/publaynet' via the 🤗 datasets library...
-⚠️ Warning: Failed to download 'layoutparser/publaynet': Dataset 'layoutparser/publaynet' doesn't exist on the Hub or cannot be accessed.
-Primary dataset provided 0 pages, which is less than the required 10000. Attempting fallback download...
-Downloading dataset 'layoutparser/docbank' via the 🤗 datasets library...
-⚠️ Warning: Failed to download 'layoutparser/docbank': Dataset 'layoutparser/docbank' doesn't exist on the Hub or cannot be accessed.
+Downloading primary dataset 'allenai/pubmed-layout'...
+Primary download failed: Dataset 'allenai/pubmed-layout' doesn't exist on the Hub or cannot be accessed.
+Primary valid pages: 0
+Primary pages 0 < 10000. Attempting fallback 'allenai/pubmed-layout-fallback'...
+Fallback download failed: Dataset 'allenai/pubmed-layout-fallback' doesn't exist on the Hub or cannot be accessed.
+Total valid pages: 0
 
-=== Summary of layout‑annotation pages ===
-  Primary (PubLayNet): 0
-  Fallback (DocBank) added: 0
-  TOTAL: 0
-
-
-❌ ERROR: Insufficient total pages with layout annotations: 0 (minimum required is 10000). Pipeline aborting as per FR‑007.
+❌ ERROR: Insufficient annotated pages (FR-007). Found 0, need 10000.
 
 - python -m src.data.preprocess  --input-dir data/raw/publaynet  --output-parquet data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml -> rc=1
 
-2026-10-14 19:10:26,926 ERROR __main__: Preprocessing failed: Input directory does not exist: data/raw/publaynet
+2026-10-14 22:11:39,443 ERROR __main__: Preprocessing failed: Input directory does not exist: data/raw/publaynet
 
 - python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name layoutlmv3-base  --device cpu -> rc=1
 
-2026-10-14 19:10:28,641 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': [Errno 2] No such file or directory: 'data/processed/document_pairs.parquet'
+2026-10-14 22:11:43,366 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': [Errno 2] No such file or directory: 'data/processed/document_pairs.parquet'
 
 - python -m src.data.download  --dataset-name docvqa  --output-dir data/raw/docvqa -> rc=1
-Downloading generic dataset 'docvqa' via 🤗 datasets...
+Downloading generic dataset 'docvqa'...
 
-
-❌ ERROR: Failed to download generic dataset 'docvqa': Dataset 'docvqa' doesn't exist on the Hub or cannot be accessed.
+❌ ERROR: Dataset 'docvqa' doesn't exist on the Hub or cannot be accessed.
 
