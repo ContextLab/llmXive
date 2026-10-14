@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainingRun Result Schema"
+type: object
+required:
+  - config
+  - loss_trajectory
+  - final_accuracy
+  - runtime_seconds
+  - timeout
+properties:
+  config:
+    type: object
+    required:
+      - run_id
+      - rho_teacher
+      - adaptive
+      - max_epochs
+      - batch_size
+      - seed
+      - timeout_seconds
+      - dataset_name
+    properties:
+      run_id:
+        type: string
+        description: "Unique identifier for the run."
+      rho_teacher:
+        type: [number, "null"]
+        description: "Fixed retaining ratio (null for adaptive)."
+      adaptive:
+        type: boolean
+        description: "True if adaptive scheduler is used."
+      max_epochs:
+        type: integer
+        description: "Maximum number of training epochs."
+      batch_size:
+        type: integer
+        description: "Batch size per training step."
+      seed:
+        type: integer
+        description: "Random seed for reproducibility."
+      timeout_seconds:
+        type: integer
+        description: "Hard wall‑clock limit in seconds."
+      dataset_name:
+        type: string
+        description: "Name of the dataset (e.g., \"gsm8k\")."
+  loss_trajectory:
+    type: array
+    items:
+      type: number
+    description: "Training loss per step."
+  final_accuracy:
+    type: number
+    description: "Logical accuracy on the held‑out test set."
+  runtime_seconds:
+    type: number
+    description: "Total wall‑clock time of the run."
+  density_time_series:
+    type: array
+    items:
+      type: number
+    description: "ρ values per step (present only for adaptive runs)."
+  timeout:
+    type: boolean
+    description: "True if the run stopped due to the 6‑hour limit."
+  metadata:
+    type: object
+    additionalProperties: true
+    description: "Arbitrary key‑value metadata (e.g., checkpoint paths)."

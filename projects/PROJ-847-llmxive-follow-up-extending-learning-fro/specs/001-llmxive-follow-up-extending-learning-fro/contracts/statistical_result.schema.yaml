@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResult Schema"
+type: object
+required:
+  - t_test_result
+  - quadratic_coefficients
+  - peak_density
+  - sensitivity_slopes
+  - analysis_timestamp
+properties:
+  t_test_result:
+    type: object
+    required:
+      - t_statistic
+      - p_value
+      - df
+    properties:
+      t_statistic:
+        type: number
+        description: "t‑statistic from independent‑samples test."
+      p_value:
+        type: number
+        description: "Two‑tailed p‑value."
+      df:
+        type: integer
+        description: "Degrees of freedom."
+  quadratic_coefficients:
+    type: array
+    items:
+      type: number
+    minItems: 3
+    maxItems: 3
+    description: "Coefficients [a, b, c] for a·ρ² + b·ρ + c."
+  peak_density:
+    type: number
+    description: "ρ that maximizes the quadratic fit."
+  sensitivity_slopes:
+    type: object
+    required:
+      - plus_0.05
+      - minus_0.05
+      - plus_0.1
+      - minus_0.1
+    properties:
+      plus_0.05:
+        type: number
+        description: "Accuracy change per 0.01 density when ρ is increased by 0.05."
+      minus_0.05:
+        type: number
+        description: "Accuracy change per 0.01 density when ρ is decreased by 0.05."
+      plus_0.1:
+        type: number
+        description: "Accuracy change per 0.01 density when ρ is increased by 0.1."
+      minus_0.1:
+        type: number
+        description: "Accuracy change per 0.01 density when ρ is decreased by 0.1."
+  analysis_timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp of the statistical analysis."
+
