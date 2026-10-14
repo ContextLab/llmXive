@@ -10,16 +10,16 @@ The tasks are organised into research phases that respect data flow and the 6‑
 
 **Goal**: Verify that a minimal pipeline runs on a small, real subset of interaction clips and produces the required descriptor CSV.
 
-- [ ] T001 [P] [US1] **Document project layout & quickstart** – create `quickstart.md` describing a single command that runs the minimal pipeline on 50 clips.  
+- [X] T001 [P] [US1] **Document project layout & quickstart** – create `quickstart.md` describing a single command that runs the minimal pipeline on 50 clips.  
   - *Verification*: CI runs `bash -c "source quickstart.sh && ./run_minimal.sh"` and checks that the command finishes without error and that the file `data/descriptors_subset.csv` exists.
 
-- [ ] T002 [P] [US1] **Generate a small dataset of interaction clips** – implement `src/pipeline/generate_clips.py` to create 50 reproducible clips (`data/raw/clip_*.npz`).  
+- [X] T002 [P] [US1] **Generate a small dataset of interaction clips** – implement `src/pipeline/generate_clips.py` to create 50 reproducible clips (`data/raw/clip_*.npz`).  
   - *Verification*: After execution, `ls data/raw/ | wc -l` equals 50 and each `.npz` contains the required arrays (`states`, `actions`, `observations`).
 
 - [ ] T003 [P] [US1] **Extract latent statistical descriptors** – implement `src/pipeline/extract_descriptors.py` that loads each clip, runs the CPU‑only ICWM encoder (`utils/icwm_encoder.py`), computes variance, lag‑1 autocorrelation, and Welch spectral density, and writes `data/descriptors_subset.csv`.   <!-- FAILED-IN-EXECUTION: src/pipeline/extract_descriptors.py exit=1 -->
   - *Verification*: The CSV validates against `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml` and contains no null/NaN entries.
 
-- [X] T004 [P] [US1] **Run the minimal end‑to‑end pipeline** – add a driver `src/pipeline/run_end_to_end.py` that calls the two scripts above and prints a summary table.  
+- [ ] T004 [P] [US1] **Run the minimal end‑to‑end pipeline** – add a driver `src/pipeline/run_end_to_end.py` that calls the two scripts above and prints a summary table.  
   - *Verification*: CI runs `python -m src.pipeline.run_end_to_end --subset 50` and checks that the printed table lists 50 rows with all three descriptor columns present.
 
 ---

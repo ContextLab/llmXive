@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-# Prepare the environment for the minimal Auto-ICWM pipeline.
-# Activates the project virtual-env if one exists; otherwise relies on
-# the ambient Python environment.
+# Environment preparation for the Auto-ICWM quickstart.
+# Sourced by CI via: bash -c "source quickstart.sh && ./run_minimal.sh"
+# Activates the project virtual-env if one exists; otherwise the current
+# Python environment (which already provides all dependencies) is used.
 set -e
+cd "$(dirname "${BASH_SOURCE[0]}")"
 if [ -f .venv/bin/activate ]; then
+    # shellcheck disable=SC1091
     source .venv/bin/activate
 fi
-echo "quickstart: environment ready"
+export PYTHONPATH="${PWD}:${PYTHONPATH:-}"
+export PYTHONHASHSEED=0

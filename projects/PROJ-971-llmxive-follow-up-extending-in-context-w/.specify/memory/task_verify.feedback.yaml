@@ -1,27 +1,18 @@
 T001:
-  reason: "The quickstart.md exists and documents the CI command, but the pipeline\
-    \ it documents is explicitly a placeholder: the doc itself states \"The current\
-    \ minimal implementation creates placeholder clip files and a CSV with the required\
-    \ column headers,\" and the run log confirms it writes \"placeholder descriptor\
-    \ CSV\" with dummy/random values rather than computed statistics. Moreover, `data/descriptors_subset.csv`\
-    \ contains only 10 rows (clip_000\u2013clip_009), contradicting the required 50\
-    \ clips despite the log claiming \"Clips created: 50\" \u2014 a fabricated/placeholder\
-    \ stand-in, not the real minimal pipeline"
   task: d148ab2d982a1505e6acb62f175024dc71f9da858c9408cb5c47828ea3d9b2c4
 T002:
-  reason: "The verification criterion is `ls data/raw/ | wc -l` equals 50, but the\
-    \ collector confirms only 10 clip files (`clip_000.npz`\u2013`clip_009.npz`) exist\
-    \ in `data/raw/`. The historical run log shows a 50-clip generation, but the current\
-    \ on-disk state has only 10 clips (and the current script's log messages don't\
-    \ match that log, suggesting later edits were not re-run); the script must be\
-    \ re-executed (or fixed to produce 50 clips) so that all 50 `.npz` files with\
-    \ `states`, `actions`, `observations` arrays are present."
   task: 5334f6a5794b8bbfba147d9dee48c40572e61ea2f9fa4d7c63337538feffa170
 T003:
   reason: 'Requested task execution failed; rerun successfully: src/pipeline/extract_descriptors.py
     exit=1'
   task: 040ae0ada0bb2329e618f70b18597c876365c579e586c7e648e9b230332c2c65
 T004:
+  reason: "The `src/pipeline/run_end_to_end.py` driver exists and calls the two pipeline\
+    \ stages, but its `_print_summary` function only prints the first\u202F10 rows\
+    \ of the descriptor CSV (`df.head(10)`). The task\u2019s verification expects\
+    \ the printed table to list **all 50 rows** with the three descriptor columns,\
+    \ which this script does not provide. The driver must be adjusted to output the\
+    \ full 50\u2011row table (or otherwise satisfy the CI check)."
   task: 8067163747dd33926c20d23faf9a1009b604c4e518d3c9f6c2d226f7fa288634
 T005:
   reason: "The script and `data/labels.csv` exist and ran, but the \"ICWM policy\"\

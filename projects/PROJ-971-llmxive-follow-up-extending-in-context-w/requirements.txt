@@ -1,2 +1,3 @@
-# Existing dependencies are provided by the platform.
-# No additional third‑party packages are required for T003.
+# No extra dependencies beyond the base environment.
+# The project already provides: numpy, pandas, scipy, jsonschema, pyyaml, etc.
+# This file is kept for completeness.

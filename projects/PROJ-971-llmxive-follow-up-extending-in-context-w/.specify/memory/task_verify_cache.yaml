@@ -1,38 +1,30 @@
 T001:
-  c: false
-  h: a3e3835a05dc830450823b276f36ce50b780ca84ec7e2ed8d4a52c77b11109e6
-  r: "The quickstart.md exists and documents the CI command, but the pipeline it documents\
-    \ is explicitly a placeholder: the doc itself states \"The current minimal implementation\
-    \ creates placeholder clip files and a CSV with the required column headers,\"\
-    \ and the run log confirms it writes \"placeholder descriptor CSV\" with dummy/random\
-    \ values rather than computed statistics. Moreover, `data/descriptors_subset.csv`\
-    \ contains only 10 rows (clip_000\u2013clip_009), contradicting the required 50\
-    \ clips despite the log claiming \"Clips created: 50\" \u2014 a fabricated/placeholder\
-    \ stand-in, not the real minimal pipeline"
-  sig: cba798d7bf7edd520efca3e94a8f50115659b2477e0b2a0ceb120692660ad0ea
-T002:
-  c: false
-  h: f4d573ee57aa1eeb92228911c4d37dc1e48f6c7a4cf43900f3e4da5aec45b30c
-  r: "The verification criterion is `ls data/raw/ | wc -l` equals 50, but the collector\
-    \ confirms only 10 clip files (`clip_000.npz`\u2013`clip_009.npz`) exist in `data/raw/`.\
-    \ The historical run log shows a 50-clip generation, but the current on-disk state\
-    \ has only 10 clips (and the current script's log messages don't match that log,\
-    \ suggesting later edits were not re-run); the script must be re-executed (or\
-    \ fixed to produce 50 clips) so that all 50 `.npz` files with `states`, `actions`,\
-    \ `observations` arrays are present."
-  sig: a66e39a9654b4d887767c21bbe576475540fd497e41c02f260d51c8e90b7c557
-T004:
   c: true
-  h: bb8b906c8b44b491ae99ef26bee02ee2e032035a800727341f565a165a14a471
-  r: 'The driver `src/pipeline/run_end_to_end.py` exists, calls `generate_clips` and
-    `extract_all_descriptors`, supports `--subset`, and prints a summary table with
-    all four required columns plus a total row count. The unit test log shows `tests/unit/test_run_end_to_end.py`
-    passing (2 passed, exit 0) with the pipeline executed end-to-end for subsets of
-    5 and 10 clips, confirming the orchestration works. One minor caveat: the summary
-    prints only the first 10 rows plus "Total rows: N" rather than all 50 rows, which
-    could matter if CI literally greps for 50 table rows, but the required behavior
-    (callin'
-  sig: 7eff8daa83bb6ef11526c669cee9b36083cb420f13afea8b15701ae2af5a8b0c
+  h: add4f3ff107af9bbadfe6580a3ba147eee37138dd955aab35b909bdf3f166805
+  r: "Checked the `quickstart.md` (which documents the required single command) and\
+    \ the generated `data/descriptors_subset.csv` (contains the correct columns and\
+    \ 50 rows). The CI log shows `bash -c \"source quickstart.sh && ./run_minimal.sh\"\
+    ` exited with code\u202F0 and the CSV file was created, confirming the command\
+    \ runs successfully."
+  sig: ddf1b17b07e34837f15f90d87ada8cbcd1cfd71842c11bbaefe8cd1863c96cb4
+T002:
+  c: true
+  h: 482825ed136156e30160f809192a685ed93901b143ee778d09757ced8e210c30
+  r: Checked `src/pipeline/generate_clips.py` (exists and implements deterministic
+    clip generation), the `data/raw/` directory containing exactly 50 `clip_*.npz`
+    files, and the passing unit test `tests/unit/test_generate_clips.py` which verifies
+    each `.npz` includes the required `states`, `actions`, and `observations` arrays.
+  sig: db785658b08030b19396f7b5afc2422332fd60374ff4d02e19cc88052eaa42c7
+T004:
+  c: false
+  h: 49165178213bee0c2831712eb734b300a0ae008042dd3e5fdf9f7e4f65543877
+  r: "The `src/pipeline/run_end_to_end.py` driver exists and calls the two pipeline\
+    \ stages, but its `_print_summary` function only prints the first\u202F10 rows\
+    \ of the descriptor CSV (`df.head(10)`). The task\u2019s verification expects\
+    \ the printed table to list **all 50 rows** with the three descriptor columns,\
+    \ which this script does not provide. The driver must be adjusted to output the\
+    \ full 50\u2011row table (or otherwise satisfy the CI check)."
+  sig: bd5b4eb3f62b583d103c26c5cbaa05e645a3a883971bc75371d1636a1437a81b
 T005:
   c: false
   h: c9b7d90ee6a5a9849d1ca1be7df1d2b48cdc60b898998f848413009eeb6f6fa6
