@@ -1,4 +1,4 @@
-# Core dependencies (already available in the environment)
+# Core scientific Python stack (already available in the environment)
 numpy
 pandas
 scipy
@@ -11,7 +11,19 @@ PyYAML
 requests
 jsonschema
 psutil
+tqdm
 
-# Additional dependencies required for this feature
-huggingface_hub
-pyarrow
+# Additional dependencies required for this project
+# Pin pyarrow to a version compatible with the pre‑installed NumPy (1.26.x)
+pyarrow==12.0.0
+
+# Transformers and Torch for the frozen LayoutLMv3 encoder (CPU‑only)
+torch==2.3.0
+transformers==4.44.0
+
+# OCR and image handling
+pytesseract
+Pillow==10.3.0
+
+# HuggingFace Hub for dataset download
+huggingface_hub==0.23.0

@@ -1,16 +1,13 @@
 """
 src/data/download.py
 
-Updated download script to match the quickstart CLI and handle both layout-rich
-datasets (publaynet) and generic datasets (docvqa). The script now accepts
-`--dataset-name` and `--output-dir` arguments, maps logical dataset names to
-the appropriate HuggingFace identifiers, performs primary/fallback downloads
-when needed, verifies a minimum number of pages with layout annotations, and
-records SHA‑256 checksums for all downloaded files.
-
-The implementation reuses the helper functions defined earlier (compute_sha256,
-log_and_store_checksums, count_pages_with_layout) and adds a small wrapper
-to orchestrate the download based on the dataset name.
+Robust dataset downloader used by the quick‑start guide.
+It supports the logical names ``publaynet`` (layout‑rich) and any generic
+dataset (e.g. ``docvqa``).  For ``publaynet`` it first tries the canonical
+PubLayNet repository on HuggingFace; if the page‑count check fails it falls
+back to the public DocBank repository.  All downloads are performed with
+``snapshot_download`` and do **not** require authentication because the
+repositories are public.
 """
 
 import argparse
@@ -127,36 +124,25 @@ def download_dataset(
 ) -> None:
     """
     Dispatches the download based on ``dataset_name``.
-    - ``publaynet``: primary = pubmed-layout, fallback = docbank, with a
+    - ``publaynet``: primary = PubLayNet, fallback = DocBank, with a
       minimum page‑count check.
     - ``docvqa`` (or any other name): a direct snapshot download without
       page‑count validation.
     """
     dataset_name = dataset_name.lower()
     if dataset_name == "publaynet":
-        # Mapping logical names to possible HF identifiers.
-        name_to_hf: Dict[str, List[str]] = {
-            "pubmed-layout": [
-                "allenai/pubmed-layout",
-                "nielsr/pubmed-layout",
-                "layoutparser/pubmed-layout",
-            ],
-            "docbank": [
-                "docbank",
-                "nielsr/docbank",
-                "layoutparser/docbank",
-            ],
-        }
-
-        primary_logical = "pubmed-layout"
-        fallback_logical = "docbank"
-
-        primary_hfs = name_to_hf.get(primary_logical, [primary_logical])
-        fallback_hfs = name_to_hf.get(fallback_logical, [fallback_logical])
+        # The canonical PubLayNet repository (public) and a public fallback.
+        primary_hfs = [
+            "layoutparser/publaynet",          # official PubLayNet on HF
+            "allenai/pubmed-layout",           # alternative source, also public
+        ]
+        fallback_hfs = [
+            "layoutparser/docbank",            # public DocBank dataset
+        ]
 
         # 1. Try primary dataset
         primary_count, primary_path = download_and_save(
-            logical_name="publaynet",  # we store under the user‑visible name
+            logical_name="publaynet",
             hf_names=primary_hfs,
             target_root=output_dir,
         )
@@ -176,8 +162,8 @@ def download_dataset(
             total_count += fallback_count
 
         print("\n=== Summary of layout‑annotation pages ===")
-        print(f"  Primary (pubmed-layout): {primary_count}")
-        print(f"  Fallback (docbank) added: {total_count - primary_count}")
+        print(f"  Primary (PubLayNet): {primary_count}")
+        print(f"  Fallback (DocBank) added: {total_count - primary_count}")
         print(f"  TOTAL: {total_count}")
 
         if total_count < min_pages:

@@ -1,22 +1,29 @@
 """
 src/data/latent_generator.py
 
-Updated to ensure a clear error is raised if the required Parquet engine
-(pyarrow) is missing and to keep the original functionality unchanged.
-No CLI changes were required; the script already matches the quickstart.
+Generates a 768‑dim visual layout latent for every document using the
+frozen ``layoutlmv3-base`` model. The script reads the DocumentPair parquet
+produced by ``src.data.preprocess``, runs inference on CPU, and writes a new
+parquet that includes a ``visual_latent`` column (list of 768 floats).
 """
 
 import argparse
+import sys
 import time
 from pathlib import Path
+from typing import List
 
 import pandas as pd
 import torch
 from PIL import Image
+from tqdm import tqdm
+from transformers import AutoFeatureExtractor, AutoModel
 
-from transformers import LayoutLMv3FeatureExtractor, LayoutLMv3Model
+from llmxive_toolkit import get_logger
 
-def parse_args(argv=None):
+log = get_logger(__name__)
+
+def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate visual layout latents for each document using a frozen LayoutLMv3 encoder."
     )
@@ -24,25 +31,25 @@ def parse_args(argv=None):
         "--input-parquet",
         type=Path,
         required=True,
-        help="Path to the Parquet file containing DocumentPair records (without latents).",
+        help="Path to the DocumentPair parquet file (without latents).",
     )
     parser.add_argument(
         "--output-parquet",
         type=Path,
         required=True,
-        help="Path where the Parquet file with added `visual_latent` column will be written.",
+        help="Path where the output parquet (with latents) will be saved.",
     )
     parser.add_argument(
         "--encoder-name",
         type=str,
         default="layoutlmv3-base",
-        help="Name of the pretrained LayoutLMv3 model to load.",
+        help="Name of the pretrained LayoutLMv3 model on HuggingFace.",
     )
     parser.add_argument(
         "--device",
         type=str,
         default="cpu",
-        help="Device for inference (e.g., 'cpu' or 'cuda').",
+        help="Device for inference ('cpu' or 'cuda'). Must be CPU‑only for this project.",
     )
     return parser.parse_args(argv)
 
@@ -54,60 +61,72 @@ def load_encoder(encoder_name: str, device: str):
     RuntimeError is raised.
     """
     try:
-        feature_extractor = LayoutLMv3FeatureExtractor.from_pretrained(encoder_name)
-        model = LayoutLMv3Model.from_pretrained(encoder_name, torch_dtype=torch.float32)
+        extractor = AutoFeatureExtractor.from_pretrained(encoder_name)
+        model = AutoModel.from_pretrained(encoder_name, torch_dtype=torch.float32)
         model.to(device)
         model.eval()
-        return feature_extractor, model
     except Exception as exc:
-        raise RuntimeError(
-            f"Failed to load LayoutLMv3 encoder '{encoder_name}' on device '{device}': {exc}"
-        ) from exc
+        raise RuntimeError(f"Failed to load LayoutLMv3 encoder '{encoder_name}' on device '{device}': {exc}") from exc
+
+    # Verify that the model runs on CPU; if not, raise an explicit error.
+    if device == "cpu" and not next(model.parameters()).is_cuda:
+        return extractor, model
+    else:
+        raise RuntimeError("Frozen visual encoder cannot be loaded on CPU – incompatibility")
 
 def encode_image(image_path: Path, feature_extractor, model):
     """
-    Run a single image through the frozen encoder and return a 768‑dim numpy array.
+    Run a single image through the frozen encoder and return a 768‑dim NumPy array.
     """
-    image = Image.open(image_path).convert("RGB")
-    encoding = feature_extractor(images=image, return_tensors="pt")
-    with torch.no_grad():
-        outputs = model(**{k: v.to(model.device) for k, v in encoding.items()})
-    # Use the pooled output as the latent representation
-    pooled = outputs.pooler_output.squeeze().cpu().numpy()
-    if pooled.shape[0] != 768:
-        raise RuntimeError(f"Unexpected latent dimension: {pooled.shape[0]}, expected 768.")
-    return pooled
+    try:
+        image = Image.open(image_path).convert("RGB")
+    except Exception as exc:
+        raise RuntimeError(f"Failed to open image '{image_path}': {exc}") from exc
 
-def main(argv=None):
+    # Prepare inputs for LayoutLMv3 (expects pixel values and bounding boxes)
+    # Since we only need a visual representation, we provide a dummy bbox covering the whole image.
+    width, height = image.size
+    dummy_bbox = [[0, 0, width, height]]
+    inputs = feature_extractor(images=image, boxes=dummy_bbox, return_tensors="pt")
+    inputs = {k: v.to(model.device) for k, v in inputs.items()}
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+        # Use the pooled_output (CLS token) as the visual latent.
+        pooled = outputs.pooler_output  # shape (1, hidden_dim)
+        latent = pooled.squeeze(0).cpu().numpy()
+    if latent.shape[0] != 768:
+        raise RuntimeError(f"Unexpected latent dimension {latent.shape[0]} (expected 768).")
+    return latent
+
+def main(argv: List[str] | None = None) -> None:
     args = parse_args(argv)
 
-    start_time = time.time()
-    # Verify that the input parquet can be read (requires pyarrow)
+    # Load data
     try:
-        df = pd.read_parquet(args.input_parquet)
+        df = pd.read_parquet(args.input_parquet, engine="pyarrow")
     except Exception as exc:
-        raise RuntimeError(
-            f"Unable to read Parquet file '{args.input_parquet}'. Ensure 'pyarrow' is installed. Original error: {exc}"
-        ) from exc
+        raise RuntimeError(f"Unable to read Parquet file '{args.input_parquet}': {exc}") from exc
 
-    feature_extractor, model = load_encoder(args.encoder_name, args.device)
+    # Load encoder
+    extractor, model = load_encoder(args.encoder_name, args.device)
 
-    latents = []
-    for idx, row in df.iterrows():
+    latents: List[List[float]] = []
+    start_time = time.time()
+    for idx, row in tqdm(df.iterrows(), total=len(df), desc="Generating latents"):
         image_path = Path(row["image_path"])
-        if not image_path.is_file():
-            raise RuntimeError(f"Image file not found: {image_path}")
-        latent = encode_image(image_path, feature_extractor, model)
-        if len(latent) != 768:
-            raise RuntimeError("Generated latent does not have length 768.")
-        latents.append(latent)
+        latent = encode_image(image_path, extractor, model)
+        latents.append(latent.tolist())
 
     df["visual_latent"] = latents
     args.output_parquet.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(args.output_parquet, engine="pyarrow")
     elapsed = time.time() - start_time
-    print(f"✅ Generated visual latents for {len(df)} documents in {elapsed:.2f} seconds.")
-    print(f"Output written to: {args.output_parquet}")
+    log.info(f"✅ Visual latents written to {args.output_parquet} (elapsed {elapsed:.1f}s)")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        log.error(f"Latent generation failed: {exc}")
+        sys.exit(1)
