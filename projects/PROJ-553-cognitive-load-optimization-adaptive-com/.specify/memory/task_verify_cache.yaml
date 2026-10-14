@@ -28,13 +28,6 @@ T004:
     \ load labels (e.g., NASA\u2011TLX scores) nor does it emit the required warning\
     \ `\"Public dataset lacks concurrent load labels. Manual Golden Set (T007g) is\
     \ required.\"` Consequently the critical part of the task is missing."
-T007e:
-  c: true
-  h: 06bafc19bcec0536914f76463708afd8396dfcee85d61befa6a3f5c5905095a7
-  r: "The `docs/golden_set_creation.md` file is present, non\u2011empty, and provides\
-    \ a thorough guide: it explains generating `golden_set_template.csv` via a script,\
-    \ details the expert labeling workflow, and explicitly states that the process\
-    \ is manual and cannot be automated."
 T007f:
   c: false
   h: ed8acac8be02ac72286c15e0715a1589e5c010a1bc5d1f294b20d3c4a514872b
@@ -68,13 +61,6 @@ T018:
     \ existence check cannot pass and no file size verification can be performed.\
     \ The task\u2019s condition to raise an error for a missing or oversized model\
     \ is therefore not satisfied."
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or notebook implementing the simple\u2011tier generation with\
-    \ the `facebook/bart-large-cnn` model is provided, nor any evidence of FK\u2011\
-    difference or Jaccard\u2011similarity checks or the required `ValueError` handling.\
-    \ The required artifact is missing, so the task is not satisfied."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
