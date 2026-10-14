@@ -33,7 +33,7 @@ python -m src.validation.synthetic --generate --validate
 ## Running the Full Analysis (MVP)
 
 ```bash
-python -m src.main --config config/default.yaml
+python -m code.src.main --stage all
 ```
 
 What the command does:
@@ -45,7 +45,7 @@ What the command does:
 6. **Outputs** – CSV/JSON results in `data/results/`, figures in `docs/paper/`.
 
 ### Configuration Flags
-- `config.primary_model` (default `"exponential"`): determines which drift metric is used as the primary predictor for the correlation analysis. Set to `"linear"` to prioritize the FR-005 metric.  
+- `config.primary_model` (default `"linear"`): determines which drift metric is used as the primary predictor for the correlation analysis. Set to `"exponential"` to prioritize the Constitution‑VII metric.  
 - `config.stability_thresholds` (list): thresholds to sweep; default `[0.70,0.75,0.80,0.85,0.90]`.
 
 ## Synthetic Ground‑Truth Validation (SC‑001)
@@ -74,3 +74,6 @@ python -m src.validation.sensitivity --thresholds 0.70 0.75 0.80 0.85 0.90
 - **Convergence warning**: If `DriftResult.convergence_status` is `"failed_fallback"`, one of the fits did not converge. Review the RDM plot for flat distances.  
 
 All steps are fully reproducible; re‑run the same command on a fresh runner to obtain identical results.
+
+### Fixed Random Seed
+The pipeline uses a deterministic random seed (`42`) defined in `code.src.config.CONFIG.random_seed` to ensure reproducible synthetic data generation and downstream analyses.

@@ -1,0 +1,58 @@
+T001:
+  reason: "**Evidence checked:**\n\n1. **Directory structure**: `code/src/` exists\
+    \ with `__init__.py`, `config.py`, and `main.py`, but the required subdirectories\
+    \ `data/`, `analysis/`, `validation/`, and `utils/` are **missing**. The collector\
+    \ explicitly reports `data/: MISSING` and the directory listing shows only `__pycache__/`,\
+    \ `config.py`, `main.py`, and a `data/` entry that is not a directory (likely\
+    \ a file or symlink, not the required module).\n\n2. **`code/tests/` structure**:\
+    \ Exists with `__init__.py` and test files, but the task requires it to be established\
+    \ as part of the skeleton\u2014this is present."
+  task: 687ec4814b51b7dbb984610432f4d4d6895a010defdb83547c7799f179149a9b
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/loader.py
+    exit=1'
+  task: f5adde1adbbe73911d512247ce21ad55fb85a2d7eeabede31df1f1d70b4be96c
+T003:
+  task: bc638355b87baba726f642fdcf67ae9242a44780146cf41f6cbee52eb7c63450
+T004:
+  task: fc5d3d1eedba982d0cabef90dbe02f3509f4c8a5289947c470f8ed698d8e3046
+T005:
+  task: 6c122690e69be939996204fa82e409eac38ef54f4689afd1ed5a8639be5c8770
+T006:
+  task: 5dcb90eff64f52afec65407f15a41399c340d17c33331e57ffd239c58e21ae78
+T007:
+  task: 79fe39a9528469ef158c5477d1fedb0d16149e458bb96fd3169bd9045111ab99
+T008:
+  task: 8cb57e4a40a495d36911ecac69a5e6dc67fd71f176293114ae045c1e3562d422
+T009:
+  task: 2b28b130cd9757d4ec6884a7ce1523c708095af1b62cc8eabca687d08a7214e3
+T010:
+  task: 12f1a77dcbe38d5fb99bb18d92ec714c00e3bf0e5119c1515fa9989e0e12492d
+T011:
+  task: 3c37a7b8f1cbee410eae14f98dbe401abdaf0ebb67fc64593f85dbd91abed44e
+T012:
+  task: 230467e229c11e69f23c6301b32200e4a1f11bd114574cd8e4d924d127d1c3a4
+T013:
+  task: 77f34a170f4adbf3558fedf5a52c665c3f9be267639d92455be1087969f95356
+T014:
+  task: ca6ba7e47d179dbe624b758dd2692c89329cbb91f306431c95e191235cf9430a
+T015:
+  task: f9b31900e1b69bbac6a0dde9b3f4afb675149b0a53372928fcff225be69c1afc
+T016:
+  task: 71cc0c588c65bd539fd140a8903b6245b18dfed4db63dc40eb6be74d3802adb7
+T017:
+  task: 1f19fa83b8ff60c7a61168d4dc5a9c79de0b059319467d8d873af6ce6e21636a
+T018:
+  task: b104cf27b706a30de8fdd08af4f6697730049f4b201f15065dcba0591b0e95e9
+T019:
+  task: 8ba81b7bd5d51135553c57d4775cf2e6e2d5f814b7f61ef0472fb454543dc447
+T020:
+  task: fed4283ce973b24d9c6c6fd1d9032a9118ec5e0ec3011b56d452cbdb5cb292b0
+T021-A:
+  task: f96cbea95719d54cc8d935dc9fc78200ac1b8b8c94bfec7a92e626d768d944f6
+T021-B:
+  task: 1f8e7cb93cbd707bb79b365a021a501f8b7f45c8de1c8ba5761faf1e8fc618eb
+T021-C:
+  task: 1540a0cdbba7f834cd792eb08010aaa0bcd37a8afcaa1634f9f4adefb4a58bef
+T022:
+  task: 42f992ee8cff792a64d369864960d6cb269f26a9603c124dd69a8dbdd4e7ec63
