@@ -3,23 +3,25 @@ src/data/download.py
 
 Robust dataset downloader used by the quick‑start guide.
 It supports the logical names ``publaynet`` (layout‑rich) and any generic
-dataset (e.g. ``docvqa``).  For ``publaynet`` it first tries the canonical
-PubLayNet repository on HuggingFace; if the page‑count check fails it falls
-back to the public DocBank repository.  All downloads are performed with
-``snapshot_download`` and do **not** require authentication because the
-repositories are public.
+dataset (e.g. ``docvqa``). For ``publaynet`` it downloads a real sample of
+PubLayNet via the 🤗 ``datasets`` library, writes the images and JSON
+annotation files to disk, and verifies that at least ``min_pages`` pages
+with layout annotations are present. If the primary source does not meet
+the requirement, a fallback (DocBank) is attempted.
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
 
 import yaml
-from huggingface_hub import snapshot_download
+from datasets import load_dataset
+from tqdm import tqdm
 
 # ----------------------------------------------------------------------
-# Helper functions (unchanged from the original implementation)
+# Helper functions (unchanged signature)
 # ----------------------------------------------------------------------
 def compute_sha256(file_path: Path) -> str:
     """Return the SHA‑256 hex digest of ``file_path``."""
@@ -75,10 +77,68 @@ def count_pages_with_layout(dataset_dir: Path, limit: int = 10_001) -> int:
     return count
 
 
+def _save_publaynet_split(
+    hf_name: str,
+    target_root: Path,
+    min_pages: int,
+) -> Tuple[int, Optional[Path]]:
+    """
+    Download PubLayNet (or DocBank) via ``datasets`` and write the first
+    ``min_pages`` examples to ``target_root/<logical_name>``.
+    Returns the number of pages written and the path to the directory.
+    """
+    print(f"Downloading dataset '{hf_name}' via the 🤗 datasets library...")
+    # We use streaming to avoid pulling the whole archive into memory.
+    ds = load_dataset(hf_name, split="train", streaming=True)
+    out_dir = target_root / "publaynet"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    saved = 0
+    for example in tqdm(ds, total=min_pages, desc="Saving PubLayNet examples"):
+        if saved >= min_pages:
+            break
+
+        # ``example`` contains an ``image`` (PIL.Image) and ``bboxes``/``labels``.
+        img: Path = out_dir / f"{saved:06d}.png"
+        example["image"].save(img)
+
+        # Build a simple JSON annotation compatible with the downstream
+        # preprocessing script.
+        ann = {
+            "objects": [
+                {
+                    "category": label,
+                    "bbox": {
+                        "x0": int(bbox[0]),
+                        "y0": int(bbox[1]),
+                        "x1": int(bbox[2]),
+                        "y1": int(bbox[3]),
+                    },
+                }
+                for bbox, label in zip(example["bboxes"], example["labels"])
+            ]
+        }
+        ann_path = out_dir / f"{saved:06d}.json"
+        with ann_path.open("w", encoding="utf-8") as f:
+            json.dump(ann, f)
+
+        saved += 1
+
+    if saved == 0:
+        return 0, None
+
+    # Record checksums for the newly written files.
+    checksum_file = Path("artifacts") / "checksums" / "downloads.yaml"
+    log_and_store_checksums(hf_name, out_dir, checksum_file)
+
+    return saved, out_dir
+
+
 def download_and_save(
     logical_name: str,
     hf_names: List[str],
     target_root: Path,
+    min_pages: int = 10_000,
 ) -> Tuple[int, Optional[Path]]:
     """
     Try a list of HuggingFace dataset identifiers for a logical dataset.
@@ -87,27 +147,29 @@ def download_and_save(
     dataset directory (or ``None`` on failure).
     """
     for hf_name in hf_names:
-        print(f"Attempting to download logical dataset '{logical_name}' using HF identifier '{hf_name}'...")
         try:
-            out_dir = target_root / logical_name
-            out_dir.mkdir(parents=True, exist_ok=True)
+            # For layout‑rich datasets we use the specialised saver.
+            if logical_name == "publaynet":
+                count, path = _save_publaynet_split(hf_name, target_root, min_pages)
+            else:
+                # Generic fallback – just clone the repo (unlikely to be used for
+                # layout‑rich data).
+                from huggingface_hub import snapshot_download
 
-            # ``snapshot_download`` clones the entire dataset repository locally.
-            temp_dir = snapshot_download(
-                repo_id=hf_name,
-                repo_type="dataset",
-                local_dir=out_dir,
-                token=False,
-            )
-            dataset_path = Path(temp_dir)
+                out_dir = target_root / logical_name
+                out_dir.mkdir(parents=True, exist_ok=True)
+                snapshot_download(
+                    repo_id=hf_name,
+                    repo_type="dataset",
+                    local_dir=out_dir,
+                    token=False,
+                )
+                count = count_pages_with_layout(out_dir)
+                path = out_dir
 
-            page_count = count_pages_with_layout(dataset_path)
-            print(f"Successfully downloaded '{hf_name}'. Pages with layout (estimated): {page_count}")
-
-            checksum_file = Path("artifacts") / "checksums" / "downloads.yaml"
-            log_and_store_checksums(hf_name, dataset_path, checksum_file)
-
-            return page_count, dataset_path
+            if count > 0:
+                print(f"Successfully prepared '{hf_name}'. Pages with layout (estimated): {count}")
+                return count, path
         except Exception as exc:
             print(f"⚠️ Warning: Failed to download '{hf_name}': {exc}")
 
@@ -126,28 +188,23 @@ def download_dataset(
     Dispatches the download based on ``dataset_name``.
     - ``publaynet``: primary = PubLayNet, fallback = DocBank, with a
       minimum page‑count check.
-    - ``docvqa`` (or any other name): a direct snapshot download without
-      page‑count validation.
+    - ``docvqa`` (or any other name): a direct download via ``datasets``.
     """
     dataset_name = dataset_name.lower()
     if dataset_name == "publaynet":
-        # The canonical PubLayNet repository (public) and a public fallback.
-        primary_hfs = [
-            "layoutparser/publaynet",          # official PubLayNet on HF
-        ]
-        fallback_hfs = [
-            "layoutparser/docbank",            # public DocBank dataset
-        ]
+        primary_hfs = ["layoutparser/publaynet"]
+        fallback_hfs = ["layoutparser/docbank"]
 
-        # 1. Try primary dataset
+        # 1. Try primary
         primary_count, primary_path = download_and_save(
             logical_name="publaynet",
             hf_names=primary_hfs,
             target_root=output_dir,
+            min_pages=min_pages,
         )
         total_count = primary_count
 
-        # 2. If primary insufficient, try fallback
+        # 2. If insufficient, try fallback
         if total_count < min_pages:
             print(
                 f"Primary dataset provided {total_count} pages, which is less than the required {min_pages}. "
@@ -157,6 +214,7 @@ def download_dataset(
                 logical_name="publaynet",
                 hf_names=fallback_hfs,
                 target_root=output_dir,
+                min_pages=min_pages - total_count,
             )
             total_count += fallback_count
 
@@ -170,49 +228,32 @@ def download_dataset(
                 f"Insufficient total pages with layout annotations: {total_count} "
                 f"(minimum required is {min_pages}). Pipeline aborting as per FR‑007."
             )
-            # The script will exit with a non‑zero code via the caller.
-            # No need for an explicit sys.exit() here.
-            # The exception will be caught in ``main``.
-            # This keeps the function testable.
-            # The ``main`` wrapper will turn the exception into a proper exit code.
+            # The exception propagates to ``main`` which turns it into a non‑zero exit.
         else:
             print(f"✅ Sufficient pages ({total_count} ≥ {min_pages}) – proceeding.")
     else:
-        # Generic download – no layout count required.
-        # For known downstream benchmarks we provide a small list of public mirrors.
-        known_generic = {
-            "docvqa": ["nielsr/docvqa", "docvqa"],  # public mirrors of the DocVQA benchmark
-        }
-
-        hf_names = known_generic.get(dataset_name, [dataset_name])
-
-        print(f"Downloading generic dataset '{dataset_name}' using identifiers: {hf_names}")
+        # Generic dataset – use ``datasets`` to fetch the split and store raw files.
+        print(f"Downloading generic dataset '{dataset_name}' via 🤗 datasets...")
         try:
+            ds = load_dataset(dataset_name, split="train")
             out_dir = output_dir / dataset_name
             out_dir.mkdir(parents=True, exist_ok=True)
 
-            # Try each identifier until one succeeds.
-            for hf_name in hf_names:
-                try:
-                    snapshot_download(
-                        repo_id=hf_name,
-                        repo_type="dataset",
-                        local_dir=out_dir,
-                        token=False,
-                    )
-                    # If we reach this point the download succeeded.
-                    checksum_file = Path("artifacts") / "checksums" / "downloads.yaml"
-                    log_and_store_checksums(hf_name, out_dir, checksum_file)
+            for idx, example in enumerate(tqdm(ds, desc="Saving generic dataset")):
+                # Heuristic: if the example contains an image, store it; otherwise store the raw dict.
+                if "image" in example and hasattr(example["image"], "save"):
+                    img_path = out_dir / f"{idx:06d}.png"
+                    example["image"].save(img_path)
+                else:
+                    json_path = out_dir / f"{idx:06d}.json"
+                    with json_path.open("w", encoding="utf-8") as f:
+                        json.dump(example, f)
 
-                    print(f"✅ Dataset '{hf_name}' downloaded successfully to {out_dir}.")
-                    break
-                except Exception as exc:
-                    print(f"⚠️ Warning: Failed to download '{hf_name}': {exc}")
-            else:
-                # All identifiers failed.
-                raise RuntimeError(f"All attempts to download dataset '{dataset_name}' failed.")
+            checksum_file = Path("artifacts") / "checksums" / "downloads.yaml"
+            log_and_store_checksums(dataset_name, out_dir, checksum_file)
+            print(f"✅ Dataset '{dataset_name}' downloaded successfully to {out_dir}.")
         except Exception as exc:
-            raise RuntimeError(f"Failed to download dataset '{dataset_name}': {exc}") from exc
+            raise RuntimeError(f"Failed to download generic dataset '{dataset_name}': {exc}") from exc
 
 
 # ----------------------------------------------------------------------

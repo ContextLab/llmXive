@@ -1,18 +1,13 @@
 status: none
-intent: PubLayNet dataset download pip package and DocVQA benchmark python package
-  dataset
+intent: download PubLayNet and DocVQA datasets via Python package dataset
 required_fields:
-- image_id
 - image_path
-- image_width
-- image_height
-- bbox_xmin
-- bbox_ymin
-- bbox_xmax
-- bbox_ymax
+- page_id
+- bbox
 - category_label
-- associated_text
-- page_number
-cache_key: d96c1f39366be89b06721810c3325413a340ec517ecebd91358f2dba2eaa1711
-searched_at: '2026-10-14T17:13:30.210709+00:00'
+- text_content
+- width
+- height
+cache_key: e178eb06d7f00aca17cb0334ea63b792ce921344d1cf1b82a951b3e4ecb26521
+searched_at: '2026-10-14T19:14:01.681297+00:00'
 retry_count: 1

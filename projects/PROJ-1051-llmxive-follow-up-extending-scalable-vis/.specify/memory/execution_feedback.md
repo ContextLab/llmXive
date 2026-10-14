@@ -14,22 +14,16 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 command(s) failed: python -m src.data.download  --dataset-name publaynet  --output-dir data/raw (rc=1); python -m src.data.preprocess  --input-dir data/raw/publaynet  --output-parquet data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml (rc=1); python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name layoutlmv3-base  --device cpu (rc=1)
+**Summary**: 4 command(s) failed: python -m src.data.download  --dataset-name publaynet  --output-dir data/raw (rc=1); python -m src.data.preprocess  --input-dir data/raw/publaynet  --output-parquet data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml (rc=1); python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name layoutlmv3-base  --device cpu (rc=1)
 
 ## Failing / missing run-book commands
 
 - python -m src.data.download  --dataset-name publaynet  --output-dir data/raw -> rc=1
-ect `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-Invalid username or password.
+Downloading dataset 'layoutparser/publaynet' via the 🤗 datasets library...
+⚠️ Warning: Failed to download 'layoutparser/publaynet': Dataset 'layoutparser/publaynet' doesn't exist on the Hub or cannot be accessed.
 Primary dataset provided 0 pages, which is less than the required 10000. Attempting fallback download...
-Attempting to download logical dataset 'publaynet' using HF identifier 'layoutparser/docbank'...
-⚠️ Warning: Failed to download 'layoutparser/docbank': 401 Client Error. (Request ID: Root=1-6acfb7d2-2230d8527ea5d3af5e8799a8;93b3d87f-ea05-42c6-8aee-3dfe57e290f9)
-
-Repository Not Found for url: https://huggingface.co/api/datasets/layoutparser/docbank/revision/main.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-Invalid username or password.
+Downloading dataset 'layoutparser/docbank' via the 🤗 datasets library...
+⚠️ Warning: Failed to download 'layoutparser/docbank': Dataset 'layoutparser/docbank' doesn't exist on the Hub or cannot be accessed.
 
 === Summary of layout‑annotation pages ===
   Primary (PubLayNet): 0
@@ -41,57 +35,15 @@ Invalid username or password.
 
 - python -m src.data.preprocess  --input-dir data/raw/publaynet  --output-parquet data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml -> rc=1
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/src/data/preprocess.py", line 18, in <module>
-    import pyarrow  # ensures parquet support
-    ^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1051-llmxive-follow-up-extending-scalable-vis/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+2026-10-14 19:10:26,926 ERROR __main__: Preprocessing failed: Input directory does not exist: data/raw/publaynet
 
 - python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name layoutlmv3-base  --device cpu -> rc=1
 
-2026-10-14 17:11:49,668 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+2026-10-14 19:10:28,641 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': [Errno 2] No such file or directory: 'data/processed/document_pairs.parquet'
 
 - python -m src.data.download  --dataset-name docvqa  --output-dir data/raw/docvqa -> rc=1
-g generic dataset 'docvqa' using identifiers: ['nielsr/docvqa', 'docvqa']
-⚠️ Warning: Failed to download 'nielsr/docvqa': 401 Client Error. (Request ID: Root=1-6acfb7d6-556b495058ba98e658d2062c;c06543aa-e203-4196-bf11-be762df27422)
-
-Repository Not Found for url: https://huggingface.co/api/datasets/nielsr/docvqa/revision/main.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-Invalid username or password.
-⚠️ Warning: Failed to download 'docvqa': 401 Client Error. (Request ID: Root=1-6acfb7d6-47ed49b4060d074515bd5dd6;9e070a36-5dc7-4b50-9141-ed1821737baa)
-
-Repository Not Found for url: https://huggingface.co/api/datasets/docvqa/revision/main.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-Invalid username or password.
+Downloading generic dataset 'docvqa' via 🤗 datasets...
 
 
-❌ ERROR: Failed to download dataset 'docvqa': All attempts to download dataset 'docvqa' failed.
-
-- python -m pytest -k "contract" tests/ -> rc=2
-e importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/tests/unit/test_preprocess.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_preprocess.py:16: in <module>
-    from src.data.preprocess import preprocess_dataset
-src/data/preprocess.py:18: in <module>
-    import pyarrow  # ensures parquet support
-../../.llmxive-venvs/PROJ-1051-llmxive-follow-up-extending-scalable-vis/lib/python3.11/site-packages/pyarrow/__init__.py:59: in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-pyarrow/lib.pyx:42: in init pyarrow.lib
-    ???
-E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-=========================== short test summary info ============================
-ERROR tests/unit/test_preprocess.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-======================== 1 deselected, 1 error in 1.94s ========================
-
+❌ ERROR: Failed to download generic dataset 'docvqa': Dataset 'docvqa' doesn't exist on the Hub or cannot be accessed.
 
