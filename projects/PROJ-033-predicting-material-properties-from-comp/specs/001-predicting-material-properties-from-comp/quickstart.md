@@ -1,84 +1,59 @@
-# Quickstart: Predicting Material Properties from Compositional Data
+# Quickstart: Predicting Material Properties from Compositional Data with Graph Neural Networks
 
-This guide shows how to run the full composition‑only pipeline on a fresh GitHub Actions (or local) runner.
+## Prerequisites
+- Python 3.11, git, internet access (only needed to install dependencies; dataset must be supplied per the data contract)
 
-## 1️⃣ Prerequisites
-- Python 3.11
-- Git (to clone the repository)
-- Internet access (to download the open Materials Project parquet file)
-
-## 2️⃣ Clone the repository
+## Setup
 ```bash
-git clone https://github.com/your-org/PROJ-033-predicting-material-properties-from-comp.git
-cd PROJ-033-predicting-material-properties-from-comp
-```
-
-## 3️⃣ Install dependencies
-```bash
-python -m venv .venv
-source .venv/bin/activate
+git clone <repo-url> && cd <repo>
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
-*`requirements.txt` pins the exact versions listed in `plan.md`.*
 
-## 4️⃣ Download the dataset
-The script will automatically stream the open Materials Project data; no manual download is needed.
+## 1. Provide the dataset
+Place a CSV/parquet conforming to `contracts/materials_dataset.schema.yaml` (columns `material_id, formula, band_gap, hardness, crystal_system`) at `data/raw/materials.csv`. The loader checksums it (SHA-256) and records the hash. **Note**: no verified open source for this data was available at planning time — see `research.md` Limitations.
+
+## 2. Ingest, validate & clean
 ```bash
-python src/utils/data_loader.py --stream
+python src/data/loader.py --input data/raw/materials.csv --out data/processed/materials_processed.csv
 ```
-This will:
-- Pull the verified parquet file from HuggingFace.
-- Verify its SHA‑256 checksum and write it to `data/raw/`.
-- Produce `data/processed/materials_processed.csv`.
+Chunked loading keeps peak RAM ≤ 6 GB; invalid rows are dropped with warnings; rows outside 1.5×IQR of either target are dropped with a logged count (per the spec's Assumptions) and the cleaned data is written to a new file.
 
-## 5️⃣ Train the composition‑only GNN
+## 3. Train the composition-only GNN (CPU)
 ```bash
-python src/training/train_gnn.py \
-    --config configs/train_config.yaml \
-    --seed 42
+python src/training/train_gnn.py --data data/processed/materials_processed.csv --seed 42
 ```
-Key arguments:
-- `--config` points to a YAML with hyper‑parameters (layers, hidden dim, etc.).
-- The script respects the 30‑minute per‑epoch and 6‑hour total runtime guards.
+5-fold crystal-system-stratified CV; Adam lr=1e-3; early stopping patience=10; 30-min/epoch warning and 6-h halt guards active. Composition graphs are built in-memory and cached under `data/processed/graphs/`.
 
-## 6️⃣ Evaluate & generate reports
+## 4. Evaluate
 ```bash
-python src/training/evaluate.py \
-    --model_path outputs/gnn_checkpoint_<hash>.pt \
-    --metrics_out data/results_composition_only.json
-python src/interpret/pca_correlation.py \
-    --embeddings_path outputs/node_embeddings.npy \
-    --report_out interpretability_report.md
-python src/training/aggregate_system_metrics.py \
-    --metrics_in data/results_composition_only.json \
-    --out_csv data/metrics_by_system.csv
+python src/training/evaluate.py --metrics_out data/results_composition_only.json
+```
+Emits R²/MAE/RMSE (mean ± std) for band gap and hardness, the Random Forest baseline comparison (`rf_baseline` and `delta_vs_rf` blocks — a baseline gap, not a structure information-loss ΔR²), and `data/metrics_by_system.csv`. The mean ± 1.96 × std-of-folds quantity is labeled a **fold-disagreement band**, not a calibrated [deferred] prediction interval.
+
+## 5. Inference on a new formula
+```bash
+python src/inference/predict.py --formula "Fe2O3" --out data/predictions.json
+```
+Returns predicted band gap and hardness with a timestamp and the fold-disagreement band across the 5 fold checkpoints.
+
+## 6. Interpretability
+```bash
+python src/inference/../interpret/extract_embeddings.py --out outputs/node_embeddings.npy
+python src/interpret/pca_correlation.py --report_out interpretability_report.md
 ```
 
-## 7️⃣ Prediction intervals
-When running inference on new formulas, the script computes residuals on the validation fold, estimates σ̂, and returns a [deferred] prediction interval as:
-
-```
-prediction ± 1.96 * σ̂
-```
-
-## 8️⃣ Inspect the outputs
-- **Metrics**: `data/results_composition_only.json` (validated against `contracts/model_metrics.schema.yaml`).  
-- **Per‑system metrics**: `data/metrics_by_system.csv`.  
-- **Interpretability**: `interpretability_report.md`.  
-
-## 9️⃣ Run the test suite
+## 7. Run the test suite
 ```bash
 pytest -q tests/
 ```
-All contract tests should pass, confirming schema compliance.
+Contract tests validate both schemas; unit tests cover the graph builder, structure graph, splits, runtime guards, and inference using bundled fixtures (fixtures validate software only; they are never reported as study results).
 
-## 🔟 Clean up (optional)
-```bash
-rm -rf data/raw/*  # removes a substantial amount of parquet files
-```
+## Outputs
+- `data/results_composition_only.json` — metrics incl. `delta_vs_rf` (schema-validated)
+- `data/metrics_by_system.csv` — per-crystal-system performance
+- `data/predictions.json` — new-formula inference with fold-disagreement band
+- `interpretability_report.md` — PCA/correlation analysis (held-out properties only)
+- `outputs/gnn_checkpoint_<hash>.pt`, `outputs/node_embeddings.npy`
 
-**That’s it!** The pipeline is fully reproducible and runs entirely on CPU within the CI limits.
-
----
-
-
+**Known limitations**: (1) no verified open dataset with the required variables existed at planning time — the scientific run is gated on scope revision; (2) the structure-aware baseline (spec FR-005/FR-006/FR-011) is not executed — the Materials Project CIF API is credential-gated and no open verified CIF source exists, so ΔR² information loss (SC-002) is not reported; (3) planned spec deviations (FR-002 feature list, FR-006 shared test set, FR-007 interval labeling) are flagged for kickback in `plan.md`.

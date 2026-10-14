@@ -1,10 +1,11 @@
 status: none
-intent: Materials Project open data download via mp-api python package dataset
+intent: Materials Project composition property parquet dataset download python package
+  dataset
 required_fields:
 - material_id
 - formula
 - band_gap
 - hardness
-cache_key: 423d8349741016c307b05acf2df3684b7212ad18e25e3089b0123cd45193a2c9
-searched_at: '2026-10-14T05:13:37.086226+00:00'
+cache_key: 3636ae0886ca56a82b458908419e150e95d5e4930bb08e7c1b649b0a512a69cc
+searched_at: '2026-10-14T05:39:26.699691+00:00'
 retry_count: 1
