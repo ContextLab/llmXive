@@ -9,7 +9,7 @@ All paths are relative to the project directory. Source in `code/`, tests in `co
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T101 Establish the real data‑loading and configuration foundation. Create `code/data_loader.py` that **downloads the following public RCT datasets from OpenML using the exact IDs**: <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
+- [ ] T101 Establish the real data‑loading and configuration foundation. Create `code/data_loader.py` that **downloads the following public RCT datasets from OpenML using the exact IDs**: <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
   * **42803** – treatment column `treat`, outcome column `outcome`, covariates `age`, `sex`.
   * **43844** – treatment column `treatment`, outcome column `outcome`, covariates `cov1`, `cov2`.
   * **43845** – treatment column `treatment`, outcome column `outcome`, covariates `age`, `gender`.

@@ -1,11 +1,11 @@
 status: none
-intent: download OpenML Diabetes and Heart Disease clinical trial datasets with treatment
-  outcome covariates python package dataset
+intent: OpenML Diabetes and OpenML Heart Disease RCT treatment outcome with covariates
+  python package dataset
 required_fields:
 - treatment
 - outcome
 - covariate_1
 - covariate_2
-cache_key: 77916d44f0a7b7ebb13a16cc5e0a5599579d4b250b792c08480b81dff1f6fbb9
-searched_at: '2026-10-14T03:20:51.138220+00:00'
+cache_key: 8af930bd6cfdef44318f8cc1390429e4062f5d9e8ea42e0b133f3cc00bae8e73
+searched_at: '2026-10-14T05:17:38.421002+00:00'
 retry_count: 1

@@ -1,14 +1,2 @@
-scikit-learn
-statsmodels
-scipy
-pandas
-numpy
-seaborn
-matplotlib
-requests
-openml
-miceforest
-# The base environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil. Adding openml and miceforest satisfies the
-# additional dependencies required by the US1 script.
+# Project-specific requirements
+openml>=0.14.1

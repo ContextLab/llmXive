@@ -65,7 +65,7 @@ ERROR tests/integration/test_us2_sensitivity.py - FileNotFoundError: [Errno 2] N
 ERROR tests/test_config.py
 ERROR tests/test_logging.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.10s ===============================
+============================== 3 errors in 1.42s ===============================
 
 
 
