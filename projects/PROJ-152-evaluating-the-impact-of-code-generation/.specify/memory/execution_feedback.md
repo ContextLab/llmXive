@@ -14,18 +14,18 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'datasets'
 
 - python code/generate.py -> rc=1
-2026-10-14 15:33:57,181 - INFO - Starting Generation Loop (T014)
-2026-10-14 15:33:57,181 - CRITICAL - Failed to load prompts: Manifest not found at /home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/data/prompts/manifest.json. Run T010 first.
+2026-10-14 15:41:09,773 - INFO - Starting Generation Loop (T014)
+2026-10-14 15:41:09,773 - CRITICAL - Failed to load prompts: Manifest not found at /home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/data/prompts/manifest.json. Run T010 first.
 
 
 - python code/analyze.py -> rc=1
-2026-10-14 15:33:57,544 - INFO - Starting vulnerability analysis pipeline...
-2026-10-14 15:33:57,544 - ERROR - Severity map not found at /home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/data/mappings/nist_severity_map.yaml
-2026-10-14 15:33:57,544 - ERROR - Failed to load severity map: Severity map not found: /home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/data/mappings/nist_severity_map.yaml
+2026-10-14 15:41:10,089 - INFO - Starting vulnerability analysis pipeline...
+2026-10-14 15:41:10,089 - ERROR - Severity map not found at /home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/data/mappings/nist_severity_map.yaml
+2026-10-14 15:41:10,089 - ERROR - Failed to load severity map: Severity map not found: /home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/data/mappings/nist_severity_map.yaml
 
 
 - python code/metrics.py -> rc=1
-2026-10-14 15:33:57,901 - ERROR - Raw findings file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/data/findings/raw_findings.csv
+2026-10-14 15:41:10,447 - ERROR - Raw findings file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/data/findings/raw_findings.csv
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/code/metrics.py", line 201, in <module>
@@ -36,8 +36,8 @@ FileNotFoundError: Raw findings file not found: /home/runner/work/llmXive/llmXiv
 
 - python code/stats.py -> rc=1
 
-2026-10-14 15:33:58,497 - __main__ - INFO - Loading raw metrics...
-2026-10-14 15:33:58,498 - __main__ - ERROR - Input file error: Raw metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/raw_metrics.csv
+2026-10-14 15:41:11,045 - __main__ - INFO - Loading raw metrics...
+2026-10-14 15:41:11,046 - __main__ - ERROR - Input file error: Raw metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/raw_metrics.csv
 
 - python code/viz.py -> rc=2
 

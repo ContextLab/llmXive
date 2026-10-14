@@ -119,4 +119,10 @@ T040:
 T041:
   task: 6d7c6db1da9b745fa1daa6658001316821597e621940364dda3ffce8ae789e44
 T042:
+  reason: "No artifact evidence was provided for this task \u2014 the collector confirms\
+    \ no resolved paths, and no `constitution.md` content (or any amendment text reflecting\
+    \ the 30-prompt pilot set, plus reviewer approval record) is available to verify.\
+    \ The task requires a documented amendment to Constitution Principle VII with\
+    \ obtained reviewer approval; without the actual file and approval evidence, the\
+    \ claim cannot be confirmed."
   task: 9e34449c135dac9fb81100c969c68e3f735339ffbd80942bb22aa3e3d1081b1c

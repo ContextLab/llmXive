@@ -115,3 +115,13 @@ T022d:
     \ no logic that actually performs the validation, writes the JSON report, or aborts\
     \ the pipeline on failure. These missing files and incomplete implementation mean\
     \ the task\u2019s requirements are not met."
+T042:
+  c: false
+  h: 7587a3f569617f5b6fc79ed9385c9284724791f6eab75599ca6b69e0ab682059
+  r: "No artifact evidence was provided for this task \u2014 the collector confirms\
+    \ no resolved paths, and no `constitution.md` content (or any amendment text reflecting\
+    \ the 30-prompt pilot set, plus reviewer approval record) is available to verify.\
+    \ The task requires a documented amendment to Constitution Principle VII with\
+    \ obtained reviewer approval; without the actual file and approval evidence, the\
+    \ claim cannot be confirmed."
+  sig: 2492f65b75b4cf449f08973345e0acd292c9317db1c4d57486991cbca618054b

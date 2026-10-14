@@ -20,7 +20,7 @@ description: "Task list for Evaluating the Impact of Code Generation Models on C
 - [X] T000b [P] **ALIGN PLAN** – Update the summary section of `plan.md` so it matches the amended `spec.md`. *(plan.md)*
 - [X] T000c [P] **UPDATE COVERAGE MAP** – Revise the FR/SC coverage map in `plan.md` to remove undefined FR‑006‑FR‑009 and SC‑001‑SC‑004 entries, and ensure all referenced IDs exist in `spec.md`. *(plan.md)*
 - [ ] T000d [P] **VERIFY PLAN ALIGNMENT** – Confirm that the plan’s coverage map aligns with `spec.md`; edit `plan.md` to eliminate any undefined FR or SC identifiers and obtain reviewer sign‑off. *(plan.md)*
-- [~] T042 [P] **CONSTITUTION PROMPT SET AMENDMENT** – Propose and document an amendment to Constitution Principle VII to reflect the approved pilot prompt set of 30 prompts (10 CodeXGLUE + 20 handcrafted) and obtain reviewer approval. *(constitution.md)*
+- [ ] T042 [P] **CONSTITUTION PROMPT SET AMENDMENT** – Propose and document an amendment to Constitution Principle VII to reflect the approved pilot prompt set of 30 prompts (10 CodeXGLUE + 20 handcrafted) and obtain reviewer approval. *(constitution.md)*
 
 ## Phase 1 – Project Setup & Core Infrastructure
 

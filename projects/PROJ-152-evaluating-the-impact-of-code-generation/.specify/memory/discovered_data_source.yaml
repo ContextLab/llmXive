@@ -1,13 +1,15 @@
 status: none
-intent: CodeXGLUE dataset pip install and HuggingFace StarCoder-Base CodeGenB GPT-NeoXB
-  python package
+intent: download CodeXGLUE filtered security prompts dataset starcoder-base codegen
+  gpt-neox python package dataset
 required_fields:
 - prompt_id
 - prompt_text
-- language
-- target_function
-- security_keywords
-- code_solution
-cache_key: 84d72ad74e954fa0fe360cd28f11df8676559de20e052163eb10a1c50b7506ed
-searched_at: '2026-10-14T15:34:54.649546+00:00'
+- programming_language
+- security_keyword
+- source_dataset
+- vulnerability_type
+- target_code
+- split
+cache_key: 8a791e6544e97007e6b60272d796585594b8a427db96080aceecf6198cf67950
+searched_at: '2026-10-14T15:42:08.137226+00:00'
 retry_count: 1
