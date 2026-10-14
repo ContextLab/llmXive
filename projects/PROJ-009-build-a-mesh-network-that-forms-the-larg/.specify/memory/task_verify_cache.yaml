@@ -1,11 +1,36 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No project directories or files were presented; there is no evidence that the
-    required folder hierarchy (`code/orchestrator`, `code/analysis`, etc.) exists,
-    that each contains an `__init__.py`, or that a `code/.gitignore` with the specified
-    content was created. The implementer must supply the actual directory structure
-    and the `.gitignore` file.
+  h: b410406e58552de47d1fc1667e2c32643ad2e2d3a2e4061c05ba18abdbccd3f8
+  r: Checked the project layout, config loader, mock node generator, logger, models,
+    CLI help output, and the `timeout_guard.py` decorator. The `data/raw/`, `data/processed/`,
+    and `data/results/` directories lack the required `__init__.py` files (and `data/results/`
+    is missing entirely), there is no `code/.gitignore`, the contract YAML schema
+    files are absent causing all `pytest code/tests/contract/` tests to fail, and
+    several functions in `timeout_guard.py` are left as `pass`. These missing/unfinished
+    artifacts prevent the task from being fully satisfied.
+  sig: f5054b1a50fcc757031c4f6cc71e83f2a512e57587dd4f0ceb435fe518db9581
+T002:
+  c: false
+  h: dce9ef07dbdbbe3b59a8df162bd24f44dc6ab7ed1b73b587d25cea748d9893d7
+  r: "The provided `code/orchestrator/node_manager.py` only implements SSH discovery,\
+    \ ping, heartbeat monitoring, and task reassignment; it lacks the required remote\u2011\
+    tool verification/installation (tcpdump, mpstat, iperf3), CPU profiling, radio\u2011\
+    metric collection, thermal checks, packet\u2011counting/CPU\u2011parsing with\
+    \ strict regexes, and high\u2011resolution timing. Corresponding unit tests for\
+    \ those features are also absent, so the module does not meet the task\u2019s\
+    \ specifications."
+  sig: 4f7a163799a430415143fd16e593ad418c1a4372e03e70bebe44cf5e4d3ed703
+T003:
+  c: false
+  h: 03434cf8a8ed47292fcaa30351432db99a83af34fcca57a6ed04c89a9124dc31
+  r: "The `code/orchestrator/scheduler.py` module exists but lacks the required `SchedulerState`\
+    \ class with `receive_task_status()`/`update_scheduler_state()`, does not implement\
+    \ heterogeneity\u2011aware heartbeat scoring, does not write per\u2011run dropout\
+    \ rates to `data/raw/dropout_events.json` (the file is missing), and omits the\
+    \ network\u2011saturation abort logic, the Monte\u202FCarlo `benchmark` function,\
+    \ and the asynchronous straggler timeout/penalty logging. Consequently the core\
+    \ specifications are not fulfilled."
+  sig: 77fcc907747751793196aa1274069d2ed8397f5d9e1157c2ecc2563b23d1fa26
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,50 +45,3 @@ T012:
     \ so we cannot verify that the required module exists, is non\u2011empty, or implements\
     \ the verification and installation of CLI tools on remote nodes. The task therefore\
     \ remains unfulfilled."
-T013c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `heartbeat_monitoring.py` file or its contents were provided in the evidence,\
-    \ and thus there is no implementation of heartbeat loss detection or heterogeneity\u2011\
-    aware re\u2011assignment logic to evaluate. The required artifact is missing."
-T014a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `instrumentor_remote.py` file or its contents were provided; there is no\
-    \ evidence that the script exists, is non\u2011empty, or implements SSH\u2011\
-    based remote execution of `tcpdump` and `mpstat` as required. The implementer\
-    \ must supply the actual file with functional code."
-T014b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `network_saturation_handler.py` file (or its contents) was presented in the\
-    \ evidence, so the required implementation does not exist or cannot be verified\
-    \ as non\u2011empty and handling the `NetworkSaturationException`. The task remains\
-    \ undone."
-T014c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `remote_wall_clock_timer.py` file (or any non\u2011empty implementation)\
-    \ is present in `code/orchestrator/`; without the script we cannot verify that\
-    \ it uses SSH, measures high\u2011resolution wall\u2011clock time, and outputs\
-    \ a CSV row with a `wall_clock_time` column as required. The task therefore remains\
-    \ unfinished."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `benchmark.py` file was found in `code/orchestrator/`, nor any code snippet,\
-    \ documentation, or output demonstrating that a Monte\u202FCarlo integration workload\
-    \ can be launched on remote nodes. The required artifact is missing, so the task\
-    \ is not satisfied."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `code/orchestrator/data_collector.py` file was provided, and there is no\
-    \ evidence of a generated CSV in `code/data/raw/`. Without the script and its\
-    \ output, the task\u2019s requirement cannot be confirmed as met."
-T052:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `thermal_monitor.py` file (or its contents) was provided in the evidence,
-    so there is no artifact to verify that thermal throttling detection was implemented
-    in `code/orchestrator/`. The required script is missing, making the task unfulfilled.

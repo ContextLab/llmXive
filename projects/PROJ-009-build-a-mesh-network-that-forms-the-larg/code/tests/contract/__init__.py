@@ -1,1 +1,1 @@
-# Contract Tests Directory
+"""Contract test package initialization."""

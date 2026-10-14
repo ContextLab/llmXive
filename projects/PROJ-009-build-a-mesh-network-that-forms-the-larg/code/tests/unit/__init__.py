@@ -1,1 +1,1 @@
-# Unit Tests Directory
+"""Unit test package initialization."""

@@ -1,1 +1,1 @@
-# Analysis Module
+"""Analysis package initialization."""

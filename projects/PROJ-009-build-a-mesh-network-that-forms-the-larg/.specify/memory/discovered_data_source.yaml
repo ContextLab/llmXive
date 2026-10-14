@@ -1,14 +1,12 @@
 status: none
-intent: download Google Cluster Data CPU utilization packet counts per node python
-  package dataset
+intent: Google and Alibaba Cluster Trace CPU utilization packet count logs download
+  python package dataset
 required_fields:
 - node_id
-- timestamp
-- cpu_utilization_percent
-- packet_sent
-- packet_received
 - task_id
-- task_chunk_id
-cache_key: b7fa6e1ca104afbb389c98ca1bf74eb42ca185e4213030381d96696259545220
-searched_at: '2026-07-31T13:49:53.265853+00:00'
+- wall_clock_time
+- packet_count
+- cpu_utilization
+cache_key: 65e1e61451130564576ce6086a1ac5ed916d104e6321af15b539b236f6d15f90
+searched_at: '2026-10-14T16:20:09.843781+00:00'
 retry_count: 1

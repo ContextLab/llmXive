@@ -1,0 +1,53 @@
+T001:
+  reason: Checked the project layout, config loader, mock node generator, logger,
+    models, CLI help output, and the `timeout_guard.py` decorator. The `data/raw/`,
+    `data/processed/`, and `data/results/` directories lack the required `__init__.py`
+    files (and `data/results/` is missing entirely), there is no `code/.gitignore`,
+    the contract YAML schema files are absent causing all `pytest code/tests/contract/`
+    tests to fail, and several functions in `timeout_guard.py` are left as `pass`.
+    These missing/unfinished artifacts prevent the task from being fully satisfied.
+  task: dc37f9d721b2ecda461e709079232cf81d928d17a7aae55199c64bcb2abe4877
+T002:
+  reason: "The provided `code/orchestrator/node_manager.py` only implements SSH discovery,\
+    \ ping, heartbeat monitoring, and task reassignment; it lacks the required remote\u2011\
+    tool verification/installation (tcpdump, mpstat, iperf3), CPU profiling, radio\u2011\
+    metric collection, thermal checks, packet\u2011counting/CPU\u2011parsing with\
+    \ strict regexes, and high\u2011resolution timing. Corresponding unit tests for\
+    \ those features are also absent, so the module does not meet the task\u2019s\
+    \ specifications."
+  task: 3e9778df17e71a207d3a96c08f5686b718c12a9ce0ff122ac865fe144e543e86
+T003:
+  reason: "The `code/orchestrator/scheduler.py` module exists but lacks the required\
+    \ `SchedulerState` class with `receive_task_status()`/`update_scheduler_state()`,\
+    \ does not implement heterogeneity\u2011aware heartbeat scoring, does not write\
+    \ per\u2011run dropout rates to `data/raw/dropout_events.json` (the file is missing),\
+    \ and omits the network\u2011saturation abort logic, the Monte\u202FCarlo `benchmark`\
+    \ function, and the asynchronous straggler timeout/penalty logging. Consequently\
+    \ the core specifications are not fulfilled."
+  task: bc539ec1de4a5241707497e425fc468f3f042a886d8820a6994aa4bb323d9e83
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/orchestrator/cli.py
+    exit=1'
+  task: b297694c183090b4c3b46db1bb5203f15500851cec3a870dd40d16fdb3cd2536
+T005:
+  task: 7a8c8bffa028b17f3ed660a1723fcf256c81809694467d46ee4a22de06811d28
+T006:
+  task: 1755ee35aa1c0603312060b38f2b56ecdf5e80802eabe1a28858a9d0d03b4e23
+T007:
+  task: b4d3e2bf2f0fc31411bf6723dde5f57ca92f9ee0ab6f0f4bff5bf9fa8cad8f6f
+T008:
+  task: a8c5449d1995f269285c5cfa542ee82a9794fc5e30c95827de3705ba480bb39a
+T009:
+  task: 101f532e2ccc9bc714b933c69e2d777eb370831d82f387b72b3ddbbc39a0874e
+T010:
+  task: 4385fc43bcdc021ab4c6ac9fc82d1ee5a234e928b5a0adbbb363d37fda72b62f
+T011:
+  task: 80f717e001a837e1460f41808a93a1f296af9946cedd7c0680de434c2d9f68fc
+T012:
+  task: 807ebeceab1984cdb1cb3b4faa34ea1c5573a1bb5bb00a719daeecfeecdb64c5
+T013:
+  task: a63d352a0f73dbd157e4e7bb5f95591d11c0e28cf8a750e0121946ee1755efd7
+T014:
+  task: 11c32258ea62f9f11599ffffe6a2c8fc56435d343c941bb3876dcbc7d9c62b70
+T015:
+  task: 6918e23e2c81a2614a5afb97f8ff08aed623608ad73b2283383351520852c353
