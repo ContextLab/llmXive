@@ -59,12 +59,12 @@ FileNotFoundError: [Errno 2] No such file or directory: 'data/processed/executio
 
 - python -m code.main -> rc=1
 
-2026-10-14 05:28:41,596 INFO __main__: Verifying required datasets (real fetch)...
-2026-10-14 05:28:41,596 INFO utils.data_fetcher: Dataset file /home/runner/work/llmXive/llmXive/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/data/raw/microsoft_ms_marco_v1.1_train.jsonl missing – fetching.
-2026-10-14 05:28:41,841 ERROR utils.data_fetcher: Failed to import datasets library: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-2026-10-14 05:28:41,841 WARNING __main__: Skipping real dataset verification due to import error or fetch failure: Unable to import datasets library and synthetic fallback is disabled.
-2026-10-14 05:28:41,841 INFO __main__: Proceeding with synthetic execution – the benchmark uses only synthetic queries and lightweight executors.
-2026-10-14 05:28:41,847 ERROR __main__: CPU throttling could not be applied: Failed to create cgroup directory /sys/fs/cgroup/llmxive_throttle_4834: [Errno 13] Permission denied: '/sys/fs/cgroup/llmxive_throttle_4834'
+2026-10-14 05:30:28,402 INFO __main__: Verifying required datasets (real fetch)...
+2026-10-14 05:30:28,403 INFO utils.data_fetcher: Dataset file /home/runner/work/llmXive/llmXive/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/data/raw/microsoft_ms_marco_v1.1_train.jsonl missing – fetching.
+2026-10-14 05:30:28,647 ERROR utils.data_fetcher: Failed to import datasets library: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+2026-10-14 05:30:28,647 WARNING __main__: Skipping real dataset verification due to import error or fetch failure: Unable to import datasets library and synthetic fallback is disabled.
+2026-10-14 05:30:28,647 INFO __main__: Proceeding with synthetic execution – the benchmark uses only synthetic queries and lightweight executors.
+2026-10-14 05:30:28,652 ERROR __main__: CPU throttling could not be applied: Failed to create cgroup directory /sys/fs/cgroup/llmxive_throttle_5402: [Errno 13] Permission denied: '/sys/fs/cgroup/llmxive_throttle_5402'
 
 
 ## Declared deliverables still missing

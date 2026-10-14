@@ -1,12 +1,11 @@
 status: none
-intent: download Spider train split MS MARCO subset DBpedia-10 RDF dataset python
-  package
+intent: download MS MARCO Spider train split DBpedia-10 dataset python package dataset
 required_fields:
 - query_id
 - query_text
-- depth
+- plan_depth
 - source_type
 - latency_ms
-cache_key: 9c1713d0b00e46c55734043468f1444574a201f11701303eca519205030b1042
-searched_at: '2026-10-14T05:29:27.799602+00:00'
+cache_key: 0078b5b697cd7b548063654fcfbdc1a7c9a5e3de16faa8df9f48587f66ecd2e7
+searched_at: '2026-10-14T05:31:22.144598+00:00'
 retry_count: 1
