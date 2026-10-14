@@ -35,11 +35,11 @@ Trying to import the above resulted in these errors:
 
 - python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv -> rc=1
 
-2026-10-14 13:09:57,371 ERROR __main__: Failed to import training utilities: No module named 'torch'
+2026-10-14 13:11:38,329 ERROR __main__: Failed to import training utilities: No module named 'torch'
 
 - python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json -> rc=1
 
-2026-10-14 13:09:57,446 ERROR __main__: Adaptive mode not yet implemented in this task.
+2026-10-14 13:11:38,407 ERROR __main__: Adaptive mode not yet implemented in this task.
 
 - python -m code.analysis  --fixed outputs/fixed_baselines.csv  --adaptive outputs/adaptive_run.json  --outdir outputs/statistics -> rc=1
 
@@ -55,17 +55,21 @@ Trying to import the above resulted in these errors:
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **8792** real records with fields: question, answer.
+- **Verified**: this loads **7473** real records with fields: question, answer.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
+import sys
 from datasets import load_dataset
 
-ds = load_dataset("openai/gsm8k", "main")
-total_records = sum(len(split) for split in ds.values())
-print(f"RECORDS={total_records}")
-first_split = next(iter(ds.values()))
-print("FIELDS=" + ",".join(first_split.column_names))
+# Load the full GSM8K training split using the required config name
+ds = load_dataset('openai/gsm8k', 'main', split='train')
+
+records = len(ds)
+print(f'RECORDS={records}')
+
+fields = ds.column_names
+print('FIELDS=' + ','.join(fields))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

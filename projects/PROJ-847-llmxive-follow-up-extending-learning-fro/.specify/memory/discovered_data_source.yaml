@@ -1,28 +1,33 @@
 status: verified
 kind: pypi_package
 ref: datasets
-access_python: 'from datasets import load_dataset
+access_python: 'import sys
+
+  from datasets import load_dataset
 
 
-  ds = load_dataset("openai/gsm8k", "main")
+  # Load the full GSM8K training split using the required config name
 
-  total_records = sum(len(split) for split in ds.values())
+  ds = load_dataset(''openai/gsm8k'', ''main'', split=''train'')
 
-  print(f"RECORDS={total_records}")
 
-  first_split = next(iter(ds.values()))
+  records = len(ds)
 
-  print("FIELDS=" + ",".join(first_split.column_names))'
-record_count: 8792
+  print(f''RECORDS={records}'')
+
+
+  fields = ds.column_names
+
+  print(''FIELDS='' + '',''.join(fields))'
+record_count: 7473
 sample_fields:
 - question
 - answer
 field_coverage: 0.5
 required_fields:
-- id
 - question
 - answer
 - solution
-intent: download GSM8K dataset and HuggingFace logical deduction subset python package
-  dataset
-cache_key: d531c3e8d91990a041bbf0f8524739df421efed212b2b07ec15461b123271b9b
+- metadata
+intent: GSM8K dataset HuggingFace logical deduction subset python package dataset
+cache_key: ba078baea86e070d0f02bc1a905f173c9379cca4ed3b1682ca13bd9eadad6ae6
