@@ -19,8 +19,8 @@ T002b:
     \ therefore unmet."
   task: 7eb9b637e8d7970488feb7a2facf1e862adcb12e7b2f690279a7fc68f29ae782
 T002c:
-  reason: 'declared artifact(s) missing/empty/invalid: code/utils/validate_citations.py,
-    data/artifacts/citation_validation_report.json'
+  reason: 'Requested task execution failed; rerun successfully: code/utils/validate_citations.py
+    exit=2'
   task: 3a3c7351cf9b4d4b4a2be71093bb829bfdf9ea569377a2f0ac532a09be71da7f
 T003:
   reason: Checked `.ruff.toml` (lacks required `select` and `target-version="py311"`),
@@ -61,12 +61,32 @@ T005e:
 T005f:
   task: cd9ed176af863e7ee8a969dad864a55c0990566ef5bce014154517f8521482c0
 T006a:
+  reason: "The file `specs/001-llmxive-followup/contracts/failure_case.schema.yaml`\
+    \ exists, but its JSON schema does not define the required keys (`task_id`, `raw_error_log`,\
+    \ `ground_truth_resolution`, `annotated_structural_feature`) nor the exact enum\
+    \ values (\u201CSyntactic Error\u201D, \u201CLogical Loop\u201D, \u201CSemantic\
+    \ Ambiguity\u201D, \u201CMissing Context\u201D, \u201CUnstructured\u201D). The\
+    \ schema uses different property names (`id`, `structural_feature`) and includes\
+    \ extra fields, and its enum entries are mismatched. The task therefore remains\
+    \ incomplete."
   task: d6eaaeacd015f38799e22181805bc5156de4692864b1dc22742e680cc40f5f3f
 T006c:
+  reason: 'The file `specs/001-llmxive-followup/contracts/pivot_attempt.schema.yaml`
+    exists, but its schema does not match the task specification: it defines keys
+    like `attempt_id`, `steps_to_pivot` (integer), `is_censored`, `failure_category`,
+    etc., instead of the required `task_id`, `method`, `time_to_pivot` (float), `success`,
+    and `failure_type`. The required fields are missing or incorrectly typed, so the
+    task is not satisfied.'
   task: de3c6dadf6449358ffd50d9e127664a0f93759f004217030353508aa83179eeb
 T006d:
   task: a746440af9b178106050f3ec50da1c4eae6849ba4f0d6cc58c01f56351d9c91a
 T007:
+  reason: "Checked `code/utils/config.py`: while it defines the required resource\
+    \ limits, it lists the wrong first model (`\"Llama-8B-INT4\"` instead of `\"LlamaB-INT4\"\
+    `), and it does not expose any configuration via environment variables as the\
+    \ task specifies. The random\u2011seed helper is present, but the missing/incorrect\
+    \ model list and lack of env\u2011var handling mean the implementation does not\
+    \ meet the stated requirements."
   task: bdc2d01255b1627b7090ec90ff538a431034fc14c37c281bf83b91915afc2a0b
 T007b:
   reason: 'declared artifact(s) missing/empty/invalid: code/utils/config_baseline.py'
@@ -80,6 +100,10 @@ T007d:
 T008:
   task: 11806380de0eb0be5ec98467239beb9d9425dd6bc11fe64a69d3b7a883d5c98b
 T009:
+  reason: "The provided `download_arc_bench.py` only streams a generic ARC\u2011Challenge\
+    \ split, saves a JSON file, and lacks any `topic_id` filtering, parquet output,\
+    \ or SHA\u2011256 checksum generation. Consequently the required `data/raw/arc_bench_topic_subset.parquet`\
+    \ and `data/raw/.checksums` files are missing."
   task: 414d34ac52ba4bc7c67ad2acb3648216f42b09cd71213e1670281e5a66dba8fa
 T009a:
   reason: 'declared artifact(s) missing/empty/invalid: code/annotation/annotator.py'

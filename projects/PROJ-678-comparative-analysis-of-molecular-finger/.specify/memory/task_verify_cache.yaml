@@ -1,11 +1,3 @@
-T001a:
-  c: false
-  h: f0398c41a79c53d2cdab48772f15f88d4a73bbc4c89bac55144d608f76a508fe
-  r: "The required directory `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
-    \ does not exist (collector marks it MISSING), and the script log shows creation\
-    \ of `projects/PROJ-678-comparative-analysis-of-molecular-finger/` (missing \u201C\
-    prints\u201D). Hence the exact project structure requested was not created."
-  sig: 4bddd2414d1385fd5883b07afb0594b24ae19eebbea1a8751b0f2382d618157f
 T001b:
   c: true
   h: ca3db7b0b06102ca44db8d76bc020d1f1a7cde7b57f3d059d348f96d31a9ec7b
@@ -36,12 +28,29 @@ T004:
     \ a non\u2011empty `.gitkeep` file (`data/raw/.gitkeep` and `data/processed/.gitkeep`).\
     \ The verification command would succeed."
   sig: a0ffea29b00f20909ab0b90da754cc2dba1117dc2ca9eff3ef074d1ad9a924c8
+T005:
+  c: true
+  h: 954b10b30839ddc0d649ffd65f67eec22d173b802086d22ca536becb6b955555
+  r: "Checked `code/utils.py` (2001\u202Fbytes) which defines `setup_logging`, `init_random_seed`\
+    \ (default seed\u202F42) and sets the `PYTHONHASHSEED` environment variable, fulfilling\
+    \ the required logging, seed initialization, and environment\u2011variable handling."
+  sig: 611d37727658a1c891f6c4038d44305969608d9fddbbbfe4fa33281162a9928b
+T006:
+  c: true
+  h: 42b12aee9de6c9309db3ef93bb02dc81641e94a7e9868c41ceff2dbdf3690aa7
+  r: "Checked `code/constants.py` \u2013 it defines all required variables with the\
+    \ exact values. Verified `code/filter.py` imports `SMARTS_PATTERN` from `constants.py`\
+    \ and uses it (no hard\u2011coded pattern). Both files exist and contain the correct,\
+    \ non\u2011placeholder implementations."
+  sig: ce3b649bf48cbddf98dfbc930b4594c69dd3b4047efcc0a04c1106fe080f65c2
 T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing a `tests/` directory with the required `unit/`
-    and `integration/` subfolders; the claim lacks any artifact confirming the directory
-    structure exists.
+  c: true
+  h: 1f40447734e7e19d0cc72769847ecfe2bcefcbd18e2c64fe4b0b748bca0ddf71
+  r: "Checked the `tests/` directory (sha256\u202F8dca8062\u2026) which contains the\
+    \ required `unit/` and `integration/` sub\u2011directories, along with supporting\
+    \ files (`__init__.py`, `conftest.py`). The directory structure demanded by task\
+    \ T007 is present."
+  sig: bf95ffe2a58176a0b3af874d81240d8cb33ab797b928a19a8e0fc57037ac9d3d
 T008:
   c: true
   h: 9333435ae80841b5ff8a77f328d2285ef3f3d36cc56f34baf8a0c3db394a8bf6
@@ -52,6 +61,23 @@ T008:
     \ fingerprint_type: str, endpoint: str, metrics: dict}`, and `{name: str, value:\
     \ float, ci: tuple}` as required."
   sig: e878eb630a6d05ba286bf76c58456c2242ec51651fd4a8491fbec77b65a515f8
+T009:
+  c: true
+  h: d88861a958cf061b490db3bb2de61350cad894f7caf2032063497c9399db2b0d
+  r: "Checked `tests/unit/test_filter.py` which contains the `test_smarts_filter_returns_empty_on_no_match`\
+    \ pytest function that creates a mock DataFrame with non\u2011matching SMILES,\
+    \ calls `apply_smarts_filter`, and asserts the result is an empty DataFrame. The\
+    \ test file exists, is non\u2011empty, and implements the required behavior."
+  sig: 02b602855755e3eaa4d3a6621a20c042047974b1924016974d1bb43012002a12
+T010:
+  c: false
+  h: 86ebb616450720d7ae7420d4c734660d618b44885e01a053a55d7a87680f8e77
+  r: "The provided `tests/integration/test_download.py` defines `test_download_and_checksum_tox21`\
+    \ and does download the Tox21 dataset and compute an MD5 checksum, but it never\
+    \ asserts that the computed checksum matches a known reference value. Without\
+    \ a comparison to an expected hash, the test does not truly validate the checksum,\
+    \ so the integration\u2011test requirement is not fully met."
+  sig: db3841aa7b99f690b68f0ad359140c5670124f5adfdfa2295973eb631eb55275
 T012:
   c: false
   h: f435163df416b14ce8cc2e2946b54b94527927eb7ae9fb1755948a75c352e70d

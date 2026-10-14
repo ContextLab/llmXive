@@ -1,9 +1,8 @@
 status: none
-intent: download Tox21 toxicity dataset as pip installable python package dataset
+intent: download Tox21 dataset organophosphate subset SMARTS filter python package
 required_fields:
-- compound_id
 - smiles
-- inchikey
+- compound_id
 - toxicity_endpoint_1
 - toxicity_endpoint_2
 - toxicity_endpoint_3
@@ -13,6 +12,7 @@ required_fields:
 - toxicity_endpoint_7
 - toxicity_endpoint_8
 - toxicity_endpoint_9
-cache_key: 9112d03fc5f09dfbacab4c84ba023dd57048a3570245b2ef3475900f79ba8f4e
-searched_at: '2026-10-13T06:57:28.229580+00:00'
+- toxicity_endpoint_10
+cache_key: 8a125549a973da32386c911c002a62e36a6c7697b6ccc74bdc988fc74005ce17
+searched_at: '2026-10-14T12:36:24.318213+00:00'
 retry_count: 1

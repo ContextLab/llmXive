@@ -68,9 +68,9 @@ description: "Task list template for feature implementation"
 - [X] T002 Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
 - [X] T004 [P] Create `data/raw/` and `data/processed/` directories with `.gitkeep`. Verify with: `ls -d data/raw data/processed && test -f data/raw/.gitkeep && test -f data/processed/.gitkeep`.
-- [~] T005 [P] Implement `code/utils.py` with logging configuration, random seed initialization (seed=42), and environment variable loading
-- [~] T006 [US1] Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"` (str), `TANIMOTO_THRESHOLD = 0.85` (float), `MORGAN_RADIUS = 2` (int), `MORGAN_BITS = 2048` (int), `MACCS_BITS = 166` (int), `N_FOLDS = 5` (int). **MUST**: Ensure `code/filter.py` imports and applies this exact constant from `code/constants.py`; hardcoding the pattern in `code/filter.py` is strictly forbidden. **Dependency**: T005 must complete before T006. T011 and T012 depend on T006 completion.
-- [~] T007 [P] Setup `tests/` directory structure (`unit/`, `integration/`)
+- [X] T005 [P] Implement `code/utils.py` with logging configuration, random seed initialization (seed=42), and environment variable loading
+- [X] T006 [US1] Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"` (str), `TANIMOTO_THRESHOLD = 0.85` (float), `MORGAN_RADIUS = 2` (int), `MORGAN_BITS = 2048` (int), `MACCS_BITS = 166` (int), `N_FOLDS = 5` (int). **MUST**: Ensure `code/filter.py` imports and applies this exact constant from `code/constants.py`; hardcoding the pattern in `code/filter.py` is strictly forbidden. **Dependency**: T005 must complete before T006. T011 and T012 depend on T006 completion.
+- [X] T007 [P] Setup `tests/` directory structure (`unit/`, `integration/`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,8 +86,8 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test in `tests/unit/test_filter.py::test_smarts_filter_returns_empty_on_no_match`. Implement a pytest function that asserts the filtered dataframe is empty when the SMARTS pattern matches no compounds in a mock dataset.
-- [~] T010 [P] [US1] Integration test in `tests/integration/test_download.py::test_download_and_checksum_tox21` to verify dataset download and checksum validation.
+- [X] T009 [P] [US1] Unit test in `tests/unit/test_filter.py::test_smarts_filter_returns_empty_on_no_match`. Implement a pytest function that asserts the filtered dataframe is empty when the SMARTS pattern matches no compounds in a mock dataset.
+- [ ] T010 [P] [US1] Integration test in `tests/integration/test_download.py::test_download_and_checksum_tox21` to verify dataset download and checksum validation.
 
 ### Implementation for User Story 1
 
@@ -158,7 +158,7 @@ description: "Task list template for feature implementation"
 - [~] T018c2 [US2] **K-Fold Verification**: Implement verification logic in `code/split.py`.
  **CRITICAL HARD GATE**: If the algorithm fails to find a valid split for any fold, immediately write `data/processed/kfold_split_error.log` with the specific error reason and **HALT** the K-Fold path.
  **Dependency**: T018c1.
-- [ ] T018c3 [US2] **K-Fold Artifacts**: Generate artifacts based on T018c2 status.
+- [ ] T018c3 [US2] **K-Fold Artifacts**: Generate artifacts based on T018c2 status. <!-- FAILED-IN-EXECUTION: code/split.py exit=1 -->
  **Deliverable**: If VALID, write `data/processed/kfold_split_indices.json` with schema `{"status": "VALID", "folds": [{"fold_id": int, "train_indices": [int], "test_indices": [int]}]}`. If INVALID, write `data/processed/kfold_split_invalid_report.md` and `data/processed/kfold_split_error.log`.
  **CRITICAL**: This task MUST enforce the Tanimoto < 0.85 constraint for *every* fold to satisfy Constitution VII. **Dependency**: T018c2. **Parallel to T018a**.
 - [~] T019 [US2] **K-Fold Training**: Implement `code/train.py` to train Random Forest models (100 trees, max_depth=15) using **K-Fold Cross-Validation** on the **full filtered dataset** for the statistical test (FR-005).

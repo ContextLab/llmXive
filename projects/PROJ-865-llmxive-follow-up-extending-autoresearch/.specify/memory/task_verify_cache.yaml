@@ -48,14 +48,61 @@ T005:
     \ an extra `pyyaml` entry. These deviations mean the task\u2019s requirement is\
     \ not satisfied."
   sig: dfd5187b9d99f464f93aeb2b5e3bb81e30607f28ed1dd670ba814220ada94698
+T006a:
+  c: false
+  h: 7bd5ff71a40bda68dbc08bcd13e2b323b2ac7074161a3a11ed69c22ada4c7b0f
+  r: "The file `specs/001-llmxive-followup/contracts/failure_case.schema.yaml` exists,\
+    \ but its JSON schema does not define the required keys (`task_id`, `raw_error_log`,\
+    \ `ground_truth_resolution`, `annotated_structural_feature`) nor the exact enum\
+    \ values (\u201CSyntactic Error\u201D, \u201CLogical Loop\u201D, \u201CSemantic\
+    \ Ambiguity\u201D, \u201CMissing Context\u201D, \u201CUnstructured\u201D). The\
+    \ schema uses different property names (`id`, `structural_feature`) and includes\
+    \ extra fields, and its enum entries are mismatched. The task therefore remains\
+    \ incomplete."
+  sig: f2480a0e84a45b3c5aabb4887d8d26781f39885ddb106fa4c0ab2858dbb5b0c1
+T006c:
+  c: false
+  h: a6b110de104228a3025aa452601cdaeee830948d905de8efe5fc484e2f3b9b5d
+  r: 'The file `specs/001-llmxive-followup/contracts/pivot_attempt.schema.yaml` exists,
+    but its schema does not match the task specification: it defines keys like `attempt_id`,
+    `steps_to_pivot` (integer), `is_censored`, `failure_category`, etc., instead of
+    the required `task_id`, `method`, `time_to_pivot` (float), `success`, and `failure_type`.
+    The required fields are missing or incorrectly typed, so the task is not satisfied.'
+  sig: b0ef5e63a2898fbd3cac3e4b0af977e948d3ab6a30e13b0d54c4cf2d0720aa48
+T006d:
+  c: true
+  h: 8d3facd3c3eb2a6ccaf50f01d6bfe3c3d57fd9bca8b0a05fd8e89b868ddc300a
+  r: "Checked `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`, which\
+    \ exists and defines the required properties `rule_id` (string), `condition_pattern`\
+    \ (string), `pivot_action` (string), and `confidence` (number/float) with appropriate\
+    \ constraints, satisfying the task\u2019s schema specification."
+  sig: ac8950d1a47e6d045b13e4807a3172662491d465ec64350cc6b5a84c16e552d1
 T007:
   c: false
-  h: 60f28228e2ddcb6ffd1aacf550eeb70eb6b75b8faae27f36cbb4329ccb56746c
-  r: "The provided `code/utils/update_state.py` is truncated (ends mid\u2011line)\
-    \ and does not contain logic to scan both `data/derived/` and `results/`, nor\
-    \ does it automatically run after each major phase. Moreover, the required state\
-    \ file `state/projects/PROJ-865-llmxive-followup-extending-autoresearch.yaml`\
-    \ is missing, so the hashes and timestamp cannot be recorded."
+  h: 4eeab5d5243cfa8f9fb86bccf677686fb2e79bcc44d4c61a3c4076e6f0e0bede
+  r: "Checked `code/utils/config.py`: while it defines the required resource limits,\
+    \ it lists the wrong first model (`\"Llama-8B-INT4\"` instead of `\"LlamaB-INT4\"\
+    `), and it does not expose any configuration via environment variables as the\
+    \ task specifies. The random\u2011seed helper is present, but the missing/incorrect\
+    \ model list and lack of env\u2011var handling mean the implementation does not\
+    \ meet the stated requirements."
+  sig: beba18f26d1fa46253dde53d1da1fb786d88db4827eeeee2087cf714ee31f185
+T008:
+  c: true
+  h: e4ab61c6e30f2c0b589c08ba6be7f3f876ea7e7b791ac8b584789e19d5bc91b9
+  r: "Checked the `code/utils/logging.py` file (2273\u202Fbytes) which defines a configurable\
+    \ logger, stage\u2011start/end helpers, and optional resource\u2011usage logging,\
+    \ fulfilling the requirement to provide structured logging utilities for pipeline\
+    \ stages."
+  sig: 2928932225d435d820b5e0d56c01b5b97b700f3236d2ebf6410a1c6a4cd55104
+T009:
+  c: false
+  h: 3dd1a9f480a2271f323677339c7dcfa4f0e173ce3c0827f9b3c315cad7089a1a
+  r: "The provided `download_arc_bench.py` only streams a generic ARC\u2011Challenge\
+    \ split, saves a JSON file, and lacks any `topic_id` filtering, parquet output,\
+    \ or SHA\u2011256 checksum generation. Consequently the required `data/raw/arc_bench_topic_subset.parquet`\
+    \ and `data/raw/.checksums` files are missing."
+  sig: 97f1d702e21f28d2bbb11d9a9e2b4d7ffe30404154ca2eb8417f7c110b8b866f
 T015b:
   c: false
   h: cfc439a05981677f666f5d9dd99aa8fb5cc37b6ccc92c9330c91e1557d733b59
