@@ -2,180 +2,107 @@
 
 **Inputs**: `spec.md`, `plan.md`, reviewer feedback, and any existing artifacts.
 
-The tasks below constitute a complete, end‑to‑end research pipeline that satisfies every functional requirement (FR‑001 – FR‑015) and success criterion (SC‑001 – SC‑006).  They are ordered to respect data flow and computational dependencies.  All paths are project‑owned and will be created under `code/`, `data/`, `figures/`, or `models/`.
+The tasks below constitute a complete, end‑to‑end research pipeline that satisfies every functional requirement (FR‑001 – FR‑015) and success criterion (SC‑001 – SC‑006).  They are ordered to respect data flow and computational dependencies.  All paths are project‑owned and will be created under `code/`, `data/`, `figures/`, `models/`, or `reports/`.
 
 ---
 
-## Phase 0 – Reproducibility & Seed Setup  
+## Phase 0 – Feasibility & Data‑source Verification  
 
-- [ ] T001 [P1] [US1] **Verify that all pipeline scripts pin a global random seed** – `code/check_seeds.py`.  
-  - *Verification*: script scans every `.py` file under `code/` for a constant `RANDOM_SEED = <int>` (e.g., `42`). It writes the discovered seed to `state/random_seed.yaml` and exits with status 0 only if the constant is present in **all** scripts.
+- [ ] **T001** [S1] [US1] Verify that at least one openly downloadable dataset contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`).  
+  - *Implementation*: `code/verify_data_source.py` queries the NIST, Zenodo, and Materials Project APIs, downloads the dataset headers, and checks column presence.  
+  - *Verification*: script writes a JSON report `data/source/availability_report.json` listing datasets that satisfy the requirement; CI fails if the list is empty, prompting a scope revision before any downstream work.
 
 ---
 
-## Phase 1 – Data Acquisition & Validation  
+## Phase 1 – Data Acquisition & Integrity  
 
-- [ ] T002 [P1] [US1] **Download raw adhesion datasets** from the three verified repositories.  
-  - *Implementation*: `code/download_data.py` uses `wget`/`curl` with fixed URLs (e.g., NIST DOI [UNRESOLVED-CLAIM: 10.18434/T4D12B — HTTP 404], Zenodo DOI [UNRESOLVED-CLAIM: 10.5281/zenodo.1234567 — HTTP 404], Materials Project API).  
-  - *Verification*: each file saved under `data/raw/<source>.csv` with a SHA‑256 checksum recorded in `data/raw/checksums.txt`.  
+- [ ] **T002** [S1] [US1] Download the verified raw dataset(s) identified by T001 and record SHA‑256 checksums.  
+  - *Implementation*: `code/download_data.py` uses `wget`/`curl` with the concrete URLs from the availability report and saves files under `data/raw/<source>.csv`.  
+  - *Verification*: script writes `data/raw/checksums.txt` (one line per file) and exits with status 0 only if every download succeeds and the computed checksum matches the recorded value.
 
-- [ ] T003 [P1] [US1] **Generate per‑source unit‑metadata JSON files** (`data/raw/<source>_units.json`).  
-  - *Verification*: JSON maps each column to its declared unit; script raises `UnitMismatchError` on inconsistency.
-
-- [ ] T016 [P1] [US1] **Verify SHA‑256 checksums of downloaded raw files** – `code/verify_checksums.py`.  
-  - *Verification*: reads `data/raw/checksums.txt`, recomputes each file’s checksum, fails on any mismatch, and writes a verified manifest to `data/raw/verified_checksums.txt`.
+- [ ] **T003** [S1] [US1] Generate per‑source unit‑metadata JSON files and validate unit consistency.  
+  - *Implementation*: `code/generate_units_metadata.py` reads each raw CSV, creates `data/raw/<source>_units.json` mapping columns to declared SI units, and raises `UnitMismatchError` on any inconsistency.  
+  - *Verification*: successful execution produces the JSON files; any raised error aborts the pipeline.
 
 ---
 
 ## Phase 2 – Ingestion & Pre‑processing  
 
-- [ ] T004 [P1] [US1] **Parse, unify units, and canonicalise treatment labels** – `code/preprocess.py`.  
-  - *Steps*:  
-    1. Load all raw CSVs, convert numeric fields to SI using metadata from T003.  
-    2. Canonicalise `treatment_type` to the taxonomy (e.g., “Oxygen Plasma”).  
-    3. One‑hot encode `treatment_type` and `pair_id`.  
-  - *Output*: `data/cleaned/cleaned.csv`.  
-  - *Verification*: cleaned file contains exactly the columns defined in the `TreatmentRecord` schema, no missing critical values, and logs each imputation.
-
-- [ ] T005 [P1] [US1] **Impute missing numeric values per substrate class** – incorporated in `code/preprocess.py`.  
-  - *Verification*: median used per substrate class recorded in `data/cleaned/imputation_log.json`; re‑loading the CSV yields no `NaN` in required fields.
-
-- [ ] T006 [P1] [US1] **Flag low‑coverage fields** – part of `code/preprocess.py`.  
-  - *Verification*: `data/cleaned/field_coverage.json` lists non‑missing percentages; any column < 80 % is marked `"low_coverage": true`.
+- [ ] **T004** [S1] [US1] Parse raw files, convert all numeric fields to SI, canonicalise `treatment_type`, one‑hot encode categorical fields (`treatment_type`, `pair_id`), median‑impute missing numeric values *per substrate class*, and flag low‑coverage columns.  
+  - *Implementation*: `code/preprocess.py` produces a single cleaned file `data/cleaned/cleaned.csv`.  
+  - *Verification*:  
+    - `data/cleaned/cleaned.csv` must contain exactly the columns defined in the `TreatmentRecord` schema with **no missing values** in required fields.  
+    - Imputation details are recorded in `data/cleaned/imputation_log.json`.  
+    - Field‑coverage percentages are stored in `data/cleaned/field_coverage.json`; any column < 80 % is marked `"low_coverage": true`.
 
 ---
 
 ## Phase 3 – Train‑Validation‑Test Split  
 
-- [ ] T007 [P2] [US2] **Perform grouped split by `pair_id` (70/15/15)** – `code/split.py`.  
-  - *Behavior*: polymer‑substrate groups with fewer than 5 records are excluded (FR‑011).  
-  - *Outputs*: `data/split/train.csv`, `data/split/val.csv`, `data/split/test.csv`.  
-  - *Verification*: each split respects the 70/15/15 proportion within 1 % tolerance and retains `pair_id`.
+- [ ] **T005** [S2] [US2] Perform a grouped split by `pair_id` (70 % train, 15 % validation, 15 % test). Exclude polymer‑substrate groups with fewer than 5 records (FR‑011).  
+  - *Implementation*: `code/split_dataset.py` writes `data/split/train.csv`, `data/split/val.csv`, and `data/split/test.csv`.  
+  - *Verification*: each split respects the 70/15/15 proportion within 1 % tolerance and contains the `pair_id` column; a summary `data/split/split_summary.json` is generated.
 
 ---
 
-## Phase 4 – Model Training & Hyper‑parameter Search  
+## Phase 4 – Model Training & Selection  
 
-- [ ] T008 [P2] [US2] **Grid‑search ≤ 50 hyper‑parameter combos for three regressors** – `code/train_models.py`.  
-  - *Models*: Random Forest, Gradient Boosting, Linear Regression (scikit‑learn).  
-  - *Constraints*: `n_estimators ≤ 200`, `max_depth ≤ 15`, total combos ≤ 50.  
-  - *Outputs*: serialized model per combo under `models/` (e.g., `models/rf_001.pkl`).  
-  - *Verification*: `models/grid_search_results.json` records validation R², RMSE, and runtime; script finishes within the 3.5 h CPU limit.
+- [ ] **T006** [S2] [US2] Grid‑search ≤ 50 hyper‑parameter combinations across three regressors (Random Forest, Gradient Boosting, Linear Regression) on the training set, evaluate on the validation set, and record validation R², RMSE, and 95 % bootstrapped CI.  
+  - *Implementation*: `code/train_models.py` saves every trained model under `models/` (e.g., `models/rf_001.pkl`) and writes `models/grid_search_results.json`.  
+  - *Verification*: script finishes within the 3.5 h CPU limit; `grid_search_results.json` contains the full list of combos and their metrics.
 
-- [ ] T009 [P2] [US2] **Select best model based on validation R² lower‑CI ≥ 0.5** – logic inside `code/train_models.py`.  
-  - *Verification*: selected model written to `models/best_model.json` with fields `model_type`, `hyperparameters`, `validation_r2`, `validation_r2_ci_lower`.
+- [ ] **T007** [S2] [US2] Compute k‑fold cross‑validated R² for each model (using the same folds as the split), then select the **best** model: the model with the highest mean CV R² (no abort on low performance). Record its type, hyperparameters, validation metrics, CV R² statistics, and a `null_result` flag if mean CV R² < 0.5 in `models/best_model.json`.  
+  - *Verification*: `best_model.json` must exist; CI checks that the required fields are present and that a `null_result` flag is set when appropriate.
 
-- [ ] T022 [P2] [US2] **Enforce model acceptance criteria** – `code/validate_best_model.py`.  
-  - *Verification*: reads `models/best_model.json` and `results/permutation_p_value.txt`; asserts `validation_r2_ci_lower >= 0.5` **and** `p_value < 0.05`. Fails otherwise.
+- [ ] **T008** [S2] Compute test‑set metrics (R², RMSE, MAE) for **all three** trained models and emit a `ModelArtifact` JSON for each under `models/` (e.g., `models/rf_artifact.json`).  
+  - *Verification*: each JSON validates against `contracts/model_artifact.schema.yaml`; the best model’s test metrics are also copied into `models/best_model.json`.
 
 ---
 
-## Phase 5 – Model Evaluation  
+## Phase 5 – Statistical Significance  
 
-- [ ] T010 [P2] [US2] **Compute test‑set metrics for all three models and output ModelArtifact JSON** – `code/evaluate.py`.  
-  - *Outputs*: one JSON per model under `models/` (e.g., `models/rf_artifact.json`) conforming to `contracts/model_artifact.schema.yaml`.  
-  - *Verification*: each JSON validates against the schema; best model’s test metrics also copied into `models/best_model.json` as `test_r2`, `test_rmse`, `test_mae`.
-
----
-
-## Phase 6 – Nested Permutation Significance Test  
-
-- [ ] T011 [P3] [US3] **Run 5‑fold outer CV with inner hyper‑parameter tuning, then 1 000‑shuffle permutation test** – `code/perm_test.py`.  
-  - *Procedure*: outer CV for evaluation, inner CV for tuning; after model selection, permute target within each outer test fold 1 000 times to build null R² distribution.  
-  - *Output*: `results/permutation_p_value.txt`.  
-  - *Verification*: script prints p‑value and exits with status 0 **only if** the numeric value is < 0.05.
+- [ ] **T009** [S3] Run a permutation test with exactly **1,000 shuffles** of the target on the best model’s test set to obtain an empirical p‑value for the observed R².  
+  - *Implementation*: `code/perm_test.py` writes the p‑value to `results/permutation_p_value.txt`.  
+  - *Verification*: CI asserts that the file exists and that the numeric value is `< 0.05`. If the p‑value ≥ 0.05, the pipeline proceeds (null‑finding will be reported later).
 
 ---
 
-## Phase 7 – SHAP Interpretability & Stability  
+## Phase 6 – Interpretability & Stability  
 
-- [ ] T012 [P3] [US3] **Generate SHAP summary plot and values for the best model** – `code/shap_analysis.py`.  
-  - *Tree models*: `shap.TreeExplainer`; *Linear model*: `shap.LinearExplainer` (fallback to `KernelExplainer`).  
-  - *Outputs*: `figures/shap_summary.png` and `results/shap_feature_ranking.json`.  
+- [ ] **T010** [S3] Generate SHAP values for the best model, produce a summary plot PNG, and save a feature‑ranking JSON. Use `shap.TreeExplainer` for tree models; fall back to `shap.LinearExplainer` or `shap.KernelExplainer` for linear models (FR‑015).  
+  - *Implementation*: `code/shap_analysis.py` outputs `figures/shap_summary.png` and `results/shap_feature_ranking.json`.  
+  - *Verification*: CI checks that both files exist, the PNG is a valid image, and the JSON conforms to a simple schema (feature → mean | abs SHAP).
 
-- [ ] T018 [P3] [US3] **Assess SHAP value stability across k‑fold CV** – `code/shap_stability.py`.  
-  - *Procedure*: compute SHAP values in each fold of a k‑fold CV (same `k` used for model evaluation).  
-  - *Output*: `results/shap_stability.json` containing `std_mean_shap`.  
-  - *Verification*: asserts `std_mean_shap < 0.1`.
+- [ ] **T011** [S3] Assess SHAP‑value stability across the k‑fold CV used in Phase 5; compute the standard deviation of mean absolute SHAP values across folds and require `< 0.1`.  
+  - *Implementation*: `code/shap_stability.py` writes `results/shap_stability.json`.  
+  - *Verification*: CI checks the `std_mean_shap` field against the threshold.
 
----
+- [ ] **T012** [S3] Produce the four required visualizations for the best model:  
+  1. Predicted‑vs‑actual scatter (`figures/predicted_vs_actual.png`)  
+  2. Residual histogram (`figures/residual_histogram.png`)  
+  3. SHAP summary plot (already generated in T010)  
+  4. Parameter‑response curves (`figures/parameter_response_curves.png`)  
+  - *Implementation*: `code/visualizations.py` creates all PNGs in a single run.  
+  - *Verification*: each file exists, is a valid PNG, and its size > 0 bytes.
 
-## Phase 8 – Visualization Generation  
-
-- [ ] T019 [P3] [US3] **Create predicted‑vs‑actual scatter plot** – `code/plot_predicted_vs_actual.py`.  
-  - *Output*: `figures/predicted_vs_actual.png`.  
-
-- [ ] T020 [P3] [US3] **Create residual histogram plot** – `code/plot_residual_histogram.py`.  
-  - *Output*: `figures/residual_histogram.png`.  
-
-- [ ] T021 [P3] [US3] **Create parameter‑response curves plot** – `code/plot_parameter_response_curves.py`.  
-  - *Output*: `figures/parameter_response_curves.png`.  
+- [ ] **T017** [S3] Compute per‑predictor significance (p < 0.05) using linear model coefficients (where a linear model is available) and output `results/per_predictor_significance.json`.  
+  - *Implementation*: `code/per_predictor_significance.py` reads the linear model from `models/linear_regression.pkl`, extracts coefficients, computes p‑values via standard errors, and writes the JSON.  
+  - *Verification*: CI validates that the JSON maps each feature name to a numeric p‑value.
 
 ---
 
-## Phase 9 – Report Generation  
+## Phase 7 – Report Assembly & Contract Validation  
 
-- [ ] T013 [P3] [US3] **Assemble final JSON and Markdown report** – `code/report.py`.  
-  - *Content*: R² with 95 % bootstrapped CI, RMSE, MAE, permutation p‑value, top‑3 SHAP predictors, per‑predictor significance, and references to all four visualizations.  
-  - *Outputs*: `reports/analysis_result.json` (conforms to `analysis_result.schema.yaml`) and `reports/analysis_result.md`.  
-  - *Verification*: both files pass schema validation; Markdown contains hyperlinks to `figures/predicted_vs_actual.png`, `figures/residual_histogram.png`, `figures/shap_summary.png`, and `figures/parameter_response_curves.png`.
+- [ ] **T013** [S3] Assemble the final analysis report in both JSON (`reports/analysis_result.json`) and Markdown (`reports/analysis_result.md`). The JSON must conform exactly to `contracts/analysis_result.schema.yaml`; the Markdown must embed hyperlinks to all four PNG visualizations and summarize R² (with 95 % CI), RMSE, MAE, permutation p‑value, top‑3 SHAP predictors, per‑predictor significance (from T017), and indicate a null‑result if `null_result` is true.  
+  - *Verification*: CI runs JSON‑schema validation and checks that the Markdown contains the required sections, image links, and the null‑result notice when appropriate.
 
----
+- [ ] **T014** [S1] Validate **all** output artifacts against their respective contracts and generate a consolidated SHA‑256 manifest.  
+  - *Implementation*: `code/validate_and_checksum.py` writes `state/project_checksum_report.yaml`.  
+  - *Verification*: script exits with status 0 only if every artifact passes schema validation and the recorded checksums match the computed values.
 
-## Phase 10 – Runtime Measurement  
+- [ ] **T015** [S1] Measure total wall‑clock time for the entire pipeline and assert it does not exceed 6 hours.  
+  - *Implementation*: `code/measure_runtime.py` wraps the full run, writes elapsed seconds to `data/runtime/total_seconds.txt`.  
+  - *Verification*: CI fails if the recorded time > 21600 seconds.
 
-- [ ] T017 [P1] [US1] **Measure total pipeline wall‑clock time** – `code/measure_runtime.py`.  
-  - *Procedure*: wrapper script records start and end timestamps for the entire pipeline, writes elapsed seconds to `data/runtime/total_seconds.txt`.  
-  - *Verification*: asserts recorded time ≤ 21600 seconds (6 h).
-
----
-
-## Phase 11 – Checksum Manifest Consolidation  
-
-- [ ] T025 [P1] [US1] **Consolidate checksums for all project artifacts** – `code/generate_checksum_manifest.py`.  
-  - *Output*: `state/project_checksum_report.yaml` containing SHA‑256 hashes for every file under `data/`, `models/`, `figures/`, and `reports/`.  
-
----
-
-## Phase 12 – Contract Validation & Artifact Checksums  
-
-- [ ] T014 [P3] [US3] **Validate all output artifacts against contracts and record checksums** – `code/validate_contracts.py`.  
-  - *Steps*: run JSON‑schema validation for `analysis_result.json`, each `model_artifact` JSON, and the cleaned CSV; compute SHA‑256 checksums and compare against the manifest produced by T025.  
-  - *Verification*: script exits with status 0 only if every artifact passes its schema and the checksum report matches.
-
----
-
-## Phase 13 – End‑to‑End Quickstart Documentation  
-
-- [ ] T015 [P3] [US3] **Create `quickstart.md` with reproducible command and checksum verification** – `docs/quickstart.md`.  
-  - *Command*: `python -m llmxive_toolkit.run_all`.  
-  - *Verification*: after the command finishes, compute SHA‑256 of `reports/analysis_result.json` and compare it to the reference stored in `state/report_checksum.txt`; fail if they differ.
-
----
-
-### Dependency Mapping (for reference)
-
-| Requirement | Task(s) |
-|-------------|---------|
-| FR‑001 | T002 |
-| FR‑002 | T004, T005 |
-| FR‑003 | T008 |
-| FR‑008 | T004 |
-| FR‑009 | T003 |
-| FR‑010 | T007 |
-| FR‑011 | T007 |
-| FR‑012 | T009, T010 |
-| FR‑013 | T013 |
-| FR‑014 | T013 (visualizations) |
-| FR‑015 | T012 |
-| SC‑001 | T009, T010, T013 |
-| SC‑002 | T011 |
-| SC‑003 | T010 |
-| SC‑004 | T018 |
-| SC‑005 | T017 |
-| SC‑006 | T013 (verification) |
-| Constitution I (seed) | T001 |
-| Constitution III (checksums) | T016, T025, T014 |
-| Constitution VI (p‑value) | T011, T022 |
-
-All tasks are unchecked (`[ ]`) so the CI can track their completion independently.  The pipeline is now fully specified, reproducible, and ready for execution.  
+- [ ] **T016** [S3] Create `docs/quickstart.md` with a reproducible command (`python -m llmxive_toolkit.run_all`) and a post‑run checksum verification step for `reports/analysis_result.json`.  
+  - *Verification*: after running the command, the documentation’s checksum comparison must succeed; CI runs the command in a fresh environment and checks the result.
