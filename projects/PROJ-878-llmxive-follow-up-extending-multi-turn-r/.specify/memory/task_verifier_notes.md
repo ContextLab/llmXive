@@ -2,8 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T026** — declared artifact(s) missing/empty/invalid: data/processed/execution_log.csv, data/raw/logical_puzzles.jsonl
-- **T027** — The required artifact `data/processed/execution_log.csv` does not exist, so the divergence column cannot be inspected or validated. Without the file, the verification script cannot be run, and the task’s pass/fail criteria cannot be evaluated. The implementer must provide the CSV file with the appropriate column and data.
-- **T028** — declared artifact(s) missing/empty/invalid: data/processed/execution_log.csv, data/processed/extended_budget_log.csv
-- **T029** — declared artifact(s) missing/empty/invalid: data/processed/execution_log.csv, data/processed/extended_budget_log.csv, data/checksums.txt
-- **T036** — declared artifact(s) missing/empty/invalid: data/processed/extended_budget_log.csv, data/processed/execution_log.csv, results/extended_budget_analysis.md
+- **T001** — The scaffold directories and `__init__.py` files exist and `requirements.txt` contains the required pins, but there is no provided evidence that `pip install -r code/requirements.txt` actually succeeded nor any log showing `ruff check --output-format=concise` exiting with code 0. These execution confirmations are required to consider the scaffolding task complete.
+- **T002** — The test file `code/tests/test_graph_generator.py` exists, but the recorded test run shows both parametrized tests fail with an `AttributeError` because `networkx` has no `set_seed` function (line 23 in `graph_generator.py`). Consequently the schema‑conformance and orthogonalization checks never succeed, so the required contract and integration tests do not pass after T003. The generator code must be corrected (e.g., remove the invalid `nx.set_seed` call or use a proper RNG seed) and the tests re‑run to achieve a passing result.
+- **T003** — Requested task execution failed; rerun successfully: code/graph_generator.py exit=2; code/graph_generator.py exit=2

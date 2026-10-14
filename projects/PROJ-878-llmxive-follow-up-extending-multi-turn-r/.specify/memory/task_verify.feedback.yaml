@@ -1,0 +1,41 @@
+T001:
+  reason: "The scaffold directories and `__init__.py` files exist and `requirements.txt`\
+    \ contains the required pins, but there is no provided evidence that `pip install\
+    \ -r code/requirements.txt` actually succeeded nor any log showing `ruff check\
+    \ --output-format=concise` exiting with code\u202F0. These execution confirmations\
+    \ are required to consider the scaffolding task complete."
+  task: 04beb1208ff2afd2d188ef2b70bd93cede5411d9f9ee2dfa60a911985bc40b23
+T002:
+  reason: "The test file `code/tests/test_graph_generator.py` exists, but the recorded\
+    \ test run shows both parametrized tests fail with an `AttributeError` because\
+    \ `networkx` has no `set_seed` function (line\u202F23 in `graph_generator.py`).\
+    \ Consequently the schema\u2011conformance and orthogonalization checks never\
+    \ succeed, so the required contract and integration tests do not pass after T003.\
+    \ The generator code must be corrected (e.g., remove the invalid `nx.set_seed`\
+    \ call or use a proper RNG seed) and the tests re\u2011run to achieve a passing\
+    \ result."
+  task: e5dad39be55f3a48af0b2a2d128c0953abf4d998c1d65313fd80c490c723267d
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/graph_generator.py
+    exit=2; code/graph_generator.py exit=2'
+  task: 414c156dcaa7e05c3ee31253ef3b804cd19722155b748dfd9db95ca4c858515a
+T004:
+  task: 4f55f0845c6535570606bbaa83e61f6b1971350b363bff89740d71ac987cd7ba
+T005:
+  task: 5a4196dddc8b7fd8f60d3d78557ab8fbea6dcecb3be607b1f021f77bb4b24fef
+T006:
+  task: 79b72fd797cd91c613752ed60d9fb66d4c175f01588a32959badaae9acc9fe22
+T007:
+  task: 4b5f27315bee3b9da9e4933402b8028607e2ec61a26b991820ae7834c55b0f57
+T008:
+  task: 3ee293ac26b680cfeb3229202fd1fcd59218be972cce88b59743fd9328a4beb4
+T009:
+  task: 06a527ead770f43113d6778d68ef745543e65c106ebd0cf8d530e94058e5be1c
+T010:
+  task: 25f38307b271b789d894f8f018d259c644edd20879b0014156625b515646b95c
+T011:
+  task: 67ab9fded0a0caa5d84523ed7fdbf0cbc7f8a5ac7d1285a6519e459fc82997a5
+T012:
+  task: 2941f43ca4605c26a198960639861bda0d02023910531ad8a90513a61d1e2703
+T013:
+  task: e45a489e68414497b18ebda191826c210d15c8869ad5d63d982fafb02edb0777

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T15:38:19.669097Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-878-llmxive-follow-up-extending-multi-turn-r
-last_run_id: 2d8d8e12-0d71-4dab-ac34-67c4ad59ed9a
+last_run_id: e73964e6-1c97-47ff-915c-ede101f2dc0d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/specs/001-llmxive-follow-up-extending-multi-turn-r
 title: 'llmXive follow-up: extending "Multi-Turn Reflective Masking Elicits Reasoning
   in Mask Diffusion Mode"'
-updated_at: '2026-10-14T06:23:20.631021Z'
+updated_at: '2026-10-14T06:28:36.831760Z'

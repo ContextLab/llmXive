@@ -1,0 +1,49 @@
+- artifact_path: projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/quickstart.md
+  attempts: 1
+  canonical: exactly 500 primary puzzles generated
+  claim_id: c_4202d37d
+  context: Step 1 runs the graph generator with --count 500 and reports that the output
+    file contains exactly 500 puzzles.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: This creates `data/raw/synthetic_puzzles.jsonl` containing exactly 500
+    puzzles with controlled topology and orthogonalized metrics.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T06:27:27Z'
+- artifact_path: projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/quickstart.md
+  attempts: 1
+  canonical: orthogonalization correlation less than 0.2 across combined dataset
+  claim_id: c_9c7288be
+  context: A note in the quickstart guide states that the generation script enforces
+    orthogonalization with a correlation magnitude below 0.2.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The generation script enforces orthogonalization (|r| < 0.2) across the
+    combined dataset.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T06:27:27Z'
+- artifact_path: projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/quickstart.md
+  attempts: 1
+  canonical: scripts are deterministic when seeded
+  claim_id: c_0a90bf4b
+  context: The guide mentions that all scripts are deterministic given the seed arguments.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All scripts are deterministic given the seed arguments.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T06:27:27Z'
