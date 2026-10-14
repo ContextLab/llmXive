@@ -25,13 +25,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=1
 
-2026-10-14 11:27:29,544 - INFO - Pipeline started
-2026-10-14 11:27:29,544 - INFO - Running T013: Annotate graph...
-2026-10-14 11:27:30,505 - ERROR - Data files not found. Run download_data.py first.
+2026-10-14 11:28:53,778 - INFO - Pipeline started
+2026-10-14 11:28:53,778 - INFO - Running T013: Annotate graph...
+2026-10-14 11:28:54,800 - ERROR - Data files not found. Run download_data.py first.
 
 - python code/ingest/annotate_graph.py -> rc=1
 
-2026-10-14 11:27:30,938 - ERROR - Data files not found. Run download_data.py first.
+2026-10-14 11:28:55,273 - ERROR - Data files not found. Run download_data.py first.
 
 - python -m pytest tests/unit/test_graph_utils.py -> rc=1
 
@@ -82,7 +82,7 @@ E   ImportError: cannot import name 'load_binned_accuracy_data' from 'analysis.d
 =========================== short test summary info ============================
 ERROR tests/integration/test_pipeline.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.23s ===============================
+=============================== 1 error in 0.22s ===============================
 
 
 

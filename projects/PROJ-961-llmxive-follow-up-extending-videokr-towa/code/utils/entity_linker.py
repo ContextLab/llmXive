@@ -218,7 +218,17 @@ def link_dataframe(
         embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         use_embeddings = True
     except Exception:
+        # If the import fails or the model cannot be loaded, fall back to fuzzy matching.
         use_embeddings = False
+
+    # Pre‑encode node names once if we are using embeddings – this saves repeated work.
+    node_embeddings: Dict[str, np.ndarray] = {}
+    if use_embeddings and embedding_model is not None:
+        # Encode all node names; store as numpy arrays for fast dot‑product.
+        node_names_list = list(linker.node_names)
+        encoded = embedding_model.encode(node_names_list)
+        for name, vec in zip(node_names_list, encoded):
+            node_embeddings[name] = np.array(vec, dtype=np.float32)
 
     # Helper that returns (node_id, confidence) for a single text entry.
     def _link_text(text: Any) -> Tuple[Optional[str], float]:
@@ -229,21 +239,23 @@ def link_dataframe(
         # Embedding based similarity (if available)
         # ------------------------------------------------------------------
         if use_embeddings and embedding_model is not None:
-            query_vec = embedding_model.encode([text])[0]
-            best_node = None
+            query_vec = np.array(embedding_model.encode([text])[0], dtype=np.float32)
+
+            best_node: Optional[str] = None
             best_score = 0.0
-            for node in linker.node_names:
-                node_vec = embedding_model.encode([node])[0]
+
+            for node, node_vec in node_embeddings.items():
                 denom = (np.linalg.norm(query_vec) * np.linalg.norm(node_vec))
                 if denom == 0:
                     continue
-                sim = np.dot(query_vec, node_vec) / denom
+                sim = float(np.dot(query_vec, node_vec) / denom)
                 if sim > best_score:
                     best_score = sim
                     best_node = node
-            if best_score >= threshold and best_node is not None:
-                return best_node, float(best_score)
-            return None, 0.0
+
+            if best_node is not None and best_score >= threshold:
+                return best_node, best_score
+            # If embedding similarity is below threshold, fall back to fuzzy matching.
 
         # ------------------------------------------------------------------
         # Fuzzy string matching path – use the whole text as the entity
@@ -252,6 +264,7 @@ def link_dataframe(
         if link:
             node_id, conf = link
             return node_id, float(conf)
+
         return None, 0.0
 
     # ------------------------------------------------------------------

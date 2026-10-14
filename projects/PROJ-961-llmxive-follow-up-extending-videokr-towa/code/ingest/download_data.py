@@ -47,9 +47,11 @@ def _download_file(repo_id: str, filename: str, target_dir: Path) -> Path:
     """
     try:
         logger.info(f"Attempting to download '{filename}' from repo '{repo_id}'.")
+        # Explicitly specify that we are downloading a dataset repository.
         downloaded_path = hf_hub_download(
             repo_id=repo_id,
             filename=filename,
+            repo_type="dataset",
             cache_dir=str(target_dir),
             force_download=False,
             resume_download=True,

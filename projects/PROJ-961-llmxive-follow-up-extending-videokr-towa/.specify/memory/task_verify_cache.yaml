@@ -7,12 +7,3 @@ T101:
     \ runs verification in `main()`, and exits with a non\u2011zero status on failure\
     \ (as shown by the execution log)."
   sig: f90dccb512484e77ef489d24af9bac0e0293adf34be8184dc104d93a34a9e71d
-T102:
-  c: false
-  h: ca89f227f445f867c388350000b71592386490413670e32b9bc25a3a47e0a4de
-  r: "The `link_dataframe` implementation does not correctly perform the fuzzy\u2011\
-    matching branch: it passes the whole question string to `EntityLinker.link_entity`,\
-    \ which fails to match \u201CI love apples\u201D to the node \u201CApple\u201D\
-    , causing the `test_fuzzy_matching_threshold_behavior` unit test to fail. Consequently\
-    \ the required behavior and the passing test suite are not satisfied."
-  sig: 3d3b6218f21f073bb7feb0ef47a2ba41a432a8487b9ef083b5798c7a00ca12ba
