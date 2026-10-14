@@ -1,13 +1,19 @@
 status: none
-intent: download Moral Machine dataset and ERA5 reanalysis temperature python package
+intent: Moral Machine dataset ERA5 reanalysis temperature download python package
   dataset
 required_fields:
-- record_id
-- timestamp
 - latitude
 - longitude
-- moral_response
-- temperature_2m
-cache_key: 5ca33fb7c0fec03b6ac7103b3c96358afbfb849c039c324ed094c887c9f8c0fa
-searched_at: '2026-10-14T17:13:14.622588+00:00'
+- timestamp
+- temperature
+- scenario_id
+- decision
+- response_id
+- participant_id
+- age
+- gender
+- country
+- scenario_description
+cache_key: ce4fb7497f244db812f4aaf3acc88354fbd0efbc16eebd221bcf718260080aa6
+searched_at: '2026-10-14T23:17:46.407117+00:00'
 retry_count: 1
