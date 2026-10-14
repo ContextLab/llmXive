@@ -1,274 +1,120 @@
 # Tasks: Predicting Rate Constants of SN1 Reactions from Molecular Structure
 
-**Input**: Design documents from `/specs/001-predict-sn1-rate-constants/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-predict-sn1-rate-constants/spec.md`, `plan.md`, `data-model.md`, `contracts/`
+**Branch**: `001-predict-sn1-rate-constants`
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
+- [ ] T011a_Gate [US1] **REDO (verifier‑rejected; consolidates T011a/T011c/T011d/T011e)**: Implement and execute `code/data/atomic_gate.py` performing ALL FR‑009 validations and download in one script.  
+  **File**: `code/data/atomic_gate.py`  
+  **Verification**: Generates `data/raw/sn1_raw_merged.parquet`, `data/processed/exclusion_raw.log`, `data/processed/.pipeline_status`; aborts with `ABORTED` on missing metadata.
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T016 [US1] **Distribution‑Shift Check**: After merging datasets in T011a_Gate, run `code/data/distribution_shift.py` to compare temperature and solvent distributions, flagging rows with outliers (> 3 σ) or solvents absent from both sources. Excludes flagged rows, logs reasons `distribution_shift` to `exclusion_raw.log`.  
+  **File**: `code/data/distribution_shift.py`  
+  **Verification**: `distribution_shift_report.json` records excluded row count and criteria.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T600 [US1] **REDO (verifier‑rejected)**: Complete `tests/unit/test_download_failure.py` to verify the no‑fallback guarantee of T011a_Gate.  
+  **File**: `tests/unit/test_download_failure.py`  
+  **Verification**: Asserts exit code 1, absence of any `synthetic_*` files, and correct `ABORTED` status/log.
 
-## Path Conventions
+- [ ] T012 [US1] **REDO (verifier‑rejected)**: Implement and execute `code/data/clean.py` on the merged Parquet.  
+  **File**: `code/data/clean.py`  
+  **Logic**: Uses only schema‑allowed exclusion reason codes (`primary_substrate`, `canonicalization_error`, `gasteiger_convergence_error`, `invalid_smiles`, `missing_substrate_class`, `unit_conversion_error`, `invalid_substrate_label`, `distribution_shift`). Writes `data/processed/cleaned_intermediate.csv` and appends to `exclusion_raw.log`.  
+  **Verification**: Output has no primary rows, no nulls, and exclusion log validates against `exclusion_report.schema.yaml`.
 
-- **Single project**: `code/`, `tests/` at repository root
-- Paths shown below assume single project - adjusted based on plan.md structure
+- [ ] T013 [US1] **REDO (verifier‑rejected)**: Implement and execute `code/data/descriptors.py` computing Gasteiger charges and topological indices (CPU‑only).  
+  **File**: `code/data/descriptors.py`  
+  **Logic**: On Gasteiger convergence failure logs `gasteiger_convergence_error` (allowed code) and excludes the row. Produces `data/processed/descriptors.csv`.  
+  **Verification**: ≥95 % of input rows survive; all exclusions appear in log with allowed codes.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T015 [US1] **REDO (verifier‑rejected)**: Implement and execute `code/data/exclusion_report.py` to aggregate, map, and validate exclusion logs.  
+  **File**: `code/data/exclusion_report.py`  
+  **Logic**: Maps all logged reasons to the extended allowed set (see T999b) and validates each row against `contracts/exclusion_report.schema.yaml`. Writes `exclusion_mapped.json`, `exclusion_report.csv`, and `success_rate.json` (PASS/FAIL based on ≥0.95 retained).  
+  **Verification**: Files exist and pass schema validation.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T014 [US1] **Stratified Split**: Implement `code/data/split.py` to create 70/15/15 train/val/test splits stratified by `substrate_class`.  
+  **File**: `code/data/split.py`  
+  **Verification**: `split_report.json` shows per‑class proportions within 5 % variance; splits are non‑overlapping. Note: This split is used for baseline training and quick sanity checks; the final held‑out evaluation for SC‑001 relies on the outer‑fold test sets generated in T022a.
 
- Tasks MUST be organized by user story so each story can:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T019 **Preserved Artifact – Training CLI**: `code/train.py` provides a CLI `python -m code.train --config <path> --max-runtime <seconds>` that trains the MPNN (or baselines) and respects the runtime limit.  
+  **File**: `code/train.py`
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T020 **Preserved Artifact – Evaluation CLI**: `code/evaluate.py` offers `python -m code.evaluate --model <path> --split <train|val|test>` for inference and metric calculation.  
+  **File**: `code/evaluate.py`
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T021 **Preserved Artifact – MPNN Architecture**: `code/models/MPNN.py` defines the Message Passing Neural Network used throughout the project.  
+  **File**: `code/models/MPNN.py`
 
-**Purpose**: Project initialization and basic structure
+- [ ] T024 **Preserved Artifact – Collinearity Unit Test**: `tests/unit/test_collinearity.py` validates VIF computation against known small examples.  
+  **File**: `tests/unit/test_collinearity.py`
 
-- [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `specs/`)
-- [X] T002 Initialize Python project with `requirements.txt` (rdkit, torch, scikit-learn, shap, pandas, pyyaml, datasets)
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [ ] T007A [P] Create `pytest.ini` configuration file in project root to enable test discovery and coverage reporting. **Deliverable**: `pytest.ini` with `[pytest]` section defining test paths and markers.
-- [X] T031A [P] Create `quickstart.md` v0.1 placeholder in `specs/001-predict-sn1-rate-constants/`. **Deliverable**: A draft document with project structure, dependency installation steps, and placeholder sections for results. **DEPENDS ON**: T001, T002.
+## Phase 2: Complete the study and validate its evidence
 
----
+- [ ] T022a [US2] **Nested CV – Outer Scaffold Splits**: Generate `data/processed/outer_folds.json` with 5 scaffold‑based outer folds.  
+  **File**: `code/modeling/outer_folds.py`  
+  **Verification**: JSON contains non‑overlapping train/validation indices per fold.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T022b [US2] **Nested CV – Inner Random Search**: For each outer fold, run a 5‑fold inner CV (≤50 random configs) and record results in `artifacts/hyperparameter_search.csv`.  
+  **File**: `code/modeling/inner_search.py`  
+  **Verification**: CSV columns `config_id,learning_rate,hidden_dim,dropout,r2_val,mae_val`.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes data schemas, contracts, and the Final Report Template.
+- [ ] T022c [US2] **Baseline Training (Random, Linear, KRR)**: Train Random, Linear Regression, and **Kernel Ridge Regression (KRR)** baselines on each outer‑fold training split using the same descriptor set. Store metrics in `artifacts/baseline_metrics.csv`.  
+  **File**: `code/modeling/baselines.py`  
+  **Verification**: CSV includes `model_type` values `random`, `linear`, `krr`.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T022d [US2] **Bootstrap Comparison & SC‑001 Status**: Perform 1000 bootstrap resamples (seed = 42) comparing MPNN vs each baseline on R² and MAE, apply Holm‑Bonferroni correction, and write `artifacts/sc-001_status.json`.  
+  **File**: `code/modeling/bootstrap_compare.py`  
+  **Verification**: JSON conforms to amended `model_output.schema.yaml` and contains `delta_r2`, `p_value`, `status`.
 
-- [X] T004 [P] Implement `code/config.py` for hyperparameters, paths, and random seeds
-- [X] T005 [P] Setup `code/utils/logger.py` and `code/utils/checksum.py` for logging and data integrity
-- [X] T006A [P] Create `dataset.schema.yaml` in `specs/001-predict-sn1-rate-constants/contracts/`. **Deliverable**: YAML schema file defining `smiles`, `rate_constant`, `substrate_class`, `gasteiger_charges`, `topological_indices`, `source_id`. **DEPENDS ON**: T004.
-- [X] T006B [P] Create `model_output.schema.yaml` in `specs/001-predict-sn1-rate-constants/contracts/`. **Deliverable**: YAML schema file defining `model_id`, `hyperparameters`, `metrics` (r2, mae), `weights_path`. **DEPENDS ON**: T004.
-- [X] T006C [P] Create `exclusion_report.schema.yaml` in `specs/001-predict-sn1-rate-constants/contracts/`. **Deliverable**: YAML schema file defining `row_index`, `reason`, `original_smiles`. **DEPENDS ON**: T004.
-- [X] T006D [P] Create `collinear_report.schema.yaml` in `specs/001-predict-sn1-rate-constants/contracts/`. **Deliverable**: YAML schema file defining `descriptor_a`, `descriptor_b`, `vif_score`, `flag_reason`. **DEPENDS ON**: T004. **CRITICAL**: This task explicitly creates the schema contract for the `collinear_report.json` artifact required by FR-007, ensuring the output format is verified by a schema test. **NOTE**: Tasks T006E and T006F were identified as duplicates and removed to maintain Single Source of Truth.
-- [X] T007B [P] Implement contract test harness in `tests/contract/`. **Deliverable**: Create `tests/contract/__init__.py` and `tests/contract/base_runner.py` containing the `ContractTestRunner` class. **DEPENDS ON**: T006A, T006B, T006C, T006D, T007A.
-- [X] T030 [P] **Final Report Template Generation**. **Logic**: 1) Create `artifacts/final_report.md` template with required sections: `# Final Report`, `## Executive Summary`, `## Methodology`, `## Results`, `## Limitations`, `## Conclusion`. 2) Include placeholders for SC-001 to SC-005 status blocks. 3) **Verification**: Script must verify the file exists and contains all section headers. 4) **Output**: `artifacts/final_report.md` (template). **DEPENDS ON**: None (Phase 2 start). **CRITICAL**: This task MUST be completed before T040 and T039 to unblock final verification.
+- [ ] T999a **Schema Amendment – Add KRR Baseline**: Extend `contracts/model_output.schema.yaml` to (a) add `"KRR"` to the `model_type` enum, (b) add a `krr` object under `baselines` with required `r2` and `mae`.  
+  **File**: `specs/001-predicting-rate-constants-of-sn1-reactio/contracts/model_output.schema.yaml`
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T022 [US2] **Orchestrate Modeling Stage**: Run T022a → T022b → T022c → T022d sequentially. Save best MPNN weights to `artifacts/best_model.pt` and overall metrics to `artifacts/metrics.json` (conforming to amended schema).  
+  **File**: `code/modeling/run_pipeline.py`  
+  **Verification**: All downstream artifacts exist; `metrics.json` validates.
 
----
+- [ ] T602 [US2] **Timeout Mechanism Test**: Complete `tests/integration/test_timeout_mechanism.py` verifying that `code/train.py` respects `--max-runtime`.  
+  **File**: `tests/integration/test_timeout_mechanism.py`  
+  **Verification**: Test passes; `artifacts/feasibility_test_log.json` records timeout status.
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+- [ ] T028 [US3] **Collinearity Diagnostic**: Implement `code/analysis/collinearity.py` (FR‑007). Excludes Gasteiger charges, computes VIF for all cross‑class descriptor pairs, flags VIF > 5, writes `artifacts/collinear_report.json`.  
+  **File**: `code/analysis/collinearity.py`  
+  **Verification**: JSON validates against `contracts/collinear.schema.yaml`; unit test `tests/unit/test_collinearity.py` passes.
 
-**Goal**: Ingest public SN1 kinetic datasets, parse SMILES, compute electronic descriptors, and produce a clean, stratified dataset ready for modeling.
+- [ ] T026 [US3] **SHAP Attributions**: Execute `code/analysis/interpret.py` on the best model to produce SHAP values, then `code/analysis/aggregate_shap.py` to obtain top‑10 atoms. Save `artifacts/node_shap_values.npy`, `node_to_atom_mapping.json`, `top_k_atoms.json`, and a summary plot.  
+  **Files**: `code/analysis/interpret.py`, `code/analysis/aggregate_shap.py`  
+  **Verification**: Plot and JSON/NPY exist; generated text contains no causal language.
 
-**Independent Test**: Running the ingestion script on a known subset of the NIST database produces a CSV with valid SMILES, rate constants, and descriptors, with ≥95% success rate and proper stratification.
+- [ ] T029A [US3] **Descriptor Sensitivity Sweep**: Rank descriptors by absolute SHAP magnitude. For k = 1 .. 10, remove the top‑k descriptors, retrain MPNN using the full Nested CV pipeline, and record metrics in `artifacts/sensitivity_k{N}_metrics.json`. Compile results into `artifacts/descriptor_sensitivity_report.csv` and compute variance of R². **No fallback to a subset is permitted**; if runtime exceeds the 5.5 h budget the task fails and flags SC‑003 as unmet.  
+  **File**: `code/analysis/sensitivity_sweep.py`  
+  **Verification**: Variance < 0.01 recorded; all per‑k metric files exist.
 
-### Tests for User Story 1
+- [ ] T029B [US3] **Atom Perturbation Study**: Implement `code/analysis/atom_perturbation.py` to zero features of top‑k atoms (from `top_k_atoms.json`) in the test split, re‑run inference via `code/evaluate.py`, and report R² drop in `artifacts/atom_perturbation_report.md`.  
+  **File**: `code/analysis/atom_perturbation.py`  
+  **Verification**: Report contains pre/post R² and references the atom list.
 
-- [X] T008 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (DEPENDS ON T006A, T007B)
-- [X] T009 [P] [US1] Unit test for SMILES parsing and descriptor calculation in `tests/unit/test_descriptors.py`. **Deliverable**: `tests/unit/test_descriptors.py` containing function `test_smiles_to_graph`. **Logic**: 1) Create a mock SMILES string with valid structure. 2) Call the RDKit parsing function. 3) Assert that the resulting graph object is not None and has the expected number of nodes/edges. 4) Verify that invalid SMILES raise a specific exception. **DEPENDS ON**: T013.
-- [X] T010 [P] [US1] Unit test for substrate filtering logic (SN2 removal) in `tests/unit/test_filtering.py`
-- [ ] T600 [US1] **Critical Review Concern (FR-009)**: Implement a strict unit test to verify that `code/data/download.py` raises a fatal exception if the HuggingFace dataset fetch fails, ensuring **NO** synthetic fallback or mock data generation occurs. **Deliverable**: `tests/unit/test_download_failure.py`. **Logic**: 1) Mock `datasets.load_dataset` to raise a `ConnectionError` or `ValueError` (missing columns). 2) Assert that the script exits with code 1. 3) Assert that **NO** file named `synthetic_*` or `mock_*` is created in `data/raw/`. 4) Assert that `data/processed/.pipeline_status` is set to 'ABORTED'. **DEPENDS ON**: T011a_Gate.
-- [X] T601 [US1] **Critical Review Concern (FR-009)**: Implement a dedicated unit test for the unit conversion logic in `code/data/clean.py` to ensure inconsistent rate units (e.g., M⁻¹s⁻¹ vs s⁻¹) are detected and rows are excluded with a specific 'unit_mismatch' reason code. **Deliverable**: `tests/unit/test_unit_conversion.py`. **Logic**: 1) Create a synthetic dataset with mixed units in the `rate_constant` column. 2) Run the cleaning logic. 3) Assert that rows with inconsistent units are excluded and logged to `exclusion_raw.log` with reason 'unit_mismatch'. 4) Assert that the final dataset contains only rows with the standardized unit (s⁻¹). **DEPENDS ON**: T012.
+- [ ] T035A [US3] **SHAP Consistency Across Seeds**: Implement `code/analysis/multi_seed_runner.py`. Retrains MPNN across seeds `[42,1,2,3,4]`, generates per‑seed SHAP values, runs `code/analysis/consistency.py` to compute average Spearman rank correlation (PASS ≥ 0.8) and measures R² drop when top‑10 SHAP atoms are removed (PASS ≥ 0.02). Writes `artifacts/shap_consistency_report.md`.  
+  **File**: `code/analysis/multi_seed_runner.py`  
+  **Verification**: Report lists seeds, both PASS/FAIL decisions.
 
-### Implementation for User Story 1
+- [ ] T039 [US3] **Final Comprehensive Report & Combined Output**: Generate `artifacts/final_report.md` aggregating all real outputs and produce `artifacts/combined_output.json` conforming to `contracts/output.schema.yaml`. Includes PASS/FAIL for SC‑001 through SC‑005 using thresholds defined in earlier tasks.  
+  **File**: `code/reporting/generate_final_report.py`  
+  **Verification**: `combined_output.json` validates; markdown references only real artifact sources; no causal language.
 
-- [ ] T011a_Gate [US1] **ATOMIC GATE**: Implement `code/data/atomic_gate.py` to perform ALL FR-009 validations and download in a single script. **Primary Source**: HuggingFace datasets `DTS-SN1-15-01-2024` and `SN18-All-20240204`. **Logic**: 1) **Stream Header Check**: Use `datasets.load_dataset(name, split='train', streaming=True)` to fetch ONLY the metadata header (features). 2) **Atomic Validation**: Check for `temperature`, `solvent`, `substrate_class` columns. 3) **Substrate Class Check**: If `substrate_class` is missing or not in ['secondary', 'tertiary'], **ABORT** immediately. 4) **Log Init**: If validation passes, create `data/processed/exclusion_raw.log` with headers. 5) **Download**: If validation passes, download/stream the full dataset to `data/raw/sn1_raw_merged.parquet`. 6) **Status**: Write 'OK' to `data/processed/.pipeline_status` on success, 'ABORTED' on failure. 7) **No Partial Data**: If any check fails, ensure NO data files are created. 8) **Constraint**: If metadata fetch fails, write 'ABORTED' and exit with code 1. **Output**: `data/processed/.pipeline_status`, `data/processed/exclusion_raw.log` (if OK), `data/raw/sn1_raw_merged.parquet` (if OK). **DEPENDS ON**: T004. **CRITICAL ORDERING**: This task MUST complete before T012. **NOTE**: Replaces T011c, T011d, T011e to ensure atomic validation before download.
-- [ ] T012 [US1] Implement `code/data/clean.py` to canonicalize SMILES and filter primary alkyl halides. **Input**: `data/raw/sn1_raw_merged.parquet` (output of T011a_Gate). **Guard Clause**: If `data/raw/sn1_raw_merged.parquet` is missing, raise a fatal error and log `data/processed/clean.log` with `status: 'fatal_error', reason: 'input_missing'` and exit. **Guard Clause (FR-009)**: If `substrate_class` column is missing or contains non-explicit values (e.g., 'unknown'), raise a fatal error, log `status: 'fatal_error', reason: 'missing_substrate_class'` to `data/processed/clean.log`, write 'ABORTED' to `data/processed/.pipeline_status`, and halt the entire pipeline for this dataset (FR-009). **Validation Rule**: **Explicitly validate** that `substrate_class` values are strictly in ['secondary', 'tertiary']. **Exclude and log** any row with values other than these (e.g., 'unknown', 'mixed', or derived labels) to `data/processed/exclusion_raw.log` with reason 'invalid_substrate_label'. **Filtering Rule**: Filter rows where `substrate_class` is explicitly labeled as 'primary' (i.e., retain secondary/tertiary). **CRITICAL**: Log 'primary' rows to `exclusion_raw.log` with reason 'primary_substrate_filter' before dropping them. **CRITICAL**: If the count of valid rows (secondary/tertiary) is zero after filtering, treat this as a dataset exclusion: write 'ABORTED' to `data/processed/.pipeline_status` and exit with a failure code. **Constraint**: Do NOT use proxies. **Stereochemistry Handling**: Standardize SMILES. If fails, exclude with code 'ambiguous_stereochemistry' or 'ambiguous_structure'. **Logging**: Log all row-level exclusions (primary, invalid labels, stereo) to `data/processed/exclusion_raw.log`. Log metadata errors to `data/processed/clean.log`. **Output**: `data/processed/cleaned_intermediate.csv`. **Verification**: Verify output contains no 'primary' rows and no invalid labels. **Code Comment**: 'Filtering based on explicit substrate_class label only; no proxies used; invalid labels excluded'. **DEPENDS ON**: T011a_Gate. **Traceability**: The validated 'substrate_class' labels from this task are the source of truth for the stratification logic in T014 (FR-002).
-- [ ] T013 [US1] Implement `code/data/descriptors.py` to compute Gasteiger partial charges and topological indices. **Determinism**: Use fixed RDKit version. **Constraint**: Gasteiger charges are the approved CPU-tractable substitute for PM7 as per Plan's Constitution Check. **Guard Clause**: If `data/processed/exclusion_raw.log` is missing, raise a fatal error (T011a_Gate must have created it). **Logic**: 1) Compute descriptors. 2) If a row fails, append the failure directly to `data/processed/exclusion_raw.log` (append mode). 3) **Append Format**: Append a CSV row: `<row_index>,<reason_code>,<original_smiles>`. 4) **CSV Quoting**: Use Python's `csv` module with `QUOTE_MINIMAL` to handle SMILES strings containing commas. 5) **Header Requirement**: Ensure `data/processed/exclusion_raw.log` has header `row_index,reason,original_smiles` before appending (guaranteed by T011a_Gate). 6) **Valid Reason Codes**: 'descriptor_failure', 'ambiguous_stereochemistry', 'ambiguous_structure'. **Output**: `data/processed/descriptors.csv`. **DEPENDS ON**: T012, T011a_Gate.
-- [X] T013b [US1] Validate exclusion log schema. **Input**: `data/processed/exclusion_raw.log` (from T013). **Guard Clause**: If `exclusion_report.schema.yaml` is missing, log error and halt. **Logic**: 1) Load the log file **after T013 has finished writing**. 2) Validate each row against `exclusion_report.schema.yaml`. 3) If validation fails, log error and halt. **Output**: `data/processed/exclusion_validation.log`. **DEPENDS ON**: T013, T006C.
-- [ ] T015 [US1] **Aggregate, map, and validate exclusion logs**. **Input**: `data/processed/clean.log` (from T012) and `data/processed/exclusion_raw.log` (from T011a_Gate, T012, T013). **Guard Clause**: If `clean.log` or `exclusion_raw.log` are missing/empty, log `data/processed/exclusion_report.csv` with `status: 'blocked', reason: 'upstream_missing'` and exit. **Logic**: 1) Merge logs into `data/processed/exclusion_mapped.json`. 2) Map error strings to schema codes using the complete mapping: {'Primary substrate': 'primary_substrate_filter', 'Ambiguous stereochemistry': 'ambiguous_stereochemistry', 'Ambiguous structure': 'ambiguous_structure', 'Descriptor calculation failed': 'descriptor_failure', 'Missing rate constant': 'missing_rate_constant', 'Missing SMILES': 'missing_smiles', 'Invalid substrate label': 'invalid_substrate_label'}. 3) **Fallback**: If an error string is not in the mapping, log it to `data/processed/clean.log` with reason 'unmapped_error' and halt. 4) Validate against `exclusion_report.schema.yaml`. 5) Save final list to `data/processed/exclusion_report.csv`. **Constraint**: Must wait for T012 and T013 to finish writing their logs. **DEPENDS ON**: T012, T013b, T011a_Gate.
-- [ ] T016 [US1] Save final processed dataset to `data/processed/cleaned_sn1.csv` with checksum. **Input**: `data/processed/cleaned_intermediate.csv` (from T012). **Guard Clause**: If `data/raw/sn1_raw_merged.parquet` (from T011a_Gate) is missing, log `data/processed/success_rate.json` with `status: 'blocked', reason: 'input_missing'` and exit with code 1. **Logic**: 1) Load cleaned data. 2) **Calculate success_rate**: Read the aggregated exclusion count from `data/processed/exclusion_report.csv` (T015 output). Calculate `success_rate = (len(final_df) / (len(final_df) + aggregated_exclusions))`. 3) **Report**: Write `success_rate` to `data/processed/success_rate.json` with a `status` field: 'PASS' if >= 0.95, 'FAIL' if < 0.95. **DO NOT** exit with code 1 if < 0.95; the pipeline must continue to report the metric. 4) Verify non-null descriptors in final_df. 5) Save CSV and generate checksum. **Output**: `data/processed/cleaned_sn1.csv` and `data/processed/success_rate.json`. **DEPENDS ON**: T012, T015.
-- [ ] T014 [US1] Implement `code/data/split.py` to perform a stratified split by substrate class. **Input**: `data/processed/cleaned_sn1.csv` (from T016). **Logic**: 1) Load cleaned dataset. 2) Stratify on `substrate_class` (using the explicit labels validated in T012). 3) Split data into training, validation, and test sets. 4) Verify proportional representation matches original distribution within 5% variance. 5) Save splits to `data/processed/split_train.csv`, `data/processed/split_val.csv`, `data/processed/split_test.csv`. **Output**: Split CSV files and `data/processed/split_report.json`. **DEPENDS ON**: T016.
+## Phase 3: Reproducible results and paper handoff
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T040 **End‑to‑End Validation Run**: Implement missing orchestration in `code/main.py` to wire ingestion, descriptor computation, splitting, modeling (Nested CV, baselines, bootstrap), interpretability (SHAP, sensitivity, perturbation, collinearity, consistency), and final report generation. Enforce `--max-runtime` for all training runs; on timeout write `artifacts/feasibility_test_log.json` with `status: 'TIMEOUT'` and actual runtime, then exit gracefully. On success record total runtime and set SC‑002 PASS/FAIL (runtime ≤ 6 h). Verify that **all** downstream artifacts (`metrics.json`, `combined_output.json`, etc.) exist after the run.  
+  **File**: `code/main.py` (updated orchestration)  
+  **Verification**: Log contains measured runtime and SC‑002 status; all required artifacts are present.
 
----
+- [ ] T999d **Documentation of Prior Artifacts**: Record that the following previously‑implemented artifacts are available for downstream tasks: `code/train.py`, `code/evaluate.py`, `code/models/MPNN.py`, `tests/unit/test_collinearity.py`. This satisfies ordering/executability concerns for T022, T602, and T028.  
+  **File**: `docs/legacy_artifacts.md`
 
-## Phase 4: User Story 2 - Graph Neural Network Training and Evaluation (Priority: P2)
+- [ ] T999b **Schema Amendment – Extend Exclusion Report Reason Codes**: Update `contracts/exclusion_report.schema.yaml` to include the full set of reason codes used throughout the pipeline (`primary_substrate`, `canonicalization_error`, `gasteiger_convergence_error`, `invalid_smiles`, `missing_substrate_class`, `unit_conversion_error`, `invalid_substrate_label`, `distribution_shift`, `ambiguous_structure`, `ambiguous_stereochemistry`, `descriptor_failure`).  
+  **File**: `specs/001-predicting-rate-constants-of-sn1-reactio/contracts/exclusion_report.schema.yaml`
 
-**Goal**: Train a Message Passing Neural Network (MPNN) on the processed dataset using CPU-only inference, perform hyperparameter optimization, and evaluate against baselines.
+- [ ] T999c **Standardize Reason Codes in Cleaning & Mapping**: Modify T012, T013, and T015 to emit and map only the codes listed in the amended schema (see T999b), guaranteeing schema compliance.  
+  **Files Modified**: `code/data/clean.py`, `code/data/descriptors.py`, `code/data/exclusion_report.py`
 
-**Independent Test**: The training job completes within 6 hours on a 2-core CPU runner., saves model weights, and outputs R²/MAE metrics comparing MPNN to linear regression with statistical significance.
-
-### Implementation for User Story 2
-
-- [X] T019 [US2] Implement `code/models/mpnn.py` with shallow architecture. **Constraint**: Layer count MUST be configurable via `config.py` but bounded within 1-4 range. **Logic**: Read layer count from `config.py` and validate against bounds. <!-- FAILED: unspecified -->
-- [X] T020 [US2] Implement `code/models/train.py` with random search hyperparameter optimization (≤50 configurations). **CRITICAL UPDATE**: This task MUST include the implementation of the `--max-configs` CLI argument and a `subprocess` timeout mechanism wrapper for the training execution. **Logic**: 1) Add `argparse` argument `--max-configs` to `code/models/train.py`. 2) **Subprocess Requirement**: `main.py` MUST launch `train.py` as a subprocess to enable timeout. 3) Implement `subprocess` timeout wrapper for the training execution. 4) **Always Enforce Timeout**: The timeout mechanism MUST be active for ALL dataset sizes (N > 0). 5) **Signal Handling**: The parent process (`main.py`) must catch the `TimeoutExpired` exception from the subprocess call. 6) **Timeout Logic**: Set timeout to a duration of hours. If `TimeoutExpired` is raised, **immediately write** `artifacts/feasibility_test_log.json` with `status: 'TIMEOUT'` and `runtime: <actual_runtime>` **BEFORE** sending SIGKILL to the child process. 7) Ensure timeout mechanism logs failure if exceeded. **Output**: `code/models/train.py` with timeout logic. **DEPENDS ON**: T019.
-- [X] T021 [US2] Implement `code/models/evaluate.py` to calculate R² and MAE, and perform bootstrap comparison. **Output**: Save metrics to `artifacts/training_metrics.json`.
-- [ ] T022 [US2] Execute Nested Cross-Validation with scaffold splitting and save best model weights to `artifacts/best_model.pt` (in `.pt` PyTorch format) and metrics to `artifacts/metrics.json`. **Logic**: 1) Perform Nested CV with scaffold splitting (outer) and random search (inner). 2) Train MPNN, Linear Regression, and KRR baselines using the *exact same* descriptors. 3) Select configuration with highest validation R². 4) **SC-001 Verification**: Calculate the difference in R-squared between the MPNN and Linear models and perform a **Bootstrap (1000 iterations, seed=42)** test to obtain the p-value. 5) Write `artifacts/sc-001_status.json` with keys: `delta_r2`, `p_value`, `status` (PASS if delta > 0.05 AND p < 0.05, else FAIL). 6) **Model Flow**: Load the best model from `artifacts/best_model.pt` (saved by T020) and save final metrics. **Schema**: `metrics.json` must conform to `model_output.schema.yaml`. **Verification**: Ensure baseline comparisons are included in the metrics. **DEPENDS ON**: T016, T020, T021. <!-- FAILED: unspecified -->
-- [ ] T023 [US2] Log top hyperparameter configurations to `artifacts/hyperparameter_search.csv`. **Logic**: Identify the top configurations. **Format**: CSV with columns `config_id`, `learning_rate`, `hidden_dim`, `dropout`, `r2_val`, `mae_val`. **DEPENDS ON**: T020, T021. <!-- FAILED: unspecified -->
-
-### Tests for User Story 2
-
-- [X] T017 [P] [US2] Unit test for MPNN architecture and forward pass in `tests/unit/test_mpnn.py` (DEPENDS ON T019)
-- [X] T018 [P] [US2] Integration test for training loop with small subset in `tests/integration/test_training.py` (DEPENDS ON T019, T020)
-- [ ] T602 [US2] **Critical Review Concern (SC-002)**: Implement a rigorous integration test to verify the timeout mechanism in `code/models/train.py` correctly terminates training if the 6-hour limit is exceeded, and logs the failure appropriately. **Deliverable**: `tests/integration/test_timeout_mechanism.py`. **Logic**: 1) Mock a training loop that sleeps for 7 hours. 2) Invoke `train.py` with a 6-hour timeout. 3) Assert that the process is terminated after 6 hours. 4) Assert that `artifacts/feasibility_test_log.json` is updated with `status: 'TIMEOUT'`. **DEPENDS ON**: T020. <!-- FAILED: unspecified -->
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Interpretability and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Generate feature importance analysis, perform sensitivity analysis, validate findings via perturbation studies, and run collinearity diagnostics.
-
-**Independent Test**: The interpretability module produces a SHAP summary plot, a sensitivity report, and a perturbation study confirming feature importance correlates with predictive performance.
-
-### Implementation for User Story 3
-
-- [X] T026 [US3] Implement `code/analysis/interpret.py` to generate SHAP values and summary plots. **Logic**: Aggregate graph-level SHAP values to atom-level features. **Artifact**: Save node-level SHAP values to `artifacts/node_shap_values.npy`. **Artifact**: Generate `node_to_atom_mapping.json` mapping node indices to atom features. **Schema**: `node_to_atom_mapping.json` MUST contain a mapping of `atom_index` (from SMILES order) to `node_index` (in graph tensor). **DEPENDS ON**: T022, T014. <!-- FAILED: unspecified -->
-- [ ] T029C [US3] Implement `code/analysis/aggregate_shap.py` to generate `artifacts/top_k_atoms.json`. **Input**: `artifacts/node_shap_values.npy`, `artifacts/node_to_atom_mapping.json`. **Logic**: 1) Load SHAP values and mapping. 2) Aggregate SHAP values per atom across the entire test set (sum absolute values). 3) Rank atoms by aggregated importance. 4) Select top-k=10 atoms. 5) Save the list of top-k atoms (indices and names) to `artifacts/top_k_atoms.json`. **Output**: `artifacts/top_k_atoms.json`. **DEPENDS ON**: T026.
-- [ ] T035A [US3] Implement `code/analysis/multi_seed_runner.py` to execute training across multiple random seeds. **Logic**: 1) Load best config from T023. 2) **Guard Clause**: If `artifacts/best_model.pt` is missing, log a fatal error and halt. 3) Define seeds. 4) **Feasibility Check**: **Calculate the expected runtime for the FULL dataset** based on the current dataset size and average epoch time. 5) **Threshold**: If the projected runtime for the full dataset exceeds 5.5 hours (SC-004 threshold), log failure and switch to a predefined fixed subset (e.g., 500 rows) with explicit justification in the log. 6) **Data Consistency**: Use same data subset as T022. 7) Train for each seed. 8) **Generate SHAP values for each seeded model** and save them. 9) Save models. **Output**: Seeded models and per-seed SHAP values. **DEPENDS ON**: T023, T022.
-- [X] T035 [US3] Implement `code/analysis/consistency.py` to verify SHAP consistency across random seeds (SC-004). **Logic**: Load data, models, **use SHAP values generated by T035A** (one per seed), compute Kendall's Tau, verify SC-004. **Input**: Must use the dataset subset determined in T035A. **Output**: `artifacts/shap_consistency_report.md`. **DEPENDS ON**: T016, T023, T022, T035A, T026. **Note**: T026 provides baseline SHAP, T035A provides multi-seed SHAP.
-- [ ] T029A [US3] Implement `code/analysis/descriptor_sensitivity.py` to perform sensitivity analysis on **top-k input descriptors** (columns). **Input**: `data/processed/cleaned_sn1.csv`, `artifacts/best_model.pt` (from T022). **Logic**: 1) Load the cleaned dataset and identify the feature matrix (columns). 2) Calculate SHAP values for the full model (using T026 output). 3) Sort descriptors (columns) by absolute SHAP magnitude. 4) Select top-k=10 descriptors. 5) **Feasibility Check**: **Calculate expected runtime** for 10 retraining runs. 6) **Threshold**: If projected runtime > 5.5 hours, **switch to a predefined fixed subset** (e.g., 500 rows) with explicit justification in the log. 7) **Sweep k from 1 to 10**: For each k in [1..10], **iteratively remove** the top-k descriptors from the input matrix (drop columns), **RETRAIN the model** from scratch with the reduced feature set, and **calculate variance in R²**. 8) **Artifact Naming**: Save results for each k-value to `artifacts/sensitivity_k{N}_metrics.json` (unique path). 9) Save results for the full sweep. **Output**: `artifacts/descriptor_sensitivity_report.csv`. **DEPENDS ON**: T022, T016, T021, T026. **Constraint**: This task targets **input features** (FR-006), NOT atoms. **Requirement**: Must explicitly sweep k values and retrain to measure structural dependence.
-- [ ] T029B [US3] Implement `code/analysis/atom_perturbation.py` to perform a perturbation study on **top-k atoms** (graph nodes). **Input**: `data/processed/split_test.csv`, `artifacts/best_model.pt`, `artifacts/top_k_atoms.json`, `artifacts/node_to_atom_mapping.json`. **Logic**: 1) Load top atoms from `artifacts/top_k_atoms.json`. 2) Map to graph nodes. 3) Set node features to zero. 4) **Re-run inference** using the inference function from `code/models/evaluate.py` (T021). 5) Measure drop in R². 6) Save results. **Output**: `artifacts/atom_perturbation_report.md`. **DEPENDS ON**: T022, T029C, T014, T026. **Constraint**: This task targets **atoms** (FR-008), distinct from descriptor sensitivity (FR-006).
-- [X] T027 [US3] Implement `code/analysis/interpret.py` to aggregate results from T029A and T037. **Logic**: Aggregate R² and MAE from `artifacts/training_metrics.json` (T021) and the sensitivity reports. Calculate overall variance. **Output**: `artifacts/sensitivity_report.csv`. **DEPENDS ON**: T029A, T037, T021.
-- [X] T037 [US3] Implement `code/analysis/hyperparameter_sensitivity.py` to measure model robustness to hyperparameters. **Logic**: 1) Select sample. 2) Train for each config. 3) Evaluate. 4) Calculate variance. **Output**: `artifacts/hyperparameter_sensitivity_report.csv`. **DEPENDS ON**: T022, T023, T016.
-- [ ] T028 [US3] Implement `code/analysis/collinearity.py` to calculate VIF and generate JSON report. **Input**: Feature matrix from `data/processed/cleaned_sn1.csv`. **Logic**: 1) **Combine** feature sets: Concatenate `topological_indices` and `quantum_descriptors` (excluding Gasteiger charges) into a single feature matrix `X_combined`. 2) **Explicitly exclude** Gasteiger charges from the feature matrix entirely before any VIF calculation. 3) **Calculate VIF** on `X_combined` to detect collinearity **BETWEEN** topological and quantum descriptors (cross-class). 4) Identify pairs with VIF > 5. 5) Generate strict JSON report listing the specific descriptor pairs (regardless of class) and their VIF scores. **Output Schema**: The JSON report MUST contain keys: `descriptor_a`, `descriptor_b`, `vif_score`, `flag_reason` (e.g., "VIF > 5"). **Output**: `artifacts/collinear_report.json`. **Verification**: Validate output against `collinear.schema.yaml` (T006D). **DEPENDS ON**: T016. **Constraint**: This logic explicitly addresses FR-007 by detecting cross-class collinearity, not just intra-class.
-
-### Tests for User Story 3
-
-- [X] T024 [P] [US3] Unit test for VIF calculation in `tests/unit/test_collinearity.py` (DEPENDS ON T028)
-- [X] T025 [P] [US3] Unit test for SHAP value generation in `tests/unit/test_shap.py` (DEPENDS ON T026)
-
-**Checkpoint**: At this point, User Story 3 implementation is complete.
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T032 Code cleanup and refactoring of `code/main.py` orchestration script
-- [X] T033A [P] Execute full pipeline integration test on a small subset of rows. **Deliverable**: Raw execution logs. **Success Criteria**: Exit code 0 and specific log strings "Pipeline completed successfully". **DEPENDS ON**: T016, T020, T022.
-- [X] T033B [P] Validate exit codes and artifact existence from T033A. **Deliverable**: Validation status. **Logic**: Verify exit code is 0 and key artifacts exist. **DEPENDS ON**: T033A.
-- [X] T033C [P] Generate `artifacts/integration_test_report.md` based on T033A/B results. **Logic**: If T033A/B pass, document success. If fail, document failure with error logs. **DEPENDS ON**: T033A, T033B.
-- [X] T031B [P] Finalize `quickstart.md` in `specs/001-predict-sn1-rate-constants/`. **Dependencies**: T033C. **Logic**: Update `quickstart.md` with actual paths, command examples, and verified output descriptions from T033C. **Fallback**: If T033C fails, update based on manual verification of code paths and standard defaults. **DEPENDS ON**: T033C.
-- [ ] T034 [P] Validate `quickstart.md` against actual execution. **Dependencies**: T031B, T033C (or T031B fallback evidence). **Logic**: 1) If T033C succeeded, validate against T033C's execution evidence. 2) If T033C failed and T031B used fallback, validate against manual verification evidence. 3) Fallback: If no execution evidence exists, validate against code structure and `config.py` defaults. **DEPENDS ON**: T031B, T033C.
-
----
-
-## Phase 7: Final Verification & Reporting
-
-**Purpose**: Ensure all success criteria are met and prepare final documentation.
-
-- [ ] T040 [P] Perform a mandatory final end-to-end validation run on the full dataset (or largest feasible subset). **Logic**: 1) Re-run the full pipeline (`main.py`) from ingestion to final report generation using the production configuration. 2) **Dynamic Budgeting**: Count rows in `data/processed/cleaned_sn1.csv` to determine N. 3) **Always Enforce Timeout**: The timeout mechanism implemented in T020 is used here for ALL dataset sizes (N > 0). 4) **Hard Stop**: If timeout exceeded, log failure to `artifacts/feasibility_test_log.json` with `status: 'TIMEOUT', reason: 'runtime_exceeded', runtime: <actual_runtime>` and exit gracefully. 5) If successful, record actual runtime and verify all artifacts. 6) Compare results against T033. 7) **Explicit SC Verification**: Explicitly calculate and log `status: 'PASS'` or `status: 'FAIL'` for SC-002 (runtime <= 6 hours) in `artifacts/feasibility_test_log.json`. **Constraint**: Timeout mechanism MUST be implemented (in T020) to satisfy SC-002. **Output**: `artifacts/feasibility_test_log.json`. **DEPENDS ON**: T016, T020, T022, T030.
-- [X] T039 [US3] Generate final comprehensive report aggregating all metrics, plots, and statistical analyses. **Logic**: 1) Aggregate `metrics.json`, `shap_consistency_report.md`, `sensitivity_report.csv`, `perturbation_results.csv`, `collinearity_report.json`, `hyperparameter_search.csv`, `sc-001_status.json` (from T022), and `feasibility_test_log.json` (from T040). 2) **Explicit SC Verification**: For each Success Criterion (SC-001 to SC-005), calculate the boolean pass/fail status:
- - SC-001: `MPNN_R2 - Linear_R2 > 0.05` AND `p < 0.05` -> PASS/FAIL (from `sc-001_status.json`).
- - SC-002: `runtime <= 6 hours` -> PASS/FAIL (from `feasibility_test_log.json`).
- - SC-003: `variance < 0.01` -> PASS/FAIL (Calculate variance of R² from `sensitivity_report.csv` or `hyperparameter_sensitivity_report.csv`).
- - SC-004: `consistency_score > threshold` AND `delta_r2 > threshold` -> PASS/FAIL (from `shap_consistency_report.md`).
- - SC-005: `success_rate >= 0.95` -> PASS/FAIL (from `success_rate.json`).
- 3) Create a summary section for each SC explicitly stating whether it is met (PASS/FAIL). 4) Include a "Limitations" section. 5) Output Artifact: Save to `artifacts/final_report.md`. **Schema Requirements**: The report MUST contain the following sections in order: `# Final Report`, `## Executive Summary`, `## Methodology`, `## Results`, `## Limitations`, `## Conclusion`. **DEPENDS ON**: T040, T022, T028, T029A, T029B, T029C, T030, T035, T037.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Final Verification (Phase 7)**: Depends on all User Stories and Polish phases
-- **Revision (Phase 8)**: Depends on analysis of Phase 7 outputs
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Strictly depends on T016 (cleaned dataset)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Strictly depends on T022 (model training) and T016 (cleaned dataset).
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Data ingestion/cleaning before splitting
-- Splitting before training
-- Training before evaluation and interpretability
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel (once their respective implementations are complete)
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (IF T006A, T006B, T006C, T006D, T007B are complete):
-# Note: T008 depends on T006A, T007B, so those must finish first.
-Task: "Contract test for dataset schema in tests/contract/test_dataset_schema.py" (DEPENDS ON T006A, T007B)
-Task: "Unit test for SMILES parsing and descriptor calculation in tests/unit/test_descriptors.py"
-Task: "Unit test for substrate filtering logic in tests/unit/test_filtering.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/data/atomic_gate.py to verify metadata and download data"
-Task: "Implement code/data/clean.py to canonicalize SMILES and filter"
-Task: "Implement code/data/descriptors.py to compute Gasteiger charges"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Pipeline)
- - Developer B: User Story 2 (Model Training)
- - Developer C: User Story 3 (Analysis)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must be executable on CPU-only CI with limited resources and a bounded time limit. No GPU, no 8-bit quantization, no heavy QM calculations.
-- **Note on Constitution VI**: The Plan explicitly substitutes Gasteiger charges for PM7 to satisfy CPU constraints. This deviation is documented in the Plan's Constitution Check and is the approved implementation path for this project.
-- **Critical Safety Note**: Tasks T600-T602 are mandatory to prevent fabrication of data and ensure pipeline integrity under failure conditions.
-- **Note on Plan Consistency**: The plan.md file contains broken dataset names ('SN-All-Date'). The tasks in this file use the canonical names from the spec ('DTS-SN1-15-01-2024', 'SN18-All-20240204'). The plan.md file requires a kickback to fix the source of truth.
+- [ ] T999f **Constitution Amendment – Waiver for Principle VII**: Add a formal amendment to the constitution granting a waiver for the exclusion of NIST/Reaxys/UCI datasets, documenting the justification and linking to the plan’s rationale.  
+  **File**: `constitution/waiver_principle_VII.md`
