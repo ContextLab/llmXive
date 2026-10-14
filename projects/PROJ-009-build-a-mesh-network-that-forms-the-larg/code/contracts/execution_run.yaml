@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ExecutionRun
+type: object
+required:
+  - id
+  - timestamp
+  - node_count
+  - granularity
+  - injected_latency_ms
+  - packet_loss_rate
+  - throughput_ops
+  - latency_ms
+  - status
+properties:
+  id:
+    type: string
+  timestamp:
+    type: string
+    format: date-time
+  node_count:
+    type: integer
+    minimum: 1
+  granularity:
+    type: string
+  injected_latency_ms:
+    type: number
+    minimum: 0
+  packet_loss_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+  throughput_ops:
+    type: number
+    minimum: 0
+  latency_ms:
+    type: number
+    minimum: 0
+  status:
+    type: string
+    enum: ["pending", "running", "completed", "failed"]

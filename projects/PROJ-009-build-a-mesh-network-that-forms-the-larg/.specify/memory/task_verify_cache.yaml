@@ -1,36 +1,15 @@
-T001:
-  c: false
-  h: 63a8c9d1663da378cfce58725618a6ca7a5534e3cb54a6d28429d0c3f8e72714
-  r: "The project layout directories and most source files exist, but the required\
-    \ `code/.gitignore` is absent, the three contract YAML schema files are missing\
-    \ (causing `pytest code/tests/contract/` to fail), and the quickstart does not\
-    \ document the exact runnable command `python -m code.orchestrator.cli --help`.\
-    \ These missing artifacts prevent the task\u2019s verification criteria from being\
-    \ satisfied."
-  sig: d602d2d21619b974dec50906de4420ab059a9d59a077f4d0e58be3149b10a66e
-T002:
-  c: false
-  h: 9aefb64ca7acdcdd70ae60c39828a29b96d5190b582637d338cf03f3d4e06865
-  r: "The `code/orchestrator/node_manager.py` module exists and implements most of\
-    \ the required functions, but the accompanying unit test suite `code/tests/unit/test_node_manager.py`\
-    \ is broken: it imports a non\u2011existent `create_node_manager` factory, makes\
-    \ incorrect assumptions about the mocked SSH client (e.g., expecting `stdout.channel`\
-    \ and a `close()` call that the code never makes), and does not test the required\
-    \ instrumentation features (tcpdump, mpstat, radio metrics, thermal checks). Consequently\
-    \ the tests do not pass, violating the task\u2019s verification condition. The\
-    \ missing factory function "
-  sig: 10accbe0d695e09a29e05d800c15a61346b127c609e76cc3af19e18d65b5294f
 T003:
   c: false
-  h: 03434cf8a8ed47292fcaa30351432db99a83af34fcca57a6ed04c89a9124dc31
-  r: "The `code/orchestrator/scheduler.py` module exists but lacks the required `SchedulerState`\
-    \ class with `receive_task_status()`/`update_scheduler_state()`, does not implement\
-    \ heterogeneity\u2011aware heartbeat scoring, does not write per\u2011run dropout\
-    \ rates to `data/raw/dropout_events.json` (the file is missing), and omits the\
-    \ network\u2011saturation abort logic, the Monte\u202FCarlo `benchmark` function,\
-    \ and the asynchronous straggler timeout/penalty logging. Consequently the core\
-    \ specifications are not fulfilled."
-  sig: 77fcc907747751793196aa1274069d2ed8397f5d9e1157c2ecc2563b23d1fa26
+  h: 43671e3beaec165b24c2b39d3de83847073744e8e9229fb8e6d77ab4b3a274df
+  r: "The required `data/raw/dropout_events.json` is MISSING (dropout rate is only\
+    \ written by the CLI's mock path, never by the scheduler itself, and no run produced\
+    \ the file), and there is no execution evidence that the unit tests pass \u2014\
+    \ the verification criterion. Moreover, the tests as written would fail: `monitor_task`\
+    \ sets `assignment.end_time` but `TaskAssignment` has no `end_time` field (AttributeError\
+    \ on completion), and `test_reassign_task_logic` mocks `ping_node` to return False\
+    \ globally, so `_find_alternate_node` finds no healthy node and returns `{\"status\"\
+    : \"failed\"}`, not `\"reassigned\"`"
+  sig: 752eb93bc755127f02a0aa43d07700fa3ceb9fd823ad0ecfb09d945db6aabb53
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

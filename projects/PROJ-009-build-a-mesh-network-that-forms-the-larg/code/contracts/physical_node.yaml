@@ -1,0 +1,16 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PhysicalNode
+type: object
+required:
+  - ip
+  - status
+  - ram_mb
+properties:
+  ip:
+    type: string
+    format: ipv4
+  status:
+    type: string
+  ram_mb:
+    type: integer
+    minimum: 1

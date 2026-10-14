@@ -1,9 +1,7 @@
 import logging
 import sys
-import json
-from datetime import datetime, timezone
-from typing import Optional, Dict, Any
 from pathlib import Path
+from typing import Optional, Dict, Any
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -14,7 +12,7 @@ _log_file_path: Optional[Path] = None
 def configure_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> None:
     """Configure the root logger."""
     global _logger_instance, _log_file_path
-    
+
     if _logger_instance is not None:
         return
 
@@ -50,7 +48,7 @@ def heartbeat(node_id: str, event_type: str, details: Optional[Dict[str, Any]] =
         "event_type": event_type,
         "details": details or {}
     }
-    logger.info(json.dumps(log_entry))
+    logger.info(str(log_entry))
 
 def get_log_file_path() -> Optional[Path]:
     """Return the path to the log file if configured."""

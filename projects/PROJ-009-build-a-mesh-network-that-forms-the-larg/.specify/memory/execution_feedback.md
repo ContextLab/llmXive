@@ -15,50 +15,46 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/orchestrator/scheduler.py --config config.yaml --granularity fine --nodes 15 --latency 100 -> rc=1
 
-2026-10-14 16:23:16,036 WARNING __main__: Config file 'config.yaml' not found – using minimal defaults.
+2026-10-14 20:12:01,919 WARNING __main__: Config file 'config.yaml' not found – using minimal defaults.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 557, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 560, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 503, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 506, in main
     all_nodes = _build_physical_nodes(cfg)
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 461, in _build_physical_nodes
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 464, in _build_physical_nodes
     PhysicalNode(
-    ^^^^^^^^^^^^
-NameError: name 'PhysicalNode' is not defined. Did you mean: 'physical_nodes'?
+TypeError: PhysicalNode.__init__() got an unexpected keyword argument 'cpu_speed_mhz'
 
 - python code/orchestrator/scheduler.py --config config.yaml --sweep -> rc=1
 
-2026-10-14 16:23:16,085 WARNING __main__: Config file 'config.yaml' not found – using minimal defaults.
+2026-10-14 20:12:01,984 WARNING __main__: Config file 'config.yaml' not found – using minimal defaults.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 557, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 560, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 503, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 506, in main
     all_nodes = _build_physical_nodes(cfg)
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 461, in _build_physical_nodes
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 464, in _build_physical_nodes
     PhysicalNode(
-    ^^^^^^^^^^^^
-NameError: name 'PhysicalNode' is not defined. Did you mean: 'physical_nodes'?
+TypeError: PhysicalNode.__init__() got an unexpected keyword argument 'cpu_speed_mhz'
 
 - python code/analysis/theoretical_bound.py --config config.yaml --input data/processed/regression_model.json -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/analysis/theoretical_bound.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/unit/ -v -> rc=2
-home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/config.py)
+, NetworkConfig, load_config
+E   ImportError: cannot import name 'GranularityConfig' from 'orchestrator.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/config.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_benchmark.py - TypeError: enforce_pipeline_timeout() missing 1 required positional argument: 'timeout_seconds'
-ERROR tests/unit/test_config.py
-ERROR tests/unit/test_config_integration.py
 ERROR tests/unit/test_data_aggregator.py
 ERROR tests/unit/test_logger.py
 ERROR tests/unit/test_models.py
 ERROR tests/unit/test_monte_carlo.py
 ERROR tests/unit/test_network_impairments.py
-ERROR tests/unit/test_node_manager.py
 ERROR tests/unit/test_overhead.py
 ERROR tests/unit/test_remote_tool_checker.py
 ERROR tests/unit/test_remote_tools_manager.py - AttributeError: module 'os' has no attribute 'dirname'
@@ -66,8 +62,8 @@ ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is n
 ERROR tests/unit/test_scheduler_execution.py
 ERROR tests/unit/test_scheduler_straggler.py
 ERROR tests/unit/test_sweep_runner.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 16 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 16 errors in 0.74s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 13 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 13 errors in 1.11s ==============================
 
 
 - python -m pytest tests/contract/ -v -> rc=2
@@ -89,7 +85,7 @@ E   ImportError: cannot import name 'ExecutionStatus' from 'orchestrator.models'
 =========================== short test summary info ============================
 ERROR tests/contract/test_execution_run.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.11s ===============================
+=============================== 1 error in 0.16s ===============================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4

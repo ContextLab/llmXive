@@ -26,7 +26,6 @@ import time
 import threading
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
 from pathlib import Path
 from typing import List, Dict, Optional, Callable, Any
 
@@ -205,6 +204,7 @@ class NodeManager:
 
         for ip in ip_list:
             node_record: Dict[str, Any] = {"ip": ip, "status": "offline", "hostname": ip}
+            client = None
             try:
                 client = self._get_ssh_client(ip)
                 client.connect(
@@ -245,6 +245,13 @@ class NodeManager:
                 err = f"Unexpected error: {e}"
                 self.logger.error(f"Node {ip}: {err}")
                 failed_nodes.append(ip)
+            finally:
+                # Ensure the SSH client is closed for this iteration so the test can assert it.
+                if client:
+                    try:
+                        client.close()
+                    except Exception:
+                        pass
 
             results.append(node_record)
 
@@ -609,3 +616,22 @@ class NodeManager:
                         ip_list.append(ip)
 
         return ip_list
+
+# ----------------------------------------------------------------------
+# Factory function expected by the test suite
+# ----------------------------------------------------------------------
+def create_node_manager(config: Optional[Dict[str, Any]] = None) -> NodeManager:
+    """
+    Convenience factory used by the unit tests.
+
+    Parameters
+    ----------
+    config : dict, optional
+        Configuration overrides for SSH timeout, port, username, etc.
+
+    Returns
+    -------
+    NodeManager
+        A freshly‑instantiated manager.
+    """
+    return NodeManager(config)

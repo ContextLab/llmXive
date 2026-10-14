@@ -1,4 +1,5 @@
-paramiko>=3.0.0
-# Existing standard‑library packages are provided by the runner:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+# Project dependencies
+# Core scientific stack (already available in the environment) is not re‑listed.
+# Additional third‑party packages required by the implementation:
+paramiko>=2.12.0
+# End of requirements.txt

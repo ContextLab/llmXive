@@ -30,6 +30,9 @@ from typing import Any, Dict, List, Optional
 
 from llmxive_toolkit import paths, get_logger
 
+# Import model classes needed for type hints and runtime construction
+from orchestrator.models import PhysicalNode, TaskChunk, TaskStatus
+
 # ----------------------------------------------------------------------
 # Public Exceptions
 # ----------------------------------------------------------------------

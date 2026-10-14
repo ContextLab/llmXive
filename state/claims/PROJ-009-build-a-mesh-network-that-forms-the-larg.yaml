@@ -598,3 +598,53 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T01:15:06Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator provides minimal CLI entry point for basic inspection
+  claim_id: c_7e5483ac
+  context: The orchestrator CLI command `python -m code.orchestrator.cli --help` displays
+    the available options and confirms that the entry point is functional.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator provides a minimal CLI entry point for basic inspection
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T20:08:13Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: sweep runner raises a clear error when tc is missing
+  claim_id: c_3d2a8a82
+  context: The sweep runner will raise a clear error; ensure the physical testbed
+    has `tc` installed.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep runner will raise a clear error; ensure the physical testbed
+    has `tc` installed.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T20:11:33Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator CLI help displays options and confirms entry point functionality
+  claim_id: c_f8f07a1b
+  context: This command displays the available options and confirms that the entry
+    point is functional.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator CLI help command displays the available options and confirms
+    that the entry point is functional.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T20:11:33Z'

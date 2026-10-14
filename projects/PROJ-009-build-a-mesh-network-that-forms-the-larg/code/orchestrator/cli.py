@@ -1,83 +1,61 @@
 """
-Command line interface for the mesh network orchestrator (Task T004).
-
-The CLI now supports a ``run`` sub‑command that triggers the full
-end‑to‑end pipeline implemented in ``code.orchestrator.data_collector``.
-It loads the configuration (``config.yaml`` by default), creates a
-``NodeManager`` instance, and writes a CSV file with the required
-columns to ``data/raw/``.
+Minimal command‑line interface for the orchestrator package.
+Provides a ``--help`` entry point that the quickstart documentation
+references. Additional sub‑commands can be added later without breaking
+this simple interface.
 """
-
 import argparse
 import sys
+from typing import List, Optional
 
-from orchestrator.logger import get_logger
-from orchestrator.config import get_config
-from orchestrator.data_collector import main as pipeline_main
-
-logger = get_logger(__name__)
+from orchestrator.logger import get_logger, configure_logging
+from orchestrator.data_collector import main as data_collector_main
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="mesh-orchestrator",
-        description="Orchestrator CLI for the mesh network supercomputer project."
+        prog="code.orchestrator.cli",
+        description="Entry point for the mesh‑network orchestrator."
     )
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
-    # ------------------------------------------------------------------
-    # ``run`` – execute the full discovery → benchmark → aggregation pipeline
-    # ------------------------------------------------------------------
-    run_parser = subparsers.add_parser(
-        "run",
-        help="Run a single benchmark campaign and produce a raw CSV output."
-    )
-    run_parser.add_argument(
-        "--dry-run",
+    # Optional sub‑command to trigger a full data‑collection run.
+    parser.add_argument(
+        "--run",
         action="store_true",
-        help="Validate configuration and SSH connectivity without executing the benchmark."
+        help="Execute the end‑to‑end data collection pipeline."
     )
-    run_parser.add_argument(
-        "--config",
-        type=str,
-        default="config.yaml",
-        help="Path to the YAML configuration file (default: config.yaml)."
+    parser.add_argument(
+        "--log-file",
+        help="Optional path to a log file."
+    )
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Logging verbosity."
     )
     return parser
 
-def main(argv=None) -> int:
-    if argv is None:
-        argv = sys.argv[1:]
-
+def main(argv: Optional[List[str]] = None) -> int:
+    """
+    Parse arguments, configure logging, and optionally launch the
+    data‑collection pipeline. Returns an exit code compatible with
+    ``python -m`` execution.
+    """
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    # Load configuration (this will raise if the file is missing)
-    cfg = get_config()
-    logger.info(f"Loaded configuration from {cfg.project_root / 'config.yaml'}")
+    # Configure logging according to CLI options
+    level = getattr(__import__('logging'), args.log_level)
+    configure_logging(log_file=args.log_file, level=level)
 
-    if args.command == "run":
-        if args.dry_run:
-            logger.info("Dry‑run mode – performing discovery only.")
-            # Perform discovery to ensure SSH works, then exit.
-            from orchestrator.node_manager import create_node_manager
-            node_manager = create_node_manager()
-            ip_list = [node.get("ip") for node in getattr(cfg, "testbed", {}).get("nodes", []) if node.get("ip")]
-            if not ip_list:
-                logger.error("No IPs defined in configuration – cannot perform dry‑run.")
-                return 1
-            try:
-                node_manager.discover_nodes(ip_list)
-            except Exception as e:
-                logger.error(f"Discovery failed during dry‑run: {e}")
-                return 1
-            logger.info("Dry‑run successful – all reachable nodes responded.")
-            return 0
-        else:
-            # Real execution: invoke the pipeline.
-            return pipeline_main()
-    else:
-        parser.print_help()
-        return 1
+    logger = get_logger(__name__)
+    logger.info("Orchestrator CLI invoked")
+
+    # If ``--run`` is supplied, execute the full pipeline.
+    if args.run:
+        logger.info("Starting end‑to‑end data collection")
+        # ``data_collector_main`` returns an exit code (0 on success).
+        return data_collector_main()
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

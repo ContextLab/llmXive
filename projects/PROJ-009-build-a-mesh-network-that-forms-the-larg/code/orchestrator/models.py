@@ -1,6 +1,5 @@
 """
 Data model classes for PhysicalNode, TaskChunk, and ExecutionRun.
-Updated to match unit test expectations.
 """
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -21,15 +20,6 @@ class TaskStatus(Enum):
 
 @dataclass
 class PhysicalNode:
-    """
-    Simplified PhysicalNode model used by the Scheduler unit tests.
-
-    The original implementation used fields like ``ip_address`` and ``available_memory_mb``.
-    Unit tests, however, instantiate the class with ``ip``, ``status`` and ``ram_mb``.
-    This dataclass therefore provides those attributes while keeping the richer
-    fields for any downstream code that may still rely on them.
-    """
-    # Core identifiers expected by tests
     ip: str = field(default_factory=str)
     status: str = "active"
     ram_mb: int = 4096
@@ -44,7 +34,6 @@ class PhysicalNode:
     last_heartbeat: Optional[datetime] = None
 
     def __post_init__(self) -> None:
-        # Populate legacy fields for backward compatibility
         if not self.ip_address:
             self.ip_address = self.ip
         if not self.available_memory_mb:
@@ -54,16 +43,10 @@ class PhysicalNode:
 
 @dataclass
 class TaskChunk:
-    """
-    TaskChunk model extended with the attributes required by the scheduler
-    tests (size_mb, iterations, data, start_idx, end_idx). The original model
-    only contained a generic ``payload`` field.
-    """
-    # Mandatory fields used in tests
     id: str = field(default_factory=str)
-    size_mb: float = 0.0          # Size of the chunk in megabytes
-    iterations: int = 0           # Number of benchmark iterations
-    data: Any = None              # Arbitrary payload (unused in tests)
+    size_mb: float = 0.0
+    iterations: int = 0
+    data: Any = None
 
     # Optional fields from the original implementation
     payload: Any = None
@@ -78,7 +61,6 @@ class TaskChunk:
     end_idx: int = 0
 
     def __post_init__(self) -> None:
-        # Ensure end_idx reflects the iteration count if not explicitly set
         if self.end_idx == 0 and self.iterations:
             self.end_idx = self.iterations
 

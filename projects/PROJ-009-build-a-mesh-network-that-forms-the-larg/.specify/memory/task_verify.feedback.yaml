@@ -1,29 +1,32 @@
 T001:
-  reason: "The project layout directories and most source files exist, but the required\
-    \ `code/.gitignore` is absent, the three contract YAML schema files are missing\
-    \ (causing `pytest code/tests/contract/` to fail), and the quickstart does not\
-    \ document the exact runnable command `python -m code.orchestrator.cli --help`.\
-    \ These missing artifacts prevent the task\u2019s verification criteria from being\
-    \ satisfied."
+  reason: "Key gaps: (1) `code/.gitignore` with the required entries (`data/raw/*.log`,\
+    \ `__pycache__/`, `*.pyc`, `.env`) is not present in the collected evidence \u2014\
+    \ no artifact confirms it exists; (2) `code/orchestrator/logger.py` contains a\
+    \ real bug \u2014 `heartbeat()` calls `datetime.now(timezone.utc)` but `datetime`/`timezone`\
+    \ are never imported, so that function raises `NameError`; (3) `timeout_guard.py`\
+    \ imports `from orchestrator.logger import ...`, which is inconsistent with the\
+    \ `code.orchestrator` package layout and would fail under `python -m code.orchestrator.cli`;\
+    \ (4) there is no execution evidence"
   task: dc37f9d721b2ecda461e709079232cf81d928d17a7aae55199c64bcb2abe4877
 T002:
-  reason: "The `code/orchestrator/node_manager.py` module exists and implements most\
-    \ of the required functions, but the accompanying unit test suite `code/tests/unit/test_node_manager.py`\
-    \ is broken: it imports a non\u2011existent `create_node_manager` factory, makes\
-    \ incorrect assumptions about the mocked SSH client (e.g., expecting `stdout.channel`\
-    \ and a `close()` call that the code never makes), and does not test the required\
-    \ instrumentation features (tcpdump, mpstat, radio metrics, thermal checks). Consequently\
-    \ the tests do not pass, violating the task\u2019s verification condition. The\
-    \ missing factory function"
+  reason: "The module exists and implements most required functions, but the required\
+    \ focused unit tests are not there: `test_node_manager.py` only covers `discover_nodes`\
+    \ and the factory \u2014 there are no tests for tool verification, CPU profiling,\
+    \ radio metrics, thermal check, tcpdump packet counting, or mpstat parsing, and\
+    \ no use of a mock node generator against recorded real `tcpdump`/`mpstat` output\
+    \ samples as the task explicitly demands; there is also no execution evidence\
+    \ that any tests pass. Additionally, `get_radio_metrics` contains a synthetic-data\
+    \ fallback (mapping `/proc/net/wireless` link quali"
   task: 3e9778df17e71a207d3a96c08f5686b718c12a9ce0ff122ac865fe144e543e86
 T003:
-  reason: "The `code/orchestrator/scheduler.py` module exists but lacks the required\
-    \ `SchedulerState` class with `receive_task_status()`/`update_scheduler_state()`,\
-    \ does not implement heterogeneity\u2011aware heartbeat scoring, does not write\
-    \ per\u2011run dropout rates to `data/raw/dropout_events.json` (the file is missing),\
-    \ and omits the network\u2011saturation abort logic, the Monte\u202FCarlo `benchmark`\
-    \ function, and the asynchronous straggler timeout/penalty logging. Consequently\
-    \ the core specifications are not fulfilled."
+  reason: "The required `data/raw/dropout_events.json` is MISSING (dropout rate is\
+    \ only written by the CLI's mock path, never by the scheduler itself, and no run\
+    \ produced the file), and there is no execution evidence that the unit tests pass\
+    \ \u2014 the verification criterion. Moreover, the tests as written would fail:\
+    \ `monitor_task` sets `assignment.end_time` but `TaskAssignment` has no `end_time`\
+    \ field (AttributeError on completion), and `test_reassign_task_logic` mocks `ping_node`\
+    \ to return False globally, so `_find_alternate_node` finds no healthy node and\
+    \ returns `{\"status\": \"failed\"}`, not `\"reassigned\"`"
   task: bc539ec1de4a5241707497e425fc468f3f042a886d8820a6994aa4bb323d9e83
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/orchestrator/cli.py
