@@ -4,7 +4,7 @@ Deterministic logging configuration for the llmXive EVA-Bench latency study.
 Provides ``setup()`` which configures the ROOT logger with:
   * a rotating file handler writing to ``logs/run.log`` (INFO level),
   * a console handler at WARNING level,
-  * a fixed, deterministic format and UTC-independent local timestamps.
+  * a fixed, deterministic format.
 
 The configuration is idempotent: calling ``setup()`` repeatedly will not
 duplicate handlers.
@@ -57,6 +57,21 @@ def _clear_handlers(logger: logging.Logger) -> None:
         logger.removeHandler(handler)
 
 
+def _resolve_log_path(log_file: Optional[Union[str, Path]]) -> Path:
+    """Resolve the log file path, defaulting to ``<project>/logs/run.log``."""
+    if log_file is None:
+        return DEFAULT_LOG_DIR / DEFAULT_LOG_FILE
+    # Guard against callers passing a module or other non-path object
+    # (a previous regression passed a module here and crashed Path()).
+    if isinstance(log_file, Path):
+        return log_file
+    if isinstance(log_file, str):
+        return Path(log_file)
+    raise TypeError(
+        f"log_file must be a str or Path, got {type(log_file).__name__}"
+    )
+
+
 def setup(
     log_file: Optional[Union[str, Path]] = None,
     file_level: int = DEFAULT_FILE_LEVEL,
@@ -84,11 +99,8 @@ def setup(
     if _CONFIGURED and not force:
         return root_logger
 
-    # Resolve output path.
-    if log_file is None:
-        log_path = DEFAULT_LOG_DIR / DEFAULT_LOG_FILE
-    else:
-        log_path = Path(log_file)
+    # Resolve output path (always a real filesystem path).
+    log_path = _resolve_log_path(log_file)
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Start from a clean slate so handler levels are exactly as configured.
@@ -129,8 +141,9 @@ def setup(
     return root_logger
 
 
-# Backwards/forwards-compatible alias used elsewhere in the project.
-setup_logging = setup
+def setup_logging(log_file: Optional[Union[str, Path]] = None, **kwargs) -> logging.Logger:
+    """Backwards/forwards-compatible alias for :func:`setup`."""
+    return setup(log_file=log_file, **kwargs)
 
 
 def get_log_path() -> Path:

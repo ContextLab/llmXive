@@ -25,7 +25,7 @@ All artifacts must be real files that can be validated against the JSON‑Schema
 
 ## Phase 2 – Data acquisition & verification
 
-- [ ] **T004** [P] depends_on: [T001, T002, T003] Implement a dataset‑download script that fetches the EVA‑Bench archive from the public HuggingFace URL, extracts the JSONL metadata and WAV files into `data/raw/`, and writes SHA‑256 checksums to `data/checksums.json`. The script must abort with a clear error if the download fails or the checksum does not match.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=2 -->
+- [ ] **T004** [P] depends_on: [T001, T002, T003] Implement a dataset‑download script that fetches the EVA‑Bench archive from the public HuggingFace URL, extracts the JSONL metadata and WAV files into `data/raw/`, and writes SHA‑256 checksums to `data/checksums.json`. The script must abort with a clear error if the download fails or the checksum does not match.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=2 --> <!-- FAILED: unspecified -->
   *Path*: `code/data/download.py`  
   *Verification*: After execution, `data/raw/` contains the expected files; `data/checksums.json` includes an entry for each file; a failed download raises an exception (no silent fallback).
 

@@ -30,11 +30,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/download.py -> rc=2
 
-2026-10-14 10:40:41,711 - llmxive.download - INFO - Starting EVA-Bench dataset download process.
-2026-10-14 10:40:41,712 - llmxive.download - INFO - Downloading eva_bench_dataset.zip from https://huggingface.co/datasets/amazon-science/EVA-Bench/resolve/main/eva_bench_dataset.zip...
+2026-10-14 10:46:07,200 - llmxive.download - INFO - Starting EVA-Bench dataset download process.
+2026-10-14 10:46:07,201 - llmxive.download - INFO - Downloading eva_bench_dataset.zip from https://huggingface.co/datasets/amazon-science/EVA-Bench/resolve/main/eva_bench_dataset.zip...
 Download attempt 1 failed: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/amazon-science/EVA-Bench/resolve/main/eva_bench_dataset.zip
-2026-10-14 10:40:41,879 - llmxive.download - CRITICAL - DOWNLOAD FAILED: Failed to download data after 0 attempts: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/amazon-science/EVA-Bench/resolve/main/eva_bench_dataset.zip
-2026-10-14 10:40:41,879 - llmxive.download - CRITICAL - No fallback data source is permitted. Aborting with a non-zero exit status (task T004 fail-fast requirement).
+2026-10-14 10:46:07,372 - llmxive.download - CRITICAL - DOWNLOAD FAILED: Failed to download data after 0 attempts: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/amazon-science/EVA-Bench/resolve/main/eva_bench_dataset.zip
+2026-10-14 10:46:07,372 - llmxive.download - CRITICAL - No fallback data source is permitted. Aborting with a non-zero exit status (task T004 fail-fast requirement).
 
 - python code/scripts/validate_schemas.py --input data/raw/ --schema contracts/dataset.schema.yaml -> rc=2
 

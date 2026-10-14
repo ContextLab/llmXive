@@ -74,3 +74,14 @@ def test_console_suppresses_info(isolated_log, capsys):
     captured = capsys.readouterr()
     assert "info-should-not-appear-on-console" not in captured.err
     assert "warn-should-appear-on-console" in captured.err
+
+
+def test_default_log_path_is_project_run_log():
+    from code.logging_config import get_log_path, PROJECT_ROOT
+    assert get_log_path() == PROJECT_ROOT / "logs" / "run.log"
+
+
+def test_setup_rejects_non_path_log_file():
+    import types
+    with pytest.raises(TypeError):
+        setup(log_file=types.ModuleType("not_a_path"), force=True)
