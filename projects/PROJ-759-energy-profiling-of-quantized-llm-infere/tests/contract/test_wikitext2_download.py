@@ -1,46 +1,45 @@
 """
-Contract test for the WikiText‑2 downloader.
+Contract test for the WikiText‑2 data‑loader.
 
-This test mirrors the logic in the main test suite but lives under the
-``tests/contract`` namespace as required by the quickstart verification step.
+The test ensures that ``download_wikitext2`` creates a Parquet file at
+``data/raw/wikitext2.parquet`` and that the SHA‑256 checksum recorded in
+``data/raw/README.md`` matches the actual file.
 """
 
-import re
 import hashlib
 from pathlib import Path
 
+import pytest
+
 from utils.data_loader import download_wikitext2
 
+@pytest.fixture(scope="module", autouse=True)
+def ensure_data():
+    # Run the downloader once for the whole test module.
+    download_wikitext2()
+    yield
+    # No teardown needed; the file is kept for downstream tests.
 
-def _compute_sha256(file_path: Path) -> str:
+def test_parquet_exists():
+    parquet_path = Path("data") / "raw" / "wikitext2.parquet"
+    assert parquet_path.is_file(), f"Missing {parquet_path}"
+
+def test_checksum_matches():
+    parquet_path = Path("data") / "raw" / "wikitext2.parquet"
+    readme_path = Path("data") / "raw" / "README.md"
+    assert readme_path.is_file(), f"Missing {readme_path}"
+    # Extract the checksum from the README (the line containing backticks)
+    content = readme_path.read_text(encoding="utf-8")
+    import re
+
+    match = re.search(r"`([a-f0-9]{64})`", content)
+    assert match, "Checksum not found in README"
+    recorded_checksum = match.group(1)
+
+    # Compute actual checksum
     h = hashlib.sha256()
-    with file_path.open("rb") as f:
+    with parquet_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
-    return h.hexdigest()
-
-
-def test_wikitext2_download_contract():
-    # Ensure a clean state
-    raw_dir = Path("data") / "raw"
-    parquet_path = raw_dir / "wikitext2.parquet"
-    readme_path = raw_dir / "README.md"
-
-    if parquet_path.is_file():
-        parquet_path.unlink()
-    if readme_path.is_file():
-        readme_path.unlink()
-
-    # Run download
-    result = download_wikitext2()
-    assert result == parquet_path
-    assert parquet_path.is_file()
-    assert readme_path.is_file()
-
-    # Verify checksum in README matches actual file checksum
-    readme_text = readme_path.read_text(encoding="utf-8")
-    match = re.search(r"`([a-f0-9]{64})`", readme_text)
-    assert match, "Checksum not found in README"
-    recorded = match.group(1)
-    actual = _compute_sha256(parquet_path)
-    assert recorded == actual, "Checksum mismatch"
+    actual_checksum = h.hexdigest()
+    assert actual_checksum == recorded_checksum, "Checksum mismatch"

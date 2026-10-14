@@ -1,0 +1,8 @@
+{
+  "model_name": "gpt-neo-125M",
+  "model_size_m": 125,
+  "quantization": "4bit",
+  "checkpoint_path": "data/models/gpt-neo-125M/fp16",
+  "load_success": true,
+  "seed": 42
+}

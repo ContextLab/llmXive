@@ -148,3 +148,85 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-14T15:15:12Z'
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/code/quickstart.md
+  attempts: 1
+  canonical: expected runtime on CI runner is 4.5 hours
+  claim_id: c_9ef7d61b
+  context: "Run the Full Benchmark ... Expected runtime on the CI runner: \u2248\u202F\
+    4.5\u202Fh."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected runtime on the CI runner: \u2248\u202F4.5\u202Fh"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T17:07:19Z'
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/code/quickstart.md
+  attempts: 1
+  canonical: all unit tests pass confirming generated files conform to schemas
+  claim_id: c_b6c14877
+  context: "Run the Unit\u2011Level Contract Tests (optional) ... All tests should\
+    \ pass, confirming that generated JSON/CSV files conform to the schemas in contracts/."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass, confirming that generated JSON/CSV files conform
+    to the schemas in contracts/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T17:07:19Z'
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/code/quickstart.md
+  attempts: 1
+  canonical: dry-run prints pyRAPL available
+  claim_id: c_63056b74
+  context: "Verify Energy\u2011Measurement Library (pyRAPL) ... You should see the\
+    \ output: pyRAPL available."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'You should see the output: pyRAPL available'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T17:07:19Z'
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/quickstart.md
+  attempts: 1
+  canonical: "expected runtime \u2248 4.5 hours on CI runner"
+  claim_id: c_39d57a1f
+  context: "Run the Full Benchmark ... Expected runtime on the CI runner: \u2248\u202F\
+    4.5\u202Fh."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected runtime on the CI runner: \u2248\u202F4.5\u202Fh."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T17:09:17Z'
+- artifact_path: projects/PROJ-759-energy-profiling-of-quantized-llm-infere/quickstart.md
+  attempts: 1
+  canonical: all unit-level contract tests pass
+  claim_id: c_7368b11a
+  context: "Run the Unit\u2011Level Contract Tests (optional) ... All tests should\
+    \ pass, confirming that generated JSON/CSV files conform to the schemas in `contracts/`."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass, confirming that generated JSON/CSV files conform
+    to the schemas in contracts/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T17:09:17Z'

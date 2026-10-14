@@ -1,14 +1,13 @@
 """
 Data loader utilities for the energy profiling project.
 
-This module provides a function to create a placeholder ``wikitext2.parquet``
-file under ``data/raw/wikitext2.parquet`` and to record its SHA‑256 checksum
-in ``data/raw/README.md``. The real WikiText‑2 dataset is large and would
-require the ``datasets`` library (which in turn depends on ``pyarrow``). To
-keep the CI environment lightweight and avoid version conflicts, we generate
-an empty placeholder file. The contract test only checks for the file's
-existence and that the recorded checksum matches the actual file, so this
-approach satisfies the requirement without fabricating external data.
+This module provides a function to download the WikiText‑2 dataset
+from the HuggingFace Hub, store it as a Parquet file under
+``data/raw/wikitext2.parquet`` and record its SHA‑256 checksum in
+``data/raw/README.md``. The implementation uses the ``datasets`` library
+(which pulls in ``pyarrow`` for Parquet support) and writes the full
+dataset (not a synthetic placeholder) so that contract tests checking
+file existence and checksum pass on real data.
 """
 
 from __future__ import annotations
@@ -18,6 +17,9 @@ from pathlib import Path
 from typing import Optional
 
 from llmxive_toolkit import get_logger, paths
+
+# The datasets library is a runtime dependency declared in ``requirements.txt``.
+from datasets import load_dataset
 
 log = get_logger(__name__)
 
@@ -49,13 +51,14 @@ The checksum can be used to verify data integrity after download.
 
 def download_wikitext2(parquet_path: Optional[Path] = None) -> Path:
     """
-    Create an (empty) placeholder WikiText‑2 Parquet file and record its checksum.
+    Download the WikiText‑2 dataset and store it as a Parquet file.
 
     Parameters
     ----------
     parquet_path: Optional[Path]
-        Destination path for the Parquet file. If ``None`` the default location
-        ``data/raw/wikitext2.parquet`` (relative to the project root) is used.
+        Destination path for the Parquet file. If ``None`` the default
+        location ``data/raw/wikitext2.parquet`` (relative to the project
+        root) is used.
 
     Returns
     -------
@@ -76,14 +79,25 @@ def download_wikitext2(parquet_path: Optional[Path] = None) -> Path:
     # Ensure parent directory exists (paths.data already creates it)
     parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write an empty file (0 bytes). This satisfies the contract test.
-    try:
-        parquet_path.write_bytes(b"")
-    except Exception as exc:
-        log.error("Failed to write placeholder Parquet file: %s", exc)
-        raise RuntimeError("Unable to write WikiText‑2 placeholder file") from exc
+    log.info("Downloading WikiText‑2 dataset via ``datasets`` library...")
+    # Load the raw WikiText‑2 (train split). The dataset is small enough
+    # to fit in memory, but we still use the library's streaming API for
+    # robustness.
+    dataset = load_dataset(
+        "wikitext", "wikitext-2-raw-v1", split="train", streaming=False
+    )
 
-    log.info("Placeholder WikiText‑2 dataset written to %s", parquet_path)
+    # Convert to a pandas DataFrame and write to Parquet.
+    # ``datasets`` objects expose ``to_pandas`` which uses pyarrow under
+    # the hood.
+    df = dataset.to_pandas()
+    try:
+        df.to_parquet(parquet_path, engine="pyarrow")
+    except Exception as exc:
+        log.error("Failed to write Parquet file: %s", exc)
+        raise RuntimeError("Unable to write WikiText‑2 Parquet file") from exc
+
+    log.info("WikiText‑2 dataset written to %s", parquet_path)
 
     # Compute checksum and write README
     checksum = _compute_sha256(parquet_path)
@@ -91,3 +105,9 @@ def download_wikitext2(parquet_path: Optional[Path] = None) -> Path:
     _write_readme(checksum, readme_path)
 
     return parquet_path
+
+
+if __name__ == "__main__":
+    # Allow the module to be executed directly for convenience:
+    # ``python -m utils.data_loader``
+    download_wikitext2()

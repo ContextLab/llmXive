@@ -1,11 +1,12 @@
 status: none
-intent: Download WikiText-2 test split parquet via HuggingFace Datasets python package
-  dataset
+intent: HuggingFace download tokenized WikiText-2 500-token prompts parquet python
+  package dataset
 required_fields:
 - text
-- tokenized_ids
-- prompt
+- token_ids
 - prompt_length
-cache_key: 74162f3d4502d437db29f6832393169f93d9930d99974307e00ed0ac0849b40d
-searched_at: '2026-10-14T16:11:27.449869+00:00'
+- split
+- checksum
+cache_key: d1203a5a0322092e42252c490cbd768e72bd625516b51f6625dee92be29db002
+searched_at: '2026-10-14T17:12:33.296390+00:00'
 retry_count: 1

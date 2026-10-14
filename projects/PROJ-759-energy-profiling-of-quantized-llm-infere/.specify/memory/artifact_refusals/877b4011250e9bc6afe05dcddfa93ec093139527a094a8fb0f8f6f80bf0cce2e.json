@@ -1,0 +1,7 @@
+{
+  "task_id": "T004",
+  "fingerprint": "441545ed0213485fc5ea35b84aefdc45f19f5dab4e4b2ffe21d26accbe137749",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/benchmark.py': imports nonexistent names from sibling files: `from pyRAPL import Measurement` (available: PyRAPLCantRecordEnergyConsumption, __init__, setup). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

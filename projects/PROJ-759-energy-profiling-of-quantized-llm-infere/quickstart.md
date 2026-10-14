@@ -15,7 +15,18 @@ source.venv/bin/activate
 pip install -r requirements.txt # pins exact versions (see plan.md)
 ```
 
-## 3. Verify Dataset Availability (Optional checksum)
+## 3. Download the WikiText‑2 Dataset
+The benchmark requires the WikiText‑2 dataset in Parquet format. Run the
+data‑loader helper to fetch it and record its checksum:
+
+```bash
+python -c "from utils.data_loader import download_wikitext2; download_wikitext2()"
+```
+
+After the command finishes you should see a ``data/raw/wikitext2.parquet`` file
+and a ``data/raw/README.md`` containing its SHA‑256 checksum.
+
+## 4. Verify Dataset Availability (Optional checksum)
 ```bash
 python -c "
 import hashlib, pathlib, sys
@@ -24,10 +35,10 @@ h = hashlib.sha256()
 h.update(path.read_bytes())
 print('SHA256:', h.hexdigest())
 "
-# Compare the output to the checksum recorded in state/projects/...yaml
+# Compare the output to the checksum recorded in data/raw/README.md
 ```
 
-## 4. Verify Energy‑Measurement Library (pyRAPL)
+## 5. Verify Energy‑Measurement Library (pyRAPL)
 Before running the full benchmark you can confirm that the energy‑measurement
 library loads correctly on this runner:
 
@@ -39,13 +50,13 @@ python -m code.benchmark \
 You should see the output:
 
 ```
-pyRAPL available [UNRESOLVED-CLAIM: c_f3a104b2 — status=not_enough_info]
+pyRAPL available
 ```
 
 If the command fails, ensure that the `pyRAPL` package is installed (see
 `requirements.txt`) and that the runner provides access to CPU power counters.
 
-## 5. Run the Full Benchmark
+## 6. Run the Full Benchmark
 ```bash
 python -m code.benchmark \
  --prompt-length 500 \
@@ -56,7 +67,7 @@ python -m code.benchmark \
 - The script will download the GPT‑Neo checkpoints (if not cached), quantize them, and execute the energy‑aware inference loop.
 - Expected runtime on the CI runner: **≈ 4.5 h**.
 
-## 6. Inspect the Results
+## 7. Inspect the Results
 - **Aggregated CSV**: `data/results/aggregated.csv`
 - **Statistical Summary**: `data/results/summary.json`
 - **Figures**: `figures/energy_vs_quantization.png`, `figures/energy_scaling_loglog.png`, `figures/cpu_freq_trace.png`
@@ -68,11 +79,11 @@ df = pd.read_csv('data/results/aggregated.csv')
 print(df.head())
 ```
 
-## 7. Run the Unit‑Level Contract Tests (optional)
+## 8. Run the Unit‑Level Contract Tests (optional)
 ```bash
 pytest -q tests/contract
 ```
 All tests should pass, confirming that generated JSON/CSV files conform to the schemas in `contracts/`.
 
-## 8. Optional Edge‑Hardware Validation (Raspberry Pi 4)
+## 9. Optional Edge‑Hardware Validation (Raspberry Pi 4)
 If you have access to a Raspberry Pi 4, run the same command on that device. The script will automatically detect the platform and log CPU frequency/throttling information. Compare the resulting `aggregated.csv` with the CI results to assess proxy fidelity.

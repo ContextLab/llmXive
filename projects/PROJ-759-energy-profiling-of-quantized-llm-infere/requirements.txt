@@ -1,15 +1,19 @@
-# Core dependencies (already available in the execution environment)
+# Project dependencies
 transformers==4.41.2
+torch==2.3.0
+pyRAPL==0.2.0
 datasets==2.20.0
 auto-gptq==0.7.1
-pyRAPL==0.2.0
-powerstat==0.7.0
-pandas
+# Core scientific stack (already available in the execution environment)
 numpy
+pandas
 scipy
-matplotlib
 scikit-learn
 statsmodels
+matplotlib
 seaborn
-# The above list pins the packages required for later phases.
-# pyRAPL is required for T001's dry‑run verification.
+pytest
+PyYAML
+requests
+jsonschema
+psutil
