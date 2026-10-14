@@ -1,19 +1,17 @@
 status: none
-intent: visual genome dataset pip install python package download with moral ambiguity
-  annotations
+intent: Visual Genome dataset with region annotations and Moral Stories annotations
+  python package dataset
 required_fields:
 - image_id
 - image_url
-- width
-- height
-- objects
-- object_bbox
-- attributes
-- relationships
-- region_descriptions
-- scene_graph
+- region_id
+- region_bbox
+- region_description
+- object_labels
 - moral_ambiguity_score
-- human_ambiguity_label
-cache_key: 9eddd906ff95e7d7fbf2050791d34a68093baa51c562b5822ebc1f7558e98247
-searched_at: '2026-10-14T18:16:59.638968+00:00'
+- contrast_level
+- rms_contrast_value
+- semantic_similarity_score
+cache_key: 970847a09e2fe5701dcd875c45ca85cf5f6495ef59016429f8efed35e0c5e31a
+searched_at: '2026-10-14T20:11:05.636878+00:00'
 retry_count: 1

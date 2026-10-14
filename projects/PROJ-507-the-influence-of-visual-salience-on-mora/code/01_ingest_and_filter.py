@@ -162,6 +162,7 @@ def ingest_and_filter(
             split=DEFAULT_SPLIT,
             streaming=True,
             download_config=DownloadConfig(cache_dir=str(raw_dir)),
+            trust_remote_code=True,  # Required for datasets that use custom scripts
         )
     except Exception as exc:
         raise DataFetchError(f"Unable to load dataset '{dataset_name}'") from exc
