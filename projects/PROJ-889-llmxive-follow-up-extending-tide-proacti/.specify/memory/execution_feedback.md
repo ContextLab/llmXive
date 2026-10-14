@@ -7,19 +7,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.acquire   # pulls dataset, runs manual mapping to hidden‑problem labels, verifies checksum -> rc=1
-Xive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 372, in _request_wrapper
-    response = _request_wrapper(
-               ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 396, in _request_wrapper
-    hf_raise_for_status(response)
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/utils/_errors.py", line 352, in hf_raise_for_status
-    raise RepositoryNotFoundError(message, response) from e
-huggingface_hub.utils._errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6acfe15c-5354f13b79e48b5a4361f758;35bbcd41-84cd-4fc8-ade4-d3254d40f1a3)
+ove exception, another exception occurred:
 
-Repository Not Found for url: https://huggingface.co/code_x_glue_cc_defect_detection/resolve/main/train.jsonl.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated.
-Invalid username or password.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire.py", line 17, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire.py", line 14, in main
+    _download_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/code/data/download_real.py", line 100, in main
+    dataset_splits = _load_dataset()
+                     ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/code/data/download_real.py", line 93, in _load_dataset
+    return _load_via_hf_hub()
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/code/data/download_real.py", line 48, in _load_via_hf_hub
+    from huggingface_hub import hf_hub_download
+ModuleNotFoundError: No module named 'huggingface_hub'
 
 - python -m src.features.extract   # reads all .py files, writes data/features.csv (includes `origin`) -> rc=1
 

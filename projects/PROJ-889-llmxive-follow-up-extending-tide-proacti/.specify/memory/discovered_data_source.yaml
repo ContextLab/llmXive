@@ -1,15 +1,13 @@
 status: none
-intent: Python pip package for downloading CodeXGLUE defect detection dataset real
-  python package dataset
+intent: download TIDE evaluation dataset CodeXGLUE defect detection dataset python
+  package dataset
 required_fields:
 - code_id
+- source_code
 - ast_depth
 - import_count
 - cyclomatic_complexity
-- dependency_depth
-- semantic_scope
-- syntactic_complexity
 - hidden_problem_label
-cache_key: bf2d2d93626ff538cb680e08e998b2e4fa3c6852786b9ff2954e0acae23ed036
-searched_at: '2026-10-14T20:10:00.565149+00:00'
+cache_key: 4b0ebc4e791bbb7826f082313c4d117bb526ac7f78956b268b7b0b6dae6ede8e
+searched_at: '2026-10-14T23:08:22.908734+00:00'
 retry_count: 1
