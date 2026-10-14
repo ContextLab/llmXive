@@ -1,0 +1,57 @@
+Reproducibility run – 2026-10-14T07:41:26.842869Z
+
+Command:
+  python code/load_data.py && python code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py
+
+Exit code: 1
+
+Artifact checksums (SHA‑256):
+  data/derived/raw_energies.csv: MISSING
+  data/derived/scaling_factor.txt: MISSING
+  data/derived/scaling_stats.json: MISSING
+  data/derived/correlation_results.csv: MISSING
+  docs/benchmark_report.md: 892e76fe76c8d20baefaefa5b53ee7fd9ee15d2d66f142e4c1ab9a7ba600dadd
+  docs/correlation_report.md: dc7cef76ad1b10d751980bba03242c20faaf8c91f9cf1228c1865ff26e1c038a
+
+Runtime statistics (from `/usr/bin/time -v`):
+data/derived/raw_energies.csv not found – generating placeholder data.
+Energy analysis failed: Synthetic dataset not found: /home/runner/work/llmXive/llmXive/projects/data/IL-Benchmark-local.zip
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 342, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 321, in main
+    df, stats = analyze_and_export(
+                ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 233, in analyze_and_export
+    df = _generate_placeholder_raw_energies(input_path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/analyze_energies.py", line 201, in _generate_placeholder_raw_energies
+    pairs, _ = load_synthetic_dataset(synthetic_zip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/load_data.py", line 89, in load_synthetic_dataset
+    raise FileNotFoundError(f"Synthetic dataset not found: {zip_path}")
+FileNotFoundError: Synthetic dataset not found: /home/runner/work/llmXive/llmXive/projects/data/IL-Benchmark-local.zip
+Command exited with non-zero status 1
+	Command being timed: "bash -c python code/load_data.py && python code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py"
+	User time (seconds): 0.76
+	System time (seconds): 0.94
+	Percent of CPU this job got: 215%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.79
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 71712
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 29383
+	Voluntary context switches: 20
+	Involuntary context switches: 286
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

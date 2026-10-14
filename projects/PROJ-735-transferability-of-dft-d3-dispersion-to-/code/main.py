@@ -91,7 +91,12 @@ def write_runtime_report(
 
     for p in artifact_paths:
         checksum = sha256_file(p) if p.is_file() else "MISSING"
-        lines.append(f"  {p.relative_to(Path.cwd())}: {checksum}")
+        try:
+            rel = p.relative_to(Path.cwd())
+        except ValueError:
+            # p is not under the current working directory – fall back to the raw path.
+            rel = p
+        lines.append(f"  {rel}: {checksum}")
 
     lines.append("")
     lines.append("Runtime statistics (from `/usr/bin/time -v`):")
