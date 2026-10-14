@@ -1,107 +1,102 @@
 # Feature Specification: Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics
 
-**Feature Branch**: `001-neural-correlates-social-exclusion`  
-**Created**: 2026-07-24  
+**Feature Branch**: `001-neural-correlates-of-simulated-social-ex`  
+**Created**: 2026-10-14  
 **Status**: Draft  
 **Input**: User description: "How does acute simulated social exclusion modulate functional connectivity dynamics within the default mode network (DMN)?"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Ingestion and Quality Control (US-1)
+### User Story 1 – Data Ingestion & Quality Control (US-1)
 
-The system must successfully download preprocessed fMRI data from OpenNeuro (specifically Cyberball task datasets like `ds000030`), **verify the presence of distinct 'Inclusion' and 'Exclusion' event markers in the dataset metadata**, extract raw BOLD time‑series from canonical DMN regions (PCC, mPFC, angular gyrus) using a standard atlas (e.g., AAL or Harvard‑Oxford), and rigorously filter out subjects with excessive motion artifacts (>3 mm displacement) to ensure data integrity.
+The system must download preprocessed fMRI data from OpenNeuro (e.g., the Cyberball task dataset `ds000030`), verify that the metadata contains distinct “Inclusion” and “Exclusion” event markers, extract raw BOLD time‑series from the canonical DMN regions (PCC, mPFC, left/right angular gyrus) using the Harvard‑Oxford atlas, compute framewise displacement for each run, and exclude any subject whose **mean** displacement exceeds **3 mm**.
 
-**Why this priority**: Without a clean, valid dataset with correct event markers and appropriate preprocessing, no statistical analysis can be performed. This is the foundational step that determines the feasibility of the entire study.
+**Why this priority**: Clean, correctly annotated data are a prerequisite for any downstream analysis; without them the scientific question cannot be answered.
 
-**Independent Test**: Can be fully tested by executing the data pipeline on a single subject file, verifying the motion parameter output, confirming the presence of event markers, verifying the raw‑time‑series extraction, and verifying the subject is either retained or excluded based on the >3 mm threshold.
+**Independent Test**: Execute the ingestion pipeline on a single subject file and check that (a) motion metrics are produced, (b) event markers are detected, (c) ROI time‑series are extracted, and (d) the subject is either retained or excluded according to the 3 mm rule.
 
-**Acceptance Scenarios**:
+**Acceptance Scenarios**  
 
-1. **Given** a raw fMRI NIfTI file from OpenNeuro, **When** the motion correction module processes it, **Then** the system outputs a displacement metric and flags the subject as "excluded" if the maximum displacement exceeds 3 mm.
-2. **Given** a subject with displacement <3 mm and valid event markers, **When** the ROI extraction module runs using raw‑time‑series extraction, **Then** the system outputs a time‑series vector for PCC, mPFC, and angular gyrus for each condition without errors.
-3. **Given** a dataset missing 'Inclusion' or 'Exclusion' markers, **When** the ingestion module runs, **Then** the system halts with error code `ERR_INVALID_EVENTS`.
-
----
-
-### User Story 2 - Connectivity Metric Computation (US-2)
-
-The system must compute **Pearson correlation matrices** for DMN nodes separately for the **Inclusion** and **Exclusion** conditions (using the raw BOLD time‑series for each ROI), and calculate a single "connectivity strength" metric (mean correlation across all DMN edges, preserving sign) for each condition per subject. The primary outcome is the **difference** in connectivity strength between conditions.
-
-**Why this priority**: This transforms raw time‑series data into the specific quantitative variable (connectivity strength difference) required to test the research hypothesis, using a methodologically appropriate approach for task‑based fMRI.
-
-**Independent Test**: Can be tested by running the calculation on a subset of the real downloaded data where the event timings are known, verifying that Pearson correlations are computed directly from the raw time‑series, and confirming the mean correlation is derived correctly.
-
-**Acceptance Scenarios**:
-
-1. **Given** two raw time‑series vectors (PCC and mPFC) for the Exclusion condition, **When** the correlation module runs, **Then** the system outputs a Pearson correlation coefficient calculated strictly from the measured signals.
-2. **Given** a subject with both Inclusion and Exclusion raw time‑series, **When** the strength calculator runs, **Then** the system outputs two distinct values: one for Inclusion strength and one for Exclusion strength, both derived from empirical data.
+1. **Given** a preprocessed NIfTI file with valid event markers, **when** the motion‑assessment module runs, **then** the system outputs a mean displacement value and **retains** the subject if the value ≤ 3 mm.  
+2. **Given** a subject with mean displacement > 3 mm, **when** the same module runs, **then** the system flags the subject as **excluded**.  
+3. **Given** a dataset missing either “Inclusion” or “Exclusion” markers, **when** the ingestion module runs, **then** the system aborts with error code **101897695** (see FR‑009).
 
 ---
 
-### User Story 3 - Statistical Hypothesis Testing (US-3)
+### User Story 2 – Connectivity Metric Computation (US-2)
 
-The system must execute a non‑parametric paired permutation test (iterations = **5000**) to compare connectivity strength difference between Inclusion and Exclusion conditions, generating a p‑value and effect size, and visualizing the results with 95 % confidence intervals based on the **empirical distribution** of the real data.
+For each retained subject, the system must compute Pearson correlation matrices among the three DMN ROIs **separately** for the Inclusion and Exclusion conditions, then derive a single “connectivity strength” metric per condition by averaging the absolute correlation values across all ROI pairs. The primary outcome is the **difference** (Exclusion – Inclusion) in connectivity strength.
 
-**Why this priority**: This delivers the final scientific answer to the research question, determining if the observed modulation is statistically significant with sufficient power.
+**Why this priority**: This transforms raw BOLD signals into the quantitative variable required to test the hypothesis about DMN modulation.
 
-**Independent Test**: Can be tested by running the permutation test on the real dataset and verifying the p‑value is derived from the actual permutation distribution of the real subject data, using exactly 5000 iterations.
+**Independent Test**: Run the connectivity module on a subject with known event timings and verify that (a) correlation matrices are generated per condition, and (b) the mean absolute correlation is calculated correctly for each condition.
 
-**Acceptance Scenarios**:
+**Acceptance Scenarios**  
 
-1. **Given** paired connectivity strength values (Inclusion vs. Exclusion) for N subjects derived from real fMRI, **When** the permutation test runs with 5000 iterations, **Then** the system outputs a p‑value and a histogram of the null distribution generated by permuting the real subject labels.
-2. **Given** the statistical results from real data, **When** the visualization module runs, **Then** the system generates (a) a bar plot showing the mean difference with error bars representing the 95 % confidence interval of the real sample, and (b) the null‑distribution histogram referenced in scenario 1.
+1. **Given** raw time‑series for PCC and mPFC during the Exclusion condition, **when** the correlation module runs, **then** it outputs the Pearson correlation coefficient computed directly from the measured signals.  
+2. **Given** a subject with both Inclusion and Exclusion time‑series, **when** the strength calculator runs, **then** it outputs two distinct connectivity‑strength values (one per condition) derived from empirical data.
+
+---
+
+### User Story 3 – Statistical Hypothesis Testing (US-3)
+
+The system must perform a **non‑parametric paired permutation test** (10 000 permutations) comparing the per‑subject connectivity‑strength difference between Exclusion and Inclusion. It must report a two‑tailed p‑value, Cohen’s d effect size, and generate (a) a histogram of the null distribution and (b) a bar plot of the observed mean difference with 95 % confidence intervals derived from the permutation distribution.
+
+**Why this priority**: This delivers the final scientific answer, quantifying whether DMN connectivity is significantly modulated by social exclusion.
+
+**Independent Test**: Run the permutation test on the full retained sample and confirm that (a) exactly 10 000 permutations are performed, (b) the p‑value is computed from the empirical null, and (c) the required visualizations are produced.
+
+**Acceptance Scenarios**  
+
+1. **Given** paired connectivity‑strength values for N ≥ 10 subjects, **when** the permutation test runs with 10 000 iterations, **then** the system outputs a p‑value, Cohen’s d, and the full null‑distribution histogram.  
+2. **Given** the statistical results, **when** the visualization module runs, **then** it generates (a) a bar plot showing the mean difference with 95 % CI error bars, and (b) the null‑distribution histogram, both saved as PNG files in the output directory.
 
 ### Edge Cases
 
-- What happens when the downloaded dataset contains fewer subjects than required for a stable permutation test (e.g., N < 10)?
-  - **System Behavior**: The system MUST halt execution, return error code `ERR_N_INSUFFICIENT`, and generate a report stating "Insufficient subjects (N < 10) for valid permutation test." (See FR-009).
-- How does the system handle a subject where the time‑series extraction fails for one specific ROI (e.g., mPFC) but succeeds for others?
-  - **System Behavior**: The system MUST exclude the subject from the analysis if any required DMN ROI extraction fails. (See FR-014)
-- What occurs if the OpenNeuro API is unavailable or the specific dataset (ds000030) is deprecated/moved?
-  - **System Behavior**: The system MUST retry the download a finite number of times (up to 3 attempts) with exponential backoff, then fail gracefully with error code `ERR_DATA_UNAVAILABLE`. (See FR-013)
-- What happens if a subject is missing the Inclusion or Exclusion condition data?
-  - **System Behavior**: The system MUST exclude the subject from the paired analysis. (See FR-010)
+- **Insufficient Subjects**: If fewer than **10** subjects remain after QC, the system must halt execution and return error code **101897695** (see FR‑009).  
+- **Partial ROI Failure**: If time‑series extraction fails for any required DMN ROI in a subject, that subject is excluded from all downstream analyses (see FR‑014).  
+- **Dataset Unavailability**: If the OpenNeuro API is unreachable or the specified dataset is missing, the system retries up to **3** times with exponential backoff (1 s, 2 s, 4 s) before failing with error code **ERR_DATA_UNAVAILABLE** (see FR‑013).  
+- **Missing Condition Data**: Subjects lacking either Inclusion or Exclusion event markers are excluded from the paired analysis (see FR‑010).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download preprocessed fMRI data from OpenNeuro (e.g., `ds000030`), **verify the presence of 'Inclusion' and 'Exclusion' event markers in the metadata**, and verify file integrity before processing (See US-1).
-- **FR-002**: System MUST calculate head motion displacement for every subject and exclude any subject with maximum displacement >3 mm (See US-1).
-- **FR-003**: System MUST extract raw BOLD time‑series signals from PCC, mPFC, and angular gyrus using a standard atlas (e.g., AAL or Harvard‑Oxford) (See US-1).
-- **FR-004**: System MUST compute Pearson correlation matrices for DMN nodes separately for the **Inclusion** and **Exclusion** conditions, using the **raw time‑series** for each ROI (See US-2).
-- **FR-005**: System MUST calculate the mean correlation coefficient across all DMN edges (preserving sign) to derive a single "connectivity strength" metric per condition. The Primary Outcome is the difference in this metric between Exclusion and Inclusion conditions. **This is the Primary Outcome** (See US-2).
-- **FR-006**: System MUST perform a non‑parametric paired permutation test comparing connectivity strength difference between Inclusion and Exclusion conditions. The number of iterations MUST be **fixed at 5000** to ensure computational feasibility, reproducibility, and statistical power for small sample sizes. The permutation MUST be performed at the **subject level** on the derived connectivity strength values (See US-3).
-- **FR-009**: System MUST halt execution and return error code `ERR_N_INSUFFICIENT` if the number of valid subjects after QC is less than 10 (See Edge Cases).
-- **FR-010**: System MUST verify that each subject has valid time‑series data for **both** the Inclusion and Exclusion conditions. Subjects missing either condition MUST be excluded from the paired analysis (See Edge Cases).
-- **FR-013**: System MUST retry OpenNeuro dataset download up to **3 attempts** with exponential backoff (e.g., 1 s, 2 s, 4 s). If all attempts fail, the system returns error code `ERR_DATA_UNAVAILABLE` (See Edge Cases).
-- **FR-014**: System MUST exclude a subject from all downstream analyses if extraction of the raw time‑series fails for **any** required DMN ROI (PCC, mPFC, or angular gyrus) (See Edge Cases).
-- **FR-015**: System MUST generate (a) a histogram of the permutation‑test null distribution and (b) a bar plot of the mean connectivity‑strength difference with 95 % confidence‑interval error bars, saving both plots to the output directory (See US-3).
+- **FR-001**: System MUST download preprocessed fMRI data from OpenNeuro (e.g., `ds000030`) and verify file integrity before processing. *(See US‑1)*
+- **FR-002**: System MUST compute mean framewise displacement for each subject and exclude any subject with mean displacement > 3 mm. *(See US‑1)*
+- **FR-003**: System MUST extract raw BOLD time‑series for PCC, mPFC, and left/right angular gyrus using the Harvard‑Oxford cortical atlas. *(See US‑1)*
+- **FR-004**: System MUST compute Pearson correlation matrices for the DMN ROIs separately for Inclusion and Exclusion conditions, using the raw time‑series. *(See US‑2)*
+- **FR-005**: System MUST calculate a “connectivity strength” metric per condition by averaging the absolute correlation values across all ROI pairs, preserving sign. The primary outcome is the difference (Exclusion – Inclusion). *(See US‑2)*
+- **FR-006**: System MUST perform a non‑parametric paired permutation test with **10 000** iterations on the per‑subject connectivity‑strength differences, reporting a two‑tailed p‑value and Cohen’s d effect size. *(See US‑3)*
+- **FR-009**: System MUST halt execution and return error code **101897695** if the number of valid subjects after QC is < 10. *(Edge Cases)*
+- **FR-010**: System MUST verify that each retained subject has valid time‑series for **both** Inclusion and Exclusion conditions; subjects missing either condition are excluded from the paired analysis. *(Edge Cases)*
+- **FR-013**: System MUST retry the dataset download up to **3** attempts with exponential backoff (1 s → 2 s → 4 s). If all attempts fail, it returns error code `ERR_DATA_UNAVAILABLE`. *(Edge Cases)*
+- **FR-014**: System MUST exclude a subject from all downstream analyses if extraction of the raw time‑series fails for **any** required DMN ROI. *(Edge Cases)*
+- **FR-015**: System MUST generate (a) a histogram of the permutation‑test null distribution and (b) a bar plot of the mean connectivity‑strength difference with 95 % confidence‑interval error bars, saving both as PNG files in the designated output folder. *(See US‑3)*
 
 ### Key Entities
 
-- **Subject**: Represents an individual participant, containing attributes for ID, motion metrics, and condition labels (Inclusion/Exclusion).
-- **TimeSeries**: Represents the raw BOLD signal for a specific ROI, subject, and condition.
-- **ConnectivityMatrix**: Represents the Pearson correlation coefficients between all pairs of DMN nodes for a specific condition based on raw time‑series.
-- **Result**: Represents the outcome of the statistical test, containing p‑value, effect size, and confidence intervals.
+- **Subject** – Represents an individual participant; attributes include subject ID, mean displacement, and inclusion/exclusion condition labels.  
+- **TimeSeries** – Raw BOLD signal for a specific ROI, subject, and condition.  
+- **ConnectivityMatrix** – Pearson correlation coefficients among all DMN node pairs for a given condition.  
+- **Result** – Outcome of the statistical test, containing p‑value, Cohen’s d, and confidence‑interval information.
 
 ## Success Criteria
 
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
-
-- **SC-001**: The proportion of subjects retained after motion QC is measured against the total initial download count to verify data quality (See FR-002, US-1).
-- **SC-002**: The stability of the connectivity strength metric is measured by **re‑running the permutation test 5 times with different random seeds and comparing the standard deviation of the resulting null distributions** (See FR-006, US-3).
-- **SC-003**: The required visualizations (null‑distribution histogram and bar plot with 95 % CI) are verified to exist in the output directory and contain the expected elements (titles, axes, confidence‑interval bars) (See FR-015, US-3).
+- **SC-001**: The proportion of subjects retained after motion QC is measured against the total number of downloaded subjects; ≥ 80 % retention is expected for a typical Cyberball dataset. *(See FR‑002, US‑1)*
+- **SC-002**: Re‑running the permutation test **5** times with different random seeds yields a standard deviation of the resulting p‑values ≤ 0.01, demonstrating stability of the inference. *(See FR‑006, US‑3)*
+- **SC-003**: The required visualizations (null‑distribution histogram and bar plot with 95 % CI) exist in the output directory, are correctly labeled, and contain the expected graphical elements (titles, axis labels, confidence‑interval bars). *(See FR‑015, US‑3)*
 
 ## Assumptions
 
-- The OpenNeuro dataset `ds000030` (or equivalent Cyberball task dataset) contains preprocessed, motion‑corrected fMRI data with clear event markers for "Inclusion" and "Exclusion" conditions within a single continuous run. **If these markers are absent, the pipeline will halt.**
-- The standard AAL or Harvard‑Oxford atlas includes distinct, non‑overlapping regions for the PCC, mPFC, and angular gyrus that align with the preprocessed fMRI space.
-- The sample size of the downloaded dataset is sufficient (N ≥ 10) to achieve reasonable power for a non‑parametric permutation test with **5000 iterations**.
-- The total size of the required dataset (including intermediate files) fits within typical GitHub Actions runner storage limits.
-- No GPU acceleration is available; all statistical computations must be performed using CPU‑optimized libraries (e.g., NumPy, SciPy, scikit‑learn).
-- The "Inclusion" and "Exclusion" conditions are temporally distinct events defined by event markers within the same fMRI run, suitable for Pearson correlation of raw time‑series.
-- All statistical outputs (p‑values, effect sizes, confidence intervals) are derived exclusively from the measured BOLD signal and event timing data; no synthetic data or placeholder values are used.
-- The minimum sample size threshold of N = 10 is based on the requirement for a stable non‑parametric permutation test distribution with 5000 iterations.
+- The OpenNeuro dataset `ds000030` (or an equivalent Cyberball task dataset) provides **preprocessed**, motion‑corrected fMRI data with clear “Inclusion” and “Exclusion” event markers within a single continuous run.  
+- The Harvard‑Oxford atlas contains distinct, non‑overlapping masks for PCC, mPFC, and left/right angular gyrus that are already aligned to the preprocessed fMRI space.  
+- The downloaded dataset contains at least **10** subjects after QC, satisfying the minimum sample size needed for a stable non‑parametric permutation test with 10 000 iterations.  
+- All computations will run on a **CPU‑only** environment (e.g., GitHub Actions free‑tier runner) using standard scientific Python libraries (NumPy, SciPy, Nilearn, scikit‑learn). No GPU or CUDA dependencies are required.  
+- Pearson correlation of raw BOLD time‑series is an appropriate metric for assessing task‑based functional connectivity within the DMN for the purposes of this hypothesis.  
+- No synthetic or placeholder data will be generated; all metrics are derived exclusively from the real fMRI recordings and event timings.  
+- The 3 mm motion threshold, 10‑subject minimum, and 10 000 permutation count are chosen to balance methodological rigor with the compute limits of the CI environment.  
+
+--- 
+
+**Paper‑stage handoff**: Upon successful completion of the research workflow, the generated tables, figures, and statistical summary will be packaged for downstream manuscript preparation. The paper pipeline will handle formatting, reference management, and submission; no additional engineering deliverables are required at this stage.
