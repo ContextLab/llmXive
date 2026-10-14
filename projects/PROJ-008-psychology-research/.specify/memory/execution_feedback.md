@@ -97,7 +97,7 @@ ERROR tests/unit/test_setup_project.py
 ERROR tests/unit/test_validators.py
 ERROR tests/unit/test_verify_output.py - TypeError: get_data_path() missing 1...
 !!!!!!!!!!!!!!!!!!! Interrupted: 12 errors during collection !!!!!!!!!!!!!!!!!!!
-======================= 13 warnings, 12 errors in 3.00s ========================
+======================= 13 warnings, 12 errors in 3.40s ========================
 
 
 

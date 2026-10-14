@@ -19,12 +19,12 @@ from llmxive_toolkit import get_logger
 
 log = get_logger(__name__)
 
-
 def _load_pyproject_dependencies() -> list[str]:
     """Parse ``code/pyproject.toml`` and return the raw dependency strings."""
     import tomllib
 
-    pyproject_path = Path(__file__).resolve().parents[1] / "pyproject.toml"
+    # The pyproject file lives directly inside the ``code`` directory.
+    pyproject_path = Path(__file__).resolve().parent / "pyproject.toml"
     if not pyproject_path.is_file():
         raise FileNotFoundError(f"pyproject.toml not found at {pyproject_path}")
 
@@ -35,7 +35,6 @@ def _load_pyproject_dependencies() -> list[str]:
     if not isinstance(deps, list):
         raise ValueError("Invalid dependencies format in pyproject.toml")
     return deps
-
 
 def _verify_dependencies(deps: list[str]) -> dict[str, str]:
     """
@@ -50,7 +49,14 @@ def _verify_dependencies(deps: list[str]) -> dict[str, str]:
     for dep in deps:
         # Strip version specifiers; we only need the import name.
         # Handles ``pkg==x.y.z`` and simple extras like ``pkg[extra]==x.y``.
-        pkg = dep.split("[", 1)[0].split("==", 1)[0].split(">=", 1)[0].split("<=", 1)[0].split("~=", 1)[0].strip()
+        pkg = (
+            dep.split("[", 1)[0]
+            .split("==", 1)[0]
+            .split(">=", 1)[0]
+            .split("<=", 1)[0]
+            .split("~=", 1)[0]
+            .strip()
+        )
 
         try:
             module = importlib.import_module(pkg)
@@ -63,7 +69,6 @@ def _verify_dependencies(deps: list[str]) -> dict[str, str]:
         raise RuntimeError(f"Missing required dependencies: {', '.join(missing)}")
     return versions
 
-
 def _create_directories() -> None:
     """Create all required project folders (idempotent)."""
     dirs = [
@@ -71,6 +76,7 @@ def _create_directories() -> None:
         Path("code/analysis"),
         Path("code/viz"),
         Path("code/lib"),
+        Path("code/utils"),
         Path("data/raw"),
         Path("data/processed"),
         Path("data/results"),
@@ -84,7 +90,6 @@ def _create_directories() -> None:
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
         log.debug(f"Ensured directory exists: {d}")
-
 
 def _write_install_log(versions: dict[str, str]) -> None:
     """Write a JSON log documenting the install timestamp and package versions."""
@@ -101,7 +106,6 @@ def _write_install_log(versions: dict[str, str]) -> None:
 
     log.info(f"Install log written to {log_path}")
 
-
 def main() -> None:
     """Entry point for the setup script."""
     log.info("Starting project layout creation and dependency verification")
@@ -117,7 +121,6 @@ def main() -> None:
     _write_install_log(versions)
 
     log.info("Project setup completed successfully")
-
 
 if __name__ == "__main__":
     main()
