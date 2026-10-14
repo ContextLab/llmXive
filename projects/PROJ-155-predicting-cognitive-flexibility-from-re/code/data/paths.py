@@ -1,47 +1,43 @@
 """
-Helper utilities for constructing project‑relative paths.
-
-The functions mirror the simple path helpers used throughout the
-codebase (e.g. ``ensure_dir``, ``get_processed_path``). They delegate
-to ``llmxive_toolkit.paths`` which creates the directories on
-demand.
+Utility functions for accessing common data directory paths within the project.
+This module provides a thin wrapper around `llmxive_toolkit.paths` to return
+string paths that are used throughout the codebase (e.g., in merge, analysis,
+and utils modules). It also supplies a `get_project_root` function that
+some legacy imports expect.
 """
 from pathlib import Path
 
 from llmxive_toolkit import paths
 
 
-def ensure_dir(p: Path) -> None:
+def get_project_root() -> Path:
     """
-    Ensure that the directory component of *p* exists.
+    Return the absolute Path object representing the project root directory.
+    """
+    return paths.root
 
-    Args:
-        p: Path object – typically a file path. The parent directory
-           will be created if it does not already exist.
+def ensure_dir(dir_path: str | Path) -> None:
     """
-    p.parent.mkdir(parents=True, exist_ok=True)
+    Ensure that the given directory exists. If ``dir_path`` is a string it
+    will be converted to a ``Path`` object.
+    """
+    path_obj = Path(dir_path)
+    path_obj.mkdir(parents=True, exist_ok=True)
 
-def get_raw_path() -> Path:
+def get_processed_path() -> str:
     """
-    Return the path to the raw data directory (``data/raw``).
+    Return the path to the ``data/processed`` directory as a string.
     """
-    return paths.data("raw")
+    return str(paths.data("processed"))
 
-def get_processed_path() -> Path:
+def get_raw_path() -> str:
     """
-    Return the path to the processed data directory (``data/processed``).
+    Return the path to the ``data/raw`` directory as a string.
     """
-    return paths.data("processed")
+    return str(paths.data("raw"))
 
-def get_results_path() -> Path:
+def get_results_path() -> str:
     """
-    Return the path to the results directory (``data/results``).
+    Return the path to the ``data/results`` directory as a string.
     """
-    # ``paths.results`` creates ``data/results`` under the project root.
-    return paths.results()
-
-def get_figures_path() -> Path:
-    """
-    Return the path to the figures directory (``figures``).
-    """
-    return paths.figures()
+    return str(paths.data("results"))
