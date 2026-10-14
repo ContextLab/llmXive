@@ -1,24 +1,38 @@
+T001:
+  c: true
+  h: c31ef41a48b61cbbc2dbcc7ac21ca5eeccc710c140ed6a428bd46f6ffbc8f0d5
+  r: The project directory `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/`
+    exists with the full layout (code/, tests/, data/, results/, etc.), and `pyproject.toml`
+    non-empty listing all seven required dependencies (pydub, scipy, pandas, statsmodels,
+    matplotlib, seaborn, pytest), with a matching `requirements.txt` and a successful
+    setup script run (exit 0) confirming the layout and manifests.
+  sig: 70f6bcd8a784fc2fdc135941ddfb958552c4dcf2c8cd087801a81d1b63660a8f
 T002:
+  c: true
+  h: dcb8f1e7df00d3871661ef402cb3444405f021cf0c5a461ced33e1ed223a7757
+  r: '`code/config.py` exists with the required `DATA_RAW`, `DATA_PROCESSED`, `RESULTS_DIR`
+    path constants, seed handling (`RANDOM_SEED`/`set_global_seed`), and `DELAY_VALUES
+    = list(range(200, 2001, 200))`; `tests/unit/test_config.py` checks the exact expected
+    list, and the recorded pytest run shows all 4 tests passing (exit 0).'
+  sig: 8f30d97170f9b9c0acb533c2e676d71957469182717e733ac712c9c728f74367
+T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or output artifacts (e.g., latency\u2011injection script, modified\
-    \ audio files, EVA\u2011Bench run logs, regression results, or comparative report)\
-    \ were supplied; the claim cannot be verified against any tangible evidence. The\
-    \ required deliverables are missing."
+  h: f422951fd2a4fce6f0c037c3264c977abf40bf5b4ac7af2a541518a46cedd2b1
+  r: "The artifact `code/logging_config.py` exists and its content looks plausible\
+    \ (RotatingFileHandler to `logs/run.log`, console handler at WARNING, idempotent\
+    \ setup), but the only execution evidence \u2014 the recorded pytest run of `tests/unit/test_logging_config.py`\
+    \ \u2014 failed with exit 1 and all 5 tests erroring (`TypeError: expected str,\
+    \ bytes or os.PathLike object, not module` at `code/logging_config.py:91` in `setup`),\
+    \ and there is no evidence the task's own verification command (`lc.setup(); logging.info('test')`\
+    \ creating `logs/run.log`) was ever run successfully. The implementer must fix\
+    \ the `se"
+  sig: 5047c7dbc03091e8ecc1fc6a499faf84edd89d3f60521c81501ea5e5c7ade18f
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No logging configuration files, code snippets, or documentation showing file
     handlers and warning filters were provided; the claim lacks any tangible artifact
     to verify that the required logging infrastructure was actually set up.
-T015:
-  c: false
-  h: d74cddd8817a004276ea80f59c44f82a02c4b386f2b92d78943d473da5fa8a57
-  r: "The required `data/processed/turn_boundaries.csv` file is absent, and the provided\
-    \ `code/injectors/latency.py` contains latency\u2011injection code unrelated to\
-    \ turn\u2011boundary detection; it does not implement the specified algorithm\
-    \ for shifting boundaries based on audio gaps. Both the input artifact and the\
-    \ correct functionality are missing."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

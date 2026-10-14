@@ -1,137 +1,141 @@
 """
-Logging infrastructure setup for llmXive EVA-Bench extension.
+Deterministic logging configuration for the llmXive EVA-Bench latency study.
 
-Configures file handlers, console handlers with appropriate levels,
-and warning filters for edge cases as required by the project specification.
+Provides ``setup()`` which configures the ROOT logger with:
+  * a rotating file handler writing to ``logs/run.log`` (INFO level),
+  * a console handler at WARNING level,
+  * a fixed, deterministic format and UTC-independent local timestamps.
+
+The configuration is idempotent: calling ``setup()`` repeatedly will not
+duplicate handlers.
+
+Verification command (from the project root):
+    python -c "import logging, code.logging_config as lc; lc.setup(); logging.info('test')"
+creates ``logs/run.log`` containing the formatted message.
 """
 import logging
-import os
 import sys
 import warnings
-from pathlib import Path
 from logging.handlers import RotatingFileHandler
-from typing import Optional
+from pathlib import Path
+from typing import Optional, Union
 
-from code.config import PROJECT_ROOT, LOG_DIR, LOG_LEVEL, LOG_MAX_BYTES, LOG_BACKUP_COUNT
+# Project root = parent of the code/ directory containing this file.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Deterministic defaults (no environment-dependent behavior).
+DEFAULT_LOG_DIR = PROJECT_ROOT / "logs"
+DEFAULT_LOG_FILE = "run.log"
+DEFAULT_FILE_LEVEL = logging.INFO
+DEFAULT_CONSOLE_LEVEL = logging.WARNING
+LOG_MAX_BYTES = 5 * 1024 * 1024  # 5 MB per file before rotation
+LOG_BACKUP_COUNT = 5             # keep run.log.1 ... run.log.5
+
+LOG_FORMAT = (
+    "%(asctime)s | %(levelname)-8s | %(name)s | "
+    "%(filename)s:%(lineno)d | %(message)s"
+)
+LOG_DATEFMT = "%Y-%m-%d %H:%M:%S"
+
+# Module-level marker so setup() is idempotent across repeated calls.
+_CONFIGURED = False
 
 
-def setup_logging(
-    log_dir: Optional[Path] = None,
-    log_level: Optional[int] = None,
-    log_name: str = "llmxive",
+def _build_formatter() -> logging.Formatter:
+    """Return the single deterministic formatter used by all handlers."""
+    return logging.Formatter(fmt=LOG_FORMAT, datefmt=LOG_DATEFMT)
+
+
+def _clear_handlers(logger: logging.Logger) -> None:
+    """Remove and close every handler attached to ``logger``."""
+    for handler in list(logger.handlers):
+        try:
+            handler.flush()
+            handler.close()
+        except Exception:
+            pass
+        logger.removeHandler(handler)
+
+
+def setup(
+    log_file: Optional[Union[str, Path]] = None,
+    file_level: int = DEFAULT_FILE_LEVEL,
+    console_level: int = DEFAULT_CONSOLE_LEVEL,
     console_output: bool = True,
+    force: bool = False,
 ) -> logging.Logger:
     """
-    Configure the root logger and project-specific logger with file and console handlers.
+    Configure the root logger deterministically.
 
     Args:
-        log_dir: Directory for log files. Defaults to PROJECT_ROOT / "logs".
-        log_level: Logging level. Defaults to LOG_LEVEL from config.
-        log_name: Name of the project logger.
-        console_output: Whether to add a console handler.
+        log_file: Path to the log file. Defaults to ``<project>/logs/run.log``.
+        file_level: Level for the file handler (default INFO).
+        console_level: Level for the console handler (default WARNING).
+        console_output: Whether to attach a console handler at all.
+        force: Re-configure even if setup() was already called.
 
     Returns:
-        Configured logger instance.
+        The configured root logger.
     """
-    # Resolve paths
-    if log_dir is None:
-        log_dir = LOG_DIR
-    else:
-        log_dir = Path(log_dir)
+    global _CONFIGURED
 
-    log_dir.mkdir(parents=True, exist_ok=True)
-
-    # Determine log level
-    level = log_level if log_level is not None else LOG_LEVEL
-
-    # Get the project logger
-    logger = logging.getLogger(log_name)
-    logger.setLevel(level)
-
-    # Prevent adding handlers multiple times if called repeatedly
-    if logger.handlers:
-        return logger
-
-    # Clear existing handlers from root to avoid double logging
     root_logger = logging.getLogger()
-    root_logger.handlers.clear()
-    root_logger.setLevel(level)
 
-    # Create formatter
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(filename)s:%(lineno)d | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
+    if _CONFIGURED and not force:
+        return root_logger
 
-    # File handler with rotation
-    log_file = log_dir / f"{log_name}.log"
+    # Resolve output path.
+    if log_file is None:
+        log_path = DEFAULT_LOG_DIR / DEFAULT_LOG_FILE
+    else:
+        log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Start from a clean slate so handler levels are exactly as configured.
+    _clear_handlers(root_logger)
+    root_logger.setLevel(min(file_level, console_level))
+
+    formatter = _build_formatter()
+
+    # --- Rotating file handler ---
     file_handler = RotatingFileHandler(
-        log_file,
+        log_path,
         maxBytes=LOG_MAX_BYTES,
         backupCount=LOG_BACKUP_COUNT,
         encoding="utf-8",
     )
-    file_handler.setLevel(level)
+    file_handler.setLevel(file_level)
     file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
     root_logger.addHandler(file_handler)
 
-    # Console handler (optional)
+    # --- Console handler at WARNING level ---
     if console_output:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)  # Always show INFO+ on console
+        console_handler = logging.StreamHandler(sys.stderr)
+        console_handler.setLevel(console_level)
         console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
         root_logger.addHandler(console_handler)
 
-    # Configure warning filters for edge cases
-    _setup_warning_filters()
-
-    # Log startup
-    logger.info("Logging infrastructure initialized.")
-    logger.debug(f"Log directory: {log_dir}")
-    logger.debug(f"Log level: {logging.getLevelName(level)}")
-
-    return logger
-
-
-def _setup_warning_filters() -> None:
-    """
-    Configure warnings module filters to handle edge cases gracefully.
-
-    Filters applied:
-    - DeprecationWarnings: Show once (standard behavior)
-    - PendingDeprecationWarnings: Show once
-    - ResourceWarning: Filtered to avoid noise from garbage collection
-    - Specific library warnings (e.g., librosa, scipy) are logged but not ignored
-    """
-    # Standard deprecation behavior
-    warnings.filterwarnings("default", category=DeprecationWarning)
-    warnings.filterwarnings("default", category=PendingDeprecationWarning)
-
-    # Filter resource warnings (e.g., unclosed files) to avoid spam in production
-    # but still allow them to be seen if explicitly enabled via PYTHONWARNINGS
-    if "resource" not in os.getenv("PYTHONWARNINGS", "").lower():
-        warnings.filterwarnings("ignore", category=ResourceWarning)
-
-    # Specific library warnings that might be noisy but are often benign
-    # Librosa: sometimes warns about non-standard audio formats
-    warnings.filterwarnings("ignore", message=".*non-standard sample rate.*", category=UserWarning)
-    warnings.filterwarnings("ignore", message=".*hann window.*", category=UserWarning)
-
-    # Scipy: warnings about convergence in optimization
-    warnings.filterwarnings("ignore", message=".*Did not converge.*", category=RuntimeWarning)
-
-    # Coqui TTS: often emits verbose training warnings
-    warnings.filterwarnings("ignore", message=".*Torch version.*", category=UserWarning)
-
-    # Log warning capture to our logger
+    # Route warnings module output through logging (deterministic capture).
     logging.captureWarnings(True)
-    warnings_logger = logging.getLogger("py.warnings")
-    warnings_logger.setLevel(logging.WARNING)
+    warnings.filterwarnings("ignore", category=ResourceWarning)
+
+    _CONFIGURED = True
+    root_logger.debug(
+        "Logging initialized: file=%s (level=%s), console level=%s",
+        log_path,
+        logging.getLevelName(file_level),
+        logging.getLevelName(console_level),
+    )
+    return root_logger
 
 
-# Initialize logger on import if desired, or expose setup function
-# For now, we expose the setup function to be called explicitly in main.py
-# This prevents side effects on import
-__all__ = ["setup_logging"]
+# Backwards/forwards-compatible alias used elsewhere in the project.
+setup_logging = setup
+
+
+def get_log_path() -> Path:
+    """Return the default log file path (``<project>/logs/run.log``)."""
+    return DEFAULT_LOG_DIR / DEFAULT_LOG_FILE
+
+
+__all__ = ["setup", "setup_logging", "get_log_path", "PROJECT_ROOT"]

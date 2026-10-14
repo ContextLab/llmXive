@@ -1,0 +1,60 @@
+T001:
+  task: 4bd765253c338df008840d0d53cba7b24f1be13c3175c2519618fabae5549b35
+T002:
+  task: fca3fe3484143e4bab5be334129bbc91163d384ab3cebf732a83428fbb141da1
+T003:
+  reason: "The artifact `code/logging_config.py` exists and its content looks plausible\
+    \ (RotatingFileHandler to `logs/run.log`, console handler at WARNING, idempotent\
+    \ setup), but the only execution evidence \u2014 the recorded pytest run of `tests/unit/test_logging_config.py`\
+    \ \u2014 failed with exit 1 and all 5 tests erroring (`TypeError: expected str,\
+    \ bytes or os.PathLike object, not module` at `code/logging_config.py:91` in `setup`),\
+    \ and there is no evidence the task's own verification command (`lc.setup(); logging.info('test')`\
+    \ creating `logs/run.log`) was ever run successfully. The implementer must fix\
+    \ the `se"
+  task: 8c618a53bef9a7058b4f35510acd142ddd2a82cc1247da6076b4942de56a55d4
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=2'
+  task: b91a222dc8b0ad3296a9f53d4563f98d26582b205ffd6b2fca9e5480c8633b04
+T005:
+  task: 0d666f3a7588d71499a5a64db37d6b6d57b3c48980262bc55dbcb0e5ca9b3c26
+T006:
+  task: d3793772aa10d93fb8b532882508a8060eb1cd948482401fe5bd180f73b2dcd2
+T008:
+  task: 9911a5184718a644ad2bad9ac73ecf4532664b7f0aaf5fdb93795fb741234d03
+T009:
+  task: 5f4e3e9ba7057555131daf4735a2ccc221fd87e8072d88ab8192b7232b702bd6
+T010:
+  task: 4dbc47287f00aa1ecc34589586c308bc46aaaa61e58c2a056e29922a9a04b8c6
+T011:
+  task: b7b022a4b4597c5f99409bf8b0e6dadea02268eda5195b73e463c9a2f43aa1bd
+T012:
+  task: 8f9c2b0746000c3f8d0c75b1ecd8acc53e9cf185c3022c88f46e235eb8080a57
+T016:
+  task: 8d27fdbcddfb228ee723674574907a2eb8487498858b7cb97bc03bac221c16a9
+T017:
+  task: d17cc19f5f0d6ee04b60eaeacf2aa6fee912a4e5e7cea1f0140c2bebd1883b13
+T018:
+  task: 799fb31e7993aa5ee6894aae76d386630231912d05487fab68851f2bdbd3262c
+T019:
+  task: a71a350e1bc34d916df5f1b63b89124ac28593ad0a17528e5318a2b1790beb02
+T020:
+  task: 89192bcbe4b8a0ddad9d6fec2c9b803870bbcff81f57bbd50d1cd11c798f5326
+T021:
+  task: db914484392fd7c6a3ab60888b348d32bdd4aed801e5b66db5ea2d8896dd9e75
+T022:
+  task: 740bc0de3e349649cc43cdb4558a9e879a125f0be0de517c52d6316086d2402d
+T023:
+  task: 7cd6d917d9aa8e33b60b3a1a3f5a4bcca1e79ae1fb7cac425343ea9274667f2e
+T024a:
+  task: 43d6ef290781fabfbcbaebc4e944a271583633e86ab266a3590f42d49e2bad25
+T024b:
+  task: 24d2d02ddf0001f68d968426698302e5567a1c7af4c7baba97611af2f1701d95
+T024c:
+  task: e7f0be0cfb41380f8a5eaf0578054f596061bc133c34fae5ed861c1242af8d71
+T024d:
+  task: 80d9b81d74cb482080a26795af1baf340b8749561cd0ee3efeb03a8330783476
+T024e:
+  task: b8c222a0102892d78975559a40746697864bd1e93cccaa9b6affa9218876041f
+T025:
+  task: 4358a23ce4d05ccfc5c0adde9a873564151f293624f7651b2f0c565395d3fefd

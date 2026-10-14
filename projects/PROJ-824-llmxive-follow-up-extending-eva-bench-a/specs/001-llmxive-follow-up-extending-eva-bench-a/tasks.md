@@ -9,11 +9,11 @@ All artifacts must be real files that can be validated against the JSON‑Schema
 
 ## Phase 1 – Project scaffolding (shared infrastructure)
 
-- [ ] **T001** [P] Create the canonical project directory layout and add a `pyproject.toml` with the required dependencies.  
+- [X] **T001** [P] Create the canonical project directory layout and add a `pyproject.toml` with the required dependencies.  
   *Path*: `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/`  
   *Verification*: Directory tree exists; `pyproject.toml` lists `pydub`, `scipy`, `pandas`, `statsmodels`, `matplotlib`, `seaborn`, `pytest`. `pip install -r requirements.txt` succeeds.
 
-- [ ] **T002** [P] Implement `code/config.py` containing (a) absolute/relative path constants (`DATA_RAW`, `DATA_PROCESSED`, `RESULTS_DIR`), (b) random‑seed handling, and (c) latency hyper‑parameters (`DELAY_VALUES = list(range(200, 2001, 200))`).  
+- [X] **T002** [P] Implement `code/config.py` containing (a) absolute/relative path constants (`DATA_RAW`, `DATA_PROCESSED`, `RESULTS_DIR`), (b) random‑seed handling, and (c) latency hyper‑parameters (`DELAY_VALUES = list(range(200, 2001, 200))`).  
   *Path*: `code/config.py`  
   *Verification*: Importing `config` yields the expected attributes; a unit test (`tests/unit/test_config.py`) checks that `DELAY_VALUES` equals `[200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]`.
 
@@ -25,7 +25,7 @@ All artifacts must be real files that can be validated against the JSON‑Schema
 
 ## Phase 2 – Data acquisition & verification
 
-- [ ] **T004** [P] depends_on: [T001, T002, T003] Implement a dataset‑download script that fetches the EVA‑Bench archive from the public HuggingFace URL, extracts the JSONL metadata and WAV files into `data/raw/`, and writes SHA‑256 checksums to `data/checksums.json`. The script must abort with a clear error if the download fails or the checksum does not match.  
+- [ ] **T004** [P] depends_on: [T001, T002, T003] Implement a dataset‑download script that fetches the EVA‑Bench archive from the public HuggingFace URL, extracts the JSONL metadata and WAV files into `data/raw/`, and writes SHA‑256 checksums to `data/checksums.json`. The script must abort with a clear error if the download fails or the checksum does not match.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=2 -->
   *Path*: `code/data/download.py`  
   *Verification*: After execution, `data/raw/` contains the expected files; `data/checksums.json` includes an entry for each file; a failed download raises an exception (no silent fallback).
 

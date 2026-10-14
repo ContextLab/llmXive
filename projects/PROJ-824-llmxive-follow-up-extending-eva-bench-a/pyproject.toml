@@ -1,3 +1,18 @@
+[project]
+name = "proj-824-llmxive-follow-up-extending-eva-bench-a"
+version = "0.1.0"
+description = "llmXive follow-up: extending EVA-Bench with network-latency robustness study"
+requires-python = ">=3.11"
+dependencies = [
+    "pydub",
+    "scipy",
+    "pandas",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "pytest",
+]
+
 [tool.black]
 line-length = 88
 target-version = ['py311']
@@ -6,3 +21,6 @@ target-version = ['py311']
 profile = "black"
 line_length = 88
 known_first_party = ["code", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "code/tests"]
