@@ -1,52 +1,213 @@
 # Tasks: Investigating the Neural Response to Deviance in Auditory Perception
 
-**Inputs**: Active `spec.md`, `plan.md`, `contracts/`, existing artifacts.
-**Revision note**: Updated to resolve panel concerns (path consistency, schema selection, verification of statistical thresholds, variance reduction, per‑condition metrics, checksum recording, download method, ordering tags, and hard budget enforcement). Existing verified tasks retain IDs and status.
+**Inputs**: `spec.md`, `plan.md`, contracts, and any existing artifacts.  
+All tasks are expressed as checklist items following the canonical format.  
+Each task lists the functional requirement(s) it satisfies, the concrete output
+path(s), and the verification step(s) that the verifier will run.
 
-## Phase 0–5: Verified pipeline work (preserved, do not redo)
+---
 
-- [ ] T010 [P] [FR-001] Implement `code/download.py`: fetch OpenNeuro ds003645 via `wget` (or `curl`) with retry logic (3 attempts, 10 s backoff), writing raw files to `data/raw`. Verified: files present in `data/raw`. <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
-- [ ] T011 [FR-001] Add checksum verification against the OpenNeuro manifest in `code/download.py`; raise on mismatch. **Note**: depends on T010 output. Verified.
-- [ ] T016 [US1] [FR-001b] Channel subsampling to the standard montage (Fz, FCz, Cz, Pz, …) in `code/preprocess.py`. Verified.
-- [ ] T017 [US1] [FR-002] Bandpass filter (1–30 Hz) and common‑average re‑reference in `code/preprocess.py`. Verified.
-- [ ] T018 [US1] [FR-002] Epoching (−200 ms to 600 ms) into "standard"/"deviant" conditions → `data/processed/epo_raw.fif`. Verified.
-- [ ] T019/T020 [US1] [FR-003] ICA blink‑component detection (frontal correlation > 0.8) and removal, with removed‑component count logged → `data/processed/epo_clean.fif`. Verified.
-- [ ] T021 [US1] [SC-001] Participant exclusion for >50 % rejected trials, IDs logged to `data/processed/rejected_participants.log`. Verified.
-- [ ] T022a/T022b [US2] [FR-004] Per‑participant standard/deviant ERPs and difference waves → `data/processed/diff_wave.fif`. Verified.
-- [ ] T023/T024/T025 [US2] [FR-004] [SC-005] Peak detection (primary 150–250 ms, fallback 100–300 ms, ≥2.0 µV threshold), `peak_detected` flagging, and SNR computation on difference waves at Fz/FCz. Verified.
-- [ ] T026 [US2] [FR-004] `results/metrics.csv` generation with all schema fields (`amplitude`, `latency`, `peak_detected`, `snr`, nulls as JSON null). Verified.
-- [ ] T029–T035, T039, T039b [US3] [FR-005] [FR-006] Statistical analysis in `code/stats.py`: exclusion filtering, paired t‑tests (Wilcoxon fallback), FDR over 4 comparisons, mixed‑effects model, cluster‑based permutation test (1000 permutations), Cohen's d + 95 % CI, prevalence, latency‑window validation → `results/statistics.json`, `results/latency_validation.json`. Verified.
-- [ ] T036–T038 [US3] [FR-007] Grand‑average ERP plots with CIs and topographic maps → `results/plots/erp_plot.png`, `results/plots/topomap.png`. Verified.
-- [ ] T050/T051/T052 Integration/unit tests for preprocessing, extraction, FDR, and visualization. Verified.
+## Phase 0 – Data acquisition
 
-## Phase 6: Repairs for verifier‑rejected items (redo with real artifacts)
+- [ ] T001 [FR-001] **Download OpenNeuro ds003645**  
+  *Implementation*: `code/download.py` uses `wget` (or `curl`) with up‑to‑3 retries  
+  (10 s back‑off) to fetch the BIDS‑structured dataset into `data/raw/`.  
+  *Verification*:  
+  – Presence of the expected directory tree under `data/raw/`.  
+  – SHA‑256 checksum file `data/checksums.txt` matches each downloaded file
+    (raised as an error on mismatch).
 
-- [ ] T046 Create the concrete configuration artifacts previously missing as missing: (a) `.pre-commit-config.yaml` at repository root enabling `flake8` and `black` hooks for `code/` and `tests/`; (b) `tests/conftest.py` defining reusable pytest fixtures (paths to `data/raw`, `data/processed/epo_clean.fif`, `results/metrics.csv`, and a skip‑guard that skips integration tests when raw data is absent); (c) `code/env.example` documenting optional `OPENNEURO_API_KEY` and local data‑path environment variables, referenced from `code/download.py` via `os.environ.get` with no silent fallback to synthetic data. **Verify**: all three files exist and are non‑empty; `pytest tests/ -q --collect-only` collects fixtures without error.
+---
 
-- [ ] T047 Add edge‑case unit tests in `tests/unit/test_extract.py` and `tests/unit/test_stats.py`: (a) empty‑epochs input raises or returns an empty frame without fabricating rows; (b) a difference wave with no peak ≥ 2.0 µV in either window yields `peak_detected=false` with null amplitude/latency per the `mmn_metrics.schema.yaml` contract; (c) FDR correction on 4 p‑values reproduces expected corrected values. **Verify**: `pytest tests/unit -q` passes with ≥3 new tests, no synthetic input data written outside `tests/`.
+## Phase 1 – Preprocessing (raw → clean epochs)
 
-## Phase 7: Full‑cohort run, validation, and reproducibility
+- [ ] T002 [FR-001b] [FR-002] **Channel subsampling, band‑pass filtering, and re‑referencing**  
+  *Implementation*: `code/preprocess.py` loads each raw file, keeps the standard
+  montage (Fz, FCz, Cz, Pz, …), applies a 1–30 Hz FIR filter, and re‑references
+  to the common average. Output saved as `data/processed/subsampled_raw.fif`.  
+  *Verification*:  
+  – File exists and contains only the specified channels (checked via schema).  
+  – Filter parameters recorded in `code/config.yaml`.
 
-- [ ] T048 [SC-004] Run the full pipeline over all downloaded participants (not just `sub-01`) on CPU (2 cores, ~7 GB RAM), recording per‑stage wall‑clock timings and peak memory (via `resource`/`time`) logged to `results/runtime_report.json`. **Assert** total runtime ≤ 6 h **and** peak RAM < 7 GB; the task fails if either bound is exceeded.
+- [ ] T004 [FR-003] **ICA blink‑component detection & removal**  
+  *Implementation*: `code/preprocess.py` runs ICA on the subsampled continuous data,
+  computes correlation of each component with frontal channels (Fz, FCz);
+  removes components with correlation > 0.8 or frontal topography.  
+  *Outputs*: cleaned continuous file `data/processed/subsampled_clean.fif` and log
+  `data/processed/ica_removed.log` (listing removed component indices).  
+  *Verification*:  
+  – Cleaned file exists; log file present.
 
-- [ ] T049 Re‑run the documented end‑to‑end workflow from `data/raw` using the command recorded in `specs/001-investigating-the-neural-correlates-of-p/quickstart.md` (download → preprocess → extract → stats → viz), and capture the execution log to `results/e2e_run.log`. Confirm `results/metrics.csv`, `results/statistics.json`, `results/latency_validation.json`, and `results/plots/*.png` are regenerated with consistent content (e.g., `analyzed_n` in `statistics.json` matches non‑excluded rows in `metrics.csv`). **Verify**: log exists, all artifacts exist and cross‑check pass; any failure is reported honestly, not masked.
+- [ ] T014 [FR-003] [CONTRACT-dataset] **Verify ICA variance reduction**  
+  *Implementation*: Re‑compute variance on frontal channels before and after ICA;
+  assert ≥ 10 % reduction. Logs result to `results/verification/ica_variance.log`.  
+  *Verification*: Pass/fail log is examined by the verifier.
 
-- [ ] T050b Perform a focused cleanup of `code/` limited to the analysis drivers actually used by the verified pipeline: remove dead/unused modules, ensure `code/config.yaml` parameters match the executed run (filter 1–30 Hz, epoch −200–600 ms, ICA corr > 0.8), and record the change summary in `code/CHANGELOG.md`. **Verify**: `code/CHANGELOG.md` exists listing concrete changes; the end‑to‑end command from T049 still runs after cleanup. **Note**: must run after T049.
+- [ ] T003 [FR-002] **Epoching into “standard” and “deviant” (-200 ms → 600 ms)**  
+  *Implementation*: `code/preprocess.py` reads the ICA‑cleaned continuous file,
+  creates MNE Epochs objects for each condition and writes `data/processed/epo_clean.fif`.  
+  *Verification*:  
+  – Epoch file present; each epoch labeled correctly; time window matches
+    specification.
 
-- [ ] T051b Write `README.md` at the project root documenting: dataset provenance (OpenNeuro ds003645, canonical programmatic fetch via wget), pipeline stages with the exact runnable command from `quickstart.md`, key parameters, output artifact inventory (`results/metrics.csv`, `results/statistics.json`, `results/plots/`), and the associational (non‑causal) framing of findings per the spec's assumptions. **Verify**: `README.md` exists, references only real artifact paths that exist on disk, and contains no expected/invented numerical results.
+- [ ] T005 [SC-001] **Participant exclusion for excessive artifact rejection**  
+  *Implementation*: After ICA and epoching, count rejected trials per participant; if > 50 % of trials are rejected, mark the participant as excluded.  
+  *Outputs*: exclusion list `data/processed/rejected_participants.log` and filtered epochs file `data/processed/epo_clean_excluded.fif`.  
+  *Verification*:  
+  – Log file exists; number of excluded participants matches the count in the
+    final statistics (`outlier_count`).
 
-- [ ] T052b Methods/results handoff: write `specs/001-investigating-the-neural-correlates-of-p/research_summary.md` linking each reported statistic to its actual source cell in `results/statistics.json` and each figure to its PNG file, including: FDR‑corrected p‑values and Cohen's d for all 4 comparisons, cluster‑permutation and mixed‑effects results, prevalence of `peak_detected`, excluded‑participant count, and honest reporting of negative findings or participants without detectable peaks. **Verify**: every number in the summary appears verbatim in the JSON/CSV artifacts; no value is hand‑typed or projected.
+- [ ] T015 [CONTRACT-dataset] **Validate processed epoch files against dataset.schema.yaml**  
+  *Implementation*: Script `code/validate_dataset.py` checks each epoch file against the JSON schema located at `specs/001-investigating-the-neural-correlates-of-p/contracts/dataset.schema.yaml`.  
+  *Verification*: Validation report written to `results/validation/dataset_validation.log`; verifier ensures no schema violations.
 
-## New verification and compliance tasks
+---
 
-- [ ] T053 Record dataset checksum: compute SHA‑256 checksums for all files downloaded into `data/raw` and write them to `data/checksums.txt`. **Verify**: file exists and contains a line for each raw file; checksum verification step (T011) reads this file.
+## Phase 2 – Feature extraction (clean epochs → metrics)
 
-- [ ] T054 Verify ICA variance reduction: after ICA cleaning, compute variance of frontal channels (Fz, FCz) in the pre‑ICA data and post‑ICA data; assert ≥ 10 % reduction. **Verify**: task fails if reduction < 10 %.
+- [ ] T006 [FR-004] **Compute standard, deviant, and difference‑wave ERPs**  
+  *Implementation*: `code/extract.py` averages epochs per condition for each
+  participant, computes the difference wave (Deviant − Standard), and writes:  
+    - `data/processed/std_erp.fif`  
+    - `data/processed/dev_erp.fif`  
+    - `data/processed/diff_wave.fif`  
+  *Verification*:  
+  – All three files exist; dimensions match the schema for `EEG Dataset`.
 
-- [ ] T055 Verify latency prevalence: compute proportion of valid participants whose peak latency falls within the primary window (150–250 ms) or fallback (100–300 ms). Assert proportion ≥ 0.80. **Verify**: task fails if proportion < 0.80.
+- [ ] T007 [FR-004] [SC-005] **Peak detection, SNR, and metric CSV generation**  
+  *Implementation*: `code/extract.py` scans the difference wave at electrodes
+  Fz and FCz for the most negative peak within the primary window (150–250 ms)
+  and, if absent, the fallback window (100–300 ms). A peak is accepted only
+  if its amplitude ≤ ‑2.0 µV. For each participant the script records:  
+    - `amplitude` (µV)  
+    - `latency` (ms)  
+    - `peak_detected` (bool)  
+    - `peak_window` (“primary”, “fallback”, or null)  
+    - `snr` (signal‑to‑noise ratio)  
+    - `is_excluded` (from T005)  
+  It also computes standard and deviant amplitudes/latencies (columns
+  `standard_amplitude`, `standard_latency`, `deviant_amplitude`,
+  `deviant_latency`).  
+  *Output*: `results/metrics.csv` conforming to `mmn_metrics.schema.yaml`.  
+  *Verification*:  
+  – CSV header contains all required columns; rows validate against the schema.
 
-- [ ] T056 Per‑condition metric extraction: extend `code/extract.py` to also compute peak amplitude and latency for the **standard** and **deviant** conditions separately (in addition to the difference wave). Append these columns (`standard_amplitude`, `standard_latency`, `deviant_amplitude`, `deviant_latency`) to `results/metrics.csv` while retaining the existing difference‑wave fields. **Verify**: CSV contains all required columns and conforms to a new schema `mmn_metrics_per_condition.schema.yaml`.
+- [ ] T016 [CONTRACT-mmn_metrics] **Validate metrics CSV against mmn_metrics.schema.yaml**  
+  *Implementation*: `code/validate_metrics.py` runs JSON‑schema validation on
+  `results/metrics.csv`.  
+  *Verification*: Validation log written to `results/validation/metrics_validation.log`.
 
-- [ ] T057 Statistical significance gate: add a verification step after `code/stats.py` that checks the FDR‑corrected p‑value for the amplitude comparison at Fz (or the most significant comparison) is < 0.05. The pipeline fails if this condition is not met, satisfying SC‑002.
+---
 
-- [ ] T058 Schema selection clarification: add a comment in `code/stats.py` and update documentation to state that `results/statistics.json` must conform to `contracts/results.schema.yaml`; the alternative `stats_report.schema.yaml` is deprecated. **Verify**: test validates JSON against the chosen schema.
+## Phase 3 – Statistical analysis & robustness checks
+
+- [ ] T008 [FR-005] **Primary paired‑sample tests & FDR correction**  
+  *Implementation*: `code/stats.py` loads `results/metrics.csv`, filters out
+  excluded participants and those without a detected peak, then performs:  
+    - Paired t‑test (or Wilcoxon if Shapiro‑Wilk normality fails) for
+      amplitude and latency at Fz and FCz (4 comparisons).  
+    - Benjamini‑Hochberg FDR correction across the four p‑values.  
+    - Cohen’s d and 95 % confidence intervals for each comparison.  
+  *Output*: `results/statistics.json` (conforms to `contracts/results.schema.yaml`).  
+  *Verification*:  
+  – JSON file present; contains required fields for each electrode/metric.
+
+- [ ] T009 [FR-006] **Cluster‑based permutation test & mixed‑effects model**  
+  *Implementation*:  
+    - Cluster‑based permutation (1000 permutations) over the full time‑course
+      at fronto‑central electrodes, result stored as `cluster_p` in the JSON.  
+    - Linear mixed‑effects model (`statsmodels` or `pingouin`) with `condition`
+      as fixed effect and `subject` as random effect; p‑value stored as
+      `mixed_effects_p`.  
+  *Verification*:  
+  – `results/statistics.json` now includes `cluster_p` and `mixed_effects_p`.
+
+- [ ] T017 [CONTRACT-results] **Validate statistics.json against results.schema.yaml**  
+  *Implementation*: `code/validate_statistics.py` validates `results/statistics.json`.  
+  *Verification*: Validation log `results/validation/statistics_validation.log`.
+
+- [ ] T018 [CONTRACT-stats_report] **Validate stats report against stats_report.schema.yaml**  
+  *Implementation*: After generating a human‑readable report (`results/stats_report.json`), `code/validate_stats_report.py` checks it against the schema.  
+  *Verification*: Validation log `results/validation/stats_report_validation.log`.
+
+- [ ] T010 [SC-002] **Statistical significance gate & prevalence check**  
+  *Implementation*: After T008/T009, a verification step asserts that the
+  FDR‑corrected p‑value for the most significant amplitude comparison (e.g.,
+  Fz) is < 0.05. It also computes the proportion of participants with
+  `peak_detected=True` and asserts ≥ 0.80 (per SC‑005).  
+  *Verification*:  
+  – Pipeline fails with a clear error message if either condition is not met.
+
+---
+
+## Phase 4 – Visualization
+
+- [ ] T011 [FR-007] **Grand‑average ERP plots & topographic maps**  
+  *Implementation*: `code/viz.py` creates:  
+    - `results/plots/erp_grand_average.png` (standard, deviant, and difference
+      wave with shaded 95 % confidence intervals).  
+    - `results/plots/topomap_Fz_FCz.png` (difference‑wave topomap at the
+      group‑average peak latency).  
+  *Verification*:  
+  – Both PNG files exist; figure titles and axis labels match the specification.
+
+- [ ] T019 [SC-004] **Measure total pipeline runtime and enforce ≤6 h**  
+  *Implementation*: Wrapper script `code/run_pipeline.py` records wall‑clock time
+  from start of T001 to completion of T011, writes duration to
+  `results/runtime.log`, and aborts with an error if > 6 hours.  
+  *Verification*: Verifier checks `results/runtime.log` for compliance.
+
+---
+
+## Phase 5 – Verification artifacts, testing, and documentation
+
+- [ ] T012 [FR-001] [SC-004] **Dataset integrity, ICA variance, and latency‑prevalence verification**  
+  *Implementation*:  
+    - Compute SHA‑256 checksums for every file in `data/raw/` → `data/checksums.txt`.  
+    - Re‑compute frontal‑channel variance before and after ICA; assert ≥ 10 %
+      reduction (also performed in T014).  
+    - Calculate the proportion of participants whose peak latency falls within
+      the primary (150–250 ms) or fallback (100–300 ms) window; assert ≥ 0.80.  
+  *Verification*:  
+  – All three checks produce a pass/fail log `results/verification.log`.
+
+- [ ] T013 [FR-001] **Integration & unit test suite, CI configuration, and documentation**  
+  *Implementation*:  
+    - Add `tests/unit/` and `tests/integration/` with pytest suites covering
+      data loading, preprocessing, extraction, FDR correction, and
+      visualization.  
+    - Create `.pre-commit-config.yaml` (black & flake8 hooks) and
+      `code/env.example` (optional `OPENNEURO_API_KEY` and data‑path vars).  
+    - Provide `tests/conftest.py` exposing fixtures for raw, processed, and
+      result paths.  
+    - Update `README.md` and `specs/001-investigating-the-neural-correlates-of-p/quickstart.md`
+      with the exact runnable command (see T020).  
+    - Write `specs/001-investigating-the-neural-correlates-of-p/research_summary.md`
+      linking each statistic in `results/statistics.json` and each figure in
+      `results/plots/` to the corresponding artifact.  
+  *Verification*:  
+    – `pytest -q` runs with all tests passing.  
+    – CI config files exist and are non‑empty.  
+    – README and quickstart contain the command and list all output artifacts.  
+    – `research_summary.md` references only real artifact filenames; every
+      numeric value is copied verbatim from the JSON/CSV files.
+
+- [ ] T020 [FR-001] **Create/Update quickstart.md with runnable command**  
+  *Implementation*: Generates `specs/001-investigating-the-neural-correlates-of-p/quickstart.md` containing:  
+
+  ```bash
+  python -m code.download && \
+  python -m code.preprocess && \
+  python -m code.extract && \
+  python -m code.stats && \
+  python -m code.viz
+  ```  
+
+  *Verification*:  
+  – File exists; command executes without error on a fresh runner.
+
+--- 
+
+**Note**: All tasks respect data‑flow ordering; a task that consumes a file
+appears after the task that produces that file. Parallel‑safe `[P]` flags have
+been removed from tasks that write to shared locations to avoid race conditions.  
