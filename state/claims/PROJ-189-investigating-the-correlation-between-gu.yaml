@@ -1,0 +1,47 @@
+- artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/docs/quickstart.md
+  attempts: 1
+  canonical: script exits with status 0
+  claim_id: c_f191b6e5
+  context: "The script always exits with status\u202F0 and writes a JSON report to\
+    \ data/provenance_report.json."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The script always exits with status\u202F0."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T10:07:55Z'
+- artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/docs/quickstart.md
+  attempts: 1
+  canonical: script writes JSON report to data/provenance_report.json
+  claim_id: c_67d6c67a
+  context: "The script always exits with status\u202F0 and writes a JSON report to\
+    \ data/provenance_report.json."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script writes a JSON report to data/provenance_report.json.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T10:07:55Z'
+- artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/docs/quickstart.md
+  attempts: 1
+  canonical: validation report generated at data/processed/quickstart_validation_report.json
+  claim_id: c_710fe081
+  context: A validation report is generated at data/processed/quickstart_validation_report.json.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A validation report is generated at data/processed/quickstart_validation_report.json.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T10:07:55Z'

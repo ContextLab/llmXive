@@ -2,4 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — Requested task execution failed; rerun successfully: code/validate_provenance.py exit=1
+- **T001** — The provenance report (`data/provenance_report.json`) and the execution log show `agp_accessible: false` — the required verification of AGP access via `datasets.load_dataset("american_gut_project", streaming=True)` failed (401 Unauthorized / dataset not found for all attempted IDs), so the task's central requirement is not met. Additionally, the script deliberately "always exits with status 0" (per quickstart.md) despite logging "Provenance validation reported missing access," masking the failure rather than validating provenance. The implementer must resolve actual AGP dataset access (correct
+- **T002** — Requested task execution failed; rerun successfully: code/01_data_ingestion.py exit=1; code/02_preprocessing.py exit=1; code/03_correlation_analysis.py exit=1; code/04_predictive_modeling.py exit=1

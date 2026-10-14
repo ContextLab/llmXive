@@ -1,5 +1,16 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/01_data_ingestion.py`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/run_pipeline.py; 5 command(s) failed: python code/01_data_ingestion.py (rc=1); python code/02_preprocessing.py (rc=1); python code/03_correlation_analysis.py (rc=1); 5 declared deliverable(s) absent: data/processed/corpus_clr.parquet; data/processed/correlation_results.csv; data/processed/null_threshold.json
@@ -7,48 +18,62 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_data_ingestion.py -> rc=1
-2026-10-14 09:08:25 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
-2026-10-14 09:08:25 - llmXive_pipeline - ERROR - Pipeline failed: enforce_resource_limits() missing 1 required positional argument: 'func'
+ib/python3.11/site-packages/datasets/load.py", line 1134, in dataset_module_factory
+    raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
+datasets.exceptions.DatasetNotFoundError: Dataset 'qiita/16s_gut_microbiome' doesn't exist on the Hub or cannot be accessed.
+
+During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/01_data_ingestion.py", line 165, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/01_data_ingestion.py", line 144, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/01_data_ingestion.py", line 141, in main
-    enforce_resource_limits()
-TypeError: enforce_resource_limits() missing 1 required positional argument: 'func'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/01_data_ingestion.py", line 128, in main
+    agp_df = fetch_agp_data(agp_path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/01_data_ingestion.py", line 42, in fetch_agp_data
+    raise DataFetchError(f"Failed to fetch AGP data from real source: {e}")
+utils.data_fetchers.DataFetchError: Failed to fetch AGP data from real source: Dataset 'qiita/16s_gut_microbiome' doesn't exist on the Hub or cannot be accessed.
 
 - python code/02_preprocessing.py -> rc=1
-2026-10-14 09:08:26 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
+oundError(f"Merged data file not found at {MERGED_DATA_PATH}. "
+FileNotFoundError: Merged data file not found at data/processed/merged_dataset.parquet. Run data ingestion pipeline first.
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/02_preprocessing.py", line 272, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/02_preprocessing.py", line 242, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/02_preprocessing.py", line 262, in main
-    setup_logging()
-    ^^^^^^^^^^^^^
-NameError: name 'setup_logging' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/02_preprocessing.py", line 235, in main
+    result = run_preprocessing_pipeline()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/02_preprocessing.py", line 166, in run_preprocessing_pipeline
+    df = load_merged_data()
+         ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/02_preprocessing.py", line 27, in load_merged_data
+    raise FileNotFoundError(f"Merged data file not found at {MERGED_DATA_PATH}. "
+FileNotFoundError: Merged data file not found at data/processed/merged_dataset.parquet. Run data ingestion pipeline first.
 
 - python code/03_correlation_analysis.py -> rc=1
-2026-10-14 09:08:26 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
-2026-10-14 09:08:26 - llmXive_pipeline.__main__ - ERROR - Pipeline failed: enforce_resource_limits() missing 1 required positional argument: 'func'
+4 10:08:48 - llmXive_pipeline.__main__ - ERROR - Pipeline failed: Preprocessed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/data/processed/rarefied_genus_table.parquet. Run preprocessing first.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/03_correlation_analysis.py", line 157, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/03_correlation_analysis.py", line 138, in main
     run_analysis_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/03_correlation_analysis.py", line 105, in run_analysis_pipeline
-    enforce_resource_limits()
-TypeError: enforce_resource_limits() missing 1 required positional argument: 'func'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/03_correlation_analysis.py", line 100, in run_analysis_pipeline
+    df = load_preprocessed_data()
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/03_correlation_analysis.py", line 29, in load_preprocessed_data
+    raise FileNotFoundError(f"Preprocessed data not found at {input_path}. Run preprocessing first.")
+FileNotFoundError: Preprocessed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/data/processed/rarefied_genus_table.parquet. Run preprocessing first.
 
 
 - python code/04_predictive_modeling.py -> rc=1
-2026-10-14 09:08:27 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
-2026-10-14 09:08:27 - llmXive_pipeline.__main__ - INFO - Starting Predictive Modeling Pipeline
+2026-10-14 10:08:49 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
+2026-10-14 10:08:49 - llmXive_pipeline.__main__ - INFO - Starting Predictive Modeling Pipeline
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/04_predictive_modeling.py", line 252, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/04_predictive_modeling.py", line 240, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/04_predictive_modeling.py", line 249, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/04_predictive_modeling.py", line 237, in main
     run_modeling_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/04_predictive_modeling.py", line 220, in run_modeling_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/04_predictive_modeling.py", line 208, in run_modeling_pipeline
     features, target = load_preprocessed_data()
                        ^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/04_predictive_modeling.py", line 31, in load_preprocessed_data
@@ -56,20 +81,11 @@ Traceback (most recent call last):
 FileNotFoundError: Required data file not found: data/processed/corpus_clr.parquet
 
 - python code/05_sensitivity_analysis.py -> rc=1
-2026-10-14 09:08:28 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
-2026-10-14 09:08:28 - llmXive_pipeline.__main__ - INFO - Starting Sensitivity Analysis
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/05_sensitivity_analysis.py", line 202, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/05_sensitivity_analysis.py", line 199, in main
-    run_sensitivity_analysis()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/05_sensitivity_analysis.py", line 191, in run_sensitivity_analysis
-    results_df = sweep_rarefaction_depths(depths)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/05_sensitivity_analysis.py", line 75, in sweep_rarefaction_depths
-    set_random_seed(seed)
-TypeError: set_random_seed() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/05_sensitivity_analysis.py", line 15, in <module>
+    from config import get_config, set_random_seed
+ImportError: cannot import name 'get_config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/config.py)
 
 - python code/run_pipeline.py -> rc=2
 
@@ -89,6 +105,7 @@ TypeError: set_random_seed() takes 0 positional arguments but 1 was given
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/corpus_clr.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/03_correlation_analysis.py` — IS a run-book command
     - `code/04_predictive_modeling.py` — IS a run-book command
     - `code/04_predictive_modeling_optimized.py` — NOT invoked by the run-book
     - `code/quickstart_validation.py` — NOT invoked by the run-book

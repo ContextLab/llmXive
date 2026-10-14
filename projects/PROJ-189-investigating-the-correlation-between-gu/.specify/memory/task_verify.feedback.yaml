@@ -1,8 +1,17 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/validate_provenance.py
-    exit=1'
+  reason: "The provenance report (`data/provenance_report.json`) and the execution\
+    \ log show `agp_accessible: false` \u2014 the required verification of AGP access\
+    \ via `datasets.load_dataset(\"american_gut_project\", streaming=True)` failed\
+    \ (401 Unauthorized / dataset not found for all attempted IDs), so the task's\
+    \ central requirement is not met. Additionally, the script deliberately \"always\
+    \ exits with status 0\" (per quickstart.md) despite logging \"Provenance validation\
+    \ reported missing access,\" masking the failure rather than validating provenance.\
+    \ The implementer must resolve actual AGP dataset access (correct"
   task: 4b278e4f91cdf7bc36b331c86f033ddd7547a7331defded4125eed156605469b
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
+    exit=1; code/02_preprocessing.py exit=1; code/03_correlation_analysis.py exit=1;
+    code/04_predictive_modeling.py exit=1'
   task: d90ab54f26b2870d14d124d600c0963c1924bd5b1e22eb718051ec674bcc3587
 T003:
   task: effccb09ddfd2de8f350ac79b0ea8d5cede2b199cd8be8bdccc04753fd86b2d6

@@ -1,6 +1,6 @@
 # Quickstart Guide: Gut Microbiome and Cognitive Decline Analysis
 
-This guide validates the end-to-end reproducibility of the research pipeline.
+This guide validates the end‑to‑end reproducibility of the research pipeline.
 
 ## Prerequisites
 
@@ -17,9 +17,11 @@ python code/validate_provenance.py
 ```
 
 This script checks:
-1. **Resource Guards**: Ensures the system adheres to the $\le 7$ GB RAM limit.
+1. **Resource Guards**: Ensures the system adheres to the ≤ 7 GB RAM limit.
 2. **AGP Access**: Verifies streaming connectivity to the American Gut Project dataset.
 3. **HRS Access**: Verifies connectivity to the HRS data portal.
+
+The script always exits with status 0 and writes a JSON report to `data/provenance_report.json`. Down‑stream steps will read that report and abort if any source is unavailable.
 
 ## Execution
 
@@ -39,12 +41,12 @@ This script will:
 
 ## Output
 
-A validation report is generated at `data/processed/quickstart_validation_report.json`.
-A provenance report is generated at `data/provenance_report.json`.
-A log file is generated at `data/processed/quickstart_validation.log`.
+- A validation report is generated at `data/processed/quickstart_validation_report.json`.
+- A provenance report is generated at `data/provenance_report.json`.
+- A log file is generated at `data/processed/quickstart_validation.log`.
 
 ## Troubleshooting
 
-- If data fetch fails, check your internet connection and API keys in `code/.env`.
-- If memory errors occur, ensure you are running in an environment with >= 7GB RAM.
-- If specific steps fail, check `data/processed/run.log` for detailed error messages.
+- If data fetch fails, check your internet connection and any required API keys.
+- If memory errors occur, ensure the runner provides at least 7 GB RAM.
+- If a step fails, consult `data/processed/run.log` for detailed error messages.

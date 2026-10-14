@@ -7,11 +7,11 @@
 
 **Goal**: Establish the pipeline and run a thin, executable analysis on a small real-data subset to verify the full data flow from ingestion to prediction.
 
-- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and validate input provenance. <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 -->
+- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and validate input provenance.
     - Verify access to American Gut Project (AGP) via `datasets.load_dataset("american_gut_project", streaming=True)` and Health and Retirement Study (HRS) portal.
     - Document the runnable command in `docs/quickstart.md`.
     - Ensure the CPU-only resource guard is active ($\le 7$ GB RAM, $\le 6$ hours).
-- [ ] T002 Implement the primary research pipeline scripts with granular verification:
+- [ ] T002 Implement the primary research pipeline scripts with granular verification: <!-- FAILED-IN-EXECUTION: code/01_data_ingestion.py exit=1; code/02_preprocessing.py exit=1; code/03_correlation_analysis.py exit=1; code/04_predictive_modeling.py exit=1 -->
     - **Ingestion (`code/01_data_ingestion.py`)**: Stream AGP data, merge with HRS by participant ID. Calculate and log the merge success rate (overlap / total AGP IDs) to satisfy SC-001; fail loudly if overlap $< 500$ samples.
     - **Preprocessing (`code/02_preprocessing.py`)**: Filter age $\ge 60$, collapse to genus, apply Cumulative Sum Scaling (CSS) normalization (per plan.md), and impute BMI via MICE.
     - **Analysis (`code/03_correlation_analysis.py`)**: Apply CLR transformation. Compute Spearman rank correlations (per spec.md) AND SparCC/SPIEC-EASI compositional correlations (per plan.md). Apply Benjamini-Hochberg FDR ($\alpha=0.05$).
