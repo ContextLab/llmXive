@@ -15,14 +15,6 @@ T009:
     \ logic required by the task. Moreover, the expected output file `data/raw/download_manifest.json`\
     \ is absent. The script therefore fails to meet the specified functional and output\
     \ requirements."
-T015b:
-  c: false
-  h: 82fe6d68005e50d1c0135ea1cd36c41baa931a9e8293fa7d9548be0fbc3da56c
-  r: "The repository lacks the required `data/raw/download_manifest.json`, so the\
-    \ script cannot iterate over participants as specified. Consequently the parallel\
-    \ processing loop and generation of per\u2011subject `.fif` files cannot be verified,\
-    \ and no output files or exclusion log are present. The task\u2019s core output\
-    \ is missing."
 T016:
   c: false
   h: 9e77616cb005e9b655dcb85ad02668aa530523c36d65766c60fe652b55809bf9
@@ -30,13 +22,6 @@ T016:
     \ and the provided `code/features.py` is truncated (e.g., the `write_metrics_to_csv`\
     \ function is incomplete and there is no processing loop to read the full dataset\
     \ and generate the CSV). The task\u2019s core deliverable is therefore not present."
-T017:
-  c: false
-  h: 1f88c035aca1e7f86cfd8e1ff725b752d46dfe8283a4cfd1a75d867ce78e919a
-  r: "The required output file `data/analysis/complexity_metrics.csv` does not exist,\
-    \ so the task\u2019s verification step (asserting the CSV with the specified columns)\
-    \ cannot be satisfied. The implementation file is present, but without the generated\
-    \ CSV the requirement is unmet."
 T018:
   c: true
   h: 6331a8ecfb5079f390ae994090c8c46c4a732f07e745cb94e17f9ac904a24748
@@ -44,23 +29,6 @@ T018:
     \ that checks the three required paths, prints a detailed error with missing and\
     \ available files, and exits with status\u202F1 when any are absent, exactly as\
     \ the task specified."
-T019:
-  c: false
-  h: c9f181cd9dd52de2a797ca0aab49d5be55376dbf2977aaf6751a7b180ebd987d
-  r: "The repository lacks the required input files (`data/processed/fatigue_scores.csv`\
-    \ and `data/analysis/complexity_metrics.csv`), and `code/analysis.py` does not\
-    \ contain any logic that loads these files, checks participant\u2011wise pairing,\
-    \ computes post\u2011minus\u2011pre deltas, or exits with code\u202F1 on missing\
-    \ pairs. The existing `delta_scores.csv` appears pre\u2011generated and is not\
-    \ produced by the script. Consequently the task\u2019s core requirements are not\
-    \ satisfied."
-T020a:
-  c: false
-  h: 5b17901a584b66e52f6340ee1a5f1524657688e836a06e51846c199cf2faaace
-  r: "The repository lacks the required `data/analysis/raw_correlation_results.csv`\
-    \ file, and the provided `code/analysis.py` does not contain any implementation\
-    \ of Pearson/Spearman raw correlation calculation or code that writes such results\
-    \ to the CSV. The task\u2019s core output is therefore missing."
 T021:
   c: false
   h: b818ce7ce4c4147cb408ef2856b80b9d1e10a7a53d1b56ece7f5a75dd4aabbbc
