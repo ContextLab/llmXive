@@ -3,7 +3,7 @@ Configuration and path management for the project.
 """
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict
 
 def get_project_root() -> Path:
     """
@@ -43,7 +43,7 @@ def get_config_dict() -> Dict[str, Any]:
         "data_final": str(root / "data" / "final"),
         "plots_dir": str(root / "data" / "final" / "plots"),
         "levenshtein_threshold": 4,
-        "match_rate_threshold": 0.80,
+        "match_rate_threshold": 0.8,
         "seed": 42,
         "use_mock_data": False,
         "msd_url": "hf://brian/MSD",

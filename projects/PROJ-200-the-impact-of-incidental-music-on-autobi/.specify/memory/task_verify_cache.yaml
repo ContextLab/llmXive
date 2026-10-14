@@ -1,56 +1,32 @@
-T043:
+T000:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation was presented showing that the ingestion\
-    \ pipeline uses chunking when memory exceeds 5\u202FGB. Without an artifact (e.g.,\
-    \ a script, function, or log) demonstrating the chunking logic, we cannot confirm\
-    \ the performance optimization requirement is met. The implementer must provide\
-    \ the relevant implementation or evidence (e.g., code snippet, test showing chunked\
-    \ processing, or logs) that verifies chunking is employed for >5\u202FGB datasets."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `quickstart.md` validation run, timing logs, or any output\
-    \ confirming the pipeline completed end\u2011to\u2011end within the required 6\u2011\
-    hour window is present. The required artifact (validation results showing runtime)\
-    \ is missing."
-T050:
-  c: false
-  h: 4616d322d9fdb5d7084eaad46f62807cfdf16b9ddee52bf94a8750710180da94
-  r: "All required artifacts (`data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`,\
-    \ `data/final/regression_summary.csv`, `data/final/sensitivity_analysis.csv`,\
-    \ `data/final/bootstrap_results.csv`, and `state.yaml`) are absent, so no existence\
-    \ or checksum verification could be performed. The task\u2019s core requirement\
-    \ is therefore unmet."
-T121:
+  h: e8906b7df17028c2ed9d51b16e000a768fe77db5b3472377fee21a04d1607b15
+  r: 'The `state.yaml` exists and was created by a successful run of `code/init_state.py`,
+    but its structure does not match the task requirement: it contains `config`, `files:
+    {}`, and `updated_at`, but no `artifact_hashes` key (the task explicitly requires
+    `artifact_hashes`, `updated_at`, `config`). The implementer should fix `init_state.py`
+    to emit an `artifact_hashes` mapping (or rename `files` accordingly) and regenerate
+    the file.'
+  sig: 532966ee81c045838d2a25432052f426e41d165f4caad566d54b5dd26850a34d
+T001:
   c: true
-  h: 083a3377fef577e0a4d30729a449b0153aab72dd8d1a47aa0d17ef36268b82d2
-  r: "The `code/utils.py` file contains a full, non\u2011placeholder implementation\
-    \ of `compute_sha256` that reads a file in binary chunks and returns its SHA\u2011\
-    256 hex digest, satisfying the task\u2019s requirement. The missing `data/processed/ingested_cohort.parquet`\
-    \ is an input, not an output artifact, so its absence does not invalidate the\
-    \ implementation."
-T122:
-  c: false
-  h: 451a15e7444e6e3ca8b3c4b4cf593bbd6371764b2a16f1423af248c7c7358f5d
-  r: "The `update_state_yaml` function in `code/utils.py` is cut off mid\u2011implementation\
-    \ (ends with \u201Cst\u201D) and does not contain the logic to write the updated\
-    \ data back to `state.yaml`. Additionally, the required `state.yaml` file is absent\
-    \ from the repository. Both the implementation and the target artifact are missing,\
-    \ so the task is not satisfied."
-T123:
-  c: false
-  h: d68ecc0ba63746c0e6c540d4338ba8e78b672fdaca50caa118543fa8e67212fc
-  r: "The repository contains a `write_parquet` implementation, but the required output\
-    \ file `data/processed/user_track_pairs.parquet` is not present. Without the actual\
-    \ Parquet file being generated, the task\u2019s primary deliverable is missing.\
-    \ The next implementer must ensure the function is invoked (or hard\u2011coded)\
-    \ to create that file and verify its existence."
-T124:
+  h: 27118904dab1345e39b91c0919934a08032bb43f8b0a5fad82958cb114ba0fae
+  r: 'All required directories (`code/`, `data/raw/`, `data/processed/`, `data/final/`,
+    `tests/`) exist with content; `requirements.txt` includes `statsmodels`, `pyarrow`,
+    and `levenshtein`; `code/config.py` defines `levenshtein_threshold: 4`, `match_rate_threshold:
+    0.8`, and `seed: 42`; and `quickstart.md` documents the execution command (`python
+    code/main.py --step ...` / `--full-run`), with a successful setup run logged (exit
+    0).'
+  sig: 24f228e18c08a2e8c552c072e598064d21aa835a8d076f4e0e0a5527461f706c
+T002:
   c: true
-  h: d68ecc0ba63746c0e6c540d4338ba8e78b672fdaca50caa118543fa8e67212fc
-  r: "The `code/utils.py` file exists and contains a full, non\u2011placeholder implementation\
-    \ of `compute_sha256` that reads a file, checks existence, and returns its SHA\u2011\
-    256 hash. This satisfies the task\u2019s requirement to implement the checksum\
-    \ function. (The missing `data/processed/user_track_pairs.parquet` file is not\
-    \ part of the required artifact for this task.)"
+  h: 8ee2d2dab87e67102de1fdc4aceba52952c9b6e8cd3b13918bcdc94bd5be2b89
+  r: "Both contract files exist, are non-empty, and their content matches the spec:\
+    \ `dataset.schema.yaml` defines Track, CohortListen, MemoryCue, and a User-Track\
+    \ Pair-level AggregatedMetric with `adolescent_exposure_ratio` (0\u20131), mean\
+    \ vividness/valence, and count of cues per FR-001/FR-004; `output.schema.yaml`\
+    \ defines RegressionResults (exposure and popularity coefficients, p-values, R\xB2\
+    , VIFs per FR-005/EC-003), SensitivityAnalysis (Levenshtein threshold, match rate\
+    \ per FR-006/SC-004), and PermutationResults (observed statistic, null distribution\
+    \ stats, p-value, iterations per FR-007). The only tes"
+  sig: 89781a21a71089bd89c79a5ed30c63627d6f2068fdd4582bbfae5b713009a4b9

@@ -83,11 +83,14 @@ definitions:
         type: number
       count_cues:
         type: integer
-      residualized_exposure_score:
+      adolescent_exposure_ratio:
         type: number
+        minimum: 0
+        maximum: 1
     required:
       - user_id
       - track_id
       - mean_vividness
       - mean_valence
       - count_cues
+      - adolescent_exposure_ratio

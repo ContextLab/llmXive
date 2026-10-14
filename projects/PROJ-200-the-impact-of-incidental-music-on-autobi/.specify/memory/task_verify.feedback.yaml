@@ -1,0 +1,30 @@
+T000:
+  reason: 'The `state.yaml` exists and was created by a successful run of `code/init_state.py`,
+    but its structure does not match the task requirement: it contains `config`, `files:
+    {}`, and `updated_at`, but no `artifact_hashes` key (the task explicitly requires
+    `artifact_hashes`, `updated_at`, `config`). The implementer should fix `init_state.py`
+    to emit an `artifact_hashes` mapping (or rename `files` accordingly) and regenerate
+    the file.'
+  task: 883cb8df1cee439963b64f56312618c65d6a3099a360e0b0ab1ea7050c8c09c3
+T001:
+  task: 24689101c69f744d0aa7d905eedde7015e19b8e55b8561ad31dafce823f03673
+T002:
+  task: 9ffee1b6fb4836eb6687f4aebf3537be944cde5dd98e58c4c8ddacf56c5ee631
+T003:
+  task: d1b5ceea866482ff6891e1a4c319300274aab55982666b2f9cfdfb3b704a22be
+T004:
+  task: e5dc0956977d656a85761bf94d650070a2fb6b612fa62076a265007ac95cc040
+T005:
+  task: 0b9bd27a80132010243c863e293118c6fe579c7dc90de70a31970f1c26c581e5
+T006:
+  task: 39d227782cd1e62405bef4159ad682245e5c92cca3777b8a0075433d86b55fe4
+T007:
+  task: 2c30f9c0715d3d3a7e07ae8245ce58e4f84a566d7852329c99b54b389cd66dde
+T008:
+  task: 86162ae74a22076a223b537f1e1adb3933f3f9293ec56f16e32f11d2537241de
+T009:
+  task: 7fa961e99cb81ca35730060ed972c2f5c74eddee89951bad870948b920fb726e
+T010:
+  task: 141d27e1641e336187655c9a19c6496c585d486d5075e3bbca6179615b16be28
+T011:
+  task: 8b3ada15d20e7c282db9bf60b03b2ebaa5834fc1112f8cfcd9922d03b0fb4764

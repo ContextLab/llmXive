@@ -6,11 +6,11 @@ definitions:
     properties:
       model_name:
         type: string
-      coefficient_residualized_exposure:
+      coefficient_adolescent_exposure:
         type: number
-      se_residualized_exposure:
+      se_adolescent_exposure:
         type: number
-      pvalue_residualized_exposure:
+      pvalue_adolescent_exposure:
         type: number
       coefficient_popularity:
         type: number
@@ -18,14 +18,14 @@ definitions:
         type: number
       r_squared:
         type: number
-      vif_residualized_exposure:
+      vif_adolescent_exposure:
         type: number
       vif_popularity:
         type: number
     required:
       - model_name
-      - coefficient_residualized_exposure
-      - pvalue_residualized_exposure
+      - coefficient_adolescent_exposure
+      - pvalue_adolescent_exposure
 
   SensitivityAnalysis:
     type: object
@@ -34,14 +34,14 @@ definitions:
         type: integer
       match_rate:
         type: number
-      coefficient_residualized_exposure:
+      coefficient_adolescent_exposure:
         type: number
-      pvalue_residualized_exposure:
+      pvalue_adolescent_exposure:
         type: number
     required:
       - levenshtein_threshold
       - match_rate
-      - coefficient_residualized_exposure
+      - coefficient_adolescent_exposure
 
   PermutationResults:
     type: object
