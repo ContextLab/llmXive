@@ -1,8 +1,2 @@
-# Project dependencies
-# Existing dependencies are provided by the environment:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-#
-# Additional dependency required for Parquet I/O in the correlation
-# module (and throughout the pipeline).
-pyarrow>=16,<17
+# Existing dependencies are provided by the platform.
+# No additional third‑party packages are required for the permutation task.

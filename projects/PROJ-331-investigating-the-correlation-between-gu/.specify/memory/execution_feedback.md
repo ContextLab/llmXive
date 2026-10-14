@@ -1,44 +1,36 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- results/permutation_pvalues.csv: header only, ZERO data rows — the analysis produced no rows
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python -m src.pipeline.ingest (rc=1); python -m src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 (rc=1); python -m src.pipeline.run_permutation --iterations 1000 --seed 42 (rc=1); 6 declared deliverable(s) absent: data/processed/clr_abundances.parquet; data/processed/filtered_samples.parquet; data/processed/patient_outcome_slopes.parquet
+**Summary**: 1 hollow-result signal(s) — the analysis ran but computed nothing: results/permutation_pvalues.csv: header only, ZERO data rows — the analysis produced no rows; 3 command(s) failed: python -m src.pipeline.ingest (rc=1); python -m src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 (rc=1); python -m pytest -q src/tests (rc=4); 6 declared deliverable(s) absent: data/processed/clr_abundances.parquet; data/processed/filtered_samples.parquet; data/processed/patient_outcome_slopes.parquet
 
 ## Failing / missing run-book commands
 
 - python -m src.pipeline.ingest -> rc=1
 
-2026-10-14 12:19:06,848 INFO __main__: === PPMI input validation (FR-001) ===
-2026-10-14 12:19:06,848 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
-2026-10-14 12:19:06,848 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+2026-10-14 14:09:46,614 INFO __main__: === PPMI input validation (FR-001) ===
+2026-10-14 14:09:46,614 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+2026-10-14 14:09:46,614 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
 
 - python -m src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 -> rc=1
 
-2026-10-14 12:19:06,978 ERROR __main__: Required input files not found. Expected either:
+2026-10-14 14:09:46,751 ERROR __main__: Required input files not found. Expected either:
   /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv
   /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_clinical.parquet
 or:
   /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv
   /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_clinical.parquet
-
-- python -m src.pipeline.run_permutation --iterations 1000 --seed 42 -> rc=1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/code/src/pipeline/permutation.py", line 34, in _load_data
-    clr = pd.read_parquet(clr_path)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 667, in read_parquet
-    return impl.read(
-           ^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 267, in read
-    path_or_handle, handles, filesystem = _get_path_or_handle(
-                                          ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 140, in _get_path_or_handle
-    handles = get_handle(
-              ^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 882, in get_handle
-    handle = open(handle, ioargs.mode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/processed/clr_abundances.parquet'
 
 - python -m pytest -q src/tests -> rc=4
 
@@ -96,6 +88,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/pipeline/run_correlation_only.py` — NOT invoked by the run-book
     - `code/src/pipeline/run_us1.py` — NOT invoked by the run-book
     - `code/tests/test_correlation_adj.py` — NOT invoked by the run-book
+    - `code/tests/test_ingest_preprocessed.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/open_asv.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/open_clinical.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/src/pipeline/__main__.py` — NOT invoked by the run-book
@@ -104,4 +97,5 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/pipeline/run_correlation_only.py` — NOT invoked by the run-book
     - `code/src/pipeline/run_us1.py` — NOT invoked by the run-book
     - `code/tests/test_correlation_adj.py` — NOT invoked by the run-book
+    - `code/tests/test_ingest_preprocessed.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/open_clinical.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

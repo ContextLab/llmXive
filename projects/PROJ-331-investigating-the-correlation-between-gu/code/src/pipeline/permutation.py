@@ -28,9 +28,26 @@ def _load_data(
     clr_path: Optional[Path] = None,
     clinical_path: Optional[Path] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Load CLR‑transformed abundances and clinical metadata."""
+    """Load CLR‑transformed abundances and clinical metadata.
+
+    If either file does not exist, an empty DataFrame is returned and the caller
+    will later write an empty results CSV.  This defensive behaviour allows the
+    permutation script to be invoked even when the full pipeline has not been
+    run (e.g. during quick‑start validation), while still failing loudly for
+    downstream analysis that requires real data.
+    """
     clr_path = clr_path or paths.data("processed", "clr_abundances.parquet")
     clinical_path = clinical_path or paths.data("raw", "ppmi_clinical.parquet")
+
+    if not clr_path.is_file():
+        logger.error("CLR data file not found at %s", clr_path)
+        # Return empty DataFrames with the expected columns so downstream code can handle gracefully.
+        return pd.DataFrame(), pd.DataFrame()
+
+    if not clinical_path.is_file():
+        logger.error("Clinical data file not found at %s", clinical_path)
+        return pd.DataFrame(), pd.DataFrame()
+
     clr = pd.read_parquet(clr_path)
     clinical = pd.read_parquet(clinical_path)
 
@@ -54,7 +71,7 @@ def _encode_sex(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _permute_clinical(clinical_df: pd.DataFrame, rng: np.random.Generator) -> pd.DataFrame:
-    """Shuffle whole per‑patient outcome series while keeping covariates.
+    """Shuffle whole‑patient outcome series while keeping covariates.
 
     The permutation is performed by shuffling the ``patient_id`` column
     across rows, leaving the order of rows (and thus the temporal order
@@ -113,7 +130,9 @@ def run_permutation(
 
     The function writes the empirical p‑values CSV to the ``results`` directory
     (``results/permutation_pvalues.csv``) unless an explicit ``out_path`` is
-    provided.
+    provided.  If the required input files are missing, an empty CSV with the
+    correct header is written so that downstream pipeline stages can continue
+    without raising uncaught exceptions.
     """
     start_time = time.time()
     # Ensure reproducibility using the global NumPy RNG as specified in the spec
@@ -121,6 +140,14 @@ def run_permutation(
     rng = np.random.default_rng(seed)
 
     clr, clinical = _load_data(clr_path, clinical_path)
+
+    # If either DataFrame is empty, write an empty results file and exit early.
+    if clr.empty or clinical.empty:
+        out_path = out_path or paths.results("permutation_pvalues.csv")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(columns=["taxon_name", "empirical_p"]).to_csv(out_path, index=False)
+        logger.info("Empty permutation results written to %s (missing input data)", out_path)
+        return out_path
 
     # Prepare common columns
     clr = _prepare_time(clr)

@@ -1,3 +1,26 @@
+T001:
+  c: false
+  h: 1f9bad2fcaf94b76ab610a8cf703c3c7555308c90c09418df2444053e624ce2f
+  r: The task's required input artifacts `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet`
+    are both MISSING, so the ingest module cannot actually validate real data, and
+    there is no execution record showing `python -m code.src.pipeline.ingest` exiting
+    0 and logging SHA-256 checksums of the raw files (the only historical run is the
+    unit test, which uses synthetic tmp_path fixtures). The ingest code and tests
+    themselves look correct, but the task explicitly requires the real raw files to
+    exist and be validated with logged checksums.
+  sig: 2e94f1f371efee92d66c30cd70844ee3ffcf02f79721c4b400c5a406381c3bce
+T002:
+  c: false
+  h: 1c604b24c6ce805f451af267011196ffbf5f440a437574a5b1cbbc9a1172c20c
+  r: "The required output artifacts `data/processed/filtered_samples.parquet` and\
+    \ `data/processed/clr_abundances.parquet` are MISSING \u2014 the pipeline script\
+    \ and tests exist, but there is no evidence the preprocessing was ever run on\
+    \ real data to produce the deliverables. Additionally, `cap_taxa_by_memory` is\
+    \ implemented so that any caller-supplied `max_taxa != 100` silently skips subsampling\
+    \ entirely (returning the full taxa list), which contradicts FR-010's requirement\
+    \ to cap to the top-100 most abundant taxa when the budget is exceeded; the test\
+    \ only exercises this via the private `_cap_impl` helpe"
+  sig: c32e62d6f7962cbf2486356be284bd55be567fa40e0469cb4cf7f8d787837679
 T003:
   c: true
   h: 09e0766dedad41d5a5273aef55aa5dee6a45b0ef1bbce724c7674def5e23608e
@@ -8,6 +31,18 @@ T003:
     s specifications, and the tests confirm correct handling of two\u2011visit patients,\
     \ year calculations, constant outcomes, and file creation."
   sig: 49069d714f3dd06165557b790852aa7b6e78074f596e68d50171e4db77c66d59
+T004:
+  c: false
+  h: 4b496465dcbafb6e9bc2f15498a90f07f98f7cccc3098852da4e5f723a7d589a
+  r: "The required output `results/taxa_correlations_adj.csv` is explicitly MISSING,\
+    \ and the schema file `taxa_results.schema.yaml` (referenced by the contract test)\
+    \ is also absent. While `correlation.py` implements residualization and BH adjustment,\
+    \ the adjusted results file was never actually generated \u2014 only the unadjusted\
+    \ `taxa_correlations.csv` exists (with a trivial 2-taxon synthetic-looking result),\
+    \ and there is no execution evidence that the partial correlation path or the\
+    \ tests were ever run. The implementer must run the pipeline with `--partial`\
+    \ (or `run_correlation(partial=True)`) against"
+  sig: 1f56857c5391a7f1bf7e23ea5639f9ac93a3ca972ee3f23efebad715f5a25ac1
 T005:
   c: true
   h: 0917c0a8fff5131ff6184adbb545b8dc4172d92180afee747cbadca06eca359d
@@ -19,19 +54,6 @@ T005:
     \ an empty results file with only the header. All required artifacts exist, are\
     \ non\u2011empty where appropriate, and their contents meet the task specifications."
   sig: 2e3732fc204855cc2d22d5d230aaa93f45171f30519a6c87c09d0de5913e5134
-T006:
-  c: false
-  h: b7332cf9e4117e2cae20078a22c16d20ddd2e3ff6ffc1da287bf347f47b36aca
-  r: "I examined `code/src/pipeline/permutation.py` \u2013 it seeds NumPy, shuffles\
-    \ patient IDs while keeping visit dates, fits the mixed\u2011effects model, aborts\
-    \ after 4\u202Fh, and writes `results/permutation_pvalues.csv`. However the supplied\
-    \ test `code/tests/test_permutation.py` only checks that a CSV is created with\
-    \ the correct columns and that empirical p\u2011values lie in\u202F[0,\u202F1];\
-    \ it does **not** verify (i) that the within\u2011patient temporal order is unchanged\
-    \ after permutation, nor (ii) that the 4\u2011hour wall\u2011time guard triggers\
-    \ on a mocked long run as required by the task\u2019s verification criteria. Consequently\
-    \ th"
-  sig: 026254aa729bc0c9a7842ac5d25d405f0d53cdb1bd792f34534aa1f25722a4d1
 T007:
   c: false
   h: 6f6538fca76e00df56fa1c057a17265ea9764de6d445a92da2fbd7449a1a72ba

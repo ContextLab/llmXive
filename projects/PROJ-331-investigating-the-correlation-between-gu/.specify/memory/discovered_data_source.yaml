@@ -1,16 +1,16 @@
 status: none
-intent: open Parkinson's disease microbiome 16S ASV dataset with UPDRS scores python
-  package dataset
+intent: open longitudinal gut microbiome Parkinson's disease dataset with MDS-UPDRS
+  scores American Gut Qiita python package dataset
 required_fields:
-- sample_id
 - patient_id
+- sample_id
 - visit_number
-- visit_date
+- collection_date
+- taxon_counts (ASV columns)
 - MDS_UPDRS_total
-- ASV_1
-- ASV_2
-- ASV_3
-- '... (all ASV count columns)'
-cache_key: 66d7ab7074cca4cc325c202b9f78ee750fc511ae5ca6f45c70586132ac01e798
-searched_at: '2026-10-14T12:19:59.886922+00:00'
+- age
+- sex
+- diagnosis
+cache_key: 6adf58fe3450679130e53169face465833c727c98ed61009942127d7e2530475
+searched_at: '2026-10-14T14:10:16.488725+00:00'
 retry_count: 1

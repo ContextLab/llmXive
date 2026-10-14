@@ -96,29 +96,42 @@ def _partial_spearman(
     covariates (age, sex, levodopa_eq_dose).  The residuals are then used for
     a standard Spearman correlation.
     """
-    # Pivot taxon slopes to wide format
+    # Pivot taxon slopes to wide format (one row per patient)
     taxon_wide = taxon_slopes.pivot(index="patient_id", columns="taxon_name", values="slope")
-    # Merge covariates (patient‑level) with taxon matrix
-    merged = taxon_wide.join(covariates.set_index("patient_id"))
 
-    # Determine covariate columns (exclude patient_id and outcome column)
-    cov_names = [
-        c
-        for c in covariates.columns
-        if c not in ("patient_id", "MDS_UPDRS_Total")
-    ]
+    # ------------------------------------------------------------------
+    # Prepare covariates: we need a single record per patient.  The raw
+    # clinical table may have multiple rows per patient (different visits);
+    # we therefore aggregate numerics by mean and take the first categorical
+    # value (sex).  This mirrors the usual approach for residualising patient‑level
+    # predictors.
+    # ------------------------------------------------------------------
+    agg_funcs = {
+        "age": "mean",
+        "levodopa_eq_dose": "mean",
+        "sex": "first",  # sex does not change across visits
+    }
+    cov_agg = covariates.groupby("patient_id").agg(agg_funcs).reset_index()
 
-    # Residualise each taxon
+    # Merge taxon matrix with aggregated covariates
+    merged = taxon_wide.merge(cov_agg, left_index=True, right_on="patient_id", how="inner")
+
+    # Determine covariate columns (exclude patient identifiers)
+    cov_names = [c for c in agg_funcs.keys()]
+
+    # Residualise each taxon against covariates
     reg = LinearRegression()
     residual_taxon = {}
     for taxon in taxon_wide.columns:
         reg.fit(merged[cov_names], merged[taxon])
         residual_taxon[taxon] = merged[taxon] - reg.predict(merged[cov_names])
 
-    # Residualise outcome
+    # Residualise outcome slope
     outcome = outcome_slopes.set_index("patient_id")
-    reg.fit(merged[cov_names], outcome["outcome_slope"])
-    outcome_resid = outcome["outcome_slope"] - reg.predict(merged[cov_names])
+    # Align outcome with the same patient set used for taxon residuals
+    outcome_aligned = outcome.loc[merged["patient_id"]]
+    reg.fit(merged[cov_names], outcome_aligned["outcome_slope"])
+    outcome_resid = outcome_aligned["outcome_slope"] - reg.predict(merged[cov_names])
 
     # Compute Spearman on residuals
     results = []
@@ -138,7 +151,7 @@ def run_correlation(
     Parameters
     ----------
     partial : bool, default False
-        If True, compute covariate‑adjusted (partial) Spearman correlations
+        If True, compute covariate‑adjusted partial Spearman correlations
         and write the results to ``results/taxa_correlations_adj.csv``.
     taxon_slopes_path, outcome_slopes_path, covariates_path : Path or None
         Optional explicit paths for the respective inputs.
