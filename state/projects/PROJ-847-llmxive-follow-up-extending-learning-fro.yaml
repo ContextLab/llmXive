@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T04:43:04.565885Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-847-llmxive-follow-up-extending-learning-fro
-last_run_id: 0088447d-69ec-4da0-b951-c6e8ec709bb7
+last_run_id: 8e036e33-aa21-4047-8159-91196e3ad9ef
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/specs/001-llmxive-follow-up-extending-learning-fro
 title: 'llmXive follow-up: extending "Learning from the Self-future: On-policy Self-distillation
   for dLLMs"'
-updated_at: '2026-10-14T16:32:29.405274Z'
+updated_at: '2026-10-14T16:34:37.134881Z'
