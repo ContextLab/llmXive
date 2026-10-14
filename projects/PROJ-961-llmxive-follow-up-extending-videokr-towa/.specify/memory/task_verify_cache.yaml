@@ -1,9 +1,24 @@
 T101:
   c: true
-  h: 287169cf5ee433b5b88095a402636cd9bb9151e7667c6ed0e8ebe17934ca7087
-  r: "Checked `code/utils/config.py` for the required `SEEDS`, `PATHS`, and `SENSITIVITY_THRESHOLDS\
-    \ = [2,3,4]` definitions, and verified `code/ingest/checksum.py` implements a\
-    \ list\u2011based `{path, sha256}` schema, generates/reads the checksum file,\
-    \ runs verification in `main()`, and exits with a non\u2011zero status on failure\
-    \ (as shown by the execution log)."
-  sig: f90dccb512484e77ef489d24af9bac0e0293adf34be8184dc104d93a34a9e71d
+  h: a20a724b91702ba8661bf03a4eec02f0cf0640ae6da26b43034389d252accbfa
+  r: 'Both artifacts exist and match the requirements: `code/utils/config.py` defines
+    `SEEDS` with pinned integers for `pilot_sampling`/`oversampling`/`permutation`,
+    `PATHS` with raw/processed directories, and `SENSITIVITY_THRESHOLDS = [2, 3, 4]`
+    as a list of ints; `code/ingest/checksum.py` uses a consistent list-of-`{path,
+    sha256}` schema in both `generate_checksum_file` and `verify_all_raw_data`, and
+    `main()` performs verification, prints per-file OK/FAIL results, and calls `sys.exit(1)`
+    on any mismatch. The `code/__init__.py` and `code/utils/__init__.py` package markers
+    exist so the `from code.ut'
+  sig: fcfe09a313c86709afda6e4f68594095dedabb137993398dda6151c18d23dea5
+T102:
+  c: true
+  h: d4a45f00896089a78e20dfac8c295debe11a7f1de52d9753151a929d59c4bfcf
+  r: 'Both required artifacts exist and are substantive: `code/utils/entity_linker.py`
+    implements `link_dataframe` with the pre-existing `node_id`/`entity_id` short-circuit
+    (confidence=1.0), the optional `sentence_transformers` embedding-similarity path
+    with configurable threshold, and fuzzy fallback with `entity_node_id=None` below
+    threshold; `tests/unit/test_entity_linker.py` covers all three branches. The historical
+    execution log shows `pytest tests/unit/test_entity_linker.py` exiting 0 with 2
+    passed and the embedding test skipped (legitimate, since the task conditions that
+    path on package availa'
+  sig: 2ec5bfd09c7325f17f2e40f1fb8aea4735ea3374fea7cc3dc00d86dfb6cb5c34

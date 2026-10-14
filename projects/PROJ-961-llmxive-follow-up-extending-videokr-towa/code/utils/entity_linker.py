@@ -199,11 +199,14 @@ def link_dataframe(
     if 'node_id' in df_out.columns:
         df_out['entity_node_id'] = df_out['node_id']
         df_out['confidence'] = 1.0
+        # Preserve None semantics for pandas
+        df_out['entity_node_id'] = pd.Series(df_out['entity_node_id'], dtype=object)
         return df_out
 
     if 'entity_id' in df_out.columns:
         df_out['entity_node_id'] = df_out['entity_id']
         df_out['confidence'] = 1.0
+        df_out['entity_node_id'] = pd.Series(df_out['entity_node_id'], dtype=object)
         return df_out
 
     # ------------------------------------------------------------------
@@ -224,7 +227,6 @@ def link_dataframe(
     # Pre‑encode node names once if we are using embeddings – this saves repeated work.
     node_embeddings: Dict[str, np.ndarray] = {}
     if use_embeddings and embedding_model is not None:
-        # Encode all node names; store as numpy arrays for fast dot‑product.
         node_names_list = list(linker.node_names)
         encoded = embedding_model.encode(node_names_list)
         for name, vec in zip(node_names_list, encoded):
@@ -278,7 +280,8 @@ def link_dataframe(
         entity_ids.append(node_id)
         confidences.append(conf)
 
-    df_out['entity_node_id'] = entity_ids
+    # Use explicit object dtype to keep None values as None (not NaN)
+    df_out['entity_node_id'] = pd.Series(entity_ids, dtype=object)
     df_out['confidence'] = confidences
 
     return df_out

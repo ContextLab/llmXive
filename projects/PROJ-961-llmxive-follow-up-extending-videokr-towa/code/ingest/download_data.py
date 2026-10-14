@@ -12,11 +12,6 @@ import json
 from pathlib import Path
 from typing import List, Dict
 
-# huggingface_hub provides the download utility; we only need the function.
-# Importing the specific HTTP error class is version‑dependent, so we catch
-# generic exceptions and re‑raise a consistent ``DataUnavailableError``.
-from huggingface_hub import hf_hub_download
-
 # Import project configuration utilities using the correct package path.
 from code.utils.config import get_path, ensure_dir, VIDEO_KR_REPO, PATHS
 
@@ -45,6 +40,19 @@ def _download_file(repo_id: str, filename: str, target_dir: Path) -> Path:
     Raises:
         DataUnavailableError: If the download fails for any reason.
     """
+    try:
+        # Import inside the function so that a missing ``huggingface_hub``
+        # package raises a controlled error rather than breaking module import.
+        from huggingface_hub import hf_hub_download
+    except Exception as import_err:
+        logger.error(
+            "huggingface_hub package is required but not installed. "
+            "Install it via the project's requirements.txt."
+        )
+        raise DataUnavailableError(
+            "huggingface_hub is not available; cannot download files."
+        ) from import_err
+
     try:
         logger.info(f"Attempting to download '{filename}' from repo '{repo_id}'.")
         # Explicitly specify that we are downloading a dataset repository.
