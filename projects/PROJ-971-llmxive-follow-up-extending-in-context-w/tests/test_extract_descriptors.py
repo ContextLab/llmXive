@@ -20,13 +20,12 @@ from src.pipeline.extract_descriptors import extract_all_descriptors
 from llmxive_toolkit import paths
 
 # Load the JSON‑Schema once.
-SCHEMA_PATH = Path(__file__).parents[2] / "specs" / "001-llmxive-follow-up-extending-in-context-w" / "contracts" / "descriptor.schema.yaml"
+SCHEMA_PATH = Path(__file__).parents[1] / "specs" / "001-llmxive-follow-up-extending-in-context-w" / "contracts" / "descriptor.schema.yaml"
 
 @pytest.fixture(scope="module")
 def descriptor_schema():
     """Load the descriptor JSON‑Schema."""
     import yaml
-
     with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
         schema = yaml.safe_load(f)
     return schema

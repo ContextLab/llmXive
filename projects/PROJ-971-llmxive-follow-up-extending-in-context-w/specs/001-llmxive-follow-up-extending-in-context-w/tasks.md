@@ -35,7 +35,7 @@ The tasks are organised into research phases that respect data flow and the 6‑
 - [ ] T006 [P] [US2] **Train lightweight regressor** – implement `src/pipeline/train_regressor.py` that loads `descriptors_subset.csv` + `labels.csv`, splits 80/20 (stratified by `k`), trains a 2‑layer MLP (≤ 64 hidden units, L2 regularisation) on the training split, saves `model/regressor.pt`, and writes `data/metrics.json` containing training/validation MSE and **baseline MSE** where the baseline predicts the **global‑mean temperature τ only** (ignoring k).  
   - *Verification*: The JSON reports `val_mse < 0.9 * baseline_mse` (≥ 10 % improvement).
 
-- [ ] T007 [P] [US2] **Compute task‑complexity metric** – implement `src/pipeline/compute_complexity.py` that parses each configuration’s scene description, counts distinct sub‑goals, and writes `data/complexity.csv`.  
+- [X] T007 [P] [US2] **Compute task‑complexity metric** – implement `src/pipeline/compute_complexity.py` that parses each configuration’s scene description, counts distinct sub‑goals, and writes `data/complexity.csv`.  
   - *Verification*: Pearson correlation between `variance` (from `descriptors_subset.csv`) and `subgoal_count` (from `complexity.csv`) is computed and stored in `data/correlation.txt`; the file must contain `r > 0.5` and `p < 0.05`.
 
 ---
@@ -44,13 +44,13 @@ The tasks are organised into research phases that respect data flow and the 6‑
 
 **Goal**: Apply the trained model to novel configurations, record outcomes, and demonstrate statistically significant improvement over a fixed baseline.
 
-- [~] T013 [P] [US3] **Generate novel interaction clips** – implement `src/pipeline/generate_novel_clips.py` to create a set of unseen clips (`data/raw_novel/clip_*.npz`) matching the size used in the validation protocol.  
+- [X] T013 [P] [US3] **Generate novel interaction clips** – implement `src/pipeline/generate_novel_clips.py` to create a set of unseen clips (`data/raw_novel/clip_*.npz`) matching the size used in the validation protocol.  
   - *Verification*: After execution, `ls data/raw_novel/ | wc -l` equals the expected number (e.g., 200) and each file contains the required arrays.
 
 - [~] T014 [P] [US3] **Extract latent descriptors for novel clips** – implement `src/pipeline/extract_descriptors_novel.py` that processes `data/raw_novel/` with the ICWM encoder and writes `data/descriptors_novel.csv`.  
   - *Verification*: The CSV validates against the descriptor schema and contains no null entries.
 
-- [ ] T008 [P] [US3] **Zero‑shot validation pipeline** – implement `src/pipeline/validate_autocwm.py` that loads the trained regressor, predicts `τ` and `k` for every novel clip using `data/descriptors_novel.csv`, runs the ICWM policy with those hyper‑parameters, also runs the fixed baseline (`τ=1.0, k=32`), and writes `data/validation_results.csv`.   <!-- FAILED-IN-EXECUTION: code/src/pipeline/validate_autocwm.py exit=1 -->
+- [ ] T008 [P] [US3] **Zero‑shot validation pipeline** – implement `src/pipeline/validate_autocwm.py` that loads the trained regressor, predicts `τ` and `k` for every novel clip using `data/descriptors_novel.csv`, runs the ICWM policy with those hyper‑parameters, also runs the fixed baseline (`τ=1.0, k=32`), and writes `data/validation_results.csv`.   <!-- FAILED-IN-EXECUTION: code/src/pipeline/validate_autocwm.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/pipeline/validate_autocwm.py exit=1 -->
   - *Verification*: The CSV validates against `validation_results.schema.yaml`; each row contains boolean `auto_success` and `baseline_success`.
 
 - [ ] T009 [P] [US3] **Statistical significance testing** – implement `src/pipeline/stats_test.py` that reads `validation_results.csv` and performs **both** a paired t‑test and a Wilcoxon signed‑rank test (Bonferroni‑adjusted α = 0.025). Results are saved to `reports/stats_report.txt`.  

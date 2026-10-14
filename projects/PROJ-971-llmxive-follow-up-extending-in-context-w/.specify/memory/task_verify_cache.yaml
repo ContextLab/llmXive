@@ -1,19 +1,20 @@
 T001:
   c: true
-  h: ca26b99417c2f5d1a0f38a5d6c1dec00d8ead5a842056ef0082f8fa6b97abbd1
-  r: "Checked `quickstart.md` (describes the required single command), the generated\
-    \ `data/descriptors_subset.csv` (contains the correct columns and 50 rows), and\
-    \ the CI log `code/.tasks/T001.run_minimal.sh.log` (shows `run_minimal.sh` executed\
-    \ with exit\u202F0 and confirms the CSV file was created)."
-  sig: 01149df408a9df8439140a1c021a462ff3ac73ccd3c465c930684517bf6f8656
+  h: e323245aeaafe5c1b83300df2124003aacb0358558a7a103bf5bbfda382a31fa
+  r: "Checked `specs/.../quickstart.md` (describes the single `bash -c \"source scripts/quickstart.sh\
+    \ && ./scripts/run_minimal.sh\"` command) and the generated `data/descriptors_subset.csv`\
+    \ (contains the required columns for 50 clips). The CI log `code/.tasks/T001.run_minimal.sh.log`\
+    \ shows `run_minimal.sh` exited with code\u202F0 and confirms the CSV file was\
+    \ written, proving the command runs without error and produces the expected output."
+  sig: 3be0dc053d94234def42085128fa0813dcb444530e1e449a301c432087ab5549
 T002:
   c: true
-  h: 2b3cdd3456d6838e9cab68fb489f0bab464c79552a09bc1c42ffdeca51d36b0d
-  r: Checked `src/pipeline/generate_clips.py` (implements deterministic clip generation),
-    the `data/raw/` directory containing exactly 50 `.npz` files, and the passing
-    unit test `test_fifty_clips_with_required_arrays` which verifies each file includes
-    the required `states`, `actions`, and `observations` arrays.
-  sig: 629f760af68ecd485bb09e087f7a3e46fc33a687796e5677ef178d263b13b3ee
+  h: 5c2baf76c47f495bbfeab8cd8e509044653f7758437f763cb3b9b6d2c0f0d80b
+  r: Checked `src/pipeline/generate_clips.py` (implementation and execution logs)
+    and the `data/raw/` directory containing exactly 50 `.npz` files, each verified
+    to include the `states`, `actions`, and `observations` arrays (as shown in file
+    contents and passing unit test).
+  sig: 51a486d378009d0d09b730e1813b761351fdce16e79c3eb41954aab6b1aed9c2
 T004:
   c: true
   h: c5e799db91fd97c45a4f8355459417c3baa81f984881aafab5ff8d71c406a663
@@ -23,31 +24,20 @@ T004:
     showing the script run with `--subset 50` and outputting 50 rows containing `clip_id`,
     `variance`, `autocorr_lag1`, and `spectral_density`.
   sig: e5c06c93c1d2fbffe715c1b96e9bed5f2982a4c908f784938e4af30e92450d58
-T005:
-  c: false
-  h: 803a33f14d7745c4e982b53c8e889344a02149f0100832d5d93d1c1c1fb35623
-  r: "The grid\u2011search script and the generated `data/labels.csv` exist and contain\
-    \ valid success rates, but the required `label.schema.yaml` file is missing, causing\
-    \ the contract test that validates the CSV against the schema to fail. Add the\
-    \ schema file (and ensure the CSV conforms to it) to satisfy the task."
-  sig: d25e5c4a09a77d45e17cdf8ca507ac5f525efed035c78afed416d05e3d77f941
-T006:
-  c: false
-  h: 681c1f065b8659acd08b82312751ea230076ee366fb07eff61bf88cf6d02fca3
-  r: "The provided `src/pipeline/train_regressor.py` runs and produces `data/metrics.json`,\
-    \ but the JSON shows `val_mse = 0.5199` and `baseline_mse = 0.2539`, so `val_mse\
-    \ < 0.9 * baseline_mse` is false (`meets_sc006: false`). The unit test also fails\
-    \ on this condition. Moreover, the split is stratified by `tau` instead of the\
-    \ required `k`. The task\u2019s verification condition is not satisfied."
-  sig: 8bcd1e3f5d4b0dda6a206ef2d3a5893b7a744a7c59d0617121feef22e3719beb
 T007:
-  c: false
-  h: 51704dce6718c6494e59f25af761785b34bf930f91f940b4fae57a75f0f7fb20
-  r: "The provided `src/pipeline/compute_complexity.py` does not parse scene description\
-    \ files to count distinct sub\u2011goals as required; it fabricates sub\u2011\
-    goal counts from the variance descriptor. Moreover, the unit tests fail (missing\
-    \ expected \u201Cp =\u201D line in the temporary correlation output), indicating\
-    \ the script\u2019s output does not fully meet the specification. The task needs\
-    \ a genuine scene\u2011description parser and corrected correlation\u2011file\
-    \ writing to satisfy the requirements."
-  sig: 508527188480c7b6db40c529b9555e2b7278e2de843920befad5e9ffe2afa2d6
+  c: true
+  h: 6dc740a0b103f086b97543af402e7913da13207c04095916db49494b45f2a95d
+  r: "Checked `src/pipeline/compute_complexity.py` (implements parsing/fallback, writes\
+    \ CSV and correlation), the generated `data/complexity.csv`, and `data/correlation.txt`\
+    \ which contains\u202Fr\u202F=\u202F0.971572 (\u202F>\u202F0.5) and\u202Fp\u202F\
+    =\u202F1.08752e\u201131 (\u202F<\u202F0.05)."
+  sig: e92f95a7f80aa1315f24b2e9971b0787d5a3f63b369cb4fa4def7aafa9b97a7e
+T013:
+  c: true
+  h: 8cf17425c7595d3f1cbfce6c7e3f5c0cd747deee73ce7c52cd2c6791748000b3
+  r: Checked the implementation of `src/pipeline/generate_novel_clips.py` and the
+    `data/raw_novel/` directory, which contains exactly 200 `.npz` files each holding
+    the `states`, `actions`, and `observations` arrays required by the task. The execution
+    log confirms the script ran successfully and produced the expected number of novel
+    clips.
+  sig: cd6dc77d106ef4b61cc43832506a75f75b3e7dfbb786e4a205641b00ee543493

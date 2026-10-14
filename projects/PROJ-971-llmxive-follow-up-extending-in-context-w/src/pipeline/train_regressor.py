@@ -1,12 +1,11 @@
-"""Train the lightweight Auto-ICWM hyper-parameter regressor (Task T006).
+"""Train the lightweight Auto-ICWM hyper‑parameter regressor (Task T006).
 
 Loads ``data/descriptors_subset.csv`` and ``data/labels.csv``, performs an
-80/20 train/validation split (stratified by ``tau`` to ensure a non‑degenerate
-validation set), trains a 2‑layer MLP (≤ 64 hidden units, L2 regularisation)
-on the training split, saves the fitted model to ``model/regressor.pt`` and
-writes ``data/metrics.json`` with training MSE, validation MSE and the
-baseline MSE obtained by predicting the global‑mean temperature ``tau`` only
-(ignoring ``k``).
+80/20 train/validation split (stratified by ``k`` to meet the specification),
+trains a 2‑layer MLP (≤ 64 hidden units per layer, L2 regularisation) on the
+training split, saves the fitted model to ``model/regressor.pt`` and writes
+``data/metrics.json`` with training MSE, validation MSE and the baseline MSE
+obtained by predicting the global‑mean temperature ``τ`` only (ignoring ``k``).
 
 The script exits with a non‑zero status only on fatal errors (e.g. missing
 files or NaNs). Successful execution produces ``data/metrics.json`` that
@@ -58,19 +57,19 @@ def load_dataset(descriptors_path: Path, labels_path: Path) -> pd.DataFrame:
 
 
 def make_split(df: pd.DataFrame, seed: int = SEED):
-    """80/20 split, stratified by ``tau`` when possible.
+    """80/20 split, stratified by ``k`` when possible.
 
-    Stratifying by the temperature ``tau`` (instead of ``k``) guarantees that
-    the validation set contains a mixture of temperature values, preventing a
-    degenerate baseline MSE of zero.
+    Stratifying by ``k`` (instead of ``tau``) satisfies the original
+    task specification and ensures the validation set contains a mixture
+    of context‑window lengths.
     """
     X = df[FEATURES].to_numpy(dtype=float)
     y = df[TARGETS].to_numpy(dtype=float)
-    tau_labels = df["tau"].to_numpy()
-    stratify = tau_labels if len(np.unique(tau_labels)) > 1 else None
+    k_labels = df["k"].to_numpy()
+    stratify = k_labels if len(np.unique(k_labels)) > 1 else None
     if stratify is None:
         log.warning(
-            "tau has a single unique value; stratified split degenerates "
+            "k has a single unique value; stratified split degenerates "
             "to a plain random split."
         )
     return train_test_split(
@@ -90,16 +89,18 @@ def train_regressor(df: pd.DataFrame, seed: int = SEED):
     """
     X_train, X_val, y_train, y_val = make_split(df, seed=seed)
 
+    # Two‑layer MLP respecting the ≤ 64 hidden‑unit constraint per layer.
     model = Pipeline(
         [
             ("scaler", StandardScaler()),
             (
                 "mlp",
                 MLPRegressor(
-                    hidden_layer_sizes=(64,),
-                    alpha=1e-3,  # L2 regularisation
+                    hidden_layer_sizes=(64, 32),
+                    alpha=1e-3,          # L2 regularisation
                     max_iter=5000,
                     random_state=seed,
+                    solver="lbfgs",      # better convergence on small data
                 ),
             ),
         ]
@@ -109,7 +110,7 @@ def train_regressor(df: pd.DataFrame, seed: int = SEED):
     pred_train = model.predict(X_train)
     pred_val = model.predict(X_val)
 
-    # MSE on the temperature target tau (the baseline addresses tau only).
+    # MSE on the temperature target τ (the baseline addresses τ only).
     train_mse = float(np.mean((pred_train[:, 0] - y_train[:, 0]) ** 2))
     val_mse = float(np.mean((pred_val[:, 0] - y_val[:, 0]) ** 2))
 
@@ -180,7 +181,7 @@ def main(argv=None) -> None:
     if not metrics["meets_sc006"]:
         log.warning(
             "SC-006 not met: val_mse=%.6f is not below 0.9*baseline_mse=%.6f. "
-            "Check whether labels.csv contains sufficient variance in tau.",
+            "Consider reviewing label variance or model capacity.",
             metrics["val_mse"],
             0.9 * metrics["baseline_mse"],
         )
