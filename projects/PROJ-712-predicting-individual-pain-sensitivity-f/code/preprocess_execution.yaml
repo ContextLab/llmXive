@@ -1,2 +1,22 @@
 # This artifact triggers the execution of the preprocessing script to
-# generate the required feature matrix. No additional code is needed.
+# generate the required feature matrix.
+# It simply forwards the command-line arguments to the `preprocessing` module.
+# The runner will invoke it as:
+#   python -m code.preprocess_execution
+# which in turn executes the preprocessing pipeline.
+import subprocess
+import sys
+
+if __name__ == "__main__":
+    # Build the command that mirrors the arguments specified in the task definition.
+    cmd = [
+        sys.executable,
+        "-m",
+        "preprocessing",
+        "--data-dir",
+        "data/raw/sample",
+        "--output-dir",
+        "data/processed",
+    ]
+    result = subprocess.run(cmd, check=True)
+    sys.exit(result.returncode)

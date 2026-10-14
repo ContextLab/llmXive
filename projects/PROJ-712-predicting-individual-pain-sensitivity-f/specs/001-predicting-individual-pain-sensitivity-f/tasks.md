@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project scaffolding (must be complete before any scientific work)
 
-- [X] **T001** [P0] Create the required project‑owned directory hierarchy and a helper script `scripts/create_dirs.sh` that runs  
+- [ ] **T001** [P0] Create the required project‑owned directory hierarchy and a helper script `scripts/create_dirs.sh` that runs  
 
   ```bash
   mkdir -p data/raw data/processed artifacts code tests scripts
@@ -45,7 +45,7 @@
 
 ## Phase 1 – Data ingestion & preprocessing (User Story 1, P1)
 
-- [ ] **T008** [P1] Implement the full preprocessing pipeline in `code/preprocessing.py`:   <!-- FAILED-IN-EXECUTION: code/preprocess_execution.yaml exit=-1 -->
+- [ ] **T008** [P1] Implement the full preprocessing pipeline in `code/preprocessing.py`:   <!-- FAILED-IN-EXECUTION: code/preprocess_execution.yaml exit=-1 --> <!-- FAILED-IN-EXECUTION: code/preprocess_execution.yaml exit=-1 -->
   1. Stream raw EEG via the `DataChunk` loader.  
   2. Re‑reference to average mastoids.  
   3. Apply a zero‑phase FIR band‑pass filter (1–40 Hz).  

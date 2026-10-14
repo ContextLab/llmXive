@@ -1,4 +1,10 @@
 T001:
+  reason: "The script `scripts/create_dirs.sh` and the six required directories are\
+    \ present, and the integration test file exists, but there is no execution evidence\
+    \ (e.g., test run log or CI output) showing that `test_structure.py` was actually\
+    \ run and that the script exited with code\u202F0 and all directories were verified.\
+    \ Without proof that the test passed, the task\u2019s verification requirement\
+    \ is not satisfied."
   task: 273d42044ca31b8595b46dd028eba2362aa3c3401e6abaf9e9dd256a56bf92a4
 T002:
   task: 361bd0847a716514924fa0baa1024ae3bf4109aa77c64d22007fe23f0e8f288e

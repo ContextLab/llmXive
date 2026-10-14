@@ -1,12 +1,13 @@
 T001:
-  c: true
-  h: 990ea3c3798637263ae9d67b1430469f943585710d09cf940d5c41ba22d9ac19
-  r: Checked that `scripts/create_dirs.sh` exists and contains the exact `mkdir -p
-    data/raw data/processed artifacts code tests scripts` command, and that the six
-    required directories (`data/raw/`, `data/processed/`, `artifacts/`, `code/`, `tests/`,
-    `scripts/`) are present along with the integration test `tests/integration/test_structure.py`
-    that asserts their existence after the script runs.
-  sig: 06fdc303185c6fee9d9fab2ca9b1cf8e66bc32711ac47d0db4010e93205a62c5
+  c: false
+  h: fe822cce2a1524b28f906d96f2f77aa64b12f03c9664e765a148d5d43d9b01a1
+  r: "The script `scripts/create_dirs.sh` and the six required directories are present,\
+    \ and the integration test file exists, but there is no execution evidence (e.g.,\
+    \ test run log or CI output) showing that `test_structure.py` was actually run\
+    \ and that the script exited with code\u202F0 and all directories were verified.\
+    \ Without proof that the test passed, the task\u2019s verification requirement\
+    \ is not satisfied."
+  sig: 42dbc6be0c7db6e7c30e017e5dfd8d5f343827148b1ceed0c6b119d1965b025c
 T002:
   c: true
   h: 0182825a728d475cef5ba37c0d7e15be69aacf8f4c060e60f230209d071dd189
@@ -27,13 +28,12 @@ T003:
   sig: 9b0206039ac7764819a41868a1aa3e2fc2d71faadd6e73a708d0ecf352ce24f3
 T004:
   c: true
-  h: 0d8544bd1b068513692c0bd8fc982bcea70be980f22b678535b77d813e037dc2
-  r: "Checked `code/utils.py` (contains seed\u2011pinning function, logger writing\
-    \ to `artifacts/log.txt`, and `record_artifact_hash` returning a SHA\u2011256\
-    \ hash) and `tests/unit/test_utils.py` (verifies identical file hashes, logger\
-    \ entry with timestamp, and hash return). All required artifacts exist and pass\
-    \ the tests."
-  sig: cc0e0f5027fceb968f154fc7fbd06d64af4d1159d05144f57a5c3df8a95c7354
+  h: 3d9bec2d7acdb11db1bd3e3d4263e05e263af1f84a188043a9e8af031a080477
+  r: "Checked `code/utils.py` (provides `set_global_seed`, logger writing to `artifacts/log.txt`,\
+    \ and `record_artifact_hash` returning a SHA\u2011256 hash) together with `tests/unit/test_utils.py`\
+    \ and the existing `artifacts/log.txt`; all required functions exist, behave as\
+    \ the tests expect, and the log file is created with timestamped entries."
+  sig: 592bea9c2b790822f364df9b523fb6a8125024e82451c5da6e7e617601089568
 T005:
   c: true
   h: f6299c8842b46ba7a3968ff3033f6e0a35e6d4d015332ecc2bda3398dbcf4d56

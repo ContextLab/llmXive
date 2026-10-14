@@ -2,6 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
+- **T001** — The script `scripts/create_dirs.sh` and the six required directories are present, and the integration test file exists, but there is no execution evidence (e.g., test run log or CI output) showing that `test_structure.py` was actually run and that the script exited with code 0 and all directories were verified. Without proof that the test passed, the task’s verification requirement is not satisfied.
 - **T008** — Requested task execution failed; rerun successfully: code/preprocess_execution.yaml exit=-1
 - **T009** — Checked for `data/processed/feature_matrix.csv` (missing) and the required test `tests/unit/test_feature_matrix_schema.py` (missing); without the CSV and the validation test, the schema validation task cannot be performed.
 - **T011** — Checked `code/modeling.py` – it defines `run_global_permutation_test` (with correct logic and guard) but the task required a function named `global_permutation_test`. The required symbol is missing, so the implementation does not exactly satisfy the specification. Adding an alias or renaming the function to `global_permutation_test` is needed.

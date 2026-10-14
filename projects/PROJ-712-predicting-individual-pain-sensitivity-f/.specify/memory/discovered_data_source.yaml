@@ -1,13 +1,12 @@
 status: none
-intent: OpenNeuro ds003542 EEG raw files with heat pain threshold labels python package
+intent: OpenNeuro ds003542 EEG heat pain threshold dataset download python package
   dataset
 required_fields:
 - participant_id
-- eeg_file_path_or_array
+- eeg_raw_file
+- eeg_sampling_rate
+- eeg_recording_duration_seconds
 - heat_pain_threshold_celsius
-- recording_duration_seconds
-- age
-- sex
-cache_key: f93ee2eb1808fdf912464155676d4bd0eab1be007b8331f64e96fc1d8b888a1e
-searched_at: '2026-10-13T14:20:35.177134+00:00'
+cache_key: 184ca93a725bf618a4e1452706d969d0ff0c1ef44120678a223adfeb72ba9ad8
+searched_at: '2026-10-14T03:20:16.488739+00:00'
 retry_count: 1
