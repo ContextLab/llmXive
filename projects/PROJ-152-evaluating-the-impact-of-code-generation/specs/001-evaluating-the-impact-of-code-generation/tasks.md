@@ -17,15 +17,15 @@ description: "Task list for Evaluating the Impact of Code Generation Models on C
 
 ## Phase 0 – Spec & Plan Alignment (CRITICAL GATE)
 
-- [ ] T000b [P] **ALIGN PLAN** – Update the summary section of `plan.md` so it matches the amended `spec.md`. *(plan.md)*
-- [ ] T000c [P] **UPDATE COVERAGE MAP** – Revise the FR/SC coverage map in `plan.md` to remove undefined FR‑006‑FR‑009 and SC‑001‑SC‑004 entries, and ensure all referenced IDs exist in `spec.md`. *(plan.md)*
+- [X] T000b [P] **ALIGN PLAN** – Update the summary section of `plan.md` so it matches the amended `spec.md`. *(plan.md)*
+- [X] T000c [P] **UPDATE COVERAGE MAP** – Revise the FR/SC coverage map in `plan.md` to remove undefined FR‑006‑FR‑009 and SC‑001‑SC‑004 entries, and ensure all referenced IDs exist in `spec.md`. *(plan.md)*
 - [ ] T000d [P] **VERIFY PLAN ALIGNMENT** – Confirm that the plan’s coverage map aligns with `spec.md`; edit `plan.md` to eliminate any undefined FR or SC identifiers and obtain reviewer sign‑off. *(plan.md)*
-- [ ] T042 [P] **CONSTITUTION PROMPT SET AMENDMENT** – Propose and document an amendment to Constitution Principle VII to reflect the approved pilot prompt set of 30 prompts (10 CodeXGLUE + 20 handcrafted) and obtain reviewer approval. *(constitution.md)*
+- [~] T042 [P] **CONSTITUTION PROMPT SET AMENDMENT** – Propose and document an amendment to Constitution Principle VII to reflect the approved pilot prompt set of 30 prompts (10 CodeXGLUE + 20 handcrafted) and obtain reviewer approval. *(constitution.md)*
 
 ## Phase 1 – Project Setup & Core Infrastructure
 
-- [ ] T001a [P] Create project root `projects/PROJ-152-evaluating-the-impact-of-code-generation/` with sub‑directories `code/`, `data/`, `tests/`, `docs/`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/)*
-- [ ] T001b [P] Add `requirements.txt` (pinned versions of `transformers`, `torch‑cpu`, `bitsandbytes‑cpu`, `scikit‑learn`, `scipy`, `statsmodels`, `pandas`, `matplotlib`, `seaborn`, `bandit`, `semgrep`, `codeql`). *(projects/PROJ-152-evaluating-the-impact-of-code-generation/requirements.txt)*
+- [X] T001a [P] Create project root `projects/PROJ-152-evaluating-the-impact-of-code-generation/` with sub‑directories `code/`, `data/`, `tests/`, `docs/`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/)*
+- [X] T001b [P] Add `requirements.txt` (pinned versions of `transformers`, `torch‑cpu`, `bitsandbytes‑cpu`, `scikit‑learn`, `scipy`, `statsmodels`, `pandas`, `matplotlib`, `seaborn`, `bandit`, `semgrep`, `codeql`). *(projects/PROJ-152-evaluating-the-impact-of-code-generation/requirements.txt)*
 - [ ] T001c [P] Initialise a Python 3.11 virtual environment (`python -m venv venv`) and install `requirements.txt`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/)*
 - [ ] T002 [P] Configure linting (ruff) and formatting (black) via `pyproject.toml`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/pyproject.toml)*
 - [ ] T003 [P] Create `code/config.py` with global seeds, path constants (`DATA_ROOT`, `PROMPT_MANIFEST`, …), and model hyper‑parameters (`max_tokens=256`, `batch_size=1`). *(code/config.py)*

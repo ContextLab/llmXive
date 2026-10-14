@@ -1,3 +1,59 @@
+T000b:
+  c: true
+  h: 27e6a4a697f0c83468e8aef0e9926f433126a674041950e0ca6530acd41e8f76
+  r: "The `plan.md` Summary section explicitly reflects the amended spec: N=30 prompts\
+    \ (10 CodeXGLUE + 20 handcrafted across the four categories), N=90 snippets, and\
+    \ the 6-hour/7GB CPU-only SC-005 constraint with 4-bit quantization and batch\
+    \ size 1, matching `spec.md` \xA72.2 and \xA73.1. Note: the plan's Analysis section\
+    \ contains odd injected claim markers (`UNRESOLVED-CLAIM`, `{{claim:...}}`) unrelated\
+    \ to this task's Summary-alignment scope, but they do not affect the required\
+    \ deliverable."
+  sig: 328493b077388557a0819923ccff8a7453cf182bc1db6d0b41b8fc6050b0ed60
+T000c:
+  c: true
+  h: 9ff6b38204fbbeb6e73d9550971c98430e45ac2adbf310e792bbd5dbbb45aac1
+  r: "The FR/SC coverage map in `plan.md` now lists only FR-001 through FR-005 and\
+    \ SC-005, with no FR-006\u2013FR-009 or SC-001\u2013SC-004 entries, and every\
+    \ one of those IDs exists in `specs/001-.../spec.md`. (Note: the map's requirement\
+    \ descriptions are misaligned with the spec's actual definitions \u2014 e.g.,\
+    \ FR-001 is labeled \"Download 3 models\" while the spec defines it as data collection\
+    \ \u2014 but that is outside this task's stated scope of removing undefined IDs\
+    \ and ensuring referenced IDs exist.)"
+  sig: 07f9074a220bacaf706458e754a65a1ef4be32ed03ad73cd3eb5a89c1574e8d1
+T000d:
+  c: false
+  h: b88d5b5e3237d16975c0d69e1023d4f1772e3600ec87c00e330452fc9b15a9ba
+  r: "The coverage map in `plan.md` is misaligned with `spec.md`: FR-001 is described\
+    \ as \"Download 3 models\" (spec: CodeXGLUE/handcrafted prompt collection), FR-003\
+    \ as \"Run scanners\" (spec: code generation), FR-004 as \"Compute V/100LOC\"\
+    \ (spec: Bandit/Semgrep/CodeQL analysis), FR-005 as \"Kruskal-Wallis + Dunn\"\
+    \ (spec: V/100LOC and mean severity), and SC-005 as \"Completion rate \u226590%\"\
+    \ (spec: 6h/7GB CPU constraint). The Analysis section also contains unresolved\
+    \ placeholder text (\"[UNRESOLVED-CLAIM: c_e41e5bff \u2014 status=not_enough_info]\"\
+    , \"{{claim:c_7449ff5d}}\") instead of naming CodeQL, and the \"reviewer "
+  sig: a4e847f110efcc1699a1b635c9399616627568f12361ef177c7278cd77d46908
+T001a:
+  c: true
+  h: f414585d09f387bb878f720298d9a071dba52b7313cb5a3cc34dc6dbd6df6707
+  r: "The project root `projects/PROJ-152-evaluating-the-impact-of-code-generation/`\
+    \ exists with all four required sub-directories (`code/`, `data/`, `tests/`, `docs/`),\
+    \ each non-empty and containing substantive project files (e.g., `code/generate.py`,\
+    \ `data/prompts/handcrafted.json`, `tests/test_init_project.py`). The recorded\
+    \ test failure is due to a path bug in the test itself (it invokes `projects/code/init_project.py`\
+    \ instead of the correct relative path), not a missing directory structure, so\
+    \ the task's actual requirement \u2014 creating the directory layout \u2014 is\
+    \ met."
+  sig: 2a03aa39c59d2aff4becbd9bcfbe3d6f03e7518dad50fb23b1f7efcd90656536
+T001b:
+  c: true
+  h: f8097a0fcd022650a0bdd36c59f7e971ecddd84b4baa3c5300eaaf4c82e958fb
+  r: The `requirements.txt` exists at the project root (1119 bytes) with pinned versions
+    for all requested pip-installable packages (transformers, torch, bitsandbytes,
+    scikit-learn, scipy, statsmodels, pandas, matplotlib, seaborn, bandit, semgrep),
+    plus reasonable extras (accelerate, PyYAML, pytest). CodeQL is not pip-installable,
+    and the file documents this correctly with installation instructions, which is
+    the appropriate way to handle it.
+  sig: 9217d48a95abcb236e4b21bf782fa9fff38181fb02acb680c84a52d81ccf712b
 T004:
   c: false
   h: 24e449ef883d074d8e56fc426eaac35a90500d99b9a20cf2f704c5b95ca43934

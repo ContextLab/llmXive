@@ -1,14 +1,35 @@
+# Pinned dependencies for PROJ-152: Evaluating the Impact of Code Generation Models on Code Security
+# Target platform: GitHub Actions free-tier runner (Linux, CPU-only, ~7 GB RAM, no GPU)
+
+# --- Model inference (CPU-only, 4-bit quantized) ---
 transformers==4.35.0
-torch==2.1.0
-bitsandbytes==0.41.0
+torch==2.1.0            # CPU build; install CPU wheels on the runner (no CUDA)
+bitsandbytes==0.41.0    # 4-bit quantization backend (CPU-compatible usage)
+accelerate==0.24.1
+
+# --- Scientific stack ---
 scikit-learn==1.3.2
 scipy==1.11.3
 statsmodels==0.14.0
 pandas==2.1.2
 matplotlib==3.8.0
 seaborn==0.13.0
-bandit==1.7.5
-semgrep==1.45.0
-pyyaml==6.0.1
+
+# --- Static analysis scanners ---
+bandit==1.7.5           # Python security scanner
+semgrep==1.45.0         # Multi-language security scanner
+
+# --- Utilities ---
+PyYAML==6.0.1
+requests==2.31.0
+psutil==5.9.6
+
+# --- Testing ---
 pytest==7.4.3
-# CodeQL is expected to be installed separately via CLI binary in PATH
+
+# NOTE: CodeQL is NOT a pip package. It is distributed as a CLI binary
+# (https://github.com/github/codeql-cli-binaries) and must be installed
+# separately and available on PATH:
+#   codeql version
+# The pipeline (code/analyze.py) invokes it via subprocess and will
+# fail loudly if the binary is missing.

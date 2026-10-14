@@ -1,6 +1,6 @@
-'|apply bit model quantization study':
-  quote: at 4-bit precision (W4A4), is not well understood. Existing QAT scaling laws
-    often ignore key
-  source_id: '2505.14302'
-  url: https://arxiv.org/abs/2505.14302
-  value: 4-bit
+'|100loc across difference kruskal model non parametric test walli':
+  quote: non-parametric method for testing whether samples originate from the same
+    distribution
+  source_id: Q1790302
+  url: https://www.wikidata.org/wiki/Q1790302
+  value: non-parametric method

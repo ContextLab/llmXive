@@ -1,0 +1,13 @@
+status: none
+intent: CodeXGLUE dataset pip install and HuggingFace StarCoder-Base CodeGenB GPT-NeoXB
+  python package
+required_fields:
+- prompt_id
+- prompt_text
+- language
+- target_function
+- security_keywords
+- code_solution
+cache_key: 84d72ad74e954fa0fe360cd28f11df8676559de20e052163eb10a1c50b7506ed
+searched_at: '2026-10-14T15:34:54.649546+00:00'
+retry_count: 1

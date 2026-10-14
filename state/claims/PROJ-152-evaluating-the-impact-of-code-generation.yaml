@@ -1401,7 +1401,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-15T12:40:06Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
@@ -2789,3 +2789,299 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-05T10:59:31Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: "StarCoder\u2011Base has 7 billion parameters"
+  claim_id: c_b462cc68
+  context: "Models: StarCoder\u2011Base (7\u202FB), CodeGen (2\u202FB), GPT\u2011\
+    NeoX (1.3\u202FB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "StarCoder\u2011Base (7\u202FB)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T15:24:40Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: CodeGen has 2 billion parameters
+  claim_id: c_0125647f
+  context: "Models: StarCoder\u2011Base (7\u202FB), CodeGen (2\u202FB), GPT\u2011\
+    NeoX (1.3\u202FB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "CodeGen (2\u202FB)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T15:25:18Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: "GPT\u2011NeoX has 1.3 billion parameters"
+  claim_id: c_d83f9cf5
+  context: "Models: StarCoder\u2011Base (7\u202FB), CodeGen (2\u202FB), GPT\u2011\
+    NeoX (1.3\u202FB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GPT\u2011NeoX (1.3\u202FB)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T15:25:50Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: Bandit is a static analysis tool for Python
+  claim_id: c_b94bfc9a
+  context: 'Static Analysis: Bandit (Python), Semgrep (multi-language), CodeQL (Java/JS).'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Bandit (Python)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T15:26:22Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: Semgrep is a multi-language static analysis tool
+  claim_id: c_80e68488
+  context: 'Static Analysis: Bandit (Python), Semgrep (multi-language), CodeQL (Java/JS).'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Semgrep (multi-language)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T15:26:54Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: CodeQL is a static analysis tool for Java and JavaScript
+  claim_id: c_ffe0c2a7
+  context: 'Static Analysis: Bandit (Python), Semgrep (multi-language), CodeQL (Java/JS).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: query language for code analysis and code analysis platform
+      source_id: Q93480303
+      url: https://www.wikidata.org/wiki/Q93480303
+      value: query language
+    filled: true
+  kind: entity_fact
+  raw_text: CodeQL (Java/JS)
+  resolved_value: query language
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-14T15:27:14Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 0
+  canonical: CodeQL is a static analysis tool for Java and JavaScript
+  claim_id: c_7449ff5d
+  context: "Static Analysis: Bandit (Python), Semgrep (multi\u2011language), CodeQL\
+    \ (Java/JS)."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: query language for code analysis and code analysis platform
+      source_id: Q93480303
+      url: https://www.wikidata.org/wiki/Q93480303
+      value: query language
+    filled: true
+  kind: entity_fact
+  raw_text: CodeQL (Java/JS)
+  resolved_value: query language
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-14T15:27:41Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: Bandit is a Python static analysis tool
+  claim_id: c_e41e5bff
+  context: "Static Analysis: Bandit (Python), Semgrep (multi\u2011language), CodeQL\
+    \ (Java/JS)."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Bandit (Python)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T15:27:43Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: "Semgrep is a multi\u2011language static analysis tool"
+  claim_id: c_90dbea36
+  context: "Static Analysis: Bandit (Python), Semgrep (multi\u2011language), CodeQL\
+    \ (Java/JS)."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "Semgrep (multi\u2011language)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T15:27:44Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: "Kruskal\u2011Wallis is a non\u2011parametric test for differences in\
+    \ V/100LOC across models"
+  claim_id: c_406ed969
+  context: "Statistical Testing: Kruskal\u2011Wallis: Non\u2011parametric test for\
+    \ differences in V/100LOC across models."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: non-parametric method for testing whether samples originate from the
+        same distribution
+      source_id: Q1790302
+      url: https://www.wikidata.org/wiki/Q1790302
+      value: non-parametric method
+    filled: true
+  kind: entity_fact
+  raw_text: "Kruskal\u2011Wallis: Non\u2011parametric test for differences in V/100LOC\
+    \ across models."
+  resolved_value: non-parametric method
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-14T15:27:57Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: "Dunn\u2019s post\u2011hoc test performs pairwise comparisons with Bonferroni\
+    \ correction"
+  claim_id: c_9f05e170
+  context: "Statistical Testing: Dunn\u2019s Post\u2011hoc: Pairwise comparisons with\
+    \ Bonferroni correction (\u03B1\u202F=\u202F0.0167)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Dunn\u2019s Post\u2011hoc: Pairwise comparisons with Bonferroni correction\
+    \ (\u03B1\u202F=\u202F0.0167)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T15:28:25Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/constitution.md
+  attempts: 1
+  canonical: prompt set fixed to 30 prompts
+  claim_id: c_8c32c55d
+  context: "Amendment \u2013 Pilot Prompt Set (Approved) states that the prompt set\
+    \ is fixed to 30 prompts."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the prompt set is fixed to 30 prompts
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T15:28:47Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/constitution.md
+  attempts: 1
+  canonical: ten most security-relevant prompts selected from CodeXGLUE dataset
+  claim_id: c_c2e0d14d
+  context: "The CodeXGLUE\u2011derived prompts (10) are the ten most security\u2011\
+    relevant prompts selected from the CodeXGLUE code\u2011to\u2011text dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The ten most security\u2011relevant prompts selected from the CodeXGLUE\
+    \ code\u2011to\u2011text dataset"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T15:28:47Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/constitution.md
+  attempts: 1
+  canonical: twenty handcrafted prompts covering four web-security categories
+  claim_id: c_558933a1
+  context: "Hand\u2011crafted prompts (20) are twenty manually authored prompts covering\
+    \ four web\u2011security categories."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Twenty manually authored prompts covering four web\u2011security categories"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T15:28:48Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/constitution.md
+  attempts: 1
+  canonical: five prompts per category
+  claim_id: c_e0979732
+  context: "Each of the four web\u2011security categories (Database Access, HTML Rendering,\
+    \ Authentication, Injection) has five prompts."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: five prompts per category
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T15:28:48Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/constitution.md
+  attempts: 1
+  canonical: combined manifest generated by code/prompts.py and written to data/prompts/manifest.json
+  claim_id: c_1eb0b551
+  context: The combined manifest is generated by code/prompts.py and written to data/prompts/manifest.json.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The combined manifest is generated by code/prompts.py and written to data/prompts/manifest.json
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T15:28:49Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/constitution.md
+  attempts: 1
+  canonical: SHA-256 checksum of manifest recorded in state.yaml
+  claim_id: c_11756526
+  context: "A SHA\u2011256 checksum of the manifest is recorded in state.yaml to guarantee\
+    \ integrity."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "A SHA\u2011256 checksum of the manifest is recorded in state.yaml to\
+    \ guarantee integrity"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T15:28:49Z'
