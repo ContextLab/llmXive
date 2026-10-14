@@ -12,6 +12,7 @@ from scipy import stats
 import hashlib
 import yaml
 from llmxive_toolkit import paths
+from pathlib import Path
 
 def setup_logging(name: str = "utils") -> logging.Logger:
     logger = logging.getLogger(name)
@@ -248,7 +249,7 @@ def compute_checksums(raw_dir: Optional[Path] = None) -> Dict[str, str]:
 
     Returns:
         A dictionary mapping relative file paths (POSIX style) to their
-        SHA‑256 checksum strings.
+        SHA-256 checksum strings.
     """
     logger = get_logger(__name__)
 

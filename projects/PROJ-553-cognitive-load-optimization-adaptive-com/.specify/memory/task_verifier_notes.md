@@ -2,4 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — Requested task execution failed; rerun successfully: code/compute_checksums.py exit=1
+- **T001a** — The `data/raw/checksums.sha256` file exists and contains a checksum for the only file (`.gitkeep`), and `code/utils.py` implements `compute_checksums()`. However, the required project‑state YAML file (`project_state.yaml`) that should store the `artifact_hashes` manifest is not present in the provided artifact list, so the manifest is not recorded as specified. Adding a non‑empty `project_state.yaml` with the `artifact_hashes` key will satisfy the task.
+- **T002** — The only artifact present is a non‑empty `requirements.txt` that lists the required packages, but there is no evidence that `pip install -r requirements.txt` was actually run and succeeded on a clean runner, nor any explicit indication that a Python 3.11 environment was defined. Execution logs or a successful‑install confirmation are needed to satisfy the task.
+- **T003** — The repository contains the required `pyproject.toml` and `.ruff.toml` files, but there is no evidence (e.g., command output logs or test results) showing that `ruff check .` and `black --check .` were run and returned zero violations. Provide execution logs or CI artifacts confirming the linting/formatting passes.
+- **T004** — Requested task execution failed; rerun successfully: code/load_data.py exit=1

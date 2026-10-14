@@ -13,12 +13,12 @@ All paths are relative to the repository root.
   - Add core files: `README.md` (one‑sentence description), `code/__init__.py`, `requirements.txt`, `tests/__init__.py`, `docs/README.md`.  
   - **Verification**: `tree` output shows all directories and files; `README.md` contains a one‑sentence project description.  
 
-- [ ] **T001a** [​P​] Compute raw‑data checksums   <!-- FAILED-IN-EXECUTION: code/compute_checksums.py exit=1 -->
+- [ ] **T001a** [​P​] Compute raw‑data checksums
   - For each file under `data/raw/`, compute SHA‑256 checksum and write to `data/raw/checksums.sha256`.  
   - Record the manifest in project state YAML under `artifact_hashes`.  
   - **Verification**: Script `code/utils.py` provides `compute_checksums()`; after run, the manifest file exists and matches all raw files.  
 
-- [ ] **T001b** [​P​] Pin random seeds for reproducibility  
+- [X] **T001b** [​P​] Pin random seeds for reproducibility  
   - Create `code/seed.py` that sets `numpy`, `random`, and `torch` (if present) seeds from a constant.  
   - Export `SEED = 42` and a helper `set_seed()` used by all stochastic scripts.  
   - **Verification**: Importing `code.seed` and calling `set_seed()` produces deterministic outputs; unit test confirms repeatability of a random number generation.  
@@ -31,7 +31,7 @@ All paths are relative to the repository root.
   - Files: `pyproject.toml` (Black config) and `.ruff.toml` (Ruff config).  
   - **Verification**: `ruff check .` and `black --check .` both return no violations.  
 
-- [ ] **T004** [​P​] Implement data loader & label check (`code/load_data.py`)  
+- [ ] **T004** [​P​] Implement data loader & label check (`code/load_data.py`)   <!-- FAILED-IN-EXECUTION: code/load_data.py exit=1 -->
   - Load public learning‑analytics datasets (ASSISTments, OULAD) via `datasets.load_dataset`.  
   - Verify required interaction columns (latency, error, hint, pause) **and** required timestamped response fields (`response_time_ms`, `timestamp`).  
   - Verify presence of concurrent load label column (e.g., `NASA_TLX`).  

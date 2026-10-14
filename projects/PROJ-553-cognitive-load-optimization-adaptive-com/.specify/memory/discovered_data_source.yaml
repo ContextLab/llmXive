@@ -1,15 +1,16 @@
 status: none
-intent: ASSISTments OULAD OpenML HuggingFace interaction logs timestamp error hint
-  pause duration dataset python package
+intent: assistments OULAD cognitive load expert labeled dataset timestamps hints errors
+  python package dataset
 required_fields:
 - student_id
 - problem_id
 - timestamp
-- response_latency
-- error_flag
-- hint_usage
+- response_time
+- is_correct
+- error_type
+- hint_requested
 - pause_duration
-- correctness
-cache_key: 63d6c9d35878e95ce9abbd164e068f77e3ddcbf27ab2b7bbdc5f26164d9f71e3
-searched_at: '2026-10-14T09:20:43.772294+00:00'
+- cognitive_load_score
+cache_key: 4757d5a035e9ea0c694835739b6f701a33323ef84be43fa784c6109d98201337
+searched_at: '2026-10-14T09:23:46.768460+00:00'
 retry_count: 1

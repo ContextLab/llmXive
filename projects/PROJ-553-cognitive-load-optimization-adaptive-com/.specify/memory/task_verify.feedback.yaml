@@ -1,16 +1,31 @@
 T001:
   task: c9444c37fc8152f4cb56bce6775701dcbc8eedb4b4a578a4a56d1a987836f179
 T001a:
-  reason: 'Requested task execution failed; rerun successfully: code/compute_checksums.py
-    exit=1'
+  reason: "The `data/raw/checksums.sha256` file exists and contains a checksum for\
+    \ the only file (`.gitkeep`), and `code/utils.py` implements `compute_checksums()`.\
+    \ However, the required project\u2011state YAML file (`project_state.yaml`) that\
+    \ should store the `artifact_hashes` manifest is not present in the provided artifact\
+    \ list, so the manifest is not recorded as specified. Adding a non\u2011empty\
+    \ `project_state.yaml` with the `artifact_hashes` key will satisfy the task."
   task: c236289a02008f78cec123f099317a76be0bdd211b26d215947efed260317d37
 T001b:
   task: ae86033444f1502c0eaef950e1e7e027756588892942463f20fea8fd95ea10f4
 T002:
+  reason: "The only artifact present is a non\u2011empty `requirements.txt` that lists\
+    \ the required packages, but there is no evidence that `pip install -r requirements.txt`\
+    \ was actually run and succeeded on a clean runner, nor any explicit indication\
+    \ that a Python\u202F3.11 environment was defined. Execution logs or a successful\u2011\
+    install confirmation are needed to satisfy the task."
   task: c453ff63651f907b3cc16e9ce5da892c40462e090f6517b59d51c2fd06a6ee28
 T003:
+  reason: The repository contains the required `pyproject.toml` and `.ruff.toml` files,
+    but there is no evidence (e.g., command output logs or test results) showing that
+    `ruff check .` and `black --check .` were run and returned zero violations. Provide
+    execution logs or CI artifacts confirming the linting/formatting passes.
   task: 528a619204f98b9e2de1fbd44e43fb43343f578f5f32772458bbef7d6d2e939e
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/load_data.py
+    exit=1'
   task: 34446ae1afcd9aa66319afc4e0167dafbc703309ad904aae8206e194b421b456
 T005:
   task: 0e743523b254ed65d068848f4a454219452893b9fbe6254f899a3b313354510a
