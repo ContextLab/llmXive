@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-14T12:35:28.079900+00:00",
+  "generated_at": "2026-10-14T12:50:36.630883+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -105643,6 +105643,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "planner",
+          "duration_s": 1290.781134,
+          "ended_at": "2026-10-14T12:34:22.306960Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-14T12:12:51.525826Z"
+        },
+        {
           "agent": "implementer",
           "duration_s": 201.382672,
           "ended_at": "2026-10-14T12:11:34.313463Z",
@@ -105713,14 +105721,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-13T11:23:57.760667Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 35.221349,
-          "ended_at": "2026-10-13T11:23:57.757816Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-13T11:23:22.536467Z"
         }
       ],
       "paper_status": null,
@@ -170801,6 +170801,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1290.781134,
+      "ended_at": "2026-10-14T12:34:22.306960Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-422-predicting-molecular-permeability-coeffi",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-14T12:12:51.525826Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 335.65227,
       "ended_at": "2026-10-14T12:29:28.793270Z",
@@ -176848,18 +176860,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-13T14:09:26.017501Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 503.193914,
-      "ended_at": "2026-10-13T14:17:57.229773Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-044-evaluating-the-effectiveness-of-differen",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-13T14:09:34.035859Z"
     }
   ],
   "reviewed_preprints": [
