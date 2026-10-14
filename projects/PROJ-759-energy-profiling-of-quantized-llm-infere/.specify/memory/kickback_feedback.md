@@ -1,12 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): The `code/quickstart.md` exists and documents the dry-run command, and the execution log confirms `python -m code.benchmark --config data/configs/125M_4bit.json --dry-run` exited 0 printing "pyRAPL available". However, the task's verification also requires `pytest -k test_pyrapl_load` to pass, and there is no evidence any such test exists (no test file, no pytest run log) — that requirement is unverified. Additionally, the quickstart's environment setup commands are malformed (`python -m venv.venv`, `source.venv/bin/activate` — missing spaces), so the documented setup is not actually runnable
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- Only five repetitions per configuration are planned. Power analysis notes a ~70 % chance to detect a medium effect, which may be insufficient for smaller but practically relevant effects. Increase the number of repetitions (e.g., 10–15) or perform a formal power calculation to ensure adequate sensitivity.

@@ -10,6 +10,7 @@ required:
   - mean_perplexity
   - std_perplexity
   - dequantization_overhead_flag
+  - variance_stability_flag
 properties:
   config_id:
     type: string
@@ -19,7 +20,7 @@ properties:
     description: "Mean energy per token (Joules/token) across repetitions."
   std_energy_per_token:
     type: number
-    description: "Standard deviation of energy per token."
+    description: "Mean energy per token (standard deviation)."
   mean_latency_ms:
     type: number
     description: "Mean inference latency (ms)."
@@ -34,7 +35,7 @@ properties:
     description: "Standard deviation of perplexity."
   dequantization_overhead_flag:
     type: boolean
-    description: "True if overhead >5 % relative to FP16 baseline and statistically significant."
+    description: "True if overhead >10 % relative to FP16 baseline and statistically significant (e.g., p < 0.05)."
   variance_stability_flag:
     type: boolean
-    description: "True if std/mean ≤ 0.15 for energy per token."
+    description: "True if std / mean ≤ 0 / the ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? "

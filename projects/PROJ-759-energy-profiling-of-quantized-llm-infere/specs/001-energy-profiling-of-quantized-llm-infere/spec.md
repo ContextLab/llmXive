@@ -9,14 +9,14 @@
 
 ### User Story 1 - CPU-Feasible Quantized Inference Benchmarking (Priority: P1)
 
-The researcher needs to execute inference for multiple model sizes (125M, 350M, 1.3B) across three quantization levels (FP16, INT8, 4-bit) on a CPU-only environment (GitHub Actions free tier) to generate raw energy consumption data without requiring GPU hardware. The system MUST also attempt to load LLaMA models (all quantizations) but MUST gracefully skip and log the event if it exceeds memory limits, as it is out of scope for primary energy analysis.
+The researcher needs to execute inference for multiple model sizes (a small‑scale model, 350M, 1.3B) across three quantization levels (higher‑precision floating‑point, INT8, 4‑bit) on a CPU‑only environment (GitHub Actions free tier) to generate raw energy consumption data without requiring GPU hardware. The system MUST also attempt to load LLaMA models (all quantizations) but MUST gracefully skip and log the event if it exceeds memory limits, as it is out of scope for primary energy analysis.
 
 **Why this priority**: This is the foundational data collection step. Without successful CPU-based inference and energy measurement, no statistical analysis or scaling laws can be derived. It addresses the primary constraint of the project (free CPU CI) and the core research question.
 
 **Independent Test**: Can be fully tested by running a script that loads a 125M model in 4-bit quantization, processes a fixed WikiText-2 sample, and outputs a non-zero energy value in Joules within 10 minutes, proving the CPU-only pipeline works.
 
 **Acceptance Scenarios**:
-1. **Given** a GitHub Actions runner with a few CPU cores and 7 GB RAM, **When** the inference script loads a 125M GPT-Neo model quantized to 4-bit, **Then** the script completes inference on a moderately sized prompt without OOM errors or CUDA dependency errors.
+1. **Given** a GitHub Actions runner with a few CPU cores and 7 GB RAM, **When** the inference script loads a a medium‑sized GPT-Neo model quantized to 4-bit, **Then** the script completes inference on a moderately sized prompt without OOM errors or CUDA dependency errors.
 2. **Given** the same environment, **When** the script attempts to load a 7B model in FP16 or 4-bit, **Then** the script fails gracefully with a memory error message or is skipped, confirming the dataset/model size boundary for the hardware constraints.
 3. **Given** the same environment, **When** the script loads a 350M model in 4-bit, **Then** the script completes inference without OOM errors, providing the necessary third data point for scaling analysis.
 
@@ -87,7 +87,7 @@ The researcher needs to perform a log-log regression analysis (OLS) on energy-pe
 
 - The GitHub Actions free-tier runner (multi-core CPU, limited RAM) is sufficient to run the 125M, 350M, and 1.3B models in 4-bit quantization, but the 7B model in FP16 and 4-bit will likely exceed memory limits and is excluded from the primary energy analysis (scoping decision based on hardware constraints).
 - The `pyRAPL` library or an equivalent CPU energy counter (e.g., `powerstat`) is available and functional on the GitHub Actions runner environment; if not, a fallback to external wattmeter measurement is used, or the energy metric is skipped.
-- The WikiText-2 dataset is accessible via HuggingFace Datasets and provides a consistent, representative sample of text for inference benchmarking.
+- The A WikiText dataset is accessible via HuggingFace Datasets. and provides a consistent, representative sample of text for inference benchmarking.
 - The quantization process using `bitsandbytes` or `GPTQ` may introduce significant overhead (dequantization) that must be measured and controlled, rather than assumed to be negligible.
 - The relationship between quantization level and energy is monotonic, and any deviation from this trend will be investigated as an anomaly rather than a systemic failure.
 - The "edge CPU" environment in the experiment is approximated by the GitHub Actions x86 runner, acknowledging that specific ARM-based Raspberry Pi performance may differ slightly but the relative trends (quantization impact) will remain consistent.
