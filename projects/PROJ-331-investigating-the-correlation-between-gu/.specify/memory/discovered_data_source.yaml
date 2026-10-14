@@ -1,13 +1,12 @@
 status: none
-intent: download open Parkinson's disease longitudinal 16S microbiome dataset with
-  UPDRS scores python package dataset
+intent: PPMI Parkinson disease gut microbiome ASV and MDS-UPDRS data from MGnify python
+  package dataset
 required_fields:
-- sample_id
-- patient_id
+- subject_id
 - visit_id
-- visit_date
+- sample_id
+- taxon_count columns (one per ASV/OTU)
 - MDS_UPDRS_total
-- taxon_* (ASV count columns)
-cache_key: 1d25511e20ad07f93ba616c45e8aa69cf59241c065004612a37dd6155e897393
-searched_at: '2026-10-14T09:51:58.444765+00:00'
+cache_key: 0724421943f69c1c0bd698e63b180121e6a36090bf475f0adfde31b92b7cd54c
+searched_at: '2026-10-14T11:16:44.030210+00:00'
 retry_count: 1

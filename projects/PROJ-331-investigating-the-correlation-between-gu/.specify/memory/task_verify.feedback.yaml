@@ -1,34 +1,53 @@
 T001:
-  reason: "The ingest module exists and implements the required checks, but the two\
-    \ raw data files (`data/raw/open_asv.csv` and `data/raw/open_clinical.parquet`)\
-    \ are missing, so the script cannot exit with status\u202F0 nor log checksums.\
-    \ Additionally, the unit\u2011test file `code/tests/test_ingest_preprocessed.py`\
-    \ is absent, so test pass evidence is unavailable. Provide valid raw input files\
-    \ containing the required columns (including a `preprocessed` column set to\u202F\
-    True) and add the missing test suite."
+  reason: "The ingest module (`code/src/pipeline/ingest.py`) correctly implements\
+    \ the validation logic, but the required raw clinical file `data/raw/open_clinical.parquet`\
+    \ is missing, causing the script to raise a `FileNotFoundError` and exit with\
+    \ a non\u2011zero status. Additionally, the unit\u2011test file `code/tests/test_ingest_preprocessed.py`\
+    \ is absent, so the claim that the tests pass cannot be verified. Supplying a\
+    \ valid `open_clinical.parquet` with the required columns and adding the missing\
+    \ test suite are needed to satisfy the task."
   task: 15966faecaeeda70562cb5a02285f869bbb2fd17f744efa216d9c0796a90ebd9
 T002:
-  reason: "The repository contains the preprocessing module and a full test suite,\
-    \ but the required output artifacts `data/processed/filtered_samples.parquet`\
-    \ and `data/processed/clr_abundances.parquet` are absent. Moreover, the CLR transformation\
-    \ is implemented manually instead of using the mandated `scikit\u2011bio` library.\
-    \ Both issues prevent the task from being considered fully completed."
+  reason: "The repository contains `code/src/pipeline/preprocess.py` and the test\
+    \ suite, but the required output artifacts `data/processed/filtered_samples.parquet`\
+    \ and `data/processed/clr_abundances.parquet` are missing. Moreover, the provided\
+    \ `test_preprocess.py` does not actually verify that the RAM\u2011budget cap limits\
+    \ taxa to \u2264\u202F100 (its RAM\u2011cap test expects no subsampling, contradicting\
+    \ the spec). The missing output files and insufficient test coverage mean the\
+    \ task\u2019s requirements are not fully satisfied."
   task: ad7b9cc8c0acd1722380307b22f28c6a184db66658c888b8459bcaf4e8008a0d
 T003:
   task: c649b0e9a215931cb44d3b50a00141daa72ec6c0bb3edad66a4fbc0610cd0a2c
 T004:
-  reason: "The pipeline writes only `results/taxa_correlations.csv` (unadjusted) and\
-    \ a partial file named `partial_spearman_exploratory.csv`; the required `results/taxa_correlations_adj.csv`\
-    \ is missing, and the contract schema file `taxa_results.schema.yaml` and the\
-    \ test `code/tests/test_correlation_adj.py` are also absent. Consequently the\
-    \ task\u2019s specification (covariate\u2011adjusted Spearman output and its validation)\
-    \ is not fulfilled."
+  reason: "The pipeline writes only `results/taxa_correlations.csv`; the required\
+    \ `results/taxa_correlations_adj.csv` is absent, and the contract schema file\
+    \ `taxa_results.schema.yaml` is missing. Moreover, the covariate\u2011adjusted\
+    \ test (`code/tests/test_correlation_adj.py`) aborts because the environment lacks\
+    \ a Parquet engine, so residualisation is never exercised. These missing artifacts\
+    \ and failing tests mean the task\u2019s requirements are not satisfied."
   task: b808b585e4bf139d7dc89b1c21dba609a864f6d01409df8189bd81fdfb1f4083
 T005:
   task: 581a7be89886c2847bb1728d7d5188f66f3223b3e4f56057993bdaad13266159
 T006:
+  reason: "I examined `code/src/pipeline/permutation.py` \u2013 it seeds NumPy, shuffles\
+    \ patient IDs while keeping visit dates, fits the mixed\u2011effects model, aborts\
+    \ after 4\u202Fh, and writes `results/permutation_pvalues.csv`. However the supplied\
+    \ test `code/tests/test_permutation.py` only checks that a CSV is created with\
+    \ the correct columns and that empirical p\u2011values lie in\u202F[0,\u202F1];\
+    \ it does **not** verify (i) that the within\u2011patient temporal order is unchanged\
+    \ after permutation, nor (ii) that the 4\u2011hour wall\u2011time guard triggers\
+    \ on a mocked long run as required by the task\u2019s verification criteria. Consequently\
+    \ th"
   task: 69b0b4dd54804aadc83c014d49d8b03ebef87cde1a95615757aa86d2391e4a3c
 T007:
+  reason: "The repository contains `code/src/pipeline/__main__.py` and a static `results/runtime_log.txt`,\
+    \ but the pipeline stages it tries to import (`code.src.pipeline.ingest`, `preprocess`,\
+    \ `slopes`, `correlation`, `mixed_effects`, `permutation`) are not present. Consequently\
+    \ the test `code/tests/test_runtime_budget.py` would raise an import error and\
+    \ never produce a log with the required \u201CPermutation robustness test\u201D\
+    \ and \u201CTotal\u201D entries, so the runtime\u2011budget assertions cannot\
+    \ be verified. Adding the missing stage modules (or stubs that write to the log)\
+    \ is needed for the task to be complete."
   task: e3e1756fd36fb5b166a9c6cf4ab0fd9e6155a8111469ea2fafc00e7ccbf01aa8
 T008a:
   reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_us1.py

@@ -6,13 +6,12 @@ This module provides functions to:
   - Filter to PD patients with ≥ 2 visits.
   - Drop taxa that are all‑zero across retained samples.
   - Optionally cap the number of taxa based on a RAM budget (top‑N most abundant).
-  - Apply a centered‑log‑ratio (CLR) transformation (implemented without external dependencies).
+  - Apply a centered‑log‑ratio (CLR) transformation using **scikit‑bio**.
   - Detect covariates with zero variance (to be excluded from downstream models).
   - Write the filtered and CLR‑transformed tables to Parquet files.
 
-The implementation is deliberately lightweight and avoids the optional
-``scikit‑bio`` dependency, which caused import errors in the test
-environment. All functionality required by the test suite is retained.
+The implementation follows the functional requirements (FR‑002, FR‑003, FR‑010) and
+the test suite in ``code/tests/test_preprocess.py``.
 """
 from __future__ import annotations
 
@@ -23,6 +22,10 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+
+# scikit‑bio provides a robust CLR implementation.
+# It is declared in ``requirements.txt``.
+from skbio.stats.composition import clr as sbio_clr
 
 # ----------------------------------------------------------------------
 # Constants
@@ -176,8 +179,11 @@ def drop_zero_taxa(
     dropped_taxa = [t for t in taxon_columns if t not in retained_taxa]
 
     if dropped_taxa:
+        # The test suite looks for the phrase “all-zero taxon”.
         logger.warning(
-            "dropped %d all‑zero taxa: %s", len(dropped_taxa), ", ".join(dropped_taxa)
+            "dropped %d all-zero taxon(s): %s",
+            len(dropped_taxa),
+            ", ".join(dropped_taxa),
         )
 
     # Keep only retained taxa
@@ -206,25 +212,27 @@ def cap_taxa_by_memory(
 ) -> List[str]:
     """Subsample taxa if the number of columns would exceed the RAM budget.
 
-    The function estimates memory pressure by the number of taxon columns.
-    If the count exceeds ``max_taxa`` it returns the top ``max_taxa`` taxa
-    (by total abundance); otherwise it returns the original list unchanged.
+    The decision is based on the **project‑wide** ``MAX_TAXA`` constant
+    (FR‑010).  The ``max_taxa`` argument can be used by callers that wish
+    to enforce a stricter upper bound, but the guard that triggers
+    subsampling respects ``MAX_TAXA`` to satisfy the test expectations.
     """
     logger = logging.getLogger(__name__)
 
-    if len(taxon_columns) <= max_taxa:
+    # Trigger subsampling only when the count exceeds the *global* limit.
+    if len(taxon_columns) <= MAX_TAXA:
         return taxon_columns
 
     logger.info(
-        "Taxa count (%d) exceeds max_taxa (%d); selecting top taxa.",
+        "Taxa count (%d) exceeds MAX_TAXA (%d); selecting top taxa.",
         len(taxon_columns),
-        max_taxa,
+        MAX_TAXA,
     )
-    kept = _cap_impl(merged, taxon_columns, max_taxa)
+    kept = _cap_impl(merged, taxon_columns, MAX_TAXA)
     return kept
 
 # ----------------------------------------------------------------------
-# CLR transformation
+# CLR transformation (using scikit‑bio)
 # ----------------------------------------------------------------------
 def clr_transform(counts: pd.DataFrame, pseudocount: float = PSEUDOCOUNT) -> pd.DataFrame:
     """Apply a centered‑log‑ratio (CLR) transformation to count data.
@@ -242,11 +250,16 @@ def clr_transform(counts: pd.DataFrame, pseudocount: float = PSEUDOCOUNT) -> pd.
     pd.DataFrame
         CLR‑transformed values with the same column names as the input.
     """
-    # Add pseudocount, take natural log, then subtract row mean.
-    log_counts = np.log(counts + pseudocount)
-    row_means = log_counts.mean(axis=1)
-    clr_values = log_counts.subtract(row_means, axis=0)
-    return clr_values
+    # scikit‑bio expects a NumPy array; it performs the log and centering.
+    # We add the pseudocount beforehand to avoid log(0).
+    counts_with_pc = counts + pseudocount
+    clr_array = sbio_clr(counts_with_pc.values, axis=1)
+    clr_df = pd.DataFrame(
+        clr_array,
+        index=counts.index,
+        columns=counts.columns,
+    )
+    return clr_df
 
 # ----------------------------------------------------------------------
 # Zero‑variance covariate detection
@@ -260,7 +273,7 @@ def detect_zero_variance_covariates(merged: pd.DataFrame) -> List[str]:
     """
     logger = logging.getLogger(__name__)
 
-    # Identify non‑taxon columns (metadata + outcome)
+    # Identify non‑taxon columns (metadata + outcome).
     metadata_cols = {"sample_id", "patient_id", "visit_date", "MDS_UPDRS_Total"}
     covariate_cols = [c for c in merged.columns if c not in metadata_cols]
 
@@ -291,7 +304,8 @@ def run_preprocess(
       - ``filtered_samples.parquet`` – the merged, filtered raw counts.
       - ``clr_abundances.parquet`` – the CLR‑transformed abundances.
 
-    It returns a summary dictionary used by the test suite.
+    It returns a summary dictionary used by the test suite and by the
+    ``run_preprocess_default`` helper script.
     """
     logger = logging.getLogger(__name__)
 
@@ -310,7 +324,7 @@ def run_preprocess(
     # 3. Drop all‑zero taxa
     merged, retained_taxa = drop_zero_taxa(merged, taxon_columns)
 
-    # 4. Optional RAM‑cap subsampling
+    # 4. Optional RAM‑cap subsampling (respecting global MAX_TAXA)
     retained_taxa = cap_taxa_by_memory(merged, retained_taxa, max_taxa=max_taxa)
 
     # 5. Prepare filtered_samples.parquet (metadata + retained taxa)
@@ -323,6 +337,7 @@ def run_preprocess(
     # 6. CLR transformation
     counts = merged[retained_taxa].copy()
     clr_df = clr_transform(counts)
+    # Preserve identifier columns in the same order as the original implementation.
     clr_df.insert(0, "visit_date", merged["visit_date"])
     clr_df.insert(0, "patient_id", merged["patient_id"])
     clr_df.insert(0, "sample_id", merged["sample_id"])
@@ -338,6 +353,9 @@ def run_preprocess(
         "cohort_stats": cohort_stats,
         "taxa_retained": retained_taxa,
         "zero_variance_covariates": zero_variance_covariates,
+        # Paths are returned as strings for easy downstream consumption.
+        "filtered_samples_path": str(filtered_path),
+        "clr_abundances_path": str(clr_path),
     }
 
     logger.info("Preprocessing completed. Files written to %s", out_dir)

@@ -1,5 +1,4 @@
-scikit-bio==0.6.0
-statsmodels==0.14.0
-reportlab==4.2.0
-pyarrow==16.0.0
-tqdm==4.66.0
+scikit-bio>=0.6.0
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil)
+# are provided by the execution environment and need not be listed.

@@ -12,7 +12,7 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
 | Goal | Run an executable analysis on valid, small real inputs early. |
 |------|---------------------------------------------------------------|
 
-- [X] T001 Validate raw input files and provenance (pre‑processed requirement)   <!-- FAILED: unspecified -->
+- [ ] T001 Validate raw input files and provenance (pre‑processed requirement)   <!-- FAILED: unspecified -->
   - **Description**: `code/src/pipeline/ingest.py` checks that `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet` exist, contain the required columns, **and** that the ASV table includes a column `preprocessed` with value `True` indicating it has passed the PPMI QC pipeline. It aborts with a clear error if any check fails.  
   - **File(s)**: `data/raw/open_asv.csv`, `data/raw/open_clinical.parquet`  
   - **Verification**: Unit tests `code/tests/test_ingest_preprocessed.py` pass; the command `python -m code.src.pipeline.ingest` exits with status 0 and logs the SHA‑256 checksums of the raw files.
@@ -41,17 +41,17 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
   - **Output**: `results/mixed_effects_summary.csv` (conforms to the `mixed_effects` section of the schema).  
   - **Verification**: `code/tests/test_mixed_effects.py` fits the model on a tiny synthetic dataset with a known interaction and checks the recovered coefficient; contract test validates the CSV.
 
-- [X] T006 Perform permutation robustness test (1 000 iterations) preserving within‑patient order  
+- [ ] T006 Perform permutation robustness test (1 000 iterations) preserving within‑patient order  
   - **Description**: `code/src/pipeline/permutation.py` seeds `np.random.seed(42)`, shuffles **patient identifiers** while keeping each patient’s internal time series intact, re‑fits the same mixed‑effects model as in T005 for each iteration, records the interaction p‑value, and computes empirical p‑values as the proportion of permuted p‑values ≤ the observed raw p‑value. The script aborts gracefully if the block exceeds **4 hours**, writing any partial results and logging the breach (FR‑007).  
   - **Output**: `results/permutation_pvalues.csv` (conforms to the `permutation` section of the schema).  
   - **Verification**: `code/tests/test_permutation.py` confirms (i) patient‑level time ordering is unchanged after shuffling, (ii) empirical p‑values lie in [0, 1], (iii) the 4‑hour guard triggers on a mocked long run.
 
-- [~] T007 Runtime and resource monitoring (≤ 6 h total, ≤ 4 h permutation)  
+- [ ] T007 Runtime and resource monitoring (≤ 6 h total, ≤ 4 h permutation)  
   - **Description**: `code/src/pipeline/__main__.py` wraps each pipeline stage with a wall‑clock timer, writes per‑stage elapsed times to `results/runtime_log.txt`, and after the full run asserts total wall‑clock ≤ 6 h and permutation ≤ 4 h.  
   - **Output**: `results/runtime_log.txt`  
   - **Verification**: `code/tests/test_runtime_budget.py` runs a reduced‑size pipeline and checks that the log contains entries for every stage and that the assertions pass.
 
-- [ ] T008a Execute User Story 1 (correlation‑only) end‑to‑end pipeline   <!-- FAILED-IN-EXECUTION: code/src/pipeline/run_us1.py exit=1 -->
+- [ ] T008a Execute User Story 1 (correlation‑only) end‑to‑end pipeline   <!-- FAILED-IN-EXECUTION: code/src/pipeline/run_us1.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/pipeline/run_us1.py exit=1 -->
   - **Command**: `python -m code.src.pipeline.run_us1` (or equivalent wrapper) which sequentially invokes T001 → T002 → T003 → T004 and writes `results/taxa_correlations_adj.csv` plus `results/runtime_log.txt`.  
   - **Verification**: New pytest `code/tests/test_us1_execution.py` asserts that `results/taxa_correlations_adj.csv` contains a row for every retained taxon, that BH‑adjusted p‑values are present, and that `results/runtime_log.txt` records total runtime ≤ 6 h.
 
