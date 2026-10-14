@@ -1,0 +1,18 @@
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: GSM8K and bigbench_lite datasets are publicly downloadable from HuggingFace
+    without authentication
+  claim_id: c_babea111
+  context: Section on required environment variables states that no authentication
+    is needed for the datasets used by the pipeline.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: All datasets used by the pipeline (GSM8K, bigbench_lite) are publicly
+    downloadable from HuggingFace without authentication.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T08:38:49Z'

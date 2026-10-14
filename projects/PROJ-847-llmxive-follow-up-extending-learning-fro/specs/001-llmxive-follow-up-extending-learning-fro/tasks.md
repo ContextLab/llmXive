@@ -8,12 +8,12 @@ The following checklist implements the full experimental pipeline, from data acq
 
 ## Phase 1 – Setup & first end‑to‑end run  
 
-- [ ] **T001** [US‑1] **Create a reproducible entry‑point and quick‑start guide**  
+- [X] **T001** [US‑1] **Create a reproducible entry‑point and quick‑start guide**  
   - Implement a CLI script `code/run_experiments.py` that parses a YAML config and triggers the full pipeline.  
   - Add usage instructions (command line, required env vars, seed control) to `docs/quickstart.md`.  
   - **Verification**: Running the command `python -m code.run_experiments --config configs/quickstart.yaml` prints “Pipeline initialized” and creates the directory `outputs/` without errors.
 
-- [ ] **T002** [US‑1] **Download & stream the GSM8K test split and the bigbench logical subset**  
+- [ ] **T002** [US‑1] **Download & stream the GSM8K test split and the bigbench logical subset**   <!-- FAILED-IN-EXECUTION: code/data.py exit=1 -->
   - Add `code/data.py` with functions `load_gsm8k(split="test", streaming=True)` and `load_bigbench_lite()` that use `datasets.load_dataset`.  
   - Store raw streamed files (if any) under `data/raw/`.  
   - **Verification**: After execution, `data/raw/manifest.txt` lists the two dataset identifiers and the total size reported ≤ 7 GB; the loader raises an exception if download fails.

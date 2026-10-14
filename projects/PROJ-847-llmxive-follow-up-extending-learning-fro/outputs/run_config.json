@@ -1,0 +1,42 @@
+{
+  "config_path": "configs/quickstart.yaml",
+  "data": {
+    "gsm8k_split": "test",
+    "streaming": true
+  },
+  "model": {
+    "model_id": "hf://author/lightdiff-100m"
+  },
+  "output_dirs": [
+    "statistics",
+    "figures",
+    "summary",
+    "checkpoints"
+  ],
+  "seed": 7,
+  "stages": [
+    "data",
+    "model",
+    "fixed_baselines",
+    "adaptive_runs",
+    "analysis"
+  ],
+  "training": {
+    "adaptive": false,
+    "batch_size": 32,
+    "max_epochs": 10,
+    "rhos": [
+      0.1,
+      0.3,
+      0.5,
+      0.7,
+      0.9
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "timeout_seconds": 21600
+  }
+}
