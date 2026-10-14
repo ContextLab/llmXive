@@ -54,6 +54,7 @@ properties:
       - linearity
       - homoscedasticity
       - normality
+      - shapiro_wilk_p_value
   robustness_result:
     type: "object"
     nullable: true
@@ -66,17 +67,17 @@ properties:
         type: "number"
       status:
         type: "string"
-        enum: ["RUN", "SKIPPED_LOW_N", "SKIPPED_NO_DATA"]
+        enum: ["RUN", "SKIPPED_LOW_N", "SKIPPED_NO_DATA", "SKIPPED_R_LOW"]
     required:
       - status
   flags:
     type: "array"
     items:
       type: "string"
-    description: "List of warnings (e.g., 'Low Power', 'Proxy Used: General Anxiety', 'No Baseline Control')."
+    description: "List of warnings (e.g., \"Low Power\", \"Proxy Used\", \"High VIF\", \"Robustness Skipped (r ≤ 0.3)\")."
   runtime:
     type: "number"
-    description: "Execution time in seconds (for SC-005)."
+    description: "Execution time in seconds (for SC‑005)."
 required:
   - model_type
   - n_samples

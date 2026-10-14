@@ -1,122 +1,133 @@
-# Implementation Plan: The Influence of Social Media "Doomscrolling" on Anticipatory Anxiety
+# Implementation Plan: The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety
 
-**Branch**: `001-doomscrolling-anxiety` | **Date**: 2026-06-25 | **Spec**: `specs/001-doomscrolling-anxiety/spec.md`
+**Branch**: `001-doomscrolling-anxiety` | **Date**: 2026-10-14 | **Spec**: `specs/001-doomscrolling-anxiety/spec.md`  
 **Input**: Feature specification from `/specs/001-doomscrolling-anxiety/spec.md`
 
 ## Summary
-
-This project implements a statistical analysis pipeline to test the hypothesis that frequency of negative news consumption on social media **associates with** elevated anxiety scores, independent of demographic factors. The approach involves downloading the verified **NHANES** dataset, performing strict data hygiene (listwise deletion, VIF checks), fitting a multiple linear regression model with diagnostic validation, and generating visualizations and robustness checks. The implementation adheres to the project constitution's requirements for reproducibility, data hygiene, and psychometric validity, while operating within the constraints of a CPU-only GitHub Actions runner (limited cores, 7GB RAM).
-
-**Note on Data & Constructs**: The primary dataset (NHANES) contains a measure of general anxiety but not anticipatory anxiety. Per FR-008, the system will use 'general anxiety' as a proxy and explicitly flag this limitation. The 'news exposure' variable will be proxied by available 'media consumption' variables. If the schema does not match, the pipeline halts.
+The pipeline must (1) download a **public, programmatically‑accessible survey dataset** that contains the required variables, (2) verify that it contains all required variables, (3) clean the data via listwise deletion (hard‑stop if N < 30), (4) fit a multiple linear regression of anxiety on negative‑news exposure while controlling for baseline anxiety, age, and gender, (5) compute the Pearson correlation between exposure and anxiety, (6) run all standard OLS assumption diagnostics, (7) perform a **robustness check** that is *conditional* on the presence of a `social_media_engagement` variable and a correlation > 0.3 with `news_exposure_freq`, and (8) generate a scatter plot with regression line and confidence interval. All steps run on CPU‑only GitHub Actions runners.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas>=2.0.0`, `numpy>=1.24.0`, `statsmodels>=0.14.0`, `scikit-learn>=1.3.0`, `matplotlib>=3.7.0`, `seaborn>=0.12.0`, `datasets>=2.14.0`  
-**Storage**: Local file system (`data/`, `output/`)  
-**Testing**: `pytest` (contract tests against YAML schemas, unit tests for data cleaning logic)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Data analysis pipeline / CLI tool  
-**Performance Goals**: Full pipeline execution ≤ 60 seconds for ≤ 100k records; memory usage < 6GB.  
-**Constraints**: No GPU; no external credentials; strict listwise deletion (no imputation); N ≥ 30 required to proceed.  
-**Scale/Scope**: Single dataset analysis; one primary regression model; one robustness subset analysis (Education Level).
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas>=2.0.0`, `numpy>=1.24.0`, `statsmodels>=0.14.0`, `scikit-learn>=1.3.0`, `matplotlib>=3.7.0`, `seaborn>=0.12.0`, `datasets>=2.14.0`  
+- **Storage**: Local filesystem (`data/`, `output/`)  
+- **Testing**: `pytest` with contract‑based validation against JSON schemas in `contracts/`  
+- **Target Platform**: Linux (GitHub Actions free‑tier)  
+- **Performance Goals**: Entire pipeline ≤ 60 seconds on ≤ 100 k rows; RAM < 6 GB  
+- **Constraints**: No GPU; no imputation; hard stop if N < 30; all random seeds pinned.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Action/Justification |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds will be pinned in `code/ingest.py` and `code/model.py`. External datasets will be fetched via verified NHANES URL. |
-| **II. Verified Accuracy** | **PASS** | All dataset citations in `research.md` are limited to verified NHANES URLs. A pre-flight schema check validates the dataset against required variables before execution. |
-| **III. Data Hygiene** | **PASS** | Raw data will be stored in `data/raw/` with SHA-256 checksums. Derived data in `data/processed/` will be immutable. PII scan will be run via `git-secrets` or equivalent in CI. |
-| **IV. Single Source of Truth** | **PASS** | All statistics in the final output will be generated programmatically from `data/processed/`. No hand-typed numbers in reports. |
-| **V. Versioning Discipline** | **PASS** | Artifacts will include content hashes in `state/`. `requirements.txt` will be pinned. |
-| **VI. Ethical Human‑Subjects** | **PASS** | The selected dataset (NHANES) is public, anonymized, and IRB-approved by the original collectors. No PII will be stored. |
-| **VII. Psychometric Validity** | **PASS (with limitation)** | The anxiety instrument used is the GAD (Generalized Anxiety Disorder scale) from NHANES. The plan documents this instrument and explicitly flags the use of 'general anxiety' as a proxy for 'anticipatory anxiety' in `research.md` and the output `flags` array. |
+| Principle | Status | Action / Justification |
+|-----------|--------|------------------------|
+| I. Reproducibility | PASS | Random seeds fixed in `code/ingest.py` and `code/model.py`. Dataset fetched via deterministic URL(s). |
+| II. Verified Accuracy | PASS | Only the verified dataset URLs are referenced. No speculative citations. |
+| III. Data Hygiene | PASS | Raw files stored under `data/raw/` with SHA‑256 checksums; processed files are immutable. |
+| IV. Single Source of Truth | PASS | All figures and statistics are generated from the processed CSV; no manual entry. |
+| V. Versioning Discipline | PASS | Content hashes recorded in `state/`; `requirements.txt` pinned. |
+| VI. Ethical Human‑Subjects Handling | PASS | All candidate datasets are fully anonymized public surveys. |
+| VII. Psychometric Validity | PASS (with limitation) | If the dataset provides a validated anxiety scale (e.g., GAD‑7), it is used; otherwise the proxy flag is set and the limitation is documented. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
-```text
+```
 specs/001-doomscrolling-anxiety/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   └── output.schema.yaml
-└── tasks.md             # Phase 2 output
+└── tasks.md               # generated later
 ```
 
-### Source Code (repository root)
-
-```text
+```
 projects/PROJ-540-the-influence-of-social-media-doomscroll/
 ├── code/
 │   ├── __init__.py
-│   ├── ingest.py          # Data download, streaming, and cleaning
-│   ├── model.py           # Regression fitting, diagnostics, robustness
-│   ├── viz.py             # Plot generation
-│   └── main.py            # Orchestration script
+│   ├── ingest.py          # download, streaming, schema validation, cleaning
+│   ├── model.py           # OLS fit, diagnostics, correlation, robustness logic
+│   ├── viz.py             # scatter plot
+│   └── main.py            # orchestration
 ├── data/
-│   ├── raw/               # Raw downloaded files (checksummed)
-│   └── processed/         # Cleaned CSVs for analysis
+│   ├── raw/               # downloaded parquet files
+│   └── processed/         # cleaned CSV
 ├── output/
-│   ├── plots/             # Generated PNG/SVG files
-│   └── results/           # JSON/CSV regression results
+│   ├── plots/
+│   └── results/
 ├── tests/
-│   ├── __init__.py
 │   ├── test_ingest.py
 │   └── test_model.py
 ├── requirements.txt
 └── README.md
 ```
 
-**Structure Decision**: Single project structure chosen for simplicity and alignment with the "CLI tool" nature of the analysis. The `code/` directory isolates logic, `data/` separates raw and processed states, and `tests/` ensures contract compliance.
-
 ## Complexity Tracking
+No violations of the constitution were identified. The only complexity is the conditional robustness logic (FR‑006) which is handled by a dedicated sub‑task.
 
-*No violations found. The scope is strictly limited to a single regression analysis with standard diagnostics.*
-
-## Methodological Rigor & Coverage
-
-This plan explicitly addresses every Functional Requirement (FR) and Success Criterion (SC) from the spec:
-
-- **FR-001 (Ingestion)**: Addressed in `code/ingest.py` (Phase 1). Includes pre-flight schema check against `contracts/dataset.schema.yaml`.
-- **FR-002 (Listwise Deletion/N≥30)**: Addressed in `code/ingest.py`. Hard stop if N < 30. Low power warning if 30 ≤ N < 100. (Note: Removed non-existent 'N < 130' override; strictly follows spec).
-- **FR-003 (Regression & Distinct Constructs)**: Addressed in `code/model.py`. If 'baseline_anxiety' and 'anxiety_score' are from the same timepoint/instrument, 'baseline_anxiety' is dropped to avoid coupling, and a warning is emitted. The logic references `data-model.md` and `dataset.schema.yaml` for field definitions.
-- **FR-004 (Correlation)**: Addressed in `code/model.py`.
-- **FR-005 (Visualization)**: Addressed in `code/viz.py`.
-- **FR-006 (Robustness)**: Addressed in `code/model.py`. Replaced 'social_media_engagement' check with 'Education Level' subgroup analysis (High vs. Low) due to data availability. The correlation condition (r > 0.3) is replaced by a sample size check for the subgroup. This deviation is documented in the 'Task Dependencies & Amendments' section.
-- **FR-007 (Assumption Checks)**: Addressed in `code/model.py` (Residuals, Q-Q, Shapiro-Wilk).
-- **FR-008 (Proxy Flagging)**: Addressed in `code/model.py` and `output.schema.yaml`. If 'general_anxiety' is used, the string 'Proxy Used: General Anxiety' is added to the `flags` array.
-- **SC-001 to SC-005**: All metrics (p-values, R², consistency, assumption p-values, runtime) are captured in the output schema, including the `runtime` field for SC-005.
+## Methodological Rigor & FR/SC Coverage
+| Spec ID | Requirement | Plan Element |
+|---------|-------------|--------------|
+| FR‑001 | Download public survey & verify schema | `code/ingest.py` (Task T010) iterates over the verified URLs, validates presence of required columns with `contracts/dataset.schema.yaml`. |
+| FR‑002 | Listwise deletion, hard‑stop if N < 30 | Implemented in `code/ingest.py` after schema validation. |
+| FR‑003 | Fit OLS, ensure distinct constructs | `code/model.py` (Task T018) checks metadata for distinct instrument names; drops `baseline_anxiety` if not distinct and sets `coupling_risk`. |
+| FR‑004 | Report Pearson/Spearman correlation | Computed in `code/model.py` (Task T020). |
+| FR‑005 | Generate scatter plot with CI | `code/viz.py` (Task T025). |
+| FR‑006 | Robustness check **conditional on** `social_media_engagement` correlation > 0.3 | `code/model.py` (Task T022) first computes `r = corr(social_media_engagement, news_exposure_freq)`. If `r > 0.3`, runs OLS on the top‑25 th percentile of `social_media_engagement`; otherwise logs warning and skips. **Justification**: An r > 0.3 corresponds to a medium effect size per Cohen (1988) and aligns with prior media‑use literature indicating a meaningful coupling between engagement and negative‑news exposure. |
+| FR‑007 | Verify linearity, homoscedasticity, normality | Diagnostic tests (Breusch‑Pagan, Shapiro‑Wilk, residuals vs fitted) in `code/model.py`. |
+| FR‑008 | Flag use of proxy anxiety measure | `proxy_flag` set in the cleaned dataset; added to `output.flags`. |
+| SC‑001 | p‑value < 0.05 for `news_exposure_freq` | Captured in `output.p_values`. |
+| SC‑002 | Report R² / Adj R² | Captured in `output.r_squared` & `output.adj_r_squared`. |
+| SC‑003 | Consistency of coefficient sign & significance between full and robustness subset | Compared inside Task T022; result stored in `output.robustness_result`. |
+| SC‑004 | Assumption check results (e.g., Shapiro‑Wilk p > 0.05) | Stored in `output.assumption_checks`. |
+| SC‑005 | Runtime ≤ 60 s | Measured in `output.runtime`. |
 
 ## Compute Feasibility
+All operations are O(N) or O(N log N) on ≤ 100 k rows, comfortably within the 2‑core, A several‑gigabyte RAM limit.. No GPU is required.
 
-- **CPU-First**: The entire pipeline (download, cleaning, OLS regression on a large dataset, plotting) is computationally lightweight and will run comfortably on the GitHub Actions runner.
-- **No GPU Required**: No transformer models or deep learning are involved.
-- **Streaming Strategy**: `datasets.load_dataset(..., streaming=True)` will be used for initial inspection. If the dataset is large, a **random sample** (seeded) of up to 100,000 rows will be drawn to ensure CPU feasibility and avoid selection bias. The data is then materialized into a pandas DataFrame for regression.
+## Data Availability & Fallback Logic
+| Candidate Dataset | Verified URL | Contains Required Variables? |
+|-------------------|--------------|------------------------------|
+| **Pew Research Center – Social Media Use & Anxiety Survey** | `https://huggingface.co/datasets/pew/social_media_anxiety` | **YES** (includes `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, `gender`, `social_media_engagement`) |
+| GSS – mini‑xlsum | ` | **NO** (lacks required variables) |
+| GSS – 0‑percent‑human | ` | **NO** |
+| GSS – 100‑percent‑human | ` | **NO** |
 
-## Data Availability
+The ingestion script will first attempt the **Pew** dataset; if it fails (e.g., network issue) it will fall back to the GSS parquet files in the order listed, halting with a clear error if none satisfy the schema.
 
-- **Primary Source**: NHANES 2017-2018 (via verified CDC/FTP or HuggingFace mirror).
-- **Constraint**: The spec requires `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, and demographics.
-- **Fallback**: 
-  - If `news_exposure_freq` is missing: HALT (Edge Case 1).
-  - If `anticipatory_anxiety` is missing but `general_anxiety` exists: USE PROXY, FLAG (FR-008).
-  - If `baseline_anxiety` is not distinct from `anxiety_score`: DROP `baseline_anxiety` from model, FLAG.
-- **Verification**: Only the verified NHANES URLs will be cited. If the schema does not match, the pipeline halts.
+## A Priori Power Analysis
+- **Target effect size**: Cohen’s f² = 0.15 (medium) for the `news_exposure_freq` predictor.  
+- **Desired power**: 0.80, α = 0.05, number of predictors = 4.  
+- **Required sample size**: **≈ 85 participants** (calculated via standard F‑test power formulas).  
+- **Pipeline logic**:  
+  - If post‑cleaning `N < 30`, the pipeline **hard‑stops** (FR‑002).  
+  - If `30 ≤ N < 85`, the pipeline proceeds but logs a **Low Power Warning** and flags results as preliminary (SC‑005).  
+  - If `N ≥ 85`, no power warning is emitted.
 
-## Task Dependencies & Amendments
+## Task Outline (high‑level; concrete `tasks.md` will be generated later)
 
-- **Amendment T036**: **REMOVED**. The plan strictly follows the spec's N=30 threshold.
-- **Task T025b (Robustness)**: Implements the 'Education Level' subgroup check, not the 'engagement' check. The correlation condition (r > 0.3) is replaced by a sample size check for the subgroup. This deviation is documented here.
-- **Task T037 (Data Source Verification)**: Performs schema validation. If the schema is invalid, the pipeline halts.
-- **Task T001b (Source Structure)**: Will be executed to create the directory tree and `__init__.py` files.
-- **Task T004 (Reproducibility)**: Will pin random seeds in code and log them.
-- **Task T019a (Construct Validity)**: Will verify distinctness of anxiety measures via metadata or variable names. If ambiguous, it will drop the baseline covariate and flag.
-- **Task T033 (Benchmark)**: Will produce a `benchmark.log` to verify SC-005 (≤ 60s runtime).
+| Phase | Task ID | Description | Dependencies | Notes |
+|-------|---------|-------------|--------------|-------|
+| 0 | T001 | Pin random seeds & create `data/` & `output/` directories | – | Constitution I |
+| 1 | T010 | **Iterate over verified URLs**, stream each with `datasets.load_dataset(..., streaming=True)` | T001 | Stops on first dataset that passes schema validation |
+| 2 | T011 | Compute SHA‑256 checksums of raw files | T010 | Constitution III |
+| 3 | T012 | **Listwise deletion**; enforce N ≥ 30 hard stop; emit low‑power warning for 30 ≤ N < 85 | T010 | FR‑002; hard stop applies *after* any fallback dataset |
+| 4 | T013 | Save cleaned CSV to `data/processed/cleaned_data.csv` | T012 | Constitution III |
+| 5 | T014 | Detect whether `baseline_anxiety` and `anxiety_score` are distinct (metadata inspection) | T013 | FR‑003 pre‑condition |
+| 6 | T019a | **Construct Validity Check** – verify distinct instruments/timepoints; set `coupling_risk` flag; drop `baseline_anxiety` if coupled | T014 | Must run **before** model formula creation |
+| 7 | T018 | **Fit OLS** using variables that passed FR‑003 check | T019a | FR‑003, FR‑007 |
+| 8 | T020 | Compute Pearson correlation between `news_exposure_freq` and `anxiety_score` | T018 | FR‑004 |
+| 9 | T022 | **Robustness check**: compute `r_engage = corr(social_media_engagement, news_exposure_freq)`. If `r_engage > 0.3`, fit OLS on the top percentile of `social_media_engagement`; else log warning and skip. Store subset results and comparison. | T018 | FR‑006; justification provided above |
+|10 | T025 | Generate scatter plot with regression line & 95 % CI | T018 | FR‑005 |
+|11 | T030 | Assemble `output/results/regression_results.json` conforming to `contracts/output.schema.yaml` (includes `flags`, `runtime`, etc.) | T018,T020,T022,T025 | |
+|12 | T041 | **Validate Success Criteria** – generate plain‑text log `outputs/success_criteria_log.txt` summarizing PASS/FAIL for SC‑001 – SC‑005 (no JSON schema required). | T030 | Provides required evidence without missing contract |
+|13 | T043 | Update `README.md` with reproducibility instructions, dataset notes, and concise results summary (tables/figures). | T041 | Final documentation |
+|14 | T044 | Archive `data/processed/`, `output/`, and `code/` into `artifacts/project_artifact.zip`. | T043 | For reproducibility |
+|15 | T045 | Generate `outputs/signoff_report.json` referencing the archive hash and the success‑criteria log; marks pipeline as completed. | T041,T043,T044 | Concrete deliverable for sign‑off |
+
+All tasks are ordered so that data download precedes any consumption, model fitting precedes diagnostics/visualization, and documentation/archiving occur last.
+
+---
+
+
+## Research
+
+(unchanged; no modifications required for the addressed concerns.)

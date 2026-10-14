@@ -1,58 +1,56 @@
-# Data Model: The Influence of Social Media "Doomscrolling" on Anticipatory Anxiety
+# Data Model: The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety
 
 ## Entity Definitions
 
-### SurveyResponse
-
-Represents a single participant record after cleaning.
+### SurveyResponse (cleaned row)
 
 | Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | string | Unique anonymized identifier. | Non-null, unique. |
-| `news_exposure_freq` | float | Frequency of negative news consumption (proxy: Media Exposure). | Non-null, ≥ 0. |
-| `anxiety_score` | float | Outcome anxiety score (GAD-7). | Non-null, ≥ 0. |
-| `baseline_anxiety` | float | Baseline/trait anxiety score. | Nullable. (Dropped if not distinct). |
-| `age` | integer | Participant age in years. | Non-null, 18 ≤ age ≤ 100. |
-| `gender` | string | Categorical gender. | One of: "Male", "Female", "Other". |
-| `education_level` | integer | Education level (used for robustness). | Nullable. |
-| `instrument_source` | string | Name of the anxiety instrument used. | Non-null. |
-| `measurement_timepoint` | string | "pre", "post", or "trait". | Non-null. |
-| `proxy_flag` | boolean | True if 'general_anxiety' was used as proxy. | Non-null. |
-| `coupling_risk` | boolean | True if baseline and outcome risk mathematical coupling. | Non-null. |
+|-------|------|-------------|-------------|
+| `participant_id` | string | Anonymized unique identifier | non‑null, unique |
+| `news_exposure_freq` | number | Frequency of negative news consumption on social media (proxy) | non‑null, ≥ 0 |
+| `anxiety_score` | number | Outcome anxiety score (validated scale or proxy) | non‑null, ≥ 0 |
+| `baseline_anxiety` | number | Baseline/trait anxiety (may be null) | nullable, ≥ 0 |
+| `age` | integer | Age in years | non‑null, 18 ≤ age ≤ 100 |
+| `gender` | string | Gender category | one of “Male”, “Female”, “Other”, “Non-binary” |
+| `social_media_engagement` | number | Hours per day (or equivalent) of overall social‑media use. | nullable, ≥ 0 |
+| `instrument_source` | string | Name of the anxiety instrument (e.g., “GAD‑7”). | non‑null |
+| `measurement_timepoint` | string | “pre”, “post”, or “trait”. | non‑null |
+| `proxy_flag` | boolean | True if `anxiety_score` is a proxy for anticipatory anxiety. | non‑null |
+| `coupling_risk` | boolean | True if baseline and outcome anxiety may be mathematically coupled. | non‑null |
 
-### RegressionResult
-
-Represents the output of the statistical model.
+### RegressionResult (analysis output)
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `model_type` | string | "OLS" |
-| `n_samples` | integer | Number of observations used. |
-| `r_squared` | float | Coefficient of determination. |
-| `adj_r_squared` | float | Adjusted R-squared. |
-| `f_statistic` | float | F-statistic for the model. |
-| `f_pvalue` | float | P-value for the F-statistic. |
-| `coefficients` | object | Map of variable names to coefficient values. |
-| `std_errors` | object | Map of variable names to standard errors. |
-| `p_values` | object | Map of variable names to p-values. |
-| `vif_scores` | object | Map of variable names to VIF scores. |
-| `assumption_checks` | object | Results of linearity, homoscedasticity, normality tests. |
-| `robustness_result` | object | Optional results from the Education Level subset analysis. |
-| `flags` | array | List of warnings (e.g., "Low Power", "Proxy Used", "High VIF", "No Baseline Control"). |
-| `runtime` | number | Execution time in seconds (for SC-005). |
+|-------|------|-------------|
+| `model_type` | string | `"OLS"` |
+| `n_samples` | integer | Number of rows used after cleaning |
+| `r_squared` | number | Coefficient of determination |
+| `adj_r_squared` | number | Adjusted R² |
+| `f_statistic` | number | Overall model F‑statistic |
+| `f_pvalue` | number | P‑value for the F‑statistic |
+| `coefficients` | object | Mapping `variable → coefficient` |
+| `std_errors` | object | Mapping `variable → standard error` |
+| `p_values` | object | Mapping `variable → p‑value` |
+| `vif_scores` | object | Mapping `variable → VIF` |
+| `assumption_checks` | object | Results of linearity, homoscedasticity, normality, Shapiro‑Wilk p‑value |
+| `robustness_result` | object | `null` if skipped, otherwise `{subset_n, coefficient, p_value, status}` |
+| `flags` | array[string] | Warnings such as “Low Power”, “Proxy Used”, “High VIF”, “Robustness Skipped (r ≤ 0.3)” |
+| `runtime` | number | Total execution time in seconds (SC‑005) |
 
 ## Data Flow
-
-1.  **Raw Data**: Downloaded from NHANES (Parquet/CSV).
-2.  **Cleaned Data**: `SurveyResponse` records after listwise deletion.
-3.  **Model Output**: `RegressionResult` JSON/CSV.
-4.  **Visualization**: PNG/SVG files generated from `RegressionResult` and `Cleaned Data`.
+1. **Raw download** → `data/raw/` (parquet).  
+2. **Streaming schema validation** → `contracts/dataset.schema.yaml`.  
+3. **Cleaning & listwise deletion** → `data/processed/cleaned_data.csv` (conforms to `SurveyResponse`).  
+4. **Model fitting & diagnostics** → `output/results/regression_results.json` (conforms to `RegressionResult`).  
+5. **Visualization** → `output/plots/scatter_regression.png`.  
 
 ## Assumptions & Constraints
+- No imputation; rows with missing primary predictor/outcome are removed.  
+- Categorical `gender` is one‑hot encoded for OLS.  
+- All continuous predictors are used in original scale (no standardization required for OLS).  
+- If `baseline_anxiety` is not distinct, it is dropped and `coupling_risk` set to `true`.  
+- If `social_media_engagement` is absent, robustness check is automatically **skipped** with a warning flag.  
 
-- **Missing Data**: No imputation. Rows with nulls in key predictors are dropped.
-- **Outliers**: No automatic outlier removal; outliers are analyzed via residual plots.
-- **Categorical Encoding**: `gender` is one-hot encoded during model fitting.
-- **Scale**: All continuous variables are assumed to be on a comparable scale or standardized if required by the model (OLS does not strictly require standardization for interpretation, but it helps with VIF).
-- **Proxy**: If `anxiety_score` is derived from GAD-7, `proxy_flag` is set to True.
-- **Baseline**: If `baseline_anxiety` is not distinct, it is dropped and `coupling_risk` is True.
+---
+
+

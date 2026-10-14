@@ -1,14 +1,14 @@
 status: none
-intent: General Social Survey news exposure anxiety dataset download python package
-  dataset
+intent: NHANES 2017-2018 CDC NHANES FTP HuggingFace python package download
 required_fields:
-- negative_news_consumption_frequency
-- anxiety_score
+- news_exposure_freq
+- gad7_score
 - baseline_anxiety
 - age
 - gender
+- race_ethnicity
 - education
-- income
-cache_key: a37e4d880ed46a96e51d8698cd3c82e444e4efa6a25be3ace8bb947d6a6a0154
-searched_at: '2026-09-22T14:36:27.464973+00:00'
+- household_income
+cache_key: 2b24896eaff622bc1fba19dc038b55ec329b493d22d09535e470e7f721f28a00
+searched_at: '2026-10-14T12:10:54.577974+00:00'
 retry_count: 1

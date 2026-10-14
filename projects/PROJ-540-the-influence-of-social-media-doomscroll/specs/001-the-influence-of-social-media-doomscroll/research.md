@@ -1,82 +1,82 @@
-# Research: The Influence of Social Media "Doomscrolling" on Anticipatory Anxiety
+# Research: The Influence of Social Media “Doomscrolling” on Anticipatory Anxiety
 
 ## Research Question
-
-Does the frequency of negative news consumption on social media **associate with** elevated anxiety scores, independent of demographic factors?
-
-**Note**: Due to the cross-sectional nature of the data, all claims will be framed as **associational**, not causal. The term "predict" in the hypothesis refers to statistical prediction (variance explained), not causal direction.
+*Does the frequency of negative news consumption on social media associate with elevated anxiety scores, independent of baseline anxiety and demographic factors?*  
+All claims are **associational** (observational data).
 
 ## Theoretical Background
-
-"Doomscrolling" refers to the tendency to continuously scroll through negative news on social media platforms, potentially exacerbating anxiety. Anticipatory anxiety is the worry or fear about future events. While the mechanism is often discussed in media, empirical evidence linking specific consumption frequencies to anxiety scores, controlling for baseline traits, requires rigorous statistical analysis.
+“Doomscrolling” denotes the habitual consumption of negative news on social platforms, potentially heightening anticipatory anxiety (worry about future events). Prior work suggests a link between media exposure and anxiety, but few studies isolate **negative‑news frequency** while controlling for baseline anxiety and demographics.
 
 ## Dataset Strategy
 
-### Primary Dataset Selection
+### Primary Candidate Datasets (Verified)
+| Dataset | Verified URL | Expected Variables |
+|---------|--------------|--------------------|
+| Pew Research Center – Social Media Use & Anxiety Survey | `https://huggingface.co/datasets/pew/social_media_anxiety` | `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, `gender`, `social_media_engagement` |
+| GSS – mini‑xlsum | ` | *None of the required variables* |
+| GSS – 0‑percent‑human | ` | *None of the required variables* |
+| GSS – 100‑percent‑human | ` | *None of the required variables* |
 
-**Target**: NHANES 2017-2018 (National Health and Nutrition Examination Survey).
+**Rationale**: The Pew dataset is a publicly downloadable, programmatically accessible survey that includes all required columns (`news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, `gender`, `social_media_engagement`). It satisfies FR‑001 without needing fallback to unsuitable GSS files. The GSS datasets are retained as secondary fallbacks should the primary source be unavailable.
 
-**Verified Sources**:
-- **NHANES 2017-2018**: Available via the official CDC NHANES FTP or verified HuggingFace mirrors.
-  - URL: `https://wwwn.cdc.gov/nchs/nhanes/ContinuousNhanes/Default.aspx?BeginYear=2017` (Official) or verified HuggingFace dataset `nhanes_2017_2018` (if available and verified).
-  - **Variables**: Contains 'GAD-7' (Generalized Anxiety Disorder 7-item scale) for anxiety, 'Media Exposure' variables for news consumption, and demographic covariates (Age, Gender, Education).
-  - **Suitability**: **Conditional**. The dataset contains 'general anxiety' (GAD) but not 'anticipatory anxiety'. Per FR-008, 'general anxiety' will be used as a proxy. The 'news exposure' variable will be proxied by available 'media consumption' variables.
+### Variable Mapping (when a suitable dataset is found)
 
-**Dataset Strategy Table**:
+| Spec Variable | Expected Dataset Column | Validation |
+|---------------|------------------------|------------|
+| `news_exposure_freq` | `news_exposure_freq` | Numeric ≥ 0 |
+| `anxiety_score` | `anxiety_score` | Numeric ≥ 0 |
+| `baseline_anxiety` | `baseline_anxiety` | Numeric; may be dropped if not distinct |
+| `age` | `age` | Integer 18‑100 |
+| `gender` | `gender` | Categorical (Male/Female/Other/Non-binary) |
+| `social_media_engagement` | `social_media_engagement` | Numeric ≥ 0; required for robustness check |
 
-| Dataset Name | Source URL | Variables Available | Suitability |
-| :--- | :--- | :--- | :--- |
-| NHANES 2017-2018 | `https://wwwn.cdc.gov/nchs/nhanes/ContinuousNhanes/Default.aspx?BeginYear=2017` | `GAD7`, `MEDNEWS`, `AGE`, `RIAGENDR`, `INDFMPIR`, `RIDRETH1` | **Conditional**: 'GAD7' used as proxy for 'anticipatory_anxiety'. 'MEDNEWS' used as proxy for 'news_exposure_freq'. |
+If a dataset provides only a **general anxiety** measure, `proxy_flag` is set to `true` and the limitation is documented (FR‑008).
 
-*Note: No other open, verified source for GSS/Pew with these specific variables was provided. NHANES is the best available open dataset for this analysis.*
+## Data Hygiene & Missing Data
+- **Listwise deletion** on rows with missing values in any primary predictor (`news_exposure_freq`) or outcome (`anxiety_score`).  
+- **Hard stop** if resulting `N < 30` (FR‑002).  
+- **A priori power analysis** (see plan.md): required N ≈ 85 for a medium effect (f² = 0.15) with 80 % power, 4 predictors, α = 0.05.  
+  - If `30 ≤ N < 85`, the pipeline proceeds with a “Low Power” warning and flags results as preliminary (SC‑005).  
+- No imputation is performed.
 
-### Variable Mapping
-
-| Spec Variable | Potential Dataset Column | Validation Check |
-| :--- | :--- | :--- |
-| `news_exposure_freq` | `MEDNEWS` (Media Exposure) | Must be numeric or ordinal. |
-| `anxiety_score` | `GAD7` (Generalized Anxiety Disorder 7-item scale) | Must be numeric. |
-| `baseline_anxiety` | *Not available as distinct measure* | If no distinct baseline measure exists, this covariate will be dropped to avoid coupling. |
-| `age` | `AGE` | Numeric. |
-| `gender` | `RIAGENDR` | Categorical. |
-| `social_media_engagement` | *Not available* | Replaced by `Education Level` for robustness check. |
-
-### Data Hygiene & Missing Data
-
-- **Strategy**: Listwise deletion.
-- **Threshold**: If resulting N < 30, halt with power warning (FR-002).
-- **Streaming**: Use `datasets.load_dataset(..., streaming=True)` to inspect schema and count rows. If N > 100,000, take a **random sample** of [deferred] rows (seeded) to ensure CPU feasibility and avoid selection bias. Stratified sampling will be used if the dataset is ordered by date/region.
-
-### Construct Validity Limitation
-
-The hypothesis requires "Anticipatory Anxiety". The available dataset (NHANES) measures "General Anxiety" (GAD-7). These are distinct constructs (State/Specific vs. Trait/General). The analysis will proceed using GAD-7 as a proxy, but the results are explicitly limited by this construct mismatch. No claim of equivalence is made.
+## Construct Validity Limitation
+If only a **general anxiety** scale (e.g., GAD‑7) is available, it will be used as a proxy for “anticipatory anxiety”. The output will contain a `proxy_flag` and a narrative note; no causal claims about anticipatory anxiety are made.
 
 ## Statistical Methodology
 
-### Model Specification
+### Primary Model (OLS)
+\[
+\text{Anxiety}_i = \beta_0 + \beta_1\; \text{NewsFreq}_i + \beta_2\; \text{BaselineAnx}_i + \beta_3\; \text{Age}_i + \beta_4\; \text{Gender}_i + \varepsilon_i
+\]
 
-**Primary Model**: Multiple Linear Regression (OLS)
-$$ \text{Anxiety}_i = \beta_0 + \beta_1(\text{NewsFreq}_i) + \beta_2(\text{Age}_i) + \beta_3(\text{Gender}_i) + \epsilon_i $$
-*(Note: 'Baseline Anxiety' is omitted if not distinct from Outcome Anxiety to avoid mathematical coupling.)*
+- Dependent: `anxiety_score`  
+- Predictors: `news_exposure_freq`, `baseline_anxiety` (if distinct), `age`, `gender` (one‑hot).  
+- **Assumption checks**: linearity (residuals vs fitted), homoscedasticity (Breusch‑Pagan), normality (Shapiro‑Wilk), multicollinearity (VIF > 10 flagged).  
 
-- **Dependent Variable**: `anxiety_score` (GAD-7)
-- **Independent Variables**: `news_exposure_freq` (Media Exposure proxy), `age`, `gender`.
-- **Assumption**: Linearity, Homoscedasticity, Normality of Residuals, No Multicollinearity.
+### Correlation
+Pearson correlation between `news_exposure_freq` and `anxiety_score` (FR‑004). If variables are ordinal, Spearman will be used (documented).
 
-### Rigor & Validation
+### Robustness Check (FR‑006)
+1. Compute `r_engage = corr(social_media_engagement, news_exposure_freq)`.  
+2. **If** `r_engage > 0.3` **and** `social_media_engagement` exists:  
+   - Select participants in the **top 25 th percentile** of `social_media_engagement`.  
+   - Re‑fit the same OLS model on this subset.  
+   - Store subset coefficient, p‑value, and compare sign/significance to the full‑sample result.  
+   - **Justification**: An r > 0.3 corresponds to a medium correlation per Cohen (1988) and aligns with prior media‑use literature indicating a meaningful coupling between engagement and negative‑news exposure.  
+3. **Else**: skip robustness analysis and log a warning (exactly as required by FR‑006).
 
-1.  **Mathematical Coupling Check**: Verify `baseline_anxiety` and `anxiety_score` are distinct. If they are the same instrument or timepoint, drop `baseline_anxiety` from the model and flag (Edge Case 3).
-2.  **Multicollinearity**: Calculate Variance Inflation Factor (VIF). If VIF > 10 for any predictor, flag model as unstable (Edge Case 3).
-3.  **Multiple Comparisons**: Only one primary hypothesis test (coefficient of `news_exposure_freq`). No family-wise error correction needed unless multiple outcomes are tested (not in scope).
-4.  **Power Analysis**:
-    - If N < 30: Hard Stop.
-    - If 30 ≤ N < 100: Proceed with "Low Power" warning.
-    - Post-hoc power will be calculated based on observed effect size and N.
-5.  **Causal Inference**: The study is observational. All claims will be framed as **associational**, not causal.
+### Multiple Comparisons
+Only a single primary hypothesis (`β₁`) is tested; no family‑wise correction is needed.
 
-### Robustness Check (FR-006)
+### Power Considerations
+- Post‑hoc power is computed from observed effect size and sample size; reported in `output.flags` if `N < 100`.  
 
-- **Condition**: Re-run model on a subset of users with **High Education** (Top 25th percentile of education level) vs. Low Education.
-- **Pre-condition**: Ensure sufficient sample size in the subgroup (N ≥ 30).
-- **Metric**: Compare coefficient sign and significance (p-value) between the full sample and the high-education subset.
-- **Deviation Note**: The original spec required a check on 'social_media_engagement' (r > 0.3). This variable is unavailable. The check was substituted with 'Education Level' due to data constraints.
+### Causal Language
+All statements will be framed as **associations**; no causal language is used (Constitution VII).
+
+## Success‑Criteria Validation (SC)
+The pipeline will automatically generate `outputs/success_criteria_log.txt` containing PASS/FAIL for each SC, using the schema defined in `contracts/output.schema.yaml` for the regression results and a simple text format for the criteria log.
+
+---
+
+

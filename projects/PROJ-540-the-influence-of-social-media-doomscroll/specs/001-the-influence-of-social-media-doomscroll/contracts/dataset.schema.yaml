@@ -7,11 +7,11 @@ properties:
     description: "Unique anonymized identifier for the participant."
   news_exposure_freq:
     type: "number"
-    description: "Frequency of negative news consumption on social media."
+    description: "Frequency of negative news consumption on social media (proxy)."
     minimum: 0
   anxiety_score:
     type: "number"
-    description: "Outcome anxiety score (anticipatory or general proxy)."
+    description: "Outcome anxiety score (validated scale or proxy)."
     minimum: 0
   baseline_anxiety:
     type: "number"
@@ -28,26 +28,26 @@ properties:
     enum:
       - "Male"
       - "Female"
-      - "Non-binary"
       - "Other"
-    description: "Categorical gender."
+      - "Non-binary"
+    description: "Gender category."
   social_media_engagement:
     type: "number"
-    description: "Proxy for social media engagement (used in robustness check)."
+    description: "Hours per day (or equivalent) of overall social‑media use."
     minimum: 0
     nullable: true
   instrument_source:
     type: "string"
-    description: "Name of the anxiety instrument used."
+    description: "Name of the anxiety instrument (e.g., \"GAD-7\")."
   measurement_timepoint:
     type: "string"
-    description: "Timepoint of measurement (e.g., 'pre', 'post', 'trait')."
+    description: "Timepoint of measurement (e.g., \"pre\", \"post\", \"trait\")."
   proxy_flag:
     type: "boolean"
-    description: "True if 'general_anxiety' was used as a proxy for 'anticipatory_anxiety'."
+    description: "True if the anxiety score is used as a proxy for anticipatory anxiety."
   coupling_risk:
     type: "boolean"
-    description: "True if baseline and outcome anxiety risk mathematical coupling."
+    description: "True if baseline and outcome anxiety may be mathematically coupled."
 required:
   - participant_id
   - news_exposure_freq
