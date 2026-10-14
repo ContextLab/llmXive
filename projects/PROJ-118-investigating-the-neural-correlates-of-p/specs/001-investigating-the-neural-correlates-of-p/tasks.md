@@ -5,19 +5,19 @@
 
 ## Phase 0–5: Verified pipeline work (preserved, do not redo)
 
-- [ ] T010 [P] [FR-001] Implement `code/download.py`: fetch OpenNeuro ds003645 via `wget` (or `curl`) with retry logic (3 attempts, 10 s backoff), writing raw files to `data/raw`. Verified: files present in `data/raw`.
+- [ ] T010 [P] [FR-001] Implement `code/download.py`: fetch OpenNeuro ds003645 via `wget` (or `curl`) with retry logic (3 attempts, 10 s backoff), writing raw files to `data/raw`. Verified: files present in `data/raw`. <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
 - [ ] T011 [FR-001] Add checksum verification against the OpenNeuro manifest in `code/download.py`; raise on mismatch. **Note**: depends on T010 output. Verified.
 - [ ] T016 [US1] [FR-001b] Channel subsampling to the standard montage (Fz, FCz, Cz, Pz, …) in `code/preprocess.py`. Verified.
 - [ ] T017 [US1] [FR-002] Bandpass filter (1–30 Hz) and common‑average re‑reference in `code/preprocess.py`. Verified.
 - [ ] T018 [US1] [FR-002] Epoching (−200 ms to 600 ms) into "standard"/"deviant" conditions → `data/processed/epo_raw.fif`. Verified.
-- [x] T019/T020 [US1] [FR-003] ICA blink‑component detection (frontal correlation > 0.8) and removal, with removed‑component count logged → `data/processed/epo_clean.fif`. Verified.
+- [ ] T019/T020 [US1] [FR-003] ICA blink‑component detection (frontal correlation > 0.8) and removal, with removed‑component count logged → `data/processed/epo_clean.fif`. Verified.
 - [ ] T021 [US1] [SC-001] Participant exclusion for >50 % rejected trials, IDs logged to `data/processed/rejected_participants.log`. Verified.
-- [x] T022a/T022b [US2] [FR-004] Per‑participant standard/deviant ERPs and difference waves → `data/processed/diff_wave.fif`. Verified.
-- [x] T023/T024/T025 [US2] [FR-004] [SC-005] Peak detection (primary 150–250 ms, fallback 100–300 ms, ≥2.0 µV threshold), `peak_detected` flagging, and SNR computation on difference waves at Fz/FCz. Verified.
+- [ ] T022a/T022b [US2] [FR-004] Per‑participant standard/deviant ERPs and difference waves → `data/processed/diff_wave.fif`. Verified.
+- [ ] T023/T024/T025 [US2] [FR-004] [SC-005] Peak detection (primary 150–250 ms, fallback 100–300 ms, ≥2.0 µV threshold), `peak_detected` flagging, and SNR computation on difference waves at Fz/FCz. Verified.
 - [ ] T026 [US2] [FR-004] `results/metrics.csv` generation with all schema fields (`amplitude`, `latency`, `peak_detected`, `snr`, nulls as JSON null). Verified.
-- [x] T029–T035, T039, T039b [US3] [FR-005] [FR-006] Statistical analysis in `code/stats.py`: exclusion filtering, paired t‑tests (Wilcoxon fallback), FDR over 4 comparisons, mixed‑effects model, cluster‑based permutation test (1000 permutations), Cohen's d + 95 % CI, prevalence, latency‑window validation → `results/statistics.json`, `results/latency_validation.json`. Verified.
+- [ ] T029–T035, T039, T039b [US3] [FR-005] [FR-006] Statistical analysis in `code/stats.py`: exclusion filtering, paired t‑tests (Wilcoxon fallback), FDR over 4 comparisons, mixed‑effects model, cluster‑based permutation test (1000 permutations), Cohen's d + 95 % CI, prevalence, latency‑window validation → `results/statistics.json`, `results/latency_validation.json`. Verified.
 - [ ] T036–T038 [US3] [FR-007] Grand‑average ERP plots with CIs and topographic maps → `results/plots/erp_plot.png`, `results/plots/topomap.png`. Verified.
-- [x] T050/T051/T052 Integration/unit tests for preprocessing, extraction, FDR, and visualization. Verified.
+- [ ] T050/T051/T052 Integration/unit tests for preprocessing, extraction, FDR, and visualization. Verified.
 
 ## Phase 6: Repairs for verifier‑rejected items (redo with real artifacts)
 

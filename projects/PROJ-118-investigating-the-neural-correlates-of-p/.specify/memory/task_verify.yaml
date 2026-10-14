@@ -1,12 +1,19 @@
-T003: 2
-T008: 2
-T009: 2
-T029: 2
-T035: 1
-T040: 2
-T041: 2
-T042: 2
-T043: 2
-T044: 1
-T045: 1
-T050: 2
+T010: 1
+? "T019/T020 [US1] [FR-003] ICA blink\u2011component detection (frontal correlation\
+  \ >\u202F0.8) and removal, with removed\u2011component count logged \u2192 `data/processed/epo_clean.fif`.\
+  \ Verified."
+: 1
+? "T022a/T022b [US2] [FR-004] Per\u2011participant standard/deviant ERPs and difference\
+  \ waves \u2192 `data/processed/diff_wave.fif`. Verified."
+: 1
+? "T023/T024/T025 [US2] [FR-004] [SC-005] Peak detection (primary 150\u2013250\u202F\
+  ms, fallback 100\u2013300\u202Fms, \u22652.0\u202F\xB5V threshold), `peak_detected`\
+  \ flagging, and SNR computation on difference waves at Fz/FCz. Verified."
+: 1
+? "T029\u2013T035, T039, T039b [US3] [FR-005] [FR-006] Statistical analysis in `code/stats.py`:\
+  \ exclusion filtering, paired t\u2011tests (Wilcoxon fallback), FDR over 4 comparisons,\
+  \ mixed\u2011effects model, cluster\u2011based permutation test (1000 permutations),\
+  \ Cohen's\u202Fd + 95\u202F% CI, prevalence, latency\u2011window validation \u2192\
+  \ `results/statistics.json`, `results/latency_validation.json`. Verified."
+: 1
+T050/T051/T052 Integration/unit tests for preprocessing, extraction, FDR, and visualization. Verified.: 1
