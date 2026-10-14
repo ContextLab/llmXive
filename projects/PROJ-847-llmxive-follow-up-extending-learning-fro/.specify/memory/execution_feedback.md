@@ -18,28 +18,26 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data.py --download -> rc=1
-/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 252, in main
-    download_all()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 199, in download_all
-    n_gsm = _snapshot_to_jsonl(
-            ^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 175, in _snapshot_to_jsonl
-    for row in iterable:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 101, in _fetch_parquet
-    raise RuntimeError(
-RuntimeError: Failed to parse Parquet file for openai/gsm8k/main/test: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 20, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv -> rc=1
 
-2026-10-14 13:11:38,329 ERROR __main__: Failed to import training utilities: No module named 'torch'
+2026-10-14 14:09:36,021 ERROR __main__: Failed to import training utilities: No module named 'torch'
 
 - python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json -> rc=1
 
-2026-10-14 13:11:38,407 ERROR __main__: Adaptive mode not yet implemented in this task.
+2026-10-14 14:09:36,092 ERROR __main__: Adaptive mode not yet implemented in this task.
 
 - python -m code.analysis  --fixed outputs/fixed_baselines.csv  --adaptive outputs/adaptive_run.json  --outdir outputs/statistics -> rc=1
 
@@ -55,21 +53,17 @@ Trying to import the above resulted in these errors:
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **7473** real records with fields: question, answer.
+- **Verified**: this loads **8792** real records with fields: question, answer.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
-import sys
 from datasets import load_dataset
 
-# Load the full GSM8K training split using the required config name
-ds = load_dataset('openai/gsm8k', 'main', split='train')
-
-records = len(ds)
-print(f'RECORDS={records}')
-
-fields = ds.column_names
-print('FIELDS=' + ','.join(fields))
+ds_dict = load_dataset('openai/gsm8k', 'main')
+total_records = sum(len(split) for split in ds_dict.values())
+print(f'RECORDS={total_records}')
+first_split = next(iter(ds_dict.values()))
+print('FIELDS=' + ','.join(first_split.column_names))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

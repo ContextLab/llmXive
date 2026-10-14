@@ -1,14 +1,15 @@
 T001:
   c: true
-  h: bc2178ca9c6a5e1dc682e64209586470e392c75c5c63ae944f8b52393b11fbc3
-  r: The CLI script `code/run_experiments.py` exists, parses the YAML config, creates
-    the `outputs/` tree, and writes `outputs/run_config.json`; the execution log shows
-    `python -m code.run_experiments --config configs/quickstart.yaml` exited 0 printing
-    "Pipeline initialized", and the on-disk `outputs/` directory with `run_config.json`
-    matching the config confirms the run. `docs/quickstart.md` covers command line,
-    env vars, and seed control as required. (The dummy trainer/model are later tasks'
-    concerns, not T001's.)
-  sig: 13e09be3f5d8527490b0ddbc89bff64a52c08c739f57f0075ab4410d810c1c2a
+  h: 7bc6f4fa42bcfe0c72a60fb8c0bcadc17761b75fae012f2c5de7ce2e91a4ec98
+  r: 'The required artifacts all exist and are substantive: `code/run_experiments.py`
+    parses the YAML config via `yaml.safe_load`, creates the `outputs/` tree, writes
+    `outputs/run_config.json`, and prints "Pipeline initialized"; `docs/quickstart.md`
+    documents the command line, environment variables (none required), and seed control;
+    and `configs/quickstart.yaml` plus the on-disk `outputs/run_config.json` (whose
+    contents exactly mirror the config) provide execution evidence that the verification
+    command ran successfully. Minor doc inaccuracies (quickstart mentions a `--seed`
+    flag and stage execution '
+  sig: 429e91bed09b46c0b9d735990821abaaea500aeb5ba71784edccaa3eba678c47
 T003:
   c: false
   h: 0892b42699aa45a69ab2231d22e68ea23c51ac354a32792ca0dd991a26216c86
