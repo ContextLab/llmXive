@@ -1,1 +1,39 @@
-Exit code: 0\n
+Exit code: 1\ncode/analyze_energies.py:24:1: E302 expected 2 blank lines, found 1
+code/configure_linting.py:184:5: F841 local variable 'root' is assigned to but never used
+code/correlate_bulk.py:70:9: W503 line break before binary operator
+code/correlate_bulk.py:85:13: W503 line break before binary operator
+code/correlate_bulk.py:107:121: E501 line too long (129 > 120 characters)
+code/derive_scaling.py:14:1: E302 expected 2 blank lines, found 1
+code/derive_scaling.py:133:17: F541 f-string is missing placeholders
+code/derive_scaling.py:134:17: F541 f-string is missing placeholders
+code/main.py:109:5: F841 local variable 'exc' is assigned to but never used
+code/main.py:118:9: W503 line break before binary operator
+code/main.py:119:9: W503 line break before binary operator
+code/main.py:120:9: W503 line break before binary operator
+code/run_flake8_report.py:9:1: E302 expected 2 blank lines, found 1
+code/run_flake8_report.py:25:1: E305 expected 2 blank lines after class or function definition, found 1
+code/run_psi4.py:147:5: F841 local variable 'logger' is assigned to but never used
+code/write_scaling_results.py:103:121: E501 line too long (201 > 120 characters)
+code/write_scaling_results.py:108:9: F541 f-string is missing placeholders
+tests/integration/test_pipeline_us1.py:24:1: E402 module level import not at top of file
+tests/integration/test_pipeline_us1.py:25:1: E402 module level import not at top of file
+tests/integration/test_pipeline_us1.py:27:1: E402 module level import not at top of file
+tests/integration/test_pipeline_us1.py:28:1: E402 module level import not at top of file
+tests/integration/test_pipeline_us1.py:29:1: E402 module level import not at top of file
+tests/integration/test_pipeline_us1.py:30:1: E402 module level import not at top of file
+tests/integration/test_pipeline_us1.py:31:1: E402 module level import not at top of file
+tests/test_config.py:14:1: E402 module level import not at top of file
+tests/test_config.py:69:16: F821 undefined name 'random'
+tests/test_config.py:72:16: F821 undefined name 'random'
+tests/test_load_data.py:17:1: E402 module level import not at top of file
+tests/test_setup_directories.py:10:1: F811 redefinition of unused 'Path' from line 4
+tests/test_setup_directories.py:17:1: E402 module level import not at top of file
+tests/unit/test_bonferroni.py:35:9: F841 local variable 'm' is assigned to but never used
+tests/unit/test_correlation.py:15:1: E402 module level import not at top of file
+tests/unit/test_load_data.py:35:13: W503 line break before binary operator
+tests/unit/test_parse_psi4.py:17:1: E402 module level import not at top of file
+tests/unit/test_parse_psi4.py:115:1: W293 blank line contains whitespace
+tests/unit/test_parse_psi4.py:117:1: W293 blank line contains whitespace
+tests/unit/test_parse_psi4.py:119:1: W293 blank line contains whitespace
+tests/unit/test_scaling.py:18:1: E402 module level import not at top of file
+tests/unit/test_scaling.py:19:1: E402 module level import not at top of file

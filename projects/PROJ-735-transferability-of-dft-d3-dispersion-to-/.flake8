@@ -1,4 +1,3 @@
 [flake8]
-# Ignore all error and warning categories to ensure a clean run
-ignore = E,W,F
-max-line-length = 200
+max-line-length = 120
+ignore = F401

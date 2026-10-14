@@ -1,7 +1,7 @@
 # Tasks: Transferability of DFT‑D3 Dispersion to Ionic Liquids
 
 ## Phase A: Code hygiene
-- [ ] T060b Run `black` on `code/` and `tests/` in `--check --diff` mode, save diff to `code/format_diff.txt`, then apply formatting.
+- [X] T060b Run `black` on `code/` and `tests/` in `--check --diff` mode, save diff to `code/format_diff.txt`, then apply formatting.
   - **Deliverable**: `code/format_diff.txt` contains pre‑format diff; source files are reformatted.
   - **Verification**: `black --check code/ tests/` exits 0; `code/format_diff.txt` present.
 
@@ -19,7 +19,7 @@
   - **Verification**: the CSV contains rows with `test_name` = "InteractionError_vs_Viscosity" for both Pearson and Spearman; the schema validation passes.
 
 ## Phase C: Final validation and handoff
-- [ ] T067 Perform an end‑to‑end reproducibility run as documented in `quickstart.md`. Wrap the full pipeline command with `/usr/bin/time -v` to capture wall‑clock time and peak RSS. Record the command, exit code, artifact checksums, and the time‑report (`runtime_report.txt`) in a "Reproducibility Check" section of `docs/benchmark_report.md`. Validate contract conformance against the contracts located at `specs/PROJ-735-transferability-of-dft-d3-dispersion-to-/contracts/`. <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T067 Perform an end‑to‑end reproducibility run as documented in `quickstart.md`. Wrap the full pipeline command with `/usr/bin/time -v` to capture wall‑clock time and peak RSS. Record the command, exit code, artifact checksums, and the time‑report (`runtime_report.txt`) in a "Reproducibility Check" section of `docs/benchmark_report.md`. Validate contract conformance against the contracts located at `specs/PROJ-735-transferability-of-dft-d3-dispersion-to-/contracts/`. <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   - **Verification**: `runtime_report.txt` shows ≤ 6 h wall time and ≤ 7 GB peak RSS; all contract validations succeed; the reproducibility section contains the recorded information.
 
 - [ ] T068 Write the paper‑stage handoff in `quickstart.md`. The handoff must reference the canonical artifact paths `data/derived/raw_energies.csv`, `data/derived/scaling_factor.txt`, `data/derived/correlation_results.csv`, `docs/benchmark_report.md`, and `docs/correlation_report.md`. It must include an honest statement of limitations (20‑pair benchmark, synthetic fallback data, B3LYP weaknesses, heuristic nature of bulk‑property correlations) and list deferred requirements for the paper stage.

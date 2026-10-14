@@ -28,6 +28,7 @@ import json
 import sys
 from pathlib import Path
 from datetime import datetime
+from typing import Tuple, List
 
 from llmxive_toolkit import paths, get_logger
 
@@ -44,8 +45,9 @@ def sha256_file(path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
-def run_command(cmd: str) -> int:
-    """Execute a shell command via `/usr/bin/time -v` and return its exit code."""
+
+def run_command(cmd: str) -> Tuple[int, str, str]:
+    """Execute a shell command via `/usr/bin/time -v` and return its exit code, stdout, and stderr."""
     # The command is executed inside a bash -c string so that the && chaining works.
     full_cmd = ["/usr/bin/time", "-v", "bash", "-c", cmd]
     log.info(f"Running pipeline with time wrapper: {' '.join(full_cmd)}")
@@ -58,16 +60,23 @@ def run_command(cmd: str) -> int:
     # time -v writes its statistics to stderr; capture both streams.
     return result.returncode, result.stdout, result.stderr
 
+
 def write_runtime_report(
     command: str,
     exit_code: int,
     stdout: str,
     stderr: str,
-    artifact_paths: list[Path],
+    artifact_paths: List[Path],
     report_path: Path,
 ) -> None:
     """Compose the runtime report and write it to `report_path`."""
-    report_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure the parent directory exists and is a directory.
+    parent = report_path.parent
+    if parent.exists() and not parent.is_dir():
+        # An unexpected file exists where a directory should be; remove it.
+        log.warning(f"Removing unexpected file {parent} to create directory.")
+        parent.unlink()
+    parent.mkdir(parents=True, exist_ok=True)
 
     lines = [
         f"Reproducibility run – {datetime.utcnow().isoformat()}Z",
@@ -92,6 +101,7 @@ def write_runtime_report(
     report_path.write_text("\n".join(lines))
     log.info(f"Runtime report written to {report_path}")
 
+
 def validate_contracts(base_dir: Path) -> None:
     """
     Validate generated artifacts against JSON‑Schema contracts, if any are present.
@@ -109,7 +119,12 @@ def validate_contracts(base_dir: Path) -> None:
         )
         return
 
-    contracts_dir = base_dir / "specs" / "PROJ-735-transferability-of-dft-d3-dispersion-to-" / "contracts"
+    contracts_dir = (
+        base_dir
+        / "specs"
+        / "PROJ-735-transferability-of-dft-d3-dispersion-to-"
+        / "contracts"
+    )
     if not contracts_dir.is_dir():
         log.info("No contracts directory found – skipping validation.")
         return
@@ -136,8 +151,8 @@ def validate_contracts(base_dir: Path) -> None:
             if artifact_path.suffix == ".json":
                 instance = json.load(f)
             else:
-                # For CSV/MD we just validate that the file exists; full schema
-                # validation would require a custom loader.
+                # For CSV/MD we just validate that the file is present;
+                # full schema validation would require a custom loader.
                 instance = f.read()
 
         try:
@@ -146,6 +161,7 @@ def validate_contracts(base_dir: Path) -> None:
         except jsonschema.ValidationError as ve:
             log.error(f"Contract validation failed for {artifact_path}: {ve.message}")
             raise
+
 
 # ----------------------------------------------------------------------
 # Main reproducibility orchestration
@@ -209,6 +225,7 @@ def main() -> None:
                 "```",
             ]
         )
+        # Preserve existing content and add the new section
         benchmark_report.write_text(
             benchmark_report.read_text() + "\n".join(reproduc_section) + "\n"
         )
@@ -229,6 +246,7 @@ def main() -> None:
         sys.exit(exit_code)
 
     log.info("Reproducibility run completed successfully.")
+
 
 if __name__ == "__main__":
     main()

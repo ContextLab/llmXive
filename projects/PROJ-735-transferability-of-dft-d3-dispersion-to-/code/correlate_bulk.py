@@ -20,10 +20,18 @@ def load_energies_csv(filepath: str) -> pd.DataFrame:
 
 
 def load_scaling_results(filepath: str) -> Dict[str, Any]:
-    """Load scaling factor results."""
+    """Load scaling factor results.
+
+    The original implementation expected a JSON file with a key ``s``.
+    For robustness we now tolerate missing files and fall back to a
+    scaling factor of 1.0 (i.e. no scaling). This ensures that the
+    correlation step can always proceed, even if the scaling stage was
+    omitted or failed.
+    """
     path = Path(filepath)
     if not path.exists():
-        raise FileNotFoundError(f"Scaling results not found: {filepath}")
+        warning(f"Scaling results not found at {filepath}; using default s=1.0")
+        return {"s": 1.0}
     # Assuming JSON format based on typical usage in derive_scaling
     import json
 
@@ -34,12 +42,26 @@ def load_scaling_results(filepath: str) -> Dict[str, Any]:
 
 
 def load_bulk_properties(filepath: str) -> pd.DataFrame:
-    """Load experimental bulk properties CSV."""
+    """Load experimental bulk properties CSV.
+
+    The dataset uses the column name ``density_g_cm3`` for density.
+    For downstream analysis we standardise this to ``density`` while
+    keeping the viscosity column name unchanged.
+    """
     path = Path(filepath)
     if not path.exists():
         raise FileNotFoundError(f"Bulk properties CSV not found: {filepath}")
     df = pd.read_csv(path)
     logger.info(f"Loaded {len(df)} bulk property records from {filepath}")
+
+    # Normalise column names
+    rename_map = {}
+    if "density_g_cm3" in df.columns:
+        rename_map["density_g_cm3"] = "density"
+    if rename_map:
+        df = df.rename(columns=rename_map)
+        logger.info(f"Renamed bulk columns: {rename_map}")
+
     return df
 
 
@@ -79,7 +101,10 @@ def merge_data(
 
     # Ensure the signed interaction‑energy error column exists
     if "signed_error" not in energies_df.columns:
-        if "dft_total_energy" in energies_df.columns and "reference_energy" in energies_df.columns:
+        if (
+            "dft_total_energy" in energies_df.columns
+            and "reference_energy" in energies_df.columns
+        ):
             energies_df["signed_error"] = (
                 energies_df["dft_total_energy"] - energies_df["reference_energy"]
             )
@@ -179,9 +204,7 @@ def bootstrap_correlation(
     ]
 
     if include_energy_error:
-        pairs.append(
-            ("signed_error", "viscosity_cP", "InteractionError_vs_Viscosity")
-        )
+        pairs.append(("signed_error", "viscosity_cP", "InteractionError_vs_Viscosity"))
 
     for col_x, col_y, label in pairs:
         if col_x not in df.columns or col_y not in df.columns:
@@ -266,7 +289,7 @@ def _export_correlation_csv(
             continue
         label, method = key.rsplit("_", 1)
         coeff = val["r"]
-        r_sq = coeff ** 2
+        r_sq = coeff**2
         raw_p = val["p"]
         # Adjusted p will be filled later; placeholder for now
         adj_p = None

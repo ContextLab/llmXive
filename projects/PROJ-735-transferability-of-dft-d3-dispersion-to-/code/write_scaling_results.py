@@ -124,7 +124,7 @@ def main() -> None:
     Main entry point for Task T025.
 
     This function orchestrates the workflow:
-    1. Load raw energies (to ensure T022/T023 have been run)
+    1. Load raw energies (to ensure T017/T022/T023 have been run)
     2. Load the scaling results from derive_scaling.py output
     3. Write the scaling factor and CI to data/derived/scaling_factor.txt
     """

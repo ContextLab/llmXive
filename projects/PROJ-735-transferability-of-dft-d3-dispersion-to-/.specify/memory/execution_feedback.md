@@ -7,18 +7,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-
-2026-10-14 04:16:41,324 INFO __main__: Running pipeline with time wrapper: /usr/bin/time -v bash -c python code/load_data.py && python code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py
+hon code/run_psi4.py && python code/analyze_energies.py && python code/derive_scaling.py && python code/correlate_bulk.py --scaling data/derived/scaling_stats.json --include-energy-error && python code/generate_reports.py
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py", line 234, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py", line 252, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py", line 180, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py", line 196, in main
     write_runtime_report(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py", line 70, in write_runtime_report
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py", line 1116, in mkdir
-    os.mkdir(self, mode)
-FileExistsError: [Errno 17] File exists: 'data/derived'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py", line 94, in write_runtime_report
+    lines.append(f"  {p.relative_to(Path.cwd())}: {checksum}")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py", line 730, in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+ValueError: 'data/derived/raw_energies.csv' is not in the subpath of '/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-' OR one path is relative and the other is absolute.
 
 
 ## Declared deliverables still missing

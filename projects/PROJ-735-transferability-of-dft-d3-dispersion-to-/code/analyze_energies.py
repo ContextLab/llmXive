@@ -16,7 +16,6 @@ import sys
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from utils import calculate_metrics, bootstrap_resample, bootstrap_mae
 from logger import get_logger, info, warning, error, critical
 from load_data import load_synthetic_dataset
 
@@ -148,11 +147,11 @@ def calculate_metrics(
     Calculate MAE, RMSE, and MSE between reference and predicted values.
     Returns (MAE, RMSE, MSE).
     """
-    # utils.calculate_metrics expects an array of errors, not raw values.
-    # We therefore compute the error array first.
     errors = predicted - reference
-    metrics = calculate_metrics(errors)
-    return metrics["mae"], metrics["rmse"], metrics["mse"]
+    mae = float(np.mean(np.abs(errors)))
+    rmse = float(np.sqrt(np.mean(errors ** 2)))
+    mse = float(np.mean(errors ** 2))
+    return mae, rmse, mse
 
 
 def bootstrap_analysis(
@@ -167,7 +166,7 @@ def bootstrap_analysis(
     np.random.seed(random_state)
 
     # Calculate original MAE
-    original_mae = calculate_metrics(reference, predicted)[0]
+    original_mae, _, _ = calculate_metrics(reference, predicted)
 
     # Bootstrap resampling
     mae_samples = []
@@ -175,7 +174,7 @@ def bootstrap_analysis(
         indices = np.random.randint(0, len(reference), len(reference))
         ref_sample = reference[indices]
         pred_sample = predicted[indices]
-        mae_sample = calculate_metrics(ref_sample, pred_sample)[0]
+        mae_sample, _, _ = calculate_metrics(ref_sample, pred_sample)
         mae_samples.append(mae_sample)
 
     mae_samples = np.array(mae_samples)
@@ -196,11 +195,15 @@ def _generate_placeholder_raw_energies(csv_path: Path) -> pd.DataFrame:
     This mirrors the logic in `generate_reports.ensure_raw_energies` but is
     kept locally to avoid circular imports.
     """
-    synthetic_zip = Path(__file__).resolve().parents[2] / "data" / "IL-Benchmark-local.zip"
+    synthetic_zip = (
+        Path(__file__).resolve().parents[2] / "data" / "IL-Benchmark-local.zip"
+    )
     pairs, _ = load_synthetic_dataset(synthetic_zip)
 
     df = pd.DataFrame(pairs)
-    df = df.rename(columns={"reference_energy": "reference_energy", "pair_id": "pair_id"})
+    df = df.rename(
+        columns={"reference_energy": "reference_energy", "pair_id": "pair_id"}
+    )
     df["dft_total_energy"] = df["reference_energy"]  # placeholder: no error
     df["d3_dispersion_energy"] = 0.0
     df["signed_error"] = 0.0
