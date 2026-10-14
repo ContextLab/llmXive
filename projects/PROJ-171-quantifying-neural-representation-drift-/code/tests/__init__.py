@@ -1,3 +1,3 @@
 """
-Test package marker for ``code.tests``.
+Test suite for the neural representation drift pipeline.
 """

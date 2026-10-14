@@ -1,18 +1,9 @@
 status: none
-intent: Allen Institute Neuropixels electrophysiology behavioral dataset NWB python
-  package dataset
-required_fields:
-- unit_id
-- session_day
-- spike_times
-- spike_counts
-- trial_id
-- event_timestamp
-- behavioral_choice
-- behavioral_reaction_time
-- unit_presence_across_sessions
-- sampling_rate
-- probe_location
-cache_key: 3c86f4ddbc5458eddcedc380f37a536b4ffa0905263dbe5866742f2c45bcc1b6
-searched_at: '2026-10-14T23:31:54.032252+00:00'
+intent: '### User Story 1 - Core Drift Quantification Pipeline (Priority: P1) A researcher
+  needs to ingest raw electrophysiology and behavioral data, process it into stable
+  population activity matrices, and compute the primary metric: the rate of representational
+  drift over training days. **Why this priority'
+required_fields: []
+cache_key: 3dc2f4dd8f59c3090616e49ba5a79b99ba8371b0fa788639c27eb223f080054f
+searched_at: '2026-10-14T23:33:55.083829+00:00'
 retry_count: 1

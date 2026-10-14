@@ -23,7 +23,8 @@ _SCHEMA_PATH = paths.code(
     "input_schema.schema.yaml",
 )
 with _SCHEMA_PATH.open("r", encoding="utf-8") as f:
-    _INPUT_SCHEMA = json.load(f)
+    import yaml
+    _INPUT_SCHEMA = yaml.safe_load(f)
 
 _REQUIRED_FIELDS = ["subject_id", "session_id", "day_index", "spike_counts", "trial_success"]
 

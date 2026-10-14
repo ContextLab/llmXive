@@ -4,10 +4,11 @@ Tests for the synthetic data loader and validator.
 
 import json
 import pathlib
+from pathlib import Path
 
 import pytest
 
-from src.data import loader, validator
+from code.src.data import loader, validator
 from llmxive_toolkit import paths
 
 def test_generate_and_validate(tmp_path, monkeypatch):
@@ -20,30 +21,27 @@ def test_generate_and_validate(tmp_path, monkeypatch):
     out_jsonl = tmp_path / "synthetic_records.jsonl"
     out_checksum = tmp_path / "checksums.json"
 
-    # Monkey‑patch the paths used inside the loader to point to the temp dir
-    monkeypatch.setattr(
-        loader,
-        "paths",
-        type(
-            "TmpPaths",
-            (),
-            {
-                "data": lambda *parts: pathlib.Path(tmp_path, *parts),
-                "code": lambda *parts: pathlib.Path(tmp_path, *parts),
-            },
-        ),
-    )
+    # Monkey‑patch paths.data to point to the temp dir
+    def mock_data(*parts):
+        return tmp_path / Path(*parts)
+
+    def mock_code(*parts):
+        return paths.code(*parts)
+
+    monkeypatch.setattr("code.src.data.loader.paths.data", mock_data)
+    monkeypatch.setattr("code.src.data.loader.paths.code", mock_code)
+
     # Run the generation
     loader.main()
 
     # Verify files exist
-    assert out_jsonl.exists()
-    assert out_checksum.exists()
+    assert out_jsonl.exists(), f"Expected {out_jsonl} to exist"
+    assert out_checksum.exists(), f"Expected {out_checksum} to exist"
 
-    # Load a few records and validate them
+    # Load records and validate them
     with out_jsonl.open("r", encoding="utf-8") as f:
         lines = f.readlines()
-    assert len(lines) == 20 * 10  # 20 subjects × 10 days
+    assert len(lines) == 20 * 10, f"Expected 200 records, got {len(lines)}"
 
     # Pick a valid record and ensure validator passes
     valid_record = json.loads(lines[0])

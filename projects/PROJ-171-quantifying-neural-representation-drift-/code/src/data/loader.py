@@ -18,8 +18,8 @@ from pathlib import Path
 
 import numpy as np
 from llmxive_toolkit import paths, get_logger
-from src.config import CONFIG
-from src.data import validator
+from code.src.config import CONFIG
+from code.src.data import validator
 
 log = get_logger(__name__)
 
@@ -58,11 +58,12 @@ def _apply_drift(base_pattern: np.ndarray, drift_rate: float, day: int) -> np.nd
     # to the power ``day`` by successive multiplication.
     rot = _random_orthogonal_matrix(num_units)
     # Apply the rotation ``day`` times (equivalent to rot^day)
+    result = base_pattern.copy()
     for _ in range(day):
-        base_pattern = rot @ base_pattern
+        result = rot @ result
     # Add a small linear component to emulate gradual change
-    base_pattern += drift_rate * day
-    return base_pattern
+    result += drift_rate * day
+    return result
 
 def _sigmoid(x: np.ndarray) -> np.ndarray:
     return 1 / (1 + np.exp(-x))
@@ -88,7 +89,7 @@ def generate_synthetic_records(
     num_units : int
         Number of neural units recorded for each subject.
     num_bins : int
-        Number of 20 ms bins per day (i.e., length of the spike‑count vector).
+        Number of 20 ms bins per day (i.e., length of the spike‑count vector).
 
     Returns
     -------
