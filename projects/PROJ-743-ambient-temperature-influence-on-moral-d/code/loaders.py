@@ -1,73 +1,50 @@
 """
 loaders.py
 ----------
-Helper utilities for loading large Parquet files.
-
-The project works with potentially‑gigabyte‑scale datasets; loading the entire
-file into memory may be impossible on the CI runner.  The two public helpers
-are:
-
-  * ``load_parquet_as_df(path)`` – convenience wrapper around ``pandas.read_parquet``
-    that raises a clear ``FileNotFoundError`` if the file does not exist.
-
-  * ``chunked_parquet_loader(path, batch_size=100_000)`` – generator that
-    yields ``pandas.DataFrame`` objects of at most ``batch_size`` rows,
-    using ``pyarrow.dataset`` for efficient streaming.
+Simple helper for loading Parquet files in a memory‑efficient way.
+The project frequently works with large datasets; this module provides
+a thin wrapper around ``pandas.read_parquet`` that logs the operation
+and can be swapped for a streaming implementation later without
+touching downstream code.
 """
+import logging
 from pathlib import Path
-from typing import Generator
 
 import pandas as pd
-import pyarrow.dataset as ds
 
-def load_parquet_as_df(path: Path) -> pd.DataFrame:
+from setup_logging import get_data_quality_logger
+
+
+def load_parquet_as_df(parquet_path: str | Path) -> pd.DataFrame:
     """
-    Load a Parquet file into a pandas DataFrame.
+    Load a Parquet file and return a DataFrame.
 
     Parameters
     ----------
-    path: Path
+    parquet_path: str or Path
         Path to the Parquet file.
 
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame
+        The loaded data.
 
     Raises
     ------
     FileNotFoundError
-        If ``path`` does not exist.
+        If the file does not exist.
     """
+    logger: logging.Logger = get_data_quality_logger()
+    path = Path(parquet_path)
     if not path.is_file():
-        raise FileNotFoundError(f"Parquet file not found: {path}")
-    return pd.read_parquet(path)
-
-def chunked_parquet_loader(path: Path, batch_size: int = 100_000) -> Generator[pd.DataFrame, None, None]:
-    """
-    Stream a Parquet file in chunks.
-
-    Parameters
-    ----------
-    path: Path
-        Path to the Parquet file.
-    batch_size: int, optional
-        Maximum number of rows per yielded DataFrame (default 100 000).
-
-    Yields
-    ------
-    pd.DataFrame
-        DataFrames containing up to ``batch_size`` rows.
-
-    Notes
-    -----
-    The implementation uses ``pyarrow.dataset`` which can read columnar
-    data without loading the whole file into memory.  Each batch is
-    materialised as a pandas DataFrame for downstream compatibility.
-    """
-    if not path.is_file():
+        logger.error(f"Parquet file not found: {path}")
         raise FileNotFoundError(f"Parquet file not found: {path}")
 
-    dataset = ds.dataset(path, format="parquet")
-    # ``to_table`` with ``batch_size`` returns an iterator of Arrow tables.
-    for batch in dataset.to_batches(batch_size=batch_size):
-        yield batch.to_pandas()
+    logger.info(f"Loading Parquet file: {path}")
+    try:
+        df = pd.read_parquet(path)
+        logger.info(f"Loaded {len(df)} rows from {path}")
+        return df
+    except Exception as exc:
+        logger.error(f"Failed to read Parquet file {path}: {exc}")
+        raise

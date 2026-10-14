@@ -5,18 +5,15 @@ Validates the presence, integrity, and basic schema of the Moral Machine
 dataset and performs a lightweight check that the Copernicus Climate Data
 Store (CDS) API is reachable for ERA5 temperature data.
 
-Adjustments for T002
---------------------
-* Accepts ``.csv`` **or** ``.csv.gz`` for the Moral Machine file.
-* If the ERA5 directory is missing, it is created (empty) – the
-  validation now succeeds as long as the directory exists.
-* All logging is performed via the existing data‑quality logger.
+Enhancements for T001:
+* If the Moral Machine file is missing, the script now attempts to
+  download it automatically using ``download_moral_machine.download_moral_machine``.
+* Logging is unified via ``setup_logging.get_data_quality_logger``.
 """
 import argparse
 import hashlib
 import json
 import logging
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -32,14 +29,14 @@ except ImportError as exc:
         "Add it to 'requirements.txt' and reinstall dependencies."
     ) from exc
 
-# ----------------------------------------------------------------------
-# Project‑specific configuration imports
-# ----------------------------------------------------------------------
+# Project‑specific imports
 from config import (
     DATA_RAW_DIR,
     get_path_env_override,
 )
 from setup_logging import get_data_quality_logger
+from download_moral_machine import download_moral_machine
+
 
 # ----------------------------------------------------------------------
 # Constants
@@ -106,9 +103,18 @@ def validate_file(path: Path, logger: logging.Logger) -> tuple[bool, str]:
     """Check existence and (optionally) checksum of the Moral Machine file."""
     resolved = _resolve_moral_path(path)
     if not resolved:
-        msg = f"File not found: {path}"
-        logger.error(msg)
-        return False, msg
+        # Attempt automatic download
+        logger.warning(f"Moral Machine file not found at {path}. Attempting download.")
+        try:
+            download_moral_machine(output_path=path)
+            resolved = _resolve_moral_path(path)
+            if not resolved:
+                raise FileNotFoundError
+            logger.info(f"Download succeeded. File now at {resolved}")
+        except Exception as exc:
+            msg = f"Automatic download failed: {exc}"
+            logger.error(msg)
+            return False, msg
 
     logger.info(f"Found Moral Machine file: {resolved}")
 
@@ -153,7 +159,7 @@ def validate_era5_directory(era5_dir: Path, logger: logging.Logger) -> tuple[boo
     """
     Verify that the ERA5 directory exists.  If it does not exist, create it.
     The original implementation required at least one file; for the purposes
-    of T002 we accept an empty directory (the actual ERA5 fetch is performed
+    of T001 we accept an empty directory (the actual ERA5 fetch is performed
     later in the pipeline).
     """
     if not era5_dir.is_dir():
@@ -205,7 +211,7 @@ def verify_cds_api(logger: logging.Logger) -> tuple[bool, str]:
 def write_report(report_path: Path, report: dict) -> None:
     """Write the validation report as pretty‑printed JSON."""
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(report_path, "w") as f:
+    with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2, sort_keys=True)
     # Also echo a concise line to the logger for quick visibility.
     logger = get_data_quality_logger()
@@ -236,17 +242,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    # Set up the project‑wide data‑quality logger.
     logger = get_data_quality_logger()
-    if not logger.handlers:
-        # If the logger has not been configured elsewhere, configure a simple console logger.
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
 
     moral_path = Path(args.input)
     era5_dir = Path(args.temp)
@@ -265,7 +261,6 @@ def main() -> int:
         return 1
 
     # 2. Required columns
-    # Resolve the actual file path (handles .gz fallback)
     resolved_path = _resolve_moral_path(moral_path)
     if not resolved_path:  # should not happen – already checked above
         report["checks"]["moral_machine_columns"] = {

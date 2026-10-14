@@ -1,9 +1,9 @@
 {
   "checks": {
     "moral_machine_file": {
-      "detail": "File not found: data/raw/moral_machine.csv",
+      "detail": "Automatic download failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/ethical-ai/moral-machine/master/data/processed/moral_machine.csv",
       "status": false
     }
   },
-  "timestamp": "2026-10-14T06:09:03.683133Z"
+  "timestamp": "2026-10-14T07:13:01.616812Z"
 }

@@ -7,19 +7,13 @@ pyarrow
 geopandas
 matplotlib
 seaborn
-requests
+geopy
+shapely
+ruff
+black
+pytest
 pyyaml
 tomli
 tomli_w
 patsy
-ruff
-black
-pytest
-geopy
-shapely
-osmnx
-pydantic
-# No additional dependencies needed beyond the original list; the
-# ``requests`` package (already present) is used for the new download
-# script.  Keeping the file explicit ensures the verifier can see the
-# pinned dependency set.
+requests

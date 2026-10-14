@@ -1,93 +1,66 @@
 """
 setup_logging.py
-----------------
-Centralized logging utilities for the project.
+-----------------
+Central logging utilities for the project. Provides two loggers:
+* data_quality_logger: logs high‑level pipeline messages to the console and
+  to ``results/logs/data_quality.log``.
+* exclusion_logger: logs records that are filtered out during ingestion to
+  ``results/logs/exclusion_log.csv`` (as a CSV) and also emits brief messages
+  to the console.
 
-Provides three logger factories:
-  * get_data_quality_logger()      – logs data‑quality messages.
-  * get_exclusion_logger()        – logs records excluded during ingestion.
-  * get_model_diagnostics_logger() – logs diagnostics from the modeling step.
-
-All loggers write to files under the ``results/logs`` directory and also emit
-to the console. The log files are created lazily; the parent directory is
-guaranteed to exist by ``config.py``.
+The loggers are lightweight and avoid duplicate handlers when imported
+multiple times.
 """
 import logging
 import sys
 from pathlib import Path
 
-from llmxive_toolkit import paths
+from config import RESULTS_LOG_DIR
 
-# Ensure the log directory exists (config.py already creates it, but we are defensive)
-LOG_DIR = paths.results("logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+# Ensure the results/logs directory exists (config already creates it,
+# but this is defensive in case the module is imported before config runs)
+(RESULTS_LOG_DIR).mkdir(parents=True, exist_ok=True)
 
-def _configure_logger(name: str, logfile: Path) -> logging.Logger:
-    """
-    Internal helper to create (or retrieve) a logger with a file handler.
 
-    Parameters
-    ----------
-    name: str
-        The logger name.
-    logfile: Path
-        Path to the log file (will be created if missing).
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
-    """
+def _get_logger(name: str, log_file: Path | None = None) -> logging.Logger:
+    """Create or retrieve a logger with a sensible formatter."""
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
-    # Avoid adding duplicate handlers if this function is called multiple times.
-    if not any(isinstance(h, logging.FileHandler) and h.baseFilename == str(logfile) for h in logger.handlers):
+    # Avoid adding duplicate handlers if this function is called repeatedly.
+    if not logger.handlers:
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
 
-        # Console handler (stdout)
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+        # Console handler (always present)
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
 
-        # File handler
-        file_handler = logging.FileHandler(logfile, mode="a")
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
+        # Optional file handler
+        if log_file:
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+            fh = logging.FileHandler(log_file, encoding="utf-8")
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
     return logger
+
 
 def get_data_quality_logger() -> logging.Logger:
     """
-    Logger for data‑quality validation steps.
-
-    Returns
-    -------
-    logging.Logger
+    Logger for high‑level pipeline status messages.
+    Writes to ``results/logs/data_quality.log``.
     """
-    logfile = LOG_DIR / "data_quality.log"
-    return _configure_logger("data_quality", logfile)
+    log_path = RESULTS_LOG_DIR / "data_quality.log"
+    return _get_logger("data_quality", log_path)
+
 
 def get_exclusion_logger() -> logging.Logger:
     """
-    Logger for records excluded during ingestion / preprocessing.
-
-    Returns
-    -------
-    logging.Logger
+    Logger used during ingestion to note why records are excluded.
+    The logger itself only emits to the console; the actual CSV logging
+    is performed directly in ``code/ingestion.py`` when records are
+    written to ``results/logs/exclusion_log.csv``.
     """
-    logfile = LOG_DIR / "exclusion.log"
-    return _configure_logger("exclusion", logfile)
-
-def get_model_diagnostics_logger() -> logging.Logger:
-    """
-    Logger for model fitting diagnostics (convergence, warnings, etc.).
-
-    Returns
-    -------
-    logging.Logger
-    """
-    logfile = LOG_DIR / "model_diagnostics.log"
-    return _configure_logger("model_diagnostics", logfile)
+    return _get_logger("exclusion")
