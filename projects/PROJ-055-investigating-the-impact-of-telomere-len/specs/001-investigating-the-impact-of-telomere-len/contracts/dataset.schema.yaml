@@ -8,7 +8,7 @@ properties:
     description: "Unique species identifier (Genus_species)."
   telomere_length_kb:
     type: "number"
-    description: "Species-mean telomere length in kilobases. Must be positive."
+    description: "Species‑mean telomere length in kilobases. Must be positive."
     minimum: 0.0
   lifespan_years:
     type: "number"

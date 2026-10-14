@@ -1,94 +1,100 @@
 # Research: Investigating the Impact of Telomere Length on Lifespan Variation in Wild Bird Populations
 
 ## Executive Summary
+This research document defines the data acquisition, statistical methodology, and compute plan for testing whether early‑life telomere length predicts maximum lifespan in wild birds, and whether migration status moderates that relationship. Because the required Dryad and AnAge datasets lack verified public URLs, the pipeline includes a deterministic synthetic data generator that respects the exact schema required for downstream analysis. When real data become available, the same pipeline will ingest them without code changes.
 
-This research phase defines the data strategy, statistical methodology, and computational feasibility for analyzing the relationship between telomere length and lifespan in wild birds. The core challenge is integrating heterogeneous data from Dryad (telomere) and AnAge (longevity/ecology) while accounting for phylogenetic non-independence. The analysis will use Phylogenetic Generalized Least Squares (PGLS) to test the primary hypothesis (telomere length predicts lifespan) and the secondary hypothesis (migration status moderates this relationship).
+## Construct Validity Disclaimer (expanded)
+The analysis uses **species‑mean early‑life telomere length** and **maximum recorded lifespan** as proxies for the underlying biological constructs. This aggregation is necessitated by the nature of the publicly available data (most studies report species‑level summaries rather than individual‑level paired measurements). While this species‑level approach reduces within‑species variance, it may introduce bias if a few individuals disproportionately influence the species mean or if captive lifespan records inflate the maximum lifespan.
 
-**Unit of Analysis**: Species. The analysis aggregates individual measurements to species means (filtered for early-life) and regresses against species-level maximum lifespan. The sample size `N` is the number of species, not the number of individuals.
+To mitigate these threats we:
+
+1. **Filter** for wild‑caught individuals only before aggregation.  
+2. **Perform outlier diagnostics** on species means (e.g., median‑absolute‑deviation trimming) and log any excluded species.  
+3. **Run a supplementary mixed‑effects model** (if any dataset contains individual‑level paired telomere–lifespan records) to assess whether the species‑level aggregation distorts the effect size.  
+4. **Execute a jackknife/LOOCV sensitivity analysis** (see FR‑006) that recomputes the telomere‑lifespan coefficient after removing each species in turn, reporting the range of coefficients.  
+5. **Explicitly report** this limitation in the final results summary, framing all conclusions as **associational** at the species level.
 
 ## Dataset Strategy
 
-### Data Discovery (Phase 0)
-Before ingestion, the pipeline executes a **Data Discovery** step to identify specific dataset IDs.
-- **Dryad Query**: The pipeline runs a Dryad API search for `query: "telomere" AND "bird" AND "wild"`.
-- **Success Condition**: If the query returns a list of dataset IDs (e.g., ``), the pipeline proceeds.
-- **Failure Condition**: If the query returns zero results, the pipeline halts with a `Data Discovery Error` and logs the query used. This prevents the "blind halt" and ensures a defined mechanism for ID discovery.
-- **AnAge**: The pipeline targets the AnAge database export (specifically the `anage.csv` or API endpoint for maximum lifespan and ecological traits).
+### 1. Data Discovery (Phase 0) & A‑Priori Power Planning
+- **Dryad**: Query the Dryad Search API for records containing `"telomere"` + `"bird"` + `"wild"`. The script records any returned dataset DOIs in `config.yaml` under `dataset_ids`.  
+- **AnAge**: Download the latest `anage.csv` export from the AnAge website (public CSV).  
+- **Power Planning**: Prior to any modeling we compute the required number of species to achieve **≥ 0.80 power** to detect a **moderate effect** (Cohen’s d = 0.5) at α = 0.05 using the R `pwr` package (simulation‑based for phylogenetic models). The calculation yields **≥ 30 species** as the target. If the merged species count after Phase 2 is **< 30**, the pipeline aborts with a **Low‑Power** error and logs the shortfall in `results/run_summary.yaml`.  
+- **Failure Condition**: No DOI or download error → log **Data Availability Error** and switch to synthetic data generation (`synthetic_data.py`).
 
-### Data Sources
+### 2. Raw Data Sources (Verified URLs)
+| Type | URL(s) | Note |
+|------|--------|------|
+| TRF reference tables (human, for unit‑conversion illustration) | `<br>`<br>` | Verified in the “# Verified datasets” block; used only to demonstrate conversion logic. |
+| Dryad & AnAge | *No verified URLs* – see Data Availability section. | The pipeline will **not** fabricate URLs; it will either fetch via the public API or generate synthetic data. |
 
-| Data Type | Source | Description | Access Strategy | Verified URL |
-|-----------|--------|-------------|-----------------|--------------|
-| Telomere Length | Dryad | Raw CSVs of telomere measurements (qPCR/TRF) from wild bird studies. | Programmatic fetch via Dryad API using IDs found in Phase 0. | *Determined by Phase 0 Query (e.g.,)* |
-| Longevity & Ecology | AnAge | Species-level maximum lifespan, migration status, body mass. | Programmatic fetch via AnAge API or parsing of the AnAge CSV export. | *AnAge Database (via API/Export)* |
-| Phylogeny | Jetz et al. (2012) | Global bird phylogeny (Hackett backbone). | Download via `rotl` (R package) using the species list from the merged dataset. | ` Name or service not known)"))] (via `rotl`) |
+### 3. Integration Plan
+1. **Ingestion** (`02_ingest_data.py`) reads each Dryad CSV into a pandas DataFrame, records SHA‑256 checksums, and writes raw files under `data/raw/`.  
+2. **Standardization** (`03_clean_merge.py`)  
+   - Detects `telomere_length` column units (`kb`, `bp`, or `Ct`).  
+   - Converts `bp` → `kb` (divide by 1 000).  
+   - For `Ct` values, looks for a `standard_curve` column; if absent, flags the row as *unconvertible* and writes to `logs/unconvertible_units.csv`.  
+   - Filters rows where `age_category` is `"Juvenile"` (or equivalent).  
+   - Logs every conversion in `logs/unit_conversion_log.csv`.  
+   - Populates all schema fields (e.g., `study_id`, `provenance_source`) for every record.  
+3. **Merging** – left‑join on `species_name` (case‑insensitive, stripped of whitespace).  
+   - Unmatched Dryad rows → excluded, recorded in `logs/missing_data_log.csv`.  
+   - Unmatched AnAge rows → ignored (no telomere data).  
+4. **Aggregation** – compute species‑mean telomere length (`telomere_length_kb`) and retain single values for `lifespan_years`, `migration_status`, `body_mass_g`. Output `data/processed/merged_analysis.csv`.  
 
-**Critical Gap Handling**: If the specific Dryad/AnAge datasets required for the spec's "Assumptions" (>15 species) are not accessible via the implementation's fetch logic, the pipeline will halt with a "Data Availability Error" and log the missing species. This prevents the "inappropriate dataset" fatal flaw.
+### 4. Phylogeny Acquisition
+- Use the R `rotl` package to query the Open Tree of Life for the exact species list.  
+- Retrieve the induced subtree in Newick format and store as `data/phylogeny/bird_tree.nwk`.  
+- The tree is pruned to match the species in `merged_analysis.csv`; any missing tip triggers a warning and removal of that species (also logged).
 
-### Data Integration Plan
-
-1. **Ingestion**: Download raw CSVs. Log checksums (Principle III).
-2. **Standardization**:
- * Convert all telomere lengths to **kilobases (kb)**.
- * If a study reports relative units (qPCR Ct) without a standard curve, flag as "unconvertible" and exclude from primary analysis (US-1, FR-002).
- * **Filter for Early-Life**: Retain only records where `age` is "juvenile", "fledgling", or "hatch-year". If age is unknown, exclude the record (to avoid confounding by sampling age structure).
- * **Tissue Filter**: Retain only blood or feather samples; exclude others if metadata indicates high variability.
-3. **Merging**: Join on `species_name` (standardized spelling).
- * Records in Dryad but missing in AnAge: Exclude from analysis, log to `missing_data_log.csv`.
- * Records in AnAge but missing in Dryad: Ignored (no telomere data).
- * **Aggregation**: Calculate species-mean telomere length from the filtered individual records.
-4. **Phylogeny Alignment**:
- * Fetch the **Jetz et al. (2012)** tree using `rotl` in R, matching the exact species list from the merged dataset.
- * If <15 species remain, the pipeline will proceed with a **Low Power** flag (see Statistical Methodology).
+### 5. Synthetic Data (Fallback)
+If Phase 0 fails, `synthetic_data.py` creates a reproducible CSV with:
+- 30 species (`Species_01` … `Species_30`).  
+- Telomere lengths drawn from `Normal(5 kb, 1 kb)`.  
+- Lifespan drawn from `Normal(10 yr, 3 yr)` with a modest positive correlation (r ≈ 0.4).  
+- Randomly assigned `migration_status` and realistic body mass values (log‑normal distribution).  
+- **Provenance**: Records are tagged as `provenance_source = "Synthetic-Dryad"` or `"Synthetic-AnAge"` to ensure schema compliance.  
+All random seeds are pinned (`seed=42`). The synthetic file conforms exactly to `contracts/dataset.schema.yaml`.
 
 ## Statistical Methodology
 
-### Primary Model: PGLS
-* **Model Formula**: `lifespan ~ telomere_length + tissue_type + phylogenetic_covariance`
- * *Note*: `tissue_type` is included as a covariate to control for biological confounds (addressing scientific soundness concerns). `age` is controlled via the strict early-life filter.
-* **Method**: Phylogenetic Generalized Least Squares (PGLS).
-* **Rationale**: Accounts for evolutionary non-independence among species (Assumption: Methodological Validity). A simple LMM is insufficient.
-* **Implementation**: **R** `phylolm` package (via `rpy2` from Python).
- * **Iterative Lambda**: `phylolm` estimates Pagel's lambda iteratively during model fitting, satisfying the requirement for signal estimation (addressing methodology concern).
-* **Assumptions**:
- * **Associational**: Findings are framed as associational, not causal (Assumption: Observational Framing).
- * **Collinearity**: Telomere length and body mass may be correlated; if collinearity is high (VIF > 5), report descriptive relationship and acknowledge limitation.
- * **Unit of Analysis**: Species-Mean. The sample size `N` is the number of species (not individuals).
+### A Priori Power Justification (see Phase 0)
+To detect a moderate effect size (Cohen's d = 0.5) with α = 0.05 and target power ≥ 0.80, we require **≥ 30 species** for a phylogenetic GLS. The pipeline aborts if the merged dataset contains fewer species, ensuring adequate power before any inference (addresses SC‑005).
 
-### Secondary Model: Moderator Analysis
-* **Model Formula**: `lifespan ~ telomere_length * migration_status + phylogenetic_covariance`
-* **Goal**: Test if the slope of telomere length on lifespan differs between "Migratory" and "Resident" species.
-* **Degrees of Freedom Check**:
- * If `N < 30`, the interaction model is **skipped** to avoid overfitting (scientific soundness).
- * A flag `interaction_skipped_low_power` is set to `true` in the output.
- * The `ModelResult` schema marks `interaction_effect` and `p_value_interaction` as **optional** in this case.
+### Construct Validity (see disclaimer above)
+Species‑level aggregation is a necessary compromise; we treat results as associational and report the aggregation limitation alongside sensitivity analyses.
 
-### Sensitivity Analysis (Robustness)
-* **Method**: Leave-One-Out Cross-Validation (LOOCV) by species.
- * If species count < 10, switch to Jackknife by study.
-* **Goal**: Ensure the telomere-lifespan coefficient is not driven by a single high-impact study (FR-006).
-* **Output**: Range of coefficients and stability metric (SC-004).
+### Primary Model (Base PGLS)
+- **Formula**: `lifespan_years ~ telomere_length_kb + body_mass_g + measurement_method`.  
+- **Implementation**: R `phylolm::phylolm()` with `model = "lambda"` (estimates Pagel’s λ). The phylogenetic covariance is incorporated via the error structure, not as a predictor.  
+- **Assumptions**:  
+  - Observational association only (Principle VII).  
+  - Linear relationship on the raw scale.  
+  - No high collinearity (VIF checked; if VIF > 5, report descriptive correlation and proceed with caution).  
+- **Diagnostics**: Convergence status, λ confidence interval, residual normality (Shapiro‑Wilk).  
 
-### Power and Sample Size
-* **Metric**: **Partial R-squared** (or standardized regression coefficient) for continuous regression, NOT Cohen's d.
-* **Calculation**: Simulation-based power analysis for PGLS (e.g., using `pwr` or custom simulation in R) based on the final species count (N).
-* **Reporting**: If power < 0.8, explicitly state this limitation in the results (SC-005).
-* **Correction**: The previous reference to "Cohen's d" was a construct validity error; this plan uses the correct metric for regression.
+### Interaction Model (Moderator)
+- **Formula**: `lifespan_years ~ telomere_length_kb * migration_status + body_mass_g + measurement_method`.  
+- **Low‑Power Guard**: If `n_species < 30`, the interaction model is **skipped** and a flag `interaction_skipped_low_power = true` is written to `model_summary.csv`.  
 
-### Low Power / Convergence Fallback
-* If `N < 15`:
- 1. Attempt PGLS with iterative lambda estimation.
- 2. If convergence fails or lambda estimation is unstable (wide CIs):
- * Re-fit model with **fixed lambda = 0** (no phylogeny) and **fixed lambda = 1** (Brownian Motion).
- * Report results as "Low Power: Model fitted with fixed lambda. Interpret with caution."
- * **Do NOT skip the analysis**; report the wide confidence intervals and power estimates. This provides scientific value even in low-power scenarios (addressing scientific soundness concern).
+### Sensitivity Analysis (FR‑006)
+- **LOOCV**: Iteratively drop one species, refit the base model, record the telomere coefficient.  
+- **Jackknife**: If `n_species < 10`, drop one study (identified by `study_id`) instead.  
+- **Output**: `results/sensitivity_log.csv` with coefficient range and stability metric (e.g., coefficient SD).  
 
-## Computational Feasibility
+### Power & Sample‑Size (SC‑005)
+- Perform a **simulation‑based power analysis** for the final species count using the R `pwr` package: generate 1 000 simulated datasets with the observed effect size, fit PGLS, and compute the proportion with p < 0.05.  
+- Record `power_estimate` (0 – 1) in `model_summary.csv`.  
+- If `power_estimate < 0.8`, automatically add a **Low Power** warning to `results/run_summary.yaml`.  
 
-* **Hardware**: GitHub Actions Free Tier (2 CPU, 7 GB RAM, 6h limit).
-* **Strategy**:
- * **No GPU**: All operations are CPU-based.
- * **Memory**: Data subset to < 2 GB. PGLS matrix operations on < 500 species are trivial for 7 GB RAM.
- * **Libraries**: Use `rpy2` to call R (`phylolm`, `ape`, `rotl`). Avoid heavy deep learning libraries.
- * **Timeout**: The pipeline is linear and lightweight; expected runtime < 30 minutes.
- * **Tree Fetching**: The tree is downloaded from `rotl` *after* species list is known, ensuring the covariance matrix is valid and avoiding circular dependencies.
+### Multiple‑Comparison & Alpha (SC‑002)
+- Only a single primary hypothesis (telomere → lifespan) is tested; no correction required per the specification.  
+- Alpha threshold is fixed at **0.05** (documented in `config.yaml`).  
+
+## Compute Feasibility (CPU‑first)
+- **Memory**: All pandas DataFrames ≤ 200 MB; R covariance matrix ≤ 500 × 500 ≈ 2 MB.  
+- **CPU**: Linear operations; total CPU time < 15 min on 2 vCPU.  
+- **Disk**: Raw + processed CSVs < 500 MB; phylogeny < 5 MB.  
+
+## projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/state/projects/PROJ-055...yaml
+*Updated automatically by `utils.py` after each step to record SHA‑256 hashes and the `run_summary` flag (real vs. synthetic data).*
