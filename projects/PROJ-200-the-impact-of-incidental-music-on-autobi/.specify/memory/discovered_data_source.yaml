@@ -1,11 +1,9 @@
 status: none
-intent: last.fm taste profile dataset user listening logs with timestamps and user
-  birth year plus million song dataset python package dataset
-required_fields:
-- user_id
-- birth_year
-- track_id
-- listen_timestamp
-cache_key: 45621f20f3c5153bd4b22beb61d9e9fc162e6ab30faf68608019b3cf47763415
-searched_at: '2026-08-09T08:20:42.387873+00:00'
+intent: '### User Story 1 - Define and Calculate Exposure Metrics (Priority: P1) As
+  a researcher, I need the system to calculate the ''adolescent_exposure_ratio'' for
+  each user-track pair so that I can quantify the proportion of music exposure occurring
+  during the user''s adolescence. **Why this priority**: Thi'
+required_fields: []
+cache_key: 888f8c7172a52465706b70f4c1df52fef1a7991377416ff714bfb97a7069161f
+searched_at: '2026-10-14T19:51:12.343848+00:00'
 retry_count: 1
