@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-14T17:09:02.109116+00:00",
+  "generated_at": "2026-10-14T17:13:54.178976+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -30908,7 +30908,7 @@
           ]
         },
         {
-          "contributions": 5,
+          "contributions": 6,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -30960,6 +30960,14 @@
       "id": "PROJ-008-psychology-research",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 110.840568,
+          "ended_at": "2026-10-14T17:08:57.274131Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-14T17:07:06.433563Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 131.113154,
@@ -31031,14 +31039,6 @@
           "model": "deterministic-no-llm",
           "outcome": "skipped",
           "started_at": "2026-10-13T22:47:46.457420Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 1080.253288,
-          "ended_at": "2026-10-13T22:47:32.485552Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-13T22:29:32.232264Z"
         }
       ],
       "paper_status": null,
@@ -140208,7 +140208,7 @@
       },
       "authors": [
         {
-          "contributions": 15,
+          "contributions": 19,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -140260,6 +140260,38 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 33.201035,
+          "ended_at": "2026-10-14T17:10:12.367082Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-14T17:09:39.166047Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 21.484791,
+          "ended_at": "2026-10-14T17:09:39.163726Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-14T17:09:17.678935Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 118.151875,
+          "ended_at": "2026-10-14T17:09:17.676565Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-14T17:07:19.524690Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 25.758545,
+          "ended_at": "2026-10-14T17:07:19.522202Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-14T17:06:53.763657Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 121.31777,
           "ended_at": "2026-10-14T16:10:30.202612Z",
           "model": "openai.gpt-oss-120b",
@@ -140305,38 +140337,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-14T14:34:32.973772Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 124.926454,
-          "ended_at": "2026-10-14T14:32:24.825995Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-14T14:30:19.899541Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 10.421107,
-          "ended_at": "2026-10-14T14:30:19.897213Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-14T14:30:09.476106Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 114.106056,
-          "ended_at": "2026-10-14T14:30:09.473760Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-14T14:28:15.367704Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 0.026586,
-          "ended_at": "2026-10-14T14:28:07.102836Z",
-          "model": "deterministic-no-llm",
-          "outcome": "skipped",
-          "started_at": "2026-10-14T14:28:07.076250Z"
         }
       ],
       "paper_status": null,
@@ -170982,6 +170982,66 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 33.201035,
+      "ended_at": "2026-10-14T17:10:12.367082Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-759-energy-profiling-of-quantized-llm-infere",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-14T17:09:39.166047Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 21.484791,
+      "ended_at": "2026-10-14T17:09:39.163726Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-759-energy-profiling-of-quantized-llm-infere",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-14T17:09:17.678935Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 118.151875,
+      "ended_at": "2026-10-14T17:09:17.676565Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-759-energy-profiling-of-quantized-llm-infere",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-14T17:07:19.524690Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 110.840568,
+      "ended_at": "2026-10-14T17:08:57.274131Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-008-psychology-research",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-14T17:07:06.433563Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 25.758545,
+      "ended_at": "2026-10-14T17:07:19.522202Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-759-energy-profiling-of-quantized-llm-infere",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-14T17:06:53.763657Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 620.050146,
       "ended_at": "2026-10-14T16:51:08.274193Z",
@@ -176983,66 +177043,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-13T19:07:22.685841Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 381.384501,
-      "ended_at": "2026-10-13T19:14:08.499383Z",
-      "failure_reason": "TaskFormatError: Tasker produced only 4 task IDs (need >= 5; total chars: 9666). Regenerate the complete tasks.md as canonical '- [ ] T### description' checkbox items, not task tables or fenced exampl",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-415-predicting-the-impact-of-alloying-on-the",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-13T19:07:47.114882Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 18.066504,
-      "ended_at": "2026-10-13T19:13:48.010902Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-13T19:13:29.944398Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 413.545647,
-      "ended_at": "2026-10-13T19:13:29.942000Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-010-quantitative-analysis-of-gene-expression",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-13T19:06:36.396353Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 237.754734,
-      "ended_at": "2026-10-13T19:11:17.302474Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-422-predicting-molecular-permeability-coeffi",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-13T19:07:19.547740Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 68.299295,
-      "ended_at": "2026-10-13T19:09:38.951114Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-414-investigating-the-relationship-between-b",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-13T19:08:30.651819Z"
     }
   ],
   "reviewed_preprints": [
