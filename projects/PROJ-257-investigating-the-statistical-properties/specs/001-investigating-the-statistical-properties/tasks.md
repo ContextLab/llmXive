@@ -1,268 +1,42 @@
 # Tasks: Statistical Properties of Simulated Black Hole Mergers
 
-**Input**: Design documents from `/specs/001-statistical-properties-black-hole-mergers/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
----
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure, including core utilities required for data integrity and logging.
-
-- [ ] T001 [P] Initialize Project Directory Structure. **Content**: Create `src/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `output/results/`, `output/figures/`, `logs/`, `src/data/`, `src/analysis/`, `src/viz/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `tests/contract/`. **Generation Logic**: Create `project_structure_manifest.json` by executing the following Python script immediately after directory creation:
-```python
-import os, json, pathlib
-root = pathlib.Path.cwd()
-manifest = {}
-for d in ['src', 'tests', 'data', 'output', 'logs']:
- for p in root.glob(f'{d}/**/*'):
- if p.is_dir():
- manifest[str(p.relative_to(root))] = {"type": "directory", "absolute": str(p.absolute())}
-with open('project_structure_manifest.json', 'w') as f:
- json.dump(manifest, f, indent=2)
-```
-**Verification**: Run `python -c "import json; d=json.load(open('project_structure_manifest.json')); assert len(d) > 0; assert 'src' in str(d.keys())"`. **Artifact**: Directory structure and `project_structure_manifest.json` created.
-- [X] T002 [P] Create `requirements.txt` with pinned versions (numpy, scipy, pandas, matplotlib, requests, tqdm, pytest, h5py, statsmodels, memory-profiler).
-- [X] T003 [P] Initialize Python virtual environment and install dependencies. **Verification**: Run `python -m venv.venv` and `source.venv/bin/activate`. Run `pip list` and verify all packages from `requirements.txt` are installed. Verify `.venv/bin/python --version` returns a compatible Python 3.x version.
-- [ ] T004 [P] Configure linting (ruff) and formatting (black) tools. **Content**: Create `ruff.toml` with exact content:
-```toml
-line-length = 88
-target-version = "py39"
-select = ["E", "F", "W", "I"]
-```
-Create `pyproject.toml` with `[tool.black]` section setting `line-length = 88` and `target-version = ['py39']`. **Verification**: Run `test -f ruff.toml` and `test -f pyproject.toml`. Run `grep -q "line-length = 88" ruff.toml` and `grep -q "line-length = 88" pyproject.toml`. Verify exit code 0.
-- [X] T005 [P] Implement `src/utils/checksum.py` for SHA256 integrity verification of downloaded files. **Output**: A function `verify_file(path: str, expected_hash: str) -> bool`.
-- [ ] T006 [P] Implement `src/utils/logger.py` with structured logging and log levels. **Output**: A configured logger that writes to `stdout` and `logs/pipeline.log`.
-- [ ] T047 [P] [US0] Configure `.github/workflows/ci.yml`. **Content**: Create `.github/workflows/ci.yml` with the following exact YAML content:
-```yaml
-name: CI Pipeline
-on: [push, pull_request]
-jobs:
- run-tests:
- runs-on: ubuntu-latest
- timeout-minutes: 360
- steps:
- - uses: actions/checkout@v3
- - name: Set up Python
- uses: actions/setup-python@v4
- with:
- python-version: '3.9'
- - name: Install dependencies
- run: |
- python -m pip install --upgrade pip
- pip install -r requirements.txt
- - name: Run Tests
- run: |
- pytest tests/ -v --tb=short
- - name: Measure Memory
- run: |
- pip install psutil
- python -c "import psutil, os; p=psutil.Process(os.getpid()); print(f'Peak Memory: {p.memory_info().rss / 1024 / 1024:.2f} MB')"
- - name: Check Disk Usage
- run: |
- df -h. | tail -1
-```
-**Verification**: Run `yamllint.github/workflows/ci.yml` to verify valid YAML syntax. Run `grep -q "runs-on: ubuntu-latest".github/workflows/ci.yml` and `grep -q "timeout-minutes".github/workflows/ci.yml`. **Note**: Verification is static; do not rely on runtime artifacts. **Dependency**: Requires T001.
-- [ ] T048 [P] [US0] Optimize data loading in `src/data/preprocess.py` to stream/process in chunks if necessary (avoid loading full posterior samples into RAM). **Dependency**: None (Setup task).
-- [ ] T049 [P] [US0] Add pre-commit hook to check for large file uploads or inefficient imports. **Dependency**: None (Setup task).
+**Inputs**: Active `spec.md`, `plan.md`, data-model and contracts under `specs/001-investigating-the-statistical-properties/`, and prior task history (completed: pinned `requirements.txt`, virtual environment, `src/utils/checksum.py`).
 
----
+**Re‑plan note**: The previously rejected tasks (directory‑structure manifest, linting config, CI workflow file) are dropped. The platform supplies CI and directory creation on demand (`llmxive_toolkit.paths`); research scripts must not write to `.github/` or platform state. All remaining scientific requirements from the specification are preserved and grouped below.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
+- [ ] T001 [P] [US1] Implement `src/data/download.py` to fetch GWTC‑1 (Zenodo DOI 10.5281/zenodo.3966973) and GWTC‑2 (Zenodo DOI 10.5281/zenodo.3966974) posterior samples into `data/raw/`, using the Zenodo REST API (`https://zenodo.org/api/records/<recid>`) to resolve file URLs, with retry/backoff (3 attempts, 1s/2s/4s delays) and SHA256 checksum verification via the existing `src/utils/checksum.py` (FR‑001). The loader **MUST** fail loudly on download or integrity failure — no synthetic fallback for observational data. Include a focused unit test `tests/unit/test_download.py` mocking HTTP 404 to verify retry‑then‑fail behavior. **Verification**: `pytest tests/unit/test_download.py` passes; real run saves files under `data/raw/` with recorded SHA256 hashes in `data/raw/checksums.json`.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T002 [US1] Implement `src/data/preprocess.py` to parse the downloaded posterior samples, extract per‑event `mass_ratio`, `effective_spin`, `component_mass_1`, `component_mass_2`, and filter NaN/invalid rows with logged warnings (FR‑003). For each event, draw a fixed number of posterior samples per parameter (not pooled across events) and store the full per‑event sample arrays in chunked HDF5 `data/processed/bootstrapped_obs_samples.h5` with dataset `samples` of shape `[N_events, N_samples, 4]`, dtype `float64`, written in batches of ≤100 events to keep RAM within limits (FR‑014). Write point estimates (median across samples) to `data/processed/obs_point_estimates.csv` with columns `event_id, mass_ratio, effective_spin, component_mass_1, component_mass_2`. Fail with an explicit error if `<100` valid events remain after filtering. Include NaN‑filtering unit test `tests/unit/test_preprocess.py`. **Verification**: `pytest tests/unit/test_preprocess.py` passes; `python -c "import pandas as pd; df=pd.read_csv('data/processed/obs_point_estimates.csv'); assert len(df)>=100"`; HDF5 shape assertion per the schema above.
 
-- [ ] T007 [P] Create `src/config.py` defining paths, random seeds, and `alpha_thresholds` defaults. The configuration MUST define `alpha_thresholds` as a list of significance levels **defaulting to `[0.01, 0.02, 0.05, 0.10]`** (per FR-009 robustness requirement) and be overridable via CLI arguments or environment variables.
-- [ ] T008 [P] Implement `src/data/schemas.py` with Pydantic models for GWTC_Catalog, Simulation_Dataset, Statistical_Test_Result.
-- [ ] T009 [P] Setup `tests/contract/test_schemas.py` to validate JSON/CSV data against defined schemas.
-- [ ] T010 [P] Implement `src/main.py` as the pipeline entry point with argument parsing, orchestration logic, and integrated resource monitoring hooks. The pipeline MUST log peak memory/disk usage. If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST log a `[RESOURCE_BREACH]` message with the specific metric and value, then **exit with code 1** to signal failure, ensuring hard constraints (FR-011) are enforced. **Dependency**: Requires T005, T006.
+- [ ] T003 [US1b] **Conditional simulation catalog acquisition**  
+  1. Attempt to download a dedicated binary‑black‑hole population synthesis catalog from the configured Zenodo URL `[UNRESOLVED-CLAIM: https://zenodo.org/record/1234567/files/simulation_catalog.csv` — HTTP 404] (example DOI [UNRESOLVED-CLAIM: 10.5281/zenodo.1234567 — HTTP 404]). Verify SHA256 checksum; on success, save to `data/raw/simulation_catalog_raw.csv` and proceed.  
+  2. If the download fails after retries, **fallback** to generate a synthetic catalog based on the ratified “Power‑law mass with independent spin” hypothesis (AM‑001, FR‑002). Use parameters from Abbott et al. 2021 (ApJL 913 L7), fixed random seed, and produce ≥100 events. Output to `data/processed/sim_catalog.csv` conforming to `specs/.../contracts/simulation_catalog.schema.yaml` (event_id, component_mass_1, component_mass_2, mass_ratio, effective_spin, formation_channel="synthetic_power_law", generation_method). Schema validation MUST fail loudly on missing required fields (US‑1b acceptance 3). Include unit test `tests/unit/test_synthetic_gen.py` checking field presence, ranges (0<q≤1, |χ_eff|≤1), and reproducibility under the fixed seed. **Verification**: `pytest tests/unit/test_synthetic_gen.py` passes; CSV exists with ≥100 rows and all required columns.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T004 [US2] **Thin‑pass KS checkpoint (provisional)**  
+  Implement the first end‑to‑end thin analysis: `src/analysis/ks_test.py` computing two‑sample KS tests (scipy.stats.ks_2samp) comparing `data/processed/obs_point_estimates.csv` vs `data/processed/sim_catalog.csv` for `mass_ratio` and `effective_spin`, with Bonferroni correction across the 2 tests (FR‑005, FR‑006). Write `data/results/ks_results_thin.json` conforming to `statistical_test_result.schema.yaml` (parameter_name, ks_statistic, p_value, bonferroni_adjusted_p_value, significance_flag, borderline_flag, alpha_threshold, scope). **Note**: These p‑values are **provisional scaffolding**; final scientific conclusions will be drawn from the bootstrap‑enhanced analysis in T006. **Verification**: `data/results/ks_results_thin.json` exists with entries for both parameters and reproducible values under the fixed seed.
 
----
+## Phase 2: Complete the study and validate its evidence
 
-## Phase 3: User Story 1 - Download and Preprocess GWTC Catalogs (Priority: P1) 🎯 MVP
+- [ ] T005 [US2] Implement selection‑bias handling in `src/analysis/selection_bias.py` (FR‑016): fetch LVK selection‑efficiency/injection data from Zenodo DOI 10.5281/zenodo.6476080. If the download succeeds, compute Inverse Probability Weighting (IPW) per event; otherwise log `[SELECTION_BIAS_MISSING]`, record `method: "uniform"` in `data/results/selection_bias_status.json`, and set all weights to 1.0. Save per‑event weights to `data/processed/selection_weights.csv` (event_id, weight). **Verification**: `data/results/selection_bias_status.json` exists with `method` in {`ipw`,`uniform`}; weights file has one row per observational event. Runs AFTER T002.
 
-**Goal**: Acquire observational data (GWTC-1/2) and prepare it for statistical comparison.
+- [ ] T006 [US2] Upgrade `src/analysis/ks_test.py` to the full specified method: **event‑level bootstrapping** (for each bootstrap iteration, draw one posterior sample per event from `data/processed/bootstrapped_obs_samples.h5`), compute **weighted** KS statistic using the IPW weights from T005, and aggregate the bootstrap distribution into a final empirical p‑value defined as the proportion of bootstrap KS statistics ≥ the observed statistic. Compute 1D KDEs for `mass_ratio` and `effective_spin` with Scott’s‑rule bandwidth (FR‑004) on the bootstrapped draws. Update `data/results/ks_results.json` to conform to `statistical_test_result.schema.yaml` (including `alpha_threshold` and `scope`). Include unit tests `tests/unit/test_ks_test.py` for Bonferroni logic and weighted‑KS correctness against a known analytic case. **Verification**: `pytest tests/unit/test_ks_test.py` passes; `ks_results.json` reflects bootstrap‑aggregated values distinct from the thin‑pass file and is reproducible with the fixed seed. Runs AFTER T005.
 
-**Independent Test**: Verify `data/processed/obs_catalog.csv` exists with ≥100 valid events and correct checksums.
+- [ ] T007 [US2b] Implement `src/analysis/sensitivity.py` sweeping α over the **spec‑defined set** `{0.04, 0.05, 0.06}` (covers FR‑009 and edge‑case). For each α, evaluate significance for every parameter, flag “borderline” where significance status flips across the sweep, and emit a warning for borderline conclusions (FR‑009). Output `data/results/sensitivity_report.json` with per‑α p‑values and significance flags. Include unit test `tests/unit/test_sensitivity.py` covering the flip‑detection logic. **Verification**: `pytest tests/unit/test_sensitivity.py` passes; report contains an entry for each α in the set.
 
-### Tests for User Story 1
+- [ ] T008 [US2c] Implement `src/analysis/power.py` computing the **analytical Kolmogorov‑Smirnov power formula** (Massey 1951) to obtain the Minimum Detectable Effect Size (MDES) for the given observational and simulation sample sizes. Detect the power‑limitation condition (simulation n < 50 % of observational n) and produce a human‑readable limitation note. Output `data/results/power_analysis.json` conforming to `power_analysis.schema.yaml` (fields: `observational_sample_size`, `simulation_sample_size`, `power_limitation_flag`, `minimum_detectable_effect_size`, `limitation_note`). Include unit tests `tests/unit/test_power.py` for MDES calculation and the 50 % threshold logic. **Verification**: `pytest tests/unit/test_power.py` passes; JSON contains all required fields. Runs AFTER T006.
 
-- [ ] T011 [P] [US1] Unit test for checksum verification in `tests/unit/test_checksum.py`.
-- [ ] T012 [P] [US1] Unit test for NaN filtering logic in `tests/unit/test_preprocess.py`.
-- [ ] T013 [P] [US1] Integration test for download retry logic (simulate 404) in `tests/integration/test_download.py`.
+- [ ] T009 [US3] Implement `src/viz/plots.py` generating 1D KDE plots for `mass_ratio` and `effective_spin` with observational and simulation distributions overlaid, annotated divergence regions where the Bonferroni‑adjusted p < 0.05. Save figures as PNG at ≥300 DPI to `outputs/figures/` (FR‑007, FR‑008). Include a unit test `tests/unit/test_plots.py` verifying files exist and DPI ≥ 300 (via Pillow). **Verification**: `pytest tests/unit/test_plots.py` passes; ≥2 PNG files in `outputs/figures/` with correct DPI.
 
-### Implementation for User Story 1
+- [ ] T010 [US3] Implement `src/viz/report.py` assembling the final markdown report `data/results/final_report.md` linking: KS results (T006), sensitivity sweep and borderline warnings (T007), power analysis and MDES interpretation with a “Limitations” section (T008), selection‑bias status and detection‑space caveat (T005), and figure references (T009). The report must state findings as associational comparisons, include the Constitution Principle VI deviation record (AM‑001), and honestly report any negative or inconclusive results. **Verification**: report file exists, contains sections “Limitations” and references to `ks_results.json`, `sensitivity_report.json`, `power_analysis.json`, and the generated figures.
 
-- [ ] T014 [P] [US1] Implement `src/data/download.py` function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973) AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic. **Verification**: Downloaded files must exist in `data/raw/` with valid checksums.
-- [ ] T015 [US1] Implement `src/data/preprocess.py` to parse posterior samples, extract mass_ratio, effective_spin, component_mass, and filter NaNs.
-- [ ] T016 [US1] Implement validation in `src/data/preprocess.py` to ensure ≥100 valid events remain; fail with explicit error if not.
-- [ ] T017 [US1] Implement **Event-Level Bootstrapping** in `src/data/preprocess.py` to create the primary observational artifact. **Specific Mechanism**:
- 1. **Configurable Parameters**: Read `N_samples` from `src/config.py` (default a large number) and `batch_size` (default 100).
- 2. **Algorithm**: Iterate over events in **batches**. For each batch:
- a. For each event in the batch, sample a representative set of medians from its respective posterior distribution.
- b. Stack these samples into a temporary D array segment of shape `[batch_size, N_samples, 4]`.
- c. Append this segment to the HDF5 file `data/processed/bootstrapped_obs_samples.h5` using chunked writing.
- 3. **Output A**: Save the aggregated summary to `data/processed/obs_catalog.csv` with columns: `event_id`, `mass_ratio_median`, `mass_ratio_std`, `effective_spin_median`, `effective_spin_std`, `component_mass_1_median`, `component_mass_1_std`, `component_mass_2_median`, `component_mass_2_std`.
- 4. **Output B (CRITICAL)**: Save the full bootstrapped dataset to `data/processed/bootstrapped_obs_samples.h5` (HDF5 format). **Schema**: The file MUST contain a dataset named `samples` with shape `[N_events, N_samples, num_features]`, where `num_features` represents the dimensionality (mass_ratio, effective_spin, m1, m2) and dtype float64.
- **Constraint**: MUST implement chunked writing/streaming (batches of 100) to ensure memory usage stays within acceptable limits and disk usage under a moderate threshold. **Verification**: Run `du -sh data/processed/bootstrapped_obs_samples.h5` to confirm size < 20GB. **AND** Run a Python snippet: `import h5py; f=h5py.File('data/processed/bootstrapped_obs_samples.h5','r'); assert f['samples'].shape[0] >= 100 and f['samples'].shape[1] == config.N_samples and f['samples'].shape[2] == 4 and f['samples'].dtype == 'float64'; f.close()`. **Dependency**: Requires T014, T015, T016.
-- [ ] T017b [US1] Extract **Point-Estimate Dataset** from bootstrapped samples. **Content**: Read `data/processed/bootstrapped_obs_samples.h5`. For each event, compute the median of the sampled medians across the `N_samples` axis to produce a single point estimate per event. **Output**: Save to `data/processed/obs_point_estimates.csv` with columns `event_id`, `mass_ratio`, `effective_spin`, `component_mass_1`, `component_mass_2`. **Verification**: Run `python -c "import pandas as pd; df=pd.read_csv('data/processed/obs_point_estimates.csv'); assert len(df) >= 100; assert all(c in df.columns for c in ['mass_ratio', 'effective_spin'])"`. **Dependency**: Requires T017.
+- [ ] T011 [US0] Document the runnable workflow in `quickstart.md`: exact commands, input sources (Zenodo DOIs), fixed seeds, expected artifacts under `data/` and `outputs/figures/`, and **single‑CPU‑core** resource expectations (≤6 h runtime, ≤7 GB RAM, ≤20 GB disk). Include a small script `src/utils/resource_monitor.py` that records runtime, peak memory, and peak disk usage to `data/results/resource_usage.json`. **Verification**: a fresh re‑run of the documented commands from a clean `data/raw/` reproduces `ks_results.json`, `sensitivity_report.json`, `power_analysis.json`, the figures, and `resource_usage.json` with identical numerical values under the fixed seed.
 
-**Checkpoint**: User Story 1 complete - observational data is downloaded, validated, and preprocessed.
+- [ ] T012 Write the methods/results account in `research.md` (or the results section of the spec docs) linked to the actual output artifacts: describe the posterior‑sampling and event‑level bootstrap design, IPW status, KS/Bonferroni outcomes with measured p‑values, sensitivity and power findings, and the paper‑stage handoff (figures at `outputs/figures/*.png`, result JSONs under `data/results/`, and the AM‑001 simulation‑data deviation to be disclosed in the paper). **Verification**: document references only artifacts that exist and report the actual measured values from T006–T008.
 
----
+## Phase 3: Reproducible results and paper handoff
 
-## Phase 4: User Story 1b - Download/Generate Simulation Population (Priority: P1) 🎯 MVP
+- [ ] T013 [US3] **Integration test**: create `tests/integration/test_pipeline.py` that runs the full pipeline (`src/main.py` or equivalent orchestration script) and asserts the existence and schema validity of all final artifacts (`ks_results.json`, `sensitivity_report.json`, `power_analysis.json`, `final_report.md`, PNG figures, `resource_usage.json`). **Verification**: `pytest tests/integration/test_pipeline.py` passes.
 
-**Goal**: Acquire or generate a simulation dataset with matching schema (mass_ratio, effective_spin).
-
-**Independent Test**: Verify `data/processed/sim_catalog.csv` exists with ≥100 valid events and matching schema.
-
-### Tests for User Story 1b
-
-- [ ] T018 [P] [US1b] Unit test for synthetic data generation distribution (power-law) in `tests/unit/test_synthetic_gen.py`.
-- [ ] T019 [P] [US1b] Unit test for schema validation of simulation data in `tests/unit/test_schemas.py`.
-
-### Implementation for User Story 1b
-
-- [ ] T020 [P] [US1b] Implement `src/data/download.py` function to attempt fetching a dedicated BBH population synthesis catalog (e.g., from Zenodo/Community Repo).
-- [ ] T021 [US1b] Implement fallback logic in `src/data/download.py` to generate synthetic catalog if external source fails.
-- [ ] T022 [US1b] Implement `src/data/generate_synthetic.py` to create a catalog based on a "Power-law mass with independent spin" hypothesis. **Citation**: Must cite "Abbott et al., ApJL, L" (). **Output**: `data/processed/sim_catalog.csv` with ≥100 events.
-- [ ] T023 [US1b] Ensure synthetic generator produces ≥100 events with `mass_ratio`, `effective_spin`, `component_mass_1`, `component_mass_2`.
-- [ ] T024 [US1b] Add validation in `src/data/preprocess.py` to confirm simulation data schema matches observational data schema.
-
-**Checkpoint**: User Story 1b complete - simulation data is available and schema-matched.
-
----
-
-## Phase 5: User Story 2 - Statistical Analysis (KS Tests & Corrections) (Priority: P2)
-
-**Goal**: Perform Kolmogorov-Smirnov tests with Bonferroni correction, sensitivity analysis, and selection bias correction.
-
-**Independent Test**: Verify `output/results/ks_test_results.json` contains statistics, p-values, and corrected flags.
-
-### Tests for User Story 2
-
-- [ ] T025 [P] [US2] Unit test for KDE bandwidth selection (Scott's rule) in `tests/unit/test_kde.py`.
-- [ ] T026 [P] [US2] Unit test for Bonferroni correction logic in `tests/unit/test_ks_test.py`.
-- [ ] T027 [P] [US2] Unit test for sensitivity analysis sweep logic in `tests/unit/test_sensitivity.py`.
-
-### Implementation for User Story 2
-
-- [ ] T032a [P] [US2] Download or configure LVK Selection Efficiency files. **Content**: Attempt to fetch `data/raw/lvk_selection_efficiency.h5` and `data/raw/lvk_selection_efficiency_GWTC2.h5` from a configurable URL (defaulting to Zenodo if available). **Verification**: If files exist, verify checksums. If not, log `[SELECTION_BIAS_MISSING]` and proceed to T032 with a flag to use uniform weights. **Dependency**: Requires T017.
-- [ ] T032 [P] [US2] Implement selection bias handling in `src/analysis/selection_bias.py` (FR-016): Load `data/raw/lvk_selection_efficiency.h5` (from T032a) if available. Apply Inverse Probability Weighting (IPW) to calculate weights for each event. **Output**: Save calculated weights to `data/results/selection_weights.csv` (columns: `event_id`, `weight`). If files from T032a are missing, log `[SELECTION_BIAS_MISSING]`, record method as `uniform` in `data/results/selection_bias_status.json`, and set all weights to 1.0. **Verification**: Run `python -c "import json, os; f='data/results/selection_bias_status.json'; assert os.path.exists(f); d=json.load(open(f)); assert d['method'] in ['ipw', 'uniform']"`. **Constraint**: The pipeline MUST NOT exit with code 1 if files are missing; it MUST proceed with the limitation log as per spec Edge Cases. **Dependency**: Requires T032a and `data/processed/bootstrapped_obs_samples.h5` (from T017). **Execution Order**: MUST run AFTER T017 and T032a, and BEFORE T028/T029.
-- [ ] T028 [US2] Implement `src/analysis/kde.py` to compute 1D KDEs for mass_ratio and effective_spin using scipy.stats.gaussian_kde. **Dependency**: Requires `data/processed/bootstrapped_obs_samples.h5` (from T017) AND `data/results/selection_weights.csv` (from T032) to ensure weights are applied. **3D Structure Handling**: Iterate over the 'Iteration' axis (shape [Events, Iterations, Parameters]) of the HDF5 file. For each iteration `j`, sample one median per event from the `j-th` slice, compute the KDE, and aggregate the results across all iterations.
-- [ ] T029 [US2] Implement `src/analysis/ks_test.py` to perform **Weighted** KS tests on mass_ratio and effective_spin distributions using the weights from `data/results/selection_weights.csv` (from T032). **Dependency**: Requires `data/processed/bootstrapped_obs_samples.h5` (from T017) and `data/results/selection_weights.csv` (from T032). **3D Structure Handling**: Iterate over the 'Iteration' axis (shape [Events, Iterations, Parameters]) of the HDF5 file. For each iteration `j`, sample one median per event from the `j-th` slice, compute the KS statistic with weights, and aggregate the resulting KS statistics to form the final distribution. **Bonferroni Correction**: Apply Bonferroni correction for multiple comparisons (multiple tests) as a sub-step of this task.
-- [ ] T031 [US2] Implement `src/analysis/sensitivity.py` to sweep α over the **configurable range** defined in `src/config.py` (default `[0.01, 0.02, 0.05, 0.10]`). **Algorithm**: For each α in the set, evaluate significance. **Borderline Logic**: If the significance status (significant/not significant) flips across the sweep range, flag the result as "borderline". **Artifact Generation**: This task MUST generate `data/results/sensitivity_report.json` containing the p-values and significance flags for each α in the sweep set. **Dependency**: Requires T029 (KS Test) to be complete.
-- [ ] T033 [US2] Generate `output/results/ks_test_results.json` with all statistics, adjusted p-values, and significance flags. **Dependency**: Requires T031 (Sensitivity Results) and T029 (KS Test) to ensure borderline flags are applied before finalizing the report. **Specific Artifact**: Must include a dedicated entry `sc002_effective_spin_nominal` with the p-value and pass/fail status for α=0.05.
-
-**Checkpoint**: User Story 2 complete - statistical comparisons are performed and corrected.
-
----
-
-## Phase 6: User Story 2b & 2c - Power Analysis & Limitations (Priority: P2)
-
-**Goal**: Assess statistical power, calculate MDES, and log limitations.
-
-**Independent Test**: Verify `data/results/power_analysis.json` and limitations section in final report.
-
-### Tests for User Story 2b/2c
-
-- [ ] T034 [P] [US2c] Unit test for MDES calculation logic in `tests/unit/test_power.py`.
-- [ ] T035 [P] [US2c] Unit test for power limitation detection logic in `tests/unit/test_power.py`.
-
-### Implementation for User Story 2b/2c
-
-- [ ] T036 [US2c] Implement `src/analysis/power.py` to calculate Minimum Detectable Effect Size (MDES) (FR-010, FR-015). **Method**: Prefer an analytical calculation based on sample sizes and standard deviations. If analytical methods are insufficient, a simulation-based (bootstrapping) approach is allowed **only if** it completes within the CPU time budget. **Dependency**: This task MUST consume `output/results/ks_test_results.json` (from T033) as input.
-- [ ] T037 [US2c] Implement logic in `src/analysis/power.py` to detect if simulation sample size < 50% of observational size.
-- [ ] T038 [US2c] Detect power limitations and prepare data.
-- [ ] T038b [US2c] Generate `data/results/power_analysis.json` containing MDES values (explicitly named "minimum_detectable_effect_size"), sample size ratios, power estimates, and explicit limitation flags. **Path Correction**: Matches `plan.md` T021. **Dependency**: Requires T036 and T037.
-- [ ] T039 [US2c] Update report generation to include "Limitations" section with power notes, MDES interpretation (FR-010, SC-011), and explicit notes on any selection bias limitations (from T032).
-
-**Checkpoint**: User Story 2b/2c complete - power, limitations, and scaling projections are quantified.
-
----
-
-## Phase 7: User Story 3 - Visualization & Reporting (Priority: P3)
-
-**Goal**: Generate plots and final report with divergence annotations.
-
-**Independent Test**: Verify `output/figures/` contains ≥2 PNGs (300 DPI) with annotated divergence regions.
-
-### Tests for User Story 3
-
-- [ ] T040 [P] [US3] Unit test for plot generation and DPI settings in `tests/unit/test_plots.py`.
-- [ ] T041 [P] [US3] Integration test for full report generation in `tests/integration/test_report.py`.
-
-### Implementation for User Story 3
-
-- [ ] T042 [P] [US3] Implement `src/viz/plots.py` to create 1D KDE plots for mass_ratio and effective_spin (overlaid distributions).
-- [ ] T043 [US3] Implement annotation logic in `src/viz/plots.py` to highlight regions where p < 0.05 as statistically significant (FR-008).
-- [ ] T044 [US3] Implement `src/viz/report.py` to assemble final markdown/JSON report including KS results, power analysis, sensitivity sweep (consuming `sensitivity_report.json` from T031), "Borderline" warnings (FR-009), and the **Scaling Projection** (consuming `scaling_projection.json` from T050). **Note**: This task now depends on T033 to include the KS results. **Dependency**: Requires T031, T033, T038b.
-- [ ] T045 [US3] Ensure all figures saved as PNG with resolution **≥300 DPI** (explicitly set `dpi=300` in matplotlib). **Verification**: Check file properties of generated PNGs using `stat` or `identify` (ImageMagick) to confirm DPI.
-
-**Checkpoint**: User Story 3 complete - visualizations and reports are generated.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **US1 (P1)** and **US1b (P1)** can run in parallel once Foundational is done.
- - **US2 (P2)** depends on US1 and US1b (data must be ready).
- - **US2b/2c (P2)** depends on US2 (results must be ready).
- - **US3 (P3)** depends on US2 and US2b/2c (results and power analysis must be ready).
- - **US0 (P0)** is cross-cutting but must be validated before final CI run.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation.
-- Download/Preprocess before Analysis.
-- Analysis before Visualization.
-- Core implementation before integration.
-
-### Parallel Opportunities
-
-- **Phase 1, 2**: All setup tasks can run in parallel (except T047 which depends on T001).
-- **Phase 3 & 4**: US1 (Observational) and US1b (Simulation) can be developed in parallel.
-- **Phase 5, 6, 7**: Once data is ready, KDE, KS, Power, and Viz modules can be developed in parallel (if data dependencies are mocked or data is ready).
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies (relative to each other within the phase)
-- [Story] label maps task to traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- **Critical Constraint**: All code must run on CPU-only, -core, limited RAM. No GPU, no large model loading.
-- **Data Integrity**: All downloads must have checksum verification. No fake data allowed.
-- **Scope Boundary**: This project is strictly limited to comparing existing GWTC data against the single synthetic baseline defined in US-1b and US-2.
-- **Limitations**: The report must explicitly state any limitations regarding selection bias (if LVK files were missing - which now logs a limitation and proceeds per T032) and sample size power, as generated in T039.
-- **Selection Bias**: Per FR-016, if LVK selection files are missing, the pipeline MUST log a limitation and proceed with uniform weights (T032), ensuring the 'MUST correct' constraint is met via fallback rather than hard failure.
-- **Reviewer Response**: Task T050 (Scaling Projection) has been removed as it was scope creep. The report generation (T044) now depends on T033.
+- [ ] T014 [US0] **Resource‑usage measurement task** (see T011 description) – already captured in T011; this entry is kept for explicitness.
