@@ -17,8 +17,8 @@ The researcher needs to generate synthetic missing data patterns (MCAR, MAR, MNA
 
 **Acceptance Scenarios**:
 
-1. **Given** a public RCT dataset with treatment and outcome columns, **When** the system simulates 20% missingness under MAR (dependent on age) and sets the treatment effect to zero, **Then** the system outputs a list of 500 p-values and calculates the proportion of p-values < 0.05.
-2. **Given** the same dataset and missingness rate, **When** the system switches the mechanism to MNAR (dependent on unobserved outcome values), **Then** the system outputs a distinct set of 500 p-values and a new empirical error rate that differs from the MCAR/MAR result.
+1. **Given** a public RCT dataset with treatment and outcome columns, **When** the system simulates 20% missingness under MAR (dependent on age) and sets the treatment effect to zero, **Then** the system outputs a list of multiple p-values and calculates the proportion of p-values < 0.05.
+2. **Given** the same dataset and missingness rate, **When** the system switches the mechanism to MNAR (dependent on unobserved outcome values), **Then** the system outputs a distinct set of multiple p-values and a new empirical error rate that differs from the MCAR/MAR result.
 
 ### User Story 2 - Identify Tipping Points via Sensitivity Analysis (Priority: P2)
 
@@ -58,12 +58,12 @@ The researcher needs to compare the performance of Complete-Case (CC) analysis a
 
 - **FR-001**: System MUST download and load multiple public RCT datasets (binary or continuous outcomes) from OpenML or UCI, ensuring the data contains treatment, outcome, and at least two covariates. (See US-1)
 - **FR-002**: System MUST simulate missing data patterns under three distinct mechanisms: MCAR (random), MAR (dependent on observed covariates), and MNAR (dependent on permuted outcome values). To ensure scientific validity, the system MUST first permute treatment labels to establish a true null hypothesis (zero effect) on the original data, and THEN apply the missingness mechanisms. For MNAR, the missingness probability MUST depend on the permuted outcome values. (See US-1)
-- **FR-003**: System MUST calculate empirical Type I error rates by first permuting treatment labels to establish a true null hypothesis (Randomization Inference), and THEN simulating missingness patterns. The system MUST count the proportion of p-values < 0.05 across 500 Monte Carlo iterations per condition. (See US-1)
+- **FR-003**: System MUST calculate empirical Type I error rates by first permuting treatment labels to establish a true null hypothesis (Randomization Inference), and THEN simulating missingness patterns. The system MUST count the proportion of p-values < 0.05 across A sufficient number of Monte Carlo iterations per condition.. (See US-1)
 - **FR-004**: System MUST execute a sensitivity analysis sweeping missingness rates across a broad range of low to high values in incremental steps ([deferred] to [deferred] in [deferred] increments) and identify the specific rate where the CC error rate exceeds the nominal 0.05 level by >10% relative increase. (See US-2)
 - **FR-005**: System MUST implement and compare three analysis methods: Complete-Case (t-test/Wilcoxon), Multiple Imputation (imputations via chained equations), and Inverse Probability Weighting. (See US-3)
 - **FR-006**: System MUST perform a Binomial test on the count of p-values < 0.05 to determine if the empirical Type I error rate significantly deviates from the nominal 0.05 level at a significance level of α = 0.05. (See US-2)
 - **FR-007**: System MUST handle binary outcomes by using non-parametric or logistic-based tests instead of t-tests to maintain measurement validity. (See US-1)
-- **FR-008**: System MUST apply False Discovery Rate (FDR) correction (Benjamini-Hochberg procedure, q < 0.05) across all 72 simulation conditions (8 rates x 3 mechanisms x 3 methods) when identifying tipping points and reporting deviations. (See US-2)
+- **FR-008**: System MUST apply False Discovery Rate (FDR) correction (Benjamini-Hochberg procedure, q < 0.05) across all Various simulation conditions (8 rates × 3 mechanisms × 3 methods). when identifying tipping points and reporting deviations. (See US-2)
 - **FR-009**: System MUST validate synthetic covariates generated for MAR simulation by verifying that the correlation with the outcome (r=0.3) is preserved within a tolerance of ±0.05 before proceeding with the simulation. (See US-1)
 
 ### Key Entities
@@ -81,7 +81,7 @@ The researcher needs to compare the performance of Complete-Case (CC) analysis a
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Empirical Type I error rate for CC under MCAR conditions is measured against the nominal 0.05 level, with a pass threshold of ≤ 0.06 (a 20% relative increase over the nominal 0.05 level). (See US-1)
-- **SC-002**: The "tipping point" missingness rate is measured against the condition where CC error rate exceeds a predefined threshold (a 10% relative increase over the nominal 0.05 level) AND the FDR-corrected p-value is < 0.05. (See US-2)
+- **SC-002**: The "tipping point" missingness rate is measured against the condition where CC error rate exceeds a predefined threshold (a A modest relative increase over the nominal 0.05 level) AND the FDR-corrected p-value is < 0.05. (See US-2)
 - **SC-003**: The deviation of p-value distribution is measured against the theoretical uniform distribution expected under the null using a Binomial test at a significance level of α = 0.05, with p-values corrected for FDR (q < 0.05). (See US-2)
 - **SC-004**: Statistical power under the alternative hypothesis is measured against the expected power of the CC method at a conventional target level of ≥ 0.80, calculated using an effect size of Cohen's d = 0.5. (See US-1)
 - **SC-005**: The relative error inflation of CC vs. MI is measured at the identified tipping point, confirming CC error > 2 * MI error with a statistically significant difference (FDR-corrected q < 0.05). (See US-3)

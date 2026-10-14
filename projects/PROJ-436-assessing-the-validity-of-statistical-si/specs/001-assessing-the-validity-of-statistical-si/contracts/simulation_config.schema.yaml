@@ -12,6 +12,9 @@ properties:
       - "MCAR"
       - "MAR"
       - "MNAR"
+      - "TD-MCAR"
+      - "TD-MAR"
+      - "TD-MNAR"
     description: "The mechanism of missingness to simulate."
   missingness_rate:
     type: "number"

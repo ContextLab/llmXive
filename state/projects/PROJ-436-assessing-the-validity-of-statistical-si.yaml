@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T11:38:06.909564Z'
-current_stage: clarified
+current_stage: specified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-436-assessing-the-validity-of-statistical-si
-last_run_id: 9812610b-c5c8-4bf4-aa65-acb19c71c1db
+last_run_id: d8120b94-ec24-4c39-9dac-ceecb5c75111
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-436-assessing-the-validity-of-statistical-si/specs/001-assessing-the-validity-of-statistical-si
 title: Assessing the Validity of Statistical Significance in Randomized Controlled
   Trials with Missing Data
-updated_at: '2026-10-14T08:19:57.928715Z'
+updated_at: '2026-10-14T08:49:52.291325Z'

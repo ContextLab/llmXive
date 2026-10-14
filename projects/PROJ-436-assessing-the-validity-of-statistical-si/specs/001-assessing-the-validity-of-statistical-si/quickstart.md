@@ -1,75 +1,84 @@
 # Quickstart: Assessing the Validity of Statistical Significance in Randomized Controlled Trials with Missing Data
 
 ## Prerequisites
+- Python 3.11 or newer
+- Internet access (to download the verified MCAR/MAR datasets)
 
-- Python 3.11+
-- `pip` or `poetry`
-- Access to the internet (to download datasets from OpenML)
+## Setup
 
-## Installation
+```bash
+# 1. Navigate to the project root
+cd projects/PROJ-436-assessing-the-validity-of-statistical-si
 
-1. **Clone the repository** (or navigate to the project root).
-   ```bash
-   cd projects/PROJ-436-assessing-the-validity-of-statistical-si
-   ```
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+# 3. Install pinned dependencies
+pip install -r code/requirements.txt
+```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: `requirements.txt` includes `scikit-learn`, `statsmodels`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `openml`, and `miceforest`.*
+## Step‑by‑Step Execution
 
-## Running the Simulation
-
-### 1. Download Datasets
-The system will automatically download the required OpenML datasets on first run. To force a download or verify integrity:
+### 1. Download & Verify Raw Datasets
 ```bash
 python code/main.py --action download
 ```
-*This creates the `data/raw/` directory and stores checksums.*
+- Downloads the six verified files listed in `research.md`.
+- Computes SHA‑256 checksums and writes `data/checksums/manifest.json`.
+- Fails fast if any checksum mismatch occurs.
 
 ### 2. Run the Full Simulation
-Execute the complete pipeline (download, permute, simulate, analyze, aggregate):
 ```bash
-python code/main.py --action run --dataset openml_42803 --iterations 2000
+python code/main.py \
+    --action run \
+    --datasets mcar_parquet_0 mcar_parquet_1 mar_csv_0 mar_csv_1 mar_csv_2 \
+    --iterations 2000 \
+    --rates 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 \
+    --mechanisms MCAR MAR MNAR \
+    --methods CC MI IPW
 ```
-*Flags:*
-- `--dataset`: Choose from `openml_42803`, `openml_451`, or `openml_151`.
-- `--iterations`: Number of Monte Carlo iterations (default 2000).
-- `--mechanism`: Run a specific mechanism (`MCAR`, `MAR`, `MNAR`) or `all`.
-- `--rate`: Run a specific missingness rate (e.g., `0.15`) or `all` ([deferred] to [deferred]).
+- Performs the pipeline described in `plan.md`.
+- All random seeds are fixed; rerunning produces identical results.
+- Outputs are written to `data/processed/` (see **Data Model**).
 
-### 3. View Results
-Results are saved in `data/processed/`.
-- **Error Metrics**: `data/processed/error_metrics.parquet` (raw p-values).
-- **Aggregated Results**: `data/processed/comparison_results.json` (Type I error rates).
-- **Tipping Points**: `data/processed/tipping_points.csv` (identified thresholds).
+### 3. Inspect Results
+```bash
+# Summary JSON
+jq '.' data/processed/simulation_outputs.json | less
+
+# Tipping‑point table (CSV)
+column -t -s, data/processed/tipping_points.csv | less
+```
 
 ### 4. Generate Visualizations
-To generate plots (Type I error curves, tipping point flags):
 ```bash
 python code/main.py --action visualize --output figures/
 ```
-*Outputs:*
+Creates:
 - `figures/type1_error_by_mechanism.png`
-- `figures/tipping_point_analysis.png`
+- `figures/tipping_point_curve.png`
 - `figures/method_comparison.png`
 
-## Testing
-
-Run the unit and integration tests:
+### 5. Run Tests
 ```bash
 pytest tests/ -v
 ```
+All unit and integration tests must pass; they validate:
+- Correct checksum handling (`data_loader`).
+- Proper generation of synthetic treatment/outcome.
+- Conformance of output files to the JSON‑Schema contracts.
 
 ## Troubleshooting
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| `FileNotFoundError` on a raw dataset | Network interruption during download | Re‑run `--action download`; the script retries up to 3 times. |
+| MemoryError on a parquet file | Dataset larger than available RAM | Add `--stream` flag (implemented in `data_loader.py`) to process the file in chunks. |
+| Missing columns after preparation | Source file lacks numeric covariates | The pipeline will automatically generate synthetic covariates; check logs for “Synthetic covariate generated”. |
+| `miceforest` raises `RuntimeError` | Insufficient RAM for MI on very large data | Reduce `--iterations` or use a smaller subset via `--sample 0.5`. |
+| Binary outcome analysis uses chi‑square/Fisher (as per updated methodology) | No action needed – the pipeline already applies the correct test. |
+| No verified RCT dataset available | The study uses simulated RCT data; this limitation is noted in `research.md`. | Consider extending the scope when a suitable open RCT dataset becomes available. |
 
-- **Memory Error**: If the dataset is too large, reduce the number of iterations or use `--stream` flag (if implemented) to process in chunks.
-- **Missing Columns**: If the dataset lacks required columns (e.g., `age`), the system will generate synthetic covariates automatically (per FR-009). Check logs for "Synthetic covariate generated" messages.
-- **Dataset Not Found**: Ensure you have internet access and the OpenML IDs are reachable. The system will retry with fallback datasets.
+---
+
+

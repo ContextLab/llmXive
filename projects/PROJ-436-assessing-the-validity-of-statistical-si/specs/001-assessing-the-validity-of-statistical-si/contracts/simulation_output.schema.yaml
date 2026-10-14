@@ -15,6 +15,9 @@ properties:
       - "MCAR"
       - "MAR"
       - "MNAR"
+      - "TD-MCAR"
+      - "TD-MAR"
+      - "TD-MNAR"
     description: "Missing data mechanism."
   missing_rate:
     type: "number"
