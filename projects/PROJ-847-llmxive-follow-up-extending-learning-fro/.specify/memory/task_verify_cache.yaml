@@ -1,15 +1,14 @@
 T001:
   c: true
-  h: 7bc6f4fa42bcfe0c72a60fb8c0bcadc17761b75fae012f2c5de7ce2e91a4ec98
-  r: 'The required artifacts all exist and are substantive: `code/run_experiments.py`
-    parses the YAML config via `yaml.safe_load`, creates the `outputs/` tree, writes
-    `outputs/run_config.json`, and prints "Pipeline initialized"; `docs/quickstart.md`
-    documents the command line, environment variables (none required), and seed control;
-    and `configs/quickstart.yaml` plus the on-disk `outputs/run_config.json` (whose
-    contents exactly mirror the config) provide execution evidence that the verification
-    command ran successfully. Minor doc inaccuracies (quickstart mentions a `--seed`
-    flag and stage execution '
-  sig: 429e91bed09b46c0b9d735990821abaaea500aeb5ba71784edccaa3eba678c47
+  h: 4e28e4f94f0789882970530656c6d24f7e91d4a3c796931a05c7c7484d0e4dfc
+  r: 'The required artifacts exist and match the task: `code/run_experiments.py` parses
+    the YAML config, creates `outputs/` (with configured subdirs), writes `outputs/run_config.json`,
+    and prints "Pipeline initialized"; `docs/quickstart.md` documents the command
+    line, env vars, and seed control; `configs/quickstart.yaml` exists; and `outputs/run_config.json`
+    on disk matches the config, evidencing a successful run. The trainer''s dummy-accuracy
+    placeholder belongs to a later task (US-1 experiments), not this entry-point task,
+    so it does not affect this verdict.'
+  sig: f758a8d3033ffc4c4a868a290d2f075d33f1d3a1d45935c9e940de99b5550454
 T003:
   c: false
   h: 0892b42699aa45a69ab2231d22e68ea23c51ac354a32792ca0dd991a26216c86

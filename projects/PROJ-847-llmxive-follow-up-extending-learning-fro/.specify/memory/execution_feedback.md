@@ -29,31 +29,43 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data.py --download -> rc=1
-") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'bigbench_lite' doesn't exist on the Hub or cannot be accessed.
+xist on the Hub or cannot be accessed.") from e
+datasets.exceptions.DatasetNotFoundError: Dataset 'math' doesn't exist on the Hub or cannot be accessed.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 150, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 157, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 144, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 151, in main
     download_all()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 97, in download_all
-    n_bb = _snapshot_to_jsonl(load_bigbench_lite(), bigbench_path)
-                              ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 58, in load_bigbench_lite
-    raise RuntimeError(f"Failed to load BigBench Lite dataset {BIGBENCH_ID}: {exc}") from exc
-RuntimeError: Failed to load BigBench Lite dataset bigbench_lite: Dataset 'bigbench_lite' doesn't exist on the Hub or cannot be accessed.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 104, in download_all
+    n_log = _snapshot_to_jsonl(load_bigbench_lite(), logical_path)
+                               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 65, in load_bigbench_lite
+    raise RuntimeError(f"Failed to load Logical dataset {LOGICAL_ID}: {exc}") from exc
+RuntimeError: Failed to load Logical dataset math: Dataset 'math' doesn't exist on the Hub or cannot be accessed.
 
 - python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv -> rc=1
+nload
+    return _hf_hub_download_to_cache_dir(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1194, in _hf_hub_download_to_cache_dir
+    _raise_on_head_call_error(head_call_error, force_download, local_files_only)
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1953, in _raise_on_head_call_error
+    raise head_call_error
+huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6acfa9e0-786ab1f943517a9c5e1526aa;61d7563c-d9ea-4669-9369-de2902046dad)
 
-2026-10-14 15:10:13,996 ERROR __main__: Failed to import training utilities: No module named 'torch'
+Repository Not Found for url: https://huggingface.co/author/lightdiff-100m/resolve/main/pytorch_model.bin.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
 
 - python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json -> rc=1
 
-2026-10-14 15:10:14,065 ERROR __main__: Adaptive mode not yet implemented in this task.
+2026-10-14 16:12:17,010 ERROR __main__: Adaptive mode not yet implemented in this task.
 
 - python -m code.analysis  --fixed outputs/fixed_baselines.csv  --adaptive outputs/adaptive_run.json  --outdir outputs/statistics -> rc=1
 
@@ -63,27 +75,6 @@ RuntimeError: Failed to load BigBench Lite dataset bigbench_lite: Dataset 'bigbe
 ## Declared deliverables still missing
 
 - data/results/fixed_baselines.csv
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **7473** real records with fields: question, answer.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-from datasets import load_dataset
-
-ds = load_dataset("openai/gsm8k", "main", split="train")
-count = len(ds)
-print(f"RECORDS={count}")
-
-sample = ds[0] if count else {}
-print("FIELDS=" + ",".join(sample.keys()))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

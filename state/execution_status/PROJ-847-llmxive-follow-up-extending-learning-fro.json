@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-14T13:12:28Z",
-  "project_id": "PROJ-847-llmxive-follow-up-extending-learning-fro"
+  "updated_at": "2026-10-14T16:13:27Z",
+  "project_id": "PROJ-847-llmxive-follow-up-extending-learning-fro",
+  "replan_rounds": 1
 }
