@@ -1,0 +1,8 @@
+T001:
+  c: true
+  h: de56d56421a47a3c291fcc4ce5d9b42b92f8251e86d83bc9e6ab313e0ea5df2f
+  r: "Checked `code/bootstrap.py` (creates the required directories and writes a pinned\
+    \ `code/requirements.txt`) and `code/main.py` (provides a runnable CLI entry point\
+    \ that verifies the layout). Both artifacts exist, are non\u2011empty, and match\
+    \ the task\u2019s specifications."
+  sig: b56c2520f67d3fbdf91533e9ab8af78555096ada5e2eabc5ce270781ba7897c3
