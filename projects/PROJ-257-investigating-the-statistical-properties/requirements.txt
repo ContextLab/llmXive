@@ -1,12 +1,12 @@
-# Core scientific stack (versions intentionally left unpinned to allow CI flexibility)
+# Project dependencies
 numpy
-pandas
 scipy
+pandas
 matplotlib
 requests
 tqdm
-pyyaml
+pytest
 h5py
-# The following packages are provided by the execution environment and do not
-# need to be listed explicitly: scikit-learn, statsmodels, seaborn, pytest,
-# jsonschema, psutil.
+statsmodels
+memory-profiler
+requests_mock

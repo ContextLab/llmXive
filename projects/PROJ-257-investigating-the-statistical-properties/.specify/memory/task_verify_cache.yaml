@@ -1,10 +1,11 @@
 T001:
   c: false
-  h: 71da4a8a1a291bbe57f6190fe7aaa426d8a81dc35dc043afc55a39660462ea3b
-  r: "The `src/data/download.py` script and the downloaded files exist and follow\
-    \ the specification, but the required unit test `tests/unit/test_download.py`\
-    \ does **not** pass \u2013 it aborts with `ModuleNotFoundError: No module named\
-    \ 'requests_mock'`. The task explicitly requires the pytest suite to succeed,\
-    \ so the missing `requests_mock` dependency (or an alternative test setup) must\
-    \ be added for the verification to be satisfied."
-  sig: fb80f532b549152697e89a46ed922830d77229dcc356f60191c593fefdbddfef
+  h: 6c3bafd973ec82b7e0057b7f8eded140e87b44f48dcdda6a941995761c77cbd6
+  r: "The downloaded files are not GWTC posterior samples: the execution log shows\
+    \ DOI 10.5281/zenodo.3966973 yielded a PNG image (\"xem video n\xE0o c\u1EE7a\
+    \ k\xEAnh youtube...png\") and 10.5281/zenodo.3966974 yielded an \"inscription_metadata_1804.json\"\
+    \ about a copper-plate charter \u2014 both saved under the misleading names gwtc1.h5/gwtc2.h5,\
+    \ so the \"real data\" requirement is not met (the DOIs themselves are unresolved/wrong).\
+    \ Additionally, `pytest tests/unit/test_download.py` failed with exit 2 (ModuleNotFoundError:\
+    \ requests_mock), so the stated verification criterion does not pass."
+  sig: f83ed510c967a3856e36a3e66e8fbe9f27b6ab11cc6593b776abb97ff6d4750a
