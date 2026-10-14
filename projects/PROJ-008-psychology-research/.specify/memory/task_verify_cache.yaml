@@ -1,10 +1,8 @@
 T001:
-  c: false
-  h: 8e80060fa6493da96366aa1379b077ad9a3b64e35032d6c1009f2dddfa3535ac
-  r: "The repository contains `quickstart.md` and most of the required directories,\
-    \ but the authoritative layout is incomplete: `code/lib` and a top\u2011level\
-    \ `docs` folder are missing, and there is no evidence that the pinned dependencies\
-    \ from `code/pyproject.toml` have actually been installed (no lock file, install\
-    \ log, or virtual\u2011environment snapshot). These gaps mean the task\u2019s\
-    \ requirements are not fully satisfied."
-  sig: 736d2dfcf104f8a00c11ff8f9a9e143557a198a3eea6db8d8d990216b8fcc5da
+  c: true
+  h: 2f624d0b1c35b6e79064f476275a0d01e743b0fad3050fb5ea1693e9d151a942
+  r: Checked the `code/` and `data/` directory trees (they contain the required subfolders),
+    the successful `setup_project.py` log showing dependency installation and layout
+    verification, and the presence of a detailed `quickstart.md` documenting the execution
+    flow. All required artifacts exist and match the task specifications.
+  sig: 94d6462738824e7de5911f0c3b74031193b903e95f3cc442a82420fc0f171cac

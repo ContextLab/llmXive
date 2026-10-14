@@ -1,19 +1,17 @@
-# Pinned dependency manifest for PROJ-008-psychology-research.
-# Mirrors code/pyproject.toml (the authoritative layout pins the project
-# config at code/pyproject.toml); this file exists for simple
-# `pip install -r requirements.txt` runs.
-#
-# Core scientific stack (also provided by the platform runtime; pinned
-# here so a fresh runner reproduces the same environment).
-numpy==2.2.6
-pandas==2.2.3
-scipy==1.15.2
-matplotlib==3.10.1
-scikit-learn==1.6.1
-statsmodels==0.14.4
-seaborn==0.13.2
-PyYAML==6.0.2
-requests==2.32.3
-jsonschema==4.23.0
-pytest==8.3.5
-pydantic==2.11.4
+# Root dependency manifest for PROJ-008-psychology-research.
+# Mirrors code/pyproject.toml (the authoritative project config).
+# The platform pre-installs numpy/pandas/scipy/matplotlib/scikit-learn/
+# statsmodels/seaborn/pytest/PyYAML/requests/jsonschema; they are listed
+# here so a fresh environment reproduces the same stack.
+pandas
+numpy
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+requests
+pyyaml
+jsonschema
+pydantic
+pytest

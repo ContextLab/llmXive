@@ -41,10 +41,9 @@ CONTROL_ARM_TYPES = {
     "OTHER",
 }
 
-# A small list of known NCT IDs that historically contain results with
-# summary statistics for mindfulness interventions in ASD.  These IDs are
-# *real* records on ClinicalTrials.gov; if any of them cease to exist the
-# script will simply move on to the generic search fallback.
+# A short list of known NCT IDs that historically contain results with
+# summary statistics for mindfulness interventions in ASD.  If any of them
+# cease to exist the script will fall back to a generic search.
 KNOWN_NCT_IDS = [
     "NCT02864509",  # Mindfulness‑Based Stress Reduction for Children with ASD
     "NCT03608346",  # Mindfulness for Adolescents with ASD (example)
@@ -289,6 +288,7 @@ def find_study_with_results() -> dict:
 def main() -> None:
     result = find_study_with_results()
     out_path = paths.data("results", "thin_slice_result.json")
+    # Ensure the directory exists (paths.data does this)
     with open(out_path, "w", encoding="utf-8") as fh:
         json.dump(result, fh, indent=2)
     print(f"Wrote {out_path}")

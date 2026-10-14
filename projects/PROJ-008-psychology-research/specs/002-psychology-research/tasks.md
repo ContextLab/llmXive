@@ -21,9 +21,9 @@
 
 **Goal**: Establish the environment and run a "thin slice" of the pipeline to prove the data flow from API retrieval to a basic effect size result.
 
-- [ ] T001 [P] Establish project layout under `code/` (the authoritative layout; see header note), install pinned dependencies from `code/pyproject.toml`, and document the execution flow in `quickstart.md`.
+- [X] T001 [P] Establish project layout under `code/` (the authoritative layout; see header note), install pinned dependencies from `code/pyproject.toml`, and document the execution flow in `quickstart.md`.
     - Verify: `mkdir -p code/{data,analysis,viz,lib} data/{raw,processed,results} docs contracts tests/{unit,integration,contract}` executes without error.
-- [ ] T002 [US1, US2] Implement a thin-slice pipeline in `code/data/collector.py`, `code/data/cleaner.py`, and `code/analysis/effect_sizes.py` that fetches one real record from ClinicalTrials.gov, cleans it, and calculates a Hedges' $g$ effect size. <!-- FAILED-IN-EXECUTION: code/data/thin_slice.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/thin_slice.py exit=1 -->
+- [ ] T002 [US1, US2] Implement a thin-slice pipeline in `code/data/collector.py`, `code/data/cleaner.py`, and `code/analysis/effect_sizes.py` that fetches one real record from ClinicalTrials.gov, cleans it, and calculates a Hedges' $g$ effect size. <!-- FAILED-IN-EXECUTION: code/data/thin_slice.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/thin_slice.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/thin_slice.py exit=1 -->
     - Output: `data/results/thin_slice_result.json` containing `study_id` and `hedges_g`.
     - Verify: The script executes end-to-end on a real API record without fabrication.
 - [ ] T003 [P] Implement the schema validation utility in `code/lib/validation.py` to enforce the contracts defined in `contracts/cleaned_study.schema.yaml` and `contracts/effect_size.schema.yaml`.

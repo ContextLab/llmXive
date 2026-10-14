@@ -9,11 +9,11 @@
     "python code/analysis/effect_sizes.py --input data/processed/clean_studies.csv --output data/processed/effect_sizes.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-008-psychology-research/code/analysis/effect_sizes.py\", line 11, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
     "python code/analysis/meta_analysis.py --input data/processed/effect_sizes.csv --output data/processed/results.json --plots-dir viz/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-008-psychology-research/code/analysis/meta_analysis.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-24T01:38:32Z"
+  "updated_at": "2026-10-14T00:28:29Z"
 }

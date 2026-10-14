@@ -52,19 +52,22 @@ usage: collector.py [-h] --start-year START_YEAR --end-year END_YEAR
 collector.py: error: the following arguments are required: --start-year, --end-year
 
 - python code/analysis/effect_sizes.py --input data/processed/cleaned_studies.csv --output data/processed/effect_sizes.csv -> rc=1
-/parsers/readers.py", line 1026, in read_csv
+ode/analysis/effect_sizes.py", line 323, in main
+    studies_df = pd.read_csv(args.input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1026, in read_csv
     return _read(filepath_or_buffer, kwds)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-008-psychology-research/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 620, in _read
     parser = TextFileReader(filepath_or_buffer, **kwds)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-008-psychology-research/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1620, in __init__
     self._engine = self._make_engine(f, self.engine)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-008-psychology-research/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1880, in _make_engine
     self.handles = get_handle(
                    ^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-008-psychology-research/lib/python3.11/site-packages/pandas/io/common.py", line 873, in get_handle
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 873, in get_handle
     handle = open(
              ^^^^^
 IsADirectoryError: [Errno 21] Is a directory: 'data/processed/cleaned_studies.csv'
@@ -76,7 +79,7 @@ usage: meta_analysis.py [-h] --input INPUT --output OUTPUT
 meta_analysis.py: error: unrecognized arguments: --viz-dir viz/
 
 - python -m pytest tests/ -> rc=2
-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+66971868/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
     ParserElement.enablePackrat()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
@@ -94,7 +97,7 @@ ERROR tests/unit/test_setup_project.py
 ERROR tests/unit/test_validators.py
 ERROR tests/unit/test_verify_output.py - TypeError: get_data_path() missing 1...
 !!!!!!!!!!!!!!!!!!! Interrupted: 12 errors during collection !!!!!!!!!!!!!!!!!!!
-======================= 14 warnings, 12 errors in 5.36s ========================
+======================= 13 warnings, 12 errors in 1.76s ========================
 
 
 

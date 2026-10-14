@@ -15,13 +15,17 @@ interventions for social skills in children with ASD, age 6-12).
 python code/setup_project.py
 ```
 
-This creates (idempotently):
+This creates (idempotently) the authoritative layout:
 
 ```text
 code/{data,analysis,viz,lib,utils,reporting}
 data/{raw,processed,results}
 docs/ contracts/ tests/{unit,integration,contract}
 ```
+
+and writes `docs/install_log.txt`, the install evidence recording the
+resolved version of every dependency pinned in `code/pyproject.toml`.
+The script fails loudly if any pinned dependency is missing.
 
 ## 2. Install dependencies
 
@@ -34,7 +38,7 @@ pip install -e code/
 ```
 
 The dependency manifest is `requirements.txt` (mirroring
-`code/pyproject.toml`, which is the authoritative project config per the
+`code/pyproject.toml`, the authoritative project config per the
 constitution's Reproducibility Requirements).
 
 ## 3. Run the pipeline (execution order matters)
@@ -47,11 +51,14 @@ python code/data/thin_slice.py
 
 # b. Collect raw study records from ClinicalTrials.gov and OSF
 # (rate-limited, exponential backoff; retrieval logged to
-# data/raw/retrieval_log.json)
+# data/raw/retrieval_log.json; writes data/raw/studies_raw.json)
 python code/data/collector.py --start-year 2015 --end-year 2024
 
-# c. Clean, filter, and tag studies -> data/processed/cleaned_studies.csv
-python code/data/cleaner.py --input data/raw/studies_raw.json --output data/processed/cleaned_studies.csv
+# c. Clean, filter, and tag studies.
+# NOTE: cleaner.py takes DIRECTORIES: it reads every non-mock *.json in
+# the input directory and writes cleaned_studies.csv into the output
+# directory -> data/processed/cleaned_studies.csv
+python code/data/cleaner.py --input data/raw --output data/processed
 
 # d. Calculate Hedges' g effect sizes -> data/processed/effect_sizes.csv
 python code/analysis/effect_sizes.py --input data/processed/cleaned_studies.csv --output data/processed/effect_sizes.csv
@@ -62,16 +69,17 @@ python code/analysis/meta_analysis.py --input data/processed/effect_sizes.csv --
 
 Notes:
 - The thin-slice script queries the live ClinicalTrials.gov API v2 and
-fails loudly if no real record with usable group summary statistics
-(means, SDs, N) is found; it never fabricates an effect size.
+ fails loudly if no real record with usable group summary statistics
+ (means, SDs, N) is found; it never fabricates an effect size.
 - In CI, set `CI_MODE=true`; the collector then loads the canonical
-baseline `data/raw/verified_snapshot_2026.json` instead of hitting the
-live APIs, so the analysis is deterministic.
-- The collector NEVER loads mock data; if `data/raw/mock_registry_response.json`
-exists in a production/CI run, the collector aborts loudly.
+ baseline `data/raw/verified_snapshot_2026.json` instead of hitting the
+ live APIs, so the analysis is deterministic.
+- The collector NEVER loads mock data; if
+ `data/raw/mock_registry_response.json` exists in a production/CI run,
+ the collector aborts loudly.
 - If fewer than 10 studies are found, the pipeline automatically
-suppresses the funnel plot, Egger's test, and meta-regression, and
-produces a descriptive synthesis instead.
+ suppresses the funnel plot, Egger's test, and meta-regression, and
+ produces a descriptive synthesis instead.
 
 ## 4. Verify outputs
 
@@ -83,8 +91,8 @@ pytest tests/
 ## Troubleshooting
 
 - **API limits**: the collector uses exponential backoff (max 5 retries).
-If it fails, check connectivity; the full retry history is in the logs.
+ If it fails, check connectivity; the full retry history is in the logs.
 - **Empty results**: inspect `data/raw/excluded_studies.log` for exclusion
-reasons (e.g., age-range mismatch, missing social-skill outcomes).
+ reasons (e.g., age-range mismatch, missing social-skill outcomes).
 - **Missing modules**: make sure you activated `venv` and ran
-`pip install -r requirements.txt` in the project root.
+ `pip install -r requirements.txt` in the project root.

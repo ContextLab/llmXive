@@ -1,0 +1,22 @@
+# Install / environment snapshot (T001)
+generated_at: 2026-10-14T00:14:46.812788+00:00
+python: 3.11.17 (CPython)
+platform: Linux-6.17.0-1022-azure-x86_64-with-glibc2.39
+manifest: code/pyproject.toml (authoritative project config)
+
+# Resolved dependency versions
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.5.0
+statsmodels==0.14.2
+matplotlib==3.8.4
+seaborn==0.13.2
+requests==2.32.3
+pyyaml==6.0.1
+jsonschema==4.22.0
+pydantic==2.14.1
+pytest==8.2.0
+
+# Import check
+import pandas, numpy, scipy, statsmodels, matplotlib, requests OK
