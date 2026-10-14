@@ -14,6 +14,5 @@ pyyaml>=6.0
 psutil>=5.9.0
 joblib>=1.3.0
 pydantic>=2.0.0
-
-# Performance optimization dependencies (added for T039)
-# Already included: numpy, pandas, scikit-learn, joblib, psutil, pyarrow
+datasets>=2.15.0
+requests>=2.31.0

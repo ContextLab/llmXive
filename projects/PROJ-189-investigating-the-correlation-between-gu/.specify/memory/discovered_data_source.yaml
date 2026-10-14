@@ -1,0 +1,13 @@
+status: none
+intent: American Gut Project 16S rRNA taxonomic data Health and Retirement Study cognitive
+  metadata python package dataset
+required_fields:
+- participant ID
+- microbial genera
+- age
+- sex
+- BMI
+- cognitive score
+cache_key: cea0a8d15e55d1884493394442e0a43f5d21473ccd691bc5454cba40d3ffde3d
+searched_at: '2026-10-14T07:31:05.837356+00:00'
+retry_count: 1

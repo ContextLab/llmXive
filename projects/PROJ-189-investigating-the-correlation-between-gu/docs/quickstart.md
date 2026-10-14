@@ -6,6 +6,20 @@ This guide validates the end-to-end reproducibility of the research pipeline.
 
 - Python 3.11+
 - Dependencies installed: `pip install -r code/requirements.txt`
+- **Data Access**: You must have obtained the official American Gut Project (Qiita ID) and Health and Retirement Study (HRS) data files. HRS data requires a Data Use Agreement.
+
+## Setup and Validation
+
+Before running the pipeline, verify environment resources and data provenance:
+
+```bash
+python code/validate_provenance.py
+```
+
+This script checks:
+1. **Resource Guards**: Ensures the system adheres to the $\le 7$ GB RAM limit.
+2. **AGP Access**: Verifies streaming connectivity to the American Gut Project dataset.
+3. **HRS Access**: Verifies connectivity to the HRS data portal.
 
 ## Execution
 
@@ -26,6 +40,7 @@ This script will:
 ## Output
 
 A validation report is generated at `data/processed/quickstart_validation_report.json`.
+A provenance report is generated at `data/provenance_report.json`.
 A log file is generated at `data/processed/quickstart_validation.log`.
 
 ## Troubleshooting
