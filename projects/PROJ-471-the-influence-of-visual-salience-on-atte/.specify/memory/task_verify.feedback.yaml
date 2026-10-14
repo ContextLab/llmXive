@@ -1,4 +1,10 @@
 T001:
+  reason: "The `code/bootstrap.py` script creates the directories and writes a `requirements.txt`,\
+    \ and `code/main.py` provides a CLI entry point, but the automated test `tests/test_bootstrap.py`\
+    \ fails (cannot monkey\u2011patch `paths.root` and thus does not verify the layout\
+    \ creation). This failure shows the bootstrap script does not meet the required\
+    \ behavior for establishing the project layout in a configurable location, so\
+    \ the task is not fully satisfied."
   task: f6bddd3919077c757d4b666cbe42bc49b0a403a92498163bd62dcdf09729fec2
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/ingestion/download_data.py

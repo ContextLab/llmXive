@@ -16,6 +16,9 @@ numpy==1.26.4
 pingouin==0.5.4
 psutil==5.9.8
 
+# Additional required library for environment variable handling
+python-dotenv==1.0.1
+
 # Formatting / linting tools
 ruff==0.2.2
 black==24.2.0

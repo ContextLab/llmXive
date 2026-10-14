@@ -1,8 +1,10 @@
 T001:
-  c: true
-  h: de56d56421a47a3c291fcc4ce5d9b42b92f8251e86d83bc9e6ab313e0ea5df2f
-  r: "Checked `code/bootstrap.py` (creates the required directories and writes a pinned\
-    \ `code/requirements.txt`) and `code/main.py` (provides a runnable CLI entry point\
-    \ that verifies the layout). Both artifacts exist, are non\u2011empty, and match\
-    \ the task\u2019s specifications."
-  sig: b56c2520f67d3fbdf91533e9ab8af78555096ada5e2eabc5ce270781ba7897c3
+  c: false
+  h: b156f5f87a6e5540db29a3e81e245013715ca73a0ebc246662e3488d896b981b
+  r: "The `code/bootstrap.py` script creates the directories and writes a `requirements.txt`,\
+    \ and `code/main.py` provides a CLI entry point, but the automated test `tests/test_bootstrap.py`\
+    \ fails (cannot monkey\u2011patch `paths.root` and thus does not verify the layout\
+    \ creation). This failure shows the bootstrap script does not meet the required\
+    \ behavior for establishing the project layout in a configurable location, so\
+    \ the task is not fully satisfied."
+  sig: 1b4a13ca4b4bc140a1043be158402518bbf5dddfcea1f3bad912f6f05092999b
