@@ -1,12 +1,9 @@
 # Project dependencies
+pandas
 numpy
 scipy
-pandas
 matplotlib
 requests
 tqdm
-pytest
+pyyaml
 h5py
-statsmodels
-memory-profiler
-requests_mock

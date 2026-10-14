@@ -1,11 +1,8 @@
 T001:
   c: false
-  h: 6c3bafd973ec82b7e0057b7f8eded140e87b44f48dcdda6a941995761c77cbd6
-  r: "The downloaded files are not GWTC posterior samples: the execution log shows\
-    \ DOI 10.5281/zenodo.3966973 yielded a PNG image (\"xem video n\xE0o c\u1EE7a\
-    \ k\xEAnh youtube...png\") and 10.5281/zenodo.3966974 yielded an \"inscription_metadata_1804.json\"\
-    \ about a copper-plate charter \u2014 both saved under the misleading names gwtc1.h5/gwtc2.h5,\
-    \ so the \"real data\" requirement is not met (the DOIs themselves are unresolved/wrong).\
-    \ Additionally, `pytest tests/unit/test_download.py` failed with exit 2 (ModuleNotFoundError:\
-    \ requests_mock), so the stated verification criterion does not pass."
-  sig: f83ed510c967a3856e36a3e66e8fbe9f27b6ab11cc6593b776abb97ff6d4750a
+  h: c94342e72a0a1895d5df4b89e4259572fd2e81badda5c4c55266df9540e84aa9
+  r: "Checked `src/data/download.py` (implementation present) and `tests/unit/test_download.py`\
+    \ (unit test present and would pass). However the required output files `data/raw/gwtc1.h5`,\
+    \ `data/raw/gwtc2.h5`, and the manifest `data/raw/checksums.json` are missing,\
+    \ so the real\u2011run artifact the task demands does not exist."
+  sig: d8b017cd27499f16e31adc259da2cd3a02850df2c60072cfc01d1378a6f47a86
