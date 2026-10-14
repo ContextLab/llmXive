@@ -2,13 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — The provided evidence only includes `pyproject.toml`, `requirements.txt`, and `ruff.toml`; the required `.gitignore`, `README.md`, `.env.template` files and the full directory hierarchy are missing. Moreover, the configuration values do not match the task specifications (`ruff.toml` targets Python 3.10 instead of 3.11, and `pyproject.toml` requires Python >=3.9 rather than >=3.11). The implementer must add the missing files/directories and correct the config values.
-- **T002** — The provided `requirements.txt` lists the required packages but does not include exact version numbers for any of them, contrary to the task’s specification. Additionally, it contains extra packages not requested, but the critical failure is the absence of pinned versions.
-- **T018a** — declared artifact(s) missing/empty/invalid: code/data/ngram.py, data/processed/kenlm_model_python.arpa
-- **T018b** — declared artifact(s) missing/empty/invalid: code/data/ngram.py, data/processed/kenlm_model_java.arpa
-- **T027** — declared artifact(s) missing/empty/invalid: data/results/us2_threshold_report.md
-- **T029** — declared artifact(s) missing/empty/invalid: code/analysis/stats.py, data/results/us3_permutation_pvalue.json
-- **T030** — declared artifact(s) missing/empty/invalid: data/results/us3_corrected_pvalues.json
-- **T031** — declared artifact(s) missing/empty/invalid: data/results/us3_validation_result.json, data/results/us3_limitation_report.md
-- **T032b** — declared artifact(s) missing/empty/invalid: docs/api.md
-- **T035** — declared artifact(s) missing/empty/invalid: tests/unit/test_edge_cases.py
+- **T001a** — `code/requirements.txt` pins only `datasets`, `pandas`, `pyarrow`, `python-dotenv`, and `PyYAML`, and explicitly relegates the rest to a comment claiming they're "already available in the base environment" — the task requires pinned versions of transformers, tree-sitter, tree-sitter-python, tree-sitter-java, scikit-learn, statsmodels, numpy, scipy, matplotlib, seaborn, kenlm, ruptures, pwlf, jsonschema, pytest, pytest-cov, and psutil, none of which appear. `code/config.py` does define SEED=12345, PRIMARY_MODEL_ID="Mistral-7B", and toolkit-based path helpers, but the requirements file fails the
+- **T001b** — The `quickstart.md` file exists and contains the required command, usage notes, environment activation, and runtime limits. However, the task's verification criterion — that `python -m code.main --phase all --sample small` runs without parsing errors — has no supporting evidence: no execution log, no output artifacts, and no evidence that `code/main.py` (or `code/requirements.txt`, referenced by the doc) even exists in the project. The doc's own troubleshooting note ("the `--sample` flag is now accepted by `code/main.py`") is a self-assertion, not proof. Provide a run log or the actual `code/m
+- **T002** — declared artifact(s) missing/empty/invalid: data/processed/raw_chunks.parquet, data/checksums.txt

@@ -1,92 +1,66 @@
-# Quickstart: llmXive follow-up: extending "Mellum2 Technical Report"
+# Quickstart: llmXive follow‑up – extending "Mellum2 Technical Report"
 
 ## Prerequisites
-- Python 3.11+
-- 8 GB RAM (minimum for CPU inference of Mistral-7B; 4 GB for TinyLlama fallback)
-- Access to HuggingFace Hub (for dataset and model download)
+- Python 3.11+
+- 8 GB RAM (minimum for CPU inference of Mistral‑7B; 4 GB for TinyLlama fallback)
+- Access to the HuggingFace Hub (for dataset and model download)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech
-    ```
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech
+   ```
 
-2.  **Create virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins all versions to ensure reproducibility.*
+3. **Install pinned dependencies**
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-## Running the Pipeline
+## Running the full pipeline
 
-**CRITICAL**: The pipeline is orchestrated to enforce strict dependencies. **Do not** run scripts individually unless you understand the data flow. Use `main.py` to ensure `ngram.py` (Phase 3) completes before `engine.py` (Phase 4).
+The pipeline can be executed with a single command that respects the
+orchestrated phase order and uses a *small* sample size for quick testing:
 
-### 1. Full Pipeline Execution (Recommended)
-Runs all phases in the correct order: Power Analysis -> Download -> Static Analysis -> N-Gram Model -> Inference -> Analysis -> Validation Fallback.
 ```bash
-python code/main.py --model mistral-7b --device cpu --timeout 60
-```
-*Note: If `mistral-7b` exceeds memory, the orchestrator will automatically switch to `tinyllama` and log a warning.*
-
-### 2. Manual Step Execution (Advanced)
-If running manually, you **MUST** follow this order:
-
-#### Step 0: Power Analysis
-```bash
-python code/main.py --phase power-analysis
+python -m code.main --phase all --sample small
 ```
 
-#### Step 1: Data Download & Sampling
-```bash
-python code/data/download.py --lang python --lang java --sample-size 500
-```
+- `--phase all` tells the orchestrator to run the complete DAG (the
+  orchestrator treats unknown phases as “run everything”).  
+- `--sample small` is a lightweight flag understood by the pipeline (it
+  selects a reduced sample size defined in the configuration; the flag is
+  ignored for full‑scale runs).  
+- The command runs under the virtual environment activated above and
+  respects the CPU‑only constraint.
 
-#### Step 2: Static Analysis
-```bash
-python code/data/preprocess.py --input data/raw/sample.parquet --output data/processed/labeled.parquet
-```
+## Expected runtime limits
 
-#### Step 3: N-Gram Model (Producer)
-**MUST COMPLETE BEFORE STEP 4**.
-```bash
-python code/data/ngram.py --input data/processed/labeled.parquet --output data/models/ngram.arpa
-```
+- **Total wall‑clock time:** ≤ 6 hours on the GitHub Actions free‑tier
+  (2 CPU cores, ~7 GB RAM).  
+- **Per‑chunk inference timeout:** 60 seconds (configurable via the
+  `--timeout` argument).  
 
-#### Step 4: LLM Inference (Consumer)
-**Requires `data/models/ngram.arpa` to exist.**
-```bash
-python code/inference/engine.py --model mistral-7b --input data/processed/labeled.parquet --output data/processed/inferred.parquet --device cpu --timeout 60
-```
+The pipeline writes all results under `data/results/` and generates
+figures under `data/figures/`.  After successful execution you should see
+files such as:
 
-#### Step 5: Analysis & Visualization
-```bash
-python code/analysis/correlation.py --input data/processed/inferred.parquet
-python code/analysis/thresholds.py --input data/processed/inferred.parquet
-python code/analysis/significance.py --input data/processed/inferred.parquet
-python code/viz/plots.py --input data/results/analysis_results.json
-```
-
-### 3. Validation Fallback
-If no human-labeled benchmark is found, the pipeline automatically generates a limitation report in `data/results/validation_report.json`. No manual intervention is required.
-
-## Expected Output
 - `data/results/correlation_results.parquet`
 - `data/results/threshold_results.parquet`
-- `data/results/significance_report.json`
-- `data/results/validation_report.json` (if benchmark missing)
 - `data/figures/correlation_scatter.png`
-- `data/figures/threshold_sensitivity.png`
 
 ## Troubleshooting
-- **OOM Error**: The pipeline automatically falls back to `tinyllama`. If that fails, reduce `--sample-size` in `download.py`.
-- **Timeout**: Increase `--timeout` or switch to a smaller model (e.g., `phi-2`).
-- **Parsing Errors**: The pipeline skips files that cannot be parsed; check `data/logs/parsing_errors.log`.
-- **Missing N-Gram Model**: Ensure `code/data/ngram.py` has run successfully before running `code/inference/engine.py`.
+
+- **Argument errors:** Ensure you are using the exact command above; the
+  `--sample` flag is now accepted by `code/main.py`.  
+- **Out‑of‑memory:** The orchestrator will automatically fall back to the
+  smaller TinyLlama model and log a warning.  
+- **Missing data:** If any result files are absent, re‑run the command; the
+  orchestrator will retry failed phases.

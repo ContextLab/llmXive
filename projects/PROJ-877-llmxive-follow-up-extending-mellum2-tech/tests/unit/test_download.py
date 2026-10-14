@@ -1,109 +1,80 @@
 """
-Unit tests for code/data/download.py
-
-These tests verify the logic of T015 without requiring network access
-(by mocking the dataset loading).
+Unit tests for the ``code/data/download.py`` module (Task T002).
+The tests verify that:
+1. The reservoir sampling returns the expected number of records.
+2. The language distribution matches the requested split.
+3. The Parquet writer creates a file with the correct schema.
 """
-
-import pytest
+import os
 import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
-import sys
-import os
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import pytest
 
-from data.download import load_feasibility_report, fetch_dataset_subset, write_chunks_to_disk
+# Import the functions directly (avoid invoking the CLI)
+from code.data.download import fetch_and_sample, write_parquet_and_checksum
 
-@pytest.fixture
-def mock_feasibility_report(tmp_path):
-    """Create a mock feasibility report."""
-    report = {
-        "capped_N": 100,
-        "scope_reduction": {"disable_cross_language": False},
-        "status": "feasible"
-    }
-    report_path = tmp_path / "data" / "results" / "feasibility_report_v2.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(report_path, 'w') as f:
-        json.dump(report, f)
-    return report_path
 
-def test_load_feasibility_report_success(mock_feasibility_report, tmp_path):
-    """Test loading a valid feasibility report."""
-    # Mock get_project_root to return tmp_path parent
-    with patch('data.download.get_project_root', return_value=tmp_path.parent):
-        report = load_feasibility_report()
-        assert report["capped_N"] == 100
-        assert report["status"] == "feasible"
+@pytest.fixture(scope="module")
+def small_sample():
+    """Fetch a tiny sample (2 per language) to keep test runtime low."""
+    records = fetch_and_sample(
+        languages=["python", "java"],
+        total_sample_size=4,
+        seed=42
+    )
+    return records
 
-def test_load_feasibility_report_missing(mock_feasibility_report, tmp_path):
-    """Test handling of missing feasibility report."""
-    # Rename the file to simulate missing
-    missing_path = tmp_path / "data" / "results" / "nonexistent.json"
-    with patch('data.download.get_project_root', return_value=tmp_path.parent):
-        with patch('data.download.Path.exists', return_value=False):
-            with pytest.raises(FileNotFoundError):
-                load_feasibility_report()
 
-@patch('data.download.load_dataset')
-def test_fetch_dataset_subset(mock_load_dataset):
-    """Test fetching dataset subset with mocked dataset."""
-    # Mock the dataset iterator
-    mock_item = {"content": "print('hello')", "path": "test.py", "language": "Python"}
-    mock_iterator = iter([mock_item] * 10)
-    
-    mock_ds = MagicMock()
-    mock_ds.filter.return_value.take.return_value = mock_iterator
-    mock_load_dataset.return_value = mock_ds
-    
-    chunks = fetch_dataset_subset(["Python"], 10)
-    
-    assert len(chunks) == 10
-    assert all(c['language'] == 'Python' for c in chunks)
-    assert all('chunk_id' in c for c in chunks)
+def test_sample_size_and_balance(small_sample):
+    """Ensure we get exactly 4 records, 2 per language."""
+    assert len(small_sample) == 4, "Unexpected total sample size"
+    langs = [rec["language"] for rec in small_sample]
+    assert langs.count("python") == 2, "Python balance incorrect"
+    assert langs.count("java") == 2, "Java balance incorrect"
 
-@patch('data.download.load_dataset')
-def test_fetch_dataset_subset_empty(mock_load_dataset):
-    """Test fetching when dataset returns empty."""
-    mock_ds = MagicMock()
-    mock_ds.filter.return_value.take.return_value = iter([])
-    mock_load_dataset.return_value = mock_ds
-    
-    chunks = fetch_dataset_subset(["Python"], 10)
-    assert len(chunks) == 0
 
-def test_write_chunks_to_disk(tmp_path):
-    """Test writing chunks to disk."""
-    chunks = [
-        {"chunk_id": "1", "language": "Python", "content": "x=1", "path": "a.py"},
-        {"chunk_id": "2", "language": "Java", "content": "int x=1;", "path": "b.java"}
-    ]
-    
-    root = tmp_path / "project"
-    root.mkdir()
-    
-    paths = write_chunks_to_disk(chunks, ["Python", "Java"], root)
-    
-    # Check files exist
-    assert os.path.exists(paths["Python"])
-    assert os.path.exists(paths["Java"])
-    
-    # Check content
-    with open(paths["Python"], 'r') as f:
-        lines = f.readlines()
-        assert len(lines) == 1
-        data = json.loads(lines[0])
-        assert data["language"] == "Python"
+def test_parquet_output(tmp_path: Path, small_sample):
+    """Write the sampled records to Parquet and verify schema & checksum."""
+    parquet_file = tmp_path / "raw_chunks.parquet"
+    checksum_file = tmp_path / "checksums.txt"
 
-def test_fetch_dataset_subset_network_error():
-    """Test handling of network errors."""
-    with patch('data.download.load_dataset') as mock_load:
-        mock_load.side_effect = Exception("Network timeout")
-        
-        with pytest.raises(Exception) as exc_info:
-            fetch_dataset_subset(["Python"], 10)
-        
-        assert "Network timeout" in str(exc_info.value)
+    write_parquet_and_checksum(
+        records=small_sample,
+        output_parquet=parquet_file,
+        checksum_path=checksum_file
+    )
+
+    # Verify Parquet file exists and is non‑empty
+    assert parquet_file.is_file()
+    assert parquet_file.stat().st_size > 0
+
+    # Verify checksum file exists and contains a SHA‑256 hash
+    assert checksum_file.is_file()
+    content = checksum_file.read_text().strip()
+    parts = content.split()
+    assert len(parts) == 2, "Checksum file format incorrect"
+    sha, filename = parts
+    assert len(sha) == 64, "Checksum length mismatch"
+    assert filename == parquet_file.name, "Checksum filename mismatch"
+
+    # Verify Parquet column names
+    import pandas as pd
+
+    df = pd.read_parquet(parquet_file, engine="pyarrow")
+    expected_cols = ["id", "repo_name", "language", "content", "status"]
+    assert list(df.columns) == expected_cols, "Parquet schema mismatch"
+    assert len(df) == 4, "Parquet row count mismatch"
+
+
+def test_invalid_language_handling():
+    """Request a language not present – should return an empty list."""
+    records = fetch_and_sample(
+        languages=["nonexistentlang"],
+        total_sample_size=2,
+        seed=123
+    )
+    assert records == [], "Expected no records for an unsupported language"
+
+
+# The tests are deliberately lightweight to respect the CI runtime limits.

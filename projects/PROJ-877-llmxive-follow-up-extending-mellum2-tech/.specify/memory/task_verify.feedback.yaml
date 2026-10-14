@@ -1,0 +1,48 @@
+T001a:
+  reason: "`code/requirements.txt` pins only `datasets`, `pandas`, `pyarrow`, `python-dotenv`,\
+    \ and `PyYAML`, and explicitly relegates the rest to a comment claiming they're\
+    \ \"already available in the base environment\" \u2014 the task requires pinned\
+    \ versions of transformers, tree-sitter, tree-sitter-python, tree-sitter-java,\
+    \ scikit-learn, statsmodels, numpy, scipy, matplotlib, seaborn, kenlm, ruptures,\
+    \ pwlf, jsonschema, pytest, pytest-cov, and psutil, none of which appear. `code/config.py`\
+    \ does define SEED=12345, PRIMARY_MODEL_ID=\"Mistral-7B\", and toolkit-based path\
+    \ helpers, but the requirements file fails the"
+  task: 09929ff7f0bdeeabed03b0d31725cc17d6428c0271141d550c361087ef235e8b
+T001b:
+  reason: "The `quickstart.md` file exists and contains the required command, usage\
+    \ notes, environment activation, and runtime limits. However, the task's verification\
+    \ criterion \u2014 that `python -m code.main --phase all --sample small` runs\
+    \ without parsing errors \u2014 has no supporting evidence: no execution log,\
+    \ no output artifacts, and no evidence that `code/main.py` (or `code/requirements.txt`,\
+    \ referenced by the doc) even exists in the project. The doc's own troubleshooting\
+    \ note (\"the `--sample` flag is now accepted by `code/main.py`\") is a self-assertion,\
+    \ not proof. Provide a run log or the actual `code/m"
+  task: e435b49dd26b4037098de402a9f3519282e865a172a81b14801f4be5fb59de4c
+T002:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/raw_chunks.parquet,
+    data/checksums.txt'
+  task: 91c12fc2e398e2c133294c05d9646cd1fcb6d59d2e65e5ce23219b919c411f98
+T003:
+  task: 1dfeb9b9b543ca7f8e2bc6ee3f9ffb41ad7a1941fe82bd66c33ab471eea01ee6
+T004:
+  task: fae750289e14ebd23ba91f8f9eb9cba3e0cbfbb6fb56bf710dde9b2a6b9c6502
+T005:
+  task: 581b546e176ac4f2fb77afd24385c335cbe1364e5f40b3c086a4e5df2080ce83
+T006:
+  task: 3c263ea5d14e7fe30be48e69d5d68581b334278ec4d3db193dfbd8ffc015c032
+T007:
+  task: 207e24881d76fdcf969210df907425543736b4322e885cc630b5db3f78a51b65
+T008:
+  task: 4e2de14603f04314a08ec9d86bf6ce1857ba06a643f0cde515d0008eb257d2c2
+T009:
+  task: 42750360e3cc60a5cc35c8c77cc5ec7cc623b8651a79f206dd7eded29b9b33b0
+T010:
+  task: 26a0b536b3122498af7d5ceaa7727bdafc1441ddbf1cfb2a9ba83f863d09fd43
+T011:
+  task: 7f0a7a50662c14926f5664cc1e84bb97992b40143572c877f5b1f7ea01058e63
+T012:
+  task: 7223391cb4aa7010ad470f78562c206e05a84bee5dc08fc60b5f6478ce2cbb59
+T013:
+  task: ec5dcc9aa68fe69a926f8c1acf3c84fbe6e41badcd231a06a94a1d29930716ac
+T014:
+  task: f832aac9d83ee5b6b849b821d3ef6ca1104362fd00273f09f7858b776ea986ff

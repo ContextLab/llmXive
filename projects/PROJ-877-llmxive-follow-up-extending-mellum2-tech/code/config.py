@@ -1,69 +1,80 @@
 """
 Configuration management module for the llmXive pipeline.
-Handles environment variables, project root detection, and seed setting.
+Handles environment variables, project root detection, seed setting,
+and provides project‑wide constants.
 """
 import os
 import random
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-import json
-from dotenv import load_dotenv
 
-# Load environment variables from .env file immediately upon import
-# This ensures variables are available for get_config() and other functions
+# External dependencies
+from dotenv import load_dotenv
+from llmxive_toolkit import paths  # Provides project‑wide path helpers
+
+# Load environment variables from a .env file (if present) immediately upon import
 load_dotenv()
 
-# Define required environment variables for the pipeline
-REQUIRED_ENV_VARS = [
+# ----------------------------------------------------------------------
+# Primary constants required by the specification
+# ----------------------------------------------------------------------
+# Fixed random seed for reproducibility across the entire pipeline
+SEED: int = 12345
+
+# Identifier of the primary frozen LLM to be used for inference.
+# Accepted values per spec: "Mistral-7B" or "Llama-3-8B".
+PRIMARY_MODEL_ID: str = "Mistral-7B"
+
+# ----------------------------------------------------------------------
+# Environment variable handling
+# ----------------------------------------------------------------------
+REQUIRED_ENV_VARS: List[str] = [
     "HF_TOKEN",
     "HF_DATASET_NAME",
     "MAX_WORKERS",
     "TIMEOUT_SECONDS",
     "RANDOM_SEED",
     "BATCH_SIZE",
-    "DEVICE"
+    "DEVICE",
 ]
 
 def get_project_root() -> Path:
     """
-    Get the project root directory.
-    
+    Determine the absolute path to the project root.
+
     Returns:
-        Path object pointing to the project root.
+        Path: Absolute path to the repository root.
     """
-    # Check for explicit environment variable first
     root_env = os.getenv("PROJECT_ROOT")
     if root_env:
         return Path(root_env).resolve()
-        
-    # Otherwise, assume current working directory or parent of this file
-    # In the context of this project, we assume the script runs from the project root
+
+    # Fallback: assume this file lives in <project_root>/code/config.py
     current_file = Path(__file__).resolve()
-    # Navigate up to find the project root (assuming code/ subdirectory exists)
-    if current_file.name == "config.py" and current_file.parent.name == "code":
+    if current_file.parent.name == "code":
         return current_file.parent.parent
     return Path.cwd()
 
 def load_environment() -> Dict[str, str]:
     """
-    Load all environment variables into a dictionary.
-    
+    Return a copy of the current environment variables.
+
     Returns:
-        Dictionary of environment variables.
+        dict: Mapping of environment variable names to values.
     """
     return dict(os.environ)
 
 def validate_required_env_vars(required_vars: Optional[List[str]] = None) -> bool:
     """
-    Validate that all required environment variables are set.
-    
+    Ensure that all required environment variables are defined.
+
     Args:
-        required_vars: List of required environment variable names. 
-                       If None, uses the predefined REQUIRED_ENV_VARS.
-                        
+        required_vars: List of variable names to check. If None, uses
+                       REQUIRED_ENV_VARS defined at module level.
+
     Returns:
-        True if all variables are set.
-        
+        bool: True if all variables are present.
+
     Raises:
         ValueError: If any required variable is missing.
     """
@@ -75,50 +86,48 @@ def validate_required_env_vars(required_vars: Optional[List[str]] = None) -> boo
 
 def get_config() -> Dict[str, Any]:
     """
-    Get the configuration dictionary from environment variables.
-    Validates required variables before returning config.
-    
+    Assemble the configuration dictionary from environment variables.
+
     Returns:
-        Configuration dictionary.
-        
+        dict: Configuration values used throughout the pipeline.
+
     Raises:
-        ValueError: If required environment variables are missing.
+        ValueError: If required environment variables are absent.
     """
-    # Validate required variables first
     validate_required_env_vars()
-    
-    config = {
+
+    return {
         "project_root": str(get_project_root()),
         "hf_token": os.getenv("HF_TOKEN", ""),
         "hf_dataset_name": os.getenv("HF_DATASET_NAME", "codeparrot/github-code"),
         "max_workers": int(os.getenv("MAX_WORKERS", "4")),
         "timeout_seconds": int(os.getenv("TIMEOUT_SECONDS", "300")),
-        "seed": int(os.getenv("RANDOM_SEED", "42")),
+        "seed": int(os.getenv("RANDOM_SEED", str(SEED))),
         "batch_size": int(os.getenv("BATCH_SIZE", "1")),
         "device": os.getenv("DEVICE", "cpu"),
+        # Primary model identifier is part of the spec and exposed here
+        "primary_model_id": PRIMARY_MODEL_ID,
     }
-    return config
 
 def set_seed(seed: Optional[int] = None) -> None:
     """
-    Set random seeds for reproducibility.
-    
+    Seed the Python, NumPy, and (if available) PyTorch RNGs for reproducibility.
+
     Args:
-        seed: Random seed value. If None, uses default from config.
+        seed: Desired seed value. If None, defaults to the value from
+              get_config() or the module‑level SEED constant.
     """
     if seed is None:
-        seed = get_config().get("seed", 42)
-        
+        seed = get_config().get("seed", SEED)
     random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    
-    # Try to set numpy and torch seeds if available
+    os.environ["PYTHONHASHSEED"] = str(seed)
+
     try:
         import numpy as np
         np.random.seed(seed)
     except ImportError:
         pass
-        
+
     try:
         import torch
         torch.manual_seed(seed)
@@ -127,44 +136,46 @@ def set_seed(seed: Optional[int] = None) -> None:
     except ImportError:
         pass
 
-def ensure_dirs(base_path: Path, dirs: List[str]) -> List[Path]:
-    """
-    Ensure a list of directories exist under a base path.
-    
-    Args:
-        base_path: Base directory path.
-        dirs: List of directory names to create.
-        
-    Returns:
-        List of created directory paths.
-    """
-    created = []
-    for d in dirs:
-        path = base_path / d
-        path.mkdir(parents=True, exist_ok=True)
-        created.append(path)
-    return created
+# ----------------------------------------------------------------------
+# Project‑wide path helpers (thin wrappers around llmxive_toolkit.paths)
+# ----------------------------------------------------------------------
+# These helpers expose the same API as the toolkit but make the intent
+# explicit within this config module.
+def data_path(*segments: str) -> Path:
+    """Return a Path under the project's data directory, creating parents."""
+    return paths.data(*segments)
 
+def figures_path(*segments: str) -> Path:
+    """Return a Path under the project's figures directory, creating parents."""
+    return paths.figures(*segments)
+
+def results_path(*segments: str) -> Path:
+    """Return a Path under the project's results directory, creating parents."""
+    return paths.results(*segments)
+
+def docs_path(*segments: str) -> Path:
+    """Return a Path under the project's docs directory, creating parents."""
+    return paths.docs(*segments)
+
+# ----------------------------------------------------------------------
+# CLI entry point for quick validation of the configuration module
+# ----------------------------------------------------------------------
 def main() -> int:
     """
-    Main entry point for config validation.
-    Validates environment variables and prints configuration.
-    
+    Simple sanity‑check that the configuration can be loaded without errors.
+
     Returns:
-        0 on success, 1 on failure.
+        int: Exit status (0 = success, 1 = failure).
     """
     try:
-        config = get_config()
-        print(f"Configuration loaded successfully:")
-        for key, value in config.items():
-            # Mask sensitive values
-            if "token" in key.lower() or "secret" in key.lower():
-                value = "***"
-            print(f"  {key}: {value}")
+        cfg = get_config()
+        print("Configuration loaded successfully:")
+        for k, v in cfg.items():
+            # Mask tokens for safety
+            if "token" in k.lower() or "secret" in k.lower():
+                v = "***"
+            print(f"  {k}: {v}")
         return 0
-    except ValueError as e:
-        print(f"Configuration validation error: {e}")
-        return 1
     except Exception as e:
         print(f"Configuration error: {e}")
         return 1
