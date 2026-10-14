@@ -1,0 +1,9 @@
+T060b:
+  c: true
+  h: 534175a4e4d3204a615ca67c9bb8042ef360f532e258f1590a49bcadc874c761
+  r: "Checked `code/format_diff.txt` (contains the pre\u2011format diff) and the task\
+    \ log `code/.tasks/T060b.code_run_black_format.py.log`, which records Black running\
+    \ in check\u2011diff mode, writing the diff, then re\u2011formatting all source\
+    \ files (including those in `tests/`). The log shows successful reformatting of\
+    \ 27 files and a zero exit code, confirming the required actions were performed."
+  sig: df673a7bb6a161fa82f591ef625172c5359da0321b94f189189c3c15ea38db89

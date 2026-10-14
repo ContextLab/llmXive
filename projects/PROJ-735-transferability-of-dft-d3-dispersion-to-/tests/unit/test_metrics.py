@@ -4,6 +4,7 @@ Unit tests for error metric calculation (MAE, RMSE, MSE) in code/utils.py.
 Tests the calculate_metrics function which computes Mean Absolute Error,
 Root Mean Squared Error, and Mean Squared Error.
 """
+
 import pytest
 import numpy as np
 from code.utils import calculate_metrics
@@ -52,8 +53,8 @@ class TestCalculateMetrics:
         mae, rmse, mse = calculate_metrics(y_true, y_pred)
 
         assert mae == pytest.approx(1.0, rel=1e-9)
-        assert mse == pytest.approx(5.0/3.0, rel=1e-9)
-        assert rmse == pytest.approx(np.sqrt(5.0/3.0), rel=1e-9)
+        assert mse == pytest.approx(5.0 / 3.0, rel=1e-9)
+        assert rmse == pytest.approx(np.sqrt(5.0 / 3.0), rel=1e-9)
 
     def test_single_element(self):
         """Test metrics with a single data point."""
@@ -79,7 +80,7 @@ class TestCalculateMetrics:
         # RMSE = sqrt(2.0) ≈ 1.4142
         mae, rmse, mse = calculate_metrics(y_true, y_pred)
 
-        assert mae == pytest.approx(4.0/3.0, rel=1e-9)
+        assert mae == pytest.approx(4.0 / 3.0, rel=1e-9)
         assert mse == pytest.approx(2.0, rel=1e-9)
         assert rmse == pytest.approx(np.sqrt(2.0), rel=1e-9)
 
@@ -95,7 +96,7 @@ class TestCalculateMetrics:
         # RMSE = sqrt(2.0) ≈ 1.4142
         mae, rmse, mse = calculate_metrics(y_true, y_pred)
 
-        assert mae == pytest.approx(4.0/3.0, rel=1e-9)
+        assert mae == pytest.approx(4.0 / 3.0, rel=1e-9)
         assert mse == pytest.approx(2.0, rel=1e-9)
         assert rmse == pytest.approx(np.sqrt(2.0), rel=1e-9)
 

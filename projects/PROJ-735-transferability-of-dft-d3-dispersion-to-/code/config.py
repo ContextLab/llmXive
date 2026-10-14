@@ -5,9 +5,11 @@ from typing import Optional, Dict, Any
 from dataclasses import dataclass, field
 from logger import get_logger, info, warning, error
 
+
 @dataclass
 class Config:
     """Configuration container for the project."""
+
     seed: int = 42
     data_path: str = "data"
     output_path: str = "data/derived"
@@ -24,7 +26,9 @@ class Config:
         self.derived_data_path = Path(self.derived_data_path)
         self.figures_path = Path(self.figures_path)
 
+
 _config_instance: Optional[Config] = None
+
 
 def load_config_from_env() -> Config:
     """Load configuration from environment variables with defaults."""
@@ -52,6 +56,7 @@ def load_config_from_env() -> Config:
     _config_instance = config
     return config
 
+
 def save_config_to_json(config: Config, path: Path) -> None:
     """Save configuration to a JSON file."""
     path = Path(path)
@@ -68,6 +73,7 @@ def save_config_to_json(config: Config, path: Path) -> None:
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
     info(f"Configuration saved to {path}")
+
 
 def load_config_from_json(path: Path) -> Config:
     """Load configuration from a JSON file."""
@@ -89,6 +95,7 @@ def load_config_from_json(path: Path) -> Config:
     _config_instance = config
     return config
 
+
 def get_config() -> Config:
     """Get the current configuration instance."""
     global _config_instance
@@ -96,10 +103,12 @@ def get_config() -> Config:
         _config_instance = load_config_from_env()
     return _config_instance
 
+
 def set_config(config: Config) -> None:
     """Set the configuration instance explicitly."""
     global _config_instance
     _config_instance = config
+
 
 def set_random_seed(seed: Optional[int] = None) -> None:
     """Set the random seed for reproducibility."""
@@ -108,9 +117,11 @@ def set_random_seed(seed: Optional[int] = None) -> None:
         seed = config.seed
     import numpy as np
     import random
+
     random.seed(seed)
     np.random.seed(seed)
     info(f"Random seed set to {seed}")
+
 
 def main() -> None:
     """Main entry point for configuration testing."""
@@ -120,6 +131,7 @@ def main() -> None:
     logger.info(f"Loaded config: seed={config.seed}, data_path={config.data_path}")
     set_random_seed(config.seed)
     logger.info("Configuration test completed successfully.")
+
 
 if __name__ == "__main__":
     main()

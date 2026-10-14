@@ -1,0 +1,10 @@
+status: none
+intent: IL-Benchmark ionic liquid ion pair interaction energies CCSD(T)/CBS dataset
+  Zenodo python package dataset
+required_fields:
+- identifier
+- reference_energy_ccsd_t_cbs
+- xyz_coordinates
+cache_key: 2df9dc9d39c472f420874d8b9126638754621e81d1fd862bb1e6e2dc238edff2
+searched_at: '2026-10-14T03:25:28.128471+00:00'
+retry_count: 1

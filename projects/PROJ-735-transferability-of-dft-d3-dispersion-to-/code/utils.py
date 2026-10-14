@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List, Tuple, Optional, Union
 
+
 def calculate_metrics(errors: Union[List[float], np.ndarray]) -> dict:
     """
     Calculate error metrics (MAE, RMSE, MSE, Mean Signed Error).
@@ -23,6 +24,7 @@ def calculate_metrics(errors: Union[List[float], np.ndarray]) -> dict:
         "mse": float(mse),
         "mean_signed_error": float(mse_signed),
     }
+
 
 def bootstrap_resample(
     data: Union[List[float], np.ndarray],
@@ -50,6 +52,7 @@ def bootstrap_resample(
         resamples.append(data[indices])
     return resamples
 
+
 def bootstrap_mean(
     data: Union[List[float], np.ndarray],
     n_replicates: int = 1000,
@@ -72,6 +75,7 @@ def bootstrap_mean(
     ci_lower = np.percentile(means, 2.5)
     ci_upper = np.percentile(means, 97.5)
     return mean_est, ci_lower, ci_upper
+
 
 def bootstrap_mae(
     errors: Union[List[float], np.ndarray],

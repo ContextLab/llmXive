@@ -16,13 +16,18 @@ from typing import Dict, Any, Optional
 
 # Import from sibling modules using the exact public API surface provided
 from logger import get_logger, info, error
-from derive_scaling import fit_scaling_factor, bootstrap_scaling_analysis, load_raw_energies
+from derive_scaling import (
+    fit_scaling_factor,
+    bootstrap_scaling_analysis,
+    load_raw_energies,
+)
 
 # Initialize logger
 logger = get_logger(__name__)
 
+
 def load_scaling_results(
-    scaling_output_path: str = "data/derived/scaling_results.json"
+    scaling_output_path: str = "data/derived/scaling_results.json",
 ) -> Dict[str, Any]:
     """
     Load the scaling results computed by derive_scaling.py.
@@ -40,17 +45,19 @@ def load_scaling_results(
     path = Path(scaling_output_path)
     if not path.exists():
         error(f"Scaling results file not found: {scaling_output_path}")
-        raise FileNotFoundError(f"Scaling results file not found: {scaling_output_path}")
+        raise FileNotFoundError(
+            f"Scaling results file not found: {scaling_output_path}"
+        )
 
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         results = json.load(f)
 
     info(f"Loaded scaling results from {scaling_output_path}")
     return results
 
+
 def write_scaling_file(
-    results: Dict[str, Any],
-    output_path: str = "data/derived/scaling_factor.txt"
+    results: Dict[str, Any], output_path: str = "data/derived/scaling_factor.txt"
 ) -> None:
     """
     Write the optimal scaling factor and its confidence interval to a text file.
@@ -68,7 +75,7 @@ def write_scaling_file(
         ValueError: If required keys are missing from results.
     """
     # Validate required keys
-    required_keys = ['optimal_s', 'ci_lower', 'ci_upper', 'hypothesis_test_passed']
+    required_keys = ["optimal_s", "ci_lower", "ci_upper", "hypothesis_test_passed"]
     for key in required_keys:
         if key not in results:
             error(f"Missing required key in results: {key}")
@@ -106,10 +113,11 @@ def write_scaling_file(
     ]
 
     # Write to file
-    with open(output_file, 'w') as f:
-        f.write('\n'.join(lines))
+    with open(output_file, "w") as f:
+        f.write("\n".join(lines))
 
     info(f"Scaling factor results written to {output_path}")
+
 
 def main() -> None:
     """
@@ -146,6 +154,7 @@ def main() -> None:
     except Exception as e:
         error(f"Task T025 failed: {str(e)}")
         raise
+
 
 if __name__ == "__main__":
     main()

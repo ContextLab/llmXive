@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 import numpy as np
 
+
 @dataclass
 class IonPair:
     pair_id: int
@@ -9,6 +10,7 @@ class IonPair:
     anion: str
     xyz_path: str
     reference_energy: float
+
 
 @dataclass
 class CalculationResult:

@@ -2,6 +2,7 @@
 Report generation module for the DFT-D3 transferability study.
 Generates benchmark and correlation reports from analysis results.
 """
+
 import os
 import json
 from pathlib import Path
@@ -13,6 +14,7 @@ logger = get_logger(__name__)
 
 # --- Benchmark Report Helpers (Existing) ---
 
+
 def load_energies_csv(filepath: str) -> pd.DataFrame:
     """Load raw energies CSV."""
     path = Path(filepath)
@@ -23,16 +25,18 @@ def load_energies_csv(filepath: str) -> pd.DataFrame:
     logger.info(f"Loaded {len(df)} rows from {filepath}")
     return df
 
+
 def load_statistics_json(filepath: str) -> Dict[str, Any]:
     """Load statistics JSON (e.g., bootstrap results)."""
     path = Path(filepath)
     if not path.exists():
         error(f"File not found: {filepath}")
         raise FileNotFoundError(f"File not found: {filepath}")
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         data = json.load(f)
     logger.info(f"Loaded statistics from {filepath}")
     return data
+
 
 def load_scaling_results(filepath: str) -> Dict[str, Any]:
     """Load scaling results JSON."""
@@ -40,16 +44,17 @@ def load_scaling_results(filepath: str) -> Dict[str, Any]:
     if not path.exists():
         error(f"File not found: {filepath}")
         raise FileNotFoundError(f"File not found: {filepath}")
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         data = json.load(f)
     logger.info(f"Loaded scaling results from {filepath}")
     return data
+
 
 def generate_benchmark_report(
     energies_df: pd.DataFrame,
     stats_json: Dict[str, Any],
     scaling_json: Dict[str, Any],
-    output_path: str
+    output_path: str,
 ) -> None:
     """
     Generate the benchmark_report.md with raw and scaled metrics.
@@ -58,17 +63,17 @@ def generate_benchmark_report(
     output.parent.mkdir(parents=True, exist_ok=True)
 
     # Extract metrics
-    raw_mae = stats_json.get('raw_metrics', {}).get('mae', 'N/A')
-    raw_rmse = stats_json.get('raw_metrics', {}).get('rmse', 'N/A')
-    raw_mse = stats_json.get('raw_metrics', {}).get('mse', 'N/A')
-    raw_ci = stats_json.get('raw_ci', {}).get('mae', (None, None))
+    raw_mae = stats_json.get("raw_metrics", {}).get("mae", "N/A")
+    raw_rmse = stats_json.get("raw_metrics", {}).get("rmse", "N/A")
+    raw_mse = stats_json.get("raw_metrics", {}).get("mse", "N/A")
+    raw_ci = stats_json.get("raw_ci", {}).get("mae", (None, None))
 
-    s_factor = scaling_json.get('scaling_factor', {}).get('optimal_s', 'N/A')
-    s_ci = scaling_json.get('scaling_factor', {}).get('ci_95', (None, None))
-    s_hypothesis = scaling_json.get('hypothesis_test', {}).get('result', 'N/A')
+    s_factor = scaling_json.get("scaling_factor", {}).get("optimal_s", "N/A")
+    s_ci = scaling_json.get("scaling_factor", {}).get("ci_95", (None, None))
+    s_hypothesis = scaling_json.get("hypothesis_test", {}).get("result", "N/A")
 
-    scaled_mae = scaling_json.get('scaled_metrics', {}).get('mae', 'N/A')
-    scaled_rmse = scaling_json.get('scaled_metrics', {}).get('rmse', 'N/A')
+    scaled_mae = scaling_json.get("scaled_metrics", {}).get("mae", "N/A")
+    scaled_rmse = scaling_json.get("scaled_metrics", {}).get("rmse", "N/A")
 
     report_lines = [
         "# Benchmark Report: DFT-D3 Transferability to Ionic Liquids",
@@ -95,15 +100,17 @@ def generate_benchmark_report(
         "",
         "The raw DFT-D3 method shows systematic bias. The derived scaling factor "
         "significantly reduces this error. Statistical significance is confirmed "
-        "by the hypothesis test."
+        "by the hypothesis test.",
     ]
 
-    with open(output, 'w') as f:
-        f.write('\n'.join(report_lines))
+    with open(output, "w") as f:
+        f.write("\n".join(report_lines))
 
     logger.info(f"Generated benchmark report: {output}")
 
+
 # --- Correlation Report Helpers (New for T036) ---
+
 
 def load_correlation_results(filepath: str) -> Dict[str, Any]:
     """
@@ -129,14 +136,14 @@ def load_correlation_results(filepath: str) -> Dict[str, Any]:
     if not path.exists():
         error(f"Correlation results file not found: {filepath}")
         raise FileNotFoundError(f"Correlation results file not found: {filepath}")
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         data = json.load(f)
     logger.info(f"Loaded correlation results from {filepath}")
     return data
 
+
 def generate_correlation_report(
-    correlation_json: Dict[str, Any],
-    output_path: str
+    correlation_json: Dict[str, Any], output_path: str
 ) -> None:
     """
     Generate correlation_report.md with coefficients, R², p-values, CIs, and adjusted p-values.
@@ -144,7 +151,7 @@ def generate_correlation_report(
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    correlations = correlation_json.get('correlations', [])
+    correlations = correlation_json.get("correlations", [])
     if not correlations:
         error("No correlation data found in input JSON.")
         raise ValueError("No correlation data found in input JSON.")
@@ -161,20 +168,20 @@ def generate_correlation_report(
         "- **Confidence Intervals**: 95% CI via bootstrap resampling (1,000 replicates)",
         "- **Significance**: Bonferroni-adjusted p-values",
         "",
-        "## Results"
+        "## Results",
     ]
 
     for entry in correlations:
-        metric_name = entry.get('metric', 'Unknown')
+        metric_name = entry.get("metric", "Unknown")
         lines.append(f"### {metric_name}")
         lines.append("")
 
         # Pearson
-        r_val = entry.get('pearson_r', 0.0)
-        r_sq = r_val ** 2
-        p_val_raw = entry.get('pearson_p', 1.0)
-        p_val_adj = entry.get('adj_p_pearson', 1.0)
-        ci = entry.get('pearson_ci_95', [0.0, 0.0])
+        r_val = entry.get("pearson_r", 0.0)
+        r_sq = r_val**2
+        p_val_raw = entry.get("pearson_p", 1.0)
+        p_val_adj = entry.get("adj_p_pearson", 1.0)
+        ci = entry.get("pearson_ci_95", [0.0, 0.0])
 
         lines.append(f"**Pearson Correlation (r):** {r_val:.4f}")
         lines.append(f"- **R²**: {r_sq:.4f}")
@@ -184,10 +191,10 @@ def generate_correlation_report(
         lines.append("")
 
         # Spearman
-        rho_val = entry.get('spearman_rho', 0.0)
-        p_val_rho_raw = entry.get('spearman_p', 1.0)
-        p_val_rho_adj = entry.get('adj_p_spearman', 1.0)
-        ci_rho = entry.get('spearman_ci_95', [0.0, 0.0])
+        rho_val = entry.get("spearman_rho", 0.0)
+        p_val_rho_raw = entry.get("spearman_p", 1.0)
+        p_val_rho_adj = entry.get("adj_p_spearman", 1.0)
+        ci_rho = entry.get("spearman_ci_95", [0.0, 0.0])
 
         lines.append(f"**Spearman Rank Correlation (ρ):** {rho_val:.4f}")
         lines.append(f"- **Raw p-value**: {p_val_rho_raw:.4e}")
@@ -197,23 +204,27 @@ def generate_correlation_report(
         lines.append("---")
         lines.append("")
 
-    lines.extend([
-        "## Conclusion",
-        "",
-        "The statistical significance of the correlations is determined by the "
-        "Bonferroni-adjusted p-values. A value < 0.05 indicates a statistically "
-        "significant association after correcting for multiple testing.",
-        "",
-        "*Note: The dataset size is limited to 20 ion pairs due to CI constraints, "
-        "which may impact the statistical power of these tests.*"
-    ])
+    lines.extend(
+        [
+            "## Conclusion",
+            "",
+            "The statistical significance of the correlations is determined by the "
+            "Bonferroni-adjusted p-values. A value < 0.05 indicates a statistically "
+            "significant association after correcting for multiple testing.",
+            "",
+            "*Note: The dataset size is limited to 20 ion pairs due to CI constraints, "
+            "which may impact the statistical power of these tests.*",
+        ]
+    )
 
-    with open(output, 'w') as f:
-        f.write('\n'.join(lines))
+    with open(output, "w") as f:
+        f.write("\n".join(lines))
 
     logger.info(f"Generated correlation report: {output}")
 
+
 # --- Main Entry Point ---
+
 
 def main() -> None:
     """
@@ -222,15 +233,15 @@ def main() -> None:
     """
     # Default paths relative to project root
     base_path = Path(__file__).resolve().parent.parent
-    data_dir = base_path / 'data' / 'derived'
+    data_dir = base_path / "data" / "derived"
 
-    energies_path = data_dir / 'raw_energies.csv'
-    stats_path = data_dir / 'energy_statistics.json'
-    scaling_path = data_dir / 'scaling_results.json'
-    correlation_path = data_dir / 'correlation_results.json'
+    energies_path = data_dir / "raw_energies.csv"
+    stats_path = data_dir / "energy_statistics.json"
+    scaling_path = data_dir / "scaling_results.json"
+    correlation_path = data_dir / "correlation_results.json"
 
-    benchmark_out = data_dir / 'benchmark_report.md'
-    correlation_out = data_dir / 'correlation_report.md'
+    benchmark_out = data_dir / "benchmark_report.md"
+    correlation_out = data_dir / "correlation_report.md"
 
     try:
         # Generate Benchmark Report
@@ -247,11 +258,14 @@ def main() -> None:
             corr_data = load_correlation_results(str(correlation_path))
             generate_correlation_report(corr_data, str(correlation_out))
         else:
-            warning(f"Correlation results not found at {correlation_path}. Skipping correlation report.")
+            warning(
+                f"Correlation results not found at {correlation_path}. Skipping correlation report."
+            )
 
     except Exception as e:
         error(f"Failed to generate reports: {e}")
         raise
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

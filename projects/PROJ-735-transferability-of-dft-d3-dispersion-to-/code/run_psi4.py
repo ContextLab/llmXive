@@ -7,6 +7,7 @@ from typing import List, Dict, Optional, Any, Tuple
 from logger import get_logger, info, error, warning, critical
 from config import get_config, set_random_seed
 
+
 def run_psi4_single(
     xyz_file: Path,
     output_file: Path,
@@ -93,7 +94,9 @@ energy('{method}/{basis}')
                 logger.info(f"Psi4 calculation succeeded for {xyz_file}")
                 return True
             else:
-                logger.warning(f"Psi4 failed for {xyz_file} (attempt {attempt}): {result.stderr}")
+                logger.warning(
+                    f"Psi4 failed for {xyz_file} (attempt {attempt}): {result.stderr}"
+                )
                 if attempt == max_retries:
                     error(f"Psi4 failed after {max_retries} attempts for {xyz_file}")
                     return False
@@ -106,13 +109,16 @@ energy('{method}/{basis}')
                 return False
             time.sleep(5 * attempt)
         except FileNotFoundError:
-            error("Psi4 executable not found. Please ensure psi4 is installed and in PATH.")
+            error(
+                "Psi4 executable not found. Please ensure psi4 is installed and in PATH."
+            )
             return False
         except Exception as e:
             error(f"Unexpected error running Psi4 for {xyz_file}: {e}")
             return False
 
     return False
+
 
 def run_psi4_batch(
     xyz_files: List[Path],
@@ -157,6 +163,7 @@ def run_psi4_batch(
 
     return results
 
+
 def main() -> None:
     """Main entry point for running Psi4 calculations."""
     logger = get_logger(__name__)
@@ -170,6 +177,7 @@ def main() -> None:
     # logger.info(f"Batch results: {results}")
 
     logger.info("Psi4 runner ready. Call run_psi4_batch() with your files.")
+
 
 if __name__ == "__main__":
     main()
