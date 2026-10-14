@@ -1,14 +1,8 @@
 T001:
   task: c189ec04302c16e0eebf8bb7c042cadbfcdf73884974f5bf79a369206134dbe6
 T002:
-  reason: "The repository contains a full `preprocess.py` implementation, and the\
-    \ unit tests exercise most steps (filtering, zero\u2011taxa removal, CLR shape,\
-    \ pseudocount, zero\u2011variance detection). However, the required output files\
-    \ `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
-    \ are absent, and the tests write outputs only to a temporary directory, not to\
-    \ the mandated locations. Moreover, the test suite does not verify that the RAM\u2011\
-    budget\u2011driven top\u2011100 taxa subsampling is actually triggered during\
-    \ a real run. These missing artifacts and incomplete verification mean the"
+  reason: 'Requested task execution failed; rerun successfully: data/raw/ppmi_clinical.parquet
+    exit=-1; code/src/pipeline/run_preprocess_default.py exit=1'
   task: ab5f61bd6cd381c8f27378ea345e52c3b3122e2a34fbdd52604725c76ddcfda6
 T003:
   reason: "The core module `code/src/pipeline/slopes.py` is present and implements\

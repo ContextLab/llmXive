@@ -1,15 +1,12 @@
 T001:
   c: true
-  h: fa17616cb1d866e87b9ecc33e353e5a6daf4c32fa7509edb7f40655217e3c85e
-  r: "The ingest module (`code/src/pipeline/ingest.py`) implements all required behavior\
-    \ \u2014 column/readability validation with non-zero exit on missing/malformed\
-    \ files, warning plus skip flags when `MDS_UPDRS_Total` is absent, and no synthetic\
-    \ fallback \u2014 and `code/tests/test_ingest.py` covers the three required cases\
-    \ (successful load, missing file, missing outcome column) plus malformed-input\
-    \ and report-writing cases. The runnable command is documented in `specs/.../quickstart.md`;\
-    \ the missing `data/raw/` files are the researcher-supplied inputs the module\
-    \ is designed to validate, not a defect of thi"
-  sig: e85c9600c8f067d08a1fb870478c563425707d69c3bfa044b83ab79c311718cc
+  h: ab5503600b939602c1ec72ef69e2fcbf894566693b5f6ae241e0cb6e9803e625
+  r: "Checked `code/src/pipeline/ingest.py` (implementation of validation logic),\
+    \ the three unit tests in `code/tests/test_ingest.py` covering successful load,\
+    \ missing file, and missing outcome column, and the quickstart documentation that\
+    \ lists the runnable command. All required artifacts exist, are non\u2011empty,\
+    \ and the code behaves exactly as specified."
+  sig: b9a551565496b7c3564c67d2d268261c3345318103119ae6daa53e02216e4bf3
 T002:
   c: false
   h: 13453d420abf514142346bd0c92024d54b59dec59b172fa92e7354a84ca838db

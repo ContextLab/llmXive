@@ -1,17 +1,17 @@
 status: none
-intent: Parkinson disease longitudinal microbiome 16S MDS-UPDRS dataset Qiita download
-  python package dataset
+intent: Parkinson's disease longitudinal microbiome ASV counts with UPDRS scores MGnify
+  NCBI BioProject python package dataset
 required_fields:
-- subject_id
 - sample_id
+- subject_id
 - visit_number
 - visit_date
-- updrs_total
-- updrs_motor
-- updrs_nonmotor
-- asv_id
-- taxonomy
-- asv_count
-cache_key: 7873626be187dd27080fd6244128cbd401f248e02011aadaa02b875eeecb3b22
-searched_at: '2026-10-14T08:24:07.586591+00:00'
+- asv_id_1
+- asv_id_2
+- '... (one column per ASV)'
+- MDS_UPDRS_total
+- age
+- sex
+cache_key: 2bc0191a1fe8973d18cd072d27880f1d65e3e794fc80a7616ede9c4dd34c6b04
+searched_at: '2026-10-14T08:27:13.570063+00:00'
 retry_count: 1
