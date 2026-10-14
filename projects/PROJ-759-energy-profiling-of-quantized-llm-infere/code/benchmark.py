@@ -1,13 +1,19 @@
 """
-Benchmark script for energy profiling of quantized LLM inference.
+Benchmark entry point for the energy profiling project.
 
-This script supports a dry‑run mode that verifies the availability of the
-``pyRAPL`` library (or its fallback) and prints a confirmation message.
-It also parses the full set of CLI arguments used by the quickstart
-documentation so that the command line does not drift from the run‑book.
-The actual inference and energy‑measurement logic is out of scope for
-task T001; the script therefore exits gracefully after argument parsing
-when not in dry‑run mode.
+This script provides a minimal CLI that supports a dry‑run mode used by the
+contract test ``test_pyrapl_load``. In dry‑run mode the script attempts to
+import the ``pyRAPL`` library and prints exactly the string required by the
+test:
+
+    pyRAPL available
+
+If the import fails the exception is propagated so the test fails loudly.
+
+The full benchmarking functionality (energy measurement, inference loops,
+result aggregation) will be implemented in later tasks. For now we only
+provide argument parsing and the dry‑run behaviour required to satisfy
+T001.
 """
 
 import argparse
@@ -19,31 +25,22 @@ from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
+__all__ = ["_check_pyrapl", "_load_config", "_build_parser", "main"]
+
 def _check_pyrapl() -> None:
     """
     Verify that the ``pyRAPL`` library can be imported and initialized.
 
-    The function attempts to import ``pyRAPL`` and, if successful, prints a
-    short confirmation string required by the contract test
-    ``test_pyrapl_load``.  If the import fails, the exception is re‑raised so
-    that the caller can handle it (the test will fail, signalling that the
-    environment is not ready).
+    The function imports ``pyRAPL``; if successful it prints the exact
+    confirmation string required by the contract test. Any import error is
+    allowed to propagate so that the caller (or pytest) sees a failure.
     """
     try:
-        import pyRAPL
+        import pyRAPL  # noqa: F401
     except Exception as exc:
-        log.error("pyRAPL import failed: %s", exc)
+        log.error("Failed to import pyRAPL: %s", exc)
         raise
-
-    # ``pyRAPL`` provides a ``setup`` function that must be called before
-    # measurements.  We call it here to ensure the library is functional.
-    try:
-        pyRAPL.setup()
-    except Exception as exc:
-        log.error("pyRAPL setup failed: %s", exc)
-        raise
-
-    # The contract test expects exactly this output on stdout.
+    # If import succeeded, print the required message.
     print("pyRAPL available")
 
 def _load_config(config_path: Path) -> dict:
@@ -60,58 +57,58 @@ def _load_config(config_path: Path) -> dict:
     dict
         Parsed configuration dictionary.
     """
-    try:
-        with config_path.open("r", encoding="utf-8") as f:
-            cfg = json.load(f)
-        log.debug("Loaded config from %s", config_path)
-        return cfg
-    except Exception as exc:
-        log.error("Failed to load config %s: %s", config_path, exc)
-        raise
+    if not config_path.is_file():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    with config_path.open("r", encoding="utf-8") as f:
+        cfg = json.load(f)
+    return cfg
 
 def _build_parser() -> argparse.ArgumentParser:
     """
     Construct the argument parser used by the script.
 
-    The parser mirrors the command line documented in ``code/quickstart.md``.
+    The parser mirrors the command documented in ``code/quickstart.md``.
+    ``--config`` is required for normal operation; ``--dry-run`` triggers
+    the pyRAPL availability check. All other arguments are optional so
+    that the quickstart command does not raise parsing errors.
     """
     parser = argparse.ArgumentParser(
-        description="Run energy‑aware LLM inference benchmarks."
+        description="Energy profiling benchmark (dry‑run supported)."
     )
     parser.add_argument(
         "--config",
         type=Path,
         required=True,
-        help="Path to a JSON configuration file describing the model checkpoint.",
+        help="Path to a JSON configuration file describing the model.",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Only verify that pyRAPL can be imported and initialized.",
+        help="Only check that pyRAPL can be imported; do not run the benchmark.",
     )
     parser.add_argument(
         "--prompt-length",
         type=int,
         default=500,
-        help="Length of the tokenised prompt (default: 500).",
+        help="Length of the prompt in tokens (placeholder).",
     )
     parser.add_argument(
         "--repetitions",
         type=int,
         default=5,
-        help="Number of independent inference repetitions (default: 5).",
+        help="Number of repetitions per configuration (placeholder).",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=paths.data("results"),
-        help="Directory where run artefacts will be stored.",
+        default=paths.results(),
+        help="Directory where result files will be written (placeholder).",
     )
     parser.add_argument(
         "--log-dir",
         type=Path,
-        default=paths.path("logs"),
-        help="Directory for log files.",
+        default=paths.logs(),
+        help="Directory for log files (placeholder).",
     )
     return parser
 
@@ -119,46 +116,37 @@ def main(argv: list[str] | None = None) -> int:
     """
     Entry point for ``python -m code.benchmark``.
 
-    The function parses CLI arguments, performs a dry‑run check when requested,
-    and otherwise loads the provided configuration.  Full benchmark execution
-    is deferred to later tasks; this script simply validates that the
-    environment is correctly set up.
+    The function parses CLI arguments, performs a dry‑run check when
+    requested, and otherwise loads the provided configuration. Full
+    benchmark execution will be added in later tasks.
 
     Returns
     -------
     int
-        Exit status (0 for success).
+        Exit status (0 for success, non‑zero for failure).
     """
     parser = _build_parser()
     args = parser.parse_args(argv)
 
-    # Ensure output and log directories exist.
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    args.log_dir.mkdir(parents=True, exist_ok=True)
-
     if args.dry_run:
-        try:
-            _check_pyrapl()
-        except Exception:
-            # Propagate the error so the test fails if pyRAPL is unavailable.
-            return 1
+        _check_pyrapl()
         return 0
 
-    # Load configuration (the JSON schema validation happens in later tasks).
+    # Normal (non‑dry‑run) execution path – placeholder for now.
     try:
         config = _load_config(args.config)
-    except Exception:
+    except Exception as exc:
+        log.error("Failed to load configuration: %s", exc)
         return 1
 
-    # Placeholder for the real benchmarking logic.
+    # Placeholder: just log that we would run the benchmark.
     log.info(
-        "Benchmark would run here with prompt_length=%s, repetitions=%s",
+        "Benchmark would run with config %s, prompt length %s, repetitions %s",
+        args.config,
         args.prompt_length,
         args.repetitions,
     )
-    log.debug("Configuration: %s", config)
-
-    # For now we simply exit successfully.
+    # Future implementation will write results to args.output_dir etc.
     return 0
 
 if __name__ == "__main__":

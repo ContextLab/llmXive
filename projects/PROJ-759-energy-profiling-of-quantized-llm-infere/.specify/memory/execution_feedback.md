@@ -25,25 +25,20 @@ usage: benchmark.py [-h] --config CONFIG [--dry-run]
 benchmark.py: error: the following arguments are required: --config
 
 - python -m pytest -q tests/contract -> rc=2
-package, level)
-tests/contract/test_wikitext2_download.py:12: in <module>
-    from utils.data_loader import download_wikitext2
-code/utils/data_loader.py:16: in <module>
-    from datasets import load_dataset
-../../.llmxive-venvs/PROJ-759-energy-profiling-of-quantized-llm-infere/lib/python3.11/site-packages/datasets/__init__.py:17: in <module>
-    from .arrow_dataset import Dataset
-../../.llmxive-venvs/PROJ-759-energy-profiling-of-quantized-llm-infere/lib/python3.11/site-packages/datasets/arrow_dataset.py:60: in <module>
-    import pyarrow as pa
-../../.llmxive-venvs/PROJ-759-energy-profiling-of-quantized-llm-infere/lib/python3.11/site-packages/pyarrow/__init__.py:59: in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-pyarrow/lib.pyx:42: in init pyarrow.lib
-    ???
-E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+==================================== ERRORS ====================================
+_ ERROR collecting projects/PROJ-759-energy-profiling-of-quantized-llm-infere/tests/contract/test_quantize_config.py _
+tests/contract/test_quantize_config.py:20: in <module>
+    with schema_path.open() as f:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+E   FileNotFoundError: [Errno 2] No such file or directory: 'contracts/config.schema.yaml'
+------------------------------- Captured stderr --------------------------------
+2026-10-14 16:10:32,841 WARNING utils.quantize: auto-gptq not available (pyarrow requires NumPy 2.0 or newer, found 1.26.4); quantization will be skipped.
 =========================== short test summary info ============================
 ERROR tests/contract/test_quantize_config.py - FileNotFoundError: [Errno 2] N...
-ERROR tests/contract/test_wikitext2_download.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-2 errors in 2.07s
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 2.45s
 
 
 

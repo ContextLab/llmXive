@@ -1,10 +1,11 @@
 status: none
-intent: download WikiText-2 test split parquet file from HuggingFace datasets python
-  package dataset
+intent: Download WikiText-2 test split parquet via HuggingFace Datasets python package
+  dataset
 required_fields:
 - text
-- split
-- id
-cache_key: ce7e1ac08e2f57d0a292220e5fc2f155532bca95416edb1271b5eab21cb4e6ad
-searched_at: '2026-10-14T15:20:20.481102+00:00'
+- tokenized_ids
+- prompt
+- prompt_length
+cache_key: 74162f3d4502d437db29f6832393169f93d9930d99974307e00ed0ac0849b40d
+searched_at: '2026-10-14T16:11:27.449869+00:00'
 retry_count: 1

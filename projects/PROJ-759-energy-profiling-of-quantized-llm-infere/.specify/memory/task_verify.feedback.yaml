@@ -1,10 +1,6 @@
 T001:
-  reason: The required `code/quickstart.md` exists and documents the command, but
-    there is no evidence that the `pyRAPL` library actually loads (no pytest output,
-    CI logs, or test file). Moreover, the referenced config file `data/configs/125M_4bit.json`
-    is missing, so the documented command cannot be run as specified. Provide a passing
-    `test_pyrapl_load` result (or CI log) and the correct config file to satisfy the
-    task.
+  reason: 'Requested task execution failed; rerun successfully: code/benchmark.py
+    exit=2'
   task: defffaf048b4c101e4c107be061c3f2cf31a8cd6854cb8fd38ed9cc285a53796
 T002:
   reason: "The required files `data/raw/wikitext2.parquet` and `data/raw/README.md`\

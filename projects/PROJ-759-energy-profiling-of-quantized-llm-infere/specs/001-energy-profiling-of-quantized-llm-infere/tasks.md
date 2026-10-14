@@ -8,7 +8,7 @@
 
 **Goal**: Verify that a minimal CPU‑only inference run can be executed, measured for energy, and stored in the canonical schema.
 
-- [ ] T001 [P1] Establish a reproducible environment, document the runnable command in `quickstart.md`, and verify that the `pyRAPL` (or fallback `powerstat`) library loads on the GitHub Actions runner.  
+- [ ] T001 [P1] Establish a reproducible environment, document the runnable command in `quickstart.md`, and verify that the `pyRAPL` (or fallback `powerstat`) library loads on the GitHub Actions runner.   <!-- FAILED-IN-EXECUTION: code/benchmark.py exit=2 -->
   *Path*: `code/quickstart.md`  
   *Verification*: `pytest -k test_pyrapl_load` passes; the quickstart command `python -m code.benchmark --config data/configs/125M_4bit.json --dry-run` prints “pyRAPL available”.
 
