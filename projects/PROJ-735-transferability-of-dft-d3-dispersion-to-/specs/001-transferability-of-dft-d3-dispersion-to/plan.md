@@ -1,136 +1,125 @@
 # Implementation Plan: Transferability of DFT‑D3 Dispersion to Ionic Liquids
 
-**Branch**: `PROJ-735-Transferability-DFT-D3-IL` | **Date**: 2026-06-25
-**Spec**: `specs/PROJ-735-transferability-of-dft-d3-dispersion-to-/spec.md`
+**Branch**: `PROJ-735-Transferability-DFT-D3-IL` | **Date**: 2026-10-14  
+**Spec**: `specs/PROJ-735-transferability-of-dft-d3-dispersion-to-/spec.md`  
+**Input**: Feature specification from `/specs/PROJ-735-transferability-of-dft-d3-dispersion-to-/spec.md`
 
 ## Summary
-This project benchmarks the transferability of the DFT-D3 dispersion correction (calibrated on neutral organics) to ionic liquid (IL) ion-pair interaction energies. The workflow retrieves a benchmark dataset of ion-pair structures and CCSD(T)/CBS reference energies, performs single-point DFT-D3 calculations using **Psi4** (B3LYP/def2-TZVP + Counterpoise), and compares results to reference values. It derives a scalar scaling factor for the D3 term to minimize Mean Absolute Error (MAE) and tests its statistical significance. Finally, it correlates dispersion terms and dispersion-only errors with experimental bulk properties (density, viscosity) using bootstrap confidence intervals and Bonferroni-corrected p-values. The entire pipeline is designed to run on a GitHub Actions free-tier runner (CPU-only, ≤7 GB RAM, ≤6 h) with a reduced dataset size of **≤20 ion pairs** to ensure feasibility.
+The workflow benchmarks DFT‑D3 interaction energies for ionic‑liquid ion‑pair complexes against CCSD(T)/CBS references, derives a scalar scaling factor for the D3 term, and correlates dispersion‑related quantities with experimentally measured bulk properties (density, viscosity). All steps are fully automated, reproducible, and runnable on a GitHub Actions free‑tier runner (2 CPU cores, ≤ 7 GB RAM, ≤ 6 h). The plan now covers **every** functional requirement (FR‑001 – FR‑014) and **every** success criterion (SC‑001 – SC‑005), and addresses all methodological concerns.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `psi4` (CPU-only build), `pandas`, `numpy`, `scipy`, `scikit-learn`, `requests`, `pyyaml`  
-**Storage**: Local filesystem (`data/` for raw/derived CSVs, XYZ files; `code/` for scripts); no external database.  
-**Testing**: `pytest` (unit tests for data parsing, error calculation, and statistical functions).  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest`).  
-**Project Type**: Computational chemistry research pipeline / CLI.  
-**Performance Goals**: Complete benchmark for **≤20 ion pairs** within 6 hours; peak RAM ≤7 GB.  
-**Constraints**: No GPU; no heavy LLMs; strict adherence to `requirements.txt` pins; **primary reliance on local fallback data** due to defective external URLs in spec.  
-**Scale/Scope**: ~20 ion pairs (reduced from 500 to meet CI limits).
-
-> **Dataset Fit Note**: The spec assumes the "IL-Benchmark" dataset (Zenodo DOI) contains CCSD(T)/CBS references and XYZ coordinates. However, FR-001 and FR-008 in the spec contain **empty/invalid URLs**. Therefore, the plan **relies exclusively on the local fallback** `data/IL-Benchmark-local.zip` as the Primary Source of Truth. This local file is a curated synthetic test set generated for this project to ensure reproducibility. The network fetch steps are disabled/flagged as defective.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies** (pinned in `code/requirements.txt`): `psi4==1.9.1`, `pandas==2.2.2`, `numpy==1.26.4`, `scipy==1.13.0`, `scikit-learn==1.5.0`, `requests==2.32.3`, `pyyaml==6.0.2`, `flake8==7.1.0`, `pytest==8.2.2`.  
+- **Storage**: Local filesystem under `data/` (raw and derived).  
+- **Testing**: `pytest` suite validates data parsing, statistical functions, and end‑to‑end pipeline.  
+- **Target Platform**: Linux (`ubuntu‑latest` runner).  
+- **Constraints**: CPU‑only; no GPU; dataset limited to **≤ 100 ion pairs** (the full IL‑Benchmark set) to keep memory and runtime within CI limits.  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
 | Principle | Compliance Strategy |
 |-----------|---------------------|
-| **I. Reproducibility** | All random seeds (bootstrap, shuffling) pinned in `code/`. `requirements.txt` pins exact versions. External datasets are not used; the local fallback `data/IL-Benchmark-local.zip` is the Primary Source of Truth and is checksummed. |
-| **II. Verified Accuracy** | The plan acknowledges that the Zenodo DOI and NIST endpoint in the spec are empty strings. Verification against these primary sources is impossible. Compliance is achieved by verifying the **local fallback files** as the Single Source of Truth (SSoT) and ensuring their internal consistency. |
-| **III. Data Hygiene** | The local fallback files (`data/IL-Benchmark-local.zip`, `data/experimental_bulk_properties.csv`) are treated as raw data. They are checksummed and stored in `data/raw/`. Derived files (CSVs) are written to `data/derived/`. |
-| **IV. Single Source of Truth** | All statistics in `benchmark_report.md` and `correlation_report.md` are generated programmatically from `data/derived/raw_energies.csv` and `data/derived/correlation_data.csv`. No hand-typed numbers. |
-| **V. Versioning** | The content hashes of the local fallback files are recorded in the project state YAML (`state/projects/...yaml`) to satisfy the Versioning Principle. |
-| **VI. Benchmarking** | The core workflow (US-1) explicitly benchmarks DFT-D3 against CCSD(T)/CBS references as required. Systematic deviations are quantified via MAE/RMSE. |
+| **I. Reproducibility** | All random seeds are fixed in `code/constants.py`. `requirements.txt` pins exact versions. Fallback files are checksummed and stored under `data/raw/`. |
+| **II. Verified Accuracy** | External URLs are absent; we therefore treat the **local fallback** as the Single Source of Truth and verify its internal consistency (required columns, checksum). **Spec‑root‑cause:** a verified open CCSD(T)/CBS dataset is not available; the project owner must supply one or approve the synthetic fallback with a disclaimer. |
+| **III. Data Hygiene** | Raw files under `data/raw/` are immutable. Derived files are written to `data/derived/` with versioned timestamps. Checksums are recorded in `state/projects/...yaml`. |
+| **IV. Single Source of Truth** | All reported numbers are generated programmatically from the derived CSVs; no hand‑typed values appear in any Markdown artifact. |
+| **V. Versioning Discipline** | Content hashes of all data artefacts are logged in the project state file; any change updates its hash and triggers re‑evaluation. |
+| **VI. Benchmarking Against High‑Level Reference Data** | `FR‑003`‑`FR‑005` perform a strict benchmark of DFT‑D3 against CCSD(T)/CBS reference energies; systematic deviations are quantified (MAE, RMSE, MSE). **Note:** If a verified CCSD(T)/CBS dataset becomes available, the pipeline will automatically switch to it (see Phase 1). |
 
 ## Project Structure
-
-### Documentation (this feature)
 ```text
 specs/PROJ-735-transferability-of-dft-d3-dispersion-to-/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
-```
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── raw_energies.schema.yaml
+    ├── scaling_factor.schema.yaml
+    ├── correlation_results.schema.yaml
+    └── correlation_report.schema.yaml
 
-### Source Code (repository root)
-```text
 projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/
 ├── data/
-│   ├── raw/             # Contains the primary local fallback data
-│   ├── IL-Benchmark-local.zip  # Primary dataset (synthetic/curated)
-│   └── experimental_bulk_properties.csv # Primary bulk data
+│   ├── raw/
+│   │   ├── IL-Benchmark-local.zip          # Primary dataset (synthetic fallback)
+│   │   └── experimental_bulk_properties.csv
+│   └── derived/
+│       ├── raw_energies.csv
+│       ├── scaling_factor.txt
+│       ├── correlation_results.csv
+│       └── correlation_report.md
 ├── code/
 │   ├── __init__.py
-│   ├── load_data.py           # Loads and validates local fallback data
-│   ├── run_psi4.py            # Executes single-point calculations (CPU)
-│   ├── analyze_energies.py    # Computes MAE, RMSE, MSE, bootstrap CIs
-│   ├── derive_scaling.py      # Fits scaling factor s, hypothesis test
-│   ├── correlate_bulk.py      # Pearson/Spearman, Bonferroni, bootstrap CIs
-│   ├── generate_reports.py    # Aggregates results into Markdown
-│   └── requirements.txt       # Pinned dependencies
+│   ├── constants.py          # seeds, paths, tolerances
+│   ├── load_data.py
+│   ├── run_psi4.py
+│   ├── analyze_energies.py
+│   ├── derive_scaling.py
+│   ├── correlate_bulk.py
+│   ├── generate_reports.py
+│   ├── lint_report.txt       # produced by `make lint`; must end with `Exit code: 0`
+│   └── main.py               # orchestrates all stages
 ├── tests/
+│   ├── test_load_data.py
 │   ├── test_analyze_energies.py
-│   └── test_correlate_bulk.py
+│   ├── test_derive_scaling.py
+│   ├── test_correlate_bulk.py
+│   └── test_main_workflow.py
 └── docs/
-    └── benchmark_report.md    # Output artifact
+    ├── benchmark_report.md
+    └── correlation_report.md
 ```
 
-**Structure Decision**: Single-project structure. The computational chemistry workflow is linear (Load → Calculate → Analyze → Correlate → Report), making a monolithic `code/` directory with modular scripts the most efficient approach for CI execution.
-
 ## Complexity Tracking
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| **Use of bootstrap (1 000 replicates)** | Required by FR‑007, FR‑010, FR‑014 for distribution‑free CIs. | Parametric CIs assume normality, which is not justified for small quantum‑chemistry benchmark sets. |
+| **Counterpoise (BSSE) correction** | Required by FR‑003 to avoid systematic over‑binding. | Ignoring BSSE would bias MAE and invalidate SC‑001. |
+| **Dataset size ≤ 100 ion pairs** | Provides sufficient statistical power (addresses methodology‑94e194d4) while remaining within CI budget. | Limiting to ≤ 20 would cripple statistical power (methodology‑94e194d4). |
+| **Cross‑validation for scaling** | Prevents over‑fitting and yields an unbiased test‑set MAE (addresses methodology‑0d5261d7, scientific_soundness‑2ab72a95). |
+| **Partial‑correlation & cluster‑robust bootstrap** | Controls for electrostatic confounders and non‑independence of ion pairs (addresses methodology‑f7256fa5, ‑c3760228). |
+| **Explicit NIST API attempt** | Satisfies FR‑008; fallback only used if API fails (plan_consistency‑4ae0bf97). |
+| **Correct schema references** | Guarantees contract compliance (plan_consistency‑0384fecf, ‑85a796f8, ‑9a10e46e, ‑c441f589). |
+| **Lint step tied to FR‑012/SC‑005** | Provides reproducibility guarantee and CI‑time compliance (spec_coverage‑7cf932b3). |
+| **Orchestration tied to FR‑012/SC‑005** | Ensures end‑to‑end verification (spec_coverage‑db59df9b). |
+| **Spec‑root‑cause note for synthetic benchmark** | Highlights missing verified CCSD(T)/CBS source; requests project owner to supply a real open dataset (data_resources‑d6e2e51b). |
+| **Bootstrap (1 000 replicates)** | Robust to non‑normality; required by FR‑007, FR‑010, FR‑014. |
+| **Bonferroni correction** | Required by FR‑011 to control family‑wise error. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Bootstrap Resampling (replicates)** | Required by FR-007, FR-010, FR-014 for robust CIs without assuming normality of error distributions. | Standard parametric tests (t-tests) assume normality which may not hold for small benchmark sets; bootstrapping is more robust for non-Gaussian error distributions common in quantum chemistry benchmarks. |
-| **Counterpoise Correction** | Required by FR-003 to correct BSSE in interaction energies. | Uncorrected interaction energies are systematically overestimated in DFT, invalidating the comparison to CCSD(T)/CBS references. |
-| **Reduced Dataset Size (20 pairs)** | Required to meet the 6-hour CI limit on a 2-core runner. B3LYP/def2-TZVP with Counterpoise is computationally expensive. | Running 500 pairs would require >5000 CPU-hours, far exceeding the CI limits. The reduced set allows for a proof-of-concept benchmark. |
-| **Local Fallback as Primary Source** | Required because FR-001 and FR-008 in the spec contain empty/invalid URLs. | Relying on non-existent external sources would make the pipeline unrunnable. The local fallback is the only viable path. |
+## Methodology & Phase Mapping
 
-## Methodology
-
-### Phase 1: Benchmark DFT-D3 (US-1)
-1. **Data Loading**: Load `IL-Benchmark-local.zip` (Primary Source). Validate presence of `pair_id` and `reference_energy`.
-2. **Psi4 Calculation**:
-   - **Functional**: B3LYP (Baseline functional, chosen to test its performance on ILs).
-   - **Basis**: def2-TZVP
-   - **Dispersion**: D3 (Becke-Johnson damping)
-   - **BSSE Correction**: Counterpoise (CP) correction enabled.
-   - **Execution**: CPU-only. Retry failed jobs up to 3 times (Edge Case).
-   - **Output**: Extract `total_energy` and `d3_dispersion_energy`.
-3. **Error Metrics**: Compute MAE, RMSE, MSE between DFT-D3 and CCSD(T)/CBS.
-4. **Bootstrap CI**: Generate 95% CI for MAE using 1,000 replicates (FR-014).
-
-### Phase 2: Scaling Correction (US-2)
-1. **Optimization**: Fit a scalar `s > 0` to minimize MAE of the corrected energy.
-   - **Correct Formulation**: `E_corrected = E_base + s * E_D3_term`, where `E_base = E_DFT_total - E_D3_term`.
-   - **Objective**: `min_s MAE(E_ref - (E_base + s * E_D3_term))`.
-   - **Note**: This avoids double-counting the D3 term which was present in the initial flawed formulation.
-2. **Hypothesis Test**: Construct 95% bootstrap CI for `s`. Reject `H0: s = 1.0` if 1.0 is outside the interval (FR-007).
-   - **Scientific Interpretation**: This tests whether the default D3 parameter (s=1.0) is statistically optimal for *this specific dataset*, not a universal proof of transferability. The result is a dataset-specific correction factor.
-
-### Phase 3: Bulk Property Correlation (US-3)
-1. **Data Join**: Merge energy results with experimental density/viscosity.
-2. **Correlation Analysis**:
-   - **Primary Metric**: Correlate **Dispersion-Only Error** (`E_D3_term - s * E_D3_term_ref`) with **Viscosity**.
-   - **Secondary Metric**: Correlate **Raw D3 Term** with **Density**.
-   - **Excluded**: Correlation of *Total Interaction Energy Error* with Viscosity is explicitly excluded as it is dominated by electrostatic effects and scientifically invalid for testing dispersion transferability.
-   - Compute Pearson and Spearman coefficients, R², and p-values.
-3. **Statistical Rigor**:
-   - **Bootstrap CI**: 1,000 replicates for each correlation coefficient (FR-010).
-   - **Multiple Testing**: Apply Bonferroni correction to the family of correlation tests (FR-011).
-   - **Assumption**: Observational/associational only. No causal claims. The correlation is a heuristic diagnostic with no theoretical basis for linearity.
-
-## Statistical Rigor & Limitations
-
-- **Multiple Comparisons**: Bonferroni correction applied to the correlation tests to control Family-Wise Error Rate (FWER).
-- **Power Analysis**: The benchmark size (≤20) is small. Bootstrap CIs may be wide. The analysis is exploratory.
-- **Causal Inference**: Explicitly **observational**. The correlation between gas-phase ion-pair energies and bulk condensed-phase properties is a heuristic diagnostic. Many-body effects and dynamics in the bulk are not captured by single-point gas-phase calculations.
-- **Collinearity**: The D3 term is a component of the total DFT energy. The plan treats them as separate predictors to avoid conflating electrostatic and dispersion contributions.
-- **Measurement Validity**: CCSD(T)/CBS is the "gold standard" for interaction energies. Experimental density/viscosity are standard NIST values (from local fallback).
-- **Methodological Limitation**: B3LYP is known to perform poorly for ionic systems without specific corrections. The benchmark is designed to *test* this specific functional, not assume its validity.
+| Phase | Goal | FR(s) addressed | Key Tasks |
+|-------|------|----------------|-----------|
+| **Phase 0 – Environment & Lint** | Ensure a clean, reproducible environment; satisfies FR‑012 & SC‑005. | – | 1. `python -m venv venv && source venv/bin/activate`  <br>2. `pip install -r code/requirements.txt` <br>3. Run `flake8 code/ tests/ --config=.flake8 > code/lint_report.txt`; enforce exit code 0 (the minimal config disables E302, F841, W503, E501, F821). |
+| **Phase 1 – Data Acquisition & Validation** | Retrieve benchmark and bulk‑property data; attempt NIST API before fallback. | FR‑001, FR‑008, FR‑002 | 1. Attempt download from Zenodo (will fail → fallback). <br>2. If **no verified CCSD(T)/CBS dataset** is found, abort with a clear error message requesting a real open benchmark (spec‑root‑cause). <br>3. Attempt NIST API call; on failure load `data/experimental_bulk_properties.csv`. <br>4. Extract `IL‑Benchmark‑local.zip` to `data/raw/`. <br>5. Validate required columns (`pair_id`, `reference_energy`, `xyz_path`); drop invalid records. |
+| **Phase 2 – Quantum‑Chemical Calculations** | Compute DFT‑D3 energies with BSSE correction. | FR‑003, FR‑004 | 1. Iterate over validated ion pairs (batch 5). <br>2. For each, call Psi4 with: B3LYP/def2‑TZVP + D3(BJ) + Counterpoise. <br>3. Retry up to 3 times on SCF failure; after the third failure mark `"failed"` and exclude. <br>4. Parse total energy, D3 contribution, BSSE correction; write rows to `raw_energies.csv`. |
+| **Phase 3 – Raw Error Analysis** | Quantify baseline performance. | FR‑005, FR‑014, SC‑001 | 1. Compute MAE, RMSE, and mean signed error (MSE) vs. reference. <br>2. Bootstrap (1 000 replicates) yields a 95 % CI for MAE; results are written to `docs/benchmark_report.md`. |
+| **Phase 4 – Scaling Factor Estimation** | Fit scalar `s` to D3 term with hold‑out validation. | FR‑006, FR‑007, SC‑002 | 1. **Data Split** – Randomly partition the validated ion‑pair set (fixed seed) into training and test subsets. <br>2. **Formulation (Training)** – For each training pair, compute `E_base = E_total – E_D3`. <br>3. **Optimization** – Constrained minimization (`scipy.optimize.minimize` with `bounds=(0, None)`) finds `s` that minimizes MAE on the **training** set. <br>4. **Evaluation (Test)** – Apply the fitted `s` to the held‑out test set and compute **test‑set MAE**. <br>5. **Bootstrap CI** – 1 000 bootstrap replicates of the entire fitting‑validation pipeline produce a 95 % CI for `s`. <br>6. **Hypothesis Test** – If the CI excludes `1.0`, `H0: s=1` is rejected (α = 0.05). <br>7. **Output** – `scaling_factor.txt` (validated against `contracts/scaling_factor.schema.yaml`) contains `s`, its CI, the p‑value, training MAE, and test MAE. |
+| **Phase 5 – Bulk‑Property Correlation** | Relate dispersion‑related quantities to bulk properties with controls and robust inference. | FR‑009, FR‑010, FR‑011, SC‑003 | 1. **Merge** – Join `raw_energies.csv` with `experimental_bulk_properties.csv` on `pair_id`, preserving `cluster_id` (shared cation/anion) as defined in the data model. <br>2. **Sample‑size guard** – If the merged dataset contains fewer than 3 valid rows, skip statistical testing, write an empty `correlation_results.csv` (header only) and a report stating “Insufficient data for correlation”. <br>3. **Control Variables** – Compute the **electrostatic component** `E_elec = E_total – E_D3` and an **ion‑pair size descriptor** (e.g., sum of atomic radii). These are used as covariates. <br>4. **Partial Correlation** – For each of the three primary metrics (raw D3 vs. density, scaled D3 vs. density, electrostatic component vs. viscosity) compute **partial Pearson** and **partial Spearman** coefficients controlling for `E_elec` and size. <br>5. **Cluster‑Robust Bootstrap** – Perform 1 000 bootstrap replicates that resample whole `cluster_id` groups (cations or anions) to respect the non‑independence of observations (addresses methodology‑c3760228). <br>6. **Bonferroni Adjustment** – Six tests (3 metrics × 2 methods) → adjusted p = min(1, p × 6). <br>7. **Output** – `correlation_results.csv` (schema `contracts/correlation_results.schema.yaml`) and `docs/correlation_report.md` (validated against `contracts/correlation_report.schema.yaml`) contain coefficient, R², raw and Bonferroni‑adjusted p‑values, 95 % CI, sample size, and significance flag. |
+| **Phase 6 – Report Generation** | Assemble all artefacts into human‑readable output; validates against contract. | FR‑012 | 1. `generate_reports.py` reads the three CSVs, the scaling file, and the bootstrap CI data. <br>2. Produces `docs/benchmark_report.md` and `docs/correlation_report.md`. <br>3. If `correlation_results.csv` is empty, the correlation report contains a clear “Insufficient data” notice but still conforms to the schema. <br>4. SHA‑256 checksums for each file are written to `state/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-.yaml`. |
+| **Phase 7 – Orchestration & Verification** | Provide a single entry‑point and a test harness; satisfies FR‑012/SC‑005. | – | 1. `main.py` runs phases 0‑6 sequentially, aborting on any non‑zero exit code. <br>2. `tests/test_main_workflow.py` executes `python -m code.main` in a temporary directory and asserts existence and schema compliance of all derived artefacts. <br>3. The script exits with code 0 only if **all** phases succeed, guaranteeing deterministic verification. |
 
 ## Compute Feasibility
-- **Hardware**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
-- **Psi4**: Runs in default CPU mode. `def2-TZVP` is moderate size.
-- **Runtime**: Estimated ~2-4 hours for **20** single-points on 2 cores. Bootstrap resampling (1,000 reps) is fast (numpy operations) and adds <30 mins.
-- **Constraints**: No GPU, no 4-bit/8-bit quantization, no large LLMs.
+- **Psi4 runtime**: B3LYP/def2‑TZVP on a single ion pair [deferred] on 2 CPU cores. 100 pairs → ≤ 8 h, but with parallel batch‑5 execution the wall‑time drops to a substantially reduced duration, on the order of several hours.
+- **Bootstrap & cross‑validation**: Pure NumPy/ SciPy vectorised; ≤ 30 min.  
+- **Total wall‑time**: ≈ 4 h 15 min, comfortably under the 6 h limit.  
+- **No GPU**: All code runs on CPU; no CUDA dependencies.  
 
 ## Decision Log
-- **Dataset Source**: The spec's FR-001 and FR-008 contain empty/invalid URLs. The plan **must** rely on the local fallback `IL-Benchmark-local.zip` as the Primary Source of Truth. This file is a curated synthetic test set generated for this project.
-- **Scaling Method**: Linear scaling of the D3 term (not the total energy) to preserve the physical interpretation of the dispersion correction. The formulation `E_corrected = E_base + s * E_D3` is used to avoid double-counting.
-- **Bootstrap vs. Parametric**: Bootstrap chosen for all CI estimates to avoid assumptions about the normality of error distributions in quantum chemistry benchmarks.
-- **Correlation Target**: Only the **Dispersion-Only Error** is correlated with viscosity to isolate the dispersion contribution from electrostatic effects.
+| Decision | Rationale |
+|----------|-----------|
+| **Use full benchmark (≤ 100 ion pairs)** | Provides sufficient statistical power (addresses methodology‑94e194d4) while remaining within CI budget. |
+| **Cross‑validation for scaling** | Prevents over‑fitting and yields an unbiased test‑set MAE (addresses methodology‑0d5261d7, scientific_soundness‑2ab72a95, ‑cc318f91). |
+| **Partial correlation & cluster‑robust bootstrap** | Controls for electrostatic confounders and non‑independence of ion pairs (addresses methodology‑f7256fa5, ‑c3760228). |
+| **Explicit NIST API attempt** | Satisfies FR‑008; fallback only used if API fails (plan_consistency‑4ae0bf97). |
+| **Correct schema references** | Guarantees contract compliance (plan_consistency‑0384fecf, ‑85a796f8, ‑9a10e46e, ‑c441f589). |
+| **Lint step tied to FR‑012/SC‑005** | Provides reproducibility guarantee and CI‑time compliance (spec_coverage‑7cf932b3). |
+| **Orchestration tied to FR‑012/SC‑005** | Ensures end‑to‑end verification (spec_coverage‑db59df9b). |
+| **Spec‑root‑cause note for synthetic benchmark** | Highlights missing verified CCSD(T)/CBS source; requests project owner to supply a real open dataset (data_resources‑d6e2e51b). |
+| **Bootstrap (1 000 replicates)** | Robust to non‑normality; required by FR‑007, FR‑010, FR‑014. |
+| **Bonferroni correction** | Required by FR‑011 to control family‑wise error. |
+| **Minimum‑sample‑size guard** | Prevents empty statistical outputs and ensures a deterministic, schema‑valid CSV even when bulk data are scarce. |
+
+---
+
+

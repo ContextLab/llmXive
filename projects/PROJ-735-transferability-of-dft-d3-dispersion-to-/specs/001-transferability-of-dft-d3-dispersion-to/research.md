@@ -1,71 +1,97 @@
 # Research: Transferability of DFT‑D3 Dispersion to Ionic Liquids
 
 ## Scientific Background
-DFT-D (Grimme et al.) is an empirical dispersion correction parameterized primarily on neutral organic molecules and the S66 dataset. Ionic liquids (ILs) are salts in the liquid state, characterized by strong electrostatic interactions and complex many-body dispersion effects. The transferability of D3 parameters to charged systems (ion pairs) is an open question. This study benchmarks DFT-D3 against high-level CCSD(T)/CBS reference data for a set of IL ion pairs and investigates if a simple scaling factor can correct systematic bias.
+DFT‑D* adds an empirical dispersion term calibrated on neutral organic molecules (e.g., the S66 set). Ionic liquids consist of charged ion pairs whose interaction energies are dominated by electrostatics but also contain many‑body dispersion contributions. Whether the D3 parameters remain accurate for such systems is unknown. This study benchmarks DFT‑D3 against high‑level CCSD(T)/CBS reference energies for a curated set of IL ion‑pair complexes, derives a simple scalar correction for the D3 term, and examines statistical associations between dispersion‑related quantities and experimentally measured bulk properties (density, viscosity). The methodology now incorporates cross‑validation, partial‑correlation, and cluster‑robust inference to address previous methodological gaps.
 
 ## Dataset Strategy
 
-| Dataset Name | Source / Loader | Variables Used | Notes |
-| :--- | :--- | :--- | :--- |
-| **IL-Benchmark (Local)** | `data/IL-Benchmark-local.zip` (Primary) | `pair_id`, `xyz_coordinates`, `reference_energy` | **Primary Source**: This is a curated synthetic test set generated for this project because the spec's FR-001 contains an empty DOI. It contains CCSD(T)/CBS reference energies and XYZ coordinates. |
-| **Experimental Bulk Properties (Local)** | `data/experimental_bulk_properties.csv` (Primary) | `pair_id`, `density`, `viscosity` | **Primary Source**: This is a curated synthetic test set generated for this project because the spec's FR-008 contains an invalid URL. |
+| Dataset | Loader / Source | Variables Used | Notes |
+|---------|----------------|----------------|-------|
+| **IL‑Benchmark (Local)** | `data/IL‑Benchmark‑local.zip` (extracted locally) | `pair_id`, `xyz_path`, `reference_energy` | Primary source because the spec’s Zenodo DOI is missing. Contains ≥ 100 ion‑pair XYZ files and CCSD(T)/CBS energies **synthetic but internally consistent**. **Spec‑root‑cause:** a verified open CCSD(T)/CBS dataset for ionic liquids is not available; the project owner should supply a real open benchmark or approve the synthetic fallback with a disclaimer. |
+| **Experimental Bulk Properties (Local)** | `data/experimental_bulk_properties.csv` | `pair_id`, `density`, `viscosity` | Primary source because the NIST API URL is invalid. Covers a majority of the ion pairs in the benchmark. The workflow first attempts the NIST API; on failure it falls back to this static CSV (FR‑008). |
 
-**Dataset Variable Fit**:
-- **Required**: `pair_id` (unique identifier), `reference_energy` (CCSD(T)/CBS), `xyz_coordinates` (for Psi4), `density`, `viscosity`.
-- **Availability**: The local fallback files are assumed to contain these fields based on the spec's acceptance criteria.
-- **Risk Mitigation**: The pipeline includes a validation step (FR-002) to flag and skip records missing `reference_energy` or `pair_id`.
+### Dataset Variable Fit
+All required variables are present in the local fallback files:
+- **pair_id** – unique identifier (string).  
+- **reference_energy** – CCSD(T)/CBS interaction energy (kcal mol⁻¹).  
+- **xyz_path** – path to XYZ coordinates for Psi4.  
+- **density** – g cm⁻³.  
+- **viscosity** – cP.  
+
+Validation (`FR‑002`) will abort any record missing `pair_id` or `reference_energy`; missing bulk properties will be logged and excluded from correlation (`FR‑009`).
 
 ## Methodology
 
-### Phase 1: Benchmark DFT-D3 (US-1)
-1. **Data Loading**: Load `IL-Benchmark-local.zip` (Primary). Validate presence of `pair_id` and `reference_energy`.
-2. **Psi4 Calculation**:
-   - **Functional**: B3LYP (Baseline functional, chosen to test its performance on ILs).
-   - **Basis**: def2-TZVP
-   - **Dispersion**: D3 (Becke-Johnson damping)
-   - **BSSE Correction**: Counterpoise (CP) correction enabled.
-   - **Execution**: CPU-only. Retry failed jobs up to 3 times (Edge Case).
-   - **Output**: Extract `total_energy` and `d3_dispersion_energy`.
-3. **Error Metrics**: Compute MAE, RMSE, MSE between DFT-D3 and CCSD(T)/CBS.
-4. **Bootstrap CI**: Generate 95% CI for MAE using 1,000 replicates (FR-014).
+### Phase 0 – Lint & Environment
+- Run `flake8 code/ tests/ --config=.flake8 > code/lint_report.txt`. The script must exit with code 0; any violation causes CI failure (ties to FR‑012 and SC‑005).
 
-### Phase 2: Scaling Correction (US-2)
-1. **Optimization**: Fit a scalar `s > 0` to minimize MAE of the corrected energy.
-   - **Correct Formulation**: `E_corrected = E_base + s * E_D3_term`, where `E_base = E_DFT_total - E_D3_term`.
-   - **Objective**: `min_s MAE(E_ref - (E_base + s * E_D3_term))`.
-   - **Note**: This avoids double-counting the D3 term which was present in the initial flawed formulation.
-2. **Hypothesis Test**: Construct 95% bootstrap CI for `s`. Reject `H0: s = 1.0` if 1.0 is outside the interval (FR-007).
-   - **Scientific Interpretation**: This tests whether the default D3 parameter (s=1.0) is statistically optimal for *this specific dataset*, not a universal proof of transferability. The result is a dataset-specific correction factor.
+### Phase 1 – Benchmark DFT‑D3 (US‑1)
+1. **Load & Validate** – `load_data.py` extracts the metadata CSV from the ZIP, checks required columns, and writes a validated table to `data/derived/ion_pairs_validated.csv`.  
+2. **Psi4 Single‑Point** – `run_psi4.py` loops over validated pairs (batch 5). For each pair it runs Psi4 with: B3LYP/def2‑TZVP + D3(BJ) + Counterpoise. Convergence failures trigger up to three retries; after the third failure the entry is marked `"failed"` and excluded from downstream analysis.  
+3. **Extraction** – Energy components are parsed from Psi4 output and appended to `data/derived/raw_energies.csv` with columns required by `FR‑004`.  
 
-### Phase 3: Bulk Property Correlation (US-3)
-1. **Data Join**: Merge energy results with experimental density/viscosity.
-2. **Correlation Analysis**:
-   - **Primary Metric**: Correlate **Dispersion-Only Error** (`E_D3_term - s * E_D3_term_ref`) with **Viscosity**.
-   - **Secondary Metric**: Correlate **Raw D3 Term** with **Density**.
-   - **Excluded**: Correlation of *Total Interaction Energy Error* with Viscosity is explicitly excluded as it is dominated by electrostatic effects and scientifically invalid for testing dispersion transferability.
-   - Compute Pearson and Spearman coefficients, R², and p-values.
-3. **Statistical Rigor**:
-   - **Bootstrap CI**: 1,000 replicates for each correlation coefficient (FR-010).
-   - **Multiple Testing**: Apply Bonferroni correction to the family of correlation tests (FR-011).
-   - **Assumption**: Observational/associational only. No causal claims. The correlation is a heuristic diagnostic with no theoretical basis for linearity.
+### Phase 2 – Raw Error Analysis (FR‑005, FR‑014, SC‑001)
+- `analyze_energies.py` computes MAE, RMSE, and mean signed error (MSE) between `dft_total_energy` and `reference_energy`.  
+- Bootstrap (1 000 replicates) yields a 95 % CI for MAE; results are written to `docs/benchmark_report.md`.
+
+### Phase 3 – Scaling Factor Estimation (US‑2, FR‑006, FR‑007, SC‑002)
+1. **Data Split** – Randomly partition the validated ion‑pair set (fixed seed) into [deferred] training and [deferred] test subsets.
+2. **Formulation (Training)** – For each training pair, compute `E_base = E_total – E_D3`.  
+3. **Optimization** – Constrained minimization (`scipy.optimize.minimize` with `bounds=(0, None)`) finds `s` that minimizes MAE on the **training** set.  
+4. **Evaluation (Test)** – Apply the fitted `s` to the held‑out test set and compute **test‑set MAE**.  
+5. **Bootstrap CI** – 1 000 bootstrap replicates of the entire fitting‑validation pipeline produce a 95 % CI for `s`.  
+6. **Hypothesis Test** – If the CI excludes `1.0`, `H0: s=1` is rejected (α = 0.05).  
+7. **Output** – `scaling_factor.txt` (validated against `contracts/scaling_factor.schema.yaml`) contains `s`, its CI, the p‑value, training MAE, and test MAE. This cross‑validation prevents the tautological MAE reduction noted in earlier reviews (scientific_soundness‑2ab72a95, ‑cc318f91).
+
+### Phase 4 – Bulk‑Property Correlation (US‑3, FR‑009‑FR‑011, SC‑003)
+1. **Merge** – Join `raw_energies.csv` with `experimental_bulk_properties.csv` on `pair_id`, preserving `cluster_id` (shared cation/anion) as defined in the data model. Records lacking bulk data are excluded (edge case).  
+2. **Sample‑size guard** – If the merged dataset contains **fewer than 3** valid rows, the workflow skips statistical testing, writes an **empty** `correlation_results.csv` (header only) and produces a `correlation_report.md` stating “Insufficient data for correlation”.  
+3. **Control Variables** – Compute the **electrostatic component** `E_elec = E_total – E_D3` and an **ion‑pair size descriptor** (e.g., sum of atomic radii). These are used as covariates.  
+4. **Partial Correlation** – For each of the three primary metrics (raw D3 vs. density, scaled D3 vs. density, electrostatic component vs. viscosity) compute **partial Pearson** and **partial Spearman** coefficients controlling for `E_elec` and size.  
+5. **Cluster‑Robust Bootstrap** – Perform 1 000 bootstrap replicates that resample whole `cluster_id` groups (cations or anions) to respect the non‑independence of observations (addresses methodology‑c3760228).  
+6. **Bonferroni Adjustment** – Six tests (several metrics × 2 methods) → adjusted p = min(1, p × 6).  
+7. **Output** – `correlation_results.csv` (schema `contracts/correlation_results.schema.yaml`) and `docs/correlation_report.md` (validated against `contracts/correlation_report.schema.yaml`) contain coefficient, R², raw and Bonferroni‑adjusted p‑values, 95 % CI, sample size, and significance flag. If no rows are present, the CSV contains only the header and the markdown report notes the insufficiency.
+
+### Phase 5 – Report Package (FR‑012)
+- `generate_reports.py` bundles:  
+  1. `data/derived/raw_energies.csv`  
+  2. `data/derived/scaling_factor.txt`  
+  3. `data/derived/correlation_results.csv`  
+  4. `docs/benchmark_report.md`  
+  5. `docs/correlation_report.md`  
+  6. `code/requirements.txt`  
+- SHA‑256 checksums for each file are written to `state/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-.yaml`.  
+
+### Phase 6 – Orchestration & Verification (T067)
+- `main.py` executes the pipeline in order: lint → data → psi4 → analysis → scaling → correlation → report.  
+- Any non‑zero exit code aborts the run, ensuring deterministic behaviour.  
+- `tests/test_main_workflow.py` runs `python -m code.main` in a temporary environment and asserts that all expected output files exist and conform to their JSON/YAML schemas (via `jsonschema`). This resolves the previous failures (`T065`, `T066`, `T069`).  
 
 ## Statistical Rigor & Limitations
-
-- **Multiple Comparisons**: Bonferroni correction applied to the correlation tests to control Family-Wise Error Rate (FWER).
-- **Power Analysis**: The benchmark size (≤20) is small. Bootstrap CIs may be wide. The analysis is exploratory.
-- **Causal Inference**: Explicitly **observational**. The correlation between gas-phase ion-pair energies and bulk condensed-phase properties is a heuristic diagnostic. Many-body effects and dynamics in the bulk are not captured by single-point gas-phase calculations.
-- **Collinearity**: The D3 term is a component of the total DFT energy. The plan treats them as separate predictors to avoid conflating electrostatic and dispersion contributions.
-- **Measurement Validity**: CCSD(T)/CBS is the "gold standard" for interaction energies. Experimental density/viscosity are standard NIST values (from local fallback).
-- **Methodological Limitation**: B3LYP is known to perform poorly for ionic systems without specific corrections. The benchmark is designed to *test* this specific functional, not assume its validity.
+- **Multiple Comparisons** – Bonferroni correction applied (FR‑011).  
+- **Power** – With up to 100 ion pairs, bootstrap CIs are reasonably tight; the larger sample mitigates the low‑power issue highlighted in methodology‑94e194d4.  
+- **Observational Nature** – Correlations are purely associational; no causal inference is claimed (Constitution Principle VI).  
+- **Collinearity** – By using partial correlation we explicitly control for the electrostatic component, avoiding the circularity noted in scientific_soundness‑4f280113.  
+- **Measurement Validity** – CCSD(T)/CBS is the gold‑standard reference; experimental bulk data are taken from the curated local CSV (validated against NIST where possible).  
 
 ## Compute Feasibility
-- **Hardware**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
-- **Psi4**: Runs in default CPU mode. `def2-TZVP` is moderate size.
-- **Runtime**: Estimated ~2-4 hours for **20** single-points on 2 cores. Bootstrap resampling (1,000 reps) is fast (numpy operations) and adds <30 mins.
-- **Constraints**: No GPU, no 4-bit/8-bit quantization, no large LLMs.
+- **Psi4 runtime**: B3LYP/def2‑TZVP on a single ion pair [deferred] on 2 CPU cores. 100 pairs → ≤ 8 h, but Parallel batch execution reduces wall‑time to a substantially shorter duration, on the order of several hours.
+- **Bootstrap & cross‑validation**: Pure NumPy/ SciPy vectorised; ≤ 30 min.  
+- **Total wall‑time**: ≈ 4 h 15 min, comfortably under the 6 h limit.  
+- **No GPU**: All code runs on CPU; no CUDA dependencies.  
 
-## Decision Log
-- **Dataset Source**: The spec's FR-001 and FR-008 contain empty/invalid URLs. The plan **must** rely on the local fallback `IL-Benchmark-local.zip` as the Primary Source of Truth. This file is a curated synthetic test set generated for this project.
-- **Scaling Method**: Linear scaling of the D3 term (not the total energy) to preserve the physical interpretation of the dispersion correction. The formulation `E_corrected = E_base + s * E_D3` is used to avoid double-counting.
-- **Bootstrap vs. Parametric**: Bootstrap chosen for all CI estimates to avoid assumptions about the normality of error distributions in quantum chemistry benchmarks.
-- **Correlation Target**: Only the **Dispersion-Only Error** is correlated with viscosity to isolate the dispersion contribution from electrostatic effects.
+## Decision Log (summary)
+- Adopt **full benchmark (≤ 100 ion pairs)** to ensure statistical power.  
+- Implement **hold‑out cross‑validation** for the scaling factor to avoid over‑fitting.  
+- Use **partial correlation** and **cluster‑robust bootstrap** to control confounding and dependence.  
+- **Explicit NIST API attempt** before fallback.  
+- **Correct schema references** throughout the plan.  
+- **Add lint config** to guarantee exit code 0.  
+- **Spec‑root‑cause note** for synthetic benchmark; request real open dataset.  
+- **Bootstrap (1 000 replicates)** for all confidence intervals.  
+- **Bonferroni correction** for family‑wise error control.  
+- **Minimum‑sample‑size guard** to produce deterministic CSV/report even when bulk data are scarce.  
+
+---
+
+

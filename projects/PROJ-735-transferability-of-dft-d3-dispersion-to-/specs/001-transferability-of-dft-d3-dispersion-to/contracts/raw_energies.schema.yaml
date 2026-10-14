@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Raw Energies Schema"
-description: "Schema for the raw_energies.csv output containing DFT-D3 benchmark results."
+description: "Schema for the raw_energies.csv output containing DFT‑D3 benchmark results."
 type: "object"
 properties:
   pair_id:
@@ -12,26 +12,30 @@ properties:
     minimum: -1000
   dft_total_energy:
     type: "number"
-    description: "Total DFT-D3 interaction energy in kcal/mol."
+    description: "Total DFT‑D3 interaction energy in kcal/mol."
   d3_dispersion_energy:
     type: "number"
     description: "Isolated D3 dispersion contribution in kcal/mol."
-  error_signed:
+  bsse_correction:
     type: "number"
-    description: "Signed error (DFT - Reference) in kcal/mol."
+    description: "Counterpoise BSSE correction in kcal/mol."
   calculation_status:
     type: "string"
     enum: ["success", "failed", "skipped"]
     description: "Status of the Psi4 calculation."
+  error_signed:
+    type: "number"
+    description: "Signed error (DFT – Reference) in kcal/mol."
   dispersion_only_error:
     type: "number"
-    description: "Dispersion-only error component (D3 - scaled_D3) in kcal/mol."
+    description: "Dispersion‑only error component (D3 – scaled_D3) in kcal/mol."
 required:
   - pair_id
   - reference_energy
   - dft_total_energy
   - d3_dispersion_energy
-  - error_signed
+  - bsse_correction
   - calculation_status
+  - error_signed
   - dispersion_only_error
 additionalProperties: false

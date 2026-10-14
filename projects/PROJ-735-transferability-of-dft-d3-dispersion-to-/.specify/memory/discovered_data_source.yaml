@@ -1,12 +1,10 @@
 status: none
-intent: IL benchmark interaction energy dataset Zenodo ionic liquid pairs python package
-  dataset
+intent: IL benchmark ionic liquid interaction energies CCSD(T) reference Zenodo python
+  package dataset
 required_fields:
-- identifier
-- reference_energy_ccsd(t)/cbs
+- ion_pair_id
+- reference_energy_ccsd_t_cbs
 - xyz_coordinates
-- molecule_charge
-- molecule_multiplicity
-cache_key: 0716cf844d1abac45b34c97b8edae5ccacbdd3b1e3f5ea73d6a9cdae4b8a938e
-searched_at: '2026-10-14T07:16:02.804406+00:00'
+cache_key: cb327acfec85e4b8d73b0bd79108743b8550f0747daf59b92736219b77bc3893
+searched_at: '2026-10-14T07:22:48.495221+00:00'
 retry_count: 1
