@@ -1,295 +1,278 @@
-# Tasks: Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning
-
-**Input**: Design documents from `/specs/001-cognitive-load-optimization/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 [P] Initialize Project Structure: Create all required directories (`data/raw/`, `data/processed/`, `data/explanation_tiers/`, `data/simulation_results/`, `code/`, `tests/`, `docs/`) and core files (`code/__init__.py`, `requirements.txt`, `README.md`, `tests/__init__.py`) using a single shell command sequence.
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T002 [P] Initialize Python 3.11 project with requirements.txt (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels, pytest, requests)
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with black configuration (target-version = 'py311', line-length = 88) and `.ruff.toml` with ruff configuration files to enforce project coding standards.
-- [ ] T004 [P] Implement `code/load_data.py` to fetch public datasets (ASSISTments/OULAD via HuggingFace `datasets.load_dataset`) and verify presence of timestamped responses, error logs, hint requests, and interaction features. **MUST perform a flexible schema check**: instead of requiring exact column names, the task MUST check for the *presence of latency features* by looking for any of a set of semantically equivalent column names (e.g., 'response_timestamp', 'answer_start_timestamp', 'time_spent', 'response_time', 'latency', 'duration_ms') OR by attempting to derive latency from timestamp pairs (e.g., `answer_end - answer_start`). **CRITICAL**: This task MUST ALSO verify the presence of *concurrent load labels* (e.g., NASA-TLX scores) in the dataset. If the dataset lacks both expert labels and concurrent self-reports, the task MUST log a clear warning: "Public dataset lacks concurrent load labels. Manual Golden Set (T007g) is required." **Depends on T001**
-- [ ] T007 [P] [US1] Generate Golden Set Template: Create `data/processed/golden_set_template.csv` with columns `interaction_id`, `expert_load_score` (empty), and a README file with instructions for domain experts to label at least 50 interactions. **Depends on T001**
-- [ ] T007g [Manual] [US1] **HUMAN ACTION REQUIRED**: Label Interactions for Golden Set. A human domain expert MUST manually review the `golden_set_template.csv` and interactions from `data/processed/` to assign `expert_load_score` values (0-100) to at least 50 interactions. The expert MUST save the populated file as `data/processed/golden_set.csv`. **This is a manual task; the pipeline cannot proceed until this file exists.** **Depends on T007, T004** <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T007e [P] [US1] Document Golden Set Creation Process: Create a detailed guide in `docs/golden_set_creation.md` explaining how to generate the `golden_set_template.csv` and the process for domain experts to label interactions, clarifying that this is a manual process not automated by code. **Depends on T007**
-- [ ] T007f [P] [US1] Validate and Load Golden Set: Check for `data/processed/golden_set.csv`. **If it does not exist**, check if a public dataset with concurrent self-reports (NASA-TLX) was successfully loaded in T004. **If neither exists**, raise a hard HALT error with the exact message: "WAITING_FOR_HUMAN: Golden Set file (data/processed/golden_set.csv) is missing AND no public dataset with concurrent self-reports found. Please complete the manual labeling process described in `docs/golden_set_creation.md` to acquire the Golden Set. The pipeline cannot proceed without external expert labels." **NO synthetic generation is permitted.** **Depends on T004, T007, T007g**
-- [ ] T008 [P] [US1] Validate Golden Set: Check for `data/processed/golden_set.csv` (populated version). Verify it contains ≥50 rows with valid `expert_load_score` values (0-100). If missing or invalid, halt with error: "Validation Data Missing: Golden Set with ≥50 expert labels not found. Cannot proceed with model training." **Depends on T007f**
-- [~] T010 [P] [US1] Implement utility functions in `code/utils.py`: VIF calculation, Flesch-Kincaid scoring, Jaccard similarity, semantic similarity (using lightweight CPU-safe embeddings or cosine similarity on TF-IDF)
-- [ ] T011 [P] [US1] Setup environment configuration management and logging infrastructure in `code/config.py`: Implement `get_logger()` and `load_env()` functions.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Cognitive Load Estimation Model Training (Priority: P1) 🎯 MVP
-
-**Goal**: Train and validate a Cognitive Load Estimation Model predicting continuous load scores (0–100) from interaction features, validated against the Golden Set.
-
-**Independent Test**: Can be fully tested by creating a Golden Set of 50 labeled interactions, training the model on public interaction features, and computing Pearson correlation between predicted load scores and expert labels.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
-
-- [~] T012 [P] [US1] Contract test for `code/train_load_model.py` input/output schema in `tests/contract/test_load_model.py`
-- [~] T013 [P] [US1] Integration test for Golden Set validation and model training pipeline in `tests/integration/test_load_model_integration.py`
-
-### Implementation for User Story 1
-
-- [~] T014 [P] [US1] Implement feature engineering in `code/train_load_model.py`: log-transform latency, count errors/hints/pauses per session. **Depends on T004**
-- [ ] T015 [US1] Implement full Gradient Boosting Regressor pipeline in `code/train_load_model.py`: Train `LightGBM` (with `tree_method='hist'`, `device='cpu'`). Read `data/processed/golden_set.csv` (validated in T008) to determine the validation file path. Validate against the Golden Set with target Pearson r ≥ 0.6. **If r < 0.6**, log the achieved metric, save the model as `data/processed/load_model_low_confidence.pkl`, and record the metric in `data/processed/model_metrics.json` (do NOT halt). **If r ≥ 0.6**, save the model to `data/processed/load_model.pkl` (≤ 500 MB). **Depends on T014, T008**
-- [~] T016 [P] [US1] Implement collinearity diagnostic (VIF ≤ 5) in `code/utils.py` and `code/train_load_model.py`; add logic to flag predictors and frame descriptive relationships if VIF > 5. **Depends on T014**
-- [ ] T018 [P] [US1] Verify model artifact: Assert `data/processed/load_model.pkl` (or `load_model_low_confidence.pkl`) exists and file size is ≤ 500 MB. Raise error if missing or too large. **Depends on T015**
-- [~] T019 [US1] Update `code/train_load_model.py` to explicitly document that the model uses **behavioral proxies** (latency, errors, hints) as INPUT features, but validation is STRICTLY against the external **Golden Set** expert labels, ensuring no conflation of input features with validation targets (addressing "illusion of competence" concerns).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Explanation Complexity Tier Generation (Priority: P2)
-
-**Goal**: Generate three textual versions (simple, moderate, complex) of each instructional unit with validated readability differences.
-
-**Independent Test**: Can be fully tested by processing a sample of instructional units, generating three tiers per unit, and verifying Flesch-Kincaid readability scores show monotonic progression with absolute differences ≥ 5 points.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [~] T020 [P] [US2] Contract test for tier generation input/output in `tests/contract/test_tier_generation.py`
-- [~] T021 [P] [US2] Integration test for Flesch-Kincaid scoring and fidelity checks in `tests/integration/test_tier_generation_integration.py`
-
-### Implementation for User Story 2
-
-- [ ] T022 [P] [US2] Extract Instructional Units: Fetch sample instructional units (e.g., from ASSISTments "skill" descriptions) and save to `data/processed/instructional_units.csv`. **Depends on T004**
-- [ ] T022b [US2] Generate Moderate Tier: Generate the "Moderate" (baseline) tier for each instructional unit in `data/processed/instructional_units.csv` by preserving the original text or applying minimal stylistic normalization. Save to `data/explanation_tiers/moderate_tiers.csv`. **Depends on T022**
-- [ ] T023 [P] [US2] **Parallel with T024, depends on T022b**: Implement "Simple" tier generation: Read from `data/processed/instructional_units.csv` and write to `data/explanation_tiers/simple_tiers.csv`. **MUST ensure** the output Flesch-Kincaid difference vs moderate is ≥ 5 points AND Jaccard similarity ≥ 0.85. **Algorithm**: Implement a deterministic 3-attempt adjustment loop:
- 1. Attempt generation with current parameters.
- 2. Measure FK diff and Jaccard similarity.
- 3. If constraints are met, save and stop.
- 4. If constraints are not met, apply the next aggressiveness level: Reduce max sentence length by %, remove top jargon words from the list `['pedagogical', 'scaffolding', 'metacognition', 'heuristic', 'cognitive load', 'schema', 'interference', 'elaboration']`, and simplify syntax.
- 5. Repeat up to 3 attempts.
- 6. If all 3 attempts fail, raise a ValueError with the best attempt's metrics and the specific constraints that failed.
- **Depends on T022b**
-- [ ] T024 [P] [US2] **Parallel with T023, depends on T022b**: Implement "Complex" tier generation: Read from `data/processed/instructional_units.csv` and write to `data/explanation_tiers/complex_tiers.csv`. **MUST ensure** the output Flesch-Kincaid difference vs moderate is ≥ 5 points AND Jaccard similarity ≥ 0.85. **Algorithm**: Implement a deterministic 3-attempt adjustment loop:
- 1. Attempt generation with current parameters.
- 2. Measure FK diff and Jaccard similarity.
- 3. If constraints are met, save and stop.
- 4. If constraints are not met, apply the next complexity level: Increase nested clause injection, add jargon from the list `['pedagogical', 'scaffolding', 'metacognition', 'heuristic', 'cognitive load', 'schema', 'interference', 'elaboration']`, and increase sentence length moderately.
- 5. Repeat up to 3 attempts.
- 6. If all 3 attempts fail, raise a ValueError with the best attempt's metrics and the specific constraints that failed.
- **Depends on T022b**
-- [ ] T025 [US2] Tier Validation & Tuning: Verify Flesch-Kincaid scoring for all tiers (simple, moderate, complex) and ensure monotonic progression (simple < moderate < complex) with ≥ 5 point differences. Also verify Jaccard similarity (≥ 0.85) and semantic similarity (≥ 0.90) against source text. If constraints are not met, trigger a re-generation loop with adjusted parameters (e.g., more aggressive simplification) up to a maximum iteration limit. Save final tiers and metadata to `data/explanation_tiers/` (CSV/JSON) ONLY if all constraints pass. **Depends on T022b, T023, T024**
-- [ ] T026 [US2] Document the tier generation process and validation results in `docs/research.md`.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Adaptive vs Static Complexity Simulation (Priority: P3)
-
-**Goal**: Simulate learning sessions under adaptive vs static conditions and compute learning efficiency metrics with mixed-effects modeling.
-
-**Independent Test**: Can be fully tested by running the simulation pipeline with N ≥ 40 historical sessions replayed, computing estimated learning efficiency metrics, and verifying the mixed-effects model reports Cohen's d and confidence intervals.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [~] T027 [P] [US3] Contract test for simulation inputs/outputs in `tests/contract/test_simulation.py`
-- [~] T028 [P] [US3] Integration test for mixed-effects model fitting and statistical reporting in `tests/integration/test_stats_integration.py`
-
-### Implementation for User Story 3
-
-- [ ] T029 [P] [US3] Implement session replay logic in `code/simulate_sessions.py`: load N ≥ 40 historical sessions. **Depends on T004**
-- [ ] T030 [P] [US3] Implement "Static" condition simulation: always serve "Moderate" complexity tier. **This task does NOT depend on the Load Model (T018) or Hysteresis Controller (T032).** **Depends on T029, T025**
-- [ ] T032 [US3] Implement Hysteresis Controller: Define the controller logic with a **fixed baseline threshold** for the baseline simulation. **MUST depend on T015** to ensure the model is validated (r ≥ 0.6) before generating config. Output a config file `data/simulation_results/hysteresis_config.json` with schema: `{"baseline_threshold": <placeholder>, "hysteresis_band": "moderate"}`. **Note**: The sensitivity analysis sweep is handled separately in T033. **Depends on T015**
-- [ ] T031 [US3] Implement "Adaptive" condition simulation: select tier based on Load Estimate (US1) + Hysteresis Controller (from T032). **This task REQUIRES the Load Model (T018) and Hysteresis Controller (T032).** **Implementation Detail**: Include "Struggle Preservation" logic with a fixed default `min_struggle_count` of 2 to prevent premature simplification, ensuring the system does not bypass effortful consolidation work. **Depends on T029, T025, T018, T032**
-- [ ] T033 [US3] Hysteresis Sensitivity Analysis: Sweep absolute diff over the specific threshold values `{0.01, 0.05, 0.1}` and generate a CSV report at `data/simulation_results/hysteresis_sensitivity.csv`. **Schema**: columns `threshold` (float) and `inconsistency_rate` (float). **Formula**: `inconsistency_rate` = (count of tier switches) / (total transitions). If no tier switches occur, `inconsistency_rate` = 0.0. **This task requires the output of T031 (Adaptive Simulation) to calculate tier switches.** **Depends on T031, T032**
-- [ ] T034 [US3] Implement Learning Efficiency calculation: (Predicted Engagement × Gain) / Total Time. **Depends on T030, T031**
-- [ ] T035 [US3] Implement Mixed-Effects Model (LMM) in `code/analyze_results.py`: Fixed Effects (Condition, Load, Interaction), Random Effects (Session ID). **Depends on T034**
-- [ ] T036 [US3] Implement statistical reporting: Cohen's d, confidence intervals, p-value, family-wise error correction (Bonferroni if needed). **Depends on T035**
-- [ ] T037 [US3] Add explicit framing of findings as "ASSOCIATIONAL ONLY" (no causal claims) in all output reports. **Depends on T036**
-- [ ] T038 [US3] Add power limitation check: if N < 40, report limitation and defer effect-size claims. **Depends on T036**
-- [ ] T039a [US3] Implement Pipeline Wrapper: Create `code/run_pipeline.py` to orchestrate the full pipeline (Phases 1-5) and measure total wall-clock time. Assert ≤ 6h total execution time. **If execution exceeds 6h, raise a TimeoutError and log the specific stage where the timeout occurred.** **Depends on T001-T038**
-- [ ] T039b [US3] Update `code/analyze_results.py` to remove any isolated 6h asserts; rely on T039a for cumulative timing.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Revision & Research Review Address (Priority: P1)
-
-**Goal**: Address documentation and non-code concerns from prior research-stage reviews (specifically the "illusion of competence" and "System 2 effort" critique).
-
-### Tests for Review Address (OPTIONAL)
-
-- [ ] T040 [P] [Rev] Contract test for `code/analyze_results.py` ensuring "retrieval_latency" and "error_pattern" metrics are present in output schema if data exists
-
-### Implementation for Review Address
-
-- [ ] T041 [Rev] Update `docs/research.md` and `README.md` to explicitly state the limitation: "Self-reported ease is not used as a primary metric due to the risk of the 'illusion of competence'. Primary metrics focus on behavioral proxies (latency, errors) validated against expert labels." **Depends on T015**
-- [ ] T042 [Rev] Update `code/analyze_results.py` report generation to explicitly frame "retrieval latency" and "error pattern" findings (if available from T004) as "ASSOCIATIONAL ONLY" indicators, ensuring no causal claims are made about "System 2 effort" (addressing FR-006). **Depends on T031, T037**
-- [ ] T043 [Rev] Update `code/simulate_sessions.py` to ensure that the "Adaptive" condition does not automatically simplify text upon a single error, but rather uses the hysteresis thresholds to prevent premature simplification, preserving the "struggle" required for consolidation. **Depends on T031**
-- [ ] T044 [Rev] Update `docs/research.md` to include a dedicated section discussing the "Illusion of Competence" risk, explaining why the project avoids self-reported ease metrics and relies on the Golden Set + behavioral proxies instead. **Depends on T015**
-- [ ] T054 [Rev] Update `README.md` and `docs/research.md` with a "System 2 Preservation" section: Explicitly detail how the hysteresis controller and `min_struggle_count` (fixed default 2, implemented in T031) are designed to prevent the "illusion of competence" by ensuring students engage in effortful retrieval practice before complexity is reduced. Cite the specific logic in `code/simulate_sessions.py` (T031) and `code/analyze_results.py` (T037). **Depends on T037, T031**
-- [ ] T051 [Rev] Implement "Retrieval Latency" Metric Extraction in `code/simulate_sessions.py`: Explicitly calculate and log `retrieval_latency` (time from question presentation to first correct response) for each session. Ensure this metric is passed to the analysis module (`code/analyze_results.py`) to be used as a proxy for effortful recall, distinct from immediate fluency. **Depends on T029**
-- [ ] T052 [Rev] Update `code/analyze_results.py` to report "Retrieval Latency" distributions per condition (Adaptive vs Static). If the Adaptive condition shows significantly lower latency but similar error rates compared to Static, flag this as a potential "Illusion of Competence" signal in the final report. **Depends on T031, T051**
-- [ ] T053 [Rev] (Removed - content merged into T054)
-- [ ] T055 [Rev] (Removed - content merged into T054)
-
-**Note**: Tasks T045 and T046b were removed as they introduced metrics not defined in the Spec (FR-001 to FR-007) and constituted scope creep. The "System 2" critique is addressed by T031 (struggle logic), T051 (retrieval latency), and T054 (documentation). T050 was removed and its logic merged into T031.
-
-**Checkpoint**: All review concerns addressed
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T056 [P] Documentation updates: Ensure `README.md` includes "System 2 Preservation" and "Fluency vs. Mastery" warnings as defined in T054. **Depends on T054**
-- [ ] T057 Code cleanup: Refactor `code/utils.py` to ensure all utility functions (VIF, FK, Jaccard) are unit-tested and documented. **Depends on T010**
-- [ ] T058 Performance optimization: Profile `code/train_load_model.py` and optimize the LightGBM training loop to ensure it completes within the 6-hour wall-clock limit. **Depends on T015**
-- [ ] T059 [P] Run `quickstart.md` validation and end-to-end smoke test
-- [ ] T060 Security hardening (input validation, path safety)
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3-5)**: All depend on Foundational phase completion
- - **CRITICAL**: US-1 (Load Model) must pass validation (r ≥ 0.6) before US-3 (Simulation) can run. If validation fails (r < 0.6), the pipeline continues but logs a low-confidence warning.
- - US-2 (Tiers) can run in parallel with US-1 once Foundational is done
-- **Revision (Phase 6)**: Depends on US-1 and US-3 implementation to address specific review points
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Independent of US-1
-- **User Story 3 (P3)**: Depends on US-1 (Load Model) and US-2 (Tiers) completion
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Feature engineering before model training
-- Tier generation before simulation
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes:
- - US-1 and US-2 can start in parallel
- - US-3 must wait for US-1 and US-2
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members (US-1 & US-2)
-
-### Manual Blockers
-
-- **T007g (Manual Labeling)**: This task requires human intervention. The pipeline MUST wait for `data/processed/golden_set.csv` to be created by a human before T007f and subsequent tasks can proceed.
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all models for User Story 1 together:
-Task: "Implement feature engineering in code/train_load_model.py"
-Task: "Implement Gradient Boosting Regressor in code/train_load_model.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Load Model with Golden Set validation)
-4. **STOP and VALIDATE**: Test User Stories independently against the Golden Set
-5. If validation fails (r < 0.6), log the result and proceed with low-confidence warning (do NOT halt)
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Load Model)
- - Developer B: User Story 2 (Tier Generation)
- - Developer C: Phase 6 (Review Revision) - can start early if data is ready
-3. Once US-1 and US-2 complete:
- - Developer D (or A/B): User Story 3 (Simulation)
-4. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- **CRITICAL**: Do not generate synthetic Golden Set data. If `data/processed/golden_set.csv` is missing, the pipeline MUST halt with the specified error. T007g is the manual task to produce this file.
-- **CRITICAL**: All tasks must run on CPU-only GitHub Actions free-tier (limited cores, constrained RAM, no GPU).
-- **CRITICAL**: Address the "illusion of competence" review by focusing on behavioral metrics (errors, latency) as inputs, while maintaining strict validation against external expert labels.
-- **CRITICAL**: Tasks T040 and T041 from previous drafts were removed as they introduced unapproved metrics ('error retention', 'Risk flag') violating FR-006 and SC-002.
-- **NEW**: Phase 6 tasks (T031, T051, T052, T054) explicitly address the "System 2 effortful work" critique by tracking retrieval latency, error patterns, and implementing "Struggle Preservation" logic (min_struggle_count) directly in T031, framed strictly as ASSOCIATIONAL.
-- **NEW**: T039a measures cumulative pipeline time to ensure SC-004 compliance and defines explicit timeout behavior.
-- **NEW**: T033 handles the sensitivity analysis as a post-hoc step with specific threshold values {0.01, 0.05, 0.1}.
-- **NEW**: T022b handles the generation of the 'Moderate' tier.
-- **NEW**: T054 implements specific logic to prevent "over-simplification" and analyze "retrieval latency distributions" to ensure the system does not bypass the effortful work of consolidation, directly addressing the Kahneman review.
-- **FIX**: T032 now depends on T015 to ensure the model is validated before config generation.
-- **FIX**: T015 now logs negative results (r < 0.6) instead of halting, preserving reproducibility.
-- **FIX**: T023 and T024 updated with specific algorithmic steps (3-attempt loop) with concrete jargon lists and numeric adjustments to ensure executability.
-- **FIX**: T004 updated to support flexible column name matching for latency features and verification of concurrent load labels.
-- **FIX**: T009 removed as it documented a conflict rather than resolving it.
-- **FIX**: T023a and T024a removed; logic merged into T023 and T024.
-- **FIX**: T007e marked as manual instruction, not a blocking dependency.
-- **FIX**: T050 removed; logic merged into T031.
-- **FIX**: T053 and T055 removed; content merged into T054.
-- **FIX**: T031 now includes the "Struggle Preservation" logic (min_struggle_count) directly.
-- **FIX**: Notes section updated to remove references to non-existent tasks (T050-T053, T023a, T024a) and reflect the current task list state.
+# Tasks: Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning  
+
+**Inputs**: `spec.md`, `plan.md`, existing project artifacts, reviewer feedback.  
+
+All paths are relative to the repository root.  
+
+---  
+
+## Phase 1 – Project Setup & Core Infrastructure  
+
+- [ ] **T001** [​P​] Initialize project skeleton  
+  - Create directories: `data/raw/`, `data/processed/`, `data/explanation_tiers/`, `data/simulation_results/`, `code/`, `tests/`, `docs/`.  
+  - Add core files: `README.md` (one‑sentence description), `code/__init__.py`, `requirements.txt`, `tests/__init__.py`, `docs/README.md`.  
+  - **Verification**: `tree` output shows all directories and files; `README.md` contains a one‑sentence project description.  
+
+- [ ] **T001a** [​P​] Compute raw‑data checksums  
+  - For each file under `data/raw/`, compute SHA‑256 checksum and write to `data/raw/checksums.sha256`.  
+  - Record the manifest in project state YAML under `artifact_hashes`.  
+  - **Verification**: Script `code/utils.py` provides `compute_checksums()`; after run, the manifest file exists and matches all raw files.  
+
+- [ ] **T001b** [​P​] Pin random seeds for reproducibility  
+  - Create `code/seed.py` that sets `numpy`, `random`, and `torch` (if present) seeds from a constant.  
+  - Export `SEED = 42` and a helper `set_seed()` used by all stochastic scripts.  
+  - **Verification**: Importing `code.seed` and calling `set_seed()` produces deterministic outputs; unit test confirms repeatability of a random number generation.  
+
+- [ ] **T002** [​P​] Add Python 3.11 environment & dependencies  
+  - File: `requirements.txt` (lists `scikit-learn`, `lightgbm`, `pandas`, `numpy`, `textstat`, `datasets`, `statsmodels`, `pytest`, `requests`).  
+  - **Verification**: `pip install -r requirements.txt` succeeds on a clean runner.  
+
+- [ ] **T003** [​P​] Configure linting & formatting  
+  - Files: `pyproject.toml` (Black config) and `.ruff.toml` (Ruff config).  
+  - **Verification**: `ruff check .` and `black --check .` both return no violations.  
+
+- [ ] **T004** [​P​] Implement data loader & label check (`code/load_data.py`)  
+  - Load public learning‑analytics datasets (ASSISTments, OULAD) via `datasets.load_dataset`.  
+  - Verify required interaction columns (latency, error, hint, pause) **and** required timestamped response fields (`response_time_ms`, `timestamp`).  
+  - Verify presence of concurrent load label column (e.g., `NASA_TLX`).  
+  - If load labels are absent, emit **exact** warning:  
+    ```
+    Public dataset lacks concurrent load labels. Manual Golden Set (T007g) is required.
+    ```  
+  - **Verification**: Running `python -m code.load_data` prints the warning when appropriate and creates `data/processed/interactions.csv`.  
+
+- [ ] **T005** [​P​] Create utility library (`code/utils.py`)  
+  - Implement: VIF calculation, Flesch‑Kincaid scoring, Jaccard similarity, semantic similarity (TF‑IDF cosine), and `compute_checksums()` used by T001a.  
+  - Export functions in `__all__`.  
+  - **Verification**: Unit tests in `tests/unit/test_utils.py` pass (`pytest -q`).  
+
+- [ ] **T006** [​P​] Generate Golden‑Set template (`data/processed/golden_set_template.csv`)  
+  - Columns: `interaction_id`, `expert_load_score` (empty).  
+  - Add accompanying README `docs/golden_set_creation.md` with labeling instructions.  
+  - **Verification**: File exists, header matches exactly, size > 0 KB.  
+
+- [ ] **T007g** [​Manual​] Human labeling of Golden Set  
+  - Expert annotators fill `expert_load_score` for ≥ 50 rows in `data/processed/golden_set.csv`.  
+  - **Verification**: File present with ≥ 50 non‑empty scores in the range 0‑100.  
+
+- [ ] **T007f** [​P​] Validate & load Golden Set (`code/validation/validate_golden_set.py`)  
+  - Checks for `data/processed/golden_set.csv`.  
+  - If missing **and** no public dataset with concurrent self‑reports was loaded in **T004**, raise exact halt error:  
+    ```
+    WAITING_FOR_HUMAN: Golden Set file (data/processed/golden_set.csv) is missing AND no public dataset with concurrent self-reports found. Please complete the manual labeling process described in `docs/golden_set_creation.md` to acquire the Golden Set. The pipeline cannot proceed without external expert labels.
+    ```  
+  - **Verification**: Running the script on a clean runner produces the error message when the file is absent.  
+
+- [ ] **T011** [​P​] Add configuration & logger (`code/config.py`)  
+  - Functions: `load_env()` (reads optional `.env`), `get_logger(name: str)` (standardized formatter).  
+  - **Verification**: Importing `code.config` does not raise; `get_logger("test")` returns a logger with name and level INFO.  
+
+---  
+
+## Phase 2 – User Story 1: Cognitive‑Load Estimation (Priority P1)  
+
+- [ ] **T012** [​P​] Contract test for load‑model I/O (`tests/contract/test_load_model.py`)  
+  - Validate that `train_load_model.py` reads `data/processed/interactions.csv` and writes `data/processed/load_model.pkl`.  
+  - **Verification**: Test fails before implementation, passes after **T014/T015/T015a**.  
+
+- [ ] **T013** [​P​] Integration test for full pipeline (`tests/integration/test_load_model_integration.py`)  
+  - End‑to‑end run: data load → golden‑set validation → model training → Pearson‑r check.  
+  - **Verification**: Test fails until **T014/T015/T015a/T016/T018** are complete.  
+
+- [ ] **T014** [​US1​] Feature engineering (`code/train_load_model.py`)  
+  - Log‑transform latency, count errors, hints, pause duration per session.  
+  - Output feature matrix `X.npy` and target vector `y.npy`.  
+  - **Verification**: Running the script creates `X.npy` and `y.npy` with matching row counts to `interactions.csv`.  
+
+- [ ] **T015** [​US1​] Train Gradient‑Boosting Regressor (`code/train_load_model.py`)  
+  - Use LightGBM (CPU‑only, `tree_method='hist'`).  
+  - Load external Golden Set via **T007f** for validation.  
+  - Compute Pearson correlation **r** between predictions and `expert_load_score`.  
+  - If **r ≥ 0.6** → save model to `data/processed/load_model.pkl` (≤ 500 MB).  
+  - If **r < 0.6** → save to `data/processed/load_model_low_confidence.pkl` and log achieved **r**.  
+  - **Verification**: After run, appropriate model file exists and a JSON `data/processed/model_metrics.json` records `pearson_r` and a `validation_status` flag.  
+
+- [ ] **T015a** [​US1​] Load‑model validation module (`code/validation/validate_load_model.py`)  
+  - Loads the trained model, computes Pearson **r** against the Golden Set, writes metrics to `code/validation/model_metrics.json`.  
+  - Ensures the validation artifact lives under `code/validation/` per Constitution VI.  
+  - **Verification**: After execution, `code/validation/model_metrics.json` contains `pearson_r`, `validation_status`, and any VIF warnings.  
+
+- [ ] **T016** [​US1​] Collinearity diagnostic (VIF) (`code/train_load_model.py`)  
+  - Compute VIF for each predictor; if any VIF > 5, add a warning to `model_metrics.json` and ensure downstream reports phrase relationships descriptively.  
+  - **Verification**: `model_metrics.json` contains a `vif_warnings` list when applicable.  
+
+- [ ] **T018** [​US1​] Model‑artifact size check (`code/verify_model_size.py`)  
+  - Assert that the final model file (`load_model.pkl` or `_low_confidence.pkl`) is ≤ 500 MB.  
+  - Raise error if larger.  
+  - **Verification**: Script exits with status 0 on compliant size, non‑zero otherwise.  
+
+---  
+
+## Phase 3 – User Story 2: Explanation‑Complexity Tier Generation (Priority P2)  
+
+- [ ] **T022** [​US2​] Extract instructional units (`code/extract_units.py`)  
+  - Pull a sample of instructional texts (e.g., ASSISTments skill descriptions) and write `data/processed/instructional_units.csv`.  
+  - **Verification**: CSV contains at least 20 rows with columns `unit_id`, `source_text`.  
+
+- [ ] **T022b** [​US2​] Generate moderate tier (`code/generate_tiers.py`)  
+  - Copy source text to `data/explanation_tiers/moderate_tiers.csv` (adds `tier_level='moderate'`).  
+  - **Verification**: File exists and each row has `tier_id`, `source_item_id`, `tier_level`, `text_content`.  
+
+- [ ] **T023** [​US2​] Generate simple tier with constraints (`code/generate_tiers.py`)  
+  - Apply deterministic simplification loop (max 3 attempts) to achieve:  
+    - Flesch‑Kincaid grade ≤ moderate − 5.  
+    - Jaccard similarity ≥ 0.85.  
+  - Output to `data/explanation_tiers/simple_tiers.csv`.  
+  - **Verification**: All rows satisfy both numeric constraints; script raises a clear `ValueError` if not.  
+
+- [ ] **T024** [​US2​] Generate complex tier with constraints (`code/generate_tiers.py`)  
+  - Apply deterministic complexity‑enhancement loop (max 3 attempts) to achieve:  
+    - Flesch‑Kincaid grade ≥ moderate + 5.  
+    - Jaccard similarity ≥ 0.85.  
+  - Output to `data/explanation_tiers/complex_tiers.csv`.  
+  - **Verification**: Same as **T023** but for the opposite direction.  
+
+- [ ] **T025** [​US2​] Tier validation & metadata (`code/validate_tiers.py`)  
+  - Compute readability, Jaccard, and semantic similarity (TF‑IDF cosine) for all three tiers.  
+  - Ensure monotonic progression (simple < moderate < complex) with ≥ 5‑point FK gaps and similarity thresholds (Jaccard ≥ 0.85, semantic ≥ 0.90).  
+  - Save consolidated metadata `data/explanation_tiers/tier_metadata.json`.  
+  - **Verification**: JSON contains per‑tier metrics and a top‑level flag `validation_passed: true`.  
+
+- [ ] **T026** [​US2​] Document tier generation (`docs/research.md`)  
+  - Add a “Complexity Tier Generation” subsection describing algorithms, constraints, and validation results.  
+  - **Verification**: The subsection appears and references `tier_metadata.json`.  
+
+---  
+
+## Phase 4 – User Story 3: Adaptive vs Static Simulation (Priority P3)  
+
+- [ ] **T040** [​P​] Add retrieval‑latency extraction (`code/simulate_sessions.py`)  
+  - For each interaction, compute `retrieval_latency = first_correct_response_timestamp – question_presented_timestamp`.  
+  - Store `retrieval_latency` in both static and adaptive result CSVs.  
+  - **Verification**: New column `retrieval_latency` exists and contains non‑negative floats.  
+
+- [ ] **T029** [​US3​] Session replay logic (`code/simulate_sessions.py`)  
+  - Load ≥ 40 historical sessions from `data/processed/interactions.csv`.  
+  - Produce `data/simulation_results/replayed_sessions.json`.  
+  - **Verification**: JSON contains exactly the requested number of session objects.  
+
+- [ ] **T030** [​US3​] Static‑condition simulation (`code/simulate_sessions.py`)  
+  - For each replayed session, always serve the **moderate** tier.  
+  - Record predicted engagement time and potential gain per session.  
+  - Output `data/simulation_results/static_simulation.csv`.  
+  - **Verification**: CSV includes columns `session_id`, `condition='static'`, `efficiency_score`.  
+
+- [ ] **T032** [​US3​] Hysteresis controller config (`code/hysteresis.py`)  
+  - After successful model validation (**T015** with **r ≥ 0.6**), write `data/simulation_results/hysteresis_config.json` containing `baseline_threshold` (e.g., 0.3) and `hysteresis_band='moderate'`.  
+  - **Verification**: JSON file exists and schema matches the specification.  
+
+- [ ] **T031a** [​US3​] Hysteresis controller implementation (`code/hysteresis.py`)  
+  - Implements the decision‑making logic that selects a complexity tier based on load estimate, baseline threshold, and hysteresis band.  
+  - Includes unit tests (`tests/unit/test_hysteresis.py`).  
+  - **Verification**: Unit tests pass; `simulate_sessions.py` imports and uses this controller.  
+
+- [ ] **T031** [​US3​] Adaptive‑condition simulation (`code/simulate_sessions.py`)  
+  - Use load‑model predictions, apply hysteresis controller, and enforce **min_struggle_count = 2** before downgrading tier (struggle preservation).  
+  - Output `data/simulation_results/adaptive_simulation.csv`.  
+  - **Verification**: CSV includes `complexity_tier` per interaction and respects the struggle rule (no tier downgrade after a single error).  
+
+- [ ] **T033** [​US3​] Hysteresis sensitivity analysis (`code/hysteresis_sensitivity.py`)  
+  - Sweep absolute‑diff thresholds `{0.01, 0.05, 0.1}`; compute `inconsistency_rate` as tier‑switch count / total transitions.  
+  - Save `data/simulation_results/hysteresis_sensitivity.csv`.  
+  - **Verification**: CSV has three rows with the required columns and numeric values between 0 and 1.  
+
+- [ ] **T034** [​US3​] Learning‑efficiency metric (`code/compute_efficiency.py`)  
+  - Formula: `(predicted_engagement_time × gain_factor) / total_time`.  
+  - Append `efficiency_score` to both static and adaptive result files.  
+  - **Verification**: New column appears and values are numeric > 0.  
+
+- [ ] **T035** [​US3​] Mixed‑effects model fitting (`code/analyze_results.py`)  
+  - Fit LMM with fixed effects: `condition`, `estimated_load`, `condition × estimated_load`; random intercept for `session_id`.  
+  - Produce `data/simulation_results/mixed_effects_summary.json` containing `cohen_d`, `ci_lower`, `ci_upper`, `p_value`, `correction_applied`.  
+  - **Verification**: JSON includes all fields and `p_value` < 0.05 when the simulated effect is present.  
+
+- [ ] **T037a** [​US3​] Multiple‑comparison correction (`code/analyze_results.py`)  
+  - Apply Bonferroni (or similar) correction when >1 hypothesis test is performed, record the method in `correction_applied`.  
+  - **Verification**: `mixed_effects_summary.json` reflects the applied correction.  
+
+- [ ] **T036** [​US3​] Statistical reporting (`code/report_stats.py`)  
+  - Read the LMM summary and generate a human‑readable markdown report `docs/simulation_report.md` with effect size, confidence interval, and correction note.  
+  - **Verification**: Report file renders correctly on GitHub (markdown table present).  
+
+- [ ] **T037** [​US3​] Associational framing (`code/report_stats.py`)  
+  - Append a disclaimer to `docs/simulation_report.md`: *“All findings are associational; no causal claims are made.”*  
+  - **Verification**: Disclaimer string is present verbatim.  
+
+- [ ] **T038** [​US3​] Power‑limitation check (`code/check_power.py`)  
+  - If number of sessions **N < 40**, write warning to `docs/simulation_report.md` and skip effect‑size claim.  
+  - **Verification**: When N < 40, the warning appears; otherwise, it does not.  
+
+---  
+
+## Phase 5 – Review‑Driven Revisions & Documentation  
+
+- [ ] **T040a** [​Rev​] Implement `code/analyze_results.py` (wrapper for mixed‑effects analysis)  
+  - Calls the LMM fitting routine, applies multiple‑comparison correction, writes `mixed_effects_summary.json`.  
+  - **Verification**: Script runs without error and produces the expected JSON file.  
+
+- [ ] **T041** [​Rev​] Update `docs/research.md` & `README.md` with limitation statement  
+  - Explain why self‑reported ease is excluded and how the Golden Set provides external validation.  
+  - **Verification**: Both files contain the exact paragraph: *“Self‑reported ease is not used as a primary metric due to the risk of the ‘illusion of competence’; primary metrics focus on behavioral proxies validated against expert‑labeled load.”*  
+
+- [ ] **T042** [​Rev​] Frame retrieval‑latency findings as associational (`code/report_stats.py`)  
+  - Add a subsection “Retrieval Latency (Associational Indicator)” with descriptive statistics per condition.  
+  - **Verification**: Subsection appears in `docs/simulation_report.md`.  
+
+- [ ] **T054** [​Rev​] Document “System 2 Preservation” (`docs/research.md`)  
+  - Detail the hysteresis controller, `min_struggle_count`, and retrieval‑latency metric as safeguards against premature simplification.  
+  - Cite the implementation locations (`code/simulate_sessions.py` lines … and `code/report_stats.py`).  
+  - **Verification**: Section titled **System 2 Preservation** exists and references the two code files.  
+
+- [ ] **T056** [​Rev​] Update `README.md` to surface “System 2 Preservation” warning in the project overview.  
+  - **Verification**: README contains a bullet: *“System 2 Preservation – adaptive logic includes hysteresis and struggle‑preservation to avoid the illusion of competence.”*  
+
+---  
+
+## Phase 6 – Polish, Performance & End‑to‑End Validation  
+
+- [ ] **T057** [​P​] Refactor `code/utils.py` & add unit tests (`tests/unit/test_utils.py`)  
+  - Ensure each utility function is covered by at least one test case.  
+  - **Verification**: `pytest -q` reports 100 % pass.  
+
+- [ ] **T058a** [​P​] Resource‑compliance verification (`code/check_resources.py`)  
+  - Assert that the process uses ≤ 2 CPU cores, ≤ 7 GB RAM, and total wall‑clock time ≤ 6 h.  
+  - Fail the pipeline with a clear error if limits are exceeded.  
+  - **Verification**: Script exits with status 0 when within limits, non‑zero otherwise.  
+
+- [ ] **T058** [​P​] Profile & optimise `code/train_load_model.py`  
+  - Use `cProfile` to ensure total training time ≤ 30 minutes on the free‑tier runner.  
+  - Apply `max_bin` and `num_leaves` tuning for LightGBM to stay within the 6‑hour wall‑clock budget.  
+  - **Verification**: Log file `logs/train_load_model_time.log` records elapsed time < 1800 s.  
+
+- [ ] **T039a** [​P​] Pipeline wrapper (`code/run_pipeline.py`)  
+  - Orchestrates: data loading → golden‑set validation → load‑model training → tier generation → simulations → analysis.  
+  - Measures total wall‑clock time; raises `TimeoutError` if > 6 h, logging the offending stage.  
+  - **Verification**: Script exits with status 0 on successful run; on artificial delay (> 6 h) it raises the expected exception.  
+
+- [ ] **T059** [​P​] Create `quickstart.md` with a single runnable command  
+  - Command: `python -m code.run_pipeline`.  
+  - Include expected output locations.  
+  - **Verification**: Running the command on a fresh runner completes without errors and produces all result files.  
+
+---  
+
+### Dependency & Execution Order Summary  
+
+1. **Setup**: T001 → T001a → T001b → T002 → T003 → T004 → T005 → T006 → T011  
+2. **Golden‑Set**: T006 → T007g (manual) → T007f → T015a (validation placement)  
+3. **Load Model**: T012/T013 (tests) → T014 → T015 → T015a → T016 → T018 → T058a (resource check)  
+4. **Tier Generation**: T022 → T022b → T023 → T024 → T025 → T026  
+5. **Simulation**: T040 → T029 → T030 → T032 → T031a → T031 → T033 → T034 → T035 → T037a → T036 → T037 → T038  
+6. **Review Revisions**: T040a → T041 → T042 → T054 → T056  
+7. **Polish**: T057 → T058 → T059 → T039a  
+
+All tasks are unchecked until their implementation is verified; previously completed tasks (e.g., T002, T003, T006, T011) remain marked as completed.  
+
+---  
+
+*End of `tasks.md`.*  
