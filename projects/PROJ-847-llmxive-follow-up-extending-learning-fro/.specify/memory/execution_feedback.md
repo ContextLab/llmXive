@@ -1,19 +1,19 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
 
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
 
-- run-book command: `python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv`
-  - script usage: `python -m code.run_experiments [-h] [--config CONFIG]`
-  - argparse error: `python -m code.run_experiments: error: unrecognized arguments: --mode fixed --rhos 0.1 0.3 0.5 0.7 0.9 --seeds 42 43 44 --output outputs/fixed_baselines.csv`
-- run-book command: `python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json`
-  - script usage: `python -m code.run_experiments [-h] [--config CONFIG]`
-  - argparse error: `python -m code.run_experiments: error: unrecognized arguments: --mode adaptive --seeds 42 43 44 --output outputs/adaptive_run.json`
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
+
+- code/trainer.py: self-declared fabricated metric — “…U and generates deterministic dummy results suitable for the baseline st…”
+- code/trainer.py: self-declared fabricated metric — “…* Computes a deterministic dummy accuracy based on the seed and the…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python code/data.py --download (rc=1); python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv (rc=2); python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json (rc=2)
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/trainer.py: self-declared fabricated metric — “…U and generates deterministic dummy results suitable for the baseline st…”; code/trainer.py: self-declared fabricated metric — “…* Computes a deterministic dummy accuracy based on the seed and the…”; 4 command(s) failed: python code/data.py --download (rc=1); python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv (rc=1); python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json (rc=1); 1 declared deliverable(s) absent: data/results/fixed_baselines.csv
 
 ## Failing / missing run-book commands
 
@@ -33,21 +33,39 @@ Trying to import the above resulted in these errors:
  - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
  - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
-- python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv -> rc=2
+- python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv -> rc=1
+/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 372, in _request_wrapper
+    response = _request_wrapper(
+               ^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 396, in _request_wrapper
+    hf_raise_for_status(response)
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/huggingface_hub/utils/_errors.py", line 352, in hf_raise_for_status
+    raise RepositoryNotFoundError(message, response) from e
+huggingface_hub.utils._errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6acf54cd-47cc5df223508e1c64016c49;3b182776-86e9-46f9-a648-aa0288ad4f27)
 
-usage: python -m code.run_experiments [-h] [--config CONFIG]
-                                      [--stage {adaptive_runs,analysis,data,fixed_baselines,model}]
-                                      [--seed SEED] [--dry-run]
-python -m code.run_experiments: error: unrecognized arguments: --mode fixed --rhos 0.1 0.3 0.5 0.7 0.9 --seeds 42 43 44 --output outputs/fixed_baselines.csv
+Repository Not Found for url: https://huggingface.co/author/lightdiff-100m/resolve/main/pytorch_model.bin.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated.
+Invalid username or password.
 
-- python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json -> rc=2
+- python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json -> rc=1
 
-usage: python -m code.run_experiments [-h] [--config CONFIG]
-                                      [--stage {adaptive_runs,analysis,data,fixed_baselines,model}]
-                                      [--seed SEED] [--dry-run]
-python -m code.run_experiments: error: unrecognized arguments: --mode adaptive --seeds 42 43 44 --output outputs/adaptive_run.json
+2026-10-14 10:09:19,791 ERROR __main__: Adaptive mode not yet implemented in this task.
 
 - python -m code.analysis  --fixed outputs/fixed_baselines.csv  --adaptive outputs/adaptive_run.json  --outdir outputs/statistics -> rc=1
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/bin/python: No module named code.analysis
 
+
+## Declared deliverables still missing
+
+- data/results/fixed_baselines.csv
+
+## Declared deliverables NOT produced — make the run-book produce them
+
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+
+- `data/results/fixed_baselines.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/run_experiments.py` — IS a run-book command
+    - `code/trainer.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/results/fixed_baselines.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

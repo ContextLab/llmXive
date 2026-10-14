@@ -1,11 +1,29 @@
 T001:
+  reason: "The CLI's `--config` path in `code/run_experiments.py` only checks the\
+    \ file exists and prints \"Loaded config from ...\" \u2014 it never parses the\
+    \ YAML (no `yaml` import), never prints \"Pipeline initialized\", never creates\
+    \ the `outputs/` directory tree, and never writes `outputs/run_config.json`, so\
+    \ the task's explicit verification command fails its stated contract. The existing\
+    \ `outputs/run_config.json` (with seed 7, contradicting the config's seed 42)\
+    \ cannot have been produced by this script and is not execution evidence; `docs/quickstart.md`\
+    \ also documents `--stage` and `--seed` flags the script"
   task: 48046a6674a2816ee04df39c338f2a0c914479a3cd11a0fa0fa38663b77a4cda
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data.py exit=1'
   task: ed82a611b0b8daf54d072e8d8b35dd86496e9e41cdcace58d847c899ce4e4fdd
 T003:
+  reason: "The test run failed (exit 1): `hf_hub_download` for `author/lightdiff-100m`\
+    \ returned 401 Repository Not Found, so no real model was ever downloaded or loaded,\
+    \ and `outputs/model_checkpoint.json` is MISSING. Moreover, `code/model.py` wraps\
+    \ the checkpoint in an `_IdentityDiffusionModel` whose `forward` just returns\
+    \ the input \u2014 an explicit placeholder, not a real \u2264100M-parameter discrete\
+    \ diffusion model \u2014 and there is no evidence of a successful CPU forward\
+    \ pass or the \"Model loaded on CPU\" log. The implementer must use an actual\
+    \ existing HuggingFace discrete-diffusion checkpoint, load its real a"
   task: 1c2bcb024adde42e93d71ceda3f4bf64d5ab6a4f64f565492d8fe265afcd8564
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/data.py exit=1;
+    code/run_experiments.py exit=1'
   task: d7659d7f8f50eb9b2c0a302cd0edb966147063bfb84b0fac4f9475b7ca987a67
 T005:
   task: 4d33c67522505381f44200d237e863fda52fabba3bbc701453436cdef01233db

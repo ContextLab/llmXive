@@ -1,8 +1,24 @@
 T001:
-  c: true
-  h: ac5e7866c2c90f3e38d2909a9b6a4a774a9e42b2b6ff7cbcf722ca328f15b7ac
-  r: "Checked `code/run_experiments.py` (CLI parses YAML, prints \u201CPipeline initialized\u201D\
-    , creates outputs via `paths.outputs()`), `docs/quickstart.md` (usage, env vars,\
-    \ seed control), and the resulting `outputs/` directory with `run_config.json`\
-    \ confirming the script was executed successfully."
-  sig: f36bebe6871b636d58956e7e2fdfdc1d7452387e74fdccd3ce50b031ad74bd76
+  c: false
+  h: b1854cba801ec7c09b3c9b7986410a1bac33d446cb526fbe7961f43017646052
+  r: "The CLI's `--config` path in `code/run_experiments.py` only checks the file\
+    \ exists and prints \"Loaded config from ...\" \u2014 it never parses the YAML\
+    \ (no `yaml` import), never prints \"Pipeline initialized\", never creates the\
+    \ `outputs/` directory tree, and never writes `outputs/run_config.json`, so the\
+    \ task's explicit verification command fails its stated contract. The existing\
+    \ `outputs/run_config.json` (with seed 7, contradicting the config's seed 42)\
+    \ cannot have been produced by this script and is not execution evidence; `docs/quickstart.md`\
+    \ also documents `--stage` and `--seed` flags the script "
+  sig: fc9dbade2a22bd3ebe1ca03dbd2525d37e72d28bc3038cf4b2b196535441938a
+T003:
+  c: false
+  h: 0892b42699aa45a69ab2231d22e68ea23c51ac354a32792ca0dd991a26216c86
+  r: "The test run failed (exit 1): `hf_hub_download` for `author/lightdiff-100m`\
+    \ returned 401 Repository Not Found, so no real model was ever downloaded or loaded,\
+    \ and `outputs/model_checkpoint.json` is MISSING. Moreover, `code/model.py` wraps\
+    \ the checkpoint in an `_IdentityDiffusionModel` whose `forward` just returns\
+    \ the input \u2014 an explicit placeholder, not a real \u2264100M-parameter discrete\
+    \ diffusion model \u2014 and there is no evidence of a successful CPU forward\
+    \ pass or the \"Model loaded on CPU\" log. The implementer must use an actual\
+    \ existing HuggingFace discrete-diffusion checkpoint, load its real a"
+  sig: 55b9b902ebbba1ad70958ffb577f26aac530eaa23bbd22426899258d8ae963eb

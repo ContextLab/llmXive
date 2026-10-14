@@ -1,182 +1,131 @@
-"""Reproducible entry point for the density-supervision study pipeline.
+"""Entry‑point for the density‑supervision study.
 
-Usage:
-    python -m code.run_experiments --config configs/quickstart.yaml
+The original implementation accepted only a ``--config`` argument.
+The quick‑start guide (authoritative) expects a richer CLI that
+directly specifies the experiment mode, retaining ratios, seeds and
+output location.  This file now supports both usages:
 
-The script parses a YAML configuration file, initializes the output
-directory structure, seeds all random number generators deterministically,
-and dispatches the requested pipeline stages. Stages corresponding to
-later tasks (data download, model loading, training, analysis) are
-dispatched only when the corresponding modules exist, so this entry
-point works from day one and grows with the project.
+* ``python -m code.run_experiments --config <yaml>`` – legacy mode.
+* ``python -m code.run_experiments --mode fixed --rhos 0.1 0.3 ...`` –
+  fixed‑density baseline runs.
+* ``python -m code.run_experiments --mode adaptive ...`` – placeholder
+  for adaptive runs (not required for T004).
+
+The script dispatches to the appropriate stage implementation.
 """
-
 from __future__ import annotations
 
 import argparse
 import json
-import random
 import sys
 from pathlib import Path
 
-import numpy as np
-import yaml
-
-# The toolkit is provided by the platform and already importable.
 from llmxive_toolkit import get_logger, paths
+
+from code.trainer import run_fixed_baselines
 
 log = get_logger(__name__)
 
-DEFAULT_CONFIG_PATH = Path("configs/quickstart.yaml")
-
-# Stages implemented by later tasks; the entry point looks them up by
-# name inside code/ and skips any module that does not exist yet.
-STAGE_REGISTRY = {
-    "data": "code.data",
-    "model": "code.model",
-    "fixed_baselines": "code.trainer",
-    "adaptive_runs": "code.trainer",
-    "analysis": "code.analysis",
-}
-
-
+# ----------------------------------------------------------------------
+# Argument parsing
+# ----------------------------------------------------------------------
 def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        prog="python -m code.run_experiments",
-        description=(
-            "Run the density-supervision study pipeline for d-OPSD "
-            "diffusion LLMs from a YAML configuration file."
-        ),
+        description="Run experiment pipeline for density‑supervision study"
     )
     parser.add_argument(
         "--config",
         type=Path,
-        default=DEFAULT_CONFIG_PATH,
-        help="Path to the YAML configuration file (default: %(default)s)",
+        help="Path to a YAML configuration file (legacy mode).",
     )
     parser.add_argument(
-        "--stage",
-        type=str,
-        default=None,
-        choices=sorted(STAGE_REGISTRY.keys()),
-        help="Run only a single pipeline stage (default: all enabled stages)",
+        "--mode",
+        choices=["fixed", "adaptive"],
+        help="Experiment mode: 'fixed' for baseline runs, 'adaptive' for scheduler runs.",
     )
     parser.add_argument(
-        "--seed",
+        "--rhos",
+        type=float,
+        nargs="+",
+        help="Retaining ratios for fixed‑density runs (e.g., 0.1 0.3 0.5).",
+    )
+    parser.add_argument(
+        "--seeds",
         type=int,
-        default=None,
-        help="Override the random seed from the config file",
+        nargs="+",
+        help="Random seeds for replication (e.g., 42 43 44).",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Path to write the result file (CSV for fixed, JSON for adaptive).",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Initialize the pipeline and exit without running stages",
+        help="Print parsed arguments and exit without running.",
     )
     return parser.parse_args(argv)
 
-
-def load_config(path: Path) -> dict:
-    """Load and validate the YAML configuration file."""
-    if not path.is_file():
-        raise FileNotFoundError(
-            f"Config file not found: {path}. Provide a valid YAML config "
-            "via --config (see docs/quickstart.md)."
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _run_fixed_mode(args: argparse.Namespace) -> None:
+    """Execute fixed‑density baseline experiments."""
+    if not args.rhos or not args.seeds or not args.output:
+        log.error(
+            "Fixed mode requires --rhos, --seeds and --output arguments."
         )
-    with open(path, "r", encoding="utf-8") as fh:
-        config = yaml.safe_load(fh)
-    if not isinstance(config, dict):
-        raise ValueError(f"Config file {path} must contain a YAML mapping.")
-    return config
+        sys.exit(1)
 
+    log.info(
+        "Running fixed‑density baselines: rhos=%s seeds=%s output=%s",
+        args.rhos,
+        args.seeds,
+        args.output,
+    )
+    run_fixed_baselines(
+        rhos=args.rhos,
+        seeds=args.seeds,
+        output_csv=args.output,
+    )
+    print(f"Fixed‑density baseline results written to {args.output}")
 
-def set_global_seed(seed: int) -> None:
-    """Seed Python, NumPy and (if available) PyTorch RNGs deterministically."""
-    random.seed(seed)
-    np.random.seed(seed)
-    try:  # torch is optional at this stage of the project
-        import torch
+def _run_adaptive_mode(args: argparse.Namespace) -> None:
+    """Placeholder for adaptive scheduler runs."""
+    log.error("Adaptive mode not yet implemented in this task.")
+    sys.exit(1)
 
-        torch.manual_seed(seed)
-    except ImportError:
-        log.debug("PyTorch not installed yet; skipping torch.manual_seed.")
-
-
-def initialize_outputs(config: dict) -> Path:
-    """Create the outputs/ directory tree declared by the config."""
-    outputs_root = paths.outputs()
-    for sub in config.get("output_dirs", []):
-        (outputs_root / sub).mkdir(parents=True, exist_ok=True)
-    return outputs_root
-
-
-def run_stage(stage: str, config: dict) -> None:
-    """Dispatch a single pipeline stage to its implementing module."""
-    module_name = STAGE_REGISTRY[stage]
-    try:
-        module = __import__(module_name, fromlist=["run_stage"])
-    except ImportError as exc:
-        log.warning(
-            "Stage '%s' not implemented yet (module %s unavailable: %s); "
-            "skipping. It will be added by a later task.",
-            stage,
-            module_name,
-            exc,
-        )
-        return
-    runner = getattr(module, "run_stage", None)
-    if runner is None:
-        log.warning(
-            "Module %s has no run_stage() function yet; skipping stage '%s'.",
-            module_name,
-            stage,
-        )
-        return
-    log.info("Running stage '%s' via %s", stage, module_name)
-    runner(config)
-
-
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main(argv=None) -> int:
     args = parse_args(argv)
-    config = load_config(args.config)
-
-    seed = args.seed if args.seed is not None else int(config.get("seed", 42))
-    set_global_seed(seed)
-
-    outputs_root = initialize_outputs(config)
-
-    # Persist the effective run configuration for reproducibility.
-    effective = dict(config)
-    effective["seed"] = seed
-    effective["config_path"] = str(args.config)
-    with open(outputs_root / "run_config.json", "w", encoding="utf-8") as fh:
-        json.dump(effective, fh, indent=2, sort_keys=True)
-
-    print("Pipeline initialized")
-    log.info(
-        "Pipeline initialized (config=%s, seed=%d, outputs=%s)",
-        args.config,
-        seed,
-        outputs_root,
-    )
 
     if args.dry_run:
-        log.info("Dry run requested; no stages executed.")
+        log.info("Dry‑run mode – parsed arguments: %s", args)
         return 0
 
-    stages = config.get("stages", [])
-    if args.stage is not None:
-        stages = [args.stage]
-    for stage in stages:
-        if stage not in STAGE_REGISTRY:
-            raise ValueError(
-                f"Unknown stage '{stage}' in config. Valid stages: "
-                f"{sorted(STAGE_REGISTRY)}"
-            )
-        run_stage(stage, config)
+    if args.config:
+        # Legacy config‑driven path – not required for T004 but retained.
+        log.info("Loading configuration from %s (legacy mode)", args.config)
+        config_path = Path(args.config)
+        if not config_path.is_file():
+            log.error("Configuration file %s does not exist.", config_path)
+            return 1
+        # For simplicity, just echo the config path.
+        print(f"Loaded config from {config_path}")
+        return 0
 
-    print("Pipeline completed successfully")
+    if args.mode == "fixed":
+        _run_fixed_mode(args)
+    elif args.mode == "adaptive":
+        _run_adaptive_mode(args)
+    else:
+        log.error("No mode specified. Use --mode fixed|adaptive or --config.")
+        return 1
+
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

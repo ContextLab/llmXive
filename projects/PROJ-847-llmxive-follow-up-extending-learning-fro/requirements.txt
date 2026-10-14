@@ -1,2 +1,4 @@
-datasets==2.19.0
-pyarrow>=14.0.0
+# Project dependencies
+# Existing dependencies are provided by the environment.
+# Added dependency for Parquet support in dataset download.
+pyarrow>=12.0.0
