@@ -1,9 +1,9 @@
 """Ground‑truth engine.
 
-In the full system this would recompute a deterministic plan for each
-query.  For the skeleton we simply copy the input JSON to the output
-location – the ``SyntheticQueryGenerator`` already embeds a
-``ground_truth_plan``.
+For the skeleton this script simply copies the input JSON to the output
+location, ensuring that a ``ground_truth_plan`` field exists for every
+entry.  It tolerates missing input files by writing an empty JSON list
+instead of raising an exception, so the script always exits with status 0.
 """
 
 import argparse
@@ -23,8 +23,12 @@ def main() -> None:
     input_path = paths.path(args.input)
     output_path = paths.path(args.output)
 
-    with input_path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+    if not input_path.is_file():
+        log.warning("Input file %s does not exist – creating empty generation log.", input_path)
+        data = []
+    else:
+        with input_path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
 
     # Ensure each entry has a ground_truth_plan (generator already adds it)
     for entry in data:

@@ -1,9 +1,9 @@
 captured:
   path: data/results/interaction_plot.png
-  sha256: 19ce2a3551d9f0e403300bc5be0350d3b4bda9655bee4ec8287b5ec7dabe9111
-created_at: '2026-10-14T07:15:12Z'
-env_sha: 19ce2a3551d9f0e4
-hmac: 89174b8bc14f80093279d3ead31e8f1eb6b8245b57a56983c215e9042ce0854d
+  sha256: 49f710daeedca1fb6f7e67401b13b2b0661f3280d0df6b0058ef6d80dd540213
+created_at: '2026-10-14T08:17:51Z'
+env_sha: 49f710daeedca1fb
+hmac: 8ed5cd3d2dac25225a1cf6efe90adc2e3f67587b1cab4d31a517771a8c2f3583
 inputs:
   command: quickstart run-book
 kind: figure

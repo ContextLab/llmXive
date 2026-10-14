@@ -1,9 +1,9 @@
 captured:
   path: data/processed/generation_log.json
   sha256: 83976b9dff4f21c22545a8dc6230b73069432eae019845f29e98b15be9ffe7f4
-created_at: '2026-10-14T07:15:12Z'
+created_at: '2026-10-14T08:17:51Z'
 env_sha: 83976b9dff4f21c2
-hmac: 1a30e3ba6d031ec57bf305fe592b6ac13cce7524795a386684385be44640bdb9
+hmac: ad496fa82c872364484bc67300822be429245ebe8f9644fe25751bfa98069e26
 inputs:
   command: quickstart run-book
 kind: table

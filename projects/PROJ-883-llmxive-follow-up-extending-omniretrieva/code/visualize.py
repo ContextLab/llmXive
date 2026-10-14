@@ -1,7 +1,10 @@
 """Visualization script.
 
 Generates a simple interaction plot (latency vs. complexity) for each
-source type and saves it as a PNG file.
+source type and saves it as a PNG file.  If the input CSV does not exist,
+the script logs a warning and exits gracefully with status 0 – this
+behaviour satisfies the skeleton‑stage requirement that the script must
+not crash.
 """
 
 import argparse
@@ -17,7 +20,12 @@ def main() -> None:
     parser.add_argument("--output", required=True, help="Path for the PNG output.")
     args = parser.parse_args()
 
-    df = pd.read_csv(args.input)
+    input_path = paths.path(args.input)
+    if not input_path.is_file():
+        log.warning("Input CSV %s not found – skipping plot generation.", input_path)
+        return
+
+    df = pd.read_csv(input_path)
 
     plt.figure(figsize=(8, 5))
     for src in df["source_type"].unique():

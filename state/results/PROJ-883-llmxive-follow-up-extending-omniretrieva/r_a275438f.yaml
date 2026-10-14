@@ -1,9 +1,9 @@
 captured:
   path: data/processed/execution_logs.csv
-  sha256: bcf7fe3ed65cac6eff4e7cb5fcc60dfd61b1ac16edfd90c55bde0b9dd67749ad
-created_at: '2026-10-14T07:15:12Z'
-env_sha: bcf7fe3ed65cac6e
-hmac: b086396ad2cb6877f5d4dfbfc65a4577f72a2ac57b5e6b1b547b6d645f890e68
+  sha256: 46feb68688f4f0956c2e591382d061aec9fcbbc48464848438da4abc0e0894bf
+created_at: '2026-10-14T08:17:51Z'
+env_sha: 46feb68688f4f095
+hmac: 8809149c9deec8dfb65dd965164f6abfed0b837e7a0c8593dbac2440c4575658
 inputs:
   command: quickstart run-book
 kind: table
