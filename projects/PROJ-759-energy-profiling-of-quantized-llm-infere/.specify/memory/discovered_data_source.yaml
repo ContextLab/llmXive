@@ -1,0 +1,18 @@
+status: none
+intent: energy consumption inference benchmark dataset WikiText-2 python package dataset
+required_fields:
+- model_name
+- model_size_parameters
+- quantization_level
+- input_dataset
+- input_sample_id
+- num_tokens
+- cpu_cores_used
+- ram_usage_mb
+- inference_latency_seconds
+- energy_consumption_joules
+- run_timestamp
+- run_status
+cache_key: 16cf14d96c9e57323d1a8716a68974a5c0ca62f78d54782d0287839a16a8dd39
+searched_at: '2026-10-14T14:12:14.727802+00:00'
+retry_count: 1

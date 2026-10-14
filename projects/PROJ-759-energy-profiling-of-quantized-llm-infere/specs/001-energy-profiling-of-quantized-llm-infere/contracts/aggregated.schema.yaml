@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AggregatedMetric
+type: object
+required:
+  - config_id
+  - mean_energy_per_token
+  - std_energy_per_token
+  - mean_latency_ms
+  - std_latency_ms
+  - mean_perplexity
+  - std_perplexity
+  - dequantization_overhead_flag
+properties:
+  config_id:
+    type: string
+    description: "Hash of the Configuration object (SHA256)."
+  mean_energy_per_token:
+    type: number
+    description: "Mean energy per token (Joules/token) across repetitions."
+  std_energy_per_token:
+    type: number
+    description: "Standard deviation of energy per token."
+  mean_latency_ms:
+    type: number
+    description: "Mean inference latency (ms)."
+  std_latency_ms:
+    type: number
+    description: "Standard deviation of latency."
+  mean_perplexity:
+    type: number
+    description: "Mean perplexity across runs."
+  std_perplexity:
+    type: number
+    description: "Standard deviation of perplexity."
+  dequantization_overhead_flag:
+    type: boolean
+    description: "True if overhead >5 % relative to FP16 baseline and statistically significant."
+  variance_stability_flag:
+    type: boolean
+    description: "True if std/mean ≤ 0.15 for energy per token."

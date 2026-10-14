@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Configuration
+type: object
+required:
+  - model_name
+  - model_size_m
+  - quantization
+  - seed
+properties:
+  model_name:
+    type: string
+    description: "Identifier of the base model (e.g., 'gpt-neo-125M')."
+  model_size_m:
+    type: integer
+    description: "Model parameter count in millions (e.g., 125)."
+  quantization:
+    type: string
+    enum: [fp16, int8, 4bit]
+    description: "Quantization level applied to the model."
+  seed:
+    type: integer
+    description: "Random seed used for this run (ensures reproducibility)."
+  checkpoint_path:
+    type: string
+    description: "Absolute path to the (quantized) model checkpoint on disk."
+  load_success:
+    type: boolean
+    description: "True if the model loaded without OOM; false otherwise."

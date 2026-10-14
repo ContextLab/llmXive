@@ -16,7 +16,7 @@ The researcher needs to execute inference for multiple model sizes (125M, 350M, 
 **Independent Test**: Can be fully tested by running a script that loads a 125M model in 4-bit quantization, processes a fixed WikiText-2 sample, and outputs a non-zero energy value in Joules within 10 minutes, proving the CPU-only pipeline works.
 
 **Acceptance Scenarios**:
-1. **Given** a GitHub Actions runner with 2 CPU cores and 7GB RAM, **When** the inference script loads a 125M GPT-Neo model quantized to 4-bit, **Then** the script completes inference on a 500-token prompt without OOM errors or CUDA dependency errors.
+1. **Given** a GitHub Actions runner with a few CPU cores and 7 GB RAM, **When** the inference script loads a 125M GPT-Neo model quantized to 4-bit, **Then** the script completes inference on a moderately sized prompt without OOM errors or CUDA dependency errors.
 2. **Given** the same environment, **When** the script attempts to load a 7B model in FP16 or 4-bit, **Then** the script fails gracefully with a memory error message or is skipped, confirming the dataset/model size boundary for the hardware constraints.
 3. **Given** the same environment, **When** the script loads a 350M model in 4-bit, **Then** the script completes inference without OOM errors, providing the necessary third data point for scaling analysis.
 
@@ -60,7 +60,7 @@ The researcher needs to perform a log-log regression analysis (OLS) on energy-pe
 
 - **FR-001**: System MUST load and execute inference for GPT-Neo 125M, GPT-Neo 350M, and GPT-Neo 1.3B models in FP16, INT8, and 4-bit quantization formats on a CPU-only backend. The system MUST attempt to load LLaMA 7B (all quantizations) but MUST gracefully skip and log the event if it exceeds memory limits, as LLaMA 7B is out of scope for primary energy analysis (See US-1).
 - **FR-002**: System MUST measure energy consumption in Joules per token using `pyRAPL` (or a compatible CPU energy counter) for every inference step, excluding system idle time. Idle time is defined as the baseline power measured during a 10-second no-op loop executed immediately before each inference run. If `pyRAPL` fails, the system MUST attempt to measure power via an external calibrated wattmeter interface; if no external interface is available, the system MUST log "Energy measurement unavailable" and skip energy aggregation for that run (See US-2).
-- **FR-003**: System MUST execute exactly 3 independent inference runs per model-quantization configuration with different random seeds to capture variance (See US-2).
+- **FR-003**: System MUST execute Multiple independent inference runs per model‑quantization configuration. with different random seeds to capture variance (See US-2).
 - **FR-004**: System MUST aggregate results by calculating the mean and standard deviation of energy-per-token, latency, and perplexity for each configuration (See US-2).
 - **FR-005**: System MUST perform a log-log regression analysis using Ordinary Least Squares (OLS) with Energy-per-Token as the dependent variable and Parameter Count as the independent variable. The system MUST also perform pairwise t-tests with Bonferroni correction to compare energy-per-token across quantization levels (See US-3).
 - **FR-006**: System MUST generate a visualization plot showing energy-per-token vs. quantization level and a log-log plot of energy vs. parameter count (See US-3).
