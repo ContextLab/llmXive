@@ -1,15 +1,15 @@
-"""Base classes and factory for executors.
+"""Base executor infrastructure.
 
-This module defines:
-- ``ExecutionResult``: a dataclass capturing the outcome of a query execution.
-- ``BaseExecutor``: an abstract base class that provides timeout handling and a
-  ``run`` method that concrete executors must implement.
-- ``create_executor``: a simple factory that returns an executor instance based on a
-  string identifier (``text``, ``relational`` or ``graph``).
+Provides an abstract ``BaseExecutor`` with a 60‑second timeout wrapper,
+a ``TimeoutException`` used for signalling timeout events, and an
+``ExecutionResult`` dataclass that records the outcome of a query
+execution.
 
-The concrete executors live in ``text_executor.py``, ``relational_executor.py`` and
-``graph_executor.py``.  They all inherit from ``BaseExecutor`` and implement the
-``execute`` method.
+Concrete executors (e.g., ``TextExecutor``, ``RelationalExecutor``,
+``GraphExecutor``) subclass :class:`BaseExecutor` and implement the
+protected ``_run`` method which performs the actual work without
+timeout handling. The public ``run`` method measures latency, enforces
+the timeout, and returns an :class:`ExecutionResult` instance.
 """
 
 import abc
@@ -23,133 +23,131 @@ from llmxive_toolkit import get_logger
 log = get_logger(__name__)
 
 class TimeoutException(Exception):
-    """Raised when an executor exceeds the allowed time budget."""
+    """Raised when the executor exceeds the allowed execution time."""
     pass
-
 
 @dataclass
 class ExecutionResult:
     """Container for the result of a single query execution."""
-
     query_id: str
     source_type: str
     complexity_level: int
+    latency_ms: float
     executed_plan: Optional[str] = None
-    latency_ms: float = 0.0
     success: bool = False
     timeout: bool = False
-    # ``executed_plan`` may be a textual representation of the plan produced
-    # by the native engine (e.g., SQL string, SPARQL query, or a passage ID).
-
-    def as_dict(self) -> Dict[str, Any]:
-        """Return a plain‑dict representation – useful for CSV/JSON serialization."""
-        return {
-            "query_id": self.query_id,
-            "source_type": self.source_type,
-            "complexity_level": self.complexity_level,
-            "executed_plan": self.executed_plan,
-            "latency_ms": self.latency_ms,
-            "success": self.success,
-            "timeout": self.timeout,
-        }
-
+    # Additional fields can be added later (e.g., error messages)
 
 class BaseExecutor(abc.ABC):
-    """Abstract executor providing a timeout wrapper.
+    """Abstract executor with built‑in timeout handling.
 
-    Concrete subclasses must implement :meth:`execute` which receives a
-    ``query`` dictionary (the same shape that appears in
-    ``generation_log.json``) and returns an :class:`ExecutionResult`.
+    Sub‑classes must implement ``_run`` which receives the raw query
+    dictionary and returns an ``ExecutionResult`` (with ``timeout`` set
+    to ``False``). The wrapper ``run`` adds timing and a hard timeout
+    (default 60 seconds) and guarantees that an ``ExecutionResult`` is
+    always returned.
     """
 
-    def __init__(self, timeout_seconds: int = 60):
-        self.timeout_seconds = timeout_seconds
+    DEFAULT_TIMEOUT_SECONDS = 60
 
-    @abc.abstractmethod
-    def execute(self, query: Dict[str, Any]) -> ExecutionResult:
-        """Run the native engine for *query* and return an ``ExecutionResult``."""
-        raise NotImplementedError
+    def __init__(self, timeout_seconds: Optional[int] = None):
+        self.timeout_seconds = (
+            timeout_seconds
+            if timeout_seconds is not None
+            else self.DEFAULT_TIMEOUT_SECONDS
+        )
 
-    # ------------------------------------------------------------------ #
-    # Timeout handling utilities
-    # ------------------------------------------------------------------ #
-    def _handle_timeout(self, signum, frame):
-        """Signal handler that converts an alarm into a Python exception."""
-        raise TimeoutException("Execution exceeded %d seconds" % self.timeout_seconds)
+    def _alarm_handler(self, signum, frame):
+        """Signal handler that raises ``TimeoutException``."""
+        raise TimeoutException(f"Execution exceeded {self.timeout_seconds}s")
 
     def run(self, query: Dict[str, Any]) -> ExecutionResult:
-        """Public entry point used by the pipeline.
+        """Execute ``query`` respecting the timeout.
 
-        It measures wall‑clock time, enforces the timeout, and guarantees that an
-        ``ExecutionResult`` is always returned (even on error/timeout).
+        Parameters
+        ----------
+        query: dict
+            A query definition as produced by the synthetic generator.
+
+        Returns
+        -------
+        ExecutionResult
+            Populated with latency, success flag and timeout flag.
         """
         start = time.time()
-        result: ExecutionResult
-        try:
-            # Install the alarm handler for the duration of the call.
-            signal.signal(signal.SIGALRM, self._handle_timeout)
-            signal.alarm(self.timeout_seconds)
+        # Register alarm signal for timeout enforcement.
+        previous_handler = signal.getsignal(signal.SIGALRM)
+        signal.signal(signal.SIGALRM, self._alarm_handler)
+        signal.alarm(self.timeout_seconds)
 
-            result = self.execute(query)
-            result.success = True
+        try:
+            result = self._run(query)
             result.timeout = False
+            result.success = True
         except TimeoutException as te:
             log.warning("Query %s timed out: %s", query.get("query_id"), te)
             result = ExecutionResult(
-                query_id=query.get("query_id", "unknown"),
-                source_type=query.get("source_type", "unknown"),
+                query_id=query.get("query_id", ""),
+                source_type=query.get("source_type", ""),
                 complexity_level=int(query.get("complexity_level", -1)),
+                latency_ms=(time.time() - start) * 1000.0,
                 executed_plan=None,
-                latency_ms=0.0,
                 success=False,
                 timeout=True,
             )
-        except Exception as e:  # pylint: disable=broad-except
-            log.error("Execution error for query %s: %s", query.get("query_id"), e)
+        except Exception as exc:  # pragma: no cover – defensive
+            log.error("Executor raised an unexpected exception: %s", exc)
             result = ExecutionResult(
-                query_id=query.get("query_id", "unknown"),
-                source_type=query.get("source_type", "unknown"),
+                query_id=query.get("query_id", ""),
+                source_type=query.get("source_type", ""),
                 complexity_level=int(query.get("complexity_level", -1)),
+                latency_ms=(time.time() - start) * 1000.0,
                 executed_plan=None,
-                latency_ms=0.0,
                 success=False,
                 timeout=False,
             )
         finally:
-            # Cancel any pending alarm.
+            # Cancel any pending alarm and restore previous handler.
             signal.alarm(0)
-            end = time.time()
-            # Record wall‑clock latency even if we timed‑out (the time until the
-            # alarm fired is the relevant figure).
-            result.latency_ms = (end - start) * 1000.0
+            signal.signal(signal.SIGALRM, previous_handler)
 
+        # Populate latency (measured in all branches).
+        if result.latency_ms == 0.0:
+            result.latency_ms = (time.time() - start) * 1000.0
         return result
 
+    @abc.abstractmethod
+    def _run(self, query: Dict[str, Any]) -> ExecutionResult:
+        """Concrete executor work – must return an ``ExecutionResult``."""
+        raise NotImplementedError
 
-def create_executor(executor_type: str) -> BaseExecutor:
-    """Factory that returns a concrete executor based on *executor_type*.
+def create_executor(executor_type: str, timeout_seconds: Optional[int] = None) -> BaseExecutor:
+    """Factory for concrete executors.
 
     Parameters
     ----------
     executor_type: str
-        One of ``"text"``, ``"relational"``, ``"graph"``.
+        One of ``\"text\"``, ``\"relational\"`` or ``\"graph\"``.
+    timeout_seconds: int | None
+        Override the default 60 s timeout if provided.
 
     Returns
     -------
     BaseExecutor
-        An instantiated executor ready to ``run`` queries.
+        An instantiated concrete executor.
     """
     executor_type = executor_type.lower()
     if executor_type == "text":
         from .text_executor import TextExecutor
 
-        return TextExecutor()
+        return TextExecutor(timeout_seconds=timeout_seconds)
     if executor_type == "relational":
         from .relational_executor import RelationalExecutor
 
-        return RelationalExecutor()
+        return RelationalExecutor(timeout_seconds=timeout_seconds)
     if executor_type == "graph":
         from .graph_executor import GraphExecutor
 
-        return GraphExecutor()
+        return GraphExecutor(timeout_seconds=timeout_seconds)
+
     raise ValueError(f"Unsupported executor type: {executor_type}")

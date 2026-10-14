@@ -123,22 +123,32 @@ def fetch_dataset(
             return synthetic_path
         else:
             raise DataFetchError(
-                f"Unable to import datasets library and synthetic fallback is disabled."
+                "Unable to import datasets library and synthetic fallback is disabled."
             ) from exc
 
     try:
-        log.info(f"Attempting to fetch dataset: {name} (config={config_name}, split={split})")
-        # Use streaming to keep memory usage low
-        ds = load_dataset(
-            name,
-            name=config_name,
-            split=split,
-            streaming=True,
-            download_config=DownloadConfig(
+        log.info(
+            f"Attempting to fetch dataset: {name} (config={config_name}, split={split})"
+        )
+        # Build arguments correctly: ``name`` is the dataset identifier,
+        # ``config_name`` (if provided) is passed via the ``name`` keyword
+        # argument of ``load_dataset``.
+        load_kwargs = {
+            "streaming": True,
+            "download_config": DownloadConfig(
                 # Force download mode to raise on failure rather than using cache
                 download_mode=DownloadMode.FORCE_DOWNLOAD
             ),
+        }
+        if config_name:
+            load_kwargs["name"] = config_name
+
+        ds = load_dataset(
+            name,
+            split=split,
+            **load_kwargs,
         )
+
         # Resolve destination path
         if dest_path is None:
             safe_name = name.replace("/", "_")
@@ -146,6 +156,7 @@ def fetch_dataset(
                 safe_name += f"_{config_name}"
             dest_path = paths.data("raw", f"{safe_name}_{split}.jsonl")
         dest_path = Path(dest_path)
+
         _write_streamed_dataset(ds, dest_path)
         log.info(f"Dataset written to {dest_path}")
         return dest_path

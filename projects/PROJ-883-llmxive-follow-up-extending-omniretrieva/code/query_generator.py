@@ -42,10 +42,13 @@ def _parse_args() -> argparse.Namespace:
         required=True,
         help="List of integer plan depths to generate (e.g., 1 2 3 4).",
     )
+    # ``--count`` may be supplied as a single integer or as a placeholder
+    # token sequence like ``[sufficient sample size]``.  Using ``nargs='+'``
+    # captures all following tokens up to the next flag.
     parser.add_argument(
         "--count",
-        type=str,
-        default="10",
+        nargs="+",
+        default=["10"],
         help=(
             "Number of queries to generate per depth level. "
             "Accepts an integer or a placeholder such as "
@@ -69,7 +72,10 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
-    count_per_level = _parse_int(args.count)
+    # ``args.count`` is a list of tokens; join them back into a single
+    # string before converting to int (or falling back to the default).
+    count_str = " ".join(args.count)
+    count_per_level = _parse_int(count_str)
 
     generator = SyntheticQueryGenerator(
         levels=args.levels,

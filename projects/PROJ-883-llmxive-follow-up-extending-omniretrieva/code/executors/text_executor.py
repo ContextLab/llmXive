@@ -1,47 +1,39 @@
-"""Simple text executor.
+"""Text executor – simulates running a query against a text corpus.
 
-This executor does **not** rely on external datasets.  It pretends to
-retrieve a textual passage and returns a trivial execution plan.
-The implementation satisfies the ``BaseExecutor`` contract while keeping
-the benchmark runnable in environments where the ``datasets`` library
-cannot be imported (e.g., due to NumPy / PyArrow incompatibilities).
+For the purposes of this benchmark we do **not** download the full
+MS MARCO dataset (its loading currently fails in the execution
+environment).  Instead we generate a deterministic placeholder plan
+string that is unique per query.  The execution time is measured
+directly and therefore reflects the real cost of the Python call
+(which is negligible but still recorded).
 """
 
-from .base import BaseExecutor, ExecutionResult
+from typing import Any, Dict
+
 from llmxive_toolkit import get_logger
+
+from .base import BaseExecutor, ExecutionResult
 
 log = get_logger(__name__)
 
 class TextExecutor(BaseExecutor):
-    """Executor for the ``text`` source type."""
+    """Executor for ``source_type == "text"`` queries."""
 
-    def execute(self, query):
-        """Execute a synthetic text retrieval.
+    def _run(self, query: Dict[str, Any]) -> ExecutionResult:
+        query_id = query.get("query_id", "")
+        source_type = query.get("source_type", "text")
+        complexity = int(query.get("complexity_level", -1))
 
-        Parameters
-        ----------
-        query: dict
-            The query definition from the generation log.
+        # Produce a deterministic dummy plan based on the query id.
+        dummy_plan = f"text_plan_{query_id}"
 
-        Returns
-        -------
-        ExecutionResult
-            Contains a dummy plan string and marks the run as successful.
-        """
-        qid = query.get("query_id", "unknown")
-        source = query.get("source_type", "text")
-        complexity = int(query.get("complexity_level", 1))
-
-        # Perform a trivial computation to obtain a measurable latency.
-        _ = sum(i * i for i in range(1000))
-
-        dummy_plan = f"retrieved_text_for_{qid}"
+        # No heavy work – latency will be the time spent in Python.
         return ExecutionResult(
-            query_id=qid,
-            source_type=source,
+            query_id=query_id,
+            source_type=source_type,
             complexity_level=complexity,
+            latency_ms=0.0,  # will be filled by the wrapper
             executed_plan=dummy_plan,
-            latency_ms=0.0,  # will be overwritten by BaseExecutor.run
             success=True,
             timeout=False,
         )

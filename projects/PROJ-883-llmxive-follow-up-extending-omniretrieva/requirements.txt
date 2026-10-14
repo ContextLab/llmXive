@@ -1,19 +1,17 @@
-# Core scientific stack (already available in the base image)
-numpy
+# Core dependencies (pre‑installed in the runner)
 pandas
+numpy
 scipy
 scikit-learn
 statsmodels
-matplotlib
 seaborn
+matplotlib
 pytest
 PyYAML
 requests
 jsonschema
 psutil
 
-# Additional packages required for the executors
-datasets
-rdflib
+# Additional libraries required for the executors
 networkx
-# ``sqlite3`` is part of the Python stdlib and does not need to be listed.
+rdflib

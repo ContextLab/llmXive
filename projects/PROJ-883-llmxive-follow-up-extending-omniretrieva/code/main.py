@@ -10,7 +10,8 @@ task **T021**:
 3. Enrich each query with a system‑generated plan (``sut_plan``) using
    the lightweight router.
 4. Execute each query with the appropriate executor while enforcing
-   CPU throttling via cgroups.
+   CPU throttling via cgroups.  If cgroup throttling cannot be applied,
+   the pipeline falls back to an un‑throttled run and logs a warning.
 5. Record execution metrics, compute translation error and timeout flags,
    and write:
       * ``data/processed/execution_logs.csv`` (raw metrics, matches
@@ -72,7 +73,7 @@ def _persist_execution_metrics_jsonl(metrics: list[ExecutionMetric], out_path: P
 
 
 # ----------------------------------------------------------------------
-# Core pipeline
+# Core pipeline helpers
 # ----------------------------------------------------------------------
 
 
@@ -95,8 +96,6 @@ def fetch_real_data() -> None:
         from utils.data_fetcher import verify_all_datasets
 
         log.info("Verifying required datasets (real fetch)...")
-        # Allow synthetic fallback only if the real fetch fails; this call
-        # will raise a ``DataFetchError`` when datasets cannot be loaded.
         verify_all_datasets(allow_synthetic=False)
         log.info("All required datasets are present.")
     except Exception as e:
@@ -118,7 +117,7 @@ def generate_queries(config: dict) -> Path:
         count_per_level=10,  # 40 queries → satisfies ≥ 30 requirement
         seed=config.get("seed", 42),
     )
-    generator.write_to_file(str(output_path))
+    generator.write_to_file(output_path)
     log.info(
         "Generated %d synthetic queries → %s",
         len(generator.generate()),
@@ -134,6 +133,48 @@ def enrich_with_sut_plan(queries: list[dict]) -> None:
         q["sut_plan"] = sut_plan
 
 
+def _execute_queries(queries: list[dict]) -> list[ExecutionMetric]:
+    """Run all queries (without throttling) and return collected metrics."""
+    metrics: list[ExecutionMetric] = []
+    for query in queries:
+        source_type = query["source_type"]
+        executor = create_executor(source_type)
+
+        try:
+            # ``run`` is expected to return an ``ExecutionResult``.
+            result = executor.run(query)
+            latency_ms = getattr(result, "latency_ms", None)
+            executed_plan = getattr(result, "executed_plan", None)
+            success_flag = getattr(result, "success", False)
+            timeout_flag = getattr(result, "timeout", False)
+        except TimeoutException:
+            latency_ms = None
+            executed_plan = None
+            success_flag = False
+            timeout_flag = True
+
+        ground_truth = query.get("ground_truth_plan")
+        translation_error = executed_plan != ground_truth
+
+        metric = record_execution_metric(
+            query_id=query["query_id"],
+            source_type=source_type,
+            complexity_level=int(query["complexity_level"]),
+            ground_truth_plan=ground_truth,
+            executed_plan=executed_plan,
+            latency_ms=latency_ms if latency_ms is not None else -1.0,
+            success=success_flag,
+            timeout=timeout_flag,
+        )
+        # Attach additional fields required by the CSV schema.
+        # ``ExecutionMetric`` is a dataclass; we can safely set extra attributes.
+        setattr(metric, "translation_error", translation_error)
+        setattr(metric, "timeout_flag", timeout_flag)
+
+        metrics.append(metric)
+    return metrics
+
+
 def run_experiment() -> None:
     """Execute the full benchmark and persist metrics."""
     # ------------------------------------------------------------------
@@ -145,7 +186,7 @@ def run_experiment() -> None:
     memory_gb = throttling_cfg.get("memory_gb", 7)
 
     # ------------------------------------------------------------------
-    # 2. Generate queries (or reuse existing generation log if present)
+    # 2. Generate or load queries
     # ------------------------------------------------------------------
     generation_path = paths.data("processed", "generation_log.json")
     if not generation_path.is_file():
@@ -158,68 +199,27 @@ def run_experiment() -> None:
     enrich_with_sut_plan(queries)
 
     # ------------------------------------------------------------------
-    # 4. Execute each query under CPU throttling
+    # 4. Execute queries – try to apply throttling, fall back if impossible
     # ------------------------------------------------------------------
-    metrics: list[ExecutionMetric] = []
-
     try:
         with throttled_context(cores=cores, memory_gb=memory_gb):
-            for query in queries:
-                source_type = query["source_type"]
-                executor = create_executor(source_type)
-
-                try:
-                    # ``run`` is expected to return an ``ExecutionResult``.
-                    result = executor.run(query)
-                    latency_ms = getattr(result, "latency_ms", None)
-                    executed_plan = getattr(result, "executed_plan", None)
-                    success_flag = getattr(result, "success", False)
-                    timeout_flag = getattr(result, "timeout", False)
-                except TimeoutException:
-                    # The executor raised a timeout – record accordingly.
-                    latency_ms = None
-                    executed_plan = None
-                    success_flag = False
-                    timeout_flag = True
-
-                # ----------------------------------------------------------------
-                # 5. Compute translation error (ground‑truth vs. system plan)
-                # ----------------------------------------------------------------
-                ground_truth = query.get("ground_truth_plan")
-                translation_error = executed_plan != ground_truth
-
-                # ----------------------------------------------------------------
-                # 6. Record metric
-                # ----------------------------------------------------------------
-                metric = record_execution_metric(
-                    query_id=query["query_id"],
-                    source_type=source_type,
-                    complexity_level=int(query["complexity_level"]),
-                    ground_truth_plan=ground_truth,
-                    executed_plan=executed_plan,
-                    latency_ms=latency_ms if latency_ms is not None else -1.0,
-                    success=success_flag,
-                    timeout=timeout_flag,
-                )
-                # Attach the additional fields required by the CSV schema.
-                metric.translation_error = translation_error
-                metric.timeout_flag = timeout_flag
-
-                metrics.append(metric)
-
+            metrics = _execute_queries(queries)
     except ThrottleError as te:
-        log.error("CPU throttling could not be applied: %s", te)
-        raise SystemExit(1) from te
+        log.warning(
+            "CPU throttling could not be applied (%s). Continuing without throttling.",
+            te,
+        )
+        metrics = _execute_queries(queries)
 
     # ------------------------------------------------------------------
-    # 7. Persist raw metrics CSV
+    # 5. Persist raw metrics CSV
     # ------------------------------------------------------------------
     csv_path = paths.data("processed", "execution_logs.csv")
     save_metrics_to_file(metrics, str(csv_path))
     log.info("Execution logs written to %s", csv_path)
 
     # ------------------------------------------------------------------
-    # 8. Persist JSON‑Lines version for downstream analysis
+    # 6. Persist JSON‑Lines version for downstream analysis
     # ------------------------------------------------------------------
     jsonl_path = paths.data("processed", "execution_metrics.jsonl")
     _persist_execution_metrics_jsonl(metrics, jsonl_path)

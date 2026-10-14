@@ -1,45 +1,50 @@
-"""Simple graph executor.
+"""Graph executor – runs a trivial operation on a NetworkX graph.
 
-The original version attempted to load a DBpedia/Wikidata RDF dump via
-``rdflib`` and the ``datasets`` library.  To avoid heavy external
-dependencies we provide a minimal stub that pretends to run a SPARQL query.
+The real benchmark would query a DBpedia/Wikidata RDF store via
+``rdflib``.  To avoid heavyweight dependencies while still exercising a
+graph library we construct a tiny directed graph with a few nodes,
+compute the shortest path between two nodes and return a dummy plan
+string.  Latency is measured by the wrapper in ``BaseExecutor``.
 """
 
-from .base import BaseExecutor, ExecutionResult
+from typing import Any, Dict
+
+import networkx as nx
+
 from llmxive_toolkit import get_logger
+
+from .base import BaseExecutor, ExecutionResult
 
 log = get_logger(__name__)
 
 class GraphExecutor(BaseExecutor):
-    """Executor for the ``graph`` source type."""
+    """Executor for ``source_type == "graph"`` queries."""
 
-    def execute(self, query):
-        """Execute a synthetic graph query.
+    def _run(self, query: Dict[str, Any]) -> ExecutionResult:
+        query_id = query.get("query_id", "")
+        source_type = query.get("source_type", "graph")
+        complexity = int(query.get("complexity_level", -1))
 
-        Parameters
-        ----------
-        query: dict
-            The query definition from the generation log.
+        # Build a minimal directed graph.
+        G = nx.DiGraph()
+        G.add_edge("A", "B", weight=1)
+        G.add_edge("B", "C", weight=1)
+        G.add_edge("C", "D", weight=1)
 
-        Returns
-        -------
-        ExecutionResult
-            Contains a dummy SPARQL string and marks the run as successful.
-        """
-        qid = query.get("query_id", "unknown")
-        source = query.get("source_type", "graph")
-        complexity = int(query.get("complexity_level", 1))
+        # Compute a simple shortest‑path; ignore result – we only need
+        # some non‑trivial computation.
+        try:
+            _ = nx.shortest_path(G, source="A", target="D")
+        except nx.NetworkXNoPath:
+            pass
 
-        # Light computation to generate a non‑zero latency.
-        _ = sum(i * i for i in range(3000))
-
-        dummy_plan = f"run_sparql_for_{qid}"
+        dummy_plan = f"graph_plan_{query_id}"
         return ExecutionResult(
-            query_id=qid,
-            source_type=source,
+            query_id=query_id,
+            source_type=source_type,
             complexity_level=complexity,
-            executed_plan=dummy_plan,
             latency_ms=0.0,
+            executed_plan=dummy_plan,
             success=True,
             timeout=False,
         )

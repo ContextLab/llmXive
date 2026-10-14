@@ -8,6 +8,7 @@ written to a JSON file that conforms to ``query_instance.schema.yaml``.
 import json
 import random
 from typing import List, Dict, Any
+from pathlib import Path
 
 from llmxive_toolkit import get_logger, paths
 from .reference_engine import ReferenceEngine
@@ -69,12 +70,15 @@ class SyntheticQueryGenerator:
                 queries.append(query)
         return queries
 
-    def write_to_file(self, filepath: str) -> None:
+    def write_to_file(self, filepath: Path | str) -> None:
         """Write the generated queries to ``filepath`` as JSON.
 
         The directory hierarchy is created if it does not already exist.
         """
-        path = paths.path(filepath)  # ensures the path is under the project root
+        # Accept both ``Path`` objects and plain strings.
+        path = Path(filepath) if not isinstance(filepath, Path) else filepath
+        # Ensure the file lives inside the project root.
+        path = paths.path(str(path))
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(self.generate(), f, indent=2)

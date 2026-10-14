@@ -3,39 +3,45 @@ T001:
     exit=1; code/visualize.py exit=1; code/main.py exit=1'
   task: eb8380d842da885e28c9626b73bce40ed6e7a00e34359b9ffb7253b561596cf1
 T004:
-  reason: "The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,\
-    \ `execution_metric.schema.yaml`, `statistics-result.schema.yaml`) are all missing\
-    \ from `specs/001-structural-mismatch-cost/contracts/`, and the validation test\
-    \ fails because the validation script cannot find these schemas. Consequently\
-    \ the task\u2019s core deliverable is not present."
+  reason: "The evidence collector explicitly reports all four required schemas (`query_instance.schema.yaml`,\
+    \ `execution_log.schema.yaml`, `execution_metric.schema.yaml`, `statistics-result.schema.yaml`)\
+    \ as MISSING at the resolved project path, despite their names appearing in a\
+    \ directory listing \u2014 no readable, non-empty file content was confirmed for\
+    \ any of them. Additionally, the deprecated `analysis_result.schema.yaml` and\
+    \ `gam_results.schema.yaml` are present in the contracts directory, which the\
+    \ task explicitly forbade; the passing test log is not sufficient evidence since\
+    \ the actual schema artifact"
   task: 237f33ad5aae5bbcc0d59f7ce2a726f5d0fe5dcc4ddb0243c1e899e9c9dea1a0
 T005:
-  reason: "Checked `code/config.py` (present and provides seeds, paths, throttling\
-    \ settings) and `code/utils/data_fetcher.py` (present but calls `load_dataset(name,\
-    \ name=config_name, \u2026)` which passes the `name` argument twice, causing a\
-    \ runtime error and preventing correct fetching of the required datasets). Additionally,\
-    \ the unit\u2011test import fails because the module tries to import `datasets`\
-    \ (and thus `pyarrow`) in an environment where the required NumPy version is missing.\
-    \ The implementation therefore does not correctly invoke the HuggingFace API nor\
-    \ pass the provided tests."
+  reason: "The artifacts exist and structurally cover seeds/paths/throttling, streaming,\
+    \ raising on failure, and the `--allow-synthetic` flag with `synthetic_flag=1`\
+    \ logging. However, the real-fetch path is functionally broken: `DownloadConfig(download_mode=DownloadMode.FORCE_DOWNLOAD)`\
+    \ passes an invalid keyword (`DownloadConfig` has no `download_mode` parameter;\
+    \ `download_mode` belongs to `load_dataset` itself), so every real fetch will\
+    \ raise a `TypeError` and either fail with `DataFetchError` or silently fall back\
+    \ to the 3-triple synthetic graph \u2014 meaning MS MARCO/Spider/Wikidata can\
+    \ never actually be"
   task: e7317a562eeb5d71cf741fddff540cbd60e63829cdeb0347373f8fa17115e200
 T006:
-  reason: "The generator script exists and caps depths with a warning, but the required\
-    \ schema file `query_instance.schema.yaml` is missing, so we cannot verify that\
-    \ `generation_log.json` conforms to it. Moreover, the provided excerpt of `generation_log.json`\
-    \ only shows queries with `complexity_level`\u202F=\u202F1; there is no evidence\
-    \ that queries for depths\u202F2,\u202F3, and\u202F4+ were generated as required."
+  reason: "The generator and log exist with integer `complexity_level` values (1\u2013\
+    4), but the work is substantively hollow: every query has an empty `logical_plan.steps`,\
+    \ so the T007 `ReferenceEngine` always hits its no-steps fallback and `ground_truth_plan`\
+    \ is just the fabricated string `\"gt_plan_<query_id>\"` \u2014 no greedy plan\
+    \ is ever computed, making the \"ground truth\" a placeholder. The only execution\
+    \ record is for a different script (`code/query_generator.py`), not `code/generators/synthetic_query.py`,\
+    \ so there's no evidence the delivered module runs; `query_instance.schema.yaml`\
+    \ is missing so schema c"
   task: 89ef8ef7a7de3ca26e5c74606be13900bdfeb5f552d222e825fdeeee3cf81434
 T007:
   task: 85c536ec641841533d86bd41d67564b70effb51e973f7dbb9ae844a908952289
 T008:
-  reason: "The evidence only shows that the required files (`base.py`, `text_executor.py`,\
-    \ `relational_executor.py`, `graph_executor.py`) exist, but no content is provided\
-    \ to confirm that `base.py` implements a 60\u2011second timeout abstract executor\
-    \ or that the three concrete wrappers actually use MS\u202FMARCO, in\u2011memory\
-    \ SQLite (Spider), and NetworkX/RDFLib over DBpedia/Wikidata as specified. Without\
-    \ inspecting the file implementations, the task requirements cannot be verified\
-    \ as met."
+  reason: 'The executor files exist in `code/executors/`, but the recorded unit test
+    run (`tests/unit/test_executors.py`, exit 1) shows `test_timeout_is_enforced`
+    FAILING with `TypeError: BaseExecutor.__init__() takes from 1 to 2 positional
+    arguments but 4 were given`, meaning the required 60-second timeout handling in
+    `base.py` is not correctly implemented (the base executor''s constructor/timeout
+    API doesn''t match the test contract). Fix `BaseExecutor.__init__` (and the timeout
+    enforcement path) so all four executor tests pass.'
   task: 620b92166fafe8bc4124a59b2210ca4f2a8681159dbc39f52e0f0c6a75d5af32
 T016:
   task: ed9c5dc28e04a1b7a4e29e8c9b6f202a791354f09758bea75cf7bd7ab6d6922e
@@ -44,11 +50,20 @@ T018:
 T020:
   task: 9817371bced803cdb721e91bd6ed9b1f0f821a088655692dad4c6149791a5fe5
 T021:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  reason: "The pipeline ran and produced the CSV/JSONL with 40 queries across depths\
+    \ 1\u20134 and all source types, but the core **translation_error** metric is\
+    \ computed wrongly: `code/main.py` computes `executed_plan != ground_truth_plan`\
+    \ instead of `sut_plan != ground_truth_plan` as the task requires \u2014 the `sut_plan`\
+    \ produced by `enrich_with_sut_plan` is never used in any metric. Consequently\
+    \ every single row in both `execution_logs.csv` and `execution_metrics.jsonl`\
+    \ has `translation_error=True` (executors emit `\"<source>_plan_<id>\"` strings\
+    \ that never match `\"gt_plan_<id>\"`), a trivially fabricated 100% er"
   task: 5e98a32ea3fb3b5c5c3bc8f75502682334f7d153fd28741b5342e54eb7174d20
 T022:
   task: 1fb599c65257d88d34448819679dd4dc31d19a4364f85e3b9baba3a178ba16b0
 T023:
+  reason: 'Requested task execution failed; rerun successfully: code/transform_metrics.py
+    exit=1'
   task: d52c38943fe3eb46c4ce0328b3c25acb21e4ee5a1d77aa46e47b8d96a6bd90c0
 T025:
   task: 17984f19de290056b96e4ef624fc8523a46e458d3a7e63999d9a020658ab7610

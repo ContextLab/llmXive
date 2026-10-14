@@ -29,9 +29,9 @@
 
 - [ ] T008 Implement `code/executors/` with `base.py` (abstract executor with 60‑second timeout handling) and three concrete wrappers: `text_executor.py` (sampled MS MARCO), `relational_executor.py` (in‑memory SQLite from Spider), `graph_executor.py` (NetworkX/RDFLib over DBpedia/Wikidata). **Dependency:** T016, T005, T006.
 
-- [ ] T021 Implement `code/main.py` orchestration: load config, generate queries (T006), enrich with `sut_plan` (T022), route to executors (T008), enforce throttling (T016), compute **translation_error** (`sut_plan` ≠ `ground_truth_plan`), record **timeout_flag** (true if executor hit 60 s), and persist raw metrics to `data/processed/execution_logs.csv` with columns matching `execution_log.schema.yaml` **plus** an additional `timeout_flag` column (now part of the CSV). Also write a complementary `data/processed/execution_metrics.jsonl` conforming to `execution_metric.schema.yaml` (produced by T023). Run the pipeline on a small real sample (≥ 30 queries across all source types and depths 1‑4) and commit the CSV and JSONL. <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T021 Implement `code/main.py` orchestration: load config, generate queries (T006), enrich with `sut_plan` (T022), route to executors (T008), enforce throttling (T016), compute **translation_error** (`sut_plan` ≠ `ground_truth_plan`), record **timeout_flag** (true if executor hit 60 s), and persist raw metrics to `data/processed/execution_logs.csv` with columns matching `execution_log.schema.yaml` **plus** an additional `timeout_flag` column (now part of the CSV). Also write a complementary `data/processed/execution_metrics.jsonl` conforming to `execution_metric.schema.yaml` (produced by T023). Run the pipeline on a small real sample (≥ 30 queries across all source types and depths 1‑4) and commit the CSV and JSONL.
 
-- [ ] T023 Transform the CSV produced by T021 into `data/processed/execution_metrics.jsonl` matching `execution_metric.schema.yaml`. Fields populated:
+- [ ] T023 Transform the CSV produced by T021 into `data/processed/execution_metrics.jsonl` matching `execution_metric.schema.yaml`. Fields populated: <!-- FAILED-IN-EXECUTION: code/transform_metrics.py exit=1 -->
   * `query_id` (from CSV)
   * `latency_ms` (from CSV)
   * `mismatch_flag` (boolean version of `translation_error`)

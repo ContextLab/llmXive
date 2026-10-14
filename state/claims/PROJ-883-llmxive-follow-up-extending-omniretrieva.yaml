@@ -50,3 +50,18 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-14T06:09:29Z'
+- artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/data/raw/README.md
+  attempts: 1
+  canonical: real datasets are downloaded by the data loader
+  claim_id: c_4a4a772d
+  context: Real datasets are downloaded here by the data loader.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Real datasets are downloaded here by the data loader.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T07:12:49Z'

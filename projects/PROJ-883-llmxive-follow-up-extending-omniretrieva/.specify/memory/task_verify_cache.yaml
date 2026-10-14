@@ -1,24 +1,15 @@
-T005:
+T004:
   c: false
-  h: 15ffed6f45a6d30452b30d0a10257b6e875f13d00ae75fdfcceccb97f0235c92
-  r: "Checked `code/config.py` (present and provides seeds, paths, throttling settings)\
-    \ and `code/utils/data_fetcher.py` (present but calls `load_dataset(name, name=config_name,\
-    \ \u2026)` which passes the `name` argument twice, causing a runtime error and\
-    \ preventing correct fetching of the required datasets). Additionally, the unit\u2011\
-    test import fails because the module tries to import `datasets` (and thus `pyarrow`)\
-    \ in an environment where the required NumPy version is missing. The implementation\
-    \ therefore does not correctly invoke the HuggingFace API nor pass the provided\
-    \ tests."
-  sig: c420db0fa7498d02cec5cddf806b1c949fb5c485879e7e0e89d8f42c9cf08008
-T006:
-  c: false
-  h: 32c964cd415decbc29e371c5d113a4269d66680552df8a3c8467f8e843346b2e
-  r: "The generator script exists and caps depths with a warning, but the required\
-    \ schema file `query_instance.schema.yaml` is missing, so we cannot verify that\
-    \ `generation_log.json` conforms to it. Moreover, the provided excerpt of `generation_log.json`\
-    \ only shows queries with `complexity_level`\u202F=\u202F1; there is no evidence\
-    \ that queries for depths\u202F2,\u202F3, and\u202F4+ were generated as required."
-  sig: 785baf86867a18c88b2eca725e916d911494908af64bbc6baa57278edcebe99a
+  h: 181dbcac162d3bbe1cbc7a2f9216c19f64566f510a80bbfc22ff8192e4be9cf0
+  r: "The evidence collector explicitly reports all four required schemas (`query_instance.schema.yaml`,\
+    \ `execution_log.schema.yaml`, `execution_metric.schema.yaml`, `statistics-result.schema.yaml`)\
+    \ as MISSING at the resolved project path, despite their names appearing in a\
+    \ directory listing \u2014 no readable, non-empty file content was confirmed for\
+    \ any of them. Additionally, the deprecated `analysis_result.schema.yaml` and\
+    \ `gam_results.schema.yaml` are present in the contracts directory, which the\
+    \ task explicitly forbade; the passing test log is not sufficient evidence since\
+    \ the actual schema artifact"
+  sig: a22bbf647d594e20087ae27fcb0a1d001be6e0ef7fc2f1389aab6ba9aeab4c7d
 T007:
   c: true
   h: b4ef789e0b62d3be86965dafafbe6b60f170782b6f220ca9ab0660b701352944
@@ -32,15 +23,15 @@ T007:
   sig: 3f35b63a6ad0d5c57a76057818d8bcdbce257e614bc644eb2a4d903642bd453e
 T008:
   c: false
-  h: fa3689d76f5bd39274540d06f70e8ed801387d4915d10176f505128eb882989c
-  r: "The evidence only shows that the required files (`base.py`, `text_executor.py`,\
-    \ `relational_executor.py`, `graph_executor.py`) exist, but no content is provided\
-    \ to confirm that `base.py` implements a 60\u2011second timeout abstract executor\
-    \ or that the three concrete wrappers actually use MS\u202FMARCO, in\u2011memory\
-    \ SQLite (Spider), and NetworkX/RDFLib over DBpedia/Wikidata as specified. Without\
-    \ inspecting the file implementations, the task requirements cannot be verified\
-    \ as met."
-  sig: ce05a4a0a84eecfbb105b7bba32dd6f99a7dd0fc5975d57954e4b5b4856b693d
+  h: 91659f275cf1bfc4663e7d7cd989f3c967313c98d2d44a517e3a8587173f672d
+  r: 'The executor files exist in `code/executors/`, but the recorded unit test run
+    (`tests/unit/test_executors.py`, exit 1) shows `test_timeout_is_enforced` FAILING
+    with `TypeError: BaseExecutor.__init__() takes from 1 to 2 positional arguments
+    but 4 were given`, meaning the required 60-second timeout handling in `base.py`
+    is not correctly implemented (the base executor''s constructor/timeout API doesn''t
+    match the test contract). Fix `BaseExecutor.__init__` (and the timeout enforcement
+    path) so all four executor tests pass.'
+  sig: d901213f3bdf44cbf9b7e043d57a2ab5da5f3045348ce3ce79574607b7438240
 T016:
   c: true
   h: 994db96902950cd598c05aea3468f5222353271ee216313810fc69deb6d3caac
@@ -59,14 +50,6 @@ T020:
     \ `data/results/sensitivity_analysis.json`. Moreover, the required JSON output\
     \ file is absent from the repository. Consequently the task\u2019s core requirements\
     \ are not met."
-T021:
-  c: false
-  h: 320a4a252215a754630bf289194731e83f2f13057d9af7dafdb2a82c662f329c
-  r: "The repository lacks the required output files (`data/processed/execution_logs.csv`\
-    \ and `data/results/anova_results.json`), and the provided `code/main.py` excerpt\
-    \ does not show any logic that writes raw metrics to the CSV or aggregated stats\
-    \ to the JSON. Consequently, the claimed data\u2011persistence feature is not\
-    \ actually implemented."
 T022:
   c: true
   h: 5d5e6cf4d2f4295653005ad41c5c5b2b7d80ad80b0746278a682a7f4f4a7ae02
