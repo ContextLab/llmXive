@@ -1,0 +1,19 @@
+T001:
+  c: true
+  h: 28019a08bf607af9731f6f0e212d6d1b21e4c845282bf7096b801aca02199195
+  r: Checked `specs/.../quickstart.md` for the required command description, the execution
+    logs `code/.tasks/T001.run_minimal.sh.log` showing the command finishes without
+    error, and the presence of `data/descriptors_subset.csv` with the required headers.
+    All required artifacts exist and the CI verification steps are satisfied.
+  sig: 7fa36c2cb0350b0a97ff5d81778ec45d3a05b03a7928d1af527290fdbdd86730
+T002:
+  c: false
+  h: 17c36a4634fd6513b3f81dd1d8f82c0660c575d93042696859f67b40aef0f97d
+  r: "The `generate_clips.py` script correctly creates `.npz` files containing the\
+    \ required `states`, `actions`, and `observations` arrays, but the `data/raw/`\
+    \ directory currently holds 100 clip files (including duplicates like `clip_0000.npz`,\
+    \ `clip_0010.npz`, etc.) instead of the required 50. The task\u2019s verification\
+    \ condition \u201C`ls data/raw/ | wc -l` equals 50\u201D is therefore not met.\
+    \ The directory must be cleaned to contain exactly the 50 reproducible clips (`clip_000.npz`\
+    \ \u2026 `clip_049.npz`)."
+  sig: 025b206def28cdf7e58ca1be4ccec59f3140aad87dfd409b127e90e886760b1f
