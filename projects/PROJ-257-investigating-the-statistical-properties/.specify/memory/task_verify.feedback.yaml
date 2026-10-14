@@ -1,0 +1,34 @@
+T001:
+  reason: "The `src/data/download.py` script and the downloaded files exist and follow\
+    \ the specification, but the required unit test `tests/unit/test_download.py`\
+    \ does **not** pass \u2013 it aborts with `ModuleNotFoundError: No module named\
+    \ 'requests_mock'`. The task explicitly requires the pytest suite to succeed,\
+    \ so the missing `requests_mock` dependency (or an alternative test setup) must\
+    \ be added for the verification to be satisfied."
+  task: 30b2f31b7e0af225d508fd3b1d4431ccbdb4e7326108c274124b36e4e9896cab
+T002:
+  reason: 'Requested task execution failed; rerun successfully: src/data/preprocess.py
+    exit=1'
+  task: d3f4e2c2c703902a166e24098ec91139de94b3a8f91af723fe378a495e8e7952
+T003:
+  task: e782dd93df1a3073e4aa0f971be03d856554d46546fc0dc145a229263a1a01d7
+T005:
+  task: 9c09d3656e88a0086183fc4ca4ff8feabf2e725c27f877761f287ef6cb6c4224
+T006:
+  task: 7a3822d2dc64eb78c3180039dc2590f442b3e236a49875b4dfdbfe0c59f62c41
+T007:
+  task: 8433f2761ee3e2a48804dd9d0f32bafdb4bbb40133286bbf2fbc67489aeb4ad8
+T008:
+  task: b6a6a8f369941f71120c940af541725b44b7f21ab1c5d56ad2fe49be90bea00f
+T009:
+  task: 395e75ed9d4db149b0b7d1697001cbf8a8fdae0ae48e67473f043bf744cb843e
+T010:
+  task: f6354e5a7c1e8620e26670d0ad6078a791d4fb09e6fa1eacd7a0e5355845e837
+T011:
+  task: f3e079fead426224a065a5b80b33ac086013abf232f5387f198f1af3abc76819
+T012:
+  task: 05a5bef412240ebd842dd9fd411824f8ed520e904e7e55b5881941da738f4cf0
+T013:
+  task: e13d93e80d756eb68aa9e520ec4fce2472bffaea89ac022259eb6593d589a34c
+T015:
+  task: c62f1fe7608c7ab3a811f0c5b7cac52d7103bd086b3eabe15476391ef4df5cab

@@ -1,7 +1,10 @@
-T049:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pre\u2011commit configuration or script is present in the provided evidence;\
-    \ the claim that a hook checking for large file uploads or inefficient imports\
-    \ has been added cannot be verified. The required artifact (e.g., a `.pre-commit-config.yaml`\
-    \ entry or custom hook script) is missing."
+  h: 71da4a8a1a291bbe57f6190fe7aaa426d8a81dc35dc043afc55a39660462ea3b
+  r: "The `src/data/download.py` script and the downloaded files exist and follow\
+    \ the specification, but the required unit test `tests/unit/test_download.py`\
+    \ does **not** pass \u2013 it aborts with `ModuleNotFoundError: No module named\
+    \ 'requests_mock'`. The task explicitly requires the pytest suite to succeed,\
+    \ so the missing `requests_mock` dependency (or an alternative test setup) must\
+    \ be added for the verification to be satisfied."
+  sig: fb80f532b549152697e89a46ed922830d77229dcc356f60191c593fefdbddfef

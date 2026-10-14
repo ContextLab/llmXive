@@ -1,11 +1,12 @@
-numpy==1.26.4
-scipy==1.13.0
-pandas==2.2.1
-matplotlib==3.8.4
-requests==2.31.0
-tqdm==4.66.2
-pytest==8.1.1
-h5py==3.10.0
-statsmodels==0.14.1
-pydantic==2.6.4
-pydantic-settings==2.2.1
+# Core scientific stack (versions intentionally left unpinned to allow CI flexibility)
+numpy
+pandas
+scipy
+matplotlib
+requests
+tqdm
+pyyaml
+h5py
+# The following packages are provided by the execution environment and do not
+# need to be listed explicitly: scikit-learn, statsmodels, seaborn, pytest,
+# jsonschema, psutil.
