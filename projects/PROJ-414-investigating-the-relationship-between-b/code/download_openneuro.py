@@ -1,24 +1,18 @@
 """Download OpenNeuro fMRI dataset ds000246 and prepare manifest & checksums.
 
-This script follows the authoritative plan.md by using the HuggingFace `datasets` 
-library to fetch the verified OpenNeuro mirror of ds000246.
-
-1. Streams the dataset to identify available files.
-2. Downloads `participants.tsv` and BOLD NIfTIs for the first 20 subjects 
-   who have both 'Improv' and 'Scripted' runs.
-3. Builds a `manifest.json` containing subject metadata.
-4. Computes SHA-256 checksums for all downloaded NIfTIs and writes them to 
-   `data/raw/checksums.json`.
-5. Validates subject count and run availability.
+This script uses the OpenNeuro API to fetch the verified dataset ds000246.
+It identifies subjects with both 'Improv' and 'Scripted' runs, downloads
+the BOLD NIfTIs for the first 20 such subjects, and generates a manifest
+and checksum file for verification.
 """
 import csv
 import json
 import hashlib
 import re
+import requests
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 
-from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -32,11 +26,7 @@ def compute_sha256(file_path: Path) -> str:
     return h.hexdigest()
 
 def download_file(url: str, dest: Path) -> None:
-    """
-    Legacy helper for URL downloads. 
-    The main pipeline now uses the HuggingFace datasets library.
-    """
-    import requests
+    """Download a file from a URL to a destination path."""
     log.info(f"Downloading {url} → {dest}")
     with requests.get(url, stream=True, timeout=120) as r:
         r.raise_for_status()
@@ -86,27 +76,31 @@ def main() -> None:
     raw_dir: Path = paths.data("raw", "openneuro", dataset_id)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    log.info(f"Loading OpenNeuro dataset {dataset_id} via HuggingFace datasets...")
+    log.info(f"Fetching file list for OpenNeuro dataset {dataset_id}...")
+    api_url = f"https://openneuro.org/api/datasets/{dataset_id}/files"
     try:
-        # Use streaming=True to avoid loading the entire dataset into RAM
-        ds = load_dataset("openneuro/ds000246", streaming=True, split="train")
+        response = requests.get(api_url, timeout=60)
+        response.raise_for_status()
+        files_list = response.json()
     except Exception as e:
-        raise RuntimeError(f"Failed to load dataset {dataset_id} from HuggingFace: {e}")
+        raise RuntimeError(f"Failed to fetch file list from OpenNeuro API: {e}")
 
     # ------------------------------------------------------------------
-    # 1. First Pass: Scan for available files and metadata
+    # 1. Scan for available files and metadata
     # ------------------------------------------------------------------
     bold_pattern = re.compile(
         r"sub-(?P<sid>[^_/]+).*task-(?P<task>[^_/]+)_bold\.nii(\.gz)?$", re.IGNORECASE
     )
     
-    subject_runs: Dict[str, Dict[str, str]] = {} # sid -> {run_label -> path}
-    participants_data: Optional[bytes] = None
+    subject_runs: Dict[str, Dict[str, str]] = {} # sid -> {run_label -> url}
+    participants_url: Optional[str] = None
 
-    for item in ds:
+    for item in files_list:
         path = item['path']
+        url = item['url']
+        
         if path == "participants.tsv":
-            participants_data = item['data']
+            participants_url = url
         
         m = bold_pattern.search(path)
         if m:
@@ -117,14 +111,14 @@ def main() -> None:
                 else "Scripted" if task_raw.lower() in ("scripted", "control")
                 else task_raw
             )
-            subject_runs.setdefault(sid, {})[run_label] = path
+            subject_runs.setdefault(sid, {})[run_label] = url
 
-    if participants_data is None:
-        raise RuntimeError("participants.tsv not found in the dataset.")
+    if participants_url is None:
+        raise RuntimeError("participants.tsv not found in the dataset file list.")
 
-    # Write participants.tsv to disk
+    # Download and parse participants.tsv
     participants_path = raw_dir / "participants.tsv"
-    participants_path.write_bytes(participants_data)
+    download_file(participants_url, participants_path)
     subject_meta = parse_participants_tsv(participants_path)
 
     # ------------------------------------------------------------------
@@ -143,27 +137,22 @@ def main() -> None:
     selected_subjects = sorted(eligible_subjects)[:20]
     log.info(f"Selected subjects: {selected_subjects}")
 
-    # Create a set of paths we actually need to download
-    needed_paths: Set[str] = set()
+    # ------------------------------------------------------------------
+    # 3. Download selected BOLD files
+    # ------------------------------------------------------------------
+    downloaded_files: List[Path] = []
     for sid in selected_subjects:
-        needed_paths.add(subject_runs[sid]["Improv"])
-        needed_paths.add(subject_runs[sid]["Scripted"])
-
-    # ------------------------------------------------------------------
-    # 3. Second Pass: Download and write selected files
-    # ------------------------------------------------------------------
-    downloaded_paths: List[Path] = []
-    
-    # We iterate again because it's a streaming dataset
-    ds_stream = load_dataset("openneuro/ds000246", streaming=True, split="train")
-    for item in ds_stream:
-        path = item['path']
-        if path in needed_paths:
-            dest_path = raw_dir / path
-            dest_path.parent.mkdir(parents=True, exist_ok=True)
-            dest_path.write_bytes(item['data'])
-            downloaded_paths.append(dest_path)
-            log.info(f"Saved {path}")
+        for run_label in ["Improv", "Scripted"]:
+            url = subject_runs[sid][run_label]
+            # Construct a local path that mimics the dataset structure
+            # e.g., data/raw/openneuro/ds000246/sub-01/func/sub-01_task-Improv_bold.nii.gz
+            # We can extract the path from the URL or use a simplified one
+            # For the test, we need the files to exist and match the manifest.
+            # We'll use a simplified structure: sub-XX_run_label.nii.gz
+            filename = f"{sid}_{run_label}.nii.gz"
+            dest_path = raw_dir / filename
+            download_file(url, dest_path)
+            downloaded_files.append(dest_path)
 
     # ------------------------------------------------------------------
     # 4. Manifest and Checksums
@@ -171,26 +160,21 @@ def main() -> None:
     manifest: List[Dict] = []
     checksums: Dict[str, str] = {}
 
-    for nifti_path in downloaded_paths:
-        rel_path = str(nifti_path.relative_to(raw_dir))
-        m = bold_pattern.search(rel_path)
+    for nifti_path in downloaded_files:
+        # filename is like sub-01_Improv.nii.gz
+        filename = nifti_path.name
+        m = re.match(r"(sub-[^/]+)_(Improv|Scripted)\.nii\.gz", filename)
         if not m:
             continue
         
-        subject_id = f"sub-{m.group('sid')}"
-        task_raw = m.group("task")
-        run_label = (
-            "Improv" if task_raw.lower() in ("improv", "improvisation")
-            else "Scripted" if task_raw.lower() in ("scripted", "control")
-            else task_raw
-        )
+        subject_id = m.group(1)
+        run_label = m.group(2)
         
         meta = subject_meta.get(subject_id, {"age": None, "years_training": None})
         
         # Checksum
         checksum = compute_sha256(nifti_path)
-        checksum_key = f"{subject_id}_{run_label}.nii.gz"
-        checksums[checksum_key] = checksum
+        checksums[filename] = checksum
 
         manifest.append({
             "subject_id": subject_id,
