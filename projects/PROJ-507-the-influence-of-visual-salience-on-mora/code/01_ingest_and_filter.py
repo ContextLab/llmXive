@@ -4,16 +4,18 @@
 
 Runnable entry point for the data ingestion pipeline.
 
-This script fetches a real image dataset from Hugging Face (Cats vs Dogs
-by default, or a verified source if the environment variable
-``VERIFIED_DATA_SOURCE`` is set). It streams the dataset, filters for
-images whose metadata contains any of the tags ``social`` or ``conflict``
-(if such tags exist), and selects the first ``N`` candidates (default 10)
-using a fixed random seed (42) for reproducibility.
+This script fetches a real image dataset from Hugging Face (the
+`beans` dataset by default, or a verified source if the environment
+variable ``VERIFIED_DATA_SOURCE`` is set). It streams the dataset,
+filters for images whose metadata contains any of the tags ``social``
+or ``conflict`` (if such tags exist), and selects the first ``N``
+candidates (default 10) using a fixed random seed (42) for
+reproducibility.
 
 For each selected image it:
 
-1. Downloads the image into ``data/raw/`` (or saves the streamed image bytes).
+1. Downloads the image into ``data/raw/`` (or saves the streamed image
+   bytes).
 2. Computes a SHA‑256 checksum of the downloaded file.
 3. Writes a row to ``data/processed/candidates_filtered.csv`` that
    conforms to ``contracts/dataset.schema.yaml``.
@@ -45,9 +47,9 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration defaults
 # ----------------------------------------------------------------------
-# The Cats vs Dogs dataset is publicly available on the Hugging Face Hub,
+# The Beans dataset is publicly available on the Hugging Face Hub,
 # contains image bytes, and works with the streaming API.
-DEFAULT_DATASET = "huggingface/cats_vs_dogs"
+DEFAULT_DATASET = "beans"
 DEFAULT_SPLIT = "train"
 DEFAULT_TAGS = ["social", "conflict"]
 DEFAULT_NUM_SAMPLES = 10
@@ -61,7 +63,7 @@ def _resolve_dataset_name() -> str:
 
     If the environment variable ``VERIFIED_DATA_SOURCE`` is set, its value
     is interpreted as the exact Hugging Face dataset identifier to use.
-    Otherwise the default Cats vs Dogs dataset is used.
+    Otherwise the default Beans dataset is used.
     """
     env_source = os.getenv("VERIFIED_DATA_SOURCE")
     if env_source:
@@ -199,6 +201,16 @@ def ingest_and_filter(
                 _save_streamed_image(img_field["bytes"], image_path)
             else:
                 log.warning("Record %s has an unsupported 'image' format – skipping", image_id)
+                continue
+        elif "img" in record:
+            # Some datasets (e.g., cifar10) expose a PIL Image under ``img``.
+            img_field = record["img"]
+            if hasattr(img_field, "tobytes"):
+                # Convert PIL Image to raw bytes
+                with open(image_path, "wb") as f:
+                    img_field.save(f, format="JPEG")
+            else:
+                log.warning("Record %s has an unsupported 'img' format – skipping", image_id)
                 continue
         else:
             log.warning("Record %s lacks a recognizable image field – skipping", image_id)

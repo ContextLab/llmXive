@@ -1,17 +1,14 @@
 status: none
-intent: visual genome dataset python package dataset moral stories annotations python
-  package dataset
+intent: download Visual Genome image dataset with region descriptions and moral ambiguity
+  annotations python package dataset
 required_fields:
 - image_id
-- image_url
 - image_path
 - region_id
-- bbox
-- object_labels
-- relationship_labels
+- region_bbox
 - region_description
 - moral_ambiguity_score
-- annotation_source
-cache_key: 207283e5760e41cb600530a998ffeaf6cb5fdf1d441d1ada218822c5f0219a89
-searched_at: '2026-10-14T21:10:43.394885+00:00'
+- object_labels
+cache_key: a98e51023224331dfd0d89a23088d7ce17f8914725b3406374689c20a49af01c
+searched_at: '2026-10-14T23:09:32.126625+00:00'
 retry_count: 1

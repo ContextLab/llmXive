@@ -35,20 +35,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_ingest_and_filter.py --num-samples 10 --tags social conflict -> rc=1
-ive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/datasets/load.py", line 1134, in dataset_module_factory
-    raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'huggingface/cats_vs_dogs' doesn't exist on the Hub or cannot be accessed.
+-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/huggingface_hub/utils/_hf_uris.py", line 617, in _parse_repo_body
+    raise HfUriError(uri=raw, msg=f"Repository id must be 'namespace/name', got '{repo_id}'.")
+huggingface_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/beans@27aa014ce09b193e1a6f58112d4a66e0eddb69c5/.huggingface.yaml'. Repository id must be 'namespace/name', got 'beans'.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 271, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 283, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 267, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 279, in main
     ingest_and_filter(num_samples=args.num_samples, tags=args.tags)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 166, in ingest_and_filter
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 168, in ingest_and_filter
     raise DataFetchError(f"Unable to load dataset '{dataset_name}'") from exc
-data_prep.DataFetchError: Unable to load dataset 'huggingface/cats_vs_dogs'
+data_prep.DataFetchError: Unable to load dataset 'beans'
 
 - python code/00_pilot_power_analysis.py --config config/pilot.yaml -> rc=2
 
