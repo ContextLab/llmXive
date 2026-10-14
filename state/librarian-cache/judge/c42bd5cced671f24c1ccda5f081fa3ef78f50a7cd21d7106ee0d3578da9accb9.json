@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1208.0924",
+  "judged_at": "2026-10-14T09:18:10Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of simulated social exclusion on default mode network dynamics neuroscience",
+  "rationale": "The paper investigates fractal-induced distortions of resting‑state functional network metrics via simulation and does not examine simulated social exclusion, the default mode network, or their neural dynamics, so it lacks any relevant mechanism, variable, or population for the user's question.",
+  "relevant": false
+}

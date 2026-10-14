@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.19990",
+  "judged_at": "2026-10-14T09:18:04Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of simulated social exclusion on default mode network dynamics neuroscience",
+  "rationale": "The paper investigates dynamics of the default mode network (DMN) using fMRI time‑series, which matches the same neural mechanism (DMN dynamics) queried in the user's question, even though the experimental context (Alzheimer’s disease vs. healthy) differs (acceptance category (a)).",
+  "relevant": true
+}

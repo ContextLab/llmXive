@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1309.5840",
+  "judged_at": "2026-10-14T09:18:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of simulated social exclusion on default mode network dynamics neuroscience",
+  "rationale": "The paper studies interhemispheric functional connectivity in autistic children using resting‑state fNIRS and does not address simulated social exclusion, the default mode network, or its dynamics, so it lacks any of the accepted relevance categories.",
+  "relevant": false
+}

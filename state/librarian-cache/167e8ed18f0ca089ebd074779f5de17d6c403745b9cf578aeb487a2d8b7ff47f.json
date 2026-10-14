@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-02T10:28:28Z",
+  "fetched_at": "2026-10-14T09:18:19Z",
   "field": "neuroscience",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,86 @@
       "idea_body_excerpt": "Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics",
       "target_n": 5
     },
-    "duration_seconds": 37.544,
-    "ended_at": "2026-08-02T10:28:28Z",
+    "duration_seconds": 67.845,
+    "ended_at": "2026-10-14T09:18:19Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Social exclusion Default Mode Network fMRI"
+          "fMRI social exclusion (Cyberball) default mode network connectivity"
         ],
         [
           2,
-          "Cyberball paradigm Default Mode Network connectivity"
+          "neural mechanisms of social ostracism in the default mode network"
         ],
         [
           3,
-          "Neural mechanisms of social rejection DMN"
+          "resting‑state functional connectivity changes during simulated rejection"
         ],
         [
           4,
-          "Social pain Default Mode Network activity"
+          "social pain and default mode network dynamics"
         ],
         [
           5,
-          "Ostracism neural correlates Default Mode Network"
+          "brain activity patterns during virtual social exclusion tasks"
         ],
         [
           6,
-          "DMN deactivation during social exclusion"
+          "default mode network modulation by perceived social rejection"
         ],
         [
           7,
-          "Social exclusion resting-state functional connectivity"
+          "functional connectivity of medial prefrontal cortex during ostracism"
         ],
         [
           8,
-          "Anterior cingulate and Default Mode Network in social pain"
+          "network reconfiguration of the default mode system under social threat"
         ],
         [
           9,
-          "Temporal dynamics of DMN during simulated exclusion"
+          "self‑referential processing alterations during simulated exclusion"
         ],
         [
           10,
-          "Social isolation neural signature Default Mode Network"
+          "temporal dynamics of the default mode network after social exclusion"
         ],
         [
           11,
-          "Rejection sensitivity Default Mode Network modulation"
+          "social exclusion‑induced changes in resting‑state network modularity"
         ],
         [
           12,
-          "Social threat response Default Mode Network"
+          "anterior cingulate cortex and insula responses to virtual ostracism"
         ],
         [
           13,
-          "Interpersonal exclusion Default Mode Network fluctuations"
+          "ventral striatum activation during perceived social rejection"
         ],
         [
           14,
-          "Social exclusion task Default Mode Network connectivity patterns"
+          "mentalizing network involvement in simulated social exclusion"
         ],
         [
           15,
-          "Neural basis of social exclusion DMN"
-        ],
-        [
-          16,
-          "Default Mode Network response to social rejection"
-        ],
-        [
-          17,
-          "Social exclusion and DMN functional integration"
-        ],
-        [
-          18,
-          "Cyberball Default Mode Network time series"
-        ],
-        [
-          19,
-          "Social exclusion affective processing Default Mode Network"
-        ],
-        [
-          20,
-          "DMN dysregulation in social exclusion contexts"
+          "brain network signatures of social isolation versus acute exclusion"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics neuroscience": 0,
-        "Social exclusion Default Mode Network fMRI": 5
+        "fMRI social exclusion (Cyberball) default mode network connectivity": 0,
+        "neural mechanisms of social ostracism in the default mode network": 0,
+        "resting‑state functional connectivity changes during simulated rejection": 3
       },
-      "total_queries_issued": 1
+      "total_queries_issued": 3
     },
     "extracted_queries": [
-      "Cyberball paradigm ostracism fMRI",
-      "social pain network medial prefrontal cortex",
-      "DMN deactivation social rejection",
-      "functional connectivity posterior cingulate cortex",
-      "mentalizing network self-referential processing"
+      "ostracism fMRI DMN",
+      "Cyberball fMRI",
+      "DMN functional connectivity dynamics",
+      "BOLD variability default mode",
+      "social pain DMN theory"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,25 +97,25 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "success_after_expansion",
+    "outcome": "exhausted",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "1511.02429"
+        "2407.19990"
       ]
     },
     "per_query_hit_count": {
-      "Cyberball paradigm ostracism fMRI": 3,
-      "DMN deactivation social rejection": 1,
+      "BOLD variability default mode": 3,
+      "Cyberball fMRI": 1,
+      "DMN functional connectivity dynamics": 3,
       "Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics neuroscience": 3,
-      "functional connectivity posterior cingulate cortex": 3,
-      "mentalizing network self-referential processing": 3,
-      "social pain network medial prefrontal cortex": 1
+      "ostracism fMRI DMN": 3,
+      "social pain DMN theory": 1
     },
     "relevance_judge": {
       "enabled": true,
-      "marginal_fallback_used": true,
+      "marginal_fallback_used": false,
       "rejected_count": 5,
       "rejections": [
         {
@@ -142,29 +124,29 @@
           "title": "Quantifying Social Network Dynamics"
         },
         {
-          "primary_pointer": "1303.0093",
-          "rationale": "The paper focuses on computational social network analysis and recommender systems using online user data (Flickr), which is an off-domain application of the term \"social network\" compared to the user's neuroscience question regarding brain dynamics (Default Mode Network) and simulated social exclusion. It shares only the homonym \"social network\" but addresses a distinct construct with no measurable connection to the biological mechanisms, neural variables, or empirical population specified in t",
-          "title": "Multidimensional Social Network in the Social Recommender System"
+          "primary_pointer": "2110.06573",
+          "rationale": "The paper focuses on methodological aspects of Dynamic Mode Decomposition applied to fluid‑mechanics simulations and does not address neural activity, social exclusion paradigms, or the default mode network, thus it is off‑domain and unrelated to the user's neuroscience question.",
+          "title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States"
         },
         {
-          "primary_pointer": "2409.07720",
-          "rationale": "The paper focuses on detecting Russian influence networks and \"trolls\" on social media using machine learning, which is a distinct construct from the user's question regarding the neural correlates (brain activity) of simulated social exclusion. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" as the term \"social\" and \"network\" refer to online communication structures rather than the Default Mode Network or the psychological mechanism of social exclusio",
-          "title": "Keeping it Authentic: The Social Footprint of the Trolls Network"
+          "primary_pointer": "1208.0924",
+          "rationale": "The paper investigates fractal-induced distortions of resting‑state functional network metrics via simulation and does not examine simulated social exclusion, the default mode network, or their neural dynamics, so it lacks any relevant mechanism, variable, or population for the user's question.",
+          "title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study"
         },
         {
-          "primary_pointer": "1303.0095",
-          "rationale": "The paper focuses on machine learning techniques for node classification in abstract social network graphs, which is a distinct construct from the user's question regarding the neural correlates (brain activity) of social exclusion in the Default Mode Network. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" where \"social network\" refers to graph data structures rather than human social interactions or their biological substrates.",
-          "title": "Label-dependent Feature Extraction in Social Networks for Node Classification"
+          "primary_pointer": "1202.4751",
+          "rationale": "The paper investigates fractal‑based resting‑state functional connectivity in the rat brain and does not address simulated social exclusion, default mode network dynamics, or human participants, thus it lacks relevance to any of the variables or mechanisms of the user's question.",
+          "title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI"
         },
         {
-          "primary_pointer": "1511.02429",
-          "rationale": "The paper is a mathematical model of social network evolution and social capital in sociology/economics, which is off-domain from the user's question regarding neural correlates (fMRI/brain dynamics) and the Default Mode Network in neuroscience. It shares only the homonym \"social\" and \"network\" but addresses a distinct construct with no measurable connection to the biological mechanism or empirical population specified.",
-          "title": "A Micro-foundation of Social Capital in Evolving Social Networks"
+          "primary_pointer": "1309.5840",
+          "rationale": "The paper studies interhemispheric functional connectivity in autistic children using resting‑state fNIRS and does not address simulated social exclusion, the default mode network, or its dynamics, so it lacks any of the accepted relevance categories.",
+          "title": "Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-02T10:27:50Z",
+    "started_at": "2026-10-14T09:17:11Z",
     "term_input": {
       "normalized": "neural correlates of simulated social exclusion on default mode network dynamics neuroscience",
       "raw": "Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics neuroscience"
@@ -185,7 +167,7 @@
           "primary_pointer": "1303.0093"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Multidimensional Social Network in the Social Recommender System')",
-        "failed_at": "2026-08-02T10:28:17Z",
+        "failed_at": "2026-10-14T09:17:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -203,7 +185,7 @@
           "primary_pointer": "2409.07720"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Keeping it Authentic: The Social Footprint of the Trolls Network')",
-        "failed_at": "2026-08-02T10:28:17Z",
+        "failed_at": "2026-10-14T09:17:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -224,7 +206,7 @@
           "primary_pointer": "2511.21760"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
-        "failed_at": "2026-08-02T10:28:18Z",
+        "failed_at": "2026-10-14T09:17:42Z",
         "reason": "query_irrelevant"
       },
       {
@@ -242,59 +224,27 @@
           "primary_pointer": "2412.07783"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Swin fMRI Transformer Predicts Early Neurodevelopmental Outcomes from Neonatal fMRI')",
-        "failed_at": "2026-08-02T10:28:18Z",
+        "failed_at": "2026-10-14T09:17:42Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We describe the design of an immersive virtual Cyberball task that included avatar customization, and user feedback on this design. We first created a prototype of an avatar customization template and added it to a Cyberball prototype built in the Unity3D game engine. Then, we conducted in-depth user testing and feedback sessions with 15 Cyberball stakeholders: five naive participants with no prior knowledge of Cyberball and ten experienced researchers with extensive experience using the Cyberball paradigm. We report the divergent perspectives of the two groups on the following design insights; designing for intuitive use, inclusivity, and realistic experiences versus minimalism. Participant responses shed light on how system design problems may contribute to or perpetuate negative experiences when customizing avatars. They also demonstrate the value of considering multiple stakeholders' feedback in the design process for virtual reality, presenting a more comprehensive view in designing future Cyberball prototypes and interactive systems for social science research.",
+          "claimed_abstract": "Deciphering visual content from functional Magnetic Resonance Imaging (fMRI) helps illuminate the human vision system. However, the scarcity of fMRI data and noise hamper brain decoding model performance. Previous approaches primarily employ subject-specific models, sensitive to training sample size. In this paper, we explore a straightforward but overlooked solution to address data scarcity. We propose shallow subject-specific adapters to map cross-subject fMRI data into unified representations. Subsequently, a shared deeper decoding model decodes cross-subject features into the target feature space. During training, we leverage both visual and textual supervision for multi-modal brain decoding. Our model integrates a high-level perception decoding pipeline and a pixel-wise reconstruction pipeline guided by high-level perceptions, simulating bottom-up and top-down processes in neuroscience. Empirical experiments demonstrate robust neural representation learning across subjects for both pipelines. Moreover, merging high-level and low-level information improves both low-level and high-level reconstruction metrics. Additionally, we successfully transfer learned general knowledge to new subjects by training new adapters with limited training data. Compared to previous state-of-the-art methods, notably pre-training-based methods (Mind-Vis and fMRI-PTE), our approach achieves comparable or superior results across diverse tasks, showing promise as an alternative method for cross-subject fMRI data pre-training. Our code and pre-trained weights will be publicly released at https://github.com/YulongBonjour/See_Through_Their_Minds.",
           "claimed_authors": [
-            "Tao Long",
-            "Swati Pandita",
-            "Andrea Stevenson Won"
+            "Yulong Liu",
+            "Yongqiang Ma",
+            "Guibo Zhu",
+            "Haodong Jing",
+            "Nanning Zheng"
           ],
-          "claimed_title": "Perspectives from Naive Participants and Experienced Social Science Researchers on Addressing Embodiment in a Virtual Cyberball Task",
+          "claimed_title": "See Through Their Minds: Learning Transferable Neural Representation from Cross-Subject fMRI",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.02897"
+          "claimed_year": 2024,
+          "primary_pointer": "2403.06361"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Perspectives from Naive Participants and Experienced Social Science Researchers on Addressing Embodiment in a Virtual Cyberball Task')",
-        "failed_at": "2026-08-02T10:28:18Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "A new method of feature extraction in the social network for within-network classification is proposed in the paper. The method provides new features calculated by combination of both: network structure information and class labels assigned to nodes. The influence of various features on classification performance has also been studied. The experiments on real-world data have shown that features created owing to the proposed method can lead to significant improvement of classification accuracy.",
-          "claimed_authors": [
-            "Tomasz Kajdanowicz",
-            "Przemyslaw Kazienko",
-            "Piotr Doskocz"
-          ],
-          "claimed_title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1303.0095"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Label-dependent Feature Extraction in Social Networks for Node Classification')",
-        "failed_at": "2026-08-02T10:28:18Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Bots have been playing a crucial role in online platform ecosystems, as efficient and automatic tools to generate content and diffuse information to the social media human population. In this chapter, we will discuss the role of social bots in content spreading dynamics in social media. In particular, we will first investigate some differences between diffusion dynamics of content generated by bots, as opposed to humans, in the context of political communication, then study the characteristics of bots behind the diffusion dynamics of social media spam campaigns.",
-          "claimed_authors": [
-            "Emilio Ferrara"
-          ],
-          "claimed_title": "Measuring social spam and the effect of bots on information diffusion in social media",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1708.08134"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Measuring social spam and the effect of bots on information diffusion in social media')",
-        "failed_at": "2026-08-02T10:28:18Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='See Through Their Minds: Learning Transferable Neural Representation from Cross-Subject fMRI')",
+        "failed_at": "2026-10-14T09:17:42Z",
         "reason": "query_irrelevant"
       },
       {
@@ -314,7 +264,7 @@
           "primary_pointer": "1309.5840"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies')",
-        "failed_at": "2026-08-02T10:28:18Z",
+        "failed_at": "2026-10-14T09:17:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -330,77 +280,75 @@
           "primary_pointer": "1304.7934"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Maximum Lebesgue Extension of Monotone Convex Functions')",
-        "failed_at": "2026-08-02T10:28:18Z",
+        "failed_at": "2026-10-14T09:17:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Neural connectivity at the cellular and mesoscopic level appears very specific and is presumed to arise from highly specific developmental mechanisms. However, there are general shared features of connectivity in systems as different as the networks formed by individual neurons in Caenorhabditis elegans or in rat visual cortex and the mesoscopic circuitry of cortical areas in the mouse, macaque, and human brain. In all these systems, connection length distributions have very similar shapes, with an initial large peak and a long flat tail representing the admixture of long-distance connections to mostly short-distance connections. Furthermore, not all potentially possible synapses are formed, and only a fraction of axons (called filling fraction) establish synapses with spatially neighboring neurons. We explored what aspects of these connectivity patterns can be explained simply by random axonal outgrowth. We found that random axonal growth away from the soma can already reproduce the known distance distribution of connections. We also observed that experimentally observed filling fractions can be generated by competition for available space at the target neurons--a model markedly different from previous explanations. These findings may serve as a baseline model for the development of connectivity that can be further refined by more specific mechanisms.",
+          "claimed_abstract": "This paper studies the optimal dividend for a multi-line insurance group, in which each subsidiary runs a product line and is exposed to some external credit risk. The default contagion is considered such that one default event may increase the default probabilities of all surviving subsidiaries. The total dividend problem for the insurance group is investigated and we find that the optimal dividend strategy is still of the barrier type. Furthermore, we show that the optimal barrier of each subsidiary is modulated by the default state. That is, how many and which subsidiaries have defaulted will determine the dividend threshold of each surviving subsidiary. These conclusions are based on the analysis of the associated recursive system of Hamilton-Jacobi-Bellman variational inequalities (HJBVIs). The existence of the classical solution is established and the verification theorem is proved. In the case of two subsidiaries, the value function and optimal barriers are given in analytical forms, allowing us to conclude that the optimal barrier of one subsidiary decreases if the other subsidiary defaults.",
           "claimed_authors": [
-            "Marcus Kaiser",
-            "Claus C. Hilgetag",
-            "Arjen van Ooyen"
+            "Zhuo Jin",
+            "Huafu Liao",
+            "Yue Yang",
+            "Xiang Yu"
           ],
-          "claimed_title": "A simple rule for axon outgrowth and synaptic competition generates realistic connection lengths and filling fractions",
+          "claimed_title": "Optimal Dividend Strategy for an Insurance Group with Contagious Default Risk",
           "claimed_venue": "arXiv",
-          "claimed_year": 2009,
-          "primary_pointer": "0906.0685"
+          "claimed_year": 2019,
+          "primary_pointer": "1909.09511"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='A simple rule for axon outgrowth and synaptic competition generates realistic connection lengths and filling fractions')",
-        "failed_at": "2026-08-02T10:28:18Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Optimal Dividend Strategy for an Insurance Group with Contagious Default Risk')",
+        "failed_at": "2026-10-14T09:17:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The problem is to determine which processors are reliable in a remote location by asking \"Yes or No\" questions. The processors are of three types: those that always tell the truth, those that always lie, and those the sometimes tell the truth and sometimes lie. Using self-referential reasoning, along with earlier techniques, we can regard both the truth-tellers and liars as reliable and thus the tackle situations when fewer than half the processors are truth-tellers.",
+          "claimed_abstract": "Evaluation of default correlation is an important task in credit risk analysis. In many practical situations, it concerns the joint defaults of several correlated firms, the task that is reducible to a first passage time (FPT) problem. This task represents a great challenge for jump-diffusion processes (JDP), where except for very basic cases, there are no analytical solutions for such problems. In this contribution, we generalize our previous fast Monte-Carlo method (non-correlated jump-diffusion cases) for multivariate (and correlated) jump-diffusion processes. This generalization allows us, among other things, to evaluate the default events of several correlated assets based on a set of empirical data. The developed technique is an efficient tool for a number of other applications, including credit risk and option pricing.",
           "claimed_authors": [
-            "Robert Cowen"
+            "Di Zhang",
+            "Roderick V. N. Melnik"
           ],
-          "claimed_title": "Adaptive Fault Diagnosis using Self-Referential Reasoning",
+          "claimed_title": "Efficient estimation of default correlation for multivariate jump-diffusion processes",
           "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1407.6255"
+          "claimed_year": 2007,
+          "primary_pointer": "cs/0702165"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Adaptive Fault Diagnosis using Self-Referential Reasoning')",
-        "failed_at": "2026-08-02T10:28:18Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Efficient estimation of default correlation for multivariate jump-diffusion processes')",
+        "failed_at": "2026-10-14T09:17:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The ILC Technology Network (ITN) was established in 2022 by the ILC International Development Team, a subcommittee of the International Committee for Future Accelerators, to advance engineering studies toward the realisation of the International Linear Collider (ILC). While the ITN work packages focus on engineering activities for the ILC, their topics are also relevant to a broad range of accelerator applications in particle physics and beyond. These work packages are being carried out now by laboratories in Asia and Europe in close collaboration. This report summarises the current status of the ITN activities.",
+          "claimed_abstract": "In this note, we develop stock option price approximations for a model which takes both the risk o default and the stochastic volatility into account. We also let the intensity of defaults be influenced by the volatility. We show that it might be possible to infer the risk neutral default intensity from the stock option prices. Our option price approximation has a rich implied volatility surface structure and fits the data implied volatility well. Our calibration exercise shows that an effective hazard rate from bonds issued by a company can be used to explain the implied volatility skew of the implied volatility of the option prices issued by the same company.",
           "claimed_authors": [
-            "ILC Technology Network"
+            "Erhan Bayraktar"
           ],
-          "claimed_title": "Midterm Status Report of the ILC Technology Network Activities",
+          "claimed_title": "Pricing Options on Defaultable Stocks",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2603.01172"
+          "claimed_year": 2007,
+          "primary_pointer": "0707.0336"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Midterm Status Report of the ILC Technology Network Activities')",
-        "failed_at": "2026-08-02T10:28:18Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Pricing Options on Defaultable Stocks')",
+        "failed_at": "2026-10-14T09:17:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Multi-channel acoustic signal processing is a well-established and powerful tool to exploit the spatial diversity between a target signal and non-target or noise sources for signal enhancement. However, the textbook solutions for optimal data-dependent spatial filtering rest on the knowledge of second-order statistical moments of the signals, which have traditionally been difficult to acquire. In this contribution, we compare model-based, purely data-driven, and hybrid approaches to parameter estimation and filtering, where the latter tries to combine the benefits of model-based signal processing and data-driven deep learning to overcome their individual deficiencies. We illustrate the underlying design principles with examples from noise reduction, source separation, and dereverberation.",
+          "claimed_abstract": "Bots have been playing a crucial role in online platform ecosystems, as efficient and automatic tools to generate content and diffuse information to the social media human population. In this chapter, we will discuss the role of social bots in content spreading dynamics in social media. In particular, we will first investigate some differences between diffusion dynamics of content generated by bots, as opposed to humans, in the context of political communication, then study the characteristics of bots behind the diffusion dynamics of social media spam campaigns.",
           "claimed_authors": [
-            "Reinhold Haeb-Umbach",
-            "Tomohiro Nakatani",
-            "Marc Delcroix",
-            "Christoph Boeddeker",
-            "Tsubasa Ochiai"
+            "Emilio Ferrara"
           ],
-          "claimed_title": "Microphone Array Signal Processing and Deep Learning for Speech Enhancement",
+          "claimed_title": "Measuring social spam and the effect of bots on information diffusion in social media",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2501.07215"
+          "claimed_year": 2017,
+          "primary_pointer": "1708.08134"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Microphone Array Signal Processing and Deep Learning for Speech Enhancement')",
-        "failed_at": "2026-08-02T10:28:18Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Measuring social spam and the effect of bots on information diffusion in social media')",
+        "failed_at": "2026-10-14T09:17:43Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -408,142 +356,29 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Radosław Michalski",
-            "Piotr Bródka",
-            "Przemysław Kazienko",
-            "Krzysztof Juszczyszyn"
+            "Sneha Noble",
+            "Chakka Sai Pradeep",
+            "Neelam Sinha",
+            "Thomas Gregor Issac"
           ],
-          "title": "Quantifying Social Network Dynamics",
-          "topically_marginal": true,
+          "title": "Classification of Alzheimer's Dementia vs. Healthy subjects by studying structural disparities in fMRI Time-Series of DMN",
           "venue": "arXiv",
-          "year": 2013
+          "year": 2024
         },
-        "primary_pointer": "1303.5009",
-        "summary": "The dynamic character of most social networks requires to model evolution of networks in order to enable complex analysis of theirs dynamics. The following paper focuses on the definition of differences between network snapshots by means of Graph Differential Tuple. These differences enable to calculate the diverse distance measures as well as to investigate the speed of changes. Four separate measures are suggested in the paper with experimental study on real social network data.",
+        "primary_pointer": "2407.19990",
+        "summary": "Time series from different regions of interest (ROI) of default mode network (DMN) from Functional Magnetic Resonance Imaging (fMRI) can reveal significant differences between healthy and unhealthy people. Here, we propose the utility of an existing metric quantifying the lack/presence of structure in a signal called, \"deviation from stochasticity\" (DS) measure to characterize resting-state fMRI time series. The hypothesis is that differences in the level of structure in the time series can lead to discrimination between the subject groups. In this work, an autoencoder-based model is utilized to learn efficient representations of data by training the network to reconstruct its input data. The proposed methodology is applied on fMRI time series of 50 healthy individuals and 50 subjects with Alzheimer's Disease (AD), obtained from publicly available ADNI database. DS measure for healthy fMRI as expected turns out to be different compared to that of AD. Peak classification accuracy of 95% was obtained using Gradient Boosting classifier, using the DS measure applied on 100 subjects.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1303.5009",
+          "final_url": "https://arxiv.org/abs/2407.19990",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2376,
           "query_relevance_score": 0.3,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-02T10:28:17Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Przemyslaw Kazienko",
-            "Katarzyna Musial",
-            "Tomasz Kajdanowicz"
-          ],
-          "title": "Multidimensional Social Network in the Social Recommender System",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2013
-        },
-        "primary_pointer": "1303.0093",
-        "summary": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1303.0093",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-02T10:28:26Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Ori Swed",
-            "Sachith Dassanayaka",
-            "Dimitri Volchenkov"
-          ],
-          "title": "Keeping it Authentic: The Social Footprint of the Trolls Network",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2409.07720",
-        "summary": "In 2016, a network of social media accounts animated by Russian operatives attempted to divert political discourse within the American public around the presidential elections. This was a coordinated effort, part of a Russian-led complex information operation. Utilizing the anonymity and outreach of social media platforms Russian operatives created an online astroturf that is in direct contact with regular Americans, promoting Russian agenda and goals. The elusiveness of this type of adversarial approach rendered security agencies helpless, stressing the unique challenges this type of intervention presents. Building on existing scholarship on the functions within influence networks on social media, we suggest a new approach to map those types of operations. We argue that pretending to be legitimate social actors obliges the network to adhere to social expectations, leaving a social footprint. To test the robustness of this social footprint we train artificial intelligence to identify it and create a predictive model. We use Twitter data identified as part of the Russian influence network for training the artificial intelligence and to test the prediction. Our model attains 88% prediction accuracy for the test set. Testing our prediction on two additional models results in 90.7% and 90.5% accuracy, validating our model. The predictive and validation results suggest that building a machine learning model around social functions within the Russian influence network can be used to map its actors and functions.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2409.07720",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-02T10:28:26Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Tomasz Kajdanowicz",
-            "Przemyslaw Kazienko",
-            "Piotr Doskocz"
-          ],
-          "title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2013
-        },
-        "primary_pointer": "1303.0095",
-        "summary": "A new method of feature extraction in the social network for within-network classification is proposed in the paper. The method provides new features calculated by combination of both: network structure information and class labels assigned to nodes. The influence of various features on classification performance has also been studied. The experiments on real-world data have shown that features created owing to the proposed method can lead to significant improvement of classification accuracy.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1303.0095",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-02T10:28:26Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Ahmed M. Alaa",
-            "Kartik Ahuja",
-            "Mihaela van der Schaar"
-          ],
-          "title": "A Micro-foundation of Social Capital in Evolving Social Networks",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2015
-        },
-        "primary_pointer": "1511.02429",
-        "summary": "A social network confers benefits and advantages on individuals (and on groups), the literature refers to these advantages as social capital. This paper presents a micro-founded mathematical model of the evolution of a social network and of the social capital of individuals within the network. The evolution of the network is influenced by the extent to which individuals are homophilic, structurally opportunistic, socially gregarious and by the distribution of types in the society. In the analysis, we identify different kinds of social capital: bonding capital, popularity capital, and bridging capital. Bonding capital is created by forming a circle of connections, homophily increases bonding capital because it makes this circle of connections more homogeneous. Popularity capital leads to preferential attachment: individuals who become popular tend to become more popular because others are more likely to link to them. Homophily creates asymmetries in the levels of popularity attained by different social groups, more gregarious types of agents are more likely to become popular. However, in homophilic societies, individuals who belong to less gregarious, less opportunistic, or major types are likely to be more central in the network and thus acquire a bridging capital.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1511.02429",
-          "http_status": 200,
-          "pdf_sample_score": 0.1975,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-02T10:28:27Z"
+          "verified_at": "2026-10-14T09:17:42Z"
         }
       }
     ]
