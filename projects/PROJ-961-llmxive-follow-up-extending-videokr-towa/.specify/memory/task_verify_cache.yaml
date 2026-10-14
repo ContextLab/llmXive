@@ -11,14 +11,14 @@ T101:
     exist so the `from code.ut'
   sig: fcfe09a313c86709afda6e4f68594095dedabb137993398dda6151c18d23dea5
 T102:
-  c: true
-  h: d4a45f00896089a78e20dfac8c295debe11a7f1de52d9753151a929d59c4bfcf
-  r: 'Both required artifacts exist and are substantive: `code/utils/entity_linker.py`
-    implements `link_dataframe` with the pre-existing `node_id`/`entity_id` short-circuit
-    (confidence=1.0), the optional `sentence_transformers` embedding-similarity path
-    with configurable threshold, and fuzzy fallback with `entity_node_id=None` below
-    threshold; `tests/unit/test_entity_linker.py` covers all three branches. The historical
-    execution log shows `pytest tests/unit/test_entity_linker.py` exiting 0 with 2
-    passed and the embedding test skipped (legitimate, since the task conditions that
-    path on package availa'
-  sig: 2ec5bfd09c7325f17f2e40f1fb8aea4735ea3374fea7cc3dc00d86dfb6cb5c34
+  c: false
+  h: 7b8ea54be38ddf4fe512abfeff931236efb7d85ad64d5a227ca3775a59c70c97
+  r: 'Both required files exist and `link_dataframe` implements the pre-existing-ID,
+    fuzzy, and embedding branches, but there is no execution evidence that `pytest
+    tests/unit/test_entity_linker.py` was run and passed (the task''s explicit verification
+    criterion). Moreover, the embedding-path test is broken as written: it monkeypatches
+    `utils.entity_linker.SentenceTransformer`, but the module imports `SentenceTransformer`
+    inside `link_dataframe` via a function-local `from sentence_transformers import
+    SentenceTransformer`, so the patch never takes effect and the test runs against
+    the real model with a '
+  sig: fd81df397816d8f58156bb7cdf6aded3c5cd8fdcd035b6b8c0ae16630cc255f0

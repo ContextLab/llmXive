@@ -1,6 +1,14 @@
 T101:
   task: 124f0ea77e72c354939beda0a391bd830931598c680d04f7228b82b3f161e287
 T102:
+  reason: 'Both required files exist and `link_dataframe` implements the pre-existing-ID,
+    fuzzy, and embedding branches, but there is no execution evidence that `pytest
+    tests/unit/test_entity_linker.py` was run and passed (the task''s explicit verification
+    criterion). Moreover, the embedding-path test is broken as written: it monkeypatches
+    `utils.entity_linker.SentenceTransformer`, but the module imports `SentenceTransformer`
+    inside `link_dataframe` via a function-local `from sentence_transformers import
+    SentenceTransformer`, so the patch never takes effect and the test runs against
+    the real model with a'
   task: eb46c77b92d8ade98ad3221f5e603ccd37518053ac27ddb12012ba43927408e3
 T103:
   reason: 'Requested task execution failed; rerun successfully: code/ingest/download_data.py

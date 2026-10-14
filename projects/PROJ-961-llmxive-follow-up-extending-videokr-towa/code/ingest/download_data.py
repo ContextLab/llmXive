@@ -2,24 +2,23 @@
 Data download module for fetching VideoKR‑SFT and Knowledge Graph.
 This script attempts to download the required files from the official
 Hugging Face Hub repository defined in ``utils.config.VIDEO_KR_REPO``.
-If the download fails, it falls back to a public GitHub raw URL.
+If that fails, it falls back to the public GitHub raw URLs.
 If both attempts fail, a ``DataUnavailableError`` is raised – no synthetic
 fallback is performed.
 After successful download, SHA‑256 checksums for each file are recorded
-in ``data/raw/checksums.json`` using the checksum utilities.
+in ``data/raw/checksums.json``.
 """
 import logging
 import json
-import os
 from pathlib import Path
 from typing import List, Dict
 
 import requests
 from huggingface_hub import hf_hub_download
-from datasets import load_dataset
+from datasets import load_dataset  # noqa: F401  # imported for side‑effects / future use
 
 # Import project configuration utilities using the correct package path.
-from code.utils.config import get_path, ensure_dir, VIDEO_KR_REPO, PATHS
+from utils.config import get_path, ensure_dir, VIDEO_KR_REPO, PATHS
 
 # Checksum helper from the ingestion utilities.
 from code.ingest.checksum import compute_sha256
