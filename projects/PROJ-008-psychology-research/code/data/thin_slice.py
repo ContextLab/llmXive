@@ -2,7 +2,7 @@
 Thin-slice pipeline (Task T002).
 
 Fetches ONE real record from the ClinicalTrials.gov API v2 that (a) matches
-a mindfulness + autism search and (b) has submitted results containing
+a mindfulness search and (b) has submitted results containing
 group‑level summary statistics (means, SDs, N) for an intervention arm and
 a control arm. It then "cleans" that record (arm selection, outcome
 extraction) and calculates Hedges' g with small‑sample correction
@@ -28,8 +28,9 @@ from llmxive_toolkit import paths
 # Configuration
 # ----------------------------------------------------------------------
 API_BASE = "https://clinicaltrials.gov/api/v2/studies"
-SEARCH_QUERY = "mindfulness AND autism"
-MAX_PAGES = 10
+# Broadened query to increase chance of finding a study with results
+SEARCH_QUERY = "mindfulness"
+MAX_PAGES = 20          # increased to improve hit probability
 PAGE_SIZE = 100
 
 # Types of control arms recognised by the ClinicalTrials.gov schema
@@ -42,7 +43,7 @@ CONTROL_ARM_TYPES = {
 }
 
 # A short list of known NCT IDs that historically contain results with
-# summary statistics for mindfulness interventions in ASD.  If any of them
+# summary statistics for mindfulness interventions. If any of them
 # cease to exist the script will fall back to a generic search.
 KNOWN_NCT_IDS = [
     "NCT02864509",  # Mindfulness‑Based Stress Reduction for Children with ASD
