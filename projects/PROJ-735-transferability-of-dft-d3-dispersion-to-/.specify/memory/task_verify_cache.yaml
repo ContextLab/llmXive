@@ -1,9 +1,15 @@
+T060a:
+  c: false
+  h: 2f974478df9870c566ca0d5891993552d5ec75ba187854cb9871b7ebea8dc5f6
+  r: "The provided `code/lint_report.txt` contains only \u201CExit code: 0\u201D and\
+    \ does not include the full flake8 output (list of any findings). No evidence\
+    \ is shown that re\u2011running `flake8 code/ tests/` yields zero issues, nor\
+    \ that all reported problems were fixed. The task therefore remains incomplete."
+  sig: 320f2bb5dc1c47ea91b9aa645609594d5211b8b0484572d0462c0337a58c32db
 T060b:
   c: true
-  h: 534175a4e4d3204a615ca67c9bb8042ef360f532e258f1590a49bcadc874c761
-  r: "Checked `code/format_diff.txt` (contains the pre\u2011format diff) and the task\
-    \ log `code/.tasks/T060b.code_run_black_format.py.log`, which records Black running\
-    \ in check\u2011diff mode, writing the diff, then re\u2011formatting all source\
-    \ files (including those in `tests/`). The log shows successful reformatting of\
-    \ 27 files and a zero exit code, confirming the required actions were performed."
-  sig: df673a7bb6a161fa82f591ef625172c5359da0321b94f189189c3c15ea38db89
+  h: 9d1536e7d872fdb05ef6a003dda76863c5d147291e42e35513e97dd199ffcb30
+  r: "Checked `code/format_diff.txt` (contains the diff) and the task log `code/.tasks/T060b.code_run_black_format.py.log`\
+    \ showing Black was run in check\u2011diff mode, the diff saved, and then all\
+    \ source files (including those in `tests/`) were reformatted successfully."
+  sig: 63f506ebe6f54f87e6a06d357a38c418a52907735e657b0e6a2385926837685d

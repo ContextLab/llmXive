@@ -1,10 +1,14 @@
 T060a:
-  reason: 'Requested task execution failed; rerun successfully: code/run_flake8_report.py
-    exit=1'
+  reason: "The provided `code/lint_report.txt` contains only \u201CExit code: 0\u201D\
+    \ and does not include the full flake8 output (list of any findings). No evidence\
+    \ is shown that re\u2011running `flake8 code/ tests/` yields zero issues, nor\
+    \ that all reported problems were fixed. The task therefore remains incomplete."
   task: 6e3972c72fe209b6c8f68303e434017680aeacf3e789643937688c9ff7d29c69
 T060b:
   task: e305fba7ce0a54e8bde0ec2e4aacd255949e89a162977f53bdb18b106e3ecb1e
 T065:
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_generate_reports.sh
+    exit=1'
   task: 84e3468c2dda2521f70f163ef63ec50d70b8ddcbd09b6f6b7fba60a9faf616a8
 T066:
   task: 222d9d78810cf583cf631e09e6b8ad0cd36b9fd38bad52374bdaea67d79ce571
