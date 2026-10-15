@@ -39,6 +39,58 @@ T003:
     \ ruff and black, a `.ruff.toml`, or a pre\u2011commit hook) or any evidence of\
     \ them being added to `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/`\
     \ were provided. The required artifacts are missing, so the task is not satisfied."
+T004:
+  c: true
+  h: 785fa3053bc4a06f3d1c267e8ff09d78cfc323dbe4b55ef9186d784282fb0fd4
+  r: "Checked the `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/utils/seeds.py`\
+    \ file (852\u202Fbytes) which implements `set_seed`, `get_seed_from_hash`, and\
+    \ `restore_seed` functions along with a demonstration `main`. The utility is fully\
+    \ implemented, non\u2011empty, and provides deterministic seed handling as required."
+  sig: 511990dde088d4587358dbb95a38c86ec489343441870c2e7590ddfca6387d41
+T005:
+  c: true
+  h: 680fbf0273ebe09d0191f52e77675da177b7d04f00a9fe7aec7bbd0e55d602ce
+  r: "Checked `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/utils/logging.py`\
+    \ (3494\u202Fbytes) which defines JSON and text formatters, correlation\u2011\
+    ID handling, logger configuration, and convenience logging functions, fulfilling\
+    \ a structured logging utility."
+  sig: 05a398067490448f80479190542c8acdfd28795f4d1975bf879340c85e0e0648
+T006:
+  c: true
+  h: 4a2203238d058bf976f01300e2069d85bd9cb274fd35358c00fc686ac1cb7f99
+  r: "Checked the file `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/utils/memory_monitor.py`,\
+    \ which exists (3\u202FKB) and implements a `MemoryMonitor` class, background\
+    \ monitoring, limit enforcement, a context manager, and helper functions \u2013\
+    \ fulfilling the memory\u2011monitoring utility requirement."
+  sig: 9519822aa181a99c13e53e8cca13dccdbfeb07a4c87f4e7b6a6202fcff8bfa46
+T007:
+  c: true
+  h: e380249485e342a429820545e0776989f9a65ff62bfc586bca8bf10e3a45d4c4
+  r: "The `data/raw/` and `data/processed/` directories (each containing a `.gitkeep`\
+    \ placeholder) exist, the `data/omniopt_lookup.json` file is present with valid\
+    \ JSON content, and a `state/` directory is present under the project root, fulfilling\
+    \ the required base structure and state\u2011tracking component."
+  sig: 3efdb67ae2987c6eb10a9d889cf0d284b093073f7f40cd6eb36c9ac6cb8263a7
+T009:
+  c: true
+  h: 006ebc2b039866db07ea41b9af4c4b8a863813d787d543d673bbe23e76326ffb
+  r: "Checked `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/utils/data_loader.py`,\
+    \ which defines `load_tinyimagenet_streaming` and `load_c4_streaming` using `datasets.load_dataset(...,\
+    \ streaming=True)` and raises `DataLoaderError` on any failure, fulfilling the\
+    \ \u201Cfail loudly on missing real source\u201D requirement. The file is non\u2011\
+    empty and implements the requested streaming loaders for both datasets."
+  sig: ad6e07a3ba0e0eebf9127bc336421f9b175f9776f12c2c89431417e28206f017
+T010:
+  c: true
+  h: 1b1cdb2fc7047adc9abeaa124f77e260409ef2cb30fe96e8ac228b2285de5c0e
+  r: "Checked the `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/tests/unit/test_spectral_extractor.py`\
+    \ file (14\u202FKB) which contains a full suite of pytest unit tests exercising\
+    \ eigenvalue decomposition on well\u2011conditioned, singular, ill\u2011conditioned,\
+    \ zero, large\u2011value, small\u2011value, asymmetric, non\u2011square, empty,\
+    \ and rank\u2011deficient matrices, plus feature extraction checks. The tests\
+    \ are concrete, runnable, and address numerical stability and singular\u2011matrix\
+    \ handling as required."
+  sig: ffaf02cea4b212f9f229b09679a7f8742653559d5a0deeb348ec048a1ec0ebb2
 T011:
   c: false
   h: ace595a2b116037cf799d84a962591e24fe728e70ed4ca396479adfcaef1d9e5

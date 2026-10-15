@@ -1,18 +1,17 @@
 status: none
-intent: download gradient covariance spectral signatures dataset deep learning python
-  package
+intent: download TinyImageNet dataset and OmniOpt benchmark tables python package
+  dataset
 required_fields:
-- model_identifier
-- architecture_name
+- model_id
+- architecture
 - parameter_count
-- random_seed
 - proxy_dataset_name
 - training_steps
-- batch_size
+- random_seed
 - spectral_radius
 - condition_number
 - tail_decay_exponent
 - top_50_eigenvalues
-cache_key: 7d6f90f153ee6f763cb5c3540b757d27f1a27ffa47edb9bd21d3bed9c97d568d
-searched_at: '2026-09-06T19:12:47.988263+00:00'
+cache_key: 33fd37d75468bb878031f0d2b2036f582f4dbbd2026bd7655b07eea43a8b2b8f
+searched_at: '2026-10-15T18:38:38.604506+00:00'
 retry_count: 1
