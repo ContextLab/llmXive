@@ -7,21 +7,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download.py -> rc=1
-
-2026-10-15 00:32:39,114 - INFO - Fetching subject 0, night 1...
-2026-10-15 00:32:39,114 - ERROR - Failed to fetch subject 0, night 1: fetch_data() got an unexpected keyword argument 'recordings'
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 196, in <module>
+s/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 227, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 192, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 223, in main
     download_sleep_edf(output_dir=raw_dir, n_subjects=n_subj)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 132, in download_sleep_edf
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 163, in download_sleep_edf
     fetched_files = _fetch_sleep_data(
                     ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 82, in _fetch_sleep_data
-    return fetch_func(
-           ^^^^^^^^^^^
-TypeError: fetch_data() got an unexpected keyword argument 'recordings'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 101, in _fetch_sleep_data
+    fetched = fetch_func(**kwargs)  # type: ignore[arg-type]
+              ^^^^^^^^^^^^^^^^^^^^
+  File "<decorator-gen-280>", line 10, in fetch_data
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-489-investigating-the-impact-of-network-cent/lib/python3.11/site-packages/mne/datasets/sleep_physionet/age.py", line 132, in fetch_data
+    if psg_records["record"][idx] in recording:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'in <string>' requires string as left operand, not numpy.int8
 
 - python code/main.py --stage preprocess -> rc=1
 

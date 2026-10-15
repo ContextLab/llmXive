@@ -43,30 +43,31 @@ def _fetch_sleep_data(
 ) -> List[Path]:
     """
     Wrapper around the MNE Sleep‑EDF fetch function that adapts to the
-    installed MNE version.
+    installed MNE version and to signature changes.
 
     Parameters
     ----------
     subjects : List[int]
         Subject identifiers.
     recordings : str
-        Recording type (e.g., ``"sleep-edf"``).
+        Recording type (e.g., ``"sleep-edf"``).  Older MNE versions use the
+        ``recordings`` keyword; newer versions use ``recording``.
     path : Path
         Destination directory for the downloaded files.
     night : int
-        Night number (1 or 2).
+        Night number (1 or 2).  Not all MNE versions expose a ``night``
+        argument, so we filter the returned file list manually.
 
     Returns
     -------
     List[Path]
-        List of file paths returned by the underlying MNE fetch routine.
+        List of file paths for the requested night.
     """
-    # Newer MNE versions expose ``fetch_data`` under ``sleep_physionet.age``.
-    # Older versions expose it directly under ``sleep_physionet``.
+    # Resolve the correct fetch function.
     fetch_func = getattr(sleep_physionet, "fetch_data", None)
 
     if fetch_func is None:
-        # Try the submodule ``age``.
+        # Try the submodule ``age`` (newer MNE releases).
         age_mod = getattr(sleep_physionet, "age", None)
         if age_mod is None:
             raise AttributeError(
@@ -78,14 +79,44 @@ def _fetch_sleep_data(
                 "MNE's sleep_physionet.age submodule does not expose fetch_data."
             )
 
-    # Call the discovered fetch function.
-    return fetch_func(
-        subjects=subjects,
-        recordings=recordings,
-        path=str(path),
-        night=night,
-        verbose=False,
-    )
+    # Build kwargs compatible with the discovered signature.
+    kwargs = {
+        "subjects": subjects,
+        "path": str(path),
+        "verbose": False,
+    }
+
+    # ``recordings`` vs ``recording`` handling.
+    if "recordings" in fetch_func.__code__.co_varnames:
+        kwargs["recordings"] = recordings
+    else:
+        kwargs["recording"] = recordings
+
+    # Some historic versions accepted a ``night`` argument; if not, we will
+    # filter the result after the call.
+    if "night" in fetch_func.__code__.co_varnames:
+        kwargs["night"] = night
+
+    try:
+        fetched = fetch_func(**kwargs)  # type: ignore[arg-type]
+    except TypeError as exc:
+        # Fallback: call without the night argument and filter later.
+        if "night" in kwargs:
+            del kwargs["night"]
+            fetched = fetch_func(**kwargs)  # type: ignore[arg-type]
+        else:
+            raise
+
+    # Ensure we have a list of Path objects.
+    fetched_paths = [Path(p) for p in fetched]
+
+    # If the function did not filter by night, keep only files that match
+    # the requested night number (e.g., ``_night1.edf`` or ``-1.edf``).
+    if not any("night" in v for v in kwargs.values()):
+        night_str = f"_{night}."
+        fetched_paths = [p for p in fetched_paths if night_str in p.name]
+
+    return fetched_paths
 
 
 def download_sleep_edf(output_dir: str = "data/raw/", n_subjects: int = 30) -> Tuple[List[Path], List[Tuple[str, str]]]:
@@ -152,13 +183,13 @@ def download_sleep_edf(output_dir: str = "data/raw/", n_subjects: int = 30) -> T
                     error_entries.append((dst_path.name, str(exc)))
                     # Remove the bad file so it does not remain in the raw folder
                     dst_path.unlink(missing_ok=True)
-                    log_lines.append(f"ERROR\\t{dst_path.name}\\t{exc}")
+                    log_lines.append(f"ERROR\t{dst_path.name}\t{exc}")
                     continue
 
                 # Compute SHA‑256 checksum
                 checksum = calculate_file_checksum(dst_path, algorithm="sha256")
                 successful_paths.append(dst_path)
-                log_lines.append(f"{dst_path.name}\\t{checksum}")
+                log_lines.append(f"{dst_path.name}\t{checksum}")
 
         except Exception as e:
             # Any network‑level or fetch‑related exception propagates upward
