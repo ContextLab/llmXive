@@ -4,13 +4,19 @@ Bootstrap script for the Visual Salience project.
 This script creates the required project layout, writes a pinned
 ``requirements.txt`` file under ``code/`` and prints a directory tree
 as proof of successful setup.
+
+The implementation lazily imports ``llmxive_toolkit.paths`` inside each
+helper function so that test suites can monkey‑patch ``paths.root`` (or
+any other path helpers) before invoking ``main()``. This satisfies the
+requirement that the bootstrap script works correctly when the project
+root is overridden at runtime.
 """
 import os
 import sys
 import logging
 from pathlib import Path
 
-from llmxive_toolkit import paths, get_logger
+from llmxive_toolkit import get_logger
 
 # Initialize logger
 log = get_logger(__name__)
@@ -42,6 +48,9 @@ black==24.2.0
 
 def _write_requirements_file() -> Path:
     """Write the pinned requirements.txt under ``code/``."""
+    # Lazy import so that any monkey‑patching of ``paths.root`` takes effect
+    from llmxive_toolkit import paths
+
     req_path = paths.code("requirements.txt")
     req_path.parent.mkdir(parents=True, exist_ok=True)
     req_path.write_text(_REQUIREMENTS.strip() + "\n")
@@ -53,6 +62,9 @@ def _create_directories() -> None:
     Ensure that all required top‑level directories exist.
     The list follows the specification for T001.
     """
+    # Lazy import to respect potential monkey‑patching of ``paths.root``
+    from llmxive_toolkit import paths
+
     needed_dirs = [
         paths.code(),                     # code/
         paths.data("raw"),                # data/raw/
@@ -95,7 +107,11 @@ def main() -> None:
     log.info("Starting bootstrap process...")
     _create_directories()
     _write_requirements_file()
-    _print_directory_tree()
+    # Use the root defined by ``paths.root``; this works even if the test
+    # monkey‑patches it because the import is performed lazily inside the
+    # helper functions.
+    from llmxive_toolkit import paths
+    _print_directory_tree(paths.root)
     log.info("Bootstrap completed successfully.")
     sys.exit(0)
 

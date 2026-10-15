@@ -1,10 +1,9 @@
 T001:
-  c: false
-  h: b156f5f87a6e5540db29a3e81e245013715ca73a0ebc246662e3488d896b981b
-  r: "The `code/bootstrap.py` script creates the directories and writes a `requirements.txt`,\
-    \ and `code/main.py` provides a CLI entry point, but the automated test `tests/test_bootstrap.py`\
-    \ fails (cannot monkey\u2011patch `paths.root` and thus does not verify the layout\
-    \ creation). This failure shows the bootstrap script does not meet the required\
-    \ behavior for establishing the project layout in a configurable location, so\
-    \ the task is not fully satisfied."
-  sig: 1b4a13ca4b4bc140a1043be158402518bbf5dddfcea1f3bad912f6f05092999b
+  c: true
+  h: 891064293b20beacbd4eb321b44b8ba198664ecc1abdd6e61cbe72d8141babc8
+  r: Checked that the required directories (`code/`, `data/raw/`, `data/interim/`,
+    `data/processed/`, `data/results/`, `code/tests/`, `docs/`) exist, that `code/bootstrap.py`
+    creates them and writes a pinned `requirements.txt` (present under `code/requirements.txt`
+    and matching the specified list), and that `code/main.py` provides a runnable
+    entry point (`python code/main.py --stage smoke`) which verifies the layout.
+  sig: bfc4b1fba808f8ed4555d93a14cc560e4cde6f71e518be0979d9e945f25c560d
