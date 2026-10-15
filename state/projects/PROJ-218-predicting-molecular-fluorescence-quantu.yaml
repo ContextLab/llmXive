@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T19:28:39.524089Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-218-predicting-molecular-fluorescence-quantu
-last_run_id: f6214ba8-0159-4c1c-ac0e-2ca2eba34bc3
+last_run_id: 5cc1ac1c-0b87-485c-b606-2c041afc6891
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu
 title: Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks
-updated_at: '2026-10-15T05:37:05.002633Z'
+updated_at: '2026-10-15T05:44:01.556488Z'
