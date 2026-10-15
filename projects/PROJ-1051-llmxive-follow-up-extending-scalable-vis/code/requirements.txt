@@ -1,9 +1,4 @@
-# Core dependencies already available in the environment:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-#
-# Additional dependencies required for this project:
-pyarrow==13.0.0
-huggingface_hub
-tqdm
-pytesseract
+datasets==2.20.0
+tqdm==4.66.1
+Pillow==10.3.0
+numpy>=2.0

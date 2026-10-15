@@ -1,39 +1,12 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'from datasets import load_dataset, concatenate_datasets
-
-
-  # Load all available splits for the dataset
-
-  dataset_dict = load_dataset("lmms-lab-encoder/DocVQA", "DocVQA")
-
-  # Concatenate them into a single Dataset
-
-  combined = concatenate_datasets([split for split in dataset_dict.values()])
-
-
-  print(f"RECORDS={len(combined)}")
-
-  print("FIELDS=" + ",".join(combined.column_names))'
-record_count: 10537
-sample_fields:
-- questionId
-- question
-- question_types
-- image
-- docId
-- ucsf_document_id
-- ucsf_document_page_no
-- answers
-- data_split
-field_coverage: 0.5
+status: none
+intent: download PubLayNet scientific document layout dataset with DocVQA annotations
+  python package dataset
 required_fields:
 - document_id
+- page_image
+- raw_text
+- layout_annotations
 - page_number
-- image_path
-- text
-- layout_boxes
-- layout_labels
-intent: download scientific document layout annotations dataset python package DocVQA
-cache_key: aaf17c31dd2879c6de4fa48ec8b5df0d695ba844d0e7a95599b5a171de1d25fa
+cache_key: 487e7cdce26b753f67f57c6c4d0aaa79e70913286f6164afb7711b21cc1ea627
+searched_at: '2026-10-15T20:10:19.047897+00:00'
+retry_count: 1

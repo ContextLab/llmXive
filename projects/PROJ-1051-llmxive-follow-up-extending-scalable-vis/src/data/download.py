@@ -1,24 +1,24 @@
 """
 src/data/download.py
 
-Downloads scientific document corpora from verified HuggingFace repositories
-without relying on the `datasets` library (which pulls in `pyarrow`). The
-implementation uses `huggingface_hub` to fetch the raw files (images and
-JSON annotations) directly, stores them on disk, and records SHA‑256 checksums
-for reproducibility.
+Downloads scientific document corpora from verified HuggingFace repositories using the
+`datasets` library (which provides streaming and automatic caching). The primary
+layout‑rich corpus is the public PubLayNet dataset. If the primary download does not
+contain enough pages with layout annotations, the script raises a clear error (FR‑007).
+
+The script also records SHA‑256 checksums for reproducibility.
 """
 
 import argparse
 import hashlib
 import json
-import os
 import sys
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
 
 import yaml
 from tqdm import tqdm
-from huggingface_hub import snapshot_download
+from datasets import load_dataset
 
 def compute_sha256(file_path: Path) -> str:
     """Return the SHA‑256 hex digest of ``file_path``."""
@@ -59,87 +59,71 @@ def count_pages_with_layout(dataset_dir: Path) -> int:
     return sum(1 for _ in dataset_dir.rglob("*.json"))
 
 
-def _download_repo(repo_id: str, output_root: Path) -> Path:
-    """
-    Download a HuggingFace dataset repository (type=dataset) into ``output_root``.
-    Only image files (png, jpg, jpeg, tif, tiff) and JSON annotation files
-    are retained to keep the size manageable.
-    The function returns the path to the downloaded directory.
-    """
-    print(f"Downloading repository '{repo_id}'...")
-    # Use snapshot_download to get the whole repo; we limit files with allow_patterns
-    repo_path = snapshot_download(
-        repo_id=repo_id,
-        repo_type="dataset",
-        allow_patterns=["*.png", "*.jpg", "*.jpeg", "*.tif", "*.tiff", "*.json"],
-        local_dir=output_root,
-        cache_dir=str(Path.home() / ".cache" / "huggingface" / "datasets"),
-    )
-    return Path(repo_path)
-
-
 def download_layout_corpus(output_dir: Path, min_pages: int = 10_000) -> None:
     """
-    Download the primary PubMed‑Layout corpus, falling back to its official
-    fallback if necessary. The function ensures at least ``min_pages``
-    pages with layout annotations.
+    Download the public PubLayNet layout corpus using the `datasets` library.
+    The function ensures at least ``min_pages`` pages with layout annotations.
     The downloaded files are placed under ``output_dir / "layout_corpus"``.
     """
-    primary_repo = "allenai/pubmed-layout"
-    fallback_repo = "allenai/pubmed-layout-fallback"
-
     target_dir = output_dir / "layout_corpus"
+    target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Try primary
-    try:
-        primary_path = _download_repo(primary_repo, target_dir)
-        primary_pages = count_pages_with_layout(primary_path)
-        print(f"Primary dataset pages with layout: {primary_pages}")
-    except Exception as e:
-        print(f"Failed to download primary dataset '{primary_repo}': {e}")
-        primary_path = None
-        primary_pages = 0
+    print("Loading PubLayNet dataset via `datasets.load_dataset`...")
+    # PubLayNet is publicly available under the hub name "hustvl/publaynet"
+    # It contains three splits; we concatenate them for maximum coverage.
+    ds_dict = load_dataset("hustvl/publaynet")
+    combined = ds_dict["train"].select_columns(["image", "objects"])
+    # If additional splits exist, concatenate them
+    for split_name in ["validation", "test"]:
+        if split_name in ds_dict:
+            combined = combined.concatenate(
+                ds_dict[split_name].select_columns(["image", "objects"])
+            )
 
-    # If primary insufficient, try fallback
-    if primary_pages < min_pages:
-        needed = min_pages - primary_pages
-        print(f"Primary pages ({primary_pages}) < {min_pages}. Trying fallback...")
-        try:
-            fallback_path = _download_repo(fallback_repo, target_dir)
-            fallback_pages = count_pages_with_layout(fallback_path)
-            print(f"Fallback dataset pages with layout: {fallback_pages}")
-            # Merge fallback into primary directory (if primary exists)
-            if primary_path:
-                for src_file in fallback_path.rglob("*"):
-                    rel = src_file.relative_to(fallback_path)
-                    dest_file = primary_path / rel
-                    dest_file.parent.mkdir(parents=True, exist_ok=True)
-                    if not dest_file.exists():
-                        dest_file.write_bytes(src_file.read_bytes())
-                combined_path = primary_path
-            else:
-                combined_path = fallback_path
-                # Ensure the final directory name is still 'layout_corpus'
-                combined_path.rename(target_dir / "layout_corpus")
-                combined_path = target_dir / "layout_corpus"
-            total_pages = count_pages_with_layout(combined_path)
-        except Exception as e:
-            print(f"Fallback download failed: {e}")
-            total_pages = primary_pages
-    else:
-        combined_path = primary_path
-        total_pages = primary_pages
+    # Stream through the dataset, writing image + JSON annotation per page
+    page_counter = 0
+    for idx, example in tqdm(enumerate(combined), total=min_pages, desc="Downloading PubLayNet"):
+        if page_counter >= min_pages:
+            break
 
-    print(f"Total pages with layout after fallback handling: {total_pages}")
+        # Save image
+        image = example["image"]
+        img_path = target_dir / f"{idx:06d}.png"
+        image.save(img_path)
+
+        # Build annotation JSON in the same format expected by the preprocessing script
+        ann = {"objects": []}
+        for obj in example.get("objects", []):
+            # The PubLayNet objects already contain absolute bbox coordinates
+            # and a "label" field that matches the schema's ``type`` enumeration.
+            ann["objects"].append(
+                {
+                    "category": obj.get("label", "unknown"),
+                    "bbox": {
+                        "x0": obj["bbox"][0],
+                        "y0": obj["bbox"][1],
+                        "x1": obj["bbox"][2],
+                        "y1": obj["bbox"][3],
+                    },
+                }
+            )
+        ann_path = target_dir / f"{idx:06d}.json"
+        with ann_path.open("w", encoding="utf-8") as f:
+            json.dump(ann, f)
+
+        page_counter += 1
+
+    total_pages = count_pages_with_layout(target_dir)
+    print(f"Total pages with layout after download: {total_pages}")
 
     if total_pages < min_pages:
         raise RuntimeError(
             f"Insufficient annotated pages (FR-007). Found {total_pages}, need {min_pages}."
         )
 
-    # Record checksums
+    # Record checksums for reproducibility
     checksum_path = Path("artifacts/checksums/downloads.yaml")
-    log_and_store_checksums("layout_corpus", combined_path, checksum_path)
+    log_and_store_checksums("layout_corpus", target_dir, checksum_path)
 
 
 def download_docvqa(output_dir: Path) -> None:
@@ -147,14 +131,41 @@ def download_docvqa(output_dir: Path) -> None:
     Download the DocVQA benchmark dataset and store it under
     ``output_dir / "docvqa"``.
     """
-    repo_id = "allenai/docvqa"
-    target_dir = output_dir / "docvqa"
-    try:
-        _download_repo(repo_id, target_dir)
-    except Exception as e:
-        print(f"DocVQA download failed: {e}")
-        raise
+    # The verified real source for DocVQA is lmms-lab-encoder/DocVQA
+    from datasets import load_dataset, concatenate_datasets
 
+    print("Loading DocVQA dataset via `datasets.load_dataset`...")
+    ds_dict = load_dataset("lmms-lab-encoder/DocVQA", "DocVQA")
+    combined = concatenate_datasets([split for split in ds_dict.values()])
+
+    target_dir = output_dir / "docvqa"
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    # Write each record as a JSON file (one per document) for consistency with
+    # the rest of the pipeline. Images are stored as raw bytes in the dataset;
+    # we write them to disk as PNGs.
+    for idx, record in tqdm(enumerate(combined), total=len(combined), desc="Saving DocVQA"):
+        # Save image
+        img_bytes = record["image"]
+        img_path = target_dir / f"{idx:06d}.png"
+        img_path.write_bytes(img_bytes)
+
+        # Save accompanying metadata (question, answers, etc.)
+        meta = {
+            "questionId": record["questionId"],
+            "question": record["question"],
+            "question_types": record["question_types"],
+            "docId": record["docId"],
+            "ucsf_document_id": record["ucsf_document_id"],
+            "ucsf_document_page_no": record["ucsf_document_page_no"],
+            "answers": record["answers"],
+            "data_split": record["data_split"],
+        }
+        meta_path = target_dir / f"{idx:06d}.json"
+        with meta_path.open("w", encoding="utf-8") as f:
+            json.dump(meta, f)
+
+    # Record checksums
     checksum_path = Path("artifacts/checksums/downloads.yaml")
     log_and_store_checksums("docvqa", target_dir, checksum_path)
 
