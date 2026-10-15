@@ -1,14 +1,3 @@
-- artifact_hash: deea5fa9764c9e727214514158127c605383e53af99688b7925890bc74e461a4
-  artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Historical climate data &#8212; WorldClim 1 documentation
-  kind: url
-  value: https://www.worldclim.org/data/worldclim21.html
-  verification_status: pending
-  verified_against_url: https://www.worldclim.org/data/worldclim21.html
-  verified_at: '2026-10-03T09:36:32.342089Z'
 - artifact_hash: 6e400e4077c5a091ec3bede66da5ed24acf6179e9eb7345382c549b97e6964e2
   artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/plan.md
   cite_id: c-001

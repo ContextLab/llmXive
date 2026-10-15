@@ -1,256 +1,189 @@
 # Tasks: Predicting Avian Song Variation with Climatic and Geographic Factors
 
-**Input**: Design documents from `/specs/001-predicting-avian-song-variation-with-cli/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this user story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a [P] Create directory structure at `projects/PROJ-334-predicting-avian-song-variation-with-cli/{data,code,tests}` using `mkdir -p`
-- [X] T001b [P] Create `requirements.txt` with dependencies: pandas, numpy, scikit-learn, statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas, pyproj, pytest; Create `.gitignore` with patterns for `data/raw/`, `data/processed/`, `__pycache__/`, `*.pyc`, `.env`
+**Input**: `spec.md`, `plan.md`, `research.md`, `data-model.md`, and all contract schemas.  
+All tasks are unchecked unless explicitly marked as completed (`[X]`) in a prior run and still valid.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Project Scaffold & Core Infrastructure  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T002 [P] Initialize Python project scaffold **[FR‑001]**  
+  - **File**: `requirements.txt` (pins exact versions of pandas, numpy, scikit‑learn, statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas, pyproj, pytest) and `pyproject.toml` (basic build metadata).  
+  - **Verification**: `pip install -r requirements.txt` succeeds without warnings; `pyproject.toml` is syntactically valid.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T003 [P] Configure linting and formatting tools **[FR‑001]**  
+  - **Files**: `.ruff.toml` (enable ruff linting), `pyproject.toml` (add `[tool.black]` section), optional `.pre-commit-config.yaml`.  
+  - **Verification**: CI step `ruff check .` returns exit 0; `black --check .` returns exit 0.
 
-- [ ] T002 [P] Initialize Python project with dependencies: pandas, numpy, scikit-learn, statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas, pyproj
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [X] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`, `data/logs/`) and initialize `data/checksums.txt` with a CSV header (`filename,sha256_hash`). Initialize the project state file `state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml` with an empty `artifact_hashes` map and `updated_at: "1970-01-01T00:00:00Z"`. **Depends on T001a.**
-- [X] T004b [P] Implement `code/utils.py` function `update_state_file()` to dynamically update `artifact_hashes` and `updated_at` in the project state YAML file on every artifact change. **Depends on T004.**
-- [ ] T005 [P] Create base configuration loader for environment variables and paths, including a configurable `join_radius_km` parameter with a **default value of 10km** (justified as a spatial buffer for GPS error relative to ~1km WorldClim resolution) to ensure reproducibility without manual intervention.
-- [ ] T007 [P] Create schema definition files `contracts/song_record.schema.yaml` (fields: species_id, lat, lon, song_metric_1, song_metric_2), `contracts/climate_snapshot.schema.yaml` (fields: lat, lon, temperature, precipitation, elevation), `contracts/analysis_dataset.schema.yaml` (fields: all above merged)
-- [X] T008 [P] Implement schema validation utilities (`code/utils.py`) for `SongRecord`, `ClimateSnapshot`, and `AnalysisDataset`. **Depends on T007.**
-- [X] T009 [P] Create `code/data_sources.yaml` defining Xeno-Canto API (https://www.xeno-canto.org/explore) and WorldClim v2.1 (https://www.worldclim.org/data/worldclim21.html) URLs, sample paths, and version pinning logic. **Must use verified URLs; remove any unresolved claim references.**
-- [X] T010 [P] Create `code/main.py` orchestration entry point with argument parsing
+- [ ] T005 [P] Implement configuration loader with default `join_radius_km = 10` km **[FR‑001]**  
+  - **File**: `code/config.py` exposing a `Config` dataclass that reads environment variables (e.g., `JOIN_RADIUS_KM`) and falls back to the default 10 km.  
+  - **Verification**: `python -c "from code.config import Config; assert Config().join_radius_km == 10"` runs without assertion error.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Ingestion and Variable Alignment (Priority: P1) 🎯 MVP
-
-**Goal**: Load real avian acoustic data (Xeno-Canto) and climate data (WorldClim v2.1), align by location/species, and produce a unified `AnalysisDataset`.
-
-**Independent Test**: Can be fully tested by executing `code/ingestion.py` against the provided sample CSVs or real fetch and verifying the output schema contains required columns with no duplicate rows.
-
-### Implementation for User Story 1
-
-- [ ] T011 [US1] Implement `fetch_xeno_canto.py` to load real metadata (species_id, lat, lon) from Xeno-Canto API (referencing T009 for URL/version). **STRICT PRODUCTION MODE: Attempt to fetch real data ONLY. If fetch fails, the script MUST abort with a clear error. Local sample CSVs (`data/raw/xeno_canto_sample.csv`) are permitted ONLY for local development/testing and MUST NOT be used as a fallback in production/CI runs. If a sample is used for testing, a pinned sample version hash must be recorded to ensure reproducibility.** Record SHA256 checksum immediately to `data/checksums.txt` AND update `state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml` `artifact_hashes` by invoking `update_state_file()` (T004b). **Depends on T009, T004, T004b.**
-- [ ] T012 [US1] Implement `fetch_worldclim.py` to load real climate variables (temp, precip, elev) from WorldClim v2.1 (referencing T009 for URL/version). **STRICT PRODUCTION MODE: Attempt to fetch real data ONLY. If fetch fails, the script MUST abort with a clear error. Local sample CSVs (`data/raw/worldclim_sample.csv`) are permitted ONLY for local development/testing and MUST NOT be used as a fallback in production/CI runs. If a sample is used for testing, a pinned sample version hash must be recorded.** Record SHA256 checksum immediately to `data/checksums.txt` AND update `state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml` `artifact_hashes` by invoking `update_state_file()` (T004b). **Depends on T009, T004, T004b.**
-- [ ] T013 [US1] Implement `code/ingestion.py` to load raw CSVs (from T011/T012) and validate against `contracts/*.schema.yaml` (using T008 utilities). **CRITICAL: Do NOT assume CRS or reproject here.** **Depends on T007, T008, T005, T011, T012.**
-- [ ] T013b [US1] Implement CRS detection and reprojection logic in `code/ingestion.py`. **Check metadata for CRS. If non-WGS84 (e.g., NAD83), reproject to WGS84 (EPSG:4326) using `pyproj.Transformer`. If metadata is absent, assume WGS84 but log a warning. Do NOT proceed to join without ensuring data is in WGS84.** **Depends on T013.**
-- [ ] T014 [US1] Implement spatial join logic in `code/ingestion.py` to merge `SongRecord` and `ClimateSnapshot`. **Perform a vector-vector spatial join on the reprojected CSV point data (from T013b) within the `join_radius_km` (defined in T005 config, derived from WorldClim raster resolution). This step operates on the validated, reprojected CSV points.** **Depends on T013b.**
-- [ ] T015 [US1] Calculate and log match rate (matched/total) and verify no duplicates in `code/ingestion.py`
-- [ ] T016 [US1] Implement exclusion logic for unmatched species and logging of warnings in `code/ingestion.py`. **Output:** Write a JSON file `data/logs/excluded_species.json` with schema `{ "excluded_ids": ["..."], "count": 0, "reason": "..." }`. **Depends on T014.**
-- [ ] T017 [US1] Save the unified `AnalysisDataset` to `data/processed/analysis_dataset.csv` and update `data/checksums.txt` **and state file** using `update_state_file()` (T004b). **Must complete after T016.** **Depends on T015, T016, T004b.**
-
-### Tests for User Story 1
-
-- [X] T018 [US1] Unit test for coordinate reprojection logic in `tests/test_ingestion.py` (depends on T013b implementation)
-- [X] T019 [US1] Unit test for schema validation and join logic in `tests/test_ingestion.py` (depends on T013/T014 implementation)
-- [ ] T020 [US1] Integration test for full ingestion pipeline (fetch -> join -> save) in `tests/test_ingestion.py` (depends on T011-T017 implementation)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T007 [P] Create schema definition files for all entities **[FR‑001]**  
+  - **Files**: `contracts/song_record.schema.yaml`, `contracts/climate_snapshot.schema.yaml`, `contracts/analysis_dataset.schema.yaml`, `contracts/aggregated_pvalues.schema.yaml`, `contracts/analysis_output.schema.yaml`.  
+  - **Verification**: `jsonschema.validate({}, schema)` succeeds for a minimal valid instance of each entity.
 
 ---
 
-## Phase 4: User Story 2 - Exploratory Data Analysis and Correlation Matrix (Priority: P2)
+## Phase 0 – Data Acquisition (Verified Input)
 
-**Goal**: Generate statistical summaries, correlation matrices, and multicollinearity diagnostics (VIF) to validate data quality and relationships.
+- [ ] T001 [P] Download verified `analysis_dataset.parquet` from HuggingFace **[FR‑001]**  
+  - **File**: `data/raw/analysis_dataset.parquet` (download URL listed in `contracts/analysis_dataset.schema.yaml`).  
+  - **Requirement**: Compute SHA‑256 checksum and append `analysis_dataset.parquet  <sha256>` to `data/checksums.txt`.  
+  - **Verification**: Checksum line exists; `utils.update_state_file()` records hash in project state YAML.
 
-**Independent Test**: Can be fully tested by running `code/eda.py` and verifying a JSON report is generated with a symmetric correlation matrix, valid ranges bounded by theoretical limits, and VIF flags.
+- [ ] T004a [P] Detect CRS of any user‑supplied climate raster **[FR‑001]**  
+  - **File**: `code/ingestion.py` (uses `rasterio` to read CRS).  
+  - **Verification**: Logs detected CRS; proceeds to reprojection if needed.
 
-### Implementation for User Story 2
-
-- [ ] T021 [US2] Implement `code/eda.py` to load `AnalysisDataset` (validating against T007/T008 schemas), generate summary statistics (mean, std, range). **Depends on T017.**
-- [ ] T022 [US2] Implement Pearson correlation matrix calculation between song metrics and environmental predictors in `code/eda.py`
-- [ ] T023 [US2] Implement multicollinearity threshold check (default 0.8) and flagging in `code/eda.py`
-- [ ] T024 [US2] Implement Variance Inflation Factor (VIF) calculation for all predictors in `code/eda.py` **AND implement pairwise correlation checks to identify specific *pairs* of predictors with high collinearity (r > 0.8). Flag any pair exceeding this threshold in the report, explicitly listing the `pair: [var1, var2]` and correlation value.** **Depends on T021.**
-- [ ] T026 [US2] Generate and save EDA report (`data/eda_report.json`) containing `correlation_matrix`, `summary_stats`, `vif_flags`, and `pairwise_correlation_flags`. Ensure correlation matrix values are strictly within [-1.0, 1.0] and include a validation step to assert this. **Depends on T024.**
-
-### Tests for User Story 2
-
-- [ ] T027 [US2] Unit test for correlation matrix calculation and symmetry in `tests/test_eda.py`
-- [ ] T028 [US2] Unit test for VIF calculation and threshold flagging in `tests/test_eda.py`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T004b [P] Reproject raster to EPSG:4326 when necessary **[FR‑001]**  
+  - **File**: `code/ingestion.py` (uses `pyproj`/`rasterio.warp`).  
+  - **Verification**: Reprojected raster saved; CRS check confirms EPSG:4326.
 
 ---
 
-## Phase 5: User Story 3 - Predictive Modeling with Sensitivity Analysis (Priority: P3)
+## Phase 1 – Merge Validation
 
-**Goal**: Fit multiple linear regression models, perform sensitivity analysis on p-value thresholds, and apply FDR control.
+- [ ] T018 [P] Validate merge quality and compute match proportion **[SC‑001]**  
+  - **File**: `code/ingestion.py` (after loading `analysis_dataset.parquet`).  
+  - **Steps**: Verify species IDs and coordinate precision; log mismatches; abort if >5 % of rows mismatched; record `match_rate` in `outputs/merge_validation.json`.  
+  - **Verification**: JSON file exists and contains `match_rate`; CI test asserts `match_rate` is a float between 0 and 1.
 
-**Independent Test**: Can be fully tested by running `code/modeling.py` and verifying model files, sensitivity reports, and FDR-adjusted p-values.
-
-### Implementation for User Story 3
-
-- [ ] T030a [US3] Implement `code/modeling.py` to fit a **Null Model** (intercept-only) for both `song_metric_1` and `song_metric_2`. **Depends on T026.**
-- [ ] T029 [US3] Implement `code/modeling.py` to fit Model A (Climate Only) and Model B (Climate + Geo) using `statsmodels`, explicitly targeting song_metric_1/song_metric_2, consuming EDA report (T026) for multicollinearity diagnostics, and flagging analysis as 'associational' in output metadata. **Depends on T030a, T026.**
-- [ ] T030b [US3] Calculate and report the **delta R²** (R²_model - R²_null) for both metrics in `code/modeling.py` and save to `data/model_performance.json`. **Depends on T029, T030a.**
-- [ ] T031a [US3] **Explicitly aggregate p-values**: Extract p-value vectors from the outputs of Model A and Model B (from T029) for both `song_metric_1` and `song_metric_2`, **flatten them into a single list of floats**, and save to `data/aggregated_pvalues.json` with metadata. **Schema:** `[{ "metric": "...", "threshold": "...", "p_value": float, "raw_p_value": float }, ...]`. **Depends on T029.**
-- [ ] T031b [US3] Implement sensitivity analysis: sweep p-value thresholds across {0.01, 0.05, 0.10}, track significant predictors, calculate Jaccard index (J = |A∩B| / |A∪B|) comparing sets of significant predictors at **every** threshold pair, and **save the full list of per-pair Jaccard values** (not just aggregate) to `data/sensitivity_report.json`. Calculate and report a single aggregate stability metric (mean Jaccard and min Jaccard) as well. **Depends on T031a.**
-- [ ] T031c [US3] Implement Benjamini-Hochberg procedure using `statsmodels.stats.multitest.multipletests` with `method='fdr_bh'` in `code/modeling.py` to adjust p-values using the **flattened single list of p-values** from T031a. **Algorithm:** Sort p-values, calculate rank, apply BH formula, save adjusted p-values. **Depends on T031a.**
-- [ ] T032 [US3] Apply FDR correction to p-values in `code/modeling.py` using the procedure from T031c and save adjusted p-values to the sensitivity report. **Depends on T031c.**
-- [ ] T033 [US3] Save fitted models (`data/models/model_a.pkl`, `data/models/model_b.pkl`) and sensitivity report (`data/sensitivity_report.json`) including FDR-adjusted p-values
-- [ ] T034 [US3] Add error handling for zero-variance predictors and abort with clear message in `code/modeling.py`
-
-### Tests for User Story 3
-
-- [ ] T035 [US3] Unit test for model fitting and R² calculation in `tests/test_modeling.py`
-- [ ] T036 [US3] Unit test for sensitivity analysis sweep logic in `tests/test_modeling.py`
-- [ ] T037 [US3] Unit test for Benjamini-Hochberg FDR procedure in `tests/test_modeling.py`
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T017 [P] Record final dataset checksum & state entry **[FR‑001]**  
+  - **File**: `data/processed/analysis_dataset.parquet` (copied from raw after validation).  
+  - **Requirement**: Append checksum line to `data/checksums.txt` and call `utils.update_state_file()`.  
+  - **Verification**: Checksum line present; state YAML contains matching hash.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 2 – Exploratory Data Analysis (User Story 2)
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T010 [P] Compute summary statistics **[FR‑002]**  
+  - **File**: `code/eda.py`.  
+  - **Output**: `outputs/summary_stats.json` (mean, std, min, max for all continuous variables).  
+  - **Verification**: JSON loads; all required fields present.
 
-- [ ] T038 [P] Documentation updates: Update `README.md` with execution instructions and create `docs/api.md` with function signatures for `ingestion.py`, `eda.py`, and `modeling.py`.
-- [ ] T039a [P] Lint and format check across all code files (ruff/black)
-- [ ] T039b [P] Target cyclomatic complexity < 10 across all functions using tool: ruff
-- [ ] T040 [P] Performance optimization: Profile `ingestion.py` using `cProfile` and optimize spatial join using `geopandas.sindex` or `rtree` to reduce runtime.
-- [ ] T041 [P] Additional unit tests for edge cases (missing data, coordinate mismatches)
-- [ ] T042 [P] Run `quickstart.md` validation
+- [ ] T011 [P] Compute Pearson correlation matrix **[FR‑002]**  
+  - **File**: `code/eda.py`.  
+  - **Output**: `outputs/correlation_matrix.json`.  
+  - **Verification**: Matrix is symmetric, diagonal entries exactly 1.0, all values ∈ [-1.0, 1.0].
 
----
+- [ ] T012 [P] Compute VIF for Model B predictors and flag pairs **[FR‑005]**  
+  - **File**: `code/eda.py`.  
+  - **Output**: `outputs/vif_pairs.json` (list of `{predictor, vif, partner, partner_corr}` where `vif > 5`).  
+  - **Verification**: Test asserts at least one entry when VIF exceeds threshold.
 
-## Dependencies & Execution Order
+- [ ] T013 [P] Compute Moran's I on Model B residuals **[FR‑003]**  
+  - **File**: `code/eda.py`.  
+  - **Output**: `outputs/morans_i.json` (statistic and p‑value).  
+  - **Verification**: Test checks JSON keys and that p‑value is a float.
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - T007 must complete before T008
- - T008 must complete before T013
- - T005 must complete before T011/T012
- - T004 must complete before T004b
- - T004b must complete before T011/T012/T017
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T017)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data and US2 diagnostics (T026)
-
-### Within Each User Story
-
-- Implementation tasks MUST be completed before Test tasks
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2, except T007->T008)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel (within their respective test suites, after implementation)
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T014 [P] Assemble full EDA report **[FR‑002]**  
+  - **File**: `outputs/eda_report.json` (consolidates summary, correlation, VIF, Moran's I).  
+  - **Verification**: JSON loads; contains keys `summary_stats`, `correlation_matrix`, `vif_pairs`, `morans_i`.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 3 – Power Analysis
 
-```bash
-# Launch all models for User Story 1 together:
-Task: "Implement fetch_xeno_canto.py to download real metadata"
-Task: "Implement fetch_worldclim.py to download real climate variables"
-
-# Launch all tests for User Story 1 together (after implementation):
-Task: "Unit test for coordinate reprojection logic in tests/test_ingestion.py"
-Task: "Unit test for schema validation and join logic in tests/test_ingestion.py"
-```
+- [ ] T016 [P] Perform a priori and post‑hoc power analysis **[SC‑002]**  
+  - **File**: `code/power.py`.  
+  - **Inputs**: Effect size = 0.15, α = 0.05, predictors = 5, actual sample size from `analysis_dataset.parquet`.  
+  - **Output**: `outputs/power_analysis.json` (required_n, actual_n, achieved_power, underpowered flag).  
+  - **Verification**: Test asserts `underpowered` is true only when `actual_n < required_n`.
 
 ---
 
-## Implementation Strategy
+## Phase 4 – Predictive Modeling (User Story 3)
 
-### MVP First (User Story 1 Only)
+- [ ] T020 [P] Fit Null models for both outcomes **[FR‑003]**  
+  - **File**: `code/modeling.py`.  
+  - **Outputs**: `data/models/null_song_metric_1.pkl`, `null_song_metric_2.pkl`.  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+- [ ] T021 [P] Fit Climate‑Only (Model A) for both outcomes **[FR‑003]**  
+  - **Outputs**: `data/models/model_a_song_metric_1.pkl`, `model_a_song_metric_2.pkl`.  
 
-### Incremental Delivery
+- [ ] T022 [P] Fit Full models (Model B) for both outcomes **[FR‑003]**  
+  - **Outputs**: `data/models/model_b_song_metric_1.pkl`, `model_b_song_metric_2.pkl`.  
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+- [ ] T023 [P] Verify Model B improves over Null (R² gain & F‑test p < 0.05) **[SC‑002]**  
+  - **File**: `code/modeling.py`.  
+  - **Output**: `outputs/model_performance.json` (R², adj R², global F‑test p‑value for each model).  
+  - **Verification**: CI test asserts `delta_r2 > 0` and `p_value_global < 0.05` for both outcomes.
 
-### Parallel Team Strategy
+- [ ] T024 [P] Aggregate all predictor p‑values **[FR‑006]**  
+  - **File**: `code/modeling.py`.  
+  - **Output**: `aggregated_pvalues.parquet` (conforms to `contracts/aggregated_pvalues.schema.yaml`).  
 
-With multiple developers:
+- [ ] T025c [P] Apply global Benjamini‑Hochberg FDR correction **[FR‑006]**  
+  - **File**: `code/modeling.py`.  
+  - **Output**: Updated `aggregated_pvalues.parquet` with `q_value` column; also stored in `outputs/fdr_corrected_pvalues.parquet`.  
+  - **Verification**: Schema validation passes; spot‑check ensures at least one q ≤ 0.05 when corresponding p is low.
 
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T026 [P] Summarize modeling results **[FR‑003]**  
+  - **File**: `outputs/model_summary.csv` (validated by `contracts/analysis_output.schema.yaml`).  
 
 ---
 
-## Notes
+## Phase 5 – Sensitivity & Omitted‑Variable Bias
 
-- [P] tasks = different files, no dependencies (except explicit implementation dependencies noted)
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] T030 [P] Sensitivity sweep over significance thresholds {0.01, 0.05, 0.10} **[SC‑003]**  
+  - **File**: `code/modeling.py`.  
+  - **Output**: `outputs/sensitivity_report.json` (threshold, num_significant, R²).  
+
+- [ ] T031 [P] Compute Jaccard stability between successive thresholds **[SC‑003]**  
+  - **File**: `code/modeling.py`.  
+  - **Output**: `outputs/sensitivity_report.json` (adds `jaccard_to_next` for each threshold).  
+  - **Verification**: Test asserts Jaccard values are between 0 and 1.
+
+- [ ] T032 [P] Omitted‑variable‑bias assessment (optional proxies) **[FR‑003]**  
+  - **Output**: `outputs/omitted_variable_bias.json`.  
+
+---
+
+## Phase 6 – Reporting, Figures & Provenance
+
+- [ ] T040 [P] Generate required figures **[FR‑002]**  
+  - **Files**: `outputs/figures/correlation_heatmap.png`, `vif_pair_bar.png`, `morans_i_plot.png`, `r2_vs_threshold.png`.  
+  - **Verification**: Each PNG exists, > 5 KB, opens with Pillow.
+
+- [ ] T042 [P] Record provenance links for each figure and statistic **[IV‑Single Source of Truth]**  
+  - **File**: `outputs/provenance.json` (maps each artifact to source row IDs and code module).  
+  - **Verification**: JSON loads; contains entries for all figures and key statistics.
+
+---
+
+## Phase 7 – Runtime Enforcement
+
+- [ ] T041 [P] Orchestrate full pipeline and enforce total runtime < 1 h **[SC‑005]**  
+  - **File**: `code/main.py`.  
+  - **Behavior**: Executes all phases, logs wall‑clock time to `outputs/runtime_log.txt`.  
+  - **Verification**: CI step parses the log and fails if duration > 3600 seconds.
+
+---
+
+## Phase 8 – Tests (Concrete Test Tasks)
+
+- [ ] T050 [P] Create/Update ingestion tests **[FR‑001]**  
+  - **File**: `tests/test_ingestion.py` (checks checksum handling, schema validation, CRS reprojection, merge‑validation).  
+
+- [ ] T051 [P] Create/Update EDA tests **[FR‑002]**  
+  - **File**: `tests/test_eda.py` (symmetry, diagonal, VIF flagging, Moran's I detection).  
+
+- [ ] T052 [P] Create/Update power analysis tests **[SC‑002]**  
+  - **File**: `tests/test_power.py` (required vs actual sample size, underpowered flag).  
+
+- [ ] T053 [P] Create/Update modeling tests **[FR‑003]**  
+  - **File**: `tests/test_modeling.py` (model improvement, global FDR, sensitivity sweep, Jaccard).  
+
+- [ ] T054 [P] Create/Update figure generation tests **[FR‑002]**  
+  - **File**: `tests/test_figures.py` (file existence, size, openability).  
+
+- [ ] T055 [P] Create/Update runtime test **[SC‑005]**  
+  - **File**: `tests/test_runtime.py` (parses `runtime_log.txt` and asserts < 3600 s).  
+
+All tests must pass in CI.
+
+---
+
+*All tasks must be executed in the order indicated by their dependencies. Tasks marked `[P]` may run in parallel provided their file targets do not overlap.*  
