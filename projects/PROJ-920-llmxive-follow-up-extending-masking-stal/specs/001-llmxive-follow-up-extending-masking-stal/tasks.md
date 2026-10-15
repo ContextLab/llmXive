@@ -30,7 +30,7 @@ All scaffolding tasks are verified and checked.
 
 ## Phase 1 – Synthetic trajectory generation
 
-- [X] T011 **Generate synthetic trajectories**  
+- [ ] T011 **Generate synthetic trajectories**  
   *Script*: `code/generate_trajectories.py`  
   *Produces*: `data/raw/trajectories.json` (exactly 500 trajectories, balanced low/medium/high density).  
   *Key behaviour*:  
@@ -44,7 +44,7 @@ All scaffolding tasks are verified and checked.
   – Validate against `specs/001-llmxive-follow-up-extending-masking-stal/contracts/trajectory.schema.yaml`.  
   – Check that the number of trajectories per `density_level` (low, medium, high) is ≥ 150 each.
 
-- [ ] T012 **Validate generated trajectories & edge‑case metadata**   <!-- FAILED-IN-EXECUTION: code/validate_trajectories.py exit=1 -->
+- [ ] T012 **Validate generated trajectories & edge‑case metadata**   <!-- FAILED-IN-EXECUTION: code/validate_trajectories.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_trajectories.py exit=1; code/validate_trajectories.py exit=1 -->
   *Script*: `code/validate_trajectories.py`  
   *Consumes*: `data/raw/trajectories.json`.  
   *Checks*:  

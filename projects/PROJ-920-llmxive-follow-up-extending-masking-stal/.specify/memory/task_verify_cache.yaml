@@ -1,13 +1,12 @@
 T001:
   c: true
-  h: 762538d042db0d349112ccebdd448cc7b2de5783c7dea50ef2c9b846c62dad9b
+  h: 364c2d5e2129511364e24fa60ca3fb4391cf56612ef4ad4d3b30cf93c72f12a2
   r: All five required directories (`data/raw/`, `data/logs/`, `results/`, `code/`,
-    `tests/`) exist and are non-empty (each contains files beyond `.gitkeep`), and
-    `quickstart.md` exists at the project root with 1087 bytes of real, coherent setup/run
-    instructions matching the project's actual scripts (e.g., `code/generate_trajectories.py`,
-    `code/simulate_agent.py`). The task only asked for the directory tree and a minimal
-    quickstart, both of which are satisfied.
-  sig: d088e946ef9349bde31f41fbb352b3fb64f70508ef072b64e271e41bd8b935f6
+    `tests/`) exist with non-empty contents, and `quickstart.md` (1087 bytes) is present
+    with real setup/run instructions rather than a placeholder. The task only asked
+    for the directory tree and a minimal quickstart, both of which are satisfied by
+    the collector-confirmed evidence.
+  sig: 9daad422627d1b8d0b6488d51f26d149814a90f0c347af4cb7428b32179b842b
 T002:
   c: true
   h: f8484932282ffde0fd635e0e2448eaf2606358db14c34027fc092af69698a368
@@ -89,13 +88,16 @@ T010:
     1). No placeholders or stubs remain."
   sig: 91f28cfd2b752b5b64b65717ce4121d432ff7f82c23a36a30880b45a26fa05bf
 T011:
-  c: true
-  h: 29b81b49f450ead400c90bf727c8d9808c12ac96ce6d13e0e1187dc20edd3898
-  r: "Checked `code/generate_trajectories.py` (implements the required CLI, uses the\
-    \ utils, enforces bin minimums and file\u2011size limit) and the produced `data/raw/trajectories.json`\
-    \ (exists, ~1.9\u202FMiB, valid JSON matching the schema, and the script\u2019\
-    s logic guarantees exactly 500 trajectories with \u2265150 per density bin)."
-  sig: a4e9005c776722c6ffb2f979e004b06e5239eeb55a887a8283d00bbcebafb550
+  c: false
+  h: 0b3e16119fdac1f5dfe0cd200dc8666b27649acde09b25ae088f75fce009a418
+  r: "The required output artifact `data/raw/trajectories.json` does not exist, so\
+    \ the verification steps (valid JSON, \u2264100 MB, schema conformance, \u2265\
+    150 per density bin) cannot be confirmed. Additionally, the script deviates from\
+    \ the task: it accepts `--num-trajectories` instead of the required `--count`,\
+    \ imports `calculate_composite_density` but never uses it (defining its own `compute_final_density`\
+    \ instead), and its output turns omit the schema-required `entropy_per_token`\
+    \ field per turn, so even if run it would fail schema validation."
+  sig: f07dcd364c95aa09980945d37504b3f8ff259a12913bffd6289183ef03f637df
 T013:
   c: true
   h: a865f0251c376f0edcc94b79137dfacb4d6b1ee121a47519536736d4262119eb

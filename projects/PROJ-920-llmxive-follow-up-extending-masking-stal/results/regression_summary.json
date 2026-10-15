@@ -1,98 +1,84 @@
 {
   "model_summary": {
-    "formula": "success ~ density_value * bs(requested_horizon, df=5, degree=3)",
+    "formula": "success ~ density_value * bs(requested_horizon, df=4, degree=3)",
     "n_observations": 5000,
-    "pseudo_r_squared": 0.1517150633756842
+    "pseudo_r_squared": 0.1513640620439649
   },
   "coefficients": [
     {
       "term": "Intercept",
-      "estimate": -1.229718941966037,
-      "std_error": 0.08426452600945777,
-      "z_value": -14.593554372192333,
-      "p_value": 3.086867985892557e-48
+      "estimate": 22446416999.733788,
+      "std_error": 27705878057.939762,
+      "z_value": 0.8101680427811327,
+      "p_value": 0.4178436017790488
     },
     {
       "term": "density_value",
-      "estimate": -1.229718941966026,
-      "std_error": 0.0842645260094574,
-      "z_value": -14.593554372192266,
-      "p_value": 3.086867985895598e-48
+      "estimate": -22446417002.045353,
+      "std_error": 27705878057.894157,
+      "z_value": -0.8101680428658986,
+      "p_value": 0.4178436017303373
     },
     {
-      "term": "bs(requested_horizon, df=5, degree=3)[0]",
-      "estimate": 0.36554601392073593,
-      "std_error": 0.153821580033912,
-      "z_value": 2.3764286769135157,
-      "p_value": 0.017481140590449338
+      "term": "bs(requested_horizon, df=4, degree=3)[0]",
+      "estimate": 1790087827333.2822,
+      "std_error": 8897802523562.004,
+      "z_value": 0.20118313736374846,
+      "p_value": 0.8405553763622817
     },
     {
-      "term": "bs(requested_horizon, df=5, degree=3)[1]",
-      "estimate": 0.7689463882696456,
-      "std_error": 0.1216602347179024,
-      "z_value": 6.320441433083102,
-      "p_value": 2.608171678468185e-10
+      "term": "bs(requested_horizon, df=4, degree=3)[1]",
+      "estimate": 2789895901666.0127,
+      "std_error": 7239242704791.41,
+      "z_value": 0.3853850486072908,
+      "p_value": 0.6999521582303445
     },
     {
-      "term": "bs(requested_horizon, df=5, degree=3)[2]",
-      "estimate": 1.4054681888459504,
-      "std_error": 0.13484045245579668,
-      "z_value": 10.423193954400963,
-      "p_value": 1.9431583538950399e-25
+      "term": "bs(requested_horizon, df=4, degree=3)[2]",
+      "estimate": 1511232982174.102,
+      "std_error": 1834020955563.8845,
+      "z_value": 0.8239998444889423,
+      "p_value": 0.4099396463228022
     },
     {
-      "term": "bs(requested_horizon, df=5, degree=3)[3]",
-      "estimate": 1.5524080420035173,
-      "std_error": 0.11596760893724249,
-      "z_value": 13.386565923279706,
-      "p_value": 7.245406098203097e-41
+      "term": "bs(requested_horizon, df=4, degree=3)[3]",
+      "estimate": 7559579841570.92,
+      "std_error": 6533798626130.45,
+      "z_value": 1.1569961478975017,
+      "p_value": 0.2472739341677911
     },
     {
-      "term": "bs(requested_horizon, df=5, degree=3)[4]",
-      "estimate": 1.672628315852271,
-      "std_error": 0.09856811772777117,
-      "z_value": 16.969263027541963,
-      "p_value": 1.3866128732119756e-64
+      "term": "density_value:bs(requested_horizon, df=4, degree=3)[0]",
+      "estimate": -1790087827332.5254,
+      "std_error": 8897802523562.248,
+      "z_value": -0.20118313736365787,
+      "p_value": 0.8405553763623526
     },
     {
-      "term": "density_value:bs(requested_horizon, df=5, degree=3)[0]",
-      "estimate": 0.3655460139207349,
-      "std_error": 0.15382158003391125,
-      "z_value": 2.37642867691352,
-      "p_value": 0.017481140590449116
+      "term": "density_value:bs(requested_horizon, df=4, degree=3)[1]",
+      "estimate": -2789895901663.712,
+      "std_error": 7239242704791.22,
+      "z_value": -0.3853850486069831,
+      "p_value": 0.6999521582305723
     },
     {
-      "term": "density_value:bs(requested_horizon, df=5, degree=3)[1]",
-      "estimate": 0.7689463882696455,
-      "std_error": 0.1216602347179025,
-      "z_value": 6.320441433083096,
-      "p_value": 2.60817167846827e-10
+      "term": "density_value:bs(requested_horizon, df=4, degree=3)[2]",
+      "estimate": -1511232982171.273,
+      "std_error": 1834020955563.9338,
+      "z_value": -0.8239998444873775,
+      "p_value": 0.4099396463236913
     },
     {
-      "term": "density_value:bs(requested_horizon, df=5, degree=3)[2]",
-      "estimate": 1.4054681888459517,
-      "std_error": 0.13484045245579643,
-      "z_value": 10.423193954400992,
-      "p_value": 1.9431583538944542e-25
-    },
-    {
-      "term": "density_value:bs(requested_horizon, df=5, degree=3)[3]",
-      "estimate": 1.5524080420035233,
-      "std_error": 0.11596760893724263,
-      "z_value": 13.386565923279742,
-      "p_value": 7.245406098199681e-41
-    },
-    {
-      "term": "density_value:bs(requested_horizon, df=5, degree=3)[4]",
-      "estimate": 1.6726283158522595,
-      "std_error": 0.09856811772776972,
-      "z_value": 16.969263027542098,
-      "p_value": 1.386612873208772e-64
+      "term": "density_value:bs(requested_horizon, df=4, degree=3)[3]",
+      "estimate": -7559579841567.778,
+      "std_error": 6533798626130.576,
+      "z_value": -1.1569961478969986,
+      "p_value": 0.2472739341679968
     }
   ],
   "interaction_significance": {
-    "p_value": 0.017481140590449116,
-    "supported_hypothesis": true
+    "p_value": 0.8405553763623526,
+    "supported_hypothesis": false
   },
   "plot_path": ""
 }

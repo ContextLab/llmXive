@@ -8,9 +8,6 @@ Checks performed:
   3. The `is_last_turn` flag must be True iff `critical_evidence_turn == T - 1`.
   4. Reports a concise summary and exits with status 0 on success,
      non-zero on any validation failure.
-
-The script is invoked as:
-    python -m code.validate_trajectories --input data/raw/trajectories.json
 """
 
 import argparse
@@ -20,29 +17,21 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-# Ensure project root is on PYTHONPATH for sibling imports
+# Resolve project root for imports
+import os
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from code.utils.entropy import entropy_per_token
 
-# ----------------------------------------------------------------------
-# Logging configuration
-# ----------------------------------------------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-# ----------------------------------------------------------------------
-# Constants
-# ----------------------------------------------------------------------
-# Strict tolerance as required by T012 and US-1
-TOLERANCE = 0.01  # bits/token tolerance for entropy match
-
-DEFAULT_TRAJ_PATH = PROJECT_ROOT / "data" / "raw" / "trajectories.json"
+TOLERANCE = 0.01
 REQUIRED_TOP_FIELDS = {
     "trajectory_id",
     "turns",
@@ -55,11 +44,7 @@ REQUIRED_TOP_FIELDS = {
     "is_last_turn",
 }
 
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
 def load_trajectories(filepath: Path) -> List[Dict[str, Any]]:
-    """Load a list of trajectory dictionaries from a JSON file."""
     if not filepath.exists():
         logger.error(f"Trajectory file not found: {filepath}")
         sys.exit(1)
@@ -74,131 +59,72 @@ def load_trajectories(filepath: Path) -> List[Dict[str, Any]]:
         logger.error(f"Invalid JSON in trajectory file: {e}")
         sys.exit(1)
 
-def extract_evidence_text(traj: Dict[str, Any]) -> str:
-    """Return the raw text of the injected evidence block."""
-    turns = traj.get("turns")
-    idx = traj.get("critical_evidence_turn")
-    if not isinstance(turns, list) or idx is None:
-        raise ValueError("Missing 'turns' list or 'critical_evidence_turn' index.")
-    if not (0 <= idx < len(turns)):
-        raise IndexError(
-            f"critical_evidence_turn {idx} out of bounds for {len(turns)} turns."
-        )
-    turn = turns[idx]
-    text = turn.get("text")
-    if text is None:
-        raise ValueError("Critical turn missing 'text' field.")
-    return text
-
 def validate_required_fields(traj: Dict[str, Any]) -> Tuple[bool, str]:
-    """Verify that all top-level required keys are present."""
     missing = REQUIRED_TOP_FIELDS.difference(traj.keys())
     if missing:
         return False, f"Missing required fields: {sorted(missing)}"
     return True, ""
 
 def validate_entropy(traj: Dict[str, Any]) -> Tuple[bool, str]:
-    """
-    Verify that the entropy recorded for the evidence block matches the
-    target entropy within the strict tolerance of ±0.01.
-    """
     target = traj.get("target_entropy")
-    if target is None:
-        return False, "Field 'target_entropy' is missing."
-
     actual = traj.get("actual_entropy")
-    if not isinstance(actual, (int, float)):
-        # Fallback: recompute if the stored value is invalid
-        try:
-            actual = entropy_per_token(extract_evidence_text(traj))
-        except Exception as e:
-            return False, f"Failed to compute evidence entropy: {e}"
-
+    if target is None or actual is None:
+        return False, "Missing target_entropy or actual_entropy"
+    
     diff = abs(float(actual) - float(target))
     if diff > TOLERANCE:
-        return (
-            False,
-            f"Entropy mismatch (target={target:.4f}, measured={actual:.4f}, diff={diff:.4f})",
-        )
+        return False, f"Entropy mismatch (target={target:.4f}, actual={actual:.4f}, diff={diff:.4f})"
     return True, ""
 
 def validate_last_turn_flag(traj: Dict[str, Any]) -> Tuple[bool, str]:
-    """
-    Ensure is_last_turn is True iff critical_evidence_turn is the last turn.
-    """
-    if "is_last_turn" not in traj:
-        return False, "Field 'is_last_turn' is missing."
+    is_last = traj.get("is_last_turn")
+    turns = traj.get("turns")
+    crit_idx = traj.get("critical_evidence_turn")
     
-    is_last = traj["is_last_turn"]
-    turns = traj["turns"]
-    crit_idx = traj["critical_evidence_turn"]
+    if is_last is None or turns is None or crit_idx is None:
+        return False, "Missing is_last_turn, turns, or critical_evidence_turn"
     
     expected = (crit_idx == len(turns) - 1)
     if is_last != expected:
-        return (
-            False,
-            f"is_last_turn flag mismatch (expected {expected}, got {is_last})",
-        )
+        return False, f"is_last_turn flag mismatch (expected {expected}, got {is_last})"
     return True, ""
 
-# ----------------------------------------------------------------------
-# Main validation routine
-# ----------------------------------------------------------------------
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Validate synthetic trajectories against specification T012."
-    )
-    parser.add_argument(
-        "--input",
-        type=str,
-        default=str(DEFAULT_TRAJ_PATH),
-        help="Path to the trajectories JSON file (default: data/raw/trajectories.json)",
-    )
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", type=str, required=True)
     args = parser.parse_args()
 
     traj_path = Path(args.input)
-    logger.info(f"Loading trajectories from {traj_path}")
     trajectories = load_trajectories(traj_path)
-
-    if not trajectories:
-        logger.error("No trajectories found in the file.")
-        sys.exit(1)
-
+    
     total = len(trajectories)
     valid_count = 0
-    errors: List[str] = []
+    errors = []
 
     for i, traj in enumerate(trajectories):
-        # 1. Required fields
-        ok, msg = validate_required_fields(traj)
-        if not ok:
-            errors.append(f"Trajectory {i}: {msg}")
+        ok1, msg1 = validate_required_fields(traj)
+        if not ok1:
+            errors.append(f"Trajectory {i}: {msg1}")
             continue
-
-        # 2. Entropy consistency
-        ok, msg = validate_entropy(traj)
-        if not ok:
-            errors.append(f"Trajectory {i}: {msg}")
+        
+        ok2, msg2 = validate_entropy(traj)
+        if not ok2:
+            errors.append(f"Trajectory {i}: {msg2}")
             continue
-
-        # 3. is_last_turn flag
-        ok, msg = validate_last_turn_flag(traj)
-        if not ok:
-            errors.append(f"Trajectory {i}: {msg}")
+            
+        ok3, msg3 = validate_last_turn_flag(traj)
+        if not ok3:
+            errors.append(f"Trajectory {i}: {msg3}")
             continue
-
+            
         valid_count += 1
 
     if errors:
         logger.error(f"Validation failed: {valid_count}/{total} passed, {len(errors)} failed.")
-        logger.error("Details of failed trajectories (first 10 shown):")
         for err in errors[:10]:
             logger.error(f"  - {err}")
-        if len(errors) > 10:
-            logger.error(f"  ... and {len(errors) - 10} more.")
         sys.exit(1)
     else:
-        # Exact summary line required by T012 verification
         logger.info(f"All {total} trajectories passed validation.")
         sys.exit(0)
 
