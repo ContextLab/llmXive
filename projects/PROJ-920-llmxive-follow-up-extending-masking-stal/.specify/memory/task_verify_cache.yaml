@@ -87,17 +87,6 @@ T010:
     VI rules on `density_weights` (entropy weight > technical weight, sum to\u202F\
     1). No placeholders or stubs remain."
   sig: 91f28cfd2b752b5b64b65717ce4121d432ff7f82c23a36a30880b45a26fa05bf
-T011:
-  c: false
-  h: 0b3e16119fdac1f5dfe0cd200dc8666b27649acde09b25ae088f75fce009a418
-  r: "The required output artifact `data/raw/trajectories.json` does not exist, so\
-    \ the verification steps (valid JSON, \u2264100 MB, schema conformance, \u2265\
-    150 per density bin) cannot be confirmed. Additionally, the script deviates from\
-    \ the task: it accepts `--num-trajectories` instead of the required `--count`,\
-    \ imports `calculate_composite_density` but never uses it (defining its own `compute_final_density`\
-    \ instead), and its output turns omit the schema-required `entropy_per_token`\
-    \ field per turn, so even if run it would fail schema validation."
-  sig: f07dcd364c95aa09980945d37504b3f8ff259a12913bffd6289183ef03f637df
 T013:
   c: true
   h: a865f0251c376f0edcc94b79137dfacb4d6b1ee121a47519536736d4262119eb

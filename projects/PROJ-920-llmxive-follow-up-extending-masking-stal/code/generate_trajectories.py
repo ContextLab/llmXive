@@ -15,8 +15,9 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
+from llmxive_toolkit import paths
 from code.utils.entropy import entropy_per_token
-from code.utils.heuristics import calculate_composite_density
+from code.utils.heuristics import calculate_composite_density, calculate_technical_token_ratio
 
 # Configure logging
 logging.basicConfig(
@@ -35,11 +36,11 @@ DENSITY_CONFIG = {
 
 def ensure_config_directory() -> None:
     """Ensure the config directory exists."""
-    Path("code/config").mkdir(parents=True, exist_ok=True)
+    paths.code("config").mkdir(parents=True, exist_ok=True)
 
 def load_terms() -> List[str]:
     """Load technical terms from the JSON config."""
-    path = Path("code/config/density_terms.json")
+    path = paths.code("config", "density_terms.json")
     if not path.exists():
         logger.warning("density_terms.json not found, using empty list.")
         return []
@@ -115,6 +116,7 @@ def build_turn(turn_index: int, is_critical: bool, target_entropy: float, terms:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--count", type=int, default=500)
+    parser.add_argument("--num-trajectories", type=int, dest="count", default=500, help="Alias for --count")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output", type=str, default="data/raw/trajectories.json")
     args = parser.parse_args()
@@ -149,14 +151,9 @@ def main() -> None:
         crit_text = turns[crit_idx]["text"]
         actual_entropy = entropy_per_token(crit_text)
         
-        # Use the project API for composite density
+        # Use the project API for composite density and technical ratio
         final_density = calculate_composite_density(crit_text, terms)
-        
-        # Technical token ratio for metadata (re-calculating for the JSON record)
-        # We can derive it or just use a simple split-based count for the record
-        words = crit_text.split()
-        tech_count = sum(1 for w in words if any(t in w for t in terms))
-        tech_ratio = tech_count / len(words) if words else 0.0
+        tech_ratio = calculate_technical_token_ratio(crit_text, set(terms))
         
         trajectories.append({
             "trajectory_id": f"traj_{i:03d}",

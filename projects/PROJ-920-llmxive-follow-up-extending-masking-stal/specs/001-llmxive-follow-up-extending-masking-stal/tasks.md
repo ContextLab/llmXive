@@ -30,7 +30,7 @@ All scaffolding tasks are verified and checked.
 
 ## Phase 1 – Synthetic trajectory generation
 
-- [ ] T011 **Generate synthetic trajectories**   <!-- FAILED-IN-EXECUTION: code/generate_trajectories.py exit=1 -->
+- [ ] T011 **Generate synthetic trajectories**   <!-- FAILED-IN-EXECUTION: code/generate_trajectories.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_trajectories.py exit=1 -->
   *Script*: `code/generate_trajectories.py`  
   *Produces*: `data/raw/trajectories.json` (exactly 500 trajectories, balanced low/medium/high density).  
   *Key behaviour*:  

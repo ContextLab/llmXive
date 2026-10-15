@@ -1,13 +1,15 @@
 status: none
-intent: synthetic search trajectory generator with controlled density python package
-  dataset
+intent: Python package for synthetic search trajectories with entropy control HuggingFace
+  Datasets python package dataset
 required_fields:
 - trajectory_id
-- turn_number
+- turn_index
 - text
 - entropy_per_token
-- critical_flag
-- evidence_density_level
-cache_key: 5e3ab64bd73bec2dc6194b92c7544f76e94bead5aab18ef6245d37159f6efb1b
-searched_at: '2026-10-15T14:12:03.706536+00:00'
+- is_critical
+- evidence_age
+- seed
+- metadata
+cache_key: 28e07ba53d2ed70b57bbafac961b8d22697afe13b09f52374e8b456ca0bf46fd
+searched_at: '2026-10-15T18:17:01.558312+00:00'
 retry_count: 1

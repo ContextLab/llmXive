@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-15T09:18:22Z",
-  "project_id": "PROJ-920-llmxive-follow-up-extending-masking-stal"
+  "updated_at": "2026-10-15T18:17:01Z",
+  "project_id": "PROJ-920-llmxive-follow-up-extending-masking-stal",
+  "replan_rounds": 1
 }
