@@ -148,7 +148,7 @@ def main() -> None:
     save_json_file(FILTERED_OUTPUT, filtered)
     logger.info(f"Saved filtered dataset list to {FILTERED_OUTPUT}")
 
-    # 3. Deduplicate (required by T014/T016)
+    # 3. Deduplicate (required by later tasks)
     deduped = deduplicate_datasets(filtered)
 
     # Overwrite filtered output with deduplicated version

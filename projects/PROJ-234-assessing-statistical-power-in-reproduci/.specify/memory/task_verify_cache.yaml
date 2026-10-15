@@ -1,39 +1,41 @@
 T001:
   c: false
-  h: b626ff50d7b88b60ba652341d5eb5e2454efbe2ac3f0de37afbcc8069ea5dd57
-  r: "The expected root folder `projects/PROJ-001-assessing-statistical-power/` does\
-    \ not exist (it was created under a different parent path), and many required\
-    \ sub\u2011directories lack the placeholder `.gitkeep` files (e.g., `code/`, `code/utils/`,\
-    \ `tests/unit/`, `tests/integration/`, etc.). The task\u2019s directory\u2011\
-    tree and placeholder file requirements are therefore not satisfied."
-  sig: 1e95cbedb9d7e9134fdc214c9e92f320fcbba792f8b3747679a9f35000aa484c
+  h: b8f6b12daa4565e11256d4d20db473ec22f5b6382135dd93a5e49c3c01e6e181
+  r: The requested path `projects/PROJ-001-assessing-statistical-power/` is confirmed
+    MISSING; the execution log shows the tree was instead created nested inside the
+    project root at `projects/PROJ-234-.../projects/PROJ-001-...`, which is the wrong
+    location. Additionally, the observed `tests/` directory contains `unit/` and `contract/`
+    but no `integration/` subdirectory, and there is no evidence of `.gitkeep` files
+    in `code/`, `code/utils/`, `tests/unit/`, or `tests/integration/` (only `data/`,
+    `docs/`, and `contracts/` show `.gitkeep`).
+  sig: 478bdf13676e53fb14e6f5d57c3fb989315da251c9e458add550398538eed610
 T002:
-  c: false
-  h: 5f04b7f50bfbeb493fd503df90bd108e1c44a6b5e77c1a7d98440ae1f5d79e3c
-  r: The `requirements.txt` and `config.yaml` files exist with the correct contents,
-    but there is no provided evidence that `pip install -r requirements.txt --dry-run`
-    actually succeeded nor that `yaml.safe_load("config.yaml")` was executed and returned
-    the expected dictionary. Execution logs or command output are needed to confirm
-    those verification steps.
-  sig: 69c03adaa513f672d9be3a9fa611484c86eb1730df1400cad1f58db5294ac680
+  c: true
+  h: 19e50d953a07e3146e1e052dc29d699e4b9ea6417a7c125146eb0e6f661a4e84
+  r: 'Both artifacts exist at the project root with the exact required content: `requirements.txt`
+    (129 bytes) lists all eight pinned packages with exact versions matching the spec
+    excerpt, and `config.yaml` (50 bytes) contains `limits.max_runtime_hours: 6` and
+    `limits.max_memory_gb: 7`. The execution log shows `code/02_init_requirements.py`
+    exited 0 with the pip dry-run succeeding and `yaml.safe_load` confirming the required
+    limits keys.'
+  sig: 7c2c44135176dae98db9ad3fafaf0ecf524cb27e7daa6222d6a190719b5520d9
 T003:
-  c: false
-  h: d625dfbb540388e3f544275a9a5e058e8848a738806340bf7d5979c91d1968ec
-  r: "The four schema files exist and appear syntactically valid YAML, but there is\
-    \ no evidence that they were successfully loaded with `yaml.safe_load` nor that\
-    \ a `jsonschema.Draft7Validator` was run against a minimal valid instance for\
-    \ each schema. Execution logs, test scripts, or example instance files are missing,\
-    \ so the task\u2019s validation requirement is not demonstrated."
-  sig: 4d543cf50cef38be7c28b0e479bbe5dce9daab4c872fb17a28b3e868de04559f
+  c: true
+  h: 19d9528d3624475e5646431aebca265657e06bf800326ded08c6ffde11cfdd35
+  r: All four schema files exist in `contracts/` with substantive, well-formed Draft-07
+    JSON-Schema content matching the task's stated purposes (dataset metadata, power
+    audit result, extracted parameters with StatisticalParameters fields, and the
+    final audit report structure). The historical execution log shows `tests/unit/test_contracts_schema.py::test_schemas_validate`
+    passed (exit 0), confirming the files parse via `yaml.safe_load` and validate
+    with `jsonschema.Draft7Validator` against minimal valid instances.
+  sig: 26d587cf8c1d3779571f75d62f71155b22c19a5c9f9b42cf04d9ddbf8cf4502f
 T004:
   c: false
-  h: 3a86e4e129f6ae2509a3e609c69392910e81e4f0d26adf3d1db6e105bf6b051c
-  r: "The `code/utils/__init__.py` imports `OpenMLClient` and `fetch_top_classification_datasets`\
-    \ from `api_client.py`, but those symbols are not defined, causing ImportError\
-    \ during test collection (see all three test logs). Consequently the unit\u2011\
-    tests for `api_client`, `oa_checker`, and `parsers` never run, and the required\
-    \ functionality (exponential\u2011backoff wrapper, OA domain checks, parsing helpers,\
-    \ and the custom `DataFetchError`) is not verified as present. The task needs\
-    \ the missing classes/functions and the import error fixed so that `pytest -q\
-    \ tests/unit/` can execute and all tests pass."
-  sig: 3e9a9082d3ce1bde3b0b4d7e483e1ca5ba5e9bb9c640480870d59eb8c719e1b0
+  h: b8172c7e88bc3d421de9afce68890da5743c8977b1de437aa52c23b2635e251e
+  r: "The historical execution logs show `tests/unit/test_oa_checker.py` FAILED (exit\
+    \ 1): `test_known_oa_domains` asserts `is_open_access(\"https://doi.org/10.1000/xyz123\"\
+    )` is True but the implementation returns False, meaning the required `doi.org/10.`\
+    \ domain recognition is not working. The task's verification requirement \u2014\
+    \ all three unit test files passing \u2014 is not met; the implementer must fix\
+    \ the DOI prefix matching in `code/utils/oa_checker.py` and re-run the tests."
+  sig: bbc178bf8733ac35ebca093c1252ca72509a13dc7abf82ca990aace318608a17

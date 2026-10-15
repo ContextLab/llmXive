@@ -1,33 +1,23 @@
 T001:
-  reason: "The expected root folder `projects/PROJ-001-assessing-statistical-power/`\
-    \ does not exist (it was created under a different parent path), and many required\
-    \ sub\u2011directories lack the placeholder `.gitkeep` files (e.g., `code/`, `code/utils/`,\
-    \ `tests/unit/`, `tests/integration/`, etc.). The task\u2019s directory\u2011\
-    tree and placeholder file requirements are therefore not satisfied."
+  reason: The requested path `projects/PROJ-001-assessing-statistical-power/` is confirmed
+    MISSING; the execution log shows the tree was instead created nested inside the
+    project root at `projects/PROJ-234-.../projects/PROJ-001-...`, which is the wrong
+    location. Additionally, the observed `tests/` directory contains `unit/` and `contract/`
+    but no `integration/` subdirectory, and there is no evidence of `.gitkeep` files
+    in `code/`, `code/utils/`, `tests/unit/`, or `tests/integration/` (only `data/`,
+    `docs/`, and `contracts/` show `.gitkeep`).
   task: f601b39ee8ebeef163aa6e6481dc773fb45ed763416940616bf51385b1d0b7f6
 T002:
-  reason: The `requirements.txt` and `config.yaml` files exist with the correct contents,
-    but there is no provided evidence that `pip install -r requirements.txt --dry-run`
-    actually succeeded nor that `yaml.safe_load("config.yaml")` was executed and returned
-    the expected dictionary. Execution logs or command output are needed to confirm
-    those verification steps.
   task: dcaeefa0a2f2e975515379cf97c5d6e62d66b4bd77e2618b25fff8803bcecf91
 T003:
-  reason: "The four schema files exist and appear syntactically valid YAML, but there\
-    \ is no evidence that they were successfully loaded with `yaml.safe_load` nor\
-    \ that a `jsonschema.Draft7Validator` was run against a minimal valid instance\
-    \ for each schema. Execution logs, test scripts, or example instance files are\
-    \ missing, so the task\u2019s validation requirement is not demonstrated."
   task: c3ba56c391eb34f7068d63949a82ded611c6114714cabc83a7dee5381ea163ec
 T004:
-  reason: "The `code/utils/__init__.py` imports `OpenMLClient` and `fetch_top_classification_datasets`\
-    \ from `api_client.py`, but those symbols are not defined, causing ImportError\
-    \ during test collection (see all three test logs). Consequently the unit\u2011\
-    tests for `api_client`, `oa_checker`, and `parsers` never run, and the required\
-    \ functionality (exponential\u2011backoff wrapper, OA domain checks, parsing helpers,\
-    \ and the custom `DataFetchError`) is not verified as present. The task needs\
-    \ the missing classes/functions and the import error fixed so that `pytest -q\
-    \ tests/unit/` can execute and all tests pass."
+  reason: "The historical execution logs show `tests/unit/test_oa_checker.py` FAILED\
+    \ (exit 1): `test_known_oa_domains` asserts `is_open_access(\"https://doi.org/10.1000/xyz123\"\
+    )` is True but the implementation returns False, meaning the required `doi.org/10.`\
+    \ domain recognition is not working. The task's verification requirement \u2014\
+    \ all three unit test files passing \u2014 is not met; the implementer must fix\
+    \ the DOI prefix matching in `code/utils/oa_checker.py` and re-run the tests."
   task: d1fd21f1dc24b2ff6d073b1184aa5cb3a834bf28c2cddddeafd37bf81deeb74e
 T005:
   reason: 'Requested task execution failed; rerun successfully: code/01_ingest_openml.py

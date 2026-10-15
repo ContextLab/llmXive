@@ -1,7 +1,6 @@
 """
 Unit tests for ``code.utils.oa_checker``.
 """
-
 from unittest import mock
 
 import pytest

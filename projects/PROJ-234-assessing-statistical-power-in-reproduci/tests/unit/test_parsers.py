@@ -1,7 +1,6 @@
 """
 Unit tests for ``code.utils.parsers``.
 """
-
 import pytest
 
 from code.utils.parsers import (

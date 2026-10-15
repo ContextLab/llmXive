@@ -1,20 +1,15 @@
 """
-utils/api_client.py
---------------------
-Thin wrapper around the OpenML REST API with exponential‑backoff retry
-handling for HTTP 429 responses.
+Utility module providing a thin wrapper around the OpenML REST API with
+exponential‑backoff retry logic for HTTP 429 responses.
 
-Provides:
-- ``DataFetchError``: exception raised on irrecoverable request failures.
-- ``get_openml_json``: low‑level GET request with back‑off.
-- ``OpenMLClient``: small helper class (currently unused but kept for API compatibility).
-- ``fetch_top_classification_datasets``: fetches the top *limit* most‑downloaded
-  classification datasets from OpenML.
+The public API surface required by the project consists of:
+  - ``DataFetchError`` – custom exception raised on any fetch failure.
+  - ``get_openml_json`` – low‑level fetcher used by unit tests.
+  - ``OpenMLClient`` – small class encapsulating the base URL.
+  - ``fetch_top_classification_datasets`` – convenience function used by the
+    ingestion script (``code/01_ingest_openml.py``) to retrieve the top
+    *limit* most‑downloaded classification datasets.
 """
-
-from __future__ import annotations
-
-import json
 import time
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
@@ -28,39 +23,102 @@ __all__ = [
     "fetch_top_classification_datasets",
 ]
 
+
 class DataFetchError(Exception):
-    """Raised when a request to an external service fails irrecoverably."""
+    """Exception raised when a request to the OpenML API fails.
+
+    Attributes
+    ----------
+    status_code: int
+        HTTP status code returned by the server (if available).
+    message: str
+        Human‑readable description of the failure.
+    """
 
     def __init__(self, message: str, status_code: Optional[int] = None):
         super().__init__(message)
         self.status_code = status_code
+        self.message = message
 
-def _exponential_backoff(attempt: int, initial_delay: float, max_delay: float) -> float:
-    """Return the sleep time for a given retry attempt."""
-    delay = initial_delay * (2 ** (attempt - 1))
-    return min(delay, max_delay)
+    def __str__(self) -> str:
+        if self.status_code is not None:
+            return f"[{self.status_code}] {self.message}"
+        return self.message
+
+
+def _request_with_backoff(
+    url: str,
+    *,
+    max_retries: int,
+    initial_delay: float,
+    max_delay: float,
+    timeout: float,
+) -> requests.Response:
+    """Perform a ``requests.get`` with exponential back‑off for 429 responses.
+
+    Parameters
+    ----------
+    url: str
+        Full URL to request.
+    max_retries: int
+        Maximum number of retry attempts after the initial request.
+    initial_delay: float
+        Seconds to wait before the first retry.
+    max_delay: float
+        Upper bound for the delay between retries.
+    timeout: float
+        ``requests`` timeout for the HTTP call.
+
+    Returns
+    -------
+    requests.Response
+        The successful response object.
+
+    Raises
+    ------
+    DataFetchError
+        If all retries are exhausted or a non‑retryable error occurs.
+    """
+    delay = initial_delay
+    attempt = 0
+
+    while True:
+        try:
+            response = requests.get(url, timeout=timeout)
+            if response.status_code == 429:
+                # Rate‑limit – decide whether we should retry
+                if attempt >= max_retries:
+                    raise DataFetchError(
+                        f"Rate limited after {attempt} retries", status_code=429
+                    )
+                # Back‑off and retry
+                time.sleep(delay)
+                delay = min(delay * 2, max_delay)
+                attempt += 1
+                continue
+            # Any other status code is considered final
+            return response
+        except requests.RequestException as exc:
+            # Network‑level problems are not retryable for this wrapper
+            raise DataFetchError(str(exc)) from exc
 
 def get_openml_json(
     endpoint: str,
     *,
-    params: Dict[str, Any] = None,
-    max_retries: int = 3,
+    max_retries: int = 5,
     initial_delay: float = 1.0,
-    max_delay: float = 10.0,
+    max_delay: float = 60.0,
     timeout: float = 10.0,
-    base_url: str = "https://www.openml.org/api/v1/json/",
+    params: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    """
-    Retrieve a JSON payload from the OpenML REST API.
+    """Fetch a JSON payload from the OpenML REST API.
 
     Parameters
     ----------
-    endpoint:
-        Path component after the base URL (e.g., ``datasets/list``).
-    params:
-        Dictionary of query parameters that will be URL‑encoded.
-    max_retries, initial_delay, max_delay, timeout, base_url:
-        Same semantics as in the original implementation.
+    endpoint: str
+        Relative OpenML endpoint, e.g. ``"datasets/list"``.
+    max_retries, initial_delay, max_delay, timeout: see ``_request_with_backoff``.
+    params: optional query parameters passed through ``urlencode``.
 
     Returns
     -------
@@ -70,54 +128,45 @@ def get_openml_json(
     Raises
     ------
     DataFetchError
-        If the request ultimately fails (non‑200 status or network error).
+        If the request fails, returns a non‑2xx status, or the payload cannot be
+        decoded as JSON.
     """
+    base_url = "https://www.openml.org/api/v1/json"
+    if not endpoint.startswith("/"):
+        endpoint = "/" + endpoint
+    url = f"{base_url}{endpoint}"
     if params:
-        query = "?" + urlencode(params)
-    else:
-        query = ""
-    url = f"{base_url.rstrip('/')}/{endpoint.lstrip('/')}{query}"
-    attempt = 0
+        url = f"{url}?{urlencode(params)}"
 
-    while True:
-        attempt += 1
-        try:
-            response = requests.get(url, timeout=timeout)
-            if response.status_code == 200:
-                try:
-                    return response.json()
-                except json.JSONDecodeError as exc:
-                    raise DataFetchError(
-                        f"Invalid JSON returned from {url}", response.status_code
-                    ) from exc
-            elif response.status_code == 429:
-                if attempt > max_retries:
-                    raise DataFetchError(
-                        f"Rate limit exceeded after {max_retries} retries",
-                        response.status_code,
-                    )
-                sleep_time = _exponential_backoff(attempt, initial_delay, max_delay)
-                time.sleep(sleep_time)
-                continue
-            else:
-                raise DataFetchError(
-                    f"Unexpected status {response.status_code} from {url}",
-                    response.status_code,
-                )
-        except requests.RequestException as exc:
-            raise DataFetchError(f"Network error while contacting {url}") from exc
+    response = _request_with_backoff(
+        url,
+        max_retries=max_retries,
+        initial_delay=initial_delay,
+        max_delay=max_delay,
+        timeout=timeout,
+    )
+
+    if not response.ok:
+        raise DataFetchError(
+            f"HTTP error {response.status_code}", status_code=response.status_code
+        )
+    try:
+        return response.json()
+    except Exception as exc:
+        raise DataFetchError("Invalid JSON response", status_code=response.status_code) from exc
 
 class OpenMLClient:
-    """
-    Minimal client wrapper for OpenML API calls.
-    Currently only used internally by ``fetch_top_classification_datasets``.
+    """Very small wrapper class used by the ingestion script.
+
+    It stores the base URL and provides a ``get`` method that forwards to
+    ``get_openml_json`` with the same retry semantics.
     """
 
     def __init__(
         self,
-        max_retries: int = 3,
+        max_retries: int = 5,
         initial_delay: float = 1.0,
-        max_delay: float = 10.0,
+        max_delay: float = 60.0,
         timeout: float = 10.0,
     ):
         self.max_retries = max_retries
@@ -125,45 +174,49 @@ class OpenMLClient:
         self.max_delay = max_delay
         self.timeout = timeout
 
-    def get(self, endpoint: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
+    def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Delegate to :func:`get_openml_json` using the instance's settings."""
         return get_openml_json(
             endpoint,
-            params=params,
             max_retries=self.max_retries,
             initial_delay=self.initial_delay,
             max_delay=self.max_delay,
             timeout=self.timeout,
+            params=params,
         )
 
-def fetch_top_classification_datasets(limit: int = 50) -> List[Dict]:
-    """
-    Fetch the top *limit* most‑downloaded classification datasets from OpenML.
+def fetch_top_classification_datasets(limit: int = 50) -> List[Dict[str, Any]]:
+    """Return the *limit* most‑downloaded classification datasets from OpenML.
 
-    The OpenML endpoint ``data/list`` supports sorting and filtering via query
-    parameters. We request datasets sorted by ``download_count`` in descending
-    order and filter to those whose ``default_target_attribute`` is present
-    (a heuristic for classification tasks). The API returns a nested structure;
-    we extract the list of dataset dictionaries.
+    The OpenML API does not provide a single “top‑N” endpoint, but the
+    ``datasets/list`` endpoint can be filtered by ``type=classification`` and
+    sorted by ``download_count``.  The request is performed via
+    :func:`get_openml_json`, which already implements exponential back‑off.
+
+    Parameters
+    ----------
+    limit: int
+        Maximum number of datasets to return.
 
     Returns
     -------
-    List[Dict]
-        List of dataset metadata dictionaries.
+    list[dict]
+        List of dataset dictionaries as returned by the OpenML API.
     """
-    client = OpenMLClient()
+    # Parameters based on the OpenML documentation
     params = {
-        "limit": limit,
+        "type": "classification",
         "sort": "download_count",
         "order": "desc",
-        # The OpenML API does not have a direct ``task_type`` filter for
-        # classification, but most classification datasets have a non‑empty
-        # ``default_target_attribute``. We keep the request simple.
+        "size": str(limit),
     }
-    payload = client.get("data/list", params=params)
-
-    # The JSON structure is ``{'data': {'dataset': [...]}}``; guard against
-    # unexpected shapes.
-    datasets = payload.get("data", {}).get("dataset", [])
-    if not isinstance(datasets, list):
-        raise DataFetchError("Unexpected payload structure from OpenML.")
+    payload = get_openml_json("datasets/list", params=params)
+    # The JSON structure is ``{'data': {'dataset': [...]}}`` per OpenML spec.
+    try:
+        datasets = payload["data"]["dataset"]
+        if not isinstance(datasets, list):
+            # Some responses return a single dict when size==1
+            datasets = [datasets]
+    except KeyError as exc:
+        raise DataFetchError("Unexpected OpenML response structure") from exc
     return datasets
