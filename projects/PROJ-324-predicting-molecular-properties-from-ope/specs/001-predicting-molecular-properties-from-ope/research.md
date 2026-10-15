@@ -3,7 +3,7 @@
 ## Research Question
 *Which topological interaction signatures (fingerprint bit‑pairs) are most predictive of logP, aqueous solubility, and boiling point, and how does a non‑linear Random Forest model capture non‑additive deviations relative to the Crippen additive fragment baseline?*
 
-The question is deliberately framed as a **statistical** investigation of 2‑D fingerprint correlations, acknowledging that 2‑D fingerprints are proxies for underlying 3‑D phenomena.
+The question is framed as a **statistical** investigation of 2‑D fingerprint correlations, acknowledging that fingerprints are topological proxies for underlying 3‑D phenomena (see Constitution Principle VI).
 
 ## Dataset Strategy
 
@@ -14,38 +14,38 @@ The question is deliberately framed as a **statistical** investigation of 2‑D 
 | PubChem Compound | https://pubchem.ncbi.nlm.nih.gov/ | `pubchempy` (Python API) | `CID`, `SMILES`, `logP`, `solubility`, `boiling_point`, `property_type` (Experimental/Computed) |
 | Open Babel | https://openbabel.org/ | CLI `obabel` | Fingerprint generation (MACCS, ECFP4, FP2) |
 
-**Rationale** – PubChem provides open, programmatic access to real experimental measurements (when available) and includes a flag distinguishing experimental from computed values, satisfying FR‑001 and the 50 % experimental‑data guard. Open Babel is the de‑facto standard for generating the required fingerprints (FR‑003).
+**Rationale** – PubChem provides open, programmatic access to real experimental measurements (when available) and flags whether a property is experimental, satisfying FR‑001 and the 50 % experimental‑data guard. Open Babel is the de‑facto standard for generating the required fingerprints (FR‑003).
 
 ### Data Availability & Feasibility
-- **Size**: A curated set of ~5 000 molecules (≈ 30 MB CSV) comfortably fits within the runner’s disk quota.
-- **Streaming**: `download.py` can stream additional records if the set grows beyond 1 GB, preserving full‑dataset fidelity.
+- **Size**: A curated set of ~5 000 molecules (~30 MB CSV) fits comfortably within the runner’s disk quota.  
+- **Streaming**: `download.py` can stream additional records if the set grows beyond 1 GB, preserving full‑dataset fidelity.  
 - **Checksum**: Every file in `data/raw/` is SHA‑256 hashed and recorded in `state/artifact_hashes.yaml` (III. Data Hygiene).
 
 ## Methodological Rigor
 
 ### Modeling
-- **Baseline**: Crippen additive fragment model (implemented via RDKit `Crippen` descriptors).  
+- **Baseline**: Crippen additive fragment model (RDKit `Crippen` descriptors).  
 - **Random Forest**: `sklearn.ensemble.RandomForestRegressor` with `n_estimators=300`, `max_depth=15`.  
-- **Nested Cross‑Validation**: Outer 5‑fold CV for unbiased performance estimation; inner 5‑fold CV inside each outer training split for hyper‑parameter tuning (grid over `max_features` and `min_samples_leaf`). The inner loop **never** sees outer‑fold hold‑out data, fulfilling FR‑004.
+- **Nested Cross‑Validation**: Outer 5‑fold CV for unbiased performance estimation; **inner 5‑fold CV inside each outer training split** for hyper‑parameter tuning (`max_features`, `min_samples_leaf`). The inner loop never sees the outer hold‑out data, preventing leakage (fulfills FR‑004).  
 
 ### Evaluation Metrics
-- **Primary**: Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) on the outer‑fold test sets.  
-- **Statistical Comparison**: Paired Wilcoxon signed‑rank test on absolute errors (RF vs. baseline) per property.  
-- **Multiple‑Comparison Correction**: Bonferroni adjustment when testing the three properties (α = 0.05/3).  
-- **Power Considerations**: With ≥ 5 000 molecules, the test attains > 0.9 power to detect a Cohen’s d = 0.2 effect.
+- **Primary**: Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) on outer‑fold test sets.  
+- **Statistical Comparison**: Paired Wilcoxon signed‑rank test on absolute errors (RF vs. baseline) for each property.  
+- **Multiple‑Comparison Correction**: Bonferroni adjustment (α = 0.05/3).  
+- **Power Considerations**: With ≥ 5 000 molecules, power > 0.9 to detect a Cohen’s d = 0.2 effect (reported in `statistical_report.md`).  
 
 ### Explainability & Non‑Additivity
-- **SHAP Interaction Values**: Computed with `shap.TreeExplainer` (cpu).  
-- **Bit‑to‑Substructure Mapping**: High‑importance bits are translated to SMARTS patterns defined in `code/data/rules.py`.  
-- **Local Non‑Additivity Index (LNAI)**: For each bit‑pair (i, j), LNAI = corr( (RF_err − Baseline_err), presence(i ∧ j) ). High positive LNAI indicates a region where the RF captures a non‑additive effect missed by the additive model. Output stored as `data/derived/lna_index.csv`. This directly satisfies Constitution Principle VI.
+- **SHAP Interaction Values**: Computed with `shap.TreeExplainer` (CPU).  
+- **Bit‑to‑Substructure Mapping**: High‑importance bits are translated to SMARTS patterns via `code/data/rules.py`.  
+- **Local Non‑Additivity Index (LNAI)**: For each fingerprint bit‑pair (i, j), LNAI = corr( (RF_error − Baseline_error), presence(i ∧ j) ). High positive LNAI indicates a region where the RF captures a non‑additive effect missed by the additive model. Output stored as `data/derived/lna_index.csv`. This directly satisfies Constitution Principle VI.  
 
 ### Measurement Validity
-- **Experimental vs. Computed**: Only experimental measurements are used for primary performance reporting. If a property has < 50 % experimental values, the pipeline flags it and reports only “Model Consistency” (RF vs. baseline on the computed subset), avoiding circular validation.
+- **Experimental vs. Computed**: Only experimental measurements are used for primary performance reporting. If a property has < 50 % experimental values, the pipeline flags it and reports only “Model Consistency” (RF vs. baseline on the computed subset), avoiding circular validation.  
 
 ### Assumptions & Limitations
 - **Observational Study**: All claims are correlational; no causal inference is attempted.  
 - **Collinearity**: Fingerprint bits are inherently correlated; SHAP interaction values are interpreted with this in mind.  
-- **Construct Validity**: 2‑D fingerprints capture topological, not 3‑D steric or electronic effects; terminology in the manuscript will use “topological proxy” (see `contracts/interaction_context.schema.yaml`).  
+- **Construct Validity**: 2‑D fingerprints capture topological, not full 3‑D steric/electronic effects; manuscript language will use “topological proxy” (see `contracts/interaction_context.schema.yaml`).  
 
 ## Compute Feasibility
 - **CPU‑first**: All heavy lifting (RF, SHAP) runs on the 2‑core CPU; estimated runtime ≤ 4 h.  
@@ -61,7 +61,7 @@ The question is deliberately framed as a **statistical** investigation of 2‑D 
 ## Deliverables (Generated by the pipeline)
 | Artifact | Path | Description |
 |----------|------|-------------|
-| Raw PubChem CSV | `data/raw/pubchem.csv` | Original download (immutable) |
+| Raw PubChem CSV | `data/raw/pubchem.csv` | Immutable download (raw) |
 | Data quality report | `data/derived/data_quality_report.csv` | Missing covariates, experimental‑data ratio |
 | Fingerprint arrays | `data/processed/*.npy` | MACCS (166 bits), ECFP4 (1024), FP2 (1024) |
 | Baseline predictions | `data/derived/baseline_predictions.csv` |
@@ -76,4 +76,6 @@ The question is deliberately framed as a **statistical** investigation of 2‑D 
 | Comprehensive validation audit | `data/derived/validation_audit.pdf` |
 | Experimental validation protocol | `data/derived/experimental_validation_protocol.md` |
 
-These artifacts will be validated against the JSON/YAML contracts in `contracts/`.
+All artifacts will be validated against the JSON/YAML contracts in `contracts/`.
+
+---

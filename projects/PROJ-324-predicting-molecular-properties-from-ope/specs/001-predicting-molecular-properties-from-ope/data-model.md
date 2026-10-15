@@ -6,15 +6,15 @@
 |-------|------|-------------|--------|
 | `cid` | integer | PubChem Compound ID | PubChem |
 | `smiles` | string | Isomeric SMILES | PubChem |
-| `logp` | number | Experimental logP **or** XLogP3 (if experimental unavailable) | PubChem |
+| `logp` | number | Experimental logP **or** computed XLogP3 (if experimental unavailable) | PubChem |
 | `solubility` | number | Experimental aqueous solubility (logS) | PubChem |
 | `boiling_point` | number | Experimental boiling point (K) | PubChem |
 | `molecular_weight` | number | Molecular weight (g/mol) | PubChem |
 | `property_type` | string | `"Experimental"` or `"Computed"` | PubChem |
-| `measurement_uncertainty` | number | null | Optional confidence score from PubChem |
-| `quantity_of_substance` | number | null | Optional amount, if present |
+| `measurement_uncertainty` | number or null | Optional confidence score from PubChem | PubChem |
+| `quantity_of_substance` | number or null | Optional amount, if present | PubChem |
 | `source` | string | `"PubChem"` | Fixed |
-| `confidence` | string | `"High"` / `"Medium"` / `"Low"` | Derived from `property_type` |
+| `confidence` | string | `"High"` / `"Medium"` / `"Low"` (derived from `property_type`) | Derived |
 
 *Required*: `cid`, `smiles`, `logp`, `solubility`, `boiling_point`, `property_type`, `source`, `confidence`.
 
@@ -42,12 +42,12 @@
 | `target` | number | Experimental value for the property under analysis |
 | `baseline_pred` | number | Crippen additive prediction |
 | `rf_pred` | number | Random Forest prediction |
-| `baseline_error` | number | |`abs(target − baseline_pred)`|
-| `rf_error` | number | |`abs(target − rf_pred)`|
+| `baseline_error` | number | `abs(target − baseline_pred)` |
+| `rf_error` | number | `abs(target − rf_pred)` |
 | `shap_values` | list[number] | SHAP value per fingerprint bit |
 | `shap_interaction` | list[list[number]] | SHAP interaction matrix |
 | `local_non_additivity_index` | number | Correlation between residual difference and bit‑pair presence (LNAI) |
-| `deviation_contexts` | list[object] | Rows from `deviation_contexts.csv` (see InteractionContext schema) |
+| `deviation_contexts` | list[object] | Rows from `deviation_contexts.csv` (see `interaction_context.schema.yaml`) |
 
 ## Data Flow Diagram
 1. **Download** → `data/raw/pubchem.csv` (T010.1 → T011.5)  
@@ -62,4 +62,6 @@
 10. **Validation Audit** → `validation_audit.pdf` (T057)  
 11. **Experimental Protocol** → `experimental_validation_protocol.md` (T058)
 
-All files are immutable after creation; subsequent steps read‑only.
+All files are immutable after creation; subsequent steps read‑only them.
+
+---

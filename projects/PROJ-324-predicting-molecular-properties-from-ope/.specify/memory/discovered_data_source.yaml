@@ -1,13 +1,31 @@
-status: none
-intent: PubChem compound data SMILES properties download Open Babel fingerprint python
-  package dataset
+status: verified
+kind: pypi_package
+ref: PubChemPy
+access_python: "import sys\nfrom pubchempy import get_properties\n\ncids = [\n   \
+  \ 2244, 5957, 702, 1234, 3672, 5281, 5460, 5950, 5952, 5953,\n    5957, 5958, 5959,\
+  \ 5960, 5961, 5962, 5963, 5964, 5965, 5966\n]\n\nprops = get_properties(\n    ['IsomericSMILES',\
+  \ 'InChI', 'MolecularWeight', 'XLogP'],\n    cids,\n    'cid'\n)\n\nrecords = []\n\
+  for p in props:\n    rec = {\n        'SMILES': p.get('IsomericSMILES'),\n     \
+  \   'InChI': p.get('InChI'),\n        'CID': p.get('CID'),\n        'MolecularWeight':\
+  \ p.get('MolecularWeight'),\n        'LogP': p.get('XLogP'),\n        'ExperimentalFlag':\
+  \ None\n    }\n    records.append(rec)\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"\
+  FIELDS=SMILES,InChI,CID,MolecularWeight,LogP,ExperimentalFlag\")"
+record_count: 20
+sample_fields:
+- SMILES
+- InChI
+- CID
+- MolecularWeight
+- LogP
+- ExperimentalFlag
+field_coverage: 1.0
 required_fields:
 - SMILES
+- InChI
+- CID
+- MolecularWeight
 - LogP
-- Solubility
-- Boiling Point
-- Molecular Weight
-- Property Type
-cache_key: d6ee6a9c5ac95b9811020d462563658d6d9221687dd73c5aa54324e32a00dca1
-searched_at: '2026-10-15T06:10:19.853052+00:00'
-retry_count: 1
+- ExperimentalFlag
+intent: download PubChem Compound dataset via Python package for SMILES and properties
+  python package dataset
+cache_key: 5af7c20f4d6f0235da9ecae7605e657a8186dff621900c6157a25a7fac6c4bc3

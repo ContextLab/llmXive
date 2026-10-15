@@ -1,33 +1,33 @@
 # Implementation Plan: Molecular Property Prediction Pipeline
 
 **Branch**: `324-molecular-property-prediction`  
-**Date**: 2026-10-14  
+**Date**: 2026-10-15  
 **Spec**: `spec.md`  
 **Input**: Feature specification from `/specs/324-molecular-property-prediction/spec.md`
 
 ## Summary
-The pipeline downloads real molecular data from PubChem, filters for experimental measurements, generates Open Babel fingerprints (MACCS, ECFP4, FP2) via CLI, trains Random Forest models with **nested cross‑validation**, benchmarks against a Crippen additive fragment baseline, performs a paired Wilcoxon signed‑rank test, computes SHAP interaction values, maps fingerprint bits to chemical substructures using RDKit SMARTS, and finally produces a **Local Non‑Additivity Index (LNAI)** that isolates fingerprint bit‑pairs where the non‑linear model significantly outperforms the additive baseline. All steps are reproducible, logged, and respect the 2‑core, 7 GB CPU‑only runner.
+The pipeline will (1) download real molecular data from PubChem, (2) preprocess to ensure high‑confidence experimental measurements, (3) generate Open Babel fingerprints (MACCS, ECFP4, FP2) via a CLI subprocess, (4) train a Random Forest model using **nested cross‑validation** (outer evaluation folds, inner hyper‑parameter tuning folds), (5) compute a Crippen additive fragment baseline, (6) perform a paired Wilcoxon signed‑rank test on absolute errors, (7) calculate SHAP interaction values, (8) map high‑importance fingerprint bits to SMARTS substructures, (9) compute a **Local Non‑Additivity Index (LNAI)** for each fingerprint bit‑pair, (10) generate all required plots, tables, and a comprehensive validation audit. All steps are deterministic, reproducible, and respect the 2‑core, 7 GB CPU‑only runner limits.
 
 ## Technical Context
 - **Language/Version**: Python 3.10+  
 - **Primary Dependencies**: `pubchempy`, `rdkit`, `scikit-learn`, `shap`, `openbabel` (CLI), `pandas`, `numpy`, `matplotlib`, `pyyaml`, `ruff`, `black`  
-- **Storage**: Local filesystem under `data/` (`raw/`, `processed/`, `derived/`)  
+- **Storage**: Files under `data/` (`raw/`, `processed/`, `derived/`)  
 - **Testing**: `pytest` (unit & integration)  
 - **Target Platform**: Linux GitHub Actions free tier (2 CPU cores, 7 GB RAM, 14 GB disk)  
 - **Project Type**: CLI/Data‑pipeline  
-- **Performance Goals**: Full pipeline ≤ 4 h on CPU; no GPU required.  
-- **Constraints**: Tree depth ≤ 15, `n_estimators` ≤ 300, fingerprint arrays ≤ 2 k bits each; streaming fallback if raw CSV > 1 GB.  
+- **Performance Goals**: Full end‑to‑end execution ≤ 4 h on CPU; no GPU required.  
+- **Constraints**: `max_depth ≤ 15`, `n_estimators ≤ 300`, fingerprint arrays ≤ 2 200 bits each; streaming fallback if raw CSV > 1 GB.
 
 ## Constitution Check
-| Principle | Status | How it is satisfied |
+| Principle | Status | Satisfying Elements |
 |-----------|--------|---------------------|
-| **I. Reproducibility** | ✅ | Fixed `requirements.txt`; all random seeds pinned in `code/`; deterministic `RandomState`. |
-| **II. Verified Accuracy** | ✅ | All citations (PubChem, Open Babel) are verified URLs; no hallucinated references. |
-| **III. Data Hygiene** | ✅ | Raw files immutable, checksummed; derivations stored as new files; `data_quality_report.csv` logs missing covariates. |
-| **IV. Single Source of Truth** | ✅ | Every figure/table is produced from files under `data/derived/`; no hand‑typed numbers. |
-| **V. Versioning Discipline** | ✅ | Content hashes recorded in `state/`; `updated_at` timestamps updated on change. |
-| **VI. Non‑Additivity Interaction Mapping** | ✅ | Baseline (Crippen) vs. RF residuals are compared; SHAP interaction bits are mapped to SMARTS substructures; LNAI quantifies “interaction zones”. |
-| **VII. Computational Efficiency** | ✅ | CPU‑first implementation; nested CV inside outer folds; memory‑aware streaming; runtime ≤ 4 h (estimated). |
+| **I. Reproducibility** | ✅ | Fixed `requirements.txt`; all random seeds pinned (`np.random.seed(42)`, `RandomState(42)`); deterministic Open Babel calls (`--gen3d` disabled). |
+| **II. Verified Accuracy** | ✅ | Only verified URLs (PubChem API, Open Babel website) are referenced. |
+| **III. Data Hygiene** | ✅ | Raw files immutable; SHA‑256 checksums stored in `state/artifact_hashes.yaml`; every transformation writes a new file. |
+| **IV. Single Source of Truth** | ✅ | Every figure/table is generated directly from files under `data/derived/`. |
+| **V. Versioning Discipline** | ✅ | Content hashes recorded in `state/projects/…yaml`; `updated_at` timestamps updated on every artifact change. |
+| **VI. Non‑Additivity Interaction Mapping** | ✅ | Baseline vs. RF residuals compared; SHAP interaction bits mapped to SMARTS; LNAI quantifies “interaction zones”. |
+| **VII. Computational Efficiency** | ✅ | CPU‑first implementation; nested CV respects memory limits; runtime ≤ 4 h (estimated). |
 
 ## Project Structure
 ```text
@@ -35,15 +35,15 @@ projects/PROJ-324-predicting-molecular-properties-from-ope/
 ├── code/
 │   ├── __init__.py
 │   ├── data/
-│   │   ├── download.py          # PubChem API download & metadata
+│   │   ├── download.py          # PubChem download & checksum
 │   │   ├── preprocess.py        # Missing‑value handling, quality report
-│   │   └── fingerprint.py       # Open Babel CLI wrapper
+│   │   └── fingerprint.py       # Open Babel CLI wrapper
 │   ├── models/
-│   │   ├── baseline.py          # Crippen additive predictions
+│   │   ├── baseline.py          # Crippen additive model
 │   │   └── rf.py                # Random Forest with nested CV
 │   ├── analysis/
 │   │   ├── stats.py             # Metrics, Wilcoxon test, LNAI
-│   │   └── explainability.py    # SHAP values, interaction heatmap, SMARTS mapping
+│   │   └── explainability.py    # SHAP interaction, SMARTS mapping, conformational audit
 │   └── main.py                  # Orchestration script
 ├── data/
 │   ├── raw/
@@ -56,6 +56,7 @@ projects/PROJ-324-predicting-molecular-properties-from-ope/
 │   ├── dataset.schema.yaml
 │   ├── fingerprint.schema.yaml
 │   ├── interaction_context.schema.yaml
+│   ├── molecule.schema.yaml
 │   └── output.schema.yaml
 ├── requirements.txt
 ├── pyproject.toml
@@ -63,50 +64,49 @@ projects/PROJ-324-predicting-molecular-properties-from-ope/
 ```
 
 ## Phase Plan & Task Dependency Graph
-Tasks are identified by the IDs referenced in the previous review comments. Tags: **[S]** = sequential (must wait), **[P]** = parallel (can run concurrently). All dependencies are satisfied before a task starts.
+All tasks are **sequential** (`[S]`). No parallel (`[P]`) tags remain because each task depends on the artifact(s) produced by its predecessor(s).
 
 | ID | Description | Tags | Depends on |
 |----|-------------|------|------------|
-| **T010.1** | *MaxMin diverse sampling*: Compute pairwise Euclidean distance on normalized physicochemical descriptors; select candidate with **maximum of the minimum distances** to the current set; stop when that value < 0.7. | [S] | – |
+| **T010.1** | *MaxMin diverse sampling*: Compute pairwise Euclidean distance on normalized physicochemical descriptors; iteratively **select the candidate with the maximum of the minimum distances** to the current set; stop when this maximum value **< 0.7**. | [S] | – |
 | **T011.5** | *Data integrity & checksum*: Generate SHA‑256 checksums for every file in `data/raw/`; write `state/artifact_hashes.yaml`. | [S] | T010.1 |
 | **T014a** | *Baseline implementation (Crippen)*: Compute fragment contributions using RDKit `Crippen` descriptors. | [S] | T011.5 |
 | **T014b** | *Baseline output*: Write `data/derived/baseline_predictions.csv`. | [S] | T014a |
-| **T014.5** | *Baseline residuals & plot*: Calculate absolute errors, MAE/RMSE, generate `baseline_residuals.png`. | [S] | T014b |
+| **T014.5** | *Baseline residuals & plot*: Calculate absolute errors, MAE, RMSE; generate `data/derived/baseline_residuals.png`. | [S] | T014b |
 | **T019** | *Fingerprint generation*: Wrapper around `obabel` to produce MACCS, ECFP4, FP2 arrays. | [S] | T011.5 |
 | **T019.1** | *Fingerprint storage*: Save arrays as `data/processed/*.npy`. | [S] | T019 |
-| **T020** | *Nested cross‑validation*: For each outer fold, run an **inner k‑fold CV** on the training partition only (hyper‑parameter tuning). No leakage. | [S] | T019.1 |
+| **T020** | *Nested cross‑validation*: For each **outer** 5‑fold split, run an **inner** 5‑fold CV **inside that outer training partition** to tune `max_features` and `min_samples_leaf`. No data from the outer hold‑out set is used in inner tuning. | [S] | T019.1 |
 | **T020.1** | *RF test predictions*: Using the best hyper‑parameters from the inner CV, predict on the outer‑fold hold‑out set; write `data/derived/rf_predictions.csv`. | [S] | T020 |
-| **T021.1** | *Wilcoxon signed‑rank test*: Paired test on absolute errors of RF vs. baseline; Bonferroni‑corrected if >1 property. Produce `statistical_report.md`. | [S] | T014.5, T020.1 |
-| **T030.2** | *Local Non‑Additivity Index (LNAI)*: Compute correlation between residual difference (RF‑baseline) and presence/absence of each fingerprint bit‑pair; output `data/derived/lna_index.csv`. | [S] | T020.1 |
-| **T029** | *Map SHAP bits → substructures*: Use RDKit SMARTS library (`code/data/rules.py`) to translate high‑importance bits (from SHAP) into substructure descriptions; write `deviation_contexts.csv`. | [S] | T027 |
-| **T027** | *SHAP interaction heatmap*: Compute SHAP interaction values for the trained RF; generate `shap_interactions.png`. | [S] | T020.1 |
-| **T033** | *Conformational‑limitations audit*: Flag molecules with >10 rotatable bonds; write `conformational_limitations.csv`. | [S] | T011.5 |
-| **T057** | *Comprehensive validation audit*: Collate checksum report, data‑quality report, baseline & RF residuals, LNAI, SHAP heatmap, conformational audit into `validation_audit.pdf`. | [S] | T014.5, T020.1, T027, T030.2, T033 |
-| **T058** | *Experimental validation protocol*: Draft `data/derived/experimental_validation_protocol.md` describing how future wet‑lab measurements would be used to confirm top‑ranked interaction zones. | [S] | T030.2, T029 |
+| **T021.1** | *Wilcoxon signed‑rank test*: Paired test on absolute errors of RF vs. baseline for each property; Bonferroni‑corrected for three properties; produce `data/derived/statistical_report.md`. | [S] | T014.5, T020.1 |
+| **T027** | *SHAP interaction heatmap*: Compute SHAP interaction values with `shap.TreeExplainer`; generate `data/derived/shap_interactions.png`. | [S] | T020.1 |
+| **T029** | *Map SHAP bits → substructures*: Translate high‑importance bits (from SHAP) into SMARTS patterns via `code/data/rules.py`; write `data/derived/deviation_contexts.csv`. | [S] | T027 |
+| **T030.2** | *Local Non‑Additivity Index (LNAI)*: For every fingerprint bit‑pair (i, j), compute the Pearson correlation between `(RF_error − Baseline_error)` and the binary presence of both bits; output `data/derived/lna_index.csv`. | [S] | T020.1 |
+| **T033** | *Conformational‑limitations audit*: Flag molecules with > 10 rotatable bonds (computed with RDKit); write `data/derived/conformational_limitations.csv`. | [S] | T011.5 |
+| **T057** | *Comprehensive validation audit*: Collate checksum report, data‑quality report, baseline & RF residuals, LNAI, SHAP heatmap, conformational audit into `data/derived/validation_audit.pdf`. | [S] | T014.5, T020.1, T027, T030.2, T033 |
+| **T058** | *Experimental validation protocol*: Draft `data/derived/experimental_validation_protocol.md` describing how future wet‑lab measurements would validate the top‑ranked interaction zones. | [S] | T030.2, T029 |
 
-**Note on Parallelism**  
-All tasks are **sequential** (`[S]`) because each depends on the previous artefact. No `[P]` tags remain, satisfying the convergence‑panel concerns about improper parallelism.
-
-## Functional Requirement Coverage
+### Functional Requirement Coverage
 | FR | Mapped Phase / Task |
 |----|----------------------|
 | FR‑001 | T010.1 → T011.5 (download & checksum) |
-| FR‑002 | T011.5 (missing‑value handling in `preprocess.py`) |
+| FR‑002 | T011.5 (preprocess & missing‑value handling in `preprocess.py`) |
 | FR‑003 | T019 (Open Babel CLI fingerprint generation) |
 | FR‑004 | T020 (nested CV) + T020.1 (RF training) |
 | FR‑005 | T021.1 (Wilcoxon signed‑rank test) |
 | FR‑006 | T027 (SHAP interaction values) |
 | FR‑007 | T029 (bit‑to‑substructure mapping) |
-| FR‑008 | T011.5 (data quality metrics log) |
+| FR‑008 | T011.5 (data‑quality metrics log) |
 
 All FRs are explicitly addressed.
 
 ## Compute Feasibility
-- **CPU‑first**: RandomForest (`n_estimators=300`, `max_depth=15`) fits comfortably in < 2 GB RAM; SHAP (TreeExplainer) runs on CPU.
-- **Open Babel CLI**: Lightweight, executed via `subprocess.run`; no GPU needed.
-- **Streaming fallback**: If `data/raw/pubchem.csv` > 1 GB, `download.py` streams records and writes incrementally; fingerprint generation reads line‑by‑line.
+- **CPU‑first**: RandomForest (`n_estimators=300`, `max_depth=15`) fits < 2 GB RAM; SHAP TreeExplainer runs on CPU.  
+- **Memory**: Fingerprint matrices (~5 000 × 2 200 bits ≈ 1.4 MB) plus model objects comfortably under 7 GB.  
+- **No GPU needed**: All steps run on the free runner; no escape hatch required.
 
 ## Risk Mitigation
-- **Experimental‑data threshold**: If < 50 % of a property is experimental, `preprocess.py` flags the property; downstream tasks (RF, baseline) still run but final report notes “Model Consistency” only.
-- **Memory guard**: `rf.py` loads fingerprint arrays as memory‑mapped NumPy files; ensures < 5 GB RAM usage.
-- **Timeout guard**: Each script logs start/end timestamps; CI job aborts > 5 h and raises a clear error (fulfills NFR‑003).
+- **Experimental‑data guard**: If < 50 % of a property is experimental, the pipeline flags it and reports only “Model Consistency” (RF vs. baseline on the computed subset).  
+- **Memory guard**: Fingerprint arrays are saved as memory‑mapped NumPy files; `rf.py` loads them lazily.  
+- **Timeout guard**: Each script logs start/end timestamps; CI aborts > 5 h with a clear error (fulfills NFR‑003).  
+
+---

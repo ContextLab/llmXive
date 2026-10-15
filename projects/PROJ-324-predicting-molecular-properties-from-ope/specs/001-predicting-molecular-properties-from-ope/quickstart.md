@@ -32,7 +32,7 @@ brew install open-babel
 ```text
 code/
 ├── data/
-│   ├── download.py          # PubChem download
+│   ├── download.py          # PubChem download & checksum
 │   ├── preprocess.py        # Missing‑value handling, quality report
 │   └── fingerprint.py       # Open Babel wrapper
 ├── models/
@@ -49,7 +49,8 @@ data/
 tests/
 requirements.txt
 pyproject.toml
-.ruff.toml
+.ruf
+
 ```
 
 ## Running the Full Pipeline
@@ -116,3 +117,5 @@ ruff check --fix code/
 - **MemoryError** – Reduce the number of molecules processed at once (`MAX_MOLECULES` constant) or enable streaming mode (`--stream` flag).  
 
 Enjoy reproducible molecular property prediction!
+
+---
