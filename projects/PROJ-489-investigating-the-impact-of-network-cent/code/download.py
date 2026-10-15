@@ -37,7 +37,7 @@ if not logger.handlers:
 
 def _fetch_sleep_data(
     subjects: List[int],
-    recordings: str,
+    recording: str,
     path: Path,
     night: int,
 ) -> List[Path]:
@@ -49,9 +49,9 @@ def _fetch_sleep_data(
     ----------
     subjects : List[int]
         Subject identifiers.
-    recordings : str
-        Recording type (e.g., ``"sleep-edf"``).  Older MNE versions use the
-        ``recordings`` keyword; newer versions use ``recording``.
+    recording : str
+        Recording type (e.g., ``"sleep-edf"``).  Newer MNE versions use the
+        ``recording`` keyword; older versions used ``recordings``.
     path : Path
         Destination directory for the downloaded files.
     night : int
@@ -79,30 +79,41 @@ def _fetch_sleep_data(
                 "MNE's sleep_physionet.age submodule does not expose fetch_data."
             )
 
-    # Build kwargs compatible with the discovered signature.
-    kwargs = {
-        "subjects": subjects,
-        "path": str(path),
-        "verbose": False,
-    }
+    # Determine whether the fetch function accepts a ``night`` argument.
+    accepts_night = "night" in fetch_func.__code__.co_varnames
 
-    # ``recordings`` vs ``recording`` handling.
-    if "recordings" in fetch_func.__code__.co_varnames:
-        kwargs["recordings"] = recordings
-    else:
-        kwargs["recording"] = recordings
-
-    # Some historic versions accepted a ``night`` argument; if not, we will
-    # filter the result after the call.
-    if "night" in fetch_func.__code__.co_varnames:
-        kwargs["night"] = night
-
+    # Build arguments.
+    # Most recent versions accept: subjects, recording, path, verbose, night (optional)
+    # Older versions may accept: subjects, recordings, path, verbose
+    # We'll call with positional arguments to avoid name‑mismatch issues.
     try:
-        fetched = fetch_func(**kwargs)  # type: ignore[arg-type]
+        if accepts_night:
+            fetched = fetch_func(
+                subjects,
+                recording,
+                path=str(path),
+                verbose=False,
+                night=night,
+            )
+        else:
+            # For versions without ``night`` we pass only the three mandatory args.
+            fetched = fetch_func(
+                subjects,
+                recording,
+                path=str(path),
+                verbose=False,
+            )
     except TypeError as exc:
-        # Fallback: call without the night argument and filter later.
-        if "night" in kwargs:
-            del kwargs["night"]
+        # Fallback: try using keyword ``recordings`` if ``recording`` was not accepted.
+        if "recordings" in fetch_func.__code__.co_varnames:
+            kwargs = {
+                "subjects": subjects,
+                "recordings": recording,
+                "path": str(path),
+                "verbose": False,
+            }
+            if accepts_night:
+                kwargs["night"] = night
             fetched = fetch_func(**kwargs)  # type: ignore[arg-type]
         else:
             raise
@@ -112,7 +123,7 @@ def _fetch_sleep_data(
 
     # If the function did not filter by night, keep only files that match
     # the requested night number (e.g., ``_night1.edf`` or ``-1.edf``).
-    if not any("night" in v for v in kwargs.values()):
+    if not accepts_night:
         night_str = f"_{night}."
         fetched_paths = [p for p in fetched_paths if night_str in p.name]
 
@@ -162,7 +173,7 @@ def download_sleep_edf(output_dir: str = "data/raw/", n_subjects: int = 30) -> T
             logger.info(f"Fetching subject {subj}, night {night}...")
             fetched_files = _fetch_sleep_data(
                 subjects=[subj],
-                recordings="sleep-edf",
+                recording="sleep-edf",
                 path=base_path,
                 night=night,
             )

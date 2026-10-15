@@ -7,16 +7,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download.py -> rc=1
-s/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 227, in <module>
+e "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 238, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 223, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 234, in main
     download_sleep_edf(output_dir=raw_dir, n_subjects=n_subj)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 163, in download_sleep_edf
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 174, in download_sleep_edf
     fetched_files = _fetch_sleep_data(
                     ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 101, in _fetch_sleep_data
-    fetched = fetch_func(**kwargs)  # type: ignore[arg-type]
-              ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 100, in _fetch_sleep_data
+    fetched = fetch_func(
+              ^^^^^^^^^^^
   File "<decorator-gen-280>", line 10, in fetch_data
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-489-investigating-the-impact-of-network-cent/lib/python3.11/site-packages/mne/datasets/sleep_physionet/age.py", line 132, in fetch_data
     if psg_records["record"][idx] in recording:
