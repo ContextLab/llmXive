@@ -9,6 +9,7 @@ required:
   - "ci_upper"
   - "component_tag"
   - "format_tag"
+  - "domain_tag"
 properties:
   study_id:
     type: "string"

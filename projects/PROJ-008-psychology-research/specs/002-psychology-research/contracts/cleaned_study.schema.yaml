@@ -47,6 +47,9 @@ properties:
   sd_control:
     type: "number"
     minimum: 0
+  follow_up_months:
+    type: "integer"
+    minimum: 0
   included:
     type: "boolean"
   exclusion_reason:
