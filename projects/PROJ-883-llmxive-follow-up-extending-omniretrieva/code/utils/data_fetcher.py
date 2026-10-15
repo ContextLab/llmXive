@@ -108,8 +108,8 @@ def fetch_dataset(
         If the dataset cannot be fetched and ``allow_synthetic`` is ``False``.
     """
     try:
-        # Import lazily to avoid importing heavy dependencies (e.g., pyarrow) unless needed.
-        from datasets import load_dataset, DownloadConfig, DownloadMode  # type: ignore
+        # Import lazily to avoid importing heavy dependencies unless needed.
+        from datasets import load_dataset, DownloadMode  # type: ignore
     except Exception as exc:
         log.error(f"Failed to import datasets library: {exc}")
         if allow_synthetic:
@@ -128,15 +128,9 @@ def fetch_dataset(
         log.info(
             f"Attempting to fetch dataset: {name} (config={config_name}, split={split})"
         )
-        # Build arguments correctly: ``name`` is the dataset identifier,
-        # ``config_name`` (if provided) is passed via the ``name`` keyword
-        # argument of ``load_dataset``.
-        load_kwargs = {
+        load_kwargs: dict = {
             "streaming": True,
-            "download_config": DownloadConfig(
-                # Force download mode to raise on failure rather than using cache
-                download_mode=DownloadMode.FORCE_DOWNLOAD
-            ),
+            "download_mode": DownloadMode.FORCE_DOWNLOAD,
         }
         if config_name:
             load_kwargs["name"] = config_name

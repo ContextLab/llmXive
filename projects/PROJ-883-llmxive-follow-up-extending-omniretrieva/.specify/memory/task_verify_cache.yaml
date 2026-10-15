@@ -1,11 +1,47 @@
 T002:
   c: false
-  h: ddc6d3831a12850edf23aa283d8e45eec1e4627fc18b1e8ba2e14e7d739ebbd6
-  r: The four required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,
-    `execution_metric.schema.yaml`, `statistics-result.schema.yaml`) are all reported
-    MISSING by the collector, and the recorded pytest run of `tests/unit/test_contracts.py`
-    failed with "Schema file query_instance.schema.yaml missing". Additionally, the
-    deprecated `analysis_result.schema.yaml` and `gam_results.schema.yaml` and the
-    legacy `execution_metrics.schema.yaml` still appear in the contracts directory
-    listing, so the cleanup portion was not done either.
-  sig: d1274021c821df075c96904e79bfe375340b50a8057091bf9307c40b627fabc4
+  h: 5b1ec8633ad2e0b10673a60d532a8353658f272c14d04761454dc1b79a7213d1
+  r: The directory listing of `specs/001-structural-mismatch-cost/contracts/` (13
+    entries) shows the four canonical schemas exist, but the deprecated `analysis_result.schema.yaml`
+    and `gam_results.schema.yaml` and the legacy duplicate `execution_metrics.schema.yaml`
+    are all still present, directly violating the task's explicit deletion requirement
+    (only the four canonical schemas should remain). Additionally, the test's DEPRECATED
+    list contains a typo (`execution_log.schema.yaml_` instead of the actual underscore-variant
+    filename), and there is no evidence the test was ever run or passed.
+  sig: cbc890aa640705aad556d34bf268e60c5fd446461836009e4bb5a77ed53bf352
+T003:
+  c: false
+  h: c0a2608e214de47ea3d5beaab27e5d127b058820681c63f043db8ea31c815690
+  r: 'The artifacts deviate from the task''s explicit requirements: `config.py` pins
+    the wrong dataset identifiers (`sentence-transformers/msmarco-corpus`, `spider`,
+    `dbpedia/dbpedia-entities`) instead of `microsoft/ms_marco` v1.1 and `xlangai/spider`,
+    and sets `SYNTHETIC_FALLBACK_CONFIG["enabled"] = True` contrary to the no-silent-fallback
+    rule; `data_fetcher.py` never uses `itertools.islice` to a fixed documented sample
+    size (it streams the entire dataset), has no Wikidata/DBpedia RDFLib-parsable
+    `.ttl` fetch from a named real URL (it uses `wikidata5m/wikidata5m` instead),
+    and no unit test artifact'
+  sig: 9c9d537ada20abdd68bc3071677404a8cb24dfeff86605b3690ef0f1f8ade9a8
+T004:
+  c: false
+  h: 57a3b6fec1983cd397432eb72c86b9ec5b00991c97e58eb3c6722f6bcd0722c2
+  r: "The generator never uses T003's real structural metadata (MS MARCO ids, Spider\
+    \ schemas, graph edges) \u2014 it fabricates placeholder `nodes`/`edges` and generic\
+    \ operation names \u2014 and `data/processed/generation_log.json` contains only\
+    \ 10 queries (not \u2265500, with no \u2265100 high-complexity graph queries).\
+    \ The ground-truth plans in the log are the fabricated `\"step_1\", \"step_2\"\
+    , ...` fallback (the very defect the task says to fix), because `_create_query`\
+    \ calls `engine.generate_plan` without passing `logical_plan`, so the greedy engine\
+    \ never sees the real steps. Additionally, `query_instance.schema.yaml`"
+  sig: 8f161886ede43920a2682ff1ddb49c74be17db2d5e77bbb4157f84da0e854db5
+T005:
+  c: false
+  h: bffa8a1ad2a8580232fb95359d6715894536ac49375b5ceb5e220f68178278fa
+  r: "The implementation exists and is deterministic, but two requirements are unmet:\
+    \ (1) the cost table is a hardcoded static dict, not a \"pre-computed source-statistics\
+    \ cost table\" as FR-008 requires, and (2) the required verification artifact\
+    \ \u2014 a unit test with a known 3-step plan asserting the greedy selection order\
+    \ \u2014 is not present in the evidence, so there is no execution proof of the\
+    \ greedy ordering. The next implementer should add a source-statistics-derived\
+    \ cost table (or load one) and a unit test (e.g., `tests/test_reference_engine.py`)\
+    \ asserting the greedy order for a known 3-step plan."
+  sig: 3a3c4b346b3a15da496d4e06552471ecd36bdedde332b45f6141ae21fd1b0a10

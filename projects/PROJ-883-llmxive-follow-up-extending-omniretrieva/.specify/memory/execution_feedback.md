@@ -18,13 +18,26 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest -v -> rc=1
-tional argument: 'levels'
-FAILED tests/unit/test_synthetic_query.py::TestSyntheticQueryGenerator::test_generate_queries_complexity_levels - TypeError: SyntheticQueryGenerator.__init__() missing 1 required positional argument: 'levels'
-FAILED tests/unit/test_synthetic_query.py::TestSyntheticQueryGenerator::test_save_queries_creates_file - TypeError: SyntheticQueryGenerator.__init__() missing 1 required positional argument: 'levels'
-FAILED tests/unit/test_synthetic_query.py::TestSyntheticQueryGenerator::test_ground_truth_plan_determinism - TypeError: SyntheticQueryGenerator.__init__() missing 1 required positional argument: 'levels'
+tests/unit/test_reference_engine.py::test_generate_plan_without_steps - AssertionError: assert {'estimated_cost': 1.0, 'estimated_depth': 1, 'steps': ['step_1']} == 'gt_plan_999'
+FAILED tests/unit/test_skeleton.py::test_execution_log_csv_exists_with_columns - AssertionError: assert ['query_id', 'source_type', 'complexity_level', 'latency_ms', 'translation_error', 'success_flag', 'timeout_flag'] == ['query_id', 'source_type', 'complexity_level', 'latency_ms', 'timestamp', 'translation_error', 'success_flag', 'timeout_flag', 'synthetic_flag', 'throttling_mode']
+  
+  At index 4 diff: 'translation_error' != 'timestamp'
+  Right contains 3 more items, first extra item: 'timeout_flag'
+  
+  Full diff:
+    [
+        'query_id',
+        'source_type',
+        'complexity_level',
+        'latency_ms',
+  -     'timestamp',
+        'translation_error',
+        'success_flag',
+        'timeout_flag',
+  -     'synthetic_flag',
+  -     'throttling_mode',
+    ]
 FAILED tests/unit/test_validate_schemas.py::test_query_instance_schema - jsonschema.exceptions.ValidationError: query_instance does not conform to its schema.
-FAILED tests/unit/test_validate_schemas.py::test_execution_log_schema - jsonschema.exceptions.ValidationError: execution_log does not conform to its schema.
-FAILED tests/unit/test_validate_schemas.py::test_execution_metric_schema - jsonschema.exceptions.ValidationError: execution_metric does not conform to its schema.
-=================== 26 failed, 52 passed, 1 skipped in 1.05s ===================
+=================== 18 failed, 60 passed, 1 skipped in 0.82s ===================
 
 
