@@ -1,11 +1,44 @@
-status: none
-intent: download Last.fm 1K users and Million Song Dataset timestamps birth year python
-  package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset
+
+
+  ds = load_dataset("matthewfranglen/lastfm-1k")
+
+  total_records = sum(len(split) for split in ds.values())
+
+  print(f"RECORDS={total_records}")
+
+
+  first_split = next(iter(ds.values()))
+
+  sample_record = first_split[0]
+
+  print(f"FIELDS={'',''.join(sample_record.keys())}")'
+record_count: 16936134
+sample_fields:
+- user_index
+- artist_index
+- track_index
+- user_id
+- timestamp
+- musicbrainz_artist_id
+- artist_name
+- musicbrainz_track_id
+- track_name
+- gender
+- age
+- country
+- signup_date
+field_coverage: 0.833
 required_fields:
 - user_id
 - birth_year
 - track_id
 - listen_timestamp
-cache_key: 2833bfa0440df341c37da1363a621f64a3fbaecc1ae4554fe933a6913e099ee0
-searched_at: '2026-10-15T16:22:43.802197+00:00'
-retry_count: 1
+- artist_name
+- track_name
+intent: Last.fm 1K users listening history with timestamps and birth year python package
+  dataset
+cache_key: 94c20efed8c2cc747dac6ea0f6f537b7544084de9a204f8e1da41d24b5576d7a

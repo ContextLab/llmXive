@@ -1,15 +1,7 @@
-numpy>=2.0.0
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-pyarrow
-python-levenshtein
-datasets
+# Existing dependencies are provided by the platform:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+#
+# Additional project‑specific dependencies:
+python-levenshtein==0.25.1
+# (Version pinned to a recent stable release; adjust as needed)

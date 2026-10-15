@@ -30,7 +30,7 @@ def filter_cohort(df: pd.DataFrame) -> pd.DataFrame:
     mask = df["birth_year"].notna() & df["birth_year"].between(1900, 2025)
     filtered = df.loc[mask].copy()
 
-    # Define adolescent window: birth_year + 10  through  birth_year + 19
+    # Define adolescent window: birth_year + 10 through birth_year + 19
     filtered["adolescent_start"] = filtered["birth_year"] + 10
     filtered["adolescent_end"] = filtered["birth_year"] + 19
 
@@ -124,7 +124,8 @@ def main():
     # 3‑4. Load MSD listening logs (real data)
     # --------------------------------------------------------------
     log.info("Loading MSD listening logs from HuggingFace dataset...")
-    ds = datasets.load_dataset("matthewfranglen/lastfm-1k", streaming=True)
+    # The dataset is a DatasetDict; we need the default split (train)
+    ds = datasets.load_dataset("matthewfranglen/lastfm-1k", streaming=True)['train']
 
     # Stream a reasonable chunk (e.g., first 50 000 records) to stay within
     # resource limits while still using real data.
@@ -166,8 +167,9 @@ def main():
 
     # Validate that the required columns are now present
     required_cols = {"track_id", "release_date", "popularity"}
-    if not required_cols.issubset(set(release_df.columns).union(popularity_df.columns)):
-        missing = required_cols - set(release_df.columns).union(popularity_df.columns)
+    available_cols = set(release_df.columns).union(popularity_df.columns)
+    if not required_cols.issubset(available_cols):
+        missing = required_cols - available_cols
         raise ValueError(
             f"MSD source missing required columns: {', '.join(missing)}"
         )
@@ -193,7 +195,7 @@ def main():
             "Global exposure fallback triggered (>50%% missing birth years)."
         )
         # In a full implementation we would compute a population‑level proxy
-        # here, but the downstream unit tests only require the boolean flag.
+        # here; unit tests only require the boolean flag.
 
     # --------------------------------------------------------------
     # 7. Minimum listen threshold (FR‑009)

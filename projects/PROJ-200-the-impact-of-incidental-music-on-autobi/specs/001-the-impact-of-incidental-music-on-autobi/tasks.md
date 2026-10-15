@@ -7,11 +7,11 @@
 
 **Goal**: Establish the pipeline skeleton and run a thin, end-to-end analysis on a small simulated sample to verify the statistical flow.
 
-- [X] T000 Initialize `state.yaml` with the required structure (`artifact_hashes`, `updated_at`, `config`) as a blocking prerequisite for all subsequent data tasks and checksumming.
-- [X] T001 Establish the project layout (`code/`, `data/raw/`, `data/processed/`, `data/final/`, `tests/`), `requirements.txt` (including `statsmodels`, `pyarrow`, `levenshtein`), and `code/config.py` containing thresholds (Levenshtein $\le 4$, `MATCH_RATE_THRESHOLD=0.8`) and seeds. Document the execution command in `quickstart.md`.
+- [ ] T000 Initialize `state.yaml` with the required structure (`artifact_hashes`, `updated_at`, `config`) as a blocking prerequisite for all subsequent data tasks and checksumming.
+- [ ] T001 Establish the project layout (`code/`, `data/raw/`, `data/processed/`, `data/final/`, `tests/`), `requirements.txt` (including `statsmodels`, `pyarrow`, `levenshtein`), and `code/config.py` containing thresholds (Levenshtein $\le 4$, `MATCH_RATE_THRESHOLD=0.8`) and seeds. Document the execution command in `quickstart.md`.
 - [ ] T002 Implement the data contracts in `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` to define the User-Track Pair analysis dataset and the regression/permutation outputs.
     - Verification: The contract files must pass `jsonschema` validation and match the requirements in `spec.md`.
-- [X] T003 Implement a "thin" end-to-end pipeline in `code/main.py` using a small mock dataset to produce the first real result rows. This must exercise the basic flow: `simulate_amt.py` $\rightarrow$ `ingest.py` $\rightarrow$ `aggregate.py` $\rightarrow$ `model.py`.
+- [ ] T003 Implement a "thin" end-to-end pipeline in `code/main.py` using a small mock dataset to produce the first real result rows. This must exercise the basic flow: `simulate_amt.py` $\rightarrow$ `ingest.py` $\rightarrow$ `aggregate.py` $\rightarrow$ `model.py`.
     - Output: `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`, and `data/final/regression_summary.csv`.
     - Verification: The `regression_summary.csv` must contain the required columns (`term`, `estimate`, `std_error`, `t_value`, `p_value`, `vif`) as per the output contract.
 
@@ -21,7 +21,7 @@
 
 **Goal**: Implement the full-scale data processing, robust handling of edge cases, and the complete statistical suite.
 
-- [ ] T004 [US1] Implement full data ingestion and exposure scoring in `code/data/ingest.py` and `code/data/aggregate.py`. <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
+- [ ] T004 [US1] Implement full data ingestion and exposure scoring in `code/data/ingest.py` and `code/data/aggregate.py`. <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
     - **MSD Schema Validation**: Before ingestion, verify the MSD source contains `track_id`, `release_date`, and `popularity`; fail with a clear error if missing.
     - Implement the **Global Exposure Fallback** (FR-008) as a population-level proxy for missing individual data to be used as a predictor; ensure the fallback check for missing birth years ($>50\%$) occurs **before** any listen-count filtering (EC-001).
     - Implement the **Minimum Listen Threshold** (FR-009: `total_listens >= 3`) and the raw `adolescent_exposure_ratio` calculation (FR-001).

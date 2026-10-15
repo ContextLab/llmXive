@@ -6,29 +6,19 @@ T000:
     \ matching the required initialization structure."
   sig: 77c30a1ab3b47cf8eed5325488c25f98c86021114e802a4f0ba734e23d4759d3
 T001:
-  c: true
-  h: bdbb26216bdbf71c891c7a4fcdf37d4a88d89b48058111bcfa4cd6e006164e22
-  r: "Checked that the required directories (`code/`, `data/raw/`, `data/processed/`,\
-    \ `data/final/`, `tests/`) exist, that `requirements.txt` lists `statsmodels`,\
-    \ `pyarrow`, and `python-levenshtein`, that `code/config.py` defines `levenshtein_threshold`\u202F\
-    =\u202F4, `match_rate_threshold`\u202F=\u202F0.8 and a seed, and that `quickstart.md`\
-    \ documents the pipeline execution commands."
-  sig: b4a840a7630aa82a66ffc4f75c5d549e8cd3adda0920994495dae72176b55b18
-T002:
   c: false
-  h: cabd4bc183eb41208484dcb7f266f18a2a2f450c8c71af2a84944dbe579504d2
-  r: "The two contract files exist, but the `contracts/dataset.schema.yaml` defines\
-    \ `matched_track_id` with a quoted `\"null\"` type, which is not a valid JSON\u2011\
-    Schema null type and will cause `jsonschema` validation to fail. Moreover, the\
-    \ provided pytest logs error out before any contract validation runs (missing\
-    \ `python_levenshtein` module), so there is no evidence that the schemas actually\
-    \ pass validation against the spec. The task therefore remains incomplete."
-  sig: 37e92f188b3e7f661ee9eae2f9002b81290054060dc9db9eef853c71decb198c
+  h: 4a3b0f20602bdc455fd18c47ef422e6be675b79a8194bce2f00d8b3dd2171bb7
+  r: The project layout directories exist, `code/config.py` defines the required thresholds
+    and seed, and `quickstart.md` documents the execution commands. However, `requirements.txt`
+    does not list the required packages `statsmodels` and `pyarrow`; it only mentions
+    them in comments and includes only `python-levenshtein`. The missing explicit
+    dependencies cause the task to be incomplete.
+  sig: 44ca3dac4058db9dbdc4a8eb12a9ce100a2010cbfe3770748e2b1dc4575b25fb
 T003:
-  c: true
-  h: 224df202ab57810adf9ac16ec516d53a56212367c14a2dffc11625b4d33eb656
-  r: Checked `code/main.py` wiring the pipeline, the three output files (`data/processed/ingested_cohort.parquet`,
-    `data/processed/user_track_pairs.parquet`, `data/final/regression_summary.csv`)
-    all exist and are populated, and `regression_summary.csv` includes the required
-    columns (`term`, `estimate`, `std_error`, `t_value`, `p_value`, `vif`).
-  sig: 2d0be24e917e63b802d8046a03d9aeceeed12c2e3cf8b9ebc07dce778ddcccfc
+  c: false
+  h: cf55526ee758660e1a6d7cdae5e72a00ee5998ac143ebfbe0873bec1259baf35
+  r: The required output artifacts `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`,
+    and `data/final/regression_summary.csv` are all missing from the project, so the
+    pipeline has not produced the real result rows nor the regression summary with
+    the required columns.
+  sig: 9a4ca532199cc66e66066bf11fd5d36b326387de0bff61e650600c43a06fbcd3

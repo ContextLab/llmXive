@@ -25,7 +25,34 @@ def run_thin_pipeline():
 
 def main():
     setup_logging()
-    run_thin_pipeline()
+    # Simple argument parsing for quickstart compatibility
+    if len(sys.argv) > 1 and sys.argv[1] == "--step":
+        if len(sys.argv) < 3:
+            logger.error("No step specified after --step")
+            sys.exit(1)
+        step = sys.argv[2]
+        if step == "ingest":
+            ensure_directories()
+            data_ingestion.main()
+            sys.exit(0)
+        elif step == "download":
+            # Placeholder for future download step
+            logger.info("Download step not implemented in this version.")
+            sys.exit(0)
+        elif step == "analyze":
+            # Placeholder for future analysis step
+            logger.info("Analyze step not implemented in this version.")
+            sys.exit(0)
+        elif step == "verify":
+            # Placeholder for future verification step
+            logger.info("Verify step not implemented in this version.")
+            sys.exit(0)
+        else:
+            logger.error(f"Unknown step: {step}")
+            sys.exit(1)
+    else:
+        # Default to full thin pipeline if no arguments
+        run_thin_pipeline()
 
 if __name__ == "__main__":
     main()

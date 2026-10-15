@@ -12,108 +12,102 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-------------     # 1‑2. Simulated AMT data (still required for birt…”
 - code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…out_path)     log.info(f"Simulated AMT data written to {out_path}")…”
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/raw/simulated_amt.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…pipeline:      1. Ensure simulated AMT data exists.     2. Load the…”; code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-------------     # 1‑2. Simulated AMT data (still required for birt…”; code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…out_path)     log.info(f"Simulated AMT data written to {out_path}")…”; every produced artifact is gitignored (data/raw/simulated_amt.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/main.py --step download (rc=1); python code/main.py --step ingest (rc=1); python code/main.py --step analyze (rc=1); 2 declared deliverable(s) absent: data/final/permutation_results.csv; data/final/sensitivity_analysis.csv
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…pipeline:      1. Ensure simulated AMT data exists.     2. Load the…”; code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-------------     # 1‑2. Simulated AMT data (still required for birt…”; code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…out_path)     log.info(f"Simulated AMT data written to {out_path}")…”; 5 command(s) failed: python code/main.py --step download (rc=1); python code/main.py --step ingest (rc=1); python code/main.py --step analyze (rc=1); 5 declared deliverable(s) absent: data/final/permutation_results.csv; data/final/regression_summary.csv; data/final/sensitivity_analysis.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --step download -> rc=1
-"
-2026-10-15 16:21:44,226 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-15 16:21:44,271 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 28, in main
-    run_thin_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 16, in run_thin_pipeline
-    data_ingestion.main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 137, in main
-    "user_id": rec["user_id"],
-               ~~~^^^^^^^^^^^
-TypeError: string indices must be integers, not 'str'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 4, in <module>
+    from utils import setup_logging, get_logger
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
+    import pyarrow.parquet as pq
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-200-the-impact-of-incidental-music-on-autobi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/main.py --step ingest -> rc=1
-"
-2026-10-15 16:21:45,845 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-15 16:21:45,890 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 28, in main
-    run_thin_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 16, in run_thin_pipeline
-    data_ingestion.main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 137, in main
-    "user_id": rec["user_id"],
-               ~~~^^^^^^^^^^^
-TypeError: string indices must be integers, not 'str'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 4, in <module>
+    from utils import setup_logging, get_logger
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
+    import pyarrow.parquet as pq
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-200-the-impact-of-incidental-music-on-autobi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/main.py --step analyze -> rc=1
-"
-2026-10-15 16:21:47,583 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-15 16:21:47,633 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 28, in main
-    run_thin_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 16, in run_thin_pipeline
-    data_ingestion.main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 137, in main
-    "user_id": rec["user_id"],
-               ~~~^^^^^^^^^^^
-TypeError: string indices must be integers, not 'str'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 4, in <module>
+    from utils import setup_logging, get_logger
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
+    import pyarrow.parquet as pq
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-200-the-impact-of-incidental-music-on-autobi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/main.py --step verify -> rc=1
-"
-2026-10-15 16:21:49,241 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-15 16:21:49,288 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 28, in main
-    run_thin_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 16, in run_thin_pipeline
-    data_ingestion.main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 137, in main
-    "user_id": rec["user_id"],
-               ~~~^^^^^^^^^^^
-TypeError: string indices must be integers, not 'str'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 4, in <module>
+    from utils import setup_logging, get_logger
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
+    import pyarrow.parquet as pq
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-200-the-impact-of-incidental-music-on-autobi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/main.py --full-run -> rc=1
-"
-2026-10-15 16:21:50,932 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-15 16:21:50,977 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 28, in main
-    run_thin_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 16, in run_thin_pipeline
-    data_ingestion.main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 137, in main
-    "user_id": rec["user_id"],
-               ~~~^^^^^^^^^^^
-TypeError: string indices must be integers, not 'str'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 4, in <module>
+    from utils import setup_logging, get_logger
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
+    import pyarrow.parquet as pq
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-200-the-impact-of-incidental-music-on-autobi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 
 ## Declared deliverables still missing
 
 - data/final/permutation_results.csv
+- data/final/regression_summary.csv
 - data/final/sensitivity_analysis.csv
+- data/processed/ingested_cohort.parquet
+- data/processed/user_track_pairs.parquet
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **16936134** real records with fields: user_index, artist_index, track_index, user_id, timestamp, musicbrainz_artist_id, artist_name, musicbrainz_track_id, track_name, gender, age, country, signup_date.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("matthewfranglen/lastfm-1k")
+total_records = sum(len(split) for split in ds.values())
+print(f"RECORDS={total_records}")
+
+first_split = next(iter(ds.values()))
+sample_record = first_split[0]
+print(f"FIELDS={','.join(sample_record.keys())}")
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -125,6 +119,16 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/quickstart_validator.py` — NOT invoked by the run-book
     - `code/security.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/final/permutation_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/final/regression_summary.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/05_model.py` — NOT invoked by the run-book
+    - `code/08_visualize.py` — NOT invoked by the run-book
+    - `code/generate_diagnostic_plots.py` — NOT invoked by the run-book
+    - `code/generate_permutation_results.py` — NOT invoked by the run-book
+    - `code/generate_regression_summary.py` — NOT invoked by the run-book
+    - `code/modeling.py` — NOT invoked by the run-book
+    - `code/quickstart_validator.py` — NOT invoked by the run-book
+    - `code/security.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/final/regression_summary.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/final/sensitivity_analysis.csv` is declared but was NOT written. Scripts referencing it:
     - `code/08_visualize.py` — NOT invoked by the run-book
     - `code/generate_final_results.py` — NOT invoked by the run-book
@@ -133,3 +137,23 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/security.py` — NOT invoked by the run-book
     - `code/verify_artifacts.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/final/sensitivity_analysis.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/ingested_cohort.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/02_preprocess.py` — NOT invoked by the run-book
+    - `code/03_aggregate.py` — NOT invoked by the run-book
+    - `code/aggregation.py` — NOT invoked by the run-book
+    - `code/data/aggregate.py` — NOT invoked by the run-book
+    - `code/data_ingestion.py` — NOT invoked by the run-book
+    - `code/generate_ingested_cohort.py` — NOT invoked by the run-book
+    - `code/generate_user_track_pairs.py` — NOT invoked by the run-book
+    - `code/quickstart_validator.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/ingested_cohort.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/user_track_pairs.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/03_aggregate.py` — NOT invoked by the run-book
+    - `code/05_model.py` — NOT invoked by the run-book
+    - `code/08_visualize.py` — NOT invoked by the run-book
+    - `code/aggregation.py` — NOT invoked by the run-book
+    - `code/generate_diagnostic_plots.py` — NOT invoked by the run-book
+    - `code/generate_regression_summary.py` — NOT invoked by the run-book
+    - `code/generate_sensitivity_analysis.py` — NOT invoked by the run-book
+    - `code/generate_user_track_pairs.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/user_track_pairs.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

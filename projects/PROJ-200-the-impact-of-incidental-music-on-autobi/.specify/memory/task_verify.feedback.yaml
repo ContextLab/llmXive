@@ -1,16 +1,26 @@
 T000:
+  reason: 'declared artifact(s) missing/empty/invalid: state.yaml'
   task: 883cb8df1cee439963b64f56312618c65d6a3099a360e0b0ab1ea7050c8c09c3
 T001:
+  reason: The project layout directories exist, `code/config.py` defines the required
+    thresholds and seed, and `quickstart.md` documents the execution commands. However,
+    `requirements.txt` does not list the required packages `statsmodels` and `pyarrow`;
+    it only mentions them in comments and includes only `python-levenshtein`. The
+    missing explicit dependencies cause the task to be incomplete.
   task: 24689101c69f744d0aa7d905eedde7015e19b8e55b8561ad31dafce823f03673
 T002:
-  reason: "The two contract files exist, but the `contracts/dataset.schema.yaml` defines\
-    \ `matched_track_id` with a quoted `\"null\"` type, which is not a valid JSON\u2011\
-    Schema null type and will cause `jsonschema` validation to fail. Moreover, the\
-    \ provided pytest logs error out before any contract validation runs (missing\
-    \ `python_levenshtein` module), so there is no evidence that the schemas actually\
-    \ pass validation against the spec. The task therefore remains incomplete."
+  reason: "Checked `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`\
+    \ \u2013 they exist and contain definitions that appear to align with the fields\
+    \ described in `spec.md`. However, there is no evidence that these schemas were\
+    \ actually validated with `jsonschema`; the provided test log fails before reaching\
+    \ any validation step due to an unrelated import error. A successful validation\
+    \ run (or passing test output) is required to satisfy the task."
   task: 9ffee1b6fb4836eb6687f4aebf3537be944cde5dd98e58c4c8ddacf56c5ee631
 T003:
+  reason: The required output artifacts `data/processed/ingested_cohort.parquet`,
+    `data/processed/user_track_pairs.parquet`, and `data/final/regression_summary.csv`
+    are all missing from the project, so the pipeline has not produced the real result
+    rows nor the regression summary with the required columns.
   task: d1b5ceea866482ff6891e1a4c319300274aab55982666b2f9cfdfb3b704a22be
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/data_ingestion.py
