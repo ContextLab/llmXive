@@ -1,0 +1,15 @@
+status: none
+intent: download code patch static analysis dataset including SWE-Gym and Multi-SWE-RL
+  as pip installable python package dataset
+required_fields:
+- issue_id
+- patch_id
+- language
+- source_code_before
+- source_code_after
+- test_log
+- ground_truth_test_results
+- metadata
+cache_key: d44581d114d9d44a0faa2449320aace60cbaf9081b4c809c653963526d553425
+searched_at: '2026-10-15T20:11:35.253667+00:00'
+retry_count: 1

@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StaticGraph"
+type: "object"
+required:
+  - patch_id
+  - graph_type
+  - nodes
+  - edges
+properties:
+  patch_id:
+    type: "string"
+    description: "Unique identifier matching the source patch."
+  graph_type:
+    type: "string"
+    enum: ["cfg", "cg"]
+    description: "Either 'cfg' for control‑flow or 'cg' for call graph."
+  nodes:
+    type: "array"
+    description: "List of graph nodes."
+    items:
+      type: "object"
+      required: ["id", "label", "attributes"]
+      properties:
+        id:
+          type: "string"
+        label:
+          type: "string"
+        attributes:
+          type: "object"
+          properties:
+            external:
+              type: "boolean"
+              description: "True if the node represents an external (non‑local) call."
+  edges:
+    type: "array"
+    description: "List of directed edges."
+    items:
+      type: "object"
+      required: ["source", "target"]
+      properties:
+        source:
+          type: "string"
+        target:
+          type: "string"
+        attributes:
+          type: "object"
+          additionalProperties: true

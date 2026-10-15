@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureVector"
+type: "object"
+required:
+  - patch_id
+  - language
+  - node_count
+  - edge_count
+  - mean_degree
+  - max_degree
+  - avg_shortest_path
+  - recursion_depth
+  - external_call_count
+  - label
+properties:
+  patch_id:
+    type: "string"
+  language:
+    type: "string"
+    enum: ["python", "cpp"]
+  node_count:
+    type: "integer"
+    minimum: 0
+  edge_count:
+    type: "integer"
+    minimum: 0
+  mean_degree:
+    type: "number"
+  max_degree:
+    type: "integer"
+    minimum: 0
+  avg_shortest_path:
+    type: "number"
+    minimum: 0
+  recursion_depth:
+    type: "integer"
+    minimum: 0
+  external_call_count:
+    type: "integer"
+    minimum: 0
+  label:
+    type: "string"
+    enum: ["pass", "fail"]
