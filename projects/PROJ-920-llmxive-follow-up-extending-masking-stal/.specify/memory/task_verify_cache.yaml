@@ -106,22 +106,25 @@ T013:
   sig: c73a007c4b02a8d4426f0a7fe6a5d374b5c20cb565e17f0a2bbb7ece33d0f0a1
 T014:
   c: false
-  h: 113de8e33ccda6551f4726c49a39723bf2d8f3f687f4a81a21eacbfb7c8221d0
-  r: "Checked `code/simulate_agent.py`, `data/raw/trajectories.json`, `code/config/simulation_config.json`,\
-    \ `data/logs/simulation_results.csv`, and `contracts/simulation_log.schema.yaml`.\
-    \ The script loads the entire trajectory JSON into memory (no true streaming)\
-    \ and sets a memory limit of 7\u202FGB, not the required \u2264\u202F2\u202FGB,\
-    \ and does not correctly handle the \u201Clast\u2011turn\u201D edge case. Hence\
-    \ the implementation does not meet the task\u2019s RAM\u2011budget and edge\u2011\
-    case requirements."
-  sig: d1d353b3b98afbaccbaefb0cf53142c69837009a906a4ce6f7032ecbac3e808a
+  h: 277ed53d0565a0609a026d62dc8415d90c5fe5ceb03f3db4d95bd4fee77fc541
+  r: Checked `code/simulate_agent.py`, `data/raw/trajectories.json`, `code/config/simulation_config.json`,
+    `data/logs/simulation_results.csv` and `contracts/simulation_log.schema.yaml`.
+    The script does not stream the JSON file (loads it entirely), ignores the `is_last_turn`
+    flag, and writes CSV columns (`density_value`, `requested_horizon`) that do not
+    match the required schema field names (`density`, `horizon`), so the output does
+    not conform to the contract.
+  sig: c172093a281fcd9528967b92423033dc7c65621e300916a3ce9849aad1c3af4f
 T017:
   c: false
-  h: 972f2f370fcf9478489a7eaeead7fdc92ce354ef6bc605b1d09440b5ede86570
-  r: The required integration test file `tests/integration/test_horizon_masking.py`
-    does not exist in the repository, so the claimed implementation is missing the
-    essential artifact. The task cannot be considered completed until this test file
-    is added with appropriate test code.
+  h: 2205cce21a05d20da1be658d575058196252b0d184d8627969212b2927516913
+  r: "Checked `code/visualize_results.py` (exists but only reads `regression_summary.json`,\
+    \ never the required `data/logs/simulation_results.csv`), the expected output\
+    \ file `results/regime_map.png` (missing), and the test suite (`tests/contract/test_regression_output.py`\
+    \ and `tests/integration/test_plot_generation.py`) which rely on a generated regression\
+    \ summary and a PNG plot that do not exist. The script\u2019s API and the integration\
+    \ test also look for a different plot name (`surface_plot.png`) and location,\
+    \ so the task\u2019s deliverables are not produced."
+  sig: 1194d4c9af071548a5c4c79c2534a34c418323f84f430c1f608b579669c75a65
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

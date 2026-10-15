@@ -21,25 +21,18 @@ T010:
 T011:
   task: 7aa3f4242fa85f859a58c86072e464ecb948e0436916826935fa9d32f17c670d
 T012:
-  reason: "Checked `code/validate_trajectories.py` and `tests/unit/test_trajectory_schema.py`.\
-    \ The validator uses a relaxed tolerance of\u202F0.07\u202Fbits/token instead\
-    \ of the required\u202F\xB10.01\u202Fbits/token and treats the `is_last_turn`\
-    \ flag as optional, violating the specification. The unit test references `contracts/trajectory.schema.yaml`,\
-    \ which is not present in the provided artifacts, so the test cannot pass. Additionally,\
-    \ the script\u2019s success condition expects \u201CAll 500 trajectories\u2026\
-    \u201D, but the supplied JSON file\u2019s length cannot be confirmed as 500. These\
-    \ issues mean the task\u2019s requirements are not genuinely met."
+  reason: 'Requested task execution failed; rerun successfully: code/validate_trajectories.py
+    exit=1'
   task: 6ec7205547cb792efe8c8e5562470454e096eece199e9cd39c6b6f98d76f8af1
 T013:
   task: 9f75acc23a41078df71a557eda3058839181fb288f8a655e001b1c0b30f631b8
 T014:
-  reason: "Checked `code/simulate_agent.py`, `data/raw/trajectories.json`, `code/config/simulation_config.json`,\
-    \ `data/logs/simulation_results.csv`, and `contracts/simulation_log.schema.yaml`.\
-    \ The script loads the entire trajectory JSON into memory (no true streaming)\
-    \ and sets a memory limit of 7\u202FGB, not the required \u2264\u202F2\u202FGB,\
-    \ and does not correctly handle the \u201Clast\u2011turn\u201D edge case. Hence\
-    \ the implementation does not meet the task\u2019s RAM\u2011budget and edge\u2011\
-    case requirements."
+  reason: Checked `code/simulate_agent.py`, `data/raw/trajectories.json`, `code/config/simulation_config.json`,
+    `data/logs/simulation_results.csv` and `contracts/simulation_log.schema.yaml`.
+    The script does not stream the JSON file (loads it entirely), ignores the `is_last_turn`
+    flag, and writes CSV columns (`density_value`, `requested_horizon`) that do not
+    match the required schema field names (`density`, `horizon`), so the output does
+    not conform to the contract.
   task: 6e8cfec58819f89e64179052eb25741968512c02d861c02d17578c315d3ec865
 T015:
   reason: 'Requested task execution failed; rerun successfully: code/validate_simulation.py
@@ -50,6 +43,13 @@ T016:
     exit=1'
   task: 8a02b027828d16b9bfba3a2fa1d3d9e202564f22c3a0432ccf7a37c65cec6936
 T017:
+  reason: "Checked `code/visualize_results.py` (exists but only reads `regression_summary.json`,\
+    \ never the required `data/logs/simulation_results.csv`), the expected output\
+    \ file `results/regime_map.png` (missing), and the test suite (`tests/contract/test_regression_output.py`\
+    \ and `tests/integration/test_plot_generation.py`) which rely on a generated regression\
+    \ summary and a PNG plot that do not exist. The script\u2019s API and the integration\
+    \ test also look for a different plot name (`surface_plot.png`) and location,\
+    \ so the task\u2019s deliverables are not produced."
   task: 2d4fd60e73ef2d611b20e2fa51d6322beb4022d44806a9b493d809a202e2fcb1
 T018:
   task: 129b64de095a9fdc239ca812182be545e23c542030e549a244a53c781ff78cda

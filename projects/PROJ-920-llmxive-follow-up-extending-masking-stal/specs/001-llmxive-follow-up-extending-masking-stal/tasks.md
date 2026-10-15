@@ -44,7 +44,7 @@ All scaffolding tasks are verified and checked.
   – Validate against `specs/001-llmxive-follow-up-extending-masking-stal/contracts/trajectory.schema.yaml`.  
   – Check that the number of trajectories per `density_level` (low, medium, high) is ≥ 150 each.
 
-- [ ] T012 **Validate generated trajectories & edge‑case metadata**  
+- [ ] T012 **Validate generated trajectories & edge‑case metadata**   <!-- FAILED-IN-EXECUTION: code/validate_trajectories.py exit=1 -->
   *Script*: `code/validate_trajectories.py`  
   *Consumes*: `data/raw/trajectories.json`.  
   *Checks*:  
@@ -65,7 +65,7 @@ All scaffolding tasks are verified and checked.
 
 ## Phase 2 – Agent simulation with variable retention horizons
 
-- [~] T014 **Simulate agent across horizons**  
+- [ ] T014 **Simulate agent across horizons**  
   *Script*: `code/simulate_agent.py`  
   *Inputs*: `data/raw/trajectories.json`, `code/config/simulation_config.json`.  
   *Outputs*: `data/logs/simulation_results.csv` (conforms to `contracts/simulation_log.schema.yaml`).  
@@ -98,7 +98,7 @@ All scaffolding tasks are verified and checked.
   – Fit GLM: `success ~ density * ns(horizon, df_selected)` using `statsmodels`.  
   – Select spline degrees of freedom via AIC (helpers `fit_splines.py`, `select_spline_df.py`).  
 
-- [~] T017 **Visualize regime map**  
+- [ ] T017 **Visualize regime map**  
   *Script*: `code/visualize_results.py`  
   *Consumes*: `data/logs/simulation_results.csv` and the selected spline df.  
   *Produces*: `results/regime_map.png` (3‑D surface, axes labeled “Masking Horizon”, “Semantic Density”, “Success Rate”, size ≤ 5 MB).  
