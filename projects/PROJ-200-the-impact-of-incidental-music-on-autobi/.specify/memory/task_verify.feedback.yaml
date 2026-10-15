@@ -1,13 +1,8 @@
 T000:
-  reason: 'Requested task execution failed; rerun successfully: code/init_state.py
-    exit=1'
   task: 883cb8df1cee439963b64f56312618c65d6a3099a360e0b0ab1ea7050c8c09c3
 T001:
-  reason: The project layout directories exist, `code/config.py` defines the required
-    thresholds and seed, and `quickstart.md` documents the execution commands. However,
-    `requirements.txt` does not list the required packages `statsmodels` and `pyarrow`;
-    it only mentions them in comments and includes only `python-levenshtein`. The
-    missing explicit dependencies cause the task to be incomplete.
+  reason: 'Requested task execution failed; rerun successfully: code/setup_project.py
+    exit=1'
   task: 24689101c69f744d0aa7d905eedde7015e19b8e55b8561ad31dafce823f03673
 T002:
   reason: "Checked `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`\

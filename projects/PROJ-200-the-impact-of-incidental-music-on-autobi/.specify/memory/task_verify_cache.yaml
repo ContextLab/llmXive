@@ -1,10 +1,11 @@
 T000:
   c: true
-  h: 0808235f809a3798c750d84a769714eced5a5a3dcd216dd1dbf09e9e5b689fea
-  r: "Checked `state.yaml` (509\u202Fbytes) at the project root; it contains the top\u2011\
-    level keys `artifact_hashes`, `updated_at`, and `config` with populated values,\
-    \ matching the required initialization structure."
-  sig: 77c30a1ab3b47cf8eed5325488c25f98c86021114e802a4f0ba734e23d4759d3
+  h: 3704b2e0f80c5e2b1bef630a8db0aa0d810f5fa7e96d522b61b65947c7e1683f
+  r: The `state.yaml` exists (806 bytes) with the required top-level keys `artifact_hashes`
+    (empty mapping), `updated_at` (ISO timestamp), and `config` (populated with project
+    paths and study parameters), and the execution log shows `code/init_state.py`
+    ran successfully (exit 0) creating the file.
+  sig: f06bab5fe1c4b8af8002efb8f125cecfa8dfd5b4e94359375a8b4215d8f2708c
 T001:
   c: false
   h: 4a3b0f20602bdc455fd18c47ef422e6be675b79a8194bce2f00d8b3dd2171bb7

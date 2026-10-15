@@ -1,10 +1,11 @@
 status: none
-intent: download Million Song Dataset user listening history python package dataset
+intent: download last.fm user listening dataset with timestamps and birth year python
+  package dataset
 required_fields:
 - user_id
 - birth_year
 - track_id
 - listen_timestamp
-cache_key: 1d4c14b06ff78a392d8c5857a091b75d533b2c04f79275a6f9508b2778433432
-searched_at: '2026-10-15T19:09:03.499284+00:00'
+cache_key: 7e27f1b6eb44250c3f588360de9a2feaf80800b672d34ad7004c1a3f6c06556d
+searched_at: '2026-10-15T21:09:18.492958+00:00'
 retry_count: 1

@@ -14,15 +14,25 @@ The script is idempotent – if ``state.yaml`` already exists it will be
 overwritten with a fresh skeleton.
 """
 import hashlib
+import logging
 import yaml
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Import configuration utilities directly (avoid importing utils which pulls in
+# heavy optional dependencies like pyarrow that may not be available in the
+# execution environment).
 from config import get_config_dict, get_project_root
-from utils import get_logger
 
-log = get_logger(__name__)
+# Set up a minimal logger that writes to stdout; this avoids the circular
+# import issue that previously arose from importing ``utils.get_logger``.
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+)
+log = logging.getLogger(__name__)
 
+# Path to the state file at the project root.
 STATE_FILE = get_project_root() / "state.yaml"
 
 
@@ -35,7 +45,7 @@ def _compute_sha256(file_path: Path) -> str:
     return h.hexdigest()
 
 
-def initialize_state():
+def initialize_state() -> None:
     """Write a fresh ``state.yaml`` with the required skeleton."""
     log.info(f"Initializing state file at {STATE_FILE}")
 
@@ -46,7 +56,7 @@ def initialize_state():
         "config": get_config_dict(),
     }
 
-    # Write YAML (ensuring the parent directory exists)
+    # Ensure the parent directory exists and write the YAML file.
     STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
     with STATE_FILE.open("w") as f:
         yaml.safe_dump(state, f, sort_keys=False)
