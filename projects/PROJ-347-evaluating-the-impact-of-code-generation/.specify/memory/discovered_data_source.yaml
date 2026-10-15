@@ -1,9 +1,18 @@
 status: none
-intent: '### User Story 1 - Data Ingestion and Preparation (Priority: P1) The system
-  MUST ingest human-written vulnerable code samples from a public dataset (e.g., Devign
-  or CodeXGLUE) and generate functionally equivalent code samples using a public LLM
-  API based on standardized prompts. **Why this priority*'
-required_fields: []
-cache_key: 396979c54ed6fd97fc66e3b1c2373d4a3304e23e861d6687d276b065f24cb867
-searched_at: '2026-10-15T07:58:28.245039+00:00'
+intent: download Juliet Test Suite SARD dataset and OWASP Top 10 LLM Dataset python
+  package dataset
+required_fields:
+- code_snippet
+- programming_language
+- cwe_identifier
+- vulnerability_category
+- function_name
+- source_file_path
+- label
+- prompt_text
+- generated_code
+- semantic_similarity_score
+- unit_test_coverage
+cache_key: e374c11c2e0cc3e48ecde837fdb9a3635defd59e965946845f28552d8299e19d
+searched_at: '2026-10-15T09:18:13.784003+00:00'
 retry_count: 1

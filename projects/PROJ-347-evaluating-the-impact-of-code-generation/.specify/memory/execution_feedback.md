@@ -17,11 +17,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.run_pipeline  --seed 42  --max-pairs 300  --confidence-thresholds 0.0 0.5 0.9 -> rc=1
-ponse=self)
-requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/anishathalye/devign-dataset/master/devign.csv
-
-During handling of the above exception, another exception occurred:
-
+g-the-impact-of-code-generation/data/raw/devign/devign.csv
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
@@ -29,12 +25,13 @@ Traceback (most recent call last):
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-347-evaluating-the-impact-of-code-generation/src/run_pipeline.py", line 60, in main
     download_devign_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-347-evaluating-the-impact-of-code-generation/code/download_devign.py", line 158, in main
-    download_url = _determine_zip_url()
-                   ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-347-evaluating-the-impact-of-code-generation/code/download_devign.py", line 110, in _determine_zip_url
-    raise RuntimeError(
-RuntimeError: Unable to locate a valid Devign dataset archive. Tried both main and master branches.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-347-evaluating-the-impact-of-code-generation/code/download_devign.py", line 109, in main
+    download_file(RAW_CSV_URL, CSV_DEST)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-347-evaluating-the-impact-of-code-generation/code/download_devign.py", line 48, in download_file
+    r.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/python_vuln.csv
 
 
 ## Declared deliverables still missing
