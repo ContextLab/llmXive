@@ -1,41 +1,51 @@
 T001:
-  reason: "The `availability_report.json` only lists a bundled local CSV (`file://\u2026\
-    /example.csv`) as the dataset, which is not an openly downloadable external source.\
-    \ The script never succeeded in discovering a real external Zenodo/NIST/Materials\
-    \ Project dataset that contains all required variables, so the core requirement\
-    \ of verifying an openly downloadable dataset is unmet. The task also fails its\
-    \ own test (the script cannot be invoked from the expected path), indicating the\
-    \ verification workflow is not correctly implemented. The implementer must locate\
-    \ a genuine public dataset with the required column"
+  reason: "The availability report is inconsistent with the script that supposedly\
+    \ produced it: `verify_data_source.py` can only emit a Zenodo URL (`zenodo_example`),\
+    \ yet the report lists a `file:///...example.csv` entry with `source_name: \"\
+    example_dataset\"` \u2014 a descriptor the script never generates, indicating\
+    \ the report was fabricated or produced by an earlier different version. Moreover,\
+    \ the script's hardcoded Zenodo DOI `10.5281/zenodo.10234567` is a placeholder\
+    \ that does not correspond to a real, verified openly downloadable dataset containing\
+    \ all eight required columns, so the core requirement \u2014 ac"
   task: 2dc382125d8cf31690702877306193ffecc1d42b6ea510731970df69e9556e14
 T002:
-  reason: "Checked `code/download_data.py` and `data/raw/checksums.txt`. The script\
-    \ downloads via Python\u202Frequests (not wget/curl as required) and records computed\
-    \ checksums without comparing them to any expected values, so it does not verify\
-    \ that the recorded checksum matches a known reference. Consequently the task\u2019\
-    s core requirement is not met."
+  reason: "The script has a literal-`\\n` bug: `chk_f.write(f\"{checksum}  {dest_path.name}\\\
+    \\n\")` writes the two characters `\\` and `n` instead of a newline, so `data/raw/checksums.txt`\
+    \ (87 bytes, single line ending in `example_dataset.csv\\n` literally) is malformed,\
+    \ and the recorded test run `tests/test_download_data.py` FAILED with \"Filename\
+    \ in checksum line mismatch\" (exit 1). The download itself ran (exit 0, checksum\
+    \ matches the file), but the verification requirement \u2014 a correctly formatted\
+    \ checksums file with one line per file and passing checks \u2014 is not met;\
+    \ fix the write to use a real newline and r"
   task: cd437c73880ffbdad3de5ce0afa7748a935ce318a1501c9747bbefb2ee5b7e39
 T003:
-  reason: "The test suite shows `test_generate_units_metadata_success` failing because\
-    \ the script raises a `UnitMismatchError` for `test_source.csv`, indicating it\
-    \ does not correctly recognize all required columns. Moreover, a JSON file (`bad_source_units.json`)\
-    \ exists for an invalid source and contains unit entries for columns that are\
-    \ not present in `bad_source.csv`, which contradicts the script\u2019s intended\
-    \ behavior of skipping invalid sources. The implementation therefore does not\
-    \ reliably generate correct per\u2011source metadata nor validate unit consistency\
-    \ as required."
   task: bcaec96891cf7f5ddf0145cfeebcc2f9db65bb3a4c8c68dda13f43b04f514186
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/preprocess.py
-    exit=1'
   task: 4997593b89c900c42cedf2967380dd04f8de6e8ff3e4d5988a87fe406f7c2e2b
 T005:
+  reason: "The actual split outputs are empty: `train.csv` and `val.csv` contain only\
+    \ headers (0 rows), `split_summary.json` reports split_counts of 0/0/0 because\
+    \ all 3 groups were excluded by the <5-record rule, so the 70/15/15 proportions\
+    \ cannot be verified and the deliverable is effectively vacuous. Additionally,\
+    \ the implementation performs a row-level random split, not the required grouped\
+    \ split by `pair_id` (a `pair_id` group can appear in multiple splits), and `test.csv`\
+    \ contains 3 stale rows contradicting the summary's 0 test records. The implementer\
+    \ needs a cleaned dataset with groups of \u22655 recor"
   task: 092f4f062b78e9fc22037047a2437b5378a443b771f91291073dd4a1af12ebc5
 T006:
+  reason: "The script ran but the train/validation splits are empty (0 rows, all pair_id\
+    \ groups excluded by the sparsity filter), so it took the guard path and wrote\
+    \ an empty grid-search result \u2014 `results/grid_search_results.json` is `[]`,\
+    \ no models were trained, and no validation R\xB2/RMSE/bootstrapped CI exist anywhere.\
+    \ The required `models/grid_search_results.json` with the full list of combos\
+    \ and metrics is missing, and the existing `models/*_artifact.json` files show\
+    \ `validation_r2: null` with test metrics that appear fabricated relative to the\
+    \ empty splits (e.g., LinearRegression test_r2 \u2248 1.0 on 0-r"
   task: f3406879d3b4539cbe12dff265296ea9f5f61f20ec7ba477fd2916ee79d4502e
 T007:
   task: d552ecffe2e0e38de5781e3b80665a4c5d9f707789af04177b0bb071bdda5797
 T008:
+  reason: 'Requested task execution failed; rerun successfully: code/evaluate.py exit=1'
   task: e775531e951af4913261f33fb6d753dd89694b85567e6ca1861ff78ecccfed47
 T009:
   task: bf7bf2e1ec5ddf030a2bcc1ab636c3787e4cebb8adc2a9d59c482af72d3cb0ea

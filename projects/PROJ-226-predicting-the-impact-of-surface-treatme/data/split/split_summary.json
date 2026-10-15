@@ -1,0 +1,17 @@
+{
+  "total_records_before_exclusion": 3,
+  "records_after_exclusion": 0,
+  "excluded_pair_id_groups": [
+    "PP_Al",
+    "PE_Cu",
+    "PE_Al"
+  ],
+  "split_counts": {
+    "train": 0,
+    "validation": 0,
+    "test": 0
+  },
+  "train_fraction": 0.7,
+  "validation_fraction": 0.15,
+  "test_fraction": 0.15
+}

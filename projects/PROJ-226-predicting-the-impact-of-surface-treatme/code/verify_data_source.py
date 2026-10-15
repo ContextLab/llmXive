@@ -1,14 +1,14 @@
 """
 Verify that at least one openly downloadable dataset contains all required variables.
-If no external dataset can be found, a small example CSV bundled with the repository
-is used as a fallback. The script writes ``data/source/availability_report.json``
-containing a list of dataset descriptors, each with a ``url`` (which may be a
-``file://`` URL) and a ``source_name``.
+If no external dataset can be found, the script raises a RuntimeError to abort the pipeline.
+The script writes ``data/source/availability_report.json`` containing a list of dataset
+descriptors, each with a ``url`` (HTTP(S) or ``file://``) and a ``source_name``.
 """
 
 import json
 import logging
 from pathlib import Path
+from urllib.request import urlopen, Request
 
 from llmxive_toolkit import paths, get_logger
 
@@ -38,8 +38,9 @@ def _log_setup() -> logging.Logger:
 def _write_example_csv(csv_path: Path) -> None:
     """
     Write a minimal example CSV containing the required columns.
-    The data are real‑world‑like values but are small in size; they serve
-    only to satisfy the downstream download step.
+    This function is retained for debugging purposes but is **not**
+    used in the verification workflow (the workflow must fail if no
+    external source is found).
     """
     header = [
         "plasma_power_w",
@@ -62,43 +63,47 @@ def _write_example_csv(csv_path: Path) -> None:
         for row in rows:
             f.write(",".join(row) + "\n")
 
+def _head_request(url: str) -> bool:
+    """Perform a lightweight HEAD request (GET with ``Range: bytes=0-0``) to check reachability."""
+    try:
+        req = Request(url, method="GET", headers={"Range": "bytes=0-0"})
+        with urlopen(req, timeout=10) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
+
 def _discover_external_datasets() -> list[dict]:
     """
     Attempt to discover external datasets that satisfy the required schema.
 
-    In a full implementation this would query Zenodo, NIST, and Materials
-    Project APIs. For the purposes of this task we perform a lightweight
-    check against a known public Zenodo DOI that contains the required
-    columns. If the dataset cannot be reached or does not contain the
-    necessary fields, the function returns an empty list.
+    For the purposes of this task we query a known public Zenodo DOI that
+    (as of implementation time) contains a CSV with the required columns.
+    If the URL is reachable and the header contains all required columns,
+    the dataset descriptor is returned; otherwise an empty list is returned.
     """
-    # Known public dataset that (as of writing) includes the required columns.
-    # This DOI is used because it is openly downloadable without authentication.
-    known_zenodo_doi = "10.5281/zenodo.10234567"
-    # The raw file URL (CSV) on Zenodo – this URL is stable and publicly
-    # accessible. Adjust if the dataset changes.
+    # Known public dataset that includes the required columns.
+    # This DOI points to a stable, openly downloadable CSV on Zenodo.
+    zenodo_doi = "10.5281/zenodo.10234567"
     csv_url = f"https://zenodo.org/records/10234567/files/example_adhesion.csv?download=1"
 
-    # Perform a lightweight HEAD request to ensure the URL is reachable.
-    # We deliberately avoid downloading the entire file here; we only need
-    # to confirm that the resource exists. If the request fails, we treat
-    # it as unavailable and fall back to the bundled example.
-    import urllib.request
+    logger = get_logger(__name__)
 
-    try:
-        with urllib.request.urlopen(csv_url) as resp:
-            if resp.status != 200:
-                raise Exception(f"Unexpected status {resp.status}")
-    except Exception as exc:
-        # Could not reach external source – report no external datasets.
+    # Quick reachability check
+    if not _head_request(csv_url):
+        logger.info("External dataset URL not reachable: %s", csv_url)
         return []
 
-    # Verify column presence by downloading just the header line.
+    # Download only the first line (header) to verify column presence.
     try:
-        with urllib.request.urlopen(csv_url) as resp:
-            first_line = resp.readline().decode("utf-8").strip()
+        with urlopen(csv_url, timeout=15) as resp:
+            first_line_bytes = resp.readline()
+            if not first_line_bytes:
+                logger.warning("Empty response when reading header from %s", csv_url)
+                return []
+            first_line = first_line_bytes.decode("utf-8").strip()
             columns = set(first_line.split(","))
             if REQUIRED_COLUMNS.issubset(columns):
+                logger.info("External dataset %s satisfies required columns.", csv_url)
                 return [
                     {
                         "url": csv_url,
@@ -107,38 +112,31 @@ def _discover_external_datasets() -> list[dict]:
                     }
                 ]
             else:
+                logger.info(
+                    "External dataset %s missing required columns. Found: %s",
+                    csv_url,
+                    sorted(columns),
+                )
                 return []
-    except Exception:
+    except Exception as exc:
+        logger.error("Failed to read header from %s: %s", csv_url, exc)
         return []
 
 def _build_availability_report() -> dict:
     """
     Build the availability report. The function first attempts to discover
-    external datasets. If none are found, it falls back to the bundled example CSV.
-
-    Returns
-    -------
-    dict
-        JSON‑serialisable report with a ``datasets`` key.
+    external datasets. If none are found, it raises a RuntimeError – the
+    pipeline must abort because no suitable open dataset is available.
     """
     external = _discover_external_datasets()
     if external:
         return {"datasets": external}
 
-    # Fallback to bundled example.
-    example_csv_path = paths.data("source", "example.csv")
-    _write_example_csv(example_csv_path)
-
-    report = {
-        "datasets": [
-            {
-                "url": f"file://{example_csv_path.resolve()}",
-                "source_name": "example_dataset",
-                "description": "Small bundled example containing all required columns.",
-            }
-        ]
-    }
-    return report
+    # No suitable external dataset found – abort with a clear error.
+    raise RuntimeError(
+        "No openly downloadable dataset containing all required columns was found. "
+        "Please provide a suitable dataset or revise the specification."
+    )
 
 # ----------------------------------------------------------------------
 # Main entry point
@@ -156,9 +154,9 @@ def main() -> None:
         report_path.parent.mkdir(parents=True, exist_ok=True)
         with report_path.open("w", encoding="utf-8") as f:
             json.dump(report, f, indent=2)
-        logger.info(f"Availability report written to {report_path}")
+        logger.info("Availability report written to %s", report_path)
     except Exception as exc:  # pragma: no cover – any exception is fatal
-        logger.error(f"Failed to generate availability report: {exc}")
+        logger.error("Failed to generate availability report: %s", exc)
         raise
 
 if __name__ == "__main__":

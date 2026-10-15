@@ -1,28 +1,27 @@
 import json
+import pytest
 from pathlib import Path
 
-from llmxive_toolkit import paths
+from verify_data_source import main as verify_main
 
-def test_availability_report_exists(tmp_path, monkeypatch):
+def test_verify_fails_when_no_external_dataset(tmp_path, monkeypatch):
     """
-    Ensure that the verify_data_source script writes a non‑empty availability
-    report containing at least one dataset.
+    Ensure that the script raises RuntimeError when no external dataset
+    can be discovered. We monkey‑patch the discovery function to return
+    an empty list, forcing the failure path.
     """
-    # Run the script
-    from code.verify_data_source import main as verify_main
-    verify_main()
+    # Patch the internal discovery function
+    from verify_data_source import _discover_external_datasets
 
-    report_path = paths.data("source", "availability_report.json")
-    assert report_path.is_file(), "availability_report.json was not created"
+    def fake_discover():
+        return []
 
-    with report_path.open() as f:
-        data = json.load(f)
+    monkeypatch.setattr("verify_data_source._discover_external_datasets", fake_discover)
 
-    assert isinstance(data, dict), "Report should be a JSON object"
-    datasets = data.get("datasets")
-    assert isinstance(datasets, list) and len(datasets) > 0, "datasets list must be non‑empty"
+    # Run and expect RuntimeError
+    with pytest.raises(RuntimeError):
+        verify_main()
 
-    # Verify that each entry has a URL we can handle
-    for ds in datasets:
-        assert "url" in ds, "Each dataset entry must contain a 'url' field"
-        assert ds["url"].startswith("file://") or ds["url"].startswith("http"), "URL scheme must be file or http"
+    # No report should be written
+    report_path = Path(__file__).parents[2] / "data" / "source" / "availability_report.json"
+    assert not report_path.exists()

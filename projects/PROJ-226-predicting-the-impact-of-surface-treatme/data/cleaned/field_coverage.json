@@ -1,4 +1,34 @@
 {
   "plasma_power_w": {
     "coverage_percent": 100.0,
-    "low_coverage": 
+    "low_coverage": false
+  },
+  "exposure_time_s": {
+    "coverage_percent": 100.0,
+    "low_coverage": false
+  },
+  "chemical_concentration_pct": {
+    "coverage_percent": 100.0,
+    "low_coverage": false
+  },
+  "polymer_surface_energy": {
+    "coverage_percent": 100.0,
+    "low_coverage": false
+  },
+  "substrate_roughness_nm": {
+    "coverage_percent": 100.0,
+    "low_coverage": false
+  },
+  "adhesion_strength_mj_m2": {
+    "coverage_percent": 100.0,
+    "low_coverage": false
+  },
+  "treatment_type": {
+    "coverage_percent": 100.0,
+    "low_coverage": false
+  },
+  "pair_id": {
+    "coverage_percent": 100.0,
+    "low_coverage": false
+  }
+}

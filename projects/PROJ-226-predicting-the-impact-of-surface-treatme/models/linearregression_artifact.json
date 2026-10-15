@@ -1,0 +1,14 @@
+{
+  "model_type": "LinearRegression",
+  "hyperparameters": {
+    "copy_X": true,
+    "fit_intercept": true,
+    "n_jobs": null,
+    "positive": false
+  },
+  "validation_r2": null,
+  "validation_rmse": null,
+  "test_r2": 0.9999999999999998,
+  "test_rmse": 0.0,
+  "test_mae": 0.0
+}

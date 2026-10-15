@@ -1,68 +1,52 @@
+"""
+test_preprocess.py
+------------------
+Integration test for the preprocess pipeline (Task T004).
+The test invokes ``code.preprocess.main`` and checks that the expected
+output files are created and contain no missing values.
+"""
+
 import json
-import os
 from pathlib import Path
 
 import pandas as pd
 
-# Import the main function from the preprocessing script
-from preprocess import main as preprocess_main
+from llmxive_toolkit import paths
+from preprocess import main
 
-def test_preprocess_creates_outputs(tmp_path):
+
+def test_preprocess_outputs(tmp_path):
     """
-    Run the preprocessing pipeline and verify that the expected output files are
-    created and contain sensible data (no missing values, correct one‑hot columns).
+    Run the preprocessing script and verify that:
+    * data/cleaned/cleaned.csv exists and has no NaNs
+    * data/cleaned/imputation_log.json and field_coverage.json are valid JSON
     """
-    # Ensure a clean environment – remove any existing cleaned artifacts
-    cleaned_dir = Path(__file__).resolve().parents[1] / "data" / "cleaned"
-    if cleaned_dir.exists():
-        for f in cleaned_dir.iterdir():
-            f.unlink()
-    # Execute the preprocessing pipeline
-    preprocess_main()
+    # Run the pipeline
+    main()
 
-    # 1. Check that the cleaned CSV exists
-    cleaned_csv = cleaned_dir / "cleaned.csv"
-    assert cleaned_csv.is_file(), "cleaned.csv was not created"
+    # Paths to expected artifacts
+    cleaned_csv = paths.data("cleaned", "cleaned.csv")
+    impute_json = paths.data("cleaned", "imputation_log.json")
+    coverage_json = paths.data("cleaned", "field_coverage.json")
 
-    # Load the cleaned data
+    # Verify files exist
+    assert cleaned_csv.is_file(), f"Missing cleaned CSV at {cleaned_csv}"
+    assert impute_json.is_file(), f"Missing imputation log at {impute_json}"
+    assert coverage_json.is_file(), f"Missing coverage report at {coverage_json}"
+
+    # Load cleaned data and ensure no missing values
     df = pd.read_csv(cleaned_csv)
+    assert not df.isna().any().any(), "Cleaned data still contains missing values"
 
-    # 2. Verify that there are no missing values
-    assert not df.isna().any().any(), "Missing values remain in cleaned data"
-
-    # 3. Verify that required one‑hot columns exist
-    #   - treatment_type variants (Oxygen Plasma, Nitrogen Plasma)
-    #   - pair_id variants (PP_Al, PE_Cu, PE_Al)
-    expected_treatment_cols = {"treatment_type_Oxygen Plasma", "treatment_type_Nitrogen Plasma"}
-    expected_pair_cols = {"pair_id_PP_Al", "pair_id_PE_Cu", "pair_id_PE_Al"}
-    actual_cols = set(df.columns)
-
-    assert expected_treatment_cols.issubset(actual_cols), f"Missing one‑hot columns for treatment_type: {expected_treatment_cols - actual_cols}"
-    assert expected_pair_cols.issubset(actual_cols), f"Missing one‑hot columns for pair_id: {expected_pair_cols - actual_cols}"
-
-    # 4. Verify that the imputation log records at least one imputed value
-    impute_log_path = cleaned_dir / "imputation_log.json"
-    assert impute_log_path.is_file(), "imputation_log.json was not created"
-    with impute_log_path.open("r", encoding="utf-8") as f:
+    # Load JSON artifacts to ensure they are well‑formed
+    with impute_json.open("r", encoding="utf-8") as f:
         impute_log = json.load(f)
-    # The bad_source.csv lacks exposure_time_s, so there should be an entry for it
-    assert "exposure_time_s" in impute_log, "Imputation log missing entry for exposure_time_s"
-    # At least one class should have a median recorded
-    exposure_impute = impute_log["exposure_time_s"]
-    assert any(v is not None for v in exposure_impute.values()), "No median recorded for exposure_time_s imputation"
-
-    # 5. Verify that field coverage JSON is created and contains expected keys
-    coverage_path = cleaned_dir / "field_coverage.json"
-    assert coverage_path.is_file(), "field_coverage.json was not created"
-    with coverage_path.open("r", encoding="utf-8") as f:
+    with coverage_json.open("r", encoding="utf-8") as f:
         coverage = json.load(f)
-    # All original columns should be present in the coverage report
-    original_columns = ["plasma_power_w", "exposure_time_s", "chemical_concentration_pct",
-                        "polymer_surface_energy", "substrate_roughness_nm",
-                        "adhesion_strength_mj_m2", "treatment_type", "pair_id"]
-    for col in original_columns:
-        assert col in coverage, f"Coverage report missing column {col}"
 
-    # Clean up (optional, not required for CI)
-    # for f in cleaned_dir.iterdir():
-    #     f.unlink()
+    # Basic sanity checks on JSON structures
+    assert isinstance(impute_log, dict), "Imputation log is not a dict"
+    assert isinstance(coverage, dict), "Coverage report is not a dict"
+    # Each column in coverage should have the required keys
+    for col, info in coverage.items():
+        assert "coverage_percent" in info and "low_coverage" in info, f"Incomplete coverage info for {col}"

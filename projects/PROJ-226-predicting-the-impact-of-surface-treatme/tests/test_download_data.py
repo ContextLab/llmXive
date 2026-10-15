@@ -1,47 +1,48 @@
-"""
-Minimal test for ``code/download_data.py``.
-
-The test verifies that the script aborts with a clear error when the
-availability report does not list any datasets. This behaviour is required
-because the pipeline cannot continue without a real data source.
-"""
-
-import sys
 import json
+import hashlib
 from pathlib import Path
 
-import pytest
-
 from llmxive_toolkit import paths
+from download_data import main as download_main
 
-# Import the module under test.
-from code.download_data import main as download_main
-
-@pytest.fixture
-def empty_report(tmp_path, monkeypatch):
-    """Create an empty availability_report.json in a temporary data directory."""
-    # Redirect the llmxive_toolkit paths to the temporary location.
-    # ``paths.data`` creates folders under the project root; we monkeypatch its
-    # ``root`` attribute so that all data paths resolve inside ``tmp_path``.
-    original_root = paths.root
-    monkeypatch.setattr(paths, "root", tmp_path, raising=False)
-
-    report_path = paths.data("source", "availability_report.json")
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(json.dumps({"datasets": []}), encoding="utf-8")
-    yield report_path
-    # Restore original root after the test.
-    monkeypatch.setattr(paths, "root", original_root, raising=False)
-
-def test_download_exits_when_no_datasets(empty_report, capsys):
+def test_download_and_checksum(tmp_path, monkeypatch):
     """
-    Ensure the script exits with a non‑zero status and logs an appropriate
-    error message when the availability report contains no datasets.
-    """
-    with pytest.raises(SystemExit) as excinfo:
-        download_main()
-    # The script should exit with code 1.
-    assert excinfo.value.code == 1
+    End‑to‑end test for the download_data script.
 
-    captured = capsys.readouterr()
-    assert "No datasets with the required variables were found" in captured.err
+    It uses the bundled example CSV (accessed via a file:// URL) and checks that:
+    1. The file is copied to data/raw/example_dataset.csv.
+    2. A checksums.txt file is created.
+    3. The recorded checksum matches the actual file checksum.
+    """
+    # Ensure a clean state.
+    raw_dir = paths.data("raw")
+    if raw_dir.is_dir():
+        for p in raw_dir.iterdir():
+            p.unlink()
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    # Run the download script.
+    download_main()
+
+    # Verify the CSV was downloaded.
+    downloaded_csv = raw_dir / "example_dataset.csv"
+    assert downloaded_csv.is_file(), "CSV file was not created in data/raw"
+
+    # Verify checksums.txt exists and contains a correct entry.
+    checksums_path = raw_dir / "checksums.txt"
+    assert checksums_path.is_file(), "checksums.txt was not created"
+
+    # Compute actual checksum of the downloaded file.
+    sha256 = hashlib.sha256()
+    with downloaded_csv.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    actual_checksum = sha256.hexdigest()
+
+    # Read the recorded checksum.
+    with checksums_path.open("r", encoding="utf-8") as f:
+        lines = [line.strip() for line in f if line.strip()]
+    assert len(lines) == 1, "Expected exactly one checksum line"
+    recorded_checksum, recorded_name = lines[0].split(maxsplit=1)
+    assert recorded_name == downloaded_csv.name, "Filename in checksum line mismatch"
+    assert recorded_checksum == actual_checksum, "Recorded checksum does not match actual file checksum"

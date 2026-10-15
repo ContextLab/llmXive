@@ -16,10 +16,8 @@ import sys
 import json
 import hashlib
 import logging
-import shutil
+import subprocess
 from pathlib import Path
-
-import requests
 
 from llmxive_toolkit import paths, get_logger
 
@@ -48,52 +46,46 @@ def _load_availability_report() -> list:
         raise ValueError("Field 'datasets' must be a list in the availability report.")
     return datasets
 
-def _download_and_checksum(url: str, dest_path: Path) -> str:
+def _download_with_curl(url: str, dest_path: Path) -> None:
     """
-    Stream a file from ``url`` to ``dest_path`` while computing its SHA‑256 hash.
-
-    Supports HTTP(S) URLs as well as ``file://`` URLs that point to a local file.
+    Download a file using ``curl`` (or ``wget`` as a fallback) to ``dest_path``.
 
     Parameters
     ----------
     url : str
-        HTTP(S) URL of the file to download.
+        HTTP(S) or ``file://`` URL.
     dest_path : pathlib.Path
-        Destination file path (parent directory must exist).
+        Destination file path. Parent directory must exist.
+    """
+    logger = get_logger(__name__)
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Prefer curl; if not available, fall back to wget.
+    curl_cmd = ["curl", "-L", "-o", str(dest_path), url]
+    try:
+        logger.debug(f"Running curl: {' '.join(curl_cmd)}")
+        subprocess.run(curl_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        return
+    except (FileNotFoundError, subprocess.CalledProcessError) as e:
+        logger.debug(f"curl failed ({e}); attempting wget fallback.")
+        # wget -O <dest> <url>
+        wget_cmd = ["wget", "-O", str(dest_path), url]
+        subprocess.run(wget_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+
+def _compute_sha256(file_path: Path) -> str:
+    """
+    Compute the SHA‑256 checksum of ``file_path``.
 
     Returns
     -------
     str
-        Hexadecimal SHA‑256 checksum of the downloaded file.
+        Hexadecimal checksum.
     """
-    logger = get_logger(__name__)
-    logger.info(f"Starting download: {url}")
-
     sha256 = hashlib.sha256()
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if url.startswith("file://"):
-        # Local file – copy contents and compute checksum.
-        local_path = Path(url[7:])
-        if not local_path.is_file():
-            raise FileNotFoundError(f"Local file not found: {local_path}")
-        with local_path.open("rb") as src, dest_path.open("wb") as dst:
-            for chunk in iter(lambda: src.read(8192), b""):
-                dst.write(chunk)
-                sha256.update(chunk)
-    else:
-        # Remote HTTP(S) download.
-        response = requests.get(url, stream=True, timeout=30)
-        response.raise_for_status()
-        with dest_path.open("wb") as f_out:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:  # filter out keep‑alive chunks
-                    f_out.write(chunk)
-                    sha256.update(chunk)
-
-    checksum = sha256.hexdigest()
-    logger.info(f"Finished download to {dest_path} (SHA‑256: {checksum})")
-    return checksum
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
 # ----------------------------------------------------------------------
 # Main entry point
@@ -139,13 +131,28 @@ def main() -> None:
 
             dest_path = paths.data("raw", f"{source_name}.csv")
             try:
-                checksum = _download_and_checksum(url, dest_path)
+                _download_with_curl(url, dest_path)
             except Exception as exc:
-                logger.error(f"Failed to download {url}: {exc}")
+                logger.error(f"Failed to download {url} using curl/wget: {exc}")
                 sys.exit(1)
+
+            # Compute checksum of the downloaded file.
+            checksum = _compute_sha256(dest_path)
+
+            # If the availability report supplies an expected checksum, verify it.
+            expected_checksum = ds.get("sha256")
+            if expected_checksum:
+                if checksum.lower() != expected_checksum.lower():
+                    logger.error(
+                        f"Checksum mismatch for {url}: expected {expected_checksum}, got {checksum}"
+                    )
+                    sys.exit(1)
+                else:
+                    logger.info(f"Checksum verified for {url}")
 
             # Write checksum line in the standard ``sha256  filename`` format.
             chk_f.write(f"{checksum}  {dest_path.name}\\n")
+            logger.info(f"Downloaded {url} to {dest_path} (SHA‑256: {checksum})")
 
     logger.info(f"All downloads completed successfully. Checksums stored at {checksums_file}")
 

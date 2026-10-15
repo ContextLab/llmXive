@@ -20,7 +20,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
   - *Implementation*: `code/download_data.py` uses `wget`/`curl` with the concrete URLs from the availability report and saves files under `data/raw/<source>.csv`.  
   - *Verification*: script writes `data/raw/checksums.txt` (one line per file) and exits with status 0 only if every download succeeds and the computed checksum matches the recorded value.
 
-- [ ] **T003** [S1] [US1] Generate per‑source unit‑metadata JSON files and validate unit consistency.  
+- [X] **T003** [S1] [US1] Generate per‑source unit‑metadata JSON files and validate unit consistency.  
   - *Implementation*: `code/generate_units_metadata.py` reads each raw CSV, creates `data/raw/<source>_units.json` mapping columns to declared SI units, and raises `UnitMismatchError` on any inconsistency.  
   - *Verification*: successful execution produces the JSON files; any raised error aborts the pipeline.
 
@@ -28,7 +28,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 2 – Ingestion & Pre‑processing  
 
-- [ ] **T004** [S1] [US1] Parse raw files, convert all numeric fields to SI, canonicalise `treatment_type`, one‑hot encode categorical fields (`treatment_type`, `pair_id`), median‑impute missing numeric values *per substrate class*, and flag low‑coverage columns.   <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
+- [X] **T004** [S1] [US1] Parse raw files, convert all numeric fields to SI, canonicalise `treatment_type`, one‑hot encode categorical fields (`treatment_type`, `pair_id`), median‑impute missing numeric values *per substrate class*, and flag low‑coverage columns.
   - *Implementation*: `code/preprocess.py` produces a single cleaned file `data/cleaned/cleaned.csv`.  
   - *Verification*:  
     - `data/cleaned/cleaned.csv` must contain exactly the columns defined in the `TreatmentRecord` schema with **no missing values** in required fields.  
@@ -51,10 +51,10 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
   - *Implementation*: `code/train_models.py` saves every trained model under `models/` (e.g., `models/rf_001.pkl`) and writes `models/grid_search_results.json`.  
   - *Verification*: script finishes within the 3.5 h CPU limit; `grid_search_results.json` contains the full list of combos and their metrics.
 
-- [ ] **T007** [S2] [US2] Compute k‑fold cross‑validated R² for each model (using the same folds as the split), then select the **best** model: the model with the highest mean CV R² (no abort on low performance). Record its type, hyperparameters, validation metrics, CV R² statistics, and a `null_result` flag if mean CV R² < 0.5 in `models/best_model.json`.  
+- [~] **T007** [S2] [US2] Compute k‑fold cross‑validated R² for each model (using the same folds as the split), then select the **best** model: the model with the highest mean CV R² (no abort on low performance). Record its type, hyperparameters, validation metrics, CV R² statistics, and a `null_result` flag if mean CV R² < 0.5 in `models/best_model.json`.  
   - *Verification*: `best_model.json` must exist; CI checks that the required fields are present and that a `null_result` flag is set when appropriate.
 
-- [ ] **T008** [S2] Compute test‑set metrics (R², RMSE, MAE) for **all three** trained models and emit a `ModelArtifact` JSON for each under `models/` (e.g., `models/rf_artifact.json`).  
+- [ ] **T008** [S2] Compute test‑set metrics (R², RMSE, MAE) for **all three** trained models and emit a `ModelArtifact` JSON for each under `models/` (e.g., `models/rf_artifact.json`).   <!-- FAILED-IN-EXECUTION: code/evaluate.py exit=1 -->
   - *Verification*: each JSON validates against `contracts/model_artifact.schema.yaml`; the best model’s test metrics are also copied into `models/best_model.json`.
 
 ---

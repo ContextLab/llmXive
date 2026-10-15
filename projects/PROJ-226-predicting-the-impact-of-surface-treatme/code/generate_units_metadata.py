@@ -6,7 +6,7 @@ Reads each raw CSV file under ``data/raw/`` and creates a JSON file
 declared SI unit.
 
 The script validates that:
-  * All required columns are present.
+  * All required columns are present (ignoring surrounding whitespace).
   * All numeric columns contain only numeric data (no stray strings).
 If any of these checks fail a ``UnitMismatchError`` is raised, aborting
 the pipeline **unless at least one valid source is found**. In that case
@@ -74,6 +74,12 @@ def _list_raw_csv_files() -> List[Path]:
     LOG.info("Found %d raw CSV file(s) in %s", len(csv_files), raw_dir)
     return csv_files
 
+def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Strip whitespace from column names and return a new DataFrame."""
+    df = df.copy()
+    df.columns = df.columns.str.strip()
+    return df
+
 def _validate_columns(df: pd.DataFrame, source_name: str) -> None:
     """Ensure that all required columns are present."""
     missing = set(REQUIRED_COLUMNS) - set(df.columns)
@@ -85,8 +91,9 @@ def _validate_columns(df: pd.DataFrame, source_name: str) -> None:
 
 def _validate_numeric_columns(df: pd.DataFrame, source_name: str) -> None:
     """Check that columns expected to be numeric contain only numeric data."""
+    # Treat any unit that is not 'category' as numeric (including '%')
     numeric_cols = [
-        col for col, unit in UNITS_MAP.items() if unit not in ("category", "%")
+        col for col, unit in UNITS_MAP.items() if unit != "category"
     ]
     for col in numeric_cols:
         # ``pd.to_numeric`` will coerce non‑numeric values to NaN when
@@ -135,23 +142,22 @@ def main() -> None:
         # Load the CSV
         try:
             df = pd.read_csv(csv_path)
+            df = _normalize_columns(df)
         except Exception as exc:
             err = UnitMismatchError(
                 f"Failed to read CSV for source '{source_name}': {exc}"
             )
             LOG.error(str(err))
-            # Treat unreadable files as invalid
             if not first_error:
                 first_error = err
             continue
 
-        # Validate required columns
+        # Validate required columns and numeric integrity
         try:
             _validate_columns(df, source_name)
             _validate_numeric_columns(df, source_name)
         except UnitMismatchError as exc:
             LOG.warning(str(exc))
-            # Remember the first error to raise later if needed
             if not first_error:
                 first_error = exc
             # Skip this source and continue with others
