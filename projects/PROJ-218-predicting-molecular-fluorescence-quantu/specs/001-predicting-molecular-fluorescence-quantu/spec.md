@@ -13,12 +13,12 @@ The researcher needs to ingest a public dataset of molecular structures (SMILES)
 
 **Why this priority**: Without a clean, scaffold-split dataset, no model training can occur, and any subsequent results would suffer from data leakage, rendering the scientific inquiry invalid. This is the foundational step for all downstream analysis.
 
-**Independent Test**: The pipeline can be fully tested by running the data ingestion script on a sample dataset and verifying that the output CSVs contain valid graph features, normalized FQY values, and that the test set contains zero molecular scaffolds present in the training set.
+**Independent Test**: The pipeline can be fully tested by running the data ingestion script on a sample dataset and verifying that the output CSVs contain valid graph features, **normalized FQY values**, and that the test set contains zero molecular scaffolds present in the training set.
 
 **Acceptance Scenarios**:
 
 1. **Given** a raw dataset file containing SMILES strings and FQY values, **When** the preprocessing script is executed, **Then** the output includes a training set, validation set, and test set where the test set scaffolds are disjoint from the training set.
-2. **Given** a SMILES string with invalid syntax, **When** the preprocessing script processes it, **Then** the molecule is excluded from the dataset, and a log entry records the exclusion reason without crashing the pipeline.
+2. **Given** a SMILES string with invalid syntax, **When** the preprocessing script processes it, **Then** the molecule is **excluded** from the dataset, and a **log entry records the exclusion reason** without crashing the pipeline.
 3. **Given** the preprocessed data, **When** the feature extraction runs, **Then** every node in the molecular graph includes atom type, hybridization, and formal charge, and every edge includes bond type and conjugation status.
 
 ---
@@ -49,30 +49,39 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained GNN model and a test molecule, **When** the Integrated Gradients method is applied, **Then** the system outputs a ranked list of the top 20 most influential substructures or atom contributions.
+1. **Given** a trained GNN model and a test molecule, **When** the Integrated Gradients method is applied, **Then** the system outputs a ranked list of the **top 20 most influential substructures**, where substructures are defined as contiguous aromatic or conjugated fragments obtained by grouping atom‑level attributions (see FR‑006 aggregation rule).
 2. **Given** the feature importance data, **When** the visualization script runs, **Then** it generates a parity plot (predicted vs. experimental FQY) and a feature importance bar chart that can be saved as an image file.
-3. **Given** a molecule with a known high FQY, **When** the attribution analysis is performed, **Then** the top-ranked features correspond to extended conjugated systems or known fluorophore motifs, validating the model's chemical intuition.
+3. **Given** a molecule with a known high FQY (selected as a molecule in the top [deferred] experimental FQY of the test set), **When** the attribution analysis is performed, **Then** at least **3 of the top 5 substructures** must match entries in the curated reference set of fluorophore motifs (see Supplementary Table S1). This constitutes a pass of the interpretability validation.
 
 ---
 
 ### Edge Cases
 
-- **What happens when** the dataset contains molecules with FQY values of exactly 0 or 1? **How does the system handle** normalization and loss calculation for these boundary values to prevent numerical instability?
-- **How does the system handle** molecules with rare atom types or bond configurations not seen in the training set during the graph embedding phase?
-- **What happens when** the scaffold-based split results in a test set with fewer than 20 molecules, potentially making statistical significance impossible to determine?
+- **What happens when** the dataset contains molecules with FQY values of exactly 0 or 1? **How does the system handle** normalization and loss calculation for these boundary values to prevent numerical instability?  
+  *Handled by FR‑011 (boundary value normalization).*
+- **How does the system handle** molecules with rare atom types or bond configurations not seen in the training set during the graph embedding phase?  
+  *Handled by FR‑012 (unseen atom/bond logging and safe skipping).*
+- **What happens when** the scaffold-based split results in a test set with fewer than 20 molecules, potentially making statistical significance impossible to determine?  
+  *Handled by FR‑013 (log a warning; split ratios remain 80/10/10).*
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: System MUST parse SMILES strings into molecular graphs using RDKit, extracting node features (atom type, hybridization, formal charge) and edge features (bond type, conjugation status) for every molecule in the dataset (See US-1).
-- **FR-002**: System MUST perform a scaffold-based split ([deferred] train, [deferred] validation, [deferred] test) ensuring zero scaffold overlap between the training and test sets to validate generalizability (See US-1).
-- **FR-003**: System MUST implement a message-passing GNN with ≤5 million parameters using PyTorch Geometric, operating in default precision on CPU only (See US-2).
+- **FR-002**: System MUST perform a scaffold‑based split with fixed ratios [deferred] train, [deferred] validation, [deferred] test, ensuring zero scaffold overlap between the training and test sets to validate generalizability (See US-1).
+- **FR-003**: System MUST implement a message‑passing GNN with ≤5 million parameters using PyTorch Geometric, operating in default precision on CPU only (See US-2).
 - **FR-004**: System MUST train the model for a maximum of 50 epochs with early stopping (patience=10) based on validation loss, using the Adam optimizer and MSE loss (See US-2).
 - **FR-005**: System MUST evaluate both the GNN and a linear regression baseline (using ECFP4 fingerprints) on the test set, reporting R², RMSE, and MAE (See US-2).
-- **FR-006**: System MUST apply Integrated Gradients or SHAP to the trained GNN to compute feature importance scores for the top 20 most influential substructures (See US-3).
+- **FR-006**: System MUST apply Integrated Gradients or SHAP to the trained GNN to compute feature importance scores. Atom‑level attributions are **aggregated into substructures** by grouping atoms that belong to the same contiguous aromatic or conjugated fragment (detected via RDKit). The system then reports the **top 20 substructures** ranked by summed absolute attribution (See US-3).
 - **FR-007**: System MUST generate visualization artifacts including a training convergence plot, a parity plot (predicted vs. experimental), and feature importance charts (See US-3).
-- **FR-008**: System MUST execute the entire pipeline (data loading, training, evaluation, interpretation) within a single GitHub Actions job constrained to 2 CPU cores, ~7 GB RAM, and ≤6 hours duration (See US-2).
+- **FR-008**: System MUST execute the entire pipeline (data loading, training, evaluation, interpretation) within a single GitHub Actions job constrained to 2 CPU cores, ~7 GB RAM, and ≤6 hours duration (See US-2).
+- **FR-009**: System MUST detect invalid SMILES strings, **exclude** the corresponding molecules from all downstream datasets, and **log** the SMILES and reason for exclusion without terminating the pipeline (See US-1).
+- **FR-010**: System MUST normalize the experimental FQY target to the interval [0, 1] using min‑max scaling **after** handling boundary values 0 and 1 (e.g., clipping to [ε, 1‑ε] with ε = 1e‑6) to avoid numerical instability in loss computation (See US-1).
+- **FR-011**: System MUST handle boundary FQY values (exactly 0 or 1) by applying the clipping strategy described in FR‑010 and logging any such occurrences for later inspection (See US-1).
+- **FR-012**: System MUST detect atom types or bond configurations not present in the training set; for such molecules the system logs a warning and **skips** the molecule rather than causing a crash (See US-1).
+- **FR-013**: System MUST verify the size of the scaffold‑based test set after split; if the test set contains fewer than 20 molecules, the system **logs a warning** indicating limited statistical power but **does not alter** the 80/10/10 split ratios (See US-1).
+- **FR-015**: System MUST record, when available, solvent, temperature, and measurement‑method metadata associated with each experimental FQY value, storing this information alongside the normalized target (See US-1).
 
 ### Key Entities
 
@@ -87,17 +96,17 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The predictive R² score of the GNN model on the scaffold-disjoint test set is measured against the linear regression baseline to quantify the improvement of graph-based representations (See FR-005).
-- **SC-002**: The total execution time of the end-to-end pipeline is measured against the 6-hour free-tier CI limit to ensure compute feasibility (See FR-008).
-- **SC-003**: The memory usage peak during model training is measured against the 7 GB RAM limit to verify the model size constraint is respected (See FR-003).
+- **SC-001**: The predictive R² score of the GNN model on the scaffold‑disjoint test set is measured against the linear regression baseline to quantify the improvement of graph‑based representations (See FR-005).
+- **SC-002**: The total execution time of the end‑to‑end pipeline is measured against the 6‑hour free‑tier CI limit to ensure compute feasibility (See FR-008).
+- **SC-003**: The memory usage peak during model training is measured against the **7 GB RAM limit** to verify the hardware constraint.
 - **SC-004**: The consistency of the scaffold split is measured by verifying that the intersection of scaffold identifiers between the training and test sets is exactly zero (See FR-002).
-- **SC-005**: The interpretability output is measured by the presence of a ranked list of substructures that correlate with high/low FQY, validated against known chemical motifs in the literature (See FR-006).
+- **SC-005**: Interpretability is validated by (a) mapping the top‑20 substructures to the curated reference set of fluorophore motifs (Supplementary Table S1) and (b) requiring **≥ 60 % overlap** (i.e., at least 12 of the 20 substructures match known motifs). This quantitative enrichment constitutes a pass/fail decision (See FR-006).
 
 ## Assumptions
 
-- **Assumption about data source**: The project assumes that a public dataset (e.g., FluorDB or a Zenodo-curated set) containing at least 500 molecules with valid SMILES strings and experimental FQY values is available and accessible via a direct URL or file download.
+- **Assumption about data source**: The project assumes that a public dataset (e.g., FluorDB or a Zenodo‑curated set) containing at least 500 molecules with valid SMILES strings and experimental FQY values is available and accessible via a direct URL or file download.
 - **Assumption about variable fit**: It is assumed that the selected dataset contains the necessary structural information (atom types, bond types) to derive the required node and edge features; if a specific dataset lacks experimental FQY values, a `[NEEDS CLARIFICATION]` marker will be used to identify the gap.
-- **Assumption about inference framing**: Since the dataset is observational (no random assignment of molecular structures), all findings regarding structure-property relationships are framed as associational correlations rather than causal effects.
-- **Assumption about methodological constraints**: The analysis assumes that a GNN with <5M parameters and a sampled dataset will fit within the 7 GB RAM and 14 GB disk limits of the free-tier runner; if the full dataset exceeds this, a stratified sampling strategy will be applied.
+- **Assumption about inference framing**: Since the dataset is observational (no random assignment of molecular structures), all findings regarding structure‑property relationships are framed as associational correlations rather than causal effects.
+- **Assumption about methodological constraints**: The analysis assumes that a GNN with <5 M parameters and a sampled dataset will fit within the 7 GB RAM and 14 GB disk limits of the free‑tier runner; if the full dataset exceeds this, a stratified sampling strategy will be applied.
 - **Assumption about interpretability validity**: The project assumes that Integrated Gradients or SHAP applied to the GNN will yield chemically meaningful attributions that can be mapped back to substructures, provided the model converges.
 - **Assumption about threshold justification**: No specific decision cutoffs (e.g., for "high" vs "low" FQY) are introduced in this phase; the model treats FQY as a continuous regression target, avoiding the need for arbitrary classification thresholds and their associated sensitivity analyses.
