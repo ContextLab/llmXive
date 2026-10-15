@@ -1,0 +1,112 @@
+T001a:
+  reason: "Checked the repository for the required directories (`code/models`, `code/data`,\
+    \ `code/experiments`, `code/config`, `code/tests`) and the corresponding `__init__.py`\
+    \ files; no such paths or files were present in the collected artifact list. The\
+    \ task\u2019s directory structure and package markers are therefore missing."
+  task: 47ba37ffe0091798896d182fc3c4f95ca5ed32c1634c2e4a18db108e3008c191
+T001b:
+  reason: The evidence provided does not show the existence of the required directories
+    (`artifacts/logs`, `artifacts/checkpoints`, `artifacts/results`, `state`, `data/raw`,
+    `data/processed`). Since no confirmed artifacts confirm that these paths were
+    created, the task requirement is not satisfied.
+  task: 446a917cf454586993d83076e21f4585b9c4b9f63b4afe9098079e5c509cb8a9
+T002:
+  reason: Checked the `requirements.txt` file (exists, correct pinned versions plus
+    extra packages). However, there is no evidence that `pip install -r requirements.txt`
+    was executed and succeeded (no command output, logs, or test results). The verification
+    step required by the task is missing.
+  task: 2affac30f50d996104d6e3f944f79ce7d64849afa4957948032c7baa40966d81
+T003:
+  reason: 'declared artifact(s) missing/empty/invalid: pyproject.toml'
+  task: e09ac987d0af45ea2a62d6a2906aea88b18d9def60d83a5cc9c20ee7e9fce78e
+T004:
+  task: aba378ffd6eae998946946ae05df24e2302660bfdfd47e10ee1f1639dcfc6a5a
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/utils.py'
+  task: e2e81c98a9fe5f4816091755fd6c7fc9edaf75bfb63341610a9905a8bc81abf5
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/loaders.py'
+  task: 64ff03406b834f2f93c97d398294543915e1ebce2c81b37d7af6c379c137b254
+T007:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/transformer_base.py'
+  task: 643f46872e00377fd492343ae771f67b977ef117c427e31c1d187db871e5c056
+T008:
+  reason: 'declared artifact(s) missing/empty/invalid: code/experiments/utils.py'
+  task: f6dcf70ec097bd23fcd6e647524542fc17aab062a9037a7b0cc01407497eed9c
+T009:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/artifact_hashes.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 40dfed27f516ff0781daa6f039ebfa87f0b274a40ea4ff498cbca923ea34948f
+T010:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/test_architecture.py'
+  task: 7804965388b9935894415862a96d46d175fe79a09e609be653c22fd6d95cfb95
+T011:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/transformer_dendritic.py'
+  task: a730ddeadc9ad58a885fce3f13aea99ef955fa65b65884b30aa0a9965088a5f6
+T013:
+  reason: 'declared artifact(s) missing/empty/invalid: code/experiments/validate_arch.py'
+  task: f373e163e53c2797fe0355c487f611b2404d400511da87ed373c5ad51ea730c1
+T014:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/utils.py'
+  task: 9b47092bcfd1751cba86c66235d1f6c4bafc4746668e28692bc60440d26feed0
+T015:
+  reason: "The evidence contains no code, configuration, or documentation showing\
+    \ that logging has been consolidated, that T013 now serves as the sole source\
+    \ of truth for architecture\u2011match validation, or that any redundant logging\
+    \ tasks have been removed. No artifact paths or files were provided to verify\
+    \ these changes, so the requirement is unmet."
+  task: 87b23869d80afae4ed9712f79f28633a20d5a510c5889dc6be35bb12234e9d3f
+T017:
+  reason: "The required artifact `tests/test_training.py` is reported as MISSING,\
+    \ so the integration test for the timeout mechanism does not exist in the project.\
+    \ Without this file the task\u2019s requirement cannot be satisfied."
+  task: b2bf4003b31db544793345a1455e25885660d01f5474a86c030cbd6c97278bc2
+T018:
+  reason: 'Requested task execution failed; rerun successfully: code/experiments/train.py
+    exit=1; code/utils/download_data.py exit=1'
+  task: e0dfe703055ddf56c9dc17b2418a12fdd7a0b80a46301133bf94cb4c04adcdd6
+T019:
+  task: feb8be35f821be2c40a247e5812395b38ff3e2c6f988a9a8805aa3f9d104ce8b
+T020:
+  task: 7e5b6b861e875357103b5dbe1d32d77272269eed17d6c0ccdcf15e578a940fd8
+T021:
+  task: 770da5c7e1686f02d62e990d91c1df007aa6d8589f9691ee9fa329724fd569ca
+T022:
+  task: abfda0616fda52c9e3bf6a2b4ab406f818098e7c65c92e611ec2c0bd74758c67
+T023:
+  task: 0c3b28fef84d0794a0fbdd01d83ff3cc2e5882cb2dc528df95f073c948deef06
+T024:
+  task: 31b7c269ed32f6476de30503ad5bc4948f65f1c0c4395c9d45f46f6c877c3365
+T025:
+  task: e3ce2e49284e41a09d3ee0afc1357af9e01d7cd1f178de62ab81ef2f40482962
+T027:
+  task: 1ae28268f2837e4be5e8f99b55109cffb05e24ca91ee1b2c992646e629b019a2
+T029:
+  task: 0e82e572457f7b1d35ad141d3de4e5b2395b99afd1ede9a0a62913aa5f1b41fb
+T030:
+  task: e951f6ff5552c87c6eca7fbac129dc74366b7ec639e0cebdbb77b525ed8b5e3b
+T031:
+  task: 1315a709f6cd29157d06d8ec19761fab6084cc33bdf1a6ef91d3b97706da0709
+T033:
+  task: f8f76b365d7d5fe51fe47a1e6559c25c913e80d17f9be08bb3f57f2a3ae7e344
+T034:
+  task: f52426be6e3ea5a702c5fcb3d3bab88f999878464c450b9bbff1b905f9857ee7
+T040:
+  task: 8b05d1d8a9602b36f0dc4f9a7510de2f34d3a9d463a4cec1ace729236bb0051a
+T041:
+  task: 7086864662f969020dfda5f573d8f97fadd3b8a6385084c76af5d55cec5db59a
+T042:
+  task: a46a13676cf993d77ab25fd4de5f14ce75a8c0edb3033a0d45ac48b759f9448e
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/'
+  task: 5534bf63872f959e01dd6a0ddc414e514545ce11676348d4c6b6be73b09cd9a2
+T044:
+  task: 48e12cc00e03a618dbc694e424562baa6d07197be7d0744c2d38abda1a5916a0
+T051:
+  task: 1d03d11e31f3995caa740aae3ba789754cb3cb65ea471bc74471d453ae58a5fa
+T052:
+  task: d751204602d7b99fe50858f4543007cb7d1d2e125631705e507dc4ba2a0a0053
+T053:
+  task: aa167b0a451fe05d864515f59f02e12873a28bd7599e845d62eb96a8389d3e07

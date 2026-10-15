@@ -1,3 +1,51 @@
+T001a:
+  c: false
+  h: b0112a833f81efbc1c50e1a02559b326d5c158c4963e7d1eef8affe89c0ae1a5
+  r: "Checked the repository for the required directories (`code/models`, `code/data`,\
+    \ `code/experiments`, `code/config`, `code/tests`) and the corresponding `__init__.py`\
+    \ files; no such paths or files were present in the collected artifact list. The\
+    \ task\u2019s directory structure and package markers are therefore missing."
+  sig: 74495377cfe8e6e28cfae167d6091401a6d605fff8767efcb59e856cc8d5dd5a
+T001b:
+  c: false
+  h: 52f4d40999cd4bee8a4264ef9e01e979a4dcda1bad474c0c2378ed998115b685
+  r: The evidence provided does not show the existence of the required directories
+    (`artifacts/logs`, `artifacts/checkpoints`, `artifacts/results`, `state`, `data/raw`,
+    `data/processed`). Since no confirmed artifacts confirm that these paths were
+    created, the task requirement is not satisfied.
+  sig: fada00e468ee8caf73b65fd86c5a991eaf98de9c11505adff0c69cb9cb035c99
+T002:
+  c: false
+  h: fae62e646f2575b13dfb9d91dc51dd1a9b8530b2edd140f6ec7b3b9ccf8d88ec
+  r: Checked the `requirements.txt` file (exists, correct pinned versions plus extra
+    packages). However, there is no evidence that `pip install -r requirements.txt`
+    was executed and succeeded (no command output, logs, or test results). The verification
+    step required by the task is missing.
+  sig: 022fe74e44d3774282f4d263898ba6846609e82c18e43cf762e1ccebf298255d
+T004:
+  c: true
+  h: 32da03faf82ca5cf542bc51063a8bc2f3d4079e4942b70d143ac8befee6e3501
+  r: "Checked `code/config/config.yaml` (381\u202Fbytes) and confirmed it contains\
+    \ all required keys with correct types and values: `learning_rate` as a float,\
+    \ `batch_size` as an int, `dendritic_thresholds` exactly `[0.1, 0.5, 0.9]`, `cpu_timeout`\
+    \ set to 21600, and `num_seeds` set to 3 (within the 3\u20115 range)."
+  sig: cdf29d70a712ee92a76002b30d4b11e878a835dbbaa7107294a1510a7bf828e7
+T015:
+  c: false
+  h: fc166483f746fb521345745bbe5854ab2bc7851357071d99672e63f4a16b178c
+  r: "The evidence contains no code, configuration, or documentation showing that\
+    \ logging has been consolidated, that T013 now serves as the sole source of truth\
+    \ for architecture\u2011match validation, or that any redundant logging tasks\
+    \ have been removed. No artifact paths or files were provided to verify these\
+    \ changes, so the requirement is unmet."
+  sig: 8674ba76ffe62e443b34e781a13f7860e3897fba56e5627aad5a459d15e7b604
+T017:
+  c: false
+  h: 07e1929777812f0cf84f3f22c317d66d6649623b197c67fc2ddef60d996a8467
+  r: "The required artifact `tests/test_training.py` is reported as MISSING, so the\
+    \ integration test for the timeout mechanism does not exist in the project. Without\
+    \ this file the task\u2019s requirement cannot be satisfied."
+  sig: 93e2ff7df71a851cf19b0b39378fb0220b1e500372e1d54302919b39d0a1f424
 T018:
   c: false
   h: f6a1b496f943f7d65a2a7bdf0722d9971dc511f999eb631028886529e177f9d4
