@@ -1,12 +1,6 @@
 T001:
-  reason: "The task requires verifying that at least one **openly downloadable** external\
-    \ dataset (NIST, Zenodo, Materials Project) contains all required variables, but\
-    \ the availability report's sole entry is a local bundled file (`data/source/example.csv`\
-    \ via a `file://` URL) that the script itself explicitly labels a \"fallback\"\
-    \ and \"small bundled example\" \u2014 not an openly downloadable dataset. The\
-    \ Zenodo DOI `10.5281/zenodo.10234567` appears fabricated (the reachability check\
-    \ evidently failed, falling through to the local file), and the bundled `example.csv`\
-    \ is not even present in the collected evidence"
+  reason: 'Requested task execution failed; rerun successfully: code/verify_data_source.py
+    exit=1'
   task: 2dc382125d8cf31690702877306193ffecc1d42b6ea510731970df69e9556e14
 T002:
   reason: "The script itself is functional (test passed, exit 0), but the \"dataset\"\
@@ -61,7 +55,14 @@ T007:
     \ populate the JSON with real metrics (setting `null_result:"
   task: d552ecffe2e0e38de5781e3b80665a4c5d9f707789af04177b0bb071bdda5797
 T008:
-  reason: 'Requested task execution failed; rerun successfully: code/evaluate.py exit=1'
+  reason: "The three artifact JSONs exist (naming `randomforest_artifact.json` vs\
+    \ `rf_artifact.json` is acceptable per \"e.g.\"), but the required schema `contracts/model_artifact.schema.yaml`\
+    \ is MISSING, so validation cannot be verified. More substantively, `models/best_model.json`\
+    \ names RandomForest (test_r2 = 0.0) as best when LinearRegression's own artifact\
+    \ reports test_r2 = 0.988 \u2014 the best model's test metrics were not correctly\
+    \ copied. Additionally, the split summary shows 0 train/validation records (all\
+    \ pair groups excluded) and the test set is only 3 rows, so the reported test\
+    \ metrics (with null v"
   task: e775531e951af4913261f33fb6d753dd89694b85567e6ca1861ff78ecccfed47
 T009:
   task: bf7bf2e1ec5ddf030a2bcc1ab636c3787e4cebb8adc2a9d59c482af72d3cb0ea

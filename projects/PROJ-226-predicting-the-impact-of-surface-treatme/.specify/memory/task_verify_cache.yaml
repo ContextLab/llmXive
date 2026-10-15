@@ -12,16 +12,16 @@ T003:
   sig: 219cc0425fcaa89fc097a665e350e1ea3e1bc5b6139a13f2a55c6de471b0de8e
 T004:
   c: true
-  h: 6cff01eda0ce3676b20f325fba10226dd207112f98195513088e463b805752f2
-  r: I checked `code/preprocess.py` (implements unit conversion, treatment canonicalisation,
-    one-hot encoding of `treatment_type`/`pair_id`, per-class median imputation, coverage
-    flagging), the three output artifacts (`cleaned.csv` with the schema columns and
-    no missing values, `imputation_log.json`, `field_coverage.json` with `low_coverage`
-    flags), and the execution logs showing both `preprocess.py` and `tests/test_preprocess.py`
-    ran successfully (exit 0, test passed). The empty imputation log is consistent
-    with the raw fixture having 100% coverage on all fields, so no imputation was
-    needed; the p
-  sig: d54f25cf0d774e5e4ca4d4bcbb6a6863c4d470ccbcfd127ec35207a39e7911db
+  h: aa5ea703f179e9aa39e7f9c70cd38d2b9c5fab20f97342682b497e5531326474
+  r: 'I checked `code/preprocess.py` (implements SI conversion, canonicalisation,
+    one-hot encoding, per-substrate-class median imputation, coverage flagging) and
+    the three output artifacts: `cleaned.csv` contains all TreatmentRecord schema
+    columns plus one-hot `treatment_type_*` and `pair_id_*` columns with no missing
+    values, `imputation_log.json` records per-column per-class medians (empty because
+    the raw fixture had no missing values), and `field_coverage.json` reports coverage
+    percentages with `low_coverage` flags per the <80% rule. The outputs are consistent
+    with the code''s logic and the small r'
+  sig: 9f73b465821740bdfb2918ea56740fc8c3d4cf74c58f0d4e5fde3b03247b82f7
 T005:
   c: false
   h: a0652f80a340f84e5fabfe5ff521e1231b2f9985c95296b0a8de59351b09462e
@@ -58,3 +58,15 @@ T007:
     \ train/discover models, compute cross-validated R\xB2 with the same folds, and\
     \ populate the JSON with real metrics (setting `null_result: "
   sig: 401d445101265cb31dce5c51eff11a28ca2ef248e401f1cf024e2086d39825bf
+T008:
+  c: false
+  h: 2ea51e12f1662c19b0450acfd235c320386adec98cef0e75433df54470ca7243
+  r: "The three artifact JSONs exist (naming `randomforest_artifact.json` vs `rf_artifact.json`\
+    \ is acceptable per \"e.g.\"), but the required schema `contracts/model_artifact.schema.yaml`\
+    \ is MISSING, so validation cannot be verified. More substantively, `models/best_model.json`\
+    \ names RandomForest (test_r2 = 0.0) as best when LinearRegression's own artifact\
+    \ reports test_r2 = 0.988 \u2014 the best model's test metrics were not correctly\
+    \ copied. Additionally, the split summary shows 0 train/validation records (all\
+    \ pair groups excluded) and the test set is only 3 rows, so the reported test\
+    \ metrics (with null v"
+  sig: 48c0ebac65aa7f362d3a08c507bbf8b1f08754dfe793b6e0b95372d6c213329e

@@ -8,7 +8,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 0 – Feasibility & Data‑source Verification  
 
-- [ ] **T001** [S1] [US1] Verify that at least one openly downloadable dataset contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`).
+- [ ] **T001** [S1] [US1] Verify that at least one openly downloadable dataset contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`). <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 -->
   - *Implementation*: `code/verify_data_source.py` queries the NIST, Zenodo, and Materials Project APIs, downloads the dataset headers, and checks column presence.  
   - *Verification*: script writes a JSON report `data/source/availability_report.json` listing datasets that satisfy the requirement; CI fails if the list is empty, prompting a scope revision before any downstream work.
 
@@ -54,7 +54,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 - [ ] **T007** [S2] [US2] Compute k‑fold cross‑validated R² for each model (using the same folds as the split), then select the **best** model: the model with the highest mean CV R² (no abort on low performance). Record its type, hyperparameters, validation metrics, CV R² statistics, and a `null_result` flag if mean CV R² < 0.5 in `models/best_model.json`.  
   - *Verification*: `best_model.json` must exist; CI checks that the required fields are present and that a `null_result` flag is set when appropriate.
 
-- [~] **T008** [S2] Compute test‑set metrics (R², RMSE, MAE) for **all three** trained models and emit a `ModelArtifact` JSON for each under `models/` (e.g., `models/rf_artifact.json`).
+- [ ] **T008** [S2] Compute test‑set metrics (R², RMSE, MAE) for **all three** trained models and emit a `ModelArtifact` JSON for each under `models/` (e.g., `models/rf_artifact.json`).
   - *Verification*: each JSON validates against `contracts/model_artifact.schema.yaml`; the best model’s test metrics are also copied into `models/best_model.json`.
 
 ---
