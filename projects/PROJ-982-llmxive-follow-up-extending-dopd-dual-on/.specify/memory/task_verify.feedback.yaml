@@ -1,0 +1,74 @@
+T001:
+  reason: The `code/requirements.txt` lists version ranges (`>=`) instead of exact
+    pinned versions as the task specifies, and there is no provided evidence (e.g.,
+    command output) that `pip install -r code/requirements.txt` actually succeeded.
+  task: c7b2348585294e205fc91c72892785eae1bf8af45177b41c01dba1a57583e128
+T002:
+  reason: The repository lacks the required `code/tests/unit/test_logging.py` and
+    the `data/raw/training_log.jsonl` file, and the `TrainingLogger.log_step` implementation
+    does not produce JSON lines that conform to `contracts/training_log.schema.yaml`
+    (missing required `regime` and `episode` fields, extra disallowed fields, and
+    wrong signature). These issues must be fixed for the task to be considered complete.
+  task: ead3e0953e0e1590823995cddc7d6e989a0909f1d755cf1009a6686774e2e36f
+T003:
+  reason: "The repository contains the two training modules, but the required unit\u2011\
+    test files `code/tests/unit/test_dopd.py` and `code/tests/unit/test_uniform.py`\
+    \ are missing, so the verification step cannot be performed. Additionally, the\
+    \ DOPD trainer never calls the provided `BaselineEstimator` to obtain `V_baseline(s)`,\
+    \ contrary to the task specification. These gaps must be fixed for the task to\
+    \ be considered complete."
+  task: 2a7398d9ddb01e06ea1179529547544ead65100a37ba88d6f0f8c8595652d3c1
+T004:
+  task: 5a109d2cf81207674a17b59ab9648cbf6a53cfcdf34ba852e6607d9940a468d0
+T005:
+  task: 8d18b838da0f51ff27956a6c41e5d1e4560751197e9b36acb30172cfa47897b6
+T006:
+  task: b31603503e00b85463b11dc7a1cedeea094acbfdfb1821f89fd9eec5614b0d1e
+T007:
+  task: 3cb9c6c719227cab923485f60036edf7a8a7f0d1f16f3210010510a46e008e6e
+T010:
+  task: 67cf2ff9c92a16bbe0a8b21a6020c981800a3d6ecf588ac4b8fb8a0805ce3613
+T013:
+  task: f1a7433599f84ab28f7acd7c02327f6810e82656909e8b6efbbda3a1044e80af
+T014:
+  task: ffb760e1a146fddb090f98525b330b3dd28400a0f27990383e7d164effccf47b
+T015:
+  task: ac50c8590c328f77890addad4cf6920e818fb6bfb8d74effd7fb7bda478b22a6
+T017:
+  task: f7df18df27a6a896a1961fd357b81d198cd1a505736cb3cc1a874eda216bd5fd
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: code/env/privileged_grid.py,
+    code/tests/unit/test_env.py'
+  task: 142d9fedc20ef56c4817d996175c80e4a14cea89d8520b21f9cd25bdda7940ef
+T019:
+  reason: "The teacher oracle implementation (`code/agents/teacher.py`) exists and\
+    \ appears to run value\u2011iteration with \u03B3\u202F=\u202F0.99 and tolerance\u202F\
+    <\u202F1e\u20116, caching the Q\u2011table in memory. However, the required verification\
+    \ unit test `code/tests/unit/test_teacher.py` is missing, so the claim that the\
+    \ oracle\u2019s optimal actions are checked cannot be confirmed. Adding the missing\
+    \ test (or equivalent evidence) is needed to complete the task."
+  task: 7a54aa9a354ff8e7e4203666b8532042cfc99eb145122bee9d61189f164ff44c
+T020:
+  reason: "Checked `code/agents/student.py` \u2013 it implements a tabular Q\u2011\
+    learning student with \u03B5\u2011greedy action selection, a Q\u2011table, and\
+    \ an `update(observation, action, td_error)` method that never accesses the hidden\
+    \ variable `h`. However, the required verification file `code/tests/unit/test_student.py`\
+    \ is missing, so the claimed correctness cannot be demonstrated. The missing unit\
+    \ test must be added for the task to be complete."
+  task: ca5ca41b943b908cdfbe32e2472b5cab4d3f9c2c049e958357f555492ef8aed1
+T021:
+  reason: "The `code/utils/seed_manager.py` file exists and correctly implements the\
+    \ three disjoint seed ranges, but the required verification artifact `code/tests/unit/test_seed_manager.py`\
+    \ is missing, so the task\u2019s verification step is not satisfied."
+  task: c9c7b55c52cd65a8f7cca077509e142188cb2245762db1ddce81848982f91c6c
+T022:
+  task: 71e3a1b32f1d8993508d1a0bdb1801adf2fd50fcb80d9752a1412f7a0313a828
+T023:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  task: 7f115880bef3b02e0779d230eed4f4fa9e540e3f63326fe942b88e98ca98ce72
+T024:
+  task: 5c80c95d026547bebfff6b670be6b7c34cb284b65e9dac4313bef679b8ef1a4c
+T025:
+  task: 9cee2dad8d3b24cd6afca68734a932d1b0ca7135b39c6401bc4d0161e148fe8f
+T026:
+  task: f5a08eef8bb39e341e2ee6c25ea4d92bdda05f33cf4f9ed7c0f13afaff085ca4

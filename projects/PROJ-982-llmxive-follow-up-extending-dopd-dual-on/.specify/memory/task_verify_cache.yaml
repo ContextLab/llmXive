@@ -1,3 +1,56 @@
+T001:
+  c: false
+  h: f1b200175558a7e91a53c3617591b4c91e4a34ee6d33ec5920fbde2683d5a0e6
+  r: The `code/requirements.txt` lists version ranges (`>=`) instead of exact pinned
+    versions as the task specifies, and there is no provided evidence (e.g., command
+    output) that `pip install -r code/requirements.txt` actually succeeded.
+  sig: 22c26d93c52b7d615ee1e3cfb77aee892c03d0ab26e03a11f2eba72878062cc7
+T002:
+  c: false
+  h: 443e6b0f25ef9742d155e53d56d7d6a0653f8be7678bb3556ca01c2457a04e48
+  r: The repository lacks the required `code/tests/unit/test_logging.py` and the `data/raw/training_log.jsonl`
+    file, and the `TrainingLogger.log_step` implementation does not produce JSON lines
+    that conform to `contracts/training_log.schema.yaml` (missing required `regime`
+    and `episode` fields, extra disallowed fields, and wrong signature). These issues
+    must be fixed for the task to be considered complete.
+  sig: bf5f42a7d048331a2e9d7a4caa39eff2990ee7ae233df6c07d3a5c6b21a1022e
+T003:
+  c: false
+  h: c1ea81b9fa5f78a33bc0e2d4756a37e0d4aeaf7fbdcc95cc661a3385afb60b77
+  r: "The repository contains the two training modules, but the required unit\u2011\
+    test files `code/tests/unit/test_dopd.py` and `code/tests/unit/test_uniform.py`\
+    \ are missing, so the verification step cannot be performed. Additionally, the\
+    \ DOPD trainer never calls the provided `BaselineEstimator` to obtain `V_baseline(s)`,\
+    \ contrary to the task specification. These gaps must be fixed for the task to\
+    \ be considered complete."
+  sig: 0c5a57387ed2e6ea0d3722630d4dd81dc17a81d6e42993a98be814f5405ab482
+T019:
+  c: false
+  h: d5de724ab314faeefc7cf6b17b993cc7047d3b37cc3b57ec614070997ba3151d
+  r: "The teacher oracle implementation (`code/agents/teacher.py`) exists and appears\
+    \ to run value\u2011iteration with \u03B3\u202F=\u202F0.99 and tolerance\u202F\
+    <\u202F1e\u20116, caching the Q\u2011table in memory. However, the required verification\
+    \ unit test `code/tests/unit/test_teacher.py` is missing, so the claim that the\
+    \ oracle\u2019s optimal actions are checked cannot be confirmed. Adding the missing\
+    \ test (or equivalent evidence) is needed to complete the task."
+  sig: 0c2f473b277e0332f78e412c4b569ab2dfea935d93c1f504596f7bbea2187a9d
+T020:
+  c: false
+  h: d3efa762db204c9c008eabd2fe8f2495a5e9bac822d2592e816960af30a30ff1
+  r: "Checked `code/agents/student.py` \u2013 it implements a tabular Q\u2011learning\
+    \ student with \u03B5\u2011greedy action selection, a Q\u2011table, and an `update(observation,\
+    \ action, td_error)` method that never accesses the hidden variable `h`. However,\
+    \ the required verification file `code/tests/unit/test_student.py` is missing,\
+    \ so the claimed correctness cannot be demonstrated. The missing unit test must\
+    \ be added for the task to be complete."
+  sig: 1b11ac6dd0ee77c309f2147e014be72af87276de02926c82ef38c9572960e826
+T021:
+  c: false
+  h: 079e0fc0e67e4235137a7fbe24c09b018fe7985bdf877f14693743b9b6f00ec5
+  r: "The `code/utils/seed_manager.py` file exists and correctly implements the three\
+    \ disjoint seed ranges, but the required verification artifact `code/tests/unit/test_seed_manager.py`\
+    \ is missing, so the task\u2019s verification step is not satisfied."
+  sig: 04a20de00a9ba3b1b889b0ef8ae01f912b464ac0792014cd241013c37a602b2c
 T022:
   c: false
   h: 291d1a53c7fe81ea3f9a973b5ccc796f9d58971c194104558402268faf846e3e
@@ -24,25 +77,3 @@ T025:
     \ The task\u2019s core requirement\u2014initializing the specific JSON log file\
     \ with the proper schema and updating it each training step\u2014is therefore\
     \ not satisfied."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only the specification and acceptance criteria but no actual\
-    \ integration\u2011test code, test script, or execution logs showing that the\
-    \ DOPD regime switches its weighting when the advantage gap is below\u202F0.1.\
-    \ Consequently, the required artifact (a runnable integration test and its results)\
-    \ is missing."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No test code, data, logs, or results were supplied; the required integration\
-    \ test artifact that demonstrates the DOPD Student\u2019s higher entropy/self\u2011\
-    correction when Teacher advantage is low is missing. The implementer must provide\
-    \ the actual test implementation and its output evidence."
-T066#1:
-  c: false
-  h: b747e482d3cb708ae0e41c1539230f02e8ec650653666db6d4c4746d1358e734
-  r: "The provided `run_experiment.py` does not show a loop over 50 seeds nor any\
-    \ code that writes aggregated results to `data/raw/training_log.json`, and that\
-    \ JSON file is missing from the repository. Consequently the required 50\u2011\
-    seed execution and logging artifact are absent."

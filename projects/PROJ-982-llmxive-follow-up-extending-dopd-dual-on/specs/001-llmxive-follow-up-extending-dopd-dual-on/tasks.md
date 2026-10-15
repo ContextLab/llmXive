@@ -38,11 +38,11 @@
   - Uniform uses fixed λ = 1.0. Both regimes log every step through `TrainingLogger`.  
   - **Verification**: unit tests `code/tests/unit/test_dopd.py` and `code/tests/unit/test_uniform.py` validate loss computation, λ behavior, and schema‑valid log lines.
 
-- [ ] T022 [P] [US2] **Calculate advantage gap** — helper in `code/training/utils.py`  
+- [~] T022 [P] [US2] **Calculate advantage gap** — helper in `code/training/utils.py`  
   - `calculate_advantage_gap(teacher_q, v_baseline)` returns `Q_teacher(s,a) − V_baseline(s)` safely handling missing entries.  
   - **Verification**: covered by T003 tests.
 
-- [ ] T023 [P] [US2] **Calculate dynamic λ and fallback handling** — helper in `code/training/utils.py`  
+- [ ] T023 [P] [US2] **Calculate dynamic λ and fallback handling** — helper in `code/training/utils.py`   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   - Implements min‑max normalization when `max‑min < 0.1`, sigmoid scaling otherwise, and a sparse‑signal guard that returns λ = 1.0 with `"lambda_switch": "fallback"` logged.  
   - **Verification**: exercised by T003 tests and integration test T006.
 
