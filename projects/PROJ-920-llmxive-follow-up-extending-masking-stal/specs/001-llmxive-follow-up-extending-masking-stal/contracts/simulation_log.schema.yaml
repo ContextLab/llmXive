@@ -13,7 +13,7 @@ properties:
     description: "Retention horizon used (1 to T turns)"
   evidence_age:
     type: "integer"
-    description: "Age of the evidence relative to current turn"
+    description: "Age of the evidence relative to the current turn"
   success:
     type: "integer"
     enum:
