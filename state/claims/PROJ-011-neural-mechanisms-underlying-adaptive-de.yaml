@@ -2351,3 +2351,37 @@
   source_type: external
   status: verified
   updated_at: '2026-10-15T07:31:35Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/quickstart.md
+  attempts: 1
+  canonical: all python dependencies are listed in requirements.txt
+  claim_id: c_5833b964
+  context: 'All Python dependencies are listed in `requirements.txt`. Below is the
+    current list:'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: All Python dependencies are listed in requirements.txt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-15T07:51:11Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/quickstart.md
+  attempts: 1
+  canonical: all intermediate and final results are version-controlled via sha-256
+    hashes stored in state/artifact_hashes.yaml
+  claim_id: c_48e332e9
+  context: "All intermediate and final results are version\u2011controlled via SHA\u2011\
+    256 hashes stored in `state/artifact_hashes.yaml`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All intermediate and final results are version-controlled via SHA-256
+    hashes stored in state/artifact_hashes.yaml.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-15T07:51:29Z'

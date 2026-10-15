@@ -81,7 +81,7 @@ The layout is deliberately flat inside each major component (preprocessing, mode
 
 ## Dependencies
 
-All Python dependencies are listed in `requirements.txt`. {{claim:c_85579c00}} Below is the current list:
+All Python dependencies are listed in `requirements.txt`. Below is the current list:
 
 ```text
 numpy>=1.21.0

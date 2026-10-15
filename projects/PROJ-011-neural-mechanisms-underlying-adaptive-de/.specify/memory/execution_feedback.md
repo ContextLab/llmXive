@@ -37,10 +37,7 @@ usage: io.py [-h] {verify-checksums} ...
 io.py: error: unrecognized arguments: --verify-checksums
 
 - python code/main.py --stage preprocessing -> rc=1
-nd extensibility while maintaining a user-friendly interface.
-Some upcoming changes may be backward incompatible.
-For details and migration guidance, visit: https://python.arviz.org/en/latest/user_guide/migration_guide.html
-  warn(
+
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/code/preprocessing/motion_correction.py", line 24, in <module>
     from nilearn.preprocessing import clean
@@ -143,7 +140,7 @@ ERROR tests/unit/test_roi_extraction_utils.py
 ERROR tests/unit/test_runtime_enforcer.py
 ERROR tests/unit/test_validation.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 14 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 14 errors in 3.92s ==============================
+============================== 14 errors in 3.73s ==============================
 
 
 - python -m pytest tests/contract/ -v -> rc=2
@@ -169,7 +166,7 @@ E   ModuleNotFoundError: No module named 'utils.config'
 ERROR tests/contract/test_data_validation.py
 ERROR tests/contract/test_model_convergence.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 2.53s ===============================
+============================== 2 errors in 2.51s ===============================
 
 
 

@@ -11,16 +11,13 @@ T001:
   sig: 5cdbdb30adace9dd3f5f1fd94fa1e45056524b3b58ee50e3a5113d64b3bba0f7
 T003:
   c: false
-  h: c453fca5fbaaf82028d205a4e50818c520ecb89734aa1c7dee691cc73bd699b5
-  r: "The two artifacts exist and are substantive (quickstart.md documents layout/dependencies;\
-    \ requirements.txt matches the list embedded in quickstart.md), but the task's\
-    \ stated verification \u2014 `make quickstart` printing the documented command\
-    \ and exiting 0 \u2014 has no supporting evidence: no Makefile artifact was collected\
-    \ and no successful `make quickstart` run is recorded. The only execution record\
-    \ (tests/test_quickstart.py) exited 1 with all 3 tests failing, and quickstart.md\
-    \ still contains an unresolved template placeholder `{{claim:c_85579c00}}`. The\
-    \ implementer should add/verify the Makefile `q"
-  sig: c869dda3330a5074c1c6df2dc146f5183c1325423e027a057b29813cceb5f43b
+  h: afbe7f9609673ecccae94d5c1bd0ee2b0167385b5d902798f50de72283665493
+  r: "The repository contains `quickstart.md` and `requirements.txt` at the correct\
+    \ project\u2011specific path, but there is no evidence that the `make quickstart`\
+    \ target runs successfully (no Makefile excerpt or execution log) and the provided\
+    \ test suite fails because it cannot locate those files at the expected location,\
+    \ indicating the required verification step is missing."
+  sig: 683ae7f8ed6f03a045e0c545b37b25db60c7d5ab64a125c2af8c27381296810f
 T010:
   c: false
   h: 52e6659a07e4dfd17ec42a4c40cfcf60d0ef3382e2d2e1d283c3906966624302
