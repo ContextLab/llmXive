@@ -5,7 +5,6 @@ T001s:
 T002:
   task: 860f4179afac4defbc71cabf6a734f70a697fb61960b35962852a46c1b67c5ea
 T010:
-  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
   task: 1302136e1b534456dcb476616050696ea85cc000cd896bb3076e1c55d01cba69
 T011a:
   task: 7f9bc6091eec91ecd78c3a64400a66babe737786fe939fcdc29fcf32b2b78cec

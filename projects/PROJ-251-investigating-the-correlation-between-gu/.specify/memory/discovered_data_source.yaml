@@ -1,13 +1,19 @@
 status: none
-intent: Qiita influenza vaccine microbiome 16S OTU serology dataset from NCBI SRA
-  python package dataset
+intent: Influenza vaccine microbiome 16S rRNA OTU serology dataset NCBI SRA BioProject
+  download python package dataset
 required_fields:
 - subject_id
+- baseline_otu_counts
+- baseline_relative_abundance
+- baseline_haI_titer
+- postvaccination_haI_titer
 - age
 - sex
-- baseline_otu_counts_or_relative_abundances (one column per taxon)
-- pre_vaccination_HAI_titer
-- post_vaccination_HAI_titer
-cache_key: 647bd8f0477b32b13c6f3c48eb0bad0669833019cd6c466fdad50c804ce50c9c
-searched_at: '2026-10-15T17:16:44.011957+00:00'
+- baseline_collection_date
+- postvaccination_collection_date
+- sequencing_run_accession
+- bio_project_id
+- metadata_notes
+cache_key: 32997145c85d51a9a7cd1bc1cffc1abe0069bdbdd09c521a2e4d9f8e8e32a87a
+searched_at: '2026-10-15T17:18:51.307654+00:00'
 retry_count: 1
