@@ -55,7 +55,7 @@ As a system operator, I need the pipeline to handle missing birth years, zero‑
 ## 3. Functional Requirements
 
 ### FR-001: Primary Predictor Definition (See US-001)
-The primary predictor variable is the `adolescent_exposure_ratio`. This is defined as the ratio of the number of listens to a specific track **during the user’s adolescence (the WHO‑defined age range of roughly early to late adolescence, per WHO definition [WHO 2023])** to the total number of listens to that track by the user.  
+The primary predictor variable is the `adolescent_exposure_ratio`. This is defined as the ratio of the number of listens to a specific track **during the user’s adolescence (the WHO‑defined age range of roughly early to late adolescence, per WHO definition [WHO])** to the total number of listens to that track by the user.  
 Formula: `adolescent_exposure_ratio = listens_adolescence / total_listens`  
 *Note: This raw ratio is used to directly test the ‘incidental exposure’ hypothesis, controlling for popularity in the model (FR-005) rather than pre‑residualizing, to avoid statistical tautology.*
 

@@ -20,26 +20,16 @@ pip install -r requirements.txt
 
 ## Running the Full Pipeline
 ```bash
-# One‑command end‑to‑end run
+# One‑command end‑to‑end execution
 python code/main.py --full-run
 ```
-The command executes the following verified steps (each writes a real file and updates `state.yaml`):
-1. **Download** raw MSD JSONL files (`data/raw/`).  
-2. **Simulate** AMT cues & ratings (`data/simulated_amt.parquet`).  
-3. **Ingest** → `data/processed/ingested_cohort.parquet`.  
-4. **Match** across thresholds → `matched_thr{n}.parquet`.  
-5. **Aggregate** → `user_track_pairs_thr{n}.parquet`.  
-6. **Model** → `regression_summary_thr{n}.csv`.  
-7. **Sensitivity** → `sensitivity_analysis.csv`.  
-8. **Permutation** → `permutation_results.csv` + diagnostic plots.  
-9. **Verify** checksums and update `state.yaml`.
+The command executes the verified steps in order, writes real files, and updates `state.yaml`.
 
 ## Individual Step Commands (for debugging)
 
 | Step | Command |
 |------|---------|
-| Download raw MSD | `python code/main.py --step download` |
-| Simulate AMT | `python code/main.py --step simulate` |
+| Download raw datasets | `python code/main.py --step download` |
 | Ingest & merge | `python code/main.py --step ingest` |
 | Match (all thresholds) | `python code/main.py --step match` |
 | Aggregate (all thresholds) | `python code/main.py --step aggregate` |
@@ -49,17 +39,24 @@ The command executes the following verified steps (each writes a real file and u
 | Verify & update state | `python code/main.py --step verify` |
 
 ## Expected Outputs
+- `data/raw/msd_*.jsonl` (streamed MSD shards) – **Note:** MSD does not contain per‑user listening timestamps; a placeholder exposure metric will be used unless an external listening‑history dataset is provided.  
+- `data/raw/amt.jsonl` (AMT cues & ratings)  
 - `data/processed/ingested_cohort.parquet`  
+- `data/processed/matched_thr{n}.parquet` (multiple files)  
 - `data/processed/user_track_pairs_thr{n}.parquet` (multiple files)  
-- `data/final/regression_summary_thr{n}.csv` (multiple files)  
+- `data/final/regression_summary_thr{n}.csv` (several files)  
 - `data/final/sensitivity_analysis.csv`  
 - `data/final/permutation_results.csv`  
-- `data/final/plots/` (PDF/PNG diagnostics)  
+- `data/final/plots/` (diagnostic PDFs/PNGs)  
 - Updated `state.yaml` with SHA‑256 hashes.
 
 ## Troubleshooting
-- **Missing Birth Years**: If > 50 % of `birth_year` are null, the log will contain *“Global Exposure fallback triggered”*; the pipeline continues using the proxy only for sensitivity.  
-- **Low Match Rate**: If any threshold yields `< 0.80` match rate, a warning is logged but execution proceeds (SC‑004).  
-- **Memory Errors**: Ensure `datasets` streaming is active (handled automatically in `download.py`).  
-- **Permutation Too Slow**: Reduce `--perm-iterations` flag; the pipeline will note the reduced power.  
-- **Checksum Mismatch**: Run `python code/main.py --step verify` to recompute and compare hashes.
+- **Missing Birth Years**: If > 50 % of `birth_year` are null, the log will contain *“Global Exposure fallback triggered”*; the pipeline continues using the proxy only for sensitivity checks.  
+- **Low Match Rate**: If any threshold yields `< 0.80` match rate, a warning is logged but execution proceeds (SC‑004).  
+- **Memory Errors**: Ensure streaming is active (handled automatically in `download.py`).  
+- **Permutation Too Slow**: Reduce the `--perm-iterations` flag; the pipeline will note the reduced power in `permutation_results.csv`.  
+- **Checksum Mismatch**: Run `python code/main.py --step verify` to recompute and compare hashes; mismatches indicate corrupted artifacts.
+
+---
+
+

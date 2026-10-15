@@ -5,30 +5,13 @@ type: object
 properties:
   term:
     type: string
-    description: "Variable name (e.g., logit_ratio, popularity, total_listens, Intercept)"
+    description: "Variable name (e.g.,     …    "
   estimate:
     type: number
-    description: "Coefficient estimate"
+    description: "Coefficient  "
   std_error:
     type: number
-    description: "Standard error"
-  t_value:
-    type: number
-    description: "t-statistic"
-  p_value:
-    type: number
-    description: "Permutation‑based p‑value"
-    minimum: 0.0
-    maximum: 1.0
-  vif:
-    type: number
-    description: "Variance Inflation Factor"
-    minimum: 1.0
-required:
-  - term
-  - estimate
-  - std_error
-  - t_value
-  - p_value
-  - vif
-additionalProperties: false
+    description: "   "
+---
+
+

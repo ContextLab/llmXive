@@ -1,11 +1,33 @@
-status: none
-intent: LFM-360K user listening dataset with age and timestamps download python package
-  dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import datasets, sys\n# Load the Hugging Face Last.fm 1K Users dataset\n\
+  try:\n    ds = datasets.load_dataset('matthewfranglen/lastfm-1k', split='train')\n\
+  except Exception as e:\n    sys.exit(f'Failed to load dataset: {e}')\nrecord_count\
+  \ = len(ds)\nif record_count == 0:\n    raise ValueError('Loaded dataset has zero\
+  \ records')\nprint(f'RECORDS={record_count}')\n# Print the column names present\
+  \ in the dataset\nfields = ds.column_names\nprint('FIELDS=' + ','.join(fields))"
+record_count: 13365803
+sample_fields:
+- user_index
+- artist_index
+- track_index
+- user_id
+- timestamp
+- musicbrainz_artist_id
+- artist_name
+- musicbrainz_track_id
+- track_name
+- gender
+- age
+- country
+- signup_date
+field_coverage: 0.75
 required_fields:
 - user_id
-- age
+- birth_year
 - track_id
 - listen_timestamp
-cache_key: ea504dd0b4e2e4c740fe02ec2c1fe975c082dafe1e171799f0c31aeb4f543eec
-searched_at: '2026-10-15T21:24:55.172436+00:00'
-retry_count: 1
+intent: download Last.fm 1K Users timestamps and birth years, MusicBrainz metadata
+  python package dataset
+cache_key: baafff64fed2d6c01cf337e38bf0713aff50c7cbfb02f9aedb265ed85d95864b
