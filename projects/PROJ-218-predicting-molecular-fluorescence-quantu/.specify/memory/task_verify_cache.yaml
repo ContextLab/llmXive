@@ -1,9 +1,9 @@
 T001:
-  c: true
-  h: abea0a536f9d5d03a4337b6aa6cb5d0cedbe869a8381a6055caeb69eb6e4e77c
-  r: "Checked `data/raw/` contains `smiles.parquet` and `fqy.json` with matching SHA\u2011\
-    256 entries in `data/raw/checksums.txt`; `code/config/seeds.yaml` defines the\
-    \ four seeds; `results/seeds.json` records the same values; the download script\
-    \ log shows successful download, checksum verification, seed setting, and exit\
-    \ code\u202F0, and the pytest test `test_download_raw.py` passes."
-  sig: a91ad4fb52df4564890bed41da87896169b8884dc92fd57f96f4ead03dd309dd
+  c: false
+  h: 16403e834b73e7554c29c8eaa667da97edb6e596216c38cdf5885d5dd9907f8c
+  r: "The evidence shows only `checksums.txt`, `seeds.yaml`, and `seeds.json` are\
+    \ present; the required raw data files (`smiles.parquet`, `fqy.json`) are missing,\
+    \ and there is no proof that a download script ran successfully or that the seed\u2011\
+    configuration module is imported before any stochastic operation. These artifacts\
+    \ must be added and verified."
+  sig: e2d2af338ae254ba271ef09060256f714fc35f8a9aa34d5f5a290285ba32f3b7

@@ -1,1 +1,4 @@
-# This file makes the src.preprocessing package importable.
+"""
+Preprocessing subpackage initializer.
+Keeps the `src.preprocessing` namespace importable.
+"""

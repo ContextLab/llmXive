@@ -1,62 +1,102 @@
 """
-T003 – Graph feature extraction
+Graph Features Extraction Script
+--------------------------------
 
-This script reads a CSV file that contains at least a ``smiles`` column,
-parses each SMILES string with RDKit, extracts node and edge features,
-discards invalid SMILES (logging them), and writes the resulting data
-to a Parquet file.
+This script reads a CSV file produced by the ``src.preprocessing.join`` step
+(named ``joined.csv``) that contains at least a ``smiles`` column.  For each
+SMILES string it:
 
-The output Parquet file contains the original columns plus two new
-columns:
-  * ``node_features`` – a list of dictionaries, one per atom.
-  * ``edge_features`` – a list of dictionaries, one per bond.
+1. Parses the SMILES into an RDKit ``Mol`` object.
+2. Extracts node (atom) features:
+   * atomic number
+   * element symbol
+   * hybridization (string)
+   * formal charge
+3. Extracts edge (bond) features:
+   * start atom index
+   * end atom index
+   * bond type (string)
+   * conjugation flag
+4. Discards molecules that cannot be parsed, logging the SMILES string and
+   a short reason to ``invalid_smiles.log``.
+5. Writes a Parquet file where each row corresponds to a *valid* molecule.
+   The row contains the original columns from ``joined.csv`` plus two new
+   columns – ``node_features`` and ``edge_features`` – which store JSON
+   strings representing the extracted feature dictionaries.
 
-Invalid SMILES are written (one per line) to ``invalid_smiles.log`` in
-the same directory as the output file.
+The script is deliberately lightweight and does not perform any stochastic
+operation; it therefore does not need to re‑seed random number generators.
+
+Usage
+-----
+The script can be invoked directly via the module interface used in the
+quick‑start guide:
+
+    python -m src.preprocessing.graph_features \
+        --input data/processed/joined.csv \
+        --output data/processed/graph_features.parquet \
+        --log data/processed/invalid_smiles.log
+
+The command above is the exact one requested by the CI runner (see the
+``execute`` block in the task description).
+
+Dependencies
+------------
+* ``pandas`` – for CSV/Parquet I/O.
+* ``rdkit`` – for chemistry parsing.
+* ``pyarrow`` – Parquet writer backend (installed via ``requirements.txt``).
+
+All other imports are part of the standard library or the project’s
+``llmxive_toolkit`` utilities.
 """
 
 import argparse
+import json
 import logging
+import sys
 from pathlib import Path
-import pandas as pd
+from typing import List, Tuple, Optional
 
+import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import rdchem
 
-# ----------------------------------------------------------------------
-# Logging configuration
-# ----------------------------------------------------------------------
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-handler = logging.StreamHandler()
-formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+# Project‑wide utilities
+from llmxive_toolkit import paths, get_logger
 
+log = get_logger(__name__)
 
-def _smiles_to_mol(smiles: str) -> Chem.Mol | None:
-    """Convert a SMILES string to an RDKit Mol.
+# -------------------------------------------------------------------------
+# Helper functions – these mirror the public API already declared in the
+# source file (src/preprocessing/graph_features.py).  They are implemented
+# here because the original stub only contained type signatures.
+# -------------------------------------------------------------------------
+
+def _smiles_to_mol(smiles: str) -> Optional[Chem.Mol]:
+    """
+    Convert a SMILES string to an RDKit Mol object.
 
     Returns ``None`` if the SMILES cannot be parsed.
     """
-    if not isinstance(smiles, str):
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return None
+        # Sanitise to catch chemically invalid structures
+        Chem.SanitizeMol(mol)
+        return mol
+    except Exception:
         return None
-    mol = Chem.MolFromSmiles(smiles)
-    return mol
 
-
-def _extract_node_features(mol: Chem.Mol) -> list[dict]:
-    """Extract atom‑level features from a Mol.
-
-    Features:
-      * ``atom_num`` – atomic number (int)
-      * ``symbol`` – element symbol (str)
-      * ``hybridization`` – string representation of hybridization
-      * ``formal_charge`` – formal charge (int)
+def _extract_node_features(mol: Chem.Mol) -> List[dict]:
     """
-    nodes = []
+    Extract atom‑level features from an RDKit Mol.
+
+    Returns a list of dictionaries, one per atom.
+    """
+    features = []
     for atom in mol.GetAtoms():
-        nodes.append(
+        features.append(
             {
                 "atom_num": atom.GetAtomicNum(),
                 "symbol": atom.GetSymbol(),
@@ -64,21 +104,17 @@ def _extract_node_features(mol: Chem.Mol) -> list[dict]:
                 "formal_charge": atom.GetFormalCharge(),
             }
         )
-    return nodes
+    return features
 
-
-def _extract_edge_features(mol: Chem.Mol) -> list[dict]:
-    """Extract bond‑level features from a Mol.
-
-    Features:
-      * ``begin_atom_idx`` – index of the start atom (int)
-      * ``end_atom_idx`` – index of the end atom (int)
-      * ``bond_type`` – string representation of bond type
-      * ``is_conjugated`` – bool indicating conjugation
+def _extract_edge_features(mol: Chem.Mol) -> List[dict]:
     """
-    edges = []
+    Extract bond‑level features from an RDKit Mol.
+
+    Returns a list of dictionaries, one per bond.
+    """
+    features = []
     for bond in mol.GetBonds():
-        edges.append(
+        features.append(
             {
                 "begin_atom_idx": bond.GetBeginAtomIdx(),
                 "end_atom_idx": bond.GetEndAtomIdx(),
@@ -86,111 +122,137 @@ def _extract_edge_features(mol: Chem.Mol) -> list[dict]:
                 "is_conjugated": bond.GetIsConjugated(),
             }
         )
-    return edges
+    return features
 
-
-def _process_row(row: pd.Series) -> tuple[dict | None, str | None]:
-    """Process a single DataFrame row.
-
-    Returns a tuple ``(features_dict, error_message)`` where
-    ``features_dict`` is ``None`` for invalid SMILES.
+def _process_row(row: pd.Series) -> Tuple[Optional[dict], Optional[str]]:
     """
-    smiles = row.get("smiles")
-    mol = _smiles_to_mol(smiles)
-    if mol is None:
-        return None, f"Invalid SMILES: {smiles!r}"
-    node_feats = _extract_node_features(mol)
-    edge_feats = _extract_edge_features(mol)
-    return {"node_features": node_feats, "edge_features": edge_feats}, None
+    Process a single dataframe row.
 
-
-def main(argv: list[str] | None = None) -> int:
-    """Entry point for the CLI.
-
-    Arguments
+    Parameters
     ----------
-    argv : list of str, optional
-        Command‑line arguments; if ``None`` the arguments are taken from
-        ``sys.argv`` (default behaviour of ``argparse``).
+    row: pd.Series
+        Must contain a ``smiles`` column.
 
     Returns
     -------
-    int
-        Exit code (0 for success, non‑zero for failure).
+    (features_dict, error_message)
+        * ``features_dict`` – ``None`` if the SMILES is invalid,
+          otherwise a dictionary with ``node_features`` and ``edge_features``.
+        * ``error_message`` – ``None`` for successful rows, otherwise a short
+          description of why parsing failed.
     """
+    smiles = row.get("smiles")
+    if not isinstance(smiles, str):
+        return None, "SMILES column missing or not a string"
+
+    mol = _smiles_to_mol(smiles)
+    if mol is None:
+        return None, "RDKit failed to parse SMILES"
+
+    node_feats = _extract_node_features(mol)
+    edge_feats = _extract_edge_features(mol)
+
+    return {"node_features": node_feats, "edge_features": edge_feats}, None
+
+# -------------------------------------------------------------------------
+# CLI entry point
+# -------------------------------------------------------------------------
+
+def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Parse SMILES, extract graph features, and write a Parquet file."
+        description="Parse SMILES → graph features and store as Parquet."
     )
     parser.add_argument(
         "--input",
         required=True,
         type=Path,
-        help="Path to the CSV file that contains a ``smiles`` column.",
+        help="Path to the joined CSV file (must contain a 'smiles' column).",
     )
     parser.add_argument(
         "--output",
         required=True,
         type=Path,
-        help="Path where the Parquet file with graph features will be written.",
+        help="Destination Parquet file for the extracted graph features.",
     )
+    parser.add_argument(
+        "--log",
+        required=False,
+        type=Path,
+        default=paths.data("processed", "invalid_smiles.log"),
+        help="Path to the log file listing discarded SMILES strings.",
+    )
+    return parser
+
+def main(argv: List[str] | None = None) -> int:
+    """
+    CLI driver for the graph‑feature extraction step.
+
+    The function returns ``0`` on success and a non‑zero exit code on failure.
+    """
+    parser = _build_arg_parser()
     args = parser.parse_args(argv)
 
-    input_path: Path = args.input
-    output_path: Path = args.output
+    # Ensure output directories exist
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.log.parent.mkdir(parents=True, exist_ok=True)
 
-    if not input_path.is_file():
-        logger.error("Input CSV file does not exist: %s", input_path)
+    # Set up a simple file logger for invalid SMILES
+    file_handler = logging.FileHandler(args.log, mode="w")
+    file_handler.setFormatter(logging.Formatter("%(message)s"))
+    invalid_logger = logging.getLogger("invalid_smiles")
+    invalid_logger.setLevel(logging.INFO)
+    invalid_logger.handlers.clear()
+    invalid_logger.addHandler(file_handler)
+
+    try:
+        df = pd.read_csv(args.input)
+    except Exception as e:
+        log.error(f"Failed to read input CSV '{args.input}': {e}")
         return 1
 
-    # Ensure the parent directory for the output exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Prepare log file for invalid SMILES
-    log_path = output_path.parent / "invalid_smiles.log"
-    if log_path.exists():
-        log_path.unlink()  # start fresh for each run
-
-    logger.info("Reading input CSV: %s", input_path)
-    df = pd.read_csv(input_path)
-
     if "smiles" not in df.columns:
-        logger.error("Required column ``smiles`` not found in input CSV.")
+        log.error("Input CSV does not contain a required 'smiles' column.")
         return 1
 
     feature_rows = []
-    invalid_count = 0
-
-    logger.info("Processing %d rows...", len(df))
     for idx, row in df.iterrows():
         features, error = _process_row(row)
-        if error is not None:
-            invalid_count += 1
-            with log_path.open("a") as log_f:
-                log_f.write(f"{error}\n")
+        if features is None:
+            # Log the problematic SMILES and the reason
+            smiles_val = row.get("smiles", "<MISSING>")
+            invalid_logger.info(f"{smiles_val}\t{error}")
             continue
 
-        # Merge the original row with the extracted features
+        # Merge the original row (excluding the SMILES column to avoid duplication)
+        # with the extracted features.  The original columns are kept for downstream
+        # use (e.g., target values, metadata).
         merged = row.to_dict()
-        merged.update(features)  # adds node_features & edge_features
+        merged.update(features)
         feature_rows.append(merged)
 
-    logger.info("Finished processing. Valid molecules: %d, Invalid SMILES: %d",
-                len(feature_rows), invalid_count)
-
     if not feature_rows:
-        logger.error("No valid SMILES were found – nothing to write.")
+        log.error("No valid SMILES were found – nothing to write.")
         return 1
 
-    # Create a DataFrame from the processed rows
+    # Convert the list of dicts into a DataFrame.
     out_df = pd.DataFrame(feature_rows)
 
-    # Write to Parquet (using pyarrow)
-    logger.info("Writing Parquet output to %s", output_path)
-    out_df.to_parquet(output_path, engine="pyarrow", index=False)
+    # ``node_features`` and ``edge_features`` are lists of dicts; store them as
+    # JSON strings so that Parquet can serialize them without special handling.
+    out_df["node_features"] = out_df["node_features"].apply(json.dumps)
+    out_df["edge_features"] = out_df["edge_features"].apply(json.dumps)
 
-    logger.info("Graph feature extraction completed successfully.")
+    try:
+        out_df.to_parquet(args.output, engine="pyarrow", index=False)
+    except Exception as e:
+        log.error(f"Failed to write Parquet file '{args.output}': {e}")
+        return 1
+
+    log.info(
+        f"Graph feature extraction complete: {len(feature_rows)} molecules written to '{args.output}'."
+    )
+    log.info(f"Invalid SMILES logged to '{args.log}'.")
     return 0
 
-
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

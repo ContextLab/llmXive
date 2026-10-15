@@ -1,3 +1,16 @@
-# Existing dependencies are provided by the platform.
-# Additional third‑party packages required for the scaffold split.
+# Core scientific stack (already available in the base environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional packages required for T003
 rdkit-pypi
+pyarrow
