@@ -16,7 +16,7 @@ All tasks follow the canonical `- [ ] T### [USx?] description …` format, list 
 
 ## Phase 1 – Project scaffolding & reproducibility foundation  
 
-- [X] T001 [US0] Create core directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `state/`.  
+- [ ] T001 [US0] Create core directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `state/`.  
   - **Verification**: `tree -L 2` lists the directories; CI asserts they exist before any later task runs.  
 
 - [ ] T002 [US0] Create `code/requirements.txt` with pinned versions:  
@@ -32,10 +32,10 @@ All tasks follow the canonical `- [ ] T### [USx?] description …` format, list 
   ```  
   - **Verification**: `pip install -r code/requirements.txt` succeeds in a fresh venv.  
 
-- [ ] T003 [US0] Add minimal `README.md` and `docs/quickstart.md` stub (to be expanded later).  
+- [X] T003 [US0] Add minimal `README.md` and `docs/quickstart.md` stub (to be expanded later).  
   - **Verification**: Both files exist and contain at least one non‑comment line; CI checks for required sections (`Project overview`, `Installation`, `Running the pipeline`).  
 
-- [ ] T038 [US0] Implement **state manager** (`code/state_manager.py`) with `compute_hash(path)` and `update_state(path)` utilities.  
+- [ ] T038 [US0] Implement **state manager** (`code/state_manager.py`) with `compute_hash(path)` and `update_state(path)` utilities.   <!-- FAILED-IN-EXECUTION: code/state_manager.py exit=1 -->
   - **Verification**: Running `python -m code.state_manager data/raw/dummy.csv` creates/updates `state/project_state.yaml` with correct SHA‑256 hash and ISO‑8601 timestamp.  
 
 - [ ] T039 [US0] Initialise `state/project_state.yaml` (empty YAML with top‑level `artifacts: {}` and `updated_at:` timestamp).  
