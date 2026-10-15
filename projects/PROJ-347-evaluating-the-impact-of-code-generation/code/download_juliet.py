@@ -10,6 +10,8 @@ exists and the recorded checksum matches, the download is skipped.
 import hashlib
 import json
 import sys
+import zipfile
+from io import BytesIO
 from pathlib import Path
 
 import requests
@@ -21,11 +23,10 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration – real, publicly available source
 # ----------------------------------------------------------------------
-# The CSV containing Python vulnerable snippets is hosted in the Juliet
-# Test Suite repository under the ``data`` directory.
-RAW_CSV_URL = (
-    "https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/data/python_vuln.csv"
+REPO_ZIP_URL = (
+    "https://github.com/Juliet-Test-Suite/SARD/archive/refs/heads/master.zip"
 )
+ZIP_MEMBER_PATH = "SARD-master/data/python_vuln.csv"
 
 # Destination locations (all under the project root)
 CSV_DEST = paths.data("raw", "juliet", "python_vuln.csv")
@@ -34,18 +35,12 @@ CHECKSUMS_PATH = paths.data("checksums.json")
 # ----------------------------------------------------------------------
 # Helper functions (identical to those in ``download_devign.py``)
 # ----------------------------------------------------------------------
-def download_file(url: str, dest: Path) -> None:
-    """Download a file via streaming request."""
-    log.info(f"Downloading {url} → {dest}")
-    dest.parent.mkdir(parents=True, exist_ok=True)
-
+def download_file(url: str) -> bytes:
+    """Download a file via streaming request and return its bytes."""
+    log.info(f"Downloading {url}")
     with requests.get(url, stream=True, timeout=60) as r:
         r.raise_for_status()
-        with open(dest, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-    log.info("Download complete.")
+        return r.content
 
 def compute_sha256(file_path: Path) -> str:
     """Return the hex SHA‑256 digest of a file."""
@@ -68,6 +63,18 @@ def save_checksums(path: Path, data: dict) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, sort_keys=True)
 
+def extract_csv_from_zip(zip_bytes: bytes, member_path: str, dest: Path) -> None:
+    """Extract a CSV file from a zip archive and write it to *dest*."""
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(BytesIO(zip_bytes)) as z:
+        try:
+            with z.open(member_path) as src, open(dest, "wb") as out_f:
+                out_f.write(src.read())
+        except KeyError as exc:
+            raise FileNotFoundError(
+                f"Member {member_path!r} not found in the downloaded zip."
+            ) from exc
+
 # ----------------------------------------------------------------------
 # Main workflow
 # ----------------------------------------------------------------------
@@ -83,7 +90,9 @@ def main() -> None:
         checksums = load_checksums(CHECKSUMS_PATH)
         recorded = checksums.get(str(CSV_DEST))
         if recorded == existing_checksum:
-            log.info("CSV already present and checksum verified – skipping download.")
+            log.info(
+                "CSV already present and checksum verified – skipping download."
+            )
             return
         else:
             log.warning(
@@ -95,13 +104,19 @@ def main() -> None:
             CSV_DEST.unlink()
 
     # --------------------------------------------------------------
-    # Step 1 – download the CSV
+    # Step 1 – download the repository zip archive
     # --------------------------------------------------------------
-    log.info(f"Attempting direct CSV download from {RAW_CSV_URL}")
-    download_file(RAW_CSV_URL, CSV_DEST)
+    log.info(f"Downloading repository zip from {REPO_ZIP_URL}")
+    zip_bytes = download_file(REPO_ZIP_URL)
 
     # --------------------------------------------------------------
-    # Step 2 – compute checksum and record it
+    # Step 2 – extract the required CSV from the archive
+    # --------------------------------------------------------------
+    log.info(f"Extracting {ZIP_MEMBER_PATH} to {CSV_DEST}")
+    extract_csv_from_zip(zip_bytes, ZIP_MEMBER_PATH, CSV_DEST)
+
+    # --------------------------------------------------------------
+    # Step 3 – compute checksum and record it
     # --------------------------------------------------------------
     log.info(f"Computing SHA‑256 for {CSV_DEST}")
     checksum = compute_sha256(CSV_DEST)
@@ -113,7 +128,7 @@ def main() -> None:
         f"Recorded checksum for {CSV_DEST}: {checksum} (saved to {CHECKSUMS_PATH})"
     )
 
-    log.info("Juliet dataset preparation completed successfully.")
+    log.info("Juliet dataset preparation (juliet) completed successfully.")
 
 if __name__ == "__main__":
     try:
