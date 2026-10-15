@@ -8,11 +8,8 @@ T001:
 T002:
   task: c6cae83e4e81aeac7c92ac25dd21d526892b25f4e631e6610adec7220c36a0af
 T003:
-  reason: "The repository contains the required `.ruff.toml`, `pyproject.toml` with\
-    \ a `[tool.black]` section, and a `.pre-commit-config.yaml`, but there is no evidence\
-    \ that the verification steps (`ruff check .` and `black --check .`) were actually\
-    \ run and returned exit\u202F0. Execution logs or CI results are needed to confirm\
-    \ the tools are correctly configured."
+  reason: 'Requested task execution failed; rerun successfully: code/run_linting.py
+    exit=1'
   task: efbe2ffa8abd715b9e29f05cdb0cbd9f546dbe43d3a38a11b0ebe95ec9686e34
 T004a:
   task: ecce77451cabb0068bd6373d4dd24cfffbc88ebb1dfbd872b709c14f12071dd5

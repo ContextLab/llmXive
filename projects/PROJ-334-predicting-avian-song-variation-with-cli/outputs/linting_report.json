@@ -1,0 +1,14 @@
+{
+  "ruff": {
+    "command": "ruff check .",
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "ruff failed\n  Cause: Failed to parse /home/runner/work/llmXive/llmXive/projects/PROJ-334-predicting-avian-song-variation-with-cli/code/config/ruff.toml\n  Cause: TOML parse error at line 1, column 1\n  |\n1 | [tool.ruff]\n  | ^\nunknown field `tool`\n\n"
+  },
+  "black": {
+    "command": "black --check .",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "No Python files are present to be formatted. Nothing to do \ud83d\ude34\n"
+  }
+}

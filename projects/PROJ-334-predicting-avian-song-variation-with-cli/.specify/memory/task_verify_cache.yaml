@@ -9,12 +9,13 @@ T001:
   sig: 89e6f16ca94a460760e733b65dd3dcb01b306f28d26dc87f08fe263bd60a3a69
 T002:
   c: true
-  h: ac567b597a697d6599ceead3e2b20e6918f33abdcc77990d69379c0349fe0905
-  r: Checked the `requirements.txt` (exact version pins for all listed packages) and
-    `pyproject.toml` (valid TOML syntax). The provided pytest logs show the requirements
-    installed without warnings and the pyproject file passes validation. All required
-    artifacts exist and meet the task specifications.
-  sig: aa58d017f814e3d1c0ff2db4d5cd4702a44c11f15f5b36902f33dec87277d98c
+  h: 8fccda47c3c56b14955b75f983572c8ab02ae99ca8b1d8ec117c25aed34ec341
+  r: "Checked the `requirements.txt` (pinned exact versions for all listed packages)\
+    \ and `pyproject.toml` (valid TOML syntax) files, and confirmed successful, warning\u2011\
+    free installation via the recorded `test_install_requirements.py` run and the\
+    \ `install_requirements.py` log. The pytest validation of `pyproject.toml` also\
+    \ passed."
+  sig: e80d84ddb9d5e3d7626612a415fe43941daccff332fa39f5d039486e6bdf13c3
 T003:
   c: false
   h: 29b714512d4f9abdad0df6f4b1b345f75c98eade6570f4e105ed6665310844a8

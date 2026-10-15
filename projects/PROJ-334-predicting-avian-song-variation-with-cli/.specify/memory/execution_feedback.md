@@ -19,12 +19,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/ingestion.py --download-only -> rc=1
 et
-2026-10-15 16:46:47,984 INFO __main__: Download completed.
-2026-10-15 16:46:48,141 INFO __main__: SHA‑256 checksum: 7ae2175aecd332fb045452f833c3f7d4044f7b946c91f5bd627d0e8094a40fb0
-2026-10-15 16:46:48,141 INFO __main__: Recording checksum for analysis_dataset.parquet
-2026-10-15 16:46:48,142 INFO __main__: Checksum for analysis_dataset.parquet already recorded.
-2026-10-15 16:46:48,142 INFO __main__: Project state file updated.
-2026-10-15 16:46:49,313 INFO __main__: Loaded analysis dataset with 5774 rows.
+2026-10-15 16:48:23,127 INFO __main__: Download completed.
+2026-10-15 16:48:23,287 INFO __main__: SHA‑256 checksum: 7ae2175aecd332fb045452f833c3f7d4044f7b946c91f5bd627d0e8094a40fb0
+2026-10-15 16:48:23,288 INFO __main__: Recording checksum for analysis_dataset.parquet
+2026-10-15 16:48:23,288 INFO __main__: Checksum for analysis_dataset.parquet already recorded.
+2026-10-15 16:48:23,288 INFO __main__: Project state file updated.
+2026-10-15 16:48:24,511 INFO __main__: Loaded analysis dataset with 5774 rows.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-334-predicting-avian-song-variation-with-cli/code/ingestion.py", line 420, in <module>
     sys.exit(main())
@@ -50,6 +50,6 @@ code/setup_dependencies.py:5
 =========================== short test summary info ============================
 ERROR tests/test_utils.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-========================= 2 warnings, 1 error in 0.57s =========================
+========================= 2 warnings, 1 error in 0.60s =========================
 
 

@@ -11,7 +11,7 @@ All tasks are unchecked unless explicitly marked as completed (`[X]`) in a prior
   - **File**: `requirements.txt` (pins exact versions of pandas, numpy, scikit‑learn, statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas, pyproj, pytest) and `pyproject.toml` (basic build metadata).  
   - **Verification**: `pip install -r requirements.txt` succeeds without warnings; `pyproject.toml` is syntactically valid.
 
-- [ ] T003 [P] Configure linting and formatting tools **[FR‑001]**  
+- [ ] T003 [P] Configure linting and formatting tools **[FR‑001]**   <!-- FAILED-IN-EXECUTION: code/run_linting.py exit=1 -->
   - **Files**: `.ruff.toml` (enable ruff linting), `pyproject.toml` (add `[tool.black]` section), optional `.pre-commit-config.yaml`.  
   - **Verification**: CI step `ruff check .` returns exit 0; `black --check .` returns exit 0.
 
