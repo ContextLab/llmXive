@@ -1,10 +1,9 @@
 status: none
-intent: bigcode the stack huggingface dataset python package dataset
-required_fields:
-- repo_id
-- file_path
-- language
-- code
-cache_key: 2597b236714c8844b9c53c5422bb5e19d1a0bb8513ddfb8c46030cdca6a6ab9e
-searched_at: '2026-10-15T16:19:06.576473+00:00'
+intent: '### User Story 1 - Correlation Analysis of Code Complexity and Prediction
+  Loss (Priority: P1) **Journey**: A researcher downloads a subset of public code
+  repositories, runs static analysis to label chunks with cyclomatic complexity and
+  nesting depth, processes them through a frozen LLM to measure pe'
+required_fields: []
+cache_key: d92877080c460263d12286fac8801801fd2df9dfe3f7df6c44b5d9ee8c08d53a
+searched_at: '2026-10-15T17:29:11.307171+00:00'
 retry_count: 1
