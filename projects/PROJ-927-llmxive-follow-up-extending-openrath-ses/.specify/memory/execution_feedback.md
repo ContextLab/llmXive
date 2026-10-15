@@ -49,3 +49,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/simulators/__init__.py` — NOT invoked by the run-book
     - `code/simulators/corruption_log_manager.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/corruption_map.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

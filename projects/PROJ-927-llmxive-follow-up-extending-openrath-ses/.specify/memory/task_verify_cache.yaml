@@ -30,11 +30,44 @@ T003:
     those three rules (and not ignore `E501`).'
 T004:
   c: true
-  h: 08d4f2c2e18c78bc24ac46447f805ffe232ea0695ad449a0f0bbd93810657387
-  r: The `code/config.py` file exists, defines `SEED`, `CORRUPTION_RATE`, `WORKFLOW_COUNT`,
-    `SWEEP_RATES` with the exact requested values, and provides the `RAW_DATA_DIR`,
-    `PROCESSED_DATA_DIR`, and `STATE_DIR` path variables. No placeholders or missing
-    definitions are present.
+  h: dcd33195d2f6327f38267edcf3e18974ecd30e863652ba2615d0e416b2951b36
+  r: 'The file `code/config.py` exists (1995 bytes) and defines all required keys
+    with the exact specified values: `SEED=42`, `CORRUPTION_RATE=0.1`, `WORKFLOW_COUNT=500`,
+    `SWEEP_RATES=[0.05, 0.10, 0.20]`, plus `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`, and
+    `STATE_DIR` directory paths. The extra helper functions (directory creation, state
+    load/save) are additive and don''t conflict with the task''s requirements.'
+  sig: 225ca905e23482dec9be6863c8dd1ea0037a99795bd5a059422ccdd18568c076
+T006:
+  c: false
+  h: cf09d1c3d1f744785398aa1345cf834e0641d44ce17a2cbef3ca6d41501d4a2e
+  r: "The only artifact is `code/generators/__init__.py` containing a single comment\
+    \ line \u2014 no base schema definitions for Workflow Definition or Ground Truth\
+    \ exist anywhere in the evidence (no schema modules, dataclasses, or JSON schema\
+    \ files). The task explicitly required both the package marker and the schema\
+    \ definitions; the latter are entirely missing."
+  sig: eae3964831964fceb8e2b2d481f9d1b8ac551856bcfd47e9e98e78b5efb419ff
+T007:
+  c: false
+  h: 78f775d12bec0d9c1e6c643d0cc10f40d3ea37d04fd223aebf68b86b89a5c6cc
+  r: 'Neither `__init__.py` defines any base classes: `code/executors/__init__.py`
+    is a single comment line ("# llmXive Project: Executors Package") with no code,
+    and `code/simulators/__init__.py` merely re-exports `CorruptionInjector` and corruption-log
+    helpers rather than declaring executor/simulator base classes (e.g., abstract
+    executor interfaces for the Event-Log and Session-First architectures). The task
+    explicitly required implementing base classes in these files, so the deliverable
+    is a placeholder, not the requested work.'
+  sig: 3fac776869e24a38dba6b83d055fa56884b551025fa83c5eb921652544286c62
+T008:
+  c: false
+  h: 754ec4ca817356b62e9abda42728f6b9fe31c60bac506274f42db3645be037e6
+  r: "Both `code/reconstructors/__init__.py` and `code/analyzers/__init__.py` exist\
+    \ but contain only a single comment line (\"# llmXive Project: ... Package\")\
+    \ \u2014 no base classes, no imports, no code at all. The task explicitly requires\
+    \ implementing base classes in these files; these are empty placeholder markers,\
+    \ not implementations. The implementer must add the actual base class definitions\
+    \ (e.g., reconstruction/analyzer base classes with the required interfaces) to\
+    \ these files."
+  sig: 081b922d88bd2615ada8188b3c94777ac50a912378758a413d96fd6b2476a157
 T009:
   c: false
   h: 86847e9c7ed2012c46d56b59369ab35da43063521c7b77da03043e11f9a01df1
@@ -46,6 +79,30 @@ T009:
     \ phase independently if an interruption occurs. The implementation needs per\u2011\
     phase or per\u2011workflow phase tracking in the checkpoint to satisfy the \u201C\
     must support resuming both the generation phase and the executi"
+T010:
+  c: false
+  h: 8be48dfe3bbf2226d5a78284390402ae9adbd05d590cfa9c95da2714509f4aca
+  r: 'The test file `tests/unit/test_generator.py` exists and is substantive, but
+    it is incompatible with the actual generator implementation, so it cannot pass:
+    it calls `generate_workflow(seed=..., workflow_id=..., output_path=...)` while
+    `code/generators/workflow_generator.py` defines `generate_workflow(workflow_id,
+    seed)` returning a dict with no `output_path` parameter (every test would raise
+    TypeError). Additionally, the generator''s output lacks the `steps`, `final_state`,
+    and `state_snapshot` fields the test asserts, and the generator''s `from config
+    import ...` import would fail when imported'
+  sig: 74e7e854cf80a20533a762e0d038c3deebc655e5552a6a16831a43f268f6ed64
+T011:
+  c: false
+  h: 352b6af4ec57d612cf97397d7f02356464f6752d6932888f186b8b143144b2fb
+  r: "The test file `tests/unit/test_generator.py` contains no test comparing a generated\
+    \ ground-truth hash against a pre-computed reference hash for a fixed seed \u2014\
+    \ the task's core requirement is absent; it only checks byte-identity between\
+    \ two runs, JSON validity, and field presence. Additionally, the tests call `generate_workflow(seed=...,\
+    \ workflow_id=..., output_path=...)`, which does not match the actual generator's\
+    \ signature `generate_workflow(workflow_id, seed)` (no `output_path` parameter),\
+    \ so the tests would fail with a TypeError rather than pass, and no execution\
+    \ evidence of passing tests w"
+  sig: 28bcb67a08ac226dc4e7079562211ee5c028f9e4f513a775001b2f2c7d843435
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

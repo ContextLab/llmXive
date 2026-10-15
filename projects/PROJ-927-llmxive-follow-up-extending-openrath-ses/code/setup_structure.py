@@ -1,62 +1,66 @@
+"""Create the core project structure (task T001a).
+
+Creates all required directories and empty ``__init__.py`` files in
+every ``code/`` subdirectory. Idempotent: safe to re-run.
+"""
 import os
 import stat
 from pathlib import Path
 
-def create_structure(base_path: str = "projects/PROJ-927-llmxive-follow-up-extending-openrath-ses"):
-    """
-    Creates the project directory structure and initializes empty __init__.py files
-    as required by task T001.
-    """
+def create_structure(base_path: str = None):
+    """Creates the project directory structure and initializes empty
+    __init__.py files as required by task T001."""
+    if base_path is None:
+        base_path = Path(__file__).parent.parent
     base = Path(base_path)
-    
-    # Define directories to create
-    directories = [
-        "code",
-        "code/generators",
-        "code/executors",
-        "code/simulators",
-        "code/reconstructors",
-        "code/analyzers",
-        "tests",
-        "data/raw/workflows",
-        "data/processed/event_log",
-        "data/processed/session_first",
-        "data/processed/results",
-        "state"
-    ]
-    
-    # Create directories
-    for dir_path in directories:
-        full_path = base / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
-    
-    # Create __init__.py files
-    init_dirs = [
-        "code",
-        "code/generators",
-        "code/executors",
-        "code/simulators",
-        "code/reconstructors",
-        "code/analyzers",
-        "tests",
-        "data/raw/workflows",
-        "data/processed/event_log",
-        "data/processed/session_first",
-        "data/processed/results",
-        "state"
-    ]
-    
-    for dir_path in init_dirs:
-        full_path = base / dir_path / "__init__.py"
-        # Only create if it doesn't exist to avoid overwriting existing content
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created empty __init__.py: {full_path}")
-        else:
-            print(f"Skipped existing __init__.py: {full_path}")
 
-    print(f"Project structure created at: {base}")
+    directories = [
+        base / "code",
+        base / "code" / "generators",
+        base / "code" / "executors",
+        base / "code" / "reconstructors",
+        base / "code" / "analyzers",
+        base / "code" / "simulators",
+        base / "code" / "utils",
+        base / "tests",
+        base / "data" / "raw" / "workflows",
+        base / "data" / "processed" / "event_log",
+        base / "data" / "processed" / "session_first",
+        base / "data" / "processed" / "results",
+        base / "data" / "processed" / "corrupted_logs",
+        base / "data" / "processed" / "reconstruction_results",
+        base / "state",
+        base / "state" / "projects",
+        base / "scripts",
+        base / "docs",
+    ]
+
+    for d in directories:
+        d.mkdir(parents=True, exist_ok=True)
+
+    init_targets = [
+        base / "code",
+        base / "code" / "generators",
+        base / "code" / "executors",
+        base / "code" / "reconstructors",
+        base / "code" / "analyzers",
+        base / "code" / "simulators",
+        base / "code" / "utils",
+    ]
+
+    for target in init_targets:
+        init_file = target / "__init__.py"
+        init_file.touch(exist_ok=True)
+
+    return {
+        "directories": [str(d) for d in directories],
+        "init_files": [str(t / "__init__.py") for t in init_targets],
+    }
 
 if __name__ == "__main__":
-    create_structure()
+    result = create_structure()
+    for d in result["directories"]:
+        print(f"OK dir: {d}")
+    for f in result["init_files"]:
+        print(f"OK init: {f}")
+    print("Project structure created successfully.")
