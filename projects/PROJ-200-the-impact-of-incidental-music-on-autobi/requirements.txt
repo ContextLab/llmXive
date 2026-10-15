@@ -3,6 +3,3 @@
 python-levenshtein==0.25.1
 statsmodels
 pyarrow
-# Note: ``pyarrow`` is satisfied by the lightweight stub provided in the
-# repository (see the ``pyarrow`` package directory). Adding it here ensures
-# any external tooling that checks the manifest recognises the dependency.

@@ -49,7 +49,8 @@ python code/main.py --full-run
 ```
 
 ## Expected Outputs
+
 - `data/processed/user_track_pairs.parquet`: Core analysis dataset.
 - `data/final/regression_summary.csv`: Model coefficients and statistics.
 - `data/final/plots/`: Diagnostic plots.
-- `state.yaml`: Artifact registry.
+- `state.yaml`: Updated with artifact hashes.

@@ -6,15 +6,18 @@ T000:
     paths and study parameters), and the execution log shows `code/init_state.py`
     ran successfully (exit 0) creating the file.
   sig: f06bab5fe1c4b8af8002efb8f125cecfa8dfd5b4e94359375a8b4215d8f2708c
-T001:
-  c: false
-  h: 4a3b0f20602bdc455fd18c47ef422e6be675b79a8194bce2f00d8b3dd2171bb7
-  r: The project layout directories exist, `code/config.py` defines the required thresholds
-    and seed, and `quickstart.md` documents the execution commands. However, `requirements.txt`
-    does not list the required packages `statsmodels` and `pyarrow`; it only mentions
-    them in comments and includes only `python-levenshtein`. The missing explicit
-    dependencies cause the task to be incomplete.
-  sig: 44ca3dac4058db9dbdc4a8eb12a9ce100a2010cbfe3770748e2b1dc4575b25fb
+T002:
+  c: true
+  h: 5ce37f545a9336adc6f2daa37162b365cc7d38cfea3a22da88ff8d9de4e5258f
+  r: "Both `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` exist\
+    \ with substantive, spec-aligned content: the dataset schema defines Track, CohortListen,\
+    \ MemoryCue, and a User-Track-Pair-level AggregatedMetric (user_id, track_id,\
+    \ mean_vividness, mean_valence, count_cues, adolescent_exposure_ratio bounded\
+    \ 0\u20131), and the output schema defines RegressionResults (term, estimate,\
+    \ std_error, t_value, p_value, vif), SensitivityAnalysis (levenshtein_threshold,\
+    \ match_rate, coefficient/p-value), and PermutationResults (observed statistic,\
+    \ null distribution stats, p_value, iterations), matchin"
+  sig: d700cec72a8f3d2197729b3c55a7fedb55f63de2b646d9d669918c5b6103b122
 T003:
   c: false
   h: cf55526ee758660e1a6d7cdae5e72a00ee5998ac143ebfbe0873bec1259baf35

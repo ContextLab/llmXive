@@ -14,10 +14,10 @@
     "python code/08_visualize.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/08_visualize.py\", line 27, in <module>\n    from utils import setup_logging, get_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py\", line 12, in <module>\n    from .config import get_project_root\nImportError: attempted relative import with no known parent package"
   ],
   "fix_rounds": 0,
-  "model_tier": 1,
+  "model_tier": 2,
   "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-10-15T17:15:48Z"
+  "updated_at": "2026-10-15T21:15:29Z"
 }

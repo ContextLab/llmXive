@@ -8,24 +8,22 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…pipeline:      1. Ensure simulated AMT data exists.     2. Load the…”
-- code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-------------     # 1‑2. Simulated AMT data (still required for birt…”
-- code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…out_path)     log.info(f"Simulated AMT data written to {out_path}")…”
+- code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…Story 1)…")      # 1‑2. Simulated AMT data (required for birth year…”
+- code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…def main():     """     Generate a small synthetic AMT dataset required for…”
+- code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…ex=False)     log.info(f"Simulated AMT data written to {out_path}")…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…pipeline:      1. Ensure simulated AMT data exists.     2. Load the…”; code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-------------     # 1‑2. Simulated AMT data (still required for birt…”; code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…out_path)     log.info(f"Simulated AMT data written to {out_path}")…”; 5 command(s) failed: python code/main.py --step download (rc=1); python code/main.py --step ingest (rc=1); python code/main.py --step analyze (rc=1); 5 declared deliverable(s) absent: data/final/permutation_results.csv; data/final/regression_summary.csv; data/final/sensitivity_analysis.csv
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…Story 1)…")      # 1‑2. Simulated AMT data (required for birth year…”; code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…def main():     """     Generate a small synthetic AMT dataset required for…”; code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…ex=False)     log.info(f"Simulated AMT data written to {out_path}")…”; 5 command(s) failed: python code/main.py --step download (rc=1); python code/main.py --step ingest (rc=1); python code/main.py --step analyze (rc=1); 5 declared deliverable(s) absent: data/final/permutation_results.csv; data/final/regression_summary.csv; data/final/sensitivity_analysis.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --step download -> rc=1
-tup_logging, get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
-    import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/__init__.py", line 13, in <module>
-    from . import parquet  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/parquet.py", line 13, in <module>
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 5, in <module>
+    import data_ingestion
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 1, in <module>
     import pandas as pd
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/__init__.py", line 26, in <module>
     from pandas.compat import (
@@ -34,16 +32,14 @@ tup_logging, get_logger
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/pyarrow.py", line 10, in <module>
     _palv = Version(Version(pa.__version__).base_version)
                             ^^^^^^^^^^^^^^
-AttributeError: partially initialized module 'pyarrow' has no attribute '__version__' (most likely due to a circular import)
+AttributeError: module 'pyarrow' has no attribute '__version__'
 
 - python code/main.py --step ingest -> rc=1
-tup_logging, get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
-    import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/__init__.py", line 13, in <module>
-    from . import parquet  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/parquet.py", line 13, in <module>
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 5, in <module>
+    import data_ingestion
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 1, in <module>
     import pandas as pd
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/__init__.py", line 26, in <module>
     from pandas.compat import (
@@ -52,16 +48,14 @@ tup_logging, get_logger
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/pyarrow.py", line 10, in <module>
     _palv = Version(Version(pa.__version__).base_version)
                             ^^^^^^^^^^^^^^
-AttributeError: partially initialized module 'pyarrow' has no attribute '__version__' (most likely due to a circular import)
+AttributeError: module 'pyarrow' has no attribute '__version__'
 
 - python code/main.py --step analyze -> rc=1
-tup_logging, get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
-    import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/__init__.py", line 13, in <module>
-    from . import parquet  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/parquet.py", line 13, in <module>
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 5, in <module>
+    import data_ingestion
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 1, in <module>
     import pandas as pd
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/__init__.py", line 26, in <module>
     from pandas.compat import (
@@ -70,16 +64,14 @@ tup_logging, get_logger
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/pyarrow.py", line 10, in <module>
     _palv = Version(Version(pa.__version__).base_version)
                             ^^^^^^^^^^^^^^
-AttributeError: partially initialized module 'pyarrow' has no attribute '__version__' (most likely due to a circular import)
+AttributeError: module 'pyarrow' has no attribute '__version__'
 
 - python code/main.py --step verify -> rc=1
-tup_logging, get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
-    import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/__init__.py", line 13, in <module>
-    from . import parquet  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/parquet.py", line 13, in <module>
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 5, in <module>
+    import data_ingestion
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 1, in <module>
     import pandas as pd
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/__init__.py", line 26, in <module>
     from pandas.compat import (
@@ -88,16 +80,14 @@ tup_logging, get_logger
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/pyarrow.py", line 10, in <module>
     _palv = Version(Version(pa.__version__).base_version)
                             ^^^^^^^^^^^^^^
-AttributeError: partially initialized module 'pyarrow' has no attribute '__version__' (most likely due to a circular import)
+AttributeError: module 'pyarrow' has no attribute '__version__'
 
 - python code/main.py --full-run -> rc=1
-tup_logging, get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
-    import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/__init__.py", line 13, in <module>
-    from . import parquet  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/parquet.py", line 13, in <module>
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 5, in <module>
+    import data_ingestion
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 1, in <module>
     import pandas as pd
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/__init__.py", line 26, in <module>
     from pandas.compat import (
@@ -106,7 +96,7 @@ tup_logging, get_logger
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/pyarrow.py", line 10, in <module>
     _palv = Version(Version(pa.__version__).base_version)
                             ^^^^^^^^^^^^^^
-AttributeError: partially initialized module 'pyarrow' has no attribute '__version__' (most likely due to a circular import)
+AttributeError: module 'pyarrow' has no attribute '__version__'
 
 
 ## Declared deliverables still missing
