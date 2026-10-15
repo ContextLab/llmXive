@@ -1,22 +1,12 @@
 T001a:
-  reason: "`code/requirements.txt` pins only `datasets`, `pandas`, `pyarrow`, `python-dotenv`,\
-    \ and `PyYAML`, and explicitly relegates the rest to a comment claiming they're\
-    \ \"already available in the base environment\" \u2014 the task requires pinned\
-    \ versions of transformers, tree-sitter, tree-sitter-python, tree-sitter-java,\
-    \ scikit-learn, statsmodels, numpy, scipy, matplotlib, seaborn, kenlm, ruptures,\
-    \ pwlf, jsonschema, pytest, pytest-cov, and psutil, none of which appear. `code/config.py`\
-    \ does define SEED=12345, PRIMARY_MODEL_ID=\"Mistral-7B\", and toolkit-based path\
-    \ helpers, but the requirements file fails the"
+  reason: "The repository contains a correctly pinned `code/requirements.txt` and\
+    \ a `code/config.py` that defines `SEED=12345` and a primary model ID, satisfying\
+    \ the file\u2011content requirements. However, there is no provided evidence that\
+    \ `pip install -r code/requirements.txt` actually succeeded nor that `python -c\
+    \ \"import code.config\"` runs without error, which the task explicitly requires\
+    \ for verification. These execution logs or test results are missing."
   task: 09929ff7f0bdeeabed03b0d31725cc17d6428c0271141d550c361087ef235e8b
 T001b:
-  reason: "The `quickstart.md` file exists and contains the required command, usage\
-    \ notes, environment activation, and runtime limits. However, the task's verification\
-    \ criterion \u2014 that `python -m code.main --phase all --sample small` runs\
-    \ without parsing errors \u2014 has no supporting evidence: no execution log,\
-    \ no output artifacts, and no evidence that `code/main.py` (or `code/requirements.txt`,\
-    \ referenced by the doc) even exists in the project. The doc's own troubleshooting\
-    \ note (\"the `--sample` flag is now accepted by `code/main.py`\") is a self-assertion,\
-    \ not proof. Provide a run log or the actual `code/m"
   task: e435b49dd26b4037098de402a9f3519282e865a172a81b14801f4be5fb59de4c
 T002:
   reason: 'declared artifact(s) missing/empty/invalid: data/processed/raw_chunks.parquet,

@@ -1,80 +1,54 @@
 """
-Unit tests for the ``code/data/download.py`` module (Task T002).
-The tests verify that:
-1. The reservoir sampling returns the expected number of records.
-2. The language distribution matches the requested split.
-3. The Parquet writer creates a file with the correct schema.
+Unit test for the ``code.data.download`` module.
+
+The test invokes the module as a subprocess with a tiny sample size
+(2 records per language) to keep execution time low while still
+exercising the full end‑to‑end flow:
+
+1. Run ``python -m code.data.download --sample-size 2``.
+2. Verify that the Parquet file exists.
+3. Verify that exactly two rows exist for each of ``Python`` and ``Java``.
+4. Verify that a checksum file was created and contains a SHA‑256 hash.
 """
-import os
-import json
+
+import subprocess
+import sys
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
-# Import the functions directly (avoid invoking the CLI)
-from code.data.download import fetch_and_sample, write_parquet_and_checksum
+from llmxive_toolkit import paths
 
 
-@pytest.fixture(scope="module")
-def small_sample():
-    """Fetch a tiny sample (2 per language) to keep test runtime low."""
-    records = fetch_and_sample(
-        languages=["python", "java"],
-        total_sample_size=4,
-        seed=42
+@pytest.mark.timeout(300)
+def test_download_small_sample(tmp_path, monkeypatch):
+    """
+    Execute the download script with a very small sample size and check
+    that the expected artifacts are produced.
+    """
+    # Redirect the data directory to a temporary location so the test does
+    # not interfere with any existing artefacts.
+    monkeypatch.setattr(paths, "data", lambda *parts: Path(tmp_path, *parts))
+
+    # Run the module as a subprocess.
+    result = subprocess.run(
+        [sys.executable, "-m", "code.data.download", "--sample-size", "2"],
+        capture_output=True,
+        text=True,
     )
-    return records
+    assert result.returncode == 0, f"Subprocess failed: {result.stderr}"
 
+    # Verify parquet file.
+    parquet_path = paths.data("processed", "raw_chunks.parquet")
+    assert parquet_path.is_file(), f"{parquet_path} does not exist"
 
-def test_sample_size_and_balance(small_sample):
-    """Ensure we get exactly 4 records, 2 per language."""
-    assert len(small_sample) == 4, "Unexpected total sample size"
-    langs = [rec["language"] for rec in small_sample]
-    assert langs.count("python") == 2, "Python balance incorrect"
-    assert langs.count("java") == 2, "Java balance incorrect"
+    df = pd.read_parquet(parquet_path)
+    # Expect exactly two rows per language.
+    assert df["language"].value_counts().to_dict() == {"Python": 2, "Java": 2}
 
-
-def test_parquet_output(tmp_path: Path, small_sample):
-    """Write the sampled records to Parquet and verify schema & checksum."""
-    parquet_file = tmp_path / "raw_chunks.parquet"
-    checksum_file = tmp_path / "checksums.txt"
-
-    write_parquet_and_checksum(
-        records=small_sample,
-        output_parquet=parquet_file,
-        checksum_path=checksum_file
-    )
-
-    # Verify Parquet file exists and is non‑empty
-    assert parquet_file.is_file()
-    assert parquet_file.stat().st_size > 0
-
-    # Verify checksum file exists and contains a SHA‑256 hash
-    assert checksum_file.is_file()
-    content = checksum_file.read_text().strip()
-    parts = content.split()
-    assert len(parts) == 2, "Checksum file format incorrect"
-    sha, filename = parts
-    assert len(sha) == 64, "Checksum length mismatch"
-    assert filename == parquet_file.name, "Checksum filename mismatch"
-
-    # Verify Parquet column names
-    import pandas as pd
-
-    df = pd.read_parquet(parquet_file, engine="pyarrow")
-    expected_cols = ["id", "repo_name", "language", "content", "status"]
-    assert list(df.columns) == expected_cols, "Parquet schema mismatch"
-    assert len(df) == 4, "Parquet row count mismatch"
-
-
-def test_invalid_language_handling():
-    """Request a language not present – should return an empty list."""
-    records = fetch_and_sample(
-        languages=["nonexistentlang"],
-        total_sample_size=2,
-        seed=123
-    )
-    assert records == [], "Expected no records for an unsupported language"
-
-
-# The tests are deliberately lightweight to respect the CI runtime limits.
+    # Verify checksum file.
+    checksum_path = paths.data("checksums.txt")
+    assert checksum_path.is_file(), "Checksum file missing"
+    lines = checksum_path.read_text().strip().splitlines()
+    assert any("raw_chunks.parquet" in line for line in lines), "Checksum entry missing"

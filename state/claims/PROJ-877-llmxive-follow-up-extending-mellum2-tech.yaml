@@ -3445,3 +3445,22 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T14:17:26Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/quickstart.md
+  attempts: 1
+  canonical: "total wall\u2011clock time \u2264 6 hours on GitHub Actions free\u2011\
+    tier"
+  claim_id: c_f4434ef6
+  context: "Expected runtime limits \u2013 Total wall\u2011clock time: \u2264\u202F\
+    6\u202Fhours on the GitHub Actions free\u2011tier (2\u202FCPU cores, ~7\u202F\
+    GB RAM)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total wall\u2011clock time: \u2264\u202F6\u202Fhours on the GitHub Actions\
+    \ free\u2011tier (2\u202FCPU cores, ~7\u202FGB RAM)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T06:18:22Z'

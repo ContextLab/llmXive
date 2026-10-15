@@ -1,27 +1,22 @@
 T001a:
   c: false
-  h: d7440ab52bc16c0d57b0f2a2413dd48310a386f2af1fd6d6f7d2ede82c71baf1
-  r: "`code/requirements.txt` pins only `datasets`, `pandas`, `pyarrow`, `python-dotenv`,\
-    \ and `PyYAML`, and explicitly relegates the rest to a comment claiming they're\
-    \ \"already available in the base environment\" \u2014 the task requires pinned\
-    \ versions of transformers, tree-sitter, tree-sitter-python, tree-sitter-java,\
-    \ scikit-learn, statsmodels, numpy, scipy, matplotlib, seaborn, kenlm, ruptures,\
-    \ pwlf, jsonschema, pytest, pytest-cov, and psutil, none of which appear. `code/config.py`\
-    \ does define SEED=12345, PRIMARY_MODEL_ID=\"Mistral-7B\", and toolkit-based path\
-    \ helpers, but the requirements file fails the"
-  sig: 7397e7e148b8cb2ebf0c93fc4c1911ab274f7e671c360369c74a5376b05508eb
+  h: 37c1f6dfc85440707d249b4f99557dc926b9ef12e296efd0845e0eb665ca69d4
+  r: "The repository contains a correctly pinned `code/requirements.txt` and a `code/config.py`\
+    \ that defines `SEED=12345` and a primary model ID, satisfying the file\u2011\
+    content requirements. However, there is no provided evidence that `pip install\
+    \ -r code/requirements.txt` actually succeeded nor that `python -c \"import code.config\"\
+    ` runs without error, which the task explicitly requires for verification. These\
+    \ execution logs or test results are missing."
+  sig: 911b241f9cc081d3c9d8cb3daf0a357777a84939e1f8de85926e1feeed0bdefd
 T001b:
-  c: false
-  h: 1a56af1dc6757a18a2fa15a19687370c61f47c88259d6d53f79b8b39ea6fec9f
-  r: "The `quickstart.md` file exists and contains the required command, usage notes,\
-    \ environment activation, and runtime limits. However, the task's verification\
-    \ criterion \u2014 that `python -m code.main --phase all --sample small` runs\
-    \ without parsing errors \u2014 has no supporting evidence: no execution log,\
-    \ no output artifacts, and no evidence that `code/main.py` (or `code/requirements.txt`,\
-    \ referenced by the doc) even exists in the project. The doc's own troubleshooting\
-    \ note (\"the `--sample` flag is now accepted by `code/main.py`\") is a self-assertion,\
-    \ not proof. Provide a run log or the actual `code/m"
-  sig: 5dc21f993b30f7e41fb1b35beec5f5c7c9f3b7462541565a784cec5745a19d87
+  c: true
+  h: be608730b1f3d1c088f4d743ecb41480e99f0f470c8e5d0df9d9ef216c0f0d87
+  r: "Checked the `quickstart.md` file (2186\u202Fbytes) which contains the required\
+    \ command, usage notes, environment activation steps, and runtime limits, and\
+    \ verified the execution log `code/.tasks/T001b.code_main.py.log` showing `code/main.py`\
+    \ run with `--phase all --sample small` exiting with code\u202F0 and no parsing\
+    \ errors."
+  sig: ab7cf209e71032eb49531d6741de92f8a8e7042ca3fad89bad4405ced9f48552
 T002:
   c: false
   h: 6c1c121ac1dad88eb5a06c19410cabf476ce5a936826ea30e124ad55212826e3

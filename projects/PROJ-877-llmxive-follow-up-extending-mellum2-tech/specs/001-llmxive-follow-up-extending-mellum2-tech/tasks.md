@@ -8,12 +8,12 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [X] T001a [US1] **Environment & Config** – Create a fully reproducible Python 3.11 environment:
+- [ ] T001a [US1] **Environment & Config** – Create a fully reproducible Python 3.11 environment:
   * Write `code/requirements.txt` with **pinned** versions of `datasets`, `transformers`, `tree-sitter`, `tree-sitter-python`, `tree-sitter-java`, `scikit-learn`, `statsmodels`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `kenlm`, `ruptures`, `pwlf`, `jsonschema`, `pytest`, `pytest-cov`, `psutil`.
   * Add `code/config.py` defining `SEED=12345`, project‑wide `paths` via `llmxive_toolkit`, and the **primary** frozen model identifier (`Mistral-7B` or `Llama-3-8B`).
   * Verification: `pip install -r code/requirements.txt` succeeds; `python -c "import code.config"` runs without error.
 
-- [ ] T001b [US1] **Quickstart Documentation** – Write `quickstart.md` with a single runnable command:
+- [X] T001b [US1] **Quickstart Documentation** – Write `quickstart.md` with a single runnable command:
   ```bash
   python -m code.main --phase all --sample small
   ```
