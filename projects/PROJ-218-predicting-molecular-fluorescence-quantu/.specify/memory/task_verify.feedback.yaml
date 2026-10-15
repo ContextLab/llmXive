@@ -1,9 +1,6 @@
 T001:
-  reason: "The evidence shows only `checksums.txt`, `seeds.yaml`, and `seeds.json`\
-    \ are present; the required raw data files (`smiles.parquet`, `fqy.json`) are\
-    \ missing, and there is no proof that a download script ran successfully or that\
-    \ the seed\u2011configuration module is imported before any stochastic operation.\
-    \ These artifacts must be added and verified."
+  reason: 'Requested task execution failed; rerun successfully: src/data/download_smiles.py
+    exit=1; src/data/download_fqy.py exit=1'
   task: 13ada98a6cebfe822f1710008b727f7dc49122c398970ba35de0d3fb1b4a5c83
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/preprocessing/join.py

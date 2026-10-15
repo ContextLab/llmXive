@@ -8,11 +8,33 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.data.download_smiles  --url https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet  --output data/raw/smiles.parquet -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.data.download_smiles' (ModuleNotFoundError: No module named 'src.data')
+2026-10-15 22:08:44,014 INFO code.data.download_raw: Set PYTHONHASHSEED=0
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/src/data/download_smiles.py", line 60, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/src/data/download_smiles.py", line 30, in main
+    load_and_set_seeds()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/code/data/download_raw.py", line 172, in load_and_set_seeds
+    raise ImportError(
+ImportError: torch is required for seed pinning but is not installed. Add 'torch' to requirements.txt.
 
 - python -m src.data.download_fqy  --url https://doi.org/10.48700/datst.mff4d-q4a24  --output data/raw/fqy.json -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.data.download_fqy' (ModuleNotFoundError: No module named 'src.data')
+2026-10-15 22:08:44,211 INFO code.data.download_raw: Set PYTHONHASHSEED=0
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/src/data/download_fqy.py", line 60, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/src/data/download_fqy.py", line 30, in main
+    load_and_set_seeds()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/code/data/download_raw.py", line 172, in load_and_set_seeds
+    raise ImportError(
+ImportError: torch is required for seed pinning but is not installed. Add 'torch' to requirements.txt.
 
 - python -m src.preprocessing.run  --smiles data/raw/smiles.parquet  --fqy data/raw/fqy.json  --output data/processed/dataset.csv  --split-output data/processed/split.json -> rc=1
 
