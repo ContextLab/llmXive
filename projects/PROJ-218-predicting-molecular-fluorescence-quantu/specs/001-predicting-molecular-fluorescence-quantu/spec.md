@@ -51,7 +51,7 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 
 1. **Given** a trained GNN model and a test molecule, **When** the Integrated Gradients method is applied, **Then** the system outputs a ranked list of the **most influential substructures**, where substructures are defined as contiguous aromatic or conjugated fragments obtained by grouping atom‑level attributions (see FR‑006 aggregation rule).
 2. **Given** the feature importance data, **When** the visualization script runs, **Then** it generates a parity plot (predicted vs. experimental FQY) and a feature importance bar chart that can be saved as an image file.
-3. **Given** a molecule with a known high FQY (selected as one of the top [deferred] highest FQY values of the test set), **When** the attribution analysis is performed, **Then** at least **3 of the top 5 substructures** must match entries in the curated reference set of fluorophore motifs (see Supplementary Table S1). This constitutes a pass of the interpretability validation.
+3. **Given** a molecule with a known high FQY (selected as one of the top‑5 highest FQY values (i.e., the five molecules with the highest experimental FQY in the test set)), **When** the attribution analysis is performed, **Then** at least **3 of the top 5 substructures** must match entries in the curated reference set of fluorophore motifs (see Supplementary Table S1). This constitutes a pass of the interpretability validation.
 
 ---
 
@@ -69,8 +69,8 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 ### Functional Requirements
 
 - **FR-001**: System MUST parse SMILES strings into molecular graphs using RDKit, extracting node features (atom type, hybridization, formal charge) and edge features (bond type, conjugation status) for every molecule in the dataset (See US-1).
-- **FR-002**: System MUST perform a scaffold‑based split with [deferred] of the data allocated to training and [deferred] each to validation and test sets, ensuring zero scaffold overlap between the training and test sets to validate generalizability (See US-1, Constitution Principle VI).
-- **FR-003**: System MUST implement a message‑passing GNN with ≤5 million parameters using PyTorch Geometric, operating in default precision on CPU only (See US-2).
+- **FR-002**: System MUST perform a scaffold‑based split allocating the majority of the data to training, using an 80/10/10 split ([deferred] training, [deferred] validation, [deferred] test), ensuring zero scaffold overlap between the training and test sets to validate generalizability. (See US-1, Constitution Principle VI).
+- **FR-003**: System MUST implement a message‑passing GNN with <5 million parameters using PyTorch Geometric, operating in default precision on CPU only (See US-2).
 - **FR-004**: System MUST train the model for a maximum of 50 epochs with early stopping (patience=10) based on validation loss, using the Adam optimizer and MSE loss (See US-2).
 - **FR-005**: System MUST evaluate both the GNN and a linear regression baseline (using ECFP4 fingerprints) on the test set, reporting R², RMSE, and MAE (See US-2).
 - **FR-006**: System MUST apply Integrated Gradients or SHAP to the trained GNN to compute feature importance scores. Atom‑level attributions are **aggregated into substructures** by grouping atoms that belong to the same contiguous aromatic or conjugated fragment (detected via RDKit). The system then reports the **top 20 substructures** ranked by summed absolute attribution (See US-3).
@@ -99,11 +99,12 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The predictive R² score of the GNN model on the scaffold‑disjoint test set is measured against the linear regression baseline and must be **≥ 0.7** to demonstrate a meaningful improvement (See FR-005).
+- **SC-001**: The predictive R² score of the GNN model on the scaffold‑disjoint test set is measured against the linear regression baseline and must be **≥ 0.7** and must exceed the baseline R² by at least **0.05** to demonstrate a meaningful improvement (See FR-005).
 - **SC-002**: The total execution time of the end‑to‑end pipeline is measured against the 6‑hour free‑tier CI limit to ensure compute feasibility (See FR-008).
 - **SC-003**: The memory usage peak during model training is measured against the **7 GB RAM limit** to verify the hardware constraint.
 - **SC-004**: The consistency of the scaffold split is measured by verifying that the intersection of scaffold identifiers between the training and test sets is exactly zero (See FR-002).
-- **SC-005**: Interpretability is validated by (a) mapping the top‑20 substructures to the curated reference set of fluorophore motifs (Supplementary Table S1) and (b) requiring **≥ 60 % overlap** (i.e., at least 12 of the 20 substructures match known motifs). This quantitative enrichment constitutes a pass/fail decision (See FR-006 and FR-016).
+- **SC-005**: Interpretability is validated by (a) mapping the top‑20 substructures to the curated reference set of fluorophore motifs (Supplementary Table S1) and (b) requiring **≥ 60 % overlap** (i.e., at least 12 of the 20 substructures match known motifs), **and** the observed overlap must be at least **1.5×** the mean overlap obtained from 100 random draws of 20 substructures (random baseline). Both the aggregate enrichment (≥12 of 20) and the random‑baseline comparison must be satisfied. This quantitative enrichment constitutes a pass/fail decision (See FR-006 and FR-016).
+- **Note**: The per‑molecule spot‑check (≥3 of the top‑5 substructures matching the reference set for a high‑FQY test molecule, see US‑3 Scenario 3) is an additional requirement separate from the aggregate enrichment evaluated in SC‑005.
 
 ## Assumptions
 
