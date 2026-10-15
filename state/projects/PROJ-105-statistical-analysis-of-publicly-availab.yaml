@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T20:25:50.963872Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-105-statistical-analysis-of-publicly-availab
-last_run_id: 25672e80-3617-49c6-8c49-eb205e086966
+last_run_id: 5e4e77f0-08a9-4c6a-876f-7d7c04ca3d70
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Flight Delay Data
-updated_at: '2026-10-15T08:17:49.084694Z'
+updated_at: '2026-10-15T08:23:18.345006Z'

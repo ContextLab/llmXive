@@ -1,0 +1,72 @@
+T001:
+  reason: "The required raw archive `data/raw/2022/On_Time_Reporting_CSV.zip` is missing,\
+    \ and `data/README.md` (which should contain the checksum) is also absent. The\
+    \ provided `code/data_loader.py` attempts to download from a URL that returns\
+    \ 404, causing the test `test_download_creates_zip` to fail and no zip file is\
+    \ created. Consequently the task\u2019s core requirement\u2014streaming download\
+    \ of the full\u2011year 2022 CSV and storing it as a ZIP archive\u2014is not satisfied."
+  task: 4acbefcd4c7a29167c5a97278bf345a97d6ec5561c71110e195ca066a5058195
+T002:
+  reason: "The required implementation file `code/preprocess.py`, the output dataset\
+    \ `data/processed/cleaned_delays.csv`, and the schema file `delay_record.schema.yaml`\
+    \ are all missing from the project, so the task\u2019s core deliverables are not\
+    \ present."
+  task: 14d88edb397c8e89bf84bf1cf3b2d2cd93273592b37fbbc91e72fad754158241
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/t003_summary.py
+    exit=1'
+  task: cab3246caa8c62a0dd06a87cae5bf97cf752dc545e39edbdf0e5f7b447919083
+T004:
+  task: 3866bbadf381060928e01d55a46eb3b497e1432cd455f41a85a5f204fd1a91be
+T005:
+  task: 450ca48ef85f13e22f15eee99a2fb8b245071340203624c0ebcee6a4d085c9a5
+T006:
+  task: 3f0fac226090213b00aaaa401d0477050bc9180d3afa9d21b17a35000fb127b9
+T007:
+  task: 170127ddb8e3b943f053c2458eb543a6cff11e0909f19bd01c10b89d8cb31c03
+T008:
+  task: 51de03d9b93429bbad3a7067256a20a74d11ec087ecd0dc9ff849c1ea9b94dda
+T009:
+  task: 9ab7f5d36ad484d4fb563b5f9981afc6425904c083c67b7f7c12e38a6508f450
+T010:
+  task: 2d7d75755e7c5a0cb23721dcaecbc45422e5d3a5519edc1ee287a685e79c318e
+T011:
+  task: ae015c3a079684854c91d192ed1f041499dbf824fcaf955c24f7594b7adfd895
+T012:
+  task: 6e121072868fc388026d2c5821db3fbd8d40711b9e31d62c49e72b1f97321adb
+T013:
+  task: 297054d30bd64349f60b43cf86c8368603e537c51d06ee2c77f8ada9259079d1
+T014:
+  task: 2e2864dd03697af2e0050513a58b4f38c44e925cc570c65f16a42799bc4c3c1a
+T015:
+  task: b10ad3c28e572cbdbb882d75aa5a63bfe7a79b4ba219da66eab3766f84c940f3
+T016:
+  task: 3ccb253fabc78cb7ef927a55821dc4feffc03c30314d4e2c2370d7fab23ae6d3
+T017:
+  task: 292b9572466d7430fbe768342031461b24fcde9aaae1bb8ce360404abaa4e0b8
+T018:
+  task: 3a0008ef580729457f5ba5367c3a9e8af82786fcd0119b8152b05bee7c6366a5
+T019:
+  task: 3b9c857c52954ae33ccfabec702a33d10ea4f94c412395df124b51e1213fed47
+T020:
+  task: 08b682ca0ff6e6b0f22240dbc9702868d74862aef7280b10b39583c2f4cfc8bc
+T021:
+  task: d61fa75ead91fba58c7f1fe8e6730a4c94ff07537dad201355c5649529324eb1
+T022:
+  task: 3b305d3860e8816bc1092e41ebb2263d255e7cf2245c4d8439214a54451dea4c
+T023:
+  task: 669303442df9c63712f8391385d1a2f09a4fa76dc01d8c97111e206b81667bdc
+T024:
+  task: 99201fb9a982b3de23359956b5890c37ea4a43e3587034c0ce81c9e05e46211b
+T025:
+  task: 5029a940927cffbaa4cd2e7a09a82d7c2d50d997adb1d2340379d42c9d4502b7
+T026:
+  task: 6a7314434ae9ce5d14bbcd27f3a541d8ac68c134f5b51ccd58596c26ec63426c
+T027:
+  task: 580fabcb695d253b42be5fbda1af682c4d4e614a322089d011942a8ba02dbb4d
+T028:
+  task: a7917befd8e5fd93d159a9e6558671ba84fac994beddc5876f28be4384624ef0
+T029:
+  task: c1fe542964a5a959a5abf63d264529848b1e0f001f8a73904594cc9e71b86e41
+T030:
+  task: e1d4999bc85ba69700a69a80f2ca4fd3860493883cb44981307502506b0f829d

@@ -21,7 +21,7 @@ The checklist follows the canonical format `- [ ] T### [P?] [USx?] description �
   - **Implementation**: `code/preprocess.py` reads chunks (`chunksize=200_000`), writes to `data/processed/cleaned_delays.csv`.  
   - **Verification**: The output CSV contains columns `flight_id,total_delay_minutes,carrier,origin,destination,is_anomaly,is_data_error,is_zero`; a schema validation against `delay_record.schema.yaml` passes.
 
-- [ ] **T003** [US1] Compute retention rate, flag anomalies (`delay>1440` min) and data errors (`delay>10000` min), create zero‑inflation subset, and record summary metadata.  
+- [ ] **T003** [US1] Compute retention rate, flag anomalies (`delay>1440` min) and data errors (`delay>10000` min), create zero‑inflation subset, and record summary metadata.   <!-- FAILED-IN-EXECUTION: code/t003_summary.py exit=1 -->
   - **Outputs**:  
     - `data/results/summary.json` → keys `retention_rate`, `total_records`, `valid_records`.  
     - `data/processed/cleaned_delays_no_zero.csv` (records with `total_delay_minutes==0` removed).  

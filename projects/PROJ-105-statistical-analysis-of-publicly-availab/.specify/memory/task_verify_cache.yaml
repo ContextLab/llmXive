@@ -1,3 +1,20 @@
+T001:
+  c: false
+  h: 190e7f1c6f600d14dd01c00f5f245f7ba6e3c6e41f8a6492376d2296de35bdae
+  r: "The required raw archive `data/raw/2022/On_Time_Reporting_CSV.zip` is missing,\
+    \ and `data/README.md` (which should contain the checksum) is also absent. The\
+    \ provided `code/data_loader.py` attempts to download from a URL that returns\
+    \ 404, causing the test `test_download_creates_zip` to fail and no zip file is\
+    \ created. Consequently the task\u2019s core requirement\u2014streaming download\
+    \ of the full\u2011year 2022 CSV and storing it as a ZIP archive\u2014is not satisfied."
+  sig: 7d13af9b980d584df34205af669870759d427ef436975a7122dd268ba3a65b80
+T002:
+  c: false
+  h: c09078fbeb39a9bf6f61f6ab49aed68eaca0f95143fcf0b4c3a32aa185fbfc4b
+  r: "The required implementation file `code/preprocess.py`, the output dataset `data/processed/cleaned_delays.csv`,\
+    \ and the schema file `delay_record.schema.yaml` are all missing from the project,\
+    \ so the task\u2019s core deliverables are not present."
+  sig: 137d36f77d3027107fb3bcbde2fb75b9326aaa37f0c7b9bf9f2384f410fc2402
 T008:
   c: true
   h: 7bb8c776ab15ca16508ee31440071653888ae2b8e5895c4e7a775cc55728d398
@@ -13,10 +30,3 @@ T028:
     \ with KS tests or generates histograms, nor does it write a JSON result file.\
     \ Additionally, the required output file `data/results/component_comparison.json`\
     \ is absent. The task\u2019s core requirements are therefore not met."
-T035:
-  c: false
-  h: 30284483b3e2503aa91c1c3c9bfaedf3e80ac6182038555ad22d2f7cce4acaa9
-  r: "The provided `code/diagnostics.py` is truncated and does not contain the required\
-    \ Log\u2011Normal discrimination logic, curvature statistic comparison, or code\
-    \ to write the JSON result. Moreover, the expected output file `data/results/log_normal_test.json`\
-    \ is absent. Both the implementation and the required artifact are missing."
