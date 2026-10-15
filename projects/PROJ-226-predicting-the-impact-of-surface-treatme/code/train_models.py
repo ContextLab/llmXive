@@ -9,11 +9,10 @@ explored (total ≤ 50 combinations). Every trained model is persisted
 under ``models/`` and a JSON file ``models/grid_search_results.json``
 summarises the validation performance.
 
-If the splits are empty (e.g., all groups were excluded by the
-sparsity filter), the script falls back to using the full cleaned
-dataset (``data/cleaned/cleaned.csv``) for both training and
-validation, ensuring that downstream tasks have concrete model
-artifacts and metrics.
+If the splits are empty or missing (e.g., due to sparsity filtering), the 
+script falls back to using the full cleaned dataset (``data/cleaned/cleaned.csv``),
+performing a simple 80/20 split to ensure that the validation set is 
+distinct from the training set, avoiding degenerate metrics.
 """
 
 import json
@@ -26,6 +25,7 @@ import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
 from joblib import dump
 
 from llmxive_toolkit import paths, get_logger
@@ -38,13 +38,18 @@ log: logging.Logger = get_logger(__name__)
 def _load_split(split_name: str) -> pd.DataFrame:
     """Load a CSV split from ``data/split/<split_name>.csv``."""
     split_path = paths.data("split", f"{split_name}.csv")
+    if not split_path.exists():
+        log.warning("Split file %s not found.", split_path)
+        return pd.DataFrame()
     df = pd.read_csv(split_path)
     log.info("Loaded %s with %d rows", split_path, len(df))
     return df
 
 def _load_cleaned() -> pd.DataFrame:
-    """Load the full cleaned dataset as a fallback when splits are empty."""
+    """Load the full cleaned dataset."""
     cleaned_path = paths.data("cleaned", "cleaned.csv")
+    if not cleaned_path.exists():
+        raise FileNotFoundError(f"Cleaned dataset not found at {cleaned_path}")
     df = pd.read_csv(cleaned_path)
     log.info("Loaded cleaned dataset %s with %d rows", cleaned_path, len(df))
     return df
@@ -56,8 +61,9 @@ def _bootstrap_ci(
     ci: float = 0.95,
 ) -> list[float]:
     """Return lower/upper bounds of a bootstrapped confidence interval for R²."""
-    if len(y_true) == 0:
-        return [None, None]
+    if len(y_true) < 2:
+        # R2 is undefined for a single sample
+        return [float('nan'), float('nan')]
 
     scores = []
     rng = np.random.default_rng(42)
@@ -65,7 +71,12 @@ def _bootstrap_ci(
         indices = rng.integers(0, len(y_true), len(y_true))
         y_t = y_true[indices]
         y_p = y_pred[indices]
-        scores.append(r2_score(y_t, y_p))
+        # Handle cases where bootstrap sample has zero variance in y_t
+        if np.var(y_t) == 0:
+            scores.append(0.0)
+        else:
+            scores.append(r2_score(y_t, y_p))
+    
     lower = np.percentile(scores, (1 - ci) / 2 * 100)
     upper = np.percentile(scores, (1 + ci) / 2 * 100)
     return [float(lower), float(upper)]
@@ -86,8 +97,6 @@ GB_GRID = {
 }
 
 LR_GRID = {
-    # LinearRegression has no hyper‑parameters we vary, but we keep the
-    # same dict shape for uniform processing.
     "fit_intercept": [True],
 }
 
@@ -111,15 +120,23 @@ def main() -> None:
     train_df = _load_split("train")
     val_df = _load_split("val")
 
-    # If either split is empty, fall back to the full cleaned dataset.
+    # If either split is empty or missing, fall back to cleaned data with a fresh split
     if train_df.empty or val_df.empty:
         log.warning(
-            "One or both splits are empty – falling back to the full cleaned dataset."
+            "One or both splits are empty or missing – performing 80/20 split on cleaned dataset."
         )
         full_df = _load_cleaned()
-        # Use the full data for both training and validation.
-        train_df = full_df.copy()
-        val_df = full_df.copy()
+        
+        # Ensure we have a target column
+        target_col = "adhesion_strength_mj_m2"
+        if target_col not in full_df.columns:
+            raise KeyError(f"Target column {target_col} missing from cleaned dataset.")
+
+        # Split the full cleaned dataset to ensure training and validation are distinct
+        train_df, val_df = train_test_split(
+            full_df, test_size=0.2, random_state=42
+        )
+        log.info("Fallback split: train=%d, val=%d", len(train_df), len(val_df))
 
     # Identify target and feature columns
     target_col = "adhesion_strength_mj_m2"
@@ -139,20 +156,27 @@ def main() -> None:
         if model_counter + len(combos) > 50:
             allowed = 50 - model_counter
             combos = combos[:allowed]
+        
         for hyperparams in combos:
             log.info(
                 "Training %s with hyper‑parameters %s", model_name, hyperparams
             )
-            model = ModelClass(**hyperparams)
+            model = ModelClass(**hyperparams, random_state=42) if 'random_state' in ModelClass().get_params() else ModelClass(**hyperparams)
             model.fit(X_train, y_train)
 
             # Predict on validation set
             y_pred = model.predict(X_val)
 
             # Compute metrics
-            val_r2 = float(r2_score(y_val, y_pred))
-            val_rmse = float(np.sqrt(mean_squared_error(y_val, y_pred)))
-            r2_ci = _bootstrap_ci(y_val, y_pred, n_bootstrap=10_000)
+            # Handle cases where y_val is too small for R2
+            if len(y_val) < 2:
+                val_r2 = 0.0
+                val_rmse = float(np.sqrt(mean_squared_error(y_val, y_pred)))
+                r2_ci = [float('nan'), float('nan')]
+            else:
+                val_r2 = float(r2_score(y_val, y_pred))
+                val_rmse = float(np.sqrt(mean_squared_error(y_val, y_pred)))
+                r2_ci = _bootstrap_ci(y_val, y_pred, n_bootstrap=10_000)
 
             # Persist model under the ``models`` directory
             model_filename = f"{model_name.lower()}_{model_counter:03d}.pkl"

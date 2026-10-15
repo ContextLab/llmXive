@@ -3,46 +3,45 @@ T001:
     exit=1'
   task: 2dc382125d8cf31690702877306193ffecc1d42b6ea510731970df69e9556e14
 T002:
-  reason: "The script itself is functional (test passed, exit 0), but the \"dataset\"\
-    \ downloaded is a 3-row bundled synthetic example (`data/source/example.csv` via\
-    \ a `file://` URL), not a verified real dataset from a public repository (NIST/Zenodo/Materials\
-    \ Project) as T001/T002 require \u2014 this is a placeholder stand-in, not real\
-    \ raw data. Additionally, the execution log records SHA-256 `a4803f85...` for\
-    \ the downloaded file, while the current `data/raw/example_dataset.csv` hashes\
-    \ to `4a93bfc6...`, meaning the artifact on disk does not match what the recorded\
-    \ run produced (the file or checksums were altered"
+  reason: "The script `code/download_data.py` exists and looks functional, but the\
+    \ required deliverable \u2014 actual downloaded raw datasets under `data/raw/<source>.csv`\
+    \ \u2014 does not exist: no CSV files match `data/raw/*.csv`. The `data/raw/checksums.txt`\
+    \ references `example_dataset.csv` whose checksum matches `data/source/example.csv`\
+    \ (a 3-row synthetic-looking file), while the availability report `data/source/availability_report.json`\
+    \ contains `\"datasets\": []`, meaning the script as-is would exit with status\
+    \ 1 and no verified real dataset from T001 was ever downloaded. The checksums.txt\
+    \ appears fabricated/l"
   task: cd437c73880ffbdad3de5ce0afa7748a935ce318a1501c9747bbefb2ee5b7e39
 T003:
   reason: "The required output artifacts `data/raw/<source>_units.json` do not exist\
-    \ \u2014 the collector found NO matching file for the pattern `data/raw/*_units.json`,\
-    \ and `data/raw/` contains only `checksums.txt` and `example_dataset.csv`. The\
-    \ script `code/generate_units_metadata.py` exists and a test log shows a passing\
-    \ test, but there is no evidence the script was actually run against the real\
-    \ raw data to produce the JSON files; the implementer must execute it (e.g., `python\
-    \ code/generate_units_metadata.py`) so `data/raw/example_dataset_units.json` is\
-    \ generated."
+    \ \u2014 the collector found no files matching `data/raw/*_units.json`, and the\
+    \ execution log confirms the script found 0 CSV files in `data/raw/` and exited\
+    \ without producing anything. The raw data actually resides at `data/source/example.csv`,\
+    \ so the script's `data/raw/` glob never sees it; the implementer must either\
+    \ point the script at the actual raw CSV location (or copy/place raw CSVs into\
+    \ `data/raw/`) and re-run so real per-source units JSON files are generated."
   task: bcaec96891cf7f5ddf0145cfeebcc2f9db65bb3a4c8c68dda13f43b04f514186
 T004:
   task: 4997593b89c900c42cedf2967380dd04f8de6e8ff3e4d5988a87fe406f7c2e2b
 T005:
-  reason: "The actual split outputs fail the task's verification criteria: `train.csv`\
-    \ and `val.csv` contain only a header row (0 records), `split_summary.json` reports\
-    \ split_counts of 0/0/0, and `test.csv`'s 3 rows lack the required `pair_id` column\
-    \ (and 3/0/0 is nowhere near 70/15/15). The execution log confirms the run excluded\
-    \ all 3 groups under FR-011 and wrote empty splits \u2014 the script's advertised\
-    \ \"fall back to full dataset\" behavior did not take effect in the executed version,\
-    \ and the passing test apparently only checked file existence, not the required\
-    \ proportions or `pair_id` presence. The impl"
+  reason: "The split outputs are 2/0/1 records (66.67%/0%/33.33%), which violates\
+    \ the required 70/15/15 proportion within 1% tolerance \u2014 `val.csv` is empty\
+    \ (header only), and `split_summary.json` itself records `\"validation\": 0`.\
+    \ Additionally, the script's fallback bypassed FR-011: the log shows all 3 groups\
+    \ were excluded for having <5 records, but the code then reverted to the full\
+    \ dataset, so the exclusion rule was not actually applied. The implementer needs\
+    \ a cleaned dataset with enough records per pair (or must handle the tiny fixture\
+    \ without silently skipping the sparsity filter) so that non-empty,"
   task: 092f4f062b78e9fc22037047a2437b5378a443b771f91291073dd4a1af12ebc5
 T006:
-  reason: "The script executed and produced `models/grid_search_results.json` with\
-    \ 17 combos, but the train/val splits are empty (0 rows, per `split_summary.json`),\
-    \ so the fallback trained AND evaluated every model on the identical 3-row `cleaned.csv`\
-    \ \u2014 there is no genuine held-out validation, and the reported metrics (e.g.,\
-    \ LinearRegression R\xB2=1.0, RMSE\u22481e-16; GB R\xB2\u22480.999999999) are\
-    \ trivially degenerate artifacts of evaluating on the training data itself. The\
-    \ task requires evaluation on a validation set with real validation R\xB2/RMSE/95%\
-    \ CI; the underlying data pipeline (only 3 records, all pair groups ex"
+  reason: "The script ran (exit 0, 17 combos \u2264 50) and models plus `grid_search_results.json`\
+    \ exist, but the required 95% bootstrapped CIs are `[NaN, NaN]` for every one\
+    \ of the 17 entries \u2014 the validation set contained only 1 record (fallback\
+    \ 80/20 split of a 3-row dataset), so R\xB2 is degenerate (0.0 for all models)\
+    \ and the bootstrap CI was never actually computed. The task requires recorded\
+    \ validation R\xB2, RMSE, and a real bootstrapped CI; the deliverable needs a\
+    \ validation set with \u22652 (realistically many more) records so meaningful\
+    \ metrics and CIs can be produced."
   task: f3406879d3b4539cbe12dff265296ea9f5f61f20ec7ba477fd2916ee79d4502e
 T007:
   reason: "The execution log shows the script found only 3 rows of cleaned data, an\

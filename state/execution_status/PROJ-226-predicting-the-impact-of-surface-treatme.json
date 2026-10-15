@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-15T12:21:32Z",
-  "project_id": "PROJ-226-predicting-the-impact-of-surface-treatme"
+  "updated_at": "2026-10-15T15:19:55Z",
+  "project_id": "PROJ-226-predicting-the-impact-of-surface-treatme",
+  "replan_rounds": 1
 }

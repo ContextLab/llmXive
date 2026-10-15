@@ -1,1 +1,3 @@
 plasma_power_w,exposure_time_s,chemical_concentration_pct,polymer_surface_energy,substrate_roughness_nm,adhesion_strength_mj_m2,treatment_type_Nitrogen Plasma,treatment_type_Oxygen Plasma,pair_id_PE_Al,pair_id_PE_Cu,pair_id_PP_Al,pair_id
+200,45,10,38.0,95,2.3,1,0,0,1,0,PE_Cu
+120,20,2,45.1,130,1.5,0,1,1,0,0,PE_Al

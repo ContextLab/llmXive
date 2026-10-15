@@ -12,8 +12,8 @@ that downstream pipeline steps receive non‑empty splits.  A JSON summary
 `data/split/split_summary.json` is also generated.
 
 The script is executable (`python code/split_dataset.py`) and writes all
-declared outputs.  It aborts with a clear error if the cleaned file cannot be
-found.
+declared outputs.  It aborts with a clear error if the cleaned file cannot
+be found.
 """
 
 import json
@@ -131,18 +131,18 @@ def _split_dataframe(
     random_state: int = 42,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Perform a random split of the DataFrame into train/validation/test sets.
+    Perform a GROUPED split of the DataFrame into train/validation/test sets
+    based on the `pair_id`.
 
-    The split is performed on rows (not groups) after the sparse‑group filter.
-    The fractions are applied to the total number of rows and are rounded to the
-    nearest integer, guaranteeing that the three sets together contain all rows.
+    This ensures that all records for a specific polymer-substrate pair stay
+    together in the same split to prevent data leakage.
 
     Parameters
     ----------
     df : pd.DataFrame
         Input DataFrame (already filtered).
     train_frac, val_frac, test_frac : float
-        Desired fractions; they must sum to 1.0 (within a tiny tolerance).
+        Desired fractions of groups; they must sum to 1.0.
     random_state : int
         Seed for reproducibility.
 
@@ -150,36 +150,37 @@ def _split_dataframe(
     -------
     tuple of three DataFrames: (train_df, val_df, test_df)
     """
-    total = len(df)
-    if total == 0:
-        log.warning("DataFrame is empty after sparse‑group exclusion.")
-        return df, df, df  # all empty
+    unique_groups = df["pair_id"].unique()
+    n_groups = len(unique_groups)
+    
+    if n_groups == 0:
+        log.warning("DataFrame is empty.")
+        return df, df, df
 
-    # Shuffle deterministically
-    df_shuffled = df.sample(frac=1.0, random_state=random_state).reset_index(drop=True)
+    # Shuffle groups deterministically
+    rng = np.random.default_rng(random_state)
+    rng.shuffle(unique_groups)
 
-    # Compute split indices (rounded to nearest int)
-    train_end = int(round(train_frac * total))
-    val_end = train_end + int(round(val_frac * total))
+    # Compute split indices for groups
+    train_end = int(round(train_frac * n_groups))
+    val_end = train_end + int(round(val_frac * n_groups))
 
-    train_df = df_shuffled.iloc[:train_end].reset_index(drop=True)
-    val_df = df_shuffled.iloc[train_end:val_end].reset_index(drop=True)
-    test_df = df_shuffled.iloc[val_end:].reset_index(drop=True)
+    train_groups = unique_groups[:train_end]
+    val_groups = unique_groups[train_end:val_end]
+    test_groups = unique_groups[val_end:]
 
-    # Verify proportions within 1% tolerance (log only)
-    def _prop(actual, expected):
-        return abs(actual - expected) <= 0.01
+    # Map groups back to rows
+    train_df = df[df["pair_id"].isin(train_groups)].reset_index(drop=True)
+    val_df = df[df["pair_id"].isin(val_groups)].reset_index(drop=True)
+    test_df = df[df["pair_id"].isin(test_groups)].reset_index(drop=True)
 
-    actual_train = len(train_df) / total if total else 0
-    actual_val = len(val_df) / total if total else 0
-    actual_test = len(test_df) / total if total else 0
-
-    if not (_prop(actual_train, train_frac) and
-            _prop(actual_val, val_frac) and
-            _prop(actual_test, test_frac)):
-        log.warning(
-            f"Split proportions deviate beyond tolerance: "
-            f"train {actual_train:.3f}, val {actual_val:.3f}, test {actual_test:.3f}"
+    # Log record proportions
+    total_rows = len(df)
+    if total_rows > 0:
+        log.info(
+            f"Grouped split results: Train={len(train_df)} ({len(train_df)/total_rows:.2%}), "
+            f"Val={len(val_df)} ({len(val_df)/total_rows:.2%}), "
+            f"Test={len(test_df)} ({len(test_df)/total_rows:.2%})"
         )
 
     return train_df, val_df, test_df
@@ -231,7 +232,7 @@ def main() -> None:
     3. Exclude groups with fewer than 5 records.  If this would remove all
        records, fall back to using the full dataset so that downstream steps
        have data to work with.
-    4. Perform a deterministic random split (70/15/15).
+    4. Perform a deterministic GROUPED random split (70/15/15).
     5. Write ``train.csv``, ``val.csv`` and ``test.csv`` under ``data/split/``.
     6. Emit ``split_summary.json`` with statistics.
     """
@@ -257,7 +258,7 @@ def main() -> None:
         total_after = total_before
         excluded = []  # no groups actually excluded in the final output
 
-    # 4. Split
+    # 4. Grouped Split
     train_df, val_df, test_df = _split_dataframe(df_filtered)
 
     # 5. Write CSVs
@@ -278,7 +279,7 @@ def main() -> None:
         excluded_groups=excluded,
     )
 
-    log.info("Dataset split completed successfully.")
+    log.info("Dataset grouped split completed successfully.")
 
 
 if __name__ == "__main__":

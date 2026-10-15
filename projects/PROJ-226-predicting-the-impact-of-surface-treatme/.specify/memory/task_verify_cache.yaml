@@ -1,15 +1,26 @@
+T002:
+  c: false
+  h: 3d4dfa6d41c5d891e6750cdeaf0c88f9c2d44533eb59a91ca5f86906af269840
+  r: "The script `code/download_data.py` exists and looks functional, but the required\
+    \ deliverable \u2014 actual downloaded raw datasets under `data/raw/<source>.csv`\
+    \ \u2014 does not exist: no CSV files match `data/raw/*.csv`. The `data/raw/checksums.txt`\
+    \ references `example_dataset.csv` whose checksum matches `data/source/example.csv`\
+    \ (a 3-row synthetic-looking file), while the availability report `data/source/availability_report.json`\
+    \ contains `\"datasets\": []`, meaning the script as-is would exit with status\
+    \ 1 and no verified real dataset from T001 was ever downloaded. The checksums.txt\
+    \ appears fabricated/l"
+  sig: e47ea49c36e099bba4991dbc684dfe00149f6dc729b6d722c5417ee076bd6e0d
 T003:
   c: false
-  h: 282fde3786872d0d0750416b1af233dd18608acef0d128cde99d4148b979aabd
+  h: b107ed1cd03d19e10e20107601ee99d67c67309f55692661f2b6c9730aad177f
   r: "The required output artifacts `data/raw/<source>_units.json` do not exist \u2014\
-    \ the collector found NO matching file for the pattern `data/raw/*_units.json`,\
-    \ and `data/raw/` contains only `checksums.txt` and `example_dataset.csv`. The\
-    \ script `code/generate_units_metadata.py` exists and a test log shows a passing\
-    \ test, but there is no evidence the script was actually run against the real\
-    \ raw data to produce the JSON files; the implementer must execute it (e.g., `python\
-    \ code/generate_units_metadata.py`) so `data/raw/example_dataset_units.json` is\
-    \ generated."
-  sig: 219cc0425fcaa89fc097a665e350e1ea3e1bc5b6139a13f2a55c6de471b0de8e
+    \ the collector found no files matching `data/raw/*_units.json`, and the execution\
+    \ log confirms the script found 0 CSV files in `data/raw/` and exited without\
+    \ producing anything. The raw data actually resides at `data/source/example.csv`,\
+    \ so the script's `data/raw/` glob never sees it; the implementer must either\
+    \ point the script at the actual raw CSV location (or copy/place raw CSVs into\
+    \ `data/raw/`) and re-run so real per-source units JSON files are generated."
+  sig: df3065231a8ffc71e2e60fe87af59c45590b17440baa2ef83e2923d3accf8418
 T004:
   c: true
   h: aa5ea703f179e9aa39e7f9c70cd38d2b9c5fab20f97342682b497e5531326474
@@ -22,30 +33,6 @@ T004:
     percentages with `low_coverage` flags per the <80% rule. The outputs are consistent
     with the code''s logic and the small r'
   sig: 9f73b465821740bdfb2918ea56740fc8c3d4cf74c58f0d4e5fde3b03247b82f7
-T005:
-  c: false
-  h: a0652f80a340f84e5fabfe5ff521e1231b2f9985c95296b0a8de59351b09462e
-  r: "The actual split outputs fail the task's verification criteria: `train.csv`\
-    \ and `val.csv` contain only a header row (0 records), `split_summary.json` reports\
-    \ split_counts of 0/0/0, and `test.csv`'s 3 rows lack the required `pair_id` column\
-    \ (and 3/0/0 is nowhere near 70/15/15). The execution log confirms the run excluded\
-    \ all 3 groups under FR-011 and wrote empty splits \u2014 the script's advertised\
-    \ \"fall back to full dataset\" behavior did not take effect in the executed version,\
-    \ and the passing test apparently only checked file existence, not the required\
-    \ proportions or `pair_id` presence. The impl"
-  sig: 2481717f28af7c526ff5c7972b481a3c02e12391f8829e8e58b08d18700190b0
-T006:
-  c: false
-  h: 22f56ce606bc2cb60facfbda6eead8993fb96bf80b2c9bc1702dd82f3b0ae937
-  r: "The script executed and produced `models/grid_search_results.json` with 17 combos,\
-    \ but the train/val splits are empty (0 rows, per `split_summary.json`), so the\
-    \ fallback trained AND evaluated every model on the identical 3-row `cleaned.csv`\
-    \ \u2014 there is no genuine held-out validation, and the reported metrics (e.g.,\
-    \ LinearRegression R\xB2=1.0, RMSE\u22481e-16; GB R\xB2\u22480.999999999) are\
-    \ trivially degenerate artifacts of evaluating on the training data itself. The\
-    \ task requires evaluation on a validation set with real validation R\xB2/RMSE/95%\
-    \ CI; the underlying data pipeline (only 3 records, all pair groups ex"
-  sig: 5bbe52b34a0393bd68f60f6e93ce05908eb0876bc1c6d264e6c1844e5bd82a5b
 T007:
   c: false
   h: 3c1f5b1fb2e342c190d5c533b9304186acac943be59d82939794532f3e2062f3

@@ -96,10 +96,15 @@ def _validate_numeric_columns(df: pd.DataFrame, source_name: str) -> None:
         col for col, unit in UNITS_MAP.items() if unit != "category"
     ]
     for col in numeric_cols:
+        if col not in df.columns:
+            continue
         # ``pd.to_numeric`` will coerce non‑numeric values to NaN when
         # ``errors='coerce'`` is used. We then check if any NaNs were produced.
+        # We only care about values that were NOT NaN in the original data.
+        original_nans = df[col].isna()
         coerced = pd.to_numeric(df[col], errors="coerce")
-        if coerced.isna().any():
+        new_nans = coerced.isna()
+        if (new_nans & ~original_nans).any():
             raise UnitMismatchError(
                 f"Column '{col}' in source '{source_name}' contains non‑numeric values."
             )
