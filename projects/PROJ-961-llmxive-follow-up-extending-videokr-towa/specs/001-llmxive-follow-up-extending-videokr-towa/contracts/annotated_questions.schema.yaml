@@ -3,42 +3,42 @@ title: "Annotated Questions Schema"
 description: "Schema for the annotated dataset containing structural chain length, binning, and correctness labels."
 type: "object"
 properties:
-  id:
+  question_id:
     type: "string"
     description: "Unique identifier for the question record."
-  question:
+  question_text:
     type: "string"
     description: "Natural language question text."
-  answer:
+  answer_text:
     type: "string"
     description: "Ground truth answer text."
-  correctness:
-    type: "boolean"
-    description: "Whether the model prediction was correct."
+  predicted_correctness:
+    type: "number"
+    description: "Model prediction of correctness (0.0 or 1.0)."
   chain_length:
     type: "integer"
     minimum: -1
     description: "Shortest path hops between query and answer entities; -1 indicates unresolvable."
+  status:
+    type: "string"
+    enum:
+      - "annotated"
+      - "disconnected"
+      - "mapping_failure"
+    description: "Status of the graph traversal or entity linking."
   chain_bin:
     type: "string"
     enum:
       - "1"
       - "2"
       - "3+"
-    description: "Binned hop count derived from chain_length."
-  status:
-    type: "string"
-    enum:
-      - "valid"
-      - "disconnected"
-      - "mapping_failure"
-    description: "Status of the graph traversal or entity linking."
-required:
-  - id
-  - question
-  - answer
-  - correctness
-  - chain_length
-  - chain_bin
-  - status
+    description: "Binned hop count derived from `chain_length`"
 additionalProperties: false
+required:
+  - question_id
+  - question_text
+  - answer_text
+  - predicted_correctness
+  - chain_length
+  - status
+  - chain_bin

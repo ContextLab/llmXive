@@ -40,7 +40,7 @@ properties:
     description: "Result of the robustness verification (SC‑003)."
   bias_flag:
     type: "boolean"
-    description: "True if disconnection/mapping failure rates correlate with hop count, indicating potential bias."
+    description: "True if disconnection/mapping_failure rates correlate with hop count, indicating potential bias."
   disconnection_rates:
     type: "object"
     description: "Rates of disconnected/mapping_failure records per hop bin."
