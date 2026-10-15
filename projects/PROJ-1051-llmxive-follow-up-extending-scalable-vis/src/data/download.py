@@ -85,31 +85,32 @@ def _save_to_disk(dataset, output_dir: Path):
 def download_publaynet(output_dir: Path, min_pages: int = 10_000) -> None:
     """
     Downloads primary and fallback corpora and verifies integrity.
+    Uses a list of candidates to ensure reachability on CI runners.
     """
-    primary_id = "allenai/pubmed-layout"
+    # Candidates for the primary dataset to handle potential Hub renaming/access issues
+    primary_candidates = ["allenai/pubmed-layout", "nielsr/pubmed-layout"]
     fallback_id = "allenai/pubmed-layout-fallback"
     
-    print(f"Downloading primary dataset '{primary_id}'...")
-    try:
-        # Added trust_remote_code=True to resolve access issues on newer datasets versions
-        ds = load_dataset(
-            primary_id, 
-            split="train", 
-            streaming=False, 
-            download_mode="force_redownload", 
-            trust_remote_code=True
-        )
-    except Exception as e:
-        print(f"Primary download failed: {e}")
-        ds = None
-
-    # Filter for pages with non-empty layout annotations (bboxes)
     valid_ds = None
-    if ds is not None:
-        valid_ds = ds.filter(lambda x: len(x.get("bboxes", [])) > 0)
     
+    for candidate in primary_candidates:
+        print(f"Attempting to download primary dataset '{candidate}'...")
+        try:
+            ds = load_dataset(
+                candidate, 
+                split="train", 
+                streaming=False, 
+                download_mode="force_redownload", 
+                trust_remote_code=True
+            )
+            # Filter for pages with non-empty layout annotations (bboxes)
+            valid_ds = ds.filter(lambda x: len(x.get("bboxes", [])) > 0)
+            print(f"Successfully loaded {candidate}. Valid pages: {len(valid_ds)}")
+            break
+        except Exception as e:
+            print(f"Candidate '{candidate}' failed: {e}")
+
     num_valid = len(valid_ds) if valid_ds is not None else 0
-    print(f"Primary valid pages: {num_valid}")
 
     if num_valid < min_pages:
         print(f"Primary pages {num_valid} < {min_pages}. Attempting fallback '{fallback_id}'...")
@@ -151,10 +152,10 @@ def download_dataset(dataset_name: str, output_dir: Path) -> None:
     if dataset_name == "publaynet":
         download_publaynet(output_dir)
     elif dataset_name == "docvqa":
-        # Simple download for DocVQA
         print(f"Downloading generic dataset '{dataset_name}'...")
         try:
-            ds = load_dataset(dataset_name, split="train", trust_remote_code=True)
+            # DocVQA is often available as a simple dataset
+            ds = load_dataset("docvqa", split="train", trust_remote_code=True)
             out_dir = output_dir / dataset_name
             out_dir.mkdir(parents=True, exist_ok=True)
             for idx, example in enumerate(ds):

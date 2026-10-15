@@ -19,9 +19,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.download  --dataset-name publaynet  --output-dir data/raw -> rc=1
-Downloading primary dataset 'allenai/pubmed-layout'...
-Primary download failed: Dataset 'allenai/pubmed-layout' doesn't exist on the Hub or cannot be accessed.
-Primary valid pages: 0
+Attempting to download primary dataset 'allenai/pubmed-layout'...
+Candidate 'allenai/pubmed-layout' failed: Dataset 'allenai/pubmed-layout' doesn't exist on the Hub or cannot be accessed.
+Attempting to download primary dataset 'nielsr/pubmed-layout'...
+Candidate 'nielsr/pubmed-layout' failed: Dataset 'nielsr/pubmed-layout' doesn't exist on the Hub or cannot be accessed.
 Primary pages 0 < 10000. Attempting fallback 'allenai/pubmed-layout-fallback'...
 Fallback download failed: Dataset 'allenai/pubmed-layout-fallback' doesn't exist on the Hub or cannot be accessed.
 Total valid pages: 0
@@ -30,11 +31,11 @@ Total valid pages: 0
 
 - python -m src.data.preprocess  --input-dir data/raw/publaynet  --output-parquet data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml -> rc=1
 
-2026-10-15 04:10:52,986 ERROR __main__: Preprocessing failed: Input directory does not exist: data/raw/publaynet
+2026-10-15 15:13:16,115 ERROR __main__: Preprocessing failed: Input directory does not exist: data/raw/publaynet
 
 - python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name layoutlmv3-base  --device cpu -> rc=1
 
-2026-10-15 04:10:56,253 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': [Errno 2] No such file or directory: 'data/processed/document_pairs.parquet'
+2026-10-15 15:13:20,856 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': [Errno 2] No such file or directory: 'data/processed/document_pairs.parquet'
 
 - python -m src.data.download  --dataset-name docvqa  --output-dir data/raw/docvqa -> rc=1
 Downloading generic dataset 'docvqa'...
