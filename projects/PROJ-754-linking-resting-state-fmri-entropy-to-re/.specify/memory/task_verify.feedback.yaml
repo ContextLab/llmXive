@@ -1,18 +1,22 @@
 T001:
-  reason: 'All nine directories exist with at least one Python file, and requirements.txt/pyproject.toml
-    are present. However, the documented end-to-end command `python -m src.run_pipeline
-    --subjects 5` is not runnable: no `run_pipeline.py` exists anywhere under `code/src/`
-    (the src listing shows only data/analysis/stats/config/utils/entities/reporting
-    modules), and the path wouldn''t resolve from the project root anyway. Additionally,
-    there is no execution evidence that `pytest code/tests/` passes, and quickstart.md
-    contains an unresolved claim marker and a broken venv command (`python -m venv.venv`).
-    Th'
+  reason: "The directory tree exists with Python files, and the requirements files\
+    \ and quickstart.md are present, but quickstart.md points to a non\u2011existent\
+    \ module (`python -m src.run_pipeline`) and there is no evidence that `pytest\
+    \ code/tests/` actually runs and passes. The implementer must add a runnable `src/run_pipeline.py`\
+    \ (or adjust the command) and provide test execution logs showing all tests succeed."
   task: 948be6d16247bbf819931a67279132505982da9fc6ffd5b1b90d282e30cc8d2c
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py
     exit=1'
   task: bfe0198ab2a362808a135648820171e98659925d6ab0eb5270371a274d242920
 T003:
+  reason: "The implementation `code/src/data/qc.py` and its unit test `code/tests/unit/test_qc.py`\
+    \ are present and correctly handle required\u2011column checks, motion and DSRT\
+    \ exclusions, and write the expected files to a temporary location. However, the\
+    \ required output artifacts `data/derived/clean_subjects.parquet` and `data/derived/subject_qc.csv`\
+    \ are missing from the repository, so the task\u2019s output files do not actually\
+    \ exist. These files must be generated (or committed) at the specified paths for\
+    \ the task to be complete."
   task: 7d9d47bc53805078924a5481ad533b21b39efd8ad1b75ae926aea3f0156e0e07
 T004:
   reason: "The task explicitly requires the **pyentropy library (pyentropy==0.4.\\\

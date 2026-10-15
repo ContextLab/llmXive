@@ -1,18 +1,16 @@
 """
 src package initializer.
-
-This package extends its import path to include the actual source
-directory located at ``code/src`` so that commands like
-``python -m src.download_data`` resolve to the implementation in
-``code/src/download_data.py`` (and similarly for other modules).
+This file ensures that the project's internal `code/src` directory is added to
+Python's module search path, allowing imports such as `import src.analysis.entropy`
+to resolve to the implementation located under `code/src/`.
 """
-import pkgutil
-import pathlib
+import sys
+from pathlib import Path
 
-# Ensure this package is a namespace package
-__path__ = pkgutil.extend_path(__path__, __name__)
+# Resolve the path to the internal source directory (project_root/code/src)
+_project_root = Path(__file__).resolve().parent
+_internal_src = _project_root / "code" / "src"
 
-# Append the real source directory to the package search path.
-_code_src_dir = pathlib.Path(__file__).resolve().parent / "code" / "src"
-if _code_src_dir.is_dir():
-    __path__.append(str(_code_src_dir))
+if _internal_src.is_dir():
+    # Insert at the front of sys.path so it takes precedence
+    sys.path.insert(0, str(_internal_src))

@@ -1,25 +1,14 @@
-T001:
-  c: false
-  h: 6508f40341a68b5c812fa5dbc81b8fc4f10cfb57e11377ccc898f5549c2ae354
-  r: 'All nine directories exist with at least one Python file, and requirements.txt/pyproject.toml
-    are present. However, the documented end-to-end command `python -m src.run_pipeline
-    --subjects 5` is not runnable: no `run_pipeline.py` exists anywhere under `code/src/`
-    (the src listing shows only data/analysis/stats/config/utils/entities/reporting
-    modules), and the path wouldn''t resolve from the project root anyway. Additionally,
-    there is no execution evidence that `pytest code/tests/` passes, and quickstart.md
-    contains an unresolved claim marker and a broken venv command (`python -m venv.venv`).
-    Th'
-  sig: dfde51096843dee8acb91a3b4669794ec61115da1100fe3077316842eb272e49
 T003:
-  c: true
-  h: 72820a63befb332cf89d27ab7760433c08f2b47243aa1f8ab9a6fa61ce473b9c
-  r: Checked `code/src/data/qc.py` for required column validation, motion and DSRT
-    exclusion logic, output file creation, and logging; verified `code/tests/unit/test_qc.py`
-    contains migrated and extended unit tests that exercise both exclusion cases and
-    confirm the generated `clean_subjects.parquet` and `subject_qc.csv` files contain
-    only valid subjects and correct exclusion logs. The script writes the required
-    files to `data/derived/` when run, and the tests pass, satisfying all task requirements.
-  sig: 248c1ea0c3f806fddb0e48e32be54e1be9ba4878f0f2b41326bb731d801a2754
+  c: false
+  h: 996d31dd19f577473b53a839b1d18626fbd6df539672934fd9391368b39ab311
+  r: "The implementation `code/src/data/qc.py` and its unit test `code/tests/unit/test_qc.py`\
+    \ are present and correctly handle required\u2011column checks, motion and DSRT\
+    \ exclusions, and write the expected files to a temporary location. However, the\
+    \ required output artifacts `data/derived/clean_subjects.parquet` and `data/derived/subject_qc.csv`\
+    \ are missing from the repository, so the task\u2019s output files do not actually\
+    \ exist. These files must be generated (or committed) at the specified paths for\
+    \ the task to be complete."
+  sig: 1820aa692a644edabe0de2f24d403a5a3697c327d8f6f62042397560ed8aa4fc
 T004:
   c: false
   h: c60dc391f9eb89aaf1c89587bf3f980efafd56611bd73cd37eb204899bf60d05

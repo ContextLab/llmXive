@@ -10,7 +10,7 @@
 - [ ] T002 [US1] Implement the HCP data acquisition module in `code/src/data/download_hcp.py` (FR‑001).   <!-- FAILED-IN-EXECUTION: code/src/data/download_hcp.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_hcp.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_hcp.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/download_data.py exit=1 -->
   Deterministically select subjects: sort all available HCP subject IDs, seed 42, take the first 200. Download minimally preprocessed 4 mm Schaefer‑400 time series and the HCP behavioral table containing DSRT scores, age, sex, and mean FD. Write per‑subject parquet files under `data/raw/timeseries/` and a combined behavioral parquet `data/raw/dsrt_scores.parquet`. The script must raise a clear error if `HCP_TOKEN` is missing or invalid; no synthetic fallback. Validation: a 5‑subject smoke run completes, first subject parquet has shape (timepoints × 400) with real IDs.
 
-- [X] T003 [US1] Implement data validation and motion QC in `code/src/data/qc.py` (FR‑002, edge cases).  
+- [ ] T003 [US1] Implement data validation and motion QC in `code/src/data/qc.py` (FR‑002, edge cases).  
   Verify required columns; exclude subjects with mean FD ≥ 0.2 mm and subjects missing DSRT, logging exclusion counts and reasons. Output `data/derived/clean_subjects.parquet` (status = "valid") and `data/derived/subject_qc.csv`. Migrate existing motion‑exclusion unit test to `code/tests/unit/test_qc.py` and extend for missing DSRT. Validation: pytest passes; no excluded subject appears in `clean_subjects.parquet`.
 
 - [ ] T004 [US2] Implement multiscale sample entropy in `code/src/analysis/entropy.py` (FR‑003).  

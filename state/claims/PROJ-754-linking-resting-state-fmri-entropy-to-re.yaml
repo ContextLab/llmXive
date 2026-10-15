@@ -2782,3 +2782,85 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-15T02:09:45Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "unit tests confirm schema validation passes and mini\u2011dataset reproduces\
+    \ expected shapes"
+  claim_id: c_b5bf41b9
+  context: "Step\u2011by\u2011step section describing verification of reproducibility\
+    \ using pytest."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Unit and contract tests confirm that schema validation passes and that\
+    \ a mini\u2011dataset workflow reproduces expected shapes."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T03:17:22Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: download and QC stage takes up to 30 minutes and up to 2 GB RAM
+  claim_id: c_a6a10797
+  context: Expected Runtime & Resources table, row for Download & QC.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Download & QC stage takes \u2264\u202F30\u202Fmin and uses \u2264\u202F\
+    2\u202FGB RAM."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T03:17:23Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: entropy stage for 5 subjects takes up to 15 minutes and up to 2 GB RAM
+  claim_id: c_7a363751
+  context: Expected Runtime & Resources table, row for Entropy (5 subjects).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Entropy (5 subjects) stage takes \u2264\u202F15\u202Fmin and uses \u2264\
+    \u202F2\u202FGB RAM."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T03:17:23Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: total pipeline takes up to 45 minutes and up to 2 GB RAM
+  claim_id: c_57fe18b9
+  context: Expected Runtime & Resources table, row for Total.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total pipeline takes \u2264\u202F45\u202Fmin and uses \u2264\u202F2\u202F\
+    GB RAM."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T03:17:24Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "pipeline stays within free\u2011tier GitHub Actions limits"
+  claim_id: c_8dba93cd
+  context: Closing remark in Expected Runtime & Resources section.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All steps respect the CPU\u2011only constraint and stay within the free\u2011\
+    tier GitHub Actions limits."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T03:17:24Z'

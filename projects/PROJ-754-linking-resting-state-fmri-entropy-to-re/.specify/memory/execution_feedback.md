@@ -1,52 +1,51 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/`
-  - script usage: `download_data.py [-h] [--subject-limit SUBJECT_LIMIT]`
-  - argparse error: `download_data.py: error: unrecognized arguments: --hcp-token $HCP_TOKEN --fd-threshold 0.2`
-- run-book command: `python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2`
-  - script usage: `compute_entropy.py [-h] --input INPUT --output OUTPUT`
-  - argparse error: `compute_entropy.py: error: unrecognized arguments: --average`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ (rc=2); python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2 (rc=2); python -m pytest -v tests/ (rc=-1); 4 declared deliverable(s) absent: data/derived/clean_subjects.parquet; data/derived/invalid_parcels.csv; data/derived/subject_qc.csv
+**Summary**: 5 command(s) failed: python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ (rc=1); python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2 (rc=1); python -m src.run_stats  --entropy data/derived/entropy_matrix.parquet  --covariates data/derived/clean_subjects.parquet  --n-permutations 5000  --max-runtime 10800  --output-dir results/ (rc=1); 4 declared deliverable(s) absent: data/derived/clean_subjects.parquet; data/derived/invalid_parcels.csv; data/derived/subject_qc.csv
 
 ## Failing / missing run-book commands
 
-- python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ -> rc=2
+- python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ -> rc=1
 
-usage: download_data.py [-h] [--subject-limit SUBJECT_LIMIT]
-                        [--output-dir OUTPUT_DIR]
-download_data.py: error: unrecognized arguments: --hcp-token $HCP_TOKEN --fd-threshold 0.2
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/bin/python: No module named src.download_data
 
-- python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2 -> rc=2
+- python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2 -> rc=1
 
-usage: compute_entropy.py [-h] --input INPUT --output OUTPUT
-                          [--scales SCALES [SCALES ...]] [--m M] [--r R]
-                          [--batch-size BATCH_SIZE]
-compute_entropy.py: error: unrecognized arguments: --average
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/bin/python: No module named src.compute_entropy
 
-- python -m pytest -v tests/ -> rc=-1
-tials PASSED [ 39%]
-tests/unit/test_env_manager.py::TestValidateHcpCredentials::test_token_too_short PASSED [ 42%]
-tests/unit/test_env_manager.py::TestGetOptionalEnv::test_env_present PASSED [ 45%]
-tests/unit/test_env_manager.py::TestGetOptionalEnv::test_env_missing_with_default PASSED [ 48%]
-tests/unit/test_env_manager.py::TestGetOptionalEnv::test_env_missing_no_default PASSED [ 51%]
-tests/unit/test_env_manager.py::TestCheckEnvironment::test_all_good PASSED [ 54%]
-tests/unit/test_env_manager.py::TestCheckEnvironment::test_missing_token FAILED [ 57%]
-tests/unit/test_env_manager.py::TestMain::test_main_success PASSED       [ 60%]
-tests/unit/test_env_manager.py::TestMain::test_main_failure PASSED       [ 63%]
-tests/unit/test_lint_format.py::TestLintFormatConfig::test_ruff_config_exists PASSED [ 66%]
-tests/unit/test_lint_format.py::TestLintFormatConfig::test_pyproject_config_exists FAILED [ 69%]
-tests/unit/test_lint_format.py::TestLintFormatConfig::test_lint_format_script_syntax PASSED [ 72%]
-tests/unit/test_lint_format.py::TestLintFormatConfig::test_lint_format_help_command PASSED [ 75%]
-tests/unit/test_lint_format.py::TestLintFormatConfig::test_ruff_check_runs 
+- python -m src.run_stats  --entropy data/derived/entropy_matrix.parquet  --covariates data/derived/clean_subjects.parquet  --n-permutations 5000  --max-runtime 10800  --output-dir results/ -> rc=1
 
-[TIMEOUT after 120s]
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/bin/python: No module named src.run_stats
+
+- python -m src.generate_report  --coeffs results/model_coefficients.csv  --nii results/significant_parcels.nii.gz  --sensitivity data/derived/sensitivity.parquet  --power-output results/power_analysis.csv  --output reports/link_entropy_risk.pdf -> rc=1
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/bin/python: No module named src.generate_report
+
+- python -m pytest -v tests/ -> rc=2
+
+cachedir: .pytest_cache
+rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re
+configfile: pyproject.toml
+plugins: platformdirs-4.13.0
+collecting ... collected 27 items / 1 error
+
+==================================== ERRORS ====================================
+____________________ ERROR collecting tests/unit/test_qc.py ____________________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/tests/unit/test_qc.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_qc.py:17: in <module>
+    from src.entities.models import Subject
+E   ModuleNotFoundError: No module named 'src.entities'
+=========================== short test summary info ============================
+ERROR tests/unit/test_qc.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.47s ===============================
+
+
 
 ## Declared deliverables still missing
 
