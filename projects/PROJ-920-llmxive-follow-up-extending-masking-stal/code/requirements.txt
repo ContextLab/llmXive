@@ -1,8 +1,9 @@
-numpy>=1.21.0
-pandas>=1.3.0
-scipy>=1.7.0
-statsmodels>=0.12.0
-matplotlib>=3.4.0
-seaborn>=0.11.0
-memory-profiler>=0.58.0
-psutil>=5.8.0
+# Project dependencies
+# (standard libraries are available by default)
+memory_profiler>=0.61
+pyyaml>=5.4
+jsonschema>=4.0
+pandas>=1.5
+# Existing dependencies such as numpy, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, requests, psutil are provided by the
+# execution environment and need not be listed here.

@@ -17,14 +17,17 @@ pip install -r code/requirements.txt
 ## Run the pipeline
 
 ```bash
-# Generate synthetic trajectories
+# Generate the default technical‑term list (if you want to override, edit `code/config/user_terms.json` first)
+python code/generate_terms.py
+
+# Generate synthetic trajectories (500 trajectories, seed 42)
 python code/generate_trajectories.py --num-trajectories 500 --seed 42
 
 # Validate trajectories
-python code/validate_trajectories.py --input data/raw/trajectories.json
+python code/validate_trajectories.py
 
-# Simulate the agent
-python code/simulate_agent.py --input data/raw/trajectories.json --seed 42
+# Simulate the agent (uses default input/output paths)
+python code/simulate_agent.py --seed 42
 
 # Analyze results
 python code/analyze_results.py --input data/logs/simulation_results.csv --output-dir results

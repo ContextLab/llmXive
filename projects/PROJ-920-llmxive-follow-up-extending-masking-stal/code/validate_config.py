@@ -14,26 +14,24 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 
-
 # Define paths relative to project root
 PROJECT_ROOT = Path(__file__).parent.parent
 SIMULATION_CONFIG_PATH = PROJECT_ROOT / "code" / "config" / "simulation_config.json"
 ANALYSIS_CONFIG_PATH = PROJECT_ROOT / "code" / "config" / "analysis_config.json"
 
-
 # Validation rules for simulation_config.json
 SIMULATION_CONFIG_SCHEMA = {
     "alpha": {
         "type": float,
-        "min": 0.0,  # Must be positive
-        "max": None,
+        "min": 0.0,          # Must be positive
+        "max": None,         # No explicit upper bound
         "required": True,
         "description": "Scaling factor for heuristic solver"
     },
     "threshold": {
         "type": float,
-        "min": 0.0,
-        "max": 1.0,  # Must be between 0 and 1
+        "min": 0.0,          # Must be non‑negative
+        "max": None,         # Allow values >1 (e.g., 3.5 bits/token)
         "required": True,
         "description": "Critical density threshold"
     },
@@ -55,7 +53,7 @@ SIMULATION_CONFIG_SCHEMA = {
 ANALYSIS_CONFIG_SCHEMA = {
     "min_samples_per_bin": {
         "type": int,
-        "min": 1,  # Must be at least 1
+        "min": 1,   # Must be at least 1
         "max": None,
         "required": True,
         "description": "Minimum samples per bin for statistical validity"
@@ -74,13 +72,11 @@ ANALYSIS_CONFIG_SCHEMA = {
     }
 }
 
-
 def validate_type(value: Any, expected_type: type, field_name: str) -> Tuple[bool, str]:
     """Validate that a value matches the expected type."""
     if not isinstance(value, expected_type):
         return False, f"Expected type {expected_type.__name__} for '{field_name}', got {type(value).__name__}"
     return True, ""
-
 
 def validate_range(value: Any, min_val: Optional[float], max_val: Optional[float], field_name: str) -> Tuple[bool, str]:
     """Validate that a numeric value is within the specified range."""
@@ -90,14 +86,12 @@ def validate_range(value: Any, min_val: Optional[float], max_val: Optional[float
         return False, f"Value for '{field_name}' ({value}) is above maximum allowed ({max_val})"
     return True, ""
 
-
 def validate_list_elements(value: List, expected_type: type, field_name: str) -> Tuple[bool, str]:
     """Validate that all elements in a list match the expected type."""
     for i, item in enumerate(value):
         if not isinstance(item, expected_type):
             return False, f"Element {i} in '{field_name}' is not of type {expected_type.__name__}"
     return True, ""
-
 
 def validate_config_file(config_path: Path, schema: Dict[str, Any]) -> List[str]:
     """
@@ -127,7 +121,7 @@ def validate_config_file(config_path: Path, schema: Dict[str, Any]) -> List[str]
 
     # Validate each field in the schema
     for field_name, rules in schema.items():
-        # Check if field is present
+        # Presence check
         if field_name not in config:
             if rules.get("required", False):
                 errors.append(f"Missing required field: '{field_name}' in {config_path.name}")
@@ -140,7 +134,7 @@ def validate_config_file(config_path: Path, schema: Dict[str, Any]) -> List[str]
             valid, msg = validate_type(value, rules["type"], field_name)
             if not valid:
                 errors.append(msg)
-                continue  # Skip range validation if type is wrong
+                continue  # Skip further checks for this field
 
         # Range validation for numeric types
         if rules["type"] in (int, float):
@@ -152,32 +146,28 @@ def validate_config_file(config_path: Path, schema: Dict[str, Any]) -> List[str]
 
         # List element validation
         if rules["type"] == list:
-            # For density_levels, we expect list of numbers
             if field_name == "density_levels":
-                # Check if it's a list of lists (e.g., [[low, med, high]])
+                # Accept either a flat list of numbers or a list of lists
                 if value and isinstance(value[0], list):
                     for i, sublist in enumerate(value):
                         valid, msg = validate_type(sublist, list, f"{field_name}[{i}]")
                         if not valid:
                             errors.append(msg)
                             continue
-                        # Validate each element in the sublist
                         for j, item in enumerate(sublist):
                             if not isinstance(item, (int, float)):
                                 errors.append(f"Element [{i}][{j}] in '{field_name}' is not a number")
                 elif value:
-                    # If it's a flat list, validate elements are numbers
                     valid, msg = validate_list_elements(value, (int, float), field_name)
                     if not valid:
                         errors.append(msg)
             else:
-                # For splines_df_candidates, expect list of integers
+                # For splines_df_candidates, expect integers
                 valid, msg = validate_list_elements(value, int, field_name)
                 if not valid:
                     errors.append(msg)
 
     return errors
-
 
 def main():
     """Main entry point for configuration validation."""
@@ -215,7 +205,6 @@ def main():
     else:
         print("✅ VALIDATION PASSED: All configuration files are valid.")
         sys.exit(0)
-
 
 if __name__ == "__main__":
     main()

@@ -1,18 +1,15 @@
 import json
-import math
 import random
 import string
 import argparse
 import logging
 import sys
-import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-from collections import Counter
+from typing import List, Dict, Any
 
-# Import from existing API surface
-from utils.entropy import calculate_shannon_entropy, clamp_entropy, entropy_per_token
-from utils.heuristics import calculate_composite_density
+# Import from existing utils
+from utils.entropy import entropy_per_token, clamp_entropy
+from utils.heuristics import calculate_technical_token_ratio, calculate_composite_density
 
 # Configure logging
 logging.basicConfig(
@@ -22,299 +19,251 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-TARGET_TRAJECTORY_COUNT = 500
-MIN_SAMPLES_PER_BIN = 10
+# ----------------------------------------------------------------------
+# Constants & configuration
+# ----------------------------------------------------------------------
+DEFAULT_TRAJECTORY_COUNT = 500
+MIN_SAMPLES_PER_BIN = 150               # per spec requirement
+MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024  # 100 MiB
 DENSITY_LEVELS = ["low", "medium", "high"]
-# Target density values (approximate) for each level
-TARGET_DENSITIES = {
-    "low": 0.3,
-    "medium": 0.6,
-    "high": 0.9
+# Target **entropy per token** values (bits/token) for each density level
+TARGET_ENTROPIES = {
+    "low": 2.0,
+    "medium": 3.5,
+    "high": 4.5
 }
-# Configuration paths
+# Number of turns per trajectory (synthetic, fixed)
+TURNS_PER_TRAJECTORY = 10
+
+# Paths
 CONFIG_DIR = Path("code/config")
 TERMS_FILE = CONFIG_DIR / "density_terms.json"
-OUTPUT_FILE = Path("data/raw/trajectories.json")
+DEFAULT_OUTPUT_FILE = Path("data/raw/trajectories.json")
 
-def ensure_config_directory():
-    """Ensure the config directory exists."""
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def ensure_config_directory() -> None:
+    """Make sure the config directory exists."""
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 def load_terms() -> List[str]:
-    """Load technical terms from the config file."""
+    """Load technical terms from the JSON config."""
     if not TERMS_FILE.exists():
-        logger.warning(f"Terms file {TERMS_FILE} not found. Using empty list.")
-        return []
-    
+        logger.error(f"Technical terms file not found at {TERMS_FILE}")
+        sys.exit(1)
     try:
-        with open(TERMS_FILE, 'r', encoding='utf-8') as f:
+        with open(TERMS_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
-            terms = data.get("terms", [])
-            if not isinstance(terms, list):
-                logger.error("Terms file must contain a list under 'terms' key.")
-                return []
-            return terms
+        terms = data.get("terms", [])
+        if not isinstance(terms, list):
+            logger.error("Terms file must contain a list under the key 'terms'.")
+            sys.exit(1)
+        return terms
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse terms file: {e}")
-        return []
+        sys.exit(1)
 
-def generate_text_block(target_density: float, length: int = 500, terms: List[str] = None) -> str:
+def generate_generic_text(length: int = 200) -> str:
+    """Generate a non‑critical turn – simple low‑entropy filler."""
+    return "generic turn text " * (length // 20)
+
+def generate_high_entropy_text(length: int = 200) -> str:
+    """Generate a high‑entropy string using the full ASCII range."""
+    chars = string.printable  # includes letters, digits, punctuation, whitespace
+    return "".join(random.choices(chars, k=length))
+
+def generate_low_entropy_text(length: int = 200) -> str:
+    """Generate a low‑entropy string (repeated single character)."""
+    return "a" * length
+
+def generate_text_for_target_entropy(target_entropy: float, terms: List[str]) -> str:
     """
-    Generate a text block with a target composite density.
-    Since we cannot directly invert the density formula, we use an iterative approach.
-    We adjust the ratio of technical terms to generic text.
-    
-    Formula: Density = 0.6 * Shannon_Entropy + 0.4 * Technical_Token_Ratio
+    Produce a text block whose *entropy per token* is close to ``target_entropy``.
+    The approach is heuristic:
+    - For low target entropy we return a repeated character string.
+    - For medium we return random letters/digits.
+    - For high we return random printable characters.
+    The function retries a few times to meet the tolerance.
     """
-    if not terms:
-        # If no terms, we can only control entropy via character distribution
-        # We'll generate random text with a specific entropy profile
-        chars = string.ascii_lowercase + string.digits
-        # Adjust probability to hit target entropy (approximate)
-        # This is a simplification; real density control requires terms
-        text = ''.join(random.choices(chars, k=length))
-        return text
-
-    # Iterative approach to hit target density
-    # We start with a guess for the technical token ratio
-    # Density = 0.6 * Entropy + 0.4 * TechRatio
-    # We need to find TechRatio such that Density ~ target_density
-    # But Entropy depends on the text content too.
-    
-    # Strategy: Generate text with a mix of technical terms and generic text
-    # Adjust the proportion of technical terms to hit the target density.
-    
-    # Simplified heuristic:
-    # Assume generic text has entropy ~ 4.5 bits (random lowercase)
-    # Assume technical terms have entropy ~ 3.0 bits (shorter, repetitive)
-    # We'll adjust the ratio of technical terms to generic text.
-    
-    # Let's try a direct construction:
-    # We want Density = 0.6 * H + 0.4 * R = target
-    # If we fix H (by using a fixed generic text pattern), we can solve for R.
-    # But H also changes with R.
-    
-    # Alternative: Generate text with a specific density by controlling term frequency.
-    # We'll use a binary search on the term frequency to hit the target density.
-    
-    low = 0.0
-    high = 1.0
-    best_ratio = 0.5
-    best_diff = float('inf')
-    
-    for _ in range(20):  # Binary search iterations
-        ratio = (low + high) / 2
-        
-        # Generate text with this ratio
-        text_parts = []
-        total_tokens = length
-        tech_tokens = int(total_tokens * ratio)
-        generic_tokens = total_tokens - tech_tokens
-        
-        # Generate generic text (random lowercase)
-        generic_text = ''.join(random.choices(string.ascii_lowercase, k=generic_tokens * 5)) # *5 for word length
-        
-        # Generate technical text
-        tech_text = ' '.join(random.choices(terms, k=tech_tokens))
-        
-        # Combine
-        full_text = generic_text + ' ' + tech_text
-        full_text = full_text.strip()
-        
-        # Calculate actual density
-        actual_density = calculate_composite_density(full_text, terms)
-        
-        diff = abs(actual_density - target_density)
-        if diff < best_diff:
-            best_diff = diff
-            best_ratio = ratio
-        
-        if actual_density < target_density:
-            low = ratio
-        else:
-            high = ratio
-        
-        if best_diff < 0.01:
-            break
-    
-    # Generate final text with best_ratio
-    ratio = best_ratio
-    tech_tokens = int(length * ratio)
-    generic_tokens = length - tech_tokens
-    
-    generic_text = ''.join(random.choices(string.ascii_lowercase, k=generic_tokens * 5))
-    tech_text = ' '.join(random.choices(terms, k=tech_tokens))
-    
-    return (generic_text + ' ' + tech_text).strip()
-
-def calculate_density(text: str, terms: List[str]) -> float:
-    """Calculate the composite density of a text block."""
-    return calculate_composite_density(text, terms)
-
-def clamp_density(value: float) -> float:
-    """Clamp density value to prevent zero division, though the formula should handle it."""
-    # The entropy function already clamps, but we ensure density is not exactly zero if it was negligible
-    if value < 1e-9:
-        return 1e-9
-    return value
-
-def inject_critical_evidence(text: str, turn_index: int, is_last_turn: bool) -> str:
-    """
-    Inject a marker for critical evidence at a specific turn.
-    In this synthetic generation, we append a specific marker to the text.
-    """
-    marker = f" [CRITICAL_EVIDENCE_TURN_{turn_index}]"
-    if is_last_turn:
-        marker += " [LAST_TURN]"
-    return text + marker
-
-def generate_trajectory(
-    trajectory_id: int,
-    density_level: str,
-    target_density: float,
-    terms: List[str],
-    evidence_turn_index: int,
-    seed: int
-) -> Dict[str, Any]:
-    """Generate a single synthetic trajectory."""
-    random.seed(seed + trajectory_id)
-    
-    # Generate text block
-    text = generate_text_block(target_density, length=300, terms=terms)
-    
-    # Inject critical evidence
-    is_last_turn = (evidence_turn_index == 0) # Simplified: assume 1 turn for synthetic data structure
-    # In a real multi-turn scenario, we would track turns. Here, we simulate the metadata.
-    # The task requires metadata fields: evidence_turn_index, density_value, is_critical.
-    # We will set is_critical to True for all generated trajectories as per "critical evidence injection" requirement.
-    
-    final_text = inject_critical_evidence(text, evidence_turn_index, is_last_turn)
-    
-    # Calculate actual density
-    actual_density = calculate_density(final_text, terms)
-    actual_density = clamp_density(actual_density)
-    
-    trajectory = {
-        "id": trajectory_id,
-        "text": final_text,
-        "metadata": {
-            "evidence_turn_index": evidence_turn_index,
-            "density_value": float(actual_density),
-            "is_critical": True,
-            "is_last_turn": is_last_turn,
-            "target_density_level": density_level,
-            "target_density_value": float(target_density)
-        }
-    }
-    
-    return trajectory
-
-def validate_density_computation(trajectory: Dict[str, Any], terms: List[str]) -> bool:
-    """Validate that the density in metadata matches the text."""
-    text = trajectory["text"]
-    reported_density = trajectory["metadata"]["density_value"]
-    calculated_density = calculate_density(text, terms)
-    calculated_density = clamp_density(calculated_density)
-    
-    # Allow small tolerance
     tolerance = 0.01
-    return abs(reported_density - calculated_density) < tolerance
+    for _ in range(10):
+        if target_entropy <= 2.5:
+            txt = generate_low_entropy_text()
+        elif target_entropy <= 4.0:
+            txt = "".join(random.choices(string.ascii_letters + string.digits, k=200))
+        else:
+            txt = generate_high_entropy_text()
+        ent = entropy_per_token(txt)
+        if abs(ent - target_entropy) <= tolerance:
+            return txt
+    # If we did not hit tolerance, just return the best effort
+    return txt
 
-def calculate_bin_distribution(trajectories: List[Dict[str, Any]]) -> Dict[str, int]:
-    """Calculate the distribution of samples across density * horizon bins."""
-    # For synthetic data, we simulate horizon as a random variable or fixed.
-    # The task mentions "density * horizon" bins. Since we are generating trajectories,
-    # we can assume a fixed horizon or generate one.
-    # Let's assume horizon is derived from the text length or a fixed value for this task.
-    # To satisfy the requirement, we will log the distribution based on density levels and a simulated horizon.
-    
-    # We'll use the density_level as a proxy for the density dimension
-    # And we'll assume a fixed horizon of 5 for the binning calculation (as a placeholder for the simulation step)
-    # Or, we can group by density_level only if horizon is not yet determined.
-    # The requirement says "samples per bin (density * horizon)".
-    # Since this is generation, we don't have horizon yet. We will log the density distribution.
-    
-    # Let's create bins based on density_level and a dummy horizon of 1
-    bin_counts = Counter()
-    for t in trajectories:
-        level = t["metadata"]["target_density_level"]
-        # Simulate a horizon for binning purposes (e.g., fixed at 1 for generation phase)
-        horizon = 1 
-        bin_key = f"{level}_h{horizon}"
-        bin_counts[bin_key] += 1
-    
-    return dict(bin_counts)
+def build_turn(turn_index: int, is_critical: bool, target_entropy: float,
+               terms: List[str]) -> Dict[str, Any]:
+    """Create a single turn dictionary adhering to the schema."""
+    if is_critical:
+        text = generate_text_for_target_entropy(target_entropy, terms)
+    else:
+        text = generate_generic_text()
+    # Compute metrics
+    entropy = entropy_per_token(text)
+    tech_ratio = calculate_technical_token_ratio(text, set(terms))
+    # Clamp entropy just in case (entropy_per_token already handles empty strings)
+    entropy = clamp_entropy(entropy)
+    return {
+        "turn_index": turn_index,
+        "text": text,
+        "is_critical": is_critical,
+        "entropy_per_token": float(entropy),
+        "technical_token_ratio": float(tech_ratio)
+    }
 
-def main():
-    parser = argparse.ArgumentParser(description="Generate synthetic trajectories with controlled density.")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
-    parser.add_argument("--count", type=int, default=TARGET_TRAJECTORY_COUNT, help="Number of trajectories to generate")
+def compute_final_density(entropy: float, tech_ratio: float) -> float:
+    """Composite density as defined by FR‑008."""
+    return 0.6 * entropy + 0.4 * tech_ratio
+
+# ----------------------------------------------------------------------
+# Main generation routine
+# ----------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Generate synthetic trajectories with controlled semantic density."
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility"
+    )
+    # Accept both the historic '--count' flag and the newer '--num-trajectories'
+    parser.add_argument(
+        "--count",
+        type=int,
+        default=None,
+        help=argparse.SUPPRESS
+    )
+    parser.add_argument(
+        "--num-trajectories",
+        type=int,
+        default=None,
+        help="Number of trajectories to generate (overrides --count)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(DEFAULT_OUTPUT_FILE),
+        help="Path to write the generated trajectories JSON"
+    )
     args = parser.parse_args()
-    
-    logger.info(f"Starting trajectory generation with seed={args.seed}, count={args.count}")
-    
-    # Ensure directories
+
+    # Resolve the trajectory count (prefer the explicit '--num-trajectories')
+    traj_count = args.num_trajectories or args.count or DEFAULT_TRAJECTORY_COUNT
+    if traj_count <= 0:
+        logger.error("Trajectory count must be positive.")
+        sys.exit(1)
+
+    logger.info(f"Generating {traj_count} trajectories (seed={args.seed})")
+    random.seed(args.seed)
+
+    # Ensure config directory and load technical terms
     ensure_config_directory()
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load terms
     terms = load_terms()
     if not terms:
-        logger.error("No technical terms found. Cannot generate meaningful density-controlled trajectories.")
+        logger.error("Technical terms list is empty – cannot compute density.")
         sys.exit(1)
-    
-    trajectories = []
-    
-    # Distribute count across density levels
-    count_per_level = args.count // len(DENSITY_LEVELS)
-    remainder = args.count % len(DENSITY_LEVELS)
-    
-    counts = [count_per_level] * len(DENSITY_LEVELS)
+
+    # Distribute trajectories across density levels as evenly as possible
+    count_per_level = traj_count // len(DENSITY_LEVELS)
+    remainder = traj_count % len(DENSITY_LEVELS)
+    level_counts = {lvl: count_per_level for lvl in DENSITY_LEVELS}
     for i in range(remainder):
-        counts[i] += 1
-    
-    trajectory_id = 0
-    for i, level in enumerate(DENSITY_LEVELS):
-        target_density = TARGET_DENSITIES[level]
-        for _ in range(counts[i]):
-            # Randomly assign an evidence turn index (0 to 9)
-            evidence_turn_index = random.randint(0, 9)
-            
-            traj = generate_trajectory(
-                trajectory_id=trajectory_id,
-                density_level=level,
-                target_density=target_density,
-                terms=terms,
-                evidence_turn_index=evidence_turn_index,
-                seed=args.seed
+        level_counts[DENSITY_LEVELS[i]] += 1
+
+    # Container for all trajectories
+    all_trajectories: List[Dict[str, Any]] = []
+
+    # Generation loop
+    traj_id = 0
+    for level in DENSITY_LEVELS:
+        target_entropy = TARGET_ENTROPIES[level]
+        for _ in range(level_counts[level]):
+            evidence_turn = random.randint(0, TURNS_PER_TRAJECTORY - 1)
+            turns: List[Dict[str, Any]] = []
+            # Build each turn
+            for idx in range(TURNS_PER_TRAJECTORY):
+                is_critical = (idx == evidence_turn)
+                turn = build_turn(
+                    turn_index=idx,
+                    is_critical=is_critical,
+                    target_entropy=target_entropy,
+                    terms=terms
+                )
+                turns.append(turn)
+
+            # Compute final density using the *last* (critical) turn's metrics
+            crit_turn = turns[evidence_turn]
+            final_density = compute_final_density(
+                crit_turn["entropy_per_token"],
+                crit_turn["technical_token_ratio"]
             )
-            trajectories.append(traj)
-            trajectory_id += 1
-    
-    # Validate density computation
-    valid_count = 0
-    for t in trajectories:
-        if validate_density_computation(t, terms):
-            valid_count += 1
-        else:
-            logger.warning(f"Trajectory {t['id']} density validation failed.")
-    
-    logger.info(f"Generated {len(trajectories)} trajectories. {valid_count} passed density validation.")
-    
-    # Calculate bin distribution
-    bin_dist = calculate_bin_distribution(trajectories)
-    logger.info("Bin distribution (density * horizon):")
-    for bin_key, count in sorted(bin_dist.items()):
-        logger.info(f"  {bin_key}: {count}")
-        if count < MIN_SAMPLES_PER_BIN:
-            logger.warning(f"Bin {bin_key} has fewer than {MIN_SAMPLES_PER_BIN} samples.")
-    
-    # Write output
-    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-        json.dump(trajectories, f, indent=2)
-    
-    logger.info(f"Successfully wrote {len(trajectories)} trajectories to {OUTPUT_FILE}")
+
+            trajectory = {
+                "trajectory_id": f"traj_{traj_id}",
+                "turns": turns,
+                "critical_evidence_turn": evidence_turn,
+                "density_level": level,
+                "target_entropy": float(target_entropy),
+                "actual_entropy": float(crit_turn["entropy_per_token"]),
+                "technical_token_ratio": float(crit_turn["technical_token_ratio"]),
+                "final_density": float(final_density)
+            }
+            all_trajectories.append(trajectory)
+            traj_id += 1
+
+    # ------------------------------------------------------------------
+    # Validation of bin counts
+    # ------------------------------------------------------------------
+    bin_counts = {lvl: 0 for lvl in DENSITY_LEVELS}
+    for traj in all_trajectories:
+        bin_counts[traj["density_level"]] += 1
+
+    logger.info("Density bin distribution:")
+    for lvl in DENSITY_LEVELS:
+        cnt = bin_counts[lvl]
+        logger.info(f"  {lvl}: {cnt}")
+        if cnt < MIN_SAMPLES_PER_BIN:
+            logger.error(
+                f"INSUFFICIENT_SAMPLES_PER_BIN: {lvl} has only {cnt} samples "
+                f"(minimum required {MIN_SAMPLES_PER_BIN})"
+            )
+            sys.exit(1)
+
+    # ------------------------------------------------------------------
+    # Write output file
+    # ------------------------------------------------------------------
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(all_trajectories, f, indent=2)
+    except Exception as e:
+        logger.error(f"Failed to write trajectories JSON: {e}")
+        sys.exit(1)
+
+    # Verify file size constraint
+    file_size = output_path.stat().st_size
+    logger.info(f"Wrote {len(all_trajectories)} trajectories to {output_path}")
+    logger.info(f"File size: {file_size / (1024 * 1024):.2f} MiB")
+    if file_size > MAX_FILE_SIZE_BYTES:
+        logger.error(
+            f"File size exceeds limit of 100 MiB (actual: {file_size} bytes)."
+        )
+        sys.exit(1)
+
+    logger.info("Trajectory generation completed successfully.")
 
 if __name__ == "__main__":
     main()

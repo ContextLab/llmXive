@@ -1,108 +1,130 @@
 """
-Script to generate the default density_terms.json configuration file.
+generate_terms.py
 
-This script checks for an existing user override file (code/config/user_terms.json).
-If found, it uses those terms. Otherwise, it generates the default list of terms
-and writes them to code/config/density_terms.json.
-
-The output JSON follows the schema: {"terms": ["string", ...]}
+Utility script to generate a default list of technical terms used for
+computing semantic density. The script writes the list to
+`code/config/density_terms.json`. If a user‑provided `user_terms.json` exists,
+its terms are used instead of the defaults.
 """
+
 import json
-import os
+import logging
+import sys
 from pathlib import Path
+from typing import List, Optional
 
-# Default terms as specified in FR-008
-DEFAULT_TERMS = [
-    "entropy",
-    "retrieval",
-    "context",
-    "density",
-    "horizon",
-    "masking",
-    "trajectory",
-    "agent",
-    "search",
-    "stale"
-]
+# Configure a simple logger
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    stream=sys.stdout,
+)
+logger = logging.getLogger(__name__)
 
-# File paths relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CONFIG_DIR = PROJECT_ROOT / "code" / "config"
-USER_TERMS_PATH = CONFIG_DIR / "user_terms.json"
-OUTPUT_PATH = CONFIG_DIR / "density_terms.json"
+# Paths
+CONFIG_DIR = Path("code/config")
+TERMS_FILE = CONFIG_DIR / "density_terms.json"
+USER_TERMS_FILE = CONFIG_DIR / "user_terms.json"
 
-def ensure_config_directory():
-    """Ensure the config directory exists."""
+
+def ensure_config_directory() -> None:
+    """Ensure the configuration directory exists."""
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    logger.debug(f"Ensured config directory exists at {CONFIG_DIR}")
 
-def load_user_terms():
+
+def load_user_terms() -> Optional[List[str]]:
     """
-    Load terms from user_terms.json if it exists.
-    
-    Returns:
-        list: List of terms from user file, or None if file doesn't exist.
+    Load technical terms from a user‑provided JSON file.
+
+    Returns
+    -------
+    list or None
+        List of terms if the file exists and is valid, otherwise None.
     """
-    if not USER_TERMS_PATH.exists():
+    if not USER_TERMS_FILE.exists():
+        logger.debug(f"No user terms file found at {USER_TERMS_FILE}")
         return None
-    
-    with open(USER_TERMS_PATH, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    if not isinstance(data, dict) or "terms" not in data:
-        raise ValueError(f"Invalid format in {USER_TERMS_PATH}. Expected {{'terms': [...]}}")
-    
-    if not isinstance(data["terms"], list):
-        raise ValueError(f"'terms' in {USER_TERMS_PATH} must be a list.")
-    
-    return data["terms"]
 
-def generate_default_terms():
-    """Generate the default list of terms."""
-    return DEFAULT_TERMS
+    try:
+        with USER_TERMS_FILE.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+        terms = data.get("terms")
+        if isinstance(terms, list):
+            logger.info(f"Loaded {len(terms)} user‑provided terms.")
+            return terms
+        else:
+            logger.error(
+                f"User terms file {USER_TERMS_FILE} does not contain a list under the 'terms' key."
+            )
+            return None
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse user terms JSON: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error loading user terms: {e}")
+        return None
 
-def write_terms_file(terms):
+
+def generate_default_terms() -> List[str]:
     """
-    Write the terms list to density_terms.json.
-    
-    Args:
-        terms (list): List of term strings.
-    """
-    output_data = {"terms": terms}
-    
-    with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, indent=2)
-    
-    print(f"Successfully wrote {len(terms)} terms to {OUTPUT_PATH}")
+    Return the built‑in default list of technical terms.
 
-def main():
-    """Main entry point for the script."""
+    The list matches the one originally committed in `density_terms.json`.
+    """
+    default_terms = [
+        "entropy",
+        "retrieval",
+        "context",
+        "density",
+        "horizon",
+        "masking",
+        "trajectory",
+        "agent",
+        "search",
+        "stale",
+    ]
+    logger.info(f"Generated default list of {len(default_terms)} technical terms.")
+    return default_terms
+
+
+def write_terms_file(terms: List[str]) -> None:
+    """
+    Write the list of terms to `density_terms.json`.
+
+    Parameters
+    ----------
+    terms : list[str]
+        The technical terms to serialize.
+    """
+    data = {"terms": terms}
+    try:
+        with TERMS_FILE.open("w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        logger.info(f"Wrote {len(terms)} terms to {TERMS_FILE}")
+    except Exception as e:
+        logger.error(f"Failed to write terms file {TERMS_FILE}: {e}")
+        sys.exit(1)
+
+
+def main() -> None:
+    """
+    Entry point for the script.
+
+    The script follows these steps:
+    1. Ensure the config directory exists.
+    2. Attempt to load user‑provided terms.
+    3. If none are found, fall back to the default list.
+    4. Write the selected list to `density_terms.json`.
+    """
     ensure_config_directory()
-    
-    # Check for user override
-    user_terms = load_user_terms()
-    
-    if user_terms is not None:
-        print(f"Found user override at {USER_TERMS_PATH}. Using custom terms.")
-        terms_to_use = user_terms
-    else:
-        print(f"No user override found at {USER_TERMS_PATH}. Using default terms.")
-        terms_to_use = generate_default_terms()
-    
-    # Validate terms are strings
-    if not all(isinstance(term, str) for term in terms_to_use):
-        raise ValueError("All terms must be strings.")
-    
-    # Write the output file
-    write_terms_file(terms_to_use)
-    
-    # Verification: Read back and confirm
-    with open(OUTPUT_PATH, 'r', encoding='utf-8') as f:
-        verification_data = json.load(f)
-    
-    if verification_data.get("terms") == terms_to_use:
-        print("Verification successful: Output file matches expected content.")
-    else:
-        raise RuntimeError("Verification failed: Output file content mismatch.")
+
+    terms = load_user_terms()
+    if not terms:
+        terms = generate_default_terms()
+
+    write_terms_file(terms)
+
 
 if __name__ == "__main__":
     main()

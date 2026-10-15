@@ -3201,3 +3201,72 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-15T04:16:24Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/quickstart.md
+  attempts: 1
+  canonical: pipeline produces JSON CSV PNG artifacts in data and output directories
+  claim_id: c_11444343
+  context: The pipeline will produce the required JSON, CSV, and PNG artifacts in
+    the `data/` and `output/` directories.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the pipeline will produce the required JSON, CSV, and PNG artifacts in
+    the `data/` and `output/` directories
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T04:18:26Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/quickstart.md
+  attempts: 1
+  canonical: pipeline generates 500 synthetic trajectories when count set to 500
+  claim_id: c_c5ba7cd7
+  context: The quickstart command `python code/generate_trajectories.py --count 500
+    --seed 42` is used to generate synthetic trajectories.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Generate synthetic trajectories (500 trajectories, seed 42)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T04:18:59Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/quickstart.md
+  attempts: 1
+  canonical: pipeline produces JSON, CSV, and PNG artifacts in data and output directories
+  claim_id: c_05de1e4c
+  context: After running the full pipeline, artifacts are placed in the `data/` and
+    `output/` directories.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline will produce the required JSON, CSV, and PNG artifacts in
+    the data and output directories.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T04:18:59Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/quickstart.md
+  attempts: 1
+  canonical: pipeline produces required JSON CSV PNG artifacts in data and results
+    directories
+  claim_id: c_7bbf7564
+  context: Adjust the `--num-trajectories` and `--seed` arguments as needed. The pipeline
+    will produce the required JSON, CSV, and PNG artifacts in the `data/` and `results/`
+    directories.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline will produce the required JSON, CSV, and PNG artifacts in
+    the `data/` and `results/` directories.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T04:21:17Z'

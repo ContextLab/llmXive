@@ -1,11 +1,58 @@
 T001:
+  c: true
+  h: ee28580e8d17cae5bb5b3a7173a321c847d21aae4d23f8a59890cb91d1a13660
+  r: "Checked that the project root contains the required directories `data/raw/`,\
+    \ `data/logs/`, `results/`, `code/`, and `tests/`, and that a non\u2011empty `quickstart.md`\
+    \ file is present at the project root. All required artifacts exist."
+  sig: 86ae4edc07bc841bef2a7b369b3dc56704bf1f3e6a66c23444dcf3cbb9c0135e
+T002:
+  c: true
+  h: f8484932282ffde0fd635e0e2448eaf2606358db14c34027fc092af69698a368
+  r: "Checked `code/config/density_terms.json`, which exists (169\u202Fbytes) and\
+    \ contains a valid JSON object with a non\u2011empty `\"terms\"` array of technical\
+    \ terms. This matches the task\u2019s requirement to generate a default technical\u2011\
+    term list at the specified path."
+  sig: 329284b3793be76885be2ff43af9715914d9f665d22f489cd8c17e8ce6c020e4
+T003:
+  c: true
+  h: a011e79dd8209bff1d30e6dc91269083b3b7465f663226d64608c38f730630b5
+  r: "The file `code/utils/entropy.py` exists (5228 bytes) and implements Shannon\
+    \ entropy on UTF-8 bytes with correct H = -\u03A3p\xB7log2(p), handles empty/single-unique-byte\
+    \ inputs returning 0.0, and provides `clamp_entropy` to replace non-positive values\
+    \ with a positive epsilon, matching the task's stated requirements. No stubs,\
+    \ TODOs, or placeholders are present."
+  sig: 57ab57010b49051de47cfdb2724bb5b57c8b39fbae532e058ff1245c39b5e36c
+T004:
+  c: true
+  h: 293b8d658a55794bbd1c6c27e83982de87e868c93a0bf45d6a6a6fd1883c2baa
+  r: The file `code/utils/heuristics.py` exists (3149 bytes) and implements exactly
+    the required composite density formula `0.6 * entropy_per_token + 0.4 * technical_token_ratio`,
+    with a pure `calculate_composite_density(text, terms)` function and a `calculate_technical_token_ratio`
+    helper. Its dependency `code/utils/entropy.py` exists and provides the imported
+    `entropy_per_token` function, so the module is a real, non-stub implementation
+    matching the task.
+  sig: 0561530135c3d62e8de1971c00085745c511b3257c378ec98f7f89750af08f2a
+T005:
+  c: true
+  h: 3e627c0ce4dcf8f87b32fc861bc3739082de8686b7d05cac1a9e05a5471968ab
+  r: The file `tests/unit/test_entropy.py` exists (4357 bytes) with substantive, non-stub
+    tests covering `calculate_shannon_entropy`, `clamp_entropy`, and `entropy_per_token`,
+    and the imported module `code/utils/entropy.py` exists with matching implementations
+    (e.g., zero-density clamping to 1e-8, warning logging, per-token division) consistent
+    with the test expectations.
+  sig: c54caddf56a4649e62931c6c06c3dfcc4e3d32bca3a3ec0f0b563850dd347027
+T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or proof of existence/writability for `data/raw/`, `data/processed/`,
-    `output/plots/`, `code/`, `code/utils/`, `tests/unit/`, `tests/integration/`,
-    or `tests/contract/` under the specified project path were provided. The implementer
-    must supply evidence (e.g., a file tree snapshot or commands confirming the directories
-    exist and are writable).
+  h: 125126af5fa9ac5f54f45fb4fbf7930aa488f5919fe3e374e02a59c1105207a9
+  r: "The test file exists and is non-empty, but its tests contradict the actual implementation\
+    \ they're supposed to test: `calculate_composite_density` in `code/utils/heuristics.py`\
+    \ takes `(text, terms)` and applies fixed 0.6/0.4 weights, while the tests call\
+    \ it as `calculate_composite_density(entropy_val, tech_ratio, alpha, beta)` with\
+    \ arbitrary weights \u2014 every composite-density test would fail with a TypeError\
+    \ or wrong result. Additionally, `test_all_technical_terms` expects ratio 1.0\
+    \ for \"search_context retrieval_window\", but the implementation's regex tokenizer\
+    \ splits underscores, yielding token"
+  sig: 826eb7cee81077d943e7599aa3ea458f18db096ad24daac90900a94fa3e9e338
 T017:
   c: false
   h: 972f2f370fcf9478489a7eaeead7fdc92ce354ef6bc605b1d09440b5ede86570

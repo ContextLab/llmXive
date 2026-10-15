@@ -6,8 +6,7 @@ accepts ONLY text input and does not incorporate agent output, simulation result
 or any external state beyond the configuration file.
 
 FR-007 Requirement: The density calculation must be a pure function of the text
-content and the loaded technical terms, ensuring no data leakage from the
-simulation environment.
+content and the loaded technical terms, ensuring no data leakage from the simulation environment.
 """
 
 import sys
@@ -187,12 +186,12 @@ class TestDensityIsolation:
             for attr in dir(heuristics_module):
                 if not attr.startswith('_') and attr in original_attrs:
                     setattr(heuristics_module, attr, original_attrs[attr])
-                
-                # Remove injected attributes
-                if hasattr(heuristics_module, 'simulation_state'):
-                    delattr(heuristics_module, 'simulation_state')
-                if hasattr(heuristics_module, 'agent_output'):
-                    delattr(heuristics_module, 'agent_output')
+            
+            # Remove injected attributes
+            if hasattr(heuristics_module, 'simulation_state'):
+                delattr(heuristics_module, 'simulation_state')
+            if hasattr(heuristics_module, 'agent_output'):
+                delattr(heuristics_module, 'agent_output')
 
     def test_entropy_calculation_is_isolated(self):
         """

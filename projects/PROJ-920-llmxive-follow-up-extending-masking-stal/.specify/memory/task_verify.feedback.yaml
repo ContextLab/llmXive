@@ -9,6 +9,14 @@ T004:
 T005:
   task: 4578603fceed50e30216a281dd3825852f728e113cc78c8fefb967827f5aebbf
 T006:
+  reason: "The test file exists and is non-empty, but its tests contradict the actual\
+    \ implementation they're supposed to test: `calculate_composite_density` in `code/utils/heuristics.py`\
+    \ takes `(text, terms)` and applies fixed 0.6/0.4 weights, while the tests call\
+    \ it as `calculate_composite_density(entropy_val, tech_ratio, alpha, beta)` with\
+    \ arbitrary weights \u2014 every composite-density test would fail with a TypeError\
+    \ or wrong result. Additionally, `test_all_technical_terms` expects ratio 1.0\
+    \ for \"search_context retrieval_window\", but the implementation's regex tokenizer\
+    \ splits underscores, yielding token"
   task: e731b38f4abfb7b50296b62e28a0a4cf9037bde7d5d9ce8f57abac7a422cadd1
 T007:
   task: 2a5eb6c68bb38a468471294748154a255007b7bb561d689349f81b7e0377aa45
@@ -27,6 +35,8 @@ T013:
 T014:
   task: 6e8cfec58819f89e64179052eb25741968512c02d861c02d17578c315d3ec865
 T015:
+  reason: 'Requested task execution failed; rerun successfully: code/validate_simulation.py
+    exit=-1 (TIMEOUT)'
   task: ba6b31909ffef95534b625215b50a157ef3110aabc74b184c7e8cff19d0bd2b6
 T016:
   task: 8a02b027828d16b9bfba3a2fa1d3d9e202564f22c3a0432ccf7a37c65cec6936
