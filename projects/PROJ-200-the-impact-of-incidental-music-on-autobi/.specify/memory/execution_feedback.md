@@ -19,64 +19,94 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --step download -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 4, in <module>
-    from utils import setup_logging, get_logger
+tup_logging, get_logger
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
     import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-200-the-impact-of-incidental-music-on-autobi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/__init__.py", line 13, in <module>
+    from . import parquet  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/parquet.py", line 13, in <module>
+    import pandas as pd
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/__init__.py", line 26, in <module>
+    from pandas.compat import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/__init__.py", line 27, in <module>
+    from pandas.compat.pyarrow import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/pyarrow.py", line 10, in <module>
+    _palv = Version(Version(pa.__version__).base_version)
+                            ^^^^^^^^^^^^^^
+AttributeError: partially initialized module 'pyarrow' has no attribute '__version__' (most likely due to a circular import)
 
 - python code/main.py --step ingest -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 4, in <module>
-    from utils import setup_logging, get_logger
+tup_logging, get_logger
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
     import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-200-the-impact-of-incidental-music-on-autobi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/__init__.py", line 13, in <module>
+    from . import parquet  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/parquet.py", line 13, in <module>
+    import pandas as pd
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/__init__.py", line 26, in <module>
+    from pandas.compat import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/__init__.py", line 27, in <module>
+    from pandas.compat.pyarrow import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/pyarrow.py", line 10, in <module>
+    _palv = Version(Version(pa.__version__).base_version)
+                            ^^^^^^^^^^^^^^
+AttributeError: partially initialized module 'pyarrow' has no attribute '__version__' (most likely due to a circular import)
 
 - python code/main.py --step analyze -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 4, in <module>
-    from utils import setup_logging, get_logger
+tup_logging, get_logger
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
     import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-200-the-impact-of-incidental-music-on-autobi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/__init__.py", line 13, in <module>
+    from . import parquet  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/parquet.py", line 13, in <module>
+    import pandas as pd
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/__init__.py", line 26, in <module>
+    from pandas.compat import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/__init__.py", line 27, in <module>
+    from pandas.compat.pyarrow import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/pyarrow.py", line 10, in <module>
+    _palv = Version(Version(pa.__version__).base_version)
+                            ^^^^^^^^^^^^^^
+AttributeError: partially initialized module 'pyarrow' has no attribute '__version__' (most likely due to a circular import)
 
 - python code/main.py --step verify -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 4, in <module>
-    from utils import setup_logging, get_logger
+tup_logging, get_logger
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
     import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-200-the-impact-of-incidental-music-on-autobi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/__init__.py", line 13, in <module>
+    from . import parquet  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/parquet.py", line 13, in <module>
+    import pandas as pd
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/__init__.py", line 26, in <module>
+    from pandas.compat import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/__init__.py", line 27, in <module>
+    from pandas.compat.pyarrow import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/pyarrow.py", line 10, in <module>
+    _palv = Version(Version(pa.__version__).base_version)
+                            ^^^^^^^^^^^^^^
+AttributeError: partially initialized module 'pyarrow' has no attribute '__version__' (most likely due to a circular import)
 
 - python code/main.py --full-run -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 4, in <module>
-    from utils import setup_logging, get_logger
+tup_logging, get_logger
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/utils.py", line 6, in <module>
     import pyarrow.parquet as pq
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-200-the-impact-of-incidental-music-on-autobi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/__init__.py", line 13, in <module>
+    from . import parquet  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/pyarrow/parquet.py", line 13, in <module>
+    import pandas as pd
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/__init__.py", line 26, in <module>
+    from pandas.compat import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/__init__.py", line 27, in <module>
+    from pandas.compat.pyarrow import (
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/pyarrow.py", line 10, in <module>
+    _palv = Version(Version(pa.__version__).base_version)
+                            ^^^^^^^^^^^^^^
+AttributeError: partially initialized module 'pyarrow' has no attribute '__version__' (most likely due to a circular import)
 
 
 ## Declared deliverables still missing
@@ -86,28 +116,6 @@ ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 - data/final/sensitivity_analysis.csv
 - data/processed/ingested_cohort.parquet
 - data/processed/user_track_pairs.parquet
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **16936134** real records with fields: user_index, artist_index, track_index, user_id, timestamp, musicbrainz_artist_id, artist_name, musicbrainz_track_id, track_name, gender, age, country, signup_date.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-from datasets import load_dataset
-
-ds = load_dataset("matthewfranglen/lastfm-1k")
-total_records = sum(len(split) for split in ds.values())
-print(f"RECORDS={total_records}")
-
-first_split = next(iter(ds.values()))
-sample_record = first_split[0]
-print(f"FIELDS={','.join(sample_record.keys())}")
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

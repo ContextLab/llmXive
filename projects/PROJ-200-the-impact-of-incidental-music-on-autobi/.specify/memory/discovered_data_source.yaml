@@ -1,44 +1,10 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'from datasets import load_dataset
-
-
-  ds = load_dataset("matthewfranglen/lastfm-1k")
-
-  total_records = sum(len(split) for split in ds.values())
-
-  print(f"RECORDS={total_records}")
-
-
-  first_split = next(iter(ds.values()))
-
-  sample_record = first_split[0]
-
-  print(f"FIELDS={'',''.join(sample_record.keys())}")'
-record_count: 16936134
-sample_fields:
-- user_index
-- artist_index
-- track_index
-- user_id
-- timestamp
-- musicbrainz_artist_id
-- artist_name
-- musicbrainz_track_id
-- track_name
-- gender
-- age
-- country
-- signup_date
-field_coverage: 0.833
+status: none
+intent: download Million Song Dataset user listening history python package dataset
 required_fields:
 - user_id
 - birth_year
 - track_id
 - listen_timestamp
-- artist_name
-- track_name
-intent: Last.fm 1K users listening history with timestamps and birth year python package
-  dataset
-cache_key: 94c20efed8c2cc747dac6ea0f6f537b7544084de9a204f8e1da41d24b5576d7a
+cache_key: 1d4c14b06ff78a392d8c5857a091b75d533b2c04f79275a6f9508b2778433432
+searched_at: '2026-10-15T19:09:03.499284+00:00'
+retry_count: 1

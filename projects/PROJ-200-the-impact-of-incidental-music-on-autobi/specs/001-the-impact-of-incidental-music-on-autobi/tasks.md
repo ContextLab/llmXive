@@ -7,7 +7,7 @@
 
 **Goal**: Establish the pipeline skeleton and run a thin, end-to-end analysis on a small simulated sample to verify the statistical flow.
 
-- [ ] T000 Initialize `state.yaml` with the required structure (`artifact_hashes`, `updated_at`, `config`) as a blocking prerequisite for all subsequent data tasks and checksumming.
+- [ ] T000 Initialize `state.yaml` with the required structure (`artifact_hashes`, `updated_at`, `config`) as a blocking prerequisite for all subsequent data tasks and checksumming. <!-- FAILED-IN-EXECUTION: code/init_state.py exit=1 -->
 - [ ] T001 Establish the project layout (`code/`, `data/raw/`, `data/processed/`, `data/final/`, `tests/`), `requirements.txt` (including `statsmodels`, `pyarrow`, `levenshtein`), and `code/config.py` containing thresholds (Levenshtein $\le 4$, `MATCH_RATE_THRESHOLD=0.8`) and seeds. Document the execution command in `quickstart.md`.
 - [ ] T002 Implement the data contracts in `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` to define the User-Track Pair analysis dataset and the regression/permutation outputs.
     - Verification: The contract files must pass `jsonschema` validation and match the requirements in `spec.md`.
