@@ -1,15 +1,12 @@
 status: none
-intent: Parkinson's Progression Markers Initiative PPMI Qiita longitudinal gut microbiome
-  python package dataset
+intent: download open Parkinson's Progression Markers Initiative microbiome ASV counts
+  with MDS-UPDRS clinical data python package dataset
 required_fields:
-- sample_id
-- patient_id
-- visit_timepoint
-- visit_date
-- taxon_counts_per_ASV
+- subject_id
+- visit_id
+- collection_date
 - MDS_UPDRS_total
-- age
-- sex
-cache_key: 4a1262b312a719417151b5e81a5c18268c6e5ae656457353613c63217dfb919c
-searched_at: '2026-10-15T01:23:47.070511+00:00'
+- ASV_* (taxon count columns for each microbial feature)
+cache_key: 266bd5a5c1403e94350178a478c7c68164b3736653df29432d3bebf59f6924a4
+searched_at: '2026-10-15T01:28:59.716531+00:00'
 retry_count: 1

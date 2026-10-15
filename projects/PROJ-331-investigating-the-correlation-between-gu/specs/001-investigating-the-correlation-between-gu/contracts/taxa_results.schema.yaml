@@ -8,14 +8,14 @@ properties:
     description: "Rows for taxa_correlations.csv"
     items:
       type: object
-      required: [taxon_name, spearman_rho, raw_p, bh_adj_p]
+      required: [taxon_name, spearman_rho_adj, raw_p, bh_adj_p]
       properties:
         taxon_name:
           type: string
           description: "Exact taxon identifier as in the ASV table"
-        spearman_rho:
+        spearman_rho_adj:
           type: number
-          description: "Spearman rank correlation coefficient between taxon slope and UPDRS slope"
+          description: "Spearman rank correlation coefficient after adjusting for age, sex, and levodopa dose"
         raw_p:
           type: number
           description: "Two‑tailed p‑value from the Spearman test"

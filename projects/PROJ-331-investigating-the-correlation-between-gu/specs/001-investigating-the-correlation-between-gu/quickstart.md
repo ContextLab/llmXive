@@ -15,8 +15,8 @@ pip install -r requirements.txt
 ```
 
 ## Prepare Input Data
-1. **Microbiome ASV table** – place a CSV named `open_asv.csv` (or `ppmi_asv.csv`) in `data/raw/`. It must contain at least the columns `sample_id`, `patient_id`, `visit_date`, plus one column per taxon with raw integer counts.  
-2. **Clinical metadata** – place a Parquet file named `open_clinical.parquet` (or `ppmi_clinical.parquet`) in `data/raw/`. Required columns are `patient_id`, `visit_date`, `age`, `sex`, `levodopa_eq_dose`, and `MDS_UPDRS_total`.  
+1. **Microbiome ASV table** – place a CSV named `open_asv.csv` in `data/raw/`. It must contain at least the columns `sample_id`, `patient_id`, `visit_date`, plus one column per taxon containing raw integer counts.  
+2. **Clinical metadata** – place a Parquet file named `open_clinical.parquet` in `data/raw/`. Required columns are `patient_id`, `visit_date`, `age`, `sex`, `levodopa_eq_dose`, and `MDS_UPDRS_total`.  
 
 If either file or any required column is missing, the ingest step aborts with a clear error message.
 
@@ -38,7 +38,7 @@ python -m src.pipeline \
 | Flag | Meaning | Default |
 |------|---------|---------|
 | `--seed` | Random seed for reproducibility. | 42 |
-| `--max_taxa` | Upper bound on taxa retained after filtering (enforces FR‑010). | 100 |
+| `--max_taxa` | Upper bound on taxa retained after filtering (enforces FR‑010). Random subsampling (seeded) is used when RAM exceeds 7 GB. | 100 |
 | `--perm_iterations` | Number of permutation iterations (FR‑007). | 1000 |
 
 The command executes all phases (0 → 6) and writes the four deliverables under `results/`.
@@ -62,9 +62,9 @@ head -n 5 results/taxa_correlations.csv
 | Step | Approx. Wall‑time |
 |------|-------------------|
 | Data validation & loading | < 2 min |
-| Filtering + CLR | < 5 min |
-| Slope computation | < 3 min |
-| Plain Spearman + BH | < 2 min |
+| Filtering + CLR (incl. subsampling) | < 5 min |
+| Slope computation (≥ 3 visits) | < 3 min |
+| Covariate‑adjusted partial Spearman + BH | < 2 min |
 | Mixed‑effects fitting | < 12 min |
 | Permutation (1 000 it., ≤ 100 taxa) | 3–4 h |
 | PDF report generation | < 1 min |
@@ -73,5 +73,4 @@ head -n 5 results/taxa_correlations.csv
 **Important:** The pipeline **requires** the `MDS_UPDRS_total` column. If it is missing, the pipeline aborts with an informative error; no synthetic data are generated.
 
 ---
-
 

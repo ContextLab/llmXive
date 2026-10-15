@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T16:42:35.792677Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-331-investigating-the-correlation-between-gu
-last_run_id: f130c137-aa34-4dbe-9cf5-c05ad7bca57e
+last_run_id: 2d72e58c-2f6e-4641-95ce-bc8823af19f0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-331-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu
 title: "Investigating the Correlation Between Gut Microbiome Composition and Parkinson\u2019\
   s Disease Progression"
-updated_at: '2026-10-15T01:25:34.027994Z'
+updated_at: '2026-10-15T01:41:25.686583Z'
