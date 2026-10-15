@@ -1,9 +1,32 @@
-status: none
-intent: '### User Story 1 - Define and Calculate Exposure Metrics (Priority: P1) As
-  a researcher, I need the system to calculate the ''adolescent_exposure_ratio'' for
-  each user-track pair so that I can quantify the proportion of music exposure occurring
-  during the user''s adolescence. **Why this priority**: Thi'
-required_fields: []
-cache_key: 888f8c7172a52465706b70f4c1df52fef1a7991377416ff714bfb97a7069161f
-searched_at: '2026-10-14T19:51:12.343848+00:00'
-retry_count: 1
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import datasets\n\nds = datasets.load_dataset(\"matthewfranglen/lastfm-1k\"\
+  )\nif isinstance(ds, datasets.DatasetDict):\n    total = sum(len(split) for split\
+  \ in ds.values())\n    first_record = next(iter(ds.values()))[0]\nelse:\n    total\
+  \ = len(ds)\n    first_record = ds[0]\n\nprint(f\"RECORDS={total}\")\nprint(\"FIELDS=\"\
+  \ + \",\".join(first_record.keys()))"
+record_count: 16936134
+sample_fields:
+- user_index
+- artist_index
+- track_index
+- user_id
+- timestamp
+- musicbrainz_artist_id
+- artist_name
+- musicbrainz_track_id
+- track_name
+- gender
+- age
+- country
+- signup_date
+field_coverage: 0.75
+required_fields:
+- user_id
+- birth_year
+- track_id
+- listen_timestamp
+intent: download Last.fm 1K Users dataset and LFM-1b timestamps birth year python
+  package dataset
+cache_key: 8ae1874bd4d9680fa1472c495937a2d2977c2d3b0a98bc282a276a193ef63c59

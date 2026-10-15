@@ -1,14 +1,14 @@
 T000:
-  reason: 'The `state.yaml` exists and was created by a successful run of `code/init_state.py`,
-    but its structure does not match the task requirement: it contains `config`, `files:
-    {}`, and `updated_at`, but no `artifact_hashes` key (the task explicitly requires
-    `artifact_hashes`, `updated_at`, `config`). The implementer should fix `init_state.py`
-    to emit an `artifact_hashes` mapping (or rename `files` accordingly) and regenerate
-    the file.'
+  reason: 'declared artifact(s) missing/empty/invalid: state.yaml'
   task: 883cb8df1cee439963b64f56312618c65d6a3099a360e0b0ab1ea7050c8c09c3
 T001:
   task: 24689101c69f744d0aa7d905eedde7015e19b8e55b8561ad31dafce823f03673
 T002:
+  reason: "Checked `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`.\
+    \ Both files exist and contain schema definitions, but the `dataset.schema.yaml`\
+    \ uses a non\u2011standard `nullable: true` keyword (not valid in JSON\u2011Schema\
+    \ draft\u201107) and thus would fail strict `jsonschema` validation, meaning the\
+    \ contracts do not fully meet the spec\u2019s validation requirement."
   task: 9ffee1b6fb4836eb6687f4aebf3537be944cde5dd98e58c4c8ddacf56c5ee631
 T003:
   task: d1b5ceea866482ff6891e1a4c319300274aab55982666b2f9cfdfb3b704a22be

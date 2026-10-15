@@ -35,6 +35,31 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - data/final/permutation_results.csv
 - data/final/sensitivity_analysis.csv
 
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **16936134** real records with fields: user_index, artist_index, track_index, user_id, timestamp, musicbrainz_artist_id, artist_name, musicbrainz_track_id, track_name, gender, age, country, signup_date.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import datasets
+
+ds = datasets.load_dataset("matthewfranglen/lastfm-1k")
+if isinstance(ds, datasets.DatasetDict):
+    total = sum(len(split) for split in ds.values())
+    first_record = next(iter(ds.values()))[0]
+else:
+    total = len(ds)
+    first_record = ds[0]
+
+print(f"RECORDS={total}")
+print("FIELDS=" + ",".join(first_record.keys()))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
