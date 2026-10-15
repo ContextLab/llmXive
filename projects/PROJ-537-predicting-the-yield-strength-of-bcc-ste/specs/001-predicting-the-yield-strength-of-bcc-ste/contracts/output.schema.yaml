@@ -9,25 +9,25 @@ properties:
     properties:
       r2_rf:
         type: "number"
-        description: "R-squared score for the Random Forest model."
+        description: "R-squared for the Random Forest with DFT features."
       mae_rf:
         type: "number"
-        description: "Mean Absolute Error for the Random Forest model."
+        description: "Mean Absolute Error for the Random Forest with DFT features."
       r2_baseline:
         type: "number"
-        description: "R-squared score for the composition-only baseline."
+        description: "R-squared for the composition-only baseline."
       mae_baseline:
         type: "number"
         description: "Mean Absolute Error for the composition-only baseline."
       p_value:
         type: "number"
-        description: "P-value from the Wilcoxon signed-rank test on hold-out errors."
+        description: "P-value from the paired **t-test** (not Wilcoxon)."
       power:
         type: "number"
-        description: "Statistical power (1 - beta) of the test."
+        description: "Statistical power (1 - β) of the test."
       null_hypothesis:
         type: "string"
-        description: "Description of the null hypothesis tested."
+        description: "Statement of the null hypothesis."
     required:
       - r2_rf
       - mae_rf
@@ -35,9 +35,10 @@ properties:
       - mae_baseline
       - p_value
       - power
+      - null_hypothesis
   correlation_analysis:
     type: "object"
-    description: "Pearson correlation between shear modulus and yield strength (SC-001)."
+    description: "Pearson correlation between shear modulus and yield strength."
     properties:
       r_value:
         type: "number"
@@ -53,7 +54,7 @@ properties:
       - confidence_interval_95
   feature_importance:
     type: "object"
-    description: "Feature importance rankings."
+    description: "Top‑5 SHAP features and permutation importance statistics."
     properties:
       top_5_shap:
         type: "array"
@@ -65,9 +66,12 @@ properties:
               type: "string"
             importance:
               type: "number"
+          required:
+            - feature
+            - importance
       permutation_std:
         type: "array"
-        description: "Standard deviation of permutation importance across 10 bootstraps."
+        description: "Standard deviation of permutation importance across multiple bootstraps."
         items:
           type: "object"
           properties:
@@ -75,6 +79,9 @@ properties:
               type: "string"
             std_dev:
               type: "number"
+          required:
+            - feature
+            - std_dev
     required:
       - top_5_shap
       - permutation_std
@@ -84,7 +91,7 @@ properties:
     properties:
       sample_sizes:
         type: "array"
-        description: "Sample sizes tested (Full dataset with replacement)."
+        description: "Sample sizes tested (full dataset with replacement)."
         items:
           type: "integer"
       std_dev_dft_descriptors:
@@ -94,7 +101,7 @@ properties:
           type: "number"
       is_stable:
         type: "boolean"
-        description: "True if std_dev < 0.05 for key DFT descriptors (SC-005)."
+        description: "True if std_dev < 0.05 for key DFT descriptors."
     required:
       - sample_sizes
       - std_dev_dft_descriptors
@@ -110,7 +117,7 @@ properties:
         description: "VIF score for each feature."
       max_vif:
         type: "number"
-        description: "Maximum VIF score observed."
+        description: "Maximum VIF observed."
     required:
       - vif_scores
       - max_vif
@@ -123,7 +130,7 @@ properties:
         description: "Total number of valid rows in the merged dataset."
       min_threshold_met:
         type: "boolean"
-        description: "True if row_count >= 20."
+        description: "True if row_count ≥ 20."
     required:
       - row_count
       - min_threshold_met

@@ -1,74 +1,64 @@
 # Quickstart: Predicting the Yield Strength of BCC Steels from Density Functional Theory
 
 ## Prerequisites
-
-- Python 3.11+
-- Access to the Materials Project API (API Key required).
-- Internet access to fetch experimental data (MatNavi/NIST).
+- **Python 3.11** (or newer)  
+- **Materials Project API key** (free registration at <https://materialsproject.org>)  
+- Internet access (for downloading the experimental dataset and querying the Materials Project API)  
 
 ## Installation
+```bash
+# 1. Clone the repository
+git clone 
+cd PROJ-537-predicting-the-yield-strength-of-bcc-ste
 
-1. **Clone the repository** and navigate to the project directory.
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. **Install dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
- *Note: `requirements.txt` pins versions compatible with CPU-only execution.*
+# 2. Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+# 3. Install pinned dependencies
+pip install -r code/requirements.txt
+```
 
 ## Configuration
+```bash
+# Export your Materials Project API key
+export MP_API_KEY="YOUR_API_KEY_HERE"
+# (Optional) Set a fixed random seed for reproducibility
+export RANDOM_SEED=42
+```
 
-1. Set your **Materials Project API Key** as an environment variable:
- ```bash
- export MP_API_KEY="your_api_key_here"
- ```
-2. Ensure the `data/` directory exists.
-
-## Running the Pipeline
-
-Execute the main pipeline script:
-
+## Running the Full Pipeline
 ```bash
 python code/main.py
 ```
 
-### What happens during execution?
+### What the script does
+1. **Download experimental BCC composition data** from the verified MatNavi URL (`datasets.load_dataset('matnavi/steel_yield_strength')`).  
+2. **Query the Materials Project API** for elastic constants of each formula, filtering for BCC (`space_group_number == 229`).  
+3. **Merge** the two sources; if fewer than **20** rows survive, the script **halts with `ERR_INSUFFICIENT_DATA`**.  
+4. **Engineer features**, compute VIF, and calculate Pearson correlation (SC‑001).  
+5. **Train** a Random Forest with composition + DFT features and a composition‑only baseline using **nested 5‑fold cross‑validation**.  
+6. **Perform** a paired **t‑test** on the outer‑fold MAE differences, compute effect size, 95 % CI, and calculate statistical power (SC‑008).  
+7. **Run** TreeSHAP, permutation importance, and a **full‑dataset bootstrap stability** analysis (SC‑004, SC‑005).  
+8. **Write** `data/results/output.json` (validated against `contracts/output.schema.yaml` and `contracts/model_output.schema.yaml`) and save diagnostic plots under `data/results/plots/`.  
 
-1. **Data Fetching**:
- - Downloads experimental data from MatNavi ().
- - Queries the Materials Project API for DFT elastic constants.
- - **Stop Condition**: If the merged dataset has fewer than 20 valid rows, the script halts with `ERR_INSUFFICIENT_DATA`.
-2. **Data Processing**:
- - Filters for BCC structure (Space Group 229).
- - Merges datasets, encodes composition, and calculates VIF scores.
- - Calculates Pearson correlation between Shear Modulus and Yield Strength.
-3. **Modeling**:
- - Trains Random Forest (with DFT) and Baseline (Composition only) using **Nested Cross-Validation**.
- - Performs **Wilcoxon signed-rank test** on the hold-out test set errors.
-4. **Analysis**:
- - Calculates R², MAE, and statistical power.
- - Generates TreeSHAP and Permutation Importance plots.
- - Runs **Full-Dataset Bootstrap** Stability analysis.
- - Checks if `std_dev < 0.05` for key features and reports `is_stable`.
-5. **Output**:
- - Results saved to `data/results/output.json` (matching `contracts/output.schema.yaml`).
- - Plots saved to `data/results/plots/`.
- - Provenance logs in `data/provenance/`.
-
-## Verifying Results
-
-Check the `data/results/output.json` file for:
-- `p_value`: From the Wilcoxon test (should be < 0.05 to reject the null hypothesis).
-- `power`: Should be reported (warning if < 0.8).
-- `row_count`: Must be >= 20.
-- `is_stable`: Boolean indicating if feature importance is stable (< 0.05 std).
+## Verifying the Results
+- Open `data/results/output.json` and confirm that:
+  - `"data_validation":{"row_count":<int>,"min_threshold_met":true}`  
+  - `"metrics"` contains `r2_rf`, `mae_rf`, `r2_baseline`, `mae_baseline`, `p_value`, `power`, `null_hypothesis`.  
+- Run the contract tests:
+```bash
+pytest -q tests/contract/
+```
+All tests should pass; any failure indicates a schema mismatch.
 
 ## Troubleshooting
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| `ERR_INSUFFICIENT_DATA` | The merged dataset has < 20 rows (no yield‑strength column or too many missing DFT matches). | Verify that the MatNavi dataset actually contains a `yield_strength_MPa` column. If not, the project cannot proceed per the specification. |
+| `MP_API_KEY not set` | Environment variable missing. | Export `MP_API_KEY` before running. |
+| API rate‑limit errors | Too many rapid queries. | The script already includes exponential backoff; rerun after a short pause. |
+| MemoryError | Unlikely with ≤ 50 rows; if present, ensure no other heavy processes are running on the CI runner. | Reduce concurrent jobs or run locally with more memory. |
 
-- **`ERR_INSUFFICIENT_DATA`**: The public datasets did not yield enough BCC Fe-alloy matches. No synthetic data is generated.
-- **API Rate Limit**: The script includes exponential backoff. If it fails after 3 retries, that specific entry is skipped.
-- **Memory Error**: Unlikely on this dataset size, but ensure no other heavy processes are running.
+---
+

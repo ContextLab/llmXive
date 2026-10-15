@@ -5,40 +5,17 @@ type: "object"
 properties:
   formula:
     type: "string"
-    description: "Chemical formula of the alloy (e.g., Fe0.95Cr0.05)."
-  yield_strength_MPa:
-    type: "number"
-    description: "Experimental yield strength in MPa."
-    minimum: 0
-  shear_modulus_GPa:
-    type: "number"
-    description: "DFT Shear Modulus in GPa."
-    minimum: 0
-  bulk_modulus_GPa:
-    type: "number"
-    description: "DFT Bulk Modulus in GPa."
-    minimum: 0
-  space_group:
-    type: "integer"
-    description: "Crystal space group number (must be 229 for BCC)."
-    enum:
-      - 229
-  element_fractions:
-    type: "object"
-    description: "Map of elemental fractions."
-    additionalProperties:
-      type: "number"
-      minimum: 0
-      maximum: 1
-  uncertainty_flag:
-    type: "boolean"
-    description: "True if the original yield strength was a range."
-required:
-  - formula
-  - yield_strength_MPa
-  - shear_modulus_GPa
-  - bulk_modulus_GPa
-  - space_group
-  - element_fractions
-  - uncertainty_flag
-additionalProperties: false
+    description: "  
+
+
+
+```
+
+
+
+```
+
+
+---
+
+

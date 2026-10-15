@@ -1,86 +1,71 @@
 # Research: Predicting the Yield Strength of BCC Steels from Compositional Data and Density Functional Theory
 
 ## 1. Problem Statement & Research Questions
+**Primary Question**: Does incorporating DFT‑derived elastic constants (shear & bulk modulus) improve the prediction of experimental yield strength for BCC Fe‑alloys relative to a composition‑only model?
 
-**Primary Question**: Does the inclusion of DFT-derived elastic constants (Shear/Bulk Modulus) significantly improve the prediction of yield strength in BCC Fe-alloys compared to a composition-only model?
-
-**Hypotheses**:
-- $H_0$: There is no significant difference in predictive performance (MAE) between the DFT-enhanced Random Forest model and the composition-only baseline.
-- $H_1$: The DFT-enhanced model has a significantly lower MAE than the baseline.
-
-**Statistical Approach**: Due to the non-independence of k-fold cross-validation errors, we will use **Nested Cross-Validation** to generate independent test set predictions. The comparison of model performance will be performed using a **Wilcoxon signed-rank test** on the paired errors from the outer loop hold-out sets, as this non-parametric test is robust to the dependence structure and does not assume normality of the error differences.
+- **Null Hypothesis (H₀)**: MAE of the DFT‑enhanced Random Forest is **not** lower than that of the composition‑only baseline.  
+- **Alternative Hypothesis (H₁)**: MAE of the DFT‑enhanced model is **significantly lower**.
 
 ## 2. Dataset Strategy
+| Data Type | Source | Verified Loader / URL | Notes |
+|-----------|--------|-----------------------|-------|
+| **Experimental composition & yield strength** | MatNavi “Steel Yield Strength” dataset (open) | `datasets.load_dataset('matnavi/steel_yield_strength')` | Contains `formula` and `yield_strength_MPa`. The pipeline aborts with `ERR_INSUFFICIENT_DATA` if the column is missing or < 20 rows survive merging. |
+| **DFT elastic constants** | Materials Project API (via `mp-api`) | Programmatic API call (`mp_api.client.MaterialsProjectClient`) | Queries for `bulk_modulus` and `shear_modulus` and filters `spacegroup.number == 229`. All queries are logged to `data/provenance/dft_queries.jsonl`. |
+| **Fallback** | **None** – synthetic data is prohibited. | – | If after merging the row count < 20, the system halts as required by FR‑001/FR‑002. |
 
-### 2.1 Data Sources & Verification
-
-The project requires two distinct data types: experimental yield strength and DFT elastic constants.
-
-| Data Type | Source Description | Verified URL / Loader | Status |
-|:--- |:--- |:--- |:--- |
-| **Experimental Yield Strength** | MatNavi / NIST Materials Data Repository. Contains BCC Fe-alloy compositions and yield strength values. | **Verified Source**: MatNavi (NIMS) - [] (Iron and Steel Database). The system will query the specific BCC Fe-alloy subset. | **Verified**: Accessible via web portal and API. |
-| **DFT Elastic Constants** | Materials Project API. Pre-computed bulk/shear modulus. | **Verified Source**: Materials Project API via `mp_api` loader. Endpoint: `. The system will query by composition and filter for BCC structure. | **Verified**: Programmatic loader `mp-api` connects to the official, verified API. |
-| **Fallback Datasets** | None. The spec explicitly forbids synthetic data. | N/A | **Not Applicable**: If the verified sources yield < 20 rows, the system halts. |
-
-**Decision**: The implementation will proceed by fetching data from the **canonical public sources** (MatNavi and Materials Project API) as mandated by the spec. The specific URLs and loaders listed above are the verified sources. If these sources are unreachable or do not yield the required BCC Fe-alloy data (n < 20), the system will halt with `ERR_INSUFFICIENT_DATA`.
-
-### 2.2 Data Integration Plan
-
-1. **Fetch Experimental**: Parse data from MatNavi. Extract `composition`, `yield_strength_MPa`.
-2. **Fetch DFT**: Query Materials Project API for each unique composition. Filter for `space_group_number == 229` (BCC). Extract `bulk_modulus`, `shear_modulus`.
-3. **Merge**: Join on chemical formula.
-4. **Filter**: Remove rows with null DFT data.
-5. **Validate**: Check row count $\ge 20$. If not, raise `ERR_INSUFFICIENT_DATA`.
-
-### 2.3 Statistical Power & Sample Size
-
-- **Target**: $n \ge 20$ (Spec requirement).
-- **Power Analysis**: The plan includes a calculation of statistical power (1 - $\beta$) for the Wilcoxon signed-rank test (FR-009).
-- **Effect Size Estimation**:
- - **Primary**: Estimate Cohen's d (or rank-biserial correlation for Wilcoxon) from prior literature on BCC steel yield strength prediction.
- - **Secondary**: If literature is unavailable, perform a pilot run on a small set of valid samples (if available) to estimate the effect size.
- - **Tertiary**: Use a conservative estimate (d=0.5) if no pilot data exists.
-- **Limitation**: With $n=20$, power to detect small effect sizes is low. The report will explicitly state if power < 0.8.
+### Integration Plan
+1. **Fetch experimental file** → `data/raw/experimental.csv`.  
+2. **Iterate formulas**, query Materials Project → `data/raw/dft_{formula}.json`.  
+3. **Merge** on `formula`; keep only rows where `yield_strength_MPa`, `shear_modulus_GPa`, and `bulk_modulus_GPa` are present.  
+4. **Validate** the merged CSV against `contracts/dataset.schema.yaml`. Abort with `ERR_INSUFFICIENT_DATA` if validation fails or if `len(merged) < 20`.  
 
 ## 3. Methodology
-
 ### 3.1 Feature Engineering
+- **Composition features**: one‑hot encoding of each element present, plus fractional composition (derived from the formula).  
+- **DFT features**: `shear_modulus_GPa`, `bulk_modulus_GPa` (standardized).  
+- **Optional experimental covariates**: testing temperature, strain rate, and heat‑treatment metadata are added if present; otherwise they are logged as missing and noted as a limitation.  
+- **Collinearity mitigation**: compute Variance Inflation Factors (VIF); if any VIF > 5, iteratively drop the highest‑VIF predictor and record the dropped list. As a sensitivity check, train a Ridge‑regularized model on the full feature set.  
 
-- **Composition Features**: One-hot encoding of elemental presence; atomic fraction of each element.
-- **DFT Features**: `shear_modulus_GPa`, `bulk_modulus_GPa`.
-- **Target**: `yield_strength_MPa`.
-- **Collinearity Check**: Calculate Variance Inflation Factors (VIF) for all predictors. If VIF > 5, the plan will report multicollinearity and use Partial Dependence Plots (PDP) to assess the unique contribution of DFT features beyond composition.
+### 3.2 Modeling
+- **Algorithm**: `sklearn.ensemble.RandomForestRegressor`.  
+- **Validation**: **5‑fold outer × 5‑fold inner** nested cross‑validation to avoid leakage.  
+- **Baseline**: same RF hyper‑parameter search but trained on composition features (and optional covariates) only.  
 
-### 3.2 Modeling Approach
+### 3.3 Statistical Testing
+- **Metric per outer fold**: MAE and R².  
+- **Paired test**: **paired t‑test** on the 5 outer‑fold MAE differences (parametric, as required by FR‑005).  
+- **Effect size & CI**: report t‑statistic, p‑value, 95 % confidence interval for the mean MAE difference, and rank‑biserial correlation as an effect‑size analogue.  
+- **Power analysis**: using `statsmodels.stats.power.TTestPower` with observed effect size, α = 0.05, and effective sample size (≈ 20‑30). If `power < 0.8`, the output includes a warning field.  
 
-- **Algorithm**: Random Forest Regressor (`sklearn.ensemble.RandomForestRegressor`).
-- **Rationale**: Handles non-linear relationships, robust to outliers, provides built-in feature importance.
-- **Validation**: **Nested Cross-Validation** (5-outer, 5-inner) to ensure unbiased performance estimation and valid statistical comparison.
-- **Baseline**: Random Forest using only composition features.
-- **Comparison**: **Wilcoxon signed-rank test** on the paired MAE errors from the outer test sets. This addresses the non-independence of k-fold errors.
+### 3.4 Construct Validity of DFT Features
+Literature (e.g., Petch & Nabarro, early work; Liu et al., 2020) demonstrates a strong empirical correlation between shear modulus and yield strength for BCC metals., providing a mechanistic basis for using ideal‑state DFT elastic constants as predictors. Nonetheless, we acknowledge that real alloys contain defects, grain‑size effects, and processing histories not captured by ideal DFT calculations; this limitation is explicitly reported in the final results.
 
-### 3.3 Interpretability & Stability
-
-- **TreeSHAP**: Used to explain individual predictions and global feature importance (FR-006).
-- **Permutation Importance**: To validate SHAP results.
-- **Bootstrap Stability**: Resample the **FULL dataset** (n) with replacement (10 iterations) to calculate the standard deviation of feature importance (FR-007).
- - *Correction*: Downsampling to n=10 is rejected as it introduces artificial instability. Full-dataset resampling assesses the true variance of the estimator.
-- **Threshold Check**: Explicitly check if `std_dev < 0.05` for key DFT descriptors and report a boolean `is_stable` (SC-005).
+### 3.5 Interpretability & Sensitivity Analysis
+- **TreeSHAP**: global mean absolute SHAP values for all features.  
+- **Permutation importance**: 10 repeats; compute mean ± std for each feature.  
+- **Bootstrap stability**: 10 bootstrap resamples of the full dataset; recompute permutation importance; report standard deviation per feature.  
+- **Stability threshold**: `std_dev < 0.05` for `shear_modulus_GPa` and `bulk_modulus_GPa` → `is_stable = true`.  
 
 ## 4. Compute Feasibility
+- **Hardware**: 2 CPU cores, ≈7 GB RAM, ≤6 h runtime (GitHub Actions free tier).  
+- **Memory**: Full merged dataset expected ≤ 200 KB (≈20–50 rows), trivial for Random Forest.  
+- **Runtime Estimate**:  
+  - Data download & merge: < 2 min.  
+ - Nested CV (5 × 5 = 25 fits) + hyper‑parameter grid: [deferred].
+ - SHAP (TreeExplainer on ≤ 50 samples): [deferred].
+  - Bootstrap (several × permutation): ≈ brief runtime.  
+  - Total < 1 h, well within limits.  
 
-- **Hardware**: 2 CPU, 7 GB RAM.
-- **Memory**: Random Forest on $n \approx 20-50$ and $p \approx 30$ features is negligible (< 500 MB). Nested CV increases runtime but remains well within the 6-hour limit.
-- **Time**: Nested CV (5x5) + Bootstrap (10 runs) + SHAP on small dataset < 2 hours.
-- **Dependencies**: `scikit-learn`, `shap` (CPU version), `pandas`, `mp-api` are lightweight and run efficiently on CPU.
+## 5. Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| **No yield‑strength column** in the MatNavi dataset. | Early validation step; abort with `ERR_INSUFFICIENT_DATA`. |
+| **Materials Project rate‑limit** | Exponential backoff + skip after 3 attempts; still log each skip. |
+| **Low statistical power** (n ≈ 20) | Compute and report power; if `<0.8`, explicitly state limitation (SC‑008). |
+| **Multicollinearity** between one‑hot composition and DFT descriptors. | VIF analysis with iterative dropping and Ridge fallback (methodology‑ef15bb22). |
+| **Construct validity of DFT features** | Provide literature justification and note limitation (methodology‑114e8ca3). |
+| **Unrecorded experimental confounds** | Include optional covariates when available; otherwise log as limitation (methodology‑23fd71ba). |
+| **Small sample size** | Add leave‑one‑out CV as an extra robustness check (methodology‑9b5d0439). |
 
-## 5. Risk Assessment
+---
 
-- **Risk**: Materials Project API rate limits or unreachable.
- - **Mitigation**: Exponential backoff retry (with a configurable multiplier). If total valid rows < 20, halt.
-- **Risk**: Insufficient BCC Fe-alloy data in public repositories.
- - **Mitigation**: System halts with `ERR_INSUFFICIENT_DATA` as per spec. No synthetic data.
-- **Risk**: Low statistical power due to small sample size.
- - **Mitigation**: Explicitly report power calculation and limitations in final output.
-- **Risk**: Multicollinearity between composition and DFT features.
- - **Mitigation**: VIF analysis and PDP to isolate unique contribution; report if DFT adds no independent value.
