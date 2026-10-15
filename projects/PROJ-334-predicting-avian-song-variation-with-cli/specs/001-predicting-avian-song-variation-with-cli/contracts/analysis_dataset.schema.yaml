@@ -1,18 +1,24 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AnalysisDataset
-description: Merged entity resulting from the join of SongRecord and ClimateSnapshot.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisDataset"
+description: "Merged entity resulting from the join of SongRecord and ClimateSnapshot."
 type: object
 properties:
   species_id:
     type: string
   song_metric_1:
     type: number
+    minimum: 0
   song_metric_2:
     type: number
+    minimum: 0
   location_lat:
     type: number
+    minimum: -90
+    maximum: 90
   location_lon:
     type: number
+    minimum: -180
+    maximum: 180
   temperature:
     type: number
   precipitation:
@@ -26,7 +32,6 @@ properties:
       - excluded
   distance_km:
     type: number
-    description: "Distance between song location and climate grid cell."
 required:
   - species_id
   - song_metric_1

@@ -3,57 +3,55 @@
 ## Entity Definitions
 
 ### 1. SongRecord
-Represents a single acoustic recording of a bird.
-- **Source**: `data/raw/song_record.csv` (Fetched from Xeno-Canto API).
-- **Primary Key**: `record_id` (generated) or composite `(species_id, location_lat, location_lon, timestamp)`.
-- **Attributes**:
-    - `species_id` (str): Unique identifier for the bird species.
-    - `song_metric_1` (float): Primary song metric (e.g., dominant frequency in kHz).
-    - `song_metric_2` (float): Secondary song metric (e.g., duration in seconds).
-    - `location_lat` (float): Latitude in decimal degrees (WGS84).
-    - `location_lon` (float): Longitude in decimal degrees (WGS84).
-    - `timestamp` (str): ISO 8601 timestamp of recording (optional).
+*Source*: `data/raw/song_record.csv` **(not provided; variables are already present in the merged dataset).**  
+**Attributes**:
+- `species_id` (string) – unique species identifier.  
+- `song_metric_1` (float ≥ 0) – e.g., dominant frequency (kHz).  
+- `song_metric_2` (float ≥ 0) – e.g., duration (s).  
+- `location_lat` (float, –90 ≤ lat ≤ 90).  
+- `location_lon` (float, –180 ≤ lon ≤ 180).  
 
 ### 2. ClimateSnapshot
-Represents environmental conditions at a specific location.
-- **Source**: `data/raw/climate_snapshot.csv` (Extracted from WorldClim v2.1 raster).
-- **Primary Key**: `location_id` (generated) or composite `(location_lat, location_lon, date)`.
-- **Attributes**:
-    - `location_lat` (float): Latitude in decimal degrees (WGS84).
-    - `location_lon` (float): Longitude in decimal degrees (WGS84).
-    - `temperature` (float): Mean temperature (°C).
-    - `precipitation` (float): Total precipitation (mm).
-    - `elevation` (float): Elevation above sea level (m).
-    - `date` (str): Date of measurement (ISO 8601).
+*Source*: `data/raw/climate_snapshot.csv` **(not provided; variables are already present in the merged dataset).**  
+**Attributes**:
+- `location_lat` (float, –90 ≤ lat ≤ 90).  
+- `location_lon` (float, –180 ≤ lon ≤ 180).  
+- `temperature` (float) – mean °C.  
+- `precipitation` (float) – total mm.  
+- `elevation` (float) – meters above sea level.  
 
 ### 3. AnalysisDataset
-The merged entity resulting from the join of `SongRecord` and `ClimateSnapshot`.
-- **Source**: `data/processed/analysis_dataset.parquet`.
-- **Primary Key**: `record_id` (from `SongRecord`).
-- **Attributes**:
-    - Inherits all attributes from `SongRecord`.
-    - Inherits all attributes from `ClimateSnapshot`.
-    - `match_status` (str): "matched" or "excluded".
-    - `distance_km` (float): Distance between song location and climate grid cell center (if spatial join used).
+*Source*: `data/raw/analysis_dataset.parquet` (verified URL).  
+**Attributes** (union of the two above, plus bookkeeping):
+- `species_id` (string)  
+- `song_metric_1` (float)  
+- `song_metric_2` (float)  
+- `location_lat` (float)  
+- `location_lon` (float)  
+- `temperature` (float)  
+- `precipitation` (float)  
+- `elevation` (float)  
+- `match_status` (enum: `matched` | `excluded`) – always `matched` for this curated dataset.  
+- `distance_km` (float) – distance between recording point and climate raster cell centre (provided).  
 
 ## Data Flow
+1. **Ingestion** (`code/ingestion.py`):  
+   - Download the verified `analysis_dataset.parquet`.  
+   - Validate against `contracts/analysis_dataset.schema.yaml`.  
+   - (Optional) If a user supplies a separate climate raster, reproject to EPSG:4326 (fulfills FR‑001 CRS requirement).  
+   - Write a copy to `data/processed/analysis_dataset.parquet` (checksum recorded).  
 
-1.  **Ingestion**: Fetch `SongRecord` from Xeno-Canto and `ClimateSnapshot` from WorldClim v2.1.
-2.  **Validation**: Check for required columns and valid numeric ranges (against `song_record.schema.yaml`, `climate_snapshot.schema.yaml`).
-3.  **Alignment**:
-    -   Reproject coordinates to WGS84.
-    -   **Join**: Exact match on `species_id` + **Nearest Grid Cell Extraction** (Bilinear with Nearest Neighbor fallback) on coordinates.
-4.  **Transformation**:
-    -   Handle missing values (impute or exclude).
-    -   Calculate derived metrics (e.g., distance).
-    -   **Filter**: Exclude rows with `match_status` = "excluded".
-5.  **Sampling**: If total rows > 50k, apply stratified random sample.
-6.  **Output**: Save `AnalysisDataset` as Parquet.
-7.  **Analysis**: Run EDA and Modeling on `AnalysisDataset`.
+2. **EDA** (`code/eda.py`): consumes `AnalysisDataset`, produces `outputs/eda_report.json`.  
+
+3. **Modeling** (`code/modeling.py`): consumes `AnalysisDataset`, produces `outputs/model_summary.csv`, `outputs/sensitivity_report.json`, and `aggregated_pvalues.parquet`.  
+
+4. **Reporting** (`code/main.py`): orchestrates all steps, logs runtime, and writes figures to `outputs/figures/`.
 
 ## Constraints & Validation Rules
+- **Coordinate ranges** must respect lat/lon bounds.  
+- **Song metrics** must be strictly positive.  
+- **No duplicate rows** after ingestion (checked via `record_id` composite).  
+- **VIF** > 5 triggers a flag that includes the offending predictor **and** its most correlated partner (Pearson r ≥ 0.8).  
+- **Checksum** for every file is stored in `data/checksums.txt`; any change updates `state/projects/...yaml`.  
 
--   **Coordinates**: Must be within valid lat/lon ranges (-90 to 90, -180 to 180).
--   **Song Metrics**: Must be positive floats (frequency > 0, duration > 0).
--   **Climate Variables**: Must be numeric; missing values handled per policy.
--   **Uniqueness**: No duplicate rows in `AnalysisDataset` after join.
+---

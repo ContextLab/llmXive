@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ClimateSnapshot
-description: Schema for environmental conditions at a specific location.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ClimateSnapshot"
+description: "Schema for environmental conditions at a specific location."
 type: object
 properties:
   location_lat:
