@@ -1,0 +1,92 @@
+T001:
+  task: 4d93714521028415faeb1b7e1a63f05895e1f28a8d8b7bcc00df59bec48588f1
+T002:
+  reason: "The provided `requirements.txt` exists and lists all required packages,\
+    \ but there is no evidence that T027 actually ran `pip install -r requirements.txt`\
+    \ in a fresh virtualenv and obtained a zero exit code. Execution logs or a recorded\
+    \ successful install are needed to verify the task\u2019s verification step."
+  task: 1f9921bb7397169bb7696e852c7ba62afcaaea00d0d6163ad9b94cfc6a24ae91
+T003:
+  task: b0bb09082b2b00891db1ffbc7f7d7c4764c82c083e60865cf39ab46fc241dc79
+T004:
+  reason: "Checked the four utility scripts present at `code/utils/`. `disk_check.py`,\
+    \ `time_check.py`, and `network.py` implement the required thresholds (\u2265\u202F\
+    14\u202FGB free, 6\u202Fh limit, exponential back\u2011off with `MaxRetriesError`).\
+    \ However, `memory_check.py` enforces a 16\u202FGB minimum (`MIN_RAM_BYTES = 16\
+    \ * 1024 ** 3`) instead of the task\u2019s \u2265\u202F7\u202FGB requirement,\
+    \ and its documentation mentions 16\u202FGB, so it does not satisfy the specified\
+    \ 7\u202FGB threshold. The memory\u2011check script must be revised to use a 7\u202F\
+    GB (or configurable) minimum and reflect that in its comments."
+  task: a2cead367e7305757d5a612ce631d2430abc46f1d312258e3a440fc71c957c92
+T005:
+  task: 01165d31fb3509db400ab260350d79de2030a5116320d98a44ab5ae2e6a4fd1a
+T006:
+  task: 22bfabf5a527e3d7013b27030aea8883c10a48c7cee50e5ff28f18673b02f5f3
+T007:
+  task: 7a399775ba71cf2b503826147fbf27512edc436e5193800f567436739de15d6d
+T008:
+  task: 190d22a41dca25f7689c9ab974b87bbf087913adf4d4a585740420a30b1f1056
+T009:
+  task: 862aa619836d994eecadd76a1a169e0197420bad1ec2fc35b217928b6daf232e
+T009V:
+  task: b9fa577518545c76fd7224d74d557d279433ef0f5e7169dc73e3fa6b22c0351d
+T010:
+  task: a00e6157774c8c125225d689c0d3a000e225494d152f8b7f26c743931f594518
+T010V:
+  task: cea71296547c7a6ca9aae47694baf5d8f892734cf73eab8c71490b9003554f43
+T011:
+  task: fac60d6ecafb8aa9861315c038f711a7a9860e5c8a32b627827acf9f16eac2fe
+T012:
+  task: d05d49db5dfe64272adf323933ee746a0af1bb345a1582389645e9ce312eb3ae
+T012V:
+  task: ffb74d63dcb86c310334e79100c25bb875e3da1b49ba75e56deb14c784d5b93d
+T013:
+  task: bdb561083dfc52309758f0a39769f17111385c3db8ed8075c6b3dc26475c12db
+T013V:
+  task: 701aeef571fc8cdec0d67cfea7cc337a0d98a40d87b17fe867660b91bd833757
+T014a:
+  task: ac405eea702daba615dafa73b7e8443eea663c98ec3344aeb04203d6fc366399
+T014b:
+  task: 59e12ab8cd59d7342777c23aa84a3a9d3715cd2dba845ca6b33f0fa0ba13c4c7
+T014c:
+  task: c0c9360e3f8c799fabe4dbb5fb4e2cfccdf2c523677f0c79f85c792aba5db895
+T015:
+  task: 8891eef0361281e5a8751b8b36eb86fc3aae7def4188d087786af627bfa90938
+T015V:
+  task: 87ad0b269d92bb5d2a45892c11ab524c001ef463e4f984f6c2109d718eab61fb
+T016:
+  task: fcf29293350e004a7e2b4e166bce1d2b59ee8eb3fb558ad19aec8dfae0a71198
+T016V:
+  task: 49a91f2bd8a1d0365cccc2355c7e69e6852451177ea2607976f4f80e8c5f78b5
+T017:
+  task: e278b12b38fa8bc2607edfc31e2412add7f9426ae374d8ea3610bfd2c80fe96a
+T017V:
+  task: ac3bd713bae8fbe96a386a38c01828cfc608885f0c7c547a92c00322e7734573
+T018:
+  task: b37d567b411e29f7c6c5e81ea1bfb0d3b354fe090cfdafdbd8dfacadf70562c8
+T018V:
+  task: f8380f74bb6858a2f38f5b3570a89ef74044199399d01206a8f6e3a9a69872e3
+T019:
+  task: 68246135ab6c376a463d2ff75460306ff1c6340208055be5f032789c39cd2420
+T019V:
+  task: 53f1e128fe9bee6007b66965f8d7185a6cdba3acb07d1917b2155811e51a5fab
+T020:
+  task: b9fa9938df6a17eaa30e78bb77e7836f7c6ffd901a63f16df494c7253f4e0518
+T021:
+  task: 8bf7245de59b87ac0ea3a7959fd73cea97625b943b3a4cd05bba970ac7392961
+T022:
+  task: da9cbb07027006c380778557f1ebd600c1436baec47d52a3a2f8d2e9ef39c44a
+T023:
+  task: ec36f4e71ce971a5042e4f161e3253d2148e776c882c225ff261c0c8124f008a
+T024:
+  task: b80689fe85f3c2c1df60c1c33262bbe337b07c29141f257289338697e03e9a37
+T025:
+  task: 8551021e75620c3163481d96a117408ecd29a745fe39ffe175bfa6cbe00e664f
+T030:
+  task: 9a0040dc42b12a660eb513f2e609e9cb0148b426b19d49f424299205cf11ff4c
+T053:
+  task: aacd3c6c2ac6abf51306e20e6fa61af541d21db66696cdbc70913af643778422
+T053V:
+  task: e5fa4781ada4e5e301c38b9ad59574d1da7c10ada9004b517d38f8f1671b5b30
+T054:
+  task: c726cf06e1825f14b92946c898b63518dee22509d67fc3318cd3e0d9ff34317e

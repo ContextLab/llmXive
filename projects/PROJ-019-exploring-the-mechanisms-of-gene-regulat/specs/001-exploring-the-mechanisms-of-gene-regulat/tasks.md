@@ -7,13 +7,13 @@
 
 ## Phase 1 – Project scaffolding & pre‑flight checks  
 
-- [ ] T001 **Create project directory layout** – `mkdir -p code utils tests/unit tests/integration data/raw data/interim data/processed`  
+- [X] T001 **Create project directory layout** – `mkdir -p code utils tests/unit tests/integration data/raw data/interim data/processed`  
   *Verification*: **T026** asserts that each of the directories exists after creation using `os.path.isdir`.  
 
 - [ ] T002 **Pin Python dependencies** – write `requirements.txt` containing `requests pandas pybedtools scipy seaborn matplotlib biopython pytest psutil joblib` (Python 3.11).  
   *Verification*: **T027** runs `pip install -r requirements.txt` in a fresh virtualenv and checks that the exit code is 0.  
 
-- [ ] T003 **Implement configuration module** – create `code/config.py` defining `TMP_DIR` (default `/tmp`), `DATA_RAW_DIR`, `DATA_INTERIM_DIR`, `DATA_PROCESSED_DIR`, `MAX_RETRIES=3`, `RETRY_BACKOFF=2`, `EXPECTED_CELL_TYPES=['GM12878','K562','HepG2','H1-hESC','IMR90']`.  
+- [X] T003 **Implement configuration module** – create `code/config.py` defining `TMP_DIR` (default `/tmp`), `DATA_RAW_DIR`, `DATA_INTERIM_DIR`, `DATA_PROCESSED_DIR`, `MAX_RETRIES=3`, `RETRY_BACKOFF=2`, `EXPECTED_CELL_TYPES=['GM12878','K562','HepG2','H1-hESC','IMR90']`.  
   *Verification*: **T028** imports `code.config` and asserts that each constant exists with the expected type/value.  
 
 - [ ] T004 **Add pre‑flight utility scripts** –  

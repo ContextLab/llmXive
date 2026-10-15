@@ -1,3 +1,39 @@
+T001:
+  c: true
+  h: 03975ef872b3e9cfe18334a5aa64c2840a02f202364b328ae142568d53327ec3
+  r: Checked the unit test log `tests/unit/test_directory_layout.py` (both tests passed)
+    and the script execution log `code/setup_dirs.py` confirming all required directories
+    were created.
+  sig: 2c02da54ddaafe29ac7023431bc73dbcad4c888d8bdb4cf94805ab7feefd85fb
+T002:
+  c: false
+  h: 97e93fd1a5a92c426d5f33b7242b5584d64e5ab5b4f27b0156d343a3c9475028
+  r: "The provided `requirements.txt` exists and lists all required packages, but\
+    \ there is no evidence that T027 actually ran `pip install -r requirements.txt`\
+    \ in a fresh virtualenv and obtained a zero exit code. Execution logs or a recorded\
+    \ successful install are needed to verify the task\u2019s verification step."
+  sig: f60b9b89e4d4cba24bf420645cfa74a3bf1496a8fb5700272077b2adfb8da787
+T003:
+  c: true
+  h: 33815d358676df90de538fa0f00e9d480b41071aea3a7397fe7869507d46ba79
+  r: "Checked `code/config.py` (1336\u202Fbytes) which defines `TMP_DIR` defaulting\
+    \ to `/tmp`, the three data directory paths, `MAX_RETRIES=3`, `RETRY_BACKOFF=2`,\
+    \ and `EXPECTED_CELL_TYPES` list matching the specification, and verified that\
+    \ the unit\u2011test log `tests/unit/test_config.py` reports all four assertions\
+    \ passing."
+  sig: 7f40e1a04b8d8b3619d837cba0c6356a8ba8ae693d0453c4d7e46ed5307b2ce1
+T004:
+  c: false
+  h: d4d69061c77f924f68b7a190647cd3c11e0e8ab624e07f0202b41f940c332537
+  r: "Checked the four utility scripts present at `code/utils/`. `disk_check.py`,\
+    \ `time_check.py`, and `network.py` implement the required thresholds (\u2265\u202F\
+    14\u202FGB free, 6\u202Fh limit, exponential back\u2011off with `MaxRetriesError`).\
+    \ However, `memory_check.py` enforces a 16\u202FGB minimum (`MIN_RAM_BYTES = 16\
+    \ * 1024 ** 3`) instead of the task\u2019s \u2265\u202F7\u202FGB requirement,\
+    \ and its documentation mentions 16\u202FGB, so it does not satisfy the specified\
+    \ 7\u202FGB threshold. The memory\u2011check script must be revised to use a 7\u202F\
+    GB (or configurable) minimum and reflect that in its comments."
+  sig: 8568e8e555a21a65ead5d3603b200880ed49e3394b73f9c0c4899f03a4c45eb9
 T016:
   c: false
   h: 02d7f90ae120082738afcfa876dba0276e3a869872dc90aca3a6013f5feedc15
@@ -7,14 +43,6 @@ T016:
     \ is actually invoked before `run_ingestion()`. The missing `time_check.py` (and\
     \ its functions) must be added and the pre\u2011flight checks called prior to\
     \ ingestion for the task to be complete."
-T021a:
-  c: false
-  h: 56dc979ff696baca802dbc97a74160209b00af3eafaafcd9a9be9f5393a8595c
-  r: "The repository contains a partially shown `code/scan.py`, but the file is truncated\
-    \ and does not demonstrate the required subprocess call to FIMO with a p\u2011\
-    value \u2264\u202F0.0001, nor does it reference the required `data/interim/background_union.bed`.\
-    \ Moreover, the `background_union.bed` file is absent from the project. Both the\
-    \ core functionality and a required input file are missing."
 T022:
   c: false
   h: 8126108b25ad38778039d893e672510fe45deb6432e5ab8ae5810fe566481a2b
@@ -30,18 +58,3 @@ T024:
     \ incomplete (wrong signature, missing implementation, typo `aggregate_enrichment_result`).\
     \ Moreover, the required output file `data/processed/enrichment_matrix.csv` does\
     \ not exist. The task\u2019s core artifact and functionality are therefore missing."
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., updated FIMO execution script, parallelization implementation,
-    benchmark results, or documentation) was provided to demonstrate that FIMO has
-    been optimized or parallelized. Without code changes, performance measurements,
-    or any concrete output, the claim cannot be verified. The next implementer must
-    supply the modified code and evidence (e.g., timing comparisons) showing safe
-    parallel execution of FIMO.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `quickstart.md` validation run, CI logs, or reproducibility
-    report is provided; the implementer supplied only the task description without
-    any artifacts demonstrating that the validation was executed successfully.

@@ -3,7 +3,11 @@ from pathlib import Path
 
 # Base project directories
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-TMP_DIR = Path(os.getenv("TMP_DIR", PROJECT_ROOT / "data" / "tmp"))
+
+# Temporary storage directory (configurable via TMP_DIR env var; default /tmp)
+TMP_DIR = Path(os.getenv("TMP_DIR", "/tmp"))
+
+# Data directories
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 DATA_INTERIM_DIR = PROJECT_ROOT / "data" / "interim"
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
@@ -19,8 +23,12 @@ MIN_DISK_SPACE_BYTES = 14 * 1024**3
 
 # Retry configuration
 MAX_RETRIES = 3
+RETRY_BACKOFF = 2  # exponential back-off base factor
 INITIAL_RETRY_DELAY = 1.0  # seconds
 MAX_RETRY_DELAY = 60.0     # seconds
+
+# Expected cell types for the analysis (FR-001)
+EXPECTED_CELL_TYPES = ['GM12878', 'K562', 'HepG2', 'H1-hESC', 'IMR90']
 
 # Dataset versions
 ENCODE_VERSION = "v10"
