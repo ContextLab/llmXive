@@ -30,14 +30,15 @@ Total valid pages: 0
 
 - python -m src.data.preprocess  --input-dir data/raw/publaynet  --output-parquet data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml -> rc=1
 
-2026-10-14 22:11:39,443 ERROR __main__: Preprocessing failed: Input directory does not exist: data/raw/publaynet
+2026-10-15 04:10:52,986 ERROR __main__: Preprocessing failed: Input directory does not exist: data/raw/publaynet
 
 - python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name layoutlmv3-base  --device cpu -> rc=1
 
-2026-10-14 22:11:43,366 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': [Errno 2] No such file or directory: 'data/processed/document_pairs.parquet'
+2026-10-15 04:10:56,253 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': [Errno 2] No such file or directory: 'data/processed/document_pairs.parquet'
 
 - python -m src.data.download  --dataset-name docvqa  --output-dir data/raw/docvqa -> rc=1
 Downloading generic dataset 'docvqa'...
+DocVQA download failed: Dataset 'docvqa' doesn't exist on the Hub or cannot be accessed.
 
 ❌ ERROR: Dataset 'docvqa' doesn't exist on the Hub or cannot be accessed.
 

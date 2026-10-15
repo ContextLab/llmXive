@@ -1,18 +1,15 @@
 status: none
-intent: PubLayNet scientific document layout dataset and DocVQA benchmark download
-  python package dataset
+intent: download PubLayNet dataset and DocVQA benchmark python package dataset
 required_fields:
-- image_id
 - image_path
-- width
-- height
-- object_id
+- page_id
 - bbox_xmin
 - bbox_ymin
 - bbox_xmax
 - bbox_ymax
 - category
-- page_number
-cache_key: 3f9cbd74c2767414ddece8131fd0cc1308a41d80b0b928874e1036c656d9b31a
-searched_at: '2026-10-14T22:12:50.933982+00:00'
+- text_content
+- annotation_complete_flag
+cache_key: 5e421f191518e581cbf52347f2ea3e765c650e1936f0e539057a8dfd653970ef
+searched_at: '2026-10-15T04:11:50.622092+00:00'
 retry_count: 1

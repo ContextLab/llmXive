@@ -60,6 +60,7 @@ def _save_to_disk(dataset, output_dir: Path):
     for idx, example in enumerate(tqdm(dataset, desc="Saving to disk")):
         # Image
         img_path = output_dir / f"{idx:06d}.png"
+        # The 'image' column in pubmed-layout is a PIL Image object
         example["image"].save(img_path)
         
         # Annotation JSON
@@ -90,8 +91,14 @@ def download_publaynet(output_dir: Path, min_pages: int = 10_000) -> None:
     
     print(f"Downloading primary dataset '{primary_id}'...")
     try:
-        # streaming=False and force_redownload as per T001 requirements
-        ds = load_dataset(primary_id, split="train", streaming=False, download_mode="force_redownload")
+        # Added trust_remote_code=True to resolve access issues on newer datasets versions
+        ds = load_dataset(
+            primary_id, 
+            split="train", 
+            streaming=False, 
+            download_mode="force_redownload", 
+            trust_remote_code=True
+        )
     except Exception as e:
         print(f"Primary download failed: {e}")
         ds = None
@@ -107,7 +114,13 @@ def download_publaynet(output_dir: Path, min_pages: int = 10_000) -> None:
     if num_valid < min_pages:
         print(f"Primary pages {num_valid} < {min_pages}. Attempting fallback '{fallback_id}'...")
         try:
-            ds_fb = load_dataset(fallback_id, split="train", streaming=False, download_mode="force_redownload")
+            ds_fb = load_dataset(
+                fallback_id, 
+                split="train", 
+                streaming=False, 
+                download_mode="force_redownload", 
+                trust_remote_code=True
+            )
             valid_fb = ds_fb.filter(lambda x: len(x.get("bboxes", [])) > 0)
             
             if valid_ds is None:
@@ -123,9 +136,10 @@ def download_publaynet(output_dir: Path, min_pages: int = 10_000) -> None:
     if final_count < min_pages:
         raise RuntimeError(f"Insufficient annotated pages (FR-007). Found {final_count}, need {min_pages}.")
 
-    # Save a subset to disk for the preprocessor
-    # We save up to min_pages to keep the disk footprint manageable while satisfying requirements
-    subset = valid_ds.select(range(min(final_count, 15000)))
+    # Save a subset to disk for the preprocessor to keep disk usage manageable
+    # We save up to 15,000 to satisfy requirements and allow for some loss during preprocessing
+    subset_size = min(final_count, 15000)
+    subset = valid_ds.select(range(subset_size))
     _save_to_disk(subset, output_dir / "publaynet")
     
     # Verification: Checksums of HF cache
@@ -137,18 +151,22 @@ def download_dataset(dataset_name: str, output_dir: Path) -> None:
     if dataset_name == "publaynet":
         download_publaynet(output_dir)
     elif dataset_name == "docvqa":
-        # Simple download for DocVQA as it's not the primary layout-rich target of T001
+        # Simple download for DocVQA
         print(f"Downloading generic dataset '{dataset_name}'...")
-        ds = load_dataset(dataset_name, split="train")
-        out_dir = output_dir / dataset_name
-        out_dir.mkdir(parents=True, exist_ok=True)
-        for idx, example in enumerate(ds):
-            if "image" in example and hasattr(example["image"], "save"):
-                example["image"].save(out_dir / f"{idx:06d}.png")
-            else:
-                with (out_dir / f"{idx:06d}.json").open("w") as f:
-                    json.dump(example, f)
-        log_and_store_checksums(dataset_name, Path("artifacts/checksums/downloads.yaml"))
+        try:
+            ds = load_dataset(dataset_name, split="train", trust_remote_code=True)
+            out_dir = output_dir / dataset_name
+            out_dir.mkdir(parents=True, exist_ok=True)
+            for idx, example in enumerate(ds):
+                if "image" in example and hasattr(example["image"], "save"):
+                    example["image"].save(out_dir / f"{idx:06d}.png")
+                else:
+                    with (out_dir / f"{idx:06d}.json").open("w") as f:
+                        json.dump(example, f)
+            log_and_store_checksums(dataset_name, Path("artifacts/checksums/downloads.yaml"))
+        except Exception as e:
+            print(f"DocVQA download failed: {e}")
+            raise e
     else:
         raise ValueError(f"Unsupported dataset: {dataset_name}")
 
