@@ -1,27 +1,34 @@
 T001:
-  reason: "The required root folder `projects/PROJ-001-assessing-statistical-power/`\
-    \ is reported as **MISSING**, and the existing `code/`, `tests/`, etc. are not\
-    \ placed under that path. Moreover, only a few sub\u2011directories (e.g., `data/`,\
-    \ `docs/`, `contracts/`) contain a `.gitkeep`; most required directories (such\
-    \ as `code/`, `code/utils/`, `tests/unit/`, `tests/integration/`) lack the placeholder\
-    \ file. The task\u2019s specification of a complete tree with a `.gitkeep` in\
-    \ every directory is therefore not satisfied."
+  reason: "The required root directory `projects/PROJ-001-assessing-statistical-power/`\
+    \ does not exist, so none of the specified sub\u2011directories or their `.gitkeep`\
+    \ placeholders are present. The script output claiming success is not evidence\
+    \ of the actual files. The task must create the project tree at the indicated\
+    \ path with a `.gitkeep` in each folder."
   task: f601b39ee8ebeef163aa6e6481dc773fb45ed763416940616bf51385b1d0b7f6
 T002:
   task: dcaeefa0a2f2e975515379cf97c5d6e62d66b4bd77e2618b25fff8803bcecf91
 T003:
+  reason: "The four contract files exist and contain plausible YAML, but there is\
+    \ no evidence that they were actually parsed with `yaml.safe_load` nor that a\
+    \ `jsonschema.Draft7Validator` was run against a minimal valid instance for each\
+    \ schema. Execution logs, test scripts, or validation results are missing, so\
+    \ the task\u2019s requirement is not demonstrably satisfied."
   task: c3ba56c391eb34f7068d63949a82ded611c6114714cabc83a7dee5381ea163ec
 T004:
-  reason: "The historical execution logs show `tests/unit/test_oa_checker.py` FAILED\
-    \ (exit 1): `test_known_oa_domains` asserts `is_open_access(\"https://doi.org/10.1000/xyz123\"\
-    )` is True but the implementation returns False, meaning the required `doi.org/10.`\
-    \ domain recognition is not working. The task's verification requirement \u2014\
-    \ all three unit test files passing \u2014 is not met; the implementer must fix\
-    \ the DOI prefix matching in `code/utils/oa_checker.py` and re-run the tests."
+  reason: The `code/utils/api_client.py` lacks the required `fetch_top_classification_datasets`
+    method (test_api_client failure) and `code/utils/oa_checker.py` raises an exception
+    on request failure instead of handling it as the unit test expects (test_oa_checker
+    failure). Consequently, the three required unit tests do not all pass.
   task: d1fd21f1dc24b2ff6d073b1184aa5cb3a834bf28c2cddddeafd37bf81deeb74e
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/01_ingest_openml.py
-    exit=1'
+  reason: "The ingestion script does not use the provided `api_client` wrapper, filters\
+    \ incorrectly (keeps only entries with a non\u2011null `url` which none of the\
+    \ raw records have, resulting in an empty filtered list), and writes an empty\
+    \ `data/processed/filtered_datasets.json` that does not conform to `contracts/dataset_metadata.schema.yaml`.\
+    \ Moreover, the required test `tests/unit/test_dataset_metadata_schema.py` is\
+    \ missing, so the verification step cannot be performed. The script must be revised\
+    \ to call `utils.api_client.fetch_top_classification_datasets`, correctly filter\
+    \ on `publication_link` or `task_"
   task: 2e9b53375e22f66d07f7d178716194ea92be91e40887fc96476460715bfea79f
 T006:
   task: deb89206560a65f28e111ef8f31f0a169c374608c43fdbaebfe848036a29c52b

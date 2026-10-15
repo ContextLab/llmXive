@@ -1,17 +1,44 @@
-status: none
-intent: OpenML python client download most-downloaded classification datasets python
-  package dataset
+status: verified
+kind: pypi_package
+ref: openml
+access_python: 'import openml
+
+
+  df = openml.datasets.list_datasets(output_format=''dataframe'')
+
+  print(f''RECORDS={len(df)}'')
+
+  print(''FIELDS='' + '',''.join(df.columns.tolist()))'
+record_count: 6435
+sample_fields:
+- did
+- name
+- version
+- description_160
+- uploader
+- status
+- format
+- MajorityClassSize
+- MaxNominalAttDistinctValues
+- MinorityClassSize
+- NumberOfClasses
+- NumberOfFeatures
+- NumberOfInstances
+- NumberOfInstancesWithMissingValues
+- NumberOfMissingValues
+- NumberOfNumericFeatures
+- NumberOfSymbolicFeatures
+field_coverage: 0.556
 required_fields:
 - did
 - name
-- description
 - default_target_attribute
-- number_of_instances
-- number_of_features
-- number_of_classes
-- url
-- citation
-- task_ids
-cache_key: 0d58496f328cae8ae0b220620c52a6692dde7a79a9a2751f9a8d541227d0a44a
-searched_at: '2026-10-15T21:15:52.493902+00:00'
-retry_count: 1
+- NumberOfInstances
+- NumberOfFeatures
+- NumberOfClasses
+- Citation
+- TaskID
+- URL
+intent: OpenML Python package download most-downloaded classification datasets metadata
+  python package dataset
+cache_key: bdeef3e0eeb4dde89205c2a73c59789e1c64941e423d7d6d610276148c63ba6e

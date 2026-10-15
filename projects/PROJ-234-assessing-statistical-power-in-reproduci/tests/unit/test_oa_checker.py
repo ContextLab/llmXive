@@ -1,46 +1,35 @@
-"""
-Unit tests for ``code.utils.oa_checker``.
-"""
-from unittest import mock
-
 import pytest
+from unittest.mock import patch, MagicMock
+from code.utils.oa_checker import is_open_access
 
-from code.utils.oa_checker import is_open_access, DataFetchError
-
-# ----------------------------------------------------------------------
 def test_known_oa_domains():
-    # Domains that are whitelisted should return True without any network call.
-    assert is_open_access("https://arxiv.org/abs/1234.5678")
-    assert is_open_access("https://doi.org/10.1000/xyz123")
-    assert is_open_access("https://pubmedcentral.nih.gov/articles/PMC1234567")
+    # Mock requests.head to return 200 and a valid PDF content type
+    with patch('requests.head') as mock_head:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.headers = {"Content-Type": "application/pdf"}
+        mock_head.return_value = mock_resp
+        
+        # Arxiv
+        assert is_open_access("https://arxiv.org/pdf/1234.5678.pdf") is True
+        # PubMed Central
+        assert is_open_access("https://pubmedcentral.nih.gov/article/123/") is True
+        # DOI (Must match doi.org/10. as per spec)
+        assert is_open_access("https://doi.org/10.1000/xyz123") is True
+        # Non-OA domain
+        assert is_open_access("https://paywalled-journal.com/article/1") is False
 
-# ----------------------------------------------------------------------
-def test_head_request_success(monkeypatch):
-    mock_response = mock.Mock()
-    mock_response.ok = True
-    mock_response.headers = {"Content-Type": "text/html; charset=utf-8"}
+def test_content_type_validation():
+    with patch('requests.head') as mock_head:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        # Invalid content type (e.g. image)
+        mock_resp.headers = {"Content-Type": "image/jpeg"}
+        mock_head.return_value = mock_resp
+        
+        assert is_open_access("https://arxiv.org/pdf/1234.5678.pdf") is False
 
-    monkeypatch.setattr("requests.head", lambda *a, **kw: mock_response)
-
-    assert is_open_access("https://example.com/open-access-paper")
-
-# ----------------------------------------------------------------------
-def test_head_request_non_oa(monkeypatch):
-    mock_response = mock.Mock()
-    mock_response.ok = True
-    mock_response.headers = {"Content-Type": "application/octet-stream"}
-
-    monkeypatch.setattr("requests.head", lambda *a, **kw: mock_response)
-
-    assert not is_open_access("https://example.com/paywalled")
-
-# ----------------------------------------------------------------------
-def test_head_request_failure(monkeypatch):
-    # Simulate a network error.
-    monkeypatch.setattr(
-        "requests.head",
-        lambda *a, **kw: (_ for _ in ()).throw(RuntimeError("network error")),
-    )
-
-    with pytest.raises(DataFetchError):
-        is_open_access("https://example.com/bad")
+def test_request_failure():
+    with patch('requests.head') as mock_head:
+        mock_head.side_effect = Exception("Network error")
+        assert is_open_access("https://arxiv.org/pdf/1234.5678.pdf") is False

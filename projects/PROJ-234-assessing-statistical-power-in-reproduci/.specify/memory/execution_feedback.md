@@ -17,35 +17,32 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/05_verify_dataset_schema.py: synthetic/fake INPUT data not authorized by the spec — “…ROR: Failed to test with mock data: {e}")         return Fa…”
 - code/05_verify_dataset_schema.py: synthetic/fake INPUT data not authorized by the spec — “…# 3. Test with mock data     if not test_schema_w…”
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- data/processed/filtered_datasets.json: results file is EMPTY ([]) — the analysis produced no values
+- every produced artifact is gitignored (data/processed/checksum_manifest.json, data/processed/filtered_datasets.json, data/processed/power_histogram.png) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 11 fabricated/simulated-result signal(s) — results are not real measurements: code/05_verify_dataset_schema.py: synthetic/fake INPUT data not authorized by the spec — “…est the schema against a mock dataset entry."""     print("\nT…”; code/05_verify_dataset_schema.py: synthetic/fake INPUT data not authorized by the spec — “…t("\nTesting schema with mock data...")          if not sch…”; code/05_verify_dataset_schema.py: synthetic/fake INPUT data not authorized by the spec — “…# Create a minimal valid mock dataset entry based on the schem…”; 5 command(s) failed: python code/01_ingest_openml.py (rc=1); python code/02_parse_publications.py (rc=1); python code/03_compute_sensitivity.py (rc=1); 2 declared deliverable(s) absent: data/processed/extraction_stats.json; data/processed/performance_metrics.json
+**Summary**: 11 fabricated/simulated-result signal(s) — results are not real measurements: code/05_verify_dataset_schema.py: synthetic/fake INPUT data not authorized by the spec — “…est the schema against a mock dataset entry."""     print("\nT…”; code/05_verify_dataset_schema.py: synthetic/fake INPUT data not authorized by the spec — “…t("\nTesting schema with mock data...")          if not sch…”; code/05_verify_dataset_schema.py: synthetic/fake INPUT data not authorized by the spec — “…# Create a minimal valid mock dataset entry based on the schem…”; 1 hollow-result signal(s) — the analysis ran but computed nothing: data/processed/filtered_datasets.json: results file is EMPTY ([]) — the analysis produced no values; every produced artifact is gitignored (data/processed/checksum_manifest.json, data/processed/filtered_datasets.json, data/processed/power_histogram.png) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/02_parse_publications.py (rc=1); python code/03_compute_sensitivity.py (rc=1); python -m pytest tests/ (rc=2); 2 declared deliverable(s) absent: data/processed/extraction_stats.json; data/processed/performance_metrics.json
 
 ## Failing / missing run-book commands
 
-- python code/01_ingest_openml.py -> rc=1
-
-No permission to create OpenML directory at /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/.runtime-home/.config/openml! This can result in OpenML-Python not working properly.
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/01_ingest_openml.py", line 26, in <module>
-    from utils.logging_config import setup_logging
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/utils/__init__.py", line 4, in <module>
-    from .api_client import OpenMLClient, fetch_top_classification_datasets
-ImportError: cannot import name 'OpenMLClient' from 'utils.api_client' (/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/utils/api_client.py)
-
 - python code/02_parse_publications.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/02_parse_publications.py", line 15, in <module>
-    from utils.logging_config import setup_logging
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/utils/__init__.py", line 4, in <module>
-    from .api_client import OpenMLClient, fetch_top_classification_datasets
-ImportError: cannot import name 'OpenMLClient' from 'utils.api_client' (/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/utils/api_client.py)
+Raw data file not found: data/raw/openml_metadata_filtered.json
 
 - python code/03_compute_sensitivity.py -> rc=1
 
-2026-10-15 21:15:05,380 - __main__ - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed/extracted_params.json
-2026-10-15 21:15:05,380 - __main__ - INFO - Please run code/02_parse_publications.py first to generate extracted_params.json
+2026-10-15 23:23:11,486 - __main__ - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed/extracted_params.json
+2026-10-15 23:23:11,486 - __main__ - INFO - Please run code/02_parse_publications.py first to generate extracted_params.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/03_compute_sensitivity.py", line 262, in <module>
     main()
@@ -54,36 +51,23 @@ Traceback (most recent call last):
     ^^^
 NameError: name 'sys' is not defined
 
-- python code/04_generate_report.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/04_generate_report.py", line 17, in <module>
-    from utils.logging_config import setup_logging
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/utils/__init__.py", line 4, in <module>
-    from .api_client import OpenMLClient, fetch_top_classification_datasets
-ImportError: cannot import name 'OpenMLClient' from 'utils.api_client' (/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/utils/api_client.py)
-
 - python -m pytest tests/ -> rc=2
-ortlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_utils_refactor.py:7: in <module>
-    from code.utils.oa_checker import is_open_access, check_doi_oa_status
-code/utils/__init__.py:4: in <module>
-    from .api_client import OpenMLClient, fetch_top_classification_datasets
-E   ImportError: cannot import name 'OpenMLClient' from 'code.utils.api_client' (/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/utils/api_client.py)
+Xive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/__init__.py)
+____________ ERROR collecting tests/unit/test_power_audit_schema.py ____________
+import file mismatch:
+imported module 'test_power_audit_schema' has this __file__ attribute:
+  /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/tests/contract/test_power_audit_schema.py
+which is not the same as the test file we want to collect:
+  /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/tests/unit/test_power_audit_schema.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
 =========================== short test summary info ============================
 ERROR tests/unit/test_07_generate_extraction_stats.py
-ERROR tests/unit/test_abstract_fallback.py
-ERROR tests/unit/test_api_client.py
 ERROR tests/unit/test_compute_sensitivity.py
-ERROR tests/unit/test_ingest_dedup.py
-ERROR tests/unit/test_oa_checker.py
-ERROR tests/unit/test_parsers.py
+ERROR tests/unit/test_ingest_dedup.py - AttributeError: module 'ingest_module...
 ERROR tests/unit/test_performance_harness.py
 ERROR tests/unit/test_power_audit_schema.py
-ERROR tests/unit/test_utils_refactor.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 0.86s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 5 errors in 1.11s ===============================
 
 
 
@@ -91,6 +75,24 @@ ERROR tests/unit/test_utils_refactor.py
 
 - data/processed/extraction_stats.json
 - data/processed/performance_metrics.json
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `openml` to the project's `requirements.txt` and `pip install openml`.
+- **Verified**: this loads **6435** real records with fields: did, name, version, description_160, uploader, status, format, MajorityClassSize, MaxNominalAttDistinctValues, MinorityClassSize, NumberOfClasses, NumberOfFeatures, NumberOfInstances, NumberOfInstancesWithMissingValues, NumberOfMissingValues, NumberOfNumericFeatures, NumberOfSymbolicFeatures.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import openml
+
+df = openml.datasets.list_datasets(output_format='dataframe')
+print(f'RECORDS={len(df)}')
+print('FIELDS=' + ','.join(df.columns.tolist()))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

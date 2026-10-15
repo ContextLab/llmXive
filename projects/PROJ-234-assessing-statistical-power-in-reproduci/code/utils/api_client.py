@@ -1,105 +1,103 @@
 """
-Utility module for interacting with the OpenML REST API with retry logic.
+utils/api_client.py
+-------------------
+
+Thin wrapper around the OpenML REST API with exponential‑backoff retry
+for HTTP 429 responses.  Provides a small class ``OpenMLClient`` and a
+convenience function ``fetch_top_classification_datasets`` used by the
+ingestion script.
 """
+
 import time
-from typing import Any, Dict, Optional
+import logging
+from typing import List, Dict, Any
 
-import requests
+import openml
+from openml import config as openml_config
 
-class DataFetchError(Exception):
-    """Custom exception for data fetch failures."""
+logger = logging.getLogger(__name__)
 
-    def __init__(self, message: str, status_code: Optional[int] = None):
-        super().__init__(message)
-        self.status_code = status_code
-
-def _build_url(endpoint: str) -> str:
+class OpenMLClient:
     """
-    Construct the full URL for an OpenML endpoint.
+    Minimal client for fetching dataset listings from OpenML.
 
     Parameters
     ----------
-    endpoint : str
-        The relative endpoint, e.g. ``datasets/list``.
-
-    Returns
-    -------
-    str
-        Full URL to query.
-    """
-    base = "https://www.openml.org/api/v1/"
-    if not endpoint.startswith("/"):
-        endpoint = endpoint.lstrip("/")
-    return f"{base}{endpoint}"
-
-def get_openml_json(
-    endpoint: str,
-    *,
-    max_retries: int = 5,
-    initial_delay: float = 1.0,
-    max_delay: float = 30.0,
-    timeout: float = 10.0,
-) -> Dict[str, Any]:
-    """
-    Retrieve JSON data from an OpenML endpoint using exponential‑backoff
-    retries for HTTP 429 responses.
-
-    Parameters
-    ----------
-    endpoint : str
-        Relative OpenML endpoint (e.g. ``datasets/list``).
     max_retries : int, optional
-        Maximum number of retry attempts after a 429 response.
+        Maximum number of retries for HTTP 429 responses (default 3).
     initial_delay : float, optional
-        Initial back‑off delay in seconds.
+        Initial back‑off delay in seconds (default 1.0).
     max_delay : float, optional
-        Maximum back‑off delay in seconds.
-    timeout : float, optional
-        Request timeout in seconds.
-
-    Returns
-    -------
-    dict
-        Parsed JSON payload.
-
-    Raises
-    ------
-    DataFetchError
-        If the request fails with a non‑retryable status or the JSON
-        cannot be decoded.
+        Maximum back‑off delay in seconds (default 30.0).
     """
-    url = _build_url(endpoint)
-    delay = initial_delay
 
-    for attempt in range(max_retries + 1):
-        try:
-            response = requests.get(url, timeout=timeout)
-        except Exception as exc:
-            raise DataFetchError(f"Network error while fetching {url}: {exc}")
+    def __init__(
+        self,
+        max_retries: int = 3,
+        initial_delay: float = 1.0,
+        max_delay: float = 30.0,
+    ) -> None:
+        self.max_retries = max_retries
+        self.initial_delay = initial_delay
+        self.max_delay = max_delay
 
-        # Successful response
-        if 200 <= response.status_code < 300:
+    def _request_with_backoff(self, func, *args, **kwargs):
+        delay = self.initial_delay
+        for attempt in range(self.max_retries + 1):
             try:
-                return response.json()
-            except Exception as exc:
-                raise DataFetchError(
-                    f"Failed to decode JSON from {url}: {exc}",
-                    status_code=response.status_code,
-                )
+                return func(*args, **kwargs)
+            except openml.exceptions.OpenMLServerException as exc:
+                # Detect rate‑limit (HTTP 429) via the exception message.
+                if "429" in str(exc):
+                    if attempt == self.max_retries:
+                        logger.error("Maximum retries reached for OpenML request.")
+                        raise
+                    logger.warning(
+                        f"OpenML rate limit encountered (attempt {attempt + 1}/{self.max_retries}). "
+                        f"Backing off for {delay:.1f}s."
+                    )
+                    time.sleep(delay)
+                    delay = min(delay * 2, self.max_delay)
+                else:
+                    raise
 
-        # Rate‑limit handling
-        if response.status_code == 429:
-            if attempt == max_retries:
-                raise DataFetchError(
-                    f"Rate limit exceeded after {max_retries} retries for {url}",
-                    status_code=429,
-                )
-            time.sleep(delay)
-            delay = min(delay * 2, max_delay)
-            continue
+    def fetch_top_classification_datasets(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """
+        Retrieve the most‑downloaded classification datasets from OpenML.
 
-        # Any other non‑2xx status is non‑retryable
-        raise DataFetchError(
-            f"Request to {url} failed with status {response.status_code}",
-            status_code=response.status_code,
-        )
+        Returns a list of dictionaries, each representing a dataset entry.
+        """
+        # Ensure OpenML uses a writable cache (handled by the ingestion script,
+        # but we keep the safety net here as well).
+        openml_cache_dir = openml_config.cache_directory
+        if not openml_cache_dir:
+            openml_config.cache_directory = "openml_cache"
+
+        def _list():
+            return openml.datasets.list_datasets(output_format="dataframe")
+
+        df = self._request_with_backoff(_list)
+
+        # Keep only classification datasets.
+        if "type" in df.columns:
+            df = df[df["type"] == "Supervised Classification"]
+        else:
+            logger.warning("OpenML dataset list missing 'type' column; using full list.")
+
+        # Sort by download count and limit.
+        if "download_count" in df.columns:
+            df = df.sort_values(by="download_count", ascending=False).head(limit)
+        else:
+            logger.warning("OpenML dataset list missing 'download_count' column; using unsorted list.")
+            df = df.head(limit)
+
+        return df.to_dict(orient="records")
+
+# Convenience function used by scripts that do not need a full client instance.
+def fetch_top_classification_datasets(limit: int = 50) -> List[Dict[str, Any]]:
+    """
+    Shortcut to fetch the top classification datasets without explicitly
+    constructing an ``OpenMLClient``.
+    """
+    client = OpenMLClient()
+    return client.fetch_top_classification_datasets(limit=limit)

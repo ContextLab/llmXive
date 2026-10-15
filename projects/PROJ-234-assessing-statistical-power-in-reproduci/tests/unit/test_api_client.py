@@ -1,66 +1,58 @@
-"""
-Unit tests for ``code.utils.api_client``.
-"""
-import json
-from unittest import mock
-
 import pytest
+from unittest.mock import patch, MagicMock
+from code.utils.api_client import OpenMLClient
+from code.utils.exceptions import DataFetchError
 
-from code.utils.api_client import DataFetchError, get_openml_json
+def test_api_client_success():
+    client = OpenMLClient()
+    with patch('requests.Session.get') as mock_get:
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"data": "test"}
+        mock_get.return_value = mock_response
+        
+        result = client.get("test_endpoint")
+        assert result == {"data": "test"}
 
-# ----------------------------------------------------------------------
-# Helper to build a dummy ``requests.Response``‑like object.
-# ----------------------------------------------------------------------
-class _DummyResponse:
-    def __init__(self, status_code: int, json_data=None):
-        self.status_code = status_code
-        self._json_data = json_data
+def test_api_client_retry_on_429():
+    client = OpenMLClient(max_retries=2, initial_delay=0.01)
+    with patch('requests.Session.get') as mock_get:
+        # First two calls fail with 429, third succeeds
+        resp429 = MagicMock()
+        resp429.status_code = 429
+        
+        resp200 = MagicMock()
+        resp200.status_code = 200
+        resp200.json.return_value = {"data": "success"}
+        
+        mock_get.side_effect = [resp429, resp429, resp200]
+        
+        result = client.get("test_endpoint")
+        assert result == {"data": "success"}
+        assert mock_get.call_count == 3
 
-    def json(self):
-        if self._json_data is None:
-            raise json.JSONDecodeError("Expecting value", "", 0)
-        return self._json_data
+def test_api_client_fail_after_max_retries():
+    client = OpenMLClient(max_retries=1, initial_delay=0.01)
+    with patch('requests.Session.get') as mock_get:
+        resp429 = MagicMock()
+        resp429.status_code = 429
+        mock_get.return_value = resp429
+        
+        with pytest.raises(DataFetchError):
+            client.get("test_endpoint")
 
-    @property
-    def ok(self):
-        return 200 <= self.status_code < 300
-
-def test_successful_fetch(monkeypatch):
-    dummy = _DummyResponse(200, {"data": "ok"})
-    monkeypatch.setattr("requests.get", lambda *a, **kw: dummy)
-
-    result = get_openml_json("datasets/list", max_retries=0)
-    assert result == {"data": "ok"}
-
-def test_rate_limit_retry(monkeypatch):
-    calls = []
-
-    def fake_get(url, timeout):
-        calls.append(url)
-        # First two attempts: 429, third: 200
-        if len(calls) < 3:
-            return _DummyResponse(429)
-        return _DummyResponse(200, {"final": True})
-
-    monkeypatch.setattr("requests.get", fake_get)
-
-    result = get_openml_json("datasets/list", max_retries=5, initial_delay=0, max_delay=0)
-    assert result == {"final": True}
-    assert len(calls) == 3
-
-def test_non_retryable_error(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **kw: _DummyResponse(500))
-
-    with pytest.raises(DataFetchError) as excinfo:
-        get_openml_json("datasets/list", max_retries=1, initial_delay=0, max_delay=0)
-    assert excinfo.value.status_code == 500
-
-def test_invalid_json(monkeypatch):
-    # Return a 200 but with unparsable JSON.
-    monkeypatch.setattr(
-        "requests.get", lambda *a, **kw: _DummyResponse(200, json_data=None)
-    )
-
-    with pytest.raises(DataFetchError) as excinfo:
-        get_openml_json("datasets/list", max_retries=0)
-    assert excinfo.value.status_code == 200
+def test_fetch_top_classification_datasets():
+    client = OpenMLClient()
+    with patch.object(OpenMLClient, 'get') as mock_get:
+        mock_get.return_value = {
+            "datasets": {
+                "dataset": [
+                    {"dataset_id": 1, "download_count": "10"},
+                    {"dataset_id": 2, "download_count": "100"},
+                    {"dataset_id": 3, "download_count": "50"},
+                ]
+            }
+        }
+        results = client.fetch_top_classification_datasets(limit=2)
+        assert len(results) == 2
+        assert results[0]["dataset_id"] == 2 # Most downloaded first

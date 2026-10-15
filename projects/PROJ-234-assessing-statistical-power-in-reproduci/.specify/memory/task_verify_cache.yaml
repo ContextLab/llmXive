@@ -1,3 +1,12 @@
+T001:
+  c: false
+  h: fc8e069e29075e30416486d190ba0e1449929c628747e71a05d23bf3d35f4fee
+  r: "The required root directory `projects/PROJ-001-assessing-statistical-power/`\
+    \ does not exist, so none of the specified sub\u2011directories or their `.gitkeep`\
+    \ placeholders are present. The script output claiming success is not evidence\
+    \ of the actual files. The task must create the project tree at the indicated\
+    \ path with a `.gitkeep` in each folder."
+  sig: 72556dfb947f288e23e89264b26e9f24cb53ec3e1a5af528232f76ba29e088fd
 T002:
   c: true
   h: 13009cbf6bbbe9e79673652dc8abd07a011767bde1c244cbe28b6fa24225b131
@@ -9,14 +18,31 @@ T002:
     exactly.'
   sig: 241b1fb1024a97cc9b36294f94ceb892da376eea69fb127837ae577536a03ac3
 T003:
-  c: true
-  h: d625dfbb540388e3f544275a9a5e058e8848a738806340bf7d5979c91d1968ec
-  r: "All four required schema files exist in `contracts/` with substantive, well-formed\
-    \ Draft-07 JSON-Schema content: `dataset_metadata.schema.yaml`, `power_audit_result.schema.yaml`,\
-    \ `extracted_params.schema.yaml` (defining StatisticalParameters with sample_size,\
-    \ effect_size, metric_type, status), and `report.schema.yaml` (defining the full\
-    \ audit_report.json structure with report_metadata, ingestion summary, extraction\
-    \ statistics, power/MDES results, success metrics, disclaimer). Each is valid\
-    \ YAML with `$schema: http://json-schema.org/draft-07/schema#`, required fields,\
-    \ and typed properties \u2014 no "
-  sig: 37846ad9eae3d456fdbe063f187716c99f956e88225433abf5c9ac0a87d07298
+  c: false
+  h: 0876c634062a3aed3cfe060eb9eb25fded6396cf6ee2ed55e345297c6f0a824d
+  r: "The four contract files exist and contain plausible YAML, but there is no evidence\
+    \ that they were actually parsed with `yaml.safe_load` nor that a `jsonschema.Draft7Validator`\
+    \ was run against a minimal valid instance for each schema. Execution logs, test\
+    \ scripts, or validation results are missing, so the task\u2019s requirement is\
+    \ not demonstrably satisfied."
+  sig: ace1cdd131cc6d9264cfdb27d3ade111c61c2e991a98a0fb5b129fce4e8426e1
+T004:
+  c: false
+  h: 624e651a02cdfb81c3a2ee4f87d70aec313f6a71ad8d2e3ff4ab131975ae5438
+  r: The `code/utils/api_client.py` lacks the required `fetch_top_classification_datasets`
+    method (test_api_client failure) and `code/utils/oa_checker.py` raises an exception
+    on request failure instead of handling it as the unit test expects (test_oa_checker
+    failure). Consequently, the three required unit tests do not all pass.
+  sig: e304af89c9877a1af066fbe6e0f07b0061f6824f1bfbefdb33344e4351be5efd
+T005:
+  c: false
+  h: c5c5425a0e89b8711c01dfb92891c964e15a6f05eb3f2aeec1f6fc273dd0f474
+  r: "The ingestion script does not use the provided `api_client` wrapper, filters\
+    \ incorrectly (keeps only entries with a non\u2011null `url` which none of the\
+    \ raw records have, resulting in an empty filtered list), and writes an empty\
+    \ `data/processed/filtered_datasets.json` that does not conform to `contracts/dataset_metadata.schema.yaml`.\
+    \ Moreover, the required test `tests/unit/test_dataset_metadata_schema.py` is\
+    \ missing, so the verification step cannot be performed. The script must be revised\
+    \ to call `utils.api_client.fetch_top_classification_datasets`, correctly filter\
+    \ on `publication_link` or `task_"
+  sig: e297828babb1b0986564444c796d1076174d0ef3c860fda09b0fb87b3a4b0cf3

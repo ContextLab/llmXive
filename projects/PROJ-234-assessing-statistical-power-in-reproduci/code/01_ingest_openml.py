@@ -16,14 +16,27 @@ All output locations follow the specification in ``tasks.md``.
 import json
 import sys
 import hashlib
+import os
 from pathlib import Path
 from typing import List, Dict, Any
 
 import openml
+from openml import config as openml_config
 import pandas as pd
 
 # Project‑wide logging helper
 from utils.logging_config import setup_logging
+
+# ----------------------------------------------------------------------
+# Configure OpenML to use a writable cache directory inside the project.
+# This avoids permission errors when the runner's home directory is not
+# writable.
+# ----------------------------------------------------------------------
+openml_cache_dir = Path("data") / "openml_cache"
+openml_cache_dir.mkdir(parents=True, exist_ok=True)
+openml_config.cache_directory = str(openml_cache_dir)
+# Ensure no API key is required for public metadata queries.
+openml_config.apikey = None
 
 # ----------------------------------------------------------------------
 # Constants – paths are anchored to the repository root.
@@ -149,7 +162,6 @@ def main() -> None:
     if "type" in df.columns:
         df = df[df["type"] == "Supervised Classification"]
     else:
-        # Fallback – if the column is missing we proceed with the full list.
         logger.warning("OpenML dataset list missing 'type' column; using full list.")
 
     # Sort by download count descending and take the top 50.
