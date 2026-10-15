@@ -28,8 +28,10 @@ if not logger.handlers:
 
 # Default locations – these are the paths used by the pipeline entry‑point.
 DEFAULT_CLR = paths.data("processed", "clr_abundances.parquet")
-DEFAULT_CLINICAL = paths.data("raw", "ppmi_clinical.parquet")
-# The results directory is ``results/`` (not ``data/results/``) as required by the spec.
+# Clinical data may be stored under the historic PPMI filenames or the
+# open‑data alternatives.  The helper below resolves the appropriate path.
+DEFAULT_CLINICAL_PP = paths.data("raw", "ppmi_clinical.parquet")
+DEFAULT_CLINICAL_OPEN = paths.data("raw", "open_clinical.parquet")
 DEFAULT_OUT = paths.results("mixed_effects_summary.csv")
 COVARIATE_COLUMNS = ["age", "sex", "levodopa_eq_dose"]
 
@@ -42,12 +44,34 @@ def _load_clr(ab_path: Optional[Path] = None) -> pd.DataFrame:
     return pd.read_parquet(ab_path)
 
 
+def _resolve_clinical_path(cl_path: Optional[Path] = None) -> Path:
+    """Resolve the clinical parquet path, trying historic then open‑data names."""
+    if cl_path is not None:
+        return cl_path
+    # Prefer the historic PPMI filename if it exists; otherwise fall back.
+    if DEFAULT_CLINICAL_PP.is_file():
+        return DEFAULT_CLINICAL_PP
+    if DEFAULT_CLINICAL_OPEN.is_file():
+        return DEFAULT_CLINICAL_OPEN
+    # If neither exists, raise an informative error – this matches the
+    # behaviour expected by the pipeline (it will later write an empty
+    # results file rather than crashing).
+    raise FileNotFoundError(
+        "Clinical data not found. Expected either "
+        f"{DEFAULT_CLINICAL_PP} or {DEFAULT_CLINICAL_OPEN}"
+    )
+
+
 def _load_clinical(cl_path: Optional[Path] = None) -> pd.DataFrame:
-    """Load the clinical metadata."""
-    if cl_path is None:
-        cl_path = DEFAULT_CLINICAL
-    logger.debug("Loading clinical data from %s", cl_path)
-    return pd.read_parquet(cl_path)
+    """Load the clinical metadata, applying the same fallback logic as ingest."""
+    try:
+        resolved_path = _resolve_clinical_path(cl_path)
+    except FileNotFoundError as exc:
+        # Propagate as a generic exception so the caller can handle it
+        # uniformly (writing an empty results file).
+        raise exc
+    logger.debug("Loading clinical data from %s", resolved_path)
+    return pd.read_parquet(resolved_path)
 
 
 def _prepare_time(df: pd.DataFrame) -> pd.DataFrame:
@@ -182,7 +206,7 @@ def run_mixed_effects(
     except Exception as exc:
         logger.warning(
             "Unable to load clinical data (%s). Writing empty results file. Error: %s",
-            clinical_path or DEFAULT_CLINICAL,
+            clinical_path or "determined path",
             exc,
         )
         return _write_empty_results(out_path)

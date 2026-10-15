@@ -5,6 +5,11 @@ preprocessing step and computes, for each patient with at least two
 visits, the linear slope of each taxon's CLR-transformed abundance over
 time (in years).  It also computes the slope of the longitudinal
 clinical outcome ``MDS_UPDRS_Total`` when that column is present.
+For patients with exactly two visits the slope is calculated as the
+simple difference and an ``unstable`` flag is set to ``True`` (the slope
+may be sensitive to measurement noise).  For patients with more than two
+visits the flag is ``False``.
+
 The results are written to parquet files under ``data/processed/``.
 
 Output files:
@@ -12,7 +17,7 @@ Output files:
   - data/processed/patient_outcome_slopes.parquet  (only if outcome present)
 
 The module never fabricates data: if an input file is missing it raises
-``FileNotFoundError``; if the outcome column is absent the outcome-slope
+``FileNotFoundError``; if the outcome column is absent the outcome‑slope
 step is skipped with a logged warning (FR‑004 graceful degradation).
 """
 from __future__ import annotations
@@ -138,7 +143,7 @@ def compute_taxon_slopes(
     -------
     pd.DataFrame
         Long-format table with columns ``patient_id``, ``taxon_name``,
-        ``slope``.
+        ``slope``, and ``unstable`` (True for exactly‑two‑visit patients).
     """
     required_meta = {"patient_id", "visit_date"}
     if not required_meta.issubset(clr_df.columns):
@@ -167,11 +172,17 @@ def compute_taxon_slopes(
             continue
         group = group.sort_values("time_years")
         times = group["time_years"].values
+        unstable_flag = len(group) == 2
         for taxon in taxon_columns:
             values = group[taxon].values
             slope = _fit_slope(times, values)
             records.append(
-                {"patient_id": patient_id, "taxon_name": taxon, "slope": slope}
+                {
+                    "patient_id": patient_id,
+                    "taxon_name": taxon,
+                    "slope": slope,
+                    "unstable": unstable_flag,
+                }
             )
     result = pd.DataFrame.from_records(records)
     log.info(
@@ -185,8 +196,9 @@ def compute_taxon_slopes(
 def compute_outcome_slopes(clinical_df: pd.DataFrame) -> pd.DataFrame:
     """Compute per-patient slope of ``MDS_UPDRS_Total`` over time.
 
-    Returns a DataFrame with columns ``patient_id`` and ``outcome_slope``.
-    The slope is the ordinary least-squares slope of the observed
+    Returns a DataFrame with columns ``patient_id``, ``outcome_slope``,
+    and ``unstable`` (True for exactly‑two‑visit patients). The slope is
+    the ordinary least-squares slope of the observed
     ``MDS_UPDRS_Total`` values against time in years.
 
     This implementation follows the exact-year definition used for
@@ -226,7 +238,14 @@ def compute_outcome_slopes(clinical_df: pd.DataFrame) -> pd.DataFrame:
         else:
             slope = _fit_slope(times, outcomes)
 
-        records.append({"patient_id": patient_id, "outcome_slope": slope})
+        unstable_flag = len(group) == 2
+        records.append(
+            {
+                "patient_id": patient_id,
+                "outcome_slope": slope,
+                "unstable": unstable_flag,
+            }
+        )
     result = pd.DataFrame.from_records(records)
     log.info("Computed outcome slopes for %d patients", len(result))
     return result
@@ -241,7 +260,7 @@ def run_slopes(
     clr_path: Path | None = None,
     clinical_path: Path | None = None,
 ) -> Tuple[Path, Path | None]:
-    """Execute the full slope-computation phase.
+    """Execute the full slope‑computation phase.
 
     Writes:
         data/processed/patient_taxon_slopes.parquet

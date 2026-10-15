@@ -248,7 +248,7 @@ def main(argv: List[str] | None = None) -> int:
     # ------------------------------------------------------------------
     # Post‑run budget checks
     # ------------------------------------------------------------------
-    # Parse the runtime log to obtain total and permutation times.
+    # Parse the runtime log to obtain total‑ and permutation‑times.
     total_seconds = 0.0
     perm_seconds = 0.0
     with runtime_log.open("r", encoding="utf-8") as f:

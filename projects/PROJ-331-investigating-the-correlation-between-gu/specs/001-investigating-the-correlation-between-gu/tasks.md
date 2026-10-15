@@ -9,7 +9,7 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
 
 ## Phase 1 – Data ingestion, preprocessing, and slope computation  
 
-- [ ] **T001** [P] Validate raw input files and record provenance  
+- [ ] **T001** [P] Validate raw input files and record provenance   <!-- FAILED: unspecified -->
   - **Description**: `code/src/pipeline/ingest.py` checks that `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet` exist, are readable, and contain the required columns (`sample_id`, `patient_id`, `visit_date`, taxon count columns; `patient_id`, `visit_date`, `age`, `sex`, `levodopa_eq_dose`, `MDS_UPDRS_total`). It aborts with a clear error if any check fails. The script computes SHA‑256 hashes of both files and writes them to `state/ingest_provenance.json`.  
   - **Artifacts**: `data/raw/open_asv.csv`, `data/raw/open_clinical.parquet`, `state/ingest_provenance.json`  
   - **Verification**: Unit test `code/tests/test_ingest.py` passes; running `python -m code.src.pipeline.ingest` exits with status 0 and the JSON contains the two hashes.
@@ -33,7 +33,7 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
   - **Artifacts**: `results/taxa_correlations.csv`  
   - **Verification**: Contract test `code/tests/contract/test_contracts.py` validates the CSV against `contracts/taxa_results.schema.yaml` (correlation section); `code/tests/test_correlation.py` asserts that BH‑adjusted p‑values are monotonic and that no covariates were used.
 
-- [ ] **T005** Linear Mixed‑Effects modeling per taxon with interaction term (exact spec formula)  
+- [X] **T005** Linear Mixed‑Effects modeling per taxon with interaction term (exact spec formula)  
   - **Description**: `code/src/pipeline/mixed_effects.py` builds a long‑format dataset (one row per observation), drops any zero‑variance covariates with a warning, and fits for each retained taxon the model  
     `MDS_UPDRS_total ~ Time * Taxon + Age + Sex + Levodopa_Dose + (1|Patient)`  
     using `statsmodels`. It extracts the `Time × Taxon` interaction coefficient, its standard error, and raw p‑value, then applies BH correction (FR‑006). Results are written to `results/mixed_effects_summary.csv`.  
@@ -45,7 +45,7 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
   - **Artifacts**: `results/permutation_pvalues.csv`  
   - **Verification**: `code/tests/test_permutation.py` confirms (i) patient‑level time ordering is unchanged after shuffling, (ii) empirical p‑values lie in [0, 1], (iii) the 4‑hour guard triggers on a mocked long run.
 
-- [ ] **T007** Runtime and resource monitoring (≤ 6 h total, ≤ 4 h permutation)  
+- [ ] **T007** Runtime and resource monitoring (≤ 6 h total, ≤ 4 h permutation)   <!-- FAILED-IN-EXECUTION: code/src/pipeline/__main__.py exit=1; tests/test_runtime_budget_execution.py exit=2 -->
   - **Description**: `code/src/pipeline/__main__.py` wraps each pipeline stage (T001‑T006) with a wall‑clock timer, writes per‑stage elapsed times to `results/runtime_log.txt`, and after the full run asserts total wall‑clock ≤ 6 h and permutation ≤ 4 h. It imports only the existing stage modules (`ingest`, `preprocess`, `slopes`, `correlation`, `mixed_effects`, `permutation`). If a limit is exceeded, the run aborts with an informative error.  
   - **Artifacts**: `results/runtime_log.txt`  
   - **Verification**: `code/tests/test_runtime_budget.py` runs a reduced‑size pipeline and checks that the log contains entries for every stage and that the assertions pass.

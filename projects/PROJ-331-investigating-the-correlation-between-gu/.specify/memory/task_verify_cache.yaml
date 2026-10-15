@@ -1,33 +1,48 @@
+T002:
+  c: false
+  h: af9b27d04b0c57b80285354781f01be256e1edd814e00667398f6f13fa786f0f
+  r: "The required output files `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
+    \ are missing, and the pipeline\u2019s taxa\u2011capping logic selects the top\
+    \ taxa by raw count rather than by mean CLR abundance as the task specification\
+    \ demands. Consequently the implementation does not fully meet the stated requirements."
+  sig: e92e51fa053ef7dad6c1cd01f6d2dd104192d021e2727802c0380c7f9c08df3e
 T003:
-  c: true
-  h: 09e0766dedad41d5a5273aef55aa5dee6a45b0ef1bbce724c7674def5e23608e
-  r: "Checked `code/src/pipeline/slopes.py` which implements exact\u2011year time\
-    \ conversion, per\u2011patient taxon and outcome slope computation, exclusion\
-    \ of single\u2011visit patients, and writes the required parquet files, and `code/tests/test_slopes.py`\
-    \ which validates all of these behaviours. The implementation satisfies the task\u2019\
-    s specifications, and the tests confirm correct handling of two\u2011visit patients,\
-    \ year calculations, constant outcomes, and file creation."
-  sig: 49069d714f3dd06165557b790852aa7b6e78074f596e68d50171e4db77c66d59
+  c: false
+  h: 20d38b50a0d1ebcbe88de5c6c00785cbe9f97c1976cf6023da98b1252537dc22
+  r: The required output files `data/processed/patient_taxon_slopes.parquet` and `data/processed/patient_outcome_slopes.parquet`
+    are missing; the repository contains only the implementation and unit tests, but
+    no generated parquet artifacts confirming that the slopes were actually computed
+    and written.
+  sig: 82e9eb81e98e9ba5c721e052e2e6cec123c60af1335f6e946327d4b274a3bf97
+T004:
+  c: false
+  h: d5babdcdc169d033e6238bc61a7c6604eb6b2ccbb8ae69ea4451a00892ae6dcc
+  r: "The `results/taxa_correlations.csv` file is a static placeholder (perfect \u03C1\
+    \u202F=\u202F\xB11, p\u202F=\u202F0) and was not produced by a successful run\
+    \ of `correlation.run_correlation`. The pipeline cannot read the required parquet\
+    \ slope files because the environment lacks a parquet engine (`pyarrow`/`fastparquet`),\
+    \ causing an `ImportError` (see the log for the `--partial` run). Consequently\
+    \ the contract and functional tests that depend on a real computation would fail,\
+    \ and the BH\u2011adjusted p\u2011values are not the result of an actual Spearman\
+    \ analysis. The task needs a working parquet dependency and a genuine correlati"
+  sig: 0df558dc090dbae0935fb8b615916199eb95102f4d7700c02a0858cf6b33d1c4
 T005:
   c: true
-  h: 0917c0a8fff5131ff6184adbb545b8dc4172d92180afee747cbadca06eca359d
-  r: "The `code/src/pipeline/mixed_effects.py` script implements the required mixed\u2011\
-    effects fitting, zero\u2011variance covariate detection, BH correction, and writes\
-    \ `results/mixed_effects_summary.csv` with the correct columns. The accompanying\
-    \ `code/tests/test_mixed_effects.py` validates that a synthetic dataset yields\
-    \ the expected interaction coefficient and that missing outcome data produces\
-    \ an empty results file with only the header. All required artifacts exist, are\
-    \ non\u2011empty where appropriate, and their contents meet the task specifications."
-  sig: 2e3732fc204855cc2d22d5d230aaa93f45171f30519a6c87c09d0de5913e5134
-T007:
+  h: 7e10206c68a821d6f3862f187bd9ebadbdfc898aebbbe2d42290d24338eccda4
+  r: "Checked `code/src/pipeline/mixed_effects.py` \u2013 it builds the long\u2011\
+    format data, drops zero\u2011variance covariates, fits the specified mixed\u2011\
+    effects model per taxon, extracts the interaction coefficient, SE, raw p\u2011\
+    value, applies Benjamini\u2011Hochberg correction, and writes `results/mixed_effects_summary.csv`.\
+    \ The accompanying `code/tests/test_mixed_effects.py` confirms correct recovery\
+    \ of a known interaction on synthetic data and validates the empty\u2011file handling."
+  sig: ed6c1b4cac8717d5f1f5ea76b19c312347190cdf4c37b0fb3711e6b2ec73b2c5
+T006:
   c: false
-  h: 6f6538fca76e00df56fa1c057a17265ea9764de6d445a92da2fbd7449a1a72ba
-  r: "The repository contains `code/src/pipeline/__main__.py` and a static `results/runtime_log.txt`,\
-    \ but the pipeline stages it tries to import (`code.src.pipeline.ingest`, `preprocess`,\
-    \ `slopes`, `correlation`, `mixed_effects`, `permutation`) are not present. Consequently\
-    \ the test `code/tests/test_runtime_budget.py` would raise an import error and\
-    \ never produce a log with the required \u201CPermutation robustness test\u201D\
-    \ and \u201CTotal\u201D entries, so the runtime\u2011budget assertions cannot\
-    \ be verified. Adding the missing stage modules (or stubs that write to the log)\
-    \ is needed for the task to be complete."
-  sig: 48fa4f4a22d315569f7ea85b1ea7dfc9d0696414eed4ac2a857bcec3789d414b
+  h: 823ed2a197e5ba76f43a327c308287d7e5d25ab801e87fd04863758035062d8f
+  r: "The `results/permutation_pvalues.csv` file contains only the header (`taxon_name,empirical_p`)\
+    \ and no empirical p\u2011value rows, so the required output of the permutation\
+    \ test is missing. Additionally, the provided `test_permutation.py` does not verify\
+    \ the patient\u2011level time\u2011ordering preservation nor the 4\u2011hour wall\u2011\
+    time guard, leaving those required behaviours untested. The task therefore lacks\
+    \ a complete, validated results artifact."
+  sig: 4e74f8a3bee8ccc27dd0b75da835ebe3ea7f1a562943f5350321ac55d1bf5990

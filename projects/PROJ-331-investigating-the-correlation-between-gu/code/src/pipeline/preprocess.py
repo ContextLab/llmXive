@@ -216,7 +216,7 @@ def cap_taxa_by_memory(
     (FR‑010).  The ``max_taxa`` argument can be used by callers that wish
     to enforce a stricter upper bound, but the guard that triggers
     subsampling respects ``MAX_TAXA`` to satisfy the test expectations.
-    When a custom ``max_taxa`` is supplied (i.e. not equal to ``MAX_TAXA``),
+    When a custom max_taxa is supplied (i.e. not equal to ``MAX_TAXA``),
     the function returns the original list unchanged – this matches the
     test suite which verifies that passing a smaller ``max_taxa`` does
     not trigger subsampling.

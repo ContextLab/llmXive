@@ -1,2 +1,7 @@
-# Existing dependencies are provided by the platform.
-# No additional third‑party packages are required for the permutation task.
+# Project dependencies
+# Added pyarrow for parquet support used across the pipeline
+pyarrow>=12.0.0
+# Existing dependencies are provided by the environment:
+# numpy, pandas, scipy, scikit-learn, statsmodels, matplotlib, seaborn,
+# pytest, PyYAML, requests, jsonschema, psutil
+# No other new packages are required.

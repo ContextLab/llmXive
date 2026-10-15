@@ -19,13 +19,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.pipeline.ingest -> rc=1
 
-2026-10-15 01:22:51,778 INFO __main__: === PPMI input validation (FR-001) ===
-2026-10-15 01:22:51,779 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
-2026-10-15 01:22:51,779 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+2026-10-15 01:48:22,416 INFO __main__: === PPMI input validation (FR-001) ===
+2026-10-15 01:48:22,416 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
+2026-10-15 01:48:22,416 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv exist. Place the researcher‑supplied asv table at one of these locations.
 
 - python -m src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 -> rc=1
 
-2026-10-15 01:22:51,934 ERROR __main__: Required input files not found. Expected either:
+2026-10-15 01:48:22,577 ERROR __main__: Required input files not found. Expected either:
   /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv
   /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_clinical.parquet
 or:
@@ -59,9 +59,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/pipeline/permutation.py` — NOT invoked by the run-book
     - `code/src/pipeline/preprocess.py` — NOT invoked by the run-book
     - `code/src/pipeline/run_correlation_only.py` — NOT invoked by the run-book
+    - `code/src/pipeline/run_permutation.py` — NOT invoked by the run-book
     - `code/src/pipeline/run_preprocess_default.py` — NOT invoked by the run-book
     - `code/src/pipeline/run_us1.py` — NOT invoked by the run-book
-    - `code/src/pipeline/slopes.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/clr_abundances.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/filtered_samples.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/src/pipeline/preprocess.py` — NOT invoked by the run-book
@@ -94,9 +94,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/pipeline/__main__.py` — NOT invoked by the run-book
     - `code/src/pipeline/correlation.py` — NOT invoked by the run-book
     - `code/src/pipeline/ingest.py` — NOT invoked by the run-book
+    - `code/src/pipeline/mixed_effects.py` — NOT invoked by the run-book
     - `code/src/pipeline/preprocess.py` — NOT invoked by the run-book
     - `code/src/pipeline/run_correlation_only.py` — NOT invoked by the run-book
+    - `code/src/pipeline/run_permutation.py` — NOT invoked by the run-book
     - `code/src/pipeline/run_us1.py` — NOT invoked by the run-book
-    - `code/tests/test_correlation_adj.py` — NOT invoked by the run-book
-    - `code/tests/test_ingest_preprocessed.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/open_clinical.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

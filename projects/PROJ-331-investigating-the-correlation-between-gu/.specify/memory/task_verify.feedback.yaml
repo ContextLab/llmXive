@@ -1,60 +1,57 @@
 T001:
-  reason: The task's required artifacts `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet`
-    are both MISSING, so there is nothing to validate and no evidence that `python
-    -m code.src.pipeline.ingest` exited 0 or logged SHA-256 checksums of real files.
-    The ingest module and tests exist and look reasonable, but no test-pass or run
-    evidence was supplied, and the verification criterion (checksums of the actual
-    raw files) cannot be met without the files themselves.
-  task: 15966faecaeeda70562cb5a02285f869bbb2fd17f744efa216d9c0796a90ebd9
+  reason: 'the task writes platform-owned path(s) inside the project: `state/ingest_provenance.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 063d19d7b82df387ebe83a34f748333a124d9faa6a305865380f7f91df3d4306
 T002:
-  reason: The required outputs `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`
-    are MISSING from disk, and there is no execution evidence (test run logs, generated
-    summaries) that `run_preprocess` was ever executed successfully on real data.
-    Additionally, `cap_taxa_by_memory` is implemented so that any caller-supplied
-    `max_taxa != 100` silently skips subsampling entirely, which does not faithfully
-    implement the FR-010 RAM-budget guard (the test only works around it by calling
-    the private `_cap_impl` directly). The implementer must run the pipeline to produce
-    the two
-  task: ad7b9cc8c0acd1722380307b22f28c6a184db66658c888b8459bcaf4e8008a0d
+  reason: "The required output files `data/processed/filtered_samples.parquet` and\
+    \ `data/processed/clr_abundances.parquet` are missing, and the pipeline\u2019\
+    s taxa\u2011capping logic selects the top taxa by raw count rather than by mean\
+    \ CLR abundance as the task specification demands. Consequently the implementation\
+    \ does not fully meet the stated requirements."
+  task: a9108afb3ad685a072dc55335635e13be1d914b2c9aea5dc3aded3e2e1f7d351
 T003:
-  task: c649b0e9a215931cb44d3b50a00141daa72ec6c0bb3edad66a4fbc0610cd0a2c
+  reason: The required output files `data/processed/patient_taxon_slopes.parquet`
+    and `data/processed/patient_outcome_slopes.parquet` are missing; the repository
+    contains only the implementation and unit tests, but no generated parquet artifacts
+    confirming that the slopes were actually computed and written.
+  task: 5f96af494e7006b88a7233be68e294507d937ed779e88b79fdc768628401f092
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/correlation.py
-    exit=1'
-  task: b808b585e4bf139d7dc89b1c21dba609a864f6d01409df8189bd81fdfb1f4083
+  reason: "The `results/taxa_correlations.csv` file is a static placeholder (perfect\
+    \ \u03C1\u202F=\u202F\xB11, p\u202F=\u202F0) and was not produced by a successful\
+    \ run of `correlation.run_correlation`. The pipeline cannot read the required\
+    \ parquet slope files because the environment lacks a parquet engine (`pyarrow`/`fastparquet`),\
+    \ causing an `ImportError` (see the log for the `--partial` run). Consequently\
+    \ the contract and functional tests that depend on a real computation would fail,\
+    \ and the BH\u2011adjusted p\u2011values are not the result of an actual Spearman\
+    \ analysis. The task needs a working parquet dependency and a genuine correlati"
+  task: b4b75f45b43b046428f29e72c952a25f258f7fead6ac1a01d44670802993791b
 T005:
-  task: 581a7be89886c2847bb1728d7d5188f66f3223b3e4f56057993bdaad13266159
+  task: 55cf038d957747e4fb5a0378d32540173c423350b9cefb1694db2460106e7a1e
 T006:
-  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_permutation.py
-    exit=1'
-  task: 69b0b4dd54804aadc83c014d49d8b03ebef87cde1a95615757aa86d2391e4a3c
+  reason: "The `results/permutation_pvalues.csv` file contains only the header (`taxon_name,empirical_p`)\
+    \ and no empirical p\u2011value rows, so the required output of the permutation\
+    \ test is missing. Additionally, the provided `test_permutation.py` does not verify\
+    \ the patient\u2011level time\u2011ordering preservation nor the 4\u2011hour wall\u2011\
+    time guard, leaving those required behaviours untested. The task therefore lacks\
+    \ a complete, validated results artifact."
+  task: e31e6136ac684d50b4e31956f7d861b3354a82e8fbbd64fade9f18e4830f435b
 T007:
-  reason: "The repository contains `code/src/pipeline/__main__.py` and a static `results/runtime_log.txt`,\
-    \ but the pipeline stages it tries to import (`code.src.pipeline.ingest`, `preprocess`,\
-    \ `slopes`, `correlation`, `mixed_effects`, `permutation`) are not present. Consequently\
-    \ the test `code/tests/test_runtime_budget.py` would raise an import error and\
-    \ never produce a log with the required \u201CPermutation robustness test\u201D\
-    \ and \u201CTotal\u201D entries, so the runtime\u2011budget assertions cannot\
-    \ be verified. Adding the missing stage modules (or stubs that write to the log)\
-    \ is needed for the task to be complete."
-  task: e3e1756fd36fb5b166a9c6cf4ab0fd9e6155a8111469ea2fafc00e7ccbf01aa8
-T008a:
-  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_us1.py
-    exit=1'
-  task: 7169975254bbe460ce9500e4b11f5f3c1bebb155e54578e423393decffc70358
-T008b:
-  task: 7d2cd297898aaa00539dd164b548cfb6c15136d360e26abe8781e9c45637a7c2
-T008c:
-  task: 759b768f72c6fad0a4aca179c8c18ca5b27775317f146235909ded26ec343411
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/__main__.py
+    exit=1; tests/test_runtime_budget_execution.py exit=2'
+  task: 798b530dbd95fe4a6dd08b8214e31f7faf29895d20eec54a0551917784746225
+T008:
+  task: 6d13f8aef2719c50c172d2a209970139a58f3358477a2cf1a80efa54088fc32b
 T009:
-  task: 4238657190925e239d26aea022be81d99006ac52c22a9de31e69ddb416bf0361
+  task: e22ee2626a073e7947bf28fcfbc4a08a4d5491752fd80c7e083c07ef075d58a2
 T010:
-  task: 499cc5ec317d5f24a4f189c697bfb6371b1e44438500bd5b62bb759b4be1bbc5
+  task: 104e98e1c01d74ae1fda38ea6e70ad6031078a707e0b0af45cac22b233352d5b
 T011:
-  task: f95cd7173f29570e8c1ffac0c4a3652ff3807a47e2ceb51bdc7cbb0d9749a2d1
+  task: 6a33fe81deb373b927d37ac5560ce058a704691b002945da257261b4bbfaee12
 T012:
-  task: 1e434b9ca3527402a909df5d60c33695407e4413e0ae62ec8a4693a670f6588c
+  task: d5e0882b7ddca88b3048886b720fab33b16b6a41b0b5fe160cd6de73f80ec9dd
 T013:
-  task: f668fe2169850fe3c81fa3e62c5b566ed5fd1054cf51cec553a4caa36a04a5b5
+  task: f85e8b5f15c89fd6a0b14b8a494df7f84f29654cc7ba182246949a44b9b9ecce
 T014:
-  task: 2511a2fb2af4591fd5e203fb24153d0695e1436ead148390a383e09a0a31d39e
+  task: c398e0b6729fc4ab4357ef0d1e51f65cf6c3a3001c667c231a548808da96ed43
