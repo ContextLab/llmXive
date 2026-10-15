@@ -1,12 +1,12 @@
 status: none
-intent: download IL benchmark ionic liquid interaction energies dataset from Zenodo
-  and NIST ThermoML python package dataset
+intent: download IL-Benchmark interaction energies dataset Zenodo NIST thermophysical
+  properties python package dataset
 required_fields:
 - pair_id
 - reference_energy
 - xyz_path
 - density
 - viscosity
-cache_key: f7a739a5bde39dba00ec74469a41631627af0c51534b64130feab0fd79ccaf5f
-searched_at: '2026-10-15T07:18:23.638933+00:00'
+cache_key: 8be54f5a3d1a791d368ac216ade852dd4605f9b6aea9dbc5bdd04b090894d27b
+searched_at: '2026-10-15T07:24:54.079658+00:00'
 retry_count: 1
