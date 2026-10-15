@@ -1,91 +1,110 @@
 # Implementation Plan: Mesh Network Supercomputer Using Pooled Idle Computing Resources
 
-**Branch**: `001-mesh-supercomputer` | **Date**: 2026-07-31 | **Spec**: `specs/001-mesh-supercomputer/spec.md`
+**Branch**: `001-mesh-supercomputer` | **Date**: 2026-10-14 | **Spec**: `specs/001-mesh-supercomputer/spec.md`  
 **Input**: Feature specification from `specs/001-mesh-supercomputer/spec.md`
 
 ## Summary
+The project will deliver a reproducible research pipeline that (1) orchestrates a dynamic scheduler across a heterogeneous Wi‑Fi mesh of consumer devices, (2) instruments each node to capture wall‑clock time, packet counts, and CPU utilization, (3) performs a systematic parameter sweep over task granularity, node count, and injected network impairments, (4) aggregates the raw logs into a structured dataset, (5) fits a **multiple linear regression** with polynomial and interaction terms and runs **ANOVA** to quantify interaction effects, (6) validates the empirical scaling curve against the information‑theoretic capacity bound of Ong & Motani (2007) using a proper unit‑consistent conversion, and (7) records per‑node metadata for schema validation. All steps are designed to run on the free‑tier GitHub Actions runner (2 CPU cores, ≈ 7 GB RAM, ≤ 6 h) with optional GPU off‑load (none required).
 
-This project implements a physical testbed for a mesh network supercomputer that pools idle computing resources from heterogeneous consumer devices (laptops, Raspberry Pis, mobile devices) over a local Wi-Fi network. The system orchestrates Monte Carlo integration benchmarks, instruments nodes to capture wall-clock time, packet counts, and CPU utilization, and performs statistical regression analysis to validate scaling laws against the Ong & Motani theoretical capacity bounds. The implementation prioritizes reproducibility, data hygiene, and strict adherence to a time-constrained CI limit on free-tier runners.
-
-**Key Methodological Update**: The project now includes a **Discrete-Event Simulation (DES)** phase. The physical testbed data will be used to calibrate and validate the simulation model, satisfying Constitution Principle VI. The statistical analysis uses Generalized Additive Models (GAMs) to capture non-linear interactions and redefines the outcome metric to avoid tautological regression.
+The plan explicitly addresses **every** functional requirement (FR‑001 – FR‑007) and success criterion (SC‑001 – SC‑006) and adds verifiable unit‑test and data‑generation tasks to remediate the previous verification failures (T001‑T004).
 
 ## Technical Context
-
-**Language/Version**: Python  
-**Primary Dependencies**: `paramiko` (SSH orchestration), `scikit-learn` (regression/ANOVA), `pandas` (data manipulation), `pygam` (Generalized Additive Models), `statsmodels` (statistical testing), `pytest` (testing), `pyyaml` (configuration), `numpy` (numerical operations), `simpy` (discrete-event simulation)  
-**Storage**: Local CSV/JSON logs, no external database required for CI execution  
-**Testing**: `pytest` with contract validation against YAML schemas  
-**Target Platform**: Linux (GitHub Actions runner) for orchestration; remote Linux/ARM devices for workers  
-**Project Type**: Research CLI / Orchestration System  
-**Performance Goals**: Complete full parameter sweep and analysis within 6 hours; minimize coordination overhead in scheduling  
-**Constraints**: Multiple CPU cores, sufficient RAM, Substantial disk space on CI; no GPU required (statistical analysis is CPU-tractable); physical testbed availability assumed for local runs but mocked for CI validation  
-**Scale/Scope**: A heterogeneous set of nodes; multiple granularity settings (fine/medium/coarse); Multiple independent runs (Multiple replicates per Multiple configs + stress tests)  
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**:  
+  - `paramiko` (SSH orchestration)  
+  - `pandas` (data handling)  
+  - `numpy` (numeric ops)  
+  - `statsmodels` (OLS regression & ANOVA)  
+  - `scipy` (multiple‑comparison correction)  
+  - `pyyaml` (configuration)  
+  - `pytest` (testing)  
+  - `jsonschema` (contract validation)  
+- **Storage**: CSV/JSON files under `data/` (raw logs, processed aggregates, model output).  
+- **Testing**: `pytest` with contract tests (`jsonschema`) and extensive **mock‑node** unit tests covering all instrumentation functions.  
+- **Target Platform**: Linux CI runner (GitHub Actions); remote Linux/ARM devices for the physical mesh.  
+- **Performance Goals**: Complete full sweep (≤ 150 runs) and analysis within ≤ 6 h on the CI runner.  
+- **Constraints**: No GPU, strict 6‑hour wall‑clock limit, all external data must be generated locally (self‑contained).  
 
 ## Constitution Check
+| Principle | Compliance | Note |
+|-----------|------------|------|
+| **I. Reproducibility** | ✅ | Random seeds pinned; all code runnable from a fresh runner; no manual steps. |
+| **II. Verified Accuracy** | ✅ | Ong & Motani (2007) citation will be validated by the Reference‑Validator Agent. |
+| **III. Data Hygiene** | ✅ | Raw logs are immutable; derived files receive new filenames; checksums recorded in `state/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg.yaml`. |
+| **IV. Single Source of Truth** | ✅ | Every figure/table traces back to a row in `data/processed/execution_runs.csv` and a line in `code/analysis/regression.py`. |
+| **V. Versioning Discipline** | ✅ | Content hashes tracked; `updated_at` timestamps updated on artifact changes. |
+| **VI. Simulation Fidelity and Validation** | ✅ | A lightweight **discrete‑event simulation** (SimPy) will be calibrated against the physical “golden dataset” (10‑node pilot) to satisfy the validation requirement. |
+| **VII. Heterogeneity‑Aware Scheduling** | ✅ | Scheduler models CPU variance, latency variance, and dropout; regression includes interaction terms. |
+| **VIII. Physical Node Metadata Capture** | ✅ | Instrumentation step writes `physical_node_<ip>.json` per node and validates against `contracts/physical-node.schema.yaml`. |
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Status | Action / Note |
-|-----------|-------------------|---------------|
-| **I. Reproducibility** | **COMPLIANT** | Random seeds pinned in `code/`; all external data (if any) fetched from canonical sources; `requirements.txt` pins dependencies. |
-| **II. Verified Accuracy** | **COMPLIANT** | Ong & Motani citation will be validated against primary source; title overlap ≥ 0.7 enforced. |
-| **III. Data Hygiene** | **COMPLIANT** | Raw execution logs preserved unchanged; derived statistics written to new files with checksums recorded in state YAML. |
-| **IV. Single Source of Truth** | **COMPLIANT** | All figures/statistics trace to `data/` rows and `code/` blocks; no hand-typed numbers in paper. |
-| **V. Versioning Discipline** | **COMPLIANT** | Content hashes tracked; `updated_at` timestamps updated on artifact changes. |
-| **VI. Simulation Fidelity and Validation** | **COMPLIANT** | **PHASE 4**: A discrete-event simulation model will be built and calibrated against the physical testbed data (a small-scale node cluster) to ensure internal state does not produce circular predictions. Validation requires comparing simulation outputs to the "golden" physical dataset. |
-| **VII. Heterogeneity-Aware Scheduling** | **COMPLIANT** | Scheduler explicitly models CPU speed variance, latency, and dropout; regression captures interaction effects via GAMs. |
+All principles are satisfied; no violations remain.
 
 ## Project Structure
-
-### Current Artifacts (Inputs to this Review)
-
-The following documents are the result of the planning phase and serve as inputs for the implementation:
-- `plan.md` (This file)
-- `research.md`
-- `data-model.md`
-- `quickstart.md`
-- `contracts/` (Schema definitions)
-
-### Source Code (Repository Root - Future Implementation)
-
 ```text
 code/
 ├── orchestrator/
 │   ├── __init__.py
-│   ├── scheduler.py          # Dynamic task granularity logic
-│   ├── node_manager.py       # SSH/heartbeat management
-│   └── instrumentor.py       # tcpdump/mpstat collection
+│   ├── scheduler.py          # Dynamic granularity logic, fault handling
+│   ├── node_manager.py       # SSH discovery, heartbeat, metric collection
+│   ├── instrumentor.py       # tcpdump, mpstat wrappers, parsing utilities
+│   └── cli.py                # Argparse entry‑point
 ├── analysis/
 │   ├── __init__.py
-│   ├── regression.py         # GAM regression & ANOVA
-│   └── theoretical_bound.py  # Ong & Motani () validation
+│   ├── regression.py         # OLS regression with polynomial/interaction terms, ANOVA, residual diagnostics
+│   └── theoretical_bound.py  # Ong & Motani bound calculation with bits‑per‑task conversion
 ├── simulation/
 │   ├── __init__.py
-│   └── des_model.py          # Discrete-event simulation for validation
+│   └── des_model.py          # SimPy mesh model, calibration routine
 ├── data/
-│   ├── raw/                  # Raw execution logs (CSV)
-│   └── processed/            # Aggregated metrics (JSON/CSV)
+│   ├── raw/                  # Raw CSV logs per run + `physical_node_*.json`
+│   └── processed/            # Aggregated CSV, JSON model, validation report
 ├── tests/
 │   ├── unit/
+│   │   ├── test_node_manager.py
+│   │   ├── test_scheduler.py
+│   │   └── test_instrumentor.py
 │   ├── integration/
-│   └── contract/             # Schema validation tests
+│   │   └── test_full_workflow.py   # Uses mock‑testbed
+│   └── contract/
+│       └── test_contracts.py
 └── requirements.txt
 ```
+**Structure Decision**: A single‑module repository under `code/` keeps the CI footprint small and aligns with the “research‑CLI” assumption (no UI needed).
 
-**Structure Decision**: Single project structure under `code/` chosen for simplicity and alignment with research CLI pattern. Orchestrator, analysis, and simulation modules separated for clarity. No frontend/backend split required as per Assumption about target users.
+## Complexity Tracking & Verification Remediation
+| Issue | Original Failure | Revised Approach |
+|-------|------------------|------------------|
+| **T001** – test suite exit code 2 | Missing/incorrect test files; some modules lacked tests. | Add **complete unit‑test suites** for `node_manager`, `scheduler`, and `instrumentor` covering: SSH verification, CPU profiling (`mpstat` parsing), radio metrics (`iwconfig` parsing), packet counting (`tcpdump`), dropout detection, thermal metric extraction, and task re‑assignment logic. All tests run under `pytest -q`. |
+| **T002** – insufficient unit tests | Only discovery tests existed. | Expand `test_node_manager.py` to include mock‑node generators with recorded `tcpdump`/`mpstat` samples; assert correct parsing and metric extraction. |
+| **T003** – missing `data/raw/dropout_events.json` | Scheduler never emitted dropout file; `TaskAssignment` lacked `end_time`. | Introduce **explicit dropout logging** in `scheduler.py` that writes a JSON array of events (`node_id`, `timestamp`, `reason`, `reassigned_task_id`). Update `TaskAssignment` dataclass to include `end_time`. Unit tests verify file creation and schema compliance (`contracts/dropout-event.schema.yaml`). |
+| **T004** – CLI crash | CLI argument handling incomplete. | Refactor `code/orchestrator/cli.py` to use `argparse` with sub‑commands (`run`, `sweep`, `validate`). Add defensive checks and informative error messages. Integration test (`test_full_workflow.py`) runs the CLI in mock mode and asserts successful exit. |
+| **Physical Node Metadata** | No contract validation for `PhysicalNode`. | **Instrumentation stage** now writes `physical_node_<ip>.json` per discovered node and `tests/contract/test_contracts.py` validates these files against `contracts/physical-node.schema.yaml`. |
 
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Simulation Model** | Required by Constitution Principle VI to validate internal state against physical reality. | A pure physical approach cannot scale to the full parameter space required for the final paper; simulation allows extrapolation once validated. |
-| **GAMs over Linear Regression** | Required to capture non-linear interaction effects between heterogeneity and granularity (H1). | Linear models fail to detect inflection points and "sweet spots" in non-linear scaling laws. |
+All revised tasks produce **deterministic artefacts** (CSV, JSON, model files) that are validated against schemas in `contracts/` before commit.
 
 ## Execution Strategy & CI Constraints
+1. **Mock‑Testbed Generation** (`tests/integration/test_full_workflow.py`):  
+   - Creates 15 virtual nodes with synthetic but realistic metric streams (latency, CPU, packet loss, temperature, OS noise).  
+   - Runs the full sweep on the mock mesh; outputs `data/raw/mock_run_*.csv`, `data/raw/dropout_events.json`, and `data/raw/physical_node_*.json`.  
+   - Guarantees CI can execute the entire pipeline without real hardware, satisfying verification while the *Physical Validation* job (manual) will later replace the mock data with real logs.
 
-- **CI Mocking**: Unit and contract tests run on the GitHub Actions runner using mocked SSH nodes.
-- **Physical Validation**: A dedicated "Physical Validation" job is triggered manually or via a gated CI step when physical hardware is available. This job runs the full parameter sweep on the real mesh.
-- **Data Flow**: Physical data generated in the "Physical Validation" step is treated as the "Golden Dataset" and is used to calibrate the `des_model.py` simulation.
-- **Time Budget**: Multiple runs × [deferred]/run = [deferred]. This leaves a sufficient buffer for data aggregation, analysis, and simulation calibration, fitting within the 6-hour limit.
+2. **Physical Validation (manual step)**:  
+   - When a researcher has a real mesh, they invoke `python code/orchestrator/cli.py run --config config.yaml`.  
+   - The same code path is used; only the data source changes from mock to real.  
+   - Results are stored under `data/raw/real_*.csv`, `data/raw/dropout_events.json`, and `data/raw/physical_node_<ip>.json`.
+
+3. **Data Aggregation** (`analysis/regression.py`):  
+   - Reads all `data/raw/*.csv` and `physical_node_*.json`, computes per‑run metrics, writes `data/processed/execution_runs.csv`.  
+   - Generates `data/processed/regression_model.json` (coefficients, p‑values, R², residuals, theoretical bound deviation).  
+   - Writes `data/processed/theoretical_bound_validation.json`.
+
+4. **Contract Validation** (`tests/contract/test_contracts.py`):  
+   - Loads all JSON/CSV artefacts—specifically `physical_node_<ip>.json`, `dropout_events.json`, `execution_runs.csv`, and `regression_model.json`—and validates each against its corresponding schema in `contracts/` (e.g., `physical-node.schema.yaml`, `dropout-event.schema.yaml`, `execution-run.schema.yaml`, and `regression-model.schema.yaml`) using `jsonschema`.  
+   - Fails the CI if any schema mismatch occurs.
+
+5. **Time Budget**:  
+ - Mock sweep (~several runs) [deferred].
+   - Full sweep (≤ 150 runs) ≈ 4 h (benchmark duration per run calibrated to stay within the 6‑h CI limit).  
+   - Analysis & validation ≤ 30 min.  
+
+All steps are CPU‑tractable; no GPU escape hatch required.

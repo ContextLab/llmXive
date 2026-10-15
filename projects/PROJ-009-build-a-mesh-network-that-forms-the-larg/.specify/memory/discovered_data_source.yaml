@@ -1,18 +1,15 @@
 status: none
-intent: EdgeBench distributed execution logs dataset CPU packet counts OpenML python
-  package dataset
+intent: distributed systems benchmark execution logs CPU packet count python package
+  dataset
 required_fields:
 - node_id
 - task_chunk_id
-- start_timestamp
-- end_timestamp
-- wall_clock_time_seconds
-- packet_count_sent
-- packet_count_received
+- timestamp
+- wall_clock_time
+- packet_count
 - cpu_utilization_percent
 - memory_usage_mb
-- task_status
-- reassignment_timestamp
-cache_key: 0ca610e9aeb227650b3cbf91a7cec806b8b0f03f366d56c6b44d1303a15a895d
-searched_at: '2026-10-15T05:10:52.814492+00:00'
+- heartbeat_status
+cache_key: 8776fb8eafb5927e8441344ff8fe95db4ae36bb1e2744472add49836d436a901
+searched_at: '2026-10-15T05:13:37.510048+00:00'
 retry_count: 1

@@ -17,7 +17,7 @@ The researcher MUST be able to deploy a dynamic scheduler to a physical mesh of 
 
 **Acceptance Scenarios**:
 
-1. **Given** a list of 20 reachable IP addresses representing heterogeneous devices, **When** the orchestrator initiates a Monte Carlo integration benchmark with injected 100ms latency, **Then** the system distributes tasks, records a non-zero packet count for every node, and outputs a CSV containing `node_id`, `wall_clock_time`, `cpu_utilization_pct`, and `packet_count`.
+1. **Given** a list of 20 reachable IP addresses representing heterogeneous devices, **When** the orchestrator initiates a Monte Carlo integration benchmark with injected artificial latency, **Then** the system distributes tasks, records a non-zero packet count for every node, and outputs a CSV containing `node_id`, `wall_clock_time`, `cpu_utilization_pct`, and `packet_count`.
 2. **Given** a node that disconnects mid-execution (simulating unreliable consumer hardware), **When** the scheduler detects the heartbeat loss, **Then** the system re-assigns the failed task chunk to an active node and logs the re-assignment event with a timestamp.
 3. **Given** a workload size that exceeds the memory of a specific low-end device (e.g., Raspberry Pi), **When** the scheduler assigns a task chunk, **Then** the system detects the memory constraint (via local log or OOM signal) and splits the chunk into smaller units that fit the device's available RAM.
 

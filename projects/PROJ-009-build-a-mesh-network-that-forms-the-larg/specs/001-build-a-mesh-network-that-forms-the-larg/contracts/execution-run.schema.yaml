@@ -18,7 +18,7 @@ properties:
     description: "Total tasks completed per second"
   normalized_efficiency:
     type: number
-    description: "Normalized efficiency (Throughput / Baseline Theoretical Max)"
+    description: "Normalized efficiency (Throughput / Theoretical capacity in tasks/sec)"
   coordination_overhead_ratio:
     type: number
     description: "Ratio of coordination time to total execution time"
@@ -37,6 +37,12 @@ properties:
   runtime_snr_db:
     type: number
     description: "Average runtime SNR during the run"
+  cpu_temperature_avg:
+    type: number
+    description: "Optional average CPU temperature (°C) across nodes; present when supported"
+  os_noise:
+    type: number
+    description: "Optional measure of OS‑level noise (e.g., stddev of 1‑min load average); present when supported"
 required:
   - node_count
   - granularity_setting
