@@ -1,7 +1,7 @@
 # Data Model: 001-static-dynamic-gap-analysis
 
 ## Overview
-The pipeline works with four core data artifacts, each validated against a JSON/YAML schema stored under `specs/001-static-dynamic-gap-analysis/contracts/`. The schemas enable contract‑based testing (`tests/contract/test_contracts.py`) and guarantee reproducibility.
+The pipeline works with four core data artifacts, each validated against a JSON/YAML schema stored under `specs/<designated‑identifier>-static-dynamic-gap-analysis/contracts/`. The schemas enable contract‑based testing (`tests/contract/test_contracts.py`) and guarantee reproducibility.
 
 ## Schemas
 
@@ -107,7 +107,8 @@ properties:
     enum: ["pass", "fail"]
 ```
 
-### 3. `model_output.schema.yaml` (optional, not required for contract tests but documented)
+### 3. `model_output.schema.yaml` (optional, documented for completeness)
+
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelOutput"

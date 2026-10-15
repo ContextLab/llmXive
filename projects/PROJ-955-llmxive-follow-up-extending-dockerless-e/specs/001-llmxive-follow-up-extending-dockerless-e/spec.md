@@ -65,7 +65,7 @@ The system must isolate patches where the static model fails (False Positives an
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest the SWE-Gym and Multi-SWE-RL datasets (3.7k issues) and extract source code and ground-truth test logs for every patch (See US-1).
+- **FR-001**: System MUST ingest the SWE-Gym and Multi-SWE-RL datasets (thousands of issues). and extract source code and ground-truth test logs for every patch (See US-1).
 - **FR-002**: System MUST generate Control Flow Graphs (CFG) and Call Graphs (CG) for all Python and C++ patches using `pycg` and `clang-query` respectively, serializing results as JSON (See US-1).
 - **FR-003**: System MUST compute a feature vector for each patch including node degree, path length, recursion depth, and presence of external function calls (See US-2).
 - **FR-004**: System MUST train a lightweight classifier (Random Forest or Logistic Regression) on the static features to predict the binary ground-truth label (pass/fail), where ground-truth labels are derived from independent sandboxed execution logs, not static analysis features (See US-2).

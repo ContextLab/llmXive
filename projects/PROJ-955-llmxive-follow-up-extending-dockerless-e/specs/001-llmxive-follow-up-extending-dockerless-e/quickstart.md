@@ -4,7 +4,7 @@ This guide walks you through reproducing the full analysis on a fresh GitHub Act
 
 ## 1. Clone the Repository & Install Dependencies
 ```bash
-git clone https://github.com/your-org/llmxive-project.git
+git clone 
 cd llmxive-project
 python -m venv .venv
 source .venv/bin/activate
@@ -13,7 +13,11 @@ pip install -r requirements.txt   # pins pycg, clang, scikit-learn, etc.
 
 ## 2. Verify Dataset Access (optional)
 ```bash
-python -c "from datasets import load_dataset; ds = load_dataset('OpenHands/SWE-Gym-code-search', split='train', streaming=True); print(next(iter(ds))['patch_id'])"
+python - <<'PY'
+from datasets import load_dataset
+ds = load_dataset('OpenHands/SWE-Gym-code-search', split='train', streaming=True)
+print(next(iter(ds))['patch_id'])
+PY
 ```
 If the command prints a `patch_id` without error, the dataset is reachable.
 
@@ -46,7 +50,7 @@ less output/reports/final_report.md
 ```
 The markdown includes:
 - AUC vs. random baseline (SC‑001)  
-- Divergence rate (SC‑002)  
+- Divergence rate (FP + FN / parsable patches) (SC‑002)  
 - Error‑category distribution (SC‑003)  
 - Wald test p‑values (SC‑005)  
 - Runtime & memory summary (SC‑004)
