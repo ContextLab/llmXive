@@ -68,8 +68,10 @@ class EntityLinker:
             List[str]: List of extracted entities.
         """
         # Simple entity extraction: capitalized words and proper nouns
+        # Filter out single-character tokens (e.g., "I") which are not useful for linking
         entities = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', text)
-        return list(set(entities))
+        filtered = [e for e in entities if len(e) > 1]
+        return list(set(filtered))
 
     def calculate_similarity(self, entity: str, node_name: str) -> float:
         """
@@ -198,16 +200,16 @@ def link_dataframe(
             model = SentenceTransformer('all-MiniLM-L6-v2')
             node_names = list(graph_nodes.keys())
             node_embeddings = model.encode(node_names)
-            
+
             entity_ids = []
             confidences = []
-            
+
             for text in df_out['question']:
                 if not isinstance(text, str):
                     entity_ids.append(None)
                     confidences.append(0.0)
                     continue
-                
+
                 query_embedding = model.encode([text])[0]
                 # Cosine similarity: dot product of normalized vectors
                 norm_q = np.linalg.norm(query_embedding)
@@ -215,13 +217,13 @@ def link_dataframe(
                     entity_ids.append(None)
                     confidences.append(0.0)
                     continue
-                
+
                 # Normalize query embedding
                 q_norm = query_embedding / norm_q
-                
+
                 best_node = None
                 best_score = 0.0
-                
+
                 for idx, node_emb in enumerate(node_embeddings):
                     norm_n = np.linalg.norm(node_emb)
                     if norm_n == 0:
@@ -231,14 +233,14 @@ def link_dataframe(
                     if sim > best_score:
                         best_score = sim
                         best_node = node_names[idx]
-                
+
                 if best_score >= threshold:
                     entity_ids.append(best_node)
                     confidences.append(float(best_score))
                 else:
                     entity_ids.append(None)
                     confidences.append(float(best_score))
-            
+
             df_out['entity_node_id'] = pd.Series(entity_ids, dtype=object)
             df_out['confidence'] = confidences
             return df_out
@@ -247,16 +249,16 @@ def link_dataframe(
 
     # 3. Fuzzy matching path (Fallback or Default)
     linker = EntityLinker(graph_nodes, threshold)
-    
+
     entity_ids = []
     confidences = []
-    
+
     for text in df_out['question']:
         if not isinstance(text, str):
             entity_ids.append(None)
             confidences.append(0.0)
             continue
-        
+
         # We treat the whole question as the entity for the fuzzy linker
         # since the EntityLinker.link_entity handles similarity.
         res = linker.link_entity(text)

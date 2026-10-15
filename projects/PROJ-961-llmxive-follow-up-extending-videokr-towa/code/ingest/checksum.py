@@ -8,7 +8,10 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-# Fixed import to use the correct module path relative to the code/ directory
+# Fix import path so script can be run from project root
+# Path(__file__).resolve().parent is code/ingest, .parent.parent is code/
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from utils.config import get_path, ensure_dir, PATHS
 
 logger = logging.getLogger(__name__)
@@ -67,7 +70,7 @@ def generate_checksum_file(file_path: Union[str, Path], output_path: Union[str, 
     output_obj = Path(output_path) if isinstance(output_path, str) else output_path
     ensure_dir(output_obj.parent)
 
-    # Write a JSON **list** to keep the schema consistent across the project.
+    # Consistent schema: JSON list of {path, sha256} entries.
     with open(output_obj, "w", encoding="utf-8") as f:
         json.dump([checksum_entry], f, indent=2)
 
@@ -135,8 +138,7 @@ def main() -> None:
 
     - If ``data/raw/checksums.json`` exists, verify all listed files.
     - If the file does **not** exist, create it for every file under
-      ``PATHS['raw']`` and then verify (which will always succeed on the
-      first run).
+      ``PATHS['raw']`` and then verify.
 
     The script prints a concise verification report and exits with a
     non‑zero status code if any file fails verification.

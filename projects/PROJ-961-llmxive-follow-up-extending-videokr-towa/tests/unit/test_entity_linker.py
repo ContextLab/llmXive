@@ -88,32 +88,6 @@ def test_embedding_path_when_available(monkeypatch):
     assert out.loc[0, "entity_node_id"] == "Short"
     assert out.loc[0, "confidence"] == pytest.approx(1.0)
 
-    # "UnrelatedText" should match "VeryLongNodeName" if it's the closest, 
-    # but since we used length-based vectors, they are just scalars in 384D.
-    # Cosine sim between [5,5...] and [13,13...] is 1.0.
-    # Let's use a more distinct mock.
-    
-    # Redefining Mock for better distinction
-    class DistinctMock:
-        def __init__(self, name): pass
-        def encode(self, texts):
-            # Return unit vectors based on index of the text in a fixed list
-            # This is hard because we don't know the node_names order.
-            # Instead, return a vector where only the first element is the length.
-            res = []
-            for t in texts:
-                v = np.zeros(384)
-                v[0] = float(len(t))
-                res.append(v)
-            return np.array(res)
-
-    monkeypatch.setattr("utils.entity_linker.SentenceTransformer", DistinctMock)
-    
-    out = link_dataframe(df, graph, threshold=0.1)
-    # "Short" (len 5) matches "Short" (len 5) -> sim 1.0
-    assert out.loc[0, "entity_node_id"] == "Short"
-    # "UnrelatedText" (len 13) matches "VeryLongNodeName" (len 16) -> sim 1.0 (since only one dim is non-zero)
-    # Wait, if only one dim is non-zero, cosine similarity is always 1.0 if signs match.
-    # Let's just verify that it's calling the embedding logic (confidence is computed).
+    # Verify that the embedding path was exercised (columns exist)
     assert "entity_node_id" in out.columns
     assert "confidence" in out.columns

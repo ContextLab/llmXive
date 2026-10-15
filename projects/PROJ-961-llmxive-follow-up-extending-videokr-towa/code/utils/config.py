@@ -27,13 +27,6 @@ SEEDS = {
 # Path definitions
 # ----------------------------------------------------------------------
 # Helper to resolve a path relative to the project root.
-# This function is deliberately flexible: it can be called either as
-#   get_path("data/raw")
-# or as
-#   get_path(project_root_path, "processed_data")
-# The latter form is used by legacy scripts; supporting both keeps the
-# public API stable while fixing the TypeError observed in the main
-# orchestrator.
 def get_path(*args: Union[str, Path]) -> Path:
     """
     Resolve an absolute path inside the project.
@@ -71,8 +64,6 @@ SENSITIVITY_THRESHOLDS = [2, 3, 4]
 # ----------------------------------------------------------------------
 # Dataset location (Hugging Face Hub)
 # ----------------------------------------------------------------------
-# Official VideoKR‑SFT repository on the Hugging Face Hub.
-# Adjust this identifier if the dataset moves to a different repo.
 VIDEO_KR_REPO = "VideoKR/VideoKR-SFT"
 
 def ensure_dir(path: Union[str, Path]) -> Path:
@@ -151,6 +142,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     import logging
-
     logging.basicConfig(level=logging.INFO)
     main()

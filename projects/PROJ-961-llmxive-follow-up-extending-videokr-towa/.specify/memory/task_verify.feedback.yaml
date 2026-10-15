@@ -1,21 +1,11 @@
 T101:
-  reason: '`code/utils/config.py` correctly defines `SEEDS` (pinned ints for pilot_sampling/oversampling/permutation),
-    `PATHS` (raw/processed), and `SENSITIVITY_THRESHOLDS = [2, 3, 4]`, and the checksum
-    schema is consistently a JSON list of `{path, sha256}` entries with `main()` exiting
-    1 on mismatch. However, `code/ingest/checksum.py` uses `from utils.config import
-    ...`, which only resolves if `code/` is on `sys.path`; running the task''s stated
-    verification command `python code/ingest/checksum.py` from the project root puts
-    `code/ingest` (not `code/`) on the path, so the import would raise `ModuleNotFou'
   task: 124f0ea77e72c354939beda0a391bd830931598c680d04f7228b82b3f161e287
 T102:
-  reason: 'The required verification `pytest tests/unit/test_entity_linker.py` fails:
-    the recorded run (exit 1) shows `test_embedding_path_when_available` failing because
-    the mock''s length-based vectors make "Short" match "VeryLongNodeName" (cosine
-    similarity 1.0 for all positive one-dimensional vectors), so `entity_node_id`
-    is wrong. The test itself is self-admittedly confused (contains "Let''s just verify..."
-    hedging) and needs a mock producing genuinely distinct directions (e.g., orthogonal
-    vectors) so the embedding path''s similarity behavior is actually exercised and
-    passes.'
+  reason: "The unit\u2011test suite shows that the embedding\u2011based branch of\
+    \ `link_dataframe` does not behave as required: `test_embedding_path_when_available`\
+    \ fails, returning the wrong `entity_node_id`. Consequently the function does\
+    \ not correctly implement the configurable embedding\u2011similarity path, and\
+    \ the task\u2019s verification condition (all pytest tests passing) is not met."
   task: eb46c77b92d8ade98ad3221f5e603ccd37518053ac27ddb12012ba43927408e3
 T103:
   reason: 'Requested task execution failed; rerun successfully: code/ingest/download_data.py
