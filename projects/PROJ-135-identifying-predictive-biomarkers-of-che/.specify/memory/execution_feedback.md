@@ -12,26 +12,61 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/utils.py: self-declared fabricated metric — “…synthetic data or fallback to mock values.     If the file does not ex…”; 2 run-book script(s) missing (plan/impl path mismatch): python src/meta_analysis.py; python src/loo_controller.py; 3 command(s) failed: python src/data_acquisition.py --mode real --subset-size (rc=1); python src/preprocessing.py (rc=1); python code/src/differential_expression.py (rc=1)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/utils.py: self-declared fabricated metric — “…synthetic data or fallback to mock values.     If the file does not ex…”; 2 run-book script(s) missing (plan/impl path mismatch): python src/meta_analysis.py; python src/loo_controller.py; 4 command(s) failed: python src/data_acquisition.py --mode real --subset-size (rc=1); python src/preprocessing.py (rc=1); python code/src/differential_expression.py (rc=1)
 
 ## Failing / missing run-book commands
 
 - python src/data_acquisition.py --mode real --subset-size -> rc=1
-    Traceback (most recent call last):
+
+Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/data_acquisition.py", line 16, in <module>
     from src.utils import calculate_checksum, setup_logging, update_state_artifact_hashes
 ImportError: cannot import name 'update_state_artifact_hashes' from 'src.utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/utils.py)
+
 - python src/preprocessing.py -> rc=1
-    Traceback (most recent call last):
+
+Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/preprocessing.py", line 19, in <module>
     from src.utils import setup_logging, ensure_path_exists
 ImportError: cannot import name 'ensure_path_exists' from 'src.utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/utils.py)
+
 - python code/src/differential_expression.py -> rc=1
-    Traceback (most recent call last):
+
+Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/differential_expression.py", line 9, in <module>
     from .config import get_project_root, ensure_directories
 ImportError: attempted relative import with no known parent package
-- python src/meta_analysis.py -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/meta_analysis.py': [Errno 2] No such file or directory
-- python src/loo_controller.py -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/loo_controller.py': [Errno 2] No such file or directory
+
+- python src/meta_analysis.py -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-135-identifying-predictive-biomarkers-of-che/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/meta_analysis.py': [Errno 2] No such file or directory
+
+- python src/loo_controller.py -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-135-identifying-predictive-biomarkers-of-che/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/loo_controller.py': [Errno 2] No such file or directory
+
+- python -m pytest tests/ -v -> rc=2
+ntifying-predictive-biomarkers-of-che/tests/unit/test_t006_schemas.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_t006_schemas.py:15: in <module>
+    from code.src.schema_manager import SCHEMAS, compute_sha256, write_schemas, update_state_with_schema_checksums
+E   ImportError: cannot import name 'SCHEMAS' from 'code.src.schema_manager' (/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/schema_manager.py)
+=========================== short test summary info ============================
+ERROR tests/integration/test_biomarker_discovery.py
+ERROR tests/integration/test_feasibility_gate_logic.py
+ERROR tests/integration/test_internal_path.py
+ERROR tests/integration/test_modeling.py
+ERROR tests/unit/test_meta_analysis_stouffer.py
+ERROR tests/unit/test_t006_schemas.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 6 errors in 0.92s ===============================
+
+
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

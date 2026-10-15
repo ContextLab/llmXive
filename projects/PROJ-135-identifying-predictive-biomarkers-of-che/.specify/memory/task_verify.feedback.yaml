@@ -1,0 +1,218 @@
+T001a:
+  reason: 'Requested task execution failed; rerun successfully: code/setup_project_dirs.py
+    exit=1'
+  task: a3920aeace883b029789f99d29599bcd413a86d64e5ec98801adc2e9100fba19
+T001b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/'
+  task: ad9268735882d109296c6888b3f2f4216c2853881b2d32a09f6c4489092d6f39
+T002:
+  task: 3be94214931968046521078469708ad14088d58e70658df9d1df558e40ec2441
+T003:
+  reason: "No artifacts were provided or found on disk for this task \u2014 there\
+    \ is no evidence of a ruff configuration (e.g., `pyproject.toml`/`ruff.toml`),\
+    \ black configuration, or any linting/formatting setup files in the project. The\
+    \ task's claim of completion is unsupported by any actual artifact, so the implementer\
+    \ must add and populate the configuration files (and verify they run) before this\
+    \ can be judged complete."
+  task: 536e33702b3a74afef15b5825ab4e2c3ef19fa56cc85739ac1dabd47bead9485
+T004:
+  task: a9f25b695ccec227592a4b9233c673bacc49a3bc2c98b33048a756e719e6bdfe
+T006:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 9896352a73761e2f2348cdf63e855eef0cfc1d6af0ecd267e6b8fdfaa1570104
+T006_1:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: de4fb265bb7ca27459083fee3316d18e01ef35abac9b28a73c73876038c199d3
+T007a:
+  reason: 'The `src/main.py` artifact exists but violates all three explicit requirements:
+    its `__main__` block calls `main()` instead of `run_pipeline()`; argparse defines
+    `--mode`/`--subset-size`/`--stage` but no `--config` or `--test-mode` flags; and
+    unhandled exceptions are logged to `results/pipeline.log` (via `logger.critical`)
+    rather than `logs/error.log`. The implementer must add a `run_pipeline()` function
+    invoked from the entry block, the two required flags, and a dedicated error handler
+    that writes to `logs/error.log` before exiting.'
+  task: 4efd4f6b32f10441a2c7d3fab460aac949cca873f92d68865f218b8d44ad4e19
+T007b:
+  reason: "The required function `run_pipeline(config_path: str, test_mode: bool =\
+    \ False) -> bool` does not exist anywhere in `code/src/main.py` \u2014 the file\
+    \ only provides a CLI `main()` with argparse (`--mode`, `--stage`), which does\
+    \ not load a config file and returns no boolean. Additionally, the modeling and\
+    \ validation stages are explicitly placeholders that silently swallow `ImportError`\
+    \ (\"module not found or not fully implemented yet\"), so the sequential orchestration\
+    \ required by FR-012 is not genuinely implemented. The implementer must add the\
+    \ specified `run_pipeline` function that loads the config a"
+  task: 0b5f8d2979c2f93088ce9de9e8030a20765f7256930e372045cd7f94f096d835
+T008:
+  reason: "The evidence collector shows no artifacts at all for this task \u2014 no\
+    \ `pytest.ini`/`pyproject.toml`/`setup.cfg` pytest configuration, no test files,\
+    \ and no YAML schema contract test harness exist under the project root. The task's\
+    \ required deliverables (pytest setup plus contract tests validating the YAML\
+    \ schema) are entirely absent, so the completion claim is unsupported."
+  task: e5cbe2a5d26f21ac7528e2771bcfd27e0f133b3dfb81da1461e09d0287dba008
+T011:
+  reason: "The test file exists and does include gate-failure cases (insufficient\
+    \ TCGA, insufficient GEO, missing files), but it is incompatible with the actual\
+    \ `code/src/feasibility.py` implementation, so it cannot pass: (1) it calls `write_feasibility_gate_result(temp_project_dir)`\
+    \ with a single path argument, while the implementation's signature is `write_feasibility_gate_result(status,\
+    \ reason=\"\", tcga_count=0, geo_count=0)` \u2014 the path would be written as\
+    \ `status`; (2) the implementation writes the gate file to `get_project_root()/data/feasibility_gate.json`\
+    \ (a fixed `code/` root), not the temp direct"
+  task: 48a3daaed8f67c2a12464ed534f2d7e278a9deacd7574ce58b88d1982acbd645
+T012a:
+  reason: 'declared artifact(s) missing/empty/invalid: src/scripts/run_tcga_download.R,
+    data/raw/'
+  task: cdd34ab60ba2593a42205f6476e92df6def3346b268aa77a2ecd168d58ec655d
+T013a:
+  reason: 'declared artifact(s) missing/empty/invalid: src/scripts/run_geo_download.R,
+    data/raw/'
+  task: 258157d43a42db3b81066f3ec1f69c6ced65b83093d775f969964b52877fcadd
+T014_1:
+  reason: "The file `src/data_acquisition.py` exists and is non-empty, but it does\
+    \ not contain the required `check_feasibility_gate` function stub \u2014 the task's\
+    \ core deliverable. Instead it implements unrelated T012 download/mapping logic\
+    \ with simulated placeholder data; the implementer must add an empty `check_feasibility_gate`\
+    \ function (skeleton) to satisfy T014_1."
+  task: e49e4b7a495766c3705df6495fd77c6c9730119aa60cd41438447a1079ee86cb
+T014_2:
+  reason: "The required function `check_feasibility_gate() -> bool` does not exist\
+    \ anywhere in `src/data_acquisition.py`; the file only contains helper functions\
+    \ (`count_available_tumor_types`, `get_valid_geo_count`, `write_feasibility_gate_result`)\
+    \ and a `main()` for T012. The task's specific logic \u2014 pre-checking existence\
+    \ of T012a and T013a output files, loading their results, and returning True only\
+    \ if \u22653 TCGA types and \u22652 GEO datasets \u2014 is not implemented, and\
+    \ no execution evidence of such a gate run was provided."
+  task: 6ef1efb9d9950e0fecb8a8b766b7097cdc2825e09c9c9941bc54e3e4a9cab528
+T014_3:
+  reason: "The task requires integrating `check_feasibility_gate()` into the main\
+    \ pipeline with critical-error logging and exit code 1 on failure, but the evidence\
+    \ contains no artifacts at all \u2014 no pipeline code, no `check_feasibility_gate`\
+    \ function, no logging/exit logic, and no execution evidence. The next implementer\
+    \ must add the gate call to the main pipeline (after T014_2's step), log a critical\
+    \ error and `sys.exit(1)` when it returns `False`, and proceed when `True`, with\
+    \ runnable evidence demonstrating both branches."
+  task: 2da90b2c5a4d3945e77aebc1435e89366e6b2ce1a063999d12273d14c98a1306
+T016:
+  reason: The required artifact `src/scripts/run_preprocessing.R` does not exist at
+    the project root (collector confirms MISSING), so no ComBat-seq within-platform
+    normalization, quantile-matching cross-platform alignment, fallback logic, or
+    halt condition can be verified. The implementer's claim of completion is unsupported
+    by any artifact on disk.
+  task: 883703607b60f3f1e8dc66b85e5348a9fd81c37fe93d75836b50b626d5ce35db
+T017a:
+  reason: The required artifact `src/scripts/run_preprocessing.R` does not exist at
+    the project root (collector confirms MISSING), so no filtering logic, complete-case
+    handling, or any other deliverable for FR-004 is present to evaluate. The implementer's
+    claim of completion is unsupported by any artifact on disk.
+  task: c2b2fea7406341ee983ba4ccd824c63f9f6bac4a1922ff341926fb16c344c62f
+T017b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/scripts/run_preprocessing.R,
+    data/processed/'
+  task: 8a016d083329a9d7060b80b9a17834040c4631046b0fa08b4441c8265db7e156
+T017c:
+  reason: 'declared artifact(s) missing/empty/invalid: src/scripts/run_preprocessing.R'
+  task: f8603ae5fcb28400169974bc44f73ea11764fca3c7f3f71a4ca5e89eeec507c1
+T017d:
+  reason: 'declared artifact(s) missing/empty/invalid: src/scripts/run_preprocessing.R,
+    data/normalization_status.json'
+  task: 474af793421d42dda4a77e816daba510e8dc53f2ed8ace28b3f749f50015da49
+T021:
+  task: 1841071527b1cdde7f88f0fb6678f6cb9f803fb240cbeffab3f7463dc9bd86b9
+T022:
+  task: 94fbcab5d183f73637950c7120576ab79d87e8c61560717fc3c396fda2d55867
+T023a:
+  reason: 'declared artifact(s) missing/empty/invalid: src/scripts/run_deseq2.R'
+  task: bc7f2796bbcb8a0151e0914a191d56d572f28f08102e73ff4630dd9b51abe6e8
+T023b:
+  reason: 'declared artifact(s) missing/empty/invalid: results/de/, results/de/aggregate_significance.json'
+  task: d05a44028a4989f7a52a3639a1c2a233a69fd94e11e95521ecbf255f52aefdbb
+T023b_1:
+  task: a0d2ab1f066c857812f783a36b2c5a5be5ca49310623d5afa335950fb9ea243b
+T024b_1:
+  task: ea51d8bec2689959b4825a8f3e2fd8e9fe2526e3503fde27a641edf18014b3e5
+T024c:
+  task: ff2f7c1f507624fa2ed61099ee3d1aa3fdd15e18bdbcd7cf2f9dcc6ad3775270
+T024d:
+  task: 5815cd3e7e340d440fdb2b70e52d5372020d851e42b2db3d112c7807e70b82f5
+T029:
+  task: f7d17a3c620e961972c40be4c97e4f1c01b29b1b0266ea9b13881d2b2bf5b3b8
+T030:
+  task: 422822091671832b3f92441041e61b72101be6346933dad986d87abd0fa5de53
+T033_1:
+  reason: 'declared artifact(s) missing/empty/invalid: results/loo_state.json'
+  task: d105432fe6bb6c14053d483bb6de1a975f0f97bdedf2a1310160c3723cd0509d
+T035a:
+  reason: 'declared artifact(s) missing/empty/invalid: results/loo_state.json'
+  task: 3bd341fe0383594846e360946d235bd3e62be1f34e0cf0beb5b1c87d217510c8
+T036:
+  task: 6626218218583e81e6502ca31c436984a871783ac68212baf8ab38570e1f0919
+T037:
+  reason: 'declared artifact(s) missing/empty/invalid: results/validation/validation_skipped.json,
+    data/processed/, results/validation/external_geo_metrics.json'
+  task: 9b8a56092e00f6970d95f114e63602e2b5e2f8708ce857ec5a9187f42ff0053f
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: results/plots/, results/metrics/'
+  task: 613dfb70763efce880c5d35ad3a0c46f940d4fd982ee03ece70f9f46ad4c8dc2
+T039_1_1:
+  reason: 'declared artifact(s) missing/empty/invalid: src/scripts/run_delong.R, Dockerfile,
+    results/deLong_raw.json'
+  task: 6d85e9e0ae6a62646506837a49feacceebb6d61002596f5a51cc0173de6cd796
+T039_1_2:
+  task: 2e760ff9b8347f3680493c2daa3d57f13e5d4ce64484b8870cd83ebddda7aecb
+T039_2:
+  task: 897928e89c5db171ec7211f5cf9ec1741396f5d98cfa757a2ad3d441d3affbee
+T039a:
+  task: f4a4b921a9cedb6883998d72d4f62e5f25951a3b39297b590960a73ec60b7bd8
+T039b:
+  task: 61af7a38b0b9a1d222cc4a7a2df29f165c51f945050160deff0d1100398693e8
+T040:
+  task: b66f33d6c7df8745a5ef12fbc4d4e1ed19b7cde8ea2e9649625e9ce78ad302c0
+T041a:
+  task: 179602838f3c63acce6be0dc213859ccaaea64f81dc9d5e7dc5d52b76d74876d
+T041b:
+  reason: 'declared artifact(s) missing/empty/invalid: results/meta_analysis/bonferroni_correction.json'
+  task: 59a45cabfb00c1265e4c34d4eee75cb3effcdb2d62fabf2b7212e8abb9467e31
+T041c:
+  task: 1745fb26060a34013b8a317b9a48e747ba06514a015060ae17c0b5864a196341
+T042:
+  task: 038f700c521bc388cf3d95de3af39052c7395b9921be4c210eed6417b339f1e3
+T043:
+  task: bbbf969b974328ae0595810dff7845eb2649824ab63a660d508331c1e3baa630
+T044:
+  task: 381d31bf298a92aa77ae200a58e60f06c113d11bc706b13f3ec6c76852f07cfc
+T044a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_modeling.py'
+  task: ff144b044d3314c3e7a52d285268c3740ada97d4495a28ebeaa84138b670c13f
+T044b:
+  task: 3fe6b0e61c5a1841f10f9f4283b66b8d746774e52975e67f24e793bbdd0e9bea
+T044c:
+  task: 2868ea468c585ac9a71935bccf59b66bd01b075d35f92fe53296b9f713333934
+T045:
+  task: 6cb83adf119b5f6b7bda622d04c059aebc7151f227a08795756b00df1bc6a980
+T046:
+  task: 2a31d8928a6ddfd4d25b1b608e91c04f73cb67b1c3ef1393cecdf28e028a39df
+T047:
+  reason: 'declared artifact(s) missing/empty/invalid: src/scripts/run_preprocessing.R,
+    src/scripts/run_tcga_download.R'
+  task: 50dc5dbba2872cb29d696cbc483838642d33aafb8c0db735f27b835c7599d20d
+T048:
+  task: 8ead0b5028be9b6b552f9e5c4f2391ce77e85c203585c58966847f5e35b4a99c
+T049:
+  task: a74a734b5a7a7d6e80d85ce2d1436a5ecb2bc252aa8e2759631ce25cb90c60be
+T050:
+  reason: 'declared artifact(s) missing/empty/invalid: src/model_training.py, results/models/'
+  task: a8e8692097214bdec18744090212d57ed2761b306f44a7517587b132cb1fb4b1
+T051:
+  reason: 'declared artifact(s) missing/empty/invalid: src/validation.py, results/deLong_results.json'
+  task: 5dc950fc82c0a7c320117f2f6db267b576760f36625aa8261638b4ab59c80cee
+T052:
+  reason: 'declared artifact(s) missing/empty/invalid: src/scripts/run_preprocessing.R,
+    results/memory_profile.json'
+  task: c78e6e605c3f96ec633728ee401254d10949945a0b3b1151fa5454d05725acd2
+T053:
+  task: 85d10c42aa34d83d15fa599f0cc31c31264a50bc3c3cd48229dd3b8a3d8bdba0
