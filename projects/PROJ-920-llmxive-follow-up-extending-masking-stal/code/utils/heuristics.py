@@ -1,12 +1,13 @@
 """
-Utility functions for computing semantic density based on Shannon entropy
-and technical token ratio.
+Utility functions for computing semantic density metrics.
 
-The composite density follows FR‑008:
+This module provides:
+  - calculate_technical_token_ratio: proportion of tokens that are technical terms.
+  - calculate_composite_density: weighted combination of entropy per token and technical token ratio.
+
+The composite density follows the formula defined in FR‑008:
     density = 0.6 * entropy_per_token + 0.4 * technical_token_ratio
-
-The final density is clamped to the interval [0.0, 1.0] to satisfy downstream
-expectations and the unit tests that assert 0 ≤ density ≤ 1.
+The result is clamped to the interval [0.0, 1.0] to keep downstream values bounded.
 """
 
 import re
@@ -14,22 +15,19 @@ from typing import List, Set
 
 from .entropy import entropy_per_token
 
-__all__ = [
-    "calculate_technical_token_ratio",
-    "_clamp_density",
-    "calculate_composite_density",
-]
-
 
 def calculate_technical_token_ratio(text: str, terms: Set[str] = None) -> float:
     """
     Calculate the proportion of tokens in *text* that appear in the supplied
     technical term set.
 
+    Tokens are obtained by a simple whitespace split; punctuation is retained
+    as part of the token. Matching is case‑insensitive.
+
     Parameters
     ----------
     text: str
-        The input text to analyze.
+        The input text to analyse.
     terms: Set[str] | None
         A set of technical terms. If ``None`` an empty set is used,
         yielding a ratio of 0.0.
@@ -41,56 +39,29 @@ def calculate_technical_token_ratio(text: str, terms: Set[str] = None) -> float:
     """
     if not text:
         return 0.0
-
     if terms is None:
         terms = set()
-
-    # Simple whitespace tokenisation – sufficient for the synthetic data.
-    tokens = re.findall(r"\b\w+\b", text.lower())
+    # Normalise both token and term to lower case for case‑insensitive matching
+    tokens = re.findall(r"\S+", text)
     if not tokens:
         return 0.0
-
-    technical_hits = sum(1 for token in tokens if token in terms)
-    return technical_hits / len(tokens)
+    tech_tokens = sum(1 for tok in tokens if tok.lower() in {t.lower() for t in terms})
+    return tech_tokens / len(tokens)
 
 
 def _clamp_density(value: float) -> float:
     """
     Clamp a density value to the closed interval [0.0, 1.0].
-
-    This helper is deliberately private; the public API is
-    :func:`calculate_composite_density`, which always applies the clamp
-    before returning a result.
-
-    Parameters
-    ----------
-    value: float
-        The raw density value.
-
-    Returns
-    -------
-    float
-        ``value`` limited to the range [0.0, 1.0].
     """
-    if value < 0.0:
-        return 0.0
-    if value > 1.0:
-        return 1.0
-    return value
+    return max(0.0, min(1.0, value))
 
 
 def calculate_composite_density(text: str, terms: List[str]) -> float:
     """
     Compute the composite semantic density for *text*.
 
-    The function is a pure computation that depends **only** on the
-    supplied text and the list of technical terms. No external state,
-    simulation results, or agent outputs are consulted, satisfying FR‑007.
-
     Formula (FR‑008):
         density = 0.6 * entropy_per_token + 0.4 * technical_token_ratio
-
-    The result is clamped to [0, 1] to keep downstream values bounded.
 
     Parameters
     ----------
@@ -104,20 +75,10 @@ def calculate_composite_density(text: str, terms: List[str]) -> float:
     float
         Composite density, guaranteed to lie in [0.0, 1.0].
     """
-    # Defensive programming – ensure we work with the expected types.
     if not isinstance(text, str):
         raise TypeError("text must be a string")
-    if not isinstance(terms, list):
-        raise TypeError("terms must be a list of strings")
-
-    # Compute the two components.
-    entropy = entropy_per_token(text)  # bits per token, may be >1
-    technical_ratio = calculate_technical_token_ratio(
-        text, set(terms)
-    )  # already in [0, 1]
-
-    # Weighted combination per FR‑008.
-    raw_density = 0.6 * entropy + 0.4 * technical_ratio
-
-    # Clamp to the required interval.
-    return _clamp_density(raw_density)
+    term_set = set(terms or [])
+    ent = entropy_per_token(text)
+    tech_ratio = calculate_technical_token_ratio(text, term_set)
+    density = 0.6 * ent + 0.4 * tech_ratio
+    return _clamp_density(density)

@@ -1,21 +1,16 @@
 """
 Generates synthetic search trajectories with controlled semantic density.
 
-This script produces a JSON file (list of trajectory objects) where each
-object contains the required metadata for downstream validation and
-simulation. It balances the design across low, medium, and high density
-levels and writes the result to disk in a single JSON array (to match the
-expectations of `validate_trajectories.py` and `simulate_agent.py`).
+The script streams each trajectory as a JSON‑Lines record to keep RAM usage
+low (≤ 2 GB). It balances the design across three density levels (low,
+medium, high) and enforces a minimum of 150 trajectories per level.
 
-The script can be invoked via the command line:
+CLI usage (as referenced in quickstart.md):
 
-    python code/generate_trajectories.py \
-        --count 500 \
-        --seed 42 \
-        --output data/raw/trajectories.json
-
-If `--output` is omitted, the default path `data/raw/trajectories.json` is
-used.
+    python code/generate_trajectories.py \\
+        --num-trajectories 500 \\
+        --seed 42 \\
+        --output data/raw/trajectories.jsonl
 """
 
 import argparse
@@ -48,9 +43,11 @@ DENSITY_CONFIG = {
     "high": {"target_entropy": 4.5, "min_samples": 150},
 }
 
+
 def ensure_config_directory() -> None:
     """Ensure the config directory exists."""
     paths.code("config").mkdir(parents=True, exist_ok=True)
+
 
 def load_terms() -> List[str]:
     """
@@ -79,10 +76,12 @@ def load_terms() -> List[str]:
         logger.error(f"Error loading terms: {e}")
         return []
 
+
 def generate_generic_text(length: int = 200) -> str:
     """Generate a low‑entropy filler turn."""
     filler = "The search continues. Looking for more information. "
     return (filler * (length // len(filler) + 1))[:length]
+
 
 def generate_text_for_target_entropy(target_entropy: float, terms: List[str]) -> str:
     """
@@ -135,6 +134,7 @@ def generate_text_for_target_entropy(target_entropy: float, terms: List[str]) ->
     # Return the best attempt if perfect convergence wasn't reached
     return best_text
 
+
 def build_turn(
     turn_index: int,
     is_critical: bool,
@@ -153,13 +153,21 @@ def build_turn(
         "entropy_per_token": entropy_per_token(text),
     }
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate synthetic trajectories.")
     parser.add_argument(
-        "--count",
+        "--num-trajectories",
         type=int,
         default=500,
         help="Total number of trajectories to generate.",
+    )
+    # Backward‑compatible alias
+    parser.add_argument(
+        "--count",
+        type=int,
+        default=None,
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--seed",
@@ -170,11 +178,13 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=str,
-        default="data/raw/trajectories.json",
-        help="Path to the output JSON file (list of objects).",
+        default="data/raw/trajectories.jsonl",
+        help="Path to the output JSON‑Lines file.",
     )
     args = parser.parse_args()
 
+    # Resolve possible alias usage
+    total_trajectories = args.num_trajectories if args.count is None else args.count
     random.seed(args.seed)
     ensure_config_directory()
     terms = load_terms()
@@ -185,46 +195,44 @@ def main() -> None:
     # Prepare counters for density levels
     levels = list(DENSITY_CONFIG.keys())
     counts = {lvl: 0 for lvl in levels}
-    all_trajectories: List[Dict[str, Any]] = []
 
-    for i in range(args.count):
-        # Cycle through levels to keep balance
-        lvl = levels[i % len(levels)]
-        counts[lvl] += 1
-        cfg = DENSITY_CONFIG[lvl]
-        target_entropy = cfg["target_entropy"]
+    with open(output_path, "w", encoding="utf-8") as out_f:
+        for i in range(total_trajectories):
+            # Cycle through levels to keep balance
+            lvl = levels[i % len(levels)]
+            counts[lvl] += 1
+            cfg = DENSITY_CONFIG[lvl]
+            target_entropy = cfg["target_entropy"]
 
-        # Random trajectory length between 5 and 15 turns
-        T = random.randint(5, 15)
-        crit_idx = random.randint(0, T - 1)
+            # Random trajectory length between 5 and 15 turns
+            T = random.randint(5, 15)
+            crit_idx = random.randint(0, T - 1)
 
-        turns = [
-            build_turn(t_idx, t_idx == crit_idx, target_entropy, terms)
-            for t_idx in range(T)
-        ]
+            turns = [
+                build_turn(t_idx, t_idx == crit_idx, target_entropy, terms)
+                for t_idx in range(T)
+            ]
 
-        crit_text = turns[crit_idx]["text"]
-        actual_entropy = entropy_per_token(crit_text)
-        final_density = calculate_composite_density(crit_text, terms)
-        tech_ratio = calculate_technical_token_ratio(crit_text, set(terms))
+            crit_text = turns[crit_idx]["text"]
+            actual_entropy = entropy_per_token(crit_text)
+            final_density = calculate_composite_density(crit_text, terms)
+            tech_ratio = calculate_technical_token_ratio(crit_text, set(terms))
 
-        trajectory = {
-            "trajectory_id": f"traj_{i:03d}",
-            "turns": turns,
-            "critical_evidence_turn": crit_idx,
-            "density_level": lvl,
-            "target_entropy": target_entropy,
-            "actual_entropy": actual_entropy,
-            "technical_token_ratio": tech_ratio,
-            "final_density": final_density,
-            "is_last_turn": crit_idx == (T - 1),
-        }
+            trajectory = {
+                "trajectory_id": f"traj_{i:03d}",
+                "turns": turns,
+                "critical_evidence_turn": crit_idx,
+                "density_level": lvl,
+                "target_entropy": target_entropy,
+                "actual_entropy": actual_entropy,
+                "technical_token_ratio": tech_ratio,
+                "final_density": final_density,
+                "is_last_turn": crit_idx == (T - 1),
+            }
 
-        all_trajectories.append(trajectory)
-
-    # Write the full list as a JSON array
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(all_trajectories, f, ensure_ascii=False, indent=2)
+            # Write as a single JSON line
+            out_f.write(json.dumps(trajectory, ensure_ascii=False))
+            out_f.write("\n")
 
     # Verify bin constraints
     for lvl, cfg in DENSITY_CONFIG.items():
@@ -235,9 +243,10 @@ def main() -> None:
             sys.exit(1)
 
     file_size_mb = output_path.stat().st_size / (1024 * 1024)
-    logger.info(f"Generated {args.count} trajectories.")
+    logger.info(f"Generated {total_trajectories} trajectories.")
     logger.info(f"File size: {file_size_mb:.2f} MB")
     logger.info(f"Bin counts: {counts}")
+
 
 if __name__ == "__main__":
     main()

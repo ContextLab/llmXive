@@ -1,11 +1,12 @@
 T001:
   c: true
-  h: 4c1ebcd4171c2157e06e3ead4cf0b757680e2d79e49eaf04df97b07fcbe68439
-  r: "Checked that the project root contains the required directories `data/raw/`,\
-    \ `data/logs/`, `results/`, `code/`, and `tests/`, each present with files, and\
-    \ that a non\u2011empty `quickstart.md` file (1087\u202Fbytes) is present at the\
-    \ project root. All required artifacts exist and are populated."
-  sig: 0ce8e27af9fa2f1bd6b278535f191e27f8e8ffedddbb304721e4d23e46f4597b
+  h: de2cde45cf43d5cad1bcbde3f31347e521d1ae216aa8b460085567d713db0d37
+  r: All five required directories (`data/raw/`, `data/logs/`, `results/`, `code/`,
+    `tests/`) exist and are non-empty, and `quickstart.md` (1123 bytes) is present
+    with real setup/run instructions rather than a placeholder. The task only asked
+    for the directory tree and a minimal quickstart, both of which are satisfied by
+    the collector-confirmed evidence.
+  sig: bbe82305286888eb6e982f26ebc498df9696c1739de61feb5ccb1af31e0e68a5
 T002:
   c: true
   h: f8484932282ffde0fd635e0e2448eaf2606358db14c34027fc092af69698a368
@@ -25,13 +26,13 @@ T003:
   sig: 57ab57010b49051de47cfdb2724bb5b57c8b39fbae532e058ff1245c39b5e36c
 T004:
   c: true
-  h: 96c23e29eb5d444aa637340b41f6212f020a5788d16382d2026a9a411581e8d6
-  r: "The `code/utils/heuristics.py` file (3394\u202Fbytes) defines `calculate_composite_density`\
-    \ which computes `0.6 * entropy_per_token(text) + 0.4 * calculate_technical_token_ratio(text,\
-    \ set(terms))` and clamps the result, matching the required composite density\
-    \ formula. The module correctly imports `entropy_per_token` from the sibling `entropy.py`\
-    \ and provides the expected public API."
-  sig: 6e335ddae6b6118272166fdbceba19ddecd119d94e343e6507e3f9772dcc0cc5
+  h: 978e72f2cdb687909d6831db5d716b533fef7dbea02cfe18ce851ed7e873a2b4
+  r: '`code/utils/heuristics.py` exists (2535 bytes) and implements exactly the required
+    composite density formula `0.6 * entropy_per_token + 0.4 * technical_token_ratio`,
+    with a real technical-token-ratio function, input validation, and clamping. Its
+    dependency `code/utils/entropy.py` is present and provides the imported `entropy_per_token`
+    function, so the module is a genuine, non-stub implementation matching the task.'
+  sig: ef3232f7623c7a5a3c3a5fb6e5f7c510bab8d1f68b1baf57b9c6e724a242b429
 T005:
   c: true
   h: 3e627c0ce4dcf8f87b32fc861bc3739082de8686b7d05cac1a9e05a5471968ab
@@ -43,15 +44,14 @@ T005:
   sig: c54caddf56a4649e62931c6c06c3dfcc4e3d32bca3a3ec0f0b563850dd347027
 T006:
   c: true
-  h: fa8a25d217cf14a97afc5f05686a3dce219fca7446651453c9030ff9c0aaa979
-  r: "The test file `tests/unit/test_heuristics.py` exists (4.4 KB) with substantive\
-    \ tests covering `calculate_technical_token_ratio` and `calculate_composite_density`,\
-    \ importing the real implementations from `code/utils/heuristics.py` and `code/utils/entropy.py`,\
-    \ both of which exist and behave consistently with the test assertions (e.g.,\
-    \ \"aaaa\" yields zero entropy and ratio 1.0 \u2192 density 0.4; non-string input\
-    \ raises TypeError in `calculate_composite_density`). No stubs, placeholders,\
-    \ or fabricated results are present."
-  sig: a9d021bf4164a16d3b6a5e986a738579b70fab4ab4d4a7fc01327342865aba56
+  h: 39f4cbf1e1388d0a1b0f6b469f6b396cb145555516c2cd0446c4b38c218de044
+  r: The test file `tests/unit/test_heuristics.py` exists (4.4 KB) with substantive
+    tests covering `calculate_technical_token_ratio` and `calculate_composite_density`,
+    importing the real implementations from `code/utils/heuristics.py` and `code/utils/entropy.py`,
+    both of which exist and behave consistently with the test expectations (e.g.,
+    zero-entropy repeated-character text, TypeError on non-string input, 2/6 ratio
+    case). No stubs, placeholders, or fabricated assertions are present.
+  sig: de436d078e1cd6ab8680b810507b346c4cbb4222808b11083cc62c56bc3e0b94
 T007:
   c: true
   h: 70a6d225c7fedd96629240efdabf2ad1f042bead760614dec72e0e91d014443f
@@ -97,12 +97,14 @@ T011:
     line to keep RAM \u2264\u202F2\u202FGB\u201D is not satisfied."
   sig: 6a13c5a88dc99f82c8e9bbe0bdec30f5ebb8d13796479e4e5c14ae8189ec7062
 T013:
-  c: true
-  h: 4841c9868182e8b10f1334a04498eb17f5b42ac27c257016ad67e8f596434476
-  r: "Checked `tests/unit/test_density_isolation.py` which contains a unit test that\
-    \ computes the expected composite density using the FR\u2011008 formula (0.6\u202F\
-    *\u202Fentropy + 0.4\u202F*\u202Ftechnical token ratio) and asserts equality with\
-    \ `calculate_composite_density`, with no reliance on any external agent\u2011\
-    output data. The file exists, is non\u2011empty, and fulfills the task\u2019s\
-    \ specification."
-  sig: 101ef0877e1144f7dd9ee815331b3a48f3527f6febf8d805304f2d27518f6feb
+  c: false
+  h: badc7e42183e1dab441dda5e3774f377752e873ee9229788648d16016a68f42f
+  r: "The current `tests/unit/test_density_isolation.py` (627 bytes, single function\
+    \ `test_composite_density_isolated`) does not match the execution log, which claims\
+    \ 10 tests in a `TestDensityIsolation` class (e.g., `test_density_independent_of_agent_output`,\
+    \ `test_no_global_state_dependency`) \u2014 so the recorded run corresponds to\
+    \ a different, since-replaced version of the file, and there is no evidence the\
+    \ current test was ever executed. Additionally, the current test only checks the\
+    \ 0.6/0.4 composite formula; it does not verify independence from agent-output\
+    \ data as the task requires. The implemen"
+  sig: 9923a83f59faa590b0dc3d81ae69fb8615c3cf502f59ef1b6e6c0dd554cffc3d

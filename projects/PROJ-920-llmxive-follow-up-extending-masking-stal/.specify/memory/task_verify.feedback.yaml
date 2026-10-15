@@ -19,18 +19,22 @@ T009:
 T010:
   task: 2ef825904785eb2159002796c893f398c13490b06aedb8f2b1d5386c9f959433
 T011:
-  reason: "Checked `code/generate_trajectories.py` and the generated `data/raw/trajectories.jsonl`.\
-    \ The script builds a full list of 500 trajectories in memory and writes it with\
-    \ `json.dump`, not line\u2011by\u2011line streaming as required, and its default\
-    \ output is `trajectories.json` (JSON array) rather than a true JSON\u2011Lines\
-    \ file. Consequently the key \u201Cstream each trajectory to disk line\u2011by\u2011\
-    line to keep RAM \u2264\u202F2\u202FGB\u201D is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/validate_trajectories.py
+    exit=1'
   task: 54527237004bc8284b7a497213cbe9191d5b44b99bf2eb2efea1ca63040a87af
 T012:
   reason: 'Requested task execution failed; rerun successfully: code/validate_trajectories.py
     exit=1'
   task: dd6bb70d01cec27be4943db6807c8c2d6b3bd11c47d027630e4fae7780228fb8
 T013:
+  reason: "The current `tests/unit/test_density_isolation.py` (627 bytes, single function\
+    \ `test_composite_density_isolated`) does not match the execution log, which claims\
+    \ 10 tests in a `TestDensityIsolation` class (e.g., `test_density_independent_of_agent_output`,\
+    \ `test_no_global_state_dependency`) \u2014 so the recorded run corresponds to\
+    \ a different, since-replaced version of the file, and there is no evidence the\
+    \ current test was ever executed. Additionally, the current test only checks the\
+    \ 0.6/0.4 composite formula; it does not verify independence from agent-output\
+    \ data as the task requires. The implemen"
   task: 40f2a9f145d67b33b5d0eda552d3c67b2c1fd68dea3915accbb780c374b512b1
 T014:
   task: c8f7a354f35047c4c1502c8ef9a65eff72d695d986cab13cdbef9647d7d5da34

@@ -18,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Default paths (can be overridden via CLI)
-DEFAULT_TRAJECTORY_FILE = "data/raw/trajectories.json"
+DEFAULT_TRAJECTORY_FILE = "data/raw/trajectories.jsonl"
 # Updated to match analysis expectations
 DEFAULT_OUTPUT_FILE = "data/processed/simulation_logs.csv"
 CONFIG_FILE = "code/config/simulation_config.json"
@@ -105,7 +105,7 @@ def get_memory_usage_gb() -> float:
 
 def load_trajectories_streaming(path: Path) -> List[Dict[str, Any]]:
     """
-    Load trajectories from a JSON file.
+    Load trajectories from a JSON‑Lines file.
     Performs basic existence and size checks.
     """
     if not path.exists():
@@ -116,15 +116,22 @@ def load_trajectories_streaming(path: Path) -> List[Dict[str, Any]]:
         logger.error("Data Flow Violation: Trajectory file is empty")
         sys.exit(1)
 
+    trajectories = []
     try:
         with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        if not isinstance(data, list):
-            logger.error("Data Flow Violation: Trajectory file is not a JSON array")
-            sys.exit(1)
-        return data
-    except json.JSONDecodeError as e:
-        logger.error(f"Data Flow Violation: Invalid JSON in trajectory file: {e}")
+            for line_number, line in enumerate(f, start=1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    traj = json.loads(line)
+                    trajectories.append(traj)
+                except json.JSONDecodeError as e:
+                    logger.error(f"Data Flow Violation: Invalid JSON at line {line_number}: {e}")
+                    sys.exit(1)
+        return trajectories
+    except Exception as e:
+        logger.error(f"Failed to load trajectories: {e}")
         sys.exit(1)
 
 def run_simulation_batch(
@@ -151,13 +158,11 @@ def run_simulation_batch(
             logger.warning(f"Trajectory {start_idx + i} missing required metadata, skipping.")
             continue
 
-        # The generator uses a fixed number of turns (10) but we obtain it dynamically.
         total_turns = len(traj.get('turns', []))
         if total_turns == 0:
             logger.warning(f"Trajectory {traj_id} has no turns, skipping.")
             continue
 
-        # Determine whether entropy was clamped during generation.
         actual_entropy = traj.get('actual_entropy', 0.0)
         clamped_entropy = actual_entropy < 1e-6
 
@@ -166,7 +171,6 @@ def run_simulation_batch(
                 evidence_turn, horizon, total_turns, is_last_turn
             )
 
-            # Compute evidence age relative to the current horizon.
             evidence_age = max(0, horizon - evidence_turn - 1)
 
             if not visible:
@@ -225,7 +229,7 @@ def main() -> None:
         '--input',
         type=str,
         default=DEFAULT_TRAJECTORY_FILE,
-        help="Path to the trajectories JSON file"
+        help="Path to the trajectories JSON‑Lines file"
     )
     parser.add_argument(
         '--output',

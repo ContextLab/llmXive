@@ -149,7 +149,7 @@ def generate_json_for_contract(csv_path: Path, json_path: Path) -> None:
 
     # Load trajectories to map trajectory_id -> critical_evidence_turn
     trajectories_path = (
-        paths.root / "data" / "raw" / "trajectories.json"
+        paths.root / "data" / "raw" / "trajectories.jsonl"
     )
     trajectories = load_trajectories_streaming(trajectories_path)
     traj_map = {

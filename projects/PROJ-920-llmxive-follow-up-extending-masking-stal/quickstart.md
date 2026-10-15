@@ -24,7 +24,7 @@ python code/generate_terms.py
 python code/generate_trajectories.py --num-trajectories 500 --seed 42
 
 # Validate trajectories
-python code/validate_trajectories.py
+python code/validate_trajectories.py --input data/raw/trajectories.jsonl
 
 # Simulate the agent (uses default input/output paths)
 python code/simulate_agent.py --seed 42
