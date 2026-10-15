@@ -5,11 +5,11 @@ This document contains **verified static URLs and Dataset IDs** for the automate
 
 ## Data Sources Schema
 
-| Source Name | Type | Verified | URL / ID | Notes |
-|:--- |:--- |:--- |:--- |:--- |
-| **OpenML LST Wear** | Tabular | True | ` | Dataset ID: `45678` (Static). Contains laser parameters and wear rates. |
-| **HuggingFace Materials** | Tabular | True | `https://huggingface.co/datasets/materials-science/lst-wear-v1` | Dataset ID: `materials-science/lst-wear-v1`. Verified static path. |
-| **Literature Supplement A** | CSV | True | ` | Static GitHub raw URL. Contains experimental validation data. |
+| Source Name          | Type   | Verified | URL / ID                                                      | Notes                                            |
+|:---------------------|:-------|:--------|:--------------------------------------------------------------|:-------------------------------------------------|
+| **OpenML LST Wear** | Tabular| True    | `https://www.openml.org/d/45678`<br>`Dataset ID: 45678`      | Contains laser parameters and wear rates.        |
+| **HuggingFace Materials** | Tabular| True | `https://huggingface.co/datasets/materials-science/lst-wear-v1`<br>`Dataset ID: materials-science/lst-wear-v1` | Verified static path. |
+| **Literature Supplement A** | CSV | True | ` | Static GitHub raw URL; contains experimental validation data. |
 
 ## Verification Status
 
@@ -19,7 +19,7 @@ This document contains **verified static URLs and Dataset IDs** for the automate
 
 ## Usage Instructions for Pipeline
 
-The `code/ingest.py` module MUST read these specific IDs/URLs from this file.
+The `code/ingest.py` module **MUST** read these specific IDs/URLs from this file.
 Do not attempt to search for "LST wear data" dynamically.
 If a URL returns 404 or the ID is invalid, the pipeline must fail loudly.
 

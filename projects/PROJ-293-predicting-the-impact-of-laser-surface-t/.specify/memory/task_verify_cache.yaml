@@ -1,10 +1,12 @@
-T001a:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories or the `state/structure_manifest.json`
-    file is provided; the implementer did not supply the manifest verifying the existence
-    of `code/`, `data/`, `tests/`, `state/`, `models/`, `data/raw/`, `data/processed/`,
-    and `reports/`. The task therefore remains unfinished.
+  h: 994338a35b7061979f286940b44766d06cb0f7687b66e6f3db21251d12ac6119
+  r: "The required artifacts `code/main.py`, `code/seed.py`, `code/config/schema_map.json`,\
+    \ `specs/001-predict-lst-wear/research.md`, and `specs/001-predict-lst-wear/quickstart.md`\
+    \ are present, but the verification tests `code/tests/test_schema_map.py` and\
+    \ `code/tests/test_research.py` (and the referenced `dataset.schema.yaml`) are\
+    \ missing, so the task\u2019s required automated validation is not satisfied."
+  sig: 4dcdbbeff9b6a26e6be48fb46d1d05171fedced37816a5cfaea6937a37d7d8bf
 T005:
   c: false
   h: 517ac7584a382a3fbfbd9e07c4d22bc9faf446699601018f6f8214ee6b040c59
@@ -14,13 +16,6 @@ T005:
     which cannot be verified without a concrete file and a complete save routine.
     The missing file and incomplete function must be added for the task to be considered
     complete.'
-T009b:
-  c: false
-  h: a5127c3ac12e30f992f4739dee13d0cb00852bcc1d369d164ad645b5acfa0523
-  r: "The required file `data/raw/mock_lst_data.csv` does not exist, so there is no\
-    \ mock dataset to satisfy the schema, record count, or missing\u2011value requirements,\
-    \ and the unit test cannot be executed. The implementer must create the CSV with\
-    \ the specified columns, at least 150 rows, and appropriate missing values."
 T012:
   c: false
   h: 174c1c4e528bbae70344f7e76498274c4609b559f90568be3effcc91f0115bc2
@@ -30,14 +25,6 @@ T012:
     \ unit test `tests/unit/test_ingest.py::test_missing_predictor_handling` is not\
     \ present in the test suite (the provided tests focus on threshold logic). Consequently\
     \ the task\u2019s specifications are not satisfied."
-T013c:
-  c: false
-  h: 18dfc26d1f7705063a2147e35449c8f00e2b033ba5505e0d9d35e2a93a31e433
-  r: "The `code/ingest.py` file shown does not contain an `archard_normalization`\
-    \ implementation (the excerpt ends before any such function), and the required\
-    \ output files `data/processed/aggregated_dropped.csv` and `data/processed/aggregated_clean.csv`\
-    \ are missing. Consequently the task\u2019s core functionality and expected artifacts\
-    \ are not present."
 T014:
   c: false
   h: 3bc705a27cffee1353a9f488c50505349359e9a38b3cd5bd70ee9119ca2707ce
@@ -46,29 +33,6 @@ T014:
     \ (`data/processed/normalized_only.csv`, `raw_only.csv`, `split_summary.json`)\
     \ are absent. Consequently the task\u2019s core functionality and expected files\
     \ are not provided."
-T014b:
-  c: false
-  h: 602d5ceb31d12f8e3c6ea6e89a0dc5fc4b4b2301ac86f816c0123c3722560bbb
-  r: The repository lacks a `split_test_set` function in `code/ingest.py`, the required
-    source file `data/processed/normalized_only.csv` does not exist, and the expected
-    outputs `data/processed/test_split.csv` and `state/test_split_indices.npy` are
-    missing. Consequently the unit test `test_held_out_indices` cannot be satisfied.
-T016a:
-  c: false
-  h: 126d1bf2a3f5ec7acd8bed864418fe5137e703f8cfa3d056ee36529ef2048bc2
-  r: "The repository contains a `count_records` implementation, but the required output\
-    \ file `data/processed/record_counts.json` does not exist, and the test `test_record_counts_schema`\
-    \ is not present (the only test shown checks threshold logic). Consequently the\
-    \ task\u2019s output artifact and verification step are missing."
-T016b:
-  c: false
-  h: e600712e5fb6a638537693360ff117ddca578a39de079058280ad4ad8bd1f6c4
-  r: "The repository lacks a `compare_thresholds` implementation in `code/ingest.py`\
-    \ (the file is truncated and does not show such a function), the required `data/processed/threshold_check.json`\
-    \ output file is missing, and the existing `reports/pre_check.json` contains a\
-    \ PASS status rather than the expected failure log with `status: 'failed'` and\
-    \ `reason: 'insufficient_data'`. Consequently the task\u2019s behavior and output\
-    \ artifacts are not satisfied."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -82,10 +46,3 @@ T021:
   r: "No code, script, or documentation implementing the required LOMO (Leave-One-Group-Out)\
     \ logic was provided; there is no evidence of class\u2011size checks, fallback\
     \ to K\u2011Fold, or warning logging, so the task is not satisfied."
-T040:
-  c: false
-  h: ed2668a268d2742da9b1556607b44f69c05e3080bd88c8393e4791b6ef9f8b9d
-  r: "The provided `code/validate.py` does not contain a `run_power_analysis` function\
-    \ (only helper utilities are shown and the file is truncated), and the required\
-    \ output `reports/power_analysis.json` is absent. Consequently the task\u2019\
-    s core functionality and expected report are not delivered."

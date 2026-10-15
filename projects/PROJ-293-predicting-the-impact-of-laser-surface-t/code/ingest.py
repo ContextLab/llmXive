@@ -1,233 +1,250 @@
-import os
 import sys
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import List, Dict, Any
+
 import pandas as pd
+from sklearn.datasets import fetch_openml
 
-from logging_config import setup_logging, get_logger, raise_on_missing_data
-from hygiene import calculate_md5, update_artifact_hash, save_artifact_hashes
+from llmxive_toolkit import paths, get_logger
+from config.loader import load_schema_map
 
-# Initialize logger
+# Import optional HuggingFace datasets library; will raise if not installed
+try:
+    from datasets import load_dataset
+except ImportError as e:
+    load_dataset = None  # type: ignore
+
 logger = get_logger(__name__)
 
-# Constants for paths
-DATA_PROCESSED_DIR = Path("data/processed")
-REPORTS_DIR = Path("reports")
-RECORD_COUNTS_PATH = DATA_PROCESSED_DIR / "record_counts.json"
-THRESHOLD_CHECK_PATH = DATA_PROCESSED_DIR / "threshold_check.json"
-PRE_CHECK_PATH = REPORTS_DIR / "pre_check.json"
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+RESEARCH_MD_PATH = Path("specs/001-predicting-the-impact-of-laser-surface-t/research.md")
+SCHEMA_MAP_PATH = Path("code/config/schema_map.json")
+REQUIRED_COLUMNS = [
+    "pulse_duration",
+    "power",
+    "scanning_speed",
+    "wear_rate",
+]
 
-def count_records(input_file: Optional[Path] = None) -> Dict[str, int]:
-    """
-    Calculate total record count, split into normalized_count and raw_count.
-    
-    Reads 'data/processed/aggregated_clean.csv' (produced by T013c) which must contain
-    the 'normalization_method' column.
-    
-    Args:
-        input_file: Optional path to the input CSV. Defaults to AGGREGATED_CLEAN_PATH.
-        
-    Returns:
-        Dict with keys: 'normalized_count', 'raw_count', 'total_count'.
-        
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If the 'normalization_method' column is missing.
-    """
-    input_file = Path(input_file) if input_file else DATA_PROCESSED_DIR / "aggregated_clean.csv"
-    
-    if not input_file.exists():
-        raise FileNotFoundError(f"Input file not found: {input_file}")
-        
-    logger.info(f"Reading input file: {input_file}")
-    df = pd.read_csv(input_file)
-    
-    if 'normalization_method' not in df.columns:
-        raise ValueError(
-            f"Missing required column 'normalization_method' in {input_file}. "
-            "Ensure T013c (archard_normalization) has been run successfully."
-        )
-        
-    # Count based on normalization_method flag
-    # 'normalized' -> normalized_count
-    # 'raw' -> raw_count
-    normalized_count = int((df['normalization_method'] == 'normalized').sum())
-    raw_count = int((df['normalization_method'] == 'raw').sum())
-    total_count = len(df)
-    
-    counts = {
-        "normalized_count": normalized_count,
-        "raw_count": raw_count,
-        "total_count": total_count
-    }
-    
-    logger.info(f"Record counts calculated: {counts}")
-    return counts
+MERGED_CSV_PATH = paths.data("intermediate", "merged.csv")
+SOURCE_VALIDATION_JSON_PATH = paths.results("source_validation.json")
 
-def save_record_counts(counts: Dict[str, int], output_path: Optional[Path] = None) -> None:
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
+def _parse_research_md(md_path: Path) -> List[Dict[str, Any]]:
     """
-    Save record counts to a JSON file.
-    
-    Args:
-        counts: Dictionary containing the counts.
-        output_path: Optional path for the output JSON. Defaults to RECORD_COUNTS_PATH.
+    Parse the research.md file and extract a list of source dictionaries.
+    Each dictionary contains: name, type, verified, url (optional), dataset_id (optional), notes.
     """
-    if output_path is None:
-        output_path = RECORD_COUNTS_PATH
-        
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(counts, f, indent=2)
-        
-    logger.info(f"Record counts saved to: {output_path}")
-    
-    # Update hygiene hashes if hygiene module is active
-    try:
-        update_artifact_hash(output_path)
-        save_artifact_hashes()
-    except Exception as e:
-        logger.warning(f"Could not update artifact hashes: {e}")
+    if not md_path.exists():
+        raise FileNotFoundError(f"research.md not found at {md_path}")
 
-def compare_thresholds(counts: Dict[str, int]) -> Tuple[Dict[str, Any], int]:
-    """
-    Compare normalized_count against defined thresholds and determine study scope.
-    
-    Thresholds (SC-006, SC-004):
-    - normalized_count < 100: status='failed', reason='insufficient_data', exit_code=1
-    - 100 <= normalized_count < 300: study_scope='pilot_study', exit_code=2
-    - normalized_count >= 300: study_scope='full_study', exit_code=0
-    
-    Args:
-        counts: Dictionary containing 'normalized_count', 'raw_count', 'total_count'.
-        
-    Returns:
-        Tuple of (result_dict, exit_code).
-        result_dict contains: status, reason (if failed), study_scope, normalized_count.
-    """
-    normalized_count = counts.get('normalized_count', 0)
-    
-    if normalized_count < 100:
-        result = {
-            "status": "failed",
-            "reason": "insufficient_data",
-            "normalized_count": normalized_count
-        }
-        exit_code = 1
-        logger.warning(f"Threshold check failed: normalized_count ({normalized_count}) < 100")
-    elif 100 <= normalized_count < 300:
-        result = {
-            "status": "success",
-            "study_scope": "pilot_study",
-            "normalized_count": normalized_count
-        }
-        exit_code = 2
-        logger.info(f"Threshold check passed (pilot): normalized_count ({normalized_count}) is in [100, 300)")
-    else:
-        result = {
-            "status": "success",
-            "study_scope": "full_study",
-            "normalized_count": normalized_count
-        }
-        exit_code = 0
-        logger.info(f"Threshold check passed (full): normalized_count ({normalized_count}) >= 300")
-        
-    return result, exit_code
+    sources: List[Dict[str, Any]] = []
+    with md_path.open("r", encoding="utf-8") as f:
+        lines = f.readlines()
 
-def save_threshold_check(result: Dict[str, Any], output_path: Optional[Path] = None) -> None:
-    """
-    Save threshold check result to a JSON file.
-    
-    Args:
-        result: Dictionary containing the threshold check result.
-        output_path: Optional path for the output JSON. Defaults to THRESHOLD_CHECK_PATH.
-    """
-    if output_path is None:
-        output_path = THRESHOLD_CHECK_PATH
-        
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-        
-    logger.info(f"Threshold check saved to: {output_path}")
-    
-    try:
-        update_artifact_hash(output_path)
-        save_artifact_hashes()
-    except Exception as e:
-        logger.warning(f"Could not update artifact hashes: {e}")
-
-def save_pre_check(result: Dict[str, Any], output_path: Optional[Path] = None) -> None:
-    """
-    Save pre-check result (specifically for failure cases) to reports/pre_check.json.
-    
-    Args:
-        result: Dictionary containing the pre-check result.
-        output_path: Optional path for the output JSON. Defaults to PRE_CHECK_PATH.
-    """
-    if output_path is None:
-        output_path = PRE_CHECK_PATH
-        
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-        
-    logger.info(f"Pre-check saved to: {output_path}")
-
-def main():
-    """
-    Main entry point for T016b.
-    1. Loads record counts from data/processed/record_counts.json.
-    2. Compares normalized_count against thresholds.
-    3. Writes data/processed/threshold_check.json.
-    4. If failed (count < 100), writes reports/pre_check.json and exits with code 1.
-    5. If pilot (100 <= count < 300), exits with code 2.
-    6. If full study (count >= 300), exits with code 0.
-    """
-    setup_logging()
-    logger.info("Starting T016b: compare_thresholds")
-    
-    try:
-        # Ensure input file exists (T016a output)
-        if not RECORD_COUNTS_PATH.exists():
-            raise FileNotFoundError(
-                f"Required input file missing: {RECORD_COUNTS_PATH}. "
-                "Please ensure T016a (count_records) has completed successfully."
+    # Find the table header line (contains "Source Name")
+    table_started = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("|") and "Source Name" in stripped:
+            table_started = True
+            continue
+        if table_started:
+            # End of table when a line without leading '|' appears
+            if not stripped.startswith("|"):
+                break
+            # Split columns; the first and last are empty due to leading/trailing '|'
+            parts = [p.strip() for p in stripped.split("|")[1:-1]]
+            if len(parts) != 5:
+                continue  # malformed line; skip
+            name, src_type, verified, url_id, notes = parts
+            # Clean URL/ID field – may contain <br> separated entries
+            url = None
+            dataset_id = None
+            for sub in url_id.split("<br>"):
+                sub = sub.strip()
+                if sub.startswith("http"):
+                    url = sub
+                elif sub.lower().startswith("dataset id:"):
+                    dataset_id = sub.split(":", 1)[1].strip()
+            sources.append(
+                {
+                    "name": name,
+                    "type": src_type,
+                    "verified": verified.lower() == "true",
+                    "url": url,
+                    "dataset_id": dataset_id,
+                    "notes": notes,
+                }
             )
-        
-        # Load record counts
-        with open(RECORD_COUNTS_PATH, 'r') as f:
-            counts = json.load(f)
-        
-        logger.info(f"Loaded record counts: {counts}")
-        
-        # Compare thresholds
-        result, exit_code = compare_thresholds(counts)
-        
-        # Save threshold check result
-        save_threshold_check(result)
-        
-        # If failed, write pre_check.json and exit
-        if exit_code == 1:
-            save_pre_check(result)
-            logger.error(f"T016b failed: insufficient data. Exit code: {exit_code}")
-            return exit_code
-        
-        # If pilot, exit with code 2
-        if exit_code == 2:
-            logger.warning(f"T016b completed as pilot study. Exit code: {exit_code}")
-            return exit_code
-        
-        logger.info("T016b completed successfully (full study).")
-        return 0
-        
+    return sources
+
+def _download_openml(dataset_id: str) -> pd.DataFrame:
+    """
+    Download a dataset from OpenML given its numeric ID.
+    Returns a pandas DataFrame.
+    """
+    logger.info(f"Fetching OpenML dataset id={dataset_id}")
+    try:
+        # fetch_openml returns a Bunch with data as a DataFrame when as_frame=True
+        result = fetch_openml(data_id=int(dataset_id), as_frame=True)
+        df = result.frame
+        if df is None:
+            raise RuntimeError(f"OpenML returned no DataFrame for id {dataset_id}")
+        return df
     except Exception as e:
-        logger.error(f"T016b failed: {e}")
+        logger.error(f"Failed to fetch OpenML dataset {dataset_id}: {e}")
         raise
+
+def _download_huggingface(dataset_id: str) -> pd.DataFrame:
+    """
+    Download a HuggingFace dataset given its repo identifier.
+    Returns a pandas DataFrame constructed from the 'train' split (or first split).
+    """
+    if load_dataset is None:
+        raise ImportError(
+            "HuggingFace 'datasets' library is not installed. Install it to fetch HF datasets."
+        )
+    logger.info(f"Fetching HuggingFace dataset id={dataset_id}")
+    try:
+        ds = load_dataset(dataset_id, split="train")
+        # ds can be a Dataset object; convert to pandas
+        df = pd.DataFrame(ds)
+        return df
+    except Exception as e:
+        logger.error(f"Failed to fetch HuggingFace dataset {dataset_id}: {e}")
+        raise
+
+def _download_raw_csv(url: str) -> pd.DataFrame:
+    """
+    Download a raw CSV file from a URL using pandas.read_csv.
+    """
+    logger.info(f"Downloading raw CSV from {url}")
+    try:
+        df = pd.read_csv(url)
+        return df
+    except Exception as e:
+        logger.error(f"Failed to download CSV from {url}: {e}")
+        raise
+
+def _apply_schema_mapping(df: pd.DataFrame, schema_map: Dict[str, List[str]]) -> pd.DataFrame:
+    """
+    Rename columns in df according to schema_map.
+    schema_map maps canonical column name -> list of possible source column names.
+    The first matching source column is renamed to the canonical name.
+    """
+    rename_dict: Dict[str, str] = {}
+    existing_cols = set(df.columns)
+    for canonical, aliases in schema_map.items():
+        for alias in aliases:
+            if alias in existing_cols:
+                rename_dict[alias] = canonical
+                break
+    if rename_dict:
+        logger.info(f"Renaming columns: {rename_dict}")
+        df = df.rename(columns=rename_dict)
+    return df
+
+def fetch_sources() -> None:
+    """
+    Core implementation for T002.
+    - Reads static sources from research.md.
+    - Downloads each source (real data only).
+    - Applies schema mapping from schema_map.json.
+    - Concatenates all sources, adds a 'source_id' column.
+    - Validates presence of required LST columns; aborts loudly if missing.
+    - Writes merged.csv and source_validation.json.
+    """
+    logger.info("Starting fetch_sources")
+    sources = _parse_research_md(RESEARCH_MD_PATH)
+    if len(sources) < 1:
+        logger.error("No data sources defined in research.md")
+        raise RuntimeError("data_schema_mismatch: no sources defined")
+
+    data_frames: List[pd.DataFrame] = []
+    source_ids: List[str] = []
+
+    for src in sources:
+        name = src["name"]
+        src_type = src["type"].lower()
+        url = src.get("url")
+        dataset_id = src.get("dataset_id")
+        logger.info(f"Processing source '{name}' of type '{src_type}'")
+
+        if src_type == "tabular" and url and url.lower().endswith(".csv"):
+            df = _download_raw_csv(url)
+        elif src_type == "tabular" and dataset_id:
+            # Decide which loader based on known platforms
+            if "openml" in (url or "").lower() or dataset_id.isdigit():
+                df = _download_openml(dataset_id)
+            else:
+                df = _download_huggingface(dataset_id)
+        else:
+            logger.error(f"Unsupported source configuration for '{name}': {src}")
+            raise RuntimeError(f"data_schema_mismatch: unsupported source '{name}'")
+
+        # Load schema map
+        schema_map = load_schema_map()
+        df = _apply_schema_mapping(df, schema_map)
+
+        # Add source identifier column
+        df["source_id"] = name
+        data_frames.append(df)
+        source_ids.append(name)
+
+    # Concatenate all sources
+    merged_df = pd.concat(data_frames, ignore_index=True, sort=False)
+
+    # Validate required columns
+    missing_required = [col for col in REQUIRED_COLUMNS if col not in merged_df.columns]
+    if missing_required:
+        logger.error(f"Missing required columns after merging: {missing_required}")
+        raise RuntimeError(
+            f"data_schema_mismatch: required columns missing {missing_required}"
+        )
+
+    # Ensure output directories exist
+    MERGED_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SOURCE_VALIDATION_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write merged CSV
+    merged_df.to_csv(MERGED_CSV_PATH, index=False)
+    logger.info(f"Merged dataset written to {MERGED_CSV_PATH}")
+
+    # Prepare source validation JSON
+    validation: Dict[str, Any] = {
+        "source_count": len(source_ids),
+        "source_ids": source_ids,
+        "warnings": [],
+    }
+    if len(source_ids) < 3:
+        validation["warnings"].append("data_source_limitation")
+        logger.warning(
+            f"Only {len(source_ids)} distinct sources found; <3 triggers warning."
+        )
+    # Write validation JSON
+    with SOURCE_VALIDATION_JSON_PATH.open("w", encoding="utf-8") as f:
+        json.dump(validation, f, indent=2)
+    logger.info(f"Source validation written to {SOURCE_VALIDATION_JSON_PATH}")
+
+def main() -> int:
+    """
+    Entry point for the ingestion subcommand.
+    Returns an exit code compatible with the pipeline conventions.
+    """
+    try:
+        fetch_sources()
+        return 0
+    except Exception as e:
+        logger.error(f"Ingestion failed: {e}")
+        # Propagate failure with non‑zero exit code
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

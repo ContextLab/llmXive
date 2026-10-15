@@ -1,0 +1,48 @@
+T001:
+  reason: "The required artifacts `code/main.py`, `code/seed.py`, `code/config/schema_map.json`,\
+    \ `specs/001-predict-lst-wear/research.md`, and `specs/001-predict-lst-wear/quickstart.md`\
+    \ are present, but the verification tests `code/tests/test_schema_map.py` and\
+    \ `code/tests/test_research.py` (and the referenced `dataset.schema.yaml`) are\
+    \ missing, so the task\u2019s required automated validation is not satisfied."
+  task: 45c219ccb6b2102cba1c495d5944bf0beb2ce735252c8ca8839cec7b0b2d310d
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'
+  task: 2a75d31fe06f1b0a6110b71ea035e66c2efc2956ee4c2c01ff59752ef68fcc84
+T003:
+  task: 36866829ae09ec8c07c0283c85f56256027a7bf2d733de8c00fb0a346c4021f9
+T004:
+  task: 1b25203c6bd594cdee5ed4655f67fd87c24d448b719795bad90e89c831217cff
+T005:
+  task: 2b74bf921fedc2f28573889e49a74abc14e220b0d11c585b3c5f9994acc505d1
+T006:
+  task: 555d64266d08ed9d093043a7174d989dcde6cc1d3b5a2c7d6e37573599c39c40
+T007:
+  task: a9a80d5466378c947ea207a3b35949718007f4c4fe2bd8b8349b6e4e35b2ad2e
+T008:
+  task: 1006237e1cc1255527aed0d593a344d4a8389dfeb0fadae9973f66ab20653a61
+T009:
+  task: a82920fd5162441945cc9f3e22c33c5182270c05a98fe81a0e0bdec2e3ba8491
+T010:
+  task: 98c202944f06dd13ce87cf9abb9f2f84940c6e30186dcf5b7ca17fc725fa0137
+T011:
+  task: 7c8717fa09882ebee5659dbf55822e100dde019c10d15695e5835e4b8f8e78de
+T012:
+  task: 72908af38eec6479336ea1f76246bfc67b9b27b4976c3008bf3c340e2d18e694
+T013:
+  task: fea86b6e5b638ee35b470281a01e2f5631c148985ef2056ddc36d5b4f5091f6b
+T014:
+  task: c4ce399075cacb337a5ecf619b70d930def98d37a4f07ca2497d7cc1c13d14f0
+T015:
+  task: 149bdb8e3eb8f862690dbff7be814b8101f090bb207606e25603ffa0a868d3c2
+T016:
+  task: 7d267832d6aea2651c1f1b30dc3f4838c25f3781662a2aab2160383262b411e5
+T017:
+  task: a1e295527b284815c7d39ec03539342cc697e9659dfb8a9d78e1ce3f6dfe53e9
+T018:
+  task: f4744c016e3fccba49927331dcf9cf577f50edfe519cc53c229ebce74ed14e86
+T019:
+  task: 1fef73e21494600fa536a14d66fe8c9d3ba20711fd851ac4bf20fd9554344d7a
+T020:
+  task: e293992fd270c92b19fde90d9c574a96099263bd63fed66da8908f74e28cc0dc
+T021:
+  task: a58d3d1095cbcd11a53604ee2ebc4751778694c7f007ff1661916b17f9d3a0eb
