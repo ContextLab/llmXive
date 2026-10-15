@@ -25,12 +25,18 @@ import pathlib
 import yaml
 import requests
 import numpy as np
-import torch
+
+# Torch is an optional heavy dependency; import lazily so the script can still
+# run (and provide a clear error) if the package is missing.
+try:
+    import torch
+except ImportError as e:
+    torch = None
+    # We'll raise a more informative error later when we attempt to set the seed.
 
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
-
 
 # ----------------------------------------------------------------------
 # Configuration
@@ -53,7 +59,6 @@ RAW_DIR = paths.data("raw")
 CHECKSUM_FILE = RAW_DIR / "checksums.txt"
 SEEDS_YAML = paths.code("config", "seeds.yaml")
 SEEDS_JSON = paths.results("seeds.json")
-
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -140,7 +145,7 @@ def verify_checksums(expected: dict):
 def load_and_set_seeds():
     """
     Loads seed values from ``code/config/seeds.yaml``, sets the environment
-    variable ``PYTHONHASHSEED`` *before* any other imports that rely on it,
+    variable ``PYTHONHASHSEED`` *before* any other imports that might use it,
     and seeds ``random``, ``numpy``, and ``torch`` accordingly.
     Finally, writes the seed mapping to ``results/seeds.json``.
     """
@@ -162,6 +167,12 @@ def load_and_set_seeds():
 
     random.seed(random_seed)
     np.random.seed(numpy_seed)
+
+    if torch is None:
+        raise ImportError(
+            "torch is required for seed pinning but is not installed. "
+            "Add 'torch' to requirements.txt."
+        )
     torch.manual_seed(torch_seed)
 
     log.info(
@@ -175,7 +186,6 @@ def load_and_set_seeds():
     log.info(f"Wrote seed configuration to {SEEDS_JSON}")
 
     return seeds
-
 
 # ----------------------------------------------------------------------
 # Main execution

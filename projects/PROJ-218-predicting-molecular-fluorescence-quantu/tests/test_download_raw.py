@@ -10,6 +10,7 @@ The test runs the script (via subprocess) and checks that:
 
 import subprocess
 import json
+import sys
 from pathlib import Path
 
 from llmxive_toolkit import paths
