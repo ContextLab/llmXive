@@ -45,6 +45,12 @@ required:
   - velocity_km_s
   - density_cm3
   - imf_nT
+  - imf_bz_nT
+  - o_fe_ratio
+  - he_h_ratio
+  - c_o_ratio
+  - epsilon
+  - newell_flux
   - dst_index
   - kp_index
 additionalProperties: false

@@ -1,6 +1,6 @@
 status: none
-intent: download ACE SWICS and WIND composition data from CDAWeb using heliopy python
-  package dataset
+intent: ACE SWICS WIND NOAA Dst Kp hourly dataset from CDAWeb OMNIWeb python package
+  dataset
 required_fields:
 - timestamp
 - O_Fe_ratio
@@ -11,6 +11,6 @@ required_fields:
 - solar_wind_temperature
 - Dst_index
 - Kp_index
-cache_key: 9f156eefe0baed0b2e4ef6c7265c0a06891877c1955d908896e847676523e62e
-searched_at: '2026-10-15T13:22:32.959119+00:00'
+cache_key: c64db81d8ca8e71b3df56ad2a9536a0bf42acbf841a92c50e629da2c55be42e0
+searched_at: '2026-10-15T13:25:44.477203+00:00'
 retry_count: 1

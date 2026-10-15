@@ -13,12 +13,12 @@ The system MUST download, parse, and align time-series data from the ACE/WIND so
 
 **Why this priority**: Without a clean, temporally aligned dataset containing both the predictor variables (composition ratios, bulk parameters) and outcome variables (Dst, Kp), no statistical analysis can be performed. This is the foundational block for the entire research pipeline.
 
-**Independent Test**: Can be fully tested by executing the data ingestion script and verifying that the output CSV/Parquet file contains exactly one row per hour for the defined period (2000-2020), with no missing values in the core index columns (Dst, Kp) and that the timestamps are monotonically increasing.
+**Independent Test**: Can be fully tested by executing the data ingestion script and verifying that the output CSV/Parquet file contains exactly one row per hour for the defined period (from the beginning of the study interval to 2020), with no missing values in the core index columns (Dst, Kp) and that the timestamps are monotonically increasing.
 
 **Acceptance Scenarios**:
 
 1. **Given** the ACE SWICS and WIND composition data are available on CDAWeb, **When** the ingestion script runs, **Then** it must successfully retrieve the O/Fe, He/H, and C/O ion flux ratios and merge them with the hourly Dst and Kp indices.
-2. **Given** the source data has varying resolutions (e.g., 64s vs 1-hour), **When** the resampling logic executes, **Then** all variables must be aligned to a 1-hour resolution using the hourly median aggregation method, ensuring a maximum temporal offset of ≤ 30 minutes for any single data point.
+2. **Given** the source data has varying resolutions (e.g., high‑frequency vs 1‑hour), **When** the resampling logic executes, **Then** all variables must be aligned to a 1-hour resolution using the hourly median aggregation method, ensuring a maximum temporal offset of ≤ 30 minutes for any single data point.
 
 ---
 
@@ -93,7 +93,7 @@ The system MUST validate the statistical significance of composition coefficient
 
 ## Assumptions
 
-- The ACE SWICS and WIND composition datasets contain the necessary ion flux measurements to calculate O/Fe, He/H, and C/O ratios for the entire 2000-2020 period.
+- The ACE SWICS and WIND composition datasets contain the necessary ion flux measurements to calculate O/Fe, He/H, and C/O ratios for the entire -2020 period.
 - The NOAA Dst and Kp indices are available at an hourly resolution or can be reliably interpolated to hourly without introducing significant bias.
 - The relationship between solar wind parameters and geomagnetic indices is non-linear, requiring the use of coupling functions (e.g., Akasofu epsilon) rather than raw linear sums.
 - The analysis will be conducted on a standard CPU-only environment (GitHub Actions free tier: 2 CPU, 7GB RAM), requiring data to be subsampled or processed in chunks if the full 20-year dataset exceeds memory limits.
