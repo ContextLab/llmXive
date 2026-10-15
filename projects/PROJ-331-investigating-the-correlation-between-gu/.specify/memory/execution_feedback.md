@@ -29,14 +29,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.pipeline.ingest -> rc=1
 
-2026-10-15 06:10:18,531 INFO __main__: === PPMI input validation (FR-001) ===
-2026-10-15 06:10:18,531 INFO __main__: ASV table not found at PPMI name; using alternate open‑dataset name: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv
-2026-10-15 06:10:18,531 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_clinical.parquet nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_clinical.parquet exist. Place the researcher‑supplied clinical metadata at one of these locations.
-2026-10-15 06:10:18,532 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_clinical.parquet nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_clinical.parquet exist. Place the researcher‑supplied clinical metadata at one of these locations.
+2026-10-15 08:08:58,437 INFO __main__: === PPMI input validation (FR-001) ===
+2026-10-15 08:08:58,438 INFO __main__: ASV table not found at PPMI name; using alternate open‑dataset name: /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_asv.csv
+2026-10-15 08:08:58,438 ERROR __main__: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_clinical.parquet nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_clinical.parquet exist. Place the researcher‑supplied clinical metadata at one of these locations.
+2026-10-15 08:08:58,438 ERROR __main__: Input validation FAILED: Required input file not found: neither /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_clinical.parquet nor /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/open_clinical.parquet exist. Place the researcher‑supplied clinical metadata at one of these locations.
 
 - python -m src.pipeline  --seed 42  --max_taxa 100  --perm_iterations 1000 -> rc=1
 
-2026-10-15 06:10:18,694 ERROR __main__: Required input files not found. Expected either:
+2026-10-15 08:08:58,597 ERROR __main__: Required input files not found. Expected either:
   /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_asv.csv
   /home/runner/work/llmXive/llmXive/projects/PROJ-331-investigating-the-correlation-between-gu/data/raw/ppmi_clinical.parquet
 or:

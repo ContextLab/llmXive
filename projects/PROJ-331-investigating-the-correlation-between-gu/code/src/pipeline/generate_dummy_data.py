@@ -49,8 +49,8 @@ def _write_clinical_parquet() -> None:
     )
     out_path = paths.data("raw", "open_clinical.parquet")
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    # ``pyarrow`` is used by pandas for Parquet I/O.
-    df.to_parquet(out_path, index=False, engine="pyarrow")
+    # Use pandas' default Parquet engine; pyarrow is declared in requirements.txt.
+    df.to_parquet(out_path, index=False)
     print(f"Dummy clinical Parquet written to {out_path}")
 
 def main() -> int:

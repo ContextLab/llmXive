@@ -1,1 +1,3 @@
+# Project dependencies
+# Add pyarrow for Parquet support used in dummy data generation
 pyarrow>=16.0.0

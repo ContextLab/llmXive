@@ -1,19 +1,19 @@
 status: none
-intent: PPMI longitudinal microbiome ASV dataset with MDS_UPDRS clinical scores python
-  package dataset
+intent: download PPMI longitudinal microbiome ASV and clinical MDS UPDRS from dbGaP
+  python package dataset
 required_fields:
-- patient_id
 - sample_id
-- visit_date_or_timepoint
-- asv_id_or_taxon_id
-- asv_count_or_relative_abundance
-- kingdom
-- phylum
-- class
-- order
-- family
-- genus
-- species
-cache_key: 7f1566e9dcfb6554d72a1f9339f3b17d407ab5c352df488abec3addb199a713b
-searched_at: '2026-10-15T06:11:12.297707+00:00'
+- patient_id
+- visit_number
+- collection_date
+- asv_id
+- taxonomy
+- read_count_or_relative_abundance
+- MDS_UPDRS_total
+- age_at_visit
+- sex
+- disease_duration
+- diet
+cache_key: 3abf00754256491516cf2fcd114549bd21a8662cf833499dd63d3c484d941cad
+searched_at: '2026-10-15T08:09:24.457105+00:00'
 retry_count: 1
