@@ -1,9 +1,53 @@
+T002:
+  c: false
+  h: bdbedef3eb31ec1109ce080a964f3edb2cdca97079f259288340e72a413791d7
+  r: The `requirements.txt` exists and lists most required packages (scikit-learn,
+    xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy), but it substitutes
+    `pyscf>=2.3.0` for the explicitly required `psi4`, which is not listed anywhere
+    in the file. The implementer should add `psi4` (or justify the substitution with
+    task-owner approval) to satisfy the stated dependency list.
+  sig: 42634c202081004be1e0fa8c5f9566dede2db94bfe0707ae13d4055474d2a162
+T004:
+  c: true
+  h: 069271a87518848baaaf8d19e733696f1187cdd56db9e6cdfc23c83f0d5e8e88
+  r: "The file `src/utils/logging.py` exists (8,763 bytes) and contains a fully implemented\
+    \ logging utility with warning/flagging logic: edge case tracking (`flag_edge_case`/`get_edge_cases`),\
+    \ data quality, provenance mismatch, and label validation issue tracking, plus\
+    \ report generation to JSON \u2014 no stubs, TODOs, or placeholders. The content\
+    \ matches the task's requirement for edge case handling and warning/flagging logic."
+  sig: fdef2350b4f70f2e451fc65dc1d4c6104d9e56842560211435da6dcd26472e2b
+T007:
+  c: true
+  h: 94c828c9c9f059180ff9f526c95dbd1bcb26348cfbe672ac24f882564c61ab2c
+  r: Both `src/ingestion/__init__.py` and `src/modeling/__init__.py` exist at the
+    resolved canonical paths with substantive, non-empty content (docstrings, imports,
+    `__all__`, version). The imports reference modules (load_nist, preprocess, train,
+    metrics, etc.) consistent with the project's ingestion/modeling structure; the
+    task only required setting up these package structures, which is satisfied.
+  sig: ff3fd1b7eb856624f062ed4be5eb8e7f9249b8d7e20ec331bd072724926b260b
+T009:
+  c: true
+  h: e66e87765a3236c2c8a67ccf2db91e0492e8d8e7ba6f5f64aa5c175d44f324ac
+  r: 'The file `tests/contract/test_fingerprint_schema.py` exists (9,248 bytes) and
+    contains a substantive pytest contract test suite validating the fingerprint schema:
+    512-element fingerprints, labels restricted to {SN1, SN2, E1}, required keys (fingerprint,
+    label, source_id, provenance), NaN/Inf rejection, and non-empty string fields,
+    with positive and negative test cases matching the US1 acceptance scenarios. No
+    execution evidence was required beyond the test artifact itself for this task,
+    and the content is real, non-stubbed code.'
+  sig: 08209612bd6e99bea0bc5dd41f99f999a9e6b16cf32a615f29a8adaf204d65dc
 T010:
   c: false
-  h: ce4b84710aaa0388d36bc2c91d64b49a65d193da9751d41e317f278d1c59b0f4
-  r: "The required file `tests/integration/test_ingestion_flow.py` does not exist\
-    \ in the repository, so no integration test artifact is present to verify end\u2011\
-    to\u2011end ingestion of a NIST sample. The task therefore remains unfinished."
+  h: a965fd92a7e6bd3628e5030b817c7518b5d486a7019691396bf5b7bf2d9cc1b6
+  r: "The test file `tests/integration/test_ingestion_flow.py` exists, but it cannot\
+    \ pass against the actual project code: it calls `filter_by_provenance(raw_data,\
+    \ valid_provenance=VALID_PROVENANCE)` while the real function signature is `filter_by_provenance(df)`\
+    \ (unexpected-kwarg TypeError), and it calls `preprocess_dataset(df_raw, n_bins=...,\
+    \ target_columns=[...])` which has no `target_columns` parameter and returns a\
+    \ `(DataFrame, report)` tuple, not a DataFrame \u2014 so `processed_df.columns`\
+    \ would fail. Moreover, the test expects `fingerprint_0..511` columns, but `preprocess_dataset`\
+    \ operates on a `"
+  sig: d73d5b54f344c3fdd4f0fa922768e0861008210c5d32402fee7284b96605d2d2
 T017:
   c: false
   h: 08ab551fa1b83d6e349539b1fe36e9f1504d7972fbba8de2212de23a8fb64ffb

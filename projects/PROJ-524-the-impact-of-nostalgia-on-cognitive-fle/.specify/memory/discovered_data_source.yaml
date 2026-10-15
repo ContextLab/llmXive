@@ -1,17 +1,13 @@
 status: none
-intent: OpenNeuro ICPSR UK Biobank HuggingFace Wisconsin Card Sorting Test aging nostalgia
+intent: Wisconsin Card Sorting Test dataset older adults OpenNeuro Hugging Face OpenML
   python package dataset
 required_fields:
 - participant_id
 - age
-- gender
-- education_years
 - wcst_categories_completed
 - wcst_perseverative_errors
-- wcst_correct_responses
-- nostalgia_condition
+- stimulus_label
 - mmse_score
-- test_date
-cache_key: b6ae87c04c2c4830877bf7df0651549d7465403d976e9840388485af7bc43f05
-searched_at: '2026-10-12T00:18:20.699463+00:00'
+cache_key: 5e8b43e9fb50965371978d97e8f824be31e131f3c5cedf344da105751c876f52
+searched_at: '2026-10-15T21:28:53.446543+00:00'
 retry_count: 1

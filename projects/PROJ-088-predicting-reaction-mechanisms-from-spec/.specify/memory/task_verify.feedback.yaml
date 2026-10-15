@@ -1,0 +1,107 @@
+T001a:
+  task: 18ea420e70fa44f489fc14b81282229e6df9d56fdc66c0e4bcaff47f3c8337aa
+T001b:
+  task: c7627e3613fcc5fc0ce52c6df3ef68dfa1660b3ce9312238ed803c70627194d3
+T002:
+  reason: The `requirements.txt` exists and lists most required packages (scikit-learn,
+    xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy), but it substitutes
+    `pyscf>=2.3.0` for the explicitly required `psi4`, which is not listed anywhere
+    in the file. The implementer should add `psi4` (or justify the substitution with
+    task-owner approval) to satisfy the stated dependency list.
+  task: 314b3dccbdd97e4bc64d2dec8eaacf35b6f5a4bcc438e55cf5f0dc71d725222a
+T003:
+  task: c075037bdf9ef26a6ddc5b265a95f8ef98fcbbbf34e2281b01183e953a436d2d
+T004:
+  task: 84bf895e66174fe747a29bead093a51e448ce543cffc7000dffcffe6a4d14e61
+T005:
+  task: 499f01706de939f9b2983963293cd056befd8b4ea3c5ece21e3dc632aad6b134
+T006:
+  task: 77348c99f436f50ddd35ac42675f103c9099f52592b6af49543934010f5d7589
+T007:
+  task: f5f69640044011114466ea46fcdbd1093279049af35917bdb4a9029caacaab53
+T008:
+  task: 1ae46ccc94c99f9fc28a22b7d2c96d95af43e082ca2cca9dc49598cd8a829973
+T009:
+  task: a38de188d1ce108cc21e22e5bbb4e5ad5b37067dc9a4cd2c918f39a71405e1a9
+T010:
+  reason: "The test file `tests/integration/test_ingestion_flow.py` exists, but it\
+    \ cannot pass against the actual project code: it calls `filter_by_provenance(raw_data,\
+    \ valid_provenance=VALID_PROVENANCE)` while the real function signature is `filter_by_provenance(df)`\
+    \ (unexpected-kwarg TypeError), and it calls `preprocess_dataset(df_raw, n_bins=...,\
+    \ target_columns=[...])` which has no `target_columns` parameter and returns a\
+    \ `(DataFrame, report)` tuple, not a DataFrame \u2014 so `processed_df.columns`\
+    \ would fail. Moreover, the test expects `fingerprint_0..511` columns, but `preprocess_dataset`\
+    \ operates on a `"
+  task: 604f00560140e6eb6dbb18fb15cd0fd09c4a9aaa4c2dc0b9fd4905b97c7803a3
+T011:
+  task: 888124032d6fa02c39b5acaa1bde494152653900d510d4d0874e5723e7a1b105
+T012:
+  task: aa31cb4f6e7b4eb6b3b553e07697e5a30f178fd25a6890e626c6be365b03e527
+T013b:
+  task: 045b36217e12614d71531f319bcd224f6f468f713095e76687f60b1b3dc75e45
+T013c:
+  task: 3917671add6de73d891377fa452bd431ffeff0fdff720c291c72a96510621341
+T015:
+  task: 2c84c19a6246c0a1bb4fc16fda97fda3e54f23aa8bd530a603f1ea02bef70e80
+T016a:
+  task: 9ceeb28af1583af016ae5e4fcce99ff069927c00b54b0cc2bd708945803a9422
+T016b:
+  task: 2a6a463a4208901d2a6285bdffdc11b1c15bfece7fc6ab849ba46e860c482345
+T016c:
+  task: 4f92ddb3d49d777efc5393f173d840065553bd20f5b38d2670b10b7a9a64fd08
+T017:
+  task: bdf11a439c267fbbd57b7e7c3c62ff3100a6f7c5bc48ab69aea7e1edd500d0a8
+T018:
+  task: 0b48ac7fc080d02ec53f193b01645c73faead66949dec3ef57d0a7f7e249b5e6
+T019:
+  task: 5816834f69081a1b52ff4a13e0d3d734e1f28fe28c4917fced97ce327371b458
+T020:
+  task: e829b3286df4e4fb30aeee7be465e5a5bf7b99591012b6be1179de78bfae1d62
+T022:
+  task: 4c015cba34c7f7af274639e220fcaa83c63565d1280eaa5346f2a6f956224d16
+T024a:
+  task: cfe8bfdbb7e52c50a8ce6b8af6832910bc70c2e9c208eff4dfb41d478408c5be
+T024b:
+  task: 56763a04221f72ce4a27d94aa3186fc2808eecbf40a07b2b4747ee05c253f4f3
+T026:
+  task: 882cc331af05793c68588abf506db749c427a49e8080b6275c7fe6be4c7adc80
+T026b:
+  task: fcedb7fd4495cfa8c798263ebb2b360d9a5aaa45a8ec17763d67f836f7f66016
+T027:
+  task: 2149f9790fd4ef7ed3d285c16f5cdaf7225fc9cf490adf1642fb72663d43d773
+T028:
+  task: 656bcd4121291e4ffb7dd8e81228a7fe424af4188e5be4596bf98b113d73f8f1
+T029:
+  task: 594c4c1653ca3d51a3af534b67dac20759a6b0e582f5253fc64e9bca9b43637a
+T030:
+  task: d11c01809400acb0e081ba34674cd26c261ec468fb53194f13f988d65d0c5988
+T031:
+  task: c8a149536c9e01d0084e48fb08821a6611fd4bb3428de60e44276a26f81e2b35
+T032:
+  task: 9d0afc507faf0dfc7c4d4964e39af156c09331a6d2931b4aae4f196ee9ab1d63
+T033:
+  task: 8c4805cad36139104f908b1ae299c36f20ab761cde8c776bfce9772ee29cc062
+T033a:
+  task: 84234fa843fdb40a089b7318e18c9cff6c61b1071893c0f5d1d41db0658aacfd
+T033b:
+  task: b478c6280d09db4303ad9367a19ae8a04b04366beecd8e85af74454bb871efac
+T033c:
+  task: 49f7ac5e896a64e8924b25429fbef71413e8295604b8f5572059692ade37aeab
+T034:
+  task: d711dd65856852fa0adb0b118a0de43428e023e15188df810f5394dfd5c91f0b
+T035:
+  task: 0258aceed3073b61767856c923e56835f9d5b19664e585584c3e08474373f385
+T036:
+  task: 18887b2f0b90fb7af7b4a77b04cac6ab8a6819bacbf7b0bb763cfbb05e508044
+T037:
+  task: ffab532f0bda8c44c96abc9aa963d57df6c472ddb293d276bc3fa14250939e5a
+T038:
+  task: 3409d686e1fcf12e425f2ec464c9e16ac96d5eb5f29f79f85291736c1ee89b81
+T039:
+  task: d6e0dfbf629e6a837fbd56160be7cf4cc956f8b95c2ba53c24b981733b042fad
+T040:
+  task: 24c478020fc9c630a528e4e1e15856469c7919c3eddfcb0bc1eb66e8c62d04a5
+T041:
+  task: c185c98eb1f7db7bd79d4e934e1cc7a1a64aa0c1b5996e31d90475102bbdd8f3
+T042:
+  task: 02a97a92cba17cf1b22560c4690287f8701e43a32404eb6badef09a442b19ac7

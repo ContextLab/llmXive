@@ -19,29 +19,29 @@ properties:
     description: "Name of the comparison (e.g., 'nostalgia vs control - errors')"
   p_value:
     type: number
-    description: "Raw p‑value from Welch's t‑test"
+    description: "Raw p-value from Welch's t-test"
   p_value_corrected:
     type: number
-    description: "Bonferroni‑corrected p‑value"
+    description: "Bonferroni-corrected p-value"
   effect_size:
     type: number
-    description: "Cohen's d effect size"
+    description: "Hedges' g effect size (bias-corrected, non-pooled variance convention consistent with Welch's test)"
   effect_size_ci_lower:
     type: number
-    description: "Lower bound of the 95 % confidence interval for effect size"
+    description: "Lower bound of the 95% confidence interval for effect size"
   effect_size_ci_upper:
     type: number
-    description: "Upper bound of the 95 % confidence interval for effect size"
+    description: "Upper bound of the 95% confidence interval for effect size"
   significance_status:
     type: string
     enum:
       - "significant"
       - "non-significant"
       - "sensitive"
-    description: "Significance status at α = 0.05 (or flagged as borderline)"
+    description: "Significance status at corrected alpha = 0.025; 'sensitive' if corrected p in [0.020, 0.030]"
   mdes:
     type: number
-    description: "Minimum Detectable Effect Size (post‑hoc power limitation) [deferred]"
+    description: "Minimum Detectable Effect Size (post-hoc power limitation)"
   adjustment_status:
     type: string
     enum:
@@ -55,7 +55,7 @@ properties:
       - "verified"
       - "unverified"
       - "simulation"
-    description: "Stimulus and dataset validity flag"
+    description: "Dataset validity flag; all runs of this project produce 'simulation'"
   sensitivity_analysis:
     type: array
     items:
@@ -66,7 +66,7 @@ properties:
       properties:
         threshold:
           type: number
-          description: "Significance threshold examined (e.g., 0.01, 0.05, 0.1)"
+          description: "Significance threshold examined (e.g., 0.01, 0.025, 0.05)"
         significance_status:
           type: string
           enum:

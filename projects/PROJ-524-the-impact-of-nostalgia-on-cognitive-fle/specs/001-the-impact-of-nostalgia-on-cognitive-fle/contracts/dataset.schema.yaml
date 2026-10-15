@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "WCST Dataset Schema"
-description: "Schema for validated WCST performance dataset"
+description: "Schema for validated (simulated) WCST performance dataset rows"
 type: object
 required:
   - participant_id
@@ -15,7 +15,7 @@ properties:
   age:
     type: integer
     minimum: 65
-    description: "Age of participant in years (must be ≥ 65)"
+    description: "Age of participant in years (must be >= 65)"
   stimulus_type:
     type: string
     enum:
@@ -28,9 +28,20 @@ properties:
   categories_completed:
     type: number
     description: "Number of categories completed on the WCST"
-  mmse_score:
+  MMSE:
     type: integer
     minimum: 0
     maximum: 30
-    description: "Mini‑Mental State Examination score (optional, for exclusion)"
+    description: "Mini-Mental State Examination score (optional; exclusion if < 24)"
+  education_years:
+    type: number
+    minimum: 0
+    description: "Years of education (covariate for adjusted model)"
+  gender:
+    type: string
+    enum:
+      - "female"
+      - "male"
+      - "other"
+    description: "Gender category (covariate for adjusted model)"
 additionalProperties: false

@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 76b03545c5ce0ba5e66cc7b863f19b3e2db5659946b2abe632f8bf624e517981
+  artifact_path: projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/specs/001-the-impact-of-nostalgia-on-cognitive-fle/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: _timestamps.txt
+  kind: url
+  value: https://huggingface.co/datasets/rufernan/MMSense/resolve/main/gt_20mpp/Chlorophyll/_timestamps.txt
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/rufernan/MMSense/6071a226f178df9a859187ff184e045b96b30167/gt_20mpp%2FChlorophyll%2F_timestamps.txt?%2Fdatasets%2Frufernan%2FMMSense%2Fresolve%2Fmain%2Fgt_20mpp%2FChlorophyll%2F_timestamps.txt=&etag=%22b6a71a02834cc8fd122b49408836ac65d7a7d2d0%22
+  verified_at: '2026-10-15T21:44:45.285819Z'
+- artifact_hash: 76b03545c5ce0ba5e66cc7b863f19b3e2db5659946b2abe632f8bf624e517981
+  artifact_path: projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/specs/001-the-impact-of-nostalgia-on-cognitive-fle/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: action_recognition.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/jyjyjyjy/MMS-e/resolve/main/test/Fixed_Patch_QA/fix12/annotations/action_recognition.jsonl
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/jyjyjyjy/MMS-e/dcfd2d1209ce0c0e7e1f6241477c714f75b8de83/test%2FFixed_Patch_QA%2Ffix12%2Fannotations%2Faction_recognition.jsonl?%2Fdatasets%2Fjyjyjyjy%2FMMS-e%2Fresolve%2Fmain%2Ftest%2FFixed_Patch_QA%2Ffix12%2Fannotations%2Faction_recognition.jsonl=&etag=%2242c21269599c1ed39c8e65908066dba185749c84%22
+  verified_at: '2026-10-15T21:44:45.285819Z'

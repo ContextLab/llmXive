@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create project directory structure: `src/`, `tests/`, `specs/001-predicting-reaction-mechanisms/`, `data/`, `state/projects/`
 - [ ] T001b [P] Create `__init__.py` files for all `src/` and `tests/` subdirectories to establish Python packages
-- [X] T002 Initialize a Python project with `requirements.txt` (scikit-learn, xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy, psi4)
+- [ ] T002 Initialize a Python project with `requirements.txt` (scikit-learn, xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy, psi4)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -86,7 +86,7 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T009 [P] [US1] Contract test for fingerprint schema in `tests/contract/test_fingerprint_schema.py`
-- [X] T010 [P] [US1] Integration test for end-to-end ingestion of a small NIST sample in `tests/integration/test_ingestion_flow.py`
+- [ ] T010 [P] [US1] Integration test for end-to-end ingestion of a small NIST sample in `tests/integration/test_ingestion_flow.py`
 
 ### Implementation for User Story 1
 

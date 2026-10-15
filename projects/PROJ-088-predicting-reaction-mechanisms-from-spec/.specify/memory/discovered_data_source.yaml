@@ -1,11 +1,12 @@
 status: none
-intent: download NIST Chemistry WebBook IR NMR spectra PubChem spectral data python
+intent: NIST WebBook PubChem IR NMR spectral fingerprints SN1 SN2 E1 labels python
   package dataset
 required_fields:
 - compound_id
-- fingerprint_512
+- smiles
+- ir_fingerprint_512
+- nmr_fingerprint_512
 - mechanism_label
-- source
-cache_key: a1ac7a2c73539cd789d2e7538296936caced341fc8eb9af5149f23832bb29ffd
-searched_at: '2026-08-18T02:38:38.366133+00:00'
+cache_key: cc176fcc83c9066b755bc8063fc51388a835bdeeddc2e8fa14f6a3af57d0b6ea
+searched_at: '2026-10-15T21:48:19.186384+00:00'
 retry_count: 1
