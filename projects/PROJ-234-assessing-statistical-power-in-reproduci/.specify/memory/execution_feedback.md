@@ -44,8 +44,8 @@ ImportError: cannot import name 'OpenMLClient' from 'utils.api_client' (/home/ru
 
 - python code/03_compute_sensitivity.py -> rc=1
 
-2026-10-15 20:07:53,042 - __main__ - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed/extracted_params.json
-2026-10-15 20:07:53,042 - __main__ - INFO - Please run code/02_parse_publications.py first to generate extracted_params.json
+2026-10-15 21:15:05,380 - __main__ - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed/extracted_params.json
+2026-10-15 21:15:05,380 - __main__ - INFO - Please run code/02_parse_publications.py first to generate extracted_params.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/03_compute_sensitivity.py", line 262, in <module>
     main()
@@ -83,7 +83,7 @@ ERROR tests/unit/test_performance_harness.py
 ERROR tests/unit/test_power_audit_schema.py
 ERROR tests/unit/test_utils_refactor.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 0.93s ==============================
+============================== 10 errors in 0.86s ==============================
 
 
 
