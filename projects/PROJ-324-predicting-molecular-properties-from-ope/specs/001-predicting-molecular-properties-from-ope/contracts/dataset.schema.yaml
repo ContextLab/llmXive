@@ -11,7 +11,7 @@ properties:
     description: "Isomeric SMILES string"
   logp:
     type: number
-    description: "XLogP3 or Experimental value"
+    description: "Experimental logP or computed XLogP3"
     minimum: -10
     maximum: 10
   solubility:
@@ -35,18 +35,19 @@ properties:
     description: "Whether the value is experimental or computed"
   measurement_uncertainty:
     type: ["number", "null"]
-    description: "Confidence score from PubChem (optional/derived)"
+    description: "Optional confidence score from PubChem"
     minimum: 0
     maximum: 1
   quantity_of_substance:
     type: ["number", "null"]
-    description: "Amount (if available, optional/derived)"
+    description: "Optional amount of substance, if available"
   source:
     type: string
     const: "PubChem"
   confidence:
     type: string
     enum: ["High", "Medium", "Low"]
+    description: "Derived confidence based on property_type"
 required:
   - cid
   - smiles

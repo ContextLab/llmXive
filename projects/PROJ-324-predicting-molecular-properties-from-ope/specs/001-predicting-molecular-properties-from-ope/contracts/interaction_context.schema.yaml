@@ -17,10 +17,10 @@ properties:
     description: "Index of the second fingerprint bit."
   interaction_strength:
     type: number
-    description: "SHAP interaction value magnitude."
+    description: "Magnitude of SHAP interaction value for the bit pair."
   substructure_desc:
     type: string
-    description: "Chemical description of the substructures (e.g., 'hydroxyl adjacent to aromatic ring')."
+    description: "Human‑readable SMARTS description (e.g., \"hydroxyl adjacent to aromatic ring\")."
   context_type:
     type: string
     enum:
@@ -28,10 +28,10 @@ properties:
       - "Topological-Electronic-Proxy"
       - "Hydrophobic"
       - "Unknown"
-    description: "Classification of the interaction context. Note: 'Steric' and 'Electronic' are renamed to 'Proxy' to reflect that 2D fingerprints capture topological correlations, not 3D physical phenomena."
+    description: "Classification of the interaction context; proxies for underlying physics."
 examples:
   - bit_i: 12
     bit_j: 45
-    interaction_strength: 0.85
+    interaction_strength: 0.87
     substructure_desc: "Hydroxyl group adjacent to aromatic ring"
     context_type: "Topological-Electronic-Proxy"

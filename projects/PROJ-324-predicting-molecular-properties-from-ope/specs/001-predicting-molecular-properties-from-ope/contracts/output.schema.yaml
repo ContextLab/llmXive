@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Output Schema"
-description: "Schema for prediction and analysis output"
+title: "Prediction Output Schema"
+description: "Schema for prediction and analysis output records"
 type: object
 properties:
   cid:
@@ -11,19 +11,19 @@ properties:
     description: "Isomeric SMILES string"
   target:
     type: number
-    description: "Experimental value (LogP, Solubility, BP)"
+    description: "Experimental value for the property under analysis"
   baseline_pred:
     type: number
-    description: "Crippen prediction"
+    description: "Crippen additive prediction"
   rf_pred:
     type: number
     description: "Random Forest prediction"
   baseline_error:
     type: number
-    description: "Absolute error (baseline)"
+    description: "Absolute error of baseline"
   rf_error:
     type: number
-    description: "Absolute error (RF)"
+    description: "Absolute error of Random Forest"
   shap_values:
     type: array
     items:
@@ -35,7 +35,10 @@ properties:
       type: array
       items:
         type: number
-    description: "SHAP interaction values"
+    description: "SHAP interaction matrix"
+  local_non_additivity_index:
+    type: number
+    description: "LNAI score for this molecule"
 required:
   - cid
   - smiles
@@ -44,3 +47,6 @@ required:
   - rf_pred
   - baseline_error
   - rf_error
+  - shap_values
+  - shap_interaction
+  - local_non_additivity_index -->

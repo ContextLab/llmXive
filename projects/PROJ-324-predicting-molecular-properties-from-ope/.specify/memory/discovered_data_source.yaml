@@ -1,56 +1,6 @@
-status: verified
-kind: pypi_package
-ref: PubChemPy
-access_python: "import pubchempy as pcp\n\ncids = [2244, 3672, 5957, 702, 1234, 5281,\
-  \ 5280, 5282, 5283, 5284]\ncompounds = pcp.get_compounds(cids, 'cid')\n\nprint(f\"\
-  RECORDS={len(compounds)}\")\nif compounds:\n    fields = sorted(compounds[0].to_dict().keys())\n\
-  \    print(\"FIELDS=\" + \",\".join(fields))"
-record_count: 10
-sample_fields:
-- atom_stereo_count
-- atoms
-- bond_stereo_count
-- bonds
-- cactvs_fingerprint
-- charge
-- cid
-- complexity
-- conformer_id_3d
-- conformer_rmsd_3d
-- connectivity_smiles
-- coordinate_type
-- covalent_unit_count
-- defined_atom_stereo_count
-- defined_bond_stereo_count
-- effective_rotor_count_3d
-- elements
-- exact_mass
-- feature_selfoverlap_3d
-- fingerprint
-- h_bond_acceptor_count
-- h_bond_donor_count
-- heavy_atom_count
-- inchi
-- inchikey
-- isotope_atom_count
-- iupac_name
-- mmff94_energy_3d
-- mmff94_partial_charges_3d
-- molecular_formula
-- molecular_weight
-- monoisotopic_mass
-- multipoles_3d
-- pharmacophore_features_3d
-- rotatable_bond_count
-- shape_fingerprint_3d
-- shape_selfoverlap_3d
-- smiles
-- tpsa
-- undefined_atom_stereo_count
-- undefined_bond_stereo_count
-- volume_3d
-- xlogp
-field_coverage: 0.5
+status: none
+intent: PubChem compound data SMILES properties download Open Babel fingerprint python
+  package dataset
 required_fields:
 - SMILES
 - LogP
@@ -58,6 +8,6 @@ required_fields:
 - Boiling Point
 - Molecular Weight
 - Property Type
-intent: PubChem compound properties SMILES LogP solubility Open Babel fingerprint
-  python package dataset
-cache_key: 18da241dc23f1a99092c1fa3636a242067dd6658e538072fb82ba7cc4532cfd3
+cache_key: d6ee6a9c5ac95b9811020d462563658d6d9221687dd73c5aa54324e32a00dca1
+searched_at: '2026-10-15T06:10:19.853052+00:00'
+retry_count: 1

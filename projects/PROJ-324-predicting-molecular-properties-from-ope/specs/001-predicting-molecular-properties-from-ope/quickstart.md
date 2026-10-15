@@ -1,128 +1,118 @@
 # Quickstart: Molecular Property Prediction Pipeline
 
 ## Prerequisites
-
-- Python 3.10+
-- Open Babel installed (CLI: `obabel`)
+- Python 3.10 or newer
+- Open Babel CLI (`obabel`) in your `PATH`
 - Git
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone
- cd PROJ-324-predicting-molecular-properties-from-ope
- ```
+```bash
+# Clone the repository
+git clone https://github.com/your-org/PROJ-324-predicting-molecular-properties-from-ope.git
+cd PROJ-324-predicting-molecular-properties-from-ope
 
-2. **Create virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
+# Install Python dependencies
+pip install -r requirements.txt
 
-4. **Install Open Babel** (if not already installed):
- - Ubuntu/Debian: `sudo apt-get install openbabel`
- - macOS: `brew install open-babel`
- - Windows: Download from https://openbabel.org/
-
-## Directory Structure
-
-```text
-projects/PROJ-324-predicting-molecular-properties-from-ope/
-├── code/
-│ ├── data/
-│ │ ├── download.py
-│ │ ├── preprocess.py
-│ │ └── fingerprint.py
-│ ├── models/
-│ │ ├── baseline.py
-│ │ └── rf.py
-│ ├── analysis/
-│ │ ├── stats.py
-│ │ └── explainability.py
-│ └── main.py
-├── data/
-│ ├── raw/
-│ ├── processed/
-│ └── derived/
-├── tests/
-├── requirements.txt
-├── pyproject.toml
-└──.ruff.toml
+# Install Open Babel (CLI)
+# Ubuntu/Debian
+sudo apt-get install openbabel
+# macOS
+brew install open-babel
+# Windows: download installer from https://openbabel.org/
 ```
 
-## Running the Pipeline
+## Directory Overview
 
-1. **Download Data**:
- ```bash
- python code/data/download.py
- ```
- This fetches [deferred] molecules from PubChem and saves them to `data/raw/`.
+```text
+code/
+├── data/
+│   ├── download.py          # PubChem download
+│   ├── preprocess.py        # Missing‑value handling, quality report
+│   └── fingerprint.py       # Open Babel wrapper
+├── models/
+│   ├── baseline.py          # Crippen additive model
+│   └── rf.py                # Random Forest with nested CV
+├── analysis/
+│   ├── stats.py             # Metrics, Wilcoxon test, LNAI
+│   └── explainability.py    # SHAP, interaction heatmap, SMARTS mapping
+└── main.py                  # Orchestrates the whole pipeline
+data/
+├── raw/
+├── processed/
+└── derived/
+tests/
+requirements.txt
+pyproject.toml
+.ruff.toml
+```
 
-2. **Preprocess Data**:
- ```bash
- python code/data/preprocess.py
- ```
- This cleans data, handles missing values, and generates `data/derived/data_quality_report.csv`.
+## Running the Full Pipeline
 
-3. **Generate Fingerprints**:
- ```bash
- python code/data/fingerprint.py
- ```
- This generates MACCS, ECFP4, and FP2 fingerprints and saves them to `data/processed/`.
+```bash
+# 1. Download raw data from PubChem
+python code/data/download.py
 
-4. **Train Baseline Model**:
- ```bash
- python code/models/baseline.py
- ```
- This computes Crippen predictions and saves them to `data/derived/baseline_predictions.csv`.
+# 2. Preprocess (handle missing values, generate quality report)
+python code/data/preprocess.py
 
-5. **Train Random Forest Model**:
- ```bash
- python code/models/rf.py
- ```
- This trains the RF model with nested CV and saves predictions to `data/derived/`.
+# 3. Generate fingerprints via Open Babel
+python code/data/fingerprint.py
 
-6. **Run Analysis**:
- ```bash
- python code/analysis/stats.py
- ```
- This computes metrics, performs Wilcoxon test, and generates plots.
+# 4. Compute baseline (Crippen) predictions
+python code/models/baseline.py
 
-7. **Run Explainability**:
- ```bash
- python code/analysis/explainability.py
- ```
- This computes SHAP values and maps them to substructures.
+# 5. Train Random Forest with nested cross‑validation
+python code/models/rf.py
+
+# 6. Perform statistical analysis and produce plots
+python code/analysis/stats.py
+
+# 7. Explainability: SHAP interaction heatmap and substructure mapping
+python code/analysis/explainability.py
+
+# 8. (Optional) Generate the comprehensive validation audit PDF
+python code/analysis/validation_audit.py
+```
+
+Each script writes its outputs under `data/derived/`. The most important artifacts are:
+
+| Artifact | Path | Description |
+|----------|------|-------------|
+| Baseline residual plot | `data/derived/baseline_residuals.png` |
+| RF residual plot | `data/derived/rf_residuals.png` |
+| SHAP interaction heatmap | `data/derived/shap_interactions.png` |
+| Deviation contexts (bit‑to‑substructure) | `data/derived/deviation_contexts.csv` |
+| LNAI table | `data/derived/lna_index.csv` |
+| Statistical report | `data/derived/statistical_report.md` |
+| Validation audit | `data/derived/validation_audit.pdf` |
+| Experimental protocol | `data/derived/experimental_validation_protocol.md` |
 
 ## Testing
 
-Run unit and integration tests:
 ```bash
 pytest tests/
 ```
 
 ## Linting & Formatting
 
-Check code style:
 ```bash
 ruff check code/
 black --check code/
-```
-
-Format code:
-```bash
+# To auto‑fix:
 black code/
 ruff check --fix code/
 ```
 
 ## Troubleshooting
 
-- **Open Babel not found**: Ensure `obabel` is in your PATH.
-- **PubChem API errors**: Check network connectivity; PubChem may rate-limit requests.
-- **Memory errors**: Reduce the number of molecules or features in `code/models/rf.py`.
+- **`obabel` not found** – Ensure the Open Babel executable is in your `PATH`.  
+- **PubChem rate limiting** – The downloader respects a 0.2 s pause between requests; increase `RATE_LIMIT` in `download.py` if you encounter HTTP 429.  
+- **MemoryError** – Reduce the number of molecules processed at once (`MAX_MOLECULES` constant) or enable streaming mode (`--stream` flag).  
+
+Enjoy reproducible molecular property prediction!
