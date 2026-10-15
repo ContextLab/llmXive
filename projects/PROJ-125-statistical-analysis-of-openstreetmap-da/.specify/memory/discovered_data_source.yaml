@@ -1,5 +1,16 @@
 status: none
-reason: no data intent found in planning artifacts
-cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
-searched_at: '2026-09-08T10:39:14.154600+00:00'
-retry_count: 3
+intent: OpenStreetMap buildings landuse trees roads NASA EarthData MODIS Landsat NaturalEarth
+  GADM python package dataset
+required_fields:
+- city_id
+- city_name
+- city_boundary_polygon
+- building_density_raster
+- land_use_class_raster
+- tree_canopy_density_raster
+- road_density_raster
+- summer_lst_composite_raster
+- crs_epsg_code
+cache_key: 47abec03e8f0d942e3e79831f7d6ef43afefa9325bf24afe09e70874f07e192e
+searched_at: '2026-10-15T08:39:15.077274+00:00'
+retry_count: 1
