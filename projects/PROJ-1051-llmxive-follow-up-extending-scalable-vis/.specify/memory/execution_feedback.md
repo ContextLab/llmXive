@@ -7,19 +7,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.download  --dataset-name layout_corpus  --output-dir data/raw -> rc=1
-r/publaynet': 401 Client Error. (Request ID: Root=1-6ad108ac-68b1053f14f18ef57364e329;5600efbd-0bdb-4dcb-af87-3edf94690e82)
-
-Repository Not Found for url: https://huggingface.co/api/datasets/nielsr/publaynet/revision/main.
+Repository Not Found for url: https://huggingface.co/api/datasets/allenai/pubmed-layout/revision/main.
 Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
 Invalid username or password.
 Primary pages (0) < 10000. Trying fallback...
-Downloading repository 'nielsr/docbank'...
-Fallback download failed: 401 Client Error. (Request ID: Root=1-6ad108ac-0b5ba7443610e01f352072dd;d5b617d1-dab2-4211-bb19-a931d78ee750)
+Downloading repository 'allenai/pubmed-layout-fallback'...
+Fallback download failed: 401 Client Error. (Request ID: Root=1-6ad11702-3a92fc9a7973394f4d5dfcf0;0d852dd0-7d67-49aa-a53d-76ff84fc726c)
 
-Repository Not Found for url: https://huggingface.co/api/datasets/nielsr/docbank/revision/main.
+Repository Not Found for url: https://huggingface.co/api/datasets/allenai/pubmed-layout-fallback/revision/main.
 Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
 Invalid username or password.
 Total pages with layout after fallback handling: 0
 
@@ -40,26 +40,33 @@ ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name resnet18  --device cpu -> rc=1
 
-2026-10-15 17:09:01,845 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/src/data/latent_generator.py", line 17, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 
 - python -m src.data.download  --dataset-name docvqa  --output-dir data/raw/docvqa -> rc=1
-Downloading repository 'nielsr/docvqa'...
-DocVQA download failed: 401 Client Error. (Request ID: Root=1-6ad108ae-611eef04512badb444e81e97;74605a65-4c8c-439e-8d20-d206346327e1)
+Downloading repository 'allenai/docvqa'...
+DocVQA download failed: 401 Client Error. (Request ID: Root=1-6ad11703-5d51174d7e5e86f0021a7c85;320bdf64-d59b-461d-8304-bf619eaeac3e)
 
-Repository Not Found for url: https://huggingface.co/api/datasets/nielsr/docvqa/revision/main.
+Repository Not Found for url: https://huggingface.co/api/datasets/allenai/docvqa/revision/main.
 Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
 Invalid username or password.
 
-❌ ERROR: 401 Client Error. (Request ID: Root=1-6ad108ae-611eef04512badb444e81e97;74605a65-4c8c-439e-8d20-d206346327e1)
+❌ ERROR: 401 Client Error. (Request ID: Root=1-6ad11703-5d51174d7e5e86f0021a7c85;320bdf64-d59b-461d-8304-bf619eaeac3e)
 
-Repository Not Found for url: https://huggingface.co/api/datasets/nielsr/docvqa/revision/main.
+Repository Not Found for url: https://huggingface.co/api/datasets/allenai/docvqa/revision/main.
 Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
 Invalid username or password.
 
 - python -m pytest -k "contract" tests/ -> rc=2
-e importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/tests/unit/test_preprocess.py'.
+/work/llmXive/llmXive/projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/tests/unit/test_preprocess.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
@@ -74,8 +81,31 @@ pyarrow/lib.pyx:42: in init pyarrow.lib
     ???
 E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 =========================== short test summary info ============================
+ERROR tests/test_latent_generator.py
 ERROR tests/unit/test_preprocess.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-======================== 2 deselected, 1 error in 1.15s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================= 1 deselected, 2 errors in 0.57s ========================
 
 
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **10537** real records with fields: questionId, question, question_types, image, docId, ucsf_document_id, ucsf_document_page_no, answers, data_split.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+from datasets import load_dataset, concatenate_datasets
+
+# Load all available splits for the dataset
+dataset_dict = load_dataset("lmms-lab-encoder/DocVQA", "DocVQA")
+# Concatenate them into a single Dataset
+combined = concatenate_datasets([split for split in dataset_dict.values()])
+
+print(f"RECORDS={len(combined)}")
+print("FIELDS=" + ",".join(combined.column_names))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

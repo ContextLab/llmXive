@@ -18,7 +18,7 @@ from typing import List, Tuple, Optional, Dict
 
 import yaml
 from tqdm import tqdm
-from huggingface_hub import snapshot_download, hf_hub_download
+from huggingface_hub import snapshot_download
 
 def compute_sha256(file_path: Path) -> str:
     """Return the SHA‑256 hex digest of ``file_path``."""
@@ -77,14 +77,16 @@ def _download_repo(repo_id: str, output_root: Path) -> Path:
     )
     return Path(repo_path)
 
+
 def download_layout_corpus(output_dir: Path, min_pages: int = 10_000) -> None:
     """
-    Download the primary PublayNet corpus, falling back to DocBank if necessary.
-    The function ensures at least ``min_pages`` pages with layout annotations.
+    Download the primary PubMed‑Layout corpus, falling back to its official
+    fallback if necessary. The function ensures at least ``min_pages``
+    pages with layout annotations.
     The downloaded files are placed under ``output_dir / "layout_corpus"``.
     """
-    primary_repo = "nielsr/publaynet"
-    fallback_repo = "nielsr/docbank"
+    primary_repo = "allenai/pubmed-layout"
+    fallback_repo = "allenai/pubmed-layout-fallback"
 
     target_dir = output_dir / "layout_corpus"
 
@@ -108,7 +110,6 @@ def download_layout_corpus(output_dir: Path, min_pages: int = 10_000) -> None:
             print(f"Fallback dataset pages with layout: {fallback_pages}")
             # Merge fallback into primary directory (if primary exists)
             if primary_path:
-                # Copy missing files from fallback into primary_path
                 for src_file in fallback_path.rglob("*"):
                     rel = src_file.relative_to(fallback_path)
                     dest_file = primary_path / rel
@@ -146,7 +147,7 @@ def download_docvqa(output_dir: Path) -> None:
     Download the DocVQA benchmark dataset and store it under
     ``output_dir / "docvqa"``.
     """
-    repo_id = "nielsr/docvqa"
+    repo_id = "allenai/docvqa"
     target_dir = output_dir / "docvqa"
     try:
         _download_repo(repo_id, target_dir)

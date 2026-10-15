@@ -1,23 +1,9 @@
-# Core dependencies (already available in the runner)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependencies required for this project
-torch==2.3.0
-torchvision==0.18.0
-transformers==4.44.0
-datasets==2.20.0
+# Core dependencies already available in the environment:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+#
+# Additional dependencies required for this project:
+pyarrow==13.0.0
+huggingface_hub
 tqdm
-huggingface_hub>=0.23.0
-pillow
 pytesseract

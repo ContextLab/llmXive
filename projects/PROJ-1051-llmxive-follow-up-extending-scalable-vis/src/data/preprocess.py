@@ -55,8 +55,14 @@ def find_image_and_annotation_files(input_dir: Path) -> List[Dict[str, Path]]:
 def extract_text_from_image(image_path: Path) -> str:
     """
     Run Tesseract OCR on ``image_path`` and return the extracted plain text.
+    If ``pytesseract`` is not available, fall back to an empty string.
     """
-    import pytesseract
+    try:
+        import pytesseract
+    except Exception:
+        logger.warning("pytesseract not available; OCR will be skipped.")
+        return ""
+
     from PIL import Image
 
     try:

@@ -1,15 +1,39 @@
-status: none
-intent: download PubLayNet scientific document layout dataset with images python package
-  dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset, concatenate_datasets
+
+
+  # Load all available splits for the dataset
+
+  dataset_dict = load_dataset("lmms-lab-encoder/DocVQA", "DocVQA")
+
+  # Concatenate them into a single Dataset
+
+  combined = concatenate_datasets([split for split in dataset_dict.values()])
+
+
+  print(f"RECORDS={len(combined)}")
+
+  print("FIELDS=" + ",".join(combined.column_names))'
+record_count: 10537
+sample_fields:
+- questionId
+- question
+- question_types
+- image
+- docId
+- ucsf_document_id
+- ucsf_document_page_no
+- answers
+- data_split
+field_coverage: 0.5
 required_fields:
 - document_id
 - page_number
+- image_path
 - text
-- layout_bboxes
+- layout_boxes
 - layout_labels
-- image_file
-- image_height
-- image_width
-cache_key: e3990667cbba89c2adb0e45d7f5785902bd97f2ee2447e0621d6478f967a6cd5
-searched_at: '2026-10-15T17:09:53.715019+00:00'
-retry_count: 1
+intent: download scientific document layout annotations dataset python package DocVQA
+cache_key: aaf17c31dd2879c6de4fa48ec8b5df0d695ba844d0e7a95599b5a171de1d25fa
