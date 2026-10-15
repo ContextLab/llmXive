@@ -19,7 +19,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 17 fabricated/simulated-result signal(s) — results are not real measurements: code/01_fetch_strategy_a.py: synthetic/fake INPUT data not authorized by the spec — “…peline will fall back to synthetic data generation (T011b) as pe…”; code/01_generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a synthetic OTU table with controlle…”; code/01_generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate synthetic serology metadata with c…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/main_pipeline.py; 1 command(s) failed: python -m pytest tests/ -v (rc=2); 6 declared deliverable(s) absent: data/processed/cleared.csv; data/processed/cleared_final.csv; data/processed/cleared_log.csv
+**Summary**: 18 fabricated/simulated-result signal(s) — results are not real measurements: code/01_fetch_strategy_a.py: synthetic/fake INPUT data not authorized by the spec — “…peline will fall back to synthetic data generation (T011b) as pe…”; code/01_generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a synthetic OTU table with controlle…”; code/01_generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate synthetic serology metadata with c…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/main_pipeline.py; 1 command(s) failed: python -m pytest tests/ -v (rc=2); 8 declared deliverable(s) absent: data/processed/cleared.csv; data/processed/cleared_final.csv; data/processed/cleared_log.csv
 
 ## Failing / missing run-book commands
 
@@ -48,7 +48,7 @@ ERROR tests/test_sra_downloader.py
 ERROR tests/test_sra_fetcher.py
 ERROR tests/test_validate_schema.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 0.41s ===============================
+============================== 6 errors in 0.40s ===============================
 
 
 
@@ -58,6 +58,8 @@ ERROR tests/test_validate_schema.py
 - data/processed/cleared_final.csv
 - data/processed/cleared_log.csv
 - data/processed/cleared_shannon.csv
+- data/raw/otutable.csv
+- data/raw/serology.csv
 - data/results/model_metrics.json
 - data/results/sc004_report.json
 
@@ -92,6 +94,23 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/020_apply_clr.py` — NOT invoked by the run-book
     - `code/020_calculate_shannon.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/cleared_shannon.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/otutable.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_fetch_strategy_a.py` — NOT invoked by the run-book
+    - `code/01_generate_synthetic.py` — NOT invoked by the run-book
+    - `code/01_merge_strategy_b.py` — NOT invoked by the run-book
+    - `code/download.py` — NOT invoked by the run-book
+    - `code/utils/sra_fetcher.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/otutable.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/serology.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_fetch_strategy_a.py` — NOT invoked by the run-book
+    - `code/01_generate_synthetic.py` — NOT invoked by the run-book
+    - `code/01_merge_strategy_b.py` — NOT invoked by the run-book
+    - `code/01_sra_search.py` — NOT invoked by the run-book
+    - `code/download.py` — NOT invoked by the run-book
+    - `code/tests/test_sra_fetcher.py` — NOT invoked by the run-book
+    - `code/utils/data_loader.py` — NOT invoked by the run-book
+    - `code/utils/sra_downloader.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/serology.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/model_metrics.json` is declared but was NOT written. Scripts referencing it:
     - `code/036_calculate_metrics.py` — NOT invoked by the run-book
     - `code/036b_success_criterion_check.py` — NOT invoked by the run-book

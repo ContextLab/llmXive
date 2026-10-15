@@ -1,7 +1,0 @@
-{
-  "task_id": "T011a",
-  "fingerprint": "088ab4dd3b0b6d527d1d0ac9715755528817d12655e17880f8c0e70ab71c152e",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'code/download.py': SyntaxError at line 226: invalid decimal literal. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 12649"
-}

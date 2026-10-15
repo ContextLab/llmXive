@@ -1,16 +1,22 @@
 """
 download.py
 -------------
-Discover and verify a real paired microbiome‑serology dataset.
+Discover, verify, and download a real paired microbiome‑serology dataset.
 
 This script attempts to locate an open‑access dataset that contains both
 16S OTU abundances and influenza serology measurements.  The primary
 source is the Hugging‑Face Hub dataset named ``influenza_microbiome``.
 If the dataset cannot be accessed or does not contain the required
-columns, the script falls back to a synthetic‑data flag.
+columns, the script raises a ``RuntimeError`` – there is no silent
+fallback to synthetic data.
 
-The result is written to ``data/research/sra_status.json`` with the
-following schema:
+When a suitable dataset is found, the script downloads the OTU table
+and serology metadata files, verifies that they are non‑empty, computes
+a SHA‑256 checksum for each (logged for audit), and writes them to
+``data/raw/otutable.csv`` and ``data/raw/serology.csv`` respectively.
+
+The result of the discovery step is also written to
+``data/research/sra_status.json`` with the schema:
 
 {
     "status": "real_data_found" | "no_real_data",
@@ -19,16 +25,17 @@ following schema:
     "hf_dataset_id": <HuggingFace dataset identifier | null>
 }
 
-The verification step in ``tasks.md`` only checks that the keys
-``status`` and ``use_synthetic`` exist, but we also include the optional
-identifiers for downstream scripts.
+The verification step in ``tasks.md`` checks that the keys
+``status`` and ``use_synthetic`` exist, and that the two raw CSV files
+are present and non‑empty.
 """
 
+import hashlib
 import json
 import logging
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Tuple, Optional
 
 import requests
 
@@ -81,21 +88,31 @@ def _list_dataset_files(repo_id: str) -> List[str]:
         logger.error("Failed to list files for HF dataset %s: %s", repo_id, exc)
         raise RuntimeError("Failed to list HF dataset files") from exc
 
-def _download_file_sample(repo_id: str, filename: str, max_bytes: int = 8192) -> bytes:
+def _download_file(url: str, dest_path: Path) -> None:
     """
-    Download the first ``max_bytes`` of a file from the HF dataset.
-    This is sufficient to read the header line of a CSV without pulling the whole file.
+    Download the full contents of ``url`` to ``dest_path``.
+    Raises ``RuntimeError`` on any failure.
     """
-    raw_url = HF_RAW_URL_TEMPLATE.format(repo_id=repo_id, filename=filename)
     try:
-        resp = requests.get(raw_url, stream=True, timeout=15)
-        resp.raise_for_status()
-        chunk = resp.raw.read(max_bytes)
-        logger.debug("Downloaded %d bytes from %s.", len(chunk), raw_url)
-        return chunk
+        logger.info("Downloading %s → %s", url, dest_path)
+        with requests.get(url, stream=True, timeout=30) as r:
+            r.raise_for_status()
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(dest_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
     except requests.RequestException as exc:
-        logger.error("Error downloading %s: %s", raw_url, exc)
-        raise RuntimeError(f"Failed to download sample of {filename}") from exc
+        logger.error("Failed to download %s: %s", url, exc)
+        raise RuntimeError(f"Download failed for {url}") from exc
+
+def _compute_sha256(file_path: Path) -> str:
+    """Return the hex SHA‑256 checksum of ``file_path``."""
+    h = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 def _extract_header(csv_bytes: bytes) -> List[str]:
     """
@@ -148,7 +165,7 @@ def discover_hf_dataset() -> dict:
     if not csv_files:
         raise RuntimeError("No CSV files found in the HF dataset.")
 
-    # Examine the first CSV file (could be improved to iterate).
+    # Examine the first CSV file to ensure it has required columns.
     candidate = csv_files[0]
     logger.info("Inspecting CSV file '%s' for required columns.", candidate)
 
@@ -166,7 +183,39 @@ def discover_hf_dataset() -> dict:
         "use_synthetic": False,
         "accession": None,
         "hf_dataset_id": HF_DATASET_ID,
+        "csv_files": csv_files,   # include for downstream download step
     }
+
+def _download_file_sample(repo_id: str, filename: str, max_bytes: int = 8192) -> bytes:
+    """
+    Download the first ``max_bytes`` of a file from the HF dataset.
+    This is sufficient to read the header line of a CSV without pulling the whole file.
+    """
+    raw_url = HF_RAW_URL_TEMPLATE.format(repo_id=repo_id, filename=filename)
+    try:
+        resp = requests.get(raw_url, stream=True, timeout=15)
+        resp.raise_for_status()
+        chunk = resp.raw.read(max_bytes)
+        logger.debug("Downloaded %d bytes from %s.", len(chunk), raw_url)
+        return chunk
+    except requests.RequestException as exc:
+        logger.error("Error downloading %s: %s", raw_url, exc)
+        raise RuntimeError(f"Failed to download sample of {filename}") from exc
+
+def _select_otu_and_serology(csv_files: List[str]) -> Tuple[Optional[str], Optional[str]]:
+    """
+    Heuristically pick OTU and serology CSV filenames from the list.
+    Returns (otu_path, serology_path). May be ``None`` if not found.
+    """
+    otu_candidate = None
+    sero_candidate = None
+    for f in csv_files:
+        low = f.lower()
+        if ("otu" in low) or ("taxon" in low):
+            otu_candidate = f
+        if ("sero" in low) or ("serology" in low) or ("metadata" in low):
+            sero_candidate = f
+    return otu_candidate, sero_candidate
 
 def fallback_to_synthetic() -> dict:
     """
@@ -203,19 +252,76 @@ def write_status_file(status_dict: dict) -> None:
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Entry point for the script.  It first tries the HF dataset; if any step
-    fails, it records a synthetic‑fallback status.
+    Entry point for the script.
+
+    1. Discover the HF dataset.
+    2. If a real dataset is found, locate the OTU and serology CSV files,
+       download them in full, verify they contain the required columns,
+       compute SHA‑256 checksums (logged), and write them to
+       ``data/raw/otutable.csv`` and ``data/raw/serology.csv``.
+    3. If any step fails, raise ``RuntimeError`` – no silent fallback.
     """
     try:
-        status = discover_hf_dataset()
+        discovery = discover_hf_dataset()
     except Exception as exc:  # noqa: BLE001 (broad on purpose for discovery)
         logger.debug("HF discovery failed: %s", exc, exc_info=True)
-        status = fallback_to_synthetic()
+        discovery = fallback_to_synthetic()
 
-    write_status_file(status)
+    # Write the status file regardless of success/failure
+    write_status_file(discovery)
+
+    # If we couldn't find real data, abort with a clear error.
+    if discovery.get("use_synthetic", True):
+        raise RuntimeError("Real dataset not available – cannot download OTU/serology files.")
+
+    # At this point we have a real dataset and a list of CSV files.
+    csv_files: List[str] = discovery.get("csv_files", [])
+    otu_name, sero_name = _select_otu_and_serology(csv_files)
+
+    if not otu_name or not sero_name:
+        raise RuntimeError(
+            f"Could not identify OTU and serology files among: {csv_files}"
+        )
+
+    # Build full URLs for the selected files.
+    otu_url = HF_RAW_URL_TEMPLATE.format(repo_id=HF_DATASET_ID, filename=otu_name)
+    sero_url = HF_RAW_URL_TEMPLATE.format(repo_id=HF_DATASET_ID, filename=sero_name)
+
+    # Destination paths within the project.
+    otu_path = paths.data("raw", "otutable.csv")
+    sero_path = paths.data("raw", "serology.csv")
+
+    # Download both files.
+    _download_file(otu_url, otu_path)
+    _download_file(sero_url, sero_path)
+
+    # Verify that both files are non‑empty and contain required columns.
+    for path, name in [(otu_path, "OTU table"), (sero_path, "Serology")]:
+        if not path.is_file() or path.stat().st_size == 0:
+            raise RuntimeError(f"Downloaded {name} is empty or missing: {path}")
+
+        # Quick column check (only for serology, OTU just needs subject_id)
+        df = pd.read_csv(path, nrows=0)
+        cols = set(df.columns)
+        if name == "Serology":
+            missing = {"subject_id", "titer_baseline", "titer_post"} - cols
+            if missing:
+                raise RuntimeError(f"Serology file missing columns: {missing}")
+
+    # Compute and log SHA‑256 checksums.
+    otu_checksum = _compute_sha256(otu_path)
+    sero_checksum = _compute_sha256(sero_path)
+    logger.info("SHA‑256 OTU table: %s", otu_checksum)
+    logger.info("SHA‑256 Serology: %s", sero_checksum)
+
+    logger.info("Successfully downloaded and verified raw data files.")
 
 if __name__ == "__main__":
     # ``python code/download.py`` is the canonical way to run this step.
-    # Any exception propagates to the caller (CI runner) so that a failure
+    # Any exception propagates to the CI runner so that a failure
     # is visible and not silently ignored.
-    main()
+    try:
+        main()
+    except RuntimeError as e:
+        logger.error("Download step failed: %s", e)
+        sys.exit(1)

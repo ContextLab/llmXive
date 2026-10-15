@@ -1,12 +1,11 @@
 T010:
   c: true
-  h: ece044fb152d60e6f1b2cbcac6422a41d289197e5fc3bd958edc4240bf7af008
-  r: Checked `code/download.py` which implements the required discovery logic and
-    writes `data/research/sra_status.json`, and verified that `data/research/sra_status.json`
-    exists with the required keys (`status`, `use_synthetic`) and correct schema.
-    The script ran, logged the fallback to synthetic data, and produced the expected
-    JSON file.
-  sig: c6d1abf66ab4b2bb0a988850ad385615fd52147fef58c540986b11243887c7a7
+  h: 65b4ed02b569c4b41a7e371ea341551c4fc93e4b231cb3cebe20fb0a7f09d508
+  r: "Checked `code/download.py` (implements the discovery logic) and `data/research/sra_status.json`\
+    \ (contains the required `status` and `use_synthetic` keys). The script runs,\
+    \ performs the HF query, and writes a valid status file, satisfying the task\u2019\
+    s artifact and verification requirements."
+  sig: f47f55443a21dde694c21565c02ed9f8fc09a5b57821aad58d9c3d3859ab2870
 T011b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

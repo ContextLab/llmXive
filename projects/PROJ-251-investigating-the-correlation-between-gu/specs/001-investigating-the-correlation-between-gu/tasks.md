@@ -22,7 +22,7 @@ Each task includes indented continuation lines that specify the concrete output 
   python -c "import json; d=json.load(open('data/research/sra_status.json')); assert 'status' in d and 'use_synthetic' in d"
   ```
 
-- [ ] T011a [US1] **Real‑data download script**  
+- [ ] T011a [US1] **Real‑data download script**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
   *Path*: `code/download.py` → `data/raw/otutable.csv`, `data/raw/serology.csv`  
   *Action*:  
   1. Read `config.SRA_ACCESSION` or `config.HF_DATASET_ID` from `code/utils/config.py`.  
