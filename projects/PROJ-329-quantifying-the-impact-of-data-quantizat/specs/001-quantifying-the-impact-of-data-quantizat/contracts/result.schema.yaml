@@ -7,12 +7,12 @@ properties:
     type: "string"
     description: "Reference to the source waveform."
   bit_depth:
-    type: "integer"
-    description: "Bit depth used for this signal."
+    type: ["integer", "null"]
+    description: "Bit depth used for this signal (null for float64 baseline)."
   inference_method:
     type: "string"
     enum: ["MCMC", "Fisher", "Hybrid"]
-    description: "Method used for parameter estimation."
+    description: "Method used for parameter estimation (plan uses MCMC uniformly across all SNR ranges)."
   mean_params:
     type: "object"
     properties:
@@ -29,6 +29,9 @@ properties:
       chirp_mass:
         type: "number"
         description: "Mean Squared Error for chirp mass."
+      spin:
+        type: "number"
+        description: "Mean Squared Error for spin."
       distance:
         type: "number"
         description: "Mean Squared Error for luminosity distance."
@@ -40,4 +43,14 @@ properties:
   snr:
     type: "number"
     description: "SNR of the injected signal."
-required: ["waveform_id", "bit_depth", "mean_params", "mse", "convergence_status", "snr"]
+  delta:
+    type: "object"
+    description: "Per-parameter quantization-induced bias (Δ_k = E_quant,k − E_inst,k)."
+    properties:
+      chirp_mass:
+        type: "number"
+      spin:
+        type: "number"
+      distance:
+        type: "number"
+required: ["waveform_id", "bit_depth", "mean_params", "mse", "convergence_status", "snr", "delta"]

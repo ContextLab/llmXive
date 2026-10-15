@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SimulatedWaveform"
-description: "Schema for ground-truth and quantized gravitational wave signals."
+description: "Schema for ground‑truth and quantized gravitational wave signals."
 type: "object"
 properties:
   waveform_id:
@@ -11,10 +11,10 @@ properties:
     properties:
       mass_1:
         type: "number"
-        description: "Primary mass in solar masses (10-50)."
+        description: "Primary mass in solar masses (10‑50)."
       mass_2:
         type: "number"
-        description: "Secondary mass in solar masses (10-50)."
+        description: "Secondary mass in solar masses (10‑50)."
       spin_1z:
         type: "number"
         description: "Primary spin component ([-0.9, 0.9])."
@@ -23,11 +23,17 @@ properties:
         description: "Secondary spin component ([-0.9, 0.9])."
       luminosity_distance:
         type: "number"
-        description: "Luminosity distance in Mpc (100-1000)."
+        description: "Luminosity distance in Mpc (100‑1000)."
     required: ["mass_1", "mass_2", "luminosity_distance"]
   snr:
     type: "number"
-    description: "Injected Signal-to-Noise Ratio."
+    description: "Injected Signal‑to‑Noise Ratio."
+  sampling_rate:
+    type: "number"
+    description: "Sampling rate in Hz."
+  duration:
+    type: "number"
+    description: "Signal duration in seconds."
   bit_depth:
     type: "integer"
     description: "Bit depth of quantization (1, 8, 10, 12, 14, 16)."
@@ -38,4 +44,4 @@ properties:
     type: "string"
     enum: ["float64", "quantized"]
     description: "Type of data stored."
-required: ["waveform_id", "params", "snr", "bit_depth", "data_type"]
+required: ["waveform_id", "params", "snr", "sampling_rate", "duration", "bit_depth", "data_type"]

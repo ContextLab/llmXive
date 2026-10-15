@@ -1,186 +1,110 @@
 # Implementation Plan: Quantifying the Impact of Data Quantization on Gravitational Wave Signal Reconstruction
 
-**Branch**: `001-quantization-impact-gw` | **Date**: 2024-05-21 | **Spec**: `specs/001-quantization-impact-gw/spec.md`
+**Branch**: `001-quantization-impact-gw` | **Date**: 2024-10-15 | **Spec**: `specs/001-quantizing-the-impact-of-data-quantizat/spec.md`
 
 ## Summary
+The plan executes a full, reproducible computational study that (1) generates binary‑black‑hole (BBH) waveforms with PyCBC, (2) injects them into LIGO O3 noise, (3) applies uniform quantization at **all six** bit depths (1, 8, 10, 12, 14, 16), (4) runs Bayesian parameter estimation (Bilby CPU‑mode MCMC) on each quantized signal **and** on a float64 baseline, (5) computes per‑signal and per‑parameter MSE for chirp mass, spin, and distance, (6) aggregates Δ within SNR bins and fits error‑vs‑SNR curves, and (7) identifies the SNR crossover where the quantization‑induced error exceeds **[deferred]** of the instrumental error (per FR‑005 / SC‑004). All steps respect the 2‑core, ≈7 GB RAM, ≤6 h GitHub‑Actions free‑tier limit.
 
-This project implements a computational study to quantify how data quantization (bit-depth reduction) affects the reconstruction of gravitational wave (GW) signals from binary black hole (BBH) mergers. The approach involves generating synthetic BBH waveforms using PyCBC, injecting them into real LIGO O3 noise (from verified GWOSC sources), applying controlled quantization at specific bit depths (8, 10, 12, 14, 16) using a **fixed full-scale range**, and performing **Uniform Bayesian Parameter Estimation** (MCMC) to measure the bias in recovered parameters (chirp mass, spin, distance). The study identifies the Signal-to-Noise Ratio (SNR) threshold where quantization noise adds >10% to the total reconstruction error.
+The pilot study uses **N = 1 200** signals (6 bit depths × 4 SNR bins × 50 signals per bin) – a size that fits the compute budget while covering the full [8, 50] SNR range and satisfying **FR‑002** (all six required depths). The full‑scale study (a larger set of signals) is deferred to a post‑CI phase.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pycbc`, `numpy`, `scipy`, `matplotlib`, `pandas`, `h5py`, `astropy`, `bilby` (CPU mode)
-**Storage**: Local HDF5 files for waveforms; JSON/CSV for parameter estimation results.
-**Testing**: `pytest` (unit tests for quantization logic, integration tests for pipeline flow).
-**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU cores, ~7 GB RAM, no GPU).
-**Project Type**: Computational Research Pipeline / CLI
-**Performance Goals**: Complete analysis of a representative sample (scaled to fit a reasonable runtime) within the CI limit.
-**Constraints**: No GPU usage; all inference must be CPU-tractable; data must be subset to fit ~7 GB RAM.
-**Scale/Scope**: Simulation of a stratified batch of signals to identify SNR thresholds; full target sample size deferred to post-CI validation.
-
-> **Note on Feasibility**: The spec requests [deferred] signals. Full Bayesian inference for [deferred] signals on a 2-core CPU within 6 hours is computationally infeasible. The plan implements a **scaled-down pilot** (N=1,800) to establish the methodology and identify thresholds. The `research.md` details the sampling strategy.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pycbc`, `bilby`, `numpy`, `scipy`, `pandas`, `h5py`, `matplotlib`, `pytest`  
+- **Target Platform**: Linux runner on GitHub Actions (2 CPU cores, ≈7 GB RAM, no GPU)  
+- **Constraints**: CPU‑only (FR‑006); memory ≤ 7 GB (Constitution III); runtime ≤ 6 h (SC‑003)  
+- **Scale**: Pilot N = 1 200 signals (6 depths × 4 bins × 50 per bin); full study N ≈ 10 000 (deferred)  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Status | Reference / Action |
-|:--- |:--- |:--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds, and fetching noise from verified GWOSC source. |
-| **II. Verified Accuracy** | **PASS** | All dataset URLs cited are from the "Verified datasets" block (GWOSC). No external citations invented. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming steps for downloaded noise and generated waveforms. No in-place modification. |
-| **IV. Single Source of Truth** | **PASS** | All results traced to `data/` artifacts; no hand-typed numbers in paper generation. Baselines persisted. |
-| **V. Versioning Discipline** | **PASS** | Artifact hashes are recorded by `src/state_manager.py` after each phase. |
-| **VI. Numerical Precision** | **PASS** | Plan explicitly distinguishes quantization error from instrumental error via fixed FSR quantization and float64 baselines. |
-| **VII. Simulation Alignment** | **PASS** | Parameters (low to high stellar mass ranges, -1000 Mpc) and O3 noise source match the spec and verified dataset. |
+| Principle | Status | Action |
+|-----------|--------|--------|
+| I. Reproducibility | PASS | Fixed `requirements.txt`, pinned random seeds, deterministic data‑download URLs. |
+| II. Verified Accuracy | PASS | Only verified URLs from the "Verified datasets" block are used (see `research.md`). |
+| III. Data Hygiene | PASS | Checksumming utilities (Task T005) will record SHA‑256 hashes for all raw/processed files in `state/projects/PROJ-329-quantizing-the-impact-of-data-quantizat.yaml`. |
+| IV. Single Source of Truth | PASS | All figures/tables trace to rows in `data/` and code in `src/`. |
+| V. Versioning Discipline | PASS | `src/state_manager.py` will write artifact hashes to `state/projects/PROJ-329-quantizing-the-impact-of-data-quantizat.yaml`. |
+| VI. Numerical Precision & Quantization Transparency | PASS | Fixed‑FSR quantization logic (Task T008) records bit depth, step size, and rounding method. |
+| VII. Simulation‑to‑Observation Alignment | PASS | BBH parameter ranges and LIGO O3 PSD match the spec and verified sources. |
 
 ## Project Structure
-
 ```text
-specs/001-quantization-impact-gw/
-├── plan.md # This file
-├── research.md # Phase 0 output
-├── data-model.md # Phase 1 output
-├── quickstart.md # Phase 1 output
-└── contracts/ # Phase 1 output
- ├── waveform.schema.yaml
- └── result.schema.yaml
+specs/001-quantizing-the-impact-of-data-quantizat/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── waveform.schema.yaml
+    └── result.schema.yaml
 
-projects/PROJ-329-quantifying-the-impact-of-data-quantizat/code/
+projects/PROJ-329-quantizing-the-impact-of-data-quantizat/code/
 ├── requirements.txt
 ├── src/
-│ ├── __init__.py
-│ ├── data_generation.py # Generates waveforms, injects noise, quantizes (Fixed FSR)
-│ ├── inference_engine.py # CPU-optimized MCMC wrapper (Uniform for all SNR)
-│ ├── analysis.py # Error calculation, threshold fitting, plotting
-│ ├── state_manager.py # Records artifact hashes to state file (Constitution V)
-│ └── utils.py # Quantization logic, SNR calculation, Noise Resampling
+│   ├── __init__.py
+│   ├── data_generation.py          # Waveform creation, noise injection, quantization
+│   ├── inference_engine.py         # Bilby wrapper (CPU‑only, MCMC)
+│   ├── analysis.py                 # MSE, Δ, curve fitting, threshold detection
+│   ├── utils.py                    # Checksumming, seed handling, SNR utilities
+│   └── state_manager.py            # Writes to state/projects/PROJ-329-quantizing-the-impact-of-data-quantizat.yaml
 ├── data/
-│ ├── raw/ # Downloaded O3 noise (GWOSC)
-│ ├── processed/ # Quantized waveforms (HDF5) + Baselines (HDF5)
-│ └── results/ # Inference outputs (JSON/CSV)
-└── tests/
- ├── test_quantization.py
- └── test_pipeline.py
+│   ├── raw/                         # LIGO O3 PSD parquet files
+│   ├── processed/
+│   │   ├── waveforms.h5
+│   │   └── quantized/
+│   └── results/
+│       └── inference_results.json
+├── tests/
+│   ├── test_quantization.py
+│   ├── test_pipeline.py
+│   └── test_state_manager.py
+└── scripts/
+    └── compute_resource_estimate.py
 ```
 
-**Structure Decision**: Single project structure selected to minimize overhead. The `src/` directory separates generation, inference, and analysis to allow modular testing. `data/` is strictly hierarchical (raw vs. processed) to satisfy Data Hygiene.
+## Phase Breakdown & Tasks
 
-## Phase Breakdown
+| Phase | Tasks (ID) | Description | FR / SC addressed |
+|-------|------------|-------------|-------------------|
+| **Phase 0 – Research & Design** | T001 | Verify SNR bin definition: [8‑14], [14‑20], [20‑30], [30‑50] collectively covers [8, 50] with no gaps. | — |
+| | T002 | Document pilot size N = 1 200 (6 depths × 4 bins × 50 per bin). | — |
+| | T003 | Confirm that the selected pilot (N=1200) fits within 7 GB RAM & 6 h runtime (see T016). | SC‑003 |
+| **Phase 1 – Data Model & Contracts** | T004 | Create `contracts/waveform.schema.yaml` and `contracts/result.schema.yaml` (already drafted). | FR‑001, FR‑003 |
+| | T005 | Implement `src/utils.py` function `compute_checksums(dir_path)` that writes SHA‑256 hashes to `state/projects/PROJ-329-quantizing-the-impact-of-data-quantizat.yaml` under `artifact_hashes`. | Constitution III & V |
+| | T006 | Populate `src/utils.py` with seed‑management utilities (`set_global_seed(seed)`) and SNR helpers. | FR‑006 |
+| | T007 | Add `src/state_manager.py` that loads/updates the project‑specific state YAML at `state/projects/PROJ-329-quantizing-the-impact-of-data-quantizat.yaml`. | Constitution V |
+| **Phase 2 – Generation Pipeline** | T008 | Implement `src/data_generation.py` to (a) download LIGO O3 PSD parquet files from verified URLs, (b) generate BBH waveforms (PyCBC, masses 10‑50 M⊙, distances 100‑1000 Mpc), (c) inject into noise, (d) produce **float64 baseline** and **quantized versions** for **all six** bit depths (1, 8, 10, 12, 14, 16) using a **fixed full‑scale range**. Sample parameters uniformly within each SNR bin [8‑14], [14‑20], [20‑30], [30‑50] independently to avoid confounding parameter distributions with SNR effects. Generate N=1200 signals total (6 depths × 4 bins × 50 per bin). | FR‑001, FR‑002, FR‑007 |
+| | T009 | Add graceful‑failure handling for missing/corrupted PSD files (try/except with clear error messages). Record seed and batch-size configuration for N=1200 in CI logs. | FR‑002, Edge‑Case handling |
+| | T010 | After generation, invoke `utils.compute_checksums` on `data/raw/` and `data/processed/`. Verify that N=1200 signals are generated and checksums are recorded. | Constitution III |
+| **Phase 3 – Inference Engine** | T011 | Implement `src/inference_engine.py` (Bilby MCMC, CPU mode, uniform across all SNR ranges). Use adaptive sample counts: 2k steps for SNR ≤ 20, 5k steps for SNR > 20. Uniform MCMC algorithm (not Fisher approximation) eliminates inference-method bias. Record method as "MCMC" for all signals. | FR‑003, FR‑006 |
+| | T012 | Ensure inference respects the 2‑core limit (set `bilby.core.utils.set_nthreads(2)`). | SC‑003 |
+| **Phase 4 – Analysis & Threshold Identification** | T013 | Implement `src/analysis.py` to (a) compute per-signal MSE per parameter (chirp_mass, spin, distance separately), (b) compute per-signal Δ_k = E_quant,k − E_inst,k where E_inst,k is the MSE for the same waveform in float64 precision, (c) aggregate Δ_k within each SNR bin using median, (d) identify the lowest SNR bin where median(Δ_k) > 0.1 × E_inst,k (bin-level instrumental error) per bit depth and per parameter. | FR‑004, FR‑005, SC‑001, SC‑004 |
+| | T014 | Fit error‑vs‑SNR curves (LOWESS or piecewise linear) using bin‑level median(Δ_k) values, covering all six bit depths (1, 8, 10, 12, 14, 16). Verify that the slope change at the identified crossover exceeds 20 %. | SC‑005 |
+| | T015 | Produce diagnostic plots (`figures/error_vs_snr_<bit>.png`) for all six bit depths and a summary CSV of crossover SNRs with 95% confidence intervals from **10 independent runs** (different seeds). Depends on T014. | SC‑005 |
+| **Phase 5 – Resource Verification** | T016 | Provide `scripts/compute_resource_estimate.py` that (a) estimates peak RAM usage for N = 1 200 signals, (b) estimates total CPU time using benchmarked timings. Output a markdown table confirming **≤ 7 GB RAM** (SC-003), **≤ 6 h** total runtime, and **≤ 14 GB disk** for output files. | SC‑003 |
+| **Phase 6 – Testing & Validation** | T017 | Add unit tests `tests/test_quantization.py` covering **all six** bit depths — explicitly 1, 8, 10, 12, 14, and 16 bits, including the 10‑bit and 14‑bit intermediate depths — verifying exact number of quantization levels (2^N) and step‑size correctness for each depth. | FR‑002 |
+| | T018 | Add integration test `tests/test_pipeline.py` that runs the full pilot (N = 100 signals, all 6 depths) and checks that a state‑manager entry exists for each artifact. | FR‑006 |
+| | T019 | Add test `tests/test_state_manager.py` confirming that hashes are written to `state/projects/PROJ-329-quantizing-the-impact-of-data-quantizat.yaml`. | Constitution V |
+| **Phase 7 – Documentation & Quickstart** | T020 | Update `quickstart.md` to reflect the pilot size (N=1200), seed setting, and how to invoke the 10-run reproducibility study. | — |
+| | T021 | Draft a **README** snippet (not a separate file) that lists all FR/SC IDs and the corresponding tasks for traceability. | — |
 
-### Phase 0: Research & Data Strategy
-- **Task: Address k Signal Deferral**: Formally document that the [deferred] signal requirement is deferred to post-CI validation due to runtime constraints. The pilot (N=1,800) is the approved substitute.
-- **FR-001, FR-002**: Verify LIGO O3 noise availability via the verified GWOSC source.
-- **FR-006**: Design a CPU-tractable inference strategy (Uniform MCMC with fixed steps) to meet the runtime limit.
-- **SC-003**: Define the sampling size (N=1,800) that fits within 6 hours.
+### Coverage Map
+- **FR‑001** → T008 (waveform generation)  
+- **FR‑002** → T008 (all six depths: 1, 8, 10, 12, 14, 16), T009 (error handling), T017 (unit tests for all six depths, including 10 and 14 bits)  
+- **FR‑003** → T011 (parameter estimation)  
+- **FR‑004** → T013 (MSE computation per parameter)  
+- **FR‑005** → T013‑T015 (threshold fitting and identification)  
+- **FR‑006** → T006, T012 (CPU‑only)  
+- **FR‑007** → T008 (float64 baseline)  
 
-### Phase 1: Data Model & Contracts
-- **Key Entities**: Define schemas for `SimulatedWaveform` and `QuantizedSignal` based on spec Key Entities.
-- **FR-003, FR-004**: Define schema for `ParameterEstimationResult`.
-- **SC-001, SC-002**: Establish data types for error metrics (MSE).
+- **SC‑001** → T013 (threshold definition using bin‑level median(Δ_k))  
+- **SC‑002** → T013 (MSE per parameter)  
+- **SC‑003** → T016 (resource verification: ≤ 7 GB RAM, ≤ 6 h)  
+- **SC‑004** → T013 ([deferred] rule applied to bin‑level median(Δ_k))
+- **SC‑005** → T015 (reproducibility across 10 runs with 95% CI)  
 
-### Phase 2: Implementation (Mechanical Step)
-- **FR-001**: Implement waveform generation with PyCBC.
-- **FR-002**: Implement noise injection (with resampling) and quantization (1, 8, 10, 12, 14, 16 bits) using **Fixed Full-Scale Range**.
-- **FR-007**: Persist float64 baseline to `data/processed/baseline_waveforms.h5` and checksum.
-- **FR-003**: Implement inference engine wrapper (Uniform MCMC).
-- **FR-004, FR-005**: Implement error calculation and threshold fitting.
-- **FR-006**: Ensure all code runs on CPU.
+All functional and success‑criteria requirements are explicitly mapped to a concrete plan phase or task.
 
-### Phase 3: Validation & Reporting
-- **SC-001, SC-004**: Generate plots showing error vs. SNR and identify the [deferred] crossover.
-- **SC-005**: **Task: Execute 10 independent runs** (different seeds) and calculate the standard deviation of the identified crossover SNR.
-- **US-1, US-2, US-3**: Verify acceptance scenarios (including 1-bit edge case).
-- **Constitution V**: Run `src/state_manager.py` to record final artifact hashes.
-
-## projects/PROJ-329-quantifying-the-impact-of-data-quantizat/specs/001-quantifying-the-impact-of-data-quantizat/research.md
-
-# Research: Quantifying the Impact of Data Quantization on Gravitational Wave Signal Reconstruction
-
-## 1. Problem Statement
-The primary research question is: **At what Signal-to-Noise Ratio (SNR) does data quantization noise add a significant systematic bias to gravitational wave parameter estimation, increasing the total error by >10% compared to the high-fidelity (float64) baseline?**
-
-This study focuses on Binary Black Hole (BBH) mergers with component masses 10-50 $M_\odot$ and distances 100-1000 Mpc. The impact is measured by comparing the Mean Squared Error (MSE) of recovered parameters (chirp mass, spin, distance) against a float64 (infinite precision) baseline.
-
-## 2. Dataset Strategy
-
-### 2.1 Noise Source (Instrumental Background)
-The study requires realistic detector noise to simulate the "instrumental noise floor."
-- **Source**: LIGO O3 Noise Power Spectral Density (PSD) from GWOSC.
-- **Verified URL**: ` (Access via `pycbc.psd` or direct download of O3 PSD file).
-- **Rationale**: This is the official, verified source for LIGO O3 sensitivity curves and noise data, ensuring physical accuracy for PyCBC injection.
-- **Access Method**: Load via `pycbc.psd` from GWOSC or download the specific O3 PSD file. The data will be converted to a time-series strain compatible with PyCBC's noise injection routines.
-- **Constraint**: The dataset is large; only the necessary segment length (e.g., a few seconds per injection) will be loaded into memory to fit the 7 GB RAM limit.
-- **Noise Resampling**: To avoid confounding with a single noise segment, the code will generate multiple independent noise realizations by applying random phase offsets to the PSD before injection.
-
-### 2.2 Waveform Generation (Synthetic Data)
-No external dataset exists for "quantized GW signals" as this is a novel simulation.
-- **Method**: Generate waveforms using `pycbc.waveform` with the `IMRPhenomPv2` approximant (standard for BBH).
-- **Parameters**:
- - Masses: Uniform distribution [lower bound, 50] $M_\odot$.
- - Distance: Log-uniform [lower bound, upper bound] Mpc.
- - Spins: Uniform distribution over a bounded interval.
- - SNR Target: Injected to achieve a moderate-to-high signal-to-noise ratio.
-- **Baseline**: For every quantized signal, a float64 version is generated to serve as the ground truth for the high-fidelity pipeline.
-
-### 2.3 Dataset Fit Verification
-- **Requirement**: The noise dataset must contain sufficient duration and frequency resolution to support the 10-50 $M_\odot$ BBH merger frequencies (approx. 10Hz - 1000Hz).
-- **Verification**: The GWOSC O3 PSD is known to cover the required frequency range. We will verify the sampling rate (typically 16384 Hz or 4096 Hz) during the `data_generation.py` initialization.
-- **Gap Handling**: If the verified source is unavailable, the pipeline will fail with a clear error message rather than using an unverified theoretical PSD.
-
-## 3. Statistical & Computational Methodology
-
-### 3.1 Quantization Protocol
-- **Bit Depths**: 1, 8, 10, 12, 14, 16 bits.
-- **Method**: Uniform quantization over a **Fixed Full-Scale Range (FSR)** determined by the detector's dynamic range (e.g., $1 \times 10^{-21}$ strain), NOT adaptive to the signal amplitude.
- - $Q(x) = \text{round}(x \times 2^{N-1} / \text{FSR}) \times (\text{FSR} / 2^{N-1})$.
-- **Edge Case**: 1-bit quantization (sign only) is included to test extreme signal loss.
-- **Rationale**: Real ADCs have a fixed dynamic range. Adaptive scaling would artificially suppress quantization noise for low-amplitude signals, biasing the results.
-
-### 3.2 Parameter Estimation (Inference)
-- **Challenge**: Running full MCMC for [deferred] signals on a 2-core CPU within 6 hours is **not feasible**.
-- **Solution**:
- 1. **Uniform MCMC Strategy**: Use `bilby` with a simplified likelihood and a **fixed number of steps** for ALL signals, regardless of SNR.
- - *Rationale*: The Fisher Information Matrix (FIM) assumes Gaussian posteriors and smooth likelihoods, which are violated by quantization artifacts. Using FIM would yield false negatives for quantization effects. Uniform MCMC ensures methodological consistency across all SNR ranges.
- 2. **Sampling Strategy**:
- - **Stratified Batch**: A sufficient number of signals per (Bit Depth, SNR Bin) combination.
- - **Design**: 4 critical bit depths (1, 8, 12, 16) $\times$ 4 SNR bins (-14, 14-20, 20-30, 30-50) = strata.
- - **Total**: $16 \times 50 = 800$ signals per run.
- - **Reproducibility**: Run multiple independent seeds (total signals simulated to be sufficient for statistical analysis, processed in batches to fit memory).
- - **Power**: N=50 per stratum provides sufficient power to detect a [deferred] difference in MSE with >80% power (Cohen's d ~ 0.5).
-- **Causal/Associational**: This is a simulation study. The "cause" (quantization) is controlled. The "effect" (parameter bias) is measured directly. No observational confounding exists.
-
-### 3.3 Error Metrics & Threshold Identification
-- **Instrumental Error (Baseline)**: $E_{inst} = \text{MSE}(\text{float64\_recovered}, \text{truth})$. This represents the total error of the high-fidelity pipeline (including model mismatch, instrumental noise, etc.).
-- **Quantization Error**: $E_{quant} = \text{MSE}(\text{quantized\_recovered}, \text{truth})$.
-- **Bias Metric**: $\Delta = E_{quant} - E_{inst}$.
-- **Threshold Condition**: Identify SNR where $\Delta > 0.1 \times E_{inst}$.
-- **Interpretation**: This threshold marks where the *additional* error introduced by quantization exceeds 10% of the total error of the high-fidelity case.
-- **Statistical Rigor**:
- - **Multiple Comparisons**: When testing multiple bit depths, we will use a Bonferroni correction or report family-wise error rates if hypothesis testing is performed.
- - **Power**: The sample size (N=50 per stratum) is chosen to detect a [deferred] difference in error with >80% power.
- - **Collinearity**: SNR and Bit Depth are independent variables in the design. No collinearity issues expected.
-
-## 4. Compute Feasibility Analysis
-- **Runner**: GitHub Actions (2 CPU, 7 GB RAM).
-- **Memory**:
- - Noise PSD: approximately moderate size.
- - Waveforms (batch of multiple): substantial data volume.
- - Inference (MCMC, multiple steps): moderate memory footprint per chain (parallelized).
- - **Total**: < 4 GB, safe margin.
-- **Runtime**:
- - Generation: < 30 mins.
- - Inference (multiple signals, multiple steps): several hours.
- - Analysis/Plotting: < 30 mins.
- - **Total**: [deferred], within 6-hour limit.
-- **GPU**: None required. All operations are CPU-native (numpy, scipy, bilby CPU mode).
-
-## 5. Decision Log
-| Decision | Rationale |
-|:--- |:--- |
-| **Uniform MCMC (No FIM)** | FIM assumes Gaussian posteriors, invalid for quantized data. Uniform MCMC ensures consistent error measurement across all SNR. |
-| **Stratified Sampling (N=50/stratum)** | Ensures statistical power (N>=50) per (Bit Depth, SNR Bin) combination. |
-| **Fixed Full-Scale Range (FSR)** | Simulates real ADC hardware constraints; avoids adaptive scaling bias. |
-| **GWOSC O3 PSD** | Only verified source for O3 noise. Avoids unverified ML training datasets. |
-| **10 Independent Runs** | Required by SC-005 to measure reproducibility (std dev of crossover SNR). |
-| **1-bit Quantization** | Explicitly included as a required test case, not just an edge case. |
+### Consistency Notes (audited)
+- Pilot size is uniformly **N = 1200** (6 depths × 4 bins × 50 per bin) across plan.md, research.md, and quickstart.md.
+- All six bit depths (1, 8, 10, 12, 14, 16) are included in generation, analysis, and testing; no depth is deferred.
+- The dominance threshold is the spec value **10%** of instrumental error (FR‑005, SC‑004) throughout; no placeholder text remains in this plan.
+- No self‑referential task dependencies appear in this plan.

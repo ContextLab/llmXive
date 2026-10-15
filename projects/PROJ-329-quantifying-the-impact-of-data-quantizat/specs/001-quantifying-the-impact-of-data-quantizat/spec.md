@@ -19,7 +19,7 @@ As a researcher, I need to generate binary black hole merger waveforms and injec
 
 1. **Given** a set of binary black hole parameters (masses 10-50 $M_\odot$, distances 100-1000 Mpc), **When** the system generates waveforms and injects them into LIGO O3 noise, **Then** [deferred] of the resulting strain data must have an SNR within the range [8, 50] with a tolerance of ±0.5.
 2. **Given** a generated strain time series, **When** the system applies 12-bit quantization, **Then** the output signal must contain no more than $2^{12}$ (4096) unique discrete amplitude values, and the step size must match the theoretical quantization interval for the signal's dynamic range.
-3. **Given** a batch of 10,000 simulated signals, **When** the generation pipeline completes, **Then** the output dataset must be saved in a format compatible with PyCBC/Bilby (e.g., HDF5 or GWOSC format) and fit within the 7 GB RAM limit of the CI runner.
+3. **Given** a batch of 10,000 simulated signals, **When** the generation pipeline completes, **Then** the output dataset must be saved in a format compatible with PyCBC/Bilby (e.g., HDF or GWOSC format) and fit within the 7 GB RAM limit of the CI runner.
 
 ---
 

@@ -1,0 +1,18 @@
+status: none
+intent: GWOSC LIGO O3 strain data download python package dataset
+required_fields:
+- time
+- strain
+- sampling_rate
+- mass1_solar_masses
+- mass2_solar_masses
+- luminosity_distance_mpc
+- right_ascension
+- declination
+- injection_snr
+- quantization_bits
+- noise_psd
+- segment_start_time
+cache_key: eacdda267ced70fe0f602fb45c2662eaa0d2c515e80c48ad71fb87129a5ce502
+searched_at: '2026-10-15T14:10:20.391041+00:00'
+retry_count: 1
