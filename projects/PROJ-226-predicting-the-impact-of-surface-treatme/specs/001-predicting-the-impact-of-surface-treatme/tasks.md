@@ -8,7 +8,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 0 – Feasibility & Data‑source Verification  
 
-- [ ] **T001** [S1] [US1] Verify that at least one openly downloadable dataset contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`). <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 -->
+- [ ] **T001** [S1] [US1] Verify that at least one openly downloadable dataset contains **all** required variables (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`). <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 -->
   - *Implementation*: `code/verify_data_source.py` queries the NIST, Zenodo, and Materials Project APIs, downloads the dataset headers, and checks column presence.  
   - *Verification*: script writes a JSON report `data/source/availability_report.json` listing datasets that satisfy the requirement; CI fails if the list is empty, prompting a scope revision before any downstream work.
 

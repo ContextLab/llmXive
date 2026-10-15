@@ -1,9 +1,3 @@
 {
-  "datasets": [
-    {
-      "url": "file:///home/runner/work/llmXive/llmXive/projects/PROJ-226-predicting-the-impact-of-surface-treatme/data/source/example.csv",
-      "source_name": "example_dataset",
-      "description": "Small bundled example containing all required columns."
-    }
-  ]
+  "datasets": []
 }
