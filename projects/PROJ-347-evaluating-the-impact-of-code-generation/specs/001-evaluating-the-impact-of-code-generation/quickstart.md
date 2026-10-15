@@ -4,12 +4,12 @@
 1. **GitHub Actions runner** (or local Linux env with at least 2 CPU cores, ~7 GB RAM).  
 2. **Python 3.11** (installed via `pyenv` or system).  
 3. **Docker** (required for Semgrep & SonarQube).  
-4. **Hugging Face token** (optional, only needed if you hit rate limits on the StarCoder model). Set as environment variable `HF_TOKEN`.
+4. **Hugging Face token** (optional, only needed if you hit rate limits on the CodeGen‑350M model). Set as environment variable `HF_TOKEN`.
 
 ## Setup
 ```bash
 # Clone the repository (assumes you are in the project root)
-git clone 
+git clone <repo-url>
 cd PROJ-347-evaluating-the-impact-of-code-generation
 
 # Create a virtualenv and install pinned dependencies
@@ -27,7 +27,7 @@ docker pull sonarqube:9.9-community
 # Run the orchestrator script (all steps are logged under logs/)
 python -m src.run_pipeline \
     --seed 42 \
-    --max-pairs 200 \
+    --max-pairs 300 \
     --confidence-thresholds 0.0 0.5 0.9
 ```
 - `--seed` fixes all randomness.  
@@ -35,11 +35,11 @@ python -m src.run_pipeline \
 - `--confidence-thresholds` triggers the sensitivity sweep.
 
 The script performs:
-1. Data download & LLM generation (Phase 0) using the **StarCoder** model.  
+1. Data download & LLM generation (Phase 0) using the lightweight **CodeGen‑350M‑multi** model.  
 2. Syntax & functional checks.  
 3. Static analysis with Semgrep & SonarQube (Phase 1).  
-4. Aggregation, paired statistical testing, and sensitivity analysis (Phase 2).  
-5. Random audit of **[deferred]** flagged findings (Phase 3).
+4. Aggregation, bias‑corrected paired statistical testing, and sensitivity analysis (Phase 2).  
+5. Random audit of **≥ 20 %** flagged findings with calibration (Phase 3).  
 6. Report generation (`reports/report.md`) and figure export (`reports/figures/`).
 
 ## Inspect Results
@@ -49,7 +49,4 @@ The script performs:
 - **Final report**: `reports/report.md` (open in any markdown viewer).  
 
 ## Re‑running / CI Integration
-The same command can be placed in a GitHub Actions workflow (`.github/workflows/research.yml`). The workflow automatically enforces the A timeout of appropriate duration (e.g., on the order of hours) and a RAM limit.; failures will be reported as CI errors.
-
----
-
+The same command can be placed in a GitHub Actions workflow (`.github/workflows/research.yml`). The workflow automatically enforces a timeout and RAM limit; failures will be reported as CI errors.

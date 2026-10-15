@@ -30,7 +30,7 @@ The system MUST execute multiple open-source static analysis tools (Semgrep, Son
 
 **Why this priority**: This step applies the measurement instrument. It must be robust enough to handle different code styles and tool outputs without crashing the CI environment, delivering the raw vulnerability data.
 
-**Independent Test**: The system can be tested by running the analysis toolchain against a small, known test set of 10 code samples and verifying that the output JSON files contain structured vulnerability findings (type, severity, line number, rule-id) for each tool, and that memory constraints are respected.
+**Independent Test**: The system can be tested by running the analysis toolchain against a small, known test set of code samples and verifying that the output JSON files contain structured vulnerability findings (type, severity, line number, rule‑id) for each tool, and that memory constraints are respected.
 
 **Acceptance Scenarios**:
 
