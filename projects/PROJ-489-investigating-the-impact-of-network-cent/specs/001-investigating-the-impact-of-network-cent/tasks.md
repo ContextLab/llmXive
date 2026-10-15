@@ -14,7 +14,7 @@ All tasks respect the data‑flow ordering indicated by the indentation and by t
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [P] [US1] Establish project layout, configuration, and verified data acquisition from PhysioNet (FR‑001)
+- [ ] T001 [P] [US1] Establish project layout, configuration, and verified data acquisition from PhysioNet (FR‑001) <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
   - Update `specs/001-investigating-the-impact-of-network-cent/contracts/analysis.schema.yaml` to replace all references to "FDR-corrected" with "Bonferroni-corrected" to align with Constitution Principle VII.  
   - Write `code/config.yaml` with all signal‑processing parameters: bandpass 0.5–45 Hz, ICA kurtosis > 5.0, high‑frequency power > 3 × baseline, theta 4–8 Hz, alpha 8–13 Hz, epoch length 30 s, random seed, `N_MIN` = 30, VIF threshold 5.0, α = 0.05.  
   - Write `code/requirements.txt` with pinned versions of `mne`, `statsmodels`, `networkx`, `scipy`, `pandas`, `numpy`, `pyedflib`.  

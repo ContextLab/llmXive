@@ -1,11 +1,5 @@
 T001:
-  reason: "The verification criteria fail: `data/raw/` contains only an empty `download_log.txt`\
-    \ (0 bytes, no checksum-verified files) and zero `.edf` files, so the \"\u2265\
-    \ 30 subjects\" requirement is unmet. The execution log shows the download run\
-    \ \"completed\" in 0.6 seconds with \"0 files verified, 0 errors\" \u2014 no actual\
-    \ PhysioNet download occurred (each fetch returned instantly with no data), so\
-    \ the checksum log was never populated with real entries. Additionally, `requirements.txt`\
-    \ uses `>=` version ranges rather than the pinned versions the task specified."
+  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
   task: 8d045494b2f61d6481bba9c97ea8f8f57c44274f41b530ceb81afa7d9e6072db
 T002:
   reason: "All 4 unit tests in `code/tests/test_preprocess.py` fail (exit 1) due to\
