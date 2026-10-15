@@ -15,11 +15,11 @@ All tasks are unchecked unless explicitly marked as completed (`[X]`) in a prior
   - **Files**: `.ruff.toml` (enable ruff linting), `pyproject.toml` (add `[tool.black]` section), optional `.pre-commit-config.yaml`.  
   - **Verification**: CI step `ruff check .` returns exit 0; `black --check .` returns exit 0.
 
-- [ ] T005 [P] Implement configuration loader with default `join_radius_km = 10` km **[FR‑001]**  
+- [X] T005 [P] Implement configuration loader with default `join_radius_km = 10` km **[FR‑001]**  
   - **File**: `code/config.py` exposing a `Config` dataclass that reads environment variables (e.g., `JOIN_RADIUS_KM`) and falls back to the default 10 km.  
   - **Verification**: `python -c "from code.config import Config; assert Config().join_radius_km == 10"` runs without assertion error.
 
-- [ ] T007 [P] Create schema definition files for all entities **[FR‑001]**  
+- [X] T007 [P] Create schema definition files for all entities **[FR‑001]**  
   - **Files**: `contracts/song_record.schema.yaml`, `contracts/climate_snapshot.schema.yaml`, `contracts/analysis_dataset.schema.yaml`, `contracts/aggregated_pvalues.schema.yaml`, `contracts/analysis_output.schema.yaml`.  
   - **Verification**: `jsonschema.validate({}, schema)` succeeds for a minimal valid instance of each entity.
 
@@ -32,11 +32,11 @@ All tasks are unchecked unless explicitly marked as completed (`[X]`) in a prior
   - **Requirement**: Compute SHA‑256 checksum and append `analysis_dataset.parquet  <sha256>` to `data/checksums.txt`.  
   - **Verification**: Checksum line exists; `utils.update_state_file()` records hash in project state YAML.
 
-- [ ] T004a [P] Detect CRS of any user‑supplied climate raster **[FR‑001]**  
+- [X] T004a [P] Detect CRS of any user‑supplied climate raster **[FR‑001]**  
   - **File**: `code/ingestion.py` (uses `rasterio` to read CRS).  
   - **Verification**: Logs detected CRS; proceeds to reprojection if needed.
 
-- [ ] T004b [P] Reproject raster to EPSG:4326 when necessary **[FR‑001]**  
+- [~] T004b [P] Reproject raster to EPSG:4326 when necessary **[FR‑001]**  
   - **File**: `code/ingestion.py` (uses `pyproj`/`rasterio.warp`).  
   - **Verification**: Reprojected raster saved; CRS check confirms EPSG:4326.
 
@@ -44,7 +44,7 @@ All tasks are unchecked unless explicitly marked as completed (`[X]`) in a prior
 
 ## Phase 1 – Merge Validation
 
-- [ ] T018 [P] Validate merge quality and compute match proportion **[SC‑001]**  
+- [ ] T018 [P] Validate merge quality and compute match proportion **[SC‑001]**   <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 -->
   - **File**: `code/ingestion.py` (after loading `analysis_dataset.parquet`).  
   - **Steps**: Verify species IDs and coordinate precision; log mismatches; abort if >5 % of rows mismatched; record `match_rate` in `outputs/merge_validation.json`.  
   - **Verification**: JSON file exists and contains `match_rate`; CI test asserts `match_rate` is a float between 0 and 1.

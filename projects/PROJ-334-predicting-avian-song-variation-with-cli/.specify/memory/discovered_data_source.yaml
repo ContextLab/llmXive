@@ -1,6 +1,6 @@
 status: none
-intent: Python package dataset merging avian acoustic recordings with WorldClim climate
-  data python package dataset
+intent: download xeno-canto bird song dataset with worldclim climate data python package
+  dataset
 required_fields:
 - species_id
 - song_metric_1
@@ -9,6 +9,6 @@ required_fields:
 - precipitation
 - latitude
 - longitude
-cache_key: 9e40253b2ba4ebfc89a1ffb5b1ade77aa354effab21705a1b23033ceb571067d
-searched_at: '2026-10-15T16:18:15.562112+00:00'
+cache_key: 1c618453c3cd5b249616d02fac4afb3e4bd117933e3c3c7b1d4a189ec4293260
+searched_at: '2026-10-15T16:38:52.939328+00:00'
 retry_count: 1

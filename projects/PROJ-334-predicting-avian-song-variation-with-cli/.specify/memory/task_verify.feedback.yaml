@@ -1,0 +1,85 @@
+T001:
+  reason: "Checked `data/raw/analysis_dataset.parquet` (present with correct SHA\u2011\
+    256) and `data/checksums.txt` (line with matching hash). However the required\
+    \ project state YAML file was not created \u2013 the test `test_state_updated`\
+    \ failed because `/projects/state/.../PROJ-334-predicting-avian-song-variation-with-cli.yaml`\
+    \ is missing, so `utils.update_state_file()` did not record the checksum as required."
+  task: ded1e887240c1308b709a0f2659a992e435712b50368d932d65dbdac936cf976
+T002:
+  reason: "Checked `requirements.txt` (exact versions listed) and `pyproject.toml`\
+    \ (valid TOML with build metadata). While the files exist and meet content specifications,\
+    \ there is no provided evidence that `pip install -r requirements.txt` was actually\
+    \ run and succeeded without warnings, which is a required verification step. Provide\
+    \ command\u2011line output (or a CI log) showing a clean install."
+  task: c6cae83e4e81aeac7c92ac25dd21d526892b25f4e631e6610adec7220c36a0af
+T003:
+  reason: "The repository contains the required `.ruff.toml`, `pyproject.toml` with\
+    \ a `[tool.black]` section, and a `.pre-commit-config.yaml`, but there is no evidence\
+    \ that the verification steps (`ruff check .` and `black --check .`) were actually\
+    \ run and returned exit\u202F0. Execution logs or CI results are needed to confirm\
+    \ the tools are correctly configured."
+  task: efbe2ffa8abd715b9e29f05cdb0cbd9f546dbe43d3a38a11b0ebe95ec9686e34
+T004a:
+  task: ecce77451cabb0068bd6373d4dd24cfffbc88ebb1dfbd872b709c14f12071dd5
+T004b:
+  task: 4ac7f7c34e624dd555f4419a780bc0a6866038eef77df477f7a73a2d7a69e45d
+T005:
+  task: 5eec7cc2dfd0618b99e00c48bf5502dad9dc4c99685a236d53d3555063ae18c9
+T007:
+  task: cbc1f7d183d6356d8d1d24042736864df48ab5dd111a3352f236da77f161a819
+T010:
+  task: aca3fd5c4c345be08709ff93215147c657c091697d7ea6c75476c6157281f9d7
+T011:
+  task: 48b2ba92b6d38770148c81412efefe4e1d0f60f5417357834a2580fd85b24312
+T012:
+  task: 74dec729dc695b9b1386321d5147bf5b1aba9044cfd849a491b649a7e7c81238
+T013:
+  task: 552563487d5a033ba980e63c8872be31a1f00568299d97fe00d37e312347aabf
+T014:
+  task: a804ac29051c8cb47467f62877828bf2a58ea48f45d0899249fe1f7821e71c56
+T016:
+  task: 2ff63a898540de3039f95f4b0d738794a4f2fe61c7b0fc4b2b67fcd0926c12be
+T017:
+  task: 415be0307e11d7000355165c2bb0f7058fab94f609e31804c3de4ad2aefeacf2
+T018:
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion.py
+    exit=1'
+  task: 14143e046614a1eabf9826c720ed5e9f3acfcd1f679fdb5641e1683371313720
+T020:
+  task: bd8150f9698fe65e6b1f81ec001b426a92f64ca5cc7552ecad3189daf0850a36
+T021:
+  task: 989da40be79257833e298f7f24eee404769d4847f2e9e45de1deb27d1658802a
+T022:
+  task: 6c706f36f6c8b1929e766f39c2add6b550e1554f73a1f0025883d5f1661cf07a
+T023:
+  task: 5a77fb5d42623613f01e23952372b27bb362d561e8660bc209c3e081d3aaf749
+T024:
+  task: 161d0317d0c66c9fe594d74b0d79a96b5b4b1bc42c20ab4027c0224fd4ed4acf
+T025c:
+  task: 001261e5f67e0e4d5832ae573882705f63fed03587229c4215fcef419906e12d
+T026:
+  task: 4b5f668d0728892528cb2f8a68b7ce93828aea7204e714b3ca3513ad545bc2c5
+T030:
+  task: d71cc6c8d6596c1927d4e05ef0b0949b3e8651496ed87fd0661b82c688ad65f1
+T031:
+  task: a64b5504b9d7b1cbf08dd337d562f9418425b501b4efde47e0d8cc1177f381aa
+T032:
+  task: d747d8b528aa121f568ea6005f83776559c9754b6f2b16e3308fc9ffd81b5629
+T040:
+  task: cd1723aed51124b80b8b2d4c031a512e025514979d9e70ce72b9fd0c0ccbc6ed
+T041:
+  task: 56c044b2d21d63c8610f2c8809d74515caa91ccb03bf1412c75ad2ba346e0d94
+T042:
+  task: 807fbd1f4fe39d4918ea508749ceb0e4a81a03efa34fa39f7016f32b86fabfdb
+T050:
+  task: 9342002f7764f969bef86e335c088291a179df4f2a9bbf3ac16377d703df4815
+T051:
+  task: d19accb856aad1968e9d1b37d14f3b20a439c95082f18d308f95cfa8942f975a
+T052:
+  task: 8e3ebf3571821828f5c4bd9d4e5a41e06f9b1efcf274dedbb5831278a1b5128f
+T053:
+  task: 59e69336c14a0f423ed2c66973d4d9f48b84d27ff28a453c9f40b5f7935c09df
+T054:
+  task: 9589bd410802ac01053d83bb941568c4a9305ba80fdcc5cd9607a606a9111141
+T055:
+  task: fa7ac6415dfe89dab29bf78909ae4f4927c9f377a6253c7819454d2665204f37

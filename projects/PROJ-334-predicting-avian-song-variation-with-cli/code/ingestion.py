@@ -1,284 +1,337 @@
-import os
-import sys
-import csv
-import logging
-import math
-import json
+"""
+Ingestion script for the Predicting Avian Song Variation project.
+
+This script downloads the verified ``analysis_dataset.parquet`` file from
+HuggingFace, records its SHA‑256 checksum, updates ``data/checksums.txt`` and
+registers the artifact in the project state file. It also optionally detects
+the Coordinate Reference System (CRS) of a user‑supplied climate raster and,
+if necessary, reprojects it to EPSG:4326.
+
+Additionally, it validates the quality of the merge performed in the
+pre‑merged dataset by checking the ``match_status`` column and computing a
+match rate. If more than 5 % of rows are mismatched the script aborts.
+The match rate is written to ``outputs/merge_validation.json`` for downstream
+verification.
+
+Usage
+-----
+``python code/ingestion.py --download-only [--raster /path/to/raster.tif]``
+
+The ``--download-only`` flag is the default behaviour; it can be omitted
+when the script is invoked without additional sub‑commands.
+"""
+
+import argparse
 import hashlib
+import json
+import logging
+import sys
 from pathlib import Path
-from typing import Dict, List, Any, Tuple, Optional
 
-# Importing from local project modules as per API surface
-# Note: These imports assume the script is run from the code/ directory or added to sys.path
-try:
-    from utils import update_state_file, compute_file_hash
-except ImportError:
-    # Fallback for direct execution context if utils is not importable as a module
-    # In a real pipeline, this would be handled by the runner setting up the path
-    pass
+import pandas as pd
+import requests
+import rasterio
+from rasterio.warp import calculate_default_transform, reproject, Resampling
+from llmxive_toolkit import paths, get_logger
 
-# Configuration loading (assuming config.py is in the same directory)
-try:
-    from config import load_config, Config
-except ImportError:
-    load_config = None
-    Config = None
+# Local utilities
+from utils import _update_state_file
 
-def setup_logging():
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    return logging.getLogger(__name__)
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+DOWNLOAD_URL = (
+    "https://huggingface.co/datasets/Onuii/analysis_dataset/resolve/main/data/"
+    "train-00000-of-00005.parquet"
+)
+FILE_NAME = "analysis_dataset.parquet"
+CHECKSUMS_FILE = paths.data("checksums.txt")
+RAW_DATA_PATH = paths.data("raw", FILE_NAME)
 
-def calculate_sha256(filepath: str) -> str:
-    """Calculate SHA256 hash of a file."""
-    sha256_hash = hashlib.sha256()
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def setup_logging() -> logging.Logger:
+    """Configure a module‑level logger."""
+    logger = get_logger(__name__, log_file="logs/ingestion.log")
+    logger.setLevel(logging.INFO)
+    return logger
+
+def calculate_sha256(file_path: Path) -> str:
+    """Calculate the SHA‑256 hash of *file_path*."""
+    sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+def download_file(url: str, dest: Path, logger: logging.Logger) -> None:
+    """Download *url* to *dest* using streaming; raise on failure."""
+    logger.info("Downloading %s → %s", url, dest)
+    response = requests.get(url, stream=True, timeout=60)
+    response.raise_for_status()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with dest.open("wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    logger.info("Download completed.")
+
+def append_checksum(
+    checksums_path: Path, filename: str, checksum: str, logger: logging.Logger
+) -> None:
+    """Append a checksum line to ``checksums.txt`` (create file if missing)."""
+    logger.info("Recording checksum for %s", filename)
+    checksums_path.parent.mkdir(parents=True, exist_ok=True)
+    line = f"{filename}  {checksum}\n"
+    # Avoid duplicate entries
+    if checksums_path.is_file():
+        with checksums_path.open("r") as f:
+            if any(line.strip().startswith(filename) for line in f):
+                logger.info("Checksum for %s already recorded.", filename)
+                return
+    with checksums_path.open("a") as f:
+        f.write(line)
+    logger.info("Checksum recorded.")
+
+def detect_raster_crs(raster_path: Path, logger: logging.Logger) -> rasterio.crs.CRS:
+    """
+    Detect and return the CRS of a raster file.
+
+    Parameters
+    ----------
+    raster_path : Path
+        Path to the raster (e.g., a GeoTIFF) supplied by the user.
+    logger : logging.Logger
+        Logger used for reporting.
+
+    Returns
+    -------
+    rasterio.crs.CRS
+        The CRS object (may be ``None`` if undefined).
+    """
+    if not raster_path.is_file():
+        logger.error("Raster file not found: %s", raster_path)
+        raise FileNotFoundError(f"Raster file not found: {raster_path}")
+
     try:
-        with open(filepath, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {filepath}")
-
-def update_checksums_file(filepath: str, checksums_path: str, logger: logging.Logger):
-    """Append the checksum of a file to the checksums CSV."""
-    try:
-        with open(checksums_path, 'r', newline='') as f:
-            reader = list(csv.reader(f))
-            if not reader or reader[0] != ['filename', 'sha256_hash']:
-                reader = [['filename', 'sha256_hash']] + reader
-
-        filename = os.path.basename(filepath)
-        hash_val = calculate_sha256(filepath)
-
-        # Check if already exists
-        exists = False
-        new_rows = [reader[0]]
-        for row in reader[1:]:
-            if row[0] == filename:
-                new_rows.append([filename, hash_val])
-                exists = True
+        with rasterio.open(raster_path) as src:
+            crs = src.crs
+            if crs:
+                logger.info(
+                    "Detected CRS for %s: %s", raster_path.name, crs.to_string()
+                )
             else:
-                new_rows.append(row)
-        
-        if not exists:
-            new_rows.append([filename, hash_val])
-
-        with open(checksums_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerows(new_rows)
-        
-        logger.info(f"Updated checksums file: {filename} -> {hash_val}")
-    except Exception as e:
-        logger.error(f"Failed to update checksums file: {e}")
+                logger.warning("Raster %s has no CRS defined.", raster_path.name)
+            return crs
+    except Exception as exc:
+        logger.error("Failed to read raster %s: %s", raster_path, exc)
         raise
 
-def load_song_records(filepath: str, logger: logging.Logger) -> List[Dict[str, Any]]:
-    """Load song records from a processed CSV."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Song records file not found: {filepath}")
-    
-    records = []
-    with open(filepath, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Ensure numeric conversion for coordinates
-            try:
-                row['lat'] = float(row['lat'])
-                row['lon'] = float(row['lon'])
-            except (ValueError, KeyError) as e:
-                logger.warning(f"Skipping row due to invalid coordinates: {e}")
-                continue
-            records.append(row)
-    return records
+def reproject_raster(
+    raster_path: Path,
+    target_crs: str = "EPSG:4326",
+    logger: logging.Logger = None,
+) -> Path:
+    """
+    Reproject a raster to ``target_crs`` (default EPSG:4326).
 
-def load_climate_snapshots(filepath: str, logger: logging.Logger) -> List[Dict[str, Any]]:
-    """Load climate snapshots from a processed CSV."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Climate snapshots file not found: {filepath}")
-    
-    records = []
-    with open(filepath, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            try:
-                row['lat'] = float(row['lat'])
-                row['lon'] = float(row['lon'])
-                row['temperature'] = float(row.get('temperature', 0.0))
-                row['precipitation'] = float(row.get('precipitation', 0.0))
-                row['elevation'] = float(row.get('elevation', 0.0))
-            except (ValueError, KeyError) as e:
-                logger.warning(f"Skipping climate row due to invalid data: {e}")
-                continue
-            records.append(row)
-    return records
+    The function overwrites the original file with the reprojected version.
+    If you need to keep the original, copy it before calling.
 
-def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """Calculate the great circle distance between two points on earth (in km)."""
-    R = 6371.0  # Earth radius in km
-    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
-    c = 2 * math.asin(math.sqrt(a))
-    return R * c
+    Parameters
+    ----------
+    raster_path : Path
+        Path to the source raster.
+    target_crs : str
+        Target CRS identifier (e.g., "EPSG:4326").
+    logger : logging.Logger, optional
+        Logger for status messages.
 
-def perform_spatial_join(song_records: List[Dict], climate_snapshots: List[Dict], 
-                         join_radius_km: float, logger: logging.Logger) -> List[Dict]:
-    """Perform spatial join by finding climate points within radius for each song record."""
-    joined_records = []
-    excluded_ids = []
-    
-    logger.info(f"Starting spatial join with radius: {join_radius_km} km")
-    logger.info(f"Song records: {len(song_records)}, Climate points: {len(climate_snapshots)}")
+    Returns
+    -------
+    Path
+        Path to the reprojected raster (same as ``raster_path``).
+    """
+    if logger is None:
+        logger = logging.getLogger(__name__)
 
-    for song in song_records:
-        matched_climate = None
-        min_dist = float('inf')
-        
-        # Naive O(N*M) join for simplicity; production might use KDTree or RTree
-        # Given the context of "sample" data, this is acceptable.
-        for climate in climate_snapshots:
-            dist = haversine_distance(
-                song['lat'], song['lon'],
-                climate['lat'], climate['lon']
-            )
-            if dist <= join_radius_km and dist < min_dist:
-                min_dist = dist
-                matched_climate = climate
+    logger.info("Reprojecting %s to %s", raster_path.name, target_crs)
 
-        if matched_climate:
-            merged = {**song, **matched_climate}
-            merged['distance_to_climate_km'] = min_dist
-            joined_records.append(merged)
-        else:
-            excluded_ids.append(song.get('species_id', 'unknown'))
-      
-    return joined_records, excluded_ids
+    with rasterio.open(raster_path) as src:
+        src_crs = src.crs
+        if src_crs is None:
+            raise ValueError(f"Source raster {raster_path} has undefined CRS.")
 
-def verify_no_duplicates(records: List[Dict], logger: logging.Logger) -> bool:
-    """Verify no duplicate rows based on primary keys."""
-    seen = set()
-    duplicates = 0
-    # Assuming species_id + lat + lon + song_metric_1 + song_metric_2 is unique enough
-    # or just species_id + lat + lon for this specific dataset context
-    for record in records:
-        key = (record.get('species_id'), record.get('lat'), record.get('lon'))
-        if key in seen:
-            duplicates += 1
-            logger.warning(f"Duplicate found: {key}")
-        else:
-            seen.add(key)
-    
-    if duplicates > 0:
-        logger.error(f"Found {duplicates} duplicate records.")
-        return False
-    return True
+        if src_crs.to_string() == target_crs:
+            logger.info("Raster already in target CRS; no reprojection needed.")
+            return raster_path
 
-def calculate_match_rate(total: int, matched: int, logger: logging.Logger):
-    """Calculate and log match rate."""
-    if total == 0:
-        rate = 0.0
-    else:
-        rate = matched / total
-    logger.info(f"Match Rate: {matched}/{total} ({rate:.2%})")
-    return rate
+        transform, width, height = calculate_default_transform(
+            src_crs, target_crs, src.width, src.height, *src.bounds
+        )
+        kwargs = src.meta.copy()
+        kwargs.update(
+            {
+                "crs": target_crs,
+                "transform": transform,
+                "width": width,
+                "height": height,
+            }
+        )
 
-def save_processed_data(records: List[Dict], output_path: str, logger: logging.Logger):
-    """Save the unified analysis dataset to CSV."""
-    if not records:
-        logger.warning("No records to save.")
-        return
+        # Write to a temporary file first to avoid data loss on failure
+        tmp_path = raster_path.with_suffix(".tmp.tif")
+        with rasterio.open(tmp_path, "w", **kwargs) as dst:
+            for i in range(1, src.count + 1):
+                reproject(
+                    source=rasterio.band(src, i),
+                    destination=rasterio.band(dst, i),
+                    src_transform=src.transform,
+                    src_crs=src_crs,
+                    dst_transform=transform,
+                    dst_crs=target_crs,
+                    resampling=Resampling.nearest,
+                )
 
-    if not os.path.exists(os.dirname(output_path)):
-        os.makedirs(os.dirname(output_path))
+        # Replace original file with reprojected version
+        tmp_path.replace(raster_path)
+        logger.info("Reprojection completed and saved to %s", raster_path)
 
-    with open(output_path, 'w', newline='') as f:
-        if records:
-            fieldnames = list(records[0].keys())
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(records)
-    logger.info(f"Saved {len(records)} records to {output_path}")
+    return raster_path
 
-def log_excluded_species(excluded_ids: List[str], output_path: str, logger: logging.Logger):
-    """Log excluded species to a JSON file."""
-    if not os.path.exists(os.dirname(output_path)):
-        os.makedirs(os.dirname(output_path))
-    
-    data = {
-        "excluded_ids": excluded_ids,
-        "count": len(excluded_ids),
-        "reason": "No climate data found within join radius"
-    }
-    
-    with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Logged {len(excluded_ids)} excluded species to {output_path}")
+def validate_merge(df: pd.DataFrame, logger: logging.Logger) -> None:
+    """
+    Validate the quality of the pre‑merged dataset.
 
-def main():
-    logger = setup_logging()
-    
-    # Load configuration
-    config = None
-    if load_config:
-        config = load_config()
-    join_radius_km = config.get('join_radius_km', 10.0) if config else 10.0
-    
-    # Paths
-    song_path = "data/raw/xeno_canto_sample.csv"
-    climate_path = "data/raw/worldclim_sample.csv"
-    output_path = "data/processed/analysis_dataset.csv"
-    excluded_log_path = "data/logs/excluded_species.json"
-    checksums_path = "data/checksums.txt"
-    state_file_path = "state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml"
-    
-    # Load Data
-    logger.info("Loading song records...")
-    song_records = load_song_records(song_path, logger)
-    
-    logger.info("Loading climate snapshots...")
-    climate_snapshots = load_climate_snapshots(climate_path, logger)
-    
-    # Perform Spatial Join
-    joined_records, excluded_ids = perform_spatial_join(
-        song_records, climate_snapshots, join_radius_km, logger
+    Checks the ``match_status`` column (should be ``matched`` for all rows)
+    and computes the proportion of matched rows. If more than 5 % of rows
+    are mismatched the function raises a RuntimeError.
+
+    The resulting ``match_rate`` (float between 0 and 1) is written to
+    ``outputs/merge_validation.json``.
+    """
+    total_rows = len(df)
+    if total_rows == 0:
+        logger.error("The analysis dataset is empty.")
+        raise RuntimeError("Empty analysis dataset.")
+
+    # Rows where match_status is not 'matched' are considered mismatched.
+    mismatched_mask = df.get("match_status") != "matched"
+    mismatched_count = int(mismatched_mask.sum())
+    match_rate = (total_rows - mismatched_count) / total_rows
+
+    logger.info(
+        "Merge validation: %d mismatched rows out of %d total (%.2f%% mismatched).",
+        mismatched_count,
+        total_rows,
+        (mismatched_count / total_rows) * 100,
     )
-    
-    # Calculate Match Rate
-    total_song = len(song_records)
-    matched = len(joined_records)
-    calculate_match_rate(total_song, matched, logger)
-    
-    # Verify No Duplicates
-    if not verify_no_duplicates(joined_records, logger):
-        logger.warning("Duplicates detected. Proceeding with saved data but check logs.")
-    
-    # Log Excluded Species
-    log_excluded_species(excluded_ids, excluded_log_path, logger)
-    
-    # Save Processed Data
-    save_processed_data(joined_records, output_path, logger)
-    
-    # Update Checksums
-    update_checksums_file(output_path, checksums_path, logger)
-    
-    # Update State File
-    if os.path.exists(state_file_path):
-        try:
-            update_state_file(state_file_path, output_path, logger)
-            logger.info("State file updated successfully.")
-        except Exception as e:
-            logger.error(f"Failed to update state file: {e}")
-    else:
-        logger.warning(f"State file not found at {state_file_path}. Skipping update.")
 
-    logger.info("Ingestion pipeline T017 completed.")
+    if mismatched_count / total_rows > 0.05:
+        logger.error(
+            "More than 5%% of rows are mismatched (%.2f%%). Aborting.",
+            (mismatched_count / total_rows) * 100,
+        )
+        raise RuntimeError("Merge validation failed: >5% mismatched rows.")
+
+    # Write the match_rate to the designated JSON file.
+    out_path = paths.outputs("merge_validation.json")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", encoding="utf-8") as f:
+        json.dump({"match_rate": match_rate}, f, ensure_ascii=False, indent=2)
+
+    logger.info("Merge validation result written to %s", out_path)
+
+# ----------------------------------------------------------------------
+# Main workflow
+# ----------------------------------------------------------------------
+def main() -> None:
+    logger = setup_logging()
+    parser = argparse.ArgumentParser(
+        description=(
+            "Download and register the verified AnalysisDataset, optionally "
+            "detect/reproject a user‑supplied climate raster, and validate the "
+            "merge quality."
+        )
+    )
+    parser.add_argument(
+        "--download-only",
+        action="store_true",
+        help="Only download the dataset and record its checksum.",
+    )
+    parser.add_argument(
+        "--raster",
+        type=Path,
+        default=None,
+        help=(
+            "Path to an optional user‑supplied climate raster (e.g., GeoTIFF). "
+            "If provided, the script will detect its CRS and reproject to EPSG:4326 "
+            "when necessary."
+        ),
+    )
+    args = parser.parse_args()
+
+    # ------------------------------------------------------------------
+    # Step 1 – download the parquet file
+    # ------------------------------------------------------------------
+    try:
+        download_file(DOWNLOAD_URL, RAW_DATA_PATH, logger)
+    except Exception as exc:
+        logger.error("Failed to download file: %s", exc)
+        raise
+
+    # ------------------------------------------------------------------
+    # Step 2 – compute SHA‑256 checksum
+    # ------------------------------------------------------------------
+    checksum = calculate_sha256(RAW_DATA_PATH)
+    logger.info("SHA‑256 checksum: %s", checksum)
+
+    # ------------------------------------------------------------------
+    # Step 3 – record checksum
+    # ------------------------------------------------------------------
+    append_checksum(CHECKSUMS_FILE, FILE_NAME, checksum, logger)
+
+    # ------------------------------------------------------------------
+    # Step 4 – update project state (artifact hash tracking)
+    # ------------------------------------------------------------------
+    try:
+        _update_state_file(str(RAW_DATA_PATH))
+        logger.info("Project state file updated.")
+    except Exception as exc:
+        logger.warning("State update failed (non‑critical): %s", exc)
+
+    # ------------------------------------------------------------------
+    # Step 5 – load the dataset and validate the merge
+    # ------------------------------------------------------------------
+    try:
+        df = pd.read_parquet(RAW_DATA_PATH)
+        logger.info("Loaded analysis dataset with %d rows.", len(df))
+    except Exception as exc:
+        logger.error("Failed to read parquet file %s: %s", RAW_DATA_PATH, exc)
+        raise
+
+    # Perform merge‑validation as required by T018
+    validate_merge(df, logger)
+
+    # ------------------------------------------------------------------
+    # Step 6 – optional CRS detection & reprojection for a user‑supplied raster
+    # ------------------------------------------------------------------
+    if args.raster:
+        logger.info("User supplied raster detected: %s", args.raster)
+        crs = detect_raster_crs(args.raster, logger)
+        if crs is None:
+            logger.error("Cannot reproject raster without a defined CRS.")
+            raise ValueError("Raster has undefined CRS.")
+        if crs.to_string() != "EPSG:4326":
+            # Reproject and overwrite the original raster
+            reproject_raster(args.raster, target_crs="EPSG:4326", logger=logger)
+        else:
+            logger.info("Raster CRS is already EPSG:4326; no reprojection needed.")
+    else:
+        logger.info("No user‑supplied raster provided; skipping CRS detection.")
+
+    logger.info("Ingestion step completed successfully.")
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

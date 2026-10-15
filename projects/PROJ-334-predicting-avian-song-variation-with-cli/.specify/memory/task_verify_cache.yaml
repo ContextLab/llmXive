@@ -1,31 +1,52 @@
+T001:
+  c: false
+  h: 1e20c5353524ba6f31cc04145227ac893d2c890362122dc586b80eeff51e9fa6
+  r: "Checked `data/raw/analysis_dataset.parquet` (present with correct SHA\u2011\
+    256) and `data/checksums.txt` (line with matching hash). However the required\
+    \ project state YAML file was not created \u2013 the test `test_state_updated`\
+    \ failed because `/projects/state/.../PROJ-334-predicting-avian-song-variation-with-cli.yaml`\
+    \ is missing, so `utils.update_state_file()` did not record the checksum as required."
+  sig: 89e6f16ca94a460760e733b65dd3dcb01b306f28d26dc87f08fe263bd60a3a69
 T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No project scaffold, dependency list file (e.g., `requirements.txt`, `pyproject.toml`,
-    or `environment.yml`), or any code initializing a Python package is present. The
-    implementer only supplied a feature specification, not the actual Python project
-    with the listed dependencies.
+  h: 28fdd7ef6ad019a33d0ef573c22a2234f6c3ffe26b8b9c113293009b5f106dbf
+  r: "Checked `requirements.txt` (exact versions listed) and `pyproject.toml` (valid\
+    \ TOML with build metadata). While the files exist and meet content specifications,\
+    \ there is no provided evidence that `pip install -r requirements.txt` was actually\
+    \ run and succeeded without warnings, which is a required verification step. Provide\
+    \ command\u2011line output (or a CI log) showing a clean install."
+  sig: d49115593392d5219965733429c714909b53951ce2cd71c2f565514d66dc8636
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no linting or formatting configuration files (e.g.,\
-    \ pyproject.toml with black settings, .ruff.toml, or a pre\u2011commit hook) nor\
-    \ any evidence that ruff and black have been set up in the repository. Without\
-    \ these artifacts, the requirement to configure linting and formatting is not\
-    \ satisfied."
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No configuration loader code or file was provided, and there is no evidence\
-    \ of a `join_radius_km` setting with a default of 10\u202Fkm. The required artifact\
-    \ (a loader handling environment variables, paths, and the default radius) is\
-    \ missing, so the task is not satisfied."
-T009:
+  h: 29b714512d4f9abdad0df6f4b1b345f75c98eade6570f4e105ed6665310844a8
+  r: "The repository contains the required `.ruff.toml`, `pyproject.toml` with a `[tool.black]`\
+    \ section, and a `.pre-commit-config.yaml`, but there is no evidence that the\
+    \ verification steps (`ruff check .` and `black --check .`) were actually run\
+    \ and returned exit\u202F0. Execution logs or CI results are needed to confirm\
+    \ the tools are correctly configured."
+  sig: 3cff5c90454201cbcf8811158125ed68a406098d3aab1c4533dddb65d7e2b2e8
+T004a:
   c: true
-  h: fdbcf3f5490bf2f8a4c136e5e8fc11fe42ed8d471a21bfa7faa211eada72fa74
-  r: "The `code/data_sources.yaml` file exists, is non\u2011empty, and defines both\
-    \ the Xeno\u2011Canto API and WorldClim\u202Fv2.1 with verified URLs, sample paths,\
-    \ and version\u2011pinning logic, with no placeholder or unresolved references."
+  h: c92decb3bf8315ad3b4dc6d0a6e2ca75fa0cc967a253ed860dbf2dc719b80f00
+  r: Checked `code/ingestion.py`, which defines `detect_raster_crs` using rasterio,
+    logs the CRS, and in `main()` reprojects the raster when its CRS differs from
+    EPSG:4326. The required functionality is fully implemented.
+  sig: ec5d37bee4be5bd8cb290dbb0996e0e6db16b0cfad12d36c0b502dcced65c0d3
+T005:
+  c: true
+  h: 51128915ee213f97cecbd941cdd532cf590c853f8c559e66e78917a3e754a8fd
+  r: "Checked `code/config.py` \u2013 it defines a `Config` dataclass with a `join_radius_km`\
+    \ field defaulting to\u202F10\u202Fkm, reads the `JOIN_RADIUS_KM` environment\
+    \ variable, and falls back to the default when not set. The file exists, is non\u2011\
+    empty, and meets the specified behavior."
+  sig: 77321726801dfe3f81ab4f83316a421d48074ba4c2ae06680ff3c24f2a61aacd
+T007:
+  c: true
+  h: 20da0b0b8f6d2b1d61f5cb6a61d95d27124f4302996f975f120b3dcb478fb2d5
+  r: "Checked the five required schema files under `contracts/` \u2013 all exist,\
+    \ are non\u2011empty, define JSON\u2011Schema Draft\u201107 objects with no `required`\
+    \ fields, so `jsonschema.validate({}, schema)` succeeds for each."
+  sig: d22ab3d4a68f65a376ec836c6f8221cad7aff377a83259926e3ba0af1b2862b3
 T011:
   c: false
   h: 02ea00e33e8f891697de6cbe9412411d7528cf1526225adbd817f8289b22b2d5

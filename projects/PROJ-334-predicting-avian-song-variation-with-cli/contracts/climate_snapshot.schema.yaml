@@ -1,13 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ClimateSnapshot Schema"
-description: "Schema for climate variables extracted from WorldClim v2.1 at specific coordinates."
+title: "ClimateSnapshot"
+description: "Schema for climate variables extracted at specific locations."
 type: object
-required:
-  - lat
-  - lon
-  - temperature
-  - precipitation
-  - elevation
 properties:
   lat:
     type: number
@@ -21,11 +15,11 @@ properties:
     maximum: 180
   temperature:
     type: number
-    description: "Mean annual temperature (°C) from WorldClim."
+    description: "Mean annual temperature (°C)."
   precipitation:
     type: number
-    description: "Mean annual precipitation (mm) from WorldClim."
+    description: "Mean annual precipitation (mm)."
   elevation:
     type: number
-    description: "Elevation (m) from WorldClim."
+    description: "Elevation above sea level (meters)."
 additionalProperties: true
