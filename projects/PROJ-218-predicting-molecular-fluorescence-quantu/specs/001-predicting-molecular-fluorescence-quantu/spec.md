@@ -49,9 +49,9 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained GNN model and a test molecule, **When** the Integrated Gradients method is applied, **Then** the system outputs a ranked list of the **top 20 most influential substructures**, where substructures are defined as contiguous aromatic or conjugated fragments obtained by grouping atom‑level attributions (see FR‑006 aggregation rule).
+1. **Given** a trained GNN model and a test molecule, **When** the Integrated Gradients method is applied, **Then** the system outputs a ranked list of the **most influential substructures**, where substructures are defined as contiguous aromatic or conjugated fragments obtained by grouping atom‑level attributions (see FR‑006 aggregation rule).
 2. **Given** the feature importance data, **When** the visualization script runs, **Then** it generates a parity plot (predicted vs. experimental FQY) and a feature importance bar chart that can be saved as an image file.
-3. **Given** a molecule with a known high FQY (selected as one of the top‑[deferred] highest FQY values of the test set), **When** the attribution analysis is performed, **Then** at least **3 of the top 5 substructures** must match entries in the curated reference set of fluorophore motifs (see Supplementary Table S1). This constitutes a pass of the interpretability validation.
+3. **Given** a molecule with a known high FQY (selected as one of the top [deferred] highest FQY values of the test set), **When** the attribution analysis is performed, **Then** at least **3 of the top 5 substructures** must match entries in the curated reference set of fluorophore motifs (see Supplementary Table S1). This constitutes a pass of the interpretability validation.
 
 ---
 
@@ -69,7 +69,7 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 ### Functional Requirements
 
 - **FR-001**: System MUST parse SMILES strings into molecular graphs using RDKit, extracting node features (atom type, hybridization, formal charge) and edge features (bond type, conjugation status) for every molecule in the dataset (See US-1).
-- **FR-002**: System MUST perform a scaffold‑based split with **[deferred] train, [deferred] validation, [deferred] test** ratios, ensuring zero scaffold overlap between the training and test sets to validate generalizability (See US-1, Constitution Principle VI).
+- **FR-002**: System MUST perform a scaffold‑based split with [deferred] of the data allocated to training and [deferred] each to validation and test sets, ensuring zero scaffold overlap between the training and test sets to validate generalizability (See US-1, Constitution Principle VI).
 - **FR-003**: System MUST implement a message‑passing GNN with ≤5 million parameters using PyTorch Geometric, operating in default precision on CPU only (See US-2).
 - **FR-004**: System MUST train the model for a maximum of 50 epochs with early stopping (patience=10) based on validation loss, using the Adam optimizer and MSE loss (See US-2).
 - **FR-005**: System MUST evaluate both the GNN and a linear regression baseline (using ECFP4 fingerprints) on the test set, reporting R², RMSE, and MAE (See US-2).
@@ -113,5 +113,3 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 - **Assumption about methodological constraints**: The analysis assumes that a GNN with <5 M parameters and a sampled dataset will fit within the 7 GB RAM and 14 GB disk limits of the free‑tier runner; if the full dataset exceeds this, a stratified sampling strategy will be applied.
 - **Assumption about interpretability validity**: The project assumes that Integrated Gradients or SHAP applied to the GNN will yield chemically meaningful attributions that can be mapped back to substructures, provided the model converges.
 - **Assumption about threshold justification**: No specific decision cutoffs (e.g., for "high" vs "low" FQY) are introduced in this phase; the model treats FQY as a continuous regression target, avoiding the need for arbitrary classification thresholds and their associated sensitivity analyses.
-
-
