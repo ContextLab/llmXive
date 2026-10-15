@@ -38,20 +38,20 @@
 
 ## Phase 2 – Core utilities (foundation for all user stories)
 
-- [ ] T005 [P] Implement `utils/emulator.py` with the exact public interface required by the evaluation stage:  
+- [X] T005 [P] Implement `utils/emulator.py` with the exact public interface required by the evaluation stage:  
   - Functions: `launch_emulator()`, `send_action(action_seq)`, `check_crash()`, `get_screenshot()`.  
   - Error codes (constants): `EMU_CRASH`, `EMU_TIMEOUT`, `EMU_NOT_FOUND`.  
   - All functions raise clear exceptions on failure; no silent fall‑backs.  
   **Path**: `code/utils/emulator.py`  
   **Verification** – `python -c "import utils.emulator as e; assert hasattr(e, 'launch_emulator')"` runs without import errors; unit‑test scaffold is present (see T006).
 
-- [ ] T006 [P] Implement `utils/metrics.py` providing two lightweight classes:  
+- [X] T006 [P] Implement `utils/metrics.py` providing two lightweight classes:  
   - `SuccessRate` with method `compute(success_flags: List[bool]) -> float`.  
   - `StepEfficiency` with method `compute(steps_taken: List[int], optimal_steps: List[int]) -> float`.  
   **Path**: `code/utils/metrics.py`  
   **Verification** – both classes importable and methods return values in the documented ranges (0‑1 for success rate, ≥0 for efficiency).
 
-- [ ] T007 [P] Implement `utils/power_analysis.py` that performs the a‑priori McNemar power calculation (target Power = 0.8, effect size h = 0.2, α = 0.05, baseline p₀ = 0.5).  
+- [ ] T007 [P] Implement `utils/power_analysis.py` that performs the a‑priori McNemar power calculation (target Power = 0.8, effect size h = 0.2, α = 0.05, baseline p₀ = 0.5).   <!-- FAILED-IN-EXECUTION: code/utils/power_analysis.py exit=1 -->
   - Uses `statsmodels.stats.power.GofChisquarePower`.  
   - Writes the result to `state/validated_n.json` matching `contracts/power_analysis.schema.yaml`.  
   - Exits with a clear error if any data‑extraction artifact already exists (enforces the “before extraction” rule).  

@@ -1,16 +1,39 @@
 T001:
+  reason: "The evidence shows the top\u2011level `code/` and `state/` directories\
+    \ exist, but it does not list the required sub\u2011directories `code/data/raw`,\
+    \ `code/data/processed`, `code/data/evaluation`, `code/tests/unit`, and `code/tests/integration`.\
+    \ Without concrete artifacts confirming those paths, the task\u2019s directory\u2011\
+    tree requirement is not satisfied. The implementer must create and commit these\
+    \ missing folders (even if empty) so they appear in the repository tree."
   task: 5e8e50240160bed08f187b67ca3363d4196fb83cac77c5078d3623db9e83cbe2
 T002:
+  reason: The evidence only shows a `requirements.txt` at the project root with the
+    correct pinned lines; the task requires the file to be under `code/`, but the
+    contents of `code/requirements.txt` are not provided. Additionally, there is no
+    evidence that `pip install -r requirements.txt` succeeded in the CI environment.
+    The implementer must supply the `code/requirements.txt` file with the exact listed
+    versions and proof (e.g., CI log) that the install command runs without errors.
   task: 28ccdfd978eb81e906b1515d924442985c4473e99508b6612a97259b2e9aa60c
 T003:
+  reason: "Checked `pyproject.toml` \u2013 it exists and has a `[tool.black]` section\
+    \ with `line-length = 88`. Checked `.ruff.toml` \u2013 it exists but does **not**\
+    \ contain a `[tool.ruff]` section; instead it uses a `[lint]` section, so the\
+    \ required `select = [\"E\", \"F\", \"W\"]` under `[tool.ruff]` is missing. The\
+    \ task therefore is not fully satisfied."
   task: 4a1af1691cc993ae7f490fab394c7d10dfc1f0d09cdc7e602ee6d90a6fa2970e
 T004:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/artifact_hashes.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 082286e8155d471f474b0a8fa60193b6fe1a2306ae89c30bad70f84a0a239aa6
 T005:
   task: 5e4cbda44433e71db5f539f361a4d006801caaf685a87bed64186af6bf3275bc
 T006:
   task: 89276c1f0834d6e67209209ff7359ffc7dae83f9eaaef2be179d071e794b0f49
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/utils/power_analysis.py
+    exit=1'
   task: 9471e69d8164a52ed519bf5bafdf255e67bdc8912162f7b0e964902da09f635f
 T008:
   task: c4d2b77723446c2b510b27b395370e5fe8911139579439e99fd43931756deb6a
