@@ -1,12 +1,12 @@
 status: none
-intent: download Layout-Aware Corpus scientific documents with layout annotations
-  and DocVQA python package
+intent: download DocBank scientific PDF layout dataset and DocVQA python package
 required_fields:
 - document_id
-- raw_text
-- layout_annotations
-- image_path
 - page_number
-cache_key: 2a7e6fb95eb9dd2a63c4bc19427d79d1f85e23ba6896a57adc96b4a22a061602
-searched_at: '2026-10-15T15:38:05.151458+00:00'
+- raw_text
+- layout_bboxes
+- element_type
+- image_file_path
+cache_key: e238e0496f0b55a3c6400b987534e9d78249d1f93d62b8c1a7f984bd8aa30f82
+searched_at: '2026-10-15T15:39:48.269178+00:00'
 retry_count: 1

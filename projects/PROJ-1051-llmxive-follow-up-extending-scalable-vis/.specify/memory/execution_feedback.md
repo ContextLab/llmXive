@@ -19,27 +19,27 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.download  --dataset-name layout_corpus  --output-dir data/raw -> rc=1
-Attempting to download primary dataset 'microsoft/publaynet'...
-Candidate 'microsoft/publaynet' failed: Dataset 'microsoft/publaynet' doesn't exist on the Hub or cannot be accessed.
+Attempting to download primary dataset 'allenai/pubmed-layout'...
+Candidate 'allenai/pubmed-layout' failed: Dataset 'allenai/pubmed-layout' doesn't exist on the Hub or cannot be accessed.
 Primary pages 0 < 10000. Trying fallback datasets...
-Fallback 'nielsr/docbank' failed: Dataset 'nielsr/docbank' doesn't exist on the Hub or cannot be accessed.
+Fallback 'allenai/pubmed-layout-fallback' failed: Dataset 'allenai/pubmed-layout-fallback' doesn't exist on the Hub or cannot be accessed.
 Total valid pages after fallback handling: 0
 
 ❌ ERROR: Insufficient annotated pages (FR-007). Found 0, need 10000.
 
 - python -m src.data.preprocess  --input-dir data/raw/layout_corpus  --output-parquet data/processed/document_pairs.parquet  --schema contracts/documentpair.schema.yaml -> rc=1
 
-2026-10-15 15:36:56,223 ERROR __main__: Preprocessing failed: Input directory does not exist: data/raw/layout_corpus
+2026-10-15 15:38:37,488 ERROR __main__: Preprocessing failed: Input directory does not exist: data/raw/layout_corpus
 
 - python -m src.data.latent_generator  --input-parquet data/processed/document_pairs.parquet  --output-parquet data/processed/document_pairs_with_latent.parquet  --encoder-name resnet18  --device cpu -> rc=1
 
-2026-10-15 15:37:00,655 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': [Errno 2] No such file or directory: 'data/processed/document_pairs.parquet'
+2026-10-15 15:38:41,785 ERROR __main__: Latent generation failed: Unable to read Parquet file 'data/processed/document_pairs.parquet': [Errno 2] No such file or directory: 'data/processed/document_pairs.parquet'
 
 - python -m src.data.download  --dataset-name docvqa  --output-dir data/raw/docvqa -> rc=1
 Downloading DocVQA dataset...
-DocVQA download failed: Dataset 'docvqa' doesn't exist on the Hub or cannot be accessed.
+DocVQA download failed: Dataset 'nielsr/docvqa' doesn't exist on the Hub or cannot be accessed.
 
-❌ ERROR: Dataset 'docvqa' doesn't exist on the Hub or cannot be accessed.
+❌ ERROR: Dataset 'nielsr/docvqa' doesn't exist on the Hub or cannot be accessed.
 
 - python -m pytest -k "contract" tests/ -> rc=1
 
@@ -63,6 +63,6 @@ E               'a sufficiently large limit to accommodate the dataset'
 /home/runner/.cache/llmxive/base-env/py311-6f1866971868/jsonschema/validators.py:317: SchemaError
 =========================== short test summary info ============================
 FAILED tests/contract/test_documentpair.py::test_documentpair_schema_is_valid
-======================= 1 failed, 2 deselected in 4.76s ========================
+======================= 1 failed, 3 deselected in 4.59s ========================
 
 

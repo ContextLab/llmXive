@@ -2,8 +2,9 @@
 src/data/download.py
 
 Downloads scientific document corpora from verified HuggingFace URLs.
-Implements the logic for primary (Microsoft PubLayNet) and fallback
-(DocBank) datasets, ensuring a minimum of 10,000 annotated pages.
+Implements the logic for primary (AllenAI PubMed Layout) and fallback
+(AllenAI PubMed Layout Fallback) datasets, ensuring a minimum of 10,000
+annotated pages. Also provides a downloader for the DocVQA benchmark.
 """
 
 import argparse
@@ -61,7 +62,7 @@ def _save_to_disk(dataset, output_dir: Path):
     for idx, example in enumerate(tqdm(dataset, desc="Saving to disk")):
         # Image
         img_path = output_dir / f"{idx:06d}.png"
-        # The 'image' column is a PIL Image object in PubLayNet/DocBank
+        # The 'image' column is a PIL Image object in the PubMed Layout datasets
         example["image"].save(img_path)
 
         # Annotation JSON
@@ -84,13 +85,15 @@ def _save_to_disk(dataset, output_dir: Path):
             json.dump(ann, f)
 
 
-def download_publaynet(output_dir: Path, min_pages: int = 10_000) -> None:
+def download_layout_corpus(output_dir: Path, min_pages: int = 10_000) -> None:
     """
-    Downloads primary and fallback corpora and verifies integrity.
-    Tries Microsoft PubLayNet as primary; falls back to DocBank.
+    Downloads the primary PubMed Layout corpus and, if necessary,
+    falls back to the PubMed Layout Fallback corpus.
+    Ensures at least ``min_pages`` pages with non‑empty layout annotations.
+    The images and JSON files are written directly into ``output_dir``.
     """
-    primary_candidates = ["microsoft/publaynet"]
-    fallback_candidates = ["nielsr/docbank"]
+    primary_candidates = ["allenai/pubmed-layout"]
+    fallback_candidates = ["allenai/pubmed-layout-fallback"]
 
     valid_ds = None
 
@@ -149,19 +152,21 @@ def download_publaynet(output_dir: Path, min_pages: int = 10_000) -> None:
     # Save a manageable subset to disk (up to 15k pages)
     subset_size = min(final_count, 15_000)
     subset = valid_ds.select(range(subset_size))
-    _save_to_disk(subset, output_dir / "publaynet")
+    _save_to_disk(subset, output_dir)
 
     # Record checksums of the HF cache
-    log_and_store_checksums("publaynet", Path("artifacts/checksums/downloads.yaml"))
+    log_and_store_checksums("pubmed_layout", Path("artifacts/checksums/downloads.yaml"))
 
 
 def download_docvqa(output_dir: Path) -> None:
     """
     Downloads the DocVQA dataset (images + annotations) and stores them on disk.
+    Uses the community‑maintained ``nielsr/docvqa`` repository which is publicly
+    accessible.
     """
     print("Downloading DocVQA dataset...")
     try:
-        ds = load_dataset("docvqa", split="train", trust_remote_code=True)
+        ds = load_dataset("nielsr/docvqa", split="train", trust_remote_code=True)
     except Exception as e:
         print(f"DocVQA download failed: {e}")
         raise
@@ -186,7 +191,7 @@ def download_dataset(dataset_name: str, output_dir: Path) -> None:
     """Dispatcher for dataset downloads."""
     name = dataset_name.lower()
     if name in ("publaynet", "layout_corpus"):
-        download_publaynet(output_dir)
+        download_layout_corpus(output_dir)
     elif name == "docvqa":
         download_docvqa(output_dir)
     else:
