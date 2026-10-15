@@ -1,19 +1,19 @@
 status: none
-intent: download ClinicalTrials.gov and OSF research project records python package
+intent: ClinicalTrials.gov OSF open science framework API combined python package
   dataset
 required_fields:
 - nct_id
-- official_title
-- brief_summary
-- overall_status
+- study_title
+- sponsor
+- recruitment_status
 - study_start_date
-- primary_completion_date
-- study_type
-- interventions
+- study_completion_date
 - conditions
-- sponsors
-- locations
-- osf_id
-cache_key: 879f54de0fb870e56f9e29e99aff1b1cd15860756b4c45b47415b19ed2f9a09c
-searched_at: '2026-10-14T22:18:56.844017+00:00'
+- interventions
+- outcome_measures
+- osf_project_id
+- osf_project_title
+- osf_contributors
+cache_key: f6ce0fcbe6d42b8385c7313780476ed75742b758ca14d0b3c2733ac22eace658
+searched_at: '2026-10-15T04:17:44.554718+00:00'
 retry_count: 1

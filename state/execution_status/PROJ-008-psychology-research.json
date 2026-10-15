@@ -10,10 +10,10 @@
     "python code/analysis/meta_analysis.py --input data/processed/effect_sizes.csv --output data/processed/results.json --plots-dir viz/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-008-psychology-research/code/analysis/meta_analysis.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
   ],
   "fix_rounds": 0,
-  "model_tier": 2,
+  "model_tier": 0,
   "total_attempts": 1,
-  "replan_rounds": 0,
+  "replan_rounds": 1,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-10-14T17:09:36Z"
+  "updated_at": "2026-10-15T04:17:44Z"
 }
