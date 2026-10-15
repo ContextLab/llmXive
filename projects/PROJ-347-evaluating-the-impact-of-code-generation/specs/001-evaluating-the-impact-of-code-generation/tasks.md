@@ -12,7 +12,7 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
   1. After running the script, `python -m src.run_pipeline --seed 42 --max-pairs 300` executes without import or Docker‑image errors.  
   2. Logs are written to `logs/quickstart.log` and contain entries confirming virtualenv activation, successful `pip install -r requirements.txt`, Docker pulls for `returntocorp/semgrep:1.46.0` and `sonarqube:9.9-community`, and successful pipeline start.
 
-- [ ] T001 [P1] [US1] **Download the Juliet Test Suite (SARD) vulnerable Python snippets** from the verified URL `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/python_vuln.csv` — HTTP 404].  
+- [ ] T001 [P1] [US1] **Download the Juliet Test Suite (SARD) vulnerable Python snippets** from the verified URL `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/python_vuln.csv` — HTTP 404].   <!-- FAILED-IN-EXECUTION: src/run_pipeline.py exit=1 -->
   *Path*: `data/raw/juliet/python_vuln.csv`  
   *Verification*:  
   1. SHA‑256 checksum of the downloaded file matches the value recorded in `data/checksums.json`.  

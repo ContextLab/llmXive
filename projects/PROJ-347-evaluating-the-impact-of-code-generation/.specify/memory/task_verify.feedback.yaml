@@ -3,6 +3,8 @@ T000:
     exit=1'
   task: 151b23406766257ce2f67d4fe31c9419550dd697912af3bf3c49ea32b5075b63
 T001:
+  reason: 'Requested task execution failed; rerun successfully: src/run_pipeline.py
+    exit=1'
   task: 1e43381e9a80933d7774446fc03bfc8efbdbb7c686a49a92826eff29a82c8a61
 T002:
   task: 2bc263ca67117ef8ecc8ef2e692c9c86cd6b299d9512f95617e79a46eeeae9d9

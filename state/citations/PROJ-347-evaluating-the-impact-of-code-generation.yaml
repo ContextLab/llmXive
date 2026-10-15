@@ -75,7 +75,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/mahabharat/OWASP/cbb8294d2ba7d8e0e45c4925fae40ac46b8cd561/Sqlinjection.csv?%2Fdatasets%2Fmahabharat%2FOWASP%2Fresolve%2Fmain%2FSqlinjection.csv=&etag=%226ec2a8cf6af4392580bdf1df367ecd6ef18ea760%22
   verified_at: '2026-10-15T07:37:36.725840Z'
-- artifact_hash: fc82c9f107a23fb1dfe553ec4d64d09038090a43c23d1deca4514dfc3e2d69e4
+- artifact_hash: 23dccbd32306378309f6eb6f6224d6b6e5c6829a050ac6ceef3a3db73ba84c2a
   artifact_path: projects/PROJ-347-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,4 +85,4 @@
   value: https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/python_vuln.csv`
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/python_vuln.csv
-  verified_at: '2026-10-15T09:17:31.053767Z'
+  verified_at: '2026-10-15T12:10:38.073547Z'

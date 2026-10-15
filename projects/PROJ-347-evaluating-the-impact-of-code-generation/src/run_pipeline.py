@@ -4,21 +4,20 @@ research pipeline.
 
 This minimal orchestrator runs the core data‑ingestion steps required for the
 quick‑start verification:
-  1. Download the Devign dataset (or abort on error).
-  2. Filter the dataset to retain only Python samples with vulnerability labels.
+  1. Download the Juliet (Devign‑stand‑in) dataset.
+  2. Download the Juliet Python snippets required by task T001.
+  3. Filter the dataset to retain only Python samples with vulnerability labels.
 Additional pipeline stages (LLM generation, static analysis, etc.) are outside
 the scope of the quick‑start task.
-
-The script accepts a few CLI arguments for reproducibility but currently
-ignores them beyond logging.
 """
 import argparse
 import sys
 
 from llmxive_toolkit import get_logger, paths
 
-# Import the two data‑preparation modules
+# Import the data‑preparation modules
 from code.download_devign import main as download_devign_main
+from code.download_juliet import main as download_juliet_main
 from code.filter_human_python import main as filter_human_python_main
 
 log = get_logger(__name__)
@@ -55,11 +54,15 @@ def main(argv=None):
     args = parse_args(argv)
     log.info("Pipeline started with arguments: %s", args)
 
-    # Step 1: download the Devign CSV (creates data/checksums.json)
-    log.info("Downloading Devign dataset...")
+    # Step 1: download the Devign (Juliet) CSV (creates data/checksums.json)
+    log.info("Downloading Devign (Juliet) dataset...")
     download_devign_main()
 
-    # Step 2: filter for Python samples
+    # Step 2: download the Juliet Python snippets required by T001
+    log.info("Downloading Juliet Python snippets (task T001)...")
+    download_juliet_main()
+
+    # Step 3: filter for Python samples
     log.info("Filtering Devign dataset for Python samples...")
     filter_human_python_main()
 

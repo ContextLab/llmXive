@@ -27,9 +27,10 @@ log = get_logger(__name__)
 # Configuration – real, publicly available source
 # ----------------------------------------------------------------------
 # The Juliet Test Suite (SARD) provides a CSV of Python vulnerable snippets.
-# This URL is stable as of the current repository layout.
+# The original URL used in the specification is no longer valid; the
+# CSV is available under the `data/` directory of the repository.
 RAW_CSV_URL = (
-    "https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/python_vuln.csv"
+    "https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/data/python_vuln.csv"
 )
 
 # Destination locations (all under the project root)

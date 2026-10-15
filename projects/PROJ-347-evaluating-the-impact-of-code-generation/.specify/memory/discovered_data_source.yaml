@@ -1,18 +1,16 @@
 status: none
-intent: download Juliet Test Suite SARD dataset and OWASP Top 10 LLM Dataset python
-  package dataset
+intent: Juliet Test Suite SARD vulnerable code dataset and OWASP Top 10 LLM dataset
+  python package dataset
 required_fields:
-- code_snippet
+- human_code_snippet
+- llm_generated_code_snippet
 - programming_language
-- cwe_identifier
+- cwe_id
 - vulnerability_category
-- function_name
-- source_file_path
-- label
-- prompt_text
-- generated_code
-- semantic_similarity_score
-- unit_test_coverage
-cache_key: e374c11c2e0cc3e48ecde837fdb9a3635defd59e965946845f28552d8299e19d
-searched_at: '2026-10-15T09:18:13.784003+00:00'
+- function_name_or_identifier
+- unit_test_cases
+- semantic_embedding_vector
+- source_dataset_name
+cache_key: 2a0f2669a44c241bddd399cc9d1f6a5f86f6d1604218613a2191b187aeff14f1
+searched_at: '2026-10-15T12:11:29.483470+00:00'
 retry_count: 1
