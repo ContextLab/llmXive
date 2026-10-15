@@ -1,0 +1,9 @@
+pandas
+requests
+datasets
+transformers
+sentence-transformers
+statsmodels
+matplotlib
+seaborn
+scikit-learn

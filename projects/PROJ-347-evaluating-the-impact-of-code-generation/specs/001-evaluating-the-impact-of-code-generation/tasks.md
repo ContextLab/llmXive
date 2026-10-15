@@ -6,7 +6,7 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
 
 ---  
 
-- [ ] T000 [P0] [US0] **Quickstart setup** – clone the repository, create a virtual environment, install pinned dependencies, pull required Docker images, and run the orchestrator script.   <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 -->
+- [ ] T000 [P0] [US0] **Quickstart setup** – clone the repository, create a virtual environment, install pinned dependencies, pull required Docker images, and run the orchestrator script.   <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 -->
   *Path*: `scripts/quickstart.sh` (script to be created)  
   *Verification*:  
   1. After running the script, `python -m src.run_pipeline --seed 42 --max-pairs 300` executes without import or Docker‑image errors.  
