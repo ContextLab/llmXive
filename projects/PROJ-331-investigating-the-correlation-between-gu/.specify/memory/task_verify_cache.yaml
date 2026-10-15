@@ -1,27 +1,3 @@
-T001:
-  c: false
-  h: 9ed445222459b98bbd42fbdf5ad1d79d31ab0706ec194e92b1e3f1e21a8e5c79
-  r: The task's required artifacts `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet`
-    are MISSING, so there is nothing to validate and `python -m code.src.pipeline.ingest`
-    would abort with a FileNotFoundError (exit 1), not exit 0 with logged SHA-256
-    checksums. While `ingest.py` and `test_ingest_preprocessed.py` exist and their
-    content matches the required validation logic (preprocessed=True check, clear
-    aborts, checksum computation), there is no evidence the tests were run or passed,
-    and no execution log showing a successful run with checksums. The implementer
-    must place the actual raw in
-  sig: c7306fca1c15b2538276b9b11b1e7af4b4812f5bd6cc9381f821a4b7af1cc502
-T002:
-  c: false
-  h: 91de6bfbc241edfbfc140d49e859d8d68ed40cf8a53513e56256c080c8481c63
-  r: "The required outputs `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
-    \ are MISSING \u2014 the pipeline was never actually run on real data, and there\
-    \ is no execution evidence (no test-run logs or run artifacts) that `run_preprocess`\
-    \ works end-to-end. Additionally, `cap_taxa_by_memory` is implemented so that\
-    \ any caller-supplied `max_taxa != 100` silently skips subsampling entirely, which\
-    \ contradicts FR-010's requirement to cap taxa to the given budget (the test merely\
-    \ papers over this by calling the private `_cap_impl` directly). The implementer\
-    \ must run the prepr"
-  sig: c312fb016af66358c2c1327e2c7ff50a46d7f05c2f098ae75b8dbd881879fbe6
 T003:
   c: true
   h: 09e0766dedad41d5a5273aef55aa5dee6a45b0ef1bbce724c7674def5e23608e
@@ -32,17 +8,6 @@ T003:
     s specifications, and the tests confirm correct handling of two\u2011visit patients,\
     \ year calculations, constant outcomes, and file creation."
   sig: 49069d714f3dd06165557b790852aa7b6e78074f596e68d50171e4db77c66d59
-T004:
-  c: false
-  h: 17734c540a719546399abefbbce9cc7e2709c77cd5f61f97af68a30ffcee70b0
-  r: "The required deliverable `results/taxa_correlations_adj.csv` is MISSING on disk,\
-    \ and `taxa_results.schema.yaml` (which the output must conform to and the contract\
-    \ test loads from `contracts/`) is also absent. The module `correlation.py` implements\
-    \ residualization and BH logic, but there is no evidence it was ever run with\
-    \ `--partial` \u2014 only the unadjusted `taxa_correlations.csv` exists (with\
-    \ degenerate \xB11.0 rho values from a 2-patient toy run), and no test execution\
-    \ evidence is provided."
-  sig: be09bc788df656acee37e8dd2e8c7b7fa9f1597c24bc419af467a994017df86b
 T005:
   c: true
   h: 0917c0a8fff5131ff6184adbb545b8dc4172d92180afee747cbadca06eca359d

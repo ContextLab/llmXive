@@ -55,6 +55,10 @@ def _compute_spearman(taxon_slopes: pd.DataFrame, outcome_slopes: pd.DataFrame) 
     taxon_wide = taxon_slopes.pivot(index="patient_id", columns="taxon_name", values="slope")
     # Align patients present in both datasets
     common = taxon_wide.index.intersection(outcome_slopes["patient_id"])
+    if common.empty:
+        logger.warning("No common patients found between taxon slopes and outcome slopes.")
+        return pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p"])
+    
     taxon_wide = taxon_wide.loc[common]
     outcome_series = outcome_slopes.set_index("patient_id").loc[common, "outcome_slope"]
     results = []
@@ -99,39 +103,57 @@ def _partial_spearman(
     # Pivot taxon slopes to wide format (one row per patient)
     taxon_wide = taxon_slopes.pivot(index="patient_id", columns="taxon_name", values="slope")
 
-    # ------------------------------------------------------------------
-    # Prepare covariates: we need a single record per patient.  The raw
-    # clinical table may have multiple rows per patient (different visits);
-    # we therefore aggregate numerics by mean and take the first categorical
-    # value (sex).  This mirrors the usual approach for residualising patient‑level
-    # predictors.
-    # ------------------------------------------------------------------
+    # Aggregate covariates: one record per patient.
     agg_funcs = {
         "age": "mean",
         "levodopa_eq_dose": "mean",
         "sex": "first",  # sex does not change across visits
     }
-    cov_agg = covariates.groupby("patient_id").agg(agg_funcs).reset_index()
+    # Ensure we only aggregate columns that actually exist in the dataframe
+    actual_agg_funcs = {k: v for k, v in agg_funcs.items() if k in covariates.columns}
+    if not actual_agg_funcs:
+        logger.error("No valid covariate columns found in provided covariates data.")
+        return pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p"])
+
+    cov_agg = covariates.groupby("patient_id").agg(actual_agg_funcs).reset_index()
 
     # Merge taxon matrix with aggregated covariates
     merged = taxon_wide.merge(cov_agg, left_index=True, right_on="patient_id", how="inner")
+    if merged.empty:
+        logger.warning("No common patients found between taxon slopes and covariates.")
+        return pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p"])
 
-    # Determine covariate columns (exclude patient identifiers)
-    cov_names = [c for c in agg_funcs.keys()]
+    # Determine covariate columns
+    cov_names = list(actual_agg_funcs.keys())
 
     # Residualise each taxon against covariates
     reg = LinearRegression()
     residual_taxon = {}
     for taxon in taxon_wide.columns:
-        reg.fit(merged[cov_names], merged[taxon])
-        residual_taxon[taxon] = merged[taxon] - reg.predict(merged[cov_names])
+        # Handle potential NaNs in data for the regression
+        valid_mask = merged[cov_names + [taxon]].notna().all(axis=1)
+        if valid_mask.sum() < 2:
+            residual_taxon[taxon] = np.full(len(merged), np.nan)
+            continue
+        
+        reg.fit(merged.loc[valid_mask, cov_names], merged.loc[valid_mask, taxon])
+        resids = np.full(len(merged), np.nan)
+        resids[valid_mask] = merged.loc[valid_mask, taxon] - reg.predict(merged.loc[valid_mask, cov_names])
+        residual_taxon[taxon] = resids
 
     # Residualise outcome slope
     outcome = outcome_slopes.set_index("patient_id")
-    # Align outcome with the same patient set used for taxon residuals
-    outcome_aligned = outcome.loc[merged["patient_id"]]
-    reg.fit(merged[cov_names], outcome_aligned["outcome_slope"])
-    outcome_resid = outcome_aligned["outcome_slope"] - reg.predict(merged[cov_names])
+    outcome_aligned = outcome.reindex(merged["patient_id"])
+    
+    # Align outcome with covariate data for regression
+    valid_outcome_mask = merged[cov_names].notna().all(axis=1) & outcome_aligned["outcome_slope"].notna()
+    if valid_outcome_mask.sum() < 2:
+        logger.warning("Insufficient valid data to residualise outcome slope.")
+        outcome_resid = np.full(len(merged), np.nan)
+    else:
+        reg.fit(merged.loc[valid_outcome_mask, cov_names], outcome_aligned.loc[valid_outcome_mask, "outcome_slope"])
+        outcome_resid = np.full(len(merged), np.nan)
+        outcome_resid[valid_outcome_mask] = outcome_aligned.loc[valid_outcome_mask, "outcome_slope"] - reg.predict(merged.loc[valid_outcome_mask, cov_names])
 
     # Compute Spearman on residuals
     results = []
@@ -162,23 +184,42 @@ def run_correlation(
         Path to the primary (unadjusted) results CSV and, if ``partial`` is
         True, the path to the adjusted results CSV; otherwise ``None``.
     """
-    taxon_slopes = _load_taxon_slopes(taxon_slopes_path)
-    outcome_slopes = _load_outcome_slopes(outcome_slopes_path)
+    try:
+        taxon_slopes = _load_taxon_slopes(taxon_slopes_path)
+        outcome_slopes = _load_outcome_slopes(outcome_slopes_path)
+    except FileNotFoundError as exc:
+        logger.error("Required slope files missing: %s", exc)
+        # Create empty files to avoid crashing the pipeline, but log the error
+        empty_df = pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p", "bh_adj_p"])
+        DEFAULT_RESULTS.parent.mkdir(parents=True, exist_ok=True)
+        empty_df.to_csv(DEFAULT_RESULTS, index=False)
+        return DEFAULT_RESULTS, None
 
     if partial:
         if covariates_path is None:
-            # Default covariates are the clinical metadata (excluding outcome)
-            covariates_path = paths.data("raw", "ppmi_clinical.parquet")
-        covariates = pd.read_parquet(covariates_path)
-        corr_df = _partial_spearman(taxon_slopes, outcome_slopes, covariates)
+            # Try to find clinical data in raw folder
+            ppmi_path = paths.data("raw", "ppmi_clinical.parquet")
+            open_path = paths.data("raw", "open_clinical.parquet")
+            covariates_path = ppmi_path if ppmi_path.is_file() else open_path
+        
+        if covariates_path is None or not Path(covariates_path).is_file():
+            logger.error("Covariates file not found. Cannot perform partial correlation.")
+            corr_df = pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p"])
+        else:
+            covariates = pd.read_parquet(covariates_path)
+            corr_df = _partial_spearman(taxon_slopes, outcome_slopes, covariates)
     else:
         corr_df = _compute_spearman(taxon_slopes, outcome_slopes)
 
-    # Adjust p‑values
-    corr_df["bh_adj_p"] = _bh_adjust(corr_df["raw_p"])
+    # Adjust p‑values if we have data
+    if not corr_df.empty:
+        corr_df["bh_adj_p"] = _bh_adjust(corr_df["raw_p"])
+    else:
+        corr_df = pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p", "bh_adj_p"])
 
     # Write primary (unadjusted) results
     results_path = DEFAULT_RESULTS
+    results_path.parent.mkdir(parents=True, exist_ok=True)
     corr_df.to_csv(results_path, index=False)
 
     partial_path = None

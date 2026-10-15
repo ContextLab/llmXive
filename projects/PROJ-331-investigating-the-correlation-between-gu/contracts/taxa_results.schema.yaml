@@ -1,23 +1,33 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Taxa Correlation Results
-description: Schema for the CSV file produced by the correlation stage.
+# Schema for taxon-based analysis results (T004, T005, T006).
+# Validates the structure of result CSVs.
 type: object
 properties:
   taxon_name:
     type: string
+    description: "The identifier of the microbial taxon."
   spearman_rho:
     type: number
+    description: "Spearman rank correlation coefficient."
   raw_p:
     type: number
     minimum: 0
     maximum: 1
+    description: "Raw p-value from the statistical test."
   bh_adj_p:
     type: number
     minimum: 0
     maximum: 1
+    description: "Benjamini-Hochberg adjusted p-value."
+  interaction_coef:
+    type: number
+    description: "Coefficient from the Mixed-Effects model interaction term."
+  std_error:
+    type: number
+    description: "Standard error of the interaction coefficient."
+  permutation_p:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Empirical p-value from the permutation test."
 required:
   - taxon_name
-  - spearman_rho
-  - raw_p
-  - bh_adj_p
-additionalProperties: false

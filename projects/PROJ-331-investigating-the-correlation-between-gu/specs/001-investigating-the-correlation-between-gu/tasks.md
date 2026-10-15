@@ -12,12 +12,12 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
 | Goal | Run an executable analysis on valid, small real inputs early. |
 |------|---------------------------------------------------------------|
 
-- [X] T001 Validate raw input files and provenance (pre‑processed requirement)   <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T001 Validate raw input files and provenance (pre‑processed requirement)   <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
   - **Description**: `code/src/pipeline/ingest.py` checks that `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet` exist, contain the required columns, **and** that the ASV table includes a column `preprocessed` with value `True` indicating it has passed the PPMI QC pipeline. It aborts with a clear error if any check fails.  
   - **File(s)**: `data/raw/open_asv.csv`, `data/raw/open_clinical.parquet`  
   - **Verification**: Unit tests `code/tests/test_ingest_preprocessed.py` pass; the command `python -m code.src.pipeline.ingest` exits with status 0 and logs the SHA‑256 checksums of the raw files.
 
-- [X] T002 Preprocess data: filter, CLR transform, and top‑100 taxa subsampling   <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T002 Preprocess data: filter, CLR transform, and top‑100 taxa subsampling   <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
   - **Description**: `code/src/pipeline/preprocess.py` (a) loads the raw CSV/Parquet, (b) merges on `patient_id` + `visit_date`, (c) retains only PD patients with **≥ 2 visits** (logs exclusion count, FR‑002), (d) drops taxa with all‑zero counts (warning), (e) adds a pseudocount = 1e‑6 and applies a centered‑log‑ratio (CLR) transformation via `scikit‑bio` (FR‑003), (f) if the retained taxa exceed the RAM budget, selects the **top 100 most abundant taxa** (FR‑010).  
   - **Outputs**: `data/processed/filtered_samples.parquet`, `data/processed/clr_abundances.parquet`  
   - **Verification**: `code/tests/test_preprocess.py` confirms correct patient‑visit filtering, CLR shape, and that the taxa count does not exceed 100 when the RAM guard triggers.
@@ -27,7 +27,7 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
   - **Outputs**: `data/processed/patient_taxon_slopes.parquet`, `data/processed/patient_outcome_slopes.parquet` (the latter is omitted only if the outcome column is missing, as flagged by T001).  
   - **Verification**: `code/tests/test_slopes.py` checks correct handling of exactly two visits, correct year calculation, and that single‑visit patients are excluded.
 
-- [ ] T004 Compute covariate‑adjusted Spearman correlation of slopes with BH correction   <!-- FAILED: unspecified -->
+- [ ] T004 Compute covariate‑adjusted Spearman correlation of slopes with BH correction   <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/src/pipeline/correlation.py exit=1 -->
   - **Description**: `code/src/pipeline/correlation.py` loads the two slope files, **first residualizes** both taxon‑slope and outcome‑slope on age, sex, and levodopa dose (linear regression), then computes a Spearman rank correlation between the residualized vectors for each taxon (partial correlation, satisfying User Story 1). It applies Benjamini‑Hochberg FDR correction across all taxa (FR‑006) and writes two result files:  
     - `results/taxa_correlations.csv` (unadjusted Spearman, for reference)  
     - `results/taxa_correlations_adj.csv` (covariate‑adjusted Spearman)  
