@@ -1,3 +1,4 @@
+trajectory_id,density,horizon,evidence_age,success,retrieval_prob,clamped_entropy
 traj_0,6e-09,1,0,0,0.0,True
 traj_0,6e-09,2,0,0,0.2689414237293383,True
 traj_0,6e-09,3,1,1,0.2689414237293383,True

@@ -1,9 +1,3 @@
-# Project dependencies
-# (standard libraries are available by default)
-memory_profiler>=0.61
-pyyaml>=5.4
-jsonschema>=4.0
-pandas>=1.5
-# Existing dependencies such as numpy, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, requests, psutil are provided by the
-# execution environment and need not be listed here.
+# Existing dependencies are provided by the environment.
+# Add any additional packages required by the project.
+memory_profiler==0.61.0

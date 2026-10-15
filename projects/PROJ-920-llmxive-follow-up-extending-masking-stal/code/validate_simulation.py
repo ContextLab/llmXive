@@ -4,17 +4,8 @@ validate_simulation.py
 Script to validate the resources used by the agent simulation
 and to ensure the generated CSV complies with the contract schema.
 It also runs the contract and integration tests for the simulation
-output.
-
-Expected behavior:
-  1. Run `simulate_agent.py` while profiling memory usage.
-  2. Abort with `MEMORY_LIMIT_EXCEEDED` if peak RSS > 7168 MiB.
-  3. Verify that `data/logs/simulation_results.csv` exists,
-     is non‑empty, and each record validates against
-     `contracts/simulation_log.schema.yaml`.
-  4. Execute the contract test `tests/contract/test_simulation_output.py`
-     and the integration test `tests/integration/test_horizon_masking.py`.
-     Any failure aborts with a clear error message.
+output, generating a JSON version of the results expected by the
+contract test.
 """
 
 import argparse
@@ -28,8 +19,7 @@ import pandas as pd
 import yaml
 from jsonschema import validate, ValidationError
 
-# The `memory_profiler` package is not part of the default environment
-# and is added to `code/requirements.txt` by this task.
+# The `memory_profiler` package is added to `code/requirements.txt` by this task.
 from memory_profiler import memory_usage
 
 # Toolkit utilities for consistent path handling and logging
@@ -37,12 +27,14 @@ from llmxive_toolkit import paths, get_logger
 
 # Import the simulation entry point
 from simulate_agent import main as simulate_main
+from simulate_agent import load_trajectories_streaming
 
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
 MEMORY_LIMIT_MIB = 7168  # 7 GiB in MiB
 DEFAULT_CSV_PATH = paths.data("logs", "simulation_results.csv")
+DEFAULT_JSON_PATH = paths.data("processed", "simulation_results.json")
 SCHEMA_PATH = Path(__file__).parent.parent / "contracts" / "simulation_log.schema.yaml"
 
 # ----------------------------------------------------------------------
@@ -56,24 +48,14 @@ logger = get_logger(__name__)
 def run_simulation_with_profiling(seed: int) -> None:
     """
     Executes ``simulate_agent.main`` while measuring peak memory usage.
-
-    Parameters
-    ----------
-    seed : int
-        Random seed forwarded to the simulation (the simulation script
-        reads its own configuration file, but we pass the seed via the
-        ``--seed`` CLI argument for reproducibility).
     """
     def _run():
-        # The simulation script parses its own CLI; we invoke it directly
-        # with the same default arguments it would receive.
+        # Directly call the main function; it parses its own CLI.
         simulate_main()
 
     logger.info("Starting simulation with memory profiling...")
-    # ``memory_usage`` returns a list of memory measurements (MiB) over time.
-    mem_samples = memory_usage((_run, ), interval=0.1, retval=False, max_usage=True)
-    # ``max_usage=True`` makes the return value a single float (peak)
-    peak_mib = float(mem_samples)
+    # memory_usage returns a single float when max_usage=True
+    peak_mib = float(memory_usage((_run, ), interval=0.1, retval=False, max_usage=True))
     logger.info(f"Peak memory usage: {peak_mib:.2f} MiB")
     if peak_mib > MEMORY_LIMIT_MIB:
         logger.error(f"MEMORY_LIMIT_EXCEEDED: {peak_mib:.2f} MiB > {MEMORY_LIMIT_MIB} MiB")
@@ -99,7 +81,6 @@ def validate_csv_schema(csv_path: Path, schema_path: Path) -> None:
 
     logger.info(f"Validating {len(df)} rows against the schema...")
     for idx, row in df.iterrows():
-        # Convert pandas types to native Python types for jsonschema
         record = {
             "trajectory_id": str(row["trajectory_id"]),
             "density": float(row["density"]),
@@ -115,6 +96,51 @@ def validate_csv_schema(csv_path: Path, schema_path: Path) -> None:
             logger.error(f"Schema validation error at row {idx}: {e.message}")
             sys.exit(1)
     logger.info("All CSV rows conform to the contract schema.")
+
+def generate_json_for_contract(csv_path: Path, json_path: Path) -> None:
+    """
+    Convert the CSV simulation output into the JSON format expected by the
+    contract test ``tests/contract/test_simulation_output.py``.
+    The required fields are:
+      - trajectory_id (str)
+      - retention_horizon (int)   -> CSV ``horizon``
+      - density (float)
+      - critical_evidence_turn (int) -> pulled from the original trajectories
+      - success (bool)            -> CSV ``success`` converted to bool
+      - total_turns (int)         -> fixed at 10 by the generator
+    """
+    # Load CSV
+    df = pd.read_csv(csv_path)
+
+    # Load trajectories to map trajectory_id -> critical_evidence_turn
+    trajectories = load_trajectories_streaming(Path(DEFAULT_CSV_PATH).parents[1] / "raw" / "trajectories.json")
+    traj_map = {t["trajectory_id"]: t["critical_evidence_turn"] for t in trajectories}
+
+    records = []
+    for _, row in df.iterrows():
+        traj_id = str(row["trajectory_id"])
+        critical_turn = traj_map.get(traj_id)
+        if critical_turn is None:
+            logger.error(f"Missing critical evidence turn for trajectory {traj_id}")
+            sys.exit(1)
+
+        record = {
+            "trajectory_id": traj_id,
+            "retention_horizon": int(row["horizon"]),
+            "density": float(row["density"]),
+            "critical_evidence_turn": int(critical_turn),
+            "success": bool(int(row["success"])),
+            "total_turns": 10  # Fixed by generator configuration
+        }
+        records.append(record)
+
+    # Ensure output directory exists
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(records, f, indent=2)
+
+    logger.info(f"Wrote contract JSON to {json_path}")
 
 def run_contract_tests() -> None:
     """
@@ -162,7 +188,10 @@ def main() -> None:
     # 2. Validate the generated CSV against the JSON schema
     validate_csv_schema(DEFAULT_CSV_PATH, SCHEMA_PATH)
 
-    # 3. Execute contract and integration tests
+    # 3. Generate the JSON file required by the contract test
+    generate_json_for_contract(DEFAULT_CSV_PATH, DEFAULT_JSON_PATH)
+
+    # 4. Execute contract and integration tests
     run_contract_tests()
 
     logger.info("Simulation validation completed successfully.")

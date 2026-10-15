@@ -1,10 +1,10 @@
 T001:
   c: true
-  h: ee28580e8d17cae5bb5b3a7173a321c847d21aae4d23f8a59890cb91d1a13660
+  h: f6c0184ae9af040fd50d5c201463c3d1b2f7610827741d88a2f1b42e1b9e8317
   r: "Checked that the project root contains the required directories `data/raw/`,\
-    \ `data/logs/`, `results/`, `code/`, and `tests/`, and that a non\u2011empty `quickstart.md`\
-    \ file is present at the project root. All required artifacts exist."
-  sig: 86ae4edc07bc841bef2a7b369b3dc56704bf1f3e6a66c23444dcf3cbb9c0135e
+    \ `data/logs/`, `results/`, `code/`, and `tests/` (each non\u2011empty) and that\
+    \ a non\u2011empty `quickstart.md` file is present with appropriate setup instructions."
+  sig: f519f53d421ea0df17e443d2409207c131bef0827b301eb439133c7a3ab5bb5e
 T002:
   c: true
   h: f8484932282ffde0fd635e0e2448eaf2606358db14c34027fc092af69698a368
@@ -43,16 +43,45 @@ T005:
   sig: c54caddf56a4649e62931c6c06c3dfcc4e3d32bca3a3ec0f0b563850dd347027
 T006:
   c: false
-  h: 125126af5fa9ac5f54f45fb4fbf7930aa488f5919fe3e374e02a59c1105207a9
-  r: "The test file exists and is non-empty, but its tests contradict the actual implementation\
-    \ they're supposed to test: `calculate_composite_density` in `code/utils/heuristics.py`\
-    \ takes `(text, terms)` and applies fixed 0.6/0.4 weights, while the tests call\
-    \ it as `calculate_composite_density(entropy_val, tech_ratio, alpha, beta)` with\
-    \ arbitrary weights \u2014 every composite-density test would fail with a TypeError\
-    \ or wrong result. Additionally, `test_all_technical_terms` expects ratio 1.0\
-    \ for \"search_context retrieval_window\", but the implementation's regex tokenizer\
-    \ splits underscores, yielding token"
-  sig: 826eb7cee81077d943e7599aa3ea458f18db096ad24daac90900a94fa3e9e338
+  h: cf62fa4ec7bdda6db4891082f5bb0cbd38808c9913f821d958e58aff3e97c379
+  r: 'The `tests/unit/test_heuristics.py` file exists, but the test suite fails: the
+    `test_non_string_input_raises` test raises a `NameError` because `pytest` is not
+    imported. The unit tests must be corrected (e.g., add `import pytest`) so that
+    all tests pass.'
+  sig: 7fc6e1ee96ee48510132d244c387f92fe7ab176c9bfe512d681815b70328d870
+T007:
+  c: true
+  h: 70a6d225c7fedd96629240efdabf2ad1f042bead760614dec72e0e91d014443f
+  r: "The artifact `code/config/simulation_config.json` exists (126\u202Fbytes) and\
+    \ contains valid JSON with the required keys \u201Calpha\u201D (\u03B1), \u201C\
+    threshold\u201D, \u201Cseed\u201D, and \u201Cdensity_levels\u201D, satisfying\
+    \ the task specification."
+  sig: 4e81b55ce1b86504d631ca1d4ad6957625da10df6688b76a4353c8fd57bcd406
+T008:
+  c: true
+  h: c7853249d3e2dbbdacfc25c9966d66bc35dcf40808fc85b57630647c341b8068
+  r: "The `code/config/analysis_config.json` file exists (258\u202Fbytes) and contains\
+    \ the required keys: `min_samples_per_bin`, `splines_df_candidates`, `density_bins`,\
+    \ and `horizon_bins` (with valid values)."
+  sig: f6ef589ecf2040ffa425d3ff0470ed272e505387b5333dfa3995ee5c6031bed1
+T009:
+  c: true
+  h: 58ab8228d3bac1c2e3d27bcb9bb840ccb1ac2378802b05c32e33da22e21a4a72
+  r: "Checked `code/validate_config.py` (7599\u202Fbytes) which defines schemas, type\
+    \ and range validation functions, and applies them to both `simulation_config.json`\
+    \ and `analysis_config.json`, reporting errors and exiting with appropriate status.\
+    \ The script fulfills the required schema and range checks for the two config\
+    \ files."
+  sig: 0c4b34ad8d8846407652f54629ee64f2bbfcd6842f33f606befae37645598289
+T010:
+  c: true
+  h: 7a8637267f4336fa0bb2624fdaec9dc46cf03dbc98361f06cc87a7db826fece8
+  r: "Checked the presence and content of `code/validate_grounding_config.py` (6864\u202F\
+    bytes). The script fully implements loading a JSON config, verifies required keys,\
+    \ validates parameters (alpha, threshold, seed, density_levels) and enforces Constitution\u202F\
+    VI rules on `density_weights` (entropy weight > technical weight, sum to\u202F\
+    1). No placeholders or stubs remain."
+  sig: 91f28cfd2b752b5b64b65717ce4121d432ff7f82c23a36a30880b45a26fa05bf
 T017:
   c: false
   h: 972f2f370fcf9478489a7eaeead7fdc92ce354ef6bc605b1d09440b5ede86570

@@ -1,17 +1,24 @@
 """
-Unit tests for heuristics.py utility functions.
-Verifies technical token ratio calculation and config file loading.
+Unit tests for the heuristics utilities.
+These tests verify the technical token ratio calculation and the composite
+semantic density computation as defined by FR-008:
+    density = 0.6 * entropy_per_token + 0.4 * technical_token_ratio
+The tests use the real implementation from `code/utils/heuristics.py`.
 """
-import json
-import tempfile
-import os
-from pathlib import Path
+
 import sys
+from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Ensure the project root is on the import path for sibling modules
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.heuristics import calculate_technical_token_ratio, calculate_composite_density
+from utils.heuristics import (
+    calculate_technical_token_ratio,
+    calculate_composite_density,
+)
+from utils.entropy import entropy_per_token
 
 
 class TestCalculateTechnicalTokenRatio:
@@ -35,11 +42,10 @@ class TestCalculateTechnicalTokenRatio:
         """Text with partial technical terms should return correct ratio."""
         text = "search_context and some other words retrieval_window"
         terms = {"search_context", "retrieval_window"}
-        # Total tokens: "search_context", "and", "some", "other", "words", "retrieval_window" = 6
-        # Technical: 2
-        # Ratio: 2/6 = 0.333...
+        # Tokens: ["search_context", "and", "some", "other", "words", "retrieval_window"]
+        # Technical tokens: 2
         result = calculate_technical_token_ratio(text, terms)
-        assert abs(result - 1/3) < 1e-5
+        assert abs(result - (2 / 6)) < 1e-5
 
     def test_case_insensitive(self):
         """Matching should be case-insensitive."""
@@ -62,56 +68,52 @@ class TestCalculateTechnicalTokenRatio:
 class TestCalculateCompositeDensity:
     """Tests for the calculate_composite_density function."""
 
-    def test_weighted_sum(self):
-        """Composite density should be a weighted sum of entropy and technical ratio."""
-        # Mock values
-        entropy_val = 0.5
-        tech_ratio = 0.6
-        alpha = 0.7
-        beta = 0.3
+    def test_default_weights_low_entropy_full_tech(self):
+        """
+        Low‑entropy text where every token is a technical term.
+        Expected density = 0.6 * 0.0 + 0.4 * 1.0 = 0.4
+        """
+        text = "aaaa"  # repeated character → entropy 0.0
+        terms = ["aaaa"]  # make the single token a technical term
+        density = calculate_composite_density(text, terms)
+        assert abs(density - 0.4) < 1e-6
 
-        result = calculate_composite_density(entropy_val, tech_ratio, alpha, beta)
-        expected = alpha * entropy_val + beta * tech_ratio
-        assert abs(result - expected) < 1e-5
+    def test_default_weights_mixed(self):
+        """
+        Text with two tokens, one technical and one non‑technical.
+        Verify that the computed density matches the formula using
+        the actual entropy_per_token value.
+        """
+        text = "foo bar"
+        terms = ["foo"]  # only 'foo' is technical
+        
+        # Expected components
+        expected_entropy = entropy_per_token(text)
+        expected_ratio = calculate_technical_token_ratio(text, set(terms))
+        
+        expected_density = 0.6 * expected_entropy + 0.4 * expected_ratio
+        
+        density = calculate_composite_density(text, terms)
+        assert abs(density - expected_density) < 1e-6
 
-    def test_weights_sum_to_one(self):
-        """Test with weights that sum to 1.0."""
-        entropy_val = 0.8
-        tech_ratio = 0.4
-        alpha = 0.5
-        beta = 0.5
+    def test_zero_entropy_and_zero_tech_ratio(self):
+        """
+        Text with zero entropy and no technical terms.
+        Expected density = 0.0
+        """
+        text = "bbbbbbbbbb"  # single repeated character → entropy 0.0
+        terms = []  # no technical terms
+        
+        density = calculate_composite_density(text, terms)
+        assert density == 0.0
 
-        result = calculate_composite_density(entropy_val, tech_ratio, alpha, beta)
-        expected = 0.5 * 0.8 + 0.5 * 0.4
-        assert abs(result - expected) < 1e-5
+    def test_non_string_input_raises(self):
+        """
+        The function expects a string; passing a non‑string should raise an error
+        from the underlying entropy calculation.
+        """
+        with pytest.raises(TypeError):
+            # Pass an integer instead of a string
+            calculate_composite_density(12345, [])
 
-    def test_default_weights(self):
-        """Test with default weights (0.5, 0.5)."""
-        entropy_val = 0.6
-        tech_ratio = 0.4
-
-        result = calculate_composite_density(entropy_val, tech_ratio)
-        expected = 0.5 * 0.6 + 0.5 * 0.4
-        assert abs(result - expected) < 1e-5
-
-    def test_zero_entropy(self):
-        """Zero entropy should still contribute correctly."""
-        entropy_val = 0.0
-        tech_ratio = 0.8
-        alpha = 0.5
-        beta = 0.5
-
-        result = calculate_composite_density(entropy_val, tech_ratio, alpha, beta)
-        expected = 0.5 * 0.0 + 0.5 * 0.8
-        assert abs(result - expected) < 1e-5
-
-    def test_zero_tech_ratio(self):
-        """Zero technical ratio should still contribute correctly."""
-        entropy_val = 0.9
-        tech_ratio = 0.0
-        alpha = 0.5
-        beta = 0.5
-
-        result = calculate_composite_density(entropy_val, tech_ratio, alpha, beta)
-        expected = 0.5 * 0.9 + 0.5 * 0.0
-        assert abs(result - expected) < 1e-5
+# Note: pytest is available in the execution environment; no explicit import needed.

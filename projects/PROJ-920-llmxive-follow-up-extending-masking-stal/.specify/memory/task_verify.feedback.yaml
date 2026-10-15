@@ -9,14 +9,10 @@ T004:
 T005:
   task: 4578603fceed50e30216a281dd3825852f728e113cc78c8fefb967827f5aebbf
 T006:
-  reason: "The test file exists and is non-empty, but its tests contradict the actual\
-    \ implementation they're supposed to test: `calculate_composite_density` in `code/utils/heuristics.py`\
-    \ takes `(text, terms)` and applies fixed 0.6/0.4 weights, while the tests call\
-    \ it as `calculate_composite_density(entropy_val, tech_ratio, alpha, beta)` with\
-    \ arbitrary weights \u2014 every composite-density test would fail with a TypeError\
-    \ or wrong result. Additionally, `test_all_technical_terms` expects ratio 1.0\
-    \ for \"search_context retrieval_window\", but the implementation's regex tokenizer\
-    \ splits underscores, yielding token"
+  reason: 'The `tests/unit/test_heuristics.py` file exists, but the test suite fails:
+    the `test_non_string_input_raises` test raises a `NameError` because `pytest`
+    is not imported. The unit tests must be corrected (e.g., add `import pytest`)
+    so that all tests pass.'
   task: e731b38f4abfb7b50296b62e28a0a4cf9037bde7d5d9ce8f57abac7a422cadd1
 T007:
   task: 2a5eb6c68bb38a468471294748154a255007b7bb561d689349f81b7e0377aa45

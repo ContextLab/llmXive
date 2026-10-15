@@ -19,10 +19,10 @@
 - [X] T004 Implement `code/utils/heuristics.py` (composite density = 0.6 × entropy + 0.4 × technical‑token‑ratio).  
 - [X] T005 Add unit tests for entropy (`tests/unit/test_entropy.py`).  
 - [ ] T006 Add unit tests for heuristics (`tests/unit/test_heuristics.py`).  
-- [~] T007 Create `code/config/simulation_config.json` (α, threshold, seed, density‑levels, …).  
-- [~] T008 Create `code/config/analysis_config.json` (min samples per bin, spline df candidates, density bins, horizon bins).  
-- [~] T009 Add `code/validate_config.py` (schema & range checks for both config files).  
-- [~] T010 Add `code/validate_grounding_config.py` (ensure simulation parameters respect Constitution VI).  
+- [X] T007 Create `code/config/simulation_config.json` (α, threshold, seed, density‑levels, …).  
+- [X] T008 Create `code/config/analysis_config.json` (min samples per bin, spline df candidates, density bins, horizon bins).  
+- [X] T009 Add `code/validate_config.py` (schema & range checks for both config files).  
+- [X] T010 Add `code/validate_grounding_config.py` (ensure simulation parameters respect Constitution VI).  
 
 All scaffolding tasks are verified and checked.
 
@@ -76,7 +76,7 @@ All scaffolding tasks are verified and checked.
   – Handles the “last‑turn” edge case via the `is_last_turn` flag.  
   – Accepts `--seed` for reproducibility.  
 
-- [ ] T015 **Validate simulation resources & schema compliance**   <!-- FAILED-IN-EXECUTION: code/validate_simulation.py exit=-1 (TIMEOUT) -->
+- [ ] T015 **Validate simulation resources & schema compliance**   <!-- FAILED-IN-EXECUTION: code/validate_simulation.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/validate_simulation.py exit=1 -->
   *Script*: `code/validate_simulation.py`  
   *Checks*:  
   – Runs `simulate_agent.py` under `memory_profiler`; aborts with `MEMORY_LIMIT_EXCEEDED` if RSS > 7168 MiB.  

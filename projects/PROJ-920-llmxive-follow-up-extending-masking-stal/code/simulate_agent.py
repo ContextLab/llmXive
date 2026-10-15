@@ -260,6 +260,7 @@ def main() -> None:
     total_records = 0
 
     # Process in chunks to stay within the RAM budget
+    first_batch = True
     for start_idx in range(0, total_trajectories, CHUNK_SIZE):
         batch = trajectories[start_idx:start_idx + CHUNK_SIZE]
         batch_results = run_simulation_batch(
@@ -269,7 +270,8 @@ def main() -> None:
             seed,
             start_idx
         )
-        write_batch_to_file(batch_results, output_path, append=True)
+        write_batch_to_file(batch_results, output_path, append=not first_batch)
+        first_batch = False
         total_records += len(batch_results)
 
     duration = time.time() - start_time
