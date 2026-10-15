@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T01:01:46.479500Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-421-assessing-the-impact-of-data-resolution-
-last_run_id: 84a30442-e4bf-4d70-81b1-6612c084b8f6
+last_run_id: 4c6c5f6b-aebd-406d-9dc1-a21c1a85ce33
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-421-assessing-the-impact-of-data-resolution-/specs/001-assessing-the-impact-of-data-resolution
 title: Assessing the Impact of Data Resolution on Statistical Power in Publicly Available
   Spatial Datasets
-updated_at: '2026-10-15T16:22:08.805379Z'
+updated_at: '2026-10-15T16:22:23.318661Z'
