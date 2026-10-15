@@ -1,3 +1,27 @@
+T001:
+  c: true
+  h: 5dd5b788545c82a9e5a8439816c1387ddef1dd4ad9f655a3f7dd42d8e7842b15
+  r: "Checked the scaffold log and the unit\u2011test run, which confirm that `projects/PROJ-231-statistical-analysis-of-publicly-availab/`\
+    \ contains the required sub\u2011directories and `.gitkeep` placeholder files,\
+    \ and that `code/__init__.py` is present and valid Python. All specified artifacts\
+    \ exist and are non\u2011empty."
+  sig: 98d64df0fcafcd910f72178f4d833e6b6914cbc4bdc46711707a2d421cb613d5
+T002:
+  c: true
+  h: a6f1a0243e5786b647755c035677aa73767439e7c0d9495a040f55703cb0e148
+  r: "Checked the project\u2011root `.gitignore` (present) and the unit\u2011test\
+    \ log `tests/unit/test_gitignore.py` which confirms that `data/raw/`, `data/processed/`,\
+    \ `data/artifacts/`, compiled artefacts and Python cache files are correctly ignored.\
+    \ All tests passed, demonstrating the required ignore rules are in place."
+  sig: 99625658136c8ceadd9dc658203253e749afed16ef4aa44981df9c07b7e7095e
+T003:
+  c: false
+  h: 1a1bcec3b0f6637771341b21f1596896f3eef833c333a1541b9830ec093a2dc0
+  r: "Checked `requirements.txt` \u2013 it contains all required packages with exact\
+    \ version pins. However, there is no concrete evidence (e.g., installation log\
+    \ or command output) showing that `pip install -r requirements.txt` actually succeeds\
+    \ in a fresh environment, which is part of the task\u2019s verification requirement."
+  sig: d9a186119d5e13746242d6d9722e8cb39c3e93a436e9ff19fe610a92235712dc
 T023:
   c: false
   h: e9427d418909c8857caafb71c0b938c410076a4b38e481a9e2a162c7ff1408a7
@@ -12,13 +36,6 @@ T024:
   r: No evidence of files containing eigenvalues, eigenfunctions, or variance metrics
     was presented in `data/processed/`; the implementer did not provide the required
     saved outputs, so the task is not satisfied.
-T028a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test results, or documentation were provided that demonstrate the number\
-    \ of Leave\u2011One\u2011Out (LOO) iterations matches the ensemble size\u202F\
-    N. The required artifact (e.g., a script, log, or report confirming this validation)\
-    \ is missing, so the task is not satisfied."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -48,17 +65,3 @@ T033:
     directory is provided, nor any content showing methodological justification for
     the LOO Jackknife protocol. The required artifact is missing, so the task is not
     satisfied.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer supplied only the feature specification for climate model analysis
-    and no actual code, refactoring changes, or cleanup artifacts. There is no evidence
-    of any files modified, linting reports, test results, or documentation updates
-    that would demonstrate that code cleanup and refactoring were performed. The required
-    deliverables for task T034 are missing.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any files under `tests/unit/` was provided; the implementer did
-    not supply the additional unit test code required by task T036. The artifact is
-    missing, so the requirement is not satisfied.

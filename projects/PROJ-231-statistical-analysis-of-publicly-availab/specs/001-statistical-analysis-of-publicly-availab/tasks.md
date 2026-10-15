@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project scaffolding (must exist before any scientific work)
 
-- [ ] **T001** Create project‑root `projects/PROJ-231-statistical-analysis-of-publicly-availab/` with the following sub‑directories and placeholder files:  
+- [X] **T001** Create project‑root `projects/PROJ-231-statistical-analysis-of-publicly-availab/` with the following sub‑directories and placeholder files:  
   - `code/__init__.py`  
   - `data/raw/.gitkeep`  
   - `data/processed/.gitkeep`  
@@ -17,7 +17,7 @@
   - `contracts/` (empty for now)  
   *Verification*: `tree -L 3 projects/PROJ-231-statistical-analysis-of-publicly-availab/` lists all directories and `.gitkeep` files.
 
-- [ ] **T002** Add a project‑level `.gitignore` that excludes `data/raw/`, `data/processed/`, `data/artifacts/`, compiled artefacts, and Python caches.  
+- [X] **T002** Add a project‑level `.gitignore` that excludes `data/raw/`, `data/processed/`, `data/artifacts/`, compiled artefacts, and Python caches.  
   *Verification*: `git check-ignore -v data/raw/*` returns a matching rule.
 
 - [ ] **T003** Initialise `requirements.txt` with exact versions (pinned) for: `pandas`, `numpy`, `scipy`, `xarray`, `datasets`, `scikit-learn`, `scikit-fda`, `matplotlib`, `seaborn`, `pyyaml`, `black`, `ruff`, `pytest`.  

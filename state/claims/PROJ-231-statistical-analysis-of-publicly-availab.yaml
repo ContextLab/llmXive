@@ -57,3 +57,52 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-05T14:01:42Z'
+- artifact_path: projects/PROJ-231-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: test subset includes three CMIP6 models
+  claim_id: c_1ada2bdf
+  context: The command will download a minimal test shard of the CMIP6 dataset (three
+    models).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the test subset contains three CMIP6 models
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T13:43:13Z'
+- artifact_path: projects/PROJ-231-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: pipeline produces three plot files mode_1.png mode_2.png mode_3.png
+  claim_id: c_04d41f24
+  context: After successful execution, the artefacts will include plots/mode_1.png,
+    mode_2.png, mode_3.png.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the pipeline generates three plot files named mode_1.png, mode_2.png,
+    and mode_3.png
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T13:43:13Z'
+- artifact_path: projects/PROJ-231-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: log ends with 'Pipeline completed successfully'
+  claim_id: c_e771cb3d
+  context: 'You can verify the run completed correctly; the final line of the log
+    should read: Pipeline completed successfully.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the final line of the log reads 'Pipeline completed successfully'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T13:43:13Z'
