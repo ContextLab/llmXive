@@ -32,6 +32,16 @@ def configure_logging(log_file: Optional[str] = None, level: int = logging.INFO)
         file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
         _logger_instance.addHandler(file_handler)
 
+def init_logger(log_file: Optional[str] = None, level: int = logging.INFO) -> None:
+    """
+    Backwards‑compatible initializer used by legacy test code.
+
+    The original test suite expected a function named ``init_logger`` that
+    performed the same work as ``configure_logging``.  It now simply forwards
+    to ``configure_logging``.
+    """
+    configure_logging(log_file=log_file, level=level)
+
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """Get a logger instance, optionally with a specific name."""
     if _logger_instance is None:

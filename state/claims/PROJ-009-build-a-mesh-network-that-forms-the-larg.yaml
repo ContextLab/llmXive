@@ -648,3 +648,86 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-14T20:11:33Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: run command writes CSV file to data/raw with collected metrics
+  claim_id: c_bdd3b92f
+  context: 'This command: ... 4. Writes a CSV file to data/raw/ containing the collected
+    metrics'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The run command writes a CSV file to data/raw/ containing the collected
+    metrics
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: sweep command writes aggregated results to data/processed/execution_runs.csv
+  claim_id: c_a3d1913d
+  context: "The sweep command iterates over all granularity, node\u2011count and latency\
+    \ combinations defined in config.yaml, aggregates the results and writes them\
+    \ to data/processed/execution_runs.csv."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep command aggregates the results and writes them to data/processed/execution_runs.csv
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: theoretical bound validation writes data/results/theoretical_bound_validation.json
+  claim_id: c_ef3d6894
+  context: This loads the regression model, computes the Ong & Motani (2007) wireless
+    capacity bound using the measured bandwidth_Mbps and snr_db, and writes data/results/theoretical_bound_validation.json.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The theoretical bound validation command writes data/results/theoretical_bound_validation.json
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: integration tests can be run with --mock-testbed flag
+  claim_id: c_f18c7595
+  context: Integration Tests (Mocked Testbed) pytest tests/integration/ -v --mock-testbed
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Integration tests can be run with the --mock-testbed flag
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: computes Ong & Motani 2007 wireless capacity bound using measured bandwidth
+    and snr
+  claim_id: c_68d39e54
+  context: This loads the regression model, computes the Ong & Motani (2007) wireless
+    capacity bound using the measured bandwidth_Mbps and snr_db, and writes data/results/theoretical_bound_validation.json.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The theoretical bound validation computes the Ong & Motani (2007) wireless
+    capacity bound using the measured bandwidth_Mbps and snr_db
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'

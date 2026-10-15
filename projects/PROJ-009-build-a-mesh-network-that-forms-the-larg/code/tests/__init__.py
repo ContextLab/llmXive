@@ -1,1 +1,1 @@
-# Tests Module
+"""Top‑level tests package initialization."""

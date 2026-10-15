@@ -17,7 +17,7 @@ cd projects/PROJ-009-build-a-mesh-network-that-forms-the-larg
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+source venv/bin/activate # On Windows: venv\\Scripts\\activate
 
 # Install dependencies
 pip install -r code/requirements.txt
@@ -51,46 +51,44 @@ analysis:
  max_runtime_hours: 6
 ```
 
-2. **Verify SSH connectivity**:
+2. **Verify SSH connectivity** (mocked for CI):
 ```bash
-python code/orchestrator/node_manager.py --verify
+python -m code.orchestrator.cli verify
 ```
 
 ## Execution
 
-### Run a Single Benchmark
+### Run a Single Benchmark via the CLI
 
 ```bash
-python code/orchestrator/scheduler.py --config config.yaml --granularity fine --nodes 15 --latency 100
+python -m code.orchestrator.cli run --config config.yaml --granularity fine --nodes 15 --latency 100
 ```
 
-This will:
-1. Deploy tasks to 15 nodes
-2. Inject 100 ms latency
-3. Collect execution logs
-4. Output `data/raw/run_001.csv`
+This command:
+1. Discovers the requested number of nodes
+2. Injects the specified latency (when running on a real testbed)
+3. Executes a Monte‑Carlo integration benchmark
+4. Writes a CSV file to `data/raw/` containing the collected metrics
 
-### Run Full Parameter Sweep
+### Run a Full Parameter Sweep
 
 ```bash
-python -m code.orchestrator.sweep_runner --config config.yaml --output data/processed/sweep_results.json
+python -m code.orchestrator.cli sweep --config config.yaml
 ```
 
-This will:
-1. Execute all granularity/node/latency combinations defined in the sweep config
-2. Aggregate results into `data/processed/sweep_results.json`
-3. Log a summary of successful runs
+The sweep command iterates over all granularity, node‑count and latency
+combinations defined in `config.yaml`, aggregates the results and writes
+them to `data/processed/execution_runs.csv`.
 
-### Validate Against Theoretical Bound
+### Validate Against the Theoretical Bound
 
 ```bash
-python code/analysis/theoretical_bound.py --config config.yaml --input data/processed/regression_model.json
+python -m code.analysis.theoretical_bound --config config.yaml --input data/processed/regression_model.json
 ```
 
-This will:
-1. Load regression model results
-2. Compute Ong & Motani (2007) bound
-3. Output deviation metric and flag if empirical exceeds theoretical
+This loads the regression model, computes the Ong & Motani (2007) wireless
+capacity bound using the measured `bandwidth_Mbps` and `snr_db`, and
+writes `data/results/theoretical_bound_validation.json`.
 
 ### Orchestrator CLI Help
 
@@ -98,7 +96,7 @@ This will:
 python -m code.orchestrator.cli --help
 ```
 
-This command displays the available options and confirms that the entry point is functional.
+Displays all available sub‑commands and options.
 
 ## Testing
 
@@ -136,5 +134,5 @@ pytest tests/integration/ -v --mock-testbed
 | `tcpdump` not found | Install `tcpdump` on testbed devices |
 | Memory overflow on low‑end device | Reduce `estimated_ops` in benchmark config |
 | Run exceeds 6‑hour limit | Reduce `runs_per_config` or node count |
-| High packet loss detected | Check Wi‑Fi interference; abort run if >20 % |
-| `tc` not found on CI | The sweep runner will raise a clear error; ensure the physical testbed has `tc` installed. [UNRESOLVED-CLAIM: c_3d2a8a82 — status=not_enough_info] |
+| High packet loss detected | Check Wi‑Fi interference; abort run if >20 % |
+| `tc` not found on CI | The sweep runner will raise a clear error; ensure the physical testbed has `tc` installed. |

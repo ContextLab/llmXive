@@ -1,1 +1,1 @@
-"""Package marker for contract tests."""
+"""Contract test package initialization."""

@@ -14,74 +14,67 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/orchestrator/scheduler.py --config config.yaml --granularity fine --nodes 15 --latency 100 -> rc=1
+r/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 66, in <module>
+    class ExecutionRun(BaseModel):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 79, in ExecutionRun
+    @root_validator
+     ^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/lib/python3.11/site-packages/pydantic/deprecated/class_validators.py", line 235, in root_validator
+    return root_validator()(*__args)  # type: ignore
+           ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/lib/python3.11/site-packages/pydantic/deprecated/class_validators.py", line 241, in root_validator
+    raise PydanticUserError(
+pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 34, in <module>
-    from orchestrator.models import PhysicalNode, TaskChunk, TaskStatus
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 12, in <module>
-    from pydantic import BaseModel, Field, validator, root_validator
-ModuleNotFoundError: No module named 'pydantic'
+For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
 
 - python code/orchestrator/scheduler.py --config config.yaml --sweep -> rc=1
+r/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 66, in <module>
+    class ExecutionRun(BaseModel):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 79, in ExecutionRun
+    @root_validator
+     ^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/lib/python3.11/site-packages/pydantic/deprecated/class_validators.py", line 235, in root_validator
+    return root_validator()(*__args)  # type: ignore
+           ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/lib/python3.11/site-packages/pydantic/deprecated/class_validators.py", line 241, in root_validator
+    raise PydanticUserError(
+pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py", line 34, in <module>
-    from orchestrator.models import PhysicalNode, TaskChunk, TaskStatus
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 12, in <module>
-    from pydantic import BaseModel, Field, validator, root_validator
-ModuleNotFoundError: No module named 'pydantic'
+For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
 
 - python code/analysis/theoretical_bound.py --config config.yaml --input data/processed/regression_model.json -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/analysis/theoretical_bound.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/unit/ -v -> rc=2
-tor.logger import get_logger, init_logger
-E   ImportError: cannot import name 'init_logger' from 'orchestrator.logger' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/logger.py)
-=========================== short test summary info ============================
-ERROR tests/unit/test_data_aggregator.py
-ERROR tests/unit/test_heartbeat_monitoring.py
-ERROR tests/unit/test_instrumentor_remote.py
-ERROR tests/unit/test_logger.py
-ERROR tests/unit/test_models.py
-ERROR tests/unit/test_monte_carlo.py
-ERROR tests/unit/test_network_impairments.py
-ERROR tests/unit/test_overhead.py
-ERROR tests/unit/test_remote_tool_checker.py
-ERROR tests/unit/test_remote_tools_manager.py - AttributeError: module 'os' has no attribute 'dirname'
-ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
-ERROR tests/unit/test_scheduler.py
-ERROR tests/unit/test_scheduler_execution.py
-ERROR tests/unit/test_scheduler_straggler.py
-ERROR tests/unit/test_sweep_runner.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 15 errors in 1.23s ==============================
+on.py - pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
+
+For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
+ERROR tests/unit/test_scheduler_straggler.py - pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
+
+For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
+ERROR tests/unit/test_sweep_runner.py - pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
+
+For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
+!!!!!!!!!!!!!!!!!!! Interrupted: 14 errors during collection !!!!!!!!!!!!!!!!!!!
+======================= 40 warnings, 14 errors in 0.89s ========================
 
 
 - python -m pytest tests/contract/ -v -> rc=2
-(module_name)
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-<frozen importlib._bootstrap>:1204: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1176: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:690: in _load_unlocked
-    ???
-/home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
-    exec(co, module.__dict__)
-tests/contract/test_execution_run_schema.py:19: in <module>
-    from orchestrator.models import ExecutionRun, NodeStatus, TaskStatus
-code/orchestrator/models.py:12: in <module>
-    from pydantic import BaseModel, Field, validator, root_validator
-E   ModuleNotFoundError: No module named 'pydantic'
+.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    return root_validator()(*__args)  # type: ignore
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/contract/test_execution_run.py
-ERROR tests/contract/test_execution_run_schema.py
+ERROR tests/contract/test_execution_run.py - pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
+
+For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
+ERROR tests/contract/test_execution_run_schema.py - pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
+
+For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.21s ===============================
+======================== 10 warnings, 2 errors in 0.22s ========================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4

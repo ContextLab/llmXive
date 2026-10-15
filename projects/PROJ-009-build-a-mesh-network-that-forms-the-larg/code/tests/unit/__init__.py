@@ -1,1 +1,1 @@
-"""Package marker for unit tests."""
+"""Unit test package initialization."""
