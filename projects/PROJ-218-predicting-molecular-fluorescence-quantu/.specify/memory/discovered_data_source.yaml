@@ -1,0 +1,9 @@
+status: none
+intent: MoleculeNet Fluorescence dataset SMILES quantum yield download python package
+  dataset
+required_fields:
+- smiles
+- fluorescence_quantum_yield
+cache_key: e5fbdfec7a9b2b590d7665cbe982806ddd4be22345c3ec288292ebfa09c5c128
+searched_at: '2026-10-15T05:24:44.382156+00:00'
+retry_count: 1
