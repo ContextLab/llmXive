@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 from typing import List, Tuple
 import mne
-from mne.datasets.sleep_physionet import fetch_data
+import mne.datasets.sleep_physionet
 
 from integrity import calculate_file_checksum
 from config_utils import load_config
@@ -16,8 +16,8 @@ def _download_one_record(subject: int, night: int, dest_dir: Path) -> Path:
     """
     Download a single subject/night recording using MNE's fetch_data.
     """
-    # fetch_data returns a list of paths
-    fetched = fetch_data(
+    # Use the module-level fetch_data to avoid ImportError seen in previous runs
+    fetched = mne.datasets.sleep_physionet.fetch_data(
         subjects=[subject],
         recording="sleep-edf",
         path=str(dest_dir),
@@ -27,6 +27,8 @@ def _download_one_record(subject: int, night: int, dest_dir: Path) -> Path:
     if not fetched:
         raise RuntimeError(f"No files returned for subject {subject} night {night}")
 
+    # fetch_data returns a list of paths to the downloaded files in the MNE cache
+    # We move the .edf file to our project's data/raw directory
     src_path = Path(fetched[0])
     dst_path = dest_dir / src_path.name
 
@@ -46,20 +48,21 @@ def download_sleep_edf(output_dir: str = "data/raw/", n_subjects: int = 30) -> T
     error_entries: List[Tuple[str, str]] = []
     log_lines: List[str] = []
 
-    # Sleep-EDF has 20 subjects, 2 nights each = 40 recordings
-    max_subjects = 20
-    recordings_downloaded = 0
+    # Sleep-EDF Expanded has 100 subjects. 
+    # We iterate until we have enough unique subjects with at least one valid recording.
+    subjects_verified = 0
+    
+    for subject in range(1, 101):
+        if subjects_verified >= n_subjects:
+            break
 
-    for subject in range(max_subjects):
+        subject_had_valid_file = False
         for night in (1, 2):
-            if recordings_downloaded >= n_subjects:
-                break
-
             try:
                 logger.info(f"Fetching subject {subject}, night {night}...")
                 edf_path = _download_one_record(subject, night, base_path)
 
-                # Verify file integrity by reading it
+                # Verify file integrity by attempting to read the header
                 try:
                     _ = mne.io.read_raw_edf(edf_path, preload=False, verbose=False)
                 except Exception as exc:
@@ -69,19 +72,19 @@ def download_sleep_edf(output_dir: str = "data/raw/", n_subjects: int = 30) -> T
                     log_lines.append(f"ERROR\t{edf_path.name}\t{exc}")
                     continue
 
-                # Compute SHA-256 checksum
+                # Compute SHA-256 checksum for the verified file
                 checksum = calculate_file_checksum(edf_path, algorithm="sha256")
                 successful_paths.append(edf_path)
                 log_lines.append(f"{edf_path.name}\t{checksum}")
-                recordings_downloaded += 1
+                subject_had_valid_file = True
 
             except Exception as e:
-                # Network failures raise loudly
-                logger.error(f"Network failure fetching subject {subject}, night {night}: {e}")
+                # Network failures or MNE fetch errors raise loudly as per requirements
+                logger.error(f"Critical failure fetching subject {subject}, night {night}: {e}")
                 raise
 
-        if recordings_downloaded >= n_subjects:
-            break
+        if subject_had_valid_file:
+            subjects_verified += 1
 
     # Write log file
     log_path = base_path / "download_log.txt"
@@ -89,7 +92,7 @@ def download_sleep_edf(output_dir: str = "data/raw/", n_subjects: int = 30) -> T
         for line in log_lines:
             log_f.write(line + "\n")
 
-    logger.info(f"Download completed: {len(successful_paths)} verified, {len(error_entries)} errors.")
+    logger.info(f"Download completed: {subjects_verified} subjects verified, {len(successful_paths)} files total, {len(error_entries)} errors.")
     return successful_paths, error_entries
 
 def main() -> None:
