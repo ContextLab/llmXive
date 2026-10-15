@@ -1,0 +1,7 @@
+{
+  "task_id": "T004",
+  "fingerprint": "6015e661afcbc56fde831dc7d60624ca974186f43b1d4bb305a915026fc754d3",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused empty contents without execution: 'code/data/download_raw.py'"
+}

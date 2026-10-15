@@ -5,6 +5,7 @@ T002:
     exit=1'
   task: a18f9aee786ba8686dc931119b4d5e47d42bcbce149c04df0615d1b5269b676e
 T003:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/graph_features.parquet'
   task: daf78a28ccf04c679231bdf54f90a7dc27dca27af149d75a2a9abd6be71bf448
 T004:
   task: a07bff3ce4841bbf26625b54351188f82d62c6419bb084843f7f691c16403423
