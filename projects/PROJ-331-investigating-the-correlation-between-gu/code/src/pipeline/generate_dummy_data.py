@@ -4,8 +4,7 @@ The pipeline requires two user‑provided files:
   * data/raw/open_asv.csv
   * data/raw/open_clinical.parquet
 
-In a real analysis these would be supplied by the researcher.
-For the purpose of automated testing we create a tiny, syntactically
+For automated testing we create a tiny, syntactically
 valid example that satisfies all validation rules in
 ``code.src.pipeline.ingest`` (required columns, non‑empty rows,
 parsable dates, and a ``preprocessed`` flag set to ``True``).
@@ -51,7 +50,7 @@ def _write_clinical_parquet() -> None:
     out_path = paths.data("raw", "open_clinical.parquet")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     # ``pyarrow`` is used by pandas for Parquet I/O.
-    df.to_parquet(out_path, index=False)
+    df.to_parquet(out_path, index=False, engine="pyarrow")
     print(f"Dummy clinical Parquet written to {out_path}")
 
 def main() -> int:

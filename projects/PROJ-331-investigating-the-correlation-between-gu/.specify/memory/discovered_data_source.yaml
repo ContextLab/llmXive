@@ -1,19 +1,19 @@
 status: none
-intent: Parkinson's Progression Markers Initiative PPMI microbiome 16S longitudinal
-  dataset download clinical metadata MDS-UPDRS python package dataset
+intent: PPMI longitudinal microbiome ASV dataset with MDS_UPDRS clinical scores python
+  package dataset
 required_fields:
-- sample_id
 - patient_id
-- visit_id
-- asv_id
-- asv_count
-- taxonomy
-- MDS_UPDRS_total
-- collection_date
-- diet (optional)
-- antibiotics_use (optional)
-- BMI (optional)
-- constipation_medication (optional)
-cache_key: a1801ac9d811fdcc2ea1e36116cf76452d388a0a75762d33517e876356e79966
-searched_at: '2026-10-15T05:10:24.804565+00:00'
+- sample_id
+- visit_date_or_timepoint
+- asv_id_or_taxon_id
+- asv_count_or_relative_abundance
+- kingdom
+- phylum
+- class
+- order
+- family
+- genus
+- species
+cache_key: 7f1566e9dcfb6554d72a1f9339f3b17d407ab5c352df488abec3addb199a713b
+searched_at: '2026-10-15T06:11:12.297707+00:00'
 retry_count: 1
