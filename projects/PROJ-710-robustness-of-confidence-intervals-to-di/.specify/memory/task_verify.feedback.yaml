@@ -1,0 +1,37 @@
+T000:
+  reason: The provided `requirements.txt` is at the project root (not in `code/`)
+    and omits the required `ucimlrepo` package; the `pyproject.toml` lists version
+    ranges (`>=`) instead of exact pins. A correctly placed, fully pinned requirements
+    file (or pyproject with exact versions) including all specified dependencies is
+    missing.
+  task: 0f585adf50edf58d844b25eee381fc06b23bf702de58674d96f62b7fe801c3a0
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/data/fetch_real.py
+    exit=1'
+  task: 9cc787510676692b835931a30aebcabea7f70cdd26995adadc66fb8215cb8b63
+T002:
+  task: 23037647c42e6619d7fc65cd2f7076f153322216a6a3f0aebe53e9a9bbfd4870
+T003:
+  task: f559e6910e1c35223e1d5b52e208c75fc1bcdd8497944ffe2e5b044459d8c791
+T004:
+  task: d04852a8c95d3bfe018be0acce67e829bf5ef32bd40dd62c106ef6e2a739f5bb
+T005:
+  task: cc7eb11c164edc8777e01cfcda91af7d983995a5fa1cda59624ca3ce5827249a
+T006:
+  task: e275cb25be74d474398c6806e9208858aacd5971887591fe2342d594e71b4ef9
+T007:
+  task: 57520949a6471db66a15c2f3d6ed147fbab4b20bbbd7d8f2ff0bba2ea2f1c22a
+T008:
+  task: 844da0e1cb95d8805d472c32a1b4ee74a54a952b02fe6f5fa07a14beb33cefa9
+T009:
+  task: f08950f7a6d3638afc4231d2edd6fedd456e24c46dae96e7d8f1062b05f233df
+T010:
+  task: ec0bb9b93c073a2bb3f92016e5c9aeccecddfaaa7eb5371bc005c0693e0bfdd9
+T011:
+  task: a16246f80a6032ef98b55b44e889c301d2f778362222f594912fbcadedcb07da
+T012:
+  task: 4a6abefdc08ca64d01d33720404d78aec4b52ad1c6b8a63036b4d54e2e854717
+T013:
+  task: f0e279dda603b25a80bc25550da4975e5aaa6070335abbdf85cc3b7aad3102f2
+T014:
+  task: 468a7c80895db0e782eebdcd3895f47798fdc12dbfaece14e2d62958998be83f

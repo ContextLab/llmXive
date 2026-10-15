@@ -1,10 +1,11 @@
-T001e:
+T000:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, or Black settings) or any evidence of them being set up were presented.
-    The claim lacks the required artifacts to demonstrate that ruff/flake8 and Black
-    have been configured for the project.
+  h: 50fd5627e5e68f70b3e482364b59bb80d26d93877cedd6030e154803ce5b3bf8
+  r: The provided `requirements.txt` is at the project root (not in `code/`) and omits
+    the required `ucimlrepo` package; the `pyproject.toml` lists version ranges (`>=`)
+    instead of exact pins. A correctly placed, fully pinned requirements file (or
+    pyproject with exact versions) including all specified dependencies is missing.
+  sig: 145e42a204a07687047d45371273c3e6adf04f9a011a9d4f8447285de2f76057
 T003:
   c: false
   h: 2bd18fe6d60d6b725e002e0d9691337c7520ed733e5d95ff316da8868225d9fe
@@ -13,61 +14,3 @@ T003:
     \ `N_SIM` and `POPULATION_SIZE`) instead of the required 1,000,000\u2011sized\
     \ synthetic populations. Both the output artifact and the generation specifications\
     \ are missing/incorrect."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were provided showing that a validation layer\
-    \ was added to enforce double\u2011precision floating\u2011point arithmetic and\
-    \ restrict execution to CPU only. The only artifacts shown relate to a different\
-    \ feature (DP noise coverage) and do not address the required validation task."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, log files, or documentation showing that logging of simulation progress\
-    \ and completion for each (dataset,\u202F\u03B5,\u202Fnoise_type) combination\
-    \ was added. The submission contains only the task description and specifications,\
-    \ but provides no concrete artifact (e.g., modified source files, example log\
-    \ output, or test results) to verify the required logging functionality."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or documentation showing that the adjustment logic was added
-    to the simulation loop (i.e., executed after noise injection and before bootstrap
-    resampling) was provided. The evidence consists only of the task description and
-    feature specification, with no concrete implementation artifact to verify the
-    required integration.
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or log files were provided that add logging of adjustment
-    methods and their resulting coverage rates. The claim lacks any concrete artifact
-    (e.g., Python module, logging statements, example log output, or documentation)
-    demonstrating that the required logging was implemented.
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `artifacts/glm_summary.json` file was presented, and there is no code or\
-    \ output showing that p\u2011values and coefficients were extracted from GLM results\
-    \ and written to that JSON. The required artifact is missing, so the task is not\
-    \ satisfied."
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No summary table (e.g., CSV, markdown, or figure) was supplied, nor any code\
-    \ or output showing coverage rates for each (dataset, statistic,\u202F\u03B5,\
-    \ noise_type) combination. The claim lacks the required artifact, so the task\
-    \ is not satisfied."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data, or documentation artifacts were supplied that demonstrate validation
-    of GLM assumptions for a binary outcome or handling of convergence warnings. The
-    claim lacks any concrete implementation, tests, or output files required by the
-    task.
-T040:
-  c: false
-  h: 80e06518ffc71199d763806384257013889fc7f95a5e3373ac526546b9cada8b
-  r: The required file `code/data/download_utils.py` is missing entirely, so there
-    is no refactored code to verify removal of fallback try/except blocks or raising
-    of `DataFetchError`. The task cannot be considered fulfilled until the file exists
-    with the specified behavior.

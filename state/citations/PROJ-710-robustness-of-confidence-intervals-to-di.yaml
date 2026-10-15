@@ -1,4 +1,4 @@
-- artifact_hash: 7573c364b4eaa3aa7acb35a21003923192047c8ab69187ee1aa5fad9c1009064
+- artifact_hash: bf762b8fe881eb747f457732ba7382cffed445be7aec6587919c1508364b6e60
   artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: '2110.14465'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-10-15T23:23:29.642067Z'
-- artifact_hash: 7573c364b4eaa3aa7acb35a21003923192047c8ab69187ee1aa5fad9c1009064
+  verified_at: '2026-10-15T23:25:17.887701Z'
+- artifact_hash: bf762b8fe881eb747f457732ba7382cffed445be7aec6587919c1508364b6e60
   artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -19,4 +19,4 @@
   value: '1711.03908'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-10-15T23:23:29.642067Z'
+  verified_at: '2026-10-15T23:25:17.887701Z'
