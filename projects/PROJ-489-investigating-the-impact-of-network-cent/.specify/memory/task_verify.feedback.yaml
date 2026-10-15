@@ -1,9 +1,30 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
+  reason: "The verification criteria fail: `data/raw/` contains only an empty `download_log.txt`\
+    \ (0 bytes, no checksum-verified files) and zero `.edf` files, so the \"\u2265\
+    \ 30 subjects\" requirement is unmet. The execution log shows the download run\
+    \ \"completed\" in 0.6 seconds with \"0 files verified, 0 errors\" \u2014 no actual\
+    \ PhysioNet download occurred (each fetch returned instantly with no data), so\
+    \ the checksum log was never populated with real entries. Additionally, `requirements.txt`\
+    \ uses `>=` version ranges rather than the pinned versions the task specified."
   task: 8d045494b2f61d6481bba9c97ea8f8f57c44274f41b530ceb81afa7d9e6072db
 T002:
+  reason: "All 4 unit tests in `code/tests/test_preprocess.py` fail (exit 1) due to\
+    \ real bugs: `mne.time_frequency.psd_welch` doesn't exist, `spike[::sfreq]` uses\
+    \ a float slice index, ambiguous annotation `orig_time`, and a missing `paths`\
+    \ import in the test. Additionally, the required verification run on a real 3-subject\
+    \ subset never happened \u2014 no `data/processed/epochs_*.npz`, `metadata_*.json`,\
+    \ or `validation_log.txt` files exist, and `epoch_by_sleep_stage` doesn't actually\
+    \ extract `waking_night_id`/`sleep_night_id` from recording metadata (it just\
+    \ duplicates `info[\"description\"]`)."
   task: 6dfb22c003d3ca71dc37faf0c0d5340343a8830409a7fcb8e30478f966c8b4ac
 T003:
+  reason: "`code/metrics.py` is a 1.3 KB stub containing only imports and comments\
+    \ \u2014 none of the required functions (`compute_connectivity_matrix`, `compute_centrality_metrics`,\
+    \ `compute_pli`, `compute_vif`, `aggregate_subject_metrics`) are implemented,\
+    \ and the test run failed at import (exit 2). `data/metrics/SubjectMetrics.csv`\
+    \ is fabricated placeholder data with the wrong columns (`subject_id,centrality,pli,global_coherence`\
+    \ instead of the schema's `stage_label, mean_pli, n_epochs, ...` per-subject-per-stage\
+    \ rows), `vif_report.json` is missing, and no `connectivity_*_*.npy` files exist."
   task: bcfa40e346d40921019ec4ab39f886f697865f80a2fb2710bb44939929d370ad
 T004:
   task: 89cc61a519c2343ec99b88a3f496c91bf19d399805ba7b14e1085f2ab83adffc

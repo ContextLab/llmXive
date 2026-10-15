@@ -13,7 +13,7 @@ Download Sleep‑EDF dataset from PhysioNet using MNE‑Python.
 import logging
 import shutil
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import mne
 # The MNE API for the Sleep‑EDF dataset changed in recent versions.
@@ -82,40 +82,52 @@ def _fetch_sleep_data(
     # Determine whether the fetch function accepts a ``night`` argument.
     accepts_night = "night" in fetch_func.__code__.co_varnames
 
-    # Build arguments.
-    # Most recent versions accept: subjects, recording, path, verbose, night (optional)
-    # Older versions may accept: subjects, recordings, path, verbose
-    # We'll call with positional arguments to avoid name‑mismatch issues.
+    # Determine which keyword the function expects for the recording type.
+    if "recording" in fetch_func.__code__.co_varnames:
+        rec_kw = "recording"
+    elif "recordings" in fetch_func.__code__.co_varnames:
+        rec_kw = "recordings"
+    else:
+        rec_kw = None
+
+    # Build keyword arguments in a way that works for both old and new APIs.
+    kwargs = {
+        "subjects": subjects,
+        "path": str(path),
+        "verbose": False,
+    }
+
+    if rec_kw:
+        # MNE expects an *iterable* of recording identifiers.
+        # Passing a list ensures ``int in list`` works inside MNE.
+        kwargs[rec_kw] = [recording]
+
+    if accepts_night:
+        kwargs["night"] = night
+
     try:
-        if accepts_night:
-            fetched = fetch_func(
-                subjects,
-                recording,
-                path=str(path),
-                verbose=False,
-                night=night,
-            )
-        else:
-            # For versions without ``night`` we pass only the three mandatory args.
-            fetched = fetch_func(
-                subjects,
-                recording,
-                path=str(path),
-                verbose=False,
-            )
+        fetched = fetch_func(**kwargs)  # type: ignore[arg-type]
     except TypeError as exc:
-        # Fallback: try using keyword ``recordings`` if ``recording`` was not accepted.
-        if "recordings" in fetch_func.__code__.co_varnames:
-            kwargs = {
-                "subjects": subjects,
-                "recordings": recording,
-                "path": str(path),
-                "verbose": False,
-            }
+        # Fallback: try positional arguments (very old MNE versions).
+        logger.debug(f"Keyword call failed ({exc}); trying positional call.")
+        try:
             if accepts_night:
-                kwargs["night"] = night
-            fetched = fetch_func(**kwargs)  # type: ignore[arg-type]
-        else:
+                fetched = fetch_func(
+                    subjects,
+                    recording,
+                    str(path),
+                    False,
+                    night,
+                )
+            else:
+                fetched = fetch_func(
+                    subjects,
+                    recording,
+                    str(path),
+                    False,
+                )
+        except Exception as exc2:
+            logger.error(f"Unable to fetch data with both keyword and positional calls: {exc2}")
             raise
 
     # Ensure we have a list of Path objects.

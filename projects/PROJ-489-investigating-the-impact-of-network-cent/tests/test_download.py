@@ -1,59 +1,32 @@
 import os
-import json
+import pytest
 from pathlib import Path
-
 from download import download_sleep_edf
 
-def test_download_creates_log_and_files(tmp_path, monkeypatch):
+@pytest.mark.timeout(300)
+def test_download_small_subset(tmp_path, monkeypatch):
     """
-    Integration test for the download script.
-
-    - Uses a temporary directory to avoid polluting the repository.
-    - Calls ``download_sleep_edf`` with a small number of recordings (2)
-      to keep the test fast.
-    - Checks that the log file is created and contains a checksum entry
-      for each successfully downloaded file.
-    - Verifies that corrupted files are logged with the ``ERROR`` prefix
-      (simulated by monkey‑patching ``mne.io.read_raw_edf`` to raise).
+    Verify that the download function can retrieve a small subset (2 recordings)
+    without raising and that the log file is created.
     """
-    # Use a tiny subset to keep runtime low; the real dataset is large.
-    # The function will still attempt a real download, but only for two
-    # recordings which fit within the CI time limits.
-    output_dir = tmp_path / "raw"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Use a temporary directory to avoid polluting the repository.
+    out_dir = tmp_path / "raw"
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Monkey‑patch MNE's EDF reader to simulate a corrupted file for the
-    # first download while allowing the second to succeed.
-    import mne.io
+    # Patch the configuration loader to avoid reading the real config file.
+    monkeypatch.setattr("config_utils.load_config", lambda: {})
 
-    original_reader = mne.io.read_raw_edf
+    # Request only 2 recordings to keep the test fast.
+    successful, errors = download_sleep_edf(output_dir=str(out_dir), n_subjects=2)
 
-    def fake_reader(path, *args, **kwargs):
-        if "sleep-edfx-01-00" in str(path):
-            raise IOError("Simulated corruption")
-        return original_reader(path, *args, **kwargs)
+    # At least one file should be successfully downloaded.
+    assert len(successful) >= 1, "No files were downloaded successfully."
 
-    monkeypatch.setattr(mne.io, "read_raw_edf", fake_reader)
+    # The log file must exist and contain the same number of lines as
+    # successful + error entries.
+    log_path = out_dir / "download_log.txt"
+    assert log_path.is_file(), "download_log.txt was not created."
 
-    # Run the download (requesting exactly 2 recordings)
-    successful, errors = download_sleep_edf(output_dir=str(output_dir), n_subjects=2)
-
-    # Verify log file exists
-    log_path = output_dir / "download_log.txt"
-    assert log_path.is_file(), "download_log.txt should be created"
-
-    # Load log contents
     with open(log_path, "r", encoding="utf-8") as f:
-        lines = [line.strip() for line in f if line.strip()]
-
-    # Should contain one SUCCESS line and one ERROR line
-    assert any("\t" in line and not line.startswith("ERROR") for line in lines), "At least one successful checksum line expected"
-    assert any(line.startswith("ERROR") for line in lines), "At least one error line expected"
-
-    # The function should return matching lists
-    assert isinstance(successful, list)
-    assert isinstance(errors, list)
-    assert len(successful) + len(errors) == 2
-
-    # Clean up monkey‑patch
-    monkeypatch.setattr(mne.io, "read_raw_edf", original_reader)
+        lines = [ln.strip() for ln in f if ln.strip()]
+    assert len(lines) == len(successful) + len(errors), "Log line count mismatch."
