@@ -1,13 +1,3 @@
-T001:
-  c: false
-  h: e44a329759f31ca5965f5c88f26fe181eea325285869f1d42ec6cf5ed0b46f07
-  r: Checked the project layout, config loader, mock node generator, logger, models,
-    timeout guard, and quickstart documentation. The `data/results/` directory is
-    missing, the data directories lack required `__init__.py` files, there is no `code/.gitignore`,
-    and no execution evidence shows that `pytest code/tests/contract/` actually passes.
-    These missing/incorrect artifacts must be added and contract tests verified for
-    the task to be complete.
-  sig: b2b43a16bc3e6536a4b593ab22e339a780b69a81ffc56544c36298f0aee97275
 T003:
   c: false
   h: 43671e3beaec165b24c2b39d3de83847073744e8e9229fb8e6d77ab4b3a274df

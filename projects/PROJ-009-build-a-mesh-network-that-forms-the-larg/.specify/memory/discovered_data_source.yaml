@@ -1,17 +1,18 @@
 status: none
-intent: download PhysicalTestbedExecutionLog dataset with M-Lab NDT and OpenML reference
-  python package dataset
+intent: EdgeBench distributed execution logs dataset CPU packet counts OpenML python
+  package dataset
 required_fields:
 - node_id
-- timestamp
 - task_chunk_id
-- wall_clock_time
-- packet_count
+- start_timestamp
+- end_timestamp
+- wall_clock_time_seconds
+- packet_count_sent
+- packet_count_received
 - cpu_utilization_percent
 - memory_usage_mb
-- heartbeat_status
-- latency_injected_ms
+- task_status
 - reassignment_timestamp
-cache_key: 866f42b7944a9cc073a1226627b9d2323b1e0d8f182c9c1f86df11994a619931
-searched_at: '2026-10-15T01:31:06.248307+00:00'
+cache_key: 0ca610e9aeb227650b3cbf91a7cec806b8b0f03f366d56c6b44d1303a15a895d
+searched_at: '2026-10-15T05:10:52.814492+00:00'
 retry_count: 1

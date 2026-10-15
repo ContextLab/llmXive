@@ -14,67 +14,92 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/orchestrator/scheduler.py --config config.yaml --granularity fine --nodes 15 --latency 100 -> rc=1
-r/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 66, in <module>
-    class ExecutionRun(BaseModel):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 79, in ExecutionRun
-    @root_validator
-     ^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/lib/python3.11/site-packages/pydantic/deprecated/class_validators.py", line 235, in root_validator
-    return root_validator()(*__args)  # type: ignore
-           ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/lib/python3.11/site-packages/pydantic/deprecated/class_validators.py", line 241, in root_validator
-    raise PydanticUserError(
-pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
-
-For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
+ython(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 5 validation errors for PhysicalNode
+node_id
+  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+hostname
+  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+username
+  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+hardware_spec
+  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+status
+  Input should be 'idle', 'busy', 'offline' or 'error' [type=enum, input_value='active', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.14/v/enum
 
 - python code/orchestrator/scheduler.py --config config.yaml --sweep -> rc=1
-r/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 66, in <module>
-    class ExecutionRun(BaseModel):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/models.py", line 79, in ExecutionRun
-    @root_validator
-     ^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/lib/python3.11/site-packages/pydantic/deprecated/class_validators.py", line 235, in root_validator
-    return root_validator()(*__args)  # type: ignore
-           ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/lib/python3.11/site-packages/pydantic/deprecated/class_validators.py", line 241, in root_validator
-    raise PydanticUserError(
-pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
-
-For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
+ython(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 5 validation errors for PhysicalNode
+node_id
+  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+hostname
+  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+username
+  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+hardware_spec
+  Field required [type=missing, input_value={'ip': '127.0.0.1', 'stat...'cpu_speed_mhz': 1500.0}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+status
+  Input should be 'idle', 'busy', 'offline' or 'error' [type=enum, input_value='active', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.14/v/enum
 
 - python code/analysis/theoretical_bound.py --config config.yaml --input data/processed/regression_model.json -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-009-build-a-mesh-network-that-forms-the-larg/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/analysis/theoretical_bound.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/unit/ -v -> rc=2
-on.py - pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
-
-For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
-ERROR tests/unit/test_scheduler_straggler.py - pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
-
-For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
-ERROR tests/unit/test_sweep_runner.py - pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
-
-For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
-!!!!!!!!!!!!!!!!!!! Interrupted: 14 errors during collection !!!!!!!!!!!!!!!!!!!
-======================= 40 warnings, 14 errors in 0.89s ========================
+)
+tests/unit/test_sweep_runner.py:13: in <module>
+    from orchestrator.sweep_runner import SweepRunner, SweepConfig, generate_default_configs
+code/orchestrator/sweep_runner.py:25: in <module>
+    from orchestrator.scheduler import Scheduler, create_scheduler
+E   ImportError: cannot import name 'create_scheduler' from 'orchestrator.scheduler' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/scheduler.py)
+=========================== short test summary info ============================
+ERROR tests/unit/test_data_aggregator.py
+ERROR tests/unit/test_logger.py
+ERROR tests/unit/test_network_impairments.py
+ERROR tests/unit/test_remote_tool_checker.py
+ERROR tests/unit/test_remote_tools_manager.py - AttributeError: module 'os' has no attribute 'dirname'
+ERROR tests/unit/test_remote_wall_clock_timer.py - NameError: name 'pytest' is not defined
+ERROR tests/unit/test_scheduler_execution.py
+ERROR tests/unit/test_scheduler_straggler.py
+ERROR tests/unit/test_sweep_runner.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 9 errors in 0.97s ===============================
 
 
 - python -m pytest tests/contract/ -v -> rc=2
-.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
-    return root_validator()(*__args)  # type: ignore
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+_path
+    importlib.import_module(module_name)
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:690: in _load_unlocked
+    ???
+/home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
+    exec(co, module.__dict__)
+tests/contract/test_execution_run.py:13: in <module>
+    from orchestrator.config import OrchestratorConfig
+E   ImportError: cannot import name 'OrchestratorConfig' from 'orchestrator.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/code/orchestrator/config.py)
 =========================== short test summary info ============================
-ERROR tests/contract/test_execution_run.py - pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
-
-For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
-ERROR tests/contract/test_execution_run_schema.py - pydantic.errors.PydanticUserError: If you use `@root_validator` with pre=False (the default) you MUST specify `skip_on_failure=True`. Note that `@root_validator` is deprecated and should be replaced with `@model_validator`.
-
-For further information visit https://errors.pydantic.dev/2.14/u/root-validator-pre-skip
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 10 warnings, 2 errors in 0.22s ========================
+ERROR tests/contract/test_execution_run.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.24s ===============================
 
 
 - python -m pytest tests/integration/ -v --mock-testbed -> rc=4
