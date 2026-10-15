@@ -13,10 +13,6 @@ T006:
 T007:
   task: 2a5eb6c68bb38a468471294748154a255007b7bb561d689349f81b7e0377aa45
 T008:
-  reason: Checked `code/config/analysis_config.json`; it contains `min_samples_per_bin`
-    and `splines_df_candidates` but lacks the required `density_bins` and `horizon_bins`
-    entries (and includes an unrelated `p_value_threshold`). The file does not fully
-    satisfy the task specification.
   task: 602a814b13fbf0db673e2738eeb432d06d028e9fb4b0826e14610995bd2cc9f5
 T009:
   task: b4e8553d5fb114fade5979d240c169b36d34c911aae243c1313b383c0fe275cb
@@ -25,21 +21,16 @@ T010:
 T011:
   task: 7aa3f4242fa85f859a58c86072e464ecb948e0436916826935fa9d32f17c670d
 T012:
-  reason: The `code/validate_trajectories.py` script does not accept a positional
-    file argument, so the required command `python -m code.validate_trajectories data/raw/trajectories.json`
-    fails with an argparse error. Additionally, the unit test `tests/unit/test_trajectory_schema.py`
-    crashes because its path calculation (`parents[3]`) points to the `projects` folder
-    instead of the project root, resulting in a FileNotFoundError for `data/raw/trajectories.json`.
-    Both verification steps therefore do not succeed.
+  reason: "Checked `code/validate_trajectories.py` and `tests/unit/test_trajectory_schema.py`.\
+    \ The validator uses a relaxed tolerance of\u202F0.07\u202Fbits/token instead\
+    \ of the required\u202F\xB10.01\u202Fbits/token and treats the `is_last_turn`\
+    \ flag as optional, violating the specification. The unit test references `contracts/trajectory.schema.yaml`,\
+    \ which is not present in the provided artifacts, so the test cannot pass. Additionally,\
+    \ the script\u2019s success condition expects \u201CAll 500 trajectories\u2026\
+    \u201D, but the supplied JSON file\u2019s length cannot be confirmed as 500. These\
+    \ issues mean the task\u2019s requirements are not genuinely met."
   task: 6ec7205547cb792efe8c8e5562470454e096eece199e9cd39c6b6f98d76f8af1
 T013:
-  reason: "The unit\u2011test file `tests/unit/test_density_isolation.py` exists,\
-    \ but when run it fails four tests because `calculate_composite_density` returns\
-    \ values greater than\u202F1 (e.g.,\u202F2.37,\u202F2.52), violating the test\u2019\
-    s \u201C0\u202F\u2264\u202Fdensity\u202F\u2264\u202F1\u201D assertion. Consequently\
-    \ the test suite does not verify that the implementation meets the required formula\
-    \ in a passing state. The implementation must be adjusted (e.g., clamp or normalize\
-    \ the density) or the test expectations revised so that all tests succeed."
   task: 9f75acc23a41078df71a557eda3058839181fb288f8a655e001b1c0b30f631b8
 T014:
   reason: "Checked `code/simulate_agent.py`, `data/raw/trajectories.json`, `code/config/simulation_config.json`,\
@@ -79,4 +70,6 @@ T025:
 T026:
   task: c025ef960d184cb5eba492c7aefed97f440bb73278dee92972da57b74717d24f
 T027:
+  reason: 'Requested task execution failed; rerun successfully: code/validate_regime_map.py
+    exit=1'
   task: 4ca241e5694eee9c2977a7743b5311309c22615a83a47237e1d45fea6ffdbd10

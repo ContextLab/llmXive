@@ -1,40 +1,23 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/validate_trajectories.py  --input data/raw/trajectories.json`
+  - script usage: `validate_trajectories.py [-h] [input]`
+  - argparse error: `validate_trajectories.py: error: unrecognized arguments: --input`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/sensitivity.py  --input data/raw/trajectories.json  --output-dir results/sensitivity; 2 command(s) failed: python code/validate_trajectories.py  --input data/raw/trajectories.json (rc=1); python code/analyze_results.py  --input data/logs/simulation_results.csv  --output-dir results (rc=1)
+**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/sensitivity.py  --input data/raw/trajectories.json  --output-dir results/sensitivity; 1 command(s) failed: python code/validate_trajectories.py  --input data/raw/trajectories.json (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/validate_trajectories.py  --input data/raw/trajectories.json -> rc=1
-- ERROR -   - Trajectory 168: Entropy mismatch (target=3.5000, measured=3.5649, diff=0.0649)
-2026-10-15 04:42:35,386 - ERROR -   - Trajectory 169: Entropy mismatch (target=3.5000, measured=3.5182, diff=0.0182)
-2026-10-15 04:42:35,386 - ERROR -   - Trajectory 171: Entropy mismatch (target=3.5000, measured=3.5357, diff=0.0357)
-2026-10-15 04:42:35,386 - ERROR -   - Trajectory 172: Entropy mismatch (target=3.5000, measured=3.5420, diff=0.0420)
-2026-10-15 04:42:35,386 - ERROR -   - Trajectory 175: Entropy mismatch (target=3.5000, measured=3.5263, diff=0.0263)
-2026-10-15 04:42:35,386 - ERROR -   - Trajectory 176: Entropy mismatch (target=3.5000, measured=3.5348, diff=0.0348)
-2026-10-15 04:42:35,386 - ERROR -   - Trajectory 177: Entropy mismatch (target=3.5000, measured=3.5680, diff=0.0680)
-2026-10-15 04:42:35,386 - ERROR -   - Trajectory 179: Entropy mismatch (target=3.5000, measured=3.5356, diff=0.0356)
-2026-10-15 04:42:35,386 - ERROR -   - Trajectory 180: Entropy mismatch (target=3.5000, measured=3.5404, diff=0.0404)
-2026-10-15 04:42:35,386 - ERROR -   - Trajectory 181: Entropy mismatch (target=3.5000, measured=3.5430, diff=0.0430)
-2026-10-15 04:42:35,386 - ERROR -   ... and 250 more.
+- python code/validate_trajectories.py  --input data/raw/trajectories.json -> rc=2
 
-- python code/analyze_results.py  --input data/logs/simulation_results.csv  --output-dir results -> rc=1
-Selected optimal spline df=4 with AIC=5755.0679
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/analyze_results.py", line 302, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/analyze_results.py", line 289, in main
-    results = run_logistic_regression(df, config)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/analyze_results.py", line 137, in run_logistic_regression
-    "pseudo_r_squared": float(model.prsquared),
-                              ^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/statsmodels/base/wrapper.py", line 34, in __getattribute__
-    obj = getattr(results, attr)
-          ^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'GLMResults' object has no attribute 'prsquared'
+usage: validate_trajectories.py [-h] [input]
+validate_trajectories.py: error: unrecognized arguments: --input
 
 - python code/sensitivity.py  --input data/raw/trajectories.json  --output-dir results/sensitivity -> rc=2
 

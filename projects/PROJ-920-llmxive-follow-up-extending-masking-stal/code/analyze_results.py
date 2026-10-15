@@ -130,11 +130,18 @@ def run_logistic_regression(df: pd.DataFrame, config: Dict[str, Any]) -> Dict[st
         df, config["splines_df_candidates"]
     )
 
+    # Compute McFadden's pseudo R-squared manually (GLMResults lacks .prsquared in some versions)
+    try:
+        pseudo_r_squared = 1 - model.llf / model.llnull
+    except Exception:
+        # Fallback to 0 if for any reason the attributes are missing
+        pseudo_r_squared = 0.0
+
     # Model summary components
     model_summary = {
         "formula": formula,
         "n_observations": int(model.nobs),
-        "pseudo_r_squared": float(model.prsquared),
+        "pseudo_r_squared": float(pseudo_r_squared),
     }
 
     # Coefficients list

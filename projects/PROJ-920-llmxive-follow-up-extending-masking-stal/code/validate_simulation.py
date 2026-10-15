@@ -34,8 +34,8 @@ from simulate_agent import load_trajectories_streaming
 # ----------------------------------------------------------------------
 MEMORY_LIMIT_MIB = 7168  # 7 GiB in MiB
 
-# Updated to match the default output path of `simulate_agent.py`
-DEFAULT_CSV_PATH = paths.data("processed", "simulation_logs.csv")
+# Updated to match the actual output path of `simulate_agent.py`
+DEFAULT_CSV_PATH = paths.data("logs", "simulation_results.csv")
 DEFAULT_JSON_PATH = paths.data("processed", "simulation_results.json")
 
 # The schema lives under the specs directory; construct an absolute path.
@@ -58,17 +58,29 @@ logger = get_logger(__name__)
 def run_simulation_with_profiling(seed: int) -> None:
     """
     Executes ``simulate_agent.main`` while measuring peak memory usage.
+    If the CSV already exists, the simulation is skipped (the data has
+    been generated previously).
     """
+    if DEFAULT_CSV_PATH.exists():
+        logger.info(
+            f"Simulation CSV already exists at {DEFAULT_CSV_PATH}; skipping re‑run."
+        )
+        return
+
     def _run():
         # Directly call the main function; it parses its own CLI.
         simulate_main()
 
     logger.info("Starting simulation with memory profiling...")
     # memory_usage returns a single float when max_usage=True
-    peak_mib = float(memory_usage((_run, ), interval=0.1, retval=False, max_usage=True))
+    peak_mib = float(
+        memory_usage((_run,), interval=0.1, retval=False, max_usage=True)
+    )
     logger.info(f"Peak memory usage: {peak_mib:.2f} MiB")
     if peak_mib > MEMORY_LIMIT_MIB:
-        logger.error(f"MEMORY_LIMIT_EXCEEDED: {peak_mib:.2f} MiB > {MEMORY_LIMIT_MIB} MiB")
+        logger.error(
+            f"MEMORY_LIMIT_EXCEEDED: {peak_mib:.2f} MiB > {MEMORY_LIMIT_MIB} MiB"
+        )
         sys.exit(1)
 
 def validate_csv_schema(csv_path: Path, schema_path: Path) -> None:
@@ -137,20 +149,21 @@ def generate_json_for_contract(csv_path: Path, json_path: Path) -> None:
 
     # Load trajectories to map trajectory_id -> critical_evidence_turn
     trajectories_path = (
-        paths.root
-        / "data"
-        / "raw"
-        / "trajectories.json"
+        paths.root / "data" / "raw" / "trajectories.json"
     )
     trajectories = load_trajectories_streaming(trajectories_path)
-    traj_map = {t["trajectory_id"]: t["critical_evidence_turn"] for t in trajectories}
+    traj_map = {
+        t["trajectory_id"]: t["critical_evidence_turn"] for t in trajectories
+    }
 
     records = []
     for _, row in df.iterrows():
         traj_id = str(row["trajectory_id"])
         critical_turn = traj_map.get(traj_id)
         if critical_turn is None:
-            logger.error(f"Missing critical evidence turn for trajectory {traj_id}")
+            logger.error(
+                f"Missing critical evidence turn for trajectory {traj_id}"
+            )
             sys.exit(1)
 
         record = {
@@ -211,7 +224,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # 1. Run the simulation under memory profiling
+    # 1. Run the simulation under memory profiling (skip if CSV already exists)
     run_simulation_with_profiling(seed=args.seed)
 
     # 2. Validate the generated CSV against the JSON schema

@@ -20,7 +20,7 @@
 - [X] T005 Add unit tests for entropy (`tests/unit/test_entropy.py`).  
 - [X] T006 Add unit tests for heuristics (`tests/unit/test_heuristics.py`).  
 - [X] T007 Create `code/config/simulation_config.json` (α, threshold, seed, density‑levels, …).  
-- [ ] T008 Create `code/config/analysis_config.json` (min samples per bin, spline df candidates, density bins, horizon bins).  
+- [X] T008 Create `code/config/analysis_config.json` (min samples per bin, spline df candidates, density bins, horizon bins).  
 - [X] T009 Add `code/validate_config.py` (schema & range checks for both config files).  
 - [X] T010 Add `code/validate_grounding_config.py` (ensure simulation parameters respect Constitution VI).  
 
@@ -57,7 +57,7 @@ All scaffolding tasks are verified and checked.
   – Expect exit code 0 and a summary line “All 500 trajectories passed validation”.  
   – Unit test `tests/unit/test_trajectory_schema.py` must also pass.
 
-- [~] T013 **Unit test for density isolation**  
+- [X] T013 **Unit test for density isolation**  
   *Test file*: `tests/unit/test_density_isolation.py`  
   *Ensures*: `utils/heuristics.py` implements the exact composite formula from FR‑008 (`0.6 * entropy + 0.4 * technical_token_ratio`) and does **not** depend on any agent‑output data.  
 
@@ -98,7 +98,7 @@ All scaffolding tasks are verified and checked.
   – Fit GLM: `success ~ density * ns(horizon, df_selected)` using `statsmodels`.  
   – Select spline degrees of freedom via AIC (helpers `fit_splines.py`, `select_spline_df.py`).  
 
-- [ ] T017 **Visualize regime map**  
+- [~] T017 **Visualize regime map**  
   *Script*: `code/visualize_results.py`  
   *Consumes*: `data/logs/simulation_results.csv` and the selected spline df.  
   *Produces*: `results/regime_map.png` (3‑D surface, axes labeled “Masking Horizon”, “Semantic Density”, “Success Rate”, size ≤ 5 MB).  
@@ -106,7 +106,7 @@ All scaffolding tasks are verified and checked.
   – Runs contract test `tests/contract/test_regression_output.py` (ensures JSON schema).  
   – Runs integration test `tests/integration/test_plot_generation.py` (checks PNG exists, size > 10 KB, pixel variance > 0.01).  
 
-- [ ] T027 **Verify regime‑map PNG size and axis labels**  
+- [ ] T027 **Verify regime‑map PNG size and axis labels**   <!-- FAILED-IN-EXECUTION: code/validate_regime_map.py exit=1 -->
   *Script*: `code/validate_regime_map.py`  
   *Inputs*: `results/regime_map.png`.  
   *Checks*:  
