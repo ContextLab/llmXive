@@ -1,113 +1,34 @@
 T001:
-  reason: "The task requires creating the project directory structure (code, data/raw,\
-    \ data/derived, data/results, tests), but the evidence collector found no artifacts\
-    \ on disk \u2014 no directories or files were confirmed to exist at the project\
-    \ root. There is no evidence that `mkdir -p` was executed or that any of the five\
-    \ required directories exist; the implementer must actually create `projects/PROJ-421-assessing-the-impact-of-data-resolution-/`\
-    \ with its `code`, `data/raw`, `data/derived`, `data/results`, and `tests` subdirectories."
-  task: 08c8acb2463f448d317e954540dd42b3057d7f0891815d9e3460e34aa67efee9
+  reason: 'Requested task execution failed; rerun successfully: code/data_ingestion.py
+    exit=1'
+  task: 73a4192fac40c6a4826d21c03de818c6cb5d866630c756d97d7003252b8dc36a
 T002:
-  task: 647533398ae593f14dc4315b518f775e2dd93cb4c03ad9fb8d1529759ab81cc4
+  task: 872126aad47c260fc22bec33e464db3cd197b9f836272746d4b058035bb3be78
 T003:
-  reason: The directory listing confirms `.ruff.toml`, `.black.toml`, `setup_linting.sh`,
-    and `pyproject.toml` exist in `projects/PROJ-421-.../code/`, but no file contents
-    were provided, so there is no evidence the ruff/black configurations are actually
-    valid or non-stub. Critically, `.black.toml` is not a configuration file Black
-    recognizes (Black only reads `pyproject.toml`, or CLI flags), so the formatting
-    tool is effectively unconfigured; the implementer should place Black settings
-    under `[tool.black]` in `pyproject.toml` (or document CLI usage) and show the
-    actual ruff config contents.
-  task: 30abb075fb8dae00c218a4bcfceaed6e7a8c75d295d5e97a0262fc4db956feb5
+  task: 073b25cab0ea3ff5d26987873b19616f39299c8918daa41969bf477f91ba7969
 T004:
-  task: 94fca272009c649dcd88e66f7a4514170525bee614d6cb2b1bf8216db29a074f
+  task: e8089d3afa5a4ed895b2de12818e4059c31c9010533f72b82f94daaae838afc8
 T005:
-  task: c3b99d902a1b076e9e04b2d5021025e432f787a48bc088717aa74ca1381708cd
+  task: 4f77bb1841682399d64683c82d1afab73674247a92746b3d2500d478ac3869ef
 T006:
-  task: e1d785eaa0143a88991ad723ec44f213451100f9feb9871182418bf2ac2afacc
+  task: eecdabe2426ac83cd79ac73a2ea0b8a43d0bdfefd99c682467ae72debdc04c45
 T007:
-  task: 90a9a3e03a18b712861adc40067985a62ae7ad76b86b1be4d96df26dd80186ef
+  task: 2e1ec172df75b5f8b05992bc6243c143184aefac37bc74ccf2b403b81157cae1
 T008:
-  task: 8ebe7f1cf3249b0931a2e363895f7eeb5dc5c231b4858d23bcde48fc095e5d3f
+  task: ec6389754802d515d76be799f4b8ab66a9123cb8d6724229acd97c50da23c415
 T009:
-  task: fac0159987435e31b9ce69c8305a2178a295aa6b55f12fb750acf7c4d271f58e
-T009b:
-  task: 6b821317ee5980d748dc807ee9297519c7d3957381591280d910e8cbb9ed2025
+  task: 9299660240ffcd898f06b8d8f4eb0aa692f6b64785839a5f1d3ac90195f2a09c
 T010:
-  task: b56dabb62d8e22ac201ce5a0e96d7d2651e9714c426d480293a42b97cc2efc9e
-T010#1:
-  task: b34f4d6fef393a9f71ddf3d804887e83483c4197fee9840578d63ca5fe62de0c
+  task: fac0ecb0a1c585634c6c591028bc049d47c143871d80f6a5251c5676ee3e8eed
 T011:
-  task: 94611270cc4b58178439321519acbc520f3c477fac0089c5663e474a0321d289
+  task: 680426d2e04fb6b66a05b32d3a3cf229c1ca14f47e416307f7e4769d820b34a2
 T012:
-  task: 213c4a6bc7c13e92f3a3b34e8268c4a0f447b74194f76d54e90658e34518373c
+  task: 191be277b7f97d9abdf650306d26d5bcd66456fd9a71036cd61da71b18356140
 T013:
-  task: c06a01436c0cb75c4bbba102326f5ef0909905a1107157250cf7cc8d0f68c2e2
-T013b:
-  task: c6954e72dcc7bd0d43178fa7e5c2f7f1e2c64bc3e361e65990e600d4712739b7
-T014a:
-  task: 3cd36885e9ea00c5e5fccbcc5dbde1d31636e88b09300be31fdc868fec00a911
-T014b:
-  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-assessing-the-impact-of-data-resolution-/code/resampling.py,
-    data/derived/'
-  task: 76203c57073ff8b63fc534bc8e7f7c807140c92c93b3ad6e5ab5fec8555a3129
+  task: d417a627467856d9a5d3436d25f091fec8a7f042424dac8b639ddc6863b98960
+T014:
+  task: ac0cd9cbe0b58454644355c3dc65027f411cde5ae14116763f402349424d7891
 T015:
-  task: 81b57c7586291737f5ed134fb9cef79328dc1d1af69ce21bad778b98250c9c07
+  task: 10474d84ef5cf46ea3df9492c2ec2a4135c7fc64da76602f5e46039e93470632
 T016:
-  task: 957396453d532479a40014bb4510301cb4933bb11b1fc5a1cca37a78d8ac3e23
-T018:
-  task: b031800b3f0fdaa5b8f8d915b54746ce4542758189a40348857928e83831012f
-T019:
-  task: 7b535877502e883358a335f2e005c85361b9a76dfbff7da40012527b7d8ce763
-T020:
-  task: 6d45207c1ec1afd5f9bf3d2c4d468e897615672d641630945235f3b6321d0ddc
-T021:
-  task: ac0ad21628cbfecfe2ea5b73b19fdc79d33a1746541cb8e4de2a75fa274cf091
-T022:
-  task: 075e4774c9684cd3beff6700a90f7f1efe77ce2339907dff0194cc6865a83ff9
-T022a:
-  task: aa95552ec2d41fe5de7285f237a0abe47b886868650ad38d622cc3abf17ec75a
-T025:
-  task: 23c44eb696e02ba00284185deff7d8c32df0f727843792564c24dd795742eadc
-T025a:
-  task: b0081549c5c045b3c8016b94ce8773f7ad5bf67fb05975ae4f05b3637ef918c5
-T026:
-  task: 2bb87be7b84e79ef7fd2675a0b24df73af5150ccb6168fe9b35683c5850690dd
-T027:
-  task: 827559b9e4ece9de2b2748430eb76bb9564984d57820af40a2bf29595b77de61
-T028:
-  task: 50f110bd8d34a6e5fcd0f0eb336dcaefcd36ac66247fd8ac20b81f88bdca5308
-T029:
-  task: b3688013d0c79a974b7e0c97a1bf4a60c4316934434077026cbb08977ee1cf72
-T030:
-  task: e877a112f8721b8035f5492201acf0c743087223c907e8c2da5c2e04211e3c07
-T032:
-  task: ff314f4a876480715d21ce1ac6a678738cd035b662f617baab10ebffc262dc28
-T032a:
-  reason: 'declared artifact(s) missing/empty/invalid: data/derived/sensitivity/'
-  task: b502ed70df219ccfc7cc22c7368a51394f099ca4f6d947f1671881e2e1c1cf8d
-T032b:
-  task: 96ecd4fc2bd96fdaea923afead9db5e71bcc7a57e85bc14693022a0e5569c74b
-T033:
-  task: d9c01229951a62538dfc061af0b15e392fe05f508501b8bafc114b0fbc44f8ca
-T034:
-  task: d5a06d587c1bdf5490bc3d07f8c41272e126a9589f7061230fbd46a131635e87
-T035:
-  task: 68db478d2fa76ddf1a0d416e0fcb6163796431e28ddc2067b644f52c4322f31f
-T035a:
-  task: f6a204e16e5f7fb577fb82ab6f9280dd003dd900ebd7f352a05c222d733a8b09
-T035b:
-  task: a9666db1d3b6d0b00d19ac57b05fa458bc0a5a173f807f747b142fd86f5e0925
-T036:
-  task: f3844b204b5c48e937488730f2b1efa309e08c55786088e9974428bbb6785b23
-T037:
-  task: 9ff685c30e6746533c7ceaeaf9ba2449841f8c73ca8e92caf6407e1f63c9b9c4
-T039a:
-  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/main.py'
-  task: fafcde87c0e1e886bcd1a43fd4c17418183a928c870dcefd01cc347e0c509e1a
-T039b:
-  reason: 'declared artifact(s) missing/empty/invalid: code/main.py'
-  task: df067ef87e3c02820e73c0b08bcab374e123fc38393af4708d219c7dd1299836
-T040:
-  task: 94fd3ce18ea11434216b0134960014add9e93245102093056b8da1b5dc91d3dd
-T041:
-  task: cd1688552a0c118d78aebb294ade1882b2531a8f11f12d82effb014b2f72f7c1
+  task: bec1b85f24a49640ac53f1ba00fcdb040db8ff1b089caf22ed773e871a3411e9

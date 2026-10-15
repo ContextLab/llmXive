@@ -7,7 +7,7 @@
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 Implement real NLCD data ingestion in `code/data_ingestion.py` (FR‑001).  
+- [ ] T001 Implement real NLCD data ingestion in `code/data_ingestion.py` (FR‑001).   <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
   - Use the USGS EarthExplorer API (official Python client) with a valid API key to download the 30 m NLCD Land Cover tile for Colorado, applying the user‑specified bounding box.  
   - Perform windowed reads with `rasterio` to crop the CONUS raster to the bounding box and write `data/raw/nlcd_30m_co.tif`.  
   - Retry up to 3 times with exponential back‑off; on final failure **RAISE** a clear error (no synthetic fallback).  

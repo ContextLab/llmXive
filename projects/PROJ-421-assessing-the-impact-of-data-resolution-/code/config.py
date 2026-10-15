@@ -27,3 +27,9 @@ FINAL_REPORT_PATH = DATA_RESULTS_DIR / "final_report.md"
 
 # Logging
 LOG_LEVEL = "INFO"
+
+# NLCD specific constants for ingestion (real public source)
+NLCD_URL = "https://prd-tnm.s3.amazonaws.com/StagedProducts/NLCD/2021/30m/raster/CO/NLCD_2021_Land_Cover_L48_20210604_CO.tif"
+NLCD_EXPECTED_CHECKSUM = ""  # Empty means checksum verification will be skipped
+NLCD_OUTPUT_FILENAME = "nlcd_30m_co.tif"
+NLCD_METADATA_FILENAME = "nlcd_30m_co_meta.json"

@@ -6,9 +6,15 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 ## Failing / missing run-book commands
 
-- python main.py --action ingest --state CO --output data/derived/ -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-421-assessing-the-impact-of-data-resolution-/main.py': [Errno 2] No such file or directory
-- python main.py --action analyze --class-id 41 --permutations 1000 --simulations 1000 -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-421-assessing-the-impact-of-data-resolution-/main.py': [Errno 2] No such file or directory
-- python main.py --action plot --output figures/power_curve.png -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-421-assessing-the-impact-of-data-resolution-/main.py': [Errno 2] No such file or directory
+- python main.py --action ingest --state CO --output data/derived/ -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-421-assessing-the-impact-of-data-resolution-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-421-assessing-the-impact-of-data-resolution-/main.py': [Errno 2] No such file or directory
+
+- python main.py --action analyze --class-id 41 --permutations 1000 --simulations 1000 -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-421-assessing-the-impact-of-data-resolution-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-421-assessing-the-impact-of-data-resolution-/main.py': [Errno 2] No such file or directory
+
+- python main.py --action plot --output figures/power_curve.png -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-421-assessing-the-impact-of-data-resolution-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-421-assessing-the-impact-of-data-resolution-/main.py': [Errno 2] No such file or directory
+

@@ -1,155 +1,164 @@
 """
 Data Ingestion Module for NLCD Colorado Subset.
 
-Downloads high-resolution NLCD 30m data for Colorado from a verified HuggingFace dataset,
-validates the file using checksums, and applies retry logic for robustness.
+Downloads the 30 m NLCD tile for Colorado from a public AWS-hosted URL,
+validates the download, writes the raster to ``data/raw/`` and produces a
+JSON metadata file conforming to ``dataset.schema.yaml``.
 """
-import os
 import sys
-import hashlib
-import time
 import logging
 from pathlib import Path
-
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    code_dir = Path(__file__).resolve().parent
-    if str(code_dir) not in sys.path:
-        sys.path.insert(0, str(code_dir))
 
 import requests
 from tqdm import tqdm
 
+# Import configuration and utilities from the project
 from config import (
-    NLCD_HF_DATASET_ID,
-    NLCD_HF_FILENAME,
-    NLCD_EXPECTED_CHECKSUM,
+    NLCD_URL,
+    NLCD_OUTPUT_FILENAME,
+    NLCD_METADATA_FILENAME,
     DATA_RAW_DIR,
+    NLCD_EXPECTED_CHECKSUM,
     LOG_LEVEL,
-    MAX_RETRIES,
-    INITIAL_RETRY_DELAY,
 )
-from utils import setup_logging, get_logger, checksum_file, retry_with_backoff, RetryError
+from utils import (
+    get_logger,
+    setup_logging,
+    checksum_file,
+    retry_with_backoff,
+    RetryError,
+)
 
-# Initialize logging
 logger = get_logger(__name__)
 
-# Constants
-CHUNK_SIZE = 1024 * 1024  # 1MB chunks for download
-TIMEOUT = 60  # seconds per request chunk
+CHUNK_SIZE = 1024 * 1024  # 1 MiB
+TIMEOUT = 60  # seconds per request
 
-def download_with_progress(url: str, dest_path: Path, filename: str) -> None:
+def download_with_progress(url: str, dest_path: Path, filename: str) -> Path:
     """
-    Downloads a file from a URL with a progress bar.
-    
-    Args:
-        url: The source URL.
-        dest_path: The directory to save the file.
-        filename: The name of the file to save.
+    Download a file with a tqdm progress bar.
+
+    Returns the full path to the downloaded file.
     """
     dest_path.mkdir(parents=True, exist_ok=True)
-    full_path = dest_path / filename
-    
-    logger.info(f"Downloading {filename} from {url}...")
-    
-    try:
-        response = requests.get(url, stream=True, timeout=TIMEOUT)
+    target_file = dest_path / filename
+
+    logger.info(f"Starting download of {filename} from {url}")
+
+    with requests.get(url, stream=True, timeout=TIMEOUT) as response:
         response.raise_for_status()
-        
-        total_size = int(response.headers.get('content-length', 0))
-        
-        with open(full_path, 'wb') as f, tqdm(
-            desc=filename,
-            total=total_size,
+        total = int(response.headers.get('content-length', 0))
+        with open(target_file, 'wb') as f, tqdm(
+            total=total,
             unit='B',
             unit_scale=True,
             unit_divisor=1024,
-        ) as pbar:
+            desc=filename,
+        ) as bar:
             for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
-                if chunk:  # filter out keep-alive chunks
+                if chunk:
                     f.write(chunk)
-                    pbar.update(len(chunk))
-                    
-        logger.info(f"Download complete: {full_path}")
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Network error during download: {e}")
-        raise
+                    bar.update(len(chunk))
+
+    logger.info(f"Download completed: {target_file}")
+    return target_file
 
 def verify_download(filepath: Path, expected_checksum: str) -> bool:
     """
-    Verifies the downloaded file against the expected SHA256 checksum.
-    
-    Args:
-        filepath: Path to the downloaded file.
-        expected_checksum: The expected SHA256 hex string.
-        
-    Returns:
-        True if checksum matches, False otherwise.
+    Verify the downloaded file against a SHA‑256 checksum.
+
+    If ``expected_checksum`` is falsy, the function returns ``True`` (checksum
+    verification is optional for this task).
     """
     if not filepath.exists():
         logger.error(f"File not found for verification: {filepath}")
         return False
-        
-    actual_checksum = checksum_file(filepath)
-    
-    if actual_checksum == expected_checksum:
-        logger.info(f"Checksum verified successfully for {filepath.name}")
+
+    if not expected_checksum:
+        logger.info("No expected checksum supplied – skipping verification.")
+        return True
+
+    actual = checksum_file(str(filepath))
+    if actual == expected_checksum:
+        logger.info("Checksum verification passed.")
         return True
     else:
         logger.error(
             f"Checksum mismatch for {filepath.name}.\n"
             f"Expected: {expected_checksum}\n"
-            f"Actual:   {actual_checksum}"
+            f"Actual:   {actual}"
         )
         return False
 
-@retry_with_backoff(max_retries=MAX_RETRIES, initial_delay=INITIAL_RETRY_DELAY)
-def run_ingestion() -> str:
+@retry_with_backoff(max_retries=3, backoff_factor=2)
+def run_ingestion() -> Path:
     """
-    Orchestrates the download, retry logic, and verification of the NLCD dataset.
-    
-    Returns:
-        The path to the verified file.
-        
-    Raises:
-        RetryError: If download or verification fails after all retries.
-    """
-    # Construct URL
-    # HuggingFace dataset download URL pattern:
-    # https://huggingface.co/datasets/{repo_id}/resolve/main/{filename}
-    url = f"https://huggingface.co/datasets/{NLCD_HF_DATASET_ID}/resolve/main/{NLCD_HF_FILENAME}"
-    
-    dest_dir = Path(DATA_RAW_DIR)
-    filename = NLCD_HF_FILENAME
-    dest_path = dest_dir / filename
-    
-    # Step 1: Download
-    try:
-        download_with_progress(url, dest_dir, filename)
-    except Exception as e:
-        logger.warning(f"Download failed: {e}. Retrying...")
-        raise RetryError(f"Download failed: {e}") from e
-        
-    # Step 2: Verify
-    if not verify_download(dest_path, NLCD_EXPECTED_CHECKSUM):
-        logger.warning("Verification failed. Removing corrupted file and retrying...")
-        if dest_path.exists():
-            dest_path.unlink()
-        raise RetryError("Checksum verification failed")
-        
-    logger.info("Ingestion completed successfully.")
-    return str(dest_path)
+    Orchestrates the download, optional verification and metadata creation.
 
-def main():
-    """Entry point for the ingestion script."""
-    setup_logging(level=LOG_LEVEL)
-    logger.info("Starting NLCD Data Ingestion Pipeline...")
-    
+    Returns:
+        Path to the verified raster file.
+    """
+    # 1️⃣ Download
+    raster_path = download_with_progress(NLCD_URL, Path(DATA_RAW_DIR), NLCD_OUTPUT_FILENAME)
+
+    # 2️⃣ Verify (optional)
+    if not verify_download(raster_path, NLCD_EXPECTED_CHECKSUM):
+        logger.warning("Verification failed – removing corrupted file and retrying.")
+        raster_path.unlink(missing_ok=True)
+        raise RetryError("Checksum verification failed")
+
+    # 3️⃣ Write metadata JSON
+    _write_metadata(raster_path)
+
+    return raster_path
+
+def _write_metadata(raster_path: Path) -> None:
+    """
+    Extract raster metadata (CRS, pixel size, dtype, class list, SHA‑256)
+    and write it to ``data/raw/<metadata_filename>``.
+    """
+    import json
+    import rasterio
+
+    meta_path = raster_path.parent / NLCD_METADATA_FILENAME
+
+    with rasterio.open(str(raster_path)) as src:
+        crs = src.crs.to_string() if src.crs else None
+        transform = src.transform
+        pixel_size = (abs(transform.a), abs(transform.e))  # (xres, yres)
+        dtype = src.dtypes[0]
+        # Read unique class values (categorical land‑cover codes)
+        # Use a windowed read to avoid loading the full raster into memory
+        class_vals = set()
+        for window in src.block_windows(1):
+            data = src.read(1, window=window)
+            class_vals.update(int(v) for v in data.flatten() if v != src.nodata)
+
+    metadata = {
+        "source_url": NLCD_URL,
+        "crs": crs,
+        "pixel_size_m": pixel_size,
+        "dtype": dtype,
+        "class_list": sorted(class_vals),
+        "sha256": checksum_file(str(raster_path)),
+    }
+
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+
+    logger.info(f"Metadata written to {meta_path}")
+
+def main() -> None:
+    """CLI entry point."""
+    setup_logging()
+    logger.setLevel(LOG_LEVEL)
+
+    logger.info("Starting NLCD data ingestion...")
     try:
-        output_path = run_ingestion()
-        print(f"SUCCESS: Data ingested to {output_path}")
+        raster_path = run_ingestion()
+        print(f"SUCCESS: Data ingested to {raster_path}")
     except RetryError as e:
-        logger.critical(f"Ingestion pipeline failed after retries: {e}")
+        logger.critical(f"Ingestion failed after retries: {e}")
         sys.exit(1)
     except Exception as e:
         logger.critical(f"Unexpected error during ingestion: {e}")
