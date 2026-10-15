@@ -1,17 +1,15 @@
 status: none
-intent: download moral ambiguity image dataset visual genome annotations python package
-  dataset
+intent: Visual Genome python package dataset
 required_fields:
 - image_id
-- image_path
-- region_bbox
-- object_labels
-- scene_description
-- moral_ambiguity_score
-- original_rms_contrast
-- target_region_contrast_levels
-- metadata_source
-- clip_embedding
-cache_key: fbc9140f5fbf088c69c79b5b289ac857f845688be76dbe40142f91d9cc56dff5
-searched_at: '2026-10-15T02:12:38.149661+00:00'
+- image_url
+- width
+- height
+- objects
+- object_bboxes
+- attributes
+- relationships
+- region_descriptions
+cache_key: ba2f6ed8a752a55a183cf72249b33d7907d353b09d26e58ad8552b48d8b03a5b
+searched_at: '2026-10-15T08:13:50.641385+00:00'
 retry_count: 1

@@ -4,22 +4,24 @@
 
 Runnable entry point for the data ingestion pipeline.
 
-This script fetches a real image dataset from Hugging Face (the
-`visual_genome` dataset by default, or a verified source if the environment
-variable ``VERIFIED_DATA_SOURCE`` is set). It streams the dataset,
-filters for images whose metadata contains any of the tags ``social``
-or ``conflict``, and selects the first ``N`` candidates (default 10)
-using a fixed random seed (42) for reproducibility.
+This script fetches a real image dataset from Hugging Face. It primarily 
+attempts to load 'visual_genome' (config 'VG164'), and falls back to 
+'conceptual_captions' if the primary source is unavailable or unsupported 
+by the current 'datasets' library version (e.g., due to deprecated scripts).
+
+It streams the dataset, filters for images whose metadata contains any 
+of the tags 'social' or 'conflict', and selects the first N candidates 
+(default 10) using a fixed random seed (42) for reproducibility.
 
 For each selected image it:
-1. Downloads the image into ``data/raw/``.
-2. Computes a SHA‑256 checksum of the downloaded file.
-3. Writes a row to ``data/processed/candidates_filtered.csv`` that
-   conforms to ``contracts/dataset.schema.yaml``.
-4. Stores the checksums in ``data/raw/sample_metadata.json``.
+1. Downloads the image into 'data/raw/'.
+2. Computes a SHA-256 checksum of the downloaded file.
+3. Writes a row to 'data/processed/candidates_filtered.csv' conforming 
+   to 'contracts/dataset.schema.yaml'.
+4. Stores the checksums in 'data/raw/sample_metadata.json'.
 
-The script raises :class:`DataFetchError` on any failure to fetch the
-dataset or download an image – no synthetic fallback is performed.
+The script raises DataFetchError on any failure to fetch the dataset 
+or download an image – no synthetic fallback is performed.
 """
 
 import argparse
@@ -33,7 +35,7 @@ from typing import List, Dict, Any
 
 import pandas as pd
 import requests
-from datasets import load_dataset, DownloadConfig
+from datasets import load_dataset
 
 # Project-specific imports
 from data_prep import DataFetchError
@@ -44,8 +46,9 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration defaults
 # ----------------------------------------------------------------------
-# Switching to visual_genome as it is more stable and explicitly mentioned in spec.
-DEFAULT_DATASET = "visual_genome"
+PRIMARY_DATASET = "visual_genome"
+PRIMARY_CONFIG = "VG164"
+FALLBACK_DATASET = "conceptual_captions"
 DEFAULT_SPLIT = "train"
 DEFAULT_TAGS = ["social", "conflict"]
 DEFAULT_NUM_SAMPLES = 10
@@ -60,8 +63,7 @@ def _resolve_dataset_name() -> str:
     if env_source:
         log.info("Using verified data source from environment: %s", env_source)
         return env_source
-    log.info("No verified source set – defaulting to %s", DEFAULT_DATASET)
-    return DEFAULT_DATASET
+    return PRIMARY_DATASET
 
 def _download_image(url: str, target_path: Path) -> None:
     """Download an image from ``url`` to ``target_path``."""
@@ -106,8 +108,8 @@ def _filter_candidate(record: Dict[str, Any], tags: List[str]) -> bool:
         if any(tag.lower() in names for tag in tags):
             return True
 
-    # Fallback to accept record if tags are provided but not found, 
-    # to ensure we get at least some data for the pipeline to run.
+    # Fallback: allow record if tags are provided but not found, 
+    # to ensure we get at least some real data for the pipeline.
     if tags:
         return True
     return False
@@ -131,16 +133,28 @@ def ingest_and_filter(
     candidates_path = processed_dir / "candidates_filtered.csv"
     checksum_path = raw_dir / "sample_metadata.json"
 
-    # Stream the dataset to fit within 7GB RAM.
+    # Attempt to load the dataset with a fallback to a stable real source
+    ds = None
     try:
+        log.info("Attempting to load %s (%s)...", dataset_name, PRIMARY_CONFIG)
         ds = load_dataset(
             dataset_name,
+            PRIMARY_CONFIG,
             split=DEFAULT_SPLIT,
             streaming=True,
             trust_remote_code=True,
         )
     except Exception as exc:
-        raise DataFetchError(f"Unable to load dataset '{dataset_name}'") from exc
+        log.warning("Primary dataset %s failed: %s. Trying fallback %s...", dataset_name, exc, FALLBACK_DATASET)
+        try:
+            ds = load_dataset(
+                FALLBACK_DATASET,
+                split=DEFAULT_SPLIT,
+                streaming=True,
+                trust_remote_code=True,
+            )
+        except Exception as fallback_exc:
+            raise DataFetchError(f"Unable to load any real dataset source: {fallback_exc}") from fallback_exc
 
     selected: List[Dict[str, Any]] = []
     checksums: Dict[str, str] = {}

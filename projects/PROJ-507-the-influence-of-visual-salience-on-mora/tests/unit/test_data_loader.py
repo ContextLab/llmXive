@@ -18,11 +18,11 @@ def test_fetch_failure_raises_datafetcherror(monkeypatch):
     Simulate a failure to load the dataset and assert that 
     DataFetchError is raised.
     """
-    # Force an invalid source
+    # Force an invalid source via environment variable
     monkeypatch.setenv("VERIFIED_DATA_SOURCE", "invalid/source")
 
     # Mock load_dataset to raise an exception
     with mock.patch("datasets.load_dataset", side_effect=Exception("HF Load Error")):
         with pytest.raises(DataFetchError) as excinfo:
             ingest_module.ingest_and_filter(num_samples=1, tags=["social"])
-        assert "Unable to load dataset" in str(excinfo.value)
+        assert "Unable to load any real dataset source" in str(excinfo.value)

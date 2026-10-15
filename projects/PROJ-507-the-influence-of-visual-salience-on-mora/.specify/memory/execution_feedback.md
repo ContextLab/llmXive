@@ -35,22 +35,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_ingest_and_filter.py --num-samples 10 --tags social conflict -> rc=1
-set_module_factory
-    raise e1 from None
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/datasets/load.py", line 1142, in dataset_module_factory
-    raise RuntimeError(f"Dataset scripts are no longer supported, but found {filename}")
-RuntimeError: Dataset scripts are no longer supported, but found visual_genome.py
+face_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/conceptual_captions@0bb028f274446e0b102c1253d087a98eeb4519a3/labeled/train-*'. Repository id must be 'namespace/name', got 'conceptual_captions'.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 226, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 240, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 223, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 237, in main
     ingest_and_filter(num_samples=args.num_samples, tags=args.tags)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 143, in ingest_and_filter
-    raise DataFetchError(f"Unable to load dataset '{dataset_name}'") from exc
-data_prep.DataFetchError: Unable to load dataset 'visual_genome'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 157, in ingest_and_filter
+    raise DataFetchError(f"Unable to load any real dataset source: {fallback_exc}") from fallback_exc
+data_prep.DataFetchError: Unable to load any real dataset source: Invalid HF URI 'hf://datasets/conceptual_captions@0bb028f274446e0b102c1253d087a98eeb4519a3/labeled/train-*'. Repository id must be 'namespace/name', got 'conceptual_captions'.
 
 - python code/00_pilot_power_analysis.py --config config/pilot.yaml -> rc=2
 
