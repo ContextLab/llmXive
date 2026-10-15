@@ -1,11 +1,11 @@
 status: none
-intent: Last.fm 1K Users dataset download with timestamps and Million Song Dataset
-  python package
+intent: LFM-360K user listening dataset with age and timestamps download python package
+  dataset
 required_fields:
 - user_id
-- birth_year
+- age
 - track_id
 - listen_timestamp
-cache_key: a0f3f4ac1b4530168b8fa19468c172cb61711090ba62e4ebb1cc001a32cf64e5
-searched_at: '2026-10-15T21:23:12.951906+00:00'
+cache_key: ea504dd0b4e2e4c740fe02ec2c1fe975c082dafe1e171799f0c31aeb4f543eec
+searched_at: '2026-10-15T21:24:55.172436+00:00'
 retry_count: 1

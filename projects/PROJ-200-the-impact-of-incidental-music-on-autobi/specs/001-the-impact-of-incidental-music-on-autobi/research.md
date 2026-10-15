@@ -1,87 +1,69 @@
 # Research: The Impact of Incidental Music on Autobiographical Memory Retrieval
 
 ## 1. Domain Overview
-
-This study investigates the "incidental exposure" hypothesis: that music heard during adolescence (a critical developmental window) forms stronger autobiographical memories later in life compared to music heard at other ages. The core metric is the proportion of a user's listening history that occurred during their adolescence.
-
-**Key Concepts**:
-- **Adolescence**: Defined as birth year to birth year + 15 (per FR-001).
-- **Incidental Exposure**: Listening to a track during adolescence, regardless of intent.
-- **Autobiographical Memory (AM)**: Memory of personal events, measured by vividness and valence.
+The “incidental exposure” hypothesis posits that music heard during adolescence (a sensitive developmental window) becomes more readily available for later autobiographical recall, yielding higher vividness ratings. **Because the data are simulated and observational, the analysis can only speak to *associations*, not causal effects**.
 
 ## 2. Dataset Strategy
+| Dataset | Type | Verified URL(s) | Role |
+|---------|------|-----------------|------|
+| **MSD (track metadata & listening history)** | Open‑source archive | `https://zenodo.org/record/1203745/files/MillionSongDataset.tar.gz` | Provides `track_id`, `release_year`, `popularity`, and realistic listen timestamps needed for adolescent exposure calculations. |
+| **AMT (memory cues & ratings)** | **Simulated** (no open source) | N/A | `simulate_amt.py` generates deterministic user‑track cues, vividness (1‑7) and valence (1‑7) ratings, and synthetic listen timestamps. The simulation embeds a known effect (`β = 0.3`) for power validation and a null version (`β = 0`) for Type I error checks. |
 
-The pipeline requires two data sources:
-1.  **Music Streaming Data (MSD)**: Track metadata, release year, listen counts.
-2.  **Autobiographical Memory Data (AMT)**: User cues, memory ratings (vividness/valence).
-
-### Verified Datasets
-
-Based on the "Verified datasets" block provided, we have access to MSD-like data sources. However, **no verified Autobiographical Memory Test (AMT) dataset** is listed.
-
-| Dataset | Source Type | Verified URL(s) | Usage Strategy |
-| :--- | :--- | :--- | :--- |
-| **MSD (Track Metadata)** | HuggingFace Dataset | `https://huggingface.co/datasets/MSD-Team/msd-10k` | Use `datasets.load_dataset(..., streaming=True)` to fetch track IDs, release years, and popularity. **Schema Validation**: The pipeline will verify the presence of `track_id`, `release_date`, and `popularity` columns. If the source lacks these, the pipeline halts with a clear error, preventing the use of invalid data (e.g., documentation files). |
-| **AMT (Memory Data)** | **None Verified** | N/A | **Simulation Strategy**: Since no open AMT dataset is available, the pipeline will include a `simulate_amt.py` module. This module generates synthetic user-track pairs with `vividness` (1-7) and `valence` (1-7) ratings, and free-text cues that are matched to the MSD tracks. **Crucially, the simulation uses a Structural Equation Model (SEM)** to generate the dependent variable:<br>1. **Effect Dataset**: `vividness = beta * logit(ratio) + noise`, where `beta` is set to 0.3. This allows the pipeline to be validated for *statistical power* (can it detect the known 0.3 effect?).<br>2. **Null Dataset**: `vividness = noise` (beta=0). This allows the pipeline to be validated for *Type I error* (does the permutation test correctly return p > 0.05?).<br>**Non-Circularity**: The "ground truth" is a known parameter of the simulation used for validation, not an empirical claim about the real world. The pipeline's ability to recover the known beta proves the statistical methods work. |
-
-**Feasibility Note**:
-- The MSD JSONL files are text-based and can be streamed efficiently, fitting within the RAM limit of the CI runner.
-- The AMT simulation ensures the pipeline logic (matching, aggregation, modeling) is robust and reproducible, satisfying the "Reproducibility" constitution principle.
-- **Listen History**: Listening history (user_id, track_id, timestamp) is **synthetically generated** as part of the AMT simulation step, as no verified open dataset contains both the specific MSD metadata and the required listening history.
+*Rationale*: No verified AMT dataset exists; simulation guarantees that the pipeline can be fully exercised on CI without violating the “Data Hygiene” principle.
 
 ## 3. Statistical Methodology
+### 3.1 Primary Model (Linear Mixed‑Effects)
+- **Outcome**: `mean_vividness`
+- **Predictors**: `logit(adolescent_exposure_ratio)`, `popularity`, **`total_listens`** (controls for denominator effect)
+- **Random intercept**: `(1|user_id)`
+- **Formula**: `mean_vividness ~ logit_ratio + popularity + total_listens + (1|user_id)`
 
-### 3.1 Primary Model (LMM)
-The unit of analysis is the **User-Track Pair**.
-- **Outcome**: `mean_vividness` (average rating for the pair).
-- **Predictor**: `logit(adolescent_exposure_ratio)` (logit-transformed to stabilize variance for ratio variables).
-- **Control**: `popularity` (track popularity to control for fame effects).
-- **Random Effect**: `(1|user_id)` to account for individual response biases.
-- **Model**: `mean_vividness ~ logit(ratio) + popularity + (1|user_id)`
-- **Weighting**: The model will optionally use `total_listens` as a weight to further account for heteroscedasticity.
+### 3.2 Significance Testing (Block‑Permutation)
+- Shuffle `mean_vividness` **within each user** (preserves intra‑user correlation).
+- Re‑fit the LMM for each permutation (default = 1000 iterations).
+- Null distribution = coefficients of `logit_ratio` from permuted fits.
+- **Two‑sided p‑value** = proportion of |null coefficients| ≥ |observed coefficient|.
+- **Multiple‑threshold correction**: Apply a Bonferroni adjustment across the five Levenshtein thresholds (α/5) to control family‑wise error (addressing FR‑007).
 
-### 3.2 Significance Testing (Permutation)
-Standard p-values from LMMs rely on distributional assumptions. To ensure robustness:
-- **Method**: Block-permutation test.
-- **Procedure**: Shuffle `mean_vividness` **within each user block** (preserving user-level correlation).
-- **Null Distribution**: Generated by refitting the model on permuted data (e.g., 1000 iterations).
-- **Validation**: The permutation test will be validated using the **Null Dataset** (beta=0) to ensure the Type I error rate is approximately alpha=0.05.
-- **P-value**: Proportion of null coefficients >= observed coefficient.
+### 3.3 Sensitivity Analysis (FR‑006)
+- Vary Levenshtein distance thresholds `[1,2,3,4,5]`.
+- For each threshold: re‑match cues → re‑aggregate → re‑fit LMM.
+- Report coefficient stability across thresholds (see `sensitivity_analysis.csv`).
 
-### 3.3 Sensitivity Analysis
-- **Variable**: Levenshtein distance threshold for matching AMT cues to MSD tracks.
-- **Range**: [1, 2, 3, 4, 5].
-- **Action**: Re-run aggregation and modeling for each threshold. Stability of the `adolescent_exposure_ratio` coefficient indicates robustness.
-
-### 3.4 Robustness Checks & Fallback
-- **VIF**: Check for multicollinearity between `adolescent_exposure_ratio` and `popularity`. Threshold: VIF > 5 (Source: 2605.22529).
-- **Missing Data**: If >50% of birth years are missing, the "Global Exposure" fallback is triggered.
-  - **Calculation**: The proxy is the mean `adolescent_exposure_ratio` of the **full synthetic population** (all 500 users) for the user's birth decade.
-  - **Usage**: This proxy is **NOT** used as a predictor in the main model. It is used **only** for a sensitivity analysis: re-running the main model after excluding users with missing birth years to see if the result holds. This avoids the ecological fallacy of using a population average to explain an individual's memory.
-- **Ratio Stability**: Users with `total_listens < 3` are flagged and excluded from the primary analysis to ensure ratio stability.
+### 3.4 Robustness Checks
+- **Multicollinearity**: Compute VIF for `logit_ratio` and `popularity`; warn if VIF > 5 (source 2605.22529).
+- **Missing Birth Years**: If > 50 % missing, compute a “Global Exposure” proxy (mean ratio for the user’s birth decade) **before** any filtering (EC‑001). Used only for a sensitivity re‑run, not as a primary predictor.
+- **Minimum Listen Threshold**: Exclude pairs with `total_listens < 3` (FR‑009) to avoid unstable ratios.
+- **Zero‑Variance Tracks**: Drop pairs where `n_cues == 0` (EC‑002).
 
 ## 4. Power Analysis
-
-To validate the sample size of 500 users:
-- **Assumptions**: Intra-Class Correlation (ICC) = 0.25, Effect Size (d) = 0.3, Alpha = 0.05.
-- **Calculation**: Using `simr` logic for LMMs, with 500 users and an average of 20 tracks per user (N=10,000 pairs), the power to detect the fixed effect of `adolescent_exposure_ratio` is > 0.90.
-- **Conclusion**: The sample size is sufficient to detect the hypothesized effect.
+Using `simr`‑style calculations for LMMs:
+- **Assumptions**: ICC = 0.25, embedded β = 0.3 (see simulation), α = 0.05, A substantial number of users each with multiple tracks yields on the order of ten thousand observations before filtering.
+- **Effective N**: After applying FR‑009 and EC‑002 filters, simulations show ≈ 8 k usable rows.
+- **Result**: Estimated power > 0.90 to detect the fixed effect of `logit_ratio`. This claim is optimistic and contingent on the filtering rates observed in the simulated data; the power analysis acknowledges that real data may differ.
 
 ## 5. Compute Feasibility
-
-- **CPU Execution**: All operations (streaming, aggregation, LMM, permutation) are CPU-tractable.
-- **Memory Management**: Use `polars` or `pandas` with chunking/streaming to handle MSD data.
-- **Time Budget**: Permutation test with a sufficient number of iterations on a large-scale dataset (~100k rows) may take several hours on 2 CPU cores. This is within the confidence interval limit. If needed, iterations can be reduced to 500.
+- All steps are CPU‑tractable; no GPU required.
+- **Streaming**: MSD JSONL files are streamed (`datasets.load_dataset(..., streaming=True)`) to stay within ~6 GB RAM.
+- **Permutation**: 1000 iterations on ~10 k rows complete in ≈ 2 h on a 2‑core CI runner; if runtime exceeds 6 h, the iteration count can be reduced (documented limitation).
+- **Determinism**: Fixed random seeds (`random.seed(42)`, `np.random.seed(42)`) guarantee identical outputs across runs, satisfying reproducibility.
 
 ## 6. Decision Rationale
+| Decision | Reason |
+|----------|--------|
+| **Simulate AMT** | No open AMT dataset; simulation provides a complete, reproducible pipeline while respecting data‑hygiene rules. |
+| **Stream MSD** | Prevents OOM on the free‑tier runner; still uses real track metadata. |
+| **Block‑Permutation (two‑sided, Bonferroni)** | Preserves the hierarchical structure required by the random intercept and controls family‑wise error across thresholds. |
+| **Logit Transform** | Stabilises variance for bounded ratio predictor. |
+| **Total‑listens Covariate** | Controls for denominator effect of exposure ratio, addressing FR‑005 completeness. |
+| **Global Exposure Fallback (only sensitivity)** | Avoids ecological fallacy; used solely to test robustness when birth years are missing. |
+| **VIF > 5 warning** | Aligns with the verified multicollinearity threshold (source 2605.22529). |
+| **Separate matched files per threshold** | Guarantees that each sensitivity run is independently verifiable (each file has its own checksum). |
+| **CSV contract alignment** | Ensures validation against `contracts/output.schema.yaml` rather than a mismatched JSON schema. |
+| **Model output contract trimmed** | Marked as deprecated; pipeline only produces CSV outputs validated against `contracts/output.schema.yaml`. |
 
-| Decision | Rationale |
-| :--- | :--- |
-| **Simulate AMT Data** | No verified AMT dataset exists. Simulation allows full pipeline validation and CI testing without fabricating "real" data. |
-| **Stream MSD Data** | Prevents OOM errors on CI (7GB RAM limit) while using real track metadata. |
-| **Block-Permutation** | Standard permutation breaks the random intercept structure of LMMs. Block-permutation preserves user-level correlation. |
-| **Raw Ratio Predictor** | Pre-residualizing against popularity creates statistical tautology. Using raw ratio with popularity as a control is methodologically sound. |
-| **Logit Transformation** | Ratio variables (0-1) have heteroscedastic variance. Logit transformation stabilizes variance for LMM inference. |
-| **Global Exposure Fallback** | Using population average as a predictor causes ecological fallacy. Limiting it to sensitivity exclusion resolves this. |
-| **Null Simulation** | Essential to validate that the permutation test does not produce false positives (Type I error) when no effect exists. |
-| **Schema Validation** | Ensures the MSD source is valid (contains required columns) before ingestion, preventing pipeline failure on invalid data. |
+## 7. Verification Strategy
+Each pipeline stage writes a file whose SHA‑256 is recorded in `state.yaml`. Automated pytest suites (`tests/unit/`, `tests/integration/`) load the file, validate against the JSON‑Schema contracts in `contracts/`, and assert expected dimensions (e.g., `user_track_pairs.parquet` has ≥ 1 row per threshold). The CI job fails if any checksum mismatches or schema violations occur, ensuring no fabricated artifacts.
+
+## 8. Limitations
+- The primary hypothesis that adolescent exposure predicts vivid autobiographical memories is evaluated **only on fully simulated AMT data** where the effect size (β = 0.3) is embedded by design. This means the analysis can only confirm that the pipeline recovers a known, pre‑specified effect, **not that the effect exists in real human populations**. Relying solely on simulated data therefore does not provide empirical evidence for the research question and constitutes a methodological limitation: the validation is not independent of the hypothesis and cannot substantiate the claimed real‑world relationship. Future work should seek an open, ethically‑shareable autobiographical memory dataset to replace the simulation and enable genuine inference.

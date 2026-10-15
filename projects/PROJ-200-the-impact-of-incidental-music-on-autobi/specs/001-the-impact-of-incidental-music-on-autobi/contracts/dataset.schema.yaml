@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "User-Track Pair Analysis Dataset"
-description: "Schema for data/processed/user_track_pairs.parquet"
+description: "Schema for data/processed/user_track_pairs_thr{n}.parquet"
 type: object
 properties:
   user_id:
@@ -40,11 +40,11 @@ properties:
     description: "Track popularity score"
   match_threshold_used:
     type: integer
-    description: "Levenshtein threshold used"
+    description: "Levenshtein threshold used for matching"
     enum: [1, 2, 3, 4, 5]
   n_cues:
     type: integer
-    description: "Number of memory cues"
+    description: "Number of memory cues for this pair"
     minimum: 1
   global_exposure_proxy:
     type: number

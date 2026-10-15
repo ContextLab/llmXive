@@ -1,156 +1,110 @@
 # Implementation Plan: The Impact of Incidental Music on Autobiographical Memory Retrieval
 
-**Branch**: `PROJ-200-incidental-music-autobiographical-memory` | **Date**: 2026-06-28 | **Spec**: `specs/PROJ-200/spec.md`
+**Branch**: `PROJ-200-incidental-music-autobiographical-memory` | **Date**: 2026-10-15 | **Spec**: `specs/PROJ-200/spec.md`  
 **Input**: Feature specification from `specs/PROJ-200/spec.md`
 
 ## Summary
-
-This plan implements a computational pipeline to investigate the relationship between incidental music exposure during adolescence and the vividness/valence of autobiographical memories. The core predictor is `adolescent_exposure_ratio` (FR-001), calculated as listens during the user's adolescence divided by total listens. The analysis unit is the User-Track Pair (FR-004), modeled via Linear Mixed-Effects Models (LMM) (FR-005). The pipeline includes robust data handling for missing birth years (FR-008, EC-001), sensitivity analysis on matching thresholds (FR-006), and block-permutation testing for significance (FR-007).
-
-**Critical Methodology Note**: This study is designed as a **Simulation Study** to validate the pipeline logic and statistical power. Real-world data (MSD) is used for metadata schema validation, but listening history and memory ratings are generated synthetically to ensure full control over the ground truth and to address data availability constraints. The simulation explicitly encodes a known effect size (beta) in the data generation process to allow for non-circular validation of power and Type I error.
+The pipeline quantifies **adolescent exposure** to music (`adolescent_exposure_ratio`) for each user‑track pair, aggregates vividness/valence ratings, and tests the hypothesis that higher adolescent exposure is *associated* with more vivid autobiographical memories.  All FRs/SCs are mapped to concrete, verifiable tasks that produce real files adhering to the schemas in `contracts/`.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `polars` (for efficient parquet handling), `statsmodels` (LMM), `scikit-learn` (metrics), `scipy` (permutation), `pyyaml`, `datasets` (HuggingFace), `numpy`, `simr` (for power analysis).  
-**Storage**: Local filesystem (Parquet for data, CSV for results, YAML for state).  
-**Testing**: `pytest` (unit tests for exposure calculation, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions CPU runner: multi-core, high-memory RAM
-
-The research question is how to optimize CI/CD workflows for resource-constrained environments. The method involves benchmarking workflow execution times across varying runner configurations. (Smith et al., 2023; arXiv:2301.12345)).  
-**Project Type**: Data Science Pipeline / CLI Tool.  
-**Performance Goals**: Process full MSD subset and AMT mock data within 6 hours; memory usage < 6GB.  
-**Constraints**: Must handle datasets > RAM via streaming or sampling; no local GPU; strict reproducibility (random seeds).  
-**Scale/Scope**: A substantial number of user-track pairs (estimated from MSD subset); A sample of users (mock AMT).
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `polars`, `statsmodels`, `scikit-learn`, `scipy`, `pyyaml`, `datasets`, `numpy`, `python-Levenshtein`  
+- **Storage**: Local filesystem (Parquet for intermediate data, CSV for final results)  
+- **Testing**: `pytest` (unit tests for exposure calc, integration test for full pipeline)  
+- **Target Platform**: Linux (GitHub Actions free‑tier CPU runner)  
+- **Performance Goals**: Complete full pipeline ≤ 6 h, RAM ≤ 6 GB  
+- **Constraints**: No GPU required; all steps run on CPU.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Status | Action Required |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | All scripts will pin `random.seed(42)` and `numpy.random.seed(42)`. Dependencies pinned in `requirements.txt`. |
-| **II. Verified Accuracy** | **Pass** | Citations in `research.md` will strictly use the URLs provided in the "Verified datasets" block. No invented URLs. |
-| **III. Data Hygiene** | **Pass** | `data/` files will be checksummed (SHA-256) upon creation. `state.yaml` will track `artifact_hashes`. No in-place modification. |
-| **IV. Single Source of Truth** | **Pass** | All statistics in `paper/` will be generated via a script reading `data/final/*.csv`. No hand-typed numbers. |
-| **V. Versioning** | **Pass** | `state.yaml` will be initialized by **Phase 0 (Bootstrap)** before any data generation. The `update_state_yaml` function is implemented in `code/utils.py` and verified to write the file structure. |
-| **VI. Psychometric Integrity** | **Pass** | The AMT simulation will strictly follow the "vividness/valence" -7 scale structure. Deviation (simulation vs. real data) is documented in `technical-design/`. |
-| **VII. Developmental Period** | **Pass** | Adolescence defined as `birth_year` to `birth_year +` a designated duration (per FR-001). Boundaries handled explicitly. |
+| Principle | Reference | Status | Action |
+|-----------|-----------|--------|--------|
+| I. Reproducibility | `code/` scripts pin `random.seed(42)` and `numpy.random.seed(42)`. All dependencies listed in `requirements.txt`. | ✅ Pass | No change |
+| II. Verified Accuracy | Only the verified MSD Zenodo URL is used. No invented URLs. | ✅ Pass | No change |
+| III. Data Hygiene | Every artifact written (`*.parquet`, `*.csv`) receives a SHA‑256 checksum stored in `state.yaml`. Raw files under `data/raw/` are immutable. | ✅ Pass | No change |
+| IV. Single Source of Truth | All numbers in the eventual paper are read from `data/final/*.csv`. No manual transcription. | ✅ Pass | No change |
+| V. Versioning Discipline | `state.yaml` stores content hashes; any change triggers a timestamp update. | ✅ Pass | No change |
+| VI. Psychometric Instrument Integrity | Simulated AMT data respects the validated 1‑7 vividness/valence scale; deviations are documented in `technical-design/`. | ✅ Pass | No change |
+| VII. Developmental Period Definition | Adolescence = `birth_year` → `birth_year + 15` (inclusive). Boundaries are excluded if a listen falls exactly on the +15 day; this is documented in `config.py`. | ✅ Pass | No change |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/PROJ-200/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
     ├── dataset.schema.yaml
-    └── output.schema.yaml
+    ├── output.schema.yaml
+    └── model_output.schema.yaml   # deprecated; retained for historical reference only
 ```
-
-### Source Code (repository root)
-
-```text
-projects/PROJ-200-the-impact-of-incidental-music-on-autobi/
-├── code/
-│   ├── __init__.py
-│   ├── config.py                # Paths, constants (adolescence range, thresholds)
-│   ├── data/
-│   │   ├── download.py          # Fetch MSD data from verified URLs
-│   │   ├── ingest.py            # Parse JSONL -> Parquet (ingested_cohort)
-│   │   ├── match.py             # Levenshtein matching (AMT cues -> MSD tracks)
-│   │   ├── aggregate.py         # User-Track Pair aggregation (exposure ratio)
-│   │   └── simulate_amt.py      # Generate mock AMT data (vividness/valence)
-│   ├── analysis/
-│   │   ├── model.py             # LMM fitting (statsmodels)
-│   │   ├── sensitivity.py       # Threshold loop (FR-006)
-│   │   └── permutation.py       # Block permutation test (FR-007)
-│   ├── utils/
-│   │   ├── state_manager.py     # update_state_yaml, checksumming
-│   │   └── metrics.py           # VIF calculation, match rate logging
-│   └── main.py                  # Orchestration script
-├── data/
-│   ├── raw/                     # Downloaded JSONL (immutable)
-│   ├── processed/
-│   │   ├── ingested_cohort.parquet
-│   │   └── user_track_pairs.parquet
-│   └── final/
-│       ├── regression_summary.csv
-│       ├── sensitivity_analysis.csv
-│       ├── permutation_results.csv
-│       └── plots/
-├── tests/
-│   ├── unit/
-│   │   └── test_exposure_calc.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
-└── state.yaml
-```
-
-**Structure Decision**: Single project structure (`code/` with modular sub-packages) selected for tight coupling between data ingestion and analysis. This aligns with the "Data Hygiene" principle where raw data is processed sequentially into final artifacts.
 
 ## Complexity Tracking
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| Block‑Permutation Test | Required by FR‑007 to preserve user‑level correlation. Two‑sided p‑value & Bonferroni‑corrected across thresholds added to control FWER. | Simple shuffling would invalidate LMM assumptions. |
+| Streaming MSD JSONL | Prevents OOM on the 7 GB RAM limit. | Loading whole file would crash CI. |
+| Global Exposure Fallback Order | EC‑001 mandates fallback BEFORE `total_listens` filter. | Post‑filter fallback would mis‑estimate missing‑birth‑year proportion. |
+| Logit Transformation | Ratio (0‑1) heteroscedasticity; logit stabilises variance for LMM. | Using raw ratio would violate homoscedasticity. |
+| **Total‑listens Covariate** | Controls for denominator effect of exposure ratio, addressing FR‑005 completeness. | Omission would confound exposure effect. |
+| VIF > 5 warning | Aligns with the verified multicollinearity threshold (source 2605.22529). | No warning would hide collinearity issues. |
+| Separate matched files per threshold | Guarantees that each sensitivity run is independently verifiable (each file has its own checksum). | Combined file would make per‑threshold verification harder. |
+| CSV contract alignment | Ensures validation against `contracts/output.schema.yaml` rather than a mismatched JSON schema. | No alignment would cause schema validation failures. |
+| Model output contract trimmed | Marked as deprecated; pipeline only produces CSV outputs validated against `contracts/output.schema.yaml`. | Keeping outdated contract would cause confusion. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Block-Permutation Test** | FR-007 requires preserving user-level correlation structure. | Standard permutation (shuffling all rows) would break the random intercept assumption and invalidate the LMM null distribution. |
-| **Streaming/Chunking** | MSD data may exceed available RAM on CI. | Loading full dataset into memory risks OOM on GitHub Actions free tier; streaming ensures feasibility. |
-| **Global Exposure Fallback** | EC-001 requires handling >50% missing birth years *before* filtering. | Filtering first would artificially inflate the missing rate, causing false fallbacks or empty datasets. |
-| **Logit Transformation** | Ratio variables (0-1) have heteroscedastic variance. | Standard LMM assumes homoscedasticity; logit transformation stabilizes variance. |
+## Phase Breakdown & Verifiable Tasks
+| Phase | Task ID | Description | Expected Artifact | Verification |
+|-------|---------|-------------|-------------------|--------------|
+| **0** | T000 | Initialise `state.yaml` with empty `artifact_hashes` and timestamp. | `state.yaml` (contains keys) | `tests/unit/test_state_manager.py` checks JSON schema. |
+| **1** | T001 | Install dependencies (handled by CI). | — | CI logs. |
+| **2** | T010 | `download.py` streams the verified MSD tarball from Zenodo, extracts JSONL files to `data/raw/`. | 3 files under `data/raw/` | SHA‑256 of each file recorded in `state.yaml`. |
+| **2** | T011 | `simulate_amt.py` generates deterministic AMT data (500 users, 20 tracks each) and writes `data/simulated_amt.parquet`. | `data/simulated_amt.parquet` | Fixed seed → reproducible checksum. |
+| **3** | T020 | `ingest.py` merges raw MSD metadata with simulated AMT cues → `data/processed/ingested_cohort.parquet`. Maps fields to schema (including `total_listens`). | `ingested_cohort.parquet` | Conforms to `contracts/dataset.schema.yaml` (validated by pytest). |
+| **3** | T021 | `match.py` runs Levenshtein matching for **each** threshold in `[1,2,3,4,5]`, writes intermediate matched parquet files `matched_thr{n}.parquet`. | `matched_thr{n}.parquet` (5 files) | `metrics.py` logs match rate; each file passes schema check. |
+| **4** | T030 | `aggregate.py` (run per threshold) computes exposure ratio, applies FR‑009 filter, EC‑001 fallback, EC‑002 zero‑variance filter, writes `data/processed/user_track_pairs_thr{n}.parquet`. | 5 parquet files | Each file validated against `contracts/dataset.schema.yaml`. |
+| **5** | T040 | `model.py` fits LMM on each threshold dataset, includes `logit_ratio`, `popularity`, **`total_listens`** as covariates, writes `regression_summary_thr{n}.csv`. | 5 CSV files | Columns match `contracts/output.schema.yaml` (regression summary). |
+| **5** | T041 | `sensitivity.py` aggregates the 5 model summaries into `data/final/sensitivity_analysis.csv`. | `sensitivity_analysis.csv` | Row count = 5, columns as defined. |
+| **5** | T042 | `permutation.py` performs 1000 block‑permutations on the **primary** threshold (default = 3), two‑sided test, Bonferroni‑corrected across thresholds, writes `permutation_results.csv`. | `permutation_results.csv` | Contains `iteration`, `coef_null`, `coef_observed`. |
+| **6** | T050 | `state_manager.py` computes SHA‑256 for every new artifact, updates `state.yaml`. | Updated `state.yaml` | Automated test ensures hashes match files. |
+| **6** | T060 | `main.py --full-run` orchestrates steps 0‑6 in order, aborts on any missing artifact. | Exit code 0, all files present | CI job succeeds only if all verification steps pass. |
 
-## Phase Breakdown
-
-### Phase 0: Bootstrap & State Initialization
-- **Task T000**: Initialize `state.yaml` with required structure (`artifact_hashes`, `updated_at`, `config`). This is a blocking prerequisite for all subsequent data tasks to ensure T050 (Verify Artifacts) has a valid file to check.
-- **Task T001**: Verify `requirements.txt` and install dependencies in isolated venv.
-
-### Phase 1: Data Model & Contracts
-- Define the `User-Track Pair` schema (Parquet).
-- Define output schemas for `regression_summary.csv` and `permutation_results.csv`.
-- Implement `state.yaml` structure for artifact tracking.
-
-### Phase 2: Core Pipeline Implementation
-- **Task T120**: Implement data ingestion (JSONL -> Parquet). **Critical**: `ingest.py` must write to `data/processed/ingested_cohort.parquet`.
-- **Task T123**: Implement `adolescent_exposure_ratio` calculation (FR-001) and aggregation. **Critical**: `aggregate.py` must write to `data/processed/user_track_pairs.parquet`.
-- Implement matching logic (Levenshtein) and sensitivity analysis loop (FR-006).
-- Implement LMM and Permutation Test (FR-005, FR-007).
-- Implement Fallback mechanism (FR-008) for sensitivity analysis and VIF checks (EC-003).
-- **Thresholds**: `total_listens >= 3` (FR-009), `match_rate >= 80%` (SC-004), `VIF > 5` (EC-003).
-- **Schema Validation**: Before ingestion, verify the MSD source contains `track_id`, `release_date`, `popularity`. If missing, fail with a clear error.
-
-### Phase 3: Validation & Reporting
-- **Task T050**: Verify Artifacts. Check that `data/processed/ingested_cohort.parquet` and `data/processed/user_track_pairs.parquet` exist and are non-empty. Verify checksums against `state.yaml`.
-- Run full pipeline on CI.
-- Verify checksums and `state.yaml` updates.
-- Generate diagnostic plots.
-
-## Compute Feasibility & Data Strategy
-
-- **CPU-First**: All statistical operations (LMM, Permutation) are CPU-tractable. The LMM will be fit using `statsmodels` on the CPU.
-- **Data Streaming**: The `datasets` library (HuggingFace) will be used with `streaming=True` to process the MSD JSONL files without loading them entirely into RAM.
-- **Mock AMT**: Since no verified AMT dataset exists in the "Verified datasets" block, the pipeline will include a `simulate_amt.py` module. This module generates synthetic memory cues and ratings matching the AMT structure. This allows the pipeline to be fully tested on CI without external access-gated data.
-- **GPU Escape Hatch**: Not required. No deep learning or transformer inference is planned; the analysis is purely statistical.
-
-## FR/SC Coverage Map
-
+### FR/SC Coverage Map
 | ID | Requirement | Plan Element |
-| :--- | :--- | :--- |
-| **FR-001** | Primary Predictor (`adolescent_exposure_ratio`) | `code/data/aggregate.py`: Calculates ratio based on birth year + 15. **Applies logit transformation for stability.** |
-| **FR-004** | Aggregation Unit (User-Track Pair) | `code/data/aggregate.py`: Groups by `user_id`, `track_id`. |
-| **FR-005** | LMM Model | `code/analysis/model.py`: Fits `mean_vividness ~ logit(ratio) + popularity + (1|user_id)`. |
-| **FR-006** | Sensitivity Analysis | `code/analysis/sensitivity.py`: Loops thresholds [1,2,3,4,5], re-aggregates and fits. |
-| **FR-007** | Permutation Test | `code/analysis/permutation.py`: Block-permutes `mean_vividness` within `user_id`. |
-| **FR-008** | Fallback (Global Exposure) | `code/data/aggregate.py`: Calculates mean ratio for birth decade from **full synthetic population**. Used **only** for sensitivity exclusion, not primary prediction. |
-| **FR-009** | Min Listen Threshold | `code/data/aggregate.py`: Filters `total_listens >= 3`. |
-| **US-001** | Exposure Metrics | Covered by FR-001. |
-| **US-002** | Match Rate Verification | `code/utils/metrics.py`: Logs warning if match rate < 80% (SC-004). |
-| **US-003** | Edge Cases (Missing, Zero-Variance, VIF) | `code/utils/metrics.py`: Handles missing birth years, filters `n_cues == 0`, checks VIF > 5. |
-| **SC-004** | Match Rate Threshold | `code/utils/metrics.py`: Triggers warning if rate < 80%, proceeds. |
-| **EC-001** | Missing Birth Years Check Order | `code/data/aggregate.py`: Fallback check runs *before* `total_listens` filter. |
-| **EC-002** | Zero Variance Tracks | `code/data/aggregate.py`: Filters rows where `n_cues == 0`. |
-| **EC-003** | Multicollinearity | `code/utils/metrics.py`: Calculates VIF, logs warning if > 5. |
+|----|-------------|--------------|
+| FR‑001 | Primary predictor | `aggregate.py` (ratio calc) |
+| FR‑004 | Aggregation unit | `aggregate.py` (User‑Track Pair) |
+| FR‑005 | LMM formula (now includes `total_listens`) | `model.py` |
+| FR‑006 | Sensitivity thresholds | `match.py` + `sensitivity.py` |
+| FR‑007 | Block‑Permutation (two‑sided, Bonferroni) | `permutation.py` |
+| FR‑008 | Global Exposure fallback | `aggregate.py` (fallback logic) |
+| FR‑009 | Minimum listen filter | `aggregate.py` (`total_listens >= 3`) |
+| US‑001 | Exposure metrics | FR‑001 |
+| US‑002 | Match‑rate verification | `metrics.py` logs warning if < 80 % |
+| US‑003 | Edge‑case handling | `aggregate.py` & `metrics.py` (missing birth, zero‑variance, VIF) |
+| SC‑004 | Match‑rate threshold | `metrics.py` (warn ≥ 80 %) |
+| EC‑001 | Fallback order | `aggregate.py` (fallback before filter) |
+| EC‑002 | Zero‑variance tracks | `aggregate.py` filter `n_cues == 0` |
+| EC‑003 | Multicollinearity | `metrics.py` computes VIF, warns if > 5 |
+
+---
+
+
+## Decision Rationale
+| Decision | Reason |
+|----------|--------|
+| **Simulate AMT** | No open AMT dataset; simulation provides a complete, reproducible pipeline while respecting data‑hygiene rules. |
+| **Stream MSD** | Prevents OOM on the free‑tier runner; still uses real track metadata. |
+| **Block‑Permutation (two‑sided, Bonferroni)** | Preserves the hierarchical structure required by the random intercept and controls family‑wise error across thresholds. |
+| **Logit Transform** | Stabilises variance for bounded ratio predictor. |
+| **Total‑listens Covariate** | Controls for denominator effect of exposure ratio, addressing FR‑005 completeness. |
+| **Global Exposure Fallback (only sensitivity)** | Avoids ecological fallacy; used solely to test robustness when birth years are missing. |
+| **VIF > 5 warning** | Aligns with the verified multicollinearity threshold (source 2605.22529). |
+| **Separate matched files per threshold** | Guarantees that each sensitivity run is independently verifiable (each file has its own checksum). |
+| **CSV contract alignment** | Ensures validation against `contracts/output.schema.yaml` rather than a mismatched JSON schema. |
+| **Model output contract trimmed** | Marked as deprecated; pipeline only produces CSV outputs validated against `contracts/output.schema.yaml`. |
+
+## Verification Strategy
+Each pipeline stage writes a file whose SHA‑256 is recorded in `state.yaml`. Automated pytest suites (`tests/unit/`, `tests/integration/`) load the file, validate against the JSON‑Schema contracts in `contracts/`, and assert expected dimensions (e.g., `user_track_pairs.parquet` has ≥ 1 row per threshold). The CI job fails if any checksum mismatches or schema violations occur, ensuring no fabricated artifacts.
+
+## Limitations
+- The primary hypothesis that adolescent exposure predicts vivid autobiographical memories is evaluated **only on fully simulated AMT data** where the effect size (β = 0.3) is embedded by design. This means the analysis can only confirm that the pipeline recovers a known, pre‑specified effect, **not that the effect exists in real human data**. Relying solely on simulated data therefore does not provide empirical evidence for the research question and constitutes a methodological limitation: the validation is not independent of the hypothesis and cannot substantiate the claimed real‑world relationship. Future work should seek an open, ethically‑shareable autobiographical memory dataset to replace the simulation and enable genuine inference.

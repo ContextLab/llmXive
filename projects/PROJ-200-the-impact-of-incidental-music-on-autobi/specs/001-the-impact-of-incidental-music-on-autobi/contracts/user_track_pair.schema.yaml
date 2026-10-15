@@ -35,7 +35,8 @@ properties:
     description: "Number of memory cues for this pair. Must be >= 1."
   popularity:
     type: number
-    description: "Track popularity score."
+    description: "Track popularity"
+
   match_threshold:
     type: integer
     description: "Levenshtein threshold used for matching."

@@ -1,12 +1,16 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 8 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T003` (rejected 1x): Requested task execution failed; rerun successfully: code/main.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan states the hypothesis "higher adolescent exposure predicts more vivid autobiographical memories" (line 12). This language implies a causal relationship, but the design is purely observational (simulated AMT data) with no experimental manipulation or instrumental variable; the analysis (LMM + permutation) can only support association, not causation.
+- The primary predictor is the adolescent_exposure_ratio (FR‑001) but the model (FR‑005) includes only popularity as a covariate. Total listening volume (total_listens) is not controlled, yet the ratio is mathematically dependent on total_listens, creating a potential confound and violating construct validity of the exposure measure.
+- The plan does not present a power analysis or justify the chosen sample size (500 users × 20 tracks). Moreover, filtering steps (FR‑009 minimum listen threshold, EC‑002 zero‑variance filter) will reduce the effective number of observations, which is not accounted for in the power claim made in the research document. This raises the risk that the study is under‑powered.
+- While a block‑permutation test is used (FR‑007), the p‑value calculation is described as "proportion of null coefficients ≥ observed coefficient" without specifying a two‑sided test or adjustment for multiple thresholds, which may inflate Type I error.
+- The three URLs cited as the 'Million Song Dataset' are HuggingFace JSONL resources unrelated to the canonical MSD (which provides track metadata and listening histories). Using these unrelated datasets means the plan lacks the correct track metadata and any realistic listening timestamps, violating FR‑001 and FR‑004 which require accurate adolescent exposure calculations. Replace the cited URLs with a verified MSD source (e.g., the official Million Song Dataset release or a recognized mirror) that contains the necessary `track_id`, `release_year`, and listen timestamp fields.
+- The plan states that `regression_summary_thr{n}.csv` columns match the `contracts/model_output.schema.yaml` (regression_summary section). However `model_output.schema.yaml` defines a JSON‑object with arrays (regression_summary, bootstrap_results, selection_correction), not a CSV file. The appropriate contract for the CSV output is `contracts/output.schema.yaml`. This mismatch may cause validation failures.
+- The `contracts/model_output.schema.yaml` defines additional artifacts (bootstrap_results, selection_correction) that are never produced or referenced in the plan. Conversely, the plan never mentions generating these artifacts. Either the contract is extraneous for this project or the plan is missing required steps to produce them, leading to a documentation inconsistency.
+- The primary hypothesis that adolescent exposure predicts vivid autobiographical memories is evaluated only on fully simulated AMT data where the effect size (β = 0.3) is embedded by design. This means the analysis can only confirm that the pipeline recovers a known, pre‑specified effect, not that the effect exists in real human data. Relying solely on simulated data therefore does not provide empirical evidence for the research question and constitutes a methodological limitation: the planned validation is not independent of the hypothesis and cannot substantiate the claimed real‑world relationship.
