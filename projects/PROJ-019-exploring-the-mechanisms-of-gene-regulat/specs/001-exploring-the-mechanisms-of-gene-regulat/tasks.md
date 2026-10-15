@@ -16,7 +16,7 @@
 - [X] T003 **Implement configuration module** – create `code/config.py` defining `TMP_DIR` (default `/tmp`), `DATA_RAW_DIR`, `DATA_INTERIM_DIR`, `DATA_PROCESSED_DIR`, `MAX_RETRIES=3`, `RETRY_BACKOFF=2`, `EXPECTED_CELL_TYPES=['GM12878','K562','HepG2','H1-hESC','IMR90']`.  
   *Verification*: **T028** imports `code.config` and asserts that each constant exists with the expected type/value.  
 
-- [ ] T004 **Add pre‑flight utility scripts** –  
+- [X] T004 **Add pre‑flight utility scripts** –  
   - `code/utils/memory_check.py` (≥ 7 GB RAM)  
   - `code/utils/disk_check.py` (≥ 14 GB free on `TMP_DIR`)  
   - `code/utils/time_check.py` (abort > 6 h)  

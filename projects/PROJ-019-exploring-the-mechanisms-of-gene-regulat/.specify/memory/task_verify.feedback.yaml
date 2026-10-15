@@ -1,22 +1,16 @@
 T001:
   task: 4d93714521028415faeb1b7e1a63f05895e1f28a8d8b7bcc00df59bec48588f1
 T002:
-  reason: "The provided `requirements.txt` exists and lists all required packages,\
-    \ but there is no evidence that T027 actually ran `pip install -r requirements.txt`\
-    \ in a fresh virtualenv and obtained a zero exit code. Execution logs or a recorded\
-    \ successful install are needed to verify the task\u2019s verification step."
+  reason: "The repository contains a `requirements.txt` with all listed packages,\
+    \ but the provided test (`tests/test_requirements_install.py`) fails because it\
+    \ looks for the file in the wrong location and never demonstrates a successful\
+    \ `pip install -r requirements.txt` in a fresh virtualenv. Without evidence that\
+    \ the install command runs and exits with code\u202F0, the task\u2019s verification\
+    \ condition is not met."
   task: 1f9921bb7397169bb7696e852c7ba62afcaaea00d0d6163ad9b94cfc6a24ae91
 T003:
   task: b0bb09082b2b00891db1ffbc7f7d7c4764c82c083e60865cf39ab46fc241dc79
 T004:
-  reason: "Checked the four utility scripts present at `code/utils/`. `disk_check.py`,\
-    \ `time_check.py`, and `network.py` implement the required thresholds (\u2265\u202F\
-    14\u202FGB free, 6\u202Fh limit, exponential back\u2011off with `MaxRetriesError`).\
-    \ However, `memory_check.py` enforces a 16\u202FGB minimum (`MIN_RAM_BYTES = 16\
-    \ * 1024 ** 3`) instead of the task\u2019s \u2265\u202F7\u202FGB requirement,\
-    \ and its documentation mentions 16\u202FGB, so it does not satisfy the specified\
-    \ 7\u202FGB threshold. The memory\u2011check script must be revised to use a 7\u202F\
-    GB (or configurable) minimum and reflect that in its comments."
   task: a2cead367e7305757d5a612ce631d2430abc46f1d312258e3a440fc71c957c92
 T005:
   task: 01165d31fb3509db400ab260350d79de2030a5116320d98a44ab5ae2e6a4fd1a

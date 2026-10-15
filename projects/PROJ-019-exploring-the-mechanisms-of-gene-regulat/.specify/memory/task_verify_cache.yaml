@@ -7,12 +7,14 @@ T001:
   sig: 2c02da54ddaafe29ac7023431bc73dbcad4c888d8bdb4cf94805ab7feefd85fb
 T002:
   c: false
-  h: 97e93fd1a5a92c426d5f33b7242b5584d64e5ab5b4f27b0156d343a3c9475028
-  r: "The provided `requirements.txt` exists and lists all required packages, but\
-    \ there is no evidence that T027 actually ran `pip install -r requirements.txt`\
-    \ in a fresh virtualenv and obtained a zero exit code. Execution logs or a recorded\
-    \ successful install are needed to verify the task\u2019s verification step."
-  sig: f60b9b89e4d4cba24bf420645cfa74a3bf1496a8fb5700272077b2adfb8da787
+  h: 455092b6fd33d8b659be60d844daee7c33a6af751486bf7020d0a28da7994f30
+  r: "The repository contains a `requirements.txt` with all listed packages, but the\
+    \ provided test (`tests/test_requirements_install.py`) fails because it looks\
+    \ for the file in the wrong location and never demonstrates a successful `pip\
+    \ install -r requirements.txt` in a fresh virtualenv. Without evidence that the\
+    \ install command runs and exits with code\u202F0, the task\u2019s verification\
+    \ condition is not met."
+  sig: e4f4edf0f749e17db23fb00ec7c94c3e9cd09ab0b4c91daf5c6223e134869d57
 T003:
   c: true
   h: 33815d358676df90de538fa0f00e9d480b41071aea3a7397fe7869507d46ba79
@@ -23,17 +25,13 @@ T003:
     \ passing."
   sig: 7f40e1a04b8d8b3619d837cba0c6356a8ba8ae693d0453c4d7e46ed5307b2ce1
 T004:
-  c: false
-  h: d4d69061c77f924f68b7a190647cd3c11e0e8ab624e07f0202b41f940c332537
-  r: "Checked the four utility scripts present at `code/utils/`. `disk_check.py`,\
-    \ `time_check.py`, and `network.py` implement the required thresholds (\u2265\u202F\
-    14\u202FGB free, 6\u202Fh limit, exponential back\u2011off with `MaxRetriesError`).\
-    \ However, `memory_check.py` enforces a 16\u202FGB minimum (`MIN_RAM_BYTES = 16\
-    \ * 1024 ** 3`) instead of the task\u2019s \u2265\u202F7\u202FGB requirement,\
-    \ and its documentation mentions 16\u202FGB, so it does not satisfy the specified\
-    \ 7\u202FGB threshold. The memory\u2011check script must be revised to use a 7\u202F\
-    GB (or configurable) minimum and reflect that in its comments."
-  sig: 8568e8e555a21a65ead5d3603b200880ed49e3394b73f9c0c4899f03a4c45eb9
+  c: true
+  h: b9e60fff97936d3ce8400d555fa16ff0a490e34d6179b548ff15c8e2efe356a8
+  r: "Checked the four utility scripts (`memory_check.py`, `disk_check.py`, `time_check.py`,\
+    \ `network.py`) and confirmed they exist, are non\u2011empty, enforce the required\
+    \ thresholds (\u22657\u202FGB RAM, \u226514\u202FGB free TMP_DIR, \u22646\u202F\
+    h runtime) and implement exponential back\u2011off with a `MaxRetriesError`."
+  sig: 75840258fb11bd5fcb74cd1b55fcff604e8bc95b558ec0631b00b18c8453ee23
 T016:
   c: false
   h: 02d7f90ae120082738afcfa876dba0276e3a869872dc90aca3a6013f5feedc15

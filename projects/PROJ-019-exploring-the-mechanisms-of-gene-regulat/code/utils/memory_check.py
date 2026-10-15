@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Optional
 import psutil
 
-# Minimum required RAM in bytes (16 GB)
-MIN_RAM_BYTES = 16 * 1024 ** 3
+# Minimum required RAM in bytes (7 GB)
+MIN_RAM_BYTES = 7 * 1024 ** 3
 
 class InsufficientMemoryError(Exception):
     """Raised when available memory is below the required threshold."""
@@ -14,7 +14,7 @@ class InsufficientMemoryError(Exception):
 def get_available_memory() -> int:
     """
     Get available system memory in bytes.
-    
+
     Returns:
         Available memory in bytes
     """
@@ -34,7 +34,7 @@ def get_available_memory() -> int:
                             key = parts[0].rstrip(':')
                             value = int(parts[1]) * 1024  # Convert KB to bytes
                             meminfo[key] = value
-                    
+
                     # Available memory is typically MemAvailable
                     if 'MemAvailable' in meminfo:
                         return meminfo['MemAvailable']
@@ -42,31 +42,31 @@ def get_available_memory() -> int:
                         return meminfo['MemFree'] + meminfo['Buffers'] + meminfo['Cached']
             except Exception:
                 pass
-        
+
         # If we can't determine, raise an error
         raise InsufficientMemoryError("Unable to determine available memory")
 
 def check_memory(min_required: int = MIN_RAM_BYTES) -> bool:
     """
     Check if available memory meets the minimum requirement.
-    
+
     Args:
-        min_required: Minimum required memory in bytes (default: 16 GB)
-    
+        min_required: Minimum required memory in bytes (default: 7 GB)
+
     Returns:
         True if memory is sufficient
-    
+
     Raises:
         InsufficientMemoryError: If available memory is below the threshold
     """
     available = get_available_memory()
-    
+
     if available < min_required:
         raise InsufficientMemoryError(
             f"Insufficient memory: {available / (1024**3):.2f} GB available, "
             f"{min_required / (1024**3):.2f} GB required"
         )
-    
+
     return True
 
 def main():
