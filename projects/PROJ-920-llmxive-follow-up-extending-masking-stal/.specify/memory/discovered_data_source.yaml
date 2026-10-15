@@ -1,14 +1,13 @@
 status: none
-intent: synthetic trajectories generator with controllable token entropy python package
+intent: synthetic search trajectory generator with controlled density python package
   dataset
 required_fields:
 - trajectory_id
-- turn_index
-- turn_text
+- turn_number
+- text
 - entropy_per_token
-- critical
-- density_level
-- seed
-cache_key: e0d3c7d95bb72aee3456c1479bdf84f940180da9e32644a98ffcb4c77368bd7e
-searched_at: '2026-10-15T12:14:22.713126+00:00'
+- critical_flag
+- evidence_density_level
+cache_key: 5e3ab64bd73bec2dc6194b92c7544f76e94bead5aab18ef6245d37159f6efb1b
+searched_at: '2026-10-15T14:12:03.706536+00:00'
 retry_count: 1

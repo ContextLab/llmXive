@@ -1,12 +1,12 @@
 T001:
   c: true
-  h: 364c2d5e2129511364e24fa60ca3fb4391cf56612ef4ad4d3b30cf93c72f12a2
+  h: 611474119f4793e9891c8028e4c245dea1c6ff889fca6b10dba47c4c3ff7f50e
   r: All five required directories (`data/raw/`, `data/logs/`, `results/`, `code/`,
-    `tests/`) exist with non-empty contents, and `quickstart.md` (1087 bytes) is present
-    with real setup/run instructions rather than a placeholder. The task only asked
-    for the directory tree and a minimal quickstart, both of which are satisfied by
-    the collector-confirmed evidence.
-  sig: 9daad422627d1b8d0b6488d51f26d149814a90f0c347af4cb7428b32179b842b
+    `tests/`) exist with content, and `quickstart.md` (1087 bytes) is present at the
+    project root with real setup/run instructions rather than a placeholder. The task
+    only asked for the directory tree and a minimal quickstart, both of which are
+    satisfied by the collector-confirmed evidence.
+  sig: 4349c94154739466a474dc638dbffb8fdceed1d95ed144329d9129eeed3cb983
 T002:
   c: true
   h: f8484932282ffde0fd635e0e2448eaf2606358db14c34027fc092af69698a368

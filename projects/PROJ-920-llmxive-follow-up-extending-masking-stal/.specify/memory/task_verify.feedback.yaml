@@ -19,13 +19,8 @@ T009:
 T010:
   task: 2ef825904785eb2159002796c893f398c13490b06aedb8f2b1d5386c9f959433
 T011:
-  reason: "The required output artifact `data/raw/trajectories.json` does not exist,\
-    \ so the verification steps (valid JSON, \u2264100 MB, schema conformance, \u2265\
-    150 per density bin) cannot be confirmed. Additionally, the script deviates from\
-    \ the task: it accepts `--num-trajectories` instead of the required `--count`,\
-    \ imports `calculate_composite_density` but never uses it (defining its own `compute_final_density`\
-    \ instead), and its output turns omit the schema-required `entropy_per_token`\
-    \ field per turn, so even if run it would fail schema validation."
+  reason: 'Requested task execution failed; rerun successfully: code/generate_trajectories.py
+    exit=1'
   task: 7aa3f4242fa85f859a58c86072e464ecb948e0436916826935fa9d32f17c670d
 T012:
   reason: 'Requested task execution failed; rerun successfully: code/validate_trajectories.py

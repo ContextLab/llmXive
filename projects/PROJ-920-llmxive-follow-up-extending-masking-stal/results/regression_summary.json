@@ -1,83 +1,69 @@
 {
   "model_summary": {
-    "formula": "success ~ density_value * bs(requested_horizon, df=4, degree=3)",
+    "formula": "success ~ density_value * bs(requested_horizon, df=3, degree=3)",
     "n_observations": 5000,
-    "pseudo_r_squared": 0.1513640620439649
+    "pseudo_r_squared": 0.15143568206166602
   },
   "coefficients": [
     {
       "term": "Intercept",
-      "estimate": 22446416999.733788,
-      "std_error": 27705878057.939762,
-      "z_value": 0.8101680427811327,
-      "p_value": 0.4178436017790488
+      "estimate": -2689571786585.264,
+      "std_error": 10483705968094.057,
+      "z_value": -0.2565478080719417,
+      "p_value": 0.7975278697612769
     },
     {
       "term": "density_value",
-      "estimate": -22446417002.045353,
-      "std_error": 27705878057.894157,
-      "z_value": -0.8101680428658986,
-      "p_value": 0.4178436017303373
+      "estimate": 2689571786582.841,
+      "std_error": 10483705968094.094,
+      "z_value": 0.2565478080717097,
+      "p_value": 0.7975278697614561
     },
     {
-      "term": "bs(requested_horizon, df=4, degree=3)[0]",
-      "estimate": 1790087827333.2822,
-      "std_error": 8897802523562.004,
-      "z_value": 0.20118313736374846,
-      "p_value": 0.8405553763622817
+      "term": "bs(requested_horizon, df=3, degree=3)[0]",
+      "estimate": 48523019337.76337,
+      "std_error": 189138311886.4162,
+      "z_value": 0.2565478080765733,
+      "p_value": 0.7975278697577011
     },
     {
-      "term": "bs(requested_horizon, df=4, degree=3)[1]",
-      "estimate": 2789895901666.0127,
-      "std_error": 7239242704791.41,
-      "z_value": 0.3853850486072908,
-      "p_value": 0.6999521582303445
+      "term": "bs(requested_horizon, df=3, degree=3)[1]",
+      "estimate": -1367250225535.2146,
+      "std_error": 5329416906005.446,
+      "z_value": -0.2565478080715604,
+      "p_value": 0.7975278697615713
     },
     {
-      "term": "bs(requested_horizon, df=4, degree=3)[2]",
-      "estimate": 1511232982174.102,
-      "std_error": 1834020955563.8845,
-      "z_value": 0.8239998444889423,
-      "p_value": 0.4099396463228022
+      "term": "bs(requested_horizon, df=3, degree=3)[2]",
+      "estimate": -52314582968.93855,
+      "std_error": 203917481750.42728,
+      "z_value": -0.25654780806368477,
+      "p_value": 0.7975278697676518
     },
     {
-      "term": "bs(requested_horizon, df=4, degree=3)[3]",
-      "estimate": 7559579841570.92,
-      "std_error": 6533798626130.45,
-      "z_value": 1.1569961478975017,
-      "p_value": 0.2472739341677911
+      "term": "density_value:bs(requested_horizon, df=3, degree=3)[0]",
+      "estimate": -48523019335.96983,
+      "std_error": 189138311886.44,
+      "z_value": -0.25654780806705835,
+      "p_value": 0.7975278697650472
     },
     {
-      "term": "density_value:bs(requested_horizon, df=4, degree=3)[0]",
-      "estimate": -1790087827332.5254,
-      "std_error": 8897802523562.248,
-      "z_value": -0.20118313736365787,
-      "p_value": 0.8405553763623526
+      "term": "density_value:bs(requested_horizon, df=3, degree=3)[1]",
+      "estimate": 1367250225537.86,
+      "std_error": 5329416906005.444,
+      "z_value": 0.2565478080720569,
+      "p_value": 0.797527869761188
     },
     {
-      "term": "density_value:bs(requested_horizon, df=4, degree=3)[1]",
-      "estimate": -2789895901663.712,
-      "std_error": 7239242704791.22,
-      "z_value": -0.3853850486069831,
-      "p_value": 0.6999521582305723
-    },
-    {
-      "term": "density_value:bs(requested_horizon, df=4, degree=3)[2]",
-      "estimate": -1511232982171.273,
-      "std_error": 1834020955563.9338,
-      "z_value": -0.8239998444873775,
-      "p_value": 0.4099396463236913
-    },
-    {
-      "term": "density_value:bs(requested_horizon, df=4, degree=3)[3]",
-      "estimate": -7559579841567.778,
-      "std_error": 6533798626130.576,
-      "z_value": -1.1569961478969986,
-      "p_value": 0.2472739341679968
+      "term": "density_value:bs(requested_horizon, df=3, degree=3)[2]",
+      "estimate": 52314582972.25026,
+      "std_error": 203917481750.42154,
+      "z_value": 0.2565478080799324,
+      "p_value": 0.7975278697551077
     }
   ],
   "interaction_significance": {
-    "p_value": 0.8405553763623526,
+    "p_value": 0.7975278697650472,
     "supported_hypothesis": false
   },
   "plot_path": ""
