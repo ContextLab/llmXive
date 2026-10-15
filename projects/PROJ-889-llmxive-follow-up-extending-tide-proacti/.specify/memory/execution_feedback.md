@@ -7,19 +7,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.acquire   # pulls dataset, runs manual mapping to hidden‑problem labels, verifies checksum -> rc=1
-/python3.11/site-packages/huggingface_hub/file_download.py", line 283, in _request_wrapper
-    response = _request_wrapper(
-               ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 307, in _request_wrapper
-    hf_raise_for_status(response)
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/utils/_http.py", line 453, in hf_raise_for_status
-    raise _format(RepositoryNotFoundError, message, response) from e
-huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6ad03625-1334a521448b240e1e863526;bdf947cb-eb7e-473c-9105-dc701c39addd)
-
-Repository Not Found for url: https://huggingface.co/code_x_glue_cc_defect_detection/resolve/main/train.jsonl.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-Invalid username or password.
+ive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/code/data/download_real.py", line 49, in main
+    dataset_splits = _load_dataset()
+                     ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/code/data/download_real.py", line 36, in _load_dataset
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python -m src.features.extract   # reads all .py files, writes data/features.csv (includes `origin`) -> rc=1
 
