@@ -2,6 +2,13 @@ T001:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 1f6cf0fb3c5faab74d66409bda305c5e4c964b205085d52625785d171b20dd8b
 T002:
+  reason: "The Hamiltonian generator and storage utilities exist, but the required\
+    \ provenance and checksum artifacts are not present as specified: `data/metadata/checksums.json`\
+    \ is missing, and `data/metadata/provenance.json` contains only a JSON schema\
+    \ rather than actual provenance entries logged by the code. No unit\u2011test\
+    \ files are provided to demonstrate seed reproducibility, disorder bounds, or\
+    \ open\u2011boundary structure. These omissions mean the task\u2019s storage\u2011\
+    with\u2011provenance requirement is not satisfied."
   task: 399e9f9b2e9f88d0aee957d1e59b8455eb4dd5249694b84cda14c26b01017d43
 T003:
   task: dcbf4aea4324d8cf82641abf8b8029c198da9038f9ada76dd3c27380247e535c
@@ -18,8 +25,16 @@ T008:
 T009:
   task: a7b3aedc96d31cc1101d4c9b28d79a1bab9be4980b352113798cf5ec7e3d4cd0
 T010:
+  reason: 'Requested task execution failed; rerun successfully: code/generate_multiL_pr_dataset.py
+    exit=1; code/visualize.py exit=2'
   task: 06eaa48f66fa77fe4540cd6bb4e5516d3251124a8dc68050ef8d74bc5f099f8b
 T011:
+  reason: "Checked `code/logger.py` (exists) and the required output files `data/metadata/residuals.json`\
+    \ and `data/metadata/convergence_trace.json` (both missing). The logger\u2019\
+    s `log_residual`/`log_convergence` methods do not emit the required fields (`realization_id`,\
+    \ `W`, `L`, `residual_norm`, timestamp) and they write only to a single file,\
+    \ not separately to `residuals.json` and `convergence_trace.json`. Hence the implementation\
+    \ does not meet the task specification."
   task: 34c9abdb7dfceeda7feed21eb2a75500b3c7ce451ef909067f25aec97f1f0513
 T012:
   task: 545c193f17cb582c321893a329b04af5899eac4a936fff9a391ab5641224e860

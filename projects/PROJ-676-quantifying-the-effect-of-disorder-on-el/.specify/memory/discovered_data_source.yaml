@@ -1,47 +1,16 @@
-status: verified
-kind: pypi_package
-ref: tbkit
-access_python: "import numpy as np, tbkit\nL=128\nW=4.0\nseed=42\nnp.random.seed(seed)\n\
-  # on\u2011site disorder uniformly in [-W/2, W/2]\non_site_energies = np.random.uniform(-W/2,\
-  \ W/2, L)\n# nearest\u2011neighbour hopping t = -1 (tight\u2011binding 1D chain)\n\
-  H = np.diag(on_site_energies) + np.diag(np.full(L-1, -1), k=1) + np.diag(np.full(L-1,\
-  \ -1), k=-1)\n# exact diagonalisation\neigvals, eigvecs = np.linalg.eigh(H)\n# participation\
-  \ ratio PR = (\u2211|\u03C8_i|^2)^2 / \u2211|\u03C8_i|^4 for each eigenstate\npr\
-  \ = (np.sum(eigvecs**2, axis=0)**2) / np.sum(eigvecs**4, axis=0)\nrecords = []\n\
-  for i in range(L):\n    rec = {\n        \"system_size_L\": L,\n        \"disorder_strength_W\"\
-  : W,\n        \"realization_index\": 0,\n        \"random_seed\": seed,\n      \
-  \  \"on_site_energies\": on_site_energies.tolist(),\n        \"hamiltonian_matrix\"\
-  : H.tolist(),\n        \"eigenvalues\": float(eigvals[i]),\n        \"eigenvectors\"\
-  : eigvecs[:, i].tolist(),\n        \"participation_ratios\": float(pr[i]),\n   \
-  \     \"energy_window_center\": None,\n        \"energy_window_width\": None,\n\
-  \    }\n    records.append(rec)\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=system_size_L,disorder_strength_W,realization_index,random_seed,on_site_energies,hamiltonian_matrix,eigenvalues,eigenvectors,participation_ratios,energy_window_center,energy_window_width\"\
-  )"
-record_count: 128
-sample_fields:
-- system_size_L
-- disorder_strength_W
-- realization_index
-- random_seed
-- on_site_energies
-- hamiltonian_matrix
-- eigenvalues
-- eigenvectors
-- participation_ratios
-- energy_window_center
-- energy_window_width
-field_coverage: 1.0
+status: none
+intent: Anderson localization synthetic 1D Hamiltonians dataset and theoretical reference
+  values python package dataset
 required_fields:
-- system_size_L
+- system_size
 - disorder_strength_W
 - realization_index
 - random_seed
-- on_site_energies
+- onsite_energies
+- hopping_parameter
 - hamiltonian_matrix
 - eigenvalues
 - eigenvectors
-- participation_ratios
-- energy_window_center
-- energy_window_width
-intent: download Anderson 1D tight-binding Hamiltonian eigenstates dataset python
-  package dataset
-cache_key: dabc4ae2909bf0827a2f77b9131f06dcb53a6c261d5ec71b7c7a178488400e01
+cache_key: a3d2dd3f00d133e8bb54add0936eaa6ac6863b6f2f68f28d7b326cbd1652c5c6
+searched_at: '2026-10-15T05:35:16.037612+00:00'
+retry_count: 1

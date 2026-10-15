@@ -25,7 +25,9 @@ def log_provenance_entry(entry: Dict[str, Any]):
     MUST log `realization_index`, `seed`, `W`, `L` for every generated instance.
     """
     config = get_config()
-    output_path = Path(config['PROJECT_ROOT']) / 'data' / 'metadata' / 'provenance.json'
+    # Resolve project root; config may provide PROJECT_ROOT or we fallback to cwd
+    project_root = Path(config.get('PROJECT_ROOT', Path.cwd()))
+    output_path = project_root / 'data' / 'metadata' / 'provenance.json'
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     entry['timestamp'] = datetime.now().isoformat()
@@ -38,7 +40,7 @@ def log_provenance_entry(entry: Dict[str, Any]):
     
     # Append as JSONL line
     with open(output_path, 'a') as f:
-        f.write(json.dumps(entry) + '\n')
+        f.write(json.dumps(entry) + '\\n')
 
 def save_hamiltonian_to_hdf5(H: np.ndarray, W: float, L: int, realization_index: int, seed: int) -> str:
     """Save Hamiltonian to HDF5 with metadata and return checksum.
@@ -54,7 +56,8 @@ def save_hamiltonian_to_hdf5(H: np.ndarray, W: float, L: int, realization_index:
         Path to the saved HDF5 file
     """
     config = get_config()
-    output_dir = Path(config['PROJECT_ROOT']) / 'data' / 'raw' / 'hamiltonians'
+    project_root = Path(config.get('PROJECT_ROOT', Path.cwd()))
+    output_dir = project_root / 'data' / 'raw' / 'hamiltonians'
     output_dir.mkdir(parents=True, exist_ok=True)
     
     filename = f"H_W{W:.1f}_L{L}_idx{realization_index}.h5"
@@ -71,14 +74,19 @@ def save_hamiltonian_to_hdf5(H: np.ndarray, W: float, L: int, realization_index:
     # Compute and log checksum
     checksum = _compute_sha256(file_path)
     
-    # Log provenance
+    # Log provenance (task_id T002)
     log_provenance_entry({
-        'task_id': 'T007',
+        'task_id': 'T002',
         'action': 'stored',
-        'input_files': [],
-        'output_files': [str(file_path.relative_to(config['PROJECT_ROOT']))],
-        'parameters': {'W': W, 'L': L, 'realization_index': realization_index, 'seed': seed},
-        'checksums': {str(filename): checksum},
+        'input_files': [],  # Hamiltonian generated on the fly
+        'output_files': [str(file_path.relative_to(project_root))],
+        'parameters': {
+            'W': W,
+            'L': L,
+            'realization_index': realization_index,
+            'seed': seed
+        },
+        'checksums': {filename: checksum},
         'status': 'success'
     })
     
@@ -122,7 +130,8 @@ def save_eigenstates_to_hdf5(eigenvalues: np.ndarray, eigenvectors: np.ndarray,
         Path to the saved HDF5 file
     """
     config = get_config()
-    output_dir = Path(config['PROJECT_ROOT']) / 'data' / 'raw' / 'eigenstates'
+    project_root = Path(config.get('PROJECT_ROOT', Path.cwd()))
+    output_dir = project_root / 'data' / 'raw' / 'eigenstates'
     output_dir.mkdir(parents=True, exist_ok=True)
     
     filename = f"eigenstates_W{W:.1f}_L{L}_idx{realization_index}.h5"
@@ -144,13 +153,19 @@ def save_eigenstates_to_hdf5(eigenvalues: np.ndarray, eigenvectors: np.ndarray,
     
     # Log provenance
     log_provenance_entry({
-        'task_id': 'T007',
+        'task_id': 'T002',
         'action': 'stored',
         'input_files': [],
-        'output_files': [str(file_path.relative_to(config['PROJECT_ROOT']))],
-        'parameters': {'W': W, 'L': L, 'realization_index': realization_index, 'seed': seed, 
-                     'residual_norm': residual_norm, 'converged': converged},
-        'checksums': {str(filename): checksum},
+        'output_files': [str(file_path.relative_to(project_root))],
+        'parameters': {
+            'W': W,
+            'L': L,
+            'realization_index': realization_index,
+            'seed': seed,
+            'residual_norm': residual_norm,
+            'converged': converged
+        },
+        'checksums': {filename: checksum},
         'status': 'success' if converged else 'partial'
     })
     
@@ -172,7 +187,8 @@ def save_localization_length(xi: float, W: float, L: int, realization_index: int
         Path to the saved HDF5 file
     """
     config = get_config()
-    output_dir = Path(config['PROJECT_ROOT']) / 'data' / 'processed' / 'localization_lengths'
+    project_root = Path(config.get('PROJECT_ROOT', Path.cwd()))
+    output_dir = project_root / 'data' / 'processed' / 'localization_lengths'
     output_dir.mkdir(parents=True, exist_ok=True)
     
     filename = f"xi_W{W:.1f}_L{L}_idx{realization_index}.h5"
@@ -199,12 +215,12 @@ def save_localization_length(xi: float, W: float, L: int, realization_index: int
     
     # Log provenance
     log_provenance_entry({
-        'task_id': 'T007',
+        'task_id': 'T002',
         'action': 'processed',
         'input_files': [],
-        'output_files': [str(file_path.relative_to(config['PROJECT_ROOT']))],
+        'output_files': [str(file_path.relative_to(project_root))],
         'parameters': {'W': W, 'L': L, 'realization_index': realization_index, 'seed': seed, 'xi': xi},
-        'checksums': {str(filename): checksum},
+        'checksums': {filename: checksum},
         'status': 'success'
     })
     
