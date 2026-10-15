@@ -1,15 +1,12 @@
 status: none
-intent: NLCD 2021 raster Colorado download USGS EarthExplorer NLCD Group 0_9 parquet
-  Python package dataset
+intent: download NLCD 2021 land cover raster via USGS EarthExplorer API python package
+  dataset
 required_fields:
 - land_cover_class
-- pixel_value
-- spatial_reference
-- pixel_size
-- coordinate_reference_system
-- grid_origin
-- raster_width
-- raster_height
-cache_key: 4dc033dda6b90a7657aa0b4b8b42483ac91dd47b861ba57a85b3defb53a439f5
-searched_at: '2026-10-15T16:24:29.253731+00:00'
+- pixel_x_coordinate
+- pixel_y_coordinate
+- spatial_reference_system
+- pixel_resolution
+cache_key: 0b11e79c77196cf3551e49c77ef5146f1aae8d4167ce690556372d30f3fa5620
+searched_at: '2026-10-15T16:28:38.809494+00:00'
 retry_count: 1

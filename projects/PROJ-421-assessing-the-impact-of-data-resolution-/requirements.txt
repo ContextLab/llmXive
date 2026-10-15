@@ -1,15 +1,8 @@
+# Project dependencies
 rasterio
-tqdm
-requests
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-esda
-libpysal
-# The base environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema,
-# psutil. Additional packages required for this task are listed above.
+geopandas
+pysal
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
+# provided by the base environment. Added explicit packages are required
+# for spatial analysis.

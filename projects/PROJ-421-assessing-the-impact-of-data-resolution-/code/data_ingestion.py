@@ -1,13 +1,15 @@
 """
 Data Ingestion Module for NLCD Colorado Subset.
 
-Downloads the 30 m NLCD tile for Colorado from a public AWS-hosted URL,
-validates the download, writes the raster to ``data/raw/`` and produces a
-JSON metadata file conforming to ``dataset.schema.yaml``.
+Downloads the 30 m NLCD raster (national file) from a verified public URL,
+extracts the GeoTIFF, and writes it to ``data/raw/`` along with a JSON
+metadata file conforming to ``dataset.schema.yaml``.
 """
 import sys
 import logging
+import zipfile
 from pathlib import Path
+import shutil
 
 import requests
 from tqdm import tqdm
@@ -63,6 +65,24 @@ def download_with_progress(url: str, dest_path: Path, filename: str) -> Path:
     logger.info(f"Download completed: {target_file}")
     return target_file
 
+def _extract_tif_from_zip(zip_path: Path, dest_path: Path, target_name: str) -> Path:
+    """
+    Extract the first .tif file found inside the zip archive and place it at ``dest_path / target_name``.
+    """
+    logger.info(f"Extracting TIFF from {zip_path}")
+    with zipfile.ZipFile(zip_path, 'r') as zf:
+        # Find a .tif entry (case‑insensitive)
+        tif_members = [m for m in zf.namelist() if m.lower().endswith('.tif')]
+        if not tif_members:
+            raise FileNotFoundError("No .tif file found inside the zip archive")
+        # Extract the first matching member to a temporary location
+        temp_extracted = zf.extract(tif_members[0], path=dest_path)
+        temp_path = Path(temp_extracted)
+        final_path = dest_path / target_name
+        shutil.move(str(temp_path), str(final_path))
+    logger.info(f"Extracted TIFF to {final_path}")
+    return final_path
+
 def verify_download(filepath: Path, expected_checksum: str) -> bool:
     """
     Verify the downloaded file against a SHA‑256 checksum.
@@ -98,16 +118,22 @@ def run_ingestion() -> Path:
     Returns:
         Path to the verified raster file.
     """
-    # 1️⃣ Download
-    raster_path = download_with_progress(NLCD_URL, Path(DATA_RAW_DIR), NLCD_OUTPUT_FILENAME)
+    # 1️⃣ Download (may be a zip)
+    downloaded_path = download_with_progress(NLCD_URL, Path(DATA_RAW_DIR), NLCD_OUTPUT_FILENAME + ".zip")
 
-    # 2️⃣ Verify (optional)
+    # 2️⃣ If a zip archive was downloaded, extract the GeoTIFF
+    if downloaded_path.suffix.lower() == ".zip":
+        raster_path = _extract_tif_from_zip(downloaded_path, Path(DATA_RAW_DIR), NLCD_OUTPUT_FILENAME)
+    else:
+        raster_path = downloaded_path
+
+    # 3️⃣ Verify (optional)
     if not verify_download(raster_path, NLCD_EXPECTED_CHECKSUM):
         logger.warning("Verification failed – removing corrupted file and retrying.")
         raster_path.unlink(missing_ok=True)
         raise RetryError("Checksum verification failed")
 
-    # 3️⃣ Write metadata JSON
+    # 4️⃣ Write metadata JSON
     _write_metadata(raster_path)
 
     return raster_path

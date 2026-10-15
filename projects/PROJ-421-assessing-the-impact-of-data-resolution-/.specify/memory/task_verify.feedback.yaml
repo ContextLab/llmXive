@@ -3,16 +3,46 @@ T001:
     exit=1'
   task: 73a4192fac40c6a4826d21c03de818c6cb5d866630c756d97d7003252b8dc36a
 T002:
+  reason: "The `code/resampling.py` implementation does not match the required API\
+    \ (it takes a factor, not a target resolution in meters, and returns a string\
+    \ instead of a `Path`), never enforces \u22642000\u202F\xD7\u202F2000\u2011pixel\
+    \ windowed processing, and provides no logic to create the four specific files\
+    \ `data/derived/nlcd_{60,120,240,480}m_co.tif` or to skip out\u2011of\u2011bounds\
+    \ resolutions with a warning. Moreover, the required source raster `data/raw/nlcd_30m_co.tif`\
+    \ is missing. These gaps prevent the task from being genuinely completed."
   task: 872126aad47c260fc22bec33e464db3cd197b9f836272746d4b058035bb3be78
 T003:
+  reason: "Checked `code/binary_indicator.py` (implementation present and unit test\
+    \ `tests/test_binary.py` passes) and the required output files `data/derived/binary_forest_{res}m_co.tif`\
+    \ and `data/derived/binary_urban_{res}m_co.tif` for the five resolutions \u2013\
+    \ none of these raster files exist. The task\u2019s deliverable of generated binary\
+    \ rasters is missing."
   task: 073b25cab0ea3ff5d26987873b19616f39299c8918daa41969bf477f91ba7969
 T004:
+  reason: "Checked `code/analysis.py` (fails to import `transform` from `rasterio.transform`,\
+    \ causing import errors) and the required output artifacts `data/results/morans_i_results.csv`\
+    \ and `results.schema.yaml` (both missing). The module also lacks the required\
+    \ `compute_morans_i(binary_path) -> (I, p)` function, does not enforce exactly\u202F\
+    1,000 permutations, and never writes a CSV row conforming to the schema. These\
+    \ missing/incorrect pieces must be added and the import fixed."
   task: e8089d3afa5a4ed895b2de12818e4059c31c9010533f72b82f94daaae838afc8
 T005:
+  reason: "The `code/calibration.py` does not perform the required Moran\u2019s\u202F\
+    I\u2011based \u03BB calibration, nor does it write the mandated `data/results/calibration.json`\
+    \ with the keys `lambda`, `sample_size`, `observed_morans_i`, `simulated_morans_i`,\
+    \ and `fit_error_pct`. The integration test fails because the code uses `np.erf`,\
+    \ which does not exist, causing a runtime error, and the produced JSON lacks the\
+    \ required fields and error metric. The required output file is missing entirely."
   task: 4f77bb1841682399d64683c82d1afab73674247a92746b3d2500d478ac3869ef
 T006:
+  reason: "The required `tests/test_power.py` file is missing, so the claimed verification\
+    \ (checking length\u202F=\u202F1000, power range, and hand\u2011computed example)\
+    \ cannot be performed. Add the test file (or provide equivalent evidence) to confirm\
+    \ the new `simulate_h1` and `estimate_power` functions meet the specification."
   task: eecdabe2426ac83cd79ac73a2ea0b8a43d0bdfefd99c682467ae72debdc04c45
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/full_sweep.py
+    exit=1'
   task: 2e1ec172df75b5f8b05992bc6243c143184aefac37bc74ccf2b403b81157cae1
 T008:
   task: ec6389754802d515d76be799f4b8ab66a9123cb8d6724229acd97c50da23c415

@@ -41,7 +41,7 @@
   - `estimate_power(h0_dist, h1_dist, alpha=0.05)` returns the proportion of H1 simulations whose Moran's I exceeds the (1 ‑ α) quantile of the H0 permutation distribution.  
   - Verification: `tests/test_power.py` asserts both distributions have length 1,000, power ∈ [0, 1], and matches a hand‑computed example.
 
-- [ ] T007 Run the full resolution × class sweep (SC‑001, SC‑002).  
+- [ ] T007 Run the full resolution × class sweep (SC‑001, SC‑002).   <!-- FAILED-IN-EXECUTION: code/full_sweep.py exit=1 -->
   - For each resolution [30, 60, 120, 240, 480] m and class (Forest, Urban): compute observed Moran's I, permutation p‑value, H1 power estimate, and **record** `n_simulations` = 1,000.  
   - Apply Benjamini‑Hochberg correction across all class tests; store both raw and corrected p‑values.  
   - Write **10 rows** to `data/results/morans_i_results.csv` with columns `resolution_m`, `observed_morans_i`, `p_value`, `n_permutations` (always 1,000), `n_simulations` (always 1,000), `power_estimate`, `is_below_threshold` (true when power < 0.80).  

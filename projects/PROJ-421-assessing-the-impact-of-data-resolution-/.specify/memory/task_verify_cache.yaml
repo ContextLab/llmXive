@@ -1,0 +1,48 @@
+T002:
+  c: false
+  h: 4a500c663776a16d069b98ecfe58592530900b9238709c18771baa7d67ea0407
+  r: "The `code/resampling.py` implementation does not match the required API (it\
+    \ takes a factor, not a target resolution in meters, and returns a string instead\
+    \ of a `Path`), never enforces \u22642000\u202F\xD7\u202F2000\u2011pixel windowed\
+    \ processing, and provides no logic to create the four specific files `data/derived/nlcd_{60,120,240,480}m_co.tif`\
+    \ or to skip out\u2011of\u2011bounds resolutions with a warning. Moreover, the\
+    \ required source raster `data/raw/nlcd_30m_co.tif` is missing. These gaps prevent\
+    \ the task from being genuinely completed."
+  sig: 554e13f6a40283363666243658f555aa57976a50de79870afaedb7a6453e4865
+T003:
+  c: false
+  h: 5230920a5694e74036c6fc432a3f86a76317ce3e99e704b97c2ad29af19e5fd0
+  r: "Checked `code/binary_indicator.py` (implementation present and unit test `tests/test_binary.py`\
+    \ passes) and the required output files `data/derived/binary_forest_{res}m_co.tif`\
+    \ and `data/derived/binary_urban_{res}m_co.tif` for the five resolutions \u2013\
+    \ none of these raster files exist. The task\u2019s deliverable of generated binary\
+    \ rasters is missing."
+  sig: 51148ffabb6460a49ac977b9c2eb99414d2e29dd21087776d0e88876b4d31f39
+T004:
+  c: false
+  h: 441e0cabbc00069ba1de25654ca1d7b0acaea388ef2b569baf7da567ca2a2a9b
+  r: "Checked `code/analysis.py` (fails to import `transform` from `rasterio.transform`,\
+    \ causing import errors) and the required output artifacts `data/results/morans_i_results.csv`\
+    \ and `results.schema.yaml` (both missing). The module also lacks the required\
+    \ `compute_morans_i(binary_path) -> (I, p)` function, does not enforce exactly\u202F\
+    1,000 permutations, and never writes a CSV row conforming to the schema. These\
+    \ missing/incorrect pieces must be added and the import fixed."
+  sig: 3c9c8d12c054a7fd6f9214075ec5ba0baf674aa4e0712427e68b4e7490e4c751
+T005:
+  c: false
+  h: dc34fd809b9d6b8b4aeeb45dc52b485fe7404d9d18f9a219e854dd7a8f110a1e
+  r: "The `code/calibration.py` does not perform the required Moran\u2019s\u202FI\u2011\
+    based \u03BB calibration, nor does it write the mandated `data/results/calibration.json`\
+    \ with the keys `lambda`, `sample_size`, `observed_morans_i`, `simulated_morans_i`,\
+    \ and `fit_error_pct`. The integration test fails because the code uses `np.erf`,\
+    \ which does not exist, causing a runtime error, and the produced JSON lacks the\
+    \ required fields and error metric. The required output file is missing entirely."
+  sig: e40d72b7a6940178bb96dab09410a7e0c208e5380d9d2179b16eb0d085188e76
+T006:
+  c: false
+  h: 16fb80beab56b92527769a8ed33f7856884de224573c06bfa9c0e4619f0e0238
+  r: "The required `tests/test_power.py` file is missing, so the claimed verification\
+    \ (checking length\u202F=\u202F1000, power range, and hand\u2011computed example)\
+    \ cannot be performed. Add the test file (or provide equivalent evidence) to confirm\
+    \ the new `simulate_h1` and `estimate_power` functions meet the specification."
+  sig: edee2dcf753ec3c4b57d5ed40760fd3fe897b3dfe3b8aee50b4793a119de05ea
