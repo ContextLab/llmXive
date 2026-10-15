@@ -9,7 +9,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/PROJ-324-predicting-molecular-properties-from-ope.git
+git clone 
 cd PROJ-324-predicting-molecular-properties-from-ope
 
 # Create a virtual environment
@@ -36,11 +36,11 @@ code/
 │   ├── preprocess.py        # Missing‑value handling, quality report
 │   └── fingerprint.py       # Open Babel wrapper
 ├── models/
-│   ├── baseline.py          # Crippen additive model
+│   ├── baseline.py          # Property‑specific additive baselines
 │   └── rf.py                # Random Forest with nested CV
 ├── analysis/
-│   ├── stats.py             # Metrics, Wilcoxon test, LNAI
-│   └── explainability.py    # SHAP, interaction heatmap, SMARTS mapping
+│   ├── stats.py             # Metrics, Wilcoxon test, LNAI, verification log
+│   └── explainability.py    # SHAP, interaction heatmap, SMARTS mapping, conformational audit
 └── main.py                  # Orchestrates the whole pipeline
 data/
 ├── raw/
@@ -50,13 +50,12 @@ tests/
 requirements.txt
 pyproject.toml
 .ruf
-
 ```
 
 ## Running the Full Pipeline
 
 ```bash
-# 1. Download raw data from PubChem
+# 1. Download raw data from PubChem (includes verification log)
 python code/data/download.py
 
 # 2. Preprocess (handle missing values, generate quality report)
@@ -65,7 +64,7 @@ python code/data/preprocess.py
 # 3. Generate fingerprints via Open Babel
 python code/data/fingerprint.py
 
-# 4. Compute baseline (Crippen) predictions
+# 4. Compute baseline (property‑specific additive models)
 python code/models/baseline.py
 
 # 5. Train Random Forest with nested cross‑validation
@@ -74,7 +73,7 @@ python code/models/rf.py
 # 6. Perform statistical analysis and produce plots
 python code/analysis/stats.py
 
-# 7. Explainability: SHAP interaction heatmap and substructure mapping
+# 7. Explainability: SHAP interaction heatmap, persist interaction matrix, and substructure mapping (MACCS only)
 python code/analysis/explainability.py
 
 # 8. (Optional) Generate the comprehensive validation audit PDF
@@ -88,11 +87,14 @@ Each script writes its outputs under `data/derived/`. The most important artifac
 | Baseline residual plot | `data/derived/baseline_residuals.png` |
 | RF residual plot | `data/derived/rf_residuals.png` |
 | SHAP interaction heatmap | `data/derived/shap_interactions.png` |
+| SHAP interaction matrix (raw) | `data/derived/shap_interaction.npy` |
+| Prediction records (JSON) | `data/derived/predictions/*.json` |
 | Deviation contexts (bit‑to‑substructure) | `data/derived/deviation_contexts.csv` |
 | LNAI table | `data/derived/lna_index.csv` |
-| Statistical report | `data/derived/statistical_report.md` |
-| Validation audit | `data/derived/validation_audit.pdf` |
-| Experimental protocol | `data/derived/experimental_validation_protocol.md` |
+| Conformational limitations audit | `data/derived/conformational_limitations.csv` |
+| Verification log | `data/derived/verification_log.txt` |
+| Comprehensive validation audit | `data/derived/validation_audit.pdf` |
+| Experimental validation protocol | `data/derived/experimental_validation_protocol.md` |
 
 ## Testing
 
@@ -113,9 +115,10 @@ ruff check --fix code/
 ## Troubleshooting
 
 - **`obabel` not found** – Ensure the Open Babel executable is in your `PATH`.  
-- **PubChem rate limiting** – The downloader respects a 0.2 s pause between requests; increase `RATE_LIMIT` in `download.py` if you encounter HTTP 429.  
+- **PubChem rate limiting** – The downloader respects a brief pause between requests; increase `RATE_LIMIT` in `download.py` if you encounter HTTP 429.  
 - **MemoryError** – Reduce the number of molecules processed at once (`MAX_MOLECULES` constant) or enable streaming mode (`--stream` flag).  
 
 Enjoy reproducible molecular property prediction!
 
 ---
+

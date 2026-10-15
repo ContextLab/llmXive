@@ -11,7 +11,7 @@ properties:
     items:
       type: integer
       enum: [0, 1]
-    description: "MACCS fingerprint (166 bits)"
+    description: "MACCS fingerprint (standard bit length)"
     minItems: 166
     maxItems: 166
   ecfp4:
@@ -19,7 +19,7 @@ properties:
     items:
       type: integer
       enum: [0, 1]
-    description: "ECFP4 fingerprint (1024 bits)"
+    description: "ECFP fingerprint (1024 bits)"
     minItems: 1024
     maxItems: 1024
   fp2:
@@ -27,7 +27,7 @@ properties:
     items:
       type: integer
       enum: [0, 1]
-    description: "FP2 fingerprint (1024 bits)"
+    description: "FP* fingerprint (fixed‑length binary vector)"
     minItems: 1024
     maxItems: 1024
 required:

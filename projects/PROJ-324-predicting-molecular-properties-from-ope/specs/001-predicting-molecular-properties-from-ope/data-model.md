@@ -29,34 +29,34 @@
 | Field | Type | Description |
 |-------|------|-------------|
 | `smiles` | string | Isomeric SMILES |
-| `maccs` | list[int] (0/1) | 166‑bit MACCS fingerprint |
-| `ecfp4` | list[int] (0/1) | 1024‑bit ECFP4 fingerprint |
-| `fp2` | list[int] (0/1) | 1024‑bit FP2 fingerprint |
+| `maccs` | list[int] (0/1) | Standard MACCS fingerprint (e.g., a MACCS fingerprint with the conventional bit length) |
+| `ecfp4` | list[int] (0/1) | A fixed‑length ECFP4 fingerprint (hashed) |
+| `fp2` | list[int] (0/1) | High‑dimensional FP2 fingerprint (hashed) |
 
 ## Output Data (Predictions & Analyses)
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `cid` | integer | PubChem CID |
-| `smiles` | string | SMILES |
+| `cid` | integer | PubChem Compound ID |
+| `smiles` | string | Isomeric SMILES string |
 | `target` | number | Experimental value for the property under analysis |
-| `baseline_pred` | number | Crippen additive prediction |
+| `baseline_pred` | number | Additive baseline prediction (property‑specific) |
 | `rf_pred` | number | Random Forest prediction |
 | `baseline_error` | number | `abs(target − baseline_pred)` |
 | `rf_error` | number | `abs(target − rf_pred)` |
 | `shap_values` | list[number] | SHAP value per fingerprint bit |
-| `shap_interaction` | list[list[number]] | SHAP interaction matrix |
-| `local_non_additivity_index` | number | Correlation between residual difference and bit‑pair presence (LNAI) |
+| `shap_interaction` | list[list[number]] | SHAP interaction matrix (saved as .npy) |
+| `local_non_additivity_index` | number | Correlation (point‑biserial) between residual difference and bit‑pair presence |
 | `deviation_contexts` | list[object] | Rows from `deviation_contexts.csv` (see `interaction_context.schema.yaml`) |
 
 ## Data Flow Diagram
 1. **Download** → `data/raw/pubchem.csv` (T010.1 → T011.5)  
 2. **Preprocess** → `data/derived/data_quality_report.csv` (T011.5)  
 3. **Fingerprint** → `data/processed/*.npy` (T019 → T019.1)  
-4. **Baseline** → `baseline_predictions.csv` (T014a → T014b) → `baseline_residuals.png` (T014.5)  
+4. **Baseline** → `baseline_predictions.csv` (T014a, T014b → T014c) → `baseline_residuals.png` (T014.5)  
 5. **RF Training** → Nested CV (T020) → `rf_predictions.csv` (T020.1) → `rf_residuals.png`  
 6. **Statistical Test** → `statistical_report.md` (T021.1)  
-7. **Explainability** → SHAP heatmap (T027) + Interaction mapping (T029) → `deviation_contexts.csv`  
+7. **Explainability** → SHAP heatmap (T027) + Interaction matrix (T027.1) → `deviation_contexts.csv` (T029)  
 8. **LNAI** → `lna_index.csv` (T030.2)  
 9. **Conformational Audit** → `conformational_limitations.csv` (T033)  
 10. **Validation Audit** → `validation_audit.pdf` (T057)  
@@ -65,3 +65,4 @@
 All files are immutable after creation; subsequent steps read‑only them.
 
 ---
+

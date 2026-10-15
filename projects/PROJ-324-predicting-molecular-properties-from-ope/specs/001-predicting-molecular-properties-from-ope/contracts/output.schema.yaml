@@ -14,7 +14,7 @@ properties:
     description: "Experimental value for the property under analysis"
   baseline_pred:
     type: number
-    description: "Crippen additive prediction"
+    description: "Additive baseline prediction (property‑specific)"
   rf_pred:
     type: number
     description: "Random Forest prediction"
@@ -28,17 +28,17 @@ properties:
     type: array
     items:
       type: number
-    description: "SHAP values for each fingerprint bit"
+    description: "SHAP value per fingerprint bit"
   shap_interaction:
     type: array
     items:
       type: array
       items:
         type: number
-    description: "SHAP interaction matrix"
+    description: "SHAP interaction matrix (saved as .npy file)"
   local_non_additivity_index:
     type: number
-    description: "LNAI score for this molecule"
+    description: "LNAI score for a molecule"
 required:
   - cid
   - smiles
@@ -49,4 +49,4 @@ required:
   - rf_error
   - shap_values
   - shap_interaction
-  - local_non_additivity_index -->
+  - local_non_additivity_index

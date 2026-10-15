@@ -1,7 +1,7 @@
 # Research: Molecular Property Prediction Pipeline
 
 ## Research Question
-*Which topological interaction signatures (fingerprint bit‑pairs) are most predictive of logP, aqueous solubility, and boiling point, and how does a non‑linear Random Forest model capture non‑additive deviations relative to the Crippen additive fragment baseline?*
+*Which topological interaction signatures (fingerprint bit‑pairs) are most predictive of logP, aqueous solubility, and boiling point, and how does a non‑linear Random Forest model capture non‑additive deviations relative to property‑specific additive baselines?*
 
 The question is framed as a **statistical** investigation of 2‑D fingerprint correlations, acknowledging that fingerprints are topological proxies for underlying 3‑D phenomena (see Constitution Principle VI).
 
@@ -14,19 +14,22 @@ The question is framed as a **statistical** investigation of 2‑D fingerprint c
 | PubChem Compound | https://pubchem.ncbi.nlm.nih.gov/ | `pubchempy` (Python API) | `CID`, `SMILES`, `logP`, `solubility`, `boiling_point`, `property_type` (Experimental/Computed) |
 | Open Babel | https://openbabel.org/ | CLI `obabel` | Fingerprint generation (MACCS, ECFP4, FP2) |
 
-**Rationale** – PubChem provides open, programmatic access to real experimental measurements (when available) and flags whether a property is experimental, satisfying FR‑001 and the 50 % experimental‑data guard. Open Babel is the de‑facto standard for generating the required fingerprints (FR‑003).
+**Rationale** – PubChem provides open, programmatic access to real experimental measurements (when available) and flags whether a property is experimental, satisfying FR‑001 and the [deferred] experimental‑data guard. Open Babel is the de‑facto standard for generating the required fingerprints (FR‑003).
 
 ### Data Availability & Feasibility
-- **Size**: A curated set of ~5 000 molecules (~30 MB CSV) fits comfortably within the runner’s disk quota.  
+- **Size**: A curated set of several thousand molecules (~30 MB CSV) fits comfortably within the runner’s disk quota.  
 - **Streaming**: `download.py` can stream additional records if the set grows beyond 1 GB, preserving full‑dataset fidelity.  
 - **Checksum**: Every file in `data/raw/` is SHA‑256 hashed and recorded in `state/artifact_hashes.yaml` (III. Data Hygiene).
 
 ## Methodological Rigor
 
 ### Modeling
-- **Baseline**: Crippen additive fragment model (RDKit `Crippen` descriptors).  
+- **Baseline**: Property‑specific additive baselines:  
+  - **logP** – Crippen fragments via RDKit `Crippen` descriptors.  
+  - **Solubility** – Simple linear regression on molecular weight and polar surface area.  
+  - **Boiling point** – Simple linear regression on molecular weight and polar surface area.  
 - **Random Forest**: `sklearn.ensemble.RandomForestRegressor` with `n_estimators=300`, `max_depth=15`.  
-- **Nested Cross‑Validation**: Outer 5‑fold CV for unbiased performance estimation; **inner 5‑fold CV inside each outer training split** for hyper‑parameter tuning (`max_features`, `min_samples_leaf`). The inner loop never sees the outer hold‑out data, preventing leakage (fulfills FR‑004).  
+- **Nested Cross‑Validation**: Outer 5‑fold CV for unbiased performance estimation; **inner 5‑fold CV inside each outer training split** for hyper‑parameter tuning (`max_features`, `min_samples_leaf`). The inner loop never sees the outer hold‑out data, preventing leakage (fulfills FR‑004).
 
 ### Evaluation Metrics
 - **Primary**: Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) on outer‑fold test sets.  
@@ -36,11 +39,10 @@ The question is framed as a **statistical** investigation of 2‑D fingerprint c
 
 ### Explainability & Non‑Additivity
 - **SHAP Interaction Values**: Computed with `shap.TreeExplainer` (CPU).  
-- **Bit‑to‑Substructure Mapping**: High‑importance bits are translated to SMARTS patterns via `code/data/rules.py`.  
-- **Local Non‑Additivity Index (LNAI)**: For each fingerprint bit‑pair (i, j), LNAI = corr( (RF_error − Baseline_error), presence(i ∧ j) ). High positive LNAI indicates a region where the RF captures a non‑additive effect missed by the additive model. Output stored as `data/derived/lna_index.csv`. This directly satisfies Constitution Principle VI.  
-
-### Measurement Validity
-- **Experimental vs. Computed**: Only experimental measurements are used for primary performance reporting. If a property has < 50 % experimental values, the pipeline flags it and reports only “Model Consistency” (RF vs. baseline on the computed subset), avoiding circular validation.  
+- **Bit‑to‑Substructure Mapping**: Only **MACCS** bits have deterministic substructure definitions; high‑importance MACCS bits are translated to SMARTS patterns via `code/data/rules.py`. Hashed bits from ECFP4/FP2 are reported as “uninterpretable” and excluded from substructure analysis.  
+- **Local Non‑Additivity Index (LNAI)**: For each fingerprint bit‑pair (i, j), LNAI = *point‑biserial correlation* between `(RF_error − Baseline_error)` and the binary presence of both bits.  
+- **Multiple‑Testing Correction for LNAI**: Benjamini‑Hochberg FDR correction (α = 0.05); only pairs with FDR < 0.05 are reported as significant interaction zones.  
+- **Measurement Validity**: Only experimental measurements are used for model training and baseline fitting. Computed values are excluded from training but retained for optional consistency reporting.  
 
 ### Assumptions & Limitations
 - **Observational Study**: All claims are correlational; no causal inference is attempted.  
@@ -55,8 +57,8 @@ The question is framed as a **statistical** investigation of 2‑D fingerprint c
 ## Decision / Rationale
 - **Dataset**: PubChem is the only open, programmatic source meeting the variable requirements (SMILES + three target properties + experimental flag).  
 - **Model**: Random Forest balances interpretability (via SHAP) and computational tractability on CPU.  
-- **Baseline**: Crippen is the canonical additive fragment model for logP and offers a clean comparison for non‑additivity.  
-- **Explainability**: RDKit SMARTS mapping avoids external proprietary rule bases, satisfying the data‑hygiene principle.  
+- **Baseline**: Property‑specific additive baselines ensure scientific validity for each target property.  
+- **Explainability**: MACCS mapping avoids unreliable interpretation of hashed bits; hashed bits are explicitly excluded.  
 
 ## Deliverables (Generated by the pipeline)
 | Artifact | Path | Description |
@@ -70,12 +72,16 @@ The question is framed as a **statistical** investigation of 2‑D fingerprint c
 | RF residual plot | `data/derived/rf_residuals.png` |
 | Statistical report | `data/derived/statistical_report.md` |
 | SHAP interaction heatmap | `data/derived/shap_interactions.png` |
+| SHAP interaction matrix (raw) | `data/derived/shap_interaction.npy` |
+| Prediction records (JSON) | `data/derived/predictions/*.json` | Conforms to `prediction.schema.yaml` |
 | Deviation contexts (bit‑to‑substructure) | `data/derived/deviation_contexts.csv` |
 | LNAI table | `data/derived/lna_index.csv` |
 | Conformational limitations audit | `data/derived/conformational_limitations.csv` |
+| Verification log | `data/derived/verification_log.txt` | Reference‑Validator outcomes |
 | Comprehensive validation audit | `data/derived/validation_audit.pdf` |
 | Experimental validation protocol | `data/derived/experimental_validation_protocol.md` |
 
 All artifacts will be validated against the JSON/YAML contracts in `contracts/`.
 
 ---
+
