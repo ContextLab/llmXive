@@ -1,14 +1,19 @@
 T001:
-  reason: "The required artifacts `code/main.py`, `code/seed.py`, `code/config/schema_map.json`,\
-    \ `specs/001-predict-lst-wear/research.md`, and `specs/001-predict-lst-wear/quickstart.md`\
-    \ are present, but the verification tests `code/tests/test_schema_map.py` and\
-    \ `code/tests/test_research.py` (and the referenced `dataset.schema.yaml`) are\
-    \ missing, so the task\u2019s required automated validation is not satisfied."
+  reason: "The pipeline entry point (`code/main.py`) and seed module exist and run,\
+    \ but the required specification files are in the wrong locations and a needed\
+    \ schema file is missing. `specs/001-predict-lst-wear/research.md` and `quickstart.md`\
+    \ are stored under `specs/001-predicting-the-impact-of-laser-surface-t/` instead\
+    \ of the exact `specs/001-predict-lst-wear/` path, causing `test_research.py`\
+    \ to fail. Likewise, `code/config/schema_map.json` is not where `test_schema_map.py`\
+    \ expects (`config/schema_map.json`), and `dataset.schema.yaml` is absent, so\
+    \ the schema\u2011map test cannot verify that all canonica"
   task: 45c219ccb6b2102cba1c495d5944bf0beb2ce735252c8ca8839cec7b0b2d310d
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'
   task: 2a75d31fe06f1b0a6110b71ea035e66c2efc2956ee4c2c01ff59752ef68fcc84
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess.py
+    exit=1'
   task: 36866829ae09ec8c07c0283c85f56256027a7bf2d733de8c00fb0a346c4021f9
 T004:
   task: 1b25203c6bd594cdee5ed4655f67fd87c24d448b719795bad90e89c831217cff

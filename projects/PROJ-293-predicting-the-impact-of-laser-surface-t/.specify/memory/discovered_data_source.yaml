@@ -1,19 +1,17 @@
 status: none
-intent: download Laser Surface Texturing wear dataset OpenML HuggingFace literature
-  supplements python package dataset
+intent: laser surface treatment wear dataset OpenML HuggingFace literature supplement
+  python package dataset
 required_fields:
-- sample_id
-- source_url
-- laser_power
+- power
 - scanning_speed
+- frequency
 - pulse_duration
-- pulse_frequency
-- laser_spot_size
-- material_type
 - material_hardness
-- geometry_type
-- geometry_dimensions
+- material_composition
 - wear_rate
-cache_key: 3e4266497400df3a20506abacef4be9afb400569229ec989b888bc2fe439f610
-searched_at: '2026-10-15T12:31:44.498762+00:00'
+- coefficient_of_friction
+- geometry_type
+- source_url
+cache_key: 619fb91eec7e69284d8f62162db4fdf833e22b118c3a15edc1ae9de2a3f3eba1
+searched_at: '2026-10-15T12:34:28.464082+00:00'
 retry_count: 1

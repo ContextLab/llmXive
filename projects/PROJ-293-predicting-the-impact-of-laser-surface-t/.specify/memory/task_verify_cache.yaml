@@ -1,12 +1,15 @@
 T001:
   c: false
-  h: 994338a35b7061979f286940b44766d06cb0f7687b66e6f3db21251d12ac6119
-  r: "The required artifacts `code/main.py`, `code/seed.py`, `code/config/schema_map.json`,\
-    \ `specs/001-predict-lst-wear/research.md`, and `specs/001-predict-lst-wear/quickstart.md`\
-    \ are present, but the verification tests `code/tests/test_schema_map.py` and\
-    \ `code/tests/test_research.py` (and the referenced `dataset.schema.yaml`) are\
-    \ missing, so the task\u2019s required automated validation is not satisfied."
-  sig: 4dcdbbeff9b6a26e6be48fb46d1d05171fedced37816a5cfaea6937a37d7d8bf
+  h: 24f4357cba00bb97143f28e828ac945fd3710f75300e7ef7064dcad6431122fe
+  r: "The pipeline entry point (`code/main.py`) and seed module exist and run, but\
+    \ the required specification files are in the wrong locations and a needed schema\
+    \ file is missing. `specs/001-predict-lst-wear/research.md` and `quickstart.md`\
+    \ are stored under `specs/001-predicting-the-impact-of-laser-surface-t/` instead\
+    \ of the exact `specs/001-predict-lst-wear/` path, causing `test_research.py`\
+    \ to fail. Likewise, `code/config/schema_map.json` is not where `test_schema_map.py`\
+    \ expects (`config/schema_map.json`), and `dataset.schema.yaml` is absent, so\
+    \ the schema\u2011map test cannot verify that all canonica"
+  sig: 0b54845d8eba4bfa26b445b6a23046294e15c8c9e36d6df4cbfcf926e28d078c
 T005:
   c: false
   h: 517ac7584a382a3fbfbd9e07c4d22bc9faf446699601018f6f8214ee6b040c59

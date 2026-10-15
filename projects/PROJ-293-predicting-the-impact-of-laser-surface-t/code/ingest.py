@@ -175,8 +175,15 @@ def fetch_sources() -> None:
         src_type = src["type"].lower()
         url = src.get("url")
         dataset_id = src.get("dataset_id")
+
         logger.info(f"Processing source '{name}' of type '{src_type}'")
 
+        # Skip entries that lack both URL and dataset_id (cannot be fetched)
+        if not url and not dataset_id:
+            logger.warning(f"Source '{name}' has neither URL nor dataset_id; skipping.")
+            continue
+
+        # Determine download method
         if src_type == "tabular" and url and url.lower().endswith(".csv"):
             df = _download_raw_csv(url)
         elif src_type == "tabular" and dataset_id:
@@ -197,6 +204,10 @@ def fetch_sources() -> None:
         df["source_id"] = name
         data_frames.append(df)
         source_ids.append(name)
+
+    if not data_frames:
+        logger.error("No usable data frames were loaded from any source.")
+        raise RuntimeError("data_schema_mismatch: no usable sources")
 
     # Concatenate all sources
     merged_df = pd.concat(data_frames, ignore_index=True, sort=False)

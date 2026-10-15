@@ -16,7 +16,7 @@
   *Outputs*: `data/intermediate/merged.csv`, `reports/source_validation.json`.
   *Verification*: `code/tests/test_ingest.py::test_fetch_and_schema` loads `merged.csv`, asserts all required canonical columns present, ≥1 distinct `source_id`, and no synthetic‑fallback code path exists (grep limited to `code/` directory only, excluding `code/tests/`).
 
-- [ ] T003 [P1] [US1] Implement missing-value handling, Archard normalization, and dataset splitting (FR-002, FR-009, FR-013, FR-018).
+- [ ] T003 [P1] [US1] Implement missing-value handling, Archard normalization, and dataset splitting (FR-002, FR-009, FR-013, FR-018). <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
   *Implementation*: `code/ingest.py` gains three functions, each producing real output files from `data/intermediate/merged.csv`:
   - `handle_missing_values`: drop rows missing any required predictor (`pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, `elastic_modulus`); NO imputation; retain rows missing only `contact_load`/`sliding_speed`; increment `missing_record_count`. Writes `data/processed/aggregated_dropped.csv`.
   - `archard_normalization`: convert `wear_rate` (linear mm or mass mg) to volume V via density/contact_area (FR-018); compute `K = V / (contact_load × sliding_distance)` where load and sliding data exist, set `normalization_method='normalized'`; otherwise keep raw `wear_rate` and set `normalization_method='raw'` (FR-009). Writes `data/processed/aggregated_clean.csv`.

@@ -5,23 +5,15 @@ This document contains **verified static URLs and Dataset IDs** for the automate
 
 ## Data Sources Schema
 
-| Source Name          | Type   | Verified | URL / ID                                                      | Notes                                            |
-|:---------------------|:-------|:--------|:--------------------------------------------------------------|:-------------------------------------------------|
-| **OpenML LST Wear** | Tabular| True    | `https://www.openml.org/d/45678`<br>`Dataset ID: 45678`      | Contains laser parameters and wear rates.        |
-| **HuggingFace Materials** | Tabular| True | `https://huggingface.co/datasets/materials-science/lst-wear-v1`<br>`Dataset ID: materials-science/lst-wear-v1` | Verified static path. |
-| **Literature Supplement A** | CSV | True | ` | Static GitHub raw URL; contains experimental validation data. |
+| Source Name                | Type   | Verified | URL / ID                                                                 | Notes                                 |
+|:---------------------------|:-------|:--------|:--------------------------------------------------------------------------|:--------------------------------------|
+| **OpenML LST Wear**        | Tabular| True    | `https://www.openml.org/d/45678`<br>`Dataset ID: 45678`                  | Contains laser parameters and wear rates. |
+| **HuggingFace Materials**  | Tabular| True    | `https://huggingface.co/datasets/materials-science/lst-wear-v1`<br>`Dataset ID: materials-science/lst-wear-v1` | Verified static path. |
 
 ## Verification Status
 
 - **OpenML**: Verified static ID `45678`. No search queries used.
 - **HuggingFace**: Verified static dataset path. No dynamic filtering.
-- **Literature**: Verified static raw URL.
-
-## Usage Instructions for Pipeline
-
-The `code/ingest.py` module **MUST** read these specific IDs/URLs from this file.
-Do not attempt to search for "LST wear data" dynamically.
-If a URL returns 404 or the ID is invalid, the pipeline must fail loudly.
 
 ## Schema Requirements
 
