@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-15T01:31:44.633526+00:00",
+  "generated_at": "2026-10-15T02:01:06.271030+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29120,6 +29120,11 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-331-investigating-the-correlation-between-gu",
+          "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+          "title": "Investigating the Correlation Between Gut Microbiome Composition and Parkinson\u2019s Disease Progression"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-489-investigating-the-impact-of-network-cent",
           "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
           "title": "Investigating the Impact of Network Centrality on Neural Synchrony During Sleep Stages"
@@ -29138,11 +29143,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-145-evaluating-the-predictive-power-of-machi",
           "project_id": "PROJ-145-evaluating-the-predictive-power-of-machi",
           "title": "Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-",
-          "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
-          "title": "Quantifying the Impact of Data Cleaning on Statistical Inference"
         }
       ],
       "inputs": [
@@ -29163,6 +29163,11 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-331-investigating-the-correlation-between-gu",
+          "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+          "title": "Investigating the Correlation Between Gut Microbiome Composition and Parkinson\u2019s Disease Progression"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-489-investigating-the-impact-of-network-cent",
           "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
           "title": "Investigating the Impact of Network Centrality on Neural Synchrony During Sleep Stages"
@@ -29181,11 +29186,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-145-evaluating-the-predictive-power-of-machi",
           "project_id": "PROJ-145-evaluating-the-predictive-power-of-machi",
           "title": "Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
-          "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-          "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
         }
       ],
       "inputs": [
@@ -29209,6 +29209,11 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-331-investigating-the-correlation-between-gu",
+          "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+          "title": "Investigating the Correlation Between Gut Microbiome Composition and Parkinson\u2019s Disease Progression"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-489-investigating-the-impact-of-network-cent",
           "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
           "title": "Investigating the Impact of Network Centrality on Neural Synchrony During Sleep Stages"
@@ -29227,11 +29232,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-145-evaluating-the-predictive-power-of-machi",
           "project_id": "PROJ-145-evaluating-the-predictive-power-of-machi",
           "title": "Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
-          "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-          "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
         }
       ],
       "inputs": [
@@ -31184,7 +31184,7 @@
           ]
         },
         {
-          "contributions": 15,
+          "contributions": 16,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -31221,6 +31221,14 @@
       "id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 635.762547,
+          "ended_at": "2026-10-15T01:30:00.793146Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T01:19:25.030599Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 633.965795,
@@ -31292,14 +31300,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-14T16:21:08.419633Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 31.98311,
-          "ended_at": "2026-10-14T16:21:08.417046Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-14T16:20:36.433936Z"
         }
       ],
       "paper_status": null,
@@ -70954,6 +70954,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "clarifier",
+          "duration_s": 721.595374,
+          "ended_at": "2026-10-15T01:30:18.876049Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-15T01:18:17.280675Z"
+        },
+        {
           "agent": "specifier",
           "duration_s": 49.682823,
           "ended_at": "2026-09-06T15:17:56.095488Z",
@@ -90495,7 +90503,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-331-investigating-the-correlation-between-gu.yaml",
         "code": "projects/PROJ-331-investigating-the-correlation-between-gu/code",
-        "data": null,
+        "data": "projects/PROJ-331-investigating-the-correlation-between-gu/data",
         "idea": "projects/PROJ-331-investigating-the-correlation-between-gu/idea/investigating-the-correlation-between-gu.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -90513,7 +90521,7 @@
       },
       "authors": [
         {
-          "contributions": 80,
+          "contributions": 95,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -90570,7 +90578,7 @@
       ],
       "citation_summary": {
         "mismatch": 0,
-        "pending": 0,
+        "pending": 1,
         "unreachable": 0,
         "verified": 0
       },
@@ -90581,7 +90589,7 @@
         "repo_path": "projects/PROJ-331-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "clarified",
+      "current_stage": "in_progress",
       "description": "Field: biology Which specific gut microbial taxa are significantly correlated with longitudinal progression rates of Parkinson\u2019s Disease (PD) severity, after controlling for age, sex, and medication status? Parkinson\u2019s Disease exhibits substantial clinical heterogeneity, complicating prognosis and treatment\u2026",
       "field": "biology",
       "id": "PROJ-331-investigating-the-correlation-between-gu",
@@ -90589,83 +90597,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 209.003706,
-          "ended_at": "2026-10-15T01:22:51.474323Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-15T01:19:22.470617Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 530.000913,
-          "ended_at": "2026-10-14T19:24:24.904206Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "failed",
-          "started_at": "2026-10-14T19:15:34.903293Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 411.287081,
-          "ended_at": "2026-10-14T19:15:34.899759Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-14T19:08:43.612678Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 116.38088,
-          "ended_at": "2026-10-14T19:08:43.608562Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-14T19:06:47.227682Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 312.544149,
-          "ended_at": "2026-10-14T16:20:47.698193Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-14T16:15:35.154044Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 150.397757,
-          "ended_at": "2026-10-14T16:15:35.149430Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-14T16:13:04.751673Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 170.611097,
-          "ended_at": "2026-10-14T16:13:04.747964Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-14T16:10:14.136867Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 75.162669,
-          "ended_at": "2026-10-14T16:10:14.132428Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-14T16:08:58.969759Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 22.246558,
-          "ended_at": "2026-10-14T14:09:46.327264Z",
+          "duration_s": 26.940755,
+          "ended_at": "2026-10-15T01:59:22.132022Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-14T14:09:24.080706Z"
+          "started_at": "2026-10-15T01:58:55.191267Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 36.769446,
-          "ended_at": "2026-10-14T14:09:24.077997Z",
+          "duration_s": 40.936708,
+          "ended_at": "2026-10-15T01:58:55.187738Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-14T14:08:47.308551Z"
+          "started_at": "2026-10-15T01:58:14.251030Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 31.733711,
+          "ended_at": "2026-10-15T01:58:14.247459Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T01:57:42.513748Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 26.267586,
+          "ended_at": "2026-10-15T01:57:42.510284Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T01:57:16.242698Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 35.72949,
+          "ended_at": "2026-10-15T01:57:16.239137Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T01:56:40.509647Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 388.297365,
+          "ended_at": "2026-10-15T01:56:40.506109Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T01:50:12.208744Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 46.303833,
+          "ended_at": "2026-10-15T01:48:22.105234Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T01:47:35.801401Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 27.362378,
+          "ended_at": "2026-10-15T01:47:35.797797Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T01:47:08.435419Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 25.312573,
+          "ended_at": "2026-10-15T01:47:08.431834Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T01:46:43.119261Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 10.248939,
+          "ended_at": "2026-10-15T01:46:43.115742Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T01:46:32.866803Z"
         }
       ],
       "paper_status": null,
@@ -90710,7 +90718,7 @@
       "speckit_research_dir": "projects/PROJ-331-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu",
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Correlation Between Gut Microbiome Composition and Parkinson\u2019s Disease Progression",
-      "updated_at": "2026-10-15T01:25:34.027994+00:00",
+      "updated_at": "2026-10-15T01:50:04.060968+00:00",
       "upstream_feedback": null
     },
     {
@@ -116886,7 +116894,7 @@
           ]
         },
         {
-          "contributions": 12,
+          "contributions": 13,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -116933,6 +116941,14 @@
       "id": "PROJ-489-investigating-the-impact-of-network-cent",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 426.064484,
+          "ended_at": "2026-10-15T01:27:26.416524Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T01:20:20.352040Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 27.830395,
@@ -117004,14 +117020,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-23T16:13:36.814858Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 3.407354,
-          "ended_at": "2026-08-29T12:48:54.329668Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-29T12:48:50.922314Z"
         }
       ],
       "paper_status": null,
@@ -161210,6 +161218,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 778.904863,
+          "ended_at": "2026-10-15T01:33:42.664147Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-15T01:20:43.759284Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 663.556347,
           "ended_at": "2026-10-15T00:31:20.780078Z",
           "model": "openai.gpt-oss-120b",
@@ -161279,14 +161295,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-03T03:55:19.928035Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 34.792985,
-          "ended_at": "2026-10-03T03:55:19.924379Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-03T03:54:45.131394Z"
         }
       ],
       "paper_status": null,
@@ -171206,13 +171214,253 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 26.940755,
+      "ended_at": "2026-10-15T01:59:22.132022Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:58:55.191267Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 40.936708,
+      "ended_at": "2026-10-15T01:58:55.187738Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:58:14.251030Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 31.733711,
+      "ended_at": "2026-10-15T01:58:14.247459Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:57:42.513748Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 26.267586,
+      "ended_at": "2026-10-15T01:57:42.510284Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:57:16.242698Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 35.72949,
+      "ended_at": "2026-10-15T01:57:16.239137Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:56:40.509647Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 388.297365,
+      "ended_at": "2026-10-15T01:56:40.506109Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:50:12.208744Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 46.303833,
+      "ended_at": "2026-10-15T01:48:22.105234Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:47:35.801401Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 27.362378,
+      "ended_at": "2026-10-15T01:47:35.797797Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:47:08.435419Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 25.312573,
+      "ended_at": "2026-10-15T01:47:08.431834Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:46:43.119261Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 10.248939,
+      "ended_at": "2026-10-15T01:46:43.115742Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:46:32.866803Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 32.957966,
+      "ended_at": "2026-10-15T01:46:32.863279Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:45:59.905313Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 33.800192,
+      "ended_at": "2026-10-15T01:45:59.901792Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:45:26.101600Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 10.029495,
+      "ended_at": "2026-10-15T01:45:26.098099Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:45:16.068604Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 0.034994,
+      "ended_at": "2026-10-15T01:45:08.645528Z",
+      "failure_reason": "",
+      "model": "deterministic-no-llm",
+      "outcome": "skipped",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "soft",
+      "started_at": "2026-10-15T01:45:08.610534Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 200.783924,
+      "ended_at": "2026-10-15T01:44:59.862719Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:41:39.078795Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 938.887476,
+      "ended_at": "2026-10-15T01:41:25.683932Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:25:46.796456Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 778.904863,
+      "ended_at": "2026-10-15T01:33:42.664147Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-920-llmxive-follow-up-extending-masking-stal",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-15T01:20:43.759284Z"
+    },
+    {
+      "agent": "clarifier",
+      "duration_s": 721.595374,
+      "ended_at": "2026-10-15T01:30:18.876049Z",
+      "failure_reason": "StagePanelKickback: spec panel did not converge: 2 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'requirement'. Routing to 'specified' with full pro",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-218-predicting-molecular-fluorescence-quantu",
+      "project_stage": "specified",
+      "severity": "soft",
+      "started_at": "2026-10-15T01:18:17.280675Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 635.762547,
+      "ended_at": "2026-10-15T01:30:00.793146Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:19:25.030599Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 426.064484,
+      "ended_at": "2026-10-15T01:27:26.416524Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T01:20:20.352040Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 209.003706,
       "ended_at": "2026-10-15T01:22:51.474323Z",
       "failure_reason": "",
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T01:19:22.470617Z"
     },
@@ -172688,7 +172936,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "failed",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-14T19:15:34.903293Z"
     },
@@ -172760,7 +173008,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T19:08:43.612678Z"
     },
@@ -172808,7 +173056,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T19:06:47.227682Z"
     },
@@ -173654,7 +173902,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T16:15:35.154044Z"
     },
@@ -173714,7 +173962,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T16:13:04.751673Z"
     },
@@ -173726,7 +173974,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T16:10:14.136867Z"
     },
@@ -173798,7 +174046,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T16:08:58.969759Z"
     },
@@ -174296,7 +174544,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T14:09:24.080706Z"
     },
@@ -174320,7 +174568,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T14:08:47.308551Z"
     },
@@ -174332,7 +174580,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T14:08:23.805461Z"
     },
@@ -174344,7 +174592,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T14:08:11.243263Z"
     },
@@ -174356,7 +174604,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T14:07:28.207060Z"
     },
@@ -174758,7 +175006,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T12:18:12.026463Z"
     },
@@ -174770,7 +175018,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T12:18:00.763605Z"
     },
@@ -174782,7 +175030,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T12:11:16.702011Z"
     },
@@ -174806,7 +175054,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T12:09:26.793051Z"
     },
@@ -175028,7 +175276,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T11:14:37.944895Z"
     },
@@ -175040,7 +175288,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T11:13:37.777745Z"
     },
@@ -175052,7 +175300,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T11:06:58.931499Z"
     },
@@ -175256,7 +175504,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "failed",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-14T10:11:47.255332Z"
     },
@@ -175280,7 +175528,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T10:10:03.976425Z"
     },
@@ -175355,7 +175603,7 @@
       "outcome": "abstained",
       "personality_slug": "albert-einstein",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "soft",
       "started_at": "2026-10-14T10:06:01.955771+00:00"
     },
@@ -175367,7 +175615,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:49:44.065065Z"
     },
@@ -175379,7 +175627,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:49:14.480404Z"
     },
@@ -175391,7 +175639,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:48:51.055251Z"
     },
@@ -175403,7 +175651,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:48:25.480322Z"
     },
@@ -175415,7 +175663,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:48:04.203422Z"
     },
@@ -175427,7 +175675,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:47:37.556930Z"
     },
@@ -175439,7 +175687,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:47:27.371385Z"
     },
@@ -175451,7 +175699,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:47:00.389570Z"
     },
@@ -175463,7 +175711,7 @@
       "model": "deterministic-no-llm",
       "outcome": "skipped",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "soft",
       "started_at": "2026-10-14T09:46:52.067897Z"
     },
@@ -175475,7 +175723,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:41:36.102792Z"
     },
@@ -175499,7 +175747,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:19:42.706461Z"
     },
@@ -175823,7 +176071,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:17:41.995670Z"
     },
@@ -175835,7 +176083,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:17:32.012227Z"
     },
@@ -175847,7 +176095,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:17:20.468699Z"
     },
@@ -175859,7 +176107,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:17:07.010355Z"
     },
@@ -175871,7 +176119,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:07:49.689416Z"
     },
@@ -176051,7 +176299,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T08:24:38.846144Z"
     },
@@ -176063,7 +176311,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T08:16:04.436684Z"
     },
@@ -176099,7 +176347,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T08:09:59.286316Z"
     },
@@ -176135,7 +176383,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T08:07:28.338783Z"
     },
@@ -177014,246 +177262,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T05:06:34.843356Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 20.770226,
-      "ended_at": "2026-10-14T05:10:22.830979Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T05:10:02.060753Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 48.480323,
-      "ended_at": "2026-10-14T05:10:02.057606Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T05:09:13.577283Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 212.211969,
-      "ended_at": "2026-10-14T05:09:41.749404Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T05:06:09.537435Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 30.108372,
-      "ended_at": "2026-10-14T05:09:13.574060Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T05:08:43.465688Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 31.306271,
-      "ended_at": "2026-10-14T05:08:43.462527Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T05:08:12.156256Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 48.905434,
-      "ended_at": "2026-10-14T05:08:12.152863Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T05:07:23.247429Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 55.781447,
-      "ended_at": "2026-10-14T05:07:23.243998Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T05:06:27.462551Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 232.77343,
-      "ended_at": "2026-10-14T04:39:11.121224Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:35:18.347794Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 326.525455,
-      "ended_at": "2026-10-14T04:35:18.344404Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:29:51.818949Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 13.138588,
-      "ended_at": "2026-10-14T04:29:51.815563Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:29:38.676975Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 37.481064,
-      "ended_at": "2026-10-14T04:29:38.673551Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:29:01.192487Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 21.456471,
-      "ended_at": "2026-10-14T04:29:01.188805Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:28:39.732334Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.850972,
-      "ended_at": "2026-10-14T04:28:20.049088Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:27:55.198116Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 23.874676,
-      "ended_at": "2026-10-14T04:27:55.194694Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:27:31.320018Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 1279.512467,
-      "ended_at": "2026-10-14T04:27:53.355720Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-14T04:06:33.843253Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 53.264366,
-      "ended_at": "2026-10-14T04:27:31.316723Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:26:38.052357Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.034636,
-      "ended_at": "2026-10-14T04:26:30.168768Z",
-      "failure_reason": "",
-      "model": "deterministic-no-llm",
-      "outcome": "skipped",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "soft",
-      "started_at": "2026-10-14T04:26:30.134132Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 143.874287,
-      "ended_at": "2026-10-14T04:26:17.204081Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:23:53.329794Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 982.767679,
-      "ended_at": "2026-10-14T04:23:38.328741Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:07:15.561062Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 77.377433,
-      "ended_at": "2026-10-14T04:18:12.324187Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-257-investigating-the-statistical-properties",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T04:16:54.946754Z"
     }
   ],
   "reviewed_preprints": [
