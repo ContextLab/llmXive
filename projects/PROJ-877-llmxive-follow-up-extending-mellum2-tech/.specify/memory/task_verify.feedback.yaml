@@ -1,20 +1,10 @@
 T001a:
-  reason: 'Requested task execution failed; rerun successfully: code/verify_environment.py
-    exit=2'
   task: 09929ff7f0bdeeabed03b0d31725cc17d6428c0271141d550c361087ef235e8b
 T001b:
-  reason: "`quickstart.md` exists (2186 bytes) and contains the required command,\
-    \ environment-activation instructions, usage notes, and runtime limits, so the\
-    \ document content itself matches the task. However, the task's explicit verification\
-    \ criterion \u2014 that `python -m code.main --phase all --sample small` runs\
-    \ without raising parsing errors \u2014 has no supporting execution evidence:\
-    \ the only underlying artifact is an environment check showing several pinned\
-    \ packages (tree_sitter_python, tree_sitter_java) failing to import, and the doc's\
-    \ own claim that \"the `--sample` flag is now accepted by `code/main.py`"
   task: e435b49dd26b4037098de402a9f3519282e865a172a81b14801f4be5fb59de4c
 T002:
-  reason: 'declared artifact(s) missing/empty/invalid: data/processed/raw_chunks.parquet,
-    data/checksums.txt'
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=-1 (TIMEOUT)'
   task: 91c12fc2e398e2c133294c05d9646cd1fcb6d59d2e65e5ce23219b919c411f98
 T003:
   task: 1dfeb9b9b543ca7f8e2bc6ee3f9ffb41ad7a1941fe82bd66c33ab471eea01ee6

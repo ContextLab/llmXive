@@ -1,15 +1,25 @@
+T001a:
+  c: true
+  h: 8ccad489971a31aab73a47f77dae4d7c5f9c9cf15d4f2871c3477b26fa0a7fd4
+  r: 'Both required artifacts exist and match the task: `code/requirements.txt` pins
+    all 19 required packages (datasets, transformers, tree-sitter variants, scikit-learn,
+    statsmodels, pandas, numpy, scipy, matplotlib, seaborn, kenlm, ruptures, pwlf,
+    jsonschema, pytest, pytest-cov, psutil), and `code/config.py` defines `SEED=12345`,
+    the primary frozen model identifier (`Mistral-7B`), and project-wide paths via
+    `llmxive_toolkit.paths`. Execution logs confirm `code/verify_environment.py` ran
+    successfully ("config import OK (SEED=12345, model=Mistral-7B)") and the pytest
+    verification passed (exit 0), de'
+  sig: e90b25beb24b4d798e59153e530efb432e8acab0a37ca246f65817c090b9c9e2
 T001b:
-  c: false
-  h: 73d8ea86e0bcf96f9b2f5c9fb23d74db811233ca6b34c85bfd6b701be40eeae5
-  r: "`quickstart.md` exists (2186 bytes) and contains the required command, environment-activation\
-    \ instructions, usage notes, and runtime limits, so the document content itself\
-    \ matches the task. However, the task's explicit verification criterion \u2014\
-    \ that `python -m code.main --phase all --sample small` runs without raising parsing\
-    \ errors \u2014 has no supporting execution evidence: the only underlying artifact\
-    \ is an environment check showing several pinned packages (tree_sitter_python,\
-    \ tree_sitter_java) failing to import, and the doc's own claim that \"the `--sample`\
-    \ flag is now accepted by `code/main.py`"
-  sig: 303ec631e0e69093a41611d395ac3350df75bcb52a691128ed36e5e297b16bd0
+  c: true
+  h: 07122417bb037faee29099ddce2d45af516d232681f000cf131052dbb6f2433b
+  r: "The `quickstart.md` file exists (2186 bytes) and contains the exact required\
+    \ command `python -m code.main --phase all --sample small`, plus usage notes,\
+    \ environment activation instructions, and expected runtime limits. The verification\
+    \ criterion \u2014 that the command parses without errors \u2014 is supported\
+    \ by the passing `tests/unit/test_main.py::test_parse_args` execution record (exit\
+    \ 0)."
+  sig: 6d1cc98dc3e6be435846c7981f0caf1867e76cf32292d8b3ff6d4302f6eeb41d
 T002:
   c: false
   h: 6c1c121ac1dad88eb5a06c19410cabf476ce5a936826ea30e124ad55212826e3

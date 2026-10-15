@@ -1,251 +1,284 @@
 """
-Dataset download module for llmXive pipeline.
-Implements Task T002: stream `codeparrot/github-code`, perform a deterministic
-reservoir sample per language, write raw records to Parquet, and record a SHA‑256
-checksum.
+Download and sample the `codeparrot/github-code` dataset.
+
+This script streams the full dataset, performs a deterministic reservoir
+sampling per language (Python and Java), and writes the sampled records
+to a Parquet file.  It also records a SHA‑256 checksum of the resulting
+Parquet file in ``data/checksums.txt`` for reproducibility verification.
+
+The script is invoked as part of the pipeline orchestrated by
+``code/main.py`` (phase ``download``).  It requires no command‑line
+arguments; all parameters are taken from ``code/config.py`` where a
+global ``SEED`` and an optional ``SAMPLE_SIZE_PER_LANGUAGE`` are defined.
+If ``SAMPLE_SIZE_PER_LANGUAGE`` is absent, a default of ``500`` samples
+per language is used.
+
+The implementation follows the contract for **T002**:
+* streams the real HuggingFace dataset (no synthetic fallback),
+* uses a proper reservoir sampling algorithm (seeded for determinism),
+* writes a Parquet file with columns ``id``, ``repo_name``, ``language``,
+  ``content``, ``status``,
+* records the SHA‑256 checksum in ``data/checksums.txt``.
 """
-import json
+
+import argparse
+import hashlib
 import logging
 import sys
-import os
-import hashlib
 from pathlib import Path
-from typing import Dict, Any, List
-import random
+from typing import Dict, List
 
-# Add project root to sys.path for sibling imports
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-
-from config import get_project_root, get_config
-from datasets import load_dataset
 import pandas as pd
+from datasets import load_dataset
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
-logger = logging.getLogger(__name__)
+# Project utilities
+from llmxive_toolkit import paths, get_logger
+from code import config
+
+logger = get_logger(__name__)
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 
 
-def reservoir_sample_stream(
-    iterator,
+def reservoir_sample(
+    stream,
+    language_key: str,
+    target_langs: List[str],
     sample_size: int,
-    seed: int,
-    key: str = "id"
-) -> List[Dict[str, Any]]:
+    rng,
+) -> Dict[str, List[Dict]]:
     """
-    Perform a deterministic reservoir sample over a streaming iterator.
+    Perform deterministic reservoir sampling per language.
 
-    Args:
-        iterator: An iterator yielding dictionaries.
-        sample_size: Desired number of samples.
-        seed: Random seed for reproducibility.
-        key: Optional unique identifier field (unused but kept for API compatibility).
+    Parameters
+    ----------
+    stream : iterable
+        Iterable of dataset records.
+    language_key : str
+        Key in each record that denotes the language (e.g., ``language``).
+    target_langs : list[str]
+        Languages to sample (case‑insensitive).
+    sample_size : int
+        Desired number of samples per language.
+    rng : random.Random
+        Random generator seeded for determinism.
 
-    Returns:
-        A list containing ``sample_size`` sampled items (or fewer if the iterator ends early).
+    Returns
+    -------
+    dict
+        Mapping ``language`` -> list of sampled records (each record is a
+        dict containing the required columns plus ``status``).
     """
-    random.seed(seed)
-    reservoir: List[Dict[str, Any]] = []
-    for i, item in enumerate(iterator, 1):
-        if i <= sample_size:
-            reservoir.append(item)
+    import random
+
+    # Normalise target language names to lower case for matching
+    target_set = {lang.lower() for lang in target_langs}
+    reservoirs: Dict[str, List[Dict]] = {lang: [] for lang in target_langs}
+    counts: Dict[str, int] = {lang: 0 for lang in target_langs}
+
+    for idx, record in enumerate(stream):
+        # Defensive: some records may be missing the language field
+        lang_raw = record.get(language_key, "")
+        if not isinstance(lang_raw, str):
+            continue
+        lang = lang_raw.strip().lower()
+        if lang not in target_set:
+            continue
+
+        # Map back to canonical language name (as defined in target_langs)
+        # Preserve the original case of the target list entry
+        canonical_lang = next(
+            (t for t in target_langs if t.lower() == lang), lang_raw
+        )
+
+        counts[canonical_lang] += 1
+        n = counts[canonical_lang]
+
+        if len(reservoirs[canonical_lang]) < sample_size:
+            # Fill the reservoir directly
+            reservoirs[canonical_lang].append(record)
         else:
             # Replace with decreasing probability
-            j = random.randint(1, i)
-            if j <= sample_size:
-                reservoir[j - 1] = item
-    return reservoir
+            replace_idx = rng.randint(0, n - 1)
+            if replace_idx < sample_size:
+                reservoirs[canonical_lang][replace_idx] = record
 
-
-def fetch_and_sample(
-    languages: List[str],
-    total_sample_size: int,
-    seed: int
-) -> List[Dict[str, Any]]:
-    """
-    Stream the `codeparrot/github-code` dataset, filter by language,
-    and obtain a deterministic reservoir sample of ``total_sample_size`` chunks
-    (evenly split across the requested languages).
-
-    Args:
-        languages: List of language names (e.g., ['python', 'java']).
-        total_sample_size: Total number of chunks to sample across all languages.
-        seed: Random seed for reproducibility.
-
-    Returns:
-        List of sampled chunk dictionaries with keys:
-        ``chunk_id``, ``repo_name``, ``language``, ``content``.
-    """
-    # Normalise languages to lower‑case for matching
-    lang_set = {l.lower() for l in languages}
-    per_lang = max(1, total_sample_size // len(lang_set))
+        # Optional early exit: once we have seen at least ``sample_size``
+        # items for *all* languages and the stream length exceeds a large
+        # multiple (e.g., 10 × sample_size), we could break to save time.
+        # However, strict reservoir sampling requires processing the full
+        # stream to guarantee unbiasedness, so we continue until exhaustion.
 
     logger.info(
-        f"Sampling {total_sample_size} chunks total "
-        f"({per_lang} per language) for languages: {sorted(lang_set)}"
+        "Completed reservoir sampling: %s",
+        {lang: len(reservoirs[lang]) for lang in reservoirs},
     )
-
-    # Load the streaming dataset
-    try:
-        dataset = load_dataset(
-            "codeparrot/github-code",
-            streaming=True,
-            split="train",
-            trust_remote_code=True
-        )
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        raise
-
-    # Prepare per‑language reservoirs
-    reservoirs: Dict[str, List[Dict[str, Any]]] = {lang: [] for lang in lang_set}
-    counts: Dict[str, int] = {lang: 0 for lang in lang_set}
-
-    # Iterate through the streaming dataset
-    for idx, example in enumerate(dataset):
-        lang = example.get("language", "").lower()
-        if lang not in lang_set:
-            continue
-
-        # Basic sanity checks
-        content = example.get("content")
-        if not content or len(content) < 20:
-            continue
-
-        # Build a minimal record
-        record = {
-            "id": f"chunk_{idx}_{lang}",
-            "repo_name": example.get("repo", "unknown"),
-            "language": lang,
-            "content": content,
-            "status": "raw"
-        }
-
-        # Reservoir sampling for this language
-        counts[lang] += 1
-        cur_res = reservoirs[lang]
-        if len(cur_res) < per_lang:
-            cur_res.append(record)
-        else:
-            # Deterministic replacement using the global seed + language offset
-            random.seed(seed + idx + hash(lang))
-            j = random.randint(0, counts[lang] - 1)
-            if j < per_lang:
-                cur_res[j] = record
-
-        # Early exit if all reservoirs are full
-        if all(len(r) >= per_lang for r in reservoirs.values()):
-            # We have enough samples; break to avoid unnecessary streaming
-            break
-
-    # Flatten reservoirs while preserving language balance
-    sampled: List[Dict[str, Any]] = []
-    for lang in sorted(lang_set):
-        sampled.extend(reservoirs[lang])
-
-    logger.info(f"Collected {len(sampled)} sampled chunks "
-                f"({sum(len(r) for r in reservoirs.values())} total).")
-    return sampled
+    return reservoirs
 
 
-def write_parquet_and_checksum(
-    records: List[Dict[str, Any]],
-    output_parquet: Path,
-    checksum_path: Path
-) -> None:
+def write_parquet(records: List[Dict], output_path: Path) -> None:
     """
-    Write the list of records to a Parquet file and record its SHA‑256 checksum.
+    Write a list of dictionaries to a Parquet file with the required schema.
 
-    Args:
-        records: List of dictionaries with the required columns.
-        output_parquet: Destination Parquet file path.
-        checksum_path: File where the checksum line will be written.
+    Parameters
+    ----------
+    records : list[dict]
+        Sampled records.
+    output_path : pathlib.Path
+        Destination file (parents are created automatically).
     """
     df = pd.DataFrame(records)
-    # Ensure column ordering as required by the task
-    df = df[["id", "repo_name", "language", "content", "status"]]
 
-    # Write Parquet (using pyarrow engine)
-    output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(output_parquet, engine="pyarrow", index=False)
-    logger.info(f"Wrote Parquet file with {len(df)} rows to {output_parquet}")
+    # Ensure required columns exist; fill missing with ``None``.
+    required_cols = ["id", "repo_name", "language", "content", "status"]
+    for col in required_cols:
+        if col not in df.columns:
+            df[col] = None
 
-    # Compute SHA‑256 checksum of the file bytes
+    # Re‑order columns to match the specification.
+    df = df[required_cols]
+
+    # Write using pyarrow engine (default for pandas >= 1.0).
+    df.to_parquet(output_path, index=False)
+    logger.info("Wrote %d rows to Parquet file %s", len(df), output_path)
+
+
+def write_checksum(file_path: Path, checksum_path: Path) -> None:
+    """
+    Compute the SHA‑256 checksum of ``file_path`` and write it to
+    ``checksum_path``.  The checksum file contains a single line:
+    ``<sha256>  <filename>``.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path
+        The file to checksum.
+    checksum_path : pathlib.Path
+        Destination for the checksum text file.
+    """
     sha256 = hashlib.sha256()
-    with open(output_parquet, "rb") as f:
+    with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
-    checksum = sha256.hexdigest()
-
-    # Write checksum file
+    checksum_line = f"{sha256.hexdigest()}  {file_path.name}\n"
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(checksum_path, "w", encoding="utf-8") as f:
-        f.write(f"{checksum}  {output_parquet.name}\\n")
-    logger.info(f"Wrote checksum to {checksum_path}")
+    checksum_path.write_text(checksum_line)
+    logger.info("Wrote checksum to %s", checksum_path)
 
 
-def main():
+# ----------------------------------------------------------------------
+# Main execution
+# ----------------------------------------------------------------------
+
+
+def main(argv: List[str] | None = None) -> int:
     """
-    CLI entry point for the download script.
-    Mirrors the original ``code/data/download.py`` interface but implements
-    the T002 specification.
-    """
-    import argparse
+    Entry point for the download phase.
 
+    The function streams the ``codeparrot/github-code`` dataset, performs
+    deterministic reservoir sampling per language, writes the sampled
+    records to ``data/processed/raw_chunks.parquet`` and records a SHA‑256
+    checksum in ``data/checksums.txt``.
+
+    Returns
+    -------
+    int
+        Exit code (0 = success, non‑zero = failure).
+    """
     parser = argparse.ArgumentParser(
-        description="Download and reservoir‑sample code chunks from the "
-                    "`codeparrot/github-code` dataset."
-    )
-    parser.add_argument(
-        "--lang",
-        nargs="+",
-        default=["python", "java"],
-        help="Languages to download (e.g., --lang python java)."
+        description="Download and sample codeparrot/github-code dataset."
     )
     parser.add_argument(
         "--sample-size",
         type=int,
-        default=500,
-        help="Total number of chunks to sample across all languages."
+        default=getattr(config, "SAMPLE_SIZE_PER_LANGUAGE", 500),
+        help="Number of chunks to sample per language (default: config value or 500).",
     )
     parser.add_argument(
         "--seed",
         type=int,
-        default=None,
-        help="Random seed for deterministic sampling. If omitted, the "
-             "project configuration SEED is used."
+        default=getattr(config, "SEED", 12345),
+        help="Random seed for deterministic sampling (default: config.SEED or 12345).",
+    )
+    args = parser.parse_args(argv)
+
+    # Paths for output files
+    parquet_path = paths.data("processed", "raw_chunks.parquet")
+    checksum_path = paths.data("checksums.txt")
+
+    # Ensure output directories exist
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Initialise deterministic RNG
+    rng = __import__("random").Random(args.seed)
+
+    # Languages we care about (case‑insensitive)
+    target_languages = ["Python", "Java"]
+
+    logger.info(
+        "Starting streaming download of codeparrot/github-code (sample size per language=%d).",
+        args.sample_size,
     )
 
-    args = parser.parse_args()
+    # Stream the dataset; any network failure will raise and abort.
+    try:
+        dataset_stream = load_dataset(
+            "codeparrot/github-code", split="train", streaming=True
+        )
+    except Exception as e:
+        logger.error("Failed to load dataset: %s", e)
+        raise
 
-    # Resolve configuration
-    config = get_config()
-    seed = args.seed if args.seed is not None else config.get("SEED", 12345)
-
-    # Fetch and sample
-    sampled_records = fetch_and_sample(
-        languages=args.lang,
-        total_sample_size=args.sample_size,
-        seed=seed
+    # Perform reservoir sampling
+    reservoirs = reservoir_sample(
+        stream=dataset_stream,
+        language_key="language",
+        target_langs=target_languages,
+        sample_size=args.sample_size,
+        rng=rng,
     )
 
-    # Define output locations using llmxive_toolkit paths
-    project_root = get_project_root()
-    parquet_path = project_root / "data" / "processed" / "raw_chunks.parquet"
-    checksum_path = project_root / "data" / "checksums.txt"
+    # Flatten reservoirs into a single list of records, adding a ``status`` field.
+    all_records: List[Dict] = []
+    for lang, records in reservoirs.items():
+        for rec in records:
+            # Normalise fields; missing fields are set to ``None``.
+            out_rec = {
+                "id": rec.get("id"),
+                "repo_name": rec.get("repo_name"),
+                "language": lang,
+                "content": rec.get("content"),
+                "status": "ok",
+            }
+            all_records.append(out_rec)
 
-    # Write outputs
-    write_parquet_and_checksum(
-        records=sampled_records,
-        output_parquet=parquet_path,
-        checksum_path=checksum_path
-    )
+    # Sanity check: ensure we have exactly the requested number per language.
+    counts = {lang: 0 for lang in target_languages}
+    for r in all_records:
+        counts[r["language"]] += 1
+    for lang in target_languages:
+        if counts[lang] != args.sample_size:
+            logger.error(
+                "Sampling error: expected %d rows for %s but got %d.",
+                args.sample_size,
+                lang,
+                counts[lang],
+            )
+            raise RuntimeError(
+                f"Incorrect number of sampled rows for {lang}: expected {args.sample_size}, got {counts[lang]}"
+            )
 
-    logger.info("Dataset download & raw storage completed successfully.")
+    # Write Parquet file
+    write_parquet(all_records, parquet_path)
+
+    # Write checksum file
+    write_checksum(parquet_path, checksum_path)
+
+    logger.info("Dataset download and sampling completed successfully.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
