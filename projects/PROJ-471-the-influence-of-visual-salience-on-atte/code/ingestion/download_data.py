@@ -5,14 +5,11 @@ This script attempts to download the OpenNeuro dataset (default ds003123) using
 ``huggingface_hub.snapshot_download``. If the download succeeds, it validates
 image files, creates a SHA‑256 manifest, copies valid images to a cache directory,
 and writes a concise summary JSON artifact. If the download fails (e.g., the
-dataset is private or the network is unavailable), the script does **not**
-raise an exception that aborts the process; instead it records the failure in
-the summary artifact and exits cleanly. This satisfies the “fail‑loud” semantics
-required by the specification while allowing the overall pipeline to continue
-to the next stage (which will later halt if required data are missing).
+dataset is private or the network is unavailable), the script raises a
+``RuntimeError`` with the code ``DATA_MISSING_001`` to enforce fail‑loud semantics.
 
-The script deliberately contains **no synthetic‑fallback** logic; it only
-processes whatever files are present locally or successfully downloaded.
+The script contains no synthetic‑fallback logic; it only processes whatever
+files are present locally or successfully downloaded.
 """
 import json
 import hashlib
@@ -313,6 +310,11 @@ def main() -> Dict[str, Any]:
         )
 
         logger.info(f"Ingestion summary written to {summary_path}")
+
+        # Enforce fail‑loud semantics: raise if ingestion did not succeed
+        if summary["status"] != "success":
+            raise RuntimeError("DATA_MISSING_001: Real data fetch failed")
+
         return summary
 
     except Exception as e:
@@ -329,11 +331,11 @@ def main() -> Dict[str, Any]:
             description="Summary of dataset download and validation (failed)",
         )
         logger.error(f"Ingestion failed with unexpected error: {e}")
-        # Exit cleanly while still indicating failure via the summary.
-        return summary
-
-
+        # Re‑raise to ensure a non‑zero exit code
+        raise
+    
+    
 if __name__ == "__main__":
-    # Running as a script will exit with code 0; any error details are captured
-    # in the JSON summary artifact.
+    # Running as a script will exit with code 0 only on success;
+    # any RuntimeError will cause a non‑zero exit code.
     main()

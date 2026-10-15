@@ -28,24 +28,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingestion/download_data.py -> rc=1
-nload_data.py", line 309, in main
-    register_artifact(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/utils/versioning.py", line 159, in register_artifact
-    relative_path = str(file_path.relative_to(get_paths().root))
-                                              ^^^^^^^^^^^^^^^^
-AttributeError: type object 'Paths' has no attribute 'root'
+salience-on-atte/data/raw/ds003123
+ERROR:__main__:401 Client Error. (Request ID: Root=1-6ad1333a-0e06b9ca5bcbd03a25b8d97b;48836355-38e0-4af8-b0b1-4c9ac1e7ad74)
 
-During handling of the above exception, another exception occurred:
-
+Repository Not Found for url: https://huggingface.co/api/datasets/openneuro/ds003123/revision/main.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
+ERROR:errors:DATA_MISSING_001: Real data fetch failed
+ERROR:__main__:Ingestion failed with unexpected error: DATA_MISSING_001: Real data fetch failed
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/download_data.py", line 339, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/download_data.py", line 341, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/download_data.py", line 326, in main
-    register_artifact(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/utils/versioning.py", line 159, in register_artifact
-    relative_path = str(file_path.relative_to(get_paths().root))
-                                              ^^^^^^^^^^^^^^^^
-AttributeError: type object 'Paths' has no attribute 'root'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/download_data.py", line 316, in main
+    raise RuntimeError("DATA_MISSING_001: Real data fetch failed")
+RuntimeError: DATA_MISSING_001: Real data fetch failed
 
 
 ## Declared deliverables still missing

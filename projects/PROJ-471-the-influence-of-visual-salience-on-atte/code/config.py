@@ -72,6 +72,21 @@ class Paths:
     ALIGNED_METRICS: Path = DATA_PROCESSED
     RESULTS: Path = DATA_PROCESSED
 
+    # Lower‑case aliases for backward compatibility with existing code
+    root = ROOT
+    code = CODE
+    data = DATA
+    raw = DATA_RAW
+    interim = DATA_INTERIM
+    processed = DATA_PROCESSED
+    figures = DATA_FIGURES
+    docs = DOCS
+    spec = SPEC
+    salience_maps = SALIENCE_MAPS
+    fixation_metrics = FIXATION_METRICS
+    aligned_metrics = ALIGNED_METRICS
+    results = RESULTS
+
     @classmethod
     def ensure_dirs(cls):
         for path in [
