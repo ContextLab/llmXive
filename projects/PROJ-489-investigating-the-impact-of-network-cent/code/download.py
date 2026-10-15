@@ -5,7 +5,7 @@ Download Sleep‑EDF dataset from PhysioNet using MNE‑Python.
 - Verifies each downloaded file by attempting to read it with MNE.
 - Computes SHA‑256 checksums for successfully read files.
 - Writes a tab‑separated log ``download_log.txt`` containing:
-    <filename>\\t<sha256_checksum>
+    <filename>\t<sha256_checksum>
   Corrupted or unreadable files are logged with the prefix ``ERROR`` and are removed.
 - Raises on any network‑level failure; corrupted files are *skipped* but do not abort the whole run.
 """
@@ -16,6 +16,10 @@ from pathlib import Path
 from typing import List, Tuple
 
 import mne
+# The MNE API for the Sleep‑EDF dataset changed in recent versions.
+# Older versions expose ``fetch_data`` directly under ``mne.datasets.sleep_physionet``.
+# Newer versions expose it under the ``age`` submodule.
+# We support both by probing the attribute at runtime.
 from mne.datasets import sleep_physionet
 
 from integrity import calculate_file_checksum
@@ -27,7 +31,61 @@ logger.setLevel(logging.INFO)
 handler = logging.StreamHandler()
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
-logger.addHandler(handler)
+if not logger.handlers:
+    logger.addHandler(handler)
+
+
+def _fetch_sleep_data(
+    subjects: List[int],
+    recordings: str,
+    path: Path,
+    night: int,
+) -> List[Path]:
+    """
+    Wrapper around the MNE Sleep‑EDF fetch function that adapts to the
+    installed MNE version.
+
+    Parameters
+    ----------
+    subjects : List[int]
+        Subject identifiers.
+    recordings : str
+        Recording type (e.g., ``"sleep-edf"``).
+    path : Path
+        Destination directory for the downloaded files.
+    night : int
+        Night number (1 or 2).
+
+    Returns
+    -------
+    List[Path]
+        List of file paths returned by the underlying MNE fetch routine.
+    """
+    # Newer MNE versions expose ``fetch_data`` under ``sleep_physionet.age``.
+    # Older versions expose it directly under ``sleep_physionet``.
+    fetch_func = getattr(sleep_physionet, "fetch_data", None)
+
+    if fetch_func is None:
+        # Try the submodule ``age``.
+        age_mod = getattr(sleep_physionet, "age", None)
+        if age_mod is None:
+            raise AttributeError(
+                "MNE's sleep_physionet dataset does not expose a fetch_data function."
+            )
+        fetch_func = getattr(age_mod, "fetch_data", None)
+        if fetch_func is None:
+            raise AttributeError(
+                "MNE's sleep_physionet.age submodule does not expose fetch_data."
+            )
+
+    # Call the discovered fetch function.
+    return fetch_func(
+        subjects=subjects,
+        recordings=recordings,
+        path=str(path),
+        night=night,
+        verbose=False,
+    )
 
 
 def download_sleep_edf(output_dir: str = "data/raw/", n_subjects: int = 30) -> Tuple[List[Path], List[Tuple[str, str]]]:
@@ -71,13 +129,11 @@ def download_sleep_edf(output_dir: str = "data/raw/", n_subjects: int = 30) -> T
     for subj, night in selected_pairs:
         try:
             logger.info(f"Fetching subject {subj}, night {night}...")
-            # ``fetch_data`` returns a list of file paths for the requested recordings.
-            fetched_files = sleep_physionet.fetch_data(
+            fetched_files = _fetch_sleep_data(
                 subjects=[subj],
                 recordings="sleep-edf",
                 path=base_path,
                 night=night,
-                verbose=False,
             )
 
             for src_path in fetched_files:
