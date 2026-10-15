@@ -12,3 +12,4 @@ jsonschema
 psutil
 pyarrow
 python-levenshtein
+datasets

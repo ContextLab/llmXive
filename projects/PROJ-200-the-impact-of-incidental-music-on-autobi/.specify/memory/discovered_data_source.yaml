@@ -1,32 +1,11 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "import datasets\n\nds = datasets.load_dataset(\"matthewfranglen/lastfm-1k\"\
-  )\nif isinstance(ds, datasets.DatasetDict):\n    total = sum(len(split) for split\
-  \ in ds.values())\n    first_record = next(iter(ds.values()))[0]\nelse:\n    total\
-  \ = len(ds)\n    first_record = ds[0]\n\nprint(f\"RECORDS={total}\")\nprint(\"FIELDS=\"\
-  \ + \",\".join(first_record.keys()))"
-record_count: 16936134
-sample_fields:
-- user_index
-- artist_index
-- track_index
-- user_id
-- timestamp
-- musicbrainz_artist_id
-- artist_name
-- musicbrainz_track_id
-- track_name
-- gender
-- age
-- country
-- signup_date
-field_coverage: 0.75
+status: none
+intent: download Last.fm 1k users listening history dataset timestamps user birth
+  year musicbrainz python package dataset
 required_fields:
 - user_id
 - birth_year
 - track_id
 - listen_timestamp
-intent: download Last.fm 1K Users dataset and LFM-1b timestamps birth year python
-  package dataset
-cache_key: 8ae1874bd4d9680fa1472c495937a2d2977c2d3b0a98bc282a276a193ef63c59
+cache_key: 242538ae0f939d2a3d0073322f8e7791ff829fd24e942af5a40ca27e474b717c
+searched_at: '2026-10-15T16:20:42.394313+00:00'
+retry_count: 1

@@ -8,7 +8,8 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…eline)...")     # Ensure simulated data exists     simulate_amt.…”
+- code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…pipeline:      1. Ensure simulated AMT data exists.     2. Load the…”
+- code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-------------     # 1‑2. Simulated AMT data (still required for birt…”
 - code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…out_path)     log.info(f"Simulated AMT data written to {out_path}")…”
 
 ## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
@@ -20,45 +21,99 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/final/regression_summary.csv, data/processed/ingested_cohort.parquet, data/processed/user_track_pairs.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/raw/simulated_amt.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…eline)...")     # Ensure simulated data exists     simulate_amt.…”; code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…out_path)     log.info(f"Simulated AMT data written to {out_path}")…”; every produced artifact is gitignored (data/final/regression_summary.csv, data/processed/ingested_cohort.parquet, data/processed/user_track_pairs.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 declared deliverable(s) absent: data/final/permutation_results.csv; data/final/sensitivity_analysis.csv
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…pipeline:      1. Ensure simulated AMT data exists.     2. Load the…”; code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-------------     # 1‑2. Simulated AMT data (still required for birt…”; code/simulate_amt.py: synthetic/fake INPUT data not authorized by the spec — “…out_path)     log.info(f"Simulated AMT data written to {out_path}")…”; every produced artifact is gitignored (data/raw/simulated_amt.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/main.py --step download (rc=1); python code/main.py --step ingest (rc=1); python code/main.py --step analyze (rc=1); 2 declared deliverable(s) absent: data/final/permutation_results.csv; data/final/sensitivity_analysis.csv
 
 ## Failing / missing run-book commands
 
-- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
+- python code/main.py --step download -> rc=1
+"
+2026-10-15 16:20:13,905 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-15 16:20:13,953 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 28, in main
+    run_thin_pipeline()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 16, in run_thin_pipeline
+    data_ingestion.main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 137, in main
+    "user_id": rec["user_id"],
+               ~~~^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+
+- python code/main.py --step ingest -> rc=1
+"
+2026-10-15 16:20:15,668 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-15 16:20:15,713 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 28, in main
+    run_thin_pipeline()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 16, in run_thin_pipeline
+    data_ingestion.main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 137, in main
+    "user_id": rec["user_id"],
+               ~~~^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+
+- python code/main.py --step analyze -> rc=1
+"
+2026-10-15 16:20:17,351 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-15 16:20:17,404 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 28, in main
+    run_thin_pipeline()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 16, in run_thin_pipeline
+    data_ingestion.main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 137, in main
+    "user_id": rec["user_id"],
+               ~~~^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+
+- python code/main.py --step verify -> rc=1
+"
+2026-10-15 16:20:18,969 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-15 16:20:19,016 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 28, in main
+    run_thin_pipeline()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 16, in run_thin_pipeline
+    data_ingestion.main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 137, in main
+    "user_id": rec["user_id"],
+               ~~~^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+
+- python code/main.py --full-run -> rc=1
+"
+2026-10-15 16:20:20,785 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-15 16:20:20,827 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 28, in main
+    run_thin_pipeline()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 16, in run_thin_pipeline
+    data_ingestion.main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/data_ingestion.py", line 137, in main
+    "user_id": rec["user_id"],
+               ~~~^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+
 
 ## Declared deliverables still missing
 
 - data/final/permutation_results.csv
 - data/final/sensitivity_analysis.csv
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **16936134** real records with fields: user_index, artist_index, track_index, user_id, timestamp, musicbrainz_artist_id, artist_name, musicbrainz_track_id, track_name, gender, age, country, signup_date.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import datasets
-
-ds = datasets.load_dataset("matthewfranglen/lastfm-1k")
-if isinstance(ds, datasets.DatasetDict):
-    total = sum(len(split) for split in ds.values())
-    first_record = next(iter(ds.values()))[0]
-else:
-    total = len(ds)
-    first_record = ds[0]
-
-print(f"RECORDS={total}")
-print("FIELDS=" + ",".join(first_record.keys()))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

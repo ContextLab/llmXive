@@ -4,28 +4,25 @@ definitions:
   RegressionResults:
     type: object
     properties:
-      model_name:
+      term:
         type: string
-      coefficient_adolescent_exposure:
+      estimate:
         type: number
-      se_adolescent_exposure:
+      std_error:
         type: number
-      pvalue_adolescent_exposure:
+      t_value:
         type: number
-      coefficient_popularity:
+      p_value:
         type: number
-      pvalue_popularity:
-        type: number
-      r_squared:
-        type: number
-      vif_adolescent_exposure:
-        type: number
-      vif_popularity:
+      vif:
         type: number
     required:
-      - model_name
-      - coefficient_adolescent_exposure
-      - pvalue_adolescent_exposure
+      - term
+      - estimate
+      - std_error
+      - t_value
+      - p_value
+      - vif
 
   SensitivityAnalysis:
     type: object
@@ -42,6 +39,7 @@ definitions:
       - levenshtein_threshold
       - match_rate
       - coefficient_adolescent_exposure
+      - pvalue_adolescent_exposure
 
   PermutationResults:
     type: object
@@ -58,5 +56,7 @@ definitions:
         type: integer
     required:
       - observed_statistic
+      - null_distribution_mean
+      - null_distribution_std
       - p_value
       - iterations
