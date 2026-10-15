@@ -1,250 +1,68 @@
 # Tasks: Quantifying the Impact of Data Quantization on Gravitational Wave Signal Reconstruction
 
-**Input**: Design documents from `/specs/001-quantization-impact-gw/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-quantization-impact-gw/spec.md`, `plan.md`, `data-model.md`, `contracts/`
+**Research question**: At what SNR does ADC quantization noise become the dominant source of parameter-estimation error for binary black hole mergers?
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Scope note**: Pilot study N = 1200 signals (6 bit depths × 4 SNR bins × 50 signals per bin), CPU-only (FR-006), all six bit depths (1, 8, 10, 12, 14, 16). Paths are relative to the project root (`code/`, `data/`, `figures/`). Platform state (`state/...`) and platform-owned artifact hashing are NOT tasked here; research scripts must not read or write `state/` paths. Dataset checksums ARE recorded under `data/` (Constitution III: "recorded under data/"): `data/checksums.sha256` is written in T003 and regenerated in T008 once all result artifacts exist.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Open upstream conflicts (flagged for kickback — not resolvable in tasks.md)**:
+1. **Constitution VI vs FR-002 (1-bit depth)**: Constitution Principle VI enumerates allowed bit depths as "8, 10, 12, 14, or 16 bits", while spec FR-002 and US-1 mandate 1-bit quantization. Tasks implement 1 bit because weakening FR-002 is prohibited, but a documented constitution amendment or spec change is required before this is constitution-compliant.
+2. **US-1 Scenario 3 (10,000-signal batch) vs pilot scope**: spec.md's acceptance condition of a 10,000-signal batch within 7 GB is not satisfiable by the tasked N=1200 pilot; spec.md must be amended to stage this acceptance condition (pilot now, full batch deferred) or the plan re-scoped.
 
-## Format: `[ID] [P?] [Story] Description`
+## Phase 1: Setup and first end-to-end analysis
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T001 [US1] Implement `code/src/utils.py` with seed management (`set_global_seed(seed)`), SNR computation helpers, and a fixed-full-scale-range (FSR) uniform quantizer `quantize(signal, bit_depth, fsr)` supporting bit depths 1, 8, 10, 12, 14, 16, recording step size (FSR / 2^(N-1)) and rounding method. Bundle focused unit tests in `code/tests/test_quantization.py` verifying for EACH of the six depths: (a) no more than 2^N unique output levels, (b) step size matches the theoretical interval, (c) 1-bit depth does not crash (edge case, FR-002; see open conflict 1 above). This repairs rejected T006/T011.
+  - Verification: `pytest code/tests/test_quantization.py` passes with all six depths covered, including 10-bit and 14-bit intermediate depths.
 
-## Path Conventions
+- [ ] T002 [US1] Implement `code/src/data_generation.py` that (a) loads the LIGO O3 noise PSD from the single canonical source `pycbc.psd.from_string('aLIGO_O3actual_L1')` (package-based and deterministic; the loader MUST raise a clear exception naming this source on failure — never fall back to synthetic noise, repairing rejected T008), (b) generates BBH waveforms with PyCBC IMRPhenomXPHM (masses 10–50 M⊙, spins [-0.9, 0.9], distances 100–1000 Mpc), (c) injects into O3-colored Gaussian noise, sampling parameters so injected SNRs stratify into bins [8–14], [14–20], [20–30], [30–50] with ±0.5 tolerance (FR-001, FR-002), and (d) produces for each signal a float64 baseline plus quantized versions at all six bit depths (FR-007). Save to `data/processed/waveforms.h5` following the HDF5 layout in `data-model.md`. This repairs rejected T013/T014/T015.
+  - Verification: a smoke run of 50 signals completes; `data/processed/waveforms.h5` contains float64 and six quantized datasets per waveform ID; SNR check `python -m src.data_generation --smoke` prints a bin-coverage table showing bins [8–14], [14–20], [20–30], [30–50] cover [8, 50] with no gaps and per-signal |SNR − target| ≤ 0.5 (repairs rejected T013a).
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T003 [US1] Run the small end-to-end pilot generation (N = 1200: 6 depths × 4 bins × 50) with fixed seed, writing `data/processed/waveforms.h5` and a manifest `data/processed/manifest.csv` (waveform_id, params, target SNR, achieved SNR, bit depths present). Confirm the full file fits within 7 GB RAM/disk by streaming waveform groups one at a time from HDF5 (never holding all 1200 signals in memory). Record measured generation runtime and peak memory in a machine-checkable sidecar `data/processed/resource_report.json` with named fields `peak_rss_gb` and `generation_runtime_s` (SC-003; this file is extended by T005 and re-checksummed by T008). Write `data/checksums.sha256` recording SHA-256 hashes of every file under `data/raw/` and `data/processed/` at this point (Constitution III, checksums recorded under `data/`; this file is regenerated in T008 to cover `data/results/` too).
+  - Verification: `python -m src.data_generation --full` exits 0; manifest has 1200 rows × 7 variants; `data/processed/resource_report.json` exists with `peak_rss_gb < 7` and a numeric `generation_runtime_s`; `data/checksums.sha256` exists and `sha256sum -c data/checksums.sha256` (run from the project root) passes for every listed file.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+## Phase 2: Complete the study and validate its evidence
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T004 [US2] Implement `code/src/inference_engine.py`: a Bilby CPU-only MCMC wrapper (FR-003, FR-006) that reads each quantized signal and its float64 baseline from `data/processed/waveforms.h5`, recovers chirp mass, spin, and luminosity distance posteriors with adaptive step counts (2k steps for SNR ≤ 20, 5k for SNR > 20), records `inference_method: "MCMC"` uniformly, and constrains threads to 2 (`bilby.core.utils.set_nthreads(2)` or equivalent, SC-003). Handle edge cases explicitly: signals with SNR < 8 or non-converged samplers are recorded with `convergence_status: "non-detection"` or `"failed"` and finite (not infinite) placeholder-free metrics, never crashes (repairs rejected T025).
+  - Verification: a single SNR ≈ 10, 8-bit signal run converges with physically plausible posterior means (positive chirp mass, |spin| < 1); a deliberately low-SNR (< 8) signal yields a `"non-detection"` record.
 
- Tasks MUST be organized by user story so each story can:
- - Be implemented independently
- - Be tested independently
- - Be delivered as an MVP increment
+- [ ] T005 [US2] Execute inference over the full pilot: 1200 quantized signals + 200 float64 baselines (one per underlying waveform), batched and checkpointed to `data/results/inference_results.json` (conforming to `contracts/result.schema.yaml`), writing partial results every batch so the run can resume. Compute per-signal, per-parameter MSE (chirp mass, spin, distance separately, FR-004) and Δ_k = E_quant,k − E_inst,k against the same waveform's float64 baseline. MEASURE the actual end-to-end inference wall-clock runtime and peak RSS during this run and append them to `data/processed/resource_report.json` as `inference_runtime_s` and `inference_peak_rss_gb` (SC-003 measured, not projected).
+  - Verification: `data/results/inference_results.json` contains ≥ 1400 schema-valid records; for the 50-signal SNR > 10 subset, truth falls within the 90% credible interval for ≥ 90% of signals (calibration check, US-2 Scenario 2); chirp-mass posterior-mean bias |mean − truth| < 0.1 × truth is checked over ALL quantized records with SNR > 10 across all six bit depths (US-2 Scenario 1 as written), with a per-depth breakdown table written to `data/results/bias_breakdown.csv` so low-bit-depth behavior is visible; `data/processed/resource_report.json` shows measured `inference_runtime_s ≤ 21600` (6 h) and `inference_peak_rss_gb < 7`.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T006 [US3] Implement `code/src/analysis.py`: aggregate per-parameter Δ_k within each SNR bin using the median, identify per bit depth and parameter the lowest SNR bin where median(Δ_k) > 0.1 × E_inst,k (FR-005, SC-001, SC-004), fit error-vs-SNR curves (LOWESS or piecewise linear) over all six bit depths, and verify the fitted slope changes by > 20% at the identified crossover (US-3 Scenario 2). Bundle unit tests in `code/tests/test_analysis.py` using synthetic MSE inputs with a known crossover.
+  - Verification: `pytest code/tests/test_analysis.py` passes; `python -m src.analysis` writes `data/results/crossover_summary.csv` with per-depth, per-parameter crossover SNRs.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T007 [US3] Reproducibility study: re-run the analysis-stage crossover identification across 10 independent seeds. Per-seed batch size is exactly 120 signals (N/10: 6 depths × 4 bins × 5 signals per bin), re-generating noise realizations and re-running inference for each seed; the compute budget is the SC-003 bound (total ≤ 6 h wall-clock and < 7 GB peak RSS on the 2-core runner). Report the standard deviation of the crossover SNR per bit depth. Pass criterion is exactly SC-005: std < 0.5 SNR units.
+  - Verification: `data/results/crossover_stats.csv` contains the 10-run crossover SNRs with per-depth std and 95% confidence intervals, and per-depth std < 0.5 SNR units.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T008 [US3] Generate final figures and tables directly from the validated outputs: `figures/error_vs_snr_{1,8,10,12,14,16}bit.png` for all six depths, a combined `figures/crossover_overview.png`, and `data/results/final_thresholds.csv` stating the concrete SNR range where 8-bit quantization is insufficient for unbiased parameter estimation (US-3 Scenario 3). Then REGENERATE `data/checksums.sha256` over ALL of `data/raw/`, `data/processed/` (including the T005-updated `resource_report.json`), and `data/results/` so every final artifact is checksummed (Constitution III; this refresh supersedes the T003 snapshot, which predates the results artifacts).
+  - Verification: each figure file exists and is regenerated from `data/results/inference_results.json` by a documented command; `data/results/final_thresholds.csv` states the threshold in the form "SNR threshold = X ± Y"; `sha256sum -c data/checksums.sha256` passes and the file lists every file under `data/raw/`, `data/processed/`, and `data/results/`.
 
-- [X] T001a [P] Create directory structure: `projects/PROJ-329-quantifying-the-impact-of-data-quantizat/code/` with `src/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/` and verify tree via `tree` command, saving output to `logs/setup_tree.txt`
-- [X] T001b [P] Create empty placeholder files: `src/__init__.py`, `tests/__init__.py`, `requirements.txt`
-- [X] T001c [P] Verify directory tree matches plan.md 'Project Structure' section exactly
+## Phase 3: Reproducible results, validation, and paper handoff
 
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pycbc, bilby, numpy, scipy, matplotlib, pandas, h5py, astropy)
-- [X] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T009 Write `code/docs/methods_summary.md` (methods and results account) linked to the actual result cells in `data/results/` and figure files in `figures/`, covering: quantization model (fixed FSR, step size, rounding), inference configuration, per-parameter MSE and Δ_k findings, identified crossover thresholds with uncertainty, negative findings (e.g. depths where no crossover occurs within [8, 50]), and honest limitations (pilot N = 1200 vs the deferred full 10,000-signal study; Gaussian-noise approximation of O3; the 120-signal per-seed batch in T007).
+  - Verification: every numeric claim in the summary cites a row in `data/results/*.csv` or `*.json`; no expected/placeholder values appear.
 
----
+- [ ] T010 Update the feature's `quickstart.md` with the exact runnable commands for the full pipeline (generation → inference → analysis → figures), seed configuration, and the 10-run reproducibility study; re-run the documented workflow end-to-end from its declared inputs and confirm the required tests (`code/tests/`) and artifact checks pass. Document the paper-stage handoff: the paper must present the error-vs-SNR figures, the crossover threshold table with CIs, and the 8-bit insufficiency statement, citing the artifacts above.
+  - Verification: a fresh clone following `quickstart.md` reproduces `data/results/final_thresholds.csv` and all figures; `pytest code/tests/` passes.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T011 [US1] [US2] Author the integration test `code/tests/test_pipeline.py` (fulfilling plan.md Phase 6 T018, previously orphaned): it runs the full pipeline end-to-end on a reduced pilot (N = 100 signals: 6 depths × 4 bins, ~4 signals per bin) at all six bit depths, from generation through inference to crossover analysis, and asserts (a) every file under `data/raw/`, `data/processed/`, and `data/results/` produced by the run has a matching entry in the post-T008 `data/checksums.sha256` (the test regenerates checksums over its own run's outputs before asserting, mirroring T008), (b) each output artifact has a valid schema entry per the contracts, and (c) the pipeline completes without touching any `state/` path.
+  - Verification: `pytest code/tests/test_pipeline.py` passes; the test file exists and covers all six bit depths end-to-end.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+## Dependencies and requirement coverage
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- **FR-001** (waveform generation) → T002, T003
+- **FR-002** (O3 noise + all six bit depths) → T001, T002, T003, T011
+- **FR-003** (Bayesian PE, MCMC) → T004, T005
+- **FR-004** (per-parameter MSE) → T005
+- **FR-005** (crossover threshold, 10% rule) → T006, T007, T008
+- **FR-006** (CPU-only) → T004 (2-thread cap), T003/T005 (resource measurement)
+- **FR-007** (float64 baseline) → T002, T003, T005
+- **SC-001/SC-004** → T006; **SC-002** → T005; **SC-003** → T003, T005 (measured runtime/RSS vs 6 h / 7 GB); **SC-005** → T007 (strict std < 0.5 pass/fail)
 
-- [X] T004 Setup `src/state_manager.py` to record artifact hashes in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml` (Constitution V) after each phase
-- [ ] T005 [P] Implement data hygiene utilities: checksumming for `data/raw/` and `data/processed/`, ensuring hashes are recorded in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml`
-- [ ] T006 [P] Setup `src/utils.py` with quantization logic (Fixed FSR) and SNR calculation helpers
-- [ ] T007 Create base data schemas in `contracts/` (`waveform.schema.yaml`, `result.schema.yaml`) and register schema hashes in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml`
-- [ ] T008 Configure error handling for missing/corrupted noise files (fail gracefully)
-- [ ] T009 [P] Setup environment configuration for random seeds and CI limits (2 CPU, 7 GB RAM) and calculate batch size constraints for N=800 pilot (4 depths × 4 bins × 50)
-- [ ] T010 [P] Calculate and document batch sizes: Verify N=800 (4 depths × 4 bins × 50) fits within 6-hour CI limit and 7 GB RAM (based on T009)
+Execution order: T001 → T002 → T003 → (T004 → T005) → T006 → T007 → T008 → T009 → T010 → T011. Edge cases (1-bit no-crash, SNR < 8 non-detection, missing PSD fail-loudly) are embedded in T001, T002/T004, and T002 respectively. Checksum sequencing: T003 snapshots `data/checksums.sha256` over raw+processed; T005 extends `resource_report.json` (changing its hash); T008 regenerates the checksum file over raw+processed+results so T011's coverage assertion is satisfiable.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Corrections from prior rounds**: rejected tasks T005–T016 (missing checksum/state/schema artifacts), T025, and the state-manager tasks are consolidated into the tasks above; per platform rules, research scripts no longer write artifact hashes or run state to `state/...` — dataset checksums are instead recorded under `data/checksums.sha256` (Constitution III as literally written), regenerated in T008 after all results exist. The pilot scope is uniformly N = 1200 with all six bit depths (no 4-depth pilot subset), matching plan.md and FR-002; the earlier `docs/deferrals.md` 4-depth pilot language is superseded. Plan.md T018's integration test is now delivered as T011 (not orphaned). Plan.md T005/T007/T010/T019's `state/...`-writing tasks remain superseded by the platform-owns-state rule; the plan text needs a matching kickback update.
 
----
+## Revision behavior
 
-## Phase 3: User Story 1 - Generate and Quantize Simulated Gravitational Waveforms (Priority: P1) 🎯 MVP
-
-**Goal**: Generate binary black hole merger waveforms, inject into LIGO O3 noise, and apply controlled quantization (including low bit-widths and standard precisions up to 16 bits) to create the dataset.
-
-**Independent Test**: Generate a small batch, apply 8-bit quantization, verify discrete levels match $2^8$ bins and SNR is within a moderate to high range.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T011 [P] [US1] Unit test for quantization logic: verify 1-bit and 16-bit edge cases in `tests/unit/test_quantization.py`
-- [X] T012 [P] [US1] Integration test for noise injection: verify SNR range [8, 50] in `tests/integration/test_injection.py`
-
-### Implementation for User Story 1
-
-- [ ] T013 [US1] Implement `src/data_generation.py`: Generate BBH waveforms (IMRPhenomPv) with masses [10, 50] $M_\odot$ and distances [100, 1000] Mpc.
-- [ ] T013a [US1] Verify that the stratified bins [8-14, 14-20, 20-30, 30-50] collectively cover the full [8, 50] range, and that individual injected signals meet the ±0.5 SNR tolerance (US-1 Acceptance Scenario 1)
-- [ ] T014 [US1] Implement `src/data_generation.py`: Apply Fixed Full-Scale Range (FSR) quantization for ALL required bit depths (1, 8, 10, 12, 14, 16) to satisfy FR-002.
-- [ ] T014a [US1] Document the pilot analysis scope (using 1, 8, 12, 16) vs the full generation scope (1, 8, 10, 12, 14, 16) in `docs/deferrals.md`, citing research.md Section 3.2 and FR-002 constraints.
-- [ ] T015 [US1] [after T014] Implement `src/data_generation.py`: Generate parallel float64 baseline waveforms for every quantized signal (FR-007)
-- [ ] T016 [US1] [after T015] Save output dataset to `data/processed/waveforms_pilot_{seed}.h5` in HDF5 format, ensuring batch size fits 7 GB RAM limit; verify file size is < 7 GB and checksum recorded in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml`
-- [ ] T017 [US1] Add validation: verify quantized signals contain **no more than** $2^N$ unique levels (accounting for signal amplitude clipping) and SNR tolerance ±0.5
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Perform Parameter Estimation on Quantized Signals (Priority: P2)
-
-**Goal**: Run Bayesian parameter estimation (Uniform MCMC) on quantized waveforms to recover chirp mass, spin, and distance, and compute MSE against ground truth.
-
-**Independent Test**: Run inference on a single low-SNR 8-bit signal; verify convergence and physically plausible parameters.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [P] [US2] Unit test for MSE calculation: verify bias < 10% for known injected values in `tests/unit/test_metrics.py`
-- [ ] T019 [P] [US2] Integration test for inference pipeline: verify convergence on SNR > 10 signal in `tests/integration/test_inference.py`
-
-### Implementation for User Story 2
-
-- [ ] T020 [P] [US2] Implement `src/inference_engine.py`: CPU-optimized Bilby/PyCBC-Inference wrapper with Uniform MCMC (fixed steps)
-- [ ] T021 [US2] Implement `src/inference_engine.py`: Stratified batch processing loop for bit depths (1, 8, 12, 16) × SNR bins (8-14, 14-20, 20-30, 30-50) × 50 signals = 800 signals/run (pilot scope)
-- [ ] T022 [US2] Implement `src/inference_engine.py`: Parallel execution strategy to fit within 6-hour CI limit (2 cores)
-- [ ] T023 [US2] Compute MSE between injected ground-truth and recovered posterior means for chirp mass, spin, and distance
-- [ ] T024 [US2] Save inference results to `data/results/inference_pilot_{seed}.json` as JSON/CSV, including 90% credible intervals
-- [ ] T025 [US2] Handle edge cases: record "non-detections" for SNR < 8 or failed convergence instead of crashing
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Identify Quantization-Dominance Thresholds (Priority: P3)
-
-**Goal**: Analyze error vs. SNR curves to identify the SNR threshold where quantization noise adds >10% to instrumental error.
-
-**Independent Test**: Plot error curves for a subset; verify divergence of 8-bit vs 16-bit at a specific SNR.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T026 [P] [US3] Unit test for threshold fitting: verify crossover detection logic in `tests/unit/test_analysis.py`
-- [X] T027 [P] [US3] Integration test for reproducibility: verify std dev of crossover SNR < 0.5 across 10 runs in `tests/integration/test_reproducibility.py`
-
-### Implementation for User Story 3
-
-- [ ] T028 [P] [US3] Implement `src/analysis.py`: Calculate Instrumental Error (float64 baseline) and Quantization Error (quantized)
-- [ ] T029 [US3] Implement `src/analysis.py`: Fit error-vs-SNR curves and identify crossover point where bias $\Delta = E_{quant} - E_{inst}$ exceeds $0.1 \times E_{inst}$ (per SC-004). Explicitly define $\Delta$ as the difference between quantized MSE and instrumental MSE.
-- [ ] T030 [US3] Implement `src/analysis.py`: Generate diagnostic plots showing slope change >20% at the threshold
-- [ ] T031 [US3] Execute **10 independent runs** (different seeds) of the **N=800 pilot batch** (4 depths × 4 bins × 50 signals) to calculate standard deviation of identified crossover SNR; save results to `data/results/crossover_stats.csv` (SC-005)
-- [ ] T032 [US3] Generate final report at `docs/report.md` stating a concrete **crossover point (threshold)** where 8-bit quantization is deemed insufficient (format: "SNR threshold = X ± Y")
-- [ ] T033 [US3] Run `src/state_manager.py` to record final artifact hashes in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml` and update `research.md`
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T034 [P] Documentation updates in `quickstart.md` and `docs/`
-- [ ] T035 Code cleanup and refactoring for CPU efficiency
-- [ ] T036 Performance optimization: ensure memory usage < 4 GB during inference batches
-- [ ] T037 [P] Additional unit tests for edge cases (1-bit quantization, missing noise file)
-- [ ] T038 Security hardening: verify no external data sources other than verified GWOSC
-- [ ] T039 Run `quickstart.md` validation to ensure full pipeline reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on results from US2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utils before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for quantization logic: verify 1-bit and 16-bit edge cases in tests/unit/test_quantization.py"
-Task: "Integration test for noise injection: verify SNR range [8, 50] in tests/integration/test_injection.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement src/data_generation.py: Generate BBH waveforms..."
-Task: "Implement src/data_generation.py: Fetch LIGO O3 noise PSD..."
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Pilot Scope**: This implementation uses a pilot of N=800 signals (4 depths × 4 bins × 50) per run to fit within 6-hour CI limits. Full signal set and multiple bit depths (including 10, 14) are generated as per FR-002, but analysis may focus on the pilot subset as documented in `docs/deferrals.md`.
+Preserve working artifacts and verified requirements; reopen only tasks affected by a correction. Repair the precise failing command or artifact rather than regenerating the task list.
