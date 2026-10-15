@@ -1,12 +1,12 @@
 T001:
-  reason: All nine directories exist with at least one Python file, and requirements.txt/pyproject.toml
-    are reused as required. However, the quickstart's documented end-to-end command
-    `python -m src.run_pipeline --subjects 5` references a module that does not exist
-    anywhere in the tree (no `run_pipeline.py` in `code/src/` or its subpackages),
-    so the command is not actually runnable. Additionally, there is no execution evidence
-    (pytest output, logs, or CI record) that `pytest code/tests/` passes, and the
-    quickstart's verification command is spelled `pytest -v tests/` rather than the
-    required `pytest code
+  reason: 'All nine directories exist with at least one Python file, and requirements.txt/pyproject.toml
+    are present. However, the documented end-to-end command `python -m src.run_pipeline
+    --subjects 5` is not runnable: no `run_pipeline.py` exists anywhere under `code/src/`
+    (the src listing shows only data/analysis/stats/config/utils/entities/reporting
+    modules), and the path wouldn''t resolve from the project root anyway. Additionally,
+    there is no execution evidence that `pytest code/tests/` passes, and quickstart.md
+    contains an unresolved claim marker and a broken venv command (`python -m venv.venv`).
+    Th'
   task: 948be6d16247bbf819931a67279132505982da9fc6ffd5b1b90d282e30cc8d2c
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py

@@ -28,9 +28,9 @@ This guide walks a new user through the end‑to‑end analysis on a fresh GitHu
 
 3. **Verify reproducibility (optional)**
  ```bash
- pytest -v tests/
+ pytest -v code/tests/
  ```
- - Unit and contract tests confirm that schema validation passes and that a mini‑dataset workflow reproduces expected shapes.
+ - Unit and contract tests confirm that schema validation passes and that a mini‑dataset workflow reproduces expected shapes [UNRESOLVED-CLAIM: c_b0280e66 — status=not_enough_info].
 
 ## Expected Runtime & Resources (CI‑friendly)
 

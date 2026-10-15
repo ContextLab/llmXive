@@ -2712,3 +2712,73 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-15T00:18:27Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "download QC stage runtime \u226430 minutes and peak RAM \u22642 GB"
+  claim_id: c_3d0d49dc
+  context: "Table shows stage runtimes and memory usage; Download & QC is listed with\
+    \ \u2264\u202F30\u202Fmin and \u2264\u202F2\u202FGB."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Download & QC stage completes in \u2264\u202F30\u202Fmin and uses \u2264\
+    \u202F2\u202FGB RAM"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T02:09:43Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "entropy stage for 5 subjects runtime \u226415 minutes and peak RAM \u2264\
+    2 GB"
+  claim_id: c_6de9abbc
+  context: "Table entry for Entropy (5 subjects) shows \u2264\u202F15\u202Fmin and\
+    \ \u2264\u202F2\u202FGB."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Entropy (5 subjects) stage completes in \u2264\u202F15\u202Fmin and uses\
+    \ \u2264\u202F2\u202FGB RAM"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T02:09:44Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "total pipeline runtime \u226445 minutes and peak RAM \u22642 GB"
+  claim_id: c_5b8e201f
+  context: "Table total row reports \u2264\u202F45\u202Fmin and \u2264\u202F2\u202F\
+    GB."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total pipeline runtime is \u2264\u202F45\u202Fmin with peak RAM \u2264\
+    \u202F2\u202FGB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T02:09:45Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: unit and contract tests confirm schema validation passes and mini-dataset
+    workflow reproduces expected shapes
+  claim_id: c_b0280e66
+  context: Verification step description states that pytest confirms schema validation
+    and reproducibility.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Unit and contract tests confirm that schema validation passes and that\
+    \ a mini\u2011dataset workflow reproduces expected shapes"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T02:09:45Z'

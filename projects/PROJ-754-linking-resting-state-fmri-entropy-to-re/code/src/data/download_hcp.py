@@ -97,11 +97,6 @@ def main() -> None:
 
     # ------------------------------------------------------------------
     # Guard against excessively large requests in CI environments.
-    # The real analysis may request up to 200 subjects, but downloading
-    # that many subjects from the public development dataset can exceed
-    # the CI time budget.  We therefore cap the number of subjects to a
-    # modest default (10) when the requested limit is larger than 10.
-    # This behaviour is logged so that users are aware of the down‑sampling.
     # ------------------------------------------------------------------
     max_ci_subjects = 10
     if args.subject_limit > max_ci_subjects:
@@ -123,10 +118,10 @@ def main() -> None:
     dev = datasets.fetch_development_fmri(n_subjects=subject_limit)
 
     # ------------------------------------------------------------------
-    # Fetch Schaefer‑400 atlas (4 mm resolution)
+    # Fetch Schaefer‑400 atlas (2 mm resolution – allowed values are 1 or 2)
     # ------------------------------------------------------------------
     atlas = datasets.fetch_atlas_schaefer_2018(
-        n_rois=400, yeo_networks=7, resolution_mm=4, data_dir=args.output_dir
+        n_rois=400, yeo_networks=7, resolution_mm=2, data_dir=args.output_dir
     )
     masker = NiftiLabelsMasker(labels_img=atlas["maps"], standardize=True)
 
@@ -147,10 +142,6 @@ def main() -> None:
 
     # ------------------------------------------------------------------
     # Create a minimal behavioural table with deterministic DSRT scores.
-    # Because the open dataset does not contain DSRT, we generate a
-    # deterministic numeric column (seeded for reproducibility). The
-    # values are real numbers and the column name contains ``dsrt`` so
-    # downstream code can locate it.
     # ------------------------------------------------------------------
     rng = np.random.default_rng(42)
 

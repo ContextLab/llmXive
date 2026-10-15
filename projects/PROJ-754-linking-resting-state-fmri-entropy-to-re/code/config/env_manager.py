@@ -1,49 +1,33 @@
 """
 env_manager.py
-----------------
-Utility functions for managing required environment variables and project
-configuration. Provides clear error messages and a simple CLI for checking
-the environment before running the pipeline.
+---------------
+Utilities for checking and retrieving required environment variables.
+The module is deliberately lightweight and raises a custom
+``EnvironmentError`` (defined here) for any problem with the
+``HCP_TOKEN`` credential.
 """
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Optional, Dict
 
-# ----------------------------------------------------------------------
-# Custom exception type used throughout the project
-# ----------------------------------------------------------------------
-class EnvironmentError(Exception):
-    """Raised when a required environment variable is missing or invalid."""
+class EnvironmentError(RuntimeError):
+    """Custom exception raised when required environment variables are missing
+    or malformed."""
     pass
 
-# ----------------------------------------------------------------------
-# Helper: locate the project root (directory that contains the top‑level
-# ``code`` folder or a ``.git`` directory).  This function walks up the
-# directory hierarchy from this file until it finds one of the markers.
-# ----------------------------------------------------------------------
 def get_project_root() -> Path:
-    """Return the absolute path to the project root."""
-    current = Path(__file__).resolve()
-    # Walk up until we find a directory containing a ``code`` folder
-    # or a ``.git`` directory.
-    for parent in [current] + list(current.parents):
-        if (parent / "code").is_dir() or (parent / ".git").is_dir():
-            return parent
-    # Fallback: two levels up (as originally documented)
-    return current.parent.parent
+    """
+    Return the absolute path to the project root.
 
-# ----------------------------------------------------------------------
-# Helper: retrieve the HCP token from the environment.
-# ----------------------------------------------------------------------
+    The project root is assumed to be two directories up from this file,
+    i.e. ``code/config`` -> ``code`` -> project root.
+    """
+    return Path(__file__).resolve().parents[2]
+
 def get_hcp_token() -> str:
     """
     Retrieve the HCP_TOKEN environment variable.
-
-    Returns
-    -------
-    str
-        The token string.
 
     Raises
     ------
@@ -52,40 +36,35 @@ def get_hcp_token() -> str:
     """
     token = os.getenv("HCP_TOKEN")
     if token is None:
-        raise EnvironmentError("HCP_TOKEN is required but not set.")
-    token = token.strip()
-    if not token:
+        raise EnvironmentError("HCP_TOKEN is not set in the environment.")
+    if not token.strip():
         raise EnvironmentError("HCP_TOKEN is required but is empty or whitespace.")
     return token
 
-# ----------------------------------------------------------------------
-# Validate that the token looks plausible.  The HCP token is a long
-# alphanumeric string; we enforce a minimum length of 10 characters.
-# ----------------------------------------------------------------------
 def validate_hcp_credentials() -> bool:
     """
-    Validate that HCP credentials are present and non‑empty.
+    Validate that HCP credentials are present and meet a minimal length
+    requirement.
 
     Returns
     -------
     bool
-        True if validation succeeds.
+        ``True`` if validation succeeds.
 
     Raises
     ------
     EnvironmentError
-        If the token is missing, empty, or too short.
+        If the token is missing, empty, whitespace, or shorter than 10
+        characters (arbitrary safety threshold).
     """
     token = get_hcp_token()
-    if len(token) < 10:
+    if len(token.strip()) < 10:
         raise EnvironmentError(
-            f"HCP_TOKEN appears to be too short (length {len(token)})."
+            f"HCP_TOKEN appears too short (len={len(token)}). "
+            "It must be at least 10 characters long."
         )
     return True
 
-# ----------------------------------------------------------------------
-# Generic optional environment variable accessor.
-# ----------------------------------------------------------------------
 def get_optional_env(var_name: str, default: Optional[str] = None) -> Optional[str]:
     """
     Retrieve an optional environment variable.
@@ -104,9 +83,6 @@ def get_optional_env(var_name: str, default: Optional[str] = None) -> Optional[s
     """
     return os.getenv(var_name, default)
 
-# ----------------------------------------------------------------------
-# Comprehensive check that returns a dictionary describing the status.
-# ----------------------------------------------------------------------
 def check_environment() -> Dict[str, object]:
     """
     Perform a comprehensive check of required environment variables.
@@ -120,13 +96,13 @@ def check_environment() -> Dict[str, object]:
             "errors": list[str]
          }``
     """
-    errors: List[str] = []
+    errors = []
     root = get_project_root()
-    token_set = False
+    token_set = True
     try:
-        validate_hcp_credentials()
-        token_set = True
+        _ = get_hcp_token()
     except EnvironmentError as exc:
+        token_set = False
         errors.append(str(exc))
 
     return {
@@ -135,20 +111,17 @@ def check_environment() -> Dict[str, object]:
         "errors": errors,
     }
 
-# ----------------------------------------------------------------------
-# CLI entry point used by the test suite.
-# ----------------------------------------------------------------------
 def main() -> None:
     """
-    CLI entry point.  Prints a short status message and exits with
+    CLI entry point. Prints a short status message and exits with
     ``0`` on success or ``1`` on failure.
     """
     status = check_environment()
-    if not status["errors"]:
-        print("Environment check passed")
-        sys.exit(0)
-    else:
-        print("Errors encountered:")
+    if status["errors"]:
+        print("Errors encountered during environment check:")
         for err in status["errors"]:
-            print(f"- {err}")
+            print(f" - {err}")
         sys.exit(1)
+    else:
+        print("Environment check passed. All required variables are set.")
+        sys.exit(0)

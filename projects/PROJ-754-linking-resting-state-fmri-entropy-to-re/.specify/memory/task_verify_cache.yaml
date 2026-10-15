@@ -1,15 +1,15 @@
 T001:
   c: false
-  h: e226e215ed52b45ebbf442150169cefd5afc1698cbe82a3618b766ad6abbfb39
-  r: All nine directories exist with at least one Python file, and requirements.txt/pyproject.toml
-    are reused as required. However, the quickstart's documented end-to-end command
-    `python -m src.run_pipeline --subjects 5` references a module that does not exist
-    anywhere in the tree (no `run_pipeline.py` in `code/src/` or its subpackages),
-    so the command is not actually runnable. Additionally, there is no execution evidence
-    (pytest output, logs, or CI record) that `pytest code/tests/` passes, and the
-    quickstart's verification command is spelled `pytest -v tests/` rather than the
-    required `pytest code
-  sig: 3f5e322067fc3e390f2b6ec3da7a58ae5453266b4ec7df6bd07e9b101c6d9f16
+  h: 6508f40341a68b5c812fa5dbc81b8fc4f10cfb57e11377ccc898f5549c2ae354
+  r: 'All nine directories exist with at least one Python file, and requirements.txt/pyproject.toml
+    are present. However, the documented end-to-end command `python -m src.run_pipeline
+    --subjects 5` is not runnable: no `run_pipeline.py` exists anywhere under `code/src/`
+    (the src listing shows only data/analysis/stats/config/utils/entities/reporting
+    modules), and the path wouldn''t resolve from the project root anyway. Additionally,
+    there is no execution evidence that `pytest code/tests/` passes, and quickstart.md
+    contains an unresolved claim marker and a broken venv command (`python -m venv.venv`).
+    Th'
+  sig: dfde51096843dee8acb91a3b4669794ec61115da1100fe3077316842eb272e49
 T003:
   c: true
   h: 72820a63befb332cf89d27ab7760433c08f2b47243aa1f8ab9a6fa61ce473b9c

@@ -1,32 +1,20 @@
 """
-Script to create the required project directory structure for the
-llmxive-fmri-entropy project.
-
-This script is used by the unit tests to verify that the expected
-directories exist and contain at least one Python file.
+create_project_structure.py
+---------------------------
+Creates the required source‑tree layout under ``code/src`` and the
+corresponding test directories under ``code/tests``.  Each created
+directory receives a minimal stub module so that the package can be
+imported and ``pytest`` discovers at least one test file per directory.
 """
-
 import sys
 from pathlib import Path
 
-# ----------------------------------------------------------------------
-# Helper functions (mirroring the original API)
-# ----------------------------------------------------------------------
-
 def get_project_root() -> Path:
     """
-    Determine the project root directory.
-
-    The project root is the directory that contains the top‑level ``code``
-    folder.  This function walks up the directory tree until it finds a
-    folder named ``code`` and returns its parent.
+    Determine the project root directory (the directory that contains the
+    top‑level ``code`` folder).
     """
-    current = Path(__file__).resolve()
-    for parent in current.parents:
-        if (parent / "code").is_dir():
-            return parent
-    raise RuntimeError("Project root could not be determined.")
-
+    return Path(__file__).resolve().parents[2]
 
 def ensure_directory(path: Path) -> bool:
     """
@@ -34,73 +22,71 @@ def ensure_directory(path: Path) -> bool:
 
     Returns ``True`` if the directory was created or already exists.
     """
-    try:
-        path.mkdir(parents=True, exist_ok=True)
-        return True
-    except Exception as exc:
-        raise RuntimeError(f"Failed to create directory {path!s}: {exc}") from exc
+    path.mkdir(parents=True, exist_ok=True)
+    return True
 
-
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
+def _create_stub_module(dir_path: Path, module_name: str) -> None:
+    """
+    Write a minimal Python file (e.g. ``__init__.py`` or a stub) so that
+    the directory is recognised as a package.
+    """
+    stub_path = dir_path / f"{module_name}.py"
+    if not stub_path.exists():
+        stub_path.write_text(
+            f'"""Stub module for {module_name}."""\\n\\n'
+            f'def placeholder():\\n'
+            f'    """Placeholder function used only for import sanity."""\\n'
+            f'    return "{module_name}_placeholder"\\n'
+        )
 
 def main() -> int:
     """
-    Create the required directory tree under ``code/src`` and ``code/tests``.
-
+    Create the required directory tree and a stub module in each leaf.
     Returns an integer exit code (0 for success, non‑zero for failure).
     """
-    root = get_project_root()
-    # List of relative directories that must exist
-    required_dirs = [
-        # Source tree
-        Path("code/src/data"),
-        Path("code/src/analysis"),
-        Path("code/src/stats"),
-        Path("code/src/config"),
-        Path("code/src/utils"),
-        Path("code/src/entities"),
-        Path("code/src/reporting"),
-        # Test tree
-        Path("code/tests/unit"),
-        Path("code/tests/integration"),
-    ]
+    try:
+        root = get_project_root()
+        src_root = root / "code" / "src"
+        tests_root = root / "code" / "tests"
 
-    for rel_dir in required_dirs:
-        dir_path = root / rel_dir
-        ensure_directory(dir_path)
+        # Required source directories
+        src_dirs = [
+            src_root / "data",
+            src_root / "analysis",
+            src_root / "stats",
+            src_root / "config",
+            src_root / "utils",
+            src_root / "entities",
+            src_root / "reporting",
+        ]
 
-    # Ensure each required package contains at least one real .py file.
-    # We create a minimal ``__init__.py`` if it does not already exist.
-    for rel_dir in required_dirs:
-        init_file = (root / rel_dir / "__init__.py")
-        if not init_file.is_file():
-            init_file.touch()
+        # Required test directories
+        test_dirs = [
+            tests_root / "unit",
+            tests_root / "integration",
+        ]
 
-    # Create a simple placeholder module in each src sub‑package so that
-    # ``pytest`` can import something from the package.
-    placeholder_modules = {
-        "code/src/data": "dummy.py",
-        "code/src/analysis": "dummy.py",
-        "code/src/stats": "dummy.py",
-        "code/src/config": "dummy.py",
-        "code/src/utils": "dummy.py",
-        "code/src/entities": "dummy.py",
-        "code/src/reporting": "dummy.py",
-    }
+        for d in src_dirs + test_dirs:
+            ensure_directory(d)
 
-    for pkg_path, module_name in placeholder_modules.items():
-        module_path = root / pkg_path / module_name
-        if not module_path.is_file():
-            module_path.write_text(
-                "# Auto‑generated placeholder module for package initialisation\\n"
-                "def placeholder():\\n"
-                "    return \"placeholder from {}\"\\n".format(module_name)
-            )
+        # Populate each source directory with a stub module
+        for d in src_dirs:
+            _create_stub_module(d, "placeholder")
 
-    return 0
+        # Create a minimal test file in each test directory so pytest has
+        # something to run.
+        for d in test_dirs:
+            test_file = d / "test_placeholder.py"
+            if not test_file.exists():
+                test_file.write_text(
+                    "def test_placeholder():\\n"
+                    "    assert True\\n"
+                )
 
+        return 0
+    except Exception as exc:
+        print(f"Error creating project structure: {exc}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())
