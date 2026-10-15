@@ -32,3 +32,34 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-15T21:23:53Z'
+- artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  attempts: 1
+  canonical: dry-run produces sample_run.csv with 4 rows
+  claim_id: c_3a2ec746
+  context: The dry-run command writes a sample result file with columns patch_id,true_label,predicted_label,predicted_prob.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Writes a tiny result file data/results/sample_run.csv (4 rows, well under
+    the 10-row limit)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T23:10:30Z'
+- artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  attempts: 1
+  canonical: dry-run exits with code 0
+  claim_id: c_9198ce03
+  context: Describes the verified behavior of the dry-run entry point.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Prints the path of the sample result file and exits with code 0.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T23:10:30Z'

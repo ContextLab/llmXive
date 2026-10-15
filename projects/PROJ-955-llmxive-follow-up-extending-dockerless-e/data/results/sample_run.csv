@@ -1,5 +1,5 @@
 patch_id,true_label,predicted_label,predicted_prob
 patch_001,pass,pass,0.95
 patch_002,fail,fail,0.92
-patch_003,pass,fail,0.40
+patch_003,pass,fail,0.4
 patch_004,fail,pass,0.55

@@ -15,7 +15,7 @@ The following checklist implements the full research pipeline required by the sp
   *Creates*: `data/`, `interim/`, `features/`, `models/`, `reports/`, `src/pipeline/`, `src/cli/`.  
   *Verification*: `quickstart.md` contains a single command (`python -m src.cli.run_pipeline --dry-run`) that finishes without error and prints the path of a tiny result file `data/results/sample_run.csv` (≤ 10 rows).
 
-- [ ] T002 [P] Implement **Data Ingestion** (`src/pipeline/ingest.py`).   <!-- FAILED-IN-EXECUTION: src/pipeline/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/cli/run_pipeline.py exit=1 -->
+- [ ] T002 [P] Implement **Data Ingestion** (`src/pipeline/ingest.py`).   <!-- FAILED-IN-EXECUTION: src/pipeline/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/cli/run_pipeline.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/cli/run_pipeline.py exit=1 -->
   *Produces*: `data/raw_swe_gym.parquet`, `data/raw_multi_swe_rl.jsonl`, `data/patches.csv` (columns: `patch_id,language,source_code,label`), **and** `data/execution_logs/` containing the ground‑truth test execution logs for every patch (e.g., `patch_id.log`).  
   *Verification*: SHA‑256 checksums of the two raw downloads match the values listed in `plan.md`; `patches.csv` contains ≥ 3 500 rows and a printed label‑distribution summary matching the spec; each `patch_id` has a corresponding log file in `data/execution_logs/` (checked by a contract test).
 

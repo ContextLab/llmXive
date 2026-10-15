@@ -10,34 +10,51 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python src/cli/run_pipeline.py  --swe_gym_url https://huggingface.co/datasets/OpenHands/SWE-Gym-code-search/resolve/main/data/train-00000-of-00001.parquet  --multi_swe_rl_url https://huggingface.co/datasets/ByteDance-Seed/Multi-SWE-RL/resolve/main/data_20240601_20250331/c/OpenMathLib__OpenBLAS_dataset.jsonl  --output_dir $(pwd)/output  --seed 42 (rc=1); python -m pytest -q tests/contract (rc=4); python src/cli/run_pipeline.py  ...  --sample_fraction 0.1   # 10 % stratified sample, seed fixed (rc=2); 3 declared deliverable(s) absent: data/patches.csv; data/patches_sample.csv; data/raw_swe_gym.parquet
+**Summary**: 3 command(s) failed: python src/cli/run_pipeline.py  --swe_gym_url https://huggingface.co/datasets/OpenHands/SWE-Gym-code-search/resolve/main/data/train-00000-of-00001.parquet  --multi_swe_rl_url https://huggingface.co/datasets/ByteDance-Seed/Multi-SWE-RL/resolve/main/data_20240601_20250331/c/OpenMathLib__OpenBLAS_dataset.jsonl  --output_dir $(pwd)/output  --seed 42 (rc=1); python -m pytest -q tests/contract (rc=1); python src/cli/run_pipeline.py  ...  --sample_fraction 0.1   # 10 % stratified sample, seed fixed (rc=2); 3 declared deliverable(s) absent: data/patches.csv; data/patches_sample.csv; data/raw_swe_gym.parquet
 
 ## Failing / missing run-book commands
 
 - python src/cli/run_pipeline.py  --swe_gym_url https://huggingface.co/datasets/OpenHands/SWE-Gym-code-search/resolve/main/data/train-00000-of-00001.parquet  --multi_swe_rl_url https://huggingface.co/datasets/ByteDance-Seed/Multi-SWE-RL/resolve/main/data_20240601_20250331/c/OpenMathLib__OpenBLAS_dataset.jsonl  --output_dir $(pwd)/output  --seed 42 -> rc=1
-
-2026-10-15 22:14:59,579 INFO __main__: Random seed set to 42
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/cli/run_pipeline.py", line 110, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/cli/run_pipeline.py", line 103, in main
+OJ-955-llmxive-follow-up-extending-dockerless-e/src/cli/run_pipeline.py", line 125, in main
     from src.pipeline.ingest import ingest  # noqa: E402
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/pipeline/ingest.py", line 57, in <module>
     from datasets import load_dataset
-ModuleNotFoundError: No module named 'datasets'
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-955-llmxive-follow-up-extending-dockerless-e/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-955-llmxive-follow-up-extending-dockerless-e/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-955-llmxive-follow-up-extending-dockerless-e/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-- python -m pytest -q tests/contract -> rc=4
+- python -m pytest -q tests/contract -> rc=1
+ _ _ _ _ _ _ 
+src/pipeline/ingest.py:57: in <module>
+    from datasets import load_dataset
+../../.llmxive-venvs/PROJ-955-llmxive-follow-up-extending-dockerless-e/lib/python3.11/site-packages/datasets/__init__.py:17: in <module>
+    from .arrow_dataset import Column, Dataset
+../../.llmxive-venvs/PROJ-955-llmxive-follow-up-extending-dockerless-e/lib/python3.11/site-packages/datasets/arrow_dataset.py:59: in <module>
+    import pyarrow as pa
+../../.llmxive-venvs/PROJ-955-llmxive-follow-up-extending-dockerless-e/lib/python3.11/site-packages/pyarrow/__init__.py:59: in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-no tests ran in 0.00s
+>   ???
+E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-ERROR: file or directory not found: tests/contract
+pyarrow/lib.pyx:42: ImportError
+=========================== short test summary info ============================
+ERROR tests/contract/test_contracts.py::test_raw_files_exist - ImportError: p...
+ERROR tests/contract/test_contracts.py::test_patches_csv_structure - ImportEr...
+ERROR tests/contract/test_contracts.py::test_execution_logs_exist - ImportErr...
+3 errors in 0.64s
 
 
 - python src/cli/run_pipeline.py  ...  --sample_fraction 0.1   # 10 % stratified sample, seed fixed -> rc=2
 
-2026-10-15 22:15:00,249 INFO __main__: Random seed set to 42
+2026-10-15 23:17:04,487 INFO __main__: Random seed set to 42
 usage: run_pipeline.py [-h] [--dry-run] [--swe_gym_url SWE_GYM_URL]
                        [--multi_swe_rl_url MULTI_SWE_RL_URL]
                        [--output_dir OUTPUT_DIR] [--seed SEED]

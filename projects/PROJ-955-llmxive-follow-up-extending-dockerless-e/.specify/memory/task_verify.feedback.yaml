@@ -1,10 +1,9 @@
 T001:
-  reason: "The evidence shows the `data/`, `models/`, `reports/`, `src/pipeline/`\
-    \ and `src/cli/` directories, a seeded run, and a dry\u2011run command that creates\
-    \ `data/results/sample_run.csv` (4 rows). However, the required `interim/` and\
-    \ `features/` directories are not present, and `quickstart.md` contains multiple\
-    \ command blocks rather than the single `python -m src.cli.run_pipeline --dry-run`\
-    \ command stipulated. These omissions mean the task is not fully satisfied."
+  reason: "The quickstart command runs correctly and the seed is pinned, and `quickstart.md`\
+    \ documents the command, but the required project\u2011wide directories `interim/`\
+    \ and `features/` are not present in the repository (they are absent from the\
+    \ directory listing, whereas empty required directories like `models/` and `reports/`\
+    \ are listed). These missing directories must be added to satisfy the task."
   task: 112b0d39af56b1edd93d7e2ab84f6113566ec7f40ef05fe1a69c03739569b847
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/pipeline/ingest.py
