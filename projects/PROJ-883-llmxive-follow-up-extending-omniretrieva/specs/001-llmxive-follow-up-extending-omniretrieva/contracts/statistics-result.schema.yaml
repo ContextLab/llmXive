@@ -1,4 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: Statistics Result
 type: object
 properties:
   cutoff:
@@ -7,28 +8,8 @@ properties:
     type: number
   slope_change:
     type: number
-  source_type:
-    type: string
-  complexity_category:
-    type: string
-  mean_delta_latency:
-    type: number
-  std_delta_latency:
-    type: number
-  n_samples:
-    type: integer
-  anova_f_statistic:
-    type: number
-  anova_p_value:
-    type: number
-  interaction_significant:
-    type: boolean
-  segmented_regression_knee_point:
-    type: number
-  segmented_regression_p_value:
-    type: number
 required:
   - cutoff
   - spike_point
   - slope_change
-additionalProperties: true
+additionalProperties: false

@@ -1,4 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: Execution Log
 type: object
 properties:
   query_id:
@@ -27,6 +28,10 @@ required:
   - source_type
   - complexity_level
   - latency_ms
+  - timestamp
+  - translation_error
   - success_flag
   - timeout_flag
-additionalProperties: true
+  - synthetic_flag
+  - throttling_mode
+additionalProperties: false

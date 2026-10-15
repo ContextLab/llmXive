@@ -2,7 +2,9 @@
 
 This module provides:
 - checksum calculation
-- dataset fetching from HuggingFace `datasets` with streaming support
+- dataset fetching from HuggingFace `datasets` (streaming) for the
+  text and relational sources
+- direct download of a small RDF/Turtle graph file for the graph source
 - verification of required datasets
 - a CLI entry point for on‑demand fetching
 """
@@ -10,6 +12,10 @@ This module provides:
 import argparse
 import hashlib
 import json
+import itertools
+import logging
+import os
+import requests
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -51,26 +57,45 @@ def calculate_checksum(filepath: Union[str, Path], algorithm: str = "sha256") ->
 def _write_streamed_dataset(
     ds: Any,
     dest_path: Path,
+    max_samples: int,
     synthetic_flag: int = 0,
 ) -> None:
     """Write a streamed HuggingFace dataset to a JSON‑Lines file.
 
-    Each record is written as a single JSON object per line.
+    Only ``max_samples`` records are written (or fewer if the dataset
+    ends earlier).  ``synthetic_flag`` is added when a synthetic fallback
+    is used.
     """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     with dest_path.open("w", encoding="utf-8") as out_f:
-        # If a DatasetDict (multiple splits), concatenate them
-        if hasattr(ds, "keys"):  # crude check for DatasetDict‑like object
-            iterator = (example for split in ds.values() for example in split)
-        else:
-            iterator = ds
-
-        for example in iterator:
-            # Attach synthetic flag if needed
+        iterator = ds
+        for i, example in enumerate(iterator):
+            if i >= max_samples:
+                break
             if synthetic_flag:
                 example = dict(example)
                 example["synthetic_flag"] = synthetic_flag
             out_f.write(json.dumps(example, ensure_ascii=False) + "\n")
+
+
+def _download_ttl(url: str, dest_path: Path, synthetic_flag: int = 0) -> None:
+    """Download a Turtle file from ``url`` and write it as JSON‑Lines.
+
+    Each line contains a JSON object with a single ``ttl`` key holding the
+    raw Turtle line.  This keeps the output format consistent with the
+    other datasets (JSON‑Lines) while preserving the raw graph data.
+    """
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    response = requests.get(url, stream=True, timeout=30)
+    response.raise_for_status()
+    with dest_path.open("w", encoding="utf-8") as out_f:
+        for line in response.iter_lines(decode_unicode=True):
+            if line:
+                obj = {"ttl": line}
+                if synthetic_flag:
+                    obj["synthetic_flag"] = synthetic_flag
+                out_f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+    log.info(f"Turtle graph downloaded to {dest_path}")
 
 
 def fetch_dataset(
@@ -80,22 +105,22 @@ def fetch_dataset(
     dest_path: Union[str, Path] = None,
     allow_synthetic: bool = False,
 ) -> Path:
-    """Fetch a dataset from HuggingFace and persist it locally.
+    """Fetch a dataset from HuggingFace (or a raw URL for the graph) and persist it locally.
 
     Parameters
     ----------
     name: str
-        The HuggingFace dataset identifier (e.g., ``"microsoft/ms_marco"``).
+        Logical name of the dataset as used in ``config.DATASET_URLS``.
     config_name: str, optional
-        Configuration name for datasets that expose multiple configs.
+        Configuration name for HuggingFace datasets that expose multiple configs.
     split: str, optional
         Which split to download (default ``"train"``).
     dest_path: str or Path, optional
         Destination file path. If ``None``, a sensible path under
         ``paths.data("raw")`` is chosen based on the dataset name.
     allow_synthetic: bool, optional
-        If ``True`` and the real fetch fails, a tiny synthetic graph
-        (a list of triples) is written instead with ``synthetic_flag=1``.
+        If ``True`` and the real fetch fails, a tiny synthetic graph is
+        written instead with ``synthetic_flag=1``.
 
     Returns
     -------
@@ -107,72 +132,87 @@ def fetch_dataset(
     DataFetchError
         If the dataset cannot be fetched and ``allow_synthetic`` is ``False``.
     """
+    # Resolve destination path early so we can use it for synthetic fallback.
+    if dest_path is None:
+        safe_name = name.replace("/", "_")
+        dest_path = paths.data("raw", f"{safe_name}_{split}.jsonl")
+    dest_path = Path(dest_path)
+
+    # ------------------------------------------------------------------
+    # Graph source – download a small TTL file directly.
+    # ------------------------------------------------------------------
+    if name == "dbpedia_sample":
+        url = paths.config.get_dataset_path(name) if hasattr(paths, "config") else None
+        # Fallback to the URL defined in config module.
+        if url is None:
+            url = DATASET_URLS.get(name)
+        try:
+            _download_ttl(url, dest_path, synthetic_flag=0)
+            return dest_path
+        except Exception as exc:
+            log.error(f"Failed to download TTL for {name}: {exc}")
+            if allow_synthetic:
+                log.warning("Generating synthetic graph as fallback.")
+                _generate_synthetic_graph(dest_path)
+                return dest_path
+            raise DataFetchError(f"Unable to fetch graph dataset {name}") from exc
+
+    # ------------------------------------------------------------------
+    # Text and relational sources – use HuggingFace ``datasets``.
+    # ------------------------------------------------------------------
     try:
-        # Import lazily to avoid importing heavy dependencies unless needed.
         from datasets import load_dataset, DownloadMode  # type: ignore
     except Exception as exc:
         log.error(f"Failed to import datasets library: {exc}")
         if allow_synthetic:
-            log.warning("Falling back to synthetic dataset generation (synthetic_flag=1).")
-            synthetic_path = Path(dest_path) if dest_path else paths.data(
-                "raw", f"synthetic_{name.replace('/', '_')}.jsonl"
-            )
-            _generate_synthetic_graph(synthetic_path)
-            return synthetic_path
-        else:
-            raise DataFetchError(
-                "Unable to import datasets library and synthetic fallback is disabled."
-            ) from exc
+            log.warning("Falling back to synthetic dataset generation.")
+            _generate_synthetic_graph(dest_path)
+            return dest_path
+        raise DataFetchError(
+            "Unable to import datasets library and synthetic fallback is disabled."
+        ) from exc
 
     try:
-        log.info(
-            f"Attempting to fetch dataset: {name} (config={config_name}, split={split})"
-        )
+        # Resolve configuration values from the central config module.
+        from config import get_dataset_config  # Local import to avoid circularity.
+
+        cfg = get_dataset_config(name)
+        max_samples = cfg.get("max_samples", 1000)
+        hf_name = cfg.get("url", cfg.get("dataset_name", name))
+        # For MS MARCO we need the explicit config name (v1.1)
+        hf_config = cfg.get("config_name")
         load_kwargs: dict = {
             "streaming": True,
             "download_mode": DownloadMode.FORCE_DOWNLOAD,
         }
-        if config_name:
-            load_kwargs["name"] = config_name
+        if hf_config:
+            load_kwargs["name"] = hf_config
 
+        log.info(
+            f"Attempting to fetch dataset: {name} (config={hf_config}, split={split})"
+        )
         ds = load_dataset(
-            name,
+            hf_name,
             split=split,
             **load_kwargs,
         )
 
-        # Resolve destination path
-        if dest_path is None:
-            safe_name = name.replace("/", "_")
-            if config_name:
-                safe_name += f"_{config_name}"
-            dest_path = paths.data("raw", f"{safe_name}_{split}.jsonl")
-        dest_path = Path(dest_path)
-
-        _write_streamed_dataset(ds, dest_path)
+        _write_streamed_dataset(ds, dest_path, max_samples, synthetic_flag=0)
         log.info(f"Dataset written to {dest_path}")
         return dest_path
     except Exception as exc:
         log.error(f"Failed to fetch dataset {name}: {exc}")
         if allow_synthetic:
-            log.warning("Falling back to synthetic dataset generation (synthetic_flag=1).")
-            synthetic_path = Path(dest_path) if dest_path else paths.data(
-                "raw", f"synthetic_{name.replace('/', '_')}.jsonl"
-            )
-            _generate_synthetic_graph(synthetic_path)
-            return synthetic_path
-        else:
-            raise DataFetchError(
-                f"Unable to fetch dataset {name} and synthetic fallback is disabled."
-            ) from exc
+            log.warning("Falling back to synthetic dataset generation.")
+            _generate_synthetic_graph(dest_path)
+            return dest_path
+        raise DataFetchError(
+            f"Unable to fetch dataset {name} and synthetic fallback is disabled."
+        ) from exc
 
 
 def _generate_synthetic_graph(dest_path: Path) -> None:
-    """Generate a tiny synthetic graph and write it as JSON‑Lines.
-
-    The synthetic graph consists of a few triples of the form
-    ``{'head': 'nodeX', 'relation': 'relY', 'tail': 'nodeZ', 'synthetic_flag': 1}``.
-    """
+    """Generate a tiny synthetic graph and write it as JSON‑Lines."""
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     synthetic_triples = [
         {"head": "Alice", "relation": "knows", "tail": "Bob", "synthetic_flag": 1},
@@ -191,21 +231,21 @@ def verify_all_datasets(allow_synthetic: bool = False) -> None:
     The function attempts to fetch each dataset if it does not already exist.
     """
     required = [
-        # (dataset name, config, split)
-        ("microsoft/ms_marco", "v1.1", "train"),
-        ("xlangai/spider", None, "train"),
-        ("wikidata5m/wikidata5m", None, "train"),
+        # (logical name, config_name, split)
+        ("ms_marco", "v1.1", "train"),
+        ("spider", None, "train"),
+        ("dbpedia_sample", None, "train"),
     ]
 
-    for name, cfg, split in required:
-        safe_name = name.replace("/", "_")
+    for logical_name, cfg, split in required:
+        safe_name = logical_name.replace("/", "_")
         if cfg:
             safe_name += f"_{cfg}"
         expected_path = paths.data("raw", f"{safe_name}_{split}.jsonl")
         if not expected_path.is_file():
             log.info(f"Dataset file {expected_path} missing – fetching.")
             fetch_dataset(
-                name=name,
+                name=logical_name,
                 config_name=cfg,
                 split=split,
                 dest_path=expected_path,

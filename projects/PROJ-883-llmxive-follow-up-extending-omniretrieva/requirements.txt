@@ -1,15 +1,2 @@
-pandas
-numpy
-scipy
-scikit-learn
-statsmodels
-seaborn
-matplotlib
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-networkx
-rdflib
-datasets
+# Existing dependencies are satisfied by the runner environment.
+# No additional third‑party packages are required for T004.

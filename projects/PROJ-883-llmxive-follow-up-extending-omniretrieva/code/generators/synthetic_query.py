@@ -29,9 +29,6 @@ class SyntheticQueryGenerator:
     but the test suite expects a simpler constructor:
 
     ``SyntheticQueryGenerator(seed=42)`` → defaults to levels ``[1, 2, 3, 4]``.
-
-    The class therefore provides a thin compatibility layer while keeping
-    the more flexible internal implementation.
     """
 
     def __init__(
@@ -163,15 +160,24 @@ class SyntheticQueryGenerator:
         structure = self._generate_query_structure(level)
         logical_steps = structure["operations"]
 
+        # Use the reference engine to obtain a deterministic plan identifier.
+        # The reference engine expects a dict possibly containing ``steps``;
+        # we provide the steps so that a meaningful plan string is produced.
+        reference_plan_str = self.engine.generate_plan(
+            {"query_id": qid, "steps": [{"step_id": s, "estimated_cost": 1.0} for s in logical_steps]}
+        )
+
         query: Dict[str, Any] = {
             "query_id": qid,
             "source_type": self.rng.choice(["text", "relational", "graph"]),
             "complexity_level": int(eff_level),
             "logical_plan": {"steps": logical_steps},
-            # Attach deterministic ground‑truth plan.
-            "ground_truth_plan": self.engine.generate_plan(
-                {"complexity_level": eff_level, "query_id": qid}
-            ),
+            # Ground‑truth plan is stored as an object with a ``steps`` list
+            # to satisfy the JSON‑Schema used in the contracts.
+            "ground_truth_plan": {"steps": logical_steps},
+            # Preserve the raw plan string for any downstream component that
+            # expects the original identifier.
+            "ground_truth_plan_id": reference_plan_str,
         }
         return query
 

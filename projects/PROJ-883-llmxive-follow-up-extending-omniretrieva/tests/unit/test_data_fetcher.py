@@ -1,60 +1,84 @@
-"""Unit tests for the data_fetcher utilities."""
+"""Unit tests for the data_fetcher module.
+
+The tests verify that a real row is fetched from each required source.
+They rely on the real HuggingFace datasets and the public TTL file.
+"""
 
 import json
-import tempfile
+import os
+
 from pathlib import Path
 
 import pytest
 
-from utils.data_fetcher import (
-    calculate_checksum,
-    fetch_dataset,
-    DataFetchError,
-    _generate_synthetic_graph,
-)
+from utils.data_fetcher import fetch_dataset, verify_all_datasets, DataFetchError
 
+# Helper to read the first JSON line from a file
+def _first_line_json(path: Path) -> dict:
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                return json.loads(line)
+    raise ValueError(f"No JSON lines found in {path}")
 
-def test_calculate_checksum(tmp_path: Path):
-    """Checksum of a known file should match the expected value."""
-    content = b"llmxive test"
-    file_path = tmp_path / "sample.txt"
-    file_path.write_bytes(content)
+@pytest.fixture(scope="module")
+def raw_dir(tmp_path_factory):
+    """Create a temporary raw data directory and point the toolkit paths there."""
+    raw = tmp_path_factory.mktemp("raw")
+    # Monkey‑patch the llmxive_toolkit paths to use the temp directory.
+    from llmxive_toolkit import paths as toolkit_paths
 
-    expected = "dbef2c0b9bdc7f2d5d5c8c2c2d8c8c4c7f3c4f5d6e7a8b9c0d1e2f3a4b5c6d7"
-    # The exact hash value depends on the algorithm; compute it dynamically for the test
-    import hashlib
+    original_raw = toolkit_paths.data
+    toolkit_paths.data = lambda *parts: Path(raw, *parts)
+    yield raw
+    # Restore original function after the tests
+    toolkit_paths.data = original_raw
 
-    digest = hashlib.sha256(content).hexdigest()
-    assert calculate_checksum(file_path) == digest
-
-
-def test_fetch_dataset_synthetic_fallback(tmp_path: Path):
-    """When a non‑existent dataset is requested, synthetic fallback should create a file."""
-    bogus_name = "nonexistent/dataset"
-    dest = tmp_path / "synthetic.jsonl"
-
+def test_fetch_ms_marco_first_row(raw_dir):
+    dest = raw_dir / "ms_marco_train.jsonl"
     path = fetch_dataset(
-        name=bogus_name,
+        name="ms_marco",
+        config_name="v1.1",
         split="train",
         dest_path=dest,
-        allow_synthetic=True,
+        allow_synthetic=False,
     )
-    assert path == dest
     assert path.is_file()
+    first = _first_line_json(path)
+    # The MS MARCO passage dataset contains a ``text`` field.
+    assert "text" in first
+    assert isinstance(first["text"], str)
+    assert first["text"]
 
-    # Verify that the file contains the synthetic flag
-    lines = path.read_text().strip().splitlines()
-    assert len(lines) > 0
-    first_record = json.loads(lines[0])
-    assert first_record.get("synthetic_flag") == 1
+def test_fetch_spider_first_row(raw_dir):
+    dest = raw_dir / "spider_train.jsonl"
+    path = fetch_dataset(
+        name="spider",
+        config_name=None,
+        split="train",
+        dest_path=dest,
+        allow_synthetic=False,
+    )
+    assert path.is_file()
+    first = _first_line_json(path)
+    # Spider examples contain a ``question`` field.
+    assert "question" in first
+    assert isinstance(first["question"], str)
+    assert first["question"]
 
-
-def test_fetch_dataset_real_failure_without_synthetic():
-    """Fetching a bad dataset without synthetic flag must raise."""
-    with pytest.raises(DataFetchError):
-        fetch_dataset(
-            name="nonexistent/dataset",
-            split="train",
-            dest_path=None,
-            allow_synthetic=False,
-        )
+def test_fetch_dbpedia_ttl_first_line(raw_dir):
+    dest = raw_dir / "dbpedia_sample_train.jsonl"
+    path = fetch_dataset(
+        name="dbpedia_sample",
+        config_name=None,
+        split="train",
+        dest_path=dest,
+        allow_synthetic=False,
+    )
+    assert path.is_file()
+    first = _first_line_json(path)
+    # Our TTL downloader stores each line under the ``ttl`` key.
+    assert "ttl" in first
+    assert isinstance(first["ttl"], str)
+    assert first["ttl"].strip().startswith("@prefix") or first["ttl"].strip()

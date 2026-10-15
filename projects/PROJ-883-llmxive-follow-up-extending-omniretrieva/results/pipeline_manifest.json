@@ -1,0 +1,19 @@
+{
+  "stage": "skeleton",
+  "seed": 42,
+  "num_queries": 1,
+  "execution_log": "/home/runner/work/llmXive/llmXive/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/data/processed/execution_logs.csv",
+  "execution_log_sha256": "e2deae01401ec8f28edfd6a31c060f173b47e6a53548166ad601d6b0f3392f9b",
+  "columns": [
+    "query_id",
+    "source_type",
+    "complexity_level",
+    "latency_ms",
+    "timestamp",
+    "translation_error",
+    "success_flag",
+    "timeout_flag",
+    "synthetic_flag",
+    "throttling_mode"
+  ]
+}

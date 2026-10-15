@@ -1,4 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: Execution Metric
 type: object
 properties:
   query_id:
@@ -13,19 +14,11 @@ properties:
     type: string
   throttle_config:
     type: string
-  source_type:
-    type: string
-  complexity_level:
-    type: integer
-  translation_error:
-    type: boolean
-  success_flag:
-    type: boolean
-  timeout_flag:
-    type: boolean
 required:
   - query_id
   - latency_ms
+  - mismatch_flag
+  - delta_latency
   - engine_version
   - throttle_config
 additionalProperties: true

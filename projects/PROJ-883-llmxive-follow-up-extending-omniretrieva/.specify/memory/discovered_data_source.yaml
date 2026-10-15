@@ -1,12 +1,11 @@
 status: none
-intent: download synthetic query latency benchmark ms marco dbpedia python package
-  dataset
+intent: download MS MARCO dataset and DBpedia RDF dump python package dataset
 required_fields:
 - query_id
 - query_text
-- plan_depth
+- depth
 - source_type
 - latency_ms
-cache_key: fbd5364ec0b3b382cdde2bee0108aae85bcd23479d02ab0a27fb7c05d7e168ab
-searched_at: '2026-10-15T15:11:47.416134+00:00'
+cache_key: 6a38d90ddfe5f30aeb3880cc24bf28fc5c54929dd9672d7afeae789f14f07b9d
+searched_at: '2026-10-15T21:12:04.251601+00:00'
 retry_count: 1

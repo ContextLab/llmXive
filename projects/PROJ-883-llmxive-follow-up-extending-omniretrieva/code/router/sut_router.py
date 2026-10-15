@@ -11,10 +11,15 @@ a list of steps whose length matches the query's ``complexity_level``.
 Each step repeats the base operation, representing a depth‑1 look‑ahead
 estimate of the work required.
 
-The script is invoked via the quick‑start guide and can be run directly:
+The script can be run directly:
 
-    python code/router/sut_router.py --input data/processed/generation_log.json \\
-                                    --output data/processed/generation_log.json
+    python -m code.router.sut_router
+
+or via the CLI with explicit paths:
+
+    python -m code.router.sut_router \\
+        --input data/processed/generation_log.json \\
+        --output data/processed/generation_log.json
 """
 
 import argparse
@@ -86,27 +91,29 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--input",
         type=str,
-        required=True,
+        default=str(paths.data("processed", "generation_log.json")),
         help="Path to the input generation_log.json file.",
     )
     parser.add_argument(
         "--output",
         type=str,
-        required=True,
+        default=str(paths.data("processed", "generation_log.json")),
         help="Path where the enriched JSON will be written.",
     )
     return parser.parse_args()
 
 def main() -> None:
     args = _parse_args()
-    # Use plain pathlib.Path to allow both project‑relative and external
-    # temporary paths (e.g., during unit tests).  ``paths.path`` enforces
-    # the path to be inside the project root, which caused test failures.
+    # Use pathlib.Path for flexibility; allow the same file for input and output.
     input_path = Path(args.input)
     output_path = Path(args.output)
 
     log.info("Reading generation log from %s", input_path)
-    with open(input_path, "r", encoding="utf-8") as f:
+    if not input_path.is_file():
+        log.error("Input file does not exist: %s", input_path)
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    with input_path.open("r", encoding="utf-8") as f:
         try:
             queries: List[Dict[str, Any]] = json.load(f)
         except json.JSONDecodeError as exc:
@@ -127,7 +134,7 @@ def main() -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     log.info("Writing enriched generation log to %s", output_path)
-    with open(output_path, "w", encoding="utf-8") as f:
+    with output_path.open("w", encoding="utf-8") as f:
         json.dump(queries, f, indent=2)
 
     log.info("Router finished successfully.")

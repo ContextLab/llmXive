@@ -1,132 +1,66 @@
-"""Reference engine for deterministic ground‑truth plan generation.
+"""Deterministic greedy reference engine.
 
-This module provides a lightweight, deterministic implementation of the
-reference engine required by the synthetic query generator and unit tests.
-The engine produces a plan consisting of a list of step identifiers whose
-ordering follows a greedy heuristic: at each step it selects the operation
-with the lowest estimated cost (according to a static cost table) and,
-for ties, the one that appears earliest in the original logical plan.
-The algorithm is independent of the router’s cost model and therefore
-satisfies FR‑008.
+The engine implements the contract required by the unit tests in
+``tests/unit/test_reference_engine.py``.  It receives a query dict that
+may contain a ``steps`` list.  Each step is a mapping with at least
+``step_id`` and ``estimated_cost`` keys.
 
-The implementation is deliberately simple yet fully deterministic:
-- A static ``_COST_TABLE`` maps known operation names to integer costs.
-  Unknown operations receive a default cost of 1.
-- ``generate_plan`` extracts the ``logical_plan.steps`` list from the
-  input query (if present) and sorts those steps according to the greedy
-  rule described above.
-- If a query does not contain a logical plan (e.g., legacy calls from
-  older code), the engine falls back to generating a generic plan of the
-  form ``["step_1", "step_2", …]`` whose length equals the query’s
-  ``complexity_level``.
-- The returned dictionary matches the schema expected by downstream
-  components: it contains ``steps``, ``estimated_depth`` and
-  ``estimated_cost``.
+The greedy algorithm sorts steps by ``estimated_cost`` (ascending).  If
+several steps share the same cost, the original order (interpreted as
+depth) is preserved.  The resulting plan is returned as a string of the
+form ``gt_plan_<query_id>_<step1>_<step2>_...``.  When no steps are
+provided, the fallback identifier ``gt_plan_<query_id>`` is returned.
 """
 
 from __future__ import annotations
 
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 from llmxive_toolkit import get_logger
 
 log = get_logger(__name__)
 
+
 class ReferenceEngine:
-    """Deterministic greedy‑heuristic reference engine.
+    """Greedy deterministic reference engine."""
 
-    The real project uses a sophisticated cost table derived from
-    source‑statistics; for the purposes of the research skeleton we use a
-    static table that is sufficient for unit‑test verification while
-    remaining fully deterministic.
-    """
-
-    # Static cost mapping for known operation types.
-    # Costs are deliberately simple integers; lower means cheaper.
-    _COST_TABLE: Dict[str, int] = {
-        "filter": 1,
-        "lookup": 1,
-        "join": 2,
-        "aggregate": 2,
-        "recursive_lookup": 3,
-        "traverse": 3,
-    }
-
-    def __init__(self) -> None:
-        # No external state; the engine is stateless.
-        log.debug("ReferenceEngine instantiated.")
-
-    def _cost_of(self, step: str) -> int:
-        """Return the cost for *step* using the static cost table."""
-        return self._COST_TABLE.get(step, 1)
-
-    def _greedy_sort(self, steps: List[str]) -> List[str]:
-        """Return steps ordered by greedy cost selection.
-
-        The greedy rule is:
-          1. Choose the step with the lowest cost.
-          2. If multiple steps share the same cost, preserve their original
-             relative order (i.e., stable sort).
-
-        This yields a deterministic ordering for any input list.
-        """
-        # Pair each step with its original index to guarantee stability.
-        indexed = [(idx, step) for idx, step in enumerate(steps)]
-        # Sort by (cost, original_index).
-        indexed.sort(key=lambda pair: (self._cost_of(pair[1]), pair[0]))
-        sorted_steps = [step for _, step in indexed]
-        log.debug("Greedy‑sorted steps: %s -> %s", steps, sorted_steps)
-        return sorted_steps
-
-    def generate_plan(self, query: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a deterministic ground‑truth plan for *query*.
-
-        The returned dictionary contains:
-
-        - ``steps``: a list of operation identifiers ordered by the greedy
-          heuristic.
-        - ``estimated_depth``: the number of steps (integer).
-        - ``estimated_cost``: the sum of the individual step costs
-          (float for consistency with downstream code).
+    def generate_plan(self, query: Dict[str, Any]) -> str:
+        """Generate a ground‑truth plan string for *query*.
 
         Parameters
         ----------
         query: dict
-            Expected keys:
-            * ``complexity_level`` (int) – used when no logical plan is
-              provided.
-            * ``logical_plan`` (dict, optional) – should contain a
-              ``steps`` list describing the original operation sequence.
+            Must contain a ``query_id`` key.  Optionally a ``steps``
+            list where each element has ``step_id`` and
+            ``estimated_cost`` fields.
 
         Returns
         -------
-        dict
-            The ground‑truth plan.
+        str
+            Plan identifier string as described in the module docstring.
         """
-        # Extract logical steps if present.
-        logical_steps: List[str] = (
-            query.get("logical_plan", {}).get("steps", [])
+        query_id = query.get("query_id")
+        if query_id is None:
+            raise ValueError("Query must contain a 'query_id' field")
+
+        steps: List[Dict[str, Any]] = query.get("steps", [])
+        if not steps:
+            plan = f"gt_plan_{query_id}"
+            log.debug("No steps for query %s – returning %s", query_id, plan)
+            return plan
+
+        # Preserve original order for tie‑breaking by enumerating depth.
+        # Sort by (estimated_cost, original_index)
+        sorted_steps = sorted(
+            enumerate(steps),
+            key=lambda pair: (pair[1].get("estimated_cost", float("inf")), pair[0]),
         )
-        if logical_steps:
-            # Apply greedy ordering to the provided steps.
-            ordered_steps = self._greedy_sort(logical_steps)
-        else:
-            # Fallback: generate generic step identifiers based on depth.
-            level = int(query.get("complexity_level", 1))
-            ordered_steps = [f"step_{i+1}" for i in range(level)]
-
-        depth = len(ordered_steps)
-        total_cost = float(sum(self._cost_of(s) for s in ordered_steps))
-
-        plan = {
-            "steps": ordered_steps,
-            "estimated_depth": depth,
-            "estimated_cost": total_cost,
-        }
-
+        ordered_step_ids = [step["step_id"] for _, step in sorted_steps]
+        plan = f"gt_plan_{query_id}_" + "_".join(ordered_step_ids)
         log.debug(
-            "Generated ground‑truth plan for query %s: %s",
-            query.get("query_id", "<no id>"),
+            "Generated plan for query %s: %s (ordered steps: %s)",
+            query_id,
             plan,
+            ordered_step_ids,
         )
         return plan

@@ -24,10 +24,13 @@ DEFAULT_SEED = 42
 # ----------------------------------------------------------------------
 # Dataset URLs (HuggingFace identifiers or repository names)
 # ----------------------------------------------------------------------
+# The identifiers must match the real datasets used in the benchmark.
 DATASET_URLS = {
-    "ms_marco": "sentence-transformers/msmarco-corpus",
-    "spider": "spider",
-    "dbpedia_sample": "dbpedia/dbpedia-entities",
+    "ms_marco": "microsoft/ms_marco",
+    "spider": "xlangai/spider",
+    # For the graph source we use a small, publicly‑available TTL file.
+    # The URL points to a tiny RDF example that can be parsed by rdflib.
+    "dbpedia_sample": "https://raw.githubusercontent.com/linkeddata/linkeddatahub/master/examples/example.ttl",
 }
 
 # ----------------------------------------------------------------------
@@ -37,29 +40,29 @@ DATASET_CONFIGS = {
     "ms_marco": {
         "required_fields": ["text"],
         "max_samples": 1000,
+        "config_name": "v1.1",
     },
     "spider": {
         # The test suite expects the field name ``question``.
         "required_fields": ["question"],
         "max_samples": 500,
+        "config_name": None,
     },
     "dbpedia_sample": {
         "required_fields": ["entity"],
-        "fallback": "wikidata_sample",
+        # No HuggingFace config – we download the TTL directly.
         "max_samples": 300,
-    },
-    # fallback dataset definition (used only for reference)
-    "wikidata_sample": {
-        "required_fields": ["entity"],
-        "max_samples": 300,
+        "fallback": None,
     },
 }
 
 # ----------------------------------------------------------------------
-# Synthetic fallback configuration (used when real data cannot be fetched)
+# Synthetic fallback configuration (used only when the user explicitly
+# requests it via ``--allow-synthetic``).  The default is **disabled**
+# to satisfy the “no silent fallback” rule.
 # ----------------------------------------------------------------------
 SYNTHETIC_FALLBACK_CONFIG = {
-    "enabled": True,
+    "enabled": False,
     "seed": 12345,
     "graph_nodes": 10,
     "graph_edges": 20,
@@ -102,7 +105,7 @@ def get_dataset_config(name: str) -> dict:
 def check_fallback_needed(name: str) -> bool:
     """Return True if the dataset configuration specifies a fallback."""
     config = DATASET_CONFIGS.get(name, {})
-    return "fallback" in config
+    return "fallback" in config and config["fallback"] is not None
 
 def get_fallback_dataset(name: str) -> str | None:
     """Return the fallback dataset name if one is defined, else None."""
