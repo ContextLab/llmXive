@@ -68,36 +68,37 @@ def generate_generic_text(length: int = 200) -> str:
     """Generate a non‑critical turn – simple low‑entropy filler."""
     return "generic turn text " * (length // 20)
 
-def generate_high_entropy_text(length: int = 200) -> str:
-    """Generate a high‑entropy string using the full ASCII range."""
-    chars = string.printable  # includes letters, digits, punctuation, whitespace
-    return "".join(random.choices(chars, k=length))
-
-def generate_low_entropy_text(length: int = 200) -> str:
-    """Generate a low‑entropy string (repeated single character)."""
-    return "a" * length
+def _alphabet_for_target(target_entropy: float) -> List[str]:
+    """
+    Choose an alphabet size that yields an entropy close to the target.
+    Entropy per token ≈ log2(|alphabet|) when characters are chosen uniformly.
+    """
+    if target_entropy <= 2.5:
+        # ~2 bits → alphabet size 4
+        return list('abcd')
+    elif target_entropy <= 4.0:
+        # ~3.5 bits → alphabet size ~12
+        return list('abcdefghijkl')
+    else:
+        # ~4.5 bits → alphabet size ~23–26 (use full lowercase alphabet)
+        return list(string.ascii_lowercase)
 
 def generate_text_for_target_entropy(target_entropy: float, terms: List[str]) -> str:
     """
     Produce a text block whose *entropy per token* is close to ``target_entropy``.
-    The approach is heuristic:
-    - For low target entropy we return a repeated character string.
-    - For medium we return random letters/digits.
-    - For high we return random printable characters.
-    The function retries a few times to meet the tolerance.
+    The method selects an alphabet whose theoretical entropy approximates the
+    target and samples uniformly until the measured entropy falls within tolerance.
     """
     tolerance = 0.01
-    for _ in range(10):
-        if target_entropy <= 2.5:
-            txt = generate_low_entropy_text()
-        elif target_entropy <= 4.0:
-            txt = "".join(random.choices(string.ascii_letters + string.digits, k=200))
-        else:
-            txt = generate_high_entropy_text()
+    alphabet = _alphabet_for_target(target_entropy)
+    length = 200  # fixed length used elsewhere
+
+    for _ in range(20):
+        txt = ''.join(random.choices(alphabet, k=length))
         ent = entropy_per_token(txt)
         if abs(ent - target_entropy) <= tolerance:
             return txt
-    # If we did not hit tolerance, just return the best effort
+    # Fallback: return the last generated string even if tolerance not met
     return txt
 
 def build_turn(turn_index: int, is_critical: bool, target_entropy: float,
@@ -121,8 +122,9 @@ def build_turn(turn_index: int, is_critical: bool, target_entropy: float,
     }
 
 def compute_final_density(entropy: float, tech_ratio: float) -> float:
-    """Composite density as defined by FR‑008."""
-    return 0.6 * entropy + 0.4 * tech_ratio
+    """Composite density as defined by FR‑008, clamped to [0, 1]."""
+    raw = 0.6 * entropy + 0.4 * tech_ratio
+    return max(0.0, min(1.0, raw))
 
 # ----------------------------------------------------------------------
 # Main generation routine
@@ -202,7 +204,7 @@ def main() -> None:
                 )
                 turns.append(turn)
 
-            # Compute final density using the *last* (critical) turn's metrics
+            # Compute final density using the *critical* turn's metrics
             crit_turn = turns[evidence_turn]
             final_density = compute_final_density(
                 crit_turn["entropy_per_token"],

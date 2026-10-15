@@ -19,11 +19,12 @@ logger = logging.getLogger(__name__)
 
 # Default paths (can be overridden via CLI)
 DEFAULT_TRAJECTORY_FILE = "data/raw/trajectories.json"
-DEFAULT_OUTPUT_FILE = "data/logs/simulation_results.csv"
+# Updated to match analysis expectations
+DEFAULT_OUTPUT_FILE = "data/processed/simulation_logs.csv"
 CONFIG_FILE = "code/config/simulation_config.json"
 
 # Memory and batching limits
-MEMORY_LIMIT_GB = 7.0
+MEMORY_LIMIT_GB = 2.0  # Updated to respect the ≤2 GB requirement
 CHUNK_SIZE = 100  # Number of trajectories processed per batch
 
 def sigmoid(x: float) -> float:
@@ -80,13 +81,14 @@ def heuristic_solver_success(density: float, alpha: float, threshold: float,
 def check_evidence_visibility(evidence_turn_index: int, requested_horizon: int,
                               total_turns: int, is_last_turn: bool) -> bool:
     """
-    Evidence is visible if its turn index is strictly less than the horizon.
-    The ``is_last_turn`` flag does not affect visibility under the current
-    definition because the horizon always counts from the most recent turn.
+    Evidence is visible if its turn index lies within the last ``requested_horizon`` turns.
+    The ``is_last_turn`` flag does not alter visibility because the horizon is
+    defined as a count of most‑recent turns.
     """
     if requested_horizon <= 0:
         return False
-    return evidence_turn_index < requested_horizon
+    # Evidence is visible when it occurs at or after the start of the retained window.
+    return evidence_turn_index >= (total_turns - requested_horizon)
 
 def get_memory_usage_gb() -> float:
     """
@@ -97,7 +99,6 @@ def get_memory_usage_gb() -> float:
         import resource
         usage_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         # ``ru_maxrss`` is in kilobytes on Linux, bytes on macOS.
-        # Convert to GB conservatively.
         return usage_kb / (1024 * 1024)
     except Exception:
         return 0.0
@@ -144,26 +145,28 @@ def run_simulation_batch(
         traj_id = traj.get('trajectory_id')
         evidence_turn = traj.get('critical_evidence_turn')
         density_value = traj.get('final_density')
-        # ``is_last_turn`` flag is optional; default to False if missing.
         is_last_turn = traj.get('is_last_turn', False)
 
-        # Guard against missing metadata.
         if traj_id is None or evidence_turn is None or density_value is None:
             logger.warning(f"Trajectory {start_idx + i} missing required metadata, skipping.")
             continue
 
-        total_turns = 10  # Fixed by the generator.
+        # The generator uses a fixed number of turns (10) but we obtain it dynamically.
+        total_turns = len(traj.get('turns', []))
+        if total_turns == 0:
+            logger.warning(f"Trajectory {traj_id} has no turns, skipping.")
+            continue
 
-        # Determine whether the entropy had to be clamped during generation.
+        # Determine whether entropy was clamped during generation.
         actual_entropy = traj.get('actual_entropy', 0.0)
         clamped_entropy = actual_entropy < 1e-6
 
         for horizon in range(1, total_turns + 1):
-            visible = check_evidence_visibility(evidence_turn, horizon,
-                                                total_turns, is_last_turn)
+            visible = check_evidence_visibility(
+                evidence_turn, horizon, total_turns, is_last_turn
+            )
 
             # Compute evidence age relative to the current horizon.
-            # Age is the number of turns the evidence has been retained.
             evidence_age = max(0, horizon - evidence_turn - 1)
 
             if not visible:
@@ -176,8 +179,8 @@ def run_simulation_batch(
 
             batch_results.append({
                 'trajectory_id': traj_id,
-                'density': float(density_value),
-                'horizon': int(horizon),
+                'density_value': float(density_value),
+                'requested_horizon': int(horizon),
                 'evidence_age': int(evidence_age),
                 'success': int(success),
                 'retrieval_prob': float(retrieval_prob),
@@ -194,8 +197,8 @@ def write_batch_to_file(batch_results: List[Dict[str, Any]],
     """
     fieldnames = [
         'trajectory_id',
-        'density',
-        'horizon',
+        'density_value',
+        'requested_horizon',
         'evidence_age',
         'success',
         'retrieval_prob',
@@ -259,7 +262,6 @@ def main() -> None:
     start_time = time.time()
     total_records = 0
 
-    # Process in chunks to stay within the RAM budget
     first_batch = True
     for start_idx in range(0, total_trajectories, CHUNK_SIZE):
         batch = trajectories[start_idx:start_idx + CHUNK_SIZE]

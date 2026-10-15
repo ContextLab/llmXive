@@ -33,8 +33,11 @@ from simulate_agent import load_trajectories_streaming
 # Constants
 # ----------------------------------------------------------------------
 MEMORY_LIMIT_MIB = 7168  # 7 GiB in MiB
-DEFAULT_CSV_PATH = paths.data("logs", "simulation_results.csv")
+
+# Updated to match the default output path of `simulate_agent.py`
+DEFAULT_CSV_PATH = paths.data("processed", "simulation_logs.csv")
 DEFAULT_JSON_PATH = paths.data("processed", "simulation_results.json")
+
 # The schema lives under the specs directory; construct an absolute path.
 SCHEMA_PATH = (
     paths.root
@@ -82,6 +85,14 @@ def validate_csv_schema(csv_path: Path, schema_path: Path) -> None:
         logger.error("Simulation CSV is empty.")
         sys.exit(1)
 
+    # Rename columns to match the contract schema if the simulation uses
+    # alternative internal names.
+    rename_map = {
+        "density_value": "density",
+        "requested_horizon": "horizon",
+    }
+    df = df.rename(columns=rename_map)
+
     # Load the JSON schema
     with open(schema_path, "r", encoding="utf-8") as f:
         schema = yaml.safe_load(f)
@@ -116,8 +127,13 @@ def generate_json_for_contract(csv_path: Path, json_path: Path) -> None:
       - success (bool)            -> CSV ``success`` converted to bool
       - total_turns (int)         -> fixed at 10 by the generator
     """
-    # Load CSV
+    # Load CSV (renaming columns as in the validation step)
     df = pd.read_csv(csv_path)
+    rename_map = {
+        "density_value": "density",
+        "requested_horizon": "horizon",
+    }
+    df = df.rename(columns=rename_map)
 
     # Load trajectories to map trajectory_id -> critical_evidence_turn
     trajectories_path = (

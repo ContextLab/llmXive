@@ -20,7 +20,7 @@
 - [X] T005 Add unit tests for entropy (`tests/unit/test_entropy.py`).  
 - [X] T006 Add unit tests for heuristics (`tests/unit/test_heuristics.py`).  
 - [X] T007 Create `code/config/simulation_config.json` (α, threshold, seed, density‑levels, …).  
-- [X] T008 Create `code/config/analysis_config.json` (min samples per bin, spline df candidates, density bins, horizon bins).  
+- [ ] T008 Create `code/config/analysis_config.json` (min samples per bin, spline df candidates, density bins, horizon bins).  
 - [X] T009 Add `code/validate_config.py` (schema & range checks for both config files).  
 - [X] T010 Add `code/validate_grounding_config.py` (ensure simulation parameters respect Constitution VI).  
 
@@ -30,7 +30,7 @@ All scaffolding tasks are verified and checked.
 
 ## Phase 1 – Synthetic trajectory generation
 
-- [ ] T011 **Generate synthetic trajectories**  
+- [X] T011 **Generate synthetic trajectories**  
   *Script*: `code/generate_trajectories.py`  
   *Produces*: `data/raw/trajectories.json` (exactly 500 trajectories, balanced low/medium/high density).  
   *Key behaviour*:  
@@ -57,7 +57,7 @@ All scaffolding tasks are verified and checked.
   – Expect exit code 0 and a summary line “All 500 trajectories passed validation”.  
   – Unit test `tests/unit/test_trajectory_schema.py` must also pass.
 
-- [ ] T013 **Unit test for density isolation**  
+- [~] T013 **Unit test for density isolation**  
   *Test file*: `tests/unit/test_density_isolation.py`  
   *Ensures*: `utils/heuristics.py` implements the exact composite formula from FR‑008 (`0.6 * entropy + 0.4 * technical_token_ratio`) and does **not** depend on any agent‑output data.  
 
@@ -65,7 +65,7 @@ All scaffolding tasks are verified and checked.
 
 ## Phase 2 – Agent simulation with variable retention horizons
 
-- [ ] T014 **Simulate agent across horizons**  
+- [~] T014 **Simulate agent across horizons**  
   *Script*: `code/simulate_agent.py`  
   *Inputs*: `data/raw/trajectories.json`, `code/config/simulation_config.json`.  
   *Outputs*: `data/logs/simulation_results.csv` (conforms to `contracts/simulation_log.schema.yaml`).  
@@ -87,7 +87,7 @@ All scaffolding tasks are verified and checked.
 
 ## Phase 3 – Statistical analysis & regime‑map generation
 
-- [ ] T016 **Fit logistic regression & produce summary**  
+- [ ] T016 **Fit logistic regression & produce summary**   <!-- FAILED-IN-EXECUTION: code/analyze_results.py exit=1 -->
   *Script*: `code/analyze_results.py`  
   *Inputs*: `data/logs/simulation_results.csv`, `code/config/analysis_config.json`.  
   *Outputs*:  

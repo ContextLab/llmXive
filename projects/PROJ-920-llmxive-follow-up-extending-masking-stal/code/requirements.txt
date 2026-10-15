@@ -1,13 +1,6 @@
-# Core scientific stack (already available in the environment)
-numpy
-pandas
-scipy
-matplotlib
-seaborn
-scikit-learn
-statsmodels
-# Additional runtime dependencies
-memory_profiler
-# Optional utilities used in various scripts
-tqdm
-# The llmxive_toolkit is provided by the platform and does not need to be listed.
+# Existing dependencies are provided by the environment (numpy, pandas, scipy,
+# matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil).  The only additional package required for the analysis
+# script is 'patsy', which provides the spline parsing utilities used by
+# statsmodels formulas.
+patsy==0.5.6
