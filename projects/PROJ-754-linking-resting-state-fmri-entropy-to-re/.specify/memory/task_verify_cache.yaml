@@ -1,3 +1,15 @@
+T001:
+  c: false
+  h: e226e215ed52b45ebbf442150169cefd5afc1698cbe82a3618b766ad6abbfb39
+  r: All nine directories exist with at least one Python file, and requirements.txt/pyproject.toml
+    are reused as required. However, the quickstart's documented end-to-end command
+    `python -m src.run_pipeline --subjects 5` references a module that does not exist
+    anywhere in the tree (no `run_pipeline.py` in `code/src/` or its subpackages),
+    so the command is not actually runnable. Additionally, there is no execution evidence
+    (pytest output, logs, or CI record) that `pytest code/tests/` passes, and the
+    quickstart's verification command is spelled `pytest -v tests/` rather than the
+    required `pytest code
+  sig: 3f5e322067fc3e390f2b6ec3da7a58ae5453266b4ec7df6bd07e9b101c6d9f16
 T003:
   c: true
   h: 72820a63befb332cf89d27ab7760433c08f2b47243aa1f8ab9a6fa61ce473b9c
@@ -9,12 +21,14 @@ T003:
     files to `data/derived/` when run, and the tests pass, satisfying all task requirements.
   sig: 248c1ea0c3f806fddb0e48e32be54e1be9ba4878f0f2b41326bb731d801a2754
 T004:
-  c: true
-  h: dbe9ec1b6bd912cccd3f3163a07d9c58833bf6673218923d194a3367fcdd2df6
-  r: "Checked `code/src/analysis/entropy.py` for correct multiscale entropy implementation\
-    \ (uses pyentropy, proper signature, coarse\u2011graining, averaging, NaN handling,\
-    \ writes invalid parcel IDs) and `code/tests/unit/test_entropy.py` for deterministic\
-    \ unit tests that verify low\u2011complexity entropy < high\u2011complexity entropy\
-    \ and that no invalid\u2011parcel file is created for the synthetic data. All\
-    \ required artifacts are present and meet the task specifications."
-  sig: 0b3c86628ed18cca5b94505d8c1bfce48dee0dbc07d5a0748184b8bc399981af
+  c: false
+  h: c60dc391f9eb89aaf1c89587bf3f980efafd56611bd73cd37eb204899bf60d05
+  r: "The task explicitly requires the **pyentropy library (pyentropy==0.4.\\*)**\
+    \ and its `sample_entropy` function, but the implementer instead created a local\
+    \ project-level stub package `pyentropy/__init__.py` self-described as a \"Minimal\
+    \ stub of the pyentropy package\" \u2014 a stand-in for the required real dependency,\
+    \ not the library itself. Additionally, there is no execution evidence (pytest\
+    \ output) that the unit tests pass or that the low-vs-high complexity validation\
+    \ held, and `data/derived/invalid_parcels.csv` was never produced (no test exercises\
+    \ the insufficient-timepoints/NaN flagging path, so"
+  sig: 8e9300460d6a9fd7e065769e53e58cc52eb178c7945a421314fc1baa23006141

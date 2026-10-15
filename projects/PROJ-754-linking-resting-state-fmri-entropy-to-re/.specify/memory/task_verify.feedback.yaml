@@ -1,9 +1,12 @@
 T001:
-  reason: "The directory tree and required files (including `requirements.txt`, `pyproject.toml`,\
-    \ and `quickstart.md`) are present, but there is no evidence that `pytest code/tests/`\
-    \ actually runs and passes; no test\u2011run logs or pass/fail output are provided.\
-    \ Without proof that the test suite succeeds, the validation step of the task\
-    \ is unmet."
+  reason: All nine directories exist with at least one Python file, and requirements.txt/pyproject.toml
+    are reused as required. However, the quickstart's documented end-to-end command
+    `python -m src.run_pipeline --subjects 5` references a module that does not exist
+    anywhere in the tree (no `run_pipeline.py` in `code/src/` or its subpackages),
+    so the command is not actually runnable. Additionally, there is no execution evidence
+    (pytest output, logs, or CI record) that `pytest code/tests/` passes, and the
+    quickstart's verification command is spelled `pytest -v tests/` rather than the
+    required `pytest code
   task: 948be6d16247bbf819931a67279132505982da9fc6ffd5b1b90d282e30cc8d2c
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py
@@ -12,6 +15,14 @@ T002:
 T003:
   task: 7d9d47bc53805078924a5481ad533b21b39efd8ad1b75ae926aea3f0156e0e07
 T004:
+  reason: "The task explicitly requires the **pyentropy library (pyentropy==0.4.\\\
+    *)** and its `sample_entropy` function, but the implementer instead created a\
+    \ local project-level stub package `pyentropy/__init__.py` self-described as a\
+    \ \"Minimal stub of the pyentropy package\" \u2014 a stand-in for the required\
+    \ real dependency, not the library itself. Additionally, there is no execution\
+    \ evidence (pytest output) that the unit tests pass or that the low-vs-high complexity\
+    \ validation held, and `data/derived/invalid_parcels.csv` was never produced (no\
+    \ test exercises the insufficient-timepoints/NaN flagging path, so"
   task: ccab806b339a9eb341131bf139c8e1f8e565552bab3bd54fef75c85d814ee5f7
 T005:
   reason: 'Requested task execution failed; rerun successfully: code/src/run_pipeline.py

@@ -10,32 +10,27 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ (rc=-1); python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2 (rc=2); python -m pytest -v tests/ (rc=1); 4 declared deliverable(s) absent: data/derived/clean_subjects.parquet; data/derived/invalid_parcels.csv; data/derived/subject_qc.csv
+**Summary**: 3 command(s) failed: python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ (rc=1); python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2 (rc=2); python -m pytest -v tests/ (rc=1); 4 declared deliverable(s) absent: data/derived/clean_subjects.parquet; data/derived/invalid_parcels.csv; data/derived/subject_qc.csv
 
 ## Failing / missing run-book commands
 
-- python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ -> rc=-1
-i]  ...done. (2 seconds, 0 min)
+- python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ -> rc=1
+ line 77, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/download_data.py", line 74, in main
+    _forward_args(args.subject_limit, args.output_dir)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/download_data.py", line 35, in _forward_args
+    download_hcp_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/data/download_hcp.py", line 128, in main
+    atlas = datasets.fetch_atlas_schaefer_2018(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/nilearn/datasets/atlas.py", line 2458, in fetch_atlas_schaefer_2018
+    check_parameter_in_allowed(
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/nilearn/_utils/param_validation.py", line 335, in check_parameter_in_allowed
+    raise ValueError(
+ValueError: 'resolution_mm' must be one of [1, 2].
+'4' was provided.
 
-[fetch_development_fmri] Downloading data from https://osf.io/download/5c8ff40da743a90018606eac/ ...
-[fetch_development_fmri]  ...done. (3 seconds, 0 min)
-
-[fetch_development_fmri] Downloading data from https://osf.io/download/5c8ff4092286e80017c41ba7/ ...
-[fetch_development_fmri]  ...done. (2 seconds, 0 min)
-
-[fetch_development_fmri] Downloading data from https://osf.io/download/5c8ff40b2286e80016c3c39a/ ...
-[fetch_development_fmri]  ...done. (2 seconds, 0 min)
-
-[fetch_development_fmri] Downloading data from https://osf.io/download/5c8ff4074712b400183b7104/ ...
-[fetch_development_fmri]  ...done. (2 seconds, 0 min)
-
-[fetch_development_fmri] Downloading data from https://osf.io/download/5c8ff40aa743a9001660a119/ ...
-
-2026-10-15 00:23:36,195 INFO src.data.download_hcp: Fetching development fMRI dataset (real data).
-/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/data/download_hcp.py:101: UserWarning: Wrong value for n_subjects=200. The maximum value (for age_group=both) will be used instead: n_subjects=155.
-  dev = datasets.fetch_development_fmri(n_subjects=args.subject_limit)
-
-[TIMEOUT after 120s]
 - python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2 -> rc=2
 
 usage: compute_entropy.py [-h] --input INPUT --output OUTPUT
@@ -55,7 +50,7 @@ FAILED tests/unit/test_data_download.py::TestHCPCredentialValidation::test_envir
 FAILED tests/unit/test_env_manager.py::TestCheckEnvironment::test_missing_token
 FAILED tests/unit/test_lint_format.py::TestLintFormatConfig::test_pyproject_config_exists
 FAILED tests/unit/test_lint_format.py::TestLintFormatConfig::test_ruff_check_runs
-========================= 7 failed, 26 passed in 0.51s =========================
+========================= 7 failed, 26 passed in 0.59s =========================
 
 
 

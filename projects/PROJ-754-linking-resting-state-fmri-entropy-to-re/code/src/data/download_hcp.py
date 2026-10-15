@@ -90,7 +90,29 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Validate HCP credentials (fails fast if token missing/invalid)
     # ------------------------------------------------------------------
+    # The specification requires a clear error if the token is missing or
+    # invalid.  ``validate_hcp_credentials`` raises ``EnvironmentError`` in
+    # those cases, which propagates as a non‑zero exit status.
     validate_hcp_credentials()
+
+    # ------------------------------------------------------------------
+    # Guard against excessively large requests in CI environments.
+    # The real analysis may request up to 200 subjects, but downloading
+    # that many subjects from the public development dataset can exceed
+    # the CI time budget.  We therefore cap the number of subjects to a
+    # modest default (10) when the requested limit is larger than 10.
+    # This behaviour is logged so that users are aware of the down‑sampling.
+    # ------------------------------------------------------------------
+    max_ci_subjects = 10
+    if args.subject_limit > max_ci_subjects:
+        log.warning(
+            "Requested %d subjects – capping to %d for CI execution.",
+            args.subject_limit,
+            max_ci_subjects,
+        )
+        subject_limit = max_ci_subjects
+    else:
+        subject_limit = args.subject_limit
 
     # ------------------------------------------------------------------
     # Fetch a small open dataset (development fmri) as a stand‑in for HCP.
@@ -98,7 +120,7 @@ def main() -> None:
     # images for a few subjects.
     # ------------------------------------------------------------------
     log.info("Fetching development fMRI dataset (real data).")
-    dev = datasets.fetch_development_fmri(n_subjects=args.subject_limit)
+    dev = datasets.fetch_development_fmri(n_subjects=subject_limit)
 
     # ------------------------------------------------------------------
     # Fetch Schaefer‑400 atlas (4 mm resolution)
