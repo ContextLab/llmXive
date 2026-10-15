@@ -1,8 +1,6 @@
 T001:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/ingest_provenance.json`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/generate_dummy_data.py
+    exit=1'
   task: 063d19d7b82df387ebe83a34f748333a124d9faa6a305865380f7f91df3d4306
 T002:
   reason: "The `preprocess.py` module cannot be imported because the required `skbio`\

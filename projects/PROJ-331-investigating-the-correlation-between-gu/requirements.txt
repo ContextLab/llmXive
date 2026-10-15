@@ -1,10 +1,6 @@
-# Project dependencies
-numpy
-pandas
-scipy
-scikit-learn
-statsmodels
-seaborn
-matplotlib
-pyarrow>=0.17
-# Add any additional dependencies here
+# Project dependencies – standard libraries are pre‑installed.
+# Additional packages required for the dummy data generator and
+# for the full analysis pipeline.
+pyarrow>=16.0.0
+# The rest of the stack (numpy, pandas, scipy, scikit‑bio, statsmodels,
+# etc.) is provided by the execution environment.
