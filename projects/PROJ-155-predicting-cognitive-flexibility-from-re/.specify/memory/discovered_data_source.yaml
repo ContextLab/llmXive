@@ -1,12 +1,12 @@
 status: none
-intent: nilearn fetch_hcp_rest dataset NIH Toolbox DCCS scores Schaefer atlas python
-  package dataset
+intent: Human Connectome Project minimal preprocessing rsfMRI download NIH Toolbox
+  DCCS Schaefer atlas python package dataset
 required_fields:
 - subject_id (string)
-- rsfc_value (float)
+- rsfc_feature (float)
 - age (integer)
 - gender (string)
-- nih_dccs_score (float)
-cache_key: 3645981ee28c543c0a0c5b2c0ac2a7da83b92803a692e2c629d69cc2593caa1f
-searched_at: '2026-10-14T22:12:58.790536+00:00'
+- dccs_score (float)
+cache_key: b72d6dc153a60fb4c73f0b01c7aad0df944585985b1d740311c17216d0e5f51c
+searched_at: '2026-10-15T20:12:06.235596+00:00'
 retry_count: 1

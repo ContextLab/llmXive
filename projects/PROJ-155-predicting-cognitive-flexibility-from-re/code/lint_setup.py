@@ -4,17 +4,35 @@ Usage:
     python code/lint_setup.py
 
 The script:
-  1. Applies ruff's safe automatic fixes to the whole project.
-  2. Runs a final `ruff check .` pass.
-  3. Writes the combined output to data/logs/ruff.log and appends the
+  1. Creates the required project directory skeleton.
+  2. Applies ruff's safe automatic fixes to the whole project.
+  3. Runs a final `ruff check .` pass.
+  4. Writes the combined output to data/logs/ruff.log and appends the
      line "✔ No errors" only when ruff exits with status 0.
-  4. Exits non-zero (loudly) if any lint error remains.
+  5. Exits non-zero (loudly) if any lint error remains.
 """
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 from llmxive_toolkit import paths
+
+
+def create_skeleton() -> None:
+    """Ensure all directories required by T001 exist."""
+    dirs = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "data/logs",
+        "figures",
+        "docs",
+        "tests",
+    ]
+    for d in dirs:
+        Path(d).mkdir(parents=True, exist_ok=True)
 
 
 def _ruff_command():
@@ -36,6 +54,9 @@ def _ruff_command():
 
 
 def main() -> int:
+    # 1. Create skeleton
+    create_skeleton()
+
     root = paths.root
     cmd = _ruff_command()
 
@@ -59,6 +80,7 @@ def main() -> int:
     lines = [proc.stdout.strip(), proc.stderr.strip()]
     if proc.returncode == 0:
         lines.append("✔ No errors")
+
     log_path.write_text(
         "\n".join(line for line in lines if line) + "\n", encoding="utf-8"
     )
