@@ -9,3 +9,36 @@
   verification_status: pending
   verified_against_url: https://www.worldclim.org/data/worldclim21.html
   verified_at: '2026-10-03T09:36:32.342089Z'
+- artifact_hash: 6e400e4077c5a091ec3bede66da5ed24acf6179e9eb7345382c549b97e6964e2
+  artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00005.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Onuii/analysis_dataset/resolve/main/data/train-00000-of-00005.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/680eed0c3406eaa6784e1576/37a3e9ae0f483f4dcc4a056fd3d0df94b86af7b6e835c0ee94b140740f8020a5?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00005.parquet%3B+filename%3D%22train-00000-of-00005.parquet%22%3B&xip=X3m3O8PO7Uk&Expires=1792085434&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgwZWVkMGMzNDA2ZWFhNjc4NGUxNTc2LzM3YTNlOWFlMGY0ODNmNGRjYzRhMDU2ZmQzZDBkZjk0Yjg2YWY3YjZlODM1YzBlZTk0YjE0MDc0MGY4MDIwYTVcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDUucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDA1LnBhcnF1ZXQlMjIlM0ImeGlwPVgzbTNPOFBPN1VrIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTIwODU0MzR9fX1dfQ__&Signature=MEUCIQDBgIaSeDfRaTuySicRXeqWh7sZLMxOlc%7EeBmlJqJeaaAIgYJod7eDXhl5P6TTR8mjy6uiy255N60-DLdokNXE0h74_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-15T16:30:34.623352Z'
+- artifact_hash: 6e400e4077c5a091ec3bede66da5ed24acf6179e9eb7345382c549b97e6964e2
+  artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-15T16:30:34.623352Z'
+- artifact_hash: 9c115d9e733da491980f2d88b35eebc1b91d96500ff27d3aa2e4146cc7e1165b
+  artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00005.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Onuii/analysis_dataset/resolve/main/data/train-00000-of-00005.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/680eed0c3406eaa6784e1576/37a3e9ae0f483f4dcc4a056fd3d0df94b86af7b6e835c0ee94b140740f8020a5?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00005.parquet%3B+filename%3D%22train-00000-of-00005.parquet%22%3B&X-Xet-Cas-Uid=public&xip=X3m3O8PO7Uk&Expires=1792085446&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgwZWVkMGMzNDA2ZWFhNjc4NGUxNTc2LzM3YTNlOWFlMGY0ODNmNGRjYzRhMDU2ZmQzZDBkZjk0Yjg2YWY3YjZlODM1YzBlZTk0YjE0MDc0MGY4MDIwYTVcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDUucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDA1LnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmeGlwPVgzbTNPOFBPN1VrIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTIwODU0NDZ9fX1dfQ__&Signature=MEUCIHo-S7GHHMXksm0FMtqMeJBXcb8I15KFTN2WEa%7EG%7EPGwAiEApdO6CYoHvPDru9D29Dpyc60u73PDhSz3s7d1T4lTeBU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-15T16:30:46.855067Z'

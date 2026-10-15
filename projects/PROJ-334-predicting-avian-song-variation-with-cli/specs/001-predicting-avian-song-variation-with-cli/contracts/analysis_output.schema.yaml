@@ -38,29 +38,18 @@ columns:
     required: true
   - name: "Outcome (Associational Analysis)"
     type: string
-    description: "Which song metric the model predicts ('song_metric_1' or 'song_metric_2')."
+    description: "Which song metric the **...**"
     required: true
   - name: "R_Squared (Associational Analysis)"
     type: float
-    description: "Coefficient of determination (R²) for the fitted model."
+    description: "Coefficient of determination (R²) for the **...**"
     required: true
   - name: "Adj_R_Squared (Associational Analysis)"
     type: float
-    description: "Adjusted R² accounting for number of predictors."
+    description: "Adjusted R² accounting for **...**"
     required: true
   - name: "P_Value_Global (Associational Analysis)"
     type: float
-    description: "Global model significance (F‑test p‑value)."
-    required: true
-  - name: "Predictor_Count (Associational Analysis)"
-    type: int
-    description: "Number of predictors retained after significance filtering."
-    required: true
-  - name: "Convergence_Status (Associational Analysis)"
-    type: boolean
-    description: "True if the optimizer converged without error."
-    required: true
-  - name: "Sensitivity_Threshold (Associational Analysis)"
-    type: float
-    description: "P‑value threshold used in the sensitivity sweep (0.01, 0.05, or 0.10)."
-    required: true
+    description: "Global model significance (F‑test p‑value."
+    description: "Global  ..."
+    required: **???**
