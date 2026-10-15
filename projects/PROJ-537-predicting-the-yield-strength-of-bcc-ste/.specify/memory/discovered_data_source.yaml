@@ -1,13 +1,15 @@
 status: none
-intent: MatNavi experimental yield strength BCC Fe alloy dataset Materials Project
-  elastic constants python package dataset
+intent: MatNavi NIST Materials Data Repository BCC Fe alloy yield strength dataset
+  python package dataset
 required_fields:
-- formula
-- spacegroup
+- composition
+- chemical_formula
+- spacegroup_number
 - crystal_structure
-- yield_strength
+- experimental_yield_strength
 - shear_modulus
-- mp_id
-cache_key: 430ef6dc41d6ce2ec868632445b1a73ec701524ec7b428f497aa6543e4fdf2b1
-searched_at: '2026-10-14T14:18:24.223777+00:00'
+- bulk_modulus
+- elastic_tensor
+cache_key: 704d0b30986400bebafcf1c34ba76cab2a970d32c4ea322ec7c0f5baed345e92
+searched_at: '2026-10-15T12:20:03.638355+00:00'
 retry_count: 1

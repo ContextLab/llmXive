@@ -1,5 +1,10 @@
 T048:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  reason: "The pipeline runs, but `code/main.py` (and `fetch_experimental.py`) deliberately\
+    \ fall back to bundled CSV files when the Materials Project API key is missing\
+    \ or when the experimental URL is a `file://` path, and the provenance log `data/provenance/dft_queries.jsonl`\
+    \ shows zero API queries. This violates the task\u2019s \u201CFAIL LOUDLY on fetch\
+    \ errors \u2014 no synthetic/mock fallback is permitted\u201D requirement, so\
+    \ the ingestion is not performed on real remote data as mandated."
   task: d10a86146f7f25459a30daffdc9ff7a2352eabd1b4db97e8afc71434113d6a91
 T049:
   reason: "The repository contains `features.py` and `train.py`, but neither script\
