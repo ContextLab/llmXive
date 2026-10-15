@@ -1,0 +1,40 @@
+T001:
+  reason: "The evidence shows `data/`, `models/`, `reports/`, `src/pipeline/`, and\
+    \ `src/cli/` exist and the dry\u2011run command runs successfully, producing a\
+    \ \u226410\u2011row CSV. However, the required `interim/` and `features/` directories\
+    \ are not present in the artifact list, and there is no concrete code or log evidence\
+    \ that a random seed is actually pinned during the run. These missing pieces prevent\
+    \ the task from being fully satisfied."
+  task: 112b0d39af56b1edd93d7e2ab84f6113566ec7f40ef05fe1a69c03739569b847
+T002:
+  reason: 'Requested task execution failed; rerun successfully: src/pipeline/ingest.py
+    exit=1'
+  task: d182c3dc05158079e17106966acb0f5b913f533ec164a73fa0a8b00ecde5bac6
+T003:
+  task: 038ed65dba512abe80eb9534ef70485c547f493e07b3d80f945fecdb5de835c3
+T004:
+  task: 3dc2bafe607a47becd2e04b850b7cc776fba272a28714fe3ee35429362ad61f6
+T005:
+  task: 188805fe7267878dfca3db15bfceb24a9e67c983a7691c68ff2d2559628d2e1c
+T006:
+  task: c45f7b224afe2f94ab9c3180af71f0640485f56b0c49ed6684df139288fd3474
+T007:
+  task: 887097d9d8ab7066dbe78abe965edb22544c6e705c045e93776864259cc693dd
+T008:
+  task: 67c2b5b81bdec28ea267e6561a0c48d5001a76a01df68c5a84b65046e91bd7bf
+T009:
+  task: c3ecf561ac75be23a0b43ab073818fa212127969289f0ce723514d231712a0f5
+T010:
+  task: 67fb084eceedb673c6d89ae91a3c1a5fe0db594ff85d9c567f8ad3948bcf434d
+T011:
+  task: 59b35906fd498238917085c16146d9241f6da1a3a9d9813a5039b9d86bb9012b
+T012:
+  task: fe35af5e5cc98004e39e3b5702b92d7b529f0d94d25ffa3198f55cd6121a4219
+T013:
+  task: 1fc57d24801d8a724cb52fe5147394af2a5cb2b5dd4a531047dcbb24d9495365
+T014:
+  task: 13f046b2f080d096958073886f852f26b409c31d6ba5e0db337b28157691c9a7
+T015:
+  task: caf0a51f38ecc9ae175adc814a4f35dca217d04720ee664f91e380297e0b55e9
+T017:
+  task: bb4d270a900cedacb188187ab0fa42596c69b1a85c1e23e21b53710abb98b30f

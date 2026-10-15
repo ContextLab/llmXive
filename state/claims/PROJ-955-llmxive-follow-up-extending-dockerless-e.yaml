@@ -1,0 +1,34 @@
+- artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  attempts: 1
+  canonical: pipeline creates required project directories
+  claim_id: c_8f1bd55c
+  context: 'The command will: 1. Create the required project directories (data/, interim/,
+    features/, models/, reports/).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Create the required project directories (data/, interim/, features/, models/,
+    reports/).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T21:23:53Z'
+- artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  attempts: 1
+  canonical: pipeline prints completion message with sample result location
+  claim_id: c_59203936
+  context: 'After the command finishes without error, you should see a line similar
+    to: Dry-run completed. Sample result at: data/results/sample_run.csv'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'After the command finishes without error, you should see a line similar
+    to: Dry-run completed. Sample result at: data/results/sample_run.csv'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T21:23:53Z'

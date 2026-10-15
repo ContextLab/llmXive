@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T16:16:48.481274Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-955-llmxive-follow-up-extending-dockerless-e
-last_run_id: 432beb09-fec5-41b6-9fbd-bca88c4d315a
+last_run_id: 31c278ef-55c1-4519-bb88-036751093248
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/specs/001-llmxive-follow-up-extending-dockerless-e
 title: 'llmXive follow-up: extending "Dockerless: Environment-Free Program Verifier
   for Coding Agents"'
-updated_at: '2026-10-15T21:23:08.533013Z'
+updated_at: '2026-10-15T21:25:20.301638Z'

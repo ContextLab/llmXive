@@ -1,0 +1,10 @@
+T001:
+  c: false
+  h: 134c7a690fd453a7575d320c5b10614421c2729088e6d3cd0b66a999053ae3bf
+  r: "The evidence shows `data/`, `models/`, `reports/`, `src/pipeline/`, and `src/cli/`\
+    \ exist and the dry\u2011run command runs successfully, producing a \u226410\u2011\
+    row CSV. However, the required `interim/` and `features/` directories are not\
+    \ present in the artifact list, and there is no concrete code or log evidence\
+    \ that a random seed is actually pinned during the run. These missing pieces prevent\
+    \ the task from being fully satisfied."
+  sig: 6006aaa1bae4f4fbddafda4f596e3b14125863cffd59a836ca593f386732c61c
