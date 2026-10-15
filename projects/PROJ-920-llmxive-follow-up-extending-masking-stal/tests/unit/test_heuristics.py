@@ -7,6 +7,7 @@ The tests use the real implementation from `code/utils/heuristics.py`.
 """
 
 import sys
+import pytest
 from pathlib import Path
 
 # Ensure the project root is on the import path for sibling modules
@@ -86,13 +87,13 @@ class TestCalculateCompositeDensity:
         """
         text = "foo bar"
         terms = ["foo"]  # only 'foo' is technical
-        
+
         # Expected components
         expected_entropy = entropy_per_token(text)
         expected_ratio = calculate_technical_token_ratio(text, set(terms))
-        
+
         expected_density = 0.6 * expected_entropy + 0.4 * expected_ratio
-        
+
         density = calculate_composite_density(text, terms)
         assert abs(density - expected_density) < 1e-6
 
@@ -103,7 +104,7 @@ class TestCalculateCompositeDensity:
         """
         text = "bbbbbbbbbb"  # single repeated character → entropy 0.0
         terms = []  # no technical terms
-        
+
         density = calculate_composite_density(text, terms)
         assert density == 0.0
 
@@ -115,5 +116,3 @@ class TestCalculateCompositeDensity:
         with pytest.raises(TypeError):
             # Pass an integer instead of a string
             calculate_composite_density(12345, [])
-
-# Note: pytest is available in the execution environment; no explicit import needed.

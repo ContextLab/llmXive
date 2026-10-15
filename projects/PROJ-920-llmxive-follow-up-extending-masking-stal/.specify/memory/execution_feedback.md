@@ -7,17 +7,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/validate_trajectories.py  --input data/raw/trajectories.json -> rc=1
--10-15 04:38:44,243 - ERROR -   - Trajectory 0: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
-2026-10-15 04:38:44,243 - ERROR -   - Trajectory 1: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
-2026-10-15 04:38:44,243 - ERROR -   - Trajectory 2: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
-2026-10-15 04:38:44,243 - ERROR -   - Trajectory 3: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
-2026-10-15 04:38:44,243 - ERROR -   - Trajectory 4: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
-2026-10-15 04:38:44,243 - ERROR -   - Trajectory 5: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
-2026-10-15 04:38:44,243 - ERROR -   - Trajectory 6: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
-2026-10-15 04:38:44,243 - ERROR -   - Trajectory 7: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
-2026-10-15 04:38:44,243 - ERROR -   - Trajectory 8: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
-2026-10-15 04:38:44,243 - ERROR -   - Trajectory 9: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
-2026-10-15 04:38:44,243 - ERROR -   ... and 490 more.
+-10-15 04:39:41,975 - ERROR -   - Trajectory 0: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
+2026-10-15 04:39:41,975 - ERROR -   - Trajectory 1: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
+2026-10-15 04:39:41,975 - ERROR -   - Trajectory 2: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
+2026-10-15 04:39:41,975 - ERROR -   - Trajectory 3: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
+2026-10-15 04:39:41,975 - ERROR -   - Trajectory 4: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
+2026-10-15 04:39:41,975 - ERROR -   - Trajectory 5: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
+2026-10-15 04:39:41,975 - ERROR -   - Trajectory 6: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
+2026-10-15 04:39:41,975 - ERROR -   - Trajectory 7: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
+2026-10-15 04:39:41,975 - ERROR -   - Trajectory 8: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
+2026-10-15 04:39:41,975 - ERROR -   - Trajectory 9: Entropy mismatch (target=2.0000, measured=0.0000, diff=2.0000)
+2026-10-15 04:39:41,975 - ERROR -   ... and 490 more.
 
 - python code/analyze_results.py  --input data/logs/simulation_results.csv  --output-dir results -> rc=1
 

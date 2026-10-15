@@ -1,10 +1,11 @@
 T001:
   c: true
-  h: f6c0184ae9af040fd50d5c201463c3d1b2f7610827741d88a2f1b42e1b9e8317
+  h: 0c53b001091cdd4f72ea01daf1486c5825135b7149c1c13e51d9b0906ec2afb5
   r: "Checked that the project root contains the required directories `data/raw/`,\
-    \ `data/logs/`, `results/`, `code/`, and `tests/` (each non\u2011empty) and that\
-    \ a non\u2011empty `quickstart.md` file is present with appropriate setup instructions."
-  sig: f519f53d421ea0df17e443d2409207c131bef0827b301eb439133c7a3ab5bb5e
+    \ `data/logs/`, `results/`, `code/`, and `tests/`, each present with files, and\
+    \ that a non\u2011empty `quickstart.md` file (1,087\u202Fbytes) is present. All\
+    \ required artifacts exist, satisfying the task."
+  sig: 3cd4c67f9c0dbb22f34ca597a63d59f3209aa4fb0f2bafc8bf7be53ab3b3ab0a
 T002:
   c: true
   h: f8484932282ffde0fd635e0e2448eaf2606358db14c34027fc092af69698a368
@@ -42,13 +43,13 @@ T005:
     with the test expectations.
   sig: c54caddf56a4649e62931c6c06c3dfcc4e3d32bca3a3ec0f0b563850dd347027
 T006:
-  c: false
-  h: cf62fa4ec7bdda6db4891082f5bb0cbd38808c9913f821d958e58aff3e97c379
-  r: 'The `tests/unit/test_heuristics.py` file exists, but the test suite fails: the
-    `test_non_string_input_raises` test raises a `NameError` because `pytest` is not
-    imported. The unit tests must be corrected (e.g., add `import pytest`) so that
-    all tests pass.'
-  sig: 7fc6e1ee96ee48510132d244c387f92fe7ab176c9bfe512d681815b70328d870
+  c: true
+  h: 8ca9ff815734f2f8bea724a281f5839f09b572dfb1995f62d8ec1ed83f0178d4
+  r: "Checked `tests/unit/test_heuristics.py` (4441\u202Fbytes) which contains pytest\
+    \ unit tests for the heuristic functions, and the recorded pytest run shows all\
+    \ 10 tests passed. The required test file exists, is non\u2011empty, and validates\
+    \ the heuristics as specified."
+  sig: c628a63e2b5099a30cc2b003a197149926f6ff9195c04dc657723c32f755a18f
 T007:
   c: true
   h: 70a6d225c7fedd96629240efdabf2ad1f042bead760614dec72e0e91d014443f
@@ -82,6 +83,50 @@ T010:
     VI rules on `density_weights` (entropy weight > technical weight, sum to\u202F\
     1). No placeholders or stubs remain."
   sig: 91f28cfd2b752b5b64b65717ce4121d432ff7f82c23a36a30880b45a26fa05bf
+T011:
+  c: false
+  h: 273e09337a50516cb1177f372841bd98897608b828f58a63c47ede7d9ea503c6
+  r: "Checked `data/raw/trajectories.json` and `code/generate_trajectories.py`. The\
+    \ JSON entries for low\u2011density trajectories have `actual_entropy`\u202F=\u202F\
+    1e\u201108 (near\u2011zero) while the required target is\u202F2.0\u202Fbits/token,\
+    \ violating the \u201Centropy per token matches the requested density level within\
+    \ \xB10.01\u201D rule; the generator\u2019s `generate_text_for_target_entropy`\
+    \ uses a repeated\u2011character low\u2011entropy string for the \u201Clow\u201D\
+    \ level, so the density bins are not correctly realized (and no evidence of medium/high\
+    \ bins is shown). The task therefore does not meet the specified synthetic\u2011\
+    trajectory density requirements."
+  sig: 38852057a17fd165a500a2935c044d55cb79c283b12a5881ce31332a0628f5bc
+T012:
+  c: false
+  h: cbd696d4c28739596c2e3848f12213dedafad93da120c1535a468ac61a8266e4
+  r: "The required unit\u2011test file `tests/unit/test_trajectory_schema.py` is missing,\
+    \ and the provided `data/raw/trajectories.json` contains trajectories (e.g., `traj_0`)\
+    \ whose evidence block entropy (\u22480\u202Fbits/token) does not match the `target_entropy`\
+    \ of\u202F2.0\u202F\xB1\u202F0.01, causing `code/validate_trajectories.py` to\
+    \ exit with a non\u2011zero status."
+  sig: 6f2c15c4d6ca69be00f2777e437965adae73a1326bbc5176b94b34c5c73b34a2
+T013:
+  c: false
+  h: 783a12bc2403beb7bfd3a19fc871cd5f7b1fd77c5f6006e1c7550ad9ea70f56b
+  r: "The unit\u2011test file `tests/unit/test_density_isolation.py` exists, but when\
+    \ run it fails four tests because `calculate_composite_density` returns values\
+    \ greater than\u202F1 (e.g.,\u202F2.37,\u202F2.52), violating the test\u2019s\
+    \ \u201C0\u202F\u2264\u202Fdensity\u202F\u2264\u202F1\u201D assertion. Consequently\
+    \ the test suite does not verify that the implementation meets the required formula\
+    \ in a passing state. The implementation must be adjusted (e.g., clamp or normalize\
+    \ the density) or the test expectations revised so that all tests succeed."
+  sig: 85282568b5ecc93b8c0e7a5dba7920504a8efa860a19bf165a1bb842c67e4c38
+T014:
+  c: false
+  h: 113de8e33ccda6551f4726c49a39723bf2d8f3f687f4a81a21eacbfb7c8221d0
+  r: "Checked `code/simulate_agent.py`, `data/raw/trajectories.json`, `code/config/simulation_config.json`,\
+    \ `data/logs/simulation_results.csv`, and `contracts/simulation_log.schema.yaml`.\
+    \ The script loads the entire trajectory JSON into memory (no true streaming)\
+    \ and sets a memory limit of 7\u202FGB, not the required \u2264\u202F2\u202FGB,\
+    \ and does not correctly handle the \u201Clast\u2011turn\u201D edge case. Hence\
+    \ the implementation does not meet the task\u2019s RAM\u2011budget and edge\u2011\
+    case requirements."
+  sig: d1d353b3b98afbaccbaefb0cf53142c69837009a906a4ce6f7032ecbac3e808a
 T017:
   c: false
   h: 972f2f370fcf9478489a7eaeead7fdc92ce354ef6bc605b1d09440b5ede86570

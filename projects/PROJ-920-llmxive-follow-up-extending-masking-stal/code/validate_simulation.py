@@ -17,7 +17,7 @@ from pathlib import Path
 
 import pandas as pd
 import yaml
-from jsonschema import validate, ValidationError
+from jsonschema import ValidationError, validate
 
 # The `memory_profiler` package is added to `code/requirements.txt` by this task.
 from memory_profiler import memory_usage
@@ -35,7 +35,14 @@ from simulate_agent import load_trajectories_streaming
 MEMORY_LIMIT_MIB = 7168  # 7 GiB in MiB
 DEFAULT_CSV_PATH = paths.data("logs", "simulation_results.csv")
 DEFAULT_JSON_PATH = paths.data("processed", "simulation_results.json")
-SCHEMA_PATH = Path(__file__).parent.parent / "contracts" / "simulation_log.schema.yaml"
+# The schema lives under the specs directory; construct an absolute path.
+SCHEMA_PATH = (
+    paths.root
+    / "specs"
+    / "001-llmxive-follow-up-extending-masking-stal"
+    / "contracts"
+    / "simulation_log.schema.yaml"
+)
 
 # ----------------------------------------------------------------------
 # Logging configuration
@@ -88,7 +95,7 @@ def validate_csv_schema(csv_path: Path, schema_path: Path) -> None:
             "evidence_age": int(row["evidence_age"]),
             "success": int(row["success"]),
             "retrieval_prob": float(row["retrieval_prob"]),
-            "clamped_entropy": bool(row["clamped_entropy"])
+            "clamped_entropy": bool(row["clamped_entropy"]),
         }
         try:
             validate(instance=record, schema=schema)
@@ -113,7 +120,13 @@ def generate_json_for_contract(csv_path: Path, json_path: Path) -> None:
     df = pd.read_csv(csv_path)
 
     # Load trajectories to map trajectory_id -> critical_evidence_turn
-    trajectories = load_trajectories_streaming(Path(DEFAULT_CSV_PATH).parents[1] / "raw" / "trajectories.json")
+    trajectories_path = (
+        paths.root
+        / "data"
+        / "raw"
+        / "trajectories.json"
+    )
+    trajectories = load_trajectories_streaming(trajectories_path)
     traj_map = {t["trajectory_id"]: t["critical_evidence_turn"] for t in trajectories}
 
     records = []
@@ -130,7 +143,7 @@ def generate_json_for_contract(csv_path: Path, json_path: Path) -> None:
             "density": float(row["density"]),
             "critical_evidence_turn": int(critical_turn),
             "success": bool(int(row["success"])),
-            "total_turns": 10  # Fixed by generator configuration
+            "total_turns": 10,  # Fixed by generator configuration
         }
         records.append(record)
 
@@ -149,14 +162,14 @@ def run_contract_tests() -> None:
     """
     test_paths = [
         "tests/contract/test_simulation_output.py",
-        "tests/integration/test_horizon_masking.py"
+        "tests/integration/test_horizon_masking.py",
     ]
     for test_path in test_paths:
         logger.info(f"Running contract test: {test_path}")
         result = subprocess.run(
             [sys.executable, "-m", "pytest", "-q", test_path],
             capture_output=True,
-            text=True
+            text=True,
         )
         if result.returncode != 0:
             logger.error(
@@ -178,7 +191,7 @@ def main() -> None:
         "--seed",
         type=int,
         default=42,
-        help="Random seed for the simulation (forwarded to simulate_agent)."
+        help="Random seed for the simulation (forwarded to simulate_agent).",
     )
     args = parser.parse_args()
 

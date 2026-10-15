@@ -1,3 +1,13 @@
-# Existing dependencies are provided by the environment.
-# Add any additional packages required by the project.
-memory_profiler==0.61.0
+# Core scientific stack (already available in the environment)
+numpy
+pandas
+scipy
+matplotlib
+seaborn
+scikit-learn
+statsmodels
+# Additional runtime dependencies
+memory_profiler
+# Optional utilities used in various scripts
+tqdm
+# The llmxive_toolkit is provided by the platform and does not need to be listed.
