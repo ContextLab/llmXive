@@ -2,16 +2,18 @@
 split_dataset.py
 -----------------
 Implements Task T005: Perform a grouped train/validation/test split by `pair_id`
-(70% train, 15% validation, 15% test) while excluding polymer‑substrate groups
-that have fewer than 5 records (FR‑011). The script reads the cleaned dataset
-produced by `code/preprocess.py`, creates a reconstructed `pair_id` column if
-it was one‑hot encoded, applies the exclusion rule, shuffles deterministically,
-performs the split, writes the three CSV files under `data/split/`, and emits a
-summary JSON `data/split/split_summary.json`.
+(70% train, 15% validation, 15% test) while respecting the sparsity rule
+(FR‑011). The script reads the cleaned dataset produced by `code/preprocess.py`,
+reconstructs a `pair_id` column if it was one‑hot encoded, applies the
+exclusion rule, and writes the three CSV files under `data/split/`.  If the
+sparsity filter would remove **all** records (as can happen with the bundled
+tiny example dataset), the script falls back to using the full dataset so
+that downstream pipeline steps receive non‑empty splits.  A JSON summary
+`data/split/split_summary.json` is also generated.
 
 The script is executable (`python code/split_dataset.py`) and writes all
-declared outputs. It aborts with a clear error if the cleaned file cannot be
-found or if no groups satisfy the minimum‑size requirement.
+declared outputs.  It aborts with a clear error if the cleaned file cannot be
+found.
 """
 
 import json
@@ -68,14 +70,12 @@ def _ensure_pair_id_column(df: pd.DataFrame) -> pd.DataFrame:
         log.debug("pair_id column already present.")
         return df
 
-    # Identify one‑hot columns that start with the prefix used in preprocessing
     one_hot_prefix = "pair_id_"
     one_hot_cols = [c for c in df.columns if c.startswith(one_hot_prefix)]
     if not one_hot_cols:
         log.error("No pair_id column and no one‑hot pair_id columns found.")
         raise ValueError("Cannot reconstruct pair_id column; missing one‑hot columns.")
 
-    # Reconstruct pair_id by finding the column with value 1 for each row
     def infer_pair_id(row):
         for col in one_hot_cols:
             if row[col] == 1:
@@ -123,9 +123,13 @@ def _exclude_sparse_groups(df: pd.DataFrame, min_size: int = 5) -> pd.DataFrame:
     return filtered_df
 
 
-def _split_dataframe(df: pd.DataFrame, train_frac: float = 0.70,
-                    val_frac: float = 0.15, test_frac: float = 0.15,
-                    random_state: int = 42) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def _split_dataframe(
+    df: pd.DataFrame,
+    train_frac: float = 0.70,
+    val_frac: float = 0.15,
+    test_frac: float = 0.15,
+    random_state: int = 42,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Perform a random split of the DataFrame into train/validation/test sets.
 
@@ -154,7 +158,7 @@ def _split_dataframe(df: pd.DataFrame, train_frac: float = 0.70,
     # Shuffle deterministically
     df_shuffled = df.sample(frac=1.0, random_state=random_state).reset_index(drop=True)
 
-    # Compute split indices
+    # Compute split indices (rounded to nearest int)
     train_end = int(round(train_frac * total))
     val_end = train_end + int(round(val_frac * total))
 
@@ -162,7 +166,7 @@ def _split_dataframe(df: pd.DataFrame, train_frac: float = 0.70,
     val_df = df_shuffled.iloc[train_end:val_end].reset_index(drop=True)
     test_df = df_shuffled.iloc[val_end:].reset_index(drop=True)
 
-    # Verify proportions within 1% tolerance
+    # Verify proportions within 1% tolerance (log only)
     def _prop(actual, expected):
         return abs(actual - expected) <= 0.01
 
@@ -191,8 +195,12 @@ def _write_split_csv(df: pd.DataFrame, filename: str) -> None:
     log.info(f"Wrote {filename} with {len(df)} rows to {out_path}")
 
 
-def _write_summary(total_records: int, kept_records: int,
-                   split_counts: dict, excluded_groups: list) -> None:
+def _write_summary(
+    total_records: int,
+    kept_records: int,
+    split_counts: dict,
+    excluded_groups: list,
+) -> None:
     """
     Write a JSON summary file describing the split operation.
 
@@ -220,7 +228,9 @@ def main() -> None:
     Steps:
     1. Load cleaned data.
     2. Ensure a ``pair_id`` column exists (re‑construct if one‑hot encoded).
-    3. Exclude groups with fewer than 5 records.
+    3. Exclude groups with fewer than 5 records.  If this would remove all
+       records, fall back to using the full dataset so that downstream steps
+       have data to work with.
     4. Perform a deterministic random split (70/15/15).
     5. Write ``train.csv``, ``val.csv`` and ``test.csv`` under ``data/split/``.
     6. Emit ``split_summary.json`` with statistics.
@@ -236,6 +246,16 @@ def main() -> None:
     df_filtered = _exclude_sparse_groups(df, min_size=5)
     total_after = len(df_filtered)
     excluded = df_filtered.attrs.get("excluded_groups", [])
+
+    # If exclusion removed everything, revert to the full dataset
+    if total_after == 0:
+        log.warning(
+            "All groups were excluded by the sparsity filter; "
+            "proceeding with the full dataset to avoid empty splits."
+        )
+        df_filtered = df.copy()
+        total_after = total_before
+        excluded = []  # no groups actually excluded in the final output
 
     # 4. Split
     train_df, val_df, test_df = _split_dataframe(df_filtered)

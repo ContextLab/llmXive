@@ -1,31 +1,9 @@
 {
   "model_type": "GradientBoosting",
-  "hyperparameters": {
-    "alpha": 0.9,
-    "ccp_alpha": 0.0,
-    "criterion": "friedman_mse",
-    "init": null,
-    "learning_rate": 0.1,
-    "loss": "squared_error",
-    "max_depth": 3,
-    "max_features": null,
-    "max_leaf_nodes": null,
-    "min_impurity_decrease": 0.0,
-    "min_samples_leaf": 1,
-    "min_samples_split": 2,
-    "min_weight_fraction_leaf": 0.0,
-    "n_estimators": 10,
-    "n_iter_no_change": null,
-    "random_state": 42,
-    "subsample": 1.0,
-    "tol": 0.0001,
-    "validation_fraction": 0.1,
-    "verbose": 0,
-    "warm_start": false
-  },
+  "hyperparameters": {},
   "validation_r2": null,
   "validation_rmse": null,
-  "test_r2": 1.0,
-  "test_rmse": 0.11505801507585359,
-  "test_mae": 0.10072932714000012
+  "test_r2": 0.6225438801937968,
+  "test_rmse": 0.23125440231117278,
+  "test_mae": 0.22366164424348237
 }

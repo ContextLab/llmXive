@@ -7,7 +7,7 @@
   "timestamp": "2026-10-15T12:11:42.364334Z",
   "validation_r2": null,
   "validation_rmse": null,
-  "final_r2": 0.8433765180622866,
-  "final_rmse": 0.20207259421636894,
-  "final_mae": 0.1633333333333332
+  "final_r2": 0.0,
+  "final_rmse": 0.3303548597089701,
+  "final_mae": 0.2941111111111114
 }

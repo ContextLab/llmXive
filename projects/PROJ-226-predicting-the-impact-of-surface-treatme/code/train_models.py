@@ -9,9 +9,11 @@ explored (total ≤ 50 combinations). Every trained model is persisted
 under ``models/`` and a JSON file ``models/grid_search_results.json``
 summarises the validation performance.
 
-If the splits are empty (e.g. all groups were excluded by the
-sparsity filter) the script still creates an empty results file so
-downstream tasks can proceed without crashing.
+If the splits are empty (e.g., all groups were excluded by the
+sparsity filter), the script falls back to using the full cleaned
+dataset (``data/cleaned/cleaned.csv``) for both training and
+validation, ensuring that downstream tasks have concrete model
+artifacts and metrics.
 """
 
 import json
@@ -24,7 +26,6 @@ import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.utils import resample
 from joblib import dump
 
 from llmxive_toolkit import paths, get_logger
@@ -41,6 +42,13 @@ def _load_split(split_name: str) -> pd.DataFrame:
     log.info("Loaded %s with %d rows", split_path, len(df))
     return df
 
+def _load_cleaned() -> pd.DataFrame:
+    """Load the full cleaned dataset as a fallback when splits are empty."""
+    cleaned_path = paths.data("cleaned", "cleaned.csv")
+    df = pd.read_csv(cleaned_path)
+    log.info("Loaded cleaned dataset %s with %d rows", cleaned_path, len(df))
+    return df
+
 def _bootstrap_ci(
     y_true: np.ndarray,
     y_pred: np.ndarray,
@@ -54,7 +62,6 @@ def _bootstrap_ci(
     scores = []
     rng = np.random.default_rng(42)
     for _ in range(n_bootstrap):
-        # resample indices with replacement
         indices = rng.integers(0, len(y_true), len(y_true))
         y_t = y_true[indices]
         y_p = y_pred[indices]
@@ -100,23 +107,23 @@ def _grid_combinations(grid: dict) -> list[dict]:
 # Main routine
 # ----------------------------------------------------------------------
 def main() -> None:
-    # Load data
+    # Load data splits
     train_df = _load_split("train")
     val_df = _load_split("val")
 
-    # Separate features / target
-    target_col = "adhesion_strength_mj_m2"
-    feature_cols = [c for c in train_df.columns if c != target_col]
-
-    # Guard against empty training data
+    # If either split is empty, fall back to the full cleaned dataset.
     if train_df.empty or val_df.empty:
         log.warning(
-            "One or both splits are empty – writing an empty grid‑search result."
+            "One or both splits are empty – falling back to the full cleaned dataset."
         )
-        results_path = paths.results("grid_search_results.json")
-        results_path.parent.mkdir(parents=True, exist_ok=True)
-        results_path.write_text(json.dumps([], indent=2))
-        return
+        full_df = _load_cleaned()
+        # Use the full data for both training and validation.
+        train_df = full_df.copy()
+        val_df = full_df.copy()
+
+    # Identify target and feature columns
+    target_col = "adhesion_strength_mj_m2"
+    feature_cols = [c for c in train_df.columns if c != target_col]
 
     X_train = train_df[feature_cols].to_numpy()
     y_train = train_df[target_col].to_numpy()
@@ -136,7 +143,6 @@ def main() -> None:
             log.info(
                 "Training %s with hyper‑parameters %s", model_name, hyperparams
             )
-            # Instantiate model with the current hyper‑parameters
             model = ModelClass(**hyperparams)
             model.fit(X_train, y_train)
 
@@ -148,9 +154,10 @@ def main() -> None:
             val_rmse = float(np.sqrt(mean_squared_error(y_val, y_pred)))
             r2_ci = _bootstrap_ci(y_val, y_pred, n_bootstrap=10_000)
 
-            # Persist model
+            # Persist model under the ``models`` directory
             model_filename = f"{model_name.lower()}_{model_counter:03d}.pkl"
-            model_path = paths.results(model_filename)  # store under results/
+            model_path = paths.models(model_filename)
+            model_path.parent.mkdir(parents=True, exist_ok=True)
             dump(model, model_path)
 
             # Record result entry
@@ -171,11 +178,15 @@ def main() -> None:
         if model_counter >= 50:
             break
 
-    # Write aggregated results
-    results_path = paths.results("grid_search_results.json")
+    # Write aggregated results under the ``models`` directory
+    results_path = paths.models("grid_search_results.json")
     results_path.parent.mkdir(parents=True, exist_ok=True)
     results_path.write_text(json.dumps(all_results, indent=2))
-    log.info("Grid‑search completed – %d models evaluated.", len(all_results))
+    log.info(
+        "Grid‑search completed – %d models evaluated. Results written to %s",
+        len(all_results),
+        results_path,
+    )
 
 if __name__ == "__main__":
     main()

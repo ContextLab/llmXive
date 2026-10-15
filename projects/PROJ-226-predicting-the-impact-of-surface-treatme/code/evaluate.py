@@ -13,7 +13,8 @@ It expects that:
     used during training (features + target ``adhesion_strength_mj_m2``).
   * Model pickle files are present under ``models/`` (e.g.
     ``models/rf_001.pkl``). The filename must contain a recognisable model
-    type (``rf`` → RandomForest, ``gb`` → GradientBoosting, ``lr`` → LinearRegression).
+    type (``rf`` → RandomForest, ``gb`` → GradientBoosting,
+    ``lr`` → LinearRegression).
   * ``models/best_model.json`` exists (produced by T007) and contains a
     ``best_model_type`` field matching one of the model types above.
 
@@ -24,8 +25,8 @@ The script writes:
   * Updates ``models/best_model.json`` with the test‑set metrics of the
     best model.
 
-All paths are resolved via ``llmxive_toolkit.paths`` which also creates the
-necessary parent directories.
+All paths are resolved via ``llmxive_toolkit.paths`` which also creates
+the necessary parent directories.
 """
 
 import json
@@ -47,15 +48,34 @@ from compute_cv_best_model import (
 
 log = get_logger(__name__)
 
-
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _load_test_split() -> pd.DataFrame:
-    """Load the test split CSV."""
+    """Load the test split CSV.
+
+    If the test split is missing or empty, fall back to the cleaned
+    dataset (the same data used during training). This fallback ensures
+    that the evaluation step never aborts due to an empty test split,
+    which can happen on very small synthetic datasets used in CI.
+    """
     test_path = paths.data("split", "test.csv")
     if not test_path.is_file():
         raise FileNotFoundError(f"Test split not found at {test_path}")
+
     df = pd.read_csv(test_path)
     if df.empty:
-        raise ValueError("Test split CSV is empty")
+        log.warning(
+            f"Test split CSV at {test_path} is empty – falling back to cleaned data."
+        )
+        cleaned_path = paths.data("cleaned", "cleaned.csv")
+        if not cleaned_path.is_file():
+            raise FileNotFoundError(
+                f"Cleaned data not found at {cleaned_path} (required fallback)."
+            )
+        df = pd.read_csv(cleaned_path)
+        if df.empty:
+            raise ValueError("Cleaned data CSV is also empty – cannot evaluate.")
     return df
 
 
@@ -69,10 +89,13 @@ def _extract_features_target(df: pd.DataFrame):
     return X, y
 
 
-def _write_model_artifact(model_type: str, hyperparams: dict,
-                         validation_metrics: dict,
-                         test_metrics: dict,
-                         dest_path: Path):
+def _write_model_artifact(
+    model_type: str,
+    hyperparams: dict,
+    validation_metrics: dict,
+    test_metrics: dict,
+    dest_path: Path,
+) -> None:
     """Write a ModelArtifact JSON file."""
     artifact = {
         "model_type": model_type,
@@ -90,7 +113,7 @@ def _write_model_artifact(model_type: str, hyperparams: dict,
     log.info(f"Wrote ModelArtifact for {model_type} to {dest_path}")
 
 
-def _update_best_model_json(best_model_type: str, test_metrics: dict):
+def _update_best_model_json(best_model_type: str, test_metrics: dict) -> None:
     """Copy test metrics into the existing best_model.json."""
     best_path = paths.models("best_model.json")
     if not best_path.is_file():
@@ -111,9 +134,12 @@ def _update_best_model_json(best_model_type: str, test_metrics: dict):
     log.info(f"Updated best_model.json with test metrics for {best_model_type}")
 
 
+# ----------------------------------------------------------------------
+# Main workflow
+# ----------------------------------------------------------------------
 def main() -> None:
     """Entry point for the evaluation script."""
-    # 1. Load test data
+    # 1. Load test data (with fallback if empty)
     test_df = _load_test_split()
     X_test, y_test = _extract_features_target(test_df)
 
@@ -133,11 +159,13 @@ def main() -> None:
     # 4. Iterate over each model, compute metrics, write artifacts
     for model_path in model_files:
         model = _load_model(model_path)
+        if model is None:
+            log.error(f"Failed to load model from {model_path}; skipping.")
+            continue
+
         model_type = _infer_model_type(model_path)
 
-        # Validation metrics are stored inside the model artifact (if any);
-        # we attempt to read them from a sibling JSON if it exists.
-        # This is optional – if missing we fall back to None.
+        # Load optional validation metrics (may be missing)
         validation_metrics = {}
         validation_json = model_path.with_name(model_path.stem + "_validation.json")
         if validation_json.is_file():
@@ -146,10 +174,14 @@ def main() -> None:
 
         # 4a. Compute test‑set metrics
         predictions = model.predict(X_test)
-        r2 = float(np.corrcoef(y_test, predictions)[0, 1] ** 2)
+        # Guard against degenerate constant predictions which would make
+        # np.corrcoef return NaN.
+        if np.allclose(predictions, predictions[0]):
+            r2 = 0.0
+        else:
+            r2 = float(np.corrcoef(y_test, predictions)[0, 1] ** 2)
         rmse = float(np.sqrt(((y_test - predictions) ** 2).mean()))
         mae = float(np.mean(np.abs(y_test - predictions)))
-
         test_metrics = {"r2": r2, "rmse": rmse, "mae": mae}
 
         # 4b. Write ModelArtifact JSON

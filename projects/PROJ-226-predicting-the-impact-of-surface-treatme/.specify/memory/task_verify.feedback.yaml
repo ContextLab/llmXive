@@ -1,48 +1,64 @@
 T001:
-  reason: "The availability report is inconsistent with the script that supposedly\
-    \ produced it: `verify_data_source.py` can only emit a Zenodo URL (`zenodo_example`),\
-    \ yet the report lists a `file:///...example.csv` entry with `source_name: \"\
-    example_dataset\"` \u2014 a descriptor the script never generates, indicating\
-    \ the report was fabricated or produced by an earlier different version. Moreover,\
-    \ the script's hardcoded Zenodo DOI `10.5281/zenodo.10234567` is a placeholder\
-    \ that does not correspond to a real, verified openly downloadable dataset containing\
-    \ all eight required columns, so the core requirement \u2014 ac"
+  reason: "The task requires verifying that at least one **openly downloadable** external\
+    \ dataset (NIST, Zenodo, Materials Project) contains all required variables, but\
+    \ the availability report's sole entry is a local bundled file (`data/source/example.csv`\
+    \ via a `file://` URL) that the script itself explicitly labels a \"fallback\"\
+    \ and \"small bundled example\" \u2014 not an openly downloadable dataset. The\
+    \ Zenodo DOI `10.5281/zenodo.10234567` appears fabricated (the reachability check\
+    \ evidently failed, falling through to the local file), and the bundled `example.csv`\
+    \ is not even present in the collected evidence"
   task: 2dc382125d8cf31690702877306193ffecc1d42b6ea510731970df69e9556e14
 T002:
-  reason: "The script has a literal-`\\n` bug: `chk_f.write(f\"{checksum}  {dest_path.name}\\\
-    \\n\")` writes the two characters `\\` and `n` instead of a newline, so `data/raw/checksums.txt`\
-    \ (87 bytes, single line ending in `example_dataset.csv\\n` literally) is malformed,\
-    \ and the recorded test run `tests/test_download_data.py` FAILED with \"Filename\
-    \ in checksum line mismatch\" (exit 1). The download itself ran (exit 0, checksum\
-    \ matches the file), but the verification requirement \u2014 a correctly formatted\
-    \ checksums file with one line per file and passing checks \u2014 is not met;\
-    \ fix the write to use a real newline and r"
+  reason: "The script itself is functional (test passed, exit 0), but the \"dataset\"\
+    \ downloaded is a 3-row bundled synthetic example (`data/source/example.csv` via\
+    \ a `file://` URL), not a verified real dataset from a public repository (NIST/Zenodo/Materials\
+    \ Project) as T001/T002 require \u2014 this is a placeholder stand-in, not real\
+    \ raw data. Additionally, the execution log records SHA-256 `a4803f85...` for\
+    \ the downloaded file, while the current `data/raw/example_dataset.csv` hashes\
+    \ to `4a93bfc6...`, meaning the artifact on disk does not match what the recorded\
+    \ run produced (the file or checksums were altered"
   task: cd437c73880ffbdad3de5ce0afa7748a935ce318a1501c9747bbefb2ee5b7e39
 T003:
+  reason: "The required output artifacts `data/raw/<source>_units.json` do not exist\
+    \ \u2014 the collector found NO matching file for the pattern `data/raw/*_units.json`,\
+    \ and `data/raw/` contains only `checksums.txt` and `example_dataset.csv`. The\
+    \ script `code/generate_units_metadata.py` exists and a test log shows a passing\
+    \ test, but there is no evidence the script was actually run against the real\
+    \ raw data to produce the JSON files; the implementer must execute it (e.g., `python\
+    \ code/generate_units_metadata.py`) so `data/raw/example_dataset_units.json` is\
+    \ generated."
   task: bcaec96891cf7f5ddf0145cfeebcc2f9db65bb3a4c8c68dda13f43b04f514186
 T004:
   task: 4997593b89c900c42cedf2967380dd04f8de6e8ff3e4d5988a87fe406f7c2e2b
 T005:
-  reason: "The actual split outputs are empty: `train.csv` and `val.csv` contain only\
-    \ headers (0 rows), `split_summary.json` reports split_counts of 0/0/0 because\
-    \ all 3 groups were excluded by the <5-record rule, so the 70/15/15 proportions\
-    \ cannot be verified and the deliverable is effectively vacuous. Additionally,\
-    \ the implementation performs a row-level random split, not the required grouped\
-    \ split by `pair_id` (a `pair_id` group can appear in multiple splits), and `test.csv`\
-    \ contains 3 stale rows contradicting the summary's 0 test records. The implementer\
-    \ needs a cleaned dataset with groups of \u22655 recor"
+  reason: "The actual split outputs fail the task's verification criteria: `train.csv`\
+    \ and `val.csv` contain only a header row (0 records), `split_summary.json` reports\
+    \ split_counts of 0/0/0, and `test.csv`'s 3 rows lack the required `pair_id` column\
+    \ (and 3/0/0 is nowhere near 70/15/15). The execution log confirms the run excluded\
+    \ all 3 groups under FR-011 and wrote empty splits \u2014 the script's advertised\
+    \ \"fall back to full dataset\" behavior did not take effect in the executed version,\
+    \ and the passing test apparently only checked file existence, not the required\
+    \ proportions or `pair_id` presence. The impl"
   task: 092f4f062b78e9fc22037047a2437b5378a443b771f91291073dd4a1af12ebc5
 T006:
-  reason: "The script ran but the train/validation splits are empty (0 rows, all pair_id\
-    \ groups excluded by the sparsity filter), so it took the guard path and wrote\
-    \ an empty grid-search result \u2014 `results/grid_search_results.json` is `[]`,\
-    \ no models were trained, and no validation R\xB2/RMSE/bootstrapped CI exist anywhere.\
-    \ The required `models/grid_search_results.json` with the full list of combos\
-    \ and metrics is missing, and the existing `models/*_artifact.json` files show\
-    \ `validation_r2: null` with test metrics that appear fabricated relative to the\
-    \ empty splits (e.g., LinearRegression test_r2 \u2248 1.0 on 0-r"
+  reason: "The script executed and produced `models/grid_search_results.json` with\
+    \ 17 combos, but the train/val splits are empty (0 rows, per `split_summary.json`),\
+    \ so the fallback trained AND evaluated every model on the identical 3-row `cleaned.csv`\
+    \ \u2014 there is no genuine held-out validation, and the reported metrics (e.g.,\
+    \ LinearRegression R\xB2=1.0, RMSE\u22481e-16; GB R\xB2\u22480.999999999) are\
+    \ trivially degenerate artifacts of evaluating on the training data itself. The\
+    \ task requires evaluation on a validation set with real validation R\xB2/RMSE/95%\
+    \ CI; the underlying data pipeline (only 3 records, all pair groups ex"
   task: f3406879d3b4539cbe12dff265296ea9f5f61f20ec7ba477fd2916ee79d4502e
 T007:
+  reason: "The execution log shows the script found only 3 rows of cleaned data, an\
+    \ empty validation split, and zero model files, so it wrote a \"default null result\"\
+    \ \u2014 `best_model.json` contains `null` for cv_r2_mean/std, validation_r2/rmse,\
+    \ empty hyperparameters, and `null_result: false` despite no CV R\xB2 being computed\
+    \ at all. No k-fold CV R\xB2 was ever calculated for any model, and the passing\
+    \ test only checks field presence, not real values. The implementer must actually\
+    \ train/discover models, compute cross-validated R\xB2 with the same folds, and\
+    \ populate the JSON with real metrics (setting `null_result:"
   task: d552ecffe2e0e38de5781e3b80665a4c5d9f707789af04177b0bb071bdda5797
 T008:
   reason: 'Requested task execution failed; rerun successfully: code/evaluate.py exit=1'

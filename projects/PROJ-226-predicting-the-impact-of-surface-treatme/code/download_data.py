@@ -151,7 +151,8 @@ def main() -> None:
                     logger.info(f"Checksum verified for {url}")
 
             # Write checksum line in the standard ``sha256  filename`` format.
-            chk_f.write(f"{checksum}  {dest_path.name}\\n")
+            # NOTE: use a real newline character, not the escaped ``\\n`` sequence.
+            chk_f.write(f"{checksum}  {dest_path.name}\n")
             logger.info(f"Downloaded {url} to {dest_path} (SHA‑256: {checksum})")
 
     logger.info(f"All downloads completed successfully. Checksums stored at {checksums_file}")
