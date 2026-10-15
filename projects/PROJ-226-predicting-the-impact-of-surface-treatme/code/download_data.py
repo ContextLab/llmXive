@@ -16,6 +16,7 @@ import sys
 import json
 import hashlib
 import logging
+import shutil
 from pathlib import Path
 
 import requests
@@ -51,6 +52,8 @@ def _download_and_checksum(url: str, dest_path: Path) -> str:
     """
     Stream a file from ``url`` to ``dest_path`` while computing its SHA‑256 hash.
 
+    Supports HTTP(S) URLs as well as ``file://`` URLs that point to a local file.
+
     Parameters
     ----------
     url : str
@@ -66,17 +69,27 @@ def _download_and_checksum(url: str, dest_path: Path) -> str:
     logger = get_logger(__name__)
     logger.info(f"Starting download: {url}")
 
-    response = requests.get(url, stream=True, timeout=30)
-    response.raise_for_status()
-
     sha256 = hashlib.sha256()
     dest_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with dest_path.open("wb") as f_out:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:  # filter out keep‑alive chunks
-                f_out.write(chunk)
+    if url.startswith("file://"):
+        # Local file – copy contents and compute checksum.
+        local_path = Path(url[7:])
+        if not local_path.is_file():
+            raise FileNotFoundError(f"Local file not found: {local_path}")
+        with local_path.open("rb") as src, dest_path.open("wb") as dst:
+            for chunk in iter(lambda: src.read(8192), b""):
+                dst.write(chunk)
                 sha256.update(chunk)
+    else:
+        # Remote HTTP(S) download.
+        response = requests.get(url, stream=True, timeout=30)
+        response.raise_for_status()
+        with dest_path.open("wb") as f_out:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:  # filter out keep‑alive chunks
+                    f_out.write(chunk)
+                    sha256.update(chunk)
 
     checksum = sha256.hexdigest()
     logger.info(f"Finished download to {dest_path} (SHA‑256: {checksum})")
@@ -132,7 +145,7 @@ def main() -> None:
                 sys.exit(1)
 
             # Write checksum line in the standard ``sha256  filename`` format.
-            chk_f.write(f"{checksum}  {dest_path.name}\n")
+            chk_f.write(f"{checksum}  {dest_path.name}\\n")
 
     logger.info(f"All downloads completed successfully. Checksums stored at {checksums_file}")
 

@@ -1,17 +1,23 @@
 T001:
-  reason: "The script `code/verify_data_source.py` runs and creates `data/source/availability_report.json`,\
-    \ but the JSON contains `\"datasets\": []`, meaning no openly downloadable dataset\
-    \ with all required variables was found. Moreover, the test `tests/test_verify_data_source.py`\
-    \ expects the report at a temporary location and fails because the script writes\
-    \ to the project path, so the CI check does not detect the empty list as a failure.\
-    \ The core requirement\u2014verifying that at least one suitable dataset exists\u2014\
-    is not met."
+  reason: "The `code/verify_data_source.py` script never queries NIST, Zenodo, or\
+    \ Materials Project APIs and always falls back to a bundled local CSV, which is\
+    \ not an \u201Copenly downloadable\u201D dataset. Consequently the generated `data/source/availability_report.json`\
+    \ lists only a `file://` URL to a local file, violating the task\u2019s requirement.\
+    \ Additionally, the CI test `tests/test_verify_data_source.py` fails because it\
+    \ cannot locate the script at the expected path, indicating the verification workflow\
+    \ is broken. The implementation must actually discover and validate an external\
+    \ dataset (or correctly fail wh"
   task: 2dc382125d8cf31690702877306193ffecc1d42b6ea510731970df69e9556e14
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
-    exit=1'
   task: cd437c73880ffbdad3de5ce0afa7748a935ce318a1501c9747bbefb2ee5b7e39
 T003:
+  reason: "The repository contains `code/generate_units_metadata.py` and a single\
+    \ JSON output (`example_dataset_units.json`), but the script fails to process\
+    \ all raw CSVs (e.g., `test_source.csv` triggers a false \u201Cmissing required\
+    \ column\u201D error in the test suite) and does not produce per\u2011source JSON\
+    \ files for every source. The required JSON files for the other raw datasets are\
+    \ missing, and the validation logic is incorrect, so the task\u2019s requirement\
+    \ is not satisfied."
   task: bcaec96891cf7f5ddf0145cfeebcc2f9db65bb3a4c8c68dda13f43b04f514186
 T004:
   task: 4997593b89c900c42cedf2967380dd04f8de6e8ff3e4d5988a87fe406f7c2e2b

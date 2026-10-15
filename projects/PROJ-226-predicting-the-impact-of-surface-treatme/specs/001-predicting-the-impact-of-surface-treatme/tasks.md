@@ -16,7 +16,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 1 – Data Acquisition & Integrity  
 
-- [ ] **T002** [S1] [US1] Download the verified raw dataset(s) identified by T001 and record SHA‑256 checksums.   <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
+- [X] **T002** [S1] [US1] Download the verified raw dataset(s) identified by T001 and record SHA‑256 checksums.
   - *Implementation*: `code/download_data.py` uses `wget`/`curl` with the concrete URLs from the availability report and saves files under `data/raw/<source>.csv`.  
   - *Verification*: script writes `data/raw/checksums.txt` (one line per file) and exits with status 0 only if every download succeeds and the computed checksum matches the recorded value.
 

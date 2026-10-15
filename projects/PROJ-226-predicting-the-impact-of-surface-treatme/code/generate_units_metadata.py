@@ -1,0 +1,153 @@
+"""
+generate_units_metadata.py
+
+Reads each raw CSV file under ``data/raw/`` and creates a JSON file
+``data/raw/<source>_units.json`` that maps each column name to its
+declared SI unit.
+
+The script validates that:
+  * All required columns are present.
+  * All numeric columns contain only numeric data (no stray strings).
+If any of these checks fail a ``UnitMismatchError`` is raised, aborting
+the pipeline.
+"""
+
+import json
+import logging
+from pathlib import Path
+from typing import Dict, List
+
+import pandas as pd
+
+from llmxive_toolkit import paths, get_logger
+
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+REQUIRED_COLUMNS = [
+    "plasma_power_w",
+    "exposure_time_s",
+    "chemical_concentration_pct",
+    "polymer_surface_energy",
+    "substrate_roughness_nm",
+    "adhesion_strength_mj_m2",
+    "treatment_type",
+    "pair_id",
+]
+
+# Mapping from column name to its SI unit (as a human‑readable string)
+UNITS_MAP: Dict[str, str] = {
+    "plasma_power_w": "W",                     # watts
+    "exposure_time_s": "s",                    # seconds
+    "chemical_concentration_pct": "%",         # percent (dimensionless)
+    "polymer_surface_energy": "mJ/m^2",        # millijoules per square metre
+    "substrate_roughness_nm": "nm",            # nanometres (will be converted later)
+    "adhesion_strength_mj_m2": "MJ/m^2",       # megajoules per square metre
+    "treatment_type": "category",              # categorical label
+    "pair_id": "category",                     # categorical identifier
+}
+
+# ----------------------------------------------------------------------
+# Exceptions
+# ----------------------------------------------------------------------
+class UnitMismatchError(Exception):
+    """Raised when a column is missing or contains non‑numeric data where a
+    numeric unit is expected."""
+    pass
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _setup_logger() -> logging.Logger:
+    """Configure and return a logger for this module."""
+    logger = get_logger(__name__)
+    logger.setLevel(logging.INFO)
+    return logger
+
+LOG = _setup_logger()
+
+def _list_raw_csv_files() -> List[Path]:
+    """Return a list of all CSV files in the ``data/raw`` directory."""
+    raw_dir = paths.data("raw")
+    csv_files = list(raw_dir.glob("*.csv"))
+    LOG.info("Found %d raw CSV file(s) in %s", len(csv_files), raw_dir)
+    return csv_files
+
+def _validate_columns(df: pd.DataFrame, source_name: str) -> None:
+    """Ensure that all required columns are present."""
+    missing = set(REQUIRED_COLUMNS) - set(df.columns)
+    if missing:
+        raise UnitMismatchError(
+            f"Source '{source_name}' is missing required columns: {sorted(missing)}"
+        )
+    LOG.info("All required columns present for source '%s'.", source_name)
+
+def _validate_numeric_columns(df: pd.DataFrame, source_name: str) -> None:
+    """Check that columns expected to be numeric contain only numeric data."""
+    numeric_cols = [
+        col for col, unit in UNITS_MAP.items() if unit not in ("category", "%")
+    ]
+    for col in numeric_cols:
+        # ``pd.to_numeric`` will coerce non‑numeric values to NaN when
+        # ``errors='coerce'`` is used. We then check if any NaNs were produced.
+        coerced = pd.to_numeric(df[col], errors="coerce")
+        if coerced.isna().any():
+            raise UnitMismatchError(
+                f"Column '{col}' in source '{source_name}' contains non‑numeric values."
+            )
+    LOG.info("Numeric columns validated for source '%s'.", source_name)
+
+def _write_units_json(units: Dict[str, str], dest_path: Path) -> None:
+    """Write the ``units`` mapping to ``dest_path`` as pretty‑printed JSON."""
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    with dest_path.open("w", encoding="utf-8") as f:
+        json.dump(units, f, indent=2, sort_keys=True)
+    LOG.info("Wrote unit metadata to %s", dest_path)
+
+# ----------------------------------------------------------------------
+# Main workflow
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Generate per‑source unit‑metadata JSON files.
+
+    For each CSV file under ``data/raw/``, a JSON file named
+    ``<source>_units.json`` is created in the same directory. The JSON
+    maps column names to their SI unit strings defined in ``UNITS_MAP``.
+    If any inconsistency is detected a ``UnitMismatchError`` is raised,
+    causing the pipeline to abort.
+    """
+    csv_files = _list_raw_csv_files()
+    if not csv_files:
+        LOG.warning("No raw CSV files found – nothing to process.")
+        return
+
+    for csv_path in csv_files:
+        source_name = csv_path.stem  # filename without extension
+        LOG.info("Processing source '%s' (%s)", source_name, csv_path)
+
+        # Load the CSV (no type conversion here – we validate later)
+        try:
+            df = pd.read_csv(csv_path)
+        except Exception as exc:
+            raise UnitMismatchError(
+                f"Failed to read CSV for source '{source_name}': {exc}"
+            ) from exc
+
+        # Validate required columns and numeric consistency
+        _validate_columns(df, source_name)
+        _validate_numeric_columns(df, source_name)
+
+        # Build the unit‑metadata dict (only for columns that exist)
+        units_metadata = {
+            col: UNITS_MAP.get(col, "unknown") for col in df.columns
+        }
+
+        # Destination JSON path
+        json_path = csv_path.with_name(f"{source_name}_units.json")
+        _write_units_json(units_metadata, json_path)
+
+    LOG.info("Unit‑metadata generation completed successfully.")
+
+if __name__ == "__main__":
+    main()
