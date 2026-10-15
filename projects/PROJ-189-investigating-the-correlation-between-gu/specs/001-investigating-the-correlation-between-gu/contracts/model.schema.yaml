@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Performance Schema"
-description: "Schema for Random Forest model performance, null distribution, and SHAP results."
+description: "Schema for Random Forest regression model performance, null distribution, VIF flags, and SHAP analysis."
 type: object
 properties:
   model_config:
@@ -14,6 +14,7 @@ properties:
         type: integer
       max_depth:
         type: integer
+        nullable: true
       random_state:
         type: integer
       cv_folds:
@@ -46,10 +47,10 @@ properties:
         type: number
       r2_null_adjusted_threshold:
         type: number
-        description: "Threshold adjusted for multiple testing (features)"
+        description: "Threshold after Holm‑Bonferroni correction"
       is_significant:
         type: boolean
-        description: "True if model R2 > adjusted threshold"
+        description: "True if model R² exceeds adjusted threshold"
     required:
       - n_permutations
       - r2_null_95th_percentile

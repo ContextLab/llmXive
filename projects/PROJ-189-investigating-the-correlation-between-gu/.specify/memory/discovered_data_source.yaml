@@ -1,18 +1,17 @@
 status: none
-intent: American Gut Project 16S taxonomy data and Health and Retirement Study cognitive
-  dataset python package dataset
+intent: American Gut Project 16S data and Health and Retirement Study cognitive dataset
+  download python package dataset
 required_fields:
 - participant_id
 - age
 - sex
 - BMI
-- education
 - cognitive_score
-- genus_1
-- genus_2
-- genus_3
-- genus_4
-- genus_5
-cache_key: 0b372feab8b7d2b97643953c35f4699ca71e4e90352b2f3f53eebef6556755c6
-searched_at: '2026-10-15T08:13:18.497822+00:00'
+- microbial_genus_1
+- microbial_genus_2
+- microbial_genus_3
+- microbial_genus_4
+- microbial_genus_5
+cache_key: da2337bbe8b619cb0b983893007fd5fe11560ae260262d232885442f23ad0dbc
+searched_at: '2026-10-15T08:19:17.011102+00:00'
 retry_count: 1

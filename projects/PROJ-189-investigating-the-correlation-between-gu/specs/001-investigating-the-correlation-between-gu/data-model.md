@@ -3,49 +3,54 @@
 ## 1. Entity Definitions
 
 ### 1.1 Sample (Participant)
-Represents a single individual with both microbiome and cognitive data.
-- `sample_id`: Unique identifier (string).
-- `participant_id`: Original ID used for merging AGP and HRS (string).
-- `age`: Integer (years).
-- `sex`: Categorical (Male, Female, Other).
-- `bmi`: Float (kg/m²).
-- `is_missing_bmi`: Boolean (True if original BMI was missing and imputed).
-- `cognitive_score`: Float (normalized score from HRS).
-- `age_group`: Categorical (60-69, 70-79, 80+).
+| Field | Type | Description |
+|-------|------|-------------|
+| `sample_id` | string | Unique identifier for the microbiome sample (AGP). |
+| `participant_id` | string | Shared ID used to merge AGP & HRS (must exist in both). |
+| `age` | integer (≥ 60) | Age at time of HRS assessment. |
+| `sex` | enum(`Male`, `Female`, `Other`, `Unknown`) | Self‑reported sex. |
+| `bmi` | number (≥ 0) | Body‑mass index; may be imputed. |
+| `is_missing_bmi` | boolean | `True` if BMI was imputed via MICE. |
+| `cognitive_score` | number | Continuous cognitive performance metric from HRS. |
+| `age_group` | enum(`60-69`, `70-79`, `80+`) | Derived age bin for stratified splitting. |
 
 ### 1.2 Taxon (Genus)
-Represents a microbial genus and its abundance across samples.
-- `genus_name`: String.
-- `relative_abundance`: Float (0.0 to 1.0).
-- `css_normalized_value`: Float (Cumulative Sum Scaling normalized value).
+| Field | Type | Description |
+|-------|------|-------------|
+| `genus_name` | string | Microbial genus name. |
+| `raw_count` | integer | Raw read count before rarefaction. |
+| `rarefied_count` | integer | Count after rarefaction to `min_depth`. |
+| `clr_value` | number | Centered log‑ratio transformed abundance (used for modelling). |
+| `vif` | number (optional) | VIF computed on CLR matrix (if > 5, flagged). |
 
 ### 1.3 ModelArtifact
-Represents the trained Random Forest model and its metadata.
-- `model_id`: String (UUID).
-- `hyperparameters`: Dictionary (`n_estimators`, `max_depth`, `random_state`).
-- `metrics`: Dictionary (`r2`, `rmse`, `fdr_significant_count`).
-- `shap_rankings`: List of tuples (genus, mean_abs_shap_value).
-- `timestamp`: ISO8601 datetime.
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_id` | string (UUID) | Unique identifier for the saved model. |
+| `hyperparameters` | object | `n_estimators`, `max_depth`, `random_state`. |
+| `performance` | object | `r2_train`, `r2_test`, `rmse_test`. |
+| `null_distribution` | object | `n_permutations`, `r2_null_95th_percentile`, `adjusted_threshold`, `is_significant`. |
+| `vif_check` | object | `threshold` (5) and list of flagged taxon pairs with VIF values. |
+| `shap_analysis` | object | List of top‑20 genera with `mean_abs_shap`. |
+| `timestamp` | string (ISO‑8601) | Creation time of the artifact. |
 
 ## 2. Data Flow
 
-1. **Raw Input**: AGP (Qiita) Taxa counts + HRS (Official) Metadata.
-2. **Intermediate**: Merged DataFrame (Sample + Taxa).
-3. **Processed**: CSS-normalized + Imputed DataFrame.
-4. **Output**:
-   - Correlation Table (Genus, Rho, P-value, Q-value, Method).
-   - Model Performance Metrics.
-   - Sensitivity Analysis Report.
+1. **Raw Input**: `agp.parquet` (taxa counts) + `hrs.parquet` (metadata).  
+2. **Intermediate**: `merged_age60.parquet` (inner join, age filter).  
+3. **Processed**: `clr_normalized.parquet` (CLR matrix) + `imputed.parquet` (BMI imputed).  
+4. **Outputs**:  
+   - `correlations.json` (adheres to `correlation.schema.yaml`).  
+   - `model_metrics.json` (adheres to `model.schema.yaml`).  
+   - `sensitivity.json` (variance of R² across rarefaction depths).  
 
-## 3. Storage Schema
+All files are stored under `data/` and are version‑hashed in the project state YAML.
 
-- **Raw Data**: `data/raw/agp_*.csv`, `data/raw/hrs_*.csv` (or official formats).
-- **Processed Data**: `data/processed/merged_age60.csv`, `data/processed/css_normalized.csv`.
-- **Results**: `data/results/correlations.json`, `data/results/model_metrics.json`.
+## 3. Constraints & Validation
 
-## 4. Constraints
+- **Missing Data**: Rows missing `cognitive_score` or `age` are dropped before any analysis.  
+- **Zero Inflation**: Handled by rarefaction + CLR; no log of zeros directly.  
+- **Memory**: If `merged_age60.parquet` exceeds 6 GB, the pipeline automatically caps taxa to the top‑200 by mean abundance.  
+- **Linkage**: Pipeline aborts with error if `len(overlap) < 500`.  
 
-- **Missing Data**: Rows with missing `cognitive_score` or `age` are dropped. Missing `bmi` is imputed via MICE; `is_missing_bmi` flag is set.
-- **Zero Inflation**: Microbiome data contains many zeros. CSS normalization handles zeros without log transformation.
-- **Memory**: All data must fit in RAM. If the merged dataset exceeds a substantial size threshold, the pipeline will log a warning and subsample taxa to the top 200 genera.
-- **Linkage**: If no `participant_id` match is found, the pipeline terminates with a fatal error.
+---

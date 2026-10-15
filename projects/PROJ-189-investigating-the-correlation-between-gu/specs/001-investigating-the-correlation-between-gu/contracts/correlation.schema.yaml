@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Correlation Results Schema"
-description: "Schema for SparCC/Spearman correlation results with FDR correction."
+description: "Schema for Spearman correlation results between microbial genera and cognitive scores, with Benjamini‑Hochberg FDR correction."
 type: object
 properties:
   parameters:
@@ -9,15 +9,14 @@ properties:
       method:
         type: string
         enum:
-          - sparcc
-          - spearman_clrs
+          - spearman
       correction:
         type: string
         enum:
           - benjamini_hochberg
       alpha:
         type: number
-        description: "Significance threshold"
+        description: "Significance threshold after correction"
     required:
       - method
       - correction
@@ -45,7 +44,7 @@ properties:
           type: boolean
         method_used:
           type: string
-          description: "Primary or secondary method used for this result"
+          description: "Primary method used (spearman)"
       required:
         - genus
         - cognitive_metric
@@ -53,6 +52,7 @@ properties:
         - p_value
         - q_value
         - significant
+        - method_used
 required:
   - parameters
   - results

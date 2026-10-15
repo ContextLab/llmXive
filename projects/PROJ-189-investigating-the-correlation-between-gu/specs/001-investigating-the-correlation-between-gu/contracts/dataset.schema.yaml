@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Merged Dataset Schema"
-description: "Schema for the merged AGP and HRS dataset after preprocessing (age >= 60, CSS normalized)."
+description: "Schema for the merged AGP‑HRS dataset after preprocessing (age ≥ 60, CLR‑normalized)."
 type: object
 properties:
   metadata:
@@ -8,19 +8,19 @@ properties:
     properties:
       source_agp:
         type: string
-        description: "Official Qiita Study ID"
+        description: "AGP source identifier (Qiita study ID or URL)"
       source_hrs:
         type: string
-        description: "Official HRS Data Source"
+        description: "HRS source identifier (URL or DUA reference)"
       merge_key:
         type: string
-        description: "Column name used for merging"
+        description: "Column name used for merging (participant_id)"
       total_samples:
         type: integer
-        description: "Total number of samples in the merged dataset"
+        description: "Number of rows after merge and age filter"
       age_filter:
         type: integer
-        description: "Minimum age filter applied"
+        description: "Minimum age applied (60)"
     required:
       - source_agp
       - source_hrs
@@ -34,10 +34,8 @@ properties:
       properties:
         sample_id:
           type: string
-          description: "Unique sample identifier"
         participant_id:
           type: string
-          description: "Original participant ID"
         age:
           type: integer
           minimum: 60
@@ -53,7 +51,6 @@ properties:
           minimum: 0
         is_missing_bmi:
           type: boolean
-          description: "True if BMI was imputed"
         cognitive_score:
           type: number
         genera_abundance:
@@ -62,12 +59,12 @@ properties:
             type: number
             minimum: 0
             maximum: 1
-          description: "Relative abundance of each genus"
-        genera_css:
+          description: "Relative abundance (raw) for each genus"
+        genera_clr:
           type: object
           additionalProperties:
             type: number
-          description: "CSS normalized values for each genus"
+          description: "CLR‑transformed values for each genus"
       required:
         - sample_id
         - participant_id
@@ -77,7 +74,7 @@ properties:
         - is_missing_bmi
         - cognitive_score
         - genera_abundance
-        - genera_css
+        - genera_clr
 required:
   - metadata
   - samples
