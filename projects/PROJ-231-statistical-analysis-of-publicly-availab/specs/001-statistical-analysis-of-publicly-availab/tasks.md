@@ -20,7 +20,7 @@
 - [X] **T002** Add a project‑level `.gitignore` that excludes `data/raw/`, `data/processed/`, `data/artifacts/`, compiled artefacts, and Python caches.  
   *Verification*: `git check-ignore -v data/raw/*` returns a matching rule.
 
-- [ ] **T003** Initialise `requirements.txt` with exact versions (pinned) for: `pandas`, `numpy`, `scipy`, `xarray`, `datasets`, `scikit-learn`, `scikit-fda`, `matplotlib`, `seaborn`, `pyyaml`, `black`, `ruff`, `pytest`.  
+- [ ] **T003** Initialise `requirements.txt` with exact versions (pinned) for: `pandas`, `numpy`, `scipy`, `xarray`, `datasets`, `scikit-learn`, `scikit-fda`, `matplotlib`, `seaborn`, `pyyaml`, `black`, `ruff`, `pytest`.   <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 -->
   *Verification*: `pip install -r requirements.txt` succeeds on a fresh environment.
 
 - [ ] **T004** Write `quickstart.md` that documents a single command to run the full pipeline on a tiny test subset (e.g., three models) and points to the expected output directories.  

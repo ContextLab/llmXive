@@ -53,7 +53,7 @@ ERROR tests/unit/test_robustness_t030.py
 ERROR tests/unit/test_run_basis.py
 ERROR tests/unit/test_visualize.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 8 errors in 2.94s ========================
+======================== 13 warnings, 8 errors in 1.14s ========================
 
 
 - python -m pytest tests/contract/ -> rc=5

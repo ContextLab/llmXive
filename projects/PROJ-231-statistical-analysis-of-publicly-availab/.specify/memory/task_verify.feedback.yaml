@@ -3,11 +3,8 @@ T001:
 T002:
   task: a06ed6e0ee7f11c47c45d199a9be5aabfab8bcf0c281859894477d63c222d064
 T003:
-  reason: "Checked `requirements.txt` \u2013 it contains all required packages with\
-    \ exact version pins. However, there is no concrete evidence (e.g., installation\
-    \ log or command output) showing that `pip install -r requirements.txt` actually\
-    \ succeeds in a fresh environment, which is part of the task\u2019s verification\
-    \ requirement."
+  reason: 'Requested task execution failed; rerun successfully: code/install_requirements.py
+    exit=1'
   task: ad983216e830220832a9d6006993a1a4a862a8efd3dbc42d914fdc0d2255f8d2
 T004:
   task: 54921dcd0ab401e34274a2deaa2b7f1e842a228d2e04ffdc6103cba158a9858a

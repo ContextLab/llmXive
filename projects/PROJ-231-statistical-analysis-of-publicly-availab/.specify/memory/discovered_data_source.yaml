@@ -1,14 +1,17 @@
 status: none
-intent: CMIP6 temperature precipitation ESGF Pangeo catalog python package dataset
+intent: download CMIP6 tas pr data from ESGF using intake-esm python package dataset
 required_fields:
-- model
+- model_id
 - ensemble_member
+- scenario
 - variable
+- time
 - latitude
 - longitude
-- time
-- value
+- tas
+- pr
 - units
-cache_key: dbdadac0173d1355448ce38b4917ef1361981aff9463102c4d837123741666ba
-searched_at: '2026-10-15T13:45:14.637418+00:00'
+- grid_type
+cache_key: 4958af33e5a614ffd0db8272dddafd9c0925eee1e0213dc0d1e4b77f125f8b7d
+searched_at: '2026-10-15T13:48:29.352202+00:00'
 retry_count: 1

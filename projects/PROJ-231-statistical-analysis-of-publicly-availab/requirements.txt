@@ -3,7 +3,7 @@
 # Verification: pip install -r requirements.txt succeeds on a fresh environment.
 
 # Core scientific stack
-numpy==1.26.4
+numpy==2.0.0
 scipy==1.11.4
 pandas==2.1.4
 xarray==2023.12.0

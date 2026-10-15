@@ -8,12 +8,13 @@ T001:
   sig: 98d64df0fcafcd910f72178f4d833e6b6914cbc4bdc46711707a2d421cb613d5
 T002:
   c: true
-  h: a6f1a0243e5786b647755c035677aa73767439e7c0d9495a040f55703cb0e148
+  h: b494114ef20174bee3f2c01c78ae68210341f1329cc1647730fe41e751e1adb8
   r: "Checked the project\u2011root `.gitignore` (present) and the unit\u2011test\
-    \ log `tests/unit/test_gitignore.py` which confirms that `data/raw/`, `data/processed/`,\
-    \ `data/artifacts/`, compiled artefacts and Python cache files are correctly ignored.\
-    \ All tests passed, demonstrating the required ignore rules are in place."
-  sig: 99625658136c8ceadd9dc658203253e749afed16ef4aa44981df9c07b7e7095e
+    \ log `code/.tasks/T002.tests_unit_test_gitignore.py.log`, which shows all tests\
+    \ confirming that `data/raw/`, `data/processed/`, `data/artifacts/`, compiled\
+    \ artefacts and Python cache files are correctly ignored. The tests passed, demonstrating\
+    \ the required ignore rules are in place."
+  sig: d1d65d874afbc49e5495525e073c7b38c4e7eaa196b9e407f29904a8b5b53646
 T003:
   c: false
   h: 1a1bcec3b0f6637771341b21f1596896f3eef833c333a1541b9830ec093a2dc0
