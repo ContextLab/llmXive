@@ -1,13 +1,12 @@
 import csv
-import json
 import random
 import math
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 # Fixed seed for reproducibility
 RANDOM_SEED = 42
-NUM_ROWS = 100
+NUM_ROWS = 500  # Updated to meet task specification
 
 # Simple SMILES templates for synthetic data
 SMILES_TEMPLATES = [
@@ -34,51 +33,54 @@ def approximate_molecular_weight(smiles: str) -> float:
     Rough approximation of molecular weight based on SMILES length and composition.
     This is a heuristic for synthetic data generation, not a real calculation.
     """
-    # Very rough: count heavy atoms (non-H) and assign average weight ~12-16
-    # This is purely for synthetic diversity, not accuracy.
+    # Count heavy atoms (non‑hydrogen) in the SMILES string
     count = len([c for c in smiles if c not in ['H', ' ', '(', ')', '[', ']', '=', '#']])
-    # Add some noise
+    # Add a small random perturbation for diversity
     return count * 13.5 + random.uniform(-5, 5)
 
 def stokes_einstein_diffusion(mw: float, viscosity: float, temperature: float = 298.15) -> float:
     """
-    Calculate diffusion coefficient using Stokes-Einstein equation (approximate).
-    D = kT / (6 * pi * eta * r)
-    Assume r is proportional to MW^(1/3)
+    Approximate diffusion coefficient using the Stokes‑Einstein relation.
+    D = kT / (6π η r), with a simplistic radius estimate based on molecular weight.
     """
-    k_b = 1.380649e-23  # Boltzmann constant
-    # Approximate radius in meters (very rough scaling)
-    # Assume density ~ 1 g/cm3, volume ~ MW / density, r ~ (3V/4pi)^(1/3)
-    # MW in g/mol -> kg/molecule = MW / N_A
-    # But for synthetic, we just want a trend.
-    # Let's use a simplified scaling: r ~ MW^(1/3) * 1e-9 (nm scale)
-    r = (mw ** (1/3)) * 1e-9 * 0.5  # arbitrary scaling factor
-    eta = viscosity * 1e-3  # convert cP to Pa.s (approx)
+    k_b = 1.380649e-23  # Boltzmann constant (J·K⁻¹)
+    # Very rough radius scaling (meters)
+    r = (mw ** (1 / 3)) * 1e-9 * 0.5
+    eta = viscosity * 1e-3  # cP → Pa·s
     D = (k_b * temperature) / (6 * math.pi * eta * r)
-    # Convert to cm^2/s (common unit)
-    D_cm2_s = D * 1e4
-    return D_cm2_s
+    # Convert from m²·s⁻¹ to cm²·s⁻¹
+    return D * 1e4
 
 def generate_random_smiles() -> str:
-    """Select a random SMILES from templates or combine them."""
+    """Select a random SMILES template, occasionally concatenating two."""
     if random.random() < 0.8:
         return random.choice(SMILES_TEMPLATES)
     else:
-        # Combine two templates
+        # Concatenate two templates to increase variety
         s1 = random.choice(SMILES_TEMPLATES)
         s2 = random.choice(SMILES_TEMPLATES)
         return s1 + s2
 
 def select_random_solvent() -> Dict:
+    """Pick a solvent definition at random."""
     return random.choice(SOLVENTS)
 
 def generate_synthetic_dataset(output_path: Path, num_rows: int = NUM_ROWS) -> None:
-    """Generate a deterministic synthetic dataset and save to CSV."""
-    random.seed(RANDOM_SEED)
+    """
+    Generate a deterministic synthetic diffusion dataset and write it to CSV.
+
+    Parameters
+    ----------
+    output_path : Path
+        Destination CSV file (including filename).
+    num_rows : int, optional
+        Number of rows to generate; defaults to the module‑level NUM_ROWS (500).
+    """
+    random.seed(RANDOM_SEED)  # Ensure reproducibility
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    rows = []
-    for i in range(num_rows):
+    rows: List[Dict] = []
+    for _ in range(num_rows):
         smiles = generate_random_smiles()
         solvent_info = select_random_solvent()
         solvent_name = solvent_info["name"]
@@ -90,22 +92,37 @@ def generate_synthetic_dataset(output_path: Path, num_rows: int = NUM_ROWS) -> N
 
         rows.append({
             "smiles": smiles,
-            "solvent": solvent_name,
+            "solvent_type": solvent_name,          # Column name matches schema
             "diffusion_coefficient": f"{diffusion:.6e}",
             "viscosity": viscosity,
             "dielectric_constant": dielectric
         })
 
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=["smiles", "solvent", "diffusion_coefficient", "viscosity", "dielectric_constant"])
+    fieldnames = [
+        "smiles",
+        "solvent_type",
+        "diffusion_coefficient",
+        "viscosity",
+        "dielectric_constant"
+    ]
+
+    with open(output_path, mode="w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
     print(f"Generated synthetic dataset with {num_rows} rows at {output_path}")
 
-def main():
-    root = Path(__file__).resolve().parent.parent.parent
+def main() -> None:
+    """
+    Entry‑point used by the CI / quick‑start. It resolves the project root,
+    ensures the raw data directory exists, and creates ``dataset.csv``.
+    """
+    # Resolve the project root relative to this file's location
+    root = Path(__file__).resolve().parents[2]  # <project>/code/ingestion/..
     raw_dir = root / "data" / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
     output_file = raw_dir / "dataset.csv"
     generate_synthetic_dataset(output_file)
 

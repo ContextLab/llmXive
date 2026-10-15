@@ -1,0 +1,76 @@
+T001:
+  task: 2ae737c26f029b96db232ec28557377636b3d9fe40502082248abc26fea011a0
+T002:
+  reason: "Checked `code/ingestion/generate_synthetic.py` (uses fixed seed\u202F42,\
+    \ writes 500 rows with the required columns) and `data/raw/dataset.csv` (row\u2011\
+    count test passed). However the schema\u2011validation test failed because the\
+    \ schema file is YAML but the test loads it as JSON, so there is no evidence that\
+    \ the CSV actually validates against `contracts/ingestion_schema.schema.yaml`.\
+    \ The task therefore lacks a confirmed schema\u2011validation artifact."
+  task: ea6411ecee530156bc6ac73593d4b0a29cd045f11bc0171d56fa65b044f017c9
+T003:
+  reason: "Checked `code/ingestion/fetch_real.py`, `plan.md`, `data/raw/dataset.csv`,\
+    \ and the test log `code/.tasks/T003.tests_test_fetch_real.py.log`. The script\
+    \ aborts because `plan.md` contains no URL, causing the \u201CNo real dataset\
+    \ URL \u2013 FR\u2011001 cannot be satisfied\u201D error and the \u201Csuccessful\
+    \ download\u201D test to fail. No evidence shows that a real download occurred,\
+    \ that the CSV was produced by the script, or that schema validation was performed.\
+    \ A valid `Dataset URL:` line and a successful download+validation are required."
+  task: 619806a785e6211a22e168b87ccb78db56c11f1687a5968525831e8ccd1b7204
+T004:
+  reason: "The `code/ingestion/flag_source.py` script determines the source from a\
+    \ \u201CDataset URL:\u201D line in `plan.md` instead of checking whether `fetch_real.py`\
+    \ succeeded, which does not meet the task\u2019s specification. Moreover, the\
+    \ pytest logs show that the expected `data/data_source_flag.json` file is not\
+    \ created in the test\u2019s temporary directory, causing two of three verification\
+    \ tests to fail. The existing `data/data_source_flag.json` contains only `\"synthetic\"\
+    ` and provides no evidence that the script can correctly write `\"real\"` when\
+    \ appropriate."
+  task: 806c805eee1ae38ccd976c3acbecfe67fcb132a621fef672aa330322e9fe8bc1
+T005:
+  reason: "Checked `code/ingestion/validate.py`, `data/processed/valid_record_count.txt`,\
+    \ and the execution logs. The script writes the count correctly, but the required\
+    \ `data/logs/ingestion.log` file is missing, the test suite fails because `validate.py`\u2019\
+    s `main()` uses `argparse` and aborts when pytest passes its own arguments, and\
+    \ the logging helper `log_missing_data_excluded` references `json` without importing\
+    \ it, so missing\u2011data tags would raise a `NameError`. These issues prevent\
+    \ the task\u2019s verification criteria from being satisfied."
+  task: ea03a75f909d77721740d0c9e5e3d19e417a73bf87b169035d001a99d48e042e
+T006:
+  task: b1e8c6d91b8b164d0c8d0ba367dfcfd80170c5b07ff20cfca68dac8ea4c4006a
+T007:
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion/ingest.py
+    exit=1'
+  task: 6359f3d28ea112664be73df965ec9b565c0620cf6fd2e10b97d24d0d08b78b45
+T008:
+  task: aa0635a78a882c00cadf576a62c5bb3a348b8c283876aa1f8db30e3f1b0d72f4
+T009:
+  task: d8ecf2931d0a1596d7606ab715d5bb50bc45b082b1fcb4d9ade830a99af89497
+T010:
+  task: 6032706f07ba14f6861ce1f5ebc2354e410a6974344b07141efcf5287a16174b
+T011:
+  task: 6bf26076de786f54b74c2926eab0fbf20b0766fcd3042cef35e85446ac71ca33
+T012:
+  task: 552c888859183eaf6e7fd080795c2f4ff76341d6f751c3d5768ede9b1996c9c2
+T013:
+  task: 28155461bb7c83f7abf90f51e20dd08e9a0551fcf38c5f35ddc7638e668d40dc
+T014:
+  task: c82e7266bd6d34a3deb47c738b645dba3dbc5e928b26861e9fde698e37e7eb16
+T015:
+  task: dbcdc1db2e1548d26a5d60a128442ee8e3e909b6a09b1f6c4b59723f99aa066a
+T016:
+  task: 2c955d92bfab86a952938eeb3a4b298d795c57c76bbbcf44c1ace4d1dc3334ed
+T017:
+  task: d958558a1291aff670f20edc0e7c46a917b2562380c1c3321b40bf1e1b0b5c89
+T018:
+  task: 52654990f53edec18f64d16afe1275ec26b1b67fd9523d62e0d336aabb215986
+T019:
+  task: e849c44e056acc7c86c942dd2f8cfb626af8e4071a3f8e6fa360bbb58718995c
+T020:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: cce38a0afab7363770863713c2f52af6fccbfe03fda051db9cf4fe855f7b1e43
+T021:
+  task: a9a6d870526af0fd8ec4db6d7bf769dd99c58df276ccb635c45cec13997d9909

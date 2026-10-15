@@ -11,7 +11,8 @@ Rows that fail validation are excluded from downstream processing and the
 corresponding events are logged using the project's logging utilities.
 
 The module can also be executed as a script to filter a CSV file of raw data,
-writing only the validated rows to an output CSV file.
+writing only the validated rows to an output CSV file and recording the number
+of valid records.
 """
 
 import csv
@@ -22,7 +23,6 @@ from rdkit import Chem
 
 from utils.logging import (
     get_logger,
-    log_invalid_smiles,
     log_missing_data_excluded,
 )
 from utils.config import get_project_root
@@ -73,11 +73,11 @@ def validate_row(row: Dict[str, str]) -> bool:
     smiles = row.get("smiles") or row.get("SMILES")
     if not smiles:
         logger.debug("Row missing SMILES column.")
-        log_invalid_smiles("MISSING_SMILES")
+        logger.info("[INVALID_SMILES] Row missing SMILES column.")
         return False
     if not is_valid_smiles(smiles):
         logger.debug(f"Invalid SMILES detected: {smiles}")
-        log_invalid_smiles(smiles)
+        logger.info(f"[INVALID_SMILES] Invalid SMILES string: '{smiles}'")
         return False
 
     # ----------------------------------------------------------------------
@@ -89,7 +89,8 @@ def validate_row(row: Dict[str, str]) -> bool:
         logger.debug(
             f"Row missing solvent data for fields: {', '.join(missing_keys)}"
         )
-        log_missing_data_excluded(", ".join(missing_keys))
+        # utils.logging already formats the tag correctly
+        log_missing_data_excluded(logger, row)
         return False
 
     # All checks passed
@@ -111,8 +112,9 @@ def main() -> None:
     Command‑line entry point.
 
     Reads the raw dataset CSV (default ``data/raw/dataset.csv``), filters out
-    invalid rows, and writes the validated rows to
-    ``data/processed/validated.csv``. Paths can be overridden via the
+    invalid rows, writes the validated rows to
+    ``data/processed/validated.csv`` and records the number of valid rows in
+    ``data/processed/valid_record_count.txt``. Paths can be overridden via the
     ``--input`` and ``--output`` arguments.
     """
     import argparse
@@ -165,6 +167,13 @@ def main() -> None:
         writer.writerows(valid_rows)
 
     logger.info(f"Validated CSV written to: {output_path}")
+
+    # Write the count of valid records
+    count_path = get_project_root() / "data" / "processed" / "valid_record_count.txt"
+    count_path.parent.mkdir(parents=True, exist_ok=True)
+    with count_path.open("w", encoding="utf-8") as count_file:
+        count_file.write(str(len(valid_rows)))
+    logger.info(f"Valid record count written to: {count_path}")
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,7 @@ from urllib.error import URLError, HTTPError
 from utils.config import get_project_root
 from utils.logging import get_logger, log_info, log_error
 
-logger = get_logger(__name__)
+logger = get_logger()
 
 def ensure_output_dir(output_path: Path) -> None:
     """Ensure the directory for the output file exists."""
@@ -73,7 +73,14 @@ def update_plan_md(plan_path: Path, dataset_url: str) -> None:
         f.write(f"\nDataset URL: {dataset_url}\n")
     log_info(logger, f"Updated plan.md with Dataset URL: {dataset_url}")
 
-def main():
+def main() -> None:
+    """
+    Download a verified real dataset as specified in ``plan.md``.
+    The script expects a line of the form ``Dataset URL: <url>``.
+    On success, the CSV is saved to ``data/raw/dataset.csv``.
+    Any failure (missing URL, network error, HTTP error) results in a
+    non‑zero exit status and a clear error message – no silent fallback.
+    """
     root = get_project_root()
     plan_path = root / "plan.md"
     raw_dir = root / "data" / "raw"
@@ -82,29 +89,31 @@ def main():
     # Ensure raw directory exists
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Check plan.md for Dataset URL
+    # 1. Verify plan.md exists
     if not plan_path.exists():
-        log_error(logger, "plan.md not found. Cannot fetch real data.")
-        print("ERROR: plan.md not found.")
-        sys.exit(1)
+        msg = "plan.md not found – cannot fetch real data."
+        log_error(logger, msg)
+        raise RuntimeError(msg)
 
-    plan_content = plan_path.read_text()
+    # 2. Extract Dataset URL
     dataset_url = None
-    for line in plan_content.splitlines():
+    for line in plan_path.read_text().splitlines():
         if line.strip().startswith("Dataset URL:"):
-            dataset_url = line.split(":", 1)[1].strip()
+            # Handle the case where the line may be empty after the colon
+            url_part = line.split(":", 1)[1].strip()
+            if url_part:
+                dataset_url = url_part
             break
 
     if not dataset_url:
-        log_info(logger, "No 'Dataset URL:' found in plan.md. Triggering synthetic generation (T048).")
-        print("NO_URL")
-        sys.exit(0)
+        msg = "No real dataset URL – FR-001 cannot be satisfied"
+        log_error(logger, msg)
+        raise RuntimeError(msg)
 
     log_info(logger, f"Found Dataset URL in plan.md: {dataset_url}")
 
-    # 2. Attempt download
+    # 3. Attempt download using appropriate strategy
     try:
-        # Determine fetch strategy based on URL (simple heuristic)
         if "zenodo" in dataset_url.lower():
             fetch_from_zenodo(dataset_url, output_file)
         elif "nist" in dataset_url.lower() or "nist.gov" in dataset_url.lower():
@@ -123,19 +132,22 @@ def main():
                         f.write(chunk)
             log_info(logger, f"Successfully downloaded to {output_file}")
 
-        # 3. Update plan.md if successful (redundant check but safe)
+        # 4. Record the successful URL in plan.md (idempotent)
         update_plan_md(plan_path, dataset_url)
-        print("SUCCESS")
-        sys.exit(0)
 
     except FileNotFoundError as e:
+        # Propagate as a clear runtime error
         log_error(logger, str(e))
-        print("FAILED")
-        sys.exit(1)
+        raise RuntimeError(str(e)) from e
     except Exception as e:
+        # Any unexpected exception should also cause a non‑zero exit
         log_error(logger, f"Unexpected error during download: {e}")
-        print("FAILED")
-        sys.exit(1)
+        raise RuntimeError(f"Unexpected error during download: {e}") from e
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        # Ensure the script exits with a non‑zero status on any failure
+        print(f"ERROR: {exc}", file=sys.stderr)
+        sys.exit(1)

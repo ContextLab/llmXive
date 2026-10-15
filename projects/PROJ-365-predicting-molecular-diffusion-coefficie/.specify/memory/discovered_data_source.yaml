@@ -1,0 +1,15 @@
+status: none
+intent: download NIST transport properties diffusion coefficient dataset with solvent
+  viscosity dielectric constant python package dataset
+required_fields:
+- solute_smiles
+- solvent_name
+- solvent_viscosity
+- solvent_dielectric_constant
+- diffusion_coefficient
+- temperature
+- pressure
+- reference_id
+cache_key: ac9c9bc61783727528cca05c8569ce0ec3a1829465721ec9293fedea32f75e72
+searched_at: '2026-10-15T15:25:24.552197+00:00'
+retry_count: 1

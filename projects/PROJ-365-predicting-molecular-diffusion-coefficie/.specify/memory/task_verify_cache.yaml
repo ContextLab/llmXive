@@ -1,39 +1,56 @@
-T000a:
+T001:
+  c: true
+  h: 8cf60af55ebc5ebd078fe859a78c5374445c2e5f2d429af85ebd59e1e24f81cb
+  r: "The `data/raw/` directory is present (confirmed by the collector with a SHA\u2011\
+    256 hash and containing `dataset.csv`), and the setup script `code/create_raw_dir.py`\
+    \ ran successfully (exit code\u202F0) as shown in its log. Additionally, the pytest\
+    \ record `tests/test_create_raw_dir.py` passed, verifying that `ls data/raw` executes\
+    \ without error."
+  sig: aab5296798359831115b0015797f7f38808f89040df8ce8ff61b8c766fb1ce5b
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `data/raw` directory exists in the repository;\
-    \ the artifacts shown relate only to feature specifications and user stories,\
-    \ with no file\u2011system listing or commit showing the required directory creation.\
-    \ The task\u2019s core requirement\u2014a non\u2011empty `data/raw` folder for\
-    \ source CSVs\u2014is missing."
+  h: 90420a3634354456164e6dbcb8fa97c2a0ded075f1d488b00e21471890749082
+  r: "Checked `code/ingestion/generate_synthetic.py` (uses fixed seed\u202F42, writes\
+    \ 500 rows with the required columns) and `data/raw/dataset.csv` (row\u2011count\
+    \ test passed). However the schema\u2011validation test failed because the schema\
+    \ file is YAML but the test loads it as JSON, so there is no evidence that the\
+    \ CSV actually validates against `contracts/ingestion_schema.schema.yaml`. The\
+    \ task therefore lacks a confirmed schema\u2011validation artifact."
+  sig: 1ea4efa04c81714affbf679ec857a79e70f96b6484f9fb22bace93a01a3fa629
+T003:
+  c: false
+  h: 13d19fac8fcecdad3afbcc053231bc788868c398a9a300ca7aa29e118ee0fabd
+  r: "Checked `code/ingestion/fetch_real.py`, `plan.md`, `data/raw/dataset.csv`, and\
+    \ the test log `code/.tasks/T003.tests_test_fetch_real.py.log`. The script aborts\
+    \ because `plan.md` contains no URL, causing the \u201CNo real dataset URL \u2013\
+    \ FR\u2011001 cannot be satisfied\u201D error and the \u201Csuccessful download\u201D\
+    \ test to fail. No evidence shows that a real download occurred, that the CSV\
+    \ was produced by the script, or that schema validation was performed. A valid\
+    \ `Dataset URL:` line and a successful download+validation are required."
+  sig: e943452597451d508c62e7394db64a542f38c908ca0d1e472ab8d3867c89df2b
+T004:
+  c: false
+  h: 5a3be071c80258d6025ed122123029fad8679a6ccbc1cfffe95b68621c9beb93
+  r: "The `code/ingestion/flag_source.py` script determines the source from a \u201C\
+    Dataset URL:\u201D line in `plan.md` instead of checking whether `fetch_real.py`\
+    \ succeeded, which does not meet the task\u2019s specification. Moreover, the\
+    \ pytest logs show that the expected `data/data_source_flag.json` file is not\
+    \ created in the test\u2019s temporary directory, causing two of three verification\
+    \ tests to fail. The existing `data/data_source_flag.json` contains only `\"synthetic\"\
+    ` and provides no evidence that the script can correctly write `\"real\"` when\
+    \ appropriate."
+  sig: 7264eda1b02ce9d05e68fe38cfae6effcc7d7371ee2ffe52b00b597b89a75aab
 T005:
   c: false
-  h: 9a88c005301ef63148236490a1aefa07e78eb6d5a451b247e296521156d39f13
-  r: The provided `code/utils/logging.py` is truncated and the `log_invalid_smiles`
-    function is unfinished, so the required tag `[ERROR_SMILES]` cannot be logged.
-    Additionally, the expected `data/logs/ingestion.log` file does not exist, indicating
-    the logger has not yet written any output. The task therefore remains incomplete.
-T005a:
-  c: false
-  h: 6f8b74ca0f3ba7f70c7ad8bc092b51dc2bfd4d77b7ab116af51c4cc9fc9a9cf5
-  r: "The provided `tests/unit/test_logging_tags.py` is truncated (ends with `log_missi`),\
-    \ does not contain the full test logic, and never processes a mixed\u2011validity\
-    \ CSV. Moreover, the required `data/logs/ingestion.log` file is missing, so the\
-    \ test cannot verify the presence of the tags. The task\u2019s requirement is\
-    \ therefore not satisfied."
-T006c:
-  c: false
-  h: 181b40cd82164ef7f9660f5301a4e5d6f40952de91d7509be384c7272259af37
-  r: The required output file `artifacts/reports/runtime_memory.json` does not exist,
-    so the total runtime is not being recorded as specified. The implementer must
-    create the JSON file with the `"total_seconds"` key containing the measured runtime.
-T007b:
-  c: false
-  h: 7c129b20ccd42e764eaa7cd199f82383b68d96b20e170482e064115dd3cabdbe
-  r: "The provided `generate_synthetic.py` is truncated (ends with an unfinished `def`\
-    \ line) and contains no code that actually writes `data/raw/dataset.csv`. Moreover,\
-    \ the required `data/raw/dataset.csv` file does not exist. Consequently, the task\u2019\
-    s requirement of generating a deterministic synthetic CSV is not met."
+  h: 012927e4a42d513298083b7f1056c7535a04b5f02dc24612997ee21637e058b5
+  r: "Checked `code/ingestion/validate.py`, `data/processed/valid_record_count.txt`,\
+    \ and the execution logs. The script writes the count correctly, but the required\
+    \ `data/logs/ingestion.log` file is missing, the test suite fails because `validate.py`\u2019\
+    s `main()` uses `argparse` and aborts when pytest passes its own arguments, and\
+    \ the logging helper `log_missing_data_excluded` references `json` without importing\
+    \ it, so missing\u2011data tags would raise a `NameError`. These issues prevent\
+    \ the task\u2019s verification criteria from being satisfied."
+  sig: a817741ff99660307bb82ceef2b563fcabecf60aefd31270cfabf5e92444058b
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -49,50 +66,11 @@ T014:
     message. Without the modified script or evidence of its behavior, the requirement
     cannot be confirmed. The implementer must provide the updated `ingest.py` (or
     a diff) and a sample run showing the error handling in action.
-T025a:
-  c: false
-  h: d4e23c28255f7dacb43f005cd1f35f73f6afa8f2e0a7c8143c716dca444dd14e
-  r: The required file `code/training/ablation_pipeline.py` does not exist, so the
-    requested `remove_solvent` flag cannot be present or functional. The implementer
-    must add the missing script with the appropriate flag implementation for both
-    MPNN and Linear Regression pipelines.
-T025b:
-  c: false
-  h: b1a266deba0ff2eb7830610614086d1659f97acbd0a4377d2a761e94258dab53
-  r: The required script `code/training/ablation_study.py` is absent, and the expected
-    output file `artifacts/reports/ablation_report.json` does not exist, so the orchestration,
-    calculation of variation deltas, and report generation were never performed. The
-    implementer must add the missing script and ensure it creates the JSON report
-    with the specified fields.
-T026:
-  c: false
-  h: e30164e73b8607c9cfddc47783fe9872e3ae625c578c6ec16ae3e3f64cb87ba0
-  r: "The `code/training/robustness.py` file exists and appears to implement the required\
-    \ logic, but the required output artifact `artifacts/reports/outlier_analysis.json`\
-    \ is missing from the repository. Without this JSON report, the task\u2019s requirement\
-    \ to write the analysis results is not satisfied. The next implementer should\
-    \ ensure the script creates the `outlier_analysis.json` file (and optionally run\
-    \ it to generate the file)."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code artifacts, commit diffs, or documentation showing that imports and dependencies
-    in the `code/` directory were cleaned up or refactored are present. Without any
-    files or change logs, the claim cannot be verified. The required evidence (e.g.,
-    updated source files, a summary of changes, or a test run confirming imports work)
-    is missing.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pytest test file (e.g., `tests/test_monitor.py`) containing the required `test_time_limit`,
-    `test_memory_limit`, and `test_resource_limit_message` functions is present in
-    the repository, nor any evidence of such tests being added. The task therefore
-    remains unfulfilled.
-T043:
-  c: false
-  h: 3ac017d6f4e829631a3cb76029bfa92b635e0123241af8f33502491117e9e577
-  r: "The repository contains `code/training/sensitivity.py`, but the file is truncated\
-    \ and does not show a function that writes the required `artifacts/reports/sensitivity_report.json`.\
-    \ Moreover, the expected report file `reports/sensitivity_report.json` is absent\
-    \ from the disk. Without the generated JSON report, the task\u2019s core requirement\
-    \ is unmet."
+T019:
+  c: true
+  h: 7ba2c1e14f638bc18f06eded49e759a359876f2856f8848cf2efeeb578931bcf
+  r: "Checked `code/ingestion/checksums.py`, the generated `data/checksums.txt` (contains\
+    \ a line for `data/raw/dataset.csv` with the correct SHA\u2011256 hash), and the\
+    \ successful test/run logs confirming the script read `data/raw/`, computed the\
+    \ hash, and wrote the manifest."
+  sig: 28fe4b325a98c777413ce371e48ce0908e9475c040f5c0f821d4d5b56c3378f0

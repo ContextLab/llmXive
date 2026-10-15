@@ -21,7 +21,7 @@ The checklist follows the canonical format
 
 ## Phase 0 – Data acquisition & provenance
 
-- [ ] T001 [P] [US1] Create the raw‑data directory – `data/raw/`  
+- [X] T001 [P] [US1] Create the raw‑data directory – `data/raw/`  
     • Verification: after running the setup script, `ls data/raw` lists a directory (exit code 0).  
 
 - [ ] T002 [P] [US1] Generate a deterministic synthetic dataset (validation‑only fallback) – `code/ingestion/generate_synthetic.py`  
@@ -38,7 +38,7 @@ The checklist follows the canonical format
     • Writes `data/data_source_flag.json` with `{ "source": "real" }` if `fetch_real.py` succeeded, otherwise `{ "source": "synthetic" }`.  
     • Verification: the JSON file exists and contains the correct `"source"` value.  
 
-- [ ] T019 [P] [US1] Compute SHA‑256 checksums of raw dataset files – `code/ingestion/checksums.py`  
+- [X] T019 [P] [US1] Compute SHA‑256 checksums of raw dataset files – `code/ingestion/checksums.py`  
     • Reads all files under `data/raw/`, computes their SHA‑256 hashes, and writes `data/checksums.txt` (one `<hash>  <relative_path>` per line).  
     • Verification: `data/checksums.txt` exists, contains a line for `dataset.csv`, and each hash matches the file’s content.  
 
@@ -55,12 +55,12 @@ The checklist follows the canonical format
     • Writes `data/processed/valid_record_count.txt` containing the integer count of valid records.  
     • Verification: after execution on `data/raw/dataset.csv`, `data/logs/ingestion.log` contains the expected tags, `data/processed/valid_record_count.txt` exists and its integer value equals the number of records marked *valid*.  
 
-- [ ] T006 [P] [US1] Featurize validated records into PyTorch‑Geometric graphs and solvent descriptors – `code/ingestion/featurize.py`  
+- [~] T006 [P] [US1] Featurize validated records into PyTorch‑Geometric graphs and solvent descriptors – `code/ingestion/featurize.py`  
     • Produces `data/processed/featurized_data.jsonl`; each line conforms to `contracts/dataset.schema.yaml`.  
     • Records peak memory usage during processing to `artifacts/reports/memory_profile.json` (SC‑005).  
     • Verification: a random line parsed with `jsonschema.validate` passes the schema; file size > 0 KB; `memory_profile.json` contains `peak_memory_mb` and asserts `peak_memory_mb ≤ 7000`.  
 
-- [ ] T007 [P] [US1] End‑to‑end ingestion orchestrator – `code/ingestion/ingest.py`  
+- [ ] T007 [P] [US1] End‑to‑end ingestion orchestrator – `code/ingestion/ingest.py`   <!-- FAILED-IN-EXECUTION: code/ingestion/ingest.py exit=1 -->
     • Calls `validate.py` → `featurize.py` → writes the JSONL output; skips invalid records, logs reasons, and updates `data/data_source_flag.json` if needed.  
     • Verification: after execution, `data/processed/featurized_data.jsonl` exists and the number of records equals the count recorded in `data/processed/valid_record_count.txt`.  
 

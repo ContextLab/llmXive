@@ -1,145 +1,111 @@
+"""
+ingest.py
+----------
+
+End‑to‑end ingestion orchestrator.
+
+This script coordinates the validation and featurization steps for the
+diffusion dataset. It:
+
+1. Ensures the raw dataset is present (real or synthetic).
+2. Validates each CSV row using ``ingestion.validate.validate_row``.
+   Invalid rows are logged with the appropriate tags.
+3. Featurizes all valid rows via ``ingestion.featurize.featurize_row``.
+4. Writes the featurized records to ``data/processed/featurized_data.jsonl``.
+5. Writes the number of valid records to ``data/processed/valid_record_count.txt``.
+6. Updates the data‑source flag (real vs synthetic) by invoking
+   ``ingestion.flag_source.main``.
+"""
+
 import csv
 import json
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, List
-import re
+from typing import List
 
 from utils.config import get_project_root
-from utils.logging import get_logger, log_info, log_error, log_missing_data_excluded, log_invalid_smiles
-from ingestion.validate import filter_valid_rows
+from utils.logging import (
+    get_logger,
+    log_error,
+    log_info,
+)
+from ingestion.validate import validate_row
 from ingestion.featurize import featurize_row
-from ingestion.generate_synthetic import generate_synthetic_dataset
+from ingestion.flag_source import main as update_data_source_flag
 
 logger = get_logger(__name__)
 
-def get_plan_path(root: Path) -> Path:
-    return root / "plan.md"
+def _load_raw_rows(raw_path: Path) -> List[dict]:
+    """Read the raw CSV and return a list of row dictionaries."""
+    with raw_path.open(newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        return list(reader)
 
-def extract_dataset_url_from_plan(plan_path: Path) -> Optional[str]:
-    if not plan_path.exists():
-        return None
-    content = plan_path.read_text()
-    for line in content.splitlines():
-        if line.strip().startswith("Dataset URL:"):
-            return line.split(":", 1)[1].strip()
-    return None
+def _write_featurized_jsonl(records: List[dict], output_path: Path) -> None:
+    """Write each record as a JSON line."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        for rec in records:
+            f.write(json.dumps(rec) + "\n")
 
-def check_real_data_exists(root: Path) -> bool:
-    raw_dir = root / "data" / "raw"
-    dataset_path = raw_dir / "dataset.csv"
-    return dataset_path.exists()
-
-def ensure_real_data_fetched(root: Path) -> bool:
-    """
-    Ensure real data is fetched. If not, trigger synthetic.
-    Returns True if real data exists (or synthetic generated), False if all failed.
-    """
-    plan_path = get_plan_path(root)
-    url = extract_dataset_url_from_plan(plan_path)
-
-    if url and check_real_data_exists(root):
-        log_info(logger, "Real data found.")
-        return True
-
-    if url and not check_real_data_exists(root):
-        # Try to fetch real data
-        log_info(logger, f"URL found but data missing. Attempting fetch from {url}...")
-        # Call fetch_real.py
-        import subprocess
-        import sys
-        fetch_script = root / "code" / "ingestion" / "fetch_real.py"
-        result = subprocess.run([sys.executable, str(fetch_script)], cwd=root, capture_output=True, text=True)
-        if result.returncode == 0 and check_real_data_exists(root):
-            log_info(logger, "Real data fetched successfully.")
-            return True
-        else:
-            log_error(logger, "Failed to fetch real data.")
-            # Fall through to synthetic
-
-    # No URL or fetch failed -> synthetic
-    log_info(logger, "No real data available. Generating synthetic data.")
-    synthetic_script = root / "code" / "ingestion" / "trigger_synthetic.py"
-    result = subprocess.run([sys.executable, str(synthetic_script)], cwd=root, capture_output=True, text=True)
-    if result.returncode == 0:
-        log_info(logger, "Synthetic data generated.")
-        return True
-
-    log_error(logger, "Failed to obtain any dataset.")
-    return False
-
-def generate_synthetic_fallback(root: Path) -> bool:
-    raw_dir = root / "data" / "raw"
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    output_file = raw_dir / "dataset.csv"
-    try:
-        generate_synthetic_dataset(output_file)
-        return True
-    except Exception as e:
-        log_error(logger, f"Failed to generate synthetic data: {e}")
-        return False
+def _write_valid_count(count: int, count_path: Path) -> None:
+    """Write the integer count of valid records."""
+    count_path.parent.mkdir(parents=True, exist_ok=True)
+    count_path.write_text(str(count), encoding="utf-8")
 
 def ingest(root: Path) -> bool:
     """
-    Main ingestion pipeline:
-    1. Ensure data is available (real or synthetic).
-    2. Validate and featurize.
-    3. Write to data/processed/featurized.jsonl.
-    """
-    if not ensure_real_data_fetched(root):
-        return False
+    Run the full ingestion pipeline.
 
+    Returns
+    -------
+    bool
+        ``True`` on success, ``False`` on any error.
+    """
     raw_dir = root / "data" / "raw"
     processed_dir = root / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
 
-    input_file = raw_dir / "dataset.csv"
-    output_file = processed_dir / "featurized.jsonl"
-
-    if not input_file.exists():
-        log_error(logger, f"Input file not found: {input_file}")
+    raw_path = raw_dir / "dataset.csv"
+    if not raw_path.is_file():
+        log_error(logger, f"Raw dataset not found at {raw_path}")
         return False
 
-    log_info(logger, f"Starting ingestion from {input_file}")
+    # Load rows
+    rows = _load_raw_rows(raw_path)
 
-    valid_rows = []
-    with open(input_file, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Validate
-            is_valid, reason = filter_valid_rows([row], logger)
-            if is_valid:
-                valid_rows.append(row)
-            else:
-                # Log specific error
-                if reason == "invalid_smiles":
-                    log_invalid_smiles(logger, row.get("smiles", "unknown"))
-                elif reason == "missing_solvent":
-                    log_missing_data_excluded(logger, row.get("smiles", "unknown"))
-                else:
-                    log_error(logger, f"Row excluded: {reason}")
+    valid_rows: List[dict] = []
+    featurized_records: List[dict] = []
 
-    log_info(logger, f"Valid rows: {len(valid_rows)}")
+    for row in rows:
+        if validate_row(row):
+            valid_rows.append(row)
+            try:
+                feat = featurize_row(row)
+                if feat is not None:
+                    featurized_records.append(feat)
+            except Exception as exc:
+                log_error(logger, f"Featurization failed for SMILES '{row.get('smiles', 'unknown')}': {exc}")
+        # ``validate_row`` already logs the appropriate tags for invalid rows.
 
-    # Featurize
-    featurized_data = []
-    for row in valid_rows:
-        try:
-            feat = featurize_row(row)
-            if feat:
-                featurized_data.append(feat)
-        except Exception as e:
-            log_error(logger, f"Featurization failed for {row.get('smiles', 'unknown')}: {e}")
+    # Write outputs
+    jsonl_path = processed_dir / "featurized_data.jsonl"
+    _write_featurized_jsonl(featurized_records, jsonl_path)
 
-    # Write output
-    with open(output_file, 'w', encoding='utf-8') as f:
-        for item in featurized_data:
-            f.write(json.dumps(item) + '\n')
+    count_path = processed_dir / "valid_record_count.txt"
+    _write_valid_count(len(valid_rows), count_path)
 
-    log_info(logger, f"Ingestion complete. Output: {output_file}")
+    log_info(logger, f"Ingestion finished: {len(valid_rows)} valid rows written to {jsonl_path}")
+
+    # Update the data‑source flag (real vs synthetic)
+    try:
+        update_data_source_flag()
+    except Exception as exc:
+        log_error(logger, f"Failed to update data source flag: {exc}")
+        # Not a fatal error for ingestion itself
     return True
 
-def main():
+def main() -> None:
+    """CLI entry point."""
     root = get_project_root()
     success = ingest(root)
     sys.exit(0 if success else 1)
