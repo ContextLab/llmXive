@@ -34,21 +34,21 @@ properties:
   clip_similarity:
     type: "number"
     minimum: 0.95
-    description: "Cosine similarity to original image (must be ≥0.95)"
+    description: "Cosine similarity to original image (must be ≥ 0.95)"
   rms_contrast_change:
     type: "number"
     minimum: 15.0
-    description: "Percentage change in RMS contrast in ROI (must be ≥15%)"
+    description: "Percentage change in RMS contrast in ROI (must be ≥ 15 %)"
   moral_intent_preservation_score:
     type: "number"
     minimum: 0.90
-    description: "Correlation between pre- and post-manipulation moral intent scores (must be ≥0.90)"
+    description: "Correlation between pre- and post‑manipulation moral intent scores (must be ≥ 0.90)"
   semantic_integrity:
     type: "string"
     enum:
       - "passed"
       - "failed"
-    description: "Status of semantic integrity check"
+    description: "Result of semantic integrity check"
   image_path:
     type: "string"
     description: "Path to the manipulated image file"

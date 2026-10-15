@@ -1,79 +1,68 @@
 # Data Model: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
 
 ## Overview
+The data model captures every artifact from raw ingestion to final analysis, ensuring alignment with the specification, the constitution, and the contract schemas. The primary source of visual material is the **Visual Genome** dataset, which provides everyday scenes with object annotations suitable for moral‑ambiguity selection.
 
-This document defines the data structures for the project, ensuring alignment with the spec and constitution. Data flows from raw ingestion → manipulation → survey → analysis.
-
-## Entity-Relationship Diagram (Simplified)
-
+## Entity‑Relationship Summary
 ```
-[Scenario] --1:N--> [Stimulus Variant] --N:M--> [Response]
-                     |
-                     v
-              [Participant]
+[Scenario] 1---N [Stimulus Variant] N---M [Response]
+      |                                 |
+      |                                 v
+      +--------------------> [Participant]
 ```
 
-## Data Models
+## Schemas (refer to `contracts/`)
 
-### Scenario
+### Scenario (derived from `contracts/dataset.schema.yaml`)
+- `scenario_id` (string, e.g., `SCN_001`)  
+- `original_image_path` (string)  
+- `metadata` (object) – includes tags from Visual Genome objects  
+- `ambiguity_score` (float) – mean human coding rating  
+- `ambiguity_label` (boolean) – retained if ≥ 3.5 & κ ≥ 0.6  
 
-- **scenario_id**: Unique identifier (string, e.g., "MD_001")
-- **original_image_path**: Path to raw image (string)
-- **metadata_tags**: List of tags (e.g., ["dilemma", "conflict"])
-- **ambiguity_mean**: Mean ambiguity score (float, ≥3.5 for retention)
-- **ambiguity_kappa**: Cohen's κ (float, ≥0.6 for retention)
-- **external_ground_truth_match**: Boolean (True if matched with external source)
-- **human_coding_status**: "retained" | "excluded"
+### Stimulus Variant (see `contracts/stimulus.schema.yaml`)
+- `variant_id` (string, e.g., `STI_001_low`)  
+- `scenario_id` (FK)  
+- `salience_level` (`low`/`medium`/`high`)  
+- `manipulation_params` (contrast, brightness, version)  
+- `clip_similarity` (float ≥ 0.95)  
+- `rms_contrast_change` (float ≥ 15)  
+- `moral_intent_preservation_score` (float ≥ 0.90)  
+- `semantic_integrity` (`passed`/`failed`)  
+- `image_path` (string)  
 
-### Stimulus Variant
+### Participant (see `contracts/participant.schema.yaml`)
+- `participant_id` (string)  
+- `start_time`, `end_time` (ISO‑8601)  
+- `total_responses` (int)  
+- `exclusion_flag` (bool)  
+- `exclusion_reason` (string, optional)  
 
-- **variant_id**: Unique identifier (string, e.g., "MD_001_low")
-- **scenario_id**: Foreign key to Scenario (string)
-- **salience_level**: "low" | "medium" | "high"
-- **manipulation_params**: JSON with contrast/brightness values (versioned)
-- **clip_similarity**: Cosine similarity to original (float, ≥0.95)
-- **rms_contrast_change**: Percentage change in ROI (float, ≥15%)
-- **moral_intent_preservation_score**: Float (correlation ≥0.90)
-- **semantic_integrity**: "passed" | "failed"
-- **image_path**: Path to manipulated image (string)
+### Response (see `contracts/response.schema.yaml`)
+- `response_id` (string)  
+- `participant_id` (FK)  
+- `variant_id` (FK)  
+- `blame_rating` (int 1‑7)  
+- `timestamp` (ISO‑8601)  
+- `valid` (bool) – set by cleaning step  
 
-### Response
-
-- **response_id**: Unique identifier (string)
-- **participant_id**: Participant identifier (string)
-- **variant_id**: Foreign key to Stimulus Variant (string)
-- **blame_rating**: Integer (1-7)
-- **timestamp**: ISO 8601 datetime
-- **valid**: True | False (after cleaning)
-
-### Participant
-
-- **participant_id**: Unique identifier (string)
-- **total_responses**: Integer
-- **mean_blame**: Float
-- **variance_blame**: Float
-- **straight_liner**: True | False (variance <0.1 or >90% identical)
-- **inclusion_status**: "included" | "excluded"
-
-### Pre-Registration Config
-
-- **precision_threshold**: Float (e.g., 0.3)
-- **threshold_source**: String (e.g., "config/pre_registration.yaml")
+### Analysis Output (see `contracts/analysis_schema.yaml`)
+- `analysis_id`, `model_type`, `fixed_effects`, `random_effects_variance`, `p_value`, `p_value_corrected`, `effect_size`, `post_hoc_tests`, `exclusion_rate`, `sample_size`, `convergence_status`, `fallback_method`, `wilcoxon_results`, `power_analysis`.
 
 ## Data Flow
+1. **Ingestion** (`01_ingest_and_filter.py`) → `data/raw/clip_metadata.csv` (Visual Genome metadata).  
+2. **Filtering & Human Coding** → `data/processed/scenarios.csv`.  
+3. **Manipulation** → `data/processed/stimuli/` + `stimuli_manifest.csv`.  
+4. **Survey** → `data/processed/responses_raw.csv`.  
+5. **Cleaning** → `responses_cleaned.csv`.  
+6. **Analysis** → `analysis_results.json`.  
 
-1. **Ingestion**: Raw images from MoralD → `data/raw/`
-2. **Filtering**: Metadata tags → candidate scenarios
-3. **External Ground Truth Validation**: Cross-reference with external source → `data/processed/ground_truth_match.csv`
-4. **Human Coding**: Ambiguity scores → `data/processed/ambiguity_scores.csv` (via `02_human_coding.py`)
-5. **Manipulation**: Generate variants → `data/processed/stimuli/`
-6. **Survey**: Collect responses → `data/processed/responses.csv`
-7. **Cleaning**: Exclude straight-liners → `data/processed/cleaned_responses.csv`
-8. **Analysis**: CLMM on cleaned data → `data/processed/results.json`
+All files are checksummed (`data/checksums.txt`) and version‑tracked.
 
 ## Constraints
+- No in‑place modification of any file.  
+- All numeric thresholds (e.g., CLIP ≥ 0.95) are enforced programmatically and validated against the corresponding contract schema.  
+- Participant IDs are anonymized (hash of Prolific ID).  
 
-- **Checksums**: All files in `data/` checksummed; hashes in `checksums.txt`.
-- **PII**: No personally identifiable information; participant IDs anonymized.
-- **Versioning**: Each transformation produces new file; no in-place edits.
-- **Pre-Registration**: Precision threshold defined in `config/pre_registration.yaml` and versioned.
+---
+

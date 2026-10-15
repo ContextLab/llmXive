@@ -1,18 +1,14 @@
 status: none
-intent: pip install visual genome dataset download python package for open visual
-  images
+intent: download Visual Genome Moral Stories dataset with region annotations python
+  package dataset
 required_fields:
 - image_id
 - image_url
-- width
-- height
-- objects (object_id, name, bounding_box)
-- attributes (attribute_id, name, bounding_box)
-- relationships (subject_id, predicate, object_id)
-- region_id
 - region_bbox
-- region_descriptions (captions)
-- "ambiguity_rating (5\u2011point Likert score)"
-cache_key: fbce862c11e01abbb5728f809538e84e679ea89784cc876f75a7aa66be898818
-searched_at: '2026-10-15T19:19:19.317001+00:00'
+- region_caption
+- object_labels
+- moral_ambiguity_score
+- human_ambiguity_likert
+cache_key: adff23bb6e49badf72391081e811d2257cdb9fa27746fc7f7dae9248e624d68f
+searched_at: '2026-10-15T19:24:13.898693+00:00'
 retry_count: 1

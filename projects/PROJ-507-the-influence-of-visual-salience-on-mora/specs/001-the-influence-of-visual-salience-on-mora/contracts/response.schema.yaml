@@ -15,14 +15,14 @@ properties:
     type: "integer"
     minimum: 1
     maximum: 7
-    description: "Blame rating on 1-7 Likert scale"
+    description: "Blame rating on a 1‑7 Likert scale"
   timestamp:
     type: "string"
     format: "date-time"
     description: "ISO 8601 timestamp of response"
   valid:
     type: "boolean"
-    description: "Whether the response passed data cleaning"
+    description: "Whether the response passed data‑cleaning criteria"
 required:
   - response_id
   - participant_id

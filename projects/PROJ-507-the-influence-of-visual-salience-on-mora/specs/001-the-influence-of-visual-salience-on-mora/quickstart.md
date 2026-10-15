@@ -1,83 +1,78 @@
 # Quickstart: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
 
 ## Prerequisites
-
-- Python 3.11+
-- Git
-- Hugging Face CLI (optional, for dataset streaming)
-- Access to GitHub Actions (for CI) or local environment
+- Python 3.11 or newer  
+- Git  
+- (Optional) Kaggle account for GPU off‑load  
 
 ## Setup
 
-1. **Clone Repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-507-the-influence-of-visual-salience-on-mora
-   ```
+```bash
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-507-the-influence-of-visual-salience-on-mora
 
-2. **Install Dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+# 2. Create a virtual environment and install dependencies
+python -m venv .venv
+source .venv/bin/activate
+pip install -r code/requirements.txt
+```
 
-3. **Download Datasets** (if not streaming):
-   ```bash
-   # Example for MoralD subset (adjust with actual URL)
-   huggingface-cli download moral_d --local-dir data/raw/moral_d_subset
-   ```
+## Step‑by‑Step Run (CPU‑first)
 
-4. **Ingest and Filter Raw Images**:
-   ```bash
-   python code/01_ingest_and_filter.py --num-samples 10 --tags social conflict
-   ```
-   This command streams the chosen dataset, selects up to 10 images whose
-   metadata contain the tags ``social`` or ``conflict``, downloads the
-   images into ``data/raw/`` and writes
-   ``data/processed/candidates_filtered.csv`` together with a checksum file
-   ``data/raw/sample_metadata.json``.
+```bash
+# 0. Pilot power analysis (determines required N)
+python code/00_pilot_power_analysis.py --config config/pilot.yaml
 
-5. **Run Pilot Power Analysis** (Phase 0):
-   ```bash
-   python code/00_pilot_power_analysis.py --config config/pilot.yaml
-   ```
+# 1. Ingest and filter raw images (Phase 1)
+python code/01_ingest_and_filter.py \
+    --dataset_name visual_genome \
+    --tags conflict social \
+    --max-scenarios 30 \
+    --output data/processed/candidates_filtered.csv
 
-6. **Run Human Coding Simulation** (for pilot):
-   ```bash
-   python code/02_human_coding.py --config config/human_coding.yaml
-   ```
+# 2. Human coding simulation (Phase 1)
+python code/02_human_coding.py \
+    --input data/processed/candidates_filtered.csv \
+    --config config/human_coding.yaml \
+    --output data/processed/scenarios.csv
 
-7. **Generate Stimuli**:
-   ```bash
-   python code/03_manipulate_stimuli.py --config config/manipulation.yaml
-   ```
+# 3. Generate salience variants (Phase 1)
+python code/03_manipulate_stimuli.py \
+    --input data/processed/scenarios.csv \
+    --config config/manipulation.yaml \
+    --output data/processed/stimuli_manifest.csv
 
-8. **Run Survey Pilot** (simulated):
-   ```bash
-   python code/04_survey_deployment.py --mode pilot --num-participants 10
-   ```
+# 4. Deploy pilot survey (Phase 2)
+python code/04_survey_deployment.py \
+    --mode pilot \
+    --participants 10 \
+    --output data/processed/responses_raw.csv
 
-9. **Clean Data and Run Analysis**:
-   ```bash
-   python code/05_data_cleaning.py --input data/processed/responses.csv --output data/processed/cleaned_responses.csv
-   python code/06_analysis_clmm.py --input data/processed/cleaned_responses.csv --output data/processed/results.json
-   ```
+# 5. Clean data (Phase 3)
+python code/05_data_cleaning.py \
+    --input data/processed/responses_raw.csv \
+    --output data/processed/responses_cleaned.csv
 
-## Configuration
+# 6. Run analysis (Phase 4)
+python code/06_analysis_clmm.py \
+    --input data/processed/responses_cleaned.csv \
+    --config config/analysis.yaml \
+    --output data/processed/analysis_results.json
+```
 
-- **`config/pilot.yaml`**: Pilot parameters for power analysis.
-- **`config/human_coding.yaml`**: Ambiguity thresholds (mean ≥3.5, κ ≥0.6).
-- **`config/manipulation.yaml`**: Salience levels, contrast/brightness parameters.
-- **`config/pre_registration.yaml`**: Precision threshold and other pre‑registered values.
-- **`config/analysis.yaml`**: CLMM settings, correction methods.
+### GPU Off‑load (if CLIP/BERT extraction exceeds CPU limits)
 
-## Validation
+The scripts automatically detect `torch.cuda.is_available()`. If `False`, they raise `RuntimeError`. The CI runner catches this and re‑runs the same command on a free Kaggle GPU (the platform handles the off‑load). No code changes are required.
 
-- **Stimulus Integrity**: Check `data/processed/stimuli/` for CLIP similarity ≥0.95, RMS contrast ≥15%, and Moral Intent Preservation score ≥0.90.
-- **Data Cleaning**: Verify excluded participants in `data/processed/cleaned_responses.csv`.
-- **Analysis Output**: Confirm CLMM table with odds ratios and p‑values in `data/processed/results.json`.
+## Validation Checklist
+- **Stimulus Integrity**: Verify `stimuli_manifest.csv` passes `contracts/stimulus.schema.yaml`.  
+- **Response Schema**: `responses_cleaned.csv` validates against `contracts/response.schema.yaml`.  
+- **Analysis Output**: `analysis_results.json` validates against `contracts/analysis_schema.yaml`.  
+
+If any validation fails, re‑run the corresponding step; the scripts emit detailed logs.
 
 ## Troubleshooting
-
-- **CLIP/BERT Slow**: Use `device="cpu"`; if too slow, offload to Kaggle GPU.
-- **Dataset Not Found**: Use alternative open dataset (e.g., COCO) with manual annotation or synthetic generation.
-- **CLMM Convergence Failure**: Switch to robust alternative (LMM/bootstrap).
+- **Memory errors**: Reduce `--max-scenarios` or sample a smaller pilot (`--num-samples`).  
+- **CLIP/BERT timeout**: Set `--device cpu` to force CPU; the next CI run will automatically switch to Kaggle GPU.  
+- **Convergence warnings**: Check `analysis_results.json` for `fallback_method`; the script will have already applied the robust alternative.
