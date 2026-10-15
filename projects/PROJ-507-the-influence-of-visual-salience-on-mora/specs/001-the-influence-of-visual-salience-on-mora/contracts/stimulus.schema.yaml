@@ -42,7 +42,7 @@ properties:
   moral_intent_preservation_score:
     type: "number"
     minimum: 0.90
-    description: "Correlation between pre- and post‑manipulation moral intent scores (must be ≥ 0.90)"
+    description: "Correlation between pre‑ and post‑manipulation moral intent scores (must be ≥ 0.90)"
   semantic_integrity:
     type: "string"
     enum:

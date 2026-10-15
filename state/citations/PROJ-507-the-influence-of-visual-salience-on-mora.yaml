@@ -9,3 +9,47 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/visual_genome/datasets
   verified_at: '2026-08-17T09:06:39.334463Z'
+- artifact_hash: ad60947caffe1af19e7ec3e0c9057a2c6d2de39b29c7a4cd4abfa74661faa48a
+  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/openimages
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/openimages/datasets
+  verified_at: '2026-10-15T19:49:46.058297Z'
+- artifact_hash: ad60947caffe1af19e7ec3e0c9057a2c6d2de39b29c7a4cd4abfa74661faa48a
+  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "openai/clip-vit-base-patch32 \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/openai/clip-vit-base-patch32
+  verification_status: pending
+  verified_against_url: https://huggingface.co/openai/clip-vit-base-patch32
+  verified_at: '2026-10-15T19:49:46.058297Z'
+- artifact_hash: ad60947caffe1af19e7ec3e0c9057a2c6d2de39b29c7a4cd4abfa74661faa48a
+  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "google-bert/bert-base-uncased \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/bert-base-uncased
+  verification_status: pending
+  verified_against_url: https://huggingface.co/google-bert/bert-base-uncased
+  verified_at: '2026-10-15T19:49:46.058297Z'
+- artifact_hash: ad60947caffe1af19e7ec3e0c9057a2c6d2de39b29c7a4cd4abfa74661faa48a
+  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: dataset_info.json
+  kind: url
+  value: https://huggingface.co/datasets/yueluoshuangtian/clmm-benchmark/resolve/main/MathDataset/dataset_info.json
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/yueluoshuangtian/clmm-benchmark/631ac27ba4581cf38dc1669d81bf085959da76fb/MathDataset%2Fdataset_info.json?%2Fdatasets%2Fyueluoshuangtian%2Fclmm-benchmark%2Fresolve%2Fmain%2FMathDataset%2Fdataset_info.json=&etag=%22323984db1a63328273260576965670968b062d0e%22
+  verified_at: '2026-10-15T19:49:46.058297Z'

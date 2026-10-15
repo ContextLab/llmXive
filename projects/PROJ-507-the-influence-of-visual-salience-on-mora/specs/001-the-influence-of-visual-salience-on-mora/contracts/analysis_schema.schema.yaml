@@ -39,7 +39,7 @@ properties:
       ci_95_lower:
         type: "number"
       ci_95_upper:
-        type: "number"
+        "number"
     required:
       - "odds_ratio"
       - "ci_95_lower"
@@ -56,7 +56,7 @@ properties:
         p_value_uncorrected:
           type: "number"
         p_value_bonferroni:
-          type: "number"
+          "number"
       required:
         - "comparison"
         - "odds_ratio"
@@ -67,77 +67,6 @@ properties:
     minimum: 0
     maximum: 1
   sample_size:
-    type: "integer"
-    minimum: 1
-  convergence_status:
-    type: "string"
-    enum:
-      - "converged"
-      - "warning"
-      - "failed"
-  fallback_method:
-    type: "string"
-    description: "Method used if primary model failed (e.g., 'Wilcoxon_Signed_Rank_Test')."
-  wilcoxon_results:
-    type: "array"
-    description: "Results of the Wilcoxon signed-rank test fallback, if applicable."
-    items:
-      type: "object"
-      properties:
-        comparison:
-          type: "string"
-        statistic:
-          type: "number"
-        p_value_uncorrected:
-          type: "number"
-        p_value_bonferroni:
-          type: "number"
-      required:
-        - "comparison"
-        - "statistic"
-        - "p_value_uncorrected"
-        - "p_value_bonferroni"
-  power_analysis:
-    type: "object"
-    properties:
-      observed_power:
-        type: "number"
-      power_flag:
-        type: "boolean"
-        description: "True if observed_power < 0.80."
-      precision_check:
-        type: "object"
-        properties:
-          ci_width:
-            type: "number"
-          threshold:
-            type: "number"
-            description: "Pre-registered threshold (0.3)."
-          threshold_source:
-            type: "string"
-            description: "Source of the threshold (e.g., 'config/pre_registration.yaml')."
-          flag:
-            type: "boolean"
-            description: "True if ci_width > threshold."
-        required:
-          - "ci_width"
-          - "threshold"
-          - "threshold_source"
-          - "flag"
-    required:
-      - "observed_power"
-      - "power_flag"
-      - "precision_check"
-required:
-  - "model_type"
-  - "fixed_effects"
-  - "random_effects_variance"
-  - "p_value"
-  - "p_value_corrected"
-  - "effect_size"
-  - "post_hoc_tests"
-  - "exclusion_rate"
-  - "sample_size"
-  - "convergence_status"
-  - "power_analysis"
-additionalProperties: false
+    type: "number"
+    minimum: 0
+  "..." ... 

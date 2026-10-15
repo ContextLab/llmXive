@@ -25,7 +25,7 @@ properties:
     maximum: 1
   p_value_corrected:
     type: "number"
-    description: "Bonferroni-corrected p-value."
+    description: "Bonferroni corrected p-value."
     minimum: 0
     maximum: 1
   effect_size:

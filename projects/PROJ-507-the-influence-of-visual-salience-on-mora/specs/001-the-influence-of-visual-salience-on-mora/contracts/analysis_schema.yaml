@@ -1,0 +1,16 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for statistical analysis outputs (CLMM) – Visual Salience Study"
+type: "object"
+properties:
+  analysis_id:
+    type: "string"
+    description: "Unique identifier for the analysis run"
+  model_type:
+    type: "string"
+    enum:
+      - "Cumulative_Link_Mixed_Model"
+      - "Linear_Mixed_Effects_Model"
+      - "Wilcoxon_Signed_Rank_Test"
+    description: "Type FR‑001 ​  …  ??"
+  **???**

@@ -1,14 +1,16 @@
 status: none
-intent: download Visual Genome Moral Stories dataset with region annotations python
+intent: visual genome dataset clip model weights bert base uncased download python
   package dataset
 required_fields:
 - image_id
 - image_url
-- region_bbox
-- region_caption
-- object_labels
-- moral_ambiguity_score
-- human_ambiguity_likert
-cache_key: adff23bb6e49badf72391081e811d2257cdb9fa27746fc7f7dae9248e624d68f
-searched_at: '2026-10-15T19:24:13.898693+00:00'
+- width
+- height
+- object_names
+- object_bounding_boxes
+- object_attributes
+- relationship_pairs
+- region_descriptions
+cache_key: 1059de5cc87ff0f9695cef51e0df95b9616463e09e861a57a6ef1fdcbbba985a
+searched_at: '2026-10-15T19:44:54.687864+00:00'
 retry_count: 1
