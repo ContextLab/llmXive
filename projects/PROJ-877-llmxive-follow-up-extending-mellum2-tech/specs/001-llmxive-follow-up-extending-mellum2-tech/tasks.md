@@ -20,7 +20,7 @@
   * Include usage notes, required environment activation, and expected runtime limits.
   * Verification: the file exists and the command runs without raising parsing errors.
 
-- [ ] T002 [US1] **Dataset Download & Raw Storage** – Stream `codeparrot/github-code` (Python & Java) via: <!-- FAILED-IN-EXECUTION: code/data/download.py exit=-1 (TIMEOUT) -->
+- [ ] T002 [US1] **Dataset Download & Raw Storage** – Stream `codeparrot/github-code` (Python & Java) via:
   ```python
   ds = datasets.load_dataset("codeparrot/github-code", split="train", streaming=True)
   ```

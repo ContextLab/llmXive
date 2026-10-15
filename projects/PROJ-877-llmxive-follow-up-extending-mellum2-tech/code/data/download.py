@@ -10,9 +10,9 @@ The script is intended to be run as a module:
 
     python -m code.data.download
 
-It is part of the T002 task and must produce non‑empty ``content`` fields
-in the resulting Parquet file so that downstream tests (e.g. the
-``test_raw_chunks_content`` unit test) succeed.
+To prevent execution timeouts on massive datasets, the stream is capped at
+a maximum number of records scanned. If the required sample size is not
+reached within this limit, the script fails loudly.
 """
 
 import hashlib
@@ -28,12 +28,15 @@ from code.config import SEED
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Number of sampled chunks per language. The test suite expects exactly
-# 1 000 rows for each of the two target languages.
+# Number of sampled chunks per language. 
 SAMPLE_SIZE_PER_LANGUAGE = 1000
 
 # Languages we care about – must match the dataset's language field.
 TARGET_LANGUAGES = {"Python", "Java"}
+
+# Maximum number of records to scan in the stream to avoid timeouts.
+# 1 million records is typically sufficient to find 1k Python/Java samples.
+MAX_SCAN_LIMIT = 1_000_000
 
 LOG = get_logger(__name__)
 
@@ -52,6 +55,11 @@ def _reservoir_sample(stream, language_key="language"):
     List[dict]
         List of sampled records, each containing at least the fields
         ``repo_name``, ``language`` and ``content``.
+    
+    Raises
+    ------
+    RuntimeError
+        If the required sample size is not met within MAX_SCAN_LIMIT.
     """
     rng = random.Random(SEED)
 
@@ -60,26 +68,39 @@ def _reservoir_sample(stream, language_key="language"):
     # Counters of how many records have been seen per language
     seen_counts = {lang: 0 for lang in TARGET_LANGUAGES}
 
-    for record in stream:
+    for i, record in enumerate(stream):
+        if i >= MAX_SCAN_LIMIT:
+            LOG.info("Reached MAX_SCAN_LIMIT (%d). Stopping stream scan.", MAX_SCAN_LIMIT)
+            break
+
         lang = record.get(language_key)
         if lang not in TARGET_LANGUAGES:
             continue
 
         seen_counts[lang] += 1
-        i = seen_counts[lang]
+        count = seen_counts[lang]
 
         if len(reservoirs[lang]) < SAMPLE_SIZE_PER_LANGUAGE:
             reservoirs[lang].append(record)
         else:
-            # Replace an existing element with probability N / i
-            j = rng.randint(0, i - 1)
+            # Replace an existing element with probability N / count
+            j = rng.randint(0, count - 1)
             if j < SAMPLE_SIZE_PER_LANGUAGE:
                 reservoirs[lang][j] = record
 
-    # Flatten the reservoirs while preserving language information
+    # Verify that we actually collected enough samples for each language
+    for lang in TARGET_LANGUAGES:
+        actual = len(reservoirs[lang])
+        if actual < SAMPLE_SIZE_PER_LANGUAGE:
+            raise RuntimeError(
+                f"Failed to sample {SAMPLE_SIZE_PER_LANGUAGE} records for {lang} "
+                f"within {MAX_SCAN_LIMIT} rows (found {actual})."
+            )
+
+    # Flatten the reservoirs into a single list
     sampled = []
-    for lang, records in reservoirs.items():
-        sampled.extend(records)
+    for lang in TARGET_LANGUAGES:
+        sampled.extend(reservoirs[lang])
     return sampled
 
 def _write_parquet(records, output_path: Path):
@@ -114,16 +135,17 @@ def _write_checksum(file_path: Path, checksum_path: Path):
 def main():
     """Orchestrate the download, sampling, and storage steps."""
     LOG.info("Starting dataset download and reservoir sampling")
-    # Stream the dataset; this will raise if the download fails.
-    dataset_stream = load_dataset(
-        "codeparrot/github-code", split="train", streaming=True
-    )
+    
+    try:
+        # Stream the dataset; this will raise if the download fails.
+        dataset_stream = load_dataset(
+            "codeparrot/github-code", split="train", streaming=True
+        )
+    except Exception as e:
+        LOG.error("Failed to load dataset from HuggingFace: %s", e)
+        raise
 
     sampled_records = _reservoir_sample(dataset_stream)
-
-    if not sampled_records:
-        LOG.error("No records sampled – check language names and dataset availability")
-        raise RuntimeError("Sampling produced no records")
 
     # Paths for the output artifacts
     parquet_path = paths.data("processed", "raw_chunks.parquet")

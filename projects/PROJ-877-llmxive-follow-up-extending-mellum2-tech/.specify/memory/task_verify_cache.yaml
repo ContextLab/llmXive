@@ -20,13 +20,3 @@ T001b:
     \ deliverable itself fully matches the task's stated requirements, and pipeline\
     \ execution is enforced by later tasks."
   sig: b5bccfd61f8da50e0d1d45d3523b134c949f2cc39ba35cb66a6ae2b4df6bd295
-T002:
-  c: false
-  h: ae9a8acacfb15502b3b8293362c2f74883684ab86e55e8e27d73b72abfc4c34a
-  r: "The Parquet file and checksums exist and row counts (1000 per language) match,\
-    \ but the unit test `test_raw_chunks_content` FAILED with \"Avg length: 0.0\"\
-    , showing the required `content` column is empty in the actual Parquet data \u2014\
-    \ the raw code content was not persisted. The implementer must fix the download\
-    \ script so real file contents are written to the `content` column (not just repo_name/language\
-    \ metadata), then regenerate the Parquet and checksums."
-  sig: 8d38a24a9e4c57948f06945b4eeaa53464a2c202a72c117a4ed090adfbfad004

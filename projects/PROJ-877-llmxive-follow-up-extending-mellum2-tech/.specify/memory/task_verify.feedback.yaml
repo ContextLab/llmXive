@@ -3,8 +3,14 @@ T001a:
 T001b:
   task: e435b49dd26b4037098de402a9f3519282e865a172a81b14801f4be5fb59de4c
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
-    exit=-1 (TIMEOUT)'
+  reason: "The Parquet file and checksums.txt exist and the log shows a real streaming\
+    \ run from `codeparrot/github-code` writing 2000 rows, but there is no evidence\
+    \ of the required per-language breakdown: the log never reports counts per language\
+    \ (Python vs. Java), the visible Parquet content shows only repo names with no\
+    \ confirmed `language` column values, and the value of N (from Phase-0 power analysis)\
+    \ is never stated or verified. The task's core verification \u2014 \"contains\
+    \ exactly N rows per language\" \u2014 is unproven; the implementer should log/verify\
+    \ per-language row counts (e.g., a groupby on `language`"
   task: 91c12fc2e398e2c133294c05d9646cd1fcb6d59d2e65e5ce23219b919c411f98
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/data/static_analysis.py
