@@ -1,14 +1,3 @@
-- artifact_hash: 4a1380757abb241012d1d56317c1cf98c341d373a5d74826ddd926a808b4db66
-  artifact_path: projects/PROJ-156-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.speedrun.com/api/v1/`
-  verification_status: mismatch
-  verified_against_url: https://www.speedrun.com/api/v1/%60
-  verified_at: '2026-06-30T09:40:24.048735Z'
 - artifact_hash: 3bae54cc3dd7e08efa851e107f7cdf827e7fa2240e1052580d1a79259a827e8e
   artifact_path: projects/PROJ-156-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
@@ -20,3 +9,36 @@
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
   verified_at: '2026-10-05T10:32:07.665115Z'
+- artifact_hash: 19b2c5afbc24f906c73fa9425d04552783ea236e2fe4fb9f39a0d9f8ac00d6f8
+  artifact_path: projects/PROJ-156-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-15T22:24:56.413372Z'
+- artifact_hash: 19b2c5afbc24f906c73fa9425d04552783ea236e2fe4fb9f39a0d9f8ac00d6f8
+  artifact_path: projects/PROJ-156-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1234/xyz
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1234/xyz
+  verified_at: '2026-10-15T22:24:56.413372Z'
+- artifact_hash: a332c08a1bf1859fb776f14ef4ad2d1e8fd47dc7b35badab187588aba47398d8
+  artifact_path: projects/PROJ-156-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1234/xyz
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1234/xyz
+  verified_at: '2026-10-15T22:25:07.966523Z'
