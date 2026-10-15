@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `output/`, `tests/`). **Verification**: `tree code/` matches plan.md structure. **Add**: Create `scripts/run_pipeline.sh` which checks if `data/processed/validation_status.txt` contains "HALT" before running Phase 4/5.
-- [ ] T002 Initialize Python 3.11 project with `pandas`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml` dependencies in `requirements.txt`. **Verification**: `pip install -r requirements.txt` returns 0.
-- [ ] T003 [P] Configure linting (flake8) and formatting (black) tools in `pyproject.toml`. **Verification**: `black --check code/` returns 0.
+- [X] T001 Create project structure per implementation plan (`code/`, `data/`, `output/`, `tests/`). **Verification**: `tree code/` matches plan.md structure. **Add**: Create `scripts/run_pipeline.sh` which checks if `data/processed/validation_status.txt` contains "HALT" before running Phase 4/5.
+- [X] T002 Initialize Python 3.11 project with `pandas`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml` dependencies in `requirements.txt`. **Verification**: `pip install -r requirements.txt` returns 0.
+- [X] T003 [P] Configure linting (flake8) and formatting (black) tools in `pyproject.toml`. **Verification**: `black --check code/` returns 0.
 
 ---
 
