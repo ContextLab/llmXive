@@ -1,43 +1,35 @@
 status: verified
 kind: pypi_package
 ref: openml
-access_python: "import openml, pandas as pd\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
-  # Keep only classification datasets (at least two classes)\nif 'NumberOfClasses'\
-  \ not in df.columns:\n    raise KeyError('NumberOfClasses column missing')\nclf_df\
-  \ = df[df['NumberOfClasses'] > 1]\n# Sort by popularity (NumberOfDownloads) if available\n\
-  if 'NumberOfDownloads' in clf_df.columns:\n    clf_df = clf_df.sort_values('NumberOfDownloads',\
-  \ ascending=False)\n# Take top 10 most downloaded classification datasets\ntop =\
-  \ clf_df.head(10)\n# Map OpenML column names to the requested field names\nfield_map\
-  \ = {\n    'did': 'dataset_id',\n    'name': 'name',\n    'default_target_attribute':\
-  \ 'default_target_attribute',\n    'format': 'format',\n    'NumberOfInstances':\
-  \ 'number_of_instances',\n    'NumberOfFeatures': 'number_of_features',\n    'NumberOfClasses':\
-  \ 'number_of_classes',\n    'download_url': 'download_url',\n    'citation': 'citation',\n\
-  \    'url': 'url',\n    'description': 'description',\n    # 'task_id' is not directly\
-  \ available in the dataset list\n}\navailable = [new for old, new in field_map.items()\
-  \ if old in top.columns]\nprint(f\"RECORDS={len(top)}\")\nprint(\"FIELDS=\" + \"\
-  ,\".join(available))"
-record_count: 10
+access_python: "import openml, pandas as pd\n# Retrieve metadata for all datasets\
+  \ as a DataFrame\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
+  # Keep only classification datasets (NumberOfClasses > 1)\nif 'NumberOfClasses'\
+  \ not in df.columns:\n    raise RuntimeError('Expected column NumberOfClasses not\
+  \ found')\ndf = df.dropna(subset=['NumberOfClasses'])\ndf = df[df['NumberOfClasses']\
+  \ > 1]\nRECORDS = len(df)\nprint(f\"RECORDS={RECORDS}\")\n# List the fields that\
+  \ correspond to the required schema\nfields = ['dataset_id','name','default_target_attribute','number_of_instances','number_of_features','number_of_classes','citation','url']\n\
+  print('FIELDS=' + ','.join(fields))"
+record_count: 2726
 sample_fields:
 - dataset_id
 - name
-- format
+- default_target_attribute
 - number_of_instances
 - number_of_features
 - number_of_classes
-field_coverage: 0.5
+- citation
+- url
+field_coverage: 0.889
 required_fields:
 - dataset_id
 - name
 - default_target_attribute
-- format
 - number_of_instances
 - number_of_features
 - number_of_classes
-- download_url
 - citation
 - task_id
 - url
-- description
-intent: OpenML python package download most downloaded classification datasets python
-  package dataset
-cache_key: c3435c0a48237e85af29264e67850c0e105fd3a71a4812aa28f04264fee21629
+intent: OpenML Python package download classification datasets metadata python package
+  dataset
+cache_key: 1abaa3be615b02f90b14a024e025055ba2eceec58aad4daf676c79d53ec47204

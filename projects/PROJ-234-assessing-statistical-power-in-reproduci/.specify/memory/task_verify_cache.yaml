@@ -1,18 +1,22 @@
 T002:
   c: true
-  h: bb6f58afb1bdd0b338b548069c230d827a50646093bdce5183e0dca2c0b7f39d
-  r: Checked the `requirements.txt` and `config.yaml` files (both present with correct
-    contents) and the execution log `code/.tasks/T002.code_02_init_requirements.py.log`
-    which records a successful `pip install -r requirements.txt --dry-run` and successful
-    `yaml.safe_load` of the config containing the required limits.
-  sig: 1fad88648636691e2efad190cf985c05dd2dd8f148454007a85e92ee1ba0b1fa
+  h: 13009cbf6bbbe9e79673652dc8abd07a011767bde1c244cbe28b6fa24225b131
+  r: 'Both artifacts exist at the project root with the exact required content: `requirements.txt`
+    contains all eight pinned packages from the spec (plus openml), and `config.yaml`
+    contains `limits.max_runtime_hours: 6` and `limits.max_memory_gb: 7`, which `yaml.safe_load`
+    would parse into the required dict structure. No execution evidence of the pip
+    dry-run was provided, but the file contents match the task''s stated deliverables
+    exactly.'
+  sig: 241b1fb1024a97cc9b36294f94ceb892da376eea69fb127837ae577536a03ac3
 T003:
   c: true
-  h: 19d9528d3624475e5646431aebca265657e06bf800326ded08c6ffde11cfdd35
-  r: All four schema files exist in `contracts/` with substantive, well-formed Draft-07
-    JSON-Schema content matching the task's stated purposes (dataset metadata, power
-    audit result, extracted parameters with StatisticalParameters fields, and the
-    final audit report structure). The historical execution log shows `tests/unit/test_contracts_schema.py::test_schemas_validate`
-    passed (exit 0), confirming the files parse via `yaml.safe_load` and validate
-    with `jsonschema.Draft7Validator` against minimal valid instances.
-  sig: 26d587cf8c1d3779571f75d62f71155b22c19a5c9f9b42cf04d9ddbf8cf4502f
+  h: d625dfbb540388e3f544275a9a5e058e8848a738806340bf7d5979c91d1968ec
+  r: "All four required schema files exist in `contracts/` with substantive, well-formed\
+    \ Draft-07 JSON-Schema content: `dataset_metadata.schema.yaml`, `power_audit_result.schema.yaml`,\
+    \ `extracted_params.schema.yaml` (defining StatisticalParameters with sample_size,\
+    \ effect_size, metric_type, status), and `report.schema.yaml` (defining the full\
+    \ audit_report.json structure with report_metadata, ingestion summary, extraction\
+    \ statistics, power/MDES results, success metrics, disclaimer). Each is valid\
+    \ YAML with `$schema: http://json-schema.org/draft-07/schema#`, required fields,\
+    \ and typed properties \u2014 no "
+  sig: 37846ad9eae3d456fdbe063f187716c99f956e88225433abf5c9ac0a87d07298
