@@ -44,8 +44,8 @@ ImportError: cannot import name 'OpenMLClient' from 'utils.api_client' (/home/ru
 
 - python code/03_compute_sensitivity.py -> rc=1
 
-2026-10-15 19:07:35,484 - __main__ - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed/extracted_params.json
-2026-10-15 19:07:35,484 - __main__ - INFO - Please run code/02_parse_publications.py first to generate extracted_params.json
+2026-10-15 20:07:53,042 - __main__ - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed/extracted_params.json
+2026-10-15 20:07:53,042 - __main__ - INFO - Please run code/02_parse_publications.py first to generate extracted_params.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/03_compute_sensitivity.py", line 262, in <module>
     main()
@@ -83,7 +83,7 @@ ERROR tests/unit/test_performance_harness.py
 ERROR tests/unit/test_power_audit_schema.py
 ERROR tests/unit/test_utils_refactor.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 1.00s ==============================
+============================== 10 errors in 0.93s ==============================
 
 
 
@@ -91,32 +91,6 @@ ERROR tests/unit/test_utils_refactor.py
 
 - data/processed/extraction_stats.json
 - data/processed/performance_metrics.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `openml` to the project's `requirements.txt` and `pip install openml`.
-- **Verified**: this loads **2726** real records with fields: dataset_id, name, default_target_attribute, number_of_instances, number_of_features, number_of_classes, citation, url.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import openml, pandas as pd
-# Retrieve metadata for all datasets as a DataFrame
-df = openml.datasets.list_datasets(output_format='dataframe')
-# Keep only classification datasets (NumberOfClasses > 1)
-if 'NumberOfClasses' not in df.columns:
-    raise RuntimeError('Expected column NumberOfClasses not found')
-df = df.dropna(subset=['NumberOfClasses'])
-df = df[df['NumberOfClasses'] > 1]
-RECORDS = len(df)
-print(f"RECORDS={RECORDS}")
-# List the fields that correspond to the required schema
-fields = ['dataset_id','name','default_target_attribute','number_of_instances','number_of_features','number_of_classes','citation','url']
-print('FIELDS=' + ','.join(fields))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

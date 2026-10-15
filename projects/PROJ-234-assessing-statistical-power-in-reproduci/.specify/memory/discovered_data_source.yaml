@@ -1,35 +1,19 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: "import openml, pandas as pd\n# Retrieve metadata for all datasets\
-  \ as a DataFrame\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
-  # Keep only classification datasets (NumberOfClasses > 1)\nif 'NumberOfClasses'\
-  \ not in df.columns:\n    raise RuntimeError('Expected column NumberOfClasses not\
-  \ found')\ndf = df.dropna(subset=['NumberOfClasses'])\ndf = df[df['NumberOfClasses']\
-  \ > 1]\nRECORDS = len(df)\nprint(f\"RECORDS={RECORDS}\")\n# List the fields that\
-  \ correspond to the required schema\nfields = ['dataset_id','name','default_target_attribute','number_of_instances','number_of_features','number_of_classes','citation','url']\n\
-  print('FIELDS=' + ','.join(fields))"
-record_count: 2726
-sample_fields:
-- dataset_id
-- name
-- default_target_attribute
-- number_of_instances
-- number_of_features
-- number_of_classes
-- citation
-- url
-field_coverage: 0.889
+status: none
+intent: OpenML python package download most downloaded classification datasets with
+  publication metadata python package dataset
 required_fields:
-- dataset_id
+- did
 - name
+- version
+- format
 - default_target_attribute
 - number_of_instances
 - number_of_features
 - number_of_classes
+- url
 - citation
 - task_id
-- url
-intent: OpenML Python package download classification datasets metadata python package
-  dataset
-cache_key: 1abaa3be615b02f90b14a024e025055ba2eceec58aad4daf676c79d53ec47204
+- number_of_downloads
+cache_key: bbca2207e3cb9c46919ce6ec3ad9ec6393fc6f6feead03d30708e447f75a97e0
+searched_at: '2026-10-15T20:08:51.592374+00:00'
+retry_count: 1
