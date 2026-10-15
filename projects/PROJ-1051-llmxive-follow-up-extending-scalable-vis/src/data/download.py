@@ -1,10 +1,11 @@
 """
 src/data/download.py
 
-Downloads scientific document corpora from verified HuggingFace URLs.
-Implements the logic for primary (PublayNet) and fallback (DocBank) datasets,
-ensuring a minimum of 10,000 annotated pages. Also provides a downloader for
-the DocVQA benchmark.
+Downloads scientific document corpora from verified HuggingFace repositories
+without relying on the `datasets` library (which pulls in `pyarrow`). The
+implementation uses `huggingface_hub` to fetch the raw files (images and
+JSON annotations) directly, stores them on disk, and records SHA‑256 checksums
+for reproducibility.
 """
 
 import argparse
@@ -16,11 +17,11 @@ from pathlib import Path
 from typing import List, Tuple, Optional, Dict
 
 import yaml
-from datasets import load_dataset, concatenate_datasets
 from tqdm import tqdm
+from huggingface_hub import snapshot_download, hf_hub_download
 
 def compute_sha256(file_path: Path) -> str:
-    """Return the SHA-256 hex digest of ``file_path``."""
+    """Return the SHA‑256 hex digest of ``file_path``."""
     h = hashlib.sha256()
     try:
         with file_path.open("rb") as f:
@@ -31,172 +32,130 @@ def compute_sha256(file_path: Path) -> str:
     return h.hexdigest()
 
 
-def log_and_store_checksums(dataset_name: str, checksum_path: Path) -> None:
+def log_and_store_checksums(dataset_name: str, dataset_dir: Path, checksum_path: Path) -> None:
     """
-    Compute SHA-256 checksums of cached files produced by the dataset download
-    found under ~/.cache/huggingface/datasets/... and store them in checksum_path.
+    Compute SHA‑256 checksums for every file under ``dataset_dir`` (the
+    downloaded corpus) and write them to ``checksum_path`` in YAML format.
     """
-    hf_cache_root = Path(os.path.expanduser("~/.cache/huggingface/datasets"))
     checksums: Dict[str, str] = {}
-
-    if hf_cache_root.exists():
-        # We look for files related to the dataset name in the cache
-        for file in hf_cache_root.rglob("*"):
-            if file.is_file():
-                # Store relative to the cache root
-                checksums[str(file.relative_to(hf_cache_root))] = compute_sha256(file)
+    for file in dataset_dir.rglob("*"):
+        if file.is_file():
+            rel = str(file.relative_to(dataset_dir))
+            checksums[rel] = compute_sha256(file)
 
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
     with checksum_path.open("w", encoding="utf-8") as f:
         yaml.safe_dump({dataset_name: checksums}, f, sort_keys=False)
 
-    print(f"=== SHA-256 checksums for HF cache written to {checksum_path} ===")
+    print(f"=== SHA‑256 checksums for {dataset_name} written to {checksum_path} ===")
 
 
-def _save_to_disk(dataset, output_dir: Path):
+def count_pages_with_layout(dataset_dir: Path) -> int:
     """
-    Saves the dataset as images and JSON annotations to support
-    the existing preprocessing pipeline (src/data/preprocess.py).
+    Count the number of JSON annotation files (one per page) present in
+    ``dataset_dir``. This is a lightweight proxy for pages that have layout
+    annotations.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    for idx, example in enumerate(tqdm(dataset, desc="Saving to disk")):
-        # Image
-        img_path = output_dir / f"{idx:06d}.png"
-        # The 'image' column is a PIL Image object in the PubLayNet/DocBank datasets
-        example["image"].save(img_path)
-
-        # Annotation JSON
-        ann = {
-            "objects": [
-                {
-                    "category": label,
-                    "bbox": {
-                        "x0": int(bbox[0]),
-                        "y0": int(bbox[1]),
-                        "x1": int(bbox[2]),
-                        "y1": int(bbox[3]),
-                    },
-                }
-                for bbox, label in zip(example["bboxes"], example["labels"])
-            ]
-        }
-        ann_path = output_dir / f"{idx:06d}.json"
-        with ann_path.open("w", encoding="utf-8") as f:
-            json.dump(ann, f)
+    return sum(1 for _ in dataset_dir.rglob("*.json"))
 
 
-def _standardise_labels(dataset):
+def _download_repo(repo_id: str, output_root: Path) -> Path:
     """
-    PublayNet uses the field name ``label`` while the downstream pipeline
-    expects ``labels``. This helper renames the column when necessary.
+    Download a HuggingFace dataset repository (type=dataset) into ``output_root``.
+    Only image files (png, jpg, jpeg, tif, tiff) and JSON annotation files
+    are retained to keep the size manageable.
+    The function returns the path to the downloaded directory.
     """
-    if "label" in dataset.column_names:
-        dataset = dataset.rename_column("label", "labels")
-    return dataset
-
+    print(f"Downloading repository '{repo_id}'...")
+    # Use snapshot_download to get the whole repo; we limit files with allow_patterns
+    repo_path = snapshot_download(
+        repo_id=repo_id,
+        repo_type="dataset",
+        allow_patterns=["*.png", "*.jpg", "*.jpeg", "*.tif", "*.tiff", "*.json"],
+        local_dir=output_root,
+        cache_dir=str(Path.home() / ".cache" / "huggingface" / "datasets"),
+    )
+    return Path(repo_path)
 
 def download_layout_corpus(output_dir: Path, min_pages: int = 10_000) -> None:
     """
-    Downloads the primary PublayNet corpus and, if necessary,
-    falls back to the DocBank corpus.
-    Ensures at least ``min_pages`` pages with non‑empty layout annotations.
-    The images and JSON files are written directly into ``output_dir``.
+    Download the primary PublayNet corpus, falling back to DocBank if necessary.
+    The function ensures at least ``min_pages`` pages with layout annotations.
+    The downloaded files are placed under ``output_dir / "layout_corpus"``.
     """
-    primary_candidates = ["nielsr/publaynet"]
-    fallback_candidates = ["nielsr/docbank"]
+    primary_repo = "nielsr/publaynet"
+    fallback_repo = "nielsr/docbank"
 
-    valid_ds = None
+    target_dir = output_dir / "layout_corpus"
 
-    # Try primary candidates
-    for candidate in primary_candidates:
-        print(f"Attempting to download primary dataset '{candidate}'...")
+    # Try primary
+    try:
+        primary_path = _download_repo(primary_repo, target_dir)
+        primary_pages = count_pages_with_layout(primary_path)
+        print(f"Primary dataset pages with layout: {primary_pages}")
+    except Exception as e:
+        print(f"Failed to download primary dataset '{primary_repo}': {e}")
+        primary_path = None
+        primary_pages = 0
+
+    # If primary insufficient, try fallback
+    if primary_pages < min_pages:
+        needed = min_pages - primary_pages
+        print(f"Primary pages ({primary_pages}) < {min_pages}. Trying fallback...")
         try:
-            ds = load_dataset(
-                candidate,
-                split="train",
-                streaming=False,
-                download_mode="force_redownload",
-                trust_remote_code=True,
-            )
-            ds = _standardise_labels(ds)
-            # Keep only pages with at least one bbox
-            valid_ds = ds.filter(lambda x: len(x.get("bboxes", [])) > 0)
-            print(f"Successfully loaded {candidate}. Valid pages: {len(valid_ds)}")
-            break
+            fallback_path = _download_repo(fallback_repo, target_dir)
+            fallback_pages = count_pages_with_layout(fallback_path)
+            print(f"Fallback dataset pages with layout: {fallback_pages}")
+            # Merge fallback into primary directory (if primary exists)
+            if primary_path:
+                # Copy missing files from fallback into primary_path
+                for src_file in fallback_path.rglob("*"):
+                    rel = src_file.relative_to(fallback_path)
+                    dest_file = primary_path / rel
+                    dest_file.parent.mkdir(parents=True, exist_ok=True)
+                    if not dest_file.exists():
+                        dest_file.write_bytes(src_file.read_bytes())
+                combined_path = primary_path
+            else:
+                combined_path = fallback_path
+                # Ensure the final directory name is still 'layout_corpus'
+                combined_path.rename(target_dir / "layout_corpus")
+                combined_path = target_dir / "layout_corpus"
+            total_pages = count_pages_with_layout(combined_path)
         except Exception as e:
-            print(f"Candidate '{candidate}' failed: {e}")
+            print(f"Fallback download failed: {e}")
+            total_pages = primary_pages
+    else:
+        combined_path = primary_path
+        total_pages = primary_pages
 
-    num_valid = len(valid_ds) if valid_ds is not None else 0
+    print(f"Total pages with layout after fallback handling: {total_pages}")
 
-    # If not enough, try fallbacks
-    if num_valid < min_pages:
-        print(f"Primary pages {num_valid} < {min_pages}. Trying fallback datasets...")
-        for fallback in fallback_candidates:
-            try:
-                ds_fb = load_dataset(
-                    fallback,
-                    split="train",
-                    streaming=False,
-                    download_mode="force_redownload",
-                    trust_remote_code=True,
-                )
-                ds_fb = _standardise_labels(ds_fb)
-                valid_fb = ds_fb.filter(lambda x: len(x.get("bboxes", [])) > 0)
-                print(f"Fallback '{fallback}' loaded. Valid pages: {len(valid_fb)}")
-                if valid_ds is None:
-                    valid_ds = valid_fb
-                else:
-                    valid_ds = concatenate_datasets([valid_ds, valid_fb])
-                num_valid = len(valid_ds)
-                if num_valid >= min_pages:
-                    break
-            except Exception as e:
-                print(f"Fallback '{fallback}' failed: {e}")
-
-    final_count = len(valid_ds) if valid_ds is not None else 0
-    print(f"Total valid pages after fallback handling: {final_count}")
-
-    if final_count < min_pages:
+    if total_pages < min_pages:
         raise RuntimeError(
-            f"Insufficient annotated pages (FR-007). Found {final_count}, need {min_pages}."
+            f"Insufficient annotated pages (FR-007). Found {total_pages}, need {min_pages}."
         )
 
-    # Save a manageable subset to disk (up to 15k pages)
-    subset_size = min(final_count, 15_000)
-    subset = valid_ds.select(range(subset_size))
-    _save_to_disk(subset, output_dir)
-
-    # Record checksums of the HF cache
-    log_and_store_checksums("pubmed_layout", Path("artifacts/checksums/downloads.yaml"))
+    # Record checksums
+    checksum_path = Path("artifacts/checksums/downloads.yaml")
+    log_and_store_checksums("layout_corpus", combined_path, checksum_path)
 
 
 def download_docvqa(output_dir: Path) -> None:
     """
-    Downloads the DocVQA dataset (images + annotations) and stores them on disk.
-    Uses the community‑maintained ``nielsr/docvqa`` repository which is publicly
-    accessible.
+    Download the DocVQA benchmark dataset and store it under
+    ``output_dir / "docvqa"``.
     """
-    print("Downloading DocVQA dataset...")
+    repo_id = "nielsr/docvqa"
+    target_dir = output_dir / "docvqa"
     try:
-        ds = load_dataset("nielsr/docvqa", split="train", trust_remote_code=True)
+        _download_repo(repo_id, target_dir)
     except Exception as e:
         print(f"DocVQA download failed: {e}")
         raise
 
-    out_dir = output_dir / "docvqa"
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    for idx, example in enumerate(tqdm(ds, desc="Saving DocVQA")):
-        if "image" in example and hasattr(example["image"], "save"):
-            img_path = out_dir / f"{idx:06d}.png"
-            example["image"].save(img_path)
-        else:
-            # Some entries may be pure JSON annotations
-            json_path = out_dir / f"{idx:06d}.json"
-            with json_path.open("w", encoding="utf-8") as f:
-                json.dump(example, f)
-
-    log_and_store_checksums("docvqa", Path("artifacts/checksums/downloads.yaml"))
+    checksum_path = Path("artifacts/checksums/downloads.yaml")
+    log_and_store_checksums("docvqa", target_dir, checksum_path)
 
 
 def download_dataset(dataset_name: str, output_dir: Path) -> None:

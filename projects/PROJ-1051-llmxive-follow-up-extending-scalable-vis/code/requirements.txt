@@ -1,4 +1,4 @@
-# Core scientific Python stack (already available in the runner)
+# Core dependencies (already available in the runner)
 numpy
 pandas
 scipy
@@ -7,16 +7,17 @@ scikit-learn
 statsmodels
 seaborn
 pytest
-pyyaml
+PyYAML
 requests
 jsonschema
 psutil
 
 # Additional dependencies required for this project
-torch>=2.0
-torchvision>=0.15
-transformers>=4.30
-datasets>=2.0
-tqdm>=4.0
-pyarrow
+torch==2.3.0
+torchvision==0.18.0
+transformers==4.44.0
+datasets==2.20.0
+tqdm
+huggingface_hub>=0.23.0
 pillow
+pytesseract

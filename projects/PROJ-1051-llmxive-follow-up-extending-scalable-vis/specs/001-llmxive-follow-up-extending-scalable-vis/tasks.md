@@ -5,7 +5,7 @@ The pipeline must run end‑to‑end on real data, stay within CPU‑only constr
 
 ---  
 
-- [ ] **T001** [US‑1] Download primary and fallback scientific‑document corpora and verify sufficient annotated pages.   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download_execution.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download_execution.py exit=1 -->
+- [ ] **T001** [US‑1] Download primary and fallback scientific‑document corpora and verify sufficient annotated pages.   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download_execution.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download_execution.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1; src/data/download_execution.py exit=1 -->
   **Implementation**: `src/data/download.py` uses `datasets.load_dataset("allenai/pubmed-layout", streaming=False)`. If the filtered page count is lower than expected, it falls back to `datasets.load_dataset("allenai/pubmed-layout-fallback")`.  
   **Verification**:  
   - Compute SHA‑256 checksums of all cached files and store them in `artifacts/checksums/downloads.yaml`.  

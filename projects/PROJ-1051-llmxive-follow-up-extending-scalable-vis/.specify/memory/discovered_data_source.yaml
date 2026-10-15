@@ -1,6 +1,6 @@
 status: none
-intent: download Layout-Aware Corpus scientific documents with layout annotations
-  and DocVQA benchmark python package dataset
+intent: download PubLayNet scientific document layout dataset with images python package
+  dataset
 required_fields:
 - document_id
 - page_number
@@ -8,6 +8,8 @@ required_fields:
 - layout_bboxes
 - layout_labels
 - image_file
-cache_key: d588a6dc942bd0a33e1a24835ef842a16b333b0acfd0d39778c6c83830efd9d9
-searched_at: '2026-10-15T16:19:03.197487+00:00'
+- image_height
+- image_width
+cache_key: e3990667cbba89c2adb0e45d7f5785902bd97f2ee2447e0621d6478f967a6cd5
+searched_at: '2026-10-15T17:09:53.715019+00:00'
 retry_count: 1
