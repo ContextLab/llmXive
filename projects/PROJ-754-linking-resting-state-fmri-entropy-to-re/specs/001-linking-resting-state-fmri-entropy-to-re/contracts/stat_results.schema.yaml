@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Statistical Results Schema"
-description: "CSV‑based summary of parcel‑wise Ordinary Least Squares (OLS) regression models after permutation‑based FWE correction."
+description: "CSV‑based summary of parcel‑wise OLS regression models after permutation‑based FWE correction."
 type: object
 required:
   - parcel_id
@@ -10,13 +10,14 @@ required:
   - p_raw
   - p_fwe
   - significant
+  - vif
 properties:
   parcel_id:
     type: integer
     description: "Parcel identifier (1‑400)."
   beta_entropy:
     type: number
-    description: "Estimated regression coefficient for entropy predictor."
+    description: "Estimated regression coefficient for the entropy predictor."
   se_entropy:
     type: number
     description: "Standard error of the entropy coefficient."
@@ -28,10 +29,13 @@ properties:
     description: "Two‑tailed p‑value before multiple‑comparison correction."
   p_fwe:
     type: number
-    description: "Family‑wise error corrected p‑value (max‑t permutation, Freedman-Lane method)."
+    description: "Family‑wise error corrected p‑value (max‑t permutation, Freedman‑Lane method)."
   significant:
     type: boolean
-    description: "True if p_fwe < 0.05."
+    description: "True if `p_fwe` < 0.05."
+  vif:
+    type: number
+    description: "Variance Inflation Factor for the covariates (age, sex, mean_fd)."
   checksum:
     type: string
     description: "SHA‑256 checksum of the row for reproducibility."
