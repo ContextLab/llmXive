@@ -1,9 +1,16 @@
-pandas
+# Core scientific stack (already available in the execution environment)
 numpy
+pandas
 scipy
 scikit-learn
+matplotlib
+seaborn
+statsmodels
+pytest
 pyyaml
 requests
-biom-format
-python-dotenv
-statsmodels
+jsonschema
+psutil
+
+# Additional packages required for this task
+datasets

@@ -1,12 +1,13 @@
 status: none
-intent: download SRP053178 16S rRNA OTU serology dataset from NCBI SRA python package
-  dataset
+intent: Qiita influenza vaccine microbiome 16S OTU serology dataset from NCBI SRA
+  python package dataset
 required_fields:
 - subject_id
-- timepoint
-- otu_id
-- taxa_abundance
-- antibody_titer
-cache_key: e324287bc9b25cd5b2a76ac33a0309f22176bcc1e5350673f81950d9b03c9c23
-searched_at: '2026-07-27T15:54:58.857109+00:00'
+- age
+- sex
+- baseline_otu_counts_or_relative_abundances (one column per taxon)
+- pre_vaccination_HAI_titer
+- post_vaccination_HAI_titer
+cache_key: 647bd8f0477b32b13c6f3c48eb0bad0669833019cd6c466fdad50c804ce50c9c
+searched_at: '2026-10-15T17:16:44.011957+00:00'
 retry_count: 1
