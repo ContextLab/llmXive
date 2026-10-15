@@ -4,91 +4,136 @@
 
 The checklist follows the canonical format `- [ ] T### [P?] [USx?] description …` where:  
 
-* `T###` – unique task identifier.  
-* `[P]` – can run in parallel with other `[P]` tasks (different files, no ordering constraints).  
-* `[USx]` – the user story (US1, US2, US3) that the task satisfies.  
-* The indented lines describe concrete outputs, verification steps, and required file paths.  
+* **T###** – unique task identifier.  
+* **[P]** – can run in parallel with other `[P]` tasks (different files, no ordering constraints).  
+* **[USx]** – the user story (US1, US2, US3) that the task satisfies.  
+* Indented continuation lines describe concrete outputs, verification steps, and required file paths.  
 
 ---  
 
-## Phase 1 – Project scaffolding & first end‑to‑end run  
+## Phase 1 – Data Acquisition & Pre‑processing (US1)
 
-| # | Task |
-|---|------|
-- [ ] T001 **Create project directory layout** – `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`.  <br>  *Verification*: `tree` shows all directories; `git status` clean. |
-- [ ] T002 **Add `requirements.txt`** with pinned versions of `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`.  <br>  *Verification*: `pip install -r requirements.txt` succeeds without conflicts. |
-- [ ] T003 **Create `pyproject.toml`** configuring `ruff` and `black` for the `code/` package.  <br>  *Verification*: `ruff .` and `black .` run without errors. |
-- [ ] T004 **Add `code/config.py`** – defines constants `RANDOM_SEED=42`, `BTS_URL="https://transtats.bts.gov/OT_Delay/On_Time_Reporting_CSV.zip"`, `TARGET_YEAR=2022`, `MEMORY_LIMIT_GB=6.5`.  <br>  *Verification*: `python -c "import code.config as cfg; assert cfg.TARGET_YEAR==2022"` passes. |
-- [ ] T005 **Implement memory utilities in `code/utils.py`** – `check_memory_limit(limit_gb)` raises `MemoryError` if usage exceeds limit; `log_peak_memory()` writes peak RAM to `data/logs/pipeline.log`.  <br>  *Verification*: Unit test in `tests/unit/test_utils.py` asserts exception on simulated over‑use. |
-- [ ] T006 **Add JSON‑Schema contracts** – copy the three schema files into `code/contracts/` (`delay_record.schema.yaml`, `fitted_model.schema.yaml`, `tail_index_estimate.schema.yaml`).  <br>  *Verification*: `jsonschema.validate` against a minimal instance succeeds. |
-- [ ] T007 **Set up pytest infrastructure** – create `tests/conftest.py` with common fixtures (e.g., temporary data directory).  <br>  *Verification*: `pytest -q` runs with 0 tests (no errors). |
-- [ ] T008 **Configure logging & custom exception** in `code/utils.py` – logger writes INFO to `data/logs/pipeline.log`; define `PipelineError`.  <br>  *Verification*: Running any pipeline step creates the log file with a timestamp. |
-- [ ] T009 **Implement streaming CSV loader stub** in `code/data_loader.py` – uses `pandas.read_csv(..., chunksize=100_000)` and writes each chunk to `data/raw/`.  <br>  *Verification*: Unit test confirms that a small public CSV is streamed without loading whole file into memory. |
-- [ ] T010 **Run a minimal end‑to‑end smoke test** – orchestrate `code/data_loader.py` → `code/preprocessing.py` on a **sample** of the BTS CSV (first 10 000 rows) and produce `data/processed/sample_cleaned.csv`.  <br>  *Verification*: `ls data/processed/sample_cleaned.csv` and checksum matches expected sample size. |
-- [ ] T011 **Create `quickstart.md`** – documents the one‑line command `python -m code.main --year 2022 --mode smoke`.  <br>  *Verification*: The markdown renders a runnable command; the command executes the smoke test from T010. |
+- [ ] **T001** [US1] Download the full‑year 2022 BTS On‑Time Performance CSV via streaming and store the raw archive.  
+  - **Implementation**: `code/data_loader.py` uses `requests` streaming download, writes to `data/raw/2022/On_Time_Reporting_CSV.zip`.  
+  - **Verification**: SHA‑256 checksum recorded in `data/README.md` matches the official file; `ls data/raw/2022/On_Time_Reporting_CSV.zip` succeeds.
 
----  
+- [ ] **T002** [US1] Extract the ZIP, stream each CSV chunk, compute `total_delay = ArrDelay + DepDelay` (treat NaN as 0), drop negative delays, keep only commercial U.S. flights, and write a cleaned dataset.  
+  - **Implementation**: `code/preprocess.py` reads chunks (`chunksize=200_000`), writes to `data/processed/cleaned_delays.csv`.  
+  - **Verification**: The output CSV contains columns `flight_id,total_delay_minutes,carrier,origin,destination,is_anomaly,is_data_error,is_zero`; a schema validation against `delay_record.schema.yaml` passes.
 
-## Phase 2 – User Story 1: Data Acquisition & Pre‑processing (US1)  
+- [ ] **T003** [US1] Compute retention rate, flag anomalies (`delay>1440` min) and data errors (`delay>10000` min), create zero‑inflation subset, and record summary metadata.  
+  - **Outputs**:  
+    - `data/results/summary.json` → keys `retention_rate`, `total_records`, `valid_records`.  
+    - `data/processed/cleaned_delays_no_zero.csv` (records with `total_delay_minutes==0` removed).  
+    - `data/processed/analysis_set.csv` (excludes rows where `is_data_error=True`).  
+  - **Verification**: `summary.json["retention_rate"] >= 0.95`; pipeline aborts with `PipelineError("Retention rate below 95 %")` otherwise.
 
-- [ ] T012 **Download full‑year BTS data** (`code/data_loader.py`) – streams the 2022 ZIP, extracts CSVs into `data/raw/2022/`.  <br>  *Verification*: `data/raw/2022/On_Time_Reporting_CSV.zip` exists; its SHA‑256 matches the value recorded in `data/README.md`. |
-- [ ] T013 **Parse and clean raw CSV** (`code/preprocessing.py`) – computes `total_delay = ArrDelay + DepDelay` (NaN → 0), removes negative delays, keeps only commercial U.S. flights.  <br>  *Verification*: Output `data/processed/cleaned_delays.csv` contains columns `flight_id,total_delay_minutes,carrier,origin,destination,is_anomaly,is_data_error,is_zero`. |
-- [ ] T014 **Flag anomalies & data errors** – `is_anomaly=True` for `delay>1440`; `is_data_error=True` for `delay>10000`. Errors are excluded from the primary analysis set.  <br>  *Verification*: Count of rows where `is_data_error` is true matches manual inspection; those rows are absent from `data/processed/analysis_set.csv`. |
-- [ ] T015 **Calculate & record retention rate** – `valid_records / total_downloaded` written to `data/results/summary.json` under key `"retention_rate"`.  <br>  *Verification*: JSON field exists and is ≥ 0.95; if lower, pipeline raises `PipelineError` with message `"Retention rate below 95 %"`. |
-- [ ] T016 **Zero‑inflation sensitivity subset** – create `data/processed/cleaned_delays_no_zero.csv` by dropping rows where `total_delay_minutes == 0`.  <br>  *Verification*: Row count of the no‑zero file is ≤ original and `is_zero` column is all `false`. |
-- [ ] T017 **Memory‑limit enforcement** – `code/preprocessing.py` calls `utils.check_memory_limit` before loading each chunk; if limit exceeded, raises `PipelineError` with message `"Memory limit exceeded: full dataset cannot be loaded."`.  <br>  *Verification*: Simulated large chunk triggers the exception (unit test). |
-- [ ] T018 **Component comparison dataset** – compute separate series for `ArrDelay` and `DepDelay`; store side‑by‑side CSV `data/processed/component_delays.csv`.  <br>  *Verification*: File contains three columns `total_delay,arr_delay,dep_delay`. |
-- [ ] T019 **Integration test for full download‑to‑clean pipeline** (`tests/integration/test_us1_pipeline.py`).  <br>  *Verification*: `pytest -q tests/integration/test_us1_pipeline.py` passes, asserting existence and schema compliance of `cleaned_delays.csv` and `summary.json`. |
+- [ ] **T004** [US1] Perform a component‑wise comparison: generate side‑by‑side histograms for `total_delay`, `ArrDelay`, and `DepDelay`; compute a two‑sample KS test between `total_delay` and each component.  
+  - **Implementation**: `code/component_analysis.py` saves `data/results/component_comparison.json` (KS statistics & p‑values) and figures `data/results/figures/total_vs_arr.png`, `data/results/figures/total_vs_dep.png`.  
+  - **Verification**: JSON contains `ks_total_arr`, `pvalue_total_arr`, `ks_total_dep`, `pvalue_total_dep`; figures exist and are non‑empty.
 
----  
+## Phase 2 – Parametric Model Fitting & Goodness‑of‑Fit (US2)
 
-## Phase 3 – User Story 2: Parametric Model Fitting & Goodness‑of‑Fit (US2)  
+- [ ] **T005** [US2] Estimate the tail threshold `x_min` using the Clauset‑et‑al. KS‑minimisation on the cleaned data.  
+  - **Implementation**: `code/diagnostics.py` writes `data/results/x_min_estimate.json` with fields `x_min`, `ks_stat`, `confidence_interval`.  
+  - **Verification**: JSON validates against a minimal schema (numeric `x_min` and `ks_stat`); unit test checks that varying the grid changes `x_min` deterministically.
 
-- [ ] T020 **Estimate tail threshold `x_min`** (`code/diagnostics.py`) – implements Clauset et al. KS‑minimization over a grid; writes `data/results/x_min_estimate.json` with fields `x_min`, `ks_stat`, `confidence_interval`.  <br>  *Verification*: JSON contains numeric `x_min` and KS statistic; unit test checks that varying the grid changes the output consistently. |
-- [ ] T021 **Fit all five distributions to the *full* cleaned set** (`code/models.py`) – Exponential, Gamma, Log‑Normal, Weibull, Pareto (unrestricted).  <br>  *Verification*: `data/results/full_model_fits.json` contains a list of five objects each with `name`, `parameters`, and `converged=True`. |
-- [ ] T022 **Fit all five distributions to the *tail* subset** (`delay >= x_min`) – re‑uses `code/models.py` with the threshold from T020.  <br>  *Verification*: `data/results/tail_model_fits.json` contains five entries; Pareto fitting respects `delay >= x_min`. |
-- [ ] T023 **Compute model metrics** – for each tail fit calculate AIC, BIC, KS, Anderson‑Darling, tail‑KS, and store in `data/results/model_comparison.json` following `fitted_model.schema.yaml`.  <br>  *Verification*: JSON validates against the schema; at least three models have `converged=True`. |
-- [ ] T024 **Component‑distribution KS test** – compare `total_delay` vs `ArrDelay` and `DepDelay` using `scipy.stats.ks_2samp`; results saved to `data/results/component_comparison.json`.  <br>  *Verification*: JSON includes `ks_stat_total_vs_arr`, `pvalue_total_vs_arr`, etc. |
-- [ ] T025 **Run Vuong test** – compare the best heavy‑tailed candidate (Pareto or Log‑Normal) against the best short‑tailed candidate (Exponential, Gamma, Weibull) on the tail subset; output `data/results/vuong_test.json` with `p_value`.  <br>  *Verification*: JSON contains `"p_value"` field; unit test checks that a known synthetic dataset yields a Vuong statistic > 0. |
-- [ ] T026 **Orchestrate Phase 2 in `code/main.py` (stage 2)** – calls T020 → T022 → T023 → T025 → writes a consolidated `data/results/phase2_complete.marker`.  <br>  *Verification*: Marker file exists after successful run; its timestamp matches end of pipeline. |
-- [ ] T027 **Integration test for full modelling pipeline** (`tests/integration/test_us2_models.py`).  <br>  *Verification*: Passes, confirming that `model_comparison.json` contains at least three converged models and that `vuong_test.json` is present. |
+- [ ] **T006** [US2] Fit the five candidate distributions (Exponential, Gamma, Log‑Normal, Weibull, Pareto) to the **full** cleaned dataset.  
+  - **Implementation**: `code/models.py` performs MLE via `scipy.stats`, writes `data/results/full_model_fits.json` (list of five objects with `name`, `parameters`, `converged`).  
+  - **Verification**: All five entries have `converged=True`; schema validation against `fitted_model.schema.yaml` (with `is_valid_tail=False` for now) passes.
 
----  
+- [ ] **T007** [US2] Fit the same five distributions to the **tail** subset (`total_delay_minutes >= x_min`).  
+  - **Implementation**: Re‑use `code/models.py` with filtered data, write `data/results/tail_model_fits.json`.  
+  - **Verification**: Pareto fit respects the `x_min` threshold; at least three models report `converged=True`.
 
-## Phase 4 – User Story 3: Heavy‑Tail Diagnostics & Visualization (US3)  
+- [ ] **T008** [US2] Compute model‑level metrics (AIC, BIC, KS, Anderson‑Darling, tail‑KS, tail‑KS p‑value) for each tail fit and assemble a comparison table.  
+  - **Implementation**: `code/models.py` augments each fit with the metrics and writes `data/results/model_comparison.json`.  
+  - **Verification**: JSON validates against `fitted_model.schema.yaml`; contains fields `aic`, `bic`, `ks_stat`, `ad_stat`, `tail_ks_stat`, `tail_ks_p_value`, `x_min`. At least three models have finite AIC/BIC.
 
-- [ ] T028 **Hill‑estimator stability analysis** (`code/diagnostics.py`) – loads `x_min`, iterates `k` up to `0.1 × n`, computes Hill estimate for each `k`, calculates variance over a sliding window `w=10`, selects optimal `k`.  <br>  *Verification*: `data/results/tail_index_estimate.json` conforms to `tail_index_estimate.schema.yaml`; includes `threshold_k`, `estimated_alpha`, `confidence_interval`, `stability_range`. |
-- [ ] T029 **Generate log‑log survival plot** – uses OLS on log‑log transformed tail data; computes `R²`; saves PNG `data/results/figures/log_log_survival.png` and writes `r_squared_log_log` to the tail‑index JSON.  <br>  *Verification*: Plot file exists; JSON field `r_squared_log_log` ≥ 0.95 for accepted models. |
-- [ ] T030 **Generate QQ‑plot for best‑fit model** – overlays empirical quantiles vs theoretical quantiles; saves `data/results/figures/qq_plot.png`.  <br>  *Verification*: PNG file exists; visual inspection confirms alignment (no automated check). |
-- [ ] T031 **Tail KS goodness‑of‑fit test** – applies `scipy.stats.kstest` on the tail subset against the CDF of the selected heavy‑tailed model; writes `data/results/tail_ks.json` with `ks_statistic`, `p_value`, `tail_threshold`.  <br>  *Verification*: JSON validates against the schema; p‑value recorded. |
-- [ ] T032 **Model rejection logic** – reads `model_comparison.json` and `tail_index_estimate.json`; if `R² < 0.95` **or** Hill estimator is unstable (variance > pre‑defined threshold), marks the model as rejected, updates `model_comparison.json` with `"status": "rejected"` and `"reason"`; selects next‑best candidate.  <br>  *Verification*: After running, at least one model has `"status":"accepted"`; rejected models list reasons. |
-- [ ] T033 **Orchestrate Phase 3 in `code/main.py` (stage 3)** – runs T028 → T029 → T030 → T031 → T032; writes `data/results/phase3_complete.marker`.  <br>  *Verification*: Marker file appears; its timestamp is later than Phase 2 marker. |
-- [ ] T034 **Integration test for diagnostics pipeline** (`tests/integration/test_us3_diagnostics.py`).  <br>  *Verification*: Passes, confirming existence of all figure files and that `tail_index_estimate.json` validates. |
+- [ ] **T009** [US2] Identify the best heavy‑tailed candidate (lowest AIC among Pareto/Log‑Normal) and the best short‑tailed candidate (lowest AIC among Exponential/Gamma/Weibull). Perform Vuong’s non‑nested test to compare them.  
+  - **Implementation**: `code/models.py` writes `data/results/vuong_test.json` with keys `heavy_model`, `short_model`, `vuong_statistic`, `p_value`.  
+  - **Verification**: `p_value` is a float in `[0,1]`; unit test on a synthetic dataset yields a Vuong statistic > 0 when heavy‑tail is true.
 
----  
+## Phase 3 – Heavy‑Tail Diagnostics & Visualization (US3)
 
-## Phase 5 – Final Reporting & Verification  
+- [ ] **T010** [US3] Apply the Hill estimator to the tail subset, perform stability analysis (sliding window w=10, constraint `k/n ≤ 0.1`), and select the optimal `k`.  
+  - **Implementation**: `code/diagnostics.py` writes `data/results/tail_index_estimate.json` conforming to `tail_index_estimate.schema.yaml`.  
+  - **Verification**: JSON fields `threshold_k`, `estimated_alpha`, `confidence_interval`, `stability_range` are present; variance of α across the window is reported.
 
-- [ ] T035 **Compile final results JSON** – merge `summary.json`, `model_comparison.json`, `vuong_test.json`, `tail_index_estimate.json`, and `component_comparison.json` into a single `data/results/final_report.json`.  <br>  *Verification*: JSON validates against a composite schema (generated ad‑hoc) and contains all required keys. |
-- [ ] T036 **Generate reproducible Markdown report** (`docs/report.md`) – programmatically inserts tables/figures from the final JSON and PNG assets.  <br>  *Verification*: Rendering the markdown shows all tables and images; a CI step checks that the file is non‑empty. |
-- [ ] T037 **Run full end‑to‑end pipeline** – execute `python -m code.main --year 2022 --mode full`.  <br>  *Verification*: After run, `data/results/final_report.json` and `docs/report.md` exist; CI logs record total runtime ≤ 6 h and peak RAM ≤ 6.5 GB. |
-- [ ] T038 **System‑wide pytest suite** – `pytest -q` must pass all unit and integration tests (≈ 30 tests).  <br>  *Verification*: CI step succeeds with 0 failures. |
-- [ ] T039 **Update `quickstart.md`** – add instructions for the full run and for reproducing the report.  <br>  *Verification*: The markdown includes a code block `python -m code.main --year 2022 --mode full` and a note about required runtime/memory. |
-- [ ] T040 **Archive data hashes** – compute SHA‑256 for every artifact in `data/raw/`, `data/processed/`, and `data/results/`; write to `data/README.md` under a `## Checksums` section.  <br>  *Verification*: Each listed checksum matches the actual file (checked by a CI script). |
-- [ ] T041 **Project handoff to paper stage** – create `docs/paper_handoff.md` summarising methods, key findings, and pointing to `final_report.json` and figure assets.  <br>  *Verification*: File exists; contains required sections (Methods, Results, Limitations, Disclaimer). |
+- [ ] **T011** [US3] Generate a log‑log survival plot for the tail data, fit an OLS line, compute R², and embed the value in the tail‑index JSON.  
+  - **Implementation**: `code/visualization.py` creates `data/results/figures/log_log_survival.png` and updates `tail_index_estimate.json` with `r_squared_log_log`.  
+  - **Verification**: Plot file exists; `tail_index_estimate.json["r_squared_log_log"] >= 0.95` for accepted models.
 
----  
+- [ ] **T012** [US3] Produce a QQ‑plot comparing empirical quantiles of the tail data against the theoretical quantiles of the **selected** heavy‑tailed model, and compute a quantile‑correlation metric to automate validation.  
+  - **Implementation**: `code/visualization.py` saves `data/results/figures/qq_plot.png` and writes `data/results/qq_correlation.json` containing `pearson_r`.  
+  - **Verification**: PNG file is non‑empty; `pearson_r >= 0.99` is asserted as the automated similarity check (replaces manual visual inspection).
 
-### Dependencies & Execution Order  
+- [ ] **T013** [US3] Conduct a KS goodness‑of‑fit test **only on the tail subset** against the selected heavy‑tailed model’s CDF; store results.  
+  - **Implementation**: `code/diagnostics.py` writes `data/results/tail_ks.json` with `ks_statistic`, `p_value`, `x_min_used`.  
+  - **Verification**: JSON validates against a minimal schema; `p_value` is a float.
 
-1. **Foundational tasks** (T001–T009) must complete before any user‑story work.  
-2. **US1** tasks (T012–T019) can run in parallel where marked `[P]`.  
-3. **US2** tasks depend on the outputs of US1, specifically `cleaned_delays.csv` and `summary.json`.  
-4. **US3** tasks depend on `x_min_estimate.json`, `tail_model_fits.json`, and the Hill estimator output.  
-5. Final reporting tasks (T035–T041) require completion markers from Phases 2 and 3.  
+- [ ] **T014** [US3] Implement model‑rejection logic: if `r_squared_log_log < 0.95` **or** Hill estimator variance exceeds the predefined stability threshold, mark the current best model as rejected, update `model_comparison.json` with `"status":"rejected"` and a `"reason"` field, and promote the next best candidate. Write the final accepted model to `data/results/final_model.json`.  
+  - **Implementation**: `code/selection.py`.  
+  - **Verification**: After execution, `final_model.json` exists and contains `name`, `parameters`, `metrics`; at least one model has `"status":"accepted"`.
 
----  
+## Phase 4 – Reporting, Verification & Handoff
 
-### Note on Verification  
+- [ ] **T015** [P] Compile a single consolidated results file `data/results/final_report.json` that merges `summary.json`, `model_comparison.json`, `vuong_test.json`, `tail_index_estimate.json`, `component_comparison.json`, and `final_model.json`.  
+  - **Verification**: JSON validates against a composite schema (all required keys present); CI script checks file size > 0.
 
-All tasks produce **real files** (CSV, JSON, PNG, MD) that are validated either by schema checks, unit‑test assertions, or explicit CI‑stage scripts. No task relies on synthetic or placeholder data; the pipeline aborts with a clear error message if any prerequisite (e.g., full‑year BTS download) is unavailable. This satisfies the specification’s requirement for genuine, reproducible research artifacts.
+- [ ] **T016** [P] Generate a reproducible Markdown report `docs/report.md` that programmatically inserts tables, key statistics, and the PNG figures (`log_log_survival.png`, `qq_plot.png`, component histograms).  
+  - **Verification**: Rendering the markdown (e.g., via `markdown-it`) displays all tables and images; a CI lint step confirms no broken image links.
+
+- [ ] **T017** [P] Add an integration test `tests/integration/test_full_pipeline.py` that runs the full pipeline (`python -m code.main --year 2022 --mode full`) and asserts the existence and schema compliance of all final artifacts (`final_report.json`, `report.md`, all PNGs).  
+  - **Verification**: `pytest -q tests/integration/test_full_pipeline.py` passes on a fresh runner.
+
+- [ ] **T018** [P] Update `quickstart.md` with commands for (a) a quick smoke run (first 10 k rows) and (b) the full reproducible analysis, including expected runtime and memory limits.  
+  - **Verification**: Markdown contains the exact commands and the statements “expected runtime ≤ 6 h, peak RAM ≤ 6.5 GB”; a CI step parses the file to ensure those strings are present.
+
+- [ ] **T019** [P] Record SHA‑256 checksums for every artifact under `data/raw/`, `data/processed/`, and `data/results/` in `data/README.md` under a `## Checksums` section.  
+  - **Verification**: A helper script `code/checksums.py` generates the list; CI validates that each listed checksum matches the current file.
+
+- [ ] **T020** [P] Create a handoff document `docs/paper_handoff.md` summarising methods, key findings, limitations, and pointing to `final_report.json` and figure assets for downstream paper preparation.  
+  - **Verification**: File exists; contains sections “Methods”, “Results”, “Limitations”, “Disclaimer (Associational only)”, and a link to `final_report.json`.
+
+### New Tasks to Close Remaining Gaps
+
+- [ ] **T021** [FR-007] Insert the mandatory associational‑only disclaimer into `docs/report.md`.  
+  - **Implementation**: `code/report_utils.py` appends the line “**Disclaimer:** All findings are associational only.” to the end of the markdown report.  
+  - **Verification**: Grep for the phrase “associational only” in `docs/report.md`; fails if absent.
+
+- [ ] **T022** [FR-016] Generate a JSON schema for the `TailIndexEstimate` entity from the existing YAML and save it to `specs/001-statistical-analysis-of-publicly-availab/contracts/tail_index_estimate.schema.json`.  
+  - **Implementation**: `code/schema_generator.py` reads the YAML schema and writes the JSON counterpart.  
+  - **Verification**: JSON file exists and validates against the original YAML (structural equivalence).
+
+- [ ] **T023** [SC-002] Verify that at least three parametric models converge with finite AIC/BIC scores.  
+  - **Implementation**: `code/validation.py` reads `model_comparison.json`, counts models with `converged=True` and finite `aic`/`bic`, writes `data/results/model_convergence_check.json` with the count and a pass flag.  
+  - **Verification**: Pass flag is true only if count ≥ 3; CI asserts this.
+
+- [ ] **T024** [SC-004] Verify that the model chosen for tail diagnostics is the one with the lowest AIC in the full comparison.  
+  - **Implementation**: `code/validation.py` cross‑checks `model_comparison.json` and `final_model.json`, writes `data/results/best_model_selection_check.json` with a boolean result.  
+  - **Verification**: CI asserts the boolean is true.
+
+- [ ] **T025** [SC-003] Verify that the Hill estimator produces a finite `estimated_alpha`.  
+  - **Implementation**: `code/validation.py` reads `tail_index_estimate.json`, writes `data/results/hill_finite_check.json` with a boolean indicating finiteness.  
+  - **Verification**: CI asserts the boolean is true.
+
+- [ ] **T026** [SC-009] Verify that the variance‑minimization results of the Hill stability analysis are recorded in the output JSON.  
+  - **Implementation**: `code/validation.py` ensures `tail_index_estimate.json` contains the `stability_range` object with `start_k` and `end_k`.  
+  - **Verification**: CI fails if those fields are missing or empty.
+
+- [ ] **T027** [FR-008] Monitor peak RAM usage during the entire pipeline and assert it does not exceed 7 GB.  
+  - **Implementation**: Wrapper script `code/monitor.py` records maximum resident set size and writes `data/results/memory_usage.json` (`peak_mb`).  
+  - **Verification**: CI asserts `peak_mb <= 7000`.
+
+- [ ] **T028** [SC-005] Record total runtime of the pipeline and assert it is ≤ 3600 seconds.  
+  - **Implementation**: `code/monitor.py` also timestamps start/end, writes `data/results/runtime.json` (`seconds`).  
+  - **Verification**: CI asserts `seconds <= 3600`.
+
+- [ ] **T029** [Constitution] Verify that all random number generators are seeded with fixed values.  
+  - **Implementation**: `code/seed_check.py` scans `code/` for calls to `numpy.random.seed`, `random.seed`, `torch.manual_seed`, etc., writes `data/results/seed_pin_check.json` with a boolean `pinned`.  
+  - **Verification**: CI asserts `pinned` is true.
+
+- [ ] **T030** [SC-005] Record total pipeline runtime and enforce the 3600‑second hard deadline required by SC‑005.  
+  - **Implementation**: Extend `code/monitor.py` to raise a `RuntimeError` if `seconds > 3600` after logging the value to `data/results/runtime.json`.  
+  - **Verification**: CI step checks that the pipeline exits with a non‑zero code when `seconds` exceeds 3600, otherwise passes.
