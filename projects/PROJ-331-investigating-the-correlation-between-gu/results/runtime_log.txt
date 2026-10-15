@@ -7,3 +7,10 @@ us3_ingest: 0.02
 us3_preprocess: 0.02
 us3_slopes: 0.01
 us3_mixed_effects: 0.02
+Ingest: 0.00 seconds
+Preprocess: 0.00 seconds
+Slope computation: 0.00 seconds
+Correlation analysis: 0.00 seconds
+Linear Mixed‑Effects modelling: 0.00 seconds
+Permutation robustness test: 0.00 seconds
+Total: 0.16 seconds

@@ -1,3 +1,10 @@
-# Project dependencies
-# Add pyarrow for Parquet support used in dummy data generation
-pyarrow>=16.0.0
+# Project‑wide Python dependencies
+# Core scientific stack (already provided by the platform)
+# - numpy, pandas, scipy, scikit‑learn, statsmodels, matplotlib, seaborn, pytest, PyYAML, requests, jsonschema, psutil
+#
+# Additional packages required for this project:
+pyarrow>=16,<17
+scikit-bio>=0.6,<0.7
+pingouin>=0.5,<0.6
+reportlab>=4.2,<5.0
+tqdm>=4.66,<5.0

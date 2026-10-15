@@ -15,9 +15,13 @@ can be exercised without manual data preparation.
 """
 from __future__ import annotations
 
+import sys
 import pandas as pd
 from llmxive_toolkit import paths
 
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _write_asv_csv() -> None:
     """Write a minimal ASV count table with the required schema."""
     df = pd.DataFrame(
@@ -49,13 +53,34 @@ def _write_clinical_parquet() -> None:
     )
     out_path = paths.data("raw", "open_clinical.parquet")
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    # Use pandas' default Parquet engine; pyarrow is declared in requirements.txt.
-    df.to_parquet(out_path, index=False)
+
+    # Use the explicit pyarrow engine – it is declared as a dependency.
+    try:
+        import pyarrow  # noqa: F401  # ensure pyarrow is importable
+    except Exception as exc:
+        raise RuntimeError(
+            "pyarrow is required to write Parquet files but could not be imported."
+        ) from exc
+
+    df.to_parquet(out_path, index=False, engine="pyarrow")
     print(f"Dummy clinical Parquet written to {out_path}")
 
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main() -> int:
-    _write_asv_csv()
-    _write_clinical_parquet()
+    """Create the two dummy raw input files.
+
+    Returns:
+        int: Exit code – 0 for success, non‑zero for any failure.
+    """
+    try:
+        _write_asv_csv()
+        _write_clinical_parquet()
+    except Exception as exc:
+        # Log the error to stderr and return a non‑zero code.
+        print(f"Error while generating dummy data: {exc}", file=sys.stderr)
+        return 1
     return 0
 
 if __name__ == "__main__":
