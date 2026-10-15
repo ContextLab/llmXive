@@ -1,31 +1,9 @@
-status: verified
-kind: pypi_package
-ref: PubChemPy
-access_python: "import sys\nfrom pubchempy import get_properties\n\ncids = [\n   \
-  \ 2244, 5957, 702, 1234, 3672, 5281, 5460, 5950, 5952, 5953,\n    5957, 5958, 5959,\
-  \ 5960, 5961, 5962, 5963, 5964, 5965, 5966\n]\n\nprops = get_properties(\n    ['IsomericSMILES',\
-  \ 'InChI', 'MolecularWeight', 'XLogP'],\n    cids,\n    'cid'\n)\n\nrecords = []\n\
-  for p in props:\n    rec = {\n        'SMILES': p.get('IsomericSMILES'),\n     \
-  \   'InChI': p.get('InChI'),\n        'CID': p.get('CID'),\n        'MolecularWeight':\
-  \ p.get('MolecularWeight'),\n        'LogP': p.get('XLogP'),\n        'ExperimentalFlag':\
-  \ None\n    }\n    records.append(rec)\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"\
-  FIELDS=SMILES,InChI,CID,MolecularWeight,LogP,ExperimentalFlag\")"
-record_count: 20
-sample_fields:
-- SMILES
-- InChI
-- CID
-- MolecularWeight
-- LogP
-- ExperimentalFlag
-field_coverage: 1.0
-required_fields:
-- SMILES
-- InChI
-- CID
-- MolecularWeight
-- LogP
-- ExperimentalFlag
-intent: download PubChem Compound dataset via Python package for SMILES and properties
-  python package dataset
-cache_key: 5af7c20f4d6f0235da9ecae7605e657a8186dff621900c6157a25a7fac6c4bc3
+status: none
+intent: "System must download real molecular data (SMILES + properties) from verified\
+  \ sources. ### Verified Datasets Dataset Source URL Access Method Key Fields PubChem\
+  \ Compound (Python API) , , , , , (Experimental/Computed) Open Babel CLI Fingerprint\
+  \ generation (MACCS, ECFP4, FP2) **Rationale** \u2013 PubChem pr"
+required_fields: []
+cache_key: b999fb5bcb00e4e43734efc27a54c7b38722ea7125d1edcac6ebf5e9d6d23b40
+searched_at: '2026-10-15T10:30:09.054920+00:00'
+retry_count: 1
