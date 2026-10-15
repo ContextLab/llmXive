@@ -1,14 +1,12 @@
 status: none
-intent: download PubLayNet dataset and DocVQA benchmark python package dataset
+intent: download Layout-Aware Corpus scientific documents with layout annotations
+  and DocVQA python package
 required_fields:
+- document_id
+- raw_text
+- layout_annotations
 - image_path
-- page_id
-- bbox_xmin
-- bbox_ymin
-- bbox_xmax
-- bbox_ymax
-- category
-- text_content
-cache_key: 6c29cb6378f3c06f868df59527976144212d1bf00fdbc4bdd3131514492be5b3
-searched_at: '2026-10-15T15:17:25.814856+00:00'
+- page_number
+cache_key: 2a7e6fb95eb9dd2a63c4bc19427d79d1f85e23ba6896a57adc96b4a22a061602
+searched_at: '2026-10-15T15:38:05.151458+00:00'
 retry_count: 1

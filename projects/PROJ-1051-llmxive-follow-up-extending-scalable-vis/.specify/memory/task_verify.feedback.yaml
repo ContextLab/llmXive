@@ -1,36 +1,30 @@
 T001:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py
     exit=1'
-  task: b24ec33da198ba18ccec548932a288c6e43f3a5d009ffa4a933fb81509abe69a
+  task: 8f7e5846c7f5bb49694c09ad953ae1dcaf2e984c9a60e00bf919c0af63397af5
 T002:
-  reason: The required output Parquet file `data/processed/document_pairs.parquet`
-    does not exist, and the unit test `tests/unit/test_preprocess.py` fails because
-    the sample data directory is missing, indicating the preprocessing script has
-    not been successfully run and verified. The contract test file is present but
-    only checks schema validity, not the actual data generation. The missing Parquet
-    artifact and failing unit test must be fixed.
-  task: 410bb56e6df24ff228adb7814047277dccaabb335d4ff1f1c66ef5a6cddb0e0e
+  task: 7439b91a68ce12c9654714d51f549f2ca16b7b94ba48f1d3dfcd88e22edfc6fb
 T003:
-  reason: 'Requested task execution failed; rerun successfully: src/data/latent_generator.py
-    exit=1'
-  task: 913f4d262f2e12cd89260a721810953c51f38c2e685c982bc58765a5cde2a06c
+  task: fed03ae17f38f90d71d909ffc5bda484015108d87582d0611e1722fdcb7c1c99
 T004:
-  task: bbd578043d43dc3805ab3e6faf350b173fe5aacbd8ca84e4adcdba496240585c
+  task: f574a35aedf215a32824ee260aa1e40ae5693e11fb62d1b3018b991e1dbd56ef
 T005:
-  task: b2671e563dc18ff9c2269251a154be26d8bb88f71a783f1867ff01d4334c3e47
+  task: 7c20bf25bfa71eb7e8acad6745c17b6a0569b26602955a2c349965808f57b166
+T005b:
+  task: 2b2adcb312f7e7e49273cec9540dbe4ca79f29d3d4c5151cae14ea8f0fbe950a
 T006:
-  task: 170f59815e4a26ad12ce2f8b8b1835f364a9dac615c15797de0bd6dcae5f68ca
+  task: 748007907e49239e1650fb53edcd4326795b72797f6fc67e7cec63939070134b
 T007:
-  task: 63e870ee5c3a8f5c2a49c15c90c21c54abbb75fb471b94ebf689de84263f8475
+  task: a06b61b5f6cd8f42ccfb4625213827501056f885a3cae41ceacc8ea6592076e0
 T008:
-  task: 3e859b498a0548223b1d6a9fd73496f659ed085bb5100fd0f36ea5ef6ea991ac
+  task: d467824859bd624b89633415ace0a52483fa509a203f852bd1cb3c3e12c2b50a
 T009:
-  task: ce92abc5c4542cff9ca312792cfd075d48d872d297be5e8e811f93bd4bfbebc3
+  task: a2e589c89e20f2705fc2406cdb6aa32532642917b3871aecbf0142665f49ee83
+T010:
+  task: 08c3be4b2e9791e8ac3c8ca61ce55bec2bda935e5965bfce231c9f0cc06c0d09
 T011:
-  task: 1716f3f4b0e633dbad88579114c6d58cfabad490baf9c17dec3b5a8afa6384e0
+  task: 198b1d5465fef5773bd62c79a4141d12ada348689307896fd87051efdf1df842
 T012:
-  task: 9a015279ea5a56ef4e32b8bd99831337d92f3a353c8fa9fef9d0a664c0ca795e
+  task: 3dda179f4325445d44c5d5cbc8cefad15a61ad82ce237007604363bb937b6884
 T013:
-  task: 690cc82197f1b9db17bc4501afcde29f0fbb90b03fffabc321dbe821e6e52195
-T014:
-  task: 59068351e1b7f0c0a38e13c54e229d2a5dca56bc94fc3df4e763ae9aa1ca1228
+  task: d3e18a0c5d6a167f8710ec233aaa24e4236a7745477cb572deeb5a4d8ca8cceb

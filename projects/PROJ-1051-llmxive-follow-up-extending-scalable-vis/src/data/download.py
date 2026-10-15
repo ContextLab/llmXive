@@ -2,9 +2,8 @@
 src/data/download.py
 
 Downloads scientific document corpora from verified HuggingFace URLs.
-Implements the logic for primary (allenai/pubmed-layout) and fallback 
-(allenai/pubmed-layout-fallback) datasets, ensuring a minimum of 10,000 
-annotated pages.
+Implements the logic for primary (Microsoft PubLayNet) and fallback
+(DocBank) datasets, ensuring a minimum of 10,000 annotated pages.
 """
 
 import argparse
@@ -30,6 +29,7 @@ def compute_sha256(file_path: Path) -> str:
         return "<file not accessible>"
     return h.hexdigest()
 
+
 def log_and_store_checksums(dataset_name: str, checksum_path: Path) -> None:
     """
     Compute SHA-256 checksums of cached files produced by the dataset download
@@ -37,32 +37,33 @@ def log_and_store_checksums(dataset_name: str, checksum_path: Path) -> None:
     """
     hf_cache_root = Path(os.path.expanduser("~/.cache/huggingface/datasets"))
     checksums: Dict[str, str] = {}
-    
+
     if hf_cache_root.exists():
         # We look for files related to the dataset name in the cache
         for file in hf_cache_root.rglob("*"):
             if file.is_file():
                 # Store relative to the cache root
                 checksums[str(file.relative_to(hf_cache_root))] = compute_sha256(file)
-    
+
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
     with checksum_path.open("w", encoding="utf-8") as f:
         yaml.safe_dump({dataset_name: checksums}, f, sort_keys=False)
-    
+
     print(f"=== SHA-256 checksums for HF cache written to {checksum_path} ===")
+
 
 def _save_to_disk(dataset, output_dir: Path):
     """
-    Saves the dataset as images and JSON annotations to support 
+    Saves the dataset as images and JSON annotations to support
     the existing preprocessing pipeline (src/data/preprocess.py).
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     for idx, example in enumerate(tqdm(dataset, desc="Saving to disk")):
         # Image
         img_path = output_dir / f"{idx:06d}.png"
-        # The 'image' column in pubmed-layout is a PIL Image object
+        # The 'image' column is a PIL Image object in PubLayNet/DocBank
         example["image"].save(img_path)
-        
+
         # Annotation JSON
         ann = {
             "objects": [
@@ -82,28 +83,29 @@ def _save_to_disk(dataset, output_dir: Path):
         with ann_path.open("w", encoding="utf-8") as f:
             json.dump(ann, f)
 
+
 def download_publaynet(output_dir: Path, min_pages: int = 10_000) -> None:
     """
     Downloads primary and fallback corpora and verifies integrity.
-    Uses a list of candidates to ensure reachability on CI runners.
+    Tries Microsoft PubLayNet as primary; falls back to DocBank.
     """
-    # Candidates for the primary dataset to handle potential Hub renaming/access issues
-    primary_candidates = ["allenai/pubmed-layout", "nielsr/pubmed-layout"]
-    fallback_id = "allenai/pubmed-layout-fallback"
-    
+    primary_candidates = ["microsoft/publaynet"]
+    fallback_candidates = ["nielsr/docbank"]
+
     valid_ds = None
-    
+
+    # Try primary candidates
     for candidate in primary_candidates:
         print(f"Attempting to download primary dataset '{candidate}'...")
         try:
             ds = load_dataset(
-                candidate, 
-                split="train", 
-                streaming=False, 
-                download_mode="force_redownload", 
-                trust_remote_code=True
+                candidate,
+                split="train",
+                streaming=False,
+                download_mode="force_redownload",
+                trust_remote_code=True,
             )
-            # Filter for pages with non-empty layout annotations (bboxes)
+            # Keep only pages with at least one bbox
             valid_ds = ds.filter(lambda x: len(x.get("bboxes", [])) > 0)
             print(f"Successfully loaded {candidate}. Valid pages: {len(valid_ds)}")
             break
@@ -112,64 +114,84 @@ def download_publaynet(output_dir: Path, min_pages: int = 10_000) -> None:
 
     num_valid = len(valid_ds) if valid_ds is not None else 0
 
+    # If not enough, try fallbacks
     if num_valid < min_pages:
-        print(f"Primary pages {num_valid} < {min_pages}. Attempting fallback '{fallback_id}'...")
-        try:
-            ds_fb = load_dataset(
-                fallback_id, 
-                split="train", 
-                streaming=False, 
-                download_mode="force_redownload", 
-                trust_remote_code=True
-            )
-            valid_fb = ds_fb.filter(lambda x: len(x.get("bboxes", [])) > 0)
-            
-            if valid_ds is None:
-                valid_ds = valid_fb
-            else:
-                valid_ds = concatenate_datasets([valid_ds, valid_fb])
-        except Exception as e:
-            print(f"Fallback download failed: {e}")
+        print(f"Primary pages {num_valid} < {min_pages}. Trying fallback datasets...")
+        for fallback in fallback_candidates:
+            try:
+                ds_fb = load_dataset(
+                    fallback,
+                    split="train",
+                    streaming=False,
+                    download_mode="force_redownload",
+                    trust_remote_code=True,
+                )
+                valid_fb = ds_fb.filter(lambda x: len(x.get("bboxes", [])) > 0)
+                print(f"Fallback '{fallback}' loaded. Valid pages: {len(valid_fb)}")
+                if valid_ds is None:
+                    valid_ds = valid_fb
+                else:
+                    valid_ds = concatenate_datasets([valid_ds, valid_fb])
+                num_valid = len(valid_ds)
+                if num_valid >= min_pages:
+                    break
+            except Exception as e:
+                print(f"Fallback '{fallback}' failed: {e}")
 
     final_count = len(valid_ds) if valid_ds is not None else 0
-    print(f"Total valid pages: {final_count}")
+    print(f"Total valid pages after fallback handling: {final_count}")
 
     if final_count < min_pages:
-        raise RuntimeError(f"Insufficient annotated pages (FR-007). Found {final_count}, need {min_pages}.")
+        raise RuntimeError(
+            f"Insufficient annotated pages (FR-007). Found {final_count}, need {min_pages}."
+        )
 
-    # Save a subset to disk for the preprocessor to keep disk usage manageable
-    # We save up to 15,000 to satisfy requirements and allow for some loss during preprocessing
-    subset_size = min(final_count, 15000)
+    # Save a manageable subset to disk (up to 15k pages)
+    subset_size = min(final_count, 15_000)
     subset = valid_ds.select(range(subset_size))
     _save_to_disk(subset, output_dir / "publaynet")
-    
-    # Verification: Checksums of HF cache
+
+    # Record checksums of the HF cache
     log_and_store_checksums("publaynet", Path("artifacts/checksums/downloads.yaml"))
+
+
+def download_docvqa(output_dir: Path) -> None:
+    """
+    Downloads the DocVQA dataset (images + annotations) and stores them on disk.
+    """
+    print("Downloading DocVQA dataset...")
+    try:
+        ds = load_dataset("docvqa", split="train", trust_remote_code=True)
+    except Exception as e:
+        print(f"DocVQA download failed: {e}")
+        raise
+
+    out_dir = output_dir / "docvqa"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    for idx, example in enumerate(tqdm(ds, desc="Saving DocVQA")):
+        if "image" in example and hasattr(example["image"], "save"):
+            img_path = out_dir / f"{idx:06d}.png"
+            example["image"].save(img_path)
+        else:
+            # Some entries may be pure JSON annotations
+            json_path = out_dir / f"{idx:06d}.json"
+            with json_path.open("w", encoding="utf-8") as f:
+                json.dump(example, f)
+
+    log_and_store_checksums("docvqa", Path("artifacts/checksums/downloads.yaml"))
+
 
 def download_dataset(dataset_name: str, output_dir: Path) -> None:
     """Dispatcher for dataset downloads."""
-    dataset_name = dataset_name.lower()
-    if dataset_name == "publaynet":
+    name = dataset_name.lower()
+    if name in ("publaynet", "layout_corpus"):
         download_publaynet(output_dir)
-    elif dataset_name == "docvqa":
-        print(f"Downloading generic dataset '{dataset_name}'...")
-        try:
-            # DocVQA is often available as a simple dataset
-            ds = load_dataset("docvqa", split="train", trust_remote_code=True)
-            out_dir = output_dir / dataset_name
-            out_dir.mkdir(parents=True, exist_ok=True)
-            for idx, example in enumerate(ds):
-                if "image" in example and hasattr(example["image"], "save"):
-                    example["image"].save(out_dir / f"{idx:06d}.png")
-                else:
-                    with (out_dir / f"{idx:06d}.json").open("w") as f:
-                        json.dump(example, f)
-            log_and_store_checksums(dataset_name, Path("artifacts/checksums/downloads.yaml"))
-        except Exception as e:
-            print(f"DocVQA download failed: {e}")
-            raise e
+    elif name == "docvqa":
+        download_docvqa(output_dir)
     else:
         raise ValueError(f"Unsupported dataset: {dataset_name}")
+
 
 def main(argv: List[str] | None = None) -> None:
     parser = argparse.ArgumentParser()
@@ -183,6 +205,7 @@ def main(argv: List[str] | None = None) -> None:
     except Exception as e:
         print(f"❌ ERROR: {e}", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -1,11 +1,22 @@
-# Core dependencies (versions compatible with the project)
-numpy>=2.0
-pyarrow
-datasets>=2.20.0
-torch>=2.3.0
-transformers>=4.44.0
-tqdm
-pillow
-pytesseract
-layoutparser>=0.3.4
+# Core scientific Python stack (already available in the runner)
+numpy
+pandas
+scipy
+matplotlib
 scikit-learn
+statsmodels
+seaborn
+pytest
+pyyaml
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for this project
+torch>=2.0
+torchvision>=0.15
+transformers>=4.30
+datasets>=2.0
+tqdm>=4.0
+pyarrow
+pillow
