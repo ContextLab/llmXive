@@ -15,11 +15,11 @@
     "python code/analysis/significance.py --input data/processed/inferred.parquet -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/analysis/significance.py': [Errno 2] No such file or directory",
     "python code/viz/plots.py --input data/results/analysis_results.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/viz/plots.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-02T04:22:52Z"
+  "updated_at": "2026-10-15T07:21:06Z"
 }
