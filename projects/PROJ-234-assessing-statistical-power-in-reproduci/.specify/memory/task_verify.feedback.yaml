@@ -1,11 +1,11 @@
 T001:
-  reason: The requested path `projects/PROJ-001-assessing-statistical-power/` is confirmed
-    MISSING; the execution log shows the tree was instead created nested inside the
-    project root at `projects/PROJ-234-.../projects/PROJ-001-...`, which is the wrong
-    location. Additionally, the observed `tests/` directory contains `unit/` and `contract/`
-    but no `integration/` subdirectory, and there is no evidence of `.gitkeep` files
-    in `code/`, `code/utils/`, `tests/unit/`, or `tests/integration/` (only `data/`,
-    `docs/`, and `contracts/` show `.gitkeep`).
+  reason: "The required root folder `projects/PROJ-001-assessing-statistical-power/`\
+    \ is reported as **MISSING**, and the existing `code/`, `tests/`, etc. are not\
+    \ placed under that path. Moreover, only a few sub\u2011directories (e.g., `data/`,\
+    \ `docs/`, `contracts/`) contain a `.gitkeep`; most required directories (such\
+    \ as `code/`, `code/utils/`, `tests/unit/`, `tests/integration/`) lack the placeholder\
+    \ file. The task\u2019s specification of a complete tree with a `.gitkeep` in\
+    \ every directory is therefore not satisfied."
   task: f601b39ee8ebeef163aa6e6481dc773fb45ed763416940616bf51385b1d0b7f6
 T002:
   task: dcaeefa0a2f2e975515379cf97c5d6e62d66b4bd77e2618b25fff8803bcecf91

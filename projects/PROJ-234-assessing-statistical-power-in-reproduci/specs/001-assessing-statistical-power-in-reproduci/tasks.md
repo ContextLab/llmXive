@@ -79,7 +79,7 @@ specification and the project constitution.
 
 ## Phase 3 – Data ingestion (User Story 1)  
 
-- [ ] T005 Implement `code/01_ingest_openml.py` to fetch, filter, and store OpenML metadata.   <!-- FAILED-IN-EXECUTION: code/01_ingest_openml.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_openml.py exit=1 -->
+- [ ] T005 Implement `code/01_ingest_openml.py` to fetch, filter, and store OpenML metadata.   <!-- FAILED-IN-EXECUTION: code/01_ingest_openml.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_openml.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_openml.py exit=1 -->
   1. Use `api_client` to request the **top 50 most‑downloaded classification datasets** (`openml.datasets.list` with appropriate filters).  
   2. Filter for entries with a non‑null `publication_link` **or** `task_id`.  
   3. Write the raw API response to `data/raw/openml_metadata_raw.json`.  

@@ -1,101 +1,76 @@
 """
-code/utils/oa_checker.py
--------------------------
+Simple Open‑Access checker.
 
-Utilities for determining whether a resource (URL or DOI) is Open Access.
-
-The original project required two public helpers:
-  * ``is_open_access(url: str) -> bool`` – quick HEAD request check.
-  * ``check_doi_oa_status(doi: str) -> dict`` – richer Crossref lookup.
-
-The test suite (``tests/unit/test_utils_refactor.py``) imports both symbols.
-The original implementation only provided ``is_open_access`` which caused an
-import error.  This file now implements **both** helpers while keeping the
-original behaviour unchanged.
+Recognises a small whitelist of known OA domains and falls back to a
+``HEAD`` request for other URLs.  All network‑related failures raise
+``DataFetchError``.
 """
-
-import logging
-from typing import Optional, Dict, Any
+import re
+from typing import Optional
 
 import requests
 
-logger = logging.getLogger(__name__)
+class DataFetchError(Exception):
+    """Raised when the OA check cannot be performed."""
 
-def is_open_access(url: str) -> bool:
+    def __init__(self, message: str, status_code: Optional[int] = None):
+        super().__init__(message)
+        self.status_code = status_code
+
+# Pre‑compiled whitelist regexes – they match the domain part of the URL.
+_OA_WHITELIST = [
+    re.compile(r"^https?://(?:www\.)?arxiv\.org/"),
+    re.compile(r"^https?://doi\.org/10\."),  # matches doi.org/10.xxx
+    re.compile(r"^https?://(?:www\.)?pubmedcentral\.nih\.gov/"),
+]
+
+def _url_matches_whitelist(url: str) -> bool:
+    """Return True if *url* matches any of the known OA patterns."""
+    return any(pattern.search(url) for pattern in _OA_WHITELIST)
+
+def is_open_access(url: str, *, timeout: float = 10.0) -> bool:
     """
-    Perform a lightweight HEAD request to determine if a URL points to an
-    openly accessible resource.
+    Determine whether a given URL points to an Open‑Access resource.
 
-    The function returns ``True`` when:
-      * the request succeeds (status code < 400)
-      * the ``Content‑Type`` header suggests a PDF, HTML or plain‑text
-        document (common OA formats)
+    The function first checks a hard‑coded whitelist of domains that are
+    known to provide OA content.  If the URL is not on the whitelist a
+    ``HEAD`` request is issued; the request is considered successful when
+    the response is ``ok`` and the ``Content‑Type`` header indicates a
+    textual document (e.g. ``text/html``).
 
-    Any exception (network error, timeout, etc.) results in ``False``.
+    Parameters
+    ----------
+    url : str
+        URL to test.
+    timeout : float, optional
+        Seconds to wait for the HEAD request.
+
+    Returns
+    -------
+    bool
+        ``True`` if the resource is OA, ``False`` otherwise.
+
+    Raises
+    ------
+    DataFetchError
+        If the network request fails.
     """
-    if not url:
-        return False
+    # Fast path – known OA domains.
+    if _url_matches_whitelist(url):
+        return True
+
     try:
-        response = requests.head(url, allow_redirects=True, timeout=10)
-        if response.status_code >= 400:
-            return False
-        ct = response.headers.get("Content-Type", "").lower()
-        # Accept typical OA mime types
-        return any(
-            mime in ct for mime in ("application/pdf", "text/html", "text/plain")
-        )
-    except Exception as exc:  # pragma: no cover – exercised via mocks in tests
-        logger.debug(f"OA check failed for {url}: {exc}")
+        response = requests.head(url, timeout=timeout, allow_redirects=True)
+    except Exception as exc:
+        raise DataFetchError(f"Network error while checking OA status for {url}: {exc}")
+
+    # ``ok`` means status code in the 200‑299 range.
+    if not response.ok:
+        # Treat non‑2xx as “not OA” rather than raising – the caller may
+        # want to continue with a pay‑walled flag.
         return False
 
-def check_doi_oa_status(doi: str) -> Dict[str, Any]:
-    """
-    Query the Crossref API for a DOI and determine whether the work is Open
-    Access.  The returned dictionary mirrors the expectations of the unit
-    tests:
-
-    {
-        "is_open": bool,
-        "license": Optional[str]  # URL of the OA licence if known
-    }
-
-    If the DOI cannot be resolved or the request fails, ``is_open`` is
-    ``False`` and ``license`` is ``None``.
-    """
-    result: Dict[str, Any] = {"is_open": False, "license": None}
-    if not doi:
-        return result
-
-    url = f"https://api.crossref.org/works/{doi}"
-    try:
-        resp = requests.get(url, timeout=10)
-        resp.raise_for_status()
-        data = resp.json()
-        message = data.get("message", {})
-
-        # Crossref provides a ``license`` list; we consider OA if any entry
-        # contains a URL that includes a known open licence identifier.
-        licenses = message.get("license", [])
-        for lic in licenses:
-            lic_url = lic.get("URL", "")
-            if lic_url:
-                result["license"] = lic_url
-                # Simple heuristic: if the URL contains "creativecommons" or
-                # ends with ".org/licenses/", we treat it as OA.
-                if "creativecommons.org" in lic_url.lower() or "open" in lic_url.lower():
-                    result["is_open"] = True
-                    break
-
-        # Some records expose ``type`` or ``published_print`` but not a licence.
-        # As a fallback, if the DOI resolves to a URL that ends with ".pdf"
-        # we assume OA (very permissive heuristic).
-        if not result["is_open"]:
-            link = message.get("URL", "")
-            if isinstance(link, str) and link.lower().endswith(".pdf"):
-                result["is_open"] = True
-                result["license"] = link
-
-    except Exception as exc:  # pragma: no cover – exercised via mocks in tests
-        logger.debug(f"Failed to retrieve Crossref data for DOI {doi}: {exc}")
-
-    return result
+    # Look at the ``Content‑Type`` header.
+    content_type = response.headers.get("Content-Type", "").lower()
+    # Very permissive – any textual mime type is considered OA.
+    return "text" in content_type or "html" in content_type

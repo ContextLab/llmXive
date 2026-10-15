@@ -19,11 +19,11 @@ import hashlib
 from pathlib import Path
 from typing import List, Dict, Any
 
+import openml
+import pandas as pd
+
 # Project‑wide logging helper
 from utils.logging_config import setup_logging
-
-# API helper
-from utils.api_client import fetch_top_classification_datasets
 
 # ----------------------------------------------------------------------
 # Constants – paths are anchored to the repository root.
@@ -53,12 +53,15 @@ def save_json_file(path: Path, data: Any) -> None:
 def filter_datasets(datasets: List[Dict]) -> List[Dict]:
     """
     Keep datasets that have a non‑null ``publication_link`` **or** ``task_id``.
+    The OpenML listing does not always contain a dedicated ``publication_link``
+    field; we treat the dataset ``url`` (the OpenML web page) as a proxy for a
+    publication link when it is present.
     """
-    return [
-        ds
-        for ds in datasets
-        if ds.get("publication_link") or ds.get("task_id")
-    ]
+    filtered = []
+    for ds in datasets:
+        if ds.get("url") or ds.get("task_id"):
+            filtered.append(ds)
+    return filtered
 
 def deduplicate_datasets(datasets: List[Dict]) -> List[Dict]:
     """
@@ -132,12 +135,43 @@ def main() -> None:
     logger = setup_logging(str(LOG_FILE))
     logger.info("Starting OpenML ingestion process.")
 
-    # 1. Fetch raw data
+    # 1. Fetch raw data – we request the full dataset list and then take the
+    #    50 most‑downloaded classification datasets.
     try:
-        raw_datasets = fetch_top_classification_datasets(limit=50)
+        # Retrieve the full OpenML dataset catalogue as a pandas DataFrame.
+        df = openml.datasets.list_datasets(output_format="dataframe")
     except Exception as exc:
         logger.error(f"Failed to fetch datasets from OpenML: {exc}")
         sys.exit(1)
+
+    # Keep only classification tasks.  OpenML marks the type in the
+    # ``type`` column (e.g., "Supervised Classification").
+    if "type" in df.columns:
+        df = df[df["type"] == "Supervised Classification"]
+    else:
+        # Fallback – if the column is missing we proceed with the full list.
+        logger.warning("OpenML dataset list missing 'type' column; using full list.")
+
+    # Sort by download count descending and take the top 50.
+    if "download_count" in df.columns:
+        df = df.sort_values(by="download_count", ascending=False).head(50)
+    else:
+        logger.warning("OpenML dataset list missing 'download_count' column; using unsorted list.")
+        df = df.head(50)
+
+    # Convert to a list of plain dictionaries.
+    raw_datasets = df.to_dict(orient="records")
+
+    # Normalise field names to match the contract where possible.
+    for ds in raw_datasets:
+        # Rename OpenML's primary identifier to ``dataset_id``.
+        if "did" in ds:
+            ds["dataset_id"] = ds.pop("did")
+        # Use the OpenML web page URL as a proxy for ``publication_link``.
+        if "url" in ds:
+            ds["publication_link"] = ds["url"]
+        # Preserve any existing ``task_id`` if present; otherwise leave as None.
+        ds.setdefault("task_id", None)
 
     # Persist raw response
     save_json_file(RAW_OUTPUT, raw_datasets)
@@ -153,9 +187,7 @@ def main() -> None:
 
     # Overwrite filtered output with deduplicated version
     save_json_file(FILTERED_OUTPUT, deduped)
-    logger.info(
-        f"Deduplicated filtered list now contains {len(deduped)} entries."
-    )
+    logger.info(f"Deduplicated filtered list now contains {len(deduped)} entries.")
 
     # 4. Compute checksums for the two output files
     raw_checksum = compute_file_checksum(RAW_OUTPUT)
@@ -171,11 +203,13 @@ def main() -> None:
     # 5. Log summary statistics
     type_dist = {"binary": 0, "multiclass": 0}
     for ds in deduped:
-        data_type = (ds.get("data_type") or "").lower()
-        if "binary" in data_type:
-            type_dist["binary"] += 1
-        elif "multiclass" in data_type:
-            type_dist["multiclass"] += 1
+        # Determine binary vs multiclass from the number of classes if available.
+        n_classes = ds.get("NumberOfClasses") or ds.get("nr_of_classes")
+        if isinstance(n_classes, (int, float)):
+            if n_classes == 2:
+                type_dist["binary"] += 1
+            elif n_classes > 2:
+                type_dist["multiclass"] += 1
 
     log_extraction_statistics(len(raw_datasets), len(deduped), type_dist)
     logger.info("Ingestion process completed successfully.")

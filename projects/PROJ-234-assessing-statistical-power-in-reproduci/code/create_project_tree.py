@@ -1,8 +1,11 @@
-"""Create the required project directory tree with placeholder .gitkeep files
-and an empty __init__.py file.
+"""
+code/create_project_tree.py
+---------------------------
 
-This script is part of task T001. When executed it creates the following
-structure relative to the repository root:
+Implements task T001: create a separate project directory tree with placeholder
+``.gitkeep`` files and an empty ``__init__.py`` in the top‑level ``code`` package.
+
+The required tree (relative to the repository root) is:
 
 projects/PROJ-001-assessing-statistical-power/
     code/
@@ -17,9 +20,9 @@ projects/PROJ-001-assessing-statistical-power/
     docs/
     contracts/
 
-Each directory receives an empty ``.gitkeep`` file so that version control
-tracks empty folders. The script is idempotent – running it multiple times
-does not raise errors and will leave the tree in the desired state.
+Each directory receives an empty ``.gitkeep`` so that Git tracks empty folders.
+The script is idempotent – running it multiple times does not raise errors and
+leaves the tree in the desired state.
 """
 
 import sys
@@ -45,14 +48,12 @@ def main() -> int:
     int
         0 on success, non‑zero on unexpected failure.
     """
-    # Base directory for the new project tree.
-    base = (
-        Path(__file__).resolve().parents[1]
-        / "projects"
-        / "PROJ-001-assessing-statistical-power"
-    )
+    # Repository root is two levels above the ``projects`` folder that contains
+    # the current project (i.e. ``.../projects/PROJ-234-.../code`` -> repo root).
+    # The desired new project lives under ``projects/PROJ-001-assessing-statistical-power``.
+    repo_root = Path(__file__).resolve().parents[3]   # <repo_root>
+    target_root = repo_root / "projects" / "PROJ-001-assessing-statistical-power"
 
-    # Define the sub‑directories that must exist.
     subdirs = [
         "code",
         "code/utils",
@@ -66,16 +67,16 @@ def main() -> int:
 
     try:
         for sub in subdirs:
-            sub_path = base / sub
+            sub_path = target_root / sub
             _create_dir_with_gitkeep(sub_path)
 
-        # Ensure the empty __init__.py inside the top-level code directory.
-        _create_init_file(base / "code")
+        # Ensure the empty ``__init__.py`` inside the top‑level ``code`` package.
+        _create_init_file(target_root / "code")
     except Exception as exc:  # pragma: no cover – unexpected errors should surface.
         print(f"Error while creating project tree: {exc}", file=sys.stderr)
         return 1
 
-    print(f"Project tree created under: {base}")
+    print(f"Project tree created under: {target_root}")
     return 0
 
 if __name__ == "__main__":

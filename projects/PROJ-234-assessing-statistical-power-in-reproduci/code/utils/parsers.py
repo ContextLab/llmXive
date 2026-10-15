@@ -1,95 +1,88 @@
 """
-Simple regular‑expression based parsers used by the publication‑parsing stage.
-
-Public symbols required by the test suite:
-  - ``DataFetchError`` – custom exception raised when a pattern cannot be found.
-  - ``extract_sample_size(text)`` – returns the integer *N* from a string like
-    ``"N = 256"``.
-  - ``extract_effect_size(text)`` – extracts either Cohen's *d* or an F‑statistic.
-    Returns a tuple ``(value, metric_type, dof)`` where ``dof`` is ``None`` for
-    Cohen's *d* and a ``(df1, df2)`` tuple for an F‑statistic.
+Light‑weight parsers for extracting sample size and effect size information
+from plain‑text fragments of scientific articles.
 """
 import re
-from typing import Optional, Tuple
-
-__all__ = ["DataFetchError", "extract_sample_size", "extract_effect_size"]
+from typing import List, Optional, Tuple
 
 class DataFetchError(Exception):
-    """Raised when a required pattern cannot be extracted from the input text."""
+    """Raised when parsing fails to locate the required information."""
+
     pass
 
-_SAMPLE_SIZE_REGEX = re.compile(r"N\s*=\s*(\d+)", flags=re.IGNORECASE)
+_SAMPLE_SIZE_RE = re.compile(r"N\s*=\s*(\d+)", re.IGNORECASE)
+
+# Cohen's d patterns – accept straight quotes and typographic apostrophes.
+_COHEN_D_RE = re.compile(
+    r"Cohen['’]s?\s*d\s*=\s*([-\d\.]+)", re.IGNORECASE
+)
+
+# F‑statistic pattern with optional whitespace.
+_F_STAT_RE = re.compile(
+    r"F\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*=\s*([-\d\.]+)", re.IGNORECASE
+)
 
 def extract_sample_size(text: str) -> int:
     """
-    Extract the sample size ``N`` from *text*.
+    Extract ``N`` (sample size) from *text*.
+
+    The function looks for the pattern ``N = <integer>``.  If the pattern
+    cannot be found a ``DataFetchError`` is raised.
 
     Parameters
     ----------
-    text: str
-        Input string that should contain a pattern like ``N = 123``.
+    text : str
+        Input text.
 
     Returns
     -------
     int
-        The extracted sample size.
+        Sample size.
 
     Raises
     ------
     DataFetchError
-        If the pattern cannot be found.
+        If no match is found.
     """
-    match = _SAMPLE_SIZE_REGEX.search(text)
+    match = _SAMPLE_SIZE_RE.search(text)
     if not match:
         raise DataFetchError("Sample size pattern not found")
     return int(match.group(1))
 
-# Regex for Cohen's d – handles straight quotes, curly quotes, optional spaces
-_COHEN_D_REGEX = re.compile(
-    r"Cohen['’]s?\s*d\s*=?\s*([-\d\.]+)", flags=re.IGNORECASE
-)
-
-# Regex for F‑statistic with optional spaces: ``F(2, 145) = 4.5``
-_FSTAT_REGEX = re.compile(
-    r"F\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*=\s*([-\d\.]+)", flags=re.IGNORECASE
-)
-
-def extract_effect_size(text: str) -> Tuple[float, str, Optional[Tuple[int, int]]]:
+def extract_effect_size(
+    text: str,
+) -> Tuple[float, str, Optional[Tuple[int, int]]]:
     """
     Extract an effect size from *text*.
 
-    The function looks for either a Cohen's *d* or an F‑statistic.  If a
-    Cohen's *d* is found it returns ``(value, "Cohen's d", None)``.  If an
-    F‑statistic is found it returns ``(value, "F", (df1, df2))``.  The first
-    matching pattern wins.
-
-    Parameters
-    ----------
-    text: str
-        Input string containing the effect‑size expression.
+    Supports two metric types:
+    - Cohen's d (e.g., ``Cohen's d = 0.45``)
+    - F‑statistic (e.g., ``F(2, 145) = 4.5``)
 
     Returns
     -------
     tuple
-        ``(effect_value, metric_type, dof)`` as described above.
+        ``(value, metric_type, degrees_of_freedom)`` where
+        ``degrees_of_freedom`` is ``None`` for Cohen's d and a ``(df1,
+        df2)`` tuple for an F‑statistic.
 
     Raises
     ------
     DataFetchError
-        If neither pattern can be found.
+        If the text does not contain a recognised effect size.
     """
-    # Try Cohen's d first
-    d_match = _COHEN_D_REGEX.search(text)
-    if d_match:
-        value = float(d_match.group(1))
+    # Try Cohen's d first.
+    match = _COHEN_D_RE.search(text)
+    if match:
+        value = float(match.group(1))
         return (value, "Cohen's d", None)
 
-    # Try F‑statistic
-    f_match = _FSTAT_REGEX.search(text)
-    if f_match:
-        df1 = int(f_match.group(1))
-        df2 = int(f_match.group(2))
-        value = float(f_match.group(3))
+    # Try F‑statistic.
+    match = _F_STAT_RE.search(text)
+    if match:
+        df1 = int(match.group(1))
+        df2 = int(match.group(2))
+        value = float(match.group(3))
         return (value, "F", (df1, df2))
 
     raise DataFetchError("Effect size pattern not found")

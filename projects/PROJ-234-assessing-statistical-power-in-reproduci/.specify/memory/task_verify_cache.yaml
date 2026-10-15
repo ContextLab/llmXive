@@ -1,24 +1,11 @@
-T001:
-  c: false
-  h: b8f6b12daa4565e11256d4d20db473ec22f5b6382135dd93a5e49c3c01e6e181
-  r: The requested path `projects/PROJ-001-assessing-statistical-power/` is confirmed
-    MISSING; the execution log shows the tree was instead created nested inside the
-    project root at `projects/PROJ-234-.../projects/PROJ-001-...`, which is the wrong
-    location. Additionally, the observed `tests/` directory contains `unit/` and `contract/`
-    but no `integration/` subdirectory, and there is no evidence of `.gitkeep` files
-    in `code/`, `code/utils/`, `tests/unit/`, or `tests/integration/` (only `data/`,
-    `docs/`, and `contracts/` show `.gitkeep`).
-  sig: 478bdf13676e53fb14e6f5d57c3fb989315da251c9e458add550398538eed610
 T002:
   c: true
-  h: 19e50d953a07e3146e1e052dc29d699e4b9ea6417a7c125146eb0e6f661a4e84
-  r: 'Both artifacts exist at the project root with the exact required content: `requirements.txt`
-    (129 bytes) lists all eight pinned packages with exact versions matching the spec
-    excerpt, and `config.yaml` (50 bytes) contains `limits.max_runtime_hours: 6` and
-    `limits.max_memory_gb: 7`. The execution log shows `code/02_init_requirements.py`
-    exited 0 with the pip dry-run succeeding and `yaml.safe_load` confirming the required
-    limits keys.'
-  sig: 7c2c44135176dae98db9ad3fafaf0ecf524cb27e7daa6222d6a190719b5520d9
+  h: bb6f58afb1bdd0b338b548069c230d827a50646093bdce5183e0dca2c0b7f39d
+  r: Checked the `requirements.txt` and `config.yaml` files (both present with correct
+    contents) and the execution log `code/.tasks/T002.code_02_init_requirements.py.log`
+    which records a successful `pip install -r requirements.txt --dry-run` and successful
+    `yaml.safe_load` of the config containing the required limits.
+  sig: 1fad88648636691e2efad190cf985c05dd2dd8f148454007a85e92ee1ba0b1fa
 T003:
   c: true
   h: 19d9528d3624475e5646431aebca265657e06bf800326ded08c6ffde11cfdd35
@@ -29,13 +16,3 @@ T003:
     passed (exit 0), confirming the files parse via `yaml.safe_load` and validate
     with `jsonschema.Draft7Validator` against minimal valid instances.
   sig: 26d587cf8c1d3779571f75d62f71155b22c19a5c9f9b42cf04d9ddbf8cf4502f
-T004:
-  c: false
-  h: b8172c7e88bc3d421de9afce68890da5743c8977b1de437aa52c23b2635e251e
-  r: "The historical execution logs show `tests/unit/test_oa_checker.py` FAILED (exit\
-    \ 1): `test_known_oa_domains` asserts `is_open_access(\"https://doi.org/10.1000/xyz123\"\
-    )` is True but the implementation returns False, meaning the required `doi.org/10.`\
-    \ domain recognition is not working. The task's verification requirement \u2014\
-    \ all three unit test files passing \u2014 is not met; the implementer must fix\
-    \ the DOI prefix matching in `code/utils/oa_checker.py` and re-run the tests."
-  sig: bbc178bf8733ac35ebca093c1252ca72509a13dc7abf82ca990aace318608a17
