@@ -3,11 +3,10 @@ Numerical stability logger for tracking residuals and convergence.
 Implements FR-008 and Constitution Principle VI.
 """
 import json
-import os
+import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, Callable
-import logging
+from typing import Any, Dict, Optional
 
 class NumericalLogger:
     """Logger for numerical stability metrics."""
@@ -61,7 +60,7 @@ class NumericalLogger:
             entry: Dictionary to write.
         """
         with open(self.output_path, 'a') as f:
-            f.write(json.dumps(entry) + '\n')
+            f.write(json.dumps(entry) + '\\n')
             f.flush()
 
 _global_logger: Optional[NumericalLogger] = None
@@ -81,39 +80,21 @@ def get_logger(output_path: str = "data/metadata/residuals.json") -> NumericalLo
         _global_logger = NumericalLogger(output_path)
     return _global_logger
 
-def log_residual_decorator(func: Callable) -> Callable:
-    """
-    Decorator to log residuals for a function.
-
-    Args:
-        func: Function to wrap.
-
-    Returns:
-        Wrapped function.
-    """
+def log_residual_decorator(func):
+    """Decorator to log residuals for a function."""
     def wrapper(*args, **kwargs):
         logger = get_logger()
         try:
             result = func(*args, **kwargs)
-            # Assume function returns a residual norm or we compute it
-            # This is a generic decorator; specific implementations should pass norm
             logger.log_convergence({"function": func.__name__, "status": "success"})
             return result
-        except Exception as e:
+        except Exception:
             logger.log_residual(0.0, False)
             raise
     return wrapper
 
-def log_convergence_decorator(func: Callable) -> Callable:
-    """
-    Decorator to log convergence for a function.
-
-    Args:
-        func: Function to wrap.
-
-    Returns:
-        Wrapped function.
-    """
+def log_convergence_decorator(func):
+    """Decorator to log convergence for a function."""
     def wrapper(*args, **kwargs):
         logger = get_logger()
         try:
@@ -125,37 +106,19 @@ def log_convergence_decorator(func: Callable) -> Callable:
             raise
     return wrapper
 
-def inject_log_residual(func: Callable) -> Callable:
-    """
-    Decorator to inject logging calls into a function.
-    This is a simplified version; real injection would require AST manipulation
-    or explicit calls within the function body.
-
-    Args:
-        func: Function to wrap.
-
-    Returns:
-        Wrapped function.
-    """
+def inject_log_residual(func):
+    """Decorator to inject logging calls into a function."""
     def wrapper(*args, **kwargs):
         logger = get_logger()
         try:
             result = func(*args, **kwargs)
             logger.log_convergence({"function": func.__name__, "status": "success"})
             return result
-        except Exception as e:
+        except Exception:
             logger.log_residual(0.0, False)
             raise
     return wrapper
 
-def inject_log_convergence(func: Callable) -> Callable:
-    """
-    Decorator to inject convergence logging.
-
-    Args:
-        func: Function to wrap.
-
-    Returns:
-        Wrapped function.
-    """
+def inject_log_convergence(func):
+    """Decorator to inject convergence logging."""
     return log_convergence_decorator(func)
