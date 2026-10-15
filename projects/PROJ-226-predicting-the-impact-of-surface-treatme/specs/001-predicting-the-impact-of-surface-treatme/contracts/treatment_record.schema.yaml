@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TreatmentRecord"
+type: object
+required:
+  - treatment_type
+  - plasma_power_w
+  - exposure_time_s
+  - chemical_concentration_pct
+  - polymer_surface_energy
+  - substrate_roughness_nm
+  - adhesion_strength_mj_m2
+  - pair_id
+  - source
+properties:
+  treatment_type:
+    type: string
+    description: "Canonical treatment label (e.g., 'Oxygen Plasma')."
+  plasma_power_w:
+    type: number
+    description: "Plasma power in watts (SI)."
+  exposure_time_s:
+    type: number
+    description: "Exposure time in seconds (SI)."
+  chemical_concentration_pct:
+    type: number
+    description: "Chemical concentration as a percentage (0‑100)."
+  polymer_surface_energy:
+    type: number
+    description: "Polymer surface energy in mJ / m²."
+  substrate_roughness_nm:
+    type: number
+    description: "Substrate roughness in nanometers."
+  adhesion_strength_mj_m2:
+    type: number
+    description: "Adhesion strength in mJ / m² (target variable)."
+  pair_id:
+    type: string
+    description: "Identifier for the polymer‑substrate pair."
+  source:
+    type: string
+    description: "Originating dataset identifier (e.g., 'NIST')."
