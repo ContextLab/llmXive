@@ -94,7 +94,7 @@ def _execute_queries(queries: list[dict]) -> list[ExecutionMetric]:
             success=True,
             timeout=False,
         )
-        # Add the extra fields required by the CSV schema
+        # Attach additional fields required by the CSV schema.
         setattr(metric, "translation_error", translation_error)
         setattr(metric, "timeout_flag", False)
         metrics.append(metric)

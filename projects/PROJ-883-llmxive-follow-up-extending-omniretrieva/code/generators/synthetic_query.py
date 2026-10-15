@@ -77,8 +77,7 @@ class SyntheticQueryGenerator:
         """
         # Accept both ``Path`` objects and plain strings.
         path = Path(filepath) if not isinstance(filepath, Path) else filepath
-        # Ensure the file lives inside the project root.
-        path = paths.path(str(path))
+        # Ensure the directory exists.
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
+        with path.open("w", encoding="utf-8") as f:
             json.dump(self.generate(), f, indent=2)
