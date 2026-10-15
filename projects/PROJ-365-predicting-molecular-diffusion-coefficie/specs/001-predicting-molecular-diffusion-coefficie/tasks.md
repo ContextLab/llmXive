@@ -29,7 +29,7 @@ The checklist follows the canonical format
     • **Note:** This synthetic dataset is **only** for pipeline validation and does **not** satisfy FR‑001, which requires experimental data.  
     • Verification: the CSV exists, its row count equals 500, and it validates against `contracts/ingestion_schema.schema.yaml`.  
 
-- [ ] T003 [P] [US1] Download a verified real dataset – `code/ingestion/fetch_real.py`  
+- [ ] T003 [P] [US1] Download a verified real dataset – `code/ingestion/fetch_real.py`   <!-- FAILED-IN-EXECUTION: code/ingestion/fetch_real.py exit=1 -->
     • Reads a line `Dataset URL: <url>` from `plan.md`, downloads the CSV to `data/raw/dataset.csv`, and raises an exception on any network or HTTP error (no silent fallback).  
     • If `plan.md` does **not** contain a URL, the script aborts with a clear error (“No real dataset URL – FR‑001 cannot be satisfied”).  
     • Verification: on success the file exists, is non‑empty, and passes schema validation (`contracts/ingestion_schema.schema.yaml`). On missing URL the script exits with non‑zero status and logs the abort message.  
@@ -55,7 +55,7 @@ The checklist follows the canonical format
     • Writes `data/processed/valid_record_count.txt` containing the integer count of valid records.  
     • Verification: after execution on `data/raw/dataset.csv`, `data/logs/ingestion.log` contains the expected tags, `data/processed/valid_record_count.txt` exists and its integer value equals the number of records marked *valid*.  
 
-- [~] T006 [P] [US1] Featurize validated records into PyTorch‑Geometric graphs and solvent descriptors – `code/ingestion/featurize.py`  
+- [ ] T006 [P] [US1] Featurize validated records into PyTorch‑Geometric graphs and solvent descriptors – `code/ingestion/featurize.py`  
     • Produces `data/processed/featurized_data.jsonl`; each line conforms to `contracts/dataset.schema.yaml`.  
     • Records peak memory usage during processing to `artifacts/reports/memory_profile.json` (SC‑005).  
     • Verification: a random line parsed with `jsonschema.validate` passes the schema; file size > 0 KB; `memory_profile.json` contains `peak_memory_mb` and asserts `peak_memory_mb ≤ 7000`.  

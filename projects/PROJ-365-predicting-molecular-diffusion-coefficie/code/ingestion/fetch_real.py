@@ -2,7 +2,8 @@ import sys
 from pathlib import Path
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
-from utils.config import get_project_root
+
+import utils.config as config
 from utils.logging import get_logger, log_info, log_error
 
 logger = get_logger()
@@ -81,7 +82,7 @@ def main() -> None:
     Any failure (missing URL, network error, HTTP error) results in a
     non‑zero exit status and a clear error message – no silent fallback.
     """
-    root = get_project_root()
+    root = config.get_project_root()
     plan_path = root / "plan.md"
     raw_dir = root / "data" / "raw"
     output_file = raw_dir / "dataset.csv"

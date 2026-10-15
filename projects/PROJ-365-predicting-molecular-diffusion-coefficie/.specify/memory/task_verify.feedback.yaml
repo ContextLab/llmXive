@@ -2,20 +2,16 @@ T001:
   task: 2ae737c26f029b96db232ec28557377636b3d9fe40502082248abc26fea011a0
 T002:
   reason: "Checked `code/ingestion/generate_synthetic.py` (uses fixed seed\u202F42,\
-    \ writes 500 rows with the required columns) and `data/raw/dataset.csv` (row\u2011\
-    count test passed). However the schema\u2011validation test failed because the\
-    \ schema file is YAML but the test loads it as JSON, so there is no evidence that\
-    \ the CSV actually validates against `contracts/ingestion_schema.schema.yaml`.\
-    \ The task therefore lacks a confirmed schema\u2011validation artifact."
+    \ NUM_ROWS\u202F=\u202F500) and `data/raw/dataset.csv` (exists, test suite confirms\
+    \ 500 rows). However the ingestion\u2011schema validation test fails because the\
+    \ schema file cannot be loaded as JSON, so there is no evidence that the CSV actually\
+    \ validates against `contracts/ingestion_schema.schema.yaml`. The task requires\
+    \ successful validation, which is not demonstrated. Fix the schema loading (or\
+    \ file format) and ensure the CSV passes the JSON\u2011Schema check."
   task: ea6411ecee530156bc6ac73593d4b0a29cd045f11bc0171d56fa65b044f017c9
 T003:
-  reason: "Checked `code/ingestion/fetch_real.py`, `plan.md`, `data/raw/dataset.csv`,\
-    \ and the test log `code/.tasks/T003.tests_test_fetch_real.py.log`. The script\
-    \ aborts because `plan.md` contains no URL, causing the \u201CNo real dataset\
-    \ URL \u2013 FR\u2011001 cannot be satisfied\u201D error and the \u201Csuccessful\
-    \ download\u201D test to fail. No evidence shows that a real download occurred,\
-    \ that the CSV was produced by the script, or that schema validation was performed.\
-    \ A valid `Dataset URL:` line and a successful download+validation are required."
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion/fetch_real.py
+    exit=1'
   task: 619806a785e6211a22e168b87ccb78db56c11f1687a5968525831e8ccd1b7204
 T004:
   reason: "The `code/ingestion/flag_source.py` script determines the source from a\
@@ -37,6 +33,14 @@ T005:
     \ the task\u2019s verification criteria from being satisfied."
   task: ea03a75f909d77721740d0c9e5e3d19e417a73bf87b169035d001a99d48e042e
 T006:
+  reason: "The `featurized_data.jsonl` file exists and is non\u2011empty, but its\
+    \ records do **not** conform to `contracts/dataset.schema.yaml`: the schema requires\
+    \ a `solvent_features` object with fields `viscosity` and `dielectric`, yet the\
+    \ produced JSON lines contain `dielectric_constant` instead of `dielectric`. Consequently\
+    \ a JSON\u2011Schema validation would fail. The memory profile file is present\
+    \ and its `peak_memory_mb` (765.01) satisfies the \u2264\u202F7000\u202FMB limit.\
+    \ Fix the featurization output to use the exact field names required by the schema\
+    \ (or adjust the schema) so that each line validates."
   task: b1e8c6d91b8b164d0c8d0ba367dfcfd80170c5b07ff20cfca68dac8ea4c4006a
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/ingestion/ingest.py

@@ -9,14 +9,15 @@ T001:
   sig: aab5296798359831115b0015797f7f38808f89040df8ce8ff61b8c766fb1ce5b
 T002:
   c: false
-  h: 90420a3634354456164e6dbcb8fa97c2a0ded075f1d488b00e21471890749082
-  r: "Checked `code/ingestion/generate_synthetic.py` (uses fixed seed\u202F42, writes\
-    \ 500 rows with the required columns) and `data/raw/dataset.csv` (row\u2011count\
-    \ test passed). However the schema\u2011validation test failed because the schema\
-    \ file is YAML but the test loads it as JSON, so there is no evidence that the\
-    \ CSV actually validates against `contracts/ingestion_schema.schema.yaml`. The\
-    \ task therefore lacks a confirmed schema\u2011validation artifact."
-  sig: 1ea4efa04c81714affbf679ec857a79e70f96b6484f9fb22bace93a01a3fa629
+  h: 3f7697152ff4cd8442da7ef2e2a38a7115b083d6879e2d403c421867160b1488
+  r: "Checked `code/ingestion/generate_synthetic.py` (uses fixed seed\u202F42, NUM_ROWS\u202F\
+    =\u202F500) and `data/raw/dataset.csv` (exists, test suite confirms 500 rows).\
+    \ However the ingestion\u2011schema validation test fails because the schema file\
+    \ cannot be loaded as JSON, so there is no evidence that the CSV actually validates\
+    \ against `contracts/ingestion_schema.schema.yaml`. The task requires successful\
+    \ validation, which is not demonstrated. Fix the schema loading (or file format)\
+    \ and ensure the CSV passes the JSON\u2011Schema check."
+  sig: 4ee5efb20ef72307eddf5b81d97f58c01ad896c0af317f1446afe758d595784c
 T003:
   c: false
   h: 13d19fac8fcecdad3afbcc053231bc788868c398a9a300ca7aa29e118ee0fabd
@@ -51,6 +52,18 @@ T005:
     \ it, so missing\u2011data tags would raise a `NameError`. These issues prevent\
     \ the task\u2019s verification criteria from being satisfied."
   sig: a817741ff99660307bb82ceef2b563fcabecf60aefd31270cfabf5e92444058b
+T006:
+  c: false
+  h: a5c410ad17d421f6d92e5abd189289df84b588d1087b3f25345851861ee110cd
+  r: "The `featurized_data.jsonl` file exists and is non\u2011empty, but its records\
+    \ do **not** conform to `contracts/dataset.schema.yaml`: the schema requires a\
+    \ `solvent_features` object with fields `viscosity` and `dielectric`, yet the\
+    \ produced JSON lines contain `dielectric_constant` instead of `dielectric`. Consequently\
+    \ a JSON\u2011Schema validation would fail. The memory profile file is present\
+    \ and its `peak_memory_mb` (765.01) satisfies the \u2264\u202F7000\u202FMB limit.\
+    \ Fix the featurization output to use the exact field names required by the schema\
+    \ (or adjust the schema) so that each line validates."
+  sig: 1fd99187a3fa01c86d37db6acfde36917eab56a5c2a6355c36f11777ff0b0736
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
