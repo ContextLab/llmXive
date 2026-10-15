@@ -1,62 +1,39 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Output Schemas
-definitions:
-  RegressionResults:
-    type: object
-    properties:
-      term:
-        type: string
-      estimate:
-        type: number
-      std_error:
-        type: number
-      t_value:
-        type: number
-      p_value:
-        type: number
-      vif:
-        type: number
-    required:
-      - term
-      - estimate
-      - std_error
-      - t_value
-      - p_value
-      - vif
-
-  SensitivityAnalysis:
-    type: object
-    properties:
-      levenshtein_threshold:
-        type: integer
-      match_rate:
-        type: number
-      coefficient_adolescent_exposure:
-        type: number
-      pvalue_adolescent_exposure:
-        type: number
-    required:
-      - levenshtein_threshold
-      - match_rate
-      - coefficient_adolescent_exposure
-      - pvalue_adolescent_exposure
-
-  PermutationResults:
-    type: object
-    properties:
-      observed_statistic:
-        type: number
-      null_distribution_mean:
-        type: number
-      null_distribution_std:
-        type: number
-      p_value:
-        type: number
-      iterations:
-        type: integer
-    required:
-      - observed_statistic
-      - null_distribution_mean
-      - null_distribution_std
-      - p_value
-      - iterations
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Output Schemas",
+  "definitions": {
+    "RegressionResults": {
+      "type": "object",
+      "properties": {
+        "term": { "type": "string" },
+        "estimate": { "type": "number" },
+        "std_error": { "type": "number" },
+        "t_value": { "type": "number" },
+        "p_value": { "type": "number" },
+        "vif": { "type": "number" }
+      },
+      "required": ["term", "estimate", "std_error", "t_value", "p_value", "vif"]
+    },
+    "SensitivityAnalysis": {
+      "type": "object",
+      "properties": {
+        "levenshtein_threshold": { "type": "integer" },
+        "match_rate": { "type": "number" },
+        "coefficient_adolescent_exposure": { "type": "number" },
+        "pvalue_adolescent_exposure": { "type": "number" }
+      },
+      "required": ["levenshtein_threshold", "match_rate", "coefficient_adolescent_exposure", "pvalue_adolescent_exposure"]
+    },
+    "PermutationResults": {
+      "type": "object",
+      "properties": {
+        "observed_statistic": { "type": "number" },
+        "null_distribution_mean": { "type": "number" },
+        "null_distribution_std": { "type": "number" },
+        "p_value": { "type": "number" },
+        "iterations": { "type": "integer" }
+      },
+      "required": ["observed_statistic", "null_distribution_mean", "null_distribution_std", "p_value", "iterations"]
+    }
+  }
+}

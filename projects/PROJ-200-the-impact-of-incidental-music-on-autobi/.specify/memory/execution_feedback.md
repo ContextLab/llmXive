@@ -31,8 +31,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py --step download -> rc=1
 "
-2026-10-15 16:20:13,905 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-15 16:20:13,953 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-10-15 16:21:44,226 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-15 16:21:44,271 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
     main()
@@ -47,8 +47,8 @@ TypeError: string indices must be integers, not 'str'
 
 - python code/main.py --step ingest -> rc=1
 "
-2026-10-15 16:20:15,668 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-15 16:20:15,713 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-10-15 16:21:45,845 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-15 16:21:45,890 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
     main()
@@ -63,8 +63,8 @@ TypeError: string indices must be integers, not 'str'
 
 - python code/main.py --step analyze -> rc=1
 "
-2026-10-15 16:20:17,351 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-15 16:20:17,404 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-10-15 16:21:47,583 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-15 16:21:47,633 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
     main()
@@ -79,8 +79,8 @@ TypeError: string indices must be integers, not 'str'
 
 - python code/main.py --step verify -> rc=1
 "
-2026-10-15 16:20:18,969 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-15 16:20:19,016 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-10-15 16:21:49,241 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-15 16:21:49,288 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
     main()
@@ -95,8 +95,8 @@ TypeError: string indices must be integers, not 'str'
 
 - python code/main.py --full-run -> rc=1
 "
-2026-10-15 16:20:20,785 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-15 16:20:20,827 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-10-15 16:21:50,932 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/datasets/matthewfranglen/lastfm-1k/tree/8613d9f34c914629843ad4ac9fa02bee93815b1a?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-15 16:21:50,977 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/matthewfranglen/lastfm-1k/resolve/8613d9f34c914629843ad4ac9fa02bee93815b1a/dataset_infos.json "HTTP/1.1 404 Not Found"
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-200-the-impact-of-incidental-music-on-autobi/code/main.py", line 31, in <module>
     main()

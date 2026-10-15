@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "2ea921db616b318c9e764e142ce964a102892b2dafaa8ef1e9ec81a8c7bb6e52",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/cue_matching.py': SyntaxError at line 169: unindent does not match any outer indentation level. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 6288"
+}
