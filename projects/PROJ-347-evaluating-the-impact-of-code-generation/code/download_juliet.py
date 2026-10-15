@@ -24,9 +24,9 @@ log = get_logger(__name__)
 # Configuration – real, publicly available source
 # ----------------------------------------------------------------------
 REPO_ZIP_URL = (
-    "https://github.com/Juliet-Test-Suite/SARD/archive/refs/heads/master.zip"
+    "https://github.com/Juliet-Test-Suite/SARD/archive/refs/heads/main.zip"
 )
-ZIP_MEMBER_PATH = "SARD-master/data/python_vuln.csv"
+ZIP_MEMBER_PATH = "SARD-main/data/python_vuln.csv"
 
 # Destination locations (all under the project root)
 CSV_DEST = paths.data("raw", "juliet", "python_vuln.csv")

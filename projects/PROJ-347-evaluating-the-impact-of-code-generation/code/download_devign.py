@@ -33,10 +33,11 @@ log = get_logger(__name__)
 # whole repository as a zip archive (small enough for the quick‑start) and
 # extract the CSV containing the Python vulnerable snippets.
 REPO_ZIP_URL = (
-    "https://github.com/Juliet-Test-Suite/SARD/archive/refs/heads/master.zip"
+    "https://github.com/Juliet-Test-Suite/SARD/archive/refs/heads/main.zip"
 )
-# Path inside the zip archive where the CSV lives.
-ZIP_MEMBER_PATH = "SARD-master/data/python_vuln.csv"
+# Path inside the zip archive where the CSV lives.  The zip extracts to a
+# top‑level folder named `SARD-main`, so we reference that.
+ZIP_MEMBER_PATH = "SARD-main/data/python_vuln.csv"
 
 # Destination locations (all under the project root)
 CSV_DEST = paths.data("raw", "devign", "devign.csv")
