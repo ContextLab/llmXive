@@ -9,13 +9,14 @@ The script validates that:
   * All required columns are present.
   * All numeric columns contain only numeric data (no stray strings).
 If any of these checks fail a ``UnitMismatchError`` is raised, aborting
-the pipeline.
+the pipeline **unless at least one valid source is found**. In that case
+invalid sources are skipped and a warning is logged.
 """
 
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import pandas as pd
 
@@ -113,30 +114,48 @@ def main() -> None:
 
     For each CSV file under ``data/raw/``, a JSON file named
     ``<source>_units.json`` is created in the same directory. The JSON
-    maps column names to their SI unit strings defined in ``UNITS_MAP``.
-    If any inconsistency is detected a ``UnitMismatchError`` is raised,
-    causing the pipeline to abort.
+    maps column names to the SI unit strings defined in ``UNITS_MAP``.
+
+    If a source is missing required columns or contains non‑numeric data,
+    the source is skipped *unless* no other valid sources exist, in which
+    case a ``UnitMismatchError`` is raised to abort the pipeline.
     """
     csv_files = _list_raw_csv_files()
     if not csv_files:
         LOG.warning("No raw CSV files found – nothing to process.")
         return
 
+    processed_any = False
+    first_error: Optional[UnitMismatchError] = None
+
     for csv_path in csv_files:
         source_name = csv_path.stem  # filename without extension
         LOG.info("Processing source '%s' (%s)", source_name, csv_path)
 
-        # Load the CSV (no type conversion here – we validate later)
+        # Load the CSV
         try:
             df = pd.read_csv(csv_path)
         except Exception as exc:
-            raise UnitMismatchError(
+            err = UnitMismatchError(
                 f"Failed to read CSV for source '{source_name}': {exc}"
-            ) from exc
+            )
+            LOG.error(str(err))
+            # Treat unreadable files as invalid
+            if not first_error:
+                first_error = err
+            continue
 
-        # Validate required columns and numeric consistency
-        _validate_columns(df, source_name)
-        _validate_numeric_columns(df, source_name)
+        # Validate required columns
+        try:
+            _validate_columns(df, source_name)
+            _validate_numeric_columns(df, source_name)
+        except UnitMismatchError as exc:
+            LOG.warning(str(exc))
+            # Remember the first error to raise later if needed
+            if not first_error:
+                first_error = exc
+            # Skip this source and continue with others
+            continue
 
         # Build the unit‑metadata dict (only for columns that exist)
         units_metadata = {
@@ -146,6 +165,14 @@ def main() -> None:
         # Destination JSON path
         json_path = csv_path.with_name(f"{source_name}_units.json")
         _write_units_json(units_metadata, json_path)
+
+        processed_any = True
+
+    if not processed_any:
+        # No valid source was processed – raise the first encountered error
+        raise first_error or UnitMismatchError(
+            "No valid CSV files with required columns were found."
+        )
 
     LOG.info("Unit‑metadata generation completed successfully.")
 

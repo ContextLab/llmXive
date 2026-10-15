@@ -16,7 +16,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 1 – Data Acquisition & Integrity  
 
-- [X] **T002** [S1] [US1] Download the verified raw dataset(s) identified by T001 and record SHA‑256 checksums.
+- [ ] **T002** [S1] [US1] Download the verified raw dataset(s) identified by T001 and record SHA‑256 checksums.
   - *Implementation*: `code/download_data.py` uses `wget`/`curl` with the concrete URLs from the availability report and saves files under `data/raw/<source>.csv`.  
   - *Verification*: script writes `data/raw/checksums.txt` (one line per file) and exits with status 0 only if every download succeeds and the computed checksum matches the recorded value.
 
@@ -28,7 +28,7 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 2 – Ingestion & Pre‑processing  
 
-- [ ] **T004** [S1] [US1] Parse raw files, convert all numeric fields to SI, canonicalise `treatment_type`, one‑hot encode categorical fields (`treatment_type`, `pair_id`), median‑impute missing numeric values *per substrate class*, and flag low‑coverage columns.  
+- [ ] **T004** [S1] [US1] Parse raw files, convert all numeric fields to SI, canonicalise `treatment_type`, one‑hot encode categorical fields (`treatment_type`, `pair_id`), median‑impute missing numeric values *per substrate class*, and flag low‑coverage columns.   <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
   - *Implementation*: `code/preprocess.py` produces a single cleaned file `data/cleaned/cleaned.csv`.  
   - *Verification*:  
     - `data/cleaned/cleaned.csv` must contain exactly the columns defined in the `TreatmentRecord` schema with **no missing values** in required fields.  

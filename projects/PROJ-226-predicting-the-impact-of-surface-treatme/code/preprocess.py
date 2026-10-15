@@ -125,7 +125,7 @@ def _one_hot_encode(df: pd.DataFrame, categorical_cols: List[str]) -> pd.DataFra
 def _compute_field_coverage(df: pd.DataFrame) -> Dict[str, Dict]:
     """
     Compute the percentage of non‑missing values per column.
-    Returns a dict mapping column name → {\"coverage\": float, \"low_coverage\": bool}
+    Returns a dict mapping column name → {\"coverage_percent\": float, \"low_coverage\": bool}
     where ``low_coverage`` is True when coverage < 80 %.
     """
     total = len(df)

@@ -1,19 +1,33 @@
+T001:
+  c: false
+  h: e4880f6bab0b72c6d37a3985bd64b79f738ba3aac239eca4788ebf55076b62e2
+  r: "The `availability_report.json` only lists a bundled local CSV (`file://\u2026\
+    /example.csv`) as the dataset, which is not an openly downloadable external source.\
+    \ The script never succeeded in discovering a real external Zenodo/NIST/Materials\
+    \ Project dataset that contains all required variables, so the core requirement\
+    \ of verifying an openly downloadable dataset is unmet. The task also fails its\
+    \ own test (the script cannot be invoked from the expected path), indicating the\
+    \ verification workflow is not correctly implemented. The implementer must locate\
+    \ a genuine public dataset with the required column"
+  sig: 1d126b04212211b1e3ec1f1a411f85f7456e4301fc2c0ee35c7407a6e9f25d68
 T002:
-  c: true
-  h: 8c802b08240a7fcc902af15c9c00d791f21d1734905a32c031d2c231c5b30516
-  r: "Checked `code/download_data.py` (downloads per availability report and writes\
-    \ checksums), the resulting `data/raw/checksums.txt` contains the correct SHA\u2011\
-    256 for the downloaded `example_dataset.csv`, and the execution log `code/.tasks/T002.code_download_data.py.log`\
-    \ shows the script exited with status\u202F0 after a successful download."
-  sig: 0f667208f72b5f37043c8a699dd8a23fd53293922f13692ee9a0ea483075a5e0
+  c: false
+  h: 7624fdab1966b0cb4c4ab5c590f9b7fe32f1eb54804f097c97f8effaab40ea58
+  r: "Checked `code/download_data.py` and `data/raw/checksums.txt`. The script downloads\
+    \ via Python\u202Frequests (not wget/curl as required) and records computed checksums\
+    \ without comparing them to any expected values, so it does not verify that the\
+    \ recorded checksum matches a known reference. Consequently the task\u2019s core\
+    \ requirement is not met."
+  sig: aa3a90c1409d6d806379a3eb7883fdfb58edc1387545fc0c3e351486634ccc4f
 T003:
   c: false
-  h: 742eb343625bd11f82dc2a06121f895ba84cf07d69be85b7d2819614048d20a8
-  r: "The repository contains `code/generate_units_metadata.py` and a single JSON\
-    \ output (`example_dataset_units.json`), but the script fails to process all raw\
-    \ CSVs (e.g., `test_source.csv` triggers a false \u201Cmissing required column\u201D\
-    \ error in the test suite) and does not produce per\u2011source JSON files for\
-    \ every source. The required JSON files for the other raw datasets are missing,\
-    \ and the validation logic is incorrect, so the task\u2019s requirement is not\
-    \ satisfied."
-  sig: e090dc0659372e940e8ae413c61f9c98bc83d45fb42d5c8baa939ea3b0717bc4
+  h: 326b2bd2c11e01b237264c1312ae31b92bf95b6b7f2632e092d150e29b3b4bea
+  r: "The test suite shows `test_generate_units_metadata_success` failing because\
+    \ the script raises a `UnitMismatchError` for `test_source.csv`, indicating it\
+    \ does not correctly recognize all required columns. Moreover, a JSON file (`bad_source_units.json`)\
+    \ exists for an invalid source and contains unit entries for columns that are\
+    \ not present in `bad_source.csv`, which contradicts the script\u2019s intended\
+    \ behavior of skipping invalid sources. The implementation therefore does not\
+    \ reliably generate correct per\u2011source metadata nor validate unit consistency\
+    \ as required."
+  sig: 89b3f6e8e6d8c51ce3dab522c75fbbe8cdf8216b35066ac5621bd97216cc6689
