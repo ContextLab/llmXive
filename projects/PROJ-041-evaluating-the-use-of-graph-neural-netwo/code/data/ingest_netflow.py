@@ -3,10 +3,8 @@ import sys
 import logging
 import hashlib
 import glob
-from typing import Optional, List, Tuple, Dict, Any
+from typing import Tuple
 import pandas as pd
-import pyarrow.parquet as pq
-import pyarrow as pa
 
 # Configure logging
 logging.basicConfig(
@@ -62,7 +60,6 @@ def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     Normalize column names and types for NetFlow data.
     Ensures standard columns: src_ip, dst_ip, packets, timestamp
     """
-    # Map common variations to standard names
     col_mapping = {
         'src_ip': ['src_ip', 'source_ip', 'SrcIP', 'Source_IP', 'sip'],
         'dst_ip': ['dst_ip', 'dest_ip', 'destination_ip', 'DstIP', 'Dest_IP', 'dip'],
@@ -79,79 +76,63 @@ def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
                 found_cols[standard_name] = var
                 break
 
-    # Rename columns
     rename_map = {v: k for k, v in found_cols.items()}
     if rename_map:
         normalized_df = normalized_df.rename(columns=rename_map)
 
-    # Ensure required columns exist
     required = ['src_ip', 'dst_ip', 'packets', 'timestamp']
     missing = [col for col in required if col not in normalized_df.columns]
     if missing:
         raise ValueError(f"Missing required columns after normalization: {missing}")
 
-    # Type conversions
     normalized_df['src_ip'] = normalized_df['src_ip'].astype(str)
     normalized_df['dst_ip'] = normalized_df['dst_ip'].astype(str)
     normalized_df['packets'] = pd.to_numeric(normalized_df['packets'], errors='coerce').fillna(0).astype(int)
-    
-    # Handle timestamp
+
     if normalized_df['timestamp'].dtype == 'object':
         normalized_df['timestamp'] = pd.to_datetime(normalized_df['timestamp'], errors='coerce')
-    normalized_df['timestamp'] = normalized_df['timestamp'].astype('int64') // 10**9  # Convert to Unix timestamp if datetime
+    normalized_df['timestamp'] = normalized_df['timestamp'].astype('int64') // 10**9
 
     return normalized_df
 
 def load_raw_flows(filepath: str) -> pd.DataFrame:
     """
-    Load raw NetFlow data from CSV or Parquet.
+    Load raw NetFlow data from CSV.
     """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Raw data file not found: {filepath}")
-    
+
     logger.info(f"Loading raw flows from: {filepath}")
-    
-    if filepath.endswith('.parquet'):
-        df = pd.read_parquet(filepath)
-    elif filepath.endswith('.csv'):
+
+    if filepath.endswith('.csv'):
         df = pd.read_csv(filepath)
     else:
-        # Try to infer based on content or default to CSV
-        try:
-            df = pd.read_parquet(filepath)
-        except:
-            df = pd.read_csv(filepath)
-    
+        # Fallback to CSV reading for any other extension
+        df = pd.read_csv(filepath)
+
     logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
     return df
 
-def process_scenario(raw_filepath: str, output_dir: str = 'data/processed') -> Tuple[str, pd.DataFrame]:
+def process_scenario(raw_filepath: str) -> Tuple[str, pd.DataFrame]:
     """
     Process a single scenario file:
     1. Load raw data
     2. Normalize columns
     3. Extract scenario name from filename
-    4. Return processed dataframe and output path
+    Returns scenario name and normalized dataframe.
     """
     scenario_name = os.path.splitext(os.path.basename(raw_filepath))[0]
-    output_filename = f"raw_flows_{scenario_name}.parquet"
-    output_path = os.path.join(output_dir, output_filename)
-    
-    # Load and normalize
     df = load_raw_flows(raw_filepath)
     df_normalized = normalize_columns(df)
-    
-    # Sort by timestamp to ensure temporal order
     df_normalized = df_normalized.sort_values('timestamp').reset_index(drop=True)
-    
     return scenario_name, df_normalized
 
 def write_processed_flows(df: pd.DataFrame, output_path: str):
     """
-    Write processed flows to Parquet file.
+    Write processed flows to CSV file.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_parquet(output_path, index=False)
+    df.to_csv(output_path, index=False)
     logger.info(f"Wrote processed flows to: {output_path} ({len(df)} rows)")
 
 def ingest_all_scenarios():
@@ -159,34 +140,29 @@ def ingest_all_scenarios():
     Main entry point to ingest all scenarios from data/raw.
     """
     ensure_data_dirs()
-    
-    # Find all raw data files
+
     raw_files = glob.glob('data/raw/*.csv') + glob.glob('data/raw/*.parquet')
-    
     if not raw_files:
         logger.warning("No raw data files found in data/raw/")
-        return
+        return []
 
     logger.info(f"Found {len(raw_files)} raw data files to process.")
-    
     processed_scenarios = []
-    
+
     for raw_file in raw_files:
         try:
             logger.info(f"Processing: {raw_file}")
             scenario_name, df = process_scenario(raw_file)
-            output_path = os.path.join('data/processed', f"raw_flows_{scenario_name}.parquet")
+            output_path = os.path.join('data/processed', f"raw_flows_{scenario_name}.csv")
             write_processed_flows(df, output_path)
             processed_scenarios.append(scenario_name)
-            
-            # Update state with artifact hash
+
             file_hash = calculate_sha256(output_path)
             update_state(data={
                 'artifact_hashes': {
-                    f"raw_flows_{scenario_name}.parquet": file_hash
+                    f"raw_flows_{scenario_name}.csv": file_hash
                 }
             })
-            
         except Exception as e:
             logger.error(f"Failed to process {raw_file}: {e}")
             raise
