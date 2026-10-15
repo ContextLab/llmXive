@@ -5,16 +5,6 @@ T001:
     and the script execution log `code/setup_dirs.py` confirming all required directories
     were created.
   sig: 2c02da54ddaafe29ac7023431bc73dbcad4c888d8bdb4cf94805ab7feefd85fb
-T002:
-  c: false
-  h: 455092b6fd33d8b659be60d844daee7c33a6af751486bf7020d0a28da7994f30
-  r: "The repository contains a `requirements.txt` with all listed packages, but the\
-    \ provided test (`tests/test_requirements_install.py`) fails because it looks\
-    \ for the file in the wrong location and never demonstrates a successful `pip\
-    \ install -r requirements.txt` in a fresh virtualenv. Without evidence that the\
-    \ install command runs and exits with code\u202F0, the task\u2019s verification\
-    \ condition is not met."
-  sig: e4f4edf0f749e17db23fb00ec7c94c3e9cd09ab0b4c91daf5c6223e134869d57
 T003:
   c: true
   h: 33815d358676df90de538fa0f00e9d480b41071aea3a7397fe7869507d46ba79
