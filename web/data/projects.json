@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 17996,
+    "total_contributions": 17998,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2079,
+      "contribution_count": 2081,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-15T07:29:52.807447+00:00",
+  "generated_at": "2026-10-15T07:59:16.484246+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -28955,6 +28955,11 @@
           "title": "Evaluating the Impact of Code Generation on Software Security: A Static Analysis Study"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "title": "Neural Mechanisms Underlying Adaptive Decision-Making in Response to Social Feedback"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma",
           "project_id": "PROJ-723-resting-state-fmri-global-signal-as-a-ma",
           "title": "Resting\u2011State fMRI Global Signal as a Marker of Mind\u2011Wandering"
@@ -28963,11 +28968,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1070-llmxive-follow-up-extending-search-beyon",
           "project_id": "PROJ-1070-llmxive-follow-up-extending-search-beyon",
           "title": "llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Knowledge Boundary in A\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-884-llmxive-follow-up-extending-self-improvi",
-          "project_id": "PROJ-884-llmxive-follow-up-extending-self-improvi",
-          "title": "llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional Evolutionary Search\""
         }
       ],
       "inputs": [
@@ -28999,6 +28999,11 @@
           "title": "Evaluating the Impact of Code Generation on Software Security: A Static Analysis Study"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "title": "Neural Mechanisms Underlying Adaptive Decision-Making in Response to Social Feedback"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma",
           "project_id": "PROJ-723-resting-state-fmri-global-signal-as-a-ma",
           "title": "Resting\u2011State fMRI Global Signal as a Marker of Mind\u2011Wandering"
@@ -29007,11 +29012,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1070-llmxive-follow-up-extending-search-beyon",
           "project_id": "PROJ-1070-llmxive-follow-up-extending-search-beyon",
           "title": "llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Knowledge Boundary in A\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-884-llmxive-follow-up-extending-self-improvi",
-          "project_id": "PROJ-884-llmxive-follow-up-extending-self-improvi",
-          "title": "llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional Evolutionary Search\""
         }
       ],
       "inputs": [
@@ -29043,6 +29043,11 @@
           "title": "Evaluating the Impact of Code Generation on Software Security: A Static Analysis Study"
         },
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "title": "Neural Mechanisms Underlying Adaptive Decision-Making in Response to Social Feedback"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma",
           "project_id": "PROJ-723-resting-state-fmri-global-signal-as-a-ma",
           "title": "Resting\u2011State fMRI Global Signal as a Marker of Mind\u2011Wandering"
@@ -29051,11 +29056,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-884-llmxive-follow-up-extending-self-improvi",
           "project_id": "PROJ-884-llmxive-follow-up-extending-self-improvi",
           "title": "llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional Evolutionary Search\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1011-llmxive-follow-up-extending-researchstud",
-          "project_id": "PROJ-1011-llmxive-follow-up-extending-researchstud",
-          "title": "llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suit\""
         }
       ],
       "inputs": [
@@ -29077,14 +29077,14 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-",
-          "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-          "title": "Transferability of DFT\u2011D3 Dispersion to Ionic Liquids"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-347-evaluating-the-impact-of-code-generation",
           "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
           "title": "Evaluating the Impact of Code Generation on Software Security: A Static Analysis Study"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "title": "Neural Mechanisms Underlying Adaptive Decision-Making in Response to Social Feedback"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma",
@@ -29120,6 +29120,16 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-347-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Software Security: A Static Analysis Study"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "title": "Neural Mechanisms Underlying Adaptive Decision-Making in Response to Social Feedback"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma",
           "project_id": "PROJ-723-resting-state-fmri-global-signal-as-a-ma",
           "title": "Resting\u2011State fMRI Global Signal as a Marker of Mind\u2011Wandering"
@@ -29133,16 +29143,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1011-llmxive-follow-up-extending-researchstud",
           "project_id": "PROJ-1011-llmxive-follow-up-extending-researchstud",
           "title": "llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suit\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on",
-          "project_id": "PROJ-982-llmxive-follow-up-extending-dopd-dual-on",
-          "title": "llmXive follow-up: extending \"DOPD: Dual On-policy Distillation\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-218-predicting-molecular-fluorescence-quantu",
-          "project_id": "PROJ-218-predicting-molecular-fluorescence-quantu",
-          "title": "Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks"
         }
       ],
       "inputs": [
@@ -29163,6 +29163,16 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-347-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Software Security: A Static Analysis Study"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "title": "Neural Mechanisms Underlying Adaptive Decision-Making in Response to Social Feedback"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma",
           "project_id": "PROJ-723-resting-state-fmri-global-signal-as-a-ma",
           "title": "Resting\u2011State fMRI Global Signal as a Marker of Mind\u2011Wandering"
@@ -29176,16 +29186,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-218-predicting-molecular-fluorescence-quantu",
           "project_id": "PROJ-218-predicting-molecular-fluorescence-quantu",
           "title": "Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el",
-          "project_id": "PROJ-676-quantifying-the-effect-of-disorder-on-el",
-          "title": "Quantifying the Effect of Disorder on Electronic Transport in 1D Chains"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-920-llmxive-follow-up-extending-masking-stal",
-          "project_id": "PROJ-920-llmxive-follow-up-extending-masking-stal",
-          "title": "llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- Until It Doesn't: A \""
         }
       ],
       "inputs": [
@@ -29209,6 +29209,16 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-347-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Software Security: A Static Analysis Study"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+          "title": "Neural Mechanisms Underlying Adaptive Decision-Making in Response to Social Feedback"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on",
           "project_id": "PROJ-982-llmxive-follow-up-extending-dopd-dual-on",
           "title": "llmXive follow-up: extending \"DOPD: Dual On-policy Distillation\""
@@ -29222,16 +29232,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el",
           "project_id": "PROJ-676-quantifying-the-effect-of-disorder-on-el",
           "title": "Quantifying the Effect of Disorder on Electronic Transport in 1D Chains"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-920-llmxive-follow-up-extending-masking-stal",
-          "project_id": "PROJ-920-llmxive-follow-up-extending-masking-stal",
-          "title": "llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- Until It Doesn't: A \""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-331-investigating-the-correlation-between-gu",
-          "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-          "title": "Investigating the Correlation Between Gut Microbiome Composition and Parkinson\u2019s Disease Progression"
         }
       ],
       "inputs": [
@@ -31560,6 +31560,15 @@
           ]
         },
         {
+          "contributions": 10,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "implementer",
+            "tasker"
+          ]
+        },
+        {
           "contributions": 1,
           "kind": "llm",
           "name": "Qwen2.5-3B-Instruct",
@@ -31581,7 +31590,7 @@
         "repo_path": "projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "planned",
+      "current_stage": "in_progress",
       "description": "Field: neuroscience How do neural circuits integrate social feedback signals to update decision policies, and what computational mechanisms underlie adaptive behavioral changes in response to social information? Understanding how social feedback shapes decision-making is critical for explaining individual differences\u2026",
       "field": "neuroscience",
       "id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
@@ -31590,84 +31599,84 @@
       ],
       "last_run_log": [
         {
-          "agent": "tasker",
-          "duration_s": 405.336612,
-          "ended_at": "2026-10-09T20:17:28.057180Z",
+          "agent": "implementer",
+          "duration_s": 233.302348,
+          "ended_at": "2026-10-15T07:51:30.219456Z",
           "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-09T20:10:42.720568Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 0.003204,
-          "ended_at": "2026-10-09T20:10:30.996457Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-09T20:10:30.993253Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 0.95164,
-          "ended_at": "2026-10-05T09:49:13.384588Z",
-          "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-05T09:49:12.432948Z"
+          "started_at": "2026-10-15T07:47:36.917108Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 147.458931,
-          "ended_at": "2026-10-05T09:49:12.429046Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 390.93419,
+          "ended_at": "2026-10-15T07:47:36.913157Z",
+          "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-05T09:46:44.970115Z"
+          "started_at": "2026-10-15T07:41:05.978967Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.97314,
-          "ended_at": "2026-10-05T09:46:44.966437Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 69.551931,
+          "ended_at": "2026-10-15T07:35:10.161197Z",
+          "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-05T09:46:39.993297Z"
+          "started_at": "2026-10-15T07:34:00.609266Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 29.03594,
-          "ended_at": "2026-10-05T09:46:39.989694Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 36.136221,
+          "ended_at": "2026-10-15T07:34:00.605496Z",
+          "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-05T09:46:10.953754Z"
+          "started_at": "2026-10-15T07:33:24.469275Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 34.893685,
-          "ended_at": "2026-10-05T09:46:10.950040Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 25.577154,
+          "ended_at": "2026-10-15T07:33:24.465395Z",
+          "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-05T09:45:36.056355Z"
+          "started_at": "2026-10-15T07:32:58.888241Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 56.504663,
-          "ended_at": "2026-10-05T09:45:36.052657Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 82.635337,
+          "ended_at": "2026-10-15T07:32:58.884351Z",
+          "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-05T09:44:39.547994Z"
+          "started_at": "2026-10-15T07:31:36.249014Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.66006,
-          "ended_at": "2026-09-21T19:07:10.446537Z",
-          "model": "qwen.qwen3.5-122b",
+          "duration_s": 68.416012,
+          "ended_at": "2026-10-15T07:31:36.245093Z",
+          "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-09-21T19:07:09.786477Z"
+          "started_at": "2026-10-15T07:30:27.829081Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 90.032697,
+          "ended_at": "2026-10-15T07:30:27.824539Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T07:28:57.791842Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 129.243026,
+          "ended_at": "2026-10-15T07:28:57.787707Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T07:26:48.544681Z"
         },
         {
           "agent": "tasker",
-          "duration_s": 406.778754,
-          "ended_at": "2026-09-21T16:49:18.591875Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-21T16:42:31.813121Z"
+          "duration_s": 0.034566,
+          "ended_at": "2026-10-15T07:26:40.636413Z",
+          "model": "deterministic-no-llm",
+          "outcome": "skipped",
+          "started_at": "2026-10-15T07:26:40.601847Z"
         }
       ],
       "paper_status": null,
@@ -31681,7 +31690,7 @@
       "speckit_research_dir": "projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de",
       "submitter": "Qwen2.5-3B-Instruct",
       "title": "Neural Mechanisms Underlying Adaptive Decision-Making in Response to Social Feedback",
-      "updated_at": "2026-10-09T20:17:28.057893+00:00",
+      "updated_at": "2026-10-15T07:40:53.050402+00:00",
       "upstream_feedback": null
     },
     {
@@ -89571,6 +89580,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 839.15255,
+          "ended_at": "2026-10-15T07:26:09.570649Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-15T07:12:10.418099Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 786.984781,
           "ended_at": "2026-10-15T06:22:50.912033Z",
           "model": "openai.gpt-oss-120b",
@@ -89640,14 +89657,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-02T13:35:33.388910Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 38.695842,
-          "ended_at": "2026-10-02T13:35:33.385337Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-02T13:34:54.689495Z"
         }
       ],
       "paper_status": null,
@@ -93594,7 +93603,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-347-evaluating-the-impact-of-code-generation.yaml",
         "code": "projects/PROJ-347-evaluating-the-impact-of-code-generation/code",
-        "data": null,
+        "data": "projects/PROJ-347-evaluating-the-impact-of-code-generation/data",
         "idea": "projects/PROJ-347-evaluating-the-impact-of-code-generation/idea/evaluating-the-impact-of-code-generation.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -93612,7 +93621,7 @@
       },
       "authors": [
         {
-          "contributions": 10,
+          "contributions": 15,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -93652,7 +93661,7 @@
       ],
       "citation_summary": {
         "mismatch": 3,
-        "pending": 2,
+        "pending": 5,
         "unreachable": 0,
         "verified": 0
       },
@@ -93663,12 +93672,52 @@
         "repo_path": "projects/PROJ-347-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "clarified",
+      "current_stage": "in_progress",
       "description": "Field: computer science How do security vulnerability patterns in LLM-generated code compare to those in human-written code across common software functionalities? LLMs are increasingly used to generate production code, but it is unclear whether the security characteristics of this code differ systematically from\u2026",
       "field": "computer science",
       "id": "PROJ-347-evaluating-the-impact-of-code-generation",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 187.197709,
+          "ended_at": "2026-10-15T07:52:50.040056Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T07:49:42.842347Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 31.081925,
+          "ended_at": "2026-10-15T07:48:44.651101Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T07:48:13.569176Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 100.744517,
+          "ended_at": "2026-10-15T07:48:04.691668Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T07:46:23.947151Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 465.837457,
+          "ended_at": "2026-10-15T07:46:10.777603Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T07:38:24.940146Z"
+        },
+        {
+          "agent": "planner",
+          "duration_s": 1356.557148,
+          "ended_at": "2026-10-15T07:38:11.056591Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-15T07:15:34.499443Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 146.441109,
@@ -93708,46 +93757,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-13T12:09:11.488806Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 57.244044,
-          "ended_at": "2026-10-13T10:09:34.676605Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-13T10:08:37.432561Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 411.321189,
-          "ended_at": "2026-10-13T09:19:21.904383Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-13T09:12:30.583194Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 662.007125,
-          "ended_at": "2026-10-13T08:23:58.868713Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-13T08:12:56.861588Z"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 17.208815,
-          "ended_at": "2026-10-13T08:09:31.509439+00:00",
-          "model": "zai-org.glm-5.3",
-          "outcome": "triage_rejected_advanced_as_abstain",
-          "started_at": "2026-10-13T08:09:14.300624+00:00"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 14.109757,
-          "ended_at": "2026-10-13T07:40:44.712541Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-13T07:40:30.602784Z"
         }
       ],
       "paper_status": null,
@@ -93761,7 +93770,7 @@
       "speckit_research_dir": "projects/PROJ-347-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation",
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Generation on Software Security: A Static Analysis Study",
-      "updated_at": "2026-10-15T07:15:20.866353+00:00",
+      "updated_at": "2026-10-15T07:49:35.087044+00:00",
       "upstream_feedback": null
     },
     {
@@ -138227,12 +138236,20 @@
         "repo_path": "projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "clarified",
+      "current_stage": "specified",
       "description": "Verdict: pass The question asks whether a dispersion correction (DFT\u2011D3), which was calibrated on neutral organic molecules, can reliably predict ion\u2011pair interaction energies in ionic liquids. This is a substantive scientific inquiry about the transferability of a physical model, independent of any particular\u2026",
       "field": "chemistry",
       "id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "planner",
+          "duration_s": 2039.869675,
+          "ended_at": "2026-10-15T07:52:40.793449Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-15T07:18:40.923774Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 139.832156,
@@ -138304,14 +138321,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-15T00:12:25.353596Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 14.671862,
-          "ended_at": "2026-10-15T00:12:25.350583Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-15T00:12:10.678721Z"
         }
       ],
       "paper_status": null,
@@ -138356,7 +138365,7 @@
       "speckit_research_dir": "projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to",
       "submitter": null,
       "title": "Transferability of DFT\u2011D3 Dispersion to Ionic Liquids",
-      "updated_at": "2026-10-15T07:18:23.685893+00:00",
+      "updated_at": "2026-10-15T07:52:40.800729+00:00",
       "upstream_feedback": null
     },
     {
@@ -171360,6 +171369,222 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 187.197709,
+      "ended_at": "2026-10-15T07:52:50.040056Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:49:42.842347Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 2039.869675,
+      "ended_at": "2026-10-15T07:52:40.793449Z",
+      "failure_reason": "StagePanelKickback: plan panel did not converge: 8 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full prove",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
+      "project_stage": "specified",
+      "severity": "soft",
+      "started_at": "2026-10-15T07:18:40.923774Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 233.302348,
+      "ended_at": "2026-10-15T07:51:30.219456Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:47:36.917108Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 31.081925,
+      "ended_at": "2026-10-15T07:48:44.651101Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:48:13.569176Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 100.744517,
+      "ended_at": "2026-10-15T07:48:04.691668Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:46:23.947151Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 390.93419,
+      "ended_at": "2026-10-15T07:47:36.913157Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:41:05.978967Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 465.837457,
+      "ended_at": "2026-10-15T07:46:10.777603Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:38:24.940146Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 1356.557148,
+      "ended_at": "2026-10-15T07:38:11.056591Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:15:34.499443Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 69.551931,
+      "ended_at": "2026-10-15T07:35:10.161197Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:34:00.609266Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 36.136221,
+      "ended_at": "2026-10-15T07:34:00.605496Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:33:24.469275Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 25.577154,
+      "ended_at": "2026-10-15T07:33:24.465395Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:32:58.888241Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 82.635337,
+      "ended_at": "2026-10-15T07:32:58.884351Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:31:36.249014Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 68.416012,
+      "ended_at": "2026-10-15T07:31:36.245093Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:30:27.829081Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 90.032697,
+      "ended_at": "2026-10-15T07:30:27.824539Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:28:57.791842Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 129.243026,
+      "ended_at": "2026-10-15T07:28:57.787707Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:26:48.544681Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 0.034566,
+      "ended_at": "2026-10-15T07:26:40.636413Z",
+      "failure_reason": "",
+      "model": "deterministic-no-llm",
+      "outcome": "skipped",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "soft",
+      "started_at": "2026-10-15T07:26:40.601847Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 734.249703,
+      "ended_at": "2026-10-15T07:26:25.339802Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-15T07:14:11.090099Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 839.15255,
+      "ended_at": "2026-10-15T07:26:09.570649Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-324-predicting-molecular-properties-from-ope",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-15T07:12:10.418099Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 452.80435,
       "ended_at": "2026-10-15T07:19:26.657650Z",
       "failure_reason": "",
@@ -171378,7 +171603,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T07:14:38.595279Z"
     },
@@ -171390,7 +171615,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T07:12:26.792222Z"
     },
@@ -171402,7 +171627,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T07:12:00.158836Z"
     },
@@ -171642,7 +171867,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T06:20:21.347521Z"
     },
@@ -171678,7 +171903,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T06:15:44.092889Z"
     },
@@ -171690,7 +171915,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T06:13:52.218608Z"
     },
@@ -171714,7 +171939,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T06:12:46.625791Z"
     },
@@ -171726,7 +171951,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T06:10:02.511017Z"
     },
@@ -172662,7 +172887,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T03:07:20.460436Z"
     },
@@ -173274,7 +173499,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T00:12:25.353596Z"
     },
@@ -173286,7 +173511,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T00:12:10.678721Z"
     },
@@ -173298,7 +173523,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-15T00:11:44.460673Z"
     },
@@ -175086,7 +175311,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "clarified",
+      "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-14T18:08:06.250497Z"
     },
@@ -177192,222 +177417,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-14T09:48:25.480322Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 21.273261,
-      "ended_at": "2026-10-14T09:48:25.476683Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:48:04.203422Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 26.643598,
-      "ended_at": "2026-10-14T09:48:04.200528Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:47:37.556930Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 10.182509,
-      "ended_at": "2026-10-14T09:47:37.553894Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:47:27.371385Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 26.978931,
-      "ended_at": "2026-10-14T09:47:27.368501Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:47:00.389570Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.026336,
-      "ended_at": "2026-10-14T09:46:52.094233Z",
-      "failure_reason": "",
-      "model": "deterministic-no-llm",
-      "outcome": "skipped",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "soft",
-      "started_at": "2026-10-14T09:46:52.067897Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 301.71352,
-      "ended_at": "2026-10-14T09:46:37.816312Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:41:36.102792Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 456.798191,
-      "ended_at": "2026-10-14T09:42:47.383464Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-474-neural-correlates-of-simulated-social-ex",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-14T09:35:10.585273Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 1298.669916,
-      "ended_at": "2026-10-14T09:41:21.376377Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:19:42.706461Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 35.707679,
-      "ended_at": "2026-10-14T09:38:33.173920Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:37:57.466241Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 15.367623,
-      "ended_at": "2026-10-14T09:37:57.463970Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:37:42.096347Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 26.010911,
-      "ended_at": "2026-10-14T09:37:42.093883Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:37:16.082972Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 741.937691,
-      "ended_at": "2026-10-14T09:34:58.773214Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-474-neural-correlates-of-simulated-social-ex",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:22:36.835523Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 613.753511,
-      "ended_at": "2026-10-14T09:34:51.983487Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-553-cognitive-load-optimization-adaptive-com",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:24:38.229976Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 38.460193,
-      "ended_at": "2026-10-14T09:29:33.560305Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-1034-llmxive-follow-up-extending-infinite-wor",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:28:55.100112Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 15.44297,
-      "ended_at": "2026-10-14T09:28:55.096634Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-1034-llmxive-follow-up-extending-infinite-wor",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:28:39.653664Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 17.6577,
-      "ended_at": "2026-10-14T09:28:39.650216Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-1034-llmxive-follow-up-extending-infinite-wor",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:28:21.992516Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 15.226971,
-      "ended_at": "2026-10-14T09:28:21.988998Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-1034-llmxive-follow-up-extending-infinite-wor",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:28:06.762027Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 65.200609,
-      "ended_at": "2026-10-14T09:28:06.758267Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-1034-llmxive-follow-up-extending-infinite-wor",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-14T09:27:01.557658Z"
     }
   ],
   "reviewed_preprints": [
