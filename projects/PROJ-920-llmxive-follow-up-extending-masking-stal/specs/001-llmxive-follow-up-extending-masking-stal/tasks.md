@@ -15,14 +15,14 @@
 
 - [ ] T001 Create the project directory tree (`data/raw/`, `data/logs/`, `results/`, `code/`, `tests/`) and add a minimal `quickstart.md`.  
 - [ ] T002 Generate a default technical‑term list (`code/config/density_terms.json`).  
-- [ ] [x] T003 Implement `code/utils/entropy.py` (Shannon entropy on UTF‑8 bytes, with clamping for zero).  
-- [ ] [x] T004 Implement `code/utils/heuristics.py` (composite density = 0.6 × entropy + 0.4 × technical‑token‑ratio).  
-- [ ] [x] T005 Add unit tests for entropy (`tests/unit/test_entropy.py`).  
-- [ ] [x] T006 Add unit tests for heuristics (`tests/unit/test_heuristics.py`).  
-- [ ] [x] T007 Create `code/config/simulation_config.json` (α, threshold, seed, density‑levels, …).  
-- [ ] [x] T008 Create `code/config/analysis_config.json` (min samples per bin, spline df candidates, density bins, horizon bins).  
-- [ ] [x] T009 Add `code/validate_config.py` (schema & range checks for both config files).  
-- [ ] [x] T010 Add `code/validate_grounding_config.py` (ensure simulation parameters respect Constitution VI).  
+- [ ] T003 Implement `code/utils/entropy.py` (Shannon entropy on UTF‑8 bytes, with clamping for zero).  
+- [ ] T004 Implement `code/utils/heuristics.py` (composite density = 0.6 × entropy + 0.4 × technical‑token‑ratio).  
+- [ ] T005 Add unit tests for entropy (`tests/unit/test_entropy.py`).  
+- [ ] T006 Add unit tests for heuristics (`tests/unit/test_heuristics.py`).  
+- [ ] T007 Create `code/config/simulation_config.json` (α, threshold, seed, density‑levels, …).  
+- [ ] T008 Create `code/config/analysis_config.json` (min samples per bin, spline df candidates, density bins, horizon bins).  
+- [ ] T009 Add `code/validate_config.py` (schema & range checks for both config files).  
+- [ ] T010 Add `code/validate_grounding_config.py` (ensure simulation parameters respect Constitution VI).  
 
 All scaffolding tasks are verified and checked.
 
@@ -36,20 +36,30 @@ All scaffolding tasks are verified and checked.
   *Key behaviour*:  
   – Accepts `--count` (default 500) and `--seed`.  
   – Uses `utils/entropy.py` and `utils/heuristics.py` to compute per‑turn entropy, technical‑token‑ratio, and final composite density.  
-  – Enforces that each density bin contains ≥ 150 trajectories; aborts with error `INSUFFICIENT_SAMPLES_PER_BIN` otherwise.  
+  – Enforces that each density bin contains ≥ 150 trajectories; aborts with error `INSUFFICIENT_SAMPLES_PER_BIN` otherwise.  
   – Logs bin counts and total file size (must be ≤ 100 MB).  
+  *Verification*:  
+  – Run `python -m code.generate_trajectories --count 500 --seed 42`.  
+  – Confirm `data/raw/trajectories.json` exists, size ≤ 100 MB, and is valid JSON.  
+  – Validate against `specs/001-llmxive-follow-up-extending-masking-stal/contracts/trajectory.schema.yaml`.  
+  – Check that the number of trajectories per `density_level` (low, medium, high) is ≥ 150 each.
 
-- [ ] T012 **Validate trajectories & edge‑case metadata**  
-  *Script*: `code/validate_trajectories.py` (covers both T012 and T048).  
+- [ ] T012 **Validate generated trajectories & edge‑case metadata**  
+  *Script*: `code/validate_trajectories.py`  
   *Consumes*: `data/raw/trajectories.json`.  
   *Checks*:  
-  – For every trajectory, the entropy of the injected evidence block matches the requested density level within ±0.01 bits/token.  
+  – For every trajectory, the `entropy_per_token` of the injected evidence block matches the requested `target_entropy` within ±0.01 bits/token.  
   – If `critical_evidence_turn == T‑1` the trajectory includes `"is_last_turn": true`; otherwise the flag must be false.  
-  – Exits with non‑zero status and a detailed error report on any violation.  
+  – All required fields (`trajectory_id`, `turns`, `critical_evidence_turn`, `density_level`, `target_entropy`, `actual_entropy`, `technical_token_ratio`, `final_density`) are present.  
+  – Exits with status 0 on success; on failure prints a detailed report and exits non‑zero.  
+  *Verification*:  
+  – Execute `python -m code.validate_trajectories data/raw/trajectories.json`.  
+  – Expect exit code 0 and a summary line “All 500 trajectories passed validation”.  
+  – Unit test `tests/unit/test_trajectory_schema.py` must also pass.
 
 - [ ] T013 **Unit test for density isolation**  
   *Test file*: `tests/unit/test_density_isolation.py`  
-  *Ensures*: `utils/heuristics.py` implements the exact composite formula from FR‑008 and does **not** depend on any agent‑output data.  
+  *Ensures*: `utils/heuristics.py` implements the exact composite formula from FR‑008 (`0.6 * entropy + 0.4 * technical_token_ratio`) and does **not** depend on any agent‑output data.  
 
 ---
 
@@ -67,7 +77,7 @@ All scaffolding tasks are verified and checked.
   – Accepts `--seed` for reproducibility.  
 
 - [ ] T015 **Validate simulation resources & schema compliance**  
-  *Script*: `code/validate_simulation.py` (covers T015, T016, T017).  
+  *Script*: `code/validate_simulation.py`  
   *Checks*:  
   – Runs `simulate_agent.py` under `memory_profiler`; aborts with `MEMORY_LIMIT_EXCEEDED` if RSS > 7168 MiB.  
   – Confirms `data/logs/simulation_results.csv` exists, is non‑empty, and validates against `contracts/simulation_log.schema.yaml`.  
@@ -86,7 +96,7 @@ All scaffolding tasks are verified and checked.
   *Steps*:  
   – Verify ≥ 10 samples per (density, horizon) bin; abort with informative error if not.  
   – Fit GLM: `success ~ density * ns(horizon, df_selected)` using `statsmodels`.  
-  – Select spline degrees of freedom via AIC (helpers `fit_splines.py`, `select_spline_df.py`, `write_spline_output.py`).  
+  – Select spline degrees of freedom via AIC (helpers `fit_splines.py`, `select_spline_df.py`).  
 
 - [ ] T017 **Visualize regime map**  
   *Script*: `code/visualize_results.py`  
@@ -96,13 +106,21 @@ All scaffolding tasks are verified and checked.
   – Runs contract test `tests/contract/test_regression_output.py` (ensures JSON schema).  
   – Runs integration test `tests/integration/test_plot_generation.py` (checks PNG exists, size > 10 KB, pixel variance > 0.01).  
 
+- [ ] T027 **Verify regime‑map PNG size and axis labels**  
+  *Script*: `code/validate_regime_map.py`  
+  *Inputs*: `results/regime_map.png`.  
+  *Checks*:  
+  – File size ≤ 5 MB (error `PNG_SIZE_EXCEEDED` if larger).  
+  – PNG contains text labels exactly “Masking Horizon”, “Semantic Density”, “Success Rate” (error `MISSING_LABELS` if any absent).  
+  – Exits 0 on success; non‑zero otherwise.  
+
 ---
 
 ## Phase 4 – End‑to‑end pipeline orchestration & smoke test
 
 - [ ] T018 **Pipeline script**  
   *File*: `run_pipeline.sh`  
-  *Orchestrates*: `generate_trajectories.py → validate_trajectories.py → simulate_agent.py → validate_simulation.py → analyze_results.py → visualize_results.py`.  
+  *Orchestrates*: `generate_trajectories.py → validate_trajectories.py → simulate_agent.py → validate_simulation.py → analyze_results.py → visualize_results.py → validate_regime_map.py`.  
   *Features*:  
   – Propagates a single `--seed` to every stage.  
   – Performs data‑flow checks before each stage; aborts with “Data Flow Violation” if prerequisites are missing.  
@@ -110,14 +128,24 @@ All scaffolding tasks are verified and checked.
 
 - [ ] T019 **End‑to‑end smoke test**  
   *Test file*: `tests/e2e/test_pipeline_smoke.py`  
-  *Runs*: `run_pipeline.sh --count 100` (reduced trajectory count).  
+  *Runs*: `run_pipeline.sh --count 100` (reduced trajectory count for speed).  
   *Asserts*:  
   – All expected artifacts (`trajectories.json`, `simulation_results.csv`, `regression_summary.json`, `hypothesis_summary.md`, `regime_map.png`) are present and pass their respective schema/contract tests.  
   – Total runtime ≤ 6 h and peak RAM ≤ 7 GB (checked via `psutil`).  
 
 ---
 
-## Phase 5 – Compliance, integrity checks, and final hand‑off
+## Phase 5 – Sensitivity analysis (new)
+
+- [ ] T026 **Run sensitivity analysis**  
+  *Script*: `code/sensitivity.py`  
+  *Inputs*: `data/raw/trajectories.json`, `code/config/simulation_config.json` (modified weightings and α values).  
+  *Outputs*: for each configuration a `results/sensitivity_{config}.json` (regression summary) and `results/sensitivity_{config}.png` (regime map), plus a consolidated `results/sensitivity_report.md` summarizing interaction‑term stability across runs.  
+  *Verification*: `code/validate_sensitivity.py` checks that each JSON conforms to `regression_output.schema.yaml` and that the interaction‑term p‑values vary by less than 0.05 across configurations, indicating robustness.  
+
+---
+
+## Phase 6 – Compliance, integrity checks, and final hand‑off
 
 - [ ] T020 **Procedural integrity verification**  
   *Script*: `code/verify_procedural_integrity.py`  
@@ -128,7 +156,7 @@ All scaffolding tasks are verified and checked.
   *Validates*: `results/regression_summary.json` against its schema, ensures all p‑values lie in [0, 1], checks `results/regime_map.png` size > 10 KB and pixel variance > 0.01.  
 
 - [ ] T022 **Update quickstart with compliance step**  
-  *File*: `docs/quickstart.md` (already exists) – add a section instructing users to run `verify_results_integrity.py` after the pipeline completes.  
+  *File*: `docs/quickstart.md` – add a section instructing users to run `verify_results_integrity.py` after the pipeline completes.  
 
 - [ ] T023 **Final report generation**  
   *File*: `FINAL_REPORT.md`  
@@ -136,7 +164,7 @@ All scaffolding tasks are verified and checked.
 
 ---
 
-## Phase 6 – Optional documentation polish (not required for verification)
+## Phase 7 – Optional documentation polish (not required for verification)
 
 - [ ] T024 Update repository `README.md` with overview, installation, and usage.  
 - [ ] T025 Create `docs/api.md` documenting public functions in `utils/`, `generate_trajectories.py`, and `simulate_agent.py`.  
@@ -155,12 +183,15 @@ All scaffolding tasks are verified and checked.
 | T015 | T014 |
 | T016 | T015 |
 | T017 | T016 |
-| T018 | T011, T012, T014, T015, T016, T017 |
+| T027 | T017 |
+| T018 | T011, T012, T014, T015, T016, T017, T027 |
 | T019 | T018 |
 | T020 | T018 (any successful run) |
 | T021 | T018 |
 | T022 | T018 |
 | T023 | T018 |
 | T024‑T025 | T001‑T010 (optional) |
+| T026 | T016 (regression) |
+| T027 | T017 (visualization) |
 
-All unchecked tasks are pending implementation; checked tasks have been verified against the specification and contracts. Running the pipeline from `T018` onward will produce a complete, reproducible end‑to‑end result that satisfies every functional requirement and success criterion.
+All unchecked tasks are pending implementation; checked tasks have been verified against the specification and contracts. Running the pipeline from `T018` onward will produce a complete, reproducible end‑to‑end result that satisfies every functional requirement and success criterion.  
