@@ -25,10 +25,15 @@ T022:
     exit=1; code/main.py exit=1'
   task: feac6535b41ccc4111f5ada3579b176bd29aa4b21b15dd90cb339f7dfab8a3ad
 T023:
-  reason: 'declared artifact(s) missing/empty/invalid: data/raw/metadata.csv, code/validation.log,
-    data/processed/validated_metadata.csv'
+  reason: The required verification artifacts `code/validation.log` and `data/processed/validated_metadata.csv`
+    are both MISSING, so no validation of `data/raw/metadata.csv` (null `reference_energy`
+    checks, `pair_id` uniqueness, omitted-record logging) has actually been performed
+    or recorded. The implementer must run the validation and write both the log of
+    omitted records and the cleaned CSV.
   task: 048ba3c1dc504786def2e4587b1e154faba35a8849e3bef2f2b8a81246a8413f
 T024:
+  reason: 'Requested task execution failed; rerun successfully: code/retrieve_bulk_properties.py
+    exit=1'
   task: 2b7de76386b77922b9843d1bd3aa65163a742ec540e6798517dfc1dcbce0beed
 T025:
   task: 3fdfcb5b50634424601c225af11699bf3d655190c6abdce3bcc817d5d04b095d

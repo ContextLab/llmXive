@@ -1,7 +1,0 @@
-{
-  "task_id": "T024",
-  "fingerprint": "6c3d9c910c1defb2e9d10da757948d65e01ca434f029608969799ef99c99fab5",
-  "count": 2,
-  "model": "zai-org.glm-5.3",
-  "reason": "[implementer] refusing to write 'tests/test_retrieve_bulk_properties.py': SyntaxError at line 4: unexpected indent. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 1310"
-}

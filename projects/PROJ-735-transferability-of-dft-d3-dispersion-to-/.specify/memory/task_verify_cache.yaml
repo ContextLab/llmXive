@@ -1,8 +1,9 @@
 T023:
-  c: true
-  h: 0db51e04642de26975f443b6a954fab8b29030cf0f3ea9a9bf12e03392433769
-  r: The input `data/raw/metadata.csv` has 3 rows, all with non-null `reference_energy`
-    values and unique `pair_id`s, so zero omissions is the correct outcome; `code/validation.log`
-    records this, and `data/processed/validated_metadata.csv` contains exactly the
-    validated rows matching the raw data.
-  sig: c50ffeb0a60fa6646dff520501ccaf8d0ef8afe84d90468f1bc5ca6015ffeb50
+  c: false
+  h: ac497c64e6838083b6d1c10bb9a72c740d2f94eef42152b5890cba96bf22d23a
+  r: The required verification artifacts `code/validation.log` and `data/processed/validated_metadata.csv`
+    are both MISSING, so no validation of `data/raw/metadata.csv` (null `reference_energy`
+    checks, `pair_id` uniqueness, omitted-record logging) has actually been performed
+    or recorded. The implementer must run the validation and write both the log of
+    omitted records and the cleaned CSV.
+  sig: 49b9cdbf1bb8dbc82aabc3aae51103e9d2ca10cbef74183e56e06472909a9100

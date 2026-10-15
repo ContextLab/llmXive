@@ -19,7 +19,7 @@ The checklist implements the complete end‑to‑end workflow required by the sp
   *Read `data/raw/metadata.csv` and ensure each row contains a non‑null `reference_energy` and a unique `pair_id`. Log any violations and omit those rows from downstream processing.*  
   *Verification*: A log file `code/validation.log` lists omitted records; the cleaned list is written to `data/processed/validated_metadata.csv`.
 
-- [ ] **T024** [FR‑008] Retrieve experimental bulk‑property data.  
+- [ ] **T024** [FR‑008] Retrieve experimental bulk‑property data.   <!-- FAILED-IN-EXECUTION: code/retrieve_bulk_properties.py exit=1 -->
   *Call the NIST IL Thermophysical Database API; if the request fails or returns incomplete data, fall back to the static CSV `data/raw/experimental_bulk_properties.csv`. Verify required columns (`pair_id`, `density`, `viscosity`).*  
   *Verification*: `data/processed/bulk_properties.csv` is created; its schema is validated against `contracts/raw_bulk_properties.schema.yaml`.
 
