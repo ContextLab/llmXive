@@ -4,6 +4,7 @@
 - Python 3.11+
 - 8 GB RAM (minimum for CPU inference of Mistral‑7B; 4 GB for TinyLlama fallback)
 - Access to the HuggingFace Hub (for dataset and model download)
+- CodeQL CLI installed and available in PATH
 
 ## Installation
 
@@ -33,55 +34,23 @@ orchestrated phase order and uses a *small* sample size for quick testing:
 python -m code.main --phase all --sample small
 ```
 
-- `--phase all` tells the orchestrator to run the complete DAG (the
- orchestrator treats unknown phases as “run everything”).
-- `--sample small` is a lightweight flag understood by the pipeline (it
- selects a reduced sample size defined in the configuration; the flag is
- ignored for full‑scale runs).
-- The command runs under the virtual environment activated above and
- respects the CPU‑only constraint.
+- `--phase all` tells the orchestrator to run the complete DAG.
+- `--sample small` selects a reduced sample size defined in the configuration.
 
 ### **Step 1: Download and sample the dataset**
-Before any analysis can run, the raw code chunks must be downloaded.
-This step creates `data/processed/raw_chunks.parquet` and its checksum.
-
 ```bash
 python -m code.data.download
 ```
 
 ### **Step 2: Static analysis (CodeQL + tree‑sitter)**
-Compute complexity metrics for each chunk.
-
 ```bash
 python -m code.data.static_analysis
 ```
 
-After this command completes you should see:
-
-- `data/processed/annotated_chunks.parquet` containing the original
- fields plus `cyclomatic_complexity`, `nesting_depth`,
- `repetition_ratio`, `token_count`, and `status`.
-
 ## Expected runtime limits
 
-- **Total wall‑clock time:** ≤ 6 hours on the GitHub Actions free‑tier
- (2 CPU cores, ~7 GB RAM).
-- **Per‑chunk inference timeout:** 60 seconds (configurable via the
- `--timeout` argument).
+- **Total wall‑clock time:** ≤ 6 hours on the GitHub Actions free‑tier.
+- **Per‑chunk inference timeout:** 60 seconds.
 
 The pipeline writes all results under `data/results/` and generates
-figures under `data/figures/`. After successful execution you should see
-files such as:
-
-- `data/results/correlation_results.parquet`
-- `data/results/threshold_results.parquet`
-- `data/figures/correlation_scatter.png`
-
-## Troubleshooting
-
-- **Argument errors:** Ensure you are using the exact command above; the
- `--sample` flag is now accepted by `code/main.py`.
-- **Out‑of‑memory:** The orchestrator will automatically fall back to the
- smaller TinyLlama model and log a warning.
-- **Missing data:** If any result files are absent, re‑run the command; the
- orchestrator will retry failed phases.
+figures under `data/figures/`.

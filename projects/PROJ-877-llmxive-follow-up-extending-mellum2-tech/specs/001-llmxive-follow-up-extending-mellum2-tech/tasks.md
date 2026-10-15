@@ -29,7 +29,7 @@
   * Record SHA‑256 checksums in `data/checksums.txt`.
   * Verification: the Parquet file exists, contains exactly `N` rows per language, and a simple row‑count check passes. Any fetch error raises an exception (no fallback).
 
-- [ ] T003 [US1] **Static Analysis (CodeQL + tree‑sitter)** – For each raw chunk: <!-- FAILED-IN-EXECUTION: code/data/static_analysis.py exit=1; code/data/static_analysis_execute.sh exit=1 -->
+- [ ] T003 [US1] **Static Analysis (CodeQL + tree‑sitter)** – For each raw chunk: <!-- FAILED-IN-EXECUTION: code/data/static_analysis.py exit=1; code/data/static_analysis_execute.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/static_analysis.py exit=1 -->
   * **Run CodeQL CLI** to extract additional security‑relevant metrics; abort the task if the CLI is missing.
   * Run **tree‑sitter** parsers for Python and Java to compute:
     - `cyclomatic_complexity`
