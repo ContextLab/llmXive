@@ -1,14 +1,15 @@
 status: none
-intent: NCBI BioProject PRJNA528852 E coli genome and MIC data with CARD reference
-  download python package dataset
+intent: download NCBI Pathogen Detection E coli isolates FASTA MIC metadata python
+  package dataset
 required_fields:
 - isolate_id
-- genome_fasta_sequence
-- antibiotic_name
+- bioproject_id
+- genome_fasta_url
+- antimicrobial
 - mic_value
-- susceptibility_category
+- phenotype_resistant_binary
+- snp_count_per_gene_numeric
 - resistance_gene_presence_binary
-- snp_count_numeric_per_gene
-cache_key: 46ef7438ee95e5593e585a6a5da63d13a989ce6654c037487e31cc25ad4f4147
-searched_at: '2026-10-12T21:11:52.942633+00:00'
+cache_key: 38e2a4f84b4ba99872a9a4c2958c88c1b88dd8af2272eeecd018c1bb5e6e8228
+searched_at: '2026-10-15T13:13:37.742356+00:00'
 retry_count: 1

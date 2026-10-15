@@ -11,14 +11,6 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 - every produced artifact is gitignored (data/processed/artifact_hashes.json, data/processed/pipeline_runtime.json, data/processed/verification_summary.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --stage viz --antibiotic ciprofloxacin`
-  - script usage: `main.py [-h] [--stage {ingest,contract,train,validate,hash,full}]`
-  - argparse error: `main.py: error: argument --stage: invalid choice: 'viz' (choose from 'ingest', 'contract', 'train', 'validate', 'hash', 'full')`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: every produced artifact is gitignored (data/processed/artifact_hashes.json, data/processed/pipeline_runtime.json, data/processed/verification_summary.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 (rc=1); python -m pytest tests/contract/ (rc=1); python code/main.py --stage train --antibiotic ciprofloxacin (rc=2)
@@ -26,11 +18,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 -> rc=1
-2026-10-12 21:11:10 - root - INFO - Running stage: download_ncbi
-2026-10-12 21:11:13 - root - INFO - Stage 'download_ncbi' completed successfully
-2026-10-12 21:11:13 - root - INFO - Running stage: ingest_metadata
-2026-10-12 21:11:13 - root - ERROR - Stage 'ingest_metadata' failed with exit code 1
-2026-10-12 21:11:13 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-15 13:12:57 - root - INFO - Running stage: download_ncbi
+2026-10-15 13:12:58 - root - INFO - Stage 'download_ncbi' completed successfully
+2026-10-15 13:12:58 - root - INFO - Running stage: ingest_metadata
+2026-10-15 13:12:58 - root - ERROR - Stage 'ingest_metadata' failed with exit code 1
+2026-10-15 13:12:58 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -48,28 +40,27 @@ FAILED tests/contract/test_phyl_permutation_schema.py::test_p_value_valid_range
 FAILED tests/contract/test_phyl_permutation_schema.py::test_significance_flag_consistent
 FAILED tests/contract/test_phyl_permutation_schema.py::test_permutation_count_positive
 FAILED tests/contract/test_phyl_permutation_schema.py::test_observed_statistic_numeric
-========================= 6 failed, 10 passed in 0.55s =========================
+========================= 6 failed, 10 passed in 0.72s =========================
 
 
 - python code/main.py --stage train --antibiotic ciprofloxacin -> rc=2
-2026-10-12 21:11:14 - root - INFO - Running stage: train_models
-2026-10-12 21:11:15 - root - ERROR - Stage 'train_models' failed with exit code 2
-2026-10-12 21:11:15 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-15 13:13:00 - root - INFO - Running stage: train_models
+2026-10-15 13:13:01 - root - ERROR - Stage 'train_models' failed with exit code 2
+2026-10-15 13:13:01 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python code/main.py --stage validate --antibiotic ciprofloxacin --permutations [sufficient_permutations] -> rc=2
-2026-10-12 21:11:15 - root - WARNING - Invalid permutations argument '[sufficient_permutations]'. Falling back to default 1000.
-2026-10-12 21:11:15 - root - INFO - Running stage: phylo_permutation
-2026-10-12 21:11:15 - root - ERROR - Stage 'phylo_permutation' failed with exit code 2
-2026-10-12 21:11:15 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-15 13:13:01 - root - WARNING - Invalid permutations argument '[sufficient_permutations]'. Falling back to 1000.
+2026-10-15 13:13:01 - root - INFO - Running stage: phylo_permutation
+2026-10-15 13:13:01 - root - ERROR - Stage 'phylo_permutation' failed with exit code 2
+2026-10-15 13:13:01 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python code/main.py --stage viz --antibiotic ciprofloxacin -> rc=2
+2026-10-15 13:13:01 - root - INFO - Running stage: generate_plots
+2026-10-15 13:13:03 - root - ERROR - Stage 'generate_plots' failed with exit code 2
+2026-10-15 13:13:03 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
-usage: main.py [-h] [--stage {ingest,contract,train,validate,hash,full}]
-               [--n-isolates N_ISOLATES] [--bio_project BIO_PROJECT]
-               [--antibiotic ANTIBIOTIC] [--permutations PERMUTATIONS]
-main.py: error: argument --stage: invalid choice: 'viz' (choose from 'ingest', 'contract', 'train', 'validate', 'hash', 'full')
 
 - python -m pytest tests/ -> rc=2
 id_exclusion, verify_checksums
@@ -89,7 +80,7 @@ ERROR tests/unit/test_hash_artifacts.py
 ERROR tests/unit/test_main_reproducible.py
 ERROR tests/unit/test_split_data.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.53s ===============================
+============================== 4 errors in 0.61s ===============================
 
 
 ## Platform-owned paths written inside the project
