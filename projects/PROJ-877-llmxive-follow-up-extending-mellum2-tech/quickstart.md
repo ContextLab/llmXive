@@ -41,6 +41,27 @@ python -m code.main --phase all --sample small
 - The command runs under the virtual environment activated above and
  respects the CPU‑only constraint.
 
+### **Step 1: Download and sample the dataset**
+Before any analysis can run, the raw code chunks must be downloaded.
+This step creates `data/processed/raw_chunks.parquet` and its checksum.
+
+```bash
+python -m code.data.download
+```
+
+### **Step 2: Static analysis (CodeQL + tree‑sitter)**
+Compute complexity metrics for each chunk.
+
+```bash
+python -m code.data.static_analysis
+```
+
+After this command completes you should see:
+
+- `data/processed/annotated_chunks.parquet` containing the original
+ fields plus `cyclomatic_complexity`, `nesting_depth`,
+ `repetition_ratio`, `token_count`, and `status`.
+
 ## Expected runtime limits
 
 - **Total wall‑clock time:** ≤ 6 hours on the GitHub Actions free‑tier

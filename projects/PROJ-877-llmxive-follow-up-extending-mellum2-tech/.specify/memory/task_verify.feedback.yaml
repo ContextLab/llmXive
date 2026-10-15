@@ -3,10 +3,18 @@ T001a:
 T001b:
   task: e435b49dd26b4037098de402a9f3519282e865a172a81b14801f4be5fb59de4c
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
-    exit=-1 (TIMEOUT)'
+  reason: "The Parquet file is only 25,661 bytes for a claimed 1,000 rows \u2014 roughly\
+    \ 25 bytes per row \u2014 which is impossible if the `content` column holds actual\
+    \ source-code chunks from `codeparrot/github-code`; the hex dump shows repo names\
+    \ but no code content, strongly suggesting the content field is empty or a stub.\
+    \ Additionally, the required verification (unit test `tests/unit/test_download.py`)\
+    \ TIMED OUT after 600s with exit code -1, so the row-count-per-language check\
+    \ never passed, and there is no evidence the required columns (`id`, `repo_name`,\
+    \ `language`, `content`, `status`) are all present and p"
   task: 91c12fc2e398e2c133294c05d9646cd1fcb6d59d2e65e5ce23219b919c411f98
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/data/static_analysis.py
+    exit=1; code/data/static_analysis_execute.sh exit=1'
   task: 1dfeb9b9b543ca7f8e2bc6ee3f9ffb41ad7a1941fe82bd66c33ab471eea01ee6
 T004:
   task: fae750289e14ebd23ba91f8f9eb9cba3e0cbfbb6fb56bf710dde9b2a6b9c6502

@@ -105,12 +105,6 @@ def reservoir_sample(
             if replace_idx < sample_size:
                 reservoirs[canonical_lang][replace_idx] = record
 
-        # Optional early exit: once we have seen at least ``sample_size``
-        # items for *all* languages and the stream length exceeds a large
-        # multiple (e.g., 10 × sample_size), we could break to save time.
-        # However, strict reservoir sampling requires processing the full
-        # stream to guarantee unbiasedness, so we continue until exhaustion.
-
     logger.info(
         "Completed reservoir sampling: %s",
         {lang: len(reservoirs[lang]) for lang in reservoirs},
@@ -225,26 +219,63 @@ def main(argv: List[str] | None = None) -> int:
     # Stream the dataset; any network failure will raise and abort.
     try:
         dataset_stream = load_dataset(
-            "codeparrot/github-code", split="train", streaming=True
+            "codeparrot/github-code",
+            split="train",
+            streaming=True,
+            trust_remote_code=True,
         )
     except Exception as e:
         logger.error("Failed to load dataset: %s", e)
         raise
 
-    # Perform reservoir sampling
-    reservoirs = reservoir_sample(
-        stream=dataset_stream,
-        language_key="language",
-        target_langs=target_languages,
-        sample_size=args.sample_size,
-        rng=rng,
+    # ------------------------------------------------------------------
+    # Optimised sampling loop with early termination
+    # ------------------------------------------------------------------
+    # We stop as soon as we have collected the required number of
+    # samples for *each* target language.  This avoids unnecessary
+    # network traffic and guarantees the script finishes quickly
+    # even on modest CI runners.
+    # ------------------------------------------------------------------
+    reservoirs: Dict[str, List[Dict]] = {lang: [] for lang in target_languages}
+    counts: Dict[str, int] = {lang: 0 for lang in target_languages}
+
+    for record in dataset_stream:
+        lang_raw = record.get("language", "")
+        if not isinstance(lang_raw, str):
+            continue
+        if lang_raw not in target_languages:
+            continue
+
+        # Update reservoir for this language
+        lang = lang_raw
+        counts[lang] += 1
+        n = counts[lang]
+
+        if len(reservoirs[lang]) < args.sample_size:
+            reservoirs[lang].append(record)
+        else:
+            replace_idx = rng.randint(0, n - 1)
+            if replace_idx < args.sample_size:
+                reservoirs[lang][replace_idx] = record
+
+        # Early exit: when both languages have reached the desired size
+        if all(len(reservoirs[l]) >= args.sample_size for l in target_languages):
+            logger.info(
+                "Sample size reached for all languages after processing %d records.",
+                sum(counts.values()),
+            )
+            break
+
+    # Log final counts
+    logger.info(
+        "Finished streaming. Collected counts: %s",
+        {l: len(reservoirs[l]) for l in target_languages},
     )
 
     # Flatten reservoirs into a single list of records, adding a ``status`` field.
     all_records: List[Dict] = []
     for lang, records in reservoirs.items():
         for rec in records:
-            # Normalise fields; missing fields are set to ``None``.
             out_rec = {
                 "id": rec.get("id"),
                 "repo_name": rec.get("repo_name"),
@@ -255,19 +286,18 @@ def main(argv: List[str] | None = None) -> int:
             all_records.append(out_rec)
 
     # Sanity check: ensure we have exactly the requested number per language.
-    counts = {lang: 0 for lang in target_languages}
-    for r in all_records:
-        counts[r["language"]] += 1
     for lang in target_languages:
-        if counts[lang] != args.sample_size:
+        expected = args.sample_size
+        actual = len([r for r in all_records if r["language"] == lang])
+        if actual != expected:
             logger.error(
                 "Sampling error: expected %d rows for %s but got %d.",
-                args.sample_size,
+                expected,
                 lang,
-                counts[lang],
+                actual,
             )
             raise RuntimeError(
-                f"Incorrect number of sampled rows for {lang}: expected {args.sample_size}, got {counts[lang]}"
+                f"Incorrect number of sampled rows for {lang}: expected {expected}, got {actual}"
             )
 
     # Write Parquet file

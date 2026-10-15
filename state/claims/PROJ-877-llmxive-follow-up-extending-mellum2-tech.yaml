@@ -3464,3 +3464,128 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-15T06:18:22Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/quickstart.md
+  attempts: 1
+  canonical: "raw_chunks.parquet file created with sampled Python and Java chunks\
+    \ and a SHA\u2011256 checksum file"
+  claim_id: c_c522c847
+  context: 'Step 1: Download and sample the dataset creates data/processed/raw_chunks.parquet
+    and its checksum.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "After this command completes you should see: data/processed/raw_chunks.parquet\
+    \ containing the sampled Python and Java chunks, and data/checksums.txt with a\
+    \ SHA\u2011256 hash of the Parquet file."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T15:29:51Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/quickstart.md
+  attempts: 1
+  canonical: pipeline outputs correlation_results.parquet, threshold_results.parquet,
+    and correlation_scatter.png
+  claim_id: c_c592ab70
+  context: Running the full pipeline produces result and figure files in the designated
+    directories.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline writes all results under data/results/ and generates figures
+    under data/figures/. After successful execution you should see files such as data/results/correlation_results.parquet,
+    data/results/threshold_results.parquet, and data/figures/correlation_scatter.png.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T15:29:51Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/quickstart.md
+  attempts: 1
+  canonical: "orchestrator falls back to TinyLlama model on out\u2011of\u2011memory\
+    \ and logs a warning"
+  claim_id: c_001c0f14
+  context: Troubleshooting section describes automatic fallback behavior for memory
+    errors.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "If out\u2011of\u2011memory occurs, the orchestrator will automatically\
+    \ fall back to the smaller TinyLlama model and log a warning."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T15:29:52Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/quickstart.md
+  attempts: 1
+  canonical: "total wall\u2011clock time \u2264 6 hours on GitHub Actions free tier"
+  claim_id: c_f4ffa5c0
+  context: "The pipeline is expected to complete within a limited time when run on\
+    \ the GitHub Actions free\u2011tier environment."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total wall\u2011clock time: \u2264\u202F6\u202Fhours on the GitHub Actions\
+    \ free\u2011tier (2\u202FCPU cores, ~7\u202FGB RAM)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T15:30:58Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/quickstart.md
+  attempts: 1
+  canonical: annotated_chunks.parquet contains original fields plus cyclomatic_complexity,
+    nesting_depth, repetition_ratio, token_count, and status
+  claim_id: c_dad4e6f4
+  context: Static analysis step writes an annotated parquet file with added complexity
+    metrics.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'After this command completes you should see: data/processed/annotated_chunks.parquet
+    containing the original fields plus cyclomatic_complexity, nesting_depth, repetition_ratio,
+    token_count, and status.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T15:30:58Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/quickstart.md
+  attempts: 1
+  canonical: orchestrator automatically falls back to TinyLlama model and logs a warning
+  claim_id: c_241d9cb9
+  context: If memory limits are exceeded, the pipeline switches to a smaller model.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator will automatically fall back to the smaller TinyLlama
+    model and log a warning.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T15:30:59Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/quickstart.md
+  attempts: 1
+  canonical: pipeline writes results to data/results/ and figures to data/figures/
+  claim_id: c_73c1a082
+  context: After successful execution the output directories contain result files
+    and visualizations.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline writes all results under data/results/ and generates figures
+    under data/figures/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T15:30:59Z'

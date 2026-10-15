@@ -20,7 +20,7 @@
   * Include usage notes, required environment activation, and expected runtime limits.
   * Verification: the file exists and the command runs without raising parsing errors.
 
-- [ ] T002 [US1] **Dataset Download & Raw Storage** – Stream `codeparrot/github-code` (Python & Java) via: <!-- FAILED-IN-EXECUTION: code/data/download.py exit=-1 (TIMEOUT) -->
+- [ ] T002 [US1] **Dataset Download & Raw Storage** – Stream `codeparrot/github-code` (Python & Java) via:
   ```python
   ds = datasets.load_dataset("codeparrot/github-code", split="train", streaming=True)
   ```
@@ -29,7 +29,7 @@
   * Record SHA‑256 checksums in `data/checksums.txt`.
   * Verification: the Parquet file exists, contains exactly `N` rows per language, and a simple row‑count check passes. Any fetch error raises an exception (no fallback).
 
-- [ ] T003 [US1] **Static Analysis (CodeQL + tree‑sitter)** – For each raw chunk:
+- [ ] T003 [US1] **Static Analysis (CodeQL + tree‑sitter)** – For each raw chunk: <!-- FAILED-IN-EXECUTION: code/data/static_analysis.py exit=1; code/data/static_analysis_execute.sh exit=1 -->
   * **Run CodeQL CLI** to extract additional security‑relevant metrics; abort the task if the CLI is missing.
   * Run **tree‑sitter** parsers for Python and Java to compute:
     - `cyclomatic_complexity`

@@ -1,15 +1,10 @@
 status: none
-intent: HuggingFace code dataset python java files download for static analysis python
-  package dataset
+intent: bigcode the stack python java code dataset python package dataset
 required_fields:
-- repository_id
+- repo_id
 - file_path
 - language
-- cyclomatic_complexity
-- nesting_depth
-- token_loss
-- perplexity
-- file_content
-cache_key: 907201938fa1cf704bec3a73ef831db096f41c7cb3525a12e47c6480def530e9
-searched_at: '2026-10-15T15:28:07.613116+00:00'
+- code
+cache_key: ba074768ae6687a76f4554e359243870de12499d13cc235917e106d3146d57fb
+searched_at: '2026-10-15T15:31:51.201123+00:00'
 retry_count: 1

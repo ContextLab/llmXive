@@ -12,18 +12,12 @@ T001a:
   sig: e90b25beb24b4d798e59153e530efb432e8acab0a37ca246f65817c090b9c9e2
 T001b:
   c: true
-  h: 07122417bb037faee29099ddce2d45af516d232681f000cf131052dbb6f2433b
-  r: "The `quickstart.md` file exists (2186 bytes) and contains the exact required\
+  h: 963b020c242e87ef2bdd45cd054376032493eef250d4c389c340a7a6bf59270d
+  r: "The `quickstart.md` file exists (2793 bytes) and contains the exact required\
     \ command `python -m code.main --phase all --sample small`, plus usage notes,\
-    \ environment activation instructions, and expected runtime limits. The verification\
-    \ criterion \u2014 that the command parses without errors \u2014 is supported\
-    \ by the passing `tests/unit/test_main.py::test_parse_args` execution record (exit\
-    \ 0)."
-  sig: 6d1cc98dc3e6be435846c7981f0caf1867e76cf32292d8b3ff6d4302f6eeb41d
-T002:
-  c: false
-  h: 6c1c121ac1dad88eb5a06c19410cabf476ce5a936826ea30e124ad55212826e3
-  r: "The provided `requirements.txt` lists the required packages but does not include\
-    \ exact version numbers for any of them, contrary to the task\u2019s specification.\
-    \ Additionally, it contains extra packages not requested, but the critical failure\
-    \ is the absence of pinned versions."
+    \ virtual-environment activation instructions, and expected runtime limits (\u2264\
+    6 hours, 60s per-chunk timeout). The verification criterion \u2014 that the command\
+    \ parses without errors \u2014 is supported by the passing `test_parse_args` unit\
+    \ test in the execution log, and the environment check confirms the code package\
+    \ imports correctly."
+  sig: af02fbe3a4fb700c7b40fb19f2ac410e135c12842cac7c068d40e7330469d524
