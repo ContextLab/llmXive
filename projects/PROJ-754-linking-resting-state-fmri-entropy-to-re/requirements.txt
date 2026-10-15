@@ -1,13 +1,4 @@
-numpy==1.26.*
-pandas==2.2.*
-scipy==1.13.*
-matplotlib==3.8.*
-scikit-learn==1.5.*
-statsmodels==0.14.*
-seaborn==0.13.*
-pytest==8.2.*
-PyYAML==6.0.*
-requests==2.32.*
-jsonschema==4.20.*
-psutil==5.9.*
-pyentropy==0.4.*
+# Existing dependencies are pre‑installed (numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil)
+pyentropy==0.4.*  # required for multiscale sample entropy (T004)
