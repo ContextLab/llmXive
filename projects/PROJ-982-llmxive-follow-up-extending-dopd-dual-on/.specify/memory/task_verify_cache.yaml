@@ -1,10 +1,11 @@
 T001:
   c: false
-  h: f1b200175558a7e91a53c3617591b4c91e4a34ee6d33ec5920fbde2683d5a0e6
-  r: The `code/requirements.txt` lists version ranges (`>=`) instead of exact pinned
-    versions as the task specifies, and there is no provided evidence (e.g., command
-    output) that `pip install -r code/requirements.txt` actually succeeded.
-  sig: 22c26d93c52b7d615ee1e3cfb77aee892c03d0ab26e03a11f2eba72878062cc7
+  h: 46bfb2c21f9ae1332e1dfca47eaafeec1b295001e314bd5a82709e032b42f4ff
+  r: The `code/requirements.txt` and `code/__init__.py` files exist and contain the
+    correct pinned dependencies, but there is no provided evidence (e.g., command
+    output or log) that `pip install -r code/requirements.txt` actually succeeded.
+    Add execution proof of the pip install step.
+  sig: f9610d76688f948e4047328d69ee607d65ec49caec71a326039657290dbcea99
 T002:
   c: false
   h: 443e6b0f25ef9742d155e53d56d7d6a0653f8be7678bb3556ca01c2457a04e48
@@ -53,12 +54,13 @@ T021:
   sig: 04a20de00a9ba3b1b889b0ef8ae01f912b464ac0792014cd241013c37a602b2c
 T022:
   c: false
-  h: 291d1a53c7fe81ea3f9a973b5ccc796f9d58971c194104558402268faf846e3e
-  r: "The provided `dopd_distillation.py` defines `calculate_advantage_gap` but the\
-    \ `calculate_dynamic_lambda` method is truncated and never logs any lambda\u2011\
-    switch event. Moreover, the required `data/raw/training_log.json` file does not\
-    \ exist. Hence the task\u2019s logging requirement and a complete implementation\
-    \ are not met."
+  h: ea48f40e168b2b8bfe0f9ced5c47014026ccf539cf453b7b21fa334c3ebddcc3
+  r: "The `calculate_advantage_gap` function is present, but its signature (`teacher,\
+    \ baseline, state, action`) does not match the required `calculate_advantage_gap(teacher_q,\
+    \ v_baseline)` interface, and no test evidence is provided to confirm it satisfies\
+    \ the T003 tests. The implementation must be adjusted to the expected two\u2011\
+    argument form (or tests updated) for the task to be considered complete."
+  sig: 25f7320468969629abb8ab240222878db24093c505882bb8c729ce3f889d7233
 T023:
   c: false
   h: 291d1a53c7fe81ea3f9a973b5ccc796f9d58971c194104558402268faf846e3e

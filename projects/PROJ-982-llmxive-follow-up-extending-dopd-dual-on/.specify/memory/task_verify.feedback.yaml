@@ -1,7 +1,8 @@
 T001:
-  reason: The `code/requirements.txt` lists version ranges (`>=`) instead of exact
-    pinned versions as the task specifies, and there is no provided evidence (e.g.,
-    command output) that `pip install -r code/requirements.txt` actually succeeded.
+  reason: The `code/requirements.txt` and `code/__init__.py` files exist and contain
+    the correct pinned dependencies, but there is no provided evidence (e.g., command
+    output or log) that `pip install -r code/requirements.txt` actually succeeded.
+    Add execution proof of the pip install step.
   task: c7b2348585294e205fc91c72892785eae1bf8af45177b41c01dba1a57583e128
 T002:
   reason: The repository lacks the required `code/tests/unit/test_logging.py` and
@@ -62,6 +63,11 @@ T021:
     \ is missing, so the task\u2019s verification step is not satisfied."
   task: c9c7b55c52cd65a8f7cca077509e142188cb2245762db1ddce81848982f91c6c
 T022:
+  reason: "The `calculate_advantage_gap` function is present, but its signature (`teacher,\
+    \ baseline, state, action`) does not match the required `calculate_advantage_gap(teacher_q,\
+    \ v_baseline)` interface, and no test evidence is provided to confirm it satisfies\
+    \ the T003 tests. The implementation must be adjusted to the expected two\u2011\
+    argument form (or tests updated) for the task to be considered complete."
   task: 71e3a1b32f1d8993508d1a0bdb1801adf2fd50fcb80d9752a1412f7a0313a828
 T023:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'

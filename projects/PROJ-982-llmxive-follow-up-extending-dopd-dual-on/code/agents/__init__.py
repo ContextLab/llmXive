@@ -1,19 +1,23 @@
 """
 code/agents package initialization.
 
-This package contains agent implementations for the DOPD (Dynamic On-Policy
-Distillation) research pipeline. It includes the Teacher (Oracle) and Student
-agents, as well as baseline estimators.
-
-Available agents:
-- Teacher: Oracle policy with full state access (O, H)
-- Student: Tabular Q-table agent with partial state access (O)
-- BaselineEstimator: Computes V_baseline(s) for advantage calculation
+The original ``__init__`` attempted to import ``TeacherAgent`` and
+``StudentAgent`` which do not exist.  The public API of the project
+provides ``TeacherOracle`` and ``TabularQStudent`` (plus the baseline
+estimator).  We expose the correct symbols here so that imports such as
+``from agents.student import TabularQStudent`` work without triggering
+ImportError during test collection.
 """
+from .teacher import TeacherOracle, create_teacher_agent
+from .student import TabularQStudent, create_student_agent
+from .baseline_estimator import BaselineEstimator, create_baseline_estimator
 
-from .teacher import TeacherAgent
-from .student import StudentAgent
-from .baseline_estimator import BaselineEstimator
-
-__all__ = ["TeacherAgent", "StudentAgent", "BaselineEstimator"]
+__all__ = [
+    "TeacherOracle",
+    "create_teacher_agent",
+    "TabularQStudent",
+    "create_student_agent",
+    "BaselineEstimator",
+    "create_baseline_estimator",
+]
 __version__ = "0.1.0"

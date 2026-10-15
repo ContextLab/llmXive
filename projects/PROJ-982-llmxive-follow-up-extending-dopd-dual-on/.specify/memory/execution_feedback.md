@@ -21,16 +21,17 @@ Traceback (most recent call last):
 ImportError: attempted relative import with no known parent package
 
 - python -m pytest code/tests/ -v -> rc=2
-portError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on/code/tests/test_student.py'.
+ as PrivilegeMDP
+E   ModuleNotFoundError: No module named 'env.privileged_grid'
+_________________ ERROR collecting code/tests/unit/test_env.py _________________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on/code/tests/unit/test_env.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-code/tests/test_student.py:15: in <module>
-    from agents.student import TabularQStudent
-code/agents/__init__.py:14: in <module>
-    from .teacher import TeacherAgent
-E   ImportError: cannot import name 'TeacherAgent' from 'agents.teacher' (/home/runner/work/llmXive/llmXive/projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on/code/agents/teacher.py)
+code/tests/unit/test_env.py:12: in <module>
+    from env.privileged_grid import PrivilegedGridEnv
+E   ModuleNotFoundError: No module named 'env.privileged_grid'
 =========================== short test summary info ============================
 ERROR code/tests/test_dopd.py
 ERROR code/tests/test_env.py
@@ -38,7 +39,8 @@ ERROR code/tests/test_logging.py
 ERROR code/tests/test_seed_manager.py
 ERROR code/tests/test_stats.py
 ERROR code/tests/test_student.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 0.49s ===============================
+ERROR code/tests/unit/test_env.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 7 errors in 0.33s ===============================
 
 
