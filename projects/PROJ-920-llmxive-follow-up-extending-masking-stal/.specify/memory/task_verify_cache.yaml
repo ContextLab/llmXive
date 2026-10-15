@@ -1,12 +1,11 @@
 T001:
   c: true
-  h: 611474119f4793e9891c8028e4c245dea1c6ff889fca6b10dba47c4c3ff7f50e
-  r: All five required directories (`data/raw/`, `data/logs/`, `results/`, `code/`,
-    `tests/`) exist with content, and `quickstart.md` (1087 bytes) is present at the
-    project root with real setup/run instructions rather than a placeholder. The task
-    only asked for the directory tree and a minimal quickstart, both of which are
-    satisfied by the collector-confirmed evidence.
-  sig: 4349c94154739466a474dc638dbffb8fdceed1d95ed144329d9129eeed3cb983
+  h: 4c1ebcd4171c2157e06e3ead4cf0b757680e2d79e49eaf04df97b07fcbe68439
+  r: "Checked that the project root contains the required directories `data/raw/`,\
+    \ `data/logs/`, `results/`, `code/`, and `tests/`, each present with files, and\
+    \ that a non\u2011empty `quickstart.md` file (1087\u202Fbytes) is present at the\
+    \ project root. All required artifacts exist and are populated."
+  sig: 0ce8e27af9fa2f1bd6b278535f191e27f8e8ffedddbb304721e4d23e46f4597b
 T002:
   c: true
   h: f8484932282ffde0fd635e0e2448eaf2606358db14c34027fc092af69698a368
@@ -87,39 +86,23 @@ T010:
     VI rules on `density_weights` (entropy weight > technical weight, sum to\u202F\
     1). No placeholders or stubs remain."
   sig: 91f28cfd2b752b5b64b65717ce4121d432ff7f82c23a36a30880b45a26fa05bf
+T011:
+  c: false
+  h: e87073881fa4a9d221e92fb9d5bd61af5eaa687c383c492d9a8ce3a07b7d96e1
+  r: "Checked `code/generate_trajectories.py` and the generated `data/raw/trajectories.jsonl`.\
+    \ The script builds a full list of 500 trajectories in memory and writes it with\
+    \ `json.dump`, not line\u2011by\u2011line streaming as required, and its default\
+    \ output is `trajectories.json` (JSON array) rather than a true JSON\u2011Lines\
+    \ file. Consequently the key \u201Cstream each trajectory to disk line\u2011by\u2011\
+    line to keep RAM \u2264\u202F2\u202FGB\u201D is not satisfied."
+  sig: 6a13c5a88dc99f82c8e9bbe0bdec30f5ebb8d13796479e4e5c14ae8189ec7062
 T013:
   c: true
-  h: a865f0251c376f0edcc94b79137dfacb4d6b1ee121a47519536736d4262119eb
-  r: "Checked `code/utils/heuristics.py` for the exact 0.6\u202F*\u202Fentropy\u202F\
-    +\u202F0.4\u202F*\u202Ftechnical_token_ratio formula (present and clamped) and\
-    \ verified it has no external or agent\u2011output dependencies; the corresponding\
-    \ unit test file `tests/unit/test_density_isolation.py` exists and validates isolation."
-  sig: c73a007c4b02a8d4426f0a7fe6a5d374b5c20cb565e17f0a2bbb7ece33d0f0a1
-T014:
-  c: false
-  h: 277ed53d0565a0609a026d62dc8415d90c5fe5ceb03f3db4d95bd4fee77fc541
-  r: Checked `code/simulate_agent.py`, `data/raw/trajectories.json`, `code/config/simulation_config.json`,
-    `data/logs/simulation_results.csv` and `contracts/simulation_log.schema.yaml`.
-    The script does not stream the JSON file (loads it entirely), ignores the `is_last_turn`
-    flag, and writes CSV columns (`density_value`, `requested_horizon`) that do not
-    match the required schema field names (`density`, `horizon`), so the output does
-    not conform to the contract.
-  sig: c172093a281fcd9528967b92423033dc7c65621e300916a3ce9849aad1c3af4f
-T017:
-  c: false
-  h: 2205cce21a05d20da1be658d575058196252b0d184d8627969212b2927516913
-  r: "Checked `code/visualize_results.py` (exists but only reads `regression_summary.json`,\
-    \ never the required `data/logs/simulation_results.csv`), the expected output\
-    \ file `results/regime_map.png` (missing), and the test suite (`tests/contract/test_regression_output.py`\
-    \ and `tests/integration/test_plot_generation.py`) which rely on a generated regression\
-    \ summary and a PNG plot that do not exist. The script\u2019s API and the integration\
-    \ test also look for a different plot name (`surface_plot.png`) and location,\
-    \ so the task\u2019s deliverables are not produced."
-  sig: 1194d4c9af071548a5c4c79c2534a34c418323f84f430c1f608b579669c75a65
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/hypothesis_summary.txt` file is present, nor any evidence that `analyze_results.py`\
-    \ was run to produce it. Consequently the required automatically\u2011generated\
-    \ summary does not exist. The implementer must add the script execution and the\
-    \ resulting text file to satisfy US\u20113."
+  h: 4841c9868182e8b10f1334a04498eb17f5b42ac27c257016ad67e8f596434476
+  r: "Checked `tests/unit/test_density_isolation.py` which contains a unit test that\
+    \ computes the expected composite density using the FR\u2011008 formula (0.6\u202F\
+    *\u202Fentropy + 0.4\u202F*\u202Ftechnical token ratio) and asserts equality with\
+    \ `calculate_composite_density`, with no reliance on any external agent\u2011\
+    output data. The file exists, is non\u2011empty, and fulfills the task\u2019s\
+    \ specification."
+  sig: 101ef0877e1144f7dd9ee815331b3a48f3527f6febf8d805304f2d27518f6feb

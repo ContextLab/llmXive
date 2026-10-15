@@ -23,7 +23,7 @@
 - [X] T008 Create `code/config/analysis_config.json` (min samples per bin, spline df candidates, density bins, horizon bins).  
 - [X] T009 Add `code/validate_config.py` (schema & range checks for both config files).  
 - [X] T010 Add `code/validate_grounding_config.py` (ensure simulation parameters respect Constitution VI).  
-- [ ] T013 Unit test for density isolation (`tests/unit/test_density_isolation.py`) – **required**; verifies the exact composite formula from FR‑008 and that it does **not** depend on any agent‑output data.  
+- [X] T013 Unit test for density isolation (`tests/unit/test_density_isolation.py`) – **required**; verifies the exact composite formula from FR‑008 and that it does **not** depend on any agent‑output data.  
 
 All scaffolding tasks are verified and checked.
 
@@ -46,7 +46,7 @@ All scaffolding tasks are verified and checked.
   – Validate every line against `specs/001-llmxive-follow-up-extending-masking-stal/contracts/trajectory.schema.yaml`.  
   – Check that the number of trajectories per `density_level` (low, medium, high) is ≥ 150 each.
 
-- [ ] T012 **Validate generated trajectories & edge‑case metadata**  
+- [ ] T012 **Validate generated trajectories & edge‑case metadata**   <!-- FAILED-IN-EXECUTION: code/validate_trajectories.py exit=1 -->
   *Script*: `code/validate_trajectories.py`  
   *Consumes*: `data/raw/trajectories.jsonl`.  
   *Checks*:  

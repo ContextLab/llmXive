@@ -2,10 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T011** — Requested task execution failed; rerun successfully: code/generate_trajectories.py exit=1
+- **T011** — Checked `code/generate_trajectories.py` and the generated `data/raw/trajectories.jsonl`. The script builds a full list of 500 trajectories in memory and writes it with `json.dump`, not line‑by‑line streaming as required, and its default output is `trajectories.json` (JSON array) rather than a true JSON‑Lines file. Consequently the key “stream each trajectory to disk line‑by‑line to keep RAM ≤ 2 GB” is not satisfied.
 - **T012** — Requested task execution failed; rerun successfully: code/validate_trajectories.py exit=1
-- **T014** — Checked `code/simulate_agent.py`, `data/raw/trajectories.json`, `code/config/simulation_config.json`, `data/logs/simulation_results.csv` and `contracts/simulation_log.schema.yaml`. The script does not stream the JSON file (loads it entirely), ignores the `is_last_turn` flag, and writes CSV columns (`density_value`, `requested_horizon`) that do not match the required schema field names (`density`, `horizon`), so the output does not conform to the contract.
-- **T015** — Requested task execution failed; rerun successfully: code/validate_simulation.py exit=-1 (TIMEOUT)
-- **T016** — Requested task execution failed; rerun successfully: code/analyze_results.py exit=1
-- **T017** — Checked `code/visualize_results.py` (exists but only reads `regression_summary.json`, never the required `data/logs/simulation_results.csv`), the expected output file `results/regime_map.png` (missing), and the test suite (`tests/contract/test_regression_output.py` and `tests/integration/test_plot_generation.py`) which rely on a generated regression summary and a PNG plot that do not exist. The script’s API and the integration test also look for a different plot name (`surface_plot.png`) and location, so the task’s deliverables are not produced.
-- **T027** — Requested task execution failed; rerun successfully: code/validate_regime_map.py exit=1

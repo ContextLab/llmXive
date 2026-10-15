@@ -19,59 +19,50 @@ T009:
 T010:
   task: 2ef825904785eb2159002796c893f398c13490b06aedb8f2b1d5386c9f959433
 T011:
-  reason: 'Requested task execution failed; rerun successfully: code/generate_trajectories.py
-    exit=1'
-  task: 7aa3f4242fa85f859a58c86072e464ecb948e0436916826935fa9d32f17c670d
+  reason: "Checked `code/generate_trajectories.py` and the generated `data/raw/trajectories.jsonl`.\
+    \ The script builds a full list of 500 trajectories in memory and writes it with\
+    \ `json.dump`, not line\u2011by\u2011line streaming as required, and its default\
+    \ output is `trajectories.json` (JSON array) rather than a true JSON\u2011Lines\
+    \ file. Consequently the key \u201Cstream each trajectory to disk line\u2011by\u2011\
+    line to keep RAM \u2264\u202F2\u202FGB\u201D is not satisfied."
+  task: 54527237004bc8284b7a497213cbe9191d5b44b99bf2eb2efea1ca63040a87af
 T012:
   reason: 'Requested task execution failed; rerun successfully: code/validate_trajectories.py
     exit=1'
-  task: 6ec7205547cb792efe8c8e5562470454e096eece199e9cd39c6b6f98d76f8af1
+  task: dd6bb70d01cec27be4943db6807c8c2d6b3bd11c47d027630e4fae7780228fb8
 T013:
-  task: 9f75acc23a41078df71a557eda3058839181fb288f8a655e001b1c0b30f631b8
+  task: 40f2a9f145d67b33b5d0eda552d3c67b2c1fd68dea3915accbb780c374b512b1
 T014:
-  reason: Checked `code/simulate_agent.py`, `data/raw/trajectories.json`, `code/config/simulation_config.json`,
-    `data/logs/simulation_results.csv` and `contracts/simulation_log.schema.yaml`.
-    The script does not stream the JSON file (loads it entirely), ignores the `is_last_turn`
-    flag, and writes CSV columns (`density_value`, `requested_horizon`) that do not
-    match the required schema field names (`density`, `horizon`), so the output does
-    not conform to the contract.
-  task: 6e8cfec58819f89e64179052eb25741968512c02d861c02d17578c315d3ec865
+  task: c8f7a354f35047c4c1502c8ef9a65eff72d695d986cab13cdbef9647d7d5da34
 T015:
-  reason: 'Requested task execution failed; rerun successfully: code/validate_simulation.py
-    exit=-1 (TIMEOUT)'
-  task: ba6b31909ffef95534b625215b50a157ef3110aabc74b184c7e8cff19d0bd2b6
+  task: f4dd87f6ed81b10367685301ff6a0f5b8d7be08dadbead6f4721203ecd847a0b
 T016:
-  reason: 'Requested task execution failed; rerun successfully: code/analyze_results.py
-    exit=1'
-  task: 8a02b027828d16b9bfba3a2fa1d3d9e202564f22c3a0432ccf7a37c65cec6936
+  task: 2a06d0360046bdfeca73b04a736d85b1e4feca7ce786ebb40120c2bc6d96686b
 T017:
-  reason: "Checked `code/visualize_results.py` (exists but only reads `regression_summary.json`,\
-    \ never the required `data/logs/simulation_results.csv`), the expected output\
-    \ file `results/regime_map.png` (missing), and the test suite (`tests/contract/test_regression_output.py`\
-    \ and `tests/integration/test_plot_generation.py`) which rely on a generated regression\
-    \ summary and a PNG plot that do not exist. The script\u2019s API and the integration\
-    \ test also look for a different plot name (`surface_plot.png`) and location,\
-    \ so the task\u2019s deliverables are not produced."
-  task: 2d4fd60e73ef2d611b20e2fa51d6322beb4022d44806a9b493d809a202e2fcb1
+  task: 75a9b2fc11992aa004d32d7a789e279ec465f6671ec6cd0579ca524fdc6b8a6f
 T018:
-  task: 129b64de095a9fdc239ca812182be545e23c542030e549a244a53c781ff78cda
+  task: aaec4fdfaed1024c7a39953389fe8cfb45020c1390eb207660e5e00fdf15189c
 T019:
-  task: 5a657131f04396df86f9d0c4f3bad01b06ab2b58f3990ec83e2ccee7545db300
+  task: 2a9a9b23ccfa0e06cf966cb08ce816c3ee030ab6bdaab5293e4e114db5e59b5a
 T020:
   task: 7287244585228db050bced8830058f3e7917919c70ce620036aacebcc44cbab7
 T021:
   task: fa931805a1c57a703a8cd8ddf7619cafc7d212a0595f8155c38475c11e9d0400
 T022:
-  task: c77248c58251fc01b269e560d61c785266845c6c9aaa847a65b5f3099e602b49
+  task: dd37cf5a7989a13717e9157eadfa96218ed0693d2c2219eccdb25b58388c0247
 T023:
-  task: 2ad3c07cc0c89fcc3f25d02abe567f2e4af502893d0f6964b093d153d1ace12a
+  task: 95b160241b23b5f2ca9aaa2820b4cd757c0d6d6e207d99f3ae09c3b2107c87ef
 T024:
   task: d7ab9a5ca544130e1957de2d1110a233fba550bb55469e18d353ed010e3ac838
 T025:
   task: 7187ddcb340407815acff94e735aa257becda726bf6dbd9866e61a5e8595b055
 T026:
-  task: c025ef960d184cb5eba492c7aefed97f440bb73278dee92972da57b74717d24f
+  task: 35eb9da05aaa9ff3d2e090ecc64fa22ed063208f3fcad104e1e5f107f17d3ce6
 T027:
-  reason: 'Requested task execution failed; rerun successfully: code/validate_regime_map.py
-    exit=1'
-  task: 4ca241e5694eee9c2977a7743b5311309c22615a83a47237e1d45fea6ffdbd10
+  task: 5d4d4bbe70f3853c501750b0eae7a05a5de63b51e06ba4f7af1bc686bc41d730
+T028:
+  task: 00f605ac82a743d7494463b3e0d2945784df449a67a9678ae3060cdb53507ae9
+T031:
+  task: aeb71b8dd2e90295d9b03d5d0fab2dd8f92f652ac93ae74fce62d865cc7226a5
+T032:
+  task: 0ee9219cac299aeb9538d40d9e25845108b2393713f3b3587d03fe394bfe207b
