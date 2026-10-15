@@ -27,13 +27,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m code.main -> rc=2
 ts/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/IL-Benchmark.zip
-2026-10-15 00:13:25,429 INFO download_il_benchmark: Fallback zip created with metadata.csv (/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/IL-Benchmark.zip)
-2026-10-15 00:13:25,429 INFO download_il_benchmark: No checksum manifest found – skipping verification.
-2026-10-15 00:13:25,429 INFO download_il_benchmark: Extracting /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/IL-Benchmark.zip to /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw
-2026-10-15 00:13:25,430 INFO download_il_benchmark: Extraction complete.
-2026-10-15 00:13:25,430 INFO download_il_benchmark: Dataset ready – metadata located at /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/metadata.csv
-2026-10-15 00:13:25,430 INFO __main__: === Finished stage: download_il_benchmark ===
-2026-10-15 00:13:25,430 INFO __main__: === Starting stage: load_data ===
+2026-10-15 03:08:04,927 INFO download_il_benchmark: Fallback zip created with metadata.csv (/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/IL-Benchmark.zip)
+2026-10-15 03:08:04,927 INFO download_il_benchmark: No checksum manifest found – skipping verification.
+2026-10-15 03:08:04,927 INFO download_il_benchmark: Extracting /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/IL-Benchmark.zip to /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw
+2026-10-15 03:08:04,928 INFO download_il_benchmark: Extraction complete.
+2026-10-15 03:08:04,928 INFO download_il_benchmark: Dataset ready – metadata located at /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/metadata.csv
+2026-10-15 03:08:04,928 INFO __main__: === Finished stage: download_il_benchmark ===
+2026-10-15 03:08:04,928 INFO __main__: === Starting stage: load_data ===
 usage: main.py [-h] path
 main.py: error: the following arguments are required: path
 
@@ -122,7 +122,7 @@ ERROR tests/unit/test_load_data.py
 ERROR tests/unit/test_parse_psi4.py
 ERROR tests/unit/test_scaling.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.29s ===============================
+============================== 5 errors in 0.78s ===============================
 
 
 
