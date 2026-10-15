@@ -27,10 +27,14 @@ properties:
   comments:
     type: string
     description: "Optional qualitative feedback"
+  mock:
+    type: boolean
+    description: "True only for deterministic dry-run fixture ratings; must be false for real expert ratings"
 required:
   - id
   - proposal_id
   - expert_id
   - metric
   - score
+  - mock
 additionalProperties: false

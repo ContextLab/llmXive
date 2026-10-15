@@ -1,11 +1,11 @@
 status: none
-intent: downloadable abstract dataset Nature Climate Change Health Affairs machine
-  learning arXiv python package dataset
+intent: download OpenReview Crossref Semantic Scholar abstracts dataset with titles
+  venues acceptance_status python package dataset
 required_fields:
 - title
 - abstract
 - venue
 - acceptance_status
-cache_key: f398739e354644e1ac5bdfc93db3c6e07b2ca52c2890193acc6c2e2ad42d533b
-searched_at: '2026-10-04T01:27:40.308346+00:00'
+cache_key: 014beb9d7bd0a99723af32972045f0e281554d6f764e7fb00836bbf2dc500dbd
+searched_at: '2026-10-15T06:34:49.340359+00:00'
 retry_count: 1

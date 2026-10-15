@@ -1,0 +1,98 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Results Artifacts Schema"
+description: "Schema for statistical result artifacts produced by 05_statistical_analysis.py"
+type: object
+properties:
+  power_analysis_config:
+    type: object
+    properties:
+      n_pairs:
+        type: integer
+        description: "Number of proposal pairs read from generated_proposals.jsonl"
+      alpha:
+        type: number
+        description: "Significance level (0.05)"
+      target_effect_size:
+        type: number
+        description: "Target Cohen's d (0.5)"
+      achieved_power:
+        type: number
+        description: "Estimated power for the achieved n and target effect size"
+    required:
+      - n_pairs
+      - alpha
+      - target_effect_size
+      - achieved_power
+  validity_metrics:
+    type: object
+    properties:
+      alignment_mean_pattern_guided:
+        type: number
+        description: "Mean expert alignment score for pattern-guided proposals"
+      alignment_mean_baseline:
+        type: number
+        description: "Mean expert alignment score for baseline proposals"
+      alignment_difference:
+        type: number
+        description: "Difference in mean expert alignment scores (pattern-guided minus baseline), derived from expert ratings not retrieval scores"
+      metric_source:
+        type: string
+        description: "Must be 'expert_mean_scores' per SC-004"
+    required:
+      - alignment_mean_pattern_guided
+      - alignment_mean_baseline
+      - alignment_difference
+      - metric_source
+  statistical_tests:
+    type: array
+    items:
+      type: object
+      properties:
+        metric:
+          type: string
+          enum:
+            - "feasibility"
+            - "bottleneck"
+            - "alignment"
+        test_selected:
+          type: string
+          enum:
+            - "paired_t_test"
+            - "wilcoxon_signed_rank"
+        p_value_raw:
+          type: number
+        p_value_bh_corrected:
+          type: number
+        effect_size:
+          type: number
+        outliers_removed:
+          type: boolean
+      required:
+        - metric
+        - test_selected
+        - p_value_raw
+        - p_value_bh_corrected
+        - effect_size
+        - outliers_removed
+  report:
+    type: object
+    properties:
+      path:
+        type: string
+        description: "Path to the generated analysis_report.md"
+      contains_associational_phrase:
+        type: boolean
+        description: "Must be true; the phrase 'associational, not causal' must appear in the conclusion section (FR-006)"
+      mock_data:
+        type: boolean
+        description: "True if the report is based on dry-run fixture ratings; such reports must be labeled as dry-run"
+    required:
+      - path
+      - contains_associational_phrase
+      - mock_data
+required:
+  - power_analysis_config
+  - validity_metrics
+  - statistical_tests
+  - report
+additionalProperties: false

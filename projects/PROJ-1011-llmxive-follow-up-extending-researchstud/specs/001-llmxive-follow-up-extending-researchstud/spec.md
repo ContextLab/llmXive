@@ -3,7 +3,7 @@
 **Feature Branch**: `001-llmxive-extension`  
 **Created**: 2026-07-23  
 **Status**: Draft  
-**Input**: User description: "Do the 15 'ideation patterns' derived from top-tier machine learning conferences generalize to improve the quality of research proposals in resource-constrained, non-ML domains (e.g., public health policy, climate adaptation), or are these patterns specific artifacts of ML research culture?"
+**Input**: User description: "Do the 'ideation patterns' derived from top-tier machine learning conferences generalize to improve the quality of research proposals in resource-constrained, non-ML domains (e.g., public health policy, climate adaptation), or are these patterns specific artifacts of ML research culture?"
 
 ## User Scenarios & Testing
 
