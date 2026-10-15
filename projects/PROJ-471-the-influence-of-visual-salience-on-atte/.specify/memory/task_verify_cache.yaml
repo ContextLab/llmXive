@@ -1,9 +1,9 @@
 T001:
   c: true
-  h: 891064293b20beacbd4eb321b44b8ba198664ecc1abdd6e61cbe72d8141babc8
-  r: Checked that the required directories (`code/`, `data/raw/`, `data/interim/`,
-    `data/processed/`, `data/results/`, `code/tests/`, `docs/`) exist, that `code/bootstrap.py`
-    creates them and writes a pinned `requirements.txt` (present under `code/requirements.txt`
-    and matching the specified list), and that `code/main.py` provides a runnable
-    entry point (`python code/main.py --stage smoke`) which verifies the layout.
-  sig: bfc4b1fba808f8ed4555d93a14cc560e4cde6f71e518be0979d9e945f25c560d
+  h: 6f21e7bb67c233a9373bb4de406b358572fff70a04ed169f092ba54319bc1896
+  r: Checked the root and `code/requirements.txt` files (both contain the full pinned
+    list), the presence of all required directories (`code/`, `data/raw/`, `data/interim/`,
+    `data/processed/`, `data/results/`, `code/tests/`, `docs/`), and the `code/main.py`
+    script which implements a runnable CLI (`python code/main.py --stage smoke`) that
+    verifies the layout. All required artifacts exist and match the task specification.
+  sig: 75da5b37da379a19b80181fb2303ec377fb59e25d32a3dcfe270ea2dc04d412f

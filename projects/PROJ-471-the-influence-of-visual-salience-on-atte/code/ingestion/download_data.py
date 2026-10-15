@@ -8,7 +8,7 @@ summary JSON artifact. All failures raise explicit ``RuntimeError`` with the
 ``DATA_MISSING_001`` code so the pipeline halts loudly if data cannot be
 obtained.
 
-The implementation now respects the ``HF_TOKEN`` environment variable for
+The implementation respects the ``HF_TOKEN`` environment variable for
 authentication **only when it is set**. If the token is missing, the script
 attempts an unauthenticated download (which works for public datasets). If
 the download still fails, the script raises ``DATA_MISSING_001`` as required.
@@ -21,7 +21,10 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import os
 
-from huggingface_hub import snapshot_download, HfHubHTTPError
+# Import snapshot_download; we deliberately avoid importing HfHubHTTPError
+# because its location varies between versions of huggingface_hub.
+# We'll catch generic Exceptions and re‑raise a clear RuntimeError.
+from huggingface_hub import snapshot_download
 
 from config import get_paths, get_hyperparams
 from utils.logging import get_logger, log_error_context
@@ -83,7 +86,6 @@ def fetch_dataset(
         ],
         "max_workers": 4,
     }
-    # Only include the token argument if a token is actually provided.
     if token:
         download_kwargs["token"] = token
 
@@ -96,16 +98,10 @@ def fetch_dataset(
             "revision": revision,
             "status": "success",
         }
-    except HfHubHTTPError as e:
-        # Provide a clear error that will be caught by the pipeline
+    except Exception as e:  # Catch any exception from snapshot_download
         logger.error(f"Failed to download dataset '{dataset_id}': {e}")
         raise RuntimeError(
             "DATA_MISSING_001: Real data fetch failed (authentication or access error)"
-        ) from e
-    except Exception as e:
-        logger.error(f"Unexpected error during dataset download: {e}")
-        raise RuntimeError(
-            "DATA_MISSING_001: Real data fetch failed (unexpected error)"
         ) from e
 
 
