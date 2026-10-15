@@ -1,5 +1,5 @@
 status: none
-intent: download ACE SWICS and WIND composition data with NOAA Dst Kp indices Python
+intent: download ACE SWICS and WIND composition data from CDAWeb using heliopy python
   package dataset
 required_fields:
 - timestamp
@@ -9,8 +9,8 @@ required_fields:
 - solar_wind_velocity
 - solar_wind_density
 - solar_wind_temperature
-- Dst
-- Kp
-cache_key: da51ddbcc429c83b613affe5e2b27df5d0d877d5830f3d4d5cff48685c67f0dc
-searched_at: '2026-10-13T01:47:02.844347+00:00'
+- Dst_index
+- Kp_index
+cache_key: 9f156eefe0baed0b2e4ef6c7265c0a06891877c1955d908896e847676523e62e
+searched_at: '2026-10-15T13:22:32.959119+00:00'
 retry_count: 1

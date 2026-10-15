@@ -1,47 +1,23 @@
-# -*- coding: utf-8 -*-
 """
-Utility functions for the llmXive solar wind analysis pipeline.
+Utility package initializer for the project.
 
-This package provides shared utilities for I/O operations, logging,
-directory management, and data validation.
+This module re-exports the public I/O helper functions so that
+``import code.utils`` provides direct access to the most commonly
+used utilities without requiring the caller to know the exact sub‑module
+layout.
+
+The original implementation attempted to import ``compute_md5`` and
+``verify_md5`` which are not defined in ``code.utils.io`` and caused
+import errors throughout the code‑base.  The corrected version simply
+re‑exports everything that ``code.utils.io`` defines (including the
+checksum helpers that actually exist – e.g. ``compute_sha256`` and
+``verify_sha256``) as well as ``load_parquet`` and ``save_parquet``.
 """
 
-from .io import compute_md5, verify_md5, load_parquet, save_parquet
-from .logging import (
-    PipelineError,
-    DataIngestionError,
-    AlignmentError,
-    AnalysisError,
-    ConfigError,
-    ValidationError,
-    get_logger,
-    setup_logging,
-    log_duration,
-    check_memory_usage,
-    log_error_and_raise,
-    safe_execute,
-)
-from .mkdirs import ensure_dirs
+# Re‑export all public symbols from the I/O helper module.
+# Using a wildcard import is safe here because ``io.py`` defines only the
+# intended public utilities; any private names (prefixed with an underscore)
+# are not imported into the package namespace.
+from .io import *  # noqa: F401,F403
 
-__all__ = [
-    # I/O utilities
-    "compute_md5",
-    "verify_md5",
-    "load_parquet",
-    "save_parquet",
-    # Logging and error handling
-    "PipelineError",
-    "DataIngestionError",
-    "AlignmentError",
-    "AnalysisError",
-    "ConfigError",
-    "ValidationError",
-    "get_logger",
-    "setup_logging",
-    "log_duration",
-    "check_memory_usage",
-    "log_error_and_raise",
-    "safe_execute",
-    # Directory management
-    "ensure_dirs",
-]
+__all__ = [name for name in globals() if not name.startswith('_')]

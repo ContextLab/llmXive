@@ -22,13 +22,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingestion/generate_synthetic_data.py --output data/processed/synthetic_aligned.parquet -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/generate_synthetic_data.py", line 16, in <module>
-    from utils.io import save_parquet
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/__init__.py", line 9, in <module>
-    from .io import compute_md5, verify_md5, load_parquet, save_parquet
-ImportError: cannot import name 'compute_md5' from 'utils.io' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/io.py)
+/utils/io.py", line 33, in save_parquet
+    df.to_parquet(file_path, index=False, engine="pyarrow")
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/util/_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 3113, in to_parquet
+    return to_parquet(
+           ^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 476, in to_parquet
+    impl = get_engine(engine)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 78, in get_engine
+    return PyArrowImpl()
+           ^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 163, in __init__
+    import_optional_dependency(
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/_optional.py", line 138, in import_optional_dependency
+    raise ImportError(msg)
+ImportError: Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
 
 - python code/utils/verify_data.py --input data/processed/synthetic_aligned.parquet -> rc=2
 
@@ -37,39 +49,28 @@ ImportError: cannot import name 'compute_md5' from 'utils.io' (/home/runner/work
 - python code/main.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 8, in <module>
-    from code.ingestion.download_ace import run_ingestion as run_ace_ingest
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/download_ace.py", line 23, in <module>
-    from code.utils.logging import DataIngestionError, get_logger, log_duration
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/__init__.py", line 9, in <module>
-    from .io import compute_md5, verify_md5, load_parquet, save_parquet
-ImportError: cannot import name 'compute_md5' from 'code.utils.io' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/io.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/main.py", line 17, in <module>
+    from code.analysis.integrate_results import integrate_results
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/integrate_results.py", line 36, in <module>
+    def create_coefficients_dataframe(regression_data: Dict[str, Any]) -> pd.DataFrame:
+                                                                          ^^
+NameError: name 'pd' is not defined. Did you mean: 'id'?
 
 - python -m pytest tests/ -> rc=2
-t/test_synthetic.py:26: in <module>
-    from code.ingestion.generate_synthetic_data import generate_solar_wind_composition
-code/ingestion/generate_synthetic_data.py:16: in <module>
-    from utils.io import save_parquet
-utils/__init__.py:4: in <module>
-    from .io import *
-utils/io.py:4: in <module>
-    from code.utils.io import (
-E   ImportError: cannot import name 'compute_md5' from 'code.utils.io' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/io.py)
+========================== ERRORS ====================================
+_ ERROR collecting projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration/test_sensitivity.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration/test_sensitivity.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/integration/test_sensitivity.py:20: in <module>
+    from analysis.sensitivity import (
+E   ImportError: cannot import name 'load_regression_results' from 'analysis.sensitivity' (/home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/sensitivity.py)
 =========================== short test summary info ============================
-ERROR tests/integration/test_regression.py
 ERROR tests/integration/test_sensitivity.py
-ERROR tests/unit/test_coupling.py
-ERROR tests/unit/test_download.py
-ERROR tests/unit/test_download_ace.py
-ERROR tests/unit/test_download_noaa.py
-ERROR tests/unit/test_ingestion.py
-ERROR tests/unit/test_logging.py
-ERROR tests/unit/test_mkdirs.py
-ERROR tests/unit/test_permutation.py
-ERROR tests/unit/test_regression.py
-ERROR tests/unit/test_synthetic.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 12 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 12 errors in 1.51s ==============================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 1.39s ===============================
 
 
 
