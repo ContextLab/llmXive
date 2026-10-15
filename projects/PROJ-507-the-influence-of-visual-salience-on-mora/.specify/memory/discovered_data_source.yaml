@@ -1,15 +1,18 @@
 status: none
-intent: Visual Genome python package dataset
+intent: pip install visual genome dataset download python package for open visual
+  images
 required_fields:
 - image_id
 - image_url
 - width
 - height
-- objects
-- object_bboxes
-- attributes
-- relationships
-- region_descriptions
-cache_key: ba2f6ed8a752a55a183cf72249b33d7907d353b09d26e58ad8552b48d8b03a5b
-searched_at: '2026-10-15T08:13:50.641385+00:00'
+- objects (object_id, name, bounding_box)
+- attributes (attribute_id, name, bounding_box)
+- relationships (subject_id, predicate, object_id)
+- region_id
+- region_bbox
+- region_descriptions (captions)
+- "ambiguity_rating (5\u2011point Likert score)"
+cache_key: fbce862c11e01abbb5728f809538e84e679ea89784cc876f75a7aa66be898818
+searched_at: '2026-10-15T19:19:19.317001+00:00'
 retry_count: 1

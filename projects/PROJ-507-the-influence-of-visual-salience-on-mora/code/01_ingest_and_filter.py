@@ -4,24 +4,22 @@
 
 Runnable entry point for the data ingestion pipeline.
 
-This script fetches a real image dataset from Hugging Face. It primarily 
-attempts to load 'visual_genome' (config 'VG164'), and falls back to 
-'conceptual_captions' if the primary source is unavailable or unsupported 
-by the current 'datasets' library version (e.g., due to deprecated scripts).
+This script fetches a real image dataset from Hugging Face. It attempts to
+load the primary dataset (``visual_genome``) and, if that fails, falls back
+to a secondary public dataset (``conceptual_captions``). The dataset is
+streamed, filtered for images whose metadata contain any of the tags
+``social`` or ``conflict``, and up to ``num_samples`` candidates are
+selected (default 10) using a fixed random seed (42) for reproducibility.
 
-It streams the dataset, filters for images whose metadata contains any 
-of the tags 'social' or 'conflict', and selects the first N candidates 
-(default 10) using a fixed random seed (42) for reproducibility.
+For each selected image the script:
+1. Downloads the image into ``data/raw/``.
+2. Computes a SHA‑256 checksum of the downloaded file.
+3. Writes a row to ``data/processed/candidates_filtered.csv`` conforming
+   to ``contracts/dataset.schema.yaml``.
+4. Stores the checksums in ``data/raw/sample_metadata.json``.
 
-For each selected image it:
-1. Downloads the image into 'data/raw/'.
-2. Computes a SHA-256 checksum of the downloaded file.
-3. Writes a row to 'data/processed/candidates_filtered.csv' conforming 
-   to 'contracts/dataset.schema.yaml'.
-4. Stores the checksums in 'data/raw/sample_metadata.json'.
-
-The script raises DataFetchError on any failure to fetch the dataset 
-or download an image – no synthetic fallback is performed.
+The script raises :class:`DataFetchError` on any failure to fetch the
+dataset or download an image – no synthetic fallback is performed.
 """
 
 import argparse
@@ -37,7 +35,7 @@ import pandas as pd
 import requests
 from datasets import load_dataset
 
-# Project-specific imports
+# Project‑specific imports
 from data_prep import DataFetchError
 from llmxive_toolkit import paths, get_logger
 
@@ -47,7 +45,6 @@ log = get_logger(__name__)
 # Configuration defaults
 # ----------------------------------------------------------------------
 PRIMARY_DATASET = "visual_genome"
-PRIMARY_CONFIG = "VG164"
 FALLBACK_DATASET = "conceptual_captions"
 DEFAULT_SPLIT = "train"
 DEFAULT_TAGS = ["social", "conflict"]
@@ -58,7 +55,12 @@ RANDOM_SEED = 42
 # Helper functions
 # ----------------------------------------------------------------------
 def _resolve_dataset_name() -> str:
-    """Return the dataset name to load."""
+    """Return the dataset name to load.
+
+    If the environment variable ``VERIFIED_DATA_SOURCE`` is set, its value
+    is used as the dataset identifier (e.g. a fully‑qualified
+    ``namespace/name``). Otherwise the primary dataset name is returned.
+    """
     env_source = os.getenv("VERIFIED_DATA_SOURCE")
     if env_source:
         log.info("Using verified data source from environment: %s", env_source)
@@ -85,7 +87,7 @@ def _save_streamed_image(image_bytes: bytes, target_path: Path) -> None:
         raise DataFetchError(f"Failed to write streamed image to {target_path}") from exc
 
 def _sha256_checksum(file_path: Path) -> str:
-    """Calculate the SHA-256 checksum of ``file_path``."""
+    """Calculate the SHA‑256 checksum of ``file_path``."""
     h = hashlib.sha256()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -93,26 +95,24 @@ def _sha256_checksum(file_path: Path) -> str:
     return h.hexdigest()
 
 def _filter_candidate(record: Dict[str, Any], tags: List[str]) -> bool:
-    """Return True if the record's metadata contains any of ``tags``."""
-    # Try explicit tags field
-    record_tags = record.get("tags") or record.get("metadata", {}).get("tags")
-    if isinstance(record_tags, list):
-        lower_tags = [t.lower() for t in record_tags if isinstance(t, str)]
-        if any(tag.lower() in lower_tags for tag in tags):
-            return True
-
-    # Visual Genome style objects field
+    """Return ``True`` if the record's metadata contains any of ``tags``."""
+    # Visual Genome style ``objects`` list
     objects = record.get("objects")
     if isinstance(objects, list):
         names = [obj.get("name", "").lower() for obj in objects if isinstance(obj, dict)]
         if any(tag.lower() in names for tag in tags):
             return True
 
-    # Fallback: allow record if tags are provided but not found, 
-    # to ensure we get at least some real data for the pipeline.
-    if tags:
-        return True
-    return False
+    # Generic ``tags`` field
+    record_tags = record.get("tags") or record.get("metadata", {}).get("tags")
+    if isinstance(record_tags, list):
+        lower_tags = [t.lower() for t in record_tags if isinstance(t, str)]
+        if any(tag.lower() in lower_tags for tag in tags):
+            return True
+
+    # If no explicit tag information is present we conservatively keep the
+    # record only when a tag filter was **not** requested.
+    return not tags
 
 # ----------------------------------------------------------------------
 # Core ingestion routine
@@ -133,19 +133,20 @@ def ingest_and_filter(
     candidates_path = processed_dir / "candidates_filtered.csv"
     checksum_path = raw_dir / "sample_metadata.json"
 
-    # Attempt to load the dataset with a fallback to a stable real source
+    # ------------------------------------------------------------------
+    # Load the dataset (streaming) – try primary then fallback
+    # ------------------------------------------------------------------
     ds = None
     try:
-        log.info("Attempting to load %s (%s)...", dataset_name, PRIMARY_CONFIG)
+        log.info("Attempting to load primary dataset: %s", dataset_name)
         ds = load_dataset(
             dataset_name,
-            PRIMARY_CONFIG,
             split=DEFAULT_SPLIT,
             streaming=True,
             trust_remote_code=True,
         )
     except Exception as exc:
-        log.warning("Primary dataset %s failed: %s. Trying fallback %s...", dataset_name, exc, FALLBACK_DATASET)
+        log.warning("Primary dataset load failed (%s). Trying fallback %s...", exc, FALLBACK_DATASET)
         try:
             ds = load_dataset(
                 FALLBACK_DATASET,
@@ -154,15 +155,21 @@ def ingest_and_filter(
                 trust_remote_code=True,
             )
         except Exception as fallback_exc:
-            raise DataFetchError(f"Unable to load any real dataset source: {fallback_exc}") from fallback_exc
+            raise DataFetchError(
+                f"Unable to load any real dataset source: {fallback_exc}"
+            ) from fallback_exc
 
     selected: List[Dict[str, Any]] = []
     checksums: Dict[str, str] = {}
 
+    # Ensure reproducibility of the *selection* order
+    rng = pd.random.RandomState(RANDOM_SEED)
+
     for record in ds:
-        if not _filter_candidate(record, tags):
+        if tags and not _filter_candidate(record, tags):
             continue
 
+        # Derive a stable identifier
         image_id = str(
             record.get("image_id")
             or record.get("id")
@@ -172,7 +179,9 @@ def ingest_and_filter(
 
         image_path = raw_dir / f"{image_id}.jpg"
 
-        # Image acquisition logic
+        # ----------------------------------------------------------------
+        # Acquire the image bytes
+        # ----------------------------------------------------------------
         try:
             if "image_url" in record:
                 _download_image(record["image_url"], image_path)
@@ -184,7 +193,7 @@ def ingest_and_filter(
                     _save_streamed_image(img_field, image_path)
                 elif isinstance(img_field, dict) and "bytes" in img_field:
                     _save_streamed_image(img_field["bytes"], image_path)
-                elif hasattr(img_field, "save"): # PIL Image
+                elif hasattr(img_field, "save"):  # PIL Image‑like
                     img_field.save(image_path, format="JPEG")
                 else:
                     log.warning("Unsupported 'image' format for %s", image_id)
@@ -216,15 +225,23 @@ def ingest_and_filter(
     if not selected:
         raise DataFetchError("No candidate images matched the filtering criteria.")
 
+    # Shuffle the selected rows deterministically (seeded) to avoid any
+    # ordering bias introduced by the streaming source.
+    selected_df = pd.DataFrame(selected)
+    selected_df = selected_df.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
+
     # Write CSV
-    df = pd.DataFrame(selected)
-    df.to_csv(candidates_path, index=False)
+    selected_df.to_csv(candidates_path, index=False)
 
     # Write checksums JSON
     with open(checksum_path, "w", encoding="utf-8") as f:
         json.dump(checksums, f, indent=2)
 
-    log.info("Ingestion complete – %d candidates written to %s", len(selected), candidates_path)
+    log.info(
+        "Ingestion complete – %d candidates written to %s",
+        len(selected_df),
+        candidates_path,
+    )
 
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Ingest and filter image data.")
