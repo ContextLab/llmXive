@@ -6,7 +6,7 @@ properties:
   n_required:
     type: "integer"
     minimum: 1
-    description: "Calculated sample size N."
+    description: "Calculated sample size N required for the study."
   parameters:
     type: "object"
     properties:
@@ -14,10 +14,10 @@ properties:
         type: "number"
         minimum: 0
         maximum: 1
-        description: "Target power (e.g., 0.8)."
+        description: "Target statistical power (e.g., 0.8)."
       effect_size:
         type: "number"
-        description: "Cohen's h effect size."
+        description: "Desired Cohen's h effect size (≥ 0.2)."
       significance_level:
         type: "number"
         minimum: 0
@@ -27,10 +27,10 @@ properties:
         type: "number"
         minimum: 0
         maximum: 1
-        description: "Assumed baseline success rate (p0)."
+        description: "Baseline success rate p0 used in the calculation."
       p0_source:
         type: "string"
-        description: "Source of baseline rate (e.g., 'Pilot Run', 'Fallback 0.5')."
+        description: "Source of baseline rate estimate ('Pilot Run' or 'Fallback 0.5')."
     required:
       - power_target
       - effect_size
@@ -40,8 +40,9 @@ properties:
   timestamp:
     type: "string"
     format: "date-time"
-    description: "Timestamp of calculation."
+    description: "ISO‑8601 timestamp of when the calculation was performed."
 required:
   - n_required
   - parameters
   - timestamp
+additionalProperties: false

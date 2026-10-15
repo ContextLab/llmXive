@@ -1,11 +1,5 @@
 status: none
-intent: download Google AndroidWorld dataset from HuggingFace datasets python package
-  dataset
-required_fields:
-- ui_state
-- action
-- trajectory
-- split
-cache_key: 177b11381e064409329ae26bef966bef4e1f689b60a4b89dd023ea8fe57cc14f
-searched_at: '2026-09-30T06:52:22.713409+00:00'
-retry_count: 1
+reason: no data intent found in planning artifacts
+cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
+searched_at: '2026-10-15T18:10:03.658657+00:00'
+retry_count: 3

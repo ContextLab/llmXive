@@ -1,76 +1,94 @@
 # Quickstart: MobileForge Logic Distillation
 
 ## 1. Prerequisites
-- Python 3.11+
-- Git
-- Access to a Linux environment (GitHub Actions or local Linux VM)
-- Sufficient free disk space is required.
+- Python 3.11+  
+- Git  
+- Linux environment (local VM or GitHub Actions runner)  
+- Internet access to download the two open datasets
 
 ## 2. Setup
 
-### 2.1 Clone and Install
 ```bash
+# Clone the repository
 git clone <repo-url>
-cd projects/930-llmxive-follow-up-extending-mobileforge/code/
+cd projects/930-llmxive-follow-up-extending-mobileforge
+
+# Install pinned dependencies
 pip install -r requirements.txt
 ```
 
-### 2.2 Environment Configuration
-Set the following environment variables in `.env` or your shell:
+### Environment Variables
+Create a `.env` file or export manually:
+
 ```bash
-export DATASET_URL="" # Verified source
 export RANDOM_SEED=42
-export EVAL_TASKS_N=500 # Will be overwritten by power_analysis output
+export DATASET_URL="https://huggingface.co/datasets/OSTShushack/ExtractionDataset"
+export ANDROIDWORLD_URL="https://huggingface.co/datasets/google-deepmind/androidworld"
 ```
 
 ## 3. Execution Workflow
 
-### Step 1: Power Analysis (FR-007)
-Run the power analysis to determine the required sample size.
+### Step 0: Verify Bootstrap Artifacts
 ```bash
-python utils/power_analysis.py
-# Output: state/validated_n.json
-```
-*Note: This step includes a pilot run to estimate baseline success rate (p0).*
-
-### Step 2: Data Extraction & Filtering (FR-001)
-Extract and filter the dataset.
-```bash
-python pipeline/extract.py
-# Output: data/processed/train_splits.parquet, data/processed/test_splits.parquet
+# Ensure required bootstrap files exist (requirements.txt, pyproject.toml, .ruff.toml)
+python -c "import pathlib, sys; missing = [p for p in ['requirements.txt','pyproject.toml','.ruff.toml'] if not pathlib.Path(p).exists()]; 
+sys.exit(1) if missing else print('Bootstrap files present.')"
 ```
 
-### Step 3: Feasibility Pilot & Training (FR-002, FR-008)
-Run a feasibility pilot (a small sample set) then full training.
+### Step 1: Verify Data Availability
 ```bash
-python pipeline/train.py --pilot # Validates CPU feasibility
-python pipeline/train.py # Full training
-# Output: models/distilled_t5/
-```
-*Note: This script includes a check to abort if CUDA is detected.*
-
-### Step 4: Evaluation & Statistical Validation (FR-003, FR-005)
-Run evaluation against the baseline and perform McNemar's test.
-```bash
-python pipeline/evaluate.py
-# Output: state/evaluation_results.json
+python code/utils/check_data.py   # checks downloads & checksums
 ```
 
-### Step 5: Sensitivity & Ablation (FR-006, Constitution VII)
-Run sensitivity sweep and ablation study.
+### Step 2: Power Analysis (FR‑007)
 ```bash
-python pipeline/evaluate.py --mode sensitivity
-python pipeline/evaluate.py --mode ablation
+python code/utils/power_analysis.py   # writes state/validated_n.json
+# The script aborts if it cannot write the file; training will not start without it.
 ```
 
-## 4. Verification
-Run the test suite to ensure all contracts are met.
+### Step 3: Data Extraction (FR‑001)
 ```bash
-pytest tests/
+python code/pipeline/extract.py
+# Outputs: data/processed/train_splits.parquet, data/processed/test_splits.parquet
 ```
 
-## 5. Troubleshooting
-- **CUDA Detected**: If training fails with a CUDA error, ensure `CUDA_VISIBLE_DEVICES=""` is set.
-- **Memory Error**: Reduce batch size in `pipeline/train.py`.
-- **Missing Data**: Ensure `DATASET_URL` is accessible and the file is not corrupted.
-- **Power Analysis Fallback**: If pilot data is unavailable, the script defaults to p0=0.5.
+### Step 4: Feasibility Pilot & Full Training (FR‑002, SC‑003)
+```bash
+# Pilot (quick sanity check)
+python code/pipeline/train.py --pilot
+
+# Full training (will fail if >6 h)
+python code/pipeline/train.py
+# Model saved to models/distilled_t5/
+```
+
+### Step 5: Evaluation & Statistical Test (FR‑003‑005)
+```bash
+python code/pipeline/evaluate.py
+# Generates state/evaluation_results.json
+```
+
+### Step 6: Sensitivity Sweep (FR‑006)
+```bash
+python code/pipeline/evaluate.py --mode sensitivity
+```
+
+### Step 7: Hint‑Specific Ablation (Constitution VII)
+```bash
+python code/pipeline/evaluate.py --mode ablation
+```
+
+### Step 8: Verification
+```bash
+pytest tests/   # runs unit, integration, and contract tests
+```
+
+## 4. Troubleshooting
+- **Training exceeds 6 h**: The watchdog will kill the process and CI will report a failure. Reduce `--max-epochs` or the sample size.  
+- **CUDA detected**: Ensure `CUDA_VISIBLE_DEVICES=""` or run on a pure‑CPU runner.  
+- **Checksum mismatch**: Re‑run Step 1; the script will re‑download the corrupted file.  
+- **Power analysis missing**: Verify `state/validated_n.json` exists; rerun Step 2.
+
+---
+
+
