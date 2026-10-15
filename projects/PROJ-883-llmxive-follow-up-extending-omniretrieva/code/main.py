@@ -1,188 +1,125 @@
-"""Main entry point for the benchmark pipeline (skeleton stage, task T001).
+"""Entry point for the benchmark pipeline.
 
-This module is intentionally self-contained so that ``python -m code.main``
-(and ``python -m code.main --help``) always import and run cleanly.  It
-creates the required directory skeleton, generates a small deterministic
-query set, attaches a system-generated plan, measures real wall-clock
-latency for a trivial in-memory operation per query, and writes the
-execution log CSV plus a durable run manifest under ``data/results/``.
+This script orchestrates the full end‑to‑end flow:
+  1. Ensure required output directories exist.
+  2. Generate synthetic queries (writes ``generation_log.json``).
+  3. Enrich the queries with a system‑generated plan via the router.
+  4. Run the synthetic benchmark (writes ``execution_logs.csv``).
 
-Later tasks (T003-T009) replace the placeholder stages with real dataset
-fetching, cgroups throttling, and native executors; this skeleton only
-establishes the runnable project structure.
+The script is deliberately simple – it invokes the existing CLI
+wrappers for each stage using ``subprocess.run`` so that argument
+parsing stays in the original modules.
 """
 
 from __future__ import annotations
 
 import argparse
-import csv
-import hashlib
-import json
-import random
-import time
+import subprocess
+import sys
 from pathlib import Path
 
 from llmxive_toolkit import get_logger, paths
 
-from .config import get_config
-
 log = get_logger(__name__)
-
-SOURCE_TYPES = ["text", "relational", "graph"]
-LEVELS = [1, 2, 3, 4]
-COUNT_PER_CELL = 3  # 3 sources x 4 levels x 3 = 36 queries in the skeleton run
-
-CSV_COLUMNS = [
-    "query_id",
-    "source_type",
-    "complexity_level",
-    "latency_ms",
-    "timestamp",
-    "translation_error",
-    "success_flag",
-    "timeout_flag",
-    "synthetic_flag",
-    "throttling_mode",
-]
 
 
 def ensure_directories() -> None:
-    """Create all required output directories."""
-    for folder in (
+    """Create all required data directories."""
+    for folder in [
         paths.data("raw"),
         paths.data("processed"),
         paths.data("results"),
-        paths.code("tests", "unit"),
-        paths.code("tests", "integration"),
-    ):
+    ]:
         folder.mkdir(parents=True, exist_ok=True)
+    log.debug("Data directories ensured.")
 
 
-def _generate_queries(seed: int) -> list[dict]:
-    """Generate a small deterministic query set (skeleton stage)."""
-    rng = random.Random(seed)
-    queries: list[dict] = []
-    for level in LEVELS:
-        for source in SOURCE_TYPES:
-            for i in range(COUNT_PER_CELL):
-                qid = f"q_{source}_{level}_{i:03d}"
-                steps = [f"{source}_op_{k}" for k in range(1, level + 1)]
-                queries.append(
-                    {
-                        "query_id": qid,
-                        "source_type": source,
-                        "complexity_level": int(level),
-                        "logical_plan": {"steps": steps},
-                    }
-                )
-    return queries
-
-
-def _reference_plan(query: dict) -> str:
-    """Deterministic greedy-style reference plan string (skeleton)."""
-    return "->".join(query["logical_plan"]["steps"])
-
-
-def _sut_plan(query: dict, rng: random.Random) -> str:
-    """System-generated plan via a depth-1 lookahead heuristic (skeleton)."""
-    steps = query["logical_plan"]["steps"]
-    if rng.random() < 0.25 and len(steps) > 1:
-        # Limited-lookahead heuristic occasionally reorders steps.
-        steps = steps[1:] + [steps[0]]
-    return "->".join(steps)
-
-
-def _measure_latency(query: dict) -> float:
-    """Measure REAL wall-clock time of a trivial in-memory operation.
-
-    No ``time.sleep`` or simulated delays are used.  The skeleton stage
-    measures the wall-clock cost of hashing the plan; later tasks replace
-    this with native executor latency.
-    """
-    payload = json.dumps(query, sort_keys=True).encode("utf-8")
-    start = time.perf_counter()
-    for _ in range(100):
-        hashlib.sha256(payload).hexdigest()
-    return (time.perf_counter() - start) * 1000.0
-
-
-def run_experiment(config: dict) -> Path:
-    """Run the skeleton experiment and write the execution log CSV."""
-    seed = int(config.get("seed", 42))
-    rng = random.Random(seed)
-    queries = _generate_queries(seed)
-
-    csv_path = paths.data("processed", "execution_logs.csv")
-    rows: list[dict] = []
-    for query in queries:
-        gt_plan = _reference_plan(query)
-        sut = _sut_plan(query, rng)
-        latency_ms = _measure_latency(query)
-        rows.append(
-            {
-                "query_id": query["query_id"],
-                "source_type": query["source_type"],
-                "complexity_level": int(query["complexity_level"]),
-                "latency_ms": round(latency_ms, 3),
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                "translation_error": int(sut != gt_plan),
-                "success_flag": 1,
-                "timeout_flag": 0,
-                "synthetic_flag": 1,  # skeleton queries are synthetic; T004 adds real metadata
-                "throttling_mode": "none_skeleton",
-            }
+def _run_subprocess(command: list[str]) -> None:
+    """Execute a command, raising on failure."""
+    log.debug("Running command: %s", " ".join(command))
+    result = subprocess.run(command, capture_output=True, text=True)
+    if result.returncode != 0:
+        log.error(
+            "Command failed (exit %s): %s\\nSTDOUT: %s\\nSTDERR: %s",
+            result.returncode,
+            " ".join(command),
+            result.stdout,
+            result.stderr,
         )
+        sys.exit(result.returncode)
+    else:
+        log.debug("Command succeeded.")
 
-    with csv_path.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
-        writer.writeheader()
-        writer.writerows(rows)
-    log.info("Wrote %d rows to %s", len(rows), csv_path)
 
-    # Durable run manifest outside the gitignored dataset caches.
-    manifest_path = paths.data("results", "pipeline_manifest.json")
-    manifest = {
-        "stage": "skeleton",
-        "seed": seed,
-        "num_queries": len(rows),
-        "execution_log": str(csv_path),
-        "execution_log_sha256": hashlib.sha256(csv_path.read_bytes()).hexdigest(),
-        "columns": CSV_COLUMNS,
-    }
-    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    log.info("Run manifest written to %s", manifest_path)
-    return csv_path
+def _run_generation(seed: int) -> None:
+    """Generate the synthetic queries."""
+    gen_cmd = [
+        sys.executable,
+        "-m",
+        "code.query_generator",
+        "--levels",
+        "1",
+        "2",
+        "3",
+        "4",
+        "--count",
+        "10",
+        "--seed",
+        str(seed),
+    ]
+    _run_subprocess(gen_cmd)
+
+
+def _run_router() -> None:
+    """Enrich the generation log with system‑generated plans."""
+    gen_path = str(paths.data("processed", "generation_log.json"))
+    router_cmd = [
+        sys.executable,
+        "-m",
+        "code.router.sut_router",
+        "--input",
+        gen_path,
+        "--output",
+        gen_path,
+    ]
+    _run_subprocess(router_cmd)
+
+
+def _run_benchmark() -> None:
+    """Run the synthetic benchmark (writes execution_logs.csv)."""
+    bench_cmd = [
+        sys.executable,
+        "-m",
+        "code.benchmark_runner",
+        "--throttle",
+        "cgroups",
+        "--timeout",
+        "60",
+    ]
+    _run_subprocess(bench_cmd)
 
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="python -m code.main",
-        description=(
-            "Structural Mismatch Cost benchmark pipeline (skeleton stage). "
-            "Runs a small deterministic end-to-end sample and writes "
-            "data/processed/execution_logs.csv plus a run manifest under "
-            "data/results/."
-        ),
+        description="Run the full benchmark pipeline."
     )
     parser.add_argument(
         "--seed",
         type=int,
-        default=None,
-        help="Override the random seed from the configuration.",
+        default=42,
+        help="Random seed for deterministic query generation.",
     )
     return parser
 
 
 def main() -> None:
-    """Entry point for ``python -m code.main``."""
+    """Main entry point."""
     args = _build_parser().parse_args()
-    config = get_config()
-    if args.seed is not None:
-        config["seed"] = args.seed
-
     ensure_directories()
-    run_experiment(config)
-    log.info("Skeleton pipeline completed successfully.")
+    _run_generation(seed=args.seed)
+    _run_router()
+    _run_benchmark()
+    log.info("Pipeline completed successfully.")
 
 
 if __name__ == "__main__":

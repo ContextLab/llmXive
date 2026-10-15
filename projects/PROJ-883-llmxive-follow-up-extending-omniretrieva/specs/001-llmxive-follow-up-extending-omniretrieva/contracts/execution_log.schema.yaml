@@ -1,2 +1,41 @@
-# Deprecated duplicate of execution-log.schema.yaml.
-# Retained for backward compatibility; no schema is validated against this file.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Log"
+description: "Schema for a row in execution_logs.csv."
+type: object
+required:
+  - query_id
+  - source_type
+  - complexity_level
+  - latency_ms
+  - timestamp
+  - translation_error
+  - success_flag
+  - timeout_flag
+  - synthetic_flag
+  - throttling_mode
+properties:
+  query_id:
+    type: string
+  source_type:
+    type: string
+    enum: ["text", "relational", "graph"]
+  complexity_level:
+    type: integer
+    minimum: 1
+  latency_ms:
+    type: number
+  timestamp:
+    type: string
+    format: date-time
+  translation_error:
+    type: boolean
+  success_flag:
+    type: boolean
+  timeout_flag:
+    type: boolean
+  synthetic_flag:
+    type: integer
+    enum: [0, 1]
+  throttling_mode:
+    type: string
+    enum: ["cgroups", "none"]

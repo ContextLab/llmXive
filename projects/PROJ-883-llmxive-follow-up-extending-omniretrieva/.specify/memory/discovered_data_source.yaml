@@ -1,12 +1,11 @@
 status: none
-intent: downloadable benchmark dataset containing MS MARCO queries and DBpedia RDF
-  workloads python package dataset
+intent: huggingface download MS MARCO subset and DBpedia RDF dataset python package
 required_fields:
 - query_id
 - query_text
-- plan_depth
+- depth
 - source_type
 - latency_ms
-cache_key: a12a9c248f7b8a4c94fde0b80d3dc3a0a0c2e717d52f65554b7699b26d1b1eed
-searched_at: '2026-10-15T06:16:16.163762+00:00'
+cache_key: 137024015225211a4ee9d9f6c323d517bd8c45ed64ca5eafafc60140932da133
+searched_at: '2026-10-15T09:10:53.186663+00:00'
 retry_count: 1

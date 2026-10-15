@@ -1,34 +1,24 @@
-# Schema for execution metric records (JSONL)
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Metric"
+description: "Schema for a line in execution_metrics.jsonl."
 type: object
+required:
+  - query_id
+  - latency_ms
+  - mismatch_flag
+  - delta_latency
+  - engine_version
+  - throttle_config
 properties:
   query_id:
     type: string
-  source_type:
-    type: string
-    enum: [text, relational, graph]
-  complexity_level:
-    type: integer
-    minimum: 1
   latency_ms:
     type: number
-  translation_error:
+  mismatch_flag:
     type: boolean
-  success_flag:
-    type: boolean
-  timeout_flag:
-    type: boolean
+  delta_latency:
+    type: number
   engine_version:
     type: string
   throttle_config:
     type: string
-required:
-  - query_id
-  - source_type
-  - complexity_level
-  - latency_ms
-  - translation_error
-  - success_flag
-  - timeout_flag
-  - engine_version
-  - throttle_config
-additionalProperties: false

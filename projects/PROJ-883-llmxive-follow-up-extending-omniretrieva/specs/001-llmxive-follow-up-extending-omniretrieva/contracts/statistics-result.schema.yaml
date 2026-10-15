@@ -1,17 +1,16 @@
-# Schema for sensitivity analysis results
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistics Result"
+description: "Result of the sensitivity analysis per cutoff."
 type: object
+required:
+  - cutoff
+  - spike_point
+  - slope_change
 properties:
   cutoff:
     type: integer
     minimum: 1
   spike_point:
     type: number
-    description: "Estimated complexity level where latency spikes."
   slope_change:
     type: number
-    description: "Change in latency slope before and after the spike."
-required:
-  - cutoff
-  - spike_point
-  - slope_change
-additionalProperties: false
