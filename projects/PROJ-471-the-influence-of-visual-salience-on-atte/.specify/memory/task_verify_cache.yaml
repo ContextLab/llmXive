@@ -1,9 +1,11 @@
 T001:
   c: true
-  h: 6f21e7bb67c233a9373bb4de406b358572fff70a04ed169f092ba54319bc1896
-  r: Checked the root and `code/requirements.txt` files (both contain the full pinned
-    list), the presence of all required directories (`code/`, `data/raw/`, `data/interim/`,
-    `data/processed/`, `data/results/`, `code/tests/`, `docs/`), and the `code/main.py`
-    script which implements a runnable CLI (`python code/main.py --stage smoke`) that
-    verifies the layout. All required artifacts exist and match the task specification.
-  sig: 75da5b37da379a19b80181fb2303ec377fb59e25d32a3dcfe270ea2dc04d412f
+  h: 1fd1a19d50debddc334f554fd9afa2ba3d561e71f25738f6630894a772299270
+  r: I verified that all required directories (`code/`, `data/raw|interim|processed|results`,
+    `code/tests/`, `docs/`) exist and are non-empty, that `requirements.txt` exists
+    at the project root with the full pinned dependency list, that `code/bootstrap.py`
+    creates the layout and writes the pinned requirements, and that `code/main.py`
+    is a runnable entry point supporting the documented `--stage smoke` command with
+    layout verification. The `ingestion_summary.json` failure and the unimplemented
+    "full" stage belong to later tasks, not T001's scope.
+  sig: 23b4457249ce7cdbd0b716d697482160898e6b8d7b1b717053961f60c1ab44e0
