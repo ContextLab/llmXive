@@ -257,7 +257,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-09T23:21:55Z'
 - artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
   attempts: 1
@@ -2247,3 +2247,107 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-05T09:49:12Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/README.md
+  attempts: 1
+  canonical: seed constant defined as 42 in code/utils/reproducibility.py
+  claim_id: c_6c2db9e1
+  context: "- **SEED = 42** \u2013 This constant is defined in `code/utils/reproducibility.py`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "SEED = 42 \u2013 This constant is defined in code/utils/reproducibility.py."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-15T07:27:51Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/README.md
+  attempts: 1
+  canonical: seed configuration centralized in code/utils/reproducibility.py
+  claim_id: c_c0523dec
+  context: The seed configuration is centralized in `code/utils/reproducibility.py`.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The seed configuration is centralized in code/utils/reproducibility.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-15T07:28:19Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/README.md
+  attempts: 1
+  canonical: module automatically sets seed for Python random, NumPy, and PyTorch
+  claim_id: c_36ef7b91
+  context: "The module automatically sets the seed for: - Python's built\u2011in `random`\
+    \ module - NumPy (`numpy.random`) - PyTorch (CPU & CUDA) \u2013 if PyTorch is\
+    \ installed"
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "The module automatically sets the seed for: Python's built\u2011in random\
+    \ module, NumPy (numpy.random), PyTorch (CPU & CUDA) \u2013 if PyTorch is installed"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-15T07:28:57Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/README.md
+  attempts: 1
+  canonical: command verifying seed constant exits with status 0
+  claim_id: c_8bec508c
+  context: 'Run the following command from the project root: ... The command should
+    exit with status `0` (no output).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The command should exit with status 0 (no output).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T07:28:57Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/quickstart.md
+  attempts: 1
+  canonical: synthetic data generator produces deterministic small dataset
+  claim_id: c_1eec4741
+  context: In the Quickstart Commands section, the synthetic data generator is described
+    as creating a deterministic small dataset for downstream contract tests.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The synthetic data generator produces a deterministic small dataset.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T07:31:35Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/quickstart.md
+  attempts: 1
+  canonical: project relies only on packages available from pypi and compatible with
+    standard ci environment linux python 3.11
+  claim_id: c_85579c00
+  context: The Dependencies section states that all listed packages are from PyPI
+    and work in the standard CI environment.
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The project relies only on packages that are available from PyPI and\
+    \ are compatible with the standard CI environment (Linux, Python\u202F3.11)."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-15T07:31:35Z'

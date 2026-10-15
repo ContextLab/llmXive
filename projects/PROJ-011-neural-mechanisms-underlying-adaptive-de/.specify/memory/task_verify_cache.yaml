@@ -1,3 +1,50 @@
+T001:
+  c: true
+  h: 951fa8c0445670e1ee13bb3bd7dfa1ba26b63386d0cdfab4af9495cf3919abf0
+  r: "`code/utils/reproducibility.py` exists with real content: `SEED = 42`, and `seed_all()`\
+    \ seeds `random`, `numpy`, and `torch` (guarded by ImportError), applied on import\
+    \ \u2014 matching the task's requirement. `README.md` documents the seed and verification\
+    \ command. The verification command `python -c \"import code.utils.reproducibility\
+    \ as r; assert r.SEED == 42\"` would succeed (Python 3 namespace packages allow\
+    \ the import without `__init__.py`), and no other scripts exist yet in the project\
+    \ to import the module, so that clause is satisfied vacuously at this stage."
+  sig: 5cdbdb30adace9dd3f5f1fd94fa1e45056524b3b58ee50e3a5113d64b3bba0f7
+T003:
+  c: false
+  h: c453fca5fbaaf82028d205a4e50818c520ecb89734aa1c7dee691cc73bd699b5
+  r: "The two artifacts exist and are substantive (quickstart.md documents layout/dependencies;\
+    \ requirements.txt matches the list embedded in quickstart.md), but the task's\
+    \ stated verification \u2014 `make quickstart` printing the documented command\
+    \ and exiting 0 \u2014 has no supporting evidence: no Makefile artifact was collected\
+    \ and no successful `make quickstart` run is recorded. The only execution record\
+    \ (tests/test_quickstart.py) exited 1 with all 3 tests failing, and quickstart.md\
+    \ still contains an unresolved template placeholder `{{claim:c_85579c00}}`. The\
+    \ implementer should add/verify the Makefile `q"
+  sig: c869dda3330a5074c1c6df2dc146f5183c1325423e027a057b29813cceb5f43b
+T010:
+  c: false
+  h: 52e6659a07e4dfd17ec42a4c40cfcf60d0ef3382e2d2e1d283c3906966624302
+  r: "The test file `tests/contract/test_data_validation.py` exists and is substantive\
+    \ (two meaningful contract tests against `code/preprocessing/data_validation.py`),\
+    \ but the only execution record (`code/.tasks/T010...log`) shows the pytest run\
+    \ FAILING with exit code 2 (ImportError: `No module named 'utils.config'`), and\
+    \ that log's traceback references an older version of the test file (importing\
+    \ `validate_dataset_structure`/`validate_participant_data` from `preprocessing.data_validation`),\
+    \ so it is stale relative to the current artifact \u2014 there is no evidence\
+    \ the current test was ever run or passe"
+  sig: b93c7c494ee7390a07a9a2b2fcc8fa41de82d99288f1da0f9023c83db700a165
+T011:
+  c: false
+  h: 093aebef16c8fc2e9150ced0f7107983810c0bf0d652177ebfbe9ecea41e1d6a
+  r: "The test file exists, but two concrete problems prevent it from satisfying the\
+    \ task: (1) the top-level `preprocessing/__init__.py` shim only re-exports `data_validation`,\
+    \ and no `preprocessing/roi_extraction.py` shim exists, so `from preprocessing.roi_extraction\
+    \ import ...` will fail even though `code/preprocessing/roi_extraction.py` exists;\
+    \ (2) the test itself is buggy \u2014 the fixture returns `root` as a `str`, but\
+    \ the test does `root / \"func\" / ...`, which raises `TypeError` before any assertion\
+    \ runs. Additionally, there is no execution evidence (pytest output) showing the\
+    \ test fails before T0"
+  sig: 7b7c97ca373403062b266eb253c7a98535a39c2b681f688927e94498a56f6e5c
 T013:
   c: false
   h: fad8be8c6dff6094b6eb50110b44c2f942d939c3f94e8dab936c3971dff2d551

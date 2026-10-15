@@ -1,0 +1,158 @@
+T001:
+  task: e35f1a8c9520117329660c4603b7645a3fa02b83ab39efe93b7e32eb64e93080
+T002:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/reference_validation_report.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: ccf14d43c1efc44812d1211c18f3672ef35bdd5163b8f80687893b1efe70c161
+T003:
+  reason: "The two artifacts exist and are substantive (quickstart.md documents layout/dependencies;\
+    \ requirements.txt matches the list embedded in quickstart.md), but the task's\
+    \ stated verification \u2014 `make quickstart` printing the documented command\
+    \ and exiting 0 \u2014 has no supporting evidence: no Makefile artifact was collected\
+    \ and no successful `make quickstart` run is recorded. The only execution record\
+    \ (tests/test_quickstart.py) exited 1 with all 3 tests failing, and quickstart.md\
+    \ still contains an unresolved template placeholder `{{claim:c_85579c00}}`. The\
+    \ implementer should add/verify the Makefile `q"
+  task: 43550e6f16b33984e99932b261f4ff3a67a66136e207e0f7c7f062455a82367d
+T004:
+  task: 1ee41d9fedadb23314f7f4ec23d472d32fc90ebd48f6ebc920d79b2acdba93fd
+T005:
+  task: 36659ce8617cbc5ad9577de70cda5cbc657aa34460b19e5b729d60e1a28d9506
+T006:
+  task: 5ca419d801f7bf11df8c95f9fbdeb19ef5fd25c3081346fe7ba52138e69d2a6e
+T010:
+  reason: "The test file `tests/contract/test_data_validation.py` exists and is substantive\
+    \ (two meaningful contract tests against `code/preprocessing/data_validation.py`),\
+    \ but the only execution record (`code/.tasks/T010...log`) shows the pytest run\
+    \ FAILING with exit code 2 (ImportError: `No module named 'utils.config'`), and\
+    \ that log's traceback references an older version of the test file (importing\
+    \ `validate_dataset_structure`/`validate_participant_data` from `preprocessing.data_validation`),\
+    \ so it is stale relative to the current artifact \u2014 there is no evidence\
+    \ the current test was ever run or passe"
+  task: ae20dd915a7066e45f53c6ce7c43ec0c7de7a0854610dd00bfc066bb57432c29
+T011:
+  reason: "The test file exists, but two concrete problems prevent it from satisfying\
+    \ the task: (1) the top-level `preprocessing/__init__.py` shim only re-exports\
+    \ `data_validation`, and no `preprocessing/roi_extraction.py` shim exists, so\
+    \ `from preprocessing.roi_extraction import ...` will fail even though `code/preprocessing/roi_extraction.py`\
+    \ exists; (2) the test itself is buggy \u2014 the fixture returns `root` as a\
+    \ `str`, but the test does `root / \"func\" / ...`, which raises `TypeError` before\
+    \ any assertion runs. Additionally, there is no execution evidence (pytest output)\
+    \ showing the test fails before T0"
+  task: dc3d3fa7f47102d936e4e3389f251cb152a15034b52c981667ad2630f4d1c53b
+T012:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/dataset_manifest.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: b80a8fbd769b119f3c8f060999f793a6738a50803cb3ff17e2624fc689374c52
+T013:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocessing/data_download.py
+    exit=1'
+  task: cbce6fb7f7e2946c5b9083b424d1906fa6363f15d7722056d2df7acf4ca9a0dc
+T014:
+  task: b5b9e47111c969996ace08381c9458fac3b5335b5587e0ec34639d14ec19ece8
+T014b:
+  task: 81fa4498f2d0893bc02006a028389f0a1a5730afca5fbe8862359e5ec93b9fe7
+T015:
+  task: 2f8d283fd9c3f9e3a52d05d76db35bcaca3c98f41534e9ee346ffade9d91591c
+T016:
+  task: da99d6279ae24813eb951108b225f77f6ede304f07d478a96815c3cc232232e6
+T017:
+  task: befd31df2d40c1f57663918aa3141a483da25fcfd98c0f51168f488ef3b84597
+T018:
+  task: 53c664f4360306139858b60e51974fdc97a54faf99675c75aa41a1f6c9fbeb9c
+T018b:
+  task: 9d6f005512a9795e18b3ba57b822aca5f2ede620539937274b1598cdfb72cbc2
+T019:
+  task: 2214dc04596d9435d0f11fa5e934d31872742dce2295f0f3521551e2a7183e7a
+T020:
+  task: b0f89f060941a06ec04284446d82543104109278abda30096cea4849a5644af5
+T021:
+  task: dee121b2d6028b5e88baf0ddf18b4e504366b12fe40236047eb21ac01c4bd708
+T022:
+  task: 5fc031414cc6e27c71346ea52198295c8dcb3f6f74a8cc09372a230354f9213e
+T023:
+  task: 4d76b4df259f35c299ef77c3640e1a776643009c6744f28f6a18b154e478d761
+T024:
+  task: 47e772c7063d1a84e197dc25caacc4f8ce9caeda7aa849f9806259afd658d798
+T024a:
+  task: 5a10435195f8d4f1781502b2a1133186e7bf33c6607f0b6e6c649b3392fb625b
+T025:
+  task: 9c31c90a2f9ad54d34a7df0358abd61bd5c2db83fa1af0b8c437d764931b674a
+T025b:
+  task: 66df6ebdf01fd47f124c12ebf056323be91ba39933cde2a4fa3efe535491b40a
+T025c:
+  task: 665f8c0d73d13a312a3276acfc25a12332e078f253e53f36a50021026b91ef88
+T025d:
+  task: f0a417808e4ca4244dea85a21269a331d2f9ac913d766b758830905212f4a9a2
+T027:
+  task: a7f7035d8f873a5e13443de573dae13fec9a0234fbadbfe02e047d260d5eb32a
+T028:
+  task: c11a462c6940e20429cf0d189400d9c4800d608bd9ab50f1ea26994126d54b47
+T029:
+  task: b35475cae8fbc4dc07e2aee29f6c0c3bb36a458178f2f296925a72b9f5ac608d
+T030:
+  task: a606f29a8835f5b448d3f6e5840131bd629913a82bae8096827d91dc016cb14d
+T031:
+  task: c8e75a58a0d35da4f94756ceb192b2eeba4e339739fb4873413f89d34714ba12
+T032:
+  task: 3034ef28edde728a2fb93b2ca5209543cb59d4b43bb68af716966bf4067bb9b6
+T032b:
+  task: ccb3af92e98613b581ee2204295002ed2ef4560b112be91010a5bc56ec85f63e
+T033:
+  task: 9199094e997199e5f3211ab1d2521a015d8ce517cac2ae7b54359af252dd3841
+T033b:
+  task: 4201d6875be38ecf76d5e9f54acb7bb52b8714c1012827436c53d4c1916ad49d
+T034:
+  task: 04c6ea9b6f180fa7637c5f57d4a9c4b85d27547801c9798419ccfc3384509f31
+T035:
+  task: 6e358085cb4c7486b59d616c54581a3f80c35fadbc884343df3de1f6e3d8c065
+T036a:
+  task: 0d697a4786af5a4b2328e4b747c1613a18f0cb7de6210d83d44051ca9d813cdc
+T036b:
+  task: 07f956cf4c563befe0dfc2fb1547118a56e5cf2f627f333252b3e30f828db7bd
+T037a:
+  task: 9f2fc750a05fd808c404f0fda784cfe523df60d91c07ab180503a7d1ea947197
+T037b:
+  task: decca3ea7fb5e9ae2623817849460fc78f50c42e1da801502f279ef8fc884dfe
+T038a:
+  task: 26695fa157fce257fbd6937178ac34dcff628d4b98d3252ebc5f2f8cf2b3eeb7
+T038b:
+  task: 772a2768c48e86835b97f6e5cd673c569ff6b139625960f3f8871608987ead82
+T038c:
+  task: a3c91c037e241dccab186bbbb774eec4ab6bf05a3f3f273c3fd7431ed3dffdae
+T039a:
+  task: c06a24ae604aa48773959345c7555c0ac1a9e82ef4346b40edd7de56370cc7cf
+T039b:
+  task: 97f48a07087fb3d2ed5dab2928b7cc9111dbf62c27b5824bd6a950dafde97b5a
+T040a:
+  task: d52f046ba2863dc06ec5be312fb0abdad4babf9557ad463f3f725e5077166e8c
+T041a:
+  task: dec2572685090f4717a321127a5c883078e6fe8e7a2867baada6824c9b45db68
+T042:
+  task: 0f75d2fe11ec9ea6eec2cf5fc03a25428bfa337e66cb90d6e6eba2e278fb73b3
+T043:
+  task: c2df0c5e31cf080a8a499b3ee8c7fe5149d601edef71d23e768314d8cf8fc962
+T044:
+  task: 4c1cdae5f154055ed9dc2edae51f5cda05fcb82f7509f24d9c79d0213fc01ec8
+T046:
+  task: d0811cc60f7fe50906744ad80e09d83658022f1cfb4ea3ceac7c4fe36d92f6b0
+T047:
+  task: 8c74cec44f5a2add791cf0f7215755fe8c1c39c9f97edacf2705310eae373339
+T048:
+  task: 085d1cfc4b01d6ff5e3ffcad37506266ac1118d62956132f57f48f6778e36c0d
+T049:
+  task: 350e5c3563d262813161505b2281727f99bdd3a96f24266a96a329703c2ad7cf
+T051:
+  task: 9a31e6842d0745cf2711c98177c681a364d3d903d4fe8e1a54ed608d2157d5e4
+T058:
+  task: c57a32c20d28254ccea18300b0f8cc3b92580f1ef837fc08822eef3a493688a0
+T060:
+  task: ecabfe8dc44eed630fa676cf3ca971fe47d1eb6c3170b8c9743a06125c41e466
+T061:
+  task: 8174e67bace659a79add5914f632db3f6bb31bd779a458168683b6da62cc36a6
+T062:
+  task: dff36c7acafcea769b43862023ff2a92a34468f369f7f19f2ef8a014394f17ab

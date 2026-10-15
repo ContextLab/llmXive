@@ -5,7 +5,7 @@
 
 ## Phase 1 – Setup and Reproducibility  
 
-- [ ] T001 [P] Establish reproducibility settings: pin global random seeds (`numpy`, `random`, `torch` if used) in a config file `code/utils/reproducibility.py` and verify that scripts import this module.  
+- [X] T001 [P] Establish reproducibility settings: pin global random seeds (`numpy`, `random`, `torch` if used) in a config file `code/utils/reproducibility.py` and verify that scripts import this module.  
   - **Path**: `code/utils/reproducibility.py`, `README.md` (seed documentation)  
   - **Verification**: Running `python -c "import code.utils.reproducibility as r; assert r.SEED == 42"` exits with status 0; `make quickstart` produces deterministic output across runs.
 
@@ -29,7 +29,7 @@
   - **Path**: `code/preprocessing/data_validation.py`, `state/dataset_manifest.json`  
   - **Verification**: Raises `FileNotFoundError` with a clear message if the expected files are absent; otherwise creates the manifest file.  
 
-- [ ] T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro ds003694 via `openneuro-py`.  
+- [ ] T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro ds003694 via `openneuro-py`.   <!-- FAILED-IN-EXECUTION: code/preprocessing/data_download.py exit=1 -->
   - **Path**: `code/preprocessing/data_download.py`, `data/raw/`  
   - **Verification**: On failure the script aborts with a loud exception; on success the raw NIfTI and behavioral files appear under `data/raw/`.  
 
