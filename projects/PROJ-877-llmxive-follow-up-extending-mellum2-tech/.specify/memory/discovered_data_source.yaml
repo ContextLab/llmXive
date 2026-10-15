@@ -1,14 +1,11 @@
 status: none
-intent: bigcode the stack huggingface dataset python java code download python package
+intent: download bigcode the stack dataset python java huggingface python package
   dataset
 required_fields:
-- repo_id
+- repository_id
 - file_path
 - language
-- cyclomatic_complexity
-- nesting_depth
-- token_loss
-- token_perplexity
-cache_key: 439507e494388421c03d5fc2f4743079c6700945d1db9656c74cba5b96517cc7
-searched_at: '2026-10-15T18:21:01.533009+00:00'
+- code
+cache_key: b9b3f8f6ddb8183df52f3949fbc103f76367400cea420e05f44620324c376377
+searched_at: '2026-10-15T18:27:57.174951+00:00'
 retry_count: 1

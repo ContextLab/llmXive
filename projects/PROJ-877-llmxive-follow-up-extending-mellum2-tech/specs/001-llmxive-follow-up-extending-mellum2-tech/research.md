@@ -1,84 +1,93 @@
-# Research: llmXive follow-up: extending "Mellum2 Technical Report"
+# Research: llmXive follow‑up – extending "Mellum2 Technical Report"
 
 ## Research Question
-Does a statistically significant correlation exist between static code complexity metrics (cyclomatic complexity, nesting depth) and LLM prediction loss (perplexity), and are there specific structural thresholds where this relationship shifts non-linearly?
+Does a statistically significant correlation exist between static code complexity metrics (cyclomatic complexity, nesting depth, repetition ratio) and LLM prediction loss (per‑token cross‑entropy), and are there identifiable structural thresholds where this relationship becomes non‑linear?
 
 ## Dataset Strategy
 
-### Primary Dataset: `codeparrot/github-code`
-- **Source**: HuggingFace Datasets (`codeparrot/github-code`).
-- **Rationale**: This is the only verified, open-source dataset containing a large volume of public Python and Java code suitable for static analysis and LLM inference without requiring credentials or data-use agreements (ADNI, UK Biobank, etc. are excluded).
-- **Access Method**: Programmatic download via `datasets.load_dataset("codeparrot/github-code", split="train", streaming=True)`. Streaming is used to bypass the memory limit of the GitHub Actions runner, allowing processing of the full dataset shard-by-shard.
-- **Filtering**: The pipeline will filter for Python and Java files only. A stratified random sample (determined by Phase 0 Power Analysis) will be selected to ensure diversity in complexity while staying within the Extended execution window
+| Role | Dataset | Access Method | Verification |
+|------|---------|---------------|--------------|
+| Primary (Python & Java) | `codeparrot/github-code` (public HuggingFace dataset) | `datasets.load_dataset("codeparrot/github-code", split="train", streaming=True)` | **Not in verified list** – the dataset is open‑source but lacks a pre‑verified URL. The plan **explicitly notes** this limitation and logs it; the pipeline will abort with a clear message if the dataset cannot be fetched. |
+| Cross‑language validation | Java subset of the same `codeparrot/github-code` dataset | Same streaming loader with `language=="Java"` filter | Same verification note as above. |
+| Human‑benchmark (optional) | `code_x_glue_ct_code_to_text` (CodeXGLUE) – if available | `datasets.load_dataset("code_x_glue_ct_code_to_text")` | **No verified URL** in the provided list; the pipeline will attempt to load it, and if unavailable, will generate a *Validation Limitation Report* (FR‑011 fallback). |
+| Verified auxiliary (for sanity check) | CPU‑only LLaMA overlap score parquet | Direct URL: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet | Used only for internal sanity checks; not central to the research question. |
 
-The research question investigates how to optimize resource allocation for long-duration computational tasks. The method involves a comparative analysis of scheduling algorithms under varying temporal constraints. References include Smith et al. (2023) and arXiv:2305.12345..
-- **Verification**: The dataset URL is verified as reachable and contains the required `content` and `language` fields.
-
-### Validation Dataset (Cross-Language)
-- **Source**: `codeparrot/github-code` (Java subset).
-- **Rationale**: To satisfy FR-009 and SC-004, the analysis must be repeated on a held-out language (Java) to verify that the correlation is structural and not an artifact of Python syntax.
-
-### Benchmark Dataset (FR-011)
-- **Constraint**: FR-011 requires validation against a human-labeled benchmark (e.g., CodeXGLUE).
-- **Status**: The `Verified datasets` block does **not** list a verified, directly-downloadable URL for CodeXGLUE or a similar human-labeled complexity benchmark.
-- **Strategy**: 
-  1. The pipeline will attempt to load `code_x_glue_ct_code_to_text` (if available via HF) as a proxy.
-  2. **If no verified open-source benchmark is found**: The system will execute the "Validation Fallback Phase". It will **log a warning** and generate a limitation report stating "Validation Skipped: No verified open benchmark available."
-  3. It will **NOT** fail loudly. The final report will explicitly state the limitation and rely on the internal consistency (permutation tests) as the primary validation.
+> **Rationale** – No fully verified code dataset exists in the supplied list; the open `codeparrot/github-code` dataset is the closest match and is openly downloadable, satisfying the “open source” requirement despite lacking a verified URL. The plan therefore proceeds with it but logs the verification gap.
 
 ## Methodology
 
-### 1. Static Analysis (FR-002)
-- **Tools**: `CodeQL` (for cyclomatic complexity) and `tree-sitter` (for nesting depth).
-- **Metrics**:
-  - **Cyclomatic Complexity**: Calculated via control flow graph traversal (CodeQL).
-  - **Nesting Depth**: Maximum depth of nested blocks (tree-sitter).
-  - **Repetition Ratio**: N-gram repetition within the chunk.
-- **Robustness**: Syntax errors or unsupported language features will be caught, logged, and the chunk skipped (Edge Case handling).
+### 1. Power & Feasibility (Phase 0)
+- Compute Minimum Detectable Effect Size (MDES) given the 6 h CPU budget and per‑chunk inference cost (≈ 45 s).  
+- Determine feasible `N` (target ≈ 500 repos per language).  
+- If MDES > anticipated effect size, log limitation and proceed with the maximal feasible `N`.
 
-### 2. LLM Inference (FR-003)
-- **Model**: `MistralB` (Primary) for reasoning capacity. `TinyLlamaB` (Fallback) only if memory limits are exceeded.
-- **Configuration**:
-  - **Device**: `device="cpu"` (Explicitly enforced to prevent silent GPU usage).
-  - **Precision**: `float32` (default) or `float16` if memory allows; no 8-bit quantization required for CPU inference on this model size.
-  - **Timeout**: 60 seconds per chunk (FR-003).
-  - **Retry**: 3 attempts with exponential backoff.
-  - **Context**: `torch.no_grad()` to ensure no gradient computation.
-- **Output**: Per-token loss (cross-entropy) and entropy.
+### 2. Data Ingestion (Phase 1)
+- Stream dataset; filter files ending with `.py` or `.java`.  
+- Stratified random sample to obtain exactly `N` repositories per language, verified by a `groupby('language').size()` check logged to `logs/phase1_counts.log`.  
+- Write `raw_samples.parquet` (schema defined in `contracts/dataset.schema.yaml`).  
+- Record SHA‑256 checksums in `data/checksums.txt`.
 
-### 3. Normalization & Covariate Adjustment (FR-010)
-- **Method**: Train a n-gram KenLM model
+### 3. Static Analysis (Phase 2)
+- **CodeQL** extracts cyclomatic complexity per function.  
+- **tree‑sitter** computes maximum nesting depth and repetition ratio.  
+- Errors (parse failures, unsupported syntax) are caught, logged, and the chunk is marked `status="parse_error"` (edge‑case handling).  
 
-The specific value to remove/generalize: 'n'
+### 4. KenLM n‑gram Model (Phase 3)
+- Build a 5‑gram Kneser‑Ney model on the tokenized corpus (excluding the sampled chunks).  
+- Store model file `ngram.model`; used to compute `ngram_probability` for each chunk (FR‑010).
 
-Rewritten passage: on a subset of the code to estimate $P(token | context)$.
-- **Primary Normalization (Spec Compliant)**: Implement FR-010 strictly by dividing per-token loss by the n-gram probability ($Loss_{norm} = Loss_{raw} / P_{ngram}$) to isolate structural uncertainty.
-- **Robustness Check**: To address the risk of "over-normalization" (where the n-gram model cancels out the complexity signal), a **secondary analysis** will be performed where `ngram_probability` is included as a **covariate** in the regression model (`loss ~ complexity + ngram_prob`). If both methods yield consistent correlation directions, the result is robust.
-- **Confounder Control**: **Token Count** (code length) will be included as a mandatory covariate in all regression models to prevent spurious correlations driven by code size, even though the current spec (FR-005) does not explicitly list it. This is flagged as a required spec amendment for future iterations.
-- **Ordering**: The n-gram model is built **before** inference (Phase 3) to ensure data dependency is met (resolving the T014b/T015 race condition concern).
+### 5. LLM Inference (Phase 4)
+- Load `mistralai/Mistral-7B-v0.1` (HF) with `torch_dtype=torch.float32`, `device="cpu"`.  
+- If RAM exceeds 6 GB, automatically switch to `TinyLlama/TinyLlama-1.1B-Chat-v0.1`.  
+- For each chunk: run forward pass, capture per‑token loss and entropy, enforce 60 s timeout, retry up to 3× with exponential back‑off.  
+- Record `inference_time_ms` and `status` (`success`, `timeout`, `oom`).
 
-### 4. Statistical Analysis
-- **Aggregation**: Chunk-level metrics are aggregated to **repository-level means** before permutation testing to address the hierarchical nature of the data (chunks within repos). This ensures the permutation unit matches the analysis unit.
-- **Correlation**: Pearson and Spearman coefficients on aggregated repo-level data (FR-004).
-- **Threshold Detection**: Piecewise linear regression (`pwlf` library) to identify breakpoints (FR-005).
-- **Significance**:
-  - **Permutation Test**: 1,000 block permutations at the **repository level** (FR-007).
-  - **Multiple Comparison**: Benjamini-Hochberg FDR correction for testing multiple metrics (FR-008).
-- **Power Analysis (Phase 0)**: Conducted **before** data collection to determine the Minimum Detectable Effect Size (MDES) given the 6-hour constraint. If the estimated effect size is smaller than the MDES, the study is capped at the feasible sample size, and the limitation is reported (SC-005).
-- **Threshold Stability**: Bootstrap resampling of repositories to measure threshold shift (SC-002). A threshold is only reported if the % bootstrap confidence interval is narrow (< 0.1 units).
+### 6. Normalization (FR‑010)
+- Compute `normalized_loss = per_token_loss / ngram_probability`.  
+- Additionally, run a regression with `ngram_probability` as covariate to verify robustness.
 
-## Compute Feasibility (CPU-First)
-- **Constraint**: 2 CPU cores, ~7 GB RAM, 6 hours.
-- **Strategy**:
-  - **Streaming**: Dataset is streamed to avoid loading full corpus into RAM.
-  - **Model**: `Mistral-7B` is chosen as the primary model for capacity. If it exceeds 7 GB RAM on CPU, the pipeline automatically switches to `TinyLlama-1.1B` and logs a capacity warning.
-  - **Batching**: Single-chunk inference to minimize memory overhead.
-  - **Fallback**: If `Mistral-7B` exceeds time limits, the pipeline will reduce the sample size (first-N chunks) and report the power limitation, rather than switching to a synthetic dataset.
-- **GPU Escape Hatch**: Not required for this plan as the CPU-first approach with a small model is deemed faithful and feasible. No CUDA dependencies are planned.
+### 7. Aggregation (Phase 5)
+- Filter `status=="success"` chunks.  
+- Compute repository‑level means for all metrics; store `repository_aggregates.parquet`.
 
-## Decision/Rationale
-- **Why Mistral-7B?**: To address the "insufficient capacity" concern, `Mistral-7B` is the primary model. It offers better reasoning depth than TinyLlama. `TinyLlama` is a strict fallback only if memory constraints are violated.
-- **Why Division + Covariate Check?**: FR-010 mandates division. To mitigate the risk of over-normalization, we add a covariate-based robustness check. If both agree, the finding is robust.
-- **Why Streaming?**: The full `github-code` dataset exceeds the runner's disk and RAM. Streaming allows processing the real data without synthetic substitution.
-- **Why No Hard Failure on Benchmark?**: FR-011 implies a validation step, but the lack of an open benchmark is a data availability issue, not a methodological flaw. Hard failure would block the entire study. Reporting the gap is more scientifically rigorous.
-- **Why Power Analysis First?**: To avoid the logical contradiction of running an unpowered study. Phase 0 determines feasibility before data collection.
+### 8. Correlation Analysis (Phase 6)
+- Pearson & Spearman between each complexity metric and `normalized_loss`.  
+- Store `CorrelationResult` entries (one per metric, per language).
+
+### 9. Threshold Detection (Phase 7)
+- Apply `pwlf` (piecewise linear fit) and `ruptures` (change‑point) on the aggregated data.  
+- Compare AIC/BIC of piecewise vs. linear; if ΔAIC > 2, accept non‑linear model.  
+- Record breakpoint (`threshold_value`) and slopes.  
+- Perform sensitivity sweep on `{0.01, 0.05, 0.1}` around the breakpoint; store results.
+
+### 10. Significance Testing (Phase 8)
+- Block permutation at repository level (1 000 permutations).  
+- Compute empirical p‑values for correlations and threshold‑fit improvement.  
+- Apply Benjamini‑Hochberg FDR correction across all tests (FR‑008).  
+
+### 11. Cross‑Language Validation (Phase 9)
+- Repeat steps 6‑8 on the Java subset; compare correlation coefficients (SC‑004).  
+
+### 12. Human‑Benchmark Validation (Phase 10)
+- Attempt to load CodeXGLUE benchmark.  
+- If unavailable, generate a *validation limitation report* and set `benchmark_used: false` in final JSON.
+
+### 13. Reporting (Phase 11)
+- Assemble `final_report.json` (conforms to `contracts/output.schema.yaml`).  
+- Generate figures: scatter with regression line, piecewise fit, bootstrap CI plot.  
+- All artifacts stored under `data/results/` and `data/figures/`.
+
+## Compute Feasibility (CPU‑First)
+- **Model size**: Mistral‑7B ≈ 13 GB VRAM, but on CPU memory footprint ≈ 6 GB; fits within 7 GB limit. If memory spikes, fallback to TinyLlama‑1.1B (≈ 2 GB).  
+- **Streaming** avoids loading full dataset into RAM.  
+- **Batch size** = 1 (single‑chunk inference) to keep memory low.  
+- No GPU escape hatch required; all libraries run on CPU.
+
+## Decision / Rationale
+- **Model choice**: Mistral‑7B provides richer reasoning capacity; fallback ensures pipeline never fails due to OOM.  
+- **Normalization**: Division by n‑gram probability isolates structural uncertainty (FR‑010). Covariate check guards against over‑normalization.  
+- **Threshold detection**: Piecewise regression meets Principle VII; linear regression is only a baseline.  
+- **Dataset limitation**: Acknowledged lack of verified code dataset; using `codeparrot/github-code` is the best openly available option, with explicit logging of verification status.  
+- **Power analysis first**: Guarantees we do not run an under‑powered study (SC‑005).  
+
+---

@@ -10,6 +10,13 @@ properties:
       properties:
         metric_name:
           type: string
+        language:
+          type: string
+        method:
+          type: string
+          enum:
+            - pearson
+            - spearman
         correlation_coefficient:
           type: number
         p_value:
@@ -18,15 +25,14 @@ properties:
           type: number
         sample_size:
           type: integer
-        method:
-          type: string
-          enum:
-            - pearson
-            - spearman
       required:
         - metric_name
+        - language
+        - method
         - correlation_coefficient
         - p_value
+        - p_value_adjusted
+        - sample_size
   threshold_results:
     type: array
     items:
@@ -34,15 +40,20 @@ properties:
       properties:
         metric_name:
           type: string
+        language:
+          type: string
         threshold_value:
           type: number
         slope_before:
           type: number
         slope_after:
           type: number
-        aic_score:
-          type: number
-        bics_score:
+        model_fit:
+          type: string
+          enum:
+            - piecewise
+            - linear
+        aic_difference:
           type: number
         significance:
           type: boolean
@@ -50,10 +61,22 @@ properties:
           type: number
         confidence_interval_width:
           type: number
+        sensitivity_range:
+          type: array
+          items:
+            type: number
       required:
         - metric_name
+        - language
         - threshold_value
+        - slope_before
+        - slope_after
+        - model_fit
+        - aic_difference
         - significance
+        - bootstrap_stability
+        - confidence_interval_width
+        - sensitivity_range
   power_analysis:
     type: object
     properties:
@@ -65,7 +88,13 @@ properties:
         type: number
       limitation_noted:
         type: boolean
-      description: "Whether the study is adequately powered."
+      description:
+        type: string
+    required:
+      - effect_size
+      - sample_size_used
+      - power
+      - limitation_noted
 required:
   - correlation_results
   - threshold_results
