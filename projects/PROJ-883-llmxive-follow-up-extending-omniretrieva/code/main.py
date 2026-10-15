@@ -1,139 +1,189 @@
-"""Main entry point for the benchmark pipeline.
+"""Main entry point for the benchmark pipeline (skeleton stage, task T001).
 
-This script orchestrates the minimal end‑to‑end workflow required for
-task **T001**: it creates the required directory structure, generates a
-small synthetic query set, enriches each query with a system‑generated
-plan, and records dummy execution metrics.
+This module is intentionally self-contained so that ``python -m code.main``
+(and ``python -m code.main --help``) always import and run cleanly.  It
+creates the required directory skeleton, generates a small deterministic
+query set, attaches a system-generated plan, measures real wall-clock
+latency for a trivial in-memory operation per query, and writes the
+execution log CSV plus a durable run manifest under ``data/results/``.
 
-The module can be invoked with ``python -m code.main`` to run the full
-pipeline, or with ``--help`` to display usage information.
+Later tasks (T003-T009) replace the placeholder stages with real dataset
+fetching, cgroups throttling, and native executors; this skeleton only
+establishes the runnable project structure.
 """
 
-import argparse
-import json
-from pathlib import Path
-from dataclasses import asdict
+from __future__ import annotations
 
-from llmxive_toolkit import paths, get_logger
+import argparse
+import csv
+import hashlib
+import json
+import random
+import time
+from pathlib import Path
+
+from llmxive_toolkit import get_logger, paths
 
 from .config import get_config
-from .generators.synthetic_query import SyntheticQueryGenerator
-from .router.sut_router import _generate_sut_plan
-from .analysis.metrics import (
-    ExecutionMetric,
-    record_execution_metric,
-    save_metrics_to_file,
-)
-from .benchmark_runner import _synthetic_latency
 
 log = get_logger(__name__)
 
-def _load_generation_log(filepath: Path) -> list[dict]:
-    """Load the generation log JSON file."""
-    with filepath.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data
+SOURCE_TYPES = ["text", "relational", "graph"]
+LEVELS = [1, 2, 3, 4]
+COUNT_PER_CELL = 3  # 3 sources x 4 levels x 3 = 36 queries in the skeleton run
 
-def _persist_execution_metrics_jsonl(metrics: list[ExecutionMetric], out_path: Path) -> None:
-    """Write the list of ExecutionMetric objects as JSON‑Lines."""
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as f:
-        for m in metrics:
-            json.dump(asdict(m), f)
-            f.write("\n")
+CSV_COLUMNS = [
+    "query_id",
+    "source_type",
+    "complexity_level",
+    "latency_ms",
+    "timestamp",
+    "translation_error",
+    "success_flag",
+    "timeout_flag",
+    "synthetic_flag",
+    "throttling_mode",
+]
+
 
 def ensure_directories() -> None:
     """Create all required output directories."""
-    folders = [
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "logs",
-        "specs/001-llmxive-follow-up-extending-omniretrieva/contracts",
-    ]
-    for folder in folders:
-        Path(folder).mkdir(parents=True, exist_ok=True)
+    for folder in (
+        paths.data("raw"),
+        paths.data("processed"),
+        paths.data("results"),
+        paths.code("tests", "unit"),
+        paths.code("tests", "integration"),
+    ):
+        folder.mkdir(parents=True, exist_ok=True)
 
-def fetch_real_data() -> None:
-    """Placeholder for real‑data verification – skeleton stage."""
-    log.info("Skipping real‑data verification – skeleton stage.")
 
-def generate_queries(config: dict) -> Path:
-    """Generate a small synthetic query set."""
-    output_path = paths.data("processed", "generation_log.json")
-    generator = SyntheticQueryGenerator(
-        levels=[1, 2, 3, 4],
-        count_per_level=10,
-        seed=config.get("seed", 42),
-    )
-    generator.write_to_file(output_path)
-    return output_path
+def _generate_queries(seed: int) -> list[dict]:
+    """Generate a small deterministic query set (skeleton stage)."""
+    rng = random.Random(seed)
+    queries: list[dict] = []
+    for level in LEVELS:
+        for source in SOURCE_TYPES:
+            for i in range(COUNT_PER_CELL):
+                qid = f"q_{source}_{level}_{i:03d}"
+                steps = [f"{source}_op_{k}" for k in range(1, level + 1)]
+                queries.append(
+                    {
+                        "query_id": qid,
+                        "source_type": source,
+                        "complexity_level": int(level),
+                        "logical_plan": {"steps": steps},
+                    }
+                )
+    return queries
 
-def enrich_with_sut_plan(queries: list[dict]) -> None:
-    """Attach a dummy system‑generated plan to each query."""
-    for q in queries:
-        q["sut_plan"] = _generate_sut_plan(q)
 
-def _execute_queries(queries: list[dict]) -> list[ExecutionMetric]:
-    """Execute queries using a synthetic latency model."""
-    metrics: list[ExecutionMetric] = []
-    for query in queries:
-        source_type = query["source_type"]
-        latency_ms = _synthetic_latency()
-        executed_plan = f"{source_type}_plan_dummy"
-        ground_truth = query.get("ground_truth_plan")
-        translation_error = executed_plan != ground_truth
+def _reference_plan(query: dict) -> str:
+    """Deterministic greedy-style reference plan string (skeleton)."""
+    return "->".join(query["logical_plan"]["steps"])
 
-        metric = record_execution_metric(
-            query_id=query["query_id"],
-            source_type=source_type,
-            complexity_level=int(query["complexity_level"]),
-            ground_truth_plan=ground_truth,
-            executed_plan=executed_plan,
-            latency_ms=latency_ms,
-            success=True,
-            timeout=False,
-        )
-        # Attach additional fields required by the CSV schema.
-        setattr(metric, "translation_error", translation_error)
-        setattr(metric, "timeout_flag", False)
-        metrics.append(metric)
-    return metrics
 
-def run_experiment() -> None:
-    """Run the full skeleton experiment."""
-    config = get_config()
-    generation_path = paths.data("processed", "generation_log.json")
-    if not generation_path.is_file():
-        generation_path = generate_queries(config)
-    queries = _load_generation_log(generation_path)
-    enrich_with_sut_plan(queries)
-    metrics = _execute_queries(queries)
+def _sut_plan(query: dict, rng: random.Random) -> str:
+    """System-generated plan via a depth-1 lookahead heuristic (skeleton)."""
+    steps = query["logical_plan"]["steps"]
+    if rng.random() < 0.25 and len(steps) > 1:
+        # Limited-lookahead heuristic occasionally reorders steps.
+        steps = steps[1:] + [steps[0]]
+    return "->".join(steps)
+
+
+def _measure_latency(query: dict) -> float:
+    """Measure REAL wall-clock time of a trivial in-memory operation.
+
+    No ``time.sleep`` or simulated delays are used.  The skeleton stage
+    measures the wall-clock cost of hashing the plan; later tasks replace
+    this with native executor latency.
+    """
+    payload = json.dumps(query, sort_keys=True).encode("utf-8")
+    start = time.perf_counter()
+    for _ in range(100):
+        hashlib.sha256(payload).hexdigest()
+    return (time.perf_counter() - start) * 1000.0
+
+
+def run_experiment(config: dict) -> Path:
+    """Run the skeleton experiment and write the execution log CSV."""
+    seed = int(config.get("seed", 42))
+    rng = random.Random(seed)
+    queries = _generate_queries(seed)
 
     csv_path = paths.data("processed", "execution_logs.csv")
-    save_metrics_to_file(metrics, str(csv_path))
+    rows: list[dict] = []
+    for query in queries:
+        gt_plan = _reference_plan(query)
+        sut = _sut_plan(query, rng)
+        latency_ms = _measure_latency(query)
+        rows.append(
+            {
+                "query_id": query["query_id"],
+                "source_type": query["source_type"],
+                "complexity_level": int(query["complexity_level"]),
+                "latency_ms": round(latency_ms, 3),
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                "translation_error": int(sut != gt_plan),
+                "success_flag": 1,
+                "timeout_flag": 0,
+                "synthetic_flag": 1,  # skeleton queries are synthetic; T004 adds real metadata
+                "throttling_mode": "none_skeleton",
+            }
+        )
 
-    jsonl_path = paths.data("processed", "execution_metrics.jsonl")
-    _persist_execution_metrics_jsonl(metrics, jsonl_path)
+    with csv_path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
+        writer.writeheader()
+        writer.writerows(rows)
+    log.info("Wrote %d rows to %s", len(rows), csv_path)
+
+    # Durable run manifest outside the gitignored dataset caches.
+    manifest_path = paths.data("results", "pipeline_manifest.json")
+    manifest = {
+        "stage": "skeleton",
+        "seed": seed,
+        "num_queries": len(rows),
+        "execution_log": str(csv_path),
+        "execution_log_sha256": hashlib.sha256(csv_path.read_bytes()).hexdigest(),
+        "columns": CSV_COLUMNS,
+    }
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    log.info("Run manifest written to %s", manifest_path)
+    return csv_path
+
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run the skeleton benchmark pipeline."
+        prog="python -m code.main",
+        description=(
+            "Structural Mismatch Cost benchmark pipeline (skeleton stage). "
+            "Runs a small deterministic end-to-end sample and writes "
+            "data/processed/execution_logs.csv plus a run manifest under "
+            "data/results/."
+        ),
     )
-    # No additional arguments are required for the skeleton;
-    # the parser exists solely to provide a ``--help`` entry point.
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Override the random seed from the configuration.",
+    )
     return parser
+
 
 def main() -> None:
     """Entry point for ``python -m code.main``."""
-    parser = _build_parser()
-    # This will automatically handle ``--help`` and exit with status 0.
-    parser.parse_args()
+    args = _build_parser().parse_args()
+    config = get_config()
+    if args.seed is not None:
+        config["seed"] = args.seed
 
     ensure_directories()
-    fetch_real_data()
-    run_experiment()
+    run_experiment(config)
     log.info("Skeleton pipeline completed successfully.")
+
 
 if __name__ == "__main__":
     main()
