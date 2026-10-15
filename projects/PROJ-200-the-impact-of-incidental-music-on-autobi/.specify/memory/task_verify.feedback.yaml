@@ -1,12 +1,6 @@
 T000:
   task: 883cb8df1cee439963b64f56312618c65d6a3099a360e0b0ab1ea7050c8c09c3
 T001:
-  reason: "The directories, `requirements.txt` (statsmodels, pyarrow, python-levenshtein),\
-    \ and `quickstart.md` with execution commands all exist, but `code/config.py`\
-    \ does not contain the required thresholds \u2014 there is no Levenshtein \u2264\
-    \ 4 threshold and no `MATCH_RATE_THRESHOLD=0.8`; it only exposes a random seed\
-    \ and dataset settings. The implementer must add these threshold constants (e.g.,\
-    \ `LEVENSHTEIN_THRESHOLD = 4`, `MATCH_RATE_THRESHOLD = 0.8`) to `code/config.py`."
   task: 24689101c69f744d0aa7d905eedde7015e19b8e55b8561ad31dafce823f03673
 T002:
   task: 9ffee1b6fb4836eb6687f4aebf3537be944cde5dd98e58c4c8ddacf56c5ee631

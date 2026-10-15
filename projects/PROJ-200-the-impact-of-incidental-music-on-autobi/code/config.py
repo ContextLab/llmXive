@@ -2,6 +2,11 @@ import os
 from pathlib import Path
 from typing import Any, Dict
 
+# Research Thresholds
+LEVENSHTEIN_THRESHOLD = 4
+MATCH_RATE_THRESHOLD = 0.8
+RANDOM_SEED = 42
+
 def get_project_root() -> Path:
     """
     Return the absolute path to the project's root directory.
@@ -24,11 +29,12 @@ def ensure_directories() -> None:
 
 def get_config_dict() -> Dict[str, Any]:
     """
-    Return a dictionary of configuration values.  For the thin pipeline
-    we only expose a minimal set.
+    Return a dictionary of configuration values.
     """
     return {
-        "random_seed": 42,
+        "random_seed": RANDOM_SEED,
+        "levenshtein_threshold": LEVENSHTEIN_THRESHOLD,
+        "match_rate_threshold": MATCH_RATE_THRESHOLD,
         "msd_dataset": "matthewfranglen/lastfm-1k",
         "msd_stream_limit": 50000,
     }

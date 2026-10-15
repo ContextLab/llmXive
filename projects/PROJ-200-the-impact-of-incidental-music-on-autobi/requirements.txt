@@ -1,5 +1,4 @@
-# Existing dependencies (provided by the platform) are omitted from this file.
-# Project‑specific dependencies:
+# Project-specific dependencies
 python-levenshtein==0.25.1
 statsmodels
 pyarrow

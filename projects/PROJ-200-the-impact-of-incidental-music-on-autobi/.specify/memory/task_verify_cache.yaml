@@ -6,6 +6,18 @@ T000:
     paths and study parameters), and the execution log shows `code/init_state.py`
     ran successfully (exit 0) creating the file.
   sig: f06bab5fe1c4b8af8002efb8f125cecfa8dfd5b4e94359375a8b4215d8f2708c
+T001:
+  c: true
+  h: e295f99329ab6f0074bd6392e40095086c22c4caa94034e0ae5b06d0bd36284c
+  r: 'All required artifacts exist and match the task: `code/`, `data/raw/`, `data/processed/`,
+    `data/final/`, `tests/` directories are present; `requirements.txt` includes statsmodels,
+    pyarrow, and python-levenshtein; `code/config.py` defines `LEVENSHTEIN_THRESHOLD
+    = 4`, `MATCH_RATE_THRESHOLD = 0.8`, and `RANDOM_SEED = 42`; and `quickstart.md`
+    documents the execution commands (`python code/main.py --step ...` / `--full-run`).
+    The failing pytest log is an environment issue (broken pyarrow/pandas in the runner
+    cache) unrelated to this layout/config task, and `setup_project.py` ran successfully
+    (exit '
+  sig: ac8d0891de8edf1967a86439d2709a9160a5fcb475c8427d5ea482ac13832343
 T002:
   c: true
   h: 5ce37f545a9336adc6f2daa37162b365cc7d38cfea3a22da88ff8d9de4e5258f
@@ -18,11 +30,3 @@ T002:
     \ match_rate, coefficient/p-value), and PermutationResults (observed statistic,\
     \ null distribution stats, p_value, iterations), matchin"
   sig: d700cec72a8f3d2197729b3c55a7fedb55f63de2b646d9d669918c5b6103b122
-T003:
-  c: false
-  h: cf55526ee758660e1a6d7cdae5e72a00ee5998ac143ebfbe0873bec1259baf35
-  r: The required output artifacts `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`,
-    and `data/final/regression_summary.csv` are all missing from the project, so the
-    pipeline has not produced the real result rows nor the regression summary with
-    the required columns.
-  sig: 9a4ca532199cc66e66066bf11fd5d36b326387de0bff61e650600c43a06fbcd3
