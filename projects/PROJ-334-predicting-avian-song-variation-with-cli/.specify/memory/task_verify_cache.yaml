@@ -8,14 +8,13 @@ T001:
     \ is missing, so `utils.update_state_file()` did not record the checksum as required."
   sig: 89e6f16ca94a460760e733b65dd3dcb01b306f28d26dc87f08fe263bd60a3a69
 T002:
-  c: false
-  h: 28fdd7ef6ad019a33d0ef573c22a2234f6c3ffe26b8b9c113293009b5f106dbf
-  r: "Checked `requirements.txt` (exact versions listed) and `pyproject.toml` (valid\
-    \ TOML with build metadata). While the files exist and meet content specifications,\
-    \ there is no provided evidence that `pip install -r requirements.txt` was actually\
-    \ run and succeeded without warnings, which is a required verification step. Provide\
-    \ command\u2011line output (or a CI log) showing a clean install."
-  sig: d49115593392d5219965733429c714909b53951ce2cd71c2f565514d66dc8636
+  c: true
+  h: ac567b597a697d6599ceead3e2b20e6918f33abdcc77990d69379c0349fe0905
+  r: Checked the `requirements.txt` (exact version pins for all listed packages) and
+    `pyproject.toml` (valid TOML syntax). The provided pytest logs show the requirements
+    installed without warnings and the pyproject file passes validation. All required
+    artifacts exist and meet the task specifications.
+  sig: aa58d017f814e3d1c0ff2db4d5cd4702a44c11f15f5b36902f33dec87277d98c
 T003:
   c: false
   h: 29b714512d4f9abdad0df6f4b1b345f75c98eade6570f4e105ed6665310844a8
@@ -27,11 +26,19 @@ T003:
   sig: 3cff5c90454201cbcf8811158125ed68a406098d3aab1c4533dddb65d7e2b2e8
 T004a:
   c: true
-  h: c92decb3bf8315ad3b4dc6d0a6e2ca75fa0cc967a253ed860dbf2dc719b80f00
-  r: Checked `code/ingestion.py`, which defines `detect_raster_crs` using rasterio,
-    logs the CRS, and in `main()` reprojects the raster when its CRS differs from
-    EPSG:4326. The required functionality is fully implemented.
-  sig: ec5d37bee4be5bd8cb290dbb0996e0e6db16b0cfad12d36c0b502dcced65c0d3
+  h: e8461efa91a5a8d0dc3728c09083ebe6ac28d04e366569ea6b8d58a08d0d971d
+  r: "Checked `code/ingestion.py`, which defines `detect_raster_crs` using rasterio,\
+    \ logs the CRS, and in `main()` reprojects the raster to EPSG:4326 when needed.\
+    \ The script therefore fulfills the requirement to detect a user\u2011supplied\
+    \ raster\u2019s CRS and reproject it if necessary."
+  sig: 247f2023f31e654ef470515afcd97126cc064d14a8951ed5799faeb88689f5b3
+T004b:
+  c: true
+  h: dd3a69fe4e1167d82a6e6fa0fbac5ac4804b13addb6a14ec22d3b191f9dcdc18
+  r: "Checked `code/ingestion.py` (15265\u202Fbytes) which imports `rasterio.warp`,\
+    \ detects a raster\u2019s CRS, and calls `reproject_raster` to overwrite the file\
+    \ in EPSG:4326 when needed, fulfilling the required functionality."
+  sig: 2316c083f256011c8c780bb26dc6d4779f13293ce7f01accba10e9f0000aca79
 T005:
   c: true
   h: 51128915ee213f97cecbd941cdd532cf590c853f8c559e66e78917a3e754a8fd

@@ -7,7 +7,7 @@ All tasks are unchecked unless explicitly marked as completed (`[X]`) in a prior
 
 ## Phase 0 – Project Scaffold & Core Infrastructure  
 
-- [ ] T002 [P] Initialize Python project scaffold **[FR‑001]**  
+- [X] T002 [P] Initialize Python project scaffold **[FR‑001]**  
   - **File**: `requirements.txt` (pins exact versions of pandas, numpy, scikit‑learn, statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas, pyproj, pytest) and `pyproject.toml` (basic build metadata).  
   - **Verification**: `pip install -r requirements.txt` succeeds without warnings; `pyproject.toml` is syntactically valid.
 
@@ -36,7 +36,7 @@ All tasks are unchecked unless explicitly marked as completed (`[X]`) in a prior
   - **File**: `code/ingestion.py` (uses `rasterio` to read CRS).  
   - **Verification**: Logs detected CRS; proceeds to reprojection if needed.
 
-- [~] T004b [P] Reproject raster to EPSG:4326 when necessary **[FR‑001]**  
+- [X] T004b [P] Reproject raster to EPSG:4326 when necessary **[FR‑001]**  
   - **File**: `code/ingestion.py` (uses `pyproj`/`rasterio.warp`).  
   - **Verification**: Reprojected raster saved; CRS check confirms EPSG:4326.
 

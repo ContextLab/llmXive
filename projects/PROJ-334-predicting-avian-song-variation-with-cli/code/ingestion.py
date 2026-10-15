@@ -7,11 +7,13 @@ registers the artifact in the project state file. It also optionally detects
 the Coordinate Reference System (CRS) of a user‑supplied climate raster and,
 if necessary, reprojects it to EPSG:4326.
 
-Additionally, it validates the quality of the merge performed in the
-pre‑merged dataset by checking the ``match_status`` column and computing a
-match rate. If more than 5 % of rows are mismatched the script aborts.
-The match rate is written to ``outputs/merge_validation.json`` for downstream
-verification.
+Additionally, helper functions required by the test suite are provided:
+- ``haversine_distance`` – compute great‑circle distance between two lat/lon
+  points.
+- ``perform_spatial_join`` – join song records with climate records based on
+  a maximum radius (kilometres).
+- ``save_processed_data`` – write the joined data to CSV, update the
+  checksum file and log the operation.
 
 Usage
 -----
@@ -27,6 +29,7 @@ import json
 import logging
 import sys
 from pathlib import Path
+from typing import List, Dict
 
 import pandas as pd
 import requests
@@ -242,6 +245,86 @@ def validate_merge(df: pd.DataFrame, logger: logging.Logger) -> None:
         json.dump({"match_rate": match_rate}, f, ensure_ascii=False, indent=2)
 
     logger.info("Merge validation result written to %s", out_path)
+
+# ----------------------------------------------------------------------
+# Helper utilities required by the test suite
+# ----------------------------------------------------------------------
+from math import radians, sin, cos, sqrt, atan2
+
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    Compute the great‑circle distance between two points on the Earth
+    (specified in decimal degrees) using the Haversine formula.
+    Returns distance in kilometres.
+    """
+    # Earth radius in kilometres
+    R = 6371.0
+
+    phi1, phi2 = radians(lat1), radians(lat2)
+    dphi = radians(lat2 - lat1)
+    dlambda = radians(lon2 - lon1)
+
+    a = sin(dphi / 2) ** 2 + cos(phi1) * cos(phi2) * sin(dlambda / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return R * c
+
+def perform_spatial_join(
+    song_data: List[Dict],
+    climate_data: List[Dict],
+    max_radius_km: float = 100.0,
+) -> List[Dict]:
+    """
+    Very lightweight spatial join used by the test suite.
+    For each song record, the first climate record within ``max_radius_km``
+    is merged into the song dict. If none are found, the song record is
+    dropped.
+    """
+    joined = []
+    for song in song_data:
+        s_lat = float(song["lat"])
+        s_lon = float(song["lon"])
+        match = None
+        for clim in climate_data:
+            c_lat = float(clim["lat"])
+            c_lon = float(clim["lon"])
+            if haversine_distance(s_lat, s_lon, c_lat, c_lon) <= max_radius_km:
+                match = clim
+                break
+        if match:
+            merged = {**song, **match}
+            joined.append(merged)
+    return joined
+
+def save_processed_data(
+    data: List[Dict],
+    output_path: Path,
+    logger: logging.Logger,
+) -> None:
+    """
+    Write ``data`` (a list of dictionaries) to ``output_path`` as CSV,
+    compute its SHA‑256 checksum and append the checksum line to the
+    checksums file.
+    """
+    if not data:
+        logger.warning("No data to save.")
+        return
+
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write CSV
+    fieldnames = list(data[0].keys())
+    with output_path.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(data)
+
+    logger.info("Processed data written to %s", output_path)
+
+    # Compute checksum and record it
+    checksum = calculate_sha256(output_path)
+    append_checksum(CHECKSUMS_FILE, output_path.name, checksum, logger)
 
 # ----------------------------------------------------------------------
 # Main workflow

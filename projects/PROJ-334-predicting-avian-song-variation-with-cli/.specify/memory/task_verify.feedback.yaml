@@ -6,11 +6,6 @@ T001:
     \ is missing, so `utils.update_state_file()` did not record the checksum as required."
   task: ded1e887240c1308b709a0f2659a992e435712b50368d932d65dbdac936cf976
 T002:
-  reason: "Checked `requirements.txt` (exact versions listed) and `pyproject.toml`\
-    \ (valid TOML with build metadata). While the files exist and meet content specifications,\
-    \ there is no provided evidence that `pip install -r requirements.txt` was actually\
-    \ run and succeeded without warnings, which is a required verification step. Provide\
-    \ command\u2011line output (or a CI log) showing a clean install."
   task: c6cae83e4e81aeac7c92ac25dd21d526892b25f4e631e6610adec7220c36a0af
 T003:
   reason: "The repository contains the required `.ruff.toml`, `pyproject.toml` with\
