@@ -2,9 +2,9 @@
 src/data/download.py
 
 Downloads scientific document corpora from verified HuggingFace URLs.
-Implements the logic for primary (AllenAI PubMed Layout) and fallback
-(AllenAI PubMed Layout Fallback) datasets, ensuring a minimum of 10,000
-annotated pages. Also provides a downloader for the DocVQA benchmark.
+Implements the logic for primary (PublayNet) and fallback (DocBank) datasets,
+ensuring a minimum of 10,000 annotated pages. Also provides a downloader for
+the DocVQA benchmark.
 """
 
 import argparse
@@ -62,7 +62,7 @@ def _save_to_disk(dataset, output_dir: Path):
     for idx, example in enumerate(tqdm(dataset, desc="Saving to disk")):
         # Image
         img_path = output_dir / f"{idx:06d}.png"
-        # The 'image' column is a PIL Image object in the PubMed Layout datasets
+        # The 'image' column is a PIL Image object in the PubLayNet/DocBank datasets
         example["image"].save(img_path)
 
         # Annotation JSON
@@ -85,15 +85,25 @@ def _save_to_disk(dataset, output_dir: Path):
             json.dump(ann, f)
 
 
+def _standardise_labels(dataset):
+    """
+    PublayNet uses the field name ``label`` while the downstream pipeline
+    expects ``labels``. This helper renames the column when necessary.
+    """
+    if "label" in dataset.column_names:
+        dataset = dataset.rename_column("label", "labels")
+    return dataset
+
+
 def download_layout_corpus(output_dir: Path, min_pages: int = 10_000) -> None:
     """
-    Downloads the primary PubMed Layout corpus and, if necessary,
-    falls back to the PubMed Layout Fallback corpus.
+    Downloads the primary PublayNet corpus and, if necessary,
+    falls back to the DocBank corpus.
     Ensures at least ``min_pages`` pages with non‑empty layout annotations.
     The images and JSON files are written directly into ``output_dir``.
     """
-    primary_candidates = ["allenai/pubmed-layout"]
-    fallback_candidates = ["allenai/pubmed-layout-fallback"]
+    primary_candidates = ["nielsr/publaynet"]
+    fallback_candidates = ["nielsr/docbank"]
 
     valid_ds = None
 
@@ -108,6 +118,7 @@ def download_layout_corpus(output_dir: Path, min_pages: int = 10_000) -> None:
                 download_mode="force_redownload",
                 trust_remote_code=True,
             )
+            ds = _standardise_labels(ds)
             # Keep only pages with at least one bbox
             valid_ds = ds.filter(lambda x: len(x.get("bboxes", [])) > 0)
             print(f"Successfully loaded {candidate}. Valid pages: {len(valid_ds)}")
@@ -129,6 +140,7 @@ def download_layout_corpus(output_dir: Path, min_pages: int = 10_000) -> None:
                     download_mode="force_redownload",
                     trust_remote_code=True,
                 )
+                ds_fb = _standardise_labels(ds_fb)
                 valid_fb = ds_fb.filter(lambda x: len(x.get("bboxes", [])) > 0)
                 print(f"Fallback '{fallback}' loaded. Valid pages: {len(valid_fb)}")
                 if valid_ds is None:

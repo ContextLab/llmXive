@@ -52,7 +52,7 @@ properties:
   visual_latent:
     type: array
     description: "Optional 512‑dimensional latent vector from frozen visual encoder."
-    minItems: an appropriate number of items
-    maxItems: a sufficiently large limit to accommodate the dataset
+    minItems: 512
+    maxItems: 512
     items:
       type: number
