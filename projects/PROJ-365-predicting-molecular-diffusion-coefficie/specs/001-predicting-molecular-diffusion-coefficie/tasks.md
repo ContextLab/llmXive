@@ -4,246 +4,149 @@ description: "Task list for feature 001‑predict‑molecular‑diffusion"
 
 # Tasks: Predicting Molecular Diffusion Coefficients in Liquids with Graph Neural Networks
 
-**Input**: Design documents from `specs/001-predict-molecular-diffusion-coefficie/`  
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories)  
+**Input**: `specs/001-predict-molecular-diffusion-coefficie/spec.md`, `plan.md`  
+**Prerequisites**: None (all tasks are self‑contained and ordered to respect data flow)
 
-All tasks follow the canonical checklist format  
+The checklist follows the canonical format  
 
 ```
 - [ ] T### [P] [USx] <description> – <file‑path>
     • <verification / requirement / note>
 ```
 
-The optional **[P]** flag indicates the task can run in parallel with other tasks that do **not** share files.  
-**[USx]** tags the user story the task satisfies (US1, US2, US3).  
+* `[P]` = can run in parallel with other tasks that do **not** share files.  
+* `[USx]` = the user story satisfied (US1 = data ingestion & featurization, US2 = training & baseline, US3 = sensitivity & robustness).
 
 ---
 
-## Phase 0 – Data Acquisition & Validation (blocked until a verified dataset is available)
+## Phase 0 – Data acquisition & provenance
 
-- [ ] T000a [P] [US1] Create `data/raw/` directory for source CSVs – `data/raw/`  
-  • Verify the directory exists in the repository (`ls data/raw` returns a folder).
+- [ ] T001 [P] [US1] Create the raw‑data directory – `data/raw/`  
+    • Verify that `data/raw` exists after running the setup script (`ls data/raw` returns a folder).
 
-- [ ] T000b [P] [US1] Download the curated experimental diffusion dataset CSV – `data/raw/dataset.csv`  
-  • If `plan.md` contains a line `Dataset URL: <url>`, the script must download the CSV from that URL.  
-  • On download failure, the script must raise an exception (no silent fallback).  
-  • Verify `data/raw/dataset.csv` exists, is non‑empty, and validates against `contracts/ingestion_schema.schema.yaml`.
+- [ ] T002 [US1] Generate a deterministic synthetic dataset (fallback when no real data) – `code/ingestion/generate_synthetic.py`  
+    • The script writes `data/raw/dataset.csv` with **exactly 500** rows and the columns `smiles,solvent_type,diffusion_coefficient,viscosity,dielectric_constant`.  
+    • Uses a fixed random seed (`42`).  
+    • Verification: the CSV exists, size > 0 KB, row count = 500, and validates against `contracts/ingestion_schema.schema.yaml`.
 
-- [ ] T007b [P] [US1] Implement deterministic synthetic dataset generator – `code/ingestion/generate_synthetic.py`  
-  • Generates `data/raw/dataset.csv` with exactly 500 rows and columns `smiles, solvent_type, diffusion_coefficient, viscosity, dielectric_constant`.  
-  • Uses a fixed random seed (`42`).  
-  • Verify the CSV schema matches `contracts/ingestion_schema.schema.yaml` and file size > 0 KB.
+- [ ] T003 [US1] Download a verified real dataset (if a URL is recorded in `plan.md`) – `code/ingestion/fetch_real.py`  
+    • Reads a line `Dataset URL: <url>` from `plan.md`, downloads the CSV to `data/raw/dataset.csv`, and raises an exception on any network or HTTP error (no silent fallback).  
+    • Verification: file exists, non‑empty, and passes schema validation (`contracts/ingestion_schema.schema.yaml`).
 
-- [ ] T007b_test [P] [US1] Add contract test for synthetic CSV generation – `tests/contract/test_synthetic_csv.py`  
-  • Runs `generate_synthetic.py` and asserts the output file exists, has 500 rows, and validates against the ingestion schema.
-
-- [ ] T000c [P] [US1] Implement real‑dataset fetcher – `code/ingestion/fetch_real.py`  
-  • Reads the `Dataset URL:` line from `plan.md`, downloads the CSV, writes to `data/raw/dataset.csv`.  
-  • Raises `FileNotFoundError` or `ConnectionError` on failure (no silent fallback).  
-  • Verify that on success the file validates against the ingestion schema.
-
-- [ ] T000d [P] [US1] Verify `plan.md` records the dataset source – `plan.md`  
-  • After a successful real download, a line `Dataset URL: <url>` must be present.  
-  • If synthetic data is used, `data_source_flag.json` must contain `"source": "synthetic"`.  
-  • Test `tests/contract/test_plan_dataset_url.py` checks for one of the two conditions.
-
-- [ ] T007c [P] [US1] Write source‑flag file – `code/ingestion/flag_source.py`  
-  • Writes `data_source_flag.json` with `{"source": "real"}` or `{"source": "synthetic"}` based on which ingestion path succeeded.  
-  • Verify the JSON file exists and contains the correct `"source"` value.
-
-- [ ] T007c_test [P] [US1] Add unit test for the source‑flag file – `tests/unit/test_flag_source.py`  
-  • Simulates both real and synthetic runs and asserts the JSON content matches the expected source.
+- [ ] T004 [US1] Record the data‑source flag – `code/ingestion/flag_source.py`  
+    • Writes `data_source_flag.json` with `{ "source": "real" }` if `fetch_real.py` succeeded, otherwise `{ "source": "synthetic" }`.  
+    • Verification: the JSON file exists and contains the correct `"source"` value.
 
 ---
 
-## Phase 1 – Project Setup (shared infrastructure)
+## Phase 1 – Ingestion & featurization pipeline
 
-- [ ] T001 [P] Create project directory layout – `code/`, `data/raw/`, `data/processed/`, `data/checksums.txt`, `artifacts/`  
-  • Verify all directories exist after running the setup script.
+- [ ] T005 [P] [US1] Validate raw records (SMILES syntax, missing fields) – `code/ingestion/validate.py`  
+    • Returns a list of **valid** records, logs `[ERROR_SMILES]` for unparsable SMILES and `[MISSING_DATA_EXCLUDED]` for incomplete rows.  
+    • Verification: after running on `data/raw/dataset.csv`, the log `data/logs/ingestion.log` contains the expected tags and the returned list length equals the number of rows marked *valid*.
 
-- [ ] T002 [P] Initialise Python 3.11 environment and generate `requirements.txt` – `requirements.txt`  
-  • Must list pinned versions for `rdkit`, `torch` (CPU‑only), `torch‑geometric` (CPU‑only), `scikit‑learn`, `pandas`, `pyyaml`, `psutil`, `pytest`.  
-  • Verify `pip install -r requirements.txt` completes without errors.
+- [ ] T006 [US1] Featurize validated records into PyTorch‑Geometric graphs and solvent descriptors – `code/ingestion/featurize.py`  
+    • Produces a JSON Lines file `data/processed/featurized_data.jsonl`.  
+    • Each line conforms to `contracts/dataset.schema.yaml` (graph fields, solvent_features, status).  
+    • Records peak memory usage during processing to `artifacts/reports/memory_profile.json` (SC-005).  
+    • Verification: a random line parsed with `jsonschema.validate` passes the schema; file size > 0 KB; memory profile contains `peak_memory_mb`.
 
-- [ ] T003 [P] Configure `pyproject.toml` for `ruff` linting and `black` formatting – `pyproject.toml`  
-  • CI must run `ruff` with zero warnings.
-
----
-
-## Phase 2 – Ingestion & Featurization (foundational)
-
-- [ ] T004 [P] Implement configuration utilities – `code/utils/config.py`  
-  • Provides path helpers, fixed random seed (`42`), and reads `RUNTIME_LIMIT_SEC` (default 21600 s).  
-  • Test `tests/unit/test_config.py` validates seed and limit values.
-
-- [ ] T005 [P] Implement logging utilities with required tags – `code/utils/logging.py`  
-  • Writes to `data/logs/ingestion.log` and includes tags `[MISSING_DATA_EXCLUDED]` and `[ERROR_SMILES]`.  
-  • Test `tests/unit/test_logging_tags.py` checks for tag presence after processing a mixed CSV.
-
-- [ ] T006 [P] Implement resource monitor – `code/utils/monitor.py`  
-  • Enforces runtime ≤ 21600 s and RAM ≤ 4096 MiB, raises `ResourceLimitExceeded` on breach.  
-  • Records total runtime and peak memory to `artifacts/reports/runtime_memory.json`.  
-  • Tests: `tests/unit/test_monitor_memory_capture.py`, `tests/unit/test_monitor_memory.py`.
-
-- [ ] T006b [P] Implement graph‑size safety logic – `code/utils/graph_safety.py`  
-  • Detects molecules with > 200 heavy atoms, truncates or samples to keep memory ≤ 4 GB.  
-  • Test `tests/unit/test_graph_safety.py` validates safe handling of a large molecule.
-
-- [ ] T008 [P] Implement SMILES validation & missing‑field exclusion – `code/ingestion/validate.py`  
-  • Returns a list of valid records and logs `[ERROR_SMILES]` / `[MISSING_DATA_EXCLUDED]`.  
-  • Test `tests/unit/test_validate.py` covers both error cases.
-
-- [ ] T010 [P] Implement featurization (RDKit graph + solvent descriptors) – `code/ingestion/featurize.py`  
-  • Calls `graph_safety.py` before building a `torch_geometric.data.Data` object.  
-  • Test `tests/unit/test_featurize.py` checks a known SMILES produces expected node/edge shapes and correct solvent features.
-
-- [ ] T015 [P] Create JSON‑L schema for featurized records – `specs/001-predict-molecular-diffusion-coefficie/contracts/dataset.schema.yaml`  
-  • Defines required fields per the specification.  
-  • Test `tests/contract/test_dataset_schema.py` validates a sample JSON‑L line.
-
-- [ ] T012 [P] Implement full ingestion pipeline – `code/ingestion/ingest.py`  
-  • Reads `data/raw/dataset.csv`, runs `validate.py`, featurizes with `featurize.py`, writes `data/processed/featurized_data.jsonl`.  
-  • Skips invalid records, logs reasons.  
-  • Depends on T006b, T008, T010, T015.  
-  • Test `tests/integration/test_ingestion_pipeline.py` confirms only valid records appear in the output.
+- [ ] T007 [US1] End‑to‑end ingestion script that ties validation and featurization together – `code/ingestion/ingest.py`  
+    • Calls `validate.py` → `featurize.py` → writes the JSONL output.  
+    • Skips invalid records, logs reasons, and updates `data_source_flag.json` if needed.  
+    • Verification: after execution, `data/processed/featurized_data.jsonl` exists and the number of records equals the count of *valid* rows reported in the log.
 
 ---
 
-## Phase 3 – Model Training & Baseline Comparison (User Story 2)
+## Phase 2 – Model implementation & training (CPU‑only)
 
-- [ ] T016 [P] Implement CPU‑only single‑layer MPNN – `code/models/mpnn.py`  
-  • Checks `torch.cuda.is_available()` at import; raises if GPU detected.  
-  • Logs “Device: CPU”.  
-  • Test `tests/unit/test_mpnn_device.py` asserts CPU‑only behavior.
+- [ ] T008 [P] [US2] Implement a CPU‑only single‑layer Message Passing Neural Network – `code/models/mpnn.py`  
+    • On import, asserts `torch.cuda.is_available() is False`; logs “Device: CPU”.  
+    • Provides a `forward` method that accepts a batch of `torch_geometric.data.Data`.  
+    • Verification: unit test runs a forward pass on a tiny synthetic batch without raising; the log contains “Device: CPU”.
 
-- [ ] T017 [P] Implement Linear Regression baseline with fingerprints + solvent descriptors – `code/models/baseline.py`  
-  • Uses `sklearn.linear_model.LinearRegression`.  
-  • Test `tests/unit/test_baseline.py` validates training on a tiny synthetic dataset.
+- [ ] T009 [P] [US2] Implement a linear‑regression baseline using Morgan fingerprints + solvent descriptors – `code/models/baseline.py`  
+    • Uses `sklearn.linear_model.LinearRegression`.  
+    • Includes a helper to compute 2048‑bit fingerprints from SMILES.  
+    • Verification: training on a 10‑sample synthetic dataset produces a non‑empty coefficient vector.
 
-- [ ] T019a [P] Implement 5‑fold CV stratified by solvent type – `code/training/cv_strategy.py`  
-  • Raises `ConfigurationError` if dataset < 50 samples (handled by T019b).  
-  • Test `tests/unit/test_cv_strategy_strat.py` ensures solvent‑type distribution is preserved.
+- [ ] T010 [P] [US2] 5‑fold cross‑validation strategy stratified by solvent type – `code/training/cv_strategy.py`  
+    • Raises `ConfigurationError` if the dataset contains fewer than 50 samples; a downstream fallback (Leave‑One‑Out) is handled elsewhere.  
+    • Verification: given a processed dataset with ≥ 50 rows, the script returns exactly 5 folds where the solvent-type distribution per fold deviates from the global distribution by ≤ 5% (checked in a unit test).
 
-- [ ] T019b [P] Implement Leave‑One‑Out CV for tiny datasets – `code/training/loo_strategy.py`  
-  • Invoked automatically when `cv_strategy` raises `ConfigurationError`.  
-  • Test `tests/unit/test_loo_strategy.py` checks correct number of folds.
-
-- [ ] T041 [P] Implement training loop with checkpointing – `code/training/train.py`  
-  • Performs CV using the strategy from T019a/T019b, trains both MPNN and baseline, saves models to `artifacts/models/`.  
-  • Logs device verification.  
-  • Test `tests/integration/test_training_pipeline.py` runs a mini‑dataset through the full loop.
-
-- [ ] T020 [P] Implement evaluation metrics – `code/training/evaluate.py`  
-  • Computes Pearson r, RMSE for each fold, aggregates across folds, writes `artifacts/reports/evaluation.json`.  
-  • Skips metric generation if `data_source_flag.json` = `"synthetic"` (see T046).  
-  • Test `tests/contract/test_evaluation_report.py` validates JSON schema and presence/absence depending on data source.
-
-- [ ] T046 [P] Enforce “no metrics on synthetic data” rule – `code/training/evaluate.py` (extension)  
-  • Exits with non‑zero status and message “Scientific metrics suppressed for synthetic data” when synthetic.  
-  • Test `tests/integration/test_no_metrics_synthetic.py` confirms the exit code and missing `evaluation.json`.
-
-- [ ] T021 [P] Perform paired statistical test – `code/training/statistics.py` (called by T020)  
-  • Executes paired t‑test (or Wilcoxon if normality fails) on per‑sample absolute errors between GNN and baseline.  
-  • Adds results to `evaluation.json` under `statistical_test`.  
-  • Test `tests/unit/test_statistics.py` checks p‑value computation on a known toy dataset.
+- [ ] T011 [US2] Training loop with checkpointing for both models – `code/training/train.py`  
+    • Executes the CV strategy, trains the MPNN and baseline on each fold, saves model checkpoints to `artifacts/models/mpnn_fold_{i}.pt` and `artifacts/models/baseline_fold_{i}.pt`.  
+    • Records peak memory usage during training to `artifacts/reports/memory_profile.json` (SC-005).  
+    • Logs device verification and runtime per fold.  
+    • Verification: after running on the processed JSONL (real or synthetic), the expected checkpoint files exist for all folds and `training.log` records start‑to‑end timestamps.
 
 ---
 
-## Phase 4 – Sensitivity Analysis & Robustness (User Story 3)
+## Phase 3 – Evaluation & statistical testing
 
-- [ ] T024 [P] Define hyperparameter grid – `code/training/sensitivity.py` (part 1)  
-  • Grid includes `message_passing_steps ∈ {1,2,3}` and `learning_rate ∈ {0.001,0.01,0.1}`.  
-  • Test `tests/unit/test_sensitivity_grid.py` verifies the grid contents.
+- [ ] T012 [P] [US2] Compute per‑fold and aggregated metrics; write `evaluation.json` – `code/evaluation/evaluate.py`  
+    • Calculates Pearson r, RMSE, and number of test samples for each fold; aggregates mean ± std.  
+    • Records total pipeline runtime (`total_runtime_seconds`) in the results report (SC-003).  
+    • Logic is exercised for both real and synthetic data, but the final `evaluation.json` is **only** written when `data_source_flag.json` reports `"real"`; otherwise exits with a clear message (“Synthetic data – metrics suppressed”).  
+    • Verification: for a real dataset the file `artifacts/reports/evaluation.json` exists and validates against `contracts/output.schema.yaml`; for synthetic runs the script exits with status 0 (logic verified) but no JSON is created.
 
-- [ ] T042 [P] Implement sweep loop – `code/training/sensitivity.py` (part 2)  
-  • Retrains models for each grid point, records metrics, writes `artifacts/reports/sensitivity_report.json`.  
-  • Test `tests/contract/test_sensitivity_report.py` validates JSON structure.
-
-- [ ] T025a [P] Add solvent‑removal flag to data pipeline – `code/training/ablation_pipeline.py`  
-  • When `remove_solvent=True`, drops `solvent_features` before model input.  
-  • Test `tests/unit/test_ablation_flag.py` ensures the flag removes solvent descriptors.
-
-- [ ] T025b [P] Execute ablation study – `code/training/ablation_study.py`  
-  • Retrains both models without solvent descriptors, computes Δr (full – ablated) for GNN and baseline, writes `artifacts/reports/ablation_report.json`.  
-  • Test `tests/contract/test_ablation_report.py` validates required fields.
-
-- [ ] T025c [P] Guard ablation study on synthetic data – `code/training/ablation_gate.py`  
-  • Skips ablation when `data_source_flag.json` = `"synthetic"` and logs “Ablation study skipped: synthetic data”.  
-  • Test `tests/unit/test_ablation_gate.py` confirms skip behavior.
-
-- [ ] T026 [P] Implement outlier robustness analysis – `code/training/robustness.py`  
-  • For datasets ≥ 50 samples uses 5‑fold CV; otherwise LOO.  
-  • Computes Pearson r on full set and after removing top 5 % residuals, writes `artifacts/reports/outlier_analysis.json`.  
-  • Test `tests/unit/test_outlier_analysis.py` checks both `full_set_r` and `trimmed_set_r` fields.
-
-- [ ] T027 [P] Summarize sensitivity & stability – `artifacts/reports/sensitivity_summary.md`  
-  • Aggregates results from sensitivity and ablation reports, declares `stability: stable` if **all** reported r ≥ 0.7, else `unstable`.  
-  • Test `tests/contract/test_sensitivity_stability.py` verifies the stability statement and presence of all r values.
+- [ ] T013 [P] [US2] Perform paired statistical testing on per‑sample absolute errors – `code/evaluation/statistics.py`  
+    • Executes a paired t‑test (or Wilcoxon if normality fails) between GNN and baseline errors; inserts results under `statistical_test` in `evaluation.json`.  
+    • Verification: after `evaluate.py` finishes on real data, `evaluation.json` contains a `statistical_test` object with fields `test_type`, `p_value`, and `significant`.
 
 ---
 
-## Phase 5 – Documentation, Quick‑Start & CI
+## Phase 4 – Sensitivity analysis, ablation & robustness
 
-- [ ] T029 [P] Write user‑facing README with execution instructions – `code/README.md`  
-  • Describes required dataset, synthetic fallback, and full pipeline command.
+- [ ] T014 [P] [US3] Hyperparameter sweep (message‑passing steps ∈ {1,2,3}) – `code/evaluation/sensitivity.py`  
+    • Retrains both models for every grid point, records metrics, and writes `artifacts/reports/sensitivity_report.json`.  
+    • Verification: the JSON file contains an entry for each combination (3 entries) and each entry conforms to the `sensitivity_analysis` schema.
 
-- [ ] T030 [P] Ensure zero `ruff` warnings – (already verified)  
-  • Test `tests/unit/test_ruff_clean.py` runs `ruff` and asserts no warnings.
+- [ ] T015 [P] [US3] Ablation study removing solvent descriptors – `code/evaluation/ablation.py`  
+    • When `data_source_flag.json` = `"real"`, drops `solvent_features` from the input, retrains the MPNN, and writes `artifacts/reports/ablation_report.json`.  
+    • Skips execution for synthetic data with a logged notice.  
+    • Verification: for real data the ablation JSON exists and contains fields `r` and `rmse`; for synthetic runs the script exits with status 0 and logs “Ablation skipped: synthetic data”.
 
-- [ ] T032a [P] Provide quick‑start script that runs the full pipeline on synthetic data – `run_quickstart.py`  
-  • Exits with status 0, creates all artifacts except `evaluation.json` (because synthetic).  
-  • Test `tests/unit/test_quickstart.py` checks exit code and artifact presence.
-
-- [ ] T035 [P] Record resource summary (runtime & memory) – `artifacts/reports/resource_summary.json` (generated by `monitor.py`)  
-  • Test `tests/contract/test_resource_summary.py` ensures numeric `total_seconds` < 21600 and `peak_memory_mb` < 7000.
-
-- [ ] T036 [P] Add contract test for hypothesis status based on Pearson r – `tests/contract/test_pearson_threshold.py`  
-  • Loads `evaluation.json` and asserts `hypothesis_status` matches the r‑threshold logic (r > 0.7 → “positive”, r < 0.3 → “null”).
-
-- [ ] T039 [P] Add contract test that the sensitivity summary includes a clear stability statement – `tests/contract/test_sensitivity_stability_report.py`.
-
-- [ ] T040 [P] Add CI workflow that runs the full synthetic pipeline, linting, and all tests – `.github/workflows/ci.yml`  
-  • Ensures CI fails on any warning, missing artifact, or test failure.
+- [ ] T016 [P] [US3] Outlier‑robustness analysis – `code/evaluation/outlier_analysis.py`  
+    • Computes Pearson r on the full test set and again after removing the top 5 % highest residuals; writes `artifacts/reports/outlier_analysis.json`.  
+    • Verification: the JSON includes `full_set_r` and `trimmed_set_r` numeric fields.
 
 ---
 
-## Phase 6 – Verification & Cleanup
+## Phase 5 – Documentation, quick‑start & CI
 
-- [ ] T057 [P] Verify error handling when a URL is present but download fails – `code/ingestion/fetch_real.py` (already updated)  
-  • Test `tests/unit/test_url_validation.py` confirms proper exception.
+- [ ] T017 [P] Write a user‑facing quick‑start script that runs the full pipeline on synthetic data – `run_quickstart.py`  
+    • Calls the synthetic generator, ingestion, featurization, training (CPU‑only), and sensitivity sweep; **does not** attempt to write `evaluation.json` (synthetic flag prevents it).  
+    • Exits with status 0 and leaves a complete set of artifacts under `artifacts/`.  
+    • Verification: after execution, `run_quickstart.py` returns 0 and the directory `artifacts/reports/` contains `sensitivity_report.json` and `outlier_analysis.json` but no `evaluation.json`.
 
-- [ ] T047 [P] Register successful real‑data download – `code/ingestion/register_dataset.py` writes `data/verified_datasets.json` and updates `plan.md`.  
-  • Test `tests/contract/test_dataset_registry.py` validates JSON fields and plan update.
+- [ ] T018 [P] Add a CI workflow that lints, runs all unit/integration tests, and executes the quick‑start script – `.github/workflows/ci.yml`  
+    • Uses the default free‑tier runner (2 CPU cores, ≤ 7 GB RAM).  
+    • Fails on any lint warning, test failure, or non‑zero exit from `run_quickstart.py`.  
+    • Verification: the workflow file exists and a local execution of the test suite (e.g., `pytest`) returns 0.
 
-- [ ] T048 [P] Verify `plan.md` reflects real dataset URL after download – (covered by T000d).
-
-- [ ] T049_test_flag_source_1 [P] Unit test ensuring `data_source_flag.json` records `"real"` correctly – `tests/unit/test_flag_source_real.py`  
-  • Checks both branches of the flag logic for the real source.
-
-- [ ] T050_test_flag_source_2 [P] Unit test ensuring `data_source_flag.json` records `"synthetic"` correctly – `tests/unit/test_flag_source_synthetic.py`  
-  • Mirrors the above test for the synthetic branch.
-
-- [ ] T051 [P] Ensure all task identifiers are unique and follow the `T###` pattern – (manual audit performed)  
-  • No action required in code; verification passes.
+- [ ] T019 [P] Validate final reports against project contracts – `code/evaluation/validate_reports.py`  
+    • Validates `artifacts/reports/evaluation.json` against `contracts/results.schema.yaml` and `artifacts/reports/results_report.json` against `contracts/results_report.schema.yaml`.  
+    • Verification: script exits with status 0 if all real-data reports conform to their respective schemas.
 
 ---
 
-### Dependencies & Requirement Coverage
+### Dependency‑to‑requirement mapping (summary)
 
-| Spec Requirement | Satisfying Task(s) |
+| Spec requirement | Satisfying task(s) |
 |------------------|--------------------|
-| FR‑001 | T000b, T012 |
-| FR‑002 | T010, T015 |
-| FR‑003 | T016, T041 |
-| FR‑004 | T019a, T019b |
-| FR‑005 | T021, T046 |
-| FR‑006 | T025a, T025b, T024, T042 |
-| FR‑007 | T008, T005, T006b |
-| SC‑001 | T020, T036 |
-| SC‑002 | T021, T046 |
-| SC‑003 | T004, T006, T035 |
-| SC‑004 | T025b, T027 |
-| SC‑005 | T006, T035 |
-| Edge‑case handling (large molecules, missing data, synthetic fallback) | T006b, T008, T007c, T025c, T046 |
+| FR‑001 | T003 |
+| FR‑002 | T006, T007 |
+| FR‑003 | T008, T011 |
+| FR‑004 | T010, T011 |
+| FR‑005 | T013, T012 |
+| FR‑006 | T014, T015, T016 |
+| FR‑007 | T005, T006, T007 |
+| SC‑001 | T012 |
+| SC‑002 | T013 |
+| SC‑003 | T012 |
+| SC‑004 | T014, T015, T016 |
+| SC‑005 | T006, T011 |
+| Edge‑case handling (large molecules, missing data, synthetic fallback) | T005, T006, T002, T015, T012 |
 
-All tasks are ordered to respect data flow: directory creation → raw data acquisition → ingestion → featurization → model training → evaluation → analysis → reporting.
+All tasks respect the data flow: directory creation → raw‑data acquisition → validation → featurization → model training → evaluation → analysis → reporting.
