@@ -1,0 +1,53 @@
+T001:
+  reason: "The expected root folder `projects/PROJ-001-assessing-statistical-power/`\
+    \ does not exist (it was created under a different parent path), and many required\
+    \ sub\u2011directories lack the placeholder `.gitkeep` files (e.g., `code/`, `code/utils/`,\
+    \ `tests/unit/`, `tests/integration/`, etc.). The task\u2019s directory\u2011\
+    tree and placeholder file requirements are therefore not satisfied."
+  task: f601b39ee8ebeef163aa6e6481dc773fb45ed763416940616bf51385b1d0b7f6
+T002:
+  reason: The `requirements.txt` and `config.yaml` files exist with the correct contents,
+    but there is no provided evidence that `pip install -r requirements.txt --dry-run`
+    actually succeeded nor that `yaml.safe_load("config.yaml")` was executed and returned
+    the expected dictionary. Execution logs or command output are needed to confirm
+    those verification steps.
+  task: dcaeefa0a2f2e975515379cf97c5d6e62d66b4bd77e2618b25fff8803bcecf91
+T003:
+  reason: "The four schema files exist and appear syntactically valid YAML, but there\
+    \ is no evidence that they were successfully loaded with `yaml.safe_load` nor\
+    \ that a `jsonschema.Draft7Validator` was run against a minimal valid instance\
+    \ for each schema. Execution logs, test scripts, or example instance files are\
+    \ missing, so the task\u2019s validation requirement is not demonstrated."
+  task: c3ba56c391eb34f7068d63949a82ded611c6114714cabc83a7dee5381ea163ec
+T004:
+  reason: "The `code/utils/__init__.py` imports `OpenMLClient` and `fetch_top_classification_datasets`\
+    \ from `api_client.py`, but those symbols are not defined, causing ImportError\
+    \ during test collection (see all three test logs). Consequently the unit\u2011\
+    tests for `api_client`, `oa_checker`, and `parsers` never run, and the required\
+    \ functionality (exponential\u2011backoff wrapper, OA domain checks, parsing helpers,\
+    \ and the custom `DataFetchError`) is not verified as present. The task needs\
+    \ the missing classes/functions and the import error fixed so that `pytest -q\
+    \ tests/unit/` can execute and all tests pass."
+  task: d1fd21f1dc24b2ff6d073b1184aa5cb3a834bf28c2cddddeafd37bf81deeb74e
+T005:
+  reason: 'Requested task execution failed; rerun successfully: code/01_ingest_openml.py
+    exit=1'
+  task: 2e9b53375e22f66d07f7d178716194ea92be91e40887fc96476460715bfea79f
+T006:
+  task: deb89206560a65f28e111ef8f31f0a169c374608c43fdbaebfe848036a29c52b
+T007:
+  task: 55ddd3fe4d869ecd90c832401bedf24e0a9ec4f2b0283fa9853e8ac587641098
+T008:
+  task: 959fe7b9acab2ee1405931b4bd4030620073152d997f190ced68f3da7f5509f0
+T009:
+  task: 8d63607facd5165551a7dbf5568564022075013319d5506ee4d314c0e8746bad
+T010:
+  task: 9c887173adeed4ef1fcce6f4775903a76ff6c42eda452154278079b16e386b34
+T011:
+  task: f73f37819d26a9ca7a675fbad700f0240e8a3a7c79ba13b930120d82e2c8e782
+T012:
+  task: b27f0baf1dcf842f6a63f33ba9a2b5c1c57e3d8294d4d50fb2ccc26832d52436
+T013:
+  task: 620e33069325be7c551f3582633a585a8716d6b4bd5d897639836789cb9ac1b2
+T014:
+  task: 147b467f36f59cea67982c7ea6a5e3247a4dcce316580a5970f2ecd387e569c0

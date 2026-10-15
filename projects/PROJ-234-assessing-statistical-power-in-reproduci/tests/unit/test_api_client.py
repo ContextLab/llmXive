@@ -1,42 +1,71 @@
 """
-Unit tests for the OpenML API client.
+Unit tests for ``code.utils.api_client``.
 """
-import pytest
-from unittest.mock import patch, MagicMock
-from code.utils.api_client import OpenMLClient
 
-@patch('code.utils.api_client.requests.Session')
-def test_api_client_retry_on_429(mock_session_class):
-    """
-    Test that the OpenMLClient handles HTTP 429 errors with retry logic.
-    """
-    # Mock the session and its get method
-    mock_session = MagicMock()
-    mock_session_class.return_value = mock_session
-    
-    # Configure the mock to raise a 429 error first, then succeed
-    from requests.exceptions import HTTPError
-    import requests
-    
-    response_429 = MagicMock()
-    response_429.status_code = 429
-    response_429.raise_for_status.side_effect = HTTPError("429 Too Many Requests")
-    
-    response_200 = MagicMock()
-    response_200.status_code = 200
-    response_200.json.return_value = {"datasets": []}
-    
-    # The adapter logic in urllib3 handles retries, but we can test the client setup
-    # The actual retry behavior is handled by the HTTPAdapter with Retry strategy.
-    # We verify that the adapter is configured correctly.
-    
-    client = OpenMLClient()
-    
-    # Verify that the adapter is mounted
-    assert "http://" in client.session.adapters
-    assert "https://" in client.session.adapters
-    
-    # Verify the retry strategy is configured
-    adapter = client.session.adapters['https://']
-    assert adapter.max_retries.total == 5
-    assert 429 in adapter.max_retries.status_forcelist
+import json
+from unittest import mock
+
+import pytest
+
+from code.utils.api_client import DataFetchError, get_openml_json
+
+# ----------------------------------------------------------------------
+# Helper to build a dummy ``requests.Response``‑like object.
+# ----------------------------------------------------------------------
+class _DummyResponse:
+    def __init__(self, status_code: int, json_data=None):
+        self.status_code = status_code
+        self._json_data = json_data
+
+    def json(self):
+        if self._json_data is None:
+            raise json.JSONDecodeError("Expecting value", "", 0)
+        return self._json_data
+
+    @property
+    def ok(self):
+        return 200 <= self.status_code < 300
+
+# ----------------------------------------------------------------------
+def test_successful_fetch(monkeypatch):
+    dummy = _DummyResponse(200, {"data": "ok"})
+    monkeypatch.setattr("requests.get", lambda *a, **kw: dummy)
+
+    result = get_openml_json("datasets/list", max_retries=0)
+    assert result == {"data": "ok"}
+
+# ----------------------------------------------------------------------
+def test_rate_limit_retry(monkeypatch):
+    calls = []
+
+    def fake_get(url, timeout):
+        calls.append(url)
+        # First two attempts: 429, third: 200
+        if len(calls) < 3:
+            return _DummyResponse(429)
+        return _DummyResponse(200, {"final": True})
+
+    monkeypatch.setattr("requests.get", fake_get)
+
+    result = get_openml_json("datasets/list", max_retries=5, initial_delay=0, max_delay=0)
+    assert result == {"final": True}
+    assert len(calls) == 3
+
+# ----------------------------------------------------------------------
+def test_non_retryable_error(monkeypatch):
+    monkeypatch.setattr("requests.get", lambda *a, **kw: _DummyResponse(500))
+
+    with pytest.raises(DataFetchError) as excinfo:
+        get_openml_json("datasets/list", max_retries=1, initial_delay=0, max_delay=0)
+    assert excinfo.value.status_code == 500
+
+# ----------------------------------------------------------------------
+def test_invalid_json(monkeypatch):
+    # Return a 200 but with unparsable JSON.
+    monkeypatch.setattr(
+        "requests.get", lambda *a, **kw: _DummyResponse(200, json_data=None)
+    )
+
+    with pytest.raises(DataFetchError) as excinfo:
+        get_openml_json("datasets/list", max_retries=0)
+    assert excinfo.value.status_code == 200

@@ -1,0 +1,18 @@
+status: none
+intent: OpenML most downloaded classification datasets metadata python package dataset
+required_fields:
+- dataset_id
+- name
+- default_target_attribute
+- number_of_instances
+- number_of_features
+- number_of_classes
+- number_of_missing_values
+- download_url
+- download_count
+- citation
+- publication_link
+- task_ids
+cache_key: 0b18345635a578c449ea823ed5c47cd8e0616bb26c39f94e0a43f35068526999
+searched_at: '2026-10-15T18:25:49.584825+00:00'
+retry_count: 1

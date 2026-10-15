@@ -1,108 +1,88 @@
 """
-Open Access Checker utilities.
+utils/oa_checker.py
+-------------------
+Helper to decide whether a URL points to an Open‑Access (OA) resource.
 
-Refactored to extract OA-check logic into a shared helper.
+The function recognises a small whitelist of well‑known OA domains and,
+for any other URL, performs a lightweight ``HEAD`` request to inspect the
+``Content‑Type`` header.  If the request fails or the content type is not
+indicative of openly readable material, ``False`` is returned.
+
+All failures raise :class:`DataFetchError` so that callers can treat the
+situation uniformly.
 """
+
+from __future__ import annotations
+
+import re
+from urllib.parse import urlparse
+
 import requests
-import logging
-from typing import Optional, Dict, Any
 
-logger = logging.getLogger(__name__)
+from .api_client import DataFetchError
 
-def _check_url_content_type(url: str) -> Optional[str]:
-    """
-    Helper to fetch the content type of a URL without downloading the full body.
-    
-    Args:
-        url: The URL to check.
-        
-    Returns:
-        The Content-Type header value if successful, None otherwise.
-    """
-    try:
-        # Use HEAD request to avoid downloading the full body
-        response = requests.head(url, timeout=10, allow_redirects=True)
-        return response.headers.get("Content-Type")
-    except requests.RequestException as e:
-        logger.warning(f"Failed to check content type for {url}: {e}")
-        return None
+__all__ = ["is_open_access"]
 
-def is_open_access(url: str) -> bool:
-    """
-    Determine if a publication URL is likely Open Access.
-    
-    This is a heuristic check based on content type. 
-    PDFs and HTML from known OA domains are more likely to be OA.
-    For strict DOI checks, use check_doi_oa_status.
-    
-    Args:
-        url: The URL of the publication.
-        
-    Returns:
-        True if likely Open Access, False otherwise.
-    """
-    if not url:
-        return False
-        
-    content_type = _check_url_content_type(url)
-    
-    if content_type is None:
-        logger.info(f"Could not determine content type for {url}, assuming paywalled.")
-        return False
-        
-    # Heuristic: PDFs and HTML are often OA if accessible via HEAD
-    # In a real scenario, we might check specific domains or patterns
-    if "pdf" in content_type.lower() or "html" in content_type.lower():
-        return True
-        
+# Simple whitelist of domains that are known to provide OA content.
+_OA_DOMAIN_PATTERNS = [
+    re.compile(r"arxiv\.org", re.IGNORECASE),
+    re.compile(r"doi\.org/10\.", re.IGNORECASE),
+    re.compile(r"pubmedcentral\.nih\.gov", re.IGNORECASE),
+]
+
+def _matches_oa_domain(url: str) -> bool:
+    """Return True if the URL contains a recognised OA domain."""
+    hostname = urlparse(url).netloc
+    for pat in _OA_DOMAIN_PATTERNS:
+        if pat.search(hostname):
+            return True
     return False
 
-def check_doi_oa_status(doi: str) -> Dict[str, Any]:
+def is_open_access(url: str, *, timeout: float = 10.0) -> bool:
     """
-    Check the Open Access status of a DOI using the Crossref/OA API.
-    
-    Args:
-        doi: The DOI string (e.g., '10.1000/xyz').
-        
-    Returns:
-        A dictionary with 'is_open' (bool) and 'license' (str or None).
+    Determine whether ``url`` points to an Open‑Access resource.
+
+    The check proceeds in two steps:
+    1. If the hostname matches a known OA domain, ``True`` is returned
+       immediately (no network request performed).
+    2. Otherwise a ``HEAD`` request is issued.  If the request succeeds and
+       the ``Content‑Type`` header indicates a readable format
+       (``text/html`` or ``application/pdf``), the function returns ``True``.
+       Any other content type or a failed request results in ``False``.
+
+    Parameters
+    ----------
+    url:
+        The URL to test.
+    timeout:
+        Seconds to wait for the ``HEAD`` request.
+
+    Returns
+    -------
+    bool
+        ``True`` if the resource appears to be OA, ``False`` otherwise.
     """
-    if not doi:
-        return {"is_open": False, "license": None}
-        
-    # Normalize DOI
-    doi = doi.strip()
-    if doi.startswith("https://doi.org/"):
-        doi = doi.replace("https://doi.org/", "")
-    elif doi.startswith("http://doi.org/"):
-        doi = doi.replace("http://doi.org/", "")
-        
-    url = f"https://api.crossref.org/works/{doi}"
-    
+    if _matches_oa_domain(url):
+        return True
+
     try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        
-        message = data.get("message", {})
-        license_info = message.get("license", [])
-        
-        is_open = False
-        license_url = None
-        
-        if license_info:
-            # Check for license terms that indicate OA (e.g., CC-BY)
-            for lic in license_info:
-                if "content-version" in lic or "start" in lic:
-                    is_open = True
-                    license_url = lic.get("URL")
-                    break
-                    
-        return {"is_open": is_open, "license": license_url}
-        
-    except requests.RequestException as e:
-        logger.error(f"Failed to check OA status for DOI {doi}: {e}")
-        return {"is_open": False, "license": None}
-    except (ValueError, KeyError) as e:
-        logger.error(f"Failed to parse OA response for DOI {doi}: {e}")
-        return {"is_open": False, "license": None}
+        response = requests.head(url, allow_redirects=True, timeout=timeout)
+    except requests.RequestException as exc:
+        # Network problems – treat as not OA but surface a clear error.
+        raise DataFetchError(f"Failed to perform HEAD request for {url}") from exc
+
+    # Some servers do not implement HEAD; fall back to GET with stream=False.
+    if response.status_code == 405:  # Method Not Allowed
+        try:
+            response = requests.get(url, stream=False, timeout=timeout)
+        except requests.RequestException as exc:
+            raise DataFetchError(f"Failed GET fallback for {url}") from exc
+
+    if not response.ok:
+        return False
+
+    ct = response.headers.get("Content-Type", "").lower()
+    # Accept typical OA MIME types.
+    if "text/html" in ct or "application/pdf" in ct:
+        return True
+    return False

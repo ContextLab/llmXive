@@ -1,106 +1,39 @@
-T010b:
+T001:
   c: false
-  h: 37722074178da2410bf730db60663515858240af91abfaeba78ee7309133cc07
-  r: The test `test_dataset_metadata_schema` exists, but the required artifacts `data/raw/openml_metadata_filtered.json`
-    and the schema file `contracts/dataset_metadata.schema.yaml` are missing, so the
-    contract validation cannot be performed.
-T015:
+  h: b626ff50d7b88b60ba652341d5eb5e2454efbe2ac3f0de37afbcc8069ea5dd57
+  r: "The expected root folder `projects/PROJ-001-assessing-statistical-power/` does\
+    \ not exist (it was created under a different parent path), and many required\
+    \ sub\u2011directories lack the placeholder `.gitkeep` files (e.g., `code/`, `code/utils/`,\
+    \ `tests/unit/`, `tests/integration/`, etc.). The task\u2019s directory\u2011\
+    tree and placeholder file requirements are therefore not satisfied."
+  sig: 1e95cbedb9d7e9134fdc214c9e92f320fcbba792f8b3747679a9f35000aa484c
+T002:
   c: false
-  h: 4a47fe0244967c92bb0cc1489b8752ff218e8cba810215ff6ce3702061250a7e
-  r: The required artifact `data/ingest.log` does not exist, so no JSON extraction
-    statistics are logged as specified. The implementer must create the `data/ingest.log`
-    file with the appropriate JSON content.
-T016:
+  h: 5f04b7f50bfbeb493fd503df90bd108e1c44a6b5e77c1a7d98440ae1f5d79e3c
+  r: The `requirements.txt` and `config.yaml` files exist with the correct contents,
+    but there is no provided evidence that `pip install -r requirements.txt --dry-run`
+    actually succeeded nor that `yaml.safe_load("config.yaml")` was executed and returned
+    the expected dictionary. Execution logs or command output are needed to confirm
+    those verification steps.
+  sig: 69c03adaa513f672d9be3a9fa611484c86eb1730df1400cad1f58db5294ac680
+T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, or documentation was provided that shows a check for duplicate\
-    \ IDs and the raising of a `ValueError` when any remain after resolution. The\
-    \ required artifact (implementation of the duplicate\u2011ID validation logic)\
-    \ is missing, so the task is not satisfied."
-T021:
+  h: d625dfbb540388e3f544275a9a5e058e8848a738806340bf7d5979c91d1968ec
+  r: "The four schema files exist and appear syntactically valid YAML, but there is\
+    \ no evidence that they were successfully loaded with `yaml.safe_load` nor that\
+    \ a `jsonschema.Draft7Validator` was run against a minimal valid instance for\
+    \ each schema. Execution logs, test scripts, or example instance files are missing,\
+    \ so the task\u2019s validation requirement is not demonstrated."
+  sig: 4d543cf50cef38be7c28b0e479bbe5dce9daab4c872fb17a28b3e868de04559f
+T004:
   c: false
-  h: 40efad785569eb38931520f38b48bb1c83b0de1750e2351146f8313d6f8a48db
-  r: "The `code/02_parse_publications.py` file is truncated and does not contain the\
-    \ logic to iterate over the raw JSON, invoke the full\u2011text fetch, parse results,\
-    \ and write them to `data/processed/extracted_params.json`. Moreover, the required\
-    \ output file `data/processed/extracted_params.json` is absent. The implementation\
-    \ therefore does not fulfill the task\u2019s requirements."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or unit\u2011test files were provided that demonstrate fetching\
-    \ the full\u2011text with `requests.get`, invoking `oa_checker.is_open_access`,\
-    \ handling the paywalled case, or a mock\u2011based test verifying this behavior.\
-    \ The required artifacts are missing, so the task is not satisfied."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided showing that a DOI metadata API\
-    \ fallback is attempted when full\u2011text fetch fails, that the abstract is\
-    \ parsed with the same regexes, or that the source field is set to `\"abstract\"\
-    `. The required implementation artifact is missing."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission contains only the task description and specification excerpts;
-    there is no code, JSON output, or log evidence showing that entries lacking extractable
-    metrics are marked `"unparseable"` and that a warning is logged without crashing.
-    The required artifact (implementation handling the edge case) is missing.
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., a JSON/CSV file, database dump, or code that writes extracted
-    records) was provided, and there is no evidence that the system actually saves
-    each extracted record with the required fields. The implementer only supplied
-    a feature specification without any concrete output.
-T029:
-  c: false
-  h: dc2f7f8d3d0d4a83e8e217169816c617b99c3ec570d5f4f20474ed1e20104bb4
-  r: The required unit test file `tests/unit/test_sensitivity.py` is missing from
-    the repository, so no test code or results exist to verify the expected observed
-    power and MDES values. Without the test artifact, the claim cannot be validated.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or test output was provided that shows entries with `metric_type\
-    \ \"F\"` are converted to Cohen\u2019s\u202Fd, that power values are clamped to\
-    \ \u2264\u202F1.0, or that a warning is logged. The required implementation artifact\
-    \ is missing."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `audit_report.md` file or its contents were provided, and there is no evidence
-    that a mandatory disclaimer was appended to the end of such a file. The required
-    artifact is missing, so the task is not satisfied.
-T037:
-  c: false
-  h: dc67c1d14774336c9370312d7fb1b48f8587d8fb1035f71c0ca52f9a07b22ef4
-  r: "The required file `data/processed/audit_report.md` does not exist, so the final\
-    \ audit report was not assembled as specified. The task\u2019s primary deliverable\
-    \ is missing."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No refactored files or commit changes are present in the `code/utils/` directory;
-    the implementer provided only a feature specification unrelated to the refactoring
-    task, leaving the required code artifacts missing.
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, JSON outputs, or audit report were supplied; the implementer
-    provided only the task description without any of the required artifacts (e.g.,
-    data ingestion script, parsing results, power calculations, or generated report).
-    Consequently, the claim that the performance harness has been run cannot be verified.
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `audit_report.md` file or any logs/evidence of a successful pipeline run are
-    present; without these artifacts the claim that the full pipeline executed without
-    error cannot be verified. The required output is missing.
-T044:
-  c: false
-  h: 972599fb4c5febe875a4f7f304d39c2ed064c3a99386988dfe1bccfaaef9ab98
-  r: "The required `config.yaml` file is absent, so the limit cannot be read from\
-    \ it, and no evidence of a memory\u2011profiling implementation or enforcement\
-    \ logic is provided. Without the configuration file (or a default fallback) and\
-    \ the corresponding code, the task\u2019s requirement is not met."
+  h: 3a86e4e129f6ae2509a3e609c69392910e81e4f0d26adf3d1db6e105bf6b051c
+  r: "The `code/utils/__init__.py` imports `OpenMLClient` and `fetch_top_classification_datasets`\
+    \ from `api_client.py`, but those symbols are not defined, causing ImportError\
+    \ during test collection (see all three test logs). Consequently the unit\u2011\
+    tests for `api_client`, `oa_checker`, and `parsers` never run, and the required\
+    \ functionality (exponential\u2011backoff wrapper, OA domain checks, parsing helpers,\
+    \ and the custom `DataFetchError`) is not verified as present. The task needs\
+    \ the missing classes/functions and the import error fixed so that `pytest -q\
+    \ tests/unit/` can execute and all tests pass."
+  sig: 3e9a9082d3ce1bde3b0b4d7e483e1ca5ba5e9bb9c640480870d59eb8c719e1b0

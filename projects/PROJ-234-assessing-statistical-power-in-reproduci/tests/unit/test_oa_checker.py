@@ -1,75 +1,47 @@
 """
-Unit tests for the Open Access checker.
+Unit tests for ``code.utils.oa_checker``.
 """
+
+from unittest import mock
+
 import pytest
-from unittest.mock import patch, MagicMock
-from code.utils.oa_checker import is_open_access, check_doi_oa_status
 
-@patch('code.utils.oa_checker.requests.head')
-def test_oa_status(mock_head):
-    """
-    Test is_open_access function with a successful 200 response.
-    """
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.headers = {"Content-Type": "application/pdf"}
-    mock_head.return_value = mock_response
+from code.utils.oa_checker import is_open_access, DataFetchError
 
-    result = is_open_access("https://example.com/paper.pdf")
-    assert result is True
-    mock_head.assert_called_once()
+# ----------------------------------------------------------------------
+def test_known_oa_domains():
+    # Domains that are whitelisted should return True without any network call.
+    assert is_open_access("https://arxiv.org/abs/1234.5678")
+    assert is_open_access("https://doi.org/10.1000/xyz123")
+    assert is_open_access("https://pubmedcentral.nih.gov/articles/PMC1234567")
 
-@patch('code.utils.oa_checker.requests.head')
-def test_oa_status_404(mock_head):
-    """
-    Test is_open_access function with a 404 response.
-    """
-    mock_response = MagicMock()
-    mock_response.status_code = 404
-    mock_head.return_value = mock_response
+# ----------------------------------------------------------------------
+def test_head_request_success(monkeypatch):
+    mock_response = mock.Mock()
+    mock_response.ok = True
+    mock_response.headers = {"Content-Type": "text/html; charset=utf-8"}
 
-    result = is_open_access("https://example.com/missing.pdf")
-    assert result is False
+    monkeypatch.setattr("requests.head", lambda *a, **kw: mock_response)
 
-@patch('code.utils.oa_checker.requests.get')
-def test_oa_status_405_fallback(mock_get):
-    """
-    Test is_open_access function fallback to GET when HEAD is 405.
-    """
-    mock_head = MagicMock()
-    # We need to patch requests.head to return 405, then requests.get to return 200
-    # But the function patches requests.head internally. We need to mock the module's requests.
-    # Let's patch the specific module.
-    pass 
-    # The implementation uses requests.head directly. To test the 405->GET fallback:
-    # We mock requests.head to raise 405, then requests.get to succeed.
-    # However, the function is in a module. We need to patch 'code.utils.oa_checker.requests'.
-    
-    # Re-implementing the test logic for the actual code structure:
-    # The code calls requests.head. If it returns 405, it calls requests.get.
-    
-@patch('code.utils.oa_checker.requests.get')
-def test_check_doi_oa_status(mock_get):
-    """
-    Test check_doi_oa_status function.
-    """
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.url = "https://example.com/paper"
-    mock_get.return_value = mock_response
+    assert is_open_access("https://example.com/open-access-paper")
 
-    # Also mock the metadata request for Crossref
-    with patch('code.utils.oa_checker.requests.get') as mock_meta_get:
-        mock_meta_resp = MagicMock()
-        mock_meta_resp.status_code = 200
-        mock_meta_resp.json.return_value = {
-            "message": {
-                "is-oa": True,
-                "title": ["Test Title"]
-            }
-        }
-        mock_meta_get.return_value = mock_meta_resp
+# ----------------------------------------------------------------------
+def test_head_request_non_oa(monkeypatch):
+    mock_response = mock.Mock()
+    mock_response.ok = True
+    mock_response.headers = {"Content-Type": "application/octet-stream"}
 
-        result = check_doi_oa_status("10.1000/182")
-        assert result["status"] == "open_access"
-        assert result["url"] == "https://example.com/paper"
+    monkeypatch.setattr("requests.head", lambda *a, **kw: mock_response)
+
+    assert not is_open_access("https://example.com/paywalled")
+
+# ----------------------------------------------------------------------
+def test_head_request_failure(monkeypatch):
+    # Simulate a network error.
+    monkeypatch.setattr(
+        "requests.head",
+        lambda *a, **kw: (_ for _ in ()).throw(RuntimeError("network error")),
+    )
+
+    with pytest.raises(DataFetchError):
+        is_open_access("https://example.com/bad")
