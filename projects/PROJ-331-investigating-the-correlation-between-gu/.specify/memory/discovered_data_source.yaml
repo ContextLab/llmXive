@@ -1,12 +1,14 @@
 status: none
-intent: download PPMI longitudinal 16S ASV counts and MDS-UPDRS clinical data python
+intent: Parkinson's Progression Markers Initiative microbiome 16S ASV dataset python
   package dataset
 required_fields:
 - sample_id
-- patient_id
-- visit_timepoint
-- asv_counts (taxon count columns)
+- asv_id
+- asv_count
+- subject_id
+- visit_number
+- visit_date
 - MDS_UPDRS_total
-cache_key: dd6c6a64f4e11e120044a70aab65e0e685cd9049d64e5f1b3df0abd2192a3349
-searched_at: '2026-10-15T01:59:50.641625+00:00'
+cache_key: 3c5184fd249b68d9dc20b7c04cd402909d71bb55ee4b9bfae55a8c88bd7d2b0c
+searched_at: '2026-10-15T04:19:19.030656+00:00'
 retry_count: 1

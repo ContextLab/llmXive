@@ -5,9 +5,11 @@ T001:
     to write only project-owned outputs.'
   task: 063d19d7b82df387ebe83a34f748333a124d9faa6a305865380f7f91df3d4306
 T002:
-  reason: "The required output files `data/processed/filtered_samples.parquet` and\
-    \ `data/processed/clr_abundances.parquet` are missing from the project, so the\
-    \ task\u2019s artifact deliverables are not present."
+  reason: "The `preprocess.py` module cannot be imported because the required `skbio`\
+    \ package is not installed, causing the test suite to error out. Moreover, the\
+    \ expected output files `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
+    \ are absent from the repository. Both issues prevent the task\u2019s verification\
+    \ tests from running and the required artifacts from being produced."
   task: a9108afb3ad685a072dc55335635e13be1d914b2c9aea5dc3aded3e2e1f7d351
 T003:
   reason: "The required output files `data/processed/patient_taxon_slopes.parquet`\
@@ -17,32 +19,31 @@ T003:
     \ (e.g., by running `run_slopes`) and committed."
   task: 5f96af494e7006b88a7233be68e294507d937ed779e88b79fdc768628401f092
 T004:
-  reason: "I examined `code/src/pipeline/correlation.py`, the contract test, and the\
-    \ full pipeline test. The module implements plain Spearman correlation and writes\
-    \ `results/taxa_correlations.csv`, and the CSV file exists and matches the schema.\
-    \ However, the pipeline cannot actually run: the historical log shows an `ImportError`\
-    \ when `pd.read_parquet` is called because no parquet engine (`pyarrow` or `fastparquet`)\
-    \ is installed, so the correlation step crashes before producing any results.\
-    \ Moreover, the partial\u2011correlation branch fails to locate covariate data,\
-    \ returns an empty DataFrame, and the test `t"
+  reason: "The repository contains a placeholder `results/taxa_correlations.csv` (columns\
+    \ `spearman_rho` instead of the required `spearman_rho_adj` and implausible perfect\u2011\
+    correlation values) and the pipeline\u2019s tests cannot even be collected because\
+    \ `code/src/pipeline/preprocess.py` imports the unavailable `skbio` package, causing\
+    \ `ImportError`. Consequently the contract test and `test_correlation.py` never\
+    \ run, and there is no evidence that a real plain Spearman correlation was computed,\
+    \ BH\u2011adjusted, and written to the CSV as specified. The required artifact\
+    \ is therefore incorrect/missing."
   task: b4b75f45b43b046428f29e72c952a25f258f7fead6ac1a01d44670802993791b
 T005:
   task: 55cf038d957747e4fb5a0378d32540173c423350b9cefb1694db2460106e7a1e
 T006:
-  reason: "Checked `code/src/pipeline/permutation.py` (implements the required shuffling,\
-    \ LME fitting, 4\u2011hour guard) and the produced artifact `results/permutation_pvalues.csv`.\
-    \ The CSV contains only the header (`taxon_name,empirical_p`) with no rows because\
-    \ the script exited early due to missing CLR input data, as shown in the execution\
-    \ log. An empty results file does not satisfy the task\u2019s requirement to record\
-    \ empirical p\u2011values for each taxon. The permutation module must be run on\
-    \ actual data (or the test must generate and use valid CLR/clinical files) so\
-    \ that the output CSV contains a row per taxon"
+  reason: "The repository contains `results/permutation_pvalues.csv`, but it is empty\
+    \ (only the header line) and therefore does not hold the empirical p\u2011values\
+    \ required by Task\u202FT006. The permutation script itself is present, but the\
+    \ required output artifact is missing real data. The task needs a populated CSV\
+    \ with taxon names and empirical p\u2011values."
   task: e31e6136ac684d50b4e31956f7d861b3354a82e8fbbd64fade9f18e4830f435b
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/__main__.py
     exit=1; tests/test_runtime_budget_execution.py exit=2'
   task: 798b530dbd95fe4a6dd08b8214e31f7faf29895d20eec54a0551917784746225
 T008:
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/run_us1.py
+    exit=1'
   task: 6d13f8aef2719c50c172d2a209970139a58f3358477a2cf1a80efa54088fc32b
 T009:
   task: e22ee2626a073e7947bf28fcfbc4a08a4d5491752fd80c7e083c07ef075d58a2

@@ -54,7 +54,7 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
 
 ## Phase 3 – End‑to‑end user‑story wrappers, reporting, and handoff  
 
-- [ ] **T008** Execute User Story 1 (correlation‑only) end‑to‑end pipeline  
+- [ ] **T008** Execute User Story 1 (correlation‑only) end‑to‑end pipeline   <!-- FAILED-IN-EXECUTION: code/src/pipeline/run_us1.py exit=1 -->
   - **Description**: `code/src/pipeline/run_us1.py` sequentially invokes T001 → T002 → T003 → T004, then writes `results/taxa_correlations.csv` and `results/runtime_log.txt`.  
   - **Artifacts**: `results/taxa_correlations.csv`, `results/runtime_log.txt`  
   - **Verification**: `code/tests/test_us1_execution.py` asserts that the correlation file contains a row for every retained taxon, that BH‑adjusted p‑values are present, and that total runtime ≤ 6 h.

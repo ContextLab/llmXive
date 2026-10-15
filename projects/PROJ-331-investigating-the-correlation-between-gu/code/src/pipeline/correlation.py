@@ -11,6 +11,7 @@ import argparse
 import logging
 from pathlib import Path
 from typing import Tuple, Optional
+
 import pandas as pd
 import scipy.stats as stats
 import numpy as np
@@ -56,14 +57,16 @@ def _compute_spearman(taxon_slopes: pd.DataFrame, outcome_slopes: pd.DataFrame) 
     common = taxon_wide.index.intersection(outcome_slopes["patient_id"])
     if common.empty:
         logger.warning("No common patients found between taxon slopes and outcome slopes.")
-        return pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p"])
+        return pd.DataFrame(columns=["taxon_name", "spearman_rho_adj", "raw_p"])
 
     taxon_wide = taxon_wide.loc[common]
     outcome_series = outcome_slopes.set_index("patient_id").loc[common, "outcome_slope"]
     results = []
     for taxon in taxon_wide.columns:
         rho, p = stats.spearmanr(taxon_wide[taxon], outcome_series, nan_policy="omit")
-        results.append({"taxon_name": taxon, "spearman_rho": rho, "raw_p": p})
+        results.append(
+            {"taxon_name": taxon, "spearman_rho_adj": rho, "raw_p": p}
+        )
     return pd.DataFrame(results)
 
 def _bh_adjust(pvals: pd.Series) -> pd.Series:
@@ -112,7 +115,7 @@ def _partial_spearman(
     actual_agg_funcs = {k: v for k, v in agg_funcs.items() if k in covariates.columns}
     if not actual_agg_funcs:
         logger.error("No valid covariate columns found in provided covariates data.")
-        return pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p"])
+        return pd.DataFrame(columns=["taxon_name", "spearman_rho_adj", "raw_p"])
 
     cov_agg = covariates.groupby("patient_id").agg(actual_agg_funcs).reset_index()
 
@@ -120,7 +123,7 @@ def _partial_spearman(
     merged = taxon_wide.merge(cov_agg, left_index=True, right_on="patient_id", how="inner")
     if merged.empty:
         logger.warning("No common patients found between taxon slopes and covariates.")
-        return pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p"])
+        return pd.DataFrame(columns=["taxon_name", "spearman_rho_adj", "raw_p"])
 
     # Determine covariate columns
     cov_names = list(actual_agg_funcs.keys())
@@ -158,7 +161,7 @@ def _partial_spearman(
     results = []
     for taxon, resid in residual_taxon.items():
         rho, p = stats.spearmanr(resid, outcome_resid, nan_policy="omit")
-        results.append({"taxon_name": taxon, "spearman_rho": rho, "raw_p": p})
+        results.append({"taxon_name": taxon, "spearman_rho_adj": rho, "raw_p": p})
     return pd.DataFrame(results)
 
 def _find_clinical_file_near(path: Path) -> Optional[Path]:
@@ -202,7 +205,7 @@ def run_correlation(
     except FileNotFoundError as exc:
         logger.error("Required slope files missing: %s", exc)
         # Create empty files to avoid crashing the pipeline, but log the error
-        empty_df = pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p", "bh_adj_p"])
+        empty_df = pd.DataFrame(columns=["taxon_name", "spearman_rho_adj", "raw_p", "bh_adj_p"])
         DEFAULT_RESULTS.parent.mkdir(parents=True, exist_ok=True)
         empty_df.to_csv(DEFAULT_RESULTS, index=False)
         return DEFAULT_RESULTS, None
@@ -215,7 +218,7 @@ def run_correlation(
 
         if covariates_path is None or not Path(covariates_path).is_file():
             logger.error("Covariates file not found. Cannot perform partial correlation.")
-            corr_df = pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p"])
+            corr_df = pd.DataFrame(columns=["taxon_name", "spearman_rho_adj", "raw_p"])
         else:
             covariates = pd.read_parquet(covariates_path)
             corr_df = _partial_spearman(taxon_slopes, outcome_slopes, covariates)
@@ -226,7 +229,7 @@ def run_correlation(
     if not corr_df.empty:
         corr_df["bh_adj_p"] = _bh_adjust(corr_df["raw_p"])
     else:
-        corr_df = pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p", "bh_adj_p"])
+        corr_df = pd.DataFrame(columns=["taxon_name", "spearman_rho_adj", "raw_p", "bh_adj_p"])
 
     # Write primary (unadjusted) results
     results_path = DEFAULT_RESULTS

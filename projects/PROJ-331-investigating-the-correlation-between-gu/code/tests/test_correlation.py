@@ -98,7 +98,7 @@ def test_correlation_produces_results(tmp_path: pathlib.Path, tiny_dataset):
     # Verify primary results CSV exists and has correct schema
     assert results_path.is_file()
     df = pd.read_csv(results_path)
-    expected_cols = {"taxon_name", "spearman_rho", "raw_p", "bh_adj_p"}
+    expected_cols = {"taxon_name", "spearman_rho_adj", "raw_p", "bh_adj_p"}
     assert set(df.columns) == expected_cols
 
     # Raw p‑values must be within [0, 1]
@@ -122,9 +122,9 @@ def test_correlation_produces_results(tmp_path: pathlib.Path, tiny_dataset):
     assert partial_path is not None
     assert partial_path.is_file()
     df_partial = pd.read_csv(partial_path)
-    expected_partial_cols = {"taxon_name", "spearman_rho", "raw_p"}
+    expected_partial_cols = {"taxon_name", "spearman_rho_adj", "raw_p"}
     assert set(df_partial.columns) == expected_partial_cols
 
     # The partial results should differ from the unadjusted ones when covariates vary
     # (simple sanity check: at least one rho value is not identical)
-    assert not df["spearman_rho"].equals(df_partial["spearman_rho"])
+    assert not df["spearman_rho_adj"].equals(df_partial["spearman_rho_adj"])

@@ -1,4 +1,10 @@
 # Project dependencies
-# Existing dependencies are provided by the platform.
-# Add pyarrow for parquet support required by the correlation module.
-pyarrow>=16.0.0
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+seaborn
+matplotlib
+pyarrow>=0.17
+# Add any additional dependencies here

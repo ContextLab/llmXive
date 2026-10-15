@@ -263,8 +263,10 @@ def write_validation_report(report: Dict[str, Any], out_path: Optional[Path] = N
 def write_provenance(report: Dict[str, Any], out_path: Optional[Path] = None) -> Path:
     """
     Write a simple provenance JSON containing the SHA‑256 hashes of the two
-    raw input files. The file is stored under a project‑owned location
-    (``data/processed/ingest_provenance.json``) to avoid writing into the
+    raw input files.
+
+    The file is stored under a **project‑owned** location
+    ``data/processed/ingest_provenance.json`` to avoid writing into the
     platform‑owned ``state/`` directory.
     """
     if out_path is None:
