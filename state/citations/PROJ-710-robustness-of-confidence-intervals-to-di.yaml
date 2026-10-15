@@ -1,11 +1,22 @@
-- artifact_hash: 6553bdf2ad69228d9479efccbbcfec6339ac0a73181cdca8519c27bc785e1e17
+- artifact_hash: 7573c364b4eaa3aa7acb35a21003923192047c8ab69187ee1aa5fad9c1009064
   artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: adult.data
-  kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data`
-  verification_status: pending
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
-  verified_at: '2026-10-09T13:25:06.173797Z'
+  fetched_title: null
+  kind: arxiv
+  value: '2110.14465'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-15T23:23:29.642067Z'
+- artifact_hash: 7573c364b4eaa3aa7acb35a21003923192047c8ab69187ee1aa5fad9c1009064
+  artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '1711.03908'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-15T23:23:29.642067Z'

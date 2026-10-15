@@ -1,108 +1,53 @@
 # Tasks: Robustness of Confidence Intervals to Differential Privacy Noise
 
-**Input**: `spec.md`, `plan.md`, research idea, existing artifacts, and reviewer feedback.  
-**Tests**: Unit, integration, and end‑to‑end tests are defined in `code/tests/`. Tests run **after** the implementation tasks they depend on.
+**Inputs**: `spec.md`, `plan.md`, research idea, existing artifacts, and reviewer feedback.  
+**Tests**: Unit and integration tests live in `code/tests/` and run after the tasks that implement the code they test.
 
-## Phase 1 – Setup & Quickstart (shared infrastructure)
+This revision consolidates the prior 40+ task list into a bounded study and resolves all panel concerns.
 
-- [ ] T001a [P] Create `code/utils/init_dirs.py` – atomically creates required directories: `code/`, `code/data/`, `code/analysis/`, `code/utils/`, `code/tests/`, `artifacts/`. **Verification**: script exits with status 0 and the directory tree exists.  
-- [ ] T001b [P] Add empty `__init__.py` files to each package directory (`code/`, `code/data/`, `code/analysis/`, `code/utils/`, `code/tests/`). **Verification**: `python -c "import code"` succeeds.  
-- [ ] T001c [P] Scaffold `code/config.py` with placeholders for hyper‑parameters, random seeds, and artifact paths.  
-- [ ] T001d [P] Create `requirements.txt` pinned to stable CPU‑only versions of `numpy`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `pytest`, `ruff`, `black`.  
-- [ ] T001e [P] Add `pyproject.toml` configuring `ruff` and `black` to match the pinned versions.  
+## Phase 1: Setup and first end‑to‑end analysis
 
-## Phase 2 – Foundational (blocking prerequisites)
+**Goal**: Fetch the real datasets, build the ground‑truth populations, and run one small end‑to‑end coverage measurement on real inputs early.
 
-- [ ] T002 [P] Populate `code/config.py` with concrete hyper‑parameters (`N_sim = 1000`, `B = 1000`, `nominal_coverage_target = 0.95`), random seeds, and paths to ground‑truth parameters.  
-- [ ] T003 [P] Implement `code/data/synthetic_pop.py` to generate three synthetic populations (Adult, Iris, Wine) each with **N = 1 000 000** rows. Save raw populations under `data/synthetic_populations/` and write the true means & OLS coefficients into `code/config.py` as `GROUND_TRUTH`.  
-- [ ] T003b [P] Implement `code/data/synthetic_sampler.py` that draws i.i.d. samples from the synthetic populations defined in T003. Used by validation tasks.  
-- [ ] T004 [P] Implement `code/data/dp_noise.py` exposing `add_laplace_noise(arr, epsilon, sensitivity)` and `add_gaussian_noise(arr, epsilon, sensitivity)`; both operate on CPU‑only `numpy` arrays.  
-- [ ] T005 [P] Implement `code/utils/update_state.py` – computes SHA‑256 hashes of all files in `artifacts/` and writes a summary YAML under `state/`.  
-- [ ] T006 [P] Add minimal package initializers `code/data/__init__.py` and `code/utils/__init__.py`.  
-- [ ] T039 [P] Implement `code/data/download_utils.py` with **real, versioned URLs** for the UCI Adult, Iris, and Wine Quality CSVs (e.g., `[UNRESOLVED-CLAIM: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data` — HTTP 404]). The script downloads each file into `data/raw/` and raises `DataFetchError` on any failure.  
-- [ ] T040 [P] Refactor `code/data/download_utils.py` to **remove all fallback‑to‑synthetic logic**; the function now fails loudly if a download cannot be completed.  
+- [ ] T000 [P] Create a pinned `requirements.txt` (or `pyproject.toml`) in `code/` listing exact versions of all dependencies: `numpy`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `ucimlrepo`, and any other packages used. This satisfies the Constitution’s reproducibility requirement.
 
-## Phase 3 – User Story 1: Empirical Coverage Estimation (P1)
+- [ ] T001 [P] Implement `code/config.py` with all study hyper‑parameters and seeds, and `code/data/fetch_real.py` that downloads the UCI Adult, Iris, and Wine Quality datasets using the `ucimlrepo` package (`fetch = ucimlrepo.fetch_ucirepo(id=…)` with Adult id=2, Iris id=53, Wine id=186). Files are saved under `data/raw/`. The fetch must raise `RuntimeError` on any failure (no synthetic fallback). **Verification**: `python -m code.data.fetch_real` exits 0 and `data/raw/` contains three CSV files with the expected column counts; a forced offline run raises an error. (FR‑001, Assumptions)
 
-- [ ] T014b [US1] Create `code/analysis/edge_cases.py` with:
-  - `clamp_noise_scale(noise_scale, data_range)` – clamps or logs a warning.
-  - `enforce_min_sample_size(n, min_n=10)` – raises `ValueError` if `n < min_n`.
-  - `detect_collinearity(X)` – drops one perfectly collinear predictor and logs the action.  
-- [ ] T013a [US1] Implement outer‑loop simulation in `code/main.py`:
-  1. Load **real** UCI datasets via `download_utils.py`.
-  2. For each `(dataset, ε, noise_type)` condition, draw `N_sim = 1000` independent samples, add DP noise using `dp_noise.py`, then call the inner‑loop (T013b).  
-  3. Compare each CI to the **ground‑truth** parameters from `code/config.py`.  
-  4. Record per‑condition results.  
-- [ ] T013b [US1] Implement inner‑loop in `code/analysis/ci_builder.py`:
-  1. Receive a noisy sample.
-  2. (Optionally) apply bias/variance adjustments (T020a).
-  3. Perform `B = 1000` bootstrap resamples, compute the 95 % percentile CI for the statistic (mean or regression coefficient).  
-  4. Return a boolean indicating coverage of the ground truth.  
-- [ ] T013c [US1] Implement `code/analysis/result_writer.py` to atomically write rows to `artifacts/coverage_results.csv`. Schema: `dataset,epsilon,noise_type,statistic,coverage_rate,adjusted_coverage,adjustment_method,improvement_delta,seed_count`. The writer validates that a partially‑written CSV is not left on crash.  
-- [ ] T015 [US1] Add unit test `code/tests/test_dp_noise.py` checking that Laplace and Gaussian scales match the theoretical calibration for several ε values.  
-- [ ] T016 [US1] Add unit test `code/tests/test_ci_builder.py` verifying the percentile CI construction on a known distribution.  
-- [ ] T017 [US1] Add integration test `code/tests/test_coverage_pipeline.py` that runs the outer‑loop for a single dataset/ε/noise_type and asserts that `artifacts/coverage_results.csv` contains a row with a coverage rate between 0 and 1.  
+- [ ] T014 [P] After fetching, compute SHA‑256 checksums for each file in `data/raw/` and write them to `artifacts/checksums.txt`. This implements Principle III (Data Hygiene). **Verification**: checksum file exists and contains a line per raw file.
 
-## Phase 4 – User Story 2: Bias‑Correction & Variance‑Inflation (P2)
+- [ ] T002 [P] Implement `code/data/synthetic_pop.py` that fits multivariate normal (or appropriate) parameters to the numeric columns of each real dataset from T001, then generates a synthetic population of `N = 1_000_000` rows on demand (streamed). Analytically compute the **true mean** of the target variable for each dataset and store the scalar value and the population size (`sample_size`) in a JSON file `artifacts/ground_truth_means.json` that conforms to `specs/001-robustness-of-confidence-intervals-to-di/contracts/dataset.schema.yaml`. Regression coefficients are stored as constants in `code/config.py` (not part of the schema). **Verification**: unit test `code/tests/test_synthetic_pop.py` checks that the `true_mean` matches the analytic mean within 0.01 SD and that the JSON validates against the schema.
 
-- [ ] T020a [US2] Implement `code/analysis/adjustments.py`:
-  - `bias_correction(point_estimate, noise_params)` – formula from Covington et al. 2021.  
-  - `variance_inflation(se, noise_params, n)` – formula from Karwa & Vadhan 2017.  
-  - Export `apply_adjustments(point_estimate, se, statistic_type, noise_params, n)` that dispatches the appropriate correction.  
-- [ ] T021b [US2] Modify `ci_builder.py` to invoke `apply_adjustments` **after** noise injection and **before** bootstrap resampling.  
-- [ ] T023 [US2] Unit test `code/tests/test_adjustments.py` for the bias‑correction implementation (compare against hand‑computed values).  
-- [ ] T024 [US2] Unit test `code/tests/test_adjustments.py` for the variance‑inflation implementation.  
+- [ ] T003 [P] Implement `code/data/dp_noise.py` with `add_laplace_noise(arr, epsilon, sensitivity)` and `add_gaussian_noise(arr, epsilon, sensitivity)` using double‑precision NumPy. Laplace scale = sensitivity/ε; Gaussian σ = sensitivity·√(2·ln(1.25/δ))/ε with δ = 1e‑5. Clamp/log a warning if the scale exceeds the attribute range; reject ε ≤ 0 with a `ValueError`. **Verification**: `code/tests/test_dp_noise.py` validates calibration and error handling. (FR‑001, Edge Cases)
 
-## Phase 5 – User Story 3: GLM Comparison & Visualization (P3)
+- [ ] T004 [P] Implement `code/analysis/ci_builder.py` (inner loop) and `code/main.py` (outer loop). Run a **pilot** for a single dataset (Adult‑synthetic), ε = 1.0, Laplace noise, statistic = Mean, with reduced `N_SIM = 50` and `B_BOOTSTRAP = 200`. The pilot writes its rows to `artifacts/pilot_coverage_results.csv` (schema‑conformant). Edge‑case handling: enforce `n ≥ 10` (raise otherwise) and drop perfectly collinear predictors with a logged warning. **Verification**: `code/tests/test_ci_builder.py` checks percentile bootstrap CI on a known Normal; `code/tests/test_coverage_pipeline.py` runs the pilot and asserts the CSV exists, validates schema, and that coverage rates lie in [0, 1]. Document the pilot command in `quickstart.md`. (FR‑003, US‑1, Edge Cases)
 
-- [ ] T026 [US3] Implement `code/analysis/glm_analysis.py`:
-  - Load `artifacts/coverage_results.csv`.
-  - Fit a binomial GLM: `covered ~ epsilon + noise_type + epsilon:noise_type` using `statsmodels`.  
-  - Save raw model output to `artifacts/glm_raw.pkl`.  
-- [ ] T027 [US3] Extract p‑values & coefficients from the GLM and write a concise JSON summary to `artifacts/glm_summary.json` (keys: `p_value_epsilon`, `p_value_noise_type`, `p_value_interaction`, `coefficients`, `deviance_residuals`).  
-- [ ] T028 [US3] Create `code/analysis/plotting.py` that produces `artifacts/coverage_vs_epsilon.png` – line plot of coverage vs. ε for Laplace and Gaussian, with error bars (standard error). Uses `matplotlib`.  
-- [ ] T029 [US3] Generate `artifacts/coverage_summary.md` – a Markdown table listing `dataset, statistic, ε, noise_type, coverage_rate, adjusted_coverage`.  
-- [ ] T030 [US3] Add a validation step in `glm_analysis.py` that checks the response variable is binary and raises a clear error if the GLM fails to converge.  
-- [ ] T031 [US3] Implement `code/analysis/sensitivity_analysis.py`:
-  - Sweep coverage‑threshold values (e.g., 0.90, 0.93, 0.95, 0.97).
-  - For each threshold, count how many datasets pass (mean coverage > threshold).  
-  - Write `artifacts/sensitivity_analysis.csv` with columns `threshold,datasets_passing,count,delta_count`.  
-- [ ] T032 [US3] Unit test `code/tests/test_glm_analysis.py` confirming that the GLM fits without warnings on a tiny synthetic subset.  
+## Phase 2: Complete the study and validate its evidence
 
-## Phase 6 – Polish & Cross‑Cutting Optimizations
+**Goal**: Full parameter sweep, adjustments, GLM analysis, sensitivity, and convergence checks.
 
-- [ ] T033 [P] Implement `code/analysis/convergence_check.py` that runs the full outer‑loop with three different random seeds and asserts that the standard error of coverage across seeds is ≤ 0.5 %.  
-- [ ] T034a [P] Refactor the outer‑loop in `code/main.py` to use a generator that yields one noisy sample at a time, limiting peak memory. Verify with `tracemalloc` that peak RAM < 7 GB.  
-- [ ] T034b [P] Implement batched bootstrap resampling in `ci_builder.py`; benchmark with `tracemalloc` to keep RAM < 7 GB.  
-- [ ] [ ] T035 [P] Integrate the batched resampling function from T034b into `code/main.py` so the outer‑loop streams samples directly into the batched bootstrap routine.  
-- [ ] T036 [P] Update `projects/PROJ-710-robustness-of-confidence-intervals-to-di/README.md` with sections *Simulation Pipeline*, *Adjustment Methods*, and *Data Sources* (including the concrete URLs from T039).  
-- [ ] T041 [P] Create `quickstart.md` (if missing) with a step‑by‑step guide: install dependencies, run `download_utils.py`, execute `code/main.py`, then run analysis scripts.  
-- [ ] T043 [P] Add `code/utils/feasibility_check.py` that runs a micro‑benchmark (e.g., 10 % of `N_sim` with `B=100`) and estimates total runtime & memory. If projected runtime > 5.5 h or memory > 6.5 GB, exit with a clear warning.  
+- [ ] T005 [P] Implement `code/analysis/adjustments.py` providing `bias_correction` and `variance_inflation` derived from Covington et al. 2021 (arXiv:2110.14465) and Karwa & Vadhan 2017 (arXiv:1711.03908) for both mean and OLS settings. Expose `apply_adjustments(point_estimate, se, statistic_type, noise_params, n)`. Wire this into `ci_builder.py` so adjusted intervals are computed when requested. **Verification**: `code/tests/test_adjustments.py` checks both corrections against hand‑computed examples. (FR‑004, US‑2, SC‑002)
 
-## Phase 7 – Execution Gate & Full Run
+- [ ] T006 [P] Extend `code/main.py` to run the **full simulation grid**: all three datasets × 5 ε values × 2 noise types × 2 statistics (Mean, Regression) × 3 adjustment methods (None, BiasCorrected, VarianceInflated). Use `N_SIM = 1_000` and `B_BOOTSTRAP = 1_000`. Implement batched, vectorised resampling and process one condition at a time to keep peak RAM ≤ 7 GB. If runtime exceeds 6 h, automatically reduce `N_SIM` uniformly (not below the value giving SE ≤ 0.5 %) and record the reduction in the runtime log. All rows are written to `artifacts/coverage_results.csv` (schema‑conformant). **Verification**: run completes; row count equals `3 datasets × 5 ε × 2 noise × 2 stat × 3 adj × N_SIM`. A `artifacts/runtime_log.txt` records wall‑time and peak RSS. (FR‑001, FR‑003, FR‑007, SC‑004)
 
-- [ ] T042a [P] Add a gate in `code/main.py` that imports `feasibility_check.py`; aborts execution with exit‑code 1 if the feasibility check fails.  
-- [ ] T042 [P] Run the **full** simulation (`N_sim = 1000`, `B = 1000`) after the gate passes, producing the complete `artifacts/coverage_results.csv`.  
+- [ ] T007 [P] Implement `code/analysis/glm_analysis.py`: load `artifacts/coverage_results.csv`, fit a binomial GLM `covered ~ epsilon + noise_type + epsilon:noise_type` using `statsmodels`. Raise a clear error if convergence fails. Write summary to `artifacts/glm_summary.json` conforming to `specs/001-robustness-of-confidence-intervals-to-di/contracts/glm_result.schema.yaml`. **Verification**: `code/tests/test_glm_analysis.py` fits the GLM on a synthetic subset and asserts convergence and valid p‑values; the real run produces the JSON with all required keys. (FR‑005, US‑3, SC‑003)
 
-## Phase 8 – Verification, Reporting & Handoff
+- [ ] T008 [P] Implement `code/analysis/sensitivity_analysis.py` that sweeps **exactly** the thresholds `{0.90, 0.93, 0.95}` (matching the spec) and counts, for each threshold, how many (dataset, statistic, ε, noise_type, adjustment) combinations achieve coverage ≥ threshold. Write results to `artifacts/sensitivity_analysis.csv`. Also implement `code/analysis/plotting.py` to generate `figures/coverage_vs_epsilon.png` (lines per noise type, error bars = binomial SE, panels per dataset/statistic) and `artifacts/coverage_summary.md` summarising coverage rates for every combination. **Verification**: plots/tables are produced directly from `coverage_results.csv`; the sweep output matches the three‑threshold grid. (FR‑006, US‑3, SC‑001, SC‑005)
 
-- [ ] T050 [P] Validate all artifact files (`coverage_results.csv`, `glm_summary.json`, `sensitivity_analysis.csv`, `coverage_summary.md`) against the JSON/YAML schemas in `contracts/`.  
-- [ ] T051 [P] Execute an end‑to‑end run on a single ε (e.g., ε = 1.0) for the Adult dataset and verify that all intermediate CSV/JSON files are produced and contain plausible values.  
-- [ ] T052 [P] Write `projects/PROJ-710-robustness-of-confidence-intervals-to-di/research_results.md` summarizing methods, key quantitative findings, and limitations.  
-- [ ] T053 [P] Archive all generated artifacts into `artifacts/archive/` (timestamped zip) and push the archive to the repository.  
-- [ ] T054 [P] Perform a reproducibility check: delete `artifacts/`, re‑run `quickstart.md` from a fresh clone, and confirm that the final `research_results.md` is identical (byte‑for‑byte) to the previous version.  
+- [ ] T009 [P] Implement `code/analysis/convergence_check.py` (no parallel‑safe tag). Re‑run a representative subset (all ε, both noise types, one dataset) with ≥ 3 different seeds, record the per‑condition standard error of coverage in `artifacts/convergence_check.csv`, and flag any condition with SE > 0.5 %. If flagged, increase `N_SIM` for that condition and re‑run automatically. **Verification**: CSV exists, all SE ≤ 0.5 % after any necessary re‑runs. (Constitution Principle VII)
 
-## Dependencies & Execution Order
+- [ ] T012 [P] Add `specs/001-robustness-of-confidence-intervals-to-di/contracts/sensitivity_result.schema.yaml` defining the columns of `sensitivity_analysis.csv` (`threshold`, `passing_cases`, `variance`).  
 
-| Phase | Prerequisite Tasks | Dependent Tasks |
-|------|-------------------|-----------------|
-| 1 – Setup | – | T001a → T001b → T001c → T001d → T001e |
-| 2 – Foundational | T001a‑e | T002 → T003 → T003b → T004 → T005 → T006 → T039 → T040 |
-| 3 – US 1 | Phase 2 | T014b → T013a → T013b → T013c → T015‑T017 |
-| 4 – US 2 | Phase 2 (and T013b) | T020a → T021b → T023, T024 |
-| 5 – US 3 | Phase 2 (and T013c) | T026 → T027 → T028 → T029 → T030 → T031 → T032 |
-| 6 – Polish | Phases 1‑5 | T033 → T034a → T034b → T035 → T036 → T041 → T043 |
-| 7 – Gate & Full Run | Phase 6 | T042a → T042 |
-| 8 – Handoff | All prior phases | T050 → T051 → T052 → T053 → T054 |
+- [ ] T013 [P] Add `specs/001-robustness-of-confidence-intervals-to-di/contracts/convergence_result.schema.yaml` defining the columns of `convergence_check.csv` (`dataset_name`, `epsilon`, `noise_type`, `statistic_type`, `adjustment_method`, `coverage_se`).  
 
-*All `[X]` tasks are already verified. Unchecked tasks must be completed to achieve a fully reproducible end‑to‑end study.*
+- [ ] T010 [P] Implement `code/analysis/validate_artifacts.py` that validates **all** result artifacts (`ground_truth_means.json`, `coverage_results.csv`, `glm_summary.json`, `sensitivity_analysis.csv`, `convergence_check.csv`) against their respective JSON‑Schema files (including the two new schemas). Exit 0 on success. **Verification**: script returns 0; any schema violation raises an error. (Plan Phase 4, now fully executable)
+
+- [ ] T011 [ ] Write `artifacts/research_results.md` summarising methods, coverage degradation versus ε, adjustment improvements, GLM p‑values, sensitivity‑sweep robustness, convergence evidence, and limitations. Every quantitative claim must cite a concrete artifact path (e.g., `artifacts/coverage_results.csv`, `artifacts/glm_summary.json`, `figures/coverage_vs_epsilon.png`). **Verification**: a lint script checks that every number is accompanied by a file reference and that all referenced files exist. (SC‑001 – SC‑005)
+
+## Phase 3: Reproducible results and paper handoff
+
+- Execution order (respecting data flow):  
+  T000 → T001 → T014 → T002 → T003 → T004 (pilot) → T005 → T006 (full run) → T007 → T008 → T009 → T012 → T013 → T010 → T011.
+
+- All computational work runs on CPU‑only hardware; no GPU code is present.
+
+- Platform‑owned artifact hashing is handled automatically by the advancement‑evaluator; no project‑level script is needed.
