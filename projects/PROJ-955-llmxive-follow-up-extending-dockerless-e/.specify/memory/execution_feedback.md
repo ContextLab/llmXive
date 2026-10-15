@@ -19,6 +19,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python src/cli/run_pipeline.py  --swe_gym_url https://huggingface.co/datasets/OpenHands/SWE-Gym-code-search/resolve/main/data/train-00000-of-00001.parquet  --multi_swe_rl_url https://huggingface.co/datasets/ByteDance-Seed/Multi-SWE-RL/resolve/main/data_20240601_20250331/c/OpenMathLib__OpenBLAS_dataset.jsonl  --output_dir $(pwd)/output  --seed 42 -> rc=2
 
+2026-10-15 21:25:49,346 INFO __main__: Random seed set to 42
 usage: run_pipeline.py [-h] [--dry-run]
 run_pipeline.py: error: unrecognized arguments: --swe_gym_url https://huggingface.co/datasets/OpenHands/SWE-Gym-code-search/resolve/main/data/train-00000-of-00001.parquet --multi_swe_rl_url https://huggingface.co/datasets/ByteDance-Seed/Multi-SWE-RL/resolve/main/data_20240601_20250331/c/OpenMathLib__OpenBLAS_dataset.jsonl --output_dir $(pwd)/output --seed 42
 
@@ -31,6 +32,7 @@ ERROR: file or directory not found: tests/contract
 
 - python src/cli/run_pipeline.py  ...  --sample_fraction 0.1   # 10 % stratified sample, seed fixed -> rc=2
 
+2026-10-15 21:25:49,649 INFO __main__: Random seed set to 42
 usage: run_pipeline.py [-h] [--dry-run]
 run_pipeline.py: error: unrecognized arguments: ... --sample_fraction 0.1 # 10 % stratified sample, seed fixed
 

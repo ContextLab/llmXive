@@ -25,6 +25,7 @@ random.seed(SEED)
 np.random.seed(SEED)
 
 log = get_logger(__name__)
+log.info("Random seed set to %d", SEED)
 
 def ensure_project_dirs() -> None:
     """Create all top‑level directories required by the pipeline."""
