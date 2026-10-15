@@ -13,10 +13,10 @@ properties:
     description: "Unique identifier for the page."
   plain_text:
     type: string
-    description: "OCR‑extracted text of the page."
+    description: "Plain text extracted from the page."
   layout_annotations:
     type: array
-    description: "List of bounding‑box annotations for visual elements."
+    description: "List of bounding‑box annotations."
     items:
       type: object
       required:
@@ -51,8 +51,8 @@ properties:
     description: "Provenance of the document (always real in this project)."
   visual_latent:
     type: array
-    description: "Optional 768‑dimensional latent vector from frozen visual encoder."
-    minItems: 768
-    maxItems: 768
+    description: "Optional 512‑dimensional latent vector from frozen visual encoder."
+    minItems: an appropriate number of items
+    maxItems: a sufficiently large limit to accommodate the dataset
     items:
       type: number

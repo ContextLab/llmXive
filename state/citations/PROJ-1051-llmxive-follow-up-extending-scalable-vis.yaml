@@ -1,59 +1,4 @@
-- artifact_hash: 15b4de34aa7cd1d1a0a8b800ff1621b8d0c667157d20f68d027747ba2ba6565f
-  artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/allenai/pubmed-layout`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/allenai/pubmed-layout
-  verified_at: '2026-10-14T13:35:09.216132Z'
-- artifact_hash: 15b4de34aa7cd1d1a0a8b800ff1621b8d0c667157d20f68d027747ba2ba6565f
-  artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/plan.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/allenai/pubmed-layout
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/allenai/pubmed-layout
-  verified_at: '2026-10-14T13:35:09.216132Z'
-- artifact_hash: 15b4de34aa7cd1d1a0a8b800ff1621b8d0c667157d20f68d027747ba2ba6565f
-  artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/plan.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/docvqa
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/docvqa/datasets
-  verified_at: '2026-10-14T13:35:09.216132Z'
-- artifact_hash: af4b52a7ebbf51afaa5367ff62f0bc040ceaf59ace32ce7eff08de5bb805779c
-  artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/allenai/pubmed-layout
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/allenai/pubmed-layout
-  verified_at: '2026-10-14T13:35:38.145308Z'
-- artifact_hash: af4b52a7ebbf51afaa5367ff62f0bc040ceaf59ace32ce7eff08de5bb805779c
-  artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/docvqa
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/docvqa/datasets
-  verified_at: '2026-10-14T13:35:38.145308Z'
-- artifact_hash: a5bc433cb300b227336037826c245c1e4bc9d6ae24b29d84cda59240b7caa100
+- artifact_hash: 61c7492605a890f49c57badc528b48e4a4b40c281178a999059ba96d0b08dea2
   artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/data-model.md
   cite_id: c-001
   cited_authors: []
@@ -63,4 +8,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-14T13:35:55.394870Z'
+  verified_at: '2026-10-15T15:31:51.688499Z'
