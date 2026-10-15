@@ -1,19 +1,18 @@
 status: none
-intent: UCI Machine Learning Repository Adult Iris Wine Quality datasets python package
-  dataset
+intent: download UCI Adult Iris Wine Quality datasets python package dataset
 required_fields:
 - age
-- workclass
-- fnlwgt
-- education
-- education_num
-- marital_status
-- occupation
-- relationship
-- race
-- sex
-- capital_gain
-- capital_loss
-cache_key: 87f669a5e59c23a3b1d87ab2a4934f153306f9bd7011bef4df7d99eb6fa166cb
-searched_at: '2026-10-15T23:26:07.834434+00:00'
+- education-num
+- hours-per-week
+- income
+- sepal length
+- sepal width
+- petal length
+- petal width
+- species
+- fixed acidity
+- volatile acidity
+- citric acid
+cache_key: 189b5f73928b10a1b6a3c59c2c56ae2eab9c4f5f4a57446d0c49e540b19e5a31
+searched_at: '2026-10-15T23:28:28.161940+00:00'
 retry_count: 1

@@ -18,8 +18,8 @@ ModuleNotFoundError: No module named 'data.download_utils'
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-710-robustness-of-confidence-intervals-to-di/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/data/synthetic_pop.py': [Errno 2] No such file or directory
 
 - python code/analysis/convergence_check.py -> rc=1
-2026-10-15 23:25:18,580 - INFO - Starting convergence check analysis.
-2026-10-15 23:25:18,580 - ERROR - Results file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-710-robustness-of-confidence-intervals-to-di/artifacts/coverage_results.csv. Did you run the main simulation (T013a/T042)?
+2026-10-15 23:27:35,798 - INFO - Starting convergence check analysis.
+2026-10-15 23:27:35,798 - ERROR - Results file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-710-robustness-of-confidence-intervals-to-di/artifacts/coverage_results.csv. Did you run the main simulation (T013a/T042)?
 
 
 - python -m pytest code/tests/ -> rc=2
@@ -42,6 +42,6 @@ ERROR code/tests/test_dp_noise.py
 ERROR code/tests/test_glm_analysis.py - AttributeError: module 'statsmodels.a...
 ERROR code/tests/test_validation.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.36s ===============================
+============================== 5 errors in 1.02s ===============================
 
 
