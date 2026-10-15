@@ -1,4 +1,5 @@
-"""qc.py
+"""
+qc.py
 -------
 Data validation and motion quality control (QC) for the HCP dataset.
 
@@ -10,8 +11,8 @@ and writes two artefacts:
 
 * ``data/derived/clean_subjects.parquet`` – a parquet table containing only
   the valid subjects with an additional column ``status`` set to ``valid``.
-* ``data/derived/subject_qc.csv`` – a CSV log of all exclusions with the
-  columns ``subject_id`` and ``reason``.
+* ``data/derived/subject_qc.csv`` – a CSV log of all exclusions with
+  the columns ``subject_id`` and ``reason``.
 
 The module also provides a reusable ``validate_and_filter`` function that
 can be imported by downstream code or tests.
@@ -24,8 +25,7 @@ Usage (as a CLI)::
         --output-dir data
 
 The script respects the project‑wide logging configuration via
-``llmxive_toolkit.get_logger`` and records each exclusion with
-``log_subject_exclusion``.
+``llmxive_toolkit.get_logger`` and records each exclusion with the logger.
 """
 import argparse
 from pathlib import Path
@@ -33,7 +33,7 @@ from typing import List, Tuple
 
 import pandas as pd
 
-from llmxive_toolkit import paths, get_logger, log_subject_exclusion
+from llmxive_toolkit import paths, get_logger
 
 # ----------------------------------------------------------------------
 # Constants
@@ -77,12 +77,12 @@ def validate_and_filter(
 
     exclusions: List[Tuple[str, str]] = []
 
-    # Identify subjects with missing DSRT scores
+    # Subjects missing DSRT scores
     mask_missing_dsrt = df["dsrt_score"].isna()
     for sid in df.loc[mask_missing_dsrt, "subject_id"]:
         exclusions.append((sid, "Missing DSRT score"))
 
-    # Identify subjects with excessive motion
+    # Subjects with excessive motion
     mask_high_fd = df["mean_fd"] >= fd_threshold
     for sid in df.loc[mask_high_fd, "subject_id"]:
         exclusions.append((sid, f"Mean FD >= {fd_threshold} mm"))
@@ -155,9 +155,9 @@ def main() -> None:
     qc_log_df = pd.DataFrame(exclusions, columns=["subject_id", "reason"])
     qc_log_df.to_csv(qc_log_path, index=False)
 
-    # Log each exclusion via the shared logging helper
+    # Log each exclusion via the shared logger (no external helper needed)
     for sid, reason in exclusions:
-        log_subject_exclusion(str(sid), reason, logger=logger)
+        logger.info("Excluding subject %s: %s", sid, reason)
 
     logger.info("QC step completed successfully.")
 

@@ -1,7 +1,13 @@
-# Existing pinned dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are
-# provided by the runner.  Additional packages required for the HCP download
-# step are listed below.
-nilearn==0.10.*
-pyarrow==15.*  # parquet support for pandas
-# pyentropy is required later (T004) but is not needed for this script.
+numpy==1.26.*
+pandas==2.2.*
+scipy==1.13.*
+matplotlib==3.8.*
+scikit-learn==1.5.*
+statsmodels==0.14.*
+seaborn==0.13.*
+pytest==8.2.*
+PyYAML==6.0.*
+requests==2.32.*
+jsonschema==4.20.*
+psutil==5.9.*
+pyentropy==0.4.*

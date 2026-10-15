@@ -1,1 +1,1 @@
-"""Placeholder package to satisfy legacy test expectations."""
+"""Unit test package placeholder for directory‑structure validation."""

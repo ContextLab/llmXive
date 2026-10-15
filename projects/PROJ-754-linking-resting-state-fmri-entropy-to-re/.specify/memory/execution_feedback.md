@@ -7,21 +7,15 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ -> rc=1
-2026-10-14 01:36:38,598 - llmXive_pipeline.src.data.download_hcp - INFO - Fetching phenotypic data for all available subjects.
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/download_data.py", line 77, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/download_data.py", line 74, in main
-    _forward_args(args.subject_limit, args.output_dir)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/download_data.py", line 35, in _forward_args
-    download_hcp_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/data/download_hcp.py", line 118, in main
-    phenotypic = datasets.fetch_hcp(
-                 ^^^^^^^^^^^^^^^^^^
-AttributeError: module 'nilearn.datasets' has no attribute 'fetch_hcp'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/download_data.py", line 16, in <module>
+    from src.data.download_hcp import main as download_hcp_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/data/download_hcp.py", line 19, in <module>
+    from nilearn.input_data import NiftiLabelsMasker
+ModuleNotFoundError: No module named 'nilearn.input_data'
 
 - python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2 -> rc=1
 
@@ -48,7 +42,7 @@ FAILED tests/unit/test_env_manager.py::TestMain::test_main_success - Failed: ...
 FAILED tests/unit/test_env_manager.py::TestMain::test_main_failure - Assertio...
 FAILED tests/unit/test_lint_format.py::TestLintFormatConfig::test_pyproject_config_exists
 FAILED tests/unit/test_lint_format.py::TestLintFormatConfig::test_ruff_check_runs
-======================== 15 failed, 18 passed in 0.45s =========================
+======================== 15 failed, 18 passed in 0.63s =========================
 
 
 

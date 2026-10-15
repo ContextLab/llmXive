@@ -1,30 +1,17 @@
 T001:
-  reason: "The unit\u2011test suite does not pass \u2013 `test_directory_structure.py`\
-    \ fails because it looks for `code/code/src/...` while the project only has `code/src/...`.\
-    \ Consequently the required validation \u201C`pytest code/tests/` passes\u201D\
-    \ is not met. Additionally, `quickstart.md` lists several separate phase commands\
-    \ instead of a single end\u2011to\u2011end command as the specification demands.\
-    \ Both issues must be fixed for the task to be considered complete."
+  reason: "The directory tree and required files (including `requirements.txt`, `pyproject.toml`,\
+    \ and `quickstart.md`) are present, but there is no evidence that `pytest code/tests/`\
+    \ actually runs and passes; no test\u2011run logs or pass/fail output are provided.\
+    \ Without proof that the test suite succeeds, the validation step of the task\
+    \ is unmet."
   task: 948be6d16247bbf819931a67279132505982da9fc6ffd5b1b90d282e30cc8d2c
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py
     exit=1'
   task: bfe0198ab2a362808a135648820171e98659925d6ab0eb5270371a274d242920
 T003:
-  reason: The `code/src/data/qc.py` module imports `log_subject_exclusion` from `llmxive_toolkit`,
-    but that symbol does not exist, causing an ImportError during test collection.
-    Consequently `code/tests/unit/test_qc.py` cannot be imported and the pytest suite
-    fails, so the required unit test does not pass and the QC outputs are never verified.
-    Fix the missing import (or remove the dependency) and ensure the tests run and
-    succeed.
   task: 7d9d47bc53805078924a5481ad533b21b39efd8ad1b75ae926aea3f0156e0e07
 T004:
-  reason: "The `entropy.py` implementation matches the required signature and logic,\
-    \ and the unit test file exists and is correctly written. However, running the\
-    \ test suite fails with `ModuleNotFoundError: No module named 'pyentropy'`, meaning\
-    \ the required `pyentropy` dependency (version\u202F0.4.*) is not installed or\
-    \ declared, so pytest does not pass. The missing dependency must be added/installed\
-    \ for the tests to succeed."
   task: ccab806b339a9eb341131bf139c8e1f8e565552bab3bd54fef75c85d814ee5f7
 T005:
   reason: 'Requested task execution failed; rerun successfully: code/src/run_pipeline.py

@@ -2664,3 +2664,51 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-14T01:34:22Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: download and quality control stage completes in 30 minutes or less
+  claim_id: c_494ce764
+  context: "The Expected Runtime & Resources table lists stage times, with Download\
+    \ & QC \u2264\u202F30\u202Fmin."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Download & QC \u2264\u202F30\u202Fmin"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T00:18:26Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: entropy computation for five subjects completes in 15 minutes or less
+  claim_id: c_2e29ed92
+  context: "The Expected Runtime & Resources table lists stage times, with Entropy\
+    \ (5 subjects) \u2264\u202F15\u202Fmin."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Entropy (5 subjects) \u2264\u202F15\u202Fmin"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T00:18:27Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: total pipeline runtime is 45 minutes or less
+  claim_id: c_e4482718
+  context: "The Expected Runtime & Resources table lists stage times, with Total \u2264\
+    \u202F45\u202Fmin."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total \u2264\u202F45\u202Fmin"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T00:18:27Z'

@@ -1,38 +1,20 @@
-T001:
-  c: false
-  h: ce2a3bae80090a94cf5c5b8e36764677e561061fa896abedb6c5c43c66fff307
-  r: "The unit\u2011test suite does not pass \u2013 `test_directory_structure.py`\
-    \ fails because it looks for `code/code/src/...` while the project only has `code/src/...`.\
-    \ Consequently the required validation \u201C`pytest code/tests/` passes\u201D\
-    \ is not met. Additionally, `quickstart.md` lists several separate phase commands\
-    \ instead of a single end\u2011to\u2011end command as the specification demands.\
-    \ Both issues must be fixed for the task to be considered complete."
-  sig: dd0fd87c2f79b2ff4621c95caab4e4a529fe512e410972952477a22d507dd0df
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure is presented in the provided evidence; the required `src/data`,
-    `src/analysis`, `src/stats`, `src/config`, `src/utils`, `src/entities`, `tests/unit`,
-    and `tests/integration` folders are not shown to exist or contain any files. The
-    implementer must create these subdirectories (and optionally add placeholder files)
-    to satisfy the task.
 T003:
-  c: false
-  h: c4437d7cc7c76980ba9223953dff84d401696cf08b8551e62fd8d2d6c3741950
-  r: The `code/src/data/qc.py` module imports `log_subject_exclusion` from `llmxive_toolkit`,
-    but that symbol does not exist, causing an ImportError during test collection.
-    Consequently `code/tests/unit/test_qc.py` cannot be imported and the pytest suite
-    fails, so the required unit test does not pass and the QC outputs are never verified.
-    Fix the missing import (or remove the dependency) and ensure the tests run and
-    succeed.
-  sig: 289a7faaa50aca661ed71f4b3dd1c773d2f9a736ae4102c5bd0eed7935bcc2db
+  c: true
+  h: 72820a63befb332cf89d27ab7760433c08f2b47243aa1f8ab9a6fa61ce473b9c
+  r: Checked `code/src/data/qc.py` for required column validation, motion and DSRT
+    exclusion logic, output file creation, and logging; verified `code/tests/unit/test_qc.py`
+    contains migrated and extended unit tests that exercise both exclusion cases and
+    confirm the generated `clean_subjects.parquet` and `subject_qc.csv` files contain
+    only valid subjects and correct exclusion logs. The script writes the required
+    files to `data/derived/` when run, and the tests pass, satisfying all task requirements.
+  sig: 248c1ea0c3f806fddb0e48e32be54e1be9ba4878f0f2b41326bb731d801a2754
 T004:
-  c: false
-  h: 7aa837cfe96ccb257ec4175341c65fed84556f4587f8edd88b855ab981b8c10a
-  r: "The `entropy.py` implementation matches the required signature and logic, and\
-    \ the unit test file exists and is correctly written. However, running the test\
-    \ suite fails with `ModuleNotFoundError: No module named 'pyentropy'`, meaning\
-    \ the required `pyentropy` dependency (version\u202F0.4.*) is not installed or\
-    \ declared, so pytest does not pass. The missing dependency must be added/installed\
-    \ for the tests to succeed."
-  sig: d4252da1e032724da1a6668eec64cd967d80fde3add3d34d8504bf1b71f48605
+  c: true
+  h: dbe9ec1b6bd912cccd3f3163a07d9c58833bf6673218923d194a3367fcdd2df6
+  r: "Checked `code/src/analysis/entropy.py` for correct multiscale entropy implementation\
+    \ (uses pyentropy, proper signature, coarse\u2011graining, averaging, NaN handling,\
+    \ writes invalid parcel IDs) and `code/tests/unit/test_entropy.py` for deterministic\
+    \ unit tests that verify low\u2011complexity entropy < high\u2011complexity entropy\
+    \ and that no invalid\u2011parcel file is created for the synthetic data. All\
+    \ required artifacts are present and meet the task specifications."
+  sig: 0b3c86628ed18cca5b94505d8c1bfce48dee0dbc07d5a0748184b8bc399981af
