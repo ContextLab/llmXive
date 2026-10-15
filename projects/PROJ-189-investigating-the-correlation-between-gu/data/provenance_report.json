@@ -1,6 +1,6 @@
 {
   "resources": {
-    "total_ram_gb": 15.614,
+    "total_ram_gb": 15.615,
     "ram_limit_gb": 7.0,
     "cpu_count": 4,
     "resource_guard_active": true

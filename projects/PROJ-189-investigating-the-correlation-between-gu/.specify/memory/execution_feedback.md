@@ -52,7 +52,7 @@ Traceback (most recent call last):
 FileNotFoundError: Merged data file not found at data/processed/merged_dataset.parquet. Run data ingestion pipeline first.
 
 - python code/03_correlation_analysis.py -> rc=1
-4 21:13:04 - llmXive_pipeline.__main__ - ERROR - Pipeline failed: Preprocessed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/data/processed/rarefied_genus_table.parquet. Run preprocessing first.
+5 08:12:48 - llmXive_pipeline.__main__ - ERROR - Pipeline failed: Preprocessed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/data/processed/rarefied_genus_table.parquet. Run preprocessing first.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/03_correlation_analysis.py", line 138, in main
     run_analysis_pipeline()
@@ -65,8 +65,8 @@ FileNotFoundError: Preprocessed data not found at /home/runner/work/llmXive/llmX
 
 
 - python code/04_predictive_modeling.py -> rc=1
-2026-10-14 21:13:05 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
-2026-10-14 21:13:05 - llmXive_pipeline.__main__ - INFO - Starting Predictive Modeling Pipeline
+2026-10-15 08:12:49 - llmXive_pipeline - INFO - Logging initialized to data/processed/run.log
+2026-10-15 08:12:49 - llmXive_pipeline.__main__ - INFO - Starting Predictive Modeling Pipeline
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-189-investigating-the-correlation-between-gu/code/04_predictive_modeling.py", line 240, in <module>

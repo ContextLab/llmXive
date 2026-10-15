@@ -1,6 +1,6 @@
 status: none
-intent: American Gut Project 16S taxonomy and Health Retirement Study cognitive data
-  python package dataset
+intent: American Gut Project 16S taxonomy data and Health and Retirement Study cognitive
+  dataset python package dataset
 required_fields:
 - participant_id
 - age
@@ -8,11 +8,11 @@ required_fields:
 - BMI
 - education
 - cognitive_score
-- genus_Bacteroides
-- genus_Faecalibacterium
-- genus_Ruminococcus
-- genus_Lactobacillus
-- genus_Escherichia
-cache_key: a21bde38ebf23277aa82c1a33e4b6dba1eb8a6c121a81e6479ed7222f6b1381b
-searched_at: '2026-10-14T21:13:36.513476+00:00'
+- genus_1
+- genus_2
+- genus_3
+- genus_4
+- genus_5
+cache_key: 0b372feab8b7d2b97643953c35f4699ca71e4e90352b2f3f53eebef6556755c6
+searched_at: '2026-10-15T08:13:18.497822+00:00'
 retry_count: 1
