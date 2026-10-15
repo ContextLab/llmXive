@@ -11,7 +11,7 @@ The checklist implements the complete end‑to‑end workflow required by the sp
 | Goal | Retrieve required external datasets, verify integrity, and perform mandatory validation before any computation. |
 |------|---------------------------------------------------------------------------------------------------------------|
 
-- [ ] **T022** [FR‑001] Download IL‑Benchmark dataset. <!-- FAILED-IN-EXECUTION: code/download_il_benchmark.py exit=1; code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
+- [ ] **T022** [FR‑001] Download IL‑Benchmark dataset. <!-- FAILED-IN-EXECUTION: code/download_il_benchmark.py exit=1; code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/download_il_benchmark.py exit=1 -->
   *Attempt to download the ZIP from the Zenodo DOI specified in the spec; on network failure or checksum mismatch, load the local fallback file `data/raw/IL‑Benchmark‑local.zip`. Verify SHA‑256 checksum, extract contents to `data/raw/`.*
   *Verification*: After execution, `data/raw/metadata.csv` exists and its checksum matches the recorded value in `state/projects/...yaml`.
 

@@ -1,41 +1,27 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/raw/metadata.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python -m code.main`
-  - script usage: `main.py [-h] path`
-  - argparse error: `main.py: error: the following arguments are required: path`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/raw/metadata.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python -m code.main (rc=2); python code/analyze_energies.py (rc=1); python code/derive_scaling.py (rc=1); 3 declared deliverable(s) absent: data/derived/correlation_results.csv; data/derived/raw_energies.csv; data/raw/experimental_bulk_properties.csv
+**Summary**: 6 command(s) failed: python -m code.main (rc=1); python code/analyze_energies.py (rc=1); python code/derive_scaling.py (rc=1); 3 declared deliverable(s) absent: data/derived/correlation_results.csv; data/derived/raw_energies.csv; data/raw/experimental_bulk_properties.csv
 
 ## Failing / missing run-book commands
 
-- python -m code.main -> rc=2
-ty-of-dft-d3-dispersion-to-/data/raw/IL-Benchmark.zip
-2026-10-15 06:18:23,175 INFO code.download_il_benchmark: Fallback zip created with metadata.csv (/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/IL-Benchmark.zip)
-2026-10-15 06:18:23,175 INFO code.download_il_benchmark: No checksum manifest found – skipping verification.
-2026-10-15 06:18:23,175 INFO code.download_il_benchmark: Extracting /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/IL-Benchmark.zip to /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw
-2026-10-15 06:18:23,176 INFO code.download_il_benchmark: Extraction complete.
-2026-10-15 06:18:23,176 INFO code.download_il_benchmark: Dataset ready – metadata located at /home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/metadata.csv
-2026-10-15 06:18:23,176 INFO __main__: === Finished stage: download_il_benchmark ===
-2026-10-15 06:18:23,176 INFO __main__: === Starting stage: load_data ===
-usage: main.py [-h] path
-main.py: error: the following arguments are required: path
+- python -m code.main -> rc=1
+ required to proceed.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py", line 78, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py", line 56, in main
+    run_stage(name, func)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py", line 24, in run_stage
+    raise e
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/main.py", line 18, in run_stage
+    func()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/code/download_il_benchmark.py", line 125, in main
+    raise FileNotFoundError(
+FileNotFoundError: Neither Zenodo download nor local fallback archive (/home/runner/work/llmXive/llmXive/projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/data/raw/IL-Benchmark-local.zip) could be located. Real dataset is required to proceed.
 
 - python code/analyze_energies.py -> rc=1
  found – generating placeholder data.
@@ -122,7 +108,7 @@ ERROR tests/unit/test_load_data.py
 ERROR tests/unit/test_parse_psi4.py
 ERROR tests/unit/test_scaling.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.00s ===============================
+============================== 5 errors in 0.91s ===============================
 
 
 

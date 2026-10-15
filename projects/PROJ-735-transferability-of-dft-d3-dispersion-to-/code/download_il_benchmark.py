@@ -10,8 +10,8 @@ The script follows this logic:
 1. Attempt download from Zenodo using the DOI in the spec.
 2. If download fails (or DOI is empty), use the bundled fallback archive
    at data/raw/IL-Benchmark-local.zip.
-3. If the fallback archive is also missing, create a minimal synthetic
-   archive containing a metadata.csv to allow the pipeline to proceed.
+3. If the fallback archive is also missing, the script fails loudly
+   to avoid using synthetic/fabricated data.
 4. Verify the archive is a valid zip and extract it to data/raw/.
 5. Confirm that metadata.csv exists after extraction.
 """
@@ -32,7 +32,7 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Zenodo DOI from spec (empty in current spec, forcing fallback)
 IL_BENCHMARK_DOI: str = ""
-# Canonical path for the fallback zip
+# Canonical path for the fallback zip as per plan.md
 FALLBACK_ZIP_PATH = paths.data("raw", "IL-Benchmark-local.zip")
 # Manifest path for checksums
 MANIFEST_PATH = paths.path("state", "projects", "manifest.json")
@@ -102,14 +102,6 @@ def extract_zip(archive_path: Path, extract_to: Path) -> None:
         zf.extractall(path=extract_to)
     log.info("Extraction complete.")
 
-def _create_minimal_fallback_zip(zip_path: Path) -> None:
-    """Create a minimal fallback zip containing metadata.csv."""
-    log.info(f"Creating minimal fallback zip at {zip_path}")
-    csv_content = "pair_id,reference_energy\nEMIM_BF4,-15.2\nEMIM_TFSI,-14.8\nBMIM_BF4,-16.0\nBMIM_TFSI,-15.5\nHMIM_BF4,-14.0\n"
-    with zipfile.ZipFile(zip_path, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr("metadata.csv", csv_content)
-    log.info(f"Fallback zip created with metadata.csv ({zip_path})")
-
 def main() -> None:
     """Orchestrate the dataset acquisition."""
     raw_dir = paths.data("raw")
@@ -125,17 +117,25 @@ def main() -> None:
     if not downloaded:
         if FALLBACK_ZIP_PATH.is_file():
             log.info(f"Using bundled fallback archive {FALLBACK_ZIP_PATH}")
+            # Copy fallback to the working archive path
             archive_path.write_bytes(FALLBACK_ZIP_PATH.read_bytes())
         else:
-            log.warning(f"Fallback archive not found at {FALLBACK_ZIP_PATH}; generating minimal zip.")
-            _create_minimal_fallback_zip(archive_path)
+            # FAIL LOUDLY: No real data source found.
+            # Do NOT create synthetic data.
+            raise FileNotFoundError(
+                f"Neither Zenodo download nor local fallback archive ({FALLBACK_ZIP_PATH}) "
+                "could be located. Real dataset is required to proceed."
+            )
 
     # 3. Checksum verification
     expected_checksum = load_expected_checksum()
     if expected_checksum:
         actual_checksum = sha256_file(archive_path)
         if actual_checksum.lower() != expected_checksum.lower():
-            raise ValueError(f"Checksum mismatch for {archive_path}: expected {expected_checksum}, got {actual_checksum}")
+            raise ValueError(
+                f"Checksum mismatch for {archive_path}: "
+                f"expected {expected_checksum}, got {actual_checksum}"
+            )
         log.info("Checksum verification passed.")
     else:
         log.info("No checksum manifest found – skipping verification.")

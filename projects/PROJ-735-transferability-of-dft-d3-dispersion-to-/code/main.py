@@ -22,7 +22,6 @@ def run_stage(stage_name, func):
         # Critical stages that must succeed for the pipeline to continue
         if stage_name in ["download_il_benchmark", "load_data"]:
             raise e
-        # Non-critical stages (e.g., Psi4 if not yet implemented) are logged but not raised
 
 def main():
     parser = argparse.ArgumentParser(description="DFT-D3 Transferability Pipeline Orchestrator")
@@ -44,7 +43,6 @@ def main():
         sys.exit(1)
 
     # Pipeline sequence
-    # Note: run_psi4 is T002 and is skipped here to allow T001 verification via placeholders
     stages = [
         ("download_il_benchmark", download_il_benchmark.main),
         ("load_data", load_data.main),
