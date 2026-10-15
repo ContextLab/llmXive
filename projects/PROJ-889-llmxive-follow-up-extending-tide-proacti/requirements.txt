@@ -1,10 +1,4 @@
-transformers==4.41.2
-torch==2.2.2
-datasets==2.20.0
-radon==6.0.1
-scikit-learn==1.5.0
-statsmodels==0.14.2
-pandas==2.2.2
-numpy==1.26.4
-matplotlib==3.9.0
-huggingface_hub
+huggingface_hub>=0.23.0
+# Existing dependencies are provided by the environment (numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil).  No
+# additional entries are required for this task.

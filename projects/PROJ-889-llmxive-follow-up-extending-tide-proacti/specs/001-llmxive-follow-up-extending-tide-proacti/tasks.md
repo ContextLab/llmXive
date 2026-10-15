@@ -8,7 +8,7 @@ The following checklist implements the smallest complete study that satisfies ev
 
 ## Phase 1 – Data acquisition & early end‑to‑end sanity check
 
-- [ ] T001 [US‑1] Download the real CodeXGLUE defect‑detection dataset and generate the synthetic edge‑case corpus.   <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 -->
+- [ ] T001 [US‑1] Download the real CodeXGLUE defect‑detection dataset and generate the synthetic edge‑case corpus.   <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 -->
   **Path**: `code/data/download_real.py` (real download) and `code/data/generate_synthetic.py` (synthetic generation).  
   **Verification**:  
   • `datasets.load_dataset("code_x_glue", "defect_detection")` runs without error and returns ≥ 200 instances.  

@@ -11,11 +11,19 @@ The script aborts if:
 """
 
 import hashlib
+import json
 import sys
 from pathlib import Path
 from typing import List, Tuple
 
 from llmxive_toolkit import paths, get_logger
+
+# The huggingface_hub library is used instead of the `datasets` library because
+# the latter pulls in `pyarrow`, which requires NumPy 2.0 and is unavailable in the
+# execution environment.  HuggingFace Hub provides direct access to the raw
+# JSONL files of the CodeXGLUE defect-detection dataset, allowing us to load the
+# data without any heavy binary dependencies.
+from huggingface_hub import hf_hub_download, RepositoryNotFoundError
 
 log = get_logger(__name__)
 
@@ -29,20 +37,39 @@ def _sha256_of_file(file_path: Path) -> str:
 
 def _load_dataset() -> List[Tuple[str, List[dict]]]:
     """
-    Loads the dataset via the 'datasets' library.
-    Returns a list of (split_name, records) tuples.
+    Loads the CodeXGLUE defect-detection dataset directly from the HuggingFace Hub.
+    Returns a list of (split_name, records) tuples, where each record is a dict
+    parsed from a JSONL line.
     """
-    try:
-        from datasets import load_dataset
-        log.info("Loading dataset via the 'datasets' library (code_x_glue, defect_detection)...")
-        ds = load_dataset("code_x_glue", "defect_detection")
-        splits = []
-        for split_name, split in ds.items():
-            splits.append((split_name, list(split)))
-        return splits
-    except Exception as exc:
-        log.error(f"Critical failure loading dataset via 'datasets' library: {exc}")
-        raise
+    repo_id = "code_x_glue"
+    dataset_path = "defect_detection"
+    splits = []
+    for split_name in ["train", "validation", "test"]:
+        filename = f"{dataset_path}/{split_name}.jsonl"
+        log.info(f"Downloading {filename} from the HuggingFace Hub...")
+        try:
+            local_path = hf_hub_download(repo_id=repo_id, filename=filename, repo_type="dataset")
+        except RepositoryNotFoundError as exc:
+            log.error(f"Dataset repository or file not found: {exc}")
+            raise
+        except Exception as exc:
+            log.error(f"Failed to download {filename}: {exc}")
+            raise
+
+        records: List[dict] = []
+        with open(local_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    record = json.loads(line)
+                    records.append(record)
+                except json.JSONDecodeError as exc:
+                    log.warning(f"Skipping malformed JSON line in {filename}: {exc}")
+        log.info(f"Loaded {len(records)} records from split '{split_name}'.")
+        splits.append((split_name, records))
+    return splits
 
 def main() -> None:
     log.info("Starting real data acquisition...")
@@ -73,6 +100,7 @@ def main() -> None:
 
             filename = f"{split_name}_{idx}.py"
             file_path = real_dir / filename
+            # Ensure a trailing newline for consistency
             file_path.write_text(code.rstrip() + "\n", encoding="utf-8")
 
             checksum = _sha256_of_file(file_path)
