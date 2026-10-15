@@ -1,24 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Annotated Questions Schema"
-description: "Schema for the annotated dataset containing structural chain length and correctness labels."
+description: "Schema for the annotated dataset containing structural chain length, binning, and correctness labels."
 type: "object"
 properties:
-  question_id:
+  id:
     type: "string"
     description: "Unique identifier for the question record."
-  question_text:
+  question:
     type: "string"
-    description: "The natural language question text."
-  answer_text:
+    description: "Natural language question text."
+  answer:
     type: "string"
-    description: "The ground truth answer."
-  predicted_correctness:
+    description: "Ground truth answer text."
+  correctness:
     type: "boolean"
     description: "Whether the model prediction was correct."
   chain_length:
     type: "integer"
-    minimum: 1
-    description: "Shortest path hops between query and answer entities. -1 if unresolvable."
+    minimum: -1
+    description: "Shortest path hops between query and answer entities; -1 indicates unresolvable."
+  chain_bin:
+    type: "string"
+    enum:
+      - "1"
+      - "2"
+      - "3+"
+    description: "Binned hop count derived from chain_length."
   status:
     type: "string"
     enum:
@@ -27,10 +34,11 @@ properties:
       - "mapping_failure"
     description: "Status of the graph traversal or entity linking."
 required:
-  - question_id
-  - question_text
-  - answer_text
-  - predicted_correctness
+  - id
+  - question
+  - answer
+  - correctness
   - chain_length
+  - chain_bin
   - status
 additionalProperties: false

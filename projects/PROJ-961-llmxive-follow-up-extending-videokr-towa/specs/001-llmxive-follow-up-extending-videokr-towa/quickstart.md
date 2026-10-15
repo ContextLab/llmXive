@@ -1,89 +1,92 @@
-# Quickstart: llmXive follow-up: extending "VideoKR: Towards Knowledge-Intensive Video Understandin"
+# Quickstart: Video Reasoning Threshold Analysis
 
 ## Prerequisites
-
-*   Python 3.10+
-*   Git
-*   Access to the VideoKR-SFT dataset (see `research.md` for source details).
-*   Adequate RAM is available (for CI or local run).
+- Python 3.10 or newer
+- Git
+- Access to an **open, verified** QA dataset with an associated knowledge graph (the required VideoKR‑SFT dataset is not currently available via a verified URL; you must supply a suitable substitute manually).
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-961-llmxive-follow-up-extending-videokr-towa
-    ```
+```bash
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-961-llmxive-follow-up-extending-videokr-towa
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+# Install pinned dependencies
+pip install -r requirements.txt
+```
 
 ## Data Setup
 
-1.  **Download the dataset**:
-    Place the `VideoKR-SFT` dataset files and the `knowledge_graph` file in `data/raw/`.
-    *Note: If the dataset is not available via the verified URL, you must manually download it from the official VideoKR repository and place it here.*
+1. **Place the dataset**  
+   - Put the QA CSV/JSONL file(s) and the knowledge‑graph file (e.g., `graph.json`) into `data/raw/`.  
+   - The filenames must match those expected by `code/ingest/download_data.py` (e.g., `videokr_sft.csv`, `knowledge_graph.json`).  
 
-2.  **Verify checksums** (if provided):
-    ```bash
-    python code/ingest/checksum.py
-    ```
+2. **Checksum verification** (optional but recommended):
+   ```bash
+   python code/ingest/checksum.py
+   ```
 
-## Running the Pipeline
+   The script will compute SHA‑256 hashes and compare them against any stored values in the project state file.
 
-The entire analysis can be run via the main orchestrator script:
+## Running the Full Pipeline
 
 ```bash
 python code/main.py
 ```
 
-This script performs:
-1.  **Ingestion**: Loads raw data, performs entity linking, and annotates with `chain_length`.
-2.  **Sampling**: Executes the two-stage pilot/oversampling strategy.
-3.  **Stratification**: Calculates accuracy per hop count.
-4.  **Threshold Detection**: Runs the Permutation Test for change-point detection.
-5.  **Sensitivity Analysis**: Sweeps thresholds and checks for disconnection bias.
-6.  **Reporting**: Generates `data/processed/threshold_results.json` and plots in `data/processed/plots/`.
+The orchestrator performs the following steps in order:
 
-## Manual Execution (Step-by-Step)
+1. **Data‑availability gate** – aborts if required files are missing.  
+2. **Annotation** – deterministic entity linking & hop counting (`annotated_videokr.csv`).  
+3. **Two‑stage sampling** – ensures enough high‑hop examples.  
+4. **Stratified accuracy** – generates `accuracy_binned.png` and CSV summary.  
+5. **Permutation change‑point test** – produces `threshold_results.json`.  
+6. **Sensitivity sweep** – creates `accuracy_vs_hop_raw.png` and updates the JSON with robustness metrics.  
+7. **Runtime & memory logging** – writes `runtime_log.json` and `memory_log.json`.  
 
-If you wish to run steps individually:
+All results are stored under `data/processed/`.
 
-1.  **Annotate Graph**:
-    ```bash
-    python code/ingest/annotate_graph.py
-    ```
-    *Output*: `data/processed/annotated_questions.csv`
+## Step‑by‑Step Execution (optional)
 
-2.  **Run Analysis**:
-    ```bash
-    python code/analysis/detect_threshold.py
-    python code/analysis/sensitivity.py
-    ```
-    *Output*: `data/processed/threshold_results.json`, plots.
+If you prefer to run each stage individually:
+
+```bash
+# 1. Annotation
+python code/ingest/annotate_graph.py
+
+# 2. Stratified accuracy
+python code/analysis/stratify_accuracy.py
+
+# 3. Threshold detection
+python code/analysis/detect_threshold.py
+
+# 4. Sensitivity analysis
+python code/analysis/sensitivity.py
+```
 
 ## Verification
 
-To verify the annotation logic:
+Run the unit and integration test suites:
+
 ```bash
-pytest tests/unit/test_graph_utils.py
+pytest tests/unit/
+pytest tests/integration/
 ```
 
-To verify the full pipeline (requires dataset):
-```bash
-pytest tests/integration/test_pipeline.py
-```
+All tests must pass; otherwise the pipeline will not be considered verified (addresses T102 and T103).
 
 ## Troubleshooting
 
-*   **Data Missing**: If the script fails with `E_DATA_MISSING`, check `data/raw/` for the required files. The pipeline does not auto-download from unverified sources.
-*   **OOM Error**: If you encounter Out Of Memory errors, the two-stage sampling should handle it. If not, reduce `SAMPLE_SIZE` in `code/utils/config.py`.
-*   **Entity Linking Failures**: If a high rate of `mapping_failure` is reported, check the graph schema and question text alignment.
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| `E_DATA_MISSING` error | Required raw files not present or not verified | Place the correct files in `data/raw/` and re‑run `python code/main.py`. |
+| Unit test failure in `test_entity_linker` | Incorrect fuzzy‑matching parameters | Adjust `MAX_LEVENSHTEIN_DISTANCE` in `code/utils/entity_linker.py` (default = 2). |
+| Out‑of‑memory (`MemoryError`) | Dataset larger than RAM budget | Reduce `SAMPLE_SIZE` in `code/utils/config.py` or enable streaming mode. |
+| Permutation test takes > 6 h | Too many permutations | Decrease `NUM_PERMUTATIONS` (default = 5000) or increase parallelism (`JOBLIB_BACKEND`). |
+
+---
