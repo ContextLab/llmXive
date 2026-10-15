@@ -17,7 +17,7 @@ The checklist follows the canonical format `- [ ] T### [P?] [USx?] description �
   - **Implementation**: `code/data_loader.py` uses `requests` streaming download, writes to `data/raw/2022/On_Time_Reporting_CSV.zip`.  
   - **Verification**: SHA‑256 checksum recorded in `data/README.md` matches the official file; `ls data/raw/2022/On_Time_Reporting_CSV.zip` succeeds.
 
-- [ ] **T002** [US1] Extract the ZIP, stream each CSV chunk, compute `total_delay = ArrDelay + DepDelay` (treat NaN as 0), drop negative delays, keep only commercial U.S. flights, and write a cleaned dataset.  
+- [ ] **T002** [US1] Extract the ZIP, stream each CSV chunk, compute `total_delay = ArrDelay + DepDelay` (treat NaN as 0), drop negative delays, keep only commercial U.S. flights, and write a cleaned dataset.   <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=2 -->
   - **Implementation**: `code/preprocess.py` reads chunks (`chunksize=200_000`), writes to `data/processed/cleaned_delays.csv`.  
   - **Verification**: The output CSV contains columns `flight_id,total_delay_minutes,carrier,origin,destination,is_anomaly,is_data_error,is_zero`; a schema validation against `delay_record.schema.yaml` passes.
 

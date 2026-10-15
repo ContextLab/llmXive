@@ -1,13 +1,14 @@
 T001:
   c: false
-  h: 190e7f1c6f600d14dd01c00f5f245f7ba6e3c6e41f8a6492376d2296de35bdae
-  r: "The required raw archive `data/raw/2022/On_Time_Reporting_CSV.zip` is missing,\
-    \ and `data/README.md` (which should contain the checksum) is also absent. The\
-    \ provided `code/data_loader.py` attempts to download from a URL that returns\
-    \ 404, causing the test `test_download_creates_zip` to fail and no zip file is\
-    \ created. Consequently the task\u2019s core requirement\u2014streaming download\
-    \ of the full\u2011year 2022 CSV and storing it as a ZIP archive\u2014is not satisfied."
-  sig: 7d13af9b980d584df34205af669870759d427ef436975a7122dd268ba3a65b80
+  h: 63209faf7b61d7035f836716f5e80cfa978aa36d2f47dc87eb6b6cdd996459be
+  r: "The required artifact `data/raw/2022/On_Time_Reporting_CSV.zip` is missing,\
+    \ and the accompanying `data/README.md` with the checksum is also absent. Moreover,\
+    \ the test suite shows the download step failing (no zip created). The task\u2019\
+    s core requirement\u2014to retrieve the full\u2011year 2022 BTS CSV via streaming\
+    \ and store the raw archive\u2014has not been fulfilled. Fix by ensuring the download\
+    \ succeeds, the zip file is saved at the specified path, and a README with the\
+    \ correct SHA\u2011256 checksum is added."
+  sig: ff03bb6dec6f18d2a99f841380865dfced5187e756fc2966df6bfca45e0b0c74
 T002:
   c: false
   h: c09078fbeb39a9bf6f61f6ab49aed68eaca0f95143fcf0b4c3a32aa185fbfc4b

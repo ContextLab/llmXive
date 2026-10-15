@@ -1,19 +1,19 @@
 status: none
-intent: Bureau of Transportation Statistics on-time performance 2022 CSV download
-  python package dataset
+intent: Bureau of Transportation Statistics On-Time Performance data python package
+  dataset
 required_fields:
 - Year
 - Month
-- DayOfMonth
+- DayofMonth
 - FlightDate
-- AirlineID
-- Carrier
+- UniqueCarrier
 - FlightNum
-- OriginAirportID
 - Origin
-- DestAirportID
 - Dest
 - CRSDepTime
-cache_key: a5a18a79be7d4104deff171d92fa029a93158f2f69ff9599fe6a46ef631c3a6b
-searched_at: '2026-10-15T08:23:14.107027+00:00'
+- DepTime
+- DepDelay
+- CRSArrTime
+cache_key: b68ac551bd5fa0536c2742625006b7522ca5aa9835fa8eda1b085534b897931c
+searched_at: '2026-10-15T08:26:19.340849+00:00'
 retry_count: 1

@@ -1,0 +1,30 @@
+# Schema for the cleaned delay records produced by Task T002
+type: object
+properties:
+  flight_id:
+    type: string
+  total_delay_minutes:
+    type: integer
+    minimum: 0
+  carrier:
+    type: string
+  origin:
+    type: string
+  destination:
+    type: string
+  is_anomaly:
+    type: boolean
+  is_data_error:
+    type: boolean
+  is_zero:
+    type: boolean
+required:
+  - flight_id
+  - total_delay_minutes
+  - carrier
+  - origin
+  - destination
+  - is_anomaly
+  - is_data_error
+  - is_zero
+additionalProperties: false

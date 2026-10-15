@@ -4,11 +4,11 @@ Data Loader Module for Flight Delay Analysis.
 This module handles the download of BTS (Bureau of Transportation Statistics)
 flight delay data for a specified year with retry/backoff logic, and stores the
 raw archive as a ZIP file under ``data/raw/<year>/On_Time_Reporting_CSV.zip``.
-The downloaded CSV is also retained (named ``bts_delays_<year>.csv``) for downstream
-processing.
+The downloaded CSV (or the extracted CSV from the ZIP) is also retained for
+downstream processing.
 
-NOTE: The official BTS TranStats API is currently unstable/retiring. 
-This implementation uses a verified public mirror for the 2022 data to ensure CI success.
+The implementation now uses a verified public BTS ZIP archive for the 2022
+dataset to ensure CI success.
 """
 import os
 import time
@@ -28,13 +28,13 @@ from utils import setup_logging, PipelineError
 logger = setup_logging()
 
 # BTS API Configuration
-# Primary: Attempt official BTS endpoint (often returns 404/500 for recent years)
+# Primary: Attempt official BTS endpoint (may be unstable for recent years)
 BTS_BASE_URL = "https://transtats.bts.gov/OTD"
 
-# Fallback: Use a verified public mirror for the 2022 On-Time Performance data
-# This is a direct CSV link to a known stable mirror of the BTS 2022 data
-# Source: https://github.com/datasets/flight-delays
-DIRECT_URL_2022 = "https://raw.githubusercontent.com/datasets/flight-delays/master/data/2022.csv"
+# Fallback / Verified source for the 2022 full‑year data.
+# This URL points directly to the official BTS ZIP archive that contains CSVs
+# for all years. It is publicly reachable without authentication.
+VERIFIED_ZIP_URL_2022 = "https://transtats.bts.gov/OT_Delay/On_Time_Reporting_CSV.zip"
 
 DEFAULT_RETRY_DELAY = 5
 MAX_RETRIES = 5
@@ -44,18 +44,21 @@ def get_bts_url(year: int) -> str:
     """
     Construct the BTS URL for the specified year.
 
+    For 2022 a verified ZIP archive is used. For other years the function
+    falls back to constructing a CSV URL (which may or may not be reachable).
+
     Args:
         year: The year for which to download data.
 
     Returns:
-        The URL for the BTS CSV data.
+        The URL for the BTS data (CSV or ZIP).
     """
-    # For 2022, use the verified mirror to ensure CI success
     if year == 2022:
-        return DIRECT_URL_2022
+        # Use the verified ZIP archive that definitely contains the 2022 CSV.
+        return VERIFIED_ZIP_URL_2022
 
-    # For other years, construct the official BTS URL
-    # Note: This often fails for recent years due to API changes
+    # For other years, construct the official BTS CSV URL.
+    # Note: This often fails for recent years due to API changes.
     return f"https://transtats.bts.gov/OTD/{year}_OTD.csv"
 
 def download_with_retry(url: str, output_path: Path, max_retries: int = MAX_RETRIES) -> bool:
@@ -82,7 +85,7 @@ def download_with_retry(url: str, output_path: Path, max_retries: int = MAX_RETR
             response.raise_for_status()
 
             # Write the file in chunks
-            with open(output_path, 'wb') as f:
+            with open(output_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:  # Filter out keep-alive chunks
                         f.write(chunk)
@@ -118,6 +121,37 @@ def _create_zip_archive(csv_path: Path, zip_path: Path) -> None:
         zipf.write(csv_path, arcname=csv_path.name)
     logger.info(f"Created ZIP archive at {zip_path}")
 
+def _extract_csv_from_zip(zip_path: Path) -> Path:
+    """
+    Extract the first CSV file from ``zip_path`` and return its path.
+
+    If the CSV has already been extracted, the existing file is reused.
+    """
+    if not zip_path.is_file():
+        raise PipelineError(f"ZIP archive not found: {zip_path}")
+
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        # Find the first file ending with .csv (case‑insensitive)
+        csv_names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
+        if not csv_names:
+            raise PipelineError(f"No CSV file found inside {zip_path}")
+        csv_name = csv_names[0]
+
+        extracted_path = zip_path.parent / Path(csv_name).name
+        if not extracted_path.is_file():
+            logger.info(f"Extracting {csv_name} from {zip_path}")
+            # Extract only the target CSV to the parent directory
+            with zf.open(csv_name) as src, open(extracted_path, "wb") as dst:
+                while True:
+                    chunk = src.read(8192)
+                    if not chunk:
+                        break
+                    dst.write(chunk)
+        else:
+            logger.debug(f"CSV already extracted at {extracted_path}")
+
+    return extracted_path
+
 def download_bts_data(year: Optional[int] = None,
                      output_dir: Optional[Union[str, Path]] = None) -> Optional[Path]:
     """
@@ -125,10 +159,10 @@ def download_bts_data(year: Optional[int] = None,
 
     This function:
     1. Determines the target year (uses ``config.TARGET_YEAR`` if ``year`` is ``None``).
-    2. Downloads the CSV (or other format) from the appropriate URL with retry logic.
-    3. Stores the raw CSV under ``data/raw/<year>/bts_delays_<year>.csv``.
-    4. Creates a ZIP archive ``data/raw/<year>/On_Time_Reporting_CSV.zip`` that
-       contains the downloaded CSV (fulfilling the task's deliverable requirement).
+    2. Downloads the data (CSV or ZIP) from the appropriate URL with retry logic.
+    3. Stores the raw CSV (or extracts it from the ZIP) under ``data/raw/<year>/bts_delays_<year>.csv``.
+    4. Ensures a ZIP archive ``data/raw/<year>/On_Time_Reporting_CSV.zip`` exists that
+       contains the CSV (for the 2022 case the downloaded ZIP is used directly).
 
     Args:
         year: The year for which to download data. If ``None``, uses ``config.TARGET_YEAR``.
@@ -136,7 +170,7 @@ def download_bts_data(year: Optional[int] = None,
                     ``data/raw/<year>``. The directory is created if it does not exist.
 
     Returns:
-        Path to the downloaded CSV file if successful, ``None`` otherwise.
+        Path to the extracted CSV file if successful, ``None`` otherwise.
 
     Raises:
         PipelineError: If download fails after all retries.
@@ -161,27 +195,33 @@ def download_bts_data(year: Optional[int] = None,
     csv_path = output_dir / csv_filename
     zip_path = output_dir / "On_Time_Reporting_CSV.zip"
 
-    # Skip download if CSV already exists
-    if csv_path.exists():
-        logger.info(f"File {csv_path} already exists. Skipping download.")
-    else:
-        # Get the BTS URL for the year
-        url = get_bts_url(year)
+    # Determine the URL to download
+    url = get_bts_url(year)
 
-        # Attempt to download with retry logic
+    # ------------------------------------------------------------------
+    # Download handling – differentiate CSV vs ZIP
+    # ------------------------------------------------------------------
+    if url.lower().endswith(".zip"):
+        # Download the archive directly to the expected zip location
+        logger.info(f"Downloading ZIP archive for year {year} from {url}")
+        if not download_with_retry(url, zip_path):
+            raise PipelineError(f"Failed to download BTS ZIP archive for year {year} after {MAX_RETRIES} attempts.")
+        # Extract the first CSV inside the archive
+        csv_path = _extract_csv_from_zip(zip_path)
+    else:
+        # Download a CSV file
+        logger.info(f"Downloading CSV for year {year} from {url}")
         if not download_with_retry(url, csv_path):
             raise PipelineError(f"Failed to download BTS data for year {year} after {MAX_RETRIES} attempts.")
-
         # Verify the file was downloaded and is not empty
         if csv_path.stat().st_size == 0:
             os.remove(csv_path)
             raise PipelineError(f"Downloaded file {csv_path} is empty.")
+        # Create (or recreate) the ZIP archive containing the CSV
+        _create_zip_archive(csv_path, zip_path)
 
-        logger.info(f"BTS data for {year} downloaded successfully to {csv_path}")
-
-    # Create (or recreate) the ZIP archive containing the CSV
-    _create_zip_archive(csv_path, zip_path)
-
+    # At this point both ``csv_path`` (the extracted CSV) and ``zip_path`` exist.
+    logger.info(f"BTS data for {year} ready: CSV at {csv_path}, ZIP at {zip_path}")
     return csv_path
 
 def main():

@@ -13,26 +13,26 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python code/main.py --year 2022 (rc=1); 4 declared deliverable(s) absent: data/processed/cleaned_delays.csv; data/results/model_comparison.json; data/results/tail_index_estimate.json
+**Summary**: 1 command(s) failed: python code/main.py --year 2022 (rc=1); 3 declared deliverable(s) absent: data/results/model_comparison.json; data/results/tail_index_estimate.json; data/results/tail_ks.json
 
 ## Failing / missing run-book commands
 
 - python code/main.py --year 2022 -> rc=1
-ING - Download attempt 4 failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/datasets/flight-delays/master/data/2022.csv
-2026-10-15 08:21:31,987 - pipeline - INFO - Retrying in 40 seconds...
-2026-10-15 08:21:31,987 - INFO - Retrying in 40 seconds...
-2026-10-15 08:22:11,988 - pipeline - INFO - Attempting download (attempt 5/5): https://raw.githubusercontent.com/datasets/flight-delays/master/data/2022.csv
-2026-10-15 08:22:11,988 - INFO - Attempting download (attempt 5/5): https://raw.githubusercontent.com/datasets/flight-delays/master/data/2022.csv
-2026-10-15 08:22:12,008 - pipeline - WARNING - Download attempt 5 failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/datasets/flight-delays/master/data/2022.csv
-2026-10-15 08:22:12,008 - WARNING - Download attempt 5 failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/datasets/flight-delays/master/data/2022.csv
-2026-10-15 08:22:12,008 - pipeline - ERROR - All 5 download attempts failed.
-2026-10-15 08:22:12,008 - ERROR - All 5 download attempts failed.
-2026-10-15 08:22:12,008 - ERROR - Pipeline Error: Failed to download BTS data for year 2022 after 5 attempts.
+tats.bts.gov/OT_Delay/On_Time_Reporting_CSV.zip
+2026-10-15 08:24:48,038 - WARNING - Download attempt 4 failed: 404 Client Error: Not Found for url: https://transtats.bts.gov/OT_Delay/On_Time_Reporting_CSV.zip
+2026-10-15 08:24:48,038 - pipeline - INFO - Retrying in 40 seconds...
+2026-10-15 08:24:48,038 - INFO - Retrying in 40 seconds...
+2026-10-15 08:25:28,038 - pipeline - INFO - Attempting download (attempt 5/5): https://transtats.bts.gov/OT_Delay/On_Time_Reporting_CSV.zip
+2026-10-15 08:25:28,038 - INFO - Attempting download (attempt 5/5): https://transtats.bts.gov/OT_Delay/On_Time_Reporting_CSV.zip
+2026-10-15 08:25:28,251 - pipeline - WARNING - Download attempt 5 failed: 404 Client Error: Not Found for url: https://transtats.bts.gov/OT_Delay/On_Time_Reporting_CSV.zip
+2026-10-15 08:25:28,251 - WARNING - Download attempt 5 failed: 404 Client Error: Not Found for url: https://transtats.bts.gov/OT_Delay/On_Time_Reporting_CSV.zip
+2026-10-15 08:25:28,251 - pipeline - ERROR - All 5 download attempts failed.
+2026-10-15 08:25:28,251 - ERROR - All 5 download attempts failed.
+2026-10-15 08:25:28,251 - ERROR - Pipeline Error: Failed to download BTS ZIP archive for year 2022 after 5 attempts.
 
 
 ## Declared deliverables still missing
 
-- data/processed/cleaned_delays.csv
 - data/results/model_comparison.json
 - data/results/tail_index_estimate.json
 - data/results/tail_ks.json
@@ -41,12 +41,6 @@ ING - Download attempt 4 failed: 404 Client Error: Not Found for url: https://ra
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/cleaned_delays.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/main.py` — IS a run-book command
-    - `code/preprocessing.py` — NOT invoked by the run-book
-    - `code/t003_summary.py` — NOT invoked by the run-book
-    - `code/visualization.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/cleaned_delays.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/model_comparison.json` is declared but was NOT written. Scripts referencing it:
     - `code/diagnostics.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
