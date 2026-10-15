@@ -1,8 +1,8 @@
 """
 Test that ``code/ingestion/download_data.py`` does not contain any
 synthetic‑fallback logic (e.g. generating mock data when the real
-download fails). The pipeline must fail loudly if the dataset cannot be
-fetched.
+download fails). The pipeline must fail loudly if the dataset cannot
+be fetched.
 """
 import pathlib
 import re
@@ -15,8 +15,7 @@ def test_no_synthetic_fallback():
     script_path = pathlib.Path(__file__).resolve().parents[2] / "ingestion" / "download_data.py"
     content = script_path.read_text(encoding="utf-8").lower()
 
-    # Patterns that would represent a synthetic fallback – the list can be
-    # extended if new patterns appear in the future.
+    # Patterns that would represent a synthetic fallback
     forbidden_patterns = [
         r"synthetic",
         r"mock",

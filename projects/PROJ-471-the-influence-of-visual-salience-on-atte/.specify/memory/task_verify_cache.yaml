@@ -1,12 +1,12 @@
 T001:
   c: true
-  h: ab00b02ab8c8bdb14c2e4a0aedb0c7385d9ecdeb306091d4e3426349476c5189
-  r: 'All required artifacts exist and are non-empty: `requirements.txt` with pinned
-    versions, `code/bootstrap.py` that creates all seven required directories and
-    writes the pinned requirements, `code/config.py` with paths/seeds/thresholds,
-    `code/main.py` as a runnable entry point supporting `--stage smoke` (exits 0 after
-    verifying the layout), and `specs/.../quickstart.md` documenting the command.
-    The directory tree evidence confirms `code/`, `data/raw|interim|processed|results`,
-    `code/tests/`, and `docs/` all exist. The "full" stage being a placeholder is
-    acceptable since T001 only requires a runn'
-  sig: c76c2c731ca3c09b8ff93c6bb9fee783bfb973cd2cecde452235240385b90fef
+  h: 7485afe0e0bffee91b3b367f4271ea7f36adb7e33f820675608cb448a2c18e66
+  r: 'The required artifacts exist and match the task: `code/bootstrap.py` creates
+    all seven required directories (all confirmed present on disk with `.gitkeep`
+    markers), writes a pinned `code/requirements.txt` (present in the `code/` listing,
+    with exact version pins matching the claim), `code/config.py` defines paths/seeds/thresholds,
+    `code/main.py` is a runnable entry point supporting the documented `--stage smoke`
+    command, and `specs/.../quickstart.md` documents the invocation. The unpinned
+    root `requirements.txt` is a supplementary file, not a defect since the pinned
+    one exists at `code/requirem'
+  sig: a93cfaf8e8d2d6eeddb0657e19decd41abab52fc425b6268502904cc44486acb
