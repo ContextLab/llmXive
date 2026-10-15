@@ -20,35 +20,3 @@ T022:
     \ was run to produce it. Consequently the required automatically\u2011generated\
     \ summary does not exist. The implementer must add the script execution and the\
     \ resulting text file to satisfy US\u20113."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `run_pipeline.sh` script is present in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`;\
-    \ thus the required artifact does not exist, and the task\u2019s requirements\
-    \ (sequencing the four Python scripts with error handling and exit\u2011code logging)\
-    \ are not satisfied."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No output files listed in the task (e.g., `data/raw/*.json`, `data/processed/*.csv`,
-    `output/regression_summary.json`, `output/hypothesis_summary.md`, `output/plots/regime_map.png`)
-    are present or shown, and no evidence that `run_pipeline.sh` was executed on any
-    subset of trajectories. The required artifacts are missing, so the pipeline execution
-    has not been verified.
-T046:
-  c: true
-  h: 470023c3dfdb2988f8ab77efcbc851b5db5209af48f12d4eb6bae3cd6d541183
-  r: "The repository contains a non\u2011empty `code/generate_terms.py` that checks\
-    \ for `code/config/user_terms.json`, falls back to the hard\u2011coded default\
-    \ list, and writes `code/config/density_terms.json` with the required `{\"terms\"\
-    : [...]}` schema. The generated `density_terms.json` is present and matches the\
-    \ default list, satisfying the verification criteria."
-T048:
-  c: false
-  h: f4d244a0553b00416fd4a6477ebc77084422b3ade8d2e3d83d8aa4d1b7f4bdf6
-  r: "The required `data/raw/trajectories.json` file is absent, so the script cannot\
-    \ load the trajectories as mandated. Moreover, the provided `validate_trajectories.py`\
-    \ is truncated and does not show the full validation logic (e.g., iterating over\
-    \ trajectories, checking entropy against requested density, and exiting with appropriate\
-    \ codes). Both the missing input file and the incomplete script mean the task\u2019\
-    s requirements are not satisfied."

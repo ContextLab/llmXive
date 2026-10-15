@@ -1,6 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T011** — The required output file `data/raw/trajectories.json` does not exist, so the script has not produced the 500 trajectories nor the required metadata. Additionally, the provided `generate_trajectories.py` is incomplete (truncated) and does not demonstrate the logic for counting samples per bin, logging distribution, or generating the JSON output. The missing JSON file and incomplete script mean the task requirements are not met.
-- **T048** — The required `data/raw/trajectories.json` file is absent, so the script cannot load the trajectories as mandated. Moreover, the provided `validate_trajectories.py` is truncated and does not show the full validation logic (e.g., iterating over trajectories, checking entropy against requested density, and exiting with appropriate codes). Both the missing input file and the incomplete script mean the task’s requirements are not satisfied.

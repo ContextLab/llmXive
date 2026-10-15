@@ -1,15 +1,14 @@
 status: none
-intent: pip install synthetic search trajectory generator controllable token entropy
-  python package dataset
+intent: python package generate synthetic search trajectories with controllable information
+  entropy per token python package dataset
 required_fields:
 - trajectory_id
 - turn_number
 - text
 - entropy_per_token
 - critical_flag
-- evidence_age
-- density_level
+- evidence_density_level
 - seed
-cache_key: 1abb143eb4a58c190ac8c7a6bf1797206ebac9d15b128d8d976084e76f70515b
-searched_at: '2026-10-09T15:21:36.547835+00:00'
+cache_key: 688c197c8d435895875a4e6ca2598ba6d89040b6da4fcc8b90cfbec9285763d2
+searched_at: '2026-10-15T04:17:41.731836+00:00'
 retry_count: 1

@@ -420,7 +420,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-14T04:13:58Z'
 - artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
   attempts: 1
@@ -459,7 +459,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-14T04:30:24Z'
 - artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
   attempts: 1
@@ -479,7 +479,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-14T04:30:26Z'
 - artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
   attempts: 2
@@ -893,7 +893,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-24T05:46:13Z'
 - artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/docs/quickstart.md
   attempts: 1
@@ -1360,7 +1360,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-29T13:19:47Z'
 - artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
   attempts: 1
@@ -3183,3 +3183,21 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-03T04:04:35Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/quickstart.md
+  attempts: 1
+  canonical: pipeline produces JSON, CSV, and PNG artifacts in data and results directories
+  claim_id: c_f1ff34cf
+  context: Adjust the `--num-trajectories` and `--seed` arguments as needed. The pipeline
+    will produce the required JSON, CSV, and PNG artifacts in the `data/` and `results/`
+    directories.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline will produce the required JSON, CSV, and PNG artifacts in
+    the `data/` and `results/` directories.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T04:16:24Z'
