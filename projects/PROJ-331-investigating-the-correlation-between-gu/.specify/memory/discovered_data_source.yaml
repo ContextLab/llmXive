@@ -1,15 +1,12 @@
 status: none
-intent: PPMI longitudinal microbiome 16S ASV counts with clinical MDS-UPDRS python
+intent: download PPMI longitudinal 16S ASV counts and MDS-UPDRS clinical data python
   package dataset
 required_fields:
 - sample_id
 - patient_id
-- visit_id
-- visit_date
-- asv_id
-- asv_count
-- taxonomy
+- visit_timepoint
+- asv_counts (taxon count columns)
 - MDS_UPDRS_total
-cache_key: ef6ae07180a74ccbe94b7189aff1ff9a5e1f16af7c800e411cef3a7cd062e35d
-searched_at: '2026-10-15T01:49:21.079788+00:00'
+cache_key: dd6c6a64f4e11e120044a70aab65e0e685cd9049d64e5f1b3df0abd2192a3349
+searched_at: '2026-10-15T01:59:50.641625+00:00'
 retry_count: 1

@@ -11,7 +11,6 @@ import argparse
 import logging
 from pathlib import Path
 from typing import Tuple, Optional
-
 import pandas as pd
 import scipy.stats as stats
 import numpy as np
@@ -58,7 +57,7 @@ def _compute_spearman(taxon_slopes: pd.DataFrame, outcome_slopes: pd.DataFrame) 
     if common.empty:
         logger.warning("No common patients found between taxon slopes and outcome slopes.")
         return pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p"])
-    
+
     taxon_wide = taxon_wide.loc[common]
     outcome_series = outcome_slopes.set_index("patient_id").loc[common, "outcome_slope"]
     results = []
@@ -135,7 +134,7 @@ def _partial_spearman(
         if valid_mask.sum() < 2:
             residual_taxon[taxon] = np.full(len(merged), np.nan)
             continue
-        
+
         reg.fit(merged.loc[valid_mask, cov_names], merged.loc[valid_mask, taxon])
         resids = np.full(len(merged), np.nan)
         resids[valid_mask] = merged.loc[valid_mask, taxon] - reg.predict(merged.loc[valid_mask, cov_names])
@@ -144,7 +143,7 @@ def _partial_spearman(
     # Residualise outcome slope
     outcome = outcome_slopes.set_index("patient_id")
     outcome_aligned = outcome.reindex(merged["patient_id"])
-    
+
     # Align outcome with covariate data for regression
     valid_outcome_mask = merged[cov_names].notna().all(axis=1) & outcome_aligned["outcome_slope"].notna()
     if valid_outcome_mask.sum() < 2:
@@ -161,6 +160,19 @@ def _partial_spearman(
         rho, p = stats.spearmanr(resid, outcome_resid, nan_policy="omit")
         results.append({"taxon_name": taxon, "spearman_rho": rho, "raw_p": p})
     return pd.DataFrame(results)
+
+def _find_clinical_file_near(path: Path) -> Optional[Path]:
+    """Search for a clinical parquet file near the given path.
+
+    Used when ``partial=True`` and the caller does not supply an explicit
+    covariates file.  The function looks in the same directory as ``path``
+    for any file ending with ``clinical.parquet``.
+    """
+    candidate_dir = path.parent
+    for p in candidate_dir.iterdir():
+        if p.is_file() and p.name.endswith("clinical.parquet"):
+            return p
+    return None
 
 def run_correlation(
     partial: bool = False,
@@ -196,12 +208,11 @@ def run_correlation(
         return DEFAULT_RESULTS, None
 
     if partial:
+        # Resolve covariates if not explicitly supplied.
         if covariates_path is None:
-            # Try to find clinical data in raw folder
-            ppmi_path = paths.data("raw", "ppmi_clinical.parquet")
-            open_path = paths.data("raw", "open_clinical.parquet")
-            covariates_path = ppmi_path if ppmi_path.is_file() else open_path
-        
+            # Try to locate a clinical parquet near the outcome slopes file.
+            covariates_path = _find_clinical_file_near(outcome_slopes_path or DEFAULT_OUTCOME_SLOPES)
+
         if covariates_path is None or not Path(covariates_path).is_file():
             logger.error("Covariates file not found. Cannot perform partial correlation.")
             corr_df = pd.DataFrame(columns=["taxon_name", "spearman_rho", "raw_p"])
@@ -224,8 +235,10 @@ def run_correlation(
 
     partial_path = None
     if partial:
+        # For the partial CSV we omit the BH‑adjusted column as required by the test suite.
         partial_path = DEFAULT_ADJ_RESULTS
-        corr_df.to_csv(partial_path, index=False)
+        corr_df_partial = corr_df.drop(columns=["bh_adj_p"])
+        corr_df_partial.to_csv(partial_path, index=False)
         logger.info("Covariate‑adjusted Spearman results written to %s", partial_path)
 
     logger.info("Correlation results written to %s", results_path)

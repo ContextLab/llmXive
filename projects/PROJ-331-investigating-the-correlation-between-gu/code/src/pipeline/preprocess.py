@@ -7,6 +7,7 @@ This module provides functions to:
   - Drop taxa that are all‑zero across retained samples.
   - Optionally cap the number of taxa based on a RAM budget (top‑N most abundant).
   - Apply a centered‑log‑ratio (CLR) transformation using **scikit‑bio**.
+  - Select the top‑100 taxa by *mean CLR abundance* (deterministic, no random seed).
   - Detect covariates with zero variance (to be excluded from downstream models).
   - Write the filtered and CLR‑transformed tables to Parquet files.
 
@@ -194,7 +195,7 @@ def drop_zero_taxa(
     return filtered, retained_taxa
 
 # ----------------------------------------------------------------------
-# RAM‑cap / taxa subsampling
+# RAM‑cap / taxa subsampling (raw‑count based)
 # ----------------------------------------------------------------------
 def _cap_impl(
     df: pd.DataFrame, taxon_columns: List[str], max_taxa: int
@@ -301,6 +302,28 @@ def detect_zero_variance_covariates(merged: pd.DataFrame) -> List[str]:
     return zero_var
 
 # ----------------------------------------------------------------------
+# Top‑100 taxa selection based on mean CLR abundance
+# ----------------------------------------------------------------------
+def _select_top_taxa_by_mean_clr(
+    clr_df: pd.DataFrame, max_taxa: int = MAX_TAXA
+) -> List[str]:
+    """Return the names of the top ``max_taxa`` taxa by mean CLR abundance.
+
+    The selection is deterministic because it relies solely on the
+    computed means and ``nlargest`` which preserves order for ties.
+    """
+    # Exclude identifier columns
+    identifier_cols = {"sample_id", "patient_id", "visit_date"}
+    taxon_cols = [c for c in clr_df.columns if c not in identifier_cols]
+
+    if len(taxon_cols) <= max_taxa:
+        return taxon_cols
+
+    mean_abundance = clr_df[taxon_cols].mean()
+    top_taxa = mean_abundance.nlargest(max_taxa).index.tolist()
+    return top_taxa
+
+# ----------------------------------------------------------------------
 # Main preprocessing driver
 # ----------------------------------------------------------------------
 def run_preprocess(
@@ -313,7 +336,8 @@ def run_preprocess(
 
     The function writes two Parquet files to ``out_dir``:
       - ``filtered_samples.parquet`` – the merged, filtered raw counts.
-      - ``clr_abundances.parquet`` – the CLR‑transformed abundances.
+      - ``clr_abundances.parquet`` – the CLR‑transformed abundances,
+        *restricted to the top ``max_taxa`` taxa by mean CLR abundance*.
 
     It returns a summary dictionary used by the test suite and by the
     ``run_preprocess_default`` helper script.
@@ -345,24 +369,30 @@ def run_preprocess(
     ].copy()
     filtered_df.to_parquet(filtered_path, index=False)
 
-    # 6. CLR transformation
+    # 6. CLR transformation on the retained taxa
     counts = merged[retained_taxa].copy()
     clr_df = clr_transform(counts)
-    # Preserve identifier columns in the same order as the original implementation.
+
+    # 7. Select top taxa by mean CLR abundance (deterministic)
+    top_taxa = _select_top_taxa_by_mean_clr(clr_df, max_taxa=max_taxa)
+
+    # 8. Build final CLR dataframe with identifiers and the selected taxa
     clr_df.insert(0, "visit_date", merged["visit_date"])
     clr_df.insert(0, "patient_id", merged["patient_id"])
     clr_df.insert(0, "sample_id", merged["sample_id"])
+    clr_df = clr_df[["sample_id", "patient_id", "visit_date"] + top_taxa]
 
+    # 9. Write CLR parquet
     clr_path = out_dir / "clr_abundances.parquet"
     clr_df.to_parquet(clr_path, index=False)
 
-    # 7. Detect zero‑variance covariates (for downstream stages)
+    # 10. Detect zero‑variance covariates (for downstream stages)
     zero_variance_covariates = detect_zero_variance_covariates(merged)
 
-    # 8. Summary dictionary
+    # 11. Summary dictionary
     summary: Dict[str, object] = {
         "cohort_stats": cohort_stats,
-        "taxa_retained": retained_taxa,
+        "taxa_retained": top_taxa,
         "zero_variance_covariates": zero_variance_covariates,
         # Paths are returned as strings for easy downstream consumption.
         "filtered_samples_path": str(filtered_path),

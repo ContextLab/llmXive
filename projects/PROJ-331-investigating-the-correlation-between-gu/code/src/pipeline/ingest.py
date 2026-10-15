@@ -128,7 +128,9 @@ def _validate_asv(path: Path) -> Dict[str, Any]:
         _fail(
             f"Provenance check failed for {path}: column '{PREPROCESSED_COLUMN}' must be True for all rows."
         )
-    taxon_columns = [c for c in asv.columns if c not in ASV_REQUIRED_COLUMNS + [PREPROCESSED_COLUMN]]
+    taxon_columns = [
+        c for c in asv.columns if c not in ASV_REQUIRED_COLUMNS + [PREPROCESSED_COLUMN]
+    ]
     if not taxon_columns:
         _fail(
             f"Malformed ASV file {path}: no taxon count columns found beyond "
@@ -195,7 +197,7 @@ def _validate_clinical(path: Path) -> Dict[str, Any]:
         log.warning(
             "Clinical table parsed (%d rows, %d columns) but the outcome column "
             "'%s' is ABSENT. Per FR-004 graceful degradation the slope, "
-            "correlation, and mixed-effects steps will be SKIPPED with a "
+            "correlation, and mixed‑effects steps will be SKIPPED with a "
             "warning. The pipeline does not abort.",
             len(clinical), clinical.shape[1], OUTCOME_COLUMN,
         )
@@ -258,6 +260,27 @@ def write_validation_report(report: Dict[str, Any], out_path: Optional[Path] = N
     return out_path
 
 
+def write_provenance(report: Dict[str, Any], out_path: Optional[Path] = None) -> Path:
+    """
+    Write a simple provenance JSON containing the SHA‑256 hashes of the two
+    raw input files. The file is stored under a project‑owned location
+    (``data/processed/ingest_provenance.json``) to avoid writing into the
+    platform‑owned ``state/`` directory.
+    """
+    if out_path is None:
+        out_path = paths.data("processed", "ingest_provenance.json")
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    provenance = {
+        "asv_sha256": report.get("asv_checksum_sha256"),
+        "clinical_sha256": report.get("clinical_checksum_sha256"),
+    }
+    out_path.write_text(json.dumps(provenance, indent=2))
+    log.info("Provenance file written to %s", out_path)
+    return out_path
+
+
 def _copy_to_default(
     src: Path, default_name: str
 ) -> None:
@@ -287,6 +310,9 @@ def main(
     log.info("=== PPMI input validation (FR-001) ===")
     report = validate_inputs(asv_path, clinical_path)
     write_validation_report(report, report_path)
+
+    # Write provenance (hashes) to a project‑owned location.
+    write_provenance(report)
 
     # Make sure downstream stages see the expected filenames.
     # This is a no‑op if the user already placed files using the PPMI names.

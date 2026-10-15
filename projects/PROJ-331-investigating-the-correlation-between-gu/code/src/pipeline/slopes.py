@@ -62,9 +62,25 @@ def _load_clr(ab_path: Path | None = None) -> pd.DataFrame:
 
 
 def _load_clinical(clin_path: Path | None = None) -> pd.DataFrame:
-    """Load the clinical metadata (may or may not contain the outcome)."""
+    """Load the clinical metadata (may or may not contain the outcome).
+
+    The default follows the same fallback logic used elsewhere in the
+    pipeline: prefer the historic PPMI filename, otherwise use the open‑data
+    filename.
+    """
     if clin_path is None:
-        clin_path = paths.data("raw", "ppmi_clinical.parquet")
+        # Prefer historic PPMI filename if it exists; fallback to open‑data.
+        ppmi_path = paths.data("raw", "ppmi_clinical.parquet")
+        open_path = paths.data("raw", "open_clinical.parquet")
+        if ppmi_path.is_file():
+            clin_path = ppmi_path
+        elif open_path.is_file():
+            clin_path = open_path
+        else:
+            raise FileNotFoundError(
+                "Clinical metadata not found. Expected either "
+                f"{ppmi_path} or {open_path}"
+            )
     if not clin_path.is_file():
         raise FileNotFoundError(f"Clinical metadata file not found: {clin_path}")
     df = pd.read_parquet(clin_path)
@@ -277,8 +293,7 @@ def run_slopes(
     taxon_cols = [
         c
         for c in clr_df.columns
-        if c
-        not in {"sample_id", "patient_id", "visit_date", "time_years"}
+        if c not in {"sample_id", "patient_id", "visit_date", "time_years"}
     ]
 
     taxon_slopes = compute_taxon_slopes(clr_df, taxon_columns=taxon_cols)
@@ -292,7 +307,8 @@ def run_slopes(
 
     # Outcome slopes - only if the outcome column exists
     outcome_out_path: Path | None = None
-    clinical_df = _load_clinical(clin_path)
+    # Correct variable name used here
+    clinical_df = _load_clinical(clinical_path)
     if "MDS_UPDRS_Total" in clinical_df.columns:
         outcome_slopes = compute_outcome_slopes(clinical_df)
         outcome_out_path = paths.data(
