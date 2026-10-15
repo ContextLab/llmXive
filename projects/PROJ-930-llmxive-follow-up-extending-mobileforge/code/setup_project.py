@@ -1,48 +1,89 @@
-import os
+"""
+setup_project.py
+-----------------
+Script to bootstrap the project directory structure required for the MobileForge
+logic‑distillation study.
+
+This script is invoked via its ``main`` function (or ``python -m setup_project``)
+and creates the following hierarchy under the project root:
+
+code/
+    data/
+        raw/
+        processed/
+        evaluation/
+    models/
+    utils/
+    tests/
+        unit/
+        integration/
+state/
+
+It also ensures that a placeholder ``requirements.txt`` file exists under
+``code/`` so that subsequent tasks (e.g., T002) can populate it with pinned
+dependencies.
+
+The implementation is deliberately idempotent: existing directories and files
+are left untouched.
+"""
+
 import sys
 from pathlib import Path
 
-def main():
+def _project_root() -> Path:
     """
-    Create the project directory structure and initial files as per T001.
+    Return the absolute path to the project root directory.
+    The script resides in ``code/``; the project root is its parent.
     """
-    project_root = Path(__file__).resolve().parent
-    base_path = project_root / "projects" / "PROJ-930-llmxive-follow-up-extending-mobileforge"
-    
-    # Ensure base path exists
-    base_path.mkdir(parents=True, exist_ok=True)
-    
-    # Define directories to create
+    return Path(__file__).resolve().parent.parent
+
+def _create_directories(root: Path) -> None:
+    """
+    Create all required directories for the study.
+
+    Parameters
+    ----------
+    root: Path
+        The project root directory.
+    """
     dirs = [
-        "code/data/raw",
-        "code/data/processed",
-        "code/data/evaluation",
-        "code/models",
-        "code/utils",
-        "code/tests/unit",
-        "code/tests/integration"
+        root / "code" / "data" / "raw",
+        root / "code" / "data" / "processed",
+        root / "code" / "data" / "evaluation",
+        root / "code" / "models",
+        root / "code" / "utils",
+        root / "code" / "tests" / "unit",
+        root / "code" / "tests" / "integration",
+        root / "state",
     ]
-    
+
     for d in dirs:
-        dir_path = base_path / d
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
-    
-    # Define files to create (touch)
-    files = [
-        "code/requirements.txt",
-        "code/README.md"
-    ]
-    
-    for f in files:
-        file_path = base_path / f
-        if not file_path.exists():
-            file_path.touch()
-            print(f"Created file: {file_path}")
-        else:
-            print(f"File already exists: {file_path}")
-    
-    print("Project structure initialization complete.")
+        d.mkdir(parents=True, exist_ok=True)
+
+def _ensure_requirements_file(root: Path) -> None:
+    """
+    Ensure that a ``requirements.txt`` file exists under ``code/``.
+    If the file already exists it is left untouched; otherwise an empty
+    placeholder file is created.
+
+    Parameters
+    ----------
+    root: Path
+        The project root directory.
+    """
+    req_path = root / "code" / "requirements.txt"
+    req_path.touch(exist_ok=True)
+
+def main() -> None:
+    """
+    Entry point for the bootstrap script.
+
+    It creates the directory tree and the placeholder ``requirements.txt``.
+    """
+    root = _project_root()
+    _create_directories(root)
+    _ensure_requirements_file(root)
+    print(f"Project bootstrap completed. Root: {root}", file=sys.stderr)
 
 if __name__ == "__main__":
     main()
