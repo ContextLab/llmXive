@@ -34,7 +34,7 @@ properties:
     maximum: 1
   p_value_corrected:
     type: number
-    description: "FDR-corrected p-value."
+    description: "Bonferroni-corrected p-value."
     minimum: 0
     maximum: 1
   significant:
