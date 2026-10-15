@@ -1,141 +1,116 @@
 # Tasks: Assessing the Impact of Data Resolution on Statistical Power in Publicly Available Spatial Datasets
 
-**Input**: `spec.md`, `plan.md`, `data‑model.md`, contracts, and reviewer feedback.  
-**Goal**: Produce a fully reproducible end‑to‑end pipeline that (1) downloads NLCD data, (2) creates coarser rasters, (3) transforms them to binary maps, (4) runs Moran’s I with null/alternative simulations, (5) estimates statistical power, (6) visualises the power curve, (7) identifies the resolution where power < 0.80, and (8) validates everything against the declared schemas.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contracts, reviewer feedback, and prior verification failures.  
+**Goal**: A reproducible end‑to‑end pipeline that (1) obtains real 30 m NLCD land cover data via the USGS EarthExplorer API, (2) aggregates it to coarser resolutions with nearest‑neighbor resampling, (3) transforms it to binary class indicators, (4) runs Moran's I permutation tests and H1 simulations, (5) estimates statistical power per resolution, (6) visualizes the power curve (JSON) and identifies the resolution where power < 0.80, and (7) validates all result artifacts against the declared schemas.
 
----
+**Re‑plan notes**: The prior task list contained a duplicate identity (T010), a platform‑owned directory‑creation task, linting‑configuration tasks, a CI‑workflow task, and several tasks whose declared artifacts were missing or written to inconsistent paths. This revision consolidates the work into 16 substantive tasks with canonical IDs, consistent relative paths (`code/`, `data/`, `tests/` under the project root), and no synthetic‑fallback data loading. Directory creation is handled on demand by `llmxive_toolkit.paths`; no task is spent on it.
 
-## Phase 0 – Project bootstrap (no scientific dependencies)
+## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] **T001** [P] Create the canonical project directory tree.  
-  `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/`  
-  `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/raw/`  
-  `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/derived/`  
-  `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/`  
-  `projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/`  
-  *Requirement*: All directories must exist after execution.  
-  *Verification*: `tree` output shows the five directories; CI step `test_dir_structure` asserts their presence.
+- [ ] T001 Implement real NLCD data ingestion in `code/data_ingestion.py` (FR‑001).  
+  - Use the USGS EarthExplorer API (official Python client) with a valid API key to download the 30 m NLCD Land Cover tile for Colorado, applying the user‑specified bounding box.  
+  - Perform windowed reads with `rasterio` to crop the CONUS raster to the bounding box and write `data/raw/nlcd_30m_co.tif`.  
+  - Retry up to 3 times with exponential back‑off; on final failure **RAISE** a clear error (no synthetic fallback).  
+  - Record source URL, CRS, pixel size, dtype, class list, and SHA‑256 checksum in `data/raw/nlcd_30m_co_meta.json` (conforms to `dataset.schema.yaml`).  
+  - Verification: `tests/test_ingestion.py` asserts file existence, CRS = EPSG:5070, pixel size = 30 m, integer dtype, and non‑empty class list.
 
-- [ ] **T002** [P] Add a single `pyproject.toml` that (a) pins all runtime dependencies (`rasterio`, `geopandas`, `pysal`, `numpy`, `scipy`, `matplotlib`, `pandas`, `libpysal`), (b) configures **Black** (`[tool.black] line-length = 88`) and **Ruff** (`[tool.ruff] select = ["E", "F", "W"]`).  
-  Path: `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/pyproject.toml`  
-  *Verification*: `pip install -r <(poetry export -f requirements.txt)` succeeds; `black --check .` and `ruff .` return zero violations.
+- [ ] T002 Implement nearest‑neighbor resolution aggregation in `code/resampling.py` (FR‑002, Constitution VII).  
+  - `generate_resolution(input_path, target_resolution_m) -> Path` uses `rasterio.warp.reproject` with `Resampling.nearest`, processing the source in ≤2000×2000‑pixel windows.  
+  - Generate `data/derived/nlcd_{60,120,240,480}m_co.tif` from the 30 m source; skip resolutions that would exceed raster bounds with a logged warning.  
+  - **Dependency**: requires output of T001 (`data/raw/nlcd_30m_co.tif`).  
+  - Verification: `tests/test_resampling.py` asserts each output’s pixel size, integer dtype, and that unique class values are a subset of the source (no new interpolated values).
 
-- [ ] **T003** [P] Implement `code/utils.py` with:  
-  * `checksum_file(path) → sha256` (uses `hashlib`),  
-  * `validate_url(url) → bool` (HTTP 2xx check with timeout),  
-  * `windowed_reader(raster_path, window_size=2000) → generator` (uses `rasterio`),  
-  * a basic logger (`logging.getLogger(__name__)`).  
-  *Verification*: Unit tests in `tests/test_utils.py` confirm checksum matches a known file, URL validation fails on a 404, and the windowed reader yields the expected number of windows without loading the whole raster.
+- [ ] T003 Implement binary indicator transformation in `code/binary_indicator.py` (FR‑003).  
+  - `make_binary(raster_path, class_id, output_path)` writes 1 where the class occurs, 0 elsewhere, dtype uint8, honoring nodata.  
+  - Produce `data/derived/binary_forest_{res}m_co.tif` (Forest = 41) and `data/derived/binary_urban_{res}m_co.tif` (Developed = 12) for all five resolutions.  
+  - Verification: `tests/test_binary.py` asserts the count of 1‑pixels matches the source class count and that values are exactly {0, 1}.
 
-- [ ] **T004** [P] Define core data structures and static configuration:  
-  * `code/models.py` – `ResolutionRaster` and `BinaryIndicatorMap` dataclasses.  
-  * `code/config.py` – list `RESOLUTIONS = [30, 60, 120, 240, 480]`, `SEED = 42`, `DATA_DIR = Path(__file__).resolve().parents[2] / "data"`, and a helper `load_lambda()` that reads `state/calibration.yaml`.  
-  *Verification*: Importing `models` and `config` in an interactive session raises no errors; `config.load_lambda()` returns a float after calibration.
+- [ ] T004 Implement the Moran's I analysis core in `code/analysis.py` (FR‑004, FR‑006).  
+  - `compute_morans_i(binary_path) -> (I, p)` uses `esda.moran.Moran` with exactly 1,000 permutations, weights from `libpysal` (queen contiguity on a subsampled grid if needed).  
+  - Run a thin end‑to‑end case: compute Moran's I and p‑value for the 30 m forest binary and write a first result row to `data/results/morans_i_results.csv` conforming to `results.schema.yaml`.  
+  - Verification: `tests/test_analysis.py` asserts permutation count = 1,000, I ∈ [‑1, 1], p ∈ [0, 1], and CSV schema compliance.
 
-- [ ] **T005** [P] Implement the **lambda‑calibration** script `code/calibration.py`:  
-  * Loads the 30 m binary map (produced later), samples a reproducible 5 % of pixels, fits a binary spatial autoregressive model by maximum‑likelihood to estimate the spatial lag parameter λ, writes `state/calibration.yaml` (`lambda: <value>`).  
-  *Requirement*: The file must conform to a simple YAML schema (`lambda: float`).  
-  *Verification*: After running `python -m code.calibration`, the YAML exists, parses with `yaml.safe_load`, and the value lies in (0, 1).
+- [ ] T005 Implement lambda calibration in `code/calibration.py` (Phase 0).  
+  - From the 30 m forest binary (produced by **T003**), take a fixed‑seed random sample of contiguous grid windows (sample size documented in output).  
+  - Estimate the spatial lag parameter λ of a binary spatial autoregressive process by grid‑searching λ to match the observed Moran's I of simulated surfaces.  
+  - Write `data/results/calibration.json` with keys `lambda`, `sample_size`, `observed_morans_i`, `simulated_morans_i`, `fit_error_pct`; require `fit_error_pct ≤ 5 %`.  
+  - Verification: `tests/test_calibration.py` asserts λ ∈ (0, 1) and error ≤ 5 %.
 
----
+- [ ] T006 Implement H1 simulation and power estimation in `code/analysis.py` (FR‑005).  
+  - `simulate_h1(binary_path, lambda_val, n=1000)` generates 1,000 synthetic binary surfaces per resolution via a Gibbs sampler for a binary spatial autoregressive process with the calibrated λ.  
+  - `estimate_power(h0_dist, h1_dist, alpha=0.05)` returns the proportion of H1 simulations whose Moran's I exceeds the (1 ‑ α) quantile of the H0 permutation distribution.  
+  - Verification: `tests/test_power.py` asserts both distributions have length 1,000, power ∈ [0, 1], and matches a hand‑computed example.
 
-## Phase 1 – Data acquisition & resolution manipulation (User Story 1, P1)
+- [ ] T007 Run the full resolution × class sweep (SC‑001, SC‑002).  
+  - For each resolution [30, 60, 120, 240, 480] m and class (Forest, Urban): compute observed Moran's I, permutation p‑value, H1 power estimate, and **record** `n_simulations` = 1,000.  
+  - Apply Benjamini‑Hochberg correction across all class tests; store both raw and corrected p‑values.  
+  - Write **10 rows** to `data/results/morans_i_results.csv` with columns `resolution_m`, `observed_morans_i`, `p_value`, `n_permutations` (always 1,000), `n_simulations` (always 1,000), `power_estimate`, `is_below_threshold` (true when power < 0.80).  
+  - Verification: a check script confirms 10 rows, required fields, and JSON‑schema validation against `results.schema.yaml`.
 
-- [ ] **T006** Implement `code/data_ingestion.py` that:  
-  1. Calls the USGS EarthExplorer API (using an environment variable `USGS_API_KEY`) to request the 30 m NLCD tile for Colorado;  
-  2. Falls back to the verified HuggingFace mirror `https://huggingface.co/datasets/nlcd-30m/resolve/main/nlcd_2019_colorado_30m.tif` if the API call fails after three exponential‑backoff retries;  
-  3. Validates the download with `utils.validate_url` and `utils.checksum_file` against the checksum stored in `specs/.../dataset.schema.yaml`;  
-  4. Writes the raster to `data/raw/nlcd_30m_co.tif`.  
-  *Verification*: Integration test `tests/test_ingestion.py` asserts file existence, correct CRS (`EPSG:5070`), and that the checksum matches the schema value.
+- [ ] T008 Generate the power curve and threshold identification in `code/visualization.py` (FR‑007, SC‑001).  
+  - Read `morans_i_results.csv`, compute per‑resolution power per class, and write **`data/results/power_curve.json`** matching `power_curve.schema.yaml` (object with `curve_data` array and `summary` object).  
+  - Plot power vs. resolution per class with the 0.80 line and threshold annotation; save `data/results/power_curve_forest.png` and `data/results/power_curve_urban.png`.  
+  - Write `data/results/threshold_report.txt` naming the resolution where power first falls below 0.80 for each class and the Type II error increase relative to the 30 m baseline.  
+  - Verification: `tests/test_visualization.py` asserts the JSON validates against the schema, that **zero or one** `threshold_flag == true` rows exist per class (allowing a flat curve), and that PNG/report files are non‑empty.
 
-- [ ] **T007** Implement `code/resampling.py` with function `generate_resolution(input_path: Path, factor: int) → Path` that:  
-  * Uses `rasterio.warp.reproject` with `Resampling.nearest`;  
-  * Processes the source raster in 2000 × 2000‑pixel windows (via `utils.windowed_reader`) to stay ≤ 7 GB RAM;  
-  * Skips a target resolution if the resulting raster would exceed the original bounding box (logs a warning);  
-  * Writes each output to `data/derived/nlcd_{resolution}m_co.tif` (e.g., `nlcd_60m_co.tif`).  
-  *Verification*: Unit test `tests/test_resampling.py` checks that unique class IDs are unchanged after resampling and that the pixel size metadata equals the requested resolution.
+- [ ] T009 Perform the ±10 % sensitivity sweep (SC‑004).  
+  - Around the identified threshold resolution, generate perturbed rasters at 0.9× and 1.1× the nominal resolution (rounded to integer meters) via `resampling.generate_resolution` into `data/derived/sensitivity/`.  
+  - Re‑run the full analysis (binary transform, Moran's I, H1 power) on the perturbed rasters and append rows tagged `sensitivity` to `morans_i_results.csv`.  
+  - Write `data/results/sensitivity_report.md` stating whether the threshold moves by more than one resolution step (± 60 m) and flag any p‑value exactly = 0.05.  
+  - Verification: the sensitivity directory contains at least two rasters; the report contains an explicit threshold‑variation statement.
 
-- [ ] **T008** Add a thin CLI orchestrator `code/main.py` exposing:  
-  * `--download` → runs `data_ingestion`;  
-  * `--aggregate` → runs `resampling` for all factors in `config.RESOLUTIONS[1:]`;  
-  * `--full-sweep` → sequentially runs download, aggregation, binary conversion, calibration, analysis, visualization, and sensitivity sweep.  
-  *Verification*: Running `python -m code.main --full-sweep` completes without error and leaves a non‑empty `data/results/morans_i_results.csv`.
+- [ ] T010 Runtime, memory, and disk‑usage validation (SC‑003, FR‑006).  
+  - Instrument `code/main.py` to record wall‑clock time, peak RSS, and peak disk usage (via `psutil` and `shutil.disk_usage`) per phase into `data/results/runtime_report.json`.  
+  - Confirm the full sweep completes **CPU‑only** within 6 h, < 7 GB RAM, and < 14 GB disk. If the full grid exceeds limits, fall back to a documented fixed‑seed spatial subsample (rule and power limitation noted in the report).  
+  - Verification: the runtime report shows total time < 6 h, peak memory < 7 GB, peak disk < 14 GB, and includes a flag confirming no GPU devices were detected.
 
----
+- [ ] T011 Write the methods and results account in `data/results/final_report.md`.  
+  - State the resolution where power first drops below 0.80 for each class, the Type II error delta vs. the 30 m baseline, the calibrated λ and fit error, the sensitivity conclusion, the runtime/memory figures, and honest limitations.  
+  - Link every numeric claim to the actual CSV/JSON artifact; no hand‑typed values.  
+  - Verification: the report contains the required sections and every cited value is traceable to a file under `data/results/`.
 
-## Phase 2 – Binary conversion & lambda estimation (pre‑US2)
+- [ ] T012 Re‑run the documented workflow end‑to‑end and record the paper‑stage handoff.  
+  - Update `specs/001-assessing-the-impact-of-data-resolution/quickstart.md` with exact runnable commands, pinned seeds, and the USGS EarthExplorer data‑source recipe.  
+  - Re‑execute the full pipeline from `data/raw/`, confirm `pytest tests/` passes and all schema validations succeed, and write `data/results/handoff.md` summarising the artifacts the paper stage receives (results CSVs, power‑curve JSON/PNG, threshold and sensitivity reports, final report).  
+  - Verification: a clean re‑run reproduces `morans_i_results.csv`, `power_curve.json`, and the threshold report with identical values under the pinned seeds.
 
-- [ ] **T009** Implement `code/binary_indicator.py` containing `make_binary(raster_path: Path, class_id: int, output_path: Path)`.  
-  * Converts the categorical NLCD raster to a binary map where the chosen `class_id` (e.g., Forest = 41) becomes 1 and all others 0; writes GeoTIFF with `dtype=uint8`.  
-  *Creates two binaries:* `data/derived/binary_forest_30m_co.tif` and `data/derived/binary_urban_30m_co.tif` (Urban = 12).  
-  *Verification*: Tests in `tests/test_binary.py` confirm that the sum of 1‑pixels matches the count of the target class in the source raster.
+## Phase 2: Reproducibility, verification, and hygiene
 
-- [ ] **T010** Run the calibration script (`code/calibration.py`) **after** the forest binary is created.  
-  *Reads `binary_forest_30m_co.tif`, estimates λ, writes `state/calibration.yaml`.  
-  *Verification*: The YAML file exists, contains a single key `lambda`, and the value is printed in the CI log.
+- [ ] T013 Record and pin all random seeds in `code/config.py` and verify that a fresh checkout can execute the full pipeline end‑to‑end without manual intervention (Constitution I).  
+  - `config.py` defines `SEED_NP`, `SEED_PYSA`, etc.; tasks import these seeds.  
+  - A verification script runs the complete pipeline on a clean environment and asserts identical outputs to a stored fingerprint.  
+  - Verification: `tests/test_seeds.py` checks that the fingerprint matches the reference.
 
----
+- [ ] T014 Run the Reference‑Validator Agent to confirm every external citation (NLCD URL, literature references) is reachable and matches the primary source before research completion (Constitution II).  
+  - The task aborts the pipeline if any citation fails validation.  
+  - Verification: the agent’s log contains “All citations verified”.
 
-## Phase 3 – Spatial autocorrelation & power simulation (User Story 2, P2)
+- [ ] T015 Write SHA‑256 checksums of all data artifacts into the project’s `state/projects/PROJ-421‑...yaml` manifest and validate the manifest (Constitution III).  
+  - After each data‑generation task, the checksum is added to the `artifact_hashes` map.  
+  - Verification: `tests/test_state_checksums.py` confirms the manifest entries match the actual file hashes.
 
-- [ ] **T011** Implement `code/analysis.py` with three public functions:  
-  1. `compute_morans_i(binary_path: Path) → (float, float)` – returns Moran’s I and its p‑value using `pysal.esda.moran.Moran` with **exactly 1 000** random permutations (FR‑004).  
-  2. `simulate_h1(binary_path: Path, lambda_val: float, n: int = 1_000) → List[Path]` – generates `n` synthetic binary rasters via a Gibbs sampler for a binary spatial autoregressive process (FR‑005).  
-  3. `estimate_power(observed_i: float, h0_dist: np.ndarray, h1_dist: np.ndarray) → float` – computes the proportion of H1 simulations whose Moran’s I exceeds the 95 % percentile of the H0 distribution (α = 0.05).  
-  *All results* are written to `data/results/morans_i_results.csv` adhering to `results.schema.yaml`.  
-  *Verification*: `tests/test_analysis.py` checks that (a) the H0 array has length 1 000, (b) the H1 array length 1 000, (c) power lies in [0, 1] and matches a manual calculation on a tiny toy raster.
+- [ ] T016 Assert CPU‑only execution environment (FR‑006).  
+  - The task checks `torch.cuda.is_available()` (if torch is installed) and that no CUDA‑enabled libraries are imported; it fails if a GPU is present.  
+  - Verification: `tests/test_gpu_absence.py` passes on the GitHub Actions runner.
 
-- [ ] **T012** Extend `analysis.py` to loop over **all** resolutions (`config.RESOLUTIONS`) **and** both land‑cover classes (Forest = 41, Urban = 12).  
-  *Each combination* produces a row in the CSV with columns `resolution_m`, `class_id`, `observed_morans_i`, `p_value`, `n_permutations`, `n_simulations`, `power_estimate`, `is_below_threshold`.  
-  *Verification*: After `python -m code.main --full-sweep`, the CSV contains 10 rows (5 resolutions × 2 classes) and passes JSON‑schema validation (`code/validate_schemas.py`).
+## Dependencies and ordering
 
----
+- Execution order (respecting data flow):  
+  T001 → T002 → T003 → (T004, T005) → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → T015 → T016.  
+- Parallel‑safe tasks: none are marked `[P]`; all dependencies are explicit.  
 
-## Phase 4 – Power‑curve visualisation & threshold detection (User Story 3, P3)
+## Dependencies and requirement coverage
 
-- [ ] **T013** Implement `code/visualization.py` that:  
-  * Reads `morans_i_results.csv`; groups by resolution to compute mean power per resolution; writes `data/results/power_curve.csv` conforming to `power_curve.schema.yaml`.  
-  * Plots the power‑vs‑resolution curve (matplotlib), annotates the first point where power < 0.80, saves PNG `data/results/power_curve.png`.  
-  * Writes the identified threshold (e.g., `240m`) to `data/results/threshold_report.txt`.  
-  *Verification*: Unit test `tests/test_visualization.py` asserts that the CSV contains a `threshold_flag == True` row and that the PNG file size > 0 KB.
+- FR‑001 → T001 (USGS EarthExplorer download)  
+- FR‑002 → T002  
+- FR‑003 → T003  
+- FR‑004 → T004, T007  
+- FR‑005 → T005, T006  
+- FR‑006 → T010, T016  
+- FR‑007 → T008  
+- SC‑001 → T007, T008  
+- SC‑002 → T008  
+- SC‑003 → T010  
+- SC‑004 → T009  
 
-- [ ] **T014** Perform a **±10 % sensitivity sweep** around the identified inflection point:  
-  * Calls `resampling.generate_resolution` with factors `0.9×` and `1.1×` of the nominal resolution (e.g., 216 m and 264 m approximated to the nearest integer).  
-  * Stores perturbed rasters in `data/derived/sensitivity/`.  
-  * Re‑runs the full analysis (functions from `analysis.py`) on these rasters, appends results to the CSV, and updates the power curve.  
-  * Generates `data/results/sensitivity_report.md` summarising whether the threshold moves by more than one discrete resolution step.  
-  *Verification*: The `sensitivity` directory contains at least two new rasters; the report contains a statement like “Threshold variation ≤ 60 m (one step)”.
-
----
-
-## Phase 5 – End‑to‑end verification, reproducibility & hand‑off
-
-- [ ] **T015** Add a CI workflow (`.github/workflows/pipeline.yml`) that:  
-  * Checks out the repo, sets up Python 3.11, installs from `pyproject.toml`, runs `python -m code.main --full-sweep`.  
-  * Measures total runtime (must be < 6 h) and peak memory (must be < 7 GB) using the `psutil`‑based monitor in `code/main.py`.  
-  * Executes `code/validate_schemas.py` against all result files.  
-  * Fails if any check is violated.  
-  *Verification*: GitHub Actions badge shows “passed”; local `act` run reproduces the same checks.
-
-- [ ] **T016** Consolidate documentation for the research hand‑off:  
-  * Update `README.md` with a “Quickstart” section that mirrors `quickstart.md` (installation, `python -m code.main --full-sweep`, where to find the final report).  
-  * Create `data/results/final_report.md` that (a) states the resolution where power first drops below 0.80 for each class, (b) reports the Type II error delta relative to the 30 m baseline, (c) includes the sensitivity analysis conclusion, and (d) links to the generated figures and CSVs.  
-  *Verification*: The final report file exists, contains the required headings, and the CI step `check_report` runs a simple grep to confirm the presence of “threshold_resolution_m”.
-
----
-
-## Dependency & Execution Order Summary
-
-| Task | Blocks | Can run in parallel |
-|------|--------|----------------------|
-| T001‑T005 (bootstrap) | – | ✔ |
-| T006‑T008 (download + aggregate + CLI) | after T001‑T005 | ✔ (T006 & T007 independent) |
-| T009 (binary conversion) | after T006 | ✔ |
-| T010 (calibration) | after T009 | – |
-| T011‑T012 (analysis) | after T010 & T007 | ✔ (different resolutions/classes processed in parallel) |
-| T013 (visualisation) | after T011‑T012 | – |
-| T014 (sensitivity sweep) | after T013 | – |
-| T015 (CI workflow) | after all previous tasks | – |
-| T016 (final report) | after T015 | – |
-
-All tasks are unchecked (`[ ]`) to indicate they remain to be implemented. The list respects the scientific workflow, satisfies every functional requirement (FR‑001 – FR‑007), and provides concrete, verifiable artefacts at each stage.
+All tasks are unchecked; they will be completed and verified according to the updated specifications.  
