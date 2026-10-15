@@ -1,17 +1,16 @@
 status: none
-intent: SWE-Gym code search dataset download and Multi-SWE-RL OpenMathLib patches
-  Python C++ python package dataset
+intent: huggingface datasets library SWE-Gym Multi-SWE-RL OpenMathLib download python
+  package dataset
 required_fields:
-- issue_id
 - patch_id
-- repository_url
+- repository
+- issue_id
 - file_path
 - language
-- before_code
-- after_code
-- patch_diff
+- code_before
+- code_after
 - test_log
 - timestamp
-cache_key: e5f6434cf8324e1650ba2608ffc82dd9b117811c8ef3fecac6e655db7e1546c0
-searched_at: '2026-10-15T21:26:54.687640+00:00'
+cache_key: eaa2a6433665682727e225aa2b071bad811a60793a8ee7a86f2f53e2131bcd2d
+searched_at: '2026-10-15T22:18:02.951144+00:00'
 retry_count: 1

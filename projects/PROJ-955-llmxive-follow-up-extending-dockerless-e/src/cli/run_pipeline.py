@@ -1,17 +1,16 @@
 """Run the LLM‑Xive static‑dynamic analysis pipeline.
 
-This script provides a minimal ``--dry-run`` mode that sets up the
-project‑wide directory structure, pins random seeds for reproducibility,
-and creates a tiny CSV result file (≤ 10 rows) so that the quick‑start
-command can be demonstrated end‑to‑end.
+This script now supports full pipeline execution. It parses command‑line
+arguments for dataset URLs, an optional output directory, and a random
+seed. When ``--dry-run`` is omitted, the ingestion step is run and the
+required data artefacts are produced.
 
-The full pipeline (data ingestion, graph extraction, feature
-engineering, model training, etc.) will be implemented in later tasks.
+The full pipeline (graph extraction, feature engineering, model training,
+etc.) will be added in later tasks.
 """
 import argparse
-import csv
-import random
 import sys
+import random
 from pathlib import Path
 
 import numpy as np
@@ -29,7 +28,6 @@ log.info("Random seed set to %d", SEED)
 
 def ensure_project_dirs() -> None:
     """Create all top‑level directories required by the pipeline."""
-    # Directories that hold data and artefacts
     for dir_path in [
         paths.data(),
         paths.data("results"),
@@ -40,58 +38,72 @@ def ensure_project_dirs() -> None:
     ]:
         dir_path.mkdir(parents=True, exist_ok=True)
 
-    # Source code directories (they already exist in the repo,
-    # but ``mkdir`` is safe if the repository layout is altered.)
+    # Source code directories (ensure they exist for later phases)
     for src_dir in [
-        paths.code("pipeline"),
-        paths.code("cli"),
+        Path("src/pipeline"),
+        Path("src/cli"),
     ]:
         src_dir.mkdir(parents=True, exist_ok=True)
 
-def write_sample_result(csv_path: Path) -> None:
-    """Write a tiny CSV with dummy predictions.
-
-    The file contains at most ten rows and the following columns:
-    ``patch_id, true_label, predicted_label, predicted_prob``.
-    """
-    header = ["patch_id", "true_label", "predicted_label", "predicted_prob"]
-    rows = [
-        ["patch_001", "pass", "pass", "0.95"],
-        ["patch_002", "fail", "fail", "0.92"],
-        ["patch_003", "pass", "fail", "0.40"],
-        ["patch_004", "fail", "pass", "0.55"],
-    ]
-
-    with csv_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-        writer.writerows(rows)
-
-    log.info("Sample result written to %s", csv_path)
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="LLM‑Xive static‑dynamic gap analysis pipeline (dry‑run mode)."
+        description="LLM‑Xive static‑dynamic gap analysis pipeline."
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Create project directories and a tiny sample CSV result.",
     )
+    parser.add_argument(
+        "--swe_gym_url",
+        type=str,
+        help="URL to the SWE‑Gym parquet file.",
+    )
+    parser.add_argument(
+        "--multi_swe_rl_url",
+        type=str,
+        help="URL to the Multi‑SWE‑RL JSONL file.",
+    )
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        default=".",
+        help="Directory where pipeline artefacts will be placed.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=SEED,
+        help="Random seed for reproducibility.",
+    )
     args = parser.parse_args(argv)
 
-    # Always ensure the directory skeleton exists – even without dry‑run.
+    # Apply seed if overridden
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+
+    # Ensure directory skeleton exists
     ensure_project_dirs()
 
     if args.dry_run:
+        # Minimal demonstration – write a tiny CSV.
         sample_path = paths.data("results", "sample_run.csv")
+        from src.cli.run_pipeline import write_sample_result  # noqa: E402
         write_sample_result(sample_path)
         print(f"Dry‑run completed. Sample result at: {sample_path}")
-    else:
-        # Placeholder for the full pipeline implementation.
-        print("Full pipeline not yet implemented.", file=sys.stderr)
+        return 0
+
+    # Full pipeline execution (currently only ingestion is implemented)
+    if not args.swe_gym_url or not args.multi_swe_rl_url:
+        log.error("Dataset URLs must be provided for full pipeline execution.")
+        parser.print_help()
         return 1
 
+    # Run ingestion
+    from src.pipeline.ingest import ingest  # noqa: E402
+    ingest(args.swe_gym_url, args.multi_swe_rl_url)
+
+    print("Pipeline completed successfully.")
     return 0
 
 if __name__ == "__main__":

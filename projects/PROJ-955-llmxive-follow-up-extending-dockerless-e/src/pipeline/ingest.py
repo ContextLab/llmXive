@@ -7,8 +7,8 @@ Data ingestion module for the static‑dynamic gap analysis pipeline.
 This script performs the following steps:
 
 1. **Download the raw datasets** (SWE‑Gym and Multi‑SWE‑RL) from the URLs
-   defined in the project's ``plan.md``.  The files are saved under
-   ``data/`` as ``raw_swe_gym.parquet`` and ``raw_multi_swe_rl.jsonl``.
+   provided via the CLI.  The files are saved under ``data/`` as
+   ``raw_swe_gym.parquet`` and ``raw_multi_swe_rl.jsonl``.
 2. **Verify SHA‑256 checksums** of the downloaded files against the
    expected values that are stored in ``plan.md`` (the plan contains a
    ``Verified Datasets`` table with the URLs; the expected checksums are
@@ -39,6 +39,7 @@ third‑party packages that are already available in the execution environment:
 * ``pandas`` – for convenient CSV generation.
 * ``tqdm`` – progress bars.
 * ``pyyaml`` – for reading the expected checksums from ``plan.md``.
+* ``requests`` – for robust streaming download of the raw files.
 * ``hashlib`` – checksum calculation.
 
 All paths are created using the ``llmxive_toolkit.paths`` helpers, which
@@ -49,9 +50,10 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, List, Tuple
 
 import pandas as pd
+import requests
 from datasets import load_dataset
 from tqdm import tqdm
 import yaml
@@ -136,45 +138,18 @@ def _extract_expected_checksums(plan_path: Path) -> Dict[str, str]:
 
 def _download_file(url: str, dest: Path) -> None:
     """
-    Download a remote file using ``datasets.load_dataset`` streaming mode.
-    This avoids pulling the entire dataset into memory and works for both
-    parquet and jsonl resources.
+    Download a remote file using ``requests`` with streaming.
+    This works for both parquet and jsonl resources and avoids loading the
+    entire file into memory.
     """
     log.info(f"Downloading {url} → {dest}")
-    # ``load_dataset`` can resolve arbitrary URLs when ``split='train'``.
-    # We use a temporary dataset with a single split that points to the URL.
-    ds = load_dataset(
-        "json",
-        data_files=url,
-        split="train",
-        streaming=True,
-    )
-    # For parquet we fall back to the generic ``load_dataset`` with the
-    # ``parquet`` loader.
-    if url.lower().endswith(".parquet"):
-        ds = load_dataset(
-            "parquet",
-            data_files=url,
-            split="train",
-            streaming=True,
-        )
-
-    # Stream the raw bytes to disk.
+    response = requests.get(url, stream=True, timeout=60)
+    response.raise_for_status()
     with dest.open("wb") as f:
-        for row in tqdm(ds, desc=f"Streaming {dest.name}", unit="records"):
-            # ``row`` is a dict; we need the raw bytes.  The ``datasets``
-            # library provides a ``._features`` attribute that contains the
-            # original bytes for binary files, but for simplicity we re‑serialize
-            # the dict as JSON lines for parquet (the downstream code only
-            # needs the file on disk, not its in‑memory representation).
-            if isinstance(row, dict):
-                line = json.dumps(row).encode("utf-8")
-                f.write(line + b"\n")
-            else:
-                # For parquet the rows are already bytes‑like.
-                f.write(row)
-
-    log.info(f"Finished download: {dest} ({_sha256_of_file(dest)[:8]}…)")
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    log.info(f"Finished download: {dest} (SHA‑256 {_sha256_of_file(dest)[:8]}…)")
 
 
 # ----------------------------------------------------------------------
@@ -182,9 +157,7 @@ def _download_file(url: str, dest: Path) -> None:
 # ----------------------------------------------------------------------
 
 
-def _process_swe_gym(
-    parquet_path: Path,
-) -> Tuple[pd.DataFrame, List[Tuple[str, str]]]:
+def _process_swe_gym(parquet_path: Path) -> Tuple[pd.DataFrame, List[Tuple[str, str]]]:
     """
     Load the SWE‑Gym parquet file and extract the required columns.
 
@@ -198,12 +171,6 @@ def _process_swe_gym(
     log.info(f"Reading SWE‑Gym parquet: {parquet_path}")
     df = pd.read_parquet(parquet_path, engine="auto")
 
-    # Expected column names – the dataset provides at least the following:
-    #   - ``patch_id`` (string)
-    #   - ``language`` (string, e.g. "python" or "cpp")
-    #   - ``source_code`` (string)
-    #   - ``exec_result`` (string, "pass" / "fail")
-    #   - ``exec_log`` (string, raw log)
     required = {"patch_id", "language", "source_code", "exec_result"}
     missing = required - set(df.columns)
     if missing:
@@ -213,33 +180,20 @@ def _process_swe_gym(
         ["patch_id", "language", "source_code", "label"]
     ].copy()
 
-    # Execution logs – optional column
     logs = []
     if "exec_log" in df.columns:
         for pid, log_txt in zip(df["patch_id"], df["exec_log"]):
             logs.append((pid, log_txt if isinstance(log_txt, str) else "MISSING_LOG"))
     else:
-        # No log column – fill with placeholder
         for pid in df["patch_id"]:
             logs.append((pid, "MISSING_LOG"))
 
     return patches, logs
 
 
-def _process_multi_swe_rl(
-    jsonl_path: Path,
-) -> Tuple[pd.DataFrame, List[Tuple[str, str]]]:
+def _process_multi_swe_rl(jsonl_path: Path) -> Tuple[pd.DataFrame, List[Tuple[str, str]]]:
     """
     Load the Multi‑SWE‑RL JSONL file and extract the required columns.
-
-    The JSONL format contains one JSON object per line.  The relevant
-    fields are assumed to be:
-
-    * ``patch_id`` (string)
-    * ``language`` (string)
-    * ``source_code`` (string)
-    * ``test_result`` (string, ``pass`` / ``fail``)
-    * ``test_log`` (string, raw log)
 
     Returns a DataFrame with the unified schema and a list of logs.
     """
@@ -255,7 +209,7 @@ def _process_multi_swe_rl(
             obj = json.loads(line)
             pid = obj.get("patch_id")
             if pid is None:
-                continue  # skip malformed rows
+                continue
             language = obj.get("language", "unknown")
             source = obj.get("source_code", "")
             label = obj.get("test_result", "fail")
@@ -281,17 +235,6 @@ def ingest(
 ) -> None:
     """
     Main entry point for the ingestion step.
-
-    Parameters
-    ----------
-    swe_gym_url : str
-        URL to the SWE‑Gym parquet file.
-    multi_swe_rl_url : str
-        URL to the Multi‑SWE‑RL JSONL file.
-    expected_checksums : dict, optional
-        Mapping ``filename → sha256``.  If supplied, each downloaded file
-        is verified against the corresponding digest and a ``RuntimeError``
-        is raised on mismatch.
     """
     # ------------------------------------------------------------------
     # 1. Prepare output locations
@@ -374,32 +317,42 @@ def ingest(
 # CLI entry point
 # ----------------------------------------------------------------------
 if __name__ == "__main__":
-    # Load URLs from the plan file (the plan lives next to this script
-    # under ``specs/.../plan.md``).  The plan contains two lines that start
-    # with ``--swe_gym_url`` and ``--multi_swe_rl_url``; we parse them
-    # heuristically.
+    import sys
+
+    # Expect the plan file to be two levels up from this script.
     plan_path = Path(__file__).resolve().parents[2] / "plan.md"
     if not plan_path.is_file():
         raise RuntimeError(f"Cannot locate plan.md at expected location: {plan_path}")
 
-    # Extract URLs
+    # Extract URLs from the Verified Datasets table.
     swe_gym_url = ""
     multi_swe_rl_url = ""
+    in_table = False
     for line in plan_path.read_text(encoding="utf-8").splitlines():
-        if line.strip().startswith("--swe_gym_url"):
-            swe_gym_url = line.split()[-1]
-        if line.strip().startswith("--multi_swe_rl_url"):
-            multi_swe_rl_url = line.split()[-1]
+        stripped = line.strip()
+        if stripped.startswith("|") and "Verified URL" in stripped:
+            in_table = True
+            continue
+        if in_table and stripped.startswith("|"):
+            parts = [p.strip() for p in stripped.strip("|").split("|")]
+            if len(parts) >= 2:
+                dataset_name = parts[0].lower()
+                url = parts[1]
+                if "swe‑gym" in dataset_name:
+                    swe_gym_url = url
+                elif "multi‑swe‑rl" in dataset_name:
+                    multi_swe_rl_url = url
+        else:
+            in_table = False
 
     if not swe_gym_url or not multi_swe_rl_url:
         raise RuntimeError(
-            "Failed to extract dataset URLs from plan.md. Ensure the plan "
-            "contains lines like '--swe_gym_url <URL>'."
+            "Failed to extract dataset URLs from plan.md. Ensure the "
+            "Verified Datasets table contains the required entries."
         )
 
     # Expected checksums – attempt to read them from the plan; if not
-    # present we continue without verification (the contract test will
-    # enforce presence of the files later).
+    # present we continue without verification.
     try:
         checksums = _extract_expected_checksums(plan_path)
     except RuntimeError as e:

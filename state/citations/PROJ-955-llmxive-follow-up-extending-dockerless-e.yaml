@@ -86,3 +86,25 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/ByteDance-Seed/Multi-SWE-RL/9777648932daa214ba18c70c81e85821b5836f32/data_20240601_20250331%2Fc%2FOpenMathLib__OpenBLAS_dataset.jsonl?%2Fdatasets%2FByteDance-Seed%2FMulti-SWE-RL%2Fresolve%2Fmain%2Fdata_20240601_20250331%2Fc%2FOpenMathLib__OpenBLAS_dataset.jsonl=&etag=%22198ed40d4f180bb6d5ac3eaf039d4fdf449fa0b3%22
   verified_at: '2026-10-15T21:20:11.920043Z'
+- artifact_hash: 267228f4bbbdad9a4bac36c9e561f78b7dc039d28f9f084f2a331263d10cd618
+  artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/OpenHands/SWE-Gym-code-search/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69b9a7d7f78d08f4570c132d/c4365a934b219955a80a29b175b764d24e6670b52a8f8b7e3e73f2db21e6c4e4?X-Xet-Cas-Uid=public&user_id=public&xip=_wQPsvbZhH4&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&Expires=1792106096&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjliOWE3ZDdmNzhkMDhmNDU3MGMxMzJkL2M0MzY1YTkzNGIyMTk5NTVhODBhMjliMTc1Yjc2NGQyNGU2NjcwYjUyYThmOGI3ZTNlNzNmMmRiMjFlNmM0ZTRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZ4aXA9X3dRUHN2YlpoSDQmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTIxMDYwOTZ9fX1dfQ__&Signature=MEUCIQD5AgKTBLE46jnQQUhOV1HwqSG2JOcoaOwzuXC9Eg7EUAIgQGXL87zEvBXeZlw9b7h4Ci3I%7E4nhXkrlPg64ijuh%7Efo_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-15T22:14:56.735431Z'
+- artifact_hash: 267228f4bbbdad9a4bac36c9e561f78b7dc039d28f9f084f2a331263d10cd618
+  artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenMathLib__OpenBLAS_dataset.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/ByteDance-Seed/Multi-SWE-RL/resolve/main/data_20240601_20250331/c/OpenMathLib__OpenBLAS_dataset.jsonl
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/ByteDance-Seed/Multi-SWE-RL/9777648932daa214ba18c70c81e85821b5836f32/data_20240601_20250331%2Fc%2FOpenMathLib__OpenBLAS_dataset.jsonl?%2Fdatasets%2FByteDance-Seed%2FMulti-SWE-RL%2Fresolve%2Fmain%2Fdata_20240601_20250331%2Fc%2FOpenMathLib__OpenBLAS_dataset.jsonl=&etag=%22198ed40d4f180bb6d5ac3eaf039d4fdf449fa0b3%22
+  verified_at: '2026-10-15T22:14:56.735431Z'

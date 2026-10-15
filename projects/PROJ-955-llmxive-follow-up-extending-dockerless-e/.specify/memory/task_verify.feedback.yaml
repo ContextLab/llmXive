@@ -1,10 +1,10 @@
 T001:
-  reason: "The evidence shows `data/`, `models/`, `reports/`, `src/pipeline/`, and\
-    \ `src/cli/` exist and the dry\u2011run command runs successfully, producing a\
-    \ \u226410\u2011row CSV. However, the required `interim/` and `features/` directories\
-    \ are not present in the artifact list, and there is no concrete code or log evidence\
-    \ that a random seed is actually pinned during the run. These missing pieces prevent\
-    \ the task from being fully satisfied."
+  reason: "The evidence shows the `data/`, `models/`, `reports/`, `src/pipeline/`\
+    \ and `src/cli/` directories, a seeded run, and a dry\u2011run command that creates\
+    \ `data/results/sample_run.csv` (4 rows). However, the required `interim/` and\
+    \ `features/` directories are not present, and `quickstart.md` contains multiple\
+    \ command blocks rather than the single `python -m src.cli.run_pipeline --dry-run`\
+    \ command stipulated. These omissions mean the task is not fully satisfied."
   task: 112b0d39af56b1edd93d7e2ab84f6113566ec7f40ef05fe1a69c03739569b847
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/pipeline/ingest.py
