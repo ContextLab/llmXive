@@ -1,9 +1,20 @@
 T023:
+  c: true
+  h: ec895f698ff89d703ff9295bcc1055c26fdcf10f168b14b489a8ad13609ef405
+  r: The raw metadata (5 rows, all with non-null reference_energy and unique pair_ids)
+    matches the cleaned output `data/processed/validated_metadata.csv` exactly, and
+    `code/validation.log` correctly records that no records were omitted, consistent
+    with the exit-0 execution log of `code/validate_benchmark.py`.
+  sig: afee329974833a5873a378bd5ec4efcf00a891aa284b46aa5b035e2b5eb3833c
+T024:
   c: false
-  h: ac497c64e6838083b6d1c10bb9a72c740d2f94eef42152b5890cba96bf22d23a
-  r: The required verification artifacts `code/validation.log` and `data/processed/validated_metadata.csv`
-    are both MISSING, so no validation of `data/raw/metadata.csv` (null `reference_energy`
-    checks, `pair_id` uniqueness, omitted-record logging) has actually been performed
-    or recorded. The implementer must run the validation and write both the log of
-    omitted records and the cleaned CSV.
-  sig: 49b9cdbf1bb8dbc82aabc3aae51103e9d2ca10cbef74183e56e06472909a9100
+  h: 0f9c4d670ee029c8999d2f3cba12d1b588978715d89e7a430aeefab93f3d34e8
+  r: "The output `data/processed/bulk_properties.csv` exists with the required `pair_id`,\
+    \ `density`, `viscosity` columns and matches the schema, but the task's mandated\
+    \ fallback source `data/raw/experimental_bulk_properties.csv` is MISSING, and\
+    \ the execution log shows the script instead read from `data/experimental_bulk_properties.csv`\
+    \ \u2014 a path not specified by the task and not confirmed to exist on disk.\
+    \ With no NIST API call evidenced (log says \"No NIST API URL configured\") and\
+    \ no verifiable source data, the provenance of the 20 rows of density/viscosity\
+    \ values cannot be confirmed against real exp"
+  sig: c4e770226af1def7d133bf8cae1b71a5efb23e70360b0ce80973cbde20d3de98

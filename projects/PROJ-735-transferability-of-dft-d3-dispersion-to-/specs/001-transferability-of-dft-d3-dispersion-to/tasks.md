@@ -15,11 +15,11 @@ The checklist implements the complete end‑to‑end workflow required by the sp
   *Attempt to download the ZIP from the Zenodo DOI specified in the spec; on network failure or checksum mismatch, load the local fallback file `data/raw/IL‑Benchmark‑local.zip`. Verify SHA‑256 checksum, extract contents to `data/raw/`.*
   *Verification*: After execution, `data/raw/metadata.csv` exists and its checksum matches the recorded value in `state/projects/...yaml`.
 
-- [ ] **T023** [FR‑002] Validate benchmark records.  
+- [X] **T023** [FR‑002] Validate benchmark records.  
   *Read `data/raw/metadata.csv` and ensure each row contains a non‑null `reference_energy` and a unique `pair_id`. Log any violations and omit those rows from downstream processing.*  
   *Verification*: A log file `code/validation.log` lists omitted records; the cleaned list is written to `data/processed/validated_metadata.csv`.
 
-- [ ] **T024** [FR‑008] Retrieve experimental bulk‑property data.   <!-- FAILED-IN-EXECUTION: code/retrieve_bulk_properties.py exit=1 -->
+- [ ] **T024** [FR‑008] Retrieve experimental bulk‑property data.
   *Call the NIST IL Thermophysical Database API; if the request fails or returns incomplete data, fall back to the static CSV `data/raw/experimental_bulk_properties.csv`. Verify required columns (`pair_id`, `density`, `viscosity`).*  
   *Verification*: `data/processed/bulk_properties.csv` is created; its schema is validated against `contracts/raw_bulk_properties.schema.yaml`.
 
@@ -30,7 +30,7 @@ The checklist implements the complete end‑to‑end workflow required by the sp
 | Goal | Prove that the code, data‑loading, and reporting infrastructure work on a tiny subset before scaling. |
 |------|-----------------------------------------------------------------------------------------------------------|
 
-- [ ] **T001** [US1] Create a runnable quick‑start description.  
+- [ ] **T001** [US1] Create a runnable quick‑start description.   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
   *Write `docs/quickstart.md` with the exact command `python -m code.main --subset 3` and environment activation steps.*  
   *Verification*: Running the command on a fresh runner produces `data/derived/raw_energies.csv` with ≥ 3 rows and exits with code 0.
 
