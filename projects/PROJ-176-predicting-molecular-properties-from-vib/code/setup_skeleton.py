@@ -12,15 +12,14 @@ files (except the structure report, which is regenerated each run).
 """
 
 import sys
-import subprocess
-from pathlib import Path
 import compileall
+from pathlib import Path
 import logging
 
 # Use the project's logging utility if available; fall back to basic config.
 try:
     from utils.logging_utils import setup_logging, get_logger
-    setup_logging()
+    setup_logging(Path("logs"))
     log = get_logger(__name__)
 except Exception:
     logging.basicConfig(level=logging.INFO)
@@ -42,7 +41,7 @@ DIRS = [
     Path("results"),
     Path("logs"),
     Path("specs/001-predict-molecular-properties"),
-    Path("specs/001-predicting-molecular-properties-from-vib/contracts"),
+    Path("specs/001-predict-molecular-properties/contracts"),
 ]
 
 # ----------------------------------------------------------------------

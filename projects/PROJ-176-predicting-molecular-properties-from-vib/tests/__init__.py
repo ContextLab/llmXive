@@ -1,3 +1,1 @@
-"""
-Test suite for the molecular property prediction pipeline.
-"""
+# Empty __init__ to make ``tests`` a package

@@ -1,35 +1,24 @@
 """
-Utility functions for setting random seeds and retrieving seed information.
+Simple seed‑setting utility to make runs reproducible.
 """
 
-import os
 import random
-from typing import Dict, Any, Optional
-
 import numpy as np
+import torch
 
-try:
-    import torch
-except ImportError:
-    torch = None
+def set_seed(seed: int = 0) -> None:
+    """
+    Set seeds for Python's ``random``, NumPy, and PyTorch (CPU only).
 
-def set_seed(seed: int = 42) -> None:
-    """Set random seeds for reproducibility across random, numpy, and torch (if available)."""
+    Args:
+        seed: Integer seed value.
+    """
     random.seed(seed)
     np.random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
-    if torch is not None:
-        torch.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
+    torch.manual_seed(seed)
+
+    # Ensure deterministic behavior for PyTorch CPU ops
+    torch.use_deterministic_algorithms(True)
+    if torch.backends.cudnn.is_available():
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-
-def get_seed_info() -> Dict[str, int]:
-    """Return a dictionary with the current seed values used."""
-    # For simplicity, we return the PYTHONHASHSEED and assume same for random and numpy.
-    seed_str = os.getenv("PYTHONHASHSEED", "0")
-    try:
-        seed = int(seed_str)
-    except ValueError:
-        seed = 0
-    return {"seed": seed}

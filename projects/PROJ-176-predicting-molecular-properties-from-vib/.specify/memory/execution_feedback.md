@@ -24,7 +24,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; 7 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py train (rc=1); 3 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/raw/ir_spectra.parquet; data/raw/qm9.parquet
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; 6 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py evaluate --checkpoint models/checkpoint_best.pt (rc=2); 3 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/raw/ir_spectra.parquet; data/raw/qm9.parquet
 
 ## Failing / missing run-book commands
 
@@ -68,30 +68,14 @@ Trying to import the above resulted in these errors:
  - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
  - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
-- python code/main.py train -> rc=1
-b/code/models/trainer.py", line 251, in main
-    raise FileNotFoundError(f"Preprocessed data not found at {data_path}")
-FileNotFoundError: Preprocessed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocessed/aligned_data.npz
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 267, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 255, in main
-    run_train(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 195, in run_train
-    train_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/models/trainer.py", line 251, in main
-    raise FileNotFoundError(f"Preprocessed data not found at {data_path}")
-FileNotFoundError: Preprocessed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocessed/aligned_data.npz
-
 - python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 11:17:12 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 12:10:46 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 11:17:13 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 12:10:47 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
@@ -130,6 +114,26 @@ ERROR: file or directory not found: >
 - data/processed/aligned_dataset.npz
 - data/raw/ir_spectra.parquet
 - data/raw/qm9.parquet
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `qm9pack` to the project's `requirements.txt` and `pip install qm9pack`.
+- **Verified**: this loads **130831** real records with fields: XYZ_file, Index, SMILES, InChi, N_atoms, Stoichiometry, Elements, XYZ_Ang, Mulliken_pop, Harmonic_Freq_cmi, RotA_GHz, RotB_GHz, RotC_GHz, Dipole_debye, Polarizability_bohr3, HOMO_au, LUMO_au, HOMO_LUMO_gap_au, R2_bohr2, ZPVE_au, InternalEnergy_0K_au, InternalEnergy_298K_au, Enthalphy_298K_au, GibbsFreeEnergy_298K_au, Heatcapacity_Cv_cal_mol_K, A_xx, A_xy, A_yy, A_xz, A_yz, A_zz.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+from qm9pack import get_data
+
+# Load the full QM9 dataset (the typical dataset name is 'qm9')
+df = get_data('qm9')
+
+print(f"RECORDS={len(df)}")
+print("FIELDS=" + ",".join(df.columns.tolist()))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
