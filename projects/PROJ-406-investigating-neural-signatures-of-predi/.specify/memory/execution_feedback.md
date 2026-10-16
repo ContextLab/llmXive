@@ -18,30 +18,34 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.ingest.load_illusions  --download  --output-dir data/raw -> rc=1
-atasetNotFoundError(
-datasets.exceptions.DatasetNotFoundError: Dataset 'openneuro/muller-lyer' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/openneuro/muller-lyer to ask for access.
+82-801a-7535f3adc23c)
+
+Repository Not Found for url: https://huggingface.co/openneuro/muller-lyer/resolve/main/muller_lyer.parquet.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated.
+Invalid username or password.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 356, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 359, in <module>
     main(sys.argv[1:])
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 321, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 324, in main
     _download_parquet(raw_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 127, in _download_parquet
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 134, in _download_parquet
     raise RuntimeError(
-RuntimeError: Failed to download dataset 'openneuro/muller-lyer'. Check the identifier and network connectivity.
+RuntimeError: Failed to download parquet file from repository 'openneuro/muller-lyer'. Ensure the repository and file exist.
 
 - python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean -> rc=1
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 356, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 359, in <module>
     main(sys.argv[1:])
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 329, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 332, in main
     raise RuntimeError(
 RuntimeError: Raw parquet not found at data/raw/muller_lyer.parquet. Run with --download first.
 

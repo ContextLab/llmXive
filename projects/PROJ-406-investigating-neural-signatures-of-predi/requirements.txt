@@ -1,11 +1,6 @@
 # Project dependencies
-# Core scientific packages (versions pinned for reproducibility)
-numpy>=2.0,<3.0
-pandas==2.2.*
-scipy==1.13.*
-matplotlib==3.8.*
-seaborn==0.13.*
+# Existing dependencies are provided by the environment:
+# numpy, pandas, scipy, matplotlib, seaborn, scikit-learn, statsmodels, pytest, PyYAML, requests, jsonschema, psutil
+# Additional dependencies required for this task:
+huggingface_hub==0.23.*
 datasets==2.18.*
-pyarrow>=13.0
-# The following packages are available in the base environment and need not be listed:
-# scikit-learn, statsmodels, pytest, PyYAML, requests, jsonschema, psutil

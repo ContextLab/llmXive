@@ -37,8 +37,10 @@ import argparse
 import logging
 import sys
 from pathlib import Path
+import shutil
 
 import pandas as pd
+from huggingface_hub import hf_hub_download
 from datasets import load_dataset
 
 from llmxive_toolkit import paths, get_logger
@@ -48,8 +50,9 @@ from src.utils.seed import set_global_seed
 # Configuration
 # ----------------------------------------------------------------------
 # Verified OpenNeuro identifier for the Müller‑Lyer dataset.
-# The original identifier was incorrect; the correct canonical name on the
-# Hugging‑Face Hub is ``openneuro/muller-lyer`` (dash instead of underscore).
+# The dataset is hosted on the Hugging Face Hub under the repo
+# ``openneuro/muller-lyer``.  The primary parquet file is named
+# ``muller_lyer.parquet``.
 OPENNEURO_DATASET_ID = "openneuro/muller-lyer"
 # The split name used by the OpenNeuro collection – most collections expose a
 # single split called ``train``.
@@ -113,34 +116,34 @@ def _ensure_output_paths(
 
 def _download_parquet(raw_path: Path) -> None:
     """
-    Download the parquet file from OpenNeuro and write it to ``raw_path``.
-    The function raises ``RuntimeError`` if the download fails.
+    Download the parquet file from OpenNeuro (via the Hugging Face Hub) and
+    write it to ``raw_path``.  The function raises ``RuntimeError`` if the
+    download fails.
     """
     log.info(
         "Downloading Müller‑Lyer dataset from OpenNeuro (%s)", OPENNEURO_DATASET_ID
     )
     try:
-        ds = load_dataset(
-            OPENNEURO_DATASET_ID, split=OPENNEURO_SPLIT, streaming=False
+        # ``hf_hub_download`` fetches the file from the Hub without requiring
+        # authentication because the repository is public.
+        downloaded_file = hf_hub_download(
+            repo_id=OPENNEURO_DATASET_ID,
+            filename="muller_lyer.parquet",
         )
     except Exception as exc:
         raise RuntimeError(
-            f"Failed to download dataset '{OPENNEURO_DATASET_ID}'. "
-            "Check the identifier and network connectivity."
+            f"Failed to download parquet file from repository "
+            f"'{OPENNEURO_DATASET_ID}'. Ensure the repository and file exist."
         ) from exc
 
+    # Copy the downloaded file to the desired location (preserving the exact
+    # filename expected by downstream steps).
     try:
-        df = ds.to_pandas()
+        shutil.copyfile(downloaded_file, raw_path)
     except Exception as exc:
-        raise RuntimeError(
-            "Unable to convert the downloaded dataset to a pandas DataFrame."
-        ) from exc
+        raise RuntimeError(f"Failed to copy parquet to {raw_path}") from exc
 
-    log.info("Writing raw parquet to %s", raw_path)
-    try:
-        df.to_parquet(raw_path, index=False)
-    except Exception as exc:
-        raise RuntimeError(f"Failed to write parquet file to {raw_path}") from exc
+    log.info("Raw parquet written to %s", raw_path)
 
 def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
