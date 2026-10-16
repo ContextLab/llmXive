@@ -1,141 +1,109 @@
 # Implementation Plan: Investigating the Impact of Network Centrality on Neural Synchrony During Sleep Stages
 
-**Branch**: `001-network-centrality-sleep-synchrony` | **Date**: 2023-10-27 | **Spec**: `spec.md`
+**Branch**: `001-network-centrality-sleep-synchrony` | **Date**: 2026-10-15 | **Spec**: `spec.md`  
 **Input**: Feature specification from `specs/001-network-centrality-sleep-synchrony/spec.md`
 
 ## Summary
-
-This project implements a computational pipeline to investigate the association between waking resting-state network centrality (degree, betweenness, eigenvector) and neural synchrony (Phase Lag Index) across sleep stages (N1, N2, N3, REM) using the Sleep-EDF dataset. The pipeline automates data acquisition from PhysioNet (via MNE-Python), EEG preprocessing (filtering, ICA artifact removal), epoching, graph construction, metric computation, and statistical analysis using **Linear Mixed-Effects (LME) models with False Discovery Rate (FDR) correction** to account for non-independence of sleep stages. The implementation strictly adheres to the project constitution, ensuring reproducibility, data hygiene, and statistical rigor, while operating within the constraints of a CPU-only GitHub Actions runner (limited cores, constrained RAM).
+Automate a reproducible pipeline that (1) downloads an open EEG sleep dataset, (2) preprocesses raw recordings (band‑pass filter 0.5–45 Hz, ICA artifact removal, 30 s epoching by sleep stage), (3) builds waking‑state functional connectivity matrices in theta (4–8 Hz) and alpha (8–13 Hz) bands, (4) extracts degree, betweenness, and eigenvector centrality, (5) computes Phase‑Lag Index (PLI) per sleep stage, (6) aggregates all per‑subject metrics into `SubjectMetrics.csv`, (7) checks collinearity across subjects (VIF), (8) validates that at least **30 subjects** have complete data **and** at least **2 min of clean wake** per subject, (9) selects Pearson or Spearman correlation (or partial correlation controlling for age, gender, total sleep time) based on normality, (10) applies Bonferroni correction across all tests, (11) validates the aggregated metrics file against the dataset schema, and (12) generates a JSON/Markdown report with all statistics and a “Confounding Limitation” section describing temporal proximity of waking and sleep recordings.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `mne`, `statsmodels`, `networkx`, `scipy`, `pandas`, `numpy`, `pyedflib`  
-**Storage**: Local file system (`data/raw`, `data/processed`, `data/metrics`, `data/results`); no external database.  
-**Testing**: `pytest` (unit tests for metric calculation, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions Runner).  
-**Project Type**: Computational Research Pipeline / CLI.  
-**Performance Goals**: Complete pipeline execution < 4 hours on 2 vCPU; Peak RAM < 4 GB.  
-**Constraints**: No GPU usage; CPU-tractable methods only; strict handling of missing sleep stages; no causal claims (observational).  
-**Scale/Scope**: Processing ~ subjects (Sleep-EDF subset); generating LME model outputs.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
-
-## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | All random seeds pinned in `code/`; `requirements.txt` pinned; dataset fetched from canonical PhysioNet source via MNE loader with checksum verification (FR-001). |
-| **II. Verified Accuracy** | PASS | All citations in `research.md` validated against the "Verified datasets" block. For Sleep-EDF, the MNE-Python loader is the canonical access method; the plan acknowledges the block's lack of a direct URL but confirms the loader's validity. |
-| **III. Data Hygiene** | PASS | Raw data preserved in `data/raw/` (checksummed); derivatives written to new files in `data/processed/`; PII scan enforced. |
-| **IV. Single Source of Truth** | PASS | All statistics in `paper/` will be derived programmatically from `data/results/` JSONs; no hand-typed numbers. |
-| **V. Versioning Discipline** | PASS | Content hashes tracked in state YAML; `updated_at` timestamps updated on artifact changes. |
-| **VI. Signal-Processing Transparency** | PASS | Filtering (lower cutoff frequency) and ICA parameters stored in `config.yaml`; MNE/SciPy versions pinned; provenance metadata embedded in processed files. |
-| **VII. Statistical Rigor** | PASS | **FDR correction** applied to all p-values (Methodological Upgrade); VIF calculated for collinearity (FR-009); Normality checks (Shapiro-Wilk) for model diagnostics; LME model accounts for subject-level non-independence. |
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `mne==1.7.0`, `numpy`, `pandas`, `scipy`, `networkx`, `statsmodels`, `pyedflib`, `pytest`  
+- **Storage**: Local filesystem under `data/` (raw, processed, metrics, results)  
+- **Testing**: `pytest` (unit tests for each pipeline stage, integration test for end‑to‑end flow)  
+- **Target Platform**: Linux GitHub Actions runner (2 vCPU, ≤7 GB RAM) – CPU‑only  
+- **Performance Goals**: Full run ≤ 4 h, peak RAM ≤ 4 GB  
+- **Constraints**: No GPU; all steps must be CPU‑tractable; strict data‑hygiene (checksums, provenance).  
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-network-centrality-sleep-synchrony/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
-```
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── analysis.schema.yaml
+│   └── dataset.schema.yaml
+└── tasks.md               # generated later
 
-### Source Code (repository root)
-
-```text
 code/
 ├── __init__.py
-├── config.yaml          # Signal processing params, thresholds
-├── download.py          # FR-001: PhysioNet download via MNE
-├── preprocess.py        # FR-002: Filtering, ICA, Epoching, Night ID extraction
-├── metrics.py           # FR-003, FR-004, FR-005, FR-009: Connectivity, Centrality, PLI, VIF, Global Coherence
-├── analysis.py          # FR-006, FR-007, FR-012: LME Modeling, FDR, Diagnostics
-├── report.py            # FR-008, FR-011: JSON/Markdown report generation
-├── main.py              # Orchestration script
-└── requirements.txt     # Pinned dependencies
+├── config.yaml                # processing parameters, thresholds
+├── download.py                # FR‑001
+├── preprocess.py              # FR‑002
+├── connectivity.py            # FR‑003
+├── centrality.py              # FR‑004
+├── pli.py                     # FR‑005
+├── aggregate.py               # Aggregates results into SubjectMetrics.csv
+├── vif.py                     # FR‑009 (global VIF across subjects)
+├── analysis.py                # FR‑006, FR‑007, FR‑010, FR‑012, plus multivariate/partial correlation
+├── validate.py                # validates SubjectMetrics.csv against contracts/dataset.schema.yaml
+├── report.py                  # FR‑008, FR‑011
+├── main.py                    # orchestration
+└── requirements.txt
 
 data/
-├── raw/                 # Downloaded .edf files (immutable)
-├── processed/           # Cleaned epochs, connectivity matrices
-├── metrics/             # Final subject-level CSVs (SubjectMetrics.csv)
-└── results/             # Analysis results JSON (analysis_results.json)
+├── raw/          # immutable .edf files
+├── processed/
+│   ├── epochs_{subj}.npz
+│   ├── connectivity_{band}_{subj}.npy
+│   └── pli_{stage}_{subj}.npy
+├── metrics/
+│   └── SubjectMetrics.csv          # aggregated per‑subject‑per‑stage metrics
+└── results/
+    └── analysis_results.json
 
 tests/
 ├── unit/
-│   ├── test_metrics.py
+│   ├── test_preprocess.py
+│   ├── test_connectivity.py
+│   ├── test_centrality.py
+│   ├── test_pli.py
 │   └── test_analysis.py
 └── integration/
     └── test_pipeline.py
 ```
 
-**Structure Decision**: Single project structure selected. This aligns with the computational research nature of the project, minimizing overhead for data movement between microservices. The `code/` directory contains the entire pipeline, allowing for easy sequential execution on a CI runner.
-
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **None** | The scope is contained within a single pipeline. | N/A |
-
 ## FR/SC Coverage Matrix
-
-| ID | Type | Plan Phase/Step Reference | Status |
-| :--- | :--- | :--- | :--- |
-| **FR-001** | Func | `download.py`: PhysioNet fetch via MNE, checksum verify. | Covered |
-| **FR-002** | Func | `preprocess.py`: Bandpass (low-frequency cutoff to a moderate frequency limit), ICA, epoching, Night ID extraction. | Covered |
-| **FR-003** | Func | `metrics.py`: Coherence matrix (theta/alpha), Global Coherence calculation. | Covered |
-| **FR-004** | Func | `metrics.py`: NetworkX centrality (deg, betw, eig). | Covered |
-| **FR-005** | Func | `metrics.py`: PLI calculation, global mean per stage. | Covered |
-| **FR-006** | Func | `analysis.py`: LME Modeling (Centrality ~ PLI + GlobalCoherence + (1|Subject)), FDR correction. | Covered |
-| **FR-007** | Func | `analysis.py`: FDR correction (Benjamini-Hochberg) instead of Bonferroni. | Covered |
-| **FR-008** | Func | `report.py`: JSON report generation with LME coefficients. | Covered |
-| **FR-009** | Func | `metrics.py`: VIF calculation, flag > 5.0. | Covered |
-| **FR-010** | Func | `analysis.py`: N >= 30 check; if N < 30, log warning and proceed with CI estimation (no halt). | Covered |
-| **FR-011** | Func | `report.py`: Confounding limitation section (temporal proximity via Night ID comparison). | Covered |
-| **FR-012** | Func | `analysis.py`: Shapiro-Wilk normality check for model residuals. | Covered |
-| **SC-001** | Success | `data/processed/` count vs `data/raw/` count. | Covered |
-| **SC-002** | Success | Runtime logging in `main.py` (target < 4h). | Covered |
-| **SC-003** | Success | Memory profiling in `main.py` (target < 4GB). | Covered |
-| **SC-004** | Success | Report validation (FDR-corrected p < 0.05). | Covered |
-| **SC-005** | Success | VIF report inclusion. | Covered |
+| ID | Type | Plan Phase / Module | Status |
+|----|------|---------------------|--------|
+| FR-001 | Functional | `download.py` – uses `datasets.load_dataset` with SHA‑256 checksum verification. | Covered |
+| FR-002 | Functional | `preprocess.py` – band‑pass (0.5–45 Hz), ICA (kurtosis > 5.0 **or** high‑freq > 3×baseline), 30 s epoching. | Covered |
+| FR-003 | Functional | `connectivity.py` – coherence in theta & alpha bands, values ∈ (0, 1). | Covered |
+| FR-004 | Functional | `centrality.py` – NetworkX degree, betweenness, eigenvector. | Covered |
+| FR-005 | Functional | `pli.py` – PLI per epoch, mean global per stage, output ∈ [0, 1]. | Covered |
+| FR-006 | Functional | `analysis.py` – per‑metric, per‑stage Pearson/Spearman/partial correlation (covariates: age, gender, total sleep time). | Covered |
+| FR-007 | Functional | `analysis.py` – Bonferroni correction across all 30 tests. | Covered |
+| FR-008 | Functional | `report.py` – JSON/Markdown report with all statistics. | Covered |
+| FR-009 | Functional | `vif.py` – compute VIF across subjects for the three centrality predictors; flag global VIF > 5.0. | Covered |
+| FR-010 | Functional | `analysis.py` – checks **N ≥ 30** subjects **and** ≥ 2 min clean wake per subject; halts with warning if not met. | Covered |
+| FR-011 | Functional | `report.py` – adds “Confounding Limitation” if waking/night IDs match. | Covered |
+| FR-012 | Functional | `analysis.py` – Shapiro‑Wilk test on each variable pair. | Covered |
+| FR-013 | Functional | `validate.py` – validates `SubjectMetrics.csv` against `contracts/dataset.schema.yaml`. | Covered |
+| SC-001 | Success | `download.py` + count comparison between raw & processed subjects. | Covered |
+| SC-002 | Success | Runtime logged in `main.py`; target < 4 h. | Covered |
+| SC-003 | Success | Memory profiling via `psutil` in `main.py`; target < 4 GB. | Covered |
+| SC-004 | Success | Report ensures Bonferroni‑adjusted p < 0.05 for any claimed significance. | Covered |
+| SC-005 | Success | Global VIF report included (FR‑009). | Covered |
 
 ## Computational Feasibility & Methodological Rigor
+- **CPU‑first**: All steps use CPU‑only libraries. Processing is performed subject‑by‑subject to stay < 4 GB RAM.
+- **Dataset Fit Warning**: The Hugging Face mirror `ronaldvandenbroek/physionet-sleep-data` provides the required EEG and sleep‑stage annotations, but wake segments are typically brief. We therefore **filter** for subjects with **≥ 2 min of clean waking data**. If the filtered pool yields fewer than **30 subjects**, the pipeline aborts with an “Insufficient Sample Size” warning (FR‑010). This mitigates the short‑wake limitation while staying within the open‑data constraint.
+- **Multiple Comparisons**: Bonferroni correction across 3 centrality × 5 stages × 2 bands = 30 tests.
+- **Power**: Minimum **N ≥ 30** subjects enforced (consistent with the original spec) to retain reasonable power for medium effects after correction.
+- **Causal Claims**: Observational only; all statements are correlational (Constitution Principle VII).
+- **Collinearity**: Global VIF computed across subjects; high VIF reported but not interpreted as independent effects.
+- **Missing Sleep Stages**: Omit missing stage‑subject pairs from correlation (edge‑case handling).
+- **Data Corruption**: Corrupted EDF files are logged, skipped, and checksum‑verified (FR‑001).
+- **Temporal Confounding**: If waking and sleep recordings are from the same night, the report flags this limitation (FR‑011).
+- **Covariate Adjustment**: Partial correlations control for age, gender, and total sleep time.
 
-- **CPU Constraint**: All operations (MNE filtering, ICA, NetworkX graph analysis, LME fitting via `statsmodels`) are CPU-tractable. No GPU required.
-- **Memory Management**: Data is processed subject-by-subject or in small batches to ensure < 4 GB RAM usage.
-- **Dataset Fit**: The plan explicitly checks for the presence of required variables (waking resting-state, sleep stages) in the downloaded data. If a subject lacks a sleep stage, that pair is excluded (Edge Case: Missing Sleep Stages).
-- **Statistical Rigor**:
-  - **Multiple Comparisons**: **False Discovery Rate (FDR)** applied to the family of tests (3 metrics x 5 stages x 2 bands = 30 tests) to account for dependency between sleep stages.
-  - **Power**: Plan includes N >= 30 check; if N < 30, analysis logs a warning and proceeds with effect size estimation (CIs) rather than halting, to maximize data utility while flagging limitations.
-  - **Causal Claims**: Plan frames results as associational (Assumption 2).
-  - **Collinearity**: VIF calculated; high VIF reported descriptively, not as independent effects (FR-009).
-  - **Validity**: MNE-Python is a standard, validated library for EEG processing. LME models account for non-independence of observations.
-  - **Global Signal Control**: Global connectivity propensity (mean coherence) is included as a covariate in the LME model to control for subject-specific signal strength.
-  - **Temporal Confounding**: `waking_night_id` and `sleep_night_id` are extracted and compared. If they match, a "Same Night" flag is included in the report.
-
-### Note on Spec Contradiction (Bonferroni vs FDR)
-The source `spec.md` Assumptions section explicitly states "The Bonferroni correction method is the chosen approach". However, methodological review indicates Bonferroni is inappropriate for dependent hypotheses (sleep stages). The plan adopts **FDR** and **LME** for scientific soundness. This constitutes a deviation from the current `spec.md` contract. A **kickback** is required to update `spec.md` Assumptions to reflect FDR/LME as the standard method for this study design.
-
-## FR/SC Coverage Matrix (Updated for LME/FDR)
-
-| ID | Type | Plan Phase/Step Reference | Status |
-| :--- | :--- | :--- | :--- |
-| **FR-006** | Func | `analysis.py`: LME Modeling (Centrality ~ PLI + GlobalCoherence + (1|Subject)). | Covered |
-| **FR-007** | Func | `analysis.py`: FDR correction (Benjamini-Hochberg). | Covered |
-| **FR-011** | Func | `report.py`: Confounding limitation section (temporal proximity via Night ID comparison). | Covered |
-
-## Data Flow & Night ID Tracking
-
-1. **Raw**: `.edf` files from PhysioNet (via MNE).
-2. **Processed**: Cleaned epochs (`.npy`), connectivity matrices (`.npy`).
-3. **Metrics**: `SubjectMetrics.csv` (includes `waking_night_id`, `sleep_night_id`, `temporal_proximity` flag).
-4. **Results**: `AnalysisResult.json` (LME coefficients, FDR-corrected p-values, covariate usage).
-5. **Report**: Markdown report with visualizations and confounding flags.
+## Constitution Check
+- **I. Reproducibility** – All steps are scripted, seeds pinned, and dataset fetched from a fixed URL.
+- **II. Verified Accuracy** – No external citations introduced beyond the verified dataset URL.
+- **III. Data Hygiene** – Checksums recorded; transformations write new files.
+- **IV. Single Source of Truth** – Every figure/table derives from `SubjectMetrics.csv` or `analysis_results.json`.
+- **V. Versioning Discipline** – Artifact hashes updated automatically by the pipeline.
+- **VI. Signal‑Processing Transparency** – Parameters (bandpass, ICA thresholds, epoch length = 30 s) are stored in `code/config.yaml`.
+- **VII. Statistical Rigor** – Bonferroni correction, normality testing, VIF diagnostics, and clear limitation statements are all implemented.

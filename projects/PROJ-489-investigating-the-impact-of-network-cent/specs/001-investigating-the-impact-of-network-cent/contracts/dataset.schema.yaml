@@ -1,19 +1,19 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: SubjectMetricsSchema
-description: Schema for the aggregated subject-level metrics CSV.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SubjectMetricsSchema"
+description: "Schema for the aggregated subject-level metrics CSV."
 type: object
 properties:
   subject_id:
     type: string
-    description: "Unique identifier for the subject (e.g., STDT01)."
+    description: "Unique identifier for the subject (e.g., S001)."
   stage_label:
     type: string
-    description: "Sleep stage label (N1, N2, N3, REM)."
+    description: "Sleep stage label."
     enum:
-      - N1
-      - N2
-      - N3
-      - REM
+      - "N1"
+      - "N2"
+      - "N3"
+      - "REM"
   mean_pli:
     type: number
     description: "Mean Phase Lag Index across all epochs of this stage."

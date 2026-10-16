@@ -1,68 +1,106 @@
 # Research: Investigating the Impact of Network Centrality on Neural Synchrony During Sleep Stages
 
 ## Research Question
-Does the network centrality of brain regions during waking resting state predict the degree of neural synchrony (Phase Lag Index) observed during subsequent sleep stages (N1, N2, N3, REM), while controlling for global connectivity propensity and subject-level non-independence?
+Do waking‑state network centrality metrics (degree, betweenness, eigenvector) predict the magnitude of neural synchrony (Phase‑Lag Index) observed during each sleep stage (N1, N2, N3, REM), after accounting for age, gender, and total sleep time?
 
 ## Methodological Approach
 
 ### 1. Data Acquisition & Preprocessing
-- **Source**: Sleep-EDF dataset (specifically the **Sleep-EDF-Expanded** subset) from PhysioNet, accessed via the **MNE-Python `mne.datasets.sleep_edf` loader**. This loader is the canonical, verified programmatic interface to the PhysioNet repository.
-- **Inclusion Criteria**: Subjects must have:
-  - At least 5 minutes of valid waking resting-state data.
-  - At least 30 minutes of N2 sleep data (to ensure sufficient epochs for PLI aggregation).
-  - Valid annotations for Wake, N1, N2, N3, and REM stages.
-- **Preprocessing**:
-  - **Filtering**: Bandpass 0.5–45 Hz to remove DC drift and high-frequency noise.
-  - **Artifact Removal**: Independent Component Analysis (ICA) with automated rejection based on kurtosis (> 5.0) and high-frequency power (> 3x baseline).
-  - **Epoching**: 30-second windows labeled by sleep stage (Wake, N1, N2, N3, REM).
-  - **Night ID Extraction**: The recording date/time (or file ID) is extracted for both waking and sleep segments to determine if they originate from the same night (`waking_night_id` vs `sleep_night_id`).
-- **Feasibility**: MNE-Python provides efficient CPU-based implementations for these steps. Memory usage is controlled by processing subjects sequentially.
+- **Source**: `ronaldvandenbroek/physionet-sleep-data` (Hugging Face mirror of PhysioNet Sleep‑EDF).  
+  URL: `https://huggingface.co/datasets/ronaldvandenbroek/physionet-sleep-data/resolve/main/physionet-sleep-data-full.zip` (verified).  
+- **Inclusion Criteria**:  
+  - At least **2 minutes** of continuous, artifact‑free **wake** recording (required for stable resting‑state connectivity).  
+  - At least 30 minutes of annotated sleep (any stage).  
+  - Presence of the standard EEG electrode set (including frontal electrodes needed for coherence/PLI).  
+- **Filtering Strategy**: Subjects not meeting the ≥ 2 min wake criterion are excluded. After filtering, we require **N ≥ 30** subjects; if fewer remain, the pipeline halts with an “Insufficient Sample Size” warning (FR‑010).  
+- **Preprocessing** (`preprocess.py`):  
+  - Band‑pass 0.5–45 Hz (SciPy FIR).  
+  - ICA artifact removal: reject components with kurtosis > 5.0 **or** high‑frequency power > 3 × baseline.  
+  - Epoching: non‑overlapping **30‑second** windows (verified length = 30 s, source: 1908.11463).  
+  - Night‑ID extraction from EDF header; stored as `waking_night_id` / `sleep_night_id`.  
+
+**Dataset Fit Note**: The original Sleep‑EDF recordings contain only brief pre‑sleep wake periods. By enforcing the ≥ 2 min wake filter we mitigate the instability risk, but we acknowledge that this reduces the usable subject pool and may limit statistical power. This limitation is documented in the final report.
 
 ### 2. Metric Computation
-- **Waking Network**:
-  - **Connectivity**: Coherence calculated in Theta (4-8 Hz) and Alpha (8-13 Hz) bands from waking resting-state data.
-  - **Global Coherence**: Mean coherence across all electrode pairs is calculated as a covariate ("Global Connectivity Propensity").
-  - **Graph Construction**: Symmetric adjacency matrices (values 0-1).
-  - **Centrality**: Degree, Betweenness, and Eigenvector centrality computed using NetworkX.
-- **Sleep Synchrony**:
-  - **Metric**: Phase Lag Index (PLI) calculated across all electrode pairs for each epoch.
-  - **Aggregation**: Mean global PLI per sleep stage per subject.
+- **Waking Functional Connectivity** (`connectivity.py`):  
+  - Magnitude‑squared coherence for each electrode pair in **theta (4–8 Hz)** and **alpha (8–13 Hz)** bands using Welch’s method (SciPy).  
+  - Resulting matrices are symmetric, values strictly between 0 and 1.
+- **Centrality** (`centrality.py`):  
+  - Build undirected weighted graphs from coherence matrices.  
+  - Compute **degree**, **betweenness**, **eigenvector** centrality via NetworkX.
+- **Sleep‑Stage Synchrony** (`pli.py`):  
+  - Compute Phase‑Lag Index for each epoch across all electrode pairs (MNE implementation).  
+  - Aggregate to a **mean global PLI** per stage per subject (float ∈ [0, 1]).  
 
-### 3. Statistical Analysis
-- **Model**: **Linear Mixed-Effects (LME) Model**.
-  - **Fixed Effects**: Centrality Metric, Sleep Stage, Global Coherence (covariate), and their interactions.
-  - **Random Effects**: `(1 | Subject)` to account for non-independence of sleep stages within the same subject.
-- **Normality Check**: Shapiro-Wilk test on model residuals.
-- **Correction**: **False Discovery Rate (FDR)** (Benjamini-Hochberg) applied to the family of hypotheses (3 metrics x 5 stages x 2 bands = 30 tests) to account for dependency between sleep stages.
-- **Collinearity**: Variance Inflation Factor (VIF) calculated for centrality metrics; values > 5.0 flagged.
-- **Power & Sample Size**:
-  - Target N >= 30 for medium-effect correlations.
-  - If N < 30, the pipeline logs a warning and proceeds with effect size estimation (95% Confidence Intervals) rather than halting, acknowledging reduced power.
+### 3. Aggregation
+- **Metric Assembly** (`aggregate.py`):  
+  - Consolidate all per‑subject centrality means and per‑stage mean PLIs into a single `SubjectMetrics.csv`.  
+  - Include covariates (age, gender, total sleep time) and night IDs for confounding checks.
+
+### 4. Collinearity Diagnostics
+- Compute **global Variance Inflation Factor (VIF)** across all subjects for the three centrality predictors using `statsmodels`.  
+- Report the overall VIF values; flag any VIF > 5.0 in the final report (FR‑009).  
+
+### 5. Sample‑Size Validation
+- After filtering for ≥ 2 min wake, count subjects with both valid waking centrality and sleep‑stage PLI.  
+- If **N < 30**, abort analysis and emit a clear “Insufficient Sample Size” warning (FR‑010).  
+
+### 6. Normality & Correlation Selection
+- For each centrality‑PLI pair, perform **Shapiro‑Wilk** test on both vectors (SciPy).  
+- If *p* ≥ 0.05 → use **Pearson**; else → **Spearman** (FR‑012).  
+
+### 7. Confounder Adjustment
+- Compute **partial correlations** controlling for age, gender, and total sleep time (derived from sleep‑stage durations).  
+- If covariate data are missing for a subject, fall back to the bivariate correlation.  
+
+### 8. Correlation Analysis
+- Compute correlation coefficient and raw *p*‑value for every combination:  
+  - 3 centrality metrics × 5 sleep stages × 2 frequency bands = **30 tests** (FR‑006).  
+
+### 9. Multiple‑Comparison Control
+- Apply **Bonferroni correction**: `p_corrected = min(p_raw * 30, 1.0)` (FR‑007).  
+
+### 10. Aggregated Metrics Validation
+- **Validate** `SubjectMetrics.csv` against `contracts/dataset.schema.yaml` using `validate.py`.
+
+### 11. Reporting
+- Produce `analysis_results.json` containing: metric name, stage, band, correlation coefficient, raw *p*, Bonferroni‑adjusted *p*, significance flag, correlation method, and global VIF flag.  
+- Generate a Markdown report (`report.md`) that:  
+  - Lists all results in a table.  
+  - Highlights significant findings (`p_corrected < 0.05`).  
+  - Includes a **Confounding Limitation** paragraph if any subject’s `waking_night_id == sleep_night_id`.  
+  - Summarizes global VIF diagnostics.  
+  - Discusses the instability of centrality metrics due to short wake segments and the impact of the ≥ 2 min filter on sample size.
 
 ## Dataset Strategy
 
-| Dataset | Description | Source / URL | Fit Verification |
-| :--- | :--- | :--- | :--- |
-| **Sleep-EDF-Expanded** | Contains EEG recordings with sleep stage annotations and waking resting-state segments. | **MNE-Python Loader**: `mne.datasets.sleep_edf` (resolves to PhysioNet). No direct verified URL in the provided block, but the loader is the canonical access method. | **Verified**: Contains Fp1/Fp2 electrodes, 30s epochs, and Wake/N1-N3/REM labels. Includes both waking and sleep segments for the same subjects. |
-| **EEG (csv)** | General EEG event data. | https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv | Not the primary source; lacks sleep stage labels required for this study. |
-| **EEG (parquet)** | Seizure EEG data. | https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/... | Not the primary source; focuses on seizure detection, not sleep stages. |
-| **PLI (parquet)** | Processed PLI data (likely synthetic or different context). | https://huggingface.co/datasets/Plim/common_voice_7_0_fr_processed/... | Not the primary source; likely not Sleep-EDF specific. |
+| Dataset | Description | Verified URL | Fit Verification |
+|---------|-------------|--------------|------------------|
+| **PhysioNet Sleep‑EDF (via Hugging Face mirror)** | EEG recordings with sleep‑stage annotations and brief pre‑sleep wake periods. | `https://huggingface.co/datasets/ronaldvandenbroek/physionet-sleep-data/resolve/main/physionet-sleep-data-full.zip` | Contains required electrodes and both sleep and wake; **wake duration is limited** – mitigated by ≥ 2 min filtering and explicit limitation note. |
+| **EEG (csv)** | General EEG event data – **not** used (does not contain sleep stages). | `https://huggingface.co/datasets/EEGDash/eeg-mi-datasets/resolve/main/Dreyer2023/MNE-dreyer2023-data/performance.csv` | Excluded – insufficient for current analysis. |
+| **PLI** | No verified source – **not** used directly; PLI is computed from the EEG data. | *None* | Not applicable (computed in‑house). |
 
-**Decision/Rationale**: The spec explicitly requires the **Sleep-EDF** dataset from **PhysioNet**. The provided "Verified datasets" block **does not** contain a verified URL for Sleep-EDF. Per the rules, I cannot invent a URL. The implementation will use the standard `mne.datasets.sleep_edf` loader (which fetches from PhysioNet) as the canonical access method. The "Verified datasets" block is insufficient for the primary data source, but the loader's canonical status satisfies the requirement for a verified source. The dataset has been verified to contain the necessary electrodes (Fp, Fp2), 30s epochs, and sleep stage labels (Wake, N1-N3, REM).
+**Decision/Rationale**: The Hugging Face mirror provides programmatic access to the required Sleep‑EDF recordings while satisfying the “Verified datasets” rule. Because the dataset’s wake segments are short, we enforce a ≥ 2 min wake filter and adjust the required subject count to N ≥ 30. This ensures a feasible, reproducible analysis while being transparent about the methodological limitation.
 
 ## Statistical Rigor & Assumptions
-
-- **Multiple Comparisons**: **False Discovery Rate (FDR)** is applied to control the false discovery rate, which is more appropriate than Bonferroni for dependent hypotheses (sleep stages).
-- **Sample Size**: The analysis targets N >= 30. If the available Sleep-EDF subset has fewer subjects, the pipeline logs a warning and proceeds with CI estimation (no hard halt).
-- **Causal Inference**: The study is observational. No randomization is performed. Claims are strictly associational.
-- **Collinearity**: Degree and Eigenvector centrality are often correlated. VIF will be calculated, and high VIF values will be reported as a limitation rather than independent predictors.
-- **Missing Data**: If a subject lacks a specific sleep stage (e.g., no REM), that specific pair is excluded from the correlation, not imputed.
-- **Global Signal**: Global connectivity propensity (mean coherence) is included as a covariate to control for subject-specific signal strength.
-- **Temporal Confounding**: Waking and sleep recordings may be from the same night. The `waking_night_id` and `sleep_night_id` are compared. If they match, a "Same Night" flag is included in the report.
+- **Multiple Comparisons**: Bonferroni correction (family‑wise α = 0.05).  
+- **Power**: Minimum **N ≥ 30** subjects enforced (FR‑010).  
+- **Causal Inference**: Observational only; all statements are correlational (Constitution Principle VII).  
+- **Collinearity**: Global VIF computed across subjects; high VIF reported but not interpreted as independent effects.  
+- **Missing Sleep Stages**: Omit missing stage‑subject pairs from correlation (edge‑case handling).  
+- **Data Corruption**: Corrupted EDF files are logged, skipped, and checksum‑verified (FR‑001).  
+- **Temporal Confounding**: If waking and sleep recordings are from the same night, the report flags this limitation (FR‑011).  
 
 ## Limitations
+- **Wake Duration**: Even after filtering, the remaining wake segments may still be relatively brief, potentially affecting the stability of centrality estimates. This is explicitly acknowledged in the report.  
+- **Computational Load**: ICA on full‑length recordings can be time‑consuming on 2 CPU cores; processing is performed subject‑by‑subject to stay within RAM limits.  
+- **Dataset Availability**: We rely on the Hugging Face mirror; if it becomes unavailable, a new open EEG sleep dataset will need to be selected.  
 
-- **Dataset Availability**: The "Verified datasets" block does not contain a verified URL for the Sleep-EDF dataset. The implementation relies on the standard MNE-Python loader (canonical source).
-- **Computational Constraints**: Processing ICA and graph metrics on 2 CPU cores may be slow for large datasets. The pipeline will process subjects sequentially to manage memory.
-- **Temporal Proximity**: Waking and sleep recordings may be from the same night, introducing potential confounding. This will be flagged in the report and handled via LME random effects.
-- **Spec Contradiction**: The source `spec.md` assumes Bonferroni correction. This plan uses FDR/LME for scientific soundness. A spec kickback is required to update the assumption.
+## Constitution Check
+- **I. Reproducibility** – All steps are scripted, seeds pinned, and dataset fetched from a fixed URL.  
+- **II. Verified Accuracy** – No external citations beyond the verified dataset URL.  
+- **III. Data Hygiene** – Checksums recorded; transformations write new files.  
+- **IV. Single Source of Truth** – Every figure/table derives from `SubjectMetrics.csv` or `analysis_results.json`.  
+- **V. Versioning** – Artifact hashes updated automatically by the pipeline.  
+- **VI. Signal‑Processing Transparency** – Parameters stored in `code/config.yaml`.  
+- **VII. Statistical Rigor** – Bonferroni correction, normality testing, VIF diagnostics, and clear limitation statements are all implemented.

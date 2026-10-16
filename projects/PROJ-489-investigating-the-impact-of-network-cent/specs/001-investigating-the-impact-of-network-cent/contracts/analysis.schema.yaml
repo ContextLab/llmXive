@@ -1,32 +1,32 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AnalysisResultSchema
-description: Schema for the LME correlation analysis results JSON.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResultSchema"
+description: "Schema for the correlation analysis results JSON."
 type: object
 properties:
   metric_name:
     type: string
     description: "Centrality metric name."
     enum:
-      - degree
-      - betweenness
-      - eigenvector
+      - "degree"
+      - "betweenness"
+      - "eigenvector"
   stage_label:
     type: string
     description: "Sleep stage label."
     enum:
-      - N1
-      - N2
-      - N3
-      - REM
+      - "N1"
+      - "N2"
+      - "N3"
+      - "REM"
   band:
     type: string
     description: "Frequency band used for connectivity."
     enum:
-      - theta
-      - alpha
+      - "theta"
+      - "alpha"
   correlation_coefficient:
     type: number
-    description: "LME fixed effect coefficient for the centrality metric."
+    description: "Pearson, Spearman, or partial correlation coefficient."
   p_value_raw:
     type: number
     description: "Unadjusted p-value."
@@ -42,17 +42,17 @@ properties:
     description: "True if corrected p < 0.05."
   method:
     type: string
-    description: "Statistical method used."
+    description: "Correlation method used."
     enum:
-      - lme
-      - pearson
-      - spearman
-  global_connectivity_coefficient:
-    type: number
-    description: "LME coefficient for the global coherence covariate."
-  covariate_used:
+      - "pearson"
+      - "spearman"
+      - "partial"
+  global_vif_flag:
     type: boolean
-    description: "True if global coherence was included in the model."
+    description: "True if global VIF across subjects exceeds 5.0."
+  temporal_proximity_flag:
+    type: boolean
+    description: "True if waking and sleep recordings are from the same night."
 required:
   - metric_name
   - stage_label
@@ -62,6 +62,6 @@ required:
   - p_value_corrected
   - significant
   - method
-  - global_connectivity_coefficient
-  - covariate_used
+  - global_vif_flag
+  - temporal_proximity_flag
 additionalProperties: false
