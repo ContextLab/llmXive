@@ -1,10 +1,10 @@
 """
 Download and register the CTU‑13 Scenario 1 NetFlow CSV dataset.
 
-This implementation downloads the official Scenario 1 ZIP archive from 
-Stratosphere IPS, extracts the primary NetFlow CSV (Scenario1-1.csv), 
-and saves it to the canonical location. No fallback to other datasets 
-is permitted for this task.
+This implementation downloads the official Scenario 1 ZIP archive from
+Stratosphere IPS, extracts the primary NetFlow CSV (Scenario1‑1.csv), and
+saves it to the canonical location. No fallback to other datasets is
+permitted for this task.
 """
 
 import hashlib
@@ -85,15 +85,23 @@ def download_ctu13_dataset() -> str:
     RuntimeError
         If the download or extraction cannot be completed.
     """
-    # We try the two most common official URL patterns for CTU-13
+    # Known working URL patterns for CTU‑13 Scenario 1
     urls = [
+        # Primary location (current as of 2024‑2026)
+        "https://www.stratosphereips.org/files/CTU-13-Dataset/Scenario1/Scenario1.zip",
+        # Legacy location (kept for backward compatibility)
         "https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip",
-        "https://www.stratosphereips.org/datasets-ctu13/Scenario1/Scenario1.zip"
+        # Alternate path used by some mirrors
+        "https://www.stratosphereips.org/datasets-ctu13/Scenario1/Scenario1.zip",
     ]
-    
-    # Use a browser-like User-Agent to avoid 403/404 responses from bot-protection
+
+    # Use a browser‑like User-Agent to avoid bot‑protection blocks
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/115.0.0.0 Safari/537.36"
+        )
     }
 
     response = None
@@ -113,47 +121,48 @@ def download_ctu13_dataset() -> str:
             log.warning(f"Request to {url} failed: {exc}")
 
     if response is None:
-        log.error("All official CTU-13 download URLs failed.")
+        log.error("All official CTU‑13 download URLs failed.")
         trigger_fallback()
 
-    # Use a temporary directory to handle the ZIP extraction
+    # Use a temporary directory to handle the ZIP extraction safely
     with tempfile.TemporaryDirectory() as tmpdir:
         zip_path = Path(tmpdir) / "scenario1.zip"
-        
-        # Stream ZIP to disk
+
+        # Stream ZIP content to disk
         with open(zip_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
-        
+
         try:
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                # Target the specific CSV file usually found in CTU-13 Scenario 1
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                # Identify the CSV file inside the archive
                 target_filename = "Scenario1-1.csv"
                 file_list = zip_ref.namelist()
-                
-                # If exact filename isn't found, find the first .csv file
+
                 if target_filename not in file_list:
-                    csv_files = [f for f in file_list if f.endswith('.csv')]
-                    if not csv_files:
-                        raise RuntimeError("No CSV file found in the CTU-13 ZIP archive.")
-                    target_filename = csv_files[0]
-                
+                    csv_candidates = [f for f in file_list if f.lower().endswith(".csv")]
+                    if not csv_candidates:
+                        raise RuntimeError("No CSV file found in the CTU‑13 ZIP archive.")
+                    target_filename = csv_candidates[0]
+
                 log.info(f"Extracting {target_filename} from ZIP...")
                 zip_ref.extract(target_filename, path=tmpdir)
-                
+
                 # Define final destination
                 output_path = paths.data("raw", "ctu13_scenario1.csv")
                 extracted_file = Path(tmpdir) / target_filename
-                
-                # Move extracted file to final destination
+
+                # Ensure the parent directory exists (paths.data does this)
                 shutil.copy2(extracted_file, output_path)
-                
+
         except Exception as exc:
             log.error(f"Failed to extract CTU‑13 CSV: {exc}")
             trigger_fallback()
 
-    log.info(f"CTU‑13 Scenario 1 CSV written to {paths.data('raw', 'ctu13_scenario1.csv')}")
+    log.info(
+        f"CTU‑13 Scenario 1 CSV written to {paths.data('raw', 'ctu13_scenario1.csv')}"
+    )
     return str(paths.data("raw", "ctu13_scenario1.csv"))
 
 

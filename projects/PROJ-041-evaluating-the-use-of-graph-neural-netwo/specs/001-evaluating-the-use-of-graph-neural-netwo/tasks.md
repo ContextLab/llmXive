@@ -15,7 +15,7 @@ All paths are relative to the repository root.
 
 ## Phase 2 – Data acquisition & preprocessing  
 
-- [ ] **T002** **Download and register the CTU‑13 NetFlow dataset (mandatory)**   <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 -->
+- [ ] **T002** **Download and register the CTU‑13 NetFlow dataset (mandatory)**   <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 -->
   1. Download **CTU‑13 Scenario 1** NetFlow CSV from  
      `[UNRESOLVED-CLAIM: https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1-1.csv` — HTTP 404] into `data/raw/ctu13_scenario1.csv`.  
   2. **No fallback**: if the download fails, the task aborts with a clear error message and the pipeline stops (ensuring FR‑001 is not weakened).  

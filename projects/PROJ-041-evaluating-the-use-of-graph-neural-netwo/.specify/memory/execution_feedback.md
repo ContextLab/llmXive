@@ -8,12 +8,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/download_ctu13.py -> rc=1
 
-2026-10-16 13:14:57,998 INFO __main__: Attempting to download CTU‑13 Scenario 1 ZIP from https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip
-2026-10-16 13:14:58,131 WARNING __main__: URL https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip returned status 404
-2026-10-16 13:14:58,131 INFO __main__: Attempting to download CTU‑13 Scenario 1 ZIP from https://www.stratosphereips.org/datasets-ctu13/Scenario1/Scenario1.zip
-2026-10-16 13:14:58,254 WARNING __main__: URL https://www.stratosphereips.org/datasets-ctu13/Scenario1/Scenario1.zip returned status 404
-2026-10-16 13:14:58,254 ERROR __main__: All official CTU-13 download URLs failed.
-2026-10-16 13:14:58,254 ERROR __main__: Task T002 failed: CTU‑13 download failed and no fallback is permitted for Task T002.
+2026-10-16 14:19:31,629 INFO __main__: Attempting to download CTU‑13 Scenario 1 ZIP from https://www.stratosphereips.org/files/CTU-13-Dataset/Scenario1/Scenario1.zip
+2026-10-16 14:19:31,843 WARNING __main__: URL https://www.stratosphereips.org/files/CTU-13-Dataset/Scenario1/Scenario1.zip returned status 404
+2026-10-16 14:19:31,843 INFO __main__: Attempting to download CTU‑13 Scenario 1 ZIP from https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip
+2026-10-16 14:19:31,945 WARNING __main__: URL https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip returned status 404
+2026-10-16 14:19:31,945 INFO __main__: Attempting to download CTU‑13 Scenario 1 ZIP from https://www.stratosphereips.org/datasets-ctu13/Scenario1/Scenario1.zip
+2026-10-16 14:19:32,013 WARNING __main__: URL https://www.stratosphereips.org/datasets-ctu13/Scenario1/Scenario1.zip returned status 404
+2026-10-16 14:19:32,014 ERROR __main__: All official CTU‑13 download URLs failed.
+2026-10-16 14:19:32,014 ERROR __main__: Task T002 failed: CTU‑13 download failed and no fallback is permitted for Task T002.
 
 ## Platform-owned paths written inside the project
 

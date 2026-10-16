@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-16T12:16:07Z",
-  "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo"
+  "updated_at": "2026-10-16T14:20:24Z",
+  "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
+  "replan_rounds": 1
 }
