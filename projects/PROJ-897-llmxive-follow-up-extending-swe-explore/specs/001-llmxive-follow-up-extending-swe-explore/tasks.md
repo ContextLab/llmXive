@@ -28,7 +28,7 @@
  - **Verification**: Run `test -d code/ && test -d data/raw/ && test -d data/curated/ && test -d data/results/ && test -d tests/unit/ && test -d tests/integration/ && test -d tests/contract/ && test -d specs/001-llmxive-follow-up-extending-swe-explore/contracts/`. If any fail, create them immediately and log the creation.
  - Output: Directory structure created and verified.
 
-- [ ] T001b [P] **Configure Linting and Formatting**
+- [ ] T001b [P] **Configure Linting and Formatting** <!-- FAILED-IN-EXECUTION: code/validate_lint_config.py exit=1 -->
  - **Prerequisite**: Run `pip install ruff black`.
  - **Deliverable**: Create `code/pyproject.toml` containing ruff and black configuration.
  - **Specific Config**: Set `line-length = 88` and `target-version = "py310"` for both tools to ensure deterministic generation.

@@ -1,17 +1,12 @@
 status: none
-intent: download SWE-Explore dataset with issue_id, problem_statement, code_context
-  python package dataset
+intent: download SWE-Explore code issue dataset with coverage scores python package
+  dataset
 required_fields:
 - issue_id
-- repo
-- repo_path
-- problem_statement
-- solution
-- code_context
-- ground_truth_lines
-- initial_coverage
-- cyclomatic_complexity
-- lines_of_code
-cache_key: d8f66ee6f6386f7c1e02c57cce87ea3dfa46650efc77973ef00d4004eb261eb2
-searched_at: '2026-08-07T05:38:55.935256+00:00'
+- code
+- initial_coverage_score
+- comments
+- metadata
+cache_key: 41f89a3dc1eb9694f2d8cc449c8978eb09e1f152cb23f0df02b1dead4a53fa64
+searched_at: '2026-10-16T21:22:20.922297+00:00'
 retry_count: 1

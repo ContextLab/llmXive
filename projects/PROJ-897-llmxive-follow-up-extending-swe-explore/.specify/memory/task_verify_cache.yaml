@@ -61,14 +61,6 @@ T043:
     \ acceptance criteria. The implementer must supply the actual dataset subset,\
     \ mutation scripts, execution logs showing up\u2011to\u20113\u2011turn loops,\
     \ and metric/statistical analysis results."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, analysis, or report was provided that demonstrates a verification\
-    \ of the Bonferroni correction; the only content present is a high\u2011level\
-    \ feature specification unrelated to the statistical test. The required artifact\
-    \ (e.g., a script, notebook, or results showing the Bonferroni adjustment applied\
-    \ and validated) is missing."
 T049:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
