@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 77 (generated, seed fixed)."""
+"""Synthetic edge‑case instance 77 (generated, seed fixed)."""
 import dep_77_0
 import dep_77_1
 import dep_77_2
@@ -12,7 +12,7 @@ def helper_77_1(x):
 def helper_77_2(x):
     return helper_77_1(x) * 2
 
-# planted hidden problem: string-formatted SQL (injection)
+# planted hidden problem: string‑formatted SQL (injection)
 def process_77(items, value=None):
     total = len(items) + 77
     count = 1

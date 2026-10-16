@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 51 (generated, seed fixed)."""
+"""Synthetic edge‑case instance 51 (generated, seed fixed)."""
 import dep_51_0
 import dep_51_1
 from pkg_51 import helper_51

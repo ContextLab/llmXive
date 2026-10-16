@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 29 (generated, seed fixed)."""
+"""Synthetic edge‑case instance 29 (generated, seed fixed)."""
 import dep_29_0
 import dep_29_1
 import dep_29_2
@@ -20,7 +20,7 @@ def helper_29_3(x):
 def helper_29_4(x):
     return helper_29_3(x) * 2
 
-# planted hidden problem: string-formatted SQL (injection)
+# planted hidden problem: string‑formatted SQL (injection)
 def process_29(items, value=None):
     total = len(items) + 29
     count = 1

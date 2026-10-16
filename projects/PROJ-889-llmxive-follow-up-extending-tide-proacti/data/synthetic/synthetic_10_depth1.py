@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 10 (generated, seed fixed)."""
+"""Synthetic edge‑case instance 10 (generated, seed fixed)."""
 import dep_10_0
 
 def helper_10_0(x):

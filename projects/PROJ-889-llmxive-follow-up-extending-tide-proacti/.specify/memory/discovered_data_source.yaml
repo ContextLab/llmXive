@@ -1,7 +1,7 @@
 status: none
-intent: download TIDE evaluation dataset for code analysis python package dataset
+intent: TIDE evaluation dataset hidden problem labels download python package dataset
 required_fields:
-- code_string
+- code
 - hidden_problem_label
 - ast_depth
 - import_count
@@ -9,6 +9,6 @@ required_fields:
 - dependency_depth
 - semantic_scope
 - syntactic_complexity
-cache_key: 46405800d69a4fb797aa3c4ad3c4ec30fa7d298d3306ac150a256ebb2794bf65
-searched_at: '2026-10-16T21:13:15.934790+00:00'
+cache_key: d27d5cef309db65eab1d2c424d2390b7ad8c3ced3303855910a5bfbaae6229f5
+searched_at: '2026-10-16T22:09:05.818880+00:00'
 retry_count: 1

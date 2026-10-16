@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 69 (generated, seed fixed)."""
+"""Synthetic edge‑case instance 69 (generated, seed fixed)."""
 import dep_69_0
 import dep_69_1
 import dep_69_2
@@ -21,7 +21,7 @@ def helper_69_3(x):
 def helper_69_4(x):
     return helper_69_3(x) * 2
 
-# planted hidden problem: string-formatted SQL (injection)
+# planted hidden problem: string‑formatted SQL (injection)
 def process_69(items, value=None):
     total = len(items) + 69
     count = 1

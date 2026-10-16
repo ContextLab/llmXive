@@ -1,12 +1,12 @@
 """
 generate_synthetic.py
 ----------------------
-Deterministically generates the synthetic edge-case code corpus.
+Deterministically generates the synthetic edge‑case code corpus.
 
 For every instance the generator systematically varies the three intrinsic
 properties studied in this project:
 
-  * ``dependency_depth``   in {1, ..., 5}   (FR-009 cap: never exceeds 5)
+  * ``dependency_depth``   in {1, ..., 5}   (FR‑009 cap: never exceeds 5)
   * ``semantic_scope``     local | cross_module
   * ``syntactic_complexity`` 1 (flat) .. 5 (deeply nested)
 
@@ -17,7 +17,7 @@ except, etc.) so that ``ground_truth_label`` is balanced.
 Outputs:
   * >= 200 ``.py`` files under ``data/synthetic/``
   * metadata CSV ``data/raw/synthetic_meta.csv``
-  * refreshed + verified SHA-256 manifest ``data/raw/checksums.txt``
+  * refreshed + verified SHA‑256 manifest ``data/raw/checksums.txt``
 
 Usage:
     python -m src.data.generate_synthetic --seed 42
@@ -38,7 +38,7 @@ MAX_DEPENDENCY_DEPTH = 5  # FR-009 cap
 
 
 def _sha256_of_file(file_path: Path) -> str:
-    """Return the hexadecimal SHA-256 digest of *file_path*."""
+    """Return the hexadecimal SHA‑256 digest of *file_path*."""
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -55,7 +55,7 @@ def _iter_source_dirs(base_dir: Path):
 
 def _write_checksum_manifest(base_dir: Path, manifest_path: Path) -> None:
     """
-    Scan the corpus directories and write a SHA-256 checksum manifest.
+    Scan the corpus directories and write a SHA‑256 checksum manifest.
     Existing entries are overwritten (the manifest is fully regenerated).
     """
     checksum_entries = {}
@@ -67,7 +67,7 @@ def _write_checksum_manifest(base_dir: Path, manifest_path: Path) -> None:
 
     with manifest_path.open("w", encoding="utf-8") as fh:
         for fname in sorted(checksum_entries):
-            fh.write(f"{checksum_entries[fname]}  {fname}\n")
+            fh.write(f"{checksum_entries[fname]}  {fname}\\n")
     log.info(f"Checksum manifest refreshed ({len(checksum_entries)} entries).")
 
 
@@ -99,8 +99,8 @@ def _verify_checksums(base_dir: Path, manifest_path: Path) -> None:
                 log.warning(f"Skipping malformed line in checksum file: {line}")
 
     if mismatches:
-        msg = "Checksum verification failed:\n"
-        msg += "\n".join(f"{fn}: {reason}" for fn, reason in mismatches)
+        msg = "Checksum verification failed:\\n"
+        msg += "\\n".join(f"{fn}: {reason}" for fn, reason in mismatches)
         raise RuntimeError(msg)
 
 
@@ -114,8 +114,8 @@ _BUG_TEMPLATES = [
     ("if value == None:", "equality comparison with None"),
     ("result = total / count", "unchecked division (possible ZeroDivisionError)"),
     ("except:", "bare except swallows all errors"),
-    ("password = 'admin123'", "hard-coded credential"),
-    ("cursor.execute(query % user_input)", "string-formatted SQL (injection)"),
+    ("password = 'admin123'", "hard‑coded credential"),
+    ("cursor.execute(query % user_input)", "string‑formatted SQL (injection)"),
     ("eval(user_expr)", "use of eval on untrusted input"),
     ("f = open(path)", "file handle never closed"),
 ]
@@ -124,7 +124,7 @@ _BUG_TEMPLATES = [
 def _generate_source(idx: int, depth: int, scope: str, complexity: int,
                      label: int, rng: random.Random) -> str:
     """Create the source text of one synthetic instance (valid Python)."""
-    lines = [f'"""Synthetic edge-case instance {idx} (generated, seed fixed)."""']
+    lines = [f'"""Synthetic edge‑case instance {idx} (generated, seed fixed)."""']
 
     # Dependency depth: a chain of dummy module imports.
     for k in range(depth):
@@ -176,13 +176,14 @@ def _generate_source(idx: int, depth: int, scope: str, complexity: int,
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Generate the synthetic edge-case corpus deterministically."
+        description="Generate the synthetic edge‑case corpus deterministically."
     )
     parser.add_argument("--seed", type=int, default=42,
                         help="Random seed (default: 42).")
     parser.add_argument("--count", type=int, default=NUM_INSTANCES,
                         help="Number of synthetic instances to generate.")
-    args = parser.parse_args()
+    # Use ``parse_known_args`` so stray CLI comments (e.g. ``# ...``) are ignored.
+    args, _ = parser.parse_known_args()
 
     rng = random.Random(args.seed)
 
@@ -194,11 +195,11 @@ def main() -> None:
 
     meta_rows = []
     for idx in range(args.count):
-        depth = (idx % MAX_DEPENDENCY_DEPTH) + 1  # in {1,...,5}, FR-009 cap
+        depth = (idx % MAX_DEPENDENCY_DEPTH) + 1  # in {1,...,5}, FR‑009 cap
         complexity = (rng.randint(1, 5) if idx % 2 == 0
                       else (idx % 5) + 1)
         scope = "cross_module" if idx % 3 == 0 else "local"
-        label = idx % 2  # balanced ground-truth labels
+        label = idx % 2  # balanced ground‑truth labels
 
         source = _generate_source(idx, depth, scope, complexity, label, rng)
         filename = f"synthetic_{idx}_depth{depth}.py"
@@ -225,11 +226,11 @@ def main() -> None:
         f"metadata to {meta_path}"
     )
 
-    # Sanity check: all depths within the FR-009 cap.
+    # Sanity check: all depths within the FR‑009 cap.
     bad = [r for r in meta_rows if not (1 <= r["dependency_depth"] <= 5)]
     if bad:
         raise RuntimeError(
-            f"{len(bad)} synthetic instances violate the FR-009 "
+            f"{len(bad)} synthetic instances violate the FR‑009 "
             "dependency_depth cap (must be in {1..5})."
         )
 

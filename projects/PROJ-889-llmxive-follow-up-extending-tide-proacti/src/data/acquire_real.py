@@ -1,50 +1,38 @@
 """
 acquire_real.py
 ----------------
-Downloads a real, publicly accessible code-with-hidden-problems evaluation
+Downloads a real, publicly accessible code‑with‑hidden‑problems evaluation
 dataset from the HuggingFace hub and materialises it on disk.
 
-NOTE ON DATA SOURCE (honest provenance):
-The originally referenced repository ``allenai/tide-eval`` does NOT exist on
-the HuggingFace hub (the hub returns 401/RepositoryNotFound for
-https://huggingface.co/allenai/tide-eval).  No verified mirror of a "TIDE
-evaluation dataset" could be located.  To keep this study on REAL data (no
-synthetic stand-ins for the "real" split), this script instead loads the
-real, open-access CodeXGLUE defect-detection dataset
-(``google/code_x_glue_cc_defect_detection``), which contains real C source
-functions with binary human-annotated defect labels -- exactly the
-"code instances with ground-truth hidden problems" semantics required by
-the study (FR-001, SC-005).
+Uses the CodeXGLUE defect‑detection dataset as a verified real source
+(the originally referenced `allenai/tide-eval` repository does not exist).
 
 The loader FAILS LOUDLY if the real fetch fails; there is no synthetic
 fallback.
-
-The script writes each snippet to a separate ``.py`` file under
-``data/raw/real/``, writes a CSV manifest ``data/raw/tide_eval.csv``
-(>= 200 rows), and refreshes + verifies the SHA-256 checksum manifest
-``data/raw/checksums.txt``.  Any checksum mismatch aborts the script.
 """
 
 import hashlib
+import json
 import sys
 from pathlib import Path
 
+from huggingface_hub import hf_hub_download
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
 # Real, deterministic sample size taken from the full dataset (first N
 # rows of the real training split).  The full dataset is ~27k rows; a
-# fixed prefix sample of 500 real instances keeps the CPU-only run
-# tractable while far exceeding the >= 200 requirement (SC-005).
+# fixed prefix sample of 500 real instances keeps the CPU‑only run
+# tractable while far exceeding the >= 200 requirement (SC‑005).
 REAL_SAMPLE_SIZE = 500
 
 # The real dataset actually used (see module docstring).
 DATASET_REPO = "google/code_x_glue_cc_defect_detection"
-
+DATASET_FILENAME = "train.jsonl"
 
 def _sha256_of_file(file_path: Path) -> str:
-    """Return the hexadecimal SHA-256 digest of *file_path*."""
+    """Return the hexadecimal SHA‑256 digest of *file_path*."""
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -61,7 +49,7 @@ def _iter_source_dirs(base_dir: Path):
 
 def _write_checksum_manifest(base_dir: Path, manifest_path: Path) -> None:
     """
-    Scan the corpus directories and write a SHA-256 checksum manifest.
+    Scan the corpus directories and write a SHA‑256 checksum manifest.
     Existing entries are overwritten (the manifest is fully regenerated).
     """
     checksum_entries = {}
@@ -73,7 +61,7 @@ def _write_checksum_manifest(base_dir: Path, manifest_path: Path) -> None:
 
     with manifest_path.open("w", encoding="utf-8") as fh:
         for fname in sorted(checksum_entries):
-            fh.write(f"{checksum_entries[fname]}  {fname}\n")
+            fh.write(f"{checksum_entries[fname]}  {fname}\\n")
     log.info(f"Checksum manifest refreshed ({len(checksum_entries)} entries).")
 
 
@@ -105,44 +93,50 @@ def _verify_checksums(base_dir: Path, manifest_path: Path) -> None:
                 log.warning(f"Skipping malformed line in checksum file: {line}")
 
     if mismatches:
-        msg = "Checksum verification failed:\n"
-        msg += "\n".join(f"{fn}: {reason}" for fn, reason in mismatches)
+        msg = "Checksum verification failed:\\n"
+        msg += "\\n".join(f"{fn}: {reason}" for fn, reason in mismatches)
         raise RuntimeError(msg)
 
 
 def _load_tide_dataset() -> list:
     """
-    Download the real code-with-defect-labels dataset from the HuggingFace
-    hub and parse it into a list of record dictionaries.  Raises loudly on
-    any failure -- there is no fallback of any kind.
+    Download the CodeXGLUE defect‑detection dataset from HuggingFace Hub
+    and parse it into a list of record dictionaries.
+
+    Returns a list of dictionaries with at least the keys ``func`` (source
+    code string) and ``label`` (0/1 integer).  The function stops after
+    ``REAL_SAMPLE_SIZE`` records to keep the run tractable.
     """
-    from datasets import load_dataset
-
     log.info(
-        "Downloading real evaluation dataset from HuggingFace hub "
-        f"({DATASET_REPO}, split=train)..."
+        f"Downloading real evaluation dataset from HuggingFace hub "
+        f"({DATASET_REPO}, file={DATASET_FILENAME})..."
     )
-    log.info(
-        "Provenance note: 'allenai/tide-eval' does not exist on the hub "
-        "(RepositoryNotFound); using the real open-access CodeXGLUE "
-        "defect-detection dataset instead."
+    # ``hf_hub_download`` fetches the file without pulling in heavy
+    # dependencies like ``datasets`` (which would require ``pyarrow``).
+    file_path = hf_hub_download(
+        repo_id=DATASET_REPO,
+        filename=DATASET_FILENAME,
+        repo_type="dataset",
     )
-    ds = load_dataset(
-        DATASET_REPO, split="train", trust_remote_code=True
-    )
-
     records = []
-    for rec in ds:
-        code = rec.get("func")
-        if not isinstance(code, str) or not code.strip():
-            continue
-        records.append(rec)
-        if len(records) >= REAL_SAMPLE_SIZE:
-            break
-    log.info(
-        f"Loaded {len(records)} real records (deterministic prefix sample of "
-        f"the full training split)."
-    )
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                log.warning("Skipping malformed JSON line.")
+                continue
+            # The CodeXGLUE dataset uses the field name ``func`` for the
+            # source snippet and ``label`` for the binary defect flag.
+            if not isinstance(rec.get("func"), str):
+                continue
+            records.append(rec)
+            if len(records) >= REAL_SAMPLE_SIZE:
+                break
+    log.info(f"Loaded {len(records)} real records (prefix of training split).")
     return records
 
 

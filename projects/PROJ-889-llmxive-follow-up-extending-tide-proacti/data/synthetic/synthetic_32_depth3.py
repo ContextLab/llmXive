@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 32 (generated, seed fixed)."""
+"""Synthetic edge‑case instance 32 (generated, seed fixed)."""
 import dep_32_0
 import dep_32_1
 import dep_32_2

@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 23 (generated, seed fixed)."""
+"""Synthetic edge‑case instance 23 (generated, seed fixed)."""
 import dep_23_0
 import dep_23_1
 import dep_23_2
