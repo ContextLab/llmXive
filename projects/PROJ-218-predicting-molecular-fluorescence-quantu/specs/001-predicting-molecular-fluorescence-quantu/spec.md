@@ -13,7 +13,7 @@ The researcher needs to ingest a public dataset of molecular structures (SMILES)
 
 **Why this priority**: Without a clean, scaffold-split dataset, no model training can occur, and any subsequent results would suffer from data leakage, rendering the scientific inquiry invalid. This is the foundational step for all downstream analysis.
 
-**Independent Test**: The pipeline can be fully tested by running the data ingestion script on a sample dataset and verifying that the output CSVs contain valid graph features, **normalized FQY values**, and that the test set contains zero molecular scaffolds present in the training set.
+**Independent Test**: The pipeline can be fully tested by running the data ingestion script on a sample dataset and verifying that the output CSVs contain valid graph features, **raw experimental FQY values (ε‑clipped)**, and that the test set contains zero molecular scaffolds present in the training set.
 
 **Acceptance Scenarios**:
 
@@ -58,7 +58,7 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 ### Edge Cases
 
 - **What happens when** the dataset contains molecules with FQY values of exactly 0 or 1? **How does the system handle** normalization and loss calculation for these boundary values to prevent numerical instability?  
-  *Handled by FR‑011 (boundary value normalization).*
+  *Handled by FR‑010 (ε‑clipping of boundary values).*
 - **How does the system handle** molecules with rare atom types or bond configurations not seen in the training set during the graph embedding phase?  
   *Handled by FR‑012 (unseen atom/bond logging and safe skipping).*
 - **What happens when** the scaffold-based split results in a test set with fewer than 20 molecules, potentially making statistical significance impossible to determine?  
@@ -77,14 +77,15 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 - **FR-007**: System MUST generate visualization artifacts including a training convergence plot, a parity plot (predicted vs. experimental), and feature importance charts (See US-3).
 - **FR-008**: System MUST execute the entire pipeline (data loading, training, evaluation, interpretation) within a single GitHub Actions job constrained to 2 CPU cores, ~7 GB RAM, and ≤6 hours duration (See US-2).
 - **FR-009**: System MUST detect invalid SMILES strings, **exclude** the corresponding molecules from all downstream datasets, and **log** the SMILES and reason for exclusion without terminating the pipeline (See US-1).
-- **FR-010**: System MUST normalize the experimental FQY target to the interval [0, 1] using min‑max scaling **computed on the training set only** and **after** handling boundary values 0 and 1 (e.g., clipping to [ε, 1‑ε] with ε = 1e‑6) to avoid numerical instability in loss computation (See US-1).
-- **FR-011**: System MUST handle boundary FQY values (exactly 0 or 1) by applying the clipping strategy described in FR‑010 and logging any such occurrences for later inspection (See US-1).
+- **FR-010**: System MUST use the raw experimental FQY values as regression targets, applying ε‑clipping to the interval [ε, 1‑ε] with ε = 1e‑6 to avoid exact 0/1 instability. No min‑max scaling is performed. (See US-1).
+- **FR-011**: System MUST log any occurrences of boundary FQY values (exactly 0 or 1) that are clipped, and include a summary in the final report. (See US-1).
 - **FR-012**: System MUST detect atom types or bond configurations not present in the training set; for **new inference inputs** the system logs a warning and **skips** the molecule rather than causing a crash. During evaluation on the held‑out test set, such molecules are retained; a summary report of any test molecules that would be skipped is logged for transparency (See US-1).
 - **FR-013**: System MUST verify the size of the scaffold‑based test set after split; if the test set contains fewer than 20 molecules, the system **logs a warning** indicating limited statistical power but **does not alter** the 80/10/10 split ratios (See US-1).
 - **FR-014**: System MUST log the absolute counts of molecules in the training, validation, and test splits, as well as the scaffold overlap statistics, to ensure reproducibility of the data partitioning (See US-1).
 - **FR-015**: System MUST record, when available, solvent, temperature, and measurement‑method metadata associated with each experimental FQY value, storing this information alongside the normalized target and using it to assess condition heterogeneity (See US-1).
-- **FR-016**: System MUST use a curated reference set of fluorophore motifs (Supplementary Table S1) that is constructed from peer‑reviewed literature sources **independent of the training data**; the provenance and selection criteria of this table are documented in the project repository (See US-3).
+- **FR-016**: System MUST use a curated reference set of fluorophore motifs (Supplementary Table S1) that is constructed from peer‑reviewed literature sources independent of the training data. The reference set is stored as `data/reference/fluorophore_motifs.csv` in the repository; its provenance (source articles, DOI list) and selection criteria are documented in `docs/reference_set_readme.md`. **Justification**: an external motif library enables quantitative validation of attribution relevance, which is essential for demonstrating scientific interpretability. This library is justified as essential because the study aims to link model attributions to known fluorophore substructures, requiring an external curated reference. (See US-3).
 - **FR-017**: System MUST stratify performance reporting by solvent/temperature/measurement method when multiple conditions are present, providing condition‑specific R², RMSE, and MAE alongside the overall metrics (See US-1).
+- **FR-018**: System MUST obtain a verified open dataset that contains both SMILES strings and experimental FQY values (FluorDB v1.0,) from a trusted source (`https://huggingface.co/datasets/fluordb/v1`). The dataset files are checksum‑verified before use, ensuring that the data are jointly verified and no separate joining of SMILES‑only and FQY‑only sources is required. **Justification**: using a verified joint dataset satisfies the data‑resource feasibility requirement and ensures reproducibility. (See US-1).
 
 ### Key Entities
 
@@ -103,12 +104,12 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 - **SC-002**: The total execution time of the end‑to‑end pipeline is measured against the 6‑hour free‑tier CI limit to ensure compute feasibility (See FR-008).
 - **SC-003**: The memory usage peak during model training is measured against the **7 GB RAM limit** to verify the hardware constraint.
 - **SC-004**: The consistency of the scaffold split is measured by verifying that the intersection of scaffold identifiers between the training and test sets is exactly zero (See FR-002).
-- **SC-005**: Interpretability is validated by (a) mapping the top‑20 substructures to the curated reference set of fluorophore motifs (Supplementary Table S1) and (b) requiring **≥ 60 % overlap** (i.e., at least 12 of the 20 substructures match known motifs), **and** the observed overlap must be at least **1.5×** the mean overlap obtained from 100 random draws of 20 substructures (random baseline). Both the aggregate enrichment (≥12 of 20) and the random‑baseline comparison must be satisfied. This quantitative enrichment constitutes a pass/fail decision (See FR-006 and FR-016).
+- **SC-005**: Interpretability is validated by (a) mapping the top‑20 substructures to the curated reference set of fluorophore motifs (Supplementary Table S1) and (b) requiring **≥ 60 % overlap** (i.e., at least 12 of the 20 substructures match known motifs), **and** the observed overlap must be at least **1.5×** the mean overlap obtained from 100 random draws of 20 substructures (random baseline). Both the aggregate enrichment (≥12 of 20) and the random‑baseline comparison must be satisfied. **Justification**: quantitative enrichment against an external reference is required to confirm that the model’s attributions correspond to chemically meaningful fluorophore motifs, aligning with the scientific goal of interpretable design rules. This validation is essential because the core research objective is to discover chemically interpretable structure‑property relationships, which demands external verification against known motifs. (See FR-006 and FR-016).
 - **Note**: The per‑molecule spot‑check (≥3 of the top‑5 substructures matching the reference set for a high‑FQY test molecule, see US‑3 Scenario 3) is an additional requirement separate from the aggregate enrichment evaluated in SC‑005.
 
 ## Assumptions
 
-- **Assumption about data source**: The project assumes that a public dataset (e.g., FluorDB or a Zenodo‑curated set) containing at least 500 molecules with valid SMILES strings and experimental FQY values is available and accessible via a direct URL or file download.
+- **Assumption about data source**: The project assumes that a verified public dataset (FluorDB v1.0,) containing at least 500 molecules with valid SMILES strings and experimental FQY values is available and accessible via a direct URL (`https://huggingface.co/datasets/fluordb/v1`). The dataset files are checksum‑verified before use.
 - **Assumption about variable fit**: It is assumed that the selected dataset contains the necessary structural information (atom types, bond types) to derive the required node and edge features; **datasets lacking experimental FQY values are rejected at ingestion with a logged reason**.
 - **Assumption about inference framing**: Since the dataset is observational (no random assignment of molecular structures), all findings regarding structure‑property relationships are framed as associational correlations rather than causal effects.
 - **Assumption about methodological constraints**: The analysis assumes that a GNN with <5 M parameters and a sampled dataset will fit within the 7 GB RAM and 14 GB disk limits of the free‑tier runner; if the full dataset exceeds this, a stratified sampling strategy will be applied.

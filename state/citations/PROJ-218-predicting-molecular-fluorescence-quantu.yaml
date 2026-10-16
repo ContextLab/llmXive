@@ -112,3 +112,25 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.48700/datst.mff4d-q4a24
   verified_at: '2026-10-15T05:29:27.974760Z'
+- artifact_hash: 15f6f856608dd23bde5111b1fd56fd607be90be7a044370515812cefc5998d6a
+  artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/fluordb/v1`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/fluordb/v1
+  verified_at: '2026-10-16T14:37:52.290444Z'
+- artifact_hash: 15f6f856608dd23bde5111b1fd56fd607be90be7a044370515812cefc5998d6a
+  artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1234/fluorDB
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1234/fluorDB
+  verified_at: '2026-10-16T14:37:52.290444Z'
