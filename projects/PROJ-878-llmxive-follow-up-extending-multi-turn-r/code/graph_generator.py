@@ -14,8 +14,6 @@ from utils.graph_utils import (
     is_dag,
     nesting_depth,
     branching_factor,
-    get_all_simple_paths_from_source_to_target,
-    get_random_valid_path_different_from_reference,
     graph_to_dict,
 )
 
@@ -27,8 +25,6 @@ class LogicalPuzzleGenerator:
     def __init__(self, seed: int = 42):
         self.seed = seed
         random.seed(self.seed)
-        # networkx does not provide a global seed setter; we rely on Python's random
-        # which is used throughout the generation code.
 
     def _generate_base_dag(self, target_depth: int, target_branching: float) -> nx.DiGraph:
         """
@@ -98,28 +94,33 @@ class LogicalPuzzleGenerator:
 
 def _select_ground_truth_path(G: nx.DiGraph) -> Tuple[List[Any], List[Any]]:
     """
-    Choose a source‑sink pair, enumerate all simple paths, and return a
-    ground‑truth path that is *different* from the longest path.
-    If only one path exists, the longest path is returned (with a warning).
+    Choose a source‑sink pair based on the longest DAG path, then return a
+    ground‑truth path that is *different* from that longest path when possible.
+    If only one simple path exists, the longest path is returned (with a warning).
     """
-    topo = list(nx.topological_sort(G))
-    source = topo[0]
-    target = topo[-1]
+    # Compute the longest path using networkx's DAG longest path algorithm
+    longest_path = nx.algorithms.dag_longest_path(G)
+    if not longest_path:
+        raise ValueError("Generated DAG has no path.")
 
+    source = longest_path[0]
+    target = longest_path[-1]
+
+    # Enumerate all simple paths between source and target
     all_paths = list(nx.all_simple_paths(G, source=source, target=target))
     if not all_paths:
         raise ValueError("No path between source and target in generated DAG.")
 
-    longest = max(all_paths, key=len)
-    alternatives = [p for p in all_paths if p != longest]
+    # Remove the longest path from the alternatives
+    alternatives = [p for p in all_paths if p != longest_path]
 
     if alternatives:
         gt_path = random.choice(alternatives)
     else:
-        gt_path = longest
+        gt_path = longest_path
         logger.warning("Only one path exists; using longest path as ground truth.")
 
-    return gt_path, longest
+    return gt_path, longest_path
 
 def _serialize_puzzle(
     idx: int,
@@ -180,7 +181,9 @@ def generate_batch(
     attempts = 0
     max_total_attempts = num_instances * 500
 
-    logger.info(f"Generating {num_instances} puzzles (depth {min_depth}-{max_depth}, branching {min_branching}-{max_branching}).")
+    logger.info(
+        f"Generating {num_instances} puzzles (depth {min_depth}-{max_depth}, branching {min_branching}-{max_branching})."
+    )
 
     while len(candidates) < num_instances and attempts < max_total_attempts:
         attempts += 1

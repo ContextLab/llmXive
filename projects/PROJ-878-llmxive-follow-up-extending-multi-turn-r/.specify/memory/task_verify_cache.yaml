@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: 982edaef72aa5733021d0b5cd1e475d457b49c026a23ad72fb3638c6298017f9
-  r: "The scaffold directories and `__init__.py` files exist and `requirements.txt`\
-    \ contains the required pins, but there is no provided evidence that `pip install\
-    \ -r code/requirements.txt` actually succeeded nor any log showing `ruff check\
-    \ --output-format=concise` exiting with code\u202F0. These execution confirmations\
-    \ are required to consider the scaffolding task complete."
-  sig: 50950e4ff5436a92249eb5b9c469d11bb2a0f34cc11c8ebe86a4cee0ba7b5ce8
 T002:
   c: false
   h: 549a639099be5ca6e5739ea084b832e132290615989db1a8081cf6e8b7acafa6

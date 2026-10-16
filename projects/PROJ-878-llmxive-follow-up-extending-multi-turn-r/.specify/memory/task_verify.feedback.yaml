@@ -1,5 +1,5 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/verify_scaffolding.py
+  reason: 'Requested task execution failed; rerun successfully: code/graph_generator.py
     exit=1'
   task: 04beb1208ff2afd2d188ef2b70bd93cede5411d9f9ee2dfa60a911985bc40b23
 T002:

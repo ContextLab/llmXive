@@ -1,15 +1,12 @@
 status: none
-intent: download GSM8K logical deduction puzzle dataset with DAG metadata nesting
-  depth branching factor python package dataset
+intent: pip install huggingface datasets GSM8K logical puzzle dataset python package
 required_fields:
-- puzzle_id
+- instance_id
 - puzzle_text
-- solution_text
-- dag_nodes
-- dag_edges
+- dag_edge_list
 - max_nesting_depth
 - average_branching_factor
-- metadata_json
-cache_key: ba2f2c451a23df993081b3be0d449b2c8e250d088bb7e05b3c8821fa5f73664b
-searched_at: '2026-10-14T06:30:57.778411+00:00'
+- ground_truth_solution
+cache_key: 800a7b711feeb99f1a2c0f4d1f9f740c94f0a4e36ee945adc18871905c218b93
+searched_at: '2026-10-16T09:29:35.065704+00:00'
 retry_count: 1
