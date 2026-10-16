@@ -28708,7 +28708,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-16T17:09:12.498471+00:00",
+  "generated_at": "2026-10-16T17:22:15.188367+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -47041,7 +47041,7 @@
           ]
         },
         {
-          "contributions": 22,
+          "contributions": 24,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -47086,6 +47086,22 @@
       "id": "PROJ-101-quantifying-the-influence-of-initial-con",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 25.029404,
+          "ended_at": "2026-10-16T17:09:53.982649Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T17:09:28.953245Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 44.933309,
+          "ended_at": "2026-10-16T17:09:28.948763Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T17:08:44.015454Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 34.979508,
@@ -47149,22 +47165,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-16T15:16:37.205186Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 386.934462,
-          "ended_at": "2026-10-16T15:16:37.202691Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-16T15:10:10.268229Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 92.026493,
-          "ended_at": "2026-10-16T15:10:10.265727Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-16T15:08:38.239234Z"
         }
       ],
       "paper_status": null,
@@ -64106,7 +64106,7 @@
           ]
         },
         {
-          "contributions": 9,
+          "contributions": 10,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -64144,6 +64144,14 @@
       "id": "PROJ-176-predicting-molecular-properties-from-vib",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 89.133919,
+          "ended_at": "2026-10-16T17:08:44.523289Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T17:07:15.389370Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 121.301654,
@@ -64215,14 +64223,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-16T08:08:24.102270Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 691.80224,
-          "ended_at": "2026-10-16T07:23:05.737539Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-16T07:11:33.935299Z"
         }
       ],
       "paper_status": null,
@@ -114425,7 +114425,7 @@
           ]
         },
         {
-          "contributions": 25,
+          "contributions": 27,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -114471,6 +114471,22 @@
       "id": "PROJ-471-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 30.694108,
+          "ended_at": "2026-10-16T17:10:04.135846Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T17:09:33.441738Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 156.492247,
+          "ended_at": "2026-10-16T17:09:33.437719Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T17:06:56.945472Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 160.974968,
@@ -114534,22 +114550,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-16T10:16:55.933402Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 63.249992,
-          "ended_at": "2026-10-16T10:16:55.929900Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-16T10:15:52.679908Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 519.933784,
-          "ended_at": "2026-10-16T10:15:52.676124Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-16T10:07:12.742340Z"
         }
       ],
       "paper_status": null,
@@ -172202,6 +172202,66 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 30.694108,
+      "ended_at": "2026-10-16T17:10:04.135846Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T17:09:33.441738Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 25.029404,
+      "ended_at": "2026-10-16T17:09:53.982649Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-101-quantifying-the-influence-of-initial-con",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T17:09:28.953245Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 156.492247,
+      "ended_at": "2026-10-16T17:09:33.437719Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T17:06:56.945472Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 44.933309,
+      "ended_at": "2026-10-16T17:09:28.948763Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-101-quantifying-the-influence-of-initial-con",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T17:08:44.015454Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 89.133919,
+      "ended_at": "2026-10-16T17:08:44.523289Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T17:07:15.389370Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 727.448407,
       "ended_at": "2026-10-16T16:51:40.362356Z",
@@ -178194,66 +178254,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T18:17:19.001474Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.919482,
-      "ended_at": "2026-10-15T18:33:35.428305Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-1010-llmxive-follow-up-extending-omniopt-taxo",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T18:33:29.508823Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 195.56562,
-      "ended_at": "2026-10-15T18:33:28.540950Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-10-15T18:30:12.975330Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 100.598604,
-      "ended_at": "2026-10-15T18:32:25.890342Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T18:30:45.291738Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.928586,
-      "ended_at": "2026-10-15T18:30:45.288642Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T18:30:35.360056Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 8.659187,
-      "ended_at": "2026-10-15T18:30:35.356775Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T18:30:26.697588Z"
     }
   ],
   "reviewed_preprints": [
