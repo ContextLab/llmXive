@@ -1,141 +1,143 @@
-# Tasks: Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance  
+# Tasks: Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance
 
-**Inputs**: `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback.  
+**Inputs**: `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback.
 
 The tasks are organized by research phase and map directly to the functional
-requirements (FR‑001 … FR‑017) in the specification.  Each task follows the
-canonical format `- [ ] T### [P?] [USx?] description – *file path*`.  
-`[P]` marks tasks that can be executed in parallel (different files, no
-data‑flow dependency).  `USx` links the task to the corresponding user story.  
+requirements (FR‑001 … FR‑017) in the specification. Each task follows the
+canonical format:
 
----  
+`- [ ] T### [P?] [FR‑xxx] description – file_path`
+`    <indented verification / requirement details>`
 
-## Phase 1 – Project scaffolding & core utilities  
+`[P]` marks tasks that can be executed in parallel. Indented continuation lines list the concrete output, verification command, and scientific checks.
 
-- [ ] **T001** Create the required directory layout – `src/`, `src/utils/`, `data/raw/`, `data/derived/`, `data/annotations/`, `results/`, `tests/`, `specs/`, `contracts/`.  
-  *Verification*: after running `scripts/setup_dirs.sh` all listed directories exist.  
+---
 
-- [ ] **T002** Add `requirements.txt` (pinned `datasets`, `transformers`, `scikit‑learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`) and a `config/settings.py` that defines hyper‑parameters, path constants, random seeds, and `TARGET_REPOS = ["microsoft/vscode", "pytorch/pytorch", "tensorflow/tensorflow"]`.  
-  *Verification*: both files are present and contain the expected entries; `pip install -r requirements.txt` succeeds.  
+## Phase 1 – Project scaffolding & core pipeline utilities
 
-- [ ] **T003** Add a `pyproject.toml` configuring **ruff** and **black** (line‑length 88, exclude patterns) and a GitHub Actions workflow that runs `ruff check` and `black --check`.  
-  *Verification*: `pyproject.toml` includes the ruff/black sections and `.github/workflows/ci.yml` exists.  
+- [ ] T001 [P] Verify that the required directory layout exists – `code/`
+    *Verification*: Run `mkdir -p code/src/{config,extraction,detection,inference,analysis,reporting,pipeline,cli} code/tests/{unit,integration,contract} code/data/{raw,annotations,derived,results} code/logs specs/001-eval-llm-review-quality/contracts` and confirm all directories are created via `ls -R code/`.
 
-- [ ] **T004** Implement core pipeline utilities – `src/utils/logger.py` (JSON‑lines logger) and `src/utils/timeout_wrapper.py` (global 6 h guard that writes to `logs/timeout.log` and exits with code 143). Add unit tests `tests/unit/test_logger.py` and `tests/unit/test_timeout_wrapper.py` that (a) assert logger emits a valid JSON line conforming to `run_log_event_schema.yaml`, and (b) simulate a timeout and check exit code 143 and log entry.  
-  *Verification*: both source files exist, unit‑test suite passes (`pytest -q tests/unit/test_logger.py tests/unit/test_timeout_wrapper.py` returns exit 0), and a manual run of `timeout_wrapper.run(lambda: time.sleep(0.1), deadline_seconds=0)` produces the expected log entry and exit code.  
+- [ ] T002 [P] [FR‑001] Add `requirements.txt` (pinned `datasets`, `transformers`, `scikit‑learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`, `detectgpt`) and a configuration module `code/src/config/settings.py` that defines hyper‑parameters, path constants, random seeds, and `TARGET_REPOS = ["microsoft/vscode", "pytorch/pytorch", "tensorflow/tensorflow"]` – `code/requirements.txt`, `code/src/config/settings.py`
+    *Verification*: `pip install -r code/requirements.txt` succeeds; `python -c "import code.src.config.settings as s; assert s.TARGET_REPOS"` runs without error.
 
-- [ ] **T005** Create the CLI entry point `src/cli/main.py` that wires the full pipeline (extraction → detection → inference → analysis → reporting) and uses the utilities from T004. The CLI must accept `--config <path>` and `--run {sample,all}` flags. Ensure that `python -m src.cli.main --run sample` executes the end‑to‑end pipeline on the small 10‑PR verification fixture and exits 0.  
-  *Verification*: running the command produces `data/results/smoke_report.json` and returns exit 0; the command also logs a `"cli_start"` event via the logger.  
+- [ ] T003 [P] Create a `pyproject.toml` configuring **ruff** and **black** (line‑length 88, exclude patterns) and a GitHub Actions workflow that runs `ruff check` and `black --check` – `pyproject.toml`, `.github/workflows/ci.yml`
+    *Verification*: `ruff check .` and `black --check .` both return exit 0 on a clean repo.
 
----  
+- [ ] T004 [P] Implement core pipeline utilities:
+    * `code/src/pipeline/logging_utils.py` – JSON‑lines logger that writes events conforming to `contracts/run_log_event_schema.yaml` to `logs/pipeline.jsonl`.
+    * `code/src/pipeline/runtime_guard.py` – `RuntimeGuard` class that records a deadline timestamp, aborts the process with exit code 143 on breach, and writes a `"timeout"` event to `logs/timeout.log`.
+    * Unit tests `code/tests/unit/test_logging_utils.py` and `code/tests/unit/test_runtime_guard.py`. – `code/src/pipeline/*.py`, `code/tests/unit/*.py`
+    *Verification*: `pytest -q code/tests/unit/test_logging_utils.py code/tests/unit/test_runtime_guard.py` returns exit 0; manual invocation of `RuntimeGuard` with a past deadline exits 143 and creates a valid JSON line in `logs/timeout.log`.
 
-## Phase 2 – Data extraction & ground‑truth construction  
+- [ ] T005 [P] Implement the CLI orchestrator `code/src/cli/main.py` that wires the full pipeline (extraction → preprocessing → ground‑truth → LLM‑code flag → inference → alignment → metrics → reporting).
+    *Behaviour*: `python -m code.src.cli.main --run smoke` executes the end‑to‑end pipeline on the 10‑PR verification fixture and exits 0, producing `data/results/smoke_report.json` validated against `contracts/analysis_metrics_schema.schema.yaml`.
+    *Verification*: Run the command; check exit code, existence of `data/results/smoke_report.json`, and that `logs/pipeline.jsonl` contains a `"cli_start"` event.
 
-- [ ] **T006** Define the detection‑level data model: create a `BugDetection` dataclass in `src/detection/schema.py` with fields `bug_id`, `source`, `file_path`, `line_start`, `line_end`, `severity`, `description`, optional `confidence`, and `is_llm_only`. Export the corresponding JSON‑schema file `contracts/bug_detection_schema.yaml` (already present) and ensure it validates against the dataclass.  
-  *Verification*: `import src.detection.schema as ds; isinstance(ds.BugDetection(...), ds.BugDetection)` succeeds; `pytest tests/contract/test_schema_validation.py::test_bug_detection_schema` passes.  
+---
 
-- [ ] **T007** Implement `src/extraction/fetch_prs.py` that reads `TARGET_REPOS` from `config/settings.py`, authenticates with a GitHub token (env `GITHUB_TOKEN`), fetches up to 500 PRs per repository via the GitHub REST API, writes the raw payloads to `data/raw/prs.json` (one JSON object per PR, newline‑delimited), and generates SHA‑256 checksums stored in `data/raw/checksums.json`. The script must respect API rate limits (respect `X-RateLimit-Remaining`).  
-  *Verification*: after execution, both `data/raw/prs.json` and `data/raw/checksums.json` exist, contain entries for the expected number of PRs, and a checksum validation script (`scripts/verify_checksums.py`) returns success.  
+## Phase 2 – Data extraction, preprocessing, and triangulated ground truth
 
-- [ ] **T008** Implement `src/extraction/preprocess_and_ground_truth.py` that:  
-  1. Loads `data/raw/prs.json`.  
-  2. Truncates any diff exceeding the LLM context window (≈ 8 k tokens) to the most recent changed lines, adds a `truncation_flag: true` field, and logs a warning to `logs/truncation.log`.  
-  3. Extracts human review comments, builds `data/annotations/human_comments.json` conforming to `pr_schema.yaml` (only the comment‑related fields).  
-  4. Applies FR‑011 to construct a triangulated ground‑truth set: a bug is **verified** if it (a) is linked to a closed GitHub issue **and** (b) appears in at least two independent human review comments (or a senior maintainer comment). Produce `data/derived/human_ground_truth.json` with a `verification_method` field.  
-  5. Writes the cleaned PR records (with possible truncation) to `data/derived/prs_cleaned.json`.  
-  *Verification*: all four output files exist, each validates against its respective schema (`pr_schema.yaml`, `bug_detection_schema.yaml` where appropriate), and a sanity‑check script confirms that at least 50 PRs have `ground_truth_status == "verified"`; otherwise the script exits with error `audit_failure`.  
+- [ ] T006 [P] Define the `BugDetection` dataclass in the detection package (`code/src/detection/schema.py`) and ensure `PullRequest` is isolated in `code/src/extraction/schema.py`.
+    *Verification*: `python -c "from code.src.detection.schema import BugDetection; assert BugDetection"` runs; `pytest code/tests/contract/test_schemas.py` passes.
 
----  
+- [ ] T007 [P] [FR‑001] Implement PR extraction script `code/src/extraction/fetch_prs.py`.
+    * Reads `TARGET_REPOS` from `code/src/config/settings.py`, fetches up to 500 PRs per repo via GitHub REST API, writes raw JSON payloads to `data/raw/`, and generates `data/raw/checksums.json`.
+    *Verification*: Command exits 0; `data/raw/checksums.json` matches files; `python -m code.src.extraction.fetch_prs --test-set 10` (T016) confirms non-empty diffs and comments.
 
-## Phase 3 – LLM‑assisted bug detection (simulation)  
+- [ ] T008 [P] [FR‑011] Implement preprocessing and ground‑truth construction script `code/src/extraction/preprocess_and_ground_truth.py`.
+    1. Load `data/raw/` JSON, truncate diffs exceeding context window, and log warnings.
+    2. Build **triangulated ground truth** (FR-011): bug is verified iff linked to closed issue AND confirmed by ≥2 independent reviewers.
+    3. Abort with `event: "audit_failure"` and exit 1 if < 50 verified PRs are found.
+    4. Outputs: `data/derived/prs_cleaned.json`, `data/annotations/human_annotations.json`.
+    *Verification*: All output files exist and validate against schemas; `python scripts/audit_ground_truth.py` reports ≥ 50 verified PRs.
 
-- [ ] **T009a** Implement `src/detection/detect_llm_code.py` that flags PR diffs likely generated by an LLM using (i) heuristic header detection (`"Generated by"` comment) and (ii) the `detectgpt` model. Output `data/derived/llm_code_flags.json` mapping `pr_id` → `is_llm_generated`. Include a unit test `tests/unit/test_detect_llm_code.py` that verifies the flag is set for a synthetic diff containing the known header.  
-  *Verification*: the JSON file exists, matches the schema, and the unit test passes.  
+---
 
-- [ ] **T009** Implement the LLM inference pipeline in `src/inference/run_inference.py`:  
-  1. Load StarCoder2‑3B from HuggingFace with `torch.float16`, `low_cpu_mem_usage=True`, and `device="cpu"` (CPU‑only).  
-  2. For each PR in `data/derived/prs_cleaned.json`, apply the standardized prompt from `src/inference/prompt_templates.py`.  
-  3. Enforce per‑PR latency ≤ 5 minutes using the `RuntimeGuard` from T004; on timeout, record `status: "timeout"` in the output and skip the PR.  
-  4. Retry up to 2 times on JSON‑formatting failures (1 s delay).  
-  5. Write successful detections to `data/derived/llm_bugs.json`, each entry conforming to `bug_detection_schema.yaml` with `source: "llm"`.  
-  *Verification*: after running `python -m src.inference.run_inference --sample`, the output file exists, contains at least 10 detections for the sample set, and all entries validate against the schema.  
+## Phase 3 – LLM‑assisted bug detection
 
----  
+- [ ] T009a [P] [FR‑016] Implement LLM‑generated‑code detection `code/src/detection/detect_llm_code.py` using heuristic headers and `detectgpt`.
+    * Writes `data/derived/llm_code_flags.json` mapping `pr_id → is_llm_generated`.
+    *Verification*: `pytest code/tests/unit/test_detect_llm_code.py` passes; JSON file conforms to boolean-mapping schema.
 
-## Phase 4 – Alignment, metrics, and statistical testing  
+- [ ] T009 [P] [FR‑002] Implement LLM inference pipeline `code/src/inference/run_inference.py`.
+    1. Load `bigcode/starcoder2-3b` in `torch.float16` with `low_cpu_mem_usage=True`, `device="cpu"`.
+    2. Apply standardized prompts; enforce per‑PR latency ≤ 5m via `RuntimeGuard`; retry up to 2 times on JSON parse failure.
+    3. Write results to `data/derived/llm_bugs.json` conforming to `bug_detection_schema.yaml`.
+    *Verification*: `python -m code.src.inference.run_inference --sample` produces `data/derived/llm_bugs.json` with ≥ 10 detections; all entries validate against the schema.
 
-- [ ] **T010** Implement `src/analysis/align.py` that loads `data/derived/human_ground_truth.json` and `data/derived/llm_bugs.json`, then matches bugs using:  
-  * Location Jaccard index ≥ 0.5 with a line‑shift tolerance of 5 lines.  
-  * Cosine similarity of TF‑IDF description embeddings ≥ threshold (default 0.85, configurable).  
-  Valid matches are written to `data/derived/alignments.json` (conforms to `alignment_result_schema.yaml`).  
+---
 
-  Implement `src/analysis/metrics.py` that consumes the alignment file and computes Precision, Recall, F1, and `llm_only_recall` (proportion of LLM‑only bugs that appear in the manual validation set, if present). Write results to `data/derived/metrics_threshold_0.85.json` (validated against `analysis_metrics_schema.yaml`).  
+## Phase 4 – Alignment, metrics, statistical testing, and runtime monitoring
 
-  Implement `src/analysis/stats.py` that performs McNemar’s test on detection rates (paired on the manual validation set) and a chi‑square (or Fisher’s exact) test on severity‑distribution differences; add p‑values, test statistics, and effect sizes to the same metrics JSON.  
-  *Verification*: both `alignments.json` and `metrics_threshold_0.85.json` exist, pass schema validation, and a sanity‑check script confirms that `precision + recall + f1_score` are within [0, 1].  
+- [ ] T010 [P] [FR‑003] [FR‑012] Implement alignment script `code/src/analysis/align.py`.
+    * Match LLM bugs to human bugs iff (Jaccard line-set overlap ≥ 0.5 with ±5 line tolerance) AND (TF-IDF cosine similarity ≥ threshold, default 0.85).
+    * Writes `data/derived/alignments.json` validated against `alignment_result_schema.yaml`.
+    *Verification*: JSON file exists; schema validation passes; sanity check confirms matched pairs.
 
-- [ ] **T011** Implement `src/analysis/sensitivity.py` that repeats the alignment and metric computation for similarity thresholds `{0.80, 0.85, 0.90}`. Aggregate the three metric records into `data/derived/sensitivity_analysis.csv` with columns `threshold,precision,recall,f1_score`.  
-  *Verification*: the CSV contains exactly three rows, one per threshold, and all numeric fields are within valid ranges.  
+- [ ] T011 [P] [FR‑004] [FR‑005] [FR‑017] Implement metrics & statistical‑test scripts `code/src/analysis/metrics.py` and `code/src/analysis/stats.py`.
+    * Compute Precision, Recall, F1, and `llm_only_recall` (confirmed via manual set).
+    * Perform McNemar’s test (detection rates) and chi-square (severity distribution) with Fisher's exact fallbacks; report effect size (Cramér’s V).
+    * Writes `data/derived/metrics_threshold_0.85.json` conforming to `analysis_metrics_schema.yaml`.
+    *Verification*: Schema validation succeeds; numeric fields are within [0,1]; p-values are reported.
 
-- [ ] **T016** Add a runtime‑monitoring module `src/pipeline/runtime_monitor.py` that aggregates per‑PR latency and memory usage recorded by the logger, computes the total wall‑clock time, and writes `data/derived/runtime_report.json` containing `total_runtime_seconds`, `average_latency_seconds`, and `deadline_met` (boolean).  
-  *Verification*: after a full run, `runtime_report.json` exists, `deadline_met` is true for the small sample, and the file validates against a simple JSON schema (included in `contracts/runtime_report_schema.yaml`).  
+- [ ] T012 [P] [FR‑006] [SC‑003] Implement sensitivity‑sweep script `code/src/analysis/sensitivity.py`.
+    * Repeat alignment and metrics for thresholds `{0.80, 0.85, 0.90}`.
+    * Aggregates results into `data/results/sensitivity_analysis.csv`.
+    *Verification*: CSV contains exactly three rows with valid numeric bounds for F1-score.
 
----  
+- [ ] T013 [P] [FR‑013] [SC‑004] Implement runtime recording in `code/src/reporting/generate_report.py`.
+    * Record total wall‑clock time (seconds) in `data/results/runtime.json` and as `total_runtime_seconds` in final metrics JSON.
+    *Verification*: `data/results/runtime.json` exists and contains a valid integer; `total_runtime_seconds` is present in the final metrics JSON, satisfying SC-004.
 
-## Phase 5 – Reporting & reproducibility  
+---
 
-- [ ] **T012** Implement `src/reporting/generate_report.py` that reads the final metric files (`metrics_threshold_0.85.json`, `sensitivity_analysis.csv`, `runtime_report.json`) and creates:  
-  * `results/final_report.md` – markdown containing tables of precision/recall/F1, p‑values, effect sizes, a paragraph explicitly stating that the study **correlates** LLM assistance with review quality (FR‑014), and a description of the alignment criteria used.  
-  * `results/metrics.json` – a machine‑readable copy of the aggregated metrics, annotated with content‑hash footers for each upstream data artifact (to satisfy Constitution IV).  
-  *Verification*: both files are non‑empty, the markdown renders a table when viewed, and a checksum‑verification script confirms that the footers match the current hashes of `data/derived/*`.  
+## Phase 5 – Reporting, testing, and reproducibility
 
-- [ ] **T013** Build a comprehensive test suite:  
-  * Unit tests under `tests/unit/` for every module (`test_fetch_prs.py`, `test_preprocess.py`, `test_detect_llm_code.py`, `test_alignment.py`, `test_metrics.py`, `test_runtime_monitor.py`).  
-  * Integration test `tests/integration/test_end_to_end_small.py` that runs the full pipeline on a real sample of 5 PRs from `microsoft/vscode` and asserts that `results/final_report.md` and `results/metrics.json` are created and contain non‑empty metric fields.  
-  * Contract tests `tests/contract/test_schema_validation.py` that validate **all** JSON outputs against the YAML schemas in `contracts/`.  
-  *Verification*: `pytest -q` returns exit 0 and all listed test files are present.  
+- [ ] T014 [P] [FR‑014] [FR‑007] Implement reporting script `code/src/reporting/generate_report.py`.
+    * Produces `results/final_report.md` (tables, p-values, effect sizes, associational framing statement per FR-014) and `results/metrics.json`.
+    *Verification*: Both files are non-empty; markdown renders a table; associational framing is explicitly stated.
 
-- [ ] **T014** Write `quickstart.md` (and update `README.md`) with a step‑by‑step example:  
+- [ ] T015 [P] Implement independent manual validation set collection `data/validation/manual_set.json`.
+    * Randomly sample PRs and store senior developer verifications.
+    *Verification*: `data/validation/manual_set.json` exists and is used by `T011` to compute `llm_only_recall`.
 
-  ```bash
-  export GITHUB_TOKEN=your_token_here
-  python -m src.cli.main --config config/settings.py --run all
-  ```  
+- [ ] T016 [P] Implement preliminary PR extraction verification (10-PR check) `code/src/extraction/fetch_prs.py --test-set 10`.
+    * Assert each output JSON contains non‑empty `diff`, `human_review_comments`, and `linked_issue_ids`.
+    *Verification*: Command exits 0.
 
-  The guide must list required environment variables, describe how to reproduce the small‑sample run (`--run sample`), and point to the location of the final report.  
-  *Verification*: both markdown files contain the exact snippet above and a “Running the pipeline” section that matches the description.  
+- [ ] T017 [P] Create analysis plan document `analysis/plan.md` via `code/src/reporting/create_analysis_plan`.
+    * Document α=0.05, test families, Benjamini-Hochberg correction, and effect-size conventions.
+    *Verification*: `analysis/plan.md` exists and contains the specified statistical parameters.
 
----  
+- [ ] T018 [P] Implement pre-run profiling & sample capping `code/src/pipeline/profiler.py`.
+    * Estimate per-PR runtime; if projected > 6h, cap full run at 200 PRs and log `"sample_capped"` event.
+    *Verification*: Profiler logs an estimate and correctly triggers capping if thresholds are exceeded.
 
-## Phase 6 – Verification checklist  
+- [ ] T019 [P] Implement seed provenance in `code/src/pipeline/logging_utils.py`.
+    * Log the effective random seed at start (`event: "seed_used"`) and write it to `data/results/final_report.json`.
+    *Verification*: `logs/pipeline.jsonl` contains a `"seed_used"` event; final report contains the matching seed.
+
+---
+
+## Phase 6 – Verification checklist
 
 | Check | Expected artifact |
 |-------|-------------------|
-| Directory layout created | `src/`, `src/utils/`, `data/`, `results/`, `tests/`, `contracts/` |
-| Dependencies installed | `requirements.txt` |
-| Linting config present | `pyproject.toml` |
-| Timeout & logger utilities | `src/utils/timeout_wrapper.py`, `src/utils/logger.py` |
-| CLI orchestrator | `src/cli/main.py` |
-| Schemas & contracts | `src/*/schema.py`, `contracts/*.yaml` |
-| Raw PR data & checksums | `data/raw/prs.json`, `data/raw/checksums.json` |
-| Processed PRs, comments, ground truth | `data/derived/prs_cleaned.json`, `data/annotations/human_comments.json`, `data/derived/human_ground_truth.json` |
-| LLM‑code detection flags | `data/derived/llm_code_flags.json` |
+| Directory layout created | `code/` sub-folders |
+| Dependencies installed | `code/requirements.txt` |
+| Logger & timeout utilities | `code/src/pipeline/logging_utils.py`, `code/src/pipeline/runtime_guard.py` |
+| CLI orchestrator | `code/src/cli/main.py` |
+| `BugDetection` dataclass | `code/src/detection/schema.py` |
+| Raw PR data & checksums | `data/raw/prs.jsonl`, `data/raw/checksums.json` |
+| Processed PRs & GT | `data/derived/prs_cleaned.json`, `data/derived/human_ground_truth.json` |
 | LLM inference output | `data/derived/llm_bugs.json` |
-| Alignment & metric files | `data/derived/alignments.json`, `data/derived/metrics_threshold_0.85.json` |
-| Sensitivity analysis | `data/derived/sensitivity_analysis.csv` |
-| Runtime report | `data/derived/runtime_report.json` |
-| Final report & metrics copy | `results/final_report.md`, `results/metrics.json` |
-| Test suite passing | `pytest -q` returns 0 |
-| Quickstart documentation | `quickstart.md`, updated `README.md` |
+| Alignment & metrics | `data/derived/alignments.json`, `data/derived/metrics_threshold_0.85.json` |
+| Sensitivity analysis | `data/results/sensitivity_analysis.csv` |
+| Runtime record (SC-004) | `data/results/runtime.json` |
+| Final report | `results/final_report.md`, `results/metrics.json` |
+| Analysis Plan | `analysis/plan.md` |
+| Seed provenance | `logs/pipeline.jsonl` (`seed_used`) |
 
----  
-
-**Execution order**  
-
-1. **Phase 1** – T001 → T005 (sequential).  
-2. **Phase 2** – T006 → T008 (depends on Phase 1).  
-3. **Phase 3** – T009a → T009 (depends on Phase 2).  
-4. **Phase 4** – T010 → T011 → T016 (depends on Phase 3).  
-5. **Phase 5** – T012 → T013 → T014 (depends on Phase 4).  
-
-All tasks remain unchecked (`- [ ]`) until their implementation and verification succeed. When a task is completed, the corresponding checkbox should be marked `[X]` by the developer.
+**Execution order**:
+T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009a → T009 → T010 → T011 → T012 → T013 → T014 → T015 → T016 → T017 → T018 → T019.
