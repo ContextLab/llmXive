@@ -1,16 +1,16 @@
 status: none
-intent: NREL perovskite database elemental maps Materials Project API python package
-  dataset
+intent: download NREL Perovskite Database EDS maps and Materials Project performance
+  data python package
 required_fields:
 - sample_id
-- pb_eds_map
-- i_eds_map
-- ma_eds_map
+- pb_eds_map_path
+- i_eds_map_path
+- ma_eds_map_path
 - pce
 - j_sc
 - v_oc
-- pixel_grid_resolution
-- source_database
-cache_key: d85ec264121ac8e03df28a7bc792746287584f70bf2e9d6783fd5f0ba00534dc
-searched_at: '2026-10-16T04:12:24.130963+00:00'
+- pixel_grid_width
+- pixel_grid_height
+cache_key: c5cab02dc3fd38fea05279295ef5332350326a50cd429c5b07b2da36910c63d6
+searched_at: '2026-10-16T06:13:56.979269+00:00'
 retry_count: 1

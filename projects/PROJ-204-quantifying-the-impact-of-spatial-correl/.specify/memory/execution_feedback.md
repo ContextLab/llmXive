@@ -43,7 +43,7 @@ E   ImportError: cannot import name 'compute_autocorrelation' from partially ini
 =========================== short test summary info ============================
 ERROR tests/unit/test_spatial_metrics.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.58s ===============================
+=============================== 1 error in 0.60s ===============================
 
 
 - python -m pytest tests/integration/test_pipeline.py -v -> rc=4
