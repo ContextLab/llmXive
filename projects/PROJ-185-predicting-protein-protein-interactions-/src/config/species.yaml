@@ -1,0 +1,6 @@
+Arabidopsis:
+  accessions:
+    - GSE5620          # expected ≥30 samples, will be downloaded
+    - GSE152416        # <30 samples, will be skipped
+  held_out_series: GSE152416
+  min_samples: 50

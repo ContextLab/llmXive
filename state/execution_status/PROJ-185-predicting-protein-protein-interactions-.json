@@ -6,11 +6,11 @@
   "failures": [
     "python scripts/verify_outputs.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-185-predicting-protein-protein-interactions-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-185-predicting-protein-protein-interactions-/scripts/verify_outputs.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 10,
-  "model_tier": 1,
+  "fix_rounds": 0,
+  "model_tier": 2,
   "total_attempts": 10,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-07T03:27:50Z"
+  "updated_at": "2026-10-16T15:29:43Z"
 }

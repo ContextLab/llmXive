@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 516bbfaf3664879935e7acf9c1a48fdefb3a5134da6b8f74e8259d2c7edfa684
-  r: The `src/` directory contains a `utils/` subdirectory and `tests/` contains a
-    `unit/` subdirectory, so they are not empty as required. Moreover, the verification
-    script `tests/unit/test_skeleton.py` is missing, so the CI test that asserts the
-    directories exist cannot run.
-  sig: 17dbc1d2c9dcaef82dc541c9d3de2420aa92213da180009e4cef5e7cf9a667b2
 T002:
   c: true
   h: 1e2e5cb44ccb6661a129db2b05f516c24b3043bee715a10b1038a52bbf02c258
@@ -15,34 +7,15 @@ T002:
     \ artifact is present and correctly formatted."
   sig: 4659f5ce74eeb08706b5601f0976ea25222a23c18f8e938225ceba287a8c5fa7
 T003:
-  c: true
-  h: e59b4fef98e426b4e92219d73bf4e138ab91685a63a35779c9455c00aaea00ed
-  r: "Checked that `requirements.txt` (253\u202Fbytes) lists the same pinned packages\
-    \ in the same order as the `dependencies` array in `pyproject.toml`, and confirmed\
-    \ the unit test `tests/unit/test_requirements_match.py` ran successfully (exit\u202F\
-    0, test passed). The artifacts match exactly, fulfilling the task."
-  sig: 4f8c705c53f0e3fa3323483ddc27e2419037223ebe2d9510304dbd9e80561568
-T004:
   c: false
-  h: 7fbdb06dcbb71da7ec7aca759ed95b4d5b010880393a95048de167a6e83b0bb0
-  r: "The evidence shows that `src/config/species.yaml` and `src/config/parameters.yaml`\
-    \ are marked **MISSING**, so the required configuration files do not exist at\
-    \ the specified location. Consequently the task\u2019s core deliverable (the two\
-    \ YAML files with the prescribed keys and values) is not present, even though\
-    \ the unit\u2011test script happened to pass by looking in a different path. The\
-    \ missing YAML files must be added under `src/config/` with the correct structure\
-    \ for the task to be complete."
-  sig: 9eaf7532821a0d7d564ac6f945ad6610f2dfaea35f65bb3b36532b7166783667
-T005:
-  c: false
-  h: 76dee3e7d1f185557ca1f153349a6881c6b9bdcf3ee790fb55ea71dae483b90a
-  r: Checked `src/utils/cli.py` and `src/utils/random.py` (both present) and the required
-    `src/logs/pipeline.log`, `tests/unit/test_seed_flag.py`, and `results/predicted_ppi_Arabidopsis.tsv`
-    (all missing). Moreover, the CLI logger writes to `results/pipeline.log` instead
-    of the required `src/logs/pipeline.log`, so the seed, command line, and software
-    versions are not recorded in the correct file. The test suite and reproducibility
-    check cannot be performed.
-  sig: f8c369b6d8e5c400c5bbbba6a062425d46d0d86bb6cebb5859a46f385b1f03ea
+  h: 33f554a750a45c7cecb75fb5e8ccbc6c3136486a180fe521917e0c13cab09008
+  r: "The `requirements.txt` lists different packages and version pins than the `pyproject.toml`\
+    \ (e.g., `scipy==1.13.1` vs `1.13.0`, `matplotlib==3.9.2` vs `3.8.4`, missing\
+    \ `rpy2`, `goatools`, `networkx`, and extra `lxml`, `pytz`). Consequently the\
+    \ test that checks line\u2011by\u2011line equality would fail with the current\
+    \ files. The task needs a `requirements.txt` that exactly mirrors the `pyproject.toml`\
+    \ dependencies."
+  sig: d8fd3c7b2927421ca5ec0a7dbe4acd87079e9611d23de495ff7b7458efca0738
 T006:
   c: false
   h: 9693a943e467bab83f49bd7f0b78e97da79bf0a078e78781b65ef70e63f6702c

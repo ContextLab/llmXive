@@ -18,7 +18,7 @@ Tasks are ordered to respect data flow; parallel‑izable tasks are marked with 
   - **Output**: `pyproject.toml` at project root.  
   - **Verification**: `tests/unit/test_pyproject_pins.py` parses the file and fails if any dependency lacks an `==` specifier.  
 
-- [X] T003 [US1] Create a matching `requirements.txt` that lists the exact same pinned versions as `pyproject.toml`.  
+- [ ] T003 [US1] Create a matching `requirements.txt` that lists the exact same pinned versions as `pyproject.toml`.  
   - **Output**: `requirements.txt`.  
   - **Verification**: `tests/unit/test_requirements_match.py` reads both files and asserts line‑by‑line equality of package names and versions.  
 
@@ -35,7 +35,7 @@ Tasks are ordered to respect data flow; parallel‑izable tasks are marked with 
 
 ## Phase 2 – Data Acquisition  
 
-- [ ] T006 [US1] Implement `src/pipeline/download_geo.py` that reads `species.yaml`, downloads each GEO series with **GEOparse**, skips any series with `<30` samples (log a warning), writes the raw `.tar.gz` files to `data/raw/`, and records a SHA‑256 checksum for every downloaded file in `data/artifact_hashes.yaml`.  
+- [ ] T006 [US1] Implement `src/pipeline/download_geo.py` that reads `species.yaml`, downloads each GEO series with **GEOparse**, skips any series with `<30` samples (log a warning), writes the raw `.tar.gz` files to `data/raw/`, and records a SHA‑256 checksum for every downloaded file in `data/artifact_hashes.yaml`.   <!-- FAILED-IN-EXECUTION: src/pipeline/download_geo.py exit=1 -->
   - **Output**: Raw GEO archives in `data/raw/`; updated `data/artifact_hashes.yaml`.  
   - **Verification**: `tests/unit/test_geo_downloader.py` confirms that each expected file exists, that its checksum matches the recorded value, and that series with insufficient samples are omitted.  
 

@@ -25,6 +25,7 @@ import argparse
 import json
 import sys
 import platform
+import random
 from datetime import datetime, timezone
 from pathlib import Path
 
