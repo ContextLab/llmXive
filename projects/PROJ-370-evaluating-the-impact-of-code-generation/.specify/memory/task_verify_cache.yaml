@@ -1,11 +1,24 @@
 T001:
+  c: true
+  h: 523439ed345e621040e9e0b85ed56b8c031c515f7534d1a983933f1775c22a61
+  r: "Checked the `code/` directory tree and the `.tasks/T001.code_setup_project_structure.py.log`,\
+    \ which confirm that all required sub\u2011directories (src/*, tests/*, data/*,\
+    \ logs, and specs/001\u2011eval\u2011llm\u2011review\u2011quality/contracts) were\
+    \ created. The directory layout matches the specification."
+  sig: 03d4aaac2147c7324f5931a7362ee52c2450a49a5ff0a04c2c011546849a601b
+T002:
   c: false
-  h: 8af8c9402450a9e1d70076b5f5d6f6982f13adceea5bad2ed5be0cf738a5a0a9
-  r: "The `code/src/*`, `code/tests/*`, `code/data/*`, and `code/logs` directories\
-    \ all exist and the setup script ran successfully (exit 0). However, the task's\
-    \ verification command explicitly requires `specs/001-eval-llm-review-quality/contracts`,\
-    \ while the execution log shows the script created a differently-named path, `specs/001-evaluating-the-impact-of-code-generation/contracts`,\
-    \ and no evidence confirms the requested `001-eval-llm-review-quality/contracts`\
-    \ directory exists \u2014 the implementer should create the exact requested path\
-    \ (or reconcile the naming with the feature branch slug)."
-  sig: b576e275e4ae9b419b80f0bf8bbd87fbdef1fb8275d4e05e7e16f9dd20f9b092
+  h: 13ff49a43ae95ea579debe77b2478e958460fda4626b6a3cfd2a3c08d61ddc46
+  r: "The `code/src/config/settings.py` file is missing, and `code/requirements.txt`\
+    \ does not pin the `detectgpt` package (it appears without a version specifier),\
+    \ violating the task\u2019s specification."
+  sig: f0e6790575e27d843f0fdc9d6971de954cc6996bea4c56890e7f6b969e4c0b7a
+T004:
+  c: false
+  h: c07396fbb47a6ae09f7af7adcf6d86d3b736199f733547b800ffe5b84bec0a8b
+  r: 'The `logging_utils.py` and its test pass, but `test_runtime_guard.py` fails
+    (NameError: `json` not imported), so `pytest` does not exit with 0. Additionally,
+    the required schema file `contracts/run_log_event_schema.yaml` is missing, meaning
+    the logger cannot be verified to produce conformant events. Fix the test (import
+    `json`) and provide the schema file to satisfy the task.'
+  sig: 3b76cb70f1884788752fe79060993821c0efb789f40543d863131c11bcdb2bd8

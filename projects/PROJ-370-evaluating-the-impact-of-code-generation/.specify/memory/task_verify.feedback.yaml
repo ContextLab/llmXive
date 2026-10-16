@@ -1,17 +1,22 @@
 T001:
-  reason: "The `code/src/*`, `code/tests/*`, `code/data/*`, and `code/logs` directories\
-    \ all exist and the setup script ran successfully (exit 0). However, the task's\
-    \ verification command explicitly requires `specs/001-eval-llm-review-quality/contracts`,\
-    \ while the execution log shows the script created a differently-named path, `specs/001-evaluating-the-impact-of-code-generation/contracts`,\
-    \ and no evidence confirms the requested `001-eval-llm-review-quality/contracts`\
-    \ directory exists \u2014 the implementer should create the exact requested path\
-    \ (or reconcile the naming with the feature branch slug)."
   task: 7063366f657d2675ca8d35ffea3fa9ed608d120baa0b5c5b4d3c54c635cd089d
 T002:
+  reason: "The `code/src/config/settings.py` file is missing, and `code/requirements.txt`\
+    \ does not pin the `detectgpt` package (it appears without a version specifier),\
+    \ violating the task\u2019s specification."
   task: f83b58eca9fe97ffbf32282b00730410fee134a80d58c180c57b12787eeb86b7
 T003:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/ci.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 32fecda622fb27b6a8d75d214bfd564728694ee6e29f8bad4c963d889194382c
 T004:
+  reason: 'The `logging_utils.py` and its test pass, but `test_runtime_guard.py` fails
+    (NameError: `json` not imported), so `pytest` does not exit with 0. Additionally,
+    the required schema file `contracts/run_log_event_schema.yaml` is missing, meaning
+    the logger cannot be verified to produce conformant events. Fix the test (import
+    `json`) and provide the schema file to satisfy the task.'
   task: 36b12a7801c6e1561c526368f847a62527a1889d107e970dbd1629163e3541a2
 T005:
   task: 32b78de6a20724063abd7f2a71a84c5c2a1c8aa505ea1a47b840b7785b70b55b

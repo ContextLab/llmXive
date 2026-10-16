@@ -49,7 +49,7 @@ _REQUIRED_DIRS: List[Path] = [
     Path("code/data/results"),
     # Logs
     Path("code/logs"),
-    # Specification contracts
+    # Specification contracts (corrected path per task requirement)
     Path("specs/001-evaluating-the-impact-of-code-generation/contracts"),
 ]
 

@@ -1,0 +1,10 @@
+{"timestamp": 1792154620.2042696, "level": "INFO", "name": "__main__", "message": "Global timeout set to 6.00 hours", "extra": {"name": "__main__"}}
+{"timestamp": 1792154620.204384, "level": "INFO", "name": "__main__", "message": "Phases to execute: []", "extra": {"name": "__main__"}}
+{"timestamp": 1792154620.204441, "level": "INFO", "name": "__main__", "message": "Pipeline execution finished.", "extra": {"name": "__main__"}}
+{"timestamp": 1792154740.7785506, "level": "INFO", "name": "__main__", "message": "Global timeout set to 6.00 hours", "extra": {"name": "__main__"}}
+{"timestamp": 1792154740.7786803, "level": "INFO", "name": "__main__", "message": "Phases to execute: ['extraction', 'detection', 'inference', 'analysis', 'reporting']", "extra": {"name": "__main__"}}
+{"timestamp": 1792154740.7787485, "level": "INFO", "name": "__main__", "message": "Remaining time budget: 21600.00 seconds", "extra": {"name": "__main__"}}
+{"timestamp": 1792154740.7787938, "level": "INFO", "name": "root", "message": "=== Extraction Phase ===", "extra": {"name": "root"}}
+{"timestamp": 1792154740.8011444, "level": "INFO", "name": "root", "message": "Running src.extraction.fetch_prs.main()", "extra": {"name": "root"}}
+{"timestamp": 1792154740.8012657, "level": "INFO", "name": "src.extraction.fetch_prs", "message": "Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']", "extra": {"name": "src.extraction.fetch_prs"}}
+{"timestamp": 1792154740.801433, "level": "INFO", "name": "src.extraction.fetch_prs", "message": "Fetching PRs for microsoft/vscode...", "extra": {"name": "src.extraction.fetch_prs"}}

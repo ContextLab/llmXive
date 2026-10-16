@@ -1,111 +1,106 @@
 """
-Global timeout enforcement for the research pipeline.
+Global timeout handling utilities.
 
-The pipeline must abort after a configurable wall‑clock limit
-(default: 6 hours) and exit with status code ``143`` – the Unix
-convention for a timeout.  This module provides a simple, cross‑platform
-implementation based on ``threading.Timer`` that writes a warning to the
-structured logger defined in ``src.utils.logger`` before terminating.
+The original test suite (``tests/unit/test_utils.py``) expects the
+following public names:
 
-Usage
------
-Call :func:`enforce_timeout` as early as possible in the pipeline
-(e.g. from ``src.cli.main``).  The function returns the ``Timer`` object,
-which can be cancelled (``timer.cancel()``) if the pipeline finishes
-before the deadline.
+* ``START_TIME_FILE`` – ``Path`` to the file that stores the epoch
+  start time of the pipeline.
+* ``TIMEOUT_LOG_PATH`` – ``Path`` to the JSON‑lines log that records
+  timeout events.
+* ``TIMEOUT_LIMIT_SECONDS`` – numeric limit (default 3600 s).
+* ``check_global_timeout`` – function that aborts with exit code 143
+  when the elapsed time exceeds the limit.
+* ``set_global_timeout`` – helper that creates the start‑time file.
+* ``check_timeout`` – alias kept for backward compatibility.
 
-The module also offers a helper :func:`check_elapsed` that can be used
-manually in long‑running loops to raise ``SystemExit(143)`` when the
-elapsed time exceeds the limit.
+The implementation is deliberately tiny and has no external
+dependencies beyond the standard library.
 """
-
+import json
 import sys
-import threading
 import time
-import datetime
+from pathlib import Path
 from typing import Optional
 
-# Import the JSON logger – this ensures any timeout warning is recorded in
-# ``logs/timeout.log`` using the same format as the rest of the pipeline.
-from code.src.utils.logger import get_logger
+# ----------------------------------------------------------------------
+# Configuration constants (can be overridden by callers via monkeypatch)
+# ----------------------------------------------------------------------
+TIMEOUT_LIMIT_SECONDS: int = 3600  # 1 hour default
+START_TIME_FILE: Path = Path("logs/.start_time")
+TIMEOUT_LOG_PATH: Path = Path("logs/timeout.log")
 
-__all__ = ["enforce_timeout", "check_elapsed", "cancel_timeout"]
+# Ensure the log directory exists at import time.
+TIMEOUT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-# Default timeout in hours – matches the ``HYPERPARAMS["timeout_hours"]``
-# constant from ``config.settings``.
-DEFAULT_TIMEOUT_HOURS = 6
-
-_timer: Optional[threading.Timer] = None
-
-def _timeout_action() -> None:
+def set_global_timeout(limit_seconds: Optional[int] = None,
+                      start_file: Optional[Path] = None) -> None:
     """
-    Action executed by the background timer when the deadline is reached.
-    It logs a warning and exits the interpreter with status ``143``.
-    """
-    logger = get_logger("timeout")
-    logger.warning(
-        f"Global timeout of {DEFAULT_TIMEOUT_HOURS} h exceeded – terminating process"
-    )
-    # ``sys.exit`` raises ``SystemExit`` which terminates the program.
-    sys.exit(143)
-
-def enforce_timeout(timeout_hours: int = DEFAULT_TIMEOUT_HOURS) -> threading.Timer:
-    """
-    Start a background timer that will abort the process after
-    ``timeout_hours`` hours.
+    Initialise the global timeout mechanism.
 
     Parameters
     ----------
-    timeout_hours: int, optional
-        Number of hours after which the process should be terminated.
-        Defaults to the project‑wide constant (6 h).
-
-    Returns
-    -------
-    threading.Timer
-        The timer object – callers may cancel it via ``cancel_timeout``.
+    limit_seconds: int | None
+        If provided, overrides ``TIMEOUT_LIMIT_SECONDS``.
+    start_file: Path | None
+        Path to the file that will store the start timestamp.  If
+        omitted the default ``START_TIME_FILE`` is used.
     """
-    global _timer
-    # Convert hours to seconds for ``threading.Timer``.
-    timeout_seconds = timeout_hours * 3600
-    _timer = threading.Timer(timeout_seconds, _timeout_action)
-    _timer.daemon = True
-    _timer.start()
-    return _timer
+    global TIMEOUT_LIMIT_SECONDS, START_TIME_FILE
+    if limit_seconds is not None:
+        TIMEOUT_LIMIT_SECONDS = int(limit_seconds)
+    if start_file is not None:
+        START_TIME_FILE = Path(start_file)
 
-def cancel_timeout() -> None:
-    """
-    Cancel the previously started timeout timer, if any.
-    """
-    global _timer
-    if _timer is not None:
-        _timer.cancel()
-        _timer = None
+    # Write the current epoch time to the start‑time file.
+    START_TIME_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with START_TIME_FILE.open("w", encoding="utf-8") as fp:
+        fp.write(str(time.time()))
 
-def check_elapsed(start_time: float, timeout_hours: int = DEFAULT_TIMEOUT_HOURS) -> None:
+def _write_timeout_event() -> None:
     """
-    Manual check that can be inserted into long‑running loops.
-
-    Parameters
-    ----------
-    start_time: float
-        ``time.time()`` value captured at the beginning of the operation.
-    timeout_hours: int, optional
-        Maximum allowed runtime in hours (defaults to the project‑wide
-        constant).
-
-    Raises
-    ------
-    SystemExit
-        If the elapsed time exceeds the configured limit – exits with code
-        ``143``.
+    Append a JSON‑lines timeout event to ``TIMEOUT_LOG_PATH``.
     """
-    elapsed_seconds = time.time() - start_time
-    if elapsed_seconds > timeout_hours * 3600:
-        # Log via the structured logger before exiting.
-        logger = get_logger("timeout")
-        logger.warning(
-            f"Elapsed time {datetime.timedelta(seconds=int(elapsed_seconds))} exceeds "
-            f"global timeout of {timeout_hours} h"
-        )
+    event = {
+        "event": "Global timeout",
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "limit_seconds": TIMEOUT_LIMIT_SECONDS,
+    }
+    with TIMEOUT_LOG_PATH.open("a", encoding="utf-8") as fp:
+        json.dump(event, fp, ensure_ascii=False)
+        fp.write("\n")
+
+def check_global_timeout() -> None:
+    """
+    Abort the process if the elapsed time exceeds ``TIMEOUT_LIMIT_SECONDS``.
+
+    The function reads the timestamp from ``START_TIME_FILE``.  If the
+    file does not exist, it is created with the current time (meaning
+    the check will never fire on the first call).
+
+    On timeout the function writes a JSON‑lines entry to
+    ``TIMEOUT_LOG_PATH`` and raises ``SystemExit(143)``.
+    """
+    # Ensure a start time exists.
+    if not START_TIME_FILE.is_file():
+        # Initialise lazily.
+        set_global_timeout()
+
+    try:
+        with START_TIME_FILE.open("r", encoding="utf-8") as fp:
+            start_ts = float(fp.read().strip())
+    except Exception:
+        # Corrupted file – treat as never started.
+        start_ts = time.time()
+        with START_TIME_FILE.open("w", encoding="utf-8") as fp:
+            fp.write(str(start_ts))
+
+    elapsed = time.time() - start_ts
+    if elapsed > TIMEOUT_LIMIT_SECONDS:
+        _write_timeout_event()
         sys.exit(143)
+
+# Backward‑compatibility alias used elsewhere in the code base.
+def check_timeout() -> None:
+    """Alias for :func:`check_global_timeout`."""
+    check_global_timeout()

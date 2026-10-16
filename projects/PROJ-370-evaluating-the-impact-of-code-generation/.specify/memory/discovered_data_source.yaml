@@ -1,16 +1,19 @@
 status: none
-intent: GHTorrent pull request diffs review comments linked issues python package
-  dataset
+intent: download GHTorrent GitHub pull request diffs review comments linked issues
+  python package dataset
 required_fields:
 - pr_id
-- repository
+- repo_full_name
 - pr_number
-- diff
-- review_comments
-- linked_issue_ids
-- author
-- created_at
-- merged_at
-cache_key: b87c0cef061b86c4151738a8f37d6f5f82ee0463f230a51d565a8587c94502ae
-searched_at: '2026-10-16T12:31:57.793933+00:00'
+- pr_title
+- pr_body
+- pr_created_at
+- pr_closed_at
+- pr_merged_at
+- author_login
+- diff_text
+- added_line_count
+- removed_line_count
+cache_key: 5bae7c9c607e8d89a33d1c5d53578b40515ae3bf992f101e505502537a3e3ac0
+searched_at: '2026-10-16T12:50:02.402572+00:00'
 retry_count: 1

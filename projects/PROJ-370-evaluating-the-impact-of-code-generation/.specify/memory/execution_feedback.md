@@ -7,51 +7,41 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest tests/ -v -> rc=2
-___________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/tests/unit/test_utils.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_utils.py:6: in <module>
-    from src.utils.timeout_wrapper import check_global_timeout, START_TIME_FILE, TIMEOUT_LOG_PATH, TIMEOUT_LIMIT_SECONDS
-E   ImportError: cannot import name 'check_global_timeout' from 'src.utils.timeout_wrapper' (/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/utils/timeout_wrapper.py)
+rom code.src.extraction.preprocess import (
+E   ImportError: cannot import name 'generate_human_baseline' from 'code.src.extraction.preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/code/src/extraction/preprocess.py)
+_________ ERROR collecting tests/unit/test_setup_project_structure.py __________
+import file mismatch:
+imported module 'test_setup_project_structure' has this __file__ attribute:
+  /home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/tests/test_setup_project_structure.py
+which is not the same as the test file we want to collect:
+  /home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/tests/unit/test_setup_project_structure.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
 =========================== short test summary info ============================
 ERROR tests/test_preprocess.py
-ERROR tests/unit/test_preprocess_and_ground_truth.py
 ERROR tests/unit/test_setup_project_structure.py
-ERROR tests/unit/test_utils.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.27s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 0.21s ===============================
 
 
 - python -m src.extraction.fetch_prs --test-set 10 -> rc=-1
 
-2026-10-16 12:25:32,737 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
-2026-10-16 12:25:32,737 - __main__ - INFO - Fetching PRs for microsoft/vscode...
+2026-10-16 12:43:40,751 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
+2026-10-16 12:43:40,751 - __main__ - INFO - Fetching PRs for microsoft/vscode...
+2026-10-16 12:45:05,258 - __main__ - ERROR - Request failed for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=35&per_page=100: HTTP Error 502: Bad Gateway
+2026-10-16 12:45:05,258 - __main__ - ERROR - Failed to fetch PRs for microsoft/vscode: HTTP Error 502: Bad Gateway
+2026-10-16 12:45:05,290 - __main__ - INFO - Fetching PRs for pytorch/pytorch...
 
 [TIMEOUT after 120s]
 - python -m src.cli.main --run all --max-prs 500 --seed 42 -> rc=-1
-2026-10-16 12:27:32,843 [INFO] __main__: Global timeout set to 6.00 hours
-2026-10-16 12:27:32,843 [INFO] __main__: Phases to execute: ['extraction', 'detection', 'inference', 'analysis', 'reporting']
-2026-10-16 12:27:32,843 [INFO] __main__: Remaining time budget: 21600.00 seconds
-2026-10-16 12:27:32,843 [INFO] root: === Extraction Phase ===
-2026-10-16 12:27:32,866 [INFO] root: Running src.extraction.fetch_prs.main()
-2026-10-16 12:27:32,866 [INFO] src.extraction.fetch_prs: Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
-2026-10-16 12:27:32,866 [INFO] src.extraction.fetch_prs: Fetching PRs for microsoft/vscode...
-2026-10-16 12:28:47,586 [WARNING] src.extraction.fetch_prs: Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=35&per_page=100.
-2026-10-16 12:28:47,587 [WARNING] src.extraction.fetch_prs: Rate limit hit. Sleeping for 60 seconds.
 
 
 [TIMEOUT after 120s]
 - python -m src.extraction.fetch_prs --repos microsoft/vscode pytorch/pytorch tensorflow/tensorflow --max-prs 500 -> rc=-1
 
-2026-10-16 12:29:32,889 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
-2026-10-16 12:29:32,889 - __main__ - INFO - Fetching PRs for microsoft/vscode...
-2026-10-16 12:29:32,966 - __main__ - WARNING - Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=1&per_page=100.
-2026-10-16 12:29:32,966 - __main__ - WARNING - Rate limit hit. Sleeping for 60 seconds.
-2026-10-16 12:30:33,066 - __main__ - WARNING - Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=1&per_page=100.
-2026-10-16 12:30:33,066 - __main__ - WARNING - Rate limit hit. Sleeping for 60 seconds.
+2026-10-16 12:47:40,844 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
+2026-10-16 12:47:40,844 - __main__ - INFO - Fetching PRs for microsoft/vscode...
+2026-10-16 12:47:56,291 - __main__ - WARNING - Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=8&per_page=100.
+2026-10-16 12:47:56,292 - __main__ - WARNING - Rate limit hit. Sleeping for 60 seconds.
 
 [TIMEOUT after 120s]
 
