@@ -1,15 +1,14 @@
 status: none
-intent: CodeVulnBench dataset download huggingface Juliet Test Suite CWE taxonomy
-  python package dataset
+intent: download CodeVulnBench Juliet Test Suite CWE taxonomy the-stack dataset python
+  package dataset
 required_fields:
 - file_id
-- file_name
+- file_path
+- source_type
+- programming_language
 - code
-- language
-- source
-- cwe_id
-- vulnerability_label
-- sha256
-cache_key: 23aff255b0ee3a9d30245b0864fa8dc2c78832c401fff10e185f0d2a668515b1
-searched_at: '2026-10-16T18:27:35.215289+00:00'
+- ground_truth_cwe_ids
+- ground_truth_vulnerability_count
+cache_key: 98e25bb91c3989eba72d3e9a6bdefaac1fcb88218b06991018caf53f9e633556
+searched_at: '2026-10-16T18:43:49.110307+00:00'
 retry_count: 1

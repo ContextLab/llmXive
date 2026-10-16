@@ -15,7 +15,7 @@ properties:
         rel_path:
           type: "string"
         source_group:
-          enum: ["llm", "human"]
+          enum: ["llm", "human", "proxy"]
         language:
           enum: ["python", "javascript", "java", "other"]
         loc:

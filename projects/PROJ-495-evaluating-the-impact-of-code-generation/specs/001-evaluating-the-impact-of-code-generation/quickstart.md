@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11 installed.
 - Docker installed (required for SonarQube Community Edition).
-- Sufficient free disk space for streaming datasets (no large pre‑download needed).
+- At least 10 GB of free disk space (datasets are streamed; no full download required).
 - No GPU required.
 
 ## Setup
@@ -17,55 +17,53 @@ pip install radon
 
 ## Start SonarQube (required for FR‑002)
 ```bash
-# Pull the official SonarQube image (a sizable Docker image) and run it in the background.
+# Pull the official SonarQube image and run it in the background.
 docker pull sonarqube:latest
 docker run -d --name sonarqube -p 9000:9000 sonarqube:latest
 # Wait a few seconds for the server to become healthy.
-sleep 10
+sleep 15
 ```
 
-## Smoke Run (representative file subset) – validates US‑1
+## Smoke Run (US‑1 validation) – processes a small subset
 ```bash
 python -m src.pipeline --smoke 50
 ```
-What to check:
-- `data/derived/file_manifest.csv` contains a substantial number of entries.
-- `per_file_analysis.csv` has valid `vulnerability_count`, `deduped_vulnerability_count`, `corrected_vulnerability_count`, and CWE IDs for each file.
-- No unhandled exceptions; runtime ≤ 5 min.
+**What to check**
+- `data/derived/file_manifest.csv` lists ≥ 45 entries (≥ 90 % of the subset).  
+- `per_file_analysis.csv` contains non‑negative `vulnerability_count` and a defined `density` (or `"undefined"` for zero‑LOC files).  
+- No unhandled exceptions; total runtime ≤ 5 min.
 
 ## Full Run
 ```bash
 python -m src.pipeline
 ```
-Executes all phases in order:
-1. Downloads corpora (or aborts with a clear data‑availability error).  
-2. Runs Bandit, **and SonarQube** (via Docker), writes `findings_raw.csv` and then `findings.csv` after deduplication.  
-3. Computes raw and audit‑adjusted densities → `group_summary.csv`.  
-4. Performs power analysis, over‑dispersion check, NB (or Poisson fallback) regression with **cluster‑robust SE**, and Mann‑Whitney U, applies Holm‑Bonferroni correction → `statistical_tests.csv`.  
-5. Generates audit sample (`audit_sample.csv`).  
-6. Produces figures (`results/figures/density_boxplot.*`, `cwe_distribution.*`).  
+The pipeline executes all phases in order:
+1. **Ingest** – attempts to download the **CodeVulnBench** (LLM‑generated) and **Juliet Test Suite** (human‑written) datasets. If either dataset is missing or its checksum cannot be verified, the pipeline aborts with a clear error message and stops. No proxy data are used.
+2. **Static analysis** – runs Bandit, Semgrep, and SonarQube (Docker).  
+3. **Deduplication**, **complexity**, **density**, **audit‑adjusted counts**.  
+4. **Statistical tests** – power analysis, over‑dispersion check, NB regression (or Poisson fallback), Mann‑Whitney U, Benjamini‑Hochberg correction.  
+5. **Audit sample** generation (`audit_sample.csv`). Findings in this sample are **excluded** from the regression dataset.  
+6. **Figures** – boxplot and CWE bar chart saved under `results/figures/`.  
 
 ### Manual Audit (FR‑007)
-1. Open `data/derived/audit_sample.csv` and fill the `verdict` column.  
+1. Open `data/derived/audit_sample.csv` and fill the `verdict` column (`true_positive` / `false_positive`).  
 2. Run:
 ```bash
 python -m src.audit --compute-metrics
 ```
-Outputs `results/tables/audit_metrics.csv` with precision, recall, and **tool‑specific** false‑positive rates and group‑level FPR.
+Outputs `results/tables/audit_metrics.csv` with precision, recall, and **tool‑specific** false‑positive rates, plus group‑level FPRs.
 
 ## Tests
 ```bash
 cd code && pytest
 ```
-Includes:
+Tests include:
 - Unit tests for each module.  
-- Contract validation against `specs/001-evaluating-the-impact-of-code-generation/contracts/*.schema.yaml`.  
-- Synthetic data tests confirming that the NB regression returns a known p‑value within 0.001 of the expected value (US‑3) and that density calculations (including audit correction) match expected values (US‑2).
+- Contract validation against the three YAML schemas in `specs/001-evaluating-the-impact-of-code-generation/contracts/`.  
+- Synthetic data checks confirming that the NB regression returns a known p‑value within 0.001 of the expected value (US‑3) and that density calculations (including audit correction) match expected values (US‑2).
 
 ## Expected Failure Mode
-If **both** the LLM‑generated code corpus **and** the human code subset cannot be downloaded **with verified URLs**, the pipeline exits with a non‑zero status and prints a concise error listing the attempted URLs. No synthetic data are created; the failure prompts a spec amendment to provide a verifiable open dataset.
+If **both** the CodeVulnBench and Juliet datasets remain unavailable (no verified URLs), the pipeline aborts early with a clear error message stating the missing sources. No synthetic data are generated; the failure indicates that a spec amendment is required to provide a verifiable open dataset before the primary hypothesis test can be performed.
 
 ---
-
-
 

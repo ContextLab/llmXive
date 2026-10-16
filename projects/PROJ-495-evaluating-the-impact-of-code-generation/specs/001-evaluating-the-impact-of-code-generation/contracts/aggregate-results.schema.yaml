@@ -11,7 +11,7 @@ properties:
       required: ["group", "n_files", "mean_density", "median_density", "sd_density"]
       properties:
         group:
-          enum: ["llm", "human"]
+          enum: ["llm", "human", "proxy"]
         n_files:
           type: "integer"
           minimum: 0

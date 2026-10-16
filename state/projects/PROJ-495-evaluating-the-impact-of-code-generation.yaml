@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T14:30:39.635442Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-495-evaluating-the-impact-of-code-generation
-last_run_id: cb9e3b1d-75bc-4fc2-bb36-bd77692fe96e
+last_run_id: 99ed8ca5-d298-41ea-b943-7741f0e21c4d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-495-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation on Code Vulnerability Density
-updated_at: '2026-10-16T18:40:22.808105Z'
+updated_at: '2026-10-16T18:47:43.821069Z'

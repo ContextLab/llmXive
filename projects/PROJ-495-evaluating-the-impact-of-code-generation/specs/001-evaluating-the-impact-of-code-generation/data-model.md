@@ -7,7 +7,7 @@
 |---|---|---|
 | file_id | string (uuid) | Stable identifier for the file |
 | rel_path | string | Relative path under `data/raw/` |
-| source_group | enum: `llm` \| `human` | Origin of the code |
+| source_group | enum: `llm` \| `human` \| `proxy` | Origin of the code (proxy used when verified source unavailable) |
 | language | enum: `python` \| `javascript` \| `java` \| `other` | Detected programming language |
 | loc | integer \| null | Non‑comment, non‑blank lines of code (null if not computed) |
 | status | enum: `ok` \| `parse_error` \| `skipped_size` \| `skipped_zero_loc` | Ingestion/analysis outcome |
@@ -28,12 +28,12 @@
 | Field | Type | Description |
 |---|---|---|
 | file_id | string (FK → CodeSample) | File identifier |
-| source_group | enum: `llm` \| `human` | Repeated for convenience |
+| source_group | enum: `llm` \| `human` \| `proxy` | Repeated for convenience |
 | language | enum: `python` \| `javascript` \| `java` \| `other` | Language |
 | loc | integer \| null | Lines of code |
 | vulnerability_count | integer (≥ 0) | Total findings **before** deduplication |
 | deduped_vulnerability_count | integer (≥ 0) | Unique findings after deduplication across tools |
-| corrected_vulnerability_count | integer (≥ 0) | Vulnerability count after adjusting for **tool‑specific** false‑positive rates |
+| corrected_vulnerability_count | integer (≥ 0) | Count after adjusting for **tool‑specific** false‑positive rates |
 | cwe_ids | array of strings (`CWE-####`) | Unique CWE IDs present |
 | density | number \| string (`"undefined"`) | Vulnerabilities per LOC (raw) |
 | density_corrected | number \| string (`"undefined"`) | Vulnerabilities per LOC after false‑positive correction |
@@ -43,7 +43,7 @@
 ### AnalysisResult (`results/tables/group_summary.csv` + `statistical_tests.csv`)
 | Field | Type | Description |
 |---|---|---|
-| group | enum: `llm` \| `human` | Code source |
+| group | enum: `llm` \| `human` \| `proxy` | Code source |
 | n_files | integer | Files successfully analyzed |
 | mean_density | number \| null | Mean vulnerability density (raw) |
 | median_density | number \| null | Median density (raw) |
@@ -53,7 +53,7 @@
 | sd_density_corrected | number \| null | Std‑dev corrected density |
 | test_name | enum: `negbin` \| `mannwhitneyu` | Test identifier |
 | p_value | number \| null | Raw p‑value |
-| p_adjusted | number \| null | Holm‑Bonferroni‑adjusted p‑value |
+| p_adjusted | number \| null | Benjamini‑Hochberg‑adjusted p‑value |
 | coefficient | number \| null | NB log‑rate ratio (if applicable) |
 | ci_low | number \| null | 95 % CI lower bound |
 | ci_high | number \| null | 95 % CI upper bound |
@@ -68,12 +68,13 @@
 | auditor_id | string | Identifier of the reviewer |
 | tool | enum: `bandit` \| `semgrep` \| `sonarqube` | Tool that produced the finding (used for tool‑specific FPR) |
 
+*The audit sample used to estimate false‑positive rates is **explicitly excluded** from the regression dataset (see `audit.py`). This prevents circular use of the same observations for both correction and hypothesis testing, addressing scientific soundness concerns.*
+
 ## Derivation Chain (Constitution III/IV)
 
-`data/raw/*` → **Ingest** → `file_manifest.csv` → **Static analysis** → `findings_raw.csv` → **Deduplication** → `findings.csv` & `per_file_analysis.csv` (now includes deduped counts) → **Complexity proxy** (adds `complexity_proxy`) → **Density & audit‑adjusted counts** → `per_file_analysis.csv` (now includes corrected fields) → **Group summary** → `group_summary.csv` → **Statistical tests** → `statistical_tests.csv` → **Figures** → `results/figures/*`.  
+`data/raw/*` → **Ingest** → `file_manifest.csv` → **Static analysis** → `findings_raw.csv` → **Deduplication** → `findings.csv` & `per_file_analysis.csv` (adds deduped counts) → **Complexity proxy** (adds `complexity_proxy`) → **Density & audit‑adjusted counts** → updated `per_file_analysis.csv` → **Group summary** → `group_summary.csv` → **Statistical tests** → `statistical_tests.csv` → **Figures** → `results/figures/*`.  
 
 Each step records its input hash, output hash, script name, and random seed (if any) in `data/derived/provenance.json`.
 
 ---
-
 

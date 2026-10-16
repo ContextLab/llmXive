@@ -1,56 +1,58 @@
 # Research: Evaluating the Impact of Code Generation on Code Vulnerability Density
 
 ## Decision/Rationale
-- **CPU‑first**: All tools (Bandit, Semgrep, SonarQube via Docker, statsmodels, scipy, matplotlib, radon) run on a multi‑CPU, modest‑memory (several‑GB RAM) GitHub Actions runner. No GPU‑dependent computation is required; therefore no escape hatch is needed.  
+- **CPU‑first**: All components (Bandit, Semgrep, SonarQube via Docker, statsmodels, radon, matplotlib) run on the CPU‑only GitHub Actions runner. No GPU escape hatch is needed.
 - **Statistical approach**:  
-  - Vulnerability counts are over‑dispersed → **Negative Binomial GLM** with `log(LOC)` offset (primary test).  
-  - Predictors for the **primary GLM** are `source_group` (LLM vs. human) and `language` only, matching the task‑defined predictor set.  
-  - A **secondary GLM** adds `complexity_proxy` (average cyclomatic complexity) and `repo_id` (project/domain proxy) and uses **cluster‑robust standard errors** clustered on `repo_id` to respect intra‑repo correlation (robustness check).  
+  - Vulnerability counts are typically over‑dispersed → **Negative Binomial GLM** with a `log(LOC)` offset is the primary model.  
+  - Predictors: `source_group` (LLM vs. human) and `language`. A secondary model adds `complexity_proxy` and `repo_id` with **cluster‑robust SE** to address intra‑repo correlation.  
   - **Mann‑Whitney U** on per‑file corrected densities provides a non‑parametric robustness check.  
-  - Two tests → **Holm‑Bonferroni** correction (FR‑006).  
-  - The study is **observational**; all statements will be framed as *associational* (Constitution VII).  
-- **Static analysis tools**: Bandit (Python), Semgrep (multi‑language), and SonarQube (run via Docker) are pip‑installable / container‑runnable, run entirely on CPU, and emit CWE identifiers.  
-- **Deduplication**: Identical findings reported by multiple tools for the same file/line/CWE are **collapsed** to a single record before counting, preventing double‑counting.  
-- **Audit‑adjusted counts**: False‑positive rates are computed **per tool** from the manual audit sample; each tool’s findings are scaled by its own FPR before aggregation, yielding `corrected_vulnerability_count`.  
+  - Two tests → **Benjamini‑Hochberg** false‑discovery‑rate correction (FR‑006).  
+  - The study is **observational**; results are framed as *associational* differences (Constitution VII).  
+
+- **Static analysis fidelity**: Bandit (Python), Semgrep (multi‑language), and SonarQube (Docker) are executed on every file; duplicate CWE findings across tools are deduplicated before counting (Principle VI).  
+
+- **Audit‑adjusted counts**: Tool‑specific false‑positive rates are estimated from a **stratified audit sample** (minimum 10 % of findings or 200 samples, whichever is smaller, but never fewer than 100). The audit sample is **excluded** from the regression dataset to avoid circular use of the same observations.  
+
+- **Multiple‑comparison correction**: Benjamini‑Hochberg is applied across the NB regression and Mann‑Whitney U tests, satisfying SC‑002.  
+
+- **Power analysis**: Conducted after ingestion; if estimated power < 0.8, the limitation is documented (SC‑001).  
+
+- **Collinearity check**: Variance Inflation Factors (VIF) are computed for all predictors; any VIF > 5 triggers a warning and the offending predictor is omitted.  
 
 ## Dataset Strategy
 
 | Dataset | Role | Verified source |
 |---|---|---|
-| **The Stack (deduplicated)** (LLM‑generated code) | Primary LLM code corpus | **Verified**: <https://huggingface.co/datasets/bigcode/the-stack-dedup> |
-| **Human‑written code subset** (Juliet Test Suite) | Human baseline | **Verified**: <https://github.com/secure-software-engineering/Juliet-Test-Suite> |
-| **CWE taxonomy** | Mapping of vulnerability IDs to classes | **Verified**: <https://huggingface.co/datasets/mcanoglu/defect-cwe-grouping/resolve/main/test.jsonl>, <https://huggingface.co/datasets/mcanoglu/cwe-base-group/resolve/main/test.jsonl>, <https://huggingface.co/datasets/zefang-liu/cve-and-cwe-mapping-dataset/resolve/main/Global_Dataset.csv> |
-| **SonarQube Community Edition** | Static analysis engine | **Verified**: Docker Hub `sonarqube:latest` (official image) |
+| **CodeVulnBench** | LLM‑generated code corpus | *No verified URL – cannot be downloaded.* |
+| **Juliet Test Suite** | Human‑written code corpus | *No verified URL – cannot be downloaded.* |
+| **CWE taxonomy** | Mapping CWE IDs to vulnerability classes | <https://huggingface.co/datasets/mcanoglu/defect-cwe-grouping/resolve/main/test.jsonl> |
+| **SonarQube results (Anticloud)** | Reference JSONL for CWE extraction (used to validate SonarQube parsing) | <https://huggingface.co/datasets/Anticloud/anticloud-sonarqube/resolve/main/ledger.jsonl> |
 
-*Note*: The only verified dataset in the provided block (the “CPU‑only parquet” file) does not contain code files or vulnerability annotations, so it is **not used**.
+*Because the required CodeVulnBench and Juliet datasets lack verified URLs, the pipeline **will abort** during the ingestion phase with a clear error message. No proxy dataset is used. This limitation is recorded in `results/limitations.md` and must be resolved by providing an open, verifiable source that matches the intended LLM vs. human grouping before the primary hypothesis test can be considered conclusive.*
 
 ## Statistical Rigor Notes
-- **Multiple comparisons**: Holm‑Bonferroni correction across the Negative Binomial and Mann‑Whitney U tests; adjusted α reported (SC‑002).  
-- **Power**: After ingestion, we compute the detectable effect size given the observed `n` per group. If estimated power < 0.8, we note the limitation in `results/limitations.md` (SC‑001).  
-- **Over‑dispersion check**: Prior to fitting NB, variance/mean of raw counts is examined; if not over‑dispersed, we fall back to a Poisson GLM and document the choice (SC‑001).  
-- **Causal framing**: Observational comparison; no causality claims (Constitution VII).  
-- **Measurement validity**: Bandit, Semgrep, and SonarQube are established static analysis tools; their precision/recall will be empirically estimated via the stratified audit (FR‑007/FR‑008, SC‑006/SC‑007).  
-- **Collinearity**: Predictors `source_group`, `language`, `complexity_proxy`, and `repo_id` are conceptually distinct; variance inflation factors will be checked and reported.  
+- **Multiple comparisons**: Benjamini‑Hochberg across NB and Mann‑Whitney U (SC‑002).  
+- **Power**: Computed via `statsmodels.stats.power` using observed `n` per group; power < 0.8 triggers a documented limitation.  
+- **Over‑dispersion**: Variance/mean of raw counts inspected; if ≤ 1.5, fallback to Poisson GLM with a note.  
+- **Causal framing**: Observational comparison only; no causal claims (Constitution VII).  
+- **Measurement validity**: Bandit, Semgrep, SonarQube are established static analysis tools; their precision/recall will be measured via the audit (FR‑007/FR‑008, SC‑006/SC‑007).  
+- **Collinearity**: VIFs calculated; high VIF predictors are omitted and the decision logged.
 
 ## Method Summary
-1. **Ingest** corpora → manifest + SHA‑256 checksums (Constitution III).  
-2. **Static analysis** (Bandit + Semgrep + SonarQube) → per‑file CWE‑tagged counts (Constitution VI).  
-3. **Deduplication** collapses duplicate findings across tools.  
-4. **LOC counting** → compute **raw density**; apply **tool‑specific false‑positive correction** → `density_corrected`.  
-5. **Complexity proxy** calculation (radon) → `complexity_proxy`.  
-6. **Statistical tests** →  
-   - **Primary Negative Binomial GLM** with `source_group` + `language` predictors, cluster‑robust SE on `repo_id`.  
-   - **Secondary Negative Binomial GLM** adds `complexity_proxy` and `repo_id`.  
-   - **Mann‑Whitney U** on `density_corrected` (excluding `"undefined"`).  
-   - **Holm‑Bonferroni** correction across the two p‑values → `statistical_tests.csv`.  
-7. **Stratified audit** → precision/recall/FPR per tool and per group (FR‑007/FR‑008).  
-8. **Visualizations** → boxplot (density) + bar chart (CWE distribution) (FR‑005).  
-9. All artifacts stored under `results/` for downstream paper generation (Constitution IV).
+1. **Ingest** verified CodeVulnBench and Juliet datasets → abort if unavailable.  
+2. **Static analysis** (Bandit, Semgrep, SonarQube) → raw findings CSV.  
+3. **Deduplicate** CWE‑identical findings across tools.  
+4. **Compute LOC** (language‑agnostic) and raw density; handle zero‑LOC files as `"undefined"`.  
+5. **Stratified audit** of `min(0.10 * total_findings, 200)` (≥ 100) findings, stratified by tool, CWE, and source group; audit sample is **excluded** from downstream regression.  
+6. **Adjust** vulnerability counts using tool‑specific false‑positive rates derived from the audit → `corrected_vulnerability_count`.  
+7. **Fit** primary NB GLM (source_group + language) with cluster‑robust SE; secondary NB GLM adds complexity and repo clustering.  
+8. **Run** Mann‑Whitney U on corrected densities.  
+9. **Apply** Benjamini‑Hochberg correction → adjusted p‑values.  
+10. **Generate** boxplot (density) and bar chart (CWE distribution).  
+11. **Store** all artifacts under `results/` for downstream paper generation (Constitution IV).  
 
 ## Expected Failure Mode
-If **both** the LLM‑generated code corpus **and** the human code subset cannot be downloaded **with verified URLs**, the pipeline exits with a non‑zero status and prints a concise error listing the attempted URLs. No synthetic data are created; the failure prompts a spec amendment to provide a verifiable open dataset.  
+If **both** the CodeVulnBench and Juliet datasets remain unavailable (no verified URLs), the pipeline aborts early, emitting a clear error listing the missing sources. No synthetic data are fabricated; the failure prompts a spec amendment to supply verifiable open datasets.
 
 ---
-
-
 
