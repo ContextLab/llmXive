@@ -1,11 +1,12 @@
 T001a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `code/` directory or the required Python files (`__init__.py`, `config.py`,\
-    \ `ingest.py`, `model.py`, `diagnostics.py`, `utils.py`, `main.py`) are present\
-    \ in the provided artifacts; therefore the task\u2019s core deliverable is missing.\
-    \ The implementer must add the directory and populate each file with appropriate,\
-    \ non\u2011placeholder code."
+  h: 36dfe33f161348dc5e1bfc9a822f9ad657f3a6bef801f4da0c302dbb519cb8ee
+  r: "The evidence shows the `code/` directory and the required filenames exist, but\
+    \ there is no proof that `config.py`, `ingest.py`, `model.py`, `diagnostics.py`,\
+    \ `utils.py`, and `main.py` contain any code (i.e., are non\u2011empty and not\
+    \ just placeholders). Provide the file contents or size information to confirm\
+    \ they are populated."
+  sig: bc0c96a604f14c5248ecef8857b40e8e279555f5ac6ccc574256073834c999aa
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,6 +20,14 @@ T001c:
     \ `reports/` subfolders) is provided; the claim lacks any artifact or listing\
     \ confirming the directories exist. The implementer must supply a file\u2011system\
     \ snapshot, directory listing, or code that creates these folders."
+T002:
+  c: true
+  h: 9062b48e2296ccb7d1c730c28c5d8d8e72d23529222b1e565fee1b036ea35d8a
+  r: "Checked the `requirements.txt` file (196\u202Fbytes) at the project root, which\
+    \ contains pinned versions of all ten required packages (pandas, numpy, scikit-learn,\
+    \ statsmodels, geopy, pyyaml, matplotlib, seaborn, pyarrow, h3) and thus satisfies\
+    \ the initialization requirement."
+  sig: d6515cd6d71f4e51085fcfd9f5ef0246ef998781e32879ca448fa8ffc9c7e4cc
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,6 +36,23 @@ T003:
     \ so the requirement to configure ruff/flake8 and black is not satisfied. The\
     \ implementer must add the appropriate configuration files and ensure they are\
     \ non\u2011empty and correctly set up."
+T004:
+  c: true
+  h: 84c502c7e261199ea93c25a771a39581781288da4b30113f66c1be425d5b7d4c
+  r: "The `code/config.py` file (1584\u202Fbytes) exists at the expected location\
+    \ and defines project path constants, a `RANDOM_SEED = 42`, and other configuration\
+    \ constants (URLs, directory paths, helper functions). Its content matches the\
+    \ task\u2019s requirement to provide paths, a seed of 42, and related constants."
+  sig: f9b26873029dd2bdb6fb82c3f7cf925386d46fd63be3d57ebd4aae4a97b06119
+T005:
+  c: false
+  h: 5003143f56e8bf51f3d2980464f7047b74f91c5f8431e5d3f45c6b4283ec74cd
+  r: "The `code/utils.py` file is present, but the `interpolate_weather` function\
+    \ is a placeholder that always returns static weather values and does not perform\
+    \ any real interpolation of station time\u2011series data as would be required\
+    \ for geo\u2011matching. This means the helper functions are not fully implemented\
+    \ to meet the task\u2019s requirement for functional geo\u2011matching utilities."
+  sig: 0f8e7532a0a6ee11d9c666adc9683c8294d6000a4c00cfd239fce468eed32d0d
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,6 +66,24 @@ T008:
     \ presented; the only evidence is the task description, which does not include\
     \ any artifact showing that data\u2011path variables have been defined, loaded,\
     \ or validated. Consequently the required deliverable is missing."
+T009:
+  c: true
+  h: fbd9dd12d4803a686b5772956d8d97f54d608c2c1c6dcf442853b18ad60ef2b3
+  r: "Checked the `tests/test_ingest.py` file (resolved path `tests/test_ingest.py`,\
+    \ 4401\u202Fbytes) which defines a `TestSeverityEncoding` class with concrete\
+    \ unit tests for the `encode_severity` function covering property damage, injury,\
+    \ fatality, and unknown cases. The file exists, is non\u2011empty, and directly\
+    \ fulfills the T009 requirement for a severity\u2011encoding unit test."
+  sig: 9047b94a6cb29d2c2b2de291a877be30b8e5ac9343f7e74ac493046f9b6e3937
+T010:
+  c: false
+  h: 1b482ca48fffda6a7425c8c691a061e715778ebdb8eacaa1a8cc74a183a9e237
+  r: The provided `tests/test_ingest.py` exists, but it does not contain an integration
+    test that exercises the FARS/NOAA merge logic using mock URLs or a small sample
+    dataset. It only tests utility functions, schema validation, and placeholder contract
+    validation, never calling `merge_data` (or the download functions) with mocked
+    data. Therefore the required integration test is missing.
+  sig: dc18c80c3d39685db2efb6432f0c65f12dcb9731b3c90b8306240c1606d97218
 T016:
   c: false
   h: 8c6b260867ae1daefc11b2a06f856e0d37954cd36a12956da84ba1fed7bdf128

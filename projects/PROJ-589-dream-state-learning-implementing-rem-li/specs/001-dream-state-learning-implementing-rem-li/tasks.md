@@ -1,117 +1,55 @@
-# Tasks: Dream-State Learning: Implementing REM-like Consolidation in Language Models  
+# Tasks: Dream-State Learning: Implementing REM-like Consolidation in Language Models
 
-**Input**: `spec.md`, `plan.md`, `data-model.md`, contract schemas in `specs/001-dream-state-learning-implementing-rem-li/contracts/`  
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contract schemas in `specs/001-dream-state-learning-implementing-rem-li/contracts/`
 
----
+## Phase 1: Setup and first end-to-end analysis
 
-## Phase 1 – Project Setup (already completed)
+**Goal**: Establish the environment and execute a thin, end-to-end training and evaluation run on real GLUE subsets to verify the Wake/Dream cycle.
 
-- [ ] T001 Create project skeleton (`code/`, `tests/`, `data/`, `data/raw/`, `data/checkpoints/`, `data/results/`, `data/logs/`, `tests/unit/`, `tests/integration/`, `tests/contract/`).  
-- [ ] T001b Add `__init__.py` to all Python package directories (except `data/raw/`).  
-- [ ] T002a Add `code/requirements.txt` with base dependencies (`torch`, `transformers`, `datasets`, `scikit-learn`, `accelerate`, `pytest`, `scipy`).  
-- [ ] T002b Pin exact versions in `requirements.txt` (e.g., `torch==2.2.0`).  
-- [ ] T003 Configure linting (`ruff`) and formatting (`black`).  
+- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and `code/config.py` with CPU-only enforcement and memory limits (6.3 GB).
+    - Verification: `pip install -r code/requirements.txt` completes and `code/config.py` is importable without errors.
+- [ ] T002a [US1] Implement core Wake/Dream logic: 20-step warm-up, BERT-style random token masking, DAE reconstruction loss combined with knowledge-distillation loss (Teacher-Student distribution matching), entropy-based batch retries, and perplexity-based dream phase skipping (skip if perplexity > 50 against held-out corpus). `code/models/trainer.py`, `code/data/augment.py`.
+    - Verification: Unit tests in `tests/unit/test_trainer.py` confirm warm-up duration, that low-entropy batches trigger retries, and that high-perplexity batches trigger a phase skip.
+- [ ] T002b [US1] Implement the training CLI entry point `code/train.py` and integrate the `memory_monitor` to abort and checkpoint on OOM. `code/train.py`, `code/utils/memory_monitor.py`.
+    - Verification: Execute `python code/train.py` on a small GLUE subset; verify a model checkpoint is saved to `data/checkpoints/` and structured JSON logs are written to `data/logs/`.
+- [ ] T003 [US2] Implement the few-shot evaluation pipeline and result logging for the QNLI validation set. `code/eval.py`, `code/eval/metrics.py`.
+    - Verification: Run `python code/eval.py` on a saved checkpoint; verify `data/results/evaluation_result.json` is produced and conforms to `evaluation_result.schema.yaml`.
 
----
+**Checkpoint**: The documented command in `quickstart.md` executes a full train-eval cycle and produces a numerical accuracy result in `data/results/`.
 
-## Phase 2 – Core Infrastructure (already completed)
+## Phase 2: Complete the study and validate its evidence
 
-- [ ] T004 Add `code/config.py` – hyper‑parameters, path helpers, **CPU‑only device enforcement**, seed handling, **max_memory_mb default = 6400 (6.4 GB)**, **max_wall_clock_hours default = 5**.  
-- [ ] T005 Add `code/utils/memory_monitor.py` – reads `/proc/self/status`, aborts if RSS > `max_memory_mb`, writes checkpoint on abort (FR‑005).  
-- [ ] T006 Add `code/data/loader.py` – streams GLUE/SuperGLUE subsets via `datasets.load_dataset(..., streaming=True)`, verifies SHA‑256 checksums, raises on mismatch.  
-- [ ] T007 Add `code/models/__init__.py` with DistilBERT‑base‑uncased loader (CPU‑optimized).  
-- [ ] T008 Add `code/utils/logger.py` – structured JSON logging to `data/logs/`.  
-- [ ] T009 Add schema‑validation tests in `tests/contract/` for **all** contract schemas:
-  - `training_config.schema.yaml`
-  - `evaluation_result.schema.yaml`
-  - `dataset.schema.yaml`
-  - `dataset_schema.schema.yaml`
-  - `dream_event.schema.yaml`
-  - `dream_sample_schema.schema.yaml`
-  - `experiment_result_schema.schema.yaml`
-  - `statistical_report_schema.schema.yaml`
-  - `training_result.schema.yaml`
-  - `artifact_hashes.schema.yaml`
-- [ ] T017a Add `code/utils/exceptions.py` with `LowEntropyWarning` exception (used by dream‑phase logic).  
-- [ ] T057 Update `spec.md` FR‑002 to explicitly require a Denoising Auto‑Encoder (DAE) reconstruction step during the dream phase.  
+- [ ] T004 [US2] Implement the continuous-training baseline mode and a multi-run orchestrator to ensure identical real token exposure between regimes. `code/models/trainer.py`, `code/main.py`.
+    - Verification: Integration test asserts that for a fixed seed, the baseline and experimental runs consume the exact same number of real training tokens.
+- [ ] T005 [US2] Execute the full 5-seed experiment and compute the paired t-test, Cohen's d, and statistical power estimate, explicitly flagging results as 'insufficient power' if the held-out evaluation set contains fewer than 5 samples per seed. `code/main.py`, `data/results/statistical_report.json`.
+    - Verification: Validate `statistical_report.json` against `statistical_report_schema.schema.yaml` and confirm the presence of `p_value`, `effect_size`, and the 'insufficient power' flag where applicable.
+- [ ] T006 [FR-006] Conduct the temperature sweep across $[0.5, 1.0, 1.5, 2.0]$ and report the variance in final accuracy to isolate the consolidation effect. `code/main.py`, `data/results/variance_report.json`.
+    - Verification: Check `variance_report.json` for numeric variance and mean accuracy across the four temperature settings.
+- [ ] T007 [US3] Implement and run the resource audit to verify peak RSS $\le 6.3$ GB and total wall-clock time $\le 5$ hours. `code/utils/memory_monitor.py`, `code/scripts/verify_feasibility.sh`.
+    - Verification: Run `verify_feasibility.sh` and assert a zero exit code; check `data/results/resource_audit.json` for peak memory and duration.
+- [ ] T008 [P] Implement full contract validation for all 10 schemas and comprehensive unit tests for entropy and masking logic. `tests/contract/`, `tests/unit/`.
+    - Verification: `pytest` passes with $\ge 90\%$ coverage for `code/models/` and `code/utils/` and all schema tests in `tests/contract/` pass.
 
----
+## Phase 3: Reproducible results and paper handoff
 
-## Phase 3 – Core Wake/Dream Training Cycle (P1)
+- [ ] T009 Finalize the `docs/architecture.md` defining the logical depth of consolidation, perform a PII scan of `data/`, and conduct a fresh-runner reproducibility check. `docs/architecture.md`, `quickstart.md`.
+    - Verification: Run the workflow from `quickstart.md` on a clean environment; confirm all required result JSONs and checkpoints are generated.
+- [ ] T010 [P] Modularize logging and data loading to separate concerns and improve maintainability. `code/utils/logging.py`, `code/data/data_loader.py`.
+    - Verification: Code review confirms separation of I/O and training logic; `pytest` passes.
+- [ ] T011 [P] Optimize batching and data loading to ensure maximum CPU efficiency and minimize I/O overhead. `code/data/data_loader.py`.
+    - Verification: Compare training step time before and after optimization; verify no increase in memory usage.
+- [ ] T012 [P] Implement security hardening, including strict input validation and PII scanning of data artifacts. `code/utils/security.py`.
+    - Verification: Run PII scan script on `data/` and assert zero findings; test input validator with malformed JSON.
 
-| ID | Requirement | Path | Description |
-|----|-------------|------|-------------|
-| - [X] T010 | US1 – warm‑up logic | `tests/unit/test_trainer.py` | Unit test that the first `warmup_steps` steps contain **no** dream phase. |
-| - [X] T011 | US1 – entropy‑retry | `tests/unit/test_trainer.py` | Unit test that low‑entropy batches trigger up‑to‑3 retries and raise `LowEntropyWarning` if exhausted. |
-| - [X] T012 | US1 – integration | `tests/integration/test_training_loop.py` | Integration test of a 20‑step wake/dream schedule on a tiny synthetic dataset. |
-| - [X] T013a | US1 – masking constant | `code/config.py` | Define `MASK_RATE = 0.15`. |
-| - [X] T013b | US1 – masking logic | `code/data/augment.py` | Implement BERT‑style random token masking using `MASK_RATE`. |
-| - [X] T014 | US1 – wake phase | `code/models/trainer.py` | Implement standard cross‑entropy fine‑tuning on real data (batching per `config.batch_size`). |
-| - [X] T015 | US1 – dream phase | `code/models/trainer.py` | Implement DAE‑style reconstruction on masked pseudo‑samples; sample with `config.dream_temperature`. |
-| - [X] T016 | US1 – warm‑up protocol | `code/models/trainer.py` | **Enforce exactly 20 wake‑only steps** before any dream step (uses constant `WARMUP_STEPS = 20`). |
-| - [X] T017b | US1 – entropy check | `code/models/trainer.py` | Compute per‑token entropy (bits), retry up to 3 times, discard batch on failure, log via `logger`. |
-| - [X] T018 | US1 – memory abort | `code/models/trainer.py` | Hook `memory_monitor` to abort on OOM, save checkpoint. |
-| - [X] T019 | US1 – phase logging | `code/models/trainer.py` | Structured JSON logs for each phase transition, entropy, warm‑up status. |
-| - [ ] T059 | **US1 – training entry‑point** | `code/train.py` | Provide a CLI that loads `config`, instantiates `Trainer`, runs the full wake/dream schedule (including warm‑up), and writes final checkpoint to `data/checkpoints/`. **Verification**: unit test checks script runs without error and checkpoint file exists. |
-| - [X] T060 | US2 – evaluation entry‑point | `code/eval.py` | CLI that loads a checkpoint, runs few‑shot evaluation on the held‑out GLUE task, and writes an `evaluation_result` JSON to `data/results/`. **Verification**: unit test validates JSON schema compliance. |
+## Dependencies and requirement coverage
 
----
-
-## Phase 4 – Comparative Baseline & Statistical Analysis (P2)
-
-- [ ] T022 Implement `code/eval/metrics.py` – compute few‑shot accuracy on held‑out GLUE subset. **Verification**: unit test imports module and asserts `compute_accuracy` returns a float in [0,1].  
-- [ ] T023 Add baseline mode to `code/models/trainer.py` – continuous supervised fine‑tuning with identical **real token** exposure as the experimental run. **Verification**: unit test confirms token count equality between baseline and wake‑dream runs for a given seed.  
-- [ ] T024a Create `code/main.py` – orchestrates parallel runs: experimental (wake/dream) and baseline, each with the same random seed list. **Verification**: integration test asserts both runs are launched and two `aggregated_{seed}.json` files are produced.  
-- [ ] T024b Add result aggregation in `code/main.py` – collects per‑run JSONs into `data/results/aggregated_{seed}.json`. **Verification**: test validates each aggregated file conforms to `training_result.schema.yaml`.  
-- [ ] T025a Prepare paired accuracy lists across seeds (experimental vs. baseline). **Verification**: unit test checks lists have matching length and aligned seed entries.  
-- [ ] T025b Compute paired t‑test (`scipy.stats.ttest_rel`) with α = 0.05, calculate Cohen’s d, and write `statistical_report.json` to `data/results/`. **Verification**: test validates JSON against `statistical_report_schema.schema.yaml` and that it contains `p_value`.  
-- [ ] T025c Format statistical output (p‑value, effect size, significance flag) for the final report. **Verification**: unit test confirms formatted file matches schema and includes required fields.  
-- [ ] T026 Save comparative report (`data/results/comparison_report.json`). **Verification**: test asserts file exists and validates against `experiment_result_schema.schema.yaml`.  
-- [ ] T079 Compute concrete power estimate for the paired t‑test using `statsmodels.stats.power.TTestPower`. **Verification**: test checks that `power_estimate` field is present in `statistical_report.json` and is a float between 0 and 1.  
-
----
-
-## Phase 5 – Resource‑Constraint Verification (P3)
-
-- [ ] T029 Unit test for `memory_monitor` abort logic (`tests/unit/test_memory_monitor.py`).  
-- [ ] T031 Add wall‑clock timer in `code/main.py` – abort if `elapsed > config.max_wall_clock_hours` (default 5 h). **Verification**: unit test with mocked timer triggers abort and logs entry.  
-- [ ] T032 Integrate `memory_monitor` into the main training loop (already referenced in T018).  
-- [ ] [ ] T030 Integration test ensuring full pipeline respects **a 5‑hour wall‑clock limit** – redesigned to mock timing and verify abort logic without real waiting. **Verification**: test uses time‑mock to simulate over‑limit condition and checks for proper abort status.  
-- [ ] T033 Create `code/scripts/verify_feasibility.sh` – dry‑run that prints expected memory/time usage and exits non‑zero if limits are exceeded. **Verification**: test runs script with artificially low limits and expects non‑zero exit code.  
-
----
-
-## Phase 6 – Temperature Sweep Sensitivity Analysis (FR‑006, SC‑005)
-
-- [ ] T036a Orchestrate temperature sweep in `code/main.py`: run full pipeline for each `temperature ∈ {0.5, 1.0, 1.5, 2.0}` with 5 seeds per temperature. Output files `data/results/sweep_{temp}_{seed}.json`. **Verification**: test checks that for every temperature and seed the corresponding JSON file exists.  
-- [ ] T036b Ensure model, optimizer, and RNG are re‑initialized for every sweep run. **Verification**: unit test asserts RNG state differs between successive runs.  
-- [ ] T036c Compute variance of final accuracies across temperatures using `numpy.var`; write `data/results/variance_report.json`. **Verification**: test validates JSON contains a numeric `variance` field.  
-- [ ] T037 Add a summary JSON (`data/results/temperature_analysis.json`) containing per‑temperature mean, std, and variance. **Verification**: test confirms file matches expected schema (mean, std, variance).  
-
----
-
-## Phase 7 – Finalization & Handoff (research → paper)
-
-- [ ] T051 Update documentation (`docs/`, `quickstart.md`) with final usage instructions.  
-- [ ] T052 Code cleanup & refactoring (PEP‑8 compliance, removal of dead code).  
-- [ ] T053 Performance optimizations – ensure data loading uses streaming batches, confirm CPU‑only throughput stays within the 2‑core limit.  
-- [ ] T054 Add any missing unit tests for newly added modules. **Verification**: test suite must pass with ≥90 % coverage for new modules.  
-- [ ] T055 Security hardening – input validation, PII scan hooks already in place.  
-- [ ] T056 Run quick‑start validation script to confirm end‑to‑end execution from `code/train.py` through `code/eval.py` produces the expected JSON artifacts. **Verification**: script must exit code 0 and generate checkpoint, evaluation result, statistical report, and comparison report files.  
-
----
-
-## Phase 2 – Contract Validation Expansion (new)
-
-- [ ] T080 Add schema‑validation test for `dataset.schema.yaml` in `tests/contract/test_dataset_schema.py`. **Verification**: test loads the schema and validates a minimal conforming instance.  
-- [ ] T081 Add schema‑validation test for `dataset_schema.schema.yaml` in `tests/contract/test_dataset_schema_schema.py`. **Verification**: test loads the schema and validates a minimal conforming instance.  
-- [ ] T082 Add schema‑validation test for `dream_event.schema.yaml` in `tests/contract/test_dream_event_schema.py`. **Verification**: test loads the schema and validates a minimal conforming instance.  
-- [ ] T083 Add schema‑validation test for `dream_sample_schema.schema.yaml` in `tests/contract/test_dream_sample_schema.py`. **Verification**: test loads the schema and validates a minimal conforming instance.  
-- [ ] T084 Add schema‑validation test for `experiment_result_schema.schema.yaml` in `tests/contract/test_experiment_result_schema.py`. **Verification**: test loads the schema and validates a minimal conforming instance.  
-- [ ] T085 Add schema‑validation test for `statistical_report_schema.schema.yaml` in `tests/contract/test_statistical_report_schema.py`. **Verification**: test loads the schema and validates a minimal conforming instance.  
-- [ ] T086 Add schema‑validation test for `training_result.schema.yaml` in `tests/contract/test_training_result_schema.py`. **Verification**: test loads the schema and validates a minimal conforming instance.  
-- [ ] T087 Add schema‑validation test for `artifact_hashes.schema.yaml` in `tests/contract/test_artifact_hashes_schema.py`. **Verification**: test loads the schema and validates a minimal conforming instance.  
-
----  
-
-*End of `tasks.md`.*  
+| Requirement | Task | Verification Command |
+|-------------|------|---------------------|
+| FR-001 (Wake/Dream Loop) | T002a, T002b | `python code/train.py` |
+| FR-002 (DAE/Masking/KD) | T002a | `pytest tests/unit/test_trainer.py` |
+| FR-003 (Baseline) | T004 | `python code/main.py --mode baseline` |
+| FR-004 (Evaluation) | T003 | `python code/eval.py` |
+| FR-005 (Memory Limit) | T002b, T007 | `bash code/scripts/verify_feasibility.sh` |
+| FR-006 (Temp Sweep) | T006 | `python code/main.py --sweep` |
+| FR-007 (Warm-up) | T002a | `pytest tests/unit/test_trainer.py` |
+| SC-002 (T-Test/Power) | T005 | `pytest tests/unit/test_stats.py` |
