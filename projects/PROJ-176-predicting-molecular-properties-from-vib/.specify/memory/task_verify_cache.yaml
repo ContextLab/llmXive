@@ -1,14 +1,14 @@
 T101:
   c: true
-  h: 68738e3e86271f84d554bf1404ac42a0e9a30ea629986711065ed05c5f5f84ca
-  r: The structure report at `results/structure_report.txt` lists all required directories
-    (`code/`, `code/data/`, `code/models/`, `code/evaluation/`, `code/utils/`, `tests/`,
-    `data/raw/`, `data/processed/`, `data/external/`, `results/`, `logs/`, `specs/001-predict-molecular-properties/`),
-    and the collector confirms each exists on disk with non-empty `__init__.py` markers
-    in `code/`, its subpackages, `tests/`, and `specs/001-predict-molecular-properties/`.
-    The execution log shows the skeleton setup script ran with exit 0, and the presence
-    of `__pycache__` directories throughout `code/` corroborates
-  sig: 8ab20ff26eeb4573e7f30bb982ee75c719aef993eb654c16d802ec705a5bb425
+  h: 4ca7dec1879cd7bd0281ed673bb99f9478ebbd784994cf37b0c9bd394bc9ec55
+  r: The structure report lists all required directories (`code/`, `code/data/`, `code/models/`,
+    `code/evaluation/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/external/`,
+    `results/`, `logs/`, `specs/001-predict-molecular-properties/`), and the collector
+    confirms `__init__.py` files exist in `code/`, `code/data/`, `code/models/`, `code/evaluation/`,
+    `code/utils/`, `tests/`, and `specs/001-predict-molecular-properties/`. The `__pycache__`
+    directories present throughout `code/` plus the exit-0 skeleton setup log provide
+    evidence that the code tree compiles successfully.
+  sig: de08c2c259764bbbdc84f4834778b74ca51d999182071d331596635da98efcaa
 T102:
   c: true
   h: 4c17127ca31dad69726e1e3b374d203834f48ed2369da35f149bc57545aa32b1

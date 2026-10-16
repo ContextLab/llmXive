@@ -110,9 +110,19 @@ def main():
 
         # 4. Compute selection bias for target properties
         # Using verified QM9 property names from the data source
+        # We check if these exist, otherwise we try common alternatives (mu, alpha, gap)
         target_props = ['Dipole_debye', 'Polarizability_bohr3', 'HOMO_LUMO_gap_au']
-        bias_stats = compute_selection_bias(qm9_df, aligned_df, target_props)
-        logger.info("Selection bias KS-tests computed.")
+        available_props = [p for p in target_props if p in qm9_df.columns]
+        
+        # Fallback for common qm9pack naming conventions if specific ones aren't found
+        if not available_props:
+            fallbacks = {'mu': 'Dipole_debye', 'alpha': 'Polarizability_bohr3', 'gap': 'HOMO_LUMO_gap_au'}
+            for col, target in fallbacks.items():
+                if col in qm9_df.columns:
+                    available_props.append(col)
+        
+        bias_stats = compute_selection_bias(qm9_df, aligned_df, available_props)
+        logger.info(f"Selection bias KS-tests computed for: {available_props}")
 
         # 5. Write alignment report
         report = {
