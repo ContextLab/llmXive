@@ -11,7 +11,7 @@ Unchecked boxes (`[ ]`) indicate work that still needs to be done.  Parallelizab
 - [X] T001 [P] [US1] **Create project skeleton** – add `code/`, `tests/`, `data/`, `reports/` directories and minimal `__init__.py` files.  
   *Verification*: `git ls-files` lists the new directories; `pytest -q` runs with no import errors.
 
-- [ ] T002 [P] [US1] **Pin exact dependencies** – write `requirements.txt` with the versions listed in the plan (e.g., `torch==2.1.0`, `numpy==1.24.3`, `sentence‑transformers==2.2.2`, `datasets==2.19.0`, `bitsandbytes==0.43.1`).  
+- [ ] T002 [P] [US1] **Pin exact dependencies** – write `requirements.txt` with the versions listed in the plan (e.g., `torch==2.1.0`, `numpy==1.24.3`, `sentence‑transformers==2.2.2`, `datasets==2.19.0`, `bitsandbytes==0.43.1`).   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
   *Verification*: `pip install -r requirements.txt` succeeds without conflicts.
 
 - [X] T003 [P] **Configure reproducibility utilities** – add `code/utils/config.py` that (i) sets a global random seed, (ii) defines project‑wide path constants (`paths.DATA_RAW`, `paths.DATA_PROCESSED`, …), and (iii) stores a small constant `OOD_THRESHOLD = 0.5`.  

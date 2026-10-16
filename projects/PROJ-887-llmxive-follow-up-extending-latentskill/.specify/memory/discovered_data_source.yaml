@@ -1,17 +1,17 @@
 status: none
-intent: download LatentSkill LoRA adapters A B matrices peft examples dataset for
-  ALFWorld Search-QA python package dataset
+intent: download peft examples LoRA weight dataset HuggingFace datasets python package
+  dataset
 required_fields:
-- skill_id
+- adapter_id
+- skill_name
 - task_description
 - a_matrix
 - b_matrix
+- a_shape
+- b_shape
 - flattened_vector
-- normalized_vector
-- vector_dimension
-- source_dataset
-- benchmark
-- dtype
-cache_key: 6cd13ce15658648bccd45840995eb6d5a4ceb23718347c1b43e23bf253414103
-searched_at: '2026-10-16T02:28:56.699454+00:00'
+- vector_norm
+- metadata
+cache_key: 7b3b29c5cda0e5988295bb0056cfe7b6838f7c41c57002f6eda4ea514104836b
+searched_at: '2026-10-16T02:32:39.753829+00:00'
 retry_count: 1

@@ -1,10 +1,11 @@
 T001:
   c: true
-  h: fb60e42f201cc4be286f079eb4e4df770cebcff3e519be38581bc9ee2291da15
-  r: Checked that `code/`, `tests/`, `data/`, and `reports/` directories exist and
-    each contains a minimal `__init__.py`, and that `pytest -q` runs successfully
-    (test_sanity passed with no import errors).
-  sig: d6899df788ded29a087d68778abe8c3ddf454b9c58fb492d008b3d17f8fac344
+  h: dcb785ddd748d41144e000316b2443e437ad4d429562f5e18840738eda31697d
+  r: The four required directories (`code/`, `tests/`, `data/`, `reports/`) all exist
+    with non-empty listings, each containing a minimal `__init__.py` (plus `data/.gitkeep`),
+    and the recorded `pytest` run from the project root exited 0 with `test_sanity`
+    passing and no import errors, matching the task's verification criteria.
+  sig: 78cae855c47398d7761c6534ccd152a1916577f8fbd0f98ccf4ba60ac5183bf0
 T002:
   c: false
   h: 58a13bfa81d1b82a0de9fdf5248847d46204699ea5c4a17d65110be496810b99
