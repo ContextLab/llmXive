@@ -1,6 +1,14 @@
 T001:
   task: 5e8e50240160bed08f187b67ca3363d4196fb83cac77c5078d3623db9e83cbe2
 T002:
+  reason: 'The task requires `requirements.txt` under `code/`, but the collector resolved
+    only a project-root `requirements.txt` (the `code/` listing shows no requirements.txt
+    of its own), and its content deviates from the pinned spec: it adds an unpinned
+    `numpy>=2.0.0` line not in the required list. Additionally, there is no evidence
+    that `pip install -r requirements.txt` was run or passes in the CI environment
+    (no install logs or execution evidence supplied). Fix: place the file at `code/requirements.txt`
+    with exactly the 11 pinned lines (no numpy line unless specified) and provide
+    CI install evidence.'
   task: 28ccdfd978eb81e906b1515d924442985c4473e99508b6612a97259b2e9aa60c
 T003:
   task: 4a1af1691cc993ae7f490fab394c7d10dfc1f0d09cdc7e602ee6d90a6fa2970e

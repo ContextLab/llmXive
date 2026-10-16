@@ -13,21 +13,18 @@ fixed parameters:
 
 The script aborts if any data‑extraction artifacts already exist
 (files under ``data/processed``) to enforce the “before extraction” rule.
-The result is written to ``data/validated_n.json`` (a project‑owned
-location) and conforms to the JSON schema at
-``specs/001-llmxive-follow-up-extending-mobileforge/contracts/power_analysis.schema.yaml``.
+The result is written to ``data/validated_n.json`` and conforms to the 
+JSON schema at ``contracts/power_analysis.schema.yaml``.
 """
 
 import json
 import math
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 from statsmodels.stats.power import GofChisquarePower
-
-from utils.env_manager import get_project_root
-
+from llmxive_toolkit import paths
 
 def _ensure_no_extraction_artifacts() -> None:
     """
@@ -35,15 +32,12 @@ def _ensure_no_extraction_artifacts() -> None:
     file inside ``data/processed`` indicates that extraction has already been
     performed, and power analysis must be run **before** that step.
     """
-    project_root = get_project_root()
-    processed_dir = project_root / "data" / "processed"
+    processed_dir = paths.data("processed")
     if processed_dir.exists() and any(processed_dir.iterdir()):
         raise RuntimeError(
-            "Data‑extraction artifacts already exist in "
-            f"'{processed_dir}'. Power analysis must be performed before "
-            "any extraction step."
+            f"Data‑extraction artifacts already exist in '{processed_dir}'. "
+            "Power analysis must be performed before any extraction step."
         )
-
 
 def calculate_required_n(
     effect_size: float = 0.2,
@@ -106,42 +100,6 @@ def calculate_required_n(
     }
     return result
 
-
-def write_validated_n(
-    result: Dict[str, Any],
-    output_path: Optional[Path] = None,
-) -> Path:
-    """
-    Write the power‑analysis result to ``data/validated_n.json`` in the
-    format required by the power‑analysis JSON schema.
-
-    Parameters
-    ----------
-    result : dict
-        The dictionary returned by ``calculate_required_n``.
-    output_path : Path, optional
-        Override the default output location. If omitted, the file is written
-        to ``<project_root>/data/validated_n.json``.
-
-    Returns
-    -------
-    Path
-        Path to the written JSON file.
-    """
-    if output_path is None:
-        project_root = get_project_root()
-        data_dir = project_root / "data"
-        data_dir.mkdir(parents=True, exist_ok=True)
-        output_path = data_dir / "validated_n.json"
-    else:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2, sort_keys=True)
-
-    return output_path
-
-
 def main() -> None:
     """
     Entry point for the power‑analysis script.
@@ -163,7 +121,11 @@ def main() -> None:
             power=power,
             baseline_p0=baseline_p0,
         )
-        output_file = write_validated_n(result)
+        
+        # Write to project-owned data directory (NOT state/)
+        output_file = paths.data("validated_n.json")
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, sort_keys=True)
 
         print("Power analysis completed successfully.")
         print(f"  Required N          : {result['n_required']}")
@@ -174,11 +136,8 @@ def main() -> None:
         print(f"  Output written to  : {output_file}")
 
     except Exception as exc:
-        # Re‑raise after printing a clear message – the runner will capture the
-        # traceback as a failure.
         print(f"Error during power analysis: {exc}")
         raise
-
 
 if __name__ == "__main__":
     main()

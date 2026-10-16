@@ -1,23 +1,26 @@
 T001:
   c: true
-  h: ce4c29dc4d1be6f17a0e6e6861efbe5d1c86d8c4471b470e87f9835deed6a9f2
-  r: The `code/` directory listing shows `data/`, `models/`, `utils/`, and `tests/`
-    present, `state/` exists with content, and the execution log for `create_directory_tree.py`
-    (exit 0) explicitly confirms creation of all required subdirectories (`data/raw`,
-    `data/processed`, `data/evaluation`, `models`, `utils`, `tests/unit`, `tests/integration`,
-    and `state`). The task only required creating the directory tree, which the evidence
-    substantiates.
-  sig: bf2c9cbea32c302aa4b582fdc8acfc145d775417408825df5a254fa3e8b42ae7
+  h: cde523cc5851a6980f24e91ea8e6f62bcc2d3a13429f0a9bd955cb563a06b55e
+  r: "The execution log for `code/create_directory_tree.py` (exit 0) shows all eight\
+    \ required directories \u2014 `code/data/{raw,processed,evaluation}`, `code/models`,\
+    \ `code/utils`, `code/tests/{unit,integration}`, and `state/` \u2014 being created,\
+    \ and the current on-disk listing confirms the parent directories `code/` (containing\
+    \ `data/`, `models/`, `utils/`, `tests/`) and `state/` exist with the expected\
+    \ structure. The task only required directory creation, and the evidence is consistent\
+    \ with that having been done."
+  sig: d9cf7879cbce74427f2376afa1124e17344b3dbf47c1b18c2422657ed37ef51c
 T002:
-  c: true
-  h: 2202b08ab794cec19ca139dcbaf3a25f54b7ce712a44a3a7105f426c7b5bf61f
-  r: "The `requirements.txt` file exists at the project root (171 bytes) and contains\
-    \ exactly the 11 pinned packages with the specified exact versions, including\
-    \ the `torch==2.2.2` line, matching the task's required content verbatim. The\
-    \ task's only verification criteria \u2014 non-empty file, torch line present,\
-    \ and correct pinned contents \u2014 are all satisfied (no CI execution evidence\
-    \ is available, but the file content itself fully matches the specification)."
-  sig: 75b026014ab3fd9d46b85c1370f8dd5911440ad18446bbe4f18ae10e60058570
+  c: false
+  h: ed18ef9df0ad25991d8e317779ff4be7ba8dbbbd74ff320fc0e243ad72158c8b
+  r: 'The task requires `requirements.txt` under `code/`, but the collector resolved
+    only a project-root `requirements.txt` (the `code/` listing shows no requirements.txt
+    of its own), and its content deviates from the pinned spec: it adds an unpinned
+    `numpy>=2.0.0` line not in the required list. Additionally, there is no evidence
+    that `pip install -r requirements.txt` was run or passes in the CI environment
+    (no install logs or execution evidence supplied). Fix: place the file at `code/requirements.txt`
+    with exactly the 11 pinned lines (no numpy line unless specified) and provide
+    CI install evidence.'
+  sig: e149f2cba7b11fb3c527c93ff7770a304bdf28bcd55fe64251dd66855a186f76
 T003:
   c: true
   h: fd13fa4a44ecc58aa6780c9371db63490ebf7b789ac2fb259caae79f0117a16b

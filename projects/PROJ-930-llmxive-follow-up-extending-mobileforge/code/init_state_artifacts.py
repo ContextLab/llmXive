@@ -71,3 +71,6 @@ def main() -> None:
     ensure_artifact_hashes()
     ensure_checksums_manifest()
     log.info("Initialisation complete.")
+
+if __name__ == "__main__":
+    main()
