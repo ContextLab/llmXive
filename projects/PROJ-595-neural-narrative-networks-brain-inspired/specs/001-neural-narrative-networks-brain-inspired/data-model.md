@@ -1,85 +1,83 @@
 # Data Model: Neural Narrative Networks
 
 ## Overview
-
-This document defines the data schemas, storage formats, and transformation logic for the Neural Narrative Networks project. All data artifacts are stored under `data/` and processed according to the pipeline defined in `plan.md`.
+Defines schemas, file formats, and transformation pipelines for all data artifacts. All artifacts reside under `data/` and are version‑tracked via SHA‑256 checksums.
 
 ## Data Flow
-
-1. **Raw Ingestion**: Download OpenNeuro (fMRI) and ROCStories (text) from verified URLs.
-2. **Preprocessing**: 
-   - Extract ROI timecourses (Left Hipp, Right Hipp, DLPFC) using Harvard-Oxford masks (threshold 25%) or coordinate fallback.
-   - **HRF-Aligned Extraction**: Apply a Finite Impulse Response (FIR) model to deconvolve the BOLD signal, addressing hemodynamic lag.
-   - Align text events with fMRI timepoints based on the *intersection* of shared stories.
-3. **Model Input**: Tokenized stories (exact fMRI stimuli) and event boundaries.
-4. **Model Output**: Hidden state vectors for each story event.
-5. **Analysis**: RSA matrices and p-values.
+1. **Raw Ingestion** – download OpenNeuro ds001495 parquet (`test-00000-of-00016.parquet`) and ROCStories parquet.  
+2. **Preprocessing** – ROI extraction → HRF‑aligned event averages → combined neural matrix.  
+3. **Story Corpora** –  
+   - **Pre‑training Corpus**: ROCStories (pre‑training only) → `data/processed/text/rocstories_pretrain.jsonl`.  
+   - **Test Corpus**: Story transcripts extracted from OpenNeuro ds001495 → `data/processed/text/fMRI_story_transcripts.jsonl`.  
+4. **Model Input** – tokenized test corpus with event boundaries.  
+5. **Model Output** – hidden‑state tensors for each story event (brain‑inspired & baseline).  
+6. **Analysis** – RSA matrices (CSV) and permutation test results (CSV).  
 
 ## Entity Definitions
 
-### Neural Timecourse
-- **Description**: A matrix of BOLD signal values over time for a specific ROI, deconvolved using FIR.
-- **Source**: OpenNeuro ds001495.
-- **Format**: `.npy` (NumPy array).
-- **Shape**: `(N_subjects, N_timepoints)`.
-- **Validation**: Check for NaNs, ensure non-zero variance.
+| Entity | Description | Format | Key Fields |
+|--------|-------------|--------|------------|
+| **Neural Timecourse** | HRF‑aligned BOLD matrix per ROI | `.npy` | `subject_id`, `roi`, `shape`, `checksum` |
+| **Narrative Representation (Pre‑training)** | Hidden‑state vectors from SAE pre‑training on ROCStories (not used for RSA) | `.pt` | `model_type` = `"pretrain"`, `story_id`, `event_idx` |
+| **Narrative Representation (Test)** | Hidden‑state vectors per story event from the **held‑out fMRI story set** | `.npy` or `.pt` | `model_type` (`"brain_inspired"` or `"baseline"`), `story_id`, `event_idx`, `sparsity_ratio` (SAE only) |
+| **RSA Matrix** | Pairwise similarity (Pearson) between neural and model RDMs per ROI | `.csv` | `roi`, `model_type`, `shape`, `similarity_metric` |
+| **Permutation Result** | Difference statistic, p‑value, convergence metrics | `.csv` | `observed_difference`, `p_value`, `permutations`, `convergence_variance`, `is_significant` |
+| **Story Corpus (Pre‑training)** | ROCStories subset for model pre‑training | `.jsonl` | `story_id`, `text`, `event_boundary_method` = `"provided"` |
+| **Story Corpus (Test)** | fMRI story transcripts used for RSA | `.jsonl` | `story_id`, `text`, `event_boundary_method` = `"inferred_nltk"` |
 
-### Narrative Representation
-- **Description**: A vector of hidden state activations from the model.
-- **Source**: SAE or TinyLSTM generator.
-- **Format**: `.npy` or `.pt`.
-- **Shape**: `(N_stories, N_events, Hidden_Dim)`.
-- **Validation**: Ensure sparsity ratio ≤ 0.20 for SAE.
-
-### RSA Matrix
-- **Description**: A symmetric matrix of pairwise similarities between representations.
-- **Source**: `code/analysis/rsa_computation.py`.
-- **Format**: `.csv`.
-- **Shape**: `(N_conditions, N_conditions)`.
-- **Validation**: Symmetry check, diagonal = 1.
-
-## Storage Schema
-
+## Storage Layout
 ```text
 data/
 ├── raw/
 │   ├── openneuro/
-│   │   ├── test-00000-of-00016.parquet  # Raw fMRI data
-│   │   └── dataset_dict.json            # Metadata
+│   │   └── test-00000-of-00016.parquet
 │   └── rocstories/
-│       ├── train-00000-of-00001.parquet # Raw text data
-│       └── ROCStories__spring2016.csv   # Alternative format
+│       └── train-00000-of-00001-c17b7a9172e87209.parquet
 ├── processed/
 │   ├── neural/
-│   │   ├── roi_left_hipp.npy            # Left Hippocampus timecourses (HRF-aligned)
-│   │   ├── roi_right_hipp.npy           # Right Hippocampus timecourses (HRF-aligned)
-│   │   └── roi_dlpfc.npy                # DLPFC timecourses (HRF-aligned)
+│   │   ├── roi_left_hipp.npy
+│   │   ├── roi_right_hipp.npy
+│   │   └── roi_dlpfc.npy
 │   └── text/
-│       └── rocstories_sample.jsonl      # Sampled stories with event boundaries (shared stimuli)
-└── analysis/
-    ├── rsa_matrices/
-    │   ├── sae_rsm.csv                  # SAE Representational Similarity Matrix
-    │   └── baseline_rsm.csv             # Baseline RSM
-    └── results/
-        └── permutation_test_results.csv # P-values and convergence stats
+│       ├── rocstories_pretrain.jsonl   # pre‑training corpus
+│       └── fMRI_story_transcripts.jsonl   # test corpus extracted from OpenNeuro
+├── analysis/
+│   ├── rsa_matrices/
+│   │   ├── brain_inspired_rsm.csv
+│   │   └── baseline_rsm.csv
+│   └── results/
+│       └── permutation_test_results.csv
 ```
 
 ## Transformation Logic
 
-### Preprocessing (Neural)
-1. Load `test-00000-of-00016.parquet`.
-2. Identify subjects with valid story conditions.
-3. Apply Harvard-Oxford mask for Left Hippocampus (threshold 25%, linear registration to MNI).
-4. **HRF-Aligned Extraction**: Apply FIR model to deconvolve BOLD signal.
-5. Save to `roi_left_hipp.npy`.
+1. **ROI Extraction** (`preprocess.py`)  
+   - Load fMRI parquet (streaming).  
+   - Apply Harvard‑Oxford masks (threshold 25 %).  
+   - If DLPFC mask missing, use MNI coordinates (± 6 mm).  
+   - FIR deconvolution (`statsmodels` FIR design) → event‑wise averages.  
+   - Save each ROI as `.npy` with checksum.
 
-### Preprocessing (Text)
-1. Load `train-00000-of-00001.parquet`.
-2. **Fallback**: Infer event boundaries via NLTK if missing.
-3. Filter to the set of stories that match the fMRI stimuli (intersection).
-4. Save to `rocstories_sample.jsonl`.
+2. **Story Processing** (`download_text.py` + `preprocess.py`)  
+   - Load ROCStories parquet; convert to JSONL (`rocstories_pretrain.jsonl`).  
+   - Extract story transcripts from OpenNeuro metadata; infer sentence boundaries via NLTK if not supplied.  
+   - Save test corpus as `fMRI_story_transcripts.jsonl`. Verify **≥ 100** stories; abort otherwise.
 
-### RSA Computation
-1. Load `roi_left_hipp.npy` and `sae_hidden_states.npy`.
-2. Compute pairwise correlation for each condition.
-3. Store in `sae_rsm.csv`.
+3. **Model Generation** (`generator.py`)  
+   - Load **test** corpus only.  
+   - Pass through Sparse Autoencoder + Gating (brain‑inspired) or TinyLSTM (baseline) to obtain hidden states; enforce sparsity ≤ 0.20 for SAE. Save hidden‑state tensors.
+
+4. **RSA Computation** (`rsa_computation.py`)  
+   - Load neural ROI `.npy` and model hidden states from the **test corpus** only.  
+   - Compute RDMs (1 – Pearson) and correlate neural‑model RDMs. Export symmetric CSV matrices.
+
+5. **Permutation Test** (`permutation_test.py`)  
+   - Shuffle story labels, recompute RSA difference, repeat **2 000** permutations; stop early if variance < 0.001 over last 1 000 iterations.  
+   - Apply Holm‑Bonferroni across ROIs.
+
+6. **Visualization** (`visualization.py`)  
+   - Heatmaps of RSA matrices (seaborn).  
+   - Bar plot of RSA distances with 95 % CI and significance stars.
+
+---
+

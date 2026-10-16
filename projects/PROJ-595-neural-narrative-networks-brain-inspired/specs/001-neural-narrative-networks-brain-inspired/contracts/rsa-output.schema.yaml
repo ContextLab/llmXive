@@ -10,7 +10,7 @@ properties:
         type: string
       model_type:
         type: string
-        enum: ["brain_inspired", "baseline_sae"]
+        enum: ["brain_inspired", "baseline"]
       roi:
         type: string
       similarity_metric:
@@ -37,11 +37,11 @@ properties:
         maximum: 1
       permutations:
         type: integer
-        const: 10000
+        const: 2000
       convergence_variance:
         type: number
       is_significant:
-        boolean
+        type: boolean
     required:
       - observed_difference
       - p_value

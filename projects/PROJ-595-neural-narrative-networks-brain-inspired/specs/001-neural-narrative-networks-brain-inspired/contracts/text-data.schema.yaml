@@ -20,7 +20,7 @@ properties:
     description: "File format."
   checksum:
     type: string
-    description: "SHA-256 hash of the file content."
+    description: "SHA‑256 hash of the file content."
   event_boundary_method:
     type: string
     enum:
