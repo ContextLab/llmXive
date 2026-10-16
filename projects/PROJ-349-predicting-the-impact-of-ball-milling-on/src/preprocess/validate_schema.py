@@ -10,8 +10,11 @@ later in T015a and T017c.
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
+
 import pandas as pd
 import yaml
+import jsonschema
+
 from src.utils.exceptions import InsufficientDataError, SchemaValidationError
 
 logger = logging.getLogger(__name__)
@@ -260,3 +263,31 @@ def validate_file(file_path: str, schema_path: Optional[str] = None) -> pd.DataF
     validate_schema(df, schema_path)
     
     return df
+
+def validate(df: pd.DataFrame, schema_path: Optional[str] = None) -> None:
+    """
+    Helper function that validates each row of a DataFrame against the JSON schema.
+
+    This function loads the schema (defaulting to the project-wide
+    ``contracts/dataset.schema.yaml``) and validates every row using
+    ``jsonschema.validate``. If any row does not conform, a
+    ``jsonschema.ValidationError`` is raised.
+
+    Args:
+        df: pandas DataFrame to validate.
+        schema_path: Optional path to the schema YAML file. If omitted,
+            the default schema location is used.
+
+    Raises:
+        jsonschema.ValidationError: If a row violates the schema.
+    """
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("Input must be a pandas DataFrame")
+    
+    # Load the JSON schema (as a dict)
+    schema = load_schema(schema_path)
+
+    # Validate each row individually; jsonschema.validate will raise
+    # ValidationError on the first failure.
+    for _, row in df.iterrows():
+        jsonschema.validate(instance=row.to_dict(), schema=schema)

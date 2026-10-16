@@ -1,10 +1,15 @@
-pandas==2.2.2
-numpy==1.26.4
-scikit-learn==1.5.0
-statsmodels==0.14.2
-matplotlib==3.9.0
-seaborn==0.13.2
-requests==2.32.3
-tqdm==4.66.5
-pyarrow==16.0.0
+# Core dependencies (pinned versions as per project policy)
+numpy==1.26.*
+pandas==2.2.*
+scikit-learn==1.5.*
+statsmodels==0.14.*
+matplotlib==3.9.*
+seaborn==0.13.*
+requests==2.32.*
+tqdm==4.66.*
+pyarrow==16.*
 pdfminer.six==20231228
+
+# OCR fallback dependencies (optional – script works without them)
+pytesseract>=0.3.10
+Pillow>=10.0.0

@@ -1,212 +1,100 @@
 """
-Configuration management for the ball milling prediction pipeline.
+Configuration loader for the ball milling impact prediction project.
+
+This module provides a single public function :func:`load_config` that reads the
+YAML configuration file ``src/config/config.yaml`` and returns its contents as a
+dictionary.  It validates that the top‑level sections required by the
+specification (``api``, ``gpr_max_runtime``, ``gpr_max_memory``, and ``ocr``)
+are present and raises a clear ``KeyError`` if any are missing.
+
+The loader uses the ``llmxive_toolkit.paths`` helper to locate the configuration
+file relative to the project root, ensuring the same behaviour across all
+scripts and test environments.
 """
 
-import os
-import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
 import yaml
 
-from src.utils.logger import get_module_logger
+from llmxive_toolkit import paths, get_logger
 
-logger = get_module_logger(__name__)
+log = get_logger(__name__)
 
-
-class ConfigError(Exception):
-    """Exception raised for configuration errors."""
-    pass
-
-
-class Settings:
-    """Settings container for the application."""
-    
-    def __init__(self, config: Dict[str, Any]):
-        self._config = config
-    
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get a setting value by key (dot notation supported)."""
-        keys = key.split(".")
-        value = self._config
-        for k in keys:
-            if isinstance(value, dict) and k in value:
-                value = value[k]
-            else:
-                return default
-        return value
-    
-    def get_resource_limits(self) -> Dict[str, float]:
-        """Get GPR resource limits."""
-        return {
-            "max_runtime": self.get("gpr_max_runtime", 1800.0),
-            "max_memory": self.get("gpr_max_memory", 5.0)
-        }
-    
-    def get_ocr_settings(self) -> Dict[str, Any]:
-        """Get OCR fallback settings."""
-        return {
-            "fallback_enabled": self.get("ocr.fallback_enabled", False)
-        }
-    
-    def get_data_paths(self) -> Dict[str, Path]:
-        """Get data directory paths."""
-        return {
-            "raw": Path(self.get("data.raw_dir", "data/raw")),
-            "processed": Path(self.get("data.processed_dir", "data/processed")),
-            "splits": Path(self.get("data.splits_dir", "data/splits")),
-            "results": Path(self.get("data.results_dir", "results"))
-        }
-    
-    def get_api_endpoints(self) -> Dict[str, str]:
-        """Get API endpoint URLs."""
-        return {
-            "materials_project": self.get("api.materials_project", "https://next-gen.materialsproject.org/api/v2/materials"),
-            "nist": self.get("api.nist", "https://www.nist.gov/pml/atomic-spectra-database")
-        }
-    
-    def get_api_keys(self) -> Dict[str, Optional[str]]:
-        """Get API keys from config or environment."""
-        keys = {}
-        # Materials Project
-        keys["materials_project"] = self.get("api_keys.materials_project") or os.getenv("MP_API_KEY")
-        # NIST (if needed)
-        keys["nist"] = self.get("api_keys.nist") or os.getenv("NIST_API_KEY")
-        return keys
-
-    @property
-    def config(self) -> Dict[str, Any]:
-        """Get the raw config dictionary."""
-        return self._config
+# Path to the configuration YAML file. ``paths.config`` creates a Path inside the
+# ``config`` top‑level folder and ensures the parent directory exists.
+_CONFIG_PATH: Path = paths.config("config.yaml")
 
 
-_settings: Optional[Settings] = None
-
-
-def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+def _validate_config_structure(config: dict) -> None:
     """
-    Load configuration from a YAML file.
+    Validate that the loaded configuration contains the required top‑level keys.
 
-    Args:
-        config_path: Path to the config file. If None, uses default path.
+    Parameters
+    ----------
+    config: dict
+        The parsed YAML configuration.
 
-    Returns:
-        Configuration dictionary.
-
-    Raises:
-        ConfigError: If config file is missing required keys.
+    Raises
+    ------
+    KeyError
+        If any required key is missing.
     """
-    if config_path is None:
-        config_path = "config.yaml"
-    
-    config_file = Path(config_path)
-    
-    if not config_file.exists():
-        logger.warning(f"Config file not found: {config_file}. Using defaults.")
-        return _get_default_config()
-    
+    required_top_keys = {"api", "gpr_max_runtime", "gpr_max_memory", "ocr"}
+    missing = required_top_keys - set(config.keys())
+    if missing:
+        raise KeyError(
+            f"Configuration file {_CONFIG_PATH} is missing required keys: {', '.join(sorted(missing))}"
+        )
+
+    # Validate that the ``api`` section contains the expected sub‑sections.
+    api_required = {"materials_project", "nist", "arxiv"}
+    api_section = config.get("api", {})
+    missing_api = api_required - set(api_section.keys())
+    if missing_api:
+        raise KeyError(
+            f"The 'api' section must contain {', '.join(sorted(api_required))} entries; missing: {', '.join(sorted(missing_api))}"
+        )
+
+    # OCR section must contain ``fallback_enabled`` (boolean) and ``language`` (list)
+    ocr_section = config.get("ocr", {})
+    if not isinstance(ocr_section.get("fallback_enabled"), bool):
+        raise KeyError("OCR configuration requires a boolean 'fallback_enabled' flag.")
+    if not isinstance(ocr_section.get("language"), list):
+        raise KeyError("OCR configuration requires a list 'language' entry.")
+
+
+def load_config() -> dict:
+    """
+    Load and return the project's configuration.
+
+    Returns
+    -------
+    dict
+        The configuration dictionary parsed from ``src/config/config.yaml``.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the configuration file does not exist.
+    yaml.YAMLError
+        If the file cannot be parsed as valid YAML.
+    KeyError
+        If required configuration keys are missing.
+    """
+    if not _CONFIG_PATH.is_file():
+        raise FileNotFoundError(f"Configuration file not found at {_CONFIG_PATH}")
+
     try:
-        with open(config_file, "r", encoding="utf-8") as f:
-            config = yaml.safe_load(f)
-    except yaml.YAMLError as e:
-        raise ConfigError(f"Failed to parse config file: {e}")
-    
-    # Validate required keys
-    _validate_config(config)
-    
+        with _CONFIG_PATH.open("r", encoding="utf-8") as f:
+            config = yaml.safe_load(f) or {}
+    except yaml.YAMLError as exc:
+        log.error("Failed to parse configuration YAML: %s", exc)
+        raise
+
+    if not isinstance(config, dict):
+        raise yaml.YAMLError("Root of configuration YAML must be a mapping/dictionary.")
+
+    # Validate required structure
+    _validate_config_structure(config)
+
+    log.debug("Configuration loaded successfully from %s", _CONFIG_PATH)
     return config
-
-
-def _validate_config(config: Dict[str, Any]) -> None:
-    """Validate that required config keys exist and are of correct type."""
-    required_keys = [
-        "gpr_max_runtime",
-        "gpr_max_memory",
-        "ocr.fallback_enabled"
-    ]
-    
-    for key in required_keys:
-        keys = key.split(".")
-        value = config
-        found = True
-        for k in keys:
-            if isinstance(value, dict) and k in value:
-                value = value[k]
-            else:
-                found = False
-                break
-        
-        if not found:
-            logger.warning(f"Missing required config key: {key}. Using default.")
-
-
-def _get_default_config() -> Dict[str, Any]:
-    """Return default configuration values."""
-    return {
-        "gpr_max_runtime": 1800.0,
-        "gpr_max_memory": 5.0,
-        "ocr": {
-            "fallback_enabled": False
-        },
-        "data": {
-            "raw_dir": "data/raw",
-            "processed_dir": "data/processed",
-            "splits_dir": "data/splits",
-            "results_dir": "results"
-        },
-        "api": {
-            "materials_project": "https://next-gen.materialsproject.org/api/v2/materials",
-            "nist": "https://www.nist.gov/pml/atomic-spectra-database"
-        },
-        "api_keys": {
-            "materials_project": None,
-            "nist": None
-        }
-    }
-
-
-def get_settings() -> Settings:
-    """Get the global settings instance."""
-    global _settings
-    if _settings is None:
-        config = load_config()
-        _settings = Settings(config)
-    return _settings
-
-
-def reset_settings() -> None:
-    """Reset the global settings instance."""
-    global _settings
-    _settings = None
-
-
-def get_config_value(key: str, default: Any = None) -> Any:
-    """Get a configuration value by key."""
-    return get_settings().get(key, default)
-
-
-def get_resource_limits() -> Dict[str, float]:
-    """Get GPR resource limits."""
-    return get_settings().get_resource_limits()
-
-
-def get_api_endpoints() -> Dict[str, str]:
-    """Get API endpoint URLs."""
-    return get_settings().get_api_endpoints()
-
-
-def get_ocr_settings() -> Dict[str, Any]:
-    """Get OCR settings."""
-    return get_settings().get_ocr_settings()
-
-
-def get_data_paths() -> Dict[str, Path]:
-    """Get data directory paths."""
-    return get_settings().get_data_paths()
-
-
-def create_default_config(output_path: str = "config.yaml") -> None:
-    """Create a default configuration file."""
-    config = _get_default_config()
-    with open(output_path, "w", encoding="utf-8") as f:
-        yaml.dump(config, f, default_flow_style=False)
-    logger.info(f"Created default config file: {output_path}")

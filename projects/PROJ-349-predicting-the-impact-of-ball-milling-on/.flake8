@@ -1,2 +1,13 @@
 [flake8]
 max-line-length = 88
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    *.egg-info
+ignore =
+    E203,
+    W503
+# You can add more flake8 configurations as needed.

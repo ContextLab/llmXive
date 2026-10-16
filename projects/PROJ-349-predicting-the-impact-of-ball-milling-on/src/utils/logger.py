@@ -3,54 +3,75 @@ Logging utility module.
 Provides a consistent logging interface across the project.
 """
 import logging
-import os
-from pathlib import Path
+import sys
 from typing import Optional, Union
 
-# Singleton logger instance
-_logger: Optional[logging.Logger] = None
+# Singleton root logger instance
+_root_logger: Optional[logging.Logger] = None
+
+def _configure_root_logger() -> logging.Logger:
+    """
+    Configures the singleton root logger used by the project.
+    The logger writes to **stdout** and uses a simple formatter.
+    This function is idempotent: repeated calls return the same logger
+    without adding duplicate handlers.
+    """
+    global _root_logger
+    if _root_logger is None:
+        _root_logger = logging.getLogger("llmXive")
+        _root_logger.setLevel(logging.INFO)
+
+        # Avoid adding multiple handlers if already configured
+        if not _root_logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+            handler.setFormatter(formatter)
+            _root_logger.addHandler(handler)
+    return _root_logger
 
 def get_module_logger(name: str) -> logging.Logger:
     """
     Returns a logger for the specified module name.
-    If the root logger is not configured, it configures it.
+    Ensures the root logger is configured exactly once.
     """
-    global _logger
-    
-    if _logger is None:
-        _logger = logging.getLogger("llmXive")
-        _logger.setLevel(logging.INFO)
-        
-        # Avoid adding handlers multiple times
-        if not _logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
-            handler.setFormatter(formatter)
-            _logger.addHandler(handler)
-    
+    # Ensure the root logger exists and is configured
+    _configure_root_logger()
     return logging.getLogger(name)
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Public API required by the task specification.
+    Returns a logger for the given module name, writing to stdout.
+    This is a thin wrapper around ``get_module_logger`` to keep the
+    original internal naming while exposing the expected function.
+    """
+    return get_module_logger(name)
 
 def set_log_level(level: Union[str, int]) -> None:
     """
-    Sets the global log level.
-    Accepts string ('DEBUG', 'INFO', etc.) or integer level.
+    Sets the global log level for the root logger.
+    Accepts a string (e.g., "DEBUG") or a numeric logging level.
     """
-    global _logger
-    if _logger is None:
-        _logger = logging.getLogger("llmXive")
-    
+    root = _configure_root_logger()
     if isinstance(level, str):
         level = getattr(logging, level.upper(), logging.INFO)
-    
-    _logger.setLevel(level)
-    for handler in _logger.handlers:
+    root.setLevel(level)
+    for handler in root.handlers:
         handler.setLevel(level)
 
 def reset_logger() -> None:
-    """Resets the global logger configuration."""
-    global _logger
-    _logger = None
+    """
+    Resets the global logger configuration.
+    Clears handlers and restores the logger to an unconfigured state.
+    """
+    global _root_logger
+    if _root_logger is not None:
+        for handler in _root_logger.handlers[:]:
+            _root_logger.removeHandler(handler)
+            handler.close()
+        _root_logger.handlers.clear()
+    _root_logger = None
     logging.getLogger("llmXive").handlers.clear()
     logging.getLogger("llmXive").setLevel(logging.NOTSET)

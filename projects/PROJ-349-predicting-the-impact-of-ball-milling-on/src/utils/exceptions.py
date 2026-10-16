@@ -10,6 +10,10 @@ class MissingTimestampError(Exception):
     """Exception raised when a required timestamp is missing."""
     pass
 
+class MissingDataError(Exception):
+    """Exception raised when required data is missing."""
+    pass
+
 class GPRResourceLimitExceeded(Exception):
     """Exception raised when GPR training exceeds resource limits."""
     def __init__(self, runtime_seconds: float, memory_gb: float):
