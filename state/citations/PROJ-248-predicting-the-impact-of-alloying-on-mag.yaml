@@ -1,11 +1,1 @@
-- artifact_hash: 3df9707e85c5e40f5d32b42e4cdb22b7b915744c495be47bd48de260ed1e1574
-  artifact_path: projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.17188/xxxx
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.17188/xxxx
-  verified_at: '2026-10-14T00:44:14.962208Z'
+[]

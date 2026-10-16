@@ -15,7 +15,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
 - run-book command: `python -m pytest tests/integration/test_full_pipeline.py --sample-size 100`
-  - argparse error: `python -m pytest: error: unrecognized arguments: --sample-size 100`
+  - argparse error: `__main__.py: error: unrecognized arguments: --sample-size 100`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
@@ -75,11 +75,11 @@ NameError: name 'argparse' is not defined
 
 - python -m pytest tests/unit/test_ingestion.py -v -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-9.1.1, pluggy-1.6.0 -- /home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/.venv/bin/python
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-030-predicting-crystal-structures-from-molec/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-plugins: platformdirs-4.12.4, cov-7.1.0, anyio-4.15.1
+plugins: platformdirs-4.13.3, cov-7.1.0, anyio-4.15.1
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================
@@ -89,8 +89,8 @@ ERROR: file or directory not found: tests/unit/test_ingestion.py
 
 - python -m pytest tests/integration/test_full_pipeline.py --sample-size 100 -> rc=4
 
-ERROR: usage: python -m pytest [options] [file_or_dir] [file_or_dir] [...]
-python -m pytest: error: unrecognized arguments: --sample-size 100
+ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]
+__main__.py: error: unrecognized arguments: --sample-size 100
   inifile: /home/runner/work/llmXive/llmXive/pyproject.toml
   rootdir: /home/runner/work/llmXive/llmXive
 
@@ -187,3 +187,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/modeling/generate_final_metrics.py` — NOT invoked by the run-book
     - `code/modeling/verify_success_criterion.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/validation/success_criterion_check.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

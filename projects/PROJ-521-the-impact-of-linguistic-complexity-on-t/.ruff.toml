@@ -1,7 +1,31 @@
-# Standalone ruff configuration file
-# Extends pyproject.toml settings if needed, or provides defaults
+# Ruff configuration for the project
+# See https://beta.ruff.rs/docs/configuration/ for all options
 
-extend = "pyproject.toml"
+[tool.ruff]
+# Target Python version
+target-version = "py311"
 
-# Explicitly set output format for CI
-output-format = "full"
+# Maximum line length (Black will enforce this as well)
+line-length = 88
+
+# Select which rule groups to enable
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "C90", # mccabe complexity
+]
+
+# Ignore specific rules (Black handles line length)
+ignore = ["E501"]
+
+# Files and directories to exclude from linting
+exclude = [
+    "__init__.py",
+    "setup.py",
+    "docs",
+    "tests/contract",
+]
+
+# Enable preview rules (optional, uncomment if needed)
+# preview = true

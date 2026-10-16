@@ -21,7 +21,6 @@ properties:
   source_id:
     type: string
     description: Identifier of the source article (e.g., Wikipedia ID).
-    type: string
   flesch_kincaid:
     type: number
     description: Flesch-Kincaid Grade Level score.

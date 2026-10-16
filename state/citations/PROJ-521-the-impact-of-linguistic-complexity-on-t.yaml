@@ -20,3 +20,14 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-08T10:18:57.524207Z'
+- artifact_hash: 9b3477e3ac49881e4c1d1e0f0db7159b53c456f73384d94416454bcc8ede1ff4
+  artifact_path: projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: pending
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-10-16T18:42:07.137036Z'

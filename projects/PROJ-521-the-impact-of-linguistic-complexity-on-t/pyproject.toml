@@ -1,44 +1,35 @@
-[project]
-name = "linguistic-complexity-trust"
-version = "0.1.0"
-description = "Impact of Linguistic Complexity on Trust in AI-Generated Text"
-requires-python = ">=3.11"
-dependencies = [
-    "transformers",
-    "torch",
-    "scikit-learn",
-    "statsmodels",
-    "pandas",
-    "numpy",
-    "seaborn",
-    "textstat",
-    "nltk",
-    "datasets",
-    "requests",
-    "ruff",
-    "black",
-]
+# Pyproject configuration for Black formatting (and optionally other tools)
+# This file lives at the project root: projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/
 
 [tool.black]
-line-length = 88
-target-version = ['py311']
+# Target version of Python code
+target-version = ["py311"]
 
-[tool.ruff]
+# Line length to match Ruff configuration
 line-length = 88
-target-version = "py311"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
-]
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+# Include all Python files
+include = '\.pyi?$'
+
+# Exclude common directories and files that should not be formatted
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# Optional: Enable experimental string normalizer (if desired)
+# experimental-string-processing = true
+
+# Optional: Enable preview mode for future Black features
+# preview = true
+
+# Note: Ruff configuration is provided in .ruff.toml; Black does not need additional settings here.

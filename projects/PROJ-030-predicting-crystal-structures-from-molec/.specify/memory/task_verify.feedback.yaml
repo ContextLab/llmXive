@@ -1,15 +1,6 @@
 T001:
-  reason: "The evidence shows the init script ran and reported writing `logs/init.log`,\
-    \ but the actual `logs/init.log` file is not presented, nor is its contents shown\
-    \ to confirm it lists the created directories. Without the concrete log file content\
-    \ (and verification that the required project directories were indeed created),\
-    \ the task\u2019s deliverable cannot be confirmed as satisfied."
   task: 896885ca25d472ce3906ebb16152a0502bad6034fafc8b426f0d170bf2ec8163
 T001-recovery:
-  reason: "The evidence includes a log showing the script ran with exit code\u202F\
-    0 and claimed to write `data/.initialized`, but the actual `data/.initialized`\
-    \ file is not present in the listed artifacts. Without the marker file, the task\u2019\
-    s required output is not verified."
   task: 94b8b93fcfecfee584e88707342685055df075e69cdb9667f767afb27e112ab4
 T001b:
   task: 1d63f2046f06f327d4179a7def609b980b7e24b2da9c35e5fdffe0ddce1b6187
@@ -45,14 +36,33 @@ T006b-exec:
 T006c:
   task: 46fcbe18a98cf373c2de58d62ec368cc7c961964ef6d0134033d0ff7203a7ec3
 T007:
+  reason: "The `error_handlers.py` implementation correctly catches `MemoryError`\
+    \ and `DownloadError`, but the unit test file imports the module as `from utils.error_handlers\
+    \ import \u2026` even though the module lives at `code/utils/error_handlers.py`.\
+    \ This import will fail, so the test `test_catches_memory_error` cannot be executed.\
+    \ Fix the import (e.g., `from code.utils.error_handlers import \u2026` or adjust\
+    \ `sys.path`) so the test runs successfully."
   task: a4bbe44f6f2425b27720c871dae619e2558654dcfd882c7c59f32f33cddb7fc5
 T008:
   reason: 'Requested task execution failed; rerun successfully: code/validate_env.py
     exit=1'
   task: 74c236ef93205c5da65b92a0da9028ba87a408294272ff1630be14f08e613495
 T008b:
+  reason: "The repository contains `code/ingestion/validate_source.py`, but it writes\
+    \ its results to `data/validation/source_validation_manifest.json` instead of\
+    \ the required `data/validation/source_validation.json`, and that file is missing.\
+    \ Moreover, the validation logic only checks for the presence of metadata fields\
+    \ and does not actually compare the HuggingFace citation to the primary source\
+    \ as mandated. The task\u2019s required output file is therefore absent and the\
+    \ implementation does not fulfill the citation\u2011verification requirement."
   task: 7561f7ce0511a8badc0feaceed87278c702ffd48a5d6e2fa64be571580bbefff
 T009:
+  reason: "The `code/ingestion/load_cod.py` script does stream the dataset and raises\
+    \ `SourceUnreachableError`, but it does **not** enforce the \u201C<\u202F500\u202F\
+    MB organic filter\u201D, does not check that T008b has successfully validated\
+    \ the source, and loads the entire stream into a pandas DataFrame instead of processing\
+    \ it in memory\u2011friendly chunks, violating the 7\u202FGB RAM constraint. These\
+    \ missing pieces must be added for the task to be considered complete."
   task: 48c529eace2e95abf6831206a5f249326af6fe8c9d4b0e0a56c7a61d2a6bf8d7
 T010:
   task: 6be10fe7315c63f9d455bef38dc5faa85e60352d0a1faf7c28cbc6bc24fd7f5c

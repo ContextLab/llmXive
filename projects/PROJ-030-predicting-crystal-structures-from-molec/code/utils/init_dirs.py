@@ -1,77 +1,91 @@
 """
-T001-recovery / T001b: Initialize the full project directory tree.
+Init Directories Script
+-----------------------
 
-Creates every data/logs directory required by the pipeline (CPU-only
-environment, no CUDA cache dirs) and writes a confirmation marker to
-``data/.initialized``. Exits 0 on success.
+This script creates the full project directory tree required for the
+``PROJ-030-predicting-crystal-structures-from-molec`` project and logs the
+created directories to ``logs/init.log``.
+
+It is intended to be run after the recovery task (``T001-recovery``) and
+before any other task that writes to these directories.
 """
-import json
-import sys
-from datetime import datetime, timezone
+
+import os
 from pathlib import Path
+from llmxive_toolkit import paths, get_logger
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+# Initialize logger – logs will also be written to the file ``logs/init.log``
+log = get_logger(__name__, log_file=str(paths.logs("init.log")))
 
-DIRECTORIES = [
+# List of directories to create (relative to the project root)
+DIRS_TO_CREATE = [
+    # Core data folders
     "data",
     "data/raw",
     "data/processed",
-    "data/processing",
     "data/results",
     "data/validation",
     "data/models",
-    "data/splits",
+    "data/processing",
+    # Logs
     "logs",
-    "state/projects",
+    # Source code hierarchy
     "code",
-    "code/utils",
+    "code/analysis",
     "code/ingestion",
     "code/modeling",
-    "code/analysis",
+    "code/utils",
+    # Tests
+    "tests",
     "tests/unit",
     "tests/integration",
+    # Specification and contracts
+    "specs",
+    "specs/001-predict-crystal-structures",
+    "contracts",
+    # Additional output folders
+    "figures",
+    "results",
+    "state",
+    "state/projects",
 ]
 
-
-def init_directories(root: Path = PROJECT_ROOT) -> Path:
-    """Create the full directory tree and write ``data/.initialized``.
-
-    Args:
-        root: Project root directory (defaults to this file's project).
-
-    Returns:
-        Path to the ``data/.initialized`` marker file.
-    """
+def create_directories(base_path: Path):
+    """Create each directory in ``DIRS_TO_CREATE`` under ``base_path``."""
     created = []
-    for rel in DIRECTORIES:
-        d = root / rel
-        if not d.exists():
-            d.mkdir(parents=True, exist_ok=True)
-            created.append(rel)
+    for rel_dir in DIRS_TO_CREATE:
+        dir_path = base_path / rel_dir
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path))
+            log.info(f"Created directory: {dir_path}")
+        except Exception as exc:
+            log.error(f"Failed to create directory {dir_path}: {exc}")
+            raise
+    return created
 
-    marker = root / "data" / ".initialized"
-    marker.write_text(
-        json.dumps(
-            {
-                "initialized_at": datetime.now(timezone.utc).isoformat(),
-                "project_root": str(root),
-                "directories": DIRECTORIES,
-                "created_now": created,
-                "environment": "cpu-only",
-            },
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-    return marker
+def main():
+    """Entry point for the script."""
+    project_root = Path(__file__).resolve().parents[2]  # ``code/utils`` -> project root
+    log.info(f"Project root resolved to: {project_root}")
 
+    # Create directories
+    created_dirs = create_directories(project_root)
 
-def main() -> int:
-    marker = init_directories()
-    print(f"Directory tree initialized. Marker written to {marker}")
+    # Write a summary log file (already handled by logger, but also write a plain list)
+    init_log_path = paths.logs("init.log")
+    try:
+        with open(init_log_path, "a") as f:
+            f.write("\n=== Directory creation summary ===\n")
+            for d in created_dirs:
+                f.write(f"{d}\n")
+        log.info(f"Directory creation summary written to {init_log_path}")
+    except Exception as exc:
+        log.error(f"Failed to write summary to {init_log_path}: {exc}")
+        raise
+
+    log.info("Project structure initialization completed successfully.")
     return 0
 
-
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

@@ -31,7 +31,7 @@ A researcher wishes to understand which elemental properties drive the predictio
 
 **Acceptance Scenarios**:
 
-1. **Given** a completed training run, **When** the user runs the “report‑importance” command, **Then** a visual bar chart and a CSV file (`feature_importance.csv`) containing the ranked descriptors are produced, and **at least five** distinct elemental properties (e.g., atomic radius, d‑electron count) appear among the highest‑ranked properties.
+1. **Given** a completed training run, **When** the user runs the “report‑importance” command, **Then** a visual bar chart and a CSV file (`feature_importance.csv`) containing the ranked descriptors are produced, and **at least five** distinct elemental properties (e.g., atomic radius, d‑electron count) appear among the top‑10 ranked descriptors.
 
 ### User Story 3 – Predict Magnetic Properties for New Candidate Alloys (Priority: P3) *(See US-3)*
 
@@ -49,7 +49,7 @@ A researcher has a novel alloy composition and crystal‑structure prototype and
 
 ### Edge Cases
 
-- **Missing magnetic fields** – When an entry lacks `magnetic_moment` or `curie_temperature`, the system **MUST discard the entry and log a warning**; the overall dataset size must still meet the minimum threshold of **3 500** records, otherwise the pipeline aborts with an informative error.  
+- **Missing magnetic fields** – When an entry lacks `magnetic_moment`, the system **MUST discard the entry and log a warning**. If an entry lacks `curie_temperature`, it **MUST be retained for saturation‑magnetization modelling** but **discarded for Curie‑temperature modelling**; a warning is logged. The overall dataset size after applicable discards must still meet the minimum threshold of **3 500** records for each modelling target, otherwise the pipeline aborts with an informative error.  
 - **Duplicate alloy entries** – When multiple DFT calculations exist for the same composition/structure, the system **MUST keep the most recent calculation (based on `last_updated` timestamp)** and remove older duplicates, logging the number of duplicates removed.  
 - **Extreme compositions** – For alloy formulas with **> 5 constituent elements**, the system **MUST compute elemental averages as usual**; if any constituent element is unknown to the `ElementProperty` featurizer, the entry is excluded and a warning is issued.  
 
@@ -111,7 +111,7 @@ A researcher has a novel alloy composition and crystal‑structure prototype and
 }
 ```
 
-- **FR-013** (See US-1): System MUST evaluate model generalization on an external hold‑out set of **≥ 200** distinct alloys that were not used during training or internal testing. The acquisition procedure is: (1) download the full Materials Project release **v2026.09** (), (2) apply the same cleaning steps as for the training data, (3) filter to entries containing both `magnetic_moment` and `curie_temperature`, (4) exclude any alloy present in the internal splits (based on composition + space‑group), (5) randomly sample at least 200 remaining entries. The same performance metrics (R², MAE, RMSE) as for the internal test set are reported.  
+- **FR-013** (See US-1): System MUST evaluate model generalization on an external hold‑out set of **≥ 200** distinct alloys that were not used during training or internal testing. The acquisition procedure is: (1) download the full Materials Project release **v2026.09** (), (2) apply the same cleaning steps as for the training data, (3) filter to entries containing both `magnetic_moment` and `curie_temperature`, (4) exclude any alloy present in the internal splits (based on composition + space‑group), (5) randomly sample **200** remaining entries using a fixed random seed = 42; the seed must be logged. The same performance metrics (R², MAE, RMSE) as for the internal test set are reported.  
 
 ### Key Entities
 

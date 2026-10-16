@@ -1,20 +1,21 @@
 T001:
-  c: false
-  h: 9c8f412a0a08b41489d23ee9315de1726d9de8df28c2a5f9ce77512a5b88c9a2
-  r: "The evidence shows the init script ran and reported writing `logs/init.log`,\
-    \ but the actual `logs/init.log` file is not presented, nor is its contents shown\
-    \ to confirm it lists the created directories. Without the concrete log file content\
-    \ (and verification that the required project directories were indeed created),\
-    \ the task\u2019s deliverable cannot be confirmed as satisfied."
-  sig: afd6a8058d64e149b0692c39fbf6d44f6545d7a93c2b7d3778eba2b189c375eb
+  c: true
+  h: 2f9be7bdcb3e20eef4eb1b83229979d58641bf4012235b3a5cd2a6537f7c7e8b
+  r: "Checked the execution log `code/.tasks/T001.code_utils_init_dirs.py.log`, which\
+    \ records successful creation of all required directories and confirms that a\
+    \ summary was written to `logs/init.log` with the listed directory paths. The\
+    \ log shows the file was generated and populated, satisfying the task\u2019s output\
+    \ requirement."
+  sig: 495d1f099a6b87dc90b1b72a892dfa367157495a510871b6bae3e0cfc1c584fd
 T001-recovery:
-  c: false
-  h: 4c5b3369eb2d0c232b2eceeb59ef64401b290baeb1f670f233da702abf3f1af8
-  r: "The evidence includes a log showing the script ran with exit code\u202F0 and\
-    \ claimed to write `data/.initialized`, but the actual `data/.initialized` file\
-    \ is not present in the listed artifacts. Without the marker file, the task\u2019\
-    s required output is not verified."
-  sig: 27cbfbe4e5e5818c4a64b669d8a2f3b6577271e07916d4ed24bc62e93c7270a5
+  c: true
+  h: eaaadb5c7cc32b8359be866d89dec90799d2782c90c9806e0bd4e46a329a005c
+  r: "Checked the execution log `code/.tasks/T001-recovery.code_utils_init_dirs.py.log`,\
+    \ which records a successful run (exit code\u202F0) of `code/utils/init_dirs.py`,\
+    \ creation of missing sub\u2011directories, and writing of the required marker\
+    \ file `data/.initialized`. The presence of this log and its stdout confirms that\
+    \ the required file was generated and the directory tree was re\u2011established."
+  sig: 25a054411624f7b98fbfb3d1701c54db6d21a1f8db05f42821988147e7dca6ed
 T002:
   c: false
   h: 20d4c570d30cc9e0fb6bc84fce325c0b07c3a21976e62cafa9e8d2beb37c958f
@@ -48,6 +49,46 @@ T005:
     \ only a run log shows it was written at execution time. The missing initialization\
     \ log means the task\u2019s required output is absent."
   sig: 11b672e989786314799a7846591e8cffb467a7ca85e329ba6ac4536886921f03
+T006:
+  c: true
+  h: 1596aa3becf1e0f214c619ed9f3f9d86819a7e3cbb24567877392ba90831cd26
+  r: "The file `code/ingestion/models.py` (5494\u202Fbytes) is present and defines\
+    \ the three required dataclasses: `MoleculeRecord`, `ModelMetrics`, and `FeatureImportance`,\
+    \ each with appropriate fields and serialization helpers. The implementation is\
+    \ concrete, non\u2011empty, and matches the task specification for creating the\
+    \ base data models."
+  sig: eba21aa893ea81ebdd4fdc2169863d3f014dd31f8d6e0c8f15325498b8de84e7
+T007:
+  c: false
+  h: 10b8e06c5e61561ded745ecc6a39d731bb730a33ad29f64c097a5fe4bb20c944
+  r: "The `error_handlers.py` implementation correctly catches `MemoryError` and `DownloadError`,\
+    \ but the unit test file imports the module as `from utils.error_handlers import\
+    \ \u2026` even though the module lives at `code/utils/error_handlers.py`. This\
+    \ import will fail, so the test `test_catches_memory_error` cannot be executed.\
+    \ Fix the import (e.g., `from code.utils.error_handlers import \u2026` or adjust\
+    \ `sys.path`) so the test runs successfully."
+  sig: a268de8371398dd7097879f1a7789108c2615b5a9ce3e266d98b4158d3b4a848
+T008b:
+  c: false
+  h: 2d3859578e1ba26fdc07da029b532b39bdd98766eabd3c797e479c4020659bca
+  r: "The repository contains `code/ingestion/validate_source.py`, but it writes its\
+    \ results to `data/validation/source_validation_manifest.json` instead of the\
+    \ required `data/validation/source_validation.json`, and that file is missing.\
+    \ Moreover, the validation logic only checks for the presence of metadata fields\
+    \ and does not actually compare the HuggingFace citation to the primary source\
+    \ as mandated. The task\u2019s required output file is therefore absent and the\
+    \ implementation does not fulfill the citation\u2011verification requirement."
+  sig: 5a52d0ca33092deb15cf8e5b68b6b1687c26a8309846b5dd22ddfc72b400a459
+T009:
+  c: false
+  h: 868c0e267438512d1d3b0e111ad3e878172cf64baab3cd2b6643afd0dc921c76
+  r: "The `code/ingestion/load_cod.py` script does stream the dataset and raises `SourceUnreachableError`,\
+    \ but it does **not** enforce the \u201C<\u202F500\u202FMB organic filter\u201D\
+    , does not check that T008b has successfully validated the source, and loads the\
+    \ entire stream into a pandas DataFrame instead of processing it in memory\u2011\
+    friendly chunks, violating the 7\u202FGB RAM constraint. These missing pieces\
+    \ must be added for the task to be considered complete."
+  sig: 1104cc3411119e6607e8f3d28904f72b62da22906a0a304029ae5212cf02a595
 T013:
   c: true
   h: b8437d9853d5956ec0c2ee3f8fc0bc6b0777482c4f3cb263684327a7c2fbb8f6

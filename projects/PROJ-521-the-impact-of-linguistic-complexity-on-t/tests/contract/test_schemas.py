@@ -161,7 +161,7 @@ def test_generated_text_csv_validation():
                 break
 
     if errors:
-        pytest.fail(f"Schema validation failed for {len(errors)} issues:\n" + "\n".join(errors))
+        pytest.fail(f"Schema validation failed for {len(errors)} issues:\\n" + "\\n".join(errors))
     
     assert row_count > 0, "CSV file is empty"
 

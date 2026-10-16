@@ -1,142 +1,117 @@
-# The Impact of Linguistic Complexity on Trust in AI-Generated Text
+# The Impact of Linguistic Complexity on Trust in AI‑Generated Text
+
+**Project ID:** PROJ‑521
+**Branch:** `001‑linguistic‑complexity‑trust`
 
 ## Overview
 
-This project investigates the relationship between linguistic complexity metrics
-(Flesch-Kincaid, MTLD, average sentence length) and human trust ratings in
-AI-generated text. The pipeline generates AI text samples, collects human trust
-ratings via Prolific, and performs statistical analysis to test the inverted-U
-hypothesis.
+This research project investigates whether linguistic complexity in AI‑generated text (e.g., sentence structure, lexical diversity) predicts readers’ trust ratings when the source is explicitly identified as AI‑generated.
+
+The pipeline consists of three main stages:
+
+1. **Data Generation** – Sample Wikipedia articles, generate AI‑generated text samples with the Gemma‑2B model, and compute objective complexity metrics (Flesch‑Kincaid, MTLD, average sentence length).
+2. **Trust Collection** – Present the generated samples to participants (simulated for CI, real via Prolific for production) and record 5‑point Likert trust ratings, applying attention‑check filtering.
+3. **Statistical Analysis** – Perform separate univariate linear regressions (including quadratic terms) for each complexity metric, apply Bonferroni correction, conduct post‑hoc power analysis, and run an ordinal logistic regression as a sensitivity check. Visualizations of the fitted Trust‑vs‑Complexity curves are saved as PNG files.
+
+All scripts are pure Python, CPU‑only, and reproducible via fixed random seeds.
+
+## Repository Structure
+
+```text
+projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/
+├── code/ # Core CLI scripts
+│ ├── generate_text.py
+│ ├── collect_trust.py
+│ ├── analyze.py
+│ ├── utils.py
+│ └── requirements.txt
+├── data/
+│ ├── raw/
+│ │ ├── generated_text.csv
+│ │ └── trust_responses.csv
+│ ├── processed/
+│ │ ├── cleaned_responses.csv
+│ │ └── analysis_inputs.csv
+│ └── outputs/
+│ ├── regression_results.json
+│ └── figures/
+├── specs/
+│ └── 001-the-impact-of-linguistic-complexity-on-t/
+│ ├── spec.md
+│ ├── plan.md
+│ ├── research.md
+│ ├── data-model.md
+│ ├── quickstart.md
+│ └── contracts/
+├── tests/
+│ ├── unit/
+│ ├── integration/
+│ └── contract/
+└── state/
+ └── projects/
+ └── PROJ-521-the-impact-of-linguistic-complexity-on-t.yaml
+```
 
 ## Installation
 
-### Prerequisites
-
-- Python 3.11+
-- pip
-
-### Setup
-
-1. Clone the repository:
+1. **Clone the repository**
  ```bash
- git clone <repository-url>
- cd projects/PROJ-521-the-impact-of-linguistic-complexity-on-t
+ git clone https://github.com/your-org/your-repo.git
+ cd your-repo
  ```
 
-2. Create a virtual environment:
+2. **Create a virtual environment**
  ```bash
  python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
+ source venv/bin/activate # Windows: venv\Scripts\activate
  ```
 
-3. Install dependencies:
+3. **Install dependencies**
  ```bash
- pip install -r code/requirements.txt
+ pip install -r projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/code/requirements.txt
  ```
 
-4. Configure linting and formatting:
+4. **(Optional) Set environment variables for Prolific**
  ```bash
- # Install pre-commit hooks (optional)
- pre-commit install
+ export PROLIFIC_API_KEY="your-api-key"
  ```
 
-## Usage
-
-### Data Generation (User Story 1)
+## Quickstart – Running the Full Pipeline
 
 ```bash
-python code/generate_text.py
+# Step 1: Generate text samples
+cd projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/code
+python generate_text.py --num-samples 200 --seed 42
+
+# Step 2: Collect trust ratings (simulation for CI)
+python collect_trust.py --simulate --num-participants 100 --seed 42
+
+# Step 3: Analyze the data
+python analyze.py --input data/processed/analysis_inputs.csv --output data/outputs/
 ```
 
-This generates `data/raw/generated_text.csv` with linguistic complexity metrics.
+After the analysis completes you will find:
 
-### Trust Rating Collection (User Story 2)
-
-```bash
-python code/collect_trust.py
-```
-
-This collects trust ratings from participants and saves to `data/raw/trust_responses.csv`.
-
-### Statistical Analysis (User Story 3)
-
-```bash
-python code/analyze.py
-```
-
-This performs regression analysis and saves results to `data/outputs/`.
-
-## Project Structure
-
-```
-projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/
-├── code/
-│ ├── utils.py # Metric computation utilities
-│ ├── generate_text.py # Text generation script
-│ ├── collect_trust.py # Trust rating collection
-│ ├── analyze.py # Statistical analysis
-│ └── requirements.txt # Dependencies
-├── data/
-│ ├── raw/ # Raw generated and collected data
-│ ├── processed/ # Cleaned and processed data
-│ └── outputs/ # Analysis results and figures
-├── tests/
-│ ├── unit/ # Unit tests
-│ ├── integration/ # Integration tests
-│ └── contract/ # Schema validation tests
-├── specs/
-│ └── 001-linguistic-complexity-trust/
-│ └── contracts/ # JSON schemas
-├── README.md
-├── pyproject.toml # Project configuration (Black, Ruff)
-└──.ruff.toml # Ruff configuration
-```
-
-## Configuration
-
-### Linting and Formatting
-
-The project uses:
-- **Black** for code formatting (88 char line length)
-- **Ruff** for linting (PEP8, Pyflakes, etc.)
-
-Run checks:
-```bash
-ruff check code/
-black --check code/
-```
-
-Format code:
-```bash
-black code/
-ruff check --fix code/
-```
+- `data/outputs/regression_results.json` – regression coefficients, p‑values, Bonferroni‑adjusted results, and power‑analysis output.
+- `data/outputs/figures/` – PNG visualizations of Trust vs. each complexity metric with fitted curves and 95 % confidence intervals.
 
 ## Testing
 
-Run unit tests:
 ```bash
+# Unit tests
 pytest tests/unit/
-```
 
-Run contract tests:
-```bash
+# Contract (schema) tests
 pytest tests/contract/
-```
 
-Run integration tests:
-```bash
+# End‑to‑end integration test
 pytest tests/integration/
 ```
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a pull request
+Contributions are welcome. Please follow the existing code style (ruff + black) and ensure all new tests pass. Update the `state` YAML file when adding new data artifacts to keep checksums in sync.
 
 ## License
 
-MIT License
+This project is licensed under the MIT License.
