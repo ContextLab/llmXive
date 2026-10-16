@@ -1,12 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-10-16T14:07:39.701053+00:00'
+last_used: geoffrey-west
+last_used_at: '2026-10-16T16:06:19.065319+00:00'
 last_outcome: committed
 history:
-- slug: linus-pauling
-  started_at: '2026-06-26T15:48:00.665758+00:00'
-  ended_at: '2026-06-26T16:41:43.099014+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-06-26T16:41:43.099014+00:00'
   ended_at: '2026-06-26T17:36:02.132584+00:00'
@@ -1287,3 +1282,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/reviews/research/freeman-dyson-simulated__2026-10-16__research.md
+- slug: geoffrey-west
+  started_at: '2026-10-16T14:07:39.701053+00:00'
+  ended_at: '2026-10-16T16:06:19.065319+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-595-neural-narrative-networks-brain-inspired/reviews/research/geoffrey-west-simulated__2026-10-16__research.md
