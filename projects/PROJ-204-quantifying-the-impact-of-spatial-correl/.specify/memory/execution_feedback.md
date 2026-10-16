@@ -43,16 +43,16 @@ E   ImportError: cannot import name 'compute_autocorrelation' from partially ini
 =========================== short test summary info ============================
 ERROR tests/unit/test_spatial_metrics.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.48s ===============================
+=============================== 1 error in 0.58s ===============================
 
 
 - python -m pytest tests/integration/test_pipeline.py -v -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.6.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-204-quantifying-the-impact-of-spatial-correl/bin/python
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-204-quantifying-the-impact-of-spatial-correl/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-204-quantifying-the-impact-of-spatial-correl
 configfile: pyproject.toml
-plugins: platformdirs-4.13.0
+plugins: platformdirs-4.13.3
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================

@@ -22,11 +22,13 @@ top‑level ``verdict`` field:
 * ``"continue"`` – at least one source provides linked EDS maps.
 * ``"halt"``     – no source provides linked EDS maps.
 
-The script **always exits with status code 0** so that the execution
-environment treats the run as successful; the ``verdict`` field conveys
-whether the downstream pipeline may proceed.  This behaviour satisfies
-the requirement to produce a real feasibility report while keeping the
-automated test harness happy.
+Exit codes:
+  * 0 – the check completed and at least one source provides linked EDS
+        maps (verdict ``"continue"``); downstream processing may proceed.
+  * 1 – the check completed but NO source provides linked EDS maps
+        (verdict ``"halt"``); per the task specification the script exits
+        non‑zero and the plan's Data Availability Report path applies.
+        No synthetic fallback data is ever produced.
 
 Invoked as a module:
 
@@ -200,9 +202,12 @@ def main() -> int:
     Execute the feasibility check for all three sources and write the
     consolidated JSON report to ``data/results/data_feasibility_report.json``.
 
-    Returns 0 on successful completion (regardless of the ``verdict``).
-    The ``verdict`` field inside the JSON indicates whether downstream
-    processing may continue.
+    Returns:
+        0 if at least one source provides linked EDS maps
+        (verdict ``"continue"``); 1 if no source provides linked EDS
+        maps (verdict ``"halt"``) — per the task specification the
+        script exits non‑zero in that case and no synthetic fallback
+        data is produced.
     """
     log.info("Starting data feasibility check...")
 
@@ -246,9 +251,12 @@ def main() -> int:
     if not any_linked:
         log.error(
             "No source provided linked EDS maps – verdict is 'halt'; "
-            "the plan's Data Availability Report path applies."
+            "exiting with status 1. The plan's Data Availability "
+            "Report path applies. No synthetic fallback is produced."
         )
-    # Always return 0 so the execution environment treats the run as successful.
+        return 1
+
+    log.info("At least one source provides linked EDS maps – verdict 'continue'.")
     return 0
 
 
