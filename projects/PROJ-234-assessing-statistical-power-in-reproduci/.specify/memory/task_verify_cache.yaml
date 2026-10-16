@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: be8bdd950d66bb1c29d5c8a43382f63ec0a1c925347de5e5e592a83dae0025ab
-  r: "The required root folder `projects/PROJ-001-assessing-statistical-power/` does\
-    \ not exist, and the sub\u2011directories (`code/utils`, `tests/unit`, `tests/integration`,\
-    \ `data/raw`, `data/processed`) lack the placeholder `.gitkeep` files that the\
-    \ task mandates."
-  sig: 8add700a06167c47d0037165a5a5e92ff78dd143b7e7a2a29facde2936578c3e
 T002:
   c: true
   h: 13009cbf6bbbe9e79673652dc8abd07a011767bde1c244cbe28b6fa24225b131
@@ -18,25 +10,14 @@ T002:
   sig: 241b1fb1024a97cc9b36294f94ceb892da376eea69fb127837ae577536a03ac3
 T003:
   c: true
-  h: 8ce3ee34c082aa5b07088f2dc65a45103ddbae29dc4edb515e18b9e2c1e45272
-  r: Checked the four schema files in `contracts/` (dataset_metadata.schema.yaml,
-    power_audit_result.schema.yaml, extracted_params.schema.yaml, report.schema.yaml)
-    and the verification log `code/.tasks/T003.code_verify_contracts.py.log`, which
-    shows each file parses with `yaml.safe_load` and passes `jsonschema.Draft7Validator`
-    against a minimal instance. All required artifacts exist and meet the task criteria.
-  sig: 7deae1a1a9982f19cdc983e2464e6a4b065e3af189f1a33f3f715082daef0187
-T004:
-  c: false
-  h: db29fdee4c3e0dffeb8856595701ebe1f67bfbdbae747bf6e17efe4694b72b71
-  r: "Checked the unit\u2011test logs: `tests/unit/test_parsers.py` and `tests/unit/test_oa_checker.py`\
-    \ both pass, but `tests/unit/test_api_client.py` fails because the returned dataset\
-    \ dict uses the key `'did'` instead of the required `'dataset_id'`, causing the\
-    \ assertion `assert \"dataset_id\" in ds` to fail. The API client therefore does\
-    \ not meet the specified interface and the overall test suite does not fully pass.\
-    \ The implementation must be corrected (e.g., rename the key to `dataset_id` and\
-    \ ensure the wrapper raises `DataFetchError` as required) before the task can\
-    \ be considered complete."
-  sig: 4505efe1c9851f4f6e77dfe17eda0a3a1133527fd3bc28eb7f4d5191b9c48b4e
+  h: aa094afe95d1b18d283f51d2a35551726ae8072238efa0838eaf7a3dd3812ef0
+  r: "Checked the four schema files in `contracts/` (dataset_metadata.schema.yaml,\
+    \ power_audit_result.schema.yaml, extracted_params.schema.yaml, report.schema.yaml)\
+    \ and the execution log `code/.tasks/T003.code_verify_contracts.py.log`, which\
+    \ shows each file parsed with `yaml.safe_load` and passed `jsonschema.Draft7Validator`\
+    \ against a minimal instance. All required artifacts exist, are non\u2011empty,\
+    \ and meet the verification criteria."
+  sig: 25381a5d833cc23c614d5682172b137d91cc050dfd193066b1a7a09a3cd01dd7
 T005:
   c: false
   h: c5c5425a0e89b8711c01dfb92891c964e15a6f05eb3f2aeec1f6fc273dd0f474

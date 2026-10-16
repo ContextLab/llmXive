@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-15T21:15:52Z",
-  "project_id": "PROJ-234-assessing-statistical-power-in-reproduci"
+  "updated_at": "2026-10-16T02:28:17Z",
+  "project_id": "PROJ-234-assessing-statistical-power-in-reproduci",
+  "replan_rounds": 1
 }

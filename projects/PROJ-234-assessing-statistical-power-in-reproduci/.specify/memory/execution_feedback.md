@@ -37,12 +37,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/02_parse_publications.py -> rc=1
 
-2026-10-16 02:23:22,516 ERROR __main__: Raw data file not found: data/raw/openml_metadata_filtered.json
+2026-10-16 02:26:43,945 ERROR __main__: Raw data file not found: data/raw/openml_metadata_filtered.json
 
 - python code/03_compute_sensitivity.py -> rc=1
 
-2026-10-16 02:23:23,156 - __main__ - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed/extracted_params.json
-2026-10-16 02:23:23,156 - __main__ - INFO - Please run code/02_parse_publications.py first to generate extracted_params.json
+2026-10-16 02:26:44,772 - __main__ - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed/extracted_params.json
+2026-10-16 02:26:44,772 - __main__ - INFO - Please run code/02_parse_publications.py first to generate extracted_params.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/03_compute_sensitivity.py", line 262, in <module>
     main()
@@ -68,7 +68,7 @@ ERROR tests/unit/test_performance_harness.py
 ERROR tests/unit/test_power_audit_schema.py
 ERROR tests/unit/test_utils_refactor.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 1.41s ===============================
+============================== 6 errors in 1.32s ===============================
 
 
 
@@ -76,37 +76,6 @@ ERROR tests/unit/test_utils_refactor.py
 
 - data/processed/extraction_stats.json
 - data/processed/performance_metrics.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `openml` to the project's `requirements.txt` and `pip install openml`.
-- **Verified**: this loads **6435** real records with fields: dataset_id, name, type, number_of_instances, number_of_features, number_of_classes.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import openml, pandas as pd
-df = openml.datasets.list_datasets(output_format='dataframe')
-mapping = {
-    'did': 'dataset_id',
-    'name': 'name',
-    'format': 'type',
-    'download_count': 'download_count',
-    'NumberOfInstances': 'number_of_instances',
-    'NumberOfFeatures': 'number_of_features',
-    'NumberOfClasses': 'number_of_classes',
-    'default_target_attribute': 'default_target_attribute',
-    'citation': 'citation',
-    'task_id': 'task_id'
-}
-cols = [c for c in mapping if c in df.columns]
-df2 = df[cols].rename(columns=mapping)
-print(f'RECORDS={len(df2)}')
-print('FIELDS=' + ','.join(df2.columns))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

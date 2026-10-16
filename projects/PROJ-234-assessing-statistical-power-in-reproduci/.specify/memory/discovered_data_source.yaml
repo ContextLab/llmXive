@@ -1,33 +1,16 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: "import openml, pandas as pd\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
-  mapping = {\n    'did': 'dataset_id',\n    'name': 'name',\n    'format': 'type',\n\
-  \    'download_count': 'download_count',\n    'NumberOfInstances': 'number_of_instances',\n\
-  \    'NumberOfFeatures': 'number_of_features',\n    'NumberOfClasses': 'number_of_classes',\n\
-  \    'default_target_attribute': 'default_target_attribute',\n    'citation': 'citation',\n\
-  \    'task_id': 'task_id'\n}\ncols = [c for c in mapping if c in df.columns]\ndf2\
-  \ = df[cols].rename(columns=mapping)\nprint(f'RECORDS={len(df2)}')\nprint('FIELDS='\
-  \ + ','.join(df2.columns))"
-record_count: 6435
-sample_fields:
-- dataset_id
-- name
-- type
-- number_of_instances
-- number_of_features
-- number_of_classes
-field_coverage: 0.6
+status: none
+intent: OpenML most-downloaded classification datasets metadata download python package
+  dataset
 required_fields:
 - dataset_id
 - name
-- type
-- download_count
+- number_of_downloads
+- default_target_attribute
 - number_of_instances
 - number_of_features
 - number_of_classes
-- default_target_attribute
 - citation
 - task_id
-intent: OpenML Python package dataset
-cache_key: 79625a2da1ea65cda7595df8a2af4fa21642bc480989e0f76dfc48034f745f0e
+cache_key: 4696b701f83822797ff62ab94cb441e47f5098eb6d495db999c50586ba9843ab
+searched_at: '2026-10-16T02:28:06.991719+00:00'
+retry_count: 1

@@ -1,22 +1,20 @@
 T001:
-  reason: "The required root folder `projects/PROJ-001-assessing-statistical-power/`\
-    \ does not exist, and the sub\u2011directories (`code/utils`, `tests/unit`, `tests/integration`,\
-    \ `data/raw`, `data/processed`) lack the placeholder `.gitkeep` files that the\
-    \ task mandates."
+  reason: "The required root directory `projects/PROJ-001-assessing-statistical-power/`\
+    \ is missing; the scaffolded directories (`code/`, `data/`, `tests/`, `docs/`,\
+    \ `contracts/`) exist at the repository root instead of under the specified project\
+    \ path, so the task\u2019s directory\u2011tree requirement is not satisfied."
   task: f601b39ee8ebeef163aa6e6481dc773fb45ed763416940616bf51385b1d0b7f6
 T002:
   task: dcaeefa0a2f2e975515379cf97c5d6e62d66b4bd77e2618b25fff8803bcecf91
 T003:
   task: c3ba56c391eb34f7068d63949a82ded611c6114714cabc83a7dee5381ea163ec
 T004:
-  reason: "Checked the unit\u2011test logs: `tests/unit/test_parsers.py` and `tests/unit/test_oa_checker.py`\
-    \ both pass, but `tests/unit/test_api_client.py` fails because the returned dataset\
-    \ dict uses the key `'did'` instead of the required `'dataset_id'`, causing the\
-    \ assertion `assert \"dataset_id\" in ds` to fail. The API client therefore does\
-    \ not meet the specified interface and the overall test suite does not fully pass.\
-    \ The implementation must be corrected (e.g., rename the key to `dataset_id` and\
-    \ ensure the wrapper raises `DataFetchError` as required) before the task can\
-    \ be considered complete."
+  reason: "Checked the unit\u2011test logs for the three required utilities.\u202F\
+    `test_parsers.py` and `test_oa_checker.py` both passed, but `test_api_client.py`\
+    \ failed: the test expecting a `DataFetchError` on a bad URL did not raise the\
+    \ exception (see `code/.tasks/T004.tests_unit_test_api_client.py.log`). Consequently\
+    \ the `api_client.py` does not meet the specification (no proper error handling/exponential\u2011\
+    backoff), so the task is not fully satisfied."
   task: d1fd21f1dc24b2ff6d073b1184aa5cb3a834bf28c2cddddeafd37bf81deeb74e
 T005:
   reason: "The ingestion script does not use the provided `api_client` wrapper, filters\
