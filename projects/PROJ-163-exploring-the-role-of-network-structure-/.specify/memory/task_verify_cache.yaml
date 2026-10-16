@@ -1,3 +1,10 @@
+T002:
+  c: false
+  h: 9d71afa359049970621ac857ef909e89e66dfac3c9f9385dae625bff44e2f96e
+  r: The required `data/processed/performance_metrics.csv` file does not exist, and
+    the referenced `performance_metrics.schema.yaml` schema file is also missing,
+    so the CSV cannot be validated nor does the test suite pass.
+  sig: 4578efc17a24b2349149d2d1cd88ce9882be20aab25ac08efa3c2b60656eefd8
 T003:
   c: false
   h: 46b1596fb2709ba61f0c4eed752a966697c313d5cbba6a38eb78c941084055d0
