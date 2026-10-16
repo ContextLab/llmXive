@@ -50,13 +50,17 @@ from src.utils.seed import set_global_seed
 # Configuration
 # ----------------------------------------------------------------------
 # Verified OpenNeuro identifier for the Müller‑Lyer dataset.
-# The dataset is hosted on the Hugging Face Hub under the repo
-# ``openneuro/muller-lyer``.  The primary parquet file is named
-# ``muller_lyer.parquet``.
-OPENNEURO_DATASET_ID = "openneuro/muller-lyer"
-# The split name used by the OpenNeuro collection – most collections expose a
-# single split called ``train``.
-OPENNEURO_SPLIT = "train"
+# A list of possible repository identifiers is tried in order; this guards
+# against repository renames on the Hugging Face Hub.
+OPENNEURO_REPO_IDS = [
+    "openneuro/muller-lyer",
+    "OpenNeuro/muller-lyer",
+    "openneuro/muller_lyer",
+    "OpenNeuro/muller_lyer",
+]
+
+# The filename inside the repository.
+PARQUET_FILENAME = "muller_lyer.parquet"
 
 # Required columns in the cleaned CSV.  The schema file
 # ``contracts/clean-muller-lyer.schema.yaml`` mirrors this list.
@@ -120,30 +124,27 @@ def _download_parquet(raw_path: Path) -> None:
     write it to ``raw_path``.  The function raises ``RuntimeError`` if the
     download fails.
     """
-    log.info(
-        "Downloading Müller‑Lyer dataset from OpenNeuro (%s)", OPENNEURO_DATASET_ID
+    log.info("Attempting to download Müller‑Lyer dataset from OpenNeuro")
+    for repo_id in OPENNEURO_REPO_IDS:
+        try:
+            downloaded_file = hf_hub_download(
+                repo_id=repo_id,
+                filename=PARQUET_FILENAME,
+            )
+            # If we reach this point the download succeeded.
+            log.info("Successfully downloaded from repo %s", repo_id)
+            shutil.copyfile(downloaded_file, raw_path)
+            log.info("Raw parquet written to %s", raw_path)
+            return
+        except Exception as exc:  # pragma: no cover – we want to try all IDs
+            log.debug("Failed to download from %s: %s", repo_id, exc)
+
+    # If none of the attempts succeeded, raise a clear error.
+    raise RuntimeError(
+        f"Failed to download parquet file '{PARQUET_FILENAME}' from any of the "
+        f"known OpenNeuro repositories: {OPENNEURO_REPO_IDS}. "
+        "Please verify that the dataset is publicly available."
     )
-    try:
-        # ``hf_hub_download`` fetches the file from the Hub without requiring
-        # authentication because the repository is public.
-        downloaded_file = hf_hub_download(
-            repo_id=OPENNEURO_DATASET_ID,
-            filename="muller_lyer.parquet",
-        )
-    except Exception as exc:
-        raise RuntimeError(
-            f"Failed to download parquet file from repository "
-            f"'{OPENNEURO_DATASET_ID}'. Ensure the repository and file exist."
-        ) from exc
-
-    # Copy the downloaded file to the desired location (preserving the exact
-    # filename expected by downstream steps).
-    try:
-        shutil.copyfile(downloaded_file, raw_path)
-    except Exception as exc:
-        raise RuntimeError(f"Failed to copy parquet to {raw_path}") from exc
-
-    log.info("Raw parquet written to %s", raw_path)
 
 def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """

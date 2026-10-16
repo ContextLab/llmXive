@@ -1,4 +1,12 @@
 T000:
+  reason: "The two required files exist with correct, non-stub content (`set_global_seed(42)`\
+    \ seeding `random`, NumPy, and `PYTHONHASHSEED`, plus package-load seeding in\
+    \ `src/__init__.py`). However, the task's explicit verification step \u2014 running\
+    \ `python -c \"import src, numpy as np; src.utils.seed.set_global_seed(42); print(np.random.rand())\"\
+    ` twice and capturing/asserting identical outputs \u2014 has no execution evidence\
+    \ anywhere in the packet, so deterministic behavior is claimed but not demonstrated.\
+    \ Provide the captured outputs of the two runs (e.g., a log or test artifact showing\
+    \ identical values) to co"
   task: 98155e0f17034e2ee207938f8627a6abd4845259e46de1b79d3a90506384ad64
 T001:
   reason: 'Requested task execution failed; rerun successfully: src/ingest/load_illusions.py
