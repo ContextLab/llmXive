@@ -28708,7 +28708,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-16T21:09:50.998764+00:00",
+  "generated_at": "2026-10-16T21:11:12.396572+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -48658,7 +48658,7 @@
           ]
         },
         {
-          "contributions": 10,
+          "contributions": 11,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -48686,6 +48686,14 @@
       "id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 14.105753,
+          "ended_at": "2026-10-16T21:07:54.796540Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T21:07:40.690787Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 14.628531,
@@ -48757,14 +48765,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-13T00:22:23.924436Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 521.561043,
-          "ended_at": "2026-10-13T00:22:09.602335Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-13T00:13:28.041292Z"
         }
       ],
       "paper_status": null,
@@ -103679,6 +103679,16 @@
       },
       "authors": [
         {
+          "contributions": 12,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "implementer",
+            "planner",
+            "tasker"
+          ]
+        },
+        {
           "contributions": 11,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
@@ -103688,16 +103698,6 @@
             "project_initializer",
             "research_question_validator",
             "specifier"
-          ]
-        },
-        {
-          "contributions": 11,
-          "kind": "llm",
-          "name": "openai.gpt-oss-120b",
-          "roles": [
-            "implementer",
-            "planner",
-            "tasker"
           ]
         }
       ],
@@ -103720,6 +103720,14 @@
       "id": "PROJ-406-investigating-neural-signatures-of-predi",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 67.084998,
+          "ended_at": "2026-10-16T21:10:01.880887Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T21:08:54.795889Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 27.037126,
@@ -103791,14 +103799,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-16T18:42:40.481643Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 0.028709,
-          "ended_at": "2026-10-16T18:42:31.573530Z",
-          "model": "deterministic-no-llm",
-          "outcome": "skipped",
-          "started_at": "2026-10-16T18:42:31.544821Z"
         }
       ],
       "paper_status": null,
@@ -172323,6 +172323,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 67.084998,
+      "ended_at": "2026-10-16T21:10:01.880887Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-406-investigating-neural-signatures-of-predi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T21:08:54.795889Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 14.105753,
+      "ended_at": "2026-10-16T21:07:54.796540Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T21:07:40.690787Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 1458.159098,
       "ended_at": "2026-10-16T20:55:29.277972Z",
@@ -178351,30 +178375,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-16T00:11:02.822878Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 707.002073,
-      "ended_at": "2026-10-16T00:22:50.023173Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['google.gemma-4-31B-it', 'zai-org.glm-5.3', 'openai.gpt-oss-120b', 'anthropic",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "failed",
-      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-16T00:11:03.021100Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 371.184984,
-      "ended_at": "2026-10-16T00:17:37.167307Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-10-16T00:11:25.982323Z"
     }
   ],
   "reviewed_preprints": [
