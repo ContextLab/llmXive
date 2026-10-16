@@ -1,0 +1,121 @@
+- artifact_path: projects/PROJ-531-the-impact-of-visual-motion-on-perceived/README.md
+  attempts: 1
+  canonical: implementation runs in synthetic-only mode with no human subjects
+  claim_id: c_a964109f
+  context: "The current implementation runs in synthetic\u2011only mode (no human\
+    \ subjects). See the Scope document for a full ethics statement and the placeholder\
+    \ IRB approval file."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The current implementation runs in synthetic\u2011only mode (no human\
+    \ subjects)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T21:23:26Z'
+- artifact_path: projects/PROJ-531-the-impact-of-visual-motion-on-perceived/docs/scope.md
+  attempts: 1
+  canonical: no human participants involved
+  claim_id: c_998382ba
+  context: "This project is strictly a synthetic data stress\u2011test. No human participants\
+    \ are involved."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No human participants are involved.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T21:23:36Z'
+- artifact_path: projects/PROJ-531-the-impact-of-visual-motion-on-perceived/docs/scope.md
+  attempts: 1
+  canonical: real data acquisition disabled due to lack of validated dataset
+  claim_id: c_c623133c
+  context: "This project is strictly a synthetic data stress\u2011test. No human participants\
+    \ are involved. Real data acquisition is disabled due to unavailability of a validated\
+    \ dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Real data acquisition is disabled due to unavailability of a validated
+    dataset.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T21:23:36Z'
+- artifact_path: projects/PROJ-531-the-impact-of-visual-motion-on-perceived/docs/scope.md
+  attempts: 1
+  canonical: synthetic data has known correlation structures between motion features
+    and agency scores
+  claim_id: c_d760c68e
+  context: 'Characteristics: - Known correlation structures between motion features
+    and agency scores - Configurable sample sizes and noise levels - Reproducible
+    via random seed'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Known correlation structures between motion features and agency scores.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T21:23:36Z'
+- artifact_path: projects/PROJ-531-the-impact-of-visual-motion-on-perceived/docs/scope.md
+  attempts: 1
+  canonical: real data acquisition flag set to true by default
+  claim_id: c_e01e2d4e
+  context: The codebase includes a flag to disable any real data acquisition attempts.
+    This flag is set to `true` by default and must not be changed without proper ethical
+    oversight.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The flag to disable any real data acquisition attempts is set to true
+    by default.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T21:23:36Z'
+- artifact_path: projects/PROJ-531-the-impact-of-visual-motion-on-perceived/docs/scope.md
+  attempts: 1
+  canonical: placeholder IRB approval document located at protocols/irb_approval.pdf
+  claim_id: c_f1949e43
+  context: Although no human subjects are involved, the project maintains a placeholder
+    IRB approval document to satisfy documentation standards. See `protocols/irb_approval.pdf`
+    for the placeholder approval letter.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A placeholder IRB approval document is located at protocols/irb_approval.pdf.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T21:23:36Z'
+- artifact_path: projects/PROJ-531-the-impact-of-visual-motion-on-perceived/docs/scope.md
+  attempts: 1
+  canonical: feature branch identifier 001-visual-motion-agency
+  claim_id: c_2bfdca6f
+  context: This work is developed under the feature branch **`001-visual-motion-agency`**.
+    All code, documentation, and analysis artifacts should cite this branch identifier.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: This work is developed under the feature branch 001-visual-motion-agency.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T21:23:36Z'

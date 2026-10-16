@@ -1,0 +1,55 @@
+T001:
+  task: 5a923a37c9a75348f0e5d6668d13b99d0d633179205e8979c2acdf78674730ec
+T001b:
+  task: 36e9097b74eb073014efe060f0af557fed9b6084af8e71c90afba927abad266d
+T002:
+  reason: "Checked `code/download_data.py` and the generated `data/raw/download_status.json`.\
+    \ The script never attempts to download a dataset or create `data/raw/real_data.parquet`\
+    \ (the file is missing), it always returns `instrument_valid = false` via a placeholder\
+    \ stub (no DOI, citation, or Cronbach\u2019s\u202F\u03B1 checks), and it exits\
+    \ with code\u202F0 even when the instrument is invalid. Consequently the required\
+    \ dataset query, instrument validation, raw data saving, and error\u2011exit behavior\
+    \ are not implemented."
+  task: 756d4182065ae2553b3a729d0a1b5d38ac8c16fb6bb567da019c8c270e4ecc0a
+T002a:
+  reason: 'Requested task execution failed; rerun successfully: code/check_instrument_validity.py
+    exit=1'
+  task: 4773093927a3e3ce6a2c3e3b631945f7e98cf054f129f6705d94481979839506
+T003:
+  task: 1581166f1f17e84268519e330c0d9e3d694bcf8094bc9567c5f6d11c2334de1a
+T003a:
+  task: 4b21468a03844eb851d80173492ed50e4399defc110ebca245f549d0b3e056e0
+T004:
+  task: 3b95947a86a7dd628c33a0506a7078936155506c123491ec085aa46a939846d0
+T009:
+  task: 58ce114bf6e04ce7a4527d7e70727127e7457199fb11d28ebe97213774ca29a8
+T011:
+  task: ffc40842275c1a4dc89ae575bb4329abf3d35a316b6597c64b26c73b0a266df8
+T012:
+  task: eb67f2ab36bc40ec2e8dbbf52a31eb6bb56ade978f54f0d0a3b7f20c30c62007
+T013:
+  task: 55df501006df43ecab93143d3daa36c507d221871ae86026391fb5521dd92bef
+T014:
+  task: 17204e75975f81df4562f25fd2a7c1350f54b3c1df78cad91f9176488737def5
+T015:
+  task: 8a854c8f3fd6e478a16bf81a4a75ab803e3082b362f4e5968df05fecee3202b8
+T016:
+  task: b4c1483780e3e0708ba58756e3dc07457483908cdd92e91edbc030531bc4f51b
+T016b:
+  task: b1e07db2697515e915e05ee750b62735c7a2a0f48be730a57612b0771216563b
+T021:
+  task: bdfad361550458a8a49f5df0de918449d3afbec29a5203589a38dab0c99b3721
+T021b:
+  task: d2c4a05081f456d73f19de2160134a9ef58cc685382fa6780799620fdbb2cad3
+T022:
+  task: ea1a8405517468879e3d8626f417e50692b2a967697739fe12e68726d8eb26ec
+T023:
+  task: 6bf3e91451ab39a9a0a258797af68e8ef8214b2a3edfa9d0dd3b9b33096cb722
+T023b:
+  task: 57f0c37c4466b5b7d976c84edeb7cdc943e762b9401a06c86f70c26af17a98d3
+T024:
+  task: 69878b0eb3ad3fea2ba73b6ce3455a34dbdbe7e92b2ef5fe402ff7c1e9069193
+T027:
+  task: 2506c575f185ef3221526c616b6ddf925f88abdae752179d9751120c8ea696b0
+T033b:
+  task: cef93ce5603c6a49f1d2d76b8970fadc2526410952dac1b40002eff78394b251

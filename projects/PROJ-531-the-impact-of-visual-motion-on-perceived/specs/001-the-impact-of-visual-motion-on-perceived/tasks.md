@@ -7,16 +7,16 @@
 
 ## Phase 1 – Scope, Ethics & End‑to‑End Bootstrap  
 
-- [ ] T001 [US0] **Define project scope & ethics** – update `README.md` and create `docs/scope.md` that (a) state the “real‑data first, synthetic‑only for pipeline stress‑test” policy, (b) reference the IRB approval document, and (c) cite the feature branch `001-visual-motion-agency`.  
+- [X] T001 [US0] **Define project scope & ethics** – update `README.md` and create `docs/scope.md` that (a) state the “real‑data first, synthetic‑only for pipeline stress‑test” policy, (b) reference the IRB approval document, and (c) cite the feature branch `001-visual-motion-agency`.  
   *Verification*: Both files exist, contain the required sections, and are linked from `quickstart.md`.
 
-- [ ] T001b [US0] **Create documented IRB approval file** – place a PDF (or placeholder) `protocols/irb_approval.pdf` with the IRB approval letter or exemption statement.  
+- [X] T001b [US0] **Create documented IRB approval file** – place a PDF (or placeholder) `protocols/irb_approval.pdf` with the IRB approval letter or exemption statement.  
   *Verification*: `protocols/irb_approval.pdf` exists and is referenced in `docs/scope.md`.
 
 - [ ] T002 [US1] **Download real dataset & validate instrument** – implement `code/download_data.py` to (1) query OpenML / HuggingFace / OSF for a dataset containing motion telemetry **and** a validated agency questionnaire, (2) verify the questionnaire via Crossref DOI lookup, Semantic Scholar citation count ≥ 10, and Cronbach’s α ≥ 0.70 (FR‑013), (3) save the raw file to `data/raw/real_data.parquet`, (4) write `data/raw/download_status.json` with keys `status` (`"success"` | `"invalid"` | `"unavailable"`), `source_url`, `instrument_valid`, and `use_synthetic` (boolean), and (5) exit with a non‑zero code and clear error message if `status == "invalid"`.  
   *Verification*: Running the script produces `real_data.parquet` (or fails cleanly) **and** a correctly‑structured `download_status.json`.
 
-- [ ] T002a [US1] **Enforce instrument validity** – implement `code/check_instrument_validity.py` that reads `download_status.json`; if `instrument_valid == false` it aborts the pipeline with an informative error.  
+- [ ] T002a [US1] **Enforce instrument validity** – implement `code/check_instrument_validity.py` that reads `download_status.json`; if `instrument_valid == false` it aborts the pipeline with an informative error.   <!-- FAILED-IN-EXECUTION: code/check_instrument_validity.py exit=1 -->
   *Verification*: Pipeline stops with exit code 1 when an invalid instrument is detected.
 
 - [ ] T003 [US1] **Generate synthetic dataset when real data unavailable** – implement `code/generate_synthetic_data.py` to (1) read `data/raw/download_status.json`; if `status == "unavailable"` or `instrument_valid == false`, generate a synthetic CSV with ≥ 150 rows, (2) columns: `participant_id` (UUID), `latency` (ms), `smoothness` (dimensionless jerk), `lead_time` (ms), `agency_score` (0‑100), `user_response_trigger` (ms), (3) impose a known linear relationship `agency_score = 0.4*latency - 0.3*smoothness + 0.2*lead_time + ε`, (4) ensure `user_response_trigger` is independent of `agency_score` (Pearson r < 0.05, permutation p > 0.10), (5) write the file to `data/raw/synthetic_data.csv` and set `"use_synthetic": true` in `download_status.json`.  

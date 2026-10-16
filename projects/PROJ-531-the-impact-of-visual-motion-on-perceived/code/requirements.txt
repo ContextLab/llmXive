@@ -1,8 +1,10 @@
-python-dotenv  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-pandas  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
-seaborn  # auto-added: imported by run-book but missing from venv
-scikit-learn  # auto-added: imported by run-book but missing from venv
-statsmodels  # auto-added: imported by run-book but missing from venv
+# Project‑wide Python dependencies
+#
+# Core scientific stack (already present in the execution environment):
+#   numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+#   seaborn, pytest, PyYAML, requests, jsonschema, psutil
+#
+# The ``requests`` library is explicitly listed to guarantee its presence
+# for the OpenML / HuggingFace checks performed by ``code/download_data.py``.
+#
+requests==2.32.3

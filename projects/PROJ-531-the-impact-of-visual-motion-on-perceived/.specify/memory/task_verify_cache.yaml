@@ -1,3 +1,30 @@
+T001:
+  c: true
+  h: 84e406d1195256056bcc3ae26d5aae90249ef7c44945eb7ab211ae02a53fcaa3
+  r: "Checked `docs/scope.md` (contains synthetic\u2011only policy, IRB placeholder\
+    \ reference, and feature\u2011branch citation) and `README.md` (updated with feature\u2011\
+    branch line) plus the link from `quickstart.md` to `docs/scope.md`. All required\
+    \ files exist, are non\u2011empty, and include the stipulated sections."
+  sig: b88322e907d66a2c6ef353f4bb50cc8043e287f345cb60de957a8e602990402f
+T001b:
+  c: true
+  h: fa8a9426b293f4ec00c4b0470be241606add34cad739d3a843faa7fb01fe370d
+  r: "The PDF file `protocols/irb_approval.pdf` is present (482\u202Fbytes, valid\
+    \ PDF content) and `docs/scope.md` contains a reference to it as the placeholder\
+    \ IRB approval document. This satisfies the requirement to provide a documented\
+    \ IRB approval (or placeholder) and to reference it in the project scope."
+  sig: 8b2036ff27230d4b3ddfb4796097eeb8584812215e0d523eb79d9d77bde7d2f3
+T002:
+  c: false
+  h: 2453c044d33a73e618c9dbad562f739ac701a67bb1b52f1cff6345d764faaf5d
+  r: "Checked `code/download_data.py` and the generated `data/raw/download_status.json`.\
+    \ The script never attempts to download a dataset or create `data/raw/real_data.parquet`\
+    \ (the file is missing), it always returns `instrument_valid = false` via a placeholder\
+    \ stub (no DOI, citation, or Cronbach\u2019s\u202F\u03B1 checks), and it exits\
+    \ with code\u202F0 even when the instrument is invalid. Consequently the required\
+    \ dataset query, instrument validation, raw data saving, and error\u2011exit behavior\
+    \ are not implemented."
+  sig: 483042d7a46d70cbace15cac6cd0510c017301317303b2f26c67e18cef002f15
 T012:
   c: false
   h: 748e34db654f86208819c500fed5f53ea06e453a0c2dd18d0e27d45d827ca8ba
@@ -35,13 +62,6 @@ T022:
     \ statistical significance tests on \u22653 features with Bonferroni or Benjamini\u2011\
     Hochberg correction. The required artifact (e.g., a reproducible analysis script\
     \ and corrected p\u2011values) is missing, so the task is not satisfied."
-T022b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or output files were supplied showing a fitted Random Forest\
-    \ model, k\u2011fold cross\u2011validation, feature importance scores, or out\u2011\
-    of\u2011sample R\xB2/RMSE metrics. The required artifacts are missing, so the\
-    \ task is not satisfied."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -50,34 +70,6 @@ T024:
     \ values and the FR\u2011004/SC\u2011002 importance visualizations are missing.\
     \ The implementer must supply the computed out\u2011of\u2011sample metrics and\
     \ the stored feature\u2011importance maps."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No output metadata artifact was provided, and there is no evidence that any reported
-    associations have been labeled or framed as correlational. Without a concrete
-    file (e.g., JSON, CSV, or report) showing the required framing, the task requirement
-    cannot be confirmed as satisfied.
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or generated figure for a feature\u2011importance bar chart\
-    \ is present; the evidence provided contains only the specification text and no\
-    \ artifact that demonstrates the required visualization has been created. The\
-    \ implementer must supply the implementation (e.g., a Python/JS script) and the\
-    \ resulting bar\u2011chart image or file."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or generated figure for a partial dependence plot\
-    \ of the top predictor (FR\u2011007) is present. The required artifact (implementation\
-    \ and/or visual output) is missing, so the task is not satisfied."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, document, or output describing the interpretation logic (direction/magnitude\
-    \ of predictors or framing of null results) is present. The required artifact\
-    \ that would explain how model results are interpreted for US\u20113 Scenario\u202F\
-    3 is missing, so the task is not satisfied."
 T033b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
