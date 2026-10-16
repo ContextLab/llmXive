@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Execute Static Analysis Pipeline on Benchmark Dataset (Priority: P1)
+### User Story 1 - Execute Static Analysis Pipeline on Benchmark Dataset (US-1) (Priority: P1)
 
 The system must successfully download the CodeVulnBench dataset and complementary human-written code samples, then execute lightweight static analysis tools (Bandit, Semgrep, SonarQube) to extract vulnerability counts per file without requiring GPU resources.
 
@@ -22,9 +22,9 @@ The system must successfully download the CodeVulnBench dataset and complementar
 
 ---
 
-### User Story 2 - Compute Vulnerability Density and Aggregate Statistics (Priority: P2)
+### User Story 2 - Compute Vulnerability Density and Aggregate Statistics (US-2) (Priority: P2)
 
-The system must calculate vulnerability density (vulnerabilities per [deferred] lines of code) for each code sample, aggregate these metrics by code source (LLM vs. human), and compute summary statistics (mean, median, standard deviation) for comparison.
+The system must calculate vulnerability density (vulnerabilities per lines of code) for each code sample, aggregate these metrics by code source (LLM vs. human), and compute summary statistics (mean, median, standard deviation) for comparison.
 
 **Why this priority**: This transforms raw vulnerability counts into the primary metric of interest (density), enabling the core research question to be addressed. It is independent of the statistical significance testing but essential for descriptive analysis.
 
@@ -37,7 +37,7 @@ The system must calculate vulnerability density (vulnerabilities per [deferred] 
 
 ---
 
-### User Story 3 - Perform Statistical Comparison and Generate Visualizations (Priority: P3)
+### User Story 3 - Perform Statistical Comparison and Generate Visualizations (US-3) (Priority: P3)
 
 The system must execute a Negative Binomial regression and a Mann-Whitney U test to compare vulnerability densities between LLM and human code groups, and generate boxplots and bar charts visualizing the distribution of densities and vulnerability types.
 
@@ -53,51 +53,66 @@ The system must execute a Negative Binomial regression and a Mann-Whitney U test
 ### Edge Cases
 
 - What happens when the static analysis tool (e.g., SonarQube) fails to parse a specific code file due to syntax errors? The system must log the failure, exclude the file from the density calculation, and continue processing the remaining files without halting.
-- How does the system handle code samples with extremely high lines of code (e.g., >100k LOC) that might exceed memory limits on a 7GB RAM runner? The system must process files in a streaming or chunked manner, or explicitly skip files exceeding a defined size threshold (e.g., 50k LOC) and log them as "skipped due to size."
+- How does the system handle code samples with extremely high lines of code (e.g., >100k LOC) that might exceed memory limits on a 7 GB RAM runner? The system must process files in a streaming or chunked manner, **or** skip files exceeding **100 k LOC** and log them as "skipped due to size."
 - What if the dataset contains files with missing vulnerability annotations? The system must treat missing annotations as "unknown" and exclude them from the density calculation for that specific metric, or default to a count of zero if the annotation is strictly missing (documented in assumptions).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the CodeVulnBench dataset and a verified human-written code subset (e.g., Juliet Test Suite) from public repositories, ensuring all files are accessible and valid before analysis begins (See US-1).
-- **FR-002**: System MUST execute static analysis tools (Bandit, Semgrep, SonarQube) on all downloaded code samples using only CPU resources, extracting vulnerability counts and CWE classifications for each file (See US-1).
-- **FR-003**: System MUST calculate vulnerability density (vulnerabilities per [deferred] lines of code) for each file, handling division-by-zero cases by marking the result as "undefined" or zero (See US-2).
-- **FR-004**: System MUST perform a Negative Binomial regression to compare the mean vulnerability density between the LLM-generated and human-written code groups (primary test), and a Mann-Whitney U test as a non-parametric robustness check (secondary test), outputting p-values for both (See US-3).
-- **FR-005**: System MUST generate visualizations including a boxplot of vulnerability density by code source and a bar chart of vulnerability class distribution, saving them as standard image formats (PNG/SVG) (See US-3).
-- **FR-006**: System MUST implement a multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) if more than one hypothesis test is performed on the same dataset, adjusting the significance threshold accordingly (See US-3).
-- **FR-007**: System MUST select a stratified random sample of detected vulnerabilities (minimum 5% of total findings or 100 samples, whichever is smaller) for manual human audit to establish a ground truth baseline for precision and recall (See US-2).
-- **FR-008**: System MUST calculate and report the False Positive Rate (FPR) for both the LLM and human code groups based on the human audit results to account for differential tool calibration (See US-2).
+- **FR-001**: System MUST download the LLM‑generated code dataset from a publicly reachable URL `https://huggingface.co/datasets/bigcode/codeparrot` (SHA‑256 checksum `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`) and the human‑written code subset (Juliet Test Suite) from ` (SHA‑256 checksum `d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2`). The system must verify checksums before proceeding. (See US-1) *(Justified: provides the LLM‑generated code needed to compare against human code for the core research question.)*
+
+- **FR-002**: System MUST execute static analysis tools (Bandit, Semgrep, SonarQube) on all downloaded code samples using only CPU resources, extracting vulnerability counts and CWE classifications for each file (See US-1). Identical vulnerabilities reported by multiple tools must be deduplicated based on CWE ID and source location, retaining a single record per unique finding. *(Justified: deduplication prevents double‑counting, preserving construct validity of the vulnerability density metric.)*
+
+- **FR-003**: System MUST calculate vulnerability density (vulnerabilities per LOC) for each file, handling division‑by‑zero cases by marking the result as "undefined". LOC is computed using a language‑agnostic counter that excludes comments and blank lines. (See US-2)
+
+- **FR-004**: System MUST perform a primary Negative Binomial regression with a random intercept for repository (to account for clustering) and covariates `source_group` (LLM vs. human), `language`, `cyclomatic_complexity`, and `project_domain` to compare mean vulnerability density between groups. Additionally, a secondary Mann‑Whitney U test will be run on the density values for robustness. The analysis must report the rate ratio, 95 % confidence interval, and p‑value. (See US-3)
+
+- **FR-005**: System MUST generate visualizations including a boxplot of vulnerability density by code source and a bar chart of vulnerability class distribution, saving them as PNG files. (See US-3)
+
+- **FR-006**: System MUST apply a Benjamini‑Hochberg false‑discovery rate correction when more than one hypothesis test is performed on the same dataset, adjusting the significance threshold to control the expected proportion of false discoveries (required because both NB regression and Mann‑Whitney U are evaluated). (See US-3)
+
+- **FR-007**: System MUST select a stratified random sample of detected vulnerabilities (minimum 5 % of total findings or 100 samples, whichever is smaller) for manual human audit to establish a ground‑truth baseline for precision and recall, enabling estimation of tool‑specific false‑positive rates. (See US-2) *(Justified: essential to quantify false‑positive rates, which directly affect the vulnerability density comparison between LLM and human code.)*
+
+- **FR-008**: System MUST calculate and report False Positive Rates separately for each static analysis tool and for each CWE category, based on the audited sample, and adjust vulnerability counts accordingly. (See US-2) *(Justified: per‑tool and per‑CWE false‑positive rates are required to produce unbiased corrected vulnerability counts for the primary comparison.)*
 
 ### Key Entities
 
 - **CodeSample**: Represents an individual code file, containing attributes for file path, lines of code (LOC), code source (LLM or human), and raw vulnerability count.
 - **VulnerabilityRecord**: Represents a detected vulnerability, containing attributes for CWE ID, severity, and the associated CodeSample ID.
 - **AnalysisResult**: Represents the aggregated output for a group, containing attributes for mean density, median density, standard deviation, and p-values from statistical tests.
-- **AuditRecord**: Represents a manual verification of a vulnerability, containing attributes for the VulnerabilityRecord ID, human-verdict (true-positive/false-positive), and auditor ID.
+- **AuditRecord**: Represents a manual verification of a vulnerability, containing attributes for the VulnerabilityRecord ID, human-verdict (true‑positive/false‑positive), and auditor ID.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
+- **SC-001**: Vulnerability density difference between LLM and human code groups is considered a successful finding when the Negative Binomial regression yields a p‑value **< adjusted alpha (0.05 after BH correction)** and the estimated rate ratio differs from 1 by at least 10 % (|RR − 1| ≥ 0.10). (See FR-004)
 
-- **SC-001**: Vulnerability density difference between LLM and human code groups is measured against the null hypothesis of no difference using a Negative Binomial regression model (See FR-004).
-- **SC-002**: Statistical significance of the density difference is measured against the adjusted alpha level (after multiple-comparison correction) to control family-wise error rate (See FR-006).
-- **SC-003**: Analysis execution time is measured against the GitHub Actions free-tier runner time limit to ensure feasibility (See FR-002, FR-004).
-- **SC-004**: Memory usage during static analysis is measured against the 7 GB RAM constraint of the runner to verify no out-of-memory errors occur (See FR-002).
-- **SC-005**: The proportion of code files successfully analyzed is measured against the total number of files in the input manifest to ensure data validity (See FR-002).
-- **SC-006**: Precision and recall of the static analysis tools are measured against the human audit ground truth (See FR-007).
-- **SC-007**: The difference in False Positive Rates (FPR) between LLM and human code groups is measured to detect tool bias (See FR-008).
+- **SC-002**: Statistical significance is evaluated against an adjusted alpha level of **0.05** (Benjamini‑Hochberg corrected when applicable). (See FR-006)
+
+- **SC-003**: Analysis execution time must not exceed **6 hours** on the GitHub Actions free‑tier runner. (See FR-002, FR-004)
+
+- **SC-004**: Peak memory usage during static analysis must stay below **7 GB RAM**. (See FR-002)
+
+- **SC-005**: The proportion of code files successfully analyzed must be at least **95 %** of the total files listed in the input manifest. (See FR-002)
+
+- **SC-006**: Precision and recall of the static analysis tools, as measured against the human‑audit ground truth, must each be **≥ 80 %**. (See FR-007)
+
+- **SC-007**: The difference in False Positive Rates between LLM‑generated and human‑written code groups must be reported; a disparity greater than **[deferred] (absolute)** triggers a follow‑up investigation. (See FR-008)
+
+## Expected Results
+
+- The primary Negative Binomial regression is expected to produce a statistically significant effect (p < 0.05 after correction) indicating that LLM‑generated code has a higher vulnerability density than human‑written code, with an estimated rate ratio ≥ 1.10.
+- The secondary Mann‑Whitney U test is expected to corroborate this difference (p < 0.05).
+- Visualizations should clearly show a right‑shifted density distribution for the LLM group.
 
 ## Assumptions
 
-- The CodeVulnBench dataset and the human-written code subset (e.g., Juliet Test Suite) are publicly available, stable, and accessible via standard HTTP/HTTPS protocols without authentication.
-- The static analysis tools (Bandit, Semgrep, SonarQube) can be installed and run within the disk space constraints of the GitHub Actions free-tier runner.
+- The CodeVulnBench dataset and the human‑written code subset (e.g., Juliet Test Suite) are publicly available, stable, and accessible via standard HTTP/HTTPS protocols without authentication.
+- The static analysis tools (Bandit, Semgrep, SonarQube) can be installed and run within the disk space constraints of the GitHub Actions free‑tier runner.
 - The code samples in the dataset are primarily in Python, Java, or JavaScript, which are supported by the selected static analysis tools; other languages may be excluded or require additional tool configuration.
-- The "lines of code" (LOC) metric is calculated using a standard, language-agnostic counting method (e.g., excluding comments and blank lines) as implemented by the chosen tooling.
+- The "lines of code" (LOC) metric is calculated using a standard, language‑agnostic counting method (e.g., excluding comments and blank lines) as implemented by the chosen tooling.
 - The dataset contains sufficient sample sizes in both the LLM and human groups to perform a meaningful statistical test (n ≥ 30 per group is assumed; if not, the study will be limited to descriptive statistics only).
 - The analysis is observational; therefore, any findings will be framed as associational differences in vulnerability density, not causal effects of LLM usage on code security.
 - The GitHub Actions free‑tier runner provides consistent performance (multiple CPU cores, on the order of several gigabytes of RAM) without significant variability that would impact the reproducibility of the analysis.
