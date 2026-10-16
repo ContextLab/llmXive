@@ -8,14 +8,14 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…nput file – fall back to simulated data if the real file is miss…”
+- code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {simulated_path}")…”
+- code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…Error(f"Neither real nor simulated input file found (tried {input…”
 - code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…ed (bool): If True, load simulated data. If False, load real cle…”
 - code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {source_file}")…”
 - code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…,             "reason": "Simulated Data Mode",             "stat…”
 - code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…s cannot be performed on simulated data.",             "timestam…”
 - code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Simulated Data Mode active. Project FAI…”
-- code/06_generate_final_report.py: synthetic/fake INPUT data not authorized by the spec — “…header += "⚠️ **WARNING: SIMULATED DATA MODE ACTIVE**\n\n"…”
-- code/06_generate_final_report.py: synthetic/fake INPUT data not authorized by the spec — “…he pipeline fell back to simulated data due to insufficient real…”
-- code/06_generate_final_report.py: synthetic/fake INPUT data not authorized by the spec — “…rom "         header += "simulated data and **do not** reflect e…”
 
 ## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
 
@@ -30,14 +30,14 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 11 fabricated/simulated-result signal(s) — results are not real measurements: code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…ed (bool): If True, load simulated data. If False, load real cle…”; code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {source_file}")…”; code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…,             "reason": "Simulated Data Mode",             "stat…”; every produced artifact is gitignored (data/raw/filtered_hosts.csv, data/raw/raw_scrape.json, data/raw/raw_scrape_cleaned.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/03_model_training.py (rc=1); python code/04_feature_analysis.py (rc=1); python code/05_statistical_reporting.py (rc=1); 8 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
+**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…nput file – fall back to simulated data if the real file is miss…”; code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {simulated_path}")…”; code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…Error(f"Neither real nor simulated input file found (tried {input…”; every produced artifact is gitignored (data/raw/filtered_hosts.csv, data/raw/raw_scrape.json, data/raw/raw_scrape_cleaned.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/03_model_training.py (rc=1); python code/04_feature_analysis.py (rc=1); python code/05_statistical_reporting.py (rc=1); 8 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
 
 ## Failing / missing run-book commands
 
 - python code/03_model_training.py -> rc=1
 
-2026-10-16 20:08:48,694 - __main__ - INFO - Starting model training pipeline...
-2026-10-16 20:08:48,694 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
+2026-10-16 22:08:59,676 - __main__ - INFO - Starting model training pipeline...
+2026-10-16 22:08:59,676 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/03_model_training.py", line 331, in <module>
     main()
@@ -50,7 +50,7 @@ FileNotFoundError: Preprocessed data not found at data/processed/halide_binding_
 
 - python code/04_feature_analysis.py -> rc=1
 
-2026-10-16 20:08:49,651 - __main__ - INFO - Starting Feature Analysis (US3)...
+2026-10-16 22:09:00,710 - __main__ - INFO - Starting Feature Analysis (US3)...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/04_feature_analysis.py", line 236, in <module>
     main()

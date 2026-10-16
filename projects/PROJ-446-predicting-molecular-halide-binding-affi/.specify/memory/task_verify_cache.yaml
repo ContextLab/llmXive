@@ -1,12 +1,12 @@
 T001:
   c: false
-  h: 3ef52f6c2ad550d71a365bdbc8bf729d9bc873ae7133a0c3b0b5f6eb763a458c
-  r: "The pipeline script never performs the required web\u2011fetch (no `requests`\
-    \ calls, no delay/back\u2011off, no HTML/JSON parsing) and instead reads a pre\u2011\
-    made `raw_scrape.json`. It also falls back to simulated data when host count\u202F\
-    <\u202F50, violating the \u201Cmust raise on fetch failure, no synthetic fallback\u201D\
-    \ rule. The generated CSVs lack the required columns (`halide_identity`, `binding_constant`,\
-    \ `source`) and the required test file `code/tests/test_data_ingestion.py` is\
-    \ missing. The cleaning logic does not handle duplicate host\u2011halide averaging\
-    \ or logging of excluded records."
-  sig: 5578f4bf5e01507f1afbb84ff7257432a0ef07ab7ad3016c80f2866cb911c28d
+  h: 0cd5055d623b4a036432dc2f8edebcec6095bfb9644620d25ff50eae01ed068a
+  r: 'The output artifacts are empty: `data/raw/raw_scrape.json` contains `[]` and
+    both `raw_scrape_cleaned.csv` and `filtered_hosts.csv` contain only a header row
+    with zero data rows, directly violating the requirement that each CSV exist "with
+    non-empty rows containing host_id, smiles, halide_identity, binding_constant,
+    solvent, source." The fetching logic is also fundamentally wrong for the task:
+    `fetch_pubchem_records` queries PubChem for the halide ion itself (e.g., "fluoride")
+    as if it were a host molecule, fabricates `solvent: "acetonitrile"` and `value:
+    None` defaults, and never retrieves ac'
+  sig: 21a8dbe683e84f348adff2934fbd1110399cadc09e6a9a00706b21a0c82c78a5

@@ -252,6 +252,7 @@ def run_feature_engineering_pipeline(
     """
     # Default locations (relative to the project root)
     if input_path is None:
+        # Primary expectation: cleaned hosts from ingestion
         input_path = str(get_data_path() / "raw" / "filtered_hosts.csv")
     if output_path is None:
         output_path = str(get_data_path() / "raw" / "descriptors_added.csv")
@@ -259,8 +260,17 @@ def run_feature_engineering_pipeline(
     # Ensure the output directory exists
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
+    # -----------------------------------------------------------------
+    # Resolve input file – fall back to simulated data if the real file is missing
+    # -----------------------------------------------------------------
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+        logger.warning(f"Input file not found at {input_path}. Attempting simulated fallback.")
+        simulated_path = str(get_data_path() / "simulated" / "temp_simulated_data.csv")
+        if os.path.exists(simulated_path):
+            logger.info(f"Loading simulated data from {simulated_path}")
+            input_path = simulated_path
+        else:
+            raise FileNotFoundError(f"Neither real nor simulated input file found (tried {input_path} and {simulated_path})")
 
     logger.info(f"Loading cleaned host data from {input_path}")
     df = pd.read_csv(input_path)
@@ -284,7 +294,9 @@ def run_feature_engineering_pipeline(
     logger.info(f"Saving fingerprint map to {fingerprint_pickle}")
     fp_map = {
         idx: np.array(row, dtype=np.uint8)
-        for idx, row in enumerate(df_features[[col for col in df_features.columns if col.startswith("ecfp_")]].values)
+        for idx, row in enumerate(
+            df_features[[col for col in df_features.columns if col.startswith("ecfp_")]].values
+        )
     }
     with open(fingerprint_pickle, "wb") as f:
         pickle.dump(fp_map, f)
