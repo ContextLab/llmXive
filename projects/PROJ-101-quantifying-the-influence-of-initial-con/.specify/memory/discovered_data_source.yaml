@@ -1,15 +1,19 @@
 status: none
-intent: pip install coupled lorenz oscillator generator python package dataset
+intent: python package generate noisy coupled Lorenz oscillator time series python
+  package dataset
 required_fields:
 - time
-- oscillator_id
-- x
-- y
-- z
-- noise_std
-- sigma_noise
-- integration_method
-- tolerance
-cache_key: eebea523285c5d721fce9bdadfce8a94b5a1ac132f74195eb222749339963192
-searched_at: '2026-10-16T17:10:10.820826+00:00'
+- x_1
+- y_1
+- z_1
+- x_2
+- y_2
+- z_2
+- x_3
+- y_3
+- z_3
+- '...'
+- x_N
+cache_key: d3424054ad1e9b5457cbd159171ddd3ca93f36f2c0caf4ee2002ce1384c47e57
+searched_at: '2026-10-16T18:10:32.048737+00:00'
 retry_count: 1

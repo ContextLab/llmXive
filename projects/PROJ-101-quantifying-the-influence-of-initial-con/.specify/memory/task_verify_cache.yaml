@@ -7,17 +7,13 @@ T002:
     \ importable as required."
   sig: 202b4cc1b064e7e07b064b140f6f8e792684e951c58f43d40460c4c72d4b4116
 T003:
-  c: false
-  h: eb904108e6380bf56332807092fb301107b4465990860c7d7d442c2bd9176a0e
-  r: '`tests/conftest.py` exists and contains a `seed` fixture returning 42 plus a
-    temp-directory fixture, but there is no evidence of the required verification:
-    no dummy test file asserting `np.random.RandomState(42).rand()` reproducibility
-    and no pytest execution evidence. Moreover, the conftest appears broken at collection
-    time: it imports `from config import ...` while the module lives at `code/config.py`
-    (only the project root is added to `sys.path`, not `code/`), and its `full_config`
-    fixture constructs `SimulationConfig(N=..., t_max=..., dt=...)` using keyword
-    arguments that don''t exist in th'
-  sig: a1b0038cb09f72186ff2a31db066a89629a5081e34de43f9f968f6f01577a757
+  c: true
+  h: 428d23075ddd7c9bb82fe6fa1fa39f5227d063c553c9efa5c0b17e8f1dbade1b
+  r: '`tests/conftest.py` exists (1568 bytes) with a `seed` fixture returning 42,
+    an autouse fixture pinning `np.random.seed(42)`, and a `temp_data_dir` fixture
+    built on pytest''s `tmp_path`. The execution log shows `tests/test_dummy.py::test_random_state_reproducibility`
+    passing (exit 0) under `python -m pytest -v`, matching the required verification.'
+  sig: 624426ba0198d6c47ef41d5037654e6aea79c1f2c0757c9c3382ba1f292ebd55
 T004:
   c: true
   h: 20bf94fc431524d4dfff4ea97533cc669947a97a661fd869851f69d4f742f558
