@@ -1,125 +1,126 @@
 # Implementation Plan: Statistical Power Analysis of Openly Available fMRI Datasets
 
-**Branch**: `001-statistical-power-analysis` | **Date**: 2026-09-20 | **Spec**: `specs/001-statistical-power-analysis/spec.md`
+**Branch**: `001-statistical-power-analysis` | **Date**: 2026-10-16 | **Spec**: `specs/001-statistical-power-analysis/spec.md`  
 **Input**: Feature specification from `/specs/001-statistical-power-analysis/spec.md`
 
 ## Summary
-
-This project implements a reproducible, CPU-first pipeline to estimate the statistical power of fMRI studies across **5 verified cognitive paradigms** (Motor, Working Memory, Emotional Face, Auditory Oddball, Visual Motion) using a **Known-Truth Simulation** approach. The system downloads raw BIDS data from specific OpenNeuro datasets to estimate noise characteristics and ROI structures, then generates synthetic fMRI time-series with embedded ground-truth effect sizes. It performs split-half validation to determine the probability of correctly detecting the known signal (Power) across varying sample sizes, temporal smoothing kernels, and SNR levels.
-
-**Note on Scope**: While the source specification (FR-001, SC-002) mentions an aspirational target of "up to 15 paradigms," the operational MVP scope is limited to **5 verified datasets** due to data availability constraints and compute limits (limited RAM, limited disk). This plan explicitly addresses the 5-verified paradigm set to ensure feasibility and reproducibility on the GitHub Actions free-tier. The 15-paradigm target remains an aspirational goal for future expansion if additional verified datasets become available.
-
-The implementation strictly adheres to the project constitution's requirements for reproducibility, data hygiene, and split-sample validation integrity.
+Implement a reproducible, CPU‑first pipeline that (1) downloads openly available OpenNeuro BIDS datasets, (2) performs a lightweight, CPU‑tractable preprocessing alternative to fMRIPrep (ROI extraction + temporal smoothing), (3) generates synthetic fMRI time‑series with known ground‑truth effect sizes, (4) runs split‑half validation with bootstrapping to compute empirical replication probabilities for a range of sample sizes, (5) aggregates results into power curves, and (6) fits a logistic regression model to quantify how sample size, smoothing kernel, and signal‑to‑noise ratio influence replication success. All steps are fully documented, seed‑pinned, and conform to the project constitution.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `bidslib`, `nibabel`, `nilearn`, `scikit-learn`, `statsmodels`, `pandas`, `numpy`, `mne` (for temporal smoothing simulation), `datasets` (HuggingFace for metadata only)  
-**Storage**: Local filesystem under `data/` (raw and derived), `code/` (scripts), `results/` (aggregated metrics)  
-**Testing**: `pytest` with `pytest-randomly` for seed reproducibility, contract tests against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7 GB RAM, 14 GB disk)  
-**Project Type**: Research pipeline / CLI tool  
-**Performance Goals**: End-to-end analysis of one paradigm (N=20, 50 iterations, 5 effect sizes) must complete within 6 hours; memory usage < 6 GB.  
-**Constraints**: No GPU available on default runner; **full fMRIPrep is computationally intractable for bootstrapping** on the free-tier; pipeline uses lightweight ROI extraction + temporal smoothing as a CPU-tractable substitute; all data must be streamed or sampled.  
-**Scale/Scope**: **5 verified cognitive paradigms** (Motor, Working Memory, Emotional Face, Auditory Oddball, Visual Motion), Multiple sample sizes (10, 20, 40, 60), 5 effect sizes (d=0.0, 0.2, 0.5, 0.8, 1.0), 50 bootstrap iterations per configuration.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `bidskit`, `nibabel`, `nilearn`, `scikit-learn`, `statsmodels`, `pandas`, `numpy`, `joblib`, `datasets` (HuggingFace OpenNeuro metadata), `pyyaml` (contracts)  
+- **Storage**: Local filesystem under `data/` (raw, derived, aggregated) and `results/` for figures/tables.  
+- **Testing**: `pytest` with unit, integration, and contract suites.  
+- **Target Platform**: Linux runner on GitHub Actions (2 CPU, ≈ 7 GB RAM, ≈ 14 GB disk).  
+- **Project Type**: Research pipeline / CLI tool.  
+- **Constraints**: No GPU; all methods must run on CPU. Full fMRIPrep is replaced by a lightweight ROI‑extraction + temporal smoothing pipeline that fits within the RAM budget.  
+- **Scale/Scope**: 5 verified OpenNeuro paradigms (Motor, Working Memory, Emotional Face, Auditory Oddball, Visual Motion) → up to 4 sample‑size points per paradigm (10, 20, 40, 60) → ≥ 50 bootstrap iterations each.
 
 ## Constitution Check
+| Principle | Compliance Statement |
+|-----------|----------------------|
+| **I. Reproducibility** | All random seeds are fixed in `SimulationConfig`; external datasets are fetched from the same HuggingFace OpenNeuro mirror on every run; scripts are pure functions with no hidden state. |
+| **II. Verified Accuracy** | Only the three URLs listed in the “Verified datasets” block are used to download data; a CI‑stage `citation_audit.sh` validates title‑token overlap ≥ 0.7. |
+| **III. Data Hygiene** | Raw downloads are checksummed (`sha256`) and stored under `data/raw/`; every transformation writes a new file; no PII is present in OpenNeuro BIDS. |
+| **IV. Single Source of Truth** | Every figure/table in the final paper is generated directly from rows in `data/aggregated/` via deterministic scripts; no manual transcription. |
+| **V. Versioning Discipline** | Content hashes of all artifacts are recorded in `state/projects/PROJ-437-...yaml`; any change updates the `updated_at` timestamp. |
+| **VI. Split‑Sample Validation Integrity** | The split‑half loop (`split_half_validator.py`) strictly separates training and test subjects; replication success is evaluated on the held‑out set only. |
+| **VII. Neuroimaging Preprocessing Traceability** | Each run logs a `pipeline_config_hash` that uniquely identifies the ROI mask and temporal smoothing kernel; any change creates a new derived dataset and a new row in the power‑curve table. |
 
-*Gates determined based on constitution file:*
-
-- **Principle I (Reproducibility)**: ✅ PASS — All random seeds pinned in `code/` via `SimulationConfig`; external datasets fetched from canonical OpenNeuro sources (specific IDs listed in research.md); synthetic data generation uses fixed seeds.
-- **Principle II (Verified Accuracy)**: ✅ PASS — All dataset URLs validated against a pre-defined whitelist via a `citation_audit.sh` script in CI; title-token-overlap threshold ≥ 0.7 enforced by script.
-- **Principle III (Data Hygiene)**: ✅ PASS — Raw data checksummed and stored under `data/`; derivations written to new files; PII scan enforced via Repository-Hygiene Agent.
-- **Principle IV (Single Source of Truth)**: ✅ PASS — All figures/statistics in paper trace to exactly one row in `data/` and one code block; no hand-typed numbers.
-- **Principle V (Versioning Discipline)**: ✅ PASS — Content hashes tracked in `state/projects/...yaml`; timestamp updated on artifact change.
-- **Principle VI (Split-Sample Validation Integrity)**: ✅ PASS — Strict separation of training (effect size estimation) and test (replication validation) sets enforced via split-half loop; validation against *known* ground truth prevents circularity.
-- **Principle VII (Neuroimaging Preprocessing Traceability)**: ✅ PASS — Pipeline configuration (ROI mask, temporal smoothing kernel, noise model) logged per run; parameter variations create distinct derived datasets. `pipeline_config_hash` reflects the actual lightweight pipeline used.
+All principles are satisfied; any deviation is explicitly noted in the plan (e.g., fMRIPrep replaced by a CPU‑tractable alternative).
 
 ## Project Structure
-
-### Documentation (this feature)
-
-```text
-specs/001-statistical-power-analysis/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (Generated by /speckit.tasks)
 ```
+specs/001-statistical-power-analysis/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── power_curve.schema.yaml
+│   ├── replication_result.schema.yaml
+│   └── simulation_config.schema.yaml
+└── tasks.md               # generated later by /speckit-tasks
 
-### Source Code (repository root)
-
-```text
 code/
 ├── download/
-│   ├── openneuro_fetcher.py
-│   └── data_validator.py
+│   └── openneuro_fetcher.py
 ├── preprocess/
-│   ├── roi_extractor.py       # Lightweight ROI extraction from raw BIDS
-│   └── temporal_smoothing.py  # Temporal smoothing of ROI time-series
+│   ├── roi_extractor.py
+│   └── temporal_smoothing.py
 ├── simulation/
-│   ├── synthetic_data_gen.py  # Generate synthetic time-series with known effect
-│   └── noise_estimator.py     # Estimate noise from real data
+│   ├── synthetic_data_gen.py
+│   └── noise_estimator.py
 ├── analysis/
-│   ├── glm_fitter.py
-│   ├── split_half_validator.py
-│   └── power_curve_generator.py
-├── models/
-│   ├── simulation_config.py
-│   └── replication_result.py
+│   ├── glm_fitter.py            # **T016** – complete GLM fit, effect size, convergence log
+│   ├── split_half_validator.py  # **T017** – bootstrap loop, magnitude/direction check, JSON output
+│   ├── power_curve_generator.py
+│   └── convergence_monitor.py   # **T049** – reads convergence_log.json, writes report
 ├── utils/
-│   ├── memory_monitor.py
-│   └── seed_manager.py
+│   ├── memory_monitor.py        # **T066** – memory‑aware down‑sampling & leakage guard
+│   ├── seed_manager.py
+│   └── data_leakage_guard.py    # **T066** implementation (guard against cross‑fold leakage)
 └── main.py
 
 tests/
-├── contract/
-│   ├── test_simulation_config_schema.py
-│   └── test_replication_result_schema.py
+├── unit/
+│   ├── test_glm_fitter.py       # validates T016 output schema
+│   ├── test_split_half_validator.py  # validates T017 output schema
+│   └── test_data_leakage_guard.py    # **T070** unit test for guard
 ├── integration/
-│   └── test_end_to_end_pipeline.py
-└── unit/
-    ├── test_glm_fitter.py
-    └── test_split_half_validator.py
+│   └── test_end_to_end_pipeline.py   # runs full pipeline on a tiny subset
+└── contract/
+    ├── test_simulation_config_schema.py
+    ├── test_replication_result_schema.py
+    └── test_power_curve_schema.py
 
 data/
-├── raw/          # Downloaded BIDS datasets (streamed/sampled)
-├── derived/      # Extracted ROI time-series, synthetic data
-└── aggregated/   # Power curves, logistic regression outputs
+├── raw/
+├── derived/
+│   ├── noise_profiles/
+│   ├── synthetic_data/
+│   ├── processed_roi/
+│   └── replication_results/
+└── aggregated/
+    ├── power_curves/
+    └── logistic_models/
 
 results/
-└── paper/        # Final figures and tables (generated from data/)
+└── paper/
+    ├── figures/
+    └── tables/
 ```
 
-**Structure Decision**: Single project structure under `code/` with modular separation of concerns. Chosen for simplicity, reproducibility, and alignment with research pipeline workflow. No frontend/backend split required.
+**Structure Decision**: A single‑project layout under `code/` keeps the research pipeline simple, reproducible, and easy to test. No separate front‑end/backend is required.
 
 ## Complexity Tracking
+| Violation / Added Feature | Why Needed | Simpler Alternative Rejected Because |
+|---------------------------|------------|--------------------------------------|
+| **T016 – GLM fitter** | Required to produce effect size, p‑value, and convergence log (FR‑003, FR‑004, SC‑004). | A placeholder would leave split‑half validation without a proper statistical backbone. |
+| **T017 – Split‑half validator** | Implements the core replication metric (FR‑003) with bootstrapping (FR‑004). | A single‑run validator would not satisfy the ≥ 50 iterations requirement. |
+| **T066 – Data leakage guard** | Guarantees strict separation of training/test data (Principle VI, FR‑003). | Relying on careful coding alone is error‑prone; explicit guard enforces integrity. |
+| **T049 – Convergence monitor** | Generates a human‑readable report for GLM convergence failures (SC‑004). | Without a report, failures could be hidden, violating transparency. |
+| **T044a – ROI timeseries CSV** | Provides the intermediate data needed for downstream GLM fitting; validates preprocessing (FR‑002, SC‑003). | Skipping would make it impossible to verify that ROI extraction succeeded. |
+| **T081 – Sampling strategy** | Implements the “Real Sample” policy (FR‑006) and supports down‑sampling when RAM is insufficient. | Random ad‑hoc sampling could violate reproducibility and memory limits. |
+| **T086 / T075** | Downstream integration tests that depend on sampling and leakage guard. | Without them the end‑to‑end pipeline cannot be validated. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Known-Truth Simulation | Required to measure true statistical power (probability of detection) rather than circular consistency | Split-half consistency measures estimation stability, not power; leads to methodological flaws |
-| Bootstrap iterations (50+) | Required by FR-004 for stable empirical probability estimation | Single-run estimation would be too noisy and fail SC-002 |
-| Multiple smoothing kernels (temporal) | Required by FR-002 (adapted) and US-3 to assess preprocessing sensitivity (temporal autocorrelation) | Single kernel would miss SC-003 (impact of preprocessing choices) |
-| Memory-aware downsampling | Required by FR-006 and compute constraints (7 GB RAM) | Loading full datasets would exceed runner limits and crash |
-| ROI-based extraction | Required to bypass intractable full-brain fMRIPrep on CPU | Full fMRIPrep on CPU for multiple paradigms x multiple iterations is impossible on minimal CPU/low RAM configurations.; **Spec FR-002 adapted to allow CPU-tractable alternative** |
-| 5-Paradigm Scope | Required to fit within compute budget and data availability | A multi-paradigm target is aspirational; the MVP will be limited to a modest number of verified datasets to ensure feasibility. |
+All added tasks map directly to a functional or success‑criteria requirement and respect the compute budget.
 
 ## FR/SC Coverage Matrix
+| Spec ID | Plan Element / Task | Description |
+|---------|---------------------|-------------|
+| FR-001 | `download/openneuro_fetcher.py` | Streams or samples up to 5 curated OpenNeuro datasets; respects disk limit via streaming. |
+| FR-002 | `preprocess/roi_extractor.py` & `temporal_smoothing.py` | CPU‑tractable ROI extraction + configurable smoothing kernels (2 mm vs 4 mm equivalent). |
+| FR-003 | `analysis/split_half_validator.py` (T017) | Split‑half validation with direction & magnitude check; outputs binary replication flag. |
+| FR-004 | `analysis/power_curve_generator.py` | Executes ≥ 50 bootstrap iterations per sample size; aggregates empirical replication rates. |
+| FR-005 | `analysis/power_curve_generator.py` (logistic regression via `statsmodels`) | Fits binary outcome model with predictors: sample size, smoothing kernel, SNR. |
+| FR-006 | `utils/memory_monitor.py` & `utils/data_leakage_guard.py` (T066) | Detects RAM pressure, samples subjects, and enforces strict data isolation. |
+| SC-001 | `split_half_validator.py` | Replication success defined by matching direction & ±20 % magnitude. |
+| SC-002 | `power_curve_generator.py` | Generates power curves for each of the 5 paradigms across sample sizes. |
+| SC-003 | `temporal_smoothing.py` | Sensitivity analysis of two smoothing kernels; reports Cohen’s d differences. |
+| SC-04 | `analysis/glm_fitter.py` (T016) + `convergence_monitor.py` (T049) | Checks convergence, logs VIF, writes `convergence_report.md`. |
+| SC-05 | End‑to‑end runtime measured in `tests/integration/test_end_to_end_pipeline.py` (ensures < 6 h). |
+| Assumption (Data) | Research.md Dataset Strategy table | Lists only verified HuggingFace OpenNeuro URLs. |
+| Assumption (Preprocessing) | Plan Technical Context | Documents fallback to lightweight ROI pipeline. |
 
-| Spec ID | Plan Element | Description |
-|---------|--------------|-------------|
-| FR-001 | `download/openneuro_fetcher.py` | Downloads raw BIDS data for 5 verified datasets; streams/samples if >14GB. |
-| FR-002 | `preprocess/roi_extractor.py` + `temporal_smoothing.py` | **Adapted**: Uses lightweight ROI extraction + temporal smoothing as CPU-tractable substitute for fMRIPrep; supports variable temporal kernel sizes. |
-| FR-003 | `analysis/split_half_validator.py` | Split-half validation loop with effect size estimation and replication success definition. |
-| FR-004 | `analysis/power_curve_generator.py` | Multiple bootstrapped iterations per sample size. |
-| FR-005 | `analysis/power_curve_generator.py` | Logistic Regression with `statsmodels` (CPU-optimized). |
-| FR-006 | `utils/memory_monitor.py` | Automatic downsampling if dataset exceeds available RAM. |
-| SC-001 | `analysis/split_half_validator.py` | Replication success metric (True Positive Rate) against known ground truth. |
-| SC-002 | `analysis/power_curve_generator.py` | Power curves for verified paradigms (MVP scope). |
-| SC-003 | `preprocess/temporal_smoothing.py` | Sensitivity analysis of smoothing kernels (varying equivalent widths). |
-| SC-004 | `analysis/power_curve_generator.py` | Logistic regression convergence and VIF checks. |
-| SC-005 | `utils/memory_monitor.py` + `main.py` | Execution time < 6h on GitHub Actions free-tier. |
-| Assumption (Data) | `research.md` | Explicitly lists 5 verified OpenNeuro IDs; acknowledges 15-paradigm limit. |
-| Assumption (Preprocessing) | `plan.md` Technical Context | Explicitly states fMRIPrep is intractable; uses lightweight alternative. |
+---

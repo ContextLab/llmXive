@@ -1,18 +1,14 @@
 status: none
-intent: OpenNeuro fMRI BIDS datasets ds000030 ds000206 ds000117 python package dataset
+intent: OpenNeuro ds000030 ds000206 ds000117 BIDS download via Python package dataset
 required_fields:
 - subject_id
 - session_id
+- run_id
 - task_name
-- run
-- bold_image_path
-- t1w_anatomical_path
-- events_onset
-- events_duration
-- events_trial_type
-- participant_age
-- participant_sex
-- repetition_time_TR
-cache_key: 1359bbcba632aef9439fc5f6bdd173215691a95492dda1b8eafd7a8337b22cca
-searched_at: '2026-10-07T11:48:36.133538+00:00'
+- bold_nifti_path
+- events_tsv_path
+- anat_T1w_path
+- json_sidecar_metadata
+cache_key: 261af10613a605c16e63d88bd7ef366f6169078573fec540dfab547ac99e67b3
+searched_at: '2026-10-16T19:10:28.350282+00:00'
 retry_count: 1
