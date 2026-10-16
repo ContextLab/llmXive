@@ -1,0 +1,44 @@
+T001:
+  task: 01045773e57799c11d6ec32524d4d3035daf7f821ddad4584dff11b6f2f6b727
+T002:
+  reason: Checked the `requirements.txt` file (present, fully pinned). However, there
+    is no provided evidence (e.g., command output, logs, or test run) showing that
+    `pip install -r requirements.txt` actually succeeded without version conflicts,
+    which is a required verification step. The task remains incomplete until such
+    installation proof is supplied.
+  task: 2137807558d07e0ea764f55891f38962193b28ba0a771851b28ed222b6c1f8c8
+T003:
+  reason: 'Requested task execution failed; rerun successfully: scripts/lint.sh exit=1'
+  task: 4b2281467724dc299b2cc150a4b8e681905eed3c0acff9cbe36273f641bfab37
+T004:
+  task: 0b12cc7bdda0ef273fc5609bb1ea3127ff687d1c236a89052a263d92c85cc425
+T005:
+  task: a432c712cd2a65febd383a215fecd25979b3231026d9f22b0568d11a7d7cafd3
+T006:
+  task: 6173e47f3b73472fa4e06b295a96caefd80235e3031e77c28d18c7f00a7d3b06
+T007:
+  task: ea80adc5a8290eb0dc350e9f6c52fa8d7194e305b4be39ada3df3cbd4796f5e7
+T008:
+  task: f891450c2dca3a3157e5b4ddf272cea823b079d8fbdc410509d2e079eef81603
+T009:
+  task: 80c2866361ff98634cc71f0e34bf188f7b7551dc40f319c1287c85774f2f040c
+T010:
+  task: 8d3a0f5b92090a210723f9ccb760bce89fa9bb9975ce2d70bd7d2d270b524e8b
+T011:
+  task: c5497e54341491ba37cb5bd9d405006c70f0c08fa09173e56e0b71e0c05bec4a
+T012:
+  task: 278c55a1828a4983ee9cf77ad8c7ec9fe6fbfc81d9f3185ab57db2af31dafb24
+T013:
+  task: b83dc17ad9d503be96c9e0d550ff7409d3c60122e5ac86540fd61f38560768ea
+T014:
+  task: 109d5eb5e65e8f634e51ecc203fad835b72f15a85a77358ba870ee4ab7cafa5d
+T015:
+  task: 6d9db14fdd562ffd4c04d0c5b02b4a2d07c1a0a2061217d461eb3caa3e45677c
+T016:
+  task: e95611cfb648fa2c209f17a5f3961417de16a4a89001408952990891d13647ff
+T017:
+  task: b666eb24484e180892a12bb188857f42fa95a6e85f9c1ff65be00b5e2134f414
+T018:
+  task: e3c8aa0949ed270c8669f5b4a8ff1389911762d01ad7c03ba5b2649b3fffc34b
+T019:
+  task: c2c91076b490eeb981bb27718f393caca81ff8062a6160d62ac706240cd0b0c3

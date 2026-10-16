@@ -1,0 +1,19 @@
+T001:
+  c: true
+  h: 8ca2280e700e0a1a5c8e3413991c65771a1ac590e0138744e581c9a6e1e03880
+  r: "The directory tree under `projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion`\
+    \ contains all required folders (`data/raw`, `data/processed`, `code`, `tests/unit`,\
+    \ `tests/integration`, `tests/contract`, `docs`, `reports`, `figures`, `scripts`)\
+    \ each with a placeholder file, and the creation script logged successful execution.\
+    \ This matches the task\u2019s specification that `tree -L 2 .` would show the\
+    \ full set of directories."
+  sig: 1611784db3d348c0b0babd288ab378adde92d4cc30b966d67d470213bb8ce620
+T002:
+  c: false
+  h: 37a5548e59b275b3dda6e5272563b2ab996de55a0302b4bbe6607174f6bd2a0e
+  r: Checked the `requirements.txt` file (present, fully pinned). However, there is
+    no provided evidence (e.g., command output, logs, or test run) showing that `pip
+    install -r requirements.txt` actually succeeded without version conflicts, which
+    is a required verification step. The task remains incomplete until such installation
+    proof is supplied.
+  sig: ecabfc796afa73a91bec124bf80e5e2fafd552ac1a18eee1a06e156f8cdfbb24

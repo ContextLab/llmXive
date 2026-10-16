@@ -8,7 +8,7 @@ The tasks below implement the complete end‑to‑end analysis required by the s
 
 ## Phase 1 – Project scaffolding, data acquisition, and first end‑to‑end run  
 
-- [ ] T001 [P] Create the required project directory tree  
+- [X] T001 [P] Create the required project directory tree  
   - `data/raw/` – will hold the Pantheon+ release file (read‑only)  
   - `data/processed/` – filtered residuals, HEALPix map, simulation results  
   - `code/` – source modules (`ingest.py`, `utils.py`, `spherical_harmonics.py`, `simulations.py`, `analysis.py`, `visualize.py`, `models.py`)  
@@ -33,7 +33,7 @@ The tasks below implement the complete end‑to‑end analysis required by the s
   - Commit the file at `requirements.txt`.  
   - **Verification**: `pip install -r requirements.txt` succeeds without version conflicts.
 
-- [ ] T003 [P] Configure code quality tools (Ruff + Black)  
+- [ ] T003 [P] Configure code quality tools (Ruff + Black)   <!-- FAILED-IN-EXECUTION: scripts/lint.sh exit=1 -->
   - Add `pyproject.toml` with sections `[tool.black]` (line‑length = 88) and `[tool.ruff]` (select = ["E", "F", "W", "C90"]).  
   - Add a CI helper script `scripts/lint.sh` that runs `black --check . && ruff .`.  
   - **Verification**: `bash scripts/lint.sh` exits with status 0 on the current code base.
