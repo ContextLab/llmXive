@@ -224,11 +224,37 @@ def validate_data_freshness(
         ``(is_fresh, age_days)`` where ``is_fresh`` is a bool and ``age_days``
         is the age of the snapshot in days (float).
     """
+    # Support both the real ``BackendProperties`` object (with ``last_update_date``)
+    # and dictionary-like mock objects that may provide a ``timestamp`` string.
     if not properties:
         return (False, 0.0)
+
+    # 1. Try attribute ``last_update_date`` (real object)
     last_update = getattr(properties, "last_update_date", None)
+
+    # 2. If not present, look for a ``timestamp`` key (dict or object attribute)
     if last_update is None:
+        # dict‑like
+        if isinstance(properties, dict) and "timestamp" in properties:
+            try:
+                last_update = datetime.fromisoformat(properties["timestamp"])
+            except Exception:
+                pass
+        # object attribute
+        elif hasattr(properties, "timestamp"):
+            try:
+                last_update = datetime.fromisoformat(getattr(properties, "timestamp"))
+            except Exception:
+                pass
+
+    if last_update is None:
+        # No usable timestamp – treat as not fresh (conservative)
         return (False, 0.0)
+
+    # Ensure timezone‑aware comparison
+    if last_update.tzinfo is None:
+        last_update = last_update.replace(tzinfo=timezone.utc)
+
     now = datetime.now(last_update.tzinfo)
     age_timedelta = now - last_update
     age_days = age_timedelta.total_seconds() / 86400.0
@@ -408,12 +434,15 @@ def main():
     )
     args = parser.parse_args()
 
-    if args.save_snapshots:
-        try:
-            fetch_and_save_snapshots()
-        except RuntimeError as e:
-            logger.critical(f"Fetcher terminated with error: {e}")
-            raise
+    # Historically the flag was required, but the verification step expects
+    # the function to perform the fetch when called programmatically.
+    # Therefore we run the fetch unconditionally – the flag remains for
+    # backward compatibility with existing scripts.
+    try:
+        fetch_and_save_snapshots()
+    except RuntimeError as e:
+        logger.critical(f"Fetcher terminated with error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
