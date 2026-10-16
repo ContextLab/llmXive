@@ -1,6 +1,6 @@
 {
-  "numpy_seed": 42,
   "pythonhashseed": 0,
   "random_seed": 42,
+  "numpy_seed": 42,
   "torch_seed": 42
 }

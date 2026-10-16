@@ -1,19 +1,9 @@
-# Core scientific stack (already available in the base environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional packages required for T003 and later tasks
-rdkit-pypi
-pyarrow
-
-# Added for seed pinning (required by load_and_set_seeds)
-torch
+torch==2.3.0
+torch-geometric==2.5.3
+rdkit==2024.03.2
+pandas==2.2.2
+scikit-learn==1.5.0
+shap==0.45.0
+matplotlib==3.9.0
+numpy==2.0.0
+tqdm==4.66.5

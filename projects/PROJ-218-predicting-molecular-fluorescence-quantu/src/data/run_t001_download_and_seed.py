@@ -1,21 +1,13 @@
 """
-Convenience runner for Task T001.
-
-This script orchestrates the two download steps (SMILES and FQY) and
-ensures that the seed configuration is loaded.  It is executed by the
-CI verification step to produce the required raw files under
-``data/raw/`` and to confirm that ``results/seeds.json`` matches the
-configuration in ``code/config/seeds.yaml``.
+Convenience runner for Task T001.
 """
-
 import argparse
 import sys
 from pathlib import Path
 
-# Import the seed configuration side‑effect (sets seeds and asserts)
+# Import the seed configuration side-effect (sets seeds and asserts)
 import code.config.seed_config  # noqa: F401
 
-# Helper to invoke the individual download entry points
 from src.data.download_smiles import main as download_smiles_main
 from src.data.download_fqy import main as download_fqy_main
 
@@ -38,7 +30,6 @@ def _parse_args(argv=None):
 def main(argv=None) -> int:
     args = _parse_args(argv)
 
-    # Define output locations using llmxive_toolkit path helpers
     from llmxive_toolkit import paths
 
     smiles_path = paths.data("raw", "smiles.parquet")

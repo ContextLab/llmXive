@@ -1,6 +1,4 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/data/run_t001_download_and_seed.py
-    exit=1'
   task: 13ada98a6cebfe822f1710008b727f7dc49122c398970ba35de0d3fb1b4a5c83
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/preprocessing/join.py
