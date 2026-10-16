@@ -1,9 +1,9 @@
 status: none
-intent: MoleculeNet Fluorescence dataset SMILES quantum yield download python package
-  dataset
-required_fields:
-- smiles
-- fluorescence_quantum_yield
-cache_key: e5fbdfec7a9b2b590d7665cbe982806ddd4be22345c3ec288292ebfa09c5c128
-searched_at: '2026-10-15T05:24:44.382156+00:00'
+intent: '### User Story 1 - Data Curation and Preprocessing Pipeline (Priority: P1)
+  The researcher needs to ingest a public dataset of molecular structures (SMILES)
+  and experimental fluorescence quantum yield (FQY) values, parse them into graph
+  representations using RDKit, and split them into training, valid'
+required_fields: []
+cache_key: fd9bde723befb4e962de6531bba112973e3b922b244ef0f14f78ad0a3ff3a9ec
+searched_at: '2026-10-16T07:26:08.971033+00:00'
 retry_count: 1

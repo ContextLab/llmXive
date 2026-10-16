@@ -1,59 +1,64 @@
-"""Download the SMILES parquet file, verify its checksum, and ensure seeds are pinned."""
+"""
+Download the raw SMILES parquet file.
+
+This script streams the file from the provided URL, writes it to the
+destination path, and verifies its SHA‑256 checksum against the value
+recorded in ``data/raw/checksums.txt``.  On success it exits with status 0;
+on mismatch it raises a ``ValueError`` causing a non‑zero exit code.
+"""
+
 import argparse
 import sys
 from pathlib import Path
 
-# Import the shared utilities for downloading and seed handling
-from code.data.download_raw import (
-    download_file,
-    read_checksums,
-    load_and_set_seeds,
-)
+from code.data.download_raw import download_file, read_checksums, verify_checksums
 
-def main(argv: list | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Download the SMILES dataset and verify its SHA‑256 checksum."
-    )
+def _parse_args(argv=None):
+    parser = argparse.ArgumentParser(description="Download SMILES parquet")
     parser.add_argument(
         "--url",
         required=True,
-        help="Direct URL to the SMILES parquet file.",
+        help="URL of the SMILES parquet file to download",
     )
     parser.add_argument(
         "--output",
         required=True,
-        help="Path where the downloaded file will be saved.",
+        type=Path,
+        help="Destination path under the project (e.g., data/raw/smiles.parquet)",
     )
-    args = parser.parse_args(argv)
+    return parser.parse_args(argv)
 
-    # 1️⃣ Pin reproducibility seeds before any other work
-    load_and_set_seeds()
+def main(argv=None) -> int:
+    args = _parse_args(argv)
 
-    # 2️⃣ Ensure the destination directory exists
-    out_path = Path(args.output)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure the parent directory exists (paths helper creates it)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
 
-    # 3️⃣ Perform the download while computing its SHA‑256 hash
+    # Perform the download and compute its SHA‑256 digest
     try:
-        computed_checksum = download_file(args.url, out_path)
-    except Exception as exc:
-        sys.exit(f"Failed to download SMILES file: {exc}")
+        computed_digest = download_file(args.url, args.output)
+    except Exception as e:
+        print(f"Download failed: {e}", file=sys.stderr)
+        return 1
 
-    # 4️⃣ Load the expected checksums and verify
+    # Load the expected checksums from the canonical file
     expected = read_checksums()
-    filename = out_path.name
-    expected_checksum = expected.get(filename)
-
-    if expected_checksum is None:
-        sys.exit(
-            f"Checksum for '{filename}' not found in 'data/raw/checksums.txt'."
+    filename = args.output.name
+    if filename not in expected:
+        print(
+            f"Checksum for '{filename}' not found in data/raw/checksums.txt",
+            file=sys.stderr,
         )
-    if computed_checksum != expected_checksum:
-        sys.exit(
-            f"Checksum mismatch for '{filename}'. Expected {expected_checksum}, got {computed_checksum}."
-        )
+        return 1
 
-    # Successful completion
+    # Verify the computed digest against the expected value
+    try:
+        verify_checksums({filename: computed_digest})
+    except ValueError as ve:
+        print(f"Checksum mismatch: {ve}", file=sys.stderr)
+        return 1
+
+    print(f"Successfully downloaded and verified '{filename}'.")
     return 0
 
 if __name__ == "__main__":

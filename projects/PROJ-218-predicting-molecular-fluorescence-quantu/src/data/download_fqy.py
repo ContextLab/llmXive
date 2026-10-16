@@ -1,59 +1,63 @@
-"""Download the experimental FQY JSON file, verify its checksum, and pin seeds."""
+"""
+Download the raw Fluorescence Quantum Yield (FQY) JSON file.
+
+Mirrors the behaviour of ``download_smiles.py``: streams the file,
+writes it to the requested location, and validates its SHA‑256 checksum
+against the entry in ``data/raw/checksums.txt``.
+"""
+
 import argparse
 import sys
 from pathlib import Path
 
-# Shared utilities for downloading and seed handling
-from code.data.download_raw import (
-    download_file,
-    read_checksums,
-    load_and_set_seeds,
-)
+from code.data.download_raw import download_file, read_checksums, verify_checksums
 
-def main(argv: list | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Download the FQY JSON dataset and verify its SHA‑256 checksum."
-    )
+def _parse_args(argv=None):
+    parser = argparse.ArgumentParser(description="Download FQY JSON")
     parser.add_argument(
         "--url",
         required=True,
-        help="Direct URL (or DOI) to the FQY JSON file.",
+        help="URL of the FQY JSON file to download",
     )
     parser.add_argument(
         "--output",
         required=True,
-        help="Path where the downloaded JSON will be saved.",
+        type=Path,
+        help="Destination path under the project (e.g., data/raw/fqy.json)",
     )
-    args = parser.parse_args(argv)
+    return parser.parse_args(argv)
 
-    # 1️⃣ Pin reproducibility seeds before any other operation
-    load_and_set_seeds()
+def main(argv=None) -> int:
+    args = _parse_args(argv)
 
-    # 2️⃣ Ensure output directory exists
-    out_path = Path(args.output)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure destination directory exists
+    args.output.parent.mkdir(parents=True, exist_ok=True)
 
-    # 3️⃣ Download the file while computing its SHA‑256 hash
+    # Download and compute checksum
     try:
-        computed_checksum = download_file(args.url, out_path)
-    except Exception as exc:
-        sys.exit(f"Failed to download FQY file: {exc}")
+        computed_digest = download_file(args.url, args.output)
+    except Exception as e:
+        print(f"Download failed: {e}", file=sys.stderr)
+        return 1
 
-    # 4️⃣ Verify checksum against the recorded value
+    # Load expected checksums
     expected = read_checksums()
-    filename = out_path.name
-    expected_checksum = expected.get(filename)
-
-    if expected_checksum is None:
-        sys.exit(
-            f"Checksum for '{filename}' not found in 'data/raw/checksums.txt'."
+    filename = args.output.name
+    if filename not in expected:
+        print(
+            f"Checksum for '{filename}' not found in data/raw/checksums.txt",
+            file=sys.stderr,
         )
-    if computed_checksum != expected_checksum:
-        sys.exit(
-            f"Checksum mismatch for '{filename}'. Expected {expected_checksum}, got {computed_checksum}."
-        )
+        return 1
 
-    # Successful completion
+    # Verify checksum
+    try:
+        verify_checksums({filename: computed_digest})
+    except ValueError as ve:
+        print(f"Checksum mismatch: {ve}", file=sys.stderr)
+        return 1
+
+    print(f"Successfully downloaded and verified '{filename}'.")
     return 0
 
 if __name__ == "__main__":
