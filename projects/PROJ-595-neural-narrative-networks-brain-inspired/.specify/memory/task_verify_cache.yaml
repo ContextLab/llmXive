@@ -1,29 +1,24 @@
 T000:
   c: true
-  h: 6f4d282e33555b845e7e683ab8ab43e9ce92caff6998309a87ac8f14c6a9ccf4
-  r: The `plan.md` file exists (5231 bytes) and references OpenNeuro dataset **ds001495**
-    in both the Summary ("processes real fMRI data from OpenNeuro dataset **ds001495**
-    (matching spec FR-001)") and the Technical Context/Data Sources section, exactly
-    as task T000 requires.
-  sig: f953218453509968d1fbccdf3c78943005f723793b8a2611b0b6b4cb3c6dd1ac
+  h: a6d73169572dad421b37c57a95727a98fe236ab36bde9b7f6347ccdba3d809de
+  r: "Checked `plan.md` (5231\u202Fbytes) which contains the line referencing the\
+    \ OpenNeuro dataset **ds001495**, satisfying the required update."
+  sig: c57142395139f8dfee476e528196dbfb06c335862956d72de32cf90c978d4282
 T000.1:
   c: true
-  h: 7cd91cded9737e8931703bfb157dd64f1c8359dfd25dfe53f8a89b53b881c75c
-  r: The task only required clarifying in `plan.md` that the baseline is TinyLSTM
-    (quantized transformer) matching FR-004. The resolved `plan.md` (5,231 bytes)
-    contains a dedicated "Baseline Definition (FR-004)" section explicitly defining
-    the baseline as a TinyLSTM (quantized transformer), with quantization details,
-    memory constraints, and consistent references throughout (summary, pipeline stages,
-    execution order).
-  sig: 9cf62c1397459ef8b2071b8e716b4eb670bc53219e81283df4d6985e25fa3733
+  h: beaf74e628d4565fc9acc32448c038d093f79d8393b4da35ff6691171ce3c3ae
+  r: "Checked `plan.md` (5231\u202Fbytes) which contains a \u201CBaseline Definition\
+    \ (FR\u2011004)\u201D section explicitly stating the baseline model is a **TinyLSTM\
+    \ (quantized transformer)**, satisfying the task\u2019s requirement."
+  sig: bd209b95106f4a78e7de55d09cc6e93981522f66aff144e27b3f16aad88dd8cc
 T001:
   c: true
-  h: 900d5a28e9c542d33e591ab06dbd072c9f657e017e274c27f92cd63f69a696b0
-  r: "Checked that `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/`\
-    \ directories exist, that `code/__init__.py` is present with non\u2011empty content,\
-    \ and that a `.gitignore` file exists (verified by the passing `test_gitignore_exists`\
-    \ test)."
-  sig: da9054a22a2618aa213f839d5375472ca31273c260fa9aa0db7c37d2d8b98f63
+  h: 0724dc2614c887c7ef08e20a625d0e9e37e3a0a1ae228db6da54cbdf63d895aa
+  r: "Checked the directory listings showing `code/`, `data/raw/`, `data/processed/`,\
+    \ `data/results/`, and `tests/` all present, the `code/__init__.py` file (51\u202F\
+    bytes) exists, and the pytest run (`test_gitignore_exists`) confirms a `.gitignore`\
+    \ file is present. All required artifacts are non\u2011empty and verified."
+  sig: 8a1613f9ad8cd56b9385393bb3a7bcdca37c5bbe135a47e874a1e79e362a3063
 T002:
   c: true
   h: 12158d9c6a9c9bdddc9789c93513c3c8c1e26dfc3ab9f2e08bfb00ee4a9a1c2c
@@ -90,3 +85,28 @@ T018:
     \ shows the associated pytest suite ran and both tests (`test_load_chunked_fMRI_basic`\
     \ and `test_load_chunked_fMRI_invalid_path`) passed, confirming functional behavior."
   sig: c7fca1b353d9f2687ffc416774d0d651d0904accb24920bf9b953c4ac229e2d0
+T050:
+  c: false
+  h: b7efd02c1f500895c349a5263cf6aaecafd40c51bdccfe92fedd02569eb3d7ff
+  r: "The provided `code/main.py` only writes a placeholder `results_summary.csv`\
+    \ containing column headers and does not run the full data\u2011download, preprocessing,\
+    \ model generation, or RSA analysis steps, nor does it produce any intermediate\
+    \ artifacts required by the end\u2011to\u2011end pipeline. Consequently the final\
+    \ CSV lacks the computed values the specification expects, and the pipeline is\
+    \ not truly executed from raw data."
+  sig: ca9418c61f639db0a33caecaa9c67e70303410e1c5631c0088aef78564925b7b
+T051:
+  c: false
+  h: da08073d9a87bae6529bde5184debf4f0f5abbccdb136c07044d1959ac54eb74
+  r: "The provided `manifest.json` contains the dataset URLs, commit hash, and software\
+    \ versions, but the `checksums` field is empty instead of listing the required\
+    \ checksum values for the repository files. Consequently the manifest does not\
+    \ fulfill the \u201Call checksum values\u201D part of the task."
+  sig: 1e9c5829cb03d5cc2f32b0d7bafbae225ca5e672d55510fde45d1ef9ba5fa19b
+T052:
+  c: true
+  h: 0fee7d87f1c4cda7a1d8ac778278a639e8c02408ac093a709d97a8114add2b77
+  r: "The `README.md` (2829\u202Fbytes) contains a \u201CHow to reproduce\u201D section\
+    \ that explicitly references `manifest.json` and includes the command `python\
+    \ -m code.main`. This matches the task\u2019s requirement."
+  sig: 9a0df86b989ee641e6bf71095ad45b0da813b2db6c7c1472e39bbc0615e35123

@@ -86,8 +86,8 @@ All tasks are written as markdown check‑boxes. Checked boxes (`[X]`) indicate 
 ## Phase 6 – Verification, Reporting & Handoff (optional polish)
 
 - [ ] T050 [US?] Run the full end‑to‑end pipeline from `code/main.py` to confirm that, starting from raw data, all intermediate artifacts are produced and the final `results_summary.csv` matches the specifications.   <!-- FAILED: unspecified -->
-- [~] T051 [US?] Generate a reproducibility manifest `manifest.json` listing dataset URLs, exact commit hash of the repository, software versions (from `requirements.txt`), and all checksum values.  
-- [~] T052 [US?] Update `README.md` to include a concise “How to reproduce” section pointing to `manifest.json` and the command `python -m code.main`.  
+- [ ] T051 [US?] Generate a reproducibility manifest `manifest.json` listing dataset URLs, exact commit hash of the repository, software versions (from `requirements.txt`), and all checksum values.  
+- [X] T052 [US?] Update `README.md` to include a concise “How to reproduce” section pointing to `manifest.json` and the command `python -m code.main`.  
 
 *(These polish tasks can be executed after the core research tasks are green‑checked; they are not required for the scientific verdict but improve transparency.)*
 

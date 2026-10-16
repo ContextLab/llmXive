@@ -1,18 +1,14 @@
 status: none
-intent: OpenNeuro ds001495 ROCStories dataset download HuggingFace pip python package
+intent: OpenNeuro ds001495 fMRI and ROCStories corpus download python package dataset
 required_fields:
 - subject_id
-- run_id
-- timepoint
-- roi_name
-- bold_timecourse
-- event_timestamp
+- roi_name (left_hippocampus,right_hippocampus,left_DLPFC,right_DLPFC)
+- bold_timecourse (array)
+- event_onset_timestamp
+- event_duration
 - story_condition
 - story_id
-- sentence1
-- sentence2
-- sentence3
-- sentence4
-cache_key: 7d255380c28f1d786ecf957f7c78689d824bcb0bfa2a9ab221b85233c4166f72
-searched_at: '2026-10-16T17:20:16.277539+00:00'
+- story_text
+cache_key: 71ea8f64cb84b9af767812a5f7f53a8ee27b9c25f010a3f745c5e8d4bc60b1f2
+searched_at: '2026-10-16T17:21:57.855512+00:00'
 retry_count: 1

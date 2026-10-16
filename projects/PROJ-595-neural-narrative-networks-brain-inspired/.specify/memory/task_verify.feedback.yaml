@@ -21,9 +21,18 @@ T009:
 T018:
   task: ba371a4ba123cd4222a10700b96d6e6aa206374aa7a5e3b068b5098bc2a6e7c3
 T050:
-  reason: 'declared artifact(s) missing/empty/invalid: code/main.py'
+  reason: "The provided `code/main.py` only writes a placeholder `results_summary.csv`\
+    \ containing column headers and does not run the full data\u2011download, preprocessing,\
+    \ model generation, or RSA analysis steps, nor does it produce any intermediate\
+    \ artifacts required by the end\u2011to\u2011end pipeline. Consequently the final\
+    \ CSV lacks the computed values the specification expects, and the pipeline is\
+    \ not truly executed from raw data."
   task: c665b42fe88212179ce524028baa9b01fbc7cb7d3ea76d280e9a2d232abded39
 T051:
+  reason: "The provided `manifest.json` contains the dataset URLs, commit hash, and\
+    \ software versions, but the `checksums` field is empty instead of listing the\
+    \ required checksum values for the repository files. Consequently the manifest\
+    \ does not fulfill the \u201Call checksum values\u201D part of the task."
   task: 64f8bb4aa755b2d1ba1fb163a864efe1c8dd1b6154c3d174693e2e59e5fd6953
 T052:
   task: c90af183652133444aa0313490c78664fd48779e94629613a1047409c9219d9f
