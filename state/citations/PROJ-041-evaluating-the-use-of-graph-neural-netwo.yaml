@@ -21,17 +21,6 @@
   verification_status: mismatch
   verified_against_url: https://www.unb.ca/cic/datasets/bot-iot.html
   verified_at: '2026-10-03T02:33:54.804890Z'
-- artifact_hash: 81a69933d4fd202fd9cd0d4574a0049d4b235c949183a11b7251299f8dc91496
-  artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1-1.csv`
-  verification_status: mismatch
-  verified_against_url: https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1-1.csv
-  verified_at: '2026-10-16T14:19:31.224967Z'
 - artifact_hash: 828d52dc74ad672a1ad31bd4b112e208bb799375574bb4d1e8fa36acd2db316b
   artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/research.md
   cite_id: c-001
@@ -43,3 +32,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/ctu13/ctu13
   verified_at: '2026-10-16T14:43:53.330980Z'
+- artifact_hash: f7d90755a3942413f55de9da10a875c0df8b22aaa2fdd22f5c97c4297debb183
+  artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/master/Scenario1/Scenario1-1.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/CTU-AI-Lab/CTU-13-Dataset/master/Scenario1/Scenario1-1.csv
+  verified_at: '2026-10-16T14:46:17.204298Z'
