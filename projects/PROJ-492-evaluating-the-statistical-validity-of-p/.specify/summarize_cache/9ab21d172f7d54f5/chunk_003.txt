@@ -1,0 +1,80 @@
+**FR-031b Real-World Extraction Validation**: Precision/recall on manually annotated summaries provides evidence of extraction capability but cannot guarantee performance on all future summaries outside the validation set distribution. Ground truth is based on human verification of **extraction accuracy** (whether extracted fields match the reported numbers in the source), not inconsistency detection against known ground truth (which requires synthetic data per FR‑031). Human annotators can only verify that extraction correctly captured reported numbers; they cannot independently verify whether the statistical reconstruction is correct.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: Extraction accuracy ≥ 95 % on a manually annotated validation set of at least **100** summaries, stratified across five major domains: **tech**, **e‑commerce**, **finance**, **healthcare**, **SaaS** (measured as proportion of correctly captured fields). (See US‑1)
+- **SC-003**: For each statistical test, the absolute difference between the SciPy result and the Monte‑Carlo estimate (10 000 replicates) must be **≤ 0.005**. (See US‑1)
+- **SC-005**: All logged parsing errors must be ≤ 5 % of total summaries processed. (See US‑1)
+- **SC-008**: CI execution must complete within **6 hours**, using resources typical of the default GitHub Actions runner (≈ 2 vCPUs, ≤ 2 GB RAM); resource usage is logged and must meet these limits. (See US‑1, US‑3, US‑4)
+- **SC-013**: CI pipeline must exit with status 0 and produce a `manifest.json` file in ≥ 99 % of runs, confirming successful completion and artifact generation. (See US‑4)
+- **SC-014**: The binomial test defined in **FR‑005a** must report a p‑value rounded to three decimal places, a Wilson confidence interval whose total width ≤ 0.10, and flag significance when p ≤ 0.05. (See US‑2)
+- **SC-015**: Sensitivity analysis (FR‑005b) must show that the estimated prevalence varies by less than **0.02** across baseline proportions 0.02–0.10. (See US‑2)
+- **SC-024**: The exported CSV `summary_report.csv` must contain columns `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`; the values must exactly match those computed in the JSON `audit_report.json`. (See US‑2, US‑3)
+- **SC-025**: The audited corpus contains **N ≥ 300** summaries (or the calculated minimum) as required by the a priori power analysis (FR‑025). (See US‑2)
+- **SC-026**: Monte Carlo validation passes for all statistical tests with absolute difference **≤ 0.005** (FR‑026). (See US‑1)
+- **SC-027**: Bias‑assessment report must show that **no** single domain exceeds **30 %** of the total corpus; the report must also include both the raw inconsistency rate and the bias‑adjusted inconsistency rate. (See US‑1)
+- **SC-028**: The Quickstart guide is verified by a user test where a novice follows the instructions and completes the audit on **30 URLs** in ≤ 30 minutes on the default GitHub Actions runner. (See US‑1)
+- **SC-030**: Precision on the synthetic validation dataset must be **≥ 90 %** and recall **≥ 80 %** (F1 ≥ 0.85). **This criterion applies to synthetic validation only (FR‑031)**; real-world extraction validation is governed by SC‑031b. (See FR‑031) **(See US‑1, US‑2, US‑3, US‑4)**
+- **SC-031b**: Extraction precision on the manually annotated real-world validation set must be **≥ 85 %** and recall **≥ 75 %** (F1 ≥ 0.80). Ground truth MUST be established by human annotation verifying that extracted fields match the reported numbers in the source summaries (whether extraction correctly captured sample sizes, effect sizes, and p‑values as written). Precision/recall measure extraction accuracy for field‑level capture, not inconsistency detection against known ground truth. (See US‑1)
+- **SC-032**: For each subgroup (domain or year) with ≥ 10 summaries, the generated report must include the subgroup inconsistency prevalence, Fisher's exact test p‑value (with Bonferroni adjustment), and indicate whether the subgroup prevalence is statistically different from the overall rate (adjusted α). (See US‑2)
+
+## Assumptions
+
+- Public A/B test summaries provide **sample size**, **effect size**, and either **p‑value** or **confidence interval** for each variant.
+- Effect sizes are reported as **absolute difference in conversion rates**, **percentage lift**, or **mean difference for continuous metrics**; the reconstruction routine will convert lift to absolute difference using the baseline conversion rate (or average of variants when baseline is absent) as defined in **FR‑012**.
+- Reported p‑values are two‑sided unless explicitly indicated otherwise.
+- The corpus of summaries is sufficiently diverse to approximate industry‑wide reporting practices; no explicit minimum corpus size is mandated beyond the data actually collected for the audit.
+- Findings are framed as **associational** (i.e., "reported metrics are inconsistent with statistical theory") because the audit does not involve random assignment.
+- Multiple hypothesis testing is controlled via **Bonferroni correction** for subgroup analyses in FR‑032; the baseline binomial test in FR‑005a is a single test requiring no correction.
+- When a reported p‑value is given as an inequality (e.g., "p < 0.001"), the pipeline treats the bound value as an upper limit; the summary is flagged inconsistent only if the reconstructed p‑value exceeds this bound (see **FR‑004**).
+- If only a total sample size `N` is present and per‑variant counts are absent, the pipeline **does not impute** equal allocation. Instead, the entry is flagged as "missing metric" and recorded in the audit notes.
+- All computation is performed on CPU‑only resources; no GPU‑specific libraries or large‑model inference are required, satisfying the GitHub Actions free‑tier constraints.
+- Validation‑set ground‑truth p‑values are computed using analytical formulas (or an independent library such as **statsmodels**) to ensure independence from the pipeline implementation.
+- Manual annotation for real-world extraction validation (FR‑031b, SC‑031b) is performed by at least two independent annotators with agreement ≥ 85 %; discrepancies are resolved by a third annotator. Ground truth verification is based on extraction accuracy (whether extracted fields match reported numbers), not inconsistency detection against known ground truth.
+
+## References
+
+1. Kohavi, R., Longbotham, R., & Sommerfield, D. (2020). "Large‑Scale Online Experiments: A Review." *Communications of the ACM*, 63(9), 78‑87..
+2. John, L. K., Loewenstein, G., & Prelec, D. (2022). "Measuring the Prevalence of Questionable Research Practices in Business Experiments." *Journal of Experimental Psychology: Applied*, 28(3), 456‑472. DOI: 10.1037/xap0000421.
+
+## Quickstart Guide
+
+1. **Prepare input URLs**
+ Create a file `input/urls.csv` with a header `url` and a sufficiently large collection of reachable URLs (one per line) pointing to public A/B test summaries. Example:
+
+ ```csv
+ url
+ …
+ ```
+
+2. **Clone the repository and build the Docker image** (optional; the pipeline can also run locally with Python 3.11+)
+
+ ```bash
+ git clone
+ cd ab-test-audit
+ docker build -t ab-audit:latest.
+ ```
+
+3. **Run the audit pipeline**
+
+ ```bash
+ docker run --rm \
+ -v $(pwd)/input:/app/input \
+ -v $(pwd)/output:/app/output \
+ ab-audit:latest./run_audit.sh input/urls.csv output/
+ ```
+
+ The script will perform:
+ - Deduplication (if any duplicates exist, they are collapsed)
+ - Extraction
+ - Inconsistency detection (FR‑004, FR‑004b)
+ - Binomial prevalence test (FR‑005a) **with a priori power‑size guarantee (FR‑025)**
+ - Monte‑Carlo validation of statistical implementations (FR‑026)
+ - Bias assessment and bias‑adjusted prevalence (FR‑027)
+ - Subgroup prevalence analysis with Fisher's exact test (FR‑032)
+ - Generation of:
+   - `output/audit_report.json`
+   - `output/summary_report.csv`
+   - `output/bias_report.json` (domain proportions and adjusted rate)
