@@ -28,13 +28,13 @@ pip install -r requirements.txt
 jupyter nbconvert --to notebook --execute src/pipeline.ipynb --output pipeline_executed.ipynb
 ```
 The notebook will:
-1. Verify the dataset checksum.
-2. Compute the relevant compositional descriptors (and optionally the tolerance factor if lattice data are present).
-3. Perform the 80/20 train‑test split **with stratified sampling by A‑site element**.
-4. Run k‑fold cross‑validation for Random Forest and Gradient Boosting.
+1. Verify the dataset checksum.  
+2. Compute compositional descriptors (and, if available, the Goldschmidt tolerance factor).  
+3. Perform an 80/20 stratified (by composition) train‑test split.  
+4. Run 5‑fold **GroupKFold** cross‑validation for Random Forest and Gradient Boosting.  
 5. Select the best model, evaluate on the held‑out set, and produce:
-   - `data/processed/performance.json`
-   - `figures/pred_vs_actual.png`
+   - `data/processed/performance.json`  
+   - `figures/pred_vs_actual.png`  
    - `figures/feature_importance.png`
 
 ## 4️⃣ Run Individual Scripts (alternative)
@@ -66,9 +66,7 @@ export RANDOM_SEED=123
 python -m src.pipeline  # the notebook respects the env var
 ```
 
-> **Note:** The Quickstart guide is part of the documentation deliverable required by **FR‑010**, ensuring that the entire workflow can be reproduced by a new researcher.
+> The Quickstart guide satisfies **FR‑010**, ensuring the entire workflow can be reproduced by a new researcher.
 
 ---
-
-
 

@@ -1,14 +1,14 @@
 # Data Model: Predicting Defect Formation Energies in Perovskites with Machine Learning
 
 ## Overview
-The project manipulates six primary data artefacts:
+The project manipulates six primary data artefacts (augmented by optional structural descriptors that overwrite an existing file rather than creating a new one):
 
 | Artefact | Description | Location | Format |
 |----------|-------------|----------|--------|
 | **Raw defect dataset** | Original perovskite compositions with DFT oxygen‑vacancy formation energies (and optional metadata). | `data/raw/materials_defects.csv` | CSV |
-| **Engineered feature matrix** | 12–13 compositional descriptors (including optional tolerance factor) + target energy, one row per composition. | `data/processed/features.csv` | CSV |
-| **Cross‑validation metrics** | Summary statistics (mean ± std) for each model across 5 folds. | `data/processed/cv_metrics.json` | JSON |
-| **Model performance report** | JSON containing CV metrics for each model, held‑out test metrics, bootstrap CI, t‑test result, and feature‑importance list. | `data/processed/performance.json` | JSON |
+| **Engineered feature matrix** | 12–13 compositional descriptors (including optional tolerance factor) + target energy, one row per composition. This file may be **overwritten** with additional structural descriptors during the fallback phase. | `data/processed/features.csv` | CSV |
+| **Cross‑validation metrics** | Summary statistics (mean ± std) for each model across 5 folds. | `data/processed/cv_metrics.json` | JSON |
+| **Model performance report** | JSON containing CV metrics, held‑out test metrics, bootstrap CI, paired t‑test result, and ranked feature importances. | `data/processed/performance.json` | JSON |
 | **Final figures** | Scatter plot of predictions vs. actual energies and bar chart of feature importances. | `figures/` (PNG files) | PNG |
 | **Checksums** | SHA‑256 checksums for raw and derived files to ensure data hygiene. | `data/checksums/` | TXT |
 
@@ -143,13 +143,11 @@ additionalProperties: false
 ## Data Flow Diagram (textual)
 ```
 raw CSV -> download.py (optional) -> checksum -> raw_dataset.schema.yaml validation
-raw CSV -> featurize.py (pymatgen) -> features.csv -> raw_dataset.schema.yaml (target) + feature matrix validation
-features.csv -> train.py (Stratified CV) -> cv_metrics.json
-features.csv (train/test split) -> evaluate.py -> performance.json (model_performance.schema.yaml)
+raw CSV -> featurize.py (pymatgen) -> features.csv -> schema validation (target column)
+features.csv -> train.py (GroupKFold) -> cv_metrics.json
+features.csv (train/test split) -> evaluate.py -> performance.json
 performance.json + figures -> pipeline.ipynb -> final report
 ```
 
 ---
-
-
 

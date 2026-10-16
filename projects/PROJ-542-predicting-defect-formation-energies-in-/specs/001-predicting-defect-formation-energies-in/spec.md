@@ -48,7 +48,7 @@ The researcher MUST be able to evaluate the best-performing model against a held
 **Acceptance Scenarios**:
 
 1. **Given** the trained model and the held-out [deferred] test set, **When** the evaluation script runs, **Then** it outputs an RMSE < 0.5 eV (if the hypothesis holds) or a clear statement of higher error, along with a paired two‑sided t‑test p‑value > 0.05 indicating no significant mean difference between predictions and DFT values.
-2. **Given** the trained model, **When** the feature importance analysis runs, **Then** it generates a bar chart and a text list ranking the 12 compositional descriptors by their contribution to the model's prediction, with the top 3 descriptors clearly identified.
+2. **Given** the trained model, **When** the feature importance analysis runs, **Then** it generates a bar chart and a text list ranking the compositional descriptors by their contribution to the model's prediction, with the top 3 descriptors clearly identified.
 
 ---
 
