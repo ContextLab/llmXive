@@ -1,18 +1,23 @@
 T002:
   c: true
-  h: 77c7f813c7e38f37f5560a27dd7e7850a5b5852570da3936c786dbc5d1bb3cc6
-  r: "Checked that `code/__init__.py`, `code/simulation/__init__.py`, `code/analysis/__init__.py`,\
-    \ `code/utils/__init__.py`, and `tests/__init__.py` all exist with non\u2011empty\
-    \ content, and that importing `code` (and its sub\u2011packages) succeeds given\
-    \ the present sub\u2011modules."
-  sig: 16643e08dfd00f1b9d67298593e32fad671615d3dc5e1cc972c45139405863ee
+  h: 0f40a7fb5e66a40a227a9115831445c184282266adbd54b388d08a0aee3ae517
+  r: "Checked that all required `__init__.py` files exist and contain code (non\u2011\
+    empty) and that `code/__init__.py` safely imports sub\u2011modules using try/except,\
+    \ so `python -c \"import code\"` runs without ImportError. The package is therefore\
+    \ importable as required."
+  sig: 202b4cc1b064e7e07b064b140f6f8e792684e951c58f43d40460c4c72d4b4116
 T003:
-  c: true
-  h: 7a00ce7c180a01c7b8fcdcdeaf0b3a37b9511cc6837b647a086af1ca4aec3289
-  r: "Checked `tests/conftest.py` \u2013 it defines a `seed` fixture returning 42\
-    \ and creates a temporary directory fixture, and the recorded pytest run shows\
-    \ a dummy test passing that verifies reproducible random output."
-  sig: a25eb1ed907f99c903ea202750bf41561ff3a3bdd9c80de1e0dcc4d6b4100d78
+  c: false
+  h: eb904108e6380bf56332807092fb301107b4465990860c7d7d442c2bd9176a0e
+  r: "The repository contains a `tests/conftest.py` with a `seed` fixture returning\u202F\
+    42 and a custom temporary\u2011directory fixture (`temp_data_dir`), but it does\
+    \ not define or use the built\u2011in `tmp_path` fixture as the task specifies,\
+    \ nor is there any test file (e.g., `tests/test_dummy.py`) that asserts reproducibility\
+    \ with `np.random.RandomState(42).rand()`. Consequently there is no evidence that\
+    \ `pytest -q` actually runs and passes such a dummy test. Adding a test that uses\
+    \ `tmp_path` (or the built\u2011in fixture) and showing a successful pytest run\
+    \ would be required to complete the task."
+  sig: cd3bbcf53668919a0feb915c1f8b222d6058f94e1901ce002924a1a8c0528291
 T004:
   c: true
   h: 20bf94fc431524d4dfff4ea97533cc669947a97a661fd869851f69d4f742f558
@@ -24,40 +29,45 @@ T004:
     \ names."
   sig: 423391c63cd4e2e874f40b11da1035efadda440c7ebf1b8b5ce6362fe7dd5e68
 T005:
-  c: false
-  h: 2ad836d1e073b2e9d6601443c66f6996567450d4fdb9c6dfc48372cebd2a3773
-  r: "The `README.md` file is present and contains detailed pipeline instructions,\
-    \ but it does **not** include the required markdown headings exactly named \u201C\
-    Step\u202F1\u202F\u2013\u202FGenerate trajectories\u201D, \u201CStep\u202F2\u202F\
-    \u2013\u202FCompute baseline\u201D, etc.; they appear only as bolded text within\
-    \ sections, so the CI check `make docs` would fail to find the expected headings.\
-    \ The missing proper headings must be added to satisfy the task."
-  sig: 06f08bfc3ed4dab095400a162774f36d1be8f69b0b1b3fa26ab07e113f557f97
+  c: true
+  h: b6cb189dffd597490f905ae3a5821c0f77b7c4f964c20891b890137b44e6241f
+  r: "The `README.md` file (7116\u202Fbytes) is present and contains the required\
+    \ section headings \u201CStep\u202F1\u202F\u2013\u202FGenerate trajectories\u201D\
+    , \u201CStep\u202F2\u202F\u2013\u202FCompute baseline\u201D, \u201CStep\u202F\
+    3\u202F\u2013\u202FFTLE sweep\u201D, \u201CStep\u202F4\u202F\u2013\u202FRegression\
+    \ analysis\u201D, \u201CStep\u202F5\u202F\u2013\u202FVisualisation\u201D, and\
+    \ \u201CStep\u202F6\u202F\u2013\u202FFinal report\u201D, along with environment\u2011\
+    setup instructions. This satisfies the task\u2019s requirement for full pipeline\
+    \ documentation."
+  sig: 5810bd47dfe2e94c9af3479babd83f61a8b5c48ded4b03b14447a438b99e6777
 T006:
   c: false
-  h: c7dba2eda568576fb984838c012d36298bee4c2988427bb7d03e19feb5b3b2fa
-  r: "The required file `code/simulation/generator.py` is missing, so the specified\
-    \ functions `lorenz_ode` and `generate_trajectory` do not exist at the mandated\
-    \ location. Although a similar implementation lives in `code/data/generator.py`\
-    \ and is re\u2011exported via `data/generator.py`, this does not satisfy the task\u2019\
-    s explicit file\u2011path and API requirements. The missing module must be added\
-    \ (or renamed) with the correct function signatures for the task to be complete."
-  sig: 96c7b38e1f248c724b9c698dffb39b838c3aeee7517a93e89fc5e0f4597a936d
+  h: c644956a74320f3f27dce5aadb83506918502b02c4f40593d892c9438ee9040f
+  r: "The repository contains `code/simulation/generator.py` with `lorenz_ode` and\
+    \ `generate_trajectory` that meet the specification, but the provided unit tests\
+    \ (`tests/unit/test_generator.py`) import and test a different module (`data.generator`)\
+    \ and do not verify the noise\u2011standard\u2011deviation or clean\u2011trajectory\
+    \ precision for the required functions. Consequently, there is no evidence that\
+    \ the required API is correctly tested, so the task\u2019s verification condition\
+    \ is not satisfied. The test suite must be updated to import `code.simulation.generator`\
+    \ (or expose the same API) and include the noise\u2011std"
+  sig: 40ca9d52ec66d6197621345ca43052d18ba4a7309c56dd818642b30b4af8a3a0
 T007:
-  c: false
-  h: 371f8701e31fa3b4c31bb0853d5444b742d6d63cac38aaf8b73c17b7d9a47d99
-  r: "Checked `code/utils/stability.py`: it defines `raise_if_unphysical` that raises\
-    \ `UnphysicalTrajectoryError` when a state norm exceeds 20.0, satisfying that\
-    \ part of the task. However, the file does **not** implement any guard that issues\
-    \ a `HighNoiseWarning` when `\u03C3_noise\u202F>\u202F0.1`; the warning logic\
-    \ lives in `code/data/generator.py` instead of the required `stability.py`. The\
-    \ task explicitly required both the error and the high\u2011noise warning to be\
-    \ in `code/utils/stability.py`. Add a function (or extend an existing one) in\
-    \ `stability.py` that checks the noise level and emits `HighNoiseWarning` whe"
-  sig: d4bcacdd7b07f08af280b39bc80ff4917b737048f70760297bb3857765ddef15
+  c: true
+  h: b62f0ae622312f7cd56ad3e7c3df2912b7ea64515748f3185fbc155a4de7df4c
+  r: "Checked `code/utils/stability.py` which defines `raise_if_unphysical` (raises\
+    \ `UnphysicalTrajectoryError` when the Euclidean norm exceeds the default 20.0)\
+    \ and `check_noise_level` (issues a `HighNoiseWarning` for `\u03C3_noise\u202F\
+    >\u202F0.1`). The corresponding error and warning classes exist in `code/data/generator.py`,\
+    \ and the unit tests in `tests/unit/test_generator.py` confirm that high noise\
+    \ (`\u03C3_noise=1.5`) triggers `UnphysicalTrajectoryError`."
+  sig: dbb18f8e13d2ec89f3168080384106802c44deb4fcc25e84d4aea4f177be5624
 T008:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pytest configuration or fixture code (e.g., a `conftest.py` defining a seed
-    fixture and a temporary directory fixture) was provided; the evidence contains
-    only the task description, so the required artifact is missing.
+  h: bc66211cd1d41fdad5852bd14e478ed253cce9bd0c7248b74b00507abefca152
+  r: "Checked `code/main.py` (generation loop implementation) and the expected output\
+    \ directory `data/raw/`. Although the loop code is present, the required integration\
+    \ test `tests/integration/test_generation.py` is missing, and no `.npz` files\
+    \ were generated in `data/raw/` (directory is empty). The task\u2019s verification\
+    \ step cannot be satisfied without the test and the actual output files."
+  sig: 080417651ad02d6e1ea4915a7b0fc79377b855ba7913a226eb33682cd9147192

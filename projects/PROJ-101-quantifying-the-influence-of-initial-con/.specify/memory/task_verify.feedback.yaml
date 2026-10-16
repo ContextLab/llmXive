@@ -7,36 +7,37 @@ T001:
 T002:
   task: b887bf56faf5c907d3f7386c1e89a8a4b418986bad94b966372d732561835a5c
 T003:
+  reason: "The repository contains a `tests/conftest.py` with a `seed` fixture returning\u202F\
+    42 and a custom temporary\u2011directory fixture (`temp_data_dir`), but it does\
+    \ not define or use the built\u2011in `tmp_path` fixture as the task specifies,\
+    \ nor is there any test file (e.g., `tests/test_dummy.py`) that asserts reproducibility\
+    \ with `np.random.RandomState(42).rand()`. Consequently there is no evidence that\
+    \ `pytest -q` actually runs and passes such a dummy test. Adding a test that uses\
+    \ `tmp_path` (or the built\u2011in fixture) and showing a successful pytest run\
+    \ would be required to complete the task."
   task: 7251b7b1d60932fd6f146f4d407fa7cf10dfaeaacfc45135c62a87f710d05818
 T004:
   task: 2c32d9ac5e89c4bd9784db9714ee1a87e839aecc8ee5b75a818f50e9b86eef8f
 T005:
-  reason: "The `README.md` file is present and contains detailed pipeline instructions,\
-    \ but it does **not** include the required markdown headings exactly named \u201C\
-    Step\u202F1\u202F\u2013\u202FGenerate trajectories\u201D, \u201CStep\u202F2\u202F\
-    \u2013\u202FCompute baseline\u201D, etc.; they appear only as bolded text within\
-    \ sections, so the CI check `make docs` would fail to find the expected headings.\
-    \ The missing proper headings must be added to satisfy the task."
   task: 4c5392aa595bfd0120b22305514fd95d7c50190b56d3859b438c2ab7834985bd
 T006:
-  reason: "The required file `code/simulation/generator.py` is missing, so the specified\
-    \ functions `lorenz_ode` and `generate_trajectory` do not exist at the mandated\
-    \ location. Although a similar implementation lives in `code/data/generator.py`\
-    \ and is re\u2011exported via `data/generator.py`, this does not satisfy the task\u2019\
-    s explicit file\u2011path and API requirements. The missing module must be added\
-    \ (or renamed) with the correct function signatures for the task to be complete."
+  reason: "The repository contains `code/simulation/generator.py` with `lorenz_ode`\
+    \ and `generate_trajectory` that meet the specification, but the provided unit\
+    \ tests (`tests/unit/test_generator.py`) import and test a different module (`data.generator`)\
+    \ and do not verify the noise\u2011standard\u2011deviation or clean\u2011trajectory\
+    \ precision for the required functions. Consequently, there is no evidence that\
+    \ the required API is correctly tested, so the task\u2019s verification condition\
+    \ is not satisfied. The test suite must be updated to import `code.simulation.generator`\
+    \ (or expose the same API) and include the noise\u2011std"
   task: 89738e452324f56dc9f041b5de292c389ccb9c0606c3a00fdc4f19d696455db9
 T007:
-  reason: "Checked `code/utils/stability.py`: it defines `raise_if_unphysical` that\
-    \ raises `UnphysicalTrajectoryError` when a state norm exceeds 20.0, satisfying\
-    \ that part of the task. However, the file does **not** implement any guard that\
-    \ issues a `HighNoiseWarning` when `\u03C3_noise\u202F>\u202F0.1`; the warning\
-    \ logic lives in `code/data/generator.py` instead of the required `stability.py`.\
-    \ The task explicitly required both the error and the high\u2011noise warning\
-    \ to be in `code/utils/stability.py`. Add a function (or extend an existing one)\
-    \ in `stability.py` that checks the noise level and emits `HighNoiseWarning` whe"
   task: 9027907b62470127cc205d3a359a0e7bdca167be19e0044fd8ee3a60b50f3ff9
 T008:
+  reason: "Checked `code/main.py` (generation loop implementation) and the expected\
+    \ output directory `data/raw/`. Although the loop code is present, the required\
+    \ integration test `tests/integration/test_generation.py` is missing, and no `.npz`\
+    \ files were generated in `data/raw/` (directory is empty). The task\u2019s verification\
+    \ step cannot be satisfied without the test and the actual output files."
   task: 4a270566f88910afad60d3146081f21c8361019b60ad958736e7b52257239457
 T009:
   task: bf913694bf4a2ee0800a6e0dd99e70b6b4add9c9e76d0879d053f9d50a338510

@@ -15,7 +15,7 @@ All tasks are written as checklist items; unchecked items indicate work that sti
   - **Files**: `code/__init__.py`, `code/simulation/__init__.py`, `code/analysis/__init__.py`, `code/utils/__init__.py`, `tests/__init__.py`  
   - **Verification**: `python -c "import code"` runs without `ImportError`; CI runs a sanity test importing each sub‑module.
 
-- [X] T003 [P] Configure pytest with a fixture suite that pins the random seed and provides a temporary directory for each test.  
+- [ ] T003 [P] Configure pytest with a fixture suite that pins the random seed and provides a temporary directory for each test.  
   - **File**: `tests/conftest.py` containing `seed` fixture (value 42) and `tmp_path` fixture usage.  
   - **Verification**: `pytest -q` passes a dummy test that asserts `np.random.RandomState(42).rand()` is reproducible.
 
@@ -23,7 +23,7 @@ All tasks are written as checklist items; unchecked items indicate work that sti
   - **Path**: `quickstart.md`  
   - **Verification**: CI renders the markdown to HTML and checks that the two argument names appear in the file.
 
-- [ ] T005 [P] Update `README.md` with full pipeline instructions (environment setup, data generation, baseline computation, FTLE sweep, regression, visualisation, and final report).  
+- [X] T005 [P] Update `README.md` with full pipeline instructions (environment setup, data generation, baseline computation, FTLE sweep, regression, visualisation, and final report).  
   - **Path**: `README.md`  
   - **Verification**: CI runs `make docs` (or equivalent) and confirms that the README contains the section headings “Step 1 – Generate trajectories”, “Step 2 – Compute baseline”, etc.
 
@@ -35,11 +35,11 @@ All tasks are written as checklist items; unchecked items indicate work that sti
   - **File**: `code/simulation/generator.py` (functions `lorenz_ode`, `generate_trajectory`).  
   - **Verification**: Unit tests in `tests/unit/test_generator.py` check (a) that the empirical noise standard deviation matches the injected `σ_noise` within 5 %; (b) that a noise‑free trajectory matches a reference integration to < 1e‑9 absolute error.
 
-- [ ] T007 [P] Add a boundedness / unphysical‑trajectory guard that raises `UnphysicalTrajectoryError` if any state norm exceeds **20.0** and a warning `HighNoiseWarning` if `σ_noise > 0.1`. The guard lives in `code/utils/stability.py`.  
+- [X] T007 [P] Add a boundedness / unphysical‑trajectory guard that raises `UnphysicalTrajectoryError` if any state norm exceeds **20.0** and a warning `HighNoiseWarning` if `σ_noise > 0.1`. The guard lives in `code/utils/stability.py`.  
   - **File**: `code/utils/stability.py` (functions `check_boundedness`, `raise_if_unphysical`).  
   - **Verification**: Tests in `tests/unit/test_generator.py` assert that trajectories with `σ_noise=1.5` raise the appropriate error.
 
-- [~] T008 [P] Implement the generation loop in `code/main.py` (CLI entry point). It must accept `--N-values` and `--noise-levels`, iterate over `N ∈ {3, 5}` and the **noise list limited to the specification maximum σ ≤ 1.0** (`[0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.0]`), and for each combination run **k** trials (`k=50` if `σ_noise < 0.01` else `k=30`).  
+- [ ] T008 [P] Implement the generation loop in `code/main.py` (CLI entry point). It must accept `--N-values` and `--noise-levels`, iterate over `N ∈ {3, 5}` and the **noise list limited to the specification maximum σ ≤ 1.0** (`[0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.0]`), and for each combination run **k** trials (`k=50` if `σ_noise < 0.01` else `k=30`).  
   - **Output**: Immutable `.npz` files saved as `data/raw/trajectory_N{N}_sigma{sigma}_trial{t}.npz`.  
   - **Verification**: Integration test `tests/integration/test_generation.py` runs the CLI with a reduced set (`N=3`, two noise levels, `k=2`) and checks that the expected number of files appear in `data/raw/`.
 
@@ -54,10 +54,10 @@ All tasks are written as checklist items; unchecked items indicate work that sti
 - [~] T011 [P] Add a gating step in `code/main.py` that loads the baseline JSON, verifies `status == "valid"` and that the system is chaotic before any noisy FTLE computation is launched. If the gate fails, the pipeline aborts with a clear error message.  
   - **Verification**: CI runs the pipeline with a deliberately non‑chaotic parameter set (e.g., `rho = 20`) and checks that the process exits with exit code 1 and prints the expected error.
 
-- [ ] T017 [P] Compute a clean finite‑time baseline for each window size `T` used in FTLE analysis (e.g., 500, 1000, 5000). Store results in `data/processed/baseline_per_window_{N}.json`, an array of objects each containing `window_size`, `lambda_max`, and `convergence_error`. Verify that the baseline for every `T` satisfies the < 5 % error criterion.  
+- [~] T017 [P] Compute a clean finite‑time baseline for each window size `T` used in FTLE analysis (e.g., 500, 1000, 5000). Store results in `data/processed/baseline_per_window_{N}.json`, an array of objects each containing `window_size`, `lambda_max`, and `convergence_error`. Verify that the baseline for every `T` satisfies the < 5 % error criterion.  
   - **Verification**: Unit test `tests/unit/test_per_window_baseline.py` checks that the JSON file contains entries for all required windows and that each entry has `status == "valid"`.
 
-- [ ] T010 [P] Implement `code/analysis/ftle.py` that (a) loads each raw trajectory, (b) propagates the tangent linear model with QR re‑orthonormalisation, (c) evaluates FTLE over sliding windows `T ∈ {500, 1000, 5000}` while enforcing `T < total_length - 10`, and (d) records a `status` flag (`valid`, `unphysical`, `non‑chaotic`).  
+- [~] T010 [P] Implement `code/analysis/ftle.py` that (a) loads each raw trajectory, (b) propagates the tangent linear model with QR re‑orthonormalisation, (c) evaluates FTLE over sliding windows `T ∈ {500, 1000, 5000}` while enforcing `T < total_length - 10`, and (d) records a `status` flag (`valid`, `unphysical`, `non‑chaotic`).  
   - **Output**: Aggregated results written to `data/processed/ftle_results.json` (schema `ftle_results.schema.yaml`).  
   - **Verification**: Unit test `tests/unit/test_ftle.py` confirms that (i) the JSON file is non‑empty, (ii) for a clean trajectory the FTLE at `T=5000` is within 5 % of the baseline, and (iii) no `NaN`/`Inf` values appear.
 

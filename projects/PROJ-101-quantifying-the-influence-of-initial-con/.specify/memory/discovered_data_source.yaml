@@ -1,18 +1,14 @@
 status: none
-intent: download Synthetic Coupled Lorenz Trajectories PyDSTool python package dataset
+intent: Python package for generating noisy coupled Lorenz oscillator trajectories
+  dataset python package dataset
 required_fields:
 - time
-- x1
-- y1
-- z1
-- x2
-- y2
-- z2
-- '...'
-- xN
-- yN
-- zN
+- oscillator_id
+- x
+- y
+- z
 - noise_std
-cache_key: a40dca5fab658ca027181920c6cee34a75d498ea3d3b13d5a28a2287dd16073c
-searched_at: '2026-10-16T14:49:01.416996+00:00'
+- time_step
+cache_key: f1a6da0721d5b64d97d3a97b52f68d25c29d64e3d1e371a9ca88b186d9332ba1
+searched_at: '2026-10-16T15:18:47.139488+00:00'
 retry_count: 1

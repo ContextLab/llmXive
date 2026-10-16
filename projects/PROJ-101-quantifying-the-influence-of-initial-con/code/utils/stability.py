@@ -170,6 +170,36 @@ def raise_if_unphysical(
         )
 
 
+def check_noise_level(
+    sigma_noise: float,
+    threshold: float = 0.1,
+) -> None:
+    """
+    Emit a :class:`HighNoiseWarning` if the supplied noise level exceeds the
+    configured threshold.
+
+    The warning class ``HighNoiseWarning`` is defined in ``data.generator``.
+    Importing it lazily avoids circular imports.
+
+    Args:
+        sigma_noise: The standard deviation of the injected Gaussian noise.
+        threshold: Noise level above which a warning is raised (default 0.1).
+
+    Raises:
+        None – the function only emits a warning.
+    """
+    if sigma_noise > threshold:
+        # Import inside the function to avoid circular imports.
+        from ..data.generator import HighNoiseWarning
+
+        warnings.warn(
+            HighNoiseWarning(
+                f"High noise level: sigma_noise={sigma_noise:.4f} exceeds {threshold}"
+            ),
+            category=HighNoiseWarning,
+        )
+
+
 def check_convergence(
     values: np.ndarray,
     tol: float = 1e-6,
