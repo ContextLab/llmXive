@@ -1,18 +1,18 @@
 status: none
-intent: IBM Quantum backend properties qiskit python package dataset
+intent: IBM Quantum backend properties API real dataset python package dataset
 required_fields:
-- device_id
-- device_type
-- total_qubits
 - qubit_pair_edges
-- avg_cx_error
-- avg_measurement_error
-- timestamp
-- days_since_firmware_release
+- gate_time_us
+- average_cx_error
+- average_measurement_error
+- timestamp_iso8601
+- device_identifier
+- device_name
+- total_qubits
+- days_since_last_firmware_release
 - categorical_descriptor
-- snapshot_timestamp
-- snapshot_avg_cx_error
-- snapshot_avg_measurement_error
-cache_key: 53695dec3463c91e59317c500c0d994436d30be0c45868e95ea2a74d4e5479ed
-searched_at: '2026-10-16T09:45:49.003737+00:00'
+- window_mean_gate_time_us
+- window_std_gate_time_us
+cache_key: 7ca73727bc1fa5bf07d1fd2250e31eb1aed987fd1711c5d99a60e7f67568ff83
+searched_at: '2026-10-16T09:53:11.467991+00:00'
 retry_count: 1

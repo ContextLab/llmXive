@@ -2,24 +2,64 @@ T001:
   reason: 'Requested task execution failed; rerun successfully: code/fetcher.py exit=1'
   task: 23fbfe17b20e71410122d5194478f5730a0131bb777c4a6917c9c15c2f14520c
 T002:
+  reason: "Checked `data/processed/performance_metrics.csv` (exists) and the pytest\
+    \ run for `tests/test_processed_perf.py`. The test suite fails on schema validation\
+    \ because the required schema file `specs/001\u2011exploring\u2011the\u2011role\u2011\
+    of\u2011network\u2011structure/contracts/performance_metrics.schema.yaml` is missing,\
+    \ causing a `FileNotFoundError`. Without the schema the CSV cannot be validated,\
+    \ so the task\u2019s requirement is not satisfied."
   task: bec11faa959984075689d239ebd58698a5ceb1123cb4cc871b287993f8745375
 T003:
+  reason: "Checked `code/graph_builder.py` and its unit tests `code/tests/test_graph_builder.py`.\
+    \ The function `compute_edge_betweenness_and_spectral_gap` returns an un\u2011\
+    normalized mean edge betweenness (value\u202F2.0 for a 3\u2011node path), but\
+    \ the test expects a normalized mean of\u202F1.0, causing the test suite to fail.\
+    \ Consequently the required verification (`pytest \u2026`) does not succeed. The\
+    \ implementation must adjust edge betweenness calculation (e.g., use `normalized=True`\
+    \ or scale appropriately) so that the unit test passes."
   task: cc3c3286cc2b1adb4337eadbb278284def0f1a9d6777d670a49332d692f53905
 T004:
+  reason: The repository lacks the required `data/processed/correlation_results.csv`
+    output, the `stats_engine.py` script does not provide a CLI that accepts `--perf`,
+    `--graph`, and `--out` arguments, and it never checks that topology and performance
+    timestamps match (no RuntimeError guard). Moreover, the unit tests in `code/tests/test_stats_engine.py`
+    call `load_and_merge_metrics` with nonexistent keyword names, so the test suite
+    would fail. These missing/incorrect artifacts prevent the task from being satisfied.
   task: e706dbbfde52c2360792c88fad144e45ce3818a3eb7e2ec0cd18a4a148910962
 T005:
+  reason: "The test suite `code/tests/test_bootstrap.py` fails (AttributeError: `pandas`\
+    \ has no attribute `np`), so `bootstrap_performance_resampling` never creates\
+    \ `data/processed/bootstrap_performance_metrics.csv`. Consequently `data/raw_historical/`\
+    \ and `data/processed/stability_score.txt` are also absent, and the required stability\u2011\
+    score threshold is never evaluated. The implementation must fix the random\u2011\
+    state usage (e.g., use `numpy.random.RandomState`), ensure the bootstrap CSV is\
+    \ written, populate the historical directory, and produce a stability score \u2265\
+    \u202F0.7."
   task: f66e005a7b1b71d26780c47727fe80ac6a5b4be088f3c4c7df20e9b9ae6819b2
 T006:
+  reason: "The required `data/processed/robustness_results.csv` file does not exist,\
+    \ and the unit\u2011test suite fails (the `load_and_merge_metrics` function signature\
+    \ does not match the test\u2019s expected arguments). Additionally, there is no\
+    \ `stability_score.txt` for the bootstrap check, so the robustness checks are\
+    \ not demonstrated."
   task: be218cfc1a7b281c0354510544d032ab438c0b68c8f05a6d6af3766694b3507b
 T007:
   task: 9b485eb0cd41b82583cb2e1a8fd51caf8436359f2ad45bdf717834d510d26707
 T008:
+  reason: 'Requested task execution failed; rerun successfully: code/report_generator.py
+    exit=1'
   task: 1412d5e53b1e2029832ce6df8b80a0e12ae3f8f39842e6dd73ff9f74ca56849b
 T009:
   task: 528793888561057febe2440f7424d071bdfacaea0f4d290a5d1964370dafd8c5
 T010:
   task: cceae2aa15269aac445c5cf5f1538ff109da94f3404d48064dfa02f342bb7843
 T012:
+  reason: "The required output file `data/processed/partial_correlations.csv` does\
+    \ not exist, and the test suite `code/tests/test_partial_corr.py` is missing,\
+    \ so the claim that the partial\u2011correlation analysis was completed and validated\
+    \ cannot be confirmed. The next implementer must run `partial_correlation_full`\
+    \ on real data to produce the CSV and add the missing unit\u2011test that checks\
+    \ for the required covariates and schema."
   task: 0099572c3d4ab0f81f47f08f56168fde7e40bc9600323dc10c512fcc390a1453
 T013:
   task: e8051eeee2503ef1a4b8e3a657fc82ff0822e734da85c44abb185a8a9db41da2

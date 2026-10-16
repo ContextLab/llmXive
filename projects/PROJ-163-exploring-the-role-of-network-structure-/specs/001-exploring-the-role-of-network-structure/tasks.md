@@ -111,7 +111,7 @@ Each task is a self‑contained, verifiable unit; completed tasks are checked, p
   head data/processed/partial_correlations.csv
   ```
 
-- [ ] T007 [US3] **Power / Minimum Detectable Effect Size (MDES) analysis**  
+- [~] T007 [US3] **Power / Minimum Detectable Effect Size (MDES) analysis**  
   *Implementation*: `code/stats_engine.py` adds `compute_mdes(n, power=0.8, alpha=0.05)` returning the minimum detectable Spearman ρ. The function writes `data/processed/mdes_report.json` conforming to `specs/001‑exploring‑network‑structure/contracts/mdes_report.schema.yaml`.  
   *Low‑power flag*: set to `"Low Power: MDES > 0.5 (Large Effect Required)"` when the computed MDES exceeds 0.5, otherwise `"Adequate Power"`.  
   *Verification*:  
@@ -120,7 +120,7 @@ Each task is a self‑contained, verifiable unit; completed tasks are checked, p
   jq . data/processed/mdes_report.json
   ```
 
-- [ ] T008 [US3] **Generate figures and a fully programmatic results report**  
+- [ ] T008 [US3] **Generate figures and a fully programmatic results report**   <!-- FAILED-IN-EXECUTION: code/report_generator.py exit=1 -->
   *Implementation*: `code/viz.py` provides  
   • `generate_scatter_plots(df, out_dir='figures/')` – one PNG per significant adjusted‑p pair, regression line included.  
   • `generate_heatmap(df, out_path='figures/correlation_heatmap.png')`.  

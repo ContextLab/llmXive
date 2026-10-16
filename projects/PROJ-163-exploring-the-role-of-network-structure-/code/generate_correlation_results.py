@@ -2,8 +2,8 @@
 Script to generate the correlation results CSV file.
 
 This script loads the processed performance and graph metrics, computes
-Spearman correlations, applies FDR correction, and writes the final
-results to ``data/processed/correlation_results.csv``.
+Spearman correlations, applies FDR correction, writes the final results,
+and then runs the robustness analyses required for T006.
 """
 
 import logging
@@ -16,6 +16,9 @@ from stats_engine import (
     compute_spearman_correlations,
     apply_benjamini_hochberg_fdr,
     save_correlation_results,
+    # Robustness utilities added for T006
+    leave_one_device_out,
+    robustness_check_bootstrap,
 )
 # Correct import path for the project's logger utility
 from code.logger import setup_logger
@@ -24,7 +27,7 @@ from code.logger import setup_logger
 logger = setup_logger(__name__)
 
 def main() -> None:
-    """Run the end‑to‑end correlation generation pipeline."""
+    """Run the end‑to‑end correlation generation pipeline, including robustness checks."""
     logger.info("Starting correlation results generation...")
 
     # Verify required input files exist
@@ -76,6 +79,15 @@ def main() -> None:
     output_path = Path("data/processed/correlation_results.csv")
     logger.info(f"Saving correlation results to {output_path}...")
     save_correlation_results(corrected_df, str(output_path))
+
+    # ----- Robustness: Leave‑One‑Device‑Out -----
+    logger.info("Running Leave‑One‑Device‑Out robustness analysis...")
+    numeric_cols = merged_df.select_dtypes(include=[float, int]).columns.tolist()
+    leave_one_device_out(merged_df, numeric_cols=numeric_cols)
+
+    # ----- Bootstrap stability check -----
+    logger.info("Verifying bootstrap stability score...")
+    robustness_check_bootstrap()
 
     # Summarise significance
     sig_count = int((corrected_df["adj_p_value"] < 0.05).sum())

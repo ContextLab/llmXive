@@ -1,89 +1,134 @@
 """
-Script to generate ``data/processed/performance_metrics.csv`` from the raw
-JSON snapshots stored under ``data/raw/``.
-The CSV contains one row per device snapshot with the following columns:
+Script to generate the performance‑metrics CSV file from raw IBM Quantum calibration
+snapshots.
 
-    device_id, timestamp, t1_mean, t2_mean, cx_error_mean,
-    readout_error_mean, chip_family
-
-The script extracts the required performance metrics directly from the
-IBM Quantum ``BackendProperties`` dictionary representation.
+This script reads every ``*.json`` file under ``data/raw/``, extracts the relevant
+performance statistics (mean T1, mean T2, mean CX gate error, mean readout error)
+and writes a consolidated CSV to ``data/processed/performance_metrics.csv``.
+The output conforms to the JSON schema located at
+``specs/001-exploring-the-role-of-network-structure/contracts/performance_metrics.schema.yaml``.
 """
+
 import csv
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 from llmxive_toolkit import paths, get_logger
-from fetcher import extract_chip_family
 
-logger = get_logger(__name__)
+# Initialise a module‑level logger
+log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper to compute performance metrics from the raw property dict
+# Helper functions
 # ----------------------------------------------------------------------
-def _compute_metrics(props: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def _load_json(file_path: Path) -> Dict[str, Any]:
+    """Load a JSON file and return its content as a dict."""
+    with file_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+def _mean(values: List[float]) -> float:
+    """Return the arithmetic mean of a list of numbers."""
+    if not values:
+        raise ValueError("Cannot compute mean of empty list")
+    return sum(values) / len(values)
+
+def _derive_chip_family(device_id: str) -> str:
     """
-    Compute mean T1, T2, CX gate error and readout error from the raw
-    ``BackendProperties`` dictionary.
-
-    Returns a dict with keys matching the CSV column names, or ``None``
-    if any required metric is missing.
+    Minimal replica of ``fetcher.extract_chip_family`` to avoid a circular import.
+    The logic mirrors the original implementation.
     """
-    # Helper to safely extract a float list
-    def _extract_qubit_vals(qubit_list: List[Any], name: str) -> List[float]:
-        vals = []
-        for qubit in qubit_list:
-            for param in qubit:
-                if isinstance(param, dict) and param.get("name") == name:
-                    val = param.get("value")
-                    if isinstance(val, (int, float)):
-                        vals.append(float(val))
-        return vals
+    name = device_id.lower()
+    if "falcon" in name:
+        return "Falcon"
+    if "hummingbird" in name:
+        return "Hummingbird"
+    if "eagle" in name:
+        return "Eagle"
+    if "osprey" in name:
+        return "Osprey"
+    if "condor" in name:
+        return "Condor"
+    return "Unknown"
 
-    def _extract_gate_vals(gates: List[Any], gate_name: str, param_name: str) -> List[float]:
-        vals = []
-        for gate in gates:
-            if isinstance(gate, dict) and gate.get("gate") == gate_name:
-                for param in gate.get("parameters", []):
-                    if isinstance(param, dict) and param.get("name") == param_name:
-                        val = param.get("value")
-                        if isinstance(val, (int, float)):
-                            vals.append(float(val))
-        return vals
+def _extract_metrics(data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Compute performance metrics from a raw calibration dictionary.
 
-    qubits = props.get("qubits", [])
-    gates = props.get("gates", [])
+    The raw JSON may be in one of two formats:
+    1. Flat format where ``qubits`` and ``gates`` are top‑level keys.
+    2. Nested format where they are stored under a ``properties`` key
+       (as produced by ``fetcher`` when saving snapshots).
 
-    t1_vals = _extract_qubit_vals(qubits, "T1")
-    t2_vals = _extract_qubit_vals(qubits, "T2")
-    cx_err_vals = _extract_gate_vals(gates, "cx", "gate_error")
-    ro_err_vals = _extract_gate_vals(gates, "cx", "readout_error")
+    Expected keys (after normalisation):
+      - ``device_id`` (str)
+      - ``timestamp`` (ISO‑8601 string)
+      - ``qubits``: list of qubit parameter lists
+      - ``gates``: list of gate dictionaries
+    """
+    # Normalise the structure so that ``qubits`` and ``gates`` are always
+    # available at the top level.
+    if "properties" in data and isinstance(data["properties"], dict):
+        # Nested format – pull the inner dict out.
+        nested = data["properties"]
+        qubits = nested.get("qubits", [])
+        gates = nested.get("gates", [])
+    else:
+        # Flat format – use the keys directly.
+        qubits = data.get("qubits", [])
+        gates = data.get("gates", [])
 
-    # If any of the metric lists are empty we consider the snapshot incomplete
-    if not (t1_vals and t2_vals and cx_err_vals and ro_err_vals):
-        return None
+    # --- T1 / T2 -------------------------------------------------------
+    t1_vals, t2_vals = [], []
+    for qubit_params in qubits:
+        for param in qubit_params:
+            name = param.get("name")
+            if name == "T1":
+                t1_vals.append(param.get("value", 0.0))
+            elif name == "T2":
+                t2_vals.append(param.get("value", 0.0))
+
+    # --- CX gate error / readout error ---------------------------------
+    cx_errs, ro_errs = [], []
+    for gate in gates:
+        if gate.get("gate") == "cx":
+            for param in gate.get("parameters", []):
+                pname = param.get("name")
+                if pname == "gate_error":
+                    cx_errs.append(param.get("value", 0.0))
+                elif pname == "readout_error":
+                    ro_errs.append(param.get("value", 0.0))
+
+    # Guard against missing data – raise a clear error if any required
+    # metric list is empty.
+    if not (t1_vals and t2_vals and cx_errs and ro_errs):
+        raise ValueError(
+            f"Incomplete performance data for device {data.get('device_id', 'unknown')}"
+        )
 
     return {
-        "t1_mean": sum(t1_vals) / len(t1_vals),
-        "t2_mean": sum(t2_vals) / len(t2_vals),
-        "cx_error_mean": sum(cx_err_vals) / len(cx_err_vals),
-        "readout_error_mean": sum(ro_err_vals) / len(ro_err_vals),
+        "device_id": data.get("device_id", "unknown_device"),
+        "timestamp": data.get("timestamp", ""),
+        "t1_mean": _mean(t1_vals),
+        "t2_mean": _mean(t2_vals),
+        "cx_error_mean": _mean(cx_errs),
+        "readout_error_mean": _mean(ro_errs),
+        "chip_family": _derive_chip_family(data.get("device_id", "")),
     }
 
 # ----------------------------------------------------------------------
-# Main processing function
+# Public API
 # ----------------------------------------------------------------------
 def generate_performance_csv(
     raw_dir: Path = paths.data("raw"),
     output_path: Path = paths.data("processed", "performance_metrics.csv"),
 ) -> None:
     """
-    Read all ``*.json`` files in ``raw_dir``, compute the performance
-    metrics for each device, and write the aggregated CSV to
-    ``output_path``.
+    Iterate over all JSON snapshots in ``raw_dir`` and write the aggregated
+    performance CSV to ``output_path``.
     """
+    raw_dir.mkdir(parents=True, exist_ok=True)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     fieldnames = [
@@ -96,59 +141,32 @@ def generate_performance_csv(
         "chip_family",
     ]
 
+    rows = []
+    for json_file in raw_dir.glob("*.json"):
+        try:
+            data = _load_json(json_file)
+            metrics = _extract_metrics(data)
+            rows.append(metrics)
+            log.info(f"Processed {json_file.name}")
+        except Exception as e:
+            log.warning(f"Skipping {json_file.name}: {e}")
+
+    if not rows:
+        raise RuntimeError(f"No valid performance data found in {raw_dir}")
+
+    # Write CSV
     with output_path.open("w", newline="", encoding="utf-8") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-
-        for json_file in raw_dir.glob("*.json"):
-            try:
-                with json_file.open("r", encoding="utf-8") as f:
-                    data = json.load(f)
-            except Exception as e:
-                logger.warning(f"Skipping unreadable JSON file {json_file}: {e}")
-                continue
-
-            # Determine device identifier – prefer the explicit field if present
-            device_id = data.get("backend_name") or data.get("device_id")
-            if not device_id:
-                # Fallback to filename parsing
-                device_id = json_file.stem.split("_")[0]
-
-            # Timestamp – attempt to use the calibration timestamp if provided,
-            # otherwise fall back to the file's modification time.
-            timestamp = data.get("last_update_date")
-            if not timestamp:
-                timestamp = datetime.fromtimestamp(json_file.stat().st_mtime).isoformat()
-
-            metrics = _compute_metrics(data)
-            if metrics is None:
-                logger.info(f"Skipping {json_file.name}: incomplete metric data.")
-                continue
-
-            chip_family = extract_chip_family(device_id)
-
-            row = {
-                "device_id": device_id,
-                "timestamp": timestamp,
-                "t1_mean": metrics["t1_mean"],
-                "t2_mean": metrics["t2_mean"],
-                "cx_error_mean": metrics["cx_error_mean"],
-                "readout_error_mean": metrics["readout_error_mean"],
-                "chip_family": chip_family,
-            }
+        for row in rows:
             writer.writerow(row)
-            logger.debug(f"Wrote metrics for {device_id}")
 
-    logger.info(f"Performance metrics CSV written to {output_path}")
+    log.info(f"Performance metrics CSV written to {output_path}")
 
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
-def main():
-    """
-    CLI wrapper – generates ``performance_metrics.csv``.
-    """
+def main() -> None:
+    """CLI entry point."""
     generate_performance_csv()
 
 if __name__ == "__main__":
+    # When executed directly, run the full pipeline.
     main()
