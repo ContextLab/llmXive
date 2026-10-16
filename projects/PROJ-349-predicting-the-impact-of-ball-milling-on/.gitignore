@@ -1,35 +1,15 @@
-# Python
+# Python cache
 __pycache__/
 *.py[cod]
-*$py.class
+# Virtual environment directories
 .venv/
-venv/
-ENV/
 env/
-
-# Jupyter
-.ipynb_checkpoints/
-
-# IDE
-.idea/
+# Data directories
+data/
+# Pytest cache
+.pytest_cache/
+# IDE/editor files
 .vscode/
-*.swp
-*.swo
-
-# Data
-data/raw/*.csv
-data/raw/*.json
-data/processed/*.parquet
-data/processed/*.json
-data/splits/
-
-# Results
-results/
-
-# Environment
-.env
-*.log
-
-# OS
+.idea/
+# OS files
 .DS_Store
-Thumbs.db

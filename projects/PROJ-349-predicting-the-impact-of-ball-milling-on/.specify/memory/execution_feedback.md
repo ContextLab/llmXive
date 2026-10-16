@@ -13,38 +13,80 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/audit_report_T048.md: synthetic/fake INPUT data not authorized by the spec — “…No synthetic fallbacks, mock data generators, or random da…”; code/src/ingest/stream_uci_fallback.py: synthetic/fake INPUT data not authorized by the spec — “…domain match. # We will generate synthetic-like but REAL-derived ro…”; 9 command(s) failed: python -m src.ingest.arxiv_extractor (rc=1); python -m src.preprocess.pipeline (rc=1); python -m src.model.train_gpr # may be skipped automatically (rc=1)
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/audit_report_T048.md: synthetic/fake INPUT data not authorized by the spec — “…No synthetic fallbacks, mock data generators, or random da…”; code/src/ingest/stream_uci_fallback.py: synthetic/fake INPUT data not authorized by the spec — “…domain match. # We will generate synthetic-like but REAL-derived ro…”; 10 command(s) failed: python -m src.ingest.arxiv_extractor (rc=1); python -m src.preprocess.pipeline (rc=1); python -m src.model.train_gpr # may be skipped automatically (rc=1)
 
 ## Failing / missing run-book commands
 
 - python -m src.ingest.arxiv_extractor -> rc=1
-    Traceback (most recent call last):
+
+Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/src/ingest/arxiv_extractor.py", line 20, in <module>
     from pdfminer.layout import LAParams, LTTable, LTText
-ImportError: cannot import name 'LTTable' from 'pdfminer.layout' (/home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/lib/python3.11/site-packages/pdfminer/layout.py)
+ImportError: cannot import name 'LTTable' from 'pdfminer.layout' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-349-predicting-the-impact-of-ball-milling-on/lib/python3.11/site-packages/pdfminer/layout.py)
+
 - python -m src.preprocess.pipeline -> rc=1
-    Traceback (most recent call last):
+
+Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/src/preprocess/pipeline.py", line 16, in <module>
     from sklearn.impute import IterativeImputer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/lib/python3.11/site-packages/sklearn/impute/__init__.py", line 19, in __getattr__
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/sklearn/impute/__init__.py", line 19, in __getattr__
     raise ImportError(
 ImportError: IterativeImputer is experimental and the API might change without any deprecation cycle. To use it, you need to explicitly import enable_iterative_imputer:
 from sklearn.experimental import enable_iterative_imputer
+
 - python -m src.model.train_gpr # may be skipped automatically -> rc=1
-    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.model.train_gpr
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-349-predicting-the-impact-of-ball-milling-on/bin/python: No module named src.model.train_gpr
+
 - python -m src.model.train_rf -> rc=1
-    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.model.train_rf
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-349-predicting-the-impact-of-ball-milling-on/bin/python: No module named src.model.train_rf
+
 - python -m src.model.baseline_lr -> rc=1
-    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.model.baseline_lr
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-349-predicting-the-impact-of-ball-milling-on/bin/python: No module named src.model.baseline_lr
+
 - python -m src.evaluate.metrics -> rc=1
-    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.evaluate.metrics
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-349-predicting-the-impact-of-ball-milling-on/bin/python: No module named src.evaluate.metrics
+
 - python -m src.interpret.partial_dependence -> rc=1
-    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.interpret.partial_dependence
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-349-predicting-the-impact-of-ball-milling-on/bin/python: No module named src.interpret.partial_dependence
+
 - python -m src.interpret.feature_importance -> rc=1
-    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.interpret.feature_importance
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-349-predicting-the-impact-of-ball-milling-on/bin/python: No module named src.interpret.feature_importance
+
 - python -m src.utils.generate_report # creates results/summary.txt and figures -> rc=1
-    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.utils.generate_report
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-349-predicting-the-impact-of-ball-milling-on/bin/python: No module named src.utils.generate_report
+
+- python -m pytest -q tests/contract/test_dataset_schema.py -> rc=1
+lected 4 items
+
+tests/contract/test_dataset_schema.py E...                               [100%]
+
+==================================== ERRORS ====================================
+_______________ ERROR at setup of test_schema_validation_passes ________________
+file /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/tests/contract/test_dataset_schema.py, line 23
+  def test_schema_validation_passes(df):
+E       fixture 'df' not found
+>       available fixtures: cache, capfd, capfdbinary, caplog, capsys, capsysbinary, doctest_namespace, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, sample_experiment, tmp_data_dir, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+/home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/tests/contract/test_dataset_schema.py:23
+=========================== short test summary info ============================
+ERROR tests/contract/test_dataset_schema.py::test_schema_validation_passes
+========================== 3 passed, 1 error in 0.31s ==========================
+
+
+## Platform-owned paths written inside the project
+
+A script in this project created `.github/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

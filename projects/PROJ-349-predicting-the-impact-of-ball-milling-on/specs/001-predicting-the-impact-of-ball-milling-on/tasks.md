@@ -15,7 +15,7 @@ All paths are relative to the project root.
 - [ ] T002b [P] **Verify `requirements.txt` resolves without conflicts** – run `pip install --dry-run -r requirements.txt` and capture the output. Verification: log shows “Successfully installed …” with no conflict messages.  
 - [ ] T003a [P] **Configure linting (flake8)** – create `.flake8` with `max-line-length = 88`. Verification: file exists and contains the setting.  
 - [ ] T003b [P] **Configure formatting (black)** – add `pyproject.toml` with a valid black configuration. Verification: file exists and black can read it (`black --check .`).  
-- [ ] T004 [P] **Initialize Git repository** – run `git init`, add a `.gitignore`, and make an initial commit. Verification: `.git` directory exists and `git log` shows the initial commit.  
+- [ ] T004 [P] **Initialize Git repository** – run `git init`, add a `.gitignore`, and make an initial commit. Verification: `.git` directory exists and `git log` shows the initial commit.   <!-- FAILED-IN-EXECUTION: code/scripts/init_git_repo.py exit=1 -->
 
 ---
 

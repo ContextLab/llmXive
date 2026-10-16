@@ -1,187 +1,157 @@
 T001:
-  task: 2adcde32f46659e8d70d27000fe6925de3df735beab8222caaac4c9620f7e722
+  reason: "The manifest and script files exist, but the automated test `tests/test_setup_script.py`\
+    \ fails with a PermissionError, indicating `setup.sh` is not executable and therefore\
+    \ cannot be verified to create the listed directories. The task\u2019s verification\
+    \ step is not satisfied."
+  task: 75911b335c43db1195c2d53b65707bf0faae8ace58a8c8979a619b65d0da2851
 T002:
-  reason: '`requirements.txt` exists with all ten required pinned dependencies (plus
-    an extra `arxiv` entry, which is harmless), but the required `requirements-optional.txt`
-    containing `easyocr==1.7.*`, `opencv-python==4.8.*`, and `pdf2image==1.16.*` is
-    missing entirely. The implementer must create that optional dependencies file
-    to satisfy the task.'
-  task: 0dafd4997706458edc129a97f1f8b59e9e2912d253cb626d9b83a622fc07f6b5
+  reason: "The `requirements.txt` file does exist, but it lists 11 packages (including\
+    \ an extra `arxiv` entry) and uses wildcard pins like `pandas==2.2.*` instead\
+    \ of exact version numbers, violating the \u201Cpinned versions of the ten core\
+    \ dependencies\u201D requirement. The test suite also fails because the expected\
+    \ `check_requirements.py` script is not found at the path the test uses. The file\
+    \ must contain exactly ten core packages with exact version pins and the test\
+    \ script location must match the test\u2019s expectations."
+  task: 9c23f9380dff2019f0ecf7cd0affbafbc5cb21df56b8b31dc24a203d46f36b79
 T002b:
-  reason: "The `requirements.txt` exists and contains a plausible pinned dependency\
-    \ list, but the task's action is to run `pip check` (or equivalent) and its verification\
-    \ criterion is \"no dependency conflicts reported\" \u2014 and no execution evidence\
-    \ of such a check (command output, log, or report) was provided. The implementer's\
-    \ claim that dependencies are resolvable is unverified; the next step should capture\
-    \ and attach actual `pip check` / `pip install --dry-run` output against this\
-    \ file."
-  task: 52866a7f045af9bd3cafd1cc2466e329105a92cadc9657be71c5b16e1efddd47
+  reason: "The log `code/.tasks/T002b.code_check_requirements.py.log` reports that\
+    \ the pip dry\u2011run output did **not** contain the required \u201CSuccessfully\
+    \ installed \u2026\u201D text, triggering a warning. Hence the verification step\
+    \ failed and the task\u2019s requirement is not satisfied."
+  task: af22df937c58a4d5e0327c722a519cb45a13a4f6447b482e0458141183e06ccd
 T003a:
-  reason: "The evidence collector shows no artifacts on disk for this task \u2014\
-    \ there is no `.flake8` file (or any resolved path) present in the project, so\
-    \ the required configuration file with `max-line-length = 88` does not exist.\
-    \ The implementer must create `.flake8` at the project root containing that setting."
-  task: f6693b3617699471af94f653fe9c24b77bda8fbde2ddf08066eb0750ee442f0c
+  reason: Checked the project root (`projects/PROJ-349-predicting-the-impact-of-ball-milling-on`)
+    for a `.flake8` configuration file but no such file was found, nor any evidence
+    showing its contents include `max-line-length = 88`. The required linting configuration
+    artifact is missing.
+  task: b88a977d230f3aa17192bf61e774277541c07870ab2935208b62336ffeece8c5
 T003b:
-  task: 8dd0c65d07157e34081e336a54696257dba1480a05d42aad84b75af051ec5198
+  reason: The `pyproject.toml` file with a proper `[tool.black]` section is present,
+    but there is no evidence that `black --check .` was executed and succeeded, which
+    is required to confirm that Black can read the configuration. Provide the command
+    output (or a log) showing Black ran without errors.
+  task: 97cdc182e39ed3bfe6a3bdc94cd4fde3458379d32ccddd92811d446e7d3960b0
 T004:
-  reason: "The evidence collector provided no artifacts confirming a `.git` directory,\
-    \ a `.gitignore` file, or any `git log` output showing an initial commit in `projects/PROJ-349-predicting-the-impact-of-ball-milling-on`.\
-    \ The task's verification criteria (`.git` exists and `git log` shows an initial\
-    \ commit) are entirely unmet by the supplied evidence \u2014 the implementer must\
-    \ actually run `git init`, add a `.gitignore`, and create the initial commit,\
-    \ and the evidence must show it."
-  task: f8e7bafcab9c709c7e534a6fbab6630873ca3e04a65b010db7876411ed382377
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/init_git_repo.py
+    exit=1'
+  task: 742d923df85f33b5a4e6f01111b0f9e04546657b02371180bfb7c2db7aa4aae6
 T005:
-  task: c35b069797c83659d7d2e73c36ab13e382ac0412e7a817265292b2525aa8f1cd
+  task: 08147498d7165e9d56a14648b20ba76e1715e3f1a9434a5de3d81b8c39227015
 T006:
-  task: b0c80514608adbce2099b33075bf9a9bed659a14e515ff6cad160021d095a6b1
+  task: 56a1e878ba23b36f1046e71d3bc66a5beac802c7ce7f8c1943ced255c51f4bfd
 T007a:
-  task: f9bdcab664d92f7ef16c0005fb1a449a2d6909b1750f99746061ed49cf6e7f83
+  task: 7bd9fb34291b42161a49604febd3b6424065a14d12c764fa0e768dee631c1e31
 T007b:
-  task: 7cd6d6ce1c3572f3bdf07b76fcc09d3d2bcfcc166a0e278090aca5025dffc707
+  task: d860bd943d39f754b5986a3187a1416d81a1855906f7c1eb3fac860da38393a0
 T008:
-  task: 654f5a24d9bc89eee7fde689d4d16592ae09637ac3d68e8d77f8a512bf9a9c89
+  task: 1514134eff96a62bdf085df8831b185db521e311af9b3a259819ccd91823546a
 T009:
-  task: ec4bf41a1cc3046c02faa9a94289b632d6abadb9d5ce3fd3494d0a0e9b6a5f95
+  task: 3dc314d10e815a30b296e1fab9a175f4f2407a1d6ecc606e83a4736b44d8c531
 T009b:
-  task: 73d91a5b6f0bb8fc3e8a405e7f04e229ae4dfdfabb8becf4c2e1376d851246d9
-T010:
-  task: b8a01b6113d450d4ac1d329009137a7fabf3856269d38ecc19b3e5b92e7b7fad
-T011:
-  task: fe2551beca30d3a923a87f7fa30cec84c69494cecf3a3272dcfdd48c4975cdae
-T011b:
-  task: a0d3d0cc3e5a1b4ee0c7759ee46acda8a53f726256b7911f25afff853ec272bf
-T011c:
-  task: dd0bb25da43b2c6b0c09587a62d5900717add6d1844339392ef294208069a8b2
+  task: 5a00e9b153ab25cc3f8a7a9ba4d3bdb8882c9294ac78b7ca15d8be82db85e6a6
 T012:
-  task: 8ec8b48d56d76d299fb0a582e979ff87fecb9b0c150c2231ef61ac49fb00eff6
+  task: 9409afd0dd636d20298c4595fc3049e6d2910e548dd60fa3418fcaf6005088ca
 T013:
-  task: 17ab0608746b535978317989473d984174307cf703e6b1d8f36a197356b08dbd
+  task: 322c147d27974a5bd62ef34b4b80d596cd58f747dc8b7f3797a6277ad80aba2a
 T013b:
-  task: a85017f4f2da55352d3ba3d33474a57e6285c06e89ea1d520e5c55485092d31a
+  task: 591d5a7fed0fdb2d7691812aa1f1e5d31674220108cc330a8c8353b1f3be78d0
 T014a:
-  task: beb2127f42e3d291882b3d8bc70a26f63e9e61a63e1c80bb5138bbb0d61066f5
+  task: e253126d8245a85c2f1cb19b3daf00666687964aaa0c0dff5602f54476cc5848
 T014b:
-  reason: 'declared artifact(s) missing/empty/invalid: src/ingest/flagger.py, data/flagged_psd.log'
-  task: d502f2c90f80cdfeea2fa3b1f07620c259c7874a227f5b319e858a1ea68c38e3
+  task: 688b0fd0854a9342c17c699604c0be7cb0301addaf1baa49738ac064db65417f
 T014c:
-  task: 43759a4be652d310ab291b79bcb8e2507b4108bc8a16d27d37c3348564961e18
+  task: 6d4382ba9606e199b2253f96b5489c73d1dddf6842e320abbc32585e2e72518a
 T015a:
-  task: 0362296f7b5fd795c8389b04fefbb61d7df04762603c89f282597e96e4e0f16f
+  task: 30aa5b601daf8b1887da4609c1c2df8aa71b29c73a4721ceb17a53c73c8ae778
 T016a:
-  task: ae04479767b4fda8499bc9cc756ab1b13d6b5fa8155601bd66509d15c14edef8
+  task: 5b6bf0b7cb845c4ddadae8cf09e5e110f28bd4d7a41b2e094bf05a1290050639
 T016b:
-  task: 550074dd2ad28a40405b499855492b6b8d3cc0f4af53566290113cc3acc3edf0
+  task: d55d02975192bd419766bb95ffa949b33e22e2cd8bbf62e772230f0630b39b9c
 T016c:
-  task: 5eb51aa829543ee083e953e2a88f61f740250da10bb1b525352533249323c9c7
+  task: 61ac68d6cdddf06c12464601970cc811e167b543e98692198f3d9966ad01f238
 T016e:
-  task: 9cc2737f6d15d70fb1bb0a9af2422ca0716b77349d427751fe44f010259bc502
+  task: 6276cbb1d07e2526d73ddf34d2f33a7bbb0690272153b49cfccdf583a1ca3b8a
 T017a:
-  reason: 'declared artifact(s) missing/empty/invalid: data/processed/ball_milling_dataset.parquet'
-  task: 760fa416dde026021e654ccc4bef9e8a244db7cb620a5026a93aaaf2aa755c46
+  task: 62f87dd9fddb01bc473337cfc9e679bc380cfdc219bd4e3763c2793827ed8dcf
 T017b:
-  task: 49d3a54cf8749e09a37d9d1a72d0bd1c9f4487d4b6410bedffa1b94ba028722d
-T018:
-  task: db89a44b5b97d478159a65f8f18c97cd821b0252d1b0a3ce8c28689704704bc2
-T019:
-  task: f3b850ab9571c8477d83d34cf301345e1063c215e3de645f7ddcfa6c0550616f
+  task: 21eff770308f5089ec52bfdf4f555391b82b1ec6e3efc137c22a82f3abf6984a
 T020:
-  reason: 'declared artifact(s) missing/empty/invalid: src/ingest/streaming_utils.py'
-  task: e638f86efc32119809fca4a1c99ab22853caa45977f8693cfd579d77a51c9b4c
-T021:
-  task: 2de5ef4e6b9920e929605802be53def8e006866f42b3b183fa6f55cbd7c396ed
-T021#1:
-  reason: 'declared artifact(s) missing/empty/invalid: src/model/train_gpr.py, src/model/train_rf.py'
-  task: c7451ba6b34c791320a51a87701c109e61fae9afc9038f131f51ce81f0a3320b
-T022:
-  task: d192654fafb2bdedc0cf7d7d4d1a3000d1af696b37814200857b8bcbf5fc9cda
+  task: f5a50e578b4f318359823a4151dc37f2e14b5fddd6602dda0d662d48e4e05dbb
 T023:
-  task: d0eb76dc661a6f693937d807aebee1159cbf1c7cab03e2a88868726c9a56ad90
+  task: 861d8f6d683bead3da8b556eb7f546e2448423420e25209b9b63c53c4278e36a
 T024:
-  task: d1e5c92fa15afa6660b3cd49d58cb5318fe3c003066c355b0314a98815ebf386
+  task: bbf6b58bd5d0dcaa743b1be21b7198a55e8aed46e081cf7a423af6a83d291a51
 T025:
-  reason: 'declared artifact(s) missing/empty/invalid: src/model/baseline_lr.py'
-  task: 5881dfee737fa8cf39c08a4c726e04ece2cf85fbfee8f9e21d59e654bedfe701
+  task: 2a12b3e62d67cb91c5e9b530d0badf8c22b7e20e17ace2a1f57c89186bdb08b8
 T026:
-  reason: 'declared artifact(s) missing/empty/invalid: src/evaluate/metrics.py, results/metrics.csv'
-  task: 61dd47ce115e7c53045daa3914da02fb1dc998cb2072b6ba6f2aaa9696cfedcc
+  task: 44fc382524b22b3dcf47cf683c201710e596ec1901afbb4e617595fe1ef55820
 T026b:
-  reason: 'declared artifact(s) missing/empty/invalid: src/evaluate/nested_cv_report.py'
-  task: 4b66532333ac4c14a72250abf92e511e431d9bc77e3870ebc8e7d3ceef626bb5
+  task: 10e36983d181fc92c77c08115552537013641f840ef83e26a59976e7402e0c71
 T027:
-  task: 7b7b3c37c94293e36162742295f898ce813a771867c4882d5586597f67f7a76e
+  task: 22eac2ca6f775b8a3f314f7492b35bdcbf294a6b691a8fe45042ffa5acb0b1b0
+T028a:
+  task: ba7fba3abc900f47a616d75b81a300c7939c9a7fd85a9972b79483d6fbc320f5
+T028b:
+  task: cea41d9c304e63aee45629e63e36ec6923613b6b216ae1b107835b39e40b16a7
 T029a:
-  reason: 'declared artifact(s) missing/empty/invalid: src/model/train_gpr.py'
-  task: a5d37fe6f78b33b178562cad9a6dbbdb8a5f480df90fb76f565b9a1036b635e9
+  task: 5102c7cc551746fe55dda54aa587be76a9359f8897ae597a0db433a15498385c
 T029b:
-  reason: 'declared artifact(s) missing/empty/invalid: src/model/train_rf.py'
-  task: ed77a6dd8d8f60ab5fae7057fde7ae0a06da68078bb4eeee7b9ba9dd8f349ddc
+  task: 0685db8bdae047ed6c8040e3860bc8327466fbeb4a8018d408b7a840603eae6d
 T030:
-  reason: 'declared artifact(s) missing/empty/invalid: results/power_analysis_result.txt'
-  task: 0512e25f73ab954ed8a560061d2675c0a77efd2a66ba710ccf68025883c3ec3a
-T032:
-  task: d4945cb9e826def14e7abf9d2cc69bdbf474d110ef444f73ccdda823ca639f31
+  task: 86f1677a2cc10f14642bfeb6dfa6b7d516cb9636c0a9297587e17a225291184d
 T033:
-  reason: 'declared artifact(s) missing/empty/invalid: src/interpret/partial_dependence.py'
-  task: 5c61c8bcdd00b4e4f0a00a09b838daafa36e1e20b0699c9252c702cae722472d
+  task: 12f1ce18aee6d0cc19fbcbb5cb27377962ab6b62e58316e283f63e9fdbd6f2cb
 T034:
-  reason: 'declared artifact(s) missing/empty/invalid: src/interpret/feature_importance.py,
-    results/feature_importance.json'
-  task: 3097ecef092e52c7fe3c89f8ff622fe52df15d74c80c2d0d1fee6d10d748004b
+  task: bda8364ceccc1c1099eacf343acdab4eeb5e39cd79d68ad6e86c90204c44005d
 T035:
-  task: fde19a9e09984120de2e875b6e6be24fe91e2b6795b3930ffaee03bb16d2e4ac
+  task: d1d29f5eba6c06b796715d0d906298f0b3397e99851c09ebd202329a0b4cebd1
 T036:
-  task: 4f0e968ca3be074ff5f58eaa9ad1bb5808b88ce449a551dcf737a98dc5d43d5d
+  task: cda7e84021adb3f2065d107e15e7a8e19b9918bce040df797e16f82eb8f471da
 T037:
-  reason: 'declared artifact(s) missing/empty/invalid: src/utils/generate_report.py,
-    results/final_report.md'
-  task: 651170421ded4255b7073fab244505808c8f610102bdade77d658497aadba332
+  task: 1baaf3abaef07026889dec9e4778f1d67f8e0868ff90e7e4aa236ae7cfa3b03b
 T038:
-  reason: 'declared artifact(s) missing/empty/invalid: .github/workflows/ci.yml'
-  task: 59f6e0f5bdb342d7ba4df07978d1d2ec63bdaf3d6bf46fa6ba3ab9d197a3f202
+  task: bedac967f36cbb25e22caf9179dacb04917760984961e874c9f61ca1c74d9e1f
 T039:
-  task: 6bfe70e19f42f4149d27a3e62dadead8da803aa9543f735da2f1653534e28fd7
+  task: 57decfb56fad5f4443516181af4a059b9ea44df21f4bbf9b983133e65e37998c
+T040:
+  task: e83f602d38668b6d6f24d88d27cfd68a59953337379f1f09bb7ea6055769f927
+T041:
+  task: 5efe6b1565bf2af186e698429d514773605a584e54e6d15fff021c91065e487b
+T042:
+  task: 4e60a51bcd2fc187dc59d669e1dc941d79f255d5900efba4a12a72de6e040da5
+T043:
+  task: ccfe0180b9b2100c0c882c8804ba741884aa6c746983305c525bc2650e8e4f0f
+T044:
+  task: 3e3b36a37ebb2276b829cba9ae12007ab4d30ec2d8c4b0495cf9f0edf68eb0ef
 T053:
-  task: caa40d7c8d4ab04b06e77b3bd015744c137444ec27ae854015e46287fe425ddb
+  task: e6068678e4301efc5ced03a8a8511764b56b49096b77f1195f8b882babeb4ef4
 T054:
-  task: bf40e845a328a74f4204dc32816026e9df2c3a7f80d006b8db78679a0c31e87c
+  task: 832cfaf66d17cf9d3861452e17944651fac940a4a79d45966868df9402209a86
 T055:
-  task: 35def87e2c147b789af5bda63b528772391accc4c38a3807e51e050442bc7ebd
+  task: 33c1d82988c9d364d282448475c7070056f05b34423f5f986aa13b7fb29a93f4
 T056:
-  reason: 'declared artifact(s) missing/empty/invalid: src/cli/train.py, data/processed/small_sample.parquet'
-  task: 8c4495a0c72488b2c02727a72dace29808dba40babf3402bb87eda187392b53d
+  task: aed457fdd7abe5704dddb81a5548e5b2e9868149db32ed5afedf3cbdb048e54e
 T057:
-  task: 67d66bc292a944c441632736418d4e3cc70bfeec7b38a72c45e3faad577490b9
+  task: d3d58e2589269f6645be684cc8f5e02c75f5bf664677f3f4c5936ac5f4dca781
 T058:
-  task: d4369fae21ef570e0ef1a5f21b9bfead14798477b7453513cba8b7ec333d2fa1
+  task: fdf385eef923b026df044f097377fe9e562a22a416309bf34f31109a0cc746a2
 T060:
-  task: d6ab61ad8a2d537f63fa26368b6eb272ed667b7e078e71c7d3af0359164d462c
+  task: 67629151cf6a041b70adb24db31494e949dd57df083cd52ff976a02f1c4b621b
 T061:
-  task: dbed6660196755fec151ae1e03501eb7126c618a04585ceb9e95910f13929619
+  task: fecf6ea2da6c702d42b7611366a56397ca404e32c465123fe98a4e177ea00f5e
 T062:
-  reason: 'declared artifact(s) missing/empty/invalid: src/model/bin_calculator.py'
-  task: f080672acf324d0d6d1f4a08171e17b1977aa8e6fa5dfb07879a71c2fe29c9f4
+  task: 12153b7f2216cc23929b192ff6af09deeec8b56f630a4a58e598ed1a703c7ea1
 T063:
-  reason: 'declared artifact(s) missing/empty/invalid: src/model/bin_calculator.py'
-  task: f08a331f6953ea03e5012206da78184e26be496ccf74a7c1a34fd18798eb6647
-T065:
-  task: 1d2d8b646cb97c2e81721aa37021bac79520eabbb6881c47e47ef06fc9460e8d
+  task: 912710d75e6d2a2169a909a5a14bd93f993869214659c7a109f0db1f2b07cfcc
 T067:
-  reason: 'declared artifact(s) missing/empty/invalid: src/preprocess/derive_duration.py'
-  task: 479fb1319c1fece3d2bb919f8496c3a0e9d7b649d0437db88c712630537577ab
+  task: 213f3731ec59d80e08973f69423950e799891a3835872227a6db783a63f9d493
 T068:
-  reason: 'declared artifact(s) missing/empty/invalid: src/model/resource_monitor.py'
-  task: 79d5124e1a837abe172fcfa1ab583873bf06292c43e0ccf9ec065c5c9dec92c3
+  task: e226dca25ce514c2bd7284b42d15fdc7fb4cd38ace095aac42c4d19f87b02e87
 T069:
-  task: 7841c95b9decd99b12c45c957b9753fa48513d74518596972dfa0e0d34aa2fbe
+  task: 364ea87856970fa33092c45a8f33d9c1f46004efa8a8f8c7d6e45157a24c0a4e
 T070:
-  reason: 'declared artifact(s) missing/empty/invalid: results/power_analysis_result.txt,
-    results/t_test_power.txt'
-  task: 23dfb178eb49c6b069fca77dbd12ac5defce6054635a5e8f56a5e16a4ae93cdf
+  task: 6fd9a2e99901e429d31b636f1fc5f64b44405fe50f4c46d5375bdd80f5400dbf
 T071:
-  reason: 'declared artifact(s) missing/empty/invalid: src/cli/train.py'
-  task: aa5ac5e32f86c2cbd3f3d6c0dab52657332025981520b5408fc0e19cf7d00a97
+  task: 4039ab39ca14c5bc13d344392104d84f2137055613f3eeec050c69218216453b
 T072:
-  reason: 'declared artifact(s) missing/empty/invalid: src/cli/train.py'
-  task: 9d862873bed865804a1dca281319573c3cb107ea5de1271200ca7b645821e027
+  task: 04bce0e397412fca5f4f63d4006539f51da6a5418cfd369f59c5c2658be41b26
