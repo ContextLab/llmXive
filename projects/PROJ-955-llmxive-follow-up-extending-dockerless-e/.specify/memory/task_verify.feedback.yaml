@@ -1,12 +1,6 @@
 T001:
-  reason: "The quickstart.md and sample_run.csv exist with correct content (4 rows,\
-    \ \u226410), but the evidence is incomplete: `interim/` and `features/` directories\
-    \ (explicitly required by the task) are not confirmed to exist anywhere in the\
-    \ collected artifacts, and there is no execution evidence that `python -m src.cli.run_pipeline\
-    \ --dry-run` actually runs without error \u2014 the quickstart itself carries\
-    \ an unresolved claim marker (`c_9198ce03 \u2014 status=not_enough_info`) for\
-    \ that run, and no console output or log was supplied. The implementer should\
-    \ create the missing directories and provide actual run output ("
+  reason: 'Requested task execution failed; rerun successfully: src/cli/run_pipeline.py
+    exit=1'
   task: 112b0d39af56b1edd93d7e2ab84f6113566ec7f40ef05fe1a69c03739569b847
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/pipeline/ingest.py

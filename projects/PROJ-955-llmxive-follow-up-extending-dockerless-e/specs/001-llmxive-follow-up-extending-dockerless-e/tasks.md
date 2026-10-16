@@ -11,7 +11,7 @@ The following checklist implements the full research pipeline required by the sp
 | Goal | Run an executable analysis on a small real subset early, producing real result rows under `data/results/`. |
 |------|----------------------------------------------------------------------------------------------|
 
-- [ ] T001 [P] Create project‑wide directories, pin random seeds, and document a runnable command in `quickstart.md`.  
+- [ ] T001 [P] Create project‑wide directories, pin random seeds, and document a runnable command in `quickstart.md`.   <!-- FAILED-IN-EXECUTION: src/cli/run_pipeline.py exit=1 -->
   *Creates*: `data/`, `interim/`, `features/`, `models/`, `reports/`, `src/pipeline/`, `src/cli/`.  
   *Verification*: `quickstart.md` contains a single command (`python -m src.cli.run_pipeline --dry-run`) that finishes without error and prints the path of a tiny result file `data/results/sample_run.csv` (≤ 10 rows).
 

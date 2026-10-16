@@ -15,7 +15,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/cli/run_pipeline.py  --swe_gym_url https://huggingface.co/datasets/OpenHands/SWE-Gym-code-search/resolve/main/data/train-00000-of-00001.parquet  --multi_swe_rl_url https://huggingface.co/datasets/ByteDance-Seed/Multi-SWE-RL/resolve/main/data_20240601_20250331/c/OpenMathLib__OpenBLAS_dataset.jsonl  --output_dir $(pwd)/output  --seed 42 -> rc=1
-4:06,475 INFO src.pipeline.ingest: Reading SWE‑Gym parquet: /home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/data/raw_swe_gym.parquet
+3:14,989 INFO src.pipeline.ingest: Reading SWE‑Gym parquet: /home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/data/raw_swe_gym.parquet
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/cli/run_pipeline.py", line 142, in <module>
     sys.exit(main())
@@ -27,7 +27,7 @@ Traceback (most recent call last):
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/pipeline/ingest.py", line 181, in _process_swe_gym
     raise RuntimeError(f"SWE‑Gym parquet missing columns: {missing}")
-RuntimeError: SWE‑Gym parquet missing columns: {'language', 'source_code', 'exec_result', 'patch_id'}
+RuntimeError: SWE‑Gym parquet missing columns: {'patch_id', 'language', 'source_code', 'exec_result'}
 
 - python -m pytest -q tests/contract -> rc=1
 columns.
@@ -47,19 +47,19 @@ columns.
         missing = required - set(df.columns)
         if missing:
 >           raise RuntimeError(f"SWE‑Gym parquet missing columns: {missing}")
-E           RuntimeError: SWE‑Gym parquet missing columns: {'exec_result', 'language', 'source_code', 'patch_id'}
+E           RuntimeError: SWE‑Gym parquet missing columns: {'source_code', 'patch_id', 'language', 'exec_result'}
 
 src/pipeline/ingest.py:181: RuntimeError
 =========================== short test summary info ============================
 ERROR tests/contract/test_contracts.py::test_raw_files_exist - RuntimeError: ...
 ERROR tests/contract/test_contracts.py::test_patches_csv_structure - RuntimeE...
 ERROR tests/contract/test_contracts.py::test_execution_logs_exist - RuntimeEr...
-3 errors in 0.41s
+3 errors in 0.65s
 
 
 - python src/cli/run_pipeline.py  ...  --sample_fraction 0.1   # 10 % stratified sample, seed fixed -> rc=2
 
-2026-10-16 00:14:07,413 INFO __main__: Random seed set to 42
+2026-10-16 02:23:16,179 INFO __main__: Random seed set to 42
 usage: run_pipeline.py [-h] [--dry-run] [--swe_gym_url SWE_GYM_URL]
                        [--multi_swe_rl_url MULTI_SWE_RL_URL]
                        [--output_dir OUTPUT_DIR] [--seed SEED]

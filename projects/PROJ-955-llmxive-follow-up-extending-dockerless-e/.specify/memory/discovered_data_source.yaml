@@ -1,16 +1,14 @@
 status: none
-intent: download SWE-Gym and Multi-SWE-RL patches dataset with test logs python package
-  dataset
+intent: download SWE-Gym and Multi-SWE-RL code patch datasets python package dataset
 required_fields:
 - patch_id
-- issue_id
-- repository_name
+- repo_name
+- issue_number
 - file_path
-- original_code
-- patched_code
 - language
+- code_patch
 - test_log
-- ground_truth_test_results
-cache_key: d9c98ad5822084f7bc3cdbea9fd5ecaa29cd5d41ee4732635f2363a70dd9087e
-searched_at: '2026-10-16T00:15:31.555232+00:00'
+- metadata
+cache_key: 32942b756a6598a23a4d409272edc2c9db35802ddf274b5d3747e5a414875b01
+searched_at: '2026-10-16T02:24:09.111944+00:00'
 retry_count: 1

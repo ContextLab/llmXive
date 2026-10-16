@@ -63,3 +63,88 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-15T23:10:30Z'
+- artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  attempts: 1
+  canonical: creates project directory skeleton with standard subfolders
+  claim_id: c_8633c987
+  context: 'The command: 1. Creates the project directory skeleton (`data/`, `data/results/`,
+    `interim/`, `features/`, `models/`, `reports/`, `src/pipeline/`, `src/cli/`).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Creates the project directory skeleton (`data/`, `data/results/`, `interim/`,
+    `features/`, `models/`, `reports/`, `src/pipeline/`, `src/cli/`).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T02:23:14Z'
+- artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  attempts: 1
+  canonical: writes sample result CSV with 4 rows and specified columns
+  claim_id: c_5ea5f21d
+  context: "3. Writes a tiny result file `data/results/sample_run.csv` (4 rows, well\
+    \ under the 10\u2011row limit) with columns `patch_id,true_label,predicted_label,predicted_prob`."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Writes a tiny result file `data/results/sample_run.csv` (4 rows, well\
+    \ under the 10\u2011row limit) with columns `patch_id,true_label,predicted_label,predicted_prob`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T02:23:14Z'
+- artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  attempts: 1
+  canonical: prints sample result path and exits with code 0
+  claim_id: c_2b68f26d
+  context: "4. Prints the path of the sample result file and exits with code\u202F\
+    0."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Prints the path of the sample result file and exits with code\u202F0."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T02:23:14Z'
+- artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  attempts: 1
+  canonical: console output ends with 'Dry-run completed' line
+  claim_id: c_04529bb4
+  context: 'Expected console output ends with a line of the form: `Dry-run completed.
+    Sample result at: <project>/data/results/sample_run.csv`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Expected console output ends with a line of the form: `Dry-run completed.
+    Sample result at: <project>/data/results/sample_run.csv`.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T02:23:14Z'
+- artifact_path: projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/quickstart.md
+  attempts: 1
+  canonical: output paths created via llmxive_toolkit.paths helpers, command works
+    from any working directory
+  claim_id: c_983888ae
+  context: All output paths are created via the `llmxive_toolkit.paths` helpers, so
+    the command works from any working directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All output paths are created via the `llmxive_toolkit.paths` helpers,
+    so the command works from any working directory.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-16T02:23:14Z'
