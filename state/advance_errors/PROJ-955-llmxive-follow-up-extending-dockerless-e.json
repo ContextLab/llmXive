@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-955-llmxive-follow-up-extending-dockerless-e",
-  "stage": "in_progress",
-  "class": "transient",
-  "fingerprint": "unknown",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-15T21:26:54.721355+00:00",
-  "last_seen": "2026-10-16T11:16:34.912875+00:00",
+  "stage": "clarified",
+  "class": "permanent",
+  "fingerprint": "unreachable_reference",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-16T11:55:44.180202+00:00",
+  "last_seen": "2026-10-16T11:55:44.180202+00:00",
   "retry_after": null,
-  "last_error": "no implementation progress: no stage change or verified task completion",
-  "evidence": "no implementation progress: no stage change or verified task completion",
-  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "last_error": "research.md reference is unreachable: 'https://doi.org/10.1109/TSE.2007.70764\u3011' (malformed URL: 'ascii' codec can't encode character '\\u3011' in position 28: ordinal not in range(128)). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "evidence": "research.md reference is unreachable: 'https://doi.org/10.1109/TSE.2007.70764\u3011' (malformed URL: 'ascii' codec can't encode character '\\u3011' in position 28: ordinal not in range(128)). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
+  "status": "rerouted"
 }
