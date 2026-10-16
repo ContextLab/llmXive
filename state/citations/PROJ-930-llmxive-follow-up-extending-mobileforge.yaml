@@ -1,4 +1,4 @@
-- artifact_hash: 2c9d816a799a7f5e5b48c50efa89200adf84572933d8c6aa84822d9da4142d63
+- artifact_hash: 3c4bfd725a6edbeaeb613df45923756eeab8bc4c1c48e869b84405990a75090a
   artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,9 +7,9 @@
   kind: url
   value: https://huggingface.co/datasets/OSTShushack/ExtractionDataset/resolve/main/data/test-00000-of-00001.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6898892800d54d13cd4f8a86/4813f65e3fe2a092bcf4ce8fdc56f29a72b291a9de212d71ea61d70391e4346e?xip=Zy3jAJvrzt8&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1792092223&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjg5ODg5MjgwMGQ1NGQxM2NkNGY4YTg2LzQ4MTNmNjVlM2ZlMmEwOTJiY2Y0Y2U4ZmRjNTZmMjlhNzJiMjkxYTlkZTIxMmQ3MWVhNjFkNzAzOTFlNDM0NmVcXD94aXA9WnkzakFKdnJ6dDgmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMDkyMjIzfX19XX0_&Signature=MEYCIQDNMwC45m3u-6-A3uz7%7E5XeUKBvo75NUYhblY2%7EQcLafgIhAIAO6ZMRBgtbF-jCHkvtnR1jpJ5GswtWYUViGRSWiFcz&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-15T18:23:43.259303Z'
-- artifact_hash: c488f3a74c9e573aa1dd945cdea353ab81678b71e89ee5feb1a09fd000977829
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6898892800d54d13cd4f8a86/4813f65e3fe2a092bcf4ce8fdc56f29a72b291a9de212d71ea61d70391e4346e?user_id=public&xip=3P8_Nf_XVCU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1792128555&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjg5ODg5MjgwMGQ1NGQxM2NkNGY4YTg2LzQ4MTNmNjVlM2ZlMmEwOTJiY2Y0Y2U4ZmRjNTZmMjlhNzJiMjkxYTlkZTIxMmQ3MWVhNjFkNzAzOTFlNDM0NmVcXD91c2VyX2lkPXB1YmxpYyZ4aXA9M1A4X05mX1hWQ1UmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMTI4NTU1fX19XX0_&Signature=MEYCIQCHPQkYZNR3UFImJBsyIJaJGyXY4HbPbCIT0Fum8tQN8gIhAKN7c2XQT6DnJgnfewGqTWXPiITamm3lLzdlRMnBuvfk&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-16T04:29:15.650973Z'
+- artifact_hash: 04c9b9a0383f89c5752b7dbcf1a96b998ffc2a7431b71ecdc9a9b0adb56977a2
   artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://huggingface.co/datasets/OSTShushack/ExtractionDataset
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/OSTShushack/ExtractionDataset
-  verified_at: '2026-10-15T18:24:02.807595Z'
-- artifact_hash: c488f3a74c9e573aa1dd945cdea353ab81678b71e89ee5feb1a09fd000977829
+  verified_at: '2026-10-16T04:29:34.202995Z'
+- artifact_hash: 04c9b9a0383f89c5752b7dbcf1a96b998ffc2a7431b71ecdc9a9b0adb56977a2
   artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/quickstart.md
   cite_id: c-002
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://huggingface.co/datasets/google-deepmind/androidworld
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/google-deepmind/androidworld
-  verified_at: '2026-10-15T18:24:02.807595Z'
+  verified_at: '2026-10-16T04:29:34.202995Z'

@@ -38,7 +38,7 @@ The system must compare the distilled model against a TinyLlama baseline on the 
 
 ### FR-005: Statistical Significance
 The system must perform **McNemar's test** for paired binary outcomes (success/fail) to determine statistical significance.
-*Justification*: This requirement corrects the idea's proposal of a paired t-test, which is inappropriate for binary data. McNemar's test is the standard for paired nominal data (2x2 contingency table).
+*Justification*: This requirement corrects the idea's proposal of a paired t-test, which is inappropriate for binary data. McNemar's test is the standard for paired nominal data (binary contingency table).
 *Constraint*: The test assumes a one-tailed alternative hypothesis (distilled model > baseline).
 
 ### FR-006: Sensitivity Analysis
