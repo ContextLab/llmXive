@@ -11,12 +11,6 @@ This script:
     and measurement_method information (if available).
   * Writes the joined table to ``data/processed/joined.csv``.
   * Logs the number of matches.
-
-The script is intended to be executed via:
-    python -m src.preprocessing.join [options]
-
-All paths are resolved through ``llmxive_toolkit.paths`` which ensures
-the target directories exist.
 """
 
 import argparse
@@ -152,10 +146,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    # Resolve paths via llmxive_toolkit (ensures directories exist)
+    # Resolve paths via llmxive_toolkit
     smiles_path = paths.path(args.smiles)
     fqy_path = paths.path(args.fqy)
-    output_path = paths.path(args.output)
+    # Ensure output directory exists by using paths.data
+    output_path = paths.data("processed", args.output.name)
 
     smiles_df = _load_smiles(smiles_path)
     fqy_df = _load_fqy(fqy_path)

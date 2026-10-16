@@ -1,10 +1,9 @@
 T001:
-  c: true
-  h: 92df388554b5ed7010ec9f8efc0a35710ebd138faaaae05b7aae0a268416a4b5
-  r: The raw data files (`smiles.parquet`, `fqy.json`) exist under `data/raw/` alongside
-    `checksums.txt`; the download script ran with exit 0 and logged successful SHA-256
-    verification of both files. `code/config/seeds.yaml` and `results/seeds.json`
-    both exist with matching fixed integer seeds (0/42/42/42), and the execution log
-    shows the seed module was initialized and asserted against `results/seeds.json`
-    before any download/stochastic operation.
-  sig: 0f2250df35d89230256a8bd7d6fc998be7ee536d81caa26f1631a99c5daf8d3b
+  c: false
+  h: 4aea7735e8a7176451f22c89698ab9391383a8fc521693cc69a3e1344dd8ec03
+  r: "`data/raw/` contains only `checksums.txt` \u2014 the actual dataset files (`smiles.parquet`,\
+    \ `fqy.json`) referenced by the checksums are missing, so checksums cannot be\
+    \ verified against real data. There is also no download script artifact or evidence\
+    \ of a successful (exit 0) download run, and no seed-configuration module shown\
+    \ that is imported before any shuffle/split call."
+  sig: f68b6c4388513b588ce7b7e6722069da858b21200b3e4c159eb5b4d75087aab8

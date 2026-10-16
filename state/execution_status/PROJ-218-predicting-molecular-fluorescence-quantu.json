@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-16T01:19:36Z",
-  "project_id": "PROJ-218-predicting-molecular-fluorescence-quantu"
+  "updated_at": "2026-10-16T14:10:49Z",
+  "project_id": "PROJ-218-predicting-molecular-fluorescence-quantu",
+  "replan_rounds": 1
 }

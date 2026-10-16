@@ -1,4 +1,9 @@
 T001:
+  reason: "`data/raw/` contains only `checksums.txt` \u2014 the actual dataset files\
+    \ (`smiles.parquet`, `fqy.json`) referenced by the checksums are missing, so checksums\
+    \ cannot be verified against real data. There is also no download script artifact\
+    \ or evidence of a successful (exit 0) download run, and no seed-configuration\
+    \ module shown that is imported before any shuffle/split call."
   task: 13ada98a6cebfe822f1710008b727f7dc49122c398970ba35de0d3fb1b4a5c83
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/preprocessing/join.py
