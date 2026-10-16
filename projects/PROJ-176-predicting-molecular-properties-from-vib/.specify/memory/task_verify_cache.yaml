@@ -1,0 +1,20 @@
+T101:
+  c: false
+  h: 35a9f414be0f1c8086a01d2286f65e161f73aa66f012db34a294fc5b23129935
+  r: The required verification artifact `results/structure_report.txt` exists but
+    is 0 bytes (sha256 of empty file), so it does not list any directories, let alone
+    all expected ones. The only execution record is `setup_skeleton.py` exiting 0;
+    there is no evidence that `python -m compileall code/` was run or that the `find
+    . -type d | sort > results/structure_report.txt` verification command was executed.
+    The implementer must regenerate the structure report (non-empty, listing all expected
+    directories) and record a successful compileall run.
+  sig: 3a17bb035224bc69cfdce5fdbf780a54c1cff4a602c10b458747befe8f214617
+T102:
+  c: true
+  h: 4c17127ca31dad69726e1e3b374d203834f48ed2369da35f149bc57545aa32b1
+  r: All three YAML schema files exist at the resolved canonical location (`specs/001-predicting-molecular-properties-from-vib/contracts/`),
+    are non-empty (1667, 1112, and 2490 bytes), and contain valid, substantive JSON-Schema-style
+    YAML covering dataset, model output, and evaluation results as required. The verification
+    command's condition (valid YAML parse, non-empty files) is satisfied by the file
+    contents shown.
+  sig: 44ffbbf4000fe6b69097da8c24231b28a66eb4615c59794a903738bb0c1d5647

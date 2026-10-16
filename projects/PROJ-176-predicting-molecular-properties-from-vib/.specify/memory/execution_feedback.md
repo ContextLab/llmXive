@@ -24,12 +24,12 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; 6 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py evaluate --checkpoint models/checkpoint_best.pt (rc=2); 3 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/raw/ir_spectra.parquet; data/raw/qm9.parquet
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; 6 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py evaluate --checkpoint models/checkpoint_best.pt (rc=2); 4 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/processed/alignment_report.json; data/raw/ir_spectra.parquet
 
 ## Failing / missing run-book commands
 
 - python code/main.py download -> rc=1
-ties-from-vib/code/data/download.py", line 23, in download_qm9
+ties-from-vib/code/data/download.py", line 28, in download_qm9
     df.to_parquet(out_path)
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/util/_decorators.py", line 333, in wrapper
     return func(*args, **kwargs)
@@ -67,13 +67,13 @@ Trying to import the above resulted in these errors:
  - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 17:08:52 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 23:14:04 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 17:08:53 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 23:14:05 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
@@ -110,6 +110,7 @@ ERROR: file or directory not found: >
 ## Declared deliverables still missing
 
 - data/processed/aligned_dataset.npz
+- data/processed/alignment_report.json
 - data/raw/ir_spectra.parquet
 - data/raw/qm9.parquet
 
@@ -122,25 +123,27 @@ Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A 
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
-from qm9pack import get_data
+import qm9pack
 
-# Load the full QM9 dataset (the required argument is the dataset name)
-data = get_data('qm9')
+# Load the full QM9 dataset (the typical dataset name is "qm9")
+data = qm9pack.get_data('qm9')
 
-# Count records
-records = len(data)
-print(f"RECORDS={records}")
-
-# Determine field names from the loaded data
-if hasattr(data, "columns"):  # pandas DataFrame or similar
+if hasattr(data, "columns"):  # pandas DataFrame
+    records = len(data)
     fields = list(data.columns)
 elif isinstance(data, (list, tuple)) and data and isinstance(data[0], dict):
+    records = len(data)
     fields = list(data[0].keys())
+elif isinstance(data, dict):
+    records = 1
+    fields = list(data.keys())
 else:
+    records = len(data) if hasattr(data, "__len__") else 1
     fields = []
 
+print(f"RECORDS={records}")
 if fields:
-    print("FIELDS=" + ",".join(fields))
+    print(f"FIELDS={','.join(fields)}")
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
@@ -152,6 +155,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/aligned_dataset.npz` is declared but was NOT written. Scripts referencing it:
     - `code/data/preprocess.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/aligned_dataset.npz` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/alignment_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/data/download.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/alignment_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/ir_spectra.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/data/download.py` — NOT invoked by the run-book
     - `code/data/preprocess.py` — NOT invoked by the run-book
