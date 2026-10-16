@@ -1,0 +1,128 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 269b473463e412a0b812752bd3fd01e2c284766221ad7227889c4bbdd9d7235c
+T004:
+  reason: "The required output `data/raw/dataset_manifest.json` does not exist, and\
+    \ `code/utils.py` never actually downloads OpenNeuro datasets \u2014 `download_and_verify_dataset`\
+    \ builds a URL it never uses and merely checks for pre-existing local directories\
+    \ (\"mock_path\"), so no real data fetching or EEG+questionnaire verification\
+    \ occurs. The file's `main()` also only sets up unrelated T007 logging infrastructure\
+    \ rather than producing the manifest."
+  task: 275151cd0e2359fa19666afe96456c030e2315f24ef464f25f9a89ddf8f17cd5
+T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/checksums.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 1833eac16597b07b845073bb43886b2140de235043a3f1aa75619fc013099570
+T006:
+  task: b3710d4167393e5ee920224cb6cfe39463df91dd8e604bd35c81b5c739175baf
+T007:
+  task: a3cd28875c21c78b0f114a8fd4d545f885ccfa116f1f52467523d0103ae71459
+T008:
+  task: 38ee28e965103f277c49b51257ae82ec3da49011855aaba638d7e1c238ca5ec5
+T009:
+  task: 2569b539651706835d5a6f9f197d42e598f86173ecc33040013e816a2dba51b5
+T010:
+  reason: "The test file `tests/unit/test_preprocessing.py` exists but contains no\
+    \ test for the \u226585% variance retention requirement: `test_run_ica_artifact_removal`\
+    \ only checks the return type and data shape, never asserting variance retention\
+    \ \u22650.85. Moreover, the underlying `run_ica_artifact_removal` returns a fabricated\
+    \ proxy `(n_channels - len(bad_components)) / n_channels` (with hardcoded bad\
+    \ components [0,1] and a `variance_retention = 1.0` placeholder), so no genuine\
+    \ variance measurement exists to test against, and the test also calls it with\
+    \ a `method='adjust'` argument the function doesn't accept"
+  task: 8606d09b25e6219242bdb9b503598e827d227d5fc10c3a35f6057162aa323926
+T011:
+  reason: "The test file exists, but it is incompatible with the actual `MicrostateSegmentation`\
+    \ dataclass in `code/entities.py`: the test constructs/asserts `MicrostateSegmentation(labels=...,\
+    \ gev=..., num_classes=..., num_channels=..., num_timepoints=...)` and reads `result.gev`/`result.labels`,\
+    \ while the dataclass requires `subject_id`, `session_id`, `segment_labels`, `global_explained_variance`\
+    \ and has none of the fields the test uses \u2014 so `apply_microstate_template`\
+    \ would raise a `TypeError` and the test cannot pass. No execution evidence (e.g.,\
+    \ pytest output) was supplied either; the test must be a"
+  task: 03c151c1a52e95a8189d638710aa8ad8ddb0bf86ac0a04138dfc6ce596efa50f
+T012:
+  task: 219d7966179bd2239b54535024910abd8689b1c21a26626c6464cd68930b1ff0
+T013:
+  task: 72ac8cfc60b5c7dc77ef47b4d736dfd988dbb5c498f086a1ac0513cf4972f533
+T014:
+  task: 4c3391b65962622c7f68adf48ef9679b060283a7ba8447b9c97a6396b299574d
+T015:
+  task: b29bc60f845d5d4cf4c8494460e51aa8deaf4f762177471d7f704327c85f6b8d
+T016A:
+  task: 1d48bbd6058aeba2cec3e0c0dc0e421b03ca967bc7db8850279721b2a0d85421
+T016A-1:
+  task: c579d506a484dcc77e788b73519607f26c9acc4db16f7144d2a01e35288db2cc
+T016B:
+  task: cb9b8d86b490f827d7eadff413c8d47d613f9ccf2bcfaf139c7239dd1e30fb33
+T017:
+  task: a39541657e6e9542d99c82c3b216248f5189916e3e0c1fb31b06d7198719f8a1
+T018:
+  task: 46db8e52e996f6eabffebfc63668271442edfb29f7815b962bfad9d73fd0659c
+T018-1:
+  task: e5d9e1c326cdad35886667a017c1603058104fd9b625d3f086807934a1f2a9a5
+T019:
+  task: 6e52804b2e4a9dfd56b840aea9cb29e709bc9c074f8c3c3489281b0fc111d641
+T020:
+  task: 69b4a4c70018984bf3b35c129e992d7b5cce3901792914ee60ba44d0b3e7bc15
+T021:
+  task: a3fae05d28acc85be997e0a1ac25ba62cea7a2c7cb3dcdce81d032bcfdea26b9
+T022:
+  task: 8234ca39bd8ef1b0089610e872d1af0518bb71148f3814f3620a601fc7c3b461
+T023A:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis.py exit=1'
+  task: 7f06ef625f356ddbb883326f31e73f1e505987ca7e874d3509f9b049ab3fba59
+T023A-1:
+  task: def2d5b1eb2a272b7a0c652c6131654edacd79bdad31b8dc7dee3a30d5839c3b
+T023B:
+  task: cf22b6a368fcfca91940f020725ab7c2274cd61b675ddbe1d2c195fcdc9a3dcd
+T024:
+  task: 34d3b0b21fe50f089b1a3b6c19e87c71e1148564a25136a924d7350cbf206e6a
+T024-1:
+  task: 6f575e44322fd684dc330ff511130d64cf8dfbedb0675eb8ff8700873c6ebc99
+T025:
+  task: 16809f47e8e57a76041574f71677d8f3f4e3c0fbfefa890e3a9dbe7f8a8392bb
+T026:
+  task: 81101b95a063f4e43cb1636bd9f372c62f6158ff990c63ddf99f956298cb6712
+T027:
+  task: e2be3c77a2aa6aa8be5f64f0c8aeb69f66d8d75c02d05b27e6fa8aa6bfec69b0
+T028:
+  task: 1decde63f343cb897bde0cca0b022cecccb5769311eb8db01af5382eae0c023d
+T030:
+  task: 3e737ce058a107b268cd822370bf19237584835f152edbf396197e9353ac752f
+T031:
+  task: ff3a159bc2ed8a0ba3acc85d31311ab45d22b73952c5eeb9b30420268d3d2eb0
+T032:
+  task: 1e556f8b07a240a01e33763725392c78273a17d44d36d28d78182ef380c1a053
+T032-0:
+  task: 4a2892a1e72d9630afaa59561127143aa58409ab9d84b0e026f6aee05c6ea511
+T032-2:
+  task: 648d7e6576a821aa369eacfaad69dddbeeb465d1aa74582ccb11c3bcf7f425c3
+T033:
+  task: 6caec85c8ca58a7100964c36adbfa790fd5fd54931816a7d646b47c20d29691d
+T034:
+  task: 4ed3aa22dbb468380ffb152fb0171206677dd41016fe1bcaaa109dc332974fc6
+T035:
+  task: c6e780e7978bf7498c4deed7f07eba3a3157e2d0544d7b7a5f05c50af16f676b
+T036:
+  task: 99b8962681694260d658e5c84843662c0ebae6925baa3526a4e41c7f7ddfa8f6
+T036-1:
+  task: e0e9a4ce1bb1c6dbb5f171fa3f3e2f3981f4e9e4647f2ef6a4347a873fdbda1c
+T037:
+  task: 56f6ea4adfd1a3f516316a369c747d6afa5024e7214d63a78e3c99018e72e1db
+T038A:
+  task: 8b078cf8ec71644071b5eb658bbaa961fac7f16dfa5393fedf658d2460646e1d
+T038B:
+  task: e9e7213a75de19ead108f0165021c9fb088f0840f6f82479f194d698e626a04c
+T039:
+  task: 267901ccacb89a8f2af0fd7a62bd257dc34a43c755fe8f147bf70ca384db5406
+T040:
+  task: 804d92fc02ff21b767a483b4f3911f1b939ec772603608f58c6739aac7c3c79e
+T041:
+  task: 562bd7595436480137f430e1bcdb37cdcc7202b21d69b54e0fbd60eeef2c1600
+T042:
+  task: a85e6cd1a9b2571898b100983de2ec6268b2c6902be19e46cb75884313f59797

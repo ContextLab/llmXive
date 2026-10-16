@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.13273",
+  "judged_at": "2026-10-16T15:31:02Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "rationale": "The paper applies CNNs to medical blood-smear images for leukemia detection, not to material microstructure images for strength prediction — it shares only the generic \"CNN on microscopic images\" technique, with no connection to materials science, microstructure, or material strength variables. This is off-domain relative to the user's question.",
+  "relevant": false
+}

@@ -1,0 +1,64 @@
+T004:
+  c: false
+  h: a4f559182d7a5d65b4ab7da16f871481a9e3152f56d3bcb4ce805f8902bebcdd
+  r: "The required output `data/raw/dataset_manifest.json` does not exist, and `code/utils.py`\
+    \ never actually downloads OpenNeuro datasets \u2014 `download_and_verify_dataset`\
+    \ builds a URL it never uses and merely checks for pre-existing local directories\
+    \ (\"mock_path\"), so no real data fetching or EEG+questionnaire verification\
+    \ occurs. The file's `main()` also only sets up unrelated T007 logging infrastructure\
+    \ rather than producing the manifest."
+  sig: 8869103ffd660a486262f876add7fa2f505a6f845d89dc9e9bf724486697ed08
+T006:
+  c: true
+  h: dff327bdee561f5478f7dfdff0b92810d05a41d5dd216c6f90ba56959a2133ff
+  r: "The file `code/preprocessing.yaml` exists (1674 bytes) and contains all required\
+    \ keys: `bandpass` with `low: 1.0` and `high: 40.0` (matching the spec's 1\u2013\
+    40 Hz canonical range), an `ica` section with method and rejection criteria, and\
+    \ a `reference` section specifying average referencing. The content is substantive\
+    \ configuration, not a placeholder."
+  sig: 2e738c3c6407c61e979551f9e3c11b36da64fe3cb168271fca7bde6dfe90ec5b
+T007:
+  c: true
+  h: b8b41f58fd54b9ee2eeb6d0e4f51817f8da1446e265bca563c16987437ab1cb4
+  r: "`code/utils.py` contains a real `setup_exclusion_logging()` implementation (directory\
+    \ creation, file handler, timestamped formatter, idempotent handler setup) plus\
+    \ a `log_exclusion()` helper, and `data/logs/exclusion.log` exists non-empty with\
+    \ the initialization header written by an actual execution (exit 0). Unit tests\
+    \ for the logging functions passed (4/4), and no fabricated exclusion records\
+    \ were injected \u2014 the log contains only the genuine initialization header,\
+    \ which matches the task's scope of building logging infrastructure."
+  sig: 8470f105925cfb8fdc3124fb862212ced95798946e7b90af701a86c62a219b25
+T008:
+  c: true
+  h: f2ac5ff974b90ee5e46650b4d7a37e3f91aacb494cc3747e6dfcd47d987841e2
+  r: '`code/entities.py` exists (3163 bytes) and defines all five required dataclasses
+    (`EEGRecording`, `MicrostateSegmentation`, `MicrostateFeatures`, `AffectiveScores`,
+    `CorrelationResult`) with substantive, well-typed fields matching the domain (microstate
+    features, PANAS/SAM scores, correlation coefficients with corrected p-values and
+    effect sizes). The verification requirement (imports succeed) is plausible given
+    the file only uses standard-library `dataclasses`/`typing`/`datetime` and `numpy`,
+    with no stubs or placeholders.'
+  sig: d4d576edcfabb275dd35fdbc4550d0ae2927b80f90558fdaa10c9ef190cbd26a
+T010:
+  c: false
+  h: 735438a09c64026792462f7df8916c5eed11b48fc0c1ab70f24c9ecc3be6c3fd
+  r: "The test file `tests/unit/test_preprocessing.py` exists but contains no test\
+    \ for the \u226585% variance retention requirement: `test_run_ica_artifact_removal`\
+    \ only checks the return type and data shape, never asserting variance retention\
+    \ \u22650.85. Moreover, the underlying `run_ica_artifact_removal` returns a fabricated\
+    \ proxy `(n_channels - len(bad_components)) / n_channels` (with hardcoded bad\
+    \ components [0,1] and a `variance_retention = 1.0` placeholder), so no genuine\
+    \ variance measurement exists to test against, and the test also calls it with\
+    \ a `method='adjust'` argument the function doesn't accept"
+  sig: 25df29454e928c723cd7eb0436bcef996091e7509d60b3c435c2bfcd0ac80245
+T011:
+  c: false
+  h: 58a9620af5845382cc17951a28a7a10e1667cf599f79065b3dfb761fa9d8593a
+  r: "The test file exists, but it is incompatible with the actual `MicrostateSegmentation`\
+    \ dataclass in `code/entities.py`: the test constructs/asserts `MicrostateSegmentation(labels=...,\
+    \ gev=..., num_classes=..., num_channels=..., num_timepoints=...)` and reads `result.gev`/`result.labels`,\
+    \ while the dataclass requires `subject_id`, `session_id`, `segment_labels`, `global_explained_variance`\
+    \ and has none of the fields the test uses \u2014 so `apply_microstate_template`\
+    \ would raise a `TypeError` and the test cannot pass. No execution evidence (e.g.,\
+    \ pytest output) was supplied either; the test must be a"
+  sig: d4b3d0c52396c5a42c4080d21b36efa220eea550318d80fa0755aaa2b924bc9b

@@ -1,0 +1,14 @@
+status: none
+intent: OpenNeuro ds004137 resting state EEG dataset download with affective questionnaire
+  python package dataset
+required_fields:
+- subject_id
+- eeg_signal_time_series
+- sampling_rate
+- channel_names
+- channel_locations
+- affective_questionnaire_responses
+- recording_condition
+cache_key: 8a43885f431ef0e7cd4a664259b621e0082ce81fde21e780bbd185ef36dceb40
+searched_at: '2026-10-16T15:35:10.770128+00:00'
+retry_count: 1

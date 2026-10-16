@@ -21,8 +21,8 @@ Traceback (most recent call last):
 TypeError: get_required_env_vars() takes 0 positional arguments but 1 was given
 
 - python code/src/baseline/visual_detector.py --manifest data/manifest.jsonl -> rc=1
-2026-10-11 11:15:12,558 | INFO     | NoisyVisualDetector-Runner | Starting Noisy Visual Detector (T026b)
-2026-10-11 11:15:12,559 | ERROR    | NoisyVisualDetector-Runner | Input file not found: data/baseline/deterministic_predictions.jsonl
+2026-10-16 15:28:27,855 | INFO     | NoisyVisualDetector-Runner | Starting Noisy Visual Detector (T026b)
+2026-10-16 15:28:27,856 | ERROR    | NoisyVisualDetector-Runner | Input file not found: data/baseline/deterministic_predictions.jsonl
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/code/src/baseline/visual_detector.py", line 272, in <module>
@@ -48,14 +48,14 @@ Traceback (most recent call last):
 ValueError: Missing required environment variables: JOYAI_VL_MODEL_PATH, DATA_SEED
 
 - python code/src/scheduler/eval.py --checkpoint models/scheduler_checkpoint.pth --baseline data/baseline/ -> rc=1
-2026-10-11 11:15:14,380 | INFO     | __main__ | Starting scheduler evaluation...
-2026-10-11 11:15:14,380 | INFO     | __main__ | Evaluating scheduler with predictions: /home/runner/work/llmXive/llmXive/projects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/code/data/scheduler/predictions.jsonl
-2026-10-11 11:15:14,380 | INFO     | __main__ | Using ground truth: /home/runner/work/llmXive/llmXive/projects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/code/data/raw/manifest.jsonl
-2026-10-11 11:15:14,380 | ERROR    | __main__ | File not found: Predictions file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/code/data/scheduler/predictions.jsonl
+2026-10-16 15:28:30,122 | INFO     | __main__ | Starting scheduler evaluation...
+2026-10-16 15:28:30,122 | INFO     | __main__ | Evaluating scheduler with predictions: /home/runner/work/llmXive/llmXive/projects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/code/data/scheduler/predictions.jsonl
+2026-10-16 15:28:30,122 | INFO     | __main__ | Using ground truth: /home/runner/work/llmXive/llmXive/projects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/code/data/raw/manifest.jsonl
+2026-10-16 15:28:30,122 | ERROR    | __main__ | File not found: Predictions file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/code/data/scheduler/predictions.jsonl
 
 
 - python -m pytest tests/ -> rc=2
-ects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/tests/unit/test_validation.py'.
+.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
@@ -70,9 +70,10 @@ ERROR tests/unit/test_ambiguous_event_resolver.py
 ERROR tests/unit/test_exporter.py
 ERROR tests/unit/test_feature_extractor.py
 ERROR tests/unit/test_logging.py
+ERROR tests/unit/test_pytest_config.py - Failed: 'memory_limit' not found in ...
 ERROR tests/unit/test_streaming.py
 ERROR tests/unit/test_validation.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 2 warnings, 8 errors in 1.25s =========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 2 warnings, 9 errors in 1.61s =========================
 
 

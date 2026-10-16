@@ -1,10 +1,13 @@
 status: none
-intent: synthetic fall detection video dataset with labels python package dataset
+intent: Synthetic Video Stream fall detection dataset alternative to MMVP Nemotron
+  python package dataset
 required_fields:
-- video_path
+- video_id
 - frame_timestamp
+- frame_path
 - label
 - event_type
-cache_key: 7c7237fae240086dd37917597116d4294e990790a86a6387e4c13aa4dcb10f14
-searched_at: '2026-10-11T11:16:21.549327+00:00'
+- bounding_boxes
+cache_key: e459fcd579cd4a6433b3b7f606cb0fa673ce7a5a40ebc1e13d8b5f27b6b40bb8
+searched_at: '2026-10-16T15:29:35.642939+00:00'
 retry_count: 1

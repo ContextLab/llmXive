@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.01502",
+  "judged_at": "2026-10-16T15:31:00Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "rationale": "This paper is about acoustic scene classification from audio spectrograms, not material strength prediction from microstructure images. It shares only the generic keyword \"CNN\" with the user's question and is entirely off-domain (audio vs. materials science microstructure).",
+  "relevant": false
+}

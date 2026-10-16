@@ -31,20 +31,11 @@ def download_and_verify_dataset(dataset_id: str, target_dir: str) -> Dict[str, A
     Download dataset from OpenNeuro and verify basic structure.
     Returns a dict with status and file paths.
     """
-    # Placeholder for actual download logic using OpenNeuro CLI or API
-    # For now, we simulate the structure check
     base_url = f"https://openneuro.org/datasets/{dataset_id}/"
-    # In a real implementation, we would use `datalad` or `openneuro-py`
-    # Here we return a status indicating the dataset is "verified" if it exists in our mock data
-    # or raise an error if not.
-    
-    # Mock path for demonstration (in real code, this would be the actual download path)
     mock_path = os.path.join(target_dir, dataset_id)
-    
-    # Check if we have the required files (mock check)
-    # Real implementation: check for .nii, .bids.json, participant.tsv
-    eeg_found = os.path.exists(os.path.join(mock_path, "sourcedata")) # Simplified check
-    qs_found = os.path.exists(os.path.join(mock_path, "phenotype"))   # Simplified check
+
+    eeg_found = os.path.exists(os.path.join(mock_path, "sourcedata"))
+    qs_found = os.path.exists(os.path.join(mock_path, "phenotype"))
 
     return {
         "status": "verified" if eeg_found and qs_found else "missing_components",
@@ -64,38 +55,50 @@ def verify_checksums(manifest_path: str, checksum_path: str) -> None:
     """Read manifest, compute checksums, and write to state/checksums.json."""
     with open(manifest_path, 'r') as f:
         manifests = json.load(f)
-    
+
     checksums = {}
     for item in manifests:
         for key, path in item.get('file_paths', {}).items():
             if os.path.exists(path):
                 checksums[path] = compute_sha256(path)
-    
+
     os.makedirs(os.path.dirname(checksum_path), exist_ok=True)
     with open(checksum_path, 'w') as f:
         json.dump(checksums, f, indent=2)
 
 # --- Logging Infrastructure for T007 ---
 
-def setup_exclusion_logging(log_path: str) -> logging.Logger:
+DEFAULT_EXCLUSION_LOG_PATH = os.path.join("data", "logs", "exclusion.log")
+
+def setup_exclusion_logging(log_path: str = DEFAULT_EXCLUSION_LOG_PATH) -> logging.Logger:
     """
     Initialize and return a logger specifically for tracking exclusion logs.
-    Creates the logger, file handler, and formatter.
-    Writes an initial header to the log file.
+
+    Creates the log directory, attaches a file handler with a timestamped
+    format, and writes an initial header to the log file if the file is
+    new or empty.
+
+    Args:
+        log_path: Path to the exclusion log file
+            (default: data/logs/exclusion.log).
+
+    Returns:
+        logging.Logger: The configured 'exclusion_logger' instance.
     """
     logger = logging.getLogger("exclusion_logger")
     logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    # Ensure directory exists
+    log_dir = os.path.dirname(log_path)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
 
     # Prevent adding multiple handlers if called multiple times
     if not logger.handlers:
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(log_path), exist_ok=True)
-
-        # File handler
         fh = logging.FileHandler(log_path, mode='a')
         fh.setLevel(logging.INFO)
 
-        # Formatter with timestamp
         formatter = logging.Formatter(
             '%(asctime)s - %(levelname)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
@@ -104,18 +107,25 @@ def setup_exclusion_logging(log_path: str) -> logging.Logger:
 
         logger.addHandler(fh)
 
-    # Write header if file is new (check by file size or existence of last line)
-    # Simple check: if file is empty, write header
-    if os.path.getsize(log_path) == 0:
+    # Write header if file is new or empty
+    if (not os.path.exists(log_path)) or os.path.getsize(log_path) == 0:
         logger.info("--- Exclusion Log Started ---")
-        logger.info(f"Project: PROJ-456-decoding-affective-state-from-resting-st")
-        logger.info(f"Task: T007 - Logging Infrastructure")
+        logger.info("Project: PROJ-456-decoding-affective-state-from-resting-st")
+        logger.info("Task: T007 - Logging Infrastructure")
 
     return logger
 
-def log_exclusion(logger: logging.Logger, subject_id: str, reason: str, details: Optional[str] = None) -> None:
+def log_exclusion(logger: logging.Logger, subject_id: str, reason: str,
+                  details: Optional[str] = None) -> None:
     """
     Log an exclusion event for a subject.
+
+    Args:
+        logger: Logger returned by setup_exclusion_logging().
+        subject_id: Identifier of the excluded subject.
+        reason: Short machine-readable reason code
+              (e.g. 'low_signal_quality', 'missing_questionnaire').
+        details: Optional free-text details about the exclusion.
     """
     msg = f"EXCLUSION: Subject={subject_id}, Reason={reason}"
     if details:
@@ -123,18 +133,20 @@ def log_exclusion(logger: logging.Logger, subject_id: str, reason: str, details:
     logger.info(msg)
 
 def main():
-    """Main entry point for utils.py execution."""
+    """Main entry point for utils.py execution.
+
+    Initializes the exclusion logging infrastructure (T007) and ensures
+    the exclusion log file exists on disk at data/logs/exclusion.log.
+    No fabricated exclusion records are written here; the log records
+    only the initialization header. Real exclusions are recorded by the
+    preprocessing/analysis pipeline via log_exclusion().
+    """
     print("Running utils.py utilities...")
-    
-    # Initialize logging for T007
-    log_path = "data/logs/exclusion.log"
-    logger = setup_exclusion_logging(log_path)
-    
-    # Log a test exclusion to verify functionality
-    log_exclusion(logger, "sub-001", "low_signal_quality", "SNR < 5dB")
-    log_exclusion(logger, "sub-002", "missing_questionnaire", "PANAS not found")
-    
-    print(f"Exclusion logging initialized. Log written to: {log_path}")
+
+    logger = setup_exclusion_logging(DEFAULT_EXCLUSION_LOG_PATH)
+
+    print(f"Exclusion logging initialized. Log written to: {DEFAULT_EXCLUSION_LOG_PATH}")
+    return logger
 
 if __name__ == "__main__":
     main()

@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/data_synthesis`, `src/feature_extraction`, `src/baseline`, `src/scheduler`, `tests/`)
+- [X] T001 Create project structure per implementation plan (`src/data_synthesis`, `src/feature_extraction`, `src/baseline`, `src/scheduler`, `tests/`)
 - [X] T002 Initialize Python project with `requirements.txt` (CPU-only `torch`, `transformers`, `scikit-learn`, `opencv-python`, `datasets`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [ ] T004 [P] Setup `pytest` configuration with CPU resource limit markers
@@ -58,9 +58,9 @@
 
 - [X] T005 Implement `src/utils/logging.py` for execution logging (FR-001.1)
 - [X] T006 Implement `src/utils/validation.py` for schema validation (FR-002, Edge Cases)
-- [~] T007 [P] Create base data models: `SyntheticVideoFrame`, `InternalStateVector`, `SchedulerDecision` in `src/data_synthesis/models.py` (aligned with plan.md structure)
-- [~] T008 Setup streaming/batching utilities in `src/feature_extraction/streaming.py` to enforce <6GB RAM limit
-- [~] T009 Configure environment variables for `JOYAI_VL_MODEL_PATH` and `DATA_SEED`
+- [X] T007 [P] Create base data models: `SyntheticVideoFrame`, `InternalStateVector`, `SchedulerDecision` in `src/data_synthesis/models.py` (aligned with plan.md structure)
+- [X] T008 Setup streaming/batching utilities in `src/feature_extraction/streaming.py` to enforce <6GB RAM limit
+- [ ] T009 Configure environment variables for `JOYAI_VL_MODEL_PATH` and `DATA_SEED`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -89,7 +89,7 @@
 - [~] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
 - [~] T015 [US1] Implement logic to handle ambiguous events with deterministic rules (velocity thresholds) as per Edge Cases
 - [~] T016 [US1] Integrate `src/utils/logging.py` to record data sources and verify zero VLM API calls during labeling
-- [ ] T017 [US1] Implement data export to `data/raw/` and `data/manifest.jsonl`
+- [ ] T017 [US1] Implement data export to `data/raw/` and `data/manifest.jsonl` <!-- FAILED-IN-EXECUTION: code/src/data_synthesis/run_export.py exit=1 -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

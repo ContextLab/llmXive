@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure matching the directory tree defined in `plan.md` Project Structure section: `projects/PROJ-456-decoding-affective-state-from-resting-st/` containing `code/`, `data/`, `tests/`, `docs/`, `state/` subdirectories.
+- [ ] T001 Create project structure matching the directory tree defined in `plan.md` Project Structure section: `projects/PROJ-456-decoding-affective-state-from-resting-st/` containing `code/`, `data/`, `tests/`, `docs/`, `state/` subdirectories.
 
 ---
 
@@ -52,12 +52,12 @@
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [X] T004 [P] Implement data loading utilities in `code/utils.py` to fetch OpenNeuro datasets (ds, ds004137) and verify dataset-variable fit (EEG + Questionnaire). **Note**: Corrects spec typo "ds" to "ds003501". **Output**: `data/raw/dataset_manifest.json` containing verification status and file paths.
-- [X] T005 Implement checksum verification logic in `code/utils.py` to record SHA-256 hashes in `state/checksums.json` (schema: `{file_path: hash}`). **Dependency**: T004 (manifest must exist).
+- [ ] T004 [P] Implement data loading utilities in `code/utils.py` to fetch OpenNeuro datasets (ds, ds004137) and verify dataset-variable fit (EEG + Questionnaire). **Note**: Corrects spec typo "ds" to "ds003501". **Output**: `data/raw/dataset_manifest.json` containing verification status and file paths.
+- [ ] T005 Implement checksum verification logic in `code/utils.py` to record SHA-256 hashes in `state/checksums.json` (schema: `{file_path: hash}`). **Dependency**: T004 (manifest must exist).
 - [X] T006 [P] Create configuration file `code/preprocessing.yaml` with keys: `bandpass: {low: 1, high: upper limit}`, `ica`, `reference`. **Deliverable**: The YAML file itself.
-- [ ] T007 [P] Implement logging infrastructure in `code/utils.py` to track exclusion logs. **Output**: `data/logs/exclusion.log`.
+- [X] T007 [P] Implement logging infrastructure in `code/utils.py` to track exclusion logs. **Output**: `data/logs/exclusion.log`.
 - [X] T008 [P] Define data classes/entities in `code/entities.py` for `EEGRecording`, `MicrostateSegmentation`, `MicrostateFeatures`, `AffectiveScores`, `CorrelationResult`. **Verification**: Ensure imports succeed in a test script.
-- [ ] T023A [US2] Implement `verify_dataset_variable_fit()` in `code/analysis.py` to check for presence of both EEG and Affective scores (PANAS/SAM) AND ≥80% questionnaire response rate per subject (FR-012). **Note**: Includes verification of validated instruments (PANAS/SAM) with citable validation literature. **Output**: `state/dataset_fit_status.json` with `status: 'ready'` or `status: 'skipped'`. **Dependency**: T004.
+- [ ] T023A [US2] Implement `verify_dataset_variable_fit()` in `code/analysis.py` to check for presence of both EEG and Affective scores (PANAS/SAM) AND ≥80% questionnaire response rate per subject (FR-012). **Note**: Includes verification of validated instruments (PANAS/SAM) with citable validation literature. **Output**: `state/dataset_fit_status.json` with `status: 'ready'` or `status: 'skipped'`. **Dependency**: T004. <!-- FAILED-IN-EXECUTION: code/analysis.py exit=1 -->
 - [ ] T023A-1 [US2] Implement `verify_affective_instruments()` in `code/analysis.py` to explicitly check for the presence of specific affective instruments (PANAS/SAM) in dataset metadata before proceeding. **Output**: Update `state/dataset_fit_status.json` with instrument verification status. **Dependency**: T004.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -75,19 +75,19 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Unit test for bandpass filter design (1-40Hz) in `tests/unit/test_preprocessing.py`
-- [X] T010 [P] [US1] Unit test for ICA artifact removal variance retention (≥85%) in `tests/unit/test_preprocessing.py`
-- [X] T011 [P] [US1] Unit test for microstate template application (GEV ≥75%) in `tests/unit/test_microstate.py`
+- [ ] T010 [P] [US1] Unit test for ICA artifact removal variance retention (≥85%) in `tests/unit/test_preprocessing.py`
+- [ ] T011 [P] [US1] Unit test for microstate template application (GEV ≥75%) in `tests/unit/test_microstate.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `download_eeg()` in `code/preprocessing.py` to fetch ds/ds004137 from OpenNeuro with CPU-only streaming
-- [X] T013 [US1] Implement `apply_bandpass_filter()` in `code/preprocessing.py` (1-40 Hz) with verification of passband
-- [X] T014 [US1] Implement `run_ica_artifact_removal()` in `code/preprocessing.py` using ADJUST/MARA (CPU-compatible) to remove ocular/muscle components <!-- ATOMIZE: requested -->
-- [X] T015 [US1] Implement `apply_average_rereference()` in `code/preprocessing.py`
+- [~] T012 [US1] Implement `download_eeg()` in `code/preprocessing.py` to fetch ds/ds004137 from OpenNeuro with CPU-only streaming
+- [~] T013 [US1] Implement `apply_bandpass_filter()` in `code/preprocessing.py` (1-40 Hz) with verification of passband
+- [~] T014 [US1] Implement `run_ica_artifact_removal()` in `code/preprocessing.py` using ADJUST/MARA (CPU-compatible) to remove ocular/muscle components <!-- ATOMIZE: requested -->
+- [~] T015 [US1] Implement `apply_average_rereference()` in `code/preprocessing.py`
 - [ ] T016A-1 [US1] Implement `download_microstate_template()` in `code/microstate.py` to download the pre-defined literature template (Lehmann et al.) from a canonical source (e.g., HuggingFace) to `data/templates/microstate_template.npy`. **Constraint**: No clustering on current data. **Output**: Template array.
 - [ ] T016A [US1] [P] Implement `load_microstate_template()` in `code/microstate.py` to load the pre-defined literature template from `data/templates/microstate_template.npy`. **Constraint**: No clustering on current data. **Output**: Template array. **Dependency**: T016A-1.
 - [ ] T016B [US1] Implement `apply_microstate_template()` in `code/microstate.py` to apply the loaded template to preprocessed EEG data to assign canonical class labels. **Constraint**: No K-means clustering on current data; use template matching only. **Note**: This is a CPU-tractable alternative to K-means clustering on the full dataset to satisfy FR-003's segmentation intent within hardware constraints. **Verification**: Ensure GEV ≥75% is reported in output metadata. **Dependency**: T016A.
-- [X] T017 [US1] Implement `verify_preprocessing_quality()` in `code/preprocessing.py` to check variance retention and GEV thresholds
+- [~] T017 [US1] Implement `verify_preprocessing_quality()` in `code/preprocessing.py` to check variance retention and GEV thresholds
 - [~] T018 [US1] Save preprocessed data and microstate labels to `data/processed/` with metadata flags. **Note**: Includes `analysis_type: associational` flag.
 - [ ] T018-1 [US1] Implement `add_associational_flag()` in `code/microstate.py` to explicitly add the `analysis_type: associational` metadata flag to all microstate feature files generated in T018. **Dependency**: T018.
 

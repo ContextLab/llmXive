@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-10-16T15:31:04Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "rationale": "The paper is a theoretical work on neural network architecture via polynomial chaos expansion, with no connection to microstructure images, materials science, or material strength prediction. It shares only the generic \"deep neural network\" keyword, which is far too broad to establish relevance to the user's specific domain and mechanism.",
+  "relevant": false
+}
