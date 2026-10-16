@@ -1,12 +1,9 @@
 T000:
-  c: false
-  h: 3104f862ff93a5fbdf5247fc8efdba522925dd241a1a47aa12e8c042d2273666
-  r: "The two required files exist with correct, non-stub content (`set_global_seed(42)`\
-    \ seeding `random`, NumPy, and `PYTHONHASHSEED`, plus package-load seeding in\
-    \ `src/__init__.py`). However, the task's explicit verification step \u2014 running\
-    \ `python -c \"import src, numpy as np; src.utils.seed.set_global_seed(42); print(np.random.rand())\"\
-    ` twice and capturing/asserting identical outputs \u2014 has no execution evidence\
-    \ anywhere in the packet, so deterministic behavior is claimed but not demonstrated.\
-    \ Provide the captured outputs of the two runs (e.g., a log or test artifact showing\
-    \ identical values) to co"
-  sig: 974e43ae95f469156a11f11653683de09dcda4d4408ee38e56e246c3fb338255
+  c: true
+  h: 9c18788369f24116b754c7444fbcd10733684424a1e7f2a5ec79ebc63928b0c3
+  r: 'The required files exist and are non-empty: `src/utils/seed.py` defines `set_global_seed(42)`
+    seeding `random`, NumPy, and `PYTHONHASHSEED`, and `src/__init__.py` imports and
+    applies it on package load. The historical execution record shows `tests/test_seed.py`
+    passing 3 determinism tests (NumPy, Python random, package-import seeding) with
+    exit 0, matching the task''s verification requirement.'
+  sig: 9b3204f25229f947b4018dfa5050b7090f356429ac3241ef082af29dccef3a22

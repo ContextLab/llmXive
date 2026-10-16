@@ -41,7 +41,6 @@ import shutil
 
 import pandas as pd
 from huggingface_hub import hf_hub_download
-from datasets import load_dataset
 
 from llmxive_toolkit import paths, get_logger
 from src.utils.seed import set_global_seed
@@ -179,8 +178,8 @@ def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
 def _write_clean_csv(df_clean: pd.DataFrame, clean_path: Path) -> None:
     """
-    Write the cleaned DataFrame to CSV.  The CSV uses UTF‑8 encoding and does
-    not write the index column.
+    Write the cleaned DataFrame to CSV.  The CSV uses UTF‑8 encoding and
+    does not write the index column.
     """
     log.info("Writing cleaned CSV to %s", clean_path)
     try:
