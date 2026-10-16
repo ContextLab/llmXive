@@ -42,7 +42,7 @@
   verification_status: unreachable
   verified_against_url: https://zenodo.org/api/records/?q=perovskite+EDS
   verified_at: '2026-10-13T06:14:29.215755Z'
-- artifact_hash: 584193c505886b2e1db200d96f1b6d05a223e3846bdd499dc1c1478f375b5789
+- artifact_hash: c2b7092506c5a7a779a60a617528a4f5013c2d0ac496e74c9ccd5d7dc1dd7d84
   artifact_path: projects/PROJ-204-quantifying-the-impact-of-spatial-correl/specs/001-quantifying-the-impact-of-spatial-correl/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://zenodo.org/api/records/?q=perovskite+EDS`
   verification_status: pending
   verified_against_url: https://zenodo.org/api/records?q=perovskite+EDS
-  verified_at: '2026-10-16T09:09:24.976111Z'
+  verified_at: '2026-10-16T20:10:27.577258Z'

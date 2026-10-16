@@ -1,17 +1,14 @@
 status: none
-intent: download NREL Perovskite Solar Cell Database elemental maps Materials Project
-  dataset python package dataset
+intent: download NREL Perovskite Database EDS elemental maps and Materials Project
+  performance metrics python package dataset
 required_fields:
 - sample_id
-- pb_map_file
-- i_map_file
-- ma_map_file
+- pb_elemental_map
+- i_elemental_map
+- ma_elemental_map
 - pce
 - j_sc
 - v_oc
-- aligned_pixel_grid_width
-- aligned_pixel_grid_height
-- source_database
-cache_key: 533e276a169fab2a26eb4b742f964c1e4c54df7fca190ee3c0dc4a1250715726
-searched_at: '2026-10-16T09:11:17.225476+00:00'
+cache_key: 11170fe55b63aa713759bdf29e960efb36ad025dff6460ba67b2c7df98479cf1
+searched_at: '2026-10-16T20:10:55.010669+00:00'
 retry_count: 1

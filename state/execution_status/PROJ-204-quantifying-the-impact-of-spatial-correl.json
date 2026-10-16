@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-16T09:11:17Z",
-  "project_id": "PROJ-204-quantifying-the-impact-of-spatial-correl"
+  "updated_at": "2026-10-16T20:10:55Z",
+  "project_id": "PROJ-204-quantifying-the-impact-of-spatial-correl",
+  "replan_rounds": 1
 }

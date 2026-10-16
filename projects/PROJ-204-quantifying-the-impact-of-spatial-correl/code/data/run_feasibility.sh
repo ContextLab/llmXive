@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-# Run the feasibility check; the script itself always exits 0.
+# Run the feasibility check; the script exits 1 if verdict is 'halt'.
 python -m code.data.feasibility
 # Verify that the report was created.
 if [ ! -f "$(python -c 'from llmxive_toolkit import paths; print(paths.data("results","data_feasibility_report.json"))')" ]; then
