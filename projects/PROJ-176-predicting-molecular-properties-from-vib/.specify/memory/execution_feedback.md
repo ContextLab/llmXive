@@ -24,48 +24,49 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; 7 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py train (rc=1)
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…str, np.ndarray]:     """Generate synthetic noise for domain shift s…”; code/evaluation/validate.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Using synthetic validation data (Domain Shift Simulation…”; 7 command(s) failed: python code/main.py download (rc=1); python code/main.py preprocess (rc=1); python code/main.py train (rc=1); 3 declared deliverable(s) absent: data/processed/aligned_dataset.npz; data/raw/ir_spectra.parquet; data/raw/qm9.parquet
 
 ## Failing / missing run-book commands
 
 - python code/main.py download -> rc=1
- 149, in run_download
-    from data.download import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/download.py", line 17, in <module>
-    def download_qm9(output_dir: Optional[Path] = None) -> Path:
-                                 ^^^^^^^^
-NameError: name 'Optional' is not defined
+n
+    qm9_path = download_qm9()
+               ^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/download.py", line 17, in download_qm9
+    import qm9pack
+ModuleNotFoundError: No module named 'qm9pack'
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 267, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 251, in main
     run_download(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 149, in run_download
-    from data.download import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/download.py", line 17, in <module>
-    def download_qm9(output_dir: Optional[Path] = None) -> Path:
-                                 ^^^^^^^^
-NameError: name 'Optional' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 150, in run_download
+    download_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/download.py", line 61, in main
+    qm9_path = download_qm9()
+               ^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/download.py", line 17, in download_qm9
+    import qm9pack
+ModuleNotFoundError: No module named 'qm9pack'
 
 - python code/main.py preprocess -> rc=1
-om data.preprocess import main as preprocess_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocess.py", line 21, in <module>
-    def load_qm9_data(qm9_path: Optional[Path] = None) -> pd.DataFrame:
-                                ^^^^^^^^
-NameError: name 'Optional' is not defined
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 267, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 253, in main
-    run_preprocess(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 164, in run_preprocess
-    from data.preprocess import main as preprocess_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocess.py", line 21, in <module>
-    def load_qm9_data(qm9_path: Optional[Path] = None) -> pd.DataFrame:
-                                ^^^^^^^^
-NameError: name 'Optional' is not defined
+File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocess.py", line 96, in main
+    qm9_df = load_qm9_data()
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocess.py", line 19, in load_qm9_data
+    return pd.read_parquet(qm9_path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 651, in read_parquet
+    impl = get_engine(engine)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
+    raise ImportError(
+ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python code/main.py train -> rc=1
 b/code/models/trainer.py", line 251, in main
@@ -84,13 +85,13 @@ Traceback (most recent call last):
 FileNotFoundError: Preprocessed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocessed/aligned_data.npz
 
 - python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 10:15:31 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 11:17:12 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 10:15:33 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 11:17:13 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
@@ -124,23 +125,30 @@ ERROR: file or directory not found: >
 
 
 
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+## Declared deliverables still missing
 
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+- data/processed/aligned_dataset.npz
+- data/raw/ir_spectra.parquet
+- data/raw/qm9.parquet
 
-- **Install**: add `qm9pack` to the project's `requirements.txt` and `pip install qm9pack`.
-- **Verified**: this loads **130831** real records with fields: XYZ_file, Index, SMILES, InChi, N_atoms, Stoichiometry, Elements, XYZ_Ang, Mulliken_pop, Harmonic_Freq_cmi, RotA_GHz, RotB_GHz, RotC_GHz, Dipole_debye, Polarizability_bohr3, HOMO_au, LUMO_au, HOMO_LUMO_gap_au, R2_bohr2, ZPVE_au, InternalEnergy_0K_au, InternalEnergy_298K_au, Enthalphy_298K_au, GibbsFreeEnergy_298K_au, Heatcapacity_Cv_cal_mol_K, A_xx, A_xy, A_yy, A_xz, A_yz, A_zz.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+## Declared deliverables NOT produced — make the run-book produce them
 
-```python
-import qm9pack
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-df = qm9pack.get_data('qm9')
-print(f"RECORDS={len(df)}")
-print("FIELDS=" + ",".join(df.columns))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+- `data/processed/aligned_dataset.npz` is declared but was NOT written. Scripts referencing it:
+    - `code/data/preprocess.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/aligned_dataset.npz` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/ir_spectra.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/data/download.py` — NOT invoked by the run-book
+    - `code/data/preprocess.py` — NOT invoked by the run-book
+    - `code/scripts/profile_pipeline.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/ir_spectra.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/qm9.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/data/download.py` — NOT invoked by the run-book
+    - `code/data/preprocess.py` — NOT invoked by the run-book
+    - `code/main.py` — IS a run-book command
+    - `code/scripts/profile_pipeline.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/qm9.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
 A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.

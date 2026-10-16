@@ -6,7 +6,7 @@ The goal is to deliver a fully reproducible CPU‑only pipeline that (1) downloa
 
 ## Phase 1 – Data ingestion, alignment, and preprocessing  
 
-- [ ] T101 [P] **Create project skeleton** – create the canonical directory tree (`code/`, `code/data/`, `code/models/`, `code/evaluation/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/external/`, `results/`, `logs/`, `specs/001-predict-molecular-properties/`) and empty `__init__.py` files.   <!-- FAILED-IN-EXECUTION: code/setup_skeleton.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/setup_skeleton.py exit=1 -->
+- [ ] T101 [P] **Create project skeleton** – create the canonical directory tree (`code/`, `code/data/`, `code/models/`, `code/evaluation/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`, `data/external/`, `results/`, `logs/`, `specs/001-predict-molecular-properties/`) and empty `__init__.py` files.   <!-- FAILED-IN-EXECUTION: code/setup_skeleton.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/setup_skeleton.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/setup_skeleton.py exit=1 -->
   *Verification*: `python -m compileall code/` exits 0 and `find . -type d | sort > results/structure_report.txt`; the report must list all expected directories.  
 
 - [ ] T102 [P] **Materialize contract schemas** – copy the three YAML schema files to the spec folder:  
