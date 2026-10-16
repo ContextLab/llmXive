@@ -13,14 +13,14 @@ T004:
 T005:
   task: 4c5392aa595bfd0120b22305514fd95d7c50190b56d3859b438c2ab7834985bd
 T006:
-  reason: "The repository contains `code/simulation/generator.py` with `lorenz_ode`\
-    \ and `generate_trajectory` that meet the specification, but the provided unit\
-    \ tests (`tests/unit/test_generator.py`) import and test a different module (`data.generator`)\
-    \ and do not verify the noise\u2011standard\u2011deviation or clean\u2011trajectory\
-    \ precision for the required functions. Consequently, there is no evidence that\
-    \ the required API is correctly tested, so the task\u2019s verification condition\
-    \ is not satisfied. The test suite must be updated to import `code.simulation.generator`\
-    \ (or expose the same API) and include the noise\u2011std"
+  reason: "The provided `code/simulation/generator.py` correctly implements the ODE,\
+    \ integration with DOP853, tolerances, and noise injection, and the shim `data/generator.py`\
+    \ maps most functions. However, the shim\u2019s `integrate_trajectory` ignores\
+    \ the `sigma_noise` argument and never emits the `HighNoiseWarning` for \u03C3\
+    \u202F>\u202F0.1 nor raises `UnphysicalTrajectoryError` for \u03C3\u202F>\u202F\
+    1.0, causing the `test_high_noise_warning` and `test_unphysical_trajectory_error_high_sigma`\
+    \ tests in `tests/unit/test_generator.py` to fail. The task\u2019s verification\
+    \ requires those unit tests to pass, so the implementation is incomplete."
   task: 89738e452324f56dc9f041b5de292c389ccb9c0606c3a00fdc4f19d696455db9
 T007:
   reason: '`code/utils/stability.py` does define `check_boundedness` and `raise_if_unphysical`

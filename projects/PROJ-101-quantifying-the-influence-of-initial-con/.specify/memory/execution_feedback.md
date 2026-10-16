@@ -36,7 +36,7 @@ ERROR tests/unit/test_regression.py
 ERROR tests/unit/test_shadowing.py
 ERROR tests/unit/test_sweep_runner.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 0.55s ===============================
+============================== 9 errors in 0.34s ===============================
 
 
 - python code/main.py  --N-values 3,5  --noise-levels 0.0001,0.001,0.01,0.1  --trials 30  --window-sizes 500,1000,5000  --seed 42 -> rc=1

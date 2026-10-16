@@ -36,18 +36,6 @@ T005:
     setup instructions. This satisfies the task\u2019s requirement for full pipeline\
     \ documentation."
   sig: 5810bd47dfe2e94c9af3479babd83f61a8b5c48ded4b03b14447a438b99e6777
-T006:
-  c: false
-  h: c644956a74320f3f27dce5aadb83506918502b02c4f40593d892c9438ee9040f
-  r: "The repository contains `code/simulation/generator.py` with `lorenz_ode` and\
-    \ `generate_trajectory` that meet the specification, but the provided unit tests\
-    \ (`tests/unit/test_generator.py`) import and test a different module (`data.generator`)\
-    \ and do not verify the noise\u2011standard\u2011deviation or clean\u2011trajectory\
-    \ precision for the required functions. Consequently, there is no evidence that\
-    \ the required API is correctly tested, so the task\u2019s verification condition\
-    \ is not satisfied. The test suite must be updated to import `code.simulation.generator`\
-    \ (or expose the same API) and include the noise\u2011std"
-  sig: 40ca9d52ec66d6197621345ca43052d18ba4a7309c56dd818642b30b4af8a3a0
 T007:
   c: false
   h: a971b9f973648b60b2eaa5b5b6bd3a1f857b55af2053c2f10a95b9f5272873eb

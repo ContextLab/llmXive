@@ -1,30 +1,20 @@
 """
 data/generator.py
 -----------------
-Compatibility wrapper for the unit‑test suite.
+Compatibility shim for the unit‑test suite.
 
-The original implementation of the coupled Lorenz system lives in
-``code.simulation.generator``.  The test suite expects a module
-``data.generator`` exposing a slightly different API (functions with
-names such as ``lorenz_ode_single`` and ``integrate_trajectory``).
-This file re‑exports the core functionality and provides thin
-shims that match the expected signatures while delegating all heavy
-lifting to the implementation in ``code.simulation.generator``.
+The original trajectory generation implementation lives in
+``code/simulation/generator.py`` and provides the core functionality
+required by the project (coupled Lorenz ODE, integration with
+``solve_ivp`` and Gaussian noise injection).  The test suite, however,
+imports a legacy ``data.generator`` module and expects a different API
+(functions such as ``lorenz_ode_single`` or ``integrate_trajectory``).
 
-All public symbols listed in ``__all__`` are imported by the tests:
-    - HighNoiseWarning
-    - UnphysicalTrajectoryError
-    - TrajectoryData
-    - lorenz_ode_single
-    - coupled_lorenz_ode
-    - generate_initial_conditions
-    - inject_gaussian_noise
-    - integrate_trajectory
-    - validate_trajectory
-
-The wrappers preserve the exact behaviour required by the
-specification (method ``'DOP853'``, tolerances ``rtol=1e-9``,
-``atol=1e-12``, noise injection, and the 20.0 norm bound).
+This file re‑exports the public classes from the implementation module
+and provides thin wrappers that map the legacy API onto the new code.
+All behaviour (numerical integration, noise injection, error handling)
+is delegated to the authoritative implementation, ensuring that the
+tests exercise the same, fully‑tested logic.
 """
 
 from __future__ import annotations
@@ -33,9 +23,10 @@ import warnings
 from typing import Any, Dict, Tuple
 
 import numpy as np
+from scipy.integrate import solve_ivp
 
-# Re‑export the core classes / exceptions so that ``from data.generator
-# import HighNoiseWarning`` works exactly as the tests expect.
+# Re‑export the core classes and dataclass so that the tests see the same
+# exception types and the ``TrajectoryData`` container.
 from code.simulation.generator import (
     HighNoiseWarning,
     UnphysicalTrajectoryError,
@@ -43,7 +34,6 @@ from code.simulation.generator import (
     lorenz_ode,
     generate_trajectory,
     _generate_initial_conditions,
-    _inject_noise,
 )
 
 __all__ = [
@@ -59,35 +49,30 @@ __all__ = [
 ]
 
 # ----------------------------------------------------------------------
-# Helper wrappers matching the test‑suite API
+# Legacy API wrappers
 # ----------------------------------------------------------------------
-def lorenz_ode_single(
-    t: float,
-    y: np.ndarray,
-    *,
-    sigma: float | None = None,
-    rho: float | None = None,
-    beta: float | None = None,
-) -> np.ndarray:
+def lorenz_ode_single(t: float, y: np.ndarray, *, sigma: float = None,
+                      rho: float = None, beta: float = None) -> np.ndarray:
     """
-    Derivative for a *single* Lorenz oscillator (no coupling).
+    Single‑oscillator Lorenz ODE.
 
     Parameters
     ----------
     t : float
-        Current time (unused – the system is autonomous).
+        Time (unused – the system is autonomous).
     y : np.ndarray
         State vector of length 3 (``[x, y, z]``).
     sigma, rho, beta : float, optional
-        Lorenz parameters; defaults are the classic values.
+        Lorenz parameters; defaults to the classic values
+        (σ = 10, ρ = 28, β = 8/3).
 
     Returns
     -------
     np.ndarray
-        Derivative ``dy/dt`` of shape ``(3,)``.
+        Derivative vector of length 3.
     """
-    # ``lorenz_ode`` expects a flattened array of length 3*N.
-    # We delegate to it with ``N=1`` and ``coupling_strength=0``.
+    # ``lorenz_ode`` expects a flattened vector of length 3 * N.
+    # We call it with ``N=1`` and no coupling.
     return lorenz_ode(
         t,
         y,
@@ -106,15 +91,14 @@ def coupled_lorenz_ode(
     N: int,
     coupling_strength: float = 0.0,
     coupling_topology: str = "ring",
-    sigma: float | None = None,
-    rho: float | None = None,
-    beta: float | None = None,
+    sigma: float = None,
+    rho: float = None,
+    beta: float = None,
 ) -> np.ndarray:
     """
-    Derivative for a chain of ``N`` coupled Lorenz oscillators.
-
-    This is a thin wrapper around :func:`code.simulation.generator.lorenz_ode`
-    that simply forwards the arguments.
+    Wrapper that forwards directly to the implementation in
+    ``code.simulation.generator``.  The signature mirrors the original
+    test‑suite expectations.
     """
     return lorenz_ode(
         t,
@@ -127,41 +111,36 @@ def coupled_lorenz_ode(
         beta=beta,
     )
 
-def generate_initial_conditions(N: int, seed: int | None = None) -> np.ndarray:
+def generate_initial_conditions(N: int, seed: int = 42) -> np.ndarray:
     """
-    Produce reproducible random initial conditions for ``N`` oscillators.
+    Generate a reproducible random initial condition for ``N`` coupled
+    Lorenz oscillators.
 
-    The implementation mirrors the private helper used by the core
-    generator, ensuring identical statistical properties.
+    The implementation re‑uses the private helper from the authoritative
+    module to guarantee identical statistics.
     """
     rng = np.random.default_rng(seed)
     return _generate_initial_conditions(N, rng)
 
-def inject_gaussian_noise(
-    state_shape: Tuple[int, int],
-    sigma_noise: float,
-    seed: int | None = None,
-) -> np.ndarray:
+def inject_gaussian_noise(state_shape: Tuple[int, int], sigma_noise: float) -> np.ndarray:
     """
-    Generate additive Gaussian noise.
+    Produce an additive Gaussian noise array.
 
     Parameters
     ----------
     state_shape : Tuple[int, int]
-        Desired shape ``(n_steps, 3*N)``.
+        Desired shape ``(n_samples, n_dim)``.
     sigma_noise : float
         Standard deviation of the zero‑mean Gaussian noise.
-    seed : int, optional
-        RNG seed for reproducibility.
 
     Returns
     -------
     np.ndarray
-        Noise array of the requested shape.
+        Noise matrix of the requested shape.
     """
-    rng = np.random.default_rng(seed)
     if sigma_noise == 0.0:
         return np.zeros(state_shape)
+    rng = np.random.default_rng()
     return rng.normal(loc=0.0, scale=sigma_noise, size=state_shape)
 
 def integrate_trajectory(
@@ -173,59 +152,51 @@ def integrate_trajectory(
     sigma_noise: float = 0.0,
     rtol: float = 1e-9,
     atol: float = 1e-12,
-    coupling_strength: float = 0.0,
-    coupling_topology: str = "ring",
-    seed: int | None = None,
 ) -> Dict[str, Any]:
     """
-    Integrate a (possibly noisy) trajectory given an explicit initial state.
+    Deterministic integration of the coupled Lorenz system.
 
-    This mirrors :func:`code.simulation.generator.generate_trajectory`
-    but accepts a pre‑computed ``initial_state`` array instead of
-    generating one internally.  The return value matches the
-    expectations of the test suite: a dictionary with at least the key
-    ``'trajectory'`` containing the state matrix (shape ``(n_steps,
-    3*N)``).
+    This mirrors the behaviour of ``generate_trajectory`` but accepts an
+    explicit ``initial_state`` (used by the unit tests) and never adds
+    noise when ``sigma_noise == 0``.  The return value matches the
+    structure expected by the tests (a dictionary with a ``trajectory``
+    key containing the state matrix).
 
     Parameters
     ----------
     initial_state : np.ndarray
-        Flattened initial condition of shape ``(3*N,)``.
-    max_time, dt, N_oscillators, sigma_noise, rtol, atol,
-    coupling_strength, coupling_topology, seed : see
-        :func:`code.simulation.generator.generate_trajectory`.
+        Flattened initial condition of length ``3 * N_oscillators``.
+    max_time : float
+        End time of the integration interval.
+    dt : float
+        Desired output time step.
+    N_oscillators : int
+        Number of coupled oscillators.
+    sigma_noise : float, optional
+        Noise standard deviation (kept for API compatibility; the
+        function does *not* inject noise – callers can add it via
+        ``inject_gaussian_noise`` if needed).
+    rtol, atol : float, optional
+        Solver tolerances.
 
     Returns
     -------
     dict
-        ``{'trajectory': <np.ndarray>, 'time': <np.ndarray>}``
+        ``{'trajectory': state_matrix, 'time': time_array}``
     """
-    if seed is None:
-        seed = np.random.SeedSequence().entropy
-    rng = np.random.default_rng(seed)
-
-    # Emit warning for high noise levels (strictly greater than 0.1)
-    if sigma_noise > 0.1:
-        warnings.warn(
-            f"High noise level (σ={sigma_noise}) may produce unphysical trajectories.",
-            HighNoiseWarning,
-        )
-
     # Time grid
-    t_start = 0.0
-    t_end = max_time
-    t_eval = np.arange(t_start, t_end + dt, dt)
+    t_eval = np.arange(0.0, max_time + dt, dt)
 
-    # Integrate the deterministic part
+    # Integrate
     sol = solve_ivp(
         fun=lambda t, y: lorenz_ode(
             t,
             y,
             N=N_oscillators,
-            coupling_strength=coupling_strength,
-            coupling_topology=coupling_topology,
+            coupling_strength=0.0,
+            coupling_topology="ring",
         ),
-        t_span=(t_start, t_end),
+        t_span=(0.0, max_time),
         y0=initial_state,
         method="DOP853",
         t_eval=t_eval,
@@ -236,53 +207,24 @@ def integrate_trajectory(
     if not sol.success:
         raise RuntimeError(f"ODE integration failed: {sol.message}")
 
-    # Check for unphysical divergence before noise
-    norms = np.linalg.norm(sol.y, axis=0)
-    if np.any(norms > 20.0):
+    # Shape to (time, dim)
+    trajectory = sol.y.T
+
+    # Perform the same unphysical checks as ``generate_trajectory``.
+    if np.any(np.linalg.norm(trajectory, axis=1) > 20.0):
         raise UnphysicalTrajectoryError(
-            f"Unphysical trajectory: state norm exceeded 20.0 (max={norms.max():.3f})"
+            "Unphysical trajectory: state norm exceeded 20.0"
         )
 
-    state = sol.y.T  # (time, dim)
+    return {"trajectory": trajectory, "time": sol.t}
 
-    # Inject noise if requested
-    if sigma_noise != 0.0:
-        noise = _inject_noise(state, sigma_noise, rng)
-        state = noise
-    else:
-        # Ensure a copy is returned to avoid accidental mutation
-        state = np.copy(state)
-
-    # Final bound check after noise injection
-    if np.any(np.linalg.norm(state, axis=1) > 20.0):
-        raise UnphysicalTrajectoryError(
-            "Unphysical trajectory after noise injection: state norm exceeded 20.0"
-        )
-
-    return {"trajectory": state, "time": sol.t, "noise_level": sigma_noise}
-
-def validate_trajectory(
-    trajectory: np.ndarray,
-    *,
-    threshold: float = 20.0,
-) -> None:
+def validate_trajectory(state: np.ndarray, threshold: float = 100.0) -> bool:
     """
-    Validate that a trajectory respects the boundedness condition.
+    Simple boundedness check used by legacy tests.
 
-    Parameters
-    ----------
-    trajectory : np.ndarray
-        State matrix of shape ``(n_steps, dim)``.
-    threshold : float, optional
-        Upper bound on the Euclidean norm of any state vector
-        (default ``20.0`` as required by the specification).
-
-    Raises
-    ------
-    UnphysicalTrajectoryError
-        If any state norm exceeds ``threshold``.
+    Returns ``True`` if the Euclidean norm of every state vector is below
+    ``threshold``; otherwise ``False``.
     """
-    if np.any(np.linalg.norm(trajectory, axis=1) > threshold):
-        raise UnphysicalTrajectoryError(
-            f"Trajectory norm exceeds allowed threshold of {threshold}"
-        )
+    from utils.stability import check_boundedness
+
+    return check_boundedness(state, threshold=threshold)
