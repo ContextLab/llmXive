@@ -35,10 +35,10 @@ properties:
     description: "Index of the step with maximum negative derivative"
   universal_collapse_intensity:
     type: string
-    description: "Step where **absolute SSS ≤ 0.5** (FR‑036)"
+    description: "Step where **absolute SSS ≤ 0.5** (FR‑036)"
   metadata:
     type: object
-    description: "Additional metadata for the clip"
+    description: "Baseline metrics for the clean clip"
     required:
       - baseline_sss
       - baseline_wer
@@ -49,4 +49,3 @@ properties:
       baseline_wer:
         type: number
         description: "Word Error Rate on the clean clip"
-

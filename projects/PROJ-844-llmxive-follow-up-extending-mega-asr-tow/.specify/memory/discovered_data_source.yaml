@@ -1,13 +1,14 @@
 status: none
-intent: pip install real Voices-in-the-Wild-2M dataset audio speech from HuggingFace
-  python package dataset
+intent: Voices-in-the-Wild-2M dataset download python package dataset
 required_fields:
-- audio_path
-- transcript
+- audio_file_path
 - speaker_id
 - recording_environment
-- sample_rate
-- duration
-cache_key: f88d0456da1753076158e2e9f3d6e01d0f17af7c57cce93e5bf4e2181a2b2177
-searched_at: '2026-09-26T15:38:37.737200+00:00'
+- transcription
+- language
+- duration_seconds
+- sample_rate_hz
+- metadata_json
+cache_key: 3f336cbdf454b5afc6ecfda4d38e976edb4084dfb23d0f27584ef8a1bfca9053
+searched_at: '2026-10-16T00:27:41.904787+00:00'
 retry_count: 1
