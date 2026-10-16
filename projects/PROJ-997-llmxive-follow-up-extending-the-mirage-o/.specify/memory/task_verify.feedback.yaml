@@ -11,6 +11,8 @@ T015:
     exit=1'
   task: 762f3a3a99c2cc1fbff7e2173ac3eac46c6d80e4334360b753a674030b562d27
 T016:
+  reason: 'Requested task execution failed; rerun successfully: code/cli/validate_dataset_stats.py
+    exit=1'
   task: f968db8b72fbea1c4c6d65ad7c7f1e7ddd742211711f4094726e8a8d1ff2529a
 T019:
   task: ceaf60bd81db2c0ac8c896e4607ce341521310a89556e60a2250aedb7c4ce5ab

@@ -55,6 +55,7 @@ addopts = "-v --strict-markers"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
+    "timeout: marks tests with a custom timeout (used in test_generate_ground_truth.py)",
 ]
 
 [tool.mypy]
@@ -64,3 +65,4 @@ warn_unused_configs = true
 ignore_missing_imports = true
 disallow_untyped_defs = true
 check_untyped_defs = true
+# End of file

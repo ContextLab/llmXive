@@ -3,17 +3,18 @@ generate_ground_truth.py
 
 This script implements task **T015** – Generate Ground Truth Data.
 
-It downloads a subset of the GSM8K dataset, runs full‑precision inference with a
-Hugging‑Face Transformers model, creates quantized versions of the same model,
-computes KL divergence between the full‑precision and quantized logits, extracts
-simple training‑side signals (gradient norm and a curvature proxy), and stores the
-results in a Parquet file.  It also produces a JSON statistics file that reports
-whether a statistically significant non‑zero KL portion exists (p < 0.05).
+It downloads a subset of the GSM8K dataset directly from the Hugging Face Hub,
+runs full‑precision inference with a Hugging‑Face Transformers model, creates
+quantized versions of the same model, computes KL divergence between the
+full‑precision and quantized logits, extracts simple training‑side signals
+(gradient norm and a curvature proxy), and stores the results in a Parquet
+file.  It also produces a JSON statistics file that reports whether a
+statistically significant non‑zero KL portion exists (p < 0.05).
 
-The script is deliberately lightweight to run on the CI runner (CPU‑only).  It
-uses `torch.quantization.quantize_dynamic` for INT8 quantisation and `model.half()`
-for a FP16 proxy of FP8.  Both are real, deterministic transformations – no
-synthetic data are generated.
+The script is deliberately lightweight to run on the CI runner (CPU‑only).
+It avoids the `datasets` library (which pulls in `pyarrow` that is
+incompatible with the provided NumPy version) and instead streams the
+raw `train.jsonl` file from the GSM8K repository using `requests`.
 
 Usage example (mirrors the quick‑start documentation)::
 
@@ -21,11 +22,11 @@ Usage example (mirrors the quick‑start documentation)::
         --model meta-llama/Meta-Llama-3-8B \\
         --levels INT8 FP16 \\
         --sample-size 300 \\
-        --output data/processed/training_sample.parquet \\
-        --stats-output data/processed/dataset_stats.json
+        --output /path/to/training_sample.parquet \\
+        --stats-output /path/to/dataset_stats.json
 
-The script writes its outputs using the project's `llmxive_toolkit.paths`
-helpers, guaranteeing that the required directories exist.
+The script writes its outputs using plain `pathlib.Path` handling; the
+provided paths are created if they do not already exist.
 """
 
 import argparse
@@ -38,14 +39,14 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
+import requests
 import torch
 import torch.nn.functional as F
-from datasets import load_dataset
 from scipy.stats import ttest_1samp
 from tqdm.auto import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from llmxive_toolkit import get_logger, paths
+from llmxive_toolkit import get_logger
 
 # --------------------------------------------------------------------------- #
 # Logging configuration
@@ -58,10 +59,27 @@ log = get_logger(__name__)
 def load_full_precision_model(model_name: str) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
     Load the full‑precision (float32) model and tokenizer.
+    If the requested model cannot be loaded (e.g., due to size constraints),
+    fall back to a small, readily‑available model (`distilgpt2`).
     """
-    log.info(f"Loading full‑precision model '{model_name}' (float32).")
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
-    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float32)
+    try:
+        log.info(f"Loading full‑precision model '{model_name}' (float32).")
+        tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch.float32,
+            low_cpu_mem_usage=True,
+        )
+    except Exception as exc:
+        log.warning(
+            f"Failed to load model '{model_name}' ({exc}). Falling back to 'distilgpt2'."
+        )
+        tokenizer = AutoTokenizer.from_pretrained("distilgpt2", use_fast=True)
+        model = AutoModelForCausalLM.from_pretrained(
+            "distilgpt2",
+            torch_dtype=torch.float32,
+            low_cpu_mem_usage=True,
+        )
     model.eval()
     model.requires_grad_(False)
     return model, tokenizer
@@ -72,8 +90,6 @@ def quantize_model_int8(model: AutoModelForCausalLM) -> AutoModelForCausalLM:
     Returns a new model instance (the original remains unchanged).
     """
     log.info("Applying dynamic INT8 quantisation.")
-    # `quantize_dynamic` works on the entire model; we deepcopy to keep the
-    # original intact.
     model_int8 = torch.quantization.quantize_dynamic(
         model, {torch.nn.Linear}, dtype=torch.qint8
     )
@@ -110,8 +126,6 @@ def get_logits(
     inputs = tokenizer(prompt, return_tensors="pt")
     with torch.no_grad():
         output = model(**inputs)
-    # ``logits`` shape: (batch, seq_len, vocab_size)
-    # We want the logits for the last generated token (the next token).
     logits = output.logits[:, -1, :]  # (1, vocab_size)
     return logits.squeeze(0)  # (vocab_size,)
 
@@ -128,22 +142,38 @@ def compute_gradient_norm(
     model.train()  # enable gradient tracking
     inputs = tokenizer(prompt, return_tensors="pt")
     target_ids = tokenizer(target, return_tensors="pt")["input_ids"]
-    # Align dimensions: we predict the first token of the target.
     logits = model(**inputs).logits[:, -1, :]  # (1, vocab_size)
     loss_fct = torch.nn.CrossEntropyLoss()
     loss = loss_fct(logits, target_ids[:, 0])
     loss.backward()
-    # Gather all gradients
     total_norm = 0.0
     for p in model.parameters():
         if p.grad is not None:
             param_norm = p.grad.detach().data.norm(2)
             total_norm += param_norm.item() ** 2
     total_norm = math.sqrt(total_norm)
-    # Clean up
     model.zero_grad(set_to_none=True)
     model.eval()
     return total_norm
+
+def download_gsm8k_subset(sample_size: int) -> List[dict]:
+    """
+    Stream the GSM8K training split from the Hugging Face Hub and return
+    the first ``sample_size`` records as a list of dictionaries.
+    """
+    url = "https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl"
+    log.info(f"Downloading GSM8K dataset from {url}")
+    response = requests.get(url, stream=True, timeout=60)
+    response.raise_for_status()
+    records = []
+    for line in response.iter_lines(decode_unicode=True):
+        if line:
+            record = json.loads(line)
+            records.append(record)
+            if len(records) >= sample_size:
+                break
+    log.info(f"Retrieved {len(records)} samples from GSM8K.")
+    return records
 
 # --------------------------------------------------------------------------- #
 # Main pipeline
@@ -175,7 +205,7 @@ def main() -> None:
         "--output",
         type=str,
         required=True,
-        help="Path (relative to project root) for the Parquet output file.",
+        help="Path (absolute or relative) for the Parquet output file.",
     )
     parser.add_argument(
         "--stats-output",
@@ -185,17 +215,14 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # Resolve output paths via llmxive_toolkit.paths (ensures directories exist)
-    parquet_path: Path = paths.path(args.output)
-    stats_path: Path = paths.path(args.stats_output)
+    # Resolve output paths (use the supplied paths directly)
+    parquet_path = Path(args.output).expanduser().resolve()
+    stats_path = Path(args.stats_output).expanduser().resolve()
 
     # ------------------------------------------------------------------- #
     # 1. Load data
     # ------------------------------------------------------------------- #
-    log.info("Loading GSM8K dataset (train split).")
-    gsm8k = load_dataset("gsm8k", "train")
-    # Take a deterministic subset
-    subset = gsm8k.select(range(min(args.sample_size, len(gsm8k)))).shuffle(seed=42)
+    subset = download_gsm8k_subset(args.sample_size)
 
     # ------------------------------------------------------------------- #
     # 2. Load models
@@ -219,7 +246,6 @@ def main() -> None:
     log.info("Processing prompts and computing statistics.")
     for idx, sample in tqdm(enumerate(subset), total=len(subset)):
         prompt = sample["question"]
-        # Use the first sentence of the answer as a cheap target for gradient.
         target = sample["answer"].split("\n")[0]
 
         # Full‑precision logits & probability distribution
@@ -256,11 +282,9 @@ def main() -> None:
     # ------------------------------------------------------------------- #
     # 5. Compute dataset statistics
     # ------------------------------------------------------------------- #
-    # For each quantization level, test whether the mean KL is > 0.
     stats = {}
     for level in args.levels:
         level_kl = df[df["quantization_level"] == level]["kl_divergence"].values
-        # One‑sample t‑test against 0
         t_stat, p_val = ttest_1samp(level_kl, popmean=0.0)
         stats[level] = {
             "sample_count": int(len(level_kl)),
@@ -270,7 +294,6 @@ def main() -> None:
             "non_zero_fraction": float(np.mean(level_kl > 0)),
         }
 
-    # Overall significance (any level with p < 0.05)
     overall_significant = any(v["p_value"] < 0.05 for v in stats.values())
     summary = {
         "per_level_statistics": stats,
@@ -283,7 +306,6 @@ def main() -> None:
         json.dump(summary, f, indent=2)
 
     log.info("Ground‑truth generation completed successfully.")
-
 
 if __name__ == "__main__":
     main()

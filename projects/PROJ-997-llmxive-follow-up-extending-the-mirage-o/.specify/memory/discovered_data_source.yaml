@@ -1,18 +1,19 @@
 status: none
-intent: GSM8K Llama-3-8B quantization inference dataset gradient norms local curvature
-  KL divergence python package dataset
+intent: GSM8K Llama-3-8B gradient norms local curvature quantization divergence python
+  package dataset
 required_fields:
 - prompt_text
-- full_precision_output_distribution
-- int8_output_distribution
-- int4_output_distribution
-- fp8_output_distribution
+- full_precision_logits
+- int8_logits
+- int4_logits
+- fp8_logits
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
 - gradient_norm
 - local_curvature
-- model_identifier
-cache_key: 8d8e6d916b7e0d0a7d7cab450bbc15806991c071c21f639db14dfc9fa3291b27
-searched_at: '2026-10-16T00:30:17.792641+00:00'
+- model_name
+- quantization_method
+cache_key: b0bb853659e8f3d2e21d816a1450bc4cd0b8b6d62f1b90a9ddb6feb76ed51242
+searched_at: '2026-10-16T00:33:21.517262+00:00'
 retry_count: 1
