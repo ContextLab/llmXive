@@ -60,7 +60,7 @@ ERROR tests/test_ingestion.py
 ERROR tests/test_integration.py
 ERROR tests/test_plot_diagnostics.py - AttributeError: module 'statsmodels.api' has no attribute 'OLSResults'
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 1.24s ===============================
+============================== 6 errors in 1.25s ===============================
 
 
 ## Platform-owned paths written inside the project
