@@ -98,6 +98,15 @@ def main(argv: list[str] | None = None) -> int:
         default=SEED,
         help="Random seed for reproducibility.",
     )
+    # New argument to keep CLI compatible with quickstart examples that
+    # include a sampling flag. The argument is accepted but not used by
+    # the current implementation; future tasks may honour it.
+    parser.add_argument(
+        "--sample_fraction",
+        type=float,
+        default=None,
+        help="Fraction of the dataset to sample (0‑1). Ignored in this version.",
+    )
     args = parser.parse_args(argv)
 
     # Apply seed (also honors an overridden value)
@@ -118,7 +127,7 @@ def main(argv: list[str] | None = None) -> int:
     if not args.swe_gym_url or not args.multi_swe_rl_url:
         log.error(
             "Dataset URLs must be provided for full pipeline execution."
-      )
+        )
         parser.print_help()
         return 1
 

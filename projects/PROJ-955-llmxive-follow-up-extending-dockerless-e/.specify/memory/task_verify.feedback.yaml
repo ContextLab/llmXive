@@ -1,9 +1,12 @@
 T001:
-  reason: "The quickstart command runs correctly and the seed is pinned, and `quickstart.md`\
-    \ documents the command, but the required project\u2011wide directories `interim/`\
-    \ and `features/` are not present in the repository (they are absent from the\
-    \ directory listing, whereas empty required directories like `models/` and `reports/`\
-    \ are listed). These missing directories must be added to satisfy the task."
+  reason: "The quickstart.md and sample_run.csv exist with correct content (4 rows,\
+    \ \u226410), but the evidence is incomplete: `interim/` and `features/` directories\
+    \ (explicitly required by the task) are not confirmed to exist anywhere in the\
+    \ collected artifacts, and there is no execution evidence that `python -m src.cli.run_pipeline\
+    \ --dry-run` actually runs without error \u2014 the quickstart itself carries\
+    \ an unresolved claim marker (`c_9198ce03 \u2014 status=not_enough_info`) for\
+    \ that run, and no console output or log was supplied. The implementer should\
+    \ create the missing directories and provide actual run output ("
   task: 112b0d39af56b1edd93d7e2ab84f6113566ec7f40ef05fe1a69c03739569b847
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/pipeline/ingest.py
@@ -32,6 +35,14 @@ T012:
 T013:
   task: 1fc57d24801d8a724cb52fe5147394af2a5cb2b5dd4a531047dcbb24d9495365
 T014:
+  reason: "The `ingest.py` extension code exists and implements the sampling logic\
+    \ (6 GB threshold, stratified 10% per origin/language, seed 42, mode report),\
+    \ but there is no evidence it was ever run: `reports/ingestion_mode.yaml` is missing\
+    \ entirely \u2014 the task requires it to record the ingestion mode regardless\
+    \ of whether full or sampled mode was used \u2014 and `data/patches_sample.csv`\
+    \ is absent (acceptable only if full mode ran, which the missing YAML disproves).\
+    \ The implementer must execute the ingestion (or a documented verification run)\
+    \ so that `reports/ingestion_mode.yaml` and the appropriate CSV are"
   task: 13f046b2f080d096958073886f852f26b409c31d6ba5e0db337b28157691c9a7
 T015:
   task: caf0a51f38ecc9ae175adc814a4f35dca217d04720ee664f91e380297e0b55e9

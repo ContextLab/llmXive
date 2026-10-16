@@ -23,6 +23,11 @@ This script performs the following steps:
    provided by the dataset (if a log is missing the file will contain the
    string ``MISSING_LOG`` – the downstream contract test expects a file for
    every patch, even if the content is a placeholder).
+5. **Memory‑aware sampling fallback** – if the combined size of the raw
+   dataset files exceeds 6 GB, the ingestion switches to a stratified
+   10 % sample (per language‑and‑origin) using a fixed seed (42).  In this
+   mode ``patches_sample.csv`` and the corresponding subset of log files
+   are written, and a YAML report records the mode.
 
 The module can be executed directly:
 
@@ -34,13 +39,13 @@ It will perform the full ingestion pipeline and print a short summary
 The implementation relies only on the standard library and the following
 third‑party packages that are already available in the execution environment:
 
-* ``datasets`` – to stream the large parquet and jsonl files without loading
-  everything into memory.
-* ``pandas`` – for convenient CSV generation.
+* ``pandas`` – for convenient CSV generation and parquet reading (using the
+  ``fastparquet`` engine to avoid a hard dependency on ``pyarrow``).
 * ``tqdm`` – progress bars.
 * ``pyyaml`` – for reading the expected checksums from ``plan.md``.
 * ``requests`` – for robust streaming download of the raw files.
 * ``hashlib`` – checksum calculation.
+* ``fastparquet`` – parquet engine (declared in ``requirements.txt``).
 
 All paths are created using the ``llmxive_toolkit.paths`` helpers, which
 automatically ensure that the target directories exist.
@@ -54,7 +59,6 @@ from typing import Dict, List, Tuple
 
 import pandas as pd
 import requests
-from datasets import load_dataset
 from tqdm import tqdm
 import yaml
 
@@ -151,7 +155,6 @@ def _download_file(url: str, dest: Path) -> None:
                 f.write(chunk)
     log.info(f"Finished download: {dest} (SHA‑256 {_sha256_of_file(dest)[:8]}…)")
 
-
 # ----------------------------------------------------------------------
 # Core ingestion logic
 # ----------------------------------------------------------------------
@@ -169,7 +172,8 @@ def _process_swe_gym(parquet_path: Path) -> Tuple[pd.DataFrame, List[Tuple[str, 
         The raw execution log for each patch (may be empty).
     """
     log.info(f"Reading SWE‑Gym parquet: {parquet_path}")
-    df = pd.read_parquet(parquet_path, engine="auto")
+    # Use fastparquet engine to avoid pulling in pyarrow (which requires NumPy 2).
+    df = pd.read_parquet(parquet_path, engine="fastparquet")
 
     required = {"patch_id", "language", "source_code", "exec_result"}
     missing = required - set(df.columns)
@@ -224,7 +228,9 @@ def _process_multi_swe_rl(jsonl_path: Path) -> Tuple[pd.DataFrame, List[Tuple[st
             )
             logs.append((pid, log_txt if isinstance(log_txt, str) else "MISSING_LOG"))
 
-    patches = pd.DataFrame.from_records(records, columns=["patch_id", "language", "source_code", "label"])
+    patches = pd.DataFrame.from_records(
+        records, columns=["patch_id", "language", "source_code", "label"]
+    )
     return patches, logs
 
 
@@ -242,6 +248,7 @@ def ingest(
     raw_swe_gym_path = paths.data("raw_swe_gym.parquet")
     raw_multi_swe_rl_path = paths.data("raw_multi_swe_rl.jsonl")
     patches_csv_path = paths.data("patches.csv")
+    patches_sample_path = paths.data("patches_sample.csv")
     logs_dir = paths.data("execution_logs")
     logs_dir.mkdir(parents=True, exist_ok=True)
 
@@ -272,36 +279,77 @@ def ingest(
                 log.info(f"Checksum verified for {fp}")
 
     # ------------------------------------------------------------------
-    # 4. Extract patches and logs from both datasets
+    # 4. Estimate memory usage and decide on sampling
+    # ------------------------------------------------------------------
+    total_raw_size = raw_swe_gym_path.stat().st_size + raw_multi_swe_rl_path.stat().st_size
+    memory_limit_bytes = 6 * 1024 ** 3  # 6 GB
+    use_sampling = total_raw_size > memory_limit_bytes
+    mode = "sampled" if use_sampling else "full"
+
+    # ------------------------------------------------------------------
+    # 5. Extract patches and logs
     # ------------------------------------------------------------------
     swe_patches, swe_logs = _process_swe_gym(raw_swe_gym_path)
     multi_patches, multi_logs = _process_multi_swe_rl(raw_multi_swe_rl_path)
 
+    # Tag origin for stratified sampling
+    swe_patches = swe_patches.copy()
+    swe_patches["origin"] = "swe_gym"
+    multi_patches = multi_patches.copy()
+    multi_patches["origin"] = "multi_swe_rl"
+
     all_patches = pd.concat([swe_patches, multi_patches], ignore_index=True)
-    all_logs = swe_logs + multi_logs
+    all_logs = {pid: txt for pid, txt in swe_logs + multi_logs}
 
     # ------------------------------------------------------------------
-    # 5. Write unified CSV
+    # 6. Apply sampling fallback if needed
     # ------------------------------------------------------------------
-    log.info(f"Writing unified patches CSV to {patches_csv_path}")
-    all_patches.to_csv(patches_csv_path, index=False)
+    if use_sampling:
+        # Stratified 10 % sample per (origin, language)
+        sampled_df = (
+            all_patches.groupby(["origin", "language"], group_keys=False)
+            .apply(lambda grp: grp.sample(frac=0.1, random_state=42))
+            .reset_index(drop=True)
+        )
+        # Write sampled CSV
+        log.info(f"Writing sampled patches CSV to {patches_sample_path}")
+        sampled_df.drop(columns=["origin"]).to_csv(patches_sample_path, index=False)
+
+        # Write logs only for sampled patches
+        log.info(f"Writing sampled execution logs to {logs_dir}")
+        for pid in sampled_df["patch_id"]:
+            log_file = logs_dir / f"{pid}.log"
+            with log_file.open("w", encoding="utf-8") as f:
+                f.write(all_logs.get(pid, "MISSING_LOG"))
+    else:
+        # Write full CSV
+        log.info(f"Writing unified patches CSV to {patches_csv_path}")
+        all_patches.drop(columns=["origin"]).to_csv(patches_csv_path, index=False)
+
+        # Write all execution logs
+        log.info(f"Writing execution logs to {logs_dir}")
+        for pid, log_text in tqdm(all_logs.items(), desc="Writing logs", unit="logs"):
+            log_file = logs_dir / f"{pid}.log"
+            with log_file.open("w", encoding="utf-8") as f:
+                f.write(log_text)
 
     # ------------------------------------------------------------------
-    # 6. Write execution logs (one file per patch)
+    # 7. Log ingestion mode
     # ------------------------------------------------------------------
-    log.info(f"Writing execution logs to {logs_dir}")
-    for patch_id, log_text in tqdm(all_logs, desc="Writing logs", unit="logs"):
-        log_file = logs_dir / f"{patch_id}.log"
-        with log_file.open("w", encoding="utf-8") as f:
-            f.write(log_text)
+    mode_report = {"mode": mode}
+    if use_sampling:
+        mode_report.update({"sample_fraction": 0.1, "seed": 42})
+    reports_path = paths.reports("ingestion_mode.yaml")
+    reports_path.write_text(yaml.safe_dump(mode_report))
+    log.info(f"Ingestion mode recorded in {reports_path}")
 
     # ------------------------------------------------------------------
-    # 7. Summary output
+    # 8. Summary output
     # ------------------------------------------------------------------
     label_counts = all_patches["label"].value_counts()
     total = len(all_patches)
     log.info("Ingestion complete")
-    log.info(f"Total patches ingested: {total}")
+    log.info(f"Total patches processed: {total}")
     for lbl, cnt in label_counts.items():
         log.info(f"  {lbl}: {cnt} ({cnt/total:.2%})")
 

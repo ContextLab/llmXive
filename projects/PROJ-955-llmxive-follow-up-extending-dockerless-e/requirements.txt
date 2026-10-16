@@ -1,19 +1,11 @@
 # Project dependencies
-# Core scientific packages (already available in the environment)
-numpy
 pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-# Additional packages required for this pipeline
-datasets>=2.18.0
-pycg>=0.2.0
-clang>=16.0.0
+fastparquet
 tqdm
+pyyaml
+requests
+scikit-learn
+networkx
+statsmodels
+matplotlib
+# Existing environment already provides: numpy, scipy, seaborn, pytest, psutil
