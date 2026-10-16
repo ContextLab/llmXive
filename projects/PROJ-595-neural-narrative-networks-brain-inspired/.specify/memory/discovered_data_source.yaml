@@ -1,16 +1,15 @@
 status: none
-intent: OpenNeuro ds001495 fMRI Harvard-Oxford atlas ROCStories corpus python package
-  dataset
+intent: OpenNeuro ds001495 fMRI download Harvard-Oxford masks ROCStories Hugging Face
+  python package dataset
 required_fields:
 - subject_id
-- run_id
+- roi_name
 - timepoint
-- left_hippocampus_signal
-- right_hippocampus_signal
-- dlpfc_signal
-- story_id
+- bold_signal
 - event_onset
 - event_duration
-cache_key: fbd86ef0791e1642b01a7491e8e66edd7468ea90bbc4b77e6481dba9a188853f
-searched_at: '2026-10-16T15:13:04.484214+00:00'
+- story_id
+- story_text
+cache_key: 7fdb590dda1015cc9e8af2340ea25ab09bfc47a18c2d486993ce589e5c2d7910
+searched_at: '2026-10-16T15:42:29.293348+00:00'
 retry_count: 1

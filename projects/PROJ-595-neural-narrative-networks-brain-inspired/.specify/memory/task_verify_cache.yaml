@@ -1,68 +1,57 @@
 T000:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `plan.md` file or its contents were provided, so there is no evidence that
-    the Summary and Technical Context sections were edited to reference OpenNeuro
-    dataset `ds001495` and to remove all mentions of `ds000208`. The required artifact
-    is missing.
-T014:
-  c: false
-  h: a022d5d10b8ddf3b9ed5d4d42407f4f86933c99b34c3a59f14bed789b707e2b3
-  r: The required output file `data/processed/roi_left_hipp.npy` is missing, so the
-    core artifact the task demanded does not exist. Consequently the extraction of
-    left hippocampus timecourses has not been performed.
-T016:
-  c: false
-  h: 80973c016e045e7fb7099eb3c7ec3b56634167fd574f868cb26d0d279f2782e5
-  r: "The required output file `data/processed/roi_dlpfc.npy` does not exist, so the\
-    \ extraction and saving step was not performed. Consequently the task\u2019s core\
-    \ requirement is unmet."
+  c: true
+  h: 6f4d282e33555b845e7e683ab8ab43e9ce92caff6998309a87ac8f14c6a9ccf4
+  r: The `plan.md` file exists (5231 bytes) and references OpenNeuro dataset **ds001495**
+    in both the Summary ("processes real fMRI data from OpenNeuro dataset **ds001495**
+    (matching spec FR-001)") and the Technical Context/Data Sources section, exactly
+    as task T000 requires.
+  sig: f953218453509968d1fbccdf3c78943005f723793b8a2611b0b6b4cb3c6dd1ac
+T000.1:
+  c: true
+  h: 7cd91cded9737e8931703bfb157dd64f1c8359dfd25dfe53f8a89b53b881c75c
+  r: The task only required clarifying in `plan.md` that the baseline is TinyLSTM
+    (quantized transformer) matching FR-004. The resolved `plan.md` (5,231 bytes)
+    contains a dedicated "Baseline Definition (FR-004)" section explicitly defining
+    the baseline as a TinyLSTM (quantized transformer), with quantization details,
+    memory constraints, and consistent references throughout (summary, pipeline stages,
+    execution order).
+  sig: 9cf62c1397459ef8b2071b8e716b4eb670bc53219e81283df4d6985e25fa3733
+T001:
+  c: true
+  h: ab73708fa2ce735d008038b206df2666d44c29b6eb06e5953c275108a5180c33
+  r: All required directories (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
+    `tests/`) exist as confirmed by the collector, `code/__init__.py` is present with
+    real content (51 bytes, docstring), and the pytest run for `tests/test_setup_dirs.py`
+    passed all 3 checks including `test_gitignore_exists`, confirming the `.gitignore`
+    is in place.
+  sig: a8b4de006ccc3e95f0726b32cd760f885574a927ef6b028b726e7f514370167e
+T002:
+  c: true
+  h: 12158d9c6a9c9bdddc9789c93513c3c8c1e26dfc3ab9f2e08bfb00ee4a9a1c2c
+  r: The file `code/requirements.txt` exists (358 bytes) and contains pinned (`==`)
+    versions for all ten required packages (torch, datasets, nibabel, nilearn, numpy,
+    pandas, scikit-learn, matplotlib, nltk, pytest), plus a few reasonable extras;
+    no placeholders or stubs.
+  sig: 405a44e7fe3c0347429e05705956926c33217f851af16dcde3086af42c207b6d
+T003:
+  c: true
+  h: 6f063a80ccaa4a075a57bb12e190f26f238dd38b2cfedd454ff40e05746ed8ee
+  r: "The `pyproject.toml` exists at the project root (462 bytes) and contains valid\
+    \ `[tool.ruff]` (line-length, target-version, lint select) and `[tool.black]`\
+    \ (line-length, target-version, include) configuration sections, plus a minimal\
+    \ project definition \u2014 exactly what T003 asked for."
+  sig: 2ba38f67e42d5bc148b402a6b9996543ca70075cf65a1acb0365cb719da27f2b
+T004:
+  c: true
+  h: 9197ed1fa565e21c0ee8611e54edea26d162dfc6ed102a980c372506df5877da
+  r: "The `.ruff.toml` exists at the project root (279 bytes) and contains a substantive,\
+    \ well-formed linting rule set: line length, target version, selected rule families\
+    \ (E, F, W, I, B, UP), per-file ignores, and format settings \u2014 no placeholders\
+    \ or stubs. This matches T004's requirement to add the project's linting configuration."
+  sig: f1b7446e24d3eb25867274cac5936b2a10115880b13b7d4c17dff80f220fbf6b
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No evidence of `utils/checksums.py` being executed or of a state file being\
     \ updated is provided; the required artifact (updated state file with checksum\
     \ entries) is missing, so the task\u2019s requirement is not demonstrably satisfied."
-T021:
-  c: false
-  h: 74dfdc0609b180979db1fffd6c398d32d4c63b3d3dd7572a5d513a6105d8c5c3
-  r: The required `data/processed/roi_timecourses.csv` file is absent, and the referenced
-    `neural-data.schema.yaml` (or any schema file) is also missing, so the validation
-    script cannot be executed as specified. No execution logs or results are provided.
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No training\u2011loop script, configuration, or logs are present; there is no\
-    \ code implementing a retry mechanism across three random seeds for the sparse\
-    \ autoencoder (SAE), nor any evidence (e.g., saved model checkpoints, convergence\
-    \ plots) that such a loop was executed. The required artifact is missing."
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, configuration, or log file implementing memory monitoring and enforcing\
-    \ a <\u202F7\u202FGB peak usage limit was provided. The required artifact (e.g.,\
-    \ a monitoring module, logging output, or test confirming the limit) is missing,\
-    \ so the task is not satisfied."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No checksum output file, log, or updated state file is present in the provided
-    evidence, so we cannot confirm that `utils/checksums.py` was actually executed
-    or that the state file was updated as required. The implementer must supply the
-    resulting checksum artifact and the modified state file to satisfy the task.
-T036:
-  c: false
-  h: 726c9f48996c0370587014c4ef90a7dba9475765eafcb57ff2490fb8da145f4b
-  r: "The provided `code/03_rsa_analysis.py` is incomplete (truncated) and does not\
-    \ contain logic to load or verify the T030/T031 model artifacts, compute separate\
-    \ RSA matrices for the Brain\u2011Inspired and Baseline models, or write the resulting\
-    \ RSA distances to `data/results/rsa_matrix.csv` (the file is missing). The task\u2019\
-    s core requirements are therefore not met."
-T037:
-  c: false
-  h: e4ebeb6df526ee237669f6d8139ae7e73e7ea5a17ee43d5d896763a6b56e8968
-  r: "The provided `code/03_rsa_analysis.py` contains data\u2011loading and RSA utilities\
-    \ but no implementation of the required permutation test (convergence logic, timeout\
-    \ handling, or \u201Cborderline\u201D flag). Moreover, the expected output file\
-    \ `data/results/permutation_test_results.json` is absent. Both the core functionality\
-    \ and the result artifact are missing."

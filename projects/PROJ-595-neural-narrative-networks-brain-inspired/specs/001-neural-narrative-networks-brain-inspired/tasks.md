@@ -7,17 +7,17 @@ All tasks are written as markdown check‑boxes. Checked boxes (`[X]`) indicate 
 
 ## Phase 0 – Plan Alignment (completed)
 
-- [ ] T000 Update `plan.md` to reference OpenNeuro dataset **ds001495** (matches FR‑001).  
-- [ ] T000.1 Clarify baseline as **TinyLSTM (quantized transformer)** in `plan.md` (matches FR‑004).
+- [X] T000 Update `plan.md` to reference OpenNeuro dataset **ds001495** (matches FR‑001).  
+- [X] T000.1 Clarify baseline as **TinyLSTM (quantized transformer)** in `plan.md` (matches FR‑004).
 
 ---
 
 ## Phase 1 – Project Setup (completed)
 
-- [ ] T001 Create project directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`. Add `code/__init__.py` and a standard `.gitignore`.  
-- [ ] T002 Add `code/requirements.txt` with pinned versions for `torch`, `datasets`, `nibabel`, `nilearn`, `numpy`, `pandas`, `scikit-learn`, `matplotlib`, `nltk`, `pytest`. **Depends on T001**.  
-- [ ] T003 Add minimal `pyproject.toml` configuring `ruff` and `black`. **Depends on T001**.  
-- [ ] T004 Add `.ruff.toml` with the project's linting rule set. **Depends on T001**.
+- [X] T001 Create project directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`. Add `code/__init__.py` and a standard `.gitignore`.  
+- [X] T002 Add `code/requirements.txt` with pinned versions for `torch`, `datasets`, `nibabel`, `nilearn`, `numpy`, `pandas`, `scikit-learn`, `matplotlib`, `nltk`, `pytest`. **Depends on T001**.  
+- [X] T003 Add minimal `pyproject.toml` configuring `ruff` and `black`. **Depends on T001**.  
+- [X] T004 Add `.ruff.toml` with the project's linting rule set. **Depends on T001**.
 
 ---
 
