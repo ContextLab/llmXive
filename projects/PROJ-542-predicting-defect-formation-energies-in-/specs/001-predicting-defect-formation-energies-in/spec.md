@@ -73,6 +73,7 @@ The researcher MUST be able to evaluate the best-performing model against a held
 - **FR-009**: The system MUST verify that the dataset contains at least 50 samples before initiating 5‑fold cross‑validation; if not, it MUST raise a `ValueError` prompting the user to broaden search filters. (See US-2)
 - **FR-010**: All code and data‑preprocessing steps must be documented in a reproducible Jupyter notebook that can be executed end‑to‑end to regenerate the dataset, features, models, and evaluation figures. (See US-1)
 - **FR-011**: The held‑out test set used for final evaluation must be sampled without replacement from the original dataset and must contain no records that appear in any cross‑validation training fold. (See US-3)
+- **FR-012**: If the compositional models (Random Forest or Gradient Boosting) do **not** achieve **RMSE ≤ 0.5 eV** **or** **R² ≥ 70 %** on the held‑out test set, the system MUST augment the feature set with structural descriptors (e.g., coordination numbers, bond‑length statistics, crystal symmetry features) and retrain using the same algorithms, reporting the updated metrics. This fallback is required to ensure the research question—how descriptors correlate with defect energies across different crystal structures—is adequately addressed. (See US-3)
 
 ### Key Entities
 
@@ -87,11 +88,11 @@ The researcher MUST be able to evaluate the best-performing model against a held
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The model's prediction error (RMSE) is measured against an appropriate, predefined threshold., which serves as the benchmark for "rapid screening" viability in materials discovery workflows. (See US-3)
-- **SC-002**: The variance explained by compositional descriptors (R²) is measured against the target of ≥70 % to determine if simple descriptors suffice or if complex structural representations are needed. (See US-3)
-- **SC-003**: The statistical significance of the model's predictions is measured using a paired two‑sided t‑test at α = 0.05; success requires a p‑value > 0.05 (no significant bias). (See US-3)
-- **SC-004**: The computational feasibility is measured against the constraint of running entirely on a CPU‑only GitHub Actions runner (≤2 cores, ~7 GB RAM) within a limited time frame. (See US-2)
-- **SC-005**: The data coverage is measured against the requirement of having at least 500 valid perovskite compositions with complete descriptor sets to ensure sufficient statistical power for cross‑validation. (See US-1)
+- **SC-001**: The model's prediction error (RMSE) is measured against a **predefined threshold of ≤ 0.5 eV**, which serves as the benchmark for "rapid screening" viability in materials discovery workflows. (See US-3)
+- **SC-002**: The variance explained by compositional descriptors (R²) is measured against the target of **≥ 70 %** to determine if simple descriptors suffice or if complex structural representations are needed. (See US-3)
+- **SC-003**: The statistical significance of the model's predictions is measured using a paired two‑sided t‑test at **α = 0.05**; success requires a **p‑value > 0.05** (no significant bias). (See US-3)
+- **SC-004**: The computational feasibility is measured against the constraint of running entirely on a CPU‑only GitHub Actions runner (≤2 cores, ~7 GB RAM) **within ≤ 30 minutes per run**. (See US-2)
+- **SC-005**: The data coverage is measured against the requirement of having at least **500 valid perovskite compositions** with complete descriptor sets to ensure sufficient statistical power for cross‑validation. (See US-1)
 
 ## Assumptions
 
