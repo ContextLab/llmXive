@@ -5,9 +5,9 @@
 **Status**: Draft  
 **Input**: User description: "Predicting Defect Formation Energies in Perovskites with Machine Learning"
 
-## User Scenarios & Testing
+## Researcher Scenarios & Testing
 
-### User Story 1 - Data Acquisition and Feature Engineering (Priority: P1)
+### User Story 1 - Data Acquisition and Feature Engineering (Priority: P1) (US-1)
 
 The researcher MUST be able to download a dataset of perovskite defect formation energies from the Materials Project API and automatically generate a feature matrix containing atomic radii, electronegativity, oxidation states, and valence electron counts for the A, B, and X sites using `pymatgen`.
 
@@ -22,7 +22,7 @@ The researcher MUST be able to download a dataset of perovskite defect formation
 
 ---
 
-### User Story 2 - Model Training and Cross-Validation (Priority: P2)
+### User Story 2 - Model Training and Cross-Validation (Priority: P2) (US-2)
 
 The researcher MUST be able to train baseline machine learning models (Random Forest and Gradient Boosting) on the engineered dataset using 5-fold cross-validation, ensuring the entire process completes on a CPU-only environment without GPU dependencies.
 
@@ -37,9 +37,9 @@ The researcher MUST be able to train baseline machine learning models (Random Fo
 
 ---
 
-### User Story 3 - Performance Evaluation and Feature Importance (Priority: P3)
+### User Story 3 - Performance Evaluation and Feature Importance (Priority: P3) (US-3)
 
-The researcher MUST be able to evaluate the best-performing model against a held-out test set ([deferred] of data) and generate a ranked list of feature importances to identify which compositional descriptors most strongly influence defect formation energy.
+The researcher MUST be able to evaluate the best-performing model against a held-out test set comprising [deferred] of the data and generate a ranked list of feature importances to identify which compositional descriptors most strongly influence defect formation energy.
 
 **Why this priority**: This delivers the scientific insight required to answer the research question and provides the "rapid screening" capability mentioned in the motivation.
 
@@ -47,7 +47,7 @@ The researcher MUST be able to evaluate the best-performing model against a held
 
 **Acceptance Scenarios**:
 
-1. **Given** the trained model and the held-out test set, **When** the evaluation script runs, **Then** it outputs an RMSE < 0.5 eV (if the hypothesis holds) or a clear statement of higher error, along with a p-value from a paired t-test comparing predictions to DFT ground truth.
+1. **Given** the trained model and the held-out [deferred] test set, **When** the evaluation script runs, **Then** it outputs an RMSE < 0.5 eV (if the hypothesis holds) or a clear statement of higher error, along with a paired two‑sided t‑test p‑value > 0.05 indicating no significant mean difference between predictions and DFT values.
 2. **Given** the trained model, **When** the feature importance analysis runs, **Then** it generates a bar chart and a text list ranking the 12 compositional descriptors by their contribution to the model's prediction, with the top 3 descriptors clearly identified.
 
 ---
@@ -65,16 +65,21 @@ The researcher MUST be able to evaluate the best-performing model against a held
 - **FR-001**: The system MUST download defect formation energy data for perovskites from the Materials Project API, filtering specifically for oxygen vacancies, and store the raw data locally. (See US-1)
 - **FR-002**: The system MUST extract and compute compositional descriptors (atomic radii, Pauling electronegativity, oxidation states, valence electron counts) for A, B, and X sites using `pymatgen` for every entry in the dataset. (See US-1)
 - **FR-003**: The system MUST train Random Forest and Gradient Boosting regressors using scikit-learn with 5-fold cross-validation, ensuring all operations are performed on CPU without GPU acceleration. (See US-2)
-- **FR-004**: The system MUST evaluate the trained models on a held-out [deferred] test set, calculating RMSE, MAE, and R², and performing a paired t-test against DFT ground truth values. (See US-3)
+- **FR-004**: The system MUST evaluate the trained models on a held-out test set comprising [deferred] of the data, which is disjoint from the folds used in cross‑validation, and report RMSE, MAE, R², a 95 % confidence interval for RMSE obtained via bootstrapping, and a paired two‑sided t‑test p‑value > 0.05. (See US-3)
 - **FR-005**: The system MUST generate a feature importance ranking and visualize the relationship between predicted and actual defect formation energies via scatter plots. (See US-3)
 - **FR-006**: The system MUST explicitly flag and report any dataset-variable gaps where the Materials Project data lacks a required descriptor for a specific composition, rather than imputing or ignoring them. (See US-1)
+- **FR-007**: The system MUST detect an empty result set from the Materials Project API, log a warning, and abort with the error message "No data found for specified filters." (See US-1)
+- **FR-008**: The system MUST filter out rows with undeterminable oxidation states, log the number of excluded samples, and continue processing the remaining data. (See US-1)
+- **FR-009**: The system MUST verify that the dataset contains at least 50 samples before initiating 5‑fold cross‑validation; if not, it MUST raise a `ValueError` prompting the user to broaden search filters. (See US-2)
+- **FR-010**: All code and data‑preprocessing steps must be documented in a reproducible Jupyter notebook that can be executed end‑to‑end to regenerate the dataset, features, models, and evaluation figures. (See US-1)
+- **FR-011**: The held‑out test set used for final evaluation must be sampled without replacement from the original dataset and must contain no records that appear in any cross‑validation training fold. (See US-3)
 
 ### Key Entities
 
 - **PerovskiteComposition**: Represents a unique material formula (ABX3) with associated structural type and defect configuration.
 - **DescriptorSet**: A collection of calculated atomic properties (radii, electronegativity, etc.) for the A, B, and X sites of a composition.
 - **DefectEnergy**: The target variable representing the DFT-calculated formation energy for a specific defect (e.g., oxygen vacancy).
-- **ModelPerformance**: A record containing metrics (RMSE, MAE, R², p-value) for a specific model configuration on a specific dataset split.
+- **ModelPerformance**: A record containing metrics (RMSE, MAE, R², p-value, confidence intervals) for a specific model configuration on a specific dataset split.
 
 ## Success Criteria
 
@@ -82,17 +87,18 @@ The researcher MUST be able to evaluate the best-performing model against a held
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The model's prediction error (RMSE) is measured against the threshold of 0.5 eV, which serves as the benchmark for "rapid screening" viability in materials discovery workflows. (See US-3)
-- **SC-002**: The variance explained by compositional descriptors (R²) is measured against the target of ≥70% to determine if simple descriptors suffice or if complex structural representations are needed. (See US-3)
-- **SC-003**: The statistical significance of the model's predictions is measured against the DFT ground truth using a paired t-test at α=0.05 to confirm the model is not performing random guessing. (See US-3)
-- **SC-004**: The computational feasibility is measured against the constraint of running entirely on a CPU-only GitHub Actions runner (≤2 cores, ~7 GB RAM) within a 6-hour time limit. (See US-2)
-- **SC-005**: The data coverage is measured against the requirement of having at least 500 valid perovskite compositions with complete descriptor sets to ensure sufficient statistical power for cross-validation. (See US-1)
+- **SC-001**: The model's prediction error (RMSE) is measured against an appropriate, predefined threshold., which serves as the benchmark for "rapid screening" viability in materials discovery workflows. (See US-3)
+- **SC-002**: The variance explained by compositional descriptors (R²) is measured against the target of ≥70 % to determine if simple descriptors suffice or if complex structural representations are needed. (See US-3)
+- **SC-003**: The statistical significance of the model's predictions is measured using a paired two‑sided t‑test at α = 0.05; success requires a p‑value > 0.05 (no significant bias). (See US-3)
+- **SC-004**: The computational feasibility is measured against the constraint of running entirely on a CPU‑only GitHub Actions runner (≤2 cores, ~7 GB RAM) within a limited time frame. (See US-2)
+- **SC-005**: The data coverage is measured against the requirement of having at least 500 valid perovskite compositions with complete descriptor sets to ensure sufficient statistical power for cross‑validation. (See US-1)
 
 ## Assumptions
 
 - The Materials Project API provides sufficient access to defect formation energy data for perovskites without requiring a premium subscription or exceeding rate limits during the data download phase.
 - The "oxygen vacancy" is the primary defect type of interest, and the Materials Project dataset contains a representative sample of this specific defect across diverse perovskite compositions.
 - The compositional descriptors (atomic radii, electronegativity, etc.) derived from `pymatgen` are consistent with the definitions used in the referenced literature (e.g., Pauling electronegativity).
-- The relationship between compositional descriptors and defect formation energy is sufficiently linear or tree-learnable for Random Forest and Gradient Boosting models to capture, without requiring deep learning architectures.
-- The GitHub Actions free-tier runner provides consistent CPU performance and memory availability (≥7 GB) sufficient to load the ~500-1000 sample dataset and train the models without swapping.
-- The DFT-calculated defect formation energies in the Materials Project are treated as the ground truth for this study, acknowledging they are computational values rather than experimental measurements, as the project scope is to validate ML against DFT, not against wet-lab experiments.
+- The relationship between compositional descriptors and defect formation energy is sufficiently linear or tree‑learnable for Random Forest and Gradient Boosting models to capture, without requiring deep learning architectures.
+- The GitHub Actions free‑tier runner provides consistent CPU performance and memory availability (≥7 GB) sufficient to load the ~500‑1000 sample dataset and train the models without swapping.
+- The DFT‑calculated defect formation energies in the Materials Project are treated as the ground truth for this study, acknowledging they are computational values rather than experimental measurements, as the project scope is to validate ML against DFT, not against wet‑lab experiments.
+- Researchers have stable internet connectivity.
