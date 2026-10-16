@@ -1,44 +1,44 @@
-- artifact_hash: 744633223fd4a61d259c836ab83d0ab20eb04d5d55d5a0d7462c6ac23b62f71c
+- artifact_hash: 450c806dad8fac72d7bf66b41972f0ef44c38cba8680b249ca994dbfb603b339
   artifact_path: projects/PROJ-406-investigating-neural-signatures-of-predi/specs/001-investigating-neural-signatures-of-predi/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: test-00000-of-00016.parquet
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?X-Xet-Cas-Uid=public&xip=CpG2T7HQiTc&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&Expires=1792178874&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9Q3BHMlQ3SFFpVGMmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMTc4ODc0fX19XX0_&Signature=MEUCIQDE1MAklhsBH9h3IyF%7E3ne3B%7EPrY1Rw%7ElK%7ExJ6HsqFJQQIgDx5aAx7apdWwpQqynaoS9vR%7E56-%7EVgxArKqkafx19%7EY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-16T18:27:54.723543Z'
-- artifact_hash: 744633223fd4a61d259c836ab83d0ab20eb04d5d55d5a0d7462c6ac23b62f71c
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/muller_lyer.parquet`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/muller_lyer.parquet
+  verified_at: '2026-10-16T23:26:17.818941Z'
+- artifact_hash: 450c806dad8fac72d7bf66b41972f0ef44c38cba8680b249ca994dbfb603b339
   artifact_path: projects/PROJ-406-investigating-neural-signatures-of-predi/specs/001-investigating-neural-signatures-of-predi/plan.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: test-00001-of-00016.parquet
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00001-of-00016.parquet`
+  value: https://huggingface.co/datasets/psychology/ponzo_illusion/resolve/main/data/ponzo.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/bc65ae4337b87aa048e7b5c4d98e90f8183c377db08fdfee905ffdd379d9cfe5?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00001-of-00016.parquet%3B+filename%3D%22test-00001-of-00016.parquet%22%3B&xip=CpG2T7HQiTc&Expires=1792178888&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjL2JjNjVhZTQzMzdiODdhYTA0OGU3YjVjNGQ5OGU5MGY4MTgzYzM3N2RiMDhmZGZlZTkwNWZmZGQzNzlkOWNmZTVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMS1vZi0wMDAxNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMS1vZi0wMDAxNi5wYXJxdWV0JTIyJTNCJnhpcD1DcEcyVDdIUWlUYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMTc4ODg4fX19XX0_&Signature=MEUCIEJrMq-RPIrre8gqxWcilG%7ET82UCX866utoXTKx5MjcCAiEAyxaMO9YRQhyMM1yr%7EpjuBWjfL8gpmqSs6i3yFEJ70Pw_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-16T18:27:54.723543Z'
-- artifact_hash: 424ba44b4369cd129a34005b7f48487a3f86e27b625c279c3e1cb213f2512523
+  verified_against_url: https://huggingface.co/datasets/psychology/ponzo_illusion/resolve/main/data/ponzo.parquet
+  verified_at: '2026-10-16T23:26:17.818941Z'
+- artifact_hash: 5b6f85dcbaf41135008ec4a09fe4faed92c4e630ce84d1c511bf5aed939f7f53
   artifact_path: projects/PROJ-406-investigating-neural-signatures-of-predi/specs/001-investigating-neural-signatures-of-predi/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: test-00000-of-00016.parquet
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?user_id=public&xip=CpG2T7HQiTc&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&Expires=1792178910&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD91c2VyX2lkPXB1YmxpYyZ4aXA9Q3BHMlQ3SFFpVGMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMTYucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMTc4OTEwfX19XX0_&Signature=MEQCICSSGzRc7-B4%7EFJntpOlhOTwpkeArrgds6U-HGN-50yWAiAnaYDvPFdQ49D0U7fOgK0RYv0ICWLX-Y81OWhzkpeowA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-16T18:28:30.345309Z'
-- artifact_hash: 424ba44b4369cd129a34005b7f48487a3f86e27b625c279c3e1cb213f2512523
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/muller_lyer.parquet`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/muller_lyer.parquet
+  verified_at: '2026-10-16T23:26:26.566695Z'
+- artifact_hash: 5b6f85dcbaf41135008ec4a09fe4faed92c4e630ce84d1c511bf5aed939f7f53
   artifact_path: projects/PROJ-406-investigating-neural-signatures-of-predi/specs/001-investigating-neural-signatures-of-predi/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: test-00001-of-00016.parquet
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00001-of-00016.parquet`
+  value: https://huggingface.co/datasets/psychology/ponzo_illusion/resolve/main/data/ponzo.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/bc65ae4337b87aa048e7b5c4d98e90f8183c377db08fdfee905ffdd379d9cfe5?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00001-of-00016.parquet%3B+filename%3D%22test-00001-of-00016.parquet%22%3B&user_id=public&xip=CpG2T7HQiTc&Expires=1792178918&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjL2JjNjVhZTQzMzdiODdhYTA0OGU3YjVjNGQ5OGU5MGY4MTgzYzM3N2RiMDhmZGZlZTkwNWZmZGQzNzlkOWNmZTVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMS1vZi0wMDAxNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMS1vZi0wMDAxNi5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnhpcD1DcEcyVDdIUWlUYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMTc4OTE4fX19XX0_&Signature=MEYCIQDoQKEDRtHMBq4FIQ-vqfg1IA68RyGeysUlAHoV4x3wkwIhAOslHJTGgO6DH21OPBmgSaAAiJ5C89rjcgVANx9n93Sb&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-16T18:28:30.345309Z'
+  verified_against_url: https://huggingface.co/datasets/psychology/ponzo_illusion/resolve/main/data/ponzo.parquet
+  verified_at: '2026-10-16T23:26:26.566695Z'

@@ -28,6 +28,12 @@ properties:
     minimum: 0.0
     maximum: 1.0
     description: "Coefficient of determination for the Ponzo susceptibility fit."
+  null_model_aic:
+    type: number
+    description: "AIC of the Ponzo‑specific baseline model (null model)."
+  null_model_bic:
+    type: number
+    description: "BIC of the Ponzo‑specific baseline model (null model)."
 required:
   - subject_id
   - lambda
@@ -36,4 +42,6 @@ required:
   - lambda_bic
   - beta
   - beta_r2
+  - null_model_aic
+  - null_model_bic
 additionalProperties: false
