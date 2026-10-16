@@ -17,20 +17,29 @@ The script writes two artefacts:
 """
 
 import argparse
-from pathlib import Path
-import sys
-import logging
 import json
+import logging
+import sys
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch.nn.functional as F
 from tqdm.auto import tqdm
 
-# Import core functions from the CLI package using a proper package import
-# (the ``cli`` namespace corresponds to the ``code/cli`` directory, which is
-# a namespace package).  This avoids the circular‑import problem that arose
-# when the wrapper tried to import ``generate_ground_truth`` from the same
-# file path.
+# --------------------------------------------------------------------------- #
+# Adjust import path so that the ``cli`` package (located in ``code/cli``)
+# can be imported when this script is executed directly from ``code/data``.
+# --------------------------------------------------------------------------- #
+import os
+import sys
+# Add the parent directory of ``code`` (i.e., the project root) to ``sys.path``.
+# This makes ``code/cli`` appear as a top‑level ``cli`` package.
+CURRENT_FILE = Path(__file__).resolve()
+PROJECT_ROOT = CURRENT_FILE.parents[2]          # <project_root>
+CODE_ROOT = PROJECT_ROOT / "code"
+sys.path.append(str(CODE_ROOT))
+
+# Now the import works.
 from cli.generate_ground_truth import (
     load_full_precision_model,
     quantize_model_int8,
@@ -46,6 +55,9 @@ from cli.generate_ground_truth import (
 # --------------------------------------------------------------------------- #
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
+
+# Import the statistical test function (was missing in the original wrapper)
+from scipy.stats import ttest_1samp
 
 def run_wrapper(
     model: str,
@@ -133,7 +145,7 @@ def run_wrapper(
     stats = {}
     for level in levels:
         level_kl = df[df["quantization_level"] == level]["kl_divergence"].values
-        t_stat, p_val = scipy.stats.ttest_1samp(level_kl, popmean=0.0)
+        t_stat, p_val = ttest_1samp(level_kl, popmean=0.0)
         stats[level] = {
             "sample_count": int(len(level_kl)),
             "mean_kl": float(np.mean(level_kl)),
