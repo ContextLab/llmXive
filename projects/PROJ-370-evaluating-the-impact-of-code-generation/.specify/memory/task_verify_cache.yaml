@@ -1,44 +1,11 @@
 T001:
-  c: true
-  h: ae6a778f8df60a4475e37ca85f5f0f1d53fd5c6671045408e83b2b4aa70357f8
-  r: All nine required directories (`src/`, `src/utils/`, `data/raw/`, `data/derived/`,
-    `data/annotations/`, `results/`, `tests/`, `specs/`, `contracts/`) are confirmed
-    to exist on disk by the collector, and the verification script `code/setup_project_structure.py`
-    ran with exit 0, verifying each path.
-  sig: c0417d7d575c3bab8ce943f6c1793371e8e54e8c8063d94ce34f40691392d38a
-T002:
-  c: true
-  h: a6168eb471967aad7509accbd49ed0ec1bf47a280625ea89a869372dcc0bf2f3
-  r: "Checked `requirements.txt` \u2013 it contains pinned versions of all eight required\
-    \ packages (datasets, transformers, scikit-learn, scipy, pandas, pyyaml, pytest,\
-    \ numpy).  \nChecked `config/settings.py` \u2013 it defines `TARGET_REPOS` with\
-    \ the three specified repos, a `RANDOM_SEED`, a `HYPERPARAMS` dictionary, and\
-    \ a comprehensive `PATHS` constant dictionary."
-  sig: e3731d7e80005a1b95c1ea9bb0a7e221989b9d1db2c9993bd921a7c438aa66d1
-T003:
-  c: true
-  h: 0558ed0cf49808fc87ae45ff2b12f28088fc83b4ff0b92c6c9a50c115623d98d
-  r: "Checked the `pyproject.toml` (contains full `[tool.black]` and `[tool.ruff]`\
-    \ sections with line\u2011length and exclude patterns) and the `.github/workflows/ci.yml`\
-    \ file (exists and runs `ruff check .` and `black --check .`)."
-  sig: a5c81708390895f5d7c85c2cee225c83dd40c4a3278ea3256b0c29b1a64ee556
-T011:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `contracts/` directory or YAML schema files for PR data, BugDetection, or
-    AlignmentResult are present in the provided evidence; thus the required artifacts
-    are missing. The implementer must add the `contracts/` folder containing the three
-    YAML schema definitions.
-T012:
-  c: false
-  h: 4218944a7ff9a428d7871d360f8a12aaaa1ebe2aedd2ed461372d7dc0fe36ac2
-  r: The required script `src/extraction/fetch_prs.py` does not exist, so none of
-    the specified functionality (loading repos, fetching PRs, handling missing issues,
-    logging, and writing raw JSON) is present. The task cannot be considered completed.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were provided showing that validation logic\
-    \ for `linked_issue_ids` was added, nor any evidence that the IDs are checked\
-    \ to be labeled \u201Creported\u201D and not ground\u2011truth. The required implementation\
-    \ artifact is missing."
+  h: 8af8c9402450a9e1d70076b5f5d6f6982f13adceea5bad2ed5be0cf738a5a0a9
+  r: "The `code/src/*`, `code/tests/*`, `code/data/*`, and `code/logs` directories\
+    \ all exist and the setup script ran successfully (exit 0). However, the task's\
+    \ verification command explicitly requires `specs/001-eval-llm-review-quality/contracts`,\
+    \ while the execution log shows the script created a differently-named path, `specs/001-evaluating-the-impact-of-code-generation/contracts`,\
+    \ and no evidence confirms the requested `001-eval-llm-review-quality/contracts`\
+    \ directory exists \u2014 the implementer should create the exact requested path\
+    \ (or reconcile the naming with the feature branch slug)."
+  sig: b576e275e4ae9b419b80f0bf8bbd87fbdef1fb8275d4e05e7e16f9dd20f9b092

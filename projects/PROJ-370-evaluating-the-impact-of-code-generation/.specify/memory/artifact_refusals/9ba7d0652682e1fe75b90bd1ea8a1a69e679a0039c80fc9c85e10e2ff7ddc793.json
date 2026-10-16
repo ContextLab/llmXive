@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "76950cfa3888b897552cb6bbc4330d5b8c44b381eea5d5b1c1bb301b81aa5d5d",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/src/config/settings.py': imports nonexistent names from sibling files: `from config.settings import __all__` (available: Any, BASE_DIR, Dict, HYPERPARAMS, List, PATHS, Path, SEED...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

@@ -1,11 +1,16 @@
 status: none
-intent: pull request dataset prs-v2-sample huggingface datasets library python package
+intent: GHTorrent pull request diffs review comments linked issues python package
   dataset
 required_fields:
 - pr_id
-- diff_text
+- repository
+- pr_number
+- diff
 - review_comments
 - linked_issue_ids
-cache_key: 655ccfeb93ee49b8ac20899a345dc9f9288d5ac8e6cc43b359767ce54a8f417b
-searched_at: '2026-10-10T09:34:44.207339+00:00'
+- author
+- created_at
+- merged_at
+cache_key: b87c0cef061b86c4151738a8f37d6f5f82ee0463f230a51d565a8587c94502ae
+searched_at: '2026-10-16T12:31:57.793933+00:00'
 retry_count: 1

@@ -1,49 +1,47 @@
 T001:
-  task: 5aa66b9f1398c5eb66c3ada2e806cfe8b6155b27e7a6aacec5b5a32f7f8e0b69
+  reason: "The `code/src/*`, `code/tests/*`, `code/data/*`, and `code/logs` directories\
+    \ all exist and the setup script ran successfully (exit 0). However, the task's\
+    \ verification command explicitly requires `specs/001-eval-llm-review-quality/contracts`,\
+    \ while the execution log shows the script created a differently-named path, `specs/001-evaluating-the-impact-of-code-generation/contracts`,\
+    \ and no evidence confirms the requested `001-eval-llm-review-quality/contracts`\
+    \ directory exists \u2014 the implementer should create the exact requested path\
+    \ (or reconcile the naming with the feature branch slug)."
+  task: 7063366f657d2675ca8d35ffea3fa9ed608d120baa0b5c5b4d3c54c635cd089d
 T002:
-  task: c709a2a07e0a144a110062f0e56fb7e9d8ce36935e9ecf00a67a36ff10fbf460
+  task: f83b58eca9fe97ffbf32282b00730410fee134a80d58c180c57b12787eeb86b7
 T003:
-  task: 8ed99c05047b0e900afcf2c0f5fc42a4d3d50229c0aee737fb43d25ba69d4481
+  task: 32fecda622fb27b6a8d75d214bfd564728694ee6e29f8bad4c963d889194382c
 T004:
-  reason: "The repository contains `src/utils/logger.py` and `src/utils/timeout_wrapper.py`,\
-    \ but no evidence of their contents or of unit\u2011test execution showing that\
-    \ the timeout wrapper enforces a 6\u202Fh limit, writes to `logs/timeout.log`,\
-    \ exits with code\u202F143, or that the logger emits correctly\u2011formatted\
-    \ JSON lines. Provide the actual source code and test results to confirm the required\
-    \ behavior."
-  task: 3fab66ba80eeee3b370f33be2efb6db7474269a87ae92b3b21ab8a2250866041
+  task: 36b12a7801c6e1561c526368f847a62527a1889d107e970dbd1629163e3541a2
 T005:
-  reason: 'Requested task execution failed; rerun successfully: src/cli/main.py exit=1'
-  task: 2b3140e518bd345beea342140e72823892b533f5ecda5257a10fcdeefa2eae0e
+  task: 32b78de6a20724063abd7f2a71a84c5c2a1c8aa505ea1a47b840b7785b70b55b
 T006:
-  reason: "The three contract YAML files exist, and the schema modules import without\
-    \ syntax errors, but the required `BugDetection` dataclass is **not** defined\
-    \ in `src/detection/schema.py` (it is incorrectly placed in `src/extraction/schema.py`).\
-    \ The detection schema currently only defines `LLMCodeDetectionResult`, so the\
-    \ task\u2019s core requirement of providing a `BugDetection` model in the detection\
-    \ package is missing."
-  task: 16f0816d374323852f1385520db0a44de11360ccb878f2af4e074e8dad9dbd2d
+  task: de7ae35e13bbc61617e0237f1a557fd3acd59051a358cc28fa08c383ac07b1a8
 T007:
-  reason: 'Requested task execution failed; rerun successfully: code/src/extraction/fetch_prs.py
-    exit=1'
-  task: 68a22d024025ae77009fcd4c82f48175258403c9578f0a72f153ef68c1693b71
+  task: 813cd9ff6859dd044cd755c1a3fe43899fdd4cf350749397ca21cfa5ded7fa4f
 T008:
-  reason: 'Requested task execution failed; rerun successfully: src/extraction/preprocess_and_ground_truth.py
-    exit=1'
-  task: 160b6b5f317b84a0f19be02c1ce4367e5822d45c4c2b2ea51001cec4d7fa9a0c
+  task: b9b6b3da6581407c81d465fccd853eee2d1103e8ddd9d06285d68d83813797de
 T009:
-  task: e720ce556007b2f65a6ee9a68d11a1286cf6049f667e41c2217a6a95b9a98808
+  task: 66feaee7a3dfef2a80393c99ff742406789dd4ef84b31cd07ed0841380b96088
 T009a:
-  task: f7184169989b294b8b78b5a777604a838c0314144d23d8693d551e4d2b432cea
+  task: 6f8d7a7ad2b0b81064290a1e487d13f29ec9fc06dbc87b90d2e3e035c9aa417b
 T010:
-  task: 0cecfd1158112087be68222e60a7d00c0b2562d48d44ca4e55d6396475cfcd4f
+  task: 936a3dcab6b82ca8a6da6cfe856acc3313f9cc9d00d97385f75bb9d6785a933b
 T011:
-  task: 5afce0fc5bf0e02e3a92daca7b126ec309522e890fe809d1683f8d20fe9b0bbd
+  task: f73925b436598c6bb30a68c16d1230d03bdb1bf26e79cd77943909b682c1ccfd
 T012:
-  task: bf57c36c2011b3245fadb038e1e7d600c888367389485c87ad4b6375ad4fcbbe
+  task: fe7ac839fd0ddc40e64b949573366058e225218e072109e24bbdcd6d11db3058
 T013:
-  task: 501b9b99721b5735eb569a113f3145cb98b6a9c722f5a00f282c9e863b2ca135
+  task: f8132a9e15c34ca34a85f9f14ca1c695cb7d1876203b573b2f92911c2289eab2
 T014:
-  task: 74c7d9c9fda25ada63eb4693898000fd037f4d90bef27a6fe8f1ff0314b90cb1
+  task: 51d32f524260e2e256921f6da440b63131ca1b6703be94fc43f72867a9a922a9
+T015:
+  task: 65482e6520eda4e9a0335a0767e78fd6ccfca1af4f6d9948f0042ef5b9457d4e
 T016:
-  task: c53828c8e30aa28e03d6f31acb75aa37275d18200c876a3ecdfca728abc752da
+  task: 54c1e9f76e0f81f71483081a04ea8e26827aa040ba2377231c927453d8339561
+T017:
+  task: 4e1e50fe36bc7271509f74f80bd2c3fd6fd0992b68cda509e8ee26a73b31cafa
+T018:
+  task: cfee49ac2ce2ebc9920580d769e4ba9b1621b2fa5ad4e9f6feb89df190bd636a
+T019:
+  task: 7e2d8ea0aa97dbce4bb3f42b81e5b179799718fd91b7b3fb96198f13a6837344
