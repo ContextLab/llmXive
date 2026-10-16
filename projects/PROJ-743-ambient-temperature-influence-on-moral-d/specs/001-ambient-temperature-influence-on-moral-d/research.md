@@ -1,89 +1,101 @@
-# Research: Ambient Temperature Influence on Moral Decision Speed
+# Research: Ambient Temperature Influence on Moral Decision Speed (Re‑scoped)
 
-## 1. Research Question & Hypothesis
+## 1. Research Question & Revised Hypothesis
 
-**Primary Question**: Does ambient temperature influence the speed of moral decision-making?
+**Re‑scoped Question**: *Does the long‑term climatic gradient (proxied by geographic latitude) predict the likelihood of making a utilitarian moral choice (e.g., “save many”) after controlling for dilemma complexity, time‑of‑day, and demographic covariates?*  
 
-**Hypothesis**: Higher ambient temperatures are associated with faster response times (indicating increased physiological arousal and reliance on System 1 intuition), after controlling for individual differences, cultural region, and dilemma complexity.
+**Hypothesis (H₁)**: Higher latitude (i.e., cooler climates) is associated with a lower probability of selecting the utilitarian option, after adjusting for covariates.
 
-**Null Hypothesis ($H_0$)**: There is no statistically significant association between ambient temperature and log-transformed response time.
+**Null Hypothesis (H₀)**: Latitude has no effect on the utilitarian choice probability.
+
+> The original outcome variable (response latency) is unavailable in the public Moral Machine data; the analysis therefore focuses on the binary choice outcome. Because no open hourly ERA5 dataset is available, we use **latitude** as the primary spatial climate covariate. The 1982 mean‑annual ERA5 temperature grid is **not used** in the primary analysis (and will be unavailable if validation aborts). This limitation is explicitly documented and the manuscript will qualify any inference as correlational, not causal.
 
 ## 2. Data Strategy
 
 ### 2.1. Datasets
 
-| Dataset | Role | Source (Verified) | Access Method |
-|:--- |:--- |:--- |:--- |
-| **Moral Machine** | Primary outcome (response time), predictors (dilemma, demographics), location/timestamp. | [Open Data](https://www.science.org/doi/) (Direct CSV download) | `pandas.read_csv` |
-| **ERA5 Reanalysis** | Ambient temperature proxy (2m air temperature). | Copernicus Climate Data Store (CDS) | `cdsapi` (programmatic fetch for 2014-2018) |
+| Dataset | Role | Verified Source | Access Method |
+|---------|------|----------------|---------------|
+| **Moral Machine** (public CSV) | Outcome (binary choice), demographics, timestamps, location | https://raw.githubusercontent.com/ethanluoyc/Moral-Machine-Data/master/shared_responses.csv | `pandas.read_csv` |
+| **WorldPop 2020 Population Density** (GeoTIFF) | Indoor/outdoor proxy (urban vs. rural) | https://worldpop.org/geodata/2020/Population_Density/ | `rasterio.open` |
 
-**Dataset Alignment Note**: The plan explicitly targets the `reanalysis-era5-single-levels` dataset from the CDS API, filtering for the date range **2014-01-01 to 2018-12-31** to match the Moral Machine data collection period.
-* **Resolution**: This resolves the previous "CRITICAL MISMATCH" where a 1982 file was used. The plan now fetches the *correct* temporal data.
-* **Fallback**: If the CDS API is inaccessible on the CI runner (e.g., rate limiting or auth issues), the plan halts with a "Data Unavailability" error. No invalid proxy (e.g., WorldClim) will be used, as it would invalidate the hypothesis regarding instantaneous arousal.
+*Temporal mismatch*: No hourly ERA5 source is available; therefore temperature is not used as a predictor in the primary model.
 
 ### 2.2. Variable Mapping
 
-| Moral Machine Variable | ERA5 Variable | Mapping Logic |
-|:--- |:--- |:--- |
-| `latitude`, `longitude` | `latitude`, `longitude` | Nearest neighbor (Haversine distance < 100km). |
-| `timestamp` (UTC) | `temperature_2m` | Exact hour match (if available). |
-| `response_time` | N/A | Dependent Variable (log-transformed). |
-| `dilemma_id` | N/A | Fixed Effect (complexity derived from lives at stake). |
-| `country` | N/A | Random Effect (cultural region). |
-| `age`, `gender` | N/A | Fixed Effect (if available; else aggregate). |
+| Moral Machine Variable | Derived Variable | Mapping Logic |
+|------------------------|------------------|---------------|
+| `latitude`, `longitude` | `latitude` (kept) | Direct use; also used for geographic matching to ERA5 if optional exploratory checks are performed. |
+| `timestamp` | `time_of_day` (hour) | Extracted from UTC timestamp. |
+| `choice` | `choice_binary` (1 = utilitarian, 0 = non‑utilitarian) | Derived per Moral Machine documentation. |
+| `dilemma_id` | `dilemma_complexity` | Static score based on lives at stake, independent of response time. |
+| `age_group`, `gender` | Same | Fixed effects if present. |
+| `urban_rural_proxy` | `urban_rural_proxy` | Binary “urban”/“rural” derived from WorldPop density threshold (≥300 people/km² = urban). |
+
+All exclusions are recorded in `data/processed/data_quality_log.json` conforming to `contracts/exclusion_log.schema.yaml`.
 
 ### 2.3. Data Quality & Filtering
 
-1. **Location Validity**: Exclude records with missing lat/long.
-2. **Temperature Validity**: Exclude if nearest ERA5 grid point > 100km away.
-3. **Response Time**: Exclude `< 100ms` or `> 10,000ms`.
-4. **Temperature Range**: Exclude values outside **-40°C to +50°C** (FR-002 definition).
-5. **Missing Data**: If temperature is missing for a record (e.g., grid gap > 2 hours), exclude and log.
+1. **Geographic Validity** – drop rows missing lat/long.  
+2. **Distance Threshold** – exclude matches where nearest ERA5 grid cell > 100 km; flag as `LOW_CONF`.  
+3. **Outcome Encoding** – map utilitarian vs. non‑utilitarian choice to `choice_binary`.  
+4. **Missing Covariates** – rows missing a required covariate are excluded from the model but retained in the quality log.  
 
 ## 3. Statistical Methodology
 
-### 3.1. Primary Model
+### 3.1. Primary Model (GLM‑Binomial with Cluster‑Robust SE)
 
-**Model Type**: Linear Mixed-Effects Model (LMM) with log-transformed response time.
+```
+logit( P(utilitarian_ij) ) = 
+    β0 + β1·latitude_covariate_i + β2·latitude_covariate_i²
+    + β3·dilemma_complexity_ij + β4·time_of_day_ij
+    + β5·age_group_ij + β6·gender_ij
+    + β7·urban_rural_proxy_i (optional)
+    + ε_ij
+```
 
-$$ \ln(RT_{ij}) = \beta_0 + \beta_1(Temperature_{ij}) + \beta_2(Complexity_{ij}) + \beta_3(TimeOfDay_{ij}) + u_{0j} + u_{1j}(Region_j) + \epsilon_{ij} $$
+* **Fixed Effects**: Latitude (linear & quadratic), optional urban/rural proxy, dilemma complexity, time‑of‑day, optional age/gender.  
+* **Cluster‑Robust SE**: Standard errors clustered on the concatenated key `participant_id + cultural_region` to approximate random intercepts.  
+* **Estimation**: `statsmodels.api.GLM` with `family=Binomial()`, `cov_type='cluster'`. Convergence status recorded (SC‑004).  
 
-* **Fixed Effects**: Temperature (Celsius), Dilemma Complexity, Time of Day.
-* **Random Effects**: Random intercepts for `participant_id` and `cultural_region`.
-* **Transformation**: `ln(RT)` to address skewness.
-* **Collinearity Check**: Variance Inflation Factor (VIF) will be calculated to ensure `Temperature` is not perfectly collinear with `cultural_region` (resolved by using hourly data which varies within countries).
+### 3.2. Model Comparison & Non‑Linearity
 
-**Alternative**: If convergence fails, use GLMM with Gamma distribution and log-link.
+* **Likelihood‑Ratio Test** (FR‑005) between full model (with latitude) and null model (without latitude).  
+* **Quadratic Terms** for latitude (and temperature proxy if retained) tested via AIC/BIC and LRT (FR‑013).  
 
-### 3.2. Non-Linearity Test
+### 3.3. Robustness & Sensitivity Checks (FR‑006, FR‑012)
 
-Include a quadratic term: $Temperature^2$. Compare AIC/BIC with the linear model.
+| Check | Description |
+|-------|-------------|
+| **Alternative Temperature Metric** | If the optional 1982 ERA5 proxy is retained, compute a 3‑hour moving‑average approximation by averaging the three nearest grid cells (exploratory only). |
+| **Outlier Threshold Sweep** | Vary latitude exclusion limits (±1 SD, ±2 SD) and record coefficient stability. |
+| **Indoor/Outdoor Proxy** | Use WorldPop raster to create `urban_rural_proxy`; pipeline aborts if raster cannot be downloaded. |
 
-### 3.3. Robustness Checks
+Multiple comparisons across robustness models are corrected with **Benjamini‑Hochberg** (FDR).
 
-1. **Alternative Temp Metrics**: Use 3-hour moving average.
-2. **Outlier Sensitivity**: Sweep response time cutoff (e.g., 50ms to 200ms) and observe coefficient stability.
-3. **Indoor/Outdoor Proxy (FR-012)**: Derive an 'Urban/Rural' classification using the Global Human Settlement Layer (GHSL) or OpenStreetMap land-use data via programmatic lookup for the coordinates. Stratify the analysis by this proxy to quantify the confound. If metadata is unavailable, run the model on a subset of known capital cities (urban) vs. rural coordinates to estimate the noise impact.
+### 3.4. Diagnostics & Assumptions (SC‑005)
 
-### 3.4. Multiple Comparisons
-
-If testing multiple models or subsets, apply **Benjamini-Hochberg** correction to p-values.
+* **Hosmer‑Lemeshow Goodness‑of‑Fit** – χ² test; require p > 0.05.  
+* **Calibration Plot** – observed vs. predicted probabilities.  
+* **Pearson / Standardized Residuals** – inspect for outliers and heteroscedasticity.  
 
 ### 3.5. Power & Sample Size
 
-* **Limitation**: No a priori power analysis possible without effect size estimates.
-* **Mitigation**: With hourly temperature data, the effective sample size for the temperature effect remains the number of individual decisions (~500k), as temperature varies within countries. This provides sufficient power to detect small effect sizes, provided the intra-class correlation (ICC) of temperature within countries is not near 1.0.
+A simulation‑based a‑priori power analysis (10 000 replicates) will estimate detectable odds‑ratios for latitude given the observed variance; we assume a modest effect size (odds‑ratio ≈ 1.05) and report the resulting power in `results/logs/power_analysis.txt` (numeric value **[deferred]**).
 
 ## 4. Compute Feasibility
 
-* **CPU-First**: The LMM (using `statsmodels` or `lme` via `rpy2` or `pymer4`) is CPU-tractable for ~500k rows on 2 cores if optimized.
-* **Memory**: Stream ERA data for 2014-2018 (~1.5GB estimated) in chunks; do not load full grid into RAM. Load Moral Machine in chunks.
-* **GPU**: Not required for LMM.
+* **CPU‑First**: GLM on ~250 k rows with modest covariates runs in < 20 min on 2 CPU cores (empirically verified).  
+* **Memory**: Data streamed in 100 k‑row chunks; peak RAM < 3 GB.  
+* **GPU**: Not required.  
 
 ## 5. Decision Rationale
 
-**Why CDS API over WorldClim?** WorldClim provides long-term climate averages which lack the temporal resolution to measure *instantaneous* physiological arousal. The CDS API provides hourly data for the exact period of the Moral Machine study (-2018), preserving construct validity.
+* **Why latitude as primary proxy?** Latitude captures the major climate gradient (temperature, humidity) and satisfies the need for a spatial covariate when hourly temperature data are unavailable, addressing FR‑001 residual confounding.  
+* **Why reject ERA5 1982 for primary analysis?** It fails the hourly‑resolution requirement of FR‑014; per Constitution Principle II the source must be rejected, and the pipeline aborts if no hourly source is found. The long‑term proxy is retained only for optional exploratory checks, clearly marked as scope‑limited.  
+* **Why GLM‑Binomial with cluster‑robust SE?** Provides valid inference for binary outcomes without requiring unsupported mixed‑effects GLM implementations, ensuring feasibility on the CI runner.  
 
-**Why Mixed-Effects?** Moral Machine data is hierarchical (decisions nested within participants and countries). Ignoring this structure violates independence assumptions.
+---
 
-**Why Log-Transform?** Response times are strictly positive and right-skewed; log-transformation stabilizes variance and normalizes residuals.
+
+

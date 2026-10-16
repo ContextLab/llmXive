@@ -1,87 +1,120 @@
-# Quickstart: Ambient Temperature Influence on Moral Decision Speed
+# Quickstart: Ambient Temperature Influence on Moral Decision Speed (Re‑scoped)
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip` or `conda`
-- Internet access (for dataset download)
-- CDS API Key (for ERA5 data)
+- Python 3.11+ (recommended via `pyenv` or system Python)  
+- `git`  
+- Internet access (to download datasets)  
+- No special API keys are required; the ERA5 1982 file is hosted on HuggingFace (but will be **rejected** by validation due to hourly‑resolution rule).
 
 ## Installation
 
-1. **Clone Repository**:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-743-ambient-temperature-influence-on-moral-d
- ```
+```bash
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-743-ambient-temperature-influence-on-moral-d
 
-2. **Create Virtual Environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+# 2. Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-3. **Install Dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-4. **Configure CDS API**:
- - Register at https://cds.climate.copernicus.eu/
- - Create `.cdsapirc` in your home directory with your API key.
+# 3. Install pinned dependencies
+pip install -r code/requirements.txt
+```
 
 ## Data Setup
 
-1. **Download Moral Machine Data**:
- - Download from: https://www.science.org/doi/ (or the provided CSV link).
- - Save as `data/raw/moral_machine.csv`.
-
-2. **Download Temperature Data**:
- - **Option A (ERA5 - Required)**: Run `python code/fetch_era5_data.py` to fetch the 2014-2018 subset via CDS API.
- - Save to `data/raw/era5_data/`.
-
-## Running the Pipeline
-
-### 1. Validate Sources (FR-014)
-
 ```bash
-python code/validate_sources.py --input data/raw/moral_machine.csv --temp data/raw/era5_data/ --output results/logs/validation_report.json
+# 1. Download Moral Machine CSV (verified public URL)
+python code/download_moral_machine.py \
+    --output data/raw/moral_machine.csv \
+    --url https://raw.githubusercontent.com/ethanluoyc/Moral-Machine-Data/master/shared_responses.csv
+
+# 2. (Optional) Download the ERA5 1982 grid (HDF5) – will be validated and **rejected** for lacking hourly resolution.
+python code/download_era5.py \
+    --output data/raw/era5_1982.h5
 ```
 
-### 2. Ingest and Merge
+Both commands compute SHA‑256 checksums and write them to `data/external/checksums.txt`.
+
+## Pipeline Execution
+
+All scripts write logs to `results/logs/` and artifacts to `results/`.
+
+### 1. Validate Sources (FR‑014 – **will abort** if no hourly source is found)
 
 ```bash
-python code/ingestion.py --input data/raw/moral_machine.csv --temp data/raw/era5_data/ --output data/processed/merged_dataset.parquet
+python code/validate_sources.py \
+    --moral data/raw/moral_machine.csv \
+    --era5 data/raw/era5_1982.h5 \
+    --report results/logs/validation_report.json
 ```
 
-### 3. Preprocess
+If an **hourly** ERA5 source is unavailable, the script exits with an informative error and the pipeline stops, ensuring compliance with the Verified Accuracy principle.
+
+### 2. Download WorldPop Urban/Rural Proxy (mandatory indoor/outdoor confound)
 
 ```bash
-python code/preprocessing.py --input data/processed/merged_dataset.parquet --output data/processed/cleaned_dataset.parquet
+python code/download_worldpop.py \
+    --output data/raw/worldpop_2020.tif
 ```
 
-### 4. Run Analysis
+If the download fails, the script aborts with a clear message.
+
+### 3. Ingest & Match (geographic join, distance flagging)
 
 ```bash
-python code/modeling.py --input data/processed/cleaned_dataset.parquet --output results/stats/model_results.json --figs results/figures/
+python code/ingestion.py \
+    --moral data/raw/moral_machine.csv \
+    --era5 data/raw/era5_1982.h5 \
+    --out data/processed/merged_dataset.parquet \
+    --log results/logs/ingestion_log.json
 ```
 
-### 5. Robustness Check
+### 4. Preprocess (filtering, feature engineering)
 
 ```bash
-python code/robustness.py --input data/processed/cleaned_dataset.parquet --output results/stats/sensitivity_analysis.csv
+python code/preprocessing.py \
+    --input data/processed/merged_dataset.parquet \
+    --output data/processed/cleaned_dataset.parquet \
+    --log results/logs/preprocessing_log.json
 ```
 
-## Verification
+### 5. Fit Primary Model & Diagnostics
 
-1. Check `results/logs/validation_report.json` for "PASS" status.
-2. Check `results/logs/processing_log.txt` for "SUCCESS" messages.
-3. Verify `results/stats/model_results.json` contains a `temperature_c` coefficient and `p_value`.
-4. Inspect `results/figures/residual_qq.png` for normality.
+```bash
+python code/modeling.py \
+    --input data/processed/cleaned_dataset.parquet \
+    --model-output results/stats/model_results.json \
+    --fig-dir results/figures/ \
+    --log results/logs/modeling_log.json
+```
+
+### 6. Robustness & Sensitivity Analyses
+
+```bash
+python code/robustness.py \
+    --input data/processed/cleaned_dataset.parquet \
+    --output results/stats/sensitivity_analysis.csv \
+    --fig-dir results/figures/robustness/ \
+    --log results/logs/robustness_log.json
+```
+
+## Verification Checklist
+
+1. **Validation Report** (`results/logs/validation_report.json`) contains `"status": "ABORT"` if no hourly source is present (as required by FR‑014).  
+2. **Ingestion Log** reports the percentage of records matched within 100 km (SC‑001).  
+3. **Model Results** (`results/stats/model_results.json`) includes a `latitude_covariate` fixed‑effect entry with `estimate`, `std_error`, and `p_value`.  
+4. **Diagnostics**: `hosmer_lemeshow.png` and `calibration_plot.png` exist; Hosmer‑Lemeshow p‑value > 0.05 is recorded in the JSON diagnostics.  
+5. **Robustness Table** (`sensitivity_analysis.csv`) lists coefficients for alternative specifications (SC‑003).  
 
 ## Troubleshooting
 
-- **Memory Error**: If the dataset is too large, enable streaming in `config.py` (`STREAM_DATA = True`).
-- **Convergence Warning**: The model may fail to converge. Check `results/logs/model_diagnostics.txt` and try reducing random effects or switching to GLMM.
-- **Missing Data**: If >10% of records are dropped, check `data/processed/data_quality_log.json` for reasons.
-- **CDS API Error**: Ensure `.cdsapirc` is correctly configured and you have a valid API key.
+- **MemoryError**: Ensure `STREAM_DATA=True` in `code/config.py`; this forces chunked reads.  
+- **ConvergenceWarning**: Check `results/logs/modeling_log.json`; if convergence fails, the script automatically retries with a smaller optimizer tolerance.  
+- **Missing Hourly Temperature Source**: The pipeline will abort with a clear message; at that point you may supply an open hourly temperature dataset (if one becomes available) and re‑run from the validation step.  
+
+---
+
+
+

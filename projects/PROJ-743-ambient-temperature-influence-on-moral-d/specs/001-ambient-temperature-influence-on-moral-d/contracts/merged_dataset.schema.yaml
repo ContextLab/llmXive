@@ -6,12 +6,15 @@ properties:
   record_id:
     type: "string"
     description: "Unique identifier for the merged record."
+  response_id:
+    type: "string"
+    description: "Original Moral Machine response identifier."
   participant_id:
     type: "string"
     description: "Anonymous participant identifier."
   country:
     type: "string"
-    description: "Country of the participant."
+    description: "Country code of the participant."
   latitude:
     type: "number"
     description: "Latitude of the response location."
@@ -22,30 +25,44 @@ properties:
     description: "Longitude of the response location."
     minimum: -180
     maximum: 180
-  response_time_log:
-    type: "number"
-    description: "Log-transformed response time in milliseconds."
-    minimum: -10
-    maximum: 10
+  choice_binary:
+    type: "integer"
+    description: "1 = utilitarian choice, 0 = non‑utilitarian."
+    enum: [0, 1]
   temperature_c:
     type: "number"
-    description: "Ambient temperature in Celsius."
+    description: "Mean annual temperature (°C) from ERA5 1982 grid (optional proxy)."
     minimum: -40
     maximum: 50
   distance_km:
     type: "number"
-    description: "Distance to the nearest temperature grid point in kilometers."
+    description: "Haversine distance to nearest ERA5 grid cell."
     minimum: 0
     maximum: 100
   dilemma_complexity:
     type: "number"
-    description: "Derived complexity score of the dilemma."
+    description: "Static complexity score derived from scenario attributes."
     minimum: 0
   time_of_day:
-    type: "number"
-    description: "Hour of the day (0-23)."
+    type: "integer"
+    description: "Hour of day (0‑23)."
     minimum: 0
     maximum: 23
+  age_group:
+    type: "string"
+    description: "Age bracket (optional)."
+  gender:
+    type: "string"
+    description: "Gender (optional)."
+  latitude_covariate:
+    type: "number"
+    description: "Duplicate of latitude for modeling convenience."
+    minimum: -90
+    maximum: 90
+  urban_rural_proxy:
+    type: "string"
+    description: "Urban or rural classification based on WorldPop density."
+    enum: ["urban", "rural"]
   quality_flag:
     type: "string"
     description: "Data quality status."
@@ -55,14 +72,15 @@ properties:
       - "EXCLUDED"
 required:
   - record_id
+  - response_id
   - participant_id
   - country
   - latitude
   - longitude
-  - response_time_log
-  - temperature_c
+  - choice_binary
   - distance_km
   - dilemma_complexity
   - time_of_day
+  - latitude_covariate
   - quality_flag
 additionalProperties: false

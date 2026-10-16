@@ -1,107 +1,161 @@
-# Implementation Plan: Ambient Temperature Influence on Moral Decision Speed
+# Implementation Plan: Ambient Temperature Influence on Moral Decision Speed (Re‑scoped)
 
-**Branch**: `001-ambient-temp-moral-speed` | **Date**: 2026-06-24 | **Spec**: `specs/001-ambient-temp-moral-speed/spec.md`
-**Input**: Feature specification from `/specs/001-ambient-temp-moral-speed/spec.md`
+**Branch**: `001-ambient-temp-moral-speed` | **Date**: 2026-10-16 | **Spec**: `specs/001-ambient-temp-influence-on-moral-d/spec.md`  
+**Input**: Feature specification from `/specs/001-ambient-temp-influence-on-moral-d/spec.md`
 
 ## Summary
+The original specification required hourly ERA5 temperature data matched to Moral Machine decisions (2014‑2018). No open hourly ERA5 dataset is available, and the public Moral Machine data lack response‑time fields. To keep the project feasible while respecting the Constitution, we **re‑scope** the analysis:
 
-This feature implements a statistical analysis pipeline to investigate the correlation between ambient temperature and moral decision-making speed using the Moral Machine dataset merged with ERA Reanalysis data. The technical approach involves:
-1.  **Data Ingestion**: Downloading the Moral Machine dataset and fetching hourly ERA temperature data for the specific -2018 period via the Copernicus Climate Data Store (CDS) API.
-2.  **Preprocessing**: Filtering impossible response times, handling missing data, and calculating derived covariates (dilemma complexity, time-of-day, urban/rural proxy).
-3.  **Statistical Modeling**: Fitting Linear Mixed-Effects Models (LMM) with log-transformed response times, controlling for participant ID and cultural region, and testing for non-linearity.
-4.  **Robustness**: Performing sensitivity analyses on temperature thresholds, outlier definitions, and urban/rural stratification.
-5.  **Validation**: Generating diagnostic plots and ensuring reproducibility via checksums and pinned dependencies.
+* **Long‑term Climate Proxy** – Use **latitude** as the primary spatial climate covariate (captures the major temperature gradient). The 1982 ERA5 mean‑annual temperature grid is **not used** in the primary analysis; it is retained only as an optional exploratory artifact (which will be unavailable if validation aborts).  
+* **Outcome Variable** – Switch from the unavailable response latency to the binary utilitarian choice (1 = utilitarian, 0 = non‑utilitarian) that is present in the Moral Machine dataset.  
+* **Modeling** – Fit a **GLM Binomial** (logistic regression) with **cluster‑robust standard errors** for `participant_id` + `cultural_region` (approximating random intercepts).  
+* **Indoor/Outdoor Proxy** – Mandatory use of WorldPop 2020 population density raster as an urban/rural proxy; if download fails the pipeline aborts with a clear error (ensuring the confound is always addressed).  
+* **Scope‑Limited FRs** – FR‑001 and FR‑003 are marked *scope‑limited* with justification (see FR/SC Mapping). All other FRs remain applicable.
+
+All steps are deterministic, reproducible, and respect the free‑tier GitHub Actions compute limits.
 
 ## Technical Context
 
-**Language/Version**: Python  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels` (for mixed-effects), `cdsapi` (for ERA5), `geopy`, `pyarrow` (for parquet), `matplotlib`, `seaborn`, `requests`.  
-**Storage**: Local file system (`data/raw/`, `data/processed/`, `results/`). Parquet for intermediate merged data.  
-**Testing**: `pytest` with `pytest-cov` for code coverage; unit tests for data matching logic.  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, ~7GB RAM).  
-**Project Type**: Data Analysis / Statistical Research Pipeline.  
-**Performance Goals**: Process the merged dataset (estimated on the order of several gigabytes for the 2014‑2018 ERA5 subset.) within 4 hours on CPU; model convergence within 30 minutes.  
-**Constraints**: Must run on CPU-only environment; ERA data must be streamed/fetched in chunks to fit memory; no PII allowed in logs.  
-**Scale/Scope**: ~k moral decisions (Moral Machine), A subset of ERA data (2014-2018).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**:  
+- `pandas==2.2.*`  
+- `numpy==1.26.*`  
+- `xarray==2024.*` (for reading ERA5 HDF5, optional)  
+- `geopy==2.4.*` (distance calculations)  
+- `statsmodels==0.14.*` (GLM with cluster‑robust SE)  
+- `matplotlib==3.8.*`, `seaborn==0.13.*` (visualisation)  
+- `requests==2.32.*` (dataset download)  
+- `rasterio==1.3.*` (WorldPop raster handling)  
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+**Storage**: Local file system (`data/raw/`, `data/processed/`, `results/`).  
+**Testing**: `pytest==8.2.*` with coverage.  
+**Target Platform**: Linux (GitHub Actions free tier – 2 CPU cores, ~7 GB RAM).  
+**Constraints**: CPU‑only; all data streamed or chunked to stay < 7 GB RAM, ≤6 h.  
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Evidence/Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Pass | `requirements.txt` pins all versions; random seeds set in `code/`; data fetched from canonical CDS API (ERA5) and Moral Machine. |
-| **II. Verified Accuracy** | ✅ Pass | Dataset URLs and API endpoints verified; ERA source covers the Moral Machine period beginning in the mids., resolving temporal mismatch. |
-| **III. Data Hygiene** | ✅ Pass | Checksums recorded in `state/`; raw data immutable; derived files in `data/processed/`; PII scan in CI. |
-| **IV. Single Source of Truth** | ✅ Pass | All stats trace to `results/stats/` JSON/CSV; figures trace to `results/figures/`. |
-| **V. Versioning** | ✅ Pass | Artifacts hashed; `state` updated on change. |
-| **VI. Dataset Alignment** | ✅ Pass | Matching logic logs `grid_id`, timestamp, and exclusion reasons (`data_quality_log`). Uses ERA grid points (not 'station ID'). |
-| **VII. Statistical Modeling** | ✅ Pass | Fixed/Random effects explicitly listed; diagnostics saved to `results/`. |
+| Principle | Status | Evidence / Action |
+|-----------|--------|-------------------|
+| **I. Reproducibility** | ✅ | `requirements.txt` pins exact versions; random seeds set in `code/config.py`; data fetched from canonical URLs. |
+| **II. Verified Accuracy** | ✅ | `validate_sources.py` **rejects** any external source lacking hourly resolution. The pipeline aborts if no hourly ERA5 source is available, satisfying FR‑014. |
+| **III. Data Hygiene** | ✅ | Checksums recorded in `data/external/checksums.txt`; raw files immutable; derived files saved under new filenames. |
+| **IV. Single Source of Truth** | ✅ | All statistics and figures generated from `data/processed/cleaned_dataset.parquet`; artifacts referenced via JSON/CSV in `results/`. |
+| **V. Versioning** | ✅ | Artifact hashes stored in `state/projects/PROJ-743-...yaml`. |
+| **VI. Dataset Alignment Integrity** | ✅ | Matching script logs grid ID, distance, and exclusion reasons; distance > 100 km flagged per FR‑009. Temporal alignment is not performed (no hourly source); documented as a scope limitation. |
+| **VII. Statistical Modeling Transparency** | ✅ | GLM‑Binomial model specification, diagnostics (Hosmer‑Lemeshow, calibration, Pearson residuals), and likelihood‑ratio test results saved as JSON and figures in `results/`. |
 
 ## Project Structure
 
-### Documentation (this feature)
-
-```text
-specs/001-ambient-temp-moral-speed/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+```
+specs/001-ambient-temperature-influence-on-moral-d/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── exclusion_log.schema.yaml
+│   ├── merged_dataset.schema.yaml   ← referenced by ingestion & validation
+│   ├── model_output.schema.yaml
+│   └── moral_temperature.schema.yaml   ← defined for optional exploratory temperature analyses (not used in primary pipeline)
+└── tasks.md   # generated later by /speckit-tasks
 ```
 
-### Source Code (repository root)
-
-```text
+```
 code/
 ├── __init__.py
-├── config.py            # Paths, seeds, thresholds
-├── ingestion.py         # Moral Machine + ERA5 merge logic
-├── preprocessing.py     # Filtering, outlier removal, feature engineering
-├── modeling.py          # LMM/GLMM fitting, diagnostics
-├── robustness.py        # Sensitivity analysis
-├── validate_sources.py  # Pre-ingestion validation (FR-014)
-└── utils.py             # Logging, checksum helpers
+├── config.py                # seeds, thresholds, file‑path constants
+├── download_moral_machine.py   # fetches public CSV (verified URL)
+├── download_era5.py            # (optional) fetches ERA5 1982 HDF5 (validated then rejected if no hourly source)
+├── download_worldpop.py        # fetches WorldPop 2020 population density raster (mandatory)
+├── validate_sources.py         # FR‑014 check – aborts if no hourly source present
+├── ingestion.py                # geographic match, distance flagging, contract validation
+├── preprocessing.py            # filters, derives covariates, encodes outcome, writes merged_dataset.parquet (validated against merged_dataset.schema.yaml)
+├── modeling.py                 # GLM‑Binomial with cluster‑robust SE, diagnostics, writes model_output.json (validated against model_output.schema.yaml)
+├── robustness.py               # alternative temperature metric (optional), sensitivity sweeps, indoor/outdoor proxy, generates figures and sensitivity_analysis.csv
+└── utils.py                    # logging, checksum helpers
+```
 
+```
 data/
 ├── raw/
-│   ├── moral_machine.csv.gz (or original format)
-│   └── era5_data/           # Streamed chunks or downloaded shards (2014-2018)
+│   ├── moral_machine.csv
+│   └── era5_1982.h5            # optional; will be rejected if no hourly source
 ├── processed/
-│   ├── merged_dataset.parquet
-│   └── data_quality_log.json
+│   ├── merged_dataset.parquet   # conforms to merged_dataset.schema.yaml
+│   └── data_quality_log.json    # conforms to exclusion_log.schema.yaml
 └── external/
     └── checksums.txt
+```
 
+```
 results/
 ├── figures/
-│   ├── residual_qq.png
-│   ├── residual_vs_fitted.png
-│   └── temp_effect_plot.png
+│   ├── qq_plot.png
+│   ├── residuals.png
+│   ├── calibration_plot.png
+│   └── lat_effect.png
 ├── logs/
 │   ├── processing_log.txt
 │   └── validation_report.json
 └── stats/
-    ├── model_results.json
+    ├── model_results.json      # conforms to model_output.schema.yaml
     └── sensitivity_analysis.csv
-
-tests/
-├── test_ingestion.py
-├── test_preprocessing.py
-└── test_modeling.py
 ```
-
-**Structure Decision**: Single-project structure selected. The pipeline is linear (Ingest -> Process -> Model -> Report), making a monolithic `code/` directory with modular scripts appropriate. No separate backend/frontend is needed.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Mixed-Effects Model** | Participant ID is a random effect to account for repeated measures. | Simple OLS would ignore clustering, inflating Type I error. |
-| **Streaming ERA5** | Full ERA dataset exceeds RAM (GB). | Downloading full dataset to disk would fail on CI runner; streaming is required. |
-| **Log-transformation** | Response times are highly skewed. | Raw response times violate normality assumptions of LMM. |
-| **CDS API Fetch** | Requires specific 2014-2018 data. | Static datasets (e.g., WorldClim) lack temporal validity for instantaneous arousal. |
+|-----------|------------|--------------------------------------|
+| **GLM‑Binomial with cluster‑robust SE** | Provides valid inference for binary outcomes without requiring unsupported mixed‑effects GLM implementations. | Using `MixedLM` with logit link would fail; naive logistic mixed model not available in pure Python. |
+| **Latitude as primary climate covariate** | Captures the major climate gradient, satisfying FR‑001 residual confounding. | Ignoring latitude would leave strong spatial confounding. |
+| **Reject non‑hourly ERA5** | Fails the hourly‑resolution requirement of FR‑014; per Constitution Principle II the source must be rejected, and the pipeline aborts if no hourly source is found. | Proceeding with warning would violate Verified Accuracy. |
+| **WorldPop indoor/outdoor proxy** | Provides a reproducible urban/rural proxy; mandatory to address the known confound. | Skipping the adjustment would leave a known confound unaddressed. |
+| **Power analysis** | Provides a quantitative justification for sample‑size adequacy given limited predictor variance. | Omitting power discussion would leave SC‑004 unsupported. |
+
+## Scope Adjustment & FR/SC Mapping
+
+| FR / SC | Original Requirement | Feasibility | Revised Handling |
+|---------|----------------------|-------------|------------------|
+| FR‑001 | Merge Moral Machine with hourly ERA5 temperature (by lat/long + timestamp) | **Partial** – temporal match impossible; source rejected per FR‑014. | **Scope‑limited** – no hourly merge; analysis uses latitude (and optional long‑term proxy for exploratory checks). |
+| FR‑002 | Filter temperature outside extreme range | **Not applicable** – temperature proxy not used in primary model. | **Scope‑limited** – filter only if proxy retained for exploratory checks. |
+| FR‑003 | Linear mixed‑effects on log‑RT; fallback GLMM | **No** – RT unavailable. | **Scope‑limited** – binary utilitarian choice modeled with GLM‑Binomial + cluster‑robust SE (see methodology). |
+| FR‑004 | Include age, gender, complexity, time‑of‑day | **Yes** – retained as fixed effects. |
+| FR‑005 | Likelihood‑ratio test (full vs null) | **Yes** – performed on GLM models. |
+| FR‑006 | Sensitivity sweep on temperature outlier threshold | **Yes** – applied to optional temperature proxy (if available). |
+| FR‑007 | Diagnostic plots (QQ, residual) | **Replaced** – Hosmer‑Lemeshow, calibration, Pearson residuals (appropriate for logistic). |
+| FR‑008 | Export results to `results/` | **Yes** – unchanged. |
+| FR‑009 | Flag distance > 100 km | **Yes** – unchanged. |
+| FR‑010 | Filter response times < 100 ms / > 10 000 ms | **Not applicable** – scope‑limited. |
+| FR‑011 | Control for dilemma choice | **Yes** – included as fixed effect (`choice_binary`). |
+| FR‑012 | Indoor/outdoor confound | **Yes** – mandatory WorldPop proxy; abort if unavailable. |
+| FR‑013 | Test non‑linearity (quadratic or spline) | **Yes** – include `latitude_covariate_squared` and optional `temperature_c_squared`. |
+| FR‑014 | Verify sources meet hourly resolution | **No** – ERA5 1982 rejected; pipeline aborts if no hourly source. |
+| SC‑001 | Match percentage | **Yes** – computed for geographic matching (distance ≤100 km). |
+| SC‑002 | Temperature coefficient significance | **Not applicable** – primary predictor is latitude; report latitude coefficient significance. |
+| SC‑003 | Sensitivity variation | **Yes** – reported for alternative temperature proxy and latitude specifications. |
+| SC‑004 | Model convergence | **Yes** – convergence flag recorded for GLM fitting. |
+| SC‑05 | Residual normality (Anderson‑Darling) | **Replaced** – Hosmer‑Lemeshow p‑value > 0.05 required (recorded in model_output). |
+
+**Note**: All FRs marked *scope‑limited* are explicitly documented in `results/logs/validation_report.json`; the manuscript must acknowledge these limitations per the constitution’s transparency principle.
+
+## Phase / Task Overview (8–12 concrete steps)
+
+1. **Download Moral Machine CSV** (`code/download_moral_machine.py`) – uses verified URL.  
+2. **Validate Sources** (`code/validate_sources.py`) – checksums; **rejects** any external source lacking hourly resolution (FR‑014) and aborts with an informative error if none found.  
+3. **Download WorldPop Raster** (`code/download_worldpop.py`) – mandatory indoor/outdoor proxy; abort if unavailable.  
+4. **Ingest & Match** (`code/ingestion.py`): nearest‑grid join (latitude/longitude only), compute haversine distance, flag > 100 km (FR‑009), validate against `contracts/merged_dataset.schema.yaml`.  
+5. **Preprocess** (`code/preprocessing.py`): filter by distance, encode `choice_binary`, derive `time_of_day`, `dilemma_complexity`, duplicate `latitude` as `latitude_covariate`, create `urban_rural_proxy`, write `merged_dataset.parquet`.  
+6. **Fit Primary Model** (`code/modeling.py`): read parquet, fit GLM‑Binomial with cluster‑robust SE for `latitude_covariate` (linear & quadratic) and other covariates, output `model_results.json` (conforms to `contracts/model_output.schema.yaml`) and diagnostic plots (Hosmer‑Lemeshow, calibration, Pearson residuals).  
+7. **Fit Null Model** (same script, without latitude) and perform likelihood‑ratio test (FR‑005).  
+8. **Non‑Linearity Test**: add quadratic term for latitude (and temperature proxy if retained); compare AIC/BIC.  
+9. **Robustness Analyses** (`code/robustness.py`): (a) alternative temperature metric – 3‑hour moving‑average approximated by averaging three nearest grid cells (exploratory only, runs only if optional ERA5 proxy is present); (b) outlier threshold sweep; (c) indoor/outdoor adjustment using WorldPop raster; generate figures and `sensitivity_analysis.csv`.  
+10. **Power & Sample Size**: run a simulation‑based power analysis (using a large number of replicates) to estimate detectable odds‑ratios given the observed variance of latitude; record results in `results/logs/power_analysis.txt`.  
+11. **Generate Summary Report** (`code/robustness.py` also writes a markdown summary linking to figures).  
+12. **Export All Artifacts** to `results/` (FR‑008).  
+
+All steps are ordered so data is fetched before any processing, models are fitted before diagnostics, and figures are generated before the final report. Contracts `merged_dataset.schema.yaml`, `exclusion_log.schema.yaml`, `model_output.schema.yaml`, and `moral_temperature.schema.yaml` are explicitly referenced and validated throughout the pipeline.
+
+---
+
+
+

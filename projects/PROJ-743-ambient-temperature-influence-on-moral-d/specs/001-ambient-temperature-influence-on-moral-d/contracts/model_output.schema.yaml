@@ -5,12 +5,12 @@ type: "object"
 properties:
   model_type:
     type: "string"
-    description: "Type of model fitted (e.g., 'LMM', 'GLMM')."
+    description: "Type of model fitted (e.g., 'GLM_Binomial')."
   fixed_effects:
     type: "object"
     description: "Fixed effect coefficients."
     properties:
-      temperature_c:
+      latitude_covariate:
         type: "object"
         properties:
           estimate:
@@ -25,6 +25,15 @@ properties:
               type: "number"
             minItems: 2
             maxItems: 2
+      latitude_covariate_squared:
+        type: "object"
+        properties:
+          estimate:
+            type: "number"
+          std_error:
+            type: "number"
+          p_value:
+            type: "number"
       dilemma_complexity:
         type: "object"
         properties:
@@ -44,14 +53,12 @@ properties:
           p_value:
             type: "number"
     required:
-      - temperature_c
+      - latitude_covariate
   random_effects:
     type: "object"
-    description: "Random effect variances."
+    description: "Cluster‑robust variance approximations (no true random effects)."
     properties:
-      participant_id:
-        type: "number"
-      cultural_region:
+      participant_region_cluster:
         type: "number"
   diagnostics:
     type: "object"
@@ -59,16 +66,22 @@ properties:
     properties:
       convergence:
         type: "boolean"
-      residual_normality_p:
+      hosmer_lemeshow_p:
         type: "number"
+      calibration_plot_path:
+        type: "string"
       aic:
         type: "number"
       bic:
         type: "number"
+    required:
+      - convergence
+      - hosmer_lemeshow_p
+      - calibration_plot_path
   timestamp:
     type: "string"
     format: "date-time"
-    description: "ISO 8601 timestamp of the run."
+    description: "ISO‑8601 timestamp of the run."
 required:
   - model_type
   - fixed_effects

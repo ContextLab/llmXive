@@ -15,48 +15,63 @@ properties:
   latitude:
     type: "number"
     description: "Latitude of the response location."
+    minimum: -90
+    maximum: 90
   longitude:
     type: "number"
     description: "Longitude of the response location."
+    minimum: -180
+    maximum: 180
   timestamp:
     type: "string"
     format: "date-time"
     description: "Timestamp of the response (ISO 8601)."
-  response_time_ms:
+  choice_binary:
     type: "integer"
-    description: "Response time in milliseconds (filtered: 100ms <= x <= 10000ms)."
-  log_response_time:
-    type: "number"
-    description: "Natural log of response_time_ms."
+    description: "1 = utilitarian, 0 = non‑utilitarian."
+    enum: [0, 1]
   temperature_celsius:
     type: "number"
-    description: "Ambient temperature in Celsius from ERA5."
+    description: "Mean 2 m air temperature (°C) from ERA5 1982 grid."
+    minimum: -40
+    maximum: 50
   temperature_squared:
     type: "number"
-    description: "Square of temperature_celsius for non-linearity testing."
+    description: "Square of temperature_celsius for non‑linearity testing."
   dilemma_complexity:
     type: "number"
     description: "Static complexity score of the dilemma."
+    minimum: 0
   time_of_day:
-    type: "number"
-    description: "Hour of the day (0-23) or encoded time-of-day."
-  choice:
+    type: "integer"
+    description: "Hour of the day (0‑23)."
+    minimum: 0
+    maximum: 23
+  age_group:
     type: "string"
-    description: "The choice made (e.g., save_many, save_few)."
+    description: "Age bracket (optional)."
+  gender:
+    type: "string"
+    description: "Gender (optional)."
   distance_km:
     type: "number"
     description: "Distance in km to the nearest ERA5 grid point."
+    minimum: 0
+    maximum: 100
   exclusion_flag:
     type: "boolean"
-    description: "True if the record was excluded due to distance or time gap."
+    description: "True if the record was excluded due to distance or other quality issue."
 required:
   - response_id
   - participant_id
+  - country
+  - latitude
+  - longitude
+  - timestamp
+  - choice_binary
   - temperature_celsius
-  - response_time_ms
-  - log_response_time
+  - temperature_squared
   - dilemma_complexity
   - time_of_day
-  - choice
   - distance_km
 additionalProperties: false
