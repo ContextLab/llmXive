@@ -1,6 +1,11 @@
 {
-  "validated_n": 47,
-  "effect_size": 0.2,
-  "power": 0.8,
-  "baseline_p0": 0.5
+  "n_required": 197,
+  "parameters": {
+    "baseline_rate": 0.5,
+    "effect_size": 0.2,
+    "p0_source": "Conservative 0.5 assumption",
+    "power_target": 0.8,
+    "significance_level": 0.05
+  },
+  "timestamp": "2026-10-16T02:22:09.401139+00:00"
 }

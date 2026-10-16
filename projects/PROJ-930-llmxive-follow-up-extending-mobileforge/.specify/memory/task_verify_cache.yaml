@@ -1,32 +1,27 @@
 T001:
-  c: false
-  h: 047a0fa690d96aef1bdb4ce9ef27b3cd947fb1baee33308219751a2be5031f0a
-  r: "The evidence shows the top\u2011level `code/` and `state/` directories exist,\
-    \ but it does not list the required sub\u2011directories `code/data/raw`, `code/data/processed`,\
-    \ `code/data/evaluation`, `code/tests/unit`, and `code/tests/integration`. Without\
-    \ concrete artifacts confirming those paths, the task\u2019s directory\u2011tree\
-    \ requirement is not satisfied. The implementer must create and commit these missing\
-    \ folders (even if empty) so they appear in the repository tree."
-  sig: 1ae5edf6d38e08f8b76a2cae9671ff8797e950af609f1f2ea5200741873a055b
+  c: true
+  h: 668c7ea66932e886e3d74c78511ef63efc502b7df8b42babbc5280545cdb9e5d
+  r: "Checked the `setup_dirs.py` log confirming creation of all required sub\u2011\
+    directories under `code/` (data/raw, data/processed, data/evaluation, models,\
+    \ utils, tests/unit, tests/integration) and the existence of the `state/` directory,\
+    \ plus the passing unit tests that verify these paths."
+  sig: 0923abc034e0fe26b98183d2e84a9c296c18fa8c64bed650dc3a4197ed4d475e
 T002:
   c: false
-  h: 81fb092149f10dd03b8cab0d1cfbb1849682c68431002fc322e622a62a3b7067
+  h: 179322f32010edad9fb1156132ba79e5e3b81f1b550f6000a82761f2866db933
   r: The evidence only shows a `requirements.txt` at the project root with the correct
-    pinned lines; the task requires the file to be under `code/`, but the contents
-    of `code/requirements.txt` are not provided. Additionally, there is no evidence
-    that `pip install -r requirements.txt` succeeded in the CI environment. The implementer
-    must supply the `code/requirements.txt` file with the exact listed versions and
-    proof (e.g., CI log) that the install command runs without errors.
-  sig: 7c71856fdd16b7da303a92febe48b0dce8e3f1836664d3d95431c297bf204fa1
+    pinned versions; the required file under `code/requirements.txt` is listed but
+    its contents are not provided, and no CI install logs are shown. Without confirming
+    the `code/` version contains the exact package list (including the `torch` line)
+    and that it successfully installs, the task is not fully satisfied.
+  sig: 1e91f3cfbb5956c340a3cf5dd067411a026cb64a9d9304c215c429170b4c9dff
 T003:
-  c: false
-  h: 459d66dd2939a5a94fbd061ff95e3ad115b938212f93e7b6031864df85835b73
-  r: "Checked `pyproject.toml` \u2013 it exists and has a `[tool.black]` section with\
-    \ `line-length = 88`. Checked `.ruff.toml` \u2013 it exists but does **not** contain\
-    \ a `[tool.ruff]` section; instead it uses a `[lint]` section, so the required\
-    \ `select = [\"E\", \"F\", \"W\"]` under `[tool.ruff]` is missing. The task therefore\
-    \ is not fully satisfied."
-  sig: e6846857907e1895409b6dcf59c41950c0af4f5920400804457e6f0cfc4fcaa1
+  c: true
+  h: fd13fa4a44ecc58aa6780c9371db63490ebf7b789ac2fb259caae79f0117a16b
+  r: Checked `pyproject.toml` (contains a `[tool.black]` section with `line-length
+    = 88`) and `.ruff.toml` (contains a `[tool.ruff]` section with `select = ["E",
+    "F", "W"]`) at the repository root; both files exist and match the specified contents.
+  sig: 428624dec6c7d56c3db651f6a24551e819be046a634120553309ac7e0d10d08b
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

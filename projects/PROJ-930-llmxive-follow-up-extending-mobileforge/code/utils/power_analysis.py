@@ -18,7 +18,7 @@ JSON schema at ``contracts/power_analysis.schema.yaml``.
 """
 
 import json
-import os
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -80,7 +80,7 @@ def calculate_required_n(
         raise ValueError("baseline_p0 must be 0.5 (conservative assumption).")
 
     # Use statsmodels to solve for required observations.
-    # GofChisquarePower expects Cohen's w (same as Cohen's h for two‑proportion
+    # GofChisquarePower expects Cohen's w (identical to Cohen's h for two‑proportion
     # tests), so we can pass the effect_size directly.
     power_analysis = GofChisquarePower()
     n_required = power_analysis.solve_power(
@@ -88,7 +88,6 @@ def calculate_required_n(
         nobs=None,
         alpha=alpha,
         power=power,
-        alternative="larger",
     )
     # ``solve_power`` may return a float; round up to guarantee the desired power.
     n_required_int = int(math.ceil(n_required))

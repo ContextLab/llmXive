@@ -6,7 +6,7 @@
 
 ## Phase 1 – Project bootstrap (infrastructure only)
 
-- [ ] T001 [P] Create the full directory tree required for the study.  
+- [X] T001 [P] Create the full directory tree required for the study.  
   *Creates* `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/{data/raw,data/processed,data/evaluation,models,utils,tests/unit,tests/integration}` and `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/state/`.  
   **Verification** – after running the task, `tree` (or equivalent) shows all listed directories; CI checks that each path exists.
 
@@ -26,7 +26,7 @@
   ```  
   **Verification** – file is non‑empty, contains the `torch` line, and passes `pip install -r requirements.txt` in the CI environment.
 
-- [ ] T003 [P] Configure linting and formatting tools.  
+- [X] T003 [P] Configure linting and formatting tools.  
   *Creates* `pyproject.toml` (project‑wide Black configuration) and `.ruff.toml` (Ruff rules) in the repository root.  
   **Verification** – both files exist and contain a `[tool.black]` section with `line-length = 88` and a `[tool.ruff]` section with `select = ["E", "F", "W"]`.
 
@@ -51,7 +51,7 @@
   **Path**: `code/utils/metrics.py`  
   **Verification** – both classes importable and methods return values in the documented ranges (0‑1 for success rate, ≥0 for efficiency).
 
-- [ ] T007 [P] Implement `utils/power_analysis.py` that performs the a‑priori McNemar power calculation (target Power = 0.8, effect size h = 0.2, α = 0.05, baseline p₀ = 0.5).   <!-- FAILED-IN-EXECUTION: code/utils/power_analysis.py exit=1 -->
+- [ ] T007 [P] Implement `utils/power_analysis.py` that performs the a‑priori McNemar power calculation (target Power = 0.8, effect size h = 0.2, α = 0.05, baseline p₀ = 0.5).
   - Uses `statsmodels.stats.power.GofChisquarePower`.  
   - Writes the result to `state/validated_n.json` matching `contracts/power_analysis.schema.yaml`.  
   - Exits with a clear error if any data‑extraction artifact already exists (enforces the “before extraction” rule).  

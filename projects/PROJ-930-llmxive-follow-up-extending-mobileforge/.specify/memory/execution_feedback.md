@@ -2,7 +2,7 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 run-book script(s) missing (plan/impl path mismatch): python code/utils/check_data.py   # checks downloads & checksums; python code/pipeline/extract.py; python code/pipeline/train.py --pilot; 3 command(s) failed: python -c "import pathlib, sys; missing = [p for p in ['requirements.txt','pyproject.toml','.ruff.toml'] if not pathlib.Path(p).exists()]; (rc=-1); python code/utils/power_analysis.py   # writes state/validated_n.json (rc=1); python -m pytest tests/   # runs unit, integration, and contract tests (rc=4)
+**Summary**: 7 run-book script(s) missing (plan/impl path mismatch): python code/utils/check_data.py   # checks downloads & checksums; python code/pipeline/extract.py; python code/pipeline/train.py --pilot; 2 command(s) failed: python -c "import pathlib, sys; missing = [p for p in ['requirements.txt','pyproject.toml','.ruff.toml'] if not pathlib.Path(p).exists()]; (rc=-1); python -m pytest tests/   # runs unit, integration, and contract tests (rc=4)
 
 ## Failing / missing run-book commands
 
@@ -11,21 +11,6 @@ unparseable command (shlex)
 - python code/utils/check_data.py   # checks downloads & checksums -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-930-llmxive-follow-up-extending-mobileforge/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/utils/check_data.py': [Errno 2] No such file or directory
-
-- python code/utils/power_analysis.py   # writes state/validated_n.json -> rc=1
-Running a‑priori power analysis for MobileForge Logic Distillation...
-Error during power analysis: GofChisquarePower.solve_power() got an unexpected keyword argument 'alternative'
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/utils/power_analysis.py", line 184, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/utils/power_analysis.py", line 160, in main
-    result = calculate_required_n(
-             ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/utils/power_analysis.py", line 86, in calculate_required_n
-    n_required = power_analysis.solve_power(
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: GofChisquarePower.solve_power() got an unexpected keyword argument 'alternative'
 
 - python code/pipeline/extract.py -> rc=2
 
@@ -57,7 +42,7 @@ platform linux -- Python 3.11.17, pytest-8.2.2, pluggy-1.7.0 -- /home/runner/wor
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-930-llmxive-follow-up-extending-mobileforge
 configfile: pyproject.toml
-plugins: platformdirs-4.13.0, cov-4.1.0
+plugins: platformdirs-4.13.3
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================
