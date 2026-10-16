@@ -33,8 +33,9 @@ Identify the library‑size “tipping point” where retrieval noise degrades t
 
 #### Selecting the Final Tipping Point (SC‑004)
 
-* The **primary** tipping point is the breakpoint `x₀` obtained from the PLR fitted on the **baseline configuration**: **High overlap**, **pruning disabled**, using the four library sizes (10, 30, 50, 100).  
-* Sensitivity sweeps generate alternative `x₀` estimates; they are reported in a supplemental appendix but are **not** used to satisfy SC‑004. This rule eliminates ambiguity identified in the unresolved T035 concern.
+* The **primary** tipping point is the breakpoint `x₀` obtained from the PLR **fit on the baseline configuration**: **High overlap**, **pruning disabled**, using the four library sizes (10, 30, 50, 100).  
+* All sensitivity sweeps (different overlap levels, pruning thresholds, finer library‑size granularity) generate **supplemental** breakpoint estimates that are reported in an appendix but **are not** used to satisfy SC‑004.  
+* The final reported tipping point in the paper will be the `breakpoint_estimate` field from `analysis_report.json` for the baseline configuration only. This rule eliminates ambiguity identified in the unresolved T035 concern.
 
 ### 4. Multiple‑Comparison & Power
 
