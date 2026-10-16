@@ -1,5 +1,5 @@
 status: none
-intent: Lichess games dataset with move times and ratings downloadable from HuggingFace
+intent: lichess games dataset Lichess Games Database HuggingFace Lichess Open Database
   python package dataset
 required_fields:
 - game_id
@@ -10,7 +10,8 @@ required_fields:
 - avg_move_time
 - material_imbalance_move10
 - elo_expected_prob
+- outcome
 - outcome_deviation
-cache_key: 6972ce2572682e3d5ee9b0218dd59f648056d93f2997a0757793f3e42fb34f29
-searched_at: '2026-08-11T20:20:59.645795+00:00'
+cache_key: ddbc7619276f21b272064666fcc6932bb3df46f2adde5e7d1264aa29b08d78bd
+searched_at: '2026-10-16T23:20:40.288109+00:00'
 retry_count: 1
