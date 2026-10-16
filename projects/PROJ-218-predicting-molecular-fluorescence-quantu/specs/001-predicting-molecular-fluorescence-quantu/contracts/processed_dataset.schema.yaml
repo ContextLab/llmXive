@@ -15,15 +15,15 @@ properties:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Experimental fluorescence quantum yield (as reported)."
+    description: "Experimental fluorescence quantum yield as reported (dimensionless)."
   fqy_norm:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Min‑max scaled FQY value (training‑set scaling, epsilon‑clipped)."
+    description: "Clipped FQY value (values of exactly 0 or 1 are clipped to [1e-6, 1‑1e-6]); no additional scaling is applied."
   scaffold_id:
     type: string
-    description: "Murcko scaffold identifier used for splitting."
+    description: "Murcko scaffold identifier used for scaffold‑based splitting."
   split:
     type: string
     enum: [train, validation, test]

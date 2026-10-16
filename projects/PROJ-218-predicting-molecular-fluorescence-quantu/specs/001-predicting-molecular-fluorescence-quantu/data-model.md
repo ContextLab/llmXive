@@ -3,7 +3,7 @@
 ## Overview
 All intermediate and final artifacts are described by explicit schemas. The schemas are validated by the contract tests in `tests/contract/`.
 
-## 1️⃣ Processed Dataset Schema (`contracts/processed_dataset.schema.yaml`)
+## Processed Dataset Schema (`contracts/processed_dataset.schema.yaml`)
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Processed Molecular Fluorescence Dataset"
@@ -22,15 +22,15 @@ properties:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Experimental fluorescence quantum yield (as reported)."
+    description: "Experimental fluorescence quantum yield as reported (dimensionless)."
   fqy_norm:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Min‑max scaled FQY value (training‑set scaling, epsilon‑clipped)."
+    description: "Clipped FQY value (values of exactly 0 or 1 are clipped to [1e-6, 1‑1e-6]); no additional scaling is applied."
   scaffold_id:
     type: string
-    description: "Murcko scaffold identifier used for splitting."
+    description: "Murcko scaffold identifier used for scaffold‑based splitting."
   split:
     type: string
     enum: [train, validation, test]
@@ -43,5 +43,7 @@ properties:
 
 *Only this schema is currently present in the `contracts/` directory, matching the plan’s contract references.*
 
+
 ---
+
 

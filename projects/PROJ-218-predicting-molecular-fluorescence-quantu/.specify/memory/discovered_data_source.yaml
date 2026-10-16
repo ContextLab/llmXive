@@ -1,9 +1,10 @@
 status: none
-intent: '### User Story 1 - Data Curation and Preprocessing Pipeline (Priority: P1)
-  The researcher needs to ingest a public dataset of molecular structures (SMILES)
-  and experimental fluorescence quantum yield (FQY) values, parse them into graph
-  representations using RDKit, and split them into training, valid'
-required_fields: []
-cache_key: fd9bde723befb4e962de6531bba112973e3b922b244ef0f14f78ad0a3ff3a9ec
-searched_at: '2026-10-16T07:26:08.971033+00:00'
+intent: download fluorescence quantum yield SMILES dataset with experimental FQY values
+  python package dataset
+required_fields:
+- SMILES
+- InChIKey
+- FluorescenceQuantumYield
+cache_key: 2df32fc3029f561c6b93aaa9708b66da606ede1ddbcfc4923ab6d115b77f01e3
+searched_at: '2026-10-16T14:15:16.932234+00:00'
 retry_count: 1
