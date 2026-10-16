@@ -1,6 +1,10 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/data/download_smiles.py
-    exit=1; src/data/download_fqy.py exit=1'
+  reason: "The `data/raw/` files, `checksums.txt`, `code/config/seeds.yaml`, and `results/seeds.json`\
+    \ all exist and the download logs show matching SHA\u2011256 hashes and successful\
+    \ exits. However, there is no evidence that a seed\u2011configuration module is\
+    \ imported and that it asserts equality with `results/seeds.json` before any stochastic\
+    \ operation (e.g., a shuffle or split), as required by the task. This import/assertion\
+    \ step is missing."
   task: 13ada98a6cebfe822f1710008b727f7dc49122c398970ba35de0d3fb1b4a5c83
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/preprocessing/join.py

@@ -1,0 +1,10 @@
+T001:
+  c: false
+  h: 34b7f24d8821219288495463e24ad591aa39961c2b8d4e55958e5927c7f9f182
+  r: "The `data/raw/` files, `checksums.txt`, `code/config/seeds.yaml`, and `results/seeds.json`\
+    \ all exist and the download logs show matching SHA\u2011256 hashes and successful\
+    \ exits. However, there is no evidence that a seed\u2011configuration module is\
+    \ imported and that it asserts equality with `results/seeds.json` before any stochastic\
+    \ operation (e.g., a shuffle or split), as required by the task. This import/assertion\
+    \ step is missing."
+  sig: 552735475fd185d13d4c6f748ac2a89e37f54004e5a30e4b5c612394a48b56a1
