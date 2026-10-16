@@ -1,0 +1,9 @@
+T000:
+  c: false
+  h: d4092edaf50b8b7e90891d7ff78090c31e9ef8a297198633335bb21a8b1557fc
+  r: "The `src/utils/seed.py` and `src/__init__.py` files exist, but the provided\
+    \ test log shows that importing the package does **not** set the NumPy seed to\
+    \ the default (the test `test_package_import_sets_seed` fails). No execution evidence\
+    \ is given that running the prescribed command twice yields identical outputs.\
+    \ The deterministic\u2011seed requirement is therefore not satisfied."
+  sig: 34a32adf66958cf066a887a843d6cdddde2a8775f956e9a3e8b93faa878169e9

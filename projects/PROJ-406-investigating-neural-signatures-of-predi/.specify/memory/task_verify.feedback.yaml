@@ -1,0 +1,41 @@
+T000:
+  reason: "The `src/utils/seed.py` and `src/__init__.py` files exist, but the provided\
+    \ test log shows that importing the package does **not** set the NumPy seed to\
+    \ the default (the test `test_package_import_sets_seed` fails). No execution evidence\
+    \ is given that running the prescribed command twice yields identical outputs.\
+    \ The deterministic\u2011seed requirement is therefore not satisfied."
+  task: 98155e0f17034e2ee207938f8627a6abd4845259e46de1b79d3a90506384ad64
+T001:
+  reason: 'Requested task execution failed; rerun successfully: src/ingest/load_illusions.py
+    exit=1'
+  task: 4cebb621eff803f0582bf75697adce26293a6eaf40d48fd0834413f0e8a7a2a7
+T002:
+  task: 8a6b0d52354846616a7fa72af3f47af0198450b8ce53a8f10e1ec61c21607f4d
+T003:
+  task: 33417dd127d3203983de3e133113f5e4953c1026bd0438e92786d2c9e52f0f26
+T004:
+  task: 745db9b083d66488f285d3603cb56813194444bdf533c671e5eb1b64f97f4a6e
+T005:
+  task: 12391092415ab9cc369f97c842f95a933870740cb70f8853a3c03cb45ca64017
+T006:
+  task: f42e6418c93479a596aa1d3b92bbe04228f327e57cf15705c303ba45812c4139
+T007:
+  task: bd7b7c5e3bd36a6945471da2f5dba2607077993b091c735c0106a528105864d0
+T008:
+  task: aea75e7968fc58f4fb5624f964f93a36f7fec992bdee89a279b66a83bbf8376b
+T009:
+  task: f3204ad221adbbd0656b97aa949412b856f5850bace0f34f5bc8dfceedb5afc5
+T010:
+  task: cd8046ff1f0157e6ed84e4e5476aa79433d9edd1e092da16302ea58a995f4e63
+T011:
+  task: c30fd7c544f4cb9d7c642f67e1e49241aef8ab0afcde59440f310d3d256c4e08
+T012:
+  task: 7398f4ffae63c9128c2d15011e0b85d987026c0c34039a6ee8322efea018fb83
+T013:
+  task: 39f0d44409c6ef163dcd6f98b896dcbb35707711d2102da9541acae6699392f0
+T014:
+  task: c954208ba1d32c347337b12109bb6aba9b89769925b4b411ffb9b38be1a12322
+T015:
+  task: fa59d16179d56954861a6c562956de719d768d951603a5f6e5354eaf5ca4c8fd
+T016:
+  task: 20d7687364d92de412ad7a4110a87bc9ad474c1aa959c28bcab222a4797d48a5

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T18:44:51.317890Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-406-investigating-neural-signatures-of-predi
-last_run_id: 6536d948-060e-4ded-9123-b7bec588896e
+last_run_id: e41e6162-50b4-449d-ac11-63343463ba65
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-406-investigating-neural-signatures-of-predi/specs/001-investigating-neural-signatures-of-predi
 title: Investigating Neural Signatures of Predictive Processing in Visual Illusions
-updated_at: '2026-10-16T18:42:31.575101Z'
+updated_at: '2026-10-16T18:44:43.927381Z'

@@ -1,0 +1,4 @@
+# Project dependencies
+# Core scientific stack (already available in the runner) is not re‑listed.
+# Additional third‑party packages required for this feature:
+datasets
