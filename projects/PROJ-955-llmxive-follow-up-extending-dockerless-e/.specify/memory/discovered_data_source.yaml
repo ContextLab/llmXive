@@ -1,13 +1,16 @@
 status: none
-intent: download SWE-Gym Multi-SWE-RL OpenMathLib static code patches python package
-  dataset
+intent: download SWE-Gym and Multi-SWE-RL dataset python package dataset
 required_fields:
-- patch_id
 - issue_id
-- language
-- source_code
-- test_logs
+- patch_id
+- repository_name
 - file_path
-cache_key: b91eb1e082f686a9cc4c72804edcfe34a64ed755516ee2ddb1ff0749b4d700c6
-searched_at: '2026-10-16T05:08:58.735231+00:00'
+- original_code
+- patched_code
+- language
+- test_log
+- test_outcome
+- timestamp
+cache_key: 44a24e6711ad4a0af521b8c89ff68230b00674896e329442298df7def6637b81
+searched_at: '2026-10-16T11:14:10.882697+00:00'
 retry_count: 1

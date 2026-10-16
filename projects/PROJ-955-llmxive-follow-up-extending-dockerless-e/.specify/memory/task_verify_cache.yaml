@@ -1,3 +1,13 @@
+T001:
+  c: false
+  h: 398d9d7710d63d23c6a86097306aee5e9c9b7b15df9ce6c7fd826f0f430d0a1e
+  r: "The dry-run command works (exit 0, prints the sample path) and `data/results/sample_run.csv`\
+    \ exists with 4 rows, but two of the seven required directories \u2014 `interim/`\
+    \ and `features/` \u2014 are absent from the collected artifacts (only `data/`,\
+    \ `models/`, `reports/`, `src/pipeline/`, `src/cli/` were found). Additionally,\
+    \ `quickstart.md` documents several commands rather than the single dry-run command\
+    \ the verification specifies, though the dry-run itself is present and correct."
+  sig: af40c1c59d8940322e927b95863d617bf5ba9b5c4b0bb0a0d74c84bd9a4c55bc
 T014:
   c: false
   h: 4d193e24463c6e6a182ad1dcecd4c1728af82f8191082f43bda27274e4e7f85a

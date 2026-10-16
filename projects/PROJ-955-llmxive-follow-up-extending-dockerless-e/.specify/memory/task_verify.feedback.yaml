@@ -1,6 +1,10 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/cli/run_pipeline.py
-    exit=1'
+  reason: "The dry-run command works (exit 0, prints the sample path) and `data/results/sample_run.csv`\
+    \ exists with 4 rows, but two of the seven required directories \u2014 `interim/`\
+    \ and `features/` \u2014 are absent from the collected artifacts (only `data/`,\
+    \ `models/`, `reports/`, `src/pipeline/`, `src/cli/` were found). Additionally,\
+    \ `quickstart.md` documents several commands rather than the single dry-run command\
+    \ the verification specifies, though the dry-run itself is present and correct."
   task: 112b0d39af56b1edd93d7e2ab84f6113566ec7f40ef05fe1a69c03739569b847
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/pipeline/ingest.py

@@ -7,46 +7,42 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/cli/run_pipeline.py  --swe_gym_url https://huggingface.co/datasets/OpenHands/SWE-Gym-code-search/resolve/main/data/train-00000-of-00001.parquet  --multi_swe_rl_url https://huggingface.co/datasets/ByteDance-Seed/Multi-SWE-RL/resolve/main/data_20240601_20250331/c/OpenMathLib__OpenBLAS_dataset.jsonl  --output_dir $(pwd)/output  --seed 42 -> rc=1
-ngest: Reading SWE‑Gym parquet: /home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/data/raw_swe_gym.parquet
+ow-up-extending-dockerless-e/data/raw_swe_gym.parquet
+2026-10-16 11:13:25,206 ERROR src.pipeline.ingest: Columns found: ['instance_id', 'file_changes', 'repo', 'base_commit', 'problem_statement', 'patch']
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/cli/run_pipeline.py", line 145, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/cli/run_pipeline.py", line 141, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/cli/run_pipeline.py", line 138, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/cli/run_pipeline.py", line 134, in main
     ingest(args.swe_gym_url, args.multi_swe_rl_url)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/pipeline/ingest.py", line 340, in ingest
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/pipeline/ingest.py", line 222, in ingest
     swe_patches, swe_logs = _process_swe_gym(raw_swe_gym_path)
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/pipeline/ingest.py", line 210, in _process_swe_gym
-    raise RuntimeError(f"SWE‑Gym parquet missing columns (or equivalents): {missing}")
-RuntimeError: SWE‑Gym parquet missing columns (or equivalents): {'language', 'label', 'source_code', 'patch_id'}
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-955-llmxive-follow-up-extending-dockerless-e/src/pipeline/ingest.py", line 144, in _process_swe_gym
+    raise RuntimeError(f"SWE‑Gym parquet missing critical columns: {missing}")
+RuntimeError: SWE‑Gym parquet missing critical columns: ['label']
 
 - python -m pytest -q tests/contract -> rc=1
-_id", "id", "patchid"])
-        lang_col = _select_column(df, ["language", "lang"])
-        src_col = _select_column(df, ["source_code", "code", "patched_code", "original_code", "code_before", "code_after"])
-        label_col = _select_column(df, ["exec_result", "test_result", "result", "label"])
+nstance_id", "patch_id", "id", "patchid"])
+        lang_col = _select_column(df, ["language", "lang", "programming_language"])
+        src_col = _select_column(df, ["patch", "source_code", "code", "patched_code", "original_code"])
+        label_col = _select_column(df, ["test_results", "exec_result", "test_result", "result", "label"])
     
-        missing = set()
-        if not pid_col:
-            missing.add("patch_id")
-        if not lang_col:
-            missing.add("language")
-        if not src_col:
-            missing.add("source_code")
-        if not label_col:
-            missing.add("label")
-    
-        if missing:
->           raise RuntimeError(f"SWE‑Gym parquet missing columns (or equivalents): {missing}")
-E           RuntimeError: SWE‑Gym parquet missing columns (or equivalents): {'label', 'source_code', 'language', 'patch_id'}
+        if not pid_col or not src_col or not label_col:
+            log.error(f"Columns found: {list(df.columns)}")
+            missing = []
+            if not pid_col: missing.append("patch_id")
+            if not src_col: missing.append("source_code")
+            if not label_col: missing.append("label")
+>           raise RuntimeError(f"SWE‑Gym parquet missing critical columns: {missing}")
+E           RuntimeError: SWE‑Gym parquet missing critical columns: ['label']
 
-src/pipeline/ingest.py:210: RuntimeError
+src/pipeline/ingest.py:144: RuntimeError
 =========================== short test summary info ============================
 ERROR tests/contract/test_contracts.py::test_raw_files_exist - RuntimeError: ...
 ERROR tests/contract/test_contracts.py::test_patches_csv_structure - RuntimeE...
 ERROR tests/contract/test_contracts.py::test_execution_logs_exist - RuntimeEr...
-3 errors in 0.43s
+3 errors in 0.52s
 
 
 - python src/cli/run_pipeline.py  ...  --sample_fraction 0.1   # 10 % stratified sample, seed fixed -> rc=1
@@ -72,8 +68,8 @@ options:
                         Fraction of the dataset to sample (0‑1). Ignored in
                         this version.
 
-2026-10-16 05:08:38,785 INFO __main__: Random seed set to 42
-2026-10-16 05:08:38,789 ERROR __main__: Dataset URLs must be provided for full pipeline execution.
+2026-10-16 11:13:26,523 INFO __main__: Random seed set to 42
+2026-10-16 11:13:26,528 ERROR __main__: Dataset URLs must be provided for full pipeline execution.
 
 
 ## Declared deliverables still missing

@@ -98,18 +98,14 @@ def main(argv: list[str] | None = None) -> int:
         default=SEED,
         help="Random seed for reproducibility.",
     )
-    # New argument to keep CLI compatible with quickstart examples that
-    # include a sampling flag. The argument is accepted but not used by
-    # the current implementation; future tasks may honour it.
     parser.add_argument(
         "--sample_fraction",
         type=float,
         default=None,
         help="Fraction of the dataset to sample (0‑1). Ignored in this version.",
     )
-    # Use ``parse_known_args`` so that stray tokens (e.g. comments) do not
-    # cause a hard failure. This keeps the CLI compatible with the
-    # quickstart documentation that includes inline comments.
+    
+    # Use parse_known_args to avoid failures from inline comments in shell scripts
     args, _ = parser.parse_known_args(argv)
 
     # Apply seed (also honors an overridden value)

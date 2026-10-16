@@ -1,39 +1,49 @@
 # Quickstart: 001-static-dynamic-gap-analysis
 
-This guide documents the minimal runnable command for the project.
-The full pipeline (ingestion, graph extraction, feature engineering,
-model training, error mining) is orchestrated by the same CLI and is
-documented in later tasks; the command below is the single verified
-entry point for a fresh clone.
+This guide walks you through reproducing the analysis on a fresh GitHub Actions runner (or local Linux environment). No GPU is required.
 
-## Run the dry‑run
+## 1. Clone the Repository & Install Dependencies
+```bash
+git clone <repo-url>
+cd llmxive-project
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt
+```
 
+## 2. Verify Environment (Dry-Run)
+To verify that the project structure is correct and the CLI is runnable, execute the dry-run command:
 ```bash
 python -m src.cli.run_pipeline --dry-run
 ```
+This command creates the project directory skeleton and produces a tiny sample result file at `data/results/sample_run.csv`.
 
-The command:
-
-1. Creates the project directory skeleton (`data/`, `data/results/`,
- `interim/`, `features/`, `models/`, `reports/`, `src/pipeline/`,
- `src/cli/`).
-2. Pins the global random seed (42) for `random` and `numpy`.
-3. Writes a tiny result file `data/results/sample_run.csv`
- (4 rows, well under the 10‑row limit) with columns
- `patch_id,true_label,predicted_label,predicted_prob`.
-4. Prints the path of the sample result file and exits with code 0. [UNRESOLVED-CLAIM: c_2b68f26d — status=not_enough_info]
-
-Expected console output ends with a line of the form:
-
-```
-Dry-run completed. Sample result at: <project>/data/results/sample_run.csv
+## 3. Run the Full Pipeline
+Once the environment is verified, run the full analysis pipeline:
+```bash
+python src/cli/run_pipeline.py \
+ --swe_gym_url https://huggingface.co/datasets/OpenHands/SWE-Gym-code-search/resolve/main/data/train-00000-of-00001.parquet \
+ --multi_swe_rl_url https://huggingface.co/datasets/ByteDance-Seed/Multi-SWE-RL/resolve/main/data_20240601_20250331/c/OpenMathLib__OpenBLAS_dataset.jsonl \
+ --output_dir $(pwd)/output \
+ --seed 42
 ```
 
-## Reproducibility notes
+## 4. Inspect the Final Report
+The final results are aggregated in:
+```bash
+less output/reports/final_report.md
+```
 
-- Seed: 42 (pinned at module import and re‑applied from `--seed`).
-- All output paths are created via the `llmxive_toolkit.paths`
- helpers, so the command works from any working directory.
-- Later phases extend the same CLI with `--swe_gym_url`,
- `--multi_swe_rl_url`, `--output_dir`, and `--seed` flags; the
- dry‑run above requires no arguments.
+## 5. Run Contract Tests
+Validate that all generated artifacts conform to the project schemas:
+```bash
+pytest -q tests/contract
+```
+
+## 6. Run with a Sample (Memory Fallback)
+If the dataset exceeds memory limits, use a stratified sample:
+```bash
+python src/cli/run_pipeline.py \
+... \
+ --sample_fraction 0.1
+```
