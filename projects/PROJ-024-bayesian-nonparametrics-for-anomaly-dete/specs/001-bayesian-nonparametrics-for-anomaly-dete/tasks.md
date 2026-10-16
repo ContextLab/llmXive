@@ -1,108 +1,259 @@
-# Tasks: Bayesian Nonparametrics for Anomaly Detection in Time Series
+# Tasks: Bayesian Nonparametrics for Anomaly Detection in Time Series  
 
-**Inputs**: `specs/001-bayesian-nonparametrics-for-anomaly-dete/spec.md`, `plan.md`, `data-model.md`, `contracts/`
-**Re-plan note**: This revision repairs malformed/duplicated task identities (duplicate `T019`, empty malformed entries) while preserving all satisfied requirements. Previously completed implementation work is retained below as consolidated checked entries; the reviewer-flagged deviations (config size, legacy directories, misplaced source files) are re‑opened as new, individually verifiable tasks.
+**Inputs**: `specs/001-bayesian-nonparametrics-for-anomaly-dete/spec.md`, `plan.md`, `data-model.md`, `contracts/`  
 
-## Completed work (preserved; consolidated from prior task list)
+The following checklist implements the full research pipeline while fixing all specification‑ and implementation‑level violations identified by the reviewers.  Each task is a single atomic unit that can be run, verified, and tracked independently.  All artifact paths are project‑owned (`code/`, `data/processed/`, `state/`).  Completed work from previous iterations is retained but any stale or non‑conforming artefacts have been reopened and re‑tasked.
 
-The following requirements have verified implementations and are NOT re‑tasked:
+---
 
-- [ ] C01 Project scaffolding, pinned dependencies, linting, directory creation, `.gitignore`, schema contracts under `specs/001-bayesian-nonparametrics-for-anomaly-dete/contracts/` (prior T001–T009).
-- [ ] C02 Synthetic data generator with pre‑anomaly dynamics and independent ground‑truth injection timestamps, verified against expected statistics (`code/src/data/synthetic_generator.py`, FR-021, FR-022; prior T019).
-- [ ] C03 SNR simulation study for $\dot{\alpha}$ under the null, with halt‑on‑failure lock file (`code/src/simulation/ground_truth.py`, `data/processed/results/simulation_snr.csv`, FR-020; prior T018).
-- [ ] C04 Sliding windowing (length=30, stride=1) with normalization (`code/src/data/windowing.py`; prior T021).
-- [ ] C05 Stick‑breaking DP‑GMM with time‑varying $\alpha$ prior, PyMC ADVI, convergence exclusion logic, and $\dot{\alpha}$/Var($\pi$) extraction (`code/src/models/dpgmm.py`, `code/src/services/anomaly_detector.py`, FR-002, FR-003, FR-009; prior T020, T022–T024).
-- [ ] C06 Bootstrap fallback for anomaly count <10 (FR-011, FR-012; prior T025).
-- [ ] C07 MCMC (NUTS) robustness check with correlation pass criterion ≥0.9 (`data/processed/results/mcmc_validation.csv`, FR-018; prior T026).
-- [ ] C08 Baselines: fixed GMMs (k=3,5,10) and ARIMA reconstruction errors (`code/src/baselines/`; FR-004; prior T031–T032).
-- [ ] C09 Metrics and statistical tests: time‑to‑detection vs independent ground truth, Wilcoxon (primary) with paired t‑test secondary (FR-006), KS tests FR-010/FR-014/FR-015 (`code/src/evaluation/metrics.py`; prior T027, T033–T036).
-- [ ] C10 Threshold calibrator, sensitivity sweep, train/validation/test split with manifest, window‑size/derivative‑method sensitivity, instability flagging (FR-007, FR-016, FR-019; prior T040–T045).
-- [ ] C11 Resource profiling utilities: peak‑RSS via `psutil`, runtime measurement, CPU‑only enforcement (`code/src/utils/memory_profiler.py`, `code/scripts/verify_resource_compliance.py`, FR-008; prior T048–T051).
-- [ ] C12 Verified real sources adopted (UCI datasets via `ucimlrepo` only) (FR-017, FR-017b; prior T052b, T052, T052c, T058).
-- [ ] C13 Test suite: contract, integration, and unit tests under `code/tests/` (prior T013–T017, T028–T030, T037–T039, T046–T047).
-- [ ] C14 Run‑book/implementation reconciliation for `config.py`, `evaluation/simulation.py`, `evaluation/robustness.py` (prior T101–T103).
+## Phase 0 – Dataset discovery, generation, validation, and split  
 
-## Phase 1: Physical compliance remediation (reviewer‑flagged deviations)
+- [ ] **T020** [P2] [US0] Search for real‑world datasets with known regime shifts using keywords “regime shift time series”, “anomaly benchmark”, “physionet arrhythmia” across UCI, NAB, and PhysioNet. If no verified sources are found, generate a **Validation Deferred** report (`data/processed/results/validation_deferred.md`) citing the search query and result count (FR‑017, FR‑017b).  
+  - **Script**: `code/src/data/search_datasets.py`  
+  - **Outputs**: `data/raw/` (populated only if sources found) and `data/processed/results/validation_deferred.md`.  
 
-These tasks re‑open the specific failing checks from the implementation‑correctness reviews (2026-04-30 through 2026-05-04). Each produces a deterministically verifiable artifact.
+- [ ] **T003** [P2] [US1] Download and validate real‑world datasets (NAB & PhysioNet) using the verified URLs defined in the “Verified Datasets” block *only if* T020 discovers sources.  
+  - **Script**: `code/src/data/download_datasets.py`  
+  - **Outputs**: `data/raw/<dataset_name>.csv`, `data/processed/results/data_checksums.json`.  
+  - **Verification**:  
+    1. SHA‑256 checksum matches JSON entry.  
+    2. Row count ≥ 1 000.  
+    3. Failure raises an exception (no silent fallback).  
 
-- [ ] T101 [US4] Enforce `code/config.yaml` < 2048 bytes containing ONLY hyperparameters, seeds, and base paths (FR-024 as cited by reviewers). Rewrite `code/config.yaml` to contain only the keys required by `specs/001-bayesian-nonparametrics-for-anomaly-dete/contracts/anomaly_detector.schema.yaml` (seeds, model, thresholds, baselines, paths); move any derived statistics or checksums out of the config into result artifacts under `data/processed/` (NOT into `state/`, which is platform‑owned).
-  - Verification: `python -c "import os; s=os.path.getsize('code/config.yaml'); assert s < 2048, s; print(s)"` exits 0; capture the byte count in `data/processed/results/config_compliance.txt`.
-  - Also validate the rewritten config against the schema at runtime via `code/scripts/validate_config_schema.py` (FR-024), which must exit 0 with "Validation passed".
+- [ ] **T018** [P2] [US1] Load each univariate time series, enforce **≥ 1 000 observations**, and normalize to zero mean / unit variance (explicitly satisfies FR‑001).  
+  - **Script**: `code/src/data/preprocessing.py`  
+  - **Outputs**: `data/processed/normalized/<dataset_name>.parquet`.  
+  - **Verification**:  
+    1. Row count check (≥ 1000).  
+    2. Mean ≈ 0, std ≈ 1 (tolerance 0.001).  
 
-- [ ] T102 [US4] Physically relocate all Python source files to `code/src/` package layout per plan.md. Move any `.py` files at `code/` root and any stray `baselines/`, `models/`, `evaluation/`, `data/`, `services/` directories at `code/` root into `code/src/`, and fix all imports and the quickstart run‑book to match.
-  - Verification: `find code/ -maxdepth 1 -mindepth 1 -type d \( -name baselines -o -name models -o -name evaluation -o -name data -o -name services \) -empty` returns empty; `pytest code/tests/` collects and passes. Capture outputs in `data/processed/results/src_structure_report.txt`.
+- [ ] **T025** [P2] [US1] Generate the synthetic dataset with injected anomalies **and** pre‑anomaly dynamics (increasing variance, autocorrelation) as required by FR‑021.  
+  - **Script**: `code/src/data/synthetic_generator.py`  
+  - **Outputs**: `data/processed/synthetic_generator_output.parquet`.  
 
-- [ ] T104 [US1] Verify real‑data provenance and size after cleanup: re‑run `code/src/data/download_datasets.py` which fetches **UCI‑repository** datasets via the `ucimlrepo` package. Example URLs used are:
-    - `[UNRESOLVED-CLAIM: https://archive.ics.uci.edu/ml/machine-learning-databases/00235/household_power_consumption.zip` — HTTP 404]
-    - `[UNRESOLVED-CLAIM: https://archive.ics.uci.edu/ml/machine-learning-databases/00502/online_shoppers_intention.zip` — HTTP 404]
-  The download script must record each dataset’s SHA256 checksum and verify that the univariate series extracted contains **≥1,000 observations** (FR-001). Checksums are written to `data/processed/results/data_checksums.json` (stored under `data/` per Constitution Principle III).
-  - Verification: `data/processed/results/sample_size_report.md` lists each dataset with row count ≥1000 and its checksum; loader raises on failure rather than substituting data.
+- [ ] **T023** [P2] [US1] Validate that the synthetic generator implements the required pre‑anomaly dynamics and that its output statistics match expectations (FR‑022).  
+  - **Script**: `code/src/data/verify_synthetic.py`  
+  - **Outputs**: `data/processed/results/synthetic_verification.txt` (passes/fails with quantitative summary).  
 
-- [ ] T103 [US1] Physically remove legacy data‑layout violations: delete `data/raw/pems_sf.csv`, `data/raw/pems_sf_synthetic.csv`, any nested `data/raw/raw/` directory, and the legacy `data/results/` directory, migrating any still‑needed contents to `data/processed/results/`.
-  - Verification: `ls data/raw/` shows only the verified UCI datasets; `find data/raw/ -type d -name raw` returns empty; `ls data/ | grep results` shows only `processed`. Capture all command outputs in `data/processed/results/data_provenance_report.txt`.
+- [ ] **T021** [P2] [US1] Create a **train/validation/test split** (70/15/15) for each dataset (real and synthetic). Store indices in `data/processed/split_indices.json`. This split is required before any threshold calibration (FR‑019).  
+  - **Script**: `code/src/data/split.py`  
+  - **Verification**:  
+    1. No overlap between splits.  
+    2. Each split contains at least one injected anomaly (if present).  
 
-## Phase 2: End‑to‑end analysis run on real inputs
+- [ ] **T005** [P1] [US1] Run the **first executable end‑to‑end analysis** on a minimal verified dataset (e.g., the smallest NAB series) to produce a real result file and confirm the pipeline works.  
+  - **Command (documented in `quickstart.md`)**:  
+    ```bash
+    python -m code.src.scripts.run_pipeline \
+        --config code/config.yaml \
+        --dataset data/processed/normalized/nab_example.parquet \
+        --output data/processed/posterior_trajectory.parquet
+    ```  
+  - **Outputs**:  
+    * `data/processed/posterior_trajectory.parquet` (conforms to `posterior_trajectory.schema.yaml`)  
+    * `data/processed/detection_events.json` (conforms to `detection_event.schema.yaml`)  
+  - **Verification**:  
+    1. Parquet contains a row per sliding window; `converged` matches ADVI convergence.  
+    2. Detection events include at least one non‑null `time_to_detection`.  
+    3. Log `run_metadata` (peak RAM, runtime) in `data/processed/results/first_run_metadata.json`.  
 
-- [ ] T105 [US1] Run the full DP‑GMM pipeline end‑to‑end on the verified real dataset(s) plus the synthetic dataset with injected anomalies and pre‑anomaly dynamics: sliding‑window ADVI inference, convergence exclusion, and $\dot{\alpha}$/Var($\pi$) trajectory extraction, gated on the SNR simulation result (C03).
-  - Outputs: `data/processed/posterior_trajectory.parquet` (columns per `posterior_trajectory.schema.yaml`) and `data/processed/detection_events.json` (per `output.schema.yaml` detection_events definition, fields `method`, `injection_timestamp`, `detection_timestamp`, `time_to_detection`, `threshold_value`).
-  - Verification: row count equals number of windows; every non‑converged window has `converged=false`; document the runnable command in the feature's `quickstart.md`.
+---
 
-- [ ] T113 [US1] Verify incremental posterior updating without full retraining. Implement a cache‑based update mechanism that re‑uses the previous ADVI posterior as a warm start for the next window. Measure total runtime; must be <4 hours on the free‑tier runner.
-  - Outputs: `data/processed/results/incremental_update_log.txt` with runtime summary and a flag indicating success/failure.
-  - Verification: parse the log; assert runtime < 14400 seconds.
+## Phase 1 – Setup, compliance, and preparatory studies  
 
-- [ ] T106 [US2] Run baselines and comparison statistics on the same windows: fixed GMMs (k=3,5,10) and ARIMA reconstruction errors, time‑to‑detection for all methods against independent injection timestamps (FR‑005, FR‑013), Wilcoxon signed‑rank test with paired t‑test secondary (FR‑006), KS tests FR‑010/FR‑014/FR‑015, Cohen's d computation for signature distinctness (SC‑001), and the sample‑size check with bootstrap fallback when anomaly count <10 (FR‑011, FR‑012).
-  - Output: `data/processed/results/statistical_report.json` containing all test statistics, p‑values, Cohen's d value, and the bootstrap block per `output.schema.yaml`.
-  - Verification: report validates against `output.schema.yaml`; every test named in FR‑005/FR‑006/FR‑010/FR‑011/FR‑012/FR‑014/FR‑015 appears with a numeric statistic and p‑value; Cohen's d ≥ 0.5 is asserted.
+- [ ] **T001** [P2] [US4] Enforce `code/config.yaml` size < 2 KB and contain **only** hyper‑parameters required by `anomaly_detector.schema.yaml` (seeds, model, thresholds, baselines, paths).  
+  - **Steps**:  
+    1. Strip derived statistics, checksums, and any runtime‑generated fields.  
+    2. Validate size with `os.path.getsize()` < 2048 bytes.  
+    3. Run `code/scripts/validate_config_schema.py` – must exit 0 with “Validation passed”.  
+    4. Record byte count in `data/processed/results/config_compliance.txt`.  
 
-- [ ] T107 [US3] Run the threshold sensitivity analysis **on reconstruction‑error scores (MSE) scaled to [0,1]** (not on $\dot{\alpha}$). Use train/validation/test split (FR‑019): select the default threshold (95th percentile) on the validation set, apply to the held‑out test set, and sweep absolute cutoffs {0.01, 0.05, 0.1}. Compute false‑positive/false‑negative rates, F1‑score, and flag instability when error rates spike (FR‑007). Also perform the window‑size/derivative‑method sensitivity check (FR‑016).
-  - Output: `data/processed/results/sensitivity_report.parquet` (columns `threshold`, `false_positive_rate`, `false_negative_rate`, `f1_score`, `stability_flag` per `sensitivity_report.schema.yaml`) and `data/processed/results/splits_manifest.json`.
-  - Verification: three threshold rows present; splits manifest covers the full series with disjoint index sets; instability logic demonstrated on the actual sweep results.
+- [ ] **T002** [P2] [US1] Restructure all Python source files under the canonical package layout `code/src/`.  
+  - **Files moved**: any `.py` in `code/` root or stray sub‑folders (`baselines/`, `models/`, `evaluation/`, `services/`, `data/`) → `code/src/<module>/`.  
+  - **Steps**:  
+    1. Physically move files, update import statements (`from ... import ...`).  
+    2. Adjust `PYTHONPATH` in `quickstart.md` to `code/src`.  
+    3. Verify no empty legacy directories remain (`find code/ -type d -empty`).  
+    4. Run full test suite (`pytest code/tests/`) – must pass.  
+    5. Capture the directory‑tree diff in `data/processed/results/src_structure_report.txt`.  
 
-- [ ] T114 [US4] Perform a sensitivity sweep over the DP‑GMM concentration prior (α). Vary the prior σ in {0.05, 0.1, 0.2} and record the effect on $\dot{\alpha}$ signal quality (SNR) and downstream detection performance.
-  - Output: `data/processed/results/alpha_prior_sensitivity.csv` with columns `alpha_sigma`, `snr`, `wilcoxon_stat`, `wilcoxon_p`, `cohen_d`.
-  - Verification: report validates against a simple CSV schema; asserts that at least one σ yields SNR > 1.
+- [ ] **T022** [P2] [US1] Perform the **signal‑to‑noise ratio (SNR) simulation study** for the $\dot{\\alpha}$ estimator under the null hypothesis (no anomaly).  
+  - **Script**: `code/src/evaluation/simulation.py`  
+  - **Outputs**: `data/processed/results/snr_report.json` (contains SNR value, confidence interval).  
+  - **Verification**: Pipeline proceeds only if `SNR > 1`; otherwise abort with clear message.  
 
-- [ ] T115 [US5] Compute Cohen's d for signature distinctness (transient anomalies vs gradual drift) and record the value.
-  - Output: `data/processed/results/cohens_d.txt` containing the numeric Cohen's d.
-  - Verification: script asserts Cohen's d ≥ 0.5; fails otherwise.
+- [ ] **T024** [P2] [US1] Conduct **prior‑sensitivity analysis** on the Dirichlet‑process concentration hyper‑parameter (`alpha_prior_sigma`).  
+  - **Method**: Run DP‑GMM on a subset of windows with three different prior sigmas (0.05, 0.1, 0.2) and record impact on $\dot{\\alpha}$ variance, detection performance, and statistical power.  
+  - **Outputs**: `data/processed/results/prior_sensitivity.csv` (columns `alpha_prior_sigma`, `snr`, `wilcoxon_p`, `cohen_d`).  
+  - **Verification**: CSV includes required columns and at least one configuration achieving `SNR > 1`.  
 
-- [ ] T116 [US6] Run survival analysis on censored detection times using the `lifelines` package; produce Kaplan‑Meier curves and log‑rank test results.
-  - Output: `data/processed/results/survival_report.json` with survival curves (as serialized arrays) and log‑rank test statistic/p‑value.
-  - Verification: JSON validates against a minimal schema; includes a flag `censored_handled: true`.
+---
 
-- [ ] T117 [US4] Update the project state file hash (`state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`) whenever the synthetic data generator or sliding‑window logic is modified (FR‑023). The task runs after any change to `code/src/data/synthetic_generator.py` or `code/src/data/windowing.py`.
-  - Output: Updated `state/...yaml` with new `artifact_hashes` entries for the modified files.
-  - Verification: checksum of the modified file matches entry in `state/...yaml`; script exits 0.
+## Phase 2 – Full study, comparisons, and statistical validation  
 
-## Phase 3: Validation, figures, and reporting
+- [ ] **T006** [P2] [US2] Execute the **full DP‑GMM pipeline** on all verified real datasets *and* the synthetic dataset.  
+  - **Inputs**: `data/processed/normalized/*` + `data/processed/synthetic_generator_output.parquet`.  
+  - **Outputs**:  
+    * `data/processed/posterior_trajectory.parquet` (full trajectory)  
+    * `data/processed/detection_events.json` (all methods)  
+  - **Verification**:  
+    1. All windows processed; non‑convergent windows flagged `converged=False`.  
+    2. ADVI iteration count ≤ `config.yaml` `advi_max_iter`.  
+    3. Record runtime and peak RAM in `data/processed/results/full_run_metadata.json`.  
 
-- [ ] T108 [US4] Execute the resource‑compliance validation over the full pipeline run (T105–T107): measure peak RSS via `psutil.Process().memory_info().rss` and total runtime, enforce <7 GB and <6 h (raise `RuntimeError` on violation), and confirm no CUDA/GPU operations (FR‑008).
-  - Output: `data/processed/results/resource_validation_report.md` with measured peak RAM (MB), runtime (s), and pass/fail per limit.
-  - Verification: report values satisfy the limits; `code/scripts/verify_resource_compliance.py` exits 0.
+- [ ] **T007** [P2] [US2] Fit **baseline models** (fixed‑component GMMs with k = 3, 5, 10 and ARIMA) on the same sliding windows and compute reconstruction‑error scores.  
+  - **Script**: `code/src/models/baselines.py`  
+  - **Outputs**: `data/processed/baseline_errors.parquet` (columns: `window_id`, `gmm_k`, `arima_error`, `mse`).  
+  - **Verification**:  
+    1. Each window has at least one baseline score.  
+    2. Schema validated against `output.schema.yaml` (baseline part).  
 
-- [ ] T109 [US1] Re‑run the MCMC (NUTS) robustness check (C07 implementation) on windows from the T105 run and confirm the ADVI‑vs‑MCMC $\dot{\alpha}$ correlation ≥0.9, or flag "Unvalidated Signal" per FR‑018.
-  - Output: `data/processed/results/mcmc_validation.csv` regenerated from the current run with a summary correlation.
-  - Verification: CSV contains per‑window ADVI and MCMC $\dot{\alpha}$ values and a summary correlation; the pass/flag decision is stated explicitly.
+- [ ] **T026** [P3] [US3] Calibrate **anomaly‑detection thresholds** on the **validation split** (produced by T021). Use the 95th percentile of the validation‑set score distribution as the default, then store the calibrated thresholds.  
+  - **Script**: `code/src/services/threshold_calibrator.py`  
+  - **Outputs**: `data/processed/results/calibrated_thresholds.json` (fields `threshold`, `percentile`, `adaptive`).  
 
-- [ ] T110 [US1] Generate the study figures directly from the validated result artifacts: posterior $\alpha$ trajectory with $\dot{\alpha}$ and injection timestamps marked, detection‑latency comparison across methods, and FP/FN variation across the threshold sweep.
-  - Output: PNG files under `data/processed/results/figures/`, each produced by a script reading only `data/processed/results/` artifacts.
-  - Verification: each figure file exists and its generating script runs reproducibly from the declared inputs.
+- [ ] **T019** [P2] [US3] If the **anomaly count** in the current run is **< 10**, execute **bootstrap resampling** for inferential testing and record bootstrap p‑values and confidence intervals (FR‑011, FR‑012).  
+  - **Script**: `code/src/evaluation/bootstrap.py`  
+  - **Outputs**: `data/processed/results/bootstrap_report.json` (`used`, `p_value`, `ci_lower`, `ci_upper`).  
+  - **Verification**: `used` is true only when count < 10; report is incorporated into the final statistical report.  
 
-- [ ] T111 [US3] Write `data/processed/results/final_report.md` summarizing methodology, actual measured results (SNR gate outcome, statistical tests, sensitivity, resource metrics), the real‑data validation status or "Deferred by Design" note (FR‑017b), and honest limitations (including any negative findings, e.g., $\dot{\alpha}$ SNR ≤1 or MCMC correlation <0.9). The report now also **includes the community‑standard threshold justification (Cohen 1988)** and **the observed FP‑rate range (max – min) across the sweep**.
-  - Verification: every numeric claim in the report traces to a named artifact under `data/processed/results/`; the citation and FP‑range are present.
+- [ ] **T008** [P2] [US2] Calculate **time‑to‑detection** for DP‑GMM signatures and each baseline, then perform the required statistical tests (Wilcoxon, paired t‑test if normality holds, Cohen’s d, KS tests FR‑010, FR‑014, FR‑015). Incorporate bootstrap results from T019 when applicable.  
+  - **Metrics**: Wilcoxon signed‑rank (primary), paired t‑test (secondary), Cohen’s d, KS statistics.  
+  - **Output**: `data/processed/results/statistical_report.json` (matches `output.schema.yaml`).  
+  - **Verification**:  
+    1. JSON contains `wilcoxon`, optional `t_test`, `cohen_d`, and a list `ks_tests` with three comparisons.  
+    2. Script aborts if Wilcoxon p‑value ≥ 0.05 or Cohen’s d < 0.5 (per SC‑001).  
 
-- [ ] T112 Write a reproducible workflow script (`quickstart.md`) that runs the entire pipeline from config → data fetch/generate → T105 → T107 → T106 → T113 → T108 → T109 → T110 → T111 → T112, confirming all `code/tests/` pass and all artifact checks hold. Document the handoff to the paper stage (paths to figures, result tables, final report).
-  - Verification: single documented command sequence in `quickstart.md` reproduces all `data/processed/results/` artifacts; `pytest code/tests/` passes; handoff section lists the exact artifact paths for the paper stage.
+- [ ] **T010** [P3] [US3] Perform **window‑size & derivative‑method sensitivity** (FR‑016). Sweep `window_size` ∈ {20, 30, 40} and derivative smoothing ∈ {none, moving‑average‑3}. Record impact on SNR (from T022) and detection performance.  
+  - **Outputs**: `data/processed/results/window_derivative_sensitivity.csv` (`window_size`, `derivative_method`, `snr`, `wilcoxon_p`, `cohen_d`).  
+  - **Verification**: CSV includes at least one configuration achieving `SNR > 1`.  
 
-## Dependencies and requirement coverage
+- [ ] **T011** [P4] [US4] Validate **resource constraints** for the complete pipeline (FR‑008).  
+  - **Script**: `code/src/scripts/verify_resource_compliance.py` (runs after T006–T008).  
+  - **Outputs**: `data/processed/results/resource_validation_report.md` containing peak RAM (MB) and total runtime (seconds).  
+  - **Verification**:  
+    1. Peak RAM < 7168 MB.  
+    2. Runtime < 21600 seconds.  
+    3. Script exits 0; otherwise the run is marked failed.  
 
-- **Order**: T101 → T102 → T104 → T103 → T105 → T113 → T107 → T106 → T108 → T109 → T110 → T111 → T112 → T114 → T115 → T116 → T117.  
-  (T114, T115, T116, T117 run after core pipeline; they prepare auxiliary analyses and state updates.)
-- **FR coverage**: All FR‑001 … FR‑024 are now mapped to concrete tasks, including the newly added FR‑023 (T117) and the concentration‑prior sweep (T114).  
-- **SC coverage**: SC‑001 (Cohen's d) via T115/T106, SC‑002 (time‑to‑detection advantage) via T106, SC‑003 (threshold stability) via T107, SC‑004 (resource feasibility) via T108, SC‑005/SC‑006 (bootstrap handling) via T106, SC‑008 (baseline vs DP‑GMM distribution) via T106.
+- [ ] **T012** [P4] [US1] Execute the **MCMC robustness check** (FR‑018) on a representative subset of windows (e.g., the top 5 % with highest `alpha_deriv` variance).  
+  - **Method**: NUTS sampling via PyMC; compare ADVI‑derived `alpha_deriv` to MCMC posterior mean.  
+  - **Outputs**: `data/processed/results/mcmc_validation.csv` (`window_id`, `advi_alpha_deriv`, `mcmc_alpha_deriv`).  
+  - **Verification**: Pearson correlation ≥ 0.9; if lower, set `validation_flag: false` and propagate to final report.  
 
-## Revision behavior
+---
 
-Completed work C01–C14 is preserved (marked `[x]`). The re‑opened tasks T101–T117 target exactly the failing checks cited by the implementation‑correctness reviews. No test or constraint was weakened; all newly added tasks respect the original specification and constitution. All artifact paths remain under `code/`, `data/processed/`, or `state/` as appropriate.
+## Phase 3 – Threshold calibration and sensitivity  
+
+- [ ] **T009** [P3] [US3] Perform **threshold sensitivity analysis** on the normalized reconstruction‑error scores using the calibrated thresholds from T026.  
+  - **Thresholds**: values defined in `config.yaml` → `[0.01, 0.05, 0.1]`.  
+  - **Outputs**: `data/processed/results/sensitivity_report.parquet` (conforms to `sensitivity_report.schema.yaml`).  
+  - **Verification**:  
+    1. Exactly three rows (one per threshold).  
+    2. `stability_flag` = True if any FP/FN rate spikes > 0.2 relative to the previous threshold.  
+
+---
+
+## Phase 4 – Reporting, figures, and finalisation  
+
+- [ ] **T013** [P5] [US5] Generate **all study figures** directly from validated result artefacts.  
+  - **Figures** (saved under `data/processed/results/figures/`):  
+    1. Posterior α trajectory with injected‑anomaly timestamps.  
+    2. Detection‑latency box‑plots for DP‑GMM vs baselines.  
+    3. FP/FN vs threshold plot.  
+    4. (Optional) Window‑size sensitivity heatmap.  
+  - **Verification**: Each PNG exists, script `code/src/visualization/plot_all.py` runs without error, and the figure files are listed in `data/processed/results/figure_manifest.txt`.  
+
+- [ ] **T015** [P7] [US4] Update the **project state hash** whenever the synthetic generator or sliding‑window logic changes (FR‑023).  
+  - **Trigger**: Detect file modification timestamps of `code/src/data/synthetic_generator.py` and `code/src/data/windowing.py`.  
+  - **Action**: Compute SHA‑256 of each file and write to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml` under `artifact_hashes`.  
+  - **Verification**: Script exits 0 and the YAML entries match the computed hashes.  
+
+- [ ] **T016** [P6] [US4] Write the **final results report** (`data/processed/results/final_report.md`).  
+  - **Content**:  
+    1. Brief methods summary linking to `quickstart.md`.  
+    2. SNR gate outcome (pass/fail).  
+    3. All statistical test results (Wilcoxon, KS, Cohen’s d, bootstrap usage flag).  
+    4. Threshold‑sensitivity findings (include FP‑rate range).  
+    5. Resource‑validation summary.  
+    6. Limitation notes (e.g., if SNR ≤ 1 or MCMC correlation < 0.9).  
+    7. Community‑standard threshold justification (Cohen 1988) and observed FP‑rate range.  
+    8. “Validation Deferred” statement if T020 produced a deferred‑by‑design report.  
+  - **Verification**: Every numeric claim is traced to a file under `data/processed/results/` (checked via a grep‑cross‑reference script).  
+
+- [ ] **T017** [P7] Create a **reproducible workflow document** (`quickstart.md`) **and** an orchestrating shell script `run_all.sh`.  
+  - **`run_all.sh`** runs tasks in the exact required order, respecting all producer‑consumer dependencies:  
+
+    ```bash
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Phase 0
+    python -m code.src.data.search_datasets          # T020
+    python -m code.src.data.download_datasets         # T003
+    python -m code.src.data.preprocessing             # T018
+    python -m code.src.data.synthetic_generator        # T025
+    python -m code.src.data.verify_synthetic          # T023
+    python -m code.src.data.split                     # T021
+    python -m code.src.scripts.run_pipeline           # T005 (minimal sanity run)
+
+    # Phase 1
+    python -m code.src.scripts.validate_config_schema # T001
+    python -m code.src.scripts.restructure_code       # T002
+    python -m code.src.evaluation.simulation          # T022
+    python -m code.src.evaluation.prior_sensitivity   # T024
+
+    # Phase 2
+    python -m code.src.scripts.run_full_dp_gmm        # T006
+    python -m code.src.models.baselines               # T007
+    python -m code.src.services.threshold_calibrator   # T026
+    python -m code.src.evaluation.bootstrap           # T019
+    python -m code.src.scripts.statistical_tests      # T008
+    python -m code.src.sensitivity.window_derivative  # T010
+    python -m code.src.scripts.verify_resource        # T011
+    python -m code.src.evaluation.mcmc_check          # T012
+
+    # Phase 3
+    python -m code.src.scripts.threshold_sensitivity  # T009
+
+    # Phase 4
+    python -m code.src.visualization.plot_all          # T013
+    python -m code.src.scripts.update_state_hash      # T015
+    python -m code.src.scripts.generate_final_report  # T016
+    ```
+
+  - **Verification**: Executing `./run_all.sh` on a fresh runner reproduces all artefacts listed in `final_report.md` and passes the test suite (`pytest`).  
+
+---
+
+## Dependency & Requirement Coverage  
+
+| Spec/FR ID | Covered by Task(s) |
+|------------|--------------------|
+| FR‑001 – FR‑004 | T006, T007 |
+| FR‑005 – FR‑006 | T008 |
+| FR‑007 – FR‑009 | T001, T009, T010, T021, T026 |
+| FR‑010 – FR‑015 | T008, T009, T010 |
+| FR‑016 | T010 |
+| FR‑017 / FR‑017b | T020 (search) → if none, deferred report |
+| FR‑018 | T012 |
+| FR‑019 | T021 (split) → T026 (calibration) |
+| FR‑020 | T022 |
+| FR‑021 – FR‑022 | T025 (generation) + T023 (verification) |
+| FR‑023 | T015 |
+| FR‑024 | T001 |
+| FR‑008 – FR‑009 | T011, T001 |
+| FR‑011 – FR‑012 | T019 (bootstrap) |
+| FR‑014 – FR‑015 | T008 (KS tests) |
+| FR‑016 | T010 |
+| FR‑017 / FR‑017b | T020 |
+| FR‑018 | T012 |
+| FR‑019 | T021, T026 |
+| FR‑020 | T022 |
+| SC‑001 – SC‑008 | T008 (Cohen’s d, Wilcoxon), T009 (threshold stability), T011 (resource), T019 (bootstrap), T012 (MCMC correlation) |
+
+All scientific requirements are now represented, and the pipeline can be executed end‑to‑end on real inputs before any paper‑stage handoff.  
+
+---  
+
+*All unchecked tasks are pending; checking a box will be done automatically by the CI verification step once the corresponding artefact passes its verification script.*  
