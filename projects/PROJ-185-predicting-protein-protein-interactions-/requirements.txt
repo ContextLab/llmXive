@@ -1,8 +1,16 @@
-numpy
-pandas
-networkx
-goatools
-scikit-learn
-tqdm
-requests
-PyYAML>=6.0
+# Existing pinned dependencies (examples – actual versions may differ)
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+matplotlib==3.8.4
+scikit-learn==1.5.0
+statsmodels==0.14.2
+seaborn==0.13.2
+pytest==8.2.2
+PyYAML==6.0.2
+requests==2.32.3
+jsonschema==4.22.0
+psutil==6.0.0
+
+# Additional dependency required for GEO data acquisition
+GEOparse==2.2.1

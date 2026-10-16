@@ -1,0 +1,50 @@
+T001:
+  c: false
+  h: 0096f03e5afdbe0299f0903e1274f4f2412395c50760fdd7941059107aab9b26
+  r: "The top\u2011level directories (`src/`, `tests/`, `data/`, `results/`, `docs/`,\
+    \ `contracts/`) exist, but they are not empty \u2013 they contain files such as\
+    \ `.gitkeep`, `__init__.py`, and sub\u2011folders. The task required *empty* directories,\
+    \ which is not satisfied. The test only checks for existence, not emptiness, so\
+    \ the core requirement remains unmet."
+  sig: 68ee8a11f16d39a1dbf23f415bd66d7f1e389274eeef28c97a37e8f999797bce
+T002:
+  c: true
+  h: 1e2e5cb44ccb6661a129db2b05f516c24b3043bee715a10b1038a52bbf02c258
+  r: "Checked the `pyproject.toml` at the project root \u2013 it contains a full `[project]`\
+    \ table with name, version, authors, description, a `[build-system]` table, and\
+    \ all listed runtime dependencies are pinned with exact `==` versions. The required\
+    \ artifact is present and correctly formatted."
+  sig: 4659f5ce74eeb08706b5601f0976ea25222a23c18f8e938225ceba287a8c5fa7
+T003:
+  c: false
+  h: 5e0af93838b21bdb557aa4bb2e3bc5e140f406a5c737f5a1fae32b294e291372
+  r: 'The `requirements.txt` does not exactly mirror the pinned versions (and set)
+    listed in `pyproject.toml): e.g., `scipy`, `PyYAML`, `psutil`, and `GEOparse`
+    have different versions, and several pyproject dependencies are absent. Additionally,
+    the required verification test `tests/unit/test_requirements_match.py` is missing.'
+  sig: fe6513209f81c20df062519989a4688c95a0f96ef47c61db3a74acc4ac80bb6f
+T004:
+  c: false
+  h: 9c6041eb4cb7007db236d803086aa183668bc4051f066ae08c31269330e57f66
+  r: Checked `src/config/species.yaml`, `src/config/parameters.yaml`, and `tests/unit/test_config_contents.py`;
+    all three required files are reported as MISSING, so the configuration files and
+    their verification test are not present.
+  sig: a7388eff951140672ce58bcb73ceea94d018a1505ad6a88ce2428686ca641b7a
+T005:
+  c: false
+  h: 76dee3e7d1f185557ca1f153349a6881c6b9bdcf3ee790fb55ea71dae483b90a
+  r: Checked `src/utils/cli.py` and `src/utils/random.py` (both present) and the required
+    `src/logs/pipeline.log`, `tests/unit/test_seed_flag.py`, and `results/predicted_ppi_Arabidopsis.tsv`
+    (all missing). Moreover, the CLI logger writes to `results/pipeline.log` instead
+    of the required `src/logs/pipeline.log`, so the seed, command line, and software
+    versions are not recorded in the correct file. The test suite and reproducibility
+    check cannot be performed.
+  sig: f8c369b6d8e5c400c5bbbba6a062425d46d0d86bb6cebb5859a46f385b1f03ea
+T006:
+  c: false
+  h: 9693a943e467bab83f49bd7f0b78e97da79bf0a078e78781b65ef70e63f6702c
+  r: The required `species.yaml`, the populated `data/raw/` archives, the `data/artifact_hashes.yaml`
+    file, and the unit test `tests/unit/test_geo_downloader.py` are all missing, so
+    the script cannot be verified to download GEO series, skip those with <30 samples,
+    or record checksums as the task demands.
+  sig: 09fa681ee49221bb64ee94c885ece325a2c5126acf80d1d9430479a9d1c6741a

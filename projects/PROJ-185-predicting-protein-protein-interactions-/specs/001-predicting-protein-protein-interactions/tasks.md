@@ -14,7 +14,7 @@ Tasks are ordered to respect data flow; parallel‑izable tasks are marked with 
   - **Output**: empty directories at the listed paths.  
   - **Verification**: `tests/unit/test_skeleton.py` asserts each directory exists; CI runs `pytest -q tests/unit/test_skeleton.py`.  
 
-- [ ] T002 [US1] Add a complete `pyproject.toml` with a `[project]` table (name, version, authors, description) and a `[build‑system]` table. All runtime dependencies must be **pinned** to exact versions (e.g., `numpy==1.26.4`).  
+- [X] T002 [US1] Add a complete `pyproject.toml` with a `[project]` table (name, version, authors, description) and a `[build‑system]` table. All runtime dependencies must be **pinned** to exact versions (e.g., `numpy==1.26.4`).  
   - **Output**: `pyproject.toml` at project root.  
   - **Verification**: `tests/unit/test_pyproject_pins.py` parses the file and fails if any dependency lacks an `==` specifier.  
 
@@ -39,7 +39,7 @@ Tasks are ordered to respect data flow; parallel‑izable tasks are marked with 
   - **Output**: Raw GEO archives in `data/raw/`; updated `data/artifact_hashes.yaml`.  
   - **Verification**: `tests/unit/test_geo_downloader.py` confirms that each expected file exists, that its checksum matches the recorded value, and that series with insufficient samples are omitted.  
 
-- [ ] T007 [US1] After all downloads, verify that the **total retained samples per species** meet the minimum (`min_samples` from `species.yaml`). If a species falls short, abort the pipeline with an `ERROR` entry in `pipeline.log`.  
+- [ ] T007 [US1] After all downloads, verify that the **total retained samples per species** meet the minimum (`min_samples` from `species.yaml`). If a species falls short, abort the pipeline with an `ERROR` entry in `pipeline.log`.   <!-- FAILED-IN-EXECUTION: code/src/pipeline/verify_samples.py exit=1 -->
   - **Output**: `pipeline.log` entry `ERROR` (if abort) or a `INFO` entry confirming sufficient samples.  
   - **Verification**: `tests/integration/test_sample_power.py` simulates a low‑sample scenario and expects the script to raise `SystemExit` with the appropriate log message.  
 
