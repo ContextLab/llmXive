@@ -11,10 +11,11 @@ fixed parameters:
 - Significance level (α): 0.05
 - Baseline success rate (p₀): 0.5 (conservative assumption)
 
-The script aborts if any data‑extraction artifacts already exist (i.e.
-files under ``data/processed``) to enforce the “before extraction” rule.
-The result is written to ``data/validated_n.json`` and conforms to the
-JSON schema at ``contracts/power_analysis.schema.yaml``.
+The script aborts if any data‑extraction artifacts already exist
+(files under ``data/processed``) to enforce the “before extraction” rule.
+The result is written to ``data/validated_n.json`` (a project‑owned
+location) and conforms to the JSON schema at
+``specs/001-llmxive-follow-up-extending-mobileforge/contracts/power_analysis.schema.yaml``.
 """
 
 import json
@@ -80,8 +81,8 @@ def calculate_required_n(
         raise ValueError("baseline_p0 must be 0.5 (conservative assumption).")
 
     # Use statsmodels to solve for required observations.
-    # GofChisquarePower expects Cohen's w (identical to Cohen's h for two‑proportion
-    # tests), so we can pass the effect_size directly.
+    # GofChisquarePower expects Cohen's w (identical to Cohen's h for
+    # two‑proportion tests), so we can pass the effect_size directly.
     power_analysis = GofChisquarePower()
     n_required = power_analysis.solve_power(
         effect_size=effect_size,
@@ -112,7 +113,7 @@ def write_validated_n(
 ) -> Path:
     """
     Write the power‑analysis result to ``data/validated_n.json`` in the
-    format required by ``contracts/power_analysis.schema.yaml``.
+    format required by the power‑analysis JSON schema.
 
     Parameters
     ----------

@@ -6,11 +6,11 @@
 
 ## Phase 1 – Project bootstrap (infrastructure only)
 
-- [X] T001 [P] Create the full directory tree required for the study.  
+- [ ] T001 [P] Create the full directory tree required for the study.  
   *Creates* `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/{data/raw,data/processed,data/evaluation,models,utils,tests/unit,tests/integration}` and `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/state/`.  
   **Verification** – after running the task, `tree` (or equivalent) shows all listed directories; CI checks that each path exists.
 
-- [ ] T002 [P] Write a pinned `requirements.txt` (under `code/`) containing exact versions for all scientific packages required by the specification:  
+- [X] T002 [P] Write a pinned `requirements.txt` (under `code/`) containing exact versions for all scientific packages required by the specification:  
   ```
   torch==2.2.2
   transformers==4.41.0
@@ -62,7 +62,7 @@
 
 ## Phase 3 – Data pipeline (US‑1)
 
-- [ ] T008 [P] Implement `data/raw/download_mobileforge.py` that fetches the official MobileForge logs via `datasets.load_dataset("mobileforge")`.   <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 -->
+- [ ] T008 [P] Implement `data/raw/download_mobileforge.py` that fetches the official MobileForge logs via `datasets.load_dataset("mobileforge")`.   <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 -->
   - The script writes the raw files under `data/raw/` and verifies SHA‑256 against entries in `data/checksums.json`.  
   - On any network or checksum failure the script raises an exception (no synthetic fallback).  
   **Path**: `code/data/raw/download_mobileforge.py`  

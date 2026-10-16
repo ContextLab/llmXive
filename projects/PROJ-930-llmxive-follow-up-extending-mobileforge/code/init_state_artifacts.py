@@ -1,15 +1,26 @@
-"""Initialize reproducibility state artifacts for the project (Task T004).
+"""
+init_state_artifacts.py
 
-This script creates two JSON manifest files:
-1. ``state/artifact_hashes.json`` – an empty JSON object used by the
-   platform to record SHA‑256 hashes of generated artifacts.
-2. ``data/checksums.json`` – an empty JSON object that will later hold
-   SHA‑256 checksums for downloaded raw data files.
+This script initialises the reproducibility artefact manifests required by the
+MobileForge Logic Distillation project.  It creates two JSON files under the
+project‑owned ``data/`` directory:
 
-The platform owns the ``state/`` directory, but creating an empty
-placeholder file does not interfere with the platform‑managed
-artifact‑hashing process. The ``data/`` directory is project‑owned,
-and the empty checksum manifest satisfies Constitution Principle III.
+* ``data/artifact_hashes.json`` – an empty mapping that will later be populated
+  with SHA‑256 hashes of generated artefacts.
+* ``data/checksums.json`` – an empty mapping used to store checksums of raw
+  input files.
+
+The script follows the same contract as the original ``init_state_artifacts``
+implementation but avoids writing to the platform‑owned ``state/`` directory,
+which is managed by the verification infrastructure.  Running the script is
+idempotent: if a target file already exists and contains a valid JSON object,
+it is left untouched; otherwise it is overwritten with ``{}``.
+
+The script can be invoked directly:
+
+    python code/init_state_artifacts.py
+
+It will log its actions via the shared ``llmxive_toolkit`` logger.
 """
 
 import json
@@ -20,51 +31,49 @@ from llmxive_toolkit import paths, get_logger
 log = get_logger(__name__)
 
 def _write_empty_json(target_path: Path) -> None:
-    """Write an empty JSON object ``{}`` to *target_path*.
+    """
+    Write an empty JSON object ``{}`` to *target_path* if the file does not
+    already exist or does not contain a valid JSON mapping.
 
-    If the file already exists and contains a valid JSON object, it is
-    left unchanged; otherwise it is overwritten with an empty object.
+    Parameters
+    ----------
+    target_path: Path
+        The path of the JSON file to initialise.
     """
     if target_path.exists():
         try:
-            with target_path.open("r", encoding="utf-8") as f:
-                content = json.load(f)
+            content = json.loads(target_path.read_text())
             if isinstance(content, dict):
-                log.info("Manifest already valid at %s", target_path)
+                log.info(f"{target_path} already contains a valid JSON object.")
                 return
-            log.warning(
-                "Existing %s is not a JSON object; resetting to empty dict",
-                target_path,
-            )
-        except (json.JSONDecodeError, OSError) as exc:
-            log.error(
-                "Failed to read %s (will reset): %s", target_path, exc
-            )
-    # Write the empty JSON object
-    target_path.parent.mkdir(parents=True, exist_ok=True)
-    with target_path.open("w", encoding="utf-8") as f:
-        json.dump({}, f, indent=2)
-        f.write("\n")
-    log.info("Initialised empty manifest at %s", target_path)
+        except Exception as exc:
+            log.warning(f"Failed to parse existing JSON at {target_path}: {exc}")
 
-def ensure_state_artifact_hashes() -> None:
-    """Create/validate ``state/artifact_hashes.json``."""
-    path = paths.state("artifact_hashes.json")
-    _write_empty_json(path)
+    # Write a fresh empty JSON object
+    target_path.write_text("{}\n")
+    log.info(f"Wrote empty JSON object to {target_path}")
+
+def ensure_artifact_hashes() -> None:
+    """
+    Ensure ``data/artifact_hashes.json`` exists and contains an empty object.
+    """
+    artifact_path = paths.data("artifact_hashes.json")
+    _write_empty_json(artifact_path)
 
 def ensure_checksums_manifest() -> None:
-    """Create/validate ``data/checksums.json``."""
-    path = paths.data("checksums.json")
-    _write_empty_json(path)
+    """
+    Ensure ``data/checksums.json`` exists and contains an empty object.
+    """
+    checksums_path = paths.data("checksums.json")
+    _write_empty_json(checksums_path)
 
 def main() -> None:
-    """Entry point for the reproducibility‑state initialisation."""
-    ensure_state_artifact_hashes()
+    """
+    Entry point for the initialisation script.  It creates the two JSON
+    manifest files under ``data/``.
+    """
+    ensure_artifact_hashes()
     ensure_checksums_manifest()
-    print(
-        "Reproducibility state initialised: "
-        "state/artifact_hashes.json and data/checksums.json are present."
-    )
 
 if __name__ == "__main__":
     main()
