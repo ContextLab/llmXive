@@ -1,12 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-10-16T06:09:33.631844+00:00'
+last_used: david-krakauer
+last_used_at: '2026-10-16T08:11:57.489955+00:00'
 last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-26T12:43:11.125101+00:00'
-  ended_at: '2026-06-26T13:43:33.214975+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: geoffrey-west
   started_at: '2026-06-26T13:43:33.214975+00:00'
   ended_at: '2026-06-26T14:56:29.439319+00:00'
@@ -1283,3 +1278,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-272-statistical-analysis-of-publicly-availab/reviews/research/daniel-kahneman-simulated__2026-10-16__research.md
+- slug: david-krakauer
+  started_at: '2026-10-16T06:09:33.631844+00:00'
+  ended_at: '2026-10-16T08:11:57.489955+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-464-predicting-plant-drought-tolerance-from-/reviews/research/david-krakauer-simulated__2026-10-16__research.md
