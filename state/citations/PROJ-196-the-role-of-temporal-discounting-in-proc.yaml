@@ -10,36 +10,36 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-1k
   verified_at: '2026-07-09T10:51:27.306053Z'
-- artifact_hash: 2bc397ce4ee9c58a67671c5414f26ca4568fd07d740cb53f9941971d2ce4f7e1
+- artifact_hash: 90f85b5117bcdf5ba9cc06fbfc0817359ab5a8233fb1db7ba197179cf4b92925
   artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: discounting.arff
   kind: url
-  value: https://raw.githubusercontent.com/psychology-data/discounting/master/data/discounting.csv`
-  verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/psychology-data/discounting/master/data/discounting.csv
-  verified_at: '2026-10-10T15:25:37.160097Z'
-- artifact_hash: 2bc397ce4ee9c58a67671c5414f26ca4568fd07d740cb53f9941971d2ce4f7e1
+  value: https://www.openml.org/data/v1/download/42139/discounting.arff`
+  verification_status: pending
+  verified_against_url: https://data.openml.org/runs/0000/0000/0002/1066/weka_generated_run4663456536535370562.xml
+  verified_at: '2026-10-16T19:17:59.485532Z'
+- artifact_hash: 90f85b5117bcdf5ba9cc06fbfc0817359ab5a8233fb1db7ba197179cf4b92925
   artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: procrastination.csv
   kind: url
-  value: https://raw.githubusercontent.com/psychology-data/procrastination/master/data/procrastination.csv`
-  verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/psychology-data/procrastination/master/data/procrastination.csv
-  verified_at: '2026-10-10T15:25:37.160097Z'
-- artifact_hash: 2bc397ce4ee9c58a67671c5414f26ca4568fd07d740cb53f9941971d2ce4f7e1
+  value: https://www.openml.org/data/v1/download/4510/procrastination.csv`
+  verification_status: pending
+  verified_against_url: https://data.openml.org/runs/0000/0000/0000/2139/moa_task_1714666122389110622.xml
+  verified_at: '2026-10-16T19:17:59.485532Z'
+- artifact_hash: 90f85b5117bcdf5ba9cc06fbfc0817359ab5a8233fb1db7ba197179cf4b92925
   artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://raw.githubusercontent.com/psychology-data/nback/master/data/nback.csv`
+  value: https://openneuro.org/crn/datasets/ds001734/download?format=zip`
   verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/psychology-data/nback/master/data/nback.csv
-  verified_at: '2026-10-10T15:25:37.160097Z'
+  verified_against_url: https://openneuro.org/crn/datasets/ds001734/download?format=zip
+  verified_at: '2026-10-16T19:17:59.485532Z'
