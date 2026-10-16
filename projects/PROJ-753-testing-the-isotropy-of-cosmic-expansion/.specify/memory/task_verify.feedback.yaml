@@ -1,11 +1,10 @@
 T001:
+  reason: The `code/` directory exists but does not contain the required source modules
+    (`ingest.py`, `spherical_harmonics.py`, `simulations.py`, `analysis.py`, `visualize.py`,
+    etc.) listed in the task specification. These files are missing, so the project
+    directory tree is not fully created as required.
   task: 01045773e57799c11d6ec32524d4d3035daf7f821ddad4584dff11b6f2f6b727
 T002:
-  reason: Checked the `requirements.txt` file (present, fully pinned). However, there
-    is no provided evidence (e.g., command output, logs, or test run) showing that
-    `pip install -r requirements.txt` actually succeeded without version conflicts,
-    which is a required verification step. The task remains incomplete until such
-    installation proof is supplied.
   task: 2137807558d07e0ea764f55891f38962193b28ba0a771851b28ed222b6c1f8c8
 T003:
   reason: 'Requested task execution failed; rerun successfully: scripts/lint.sh exit=1'

@@ -1,19 +1,15 @@
 T001:
-  c: true
-  h: 8ca2280e700e0a1a5c8e3413991c65771a1ac590e0138744e581c9a6e1e03880
-  r: "The directory tree under `projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion`\
-    \ contains all required folders (`data/raw`, `data/processed`, `code`, `tests/unit`,\
-    \ `tests/integration`, `tests/contract`, `docs`, `reports`, `figures`, `scripts`)\
-    \ each with a placeholder file, and the creation script logged successful execution.\
-    \ This matches the task\u2019s specification that `tree -L 2 .` would show the\
-    \ full set of directories."
-  sig: 1611784db3d348c0b0babd288ab378adde92d4cc30b966d67d470213bb8ce620
-T002:
   c: false
-  h: 37a5548e59b275b3dda6e5272563b2ab996de55a0302b4bbe6607174f6bd2a0e
-  r: Checked the `requirements.txt` file (present, fully pinned). However, there is
-    no provided evidence (e.g., command output, logs, or test run) showing that `pip
-    install -r requirements.txt` actually succeeded without version conflicts, which
-    is a required verification step. The task remains incomplete until such installation
-    proof is supplied.
-  sig: ecabfc796afa73a91bec124bf80e5e2fafd552ac1a18eee1a06e156f8cdfbb24
+  h: f0d396dd634e9cc4044bba7f1cfebe6f1384cd456353a31de112ce093de8d18e
+  r: The `code/` directory exists but does not contain the required source modules
+    (`ingest.py`, `spherical_harmonics.py`, `simulations.py`, `analysis.py`, `visualize.py`,
+    etc.) listed in the task specification. These files are missing, so the project
+    directory tree is not fully created as required.
+  sig: c5365d1e0d3e5716b59fb15554f576f11794b6c2d032e4495e147099ca1f460a
+T002:
+  c: true
+  h: 3f0b43fb7b65e29a1dc6d78e684cc1b67f2f3f5a14c89700dafdf595d8f00f62
+  r: Checked the `requirements.txt` file (pinned exact versions) and the integration
+    test log `tests/integration/test_requirements_install.py` which shows `pip install
+    -r requirements.txt` ran successfully with no conflicts.
+  sig: 437a26432ea2f8bfb3bdcd51636822ada7713be0b8f05b297fe04e0f0e31c135
