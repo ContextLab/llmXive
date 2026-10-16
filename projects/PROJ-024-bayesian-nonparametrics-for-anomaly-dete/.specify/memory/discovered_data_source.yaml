@@ -1,11 +1,12 @@
 status: none
-intent: Numenta Anomaly Benchmark and UCR Time Series Anomaly Archive python package
-  dataset
+intent: download Numenta Anomaly Benchmark NAB and UCR Time Series Archive synthetic
+  series python package dataset
 required_fields:
 - timestamp
 - value
 - anomaly_label
 - injection_timestamp
-cache_key: 83e6a2d71ec7b53cbdd48aea552fa5c71079c196052631458b7104da34d87eae
-searched_at: '2026-10-16T16:34:55.295717+00:00'
+- ground_truth_anomaly_type
+cache_key: 7ed9dfff7be29dd82914e0d16e01d169be232fe8f3e99a0814bc724cdd71af1f
+searched_at: '2026-10-16T16:37:13.988181+00:00'
 retry_count: 1

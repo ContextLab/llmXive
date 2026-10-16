@@ -3,6 +3,8 @@ T001:
 T002:
   task: ab8b0a1b81e82f9871e2f5efc2bee01ab34ac203573067d4e6c93343edc230de
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/download_datasets.py
+    exit=1'
   task: 0d20563dec5c435c69af9230ed45aabc51ebb6c2ec550569754cc6e8fefb16b5
 T005:
   task: 8d9499e29470da686972b1d0b9a5f766ed1e9b2fe8ce24eaf29e24bac577dff6
@@ -33,6 +35,11 @@ T018:
 T019:
   task: 34945edc00c531719d806995a1a09120ee5f4dcd9ca79be35bfb265d03c543d4
 T020:
+  reason: "The `validation_deferred.md` report is correctly generated and the script\
+    \ runs without error, but `search_datasets.py` only attempts downloads from NAB\
+    \ and PhysioNet and never queries the UCI repository as required by the task (\u201C\
+    across UCI, NAB, and PhysioNet\u201D). Consequently the search does not fully\
+    \ satisfy the specification."
   task: c257551354df8d8c19d7c0c36dee3bb44446ad2d36050b05120e6dc8109ba5cd
 T021:
   task: 004e52dca822fedf1e966a742f23f42f51dea03ba7e2a5ee0d1df40f6d9a98dd

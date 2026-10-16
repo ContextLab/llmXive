@@ -12,7 +12,7 @@ The following checklist implements the full research pipeline while fixing all s
   - **Script**: `code/src/data/search_datasets.py`  
   - **Outputs**: `data/raw/` (populated only if sources found) and `data/processed/results/validation_deferred.md`.  
 
-- [ ] **T003** [P2] [US1] Download and validate real‑world datasets (NAB & PhysioNet) using the verified URLs defined in the “Verified Datasets” block *only if* T020 discovers sources.  
+- [ ] **T003** [P2] [US1] Download and validate real‑world datasets (NAB & PhysioNet) using the verified URLs defined in the “Verified Datasets” block *only if* T020 discovers sources.   <!-- FAILED-IN-EXECUTION: code/src/data/download_datasets.py exit=1 -->
   - **Script**: `code/src/data/download_datasets.py`  
   - **Outputs**: `data/raw/<dataset_name>.csv`, `data/processed/results/data_checksums.json`.  
   - **Verification**:  
