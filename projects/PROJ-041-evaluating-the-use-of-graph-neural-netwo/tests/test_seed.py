@@ -1,5 +1,5 @@
 """
-Tests for deterministic seed handling (code/utils/seed.py).
+Unit tests for the deterministic seed utilities (code/utils/seed.py).
 """
 
 import random
@@ -8,39 +8,30 @@ import torch
 
 from utils.seed import set_seed, get_seed_value, DEFAULT_SEED
 
-
-def _sample_values():
-    """Return a tuple of random values from the three libraries."""
-    return (
-        random.random(),
-        np.random.rand(),
-        torch.rand(1).item(),
-    )
-
-
 def test_set_seed_reproducibility():
-    """
-    Setting the same seed twice must produce identical sequences
-    across random, numpy, and torch.
-    """
-    seed = 12345
+    """After setting a seed, successive calls to RNGs must be deterministic."""
+    seed = 42
     set_seed(seed)
-    vals1 = _sample_values()
 
-    # Reset the seed to the same value and sample again
+    # Record first draws
+    py_rand_1 = random.random()
+    np_rand_1 = np.random.rand()
+    torch_rand_1 = torch.rand(1).item()
+
+    # Reset seed and draw again – should match first draws
     set_seed(seed)
-    vals2 = _sample_values()
+    py_rand_2 = random.random()
+    np_rand_2 = np.random.rand()
+    torch_rand_2 = torch.rand(1).item()
 
-    assert vals1 == vals2, "Values differ despite identical seeds"
+    assert py_rand_1 == py_rand_2, "Python random not reproducible"
+    assert np_rand_1 == np_rand_2, "NumPy random not reproducible"
+    assert torch_rand_1 == torch_rand_2, "PyTorch random not reproducible"
 
-
-def test_default_seed():
-    """
-    When no seed is provided, the default seed constant should be used.
-    """
-    # Ensure environment variable does not interfere
+def test_get_seed_value_defaults():
+    """When no SEED env var is set, get_seed_value should return DEFAULT_SEED."""
+    # Ensure environment variable is unset for the test
     import os
-    os.environ.pop('SEED', None)
+    os.environ.pop("SEED", None)
 
-    set_seed()
     assert get_seed_value() == DEFAULT_SEED
