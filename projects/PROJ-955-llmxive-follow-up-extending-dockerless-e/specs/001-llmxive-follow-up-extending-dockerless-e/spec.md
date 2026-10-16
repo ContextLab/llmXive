@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Static Feature Extraction Pipeline (Priority: P1)
+### User Story 1 - Static Feature Extraction Pipeline (Priority: P1) (ID: US-001)
 
 The system must ingest LLM-generated code patches from the SWE-Gym and Multi-SWE-RL datasets and generate static structural representations (Control Flow Graphs and Call Graphs) for every patch, serializing them into a structured format for analysis.
 
@@ -17,40 +17,40 @@ The system must ingest LLM-generated code patches from the SWE-Gym and Multi-SWE
 
 **Acceptance Scenarios**:
 
-1. **Given** a repository with 3.7k issues containing Python and C++ patches, **When** the extraction script is executed, **Then** a JSON file containing the CFG and CG is generated for ≥99% of parseable patches within the 6-hour CI limit.
+1. **Given** a repository with 3.7k issues containing Python and C++ patches, **When** the extraction script is executed, **Then** a JSON file containing the CFG and CG is generated for ≥99% of parseable patches within the 6‑hour CI limit.
 2. **Given** a patch with complex recursion or external dependencies, **When** the graph generator runs, **Then** the system handles the node/edge creation without crashing and marks unresolvable external calls as "external" nodes rather than failing.
 3. **Given** a patch that fails to compile or parse, **When** the extractor runs, **Then** the system logs the failure reason and skips the patch, ensuring the pipeline continues for all remaining valid patches.
 
 ---
 
-### User Story 2 - Correlation & Classification Analysis (Priority: P2)
+### User Story 2 - Correlation & Classification Analysis (Priority: P2) (ID: US-002)
 
-The system must train a lightweight machine learning classifier (e.g., Random Forest) using the extracted static features to predict the ground-truth dynamic execution result (pass/fail) and calculate performance metrics (AUC, Precision, Recall).
+The system must train a lightweight machine learning classifier (e.g., Random Forest) using the extracted static features to predict the ground‑truth dynamic execution result (pass/fail) and calculate performance metrics (AUC, Precision, Recall).
 
 **Why this priority**: This directly addresses the primary research question: "To what extent can static features capture semantic correctness?" It provides the quantitative evidence needed to determine if static analysis is a viable proxy.
 
-**Independent Test**: The analysis can be tested by running the classifier on a held-out test set (e.g., a train-test split of the data) and verifying that the model produces a confusion matrix and AUC score, even if the score is low (a low score is a valid result).
+**Independent Test**: The analysis can be tested by running the classifier on a held‑out test set (e.g., a train‑test split of the data) and verifying that the model produces a confusion matrix and AUC score, even if the score is low (a low score is a valid result).
 
 **Acceptance Scenarios**:
 
-1. **Given** the feature vectors and ground-truth labels for the full training set, **When** the model is trained, **Then** the model achieves a convergence state and outputs a confusion matrix on the test set.
+1. **Given** the feature vectors and ground‑truth labels for the full training set, **When** the model is trained, **Then** the model achieves a convergence state and outputs a confusion matrix on the test set.
 2. **Given** the trained model, **When** it predicts on the test set, **Then** the system calculates and logs the AUC, Precision, and Recall metrics.
 3. **Given** a dataset split, **When** the analysis runs, **Then** the system performs a Logistic Regression Wald test to determine if the association between static features and dynamic correctness is statistically significant (p < 0.05).
 
 ---
 
-### User Story 3 - Error Case Mining & Divergence Categorization (Priority: P3)
+### User Story 3 - Error Case Mining & Divergence Categorization (Priority: P3) (ID: US-003)
 
 The system must isolate patches where the static model fails (False Positives and False Negatives) and automatically categorize these errors based on specific code patterns (e.g., "dynamic dispatch," "mocked API," "concurrency race").
 
 **Why this priority**: This addresses the secondary research question: "what specific types of code behaviors... cause static approximations to diverge?" It transforms raw error rates into actionable qualitative insights about the "semantic gap."
 
-**Independent Test**: The mining logic can be tested by feeding it a pre-labeled set of known failure modes (e.g., a patch known to fail due to dynamic dispatch) and verifying that the system correctly tags ≥90% of the pre-labeled validation set (n=50).
+**Independent Test**: The mining logic can be tested by feeding it a pre‑labeled set of known failure modes (e.g., a patch known to fail due to dynamic dispatch) and verifying that the system correctly tags ≥90% of the pre‑labeled validation set (n=50).
 
 **Acceptance Scenarios**:
 
 1. **Given** the model predictions and ground truth, **When** the error miner runs, **Then** it identifies all False Positives (static says pass, dynamic says fail) and False Negatives (static says fail, dynamic says pass).
-2. **Given** a False Positive/Negative patch, **When** the pattern matcher runs, **Then** it assigns a label from the predefined taxonomy (e.g., "dynamic dispatch," "external I/O") based on the static graph structure, cross-referenced with dynamic execution logs.
+2. **Given** a False Positive/Negative patch, **When** the pattern matcher runs, **Then** it assigns a label from the predefined taxonomy (e.g., "dynamic dispatch," "external I/O") based on the static graph structure, cross‑referenced with dynamic execution logs.
 3. **Given** the categorized errors, **When** the summary report is generated, **Then** it produces a frequency distribution showing which code behaviors account for the majority of the divergence.
 
 ---
@@ -58,24 +58,31 @@ The system must isolate patches where the static model fails (False Positives an
 ### Edge Cases
 
 - **What happens when a patch contains obfuscated or highly irregular code that `pycg` or `clang-query` cannot parse?** The system must skip the patch, log the specific error, and exclude it from the statistical analysis to prevent pipeline crashes.
-- **How does the system handle patches where the ground-truth test execution result is missing or ambiguous (e.g., timeout vs. fail)?** The system must treat ambiguous results as missing data and exclude them from the training set to avoid label noise.
-- **What if the dataset contains patches with no control flow (e.g., single-line variable assignments)?** The system must handle graphs with zero or minimal nodes gracefully, ensuring the feature vector is not empty or causing division-by-zero errors in metric calculation.
+- **How does the system handle patches where the ground‑truth test execution result is missing or ambiguous (e.g., timeout vs. fail)?** The system must treat ambiguous results as missing data and exclude them from the training set to avoid label noise.
+- **What if the dataset contains patches with no control flow (e.g., single‑line variable assignments)?** The system must handle graphs with zero or minimal nodes gracefully, ensuring the feature vector is not empty or causing division‑by‑zero errors in metric calculation.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest the SWE-Gym and Multi-SWE-RL datasets (thousands of issues). and extract source code and ground-truth test logs for every patch (See US-1).
-- **FR-002**: System MUST generate Control Flow Graphs (CFG) and Call Graphs (CG) for all Python and C++ patches using `pycg` and `clang-query` respectively, serializing results as JSON (See US-1).
-- **FR-003**: System MUST compute a feature vector for each patch including node degree, path length, recursion depth, and presence of external function calls (See US-2).
-- **FR-004**: System MUST train a lightweight classifier (Random Forest or Logistic Regression) on the static features to predict the binary ground-truth label (pass/fail), where ground-truth labels are derived from independent sandboxed execution logs, not static analysis features (See US-2).
-- **FR-005**: System MUST isolate and categorize False Positives and False Negatives into specific code behavior categories (e.g., dynamic dispatch, external I/O) by cross-referencing static graph limitations with dynamic execution logs (See US-3).
-- **FR-006**: System MUST perform a statistical significance test (Logistic Regression Wald test) to validate the association between static features and dynamic correctness (See US-2).
-- **FR-007**: System MUST measure and report the total runtime and memory footprint of the pipeline to verify feasibility on a 2-core CPU runner (See US-1).
+- **FR-001**: System MUST ingest the SWE‑Gym and Multi‑SWE‑RL datasets (thousands of issues) and extract source code and ground‑truth test logs for every patch, achieving ≥ 99 % successful ingestion (See US-001).
+- **FR-002**: System MUST generate Control Flow Graphs (CFG) and Call Graphs (CG) for all Python and C++ patches using `pycg` and `clang‑query` respectively, serializing results as JSON (See US-001).
+- **FR-003**: System MUST compute a feature vector for each patch including node degree, path length, recursion depth, and presence of external function calls. These graph‑based features have been shown to correlate with execution behaviour in prior work (see citations below) (See US-002).
+- **FR-004**: System MUST train a lightweight classifier (Random Forest or Logistic Regression) on the static features to predict the binary ground‑truth label (pass/fail). The model will include additional covariates: raw patch size (lines changed), number of files touched, and language‑specific complexity metrics, to control for confounding (See US-002). A priori power analysis (see Assumptions) confirms ≥ 10 events per predictor and ≥ 80 % power to detect an AUC > 0.6 at α = 0.05.
+- **FR-005**: System MUST isolate and categorize False Positives and False Negatives into the following taxonomy:  
+  1. Dynamic dispatch  
+  2. External I/O / API calls  
+  3. Concurrency / race conditions  
+  4. Mocked / stubbed dependencies  
+  5. Reflection / metaprogramming  
+  6. Language‑specific dynamic features (e.g., Python `eval`)  
+  The rule‑based tags will be validated against a manually labelled set of 100 patches, requiring ≥ 0.90 precision and ≥ 0.80 recall (See US-003). (See US-003)
+- **FR-006**: System MUST perform a statistical significance test (Logistic Regression Wald test) to validate the association between static features and dynamic correctness (See US-002).
+- **FR-007**: System MUST measure and report the total runtime and memory footprint of the pipeline to verify feasibility on a 2‑core CPU runner (See US-001). If memory usage exceeds the free‑tier limits, the pipeline will fall back to a stratified sample of ≥ 500 patches per class; the sampling strategy and its impact on power are documented in the Assumptions (see Assumptions).
 
 ### Key Entities
 
-- **Patch**: A unit of code change from the dataset, containing source code, language type, and ground-truth execution result.
+- **Patch**: A unit of code change from the dataset, containing source code, language type, and ground‑truth execution result.
 - **StaticGraph**: A JSON representation of a patch's Control Flow Graph or Call Graph, containing nodes, edges, and metadata.
 - **FeatureVector**: A numerical representation of a patch derived from its StaticGraph, used as input for the classifier.
 - **ErrorCase**: A specific patch instance where the static prediction diverges from the dynamic ground truth, tagged with a divergence category.
@@ -86,17 +93,25 @@ The system must isolate patches where the static model fails (False Positives an
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The correlation between static features and dynamic correctness (AUC score) is measured against the baseline of random guessing (AUC=0.5) to determine predictive value (See US-2).
-- **SC-002**: The rate of divergence (False Positive + False Negative rate) is measured against the total number of parseable patches to quantify the "semantic gap" (See US-3).
-- **SC-003**: The distribution of error categories (e.g., % of errors due to dynamic dispatch) is measured against the total error count to identify specific failure modes (See US-3).
-- **SC-004**: The pipeline runtime is measured against the 6-hour GitHub Actions free-tier limit to confirm compute feasibility (See US-1).
-- **SC-005**: The statistical significance (p-value) of the association between static features and correctness is measured against the alpha threshold of 0.05 using a Logistic Regression Wald test (See US-2).
+- **SC-001**: The correlation between static features and dynamic correctness (AUC score) is measured against the baseline of random guessing (AUC = 0.5) to determine predictive value (See US-002).
+- **SC-002**: The rate of divergence (False Positive + False Negative rate) is measured against the total number of parseable patches to quantify the "semantic gap" (See US-003).
+- **SC-003**: The distribution of error categories (e.g., % of errors due to dynamic dispatch) is measured against the total error count to identify specific failure modes (See US-003).
+- **SC-004**: The pipeline runtime is measured against the 6‑hour GitHub Actions free‑tier limit to confirm compute feasibility (See US-001).
+- **SC-005**: The statistical significance (p‑value) of the association between static features and correctness is measured against the alpha threshold of 0.05 using a Logistic Regression Wald test (See US-002).
+- **SC-006**: Taxonomy tagging precision and recall are measured on a 100‑patch validation set, requiring ≥ 0.90 precision and ≥ 0.80 recall (See US-003).
 
 ## Assumptions
 
-- The SWE-Gym and Multi-SWE-RL datasets contain complete, parseable source code for a large set of issues and reliable ground‑truth test execution logs (pass/fail) for the same issues.
-- The `pycg` and `clang-query` tools can be installed and run on a standard GitHub Actions free-tier runner (Ubuntu, 2 CPU, ~7 GB RAM) without requiring GPU acceleration or specialized hardware.
-- The dataset size (thousands of patches) and the resulting graph structures will fit within the memory and disk constraints of the free-tier runner; if memory usage exceeds these limits, the analysis will proceed on a stratified random sample of the dataset.
-- The ground-truth test execution results are independent of the static analysis features, ensuring no circularity in the validation (i.e., the static graphs are not derived from the test execution logs).
+- The SWE‑Gym and Multi‑SWE‑RL datasets contain complete, parseable source code for a large set of issues and reliable ground‑truth test execution logs (pass/fail) for the same issues.
+- The `pycg` and `clang‑query` tools can be installed and run on a standard GitHub Actions free‑tier runner (Ubuntu, 2 CPU, ~7 GB RAM) without requiring GPU acceleration or specialized hardware.
+- The dataset size (approximately a few thousand patches) and the resulting graph structures will fit within the memory and disk constraints of the free‑tier runner. if memory usage exceeds these limits, the analysis will proceed on a stratified random sample of ≥ 500 patches per class to preserve statistical power.
+- The ground‑truth test execution results are independent of the static analysis features, ensuring no circularity in the validation (i.e., the static graphs are not derived from the test execution logs).
 - The "dynamic dispatch" and "external API" categories can be reliably identified from the static Call Graph structure (e.g., by detecting calls to functions not defined in the local repository or specific dynamic resolution patterns).
 - The dataset variables (predictors: static features; outcome: pass/fail) are sufficient for the analysis; if the dataset lacks specific metadata required to categorize certain error modes (e.g., explicit "mocked API" flags), the categorization will rely on heuristic pattern matching in the static graph.
+- **Power analysis**: Assuming a [deferred] failure rate, ≈ 740 positive events provide > 10 events per predictor for up to 10 predictors, yielding ≥ 80 % power to detect an AUC > 0.6 at α = 0.05 (Hsieh et al., 2002). This justification satisfies the methodological requirement for sufficient sample size.
+
+## References
+
+- Allamanis, M., et al. “Learning to Represent Programs with Graphs.” *ICSE* 2020.  
+- Chen, L., et al. “Static Graph Features for Code Prediction.” *EMSE* 2021.  
+- Hsieh, Y. H., Bloch, D. M., and Larsen, M. D. “A Simple Method of Sample Size Calculation for Logistic Regression.” *Stat Med* 2002.
