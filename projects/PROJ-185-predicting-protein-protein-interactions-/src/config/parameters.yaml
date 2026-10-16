@@ -1,8 +1,0 @@
-# Global pipeline parameters
-#
-# threshold   – correlation threshold for edge inclusion (must be >= 0.75)
-# norm_method – normalization method for raw counts ('vst' or 'tpm')
-# seed        – global random seed for reproducibility
-threshold: 0.80
-norm_method: vst
-seed: 42

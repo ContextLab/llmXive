@@ -1,30 +1,25 @@
 T001:
-  reason: "The top\u2011level directories (`src/`, `tests/`, `data/`, `results/`,\
-    \ `docs/`, `contracts/`) exist, but they are not empty \u2013 they contain files\
-    \ such as `.gitkeep`, `__init__.py`, and sub\u2011folders. The task required *empty*\
-    \ directories, which is not satisfied. The test only checks for existence, not\
-    \ emptiness, so the core requirement remains unmet."
+  reason: The `src/` directory contains a `utils/` subdirectory and `tests/` contains
+    a `unit/` subdirectory, so they are not empty as required. Moreover, the verification
+    script `tests/unit/test_skeleton.py` is missing, so the CI test that asserts the
+    directories exist cannot run.
   task: 9ab582048a5ba4ac0040a79a0d4ff784f396dc0a5333a86fa0888db9595daa16
 T002:
   task: 330d9dd829d42a9fd90a380aacb7310d8596301d0914581c11aea8b8c73873a3
 T003:
-  reason: 'The `requirements.txt` does not exactly mirror the pinned versions (and
-    set) listed in `pyproject.toml): e.g., `scipy`, `PyYAML`, `psutil`, and `GEOparse`
-    have different versions, and several pyproject dependencies are absent. Additionally,
-    the required verification test `tests/unit/test_requirements_match.py` is missing.'
   task: b8367bfc3f85bf10f7063d1415ddd83e017d790622c1efbff678194d694f646c
 T004:
-  reason: Checked `src/config/species.yaml`, `src/config/parameters.yaml`, and `tests/unit/test_config_contents.py`;
-    all three required files are reported as MISSING, so the configuration files and
-    their verification test are not present.
+  reason: "The evidence shows that `src/config/species.yaml` and `src/config/parameters.yaml`\
+    \ are marked **MISSING**, so the required configuration files do not exist at\
+    \ the specified location. Consequently the task\u2019s core deliverable (the two\
+    \ YAML files with the prescribed keys and values) is not present, even though\
+    \ the unit\u2011test script happened to pass by looking in a different path. The\
+    \ missing YAML files must be added under `src/config/` with the correct structure\
+    \ for the task to be complete."
   task: 0d9414994dfe42cf70104ebb96e5d7fb4666d01ba7f67867ac6fdbbfb8906ce6
 T005:
-  reason: Checked `src/utils/cli.py` and `src/utils/random.py` (both present) and
-    the required `src/logs/pipeline.log`, `tests/unit/test_seed_flag.py`, and `results/predicted_ppi_Arabidopsis.tsv`
-    (all missing). Moreover, the CLI logger writes to `results/pipeline.log` instead
-    of the required `src/logs/pipeline.log`, so the seed, command line, and software
-    versions are not recorded in the correct file. The test suite and reproducibility
-    check cannot be performed.
+  reason: 'Requested task execution failed; rerun successfully: tests/unit/test_seed_flag.py
+    exit=1'
   task: 5de7b4cc177fa8b58b205a1b5ec05902bc8625ae4284617dabc168ad0836c291
 T006:
   reason: The required `species.yaml`, the populated `data/raw/` archives, the `data/artifact_hashes.yaml`

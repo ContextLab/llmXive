@@ -18,7 +18,7 @@ Tasks are ordered to respect data flow; parallel‑izable tasks are marked with 
   - **Output**: `pyproject.toml` at project root.  
   - **Verification**: `tests/unit/test_pyproject_pins.py` parses the file and fails if any dependency lacks an `==` specifier.  
 
-- [ ] T003 [US1] Create a matching `requirements.txt` that lists the exact same pinned versions as `pyproject.toml`.  
+- [X] T003 [US1] Create a matching `requirements.txt` that lists the exact same pinned versions as `pyproject.toml`.  
   - **Output**: `requirements.txt`.  
   - **Verification**: `tests/unit/test_requirements_match.py` reads both files and asserts line‑by‑line equality of package names and versions.  
 
@@ -27,7 +27,7 @@ Tasks are ordered to respect data flow; parallel‑izable tasks are marked with 
   - `parameters.yaml` – contains `threshold: 0.80`, `norm_method: vst`, `seed: 42`.  
   - **Verification**: `tests/unit/test_config_contents.py` checks that required keys exist, that `threshold >= 0.75`, and that a numeric `seed` is present.  
 
-- [ ] T005 [US1] Implement a global CLI parser (`src/utils/cli.py`) that registers a `--seed <int>` flag. All stochastic functions must read this seed via a shared module (`src/utils/random.py`). Extend the existing JSON‑Line logger (`src/logs/pipeline.log`) to record the seed, full command‑line invocation, and software versions (FR‑010, FR‑035).  
+- [ ] T005 [US1] Implement a global CLI parser (`src/utils/cli.py`) that registers a `--seed <int>` flag. All stochastic functions must read this seed via a shared module (`src/utils/random.py`). Extend the existing JSON‑Line logger (`src/logs/pipeline.log`) to record the seed, full command‑line invocation, and software versions (FR‑010, FR‑035).   <!-- FAILED-IN-EXECUTION: tests/unit/test_seed_flag.py exit=1 -->
   - **Output**: Updated `cli.py`, `random.py`, and an initialized `src/logs/pipeline.log`.  
   - **Verification**: `tests/unit/test_seed_flag.py` runs the CLI with `--seed 123`, checks that the same seed appears in `pipeline.log`, and that two consecutive runs produce identical `results/predicted_ppi_Arabidopsis.tsv` files.  
 
