@@ -1,13 +1,18 @@
 status: none
-intent: Curated Real-World Meeting Backgrounds Human Pilot Ratings dataset python
-  package dataset
+intent: download meeting background images with visual complexity scores, COCO and
+  Open Images annotations python package dataset
 required_fields:
 - image_id
 - image_path
+- image_width
+- image_height
 - entropy
 - color_variance
-- object_count
+- object_detection_count
+- object_category_counts
 - human_complexity_score
-cache_key: af3952ae871ae2fb967836146b177b41609f9198f9d98c5914adc09a659eec20
-searched_at: '2026-10-06T18:48:33.966174+00:00'
+- participant_id
+- familiarity_score
+cache_key: 54ae80f2b4e76aafea5bac553ba0fb742e37ffa054c04f8d9760bb0c1935b023
+searched_at: '2026-10-16T16:13:14.633436+00:00'
 retry_count: 1
