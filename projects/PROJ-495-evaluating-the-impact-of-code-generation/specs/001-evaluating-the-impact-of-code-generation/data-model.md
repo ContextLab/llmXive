@@ -11,6 +11,8 @@
 | language | enum: `python` \| `javascript` \| `java` \| `other` | Detected programming language |
 | loc | integer \| null | Non‑comment, non‑blank lines of code (null if not computed) |
 | status | enum: `ok` \| `parse_error` \| `skipped_size` \| `skipped_zero_loc` | Ingestion/analysis outcome |
+| complexity_proxy | number \| null | Average cyclomatic complexity for the file (computed by `radon`) |
+| repo_id | string \| null | Identifier of the originating repository/project (used for clustering) |
 
 ### VulnerabilityRecord (`data/derived/findings.csv`)
 | Field | Type | Description |
@@ -29,12 +31,14 @@
 | source_group | enum: `llm` \| `human` | Repeated for convenience |
 | language | enum: `python` \| `javascript` \| `java` \| `other` | Language |
 | loc | integer \| null | Lines of code |
-| vulnerability_count | integer (≥ 0) | Total findings for the file |
-| corrected_vulnerability_count | integer (≥ 0) | Vulnerability count after adjusting for audit‑derived false‑positive rate |
+| vulnerability_count | integer (≥ 0) | Total findings **before** deduplication |
+| deduped_vulnerability_count | integer (≥ 0) | Unique findings after deduplication across tools |
+| corrected_vulnerability_count | integer (≥ 0) | Vulnerability count after adjusting for **tool‑specific** false‑positive rates |
 | cwe_ids | array of strings (`CWE-####`) | Unique CWE IDs present |
 | density | number \| string (`"undefined"`) | Vulnerabilities per LOC (raw) |
 | density_corrected | number \| string (`"undefined"`) | Vulnerabilities per LOC after false‑positive correction |
 | tools_run | array of `bandit`/`semgrep`/`sonarqube` | Which tools produced findings |
+| complexity_proxy | number \| null | Average cyclomatic complexity (copied from CodeSample) |
 
 ### AnalysisResult (`results/tables/group_summary.csv` + `statistical_tests.csv`)
 | Field | Type | Description |
@@ -62,10 +66,11 @@
 | finding_id | string (FK → VulnerabilityRecord) | Audited finding |
 | verdict | enum: `true_positive` \| `false_positive` \| blank | Human judgement |
 | auditor_id | string | Identifier of the reviewer |
+| tool | enum: `bandit` \| `semgrep` \| `sonarqube` | Tool that produced the finding (used for tool‑specific FPR) |
 
 ## Derivation Chain (Constitution III/IV)
 
-`data/raw/*` → **Ingest** → `file_manifest.csv` → **Static analysis** → `findings.csv` & `per_file_analysis.csv` → **Density & audit‑adjusted counts** → `per_file_analysis.csv` (now includes corrected fields) → **Group summary** → `group_summary.csv` → **Statistical tests** → `statistical_tests.csv` → **Figures** → `results/figures/*`.  
+`data/raw/*` → **Ingest** → `file_manifest.csv` → **Static analysis** → `findings_raw.csv` → **Deduplication** → `findings.csv` & `per_file_analysis.csv` (now includes deduped counts) → **Complexity proxy** (adds `complexity_proxy`) → **Density & audit‑adjusted counts** → `per_file_analysis.csv` (now includes corrected fields) → **Group summary** → `group_summary.csv` → **Statistical tests** → `statistical_tests.csv` → **Figures** → `results/figures/*`.  
 
 Each step records its input hash, output hash, script name, and random seed (if any) in `data/derived/provenance.json`.
 

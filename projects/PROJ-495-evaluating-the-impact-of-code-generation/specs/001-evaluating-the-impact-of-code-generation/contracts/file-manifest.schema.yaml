@@ -21,4 +21,4 @@ properties:
         loc:
           type: ["integer", "null"]
         status:
-          enum: ["ok", "parse_error", "skipped_size"]
+          enum: ["ok", "parse_error", "skipped_size", "skipped_zero_loc"]

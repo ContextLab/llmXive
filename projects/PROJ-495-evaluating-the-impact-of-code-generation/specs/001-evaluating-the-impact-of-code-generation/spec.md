@@ -13,7 +13,7 @@ The system must successfully download the CodeVulnBench dataset and complementar
 
 **Why this priority**: This is the foundational step; without the ability to ingest data and run the analysis pipeline on free-tier CPU resources, no comparison or statistical evaluation can occur. It delivers the raw data necessary for the entire study.
 
-**Independent Test**: Can be fully tested by running the analysis script against a small, pre-defined subset of the dataset (e.g., 50 files) and verifying that the output JSON contains valid vulnerability counts and file metadata for both LLM and human code groups.
+**Independent Test**: Can be fully tested by running the analysis script against a small, pre-defined subset of the dataset (e.g., a modest number of files) and verifying that the output JSON contains valid vulnerability counts and file metadata for both LLM and human code groups.
 
 **Acceptance Scenarios**:
 

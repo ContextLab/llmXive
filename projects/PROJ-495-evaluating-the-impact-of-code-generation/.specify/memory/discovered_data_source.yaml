@@ -1,13 +1,15 @@
 status: none
-intent: download CodeVulnBench and Juliet Test Suite datasets with MITRE CWE python
-  package dataset
+intent: CodeVulnBench dataset download huggingface Juliet Test Suite CWE taxonomy
+  python package dataset
 required_fields:
-- file_path
-- source_code
-- origin
+- file_id
+- file_name
+- code
 - language
-- vulnerability_count
-- cwe_ids
-cache_key: 2eea75168e11d26f245df1b85c17ead6837254711f944ee853f90b88404260e8
-searched_at: '2026-10-10T14:16:07.352286+00:00'
+- source
+- cwe_id
+- vulnerability_label
+- sha256
+cache_key: 23aff255b0ee3a9d30245b0864fa8dc2c78832c401fff10e185f0d2a668515b1
+searched_at: '2026-10-16T18:27:35.215289+00:00'
 retry_count: 1
