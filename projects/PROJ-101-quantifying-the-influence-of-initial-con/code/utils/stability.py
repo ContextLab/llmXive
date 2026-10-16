@@ -3,18 +3,21 @@ Numerical stability utilities for trajectory analysis.
 
 This module provides functions to check numerical validity, boundedness,
 convergence, and divergence detection for chaotic system trajectories.
+It also includes a guard that raises an error when a trajectory becomes
+unphysical (state norm exceeds a safe threshold) and a helper to emit a
+warning for excessively noisy simulations.
 """
 import numpy as np
-from typing import Tuple, Optional, List
-from dataclasses import dataclass, field
 import warnings
-import sys
-
-# Configure logging
 import logging
+from dataclasses import dataclass, field
+from typing import Tuple, Optional, List
+
 logger = logging.getLogger(__name__)
 
-
+# ----------------------------------------------------------------------
+# Exceptions
+# ----------------------------------------------------------------------
 class NumericalStabilityError(Exception):
     """Exception raised for numerical stability violations."""
     pass
@@ -30,6 +33,9 @@ class NonConvergenceError(Exception):
     pass
 
 
+# ----------------------------------------------------------------------
+# Data container
+# ----------------------------------------------------------------------
 @dataclass
 class StabilityReport:
     """Container for stability analysis results."""
@@ -50,13 +56,16 @@ class StabilityReport:
             "max_value": self.max_value,
             "divergence_rate": self.divergence_rate,
             "warnings": self.warnings,
-            "details": self.details
+            "details": self.details,
         }
 
 
+# ----------------------------------------------------------------------
+# Numerical checks
+# ----------------------------------------------------------------------
 def check_numerical_validity(
     state_vector: np.ndarray,
-    threshold: float = 1e12
+    threshold: float = 1e12,
 ) -> Tuple[bool, List[str]]:
     """
     Check if a state vector contains valid numerical values.
@@ -84,7 +93,9 @@ def check_numerical_validity(
     # Check for overflow
     max_val = np.max(np.abs(state_vector))
     if max_val > threshold:
-        warnings_list.append(f"State vector values exceed threshold ({max_val:.2e} > {threshold:.2e})")
+        warnings_list.append(
+            f"State vector values exceed threshold ({max_val:.2e} > {threshold:.2e})"
+        )
         is_valid = False
 
     return is_valid, warnings_list
@@ -92,14 +103,17 @@ def check_numerical_validity(
 
 def check_boundedness(
     state_vector: np.ndarray,
-    threshold: float = 100.0
+    threshold: float = 20.0,
 ) -> bool:
     """
     Check if a state vector remains within acceptable bounds.
 
+    The default threshold (20.0) implements the project‑specific guard
+    that defines an *unphysical* trajectory.
+
     Args:
         state_vector: The state vector to check.
-        threshold: Maximum allowed absolute value.
+        threshold: Maximum allowed absolute value (default 20.0).
 
     Returns:
         True if bounded, False otherwise.
@@ -111,15 +125,55 @@ def check_boundedness(
     is_bounded = max_val <= threshold
 
     if not is_bounded:
-        logger.warning(f"State vector exceeds bound: max(|state|) = {max_val:.2e} > {threshold}")
+        logger.warning(
+            f"State vector exceeds bound: max(|state|) = {max_val:.2e} > {threshold}"
+        )
 
     return is_bounded
+
+
+def raise_if_unphysical(
+    state_vector: np.ndarray,
+    threshold: float = 20.0,
+) -> None:
+    """
+    Guard that raises :class:`UnphysicalTrajectoryError` if the Euclidean norm
+    of the supplied state vector exceeds ``threshold`` (default 20.0).
+
+    This function is deliberately lightweight and performs the check
+    lazily; callers should invoke it at each integration step or after a
+    batch integration to enforce the boundedness contract required by
+    task **T007**.
+
+    Args:
+        state_vector: The state vector (or full trajectory array) to inspect.
+        threshold: Norm threshold beyond which the trajectory is considered
+                   unphysical.
+
+    Raises:
+        UnphysicalTrajectoryError: If ``np.linalg.norm(state_vector)`` > ``threshold``.
+    """
+    # Local import to avoid circular dependencies (data.generator also imports this module)
+    from ..data.generator import UnphysicalTrajectoryError
+
+    # Compute the Euclidean norm (L2) of the vector or, if a 2‑D array is given,
+    # the maximum norm across all time steps.
+    if state_vector.ndim == 1:
+        norm_val = np.linalg.norm(state_vector)
+    else:
+        # For a full trajectory we consider the worst‑case norm.
+        norm_val = np.max(np.linalg.norm(state_vector, axis=1))
+
+    if norm_val > threshold:
+        raise UnphysicalTrajectoryError(
+            f"Unphysical trajectory: norm {norm_val:.2f} exceeds allowed maximum {threshold}"
+        )
 
 
 def check_convergence(
     values: np.ndarray,
     tol: float = 1e-6,
-    window: int = 10
+    window: int = 10,
 ) -> bool:
     """
     Check if a sequence of values has converged.
@@ -135,7 +189,6 @@ def check_convergence(
     if len(values) < window + 1:
         return False
 
-    # Check relative change in the last 'window' values
     recent_values = values[-window:]
     max_rel_change = 0.0
 
@@ -150,14 +203,16 @@ def check_convergence(
     is_converged = max_rel_change < tol
 
     if not is_converged:
-        logger.debug(f"Convergence not achieved: max relative change = {max_rel_change:.2e} > {tol}")
+        logger.debug(
+            f"Convergence not achieved: max relative change = {max_rel_change:.2e} > {tol}"
+        )
 
     return is_converged
 
 
 def detect_divergence_rate(
     trajectory: np.ndarray,
-    time_steps: Optional[np.ndarray] = None
+    time_steps: Optional[np.ndarray] = None,
 ) -> Optional[float]:
     """
     Estimate the divergence rate of a trajectory.
@@ -167,21 +222,18 @@ def detect_divergence_rate(
         time_steps: Optional array of time values.
 
     Returns:
-        Estimated divergence rate (Lyapunov-like), or None if undetectable.
+        Estimated divergence rate (Lyapunov‑like), or None if undetectable.
     """
     if trajectory.ndim != 2 or trajectory.shape[0] < 2:
         return None
 
     n_steps, n_dims = trajectory.shape
 
-    # Use default time steps if not provided
     if time_steps is None:
         time_steps = np.arange(n_steps)
 
-    # Compute norm at each step
     norms = np.linalg.norm(trajectory, axis=1)
 
-    # Filter out zero or near-zero norms to avoid log issues
     valid_mask = norms > 1e-12
     if np.sum(valid_mask) < 2:
         return None
@@ -189,12 +241,9 @@ def detect_divergence_rate(
     valid_times = time_steps[valid_mask]
     valid_norms = norms[valid_mask]
 
-    # Log-transform
     log_norms = np.log(valid_norms)
 
-    # Simple linear fit to estimate growth rate
     try:
-        # Fit log_norm = rate * time + intercept
         coeffs = np.polyfit(valid_times, log_norms, 1)
         rate = coeffs[0]
         return rate
@@ -207,7 +256,7 @@ def validate_trajectory(
     max_bound: float = 100.0,
     min_steps: int = 100,
     check_convergence: bool = False,
-    convergence_tol: float = 1e-6
+    convergence_tol: float = 1e-6,
 ) -> StabilityReport:
     """
     Perform a comprehensive validation of a trajectory.
@@ -245,16 +294,24 @@ def validate_trajectory(
     if not is_valid:
         is_stable = False
 
-    # Check boundedness
+    # Check boundedness (legacy threshold)
     max_val = np.max(np.abs(trajectory))
     if max_val > max_bound:
         bounded = False
         warnings_list.append(f"Trajectory exceeds bound: {max_val:.2e} > {max_bound}")
         is_stable = False
 
+    # Additional check using the new guard (threshold 20.0)
+    try:
+        raise_if_unphysical(trajectory, threshold=20.0)
+    except Exception as e:
+        # The guard raises UnphysicalTrajectoryError; we record it as unbounded.
+        bounded = False
+        warnings_list.append(str(e))
+        is_stable = False
+
     # Check convergence if requested
     if check_convergence and n_steps > 10:
-        # Use the norm of the state for convergence check
         norms = np.linalg.norm(trajectory, axis=1)
         converged = check_convergence(norms, tol=convergence_tol)
         if not converged:
@@ -274,6 +331,6 @@ def validate_trajectory(
             "n_steps": n_steps,
             "n_dims": n_dims,
             "min_value": float(np.min(trajectory)),
-            "mean_norm": float(np.mean(np.linalg.norm(trajectory, axis=1)))
-        }
+            "mean_norm": float(np.mean(np.linalg.norm(trajectory, axis=1))),
+        },
     )

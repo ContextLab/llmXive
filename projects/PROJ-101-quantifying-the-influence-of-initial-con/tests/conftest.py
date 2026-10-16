@@ -23,6 +23,13 @@ sys.path.insert(0, str(project_root))
 
 from config import get_full_config, SimulationConfig, AnalysisConfig, NumericalSettings
 
+@pytest.fixture
+def seed() -> int:
+    """
+    Fixture providing a fixed random seed for reproducibility.
+    Returns the constant value 42 as required by the specification.
+    """
+    return 42
 
 @pytest.fixture(autouse=True)
 def setup_environment() -> Generator[None, None, None]:
@@ -33,21 +40,20 @@ def setup_environment() -> Generator[None, None, None]:
     # Set a default test seed if not already set
     if "TEST_SEED" not in os.environ:
         os.environ["TEST_SEED"] = "42"
-    
+
     # Set project root path
     os.environ["PROJECT_ROOT"] = str(project_root)
-    
+
     yield
-    
+
     # Cleanup after tests if needed
     pass
-
 
 @pytest.fixture(scope="session")
 def test_seed() -> int:
     """
     Fixture providing a fixed random seed for reproducible tests.
-    
+
     Returns:
         int: The seed value (default 42, or from TEST_SEED env var)
     """
@@ -57,55 +63,53 @@ def test_seed() -> int:
     except ValueError:
         return 42
 
-
 @pytest.fixture
 def random_seed(test_seed: int) -> Generator[int, None, None]:
     """
     Fixture that sets and restores the random seed for a single test.
-    
+
     This ensures each test starts with a known random state while
     allowing the seed to be controlled via the test_seed fixture.
-    
+
     Args:
         test_seed: The base seed value from the session fixture
-    
+
     Yields:
         int: The seed value used for the test
     """
     # Set numpy random seed
     np.random.seed(test_seed)
-    
+
     # Set python random seed
     import random
     random.seed(test_seed)
-    
+
     yield test_seed
-    
+
     # Note: We don't restore the seed here because each test
     # should start with a fresh seed anyway
-
 
 @pytest.fixture
 def temp_data_dir() -> Generator[Path, None, None]:
     """
     Fixture creating a temporary directory for data files during tests.
-    
+
     This ensures tests don't pollute the actual data/ directory and
     can clean up after themselves automatically.
-    
+
     Yields:
         Path: Path to the temporary directory
     """
     temp_dir = tempfile.mkdtemp(prefix="llmXive_test_")
     temp_path = Path(temp_dir)
-    
+
     # Create subdirectories matching project structure
     (temp_path / "raw").mkdir(parents=True, exist_ok=True)
     (temp_path / "processed").mkdir(parents=True, exist_ok=True)
     (temp_path / "state").mkdir(parents=True, exist_ok=True)
-    
+
     yield temp_path
-    
+
     # Cleanup: remove the temporary directory and all contents
     try:
         shutil.rmtree(temp_path)
@@ -114,15 +118,14 @@ def temp_data_dir() -> Generator[Path, None, None]:
         import warnings
         warnings.warn(f"Failed to cleanup temp directory {temp_path}: {e}")
 
-
 @pytest.fixture
 def sample_config(temp_data_dir: Path) -> Dict[str, Any]:
     """
     Fixture providing a sample configuration dictionary for tests.
-    
+
     Args:
         temp_data_dir: Temporary directory fixture for data paths
-    
+
     Returns:
         Dict with configuration values suitable for testing
     """
@@ -145,15 +148,14 @@ def sample_config(temp_data_dir: Path) -> Dict[str, Any]:
         "noise_levels": [0.0, 0.01, 0.1],
     }
 
-
 @pytest.fixture
 def full_config(sample_config: Dict[str, Any]) -> SimulationConfig:
     """
     Fixture providing a full SimulationConfig object for integration tests.
-    
+
     Args:
         sample_config: Sample configuration dictionary
-    
+
     Returns:
         SimulationConfig: A configured simulation object
     """
@@ -166,15 +168,14 @@ def full_config(sample_config: Dict[str, Any]) -> SimulationConfig:
         noise_levels=sample_config.get("noise_levels", [0.0, 0.01]),
     )
 
-
 @pytest.fixture
 def analysis_config(sample_config: Dict[str, Any]) -> AnalysisConfig:
     """
     Fixture providing an AnalysisConfig object for tests.
-    
+
     Args:
         sample_config: Sample configuration dictionary
-    
+
     Returns:
         AnalysisConfig: A configured analysis object
     """
@@ -183,12 +184,11 @@ def analysis_config(sample_config: Dict[str, Any]) -> AnalysisConfig:
         convergence_threshold=sample_config["analysis"]["convergence_threshold"],
     )
 
-
 @pytest.fixture
 def numerical_settings() -> NumericalSettings:
     """
     Fixture providing numerical settings for stability checks.
-    
+
     Returns:
         NumericalSettings: Configuration for numerical tolerances
     """
@@ -199,16 +199,15 @@ def numerical_settings() -> NumericalSettings:
         convergence_tol=1e-6,
     )
 
-
 @pytest.fixture
 def clean_test_environment(temp_data_dir: Path, random_seed: int) -> Dict[str, Path]:
     """
     Composite fixture providing a clean test environment with paths.
-    
+
     Args:
         temp_data_dir: Temporary directory fixture
         random_seed: Random seed fixture
-    
+
     Returns:
         Dict with paths to raw, processed, and state directories
     """

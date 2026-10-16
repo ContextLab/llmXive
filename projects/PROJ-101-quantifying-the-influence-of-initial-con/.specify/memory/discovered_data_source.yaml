@@ -1,13 +1,18 @@
 status: none
-intent: pip install jitcode coupled Lorenz oscillator synthetic trajectory generator
-  python package dataset
+intent: download Synthetic Coupled Lorenz Trajectories PyDSTool python package dataset
 required_fields:
 - time
-- oscillator_id
-- x
-- y
-- z
+- x1
+- y1
+- z1
+- x2
+- y2
+- z2
+- '...'
+- xN
+- yN
+- zN
 - noise_std
-cache_key: 2fb58635084f34e51cf79d2ce37536b6420d0b4758711a4658bfbfce05db3186
-searched_at: '2026-10-16T14:12:05.583760+00:00'
+cache_key: a40dca5fab658ca027181920c6cee34a75d498ea3d3b13d5a28a2287dd16073c
+searched_at: '2026-10-16T14:49:01.416996+00:00'
 retry_count: 1

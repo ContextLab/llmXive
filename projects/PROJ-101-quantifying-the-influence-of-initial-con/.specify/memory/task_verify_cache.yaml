@@ -1,68 +1,63 @@
-T001a:
+T002:
+  c: true
+  h: 77c7f813c7e38f37f5560a27dd7e7850a5b5852570da3936c786dbc5d1bb3cc6
+  r: "Checked that `code/__init__.py`, `code/simulation/__init__.py`, `code/analysis/__init__.py`,\
+    \ `code/utils/__init__.py`, and `tests/__init__.py` all exist with non\u2011empty\
+    \ content, and that importing `code` (and its sub\u2011packages) succeeds given\
+    \ the present sub\u2011modules."
+  sig: 16643e08dfd00f1b9d67298593e32fad671615d3dc5e1cc972c45139405863ee
+T003:
+  c: true
+  h: 7a00ce7c180a01c7b8fcdcdeaf0b3a37b9511cc6837b647a086af1ca4aec3289
+  r: "Checked `tests/conftest.py` \u2013 it defines a `seed` fixture returning 42\
+    \ and creates a temporary directory fixture, and the recorded pytest run shows\
+    \ a dummy test passing that verifies reproducible random output."
+  sig: a25eb1ed907f99c903ea202750bf41561ff3a3bdd9c80de1e0dcc4d6b4100d78
+T004:
+  c: true
+  h: 20bf94fc431524d4dfff4ea97533cc669947a97a661fd869851f69d4f742f558
+  r: "The `quickstart.md` file (3884\u202Fbytes) was found at the expected location\
+    \ and contains a CLI entry\u2011point description, a table listing the `--noise-levels`\
+    \ and `--N-values` flags, and a minimal \u201Crun\u2011the\u2011pipeline\u201D\
+    \ example that uses those flags. This satisfies the task\u2019s documentation\
+    \ requirement and would pass the CI check for the presence of the two argument\
+    \ names."
+  sig: 423391c63cd4e2e874f40b11da1035efadda440c7ebf1b8b5ce6362fe7dd5e68
+T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `tests/`, `data/raw/`, `data/processed/`,
-    `state/`) is presented; the claim lacks any artifact confirming that the directory
-    structure exists. The implementer must create and show these folders.
-T001c:
+  h: 2ad836d1e073b2e9d6601443c66f6996567450d4fdb9c6dfc48372cebd2a3773
+  r: "The `README.md` file is present and contains detailed pipeline instructions,\
+    \ but it does **not** include the required markdown headings exactly named \u201C\
+    Step\u202F1\u202F\u2013\u202FGenerate trajectories\u201D, \u201CStep\u202F2\u202F\
+    \u2013\u202FCompute baseline\u201D, etc.; they appear only as bolded text within\
+    \ sections, so the CI check `make docs` would fail to find the expected headings.\
+    \ The missing proper headings must be added to satisfy the task."
+  sig: 06f08bfc3ed4dab095400a162774f36d1be8f69b0b1b3fa26ab07e113f557f97
+T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `tests/unit/` and `tests/integration/` directories
-    is provided; the claim lacks any artifact showing that these folders exist in
-    the repository. The implementer must add the two directories (with at least placeholder
-    files if needed) and present a file listing or similar proof.
+  h: c7dba2eda568576fb984838c012d36298bee4c2988427bb7d03e19feb5b3b2fa
+  r: "The required file `code/simulation/generator.py` is missing, so the specified\
+    \ functions `lorenz_ode` and `generate_trajectory` do not exist at the mandated\
+    \ location. Although a similar implementation lives in `code/data/generator.py`\
+    \ and is re\u2011exported via `data/generator.py`, this does not satisfy the task\u2019\
+    s explicit file\u2011path and API requirements. The missing module must be added\
+    \ (or renamed) with the correct function signatures for the task to be complete."
+  sig: 96c7b38e1f248c724b9c698dffb39b838c3aeee7517a93e89fc5e0f4597a936d
+T007:
+  c: false
+  h: 371f8701e31fa3b4c31bb0853d5444b742d6d63cac38aaf8b73c17b7d9a47d99
+  r: "Checked `code/utils/stability.py`: it defines `raise_if_unphysical` that raises\
+    \ `UnphysicalTrajectoryError` when a state norm exceeds 20.0, satisfying that\
+    \ part of the task. However, the file does **not** implement any guard that issues\
+    \ a `HighNoiseWarning` when `\u03C3_noise\u202F>\u202F0.1`; the warning logic\
+    \ lives in `code/data/generator.py` instead of the required `stability.py`. The\
+    \ task explicitly required both the error and the high\u2011noise warning to be\
+    \ in `code/utils/stability.py`. Add a function (or extend an existing one) in\
+    \ `stability.py` that checks the noise level and emits `HighNoiseWarning` whe"
+  sig: d4bcacdd7b07f08af280b39bc80ff4917b737048f70760297bb3857765ddef15
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No pytest configuration or fixture code (e.g., a `conftest.py` defining a seed
     fixture and a temporary directory fixture) was provided; the evidence contains
     only the task description, so the required artifact is missing.
-T037c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing the `quickstart.md` file was provided, nor any excerpt demonstrating
-    that the CLI arguments `--noise-level` and `--N` were added. Without the updated
-    documentation file, the task requirement cannot be verified as satisfied.
-T037d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `README.md` file or its contents were provided, and there is no evidence that
-    it has been updated with the required full pipeline run instructions. The implementer
-    must supply the actual README file showing the complete usage steps.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, or documentation showing any cleanup or refactoring were provided;\
-    \ the only material present is the feature specification for chaotic-system analysis,\
-    \ which does not contain the required cleaned\u2011up code artifacts. Consequently\
-    \ the task\u2019s deliverable (refactored, readable code) is missing."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation showing that trials have been parallelized\
-    \ with Python\u2019s `multiprocessing` module is present. The claim lacks any\
-    \ artifact (e.g., a multiprocessing implementation, benchmark results, or updated\
-    \ pipeline) to verify that the performance optimization was actually performed."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only the task description and specification excerpt; there\
-    \ is no evidence of any new or modified files under `tests/unit/` containing unit\
-    \ tests for high\u2011noise or non\u2011chaotic parameter edge cases. Without\
-    \ actual test code present, the requirement of adding additional unit tests is\
-    \ not satisfied."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file or validation log was provided, and there is no evidence\
-    \ that the pipeline was actually run and reproduced. The required artifact (a\
-    \ validated quickstart guide demonstrating end\u2011to\u2011end reproducibility)\
-    \ is missing, so the task is not satisfied."
-T047:
-  c: false
-  h: 9c20728b0fc6c7d1e03fbbb14f0543478b5297560f8d7bc7eae7c2a779a449ff
-  r: "The repository contains a `code/analysis/regression.py` file, but it is truncated\
-    \ and does not show any logic that computes the scaling exponent of FTLE bias\
-    \ versus system dimension nor writes that metric to `data/processed/results.json`.\
-    \ Moreover, the required `data/processed/results.json` file is completely missing.\
-    \ Consequently, the task\u2019s core requirement is not fulfilled."
