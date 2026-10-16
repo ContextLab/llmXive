@@ -1,58 +1,91 @@
-# Tasks: llmXive follow-up — Hardware-validated bounds on the quantization policy gap (MIPU)
+# Tasks: llmXive follow‑up — Hardware‑validated bounds on the quantization policy gap (MIPU)
 
-**Inputs**: Active `spec.md`, `plan.md`, contracts in `specs/001-llmxive-follow-up-extending-the-mirage-o/contracts/`, prior task history (duplicate ID `T021` repaired; rejected tasks T039/T042 reopened; scaffolding/pending-polish tasks consolidated).
+**Inputs**: `spec.md`, `plan.md`, contracts in `specs/001-llmxive-follow-up-extending-the-mirage-o/contracts/`, and any existing verified artifacts.
 
-**Revision note (re-plan)**: The prior task list violated the task-format contract (duplicate ID `T021`, empty malformed parameter sets) and included non-scientific scaffolding (directory creation, lint config, platform-state writes). This revision consolidates the same scientific requirements into 12 substantive tasks. No acceptance criterion from the specification is dropped. The platform-state task (former T034) is removed: research scripts must never write `state/...`; hashes are derived at verification time. All paths are relative to the project directory `projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/`.
+The study is organized into two research phases. All tasks are expressed as canonical checklist items of the form  
 
----
+```
+- [ ] T### [USx?] description … with file path(s)
+    • verification: …
+```
 
-## Phase 1: Setup and first end-to-end analysis
-
-- [ ] T001 [US1] Implement the data and model layer in `code/lib/entities.py` and `code/lib/streaming_utils.py`: define `TrainingSample`, `QuantizedInferenceResult`, and `GapPredictionResult` matching the contracts in `specs/001-llmxive-follow-up-extending-the-mirage-o/contracts/` (dataset.schema.yaml, training_sample.schema.yaml, gap_prediction_result.schema.yaml), and a GSM8K streaming loader using `datasets.load_dataset("openai/gsm8k", "main", split="train", streaming=True)` with SHA-256 checksumming of consumed rows. The loader must FAIL LOUDLY (raise) if the real fetch fails — no synthetic/mock fallback. Bundle focused unit tests in `code/tests/test_entities.py` verifying schema conformance (required fields, enum `INT4/INT8/FP8`, KL ≥ 0). **Verification**: `pytest code/tests/test_entities.py` passes; importing the module raises on a bad fetch. (FR-001 prep, Constitution II/III)
-
-- [ ] T002 [US1] Implement the KL-divergence gap calculator in `code/services/gap_calculator.py`: exact KL divergence between full-precision and quantized logits with epsilon-stabilized log-softmax, handling zero-divergence cases without division-by-zero (Spec Edge Case 1). Bundle unit tests in `code/tests/test_gap_calculator.py` covering identical-logits (KL = 0), known-distribution cases, and near-flat distributions. **Verification**: `pytest code/tests/test_gap_calculator.py` passes. (FR-003)
-
-- [ ] T003 [US1] Implement the quantized inference engine wrapper in `code/services/quantized_inference.py` and the feature extractor in `code/services/feature_extractor.py`: (a) wrap `llama-cpp-python` for CPU inference with INT4 (Q4_K_M), INT8 (Q8_0), and FP8 GGUF variants of a small Llama-family model (e.g., Llama-3.2-1B/3B GGUF quantizations that fit the runner's RAM; the spec's 8B reference is scaled down per the compute budget — record the chosen model and quantization files in the run log); on `llama_cpp.LlamaError`/`OSError`, log the error, mark the sample `skipped`, and continue (Spec Edge Case 3) — never substitute synthetic logits; (b) extract full-precision gradient norms (L2) and local curvature (Hutchinson trace estimator) from a seeded (seed=42) training step on the same prompts. Include a model-availability pre-check that fails loudly listing missing GGUF files. **Verification**: `code/tests/test_quantized_inference.py` runs one prompt through each available quantization level and returns real logit arrays; feature extraction returns finite floats. (FR-001, FR-002)
-
-- [ ] T004 [US1] Implement and run the end-to-end dataset generator `code/cli/generate_dataset.py`: stream GSM8K (first N=300 valid prompts, seed=42, exact streaming rule recorded), extract features (T003), run all three quantization levels, compute KL divergences (T002), and write `data/processed/training_sample.parquet` conforming to `dataset.schema.yaml` with columns `input_id`, `prompt`, `gradient_norm`, `local_curvature`, `kl_div_int4`, `kl_div_int8`, `kl_div_fp8`, `quantization_level`, `timestamp`. Include rolling time monitoring (SC-005: stop early only if >300 samples done), per-level coverage validation (fail loudly if any level has zero successful samples), and a summary log of the observed proportion of non-zero KL values. Bundle the integration test in `code/tests/test_data_generation.py`. **Verification**: `python code/cli/generate_dataset.py --seed 42` completes; the Parquet file exists with ≥100 successful samples per quantization level (or the script's early-stop log documents the actual counts); a statistically significant portion of KL values is non-zero (paired comparison of INT8/INT4/FP8 vs FP16, p < 0.05, reported in `data/processed/dataset_stats.json`). (FR-001–FR-003, US-001 acceptance scenarios 1–3, SC-005)
-
-## Phase 2: Complete the study and validate its evidence
-
-- [ ] T005 [US1] Implement `code/cli/dataset_diagnostics.py`: read `data/processed/training_sample.parquet` and write `data/processed/dataset_diagnostics.json` with (a) VIF for gradient_norm and local_curvature (collinearity assumption), (b) per-quantization-level KL summary statistics, (c) a checksum manifest and row-count audit verifying no silent row drops (input prompt count vs. final rows, `success`+`skipped`+`error` accounting), and (d) a KL-divergence histogram saved to `figures/kl_distribution.png`. **Verification**: the JSON and PNG exist; VIF values are numeric; row accounting reconciles exactly. (Assumptions: collinearity; Constitution III/IV)
-
-- [ ] T006 [US2] Implement `code/cli/prepare_splits.py` and `code/cli/train_predictor.py`: stratify `training_sample.parquet` by `quantization_level` into train/val/test splits (60/20/20, seed=42) written to `data/processed/split_train.parquet`, `split_val.parquet`, `split_test.parquet`, with a chi-square check that level distributions are similar across splits (proceed with available levels, logging present levels); then train Kernel Ridge Regression jointly on data from all available quantization levels (FR-004) via a hyperparameter grid (RBF/Poly kernels, alpha sweep) selected by validation-set Pearson correlation, saving the best model to `data/models/gap_predictor.pkl` and the sweep grid plus selected hyperparameters to `data/processed/krr_sweep_results.json`. Bundle unit tests in `code/tests/test_predictor.py`. **Verification**: split files exist; `gap_predictor.pkl` loads and predicts a scalar for unseen feature vectors; sweep JSON contains the grid and selected params. (FR-004)
-
-- [ ] T007 [US2] Implement `code/cli/evaluate_predictor.py`: load `split_test.parquet` and `gap_predictor.pkl`; compute per-quantization-level and overall Pearson r, R², and MAE between predicted and actual divergence; write per-sample predictions conforming to `gap_prediction_result.schema.yaml` to `data/processed/test_predictions.parquet` and metrics to `data/processed/test_metrics.json`. Report honestly whether r > 0.8 (SC-001) and MAE < 0.1 on normalized divergence (US-002 scenario 3). **Verification**: both output files exist with valid numeric values; the reported metrics are computed from the actual prediction rows. (FR-005, SC-001)
-
-- [ ] T008 [US2] Implement `code/cli/verify_model_robustness.py` as a COMPLETE, runnable script (no truncation — this is a redo of rejected T042): load `gap_predictor.pkl` and `split_test.parquet`; perturb gradient_norm and local_curvature by ±5% with fixed seed; measure variance in predicted divergence across perturbations; write `data/processed/model_robustness.json` with schema `{"perturbation_pct": 0.05, "coefficient_of_variation": float, "per_feature_cv": {"gradient_norm": float, "local_curvature": float}, "n_samples": int}`. **Verification**: script runs end-to-end without error and `data/processed/model_robustness.json` exists with valid numeric values. (US-002 robustness, Spec Edge Case 2)
-
-- [ ] T009 [US3] Implement `code/cli/run_paired_mipu.py`: build a fixed-seed (42) synchronized input set (n=300 GSM8K prompts, including ≥5% short-answer samples, answer token length ≤ 5, appended if needed) written to `data/processed/synchronized_inputs.json`; for each sample, extract features, predict the gap, apply the dynamic decision (predicted < 0.1 → proxy; else full hardware sync), and dual-execute both policies (proxy predictor vs. full quantized-engine sync) recording `acceptance_rate_proxy`, `acceptance_rate_sync`, `reasoning_score`, and `policy_evaluation_time` per sample. Output `data/processed/paired_mipu_metrics.json` with timing metadata (total_time, inference_only_time, policy_evaluation_time, proxy_count, sync_count) and `data/processed/t_test_results.json` with a paired t-test on final reasoning scores including a Shapiro-Wilk normality check (fall back to permutation test if violated), Bonferroni correction for 3 quantization levels, and fields `p_value`, `statistic`, `method`, `adjusted_alpha`, `normality_check`. **Verification**: both JSON files exist with valid data; the t-test consumes the actual recorded paired scores. (FR-006, SC-003)
-
-- [ ] T010 [US3] Implement `code/cli/verify_bound_consistency.py`: load `gap_predictor.pkl` and `split_test.parquet`; verify `|predicted − actual| < 0.1` (FR-007) separately for INT4, INT8, and FP8; compute per-level Pearson r, per-level bound-satisfaction percentages (>95% = consistent), and an aggregate global consistency metric; write `data/processed/final_consistency_summary.json` with `per_level_correlations`, `global_consistency_metric`, `per_level_satisfaction_pct`. Additionally run an epsilon sensitivity sweep (e.g., ε ∈ {0.05, 0.1, 0.15, 0.2}) recording satisfaction rates per ε, per the spec's threshold-justification assumption. **Verification**: the JSON exists with all three levels present and numeric satisfaction percentages; sensitivity results recorded. (FR-007, SC-004)
-
-- [ ] T011 [US3] Implement latency and statistical-power analysis in `code/cli/latency_breakdown_analyzer.py` and `code/cli/validate_statistical_power.py`: (a) decompose `policy_evaluation_time` from `paired_mipu_metrics.json` into inference, feature-extraction, and prediction components and compute `latency_reduction_percentage = (baseline − proxy)/baseline × 100` against the ≥90% target (SC-002), writing `data/processed/latency_metrics.json` with `proxy_total_time`, `baseline_total_time`, `reduction_percentage`, `target_met`; (b) compute statistical power (1 − β) for the T009 paired t-test given the observed effect size and n, logging a warning and a power-analysis note if power < 0.8, written to `data/processed/power_analysis.json`. **Verification**: both JSON files exist with valid numeric values. (SC-002, statistical rigor)
-
-- [ ] T012 [US3] Implement `code/cli/check_generalizability.py` and `code/cli/generate_visualization_report.py` (the latter a COMPLETE redo of rejected T039): (a) domain sensitivity check comparing predictor correlation on a held-out GSM8K difficulty/domain split (or a within-GSM8K distribution shift), writing `data/processed/generalizability_report.json`; (b) the visualization script reads `data/processed/final_consistency_summary.json`, `data/processed/paired_mipu_metrics.json`, and `data/processed/test_predictions.parquet`, and generates three plots under `figures/`: (1) scatter of predicted vs. actual divergence colored by quantization level, (2) bar chart of bound-satisfaction % per level, (3) box plot of reasoning scores (Proxy vs. Baseline); then writes `docs/reports/001-llmxive-mipu-gap-bounds_viz.md` embedding all three figures with Markdown image links and a short caption per figure. **Verification**: the generalizability JSON exists; the script runs end-to-end without error; all three PNG files exist; the `_viz.md` file exists containing links to all three figures. (FR-007 evidence, US-003)
-
-## Phase 3: Reproducible results and paper handoff
-
-- [ ] T013 Write the final research report `docs/reports/001-llmxive-mipu-gap-bounds.md` linked to actual output cells: methods (model choice, streaming rule, sample sizes, seeds), results tables for correlation (SC-001), bound consistency (SC-004), paired t-test with Bonferroni-adjusted alpha (SC-003), latency reduction (SC-002), VIF diagnostics, robustness (T008), power analysis, and generalizability. Describe negative findings and limitations honestly (observational/associational framing per the spec's methodological-validity assumption; scaled-down model vs. the 8B reference). Update `quickstart.md` with the runnable end-to-end command sequence (`generate_dataset.py --seed 42` → splits → train → evaluate → validation suite) and document the paper-stage handoff (report structure, figures, and metrics.json traceability for the paper pipeline). **Verification**: every number in the report cites its source artifact under `data/processed/` or `figures/`; re-running the documented commands from declared inputs reproduces the required artifacts. (Constitution IV; paper handoff)
+Only scientific‑level actions appear; generic scaffolding (directory creation, linting, platform‑state writes) is omitted because the platform supplies those utilities.
 
 ---
 
-## Dependencies and requirement coverage
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-- **FR-001 (feature extraction)**: T003, T004 — `python code/cli/generate_dataset.py --seed 42`.
-- **FR-002 (CPU quantized inference)**: T003, T004.
-- **FR-003 (exact KL divergence)**: T002, T004.
-- **FR-004 (joint KRR across INT4/INT8/FP8)**: T006.
-- **FR-005 (Pearson r on held-out set)**: T007.
-- **FR-006 (paired t-test proxy vs. baseline)**: T009, T011.
-- **FR-007 (bound consistency across three levels)**: T010, T012.
-- **SC-001**: T007; **SC-002**: T011; **SC-003**: T009; **SC-004**: T010; **SC-005**: T004.
-- **Edge cases**: zero-divergence KL (T002), flat-gradient stability (T008), engine load failure skip-and-continue (T003).
-- **Execution order**: T001/T002/T003 (parallel) → T004 → T005 → T006 → T007 → T008 (parallel with T009 prep) → T009 → T010/T011 (parallel) → T012 → T013.
+- [ ] T015 [US001] Generate Ground Truth Data `code/cli/generate_ground_truth.py`  
+    • verification: script completes without error; Parquet file contains ≥ 100 successful samples per quantization level; `data/processed/dataset_stats.json` reports a statistically significant non‑zero KL portion (p < 0.05).
 
-## Revision behavior
+- [ ] T016 [US001] Validate Dataset Statistics `code/cli/validate_dataset_stats.py`  
+    • verification: `dataset_stats.json` exists and contains the required statistics with p < 0.05.
 
-Verified work and requirement identities are preserved: the duplicate `T021` identity is repaired by consolidation into T006; rejected tasks T039 and T042 are reopened as complete, verifiable deliverables inside T012 and T008 respectively. Non-scientific scaffolding (directory creation, lint config, logging setup, requirements bootstrap, platform-state writes to `state/...`) is removed — the platform supplies these. All scientific acceptance criteria from the prior list (coverage audit, memory/time monitoring, VIF, chi-square stratification check, hyperparameter sweep, latency breakdown, Bonferroni validation, power analysis, robustness perturbation, generalizability, visualization report, reproducibility documentation) are retained within T004, T005, T006, T011, T012, and T013.
+- [ ] T019 [US001] Feature Extraction & Optional PCA `code/services/feature_extractor.py`  
+    • verification: unit tests confirm correct numeric shapes and reproducibility across runs.
+
+- [ ] T021 [US002] Load Training Data and Train Kernel Ridge Regression `code/cli/train_predictor.py`  
+    • verification: `gap_predictor.pkl` loads; `data/processed/krr_sweep_results.json` records grid and chosen hyper‑parameters.
+
+- [ ] T022 [US002] Evaluate Predictor Model `code/cli/evaluate_predictor.py`  
+    • verification: `test_metrics.json` reports Pearson r ≥ 0.8 and MAE < 0.1 (or records the actual values).
+
+- [ ] T023 [US002] Stratify Training Data `code/cli/prepare_splits.py`  
+    • verification: split files exist; chi‑square p > 0.05 indicating balanced splits.
+
+- [ ] T029 [US003] Implement Full Hardware‑Sync Baseline `code/cli/run_full_hardware_sync.py`  
+    • verification: JSON file contains per‑prompt metrics and total runtime log.
+
+## Phase 2 – Complete the study and validate its evidence  
+
+- [ ] T009 [US003] Paired‑MIPU Benchmark `code/cli/run_paired_mipu.py`  
+    • verification: both JSON files exist; t‑test fields (`statistic`, `p_value`, `bonferroni_corrected_p`, `conclusion`) are present.
+
+- [ ] T010 [US003] Bound‑Consistency Verification `code/cli/verify_bound_consistency.py`  
+    • verification: JSON includes all three levels; satisfaction ≥ 95 % for ε = 0.1 (or documents actual rates).
+
+- [ ] T011 [US003] Latency Breakdown & Power Analysis `code/cli/latency_breakdown_analyzer.py`  
+    • verification: both JSON files exist; `reduction_percentage` ≥ 90 % flagged, `power` ≥ 0.8 or a warning logged.
+
+- [ ] T027 [US003] Verify Bound Consistency Across Levels `code/cli/verify_bound_consistency_across_levels.py`  
+    • verification: JSON reports per‑level satisfaction ≥ 95 % for ε = 0.1.
+
+- [ ] T028 [US003] Simulate MIPU Loop and Define Baseline Policy `code/cli/simulate_mipu_loop.py`  
+    • verification: script runs end‑to‑end, produces `data/processed/mipu_simulation_results.json` containing per‑prompt decisions, predicted gaps, and baseline metrics; downstream tasks (e.g., T009) can consume this file.
+
+- [ ] T030 [SC‑005] End‑to‑End Runtime Verification `code/cli/runtime_audit.py`  
+    • verification: JSON contains `total_seconds` ≤ 21600 and `sample_count` ≥ 300.
+
+- [ ] T031 [US003] Generalizability & Domain Sensitivity Check `code/cli/check_generalizability.py`  
+    • verification: JSON fields are numeric and show no catastrophic drop in performance across difficulty bins.
+
+- [ ] T032 [US003] Aggregate Bound Consistency Results `code/cli/aggregate_results.py`  
+    • verification: `metrics.json` validates against the schema and includes all required sections (correlation_results, statistical_tests, latency_reduction, collinearity_check, etc.).
+
+- [ ] T013 [US003] Write Final Research Report `docs/reports/001-llmxive-mipu-gap-bounds.md` and update `quickstart.md`  
+    • verification: every figure referenced in the markdown exists; re‑running the command chain from a clean checkout reproduces all downstream artifacts.
+
+---
+
+## Dependencies & requirement coverage  
+
+| Spec requirement | Satisfying task(s) |
+|------------------|--------------------|
+| FR‑001 (feature extraction) | T019 |
+| FR‑002 (CPU quantized inference) | T015 |
+| FR‑003 (exact KL) | T015 |
+| FR‑004 (joint KRR) | T021 |
+| FR‑005 (Pearson r on held‑out) | T022 |
+| FR‑006 (paired t‑test) | T009, T029, T028 |
+| FR‑007 (bound consistency) | T010, T027, T032 |
+| SC‑001 (r > 0.8) | T022 |
+| SC‑002 (≥ 90 % latency reduction) | T011 |
+| SC‑003 (p > 0.05) | T009 |
+| SC‑004 (bound consistency across levels) | T010, T027 |
+| SC‑005 (≤ 6 h, n ≥ 300) | T030 |
+| Edge‑case handling | T015 (zero KL), T019 (flat gradients), T015 (engine load errors) |
+
+**Execution order**:  
+T015 → T016 → T019 → T023 → T021 → T022 → T029 → T028 → T009 → T010 → T027 → T011 → T030 → T031 → T032 → T013.
+
+All tasks are unchecked (`- [ ]`) pending implementation; completed work from prior runs is preserved via the artifact paths indicated above.  
