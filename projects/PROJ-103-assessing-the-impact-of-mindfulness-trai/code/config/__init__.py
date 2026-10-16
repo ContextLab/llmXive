@@ -1,3 +1,3 @@
 """
-Configuration package for the project.
+Package initializer for the configuration module.
 """
