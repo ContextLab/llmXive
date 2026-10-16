@@ -1,16 +1,18 @@
 status: none
 intent: download polyester degradation dataset NIST Chemistry WebBook Materials Project
-  python package
+  python package dataset
 required_fields:
 - smiles
 - polymer_name
-- degradation_pathway_label
-- temperature_c
+- degradation_label
+- temperature_celsius
 - ph
-- uv_intensity
+- uv_intensity_mw_cm2
 - degradation_products_smiles
 - source_database
-- record_id
-cache_key: 2c9aa765c3aea7b18b0e3d626fa6f258b1d96222a1e05bc252f33999e49eed54
-searched_at: '2026-09-28T06:47:10.622641+00:00'
+- source_record_id
+- environment_conditions
+- synthetic_label_flag
+cache_key: c5955f641776498fa69cf75c3e9b08a740c79cfc9818c18de9888e44de525b31
+searched_at: '2026-10-16T02:16:25.043283+00:00'
 retry_count: 1

@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
-  "stage": "in_progress",
+  "stage": "clarified",
   "class": "transient",
-  "fingerprint": "backend_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-08-20T21:12:42.319417+00:00",
-  "last_seen": "2026-08-20T23:28:26.862059+00:00",
-  "retry_after": null,
-  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html>\r\n<head><title>302 Found</title></head>\r\n<body>\r\n<center><h1>302 Found</h1></center>\r\n<hr><center>nginx/1.31.4</center>\r\n</body>\r\n</html> | local: transformers is not installed; required by local backend",
-  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: <html> <head><title>302 Found</title></head> <body> <center><h1>302 Found</h1></center> <hr><center>nginx/1.31.4</center> </body> </html> | local: transformers is not installed; required by local backend",
+  "fingerprint": "model_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-16T02:49:42.154917+00:00",
+  "last_seen": "2026-10-16T02:49:42.154917+00:00",
+  "retry_after": "2026-10-16T02:59:42.154917+00:00",
+  "last_error": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: daily credit spend 1807.59 has reached the cap 1800.00 (= 90% of max_budget 2000.00; resets at 2026-10-16T03:45:00Z)",
+  "evidence": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 conse",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
