@@ -13,28 +13,16 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python code/data/download_ctu13.py (rc=1); 1 declared deliverable(s) absent: data/raw/ctu13_scenario1.csv
+**Summary**: 1 command(s) failed: python code/data/download_ctu13.py (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/data/download_ctu13.py -> rc=1
 
-2026-10-16 12:13:32,364 INFO __main__: Attempting to download CTU‑13 Scenario 1 CSV from https://raw.githubusercontent.com/stratosphereips/CTU-13/master/Scenario1/Scenario1-1.csv
-2026-10-16 12:13:32,407 ERROR __main__: Failed to download CTU‑13 CSV: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/stratosphereips/CTU-13/master/Scenario1/Scenario1-1.csv
-2026-10-16 12:13:32,407 ERROR __main__: Task T002 failed: CTU‑13 download failed and no fallback is permitted for Task T002.
+2026-10-16 12:19:15,013 INFO __main__: Attempting to download CTU‑13 Scenario 1 ZIP from https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip
+2026-10-16 12:19:15,119 ERROR __main__: Failed to download CTU‑13 ZIP: 404 Client Error: Not Found for url: https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip
+2026-10-16 12:19:15,120 ERROR __main__: Task T002 failed: CTU‑13 download failed and no fallback is permitted for Task T002.
 
-
-## Declared deliverables still missing
-
-- data/raw/ctu13_scenario1.csv
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/raw/ctu13_scenario1.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/data/download_ctu13.py` — IS a run-book command
-  Make ONE of these WRITE `data/raw/ctu13_scenario1.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
 A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.

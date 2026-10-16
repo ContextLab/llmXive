@@ -1,21 +1,18 @@
 """
 Unit test for the CTU‑13 download script (Task T002).
 
-The test invokes the script's ``download_ctu13_dataset`` function and
+The test invokes the script's ``main`` function and
 verifies that:
   * The CSV file is created under ``data/raw``.
   * A corresponding ``*.sha256`` side‑car file exists.
   * ``config.yaml`` contains the ``active_dataset: ctu13`` entry.
-The test deliberately runs in the CI environment where network access is
-allowed; if the public mirror becomes unavailable the test will raise,
-correctly signalling a failure of the required data source.
 """
 
 import os
 import yaml
 
 from llmxive_toolkit import paths
-from code.data.download_ctu13 import download_ctu13_dataset, main
+from code.data.download_ctu13 import main
 
 
 def test_download_ctu13():

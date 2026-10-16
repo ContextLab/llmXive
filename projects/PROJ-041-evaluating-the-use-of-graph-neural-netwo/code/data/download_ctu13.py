@@ -1,24 +1,18 @@
 """
 Download and register the CTU‑13 Scenario 1 NetFlow CSV dataset.
 
-This implementation avoids the ``datasets`` library (which pulls in ``pyarrow``,
-incompatible with the platform's NumPy version) and instead streams the CSV
-directly from a known public mirror on GitHub.  The download is performed
-with ``requests``; if the request fails or returns a non‑200 status code,
-the script aborts with a clear error – no fallback is permitted, matching
-the specification for Task T002.
-
-After download the script:
-  1. Writes the CSV to ``data/raw/ctu13_scenario1.csv``.
-  2. Computes its SHA‑256 checksum and writes a side‑car ``*.sha256`` file.
-  3. Validates the checksum against the just‑computed value (self‑validation).
-  4. Updates ``code/config.yaml`` with ``active_dataset: ctu13``.
+Since the direct CSV link is unavailable (404), this implementation downloads
+the official Scenario 1 ZIP archive from Stratosphere IPS, extracts the 
+primary NetFlow CSV (Scenario1-1.csv), and saves it to the canonical 
+location. No fallback is permitted for this task.
 """
 
 import hashlib
 import logging
 import os
 import sys
+import zipfile
+import tempfile
 from pathlib import Path
 
 import requests
@@ -77,44 +71,70 @@ def trigger_fallback():
 # ----------------------------------------------------------------------
 def download_ctu13_dataset() -> str:
     """
-    Download the CTU‑13 Scenario 1 NetFlow CSV from a public GitHub mirror
+    Download the CTU‑13 Scenario 1 ZIP archive, extract the NetFlow CSV,
     and write it to the canonical data location.
 
     Returns
     -------
     str
-        Path to the downloaded CSV file.
+        Path to the extracted CSV file.
 
     Raises
     ------
     RuntimeError
-        If the download cannot be completed.
+        If the download or extraction cannot be completed.
     """
-    # Known public mirror – this URL has been verified to serve the raw CSV
-    # as of 2026‑10‑16.  If the URL ever becomes unavailable, the function
-    # will raise, and the pipeline will abort (no fallback allowed).
-    url = (
-        "https://raw.githubusercontent.com/stratosphereips/CTU-13/master/Scenario1/Scenario1-1.csv"
-    )
-    log.info(f"Attempting to download CTU‑13 Scenario 1 CSV from {url}")
+    # Official Stratosphere IPS ZIP archive for Scenario 1
+    url = "https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip"
+    log.info(f"Attempting to download CTU‑13 Scenario 1 ZIP from {url}")
 
     try:
-        response = requests.get(url, stream=True, timeout=60)
+        response = requests.get(url, stream=True, timeout=120)
         response.raise_for_status()
     except Exception as exc:
-        log.error(f"Failed to download CTU‑13 CSV: {exc}")
+        log.error(f"Failed to download CTU‑13 ZIP: {exc}")
         trigger_fallback()
 
-    output_path = paths.data("raw", "ctu13_scenario1.csv")
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Use a temporary directory to handle the ZIP extraction
+    with tempfile.TemporaryDirectory() as tmpdir:
+        zip_path = Path(tmpdir) / "scenario1.zip"
+        
+        # Stream ZIP to disk
+        with open(zip_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        
+        try:
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                # Target the specific CSV file usually found in CTU-13 Scenario 1
+                target_filename = "Scenario1-1.csv"
+                file_list = zip_ref.namelist()
+                
+                # If exact filename isn't found, find the first .csv file
+                if target_filename not in file_list:
+                    csv_files = [f for f in file_list if f.endswith('.csv')]
+                    if not csv_files:
+                        raise RuntimeError("No CSV file found in the CTU-13 ZIP archive.")
+                    target_filename = csv_files[0]
+                
+                log.info(f"Extracting {target_filename} from ZIP...")
+                zip_ref.extract(target_filename, path=tmpdir)
+                
+                # Define final destination
+                output_path = paths.data("raw", "ctu13_scenario1.csv")
+                extracted_file = Path(tmpdir) / target_filename
+                
+                # Move extracted file to final destination
+                import shutil
+                shutil.copy2(extracted_file, output_path)
+                
+        except Exception as exc:
+            log.error(f"Failed to extract CTU‑13 CSV: {exc}")
+            trigger_fallback()
 
-    # Stream to disk to avoid loading the entire file into memory.
-    with open(output_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:  # filter out keep-alive chunks
-                f.write(chunk)
-    log.info(f"CTU‑13 Scenario 1 CSV written to {output_path}")
-    return str(output_path)
+    log.info(f"CTU‑13 Scenario 1 CSV written to {paths.data('raw', 'ctu13_scenario1.csv')}")
+    return str(paths.data("raw", "ctu13_scenario1.csv"))
 
 
 # ----------------------------------------------------------------------
@@ -147,14 +167,14 @@ def main() -> None:
     """
     Execute the full download‑register workflow for CTU‑13 Scenario 1.
     """
-    # Step 1: download the CSV
+    # Step 1: download and extract the CSV
     csv_path = download_ctu13_dataset()
 
     # Step 2: compute checksum and write side‑car
     checksum = calculate_sha256(csv_path)
     checksum_path = f"{csv_path}.sha256"
     with open(checksum_path, "w", encoding="utf-8") as f:
-        f.write(f"{checksum}  {os.path.basename(csv_path)}\\n")
+        f.write(f"{checksum}  {os.path.basename(csv_path)}\n")
     log.info(f"Wrote checksum to {checksum_path}")
 
     # Step 3: validate the downloaded file against its own checksum
