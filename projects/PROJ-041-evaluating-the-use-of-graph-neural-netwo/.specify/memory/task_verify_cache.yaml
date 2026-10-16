@@ -1,0 +1,12 @@
+T001:
+  c: false
+  h: e34bde35ed82e82b3776d1570bb4019fb6ee35a70fa2280b0191a12365eda5cd
+  r: "The core utilities exist, but several explicit requirements are unmet: `requirements.txt`\
+    \ does not pin Python 3.11 or torch-CPU, and omits `torch-geometric` entirely\
+    \ (it lists only 13 unpinned packages); `pyproject.toml` even declares `requires-python\
+    \ = \">=3.9\"`. Additionally, `memory_monitor.run_with_limit` is a simulated stand-in\
+    \ \u2014 it never executes a function or performs any allocation, it merely compares\
+    \ the passed `limit_gb` number against the configured limit, so the verification\
+    \ requirement (\"raises MemoryLimitError when a dummy allocation exceeds 7 GB\"\
+    ) is not genuinely implemented. Fi"
+  sig: b6a24f69b90f112fd5947158462f45c339fceca3e971446980af8c4f5325e250

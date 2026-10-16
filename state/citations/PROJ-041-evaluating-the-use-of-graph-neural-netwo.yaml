@@ -32,7 +32,7 @@
   verification_status: mismatch
   verified_against_url: https://www.unb.ca/cic/datasets/bot-iot.html
   verified_at: '2026-10-03T02:33:54.804890Z'
-- artifact_hash: b72f3d01639bf6a837c0e946d715beeffadb4873bfa7bda95e2fe6390e8e1949
+- artifact_hash: 712647ec8dde12927d197a62e3df719a3e88e792cf2a39732f8c43bbe46099fa
   artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,4 +42,4 @@
   value: https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1-1.csv`
   verification_status: mismatch
   verified_against_url: https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1-1.csv
-  verified_at: '2026-10-16T01:17:35.880595Z'
+  verified_at: '2026-10-16T03:11:23.399985Z'

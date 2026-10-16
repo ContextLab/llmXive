@@ -1,6 +1,16 @@
 T001:
+  reason: "The core utilities exist, but several explicit requirements are unmet:\
+    \ `requirements.txt` does not pin Python 3.11 or torch-CPU, and omits `torch-geometric`\
+    \ entirely (it lists only 13 unpinned packages); `pyproject.toml` even declares\
+    \ `requires-python = \">=3.9\"`. Additionally, `memory_monitor.run_with_limit`\
+    \ is a simulated stand-in \u2014 it never executes a function or performs any\
+    \ allocation, it merely compares the passed `limit_gb` number against the configured\
+    \ limit, so the verification requirement (\"raises MemoryLimitError when a dummy\
+    \ allocation exceeds 7 GB\") is not genuinely implemented. Fi"
   task: 7e98edd029a6969dadd7ca0dc6952393bba0c34a8fede7f9ab5a822238a272d4
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download_ctu13.py
+    exit=1'
   task: 3ba2c7514a7203151000461d934d520469914bd5ca061c704351945d65ecbd13
 T003:
   task: 8261269f55ef270108678c64e9096b8be362b6504a322c430c459b0d8075447f
