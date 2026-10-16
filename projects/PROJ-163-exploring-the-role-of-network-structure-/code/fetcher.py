@@ -56,7 +56,9 @@ def _init_service() -> Any:
     Raises:
         RuntimeError: If the token is missing or the service cannot be created.
     """
-    token = os.getenv("IBMQ_TOKEN")
+    # The platform and existing config code use either ``IBMQ_TOKEN`` or
+    # ``QISKIT_IBM_TOKEN``.  Accept both for robustness.
+    token = os.getenv("IBMQ_TOKEN") or os.getenv("QISKIT_IBM_TOKEN")
     if not token:
         raise RuntimeError(
             "IBMQ_TOKEN not found in environment. "

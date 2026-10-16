@@ -17,7 +17,8 @@ from stats_engine import (
     apply_benjamini_hochberg_fdr,
     save_correlation_results,
 )
-from logger import setup_logger
+# Correct import path for the project's logger utility
+from code.logger import setup_logger
 
 # Initialise a module‑level logger
 logger = setup_logger(__name__)
@@ -55,7 +56,14 @@ def main() -> None:
         empty_path = Path("data/processed/correlation_results.csv")
         empty_path.parent.mkdir(parents=True, exist_ok=True)
         pd.DataFrame(
-            columns=["metric_a", "metric_b", "rho", "p_value", "adj_p_value", "is_significant"]
+            columns=[
+                "metric_a",
+                "metric_b",
+                "rho",
+                "p_value",
+                "adj_p_value",
+                "is_significant",
+            ]
         ).to_csv(empty_path, index=False)
         logger.info(f"Empty correlation results written to {empty_path}")
         return
@@ -72,7 +80,9 @@ def main() -> None:
     # Summarise significance
     sig_count = int((corrected_df["adj_p_value"] < 0.05).sum())
     total = len(corrected_df)
-    logger.info(f"Correlation results saved. Total pairs: {total}, Significant (adj p < 0.05): {sig_count}")
+    logger.info(
+        f"Correlation results saved. Total pairs: {total}, Significant (adj p < 0.05): {sig_count}"
+    )
 
 if __name__ == "__main__":
     # Configure root logging for direct script execution

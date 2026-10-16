@@ -1,18 +1,16 @@
 status: none
-intent: IBM Quantum backend properties API calibration data python package dataset
+intent: IBM Quantum backend properties dataset download Qiskit IBM Quantum Provider
+  python package dataset
 required_fields:
 - backend_name
 - device_identifier
+- device_family
+- timestamp
 - coupling_map
-- qubit_pairs
-- t1_coherence_time_microseconds
-- t2_coherence_time_microseconds
-- gate_error_rate
-- cx_error_rate
-- u3_error_rate
-- measurement_error_rate
-- calibration_timestamp_unix
-- processor_generation
-cache_key: acd3b059b0cd059e4b2f6f7c084c256e8b1ab22a88b9bab96d016929aa88b7c1
-searched_at: '2026-10-16T05:23:09.601584+00:00'
+- t1_times
+- t2_times
+- gate_error_rates
+- measurement_error_rates
+cache_key: 1970976bf3946714b2f38b34e49f9af3e18a47f09351c660eb4c2d5a7d3179d4
+searched_at: '2026-10-16T06:12:55.084425+00:00'
 retry_count: 1
