@@ -1,14 +1,17 @@
-torch
-networkx
-scikit-learn
-xgboost
-pandas
-numpy
-matplotlib
-seaborn
-captum
-pytest
-pytest-memprof
-datasets
-pyyaml
-tracemalloc
+# Pin Python version requirement (handled via pyproject.toml)
+# Core dependencies (CPU‑only)
+torch==2.3.0+cpu
+torch-geometric==2.5.0
+networkx==3.2.1
+scikit-learn==1.5.0
+xgboost==2.0.3
+pandas==2.2.2
+numpy==1.26.4
+matplotlib==3.8.4
+seaborn==0.13.2
+captum==0.7.0
+pytest==8.2.2
+pytest-memprof==1.0.0
+datasets==2.19.0
+pyyaml==6.0.2
+tracemalloc==0.1.0

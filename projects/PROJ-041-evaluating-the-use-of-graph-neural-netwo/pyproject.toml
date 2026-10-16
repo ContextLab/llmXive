@@ -6,25 +6,29 @@ build-backend = "setuptools.build_meta"
 name = "llmxive-gnn-anomaly"
 version = "0.1.0"
 description = "Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic"
-requires-python = ">=3.9"
+requires-python = ">=3.11,<3.12"
 dependencies = [
-    "torch",
-    "networkx",
-    "scikit-learn",
-    "xgboost",
-    "pandas",
-    "numpy",
-    "matplotlib",
-    "seaborn",
-    "captum",
-    "pytest",
-    "pytest-memory-profiler",
+    "torch==2.3.0+cpu",
+    "torch-geometric==2.5.0",
+    "networkx==3.2.1",
+    "scikit-learn==1.5.0",
+    "xgboost==2.0.3",
+    "pandas==2.2.2",
+    "numpy==1.26.4",
+    "matplotlib==3.8.4",
+    "seaborn==0.13.2",
+    "captum==0.7.0",
+    "pytest==8.2.2",
+    "pytest-memprof==1.0.0",
+    "datasets==2.19.0",
+    "pyyaml==6.0.2",
+    "tracemalloc==0.1.0",
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
+include = '\\.pyi?$'
 exclude = '''
 /(
     \.git

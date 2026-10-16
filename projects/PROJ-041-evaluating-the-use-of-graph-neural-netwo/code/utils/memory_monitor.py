@@ -128,7 +128,7 @@ def run_with_limit(limit_gb: float = 7.0) -> None:
     Helper used in the verification step of T001.
 
     The function simulates a dummy allocation that would exceed the provided
-    ``limit_gb``.  If the simulated allocation would be larger than the
+    ``limit_gb``. If the simulated allocation would be larger than the
     configured hard limit (7 GB), a ``MemoryLimitExceededError`` is raised.
 
     Args:

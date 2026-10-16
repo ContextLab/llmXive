@@ -1,71 +1,71 @@
 """
-Project layout creation utilities.
+Project layout creation utilities (Task T001).
 
-This module provides functions to ensure that the required top‑level
-directories and ``__init__.py`` files exist. It is used by the initial
-bootstrap task (T001) to create a reproducible package structure.
+This module provides three public helpers:
+  - ensure_directories(): create the top‑level project folders.
+  - ensure_init_files(): add an empty ``__init__.py`` to every package
+    directory under ``code/`` so they are importable.
+  - main(): entry point that runs both steps.
+
+Running this script as a module will materialise the required directory
+tree and package initialisation files.
 """
 
 import os
 from pathlib import Path
 
-# List of top‑level directories that must exist in the repository root
-REQUIRED_DIRS = [
+# Top‑level directories required by the specification
+TOP_LEVEL_DIRS = [
     "code",
     "data",
     "docs",
     "tests",
-    # Sub‑packages inside ``code`` that are part of the public API
-    "code/utils",
-    "code/data",
-    "code/analysis",
-    "code/models",
 ]
 
-# Directories that should be recognised as Python packages
-PACKAGE_DIRS = [
+# Sub‑packages under ``code`` that should be importable
+CODE_SUBPACKAGES = [
     "code",
     "code/utils",
     "code/data",
-    "code/analysis",
     "code/models",
-    "tests",
+    "code/analysis",
 ]
 
 
 def ensure_directories() -> None:
     """
-    Create all required directories if they do not already exist.
-
-    The function is idempotent – calling it multiple times will not raise
-    errors or overwrite existing content.
+    Create all required top‑level directories if they do not already exist.
+    The function is idempotent – repeated calls are safe.
     """
-    for dir_path in REQUIRED_DIRS:
-        Path(dir_path).mkdir(parents=True, exist_ok=True)
+    for d in TOP_LEVEL_DIRS:
+        Path(d).mkdir(parents=True, exist_ok=True)
 
 
 def ensure_init_files() -> None:
     """
-    Ensure that every package directory contains an ``__init__.py`` file.
-
-    Empty ``__init__.py`` files are created where missing; existing files
-    are left untouched.
+    Ensure that every package directory under ``code/`` contains an
+    ``__init__.py`` file. Existing files are left untouched.
     """
-    for pkg_dir in PACKAGE_DIRS:
-        init_path = Path(pkg_dir) / "__init__.py"
-        if not init_path.is_file():
-            init_path.touch()
+    for pkg_path in CODE_SUBPACKAGES:
+        pkg_dir = Path(pkg_path)
+        pkg_dir.mkdir(parents=True, exist_ok=True)
+        init_file = pkg_dir / "__init__.py"
+        if not init_file.is_file():
+            init_file.touch()
 
 
 def main() -> None:
     """
-    Entry point for the layout script.
-
-    Running this module as a script will create the directory tree and the
-    required ``__init__.py`` files.
+    Entry point used by the quick‑start and by CI. It creates the
+    directory layout and guarantees importability of all ``code/*``
+    packages.
     """
     ensure_directories()
     ensure_init_files()
+    # Optional: create a minimal config.yaml if it does not exist
+    config_path = Path("code") / "config.yaml"
+    if not config_path.is_file():
+        config_path.write_text("active_dataset: null\\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

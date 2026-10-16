@@ -5,7 +5,7 @@
 *   Python 3.11+
 *   `pip`
 *   Access to the CTU-13 dataset (or the verified NetFlow fallback).
-*   ~10GB free disk space for data and dependencies.
+*   ~Sufficient free disk space (several gigabytes) for data and dependencies.
 
 ## Installation
 
@@ -25,7 +25,7 @@
     ```bash
     pip install -r code/requirements.txt
     ```
-    *Note: This installs `torch` (CPU version), `networkx`, `scikit-learn`, `xgboost`, `captum`.*
+    *Note: This installs `torch` (CPU version), `networkx`, `scikit-learn`, `xgboost`, `captum`, and the `datasets` library used for CTU‑13 download.*
 
 ## Data Setup
 
@@ -33,9 +33,9 @@ The pipeline expects data in `data/raw/`.
 
 1.  **Download CTU-13** (if available locally) or use the verified fallback:
     ```bash
-    # If you have CTU-13, place it in data/raw/ctu13_scenario_1.csv
-    # If not, the script will attempt to download the verified fallback from HuggingFace
-    python code/data/ingest_netflow.py --source fallback
+    # If you have CTU-13, place it in data/raw/ctu13_scenario1.csv
+    # Otherwise, download it automatically:
+    python code/data/download_ctu13.py
     ```
 
 2.  **Verify Data Integrity**:
@@ -61,9 +61,7 @@ python code/main.py --scenarios 1 2 3 --seeds 42 123 456
 
 ## Verification
 
-To verify the installation and memory constraints:
-
-1.  **Run Unit Tests**:
+1.  **Run Unit Tests** (optional – only runs utilities that do not depend on the full dataset):
     ```bash
     pytest code/tests/test_graph_construction.py -v
     ```
@@ -75,5 +73,5 @@ To verify the installation and memory constraints:
 
 *   **CUDA Error**: If you see "CUDA not available", ensure you installed the CPU version of PyTorch. The code explicitly sets `device='cpu'`.
 *   **Memory Error**: If the script crashes with OOM, reduce the `--scenarios` list or check if the graph subsampling logic is active (nodes > 5,000).
-*   **Missing Data**: If CTU-13 is missing, the pipeline will automatically switch to the `NF-BoT-IoT-v3` fallback. If that is also missing, the pipeline will fail with a clear error.
+*   **Missing Data**: If CTU-13 is missing, the script will raise a clear error because no fallback is allowed for Task T002.
 *   **Unseen Nodes in Test**: If the test set contains new IPs, they will be dropped or assigned default features as per the Temporal Holdout strategy.

@@ -1,1 +1,1 @@
-# Mark ``code/tests`` as a Python package for relative imports if needed.
+# Ensure the tests package is recognised as a Python package.
