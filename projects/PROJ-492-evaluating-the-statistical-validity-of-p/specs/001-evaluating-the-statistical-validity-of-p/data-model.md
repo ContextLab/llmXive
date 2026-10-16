@@ -3,7 +3,7 @@
 ## Core Entities
 
 ### ABSummary
-Represents a single audited A/B test summary. Conforms to FR-002 inline schema.
+Represents a single audited A/B test summary. Conforms to FR-002.
 
 ```yaml
 ABSummary:
@@ -58,8 +58,8 @@ ValidationRecord:
 
 ## Constraints
 
-- **FR-004**: `flag_inconsistent` is True if `diff_abs_p > 0.05` OR `diff_abs_effect > 0.05 * max(reported, reconstructed)`. **Note**: Uses absolute threshold only (no log-scale per methodology-5bca6076).
+- **FR-004**: `flag_inconsistent` is True if `diff_abs_p > 0.05` OR `diff_abs_effect > 0.05 * max(reported, reconstructed)`.
 - **FR-004b**: `notes` must include warning if sample size discrepancy > 5%.
-- **FR-012**: When baseline is missing, effect size reconstruction has reduced rigor; uncertainty quantification is documented in notes (scientific_soundness-ad85a63f).
-- **FR-027**: Bias-adjusted rate uses equal weighting per domain (scientific_soundness-64bd4091).
+- **FR-012**: When baseline is missing, effect size reconstruction has reduced rigor; uncertainty quantification is documented in notes.
+- **FR-027**: Bias-adjusted rate uses equal weighting per domain.
 - **FR-032**: Subgroup reports must include Bonferroni-adjusted p-values.

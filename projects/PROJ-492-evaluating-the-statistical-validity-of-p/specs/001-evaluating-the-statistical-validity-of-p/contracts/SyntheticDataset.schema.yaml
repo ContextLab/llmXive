@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticDataset"
+description: "Schema for synthetic A/B test dataset (FR-030)"
+type: "object"
+required:
+  - "records"
+  - "metadata"
+properties:
+  records:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "id"
+        - "outcome_type"
+        - "variant_a_n"
+        - "variant_b_n"
+        - "true_p_value"
+        - "true_effect_size"
+        - "reported_p"
+        - "reported_effect_size"
+        - "is_inconsistent"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        outcome_type:
+          type: "string"
+          enum: ["binary", "continuous"]
+        variant_a_n:
+          type: "integer"
+          minimum: 1
+        variant_b_n:
+          type: "integer"
+          minimum: 1
+        true_p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        true_effect_size:
+          type: "number"
+        reported_p:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        reported_effect_size:
+          type: "number"
+        is_inconsistent:
+          type: "boolean"
+    minItems: 10000
+  metadata:
+    type: "object"
+    properties:
+      generated_at:
+        type: "string"
+        format: "date-time"
+      random_seed:
+        type: "integer"
+      total_records:
+        type: "integer"
+    required:
+      - "generated_at"
+      - "random_seed"
+      - "total_records"

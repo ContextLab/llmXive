@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AuditRecord"
-description: "Schema for audit record results (FR-024, FR-004, FR-004b)"
+description: "Schema for audit record results (FR-024)"
 type: "object"
 required:
   - "url"
@@ -13,62 +13,38 @@ required:
   - "diff_abs_p"
   - "diff_abs_effect"
   - "flag_inconsistent"
-  - "flag_size_mismatch"
-  - "flag_missing_metric"
-  - "flag_unverifiable"
   - "notes"
 properties:
   url:
     type: "string"
     format: "uri"
-    description: "Source URL (Constitution VII)"
   reported_p:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Reported p-value"
     nullable: true
   reported_effect_size:
     type: "number"
-    description: "Reported effect size"
   reported_sample_size_a:
     type: "integer"
     minimum: 1
-    description: "Reported sample size A"
   reported_sample_size_b:
     type: "integer"
     minimum: 1
-    description: "Reported sample size B"
   reconstructed_p:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Reconstructed p-value"
   reconstructed_effect_size:
     type: "number"
-    description: "Reconstructed effect size"
   diff_abs_p:
     type: "number"
     minimum: 0.0
-    description: "Absolute difference in p-values"
   diff_abs_effect:
     type: "number"
     minimum: 0.0
-    description: "Absolute difference in effect sizes"
   flag_inconsistent:
     type: "boolean"
-    description: "True if inconsistent (FR-004 conditions met)"
-  flag_size_mismatch:
-    type: "boolean"
-    description: "True if sample size discrepancy >5% (FR-004b)"
-  flag_missing_metric:
-    type: "boolean"
-    description: "True if required metric missing"
-  flag_unverifiable:
-    type: "boolean"
-    description: "True if source lacks sufficient raw data for independent ground truth verification (FR-031b)"
   notes:
     type: "string"
     maxLength: 500
-    description: "Audit notes / explanations"
-additionalProperties: false
