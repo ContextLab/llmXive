@@ -1,45 +1,41 @@
 T001:
   c: true
-  h: cde523cc5851a6980f24e91ea8e6f62bcc2d3a13429f0a9bd955cb563a06b55e
-  r: "The execution log for `code/create_directory_tree.py` (exit 0) shows all eight\
-    \ required directories \u2014 `code/data/{raw,processed,evaluation}`, `code/models`,\
-    \ `code/utils`, `code/tests/{unit,integration}`, and `state/` \u2014 being created,\
-    \ and the current on-disk listing confirms the parent directories `code/` (containing\
-    \ `data/`, `models/`, `utils/`, `tests/`) and `state/` exist with the expected\
-    \ structure. The task only required directory creation, and the evidence is consistent\
-    \ with that having been done."
-  sig: d9cf7879cbce74427f2376afa1124e17344b3dbf47c1b18c2422657ed37ef51c
+  h: fc02b4fa6e261dfe2017aa1a9d1aa437ce3383cfa13514ac55fb7916bbb646f5
+  r: "Checked the repository tree showing `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/`,\
+    \ `data/`, and `outputs/` directories exist, and the CI log from `create_directory_tree.py`\
+    \ confirms that all required sub\u2011directories (`code/data/raw`, `code/data/processed`,\
+    \ `code/data/evaluation`, `code/models`, `code/utils`, `code/tests/unit`, `code/tests/integration`,\
+    \ plus top\u2011level `data/` and `outputs/`) were created successfully."
+  sig: 375cbc3897340903549912164b72a9229fd2580acef2960a46ed1c7c61be3153
 T002:
   c: false
-  h: ed18ef9df0ad25991d8e317779ff4be7ba8dbbbd74ff320fc0e243ad72158c8b
-  r: 'The task requires `requirements.txt` under `code/`, but the collector resolved
-    only a project-root `requirements.txt` (the `code/` listing shows no requirements.txt
-    of its own), and its content deviates from the pinned spec: it adds an unpinned
-    `numpy>=2.0.0` line not in the required list. Additionally, there is no evidence
-    that `pip install -r requirements.txt` was run or passes in the CI environment
-    (no install logs or execution evidence supplied). Fix: place the file at `code/requirements.txt`
-    with exactly the 11 pinned lines (no numpy line unless specified) and provide
-    CI install evidence.'
-  sig: e149f2cba7b11fb3c527c93ff7770a304bdf28bcd55fe64251dd66855a186f76
+  h: 5a1a7d41f06825abc54bf89fbf77a76c412b4d70e6c1abeb23ed0da3bf0513c6
+  r: "Checked `code/requirements.txt` \u2013 it contains exactly the 11 required lines.\
+    \ However, the required CI log `outputs/install_log.txt` is missing, so we have\
+    \ no evidence that the `pip install -r code/requirements.txt` step actually ran\
+    \ without error. The task is therefore incomplete."
+  sig: f76e3bc1113f4e192729740a6725aa64d420da0aabbacdd6ecec86548aa031ee
 T003:
   c: true
-  h: fd13fa4a44ecc58aa6780c9371db63490ebf7b789ac2fb259caae79f0117a16b
-  r: Checked `pyproject.toml` (contains a `[tool.black]` section with `line-length
-    = 88`) and `.ruff.toml` (contains a `[tool.ruff]` section with `select = ["E",
-    "F", "W"]`) at the repository root; both files exist and match the specified contents.
-  sig: 428624dec6c7d56c3db651f6a24551e819be046a634120553309ac7e0d10d08b
+  h: 616aa762119b08312d9124c1ef38bba2ebb4c56194bfa29bd99f08424ed3faca
+  r: Checked `pyproject.toml` for a `[tool.black]` section with `line-length = 88`
+    and `.ruff.toml` for a `[tool.ruff]` section with `select = ["E", "F", "W"]`;
+    both files exist and contain the required configurations.
+  sig: fb4755242a69f46ee757348904c6fc112e35d85fffd9e360a7d05d0ed9dbfc1d
+T004:
+  c: true
+  h: c49d9b5f9265d51f56d09e6226813fae32672da356ffe5a9d4ba83bb2f319706
+  r: "Checked the existence and contents of `data/checksums.json` (empty `{}`) and\
+    \ `outputs/reproducibility_meta.json` (contains a non\u2011empty `\"seed\"` and\
+    \ a timestamp). Unit test logs and execution logs confirm both files were created\
+    \ correctly and are valid JSON."
+  sig: 1b590474522fee92cd8669f2b834bbfcab07c3f2402d7010eee4846848cecfc1
 T005:
   c: true
-  h: 900084c3b3119181565abdd717eb64b745c8cb9b41e821b53d52a46008d92c00
+  h: e370bb4b1b066c5731391298932463fbb7e0aadd2b24f5e474cf096083f56401
   r: "Checked `code/utils/emulator.py` (15979\u202Fbytes) \u2013 it defines the required\
-    \ functions `launch_emulator`, `send_action`, `check_crash`, `get_screenshot`\
-    \ and exports the constants `EMU_CRASH`, `EMU_TIMEOUT`, `EMU_NOT_FOUND`, with\
-    \ clear exception handling and no missing or placeholder code."
-  sig: d9347c5a9343f4e86567fd72c435decaf059617add38cf1f32737c5a527c91aa
-T006:
-  c: true
-  h: e159732c5f6df93598a9d289612d4a5d46e9b27f22f345df645a7206e941c74b
-  r: "Checked `code/utils/metrics.py` (10795\u202Fbytes) which defines the required\
-    \ `SuccessRate` and `StepEfficiency` classes with the correct `compute` signatures,\
-    \ returns values in the proper ranges, and is importable without errors."
-  sig: 07bc69e09086d29e53e46faca4be32048d460844361c4c00efba02c5dc76fc08
+    \ constants `EMU_CRASH`, `EMU_TIMEOUT`, `EMU_NOT_FOUND` and implements the four\
+    \ public functions `launch_emulator()`, `send_action(action_seq)`, `check_crash()`,\
+    \ and `get_screenshot()` with proper exception handling, and the module imports\
+    \ without error."
+  sig: f70528b16cd1690ca05337a8fd20cf2c6d37812378611ef27a8daa3c911ee245

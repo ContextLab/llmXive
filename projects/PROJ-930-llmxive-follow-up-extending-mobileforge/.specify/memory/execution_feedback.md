@@ -2,15 +2,9 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 run-book script(s) missing (plan/impl path mismatch): python code/utils/check_data.py   # checks downloads & checksums; python code/pipeline/extract.py; python code/pipeline/train.py --pilot; 2 command(s) failed: python -c "import pathlib, sys; missing = [p for p in ['requirements.txt','pyproject.toml','.ruff.toml'] if not pathlib.Path(p).exists()]; (rc=-1); python -m pytest tests/   # runs unit, integration, and contract tests (rc=4)
+**Summary**: 6 run-book script(s) missing (plan/impl path mismatch): python code/pipeline/extract.py; python code/pipeline/train.py --pilot; python code/pipeline/train.py; 1 command(s) failed: python -m pytest tests/   # runs unit, integration, and contract tests (rc=4)
 
 ## Failing / missing run-book commands
-
-- python -c "import pathlib, sys; missing = [p for p in ['requirements.txt','pyproject.toml','.ruff.toml'] if not pathlib.Path(p).exists()]; -> rc=-1
-unparseable command (shlex)
-- python code/utils/check_data.py   # checks downloads & checksums -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-930-llmxive-follow-up-extending-mobileforge/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/utils/check_data.py': [Errno 2] No such file or directory
 
 - python code/pipeline/extract.py -> rc=2
 

@@ -1,81 +1,56 @@
 import json
-import os
 from pathlib import Path
 
 import pytest
 
-from utils.power_analysis import (
-    calculate_required_n,
-    write_validated_n,
-    _ensure_no_extraction_artifacts,
-)
-from utils.env_manager import get_project_root
+from utils.power_analysis import calculate_required_n, main, _ensure_no_extraction_artifacts
 
+def test_calculate_required_n_defaults():
+    """Ensure the calculation returns a sensible integer and proper parameter block."""
+    result = calculate_required_n()
+    assert isinstance(result, dict)
+    assert "n_required" in result and isinstance(result["n_required"], int)
+    assert result["n_required"] >= 1
+    params = result["parameters"]
+    assert params["power_target"] == 0.8
+    assert params["effect_size"] == 0.2
+    assert params["significance_level"] == 0.05
+    assert params["baseline_rate"] == 0.5
+    assert "p0_source" in params
 
-class TestPowerAnalysis:
-    def test_calculate_required_n_defaults(self):
-        # Using the default parameters should produce a positive integer N
-        result = calculate_required_n()
-        assert isinstance(result, dict)
-        assert "n_required" in result
-        assert isinstance(result["n_required"], int)
-        assert result["n_required"] > 0
-        # Parameters block should be present and contain expected keys
-        params = result.get("parameters", {})
-        assert params.get("power_target") == 0.8
-        assert params.get("effect_size") == 0.2
-        assert params.get("significance_level") == 0.05
-        assert params.get("baseline_rate") == 0.5
-
-    def test_write_validated_n_creates_file(self, tmp_path: Path):
-        # Prepare a dummy result
-        dummy_result = {
-            "n_required": 42,
-            "parameters": {
-                "power_target": 0.8,
-                "effect_size": 0.2,
-                "significance_level": 0.05,
-                "baseline_rate": 0.5,
-                "p0_source": "Conservative 0.5 assumption",
-            },
-            "timestamp": "2024-01-01T00:00:00Z",
-        }
-
-        # Write to a temporary location
-        output_path = tmp_path / "validated_n.json"
-        written_path = write_validated_n(dummy_result, output_path)
-
-        assert written_path == output_path
-        assert written_path.exists()
-        with open(written_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        assert data == dummy_result
-
-    def test_ensure_no_extraction_artifacts_raises_when_processed_exists(self, tmp_path: Path):
-        # Simulate a processed directory with a dummy file
-        project_root = get_project_root()
-        processed_dir = project_root / "data" / "processed"
-        # Ensure the directory exists and contains a file
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        dummy_file = processed_dir / "dummy.txt"
-        dummy_file.write_text("placeholder")
-
-        with pytest.raises(RuntimeError, match="Data‑extraction artifacts already exist"):
-            _ensure_no_extraction_artifacts()
-
-        # Clean up after test
-        dummy_file.unlink()
-        # If the directory becomes empty, the function should not raise
-        # (but we leave the empty directory as it does not affect the test)
-    def test_ensure_no_extraction_artifacts_passes_when_no_artifacts(self, tmp_path: Path):
-        # Ensure the processed directory is empty or does not exist
-        project_root = get_project_root()
-        processed_dir = project_root / "data" / "processed"
-        if processed_dir.exists():
-            for p in processed_dir.iterdir():
-                p.unlink()
-        else:
-            processed_dir.mkdir(parents=True, exist_ok=True)
-
-        # Should not raise any exception
+def test_ensure_no_extraction_artifacts_raises_when_processed_exists(tmp_path, monkeypatch):
+    """Simulate a non‑empty data/processed directory and verify error is raised."""
+    # Create a temporary processed directory with a dummy file.
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True)
+    (processed_dir / "dummy.txt").write_text("dummy")
+    # Monkeypatch the paths.data function to point to our temp directory.
+    monkeypatch.setattr("llmxive_toolkit.paths.data", lambda *parts: processed_dir)
+    with pytest.raises(RuntimeError):
         _ensure_no_extraction_artifacts()
+
+def test_main_writes_output(tmp_path, monkeypatch):
+    """Run main() and verify that the expected JSON file is created with correct schema keys."""
+    # Redirect outputs path to a temporary location.
+    output_path = tmp_path / "outputs"
+    output_path.mkdir(parents=True)
+    monkeypatch.setattr("llmxive_toolkit.paths.outputs", lambda *parts: output_path / Path(*parts))
+    # Ensure processed directory is empty.
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True)
+    monkeypatch.setattr("llmxive_toolkit.paths.data", lambda *parts: processed_dir)
+
+    # Execute main()
+    main()
+
+    # Verify file exists and contains required keys.
+    result_file = output_path / "power_analysis.json"
+    assert result_file.is_file()
+    data = json.loads(result_file.read_text())
+    assert "n_required" in data
+    assert "parameters" in data
+    assert "timestamp" in data
+    # Simple schema sanity check
+    assert isinstance(data["n_required"], int) and data["n_required"] >= 1
+    for key in ("power_target", "effect_size", "significance_level", "baseline_rate", "p0_source"):
+        assert key in data["parameters"]

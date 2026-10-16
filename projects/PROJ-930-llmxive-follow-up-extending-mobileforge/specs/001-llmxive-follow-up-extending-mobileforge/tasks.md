@@ -6,7 +6,7 @@
 
 ## Phase 1 – Project bootstrap (infrastructure only)
 
-- [ ] T001 **Create the full directory tree required for the study**  
+- [X] T001 **Create the full directory tree required for the study**  
   *Creates* `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/{data/raw,data/processed,data/evaluation,models,utils,tests/unit,tests/integration}` and `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/data/`, `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/outputs/`.  
   **Verification** – after running the task, a `tree` (or equivalent) shows all listed directories; CI checks that each path exists.
 
@@ -26,11 +26,11 @@
   ```  
   **Verification** – the file exists at `code/requirements.txt`, contains exactly the lines above, and the CI step `pip install -r code/requirements.txt` runs without error; the CI log is stored as `outputs/install_log.txt`.
 
-- [ ] T003 **Configure linting and formatting tools**  
+- [X] T003 **Configure linting and formatting tools**  
   *Creates* `pyproject.toml` (project‑wide Black configuration) and `.ruff.toml` (Ruff rules) in the repository root.  
   **Verification** – both files exist and contain a `[tool.black]` section with `line-length = 88` and a `[tool.ruff]` section with `select = ["E", "F", "W"]`.
 
-- [ ] T004 **Initialize reproducibility artifacts (project‑owned)**  
+- [X] T004 **Initialize reproducibility artifacts (project‑owned)**  
   *Creates* an (initially empty) `data/checksums.json` (to be populated by download tasks) and `outputs/reproducibility_meta.json` containing the project‑level random seed and timestamp.  
   **Verification** – both JSON files exist; CI validates that they are valid JSON and that `outputs/reproducibility_meta.json` contains a non‑empty `"seed"` field. `data/checksums.json` need only exist at this stage.
 
@@ -38,20 +38,20 @@
 
 ## Phase 2 – Core utilities (foundation for all user stories)
 
-- [ ] T005 **Implement `utils/emulator.py`** with the exact public interface required by the evaluation stage:  
+- [X] T005 **Implement `utils/emulator.py`** with the exact public interface required by the evaluation stage:  
   - Functions: `launch_emulator()`, `send_action(action_seq)`, `check_crash()`, `get_screenshot()`.  
   - Error codes (constants): `EMU_CRASH`, `EMU_TIMEOUT`, `EMU_NOT_FOUND`.  
   All functions raise clear exceptions on failure; no silent fall‑backs.  
   **Path**: `code/utils/emulator.py`  
   **Verification** – `python -c "import utils.emulator as e; assert hasattr(e, 'launch_emulator')"` runs without import errors; unit‑test scaffold is present (see T006).
 
-- [ ] T006 **Implement `utils/metrics.py`** providing two lightweight classes:  
+- [~] T006 **Implement `utils/metrics.py`** providing two lightweight classes:  
   - `SuccessRate` with method `compute(success_flags: List[bool]) -> float`.  
   - `StepEfficiency` with method `compute(steps_taken: List[int], optimal_steps: List[int]) -> float`.  
   **Path**: `code/utils/metrics.py`  
   **Verification** – both classes importable and methods return values in the documented ranges (0‑1 for success rate, ≥0 for efficiency).
 
-- [ ] T007 **Implement `utils/power_analysis.py`** that performs the a‑priori McNemar power calculation (target Power = 0.8, effect size h = 0.2, α = 0.05, baseline p₀ = 0.5).  
+- [~] T007 **Implement `utils/power_analysis.py`** that performs the a‑priori McNemar power calculation (target Power = 0.8, effect size h = 0.2, α = 0.05, baseline p₀ = 0.5).  
   - Uses a McNemar‑appropriate power estimator (e.g., `statsmodels.stats.power.NormalIndPower` approximation).  
   - Writes the result to `outputs/power_analysis.json` conforming to `contracts/power_analysis.schema.yaml`.  
   - Exits with a clear error if any data‑extraction artifact already exists (enforces the “before extraction” rule).  
@@ -62,7 +62,7 @@
 
 ## Phase 3 – Data pipeline (US‑1)
 
-- [ ] T008 **Implement `data/raw/download_mobileforge.py`** that fetches the official MobileForge logs via the HuggingFace Hub:  
+- [ ] T008 **Implement `data/raw/download_mobileforge.py`** that fetches the official MobileForge logs via the HuggingFace Hub:   <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 -->
   ```python
   from datasets import load_dataset
   ds = load_dataset("mobileforge/logs", split="train", streaming=False)

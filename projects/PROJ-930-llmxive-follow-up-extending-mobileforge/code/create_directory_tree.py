@@ -10,7 +10,8 @@ directories relative to the project root:
 - code/utils
 - code/tests/unit
 - code/tests/integration
-- state
+- data
+- outputs
 
 The script uses the `llmxive_toolkit.paths` helper to resolve the project root and
 logs the creation of each directory. It exits with status 0 on success.
@@ -34,6 +35,7 @@ def main() -> int:
 
     # Define the required directories relative to the project root.
     required_dirs = [
+        # Project‑code internal structure
         root / "code" / "data" / "raw",
         root / "code" / "data" / "processed",
         root / "code" / "data" / "evaluation",
@@ -41,7 +43,9 @@ def main() -> int:
         root / "code" / "utils",
         root / "code" / "tests" / "unit",
         root / "code" / "tests" / "integration",
-        root / "state",
+        # Top‑level data and outputs folders owned by the project
+        root / "data",
+        root / "outputs",
     ]
 
     for d in required_dirs:

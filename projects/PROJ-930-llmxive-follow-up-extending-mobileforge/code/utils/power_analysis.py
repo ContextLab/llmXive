@@ -13,7 +13,7 @@ fixed parameters:
 
 The script aborts if any data‑extraction artifacts already exist
 (files under ``data/processed``) to enforce the “before extraction” rule.
-The result is written to ``data/validated_n.json`` and conforms to the 
+The result is written to ``outputs/power_analysis.json`` and conforms to the
 JSON schema at ``contracts/power_analysis.schema.yaml``.
 """
 
@@ -121,9 +121,9 @@ def main() -> None:
             power=power,
             baseline_p0=baseline_p0,
         )
-        
-        # Write to project-owned data directory (NOT state/)
-        output_file = paths.data("validated_n.json")
+
+        # Write to the project‑owned outputs directory.
+        output_file: Path = paths.outputs("power_analysis.json")
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, sort_keys=True)
 

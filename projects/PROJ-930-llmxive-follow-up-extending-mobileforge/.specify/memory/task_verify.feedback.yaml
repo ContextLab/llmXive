@@ -1,58 +1,52 @@
 T001:
-  task: 5e8e50240160bed08f187b67ca3363d4196fb83cac77c5078d3623db9e83cbe2
+  task: 0b95ce60d5289d14226227233e721cb10e6685a45f625b0b69464950b8334e59
 T002:
-  reason: 'The task requires `requirements.txt` under `code/`, but the collector resolved
-    only a project-root `requirements.txt` (the `code/` listing shows no requirements.txt
-    of its own), and its content deviates from the pinned spec: it adds an unpinned
-    `numpy>=2.0.0` line not in the required list. Additionally, there is no evidence
-    that `pip install -r requirements.txt` was run or passes in the CI environment
-    (no install logs or execution evidence supplied). Fix: place the file at `code/requirements.txt`
-    with exactly the 11 pinned lines (no numpy line unless specified) and provide
-    CI install evidence.'
-  task: 28ccdfd978eb81e906b1515d924442985c4473e99508b6612a97259b2e9aa60c
+  reason: "Checked `code/requirements.txt` \u2013 it contains exactly the 11 required\
+    \ lines. However, the required CI log `outputs/install_log.txt` is missing, so\
+    \ we have no evidence that the `pip install -r code/requirements.txt` step actually\
+    \ ran without error. The task is therefore incomplete."
+  task: b3772d14fb0e795473d2175e5c351b1f5239d20ce32e2630de995fdace6e8d47
 T003:
-  task: 4a1af1691cc993ae7f490fab394c7d10dfc1f0d09cdc7e602ee6d90a6fa2970e
+  task: ad5a92ead3758ddc99605d93e1955e0a5f139b4b5f3d5fcbe7d1e7a21a7b40cc
 T004:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/artifact_hashes.json`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
-  task: 082286e8155d471f474b0a8fa60193b6fe1a2306ae89c30bad70f84a0a239aa6
+  task: 7ee8b470a6747ced2a1fa2bdbe316dde3ee085b08acaf2a1e10816a17a192734
 T005:
-  task: 5e4cbda44433e71db5f539f361a4d006801caaf685a87bed64186af6bf3275bc
+  task: eec72fd7164af4f8f1fac07cd531873d35ee2132134c5ccd90d01ab793f984c3
 T006:
-  task: 89276c1f0834d6e67209209ff7359ffc7dae83f9eaaef2be179d071e794b0f49
+  task: 1d186b14c82c9e91c1b12f41abdbe91e3fbc6e1da824f5ff3c521e479c3e2126
 T007:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/validated_n.json`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
-  task: 9471e69d8164a52ed519bf5bafdf255e67bdc8912162f7b0e964902da09f635f
+  task: 47e9695df357f279967c27d39ecc4c50e5e9a6f860b91d64eb3e1581ce09a52d
 T008:
   reason: 'Requested task execution failed; rerun successfully: code/data/raw/download_mobileforge.py
     exit=1'
-  task: c4d2b77723446c2b510b27b395370e5fe8911139579439e99fd43931756deb6a
+  task: eb9dd80f416e32c7d89376215bcdc951dc82cf4c65a76388463fe800a6581fce
 T009:
-  task: ded99526cb4bdf9fb45b3ffd53bb2d6a4a8d8ede9f7ceeba265024500b313608
+  task: 26f49bb3ba6f508ab49d8cbfdaad944c94f9c4899a9e2926e28a579152c8261c
 T010:
-  task: 563763678f56f3077186015b8482b36549c2415824596dbe6b49b45bb63b1eee
+  task: 85da004ed37ccb17ca870111a32528557183d9671af7c037bf32752f1a82584e
 T011:
-  task: 214f356ecb23c16c3c182539ca115229eeb02e88b691509a141fb14bd12ef121
+  task: 4ce3405198861c9d81744deb59173282aeb3a1c5ba1112417e2211371bf3c8ab
 T012:
-  task: 24263026fd017e4c3576e2523734b5e629337fa48aeba524b551e8b6f9900e6b
+  task: e90a580142a7762b140cfe0679a890a577b9d9e09d9f2e684635b0000b351693
 T013:
-  task: 8a3f0cd17a3480938635d3d9174819618ded9b8451deca65fc740c2efd5fb3c8
+  task: 745ad6298e776891c9f8990308a091dbde13644ae5c535fe2926d978ccc68b10
 T014:
-  task: e55f9b380ce4cff92231f9893274dcc630526ae6066adb3bc8f9a4b2671822a9
+  task: 5ba8a90cdae3ae21f43a6b4b45f23b31fa428153338d8f18b59e6a17b95c6569
 T015:
-  task: 339819dc6347b2a006ff0bf0a8826e6f9e4d3faf7ed9c9d2715b891d935246d9
+  task: 4f64be9c3839a55ab342340138e09bc229cbccdeda1e0def7d7ef324d2d6d883
 T016:
-  task: 3bc79904c5a199c3f953920b127e430c15055b1572b8490332536d4ba75b06d2
+  task: 5cf1c39d30070de36946997e99c95536ab02401664ce81e81ac289b434080c57
 T017:
-  task: bca22bf93cde5d118778d675e3bf1351d0ae853a84522ffb457b34333010acd1
+  task: 72c001f0677fd06272f54e17f45e63e46680581fc8d1e1aabcd3f4e8e297493c
 T018:
-  task: 999070050a527dcb7fe0845be7024fd0681fe6cd4596c086e3ad2f2625f0958a
+  task: c97f5ee1b6fbd5e4d887cf5e2b5fe7d60195e70102e10c2e0bf4324c597ccbe2
 T019:
-  task: cb46b2647f29fb0a5c16682f38272bbcfa93c811c691a583f8a205fd40ebc007
+  task: 5e590e65dc55e3c8ce3c63623342a863b000523801331d5989c5650a49d8f8fc
 T020:
-  task: 571d95628602887d592d128c2489d851ccd8749f6cbc0388834c120418627db1
+  task: 2c24d08ef0a359e31b697e32adde6b58ac2496ea607e5e3eb17d3732f9b77ccd
+T021:
+  task: 77af878c07290a39a5a9028ec713017433a4c0efadf114bb3aaadcca0681eecd
+T022:
+  task: 61e1ed34af761bf59e74a345e1f5dddb19d3913c96966369e954c91281466934
+T023:
+  task: 0a8ca250be7bdc1b881afd59294251fde1e50fa61f4793613724615f26618bad
