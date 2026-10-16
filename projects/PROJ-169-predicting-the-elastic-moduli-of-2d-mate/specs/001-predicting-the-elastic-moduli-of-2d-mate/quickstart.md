@@ -1,89 +1,39 @@
 # Quickstart: Structure-Only Surrogate Model for 2D Material Elastic Moduli
 
 ## 1. Prerequisites
-
-- Python 3.11+
-- 7GB+ RAM
-- 14GB+ Disk Space
-- Git
+- Python 3.11+, 7GB+ RAM, 14GB+ disk, internet access to the verified dataset URL.
 
 ## 2. Installation
-
 ```bash
-# Clone the repository
-git clone <repo-url>
 cd projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
+python -m venv venv && source venv/bin/activate
+pip install -r code/requirements.txt
 ```
 
-## 3. Running the Pipeline
-
-The pipeline is executed via a single entry point script.
-
+## 3. Run the Pipeline
 ```bash
-# Run the full pipeline (Data -> Split -> Train -> Eval -> Audit)
 python code/main_pipeline.py
 ```
+Exit code 0 only if all hard gates pass. Stages, in order:
 
-### Step-by-Step Execution
-
-1.  **Constitution Audit (Hard Gate)**:
-    - Verifies `constitution.md` title.
-    - Exits with code 1 if title is "First-Principles".
-    - Output: `data/results/constitution_title_audit.json`.
-
-2.  **Data Ingestion**:
-    - Downloads verified HuggingFace datasets (`matbench/elasticity`).
-    - Validates schema (elastic_tensor, structure).
-    - Checksums raw files.
-    - Output: `data/raw/*.parquet`.
-
-3.  **Graph Construction**:
-    - Converts structures to graphs (PBC-aware).
-    - Output: `data/processed/graphs_v1.parquet`.
-
-4.  **Inter-Family Split**:
-    - Stratifies by composite key (Space Group + Motif).
-    - Output: `data/processed/split_indices.json`.
-
-5.  **Training**:
-    - Trains GNN on CPU (Weighted Loss).
-    - Logs memory usage.
-    - Output: `data/processed/model_v1.pt`, `data/results/training_logs.json`.
-
-6.  **Evaluation**:
-    - Computes RMSE and MAPE on unseen families.
-    - Computes 95% CI for MAPE.
-    - Output: `data/results/generalization_metrics.json`.
-
-7.  **Inference Benchmark**:
-    - Measures time per material.
-    - Output: `data/results/inference_benchmark.json`.
-
-8.  **Feature Importance**:
-    - Runs SHAP with interaction values.
-    - Output: `data/results/feature_importance_report.md`.
+1. **Constitution title audit** (T060c): checks title for forbidden "First-Principles"/"Schrödinger Equation" terms; writes `data/results/constitution_title_audit.json`; **exits 1 on FAIL**.
+2. **Data ingestion** (T013d1): downloads the verified canonical parquet, validates schema, checksums → `data/raw/`.
+3. **Graph construction** (T013d2–d4): PBC-aware graphs → `data/processed/graphs_v1.parquet`.
+4. **Split generation** (T013f): family-clustered split, atomically written → `data/processed/split_indices.json`.
+5. **Split validation** (T017b): leakage check → `data/results/split_validation.json`.
+6. **Training** (T018b): CPU-only GNN under `tracemalloc`; saves `data/processed/model_v1.pt`, `data/results/training_logs.json`; exits 1 if peak memory > 7GB.
+7. **Evaluation**: `data/results/predictions.json`, `data/results/generalization_metrics.json` (incl. baseline comparison for SC-002).
+8. **Inference benchmark** (T022): `data/results/inference_benchmark.json`; exits 1 if > 100ms/material.
+9. **Feature importance** (T003): `data/results/feature_importance_report.md`.
 
 ## 4. Verification
-
-To verify the results:
-
 ```bash
-# Check if the model passed the MAPE/RMSE threshold
+python code/utils/verify_constitution_title.py   # expect exit 0 + audit JSON
+pytest tests/                                    # unit + contract tests
 python code/utils/verify_success_criteria.py --input data/results/generalization_metrics.json
-
-# Verify constitution audit
-python code/utils/verify_constitution_title.py
 ```
 
 ## 5. Troubleshooting
-
-- **Memory Error**: Reduce `batch_size` in `code/model/train.py` or enable streaming in `code/data/loader.py`.
-- **Constitution Error**: Ensure `constitution.md` title is updated to "Structure-Only Surrogate Model".
-- **Data Missing**: Check network connectivity to HuggingFace. Verify checksums in `state/...yaml`.
+- **Memory error**: reduce `batch_size` in `code/model/train.py`.
+- **Audit FAIL**: amend the constitution title per the amendment procedure (remove "First-Principles Calculations").
+- **Dataset schema mismatch**: loader falls back to the same-schema verified alternates; if none fit, it exits with an explicit mismatch error — do not substitute unverified data.

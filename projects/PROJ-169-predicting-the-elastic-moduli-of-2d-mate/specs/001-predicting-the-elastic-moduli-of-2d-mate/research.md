@@ -2,81 +2,58 @@
 
 ## 1. Problem Definition
 
-The goal is to predict elastic moduli (Young's, Shear, Poisson's ratio) for 2D materials using a **Structure-Only Surrogate Model**. This is a machine learning interpolation task, not a first-principles calculation. The model learns the mapping from crystal structure (graph representation) to elastic properties based on pre-computed DFT data.
-
-**Critical Distinction**: The model does *not* solve the Schrödinger equation. It approximates the statistical correlation between structural descriptors and DFT-derived properties. Claims of "discovering new physics" are strictly forbidden; insights are limited to identifying structural determinants within the training distribution. The ground truth is **DFT-derived**, not experimental.
+Predict Young's, Shear, and Poisson's ratios for 2D materials using a **Structure-Only Surrogate Model** — a machine-learning interpolator of pre-computed DFT results. It does not solve the Schrödinger equation; it learns statistical correlations between structural descriptors and DFT-derived elastic properties. All claims are associational and valid only within the training distribution.
 
 ## 2. Dataset Strategy
 
-The project relies on **verified, open, programmatic datasets** from HuggingFace. No access-gated data is used.
+Only the verified, directly-downloadable parquet URLs below are used (single canonical source per run; no access-gated data):
 
-### Verified Datasets
-
-| Dataset Name | Source URL | Content | Suitability |
+| Dataset | Verified URL | Content | Role |
 | :--- | :--- | :--- | :--- |
-| **MatBench Elasticity** | `https://huggingface.co/datasets/matbench/elasticity` | Training/Testing splits of DFT elastic tensors. | **Primary Source**. Contains `elastic_tensor` (6 components) and `structure` (CIF) fields. Verified schema match. |
+| DFT parquet (primary) | `https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet` | DFT-computed records | **Primary canonical source** |
+| DFT parquet (secondary, same-schema) | `https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet` | DFT-computed records | Alternate canonical source (if primary lacks required fields) |
+| DFT parquet (secondary, same-schema) | `https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet` | DFT-computed records | Alternate canonical source |
 
-**Dataset Selection Rationale**:
-- **Availability**: Direct programmatic access via `datasets.load_dataset`. No registration required.
-- **Completeness**: Verified to contain `elastic_tensor` and `structure` fields required for graph construction.
-- **Fit**: Contains exact predictors (structure) and outcomes (elastic moduli).
-- **Feasibility**: Streamed or sampled to fit 7GB RAM.
+**Note (dataset-variable fit)**: These are the only verified sources available. The loader MUST, at download time, validate that the chosen parquet actually contains the structure/CIF field and the 6-component elastic tensor required by FR-001 and Principle VI. If the primary source lacks a required field, the loader falls back to the same-schema alternates; if none contains the required fields, the pipeline exits with an explicit dataset-mismatch error rather than fabricating data. This validation is a hard gate in T013d1.
 
-**Data Handling Strategy**:
-- **Streaming**: Use `datasets.load_dataset(..., streaming=True)`. If metadata index exceeds 7GB, fallback to a random sample of [deferred] rows (log power limitation).
-- **Checksumming**: Every downloaded file is checksummed (SHA-256) and recorded in `state/...yaml`.
-- **Schema Validation**: T013d1 validates the presence of `elastic_tensor` and `structure` before processing.
+**Handling**: SHA-256 checksum recorded under `data/`; raw file preserved unchanged; row-count check against SC-001 (>1,000 valid 2D entries, or all available if fewer — logged honestly if fewer).
+
+*(Correction from prior plan: `matbench/elasticity` was removed because it is not in the verified dataset list.)*
 
 ## 3. Methodology
 
 ### 3.1 Graph Construction
-- **Nodes**: Atoms. Features: Atomic number, electronegativity, covalent radius.
-- **Edges**: Bonds. **PBC-Aware**: Uses `pymatgen` to create edges across unit cell boundaries.
-- **Threshold**: Adaptive cutoff: `covalent_radius_A + covalent_radius_B + 0.5 Å`. This avoids fixed cutoff artifacts for materials with varying bond lengths.
+- **Nodes**: atoms; features = atomic number, electronegativity, covalent radius, group/period.
+- **Edges**: PBC-aware neighbor connections via pymatgen; adaptive cutoff `r_A + r_B + 0.5 Å`.
+- Edge features: bond distance, electronegativity difference.
 
-### 3.2 Model Architecture
-- **Type**: Graph Neural Network (GNN), specifically a Message Passing Neural Network (MPNN).
-- **Constraints**: Lightweight (2-3 layers, hidden dim <= 64) to fit 7GB RAM.
-- **Loss Function**: **Weighted/Normalized MSE**.
-  - Young's and Shear moduli are normalized by dataset mean/std.
-  - Poisson's ratio is weighted to ensure equal contribution.
-  - Prevents GPa-scale targets from dominating the gradient.
+### 3.2 Model
+- Lightweight MPNN (2–3 message-passing layers, hidden dim ≤ 64), CPU-only `torch`.
+- Weighted/normalized MSE loss (targets z-scored; Poisson's ratio weighted to match GPa-scale targets' contribution).
 
-### 3.3 Training & Validation
-- **Split Strategy**: **Inter-Family Stratified Split**.
-  - **Family Definition**: A composite key of **Space Group** + **Dominant Anion/Cation Motif** (e.g., "TMD" = Space Group 187 + "S" anion).
-  - **Rationale**: Prevents leakage where structural motifs overlap between families.
-- **Metric**: Primary: **RMSE** (stable for wide ranges). Secondary: **MAPE** (for interpretability).
-- **Power Analysis**: With [deferred] entries, test set may be small (<50). Pipeline computes 95% CI for MAPE.
-  - **Gate Logic**: Fail if RMSE > threshold OR (MAPE > 15% AND Lower CI Bound > 15%).
-- **Hard Gate**: If criteria not met, pipeline exits with code 1.
+### 3.3 Split (FR-002, SC-002)
+- **Family** = space group + cation-anion stoichiometry class (spec definition).
+- Families assigned to train/validation/test with pinned seed; **no family spans splits** (leakage check in T017b).
+- Baseline: composition-only linear regression (Magpie-style features) for the SC-002 ≥10% relative-MAPE-reduction comparison.
 
 ### 3.4 Statistical Rigor
-- **Multiple Comparisons**: Not applicable for primary regression.
-- **Power Limitation**: Acknowledged if test set < 50. Reported in `generalization_metrics.json`.
-- **Collinearity**: Structural descriptors (bond length vs. coordination) are correlated.
-  - **Method**: **SHAP (Shapley Additive Explanations)** with interaction values.
-  - **Rationale**: Better handles correlated features than permutation importance.
-- **Causal Claims**: None. All claims are associational: "Structure X correlates with Property Y within the DFT training distribution."
-- **Limitations**: Structural descriptors are derived from the same structure as the outcome. SHAP values represent "correlation importance", not causation.
+- **Multiple comparisons**: feature-importance significance uses permutation tests with Holm–Bonferroni correction across descriptors.
+- **Power**: test set of unseen families may be small; 95% CI for MAPE computed via bootstrap; limitation reported explicitly in `generalization_metrics.json` if n_test < 50.
+- **Causal framing**: strictly associational; surrogate interpolation of DFT data.
+- **Collinearity**: structural descriptors are correlated; SHAP magnitudes (not marginal p-values) plus permutation ablation deltas are used, and correlated descriptors are reported descriptively (FR-005, Principle VII).
+- **Measurement validity**: ground truth is DFT-derived elastic tensors from the canonical source; moduli derived via standard continuum-mechanics relations in code (Principle VI).
 
 ## 4. Compute Feasibility
 
-- **CPU-First**: Entire pipeline designed for 2 CPU cores, 7GB RAM.
-- **Memory Management**:
-  - Graph construction: Batch processing.
-  - Training: Small batch sizes (16-32).
-  - Model: Hidden dim <= 64.
-- **No GPU**: Plan avoids GPU-only methods.
+**CPU-first**: everything runs on 2 CPU / 7GB RAM / ≤6h. No GPU escape hatch needed — the GNN is small (≤64 hidden), batches are 16–32, ingestion streams parquet rows. `tracemalloc` enforces the 7GB budget (FR-003). Inference of a ≤64-dim GNN on ≤100-atom graphs is far below 100ms on CPU (SC-003).
 
 ## 5. Decision Rationale
 
 | Decision | Rationale |
 | :--- | :--- |
-| **GNN over RF/XGBoost** | GNNs capture spatial relationships in crystal structures better than tabular models. |
-| **Inter-Family Split (Composite Key)** | Prevents leakage; tests true generalization to unseen topologies. |
-| **SHAP over Permutation** | Handles collinearity in structural descriptors. |
-| **RMSE + MAPE** | RMSE is stable for wide ranges; MAPE is interpretable. |
-| **PBC-Aware Graph Builder** | Essential for correct connectivity in 2D materials. |
-| **Adaptive Cutoff** | Avoids artifacts from fixed distance thresholds. |
-| **Weighted Loss** | Ensures Poisson's ratio is not dominated by GPa-scale targets. |
+| Verified parquet sources only | Only reachable, programmatic, non-gated data; CI-runnable (Principle I). |
+| Lightweight MPNN on CPU | Faithful CPU-tractable form; fits memory/time budget. |
+| Family-based split | SC-002 requires unseen-family generalization; prevents memorization. |
+| Permutation + SHAP | FR-005/SC-005 require both; SHAP handles collinearity, permutation gives ablation deltas. |
+| Bootstrap CI on MAPE | Honest uncertainty for small unseen-family test sets. |
+| Hard gates with exit codes | Verifier-rejected tasks (T060c, T018b) showed gates must actually fail loudly and write artifacts. |

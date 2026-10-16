@@ -2,117 +2,69 @@
 
 ## 1. Overview
 
-This document defines the data schemas, transformations, and storage formats for the surrogate model pipeline. All data artifacts are versioned and checksummed.
+Schemas, transformations, and storage for the surrogate pipeline. All artifacts versioned and checksummed; raw data immutable; every derivation writes a new file.
 
-## 2. Raw Data Schema
+## 2. Raw Data (`data/raw/`)
 
-The raw data is ingested from HuggingFace Parquet files (`matbench/elasticity`).
-
-**Source**: `data/raw/matbench_elasticity.parquet`
-**Format**: Apache Parquet
-
-| Field | Type | Description | Source Column |
-| :--- | :--- | :--- | :--- |
-| `material_id` | string | Unique identifier. | `material_id` |
-| `formula` | string | Chemical formula. | `formula` |
-| `structure` | object | Atomic structure (dict: species, coords). | `structure` |
-| `elastic_tensor` | list[float] | 6 independent components (Voigt). | `elastic_tensor` |
-| `space_group` | integer | Space group number. | `space_group` |
-| `family` | string | Composite key (Space Group + Motif). | Derived |
-
-**Note**: `family` is derived from `space_group` and `formula` (e.g., "TMD" if SG=187 and "S" in formula).
-
-## 3. Processed Data Schema
-
-### 3.1 Graph Dataset (`data/processed/graphs_v1.parquet`)
+Downloaded parquet from the verified canonical URL (see research.md). Required fields validated at load:
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| `material_id` | string | Unique ID. |
-| `num_nodes` | int | Number of atoms. |
-| `num_edges` | int | Number of bonds. |
-| `node_features` | list[list[float]] | Atomic features. |
-| `edge_index` | list[list[int]] | Connectivity matrix (PBC-aware). |
-| `edge_features` | list[list[float]] | Bond features (distance, etc.). |
-| `target_young` | float | Young's modulus (GPa). |
-| `target_shear` | float | Shear modulus (GPa). |
-| `target_poisson` | float | Poisson's ratio. |
+| `material_id` | string | Unique identifier |
+| `structure` | object/string | Pymatgen Structure dict or CIF text |
+| `elastic_tensor` | list[float] | 6 independent Voigt components (Principle VI filter) |
+| `formula` | string | Chemical formula |
+| `space_group` | integer | Space group number |
 
-### 3.2 Split Indices (`data/processed/split_indices.json`)
+Derived: `family` = space_group + stoichiometry class; `is_2d` flag from structure dimensionality.
 
+## 3. Processed Data (`data/processed/`)
+
+### 3.1 `graphs_v1.parquet` — see `contracts/dataset_schema.schema.yaml`
+Per-material graph rows: `material_id`, `num_nodes`, `num_edges`, `node_features`, `edge_index`, `edge_features`, `target_young`, `target_shear`, `target_poisson`, plus `family` for stratified analysis. Moduli derived exclusively by `code/physics/tensors.py` from the elastic tensor.
+
+### 3.2 `split_indices.json` (T013f, atomic write)
 ```json
 {
-  "train_families": ["TMD", "Graphene"],
-  "test_families": ["MXene"],
-  "train_ids": ["id1", "id2"],
-  "test_ids": ["id3"],
-  "split_seed": 42,
-  "timestamp": "2026-07-08T12:00:00Z"
+  "train_ids": ["..."], "val_ids": ["..."], "test_ids": ["..."],
+  "train_families": ["..."], "test_families": ["..."],
+  "split_seed": 42, "timestamp": "ISO-8601"
 }
 ```
 
-### 3.3 Model Weights (`data/processed/model_v1.pt`)
+### 3.3 `model_v1.pt` (T018b)
+Torch save containing: state dict, hyperparameters, seed, target normalization stats, disclaimer text.
 
-PyTorch state dictionary. Contains:
-- Model parameters.
-- Training hyperparameters.
-- Random seed.
-- Disclaimer text.
+## 4. Results (`data/results/`)
 
-## 4. Output Data Schema
+### 4.1 `training_logs.json`
+`run_id`, `epochs`, `train_loss_history`, `val_loss_history`, `peak_memory_gb`, `memory_limit_exceeded`, `device` ("cpu"), `disclaimer_included`.
 
-### 4.1 Training Logs (`data/results/training_logs.json`)
+### 4.2 `split_validation.json` (T017b)
+`status` (PASS/FAIL), `train/val/test_counts`, `train_families`, `test_families`, `leakage_check` (boolean — no shared families), `message`.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `run_id` | string | UUID. |
-| `epochs` | int | Number of epochs. |
-| `train_loss_history` | list[float] | Loss per epoch. |
-| `val_loss_history` | list[float] | Validation loss per epoch. |
-| `peak_memory_gb` | float | Peak RAM usage. |
-| `memory_limit_exceeded` | boolean | True if > 7.0 GB. |
-| `disclaimer_included` | boolean | True if Feynman quote is present. |
+### 4.3 `generalization_metrics.json` — see `contracts/results_schema.schema.yaml`
+Per-property MAPE, overall MAPE, bootstrap 95% CI, RMSE, baseline comparison (`baseline_mape`, `relative_mape_reduction`, SC-002 pass/fail), `test_families`, `status`, `message`.
 
-### 4.2 Generalization Metrics (`data/results/generalization_metrics.json`)
+### 4.4 `predictions.json` (T018b)
+List of test-set records: `material_id`, `family`, true/predicted Young/shear/Poisson, absolute errors, per-record APE.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `mape_young` | float | MAPE for Young's modulus. |
-| `mape_shear` | float | MAPE for Shear modulus. |
-| `mape_poisson` | float | MAPE for Poisson's ratio. |
-| `overall_mape` | float | Weighted average MAPE. |
-| `mape_ci_lower` | float | 95% CI Lower Bound for MAPE. |
-| `mape_ci_upper` | float | 95% CI Upper Bound for MAPE. |
-| `rmse_young` | float | RMSE for Young's modulus. |
-| `threshold` | float | Success threshold (0.15). |
-| `status` | string | "PASS" or "FAIL". |
-| `test_families` | list[string] | Families in the test set. |
-| `message` | string | Error message if FAIL. |
+### 4.5 `constitution_title_audit.json` — see `contracts/constitution_audit_schema.schema.yaml`
 
-### 4.3 Constitution Title Audit (`data/results/constitution_title_audit.json`)
+### 4.6 `inference_benchmark.json`
+`avg_inference_time_ms`, `max_inference_time_ms`, `n_materials`, `status`, `message`.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `status` | string | "PASS" or "FAIL". |
-| `found_title` | string | Title found in constitution file. |
-| `expected_title` | string | "Structure-Only Surrogate Model for 2D Material Elastic Moduli". |
-| `message` | string | Error message if FAIL. |
-
-### 4.4 Inference Benchmark (`data/results/inference_benchmark.json`)
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `avg_inference_time_ms` | float | Average time per material. |
-| `max_inference_time_ms` | float | Max time per material. |
-| `status` | string | "PASS" or "FAIL". |
-| `message` | string | Error message if FAIL. |
+### 4.7 `feature_importance_report.md`
+Unified ranked descriptor list with permutation ablation deltas and mean |SHAP| magnitudes; Holm-corrected significance; disclaimer footer from `code/utils/disclaimer_template.py`.
 
 ## 5. Data Flow
 
-1.  **Ingest**: `loader.py` downloads raw Parquet.
-2.  **Transform**: `graph_builder.py` converts raw to `graphs_v1.parquet` (PBC-aware).
-3.  **Split**: `splitter.py` generates `split_indices.json` (Composite Key).
-4.  **Train**: `train.py` trains model, logs memory, saves `model_v1.pt` and `training_logs.json`.
-5.  **Eval**: `eval_runner.py` computes metrics (RMSE, MAPE, CI), saves `generalization_metrics.json`.
-6.  **Benchmark**: `inference_benchmark.py` measures time, saves `inference_benchmark.json`.
-7.  **Audit**: `verify_constitution_title.py` validates constitution, saves `constitution_title_audit.json`.
+1. `loader.py` — download + checksum + schema validation (hard gate).
+2. `graph_builder.py` — structures → `graphs_v1.parquet`.
+3. `split_generator.py` — family clustering → `split_indices.json` (atomic write).
+4. `splitter.py` — validation → `split_validation.json`.
+5. `train.py` — CPU training under `tracemalloc` → `model_v1.pt`, `training_logs.json`.
+6. `eval_runner.py` — metrics + baseline + `predictions.json`, `generalization_metrics.json`.
+7. `inference_benchmark.py` → `inference_benchmark.json`.
+8. `feature_importance.py` → `feature_importance_report.md`.
+9. `verify_constitution_title.py` → `constitution_title_audit.json` (exit-code gate).
