@@ -26,7 +26,7 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 78, in run_wrapper
     subset = download_gsm8k_subset(sample_size)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 166, in download_gsm8k_subset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 167, in download_gsm8k_subset
     response.raise_for_status()
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
     raise HTTPError(http_error_msg, response=self)
