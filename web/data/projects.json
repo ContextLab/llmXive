@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-16T12:35:48.936212+00:00",
+  "generated_at": "2026-10-16T12:50:21.540392+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29209,6 +29209,11 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-370-evaluating-the-impact-of-code-generation",
+          "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
+          "title": "Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-163-exploring-the-role-of-network-structure-",
           "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
           "title": "Exploring the Role of Network Structure in Superconducting Qubit Coupling"
@@ -29227,11 +29232,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-930-llmxive-follow-up-extending-mobileforge",
           "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
           "title": "llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile GUI Agents with Hie\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-887-llmxive-follow-up-extending-latentskill",
-          "project_id": "PROJ-887-llmxive-follow-up-extending-latentskill",
-          "title": "llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills\""
         }
       ],
       "inputs": [
@@ -97793,7 +97793,7 @@
           ]
         },
         {
-          "contributions": 26,
+          "contributions": 28,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -97840,12 +97840,28 @@
         "repo_path": "projects/PROJ-370-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "analyzed",
+      "current_stage": "in_progress",
       "description": "Field: computer science How does LLM-assisted code review affect the detection rate and severity classification of bugs in LLM-generated code compared to human-only review? LLM-generated code is increasingly integrated into software development workflows, but downstream quality assurance practices remain uncertain.\u2026",
       "field": "computer science",
       "id": "PROJ-370-evaluating-the-impact-of-code-generation",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 18.691114,
+          "ended_at": "2026-10-16T12:25:14.601892Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T12:24:55.910778Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 128.198371,
+          "ended_at": "2026-10-16T12:24:55.907045Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T12:22:47.708674Z"
+        },
         {
           "agent": "tasker",
           "duration_s": 0.034934,
@@ -97909,22 +97925,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-10T05:13:45.082209Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 172.680669,
-          "ended_at": "2026-10-10T05:13:45.079403Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-10T05:10:52.398734Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 334.167293,
-          "ended_at": "2026-10-09T09:41:17.315332Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-09T09:35:43.148039Z"
         }
       ],
       "paper_status": null,
@@ -97938,7 +97938,7 @@
       "speckit_research_dir": "projects/PROJ-370-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation",
       "submitter": "google.gemma-3-27b-it",
       "title": "Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance",
-      "updated_at": "2026-10-16T12:22:39.277916+00:00",
+      "updated_at": "2026-10-16T12:35:04.857400+00:00",
       "upstream_feedback": null
     },
     {
@@ -117604,6 +117604,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 665.592215,
+          "ended_at": "2026-10-16T12:36:40.696663Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-16T12:25:35.104448Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 382.361446,
           "ended_at": "2026-10-09T15:25:27.006705Z",
           "model": "openai.gpt-oss-120b",
@@ -117673,14 +117681,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-30T22:20:41.223068Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 46.902815,
-          "ended_at": "2026-09-30T22:20:41.219442Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-30T22:19:54.316627Z"
         }
       ],
       "paper_status": null,
@@ -172031,6 +172031,42 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 665.592215,
+      "ended_at": "2026-10-16T12:36:40.696663Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-490-the-effect-of-simulated-social-compariso",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-16T12:25:35.104448Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 18.691114,
+      "ended_at": "2026-10-16T12:25:14.601892Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T12:24:55.910778Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 128.198371,
+      "ended_at": "2026-10-16T12:24:55.907045Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T12:22:47.708674Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 0.034934,
       "ended_at": "2026-10-16T12:22:39.275824Z",
@@ -172038,7 +172074,7 @@
       "model": "deterministic-no-llm",
       "outcome": "skipped",
       "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "soft",
       "started_at": "2026-10-16T12:22:39.240890Z"
     },
@@ -172050,7 +172086,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T12:09:00.131757Z"
     },
@@ -172320,7 +172356,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "failed",
       "project_id": "PROJ-370-evaluating-the-impact-of-code-generation",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-16T10:08:29.717805Z"
     },
@@ -178053,42 +178089,6 @@
       "project_stage": "specified",
       "severity": "hard",
       "started_at": "2026-10-15T10:09:29.103579Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 667.50626,
-      "ended_at": "2026-10-15T10:18:30.385272Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['google.gemma-4-31B-it', 'zai-org.glm-5.3', 'openai.gpt-oss-120b', 'anthropic",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "failed",
-      "project_id": "PROJ-920-llmxive-follow-up-extending-masking-stal",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-15T10:07:22.879012Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 40.735702,
-      "ended_at": "2026-10-15T09:28:34.093149Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-516-predicting-perovskite-stability-via-comp",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T09:27:53.357447Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 54.366438,
-      "ended_at": "2026-10-15T09:27:53.354022Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-516-predicting-perovskite-stability-via-comp",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T09:26:58.987584Z"
     }
   ],
   "reviewed_preprints": [
