@@ -59,3 +59,65 @@ T005:
     exactly matching the verification requirement. The module is real, non-stub code
     with no placeholders.'
   sig: 608bfdac9e4401dea1082bcd65c81c74f27c808c5066449f5ba8f8866a2fce65
+T006:
+  c: false
+  h: 6ca5f59618796c365543f0cd1c350b9539b024c0ed4b7db9fce6f8a44c701f88
+  r: 'The artifact `src/utils/logger.py` exists and exposes `get_logger(name)` with
+    a stdout StreamHandler and `set_log_level`, but the recorded test run (`tests/unit/test_logger.py`,
+    exit 1) shows both verification tests FAILED: "Hello stdout" and "debug message"
+    never appeared in captured stdout. The likely cause is that the handler binds
+    `sys.stdout` at import time, so it doesn''t write to the stream pytest''s capsys
+    replaces; the logger must resolve the stream lazily (e.g., a custom handler using
+    `currentStream`/dynamic lookup) or otherwise ensure messages actually reach stdout
+    under test. The tas'
+  sig: fdd9884b8a7f31f483536e88bf34f2c39bc77f9022d6fe07f17f032eeb8ae33d
+T007a:
+  c: true
+  h: 916c98d98c574840d14d817c6c149f6cb7b0bf1b9e3ce01e13f25de2a3d098af
+  r: The file `contracts/dataset.schema.yaml` exists (746 bytes) and is a valid JSON-Schema
+    draft-07 definition covering all required fields from the spec (milling speed,
+    time, ball-to-powder ratio, Young's modulus, density, PSD metrics d10/d50/d90,
+    source tracking with the three specified sources). It is a real, well-formed schema,
+    not a placeholder.
+  sig: df722109968f51fc8089ecce7f69f8da00ce0a4b1d9a42ade4cf10c4bdeecab9
+T007b:
+  c: false
+  h: 1ff0dd441fd614903a33811689de86fbeb7305b72f6993c3b17778eab577a394
+  r: "The file `src/preprocess/validate_schema.py` exists and defines `validate(df)`,\
+    \ but the verification requirement \u2014 that it raises `jsonschema.ValidationError`\
+    \ on mismatched rows \u2014 is not credibly satisfied: `validate()` passes the\
+    \ loaded YAML (a `fields:`/`constraints:` style schema, not a JSON Schema) directly\
+    \ to `jsonschema.validate`, and a dict without `type`/`properties`/`required`\
+    \ keys validates virtually any instance, so mismatched rows would not raise. There\
+    \ is also no evidence that `contracts/dataset.schema.yaml` exists, and no test/execution\
+    \ evidence showing a `ValidationError` was ac"
+  sig: b15bcf17c78a7a6d57c335a2ba8af6a5530d8638f47d11a458dddb90d1918951
+T008:
+  c: true
+  h: ce6d667c6ff6e2171efd3aed26453eb6d0f5f1881f5912fab0ee9a0053f090e5
+  r: The file `src/utils/exceptions.py` exists (1580 bytes) and defines all five required
+    exception classes (`DataIngestionError`, `MissingTimestampError`, `GPRResourceLimitExceeded`,
+    `InsufficientDataError`, `MissingDataError`), each subclassing `Exception` and
+    thus raisable; the extra classes are additive and don't conflict with the requirement.
+  sig: d06743337b3d41e9e9e53ca55e28b150a6d77a432c73993699e672c8fee307b8
+T009:
+  c: true
+  h: 86acc239ee4ad3e7c40502ca2c626ec30b5ad794eff99e27bb11567e395150c5
+  r: 'The artifact `src/config/config.yaml` exists (1008 bytes) and contains all required
+    keys: API endpoints (materials_project, nist, arxiv), GPR resource limits (gpr_max_runtime,
+    gpr_max_memory), and OCR fallback flags (fallback_enabled, language). The task''s
+    verification criterion is only that the file exists with the required keys, which
+    it satisfies. Note for follow-up: the config loader in `src/config/settings.py`
+    looks for `config/config.yaml` rather than `src/config/config.yaml`, causing a
+    test failure, but fixing the loader is outside this task''s scope.'
+  sig: d5d41ef5d81b78a48c489519cfc2cbc0c3eb3eb31e49ec5e5174d6b1d228bd14
+T009b:
+  c: true
+  h: b80f5f13711bfbb1dcd7357594b386ea1563c7619dd9e4d77e929fdc85e1de44
+  r: "`src/config/settings.py` exists (3470 bytes) and implements a real `load_config()`\
+    \ that reads `config.yaml` via `yaml.safe_load`, returns the parsed dict, and\
+    \ validates expected keys (`api` with `materials_project`/`nist`/`arxiv`, `gpr_max_runtime`,\
+    \ `gpr_max_memory`, `ocr` with `fallback_enabled`/`language`), raising clear errors\
+    \ otherwise \u2014 no stubs or placeholders. The task only required the loader\
+    \ module; the presence/execution of `config.yaml` is not part of this task's deliverables."
+  sig: 1a447b0149ee37e8fa5e6a50277b0b045fbd58cf3844ba894a46763e0f7a5eca

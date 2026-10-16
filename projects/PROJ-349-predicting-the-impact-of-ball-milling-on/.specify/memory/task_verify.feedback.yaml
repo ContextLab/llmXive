@@ -3,14 +3,8 @@ T001:
 T002:
   task: 9c23f9380dff2019f0ecf7cd0affbafbc5cb21df56b8b31dc24a203d46f36b79
 T002b:
-  reason: "The log itself reveals the \"Successfully installed \u2026\" line was not\
-    \ captured from pip: stderr states \"Appended deterministic success line to ...\
-    \ requirements_check.txt\", meaning the script wrote the success message itself\
-    \ rather than recording pip's actual output. The 0.6s runtime is also implausible\
-    \ for a real `pip install --dry-run` resolution of 11 packages, and the actual\
-    \ pip output file (`results/requirements_check.txt`) is not provided as evidence.\
-    \ The task requires a genuine pip dry-run log showing \"Successfully installed\
-    \ \u2026\" with no conflicts; a script-fabricated success line does not sa"
+  reason: 'Requested task execution failed; rerun successfully: code/check_requirements.py
+    exit=1'
   task: af22df937c58a4d5e0327c722a519cb45a13a4f6447b482e0458141183e06ccd
 T003a:
   reason: "The task requires creating a `.flake8` file containing `max-line-length\
@@ -29,10 +23,26 @@ T004:
 T005:
   task: 08147498d7165e9d56a14648b20ba76e1715e3f1a9434a5de3d81b8c39227015
 T006:
+  reason: 'The artifact `src/utils/logger.py` exists and exposes `get_logger(name)`
+    with a stdout StreamHandler and `set_log_level`, but the recorded test run (`tests/unit/test_logger.py`,
+    exit 1) shows both verification tests FAILED: "Hello stdout" and "debug message"
+    never appeared in captured stdout. The likely cause is that the handler binds
+    `sys.stdout` at import time, so it doesn''t write to the stream pytest''s capsys
+    replaces; the logger must resolve the stream lazily (e.g., a custom handler using
+    `currentStream`/dynamic lookup) or otherwise ensure messages actually reach stdout
+    under test. The tas'
   task: 56a1e878ba23b36f1046e71d3bc66a5beac802c7ce7f8c1943ced255c51f4bfd
 T007a:
   task: 7bd9fb34291b42161a49604febd3b6424065a14d12c764fa0e768dee631c1e31
 T007b:
+  reason: "The file `src/preprocess/validate_schema.py` exists and defines `validate(df)`,\
+    \ but the verification requirement \u2014 that it raises `jsonschema.ValidationError`\
+    \ on mismatched rows \u2014 is not credibly satisfied: `validate()` passes the\
+    \ loaded YAML (a `fields:`/`constraints:` style schema, not a JSON Schema) directly\
+    \ to `jsonschema.validate`, and a dict without `type`/`properties`/`required`\
+    \ keys validates virtually any instance, so mismatched rows would not raise. There\
+    \ is also no evidence that `contracts/dataset.schema.yaml` exists, and no test/execution\
+    \ evidence showing a `ValidationError` was ac"
   task: d860bd943d39f754b5986a3187a1416d81a1855906f7c1eb3fac860da38393a0
 T008:
   task: 1514134eff96a62bdf085df8831b185db521e311af9b3a259819ccd91823546a

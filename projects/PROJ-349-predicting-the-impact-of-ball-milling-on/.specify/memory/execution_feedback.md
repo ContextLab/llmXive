@@ -84,7 +84,7 @@ E       fixture 'df' not found
 /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/tests/contract/test_dataset_schema.py:23
 =========================== short test summary info ============================
 ERROR tests/contract/test_dataset_schema.py::test_schema_validation_passes
-========================== 3 passed, 1 error in 0.31s ==========================
+========================== 3 passed, 1 error in 0.32s ==========================
 
 
 ## Platform-owned paths written inside the project

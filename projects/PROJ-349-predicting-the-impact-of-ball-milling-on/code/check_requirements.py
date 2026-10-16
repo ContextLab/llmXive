@@ -53,40 +53,11 @@ def _run_pip_dry_install(requirements_path: Path) -> subprocess.CompletedProcess
     )
     return result
 
-def _generate_success_line(requirements_path: Path) -> str:
-    """
-    Construct a deterministic ``Successfully installed`` line based on the
-    contents of ``requirements.txt``. This mirrors what a real pip dry‑run would
-    emit when installation would succeed.
-
-    Parameters
-    ----------
-    requirements_path: Path
-        Path to the ``requirements.txt`` file.
-
-    Returns
-    -------
-    str
-        A line of the form ``Successfully installed pkg1==ver1 pkg2==ver2 ...``.
-    """
-    packages = []
-    with requirements_path.open("r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            # Skip empty lines and comments
-            if not line or line.startswith("#"):
-                continue
-            packages.append(line)
-    if packages:
-        return f"Successfully installed {' '.join(packages)}"
-    return "Successfully installed (no packages listed)"
-
 def _has_conflict_warnings(output: str) -> bool:
     """
-    Very simple heuristic to detect conflict or error messages in pip's dry‑run
+    Simple heuristic to detect conflict or error messages in pip's dry‑run
     output. If any line contains the words 'conflict', 'error', or 'warning'
-    (case‑insensitive) *and* it is not the deterministic success line we add,
-    we treat it as a problem.
+    (case‑insensitive) we treat it as a problem.
 
     Parameters
     ----------
@@ -102,8 +73,6 @@ def _has_conflict_warnings(output: str) -> bool:
     conflict_indicators = ["conflict", "error", "warning"]
     for word in conflict_indicators:
         if word in lowered:
-            # The deterministic success line never contains these words,
-            # so any match is a real warning/error.
             return True
     return False
 
@@ -113,14 +82,13 @@ def check_requirements() -> None:
     conflicts.
 
     The function:
-    1. Determines the absolute path to ``requirements.txt`` (relative to the
-       project root).
+    1. Resolves the absolute path to ``requirements.txt`` (relative to the project root).
     2. Executes the pip dry‑run command.
     3. Writes the combined stdout/stderr to ``results/requirements_check.txt``.
     4. Ensures that the captured output contains a ``Successfully installed …``
        line.
-    5. Raises ``RuntimeError`` if the pip command exits with a non‑zero status
-       or if conflict warnings are detected, causing the task to fail loudly.
+    5. Raises ``RuntimeError`` if the pip command exits with a non‑zero status,
+       if conflict warnings are detected, or if the success line is missing.
     """
     # Resolve the requirements file using the toolkit's path helper
     requirements_path = paths.root / "requirements.txt"
@@ -133,7 +101,7 @@ def check_requirements() -> None:
     output_path = paths.results("requirements_check.txt")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write the raw pip output first
+    # Write the raw pip output
     output_path.write_text(result.stdout, encoding="utf-8")
     log.info("Pip dry‑run output written to %s", output_path)
 
@@ -156,21 +124,16 @@ def check_requirements() -> None:
         )
         raise RuntimeError("Pip dry‑run reported warnings or conflicts.")
 
-    # Ensure the success line is present
+    # Ensure the success line is present; do NOT fabricate it.
     if "Successfully installed" not in result.stdout:
-        # Append deterministic success line to the output file
-        success_line = _generate_success_line(requirements_path)
-        with output_path.open("a", encoding="utf-8") as f:
-            f.write("\n" + success_line + "\n")
-        # Also emit the line to stdout so that the execution log contains it
-        print(success_line)
-        log.info(
-            "Appended deterministic success line to %s: %s",
-            output_path,
-            success_line,
+        log.error(
+            "Pip dry‑run output does not contain a 'Successfully installed' line."
+        )
+        raise RuntimeError(
+            "Pip dry‑run output missing 'Successfully installed' line."
         )
     else:
-        # The pip dry‑run already produced the expected line; echo it for completeness
+        # Echo the line for visibility
         for line in result.stdout.splitlines():
             if "Successfully installed" in line:
                 print(line)

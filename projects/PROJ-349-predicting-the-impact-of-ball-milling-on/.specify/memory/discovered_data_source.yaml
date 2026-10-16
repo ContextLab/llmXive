@@ -1,5 +1,6 @@
 status: none
-intent: ball milling experimental dataset Materials Project NIST python package dataset
+intent: Materials Project NIST Materials Data Repository ball milling dataset python
+  package dataset
 required_fields:
 - milling_speed_rpm
 - milling_time_hours
@@ -12,7 +13,6 @@ required_fields:
 - D50
 - D90
 - source_id
-- source_type
-cache_key: 3e56ce2b9b21ee09c91f560bbee40a1a1fbd049416be770c4025fe3bbf74c0ee
-searched_at: '2026-10-16T13:32:05.167502+00:00'
+cache_key: e84be2c397aab297e615b23e09a2672b5b53356ae408b3810a38ad7d4a09c728
+searched_at: '2026-10-16T13:38:10.915612+00:00'
 retry_count: 1

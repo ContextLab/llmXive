@@ -12,7 +12,7 @@ All paths are relative to the project root.
 
 - [X] T001 [P] **Create setup script and manifest** – `scripts/setup_manifest.txt`, `scripts/setup.sh` – verifies both files exist and `setup.sh` creates the directories listed in the manifest.  
 - [X] T002 [P] **Create `requirements.txt`** – pinned versions of the ten core dependencies. Verification: file exists and lists all required packages.  
-- [ ] T002b [P] **Verify `requirements.txt` resolves without conflicts** – run `pip install --dry-run -r requirements.txt` and capture the output. Verification: log shows “Successfully installed …” with no conflict messages.  
+- [ ] T002b [P] **Verify `requirements.txt` resolves without conflicts** – run `pip install --dry-run -r requirements.txt` and capture the output. Verification: log shows “Successfully installed …” with no conflict messages.   <!-- FAILED-IN-EXECUTION: code/check_requirements.py exit=1 -->
 - [ ] T003a [P] **Configure linting (flake8)** – create `.flake8` with `max-line-length = 88`. Verification: file exists and contains the setting.  
 - [ ] T003b [P] **Configure formatting (black)** – add `pyproject.toml` with a valid black configuration. Verification: file exists and black can read it (`black --check .`).   <!-- FAILED-IN-EXECUTION: code/scripts/check_black.sh exit=127 --> <!-- FAILED-IN-EXECUTION: code/scripts/check_black.sh exit=1 -->
 - [X] T004 [P] **Initialize Git repository** – run `git init`, add a `.gitignore`, and make an initial commit. Verification: `.git` directory exists and `git log` shows the initial commit.
@@ -25,12 +25,12 @@ All paths are relative to the project root.
 |------|-------------------------------------------------------------------------------------------|
 
 - [X] T005 [P] **Seed‑management utility** – `src/utils/seed.py` with `set_seed(seed: int)`. Verification: calling the function sets `random`, `numpy`, and (if available) `torch` seeds.  
-- [~] T006 [P] **Logging infrastructure** – `src/utils/logger.py` exposing `get_logger(name)`. Verification: logger writes messages to stdout with configurable level.  
-- [~] T008 [P] **Custom exception definitions** – `src/utils/exceptions.py` defining `DataIngestionError`, `MissingTimestampError`, `GPRResourceLimitExceeded`, `InsufficientDataError`, `MissingDataError`. Verification: each class exists and can be raised.  
-- [~] T007a [P] **Dataset schema file** – `contracts/dataset.schema.yaml` matching the specification. Verification: file exists and validates against the JSON‑Schema draft‑07 definition.  
-- [~] T007b [P] **Schema‑validation helper** – `src/preprocess/validate_schema.py` with `validate(df)`. Verification: function raises `jsonschema.ValidationError` on mismatched rows.  
-- [~] T009 [P] **Configuration template** – `src/config/config.yaml` containing API endpoints, GPR resource limits, and OCR fallback flags. Verification: file exists with the required keys.  
-- [~] T009b [P] **Configuration loader** – `src/config/settings.py` exposing `load_config()`. Verification: function returns a dictionary with the expected keys.  
+- [ ] T006 [P] **Logging infrastructure** – `src/utils/logger.py` exposing `get_logger(name)`. Verification: logger writes messages to stdout with configurable level.  
+- [X] T008 [P] **Custom exception definitions** – `src/utils/exceptions.py` defining `DataIngestionError`, `MissingTimestampError`, `GPRResourceLimitExceeded`, `InsufficientDataError`, `MissingDataError`. Verification: each class exists and can be raised.  
+- [X] T007a [P] **Dataset schema file** – `contracts/dataset.schema.yaml` matching the specification. Verification: file exists and validates against the JSON‑Schema draft‑07 definition.  
+- [ ] T007b [P] **Schema‑validation helper** – `src/preprocess/validate_schema.py` with `validate(df)`. Verification: function raises `jsonschema.ValidationError` on mismatched rows.  
+- [X] T009 [P] **Configuration template** – `src/config/config.yaml` containing API endpoints, GPR resource limits, and OCR fallback flags. Verification: file exists with the required keys.  
+- [X] T009b [P] **Configuration loader** – `src/config/settings.py` exposing `load_config()`. Verification: function returns a dictionary with the expected keys.  
 
 ---
 
