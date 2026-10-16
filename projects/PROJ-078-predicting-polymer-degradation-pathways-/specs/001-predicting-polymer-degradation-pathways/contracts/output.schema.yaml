@@ -36,3 +36,4 @@ required:
   - predicted_class
   - confidence
   - is_low_confidence
+additionalProperties: false

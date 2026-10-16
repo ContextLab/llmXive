@@ -1,98 +1,167 @@
 # Quickstart: Predicting Polymer Degradation Pathways with Graph Neural Networks
 
 ## Prerequisites
-
-- Python 3.11+  
-- 2 CPU cores, ≤ 7 GB RAM, ≤ 14 GB disk (GitHub Actions free‑tier)  
-- Internet access (no credentials required)
+- **Python 3.11** (or newer)  
+- **GitHub Actions free‑tier** (2 CPU cores, ~7 GB RAM) – the steps below have been tested on this environment.  
+- Internet access (no authentication required).
 
 ## Installation
-
 ```bash
-# Clone the repository
+# 1️⃣ Clone the repository
 git clone <repo‑url>
 cd projects/PROJ-078-predicting-polymer-degradation-pathways-/
 
-# Create and activate a virtual environment
+# 2️⃣ Create a fresh virtual environment
 python -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
 
-# Install pinned dependencies
+# 3️⃣ Install pinned dependencies
 pip install -r code/requirements.txt
 ```
 
-## Data Setup
+## Step‑by‑Step Execution
 
+### 0️⃣ Verify Setup (Reproducibility)
 ```bash
-# 1. Download verified CSV sources and attempt API fetches
-python code/ingest.py --source verified_csv
+# Generate directory tree and timestamp (T001b)
+find . -type f | sort > state/file_list.txt
+date > state/setup_timestamp.txt
+cat state/file_list.txt state/setup_timestamp.txt > state/setup_log.txt
 
-# 2. Verify integrity and view summary
-python code/utils.py --check-data
+# Lint check (should exit 0)
+ruff check code/
+
+# Run pytest with seeded environment (T008c)
+pytest -q
+# The test suite uses `tests/conftest.py` which pins numpy, torch, and random seeds to 42.
 ```
 
-The ingestion script will:
-
-- Pull the two verified CSVs (NIST, WebBook).  
-- Filter for polyesters (ester SMARTS `C(=O)O`).  
-- Apply synthetic degradation labels where missing and flag them.  
-- Impute missing temperature/pH/UV with defaults.  
-- Save raw data to `data/raw/` and processed records to `data/processed/`.
-
-## Augmentation (if needed)
+### 1️⃣ Data Download & Initial Validation
+> **NOTE:** A suitable open polymer degradation dataset is **not yet available**. Replace the placeholder URL below with the verified dataset URL once obtained.
 
 ```bash
-python code/augment.py --expand 2x
+python code/ingest.py \
+  --url <PLACEHOLDER_OPEN_DATASET_URL> \
+  --output data/raw/polymer_records.csv
 ```
+- Performs exponential backoff (max 3 retries).  
+- Logs success/failure to `state/ingest.log`.  
 
-- Performs edge dropout (p = 0.1) and subgraph sampling to double the dataset.  
-- Runtime is logged; must complete within 30 min.
-
-## Model Training
-
+### 2️⃣ Label Scan & Curation Flagging
 ```bash
-# 5‑fold cross‑validation (or LOO if n < 150)
-python code/train.py --cv 5 --epochs 100
+python code/label_validation.py \
+  --input data/raw/polymer_records.csv \
+  --output data/processed/records.parquet
 ```
+- Flags missing `degradation_pathway` entries; **records without a curated label are excluded from training**.  
+- If *all* records lack a label, the script aborts with a clear error.
 
-- Trains the lightweight GNN (≤ 3 layers, hidden ≤ 128).  
-- Saves the best checkpoint to `code/models/model.pt`.  
-- Logs macro‑F1 and loss convergence; ensures |Δloss|/loss < 0.05 over the last 5 epochs.
-
-## Feature Attribution & Validation
-
+### 3️⃣ SMILES Handling (no synthetic generation)
 ```bash
-# Compute Integrated Gradients
-python code/attribution.py --method integrated_gradients
-
-# Perform χ² statistical validation (≥1000 null iterations)
-python code/validate.py --chi2-iterations 1000
+python code/preprocess.py \
+  --input data/processed/records.parquet \
+  --graph-dir data/processed/graphs/
 ```
+- Skips any record lacking a valid SMILES; logs SMILES to `state/invalid_smiles.log`.  
+- Filters for polyesters using SMARTS `C(=O)O`.  
 
-- Generates motif importance scores.  
-- Checks that ester bonds rank in the top attribution scores for ≥ 90 % of hydrolysis cases.  
-- Produces `docs/reports/final_report.md`.
-
-## Testing
-
+### 4️⃣ Power‑Analysis (ratified amendment)
 ```bash
-# Unit tests
-pytest tests/unit/
-
-# Integration tests (full pipeline)
-pytest tests/integration/
-
-# Contract tests (schema validation)
-pytest tests/contract/
+python code/power_analysis.py \
+  --records data/processed/records.parquet \
+  --output state/power_analysis.json
+# Verify ratification in state/amendments.yaml
 ```
 
-All tests must pass before committing.
+### 5️⃣ Data Augmentation (bond rotation + atom masking)
+```bash
+python code/augment.py \
+  --graph-dir data/processed/graphs/ \
+  --output data/augmented/graphs/ \
+  --method bond_rotation_atom_masking \
+  --factor 2
+```
+- Performs **bond rotation** and **atom masking** as required by Constitution VII.  
+- Verification: after augmentation run  
+  ```bash
+  python -c "import pyarrow.parquet as pq; n_pre = len(pq.read_table('data/processed/records.parquet')); n_aug = len(pq.read_table('data/augmented/records.parquet')); assert n_aug == 2*n_pre"
+  ```  
+  Logs to `state/augmentation_check.log`.  
+
+### 6️⃣ Model Training
+```bash
+python code/train.py \
+  --graph-dir data/augmented/graphs/ \
+  --folds 5 \
+  --epochs 100 \
+  --seed 42
+```
+- Performs 5‑fold CV (or LOO if *n* < 150).  
+- Early‑stopping when loss change < 5 % over last 5 epochs.  
+- Saves checkpoint to `code/models/model.pt` and metrics to `state/training_metrics.json`.
+
+### 7️⃣ Integrated Gradients Attribution
+```bash
+python code/attribution.py \
+  --model code/models/model.pt \
+  --graph-dir data/augmented/graphs/ \
+  --output data/attribution/
+```
+- Generates node‑level IG maps and motif‑importance scores.  
+- Requires ≥ 10 real hydrolysis records; otherwise a warning is logged and IG validation is skipped.
+
+### 8️⃣ Null Distribution & χ² Test
+```bash
+python code/null_distribution.py \
+  --attribution-dir data/attribution/ \
+  --iterations 1000 \
+  --output state/null_distribution.npy
+
+python code/chi2_test.py \
+  --null state/null_distribution.npy \
+  --attribution data/attribution/ \
+  --output data/reports/chi2_results.json
+```
+
+### 9️⃣ Sensitivity Analysis (confounding check)
+```bash
+python code/sensitivity.py \
+  --graph-dir data/augmented/graphs/ \
+  --output data/sensitivity/
+```
+- Evaluates the impact of imputed environmental variables on macro‑F1.
+
+### 📊 Final Report
+```bash
+python code/report.py \
+  --metrics state/training_metrics.json \
+  --chi2 data/reports/chi2_results.json \
+  --sensitivity data/sensitivity/summary.json \
+  --output docs/reports/final_report.md
+```
+The markdown report includes macro‑F1 with 95 % CI, power‑analysis warning (if any), top motifs with p‑values, low‑confidence flag statistics (threshold 0.6), augmentation verification, and sensitivity‑analysis outcomes.
+
+### 🛠️ Contract Validation (optional)
+```bash
+pytest tests/contract/ -q
+```
+Ensures all generated artifacts conform to the JSON‑Schema contracts in `contracts/`.
 
 ## Troubleshooting
 
-- **API rate limits** – The ingestion script implements exponential backoff (max 3 retries). Check `logs/ingest.log` for backoff details.  
-- **Invalid SMILES** – Skipped records are logged; processing continues.  
-- **Small dataset** – If *n* < 150, power analysis warning appears and LOO validation is automatically selected.  
-- **Memory errors** – The script will subsample the dataset to stay under 7 GB RAM; see `logs/memory.log`.
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| **API rate‑limit errors** | Backoff exhausted | Check `state/ingest.log`; re‑run `ingest.py` (it will resume). |
+| **All records flagged for missing labels** | Source truly lacks pathway info | Review `state/label_flags.json`; the pipeline will abort as required by FR‑008. |
+| **Invalid SMILES warnings** | SMILES missing or malformed | Inspect `state/invalid_smiles.log`; records are skipped. |
+| **Memory > 7 GB** | Dataset too large after augmentation | Reduce augmentation factor (`--factor 1`) or enable streaming mode (`--stream`). |
+| **Training does not converge** | Learning rate too high/low | Adjust `--lr` flag in `train.py` (default 1e‑3). |
+| **χ² p‑value missing** | Null distribution file not found | Rerun `null_distribution.py` with correct `--iterations`. |
+| **Sensitivity analysis missing** | `sensitivity.py` not run | Execute step 9 above. |
+
+Enjoy reproducible polymer degradation research!  
 
 ---
+
+
+

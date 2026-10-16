@@ -1,69 +1,64 @@
 # Data Model: Predicting Polymer Degradation Pathways with Graph Neural Networks
 
-## Key Entities
+## Core Entities
 
 ### PolymerRecord
-
-| Field                | Type   | Description                                    | Constraints                                 |
-|----------------------|--------|------------------------------------------------|--------------------------------------------|
-| `id`                 | str    | Unique identifier (hash of SMILES + conditions) | Required, unique                           |
-| `smiles`             | str    | Canonical SMILES string                        | Valid RDKit SMILES                         |
-| `polymer_type`       | str    | Detected polymer class (e.g., "polyester")    | Derived from SMILES                        |
-| `temperature`        | float  | Temperature in °C                              | Imputed default = 25.0 if missing          |
-| `ph`                 | float  | pH value                                       | Imputed default = 7.0 if missing           |
-| `uv_exposure`        | float  | UV exposure (0‑1)                              | Imputed default = 0.0 if missing           |
-| `degradation_pathway`| str    | Pathway label (`hydrolysis`, `oxidation`, `photolysis`) | Synthetic or curated                      |
-| `label_source`       | str    | `"synthetic"` or `"curated"`                  | Required                                   |
-| `flagged_for_curation`| bool | True if label missing/invalid                  | Required                                   |
-| `metadata`           | dict   | Additional flags (e.g., imputation)           | Optional                                   |
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `id` | string | SHA‑256 hash of (`smiles` + `temperature` + `ph` + `uv_exposure`). | Required, unique |
+| `smiles` | string | Canonical SMILES; **must be a valid RDKit SMILES** (no synthetic fallback). | Valid RDKit SMILES |
+| `polymer_type` | string | Detected class (e.g., `"polyester"`). | Derived from SMARTS detection |
+| `temperature` | number | °C; default 25 if imputed. | ≥ -273.15 |
+| `ph` | number | pH; default 7 if imputed. | 0 – 14 |
+| `uv_exposure` | number | Normalised UV (0‑1); default 0 if imputed. | 0 – 1 |
+| `degradation_pathway` | string | `"hydrolysis"`, `"oxidation"` or `"photolysis"`. | Curated label required for training |
+| `label_source` | string | `"curated"` (synthetic labels are **not** used for training). |
+| `flagged_for_curation` | boolean | True if label was missing and therefore excluded from training. |
+| `metadata` | object | Flags for imputation, validation status, etc. |
+| `synthetic_smiles` | boolean | `true` if the SMILES was generated synthetically (records with this flag are excluded). |
 
 ### MolecularGraph
-
-| Field            | Type   | Description                                      | Constraints                                 |
-|------------------|--------|--------------------------------------------------|--------------------------------------------|
-| `record_id`      | str    | Reference to `PolymerRecord.id`                 | Required                                   |
-| `nodes`          | list   | Atom nodes with features (`atom_type`, `degree`, `hybridization`, `formal_charge`) | ≥ 1 node                                   |
-| `edges`          | list   | Bond edges with features (`bond_type`, `conjugation`, `aromaticity`) | ≥ 1 edge                                   |
-| `global_features`| dict   | Environmental conditions (`temperature`, `ph`, `uv_exposure`) | All three keys present                     |
-| `graph_hash`     | str    | Content hash for versioning                      | Required                                   |
-
-### DegradationPathway
-
-| Value        | Description                                   |
-|--------------|-----------------------------------------------|
-| `hydrolysis` | Breakdown via water (ester hydrolysis)       |
-| `oxidation`  | Breakdown via oxidative mechanisms            |
-| `photolysis` | Breakdown via UV exposure                     |
+| Field | Type | Description |
+|-------|------|-------------|
+| `record_id` | string | FK → `PolymerRecord.id` |
+| `nodes` | list of objects | Atom features (`atom_type`, `degree`, `hybridization`, `formal_charge`). |
+| `edges` | list of objects | Bond features (`bond_type`, `conjugation`, `aromaticity`). |
+| `global_features` | object | `{temperature, ph, uv_exposure}` |
+| `graph_hash` | string | SHA‑256 of the serialized graph. |
 
 ### MotifImportance
+| Field | Type | Description |
+|-------|------|-------------|
+| `motif_id` | string | Unique identifier. |
+| `motif_pattern` | string | SMILES of the subgraph motif. |
+| `pathway` | string | `"hydrolysis"`, `"oxidation"` or `"photolysis"`. |
+| `importance_score` | number | Integrated Gradients score (0 – 1). |
+| `p_value` | number | χ² test p‑value (0 – 1). |
+| `significant` | boolean | `p_value < 0.05`. |
 
-| Field               | Type   | Description                                      | Constraints                                 |
-|---------------------|--------|--------------------------------------------------|--------------------------------------------|
-| `motif_id`          | str    | Unique identifier for the subgraph pattern       | Required                                   |
-| `motif_pattern`     | str    | SMILES representation of the motif               | Valid RDKit SMILES                         |
-| `pathway`           | str    | Associated degradation pathway (`hydrolysis`, `oxidation`, `photolysis`) | Required |
-| `importance_score`  | float  | Integrated Gradients score (0‑1)                | 0.0 ≤ score ≤ 1.0                          |
-| `p_value`           | float  | χ² test p‑value                                  | 0.0 ≤ p ≤ 1.0                              |
-| `significant`       | bool   | True if `p_value` < 0.05                         | Required                                   |
+### PredictionResult (output of inference)
+| Field | Type | Description |
+|-------|------|-------------|
+| `record_id` | string | FK to `PolymerRecord.id`. |
+| `predicted_class` | string | One of the three pathways (hydrolysis, oxidation, photolysis). |
+| `confidence` | number | Softmax probability (0 – 1). |
+| `is_low_confidence` | boolean | `confidence < 0.6`. |
+| `motif_importance` | object | Mapping `{motif_name: score}`. |
+| `attribution_map` | array of numbers | Node‑level IG scores. |
 
-## Data Flow
+## Data Flow Diagram (conceptual)
 
-1. **Ingestion** (`ingest.py`) → raw `PolymerRecord` (CSV).  
-2. **Preprocessing** (`preprocess.py`) → validated `PolymerRecord` + `MolecularGraph`.  
-3. **Augmentation** (`augment.py`) → doubled `MolecularGraph` set.  
-4. **Training** (`train.py`) → model weights.  
-5. **Attribution** (`attribution.py`) → `MotifImportance`.  
-6. **Validation** (`validate.py`) → χ² test, final report.
+1. **Ingestion** → raw CSV (`data/raw/`).  
+2. **Label Validation** → `label_flags.json` (adds `label_source`, `flagged_for_curation`).  
+3. **Preprocess** → `PolymerRecord`s (`records.parquet`) + `MolecularGraph`s (`graphs/*.pkl`).  
+4. **Augmentation** (bond rotation + atom masking) → augmented graphs (`augmented/graphs/*.pkl`).  
+5. **Training** → model checkpoint (`code/models/model.pt`).  
+6. **Inference** → `PredictionResult`s (`output/*.json`).  
+7. **Attribution** → `MotifImportance`s (`motif_importance/*.json`).  
+8. **Statistical Validation** → χ² results (`chi2_results.json`).  
+9. **Report** → final markdown (`docs/reports/final_report.md`).
 
-## Storage Formats
-
-- **Raw CSV**: `data/raw/records.csv` (original download).  
-- **Processed Records**: `data/processed/records.parquet` (validated `PolymerRecord`).  
-- **Graph Objects**: `data/processed/graphs/*.pkl` (pickled `MolecularGraph`).  
-- **Augmented Graphs**: `data/augmented/graphs/*.pkl`.  
-- **Model Checkpoint**: `code/models/model.pt`.  
-- **Reports**: `docs/reports/final_report.md` (Markdown) and `final_report.json`.  
-
-All files have SHA‑256 checksums stored in `state/artifact_hashes.yaml`.
+All files are version‑hashed and listed in `state/artifact_hashes.yaml` for reproducibility.
 
 ---
+

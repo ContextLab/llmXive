@@ -1,42 +1,32 @@
 # Implementation Plan: Predicting Polymer Degradation Pathways with Graph Neural Networks
 
-**Branch**: `001-polymer-degradation` | **Date**: 2026-06-28 | **Spec**: `specs/001-predicting-polymer-degradation-pathways/spec.md`
-**Input**: Feature specification from `/specs/001-predicting-polymer-degradation-pathways/spec.md`
+**Branch**: `001-polymer-degradation` | **Date**: 2026-10-15 | **Spec**: `specs/001-polymer-degradation/spec.md`  
+**Input**: Feature specification from `/specs/001-polymer-degradation/spec.md`
 
 ## Summary
-
-This feature implements a lightweight Graph Neural Network (GNN) pipeline to predict *synthetic* polymer degradation pathways (hydrolysis, oxidation, photolysis) derived from chemical priors, using molecular structures (SMILES) and environmental conditions. It ingests polymer degradation records, applies synthetic labeling where ground‑truth is missing, augments the data, trains a ≤3‑layer GNN on CPU, computes Integrated Gradients attributions, and validates structure‑mechanism relationships with a χ² test. All steps respect the project constitution (reproducibility, data hygiene, statistical validation) and run within the free‑tier CI constraints.
+We will build a fully reproducible CPU‑only pipeline that (1) **downloads a verified open polymer degradation dataset** (when one becomes available), (2) filters for polyesters, (3) **flags records missing a curated `degradation_pathway` label** and **excludes them from supervised training** (FR‑008), (4) **does not generate synthetic SMILES**; records without valid SMILES are skipped and logged (FR‑002, FR‑009), (5) converts SMILES to RDKit molecular graphs, (6) augments the graph set using **bond rotation** and **atom masking** (Constitution VII) to obtain exactly a 2× expansion, (7) trains a ≤3‑layer GNN (hidden ≤128) with 5‑fold CV (or LOO if n < 150) on **only real‑labelled data** (FR‑003, SC‑001), (8) computes Integrated Gradients attributions, (9) generates a null distribution for all identified motifs (≥1000 iterations) and performs a χ² test, (10) conducts a **sensitivity analysis** for imputed environmental variables, and (11) produces a markdown report listing the top 3‑5 motifs, confidence flags, and statistical significance. All steps respect the project constitution, the free‑tier CI compute budget, and the verified‑dataset constraint.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: RDKit, PyTorch (CPU‑only), PyTorch Geometric, scikit‑learn, pandas, numpy, requests, scipy, datasets  
-**Storage**: Local file system (CSV/Parquet for raw data, JSONL for processed records, Pickle for graph objects)  
-**Testing**: pytest (unit, integration, contract)  
-**Target Platform**: Linux (GitHub Actions free‑tier runner)  
-**Project Type**: Computational Chemistry Simulation Pipeline  
-**Performance Goals**: ≤6 h total runtime, ≤7 GB RAM peak, ≤30 min augmentation, ≤30 min training on CPU  
-**Constraints**: CPU‑only execution; no GPU required; dataset size limited to fit RAM; synthetic labeling allowed only when ground‑truth absent.  
-**Scale/Scope**: One polymer dataset (≈ few‑hundred records after filtering), three degradation classes, one lightweight GNN model, one statistical report.
-
-> Domain‑specific quantitative details (e.g., exact record counts) are deferred to the research phase and will be cited from verified sources.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `rdkit`, `torch==2.3.0` (CPU‑only), `torch_geometric`, `pandas`, `numpy`, `scikit-learn`, `datasets`, `scipy`, `statsmodels`, `click`, `tqdm`  
+- **Storage**: Local filesystem under `data/` (raw CSV, processed Parquet, pickled graphs) and `state/` for checksums and logs.  
+- **Testing**: `pytest` + contract validation (`jsonschema`).  
+- **Target Platform**: Linux GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM, ≤6 h).  
+- **Performance Goals**: End‑to‑end runtime ≤ 5.5 h, peak RAM ≤ 6.5 GB, augmentation ≤ 30 min, training ≤ 2 h.  
+- **Constraints**: CPU‑only; no GPU‑only libraries; all external data must be fetched from a **verified open source** (currently pending; placeholder will be replaced once an appropriate dataset is identified).  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re‑check after Phase 1 design.*
-
-- **I. Reproducibility** – All random seeds pinned; external data fetched from canonical URLs; `requirements.txt` pins dependencies.  
-- **II. Verified Accuracy** – Citations will be validated by the Reference‑Validator against primary sources.  
-- **III. Data Hygiene** – Raw data checksummed; transformations produce new files; no PII.  
-- **IV. Single Source of Truth** – Every figure/statistic traces to a single data row and code block.  
-- **V. Versioning Discipline** – Content hashes recorded; timestamps updated on change.  
-- **VI. Computational Chemistry Validation** – χ² test (α = 0.05) for attribution stability; Integrated Gradients for feature importance; 5‑fold CV (or LOO if *n* < 150).  
-- **VII. Small Dataset Robustness** – Edge‑dropout & subgraph‑sampling augmentation (2×); confidence intervals reported.
+| Principle | Compliance Statement |
+|-----------|----------------------|
+| **I. Reproducibility** | All random seeds are pinned in `code/seed.py` and imported by every script; `requirements.txt` pins exact versions; `state/setup_log.txt` records the directory tree and timestamps. |
+| **II. Verified Accuracy** | Citations (e.g., confidence threshold 0.6, 5‑fold CV) are drawn from verified sources (see `research.md`). |
+| **III. Data Hygiene** | Raw CSV is checksummed (`sha256`) and stored under `data/raw/`; every transformation writes a new file with a documented checksum in `state/artifact_hashes.yaml`. |
+| **IV. Single Source of Truth** | Every figure/table in the final report references a single row in `data/processed/records.parquet` and a specific line in a script. |
+| **V. Versioning Discipline** | All artifacts are hashed; the `state/projects/...yaml` timestamp is updated on each commit. |
+| **VI. Computational Chemistry Validation** | χ² test (α = 0.05) on motif importance; Integrated Gradients for attribution; 5‑fold CV (or LOO) as prescribed. |
+| **VII. Small Dataset Robustness** | **Bond rotation** and **atom masking** double the dataset size; confidence intervals are reported from CV folds. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-polymer-degradation/
 ├── plan.md
@@ -44,10 +34,14 @@ specs/001-polymer-degradation/
 ├── data-model.md
 ├── quickstart.md
 ├── contracts/
-└── tasks.md
+│   ├── dataset.schema.yaml
+│   ├── model_output.schema.yaml
+│   ├── molecular_graph.schema.yaml
+│   ├── motif_importance.schema.yaml
+│   ├── output.schema.yaml
+│   └── polymer_record.schema.yaml
+└── tasks.md   # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
 projects/PROJ-078-predicting-polymer-degradation-pathways-/
@@ -57,99 +51,76 @@ projects/PROJ-078-predicting-polymer-degradation-pathways-/
 │   └── augmented/
 ├── code/
 │   ├── ingest.py
+│   ├── label_validation.py
 │   ├── preprocess.py
 │   ├── augment.py
 │   ├── model.py
 │   ├── train.py
 │   ├── attribution.py
-│   ├── validate.py
+│   ├── null_distribution.py
+│   ├── chi2_test.py
+│   ├── sensitivity.py
+│   ├── report.py
+│   ├── seed.py
 │   ├── utils.py
-│   ├── data_models.py
 │   └── requirements.txt
 ├── tests/
 │   ├── unit/
 │   ├── integration/
 │   └── contract/
 ├── state/
-│   ├── setup_log.txt
 │   ├── artifact_hashes.yaml
-│   └── current_stage.yaml
+│   ├── setup_log.txt
+│   ├── power_analysis.json
+│   └── amendments.yaml
 └── docs/
-    └── usage.md
+    └── reports/
+        └── final_report.md
 ```
 
-**Structure Decision**: Single‑project layout with modular scripts; aligns with CI runner limits and simplifies reproducibility.
+## Implementation Phases & Task Mapping (FR / SC coverage)
 
-## Complexity Tracking
+| Phase | Task ID | Description | FR(s) addressed | SC(s) addressed |
+|-------|---------|-------------|----------------|-----------------|
+| **0 – Foundations** | T001a | Create required directory tree (`code/`, `data/raw/`, `data/processed/`, `data/augmented/`, `tests/`, `state/`). | — | — |
+| | **T001b** | **Generate reproducible setup log**: <br>`find . -type f | sort > state/file_list.txt`<br>`date > state/setup_timestamp.txt`<br>`cat state/file_list.txt state/setup_timestamp.txt > state/setup_log.txt`<br>Logs are version‑checked. | — | — |
+| | T002a | Generate `code/requirements.txt` with exact version pins. | — | — |
+| | T002b | Verify installability in a fresh venv (`pip install -r requirements.txt`). | — | — |
+| | T003a | Add `.ruff.toml` with reasonable linting rules. | — | — |
+| | T003b | Run `ruff check code/` and capture exit code 0 in `state/ruff_check.log`. | — | — |
+| | **T008a** | Create `pytest.ini` with `addopts = -q` and `testpaths = tests`. | — | — |
+| | **T008b** | Create `tests/conftest.py` that imports `code/seed.py` and pins `numpy`, `torch`, and `random` seeds (`seed = 42`). | — | — |
+| | **T008c** | Run `pytest --maxfail=1` and log results to `state/pytest.log`. | — | — |
+| **1 – Data Ingestion** | T010a | `ingest.py` **downloads the verified open polymer degradation CSV** (placeholder URL for now) using `datasets.load_dataset(..., streaming=True)`. Implements exponential backoff (max 3 retries). | FR‑001, FR‑009 | SC‑003 |
+| | T010b | Save raw CSV to `data/raw/polymer_records.csv`; compute SHA‑256 and record in `state/artifact_hashes.yaml`. | FR‑001 | SC‑006 |
+| **2 – Label Validation & Flagging** | T011a | `label_validation.py` scans `data/raw/polymer_records.csv` for a `degradation_pathway` column. Records missing labels → `label_source = "synthetic"` flag, `flagged_for_curation = true`. Generates `data/processed/label_flags.json`. | FR‑001, FR‑008 | SC‑010 |
+| | T011b | If **all** records lack a label, abort with a clear error logged to `state/ingest_error.log` and exit status 1 (halt condition). | FR‑008 | — |
+| | T011c | If **some** records lack a label, **exclude** those records from the supervised training set; retain them only for potential unsupervised analysis. No synthetic labels are generated. | FR‑001, FR‑008 | SC‑010 |
+| **3 – SMILES & Graph Construction** | T012a | `preprocess.py` attempts to read SMILES from the source CSV. **If SMILES column is missing or invalid**, the record is **skipped** and the SMILES string is logged to `state/invalid_smiles.log`. No synthetic SMILES are created. | FR‑002, FR‑009 | SC‑006 |
+| | T012b | Convert each valid SMILES to an RDKit `Mol`; on failure, log SMILES to `state/invalid_smiles.log` and skip the record (FR‑009). | FR‑002, FR‑009 | SC‑006 |
+| | T012c | Detect ester functional group using SMARTS `C(=O)O`; retain only polyesters. | FR‑001 | SC‑006 |
+| | T012d | Encode environmental features (temperature, pH, UV) as node/graph globals; impute missing values with defaults (25 °C, pH 7, UV 0) and flag imputation in `metadata`. | FR‑002 | SC‑006 |
+| | T012e | Save validated `PolymerRecord`s to `data/processed/records.parquet` and pickled `MolecularGraph`s to `data/processed/graphs/`. Record checksums. | FR‑002 | SC‑006 |
+| **4 – Power‑Analysis Ratification** | T013a | **Ratify** the proxy power‑analysis amendment: write `state/amendments.yaml` documenting the deviation from the original G*Power requirement, include citation to `statsmodels` documentation, and set `ratified: true`. | SC‑004 | — |
+| | T013b | Run a **G\*Power‑style** simulation via `statsmodels` (proxy) to estimate required sample size for macro‑F1 ≥ 0.7 with power 0.8. Store results in `state/power_analysis.json`. | SC‑004 | — |
+| **5 – Data Augmentation** | **T014a** | `augment.py` reads `data/processed/graphs/` and performs **bond rotation** (random dihedral angle perturbation) **and** **atom masking** (randomly zero‑out atom feature vectors) to create exactly **2×** the number of graphs. Command: <br>`python code/augment.py --graph-dir data/processed/graphs/ --output data/augmented/graphs/ --method bond_rotation_atom_masking --factor 2`<br>Outputs to `data/augmented/graphs/`. | FR‑004 | SC‑009 |
+| | **T014b** | **Verification**: after augmentation run the exact command: <br>`python -c "import pandas as pd, pyarrow.parquet as pq; n_pre = len(pq.read_table('data/processed/records.parquet')); n_aug = len(pq.read_table('data/augmented/records.parquet')); assert n_aug == 2 * n_pre"`<br>Log success/failure to `state/augmentation_check.log`. | FR‑004 | — |
+| | T014c | Abort if the final row count is not exactly 2× the pre‑augmentation count; error logged to `state/augmentation_error.log`. | FR‑004 | — |
+| | T014d | **Explicit verification** that both bond rotation **and** atom masking were applied by checking log entries for each method (`state/augmentation_method.log`). | FR‑004 | — |
+| | T014e | **Chemical validity check**: run RDKit sanitization on each augmented graph; any graph that fails is logged (`state/invalid_augmented.log`) and removed. | FR‑004 | — |
+| **6 – Model Definition & Training** | T015a | `model.py` defines a GNN with ≤ 3 message‑passing layers, hidden dim ≤ 128, and a final softmax over three classes. | FR‑003 | — |
+| | T015b | `train.py` loads the **augmented** dataset **restricted to records with curated labels**. Performs **5‑fold CV** (source 2604.10702) unless *n* < 150 → **Leave‑One‑Out**. Early‑stop when `|Δloss|/loss < 0.05` over last 5 epochs. Logs macro‑F1 per fold and overall mean. | FR‑003, SC‑001 | SC‑001 |
+| **7 – Feature Attribution** | **T016a** | `attribution.py` computes Integrated Gradients for every test sample using the trained model checkpoint (`code/models/model.pt`). Command: <br>`python code/attribution.py --model code/models/model.pt --graph-dir data/augmented/graphs/ --output data/attribution/`<br>Results stored per `contracts/motif_importance.schema.yaml`. | FR‑005 | SC‑005 |
+| | **T016b** | **Validation**: requires at least **10 real hydrolysis records** (checked via `pandas.read_parquet`). If available, IG must rank the ester bond among the top **[deferred]** of attribution scores; otherwise, log a warning (`state/attribution_warning.log`) and skip IG validation. | SC‑005 | — |
+| | **T016c** | Log summary statistics (mean IG score for ester bond, proportion of hydrolysis cases where ester bond is in top‑[deferred]) to `state/ig_summary.log`. | SC‑005 | — |
+| **8 – Null Distribution & χ² Test** | T017a | `null_distribution.py` extracts **all** subgraph patterns identified across the augmented graph set and shuffles their importance scores to build a null distribution (≥ 1000 iterations). Saves `state/null_distribution.npy`. | FR‑006, SC‑002 | — |
+| | T017b | `chi2_test.py` compares observed motif‑importance frequencies against the null distribution using `scipy.stats.chi2`. Emits p‑values for each motif; records in `data/reports/chi2_results.json`. | FR‑006, SC‑002, SC‑011 | — |
+| **9 – Sensitivity Analysis** | T017c | `sensitivity.py` trains the GNN on three variants of the dataset: (i) with all imputed defaults, (ii) with imputed values replaced by random draws from observed distributions, (iii) with imputed values removed. Reports macro‑F1 differences to assess confounding impact. | SC‑003, SC‑006 | — |
+| **10 – Final Reporting** | T018a | `report.py` assembles a markdown report (`docs/reports/final_report.md`) containing: <br>• Macro‑F1 mean ± 95 % CI (SC‑001) <br>• Power‑analysis warning if applicable (SC‑004) <br>• Top 3‑5 motifs with importance scores and χ² p‑values (SC‑007, SC‑011) <br>• Low‑confidence flag summary (threshold 0.6) (SC‑008) <br>• Data ingestion success rate (≥ 95 %) (SC‑006) <br>• Augmentation method verification summary (SC‑009) <br>• Sensitivity‑analysis outcomes (SC‑003) | FR‑007, SC‑007, SC‑008, SC‑009, SC‑010, SC‑011, SC‑012 |
+| **11 – Final Checks** | T019a | Verify that all contract schemas in `contracts/` validate against generated artifacts (using `jsonschema`). Log to `state/contract_validation.log`. | — | — |
+| | T019b | Run the full pipeline on the CI runner as a smoke test; ensure total runtime ≤ 5.5 h and peak RAM ≤ 6.5 GB (recorded via `psutil`). | SC‑003 | — |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Data augmentation (2×) | Small dataset needs robustness (Constitution VII) | No augmentation would cause over‑fitting. |
-| 5‑fold CV (or LOO) | Small sample size; must capture variance (Constitution VI) | Single split would hide uncertainty. |
-| χ² test with ≥1000 iterations | Required statistical validation (FR‑006) | No test would leave findings unverifiable. |
-| Synthetic labels | Ground‑truth absent; supervised learning otherwise impossible (FR‑001, FR‑008) | Training without labels is infeasible. |
-
-## Implementation Phases
-
-### Phase 0: API Source Verification (T051)
-
-- Attempt to fetch NIST Chemistry WebBook and Materials Project records for polyesters.  
-- Exponential backoff (max 3 retries).  
-- Log successes/failures; on failure, fall back to verified HuggingFace CSV sources.
-
-### Phase 1: Data Ingestion & Preprocessing (T013–T020)
-
-- **T013** – `ingest.py`: download verified CSVs, filter for polyesters (ester SMARTS `C(=O)O`). Save raw CSV to `data/raw/`.  
-- **T014** – Identify records missing `degradation_pathway`; flag them, compute missing‑label ratio.  
-- **T015** – `preprocess.py`: convert SMILES → `MolecularGraph` via RDKit; impute missing temperature/pH/UV with defaults (25 °C, pH 7, UV 0). Skip invalid SMILES, log.  
-- **T016** – Save processed records (`data/processed/records.parquet`) and graph objects (`data/processed/graphs/`). Record SHA‑256 checksums in `state/artifact_hashes.yaml`.  
-- **T017a/b** – Power analysis using G*Power (via `statsmodels` proxy) → warning if *n* < 150; store decision in `state/power_analysis.json`.  
-- **T019** – Verify ingestion success ≥95 % (SC‑006); generate `data/metadata.json`.  
-- **T020** – Comprehensive logging of all actions.
-
-### Phase 2: Data Augmentation (T025a–T025c)
-
-- **T025a** – `augment.py`: edge dropout (p = 0.1) + subgraph sampling to create exactly 2× records while preserving topology.  
-- **T025b** – Validate augmentation method (check that each augmented graph differs from its source and that edge dropout/subgraph sampling were applied).  
-- **T025c** – Measure runtime; enforce <30 min (SC‑009).
-
-### Phase 3: Model Training (T024–T033)
-
-- **T024** – `model.py`: lightweight GNN (≤3 layers, hidden ≤ 128).  
-- **T028** – `train.py`: 5‑fold CV (or LOO if *n* < 150) with early‑stopping; report macro‑F1 and loss convergence (|Δloss|/loss < 0.05).  
-- **T029** – Compute Integrated Gradients for each test sample (`attribution.py`).  
-- **T030** – Verify ester bond appears in top attribution scores for ≥90 % of hydrolysis cases (SC‑005).  
-- **T031** – Save final model checkpoint (`code/models/model.pt`).  
-- **T032** – Generate predictions on held‑out test set; compute macro‑F1 (SC‑001).  
-- **T033** – Log training metrics, validation strategy used.
-
-### Phase 4: Statistical Validation & Reporting (T034–T037)
-
-- **T034** – Unit test for permutation‑test generation.  
-- **T035** – Unit test for motif extraction across all identified motifs.  
-- **T036** – Integration test for end‑to‑end report generation.  
-- **T037** – `validate.py`: χ² test with ≥1000 null‑distribution iterations for **all** identified motifs; produce final markdown report (`docs/reports/final_report.md`) containing:
-  - p‑value(s) (SC‑011)  
-  - Top 3‑5 motifs with importance scores (SC‑007)  
-  - Low‑confidence flagging (< 0.6) statistics (SC‑008)  
-  - Power‑analysis warning if applicable (SC‑004)  
-
-### Phase 5: Final Checks (T043–T057)
-
-- Generate README, usage docs, memory monitoring, optional subsampling if RAM exceeds 7 GB, compute feasibility metrics (runtime, RAM) to satisfy SC‑003, and ensure all contracts pass schema validation.
-
-## Compute Feasibility
-
-- **CPU‑First** – All steps run on the free‑tier CI CPU (2 cores, ~7 GB RAM).  
-- **GPU Escape Hatch** – Not required; no GPU‑only methods are used.  
-- **Streaming** – Large CSVs are streamed via `datasets.load_dataset(..., streaming=True)` to avoid OOM.
-
-## Risk Mitigation
-
-- API failure → fallback to verified CSVs.  
-- Small *n* → LOO validation + power‑analysis warning.  
-- Invalid SMILES → skip & log.  
-- Memory pressure → automatic subsampling.  
-- Synthetic label reliance → explicit flagging in report; no causal claims.
+*All tasks are ordered so that data is downloaded before any consumption, models are trained before evaluation, and reports are generated last.*
 
 ---
+
