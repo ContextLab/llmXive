@@ -71,3 +71,46 @@ T008:
     \ were generated in `data/raw/` (directory is empty). The task\u2019s verification\
     \ step cannot be satisfied without the test and the actual output files."
   sig: 080417651ad02d6e1ea4915a7b0fc79377b855ba7913a226eb33682cd9147192
+T009:
+  c: false
+  h: a1d729b2019b773f0e0395ad87d90ac88ad09319430de9f9e0ec7d0d7fb745eb
+  r: "The provided `code/analysis/baseline.py` does not meet the specification: it\
+    \ integrates only up to\u202F5\u202F000 steps (far short of the required\u202F\
+    \u2265\u202F50\u202F000), uses a default status of `\"converged\"` instead of\
+    \ `\"valid\"` (so the unit test\u2019s status check would fail), never raises\
+    \ `NonChaoticSystemError` when `lambda_max\u202F\u2264\u202F0`, and does not enforce\
+    \ the 5\u202F% relative\u2011change convergence rule (it only logs a warning).\
+    \ Moreover, the required `baseline.schema.yaml` file is missing and no `data/processed/baseline_{N}.json`\
+    \ files are present. These gaps must be fixed for the task to be considered complete."
+  sig: ca30abe2abb5439bd6acfc9e2429df4f0cad56409b549ffd1f7b228ccba543d8
+T010:
+  c: false
+  h: 8fb671a9b563cee710d8ff5d076d0577a10b6e33926fa9430a91f017edc104fb
+  r: "The provided `code/analysis/ftle.py` does not perform QR re\u2011orthonormalisation\
+    \ (it uses a custom Gram\u2011Schmidt `orthonormalize`), lacks a `status` field\
+    \ in `FTLEResult`, and never writes aggregated results to the required `data/processed/ftle_results.json`\
+    \ (nor provides the `ftle_results.schema.yaml`). Moreover, the unit test suite\
+    \ does not verify the JSON output, and the JSON file and schema are missing from\
+    \ the repository. These gaps mean the task\u2019s core requirements are not met."
+  sig: 6c6c6702fb4bad09969bd1756f466ec944fe5a63d38579eda631b377eff34e72
+T011:
+  c: false
+  h: 6b413fa44bd565fb0384abf245054177f2f3a805b8e56cc185371936e54d4275
+  r: "Checked `code/main.py` gating logic and `code/analysis/baseline.py` baseline\
+    \ result. The gate loads the baseline JSON and expects `status == \"valid\"`,\
+    \ but `BaselineResult` defaults its `status` to `\"converged\"` and `save_baseline_result`\
+    \ writes that value, so the gate will always fail. The required `\"valid\"` status\
+    \ is never produced, violating the task\u2019s specification. The implementation\
+    \ must set `status` to `\"valid\"` (or adjust the gate to accept `\"converged\"\
+    `)."
+  sig: d070feae88c9a6974a1aa8fe312ba9281a4394753eec9daee3434d1e6fa17499
+T017:
+  c: false
+  h: c95310727692d3b6a463424e58df611d8dd197f34e16139fb921a12f142b66ad
+  r: "The required output files `data/processed/baseline_per_window_{N}.json` are\
+    \ not present in the repository (no matching files were found). Consequently,\
+    \ the task\u2019s core deliverable\u2014a JSON array with `window_size`, `lambda_max`,\
+    \ `convergence_error` (and a valid status) for each window size\u2014is missing.\
+    \ The implementation code exists, but without the generated JSON artifacts the\
+    \ task is incomplete."
+  sig: cd6ee315256ff61306fb589b02ad21879d6c0435ab9e00c82315aecc2e261b7f

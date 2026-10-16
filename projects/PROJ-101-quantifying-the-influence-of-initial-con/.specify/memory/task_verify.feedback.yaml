@@ -40,10 +40,31 @@ T008:
     \ step cannot be satisfied without the test and the actual output files."
   task: 4a270566f88910afad60d3146081f21c8361019b60ad958736e7b52257239457
 T009:
+  reason: "The provided `code/analysis/baseline.py` does not meet the specification:\
+    \ it integrates only up to\u202F5\u202F000 steps (far short of the required\u202F\
+    \u2265\u202F50\u202F000), uses a default status of `\"converged\"` instead of\
+    \ `\"valid\"` (so the unit test\u2019s status check would fail), never raises\
+    \ `NonChaoticSystemError` when `lambda_max\u202F\u2264\u202F0`, and does not enforce\
+    \ the 5\u202F% relative\u2011change convergence rule (it only logs a warning).\
+    \ Moreover, the required `baseline.schema.yaml` file is missing and no `data/processed/baseline_{N}.json`\
+    \ files are present. These gaps must be fixed for the task to be considered complete."
   task: bf913694bf4a2ee0800a6e0dd99e70b6b4add9c9e76d0879d053f9d50a338510
 T010:
+  reason: "The provided `code/analysis/ftle.py` does not perform QR re\u2011orthonormalisation\
+    \ (it uses a custom Gram\u2011Schmidt `orthonormalize`), lacks a `status` field\
+    \ in `FTLEResult`, and never writes aggregated results to the required `data/processed/ftle_results.json`\
+    \ (nor provides the `ftle_results.schema.yaml`). Moreover, the unit test suite\
+    \ does not verify the JSON output, and the JSON file and schema are missing from\
+    \ the repository. These gaps mean the task\u2019s core requirements are not met."
   task: 0dd1d1f7c63d0703848b2a2293975d0b9431d98354f026512e9d5bfa24216846
 T011:
+  reason: "Checked `code/main.py` gating logic and `code/analysis/baseline.py` baseline\
+    \ result. The gate loads the baseline JSON and expects `status == \"valid\"`,\
+    \ but `BaselineResult` defaults its `status` to `\"converged\"` and `save_baseline_result`\
+    \ writes that value, so the gate will always fail. The required `\"valid\"` status\
+    \ is never produced, violating the task\u2019s specification. The implementation\
+    \ must set `status` to `\"valid\"` (or adjust the gate to accept `\"converged\"\
+    `)."
   task: 4d380e4b27fa0cc6f06d4e439d01267055a610f077e32cdc2eba6190d074b93b
 T012:
   task: 3dce577e38c4e9413bbc13e4a7df58b978a30ed93333caaf92d0206e9d684ec9
@@ -56,6 +77,12 @@ T015:
 T016:
   task: 189f59987fc3ea8fc637f962627f4985065b346e7cac72de59cacb4443fbe8fe
 T017:
+  reason: "The required output files `data/processed/baseline_per_window_{N}.json`\
+    \ are not present in the repository (no matching files were found). Consequently,\
+    \ the task\u2019s core deliverable\u2014a JSON array with `window_size`, `lambda_max`,\
+    \ `convergence_error` (and a valid status) for each window size\u2014is missing.\
+    \ The implementation code exists, but without the generated JSON artifacts the\
+    \ task is incomplete."
   task: bb33c52d3fc3bc63ef0f1e02161e45095e74456c68aa4e7631b3d4b34df45148
 T018:
   task: e44506dd2ea61ee1a40b633c56088f8d7da22b4c8b84125f7b1e4f5094ad816d

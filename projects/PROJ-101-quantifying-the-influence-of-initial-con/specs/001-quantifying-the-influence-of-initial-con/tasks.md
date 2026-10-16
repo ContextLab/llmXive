@@ -47,17 +47,17 @@ All tasks are written as checklist items; unchecked items indicate work that sti
 
 ## Phase 3 – Baseline computation & FTLE sweep (User Story 2, P2)  
 
-- [~] T009 [P] Implement `code/analysis/baseline.py` that computes the asymptotic Lyapunov exponent for a clean system using Rosenstein’s algorithm on a long trajectory (≥ 50 000 steps). Convergence is declared when the relative change between successive estimates at `T=5000` is < 5 %. Abort with `NonChaoticSystemError` if the resulting exponent ≤ 0.  
+- [ ] T009 [P] Implement `code/analysis/baseline.py` that computes the asymptotic Lyapunov exponent for a clean system using Rosenstein’s algorithm on a long trajectory (≥ 50 000 steps). Convergence is declared when the relative change between successive estimates at `T=5000` is < 5 %. Abort with `NonChaoticSystemError` if the resulting exponent ≤ 0.  
   - **Output**: `data/processed/baseline_{N}.json` conforming to `baseline.schema.yaml`.  
   - **Verification**: Unit test `tests/unit/test_baseline.py` checks that (i) the JSON file exists, (ii) `status == "valid"`, and (iii) `lambda_max > 0`.
 
-- [~] T011 [P] Add a gating step in `code/main.py` that loads the baseline JSON, verifies `status == "valid"` and that the system is chaotic before any noisy FTLE computation is launched. If the gate fails, the pipeline aborts with a clear error message.  
+- [ ] T011 [P] Add a gating step in `code/main.py` that loads the baseline JSON, verifies `status == "valid"` and that the system is chaotic before any noisy FTLE computation is launched. If the gate fails, the pipeline aborts with a clear error message.  
   - **Verification**: CI runs the pipeline with a deliberately non‑chaotic parameter set (e.g., `rho = 20`) and checks that the process exits with exit code 1 and prints the expected error.
 
-- [~] T017 [P] Compute a clean finite‑time baseline for each window size `T` used in FTLE analysis (e.g., 500, 1000, 5000). Store results in `data/processed/baseline_per_window_{N}.json`, an array of objects each containing `window_size`, `lambda_max`, and `convergence_error`. Verify that the baseline for every `T` satisfies the < 5 % error criterion.  
+- [ ] T017 [P] Compute a clean finite‑time baseline for each window size `T` used in FTLE analysis (e.g., 500, 1000, 5000). Store results in `data/processed/baseline_per_window_{N}.json`, an array of objects each containing `window_size`, `lambda_max`, and `convergence_error`. Verify that the baseline for every `T` satisfies the < 5 % error criterion.  
   - **Verification**: Unit test `tests/unit/test_per_window_baseline.py` checks that the JSON file contains entries for all required windows and that each entry has `status == "valid"`.
 
-- [~] T010 [P] Implement `code/analysis/ftle.py` that (a) loads each raw trajectory, (b) propagates the tangent linear model with QR re‑orthonormalisation, (c) evaluates FTLE over sliding windows `T ∈ {500, 1000, 5000}` while enforcing `T < total_length - 10`, and (d) records a `status` flag (`valid`, `unphysical`, `non‑chaotic`).  
+- [ ] T010 [P] Implement `code/analysis/ftle.py` that (a) loads each raw trajectory, (b) propagates the tangent linear model with QR re‑orthonormalisation, (c) evaluates FTLE over sliding windows `T ∈ {500, 1000, 5000}` while enforcing `T < total_length - 10`, and (d) records a `status` flag (`valid`, `unphysical`, `non‑chaotic`).  
   - **Output**: Aggregated results written to `data/processed/ftle_results.json` (schema `ftle_results.schema.yaml`).  
   - **Verification**: Unit test `tests/unit/test_ftle.py` confirms that (i) the JSON file is non‑empty, (ii) for a clean trajectory the FTLE at `T=5000` is within 5 % of the baseline, and (iii) no `NaN`/`Inf` values appear.
 

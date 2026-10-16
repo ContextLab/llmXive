@@ -1,14 +1,19 @@
 status: none
-intent: Python package for generating noisy coupled Lorenz oscillator trajectories
-  dataset python package dataset
+intent: coupled Lorenz oscillators synthetic trajectory with noise python package
+  dataset
 required_fields:
 - time
-- oscillator_id
-- x
-- y
-- z
+- x1
+- y1
+- z1
+- x2
+- y2
+- z2
+- '...'
+- xN
+- yN
+- zN
 - noise_std
-- time_step
-cache_key: f1a6da0721d5b64d97d3a97b52f68d25c29d64e3d1e371a9ca88b186d9332ba1
-searched_at: '2026-10-16T15:18:47.139488+00:00'
+cache_key: e7872973353cd95c8277432c22623639fddd065ceb877e9d8e26135f87a6e0ac
+searched_at: '2026-10-16T15:21:24.720040+00:00'
 retry_count: 1

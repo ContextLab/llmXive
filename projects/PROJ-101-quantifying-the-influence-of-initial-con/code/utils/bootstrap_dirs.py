@@ -1,14 +1,13 @@
 """
-T001: Create the required top-level directory layout and record it.
+T001: Create the required top‑level directory layout and record it.
 
-Creates the nine required directories under the project root and writes
-a directory-structure listing (``dir_structure.txt``) that contains all
-nine directory names so CI can verify the layout.
-
-NOTE: the original task placed the listing under ``state/``, but that
-path is owned by the platform. The listing is therefore recorded under
-the project-owned ``data/processed/`` directory instead.
+This script creates the nine required project directories (excluding the
+platform‑owned ``state/`` directory) and writes a ``tree -L 2``‑style
+listing of the layout to ``data/processed/dir_structure.txt``.  The
+listing is later used by CI to verify that the expected directories
+exist.
 """
+
 from pathlib import Path
 
 from llmxive_toolkit import paths
@@ -25,13 +24,12 @@ REQUIRED_DIRS = [
     "data/processed",
 ]
 
-# 'state/' is platform-owned; the recorded layout lives in data/processed.
-STATE_SUBSTITUTE_DIR = "data/processed"
+# Output file (project‑owned location).
 OUTPUT_FILE = "dir_structure.txt"
 
 
 def build_tree(root: Path, depth: int = 2) -> str:
-    """Build a ``tree -L depth``-style listing of the directory layout."""
+    """Build a ``tree -L depth``‑style listing of the directory layout."""
     lines = [f"{root.name}/"]
     _walk(root, root, depth, prefix="", lines=lines)
     return "\n".join(lines) + "\n"
@@ -51,34 +49,42 @@ def _walk(root: Path, current: Path, depth: int, prefix: str, lines: list) -> No
         last = i == len(entries) - 1
         connector = "└── " if last else "├── "
         lines.append(f"{prefix}{connector}{entry.name}/")
-        _walk(root, entry, depth - 1, prefix + ("    " if last else "│   "), lines)
+        _walk(
+            root,
+            entry,
+            depth - 1,
+            prefix + ("    " if last else "│   "),
+            lines,
+        )
 
 
 def main() -> Path:
+    """Create directories and write the directory‑structure listing."""
     root = paths.root
 
-    # 1. Create every required directory (plus the substitute for state/).
-    created = []
-    for rel in REQUIRED_DIRS + [STATE_SUBSTITUTE_DIR]:
+    # 1. Create each required directory (parents=True ensures the full
+    #    hierarchy is built).
+    for rel in REQUIRED_DIRS:
         d = root / rel
-        if not d.exists():
-            d.mkdir(parents=True, exist_ok=True)
-            created.append(rel)
+        d.mkdir(parents=True, exist_ok=True)
 
-    # 2. Build the tree listing and write it to the project-owned location.
+    # 2. Build the tree representation and write it to the project‑owned
+    #    location.
     tree_text = build_tree(root, depth=2)
     out_path = paths.data("processed", OUTPUT_FILE)
     out_path.write_text(tree_text, encoding="utf-8")
 
-    # 3. Verify that all nine required directories are recorded.
-    content = out_path.read_text(encoding="utf-8")
-    missing = [rel for rel in REQUIRED_DIRS if rel.split("/")[-1] not in content]
+    # 3. Simple sanity check – ensure every required directory name appears
+    #    in the recorded text.
+    missing = [
+        rel for rel in REQUIRED_DIRS if rel.split("/")[-1] not in tree_text
+    ]
     if missing:
         raise RuntimeError(
             f"dir_structure.txt is missing required directories: {missing}"
         )
 
-    print(f"Created directories: {created or '(all already present)'}")
+    print(f"Created directories (if needed): {REQUIRED_DIRS}")
     print(f"Directory structure recorded in {out_path}")
     return out_path
 
