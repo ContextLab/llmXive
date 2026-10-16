@@ -1,12 +1,15 @@
-# Core dependencies (already available in the execution environment)
+# Core dependencies (already available in the base environment)
+numpy==1.26.*
 pandas==2.2.*
-numpy>=2.0
 scipy==1.13.*
 matplotlib==3.8.*
 seaborn==0.13.*
-huggingface_hub==0.23.*
-# Additional dependency needed for parquet handling with the upgraded NumPy
-pyarrow>=12.0
-# Testing and schema validation
+scikit-learn==1.5.*
+statsmodels==0.14.*
 pytest==8.2.*
+PyYAML==6.0
+requests==2.32.*
 jsonschema==4.22.*
+
+# Additional dependency required for dataset fallback
+datasets==2.18.*

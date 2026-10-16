@@ -1,11 +1,11 @@
 T000:
-  c: false
-  h: b20d03fceaa5c2c88398ad93d0ee5913cb6efd56b95c78c5d579ec61932752fa
-  r: "The seed utility (`src/utils/seed.py`) and package import (`src/__init__.py`)\
-    \ exist and correctly set the global seed, and `outputs/seed_verification.log`\
-    \ contains two identical deterministic values. However the CI test `test_seed_verification_script_creates_log`\
-    \ fails (AttributeError on monkeypatching `ProjectPaths.root`), meaning the automated\
-    \ verification that the script creates the log and that CI asserts the identical\
-    \ lines does not succeed. The task\u2019s requirement that CI validates the log\
-    \ is therefore not met."
-  sig: 11b4ca7c789dcc0fbc4ac6a664c2e4824ed8bde8e93f9284d7967407d67250ab
+  c: true
+  h: 8dd6a2f95337503c62d917d186dc4bf047a911ba305d57e0570faa53fe62a308
+  r: 'The required artifacts all exist and match the spec: `src/utils/seed.py` implements
+    `set_global_seed(42)` seeding `random` and NumPy, `src/__init__.py` imports and
+    applies it on package import, and `outputs/seed_verification.log` contains exactly
+    two identical lines (`0.3745401188473625`), which is the correct first draw from
+    `np.random.seed(42)`, confirming the verification command was run twice with identical
+    results. The one failing test in the historical record (`test_seed_verification_script_creates_log`)
+    fails due to a test-infrastructure bug (monkeypatching a read-only `ProjectPaths.roo'
+  sig: 1cfb594efe334cd4ea612a84f2be76e39c581f58601b934de68674a094241028

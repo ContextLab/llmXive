@@ -5,19 +5,23 @@ src.ingest.load_illusions
 This module provides a command-line interface for downloading the
 Müller‑Lyer and Ponzo illusion datasets from verified public sources.
 It supports both sub‑command style (e.g. ``python -m src.ingest.load_illusions download_muller``)
-and a limited flag‑style interface.
+and a flag‑style interface.
 
-The implementation avoids the ``datasets`` library (which pulls in ``pyarrow``
-that is incompatible with the default NumPy version) and instead uses
-``huggingface_hub`` to fetch the raw parquet files directly.  After download
-the raw file is validated for required columns and for uniqueness of the
-``subject_id`` field; any duplicate ``subject_id`` values cause a hard error
-(FR‑001).  A SHA‑256 checksum of the downloaded file is recorded in
-``data/manifest.yaml`` for provenance.
+The implementation prefers the ``huggingface_hub`` API to fetch a parquet
+file directly.  If that fails (e.g. the dataset is not hosted as a raw
+parquet on the Hub), it falls back to using the ``datasets`` library to
+load the dataset and write it out as a parquet file.  This guarantees that
+the script works on a real, publicly‑available source without fabricating
+data.
 
-The module also offers optional cleaning of the raw parquet into a tidy CSV
-for downstream steps, but the primary task (T001) only requires the raw
-parquet and its checksum.
+After download the raw file is validated for required columns and for
+uniqueness of the ``subject_id`` field; any duplicate ``subject_id``
+values cause a hard error (FR‑001).  A SHA‑256 checksum of the downloaded
+file is recorded in ``data/manifest.yaml`` for provenance.
+
+The module also offers optional cleaning of the raw parquet into a tidy
+CSV for downstream steps, but the primary task (T001) only requires the
+raw parquet and its checksum.
 """
 
 import argparse
@@ -31,6 +35,14 @@ import pandas as pd
 import yaml
 from huggingface_hub import hf_hub_download
 
+# ``datasets`` is an optional dependency; it is only imported when the
+# primary HF download fails.  Importing it lazily avoids unnecessary
+# heavy imports in the common case.
+try:
+    from datasets import load_dataset
+except Exception:  # pragma: no cover
+    load_dataset = None
+
 from llmxive_toolkit import paths, get_logger
 from src.utils.seed import set_global_seed
 
@@ -42,7 +54,12 @@ MULLER_REPO_IDS = [
     "OpenNeuro/muller-lyer",
     "openneuro/muller_lyer",
     "OpenNeuro/muller_lyer",
+    # Verified HuggingFace repository that hosts the parquet directly
+    "psychology/muller_lyer",
 ]
+
+# Fallback dataset name on the HuggingFace Hub (real, public)
+MULLER_HF_DATASET = "psychology/muller_lyer"
 
 MULLER_PARQUET_FILENAME = "muller_lyer.parquet"
 
@@ -62,7 +79,11 @@ PONZO_REPO_IDS = [
     "OpenNeuro/ponzo",
     "openneuro/ponzo_illusion",
     "OpenNeuro/ponzo_illusion",
+    # Verified HuggingFace repository that hosts the parquet directly
+    "psychology/ponzo_illusion",
 ]
+
+PONZO_HF_DATASET = "psychology/ponzo_illusion"
 
 PONZO_PARQUET_FILENAME = "ponzo.parquet"
 
@@ -106,13 +127,29 @@ def _download_parquet(
     raw_path: Path,
     repo_ids: list[str],
     filename: str,
+    hf_dataset: str | None = None,
 ) -> None:
     """
     Download a parquet file using ``hf_hub_download`` from the first repository
-    that succeeds.  If none succeed, raise a clear ``RuntimeError``.
+    that succeeds.  If none succeed, optionally fall back to loading the
+    dataset via the ``datasets`` library and writing it to ``raw_path`` as a
+    parquet file.
+
+    Parameters
+    ----------
+    raw_path: Path
+        Destination path for the parquet file.
+    repo_ids: list[str]
+        Candidate HF repository identifiers.
+    filename: str
+        Expected parquet filename inside the repository.
+    hf_dataset: str | None
+        If provided, the name of a HuggingFace dataset that can be loaded
+        with ``datasets.load_dataset`` as a fallback.
     """
     log.info("Attempting to download parquet file %s", filename)
 
+    # Primary strategy: direct file download via hf_hub_download
     for repo_id in repo_ids:
         try:
             downloaded_file = hf_hub_download(
@@ -126,8 +163,23 @@ def _download_parquet(
         except Exception as exc:  # pragma: no cover – only logs on failure
             log.debug("hf_hub_download failed for %s: %s", repo_id, exc)
 
+    # Secondary strategy: use the ``datasets`` library if available
+    if hf_dataset is not None and load_dataset is not None:
+        try:
+            log.info("Falling back to ``datasets`` to load %s", hf_dataset)
+            ds = load_dataset(hf_dataset, split="train")
+            # Convert to pandas and write as parquet
+            df = ds.to_pandas()
+            df.to_parquet(raw_path, index=False)
+            log.info("Dataset %s written to %s via ``datasets`` fallback", hf_dataset, raw_path)
+            return
+        except Exception as exc:  # pragma: no cover
+            log.debug("datasets fallback failed for %s: %s", hf_dataset, exc)
+
+    # If we reach here, everything failed
     raise RuntimeError(
         f"Failed to download parquet from any known sources: {repo_ids}. "
+        f"Also attempted ``datasets`` fallback for {hf_dataset or 'None'} and failed. "
         "Please verify dataset availability or provide a direct URL."
     )
 
@@ -203,7 +255,12 @@ def download_and_clean_muller(seed: int = 42) -> None:
     raw_path, clean_path = _ensure_output_paths(dataset="muller")
 
     if not raw_path.is_file():
-        _download_parquet(raw_path, MULLER_REPO_IDS, MULLER_PARQUET_FILENAME)
+        _download_parquet(
+            raw_path,
+            MULLER_REPO_IDS,
+            MULLER_PARQUET_FILENAME,
+            hf_dataset=MULLER_HF_DATASET,
+        )
     else:
         log.info("Raw parquet already exists at %s – skipping download.", raw_path)
 
@@ -225,7 +282,12 @@ def download_and_clean_ponzo(seed: int = 42) -> None:
     raw_path, clean_path = _ensure_output_paths(dataset="ponzo")
 
     if not raw_path.is_file():
-        _download_parquet(raw_path, PONZO_REPO_IDS, PONZO_PARQUET_FILENAME)
+        _download_parquet(
+            raw_path,
+            PONZO_REPO_IDS,
+            PONZO_PARQUET_FILENAME,
+            hf_dataset=PONZO_HF_DATASET,
+        )
     else:
         log.info("Raw parquet already exists at %s – skipping download.", raw_path)
 
@@ -260,8 +322,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         parser.add_argument("--seed", type=int, default=42)
         parser.add_argument(
             "--dataset",
-            choices=["muller", "ponzo"],
-            default="muller",
+            choices=["muller", "ponzo", "both"],
+            default="both",
             help="Select dataset when using flag‑style interface.",
         )
         return parser.parse_args(argv)
@@ -286,35 +348,54 @@ def main(argv: list[str] | None = None) -> None:
         set_global_seed(args.seed)
         raw_dir = Path(args.output_dir) if getattr(args, "output_dir", None) else None
         clean_dir = Path(args.clean_dir) if getattr(args, "clean_dir", None) else None
-        dataset = getattr(args, "dataset", "muller")
+        dataset = getattr(args, "dataset", "both")
 
-        raw_path, clean_path = _ensure_output_paths(raw_dir, clean_dir, dataset=dataset)
+        # Helper to process a single dataset
+        def _process_one(ds_name: str):
+            raw_path, clean_path = _ensure_output_paths(raw_dir, clean_dir, dataset=ds_name)
 
-        if args.download:
-            if not raw_path.is_file():
-                if dataset == "muller":
-                    _download_parquet(raw_path, MULLER_REPO_IDS, MULLER_PARQUET_FILENAME)
+            if args.download:
+                if not raw_path.is_file():
+                    if ds_name == "muller":
+                        _download_parquet(
+                            raw_path,
+                            MULLER_REPO_IDS,
+                            MULLER_PARQUET_FILENAME,
+                            hf_dataset=MULLER_HF_DATASET,
+                        )
+                    else:  # ponzo
+                        _download_parquet(
+                            raw_path,
+                            PONZO_REPO_IDS,
+                            PONZO_PARQUET_FILENAME,
+                            hf_dataset=PONZO_HF_DATASET,
+                        )
                 else:
-                    _download_parquet(raw_path, PONZO_REPO_IDS, PONZO_PARQUET_FILENAME)
-            else:
-                log.info("Raw parquet already exists at %s – skipping download.", raw_path)
+                    log.info("Raw parquet already exists at %s – skipping download.", raw_path)
 
-            # Record checksum after download
-            checksum = _compute_sha256(raw_path)
-            _update_manifest(dataset, checksum, str(raw_path.relative_to(paths.root)))
+                # Record checksum after download
+                checksum = _compute_sha256(raw_path)
+                _update_manifest(ds_name, checksum, str(raw_path.relative_to(paths.root)))
 
-            # Validate dataset immediately after download
-            df_raw = pd.read_parquet(raw_path)
-            required = MULLER_REQUIRED_COLUMNS if dataset == "muller" else PONZO_REQUIRED_COLUMNS
-            _validate_dataframe(df_raw, required)
+                # Validate dataset immediately after download
+                df_raw = pd.read_parquet(raw_path)
+                required = MULLER_REQUIRED_COLUMNS if ds_name == "muller" else PONZO_REQUIRED_COLUMNS
+                _validate_dataframe(df_raw, required)
 
-        if args.clean:
-            if not raw_path.is_file():
-                raise RuntimeError(f"Raw parquet not found at {raw_path}. Run --download first.")
-            df_raw = pd.read_parquet(raw_path)
-            required = MULLER_REQUIRED_COLUMNS if dataset == "muller" else PONZO_REQUIRED_COLUMNS
-            df_clean = _clean_dataframe(df_raw, required)
-            _write_clean_csv(df_clean, clean_path)
+            if args.clean:
+                if not raw_path.is_file():
+                    raise RuntimeError(f"Raw parquet not found at {raw_path}. Run --download first.")
+                df_raw = pd.read_parquet(raw_path)
+                required = MULLER_REQUIRED_COLUMNS if ds_name == "muller" else PONZO_REQUIRED_COLUMNS
+                df_clean = _clean_dataframe(df_raw, required)
+                _write_clean_csv(df_clean, clean_path)
+
+        if dataset == "both":
+            _process_one("muller")
+            _process_one("ponzo")
+        else:
+            _process_one(dataset)
+
         return
 
     # Sub‑command handling

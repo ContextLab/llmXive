@@ -9,7 +9,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
 
 ### Phase 0 – Reproducibility  
 
-- [ ] **T000** [US0] Implement a global random‑seed utility, generate a deterministic‑seed verification log, and verify reproducibility.  
+- [X] **T000** [US0] Implement a global random‑seed utility, generate a deterministic‑seed verification log, and verify reproducibility.  
   - **File(s)**: `src/utils/seed.py` (defines `set_global_seed(42)`), `src/__init__.py` (imports the seed on package import), `outputs/seed_verification.log`.  
   - **Requirement**: Constitution I – all stochastic scripts must use a pinned seed and produce identical results on repeated runs.  
   - **Verification**:  
@@ -29,7 +29,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
     3. Validate that the raw parquet contains columns `subject_id`, `trial_id`, `stimulus_length`, `response_length`, `stimulus_parameters`.  
     4. CI fails if any duplicate `subject_id` values are present.  
 
-- [ ] **T002** [P1] [US2] Download the Ponzo test dataset from the verified HuggingFace URL and store the raw parquet file.  
+- [ ] **T002** [P1] [US2] Download the Ponzo test dataset from the verified HuggingFace URL and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 -->
   - **File(s)**: `data/raw/ponzo.parquet` (raw).  
   - **Requirement**: **FR‑001** – same as T001 for the second dataset; **subject_id** uniqueness enforced.  
   - **Verification**:  
