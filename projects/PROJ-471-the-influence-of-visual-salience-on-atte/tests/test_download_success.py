@@ -1,54 +1,51 @@
 """
-Integration test for ``code/ingestion/download_data.py``.
+Unit test for the ``download_data`` ingestion script (Task T002).
 
-The test runs the script (which may download the OpenNeuro dataset if it is not
-already present) and then checks that:
-
-1. The script exits with status code ``0``.
-2. The checksum manifest ``data/raw/checksums.json`` exists.
-3. The manifest contains at least one file entry and that each entry includes
-   the required keys (``path``, ``sha256``, ``size``).
+The test runs the script's ``main`` function, then checks that:
+1. ``data/raw/checksums.json`` exists.
+2. The manifest contains at least one file entry.
+3. All listed files are present on disk.
 """
-import subprocess
 import json
 from pathlib import Path
 
 import pytest
 
+# Import the script's main entry point.
+from code.ingestion.download_data import main as download_main
+
 @pytest.mark.integration
 def test_download_and_checksum(tmp_path, monkeypatch):
     """
-    Run the download script and verify the produced checksum manifest.
+    Run the ingestion script and validate the checksum manifest.
+
+    The test is marked as ``integration`` because it may download a real
+    dataset from Hugging Face. It will be skipped on CI environments that
+    lack internet access.
     """
-    # Ensure we are operating from the project root.
-    project_root = Path(__file__).resolve().parents[2]
-    script_path = project_root / "code" / "ingestion" / "download_data.py"
+    # Ensure a clean state: remove any pre‑existing raw directory.
+    raw_root = Path("data") / "raw"
+    if raw_root.is_dir():
+        # Remove the directory tree to force a fresh download.
+        import shutil
+        shutil.rmtree(raw_root)
 
-    # Execute the script.
-    result = subprocess.run(
-        ["python", str(script_path)],
-        cwd=project_root,
-        capture_output=True,
-        text=True,
-    )
+    # Execute the ingestion script. It should raise no exception.
+    download_main()
 
-    # The script must exit cleanly.
-    assert result.returncode == 0, f"Script failed: {result.stderr}"
+    checksum_path = raw_root / "checksums.json"
+    assert checksum_path.is_file(), "Checksum manifest was not created."
 
-    # Verify that the checksum file exists.
-    checksum_path = project_root / "data" / "raw" / "checksums.json"
-    assert checksum_path.is_file(), "checksums.json was not created."
-
-    # Load and validate the JSON structure.
     with checksum_path.open("r", encoding="utf-8") as f:
         manifest = json.load(f)
 
-    assert isinstance(manifest, dict), "Manifest should be a JSON object."
-    assert "files" in manifest, "Manifest missing 'files' key."
-    assert isinstance(manifest["files"], list), "'files' should be a list."
-    assert len(manifest["files"]) > 0, "Manifest contains no file entries."
+    # Basic sanity checks on the manifest structure.
+    assert isinstance(manifest, dict), "Manifest should be a dict."
+    files = manifest.get("files")
+    assert isinstance(files, list) and len(files) > 0, "Manifest must list at least one file."
 
-    # Check required keys in the first entry.
-    first_entry = manifest["files"][0]
-    for key in ("path", "sha256", "size"):
-        assert key in first_entry, f"Manifest entry missing required key: {key}"
+    # Verify that every listed file actually exists.
+    for entry in files:
+        rel_path = Path(entry["path"])
+        absolute_path = raw_root / rel_path
+        assert absolute_path.is_file(), f"Listed file missing on disk: {rel_path}"

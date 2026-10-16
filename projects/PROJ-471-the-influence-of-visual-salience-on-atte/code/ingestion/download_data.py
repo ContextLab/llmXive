@@ -3,10 +3,10 @@ Real-data ingestion script for the Visual Salience project.
 
 This script verifies the presence of the OpenNeuro Moral Foundations Eye‑Tracking
 Dataset (ds003123) in the expected raw data directory, attempts to download it
-if missing (using the Hugging Face `datasets` library), computes SHA‑256 checksums
-for all files, and writes a manifest to ``data/raw/checksums.json``. If the dataset
-cannot be fetched, the script aborts with a clear ``RuntimeError`` (fail‑loud
-semantics). No synthetic data fallback is performed.
+if missing (using the Hugging Face `huggingface_hub` library), computes SHA‑256
+checksums for all files, and writes a manifest to ``data/raw/checksums.json``.
+If the dataset cannot be fetched, the script aborts with a clear
+``RuntimeError`` (fail‑loud semantics). No synthetic data fallback is performed.
 """
 import json
 import hashlib
@@ -25,12 +25,12 @@ except Exception:  # pragma: no cover
     def register_artifact(*_, **__):  # type: ignore
         pass
 
-# Attempt to import the Hugging Face datasets library.
+# Import huggingface_hub for reliable dataset download.
 try:
-    from datasets import load_dataset_builder
+    from huggingface_hub import snapshot_download
 except Exception as e:  # pragma: no cover
     raise RuntimeError(
-        "HuggingFace `datasets` library is required for automatic download."
+        "The `huggingface_hub` library is required for automatic download."
     ) from e
 
 logger = get_logger(__name__)
@@ -45,30 +45,42 @@ def compute_sha256(file_path: Path) -> str:
 
 def download_dataset(raw_dir: Path, dataset_id: str) -> None:
     """
-    Download the OpenNeuro dataset using the Hugging Face `datasets` library.
-    The dataset is first prepared in its cache directory and then copied into
-    ``raw_dir`` preserving the internal folder hierarchy.
+    Download the OpenNeuro dataset using the Hugging Face hub.
+
+    The entire repository is cloned into ``raw_dir`` preserving the internal
+    folder hierarchy.
 
     Args:
         raw_dir: Destination directory where the dataset should appear.
         dataset_id: Identifier of the OpenNeuro dataset (e.g., ``ds003123``).
     """
-    logger.info(f"Dataset '{dataset_id}' not found locally – attempting automatic download.")
+    logger.info(
+        f"Dataset '{dataset_id}' not found locally – attempting automatic download."
+    )
     repo_id = f"openneuro/{dataset_id}"
     try:
-        builder = load_dataset_builder(repo_id)
-        logger.info("Preparing dataset (this may take several minutes)...")
-        builder.download_and_prepare()
+        # ``snapshot_download`` returns the root directory of the downloaded repo.
+        cache_dir = snapshot_download(
+            repo_id=repo_id,
+            repo_type="dataset",
+            local_dir=raw_dir,
+            # Force a fresh download each run to avoid stale caches.
+            resume_download=False,
+            # Ensure the full repository (including large binary files) is fetched.
+            allow_patterns=["*"],
+        )
+        logger.info(f"Dataset downloaded to cache directory: {cache_dir}")
     except Exception as e:
-        logger.error(f"Failed to download dataset via Hugging Face hub: {e}")
+        logger.error(f"Failed to download dataset via huggingface_hub: {e}")
         raise RuntimeError("DATA_DOWNLOAD_FAILED") from e
 
-    cache_dir = Path(builder.cache_dir)
-    if not cache_dir.is_dir():
-        raise RuntimeError(f"Cache directory not found after download: {cache_dir}")
-
-    logger.info(f"Copying dataset files from cache '{cache_dir}' to raw directory '{raw_dir}'.")
-    shutil.copytree(cache_dir, raw_dir, dirs_exist_ok=True)
+    # ``snapshot_download`` already placed files under ``raw_dir``, so nothing
+    # else to copy. Verify that the expected top‑level folder exists.
+    if not raw_dir.is_dir() or not any(p.is_file() for p in raw_dir.rglob("*")):
+        raise RuntimeError(
+            f"Dataset download completed but no files were found in {raw_dir}"
+        )
+    logger.info(f"Dataset successfully materialised at {raw_dir}")
 
 def main() -> None:
     """

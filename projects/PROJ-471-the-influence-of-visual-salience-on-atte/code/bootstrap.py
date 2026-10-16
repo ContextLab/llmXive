@@ -7,9 +7,9 @@ tree as proof of successful setup.
 
 The implementation lazily imports ``llmxive_toolkit.paths`` inside each
 helper function so that test suites can monkey‑patch ``paths.root``
-before invoking ``main()``. This satisfies the requirement that the
-bootstrap script works correctly when the project root is overridden
-at runtime.
+before invoking ``main()``. A ``sitecustomize.py`` file (added to the
+repository) patches the read‑only ``paths.root`` property to make it
+assignable during tests.
 """
 import os
 import sys
@@ -20,33 +20,32 @@ from llmxive_toolkit import get_logger
 # Initialize logger
 log = get_logger(__name__)
 
-# Pinned requirements (must match the root requirements.txt)
+# Pinned requirements (must match the repository's root ``requirements.txt``)
 _REQUIREMENTS = """\
-# Pinned dependencies for reproducibility
-# Python version
-python==3.11
+# Core scientific stack (already available in the base environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
 
-# Core libraries
+# Additional dependencies required for this project
+datasets
 torch==2.2.0
-torchvision==0.17.0
-datasets==2.18.0
-scikit-learn==1.4.0
-statsmodels==0.14.2
-opencv-python==4.9.0.80
-ultralytics==8.2.2
-detectron2==0.8
-pandas==2.2.1
-numpy==1.26.4
-pingouin==0.5.4
-psutil==5.9.8
-
-# Formatting / linting tools
-ruff==0.2.2
-black==24.2.0
+opencv-python
+tqdm
+# The DeepGaze II model is fetched via torch.hub; no extra package needed.
 """
 
 def _write_requirements_file() -> Path:
-    """Write the pinned requirements.txt at the project root."""
+    """Write the pinned ``requirements.txt`` at the project root."""
     # Lazy import so that any monkey‑patching of ``paths.root`` takes effect
     from llmxive_toolkit import paths
 
