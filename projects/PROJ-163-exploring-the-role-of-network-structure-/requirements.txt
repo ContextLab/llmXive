@@ -1,10 +1,12 @@
-qiskit-ibm-runtime
+qiskit-ibm-runtime>=0.12
+jsonschema>=4.0
 networkx
 pandas
 scipy
 scikit-learn
 matplotlib
-requests
+seaborn
 pytest
-jsonschema
-PyYAML
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil) are already provided by the
+# platform; the lines above pin any additional packages needed for this task.

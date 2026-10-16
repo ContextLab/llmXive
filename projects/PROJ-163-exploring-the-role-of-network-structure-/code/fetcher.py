@@ -1,24 +1,95 @@
+"""
+Fetcher module for retrieving IBM Quantum backend calibration data.
+
+This module provides:
+- `fetch_backends_list()` – returns a list of operational backend names.
+- `fetch_backend_properties(backend_name)` – returns the properties object for a backend.
+- `retry_with_exponential_backoff()` – generic retry helper respecting C‑001.
+- `rate_limit_handler()` – handles HTTP 429 responses.
+- `validate_data_freshness()` – enforces FR‑001 (≤30 days old).
+- `extract_topology_data()`, `extract_performance_metrics()`, `extract_chip_family()`.
+- `fetch_and_save_snapshots()` – orchestrates fetching and persisting raw snapshots.
+- CLI entry point (`python -m code.fetcher --save-snapshots`) that writes JSON files
+  to ``data/raw/{device_id}_{YYYYMMDD_HHMMSS}.json``.  No synthetic data is ever
+  generated; on total API failure a ``RuntimeError`` is raised.
+"""
 import logging
 import time
-import json
-import os
-import random
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import csv
+from typing import List, Callable, Any
 
 from config import load_config
 from logging_config import get_logger
+from snapshot_saver import save_backend_snapshot
 
-# Configure logging
+# Optional import of qiskit‑ibm‑runtime; will be performed lazily inside
+# ``_init_service`` so that the module can be imported even when the
+# package is not installed (e.g., during unit‑test collection).
+try:
+    from qiskit_ibm_runtime import QiskitRuntimeService
+except Exception:  # pragma: no cover
+    QiskitRuntimeService = None
+
 logger = get_logger(__name__)
 
-def retry_with_exponential_backoff(func, max_attempts=5, base_delay=2.0, timeout=30):
+# ----------------------------------------------------------------------
+# Helper to initialise the IBM Quantum service
+# ----------------------------------------------------------------------
+def _init_service() -> Any:
     """
-    Retry a function with exponential backoff.
+    Initialise ``QiskitRuntimeService`` using environment variables.
+
+    Returns:
+        An authenticated ``QiskitRuntimeService`` instance.
+
+    Raises:
+        RuntimeError: If the token is missing or the service cannot be created.
+    """
+    config = load_config()
+    token = getattr(config, "ibmq_token", None) or config.get("IBMQ_TOKEN")
+    if not token:
+        raise RuntimeError(
+            "IBMQ_TOKEN not found in environment. "
+            "Fetching real calibration data requires a valid token."
+        )
+    if QiskitRuntimeService is None:
+        raise RuntimeError(
+            "qiskit‑ibm‑runtime is not installed. "
+            "Install it via ``pip install qiskit‑ibm‑runtime``."
+        )
+    try:
+        service = QiskitRuntimeService(channel="ibm_quantum", token=token)
+        return service
+    except Exception as e:  # pragma: no cover
+        raise RuntimeError(f"Failed to initialise IBM Quantum service: {e}") from e
+
+# ----------------------------------------------------------------------
+# Exponential backoff helper (C‑001)
+# ----------------------------------------------------------------------
+def retry_with_exponential_backoff(
+    func: Callable[[], Any],
+    max_attempts: int = 5,
+    base_delay: float = 2.0,
+    timeout: float = 30.0,
+) -> Any:
+    """
+    Retry ``func`` with exponential back‑off.
+
+    Args:
+        func: Callable that performs the operation.
+        max_attempts: Maximum number of attempts.
+        base_delay: Initial delay in seconds.
+        timeout: Upper bound for the total waiting time (seconds).
+
+    Returns:
+        The value returned by ``func`` on success.
+
+    Raises:
+        Exception: Propagates the last exception after exhausting attempts.
     """
     attempt = 0
+    start = time.time()
     while attempt < max_attempts:
         try:
             return func()
@@ -28,278 +99,228 @@ def retry_with_exponential_backoff(func, max_attempts=5, base_delay=2.0, timeout
                 logger.error(f"Failed after {max_attempts} attempts: {e}")
                 raise
             delay = base_delay * (2 ** (attempt - 1))
-            logger.warning(f"Attempt {attempt} failed: {e}. Retrying in {delay}s...")
+            elapsed = time.time() - start
+            if elapsed + delay > timeout:
+                logger.error(
+                    f"Back‑off timeout reached ({timeout}s) after {attempt} attempts."
+                )
+                raise
+            logger.warning(
+                f"Attempt {attempt} failed ({e}). Retrying in {delay:.1f}s..."
+            )
             time.sleep(delay)
 
-def rate_limit_handler(response):
+# ----------------------------------------------------------------------
+# Rate‑limit handler (429)
+# ----------------------------------------------------------------------
+def rate_limit_handler(response: Any) -> bool:
     """
-    Handle rate limiting by checking for 429 status code.
+    Detect HTTP 429 and pause according to ``Retry‑After`` header.
+
+    Returns ``True`` if a pause was performed, ``False`` otherwise.
     """
-    if response.status_code == 429:
-        retry_after = int(response.headers.get('Retry-After', 60))
-        logger.warning(f"Rate limited. Waiting for {retry_after} seconds.")
+    if getattr(response, "status_code", None) == 429:
+        retry_after = int(response.headers.get("Retry-After", 60))
+        logger.warning(f"Rate limited (429). Waiting {retry_after}s.")
         time.sleep(retry_after)
         return True
     return False
 
-def fetch_backends_list(backend_client):
+# ----------------------------------------------------------------------
+# Backend enumeration
+# ----------------------------------------------------------------------
+def fetch_backends_list() -> List[str]:
     """
-    Retrieve all accessible backend names.
+    Retrieve the list of operational backend names.
+
+    Returns:
+        List of backend identifiers.
+
+    Raises:
+        RuntimeError: If the IBM Quantum service cannot be queried.
     """
+    service = _init_service()
     try:
-        backends = backend_client.backends()
-        return [backend.name for backend in backends if backend.operational]
+        backends = service.backends()
+        return [b.name for b in backends if getattr(b, "operational", False)]
     except Exception as e:
         logger.error(f"Failed to fetch backends list: {e}")
-        raise
+        raise RuntimeError("Unable to retrieve backend list.") from e
 
-def fetch_backend_properties(backend_name, backend_client):
+# ----------------------------------------------------------------------
+# Fetch a single backend's properties with retry/back‑off
+# ----------------------------------------------------------------------
+def fetch_backend_properties(backend_name: str) -> Any:
     """
-    Fetch backend properties with retry logic and error handling.
+    Fetch properties for ``backend_name`` using exponential back‑off.
+
+    Returns:
+        The ``BackendProperties`` object.
+
+    Raises:
+        RuntimeError: If the backend cannot be fetched after retries.
     """
+    service = _init_service()
+
     def _fetch():
-        backend = backend_client.backend(backend_name)
+        backend = service.backend(backend_name)
         props = backend.properties()
         if not props:
-            raise ValueError(f"No properties found for {backend_name}")
+            raise ValueError(f"No properties returned for {backend_name}")
         return props
 
     try:
-        props = retry_with_exponential_backoff(_fetch)
-        return props
+        return retry_with_exponential_backoff(_fetch)
     except Exception as e:
-        logger.warning(f"Device {backend_name} excluded: {e}")
-        return None
+        logger.error(f"Failed to fetch properties for {backend_name}: {e}")
+        raise RuntimeError(
+            f"Unable to fetch properties for backend {backend_name}"
+        ) from e
 
-def validate_data_freshness(properties, max_age_days=30):
+# ----------------------------------------------------------------------
+# Freshness validation (FR‑001)
+# ----------------------------------------------------------------------
+def validate_data_freshness(properties: Any, max_age_days: int = 30) -> bool:
     """
-    Validate that the data is fresh (<= 30 days old).
+    Verify that the calibration timestamp is ≤ ``max_age_days`` old.
+
+    Args:
+        properties: BackendProperties instance with ``last_update_date``.
+        max_age_days: Maximum allowed age.
+
+    Returns:
+        ``True`` if data is fresh, ``False`` otherwise.
     """
     if not properties:
         return False
-    last_update = properties.last_update_date
+    last_update = getattr(properties, "last_update_date", None)
+    if last_update is None:
+        return False
     now = datetime.now(last_update.tzinfo)
     age = now - last_update
     return age <= timedelta(days=max_age_days)
 
-def extract_topology_data(properties):
+# ----------------------------------------------------------------------
+# Extraction helpers
+# ----------------------------------------------------------------------
+def extract_topology_data(properties: Any) -> dict:
     """
-    Extract coupling map and qubit indices from raw JSON.
+    Pull ``coupling_map`` and qubit count from ``BackendProperties``.
     """
-    coupling_map = properties.coupling_map
-    qubit_count = len(properties.qubits)
-    return {
-        "coupling_map": coupling_map,
-        "qubit_count": qubit_count
-    }
+    coupling_map = getattr(properties, "coupling_map", [])
+    qubit_count = len(getattr(properties, "qubits", []))
+    return {"coupling_map": coupling_map, "qubit_count": qubit_count}
 
-def extract_performance_metrics(properties):
+def extract_performance_metrics(properties: Any) -> dict:
     """
-    Extract T1, T2, cx gate errors, readout errors.
+    Compute mean T1, T2, CX gate error and readout error.
     """
-    t1_values = []
-    t2_values = []
-    cx_errors = []
-    readout_errors = []
+    t1_vals, t2_vals, cx_errs, ro_errs = [], [], [], []
 
-    for qubit in properties.qubits:
-        for prop in qubit:
-            if prop.name == 'T1':
-                t1_values.append(prop.value)
-            elif prop.name == 'T2':
-                t2_values.append(prop.value)
+    for qubit in getattr(properties, "qubits", []):
+        for p in qubit:
+            if getattr(p, "name", None) == "T1":
+                t1_vals.append(p.value)
+            elif getattr(p, "name", None) == "T2":
+                t2_vals.append(p.value)
 
-    for gate in properties.gates:
-        if gate.gate == 'cx':
-            if gate.parameters and gate.parameters[0].name == 'gate_error':
-                cx_errors.append(gate.parameters[0].value)
-            if gate.parameters and len(gate.parameters) > 1 and gate.parameters[1].name == 'readout_error':
-                readout_errors.append(gate.parameters[1].value)
+    for gate in getattr(properties, "gates", []):
+        if getattr(gate, "gate", None) == "cx":
+            for param in getattr(gate, "parameters", []):
+                if getattr(param, "name", None) == "gate_error":
+                    cx_errs.append(param.value)
+                elif getattr(param, "name", None) == "readout_error":
+                    ro_errs.append(param.value)
 
     return {
-        "t1_mean": sum(t1_values) / len(t1_values) if t1_values else None,
-        "t2_mean": sum(t2_values) / len(t2_values) if t2_values else None,
-        "cx_error_mean": sum(cx_errors) / len(cx_errors) if cx_errors else None,
-        "readout_error_mean": sum(readout_errors) / len(readout_errors) if readout_errors else None
+        "t1_mean": sum(t1_vals) / len(t1_vals) if t1_vals else None,
+        "t2_mean": sum(t2_vals) / len(t2_vals) if t2_vals else None,
+        "cx_error_mean": sum(cx_errs) / len(cx_errs) if cx_errs else None,
+        "readout_error_mean": sum(ro_errs) / len(ro_errs) if ro_errs else None,
     }
 
-def extract_chip_family(backend_name):
+def extract_chip_family(backend_name: str) -> str:
     """
-    Extract chip family from backend name or properties.
+    Derive a human‑readable chip family from the backend identifier.
     """
-    if 'falcon' in backend_name.lower():
-        return 'Falcon'
-    elif 'hummingbird' in backend_name.lower():
-        return 'Hummingbird'
-    elif 'eagle' in backend_name.lower():
-        return 'Eagle'
-    elif 'osprey' in backend_name.lower():
-        return 'Osprey'
-    elif 'condor' in backend_name.lower():
-        return 'Condor'
-    else:
-        return 'Unknown'
+    name = backend_name.lower()
+    if "falcon" in name:
+        return "Falcon"
+    if "hummingbird" in name:
+        return "Hummingbird"
+    if "eagle" in name:
+        return "Eagle"
+    if "osprey" in name:
+        return "Osprey"
+    if "condor" in name:
+        return "Condor"
+    return "Unknown"
 
-def fetch_all_backends(backend_client):
+# ----------------------------------------------------------------------
+# Orchestration – fetch all backends and persist raw snapshots
+# ----------------------------------------------------------------------
+def fetch_and_save_snapshots() -> tuple[int, int]:
     """
-    Fetch all accessible backends and their properties.
-    """
-    backends = fetch_backends_list(backend_client)
-    all_data = []
+    Fetch properties for every operational backend, enforce freshness,
+    and write a JSON snapshot to ``data/raw/``.
 
-    for backend_name in backends:
-        logger.info(f"Fetching properties for {backend_name}...")
-        props = fetch_backend_properties(backend_name, backend_client)
-        if not props:
-            continue
-
-        if not validate_data_freshness(props):
-            logger.warning(f"Data for {backend_name} is too old, skipping.")
-            continue
-
-        topology = extract_topology_data(props)
-        performance = extract_performance_metrics(props)
-        chip_family = extract_chip_family(backend_name)
-
-        all_data.append({
-            "device_id": backend_name,
-            "timestamp": props.last_update_date.isoformat(),
-            "coupling_map": topology["coupling_map"],
-            "t1_mean": performance["t1_mean"],
-            "t2_mean": performance["t2_mean"],
-            "cx_error_mean": performance["cx_error_mean"],
-            "readout_error_mean": performance["readout_error_mean"],
-            "chip_family": chip_family
-        })
-
-    return all_data
-
-def process_historical_data(historical_dir: str, output_path: str):
-    """
-    Aggregate historical snapshots into a single CSV.
-    
-    Reads all JSON files from `historical_dir` (format: {device_id}_{YYYYMMDD}.json),
-    extracts performance metrics, and writes them to `output_path` as a CSV.
-    
-    Args:
-        historical_dir: Path to directory containing historical JSON snapshots.
-        output_path: Path to the output CSV file.
-    
     Returns:
-        None
+        Tuple ``(saved_count, failed_count)``.
     """
-    historical_path = Path(historical_dir)
-    if not historical_path.exists():
-        logger.error(f"Historical directory {historical_dir} does not exist.")
-        raise FileNotFoundError(f"Historical directory {historical_dir} does not exist.")
-
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
-    rows = []
-
-    # Iterate over all JSON files in the directory
-    json_files = list(historical_path.glob("*.json"))
-    if not json_files:
-        logger.warning(f"No JSON files found in {historical_dir}.")
-        # Write empty CSV with headers to ensure schema compliance
-        with open(output_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(["device_id", "date", "t1_mean", "t2_mean", "cx_error_mean", "readout_error_mean", "chip_family"])
-        return
-
-    for json_file in json_files:
+    backends = fetch_backends_list()
+    saved, failed = 0, 0
+    for name in backends:
         try:
-            with open(json_file, 'r') as f:
-                data = json.load(f)
-            
-            # Extract device_id and date from filename
-            filename = json_file.stem
-            # Expected format: {device_id}_{YYYYMMDD}
-            parts = filename.rsplit('_', 1)
-            if len(parts) != 2:
-                logger.warning(f"Skipping file with unexpected format: {filename}")
+            props = fetch_backend_properties(name)
+            if not validate_data_freshness(props):
+                logger.info(f"Skipping {name}: data older than 30 days.")
                 continue
-            
-            device_id = parts[0]
-            date_str = parts[1]
-            
-            # Parse date
+            # Convert the BackendProperties object to a plain, serialisable dict.
+            # ``BackendProperties`` implements ``to_dict`` in recent Qiskit versions;
+            # fall back to ``json.dumps`` with ``default=str`` if unavailable.
             try:
-                date_obj = datetime.strptime(date_str, "%Y%m%d")
-            except ValueError:
-                logger.warning(f"Skipping file with invalid date format: {filename}")
-                continue
-
-            # Extract metrics from JSON content
-            # The JSON structure is expected to match the snapshot format:
-            # { "device_id": "...", "timestamp": "...", "t1_mean": ..., ... }
-            t1 = data.get("t1_mean")
-            t2 = data.get("t2_mean")
-            cx_err = data.get("cx_error_mean")
-            readout_err = data.get("readout_error_mean")
-            chip_family = data.get("chip_family", "Unknown")
-
-            # Validate presence of required metrics
-            if any(v is None for v in [t1, t2, cx_err, readout_err]):
-                logger.warning(f"Missing metrics in {filename}, skipping.")
-                continue
-
-            rows.append({
-                "device_id": device_id,
-                "date": date_str,
-                "t1_mean": t1,
-                "t2_mean": t2,
-                "cx_error_mean": cx_err,
-                "readout_error_mean": readout_err,
-                "chip_family": chip_family
-            })
-
-        except json.JSONDecodeError:
-            logger.error(f"Invalid JSON in {json_file}, skipping.")
+                raw_dict = props.to_dict()  # type: ignore[attr-defined]
+            except Exception:  # pragma: no cover
+                raw_dict = json.loads(json.dumps(props, default=str))
+            # Persist the snapshot.
+            save_backend_snapshot(name, raw_dict)
+            saved += 1
         except Exception as e:
-            logger.error(f"Error processing {json_file}: {e}")
+            logger.error(f"Failed processing {name}: {e}")
+            failed += 1
+    logger.info(f"Snapshot collection finished – saved: {saved}, failed: {failed}")
+    if saved == 0:
+        raise RuntimeError(
+            "No backend snapshots were saved. All attempts failed – aborting."
+        )
+    return saved, failed
 
-    # Write to CSV
-    fieldnames = ["device_id", "date", "t1_mean", "t2_mean", "cx_error_mean", "readout_error_mean", "chip_family"]
-    with open(output_file, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-
-    logger.info(f"Successfully wrote {len(rows)} rows to {output_path}")
-
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
 def main():
     """
-    Main entry point for fetching and processing historical data.
+    Command‑line interface.
+
+    Supported flags:
+    --save-snapshots   Fetch live calibration data and write JSON files.
     """
-    config = load_config()
-    if not config.ibmq_token:
-        logger.error("IBMQ_TOKEN not found in environment variables.")
-        return
+    import argparse
 
-    try:
-        from qiskit_ibm_runtime import QiskitRuntimeService
-        service = QiskitRuntimeService(channel="ibm_quantum", token=config.ibmq_token)
-    except Exception as e:
-        logger.error(f"Failed to initialize QiskitRuntimeService: {e}")
-        return
+    parser = argparse.ArgumentParser(description="IBM Quantum calibration fetcher")
+    parser.add_argument(
+        "--save-snapshots",
+        action="store_true",
+        help="Fetch current backend properties and store raw JSON snapshots.",
+    )
+    args = parser.parse_args()
 
-    # Fetch current data (for T016)
-    # all_data = fetch_all_backends(service)
-    # ... save snapshots ...
-
-    # Process historical data (T020)
-    historical_dir = "data/historical"
-    output_csv = "data/processed/historical_performance_metrics.csv"
-    
-    try:
-        process_historical_data(historical_dir, output_csv)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        # If directory doesn't exist, we might need to fetch first (T018/T019)
-        # For this task, we assume T019 has run.
-        return
+    if args.save_snapshots:
+        try:
+            fetch_and_save_snapshots()
+        except RuntimeError as e:
+            logger.critical(f"Fetcher terminated with error: {e}")
+            raise
 
 if __name__ == "__main__":
     main()
