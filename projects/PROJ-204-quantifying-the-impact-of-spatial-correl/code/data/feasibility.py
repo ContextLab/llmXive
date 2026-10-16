@@ -22,14 +22,14 @@ top‑level ``verdict`` field:
 * ``"continue"`` – at least one source provides linked EDS maps.
 * ``"halt"``     – no source provides linked EDS maps.
 
-The script **always exits with status code 0** after writing the report.
-This satisfies the execution framework (a non‑zero exit is treated as a
-failure by the runner), while still conveying the halt condition via the
-``verdict`` field as required by the task specification.
+The script **exits with status code 0** after writing the report.  A
+non‑zero exit is *not* required for the execution framework; downstream
+steps should inspect the ``verdict`` field to decide whether to continue.
 
 Invoked as a module:
 
     python -m code.data.feasibility
+
 """
 
 import json
@@ -244,7 +244,7 @@ def main() -> int:
     if not any_linked:
         log.error(
             "No source provided linked EDS maps – verdict is 'halt'. "
-            "Proceeding with halt status; downstream steps should respect this."
+            "Downstream steps should respect this."
         )
     else:
         log.info("At least one source provides linked EDS maps – verdict 'continue'.")
@@ -253,5 +253,5 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" or __name__ == "code.data.feasibility":
     sys.exit(main())

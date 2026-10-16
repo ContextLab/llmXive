@@ -1,8 +1,12 @@
-# Configuration for the quantifying‑spatial‑correlations pipeline
-# Paths are resolved relative to the repository root.
+# Default configuration for the perovskite spatial‑correlation pipeline
+# The ingestion script does not rely on these values, but downstream
+# stages (e.g., the full pipeline) expect a config file to exist.
 base_dir: "."
 log_dir: "logs"
-# The following keys are used by various pipeline stages.
-config_path: null  # placeholder – can be overridden via CLI
-pixel_size: 1.0
-# Additional keys can be added by later tasks (e.g., sensitivity thresholds).
+# The following keys are part of the broader specification and may be
+# used by later tasks; they are included here for completeness.
+sensitivity_threshold: 0.2
+min_sample_count: 30
+alpha: 0.05
+# Paths are expressed relative to the repository root; the llmxive
+# toolkit will resolve them via ``paths`` helpers when needed.
