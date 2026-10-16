@@ -16,7 +16,7 @@ required:
 properties:
   selected_model:
     type: string
-    description: "Regression model chosen (e.g., 'linear', 'power_law', 'tobit')."
+    description: "Regression model chosen (e.g., 'mixed_effects', 'tobit')."
   noise_levels:
     type: array
     items:
@@ -27,7 +27,7 @@ properties:
     description: "Mean Δλ across all bounded trials."
   regression_coefficients:
     type: object
-    description: "Fitted parameters (e.g., intercept, σ coefficient, N coefficient, interaction)."
+    description: "Fitted parameters (intercept, σ coefficient, N coefficient, interaction, 1/T)."
     additionalProperties:
       type: number
   p_values:
@@ -42,7 +42,7 @@ properties:
       type: number
   effect_size:
     type: number
-    description: "Cohen's d for the primary bias term (σ coefficient)."
+    description: "Cohen's d for the primary noise coefficient."
   newey_west_used:
     type: boolean
     description: "True if Newey‑West HAC standard errors were applied after Durbin‑Watson detection."

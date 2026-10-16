@@ -26,7 +26,9 @@ properties:
     type: number
     description: "Calculated maximum Lyapunov exponent for this trial."
   deviation:
-    type: ["number", "null"]
+    type:
+      - number
+      - "null"
     description: "Δλ = λ_max - baseline; null if status is 'unphysical' or 'non-chaotic'."
   status:
     type: string

@@ -1,9 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Trajectory"
+title: "Trajectory Schema"
 description: "Schema for a single generated trajectory of a coupled Lorenz system."
-type: "object"
+type: object
+required:
+  - id
+  - time
+  - state
+  - noise
+  - params
 properties:
   id:
-    type: "string"
-    description: "Unique  "
-...
+    type: string
+    description: "Unique identifier for the trajectory (e.g., 'N3_sigma0.01_t001')."
+  time:
+    type: array
+    items:
+      type: number
+    description: "Time vector (length = steps)."
+  state:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: "State matrix of shape (steps, 3*N)."
+  noise:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: "Noise matrix of same shape as state (zero if sigma=0)."
+  params:
+    type: object
+    required:
+      - seed
+      - N
+      - sigma_noise
+      - trial_id
+    properties:
+      seed:
+        type: integer
+        description: "Random seed used for this trajectory."
+      N:
+        type: integer
+        description: "Number of coupled Lorenz oscillators."
+      sigma_noise:
+        type: number
+        description: "Standard deviation of injected Gaussian noise."
+      trial_id:
+        type: string
+        description: "Same as top‑level id."
+    additionalProperties: false
+additionalProperties: false

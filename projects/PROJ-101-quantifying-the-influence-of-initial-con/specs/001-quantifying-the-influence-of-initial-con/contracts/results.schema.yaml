@@ -1,4 +1,32 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "FTLE    " 
-description: "S   ​  ​  "
-...
+title: "Results Bundle Schema"
+description: "Schema for the final bundled results of the pipeline."
+type: object
+required:
+  - baseline
+  - ftle_results
+  - regression
+  - escape_probabilities
+  - generated_at
+properties:
+  baseline:
+    type: object
+    description: "Mapping N → baseline object."
+    additionalProperties:
+      $ref: "./baseline.schema.yaml"
+  ftle_results:
+    $ref: "./ftle_results.schema.yaml"
+    description: "Aggregated FTLE results."
+  regression:
+    $ref: "./regression_results.schema.yaml"
+    description: "Statistical analysis summary."
+  escape_probabilities:
+    type: object
+    description: "Mapping σ_noise → escape probability."
+    additionalProperties:
+      type: number
+  generated_at:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp when the bundle was created."
+additionalProperties: false
