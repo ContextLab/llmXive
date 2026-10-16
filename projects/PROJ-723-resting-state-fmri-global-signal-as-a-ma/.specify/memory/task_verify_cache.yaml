@@ -1,3 +1,52 @@
+T001a:
+  c: true
+  h: 521d1fd8a5ca5673fd21c3af69aa78880b54d5c72b87639bae12abccf215aaef
+  r: The task T001a only requires creating the `code/` directory at the repository
+    root, and the collector confirms `code/` exists at the project root with 33 non-empty
+    entries (Python modules, config, requirements, etc.). The requirement is fully
+    satisfied; the quality of downstream analysis artifacts is not part of this task's
+    scope.
+  sig: fb3b3cdd5da97d1563eef24fece264f7c62d3000eff771529d4fa44f96bada07
+T001b:
+  c: true
+  h: ff61613d52758cac7dec0d860a1e0f3b0de2a294f4f0916236158cd721e6fb1f
+  r: The collector confirms `data/raw/` exists at the project root (containing a `.gitkeep`
+    marker), and the execution log shows the setup script ran successfully (exit 0)
+    confirming the directory exists. This fully satisfies the task's single requirement
+    of directory creation.
+  sig: c48ad61b4c2687ba88fbc446d350b7c16c29106085556d7ef42f662cbfb1748d
+T001c:
+  c: true
+  h: 9cc871737b1e86eed7cfc51a56f7254a135f6c1765ee68a3b73a226e7b0e756e
+  r: "The collector confirms `data/processed/` exists at the project root (containing\
+    \ a `.gitkeep` marker), and the execution log shows `code/setup_processed_dir.py`\
+    \ ran successfully (exit 0) creating/verifying that exact directory. The task's\
+    \ only requirement \u2014 directory existence \u2014 is met."
+  sig: 8129843211c4f8f7031b79b68731fb73260d9d361f7900566f574c279c317429
+T001d:
+  c: true
+  h: a88b8f19ada9c406ceab1fa9da4d58f6ef656a4e8bae5bb1cddd047258bfe97b
+  r: The task only required creating `data/results/` at the repository root, and the
+    collector confirms the directory exists (12 entries including `.gitkeep` and multiple
+    result files), with a logged setup script run exiting 0 confirming its creation.
+    The directory is non-empty and matches the stated requirement.
+  sig: b17535366e38881b6abcd7de36ea0c628f09ef876167da402d75bce393f11a58
+T001e:
+  c: true
+  h: e3d0816e77f183097dbd464d8bab697453d690f02bd506e875e50dbe7594942a
+  r: The `tests/` directory exists at the project root with 31 non-empty entries (conftest.py
+    and numerous test modules), and the historical execution log shows `tests/test_project_structure.py::test_tests_directory_exists`
+    passing (exit 0), directly confirming the task's verification criterion.
+  sig: 6a26c3059d994e2e6fe1e09fab825a3aa0389ad854fdf6d73c773da1f5375874
+T002:
+  c: true
+  h: 1e83639279ae94d208a6708f73439060ddda03d7c8d74bf37ad33030335cc821
+  r: 'The `requirements.txt` exists at the project root (325 bytes) and contains pinned
+    versions (`==`) for all eight required packages: pandas, numpy, scikit-learn,
+    nibabel, requests, pyyaml, statsmodels, and scipy, plus a few reasonable extras.
+    All pins are valid, mutually compatible release versions, so a clean `pip install
+    -r requirements.txt` would succeed.'
+  sig: aa05c8e6b21f7ed23890d44a7a4637b97489398855b22457adf065fab23904c7
 T024:
   c: false
   h: 90ccf1afb57b5f1e9974ced57178ce53909dccfeb94c9681654d5b6ed98811be
@@ -12,10 +61,3 @@ T030:
   r: "No code, notebook, data file, or result showing a partial correlation analysis\
     \ controlling for mean FD is provided, nor any evidence that a p\u2011value\u202F\
     <\u202F0.05 was obtained. The required artifact is missing."
-T034b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `final_report.json` containing the required `criteria_status` object is provided,
-    nor any evidence that the implementer read values from T021, T019, T029/T030 and
-    applied the specified thresholds. The artifact is missing, so the task is not
-    satisfied.

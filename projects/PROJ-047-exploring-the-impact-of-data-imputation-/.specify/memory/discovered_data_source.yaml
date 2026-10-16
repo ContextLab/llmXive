@@ -1,12 +1,11 @@
 status: none
-intent: synthetic causal inference MNAR dataset with known ATE python package dataset
+intent: synthetic causal inference dataset with MNAR missingness python package dataset
 required_fields:
-- treatment
-- outcome
-- confounders
-- missing_indicator
-- ground_truth_ATE
-- mnar_parameter_beta
-cache_key: 89c79475ba407012d3cf21e180d7b4c06de32b298659c503f3a71c5e8f6d9fc1
-searched_at: '2026-10-10T22:16:57.240062+00:00'
+- treatment (binary)
+- outcome (continuous)
+- confounders (one or more columns)
+- missing_indicator (binary)
+- ground_truth_ate (numeric)
+cache_key: a04e1bb615b438850cdf46f96222ee0856d15c6ea254b9ada8cc4ccab0627a56
+searched_at: '2026-10-16T00:58:59.136467+00:00'
 retry_count: 1

@@ -30,29 +30,28 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/download.py --dataset recipe1m --output data/raw/ -> rc=1
 
-INFO:__main__:Starting Recipe1M download via streaming...
-INFO:httpx:HTTP Request: HEAD https://huggingface.co/datasets/recipe1m/recipe1m/resolve/main/README.md "HTTP/1.1 401 Unauthorized"
-ERROR:__main__:Failed to download Recipe1M: Dataset 'recipe1m/recipe1m' doesn't exist on the Hub or cannot be accessed.
+ERROR:__main__:Failed to download Recipe1M: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 INFO:__main__:Saved manifest for recipe1m: FAILED
-ERROR:__main__:Pipeline halted due to: Recipe1M download failed: Dataset 'recipe1m/recipe1m' doesn't exist on the Hub or cannot be accessed.
+ERROR:__main__:Pipeline halted due to: Recipe1M download failed: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/data/preprocess.py --input data/raw/ --output data/processed/ -> rc=1
-
+arting T014: Normalization and Functional Role Derivation
+ERROR:__main__:Failed to load reference ingredients: Amendment log not found at /home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/amendment_log.json. Run T012d first.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/preprocess.py", line 28, in <module>
-    from utils.memory_monitor import check_memory_limit, get_memory_usage_gb
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/utils/memory_monitor.py", line 3, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/preprocess.py", line 368, in <module>
+    success = main()
+              ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/preprocess.py", line 271, in main
+    reference_list = load_reference_ingredients()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/preprocess.py", line 112, in load_reference_ingredients
+    raise FileNotFoundError(f"Amendment log not found at {amendment_log_path}. Run T012d first.")
+FileNotFoundError: Amendment log not found at /home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/amendment_log.json. Run T012d first.
 
 - python code/data/split.py --input data/processed/ingredient_pairs.csv --output data/processed/ -> rc=1
+Starting T019: Train/Test Split
+T019 failed: Imputed features file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/data/processed/final_features.parquet. Run T018 first.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/split.py", line 17, in <module>
-    from code.utils.memory_monitor import check_memory_limit
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/utils/memory_monitor.py", line 3, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
 
 - python code/models/fit_logistic.py --input data/processed/train.csv --output data/logs/ -> rc=1
 Starting Logistic Regression Fit (T022)...
@@ -68,27 +67,22 @@ Traceback (most recent call last):
 FileNotFoundError: train_set.parquet not found at /home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/processed/train_set.parquet. Run T019 first.
 
 - python code/models/bayesian.py --input data/processed/train.csv --output data/logs/ -> rc=1
+ERROR: PyMC not installed. Please install pymc>=5.0.0 from requirements.txt.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/models/bayesian.py", line 31, in <module>
-    from code.utils.memory_monitor import check_memory_limit
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/utils/memory_monitor.py", line 3, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
 
 - python code/run_full_pipeline.py -> rc=1
 
-2026-10-09 19:35:06,789 - INFO - INITIALIZED: pipeline_start
-2026-10-09 19:35:06,789 - INFO - Starting data pipeline...
-2026-10-09 19:35:06,789 - INFO - Running: Download Recipe1M dataset
-2026-10-09 19:35:06,789 - INFO - Command: python code/data/download.py --dataset recipe1m --output data/raw/
-2026-10-09 19:35:07,038 - ERROR - Failed: Download Recipe1M dataset
-2026-10-09 19:35:07,039 - ERROR - Error: ERROR:__main__:Failed to download Recipe1M: No module named 'datasets'
+2026-10-16 01:08:01,605 - INFO - INITIALIZED: pipeline_start
+2026-10-16 01:08:01,605 - INFO - Starting data pipeline...
+2026-10-16 01:08:01,605 - INFO - Running: Download Recipe1M dataset
+2026-10-16 01:08:01,605 - INFO - Command: python code/data/download.py --dataset recipe1m --output data/raw/
+2026-10-16 01:08:02,119 - ERROR - Failed: Download Recipe1M dataset
+2026-10-16 01:08:02,119 - ERROR - Error: ERROR:__main__:Failed to download Recipe1M: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 INFO:__main__:Saved manifest for recipe1m: FAILED
-ERROR:__main__:Pipeline halted due to: Recipe1M download failed: No module named 'datasets'
+ERROR:__main__:Pipeline halted due to: Recipe1M download failed: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-2026-10-09 19:35:07,039 - INFO - FAILED: download
-2026-10-09 19:35:07,039 - INFO - FAILED: pipeline_end
+2026-10-16 01:08:02,119 - INFO - FAILED: download
+2026-10-16 01:08:02,120 - INFO - FAILED: pipeline_end
 
 
 ## Declared deliverables still missing

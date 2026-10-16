@@ -1,14 +1,14 @@
 status: none
-intent: download Recipe1M dataset FlavorDB chemical profiles Counterfactual Recipe
-  Generation python package dataset
+intent: download Recipe1M FlavorDB Counterfactual Recipe Generation dataset python
+  package dataset
 required_fields:
 - ingredient_id_1
-- ingredient_name_1
 - ingredient_id_2
+- ingredient_name_1
 - ingredient_name_2
 - log_cooccurrence_count
 - cosine_similarity
 - functional_role_label
-cache_key: dd718d3c16af015ca4a29dea018ee84cc6ed318b8ade5204d5438809dafdae88
-searched_at: '2026-10-09T19:32:28.244658+00:00'
+cache_key: 944950077a7af542dafc149766ef05096c36dfd87c0a7883adee101fea663bdb
+searched_at: '2026-10-16T01:08:26.190257+00:00'
 retry_count: 1

@@ -43,9 +43,9 @@
 - [X] T004 Create `code/simulation/config.py` defining hyperparameters: beta sweep `[0.0, 0.2, 0.5, 0.8, 1.0]`, sample size `N=1000`, replications per beta `200`, and random seed management
 - [ ] T005 [P] [Foundational] Define base classes/interfaces in `code/simulation/scm_generator.py`: create abstract `SCMGenerator` class and `SyntheticDataset` dataclass with fields `X`, `T`, `Y`, `ground_truth_ate`, `seed`.
 - [X] T006 [P] [Foundational] Implement `regenerate_ground_truth(seed, beta)` function in `code/simulation/scm_generator.py` to deterministically regenerate the exact $\tau_{true}$ and $\beta$ parameters for any given seed, ensuring Constitution Principle VI compliance. **Add unit tests** in `tests/test_scm_generator.py` with function name `test_regenerate_ground_truth`. The test must verify that for `seed=42` and `beta=0.5`, the function returns `tau_true=0.5` (hardcoded constant) and `beta=0.5` exactly.
-- [~] T007 [P] [Foundational] Define base classes/interfaces in `code/simulation/missingness.py`: create abstract `MissingnessInjector` class and `MissingnessPattern` dataclass with fields `mask`, `alpha`, `beta`, `target_rate`.
-- [~] T008 Create `code/analysis/__init__.py` and base data structures for `SyntheticDataset`, `ImputationResult`, and `CausalEstimate` entities
-- [~] T009 [P] [Foundational] Create `code/main.py` with an empty CLI entry point skeleton (no loop logic yet) that accepts `--config` and `--output` arguments.
+- [X] T007 [P] [Foundational] Define base classes/interfaces in `code/simulation/missingness.py`: create abstract `MissingnessInjector` class and `MissingnessPattern` dataclass with fields `mask`, `alpha`, `beta`, `target_rate`.
+- [ ] T008 Create `code/analysis/__init__.py` and base data structures for `SyntheticDataset`, `ImputationResult`, and `CausalEstimate` entities
+- [ ] T009 [P] [Foundational] Create `code/main.py` with an empty CLI entry point skeleton (no loop logic yet) that accepts `--config` and `--output` arguments.
 
 ---
 
@@ -57,8 +57,8 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [P] [US1] Implement concrete logic in `code/simulation/scm_generator.py`: create `generate_scm(seed, n, tau_true)` function that returns a `SyntheticDataset` object with `X`, `T`, `Y`, `ground_truth_ate`, `seed`.
-- [~] T011 [P] [US1] Implement concrete logic in `code/simulation/missingness.py`: create `inject_mnar(data, beta, target_rate)` function using logistic regression to generate mask `M` based on `Y` (FR-002).
+- [X] T010 [P] [US1] Implement concrete logic in `code/simulation/scm_generator.py`: create `generate_scm(seed, n, tau_true)` function that returns a `SyntheticDataset` object with `X`, `T`, `Y`, `ground_truth_ate`, `seed`.
+- [X] T011 [P] [US1] Implement concrete logic in `code/simulation/missingness.py`: create `inject_mnar(data, beta, target_rate)` function using logistic regression to generate mask `M` based on `Y` (FR-002).
 - [~] T012 [US1] Implement `code/simulation/missingness.py` function `tune_alpha(beta, target_rate)` to find $\alpha$ that yields the desired missingness rate for a given $\beta$.
 - [~] T013 [US1] Create collinearity diagnostic check in `code/simulation/scm_generator.py` to calculate Variance Inflation Factor (VIF) for each confounder using `statsmodels.stats.outliers_influence.variance_inflation_factor`. If VIF > 10, log a warning but DO NOT discard the run; store the VIF value in the run metadata. (Edge Case: near-perfect collinearity).
 - [~] T014 [US1] Add verification logic in `code/simulation/verify_us1.py`: Calculate Spearman $\rho$ between $M$ and the **generated complete Y (before masking)** for **multiple runs**. Define `run_id` as a SHA-256 hash of the string `f"{seed}_{beta}"`. Write results to `data/results/us1_verification.json` with schema: `{ "run_id": "<hash>", "correlation": float, "p_value": float, "status": "passed|failed|reported" }`. **CRITICAL**: Process all runs. If $\rho > 0.5$ and $p < 0.01$, set `status` to "passed". If $\rho \le 0.5$ or $p \ge 0.01$, set `status` to "failed" but DO NOT discard the run; log a warning and proceed. The main loop (T029a) must process ALL runs regardless of status. This task enforces the spec's verification requirement by flagging failures without filtering data. The output JSON must include the exact correlation and p-value for every run to allow downstream aggregation to flag invalid runs without excluding them. **Integration**: T029a will import and call the verification function defined here to log metrics.

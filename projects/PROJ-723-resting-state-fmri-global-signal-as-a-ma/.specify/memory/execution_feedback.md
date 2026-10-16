@@ -10,45 +10,101 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/model_report.py: self-declared fabricated metric — “…observed metrics found. Using placeholder values.")         observed_metrics…”
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- data/results/partial_corr.json: EVERY metric is null/NaN (p_value, r_value) — nothing was computed
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/model_report.py: self-declared fabricated metric — “…observed metrics found. Using placeholder values.")         observed_metrics…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 3 command(s) failed: python code/ingestion.py (rc=1); python code/modeling.py --data data/processed/cleaned_data.csv (rc=1); python code/robustness.py --data data/processed/cleaned_data.csv (rc=1); 1 declared deliverable(s) absent: data/processed/cleaned_data.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/model_report.py: self-declared fabricated metric — “…observed metrics found. Using placeholder values.")         observed_metrics…”; 1 hollow-result signal(s) — the analysis ran but computed nothing: data/results/partial_corr.json: EVERY metric is null/NaN (p_value, r_value) — nothing was computed; 4 command(s) failed: python code/ingestion.py (rc=1); python code/modeling.py --data data/processed/cleaned_data.csv (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/cleaned_data.csv; data/processed/residuals.csv
 
 ## Failing / missing run-book commands
 
 - python code/ingestion.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/ingestion.py", line 12, in <module>
-    import pandas as pd
-ModuleNotFoundError: No module named 'pandas'
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/ingestion.py", line 9, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
 - python code/modeling.py --data data/processed/cleaned_data.csv -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/modeling.py", line 6, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
-- python code/robustness.py --data data/processed/cleaned_data.csv -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/robustness.py", line 6, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
-- python code/main.py -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/main.py': [Errno 2] No such file or directory
+2026-10-16 00:49:38,432 - __main__ - INFO - Loading data from data/processed/cleaned_data.csv
+2026-10-16 00:49:38,432 - __main__ - ERROR - Cleaned data file not found: data/processed/cleaned_data.csv
+
+
+- python code/main.py -> rc=1
+peline.py", line 8, in <module>
+    from ingestion import generate_cleaned_data, load_hcp_fmri_data, load_mwq_data, validate_schema, join_fmri_mwq_data, apply_motion_exclusion, check_zero_variance_subjects
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/ingestion.py", line 9, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-723-resting-state-fmri-global-signal-as-a-ma/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+- python -m pytest tests/ -v -> rc=2
+lmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/test_ingestion.py
+ERROR tests/test_ingestion_fail_loudly.py
+ERROR tests/test_ingestion_motion_exclusion.py
+ERROR tests/test_motion_exclusion.py
+ERROR tests/test_t016_cleaned_data.py
+ERROR tests/test_verify_success_criteria.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 13 warnings, 6 errors in 2.05s ========================
+
+
 
 ## Declared deliverables still missing
 
 - data/processed/cleaned_data.csv
+- data/processed/residuals.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/cleaned_data.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/diagnostics.py` — NOT invoked by the run-book
+    - `code/ingestion.py` — IS a run-book command
     - `code/modeling.py` — IS a run-book command
     - `code/robustness.py` — IS a run-book command
-    - `code/diagnostics.py` — NOT invoked by the run-book
-    - `code/run_robustness_report.py` — NOT invoked by the run-book
+    - `code/run_cleaned_data_generation.py` — NOT invoked by the run-book
+    - `code/run_ingestion_pipeline.py` — NOT invoked by the run-book
     - `code/run_integration_test.py` — NOT invoked by the run-book
     - `code/run_motion_exclusion.py` — NOT invoked by the run-book
-    - `code/visualizations.py` — NOT invoked by the run-book
-    - `code/run_cleaned_data_generation.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/cleaned_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+  Make ONE of these WRITE `data/processed/cleaned_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/residuals.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/diagnostics.py` — NOT invoked by the run-book
+    - `code/modeling.py` — IS a run-book command
+    - `code/robustness.py` — IS a run-book command
+    - `code/setup_processed_dir.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/residuals.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

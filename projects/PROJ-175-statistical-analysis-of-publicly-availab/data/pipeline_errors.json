@@ -1,0 +1,5 @@
+{
+  "task": "T019",
+  "error": "Imputed features file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/data/processed/final_features.parquet. Run T018 first.",
+  "timestamp": "2026-10-16T01:08:00.040867"
+}

@@ -30,8 +30,22 @@ T006:
 T007:
   task: 68c7905366b6c6897e33030d1d823347a58270c113cf55a080712ce654444769
 T008:
+  reason: The only artifact is an empty `code/analysis/__init__.py` (0 bytes), which
+    is acceptable as a package marker, but the task also requires base data structures
+    for `SyntheticDataset`, `ImputationResult`, and `CausalEstimate` entities, and
+    no module defining these dataclasses/structures exists anywhere in the evidence.
+    The implementer must add (e.g.) `code/analysis/data_structures.py` (or similar)
+    with the three entity definitions and export them via the package `__init__.py`.
   task: 856e64b45ceff2e7a867e5dd5ad56ba6fdf73daa2142464d7c5f7828b370d080
 T009:
+  reason: "`code/main.py` exists and does define `--config` and `--output` arguments,\
+    \ but it is not the \"empty CLI entry point skeleton (no loop logic yet)\" the\
+    \ task requires \u2014 it contains a large, non-functional pipeline body (simulation\
+    \ loops, parallel joblib dispatch, aggregation, statistical tests) that references\
+    \ many undefined names (`hashlib`, `logger`, `config`, `args.parallel`, `beta_values`,\
+    \ `start_time`, `run_single_simulation`, `generate_scm`, etc.), so it would crash\
+    \ immediately if run. The implementer should replace this fabricated full-pipeline\
+    \ code with a minimal, runnable skeleton that p"
   task: ab9dfd34ff3e767e7ba11b5b95e39debebe3bb99ef9769d030361a20c1b6eefd
 T010:
   task: 05071c4cdeaac2cbbc69a47c80010e286f2068467df1ed7ff600ef96bc03b2c1

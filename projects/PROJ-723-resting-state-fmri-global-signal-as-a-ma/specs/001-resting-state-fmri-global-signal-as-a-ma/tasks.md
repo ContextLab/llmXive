@@ -8,23 +8,23 @@ The checklist below follows the platform’s research‑phase template (end‑to
 
 ## Phase 0 – Project scaffolding (already verified)
 
-- [ ] T001a Create `code/` directory at repository root.  
+- [X] T001a Create `code/` directory at repository root.  
   *Requirement*: Provide a place for all Python modules.  
   *Verification*: `ls code/` shows the directory.
 
-- [ ] T001b Create `data/raw/` directory at repository root.  
+- [X] T001b Create `data/raw/` directory at repository root.  
   *Verification*: Directory exists.
 
-- [ ] T001c Create `data/processed/` directory at repository root.  
+- [X] T001c Create `data/processed/` directory at repository root.  
   *Verification*: Directory exists.
 
-- [ ] T001d Create `data/results/` directory at repository root.  
+- [X] T001d Create `data/results/` directory at repository root.  
   *Verification*: Directory exists.
 
-- [ ] T001e Create `tests/` directory at repository root.  
+- [X] T001e Create `tests/` directory at repository root.  
   *Verification*: Directory exists.
 
-- [ ] T002 Initialize `requirements.txt` with pinned versions of `pandas`, `numpy`, `scikit-learn`, `nibabel`, `requests`, `pyyaml`, `statsmodels`, `scipy`.  
+- [X] T002 Initialize `requirements.txt` with pinned versions of `pandas`, `numpy`, `scikit-learn`, `nibabel`, `requests`, `pyyaml`, `statsmodels`, `scipy`.  
   *Verification*: `pip install -r requirements.txt` succeeds on a clean environment.
 
 - [ ] T003 [P] Add a `quickstart.md` that documents the single command `python code/main.py` and the expected top‑level outputs (`data/processed/cleaned_data.csv`, `data/results/final_report.json`).  

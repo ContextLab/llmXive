@@ -1,6 +1,6 @@
 status: none
-intent: download Human Connectome Project 1200 resting state fMRI ConnectomeDB and
-  MWQ scores OpenNeuro
+intent: Human Connectome Project 1200 resting state fMRI download Mind Wandering Questionnaire
+  dataset python package dataset
 required_fields:
 - Subject_ID
 - Global_Signal_SD
@@ -9,6 +9,6 @@ required_fields:
 - Sex
 - FD
 - DVARS
-cache_key: 824c71c0d39f74315744ae41228f9369b563e9680d8cbfdd598e3910f2073aa1
-searched_at: '2026-10-05T19:23:01.050056+00:00'
+cache_key: c1478462f7ee50af176f427c37e1270389abdfbe164b1aca1f6906c92392d93d
+searched_at: '2026-10-16T00:50:42.567251+00:00'
 retry_count: 1

@@ -22,7 +22,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m pytest tests/unit/ -v -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-7.4.0, pluggy-1.6.0 -- /home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-/code/.venv/bin/python
+platform linux -- Python 3.11.17, pytest-7.4.0, pluggy-1.7.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-047-exploring-the-impact-of-data-imputation-/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-047-exploring-the-impact-of-data-imputation-
 configfile: pyproject.toml
