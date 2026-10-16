@@ -1,313 +1,61 @@
----
-description: "Task list for Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations"
----
-
 # Tasks: Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations
 
-**Input**: Design documents from `/specs/001-asymptotic-behavior-of-random-matrix-eig/`, `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md (required for Phase 6), data-model.md, contracts/
+**Inputs**: Active `spec.md`, `plan.md`, `specs/001-asymptotic-behavior-of-random-matrix-eig/` (data-model.md, contracts/), prior verified artifacts under `code/`, `data/`, and prior reviewer feedback.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+This is a research implementation plan. The foundational generators, solvers, models, and documentation tasks (formerly T001–T019b, T035–T074 families) are verified and preserved below as completed. The remaining open work is the execution and validation of the theta sweep (US2) and density sensitivity (US3) pipelines, whose result artifacts were previously missing or invalid and are reopened here with deterministic, file-based verification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
+## Task format and paths
 
-## Format: `[ID] [P?] [Story] Description`
+- `- [ ] T### [P?] [USx?] description with exact artifact paths`.
+- Paths are relative to the project directory. Existing source lives in `code/` (generators, analysis, utils, data_models, main.py) with tests in `tests/`; results go to `data/processed/` and `data/figures/`. No new `src/` tree is created.
+- All simulation outputs are written to project-owned `data/` paths only; platform state (run registries, artifact hashes) is owned by the platform and never written by research scripts.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this user story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+## Phase 1: Setup and first end-to-end analysis
 
-## Path Conventions
+**Goal**: A runnable end-to-end analysis on a small valid case, producing real result rows under `data/`.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T001 Establish the existing code layout (`code/generators/`, `code/analysis/`, `code/utils/`, `code/data_models.py`, `code/main.py`, `tests/`), pinned dependencies in `code/requirements.txt` (numpy, scipy, pydantic, matplotlib, pandas, scikit-learn), and a documented runnable command in the active feature's `quickstart.md`. The mathematical domain (Wigner matrices scaled by $1/\sqrt{N}$, deterministic sparse perturbations of rank $k \in \{1,2,5\}$, $\theta \in [1.0, 3.0]$) is validated against the spec's Key Assumptions.
+- [ ] T002 Implement the primary computation and focused correctness tests: Wigner generator in `code/generators/wigner.py`, perturbation constructor (diagonal, block-sparse, random-sparse with rank preservation) in `code/generators/perturbation.py`, ARPACK-based iterative eigen solver with configurable tolerance in `code/analysis/eigen_solver.py`, and outlier-validation logic relative to the semicircle edge ±2.0 in `code/analysis/eigen_solver.py`. Unit tests in `tests/unit/test_wigner.py`, `tests/unit/test_perturbation.py`, `tests/unit/test_sparsity_utils.py` verify mean/variance scaling, rank/sparsity preservation, and mask generation. Invalid inputs (N outside [100, 2000], θ outside [1.0, 3.0]) are rejected.
+- [ ] T003 Connect the entry point to the computation and run a small valid case: `code/main.py` single-run mode loads the checksummed raw matrix `data/raw/matrix_N1000_seed42.npy` and the reusable `run_single_simulation(params)` in `code/analysis/simulation_loop.py`, computes top eigenvalues via ARPACK, applies outlier validation, and logs structured JSON run metadata (seed, parameters, timestamp) to `data/logs/simulation_run.log`. Verified: a rank-1 diagonal perturbation with θ=2.5 yields an eigenvalue beyond the bulk edge.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+**Checkpoint**: The documented command executes and its numerical outputs can be checked against the BBP prediction $\lambda = \theta + 1/\theta$.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+## Phase 2: Complete the study and validate its evidence
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T004 [US1] **REDO (rejected artifact)**: Record single-run results to `data/processed/single_run_results.json` by extending `code/analysis/simulation_loop.py` (and `code/main.py` single-run mode) to serialize the completed run. The file MUST conform to the `SimulationRun`/`EigenvalueResult` contracts in `specs/001-asymptotic-behavior-of-random-matrix-eig/contracts/`: schema `{"run_id": str, "N": int, "seed": int, "theta": float, "k": int, "pattern_type": str, "eigenvalues": list of {index, value, is_outlier, theoretical_bbp, deviation}, "empirical_bulk_edge": float, "computation_time_ms": float}`. Verification: the file exists, is non-empty valid JSON, parses against the contract, and `theoretical_bbp` equals $\theta + 1/\theta$ for the top eigenvalue. (Depends on T003.)
+- [ ] T005 [US2] **REDO (rejected artifacts)**: Execute the theta sweep with the generic orchestrator in `code/analysis/threshold_sweep.py` over the grid defined in the prior sweep data (N ∈ [100, 500, 1000, 2000], θ ∈ [1.5, 2.0, 2.5, 3.0], seeds [42, 123, 456, 789], k ∈ {1, 2, 5}, pattern types diagonal/block-sparse/random-sparse), consuming checksummed raw matrices and the reusable simulation loop. Note: θ=3.5 from the earlier grid violated the contract maximum of 3.0 and is dropped. Output `data/processed/mc_results.csv` with columns `run_id, N, k, pattern_type, theta, seed, eigenvalue_top, outlier_flag, empirical_bulk_edge` (one real computed row per run, no placeholder rows), and `data/processed/convergence_data.json` recording per-N bulk-edge convergence toward ±2.0. Verification: both files exist, are non-empty, row count equals the full grid product, and every `eigenvalue_top` is a real ARPACK-computed value. (Depends on T003.)
+- [ ] T006 [US2] **REDO (rejected artifacts)**: Apply the strict-tolerance outlier validation (from `code/analysis/eigen_solver.py`, outlier iff value > empirical_bulk_edge + 0.05 per FR-004) to every row of `data/processed/mc_results.csv` and write `data/processed/validated_sweep_results.csv` with the same columns plus boolean `outlier_flag` recomputed from the recorded values. Verification: file exists, non-empty, same row count as `mc_results.csv`, and each row's `outlier_flag` is consistent with its recorded `eigenvalue_top` and `empirical_bulk_edge` under the 0.05 rule. (Depends on T005.)
+- [ ] T007 [US2] **REDO (rejected artifact)**: Identify the empirical critical threshold $\theta_c$ from `data/processed/validated_sweep_results.csv` (input from T006) using the direct empirical sweep method: for each (N, k, pattern_type) group, find the θ where the outlier probability crosses from < 10% to > 90%. Write `data/processed/threshold_identification.json` with schema `{"groups": [{"N": int, "k": int, "pattern_type": str, "theta_c_empirical": float, "method": "direct_empirical_sweep"}], "overall_theta_c": float}`. Verification: file exists, is valid JSON, every grid group appears, and each `theta_c_empirical` is one of the swept θ values or the midpoint between the bracketing θ values. (Depends on T006.)
+- [ ] T008 [US2] Statistical supplement: fit logistic regression (scikit-learn, `solver='liblinear'`, 5-fold cross-validation; feature `theta`, target `outlier_flag`) per group on `data/processed/validated_sweep_results.csv` and write `data/processed/threshold_statistical.json` with schema `{"groups": [{"N": int, "k": int, "pattern_type": str, "theta_c_statistical": float, "confidence_interval": [float, float], "method": "logistic_regression_5cv"}]}`. Verification: file exists, valid JSON, CI bounds are finite and ordered, and the statistical $\theta_c$ is compared against T007's empirical value in the aggregation step. (Depends on T006.)
+- [ ] T009 [US2] Aggregate validated results and fitted parameters into `data/processed/threshold_sweep_results.csv` conforming to the `AggregatedThreshold` contract (config_id, N, k, pattern_type, theta, total_runs, outlier_count, outlier_probability, mean_deviation, std_deviation, theta_c_estimate, theta_c_confidence), combining T006 rows with T007/T008 fits. Then run `code/analysis/validate_data.py` to instantiate Pydantic models per row and write `data/logs/validation_log.txt` recording pass/fail per row. Verification: CSV exists, non-empty, one row per (N, k, pattern, θ) configuration, and the validation log shows all rows PASS. (Depends on T007, T008.)
+- [ ] T010 [US3] Execute the density sensitivity sweep using the orchestrator in `code/analysis/threshold_sweep.py` with `--grid-file data/configs/density_grid.json --grid-type density`: support density p ∈ {0.1, 0.2, 0.3, 0.4, 0.5} for random-sparse perturbations, N ∈ [100, 500, 1000], seeds [42, 123], fixed θ grid spanning the transition region. Output `data/processed/sensitivity_density_sweep.csv` (columns `run_id, N, k, pattern_type, density, theta, seed, eigenvalue_top, outlier_flag`) and `data/processed/sensitivity_metadata.json` recording a `PerturbationConfig` (rank, support_density, type) per run per the data model. Verification: both files exist, non-empty, row count equals the density-grid product, and each row's density is recorded. (Depends on T005's orchestrator.)
+- [ ] T011 [US3] Compute the variation of the critical threshold across density levels: group `data/processed/sensitivity_density_sweep.csv` by density, estimate $\theta_c$ per (N, density) via the same direct empirical method as T007, and write `data/processed/sensitivity_variation.csv` with schema `density, N, mean_theta_c, std_dev` (std across seeds). Verification: file exists, non-empty, one row per (density, N), and the report in T012 references these actual numbers. (Depends on T010.)
+- [ ] T012 [US2/US3] Generate figures and the sensitivity report directly from validated outputs: `data/figures/outlier_probability_vs_theta.png` (outlier probability vs θ per pattern type, from `data/processed/threshold_sweep_results.csv`) and `data/figures/sensitivity_theta_c_vs_density.png` (θ_c vs density, from `data/processed/sensitivity_variation.csv`). Update `data/processed/sensitivity_report.md` to state, from the actual computed numbers, whether $\theta_c$ shifts with density and by how much, including the T008 logistic-regression cross-check and its confidence intervals. Verification: both PNGs exist and are non-trivial image files; the report cites the actual values from the CSVs. (Depends on T009, T011.)
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+**Checkpoint**: All required runs complete; artifacts match the actual computations. Checks are ordered after their prerequisites (T006 after T005; T007/T008 after T006; T009 after T007/T008; T012 after T009/T011).
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 3: Reproducible results and paper handoff
 
-**Purpose**: Project initialization and basic structure
+- [ ] T013 Write a concise methods/results account in the project's `research.md` (already containing the mathematical-ensemble framing, scope-and-limitations sections, and the observational-nature statements addressing prior reviewer critiques — preserve them). Add a Results section linked to the actual artifacts: `data/processed/threshold_sweep_results.csv`, `threshold_identification.json`, `threshold_statistical.json`, `sensitivity_variation.csv`, and the figures from T012. Describe the empirical $\theta_c$ per pattern type, agreement or deviation from the BBP prediction $\theta_c = 1$, the density sensitivity finding, and negative findings/limitations (finite N, seed count, CPU-only ARPACK solvers) honestly. Verification: the document references each artifact path and quotes actual numeric values from them. (Depends on T012.)
+- [ ] T014 Re-run the documented workflow from `quickstart.md` from its declared inputs (raw matrices + grids), confirm the unit/integration tests pass (`tests/unit/`, `tests/integration/test_sweep.py`), confirm the deterministic sanity check (N=100, θ=2.5, seed=42 reproduces the top eigenvalue within 1e-6 of the recorded baseline), and document the paper-stage handoff in `research.md`: the paper stage will receive the result tables, figures, and the methods account, and is responsible for layout, PDF compilation, and publication. Verification: a re-run log under `data/logs/` records the commands executed, test pass counts, and the sanity-check delta. (Depends on T013.)
 
-- [X] T001 Create project structure per implementation plan in `projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/` by executing `mkdir -p code/generators code/analysis code/utils code/data_models tests/unit tests/integration data/raw data/processed data/logs data/figures state` and creating `__init__.py` in all `code/` and `tests/` subdirectories, and `requirements.txt` in `code/`.
-- [X] T002 Initialize Python 3.x project with dependencies in `code/requirements.txt` with **explicit version pinning** (e.g., `numpy==1.26.4`, `scipy==1.13.0`, `pydantic==2.7.0`, `matplotlib==3.9.0`, `pandas==2.2.2`, `scikit-learn==1.5.0`, `ruff==0.4.0`, `black==24.3.0`) to satisfy Constitution Principle I (Reproducibility) and Principle V (Versioning Discipline). The deliverable is the content of `code/requirements.txt`.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/` by creating `code/.ruff.toml` with standard rules and `code/pyproject.toml` with `[tool.black]` configuration.
+## Dependencies and requirement coverage
 
----
+| Requirement | Tasks | Demonstration |
+|---|---|---|
+| Wigner generation, $1/\sqrt{N}$ scaling, seeds (FR-001) | T002, T003 | `tests/unit/test_wigner.py`; `data/raw/matrix_N1000_seed42.npy` |
+| Sparse perturbations, rank/sparsity fidelity (FR-002) | T002, T010 | `tests/unit/test_perturbation.py`; `sensitivity_metadata.json` |
+| Outlier detection vs bulk edge + 0.05 (FR-004) | T002, T006 | `validated_sweep_results.csv` consistency check |
+| BBP threshold sweep $\theta_c$ (FR-005) | T005–T009 | `threshold_identification.json`, `threshold_statistical.json` |
+| Sparsity sensitivity (FR-006) | T010–T012 | `sensitivity_variation.csv`, `sensitivity_report.md` |
+| Observational framing, no physical observer (FR-007) | T013 (preserved prior sections) | `research.md` Sections 2–3 |
+| Reproducibility, contracts, CPU-only | T014, all outputs under `data/` | re-run log; contract-conformant JSON/CSV |
 
-## Phase 2: Foundational (Blocking Prerequisites)
+Execution order: T004 and T005 may proceed in parallel after T003; T006 → (T007, T008) → T009 → T012; T010 → T011 → T012; T013 → T014.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+## Revision behavior
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T004 Setup configuration management for seeds, tolerances, and paths in `code/utils/config.py` including a configurable `OUTLIER_TOLERANCE` parameter (default 1e-10).
-- [X] T005 [P] Implement data hygiene utilities (checksums) in `code/utils/checksum.py` per Constitution Principle III
-- [X] T006 [P] Create base data models/entities in `code/data_models.py` implementing `SimulationRun` and `PerturbationConfig` Pydantic models with full schema. `SimulationRun` must include: run_id, N, seed, theta, eigenvalues, outlier_flag. `PerturbationConfig` must include: rank, support_density, type (diagonal, block-sparse, random sparse). This satisfies the Data Model requirement for linking raw data to logical runs.
-- [X] T007a Implement iterative solver wrapper with `tolerance` (key: `OUTLIER_TOLERANCE`) loaded from `config.py` in `code/analysis/eigen_solver.py` using `scipy.sparse.linalg.eigsh` and `LinearOperator`; ensure convergence criteria are met and handle non-convergence gracefully. (Depends on T004, T006).
-- [X] T007b Implement validation logic function in `code/analysis/eigen_solver.py` to distinguish outliers from numerical artifacts using a strict tolerance loaded from `config.py` (default 1e-10) relative to the theoretical semicircle edge (**±2.0**). This task implements the **pure function** for validation (binary pass/fail) and does not execute on data; execution is delegated to downstream tasks. (Depends on T004, T006). **Traceability**: This task implements Spec Validation Criteria (strict tolerance relative to ±2.0 edge).
-- [X] T008 Implement outlier detection logic (bulk edge vs. BBP prediction) in `code/analysis/outlier_detect.py` (Depends on T007b).
-- [X] T012 Implement Wigner matrix generator (dense, scaled $1/\sqrt{N}$) in `code/generators/wigner.py`. This task is foundational and must be completed before US1 (T014) and US2 (T020a). (Depends on T006).
-- [X] T013 Implement perturbation matrix constructor (diagonal, block-sparse, random sparse) in `code/generators/perturbation.py`; verify rank preservation during sparsity masking per Spec Objectives 2, 7 and Constitution Principle VII (Sparse Perturbation Structural Fidelity). This task includes generation of 'block-sparse' and 'random sparse' perturbation matrices with explicit rank and support density parameters. (Depends on T006).
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Core Spectral Analysis of Perturbed Wigner Matrices (Priority: P1) 🎯 MVP
-
-**Goal**: Generate Wigner matrices, apply deterministic sparse perturbations, and compute eigenvalues to identify outliers.
-
-**Independent Test**: Run a script generating a single N=1000 instance with a rank-1 diagonal perturbation (θ=2.5) and verify an eigenvalue > 2.0 exists.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T010 [P] [US1] Unit test for Wigner matrix generation (mean/variance check) in `tests/unit/test_wigner.py`
-- [X] T011 [P] [US1] Unit test for perturbation construction (rank/sparsity verification) in `tests/unit/test_perturbation.py`
-
-### Implementation for User Story 1
-
-- [X] T019 [US1] **ATOMIC DATA HYGIENE**: Generate raw Wigner matrix instances and immediately checksum them. Execute `python code/generators/wigner.py --seed 42 --N 1000` to produce `data/raw/matrix_N1000_seed42.npy`. Compute SHA-256 checksum and write to `state/metadata_registry.json` (unified registry). This task MUST produce the `.npy` file and the checksum entry atomically per Constitution Principle III. (Depends on T005, T012).
-- [X] T019b [US1] **TRACEABILITY**: Create or update the `state/metadata_registry.json` file to register the checksum generated in T019 with the `SimulationRun` metadata record. The JSON schema MUST be: `{ "runs": [ { "run_id": str, "checksum": str, "parameters": { "N": int, "seed": int, "theta": float } } ] }`. If the file does not exist, this task MUST create it. (Depends on T019).
-- [X] T014 [US1] Implement core simulation loop: load raw matrix from `data/raw/` (produced by T019), load perturbation logic from T013 (code artifact) to construct $P_N$ in memory, compute top eigenvalues in `code/main.py` (single run mode). **Validation**: This task MUST call the validation function from T007b to determine the `outlier_flag`. **Deliverable**: This task must expose a reusable function `run_single_simulation(params)` in `code/analysis/simulation_loop.py` that can be imported by downstream tasks. (Depends on T019, T013, T007a, T007b).
-- [ ] T015 [US1] Add logic to record results (eigenvalues, perturbation params) to `data/processed/single_run_results.json` with metadata schema: `{"run_id": str, "N": int, "theta": float, "seed": int, "eigenvalues": list, "outlier_flag": bool}` to satisfy Constitution Principle III (Data Hygiene).
-- [X] T017 [US1] Add structured logging for simulation run parameters; write structured JSON logs to `data/logs/simulation_run.log` including the exact random seed state, parameter values, and timestamp to satisfy Constitution Principle I (Reproducibility).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Phase Transition Threshold Detection (Priority: P2)
-
-**Goal**: Systematically sweep perturbation norms and dimensions to empirically determine the critical threshold $\theta_c$.
-
-**Independent Test**: Execute a parameter sweep script and verify the output dataset shows a monotonic transition from "no outlier" to "outlier" as $\theta$ increases.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T018 [P] [US2] Integration test for full parameter sweep (small N, few runs) in `tests/integration/test_sweep.py`
-
-### Implementation for User Story 2
-
-- [X] T040a [US2] **ATOMIC DATA HYGIENE & GRID DEFINITION**: Define the parameter grid explicitly: **N: [100, 500, 1000, 2000]** (strictly within [100, 2000] per Spec Key Assumptions), **theta: [1.5, 2.0, 2.5, 3.0, 3.5]**, **seeds: [42, 123, 456, 789]**. For each configuration, generate raw matrix instances and immediately checksum them. Save to `data/raw/sweep/matrix_N{N}_theta{theta}_seed{seed}.npy`. Compute SHA-256 checksums and record in `state/metadata_registry.json` (unified registry). This task MUST produce all `.npy` files and checksums atomically before any downstream processing per Constitution Principle III. **Validation**: Reject any N outside [100, 2000]. (Depends on T005, T012).
-- [X] T040c [US2] **GRID LOADER**: Implement a generic grid loader in `code/utils/grid_loader.py` that can consume any parameter grid (theta or density) and yield configurations. (Depends on T006).
-- [X] T014b [US2] **REUSABLE SIMULATION LOOP**: Extract the core simulation loop logic from T014 into a reusable function in `code/analysis/simulation_loop.py` that accepts parameters (N, theta, seed, perturbation_type) and returns eigenvalues and outlier flags. (Depends on T014, T007a, T007b).
-- [X] T020a [US2] **GENERIC ORCHESTRATOR**: Implement a generic simulation orchestrator in `code/analysis/threshold_sweep.py` that: (1) consumes any parameter grid (theta or density) via T040c, (2) ingests checksummed raw data from `state/metadata_registry.json` (produced by T040a), (3) executes the simulation loop using the reusable function from T014b, (4) manages iterations, and (5) produces raw results. **Dependency**: T040a MUST complete before T020a begins. (Depends on T014b, T007a, T040c, T040a).
-- [ ] T020b [US2] **THETA SWEEP EXECUTION**: Run the generic orchestrator (T020a) specifically for the theta grid defined in T040a. Output raw results to `data/processed/mc_results.csv` and `data/processed/convergence_data.json`. **Schema**: `run_id, N, theta, seed, eigenvalue_top, outlier_flag`. **Dependency**: T020a MUST complete before T020b begins. (Depends on T020a, T040a).
-- [ ] T020c [US2] **VALIDATION**: Apply the e-10 outlier validation logic (from T007b) to the sweep results in `data/processed/mc_results.csv` to ensure every data point meets the spec's strict tolerance before fitting. Output validated results to `data/processed/validated_sweep_results.csv`. **Schema**: The output CSV contains columns `run_id`, `N`, `theta`, `seed`, `eigenvalue_top`, `outlier_flag` (boolean). **No statistical residuals are produced here.** (Depends on T020b, T007b).
-- [ ] T021c [US2] **EMPIRICAL THRESHOLD IDENTIFICATION**: Run statistical inference logic to calculate transition probability and derive the critical $\theta_c$ value. **Input**: `data/processed/validated_sweep_results.csv` (produced by T020c). **Method**: **PRIMARY**: Identify the $\theta$ value where the empirical probability of outlier emergence jumps from < 10% to > 90% in the sorted sweep data (Direct Empirical Sweep). **Output**: `data/processed/threshold_identification.json` with schema: `{ "theta_c_empirical": float, "method": "direct_empirical_sweep" }`. (Depends on T020c, T007b).
-- [ ] T021d [US2] **STATISTICAL SUPPLEMENT**: Run Logistic Regression to fit the probability of outlier emergence vs. $\theta$. **Input**: `data/processed/validated_sweep_results.csv`. **Method**: `scikit-learn` Logistic Regression with `solver='liblinear'`, `C=1.0`, and **5-fold cross-validation**. **Explicit Input Mapping**: Feature column = 'theta', Target column = 'outlier_flag'. **Output**: `data/processed/threshold_statistical.json` with schema: `{ "theta_c_statistical": float, "confidence_interval": [float, float], "method": "logistic_regression_5cv" }`. **Note**: This is supplementary to T021c and used only for validation of the empirical result. (Depends on T020c, T007b).
-- [ ] T024 [US2] Generate aggregated results file `data/processed/threshold_sweep_results.csv` by combining validated results and fitted parameters. (Depends on T020c, T021c, T021d).
-- [ ] T024b [US2] **DATA MODEL VALIDATION**: Write a validation script in `code/analysis/validate_data.py` that reads `data/processed/threshold_sweep_results.csv`, instantiates `SimulationRun` objects from T006 for each row, and writes a log `data/logs/validation_log.txt`. (Depends on T024, T006).
-- [ ] T025 [US2] Add visualization script to plot probability of outlier emergence vs. $\theta$ for different sparsity patterns; output plot to `data/figures/outlier_probability_vs_theta.png`. **Input**: `data/processed/threshold_sweep_results.csv` (produced by T024). **Dependency**: Must run after T024b to ensure validated data. (Depends on T024, T024b).
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Sensitivity Analysis of Sparsity Thresholds (Priority: P3)
-
-**Goal**: Perform sensitivity analysis on sparsity parameters to ensure findings are robust to discrete configuration choices.
-
-**Independent Test**: Run a script sweeping sparsity density $p$ across a range of values and verify the report explicitly states if $\theta_c$ shifts.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T026 [P] [US3] Unit test for sparsity density calculation and mask generation in `tests/unit/test_sparsity_utils.py`
-
-### Implementation for User Story 3
-
-- [X] T031a_impl [US3] Implement logic to generate the rank-0 (unperturbed) Wigner matrix and run spectral analysis to produce the verification log. **Parameters**: N=100, seed=42. **Output**: `data/logs/edge_case_rank0.log`. (Depends on T012).
-- [X] T031 [US3] Verify semicircle law compliance for rank $k=0$ using results from T031a_impl; output verification log to `data/logs/edge_case_rank0.log`. (Depends on T031a_impl).
-- [X] T027 [P] [US3] Implement sparsity sensitivity runner (fixed rank, variable support density) in `code/analysis/sensitivity_analysis.py`
-- [X] T040b [US3] **DENSITY GRID DEFINITION**: Define the sparsity density grid for sensitivity analysis: densities spanning a range of low to moderate values, seeds: [42, 123, 456, 789]. This task produces the configuration file `data/configs/density_grid.json` used by T028. (Depends on T006).
-- [ ] T028 [US3] Execute sweep over support density set $\{0.1, 0.2, 0.3, 0.4, 0.5\}$ for each sparsity pattern type (diagonal, block-sparse, random sparse); **run multiple seeds per density level** to generate a distribution of results; output results to `data/processed/sensitivity_density_sweep.csv` including `theta_c` per run. **Parameters**: N=[100, 500, 1000], seeds=[42, 123]. **Reuses T020a orchestrator logic** but adapts it by passing the density grid file `data/configs/density_grid.json` as an argument (e.g., `--grid-file data/configs/density_grid.json --grid-type density`). (Depends on T013, T006, T040b, T020a, T040c).
-- [ ] T028b [US3] **DATA MODEL**: Instantiate and record the `PerturbationConfig` entity for each sensitivity run in `data/processed/sensitivity_metadata.json`, capturing 'rank' and 'support density' explicitly as required by the spec. (Depends on T028).
-- [ ] T029a [US3] Compute variation in critical threshold $\theta_c$. **Input**: `data/processed/sensitivity_density_sweep.csv` (produced by T028). **Method**: Group rows by `density` column, compute mean and standard deviation of `theta_c` for each group to observe trends. Report the variation in theta_c across density levels. Output `data/processed/sensitivity_variation.csv` with schema: `{"density": float, "mean_theta_c": float, "std_dev": float}`. (Depends on T028, T028b).
-- [X] T030 [US3] Generate sensitivity report `data/processed/sensitivity_report.md` stating stability or shift magnitude, including statistical validation results. (Depends on T029a).
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Documentation, Contextualization & Polish (Priority: P1)
-
-**Goal**: Ensure documentation, reproducibility, and performance meet project standards while explicitly framing the study as observational (FR-007) without modeling a physical observer.
-
-**Independent Test**: Verify that `quickstart.md` and `research.md` are complete, reproducible, and explicitly state that the study is purely observational and computational, avoiding any modeling of a "physical observer".
-
-### Implementation for Documentation & Contextualization
-
-- [X] T032_init [P] [Docs] Create and initialize `research.md` with the project overview, methodology, and initial structure, explicitly stating the study is purely observational and computational (FR-007).
-- [X] T032a [P] [Docs] Update `quickstart.md` to include instructions for reproducing the full parameter sweep and sensitivity analysis, and explicitly state the observational nature of the study.
-- [X] T035 [P] Code cleanup and refactoring for memory efficiency (ensure < 7 GB RAM for N=2000); generate memory profile report `state/memory_profile_N2000.log` to verify compliance. Use `memory_profiler` to record peak memory usage. **Parameters**: N=2000, seed=42, theta=2.5. **Deliverable**: `state/memory_profile_N2000.log` must be a JSON file with schema: `{"timestamp": str, "peak_mb": float, "function_name": str}`. (Depends on T014).
-- [X] T035_new [P] **NUMERICAL STABILITY VALIDATION**: Run a simulation with N=2000 (memory-efficient configuration) and compare the resulting eigenvalues against the theoretical semicircle edge (±2.0). **Validation**: If the comparison fails (outliers are not consistent with theory), the task MUST fail and output an error log. **Deliverable**: `state/numerical_stability_N2000.log` with schema: `{"timestamp": str, "status": "PASS"|"FAIL", "eigenvalue_deviation": float}`. (Depends on T014, T007b).
-- [X] T035b [P] [Docs] **CODE VERIFICATION**: Perform a static analysis or audit of `code/` to verify adherence to FR-007 (purely observational constraint). Run a Python script in `code/utils/verify_observation.py` that scans `code/` for the word "physical". The script MUST: (1) Flag any line containing positive claims of physical modeling (e.g., "models a physical system", "observes a physical phenomenon", "physical observer exists") as a failure; (2) Exclude lines containing negative assertions (e.g., "does not model", "no physical", "not a physical", "not a physical observer") or standard physics terminology used in negative contexts. If any matches are found that imply a physical observer (excluding comments about FR-007), flag as failure. Output `state/code_observation_audit.log` with the results. **Schema**: JSON object with `{"status": "PASS"|"FAIL", "matches": [{"file_path": str, "line_number": int, "matched_text": str}]}`. (Depends on T035).
-- [X] T035c [P] **CONSTRAINT VERIFICATION**: Verify the "No GPU" constraint across the entire codebase by checking `code/` for `import torch` or `device='cuda'` assignments. Run a Python script in `code/utils/verify_gpu.py` that scans all `.py` files. If any matches are found that imply GPU usage (excluding comments), flag as failure. Output `state/gpu_constraint_audit.log` with the results (list of matches or "PASS"). (Depends on T035).
-- [X] T036 Performance optimization: verify full parameter sweep completes within 6 hours; record execution time in `state/sweep_timing.log`.
-- [X] T037 [P] Additional unit tests for edge cases (N=100, $\theta=1.0$, rank=0) in `tests/unit/`
-- [X] T038 Run `quickstart.md` validation to ensure reproducibility; output pass/fail log to `state/quickstart_validation.log`.
-- [X] T039 [P] Final checksum generation for all `data/` and `state/` artifacts in `state/checksums.json`, including `state/sanity_baseline.json` if present.
-
-**Checkpoint**: The project now includes rigorous documentation and performance validation while strictly adhering to observational constraints.
-
----
-
-## Phase 7: Final Verification & Re-Validation (Priority: P1) 🎯 Review Closure
-
-**Goal**: Re-run the full verification pipeline to ensure that the conceptual clarifications in Phase 6 have not introduced logical inconsistencies in the data generation or analysis pipeline, and to provide a final "clean" state for the project.
-
-**Independent Test**: Execute the full `quickstart.md` pipeline end-to-end and verify that all artifacts (raw data, processed results, reports) are checksummed, reproducible, and that the `research.md` document explicitly references the observational nature of the study.
-
-### Implementation for Final Verification
-
-- [ ] T051a [Test] **BASELINE GENERATION**: Run a single small-scale simulation (N=100, theta=2.5, seed=42) using `code/main.py` and save the output eigenvalue and metadata to `state/sanity_baseline.json`. This artifact MUST be created before T051. (Depends on T014, T007a).
-- [ ] T051 [Test] **SANITY CHECK**: Execute a single small-scale run (N=100, theta=2.5, **seed=42**) to verify that the code still runs correctly after documentation updates. Run `python code/main.py --N 100 --seed 42`. Compare the output eigenvalue against the stored baseline `state/sanity_baseline.json` (produced by T051a) with a strict numerical tolerance of **1e-6** (absolute difference). **Comparison Logic**: `abs(eigenvalue_current - eigenvalue_baseline) < 1e-6`. If the baseline file is missing or invalid, the task MUST fail and output an error log. Output `state/sanity_check_log.txt` confirming successful execution. (Depends on T051a).
-
-**Checkpoint**: The project is fully closed, with all EPR-style critiques addressed, documented, and re-validated.
-
----
-
-## Phase 8: Review Response - Mathematical Ensemble Definition (Priority: P1)
-
-**Goal**: Explicitly define the mathematical ensemble and clarify the lack of a physical frame of reference, ensuring the study remains within the "mathematical ensemble" boundary without modeling an observer.
-
-**Independent Test**: Verify that `research.md` contains a dedicated section explicitly defining the Wigner Ensemble and Sparse Perturbations as purely mathematical constructs.
-
-### Implementation for Review Response
-
-- [X] T061 [Docs] **MATHEMATICAL ENSEMBLE DEFINITION**: Update `research.md` (Section 2: Mathematical Framework) to explicitly define the "Wigner Ensemble" and "Sparse Perturbations" as purely mathematical constructs. This task must state that the "probability distribution" describes the statistical properties of the ensemble, not a physical stochastic process. **Append Text**: "The Wigner Ensemble is defined as the set of symmetric matrices with independent, identically distributed entries. Sparse perturbations are deterministic matrices added to this ensemble. No physical observer or frame of reference is modeled; the study is purely computational and observational." (Depends on T032_init).
-- [X] T062 [Docs] **GAMBLING TABLE ANALOGY RESPONSE**: Add a subsection "2.3 The 'Gambling Table' Analogy" to `research.md` that directly addresses the reviewer's comment. It must explain that while the distribution is abstract, the BBP transition is a rigorous mathematical theorem (proven in literature) that holds for the ensemble regardless of physical interpretation. The "gambling table" is a metaphor for the statistical ensemble, not a claim about physical randomness. **Append Text**: "The 'gambling table' is a metaphor for the statistical ensemble, not a claim about physical randomness. The BBP transition is a rigorous mathematical theorem. " (Depends on T061).
-- [X] T054 [Docs] **EPR CRITIQUE RESPONSE - ACKNOWLEDGE**: Update `research.md` (Section 1: Introduction) to explicitly acknowledge the critique regarding the lack of physical reality. **Append Text**: "We acknowledge the critique that the study lacks a specific physical system model." (Depends on T061).
-- [X] T063a [Docs] **NO PHYSICAL SYSTEM CLAIM - STATE**: Update `research.md` (Section 1: Introduction) to explicitly state: "This project does not claim to model a specific physical system (e.g., quantum field, chaotic billiard)." **Append Text**: "This project does not claim to model a specific physical system (e.g., quantum field, chaotic billiard)." **Dependency**: T054 MUST complete before T063a. (Depends on T054, T061).
-- [X] T063b [Docs] **NO PHYSICAL SYSTEM CLAIM - FRAME**: Update `research.md` (Section 1: Introduction) to explicitly state: "The matrices are synthetic constructs generated to test the BBP phase transition theorem in a controlled, reproducible environment." **Append Text**: "The matrices are synthetic constructs generated to test the BBP phase transition theorem in a controlled, reproducible environment." **Dependency**: T063a MUST complete before T063b. (Depends on T063a).
-- [X] T064 [Docs] **FRAME OF REFERENCE CLARIFICATION**: Add a subsection "2.4 Frame of Reference" to `research.md` that clarifies that the "frame of reference" in this context is the computational environment (CPU, random seed, algorithm), not a physical coordinate system. It must state that the results are invariant to this computational frame, satisfying the mathematical requirement for the theorem. **Append Text**: "The 'frame of reference' is the computational environment (CPU, random seed, algorithm), not a physical coordinate system." (Depends on T062).
-- [X] T065 [Docs] **FINAL REVIEW RESPONSE LOG**: Update `state/review_response_einstein.log` to mark the "observer" and "physical reality" critique items as "CLOSED" with a detailed cross-reference to T061, T062, T063, and T064, summarizing how the critique was addressed by clarifying the mathematical nature of the study rather than modeling a physical observer. **Schema**: JSON object with `{"status": "CLOSED", "reference_tasks": ["T061", "T062", "T063", "T064"], "summary": "Clarified mathematical nature of study."}`. (Depends on T064).
-
-**Checkpoint**: The project explicitly addresses the Einstein critique by clarifying the mathematical nature of the study, satisfying the reviewer's philosophical concern without violating the "no physical observer" constraint.
-
----
-
-## Phase 9: Einstein Review Response - Explicit Mathematical Boundary (Priority: P1)
-
-**Goal**: Directly address the specific "Gambling Table" and "Physical Reality" critique from the Einstein-simulated review by explicitly defining the boundary between mathematical abstraction and physical modeling, ensuring the project does not claim to model a physical system it does not possess.
-
-**Independent Test**: Verify that `research.md` contains a dedicated "Scope and Limitations" section that explicitly states the study is a mathematical investigation of the BBP theorem on synthetic ensembles, and that no physical system (quantum field, billiard, etc.) is being modeled or claimed to be modeled.
-
-### Implementation for Review Response
-
-- [X] T071 [Docs] **SCOPE AND LIMITATIONS**: Update `research.md` (Section 3: Scope and Limitations) to explicitly state: "This study investigates the asymptotic behavior of eigenvalues in a *mathematical* ensemble of random matrices. It does not model a specific physical system (e.g., quantum field, chaotic billiard, or condensed matter system). The 'sparse perturbations' are deterministic mathematical constructs, not physical fluctuations. The 'probability distribution' is a property of the ensemble definition, not a physical stochastic process. The study is purely computational and observational." **Action**: Create Section 3 if missing, or update existing Section 3. **Dependency**: T035b (Code Verification) MUST complete before T071 to ensure code compliance precedes documentation closure. (Depends on T061, T063a, T035b).
-- [X] T072 [Docs] **PHYSICAL REALITY CLARIFICATION**: Add a subsection "3.1 On Physical Reality" to `research.md` that directly addresses the EPR critique. It must state: "In the spirit of the EPR criterion, we acknowledge that our matrices do not correspond to a specific 'element of physical reality' in a known physical theory. They are synthetic constructs designed to test the mathematical robustness of the BBP phase transition theorem. The 'observer' in this context is the computational algorithm measuring spectral statistics, not a physical observer in a quantum or relativistic frame." **Dependency**: T071 MUST complete before T072. (Depends on T071).
-- [X] T073 [Docs] **THEOREM VS. PHYSICS**: Update `research.md` to explicitly distinguish between the *mathematical theorem* (BBP transition) and *physical application*. **Append Text**: "The BBP transition is a rigorous mathematical result for Wigner matrices with finite-rank perturbations. This project verifies this theorem computationally. It does not claim that the matrices model a physical system where such perturbations occur naturally." **Dependency**: T072 MUST complete before T073. (Depends on T072).
-- [X] T074 [Docs] **REVIEWER RESPONSE LOG**: Update `state/review_response_einstein.log` to include a new entry for the "Gambling Table" critique. **Schema**: JSON object with `{"critique": "Gambling Table / Lack of Physical System", "status": "CLOSED", "reference_tasks": ["T071", "T072", "T073"], "summary": "Explicitly defined the study as a mathematical verification of the BBP theorem on synthetic ensembles, acknowledging the lack of a specific physical system model."}`. **Dependency**: T073 MUST complete before T074. (Depends on T073).
-
-**Checkpoint**: The project now explicitly addresses the Einstein critique regarding the "Gambling Table" and "Physical Reality" by defining the mathematical boundary of the study.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Documentation & Contextualization (Phase 6)**: Can run in parallel with User Story implementation but must be complete before final paper drafting; depends on Foundational phase for data model context and T032_init for the research.md artifact.
-- **Final Verification (Phase 7)**: Depends on T051a (Baseline Generation) and T014 (Simulation Loop). T051 depends ONLY on T051a. T051a depends on T014.
-- **Review Response (Phase 8)**: Depends on T061 (Ensemble Definition). T054 depends on T061. T063a depends on T054. T063b depends on T063a. T064 depends on T062. T065 depends on T064. T061 depends on T032_init. T062 depends on T061.
-- **Review Response (Phase 9)**: Depends on T061, T063a (Ensemble Definition and Physical System Claim), and T035b (Code Verification). T071 depends on T061, T063a, T035b. T072 depends on T071. T073 depends on T072. T074 depends on T073.
-- **Polish (Final Phase)**: Depends on all desired user stories and review responses being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Reuses US1 generators; T020a depends on T040a for raw data hygiene. T020b depends on T040a and T020a. T021c depends on T020c.
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Reuses US1/US2 logic; T028 depends on T040b (density grid), T020a (generic orchestrator), and T040c (grid loader). Note: US3 cannot run in parallel with US2 until T020a is complete.
-- **Documentation & Contextualization (Phase 6)**: Depends on Foundational phase for data model context; can proceed independently of specific US implementation details but requires the data model structure and T032_init for the research.md artifact.
-- **Final Verification (Phase 7)**: Depends on T051a (Baseline Generation). T051a depends on T014. T051 depends on T051a.
-- **Review Response (Phase 8)**: Depends on T032_init (research.md creation). T061 depends on T032_init. T062 depends on T061. T054 depends on T061. T063a depends on T054. T063b depends on T063a. T064 depends on T062. T065 depends on T064.
-- **Review Response (Phase 9)**: Depends on T032_init, T061, T063a, T035b. T071 depends on T061, T063a, T035b. T072 depends on T071. T073 depends on T072. T074 depends on T073.
-- **Polish (Final Phase)**: Depends on all desired user stories and review responses being complete
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (T005, T006)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows) **EXCEPT** US3 which depends on US2's T020a.
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members **provided dependencies are met**.
-- Documentation & Contextualization tasks (Phase 6) can run in parallel with User Story implementation once the data model is established.
-- Final Verification tasks (Phase 7) MUST run sequentially: T051a -> T051.
-- Review Response tasks (Phase 8) MUST run sequentially: T061 -> T062 -> T054 -> T063a -> T063b -> T064 -> T065.
-- Review Response tasks (Phase 9) MUST run sequentially: T071 -> T072 -> T073 -> T074.
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All matrix operations must use CPU-tractable iterative solvers (ARPACK) for N > 500 to fit within 7GB RAM. No GPU tasks.
-- **Scope Note**: This project is purely observational (simulated data) with synthetic variables. All findings are framed as associational correlations (FR-007). No physical "observer" or "frame of reference" modeling is required or permitted beyond the computational measurement of spectral statistics.
-- **Review Response (T061-T065)**: These tasks directly address prior EPR-style critiques by explicitly stating the observational nature of the study and the lack of physical modeling, without constructing an "observer" model. T061, T062, T054, T063a-b, T064, and T065 ensure the final closure and consistency of these conceptual updates. This task implements Spec Key Assumptions (FR-007).
-- **Data Hygiene Note**: Task T040a ensures raw data for the sweep is checksummed before T020a processes it, strictly adhering to Constitution Principle III. Task T019 ensures raw data for US1 is checksummed before T014. T019b links the checksum to the metadata record. T005 provides the utility for both.
-- **Ordering Note**: T019 (generate+checksum) must complete before T019b. T040a (generate+checksum) must complete before T020a. T040b (density grid) must complete before T028. T032_init (create research.md) must complete before T033 and T050. T033 must complete before T050. T050 must complete before T051. T051 must complete before T052. T052 must complete before T053. T031a_impl (generate unperturbed) must complete before T031. T014b (reusable loop) must complete before T020a and T028. T040c (grid loader) must complete before T020a and T028. T020a (produce mc_results.csv) must complete before T021c. T028 (produce sensitivity_density_sweep.csv with multiple seeds) must complete before T029a. T020b depends on T040a (grid definition) and T020a. T021c depends on T020c. T050 depends on T032_init. T051a depends on T014. T051 depends on T051a. T052 depends on T051. T053 depends on T052. T054a depends on T032_init and T061. T054b depends on T054a. T054c depends on T054b. T054d depends on T054c. T055 depends on T054d. T056 depends on T055. T014 (single run) must expose a reusable function for T014b. T061 depends on T032_init. T062 depends on T061. T063a depends on T054 and T061. T063b depends on T063a. T064 depends on T062. T065 depends on T064. T071 depends on T061, T063a, T035b. T072 depends on T071. T073 depends on T072. T074 depends on T073.
-- **Phase 7 Execution Order**: Tasks T051a, T051 form a strict sequential chain. T051a must complete before T051.
-- **Phase 8 Execution Order**: Tasks T061, T062, T054, T063a, T063b, T064, T065 form a strict sequential chain. T061 must complete before T062. T062 must complete before T054. T054 must complete before T063a. T063a must complete before T063b. T063b must complete before T064. T064 must complete before T065.
-- **Phase 9 Execution Order**: Tasks T071, T072, T073, T074 form a strict sequential chain. T071 must complete before T072. T072 must complete before T073. T073 must complete before T074.
-- **Data Model Validation**: T024b must complete before T025 to ensure T025 uses validated data.
-- **Baseline Generation**: T051a must complete before T051 to ensure the baseline artifact exists.
-- **Configurable Tolerance**: T007b uses the tolerance value from T004, ensuring configurability and reproducibility.
-- **Explicit Grid Values**: T040a and T040b now contain explicit values for N and density, ensuring executability.
-- **Mandatory Method**: T021c mandates Direct Empirical Sweep, T021d mandates Logistic Regression, ensuring a testable success metric.
-- **Observer Modeling Prohibited**: Tasks T050-T056 and T061-T065 have been rewritten to focus solely on stating the observational nature of the study without modeling an observer, in strict adherence to FR-007. The new tasks in Phase 8 (T061-T065) and Phase 9 (T071-T074) explicitly address the reviewer's concern by clarifying the mathematical nature of the study, not by modeling an observer.
-- **Parallel Tag Correction**: T007a, T007b, T008, T012, T013 are no longer marked [P] as they depend on T004 and T006.
-- **Validation Link**: T021c explicitly depends on T007b for input filtering.
-- **Memory Validation**: T035_new includes a validation step against the semicircle edge.
-- **File Creation**: T019b explicitly creates the metadata registry if missing.
-- **Explicit Tolerance**: T051 uses 1e-6 tolerance for sanity checks with explicit comparison logic.
-- **Schema Definitions**: T035, T035b, T051, T021c, T019b, T074 have explicit schema definitions.
-- **Atomic Tasks**: T050-T056, T061-T065, and T071-T074 are now atomic with specific text templates.
-- **Logical Ordering**: Phase 8 and Phase 9 tasks now follow the logical order: Define Ensemble (T061) -> Respond to Critique (T062-T065) -> Define Scope (T071) -> Clarify Reality (T072) -> Distinguish Theorem (T073) -> Log Response (T074).
-- **T019 Status**: T019 and T019b are both marked `[X]` (completed) to ensure logical dependency flow.
-- **Numerical Stability**: T035_new is a separate task for numerical validation, distinct from memory profiling T035.
-- **Dependency Correction**: T051 no longer depends on T039. T054 depends on T061. T063a depends on T054. T071 depends on T061, T063a, T035b.
-- **Reviewer Concern (Einstein)**: The reviewer's concern about the "lack of a physical observer" and "Gambling Table" analogy is addressed by explicitly defining the study as a mathematical ensemble analysis. The tasks in Phase 8 (T061-T065) and Phase 9 (T071-T074) clarify that the "probability distribution" is a property of the ensemble, not a physical process, and that the "frame of reference" is computational. This satisfies the requirement to avoid modeling a physical observer while acknowledging the critique.
-- **Verification Methods**: T035b and T035c now use Python scripts for context-aware verification instead of brittle grep commands.
-- **Dependency Resolution**: All previously incomplete tasks (T019, T019b, T040a, T015, T017, T020b, T028, T032_init) are now marked `[X]` with full descriptions to resolve execution deadlocks.
-- **Placeholder Removal**: All tasks in Phase 8 (T061-T065) and Phase 9 (T071-T074) have been updated to remove unresolved placeholders and insert definitive text.
-- **Dependency Addition**: `scikit-learn` has been added to `requirements.txt` in T002 to support T021c and T021d.
+- Verified work (former T001–T019b, T026–T040c, T051–T074 families: generators, solvers, models, grids, orchestrator, documentation, review responses) is preserved as completed in Phase 1; no completed task is reopened.
+- The four verifier-rejected artifacts (single_run_results.json, mc_results.csv + convergence_data.json, validated_sweep_results.csv, threshold_identification.json) are reopened as T004–T007 with explicit file-existence, schema, and content-consistency verification.
+- Corrections against the original study: θ=3.5 removed from the sweep grid (contract maximum is 3.0); all research-script outputs moved to project-owned `data/` paths (platform-owned `state/` paths are no longer task deliverables); the speculative "theta_c per run" column in the sensitivity sweep is replaced by per-(density, N) estimation in T011, since a single run cannot yield a threshold.
+- No requirement was dropped; the earlier phases' documentation and review-response content is carried in the preserved artifacts and consolidated into T013's handoff.
