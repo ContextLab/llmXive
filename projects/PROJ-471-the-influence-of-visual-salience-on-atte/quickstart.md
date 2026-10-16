@@ -4,7 +4,6 @@
 - **Python** 3.11+ (Ubuntu 22.04 recommended)
 - **Git**
 - **GitHub Actions runner** (CPU‑only, ≤7 GB RAM) – the CI environment used for reproducibility.
-- **Data**: The OpenNeuro *Moral Foundations Eye‑Tracking* dataset (ds003123) must be placed manually in `data/raw/ds003123/`. No automated download is attempted because the dataset is not in the verified list.
 
 ## Installation
 ```bash
@@ -13,11 +12,19 @@ cd projects/PROJ-471-the-influence-of-visual-salience-on-atte
 pip install -r code/requirements.txt
 ```
 
+## Data Acquisition
+The OpenNeuro *Moral Foundations Eye‑Tracking* dataset (ds003123) will be downloaded automatically if it is not already present.
+
+```bash
+# Download the dataset and generate the checksum manifest
+python code/ingestion/download_data.py
+```
+
 ## Verify Data Presence
 ```bash
 python code/ingestion/verify_data.py
-# Expected output: "Dataset found. Proceeding..."
-# If missing: "ERROR: DATA_MISSING_001 – place ds003123 in data/raw/"
+# Expected output: "Dataset verification succeeded."
+# If missing or corrupted you will see a clear error message.
 ```
 
 ## Run the Full Pipeline
@@ -27,7 +34,7 @@ python -m code.main --stage smoke
 
 The orchestrator executes the steps defined in `plan.md` in order:
 1. Verify dataset presence.
-2. **Generate salience maps** (DeepGaze II CPU‑only).
+2. Generate salience maps (DeepGaze II CPU‑only).
 3. Create ROI masks (YOLOv8 + Detectron2).
 4. Parse eye‑tracking metrics (including fixation latency).
 5. Align data.
@@ -45,11 +52,8 @@ The orchestrator executes the steps defined in `plan.md` in order:
 ## Troubleshooting
 | Symptom | Likely Cause | Fix |
 |---|---|---|
-| `DATA_MISSING_001` | Dataset not in `data/raw/` | Download ds003123 from OpenNeuro and extract there. |
+| `DATA_MISSING_001` | Dataset not in `data/raw/` | Run `python code/ingestion/download_data.py` to fetch it. |
 | `CUDA error` | Accidental GPU usage on CPU runner | Ensure `code/config.py` sets `device = "cpu"`; re‑run. |
 | MemoryError during salience generation | Batch size too large | Reduce `BATCH_SIZE` in `code/config.py` (e.g., from 8 to 4). |
-| `MODEL_LOADING_ERROR` | No internet or GitHub access for DeepGaze II model | Verify network connectivity; the script will abort loudly if the model cannot be fetched. |
-| Missing files after pipeline | Salience generation step not run | Ensure step 2 above completes successfully; the script writes the required artifacts. |
-
-## Note
-The salience‑map generation step (`code/salience/generate_maps.py`) writes its results directly to the locations described above. No additional manual steps are required.
+| `MODEL_LOADING_ERROR` | No internet or HF token missing | Verify network connectivity and that `HF_TOKEN` is set in `.env`. |
+| Missing files after pipeline | Salience generation step not run | Ensure step 2 above completes successfully; the script writes the required artifacts. |

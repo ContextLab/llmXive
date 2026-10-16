@@ -20,9 +20,9 @@ from llmxive_toolkit import get_logger
 # Initialize logger
 log = get_logger(__name__)
 
-# Pinned requirements (must match the repository's root ``requirements.txt``)
+# Pinned requirements (must match the repository's ``requirements.txt``)
 _REQUIREMENTS = """\
-# Core scientific stack (already available in the base environment)
+# Core scientific stack (already available in the environment)
 numpy
 pandas
 scipy
@@ -36,12 +36,18 @@ requests
 jsonschema
 psutil
 
-# Additional dependencies required for this project
-datasets
+# Additional dependencies required for this task
+huggingface_hub>=0.23.0
+# Pin torch version required by other pipeline components (already present but explicit)
 torch==2.2.0
-opencv-python
-tqdm
-# The DeepGaze II model is fetched via torch.hub; no extra package needed.
+# The following packages are optional for later stages; they are listed for completeness.
+ultralytics
+detectron2
+pingouin
+# Code quality tools (not used at runtime)
+ruff
+black
+python==3.11
 """
 
 def _write_requirements_file() -> Path:

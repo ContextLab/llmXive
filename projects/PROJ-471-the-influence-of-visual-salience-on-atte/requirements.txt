@@ -1,3 +1,4 @@
+# Project requirements
 # Core scientific stack (already available in the environment)
 numpy
 pandas
@@ -10,16 +11,10 @@ pytest
 PyYAML
 requests
 jsonschema
-tqdm
-# Additional dependencies required for this task
-huggingface_hub>=0.23.0
-# Pin torch version required by other pipeline components (already present but explicit)
+psutil
+
+# Additional libraries required for this project
+datasets
 torch==2.2.0
-# The following packages are optional for later stages; they are listed for completeness.
-ultralytics
-detectron2
-pingouin
-# Code quality tools (not used at runtime)
-ruff
-black
-python==3.11
+opencv-python
+huggingface_hub
