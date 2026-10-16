@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 18080,
+    "total_contributions": 18087,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2134,
+      "contribution_count": 2141,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-16T09:27:10.248714+00:00",
+  "generated_at": "2026-10-16T09:54:27.012098+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -28955,14 +28955,14 @@
           "title": "Predicting Defect Formation Energies in Perovskites with Machine Learning"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
-          "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
-          "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
           "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
           "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
+          "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
+          "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-743-ambient-temperature-influence-on-moral-d",
@@ -28999,14 +28999,14 @@
           "title": "Predicting Defect Formation Energies in Perovskites with Machine Learning"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
-          "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
-          "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
           "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
           "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
+          "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
+          "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-743-ambient-temperature-influence-on-moral-d",
@@ -29043,14 +29043,14 @@
           "title": "Predicting Defect Formation Energies in Perovskites with Machine Learning"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
-          "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
-          "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
           "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
           "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
+          "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
+          "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-743-ambient-temperature-influence-on-moral-d",
@@ -29087,14 +29087,14 @@
           "title": "Predicting Defect Formation Energies in Perovskites with Machine Learning"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
-          "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
-          "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
           "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
           "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
+          "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
+          "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-951-llmxive-follow-up-extending-physisforcin",
@@ -29120,6 +29120,21 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-163-exploring-the-role-of-network-structure-",
+          "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+          "title": "Exploring the Role of Network Structure in Superconducting Qubit Coupling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-542-predicting-defect-formation-energies-in-",
+          "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
+          "title": "Predicting Defect Formation Energies in Perovskites with Machine Learning"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
+          "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+          "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
           "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
           "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
@@ -29128,21 +29143,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-464-predicting-plant-drought-tolerance-from-",
           "project_id": "PROJ-464-predicting-plant-drought-tolerance-from-",
           "title": "Predicting Plant Drought Tolerance from Publicly Available Root System Architecture Data"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-930-llmxive-follow-up-extending-mobileforge",
-          "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
-          "title": "llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile GUI Agents with Hie\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-589-dream-state-learning-implementing-rem-li",
-          "project_id": "PROJ-589-dream-state-learning-implementing-rem-li",
-          "title": "Dream-State Learning: Implementing REM-like Consolidation in Language Models"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-887-llmxive-follow-up-extending-latentskill",
-          "project_id": "PROJ-887-llmxive-follow-up-extending-latentskill",
-          "title": "llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills\""
         }
       ],
       "inputs": [
@@ -29163,6 +29163,16 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-163-exploring-the-role-of-network-structure-",
+          "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+          "title": "Exploring the Role of Network Structure in Superconducting Qubit Coupling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
+          "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+          "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
           "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
           "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
@@ -29176,16 +29186,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-589-dream-state-learning-implementing-rem-li",
           "project_id": "PROJ-589-dream-state-learning-implementing-rem-li",
           "title": "Dream-State Learning: Implementing REM-like Consolidation in Language Models"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-887-llmxive-follow-up-extending-latentskill",
-          "project_id": "PROJ-887-llmxive-follow-up-extending-latentskill",
-          "title": "llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma",
-          "project_id": "PROJ-723-resting-state-fmri-global-signal-as-a-ma",
-          "title": "Resting\u2011State fMRI Global Signal as a Marker of Mind\u2011Wandering"
         }
       ],
       "inputs": [
@@ -29209,6 +29209,21 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-163-exploring-the-role-of-network-structure-",
+          "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+          "title": "Exploring the Role of Network Structure in Superconducting Qubit Coupling"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
+          "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+          "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-176-predicting-molecular-properties-from-vib",
+          "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
+          "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-930-llmxive-follow-up-extending-mobileforge",
           "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
           "title": "llmXive follow-up: extending \"MobileForge: Annotation-Free Adaptation for Mobile GUI Agents with Hie\""
@@ -29217,21 +29232,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-887-llmxive-follow-up-extending-latentskill",
           "project_id": "PROJ-887-llmxive-follow-up-extending-latentskill",
           "title": "llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma",
-          "project_id": "PROJ-723-resting-state-fmri-global-signal-as-a-ma",
-          "title": "Resting\u2011State fMRI Global Signal as a Marker of Mind\u2011Wandering"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o",
-          "project_id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
-          "title": "llmXive follow-up: extending \"The Mirage of Optimizing Training Policies: Monotonic Inference Polici\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-710-robustness-of-confidence-intervals-to-di",
-          "project_id": "PROJ-710-robustness-of-confidence-intervals-to-di",
-          "title": "Robustness of Confidence Intervals to Differential Privacy Noise"
         }
       ],
       "inputs": [
@@ -61808,12 +61808,14 @@
           ]
         },
         {
-          "contributions": 15,
+          "contributions": 27,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "flesh_out",
-            "implementer"
+            "implementer",
+            "planner",
+            "tasker"
           ]
         },
         {
@@ -61854,7 +61856,7 @@
         "repo_path": "projects/PROJ-163-exploring-the-role-of-network-structure-/specs/001-exploring-the-role-of-network-structure/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "clarified",
+      "current_stage": "in_progress",
       "description": "Verdict: pass The question asks about a substantive physical relationship between hardware topology (graph connectivity of qubits) and quantum performance metrics (entanglement fidelity, coherence times). It is framed as a domain question about how qubit layout affects decoherence, not as a benchmark question about\u2026",
       "field": "physics",
       "id": "PROJ-163-exploring-the-role-of-network-structure-",
@@ -61862,83 +61864,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 20.531284,
-          "ended_at": "2026-10-16T09:18:18.728562Z",
+          "duration_s": 30.781147,
+          "ended_at": "2026-10-16T09:52:12.817417Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-16T09:17:58.197278Z"
+          "started_at": "2026-10-16T09:51:42.036270Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 584.811419,
-          "ended_at": "2026-10-16T09:17:58.194189Z",
+          "duration_s": 39.259546,
+          "ended_at": "2026-10-16T09:51:42.033161Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-16T09:08:13.382770Z"
+          "started_at": "2026-10-16T09:51:02.773615Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 23.400479,
-          "ended_at": "2026-10-16T07:14:11.399628Z",
+          "duration_s": 39.152165,
+          "ended_at": "2026-10-16T09:51:02.770771Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-16T07:13:47.999149Z"
+          "started_at": "2026-10-16T09:50:23.618606Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 62.417199,
-          "ended_at": "2026-10-16T07:13:47.996426Z",
+          "duration_s": 48.034418,
+          "ended_at": "2026-10-16T09:50:23.615758Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-16T07:12:45.579227Z"
+          "started_at": "2026-10-16T09:49:35.581340Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 32.820805,
-          "ended_at": "2026-10-16T07:12:45.576542Z",
+          "duration_s": 59.730511,
+          "ended_at": "2026-10-16T09:49:35.578442Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-16T07:12:12.755737Z"
+          "started_at": "2026-10-16T09:48:35.847931Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 23.377767,
-          "ended_at": "2026-10-16T06:11:55.810785Z",
+          "duration_s": 47.072914,
+          "ended_at": "2026-10-16T09:48:35.845006Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-16T06:11:32.433018Z"
+          "started_at": "2026-10-16T09:47:48.772092Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 21.828542,
-          "ended_at": "2026-10-16T06:11:32.429559Z",
+          "duration_s": 36.207417,
+          "ended_at": "2026-10-16T09:47:48.768732Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-16T06:11:10.601017Z"
+          "started_at": "2026-10-16T09:47:12.561315Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 55.395582,
-          "ended_at": "2026-10-16T06:11:10.597668Z",
+          "duration_s": 25.349943,
+          "ended_at": "2026-10-16T09:47:12.558250Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-16T06:10:15.202086Z"
+          "started_at": "2026-10-16T09:46:47.208307Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 35.968505,
-          "ended_at": "2026-10-16T06:10:15.198262Z",
+          "duration_s": 50.204922,
+          "ended_at": "2026-10-16T09:46:47.205234Z",
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-16T06:09:39.229757Z"
+          "started_at": "2026-10-16T09:45:57.000312Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 835.608426,
-          "ended_at": "2026-10-16T05:21:17.065967Z",
-          "model": "anthropic.claude-haiku-4-5-20251001",
+          "duration_s": 40.039213,
+          "ended_at": "2026-10-16T09:44:30.905283Z",
+          "model": "openai.gpt-oss-120b",
           "outcome": "success",
-          "started_at": "2026-10-16T05:07:21.457541Z"
+          "started_at": "2026-10-16T09:43:50.866070Z"
         }
       ],
       "paper_status": null,
@@ -61952,7 +61954,7 @@
       "speckit_research_dir": "projects/PROJ-163-exploring-the-role-of-network-structure-/specs/001-exploring-the-role-of-network-structure",
       "submitter": null,
       "title": "Exploring the Role of Network Structure in Superconducting Qubit Coupling",
-      "updated_at": "2026-10-16T09:20:07.935720+00:00",
+      "updated_at": "2026-10-16T09:45:49.025215+00:00",
       "upstream_feedback": null
     },
     {
@@ -64043,11 +64045,12 @@
           ]
         },
         {
-          "contributions": 4,
+          "contributions": 5,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "flesh_out",
+            "implementer",
             "planner",
             "tasker"
           ]
@@ -64074,12 +64077,28 @@
         "repo_path": "projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "analyzed",
+      "current_stage": "in_progress",
       "description": "Field: chemistry To what extent do molecular vibrational spectra encode information about electronic structure properties (dipole moment, polarizability, HOMO\u2011LUMO gap), and can this relationship enable accurate property prediction without direct electronic\u2011structure calculations? Vibrational spectroscopy (IR/Raman)\u2026",
       "field": "chemistry",
       "id": "PROJ-176-predicting-molecular-properties-from-vib",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 30.518457,
+          "ended_at": "2026-10-16T09:28:10.143533Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-16T09:27:39.625076Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 132.81289,
+          "ended_at": "2026-10-16T09:18:59.140304Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T09:16:46.327414Z"
+        },
         {
           "agent": "tasker",
           "duration_s": 0.034447,
@@ -64143,22 +64162,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-06T14:31:38.270403Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 38.974286,
-          "ended_at": "2026-10-06T14:31:38.266900Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T14:30:59.292614Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.226178,
-          "ended_at": "2026-10-06T14:30:59.289132Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T14:30:54.062954Z"
         }
       ],
       "paper_status": null,
@@ -64172,7 +64175,7 @@
       "speckit_research_dir": "projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib",
       "submitter": "google.gemma-3-27b-it",
       "title": "Predicting Molecular Properties from Vibrational Spectra with Deep Learning",
-      "updated_at": "2026-10-16T09:16:38.662556+00:00",
+      "updated_at": "2026-10-16T09:27:26.970706+00:00",
       "upstream_feedback": null
     },
     {
@@ -114319,12 +114322,14 @@
           ]
         },
         {
-          "contributions": 10,
+          "contributions": 15,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "flesh_out",
-            "implementer"
+            "implementer",
+            "planner",
+            "tasker"
           ]
         },
         {
@@ -114345,7 +114350,7 @@
         }
       ],
       "citation_summary": {
-        "mismatch": 0,
+        "mismatch": 1,
         "pending": 3,
         "unreachable": 0,
         "verified": 0
@@ -114357,12 +114362,60 @@
         "repo_path": "projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "clarified",
+      "current_stage": "in_progress",
       "description": "Verdict: pass The question asks about a relationship between low-level perceptual salience and high-level attentional allocation during moral reasoning, which is a substantive domain question about how visual prominence influences cognitive processing. The computational salience maps and eye-tracking are measurement\u2026",
       "field": "psychology",
       "id": "PROJ-471-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 36.548942,
+          "ended_at": "2026-10-16T09:37:28.330814Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T09:36:51.781872Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 24.731138,
+          "ended_at": "2026-10-16T09:35:49.259345Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T09:35:24.528207Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 63.524045,
+          "ended_at": "2026-10-16T09:35:24.525799Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T09:34:21.001754Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 0.027126,
+          "ended_at": "2026-10-16T09:34:12.529615Z",
+          "model": "deterministic-no-llm",
+          "outcome": "skipped",
+          "started_at": "2026-10-16T09:34:12.502489Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 160.228097,
+          "ended_at": "2026-10-16T09:33:58.378244Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T09:31:18.150147Z"
+        },
+        {
+          "agent": "planner",
+          "duration_s": 894.480302,
+          "ended_at": "2026-10-16T09:31:02.491001Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T09:16:08.010699Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 230.507095,
@@ -114394,54 +114447,6 @@
           "model": "google.gemma-4-31B-it",
           "outcome": "success",
           "started_at": "2026-10-15T21:07:48.170019Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 184.323238,
-          "ended_at": "2026-10-15T20:10:32.887805Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-15T20:07:28.564567Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 138.611715,
-          "ended_at": "2026-10-15T19:10:50.618923Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-15T19:08:32.007208Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 18.818277,
-          "ended_at": "2026-10-15T16:20:30.050608Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-15T16:20:11.232331Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 178.434582,
-          "ended_at": "2026-10-15T16:18:56.302807Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-15T16:15:57.868225Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 409.292874,
-          "ended_at": "2026-10-15T16:15:57.864741Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-15T16:09:08.571867Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 80.940415,
-          "ended_at": "2026-10-14T21:28:30.520219Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-14T21:27:09.579804Z"
         }
       ],
       "paper_status": null,
@@ -114455,7 +114460,7 @@
       "speckit_research_dir": "projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte",
       "submitter": null,
       "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements",
-      "updated_at": "2026-10-16T09:15:47.072931+00:00",
+      "updated_at": "2026-10-16T09:36:38.898454+00:00",
       "upstream_feedback": null
     },
     {
@@ -126191,7 +126196,7 @@
         "paper_supplement": null,
         "paper_supplement_source": null,
         "paper_tasks": null,
-        "plan": null,
+        "plan": "projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in/plan.md",
         "reviews_paper": null,
         "reviews_research": "projects/PROJ-542-predicting-defect-formation-energies-in-/reviews/research",
         "spec": "projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in/spec.md",
@@ -126212,6 +126217,15 @@
           ]
         },
         {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "clarifier",
+            "planner"
+          ]
+        },
+        {
           "contributions": 1,
           "kind": "llm",
           "name": "zai-org.glm-5.3",
@@ -126222,23 +126236,47 @@
       ],
       "citation_summary": {
         "mismatch": 0,
-        "pending": 0,
+        "pending": 1,
         "unreachable": 0,
         "verified": 0
       },
       "created_at": "2026-05-10T19:30:55.331426+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in/spec.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in/spec.md",
-        "repo_path": "projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in/spec.md",
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in/plan.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in/plan.md",
+        "repo_path": "projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in/plan.md",
         "type": "markdown"
       },
-      "current_stage": "clarified",
+      "current_stage": "planned",
       "description": "Verdict: pass The question asks about the relationship between compositional descriptors (atomic radii, electronegativity, oxidation states) and defect formation energies, which is a substantive materials science question about how chemical composition governs defect thermodynamics. The ML modeling is positioned as\u2026",
       "field": "materials science",
       "id": "PROJ-542-predicting-defect-formation-energies-in-",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "planner",
+          "duration_s": 431.850897,
+          "ended_at": "2026-10-16T09:41:04.913758Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T09:33:53.062861Z"
+        },
+        {
+          "agent": "clarifier",
+          "duration_s": 110.585736,
+          "ended_at": "2026-10-16T09:33:44.957803Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T09:31:54.372067Z"
+        },
+        {
+          "agent": "planner",
+          "duration_s": 757.653815,
+          "ended_at": "2026-10-16T09:31:42.954532Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-16T09:19:05.300717Z"
+        },
         {
           "agent": "clarifier",
           "duration_s": 606.386409,
@@ -126318,7 +126356,7 @@
       "speckit_research_dir": "projects/PROJ-542-predicting-defect-formation-energies-in-/specs/001-predicting-defect-formation-energies-in",
       "submitter": null,
       "title": "Predicting Defect Formation Energies in Perovskites with Machine Learning",
-      "updated_at": "2026-10-16T09:18:52.489876+00:00",
+      "updated_at": "2026-10-16T09:41:04.915612+00:00",
       "upstream_feedback": null
     },
     {
@@ -154452,7 +154490,7 @@
           ]
         },
         {
-          "contributions": 4,
+          "contributions": 5,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -154495,6 +154533,14 @@
       "id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 809.269568,
+          "ended_at": "2026-10-16T09:21:39.996516Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T09:08:10.726948Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 51.838887,
@@ -154566,14 +154612,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-08T21:35:14.112300Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 72.120715,
-          "ended_at": "2026-10-08T21:35:14.108907Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-08T21:34:01.988192Z"
         }
       ],
       "paper_status": null,
@@ -171946,6 +171984,306 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 30.781147,
+      "ended_at": "2026-10-16T09:52:12.817417Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:51:42.036270Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 39.259546,
+      "ended_at": "2026-10-16T09:51:42.033161Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:51:02.773615Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 39.152165,
+      "ended_at": "2026-10-16T09:51:02.770771Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:50:23.618606Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 48.034418,
+      "ended_at": "2026-10-16T09:50:23.615758Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:49:35.581340Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 59.730511,
+      "ended_at": "2026-10-16T09:49:35.578442Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:48:35.847931Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 47.072914,
+      "ended_at": "2026-10-16T09:48:35.845006Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:47:48.772092Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 36.207417,
+      "ended_at": "2026-10-16T09:47:48.768732Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:47:12.561315Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 25.349943,
+      "ended_at": "2026-10-16T09:47:12.558250Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:46:47.208307Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 50.204922,
+      "ended_at": "2026-10-16T09:46:47.205234Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:45:57.000312Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 40.039213,
+      "ended_at": "2026-10-16T09:44:30.905283Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:43:50.866070Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 0.023954,
+      "ended_at": "2026-10-16T09:43:43.401424Z",
+      "failure_reason": "",
+      "model": "deterministic-no-llm",
+      "outcome": "skipped",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "soft",
+      "started_at": "2026-10-16T09:43:43.377470Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 522.125469,
+      "ended_at": "2026-10-16T09:43:30.246392Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:34:48.120923Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 431.850897,
+      "ended_at": "2026-10-16T09:41:04.913758Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:33:53.062861Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 36.548942,
+      "ended_at": "2026-10-16T09:37:28.330814Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:36:51.781872Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 24.731138,
+      "ended_at": "2026-10-16T09:35:49.259345Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:35:24.528207Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 63.524045,
+      "ended_at": "2026-10-16T09:35:24.525799Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:34:21.001754Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 852.967479,
+      "ended_at": "2026-10-16T09:34:33.858561Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:20:20.891082Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 0.027126,
+      "ended_at": "2026-10-16T09:34:12.529615Z",
+      "failure_reason": "",
+      "model": "deterministic-no-llm",
+      "outcome": "skipped",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "soft",
+      "started_at": "2026-10-16T09:34:12.502489Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 160.228097,
+      "ended_at": "2026-10-16T09:33:58.378244Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:31:18.150147Z"
+    },
+    {
+      "agent": "clarifier",
+      "duration_s": 110.585736,
+      "ended_at": "2026-10-16T09:33:44.957803Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:31:54.372067Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 757.653815,
+      "ended_at": "2026-10-16T09:31:42.954532Z",
+      "failure_reason": "StagePanelKickback: plan panel did not converge: 1 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full prove",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
+      "project_stage": "planned",
+      "severity": "soft",
+      "started_at": "2026-10-16T09:19:05.300717Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 894.480302,
+      "ended_at": "2026-10-16T09:31:02.491001Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:16:08.010699Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 30.518457,
+      "ended_at": "2026-10-16T09:28:10.143533Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-16T09:27:39.625076Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 809.269568,
+      "ended_at": "2026-10-16T09:21:39.996516Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:08:10.726948Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 132.81289,
+      "ended_at": "2026-10-16T09:18:59.140304Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T09:16:46.327414Z"
+    },
+    {
       "agent": "clarifier",
       "duration_s": 606.386409,
       "ended_at": "2026-10-16T09:18:52.488207Z",
@@ -171953,7 +172291,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "success",
       "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
-      "project_stage": "clarified",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-16T09:08:46.101798Z"
     },
@@ -171965,7 +172303,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T09:17:58.197278Z"
     },
@@ -171977,7 +172315,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T09:08:13.382770Z"
     },
@@ -171989,7 +172327,7 @@
       "model": "deterministic-no-llm",
       "outcome": "skipped",
       "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "soft",
       "started_at": "2026-10-16T09:16:38.626091Z"
     },
@@ -172001,7 +172339,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T09:09:13.877539Z"
     },
@@ -172013,7 +172351,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T09:08:44.008833Z"
     },
@@ -172121,7 +172459,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "failed",
       "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-16T08:08:24.102270Z"
     },
@@ -172259,7 +172597,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "failed",
       "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-16T07:11:33.935299Z"
     },
@@ -172307,7 +172645,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T07:13:47.999149Z"
     },
@@ -172319,7 +172657,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T07:12:45.579227Z"
     },
@@ -172331,7 +172669,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T07:12:12.755737Z"
     },
@@ -172463,7 +172801,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T06:11:32.433018Z"
     },
@@ -172475,7 +172813,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T06:11:10.601017Z"
     },
@@ -172487,7 +172825,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T06:10:15.202086Z"
     },
@@ -172511,7 +172849,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T06:09:39.229757Z"
     },
@@ -172577,7 +172915,7 @@
       "model": "anthropic.claude-haiku-4-5-20251001",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T05:07:21.457541Z"
     },
@@ -172793,7 +173131,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T04:30:00.338120Z"
     },
@@ -172805,7 +173143,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T04:29:36.122792Z"
     },
@@ -172829,7 +173167,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T04:28:43.109682Z"
     },
@@ -172853,7 +173191,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T04:27:46.133010Z"
     },
@@ -172865,7 +173203,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T04:25:20.440019Z"
     },
@@ -172877,7 +173215,7 @@
       "model": "deterministic-no-llm",
       "outcome": "skipped",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "soft",
       "started_at": "2026-10-16T04:25:12.142323Z"
     },
@@ -172889,7 +173227,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "success",
       "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T04:07:51.044700Z"
     },
@@ -173135,7 +173473,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T03:08:18.794996Z"
     },
@@ -173873,7 +174211,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "failed",
       "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-16T00:11:02.822878Z"
     },
@@ -174449,7 +174787,7 @@
       "model": "google.gemma-4-31B-it",
       "outcome": "success",
       "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T21:07:48.170019Z"
     },
@@ -174629,7 +174967,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T20:07:28.564567Z"
     },
@@ -174833,7 +175171,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T19:08:32.007208Z"
     },
@@ -175835,7 +176173,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T16:20:11.232331Z"
     },
@@ -175883,7 +176221,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T16:15:57.868225Z"
     },
@@ -175931,7 +176269,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "clarified",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T16:09:08.571867Z"
     },
@@ -177704,306 +178042,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T07:48:13.569176Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 100.744517,
-      "ended_at": "2026-10-15T07:48:04.691668Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:46:23.947151Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 390.93419,
-      "ended_at": "2026-10-15T07:47:36.913157Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:41:05.978967Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 465.837457,
-      "ended_at": "2026-10-15T07:46:10.777603Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:38:24.940146Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 1356.557148,
-      "ended_at": "2026-10-15T07:38:11.056591Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:15:34.499443Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 69.551931,
-      "ended_at": "2026-10-15T07:35:10.161197Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:34:00.609266Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 36.136221,
-      "ended_at": "2026-10-15T07:34:00.605496Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:33:24.469275Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 25.577154,
-      "ended_at": "2026-10-15T07:33:24.465395Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:32:58.888241Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 82.635337,
-      "ended_at": "2026-10-15T07:32:58.884351Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:31:36.249014Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 68.416012,
-      "ended_at": "2026-10-15T07:31:36.245093Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:30:27.829081Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 90.032697,
-      "ended_at": "2026-10-15T07:30:27.824539Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:28:57.791842Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 129.243026,
-      "ended_at": "2026-10-15T07:28:57.787707Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:26:48.544681Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.034566,
-      "ended_at": "2026-10-15T07:26:40.636413Z",
-      "failure_reason": "",
-      "model": "deterministic-no-llm",
-      "outcome": "skipped",
-      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
-      "project_stage": "in_progress",
-      "severity": "soft",
-      "started_at": "2026-10-15T07:26:40.601847Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 734.249703,
-      "ended_at": "2026-10-15T07:26:25.339802Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-011-neural-mechanisms-underlying-adaptive-de",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:14:11.090099Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 839.15255,
-      "ended_at": "2026-10-15T07:26:09.570649Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-324-predicting-molecular-properties-from-ope",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-15T07:12:10.418099Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 452.80435,
-      "ended_at": "2026-10-15T07:19:26.657650Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-877-llmxive-follow-up-extending-mellum2-tech",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:11:53.853300Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 139.832156,
-      "ended_at": "2026-10-15T07:16:58.427435Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:14:38.595279Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 131.80034,
-      "ended_at": "2026-10-15T07:14:38.592562Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:12:26.792222Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 146.441109,
-      "ended_at": "2026-10-15T07:14:26.599945Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T07:12:00.158836Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.084407,
-      "ended_at": "2026-10-15T06:50:42.556452Z",
-      "failure_reason": "",
-      "model": "deterministic-no-llm",
-      "outcome": "skipped",
-      "project_id": "PROJ-723-resting-state-fmri-global-signal-as-a-ma",
-      "project_stage": "in_progress",
-      "severity": "soft",
-      "started_at": "2026-10-15T06:50:42.472045Z"
-    },
-    {
-      "agent": "research_question_validator",
-      "duration_s": 16.206353,
-      "ended_at": "2026-10-15T06:50:40.697043Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-1070-llmxive-follow-up-extending-search-beyon",
-      "project_stage": "validated",
-      "severity": "ok",
-      "started_at": "2026-10-15T06:50:24.490690Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.002781,
-      "ended_at": "2026-10-15T06:50:22.713066Z",
-      "failure_reason": "TaskFormatError: Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T024d-neural-run', 'T025', 'T026', 'T027', 'T028', 'T029']",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-884-llmxive-follow-up-extending-self-improvi",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-15T06:50:22.710285Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 1089.209456,
-      "ended_at": "2026-10-15T06:50:20.150625Z",
-      "failure_reason": "",
-      "model": "zai-org.glm-5.3",
-      "outcome": "success",
-      "project_id": "PROJ-1011-llmxive-follow-up-extending-researchstud",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-15T06:32:10.941169Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 33.100895,
-      "ended_at": "2026-10-15T06:35:45.833140Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-982-llmxive-follow-up-extending-dopd-dual-on",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T06:35:12.732245Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.614069,
-      "ended_at": "2026-10-15T06:35:12.730394Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-982-llmxive-follow-up-extending-dopd-dual-on",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T06:35:07.116325Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 61.469766,
-      "ended_at": "2026-10-15T06:34:36.286693Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-982-llmxive-follow-up-extending-dopd-dual-on",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T06:33:34.816927Z"
     }
   ],
   "reviewed_preprints": [
