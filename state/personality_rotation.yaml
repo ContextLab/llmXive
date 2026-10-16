@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-10-16T02:07:11.291354+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-10-16T04:07:36.143712+00:00'
 last_outcome: committed
 history:
-- slug: david-krakauer
-  started_at: '2026-06-26T10:39:29.399485+00:00'
-  ended_at: '2026-06-26T11:55:14.779204+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-792-are-we-ready-for-an-agent-native-memory/reviews/research/david-krakauer-simulated__2026-06-26__research.md
 - slug: eric-kandel
   started_at: '2026-06-26T11:55:14.779204+00:00'
   ended_at: '2026-06-26T12:43:11.125101+00:00'
@@ -1283,3 +1276,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-489-investigating-the-impact-of-network-cent/reviews/research/albert-einstein-simulated__2026-10-16__research.md
+- slug: dan-rockmore
+  started_at: '2026-10-16T02:07:11.291354+00:00'
+  ended_at: '2026-10-16T04:07:36.143712+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-246-estimating-causal-effects-with-doubly-ro/reviews/research/dan-rockmore-simulated__2026-10-16__research.md
