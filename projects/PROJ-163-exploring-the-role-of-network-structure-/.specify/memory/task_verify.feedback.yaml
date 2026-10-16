@@ -2,10 +2,24 @@ T001:
   reason: 'Requested task execution failed; rerun successfully: code/fetcher.py exit=1'
   task: 29427994fbffe40323dc685d90f583c9305081ed93a3b3e46aa06d7c7585be95
 T002:
+  reason: The required `data/processed/performance_metrics.csv` file does not exist,
+    the `performance_metrics.schema.yaml` schema is missing, and the validation test
+    `code/tests/test_processed_csv.py` fails (NameError due to missing import). Additionally,
+    the suggested `code/process_raw.py` module is absent. These missing/incorrect
+    artifacts prevent the task from being considered complete.
   task: 0e86df6d4b13d162c2d36b455c557f3fe074c2b70c9ddf68eb45d98035421420
 T003:
+  reason: "The repository lacks the required `code/tests/test_graph_builder.py` file\
+    \ (the test suite is present under `tests/` instead of the mandated path) and\
+    \ the existing tests fail \u2013 the edge\u2011betweenness mean assertion does\
+    \ not match the implementation. Moreover, the CLI run produces an empty `data/processed/graph_metrics.csv`\
+    \ (only the header) because no raw snapshots are found, violating the requirement\
+    \ for a non\u2011empty, schema\u2011valid metrics file. These issues must be fixed\
+    \ before the task can be considered complete."
   task: 7e0279bfd7d3b392ac89bdea1e0803dc2f7df5099e8a239bbffc01d2a19b523c
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/generate_correlation_results.py
+    exit=1'
   task: b1a8f1d231253c73da9834e1b49c2278f403f60e7a3da167ca116a70896bd471
 T005:
   task: 54abdabba09c74dafe15b444c37c2a9cafe8d85c4f76e69c64e6788fb4dc025b

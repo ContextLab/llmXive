@@ -141,8 +141,10 @@ def test_validate_data_freshness():
     fresh_props = make_fake_properties(fresh=True)
     stale_props = make_fake_properties(fresh=False)
 
-    assert fetcher.validate_data_freshness(fresh_props) is True
-    assert fetcher.validate_data_freshness(stale_props) is False
+    is_fresh, _ = fetcher.validate_data_freshness(fresh_props)
+    assert is_fresh is True
+    is_fresh, _ = fetcher.validate_data_freshness(stale_props)
+    assert is_fresh is False
 
 
 def test_fetcher_raises_on_missing_token(monkeypatch):
@@ -173,7 +175,7 @@ def test_fetch_all_backends_total_failure(monkeypatch):
     dummy_service.backends.return_value = [dummy_backend]
 
     # Force ``fetch_backend_properties`` to raise for this backend
-    def failing_fetch(name):
+    def failing_fetch(service, name):
         raise RuntimeError("simulated fetch failure")
 
     monkeypatch.setattr(fetcher, "_init_service", lambda: dummy_service)

@@ -61,7 +61,8 @@ def compute_clustering_and_assortativity(G: nx.Graph) -> Dict[str, float]:
         return {"clustering_coeff": float('nan'), "assortativity": float('nan')}
     
     try:
-        clustering = nx.global_clustering_coefficient(G)
+        # average_clustering is the standard global clustering coefficient
+        clustering = nx.average_clustering(G)
         assortativity = nx.degree_assortativity_coefficient(G)
     except ZeroDivisionError:
         clustering = float('nan')
@@ -90,12 +91,9 @@ def compute_edge_betweenness_and_spectral_gap(G: nx.Graph) -> Dict[str, float]:
     try:
         L = nx.laplacian_matrix(G).todense()
         eigenvalues = sorted(np.linalg.eigvals(L))
-        # Sort numerically to handle small floating point errors
         eigenvalues = [ev.real for ev in eigenvalues]
         eigenvalues.sort()
         
-        # The smallest should be ~0. The spectral gap is the second smallest.
-        # If there are multiple 0s (disconnected), gap is 0.
         if len(eigenvalues) < 2:
             spectral_gap = 0.0
         else:
@@ -166,12 +164,6 @@ def generate_graph_metrics_csv(raw_dir: str, output_path: str) -> None:
     
     if not snapshots:
         logger.error("No raw snapshots found. Cannot generate graph metrics.")
-        # Ensure output file is created (empty or with header) to satisfy verification
-        # But we must fail loudly if the expectation is real data. 
-        # However, the task says "Generate ... CSV". If no data, we write header.
-        # But the execution failure says "No real data". 
-        # We assume raw_dir exists but is empty -> write header only.
-        # If raw_dir is missing, we already logged warning.
     
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -183,7 +175,7 @@ def generate_graph_metrics_csv(raw_dir: str, output_path: str) -> None:
         metrics = process_device_coupling_map(coupling_map)
         
         for metric_name, value in metrics.items():
-            is_finite = np.isfinite(value)
+            is_finite = bool(np.isfinite(value))
             rows.append({
                 "device_id": device_id,
                 "metric_name": metric_name,
@@ -205,13 +197,19 @@ def main():
     parser = argparse.ArgumentParser(description="Generate graph metrics CSV from raw snapshots")
     parser.add_argument("--raw-dir", type=str, default="data/raw", help="Path to raw data directory")
     parser.add_argument("--output", type=str, default="data/processed/graph_metrics.csv", help="Output CSV path")
+    parser.add_argument("--generate-metrics", action="store_true", help="Legacy flag to trigger metric generation")
     
     args = parser.parse_args()
     
     # Configure logging
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    generate_graph_metrics_csv(args.raw_dir, args.output)
+    # If the legacy flag is used, simply run the generation with defaults or provided paths
+    if args.generate_metrics:
+        generate_graph_metrics_csv(args.raw_dir, args.output)
+    else:
+        # Default behavior: run generation with explicit arguments
+        generate_graph_metrics_csv(args.raw_dir, args.output)
 
 if __name__ == "__main__":
     main()
