@@ -1,7 +1,11 @@
 status: none
-intent: download Numenta Anomaly Benchmark for univariate time series anomaly detection
-  python package dataset
+intent: Numenta Anomaly Benchmark and UCR Time Series Anomaly Archive python package
+  dataset
 required_fields:
 - timestamp
 - value
 - anomaly_label
+- injection_timestamp
+cache_key: 83e6a2d71ec7b53cbdd48aea552fa5c71079c196052631458b7104da34d87eae
+searched_at: '2026-10-16T16:34:55.295717+00:00'
+retry_count: 1

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T03:08:53.368052Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computational statistics
 human_escalation_reason: null
 id: PROJ-024-bayesian-nonparametrics-for-anomaly-dete
-last_run_id: ca351df5-2855-4960-a709-148f5749065c
+last_run_id: f59ffb8c-1bd1-49df-b26d-bfd05737c792
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete
 title: Bayesian Nonparametrics for Anomaly Detection in Time Series
-updated_at: '2026-10-16T16:32:53.801401Z'
+updated_at: '2026-10-16T16:34:55.311799Z'
