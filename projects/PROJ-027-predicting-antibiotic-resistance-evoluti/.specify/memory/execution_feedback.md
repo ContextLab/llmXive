@@ -18,11 +18,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 -> rc=1
-2026-10-15 13:12:57 - root - INFO - Running stage: download_ncbi
-2026-10-15 13:12:58 - root - INFO - Stage 'download_ncbi' completed successfully
-2026-10-15 13:12:58 - root - INFO - Running stage: ingest_metadata
-2026-10-15 13:12:58 - root - ERROR - Stage 'ingest_metadata' failed with exit code 1
-2026-10-15 13:12:58 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-16 12:12:19 - root - INFO - Running stage: download_ncbi
+2026-10-16 12:12:19 - root - INFO - Stage 'download_ncbi' completed successfully
+2026-10-16 12:12:19 - root - INFO - Running stage: ingest_metadata
+2026-10-16 12:12:20 - root - ERROR - Stage 'ingest_metadata' failed with exit code 1
+2026-10-16 12:12:20 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -40,26 +40,26 @@ FAILED tests/contract/test_phyl_permutation_schema.py::test_p_value_valid_range
 FAILED tests/contract/test_phyl_permutation_schema.py::test_significance_flag_consistent
 FAILED tests/contract/test_phyl_permutation_schema.py::test_permutation_count_positive
 FAILED tests/contract/test_phyl_permutation_schema.py::test_observed_statistic_numeric
-========================= 6 failed, 10 passed in 0.72s =========================
+========================= 6 failed, 10 passed in 0.73s =========================
 
 
 - python code/main.py --stage train --antibiotic ciprofloxacin -> rc=2
-2026-10-15 13:13:00 - root - INFO - Running stage: train_models
-2026-10-15 13:13:01 - root - ERROR - Stage 'train_models' failed with exit code 2
-2026-10-15 13:13:01 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-16 12:12:21 - root - INFO - Running stage: train_models
+2026-10-16 12:12:22 - root - ERROR - Stage 'train_models' failed with exit code 2
+2026-10-16 12:12:22 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python code/main.py --stage validate --antibiotic ciprofloxacin --permutations [sufficient_permutations] -> rc=2
-2026-10-15 13:13:01 - root - WARNING - Invalid permutations argument '[sufficient_permutations]'. Falling back to 1000.
-2026-10-15 13:13:01 - root - INFO - Running stage: phylo_permutation
-2026-10-15 13:13:01 - root - ERROR - Stage 'phylo_permutation' failed with exit code 2
-2026-10-15 13:13:01 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-16 12:12:22 - root - WARNING - Invalid permutations argument '[sufficient_permutations]'. Falling back to 1000.
+2026-10-16 12:12:22 - root - INFO - Running stage: phylo_permutation
+2026-10-16 12:12:22 - root - ERROR - Stage 'phylo_permutation' failed with exit code 2
+2026-10-16 12:12:22 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python code/main.py --stage viz --antibiotic ciprofloxacin -> rc=2
-2026-10-15 13:13:01 - root - INFO - Running stage: generate_plots
-2026-10-15 13:13:03 - root - ERROR - Stage 'generate_plots' failed with exit code 2
-2026-10-15 13:13:03 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
+2026-10-16 12:12:22 - root - INFO - Running stage: generate_plots
+2026-10-16 12:12:24 - root - ERROR - Stage 'generate_plots' failed with exit code 2
+2026-10-16 12:12:24 - root - INFO - Pipeline runtime written to /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/data/processed/pipeline_runtime.json
 
 
 - python -m pytest tests/ -> rc=2
@@ -80,7 +80,7 @@ ERROR tests/unit/test_hash_artifacts.py
 ERROR tests/unit/test_main_reproducible.py
 ERROR tests/unit/test_split_data.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.61s ===============================
+============================== 4 errors in 0.59s ===============================
 
 
 ## Platform-owned paths written inside the project

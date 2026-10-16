@@ -53,7 +53,8 @@ def run_subprocess(command: list, description: str) -> int:
             text=True,
             check=False
         )
-        logger.debug(result.stdout)
+        if result.stdout:
+            logger.debug(result.stdout)
         if result.returncode != 0:
             logger.error(f"Stage '{description}' failed with exit code {result.returncode}")
         else:
@@ -87,8 +88,8 @@ def stage_ingest(args: argparse.Namespace) -> int:
     # 1. Download NCBI assemblies
     cmd_download = [
         sys.executable, "code/01_ingest/download_ncbi.py",
-        f"--bio_project={args.bio_project}",
-        f"--max-isolates={args.n_isolates}",
+        "--bio_project", args.bio_project,
+        "--max-isolates", str(args.n_isolates),
     ]
     rc = run_subprocess(cmd_download, "download_ncbi")
     _update_peak_memory()
@@ -120,7 +121,7 @@ def stage_train(args: argparse.Namespace) -> int:
     """Model training stage."""
     cmd = [
         sys.executable, "code/03_model/train_models.py",
-        f"--antibiotic={args.antibiotic}",
+        "--antibiotic", args.antibiotic,
     ]
     rc = run_subprocess(cmd, "train_models")
     _update_peak_memory()
@@ -137,8 +138,8 @@ def stage_validate(args: argparse.Namespace) -> int:
     # Permutation test
     cmd_perm = [
         sys.executable, "code/04_validate/phylo_permutation.py",
-        f"--antibiotic={args.antibiotic}",
-        f"--permutations={perms}",
+        "--antibiotic", args.antibiotic,
+        "--permutations", str(perms),
     ]
     rc = run_subprocess(cmd_perm, "phylo_permutation")
     _update_peak_memory()
@@ -147,7 +148,7 @@ def stage_validate(args: argparse.Namespace) -> int:
     # Sensitivity analysis
     cmd_sens = [
         sys.executable, "code/04_validate/sensitivity_analysis.py",
-        f"--antibiotic={args.antibiotic}",
+        "--antibiotic", args.antibiotic,
     ]
     rc = run_subprocess(cmd_sens, "sensitivity_analysis")
     _update_peak_memory()
@@ -157,7 +158,7 @@ def stage_viz(args: argparse.Namespace) -> int:
     """Visualization stage: generate ROC and importance plots."""
     cmd = [
         sys.executable, "code/05_viz/generate_plots.py",
-        f"--antibiotic={args.antibiotic}",
+        "--antibiotic", args.antibiotic,
     ]
     rc = run_subprocess(cmd, "generate_plots")
     _update_peak_memory()
