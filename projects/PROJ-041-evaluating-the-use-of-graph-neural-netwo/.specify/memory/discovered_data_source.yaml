@@ -1,16 +1,17 @@
 status: none
-intent: CTU-13 NetFlow dataset download python package dataset NF-BoT-IoT-v3 NetFlow
-  records
+intent: download CTU-13 NetFlow CSV dataset with botnet labels NF-BoT-IoT-v3 python
+  package dataset
 required_fields:
-- src_ip
-- dst_ip
-- src_port
-- dst_port
-- protocol
-- timestamp
-- packets
-- bytes
-- label
-cache_key: 6a20d661e1fc3cb61589d9bd066a12c08e67178b51a300ab8fa35840d833f371
-searched_at: '2026-10-16T12:19:35.028760+00:00'
+- Timestamp
+- SourceIP
+- SourcePort
+- DestinationIP
+- DestinationPort
+- Protocol
+- Packets
+- Bytes
+- FlowDuration
+- Label
+cache_key: 2c3a652ea61fece827843903479f18147554c42e877c280d5c729bc4bb64555f
+searched_at: '2026-10-16T13:15:37.004227+00:00'
 retry_count: 1

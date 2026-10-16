@@ -1,10 +1,10 @@
 """
 Download and register the CTU‑13 Scenario 1 NetFlow CSV dataset.
 
-Since the direct CSV link is unavailable (404), this implementation downloads
-the official Scenario 1 ZIP archive from Stratosphere IPS, extracts the 
-primary NetFlow CSV (Scenario1-1.csv), and saves it to the canonical 
-location. No fallback is permitted for this task.
+This implementation downloads the official Scenario 1 ZIP archive from 
+Stratosphere IPS, extracts the primary NetFlow CSV (Scenario1-1.csv), 
+and saves it to the canonical location. No fallback to other datasets 
+is permitted for this task.
 """
 
 import hashlib
@@ -13,6 +13,7 @@ import os
 import sys
 import zipfile
 import tempfile
+import shutil
 from pathlib import Path
 
 import requests
@@ -84,15 +85,35 @@ def download_ctu13_dataset() -> str:
     RuntimeError
         If the download or extraction cannot be completed.
     """
-    # Official Stratosphere IPS ZIP archive for Scenario 1
-    url = "https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip"
-    log.info(f"Attempting to download CTU‑13 Scenario 1 ZIP from {url}")
+    # We try the two most common official URL patterns for CTU-13
+    urls = [
+        "https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1.zip",
+        "https://www.stratosphereips.org/datasets-ctu13/Scenario1/Scenario1.zip"
+    ]
+    
+    # Use a browser-like User-Agent to avoid 403/404 responses from bot-protection
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+    }
 
-    try:
-        response = requests.get(url, stream=True, timeout=120)
-        response.raise_for_status()
-    except Exception as exc:
-        log.error(f"Failed to download CTU‑13 ZIP: {exc}")
+    response = None
+    final_url = None
+
+    for url in urls:
+        log.info(f"Attempting to download CTU‑13 Scenario 1 ZIP from {url}")
+        try:
+            res = requests.get(url, headers=headers, stream=True, timeout=120)
+            if res.status_code == 200:
+                response = res
+                final_url = url
+                break
+            else:
+                log.warning(f"URL {url} returned status {res.status_code}")
+        except Exception as exc:
+            log.warning(f"Request to {url} failed: {exc}")
+
+    if response is None:
+        log.error("All official CTU-13 download URLs failed.")
         trigger_fallback()
 
     # Use a temporary directory to handle the ZIP extraction
@@ -126,7 +147,6 @@ def download_ctu13_dataset() -> str:
                 extracted_file = Path(tmpdir) / target_filename
                 
                 # Move extracted file to final destination
-                import shutil
                 shutil.copy2(extracted_file, output_path)
                 
         except Exception as exc:

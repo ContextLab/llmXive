@@ -1,12 +1,12 @@
 T001:
   c: true
-  h: 1e275b91c0b5efc06e5b169be57e5c7ea823ef7c534fca96775096471e64e962
-  r: 'All required artifacts exist and are substantive: `code/`, `data/`, `docs/`,
-    `tests/` directories with `__init__.py` markers; `requirements.txt` pins all required
-    packages (torch, torch-geometric, networkx, scikit-learn, xgboost, pandas, numpy,
-    matplotlib, seaborn, captum, pytest, pytest-memprof); `pyproject.toml` configures
-    ruff/black with `requires-python = ">=3.11,<3.12"`; `code/utils/seed.py` implements
-    deterministic seeding across random/NumPy/PyTorch; and `code/utils/memory_monitor.py`
-    implements `run_with_limit` with a 7 GB hard limit raising `MemoryLimitExceededError`
-    (a reasonable nam'
-  sig: 1846b8191c14f20b1bba39630011ebaa18e00787a6d6525efb376d6b453f9263
+  h: e73a49ec77483cf97f01d5d2f6ab9277e9f72ede21ddc66c4cdfec14bcbf2e5f
+  r: The required directories (`code/`, `data/`, `docs/`, `tests/`) all exist with
+    `__init__.py` markers, `requirements.txt` pins all 12 specified packages (torch
+    CPU, torch-geometric, networkx, scikit-learn, xgboost, pandas, numpy, matplotlib,
+    seaborn, captum, pytest, pytest-memprof), `pyproject.toml` pins Python >=3.11,<3.12
+    and configures ruff/black, and `code/utils/seed.py` and `code/utils/memory_monitor.py`
+    are substantive, working implementations (deterministic seeding across random/numpy/torch;
+    `run_with_limit` raising `MemoryLimitExceededError` when an allocation exceeds
+    the 7 GB limit). Th
+  sig: df059d5f381276c9e37119d20e8536ed1796e80b1956e390acffe57d5f466405
