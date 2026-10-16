@@ -1,4 +1,4 @@
-# Existing dependencies (standard library + common scientific stack)
+# Core dependencies (already available in the base environment)
 numpy
 pandas
 scipy
@@ -12,8 +12,9 @@ requests
 jsonschema
 psutil
 
-# Additional dependencies required for this project
+# Project‑specific dependencies
 datasets==2.20.0
 transformers==4.41.2
 torch==2.2.2
 radon==6.0.1
+huggingface_hub>=0.23.0

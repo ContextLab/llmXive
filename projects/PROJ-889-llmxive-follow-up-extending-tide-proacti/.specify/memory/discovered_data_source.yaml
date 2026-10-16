@@ -1,15 +1,15 @@
 status: none
-intent: TIDE evaluation dataset download python package site:github.com or Zenodo
-  python package dataset
+intent: download TIDE code evaluation dataset pip installable python package
 required_fields:
 - code
+- hidden_problem_label
 - ast_depth
 - import_count
 - cyclomatic_complexity
 - dependency_depth
 - semantic_scope
 - syntactic_complexity
-- hidden_problem_label
-cache_key: c1bf5dcf5094c236aedf583e4983468afebd6bb3fdec262509f11a645e28672b
-searched_at: '2026-10-16T20:30:51.539057+00:00'
+- python package dataset
+cache_key: fd4c5a0a9073621b562e7d06fcdcb01fa79d8f2e17c2831ca861e4aba80f44a3
+searched_at: '2026-10-16T20:33:32.235176+00:00'
 retry_count: 1
