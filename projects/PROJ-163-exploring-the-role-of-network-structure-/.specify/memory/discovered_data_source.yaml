@@ -1,16 +1,18 @@
 status: none
-intent: IBM Quantum Experience backend properties calibration data python package
-  dataset
+intent: IBM Quantum backend properties API calibration data python package dataset
 required_fields:
-- qubit_pair
-- t1_coherence_us
-- t2_coherence_us
-- gate_error_cx
-- gate_error_u3
-- measurement_error_rate
-- timestamp_unix
+- backend_name
 - device_identifier
-- device_family
-cache_key: 851e57a4636618924b876c4b1ba0188aa7aad60f9417f696974cbef0d14c4384
-searched_at: '2026-10-16T04:31:49.514078+00:00'
+- coupling_map
+- qubit_pairs
+- t1_coherence_time_microseconds
+- t2_coherence_time_microseconds
+- gate_error_rate
+- cx_error_rate
+- u3_error_rate
+- measurement_error_rate
+- calibration_timestamp_unix
+- processor_generation
+cache_key: acd3b059b0cd059e4b2f6f7c084c256e8b1ab22a88b9bab96d016929aa88b7c1
+searched_at: '2026-10-16T05:23:09.601584+00:00'
 retry_count: 1

@@ -6,7 +6,7 @@ This module provides:
 - `fetch_backend_properties()` – returns the properties object for a backend.
 - `retry_with_exponential_backoff()` – generic retry helper respecting C‑001.
 - `rate_limit_handler()` – handles HTTP 429 responses.
-- `validate_data_freshness()` – enforces FR‑001 (≤30 days old) and returns
+- `validate_data_freshness()` – enforces FR‑001 (≤30 days old) and returns
   a tuple ``(is_fresh, age_days)``.
 - `extract_topology_data()` – returns ``(coupling_map, qubit_count)``.
 - `extract_performance_metrics()` – returns a dict with keys ``t1``, ``t2``,
@@ -31,9 +31,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Callable, Any, Tuple, Dict, Optional
 
-from config import load_config
-from logging_config import get_logger
-from snapshot_saver import save_backend_snapshot, ensure_data_raw_dir
+from llmxive_toolkit import paths, get_logger
 
 # Optional import of qiskit‑ibm‑runtime; performed lazily so the module can be
 # imported even when the package is not installed (e.g., during unit‑test
@@ -58,8 +56,7 @@ def _init_service() -> Any:
     Raises:
         RuntimeError: If the token is missing or the service cannot be created.
     """
-    config = load_config()
-    token = getattr(config, "ibmq_token", None) or os.getenv("IBMQ_TOKEN")
+    token = os.getenv("IBMQ_TOKEN")
     if not token:
         raise RuntimeError(
             "IBMQ_TOKEN not found in environment. "
@@ -278,7 +275,7 @@ def extract_performance_metrics(properties: Any) -> Dict[str, Optional[float]]:
         "readout_error": sum(ro_errs) / len(ro_errs) if ro_errs else None,
     }
 
-def extract_chip_family(backend_name: str) -> str:
+def extract_chip_family(backend_name: str, properties: Optional[Any] = None) -> str:
     """
     Derive a human‑readable chip family from the backend identifier.
     """
@@ -359,18 +356,25 @@ def fetch_and_save_snapshots() -> Tuple[int, int]:
     Returns:
         Tuple ``(saved_count, failed_count)``.
     """
-    backends = fetch_backends_list()
+    ensure_raw_dir = paths.data("raw")
+    service = _init_service()
+    backends = fetch_backends_list(service)
     saved, failed = 0, 0
     for name in backends:
         try:
-            service = _init_service()
             props = fetch_backend_properties(service, name)
-            is_fresh, _ = validate_data_freshness(props)
+            is_fresh, age_days = validate_data_freshness(props)
             if not is_fresh:
-                logger.info(f"Skipping {name}: data older than 30 days.")
+                logger.info(f"Skipping {name}: data older than 30 days (age={age_days:.1f}d).")
                 continue
-            # ``props`` is already a plain dict (see ``fetch_backend_properties``)
-            save_backend_snapshot(name, props)
+            # Save the snapshot to data/raw/
+            now = datetime.now(timezone.utc)
+            timestamp_str = now.strftime("%Y%m%d_%H%M%S")
+            filename = f"{name}_{timestamp_str}.json"
+            filepath = ensure_raw_dir / filename
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(props, f, indent=2, default=str)
+            logger.info(f"Saved snapshot for {name} to {filepath}")
             saved += 1
         except Exception as e:
             logger.error(f"Failed processing {name}: {e}")

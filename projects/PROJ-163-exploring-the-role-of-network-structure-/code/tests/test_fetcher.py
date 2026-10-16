@@ -4,8 +4,8 @@ Unit tests for ``code.fetcher``.
 The tests mock the IBM Quantum service and verify:
 * schema conformance of a fabricated raw JSON snapshot,
 * exponential back‑off behaviour,
-* proper handling of HTTP 429 rate‑limit responses,
-* exclusion of stale calibration data (>30 days),
+* proper handling of HTTP 429 rate‑limit responses,
+* exclusion of stale calibration data (>30 days),
 * that the fetcher raises ``RuntimeError`` when the service cannot be initialised.
 """
 import json
@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from unittest import mock
 
 import pytest
+import yaml
 from jsonschema import validate, ValidationError
 
 # Import the module under test
@@ -25,7 +26,7 @@ with open(
     "r",
     encoding="utf-8",
 ) as f:
-    RAW_SCHEMA = json.load(f)
+    RAW_SCHEMA = yaml.safe_load(f)
 
 
 def make_fake_properties(fresh: bool = True):
@@ -138,13 +139,17 @@ def test_rate_limit_handler():
 
 
 def test_validate_data_freshness():
+    """Freshness validation must exclude data older than 30 days."""
     fresh_props = make_fake_properties(fresh=True)
     stale_props = make_fake_properties(fresh=False)
 
-    is_fresh, _ = fetcher.validate_data_freshness(fresh_props)
+    is_fresh, age = fetcher.validate_data_freshness(fresh_props)
     assert is_fresh is True
-    is_fresh, _ = fetcher.validate_data_freshness(stale_props)
+    assert age <= 1.0  # Should be very recent
+
+    is_fresh, age = fetcher.validate_data_freshness(stale_props)
     assert is_fresh is False
+    assert age > 30.0
 
 
 def test_fetcher_raises_on_missing_token(monkeypatch):
@@ -152,11 +157,6 @@ def test_fetcher_raises_on_missing_token(monkeypatch):
     # Ensure environment variable is absent
     monkeypatch.delenv("IBMQ_TOKEN", raising=False)
 
-    # Mock ``load_config`` to return an object without a token attribute
-    class DummyConfig(dict):
-        pass
-
-    monkeypatch.setattr(fetcher, "load_config", lambda: DummyConfig())
     with pytest.raises(RuntimeError, match="IBMQ_TOKEN not found"):
         fetcher._init_service()
 
@@ -181,8 +181,21 @@ def test_fetch_all_backends_total_failure(monkeypatch):
     monkeypatch.setattr(fetcher, "_init_service", lambda: dummy_service)
     monkeypatch.setattr(fetcher, "fetch_backend_properties", failing_fetch)
 
-    # ``save_backend_snapshot`` should never be called
-    monkeypatch.setattr(fetcher, "save_backend_snapshot", lambda *a, **k: None)
-
     with pytest.raises(RuntimeError, match="No backend snapshots were saved"):
+        fetcher.fetch_and_save_snapshots()
+
+
+def test_no_synthetic_fallback_on_total_failure(monkeypatch):
+    """
+    NFR-002: The fetcher must NEVER fall back to synthetic data.
+    If all real API calls fail, a RuntimeError must be raised.
+    """
+    monkeypatch.setattr(fetcher, "_init_service", lambda: None)
+    monkeypatch.setattr(
+        fetcher,
+        "fetch_backends_list",
+        lambda service: (_ for _ in ()).throw(RuntimeError("API unavailable"))
+    )
+
+    with pytest.raises(RuntimeError):
         fetcher.fetch_and_save_snapshots()
