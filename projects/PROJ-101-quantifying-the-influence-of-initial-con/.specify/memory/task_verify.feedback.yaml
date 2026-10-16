@@ -7,14 +7,6 @@ T001:
 T002:
   task: b887bf56faf5c907d3f7386c1e89a8a4b418986bad94b966372d732561835a5c
 T003:
-  reason: "The repository contains a `tests/conftest.py` with a `seed` fixture returning\u202F\
-    42 and a custom temporary\u2011directory fixture (`temp_data_dir`), but it does\
-    \ not define or use the built\u2011in `tmp_path` fixture as the task specifies,\
-    \ nor is there any test file (e.g., `tests/test_dummy.py`) that asserts reproducibility\
-    \ with `np.random.RandomState(42).rand()`. Consequently there is no evidence that\
-    \ `pytest -q` actually runs and passes such a dummy test. Adding a test that uses\
-    \ `tmp_path` (or the built\u2011in fixture) and showing a successful pytest run\
-    \ would be required to complete the task."
   task: 7251b7b1d60932fd6f146f4d407fa7cf10dfaeaacfc45135c62a87f710d05818
 T004:
   task: 2c32d9ac5e89c4bd9784db9714ee1a87e839aecc8ee5b75a818f50e9b86eef8f
@@ -31,6 +23,14 @@ T006:
     \ (or expose the same API) and include the noise\u2011std"
   task: 89738e452324f56dc9f041b5de292c389ccb9c0606c3a00fdc4f19d696455db9
 T007:
+  reason: '`code/utils/stability.py` does define `check_boundedness` and `raise_if_unphysical`
+    with the 20.0 norm threshold and a `check_noise_level` helper, but the guard is
+    never wired into any integration path: `code/data/generator.py`''s `integrate_trajectory`
+    never calls `raise_if_unphysical`, and its `validate_trajectory` raises on `sigma_noise
+    > 1.0` / `max(|state|) > 100` instead of the required norm > 20.0 check. The test
+    suite would also fail as written: the `data/generator.py` shim used by the tests
+    never raises `UnphysicalTrajectoryError` or emits `HighNoiseWarning` in `integrate_trajectory`
+    ('
   task: 9027907b62470127cc205d3a359a0e7bdca167be19e0044fd8ee3a60b50f3ff9
 T008:
   reason: "Checked `code/main.py` (generation loop implementation) and the expected\

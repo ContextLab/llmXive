@@ -15,7 +15,7 @@ All tasks are written as checklist items; unchecked items indicate work that sti
   - **Files**: `code/__init__.py`, `code/simulation/__init__.py`, `code/analysis/__init__.py`, `code/utils/__init__.py`, `tests/__init__.py`  
   - **Verification**: `python -c "import code"` runs without `ImportError`; CI runs a sanity test importing each sub‑module.
 
-- [ ] T003 [P] Configure pytest with a fixture suite that pins the random seed and provides a temporary directory for each test.  
+- [X] T003 [P] Configure pytest with a fixture suite that pins the random seed and provides a temporary directory for each test.  
   - **File**: `tests/conftest.py` containing `seed` fixture (value 42) and `tmp_path` fixture usage.  
   - **Verification**: `pytest -q` passes a dummy test that asserts `np.random.RandomState(42).rand()` is reproducible.
 
@@ -35,7 +35,7 @@ All tasks are written as checklist items; unchecked items indicate work that sti
   - **File**: `code/simulation/generator.py` (functions `lorenz_ode`, `generate_trajectory`).  
   - **Verification**: Unit tests in `tests/unit/test_generator.py` check (a) that the empirical noise standard deviation matches the injected `σ_noise` within 5 %; (b) that a noise‑free trajectory matches a reference integration to < 1e‑9 absolute error.
 
-- [X] T007 [P] Add a boundedness / unphysical‑trajectory guard that raises `UnphysicalTrajectoryError` if any state norm exceeds **20.0** and a warning `HighNoiseWarning` if `σ_noise > 0.1`. The guard lives in `code/utils/stability.py`.  
+- [ ] T007 [P] Add a boundedness / unphysical‑trajectory guard that raises `UnphysicalTrajectoryError` if any state norm exceeds **20.0** and a warning `HighNoiseWarning` if `σ_noise > 0.1`. The guard lives in `code/utils/stability.py`.  
   - **File**: `code/utils/stability.py` (functions `check_boundedness`, `raise_if_unphysical`).  
   - **Verification**: Tests in `tests/unit/test_generator.py` assert that trajectories with `σ_noise=1.5` raise the appropriate error.
 

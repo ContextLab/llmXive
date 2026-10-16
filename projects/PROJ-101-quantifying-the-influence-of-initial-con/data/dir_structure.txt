@@ -1,0 +1,18 @@
+code
+  .tasks
+  __pycache__
+  analysis
+  data
+  simulation
+  utils
+code/simulation
+code/analysis
+  __pycache__
+code/utils
+  __pycache__
+tests/unit
+  __pycache__
+tests/integration
+data/raw
+data/processed
+state

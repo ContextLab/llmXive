@@ -1,6 +1,6 @@
 status: none
-intent: coupled Lorenz oscillators synthetic trajectory with noise python package
-  dataset
+intent: download synthetic coupled Lorenz oscillator trajectories with noise python
+  package dataset
 required_fields:
 - time
 - x1
@@ -13,7 +13,7 @@ required_fields:
 - xN
 - yN
 - zN
-- noise_std
-cache_key: e7872973353cd95c8277432c22623639fddd065ceb877e9d8e26135f87a6e0ac
-searched_at: '2026-10-16T15:21:24.720040+00:00'
+- noise_sigma
+cache_key: fc1b6797921da3b5f42a7bdb89734e6806ee2c11195604deb85fd2952f9c8479
+searched_at: '2026-10-16T16:10:55.470966+00:00'
 retry_count: 1

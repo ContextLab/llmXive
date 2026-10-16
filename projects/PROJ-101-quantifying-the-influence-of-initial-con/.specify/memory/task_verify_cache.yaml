@@ -7,17 +7,13 @@ T002:
     \ importable as required."
   sig: 202b4cc1b064e7e07b064b140f6f8e792684e951c58f43d40460c4c72d4b4116
 T003:
-  c: false
-  h: eb904108e6380bf56332807092fb301107b4465990860c7d7d442c2bd9176a0e
-  r: "The repository contains a `tests/conftest.py` with a `seed` fixture returning\u202F\
-    42 and a custom temporary\u2011directory fixture (`temp_data_dir`), but it does\
-    \ not define or use the built\u2011in `tmp_path` fixture as the task specifies,\
-    \ nor is there any test file (e.g., `tests/test_dummy.py`) that asserts reproducibility\
-    \ with `np.random.RandomState(42).rand()`. Consequently there is no evidence that\
-    \ `pytest -q` actually runs and passes such a dummy test. Adding a test that uses\
-    \ `tmp_path` (or the built\u2011in fixture) and showing a successful pytest run\
-    \ would be required to complete the task."
-  sig: cd3bbcf53668919a0feb915c1f8b222d6058f94e1901ce002924a1a8c0528291
+  c: true
+  h: 5dcc56b8ee6b58aa4b2b8f9e52e6c9eecea38d6161b3ecc041789eb21a9997f2
+  r: '`tests/conftest.py` exists (6320 bytes) with a `seed` fixture returning 42,
+    plus temporary-directory fixtures (`temp_data_dir`) and seed-pinning (`random_seed`),
+    and the execution log shows `tests/test_dummy.py::test_random_state_reproducibility`
+    passing (exit 0) under the project''s pytest config, satisfying the stated verification.'
+  sig: 6d3ab1506d290fb944cc468f0b236ccb6207ff0521b8af92104bbe9ff58c3d28
 T004:
   c: true
   h: 20bf94fc431524d4dfff4ea97533cc669947a97a661fd869851f69d4f742f558
@@ -53,15 +49,17 @@ T006:
     \ (or expose the same API) and include the noise\u2011std"
   sig: 40ca9d52ec66d6197621345ca43052d18ba4a7309c56dd818642b30b4af8a3a0
 T007:
-  c: true
-  h: b62f0ae622312f7cd56ad3e7c3df2912b7ea64515748f3185fbc155a4de7df4c
-  r: "Checked `code/utils/stability.py` which defines `raise_if_unphysical` (raises\
-    \ `UnphysicalTrajectoryError` when the Euclidean norm exceeds the default 20.0)\
-    \ and `check_noise_level` (issues a `HighNoiseWarning` for `\u03C3_noise\u202F\
-    >\u202F0.1`). The corresponding error and warning classes exist in `code/data/generator.py`,\
-    \ and the unit tests in `tests/unit/test_generator.py` confirm that high noise\
-    \ (`\u03C3_noise=1.5`) triggers `UnphysicalTrajectoryError`."
-  sig: dbb18f8e13d2ec89f3168080384106802c44deb4fcc25e84d4aea4f177be5624
+  c: false
+  h: a971b9f973648b60b2eaa5b5b6bd3a1f857b55af2053c2f10a95b9f5272873eb
+  r: '`code/utils/stability.py` does define `check_boundedness` and `raise_if_unphysical`
+    with the 20.0 norm threshold and a `check_noise_level` helper, but the guard is
+    never wired into any integration path: `code/data/generator.py`''s `integrate_trajectory`
+    never calls `raise_if_unphysical`, and its `validate_trajectory` raises on `sigma_noise
+    > 1.0` / `max(|state|) > 100` instead of the required norm > 20.0 check. The test
+    suite would also fail as written: the `data/generator.py` shim used by the tests
+    never raises `UnphysicalTrajectoryError` or emits `HighNoiseWarning` in `integrate_trajectory`
+    ('
+  sig: 7b186c34634d5d3c953b538ceda799cb27ad3e645d68870000921a32d133db5a
 T008:
   c: false
   h: bc66211cd1d41fdad5852bd14e478ed253cce9bd0c7248b74b00507abefca152
