@@ -17,22 +17,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingestion/download_data.py -> rc=1
-^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/openneuro/_download.py", line 381, in _get_openneuro_metadata
-    response_json = _retry_request(
-                    ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/openneuro/_download.py", line 459, in _retry_request
-    raise RuntimeError(f'Query failed when {what}: "{error_message}"')
-RuntimeError: Query failed when retrieving metadata for ds003123: "Dataset ds003123 does not exist."
-
-The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/download_data.py", line 98, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/download_data.py", line 95, in main
-    raise RuntimeError("DATA_MISSING_001: Real data fetch failed") from e
-RuntimeError: DATA_MISSING_001: Real data fetch failed
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/download_data.py", line 23, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 
 ## Declared deliverables still missing

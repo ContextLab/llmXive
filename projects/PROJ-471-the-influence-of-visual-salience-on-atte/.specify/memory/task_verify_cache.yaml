@@ -1,12 +1,12 @@
 T001:
   c: true
-  h: 7485afe0e0bffee91b3b367f4271ea7f36adb7e33f820675608cb448a2c18e66
-  r: 'The required artifacts exist and match the task: `code/bootstrap.py` creates
-    all seven required directories (all confirmed present on disk with `.gitkeep`
-    markers), writes a pinned `code/requirements.txt` (present in the `code/` listing,
-    with exact version pins matching the claim), `code/config.py` defines paths/seeds/thresholds,
-    `code/main.py` is a runnable entry point supporting the documented `--stage smoke`
-    command, and `specs/.../quickstart.md` documents the invocation. The unpinned
-    root `requirements.txt` is a supplementary file, not a defect since the pinned
-    one exists at `code/requirem'
-  sig: a93cfaf8e8d2d6eeddb0657e19decd41abab52fc425b6268502904cc44486acb
+  h: 53edb2914b7d351cf1f2bcb8c2923722aeb572a26db41549a1c722b4b7ea96c2
+  r: The required directories (`code/`, `data/raw|interim|processed|results`, `code/tests/`,
+    `docs/`) all exist on disk; `code/bootstrap.py` creates them and writes a pinned
+    `code/requirements.txt` (present in the `code/` listing) with exact version pins;
+    and `code/main.py --stage smoke` is a runnable entry point that verifies the layout
+    and exits 0, matching the quickstart documentation. The "full pipeline not yet
+    implemented" placeholder in `main.py` is acceptable for T001, which only requires
+    layout, requirements, and a runnable entry point, not the pipeline stages assigned
+    to later tasks.
+  sig: 5177ff625cb8877e6c3df95ef3830b1a26867a0c26aaa5d241c7e6547cb474f5
