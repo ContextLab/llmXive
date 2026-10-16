@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Baseline Schema
-description: Schema for the asymptotic Lyapunov baseline of a clean system.
+title: "Baseline Schema"
+description: "Schema for the asymptotic Lyapunov baseline of a clean system."
 type: object
 required:
   - system_dimension
@@ -11,23 +11,23 @@ required:
 properties:
   system_dimension:
     type: integer
-    description: "Number of coupled Lorenz oscillators (N)"
+    description: "Number of coupled Lorenz oscillators (N)."
   lambda_max:
     type: number
-    description: "Asymptotic maximum Lyapunov exponent (converged value)"
+    description: "Asymptotic maximum Lyapunov exponent (converged value)."
   convergence_error:
     type: number
-    description: "Percentage error at T=5000 compared to final estimate"
+    description: "Percentage error at T=5000 compared to the final estimate."
   status:
     type: string
     enum:
       - "valid"
       - "invalid"
-    description: "Whether the baseline meets convergence criteria (<5% error)"
+    description: "Whether the baseline meets the <5 % convergence criterion."
   trajectory_length:
     type: integer
-    description: "Length of trajectory used for baseline calculation"
+    description: "Length of the trajectory used for baseline calculation."
   algorithm:
     type: string
-    description: "Algorithm used for baseline calculation (e.g., 'Rosenstein')"
+    description: "Algorithm used for baseline calculation (e.g., 'Rosenstein')."
 additionalProperties: false

@@ -1,76 +1,52 @@
 # Data Model: Quantifying the Influence of Initial Conditions on Chaotic Systems
 
 ## Overview
+All artifacts live under `data/`. Raw trajectories are immutable; processed results are derived and version‑checked via SHA‑256 checksums recorded in `state/manifest.yaml`.
 
-This document defines the data structures, file formats, and schemas used in the project. All data is stored in `data/` with checksums recorded in `state/`.
-
-## Directory Structure
-
-```text
+## Directory Layout
+```
 data/
 ├── raw/
-│   ├── trajectories_N{N}_sigma{sigma}_trial{t}.npz
-│   └── ... (generated synthetic data)
+│   └── trajectories_N{N}_sigma{sigma}_trial{t}.npz
 ├── processed/
-│   ├── ftle_results.json           # Aggregated FTLE estimates
-│   ├── baseline_{N}.json           # Asymptotic baseline for dimension N
-│   ├── regression_stats.json       # Regression coefficients and p-values
-│   └── plots/                      # Generated figures
+│   ├── ftle_results.json            # Aggregated FTLE entries (ftle_results.schema.yaml)
+│   ├── baseline_{N}.json            # Clean baseline per dimension (baseline.schema.yaml)
+│   ├── regression_results.json      # Mixed‑effects / Tobit regression output (regression_results.schema.yaml)
+│   ├── results.json                 # Bundled outputs (results.schema.yaml)
+│   └── plots/
+│       ├── convergence.png
+│       ├── bias_scaling.png
+│       └── dimension_scaling.png
 └── artifacts/
-    └── manifest.yaml               # Checksums and metadata
+    └── manifest.yaml                # Checksums & metadata
 ```
 
 ## Entity Definitions
 
-### 1. Trajectory (Raw)
-- **Source**: `code/simulation/generator.py`
-- **Format**: NumPy `.npz` (compressed)
-- **Contents**:
-  - `time`: 1D array of time points.
-  - `state`: 2D array $(T, 3N)$ of system states.
-  - `noise`: 2D array $(T, 3N)$ of injected noise (for verification).
-  - `params`: Dict with `N`, `sigma`, `seed`, `rho`, `beta`, `sigma_l`.
-
-### 2. FTLE Result (Processed)
-- **Source**: `code/analysis/ftle.py`
-- **Format**: JSON
-- **Schema**: See `contracts/ftle_result.schema.yaml`
-- **Key Fields**:
-  - `window_size`: Explicitly recorded sliding window size $T$.
-  - `status`: "valid", "unphysical", or "non-chaotic".
-
-### 3. Baseline (Processed)
-- **Source**: `code/analysis/baseline.py`
-- **Format**: JSON
-- **Contents**:
-  - `N`: System dimension.
-  - `lambda_max`: Maximum Lyapunov exponent (asymptotic).
-  - `convergence_error`: % error at $T=5000$.
-  - `status`: "valid" or "invalid".
-  - `algorithm`: "Rosenstein" (as per Constitution).
-
-### 4. Regression Stats (Processed)
-- **Source**: `code/analysis/regression.py`
-- **Format**: JSON
-- **Contents**:
-  - `model_type`: e.g., "power_law".
-  - `coefficients`: Dict of fitted parameters.
-  - `r_squared`: $R^2$ value.
-  - `p_values`: Dict of p-values for coefficients.
-  - `scaling_exponent`: Exponent relating dimension to bias (if applicable).
-  - `effect_size`: Cohen's d for the bias term.
-  - `trial_count`: Number of trials used.
+| Entity | Source | Format | Schema |
+|--------|--------|--------|--------|
+| **Trajectory** | `code/simulation/generator.py` | NumPy `.npz` (arrays `time`, `state`, `noise`, dict `params`) | `contracts/trajectory.schema.yaml` |
+| **FTLE Result (single)** | `code/analysis/ftle.py` | JSON (list of objects) | `contracts/ftle_result.schema.yaml` |
+| **FTLE Results (aggregated)** | `code/analysis/ftle.py` (aggregation step) | JSON (object) | `contracts/ftle_results.schema.yaml` |
+| **Baseline** | `code/analysis/baseline.py` | JSON (single object) | `contracts/baseline.schema.yaml` |
+| **Regression Results** | `code/analysis/regression.py` | JSON (mixed‑effects + Tobit) | `contracts/regression_results.schema.yaml` |
+| **Results Bundle** | Pipeline end‑stage | JSON (combines FTLE, regression, escape probabilities) | `contracts/results.schema.yaml` |
+| **Plots** | `code/analysis/plotting.py` | PNG | – (visual artifact) |
 
 ## Data Flow
-
-1.  **Generation**: `generator.py` reads `config.py` -> writes `data/raw/*.npz`.
-2.  **Validation**: `baseline.py` reads `data/raw` (clean) -> writes `data/processed/baseline_{N}.json` (using Rosenstein).
-3.  **Computation**: `ftle.py` reads `data/raw` -> writes `data/processed/ftle_results.json` (includes `window_size` metadata).
-4.  **Analysis**: `regression.py` reads `ftle_results.json` + `baseline` -> writes `data/processed/regression_stats.json`.
-5.  **Visualization**: `code/analysis/plotting.py` reads `regression_stats.json` -> writes `data/processed/plots/*.png`.
+1. **Generation** → `data/raw/*.npz`.  
+2. **Baseline Validation** reads clean raw file → writes `baseline_{N}.json`.  
+3. **FTLE Computation** reads each raw file → appends entries to `ftle_results.json` (single‑entry) and aggregates them into `ftle_results.json` (object) validated against `ftle_results.schema.yaml`.  
+4. **Statistical Analysis** consumes `ftle_results.json` + `baseline_{N}.json` → writes `regression_results.json` (validated against `regression_results.schema.yaml`).  
+5. **Bundling** creates `results.json` containing FTLE trials, regression output, and escape probabilities; validated against `results.schema.yaml`.  
+6. **Visualization** consumes `regression_results.json` → writes PNGs.  
+7. **Manifest** computes SHA‑256 for every file in `data/` and stores them under `state/artifacts/manifest.yaml`.  
 
 ## Integrity & Hygiene
+- **Immutability**: Raw `.npz` files are never overwritten.  
+- **Checksums**: Generated automatically after each pipeline stage; CI fails if a checksum mismatch is detected.  
+- **Versioning**: `state/projects/PROJ-101-quantifying-the-influence-of-initial-con.yaml` records the git commit hash and the artifact hash map.  
+- **Reproducibility**: All random seeds are stored in each trajectory’s metadata (`params.seed`).  
 
-- **Checksums**: Every file in `data/` is checksummed (SHA-256) upon creation.
-- **Immutability**: Raw data files are never modified. Derived files are written with new timestamps.
-- **Versioning**: `state/manifest.yaml` tracks the git commit hash and file hashes for every artifact.
+---
+

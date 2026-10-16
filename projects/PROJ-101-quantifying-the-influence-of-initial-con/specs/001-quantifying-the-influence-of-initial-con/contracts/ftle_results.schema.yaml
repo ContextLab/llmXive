@@ -1,38 +1,13 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "FTLE Results"
 description: "Schema for aggregated FTLE estimates across trials and noise levels."
-type: "object"
-properties:
-  trajectory_id:
-    type: "string"
-    description: "Reference to parent trajectory."
-  window_size:
-    type: "integer"
-    description: "Time window T used for calculation."
-  start_time:
-    type: "integer"
-    description: "Start index of the window."
-  max_exponent:
-    type: "number"
-    description: "Maximum Lyapunov exponent for this window."
-  full_spectrum:
-    type: "array"
-    description: "Full spectrum of Lyapunov exponents."
-    items:
-      type: "number"
-  deviation:
-    type: "number"
-    description: "Deviation from asymptotic baseline (Delta lambda)."
-  noise_level:
-    type: "number"
-    description: "Noise level of the parent trajectory."
-  escape_time:
-    type: ["number", "null"]
-    description: "Time step at which trajectory exited basin (or null if bounded)."
+type: object
 required:
-  - trajectory_id
-  - window_size
-  - max_exponent
-  - deviation
-  - noise_level
-  - escape_time
+  - results
+properties:
+  results:
+    type: array
+    description: "Array of FTLE result objects."
+    items:
+      $ref: "./ftle_result.schema.yaml"
+additionalProperties: false

@@ -1,6 +1,6 @@
 status: none
-intent: Coupled Lorenz oscillator synthetic dataset with configurable Gaussian noise
-  python package Lorenz synthetic dataset ChaosData
+intent: pip install jitcode coupled Lorenz oscillator synthetic trajectory generator
+  python package dataset
 required_fields:
 - time
 - oscillator_id
@@ -8,9 +8,6 @@ required_fields:
 - y
 - z
 - noise_std
-- time_step
-- coupling_strength
-- integration_method
-cache_key: f8717f134d1cfa5fbcf7c1ea57cf67c526ddde6125324c517eb65d9c91a6b4c6
-searched_at: '2026-09-19T01:47:32.674518+00:00'
+cache_key: 2fb58635084f34e51cf79d2ce37536b6420d0b4758711a4658bfbfce05db3186
+searched_at: '2026-10-16T14:12:05.583760+00:00'
 retry_count: 1
