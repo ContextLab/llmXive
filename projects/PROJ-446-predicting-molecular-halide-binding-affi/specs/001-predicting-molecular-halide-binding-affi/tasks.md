@@ -1,254 +1,49 @@
 # Tasks: Predicting Molecular Halide Binding Affinities with Machine Learning
 
-**Input**: Design documents from `/specs/001-predicting-molecular-halide-binding-affinities/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: Active `spec.md`, `plan.md`, data-model and contracts under `specs/001-predicting-halide-binding-affi/`, prior task list and verifier feedback.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+This is a re‑plan. Prior scaffolding tasks that produced no verifiable artifacts (directory creation, `state.yaml` initialization, lint/format passes, README polish) are removed: the platform owns project state and CI, and empty‑directory/lint tasks are not research deliverables. The remaining work is consolidated into substantive, individually verifiable pipeline tasks. The FR‑011 simulated‑data fallback is retained as an explicit, spec‑mandated pipeline branch (an authorized physics‑constrained simulation study, not a silent loader fallback); the real‑data loader itself **MUST** fail loudly on fetch failure.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 1: Setup and first end‑to‑end analysis
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T001 [US1] Implement and run the real‑data acquisition and cleaning stage in `code/01_data_ingestion.py`, producing real intermediate artifacts. **Requirements (FR‑001, FR‑010)**: fetch halide binding records from NIST Chemistry WebBook and PubChem using `requests` with 2 s delay between requests and exponential backoff (max 3 retries) on 429/503, parse HTML/JSON with `BeautifulSoup`; filter to solvents acetonitrile/chloroform/dichloromethane; exclude records with missing or RDKit‑unparseable SMILES/InChI, logging the exclusion count; standardize binding‑constant units (log K vs ΔG in kcal/mol, converting ΔG via log K = −ΔG/(2.303·RT) with T = 298.15 K); drop ambiguous halide labels and resolve duplicate host–halide records by averaging with the spread recorded. **The loader MUST raise on fetch failure — no try/except synthetic fallback.** **Outputs**: `data/raw/raw_scrape.json`, `data/raw/raw_scrape_cleaned.csv`, `data/raw/filtered_hosts.csv` (hosts with ≥3 distinct halides, per FR‑003). **Verification**: `python code/01_data_ingestion.py` exits 0 or raises a real fetch error (never silent), and each CSV exists with non‑empty rows containing `host_id`, `smiles`, `halide_identity`, `binding_constant`, `solvent`, `source`; a small‑sample run of the cleaning logic is covered by focused tests in `code/tests/test_data_ingestion.py`.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T002 [US1] Implement descriptor generation in `code/02_feature_engineering.py` and run it on the cleaned hosts. **Requirements (FR‑002)**: for each host compute ECFP4 fingerprints (RDKit `MorganGenerator`, radius 2, 1024‑bit), Gasteiger charge sum (`charge_density`), and RDKit molecular volume (`cavity_volume`, Å³). **Output**: `data/raw/descriptors_added.csv` with all descriptor columns appended (including `ecfp_0` … `ecfp_1023`). **Verification**: file exists, one row per host, no nulls in `charge_density`/`cavity_volume`, values are finite floats; a unit test in `code/tests/test_feature_engineering.py` checks descriptor values for 2–3 known SMILES against RDKit‑computed references.
 
-## Path Conventions
+- [ ] T003 [US1] Implement the FR‑011 data‑sufficiency decision and simulated‑data branch in `code/01_data_ingestion.py`, then produce the final processed dataset. **Logic**: count unique `host_id` in `data/raw/filtered_hosts.csv`. If count < 50, log the exact warning `WARNING: Insufficient data (<50 hosts). Comparative analysis aborted. Switching to single‑halide prediction mode with simulated data.`, identify the most abundant halide in `data/raw/raw_scrape_cleaned.csv`, and generate a seeded (RANDOM_SEED=42) simulated dataset of **100** synthetic hosts with `log K_sim = 0.5 * charge_density + 0.3 * cavity_volume + N(0, 0.2)`, where descriptors come from real host descriptor statistics in `data/raw/descriptors_added.csv`; validate the simulated DataFrame against `specs/001-predicting-molecular-halide-binding-affi/contracts/dataset.schema.yaml` and write `data/simulated/temp_simulated_data.csv` plus `data/simulated/state.json` with `SIMULATED_MODE: true`, `analysis_mode: single_halide_prediction`, `comparative_analysis_aborted: true`, and the identified halide. If count ≥ 50, set `SIMULATED_MODE: false`. **Final output (single writer)**: `data/processed/halide_binding_data.csv` — the simulated CSV in simulated mode, otherwise the real filtered hosts merged with descriptors — schema‑validated. **Verification**: `data/processed/halide_binding_data.csv` exists, passes `dataset.schema.yaml` validation, and in simulated mode contains exactly 100 distinct host rows for a single halide with `source: "Simulated"`; a unit test exercises both branches with fixture inputs.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+## Phase 2: Complete the study and validate its evidence
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T004 [US2] Implement and run model training in `code/03_model_training.py` for both Random Forest and Gradient Boosting (scikit‑learn ≥1.4.0, default hyperparameters, `n_jobs=1`, CPU‑only). **Requirements (FR‑004, FR‑005)**: 5‑fold `GroupKFold` grouped by `host_id` so no host appears in both train and validation within a fold; per‑fold and mean/std R² and RMSE overall and per halide; in simulated single‑halide mode, train on the single halide (host grouping still applies) and set `comparative_analysis_aborted: true`. Record peak RSS and wall time and assert they stay within the 2 vCPU / 7 GB / ≤6 h budget, raising `RuntimeError` on breach. **Outputs**: `data/processed/models/random_forest_model.pkl`, `data/processed/models/gradient_boosting_model.pkl`, `data/processed/metrics/random_forest_metrics.json`, `data/processed/metrics/gradient_boosting_metrics.json`, and `data/processed/model_runs.json` (conforming to `model_output.schema.yaml` and `output.schema.yaml`, including `data_mode`, fold metrics, and feature importances). **Verification**: all five artifact files exist and are non‑empty; a leakage test in `code/tests/test_model_split.py` asserts disjoint host sets per fold; runtime/RAM figures are written into `model_runs.json`.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T005 [US3] Implement and run feature stability analysis, partial dependence plots, and the physical plausibility check in `code/04_feature_analysis.py`. **Requirements (FR‑006, FR‑007, FR‑013)**: (a) bootstrap resampling (≥50 resamples, seed 42) of the training data, refitting the models, computing feature importances, and reporting the top 10 features with coefficient‑of‑variation stability scores, flagging CV ≥ 0.3 as “unstable”; (b) partial dependence plots for ≥2 key features (e.g., hydrogen‑bond donor count, cavity volume) showing affinity trends across the halide series F⁻→Cl⁻→Br⁻→I⁻ (in single‑halide mode, plots for the available halide only, noted as such); (c) physical plausibility check on the **top‑ranked feature**: verify that the sign of its coefficient matches first‑principles electrostatics (e.g., if the top feature is `charge_density`, the coefficient must be positive; otherwise, simply report the sign without imposing a rule). **Outputs**: `data/processed/feature_analysis.json` (stability ranking + plausibility verdict), `data/processed/physical_plausibility.json`, `data/processed/feature_interpretation_summary.csv` (feature_name, chemical_interpretation, hypothesis), and PDP figures under `figures/`. **Verification**: all four artifact paths exist and are non‑empty; stability JSON contains ≥10 features with `cv` and `is_stable` fields; ≥2 PDP figure files exist; plausibility JSON contains a boolean `is_plausible` with `reasoning`.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T006 [US4] Implement and run the statistical comparison and under‑powered handling logic in `code/05_statistical_reporting.py`. **Requirements (FR‑009, FR‑012)**: read `data/simulated/state.json` and per‑halide counts. If `SIMULATED_MODE` is true, skip pairwise comparison and write `data/processed/power_status.json` with `ABORT_REASON: "SIMULATED_MODE"` plus the logged warning that the project FAILS to answer the primary comparative research question. If any halide group has N < 10, **still compute** pairwise bootstrap confidence intervals (10 000 resamples, seed 42) for performance differences and set `underpowered: true` in the output; flag CI widths as “wide” but do not omit the CI. Otherwise compute, for each halide pair, the difference in mean R² and RMSE with 95 % bootstrap CIs (10 000 resamples) over the measurement set. The Paired Wilcoxon test MUST NOT be used. Any |difference| ≥ 0.1 is flagged with its CI; a CI containing zero is reported as “not statistically distinguishable”. **Output**: `data/processed/statistical_summary.json` conforming to the `bootstrap_ci` block of `output.schema.yaml` (multiple entries allowed) and containing `comparative_analysis_aborted` flag where appropriate. **Verification**: file exists, is valid JSON, and contains either per‑pair CI entries or an explicit abort record; a unit test in `code/tests/test_statistical_reporting.py` checks the CI computation on a small synthetic‑metric fixture.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T010 [US1] Compute a collinearity diagnostic for all numeric molecular descriptors. **Requirements**: calculate Variance Inflation Factor (VIF) for each descriptor column in `data/processed/halide_binding_data.csv`; flag any descriptor with VIF > 5 as highly collinear. **Output**: `data/processed/collinearity_diagnostic.json` listing each descriptor, its VIF value, and a boolean `high_collinearity` flag. **Verification**: JSON file exists, VIF values are numeric, and at least one descriptor is evaluated; a unit test in `code/tests/test_collinearity.py` validates VIF computation on a tiny synthetic dataset.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T007 [US1][US4] Add the independent validation checks and execute them end‑to‑end: run `pytest code/tests/` (data ingestion, split leakage, statistical reporting, collinearity) and record outcomes; verify `data/processed/halide_binding_data.csv` against `dataset.schema.yaml` and `data/processed/model_runs.json` against `model_output.schema.yaml`/`output.schema.yaml`; verify dataset completeness for required variables (host SMILES, halide identity, binding constant, solvent — SC‑004) and per‑halide host counts (FR‑012). **Output**: `data/results/validation_report.json` listing each check, its command, and its actual pass/fail outcome. **Verification**: the report exists and every recorded check's outcome matches a re‑run of that command.
 
-**Purpose**: Project initialization and basic structure
+## Phase 3: Reproducible results and paper handoff
 
-- [ ] T001 Create `projects/PROJ-446-predicting-molecular-halide-binding-affi/` root directory (`mkdir -p projects/PROJ-446-predicting-molecular-halide-binding-affi`) <!-- FAILED: unspecified -->
-- [X] T002 Create `code/` and `code/utils/` directories (`mkdir -p projects/PROJ-446-predicting-molecular-halide-binding-affi/code/utils`)
-- [X] T003 Create `data/` and `docs/` root directories (`mkdir -p projects/PROJ-446-predicting-molecular-halide-binding-affi/{data,docs}`)
-- [X] T004 Create `data/raw/`, `data/processed/`, `data/simulated/` and `docs/paper/` directories (`mkdir -p projects/PROJ-446-predicting-molecular-halide-binding-affi/data/{raw,processed,simulated} docs/paper`)
+- [ ] T008 [US4] Generate the final research report `data/results/report.md` (also linked from the feature's `specs/` dir) directly from the validated outputs: per‑halide and overall R²/RMSE with fold statistics, bootstrap CI summary (or explicit abort record), feature stability ranking with chemical interpretations, physical plausibility verdict, resource usage vs the compute budget, and an explicit “associational, not causal” disclaimer (FR‑008). In simulated mode the report MUST be marked “Simulated Data Mode” and state that the primary comparative research question is unanswerable with available data. Flag all |Δ| ≥ 0.1 performance differences with their 95 % CIs. **Verification**: report exists, references actual values from `data/processed/*.json` (spot‑checkable), and contains the disclaimer and data‑mode statement.
 
----
+- [ ] T009 Re‑run the documented workflow from its declared inputs (`quickstart.md` command sequence: ingestion → features → training → analysis → reporting) and confirm reproducibility: identical seeds produce identical `model_runs.json` metrics and `statistical_summary.json` CIs (within floating‑point tolerance), and all Phase 2 validation checks pass. Document the paper‑stage handoff in `data/results/report.md`: the figures under `figures/`, result tables, the associational framing, and the simulated‑mode limitation (if active) that the paper stage must carry forward. **Verification**: a fresh run completes without error and a recorded diff/hash comparison of key JSON outputs against the prior run shows no substantive change.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Dependencies and requirement coverage
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- **FR‑001, FR‑002, FR‑003, FR‑010** → T001, T002 (real data acquisition, descriptors, ≥3‑halide filtering, structure validation).
+- **FR‑011** → T003 (sufficiency gate, seeded physics‑constrained simulation branch, schema validation, final processed CSV).
+- **FR‑004, FR‑005** → T004 (GroupKFold by host, CPU‑only RF/GB, resource budget).
+- **FR‑006, FR‑007, FR‑013** → T005 (bootstrap stability, PDPs, physical plausibility sign check only).
+- **FR‑009, FR‑012** → T006 (bootstrap CIs for all pairwise comparisons; under‑powered case still reports CIs).
+- **FR‑008** → T008 (associational disclaimer in report).
+- **SC‑001–SC‑007** → verified via T004 (held‑out‑host R², runtime), T005 (CV stability, plausibility sign), T006/T007 (CI reporting, dataset completeness), T010 (collinearity diagnostic).
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+Execution order: T001 → T002 → T003 → T004 → (T005, T006, T010 may proceed in parallel once T004 exists) → T007 → T008 → T009. T005 and T006 touch different files and depend only on T004 outputs.
 
-- [ ] T011 [P] Initialize `state.yaml` with artifact tracking. **Create file at `projects/PROJ-446-predicting-molecular-halide-binding-affi/state.yaml`** with content: `artifacts: {}`. **Constraint**: MUST run BEFORE T007 and T012 to ensure Constitution Principle V is satisfied before any artifact writing begins.
-- [X] T005 [P] Initialize Python 3.11 project with dependencies. **Create file at `code/requirements.txt`** with content: scikit-learn>=1.4.0, rdkit, pandas, numpy, requests, beautifulsoup4, pyyaml, pytest.
-- [X] T006 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [X] T007 [P] Implement configuration management (`code/utils/config.py`: random seeds, paths, solvent list)
-- [X] T008 [P] Implement schema validators (`code/utils/validators.py`: `dataset.schema.yaml` validation logic)
-- [X] T009 Create `code/utils/logger.py` with JSON format and rotating file handler for logging infrastructure.
-- [X] T010 [P] Configure global error handling middleware and exception hooks in `code/utils/`.
+## Revision behavior
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+Previously checked tasks whose artifacts the verifier confirmed (config, validators, logger, requirements) remain embodied in the existing `code/utils/` and `code/requirements.txt` and are not re‑tasked. All rejected artifacts (processed CSV, models, metrics JSONs, feature analysis outputs, statistical summary) are re‑opened inside the consolidated tasks above. Platform‑owned concerns (`state.yaml` hashing, CI, lint/format passes, README polish) are removed from the research task list per stage ownership; the runtime derives artifact hashes at verification time.
 
----
-
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Download, parse, and filter experimental halide binding data from NIST/PubChem; fallback to simulated data if insufficient real data is found.
-
-**Independent Test**: Can be fully tested by running the data pipeline on a small sample subset (or simulated data) and verifying the output CSV contains valid binding constants, halide identities, solvent tags, and molecular descriptors for ≥3 halides per host.
-
-### Implementation for User Story 1
-
-- [X] T012 [US1] Implement NIST/PubChem scraper (`code/01_data_ingestion.py`): Use `requests` with 2s delay, exponential backoff (max 3 retries), `BeautifulSoup` parsing. Filter for solvents: acetonitrile, chloroform, DCM. **Output**: `data/raw/raw_scrape.json`.
-- [X] T013 [US1] Implement data validation and cleaning (`code/01_data_ingestion.py`): Parse SMILES/InChI, exclude records with invalid structures or missing halide identities, standardize units (log K vs ΔG). **Output**: `data/raw/raw_scrape_cleaned.csv`.
-- [X] T014 [US1] Implement host-halide filtering (`code/01_data_ingestion.py`): Retain only hosts with ≥3 different halide measurements (F⁻, Cl⁻, Br⁻, I⁻) for within-host comparison. **Output**: `data/raw/filtered_hosts.csv`.
-- [ ] T014b [US1] Implement Data Sufficiency Decision Logic (`code/01_data_ingestion.py`): **Input**: `data/raw/filtered_hosts.csv` from T014. **Logic**: Count unique `host_id` entries. **Decision**: If count < 50, set `SIMULATED_MODE=True` in `data/simulated/state.json` and log the exact warning: "WARNING: Insufficient data (<50 hosts). Comparative analysis aborted. Switching to single-halide prediction mode with simulated data." If count ≥ 50, set `SIMULATED_MODE=False`. **Output**: `data/simulated/state.json` (flag), console log. **Dependency**: Must run after T014.
-- [X] T015 [US1] Implement molecular descriptor generation (`code/02_feature_engineering.py`): Generate ECFP fingerprints and RDKit descriptors (charge_density, cavity_volume) for all host molecules. **Output**: `data/raw/descriptors_added.csv`. **Dependency**: Must run after T013 (cleaning) and before T016a (simulation needs descriptors).
-- [ ] T016a [US1] Implement Simulated Data Generation (`code/01_data_ingestion.py`): **Trigger**: Only if `data/simulated/state.json` indicates `SIMULATED_MODE=True`. **Input**: `data/raw/descriptors_added.csv` (from T015) to extract `charge_density` and `cavity_volume`. **Logic**: Identify the **most abundant halide** in the `data/raw/raw_scrape_cleaned.csv` (T013 output). Generate synthetic `log K_sim = 0.5 * charge_density + 0.3 * cavity_volume + N(0, 0.2)` for a synthetic dataset of 100 hosts **using ONLY the identified most abundant halide**. **Step 3:** **Validate the generated DataFrame against `dataset.schema.yaml`**. **Step 4:** **Write the validated DataFrame to `data/simulated/temp_simulated_data.csv`**. **Step 5:** **Log the exact warning defined in T014b**. **Output**: `data/simulated/temp_simulated_data.csv`. **Dependency**: Must run after T015 (descriptors) and T014b (decision).
-- [X] T016b [US1] Implement Single-Halide Mode State Logic (`code/01_data_ingestion.py`): **Input**: `data/simulated/temp_simulated_data.csv` (from T016a) and `data/simulated/state.json`. **Logic**: If `SIMULATED_MODE` is True, ensure the state file explicitly marks `analysis_mode: 'single_halide_prediction'` and `comparative_analysis_aborted: true`. **Do NOT filter the data** to a single halide; retain the full simulated dataset to allow the ML pipeline to run (even if the analysis is aborted later). **Output**: Update `data/simulated/state.json`. **Dependency**: Must run after T016a.
-- [ ] T017 [US1] Save processed dataset to `data/processed/halide_binding_data.csv` with schema compliance check. **Responsibility**: This task is the sole writer of the final CSV file. **Logic**: If `data/simulated/state.json` exists and `SIMULATED_MODE` is True, read the DataFrame from `data/simulated/temp_simulated_data.csv` (output of T016a). Otherwise, use the cleaned data from T014 (merged with T015 descriptors). Validate against schema and write to `data/processed/halide_binding_data.csv`. **Dependency**: Must run after T016b (if simulated) or T014 (if real).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (either with real or simulated data).
-
----
-
-## Phase 4: User Story 2 - Model Training and Cross-Validation (Priority: P2)
-
-**Goal**: Train Random Forest and Gradient Boosting models with host-identity splitting to prevent data leakage.
-
-**Independent Test**: Can be fully tested by training a random forest model on the preprocessed dataset and verifying that cross-validation produces R² and RMSE metrics without data leakage (i.e., same host molecule identity does not appear in both train and validation sets within a fold) and completes within the defined time/RAM limits.
-
-### Implementation for User Story 2
-
-- [X] T018 [US2] Implement host-identity stratified splitter (`code/03_model_training.py`): Ensure no host molecule appears in both train and validation sets within a fold.
-- [ ] T019a [US2] Train Random Forest model (`code/03_model_training.py`): Use scikit-learn default hyperparameters. **Constraint**: Explicitly set `n_jobs=1`. **Enforcement**: Spawn a background monitoring thread that checks RAM usage and elapsed time. If RAM > 7GB or time > 6h, raise a `RuntimeError` immediately and kill the process. **Output**: `data/processed/models/random_forest_model.pkl`. **Dependency**: T017 (data).
-- [ ] T019b [US2] Record Random Forest metrics (`code/03_model_training.py`): Read model from `data/processed/models/random_forest_model.pkl`. Compute R² and RMSE per fold. **Output**: `data/processed/metrics/random_forest_metrics.json`. **Dependency**: T019a.
-- [ ] T020a [US2] Train Gradient Boosting model (`code/03_model_training.py`): Use scikit-learn default hyperparameters. **Constraint**: Explicitly set `n_jobs=1`. **Enforcement**: Spawn a background monitoring thread that checks RAM usage and elapsed time. If RAM > 7GB or time > 6h, raise a `RuntimeError` immediately and kill the process. **Output**: `data/processed/models/gradient_boosting_model.pkl`. **Dependency**: T017 (data).
-- [~] T020b [US2] Record Gradient Boosting metrics (`code/03_model_training.py`): Read model from `data/processed/models/gradient_boosting_model.pkl`. Compute R² and RMSE per fold. **Output**: `data/processed/metrics/gradient_boosting_metrics.json`. **Dependency**: T020a.
-- [~] T021 [US2] Implement resource monitoring (`code/03_model_training.py`): **Run post-condition after T019b and T020b**. Log peak RAM usage and runtime. **Verification**: Explicitly compare runtime against the 6-hour threshold and RAM against 7GB threshold defined in SC-003. **Fail**: If T019a/T020a triggered a kill, write `data/processed/failure_flag.json` with `status: "resource_limit_exceeded"` and write detailed error log to `data/processed/errors/resource_monitor.log`. **Dependency**: T019b, T020b.
-- [ ] T022 [US2] Save model run artifacts to `data/processed/model_runs.json` (includes model_type, folds, metrics, feature importances). **Dependency**: Must run after T019b and T020b complete.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (data pipeline feeds model training).
-
----
-
-## Phase 5: User Story 3 - Feature Importance Analysis and Visualization (Priority: P3)
-
-**Goal**: Perform feature stability analysis and generate partial dependence plots to identify robust predictive determinants.
-
-**Independent Test**: Can be fully tested by running feature stability analysis on a trained model and verifying the output includes a ranked list of top features with stability scores (coefficient of variation < 0.3), plus partial dependence plots for at least 2 key features.
-
-### Implementation for User Story 3
-
-- [X] T023 [US3] Implement feature stability analysis (`code/04_feature_analysis.py`): Run multiple bootstrap resamples, calculate coefficient of variation (CV) for the top features. Flag features with CV ≥ 0.3 as "unstable". **Verification**: Explicitly check that the sign of the top feature aligns with Coulombic attraction principles (SC-007) as a pass/fail criterion for this task. **Dependency**: T019a/T020a (models).
-- [X] T024 [US3] Implement Partial Dependence Plot generation (`code/04_feature_analysis.py`): Generate plots for ≥2 key features (e.g., hydrogen-bond donor count, cavity size) across the halide series (F⁻→Cl⁻→Br⁻→I⁻).
-- [X] T025 [US3] Implement Physical Plausibility Check (`code/04_feature_analysis.py`): **Logic**: Dynamically identify the **top feature** from the stability ranking (T023). **Physics Check**: If the top feature is `charge_density`, verify its coefficient is **positive** (Coulombic attraction: positive charge attracts anions). If the top feature is `cavity_volume`, verify its coefficient is **negative** (steric hindrance: larger volume reduces affinity). **Output**: `data/processed/physical_plausibility.json` with `is_plausible: bool` and `reasoning: str`. If the sign contradicts these first-principles expectations, flag as "physically implausible". **Dependency**: T019a/T020a (models), T023 (stability).
-- [ ] T026 [US3] Generate feature interpretation summary table. **Logic**: Create a table mapping features to their hypothesized chemical interpretation. **Output**: `data/processed/feature_interpretation_summary.csv` with columns: `feature_name`, `chemical_interpretation`, `hypothesis`. **Dependency**: Must run after T023 and T025 complete.
-- [ ] T027 [US3] Save analysis outputs to `data/processed/feature_analysis.json` and `docs/paper/figures/`. **Dependency**: Must run after T023, T024, T025, and T026 complete.
-
-**Checkpoint**: All user stories should now be independently functional.
-
----
-
-## Phase 6: User Story 4 - Statistical Rigor & Reporting (Priority: P4)
-
-**Goal**: Perform pairwise statistical comparisons using Bootstrap Confidence Intervals and generate final associational report.
-
-**Independent Test**: Can be fully tested by running the comparison script on the cross-validation results and verifying the report contains 95% confidence intervals for performance differences and an associational disclaimer.
-
-### Implementation for User Story 4
-
-- [~] T029a [US4] Hard Abort Gate (`code/05_statistical_reporting.py`): **Logic**: Read `data/simulated/state.json`. **Step 1**: If `SIMULATED_MODE` is True: (1) Set `ABORT_REASON="SIMULATED_MODE"` in `data/processed/power_status.json`. (2) Log warning: "WARNING: Simulated Data Mode active. Project FAILS to answer the primary comparative research question." (3) **SKIP T028 (Bootstrap CI)**. (4) **Proceed to T028b**. (5) Update `data/processed/statistical_summary.json` with `status: "aborted_simulated"`. **Step 2**: If `SIMULATED_MODE` is False, check N per halide (from T012/T013). If N < 10 for any group: (1) Set `ABORT_REASON="UNDERPOWERED"` in `data/processed/power_status.json`. (2) **SKIP T028 (Bootstrap CI)**. (3) **Proceed to T028b**. (4) Update `data/processed/statistical_summary.json` with `status: "underpowered"`. **Step 3**: If neither, proceed to T028. **Output**: `data/processed/power_status.json`, `data/processed/statistical_summary.json` (partial). **Dependency**: T017 (data), T022 (model runs).
-- [~] T029b [US4] Power Analysis and Reporting (`code/05_statistical_reporting.py`): **Dependency**: T029a must pass (no crash). **Logic**: If `ABORT_REASON` is "UNDERPOWERED": (1) Report the analysis as "underpowered". (2) **SKIP all significance testing (p-values)**. (3) Focus ONLY on reporting 95% Confidence Intervals for performance differences. (4) Explicitly report the CI width as the string **"wide"** in the output JSON (`ci_width: wide`). (5) Update `data/processed/statistical_summary.json` with `power_status: underpowered`. If `ABORT_REASON` is "SIMULATED_MODE", skip all analysis and report failure. If neither, proceed with standard analysis. **Output**: `data/processed/statistical_summary.json`.
-- [ ] T028b [US4] Fallback Statistical Report (Underpowered/Simulated Mode). **Logic**: If T029a set `ABORT_REASON` to "SIMULATED_MODE" or "UNDERPOWERED", generate the required fallback artifact. For "SIMULATED_MODE": Write `data/processed/statistical_summary.json` with `comparative_analysis_aborted: true`, `reason: "Simulated Data Mode"`. For "UNDERPOWERED": Write `data/processed/statistical_summary.json` with `power_status: underpowered`, `ci_width: wide`, and `note: "Comparative analysis underpowered; only 95% CIs reported."`. **Output**: `data/processed/statistical_summary.json` (finalized). **Dependency**: T029a.
-- [X] T028 [US4] Implement Bootstrap Confidence Interval calculation (`code/05_statistical_reporting.py`): **Requirement**: MUST NOT use Paired Wilcoxon signed-rank test. **Algorithm**: Resample rows from the full measurement set a sufficient number of times to ensure statistical robustness. For each resample, compute the mean R² and RMSE for each halide group. Calculate the difference in means between halide pairs. Extract the lower and upper percentiles of the difference distribution to form the confidence interval. **Output**: `data/processed/statistical_summary.json`. **Dependency**: T022 (model runs), T029a (gate - only runs if gate allows).
-- [X] T030 [US4] Implement final report generation (`code/05_statistical_reporting.py`): Include explicit "associational, not causal" disclaimer. Flag differences ≥ 0.1 with 95% CI. **Requirement**: Explicitly document the exclusion of validated questionnaires/psychometric instruments (referencing Spec Assumptions) to explain why the "Verified Accuracy" gate for measurement validity does not apply. **Dependency**: T028 OR T028b (whichever runs).
-- [X] T032 [US4] Save final report to `docs/paper/report.md` and summary stats to `data/processed/statistical_summary.json`.
-
-**Checkpoint**: All user stories should now be independently functional and the final report generated.
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T033 [P] Update `README.md`: Add a section describing the project goal, dependencies, and how to run the pipeline.
-- [X] T034 [P] Update `docs/quickstart.md`: Add step-by-step instructions for setting up the environment and running the first task.
-- [X] T035 [P] Update `docs/API.md` (or code docstrings): Ensure all public functions in `code/` have descriptive docstrings.
-- [ ] T036 Run `ruff check --fix` and `black` format on all `code/` files; ensure no lint errors remain.
-- [ ] T037 Performance optimization across all scripts (ensure CPU constraints met)
-- [ ] T038 Run quickstart.md validation to ensure reproducibility
-- [X] T039 Update `state.yaml` with final artifact hashes
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-- **User Story 4 (P4)**: Can start after Foundational (Phase 2) - Depends on US2/US3 metrics
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all data ingestion tasks for User Story 1 together:
-Task: "Implement NIST/PubChem scraper"
-Task: "Implement data validation and cleaning"
-Task: "Implement host-halide filtering"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (check simulated data fallback if real data missing)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add User Story 4 → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All modeling must run on CPU-only CI with limited vCPU and RAM resources. No GPU/CUDA, no 8-bit/4-bit quantization, no large LLMs.
-- **Critical Constraint**: If real data is insufficient, the pipeline MUST trigger the simulated data fallback (FR-011) and explicitly abort comparative analysis, but MUST generate the failure report.
-- **Critical Constraint**: The data loader MUST fail loudly if real data fetch fails; NO synthetic fallback logic is permitted in the loader itself (the fallback is a separate, explicit pipeline branch triggered only after real fetch failure is logged).
+**Critical constraints preserved**: CPU‑only modeling with `n_jobs=1` within 2 vCPU / 7 GB / ≤6 h; strict host‑identity CV splits; the loader fails loudly on real‑fetch failure (the FR‑011 simulation is a separate, explicit, logged pipeline branch mandated by the specification, not a silent fallback); all findings framed as associational; simulated mode explicitly declares failure to answer the comparative research question.
