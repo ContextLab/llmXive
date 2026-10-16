@@ -1,8 +1,8 @@
 status: none
-intent: download CodeXGLUE defect detection dataset and TIDE evaluation dataset python
-  package dataset
+intent: TIDE evaluation dataset download python package site:github.com or Zenodo
+  python package dataset
 required_fields:
-- code_id
+- code
 - ast_depth
 - import_count
 - cyclomatic_complexity
@@ -10,6 +10,6 @@ required_fields:
 - semantic_scope
 - syntactic_complexity
 - hidden_problem_label
-cache_key: 6c3d401558a1bfea35db4d1b42a39bb74925a4fe66a9e6873b678556c68b42c8
-searched_at: '2026-10-16T20:16:18.327048+00:00'
+cache_key: c1bf5dcf5094c236aedf583e4983468afebd6bb3fdec262509f11a645e28672b
+searched_at: '2026-10-16T20:30:51.539057+00:00'
 retry_count: 1
