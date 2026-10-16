@@ -1,7 +1,6 @@
 # Quickstart: llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent"
 
 ## Prerequisites
-
 * Python 3.11+  
 * `pip` (≥ 23)  
 * At least **7 GB** RAM (recommended)

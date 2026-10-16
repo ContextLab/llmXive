@@ -1,7 +1,6 @@
 # Data Model: llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent"
 
 ## Overview
-
 Defines JSON and CSV structures used throughout the experiment. All files are validated against the schemas in `contracts/`.
 
 ## Entities
@@ -23,7 +22,7 @@ Defines JSON and CSV structures used throughout the experiment. All files are va
 | `skill_id` | string (UUID) | Unique identifier. |
 | `name` | string | Function name. |
 | `code` | string | Full Python source code of the skill. |
-| `embedding` | list[float] (768) | 768‑dimensional semantic vector. |
+| `embedding` | list[float] (variable) | high‑dimensional semantic vector. |
 | `usage_count` | integer ≥ 0 | Times the skill has been retrieved/executed. |
 | `last_used` | string (ISO‑8601) | Timestamp of most recent use. |
 
@@ -43,7 +42,6 @@ Defines JSON and CSV structures used throughout the experiment. All files are va
 | `edge_case` | string | Tag for special conditions (`"missing_skill"`, `"memory_limit"`, `"null"` etc.). |
 
 ## Data Flow
-
 1. **Generation** – `generate_data.py` creates `tasks.json` & `skills.json`, computes SHA‑256 checksums, and writes them to `state/projects/PROJ-975-...yaml`.  
 2. **Validation** – Contract tests (`pytest tests/contract/`) ensure JSON files conform to `task.schema.yaml` & `skill.schema.yaml`.  
 3. **Execution** – `agent.py` reads the raw files, runs the experiment loop, and appends rows to `metrics.csv` using the logger from `logging_config.py`.  
@@ -51,7 +49,6 @@ Defines JSON and CSV structures used throughout the experiment. All files are va
 5. **State Update** – After analysis, the state YAML is updated with a second checksum for `metrics.csv` and a timestamp.
 
 ## Constraints
-
 * **Immutability** – `tasks.json` & `skills.json` are read‑only after generation.  
 * **Append‑Only Log** – `metrics.csv` is only ever appended; no in‑place edits.  
 * **Schema Validation** – Every read/write step validates against the corresponding schema; failures abort the CI run.

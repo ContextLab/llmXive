@@ -4,17 +4,14 @@
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
-
-The feature builds a deterministic synthetic environment (500 multi‑step tasks, 100 Python “skill” functions) with configurable semantic overlap (low/medium/high). An agent is executed across library sizes 10, 30, 50, 100, with and without a Skill‑Pruning heuristic. Metrics (task success, latency, token usage, Retrieval Precision, Retrieval Diversity) are logged, and a Piecewise Linear Regression (PLR) identifies the library‑size “tipping point”. All artifacts are validated against JSON/YAML contracts, and the entire pipeline runs on the GitHub Actions free‑tier CPU box.
+The feature creates a deterministic synthetic environment (a large collection of multi‑step tasks, numerous Python “skill” functions) with configurable semantic overlap (low, medium, high). An agent is executed across library sizes, starting from a small size and including larger sizes such as a modest lower‑range size, 50, and 100, with and without a Skill‑Pruning heuristic. Metrics (task success, latency, token usage, Retrieval Precision, Retrieval Diversity) are logged, and a Piecewise Linear Regression (PLR) identifies the library‑size “tipping point”. All artifacts are validated against JSON/YAML contracts, and the entire pipeline runs on the GitHub Actions free‑tier CPU box.
 
 ## Technical Context
-
 **Language/Version**: Python 3.11  
 **Primary Dependencies**: `scikit-learn`, `sentence-transformers` (CPU‑only), `pandas`, `numpy`, `pyyaml`, `pytest`, `jsonschema`, `pwlf`, `statsmodels`  
 **Storage**: Filesystem (JSON for raw data, CSV for experiment logs, YAML for state)  
 **Testing**: `pytest` (unit, contract, integration)  
 **Target Platform**: Linux runner (GitHub Actions free tier: 2 CPU, 7 GB RAM)  
-**Project Type**: Research CLI / Simulation Engine  
 **Performance Goals**: Full factorial sweep (4 library sizes × 2 pruning flags × 3 overlap levels) completes < 6 h; peak RAM < 2 GB.  
 **Constraints**: No GPU training; all embeddings computed on CPU; random seeds pinned for reproducibility.  
 **Scale/Scope**: 500 tasks, 100 skills, 12 primary experimental configurations per overlap level.
@@ -100,8 +97,20 @@ projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/
 
 1. **Generate Synthetic Data** – `generate_data.py` creates `tasks.json` & `skills.json`.  
 2. **Validate Schemas** – `pytest tests/contract/` checks every file against its contract.  
-3. **Execute Agent** – `agent.py` runs the factorial experiment, appends rows to `metrics.csv`.  
-4. **Analyze Results** – `analysis.py` reads `metrics.csv`, fits PLR, computes VIF, runs hypothesis tests, writes `analysis_report.json`.  
+3. **Execute Agent** – `agent.py` runs the factorial experiment, appends rows to `metrics.csv`, and writes a per‑task **execution log** (`execution_logs/*.jsonl`) that conforms to `contracts/execution_log.schema.yaml`.  
+4. **Analyze Results** – `analysis.py` reads `metrics.csv`, fits PLR (with overlap covariate), computes VIF, runs hypothesis tests, writes `analysis_report.json`.  
 5. **Report** – Quickstart steps (see `quickstart.md`) guide the researcher through the full pipeline.
 
----
+### Primary Tipping‑Point Selection
+The **official** tipping point required by SC‑004 is the breakpoint `x₀` obtained from the Piecewise Linear Regression **fit on the baseline configuration**: **High overlap**, **pruning disabled**, using four library sizes spanning from a small to a large size. All breakpoint estimates from sensitivity sweeps (different overlap levels, pruning thresholds, or finer library‑size granularity) are reported only as supplemental material and do **not** replace the primary value.
+
+## Statistical Analysis (CPU‑First)
+
+* **PLR Methodology** – The Piecewise Linear Regression is fitted on **task‑level binary success outcomes** (≈ several hundred observations per configuration), not merely on the four aggregated success‑rate points. This provides ample data for a stable breakpoint estimate. To further guard against over‑fitting and address the sparse grid (10, 30, 50, 100), we perform **1 000 bootstrap resamples** of the task‑level data to generate confidence intervals for `x₀`. Additionally, we include a **Granularity Validation sweep** where a random subset of tasks is executed across a denser grid (10-unit increments) to verify that the breakpoint remains stable.
+* **Other Analyses** – VIF calculation, pruning‑effect tests, and sensitivity sweeps are performed as described in `research.md`.  
+
+## Compute Feasibility & Data Strategy
+
+* **CPU‑First** – All embeddings and similarity calculations are performed with the CPU‑only `sentence-transformers` model; memory usage ≈ a few hundred MB.  
+* **Runtime Estimate** – Empirical profiling predicts [deferred] per library‑size/overlap/pruning combo; total < 1 hour on the free‑tier runner.
+* **Data Availability** – Synthetic; no external download required.  

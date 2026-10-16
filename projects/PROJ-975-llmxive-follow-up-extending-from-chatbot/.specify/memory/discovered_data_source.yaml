@@ -1,16 +1,18 @@
 status: none
-intent: Synthetic multi-step task and skill library dataset Meta-World python package
-  dataset
+intent: TaskBench synthetic multi-step task and skill library python package dataset
 required_fields:
-- task_id
-- task_description
-- ground_truth_action_sequence
-- ground_truth_num_steps
-- skill_id
-- skill_name
-- skill_description
-- embedding_vector
-- overlap_level
-cache_key: f4993037e0b4f1271c36bb84caa582eaa8897d1145a6e2719d950face9eb992f
-searched_at: '2026-10-16T12:09:12.076668+00:00'
+- tasks.task_id
+- tasks.description
+- tasks.ground_truth_path (list of skill_ids)
+- tasks.steps (list of step descriptions)
+- tasks.metadata (e.g., difficulty, semantic_density)
+- skills.skill_id
+- skills.name
+- skills.description
+- skills.embedding_vector (numeric array)
+- skills.overlap_category
+- skills.semantic_density
+- skills.metadata (e.g., source, version)
+cache_key: 9a2cea36970a1bf9d53b7123be4d3509018eddccab9f39424231b665a83b7737
+searched_at: '2026-10-16T13:09:16.001194+00:00'
 retry_count: 1

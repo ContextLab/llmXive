@@ -1,14 +1,13 @@
 # Research: llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent"
 
 ## Objective
-
 Identify the library‑size “tipping point” where retrieval noise degrades the Digital Colleague agent, and evaluate whether the Skill‑Pruning heuristic restores performance.
 
 ## Methodology
 
 ### 1. Synthetic Environment Construction (FR‑001, FR‑002)
 
-* **Generation** – `generate_data.py` creates 500 tasks (3‑5 steps each) and 100 Python skill functions.  
+* **Generation** – `generate_data.py` creates a substantial set of tasks (3‑5 steps each) and 100 Python skill functions.  
 * **Embedding Model** – `sentence-transformers/all-MiniLM-L6-v2` (CPU‑only).  
 * **Overlap Levels** –  
   * **Low**: mean pairwise cosine < 0.30.  
@@ -29,23 +28,29 @@ Identify the library‑size “tipping point” where retrieval noise degrades t
 | **Piecewise Linear Regression (PLR)** | `pwlf` (or `scipy.optimize.curve_fit` implementing a two‑segment linear model) | Detects a single breakpoint `x₀` where the slope of Success Rate vs. Library Size changes. |
 | **Variance Inflation Factor (VIF)** | `statsmodels.stats.outliers_influence.variance_inflation_factor` | Checks collinearity between “Library Size” and “Total Redundancy” (mean pairwise cosine). Must satisfy VIF < 5.0 (FR‑007). |
 | **Pruning Effect Test** | Paired t‑test (or Wilcoxon if normality fails) comparing success rates with vs. without pruning at library sizes 50 and 100. | Quantifies performance recovery (SC‑003). |
-| **Sensitivity Sweeps** | Additional runs varying pruning threshold (e.g., 0.60, 0.70, 0.80) and library‑size granularity. Results are saved as `sensitivity_analysis.json` for exploratory purposes only. | Provides robustness checks but **does not** affect the primary “tipping point” metric. |
+| **Sensitivity Sweeps** | Additional runs varying pruning threshold (e.g., 0.60, 0.70, 0.80) and **library‑size granularity** (e.g., 10-unit increments). | Provides robustness checks but **does not** affect the primary “tipping point” metric. |
+
+#### PLR Stability and Sparse Grid Validation
+To ensure the breakpoint `x₀` is not an artifact of the sparse grid (10, 30, 50, 100), the following rigor is applied:
+1. **Task-Level Power**: The PLR is fitted on **task-level binary success outcomes** (N [deferred] observations per overlap level) rather than aggregated success rates (N=4). This provides sufficient degrees of freedom to identify the slope change.
+2. **Bootstrapping**: 1,000 bootstrap resamples of the task-level data are used to calculate the 95% confidence interval for `x₀`.
+3. **Granularity Validation**: A subset of tasks (N=100) is executed across a dense grid (10, 20, 30, ..., 100). The primary `x₀` is considered robust if the dense-grid breakpoint falls within the 95% CI of the sparse-grid estimate.
 
 #### Selecting the Final Tipping Point (SC‑004)
 
 * The **primary** tipping point is the breakpoint `x₀` obtained from the PLR **fit on the baseline configuration**: **High overlap**, **pruning disabled**, using the four library sizes (10, 30, 50, 100).  
-* All sensitivity sweeps (different overlap levels, pruning thresholds, finer library‑size granularity) generate **supplemental** breakpoint estimates that are reported in an appendix but **are not** used to satisfy SC‑004.  
-* The final reported tipping point in the paper will be the `breakpoint_estimate` field from `analysis_report.json` for the baseline configuration only. This rule eliminates ambiguity identified in the unresolved T035 concern.
+* All sensitivity sweeps (different overlap levels, pruning thresholds, finer library‑size granularity) generate **supplemental** breakpoint estimates that are reported in an appendix **but are not** used to satisfy SC‑004.  
+* The final reported tipping point in the paper will be the `breakpoint_estimate` field from `analysis_report.json` for the baseline configuration **only**. This rule eliminates the ambiguity identified in the unresolved concern T035.
 
 ### 4. Multiple‑Comparison & Power
 
 * **Multiple Comparisons** – The only family of hypothesis tests is the pruning‑effect comparison (two levels). No correction is needed; if additional tests are added in future sweeps, a Bonferroni correction will be applied.  
-* **Power** – With 500 tasks per configuration, a post‑hoc power analysis will be reported; if power falls below 0.80, the limitation will be noted (SC‑005).  
+* **Power** – With a sufficient number of tasks per configuration, a post‑hoc power analysis will be reported.; if power falls below 0.80, the limitation will be noted (SC‑005).  
 
 ## Compute Feasibility & Data Strategy
 
-* **CPU‑First** – All embeddings and similarity calculations are performed with the CPU‑only `sentence-transformers` model; memory usage ≈ 200 MB.  
-* **Runtime Estimate** – Empirical profiling predicts ~30 seconds per library‑size/overlap/pruning combo; total < 1 hour on the free‑tier runner.  
+* **CPU‑First** – All embeddings and similarity calculations are performed with the CPU‑only `sentence-transformers` model; memory usage is on the order of a few hundred MB.  
+* **Runtime Estimate** – Empirical profiling predicts [deferred] per library‑size/overlap/pruning combo; total < 1 hour on the free‑tier runner.
 * **Data Availability** – Synthetic; no external download required.  
 
 ## Decision Rationale
@@ -56,6 +61,7 @@ Identify the library‑size “tipping point” where retrieval noise degrades t
 | CPU‑only execution | Dataset is tiny; GPU would add unnecessary complexity. |
 | PLR for tipping point | Provides an explicit breakpoint estimate, directly matching SC‑004. |
 | Jaccard for Retrieval Precision | Standard set‑overlap metric for discrete skill retrieval. |
+| Task-level binary fitting | Overcomes the "sparse grid" problem by utilizing the full sample size (N=2000) for regression. |
 | Fixed “primary” PLR configuration | Removes ambiguity from multiple sensitivity results (addresses T035). |
 
 ## Limitations
@@ -63,5 +69,3 @@ Identify the library‑size “tipping point” where retrieval noise degrades t
 * **External Validity** – Findings apply to the synthetic environment; real‑world codebases may exhibit additional sources of noise.  
 * **Skill Representation** – Embeddings are derived from natural‑language descriptions of code, not from execution traces.  
 * **Token Estimate** – Tokens are approximated from function length; actual LLM API usage may differ.
-
----

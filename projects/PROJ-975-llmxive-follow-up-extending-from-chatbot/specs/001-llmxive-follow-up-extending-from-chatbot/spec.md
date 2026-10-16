@@ -9,7 +9,7 @@
 
 ### User Story 1 - Synthetic Dataset and Skill Library Generation (Priority: P1)
 
-The researcher needs to generate a reproducible synthetic environment containing 500 multi-step tasks and a configurable library of 100 overlapping Python "skills" with controlled semantic density to serve as the ground truth for the experiment.
+The researcher needs to generate a reproducible synthetic environment containing a substantial number of multi-step tasks and a configurable library of 100 overlapping Python “skills” with controlled semantic density to serve as the ground truth for the experiment.
 
 **Why this priority**: Without a deterministic, ground-truth dataset and a controllable skill library, no empirical measurement of retrieval fidelity or task success can occur. This is the foundational data layer required for all subsequent analysis.
 
