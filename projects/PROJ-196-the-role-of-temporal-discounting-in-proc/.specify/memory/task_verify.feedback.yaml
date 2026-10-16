@@ -1,12 +1,20 @@
 T001:
+  reason: "The `tests/test_scaffolding.py` file is missing, and the required sub\u2011\
+    folders `data/raw` and `data/processed` are not present in the listed project\
+    \ contents. Without these artifacts the scaffold verification cannot succeed."
   task: 259d99080f701e6fc38e17a7cd275d625f80f320c7f3177bf89d1728a883575b
 T002:
   task: 8d0e3ffbdc909706caa7cb33dc0fc77eb007d635acc229a099733f27a630d003
 T003:
   task: 24eed4ab2cf4e19d3a615de96ab8e9a749fbad2ea491c781d3222dff3e25ce8f
 T004:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/...yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 2cd5c3e4640b2da21209fe198042825c29bba0789514472354c57c827a606960
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: a9c9f84de09de611a577708914005504cb2711573ad2606fc1cace6147fda293
 T008:
   task: f2d0148161e13eaaaf72c2b657469499eeeaab0a069df8d4254cd1d2720deaa2

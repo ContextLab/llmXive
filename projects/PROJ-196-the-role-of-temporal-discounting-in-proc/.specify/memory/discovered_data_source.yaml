@@ -1,6 +1,6 @@
 status: none
-intent: download delay discounting dataset procrastination scale n-back task openneuro
-  python package dataset
+intent: download delay discounting dataset procrastination scale n-back task OpenNeuro
+  ICPSR python package dataset
 required_fields:
 - participant_id
 - discount_rate_k
@@ -9,6 +9,6 @@ required_fields:
 - n_back_reaction_time
 - age
 - gender
-cache_key: 2df3a314892157be6b5d32688aa903cd348fb1308511eb7279c777c18f1e4418
-searched_at: '2026-10-16T19:23:46.979936+00:00'
+cache_key: 107de5c665a1ea52c708354e6c5b222222c229c91706af9bbbb194fbd8fede75
+searched_at: '2026-10-16T19:26:42.426657+00:00'
 retry_count: 1

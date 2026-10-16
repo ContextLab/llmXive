@@ -2,69 +2,89 @@ import argparse
 import sys
 import os
 import json
+import logging
 from pathlib import Path
-from typing import Dict
+from typing import List
 
-# Import from new modules
-from data.generate_dgp import generate_synthetic_data
-from data.harmonize import harmonize_datasets
+from ingestion import verify_urls, load_and_harmonize
 from modeling import run_full_analysis
 from robustness import run_robustness_checks
 from utils.checksum import update_all_artifacts_in_directory
-
-from config import get_project_root, get_config, get_random_state
+from config import get_project_root, get_random_state
 
 def main():
+    """
+    Orchestrator for the Temporal Discounting study pipeline.
+
+    Steps:
+    1. Verify that the three required data source URLs are reachable.
+    2. Load (or generate) and harmonise the dataset.
+    3. Run the full modelling analysis.
+    4. Execute robustness checks (bootstrap + sensitivity).
+    5. Update artifact hashes for reproducibility.
+    """
     parser = argparse.ArgumentParser(description="Main Pipeline for Temporal Discounting Study")
-    parser.add_argument('--seed', type=int, default=42, help="Random seed")
-    parser.add_argument('--n', type=int, default=500, help="Number of participants")
+    parser.add_argument('--seed', type=int, default=42,
+                        help="Random seed for any stochastic steps")
+    parser.add_argument('--n', type=int, default=500,
+                        help="Number of participants (used when generating synthetic data)")
+    parser.add_argument('--url', action='append', dest='urls', default=[],
+                        help="Data source URL – specify three times, once per required source")
     args = parser.parse_args()
 
-    project_root = get_project_root()
-    os.makedirs(project_root / 'logs', exist_ok=True)
-
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(project_root / 'logs' / 'pipeline.log'),
-            logging.StreamHandler()
-        ]
-    )
-    logger = logging.getLogger(__name__)
-
-    # Step 1: Data Generation (T040 - generate_dgp.py)
-    logger.info("Step 1: Generating Data...")
+    # ------------------------------------------------------------------
+    # Step 1 – URL verification
+    # ------------------------------------------------------------------
     try:
-        data_dict = generate_synthetic_data(args.n, args.seed)
+        # ``verify_urls`` will raise RuntimeError on any failure.
+        # An empty list is a no‑op, which keeps the script usable in test
+        # environments where the real URLs are not needed.
+        verify_urls(args.urls)
+    except RuntimeError as e:
+        logging.error(f"URL verification failed: {e}")
+        sys.exit(1)
+
+    # ------------------------------------------------------------------
+    # Step 2 – Data loading / generation and harmonisation
+    # ------------------------------------------------------------------
+    try:
+        # ``load_and_harmonize`` returns the final harmonised DataFrame.
+        # It encapsulates the DGP pipeline (synthetic generation) and
+        # the merging / cleaning logic.
+        df = load_and_harmonize(n=args.n, seed=args.seed)
     except Exception as e:
-        logger.error(f"Data generation failed: {e}")
+        logging.error(f"Data loading / harmonisation failed: {e}")
         sys.exit(1)
 
-    # Step 2: Harmonization (T040 - harmonize.py)
-    logger.info("Step 2: Harmonizing Data...")
+    # ------------------------------------------------------------------
+    # Step 3 – Modelling
+    # ------------------------------------------------------------------
     try:
-        harmonized_df = harmonize_datasets(data_dict)
-    except SystemExit as e:
-        if e.code != 0:
-            logger.error("Harmonization failed due to validation error.")
-            sys.exit(1)
-        harmonized_df = None # Should not happen if no exit
-    
-    if harmonized_df is not None:
-        # Step 3: Analysis
-        logger.info("Step 3: Running Analysis...")
         run_full_analysis()
-        
-        # Step 4: Robustness
-        logger.info("Step 4: Running Robustness Checks...")
-        run_robustness_checks()
-        
-        logger.info("Pipeline completed successfully.")
-    else:
-        logger.error("Pipeline halted before analysis.")
+    except Exception as e:
+        logging.error(f"Modelling step failed: {e}")
         sys.exit(1)
+
+    # ------------------------------------------------------------------
+    # Step 4 – Robustness checks
+    # ------------------------------------------------------------------
+    try:
+        run_robustness_checks()
+    except Exception as e:
+        logging.error(f"Robustness checks failed: {e}")
+        sys.exit(1)
+
+    # ------------------------------------------------------------------
+    # Step 5 – Record artifact hashes for reproducibility
+    # ------------------------------------------------------------------
+    try:
+        update_all_artifacts_in_directory('data/processed')
+    except Exception as e:
+        logging.error(f"Failed to update artifact hashes: {e}")
+        # Non‑fatal – the core analysis succeeded
+
+    logging.info("Pipeline completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

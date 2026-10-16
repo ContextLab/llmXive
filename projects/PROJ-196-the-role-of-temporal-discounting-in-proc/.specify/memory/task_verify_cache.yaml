@@ -1,3 +1,35 @@
+T001:
+  c: false
+  h: 03298dde2d980553ce3e33a456de146fc409f3f7898bdc1ba1407deb0c0705ea
+  r: "The `tests/test_scaffolding.py` file is missing, and the required sub\u2011\
+    folders `data/raw` and `data/processed` are not present in the listed project\
+    \ contents. Without these artifacts the scaffold verification cannot succeed."
+  sig: 244cddf081a7de0f8eb7f2d75192ecf43a7ca55371d4d31eac0b252f4e836bac
+T002:
+  c: true
+  h: 66660d9e70d2cc939bff4637e934a9cad976256fa8c4643b76c10f1d43fbb88a
+  r: Checked `requirements.txt` and `pyproject.toml`; both exist and contain the required
+    pinned version specifications (`pandas==2.2.*`, `numpy==1.26.*`, `scipy==1.12.*`,
+    `statsmodels==0.14.*`, `scikit-learn==1.5.*`). The presence of the test file is
+    not a required artifact for this task.
+  sig: 949676971f78b5835e2cf65d3fe5bbd49b924a9e9de1c0a1e8df9fc6ad1ba1fd
+T003:
+  c: true
+  h: 38eb915074abfffa8c52a90e4c0f4dad11a0f16b08da5a2ac10e8c77458bbd7f
+  r: "The `code/config.py` file exists, defines `RANDOM_SEED = 20241010`, and implements\
+    \ `get_random_state(offset=0)` returning a NumPy `RandomState` seeded with `RANDOM_SEED\
+    \ + offset` (with optional env\u2011var override). The accompanying `tests/test_config.py`\
+    \ validates the constant exposure, function behavior, and type, confirming the\
+    \ task requirements are met."
+  sig: 36e4807302e3b829cad725433a58063e04369cfe19217e0acdc244fc0ffd70a2
+T009:
+  c: true
+  h: d6e5e2421f45829879bf657156313847ea96e8a8650ffb4f869b05c18f047b91
+  r: "Checked `code/model/config.json` \u2013 it exists and contains exactly the required\
+    \ JSON. Reviewed `code/modeling.py` \u2013 it builds the correct path using `get_project_root()`\
+    \ and loads the file with `json.load` inside a try/except, so the configuration\
+    \ will be loaded without error."
+  sig: 1ee7bf28ba7f134157c564f8f8f8d70fa42d06e441f2f90e6fb6a645ba3d8946
 T022:
   c: false
   h: 8dae96574d1ac609fdf7138464c51b273e4ab6061e4388b463d4af0e30581e70

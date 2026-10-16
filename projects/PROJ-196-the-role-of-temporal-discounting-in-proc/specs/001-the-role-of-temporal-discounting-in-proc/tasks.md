@@ -18,22 +18,22 @@ The goal is to deliver a fully‑reproducible end‑to‑end pipeline that
 - [ ] **T001** Create project layout (`projects/PROJ-196-the-role-of-temporal-discounting-in-proc/`) with sub‑folders `data/raw`, `data/processed`, `code`, `tests`, `docs`.  
   - *Verification*: `tests/test_scaffolding.py::test_directories_exist` passes.  
 
-- [ ] **T002** Add `requirements.txt` and `pyproject.toml` pinning exact library versions (`pandas==2.2.*`, `numpy==1.26.*`, `scipy==1.12.*`, `statsmodels==0.14.*`, `scikit-learn==1.5.*`).  
+- [X] **T002** Add `requirements.txt` and `pyproject.toml` pinning exact library versions (`pandas==2.2.*`, `numpy==1.26.*`, `scipy==1.12.*`, `statsmodels==0.14.*`, `scikit-learn==1.5.*`).  
   - *Verification*: `tests/test_environment.py::test_requirements_pinned` passes.  
 
-- [ ] **T003** Create `code/config.py` exposing `RANDOM_SEED = 20241010` and helper `def get_random_state(offset=0): return np.random.RandomState(RANDOM_SEED + offset)`.  
+- [X] **T003** Create `code/config.py` exposing `RANDOM_SEED = 20241010` and helper `def get_random_state(offset=0): return np.random.RandomState(RANDOM_SEED + offset)`.  
   - *Verification*: `tests/test_config.py::test_random_seed_exposed` passes.  
 
 ---
 
 ## Phase 2 – Data acquisition, harmonisation & core‑construct check  
 
-- [ ] **T004** Implement `code/ingestion.py` with:  
+- [ ] **T004** Implement `code/ingestion.py` with:   <!-- ATOMIZE: requested -->
   1. `verify_urls(urls: List[str]) -> None` that raises `RuntimeError` on any non‑200 HEAD response.  
   2. `load_and_harmonize()` that (a) downloads the three raw files into `data/raw/`, (b) loads them, (c) inner‑joins on `participant_id` (abort if > 10 % rows lost), (d) fits a hyperbolic model per participant using `scipy.optimize.curve_fit` (records `fit_status`), (e) computes `log_k`, mean‑centers `log_k` and `wm_accuracy`, (f) creates the interaction term, (g) writes `data/processed/unified_analysis.csv`, (h) writes `data/processed/harmonization_log.json`, (i) writes `data/processed/excluded_participants.csv` (participants with failed fits), (j) writes `data/processed/halt_log.json` if any core construct column is missing or contains NaNs, and (k) updates the project's `state/...yaml` with SHA‑256 hashes of the new files.  
   - *Verification*: `tests/test_ingestion.py::test_full_real_ingestion_success`, `tests/test_halt_on_missing_core.py::test_halt_log_created`, `tests/test_state_update.py::test_hashes_recorded` pass.  
 
-- [ ] **T009** Create `code/model/config.json` containing:  
+- [X] **T009** Create `code/model/config.json` containing:  
 
   ```json
   {
@@ -46,7 +46,7 @@ The goal is to deliver a fully‑reproducible end‑to‑end pipeline that
 
   - *Verification*: File exists and is valid JSON; `code/modeling.py` loads it without error.  
 
-- [ ] **T007** Create `code/main.py` orchestrator that:  
+- [ ] **T007** Create `code/main.py` orchestrator that:   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   1. Calls `ingestion.verify_urls()` on the three official URLs.  
   2. If any URL check fails, aborts with a clear error (no synthetic fallback).  
   3. Otherwise runs `load_and_harmonize()`.  

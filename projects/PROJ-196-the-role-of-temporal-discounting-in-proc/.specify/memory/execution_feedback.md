@@ -8,11 +8,13 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…---------------------- # Synthetic data generators (unchanged –…”
 - code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic delay discounting data."…”
 - code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic procrastination scale da…”
 - code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic n-back working memory ta…”
 - code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic demographic data."""…”
-- code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…tion here as we're using synthetic data     # In real implementa…”
+- code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…n the full DGP pipeline (synthetic data generation) and return t…”
+- code/main.py: synthetic/fake INPUT data not authorized by the spec — “…ts (used when generating synthetic data)")     parser.add_argume…”
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
@@ -24,7 +26,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic delay discounting data."…”; code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic procrastination scale da…”; code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic n-back working memory ta…”; 3 command(s) failed: python code/ingestion.py --mode generate --n [N] --seed 42, where N represents a sufficiently large sample size to ensure statistical power for the study. (rc=2); python code/main.py (rc=1); python -m pytest tests/ -v (rc=2)
+**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…---------------------- # Synthetic data generators (unchanged –…”; code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic delay discounting data."…”; code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate synthetic procrastination scale da…”; 3 command(s) failed: python code/ingestion.py --mode generate --n [N] --seed 42, where N represents a sufficiently large sample size to ensure statistical power for the study. (rc=2); python code/main.py (rc=1); python -m pytest tests/ -v (rc=2)
 
 ## Failing / missing run-book commands
 
@@ -35,17 +37,15 @@ ingestion.py: error: argument --n: invalid int value: '[N]'
 
 - python code/main.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-196-the-role-of-temporal-discounting-in-proc/code/main.py", line 9, in <module>
-    from data.generate_dgp import generate_synthetic_data
-ModuleNotFoundError: No module named 'data.generate_dgp'
+INFO:modeling:Loaded model configuration from /home/runner/work/llmXive/llmXive/projects/PROJ-196-the-role-of-temporal-discounting-in-proc/code/model/config.json
+ERROR:root:Data loading / harmonisation failed: name 'run_dgp_pipeline' is not defined
 
 - python -m pytest tests/ -v -> rc=2
-y311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
+xec_module
     exec(co, module.__dict__)
-tests/test_ingestion.py:15: in <module>
-    from ingestion import (
-E   ImportError: cannot import name 'harmonize_datasets' from 'ingestion' (/home/runner/work/llmXive/llmXive/projects/PROJ-196-the-role-of-temporal-discounting-in-proc/code/ingestion.py)
+tests/test_integration.py:4: in <module>
+    from code.ingestion import run_dgp_pipeline
+E   ImportError: cannot import name 'run_dgp_pipeline' from 'code.ingestion' (/home/runner/work/llmXive/llmXive/projects/PROJ-196-the-role-of-temporal-discounting-in-proc/code/ingestion.py)
 _______________ ERROR collecting tests/test_plot_diagnostics.py ________________
 tests/test_plot_diagnostics.py:19: in <module>
     from visualizations.plot_diagnostics import (
@@ -57,9 +57,10 @@ ERROR tests/test_checksum.py
 ERROR tests/test_generate_dgp.py
 ERROR tests/test_harmonize.py
 ERROR tests/test_ingestion.py
+ERROR tests/test_integration.py
 ERROR tests/test_plot_diagnostics.py - AttributeError: module 'statsmodels.api' has no attribute 'OLSResults'
-!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.71s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 6 errors in 1.24s ===============================
 
 
 ## Platform-owned paths written inside the project
