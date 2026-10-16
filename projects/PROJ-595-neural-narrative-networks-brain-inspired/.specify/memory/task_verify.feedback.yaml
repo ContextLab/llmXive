@@ -13,6 +13,12 @@ T004:
 T006:
   task: f961eab9eff0a622d5a34a37118a437ed850b6eb38046143a90f9c348032f3a2
 T007:
+  reason: 'The module exists and `compute_sha256` works, but the recorded pytest run
+    for this task failed (2 failed, 12 passed, exit 1): `test_state_file_roundtrip`
+    exposes a real bug where `update_state_file` double-nests the `checksums` key
+    (`{''data/raw'': {''checksums'': {''checksums'': {...}}}}`), and `test_write_manifest_and_verify`
+    fails with `NameError: tmp_path` (a broken test). Fix `update_state_file`''s merge
+    logic and the test, then re-run to green.'
   task: 552576f09b4c3ce08f74be9796640e28adb1b5b1c2907da56a5a07ff7d6ca689
 T008:
   task: 7268e6a1429ae99ea85b4142c5d5507c99cc8c53e8c492a6fef82aa76d8ed888

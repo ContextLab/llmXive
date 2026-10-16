@@ -23,7 +23,7 @@ All tasks are written as markdown check‑boxes. Checked boxes (`[X]`) indicate 
 
 ## Phase 2 – Foundational Utilities (completed)
 
-- [ ] T006 [P] Implement `code/utils/schema_validation.py` with validators for neural, text, and RSA contracts.  
+- [X] T006 [P] Implement `code/utils/schema_validation.py` with validators for neural, text, and RSA contracts.  
 - [ ] T007 [P] Implement `code/utils/checksums.py` for SHA‑256 hashing of files.  
 - [ ] T008 [P] Add `code/config.py` exposing `random_seed`, `cpu_only=True`, `max_ram_gb=7`, and a `set_seed()` helper.  
 - [ ] T009 [P] Add `code/utils/logging_config.py` that writes to `logs/pipeline.log` and emits error codes E001–E004.  

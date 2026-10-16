@@ -18,13 +18,13 @@ T000.1:
   sig: 9cf62c1397459ef8b2071b8e716b4eb670bc53219e81283df4d6985e25fa3733
 T001:
   c: true
-  h: ab73708fa2ce735d008038b206df2666d44c29b6eb06e5953c275108a5180c33
+  h: 0198c3e850c4764f1424ac6fc1e94075ce497560529f2e2e0dbc7ec746ee3e7d
   r: All required directories (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
     `tests/`) exist as confirmed by the collector, `code/__init__.py` is present with
-    real content (51 bytes, docstring), and the pytest run for `tests/test_setup_dirs.py`
+    real content (51-byte docstring), and the pytest run for `tests/test_setup_dirs.py`
     passed all 3 checks including `test_gitignore_exists`, confirming the `.gitignore`
     is in place.
-  sig: a8b4de006ccc3e95f0726b32cd760f885574a927ef6b028b726e7f514370167e
+  sig: 84eb769f2b63f9e96cf63233730ea8b08644ca031c4692c9a94751aa2c46ee46
 T002:
   c: true
   h: 12158d9c6a9c9bdddc9789c93513c3c8c1e26dfc3ab9f2e08bfb00ee4a9a1c2c
@@ -49,6 +49,26 @@ T004:
     \ (E, F, W, I, B, UP), per-file ignores, and format settings \u2014 no placeholders\
     \ or stubs. This matches T004's requirement to add the project's linting configuration."
   sig: f1b7446e24d3eb25867274cac5936b2a10115880b13b7d4c17dff80f220fbf6b
+T006:
+  c: true
+  h: 823cf6b1731babd379f324fb5ae3145fdb30cb0665abea7be214021a47a197ca
+  r: The artifact `code/utils/schema_validation.py` exists (13KB, non-stub) and implements
+    validators for all three contracts (`validate_neural_data`, `validate_text_data`,
+    `validate_rsa_output`) plus a dispatcher, report writer, and CLI, with CSV/JSON/JSONL
+    handling and type/enum/bounds checks. The platform-run pytest log shows all 15
+    tests in `tests/test_schema_validation.py` passing (exit 0), covering valid/invalid
+    data, missing files, unknown contracts, and CLI behavior.
+  sig: d4ffd0112b46c5dc99c143c2f4a7646635d21a641b37786d846bfda69dca0af3
+T007:
+  c: false
+  h: 42a095cba08940d3b00a72967766e13cec08e9932c1964daaaf88484ee080c5e
+  r: 'The module exists and `compute_sha256` works, but the recorded pytest run for
+    this task failed (2 failed, 12 passed, exit 1): `test_state_file_roundtrip` exposes
+    a real bug where `update_state_file` double-nests the `checksums` key (`{''data/raw'':
+    {''checksums'': {''checksums'': {...}}}}`), and `test_write_manifest_and_verify`
+    fails with `NameError: tmp_path` (a broken test). Fix `update_state_file`''s merge
+    logic and the test, then re-run to green.'
+  sig: 410c28c3362cb4056f4df7ac70c9d53f7e601621d3c245a82ce97dceccfbd5a0
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

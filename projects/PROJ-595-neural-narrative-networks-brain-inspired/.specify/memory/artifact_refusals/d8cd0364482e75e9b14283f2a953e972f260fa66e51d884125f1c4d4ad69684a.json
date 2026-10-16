@@ -1,7 +1,0 @@
-{
-  "task_id": "T006",
-  "fingerprint": "11af848fcc20522d06f959fb4f2af8b5bae82f8f64f04c55b88562d8821d19fa",
-  "count": 1,
-  "model": "zai-org.glm-5.3",
-  "reason": "[implementer] refusing to write 'tests/test_schema_validation.py': SyntaxError at line 4: unexpected indent. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 5251"
-}
