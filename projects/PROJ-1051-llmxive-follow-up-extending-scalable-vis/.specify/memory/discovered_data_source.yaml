@@ -1,18 +1,12 @@
 status: none
-intent: download DocBank scientific document layout annotations and DocVQA benchmark
-  python package dataset
+intent: PubLayNet layout-aware scientific document dataset with DocVQA benchmark python
+  package dataset
 required_fields:
 - document_id
 - page_number
-- image_path
-- raw_text
-- layout_bounding_boxes
-- layout_element_type
-- bounding_box_coordinates
-- page_width
-- page_height
-- metadata_source
-- doi_or_arxiv_id
-cache_key: db83d63a26a28f4a61d0811293d6184975de4eb4e9e2833cd66724637b864f7b
-searched_at: '2026-10-15T23:10:34.148485+00:00'
+- text
+- layout_bbox_coordinates
+- image_file_path
+cache_key: 31501953439cfd06d33178f284c225788adf318f129a515e99fea339f9bb265f
+searched_at: '2026-10-16T05:19:56.150078+00:00'
 retry_count: 1

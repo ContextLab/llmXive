@@ -19,7 +19,7 @@ from PIL import Image
 from tqdm import tqdm
 from transformers import AutoFeatureExtractor, AutoModel
 
-from llmxive_toolkit import get_logger
+from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
@@ -66,7 +66,9 @@ def load_encoder(encoder_name: str, device: str):
         model.to(device)
         model.eval()
     except Exception as exc:
-        raise RuntimeError(f"Failed to load LayoutLMv3 encoder '{encoder_name}' on device '{device}': {exc}") from exc
+        raise RuntimeError(
+            f"Failed to load LayoutLMv3 encoder '{encoder_name}' on device '{device}': {exc}"
+        ) from exc
 
     # Verify that the model runs on CPU; if not, raise an explicit error.
     if device == "cpu" and not next(model.parameters()).is_cuda:
@@ -123,6 +125,12 @@ def main(argv: List[str] | None = None) -> None:
     df.to_parquet(args.output_parquet, engine="pyarrow")
     elapsed = time.time() - start_time
     log.info(f"✅ Visual latents written to {args.output_parquet} (elapsed {elapsed:.1f}s)")
+
+    # Record runtime for verification
+    runtime_path = paths.results("runtime", "latent_inference_seconds.txt")
+    runtime_path.parent.mkdir(parents=True, exist_ok=True)
+    with runtime_path.open("w", encoding="utf-8") as f:
+        f.write(str(elapsed))
 
 if __name__ == "__main__":
     try:
