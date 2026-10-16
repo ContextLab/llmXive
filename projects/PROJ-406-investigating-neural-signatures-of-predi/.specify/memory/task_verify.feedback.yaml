@@ -1,9 +1,10 @@
 T000:
-  reason: "The `src/utils/seed.py` and `src/__init__.py` files exist, but the provided\
-    \ test log shows that importing the package does **not** set the NumPy seed to\
-    \ the default (the test `test_package_import_sets_seed` fails). No execution evidence\
-    \ is given that running the prescribed command twice yields identical outputs.\
-    \ The deterministic\u2011seed requirement is therefore not satisfied."
+  reason: "The `src/utils/seed.py` correctly defines `set_global_seed(42)` and the\
+    \ manual\u2011seed test passes, but `src/__init__.py` fails to set the seed on\
+    \ import \u2013 the test `test_package_import_sets_seed` reports mismatched NumPy\
+    \ outputs (0.9507 vs 0.3745). Consequently the required deterministic behavior\
+    \ across imports is not achieved. The implementation must ensure that importing\
+    \ `src` pins the global seed as specified."
   task: 98155e0f17034e2ee207938f8627a6abd4845259e46de1b79d3a90506384ad64
 T001:
   reason: 'Requested task execution failed; rerun successfully: src/ingest/load_illusions.py

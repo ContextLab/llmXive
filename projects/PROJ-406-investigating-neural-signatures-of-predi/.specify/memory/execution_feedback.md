@@ -10,43 +10,32 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - src/ingest/load_illusions.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.  The module can also be…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python -m src.ingest.load_illusions  --download  --output-dir data/raw`
+  - script usage: `load_illusions.py [-h] {download_muller} ...`
+  - argparse error: `load_illusions.py: error: argument command: invalid choice: 'data/raw' (choose from 'download_muller')`
+- run-book command: `python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean`
+  - script usage: `load_illusions.py [-h] {download_muller} ...`
+  - argparse error: `load_illusions.py: error: argument command: invalid choice: 'data/raw' (choose from 'download_muller')`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/ingest/load_illusions.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.  The module can also be…”; 5 command(s) failed: python -m src.ingest.load_illusions  --download  --output-dir data/raw (rc=1); python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean (rc=1); python -m src.model.predictive_coding  --input data/clean/clean_muller_lyer.csv  --output data/derived/precision_parameters.csv  --seed 42 (rc=1); 9 declared deliverable(s) absent: data/clean/aligned_subjects.csv; data/clean/clean_muller_lyer.csv; data/clean/clean_ponzo.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/ingest/load_illusions.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.  The module can also be…”; 5 command(s) failed: python -m src.ingest.load_illusions  --download  --output-dir data/raw (rc=2); python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean (rc=2); python -m src.model.predictive_coding  --input data/clean/clean_muller_lyer.csv  --output data/derived/precision_parameters.csv  --seed 42 (rc=1); 9 declared deliverable(s) absent: data/clean/aligned_subjects.csv; data/clean/clean_muller_lyer.csv; data/clean/clean_ponzo.csv
 
 ## Failing / missing run-book commands
 
-- python -m src.ingest.load_illusions  --download  --output-dir data/raw -> rc=1
+- python -m src.ingest.load_illusions  --download  --output-dir data/raw -> rc=2
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 40, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+usage: load_illusions.py [-h] {download_muller} ...
+load_illusions.py: error: argument command: invalid choice: 'data/raw' (choose from 'download_muller')
 
-- python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean -> rc=1
+- python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean -> rc=2
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 40, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+usage: load_illusions.py [-h] {download_muller} ...
+load_illusions.py: error: argument command: invalid choice: 'data/raw' (choose from 'download_muller')
 
 - python -m src.model.predictive_coding  --input data/clean/clean_muller_lyer.csv  --output data/derived/precision_parameters.csv  --seed 42 -> rc=1
 

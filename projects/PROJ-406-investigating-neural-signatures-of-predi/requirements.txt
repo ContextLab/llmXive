@@ -1,4 +1,11 @@
 # Project dependencies
-# Core scientific stack (already available in the runner) is not re‑listed.
-# Additional third‑party packages required for this feature:
-datasets
+# Core scientific packages (versions pinned for reproducibility)
+numpy>=2.0,<3.0
+pandas==2.2.*
+scipy==1.13.*
+matplotlib==3.8.*
+seaborn==0.13.*
+datasets==2.18.*
+pyarrow>=13.0
+# The following packages are available in the base environment and need not be listed:
+# scikit-learn, statsmodels, pytest, PyYAML, requests, jsonschema, psutil
