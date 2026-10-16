@@ -1,19 +1,19 @@
 status: none
-intent: OpenNeuro resting state fMRI pre post mindfulness intervention dataset AAL
-  atlas python package dataset
+intent: OpenNeuro resting state fMRI mindfulness pre post dataset download AAL atlas
+  masks python package dataset
 required_fields:
 - subject_id
-- session
-- run
-- bold_nifti_path
-- motion_parameters
-- confound_regressors
-- intervention_group
-- intervention_start_date
-- intervention_end_date
-- age
-- sex
+- session_label
+- bold_image_path
+- motion_parameters_file
+- confound_regressors_file
+- intervention_metadata
+- acquisition_parameters
+- mni_space_flag
+- smoothing_kernel_mm
+- bandpass_filter_range
 - scanner_make
-cache_key: bb3b027ba961b002dc3c42705fe0992e442a45c8d9f22dcb964376bf2ab07d5f
-searched_at: '2026-10-16T08:16:17.656414+00:00'
+- scanner_model
+cache_key: 2331f5a22aec493ed1e749fbcf53d624be898027f64d2f982bc7a3667bc6f88b
+searched_at: '2026-10-16T10:15:53.719847+00:00'
 retry_count: 1
