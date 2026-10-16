@@ -160,9 +160,24 @@ def _download_file(url: str, dest: Path) -> None:
 # ----------------------------------------------------------------------
 
 
+def _select_column(df: pd.DataFrame, candidates: List[str]) -> str | None:
+    """
+    Return the first column name from ``candidates`` that exists in ``df``.
+    If none are found, return ``None``.
+    """
+    for col in candidates:
+        if col in df.columns:
+            return col
+    return None
+
+
 def _process_swe_gym(parquet_path: Path) -> Tuple[pd.DataFrame, List[Tuple[str, str]]]:
     """
     Load the SWE‑Gym parquet file and extract the required columns.
+
+    The function is tolerant to variations in column naming across
+    dataset releases.  It attempts to locate the necessary fields by
+    checking several plausible column names.
 
     Returns
     -------
@@ -175,21 +190,54 @@ def _process_swe_gym(parquet_path: Path) -> Tuple[pd.DataFrame, List[Tuple[str, 
     # Use fastparquet engine to avoid pulling in pyarrow (which requires NumPy 2).
     df = pd.read_parquet(parquet_path, engine="fastparquet")
 
-    required = {"patch_id", "language", "source_code", "exec_result"}
-    missing = required - set(df.columns)
-    if missing:
-        raise RuntimeError(f"SWE‑Gym parquet missing columns: {missing}")
+    # Identify required columns with fall‑backs
+    pid_col = _select_column(df, ["patch_id", "id", "patchid"])
+    lang_col = _select_column(df, ["language", "lang"])
+    src_col = _select_column(df, ["source_code", "code", "patched_code", "original_code", "code_before", "code_after"])
+    label_col = _select_column(df, ["exec_result", "test_result", "result", "label"])
 
-    patches = df.rename(columns={"exec_result": "label"})[
+    missing = set()
+    if not pid_col:
+        missing.add("patch_id")
+    if not lang_col:
+        missing.add("language")
+    if not src_col:
+        missing.add("source_code")
+    if not label_col:
+        missing.add("label")
+
+    if missing:
+        raise RuntimeError(f"SWE‑Gym parquet missing columns (or equivalents): {missing}")
+
+    # Normalise columns
+    patches = df.rename(columns={pid_col: "patch_id",
+                                lang_col: "language",
+                                src_col: "source_code",
+                                label_col: "label"})[
         ["patch_id", "language", "source_code", "label"]
     ].copy()
 
+    # Normalise label values to ``pass``/``fail``
+    def _norm_label(val):
+        if isinstance(val, str):
+            val_low = val.lower()
+            if val_low in {"pass", "true", "1", "success"}:
+                return "pass"
+            elif val_low in {"fail", "false", "0", "error", "failed"}:
+                return "fail"
+        # Fallback: treat truthy as pass
+        return "pass" if bool(val) else "fail"
+
+    patches["label"] = patches["label"].apply(_norm_label)
+
+    # Extract logs
     logs = []
-    if "exec_log" in df.columns:
-        for pid, log_txt in zip(df["patch_id"], df["exec_log"]):
+    log_col = _select_column(df, ["exec_log", "test_log", "log"])
+    if log_col:
+        for pid, log_txt in zip(df[pid_col], df[log_col]):
             logs.append((pid, log_txt if isinstance(log_txt, str) else "MISSING_LOG"))
     else:
-        for pid in df["patch_id"]:
+        for pid in df[pid_col]:
             logs.append((pid, "MISSING_LOG"))
 
     return patches, logs

@@ -107,7 +107,10 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Fraction of the dataset to sample (0‑1). Ignored in this version.",
     )
-    args = parser.parse_args(argv)
+    # Use ``parse_known_args`` so that stray tokens (e.g. comments) do not
+    # cause a hard failure. This keeps the CLI compatible with the
+    # quickstart documentation that includes inline comments.
+    args, _ = parser.parse_known_args(argv)
 
     # Apply seed (also honors an overridden value)
     random.seed(args.seed)

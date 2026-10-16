@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: 30b2bd529b80a73a17d0345b9fa5d06ade5178df7617cd8e15ca4ea4a137303f
-  r: "The quickstart.md and sample_run.csv exist with correct content (4 rows, \u2264\
-    10), but the evidence is incomplete: `interim/` and `features/` directories (explicitly\
-    \ required by the task) are not confirmed to exist anywhere in the collected artifacts,\
-    \ and there is no execution evidence that `python -m src.cli.run_pipeline --dry-run`\
-    \ actually runs without error \u2014 the quickstart itself carries an unresolved\
-    \ claim marker (`c_9198ce03 \u2014 status=not_enough_info`) for that run, and\
-    \ no console output or log was supplied. The implementer should create the missing\
-    \ directories and provide actual run output ("
-  sig: 6ae673cccc9b033c18deba2ad9e3f733ce96d1a2316f7e963350410a4fe4bc79
 T014:
   c: false
   h: 4d193e24463c6e6a182ad1dcecd4c1728af82f8191082f43bda27274e4e7f85a
