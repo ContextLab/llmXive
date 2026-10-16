@@ -1,15 +1,17 @@
 status: none
-intent: CTU-13 NetFlow dataset download NF-BoT-IoT-v3 python package dataset
+intent: download CTU-13 NetFlow dataset and NF-BoT-IoT-v3 flow dataset official source
+  python package dataset
 required_fields:
+- timestamp
 - src_ip
 - dst_ip
 - src_port
 - dst_port
 - protocol
-- timestamp
-- packet_count
-- byte_count
+- packets
+- bytes
+- flow_duration
 - label
-cache_key: 9719eceada2843842a5e946a3d5b9df4bf08886c8560a9ea8f90e93dea79fd1a
-searched_at: '2026-10-16T14:20:24.815862+00:00'
+cache_key: ee45771bdba3ebbace7c58ed6d302350da68eef2e124e2c9bac32ca81fd99ddf
+searched_at: '2026-10-16T14:24:16.229378+00:00'
 retry_count: 1

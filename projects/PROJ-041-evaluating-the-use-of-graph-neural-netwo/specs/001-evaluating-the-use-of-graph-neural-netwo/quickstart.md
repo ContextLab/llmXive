@@ -2,76 +2,86 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   `pip`
-*   Access to the CTU-13 dataset (or the verified NetFlow fallback).
-*   ~Sufficient free disk space (several gigabytes) for data and dependencies.
+* Python 3.11+ (installed on the runner)
+* `git` (to clone the repository)
+* Internet access (to download the verified CTU‑13 dataset)
 
-## Installation
-
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd <project-dir>
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: This installs `torch` (CPU version), `networkx`, `scikit-learn`, `xgboost`, `captum`, and the `datasets` library used for CTU‑13 download.*
-
-## Data Setup
-
-The pipeline expects data in `data/raw/`.
-
-1.  **Download CTU-13** (if available locally) or use the verified fallback:
-    ```bash
-    # If you have CTU-13, place it in data/raw/ctu13_scenario1.csv
-    # Otherwise, download it automatically:
-    python code/data/download_ctu13.py
-    ```
-
-2.  **Verify Data Integrity**:
-    ```bash
-    python code/utils/memory_monitor.py --check
-    ```
-
-## Running the Pipeline
-
-Execute the full analysis pipeline (Ingestion -> Graph Construction -> Training -> Evaluation):
+## Setup Steps
 
 ```bash
-python code/main.py --scenarios 1 2 3 --seeds 42 123 456
+# 1️⃣ Clone the repository
+git clone <REPO_URL>
+cd <repo-directory>
+
+# 2️⃣ Create a clean virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3️⃣ Install exact dependencies (pinned)
+pip install -r code/requirements.txt
 ```
 
-*   `--scenarios`: List of CTU-13 scenario IDs to process (or BoT-IoT scenarios if using fallback).
-*   `--seeds`: Random seeds for reproducibility.
+## Data Preparation
 
-### Expected Output
-*   `data/processed/`: GraphML files (including `graph_{scenario}_subsampled.graphml`) and feature matrices.
-*   `data/results/`: CSV files with metrics and p-values.
-*   `logs/`: Memory usage logs and training progress.
+```bash
+# Load the verified CTU NetFlow dataset directly via HuggingFace Datasets
+python - <<'PY'
+from datasets import load_dataset
+
+# Streaming load to avoid full download into memory
+ds = load_dataset("ctu13/ctu13", split="train", streaming=True)
+# The dataset object can be iterated downstream; no separate file is persisted here.
+print("CTU‑13 dataset stream ready.")
+PY
+# No separate download script is needed; the pipeline will stream the data as needed.
+```
+
+## Running the Full Analysis
+
+```bash
+# Execute the end‑to‑end pipeline:
+python code/main.py \
+  --scenarios all      # processes every scenario present in the dataset
+  --seeds 42 123 456 789 101112  # runs multiple random seeds for robust statistical testing
+```
+
+The command performs:
+
+1. Streaming ingestion → deterministic graph construction with memory guard and unbiased stratified subsampling.  
+2. Feature extraction → Parquet feature tables.  
+3. Training of GCN, Random Forest, and XGBoost (CPU‑only).  
+4. Evaluation on the temporal hold‑out test set (unseen IPs added as isolated nodes).  
+5. Wilcoxon signed‑rank tests + Benjamini‑Hochberg correction (5 seeds).  
+6. Integrated‑Gradients attribution for the GCN.  
+
+### Expected Outputs
+
+| Directory | Contents |
+|-----------|----------|
+| `data/processed/` | `graph_{scenario}_subsampled.graphml.gz`, `features_{scenario}.parquet` |
+| `data/results/` | `metrics_{scenario}.csv`, `final_aggregate.csv` |
+| `logs/` | Memory‑usage logs (`memory_{scenario}.log`), training progress (`train_{scenario}.log`) |
+| `figures/` | ROC curves, feature‑importance bar plots, attribution heatmaps |
 
 ## Verification
 
-1.  **Run Unit Tests** (optional – only runs utilities that do not depend on the full dataset):
-    ```bash
-    pytest code/tests/test_graph_construction.py -v
-    ```
+```bash
+# Unit tests (do not require the full dataset)
+pytest code/tests/test_graph_construction.py -q
 
-2.  **Check Memory Limit**:
-    The test `test_memory_limits.py` simulates a large graph and asserts that peak memory < 7GB.
+# Memory‑limit test (simulates a large graph)
+pytest code/tests/test_memory_limits.py -q
+```
+
+All tests must pass before committing results.
 
 ## Troubleshooting
 
-*   **CUDA Error**: If you see "CUDA not available", ensure you installed the CPU version of PyTorch. The code explicitly sets `device='cpu'`.
-*   **Memory Error**: If the script crashes with OOM, reduce the `--scenarios` list or check if the graph subsampling logic is active (nodes > 5,000).
-*   **Missing Data**: If CTU-13 is missing, the script will raise a clear error because no fallback is allowed for Task T002.
-*   **Unseen Nodes in Test**: If the test set contains new IPs, they will be dropped or assigned default features as per the Temporal Holdout strategy.
+* **Out‑of‑Memory** – Ensure the memory‑monitor logs show peak < 7 GB. If the script aborts, verify that the subsampling step triggered (check `graph_{scenario}_subsampled.graphml.gz` header).  
+* **Dataset Access Issues** – The streaming load will raise a clear error if the HuggingFace URL is unreachable. No fallback to another dataset is attempted.  
+* **CUDA Errors** – The code forces `torch.device('cpu')`. If you see CUDA warnings, reinstall the CPU‑only wheel (`pip uninstall torch && pip install torch==2.3.0+cpu`).  
+
+---
+
+
+

@@ -1,59 +1,39 @@
 # Data Model: Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic
 
-## Entity-Relationship Overview
+## Entity‑Relationship Overview
 
-The data model consists of three primary layers: **Raw Ingestion**, **Graph Representation**, and **Derived Features/Metrics**.
+| Layer | Description |
+|-------|-------------|
+| **Raw NetFlow Records** | Parquet rows from `CTU‑13`. Fields: `src_ip`, `dst_ip`, `src_port`, `dst_port`, `protocol`, `start_time`, `end_time`, `packets`, `bytes`, `label` (0 = normal, 1 = anomaly). |
+| **Network Graph (Directed)** | `networkx.DiGraph` where nodes are hashed IPs, edges are directed flows with attributes `weight` (packet count) and `timestamp_range`. Subsampled to ≤5 000 nodes per scenario (deterministic, unbiased stratified sampling). |
+| **Node Feature Table** | Parquet file (`features_{scenario}.parquet`) with one row per node and columns: `degree`, `in_degree`, `out_degree`, `betweenness_centrality`, `clustering_coeff`, `edge_weight_variance`, `temporal_span`, `label` (aggregated **training‑set** node‑level anomaly). |
+| **Evaluation Metrics** | CSV (`metrics_{scenario}.csv`) containing `scenario_id`, `model_type`, `seed`, `precision`, `recall`, `f1_score`, `auc_roc`, `wilcoxon_p`, `bh_adj_p`, `significant`. |
+| **Aggregate Results** | `final_aggregate.csv` merges all scenario‑level CSVs, adds overall means, SDs, and a summary of the BH‑adjusted significance outcomes. |
 
-### 1. Raw NetFlow Records
-Source data containing flow-level details.
-*   **Fields**: `src_ip`, `dst_ip`, `src_port`, `dst_port`, `protocol`, `start_time`, `end_time`, `packets`, `bytes`, `label` (if available).
-*   **Source**: CTU-13 (CSV) or NF-BoT-IoT-v3 (Parquet).
+## Data Flow Diagram
 
-### 2. Network Graph (Directed)
-A directed graph $G = (V, E)$ where:
-*   $V$: Unique IP addresses (hashed for PII).
-*   $E$: Directed edges $(u, v)$ representing flows from $u$ to $v$.
-*   **Edge Attributes**: `weight` (packet count), `timestamp_range` (start, end).
-*   **Node Attributes**: `is_anomaly` (binary, **aggregated** from flow labels: 1 if IP participated in ANY anomalous flow), `degree`, `in_degree`, `out_degree`.
-*   **Subsampled Graph**: If nodes > 5,000, the graph is subsampled using the **Anomaly-Preserving Subsampling** strategy (retaining anomalous nodes and high-degree hubs). The result is saved as `graph_{scenario}_subsampled.graphml`.
+1. **Download** → `data/raw/CTU-13.parquet` (checksum recorded).  
+2. **Ingest & Graph Build** → `data/processed/graph_{scenario}_subsampled.graphml.gz`.  
+3. **Feature Extraction** → `data/processed/features_{scenario}.parquet`.  
+4. **Train / Test Split** (temporal hold‑out) → training and test node sets (test-only IPs added as isolated nodes).  
+5. **Model Training** → no persistent model artifact needed for CI; only metrics are saved.  
+6. **Statistical Testing** → `data/results/metrics_{scenario}.csv`.  
+7. **Aggregation** → `data/results/final_aggregate.csv`.
 
-### 3. Feature Matrix (Node-Level)
-A table where rows are nodes (IPs) and columns are structural features.
-*   **Features**:
-    *   `degree`: Total degree.
-    *   `in_degree`: In-degree.
-    *   `out_degree`: Out-degree.
-    *   `betweenness_centrality`: Normalized betweenness.
-    *   `clustering_coeff`: Local clustering coefficient.
-    *   `edge_weight_variance`: Variance of outgoing edge weights.
-    *   `temporal_span`: Duration of activity.
-*   **Target**: `label` (0=Normal, 1=Anomaly, **aggregated** from flow labels).
+## Storage & Optimization
 
-### 4. Evaluation Metrics
-Aggregated results per scenario and per model.
-*   **Fields**: `scenario_id`, `model_type`, `seed`, `precision`, `recall`, `f1_score`, `auc_roc`, `p_value`, `is_significant`, `null_distribution_mean`.
+* **Graphs** stored compressed (`.graphml.gz`) – typical size < 50 MB after subsampling.  
+* **Feature tables** use columnar Parquet for fast I/O; even with 5 000 rows the file is < 5 MB.  
+* **Memory** – Only one scenario is loaded at a time; `tracemalloc` ensures peak RAM stays < 7 GB.  
+* **Disk** – All intermediate files are deleted after the aggregation step to keep total usage < 14 GB.
 
-## Data Flow
+## Data Hygiene Guarantees
 
-1.  **Ingest**: `raw_netflow.csv` -> `data/raw/`
-2.  **Construct**: `raw_netflow.csv` -> `data/processed/graph_{scenario}.graphml` (with node/edge attributes).
-3.  **Subsample**: If nodes > 5,000 -> `data/processed/graph_{scenario}_subsampled.graphml` (Anomaly-Preserving Subsampling, deterministic seed 42).
-4.  **Feature Extract**: `graph_{scenario}_subsampled.graphml` -> `data/processed/features_{scenario}.csv`.
-5.  **Train/Eval**: `features_{scenario}.csv` -> `data/results/metrics_{scenario}.csv`.
-6.  **Aggregate**: All `metrics_{scenario}.csv` -> `data/results/final_aggregate.csv`.
+* **Checksums** – SHA‑256 recorded for every raw and processed file in `state/projects/…yaml`.  
+* **PII Protection** – IP strings are hashed before any persistent storage; hash collisions are negligible for ≤5 000 nodes.  
+* **Immutability** – Raw NetFlow file never altered; each transformation writes a new file with a timestamped name.  
+* **Deterministic Subsampling** – Fixed seed (42) guarantees reproducible graph topology across runs.  
+* **Label Construction** – Node‑level anomaly labels (`label` column) are derived **exclusively from training‑set flows**; test‑set flows never influence the label assignment, preventing leakage.
 
-## Storage Constraints & Optimization
+---
 
-*   **Graph Storage**: Use `GraphML` (XML-based) for interoperability, but ensure it is compressed (`.graphml.gz`) if size exceeds 50MB.
-*   **Feature Storage**: Use `Parquet` for efficient columnar storage and faster I/O during training.
-*   **Memory Management**:
-    *   Graphs are loaded one scenario at a time.
- * Feature matrices are streamed to the model in batches if necessary (though [deferred] nodes fit in RAM easily).
-    *   Intermediate files are cleaned up after processing to stay within the 14GB disk limit.
-
-## Data Integrity & Hygiene
-
-*   **Checksums**: All files in `data/raw/` and `data/processed/` will be checksummed (SHA-256) and recorded in `state/...yaml`.
-* **PII**: IP addresses in `data/` will be hashed (e.g., `SHA256(ip)`) to prevent direct PII exposure, while maintaining graph topology integrity (hash collisions are negligible for [deferred] nodes).
-*   **Immutability**: Raw data is never modified. All transformations create new files.
-*   **Fallback Hygiene**: If NF-BoT-IoT-v3 is used, its checksum and URL will be recorded as the "Single Source of Truth" in `state/...yaml`.

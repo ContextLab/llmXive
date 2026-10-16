@@ -9,7 +9,7 @@
 
 ### User Story 1 - Construct and Validate Network Traffic Graphs (Priority: P1)
 
-The researcher needs to ingest raw NetFlow records from the CTU-13 dataset, construct directed communication graphs (nodes=IPs, edges=flows), and verify that the graph structure fits within the 7GB RAM constraint of the CI environment before any model training begins.
+The researcher needs to ingest raw NetFlow records from the CTU-13 dataset, construct directed communication graphs (nodes=IPs, edges=flows), and verify that the graph structure fits within the RAM constraints of the CI environment before any model training begins.
 
 **Why this priority**: This is the foundational step; without a valid, memory-safe graph representation, no analysis or model training can occur. It validates the feasibility of the approach on the target hardware.
 
@@ -25,7 +25,7 @@ The researcher needs to ingest raw NetFlow records from the CTU-13 dataset, cons
 
 ### User Story 2 - Compare GNN Performance Against Feature-Engineered Baselines (Priority: P2)
 
-The researcher needs to train a 2-layer GCN model and standard baselines (Random Forest, XGBoost) on the structural features to determine if graph-structured message passing provides a statistically significant improvement in anomaly detection metrics (AUC, F1) over flat feature vectors.
+The researcher needs to train a multi‑layer GCN model and standard baselines (Random Forest, XGBoost) on the structural features to determine if graph-structured message passing provides a statistically significant improvement in anomaly detection metrics (AUC, F1) over flat feature vectors.
 
 **Why this priority**: This addresses the core research question: whether graph structure adds predictive value. It is the primary scientific experiment of the project.
 
@@ -35,7 +35,7 @@ The researcher needs to train a 2-layer GCN model and standard baselines (Random
 
 1. **Given** a pre-processed graph with structural node features, **When** the GCN and baseline models are trained for up to 30 epochs with early stopping, **Then** both models converge and produce predictions on the test set without crashing due to GPU/CUDA errors.
 2. **Given** predictions from the GCN and Random Forest models, **When** the evaluation script runs, **Then** it outputs Precision, Recall, F1-Score, and AUC-ROC for both models, allowing for a direct comparison.
-3. **Given** the performance metrics from 5 random seeds, **When** the statistical analysis runs, **Then** it calculates the mean and standard deviation of the F1-scores for each model type.
+3. **Given** the performance metrics from multiple random seeds, **When** the statistical analysis runs, **Then** it calculates the mean and standard deviation of the F1-scores for each model type.
 
 ---
 
@@ -67,7 +67,7 @@ The researcher needs to analyze feature importance and structural correlations t
 
 - **FR-001**: System MUST ingest NetFlow records from the CTU-13 dataset and construct directed graphs where nodes are IPs and edges are directed (source→dest) with weights equal to packet counts (See US-1).
 - **FR-002**: System MUST enforce a hard memory limit of 7GB during graph construction. If the graph exceeds 7GB OR contains >5,000 nodes, the system MUST subsample by retaining the largest connected component to ensure deterministic and topologically meaningful results (See US-1).
-- **FR-003**: System MUST implement a 2-layer Graph Convolutional Network (GCN) using a CPU-only backend (no CUDA/GPU) with a maximum of 30 training epochs. Early stopping MUST be enabled, monitoring validation loss with a patience of 5 epochs and a minimum delta of 1e-4 (See US-2).
+- **FR-003**: System MUST implement a multi‑layer Graph Convolutional Network (GCN) using a CPU-only backend (no CUDA/GPU) with a maximum of 30 training epochs. Early stopping MUST be enabled, monitoring validation loss with a patience of 5 epochs and a minimum delta of 1e-4 (See US-2).
 - **FR-004**: System MUST train Random Forest and XGBoost baselines on pre-computed structural features (degree, centrality, variance) to serve as a non-graph comparison of learned representations vs. hand-crafted statistics (See US-2).
 - **FR-005**: System MUST evaluate all models using Precision, Recall, F1-Score, and AUC-ROC on held-out test scenarios not seen during training (See US-2).
 - **FR-006**: System MUST perform Wilcoxon signed-rank tests on F1-scores across 5 random seeds. The hypothesis set for Benjamini-Hochberg correction MUST consist of 7 specific comparisons: (1) GCN vs RF, (2) GCN vs XGB, and (3-7) the top 5 structural features vs. a null baseline (See US-3).

@@ -1,14 +1,14 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: NetFlow Dataset Schema
-description: Schema for raw NetFlow records used in graph construction.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NetFlow Dataset Schema"
+description: "Schema for raw NetFlow records used in graph construction."
 type: object
 properties:
   src_ip:
     type: string
-    description: "Source IP address (may be hashed for PII compliance)"
+    description: "Source IP address (hashed for PII compliance)"
   dst_ip:
     type: string
-    description: "Destination IP address (may be hashed for PII compliance)"
+    description: "Destination IP address (hashed for PII compliance)"
   src_port:
     type: integer
     description: "Source port number"
@@ -37,7 +37,7 @@ properties:
   label:
     type: integer
     enum: [0, 1]
-    description: "Ground truth label: 0=Normal, 1=Anomaly"
+    description: "Ground truth label: the first label corresponds to Normal, and the second label corresponds to Anomaly."
 required:
   - src_ip
   - dst_ip
