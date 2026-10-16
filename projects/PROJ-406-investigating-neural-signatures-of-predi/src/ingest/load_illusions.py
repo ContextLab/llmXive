@@ -2,26 +2,34 @@
 src.ingest.load_illusions
 =========================
 
-This module provides a command-line interface for downloading and cleaning the
-Müller‑Lyer and Ponzo illusion datasets from OpenNeuro/HuggingFace.
+This module provides a command-line interface for downloading the
+Müller‑Lyer and Ponzo illusion datasets from verified public sources.
+It supports both sub‑command style (e.g. ``python -m src.ingest.load_illusions download_muller``)
+and a limited flag‑style interface.
 
-It supports two usage styles:
-1. Sub‑command style: ``python -m src.ingest.load_illusions download_muller``
-   or ``python -m src.ingest.load_illusions download_ponzo``.
-2. Flag‑based style (currently for Müller‑Lyer only): ``python -m src.ingest.load_illusions --download --clean``
+The implementation avoids the ``datasets`` library (which pulls in ``pyarrow``
+that is incompatible with the default NumPy version) and instead uses
+``huggingface_hub`` to fetch the raw parquet files directly.  After download
+the raw file is validated for required columns and for uniqueness of the
+``subject_id`` field; any duplicate ``subject_id`` values cause a hard error
+(FR‑001).  A SHA‑256 checksum of the downloaded file is recorded in
+``data/manifest.yaml`` for provenance.
 
-The implementation is deterministic and enforces the required data schema.
+The module also offers optional cleaning of the raw parquet into a tidy CSV
+for downstream steps, but the primary task (T001) only requires the raw
+parquet and its checksum.
 """
 
 import argparse
+import hashlib
 import logging
 import sys
 from pathlib import Path
 import shutil
 
 import pandas as pd
+import yaml
 from huggingface_hub import hf_hub_download
-from datasets import load_dataset
 
 from llmxive_toolkit import paths, get_logger
 from src.utils.seed import set_global_seed
@@ -40,9 +48,9 @@ MULLER_PARQUET_FILENAME = "muller_lyer.parquet"
 
 MULLER_REQUIRED_COLUMNS = [
     "subject_id",
-    "stimulus_type",
-    "response",
     "trial_id",
+    "stimulus_length",
+    "response_length",
     "stimulus_parameters",
 ]
 
@@ -60,9 +68,10 @@ PONZO_PARQUET_FILENAME = "ponzo.parquet"
 
 PONZO_REQUIRED_COLUMNS = [
     "subject_id",
-    "response",
+    "trial_id",
     "arrow_angle",
     "depth_cue",
+    "perceived_length",
 ]
 
 log = get_logger(__name__)
@@ -99,13 +108,11 @@ def _download_parquet(
     filename: str,
 ) -> None:
     """
-    Download a parquet file using multiple strategies:
-    1. Direct file download via ``hf_hub_download`` (repo_type="dataset").
-    2. ``datasets.load_dataset`` for dataset objects.
+    Download a parquet file using ``hf_hub_download`` from the first repository
+    that succeeds.  If none succeed, raise a clear ``RuntimeError``.
     """
     log.info("Attempting to download parquet file %s", filename)
 
-    # Strategy 1: Direct file download via hf_hub_download
     for repo_id in repo_ids:
         try:
             downloaded_file = hf_hub_download(
@@ -116,47 +123,70 @@ def _download_parquet(
             log.info("Successfully downloaded via hf_hub_download from %s", repo_id)
             shutil.copyfile(downloaded_file, raw_path)
             return
-        except Exception as exc:
+        except Exception as exc:  # pragma: no cover – only logs on failure
             log.debug("hf_hub_download failed for %s: %s", repo_id, exc)
-
-    # Strategy 2: Use datasets.load_dataset (handles dataset objects)
-    for repo_id in repo_ids:
-        try:
-            ds = load_dataset(repo_id, split="train", streaming=False)
-            df = ds.to_pandas()
-            df.to_parquet(raw_path, index=False)
-            log.info("Successfully loaded dataset via datasets.load_dataset from %s", repo_id)
-            return
-        except Exception as exc:
-            log.debug("load_dataset failed for %s: %s", repo_id, exc)
 
     raise RuntimeError(
         f"Failed to download parquet from any known sources: {repo_ids}. "
         "Please verify dataset availability or provide a direct URL."
     )
 
-def _clean_dataframe(df: pd.DataFrame, required_columns: list[str]) -> pd.DataFrame:
-    """Enforce column presence, drop NaNs in critical fields, and warn on duplicates."""
-    missing_cols = [c for c in required_columns if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Dataset is missing required columns: {missing_cols}")
+def _compute_sha256(path: Path) -> str:
+    """Compute the SHA‑256 checksum of a file."""
+    hasher = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
-    # Drop rows with missing values in critical columns (FR‑001)
-    before_rows = len(df)
-    df_clean = df.dropna(subset=required_columns)
-    dropped = before_rows - len(df_clean)
-    if dropped > 0:
-        log.warning("Dropped %d rows with missing values in required columns.", dropped)
+def _update_manifest(dataset: str, checksum: str, relative_path: str) -> None:
+    """
+    Record the checksum of a downloaded artifact in ``data/manifest.yaml``.
+    The manifest is a simple mapping:
+    ```yaml
+    muller:
+      path: data/raw/muller_lyer.parquet
+      sha256: <hex>
+    ponzo:
+      path: data/raw/ponzo.parquet
+      sha256: <hex>
+    ```
+    """
+    manifest_path = paths.data("manifest.yaml")
+    if manifest_path.is_file():
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            manifest = yaml.safe_load(f) or {}
+    else:
+        manifest = {}
 
-    # Warn about duplicate subject IDs (FR‑001: warn, not error)
-    if "subject_id" in df_clean.columns:
-        dup_counts = df_clean["subject_id"].value_counts()
-        duplicate_subjects = dup_counts[dup_counts > 1]
-        if not duplicate_subjects.empty:
-            log.warning(
-                "Found %d duplicate subject_id entries. Duplicates retained but flagged.",
-                duplicate_subjects.size,
+    manifest[dataset] = {"path": relative_path, "sha256": checksum}
+
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(manifest, f, sort_keys=False)
+
+def _validate_dataframe(df: pd.DataFrame, required_columns: list[str]) -> None:
+    """Validate required columns exist and that ``subject_id`` is unique."""
+    missing = [c for c in required_columns if c not in df.columns]
+    if missing:
+        raise ValueError(f"Dataset is missing required columns: {missing}")
+
+    if "subject_id" in df.columns:
+        dup_counts = df["subject_id"].value_counts()
+        duplicates = dup_counts[dup_counts > 1]
+        if not duplicates.empty:
+            dup_list = duplicates.index.tolist()
+            raise ValueError(
+                f"Duplicate subject_id values found: {dup_list}. "
+                "Each subject_id must be unique (FR‑001)."
             )
+
+def _clean_dataframe(df: pd.DataFrame, required_columns: list[str]) -> pd.DataFrame:
+    """Drop rows with missing values in required columns."""
+    before = len(df)
+    df_clean = df.dropna(subset=required_columns)
+    dropped = before - len(df_clean)
+    if dropped:
+        log.warning("Dropped %d rows with missing required fields.", dropped)
     return df_clean
 
 def _write_clean_csv(df_clean: pd.DataFrame, clean_path: Path) -> None:
@@ -165,10 +195,10 @@ def _write_clean_csv(df_clean: pd.DataFrame, clean_path: Path) -> None:
     df_clean.to_csv(clean_path, index=False, encoding="utf-8")
 
 # ----------------------------------------------------------------------
-# High‑level download & clean for each dataset
+# High‑level download & optional clean for each dataset
 # ----------------------------------------------------------------------
 def download_and_clean_muller(seed: int = 42) -> None:
-    """Download and clean the Müller‑Lyer dataset."""
+    """Download (and optionally clean) the Müller‑Lyer dataset."""
     set_global_seed(seed)
     raw_path, clean_path = _ensure_output_paths(dataset="muller")
 
@@ -177,12 +207,20 @@ def download_and_clean_muller(seed: int = 42) -> None:
     else:
         log.info("Raw parquet already exists at %s – skipping download.", raw_path)
 
+    # Compute checksum and record provenance
+    checksum = _compute_sha256(raw_path)
+    _update_manifest("muller", checksum, str(raw_path.relative_to(paths.root)))
+
+    # Validate raw data
     df_raw = pd.read_parquet(raw_path)
+    _validate_dataframe(df_raw, MULLER_REQUIRED_COLUMNS)
+
+    # Optional cleaning step (used by later pipeline stages)
     df_clean = _clean_dataframe(df_raw, MULLER_REQUIRED_COLUMNS)
     _write_clean_csv(df_clean, clean_path)
 
 def download_and_clean_ponzo(seed: int = 42) -> None:
-    """Download and clean the Ponzo dataset."""
+    """Download (and optionally clean) the Ponzo dataset."""
     set_global_seed(seed)
     raw_path, clean_path = _ensure_output_paths(dataset="ponzo")
 
@@ -191,7 +229,15 @@ def download_and_clean_ponzo(seed: int = 42) -> None:
     else:
         log.info("Raw parquet already exists at %s – skipping download.", raw_path)
 
+    # Compute checksum and record provenance
+    checksum = _compute_sha256(raw_path)
+    _update_manifest("ponzo", checksum, str(raw_path.relative_to(paths.root)))
+
+    # Validate raw data
     df_raw = pd.read_parquet(raw_path)
+    _validate_dataframe(df_raw, PONZO_REQUIRED_COLUMNS)
+
+    # Optional cleaning step
     df_clean = _clean_dataframe(df_raw, PONZO_REQUIRED_COLUMNS)
     _write_clean_csv(df_clean, clean_path)
 
@@ -199,31 +245,35 @@ def download_and_clean_ponzo(seed: int = 42) -> None:
 # CLI entry point
 # ----------------------------------------------------------------------
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    """Parse CLI arguments for both sub‑command and flag‑based styles."""
+    """Parse CLI arguments for both sub‑command and flag‑style usage."""
     if argv is None:
         argv = sys.argv[1:]
 
-    # Detect flag‑style usage
-    if any(arg.startswith("--download") or arg.startswith("--clean") for arg in argv):
-        parser = argparse.ArgumentParser(description="Download/clean illusion datasets.")
-        parser.add_argument("--download", action="store_true")
-        parser.add_argument("--clean", action="store_true")
-        parser.add_argument("--output-dir", type=str, default="data/raw")
-        parser.add_argument("--raw-dir", type=str, default="data/raw")
-        parser.add_argument("--clean-dir", type=str, default="data/clean")
+    # Flag‑style detection
+    if any(arg.startswith("--") for arg in argv):
+        parser = argparse.ArgumentParser(description="Download/clean illusion datasets (flag style).")
+        parser.add_argument("--download", action="store_true", help="Download the raw parquet file.")
+        parser.add_argument("--clean", action="store_true", help="Clean the raw parquet into CSV.")
+        parser.add_argument("--output-dir", type=str, default="data/raw", help="Directory for raw parquet.")
+        parser.add_argument("--raw-dir", type=str, default="data/raw", help="Directory containing raw parquet.")
+        parser.add_argument("--clean-dir", type=str, default="data/clean", help="Directory for cleaned CSV.")
         parser.add_argument("--seed", type=int, default=42)
-        parser.add_argument("--dataset", choices=["muller", "ponzo"], default="muller",
-                            help="Select which dataset to operate on (flag style only).")
+        parser.add_argument(
+            "--dataset",
+            choices=["muller", "ponzo"],
+            default="muller",
+            help="Select dataset when using flag‑style interface.",
+        )
         return parser.parse_args(argv)
 
     # Sub‑command style
-    parser = argparse.ArgumentParser(description="Download/clean illusion datasets.")
+    parser = argparse.ArgumentParser(description="Download/clean illusion datasets (sub‑command style).")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    dl_muller = subparsers.add_parser("download_muller")
+    dl_muller = subparsers.add_parser("download_muller", help="Download and clean Müller‑Lyer dataset.")
     dl_muller.add_argument("--seed", type=int, default=42)
 
-    dl_ponzo = subparsers.add_parser("download_ponzo")
+    dl_ponzo = subparsers.add_parser("download_ponzo", help="Download and clean Ponzo dataset.")
     dl_ponzo.add_argument("--seed", type=int, default=42)
 
     return parser.parse_args(argv)
@@ -231,7 +281,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> None:
     args = _parse_args(argv)
 
-    # Flag‑style handling (currently only supports Müller‑Lyer, but dataset can be chosen)
+    # Flag‑style handling
     if getattr(args, "download", False) or getattr(args, "clean", False):
         set_global_seed(args.seed)
         raw_dir = Path(args.output_dir) if getattr(args, "output_dir", None) else None
@@ -244,10 +294,19 @@ def main(argv: list[str] | None = None) -> None:
             if not raw_path.is_file():
                 if dataset == "muller":
                     _download_parquet(raw_path, MULLER_REPO_IDS, MULLER_PARQUET_FILENAME)
-                else:  # ponzo
+                else:
                     _download_parquet(raw_path, PONZO_REPO_IDS, PONZO_PARQUET_FILENAME)
             else:
                 log.info("Raw parquet already exists at %s – skipping download.", raw_path)
+
+            # Record checksum after download
+            checksum = _compute_sha256(raw_path)
+            _update_manifest(dataset, checksum, str(raw_path.relative_to(paths.root)))
+
+            # Validate dataset immediately after download
+            df_raw = pd.read_parquet(raw_path)
+            required = MULLER_REQUIRED_COLUMNS if dataset == "muller" else PONZO_REQUIRED_COLUMNS
+            _validate_dataframe(df_raw, required)
 
         if args.clean:
             if not raw_path.is_file():

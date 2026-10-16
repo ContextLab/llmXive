@@ -1,43 +1,47 @@
 T000:
-  reason: "The repository contains the required `src/utils/seed.py` and `src/__init__.py`\
-    \ with a `set_global_seed` implementation, but there is no evidence (e.g., command\u2011\
-    line output logs) showing that running the prescribed Python command twice yields\
-    \ identical NumPy random values. Without this execution proof, the deterministic\u2011\
-    seed verification requirement is not satisfied."
-  task: 98155e0f17034e2ee207938f8627a6abd4845259e46de1b79d3a90506384ad64
+  reason: "The seed utility (`src/utils/seed.py`) and package import (`src/__init__.py`)\
+    \ exist and correctly set the global seed, and `outputs/seed_verification.log`\
+    \ contains two identical deterministic values. However the CI test `test_seed_verification_script_creates_log`\
+    \ fails (AttributeError on monkeypatching `ProjectPaths.root`), meaning the automated\
+    \ verification that the script creates the log and that CI asserts the identical\
+    \ lines does not succeed. The task\u2019s requirement that CI validates the log\
+    \ is therefore not met."
+  task: 45f338496e43fe2a0b555b72a540352f4b700a141c701f6e4031c7b138f1598e
 T001:
   reason: 'Requested task execution failed; rerun successfully: src/ingest/load_illusions.py
     exit=1'
-  task: 4cebb621eff803f0582bf75697adce26293a6eaf40d48fd0834413f0e8a7a2a7
+  task: 2a4c71cb2d498066bd00261f97cd584863592c33c158c61a3a98628fcb785a5a
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/ingest/load_illusions.py
-    exit=1; src/ingest/load_illusions.py exit=1'
-  task: 8a6b0d52354846616a7fa72af3f47af0198450b8ce53a8f10e1ec61c21607f4d
+  task: b91a71bf1ef6bd40a97e5c485603f0178399270fedc967d12ae020a7d1791eff
 T003:
-  task: 33417dd127d3203983de3e133113f5e4953c1026bd0438e92786d2c9e52f0f26
+  task: dad7120f2006f954fec8dc1f6e27a8fee7f7059c40ec853ef44378116efcc7c4
 T004:
-  task: 745db9b083d66488f285d3603cb56813194444bdf533c671e5eb1b64f97f4a6e
+  task: 33dffd0a1cfffc78ca9970cc6ac915201bf4d29d5c1c1bd9f1e1ff52a3272775
 T005:
-  task: 12391092415ab9cc369f97c842f95a933870740cb70f8853a3c03cb45ca64017
+  task: a12a8511de3ba0ca308d23ece7973ee0e552badaed8a07ae01560f587ac40b2d
 T006:
-  task: f42e6418c93479a596aa1d3b92bbe04228f327e57cf15705c303ba45812c4139
+  task: 1a8197cbc46490b3bd3c8a245a09a1e152b8a337c6677b2023b5f98a16e9168c
 T007:
-  task: bd7b7c5e3bd36a6945471da2f5dba2607077993b091c735c0106a528105864d0
+  task: d01fc03b0953485658d0fbdc02d3bfe0e02a20b7a5e6fff36ae1fbbd3a4b4ccb
 T008:
-  task: aea75e7968fc58f4fb5624f964f93a36f7fec992bdee89a279b66a83bbf8376b
+  task: df65bb813cfba504209e03114bd4f72108b2edff6b75f5338b0c704902357a8e
 T009:
-  task: f3204ad221adbbd0656b97aa949412b856f5850bace0f34f5bc8dfceedb5afc5
+  task: 76a0630b3d9fdb3d12727a42a0e7c4ab6828d46abe64357800404d3fb6c5fc41
 T010:
-  task: cd8046ff1f0157e6ed84e4e5476aa79433d9edd1e092da16302ea58a995f4e63
+  task: ec24126e76881b89436d4a0471bc049dbda1bc8e62bae8034b59988058198f96
 T011:
-  task: c30fd7c544f4cb9d7c642f67e1e49241aef8ab0afcde59440f310d3d256c4e08
+  task: 799f80004ab6aa6dc72879367501f8e6ded39b3e43a8c803fee05ac6bae2995f
 T012:
-  task: 7398f4ffae63c9128c2d15011e0b85d987026c0c34039a6ee8322efea018fb83
+  task: dc9c77cbdffefb5737320bb57d8513035267b3265c5bf9fb3c9aad352577c505
 T013:
-  task: 39f0d44409c6ef163dcd6f98b896dcbb35707711d2102da9541acae6699392f0
+  task: 9798bf0c5c6b1650be37d50ab8697f661ebb07ed3971890bdcc26fbdf49f3598
 T014:
-  task: c954208ba1d32c347337b12109bb6aba9b89769925b4b411ffb9b38be1a12322
+  task: b4c4a772316e2f9653b76b772bb31fe2bc3d5e2017dd07e47fcfab45654813d8
 T015:
-  task: fa59d16179d56954861a6c562956de719d768d951603a5f6e5354eaf5ca4c8fd
+  task: 8e946907ce793351bf06fd8e74824fcc26f941fb178b58c025dd94849eacc6a2
 T016:
-  task: 20d7687364d92de412ad7a4110a87bc9ad474c1aa959c28bcab222a4797d48a5
+  task: 40017c5d76dba6f6b36850410d12709ff8febc024fc6f2497620b61e4f69ffed
+T017:
+  task: 359f2c5f1443a6598f4d3d499787fa5f1b63f9ef5f8127338c963fee7c1587f7
+T018:
+  task: 4d7df0269c771a4bb1ca376936bc769bdaf2a803a3cba67607c275a60a15ca00
