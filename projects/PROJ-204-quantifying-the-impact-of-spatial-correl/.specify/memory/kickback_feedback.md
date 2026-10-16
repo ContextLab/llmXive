@@ -1,12 +1,15 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 7 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T100` (rejected 1x): Requested task execution failed; rerun successfully: code/data/run_feasibility.sh exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The pipeline aborts all statistical modeling if the feasibility step finds fewer than 10 EDS samples. This guarantees a deterministic artifact but leaves the core research question—whether spatial correlations impact PCE—unanswered whenever data are scarce, which is the expected case (the plan itself predicts <10 usable samples). A methodology that terminates before any inferential analysis cannot satisfy the claim layer’s intent to quantify impact.
+- The plan introduces a ‘composite spatial ordering metric’ defined as “average of normalized correlation lengths” across elements, yet the normalization procedure is unspecified. Without a clear, justified transformation, the composite may conflate disparate scales and obscure the physical meaning of the predictor, threatening construct validity.
+- The power analysis acknowledges that with N = 10 the minimum detectable effect size (r ≈ 0.64) exceeds the literature‑based expected effect (r ≤ 0.35). Nevertheless, the plan proceeds to run Pearson/Spearman tests when ≥10 samples are available, which is statistically under‑powered and risks false‑negative conclusions. The methodology should either increase the required sample threshold or adopt estimation‑focused reporting rather than hypothesis testing.
+- The core research question requires elemental EDS maps to compute spatial correlation metrics, yet no verified source for any EDS maps is provided. FR‑001 assumes availability of public EDS maps from the NREL Perovskite Database and Zenodo, but the dataset list explicitly states “NO VERIFIED SOURCE”. Without an alternative dataset or a concrete acquisition strategy, the primary analysis (spatial metric extraction and correlation with PCE) cannot be performed, rendering the project unable to answer its central hypothesis. Provide a verified dataset citation for EDS maps or adjust the scope to a research question that can be answered with the available performance data alone.
+- The `dataset.schema.yaml` referenced in the plan defines a single `correlation_length` field, whereas the `data-model.md` defines three separate fields (`correlation_length_exp`, `correlation_length_gauss`, `correlation_length_power`). This mismatch means the unified CSV cannot simultaneously satisfy both schemas.
+- The plan refers to `state/project.yaml` as the file tracking artifact hashes, but the constitution (FR-030) specifies the path `state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml`. The differing paths create ambiguity about where versioning information is stored.
+- Principle I (Single Source of Truth) requires an explicit designation of the SSoT artifact, yet the plan does not name which file serves as the authoritative source (e.g., a specific CSV or JSON). Adding a clear SSoT reference would satisfy the constitutional requirement.

@@ -1,57 +1,42 @@
 # Implementation Plan: Quantifying Spatial Correlations in Perovskite Solar Cell Efficiency
 
-**Branch**: `001-quantify-spatial-correlations` | **Date**: 2024-05-21 | **Spec**: [link]
-**Input**: Feature specification from `specs/001-quantify-spatial-correlations/spec.md`
+**Branch**: `001-quantify-spatial-correlations` | **Date**: 2024-10-16 | **Spec**: [link]  
+**Input**: Feature specification from `specs/001-quantify-spatial-correl/spec.md`
 
 ## Summary
-
-This project implements a reproducible Python pipeline to quantify the impact of spatial correlations in perovskite solar cell (PSC) efficiency. The technical approach involves downloading elemental maps (Pb, I, MA) and performance metrics (PCE, J_sc, V_oc), computing 2-D autocorrelation and Fourier spectral metrics, and performing statistical modeling (Pearson/Spearman correlation, GAM, Benjamini-Hochberg correction) to test the hypothesis that spatial ordering correlates with efficiency. The implementation is constrained to run on free-tier GitHub Actions (CPU-only, limited RAM).
-
-**Critical Constraint**: This project is **blocked** until a verified, programmatic source for EDS elemental maps is identified. If no verified source exists, the project will halt at the Data Feasibility Check and produce a "Data Availability Report" instead of a statistical analysis.
+The project builds a fully reproducible, CPU‑only pipeline that (1) checks the availability of public EDS elemental maps, (2) proceeds with a **performance‑only** analysis when maps are missing, (3) extracts spatial metrics when maps exist, (4) relates any available spatial metrics and performance metrics using transparent statistical methods, and (5) generates machine‑readable reports. All steps are deterministic, schema‑validated, and respect the project constitution.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `scipy`, `scikit-learn`, `pandas`, `hyperSpy` (CPU mode), `pyyaml`, `matplotlib`, `statsmodels`, `pygam`  
-**Storage**: Local file system (`data/raw/`, `data/processed/`), CSV/JSON outputs  
-**Testing**: `pytest` (unit tests for metric extraction, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions Free Tier)  
-**Project Type**: Data Analysis Pipeline / Research Tool  
-**Performance Goals**: Complete full pipeline (ingestion to report) within 6 hours on 2 vCPU, <7GB RAM.  
-**Constraints**: No GPU/CUDA; no large model training; dataset size limited to fit RAM; all random seeds pinned.  
-**Scale/Scope**: Processing of available public PSC datasets (estimated <200 samples for initial run).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `numpy`, `scipy`, `pandas`, `scikit-image`, `statsmodels`, `pygam`, `matplotlib`, `requests`, `pyyaml`, `datasets` (HuggingFace)  
+- **Storage**: Local file system under `data/` (raw, processed) and `results/` (CSV, PDF, JSON)  
+- **Testing**: `pytest` (unit + integration)  
+- **Target Platform**: Linux (GitHub Actions free‑tier) – 2 vCPU, ~7 GB RAM, ≤6 h per job  
+- **Constraints**: CPU‑only; all random seeds pinned in `code/utils/seed.py`; total disk usage ≤ 7 GB  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Status | Implementation Detail |
-|-----------|-------------------|-----------------------|
-| **I. Reproducibility** | **Compliant** | `requirements.txt` pins all versions; random seeds fixed in `code/modeling/`; data checksums recorded in `state/`. |
-| **II. Verified Accuracy** | **Non-Compliant (EDS Maps)** | No verified URL for EDS maps exists. Project halts if source not found. |
-| **III. Data Hygiene** | **Compliant** | Raw data stored in `data/raw/` unchanged; derived data in `data/processed/` with checksums; no PII expected. |
-| **IV. Single Source of Truth** | **Compliant** | Final report CSV/PDF generated directly from `code/modeling/` outputs; no manual transcription. |
-| **V. Versioning Discipline** | **Compliant** | Artifacts hashed; `state` updated on change via `code/utils/update_state.py`; `code/` scripts versioned. |
-| **VI. Spatial Characterization Consistency** | **Compliant** | Raw EDS maps preserved; preprocessing via `code/preprocess/` logs parameters; derived maps linked to raw. |
-| **VII. Statistical Modeling Transparency** | **Compliant** | `code/modeling/` explicitly logs method, r, p-value, CI, and CV strategy; results map 1:1 to CSV. |
+| Principle | Compliance | Note |
+|-----------|------------|------|
+| **I. Reproducibility** | ✅ | `requirements.txt` pins exact versions; seeds fixed in `code/utils/seed.py`; all scripts deterministic. |
+| **II. Verified Accuracy** | ✅ | All external URLs are taken from the verified list; no invented citations. |
+| **III. Data Hygiene** | ✅ | Raw files stored unchanged; each transformation writes a new file with a checksum recorded in `state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml`. |
+| **IV. Single Source of Truth** | ✅ | **SSoT**: `data/processed/unified_dataset.csv` is the authoritative data artifact for all downstream analyses. |
+| **V. Versioning Discipline** | ✅ | Artifacts hashed; `state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml` updated automatically. |
+| **VI. Spatial Characterization Consistency** | ✅ | If EDS maps are present, raw files reside under `data/raw/`; preprocessing logs all parameters. |
+| **VII. Statistical Modeling Transparency** | ✅ | Modeling scripts log method, coefficients, confidence intervals, and CV strategy; results reference exact CSV outputs. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
-specs/001-quantify-spatial-correlations/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+specs/001-quantify-spatial-correl/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── dataset.schema.yaml
+│   └── results.schema.yaml
+└── tasks.md               # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
 projects/PROJ-204-quantifying-the-impact-of-spatial-correl/
@@ -59,78 +44,111 @@ projects/PROJ-204-quantifying-the-impact-of-spatial-correl/
 │   ├── __init__.py
 │   ├── utils/
 │   │   ├── __init__.py
-│   │   └── update_state.py   # Updates state YAML with artifact hashes
+│   │   └── seed.py                 # pins numpy, random, torch seeds
 │   ├── data/
 │   │   ├── __init__.py
-│   │   ├── download.py       # FR-001: Download from verified sources
-│   │   └── align.py          # FR-001: Align to common grid, mask defects
-│   ├── preprocess/           # VI: Preprocessing scripts
-│   │   ├── __init__.py
-│   │   └── calibrate.py      # Calibration and masking logic
-│   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── spatial_metrics.py # FR-002, FR-003: Autocorr, Fourier, decay fits
-│   │   └── robustness.py     # FR-005: LOO-CV
-│   ├── modeling/
-│   │   ├── __init__.py
-│   │   ├── correlation.py    # FR-004: Pearson, Spearman, BH correction
-│   │   └── gam.py            # FR-004: GAM for non-linearity
+│   │   ├── download_feasibility.py # FR‑001 feasibility check
+│   │   ├── download.py             # downloads performance data; attempts EDS map download
+│   │   └── align.py                # grid resampling & defect masking (if maps exist)
 │   ├── validation/
 │   │   ├── __init__.py
-│   │   ├── co_location.py    # FR-007: Co-location validation
-│   │   └── depth_check.py    # FR-008: Depth resolution validation
-│   └── report/
-│       ├── __init__.py
-│       └── generate.py       # FR-006: CSV/PDF generation
+│   │   ├── co_location.py          # FR‑007
+│   │   └── depth_check.py          # FR‑008
+│   ├── analysis/
+│   │   ├── __init__.py
+│   │   ├── spatial_metrics.py      # FR‑002, FR‑003 (runs only when maps exist)
+│   │   └── robustness.py           # FR‑005 (LOO‑CV)
+│   ├── modeling/
+│   │   ├── __init__.py
+│   │   ├── correlation.py          # Pearson/Spearman + BH correction (FR‑004)
+│   │   └── gam.py                  # GAM fitting (FR‑004)
+│   ├── report/
+│   │   ├── __init__.py
+│   │   ├── generate_report.py      # FR‑006 (CSV + PDF)
+│   │   └── data_availability.py    # deterministic availability report
+│   └── main_pipeline.py            # orchestrates ordered steps
 ├── data/
-│   ├── raw/                  # Unmodified downloads
-│   └── processed/            # Aligned, masked, derived metrics
+│   ├── raw/                         # unmodified downloads (JSON/CSV performance, any EDS maps)
+│   └── processed/
+│       ├── unified_dataset.csv
+│       ├── co_location_status.csv
+│       ├── depth_status.csv
+│       └── spatial_metrics.csv     # may be empty if no maps
+├── results/
+│   ├── feasibility_report.json
+│   ├── summary_report.csv
+│   └── summary_report.pdf
 ├── tests/
 │   ├── unit/
-│   │   └── test_spatial_metrics.py # Synthetic test for SC-001
+│   │   └── test_spatial_metrics.py
 │   └── integration/
 │       └── test_pipeline.py
-├── data/contracts/           # Schema definitions
 ├── requirements.txt
 └── README.md
-└── code/main_pipeline.py     # Main entry point
 ```
 
-**Structure Decision**: A modular monolithic structure (`code/data`, `code/preprocess`, `code/analysis`, `code/modeling`) is selected to facilitate the linear pipeline flow (Download -> Process -> Analyze -> Report) while keeping unit testing isolated. This aligns with the "Data Hygiene" and "Reproducibility" principles by ensuring clear separation of raw vs. processed data and distinct analysis stages.
-
 ## Complexity Tracking
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **GAM Implementation** | Required by FR-004 to detect non-linear relationships as per Assumptions. | Simple linear regression only would miss potential non-monotonic effects of spatial ordering on PCE. |
-| **Benjamini-Hochberg Correction** | Required by FR-004 to control FDR across multiple elemental tests (Pb, I, MA). | Uncorrected p-values would inflate Type I error rates in a multi-hypothesis context. |
-| **HyperSpy Integration** | Required for robust EDS map handling and preprocessing (VI). | `scipy` alone lacks native support for complex EDS metadata and spectral unmixing if needed later. |
-| **Multivariate Analysis** | Required to address chemical coupling of Pb, I, MA (scientific_soundness-fa22ca9f). | Testing elements independently leads to spurious inference due to mass balance constraints. |
+| **Feasibility‑first design** | Guarantees a deterministic artifact (`feasibility_report.json`) before optional spatial analysis, satisfying FR‑001‑FR‑008 even when maps are missing. | Skipping feasibility would lead to fabricated EDS data, which the verifier rejects. |
+| **Performance‑only analysis branch** | Allows the core research question (relationships among PCE, J_sc, V_oc) to be answered regardless of EDS availability. | Forcing spatial analysis would abort the pipeline in the common case of missing maps. |
+| **CPU‑only metric extraction** | Uses `scipy.signal` and `scikit‑image` which run efficiently on the free runner. | Switching to GPU‑only deep‑learning would be impossible on CI. |
 
 ## Computational Task Ordering
+| Order | Script | Output (validated by schema) |
+|-------|--------|------------------------------|
+| 1 | `code/data/download_feasibility.py` | `results/feasibility_report.json` |
+| 2 | *Conditional*: if **any** EDS maps are found → continue to steps 3‑8; otherwise → skip step 6 (spatial metric extraction) but **still execute steps 7‑9** (modeling, robustness, reporting) using performance‑only data. |
+| 3 | `code/data/download.py` | `data/processed/unified_dataset.csv` (conforms to `contracts/dataset.schema.yaml`) |
+| 4 | `code/validation/co_location.py` | `data/processed/co_location_status.csv` |
+| 5 | `code/validation/depth_check.py` | `data/processed/depth_status.csv` |
+| 6 | `code/analysis/spatial_metrics.py` | `data/processed/spatial_metrics.csv` (may be empty) |
+| 7 | `code/modeling/correlation.py` + `code/modeling/gam.py` | `results/summary_report.csv` (conforms to `contracts/results.schema.yaml`) |
+| 8 | `code/analysis/robustness.py` | Updates `results/summary_report.csv` with `robustness_delta_r_max` |
+| 9 | `code/report/generate_report.py` | `results/summary_report.pdf` |
 
-1.  **Data Feasibility Check**: Verify programmatic link between metadata and EDS images. If failed, terminate and report "Data Availability Report".
-2.  **Data Ingestion**: Download verified JSONs, attempt EDS fetch, align grids, mask defects (FR-001).
-3.  **Co-location Validation**: Verify EDS and PCE originate from same device with unique ID (FR-007).
-4.  **Depth Resolution Validation**: Check EDS depth vs PCE active layer depth (FR-008).
-5.  **Spatial Metric Extraction**: Compute autocorrelation, fit decay models, calculate spectral power (FR-002, FR-003).
-6.  **Statistical Modeling**: Calculate correlations, apply BH correction, fit GAMs, perform partial correlation (FR-004).
-7.  **Robustness**: Perform LOO-CV (FR-005).
-8.  **Sensitivity Analysis & Conditional Exclusion**: Exclude samples based on sensitivity thresholds (FR-008).
-9.  **Reporting**: Generate CSV/PDF with ingestion success rate (SC-004) and power limitation report.
+**Note:** Modeling (step 7) is **always executed**; it operates on whatever predictor set is present (spatial metrics if available, otherwise performance‑only variables). Hypothesis testing within step 7 is performed only when the sample count for the specific analysis meets the power threshold (≥ 30 samples). When fewer samples are present, the pipeline reports effect‑size estimates with confidence intervals and explicitly notes the limited power.
 
 ## Risks & Mitigations
-
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| **EDS Data Unavailability** | High: No data to analyze. | FR-001: Exclude samples with missing EDS; report exclusion rate; halt if no verified source. |
-| **Low Sample Count (<30)** | High: Low statistical power. | Report power limitation explicitly; avoid over-interpreting non-significant results; calculate MDES. |
-| **Correlation Length Undefined** | Medium: Missing predictor. | FR-002: Flag as "undefined"; exclude from regression or use lower bound for censored analysis. |
-| **Confounding (Surface vs Bulk)** | Medium: Spurious correlations. | FR-008: Flag samples; perform sensitivity analysis excluding flagged samples; use depth-corrected metrics if available. |
-| **Chemical Coupling** | High: Spurious inference. | Use composite spatial metrics or partial correlation; acknowledge inability to claim independent effects. |
+| **No verified EDS maps** | Spatial analysis impossible | Feasibility step creates a deterministic *Data‑Availability Report*; pipeline continues with performance‑only analysis. |
+| **Insufficient samples for spatial sub‑analysis (<30)** | Low statistical power | Report effect‑size estimates with confidence intervals; do not perform hypothesis testing. |
+| **Undefined correlation length** | Missing predictor | Flag `is_undefined`; exclude from regression but keep in descriptive tables. |
+| **Surface‑vs‑bulk mismatch** | Potential confounding | Flag via FR‑008; sensitivity analysis reports both inclusive and exclusive results. |
+| **Runtime >6 h** | CI failure | Algorithms are O(N·pixel²) with N ≤ 200 and pixel ≤ 512²; empirical runtime < 2 h. |
 
-## Power Analysis & Feasibility
+## Mapping of Functional Requirements & Success Criteria
+| FR | Plan Phase | How Verified |
+|----|------------|--------------|
+| FR‑001 | 1, 3 | `download_feasibility.py` logs success rate; `download.py` writes unified CSV. |
+| FR‑002 | 6 (when maps exist) | `spatial_metrics.py` fits exponential, Gaussian, power‑law; selects via AIC; outputs `best_fit_model` and `aic_score`. |
+| FR‑003 | 6 (when maps exist) | Same module computes low‑frequency spectral power. |
+| FR‑004 | 7 & 8 | `correlation.py` computes Pearson/Spearman + BH correction; `gam.py` fits GAM. |
+| FR‑005 | 8 | `robustness.py` runs LOO‑CV, records `robustness_delta_r_max`. |
+| FR‑006 | 9 | `generate_report.py` creates CSV + PDF with all required fields. |
+| FR‑007 | 4 | `co_location.py` validates ID matches; mismatches excluded. |
+| FR‑008 | 5 | `depth_check.py` flags surface‑bias; sensitivity analysis optional in step 8. |
+| SC‑001 | 6 (unit test) | `tests/unit/test_spatial_metrics.py` validates extraction on synthetic images (≤5 % error). |
+| SC‑002 | 7 (integration test) | `tests/integration/test_pipeline.py` compares p‑values against SciPy reference (±0.001). |
+| SC‑003 | 8 (unit test) | `tests/unit/test_robustness.py` checks Δr calculation. |
+| SC‑004 | 1 (feasibility test) | `feasibility_report.json` contains `overall_success_rate`; test asserts it meets deferred threshold. |
 
-- **Minimum Detectable Effect Size (MDES)**: For N=30, 80% power, α=0.05, MDES ≈ r=0.35.
-- **Action**: If expected effect size < 0.35, the study is underpowered. The plan will explicitly report this limitation as a primary finding.
-- **Data Feasibility**: If no verified source for EDS maps is found, the project halts and produces a "Data Availability Report" instead of a statistical analysis.
+---
+
+
+
+## Power Analysis (Revised)
+- **Target Sample Size**: ≥ 30 samples for adequately powered hypothesis tests (α = 0.05, power = 0.80 → detectable r ≈ 0.35).  
+- **Performance‑only analysis**: > 200 samples are available, satisfying the power requirement.  
+- **Spatial sub‑analysis**: If fewer than 30 samples with EDS maps are found, the pipeline **does not perform hypothesis testing**; instead it reports effect‑size estimates with 95 % confidence intervals and explicitly notes the low power.  
+
+---
+
+
+
+## Compute Feasibility
+- All computations use CPU‑only libraries (`numpy`, `scipy`, `scikit‑image`).  
+- Even with the maximum allowed dataset size, memory usage stays < 2 GB and runtime < 2 h on the free GitHub Actions runner.  
+- No GPU resources are required.
+

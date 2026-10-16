@@ -3,62 +3,66 @@ title: "Analysis Results Schema"
 description: "Schema for the final statistical analysis results"
 type: "object"
 properties:
-  element:
+  pair:
     type: "string"
     enum:
-      - "Pb"
-      - "I"
-      - "MA"
-      - "composite"
-    description: "Element tested or 'composite'"
+      - "PCE_Jsc"
+      - "PCE_Voc"
+      - "Jsc_Voc"
+    description: "Performance variable pair analyzed"
   metric_type:
     type: "string"
     enum:
-      - "correlation_length"
-      - "spectral_power"
-    description: "Type of spatial metric used"
-  pearson_r:
+      - "pearson"
+      - "spearman"
+      - "gam"
+    description: "Statistical method used"
+  r_value:
     type: "number"
-    description: "Pearson correlation coefficient"
-  pearson_p:
+    description: "Correlation coefficient (Pearson r or Spearman rho)"
+  p_value:
     type: "number"
-    description: "Raw p-value for Pearson correlation"
-  pearson_p_adj:
+    description: "Raw p‑value"
+  p_value_adj:
     type: "number"
-    description: "Benjamini-Hochberg adjusted p-value"
-  spearman_r:
-    type: "number"
-    description: "Spearman correlation coefficient"
-  spearman_p:
-    type: "number"
-    description: "Raw p-value for Spearman correlation"
-  spearman_p_adj:
-    type: "number"
-    description: "Benjamini-Hochberg adjusted p-value"
+    description: "Benjamini‑Hochberg adjusted p‑value"
   gam_deviance_explained:
     type: "number"
-    description: "Deviance explained by the GAM"
+    nullable: true
+    description: "Deviance explained by GAM (if GAM applied)"
   robustness_delta_r_max:
     type: "number"
-    description: "Maximum change in correlation coefficient during LOO-CV"
+    nullable: true
+    description: "Maximum change in correlation coefficient during LOO‑CV"
   n_samples:
     type: "integer"
     minimum: 1
     description: "Number of samples used in the analysis"
   sensitivity_excluded:
     type: "boolean"
-    description: "True if sample excluded due to sensitivity analysis"
+    description: "True if sample excluded by FR‑008 sensitivity analysis"
+  co_location_status:
+    type: "string"
+    enum:
+      - "verified"
+      - "mismatch"
+      - "ambiguous"
+    description: "Co‑location validation outcome"
+  depth_validation_status:
+    type: "string"
+    enum:
+      - "valid"
+      - "flagged"
+      - "excluded"
+    description: "Depth validation outcome"
 required:
-  - element
+  - pair
   - metric_type
-  - pearson_r
-  - pearson_p
-  - pearson_p_adj
-  - spearman_r
-  - spearman_p
-  - spearman_p_adj
-  - gam_deviance_explained
-  - robustness_delta_r_max
+  - r_value
+  - p_value
+  - p_value_adj
   - n_samples
   - sensitivity_excluded
+  - co_location_status
+  - depth_validation_status
 additionalProperties: false
