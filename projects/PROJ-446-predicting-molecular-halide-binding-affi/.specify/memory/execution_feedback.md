@@ -8,56 +8,54 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/01_data_ingestion.py: self-declared fabricated metric — “…a proxy for cavity volume (no arbitrary scaling)     cavity_volume = Descript…”
-- code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…te basic descriptors for simulated data generation.     Returns…”
-- code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate synthetic data based on real descr…”
-- code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…erating {n_rows} rows of simulated data for halide {target_halid…”
-- code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…ide prediction mode with simulated data."     )   def run_data_s…”
-- code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…ency & possibly generate simulated data     is_simulated = run_d…”
 - code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…ed (bool): If True, load simulated data. If False, load real cle…”
 - code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {source_file}")…”
-
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/raw/descriptors_added.csv, data/raw/raw_scrape.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…,             "reason": "Simulated Data Mode",             "stat…”
+- code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…s cannot be performed on simulated data.",             "timestam…”
+- code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Simulated Data Mode active. Project FAI…”
+- code/06_generate_final_report.py: synthetic/fake INPUT data not authorized by the spec — “…header += "⚠️ **WARNING: SIMULATED DATA MODE ACTIVE**\n\n"…”
+- code/06_generate_final_report.py: synthetic/fake INPUT data not authorized by the spec — “…he pipeline fell back to simulated data due to insufficient real…”
+- code/06_generate_final_report.py: synthetic/fake INPUT data not authorized by the spec — “…rom "         header += "simulated data and **do not** reflect e…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 17 fabricated/simulated-result signal(s) — results are not real measurements: code/01_data_ingestion.py: self-declared fabricated metric — “…a proxy for cavity volume (no arbitrary scaling)     cavity_volume = Descript…”; code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…te basic descriptors for simulated data generation.     Returns…”; code/01_data_ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate synthetic data based on real descr…”; every produced artifact is gitignored (data/raw/descriptors_added.csv, data/raw/raw_scrape.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/01_data_ingestion.py (rc=1); python code/03_model_training.py (rc=1); python code/04_feature_analysis.py (rc=1); 7 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
+**Summary**: 11 fabricated/simulated-result signal(s) — results are not real measurements: code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…ed (bool): If True, load simulated data. If False, load real cle…”; code/02_save_processed_data.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {source_file}")…”; code/05_statistical_reporting.py: synthetic/fake INPUT data not authorized by the spec — “…,             "reason": "Simulated Data Mode",             "stat…”; 5 command(s) failed: python code/01_data_ingestion.py (rc=1); python code/02_feature_engineering.py (rc=1); python code/03_model_training.py (rc=1); 11 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
 
 ## Failing / missing run-book commands
 
 - python code/01_data_ingestion.py -> rc=1
-n run_data_pipeline
-    df_clean = validate_and_clean_data(df)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 251, in validate_and_clean_data
-    df_clean = df_clean.drop(columns=["mol_obj"])
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 5581, in drop
-    return super().drop(
-           ^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/generic.py", line 4788, in drop
-    obj = obj._drop_axis(labels, axis, level=level, errors=errors)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/generic.py", line 4830, in _drop_axis
-    new_axis = axis.drop(labels, errors=errors)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/indexes/base.py", line 7070, in drop
-    raise KeyError(f"{labels[mask].tolist()} not found in axis")
-KeyError: "['mol_obj'] not found in axis"
+uoride'.
+2026-10-16 18:16:06,258 INFO __main__: Fetched 0 PubChem records for halide 'chloride'.
+2026-10-16 18:16:08,326 INFO __main__: Fetched 0 NIST records for halide 'chloride'.
+2026-10-16 18:16:10,435 INFO __main__: Fetched 0 PubChem records for halide 'bromide'.
+2026-10-16 18:16:13,034 INFO __main__: Fetched 0 NIST records for halide 'bromide'.
+2026-10-16 18:16:15,192 INFO __main__: Fetched 0 PubChem records for halide 'iodide'.
+2026-10-16 18:16:17,324 INFO __main__: Fetched 0 NIST records for halide 'iodide'.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 365, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 361, in main
+    run_data_pipeline()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 336, in run_data_pipeline
+    raise RuntimeError("No records fetched from any source; aborting pipeline.")
+RuntimeError: No records fetched from any source; aborting pipeline.
+
+- python code/02_feature_engineering.py -> rc=1
+
+2026-10-16 18:16:19,921 - __main__ - ERROR - Feature engineering failed: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/data/raw/filtered_hosts.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/02_feature_engineering.py", line 307, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/02_feature_engineering.py", line 299, in main
+    run_feature_engineering_pipeline()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/02_feature_engineering.py", line 263, in run_feature_engineering_pipeline
+    raise FileNotFoundError(f"Input file not found: {input_path}")
+FileNotFoundError: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/data/raw/filtered_hosts.csv
 
 - python code/03_model_training.py -> rc=1
 
-2026-10-16 17:26:16,093 - __main__ - INFO - Starting model training pipeline...
-2026-10-16 17:26:16,093 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
+2026-10-16 18:16:21,325 - __main__ - INFO - Starting model training pipeline...
+2026-10-16 18:16:21,325 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/03_model_training.py", line 331, in <module>
     main()
@@ -70,7 +68,7 @@ FileNotFoundError: Preprocessed data not found at data/processed/halide_binding_
 
 - python code/04_feature_analysis.py -> rc=1
 
-2026-10-16 17:26:17,163 - __main__ - INFO - Starting Feature Analysis (US3)...
+2026-10-16 18:16:23,120 - __main__ - INFO - Starting Feature Analysis (US3)...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/04_feature_analysis.py", line 236, in <module>
     main()
@@ -107,6 +105,10 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXi
 - data/processed/physical_plausibility.json
 - data/processed/power_status.json
 - data/processed/statistical_summary.json
+- data/raw/descriptors_added.csv
+- data/raw/filtered_hosts.csv
+- data/raw/raw_scrape.json
+- data/raw/raw_scrape_cleaned.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -151,3 +153,21 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/07_validate_quickstart.py` — NOT invoked by the run-book
     - `code/08_update_state_hashes.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/statistical_summary.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/descriptors_added.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/02_feature_engineering.py` — IS a run-book command
+    - `code/02_save_processed_data.py` — NOT invoked by the run-book
+    - `code/07_validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/descriptors_added.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/filtered_hosts.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+    - `code/02_feature_engineering.py` — IS a run-book command
+    - `code/07_validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/filtered_hosts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/raw_scrape.json` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+    - `code/07_validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/raw_scrape.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/raw_scrape_cleaned.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+    - `code/07_validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/raw_scrape_cleaned.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

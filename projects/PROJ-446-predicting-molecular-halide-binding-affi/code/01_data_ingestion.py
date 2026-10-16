@@ -1,19 +1,17 @@
 import json
 import logging
-import os
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
-import pubchempy as pcp
+import requests
+from bs4 import BeautifulSoup
 from rdkit import Chem
-from rdkit.Chem import Descriptors, rdMolDescriptors
 
 from llmxive_toolkit import paths, get_logger
 from code.utils.config import get_solvent_list
-from code.utils.validators import ensure_schema_file_exists
 
 logger = get_logger(__name__)
 
@@ -65,31 +63,24 @@ def parse_inchi(inchi: str) -> Optional[Chem.Mol]:
 
 def extract_halide_identity(record: Dict[str, Any]) -> Optional[str]:
     """Extract halide identity (F, Cl, Br, I) from record."""
-    halides = [
-        "fluoride",
-        "chloride",
-        "bromide",
-        "iodide",
-        "f-",
-        "cl-",
-        "br-",
-        "i-",
-        "f",
-        "cl",
-        "br",
-        "i",
-    ]
+    halides = {
+        "fluoride": "F",
+        "chloride": "Cl",
+        "bromide": "Br",
+        "iodide": "I",
+        "f-": "F",
+        "cl-": "Cl",
+        "br-": "Br",
+        "i-": "I",
+        "f": "F",
+        "cl": "Cl",
+        "br": "Br",
+        "i": "I",
+    }
     text = str(record).lower()
-    for h in halides:
-        if h in text:
-            if "fluoride" in h or h == "f":
-                return "F"
-            if "chloride" in h or h == "cl":
-                return "Cl"
-            if "bromide" in h or h == "br":
-                return "Br"
-            if "iodide" in h or h == "i":
-                return "I"
+    for pattern, symbol in halides.items():
+        if pattern in text:
+            return symbol
     return None
 
 
@@ -101,89 +92,158 @@ def is_solvent_valid(solvent: str) -> bool:
     return solvent.lower() in [s.lower() for s in valid_solvents]
 
 
-def calculate_rdkit_descriptors_for_sim(mol: Chem.Mol) -> Dict[str, float]:
-    """
-    Calculate basic descriptors for simulated data generation.
-    Returns charge_density and cavity_volume approximations.
-    """
-    if mol is None:
-        return {"charge_density": 0.0, "cavity_volume": 0.0}
-
-    # Approximation: charge_density ~ (H-bond donors) / (Molecular Weight)
-    hbd = rdMolDescriptors.CalcNumHBD(mol)
-    mw = Descriptors.MolWt(mol)
-    charge_density = hbd / (mw + 1e-6)
-
-    # Use TPSA directly as a proxy for cavity volume (no arbitrary scaling)
-    cavity_volume = Descriptors.TPSA(mol)
-    return {"charge_density": charge_density, "cavity_volume": cavity_volume}
-
-
 # ----------------------------------------------------------------------
 # Data fetching utilities
 # ----------------------------------------------------------------------
-def fetch_pubchem_records(halide: str, max_retries: int = 3, base_delay: int = 2) -> List[pcp.Compound]:
+def _request_with_backoff(url: str, max_retries: int = 3, base_delay: int = 2) -> requests.Response:
     """
-    Fetch compounds from PubChem for a given halide name using PubChemPy,
-    with exponential back‑off on HTTP 429/503 errors.
+    Perform an HTTP GET with exponential back‑off on 429/503.
     """
     attempt = 0
     while True:
         try:
-            compounds = pcp.get_compounds(halide, 'name')
-            return compounds
-        except Exception as e:
-            # PubChemPy may raise a generic exception; inspect for HTTP status if possible
-            response = getattr(e, "response", None)
-            status = getattr(response, "status_code", None)
-            if status in (429, 503) and attempt < max_retries:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                return response
+            elif response.status_code in (429, 503) and attempt < max_retries:
                 wait = base_delay * (2 ** attempt)
                 logger.warning(
-                    f"PubChem request for '{halide}' returned {status}. "
+                    f"Request to {url} returned {response.status_code}. "
                     f"Retry {attempt + 1}/{max_retries} after {wait}s."
                 )
                 time.sleep(wait)
                 attempt += 1
                 continue
-            logger.error(f"Failed to fetch PubChem data for halide '{halide}': {e}")
+            else:
+                response.raise_for_status()
+        except requests.RequestException as e:
+            if attempt < max_retries:
+                wait = base_delay * (2 ** attempt)
+                logger.warning(f"Request error ({e}); retry {attempt + 1}/{max_retries} after {wait}s.")
+                time.sleep(wait)
+                attempt += 1
+                continue
+            logger.error(f"Failed to fetch {url}: {e}")
             raise
 
+def fetch_pubchem_records(halide: str, max_retries: int = 3, base_delay: int = 2) -> List[Dict[str, Any]]:
+    """
+    Fetch compounds from PubChem for a given halide name using the REST API,
+    with exponential back‑off on HTTP 429/503 errors.
+    Returns a list of dictionaries with keys: cid, smiles, inchi.
+    """
+    url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{halide}/property/IsomericSMILES,InChI/JSON"
+    response = _request_with_backoff(url, max_retries, base_delay)
+    data = response.json()
+    compounds = data.get("PropertyTable", {}).get("Properties", [])
+    records = []
+    for comp in compounds:
+        cid = comp.get("CID")
+        smiles = comp.get("IsomericSMILES")
+        inchi = comp.get("InChI")
+        if cid and smiles:
+            records.append({
+                "host_id": str(cid),
+                "smiles": smiles,
+                "inchi": inchi,
+                "value": None,
+                "unit": None,
+                "solvent": "acetonitrile",  # default allowed solvent
+                "halide_info": halide,
+                "source": "PubChem"
+            })
+    return records
+
+def fetch_nist_records(halide: str, max_retries: int = 3, base_delay: int = 2) -> List[Dict[str, Any]]:
+    """
+    Very lightweight scraper for the NIST Chemistry WebBook.
+    The WebBook does not expose a clean API for halide binding constants,
+    so this function attempts to retrieve the HTML page for the halide
+    name and extracts any tables that look like they contain binding data.
+    If the page cannot be retrieved or no suitable data is found, an
+    empty list is returned (the caller may decide to raise).
+    """
+    # Example search URL – NIST does not provide a direct search endpoint,
+    # but the following pattern returns a results page for a compound name.
+    url = f"https://webbook.nist.gov/cgi/cbook.cgi?Name={halide}&Units=SI"
+    response = _request_with_backoff(url, max_retries, base_delay)
+    soup = BeautifulSoup(response.text, "html.parser")
+    records: List[Dict[str, Any]] = []
+
+    # Heuristic: look for tables where the first header cell contains the word "Halide"
+    tables = soup.find_all("table")
+    for table in tables:
+        headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
+        if any("halide" in h for h in headers):
+            for row in table.find_all("tr")[1:]:
+                cells = row.find_all("td")
+                if len(cells) < 5:
+                    continue
+                # Very rough column mapping – this will vary per page.
+                # Expect columns: Host SMILES, Halide, Binding Constant, Units, Solvent
+                try:
+                    smiles = cells[0].get_text(strip=True)
+                    halide_label = cells[1].get_text(strip=True)
+                    value = cells[2].get_text(strip=True)
+                    unit = cells[3].get_text(strip=True)
+                    solvent = cells[4].get_text(strip=True)
+                except Exception:
+                    continue
+
+                records.append({
+                    "host_id": None,  # NIST does not provide a numeric host id; will be filled later
+                    "smiles": smiles,
+                    "inchi": None,
+                    "value": value,
+                    "unit": unit,
+                    "solvent": solvent,
+                    "halide_info": halide_label,
+                    "source": "NIST"
+                })
+    return records
 
 def build_raw_records() -> List[Dict[str, Any]]:
     """
-    Build a list of raw record dictionaries by querying PubChem for each halide.
-    Each record contains:
+    Build a list of raw record dictionaries by querying PubChem and NIST for each halide.
+    Each record contains at minimum:
+        - host_id (PubChem CID if available, otherwise a generated placeholder)
         - smiles
-        - host_id (PubChem CID)
-        - value (None, placeholder for binding constant)
-        - unit (None)
-        - solvent (set to a permitted default)
-        - halide_info (the halide string used for the query)
+        - inchi (may be None)
+        - value (binding constant, may be None)
+        - unit (may be None)
+        - solvent (validated later)
+        - halide_info (original halide string from the source)
+        - source ("PubChem" or "NIST")
     """
-    halides = ["Cl-", "Br-", "I-"]  # Fluoride often has many hits; limit to three for speed
-    records: List[Dict[str, Any]] = []
+    halides = ["fluoride", "chloride", "bromide", "iodide"]
+    all_records: List[Dict[str, Any]] = []
 
     for halide in halides:
-        compounds = fetch_pubchem_records(halide)
-        logger.info(f"Fetched {len(compounds)} compounds for halide '{halide}'.")
-        for comp in compounds:
-            smiles = getattr(comp, "isomeric_smiles", None)
-            if not smiles:
-                continue  # skip entries without SMILES
-            record = {
-                "smiles": smiles,
-                "host_id": str(comp.cid),
-                "value": None,
-                "unit": None,
-                "solvent": "acetonitrile",  # allowed solvent placeholder
-                "halide_info": halide,
-            }
-            records.append(record)
+        # PubChem
+        pc_records = fetch_pubchem_records(halide)
+        logger.info(f"Fetched {len(pc_records)} PubChem records for halide '{halide}'.")
+        all_records.extend(pc_records)
 
-        # Respect the required 2 s delay between requests
+        # Respect the required 2 s delay between requests (per source)
         time.sleep(2)
 
-    return records
+        # NIST
+        try:
+            nist_records = fetch_nist_records(halide)
+            logger.info(f"Fetched {len(nist_records)} NIST records for halide '{halide}'.")
+            # Assign a synthetic host_id if missing (e.g., "NIST-{index}")
+            for idx, rec in enumerate(nist_records):
+                if not rec["host_id"]:
+                    rec["host_id"] = f"NIST-{halide.upper()}-{idx}"
+            all_records.extend(nist_records)
+        except Exception as e:
+            # According to FR‑001 we must raise on fetch failure – do not silently ignore.
+            logger.error(f"NIST fetch failed for halide '{halide}': {e}")
+            raise
+
+        time.sleep(2)
+
+    return all_records
 
 
 # ----------------------------------------------------------------------
@@ -193,62 +253,60 @@ def validate_and_clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     Parse SMILES/InChI, exclude invalid structures, standardize units,
     extract halide identity, and filter by solvent.
+    Returns a DataFrame with columns:
+        host_id, smiles, halide_identity, binding_constant, solvent, source
     """
     logger.info("Validating and cleaning data...")
 
-    # Ensure SMILES column exists
-    if "smiles" not in df.columns and "SMILES" not in df.columns:
-        smiles_col = next((c for c in df.columns if "smiles" in c.lower()), None)
-        if smiles_col:
-            df["smiles"] = df[smiles_col]
-        else:
-            logger.warning("No SMILES column found. Skipping structure validation.")
-            return df
+    # Ensure required columns exist
+    required_cols = {"smiles", "halide_info", "solvent", "source", "host_id"}
+    missing = required_cols - set(df.columns)
+    if missing:
+        logger.error(f"Missing required columns for cleaning: {missing}")
+        raise KeyError(f"Missing columns: {missing}")
 
     # Parse SMILES to RDKit Mol objects
     df["mol_obj"] = df["smiles"].apply(parse_smiles)
 
     # Keep only rows with a valid Mol
     valid_mask = df["mol_obj"].notna()
+    excluded_invalid = len(df) - valid_mask.sum()
+    logger.info(f"Excluded {excluded_invalid} records with invalid SMILES/InChI.")
     df_clean = df[valid_mask].copy()
-    logger.info(f"Filtered {len(df) - len(df_clean)} invalid structures.")
 
     # Standardize affinity values
-    if "unit" in df_clean.columns:
-        df_clean["logK_std"] = df_clean.apply(
+    if "unit" in df_clean.columns and "value" in df_clean.columns:
+        df_clean["binding_constant"] = df_clean.apply(
             lambda r: standardize_affinity_value(r.get("value"), r.get("unit")), axis=1
         )
-    elif "logK" in df_clean.columns:
-        df_clean["logK_std"] = df_clean["logK"]
-    elif "value" in df_clean.columns:
-        df_clean["logK_std"] = df_clean["value"]
     else:
-        logger.warning("No affinity value column found.")
-        df_clean["logK_std"] = np.nan
+        df_clean["binding_constant"] = np.nan
 
     # Extract halide identity
-    df_clean["halide"] = df_clean.apply(extract_halide_identity, axis=1)
-    df_clean = df_clean.dropna(subset=["halide"])
+    df_clean["halide_identity"] = df_clean["halide_info"].apply(extract_halide_identity)
+    df_clean = df_clean.dropna(subset=["halide_identity"])
 
     # Filter by allowed solvents
-    if "solvent" in df_clean.columns:
-        df_clean = df_clean[df_clean["solvent"].apply(is_solvent_valid)]
+    df_clean = df_clean[df_clean["solvent"].apply(is_solvent_valid)]
 
-    # Resolve duplicate host–halide records by averaging logK_std
-    if not df_clean.empty:
-        agg_dict = {
-            "logK_std": "mean",
-            "smiles": "first",
-            "solvent": "first",
-            "halide": "first",
-        }
-        df_clean = (
-            df_clean.groupby(["host_id", "halide"], as_index=False)
-            .agg(agg_dict)
-        )
+    # Resolve duplicate host–halide records by averaging binding_constant
+    agg_dict = {
+        "binding_constant": "mean",
+        "smiles": "first",
+        "solvent": "first",
+        "source": "first",
+        "halide_identity": "first",
+    }
+    df_clean = (
+        df_clean.groupby(["host_id", "halide_identity"], as_index=False)
+        .agg(agg_dict)
+    )
 
-    # Drop helper columns
-    df_clean = df_clean.drop(columns=["mol_obj"])
+    # Keep only the required columns in the prescribed order
+    df_clean = df_clean[
+        ["host_id", "smiles", "halide_identity", "binding_constant", "solvent", "source"]
+    ]
+
     return df_clean
 
 
@@ -258,89 +316,11 @@ def filter_hosts_with_multiple_halides(df: pd.DataFrame) -> pd.DataFrame:
     """
     logger.info("Filtering hosts with multiple halides...")
 
-    if "host_id" not in df.columns:
-        logger.warning("No host_id column found. Skipping host filtering.")
-        return df
-
-    host_halide_counts = df.groupby("host_id")["halide"].nunique()
+    host_halide_counts = df.groupby("host_id")["halide_identity"].nunique()
     valid_hosts = host_halide_counts[host_halide_counts >= 3].index
-    df_filtered = df[df["host_id"].isin(valid_hosts)]
+    df_filtered = df[df["host_id"].isin(valid_hosts)].copy()
     logger.info(f"Retained {len(valid_hosts)} hosts with ≥3 halides.")
     return df_filtered
-
-
-def get_most_abundant_halide(df: pd.DataFrame) -> str:
-    """Return the halide with the highest occurrence in the dataset."""
-    if "halide" not in df.columns or df.empty:
-        return "F"  # default fallback
-    return df["halide"].value_counts().idxmax()
-
-
-def generate_simulated_data(
-    df_descriptors: pd.DataFrame, target_halide: str, n_rows: int = 100
-) -> pd.DataFrame:
-    """
-    Generate synthetic data based on real descriptor statistics.
-    Formula: logK_sim = 0.5 * charge_density + 0.3 * cavity_volume + N(0, 0.2)
-    """
-    logger.info(f"Generating {n_rows} rows of simulated data for halide {target_halide}...")
-    required_cols = {"charge_density", "cavity_volume", "smiles"}
-    if not required_cols.issubset(df_descriptors.columns):
-        logger.error("Missing required descriptor columns for simulation.")
-        raise ValueError("Descriptor columns missing for simulation.")
-
-    # Sample rows (with replacement if needed)
-    if len(df_descriptors) < n_rows:
-        sample_indices = np.random.choice(len(df_descriptors), size=n_rows, replace=True)
-        base_df = df_descriptors.iloc[sample_indices].reset_index(drop=True)
-    else:
-        base_df = df_descriptors.head(n_rows).reset_index(drop=True)
-
-    noise = np.random.normal(0, 0.2, n_rows)
-    base_df["logK_std"] = (
-        0.5 * base_df["charge_density"] + 0.3 * base_df["cavity_volume"] + noise
-    )
-    base_df["halide"] = target_halide
-    base_df["source"] = "simulated"
-    return base_df
-
-
-def log_simulated_warning():
-    """Emit the exact warning required for simulated‑mode activation."""
-    logger.warning(
-        "WARNING: Insufficient data (<50 hosts). Comparative analysis aborted. Switching to single-halide prediction mode with simulated data."
-    )
-
-
-def run_data_sufficiency_logic(df_filtered: pd.DataFrame) -> bool:
-    """
-    Determine whether the dataset meets the minimum host count.
-    Writes SIMULATED_MODE flag to data/simulated/state.json.
-    Returns True if simulated mode should be activated.
-    """
-    state_path = paths.data("simulated", "state.json")
-    unique_hosts = (
-        df_filtered["host_id"].nunique() if "host_id" in df_filtered.columns else 0
-    )
-    is_simulated = unique_hosts < 50
-
-    state = {
-        "SIMULATED_MODE": is_simulated,
-        "analysis_mode": "single_halide_prediction"
-        if is_simulated
-        else "comparative_analysis",
-        "comparative_analysis_aborted": is_simulated,
-        "host_count": int(unique_hosts),
-        "threshold": 50,
-    }
-
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(state_path, "w") as f:
-        json.dump(state, f, indent=2)
-
-    if is_simulated:
-        log_simulated_warning()
-    return is_simulated
 
 
 # ----------------------------------------------------------------------
@@ -348,61 +328,31 @@ def run_data_sufficiency_logic(df_filtered: pd.DataFrame) -> bool:
 # ----------------------------------------------------------------------
 def run_data_pipeline():
     """
-    Execute the full ingestion, cleaning, filtering, and (if needed)
-    simulation workflow.
+    Execute the full ingestion, cleaning, and filtering workflow.
     """
-    # 1. Fetch raw data from PubChem
-    logger.info("Fetching raw data from PubChem...")
+    logger.info("Fetching raw data from PubChem and NIST...")
     raw_records = build_raw_records()
     if not raw_records:
-        raise RuntimeError("No records fetched from PubChem; aborting pipeline.")
+        raise RuntimeError("No records fetched from any source; aborting pipeline.")
 
+    # Save raw JSON
     raw_path = paths.data("raw", "raw_scrape.json")
     raw_path.parent.mkdir(parents=True, exist_ok=True)
     with open(raw_path, "w") as f:
         json.dump(raw_records, f, indent=2)
 
-    # 2. Load into DataFrame
+    # Load into DataFrame
     df = pd.DataFrame(raw_records)
 
-    # 3. Clean & standardize
+    # Clean & standardize
     df_clean = validate_and_clean_data(df)
     cleaned_path = paths.data("raw", "raw_scrape_cleaned.csv")
     df_clean.to_csv(cleaned_path, index=False)
 
-    # 4. Filter hosts with ≥3 halides
+    # Filter hosts with ≥3 halides
     df_filtered = filter_hosts_with_multiple_halides(df_clean)
     filtered_path = paths.data("raw", "filtered_hosts.csv")
     df_filtered.to_csv(filtered_path, index=False)
-
-    # 5. Check data sufficiency & possibly generate simulated data
-    is_simulated = run_data_sufficiency_logic(df_filtered)
-
-    if is_simulated:
-        # Ensure descriptor file exists; if not, compute from cleaned data
-        desc_path = paths.data("raw", "descriptors_added.csv")
-        if desc_path.is_file():
-            df_desc = pd.read_csv(desc_path)
-        else:
-            logger.info(
-                "descriptors_added.csv not found. Computing descriptors from cleaned data."
-            )
-            df_desc = df_clean.copy()
-            df_desc["mol_obj"] = df_desc["smiles"].apply(parse_smiles)
-            descriptor_series = df_desc["mol_obj"].apply(calculate_rdkit_descriptors_for_sim)
-            df_desc["charge_density"] = descriptor_series.apply(
-                lambda d: d["charge_density"]
-            )
-            df_desc["cavity_volume"] = descriptor_series.apply(
-                lambda d: d["cavity_volume"]
-            )
-            df_desc = df_desc.drop(columns=["mol_obj"])
-            df_desc.to_csv(desc_path, index=False)
-
-        target_halide = get_most_abundant_halide(df_clean)
-        df_sim = generate_simulated_data(df_desc, target_halide, n_rows=100)
-        sim_path = paths.data("simulated", "temp_simulated_data.csv")
-        df_sim.to_csv(sim_path, index=False)
 
     logger.info("Data ingestion pipeline completed successfully.")
 

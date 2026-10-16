@@ -1,9 +1,8 @@
-scikit-learn>=1.4.0
-rdkit
-pandas
-numpy
-requests
-beautifulsoup4
-pyyaml
-pytest
-pubchempy
+# Existing environment already provides numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema,
+# psutil, rdkit, beautifulsoup4
+# Add any missing third‑party packages required by this task.
+# The script uses requests and beautifulsoup4 which are already available,
+# but we explicitly pin them for reproducibility.
+requests>=2.31.0
+beautifulsoup4>=4.12.2
