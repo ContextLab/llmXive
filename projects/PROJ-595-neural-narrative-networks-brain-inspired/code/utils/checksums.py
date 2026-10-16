@@ -101,7 +101,12 @@ def update_state_file(
     """
     updated = dict(current_state)
     for dir_path, file_checksums in new_checksums.items():
-        updated[str(dir_path)] = {"checksums": file_checksums}
+        # Flatten: merge the file checksums directly into the state
+        # without double-nesting the 'checksums' key.
+        for filename, hash_value in file_checksums.items():
+            # Create a key like 'data/raw/file.txt' from dir_path='data/raw' and filename='file.txt'
+            full_key = str(Path(dir_path) / filename)
+            updated[full_key] = hash_value
     if save:
         if not state_path:
             raise ValueError("state_path required when save=True")
@@ -130,14 +135,8 @@ def verify_manifest(manifest_path: Path, root: Optional[Path] = None) -> Dict[st
     """
     manifest_path = Path(manifest_path)
     state = load_state_file(manifest_path)
-    # Support both flat manifests and nested state-file manifests.
-    entries: Dict[str, str] = {}
-    for key, value in state.items():
-        if isinstance(value, dict) and "checksums" in value:
-            for fname, h in value["checksums"].items():
-                entries[str(Path(key) / fname)] = h
-        elif isinstance(value, str):
-            entries[key] = value
+    # Support flat manifests {relative_path: hash_value}.
+    entries: Dict[str, str] = state
     if root is None:
         root = manifest_path.parent.parent
     results: Dict[str, bool] = {}
@@ -191,7 +190,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     if args.verify:
-        results = verify_manifest(args.manifest)
+        results = verify_manifest(Path(args.manifest))
         bad = [k for k, ok in results.items() if not ok]
         for k, ok in sorted(results.items()):
             print(f"{'OK ' if ok else 'FAIL'} {k}")

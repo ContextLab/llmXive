@@ -1,19 +1,9 @@
 status: none
-intent: OpenNeuro ds001495 fMRI download Python package and ROCStories corpus download
-  python package dataset
-required_fields:
-- subject_id
-- run_id
-- timepoint
-- left_hippocampus_signal
-- right_hippocampus_signal
-- left_dorsolateral_prefrontal_cortex_signal
-- right_dorsolateral_prefrontal_cortex_signal
-- event_timestamp
-- story_condition
-- story_id
-- sentence_1
-- sentence_2
-cache_key: 0025adb4cdc14c45972eab861917eb0cad8a807dbdecd6b87bf93a9d86f535af
-searched_at: '2026-10-16T15:47:58.775677+00:00'
+intent: '### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
+  The researcher MUST be able to download the OpenNeuro fMRI dataset and the ROCStories
+  corpus, extract specific hippocampal and prefrontal ROI timecourses, and format
+  them for immediate analysis. This is the foundational step'
+required_fields: []
+cache_key: f1fd0f141d2545d70027893fa78b415896008cc209feae7cefda03b54275e21b
+searched_at: '2026-10-16T16:33:49.101129+00:00'
 retry_count: 1

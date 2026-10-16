@@ -3,6 +3,14 @@ T000:
 T000.1:
   task: a10a4fe69255e02a9f3a9ebbf1b3def8e59bc69e9dda11d3c5c47780cd66de66
 T001:
+  reason: 'The task requires five directories to be created: `code/`, `data/raw/`,
+    `data/processed/`, `data/results/`, and `tests/`. While `code/` and `tests/` directories
+    exist with content, three required directories are **MISSING**: `data/raw/`, `data/processed/`,
+    and `data/results/`. The `code/__init__.py` file exists and is non-empty (51 bytes),
+    satisfying that requirement. However, the `.gitignore` file is not mentioned in
+    the evidence and appears to be missing. The task explicitly requires creating
+    these five directories and a `.gitignore` file as foundational project structure;
+    partial completion'
   task: 1d6622d350bf7f53e129d88709aa7ce30ccd019a2474e477cc079a15247c2691
 T002:
   task: f093bd0489657adea5be0af52bd205cfcc3817d08b09cd1ac7744cb45e5421f4
@@ -11,14 +19,22 @@ T003:
 T004:
   task: b40fb3d8acfbc8277b4e431d5afbc935f1db400e1758497e1cfe277c6a9df300
 T006:
+  reason: 'The task requires implementing `code/utils/schema_validation.py` with validators
+    for neural, text, and RSA contracts. While the file exists and contains substantial
+    code with three public validator functions (`validate_neural_data`, `validate_text_data`,
+    `validate_rsa_output`), the implementation is **non-functional** because it depends
+    on schema files that do not exist.
+
+
+    The code attempts to load YAML schema files from `SCHEMA_DIRS` (either `contracts/`
+    or `specs/schemas/` directories) using `_load_schema()`. The three required schemas
+    are:
+
+    - `neural-data.schema.yaml`
+
+    - `text-data.schema.yaml'
   task: f961eab9eff0a622d5a34a37118a437ed850b6eb38046143a90f9c348032f3a2
 T007:
-  reason: 'The module exists and `compute_sha256` works, but the recorded pytest run
-    for this task failed (2 failed, 12 passed, exit 1): `test_state_file_roundtrip`
-    exposes a real bug where `update_state_file` double-nests the `checksums` key
-    (`{''data/raw'': {''checksums'': {''checksums'': {...}}}}`), and `test_write_manifest_and_verify`
-    fails with `NameError: tmp_path` (a broken test). Fix `update_state_file`''s merge
-    logic and the test, then re-run to green.'
   task: 552576f09b4c3ce08f74be9796640e28adb1b5b1c2907da56a5a07ff7d6ca689
 T008:
   task: 7268e6a1429ae99ea85b4142c5d5507c99cc8c53e8c492a6fef82aa76d8ed888
