@@ -1,9 +1,4 @@
 T000:
-  reason: "The repository contains the required `src/utils/seed.py` and `src/__init__.py`\
-    \ with a default seed of\u202F42, but there is no evidence that the verification\
-    \ command was actually run and that two successive executions produced identical\
-    \ NumPy random outputs. Execution logs or captured output confirming deterministic\
-    \ behavior are missing."
   task: 98155e0f17034e2ee207938f8627a6abd4845259e46de1b79d3a90506384ad64
 T001:
   reason: 'Requested task execution failed; rerun successfully: src/ingest/load_illusions.py

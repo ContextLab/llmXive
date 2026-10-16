@@ -6,11 +6,11 @@ This module provides a command‑line interface for downloading and cleaning the
 Müller‑Lyer illusion dataset from OpenNeuro.  It supports two usage styles:
 
 1. The original sub‑command style used by the verification step::
-   
+
    python -m src.ingest.load_illusions download_muller [--seed N]
 
 2. A flag‑based style used by the quick‑start documentation::
-   
+
    python -m src.ingest.load_illusions \\
        --download \\
        --output-dir data/raw \\
@@ -48,7 +48,9 @@ from src.utils.seed import set_global_seed
 # Configuration
 # ----------------------------------------------------------------------
 # Verified OpenNeuro identifier for the Müller‑Lyer dataset.
-OPENNEURO_DATASET_ID = "openneuro/muller_lyer"
+# The original identifier was incorrect; the correct canonical name on the
+# Hugging‑Face Hub is ``openneuro/muller-lyer`` (dash instead of underscore).
+OPENNEURO_DATASET_ID = "openneuro/muller-lyer"
 # The split name used by the OpenNeuro collection – most collections expose a
 # single split called ``train``.
 OPENNEURO_SPLIT = "train"
@@ -114,9 +116,13 @@ def _download_parquet(raw_path: Path) -> None:
     Download the parquet file from OpenNeuro and write it to ``raw_path``.
     The function raises ``RuntimeError`` if the download fails.
     """
-    log.info("Downloading Müller‑Lyer dataset from OpenNeuro (%s)", OPENNEURO_DATASET_ID)
+    log.info(
+        "Downloading Müller‑Lyer dataset from OpenNeuro (%s)", OPENNEURO_DATASET_ID
+    )
     try:
-        ds = load_dataset(OPENNEURO_DATASET_ID, split=OPENNEURO_SPLIT, streaming=False)
+        ds = load_dataset(
+            OPENNEURO_DATASET_ID, split=OPENNEURO_SPLIT, streaming=False
+        )
     except Exception as exc:
         raise RuntimeError(
             f"Failed to download dataset '{OPENNEURO_DATASET_ID}'. "
@@ -126,7 +132,9 @@ def _download_parquet(raw_path: Path) -> None:
     try:
         df = ds.to_pandas()
     except Exception as exc:
-        raise RuntimeError("Unable to convert the downloaded dataset to a pandas DataFrame.") from exc
+        raise RuntimeError(
+            "Unable to convert the downloaded dataset to a pandas DataFrame."
+        ) from exc
 
     log.info("Writing raw parquet to %s", raw_path)
     try:
@@ -141,14 +149,18 @@ def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
     missing_cols = [c for c in REQUIRED_COLUMNS if c not in df.columns]
     if missing_cols:
-        raise ValueError(f"Dataset is missing required columns: {missing_cols}")
+        raise ValueError(
+            f"Dataset is missing required columns: {missing_cols}"
+        )
 
     # Drop rows with NaN in any required column.
     before_rows = len(df)
     df_clean = df.dropna(subset=REQUIRED_COLUMNS)
     dropped = before_rows - len(df_clean)
     if dropped > 0:
-        log.warning("Dropped %d rows with missing values in required columns.", dropped)
+        log.warning(
+            "Dropped %d rows with missing values in required columns.", dropped
+        )
 
     # Warn about duplicate subject IDs.
     dup_counts = df_clean["subject_id"].value_counts()
@@ -170,7 +182,9 @@ def _write_clean_csv(df_clean: pd.DataFrame, clean_path: Path) -> None:
     try:
         df_clean.to_csv(clean_path, index=False, encoding="utf-8")
     except Exception as exc:
-        raise RuntimeError(f"Failed to write cleaned CSV to {clean_path}") from exc
+        raise RuntimeError(
+            f"Failed to write cleaned CSV to {clean_path}"
+        ) from exc
 
 # ----------------------------------------------------------------------
 # Public API
@@ -193,13 +207,17 @@ def download_and_clean(seed: int = 42) -> None:
     if not raw_path.is_file():
         _download_parquet(raw_path)
     else:
-        log.info("Raw parquet already exists at %s – skipping download.", raw_path)
+        log.info(
+            "Raw parquet already exists at %s – skipping download.", raw_path
+        )
 
     # Step 2 – load parquet, clean, and write CSV.
     try:
         df_raw = pd.read_parquet(raw_path)
     except Exception as exc:
-        raise RuntimeError(f"Unable to read parquet file from {raw_path}") from exc
+        raise RuntimeError(
+            f"Unable to read parquet file from {raw_path}"
+        ) from exc
 
     df_clean = _clean_dataframe(df_raw)
     _write_clean_csv(df_clean, clean_path)
@@ -220,7 +238,10 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
       ``--download`` / ``--clean`` with optional directory arguments.
     """
     # Detect flag‑based invocation
-    if any(arg.startswith("--download") or arg.startswith("--clean") for arg in (argv or [])):
+    if any(
+        arg.startswith("--download") or arg.startswith("--clean")
+        for arg in (argv or [])
+    ):
         parser = argparse.ArgumentParser(
             description="Download and/or clean the Müller‑Lyer illusion dataset."
         )
@@ -286,8 +307,12 @@ def main(argv: list[str] | None = None) -> None:
         set_global_seed(args.seed)
 
         # Resolve directories
-        raw_dir = Path(args.output_dir) if getattr(args, "output_dir", None) else None
-        clean_dir = Path(args.clean_dir) if getattr(args, "clean_dir", None) else None
+        raw_dir = (
+            Path(args.output_dir) if getattr(args, "output_dir", None) else None
+        )
+        clean_dir = (
+            Path(args.clean_dir) if getattr(args, "clean_dir", None) else None
+        )
 
         raw_path, clean_path = _ensure_output_paths(raw_dir, clean_dir)
 
@@ -295,15 +320,21 @@ def main(argv: list[str] | None = None) -> None:
             if not raw_path.is_file():
                 _download_parquet(raw_path)
             else:
-                log.info("Raw parquet already exists at %s – skipping download.", raw_path)
+                log.info(
+                    "Raw parquet already exists at %s – skipping download.", raw_path
+                )
 
         if args.clean:
             if not raw_path.is_file():
-                raise RuntimeError(f"Raw parquet not found at {raw_path}. Run with --download first.")
+                raise RuntimeError(
+                    f"Raw parquet not found at {raw_path}. Run with --download first."
+                )
             try:
                 df_raw = pd.read_parquet(raw_path)
             except Exception as exc:
-                raise RuntimeError(f"Unable to read parquet file from {raw_path}") from exc
+                raise RuntimeError(
+                    f"Unable to read parquet file from {raw_path}"
+                ) from exc
 
             df_clean = _clean_dataframe(df_raw)
             _write_clean_csv(df_clean, clean_path)

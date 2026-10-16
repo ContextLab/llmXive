@@ -1,0 +1,9 @@
+T000:
+  c: true
+  h: 7ad79016ec88e8b7805618a896eca502e2ebed89dd1f349a9662d9c62a111924
+  r: 'The required artifacts exist and are non-empty: `src/utils/seed.py` defines
+    `set_global_seed(42)` seeding `random`, NumPy, and `PYTHONHASHSEED`, and `src/__init__.py`
+    imports and applies it on package load. The historical execution record shows
+    `tests/test_seed_determinism.py::test_global_seed_determinism` passed (exit 0),
+    matching the task''s verification of identical outputs across runs.'
+  sig: ffdef0b4ef651a92f5982af8a67002995b4179b8e7a154e8c53e0284e686a647
