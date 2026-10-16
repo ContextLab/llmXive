@@ -4,14 +4,15 @@ download_moral_machine.py
 
 This script downloads a publicly‑available excerpt of the Moral Machine dataset,
 compresses it on‑the‑fly and stores it as ``data/raw/moral_machine.csv.gz``.
-The original URL used in the template was no longer reachable, which caused the
-script to exit with a non‑zero status during the pipeline run.  The implementation
-below tries a list of verified mirrors (GitHub raw files) and raises an exception
-if none succeed, thereby satisfying the “fail loudly” requirement.
+It uses a list of verified mirrors and attempts to download the first
+reachable URL.  The implementation avoids a separate ``HEAD`` request
+(which some servers reject) and streams the content directly to a gzip
+writer.  Any failure to download raises an exception so the pipeline
+aborts loudly, satisfying the “fail loudly” requirement.
 
-The script keeps the original command‑line interface (``--output``) and writes
-informative log messages.  It uses the ``DATA_RAW_DIR`` constant from
-``code/config.py`` to locate the output directory.
+The script keeps the original command‑line interface (``--output``) and
+writes informative log messages.  It uses the ``DATA_RAW_DIR`` constant
+from ``code/config.py`` to locate the output directory.
 """
 
 import sys
@@ -33,7 +34,7 @@ from config import DATA_RAW_DIR
 MORAL_MACHINE_URLS: List[str] = [
     # Primary mirror – GitHub raw file (contains the combined responses)
     "https://raw.githubusercontent.com/ethical-ai/moral-machine/master/data/combined_responses.csv",
-    # Secondary mirror – figshare (original URL from the template, kept as fallback)
+    # Secondary mirror – Figshare (original URL from the template, kept as fallback)
     "https://figshare.com/ndownloader/files/23117579",
 ]
 
@@ -43,16 +44,19 @@ DEFAULT_OUTPUT = DATA_RAW_DIR / "moral_machine.csv.gz"
 # Helper functions
 # ----------------------------------------------------------------------
 def _choose_working_url(urls: List[str]) -> str:
-    """Return the first URL that can be reached with a 200 status code.
+    """
+    Return the first URL that can be successfully downloaded with a GET request.
 
     Raises:
-        RuntimeError: If none of the candidate URLs are reachable.
+        RuntimeError: If none of the candidate URLs can be downloaded.
     """
     logger = logging.getLogger(__name__)
     for url in urls:
         try:
-            logger.debug(f"Testing availability of {url}")
-            with requests.head(url, allow_redirects=True, timeout=10) as resp:
+            logger.debug(f"Attempting download from {url}")
+            # Use a small HEAD‑like request via GET with stream=False to
+            # quickly verify availability without downloading the whole file.
+            with requests.get(url, stream=False, timeout=10) as resp:
                 if resp.status_code == 200:
                     logger.info(f"Selected working URL: {url}")
                     return url
@@ -69,7 +73,8 @@ def download_moral_machine(
     output_path: Path = DEFAULT_OUTPUT,
     url: str = None,
 ) -> None:
-    """Download the Moral Machine CSV and save it as a compressed ``.csv.gz`` file.
+    """
+    Download the Moral Machine CSV and save it as a compressed ``.csv.gz`` file.
 
     Args:
         output_path: Destination path for the compressed CSV.

@@ -11,10 +11,10 @@
     "python code/robustness.py --input data/processed/cleaned_dataset.parquet --output results/stats/sensitivity_analysis.csv -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-743-ambient-temperature-influence-on-moral-d/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-743-ambient-temperature-influence-on-moral-d/code/robustness.py': [Errno 2] No such file or directory"
   ],
   "fix_rounds": 0,
-  "model_tier": 2,
+  "model_tier": 0,
   "total_attempts": 1,
-  "replan_rounds": 0,
+  "replan_rounds": 1,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-14T12:10:46Z"
+  "updated_at": "2026-10-16T08:19:39Z"
 }
