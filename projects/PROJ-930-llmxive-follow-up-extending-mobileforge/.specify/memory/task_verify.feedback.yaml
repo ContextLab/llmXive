@@ -1,11 +1,4 @@
 T001:
-  reason: "The `code/` directory listing (23 entries) contains `data/`, `tests/`,\
-    \ `utils/` but no `models/` directory, which the task explicitly requires; nor\
-    \ is there evidence of the required subdirectories `data/raw`, `data/processed`,\
-    \ `data/evaluation`, `tests/unit`, and `tests/integration` (the listing only shows\
-    \ top-level `data/` and `tests/`). The implementer must actually create the full\
-    \ tree \u2014 including `code/models/` and all listed subdirectories \u2014 and\
-    \ provide a `tree`-equivalent listing confirming each path exists."
   task: 5e8e50240160bed08f187b67ca3363d4196fb83cac77c5078d3623db9e83cbe2
 T002:
   task: 28ccdfd978eb81e906b1515d924442985c4473e99508b6612a97259b2e9aa60c

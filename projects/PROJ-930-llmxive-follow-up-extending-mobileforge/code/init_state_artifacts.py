@@ -1,79 +1,73 @@
 """
 init_state_artifacts.py
 
-This script initialises the reproducibility artefact manifests required by the
-MobileForge Logic Distillation project.  It creates two JSON files under the
-project‑owned ``data/`` directory:
+Initialise reproducibility artefact manifests for the MobileForge Logic Distillation project.
 
-* ``data/artifact_hashes.json`` – an empty mapping that will later be populated
-  with SHA‑256 hashes of generated artefacts.
-* ``data/checksums.json`` – an empty mapping used to store checksums of raw
-  input files.
+This script creates two JSON files under the project ``data/`` directory:
+  - ``artifact_hashes.json`` – an empty JSON object that will later be populated
+    with SHA‑256 hashes of generated artefacts.
+  - ``checksums.json`` – an empty JSON object that will be used to store
+    SHA‑256 checksums of raw data files for integrity verification.
 
-The script follows the same contract as the original ``init_state_artifacts``
-implementation but avoids writing to the platform‑owned ``state/`` directory,
-which is managed by the verification infrastructure.  Running the script is
-idempotent: if a target file already exists and contains a valid JSON object,
-it is left untouched; otherwise it is overwritten with ``{}``.
-
-The script can be invoked directly:
-
-    python code/init_state_artifacts.py
-
-It will log its actions via the shared ``llmxive_toolkit`` logger.
+The script is deliberately lightweight and has no side‑effects outside the
+``data/`` folder, respecting the platform‑owned ``state/`` directory.
 """
 
 import json
 from pathlib import Path
-
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
 def _write_empty_json(target_path: Path) -> None:
     """
-    Write an empty JSON object ``{}`` to *target_path* if the file does not
-    already exist or does not contain a valid JSON mapping.
+    Write an empty JSON object ``{}`` to *target_path*.
 
-    Parameters
-    ----------
-    target_path: Path
-        The path of the JSON file to initialise.
+    If the file already exists and contains a valid JSON mapping, it is left
+    untouched; otherwise it is overwritten with an empty object.
     """
-    if target_path.exists():
-        try:
-            content = json.loads(target_path.read_text())
-            if isinstance(content, dict):
-                log.info(f"{target_path} already contains a valid JSON object.")
+    try:
+        if target_path.is_file():
+            with target_path.open("r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                log.debug(f"JSON manifest already present and valid: {target_path}")
                 return
-        except Exception as exc:
-            log.warning(f"Failed to parse existing JSON at {target_path}: {exc}")
+            else:
+                log.warning(f"Existing JSON at {target_path} is not a dict – overwriting.")
+    except (json.JSONDecodeError, OSError) as e:
+        log.warning(f"Failed to read existing JSON at {target_path} ({e}) – overwriting.")
 
-    # Write a fresh empty JSON object
-    target_path.write_text("{}\n")
-    log.info(f"Wrote empty JSON object to {target_path}")
+    # Write empty dict
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    with target_path.open("w", encoding="utf-8") as f:
+        json.dump({}, f, indent=2)
+    log.info(f"Wrote empty JSON manifest to {target_path}")
 
 def ensure_artifact_hashes() -> None:
     """
-    Ensure ``data/artifact_hashes.json`` exists and contains an empty object.
+    Ensure ``data/artifact_hashes.json`` exists and contains an empty JSON
+    object. This file is used by downstream scripts to record SHA‑256 hashes
+    of generated artefacts.
     """
     artifact_path = paths.data("artifact_hashes.json")
     _write_empty_json(artifact_path)
 
 def ensure_checksums_manifest() -> None:
     """
-    Ensure ``data/checksums.json`` exists and contains an empty object.
+    Ensure ``data/checksums.json`` exists and contains an empty JSON
+    object. This manifest will later hold SHA‑256 checksums of raw data
+    files for integrity verification.
     """
-    checksums_path = paths.data("checksums.json")
-    _write_empty_json(checksums_path)
+    checksum_path = paths.data("checksums.json")
+    _write_empty_json(checksum_path)
 
 def main() -> None:
     """
-    Entry point for the initialisation script.  It creates the two JSON
-    manifest files under ``data/``.
+    Entry point used by the bootstrap process. It creates both JSON
+    manifests under ``data/``.
     """
+    log.info("Initialising reproducibility state manifests under data/")
     ensure_artifact_hashes()
     ensure_checksums_manifest()
-
-if __name__ == "__main__":
-    main()
+    log.info("Initialisation complete.")

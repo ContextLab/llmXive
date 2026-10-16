@@ -1,23 +1,23 @@
 T001:
-  c: false
-  h: 5bd0b17f4e3b434bc6058feadfd8b88eebd390e2c7b645c046b7b489fba17d97
-  r: "The `code/` directory listing (23 entries) contains `data/`, `tests/`, `utils/`\
-    \ but no `models/` directory, which the task explicitly requires; nor is there\
-    \ evidence of the required subdirectories `data/raw`, `data/processed`, `data/evaluation`,\
-    \ `tests/unit`, and `tests/integration` (the listing only shows top-level `data/`\
-    \ and `tests/`). The implementer must actually create the full tree \u2014 including\
-    \ `code/models/` and all listed subdirectories \u2014 and provide a `tree`-equivalent\
-    \ listing confirming each path exists."
-  sig: 9471863ed7ef1ffd10d1b1ef588dad20b2805932a9961e0daeec5738a73c8899
+  c: true
+  h: ce4c29dc4d1be6f17a0e6e6861efbe5d1c86d8c4471b470e87f9835deed6a9f2
+  r: The `code/` directory listing shows `data/`, `models/`, `utils/`, and `tests/`
+    present, `state/` exists with content, and the execution log for `create_directory_tree.py`
+    (exit 0) explicitly confirms creation of all required subdirectories (`data/raw`,
+    `data/processed`, `data/evaluation`, `models`, `utils`, `tests/unit`, `tests/integration`,
+    and `state`). The task only required creating the directory tree, which the evidence
+    substantiates.
+  sig: bf2c9cbea32c302aa4b582fdc8acfc145d775417408825df5a254fa3e8b42ae7
 T002:
   c: true
-  h: a43d6d296b964f208123260f22c95bf7b7458b0a3e5f6ed6d34a7807fec3bc1b
-  r: The `requirements.txt` file exists at the project root (resolved canonical location,
-    171 bytes) and contains all 11 exact pinned versions matching the specification,
-    including the required `torch==2.2.2` line. The file is non-empty and its content
-    matches the task's stated list exactly; no CI run evidence is available but the
-    artifact itself fully satisfies the deliverable.
-  sig: 5a46dded6b32d9bae23713cbf93b2ed572d888dbc25422eeeb2a929da58a5c3b
+  h: 2202b08ab794cec19ca139dcbaf3a25f54b7ce712a44a3a7105f426c7b5bf61f
+  r: "The `requirements.txt` file exists at the project root (171 bytes) and contains\
+    \ exactly the 11 pinned packages with the specified exact versions, including\
+    \ the `torch==2.2.2` line, matching the task's required content verbatim. The\
+    \ task's only verification criteria \u2014 non-empty file, torch line present,\
+    \ and correct pinned contents \u2014 are all satisfied (no CI execution evidence\
+    \ is available, but the file content itself fully matches the specification)."
+  sig: 75b026014ab3fd9d46b85c1370f8dd5911440ad18446bbe4f18ae10e60058570
 T003:
   c: true
   h: fd13fa4a44ecc58aa6780c9371db63490ebf7b789ac2fb259caae79f0117a16b
@@ -40,11 +40,3 @@ T006:
     \ `SuccessRate` and `StepEfficiency` classes with the correct `compute` signatures,\
     \ returns values in the proper ranges, and is importable without errors."
   sig: 07bc69e09086d29e53e46faca4be32048d460844361c4c00efba02c5dc76fc08
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files, scripts, or documentation were provided that define or
-    manage environment variables for dataset paths and random seeds, so the requirement
-    to set up such environment variable management is not demonstrated. The implementer
-    must supply the actual artifact (e.g., a `.env` template, a Python/CLI config
-    module, or setup instructions) showing how these variables are defined and used.
