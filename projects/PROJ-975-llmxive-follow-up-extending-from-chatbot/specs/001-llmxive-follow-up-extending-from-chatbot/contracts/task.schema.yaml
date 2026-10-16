@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Task Schema"
+title: "TaskSchema"
 description: "Schema for synthetic task definitions in the Digital Colleague experiment."
 type: "object"
 properties:

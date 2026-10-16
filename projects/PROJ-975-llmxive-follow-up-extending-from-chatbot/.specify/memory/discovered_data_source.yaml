@@ -1,15 +1,16 @@
 status: none
-intent: synthetic multi-step code tasks with overlapping skill library python package
-  dataset
+intent: synthetic multi step task dataset python package skill library generation
+  python package dataset
 required_fields:
 - task_id
 - task_description
-- ground_truth_skill_sequence
+- ground_truth_path
 - skill_id
 - skill_name
 - skill_description
 - embedding_vector
-- semantic_overlap_level
-cache_key: ac5b2d3531c36a71df54e7e59ee2b51a7bd8ef73bf58c3058c8e101d9081e841
-searched_at: '2026-10-06T13:34:09.496143+00:00'
+- overlap_group
+- semantic_density
+cache_key: 3611172b492a73d91b60031b48a573abf800c0ebed8a05f72a48d183e752c195
+searched_at: '2026-10-16T11:10:48.387232+00:00'
 retry_count: 1

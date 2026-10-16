@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Experiment Log Schema"
-description: "Schema for the CSV output of the agent execution. Note: JSON schema for CSV is conceptual; this defines the expected columns and types for validation scripts."
+title: "ExperimentLogSchema"
+description: "Schema for the CSV output of the agent execution. Defines expected columns and types for validation scripts."
 type: "object"
 properties:
   run_id:

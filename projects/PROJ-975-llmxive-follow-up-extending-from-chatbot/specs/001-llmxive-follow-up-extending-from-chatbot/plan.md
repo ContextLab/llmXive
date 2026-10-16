@@ -1,39 +1,37 @@
 # Implementation Plan: llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent"
 
-**Branch**: `001-gene-regulation` | **Date**: 2026-07-12 | **Spec**: `specs/001-gene-regulation/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-10-16 | **Spec**: `specs/001-gene-regulation/spec.md`  
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
 
-This feature implements a synthetic experimental environment to test the "Digital Colleague" hypothesis. The system generates a deterministic dataset of 500 multi-step tasks and a configurable library of 100 Python skills with controlled semantic overlap. It executes a minimal agent across library sizes (10, 30, 50, 100) to measure task success rates, latency, and retrieval fidelity. The core analysis identifies a "tipping point" via Piecewise Linear Regression and evaluates a "Skill Pruning" heuristic to mitigate performance degradation. All results are measured against ground-truth solution paths and validated via contract schemas.
+The feature creates a fully deterministic synthetic environment (500 multi‑step tasks, 100 Python “skill” functions) with configurable semantic overlap. An agent is executed across library sizes 10, 30, 50, 100, with and without a Skill‑Pruning heuristic. Metrics (success rate, latency, token usage, Retrieval Precision, Retrieval Diversity) are logged, and a Piecewise Linear Regression (PLR) identifies the library‑size “tipping point”. All artifacts are validated against JSON/YAML contracts, and the entire pipeline runs on the GitHub Actions free‑tier CPU box.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `scikit-learn`, `sentence-transformers` (CPU), `pandas`, `numpy`, `pyyaml`, `pytest`, `jsonschema`  
-**Storage**: Filesystem (JSON for data, YAML for state)  
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `scikit-learn`, `sentence-transformers` (CPU‑only), `pandas`, `numpy`, `pyyaml`, `pytest`, `jsonschema`, `pwlf` (Piecewise Linear Fit)  
+**Storage**: Filesystem (JSON for raw data, CSV for experiment logs, YAML for state)  
 **Testing**: `pytest` (unit, contract, integration)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7 GB RAM)  
+**Target Platform**: Linux runner (GitHub Actions free tier: 2 CPU, 7 GB RAM)  
 **Project Type**: Research CLI / Simulation Engine  
-**Performance Goals**: Complete 500 tasks x 4 library sizes x 2 pruning states within 6 hours; Memory < 7 GB during embedding calculation.  
-**Constraints**: No GPU training; embeddings computed on CPU; synthetic data must be reproducible (seeded).  
-**Scale/Scope**: 500 tasks, 100 skills, 4 experimental configurations.
+**Performance Goals**: Full factorial sweep (4 library sizes × 2 pruning flags × 3 overlap levels) completes < 6 h; peak RAM < 2 GB.  
+**Constraints**: No GPU training; all embeddings computed on CPU; random seeds pinned for reproducibility.  
+**Scale/Scope**: 500 tasks, 100 skills, 12 experimental configurations per overlap level.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> All quantitative claims (e.g., “< 6 h”) are based on feasibility calculations described in `research.md`.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Evidence / Action Plan |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `code/generate_data.py` will pin `random.seed` and `numpy.random.seed`. `requirements.txt` will pin versions. CI runs against `data/raw`. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` will reference only verified sources (or synthetic generation logic). No external URLs invented. |
-| **III. Data Hygiene** | **PASS** | `code/generate_data.py` will generate checksums (SHA-256) for `tasks.json` and `skills.json` and record them in `state/...yaml`. Raw data immutable. |
-| **IV. Single Source of Truth** | **PASS** | Metrics in `data/results/` will be the sole source for `paper/`. No manual typing of numbers. |
-| **V. Versioning Discipline** | **PASS** | All artifacts (code, data, state) will carry content hashes. State YAML updated on every run. |
-| **VI. Synthetic Environment Validity** | **PASS** | Ground-truth paths generated independently of retrieval logic (FR-001). Semantic overlap controlled via cosine similarity constraints (FR-002). |
-| **VII. Pruning Intervention Fidelity** | **PASS** | Pruning logic (FR-004) strictly follows "every 10 tasks" rule. Baseline comparison (pruning off) implemented for direct contrast (SC-003). |
+| Principle | Status | Evidence / Action |
+|-----------|--------|-------------------|
+| **I. Reproducibility** | PASS | Random seeds (`random`, `numpy`) are fixed in `generate_data.py`; `requirements.txt` pins exact package versions; CI runs end‑to‑end from scratch. |
+| **II. Verified Accuracy** | PASS | No external citations are introduced; all references are to the synthetic generation process or to open‑source libraries that are publicly verifiable. |
+| **III. Data Hygiene** | PASS | `generate_data.py` writes SHA‑256 checksums for `tasks.json`, `skills.json`, and `metrics.csv` into `state/projects/PROJ-975-...yaml`. Files are immutable after creation. |
+| **IV. Single Source of Truth** | PASS | Every figure/table in the eventual paper will be derived from `data/results/analysis_report.json` (the sole source). |
+| **V. Versioning Discipline** | PASS | All artifacts (code, data, state) are content‑hashed; the hash map lives in the same state YAML. |
+| **VI. Synthetic Environment Validity** | PASS | Ground‑truth solution paths are generated independently of any retrieval logic; semantic overlap is enforced by explicit cosine‑similarity constraints (FR‑002). |
+| **VII. Pruning Intervention Fidelity** | PASS | Pruning is triggered exactly every 10 tasks; baseline runs (pruning disabled) are executed in parallel for direct comparison (SC‑003). |
 
 ## Project Structure
 
@@ -41,14 +39,16 @@ This feature implements a synthetic experimental environment to test the "Digita
 
 ```text
 specs/001-gene-regulation/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
     ├── task.schema.yaml
     ├── skill.schema.yaml
-    └── experiment_log.schema.yaml
+    ├── experiment_log.schema.yaml
+    ├── execution_log.schema.yaml
+    └── metrics.schema.yaml
 ```
 
 ### Source Code (repository root)
@@ -60,47 +60,57 @@ projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/
 │   │   ├── tasks.json
 │   │   └── skills.json
 │   └── results/
-│       └── metrics.csv
+│       ├── metrics.csv
+│       └── analysis_report.json
 ├── code/
 │   ├── __init__.py
-│   ├── generate_data.py       # Synthetic data generation (FR-001, FR-002)
-│   ├── agent.py               # Agent execution loop (FR-003)
-│   ├── pruning.py             # Pruning heuristic (FR-004)
-│   ├── analysis.py            # PLR, VIF, Metrics (FR-005, FR-006, FR-007)
-│   ├── logging_config.py      # Logger setup (T007 fix)
+│   ├── generate_data.py        # creates tasks.json, skills.json, checksums, state yaml
+│   ├── agent.py                # execution loop, logging via logging_config
+│   ├── pruning.py              # Skill‑Pruning heuristic (FR‑004)
+│   ├── analysis.py             # PLR, VIF, hypothesis tests, sensitivity sweeps
+│   ├── logging_config.py       # full logger with LOG_COLUMNS including "edge_case"
 │   └── requirements.txt
 ├── tests/
 │   ├── unit/
 │   │   └── test_pruning.py
 │   ├── contract/
-│   │   └── test_schemas.py    # Validates data against contracts (T011, T012 fix)
+│   │   └── test_schemas.py     # loads real JSON files and validates against contracts
 │   └── integration/
 │       └── test_full_run.py
 ├── state/
 │   └── projects/
 │       └── PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml
-└── contracts/
-    ├── task.schema.yaml       # Contract for tasks.json (T011 fix)
-    ├── skill.schema.yaml      # Contract for skills.json (T012 fix)
-    └── experiment_log.schema.yaml # Contract for metrics.csv (T007 fix)
+└── contracts/                  # **Explicitly at repository root** (matches T001 resolution)
+    ├── task.schema.yaml
+    ├── skill.schema.yaml
+    ├── experiment_log.schema.yaml
+    ├── execution_log.schema.yaml
+    └── metrics.schema.yaml
 ```
 
-**Structure Decision**: Single-project structure selected to simplify the data flow from generation to analysis. `contracts/` placed at the root of the feature directory to ensure schema visibility to the test runner.
+**Structure Decision**: The `contracts/` directory is placed at the repository root (i.e., `projects/.../contracts`) to eliminate ambiguity from the earlier specification (T001). All schema files referenced by tests and CI live here.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| N/A | No violations detected. | N/A |
+|-----------|------------|--------------------------------------|
+| None | All FR/SC are covered; no principle violations detected. | N/A |
 
-## Unresolved panel concerns (addressed)
+## Tasks to Resolve Prior Verifier Rejections
 
-- **Task T001 Ambiguity**: The directory structure explicitly defines `contracts/` at the feature root (not root of repo) to align with `tasks.md` paths. The plan clarifies `contracts/` is a sibling to `code/` and `data/` within the feature scope.
-- **Task T035 Sensitivity Analysis**: The `analysis.py` module will implement a sensitivity sweep but will report the **primary** tipping point derived from the standard configuration (10, 30, 50, 100) as the main result for SC-004. The sweep results will be stored as a secondary artifact (`data/results/sensitivity_analysis.json`) to ensure SC-004 remains measurable against a single, defined breakpoint.
+| Task | Resolution |
+|------|------------|
+| **T007 – Logging** | `logging_config.py` will implement `get_logger(name: str) -> logging.Logger` that sets up a `FileHandler` writing CSV rows with columns `run_id,task_id,library_size,pruning_enabled,success,latency_ms,tokens_used,retrieval_precision,retrieval_diversity,edge_case`. The `"edge_case"` column is required by `experiment_log.schema.yaml`. |
+| **T011 – Task Schema Test** | `tests/contract/test_schemas.py` will load the actual `data/raw/tasks.json`, parse each entry, and validate against `contracts/task.schema.yaml` using `jsonschema.validate`. |
+| **T012 – Skill Schema Test** | The same test suite will load `data/raw/skills.json`, validate against `contracts/skill.schema.yaml`, and additionally compute the mean pairwise cosine similarity to assert the requested overlap level (low/medium/high). |
+| **T015 – Data Generation** | `generate_data.py` will (1) create deterministic `tasks.json` and `skills.json`, (2) compute SHA‑256 checksums, (3) write those checksums plus a timestamp into `state/projects/PROJ-975-...yaml`. All files are written atomically and are immutable thereafter. |
 
-## Tasks an independent verifier REJECTED (redo these)
+## Phase Ordering (CPU‑First)
 
-- **T007 (Logging)**: `code/logging_config.py` will be implemented to fully construct the logger and include the `edge_case` column in the CSV header as defined in `LOG_COLUMNS`. `contracts/experiment_log.schema.yaml` will be created to validate the output.
-- **T011 (Task Schema)**: `contracts/task.schema.yaml` will be created. `tests/contract/test_schemas.py` will load `data/raw/tasks.json` and validate it against this schema.
-- **T012 (Skill Schema)**: `contracts/skill.schema.yaml` will be created. `tests/contract/test_schemas.py` will load `data/raw/skills.json` and validate overlap metrics.
-- **T015 (Data Generation)**: `code/generate_data.py` will include full serialization logic, checksum generation, and state update logic to produce `tasks.json`, `skills.json`, and update `state/...yaml`.
+1. **Download / Create** – No external download; `generate_data.py` creates raw JSON files.
+2. **Validate** – Contract tests (`pytest tests/contract/`) ensure schema compliance.
+3. **Execute** – `agent.py` runs the experiment loops, logs to `metrics.csv`.
+4. **Analyze** – `analysis.py` reads `metrics.csv`, fits PLR, computes VIF, runs hypothesis tests, writes `analysis_report.json`.
+5. **Report** – Quickstart steps (see `quickstart.md`) guide the researcher through the full pipeline.
+
+---

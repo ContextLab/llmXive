@@ -2,67 +2,58 @@
 
 ## Overview
 
-This document defines the data structures for the synthetic experiment. All data is stored in JSON (raw) and CSV (results) formats.
+Defines JSON and CSV structures used throughout the experiment. All files are validated against the schemas in `contracts/`.
 
 ## Entities
 
-### 1. Task
+### 1. Task (`data/raw/tasks.json`)
 
-A multi-step problem requiring a specific sequence of skills.
+| Field | Type | Description |
+|-------|------|-------------|
+| `task_id` | string (UUID) | Unique identifier. |
+| `description` | string | Natural‑language description of the task. |
+| `complexity` | integer (3‑5) | Number of steps in the solution path. |
+| `ground_truth_skills` | list[string] | IDs of the skills that must be executed (3‑5 items). |
+| `solution_path` | list[string] | Ordered list of function calls representing the deterministic solution. |
 
-**Source**: `data/raw/tasks.json`
-**Contract**: `contracts/task.schema.yaml`
+### 2. Skill (`data/raw/skills.json`)
 
-**Attributes**:
-- `task_id`: string (UUID)
-- `description`: string (Natural language description)
-- `complexity`: integer (3-5)
-- `ground_truth_skills`: list of strings (Skill IDs)
-- `solution_path`: list of strings (Ordered list of function calls)
+| Field | Type | Description |
+|-------|------|-------------|
+| `skill_id` | string (UUID) | Unique identifier. |
+| `name` | string | Function name. |
+| `code` | string | Full Python source code of the skill. |
+| `embedding` | list[float] (768) | 768‑dimensional semantic vector. |
+| `usage_count` | integer ≥ 0 | Times the skill has been retrieved/executed. |
+| `last_used` | string (ISO‑8601) | Timestamp of most recent use. |
 
-### 2. Skill
+### 3. Experiment Log (`data/results/metrics.csv`)
 
-A Python function capability with an embedding vector.
-
-**Source**: `data/raw/skills.json`
-**Contract**: `contracts/skill.schema.yaml`
-
-**Attributes**:
-- `skill_id`: string (UUID)
-- `name`: string (Function name)
-- `code`: string (Python source code)
-- `embedding`: list of floats (768-dim vector)
-- `usage_count`: integer (Runtime metric)
-- `last_used`: timestamp (ISO 8601)
-
-### 3. Experiment Log
-
-Record of a single task execution.
-
-**Source**: `data/results/metrics.csv`
-**Contract**: `contracts/experiment_log.schema.yaml`
-
-**Attributes**:
-- `run_id`: string
-- `task_id`: string
-- `library_size`: integer
-- `pruning_enabled`: boolean
-- `success`: boolean
-- `latency_ms`: float
-- `tokens_used`: integer
-- `retrieval_precision`: float (0.0-1.0)
-- `retrieval_diversity`: float
-- `edge_case`: string (e.g., "missing_skill", "memory_limit", "null")
+| Column | Type | Description |
+|--------|------|-------------|
+| `run_id` | string | Identifier for the experiment configuration (library size, pruning flag, overlap level). |
+| `task_id` | string | Reference to the task. |
+| `library_size` | integer (10 | 30 | 50 | 100) | Active skill library size at execution time. |
+| `pruning_enabled` | boolean | Whether the pruning heuristic was active. |
+| `success` | boolean | Task completed correctly (ground‑truth matched). |
+| `latency_ms` | number | Execution latency in milliseconds. |
+| `tokens_used` | integer | Estimated token count for the simulated LLM call. |
+| `retrieval_precision` | number ∈ [0, 1] | Jaccard similarity between top‑5 retrieved skills and ground‑truth set. |
+| `retrieval_diversity` | number | Inverse variance of cosine similarities of the top‑5 retrieved skills to the ground‑truth set. |
+| `edge_case` | string | Tag for special conditions (`"missing_skill"`, `"memory_limit"`, `"null"` etc.). |
 
 ## Data Flow
 
-1. **Generation**: `generate_data.py` creates `tasks.json` and `skills.json`.
-2. **Execution**: `agent.py` reads tasks/skills, writes rows to `metrics.csv`.
-3. **Analysis**: `analysis.py` reads `metrics.csv`, computes PLR, VIF.
-4. **State**: `state/...yaml` is updated with checksums of `tasks.json`, `skills.json`, and `metrics.csv`.
+1. **Generation** – `generate_data.py` creates `tasks.json` & `skills.json`, computes SHA‑256 checksums, and writes them to `state/projects/PROJ-975-...yaml`.  
+2. **Validation** – Contract tests (`pytest tests/contract/`) ensure JSON files conform to `task.schema.yaml` & `skill.schema.yaml`.  
+3. **Execution** – `agent.py` reads the raw files, runs the experiment loop, and appends rows to `metrics.csv` using the logger from `logging_config.py`.  
+4. **Analysis** – `analysis.py` reads `metrics.csv`, fits the PLR, computes VIF, performs hypothesis tests, and writes `analysis_report.json`.  
+5. **State Update** – After analysis, the state YAML is updated with a second checksum for `metrics.csv` and a timestamp.
 
 ## Constraints
 
-- **Immutability**: `tasks.json` and `skills.json` are read-only during execution.
-- **Append-Only**: `metrics.csv` is appended to; no in-place edits.
-- **Schema Validation**: All JSON files must pass `jsonschema` validation before use.
+* **Immutability** – `tasks.json` & `skills.json` are read‑only after generation.  
+* **Append‑Only Log** – `metrics.csv` is only ever appended; no in‑place edits.  
+* **Schema Validation** – Every read/write step validates against the corresponding schema; failures abort the CI run.
+
+---
