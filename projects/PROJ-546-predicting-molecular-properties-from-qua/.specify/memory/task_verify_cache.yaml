@@ -1,41 +1,37 @@
 T001:
   c: false
-  h: 90ada8c8d94500c7b8388a8cab77e1009a82d994f2e03cdb2a6805395b50590a
-  r: "The required `data/optimized_geometries/` directory does not exist, and the\
-    \ evidence does not confirm the presence of the `tests/unit/`, `tests/integration/`,\
-    \ and `tests/contract/` sub\u2011directories. These missing directories mean the\
-    \ project structure is not fully initialized as specified."
-  sig: d45e2ed8359a98ecb984b175af27c8067d508438ff0e747fef749b4238af9849
+  h: abdabd40f58e9df7fe44673938632901786a95ac643055db7780a35167c2f5d2
+  r: The required `data/optimized_geometries/` directory is missing (collector reports
+    MISSING) and the unit test `test_create_directories_creates_all_paths` fails because
+    that path does not exist. All other required directories are present.
+  sig: 704fc2c084dfe240fba2c0ccfe49bf11ab407f2d830e47d9eb487bc16433fe37
 T002a:
-  c: false
-  h: e70ad8d3d7c51761b2823c0f403a667e6747cc4c35a6fe3e0b5aae484d7480c4
-  r: "Checked `requirements.txt` (contains the six required packages) and `code/requirements.txt`\
-    \ (has pinned versions for the required packages but includes unpinned entries\
-    \ for `numpy` and `scipy`). The presence of unpinned dependencies violates the\
-    \ \u201Cpinned versions for reproducibility\u201D requirement. Pin those packages\
-    \ (or remove them) to complete the task."
-  sig: 70c1ef34cfc4a0ef7f0b9746db7a19810ed296b5fb6bc0d2b5bdaa1121ffbd3a
+  c: true
+  h: d9c88e9576e245b6fc92aaa9aba9cd15dae80751a8b963a36054c7c72630844c
+  r: "Checked the root `requirements.txt` (contains the six required packages) and\
+    \ `code/requirements.txt` (contains pinned versions for those six packages plus\
+    \ additional reproducibility tools). Both files exist, are non\u2011empty, and\
+    \ meet the task\u2019s specifications."
+  sig: e00f4f5bce158f39a2dabfcaee8fddc197a89e4a80557f00c87fc73e74a9ca96
 T002b:
   c: false
-  h: e1f5db00af3cccfc9a65fe62d5cc63df94f907a001840ac7bc6b891369906024
-  r: "The `pyproject.toml` and `.ruff.toml` files are present and contain Black and\
-    \ Ruff configurations, but there is no provided evidence (e.g., command output\
-    \ or logs) that `ruff check` and `black --check` were run on an empty codebase\
-    \ and succeeded. Without this verification, the task\u2019s requirement is not\
-    \ fully satisfied."
-  sig: eca918abd6022efbdf3e8c293c49fadd9b28085b25d74ecc5903e48207cfd9ab
+  h: d1b46ee4c984ce8b0c5a445c76855437f2c9797d720bcba708ce6fb0890ce399
+  r: The required `pyproject.toml` and `.ruff.toml` files are present, but the recorded
+    test run (`code/.tasks/T002b.tests_test_linting.py.log`) shows that `black --check`
+    and `ruff check` both fail on the current codebase (many files would be reformatted,
+    and ruff reports errors). Therefore the linting/formatting configuration does
+    not pass the required checks. The task must be fixed so that the codebase complies
+    with Black and Ruff (or the checks are run on an empty codebase as specified).
+  sig: 45dd140a6a8619595ee8ece541c3ae4a9197895182bdf9a407f0390a265fb2c1
 T004a:
   c: false
-  h: 5fd14a41b8d912512aa0edafb582f57d088b5a590ecfd51474e5edf8652a3572
-  r: "The `idea/predicting-molecular-properties-from-qua.md` file does not contain\
-    \ the required Zenodo accession `1048765`, and `code/config.py` does not hard\u2011\
-    code `ZENODO_ID = \"1048765\"` (it uses an environment fallback and a placeholder\
-    \ ID `1031531`). Consequently the task\u2019s primary requirement and the mandated\
-    \ error\u2011handling fallback are not met. The implementer must add the correct\
-    \ ID to the idea file (or ensure it is present) and set `ZENODO_ID = \"1048765\"\
-    ` directly in `code/config.py`, raising `FileNotFoundError` if the ID cannot be\
-    \ resolved."
-  sig: abb3880886304c084717322e073d7ae1a749755ec41f3a5f7788b00cc9b09b0f
+  h: 0d0bcba648ba0699afb7d59d3309c6bed6ae9a6c944ea59beb21f5c83615b247
+  r: The `code/config.py` correctly defines `ZENODO_ID = "1048765"`, but the source
+    `idea/predicting-molecular-properties-from-qua.md` does not contain the accession
+    ID `1048765`. Since the task required extracting the ID from that file (or raising
+    a `FileNotFoundError` if absent), the implementer did not meet the requirement.
+    The missing ID in the idea file (or lack of error handling) must be fixed.
+  sig: 36b70d29420858d81cc40c6110dbaa91105cac1d6ac4848d22942a8a2986a040
 T004b:
   c: false
   h: 62555811c6b2d5df085cf4b5c6e016f287edfbb40f636ee04f69edbea8934394
@@ -56,6 +52,23 @@ T004c-extract:
     \ file as required by Task\u202FT004c\u2011extract. Consequently the core output\
     \ contract of the task is unmet."
   sig: f317a9a2449db314163b0fea3a0629ca4ed0a6481da8579df3d469205e046f4d
+T004c-normalize:
+  c: false
+  h: f56765225d50476a399167984cebf9bdc55ae6b10c0cdfe5f6048a655fcd3528
+  r: "Checked `code/normalize_data.py` (implements the required selection and rename\
+    \ logic) and the presence of `data/raw/barrier_dataset.csv`. The canonical CSV\
+    \ file does not exist, so the task\u2019s verification condition (file must exist\
+    \ and be non\u2011empty) is not met. The script must be executed after extraction\
+    \ to produce the required `data/raw/barrier_dataset.csv`."
+  sig: bdab960de175c14212e56024bfb260c1e22de7101cc04c0abcc24b76a7971896
+T010:
+  c: false
+  h: 6f45d396afb43100cc10415c76fb765a2f80719fb78acde7ab9b4a5c743d0b1f
+  r: "The provided `code/validators/data_validator.py` looks for a column named `SMILES`\
+    \ (uppercase) instead of the required `smiles`, and it does not raise a `FileNotFoundError`\
+    \ when `data/raw/barrier_dataset.csv` is absent (it merely returns a failure message).\
+    \ These deviations mean the validator does not meet the task\u2019s specification."
+  sig: 337057c3bfac6520ee7c34112d2f1069d1e06a7dd403031ba38042a1a157832c
 T012:
   c: false
   h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59

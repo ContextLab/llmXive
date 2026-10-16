@@ -1,25 +1,3 @@
-- artifact_hash: e1e8b2c990478f426a2ee172db28b69be5af194e1dcf5f4c917d3d59c0b4730f
-  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://vaers.hhs.gov/data/datasets/VAERSDATA{year}.CSV`
-  verification_status: mismatch
-  verified_against_url: https://vaers.hhs.gov/data/datasets/VAERSDATA%7Byear%7D.CSV
-  verified_at: '2026-10-12T02:27:14.059173Z'
-- artifact_hash: e1e8b2c990478f426a2ee172db28b69be5af194e1dcf5f4c917d3d59c0b4730f
-  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://raw.githubusercontent.com/meddra/meddra-mappings/master/meddra_soc.csv`
-  verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/meddra/meddra-mappings/master/meddra_soc.csv
-  verified_at: '2026-10-12T02:27:14.059173Z'
 - artifact_hash: 76261e20a99c79d0ee3f16238f1eedfcbd543170cd8c82b06e80d81a0fdd2bbc
   artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/plan.md
   cite_id: c-001
@@ -53,3 +31,25 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/data/vaers_2020_2023.parquet
   verified_at: '2026-10-12T02:46:32.386404Z'
+- artifact_hash: 8b10a10daa5cbd292aa6811d763da2e86752143747ee4fef693fc461299ad879
+  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://vaers.hhs.gov/data/datasets/VAERSDATA{year}.CSV`
+  verification_status: mismatch
+  verified_against_url: https://vaers.hhs.gov/data/datasets/VAERSDATA%7Byear%7D.CSV
+  verified_at: '2026-10-16T09:49:37.424776Z'
+- artifact_hash: 8b10a10daa5cbd292aa6811d763da2e86752143747ee4fef693fc461299ad879
+  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/meddra/meddra-mappings/master/meddra_soc.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/meddra/meddra-mappings/master/meddra_soc.csv
+  verified_at: '2026-10-16T09:49:37.424776Z'

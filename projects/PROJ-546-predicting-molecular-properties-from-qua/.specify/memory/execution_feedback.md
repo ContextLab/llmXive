@@ -7,49 +7,40 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py run -> rc=1
-.hdf5: expected 206223b65c7601f7db8cc12f6a30bfef, got e6fedd6ca94779fa31dade5de9ad9be04c98ff9df9863d766b9b024f64e8b951
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 170, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 167, in main
-    args.func(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 96, in run_full_pipeline
-    run_fetch(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 37, in run_fetch
-    fetch_data_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 172, in main
-    fetch_and_prepare()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 113, in fetch_and_prepare
-    raise RuntimeError("Checksum verification failed.")
-RuntimeError: Checksum verification failed.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 17, in <module>
+    from evaluate_models import main as evaluate_models_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/evaluate_models.py", line 21, in <module>
+    from config import PROJECT_ROOT
+ImportError: cannot import name 'PROJECT_ROOT' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/config.py)
 
 - python code/main.py fetch -> rc=1
--qua/data/raw/N2 on food R_2014_12_10__12_52_31___3___2.hdf5
-2026-10-12 04:26:08,045 ERROR fetch_data: Checksum mismatch for N2 on food R_2014_12_10__12_52_31___3___2.hdf5: expected 206223b65c7601f7db8cc12f6a30bfef, got e6fedd6ca94779fa31dade5de9ad9be04c98ff9df9863d766b9b024f64e8b951
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 170, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 167, in main
-    args.func(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 37, in run_fetch
-    fetch_data_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 172, in main
-    fetch_and_prepare()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/fetch_data.py", line 113, in fetch_and_prepare
-    raise RuntimeError("Checksum verification failed.")
-RuntimeError: Checksum verification failed.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 17, in <module>
+    from evaluate_models import main as evaluate_models_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/evaluate_models.py", line 21, in <module>
+    from config import PROJECT_ROOT
+ImportError: cannot import name 'PROJECT_ROOT' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/config.py)
 
 - python code/main.py optimize -> rc=1
-2026-10-12 04:26:09,018 - INFO - Executing Optimization Phase (T013)...
-Error: Input file data/raw/barrier_dataset.csv not found.
 
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 17, in <module>
+    from evaluate_models import main as evaluate_models_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/evaluate_models.py", line 21, in <module>
+    from config import PROJECT_ROOT
+ImportError: cannot import name 'PROJECT_ROOT' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/config.py)
 
 - python code/main.py train -> rc=1
-2026-10-12 04:26:09,996 - INFO - Executing Training Phase (T021)...
-2026-10-12 04:26:09,997 - INFO - Starting model training (T021)
-2026-10-12 04:26:09,997 - INFO - Loading Semi-Empirical data from data/descriptors_semi.csv
-2026-10-12 04:26:09,997 - ERROR - Training failed: Semi-empirical descriptors file not found: data/descriptors_semi.csv
 
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py", line 17, in <module>
+    from evaluate_models import main as evaluate_models_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/evaluate_models.py", line 21, in <module>
+    from config import PROJECT_ROOT
+ImportError: cannot import name 'PROJECT_ROOT' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/config.py)
 
 
 ## Declared deliverables still missing

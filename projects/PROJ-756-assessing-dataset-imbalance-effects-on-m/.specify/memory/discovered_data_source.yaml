@@ -1,11 +1,11 @@
 status: none
-intent: download OQMD AFLOW Materials Project datasets python package dataset
+intent: matminer download OQMD AFLOW Materials Project datasets python package dataset
 required_fields:
 - composition
-- magpie_features
 - formation_energy_per_atom
 - band_gap
 - bulk_modulus
-cache_key: 94ed3e66d8ca3dcdfe9f8a81f131a39d8dd189b5bba97041fabed931ad2a7c6d
-searched_at: '2026-10-11T00:26:56.436182+00:00'
+- magpie_features
+cache_key: e26d58b99daa57c4eb6f171e816f5c50f9dc4e9050f9e90097ed0d03dba62cae
+searched_at: '2026-10-16T09:54:19.059394+00:00'
 retry_count: 1

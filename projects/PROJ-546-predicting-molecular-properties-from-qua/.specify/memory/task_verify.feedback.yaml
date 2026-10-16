@@ -1,41 +1,28 @@
 T001:
-  reason: "The required `data/optimized_geometries/` directory does not exist, and\
-    \ the evidence does not confirm the presence of the `tests/unit/`, `tests/integration/`,\
-    \ and `tests/contract/` sub\u2011directories. These missing directories mean the\
-    \ project structure is not fully initialized as specified."
+  reason: The required `data/optimized_geometries/` directory is missing (collector
+    reports MISSING) and the unit test `test_create_directories_creates_all_paths`
+    fails because that path does not exist. All other required directories are present.
   task: f181b5d3c684b1dc78e45ac21aa4bea31bfb11c95967ff345bac4932cbe94ce9
 T002a:
-  reason: "Checked `requirements.txt` (contains the six required packages) and `code/requirements.txt`\
-    \ (has pinned versions for the required packages but includes unpinned entries\
-    \ for `numpy` and `scipy`). The presence of unpinned dependencies violates the\
-    \ \u201Cpinned versions for reproducibility\u201D requirement. Pin those packages\
-    \ (or remove them) to complete the task."
   task: 6f45d07ccd6332cdc187cce49de2940b09483de4dcd772983f5658771d9a0db4
 T002b:
-  reason: "The `pyproject.toml` and `.ruff.toml` files are present and contain Black\
-    \ and Ruff configurations, but there is no provided evidence (e.g., command output\
-    \ or logs) that `ruff check` and `black --check` were run on an empty codebase\
-    \ and succeeded. Without this verification, the task\u2019s requirement is not\
-    \ fully satisfied."
+  reason: The required `pyproject.toml` and `.ruff.toml` files are present, but the
+    recorded test run (`code/.tasks/T002b.tests_test_linting.py.log`) shows that `black
+    --check` and `ruff check` both fail on the current codebase (many files would
+    be reformatted, and ruff reports errors). Therefore the linting/formatting configuration
+    does not pass the required checks. The task must be fixed so that the codebase
+    complies with Black and Ruff (or the checks are run on an empty codebase as specified).
   task: 31ec8222b3bc9bb2bb1c4ac7e2d455b09975cd12fa03c8432fbcf75008b99cfb
 T004a:
-  reason: "The `idea/predicting-molecular-properties-from-qua.md` file does not contain\
-    \ the required Zenodo accession `1048765`, and `code/config.py` does not hard\u2011\
-    code `ZENODO_ID = \"1048765\"` (it uses an environment fallback and a placeholder\
-    \ ID `1031531`). Consequently the task\u2019s primary requirement and the mandated\
-    \ error\u2011handling fallback are not met. The implementer must add the correct\
-    \ ID to the idea file (or ensure it is present) and set `ZENODO_ID = \"1048765\"\
-    ` directly in `code/config.py`, raising `FileNotFoundError` if the ID cannot be\
-    \ resolved."
+  reason: The `code/config.py` correctly defines `ZENODO_ID = "1048765"`, but the
+    source `idea/predicting-molecular-properties-from-qua.md` does not contain the
+    accession ID `1048765`. Since the task required extracting the ID from that file
+    (or raising a `FileNotFoundError` if absent), the implementer did not meet the
+    requirement. The missing ID in the idea file (or lack of error handling) must
+    be fixed.
   task: ad8cd9bb1dfd5710306080eb0c0186a149aef64bb858f26fed9e9b9304c41232
 T004b:
-  reason: "The provided `code/fetch_data.py` imports `ZENODO_ID` from `code/config.py`,\
-    \ which currently defaults to the placeholder ID\u202F`1031531` instead of the\
-    \ required Zenodo ID\u202F`1048765`; therefore it would download the wrong record.\
-    \ Moreover, the verification entry written to `logs/verification.log` records\
-    \ the file size and SHA\u2011256 hash but omits a timestamp, contrary to the task\u2019\
-    s specification of logging \u201Cchecksum match, file size, timestamp\u201D. These\
-    \ issues must be fixed for the task to be considered complete."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 61ce3d32c421e954cb45d7957fca1e750139cfd93bd922f78a5d16348e838711
 T004c-extract:
   reason: "The provided `code/fetch_data.py` does perform archive detection, extraction,\
@@ -45,8 +32,18 @@ T004c-extract:
     \ contract of the task is unmet."
   task: 182d6a99de49ffcef14d229d1e3f73db7e3186d9678803287a848789257a8778
 T004c-normalize:
+  reason: "Checked `code/normalize_data.py` (implements the required selection and\
+    \ rename logic) and the presence of `data/raw/barrier_dataset.csv`. The canonical\
+    \ CSV file does not exist, so the task\u2019s verification condition (file must\
+    \ exist and be non\u2011empty) is not met. The script must be executed after extraction\
+    \ to produce the required `data/raw/barrier_dataset.csv`."
   task: 74c8f3e59594f36b872ee43b6c8a5cb4acce2333633de10cf48d3d9f05f6540c
 T010:
+  reason: "The provided `code/validators/data_validator.py` looks for a column named\
+    \ `SMILES` (uppercase) instead of the required `smiles`, and it does not raise\
+    \ a `FileNotFoundError` when `data/raw/barrier_dataset.csv` is absent (it merely\
+    \ returns a failure message). These deviations mean the validator does not meet\
+    \ the task\u2019s specification."
   task: 4db5be67b1927df8dcbd488e7ca01505b932043d8cd0d894cfd6b6bf87b83eb2
 T011:
   task: c37eb22835346cf671215c7c2c1590158e86ad7a61b78ec4254e52eb11bae1e1
