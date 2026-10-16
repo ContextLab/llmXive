@@ -36,7 +36,7 @@ ERROR tests/unit/test_regression.py
 ERROR tests/unit/test_shadowing.py
 ERROR tests/unit/test_sweep_runner.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 0.51s ===============================
+============================== 9 errors in 0.85s ===============================
 
 
 - python code/main.py  --N-values 3,5  --noise-levels 0.0001,0.001,0.01,0.1  --trials 30  --window-sizes 500,1000,5000  --seed 42 -> rc=1
@@ -73,8 +73,3 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/regression.py` — NOT invoked by the run-book
     - `code/analysis/shadowing.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-## Platform-owned paths written inside the project
-
-A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
-
-Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

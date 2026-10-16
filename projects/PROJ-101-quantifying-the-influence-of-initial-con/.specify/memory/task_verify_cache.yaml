@@ -7,13 +7,17 @@ T002:
     \ importable as required."
   sig: 202b4cc1b064e7e07b064b140f6f8e792684e951c58f43d40460c4c72d4b4116
 T003:
-  c: true
-  h: 5dcc56b8ee6b58aa4b2b8f9e52e6c9eecea38d6161b3ecc041789eb21a9997f2
-  r: '`tests/conftest.py` exists (6320 bytes) with a `seed` fixture returning 42,
-    plus temporary-directory fixtures (`temp_data_dir`) and seed-pinning (`random_seed`),
-    and the execution log shows `tests/test_dummy.py::test_random_state_reproducibility`
-    passing (exit 0) under the project''s pytest config, satisfying the stated verification.'
-  sig: 6d3ab1506d290fb944cc468f0b236ccb6207ff0521b8af92104bbe9ff58c3d28
+  c: false
+  h: eb904108e6380bf56332807092fb301107b4465990860c7d7d442c2bd9176a0e
+  r: '`tests/conftest.py` exists and contains a `seed` fixture returning 42 plus a
+    temp-directory fixture, but there is no evidence of the required verification:
+    no dummy test file asserting `np.random.RandomState(42).rand()` reproducibility
+    and no pytest execution evidence. Moreover, the conftest appears broken at collection
+    time: it imports `from config import ...` while the module lives at `code/config.py`
+    (only the project root is added to `sys.path`, not `code/`), and its `full_config`
+    fixture constructs `SimulationConfig(N=..., t_max=..., dt=...)` using keyword
+    arguments that don''t exist in th'
+  sig: a1b0038cb09f72186ff2a31db066a89629a5081e34de43f9f968f6f01577a757
 T004:
   c: true
   h: 20bf94fc431524d4dfff4ea97533cc669947a97a661fd869851f69d4f742f558

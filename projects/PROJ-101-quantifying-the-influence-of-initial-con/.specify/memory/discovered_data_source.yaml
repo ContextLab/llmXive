@@ -1,19 +1,15 @@
 status: none
-intent: download synthetic coupled Lorenz oscillator trajectories with noise python
-  package dataset
+intent: pip install coupled lorenz oscillator generator python package dataset
 required_fields:
 - time
-- x1
-- y1
-- z1
-- x2
-- y2
-- z2
-- '...'
-- xN
-- yN
-- zN
-- noise_sigma
-cache_key: fc1b6797921da3b5f42a7bdb89734e6806ee2c11195604deb85fd2952f9c8479
-searched_at: '2026-10-16T16:10:55.470966+00:00'
+- oscillator_id
+- x
+- y
+- z
+- noise_std
+- sigma_noise
+- integration_method
+- tolerance
+cache_key: eebea523285c5d721fce9bdadfce8a94b5a1ac132f74195eb222749339963192
+searched_at: '2026-10-16T17:10:10.820826+00:00'
 retry_count: 1

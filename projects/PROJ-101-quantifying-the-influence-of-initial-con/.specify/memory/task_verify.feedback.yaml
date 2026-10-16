@@ -7,6 +7,14 @@ T001:
 T002:
   task: b887bf56faf5c907d3f7386c1e89a8a4b418986bad94b966372d732561835a5c
 T003:
+  reason: '`tests/conftest.py` exists and contains a `seed` fixture returning 42 plus
+    a temp-directory fixture, but there is no evidence of the required verification:
+    no dummy test file asserting `np.random.RandomState(42).rand()` reproducibility
+    and no pytest execution evidence. Moreover, the conftest appears broken at collection
+    time: it imports `from config import ...` while the module lives at `code/config.py`
+    (only the project root is added to `sys.path`, not `code/`), and its `full_config`
+    fixture constructs `SimulationConfig(N=..., t_max=..., dt=...)` using keyword
+    arguments that don''t exist in th'
   task: 7251b7b1d60932fd6f146f4d407fa7cf10dfaeaacfc45135c62a87f710d05818
 T004:
   task: 2c32d9ac5e89c4bd9784db9714ee1a87e839aecc8ee5b75a818f50e9b86eef8f

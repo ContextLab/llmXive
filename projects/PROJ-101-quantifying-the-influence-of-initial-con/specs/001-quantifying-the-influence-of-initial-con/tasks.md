@@ -15,7 +15,7 @@ All tasks are written as checklist items; unchecked items indicate work that sti
   - **Files**: `code/__init__.py`, `code/simulation/__init__.py`, `code/analysis/__init__.py`, `code/utils/__init__.py`, `tests/__init__.py`  
   - **Verification**: `python -c "import code"` runs without `ImportError`; CI runs a sanity test importing each sub‑module.
 
-- [X] T003 [P] Configure pytest with a fixture suite that pins the random seed and provides a temporary directory for each test.  
+- [ ] T003 [P] Configure pytest with a fixture suite that pins the random seed and provides a temporary directory for each test.  
   - **File**: `tests/conftest.py` containing `seed` fixture (value 42) and `tmp_path` fixture usage.  
   - **Verification**: `pytest -q` passes a dummy test that asserts `np.random.RandomState(42).rand()` is reproducible.
 
