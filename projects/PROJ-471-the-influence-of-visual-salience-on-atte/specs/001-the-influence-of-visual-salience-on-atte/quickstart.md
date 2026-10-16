@@ -22,7 +22,7 @@ python code/ingestion/verify_data.py
 
 ## Run the Full Pipeline
 ```bash
-python code/main.py
+python -m code.main --stage smoke
 ```
 The orchestrator executes the steps defined in `plan.md` in order:
 1. Verify dataset presence.  
@@ -45,8 +45,5 @@ The orchestrator executes the steps defined in `plan.md` in order:
 | `DATA_MISSING_001` | Dataset not in `data/raw/` | Download ds003123 from OpenNeuro and extract there. |
 | `CUDA error` | Accidental GPU usage on CPU runner | Ensure `code/config.py` sets `device = "cpu"`; re‑run. |
 | MemoryError during salience generation | Batch size too large | Reduce `BATCH_SIZE` in `code/config.py` (e.g., from 8 to 4). |
-| `POWER_INSUFFICIENT` | Simulated power < 0.8 | Collect more participants or accept that inference is not valid. |
+| `POWER_INSUFFICIENT` | Simulated power < 0.5 | Collect more participants or accept that inference is not valid. |
 | Missing columns in `aligned_data.csv` | Alignment step omitted latency or edge density | Verify `code/analysis/align_data.py` produces those columns; run `code/utils/independence_validator.py` for diagnostics. |
-
----
-

@@ -1,12 +1,11 @@
 T001:
-  c: true
-  h: 4290eaca1c2a5b208310bca630b34095f3a36685f01554135d5a7e5a2fb3ea1b
-  r: 'The required artifacts exist and match the task: `code/bootstrap.py` creates
-    all seven required directories (all present on disk, including `data/results/`
-    and `code/tests/`), writes a pinned `code/requirements.txt` (present in the `code/`
-    listing) with exact version pins for Python 3.11 and all listed libraries, `code/config.py`
-    defines paths/seeds/thresholds, `code/main.py` is a runnable entry point supporting
-    `--stage smoke` with layout verification, and `specs/.../quickstart.md` documents
-    the command. The unpinned root `requirements.txt` is a supplementary file; the
-    pinned requirements the'
-  sig: 5fec24a5ac1ca6d72f6518e738b4f9023023c408af0cf77db6960b1b9ec571f5
+  c: false
+  h: 7c40eb9ef4931de4bfc5f2eb2555c87f543ef08e242ff8e256e800ae5b97aeef
+  r: "The repository contains `code/bootstrap.py` and a `code/requirements.txt`, but\
+    \ there is no evidence that the bootstrap script was actually executed successfully\
+    \ (no run log, no proof that it created the directories or wrote the pinned requirements).\
+    \ Moreover, the provided test for the script fails because it cannot monkey\u2011\
+    patch `paths.root`, indicating the script is not currently runnable in the expected\
+    \ environment. A successful execution record (or passing test) and confirmation\
+    \ that the generated `requirements.txt` matches the pinned list are needed."
+  sig: d8d2a0d254ef220149bbccb7bb9a304a590ae1a7507b6473bf112d63e54588d8
