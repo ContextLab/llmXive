@@ -17,13 +17,8 @@ from pathlib import Path
 from typing import List, Tuple
 
 from llmxive_toolkit import paths, get_logger
-
-# The huggingface_hub library is used instead of the `datasets` library because
-# the latter pulls in `pyarrow`, which requires NumPy 2.0 and is unavailable in the
-# execution environment.  HuggingFace Hub provides direct access to the raw
-# JSONL files of the CodeXGLUE defect-detection dataset, allowing us to load the
-# data without any heavy binary dependencies.
-from huggingface_hub import hf_hub_download, RepositoryNotFoundError
+from huggingface_hub import hf_hub_download
+from huggingface_hub.utils import RepositoryNotFoundError
 
 log = get_logger(__name__)
 

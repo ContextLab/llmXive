@@ -1,7 +1,7 @@
 """
 generate_synthetic.py
 ----------------------
-Wrapper module that invokes the synthetic data generation routine.
+Wrapper module that invokes the synthetic data generation process.
 """
 
 from code.data.generate_synthetic import main as _gen_main
