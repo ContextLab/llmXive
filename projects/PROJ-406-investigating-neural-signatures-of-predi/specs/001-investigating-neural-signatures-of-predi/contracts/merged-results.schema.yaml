@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Results Schema"
+description: "Joined table of per‑subject precision parameters (λ) and Ponzo susceptibility scores (β) for subjects with complete data."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the participant, matching across datasets."
+  lambda:
+    type: number
+    minimum: 0.01
+    maximum: 10.0
+    description: "Precision‑weighting parameter estimated from the Müller‑Lyer model."
+  lambda_log_likelihood:
+    type: number
+    description: "Final log‑likelihood for the subject‑specific model fit."
+  lambda_aic:
+    type: number
+    description: "AIC value for the subject‑specific model."
+  lambda_bic:
+    type: number
+    description: "BIC value for the subject‑specific model."
+  beta:
+    type: number
+    description: "Susceptibility score (β) derived from the Ponzo illusion."
+  beta_r2:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Coefficient of determination for the Ponzo susceptibility fit."
+required:
+  - subject_id
+  - lambda
+  - lambda_log_likelihood
+  - lambda_aic
+  - lambda_bic
+  - beta
+  - beta_r2
+additionalProperties: false
