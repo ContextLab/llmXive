@@ -1,9 +1,0 @@
-T001:
-  c: false
-  h: 16403e834b73e7554c29c8eaa667da97edb6e596216c38cdf5885d5dd9907f8c
-  r: "The evidence shows only `checksums.txt`, `seeds.yaml`, and `seeds.json` are\
-    \ present; the required raw data files (`smiles.parquet`, `fqy.json`) are missing,\
-    \ and there is no proof that a download script ran successfully or that the seed\u2011\
-    configuration module is imported before any stochastic operation. These artifacts\
-    \ must be added and verified."
-  sig: e2d2af338ae254ba271ef09060256f714fc35f8a9aa34d5f5a290285ba32f3b7

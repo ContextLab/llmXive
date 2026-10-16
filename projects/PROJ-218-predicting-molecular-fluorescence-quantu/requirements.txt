@@ -11,6 +11,9 @@ requests
 jsonschema
 psutil
 
-# Additional packages required for T003
+# Additional packages required for T003 and later tasks
 rdkit-pypi
 pyarrow
+
+# Added for seed pinning (required by load_and_set_seeds)
+torch
