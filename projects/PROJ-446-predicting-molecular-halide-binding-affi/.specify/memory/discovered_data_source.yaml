@@ -1,33 +1,18 @@
-status: verified
-kind: pypi_package
-ref: PubChemPy
-access_python: "import pubchempy as pcp\n# Query a few common halide ions and collect\
-  \ available identifiers.\nhalides = [\"Cl-\", \"Br-\", \"I-\"]\nrecords = []\nfor\
-  \ h in halides:\n    comps = pcp.get_compounds(h, 'name')\n    for c in comps:\n\
-  \        records.append({\n            'host_smiles': getattr(c, 'isomeric_smiles',\
-  \ None),\n            'host_inchi': getattr(c, 'inchi', None),\n            'halide_identity':\
-  \ h,\n            'binding_constant_value': None,\n            'binding_constant_units':\
-  \ None,\n            'solvent': None,\n            'source_database': 'PubChem',\n\
-  \            'source_record_id': c.cid\n        })\nprint(f\"RECORDS={len(records)}\"\
-  )\nprint(\"FIELDS=host_smiles,host_inchi,halide_identity,source_database,source_record_id\"\
-  )"
-record_count: 3
-sample_fields:
-- host_smiles
-- host_inchi
-- halide_identity
-- source_database
-- source_record_id
-field_coverage: 0.625
+status: none
+intent: halide binding constants dataset NIST Chemistry WebBook PubChem download python
+  package dataset
 required_fields:
-- host_smiles
-- host_inchi
+- host_SMILES
+- host_InChI
 - halide_identity
 - binding_constant_value
 - binding_constant_units
-- solvent
+- solvent_type
+- measurement_temperature
+- measurement_temperature_units
 - source_database
 - source_record_id
-intent: download halide binding constants dataset NIST Chemistry WebBook PubChem python
-  package dataset
-cache_key: 87308047b7fa100994e322575cd5e701961b18f3b4dcaa03bed072d366146f12
+- source_reference_url
+cache_key: 03657cf21d953df9ce57aae471d2acace59e71b7d08ae35e3d72cf4e27b658b7
+searched_at: '2026-10-16T17:27:07.778749+00:00'
+retry_count: 1

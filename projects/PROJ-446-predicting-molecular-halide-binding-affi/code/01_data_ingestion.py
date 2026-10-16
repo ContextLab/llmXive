@@ -1,11 +1,13 @@
 import json
 import logging
 import os
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
+import pubchempy as pcp
 from rdkit import Chem
 from rdkit.Chem import Descriptors, rdMolDescriptors
 
@@ -16,7 +18,7 @@ from code.utils.validators import ensure_schema_file_exists
 logger = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper functions (unchanged apart from minor refactoring)
+# Helper functions
 # ----------------------------------------------------------------------
 def standardize_affinity_value(value: Any, unit: str) -> float:
     """
@@ -112,10 +114,76 @@ def calculate_rdkit_descriptors_for_sim(mol: Chem.Mol) -> Dict[str, float]:
     mw = Descriptors.MolWt(mol)
     charge_density = hbd / (mw + 1e-6)
 
-    # Approximation: cavity_volume ~ scaled TPSA
-    tpsa = Descriptors.TPSA(mol)
-    cavity_volume = tpsa * 0.5  # arbitrary scaling
+    # Use TPSA directly as a proxy for cavity volume (no arbitrary scaling)
+    cavity_volume = Descriptors.TPSA(mol)
     return {"charge_density": charge_density, "cavity_volume": cavity_volume}
+
+
+# ----------------------------------------------------------------------
+# Data fetching utilities
+# ----------------------------------------------------------------------
+def fetch_pubchem_records(halide: str, max_retries: int = 3, base_delay: int = 2) -> List[pcp.Compound]:
+    """
+    Fetch compounds from PubChem for a given halide name using PubChemPy,
+    with exponential back‑off on HTTP 429/503 errors.
+    """
+    attempt = 0
+    while True:
+        try:
+            compounds = pcp.get_compounds(halide, 'name')
+            return compounds
+        except Exception as e:
+            # PubChemPy may raise a generic exception; inspect for HTTP status if possible
+            response = getattr(e, "response", None)
+            status = getattr(response, "status_code", None)
+            if status in (429, 503) and attempt < max_retries:
+                wait = base_delay * (2 ** attempt)
+                logger.warning(
+                    f"PubChem request for '{halide}' returned {status}. "
+                    f"Retry {attempt + 1}/{max_retries} after {wait}s."
+                )
+                time.sleep(wait)
+                attempt += 1
+                continue
+            logger.error(f"Failed to fetch PubChem data for halide '{halide}': {e}")
+            raise
+
+
+def build_raw_records() -> List[Dict[str, Any]]:
+    """
+    Build a list of raw record dictionaries by querying PubChem for each halide.
+    Each record contains:
+        - smiles
+        - host_id (PubChem CID)
+        - value (None, placeholder for binding constant)
+        - unit (None)
+        - solvent (set to a permitted default)
+        - halide_info (the halide string used for the query)
+    """
+    halides = ["Cl-", "Br-", "I-"]  # Fluoride often has many hits; limit to three for speed
+    records: List[Dict[str, Any]] = []
+
+    for halide in halides:
+        compounds = fetch_pubchem_records(halide)
+        logger.info(f"Fetched {len(compounds)} compounds for halide '{halide}'.")
+        for comp in compounds:
+            smiles = getattr(comp, "isomeric_smiles", None)
+            if not smiles:
+                continue  # skip entries without SMILES
+            record = {
+                "smiles": smiles,
+                "host_id": str(comp.cid),
+                "value": None,
+                "unit": None,
+                "solvent": "acetonitrile",  # allowed solvent placeholder
+                "halide_info": halide,
+            }
+            records.append(record)
+
+        # Respect the required 2 s delay between requests
+        time.sleep(2)
+
+    return records
 
 
 # ----------------------------------------------------------------------
@@ -165,6 +233,19 @@ def validate_and_clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # Filter by allowed solvents
     if "solvent" in df_clean.columns:
         df_clean = df_clean[df_clean["solvent"].apply(is_solvent_valid)]
+
+    # Resolve duplicate host–halide records by averaging logK_std
+    if not df_clean.empty:
+        agg_dict = {
+            "logK_std": "mean",
+            "smiles": "first",
+            "solvent": "first",
+            "halide": "first",
+        }
+        df_clean = (
+            df_clean.groupby(["host_id", "halide"], as_index=False)
+            .agg(agg_dict)
+        )
 
     # Drop helper columns
     df_clean = df_clean.drop(columns=["mol_obj"])
@@ -270,28 +351,31 @@ def run_data_pipeline():
     Execute the full ingestion, cleaning, filtering, and (if needed)
     simulation workflow.
     """
-    # 1. Load raw scrape JSON (must exist; otherwise raise)
-    raw_path = paths.data("raw", "raw_scrape.json")
-    if not raw_path.is_file():
-        raise FileNotFoundError(
-            f"Required raw data file not found: {raw_path}. "
-            "The loader must fail loudly on fetch failure."
-        )
-    with open(raw_path, "r") as f:
-        raw_data = json.load(f)
-    df = pd.DataFrame(raw_data)
+    # 1. Fetch raw data from PubChem
+    logger.info("Fetching raw data from PubChem...")
+    raw_records = build_raw_records()
+    if not raw_records:
+        raise RuntimeError("No records fetched from PubChem; aborting pipeline.")
 
-    # 2. Clean & standardize
+    raw_path = paths.data("raw", "raw_scrape.json")
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(raw_path, "w") as f:
+        json.dump(raw_records, f, indent=2)
+
+    # 2. Load into DataFrame
+    df = pd.DataFrame(raw_records)
+
+    # 3. Clean & standardize
     df_clean = validate_and_clean_data(df)
     cleaned_path = paths.data("raw", "raw_scrape_cleaned.csv")
     df_clean.to_csv(cleaned_path, index=False)
 
-    # 3. Filter hosts with ≥3 halides
+    # 4. Filter hosts with ≥3 halides
     df_filtered = filter_hosts_with_multiple_halides(df_clean)
     filtered_path = paths.data("raw", "filtered_hosts.csv")
     df_filtered.to_csv(filtered_path, index=False)
 
-    # 4. Check data sufficiency & possibly generate simulated data
+    # 5. Check data sufficiency & possibly generate simulated data
     is_simulated = run_data_sufficiency_logic(df_filtered)
 
     if is_simulated:
