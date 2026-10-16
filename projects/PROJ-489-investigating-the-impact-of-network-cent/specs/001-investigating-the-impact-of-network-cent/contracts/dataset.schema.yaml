@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SubjectMetricsSchema"
-description: "Schema for the aggregated subject-level metrics CSV."
+description: "Schema for the aggregated subject-level metrics CSV (one row per subject per sleep stage)."
 type: object
 properties:
   subject_id:
@@ -21,26 +21,40 @@ properties:
     maximum: 1
   n_epochs:
     type: integer
-    description: "Number of epochs included in the mean calculation."
+    description: "Number of epochs included in the mean PLI calculation."
     minimum: 1
   centrality_degree_mean:
     type: number
-    description: "Mean degree centrality across nodes in the waking network."
+    description: "Mean degree centrality across all nodes in the waking network."
   centrality_betweenness_mean:
     type: number
-    description: "Mean betweenness centrality across nodes."
+    description: "Mean betweenness centrality across all nodes in the waking network."
   centrality_eigenvector_mean:
     type: number
-    description: "Mean eigenvector centrality across nodes."
+    description: "Mean eigenvector centrality across all nodes in the waking network."
   waking_night_id:
     type: string
-    description: "Identifier for the waking recording night."
+    description: "Identifier for the waking recording night (extracted from EDF header)."
   sleep_night_id:
     type: string
     description: "Identifier for the sleep recording night."
   temporal_proximity:
     type: boolean
-    description: "True if waking and sleep recordings are from the same night."
+    description: "True if waking and sleep recordings are from the same night; indicates potential temporal confounding."
+  age:
+    type: ["integer", "null"]
+    description: "Age of the subject in years (optional; may be null if not available)."
+  gender:
+    type: ["string", "null"]
+    description: "Gender of the subject (M or F; optional; may be null if not available)."
+  total_sleep_time_min:
+    type: number
+    description: "Total sleep time in minutes (derived from durations of all sleep stages)."
+    minimum: 0
+  waking_duration_min:
+    type: number
+    description: "Duration of the waking segment in minutes (used for filtering: must be ≥ 2 min)."
+    minimum: 0
 required:
   - subject_id
   - stage_label
@@ -52,4 +66,6 @@ required:
   - waking_night_id
   - sleep_night_id
   - temporal_proximity
+  - total_sleep_time_min
+  - waking_duration_min
 additionalProperties: false

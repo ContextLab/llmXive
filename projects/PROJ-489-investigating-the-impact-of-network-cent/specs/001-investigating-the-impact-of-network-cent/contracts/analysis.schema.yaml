@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AnalysisResultSchema"
-description: "Schema for the correlation analysis results JSON."
+description: "Schema for the correlation analysis results JSON (one object per metric–stage–band combination)."
 type: object
 properties:
   metric_name:
@@ -27,6 +27,8 @@ properties:
   correlation_coefficient:
     type: number
     description: "Pearson, Spearman, or partial correlation coefficient."
+    minimum: -1
+    maximum: 1
   p_value_raw:
     type: number
     description: "Unadjusted p-value."
@@ -34,25 +36,29 @@ properties:
     maximum: 1
   p_value_corrected:
     type: number
-    description: "Bonferroni-corrected p-value."
+    description: "Bonferroni-corrected p-value (p_raw × 30, capped at 1.0)."
     minimum: 0
     maximum: 1
   significant:
     type: boolean
-    description: "True if corrected p < 0.05."
+    description: "True if corrected p-value < 0.05."
   method:
     type: string
-    description: "Correlation method used."
+    description: "Correlation method used (Pearson, Spearman, or partial correlation)."
     enum:
       - "pearson"
       - "spearman"
       - "partial"
   global_vif_flag:
     type: boolean
-    description: "True if global VIF across subjects exceeds 5.0."
+    description: "True if the global VIF across subjects for the three centrality metrics exceeds 5.0; indicates collinearity."
   temporal_proximity_flag:
     type: boolean
-    description: "True if waking and sleep recordings are from the same night."
+    description: "True if waking and sleep recordings are from the same night; indicates potential temporal confounding."
+  n_subjects_used:
+    type: integer
+    description: "Number of subjects included in this correlation (may be < 30 if some subjects lack data for this stage)."
+    minimum: 1
 required:
   - metric_name
   - stage_label
@@ -64,4 +70,5 @@ required:
   - method
   - global_vif_flag
   - temporal_proximity_flag
+  - n_subjects_used
 additionalProperties: false

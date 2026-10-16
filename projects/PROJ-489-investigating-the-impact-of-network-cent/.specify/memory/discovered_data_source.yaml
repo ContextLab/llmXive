@@ -1,15 +1,14 @@
 status: none
-intent: Sleep-EDF dataset download from PhysioNet via MNE-Python python package dataset
+intent: Sleep-EDF dataset PhysioNet download Python package dataset
 required_fields:
 - subject_id
-- recording_id
-- channel_name
-- signal
-- sampling_rate
-- start_time
-- duration
-- sleep_stage_label
 - epoch_index
-cache_key: 7823c469dd0b4a566810009bdacd75dc5268f219b5e610eb1a9c12d6d4f89b39
-searched_at: '2026-10-16T01:31:58.912129+00:00'
+- eeg_signal
+- sampling_rate
+- channel_names
+- epoch_start_time
+- epoch_end_time
+- sleep_stage_label
+cache_key: eb994524f97529b3541034a8880affcf2ef5116af5adc0fed64cb0935af92ce2
+searched_at: '2026-10-16T02:02:22.060181+00:00'
 retry_count: 1

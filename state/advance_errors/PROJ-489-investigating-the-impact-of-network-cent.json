@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-  "stage": "in_progress",
+  "stage": "clarified",
   "class": "transient",
-  "fingerprint": "unknown",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-15T00:32:42.631976+00:00",
-  "last_seen": "2026-10-16T01:22:07.885839+00:00",
-  "retry_after": null,
-  "last_error": "no implementation progress: no stage change or verified task completion",
-  "evidence": "no implementation progress: no stage change or verified task completion",
+  "fingerprint": "model_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-16T02:16:26.650125+00:00",
+  "last_seen": "2026-10-16T02:16:26.650125+00:00",
+  "retry_after": "2026-10-16T02:26:26.650125+00:00",
+  "last_error": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | anthropic.claude-haiku-4-5-20251001(permanent): Error code: 400 - {'detail': 'Budget has been exceeded! EndUser=848c9f24-ca72-4aea-af34-f48cd3c74755 Current cost: 2.186594, Max budget: 2.0'}",
+  "evidence": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 conse",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
