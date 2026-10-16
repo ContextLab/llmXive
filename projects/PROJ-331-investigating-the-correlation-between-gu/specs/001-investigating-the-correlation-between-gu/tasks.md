@@ -9,7 +9,7 @@ Tasks are ordered to respect data flow; independent tasks are marked `[P]` only 
 
 ## Phase 1 – Data ingestion, preprocessing, and slope computation  
 
-- [ ] **T001** [P] Validate raw input files and record provenance   <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/src/pipeline/generate_dummy_data.py exit=1; code/src/pipeline/ingest.py exit=1 -->
+- [ ] **T001** [P] Validate raw input files and record provenance   <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/src/pipeline/generate_dummy_data.py exit=1; code/src/pipeline/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/pipeline/ingest.py exit=1 -->
   - **Description**: `code/src/pipeline/ingest.py` checks that `data/raw/open_asv.csv` and `data/raw/open_clinical.parquet` exist, are readable, and contain the required columns (`sample_id`, `patient_id`, `visit_date`, taxon count columns; `patient_id`, `visit_date`, `age`, `sex`, `levodopa_eq_dose`, `MDS_UPDRS_total`). It aborts with a clear error if any check fails. The script computes SHA‑256 hashes of both files and writes them to `state/ingest_provenance.json`.  
   - **Artifacts**: `data/raw/open_asv.csv`, `data/raw/open_clinical.parquet`, `state/ingest_provenance.json`  
   - **Verification**: Unit test `code/tests/test_ingest.py` passes; running `python -m code.src.pipeline.ingest` exits with status 0 and the JSON contains the two hashes.

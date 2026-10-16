@@ -1,18 +1,14 @@
 status: none
-intent: PPMI longitudinal 16S microbiome Qiita dataset python package dataset
+intent: download PPMI Parkinson's microbiome 16S ASV dataset clinical MDS-UPDRS python
+  package dataset
 required_fields:
 - sample_id
 - patient_id
-- visit_date
-- visit_number
+- visit_timepoint
 - asv_id
-- taxon_name
-- asv_count_matrix_columns
+- asv_count
+- taxon
 - MDS_UPDRS_total
-- age
-- sex
-- medication_status
-- diet
-cache_key: 87500a7c4b1b33403ac149ee8e8e4037635ea1bd6feef4f4ba476b26ca6da559
-searched_at: '2026-10-15T17:18:00.724395+00:00'
+cache_key: 3b35284fc779cc4ccf2c77e0da76a8ef1dfe0ffd931cc23a57cd5ed232f7ac5b
+searched_at: '2026-10-16T04:18:27.874802+00:00'
 retry_count: 1

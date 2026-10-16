@@ -54,15 +54,10 @@ def _write_clinical_parquet() -> None:
     out_path = paths.data("raw", "open_clinical.parquet")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Use the explicit pyarrow engine – it is declared as a dependency.
-    try:
-        import pyarrow  # noqa: F401  # ensure pyarrow is importable
-    except Exception as exc:
-        raise RuntimeError(
-            "pyarrow is required to write Parquet files but could not be imported."
-        ) from exc
-
-    df.to_parquet(out_path, index=False, engine="pyarrow")
+    # Write Parquet using pandas' default engine. This will succeed
+    # as long as a Parquet backend (e.g., pyarrow) is installed in the
+    # environment, which is declared in ``requirements.txt``.
+    df.to_parquet(out_path, index=False)
     print(f"Dummy clinical Parquet written to {out_path}")
 
 # ----------------------------------------------------------------------
