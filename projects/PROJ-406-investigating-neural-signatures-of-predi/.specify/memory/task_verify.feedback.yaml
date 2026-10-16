@@ -1,10 +1,17 @@
 T000:
+  reason: "The repository contains the required `src/utils/seed.py` and `src/__init__.py`\
+    \ with a `set_global_seed` implementation, but there is no evidence (e.g., command\u2011\
+    line output logs) showing that running the prescribed Python command twice yields\
+    \ identical NumPy random values. Without this execution proof, the deterministic\u2011\
+    seed verification requirement is not satisfied."
   task: 98155e0f17034e2ee207938f8627a6abd4845259e46de1b79d3a90506384ad64
 T001:
   reason: 'Requested task execution failed; rerun successfully: src/ingest/load_illusions.py
     exit=1'
   task: 4cebb621eff803f0582bf75697adce26293a6eaf40d48fd0834413f0e8a7a2a7
 T002:
+  reason: 'Requested task execution failed; rerun successfully: src/ingest/load_illusions.py
+    exit=1; src/ingest/load_illusions.py exit=1'
   task: 8a6b0d52354846616a7fa72af3f47af0198450b8ce53a8f10e1ec61c21607f4d
 T003:
   task: 33417dd127d3203983de3e133113f5e4953c1026bd0438e92786d2c9e52f0f26

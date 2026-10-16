@@ -9,7 +9,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
 
 ### Phase 0 – Reproducibility setup  
 
-- [X] T000 [P?] [US0] Pin a global random seed (e.g., 42) and verify deterministic behavior across all analysis modules.  
+- [ ] T000 [P?] [US0] Pin a global random seed (e.g., 42) and verify deterministic behavior across all analysis modules.  
   - **File(s)**: `src/utils/seed.py` (defines `set_global_seed(42)`), `src/__init__.py` (imports seed on package load).  
   - **Requirement**: Constitution Principle I (Reproducibility) – all stochastic scripts must use the pinned seed.  
   - **Verification**:  
@@ -18,7 +18,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
 
 ### Phase 1 – Data ingestion & preprocessing  
 
-- [ ] T001 [P1] [US1] Download the Müller‑Lyer training dataset from the verified OpenNeuro URL and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/run_download_muller.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 -->
+- [ ] T001 [P1] [US1] Download the Müller‑Lyer training dataset from the verified OpenNeuro URL and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/run_download_muller.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED: unspecified -->
   - **File(s)**: `data/raw/muller_lyer.parquet` (raw), `data/clean/clean_muller_lyer.csv` (cleaned).  
   - **Requirement**: FR‑001 – download and parse dataset; enforce column presence and subject‑ID uniqueness.  
   - **Verification**:  
@@ -26,7 +26,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
     2. Validate `clean_muller_lyer.csv` against `contracts/clean-muller-lyer.schema.yaml`.  
     3. Check that critical columns (`subject_id`, `stimulus_type`, `response`, `trial_id`, `stimulus_parameters`) contain no missing values and that duplicate `subject_id` entries within the file are flagged as warnings (not errors).  
 
-- [ ] T002 [P1] [US2] Download the Ponzo test dataset from the verified OpenNeuro URL and store the raw parquet file.  
+- [ ] T002 [P1] [US2] Download the Ponzo test dataset from the verified OpenNeuro URL and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1; src/ingest/load_illusions.py exit=1 -->
   - **File(s)**: `data/raw/ponzo.parquet` (raw), `data/clean/clean_ponzo.csv` (cleaned).  
   - **Requirement**: FR‑001 – same as above for the second dataset.  
   - **Verification**:  

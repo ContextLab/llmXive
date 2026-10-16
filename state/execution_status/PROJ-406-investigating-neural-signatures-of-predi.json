@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-16T21:10:16Z",
-  "project_id": "PROJ-406-investigating-neural-signatures-of-predi"
+  "updated_at": "2026-10-16T23:20:27Z",
+  "project_id": "PROJ-406-investigating-neural-signatures-of-predi",
+  "replan_rounds": 1
 }

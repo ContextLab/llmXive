@@ -1,9 +1,9 @@
 T000:
-  c: true
-  h: 9c18788369f24116b754c7444fbcd10733684424a1e7f2a5ec79ebc63928b0c3
-  r: 'The required files exist and are non-empty: `src/utils/seed.py` defines `set_global_seed(42)`
-    seeding `random`, NumPy, and `PYTHONHASHSEED`, and `src/__init__.py` imports and
-    applies it on package load. The historical execution record shows `tests/test_seed.py`
-    passing 3 determinism tests (NumPy, Python random, package-import seeding) with
-    exit 0, matching the task''s verification requirement.'
-  sig: 9b3204f25229f947b4018dfa5050b7090f356429ac3241ef082af29dccef3a22
+  c: false
+  h: a4c006452228529f072dd2ed9fb03962b6be12d9c5a06b859179877a1517f337
+  r: "The repository contains the required `src/utils/seed.py` and `src/__init__.py`\
+    \ with a `set_global_seed` implementation, but there is no evidence (e.g., command\u2011\
+    line output logs) showing that running the prescribed Python command twice yields\
+    \ identical NumPy random values. Without this execution proof, the deterministic\u2011\
+    seed verification requirement is not satisfied."
+  sig: efbd128890bb7dcdaadabf0e7a4b08eba31b2147440eb9ef7b4e89678d0f4458
