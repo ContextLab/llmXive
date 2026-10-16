@@ -1,19 +1,19 @@
 status: none
-intent: GSM8K Llama-3-8B gradient norms local curvature quantization divergence python
-  package dataset
+intent: download gsm8k prompts and llama-3-8b quantization gap dataset from huggingface
+  python package dataset
 required_fields:
 - prompt_text
-- full_precision_logits
-- int8_logits
-- int4_logits
-- fp8_logits
+- full_precision_output_logits
+- int8_output_logits
+- int4_output_logits
+- fp8_output_logits
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
 - gradient_norm
 - local_curvature
-- model_name
-- quantization_method
-cache_key: b0bb853659e8f3d2e21d816a1450bc4cd0b8b6d62f1b90a9ddb6feb76ed51242
-searched_at: '2026-10-16T00:33:21.517262+00:00'
+- model_identifier
+- quantization_bitwidth
+cache_key: c59ed46e958336f63a3ca04b3a71983f2f7ef80b8f07360ebfea6fb4fbdf442e
+searched_at: '2026-10-16T01:30:25.219575+00:00'
 retry_count: 1

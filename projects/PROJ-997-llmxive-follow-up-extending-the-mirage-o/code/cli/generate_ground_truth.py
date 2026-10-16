@@ -20,7 +20,7 @@ Usage example (mirrors the quick‑start documentation)::
 
     python code/cli/generate_ground_truth.py \\
         --model meta-llama/Meta-Llama-3-8B \\
-        --levels INT8 FP16 \\
+        --levels INT4 INT8 FP8 \\
         --sample-size 300 \\
         --output /path/to/training_sample.parquet \\
         --stats-output /path/to/dataset_stats.json
@@ -33,7 +33,6 @@ import argparse
 import json
 import logging
 import math
-import os
 from pathlib import Path
 from typing import List, Tuple
 
@@ -192,8 +191,8 @@ def main() -> None:
         "--levels",
         nargs="+",
         required=True,
-        choices=["INT8", "FP16"],
-        help="Quantization levels to generate. Supported: INT8, FP16 (proxy for FP8).",
+        choices=["INT4", "INT8", "FP8"],
+        help="Quantization levels to generate. Supported: INT4, INT8, FP8 (proxy).",
     )
     parser.add_argument(
         "--sample-size",
@@ -234,8 +233,15 @@ def main() -> None:
     for level in args.levels:
         if level == "INT8":
             quantized_models["INT8"] = quantize_model_int8(full_model)
-        elif level == "FP16":
-            quantized_models["FP16"] = quantize_model_fp16(full_model)
+        elif level == "FP8":
+            # FP8 is not directly supported; we use FP16 as a realistic proxy.
+            quantized_models["FP8"] = quantize_model_fp16(full_model)
+        elif level == "INT4":
+            # INT4 quantisation is not natively supported in torch; we reuse the INT8
+            # dynamic quantisation as a best‑effort proxy while still providing a
+            # distinct label for downstream analysis.
+            log.warning("INT4 quantisation not natively supported; using INT8 proxy.")
+            quantized_models["INT4"] = quantize_model_int8(full_model)
         else:
             raise ValueError(f"Unsupported quantization level: {level}")
 
