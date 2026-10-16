@@ -26,18 +26,20 @@ properties:
     type: "string"
     format: "date-time"
     description: "Timestamp of the response (ISO 8601)."
-  choice_binary:
+  response_time_ms:
     type: "integer"
-    description: "1 = utilitarian, 0 = non‑utilitarian."
-    enum: [0, 1]
-  temperature_celsius:
+    description: "Response latency in milliseconds (required)."
+  log_rt:
     type: "number"
-    description: "Mean 2 m air temperature (°C) from ERA5 1982 grid."
-    minimum: -40
+    description: "Natural log of response_time_ms."
+  temperature_c:
+    type: "number"
+    description: "Hourly temperature (°C) from ERA5 2014‑2018."
+    minimum: -50
     maximum: 50
-  temperature_squared:
+  temperature_c_squared:
     type: "number"
-    description: "Square of temperature_celsius for non‑linearity testing."
+    description: "Square of temperature_c for non‑linearity testing."
   dilemma_complexity:
     type: "number"
     description: "Static complexity score of the dilemma."
@@ -68,9 +70,10 @@ required:
   - latitude
   - longitude
   - timestamp
-  - choice_binary
-  - temperature_celsius
-  - temperature_squared
+  - response_time_ms
+  - log_rt
+  - temperature_c
+  - temperature_c_squared
   - dilemma_complexity
   - time_of_day
   - distance_km

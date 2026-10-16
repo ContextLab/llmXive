@@ -5,12 +5,12 @@ type: "object"
 properties:
   model_type:
     type: "string"
-    description: "Type of model fitted (e.g., 'GLM_Binomial')."
+    description: "Type of model fitted (e.g., 'MixedLM_LogRT')."
   fixed_effects:
     type: "object"
     description: "Fixed effect coefficients."
     properties:
-      latitude_covariate:
+      temperature_c:
         type: "object"
         properties:
           estimate:
@@ -25,7 +25,7 @@ properties:
               type: "number"
             minItems: 2
             maxItems: 2
-      latitude_covariate_squared:
+      temperature_c_squared:
         type: "object"
         properties:
           estimate:
@@ -53,7 +53,7 @@ properties:
           p_value:
             type: "number"
     required:
-      - latitude_covariate
+      - temperature_c
   random_effects:
     type: "object"
     description: "Cluster‑robust variance approximations (no true random effects)."
@@ -66,7 +66,7 @@ properties:
     properties:
       convergence:
         type: "boolean"
-      hosmer_lemeshow_p:
+      shapiro_wilk_p:
         type: "number"
       calibration_plot_path:
         type: "string"
@@ -76,7 +76,7 @@ properties:
         type: "number"
     required:
       - convergence
-      - hosmer_lemeshow_p
+      - shapiro_wilk_p
       - calibration_plot_path
   timestamp:
     type: "string"
@@ -89,3 +89,4 @@ required:
   - diagnostics
   - timestamp
 additionalProperties: false
+

@@ -110,7 +110,7 @@ The system must execute robustness checks, including alternative temperature met
 
 - The Moral Machine dataset contains sufficient geographic and timestamp granularity to be matched with hourly ERA5 temperature data for at least 90 % of the records.
 - The relationship between ambient temperature and response time may be non‑linear (e.g., inverted‑U), justifying the inclusion of quadratic terms or spline testing.
-- The ERA5 reanalysis provides accurate hourly temperature estimates for the specific locations and times of the Moral Machine responses (2014‑2018).
+- The ERA reanalysis provides accurate hourly temperature estimates for the specific locations and times of the Moral Machine responses (covering the study period).
 - The GitHub Actions free‑tier runner (multiple CPU cores, sufficient RAM) is sufficient to process the merged dataset and fit the mixed‑effects model without memory overflow or timeout, provided the dataset is sampled if necessary.
 - The "dilemma complexity score" and "time‑of‑day" covariates are either present in the Moral Machine dataset or can be derived from the available data without introducing circularity.
 - Any observed association between temperature and response time is correlational; the design does not support causal claims due to the observational nature of the data (no random assignment of temperature).

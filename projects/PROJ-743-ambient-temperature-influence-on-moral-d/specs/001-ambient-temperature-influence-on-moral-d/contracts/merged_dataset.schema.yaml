@@ -25,15 +25,20 @@ properties:
     description: "Longitude of the response location."
     minimum: -180
     maximum: 180
-  choice_binary:
+  response_time_ms:
     type: "integer"
-    description: "1 = utilitarian choice, 0 = non‑utilitarian."
-    enum: [0, 1]
+    description: "Response latency in milliseconds (required for primary analysis)."
+  log_rt:
+    type: "number"
+    description: "Natural log of response_time_ms."
   temperature_c:
     type: "number"
-    description: "Mean annual temperature (°C) from ERA5 1982 grid (optional proxy)."
-    minimum: -40
+    description: "Hourly temperature (°C) from ERA5 2014‑2018 (primary predictor)."
+    minimum: -50
     maximum: 50
+  temperature_c_squared:
+    type: "number"
+    description: "Square of temperature_c for non‑linearity testing."
   distance_km:
     type: "number"
     description: "Haversine distance to nearest ERA5 grid cell."
@@ -54,14 +59,9 @@ properties:
   gender:
     type: "string"
     description: "Gender (optional)."
-  latitude_covariate:
-    type: "number"
-    description: "Duplicate of latitude for modeling convenience."
-    minimum: -90
-    maximum: 90
   urban_rural_proxy:
     type: "string"
-    description: "Urban or rural classification based on WorldPop density."
+    description: "Urban or rural classification based on WorldPop density (optional)."
     enum: ["urban", "rural"]
   quality_flag:
     type: "string"
@@ -77,10 +77,12 @@ required:
   - country
   - latitude
   - longitude
-  - choice_binary
+  - response_time_ms
+  - log_rt
+  - temperature_c
   - distance_km
   - dilemma_complexity
   - time_of_day
-  - latitude_covariate
   - quality_flag
 additionalProperties: false
+
