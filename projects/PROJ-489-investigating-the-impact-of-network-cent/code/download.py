@@ -1,9 +1,10 @@
 import logging
 import shutil
+import hashlib
 from pathlib import Path
 from typing import List, Tuple
 import mne
-import mne.datasets.sleep_physionet
+from mne.datasets.sleep_physionet import fetch_data
 
 from integrity import calculate_file_checksum
 from config_utils import load_config
@@ -16,8 +17,8 @@ def _download_one_record(subject: int, night: int, dest_dir: Path) -> Path:
     """
     Download a single subject/night recording using MNE's fetch_data.
     """
-    # Use the module-level fetch_data to avoid ImportError seen in previous runs
-    fetched = mne.datasets.sleep_physionet.fetch_data(
+    # Explicitly use the imported fetch_data function to avoid AttributeError
+    fetched = fetch_data(
         subjects=[subject],
         recording="sleep-edf",
         path=str(dest_dir),

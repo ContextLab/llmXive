@@ -7,46 +7,45 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download.py -> rc=1
- - INFO - Fetching subject 1, night 1...
-2026-10-15 14:15:03,599 - ERROR - Critical failure fetching subject 1, night 1: module 'mne.datasets.sleep_physionet' has no attribute 'fetch_data'
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 105, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 102, in main
-    download_sleep_edf(output_dir=raw_dir, n_subjects=n_subj)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 63, in download_sleep_edf
-    edf_path = _download_one_record(subject, night, base_path)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 20, in _download_one_record
-    fetched = mne.datasets.sleep_physionet.fetch_data(
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: module 'mne.datasets.sleep_physionet' has no attribute 'fetch_data'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 7, in <module>
+    from mne.datasets.sleep_physionet import fetch_data
+ImportError: cannot import name 'fetch_data' from 'mne.datasets.sleep_physionet' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-489-investigating-the-impact-of-network-cent/lib/python3.11/site-packages/mne/datasets/sleep_physionet/__init__.py)
 
 - python code/main.py --stage preprocess -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/main.py", line 12, in <module>
-    from metrics import main as run_metrics
-ImportError: cannot import name 'main' from 'metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/metrics.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/main.py", line 10, in <module>
+    from download import main as run_download
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 7, in <module>
+    from mne.datasets.sleep_physionet import fetch_data
+ImportError: cannot import name 'fetch_data' from 'mne.datasets.sleep_physionet' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-489-investigating-the-impact-of-network-cent/lib/python3.11/site-packages/mne/datasets/sleep_physionet/__init__.py)
 
 - python code/main.py --stage metrics -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/main.py", line 12, in <module>
-    from metrics import main as run_metrics
-ImportError: cannot import name 'main' from 'metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/metrics.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/main.py", line 10, in <module>
+    from download import main as run_download
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 7, in <module>
+    from mne.datasets.sleep_physionet import fetch_data
+ImportError: cannot import name 'fetch_data' from 'mne.datasets.sleep_physionet' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-489-investigating-the-impact-of-network-cent/lib/python3.11/site-packages/mne/datasets/sleep_physionet/__init__.py)
 
 - python code/main.py --stage analysis -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/main.py", line 12, in <module>
-    from metrics import main as run_metrics
-ImportError: cannot import name 'main' from 'metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/metrics.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/main.py", line 10, in <module>
+    from download import main as run_download
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 7, in <module>
+    from mne.datasets.sleep_physionet import fetch_data
+ImportError: cannot import name 'fetch_data' from 'mne.datasets.sleep_physionet' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-489-investigating-the-impact-of-network-cent/lib/python3.11/site-packages/mne/datasets/sleep_physionet/__init__.py)
 
 - python code/main.py --stage report -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/main.py", line 12, in <module>
-    from metrics import main as run_metrics
-ImportError: cannot import name 'main' from 'metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/metrics.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/main.py", line 10, in <module>
+    from download import main as run_download
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-489-investigating-the-impact-of-network-cent/code/download.py", line 7, in <module>
+    from mne.datasets.sleep_physionet import fetch_data
+ImportError: cannot import name 'fetch_data' from 'mne.datasets.sleep_physionet' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-489-investigating-the-impact-of-network-cent/lib/python3.11/site-packages/mne/datasets/sleep_physionet/__init__.py)
 

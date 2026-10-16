@@ -45,6 +45,8 @@ properties:
     description: "Statistical method used."
     enum:
       - lme
+      - pearson
+      - spearman
   global_connectivity_coefficient:
     type: number
     description: "LME coefficient for the global coherence covariate."
