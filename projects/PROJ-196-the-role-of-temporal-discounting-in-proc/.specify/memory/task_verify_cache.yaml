@@ -6,33 +6,3 @@ T022:
     \ function (truncated formula) and lacks the mandated memory\u2011profiler and\
     \ elapsed\u2011time checks that would raise `SystemExit(1)` when limits are exceeded.\
     \ These missing pieces prevent the task from being fully satisfied."
-T039:
-  c: false
-  h: 556263e38f17ef89694a7fe1c900694e4e7d46b01e4d82bb383e89e525a7ab23
-  r: "The repository lacks the required `data/processed/excluded_participants.csv`\
-    \ and `data/processed/halt_log.json` files, and the shown portion of `code/modeling.py`\
-    \ does not contain any logic that creates or updates these artifacts after hyperbolic\
-    \ model fitting. Consequently, the task\u2019s logging and file\u2011generation\
-    \ requirements are not met."
-T040:
-  c: false
-  h: a37ff7d6fbc7ca41340174e0379502bb15939659c8b0939118c8b6a1577fba17
-  r: "The repository lacks the required `code/data/generate_dgp.py` file; consequently\
-    \ the functions `generate_synthetic_data`, `validate_dgp_config`, and the `DGP_PARAMS`\
-    \ constant referenced by `main.py` and the unit tests do not exist. Without this\
-    \ module the DGP logic has not been moved out of `ingestion.py`, so the task\u2019\
-    s core requirement is unmet."
-T041:
-  c: false
-  h: 0dd2b94cdfe25e70641bde9006f13692731b3e44b336d5df174896affd2c1a99
-  r: 'The repository contains `code/visualizations/plot_diagnostics.py`, but the required
-    output files are absent: the PNG diagnostic plots (`residuals.png`, `qq_plot.png`,
-    `scale_location.png`) are not present, and the mandatory `data/processed/model_diagnostics_report.json`
-    is missing. The task therefore is not fully satisfied.'
-T042:
-  c: false
-  h: 7f824342319bd116322d08e4c04c5e33df40fb9c54895afc3d9cae8303cfbd21
-  r: "The `bootstrap_interaction` function still uses a hard\u2011coded default seed\
-    \ (42) and does not derive its seed from a global `RANDOM_SEED` plus an offset,\
-    \ and the required `data/processed/bootstrap_config.json` file is absent. Both\
-    \ the deterministic seeding behavior and the logging file are missing."

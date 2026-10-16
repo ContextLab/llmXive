@@ -1,8 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T039** — The repository lacks the required `data/processed/excluded_participants.csv` and `data/processed/halt_log.json` files, and the shown portion of `code/modeling.py` does not contain any logic that creates or updates these artifacts after hyperbolic model fitting. Consequently, the task’s logging and file‑generation requirements are not met.
-- **T040** — The repository lacks the required `code/data/generate_dgp.py` file; consequently the functions `generate_synthetic_data`, `validate_dgp_config`, and the `DGP_PARAMS` constant referenced by `main.py` and the unit tests do not exist. Without this module the DGP logic has not been moved out of `ingestion.py`, so the task’s core requirement is unmet.
-- **T041** — The repository contains `code/visualizations/plot_diagnostics.py`, but the required output files are absent: the PNG diagnostic plots (`residuals.png`, `qq_plot.png`, `scale_location.png`) are not present, and the mandatory `data/processed/model_diagnostics_report.json` is missing. The task therefore is not fully satisfied.
-- **T042** — The `bootstrap_interaction` function still uses a hard‑coded default seed (42) and does not derive its seed from a global `RANDOM_SEED` plus an offset, and the required `data/processed/bootstrap_config.json` file is absent. Both the deterministic seeding behavior and the logging file are missing.
