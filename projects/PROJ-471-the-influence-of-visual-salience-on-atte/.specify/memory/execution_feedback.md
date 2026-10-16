@@ -10,6 +10,17 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/ingestion/download_data.py`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”; 1 command(s) failed: python code/ingestion/download_data.py (rc=1); 2 declared deliverable(s) absent: data/processed/sensitivity_plot.png; data/raw/checksums.json
@@ -17,18 +28,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingestion/download_data.py -> rc=1
-
+ired keys are set in the environment.
+WARNING:root:Missing optional environment variables: HF_TOKEN, DATA_PATH, SEED, GPU_DEVICE. Proceeding with defaults where possible.
+🌍 Preparing to download ds003123 …
+WARNING:__main__:openneuro-py download failed: Query failed when retrieving metadata for ds003123: "Dataset ds003123 does not exist."
+WARNING:__main__:Hugging Face datasets download failed: Dataset 'openneuro/ds003123' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/openneuro/ds003123 to ask for access.
+ERROR:__main__:All real-data fetch attempts failed for ds003123.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/download_data.py", line 23, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/download_data.py", line 140, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/download_data.py", line 100, in main
+    raise RuntimeError("DATA_MISSING_001: Real data fetch failed")
+RuntimeError: DATA_MISSING_001: Real data fetch failed
 
 
 ## Declared deliverables still missing

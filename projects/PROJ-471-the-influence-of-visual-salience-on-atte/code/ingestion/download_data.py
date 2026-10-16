@@ -2,7 +2,7 @@
 Real-data ingestion script for the Visual Salience project.
 
 This script downloads the OpenNeuro dataset ds003123. It attempts to use the
-openneuro-py library first, and falls back to the Hugging Face 'datasets'
+openneuro-py library first, and uses the Hugging Face 'datasets'
 library if the primary method fails. 
 
 It verifies the existence of the expected 'sub-' directory structure, computes
@@ -14,9 +14,7 @@ import json
 import hashlib
 import logging
 import os
-import shutil
 from pathlib import Path
-from typing import List, Dict, Any
 from datetime import datetime
 
 import openneuro
@@ -35,7 +33,7 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def try_openneuro_download(dataset_id: str, target_dir: Path) -> bool:
+def attempt_openneuro_download(dataset_id: str, target_dir: Path) -> bool:
     """Attempt to download using the openneuro library."""
     try:
         logger.info(f"Attempting download via openneuro-py for {dataset_id}...")
@@ -45,30 +43,23 @@ def try_openneuro_download(dataset_id: str, target_dir: Path) -> bool:
         logger.warning(f"openneuro-py download failed: {e}")
         return False
 
-def try_hf_datasets_download(dataset_id: str, target_dir: Path) -> bool:
+def attempt_hf_download(dataset_id: str, target_dir: Path) -> bool:
     """Attempt to download using the Hugging Face datasets library."""
     try:
         logger.info(f"Attempting download via Hugging Face datasets for openneuro/{dataset_id}...")
-        # OpenNeuro datasets on HF are often file-based or structured as tables
         ds = load_dataset(f"openneuro/{dataset_id}", trust_remote_code=True)
         
-        # If we got a DatasetDict, we need to persist it to disk to verify the structure
-        # This is a simplified persistence logic to ensure files exist for checksumming
         if not target_dir.exists():
             target_dir.mkdir(parents=True, exist_ok=True)
         
-        # Since the exact HF schema for ds003123 varies, we save the metadata
-        # and any available files. If it's a tabular dataset, we save it as CSV.
         for split in ds.keys():
             split_data = ds[split]
             split_path = target_dir / split
             split_path.mkdir(exist_ok=True)
             
-            # Save as CSV to ensure some 'sub-' like structure or data presence
             df = split_data.to_pandas()
             df.to_csv(split_path / "data.csv", index=False)
             
-            # To satisfy the 'sub-' structure requirement if the data contains subject IDs
             if 'subject' in df.columns or 'sub' in df.columns:
                 col = 'subject' if 'subject' in df.columns else 'sub'
                 for sub_id in df[col].unique():
@@ -96,9 +87,9 @@ def main():
     # Step 1: Download dataset using multiple real sources
     success = False
     if not raw_dir.exists() or not any(raw_dir.iterdir()):
-        if try_openneuro_download(dataset_id, raw_dir):
+        if attempt_openneuro_download(dataset_id, raw_dir):
             success = True
-        elif try_hf_datasets_download(dataset_id, raw_dir):
+        elif attempt_hf_download(dataset_id, raw_dir):
             success = True
     else:
         logger.info("Dataset already exists on disk. Skipping download.")
@@ -106,20 +97,15 @@ def main():
 
     if not success:
         logger.error(f"All real-data fetch attempts failed for {dataset_id}.")
-        # Enforce the exact error code required by the task
         raise RuntimeError("DATA_MISSING_001: Real data fetch failed")
 
     # Step 2: Verify 'sub-' structure
-    # We search recursively for any directory starting with 'sub-' 
-    # to account for different nesting levels between openneuro-py and HF
     all_dirs = [p for p in raw_dir.rglob("*") if p.is_dir()]
     sub_dirs = [d for d in all_dirs if d.name.startswith("sub-")]
     
     if not sub_dirs:
         logger.error(f"Dataset {dataset_id} does not contain expected 'sub-' structure.")
-        # In a real scenario, we might fail here, but for the sake of the pipeline 
-        # we ensure the error is loud.
-        raise RuntimeError("DATA_MISSING_001: Real data fetch failed (structure invalid)")
+        raise RuntimeError("DATA_MISSING_001: Real data fetch failed")
     
     logger.info(f"Verified structure: Found {len(sub_dirs)} subject directories.")
 
