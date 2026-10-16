@@ -1,45 +1,55 @@
 T001:
-  reason: "Checked `code/fetcher.py` and the `data/raw/` JSON snapshots. The module\u2019\
-    s `extract_performance_metrics` returns keys `t1`, `t2`, `cx_error`, `readout_error`\
-    \ (no `*_mean` fields nor `chip_family`), and the CLI falls back to copying a\
-    \ bundled example file when no IBMQ token is present \u2013 a synthetic fallback\
-    \ that violates the \u201Cno synthetic data\u201D requirement. The required output\
-    \ format and strict no\u2011fallback behavior are therefore not satisfied."
+  reason: "The required artifacts `data/raw/{device_id}_{YYYYMMDD_HHMMSS}.json` do\
+    \ not exist \u2014 `data/raw/` contains only a `.gitkeep` \u2014 and there is\
+    \ no execution evidence that `f.main()` ever ran or wrote a snapshot (no logs,\
+    \ no test-run output). The code itself is plausible (backoff, freshness, no-synthetic-fallback\
+    \ guard are implemented), but the task explicitly requires at least one real raw\
+    \ JSON snapshot on disk, and none is present; additionally `extract_performance_metrics()`\
+    \ does not return `chip_family` as specified (it's only in a separate helper).\
+    \ The implementer must run the fetcher with a val"
   task: 23fbfe17b20e71410122d5194478f5730a0131bb777c4a6917c9c15c2f14520c
 T002:
-  reason: "Checked the presence of `data/processed/performance_metrics.csv` (missing),\
-    \ the required schema file `specs/001\u2011exploring\u2011the\u2011role\u2011\
-    of\u2011network\u2011structure/contracts/performance_metrics.schema.yaml` (missing),\
-    \ and the verification test `code/tests/test_processed_perf.py` (missing). Without\
-    \ the CSV, schema, and test, the task\u2019s deliverable is not satisfied."
+  reason: "The required artifact `data/processed/performance_metrics.csv` does not\
+    \ exist, and `data/raw/` contains no JSON snapshots (only `.gitkeep`), so there\
+    \ is no real data to process. The verification test `code/tests/test_processed_perf.py`\
+    \ actually fails (exit 1, `NameError: name 'yaml' is not defined` \u2014 the module\
+    \ is never imported), and the schema file `specs/.../contracts/performance_metrics.schema.yaml`\
+    \ is also missing. The implementer must fetch real raw snapshots, fix the test's\
+    \ missing `import yaml`, and generate the CSV."
   task: bec11faa959984075689d239ebd58698a5ceb1123cb4cc871b287993f8745375
 T003:
-  reason: "Checked `code/graph_builder.py` (functions exist and unit tests pass) and\
-    \ the required output artifact `data/processed/graph_metrics.csv` (file is missing).\
-    \ The CLI only writes the CSV when the `--generate-metrics` flag is supplied,\
-    \ contrary to the task\u2019s specification that `python -m code.graph_builder\
-    \ --raw-dir \u2026 --out \u2026` should produce the file directly. Consequently\
-    \ the required CSV artifact is not generated, so the task is not fully satisfied."
+  reason: "The required artifact `data/processed/graph_metrics.csv` is MISSING from\
+    \ disk, so the CLI was evidently never run to produce it (no execution evidence\
+    \ is supplied either, and no `pytest` output verifies the tests pass). Additionally,\
+    \ the unit test's assortativity expectation of \u20130.5 for a 3-node path appears\
+    \ mathematically wrong (the Pearson correlation of edge-end degrees for P3 is\
+    \ \u20131, and the code's NaN\u21920.0 coercion could also mask failures), so\
+    \ the claimed \"corrected assortativity expectation\" is dubious; the implementer\
+    \ must run the CLI against `data/raw` to generate the CSV and provide pa"
   task: cc3c3286cc2b1adb4337eadbb278284def0f1a9d6777d670a49332d692f53905
 T004:
-  reason: "The required output file `data/processed/correlation_results.csv` does\
-    \ not exist, and the cross\u2011sectional guard in `code/stats_engine.py` raises\
-    \ a `ValueError` (or silently skips) instead of the mandated `RuntimeError` when\
-    \ timestamps differ. Both issues prevent the task from being genuinely completed."
+  reason: "The required artifact `data/processed/correlation_results.csv` is MISSING,\
+    \ as are the input files `performance_metrics.csv` and `graph_metrics.csv`, so\
+    \ the primary correlation analysis was never actually run \u2014 only the code\
+    \ and unit tests exist. Additionally, the cross-sectional guard does not meet\
+    \ the spec: instead of raising `RuntimeError` when topology and performance timestamps\
+    \ differ, the code silently inner-merges on timestamp and only raises a `ValueError`\
+    \ if the merge is empty (and skips the check entirely when either file lacks a\
+    \ timestamp column). The implementer must run the CLI aga"
   task: e706dbbfde52c2360792c88fad144e45ce3818a3eb7e2ec0cd18a4a148910962
 T005:
-  reason: The required output files `data/processed/bootstrap_performance_metrics.csv`,
-    the directory `data/raw_historical/` with JSON snapshots, and `data/processed/stability_score.txt`
-    are all missing, and there is no evidence that the provided test `code/tests/test_bootstrap.py`
-    was executed successfully. The task therefore lacks the concrete artifacts it
-    mandates.
+  reason: "The three required artifacts \u2014 `data/processed/bootstrap_performance_metrics.csv`,\
+    \ `data/raw_historical/`, and `data/processed/stability_score.txt` \u2014 are\
+    \ all MISSING, and there is no execution evidence (no pytest run output) that\
+    \ the functions were ever executed. Additionally, `code/generate_calibration_csv.py`\
+    \ (which `bootstrap_performance_resampling` depends on) calls `json.load` without\
+    \ importing `json`, so it would fail at runtime, and `fetch_historical_window`\
+    \ merely copies current snapshots rather than comparing a genuine 30-day historical\
+    \ window."
   task: f66e005a7b1b71d26780c47727fe80ac6a5b4be088f3c4c7df20e9b9ae6819b2
 T006:
-  reason: "The required artifact `data/processed/robustness_results.csv` is missing,\
-    \ and the provided test suite does not exercise the LODO or bootstrap\u2011stability\
-    \ functions, so the robustness checks are not actually verified. The implementation\
-    \ exists, but without the generated CSV (and without a stability_score file) the\
-    \ task\u2019s deliverable is incomplete."
+  reason: 'Requested task execution failed; rerun successfully: code/run_robustness.py
+    exit=1'
   task: be218cfc1a7b281c0354510544d032ab438c0b68c8f05a6d6af3766694b3507b
 T007:
   task: 9b485eb0cd41b82583cb2e1a8fd51caf8436359f2ad45bdf717834d510d26707
@@ -52,12 +62,13 @@ T009:
 T010:
   task: cceae2aa15269aac445c5cf5f1538ff109da94f3404d48064dfa02f342bb7843
 T012:
-  reason: "The required output file `data/processed/partial_correlations.csv` does\
-    \ not exist, and the test suite `code/tests/test_partial_corr.py` is missing,\
-    \ so the claim that the partial\u2011correlation analysis was completed and validated\
-    \ cannot be confirmed. The next implementer must run `partial_correlation_full`\
-    \ on real data to produce the CSV and add the missing unit\u2011test that checks\
-    \ for the required covariates and schema."
+  reason: "The required artifact `data/processed/partial_correlations.csv` is explicitly\
+    \ MISSING from disk \u2014 the function `partial_correlation_full` exists in `code/stats_engine.py`\
+    \ and a test file exists, but the analysis was never actually run on real data\
+    \ to produce the deliverable CSV, and there is no evidence (logs, output) that\
+    \ `pytest code/tests/test_partial_corr.py` was executed or passed. The next implementer\
+    \ must run the partial-correlation analysis on the real merged dataset and write\
+    \ the CSV, plus provide test execution evidence."
   task: 0099572c3d4ab0f81f47f08f56168fde7e40bc9600323dc10c512fcc390a1453
 T013:
   task: e8051eeee2503ef1a4b8e3a657fc82ff0822e734da85c44abb185a8a9db41da2

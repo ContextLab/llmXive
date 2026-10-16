@@ -51,7 +51,8 @@ def load_and_merge_metrics(
     ValueError
         If the merged DataFrame is empty (no overlapping ``device_id`` values).
     RuntimeError
-        If timestamps are present and differ between the two files (cross‑sectional guard).
+        If timestamps are present and differ between the two files
+        (cross‑sectional guard).
     """
     if not os.path.exists(performance_path):
         raise FileNotFoundError(f"Performance metrics file not found: {performance_path}")
@@ -144,6 +145,10 @@ def compute_spearman_correlations(
                 logger.warning(f"Insufficient data points for {col_a} vs {col_b}")
                 continue
             rho, p_val = spearmanr(valid[col_a], valid[col_b])
+            # Skip undefined (nan) correlations – e.g., constant columns
+            if np.isnan(rho) or np.isnan(p_val):
+                logger.warning(f"Spearman correlation undefined for {col_a} vs {col_b} (constant input).")
+                continue
             correlations.append(
                 {
                     "metric_a": col_a,
@@ -705,7 +710,7 @@ def main() -> None:
         save_correlation_results(corr_df, output_path=out_path)
 
         # ----- LODO robustness -----
-        numeric_cols = merged_df.select_dtypes(include=[np.number]).columns.tolist()
+        numeric_cols = merged_df.select_dtypes(include=[float, int]).columns.tolist()
         leave_one_device_out(merged_df, numeric_cols=numeric_cols)
 
         # ----- Bootstrap stability check -----

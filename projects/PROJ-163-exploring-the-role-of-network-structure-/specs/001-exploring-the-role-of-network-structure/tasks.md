@@ -91,7 +91,7 @@ Each task is a self‑contained, verifiable unit; completed tasks are checked, p
   cat data/processed/stability_score.txt
   ```
 
-- [ ] T006 [US3] **Robustness checks: Leave‑One‑Device‑Out (LODO) and bootstrap stability**  
+- [ ] T006 [US3] **Robustness checks: Leave‑One‑Device‑Out (LODO) and bootstrap stability**   <!-- FAILED-IN-EXECUTION: code/run_robustness.py exit=1 -->
   *Implementation* (in `code/stats_engine.py`):  
   • `leave_one_device_out(df)` → `data/processed/robustness_results.csv` (records per‑omission ρ, p‑values, and a `max_influence` flag).  
   • `robustness_check_bootstrap(stability_score)` – asserts the score from T005 meets the ≥ 0.7 threshold.  
@@ -102,7 +102,7 @@ Each task is a self‑contained, verifiable unit; completed tasks are checked, p
   head data/processed/robustness_results.csv
   ```
 
-- [~] T012 [US3] **Full‑covariate partial correlation analysis**  
+- [ ] T012 [US3] **Full‑covariate partial correlation analysis**  
   *Implementation*: `code/stats_engine.py` adds `partial_correlation_full(df, covariates=['chip_generation','qubit_count','device_age_days','readout_architecture'])` → `data/processed/partial_correlations.csv`.  
   *Artifacts*: `data/processed/partial_correlations.csv`.  
   *Verification*:  

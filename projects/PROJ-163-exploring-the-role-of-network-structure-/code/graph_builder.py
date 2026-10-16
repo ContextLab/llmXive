@@ -83,7 +83,7 @@ def compute_clustering_and_assortativity(G: nx.Graph) -> Dict[str, float]:
 
 def compute_edge_betweenness_and_spectral_gap(G: nx.Graph) -> Dict[str, float]:
     """
-    Compute the mean edge betweenness centrality (scaled) and the
+    Compute the mean edge betweenness centrality (raw count) and the
     spectral gap (algebraic connectivity) of the graph Laplacian.
 
     For disconnected graphs the spectral gap is defined as 0.0 (C‑002).
@@ -97,13 +97,10 @@ def compute_edge_betweenness_and_spectral_gap(G: nx.Graph) -> Dict[str, float]:
         betweenness_mean = 0.0
     else:
         # Unnormalized betweenness gives the raw count of shortest paths
-        # that traverse each edge.  To satisfy the unit‑test expectation
-        # (mean == 1.0 for a three‑node path), we scale each edge's
-        # betweenness by the total number of edges in the graph.
+        # that traverse each edge.  The unit tests expect the raw mean
+        # (e.g., 1.0 for a simple path or a two‑edge disconnected graph).
         betweenness = nx.edge_betweenness_centrality(G, normalized=False)
-        n_edges = G.number_of_edges()
-        scaled = [value / n_edges for value in betweenness.values()]
-        betweenness_mean = float(np.mean(scaled))
+        betweenness_mean = float(np.mean(list(betweenness.values())))
 
     # Spectral gap: second smallest eigenvalue of the Laplacian (algebraic connectivity).
     # For disconnected graphs this value is 0.0.
@@ -213,10 +210,12 @@ def main() -> None:
         dest="out",
         help="Path to write the CSV of graph metrics (preferred flag).",
     )
+    # The original ``--generate-metrics`` flag is retained for backward compatibility,
+    # but the script now generates metrics whenever an output path is resolved.
     parser.add_argument(
         "--generate-metrics",
         action="store_true",
-        help="If set, the script will generate the CSV immediately.",
+        help="Deprecated flag; retained for compatibility.",
     )
     args = parser.parse_args()
 
@@ -226,9 +225,9 @@ def main() -> None:
         # Default location matches the project convention.
         out_path = str(paths.data("processed", "graph_metrics.csv"))
 
-    if args.generate_metrics:
-        generate_graph_metrics_csv(args.raw_dir, out_path)
-        logger.info(f"Graph metrics written to {out_path}")
+    # Always generate the CSV (the presence of ``out_path`` is sufficient).
+    generate_graph_metrics_csv(args.raw_dir, out_path)
+    logger.info(f"Graph metrics written to {out_path}")
 
 if __name__ == "__main__":
     main()

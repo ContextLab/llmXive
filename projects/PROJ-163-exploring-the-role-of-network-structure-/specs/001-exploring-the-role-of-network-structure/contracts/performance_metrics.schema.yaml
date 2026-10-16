@@ -1,25 +1,9 @@
-# JSON Schema for performance_metrics.csv
-# The CSV must contain a header with the following columns:
-# device_id, timestamp, t1_mean, t2_mean, cx_error_mean, readout_error_mean, chip_family
-# Each row corresponds to a single backend snapshot.
 $schema: "http://json-schema.org/draft-07/schema#"
+title: PerformanceMetrics
+description: |
+  CSV rows representing aggregated performance metrics for a single IBM Quantum backend.
+  All numeric fields must be finite numbers; timestamps are ISO‑8601 strings.
 type: object
-properties:
-  device_id:
-    type: string
-  timestamp:
-    type: string
-    format: date-time
-  t1_mean:
-    type: number
-  t2_mean:
-    type: number
-  cx_error_mean:
-    type: number
-  readout_error_mean:
-    type: number
-  chip_family:
-    type: string
 required:
   - device_id
   - timestamp
@@ -28,5 +12,28 @@ required:
   - cx_error_mean
   - readout_error_mean
   - chip_family
+properties:
+  device_id:
+    type: string
+    description: Backend identifier (e.g., ibmq_manila).
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO‑8601 timestamp when the snapshot was taken.
+  t1_mean:
+    type: number
+    description: Mean T1 (seconds) across qubits.
+  t2_mean:
+    type: number
+    description: Mean T2 (seconds) across qubits.
+  cx_error_mean:
+    type: number
+    description: Mean two‑qubit (CX) gate error.
+  readout_error_mean:
+    type: number
+    description: Mean readout error across qubits.
+  chip_family:
+    type: string
+    description: Human‑readable chip family derived from the backend name.
+  # No additional properties are allowed.
 additionalProperties: false
-# Note: CSV rows are validated individually against this schema.

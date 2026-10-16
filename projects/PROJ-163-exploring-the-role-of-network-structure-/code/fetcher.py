@@ -9,22 +9,22 @@ This module provides:
 - `validate_data_freshness()` – enforces FR‑001 (≤30 days old) and returns
   a tuple ``(is_fresh, age_days)``.
 - `extract_topology_data()` – returns ``(coupling_map, qubit_count)``.
-- `extract_performance_metrics()` – returns a dict with keys ``t1``, ``t2``,
-  ``cx_error`` and ``readout_error`` (means).
+- `extract_performance_metrics()` – returns a dict with keys
+  ``t1_mean``, ``t2_mean``, ``cx_error_mean`` and ``readout_error_mean``.
 - `extract_chip_family()` – derives a human‑readable chip family.
 - `process_historical_data()` – utility used by legacy unit tests to
   convert a directory of historical JSON snapshots into a CSV.
 - `fetch_and_save_snapshots()` – orchestrates fetching and persisting raw
   snapshots.
-- `fetch_all_backends()` – convenience wrapper returning the full list of
-  operational backends (used by integration tests).
-- **Bootstrap and historical‑window utilities** for task T005:
+- Bootstrap and historical‑window utilities for task T005:
   - `bootstrap_performance_resampling`
   - `fetch_historical_window`
   - `compare_current_vs_historical`
 - CLI entry point (`python -m code.fetcher --save-snapshots`) that writes
-  JSON files to ``data/raw/{device_id}_{YYYYMMDD_HHMMSS}.json``.  No synthetic
-  data is ever generated; on total API failure a ``RuntimeError`` is raised.
+  JSON files to ``data/raw/{device_id}_{YYYYMMDD_HHMMSS}.json``.
+  The script **does not** fabricate data; if an IBM Quantum token is not
+  available it raises a clear ``RuntimeError`` – the caller must provide a
+  valid token to obtain real calibration data.
 """
 import json
 import csv
@@ -233,8 +233,6 @@ def validate_data_freshness(
         ``(is_fresh, age_days)`` where ``is_fresh`` is a bool and ``age_days``
         is the age of the snapshot in days (float).
     """
-    # Support both the real ``BackendProperties`` object (with ``last_update_date``)
-    # and dictionary-like mock objects that may provide a ``timestamp`` string.
     if not properties:
         return (False, 0.0)
 
@@ -243,13 +241,11 @@ def validate_data_freshness(
 
     # 2. If not present, look for a ``timestamp`` key (dict or object attribute)
     if last_update is None:
-        # dict‑like
         if isinstance(properties, dict) and "timestamp" in properties:
             try:
                 last_update = datetime.fromisoformat(properties["timestamp"])
             except Exception:
                 pass
-        # object attribute
         elif hasattr(properties, "timestamp"):
             try:
                 last_update = datetime.fromisoformat(getattr(properties, "timestamp"))
@@ -284,7 +280,8 @@ def extract_topology_data(properties: Any) -> Tuple[List[List[int]], int]:
 def extract_performance_metrics(properties: Any) -> Dict[str, Optional[float]]:
     """
     Compute mean T1, T2, CX gate error and readout error.
-    Returns a dict with keys ``t1``, ``t2``, ``cx_error`` and ``readout_error``.
+    Returns a dict with keys ``t1_mean``, ``t2_mean``,
+    ``cx_error_mean`` and ``readout_error_mean``.
     """
     t1_vals, t2_vals, cx_errs, ro_errs = [], [], [], []
 
@@ -306,10 +303,10 @@ def extract_performance_metrics(properties: Any) -> Dict[str, Optional[float]]:
                     ro_errs.append(param.value)
 
     return {
-        "t1": sum(t1_vals) / len(t1_vals) if t1_vals else None,
-        "t2": sum(t2_vals) / len(t2_vals) if t2_vals else None,
-        "cx_error": sum(cx_errs) / len(cx_errs) if cx_errs else None,
-        "readout_error": sum(ro_errs) / len(ro_errs) if ro_errs else None,
+        "t1_mean": sum(t1_vals) / len(t1_vals) if t1_vals else None,
+        "t2_mean": sum(t2_vals) / len(t2_vals) if t2_vals else None,
+        "cx_error_mean": sum(cx_errs) / len(cx_errs) if cx_errs else None,
+        "readout_error_mean": sum(ro_errs) / len(ro_errs) if ro_errs else None,
     }
 
 def extract_chip_family(backend_name: str, properties: Optional[Any] = None) -> str:
@@ -363,7 +360,6 @@ def process_historical_data(historical_dir: str, output_csv: str) -> None:
                 with open(entry, "r", encoding="utf-8") as f:
                     data = json.load(f)
             except Exception:
-                # Skip malformed JSON files
                 continue
 
             # Verify that all required keys are present
@@ -402,15 +398,23 @@ def fetch_and_save_snapshots() -> Tuple[int, int]:
             props = fetch_backend_properties(service, name)
             is_fresh, age_days = validate_data_freshness(props)
             if not is_fresh:
-                logger.info(f"Skipping {name}: data older than 30 days (age={age_days:.1f}d).")
+                logger.info(
+                    f"Skipping {name}: data older than 30 days (age={age_days:.1f}d)."
+                )
                 continue
-            # Save the snapshot to data/raw/
+
+            # Enrich the snapshot with metadata required by downstream schemas
+            enriched = dict(props)  # shallow copy
+            enriched["device_id"] = name
+            enriched["chip_family"] = extract_chip_family(name, props)
+
             now = datetime.now(timezone.utc)
             timestamp_str = now.strftime("%Y%m%d_%H%M%S")
+            enriched["timestamp"] = now.isoformat()
             filename = f"{name}_{timestamp_str}.json"
             filepath = ensure_raw_dir / filename
             with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(props, f, indent=2, default=str)
+                json.dump(enriched, f, indent=2, default=str)
             logger.info(f"Saved snapshot for {name} to {filepath}")
             saved += 1
         except Exception as e:
@@ -459,7 +463,6 @@ def bootstrap_performance_resampling(num_samples: int = 1000, seed: int = 42) ->
     perf_path = _ensure_performance_csv_exists()
     df = pd.read_csv(perf_path)
 
-    # Use NumPy's RandomState directly (pandas no longer exposes np)
     rng = np.random.RandomState(seed)
     rows = []
     for i in range(num_samples):
@@ -525,7 +528,6 @@ def _compute_sign_of_correlation(df: pd.DataFrame) -> int:
     if "t1_mean" not in df.columns or "t2_mean" not in df.columns:
         raise ValueError("DataFrame must contain 't1_mean' and 't2_mean' columns.")
     rho, _ = spearmanr(df["t1_mean"], df["t2_mean"])
-    # Convert NaN to 0 sign
     if pd.isna(rho):
         return 0
     return int(np.sign(rho))
@@ -588,28 +590,17 @@ def main():
     )
     args = parser.parse_args()
 
-    # If the user explicitly asks for snapshots, attempt the fetch.
-    # If no token is present we fall back to a bundled real‑world example
-    # snapshot so that the script still produces an output file (required
-    # by the verification step) without fabricating data.
-    token_present = os.getenv("IBMQ_TOKEN") or os.getenv("QISKIT_IBM_TOKEN")
-    if not token_present:
-        logger.warning(
-            "IBMQ token not found – using bundled example snapshot for demonstration."
-        )
-        # Copy the bundled example to the output directory with a timestamped name.
-        example_path = Path(__file__).parent.parent / "data" / "raw" / "sample_snapshot.json"
-        if not example_path.is_file():
-            logger.error("Bundled example snapshot missing.")
-            raise RuntimeError("No token and no bundled example available.")
-        ensure_raw_dir = paths.data("raw")
-        now = datetime.now(timezone.utc)
-        out_name = f"example_{now.strftime('%Y%m%d_%H%M%S')}.json"
-        shutil.copy(example_path, ensure_raw_dir / out_name)
-        logger.info(f"Copied example snapshot to {ensure_raw_dir / out_name}")
+    if not args.save_snapshots:
+        parser.print_help()
         return
 
-    # Otherwise perform the real fetch.
+    # Require a valid token; do **not** fall back to synthetic data.
+    token_present = os.getenv("IBMQ_TOKEN") or os.getenv("QISKIT_IBM_TOKEN")
+    if not token_present:
+        logger.error("IBMQ token not found – cannot fetch real calibration data.")
+        raise RuntimeError("IBMQ token missing; fetching real data is required.")
+    
+    # Perform the real fetch.
     try:
         fetch_and_save_snapshots()
     except RuntimeError as e:
