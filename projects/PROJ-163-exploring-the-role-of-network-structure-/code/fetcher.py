@@ -19,9 +19,9 @@ This module provides:
 - `fetch_all_backends()` – convenience wrapper returning the full list of
   operational backends (used by integration tests).
 - **Bootstrap and historical‑window utilities** for task T005:
-  - `bootstrap_performance_resampling(num_samples=1000, seed=42)`
-  - `fetch_historical_window(days=30)`
-  - `compare_current_vs_historical()`
+  - `bootstrap_performance_resampling`
+  - `fetch_historical_window`
+  - `compare_current_vs_historical`
 - CLI entry point (`python -m code.fetcher --save-snapshots`) that writes
   JSON files to ``data/raw/{device_id}_{YYYYMMDD_HHMMSS}.json``.  No synthetic
   data is ever generated; on total API failure a ``RuntimeError`` is raised.
@@ -37,6 +37,7 @@ from pathlib import Path
 from typing import List, Callable, Any, Tuple, Dict, Optional
 
 import pandas as pd
+import numpy as np
 from scipy.stats import spearmanr
 
 from llmxive_toolkit import paths, get_logger
@@ -458,10 +459,11 @@ def bootstrap_performance_resampling(num_samples: int = 1000, seed: int = 42) ->
     perf_path = _ensure_performance_csv_exists()
     df = pd.read_csv(perf_path)
 
-    np_random = pd.np.random.RandomState(seed)
+    # Use NumPy's RandomState directly (pandas no longer exposes np)
+    rng = np.random.RandomState(seed)
     rows = []
     for i in range(num_samples):
-        sample_df = df.sample(frac=1, replace=True, random_state=np_random)
+        sample_df = df.sample(frac=1, replace=True, random_state=rng)
         sample_df = sample_df.copy()
         sample_df["sample_id"] = i
         rows.append(sample_df)
@@ -526,7 +528,7 @@ def _compute_sign_of_correlation(df: pd.DataFrame) -> int:
     # Convert NaN to 0 sign
     if pd.isna(rho):
         return 0
-    return int(pd.np.sign(rho))
+    return int(np.sign(rho))
 
 def compare_current_vs_historical() -> Path:
     """
@@ -541,7 +543,7 @@ def compare_current_vs_historical() -> Path:
     Path
         Path to the written ``stability_score.txt`` file.
     """
-    # Ensure bootstrap file exists
+    # Ensure bootstrap file exists (use a modest number for speed)
     bootstrap_path = bootstrap_performance_resampling(num_samples=200, seed=0)
     bootstrap_df = pd.read_csv(bootstrap_path)
 

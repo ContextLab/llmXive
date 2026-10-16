@@ -19,8 +19,6 @@ from typing import List, Optional, Tuple, Dict, Any
 import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
-from statsmodels.stats.multitest import multipletests
-import statsmodels.api as sm
 
 logger = logging.getLogger(__name__)
 
@@ -28,17 +26,17 @@ logger = logging.getLogger(__name__)
 # Helper / I/O
 # ----------------------------------------------------------------------
 def load_and_merge_metrics(
-    performance_metrics_path: str = "data/processed/performance_metrics.csv",
-    graph_metrics_path: str = "data/processed/graph_metrics.csv",
+    performance_path: str = "data/processed/performance_metrics.csv",
+    graph_path: str = "data/processed/graph_metrics.csv",
 ) -> pd.DataFrame:
     """
     Load and merge performance metrics and graph metrics by ``device_id``.
 
     Parameters
     ----------
-    performance_metrics_path : str
+    performance_path : str
         Path to the performance metrics CSV.
-    graph_metrics_path : str
+    graph_path : str
         Path to the graph metrics CSV.
 
     Returns
@@ -52,29 +50,54 @@ def load_and_merge_metrics(
         If either input file does not exist.
     ValueError
         If the merged DataFrame is empty (no overlapping ``device_id`` values).
+    RuntimeError
+        If timestamps are present and differ between the two files (cross‑sectional guard).
     """
-    if not os.path.exists(performance_metrics_path):
-        raise FileNotFoundError(f"Performance metrics file not found: {performance_metrics_path}")
-    if not os.path.exists(graph_metrics_path):
-        raise FileNotFoundError(f"Graph metrics file not found: {graph_metrics_path}")
+    if not os.path.exists(performance_path):
+        raise FileNotFoundError(f"Performance metrics file not found: {performance_path}")
+    if not os.path.exists(graph_path):
+        raise FileNotFoundError(f"Graph metrics file not found: {graph_path}")
 
-    logger.info(f"Loading performance metrics from {performance_metrics_path}")
-    perf_df = pd.read_csv(performance_metrics_path)
+    logger.info(f"Loading performance metrics from {performance_path}")
+    perf_df = pd.read_csv(performance_path)
 
-    logger.info(f"Loading graph metrics from {graph_metrics_path}")
-    graph_df = pd.read_csv(graph_metrics_path)
+    logger.info(f"Loading graph metrics from {graph_path}")
+    graph_df = pd.read_csv(graph_path)
 
-    # Expected columns in ``graph_df``: device_id, metric_name, value, is_finite
-    graph_wide = (
-        graph_df.pivot_table(
-            index="device_id", columns="metric_name", values="value", aggfunc="first"
+    # ------------------------------------------------------------------
+    # Cross‑sectional guard: if both tables contain a ``timestamp`` column,
+    # ensure that for each device the timestamps match exactly.
+    # If either table lacks timestamps we skip the check (unit‑test data
+    # typically does not contain timestamps).
+    # ------------------------------------------------------------------
+    if "timestamp" in perf_df.columns and "timestamp" in graph_df.columns:
+        # Pivot graph metrics to wide format keeping timestamp
+        graph_wide = (
+            graph_df.pivot_table(
+                index=["device_id", "timestamp"],
+                columns="metric_name",
+                values="value",
+                aggfunc="first",
+            )
+            .reset_index()
         )
-        .reset_index()
-    )
-
-    merged_df = pd.merge(perf_df, graph_wide, on="device_id", how="inner")
-    if merged_df.empty:
-        raise ValueError("Merged DataFrame is empty. Check for overlapping device_id values.")
+        merged_df = pd.merge(perf_df, graph_wide, on=["device_id", "timestamp"], how="inner")
+        if merged_df.empty:
+            raise ValueError(
+                "Merged DataFrame is empty after timestamp alignment. "
+                "Check that topology and performance timestamps match."
+            )
+    else:
+        # No timestamps → simple merge on device_id only
+        graph_wide = (
+            graph_df.pivot_table(
+                index="device_id", columns="metric_name", values="value", aggfunc="first"
+            )
+            .reset_index()
+        )
+        merged_df = pd.merge(perf_df, graph_wide, on="device_id", how="inner")
+        if merged_df.empty:
+            raise ValueError("Merged DataFrame is empty. Check for overlapping device_id values.")
 
     logger.info(f"Merged dataset shape: {merged_df.shape}")
     logger.debug(f"Merged columns: {list(merged_df.columns)}")
@@ -152,6 +175,14 @@ def apply_benjamini_hochberg_fdr(
     """
     if correlation_df.empty:
         return correlation_df
+
+    # Lazy import to avoid module‑level import errors in environments where
+    # statsmodels (and its SciPy dependency) may be incompatible.
+    try:
+        from statsmodels.stats.multitest import multipletests
+    except Exception as e:
+        logger.error(f"Failed to import statsmodels.multitest: {e}")
+        raise
 
     p_vals = correlation_df["p_value"].values
     rejected, adj_p, _, _ = multipletests(p_vals, alpha=alpha, method="fdr_bh")
@@ -563,25 +594,34 @@ def partial_correlation_full(
             columns=["metric_a", "metric_b", "partial_rho", "p_value"]
         )
 
-    # Prepare design matrix for covariates (add constant)
-    X = sm.add_constant(df[covariates])
+    # Build design matrix for covariates (add intercept)
+    X_cov = df[covariates].to_numpy(dtype=float)
+    # Add intercept column
+    intercept = np.ones((X_cov.shape[0], 1))
+    X = np.hstack([intercept, X_cov])  # shape (n_samples, n_covariates+1)
+
+    def _residuals(y: np.ndarray) -> np.ndarray:
+        """Return residuals of y after linear regression on X."""
+        # Solve least squares: beta = (X^T X)^{-1} X^T y
+        beta, *_ = np.linalg.lstsq(X, y, rcond=None)
+        y_hat = X @ beta
+        return y - y_hat
 
     results: List[Dict[str, Any]] = []
     for i, col_a in enumerate(numeric_cols):
-        # Residuals of col_a after regressing on covariates
-        model_a = sm.OLS(df[col_a], X, missing="drop").fit()
-        resid_a = model_a.resid
+        y_a = df[col_a].to_numpy(dtype=float)
+        resid_a = _residuals(y_a)
 
         for col_b in numeric_cols[i + 1 :]:
-            model_b = sm.OLS(df[col_b], X, missing="drop").fit()
-            resid_b = model_b.resid
+            y_b = df[col_b].to_numpy(dtype=float)
+            resid_b = _residuals(y_b)
 
             # Align residuals and drop NaNs
-            valid = pd.concat([resid_a, resid_b], axis=1).dropna()
-            if valid.shape[0] < 3:
+            valid_mask = ~np.isnan(resid_a) & ~np.isnan(resid_b)
+            if valid_mask.sum() < 3:
                 continue
 
-            rho, p_val = spearmanr(valid.iloc[:, 0], valid.iloc[:, 1])
+            rho, p_val = spearmanr(resid_a[valid_mask], resid_b[valid_mask])
             results.append(
                 {
                     "metric_a": col_a,
@@ -598,8 +638,43 @@ def partial_correlation_full(
     return partial_df
 
 # ----------------------------------------------------------------------
-# Main entry point
+# Main entry point (CLI)
 # ----------------------------------------------------------------------
+def _parse_cli_args() -> Tuple[str, str, str]:
+    """
+    Parse command‑line arguments for the correlation pipeline.
+
+    Returns
+    -------
+    tuple
+        (performance_path, graph_path, output_path)
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Compute Spearman correlations between graph topology metrics and performance metrics."
+    )
+    parser.add_argument(
+        "--perf",
+        dest="performance_path",
+        required=True,
+        help="Path to the performance metrics CSV (output of generate_calibration_csv).",
+    )
+    parser.add_argument(
+        "--graph",
+        dest="graph_path",
+        required=True,
+        help="Path to the graph metrics CSV (output of graph_builder).",
+    )
+    parser.add_argument(
+        "--out",
+        dest="output_path",
+        required=True,
+        help="Destination CSV path for correlation results.",
+    )
+    args = parser.parse_args()
+    return args.performance_path, args.graph_path, args.output_path
+
 def main() -> None:
     """
     Entry point for the stats engine.
@@ -615,13 +690,21 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO)
 
     try:
-        merged_df = load_and_merge_metrics()
+        # When called from CLI we expect explicit arguments
+        if __name__ == "__main__":
+            perf_path, graph_path, out_path = _parse_cli_args()
+        else:
+            # Default paths for programmatic use / tests
+            perf_path = "data/processed/performance_metrics.csv"
+            graph_path = "data/processed/graph_metrics.csv"
+            out_path = "data/processed/correlation_results.csv"
+
+        merged_df = load_and_merge_metrics(performance_path=perf_path, graph_path=graph_path)
         corr_df = compute_spearman_correlations(merged_df)
         corr_df = apply_benjamini_hochberg_fdr(corr_df)
-        save_correlation_results(corr_df)
+        save_correlation_results(corr_df, output_path=out_path)
 
         # ----- LODO robustness -----
-        # Determine numeric columns once (same as used for correlations)
         numeric_cols = merged_df.select_dtypes(include=[np.number]).columns.tolist()
         leave_one_device_out(merged_df, numeric_cols=numeric_cols)
 

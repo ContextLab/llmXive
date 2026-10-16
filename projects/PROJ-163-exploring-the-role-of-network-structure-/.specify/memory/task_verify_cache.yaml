@@ -1,55 +1,48 @@
 T002:
   c: false
-  h: f3d40ad304e64c0471e5874f2e38d850e559070d918895e02673be8ae52f744a
-  r: "Checked `data/processed/performance_metrics.csv` (exists) and the pytest run\
-    \ for `tests/test_processed_perf.py`. The test suite fails on schema validation\
-    \ because the required schema file `specs/001\u2011exploring\u2011the\u2011role\u2011\
-    of\u2011network\u2011structure/contracts/performance_metrics.schema.yaml` is missing,\
-    \ causing a `FileNotFoundError`. Without the schema the CSV cannot be validated,\
-    \ so the task\u2019s requirement is not satisfied."
-  sig: 59c15eca67e250d4b80f316123b95cef09e55924d1b3d8b93ff5252eb4b00f0c
+  h: 61176b1b577f6622acb56b26a68aeefffc84886b3c9b4e313d8705045d7a4070
+  r: "Checked the presence of `data/processed/performance_metrics.csv` (missing),\
+    \ the required schema file `specs/001\u2011exploring\u2011the\u2011role\u2011\
+    of\u2011network\u2011structure/contracts/performance_metrics.schema.yaml` (missing),\
+    \ and the verification test `code/tests/test_processed_perf.py` (missing). Without\
+    \ the CSV, schema, and test, the task\u2019s deliverable is not satisfied."
+  sig: f7acd35668cfee5e76452bd1be2cea9a3dbd8cfbc5941167fbfdac7dbf5b52aa
 T003:
   c: false
-  h: 7cf5bc5b9140c636e5fa10cca756b2606386e3567b3dcedbfbf712841abcae3e
-  r: "Checked `code/graph_builder.py` and its unit tests `code/tests/test_graph_builder.py`.\
-    \ The function `compute_edge_betweenness_and_spectral_gap` returns an un\u2011\
-    normalized mean edge betweenness (value\u202F2.0 for a 3\u2011node path), but\
-    \ the test expects a normalized mean of\u202F1.0, causing the test suite to fail.\
-    \ Consequently the required verification (`pytest \u2026`) does not succeed. The\
-    \ implementation must adjust edge betweenness calculation (e.g., use `normalized=True`\
-    \ or scale appropriately) so that the unit test passes."
-  sig: 0b91a368b71f8231c742e588108cc717866499f79224cdd65a2485f44d532efe
+  h: 091456f0f296c92de50d13c803a1e930eb94b855c425bc9a20f35d2af798111f
+  r: "Checked `code/graph_builder.py` (functions exist and unit tests pass) and the\
+    \ required output artifact `data/processed/graph_metrics.csv` (file is missing).\
+    \ The CLI only writes the CSV when the `--generate-metrics` flag is supplied,\
+    \ contrary to the task\u2019s specification that `python -m code.graph_builder\
+    \ --raw-dir \u2026 --out \u2026` should produce the file directly. Consequently\
+    \ the required CSV artifact is not generated, so the task is not fully satisfied."
+  sig: 9c2834b603fa882f8bd84a154e896cd552fff98d98d7a34cd59a1cd0bcf238dc
 T004:
   c: false
-  h: 0b62dbc3a7dace4b13c6a47c7fa8b0800b8ad95ca1d84ca0cd770977de0ba04c
-  r: The repository lacks the required `data/processed/correlation_results.csv` output,
-    the `stats_engine.py` script does not provide a CLI that accepts `--perf`, `--graph`,
-    and `--out` arguments, and it never checks that topology and performance timestamps
-    match (no RuntimeError guard). Moreover, the unit tests in `code/tests/test_stats_engine.py`
-    call `load_and_merge_metrics` with nonexistent keyword names, so the test suite
-    would fail. These missing/incorrect artifacts prevent the task from being satisfied.
-  sig: cb07b5eab7fdbc832cdc009521b3577139e2d8e66a50a969a75e7a1407e65fe9
+  h: 2b1778f78938e25fad1209bb2d068cf4ae896c1492ace0052bf48fe05b4149dd
+  r: "The required output file `data/processed/correlation_results.csv` does not exist,\
+    \ and the cross\u2011sectional guard in `code/stats_engine.py` raises a `ValueError`\
+    \ (or silently skips) instead of the mandated `RuntimeError` when timestamps differ.\
+    \ Both issues prevent the task from being genuinely completed."
+  sig: 34f347b328f061a9a612ca0c01ed9ce7cd1d388b9b37278123a68f7a20a8f059
 T005:
   c: false
-  h: 2523a324d50fb675afd156345324b32f23f2bb1f91a571e5cfa4dc1a276dd4de
-  r: "The test suite `code/tests/test_bootstrap.py` fails (AttributeError: `pandas`\
-    \ has no attribute `np`), so `bootstrap_performance_resampling` never creates\
-    \ `data/processed/bootstrap_performance_metrics.csv`. Consequently `data/raw_historical/`\
-    \ and `data/processed/stability_score.txt` are also absent, and the required stability\u2011\
-    score threshold is never evaluated. The implementation must fix the random\u2011\
-    state usage (e.g., use `numpy.random.RandomState`), ensure the bootstrap CSV is\
-    \ written, populate the historical directory, and produce a stability score \u2265\
-    \u202F0.7."
-  sig: ef4c9f4c60791607e2996290cdcd3044e7b93c4020b14c5b9a3daeb7ea778c09
+  h: 40fd9218f05f2bc3ba5f8c37fcbeb166e14d903c4421505b7e0eb6ac6604a1ec
+  r: The required output files `data/processed/bootstrap_performance_metrics.csv`,
+    the directory `data/raw_historical/` with JSON snapshots, and `data/processed/stability_score.txt`
+    are all missing, and there is no evidence that the provided test `code/tests/test_bootstrap.py`
+    was executed successfully. The task therefore lacks the concrete artifacts it
+    mandates.
+  sig: db0e209f6796938beb7bbaf6dd3ab79140ae8d55e609056e586ea0db6105641c
 T006:
   c: false
-  h: 916c58da481aa1395324803dd8274b139c88f4d611121d23f2e43748e01cbdef
-  r: "The required `data/processed/robustness_results.csv` file does not exist, and\
-    \ the unit\u2011test suite fails (the `load_and_merge_metrics` function signature\
-    \ does not match the test\u2019s expected arguments). Additionally, there is no\
-    \ `stability_score.txt` for the bootstrap check, so the robustness checks are\
-    \ not demonstrated."
-  sig: 63c628244febee9bbd7c983741e2fdcfa3ec6b8e25f35c4367aa3554b0fe55af
+  h: 580b9372ef423ba9ece7d07bd68d36ab0b0701dd33c856e840f9f7d6d319c51c
+  r: "The required artifact `data/processed/robustness_results.csv` is missing, and\
+    \ the provided test suite does not exercise the LODO or bootstrap\u2011stability\
+    \ functions, so the robustness checks are not actually verified. The implementation\
+    \ exists, but without the generated CSV (and without a stability_score file) the\
+    \ task\u2019s deliverable is incomplete."
+  sig: aef6586349f131bc8f382629af58818ed00fddd3e2e957950d48491b8f94e3e9
 T012:
   c: false
   h: 2f917b3dbe2292718f7706e0745a512cd420ad7309a2a7b2c3b5d00fef5855be
