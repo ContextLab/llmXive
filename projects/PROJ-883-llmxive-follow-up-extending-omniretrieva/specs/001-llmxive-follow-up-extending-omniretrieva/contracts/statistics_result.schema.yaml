@@ -1,0 +1,15 @@
+type: object
+properties:
+  cutoff:
+    type: integer
+    description: "Complexity cutoff used in the sensitivity sweep"
+  spike_point:
+    type: number
+    description: "Complexity level where the latency jump is maximal"
+  slope_change:
+    type: number
+    description: "Difference between post‑spike and pre‑spike regression slopes"
+required:
+  - cutoff
+  - spike_point
+  - slope_change

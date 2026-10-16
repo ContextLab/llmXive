@@ -1,40 +1,70 @@
 # Quickstart: Structural Mismatch Cost in Heterogeneous Retrieval
 
 ## Prerequisites
-- Python 3.11+
-- Linux environment (GitHub Actions runner or equivalent)
-- >= 7 GB RAM, >= 2 CPU cores
+- **Python 3.11+** (Linux environment recommended).  
+- **GitHub Actions free‑tier runner** or any Linux VM with ≥ 2 CPU cores and ≤ 7 GB RAM.  
+- **cgroups** support (required for CPU throttling).  
+- No GPU needed.
 
 ## Installation
 ```bash
+# Clone the repository (assumed already in the correct project directory)
 cd projects/PROJ-883-llmxive-follow-up-extending-omniretrieva
+
+# Create a virtual environment
 python -m venv .venv
 source .venv/bin/activate
+
+# Install pinned dependencies (numpy & pyarrow versions avoid import errors)
 pip install -r requirements.txt
 ```
 
-## Lint
+## Verify Environment
 ```bash
+# Lint the codebase (must exit 0)
 ruff check code/
+# Verify cgroups availability
+python -c "import os; assert os.path.isdir('/sys/fs/cgroup'), 'cgroups not available'"
 ```
 
-## End-to-End Run
+## End‑to‑End Run
 ```bash
+# This will:
+# 1. Download and checksum the verified datasets.
+# 2. Generate queries and reference plans.
+# 3. Execute the benchmark under cgroups throttling.
+# 4. Perform statistical analysis.
+# 5. Produce the interaction plot.
 python -m code.main
 ```
 
-The command performs the skeleton initialization:
-1. Creates the required directories (`data/raw/`, `data/processed/`, `data/results/`).
-2. Verifies that the environment is configured correctly.
+### Expected Outputs
+- `data/processed/generation_log.json`  
+- `data/processed/execution_logs.csv`  
+- `data/results/anova_results.json`  
+- `data/results/sensitivity_analysis.json`  
+- `data/results/interaction_plot.png`
 
-Note: Actual query generation, execution, and analysis are implemented in subsequent tasks (T003-T014).
-
-## Quick Help
+## Help
 ```bash
 python -m code.main --help
 ```
+The `--help` flag prints all configurable options (e.g., number of queries, cgroup quota, timeout).
 
 ## Tests
 ```bash
-python -m pytest -v
+pytest -v
 ```
+All unit and integration tests must pass (exit code 0). Tests include:
+- Schema validation against contracts.  
+- Successful download of at least one row from each verified dataset.  
+- Correct handling of cgroups throttling errors.
+
+## Re‑Running a Single Phase (optional)
+- **Data download only**: `python -m code.main --stage data_download`  
+- **Query generation only**: `python -m code.main --stage generate_queries`  
+- **Benchmark only**: `python -m code.main --stage run_benchmark`  
+
+Refer to `quickstart.md` for further customization.
+
+---

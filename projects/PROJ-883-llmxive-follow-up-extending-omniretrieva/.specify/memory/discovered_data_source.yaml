@@ -1,12 +1,11 @@
 status: none
-intent: download MS MARCO subset DBpedia RDF synthetic query latency dataset python
-  package dataset
+intent: HuggingFace datasets ms_marco dbpedia rdf download python package dataset
 required_fields:
 - query_id
 - query_text
+- source_type
 - plan_depth
 - latency_ms
-- source_type
-cache_key: 93e456f6a78b7986f9a221927db448bb974bf641e4da37e3d009e526c0c28c90
-searched_at: '2026-10-16T08:19:11.888299+00:00'
+cache_key: f6cd00b0eb57c035a9cd6cf87ff7c585b9afada6271b2bbd9ca6969cc839ec3a
+searched_at: '2026-10-16T08:29:02.438113+00:00'
 retry_count: 1
