@@ -1,9 +1,3 @@
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that `__init__.py` files actually exist in `code/`,
-    `tests/`, `tests/unit/`, or `tests/integration/`. The claim is unsubstantiated;
-    the required files are missing from the supplied artifacts.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,11 +33,3 @@ T012:
     show exponential backoff or timeout handling, and does not explicitly enforce
     `device="cpu"` when loading the model. These missing pieces prevent the task from
     being satisfied.'
-T046:
-  c: false
-  h: 77d3d316ac0b5f1c1dc853a7adcfa99192e475df4b2ff4b1dfd6c5f25bc973d2
-  r: "The repository contains a large `code/statistical_tests.py` file, but the visible\
-    \ portion shows only utility and statistical test functions; there is no implementation\
-    \ that evaluates SC\u2011002 or SC\u2011003 nor writes a `state/validation_results.yaml`.\
-    \ Moreover, the required `state/validation_results.yaml` file is missing entirely.\
-    \ The task\u2019s core requirement is therefore not satisfied."

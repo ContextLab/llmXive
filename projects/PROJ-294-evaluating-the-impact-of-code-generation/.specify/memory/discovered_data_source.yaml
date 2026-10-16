@@ -1,25 +1,34 @@
 status: verified
 kind: pypi_package
-ref: human-eval
-access_python: "import json, sys\nfrom human_eval.data import read_problems\n\nproblems_dict\
-  \ = read_problems()\nproblems = list(problems_dict.values())\n\nprint(f\"RECORDS={len(problems)}\"\
-  )\nif problems:\n    fields = sorted({k for d in problems for k in d.keys()})\n\
-  \    print(\"FIELDS=\" + \",\".join(fields))"
+ref: datasets
+access_python: 'import datasets
+
+
+  ds_dict = datasets.load_dataset("openai/openai_humaneval")
+
+  total_records = sum(len(split) for split in ds_dict.values())
+
+  print(f"RECORDS={total_records}")
+
+
+  first_split = next(iter(ds_dict.values()))
+
+  print("FIELDS=" + ",".join(first_split.column_names))'
 record_count: 164
 sample_fields:
-- canonical_solution
-- entry_point
-- prompt
 - task_id
+- prompt
+- canonical_solution
 - test
+- entry_point
 field_coverage: 0.833
 required_fields:
 - task_id
 - prompt
-- canonical_solution
-- test_cases
 - entry_point
-- function_name
-intent: HumanEval dataset download via pip install with commit SHA256 verification
-  python package dataset
-cache_key: 8b3c1b7934cdfcc86e1b8395a10547dfdf859b33463ce860995b9acf2bd06d58
+- canonical_solution
+- test
+- language
+intent: download openai humanEval dataset from HuggingFace datasets python package
+  dataset
+cache_key: 95d22939ef54d416b5b5693f5324b478c190a837be7d219dc4a9432f29521ea7
