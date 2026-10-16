@@ -19,7 +19,7 @@ The tasks below implement the complete end‑to‑end analysis required by the s
   - `scripts/` – helper scripts (linting, verification)  
   - **Verification**: Run `tree -L 2 .` and confirm all listed directories exist.
 
-- [X] T002 [P] Initialise a Python 3.11 project with a fully‑pinned `requirements.txt`  
+- [ ] T002 [P] Initialise a Python 3.11 project with a fully‑pinned `requirements.txt`  
   - Run `pip‑compile` (or manually pin) to produce exact versions, e.g.:  
     ```text
     astropy>=6.0,<7.0

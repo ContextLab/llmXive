@@ -5,6 +5,11 @@ T001:
     directory tree is not fully created as required.
   task: 01045773e57799c11d6ec32524d4d3035daf7f821ddad4584dff11b6f2f6b727
 T002:
+  reason: "The provided `requirements.txt` contains version ranges (e.g., `astropy>=6.0,<7.0`)\
+    \ rather than fully\u2011pinned exact versions (`astropy==6.0.0`), and there is\
+    \ no evidence that `pip install -r requirements.txt` was run successfully without\
+    \ conflicts. The task requires a fully\u2011pinned file and verification of a\
+    \ conflict\u2011free install."
   task: 2137807558d07e0ea764f55891f38962193b28ba0a771851b28ed222b6c1f8c8
 T003:
   reason: 'Requested task execution failed; rerun successfully: scripts/lint.sh exit=1'

@@ -7,9 +7,11 @@ T001:
     directory tree is not fully created as required.
   sig: c5365d1e0d3e5716b59fb15554f576f11794b6c2d032e4495e147099ca1f460a
 T002:
-  c: true
-  h: 3f0b43fb7b65e29a1dc6d78e684cc1b67f2f3f5a14c89700dafdf595d8f00f62
-  r: Checked the `requirements.txt` file (pinned exact versions) and the integration
-    test log `tests/integration/test_requirements_install.py` which shows `pip install
-    -r requirements.txt` ran successfully with no conflicts.
-  sig: 437a26432ea2f8bfb3bdcd51636822ada7713be0b8f05b297fe04e0f0e31c135
+  c: false
+  h: 50dd3e4c980cb70e6f20400f630870f17e19e64dd2672b6063313f7e4ce50ce9
+  r: "The provided `requirements.txt` contains version ranges (e.g., `astropy>=6.0,<7.0`)\
+    \ rather than fully\u2011pinned exact versions (`astropy==6.0.0`), and there is\
+    \ no evidence that `pip install -r requirements.txt` was run successfully without\
+    \ conflicts. The task requires a fully\u2011pinned file and verification of a\
+    \ conflict\u2011free install."
+  sig: 6ee97bf96c08376c23da19b1ba42a17ec6df6d99aa412520152b20b6b93609f3
