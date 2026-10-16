@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-16T03:12:06.463229+00:00",
+  "generated_at": "2026-10-16T03:13:36.193310+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -36879,7 +36879,7 @@
           ]
         },
         {
-          "contributions": 7,
+          "contributions": 9,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -36924,6 +36924,22 @@
       "id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 23.351047,
+          "ended_at": "2026-10-16T03:11:23.614569Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T03:11:00.263522Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 181.547412,
+          "ended_at": "2026-10-16T03:11:00.258880Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T03:07:58.711468Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 15.959689,
@@ -36987,22 +37003,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-11T15:15:39.844938Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 517.034386,
-          "ended_at": "2026-10-11T15:15:14.514028Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-11T15:06:37.479642Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 225.730476,
-          "ended_at": "2026-10-07T11:29:02.157825Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-07T11:25:16.427349Z"
         }
       ],
       "paper_status": null,
@@ -163098,7 +163098,7 @@
           ]
         },
         {
-          "contributions": 16,
+          "contributions": 20,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -163143,6 +163143,38 @@
       "id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 21.374155,
+          "ended_at": "2026-10-16T03:10:45.983549Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T03:10:24.609394Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 29.194798,
+          "ended_at": "2026-10-16T03:10:24.605630Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T03:09:55.410832Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 128.824974,
+          "ended_at": "2026-10-16T03:09:55.406058Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T03:07:46.581084Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 7.387612,
+          "ended_at": "2026-10-16T03:07:46.576900Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T03:07:39.189288Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 24.110663,
@@ -163190,38 +163222,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "success",
           "started_at": "2026-10-16T02:14:03.263843Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 54.830266,
-          "ended_at": "2026-10-16T02:14:03.260199Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-16T02:13:08.429933Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 43.845347,
-          "ended_at": "2026-10-16T02:13:08.426267Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-16T02:12:24.580920Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 236.962973,
-          "ended_at": "2026-10-16T02:12:24.576696Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-16T02:08:27.613723Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 6.775057,
-          "ended_at": "2026-10-15T18:40:10.146584Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-15T18:40:03.371527Z"
         }
       ],
       "paper_status": null,
@@ -171444,7 +171444,7 @@
           ]
         },
         {
-          "contributions": 6,
+          "contributions": 9,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -171472,6 +171472,30 @@
       "id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 26.165203,
+          "ended_at": "2026-10-16T03:11:13.943492Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T03:10:47.778289Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 37.411385,
+          "ended_at": "2026-10-16T03:10:47.775742Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T03:10:10.364357Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 121.13893,
+          "ended_at": "2026-10-16T03:10:10.361546Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T03:08:09.222616Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 489.583508,
@@ -171527,30 +171551,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-16T00:12:22.871023Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 1391.045449,
-          "ended_at": "2026-10-15T22:30:23.204595Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-15T22:07:12.159146Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 1217.379916,
-          "ended_at": "2026-10-10T04:31:14.874083Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-10T04:10:57.494167Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 0.002903,
-          "ended_at": "2026-10-10T04:10:46.003671Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-10T04:10:46.000768Z"
         }
       ],
       "paper_status": null,
@@ -171731,6 +171731,114 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "implementer",
+      "duration_s": 23.351047,
+      "ended_at": "2026-10-16T03:11:23.614569Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T03:11:00.263522Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 26.165203,
+      "ended_at": "2026-10-16T03:11:13.943492Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T03:10:47.778289Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 181.547412,
+      "ended_at": "2026-10-16T03:11:00.258880Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T03:07:58.711468Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 37.411385,
+      "ended_at": "2026-10-16T03:10:47.775742Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T03:10:10.364357Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 21.374155,
+      "ended_at": "2026-10-16T03:10:45.983549Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T03:10:24.609394Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 29.194798,
+      "ended_at": "2026-10-16T03:10:24.605630Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T03:09:55.410832Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 121.13893,
+      "ended_at": "2026-10-16T03:10:10.361546Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T03:08:09.222616Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 128.824974,
+      "ended_at": "2026-10-16T03:09:55.406058Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T03:07:46.581084Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 7.387612,
+      "ended_at": "2026-10-16T03:07:46.576900Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T03:07:39.189288Z"
+    },
     {
       "agent": "planner",
       "duration_s": 1281.115165,
@@ -177676,114 +177784,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-15T02:08:41.908299Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 208.131374,
-      "ended_at": "2026-10-15T02:12:01.413245Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-15T02:08:33.281871Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 74.311615,
-      "ended_at": "2026-10-15T02:11:00.117244Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-15T02:09:45.805629Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 117.180045,
-      "ended_at": "2026-10-15T02:10:44.810831Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-889-llmxive-follow-up-extending-tide-proacti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T02:08:47.630786Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 67.616734,
-      "ended_at": "2026-10-15T02:09:45.801890Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-15T02:08:38.185156Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 60.303523,
-      "ended_at": "2026-10-15T02:09:40.353964Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-15T02:08:40.050441Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 26.940755,
-      "ended_at": "2026-10-15T01:59:22.132022Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T01:58:55.191267Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 40.936708,
-      "ended_at": "2026-10-15T01:58:55.187738Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T01:58:14.251030Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 31.733711,
-      "ended_at": "2026-10-15T01:58:14.247459Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T01:57:42.513748Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 26.267586,
-      "ended_at": "2026-10-15T01:57:42.510284Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-correlation-between-gu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T01:57:16.242698Z"
     }
   ],
   "reviewed_preprints": [
