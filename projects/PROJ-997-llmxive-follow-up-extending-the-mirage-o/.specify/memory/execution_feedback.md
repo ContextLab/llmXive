@@ -19,11 +19,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 26, in <module>
-    from generate_ground_truth import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 26, in <module>
-    from generate_ground_truth import (
-ImportError: cannot import name 'load_full_precision_model' from partially initialized module 'generate_ground_truth' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 34, in <module>
+    from cli.generate_ground_truth import (
+ModuleNotFoundError: No module named 'cli.generate_ground_truth'
 
 - python code/models/train_predictor.py --input data/processed/training_sample.parquet --output data/models/gap_predictor.pkl -> rc=2
 

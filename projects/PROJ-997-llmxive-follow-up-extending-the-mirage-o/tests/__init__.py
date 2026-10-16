@@ -1,1 +1,1 @@
-"""llmXive test suite package."""
+# Ensure pytest discovers the test package
