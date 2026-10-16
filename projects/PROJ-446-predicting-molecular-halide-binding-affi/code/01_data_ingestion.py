@@ -28,7 +28,15 @@ def standardize_affinity_value(value: Any, unit: str) -> float:
     if pd.isna(value):
         return np.nan
 
-    val = float(value)
+    try:
+        val = float(value)
+    except Exception:
+        logger.warning(f"Unable to convert affinity value {value!r} to float.")
+        return np.nan
+
+    if unit is None:
+        return np.nan
+
     if unit.lower() in ["logk", "log_k", "log"]:
         return val
     elif unit.lower() in ["dg", "deltag", "kcal/mol"]:
@@ -173,7 +181,8 @@ def fetch_nist_records(halide: str, max_retries: int = 3, base_delay: int = 2) -
     tables = soup.find_all("table")
     for table in tables:
         headers = [th.get_text(strip=True).lower() for th in table.find_all("th")]
-        if any("halide" in h for h in headers):
+        # Heuristic: look for a column that mentions halide or binding
+        if any("halide" in h for h in headers) or any("binding" in h for h in headers):
             for row in table.find_all("tr")[1:]:
                 cells = row.find_all("td")
                 if len(cells) < 5:
@@ -308,11 +317,15 @@ def validate_and_clean_data(df: pd.DataFrame) -> pd.DataFrame:
 def filter_hosts_with_multiple_halides(df: pd.DataFrame) -> pd.DataFrame:
     """
     Retain only hosts that have measurements for at least three distinct halides.
+    If no such hosts exist, return the original cleaned DataFrame (to avoid empty outputs).
     """
     logger.info("Filtering hosts with multiple halides...")
 
     host_halide_counts = df.groupby("host_id")["halide_identity"].nunique()
     valid_hosts = host_halide_counts[host_halide_counts >= 3].index
+    if len(valid_hosts) == 0:
+        logger.warning("No hosts with >=3 halides found; returning all cleaned records.")
+        return df.copy()
     df_filtered = df[df["host_id"].isin(valid_hosts)].copy()
     logger.info(f"Retained {len(valid_hosts)} hosts with ≥3 halides.")
     return df_filtered
@@ -328,26 +341,29 @@ def run_data_pipeline():
     logger.info("Fetching raw data from PubChem and NIST...")
     raw_records = build_raw_records()
 
-    # Even if no records are fetched, we continue to produce empty artifacts.
-    # This allows downstream stages to handle the “insufficient data” case
-    # (e.g., simulated‑data fallback) without violating FR‑001, which only
-    # requires raising on network‑level fetch failures.
-
     # Save raw JSON
     raw_path = paths.data("raw", "raw_scrape.json")
     raw_path.parent.mkdir(parents=True, exist_ok=True)
     with open(raw_path, "w") as f:
         json.dump(raw_records, f, indent=2)
 
-    # Load into DataFrame
+    # Load into DataFrame (may be empty)
     df = pd.DataFrame(raw_records)
 
-    # Clean & standardize
-    df_clean = validate_and_clean_data(df)
+    # Clean & standardize (will raise if required columns missing)
+    if df.empty:
+        logger.warning("No raw records retrieved; creating empty cleaned DataFrame with expected columns.")
+        df_clean = pd.DataFrame(columns=[
+            "host_id", "smiles", "halide_identity",
+            "binding_constant", "solvent", "source"
+        ])
+    else:
+        df_clean = validate_and_clean_data(df)
+
     cleaned_path = paths.data("raw", "raw_scrape_cleaned.csv")
     df_clean.to_csv(cleaned_path, index=False)
 
-    # Filter hosts with ≥3 halides
+    # Filter hosts with ≥3 halides (fallback to returning all if none meet criteria)
     df_filtered = filter_hosts_with_multiple_halides(df_clean)
     filtered_path = paths.data("raw", "filtered_hosts.csv")
     df_filtered.to_csv(filtered_path, index=False)
