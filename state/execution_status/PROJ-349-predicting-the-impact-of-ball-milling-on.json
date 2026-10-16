@@ -15,10 +15,10 @@
     "python -m src.utils.generate_report # creates results/summary.txt and figures -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.utils.generate_report"
   ],
   "fix_rounds": 0,
-  "model_tier": 1,
+  "model_tier": 2,
   "total_attempts": 11,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-10-16T13:25:21Z"
+  "updated_at": "2026-10-16T13:53:49Z"
 }

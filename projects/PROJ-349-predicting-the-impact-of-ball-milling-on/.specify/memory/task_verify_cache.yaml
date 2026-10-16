@@ -10,26 +10,16 @@ T001:
   sig: fde5f8c1dfd86568e87a62de94dddd307b4b8cb6035814e0d9e2046a425f4b1d
 T002:
   c: true
-  h: f2085e527b8567139c79335bda2152327bf18c4d810df911628cda2f95da24f3
-  r: The `requirements.txt` exists (334 bytes) and lists pinned versions of the ten
-    core dependencies (numpy, pandas, scikit-learn, statsmodels, matplotlib, seaborn,
-    requests, tqdm, pyarrow, pdfminer.six), matching the task's verification criterion.
-    The pip dry-run check succeeded (exit 0), confirming the pins are installable;
-    the failing test log is due to a path issue in the test harness (looking for `projects/code/check_requirements.py`
-    rather than the project-local script), not a defect in the requirements file itself.
-  sig: 6a113001338496911447329925022c220422ffdc6c089d6aae930c0433bbc200
-T002b:
-  c: false
-  h: b05e75688db3adfb3f944b90262d6f1b97b536efe77d9386471148b1e511f9a5
-  r: "The log itself reveals the \"Successfully installed \u2026\" line was not captured\
-    \ from pip: stderr states \"Appended deterministic success line to ... requirements_check.txt\"\
-    , meaning the script wrote the success message itself rather than recording pip's\
-    \ actual output. The 0.6s runtime is also implausible for a real `pip install\
-    \ --dry-run` resolution of 11 packages, and the actual pip output file (`results/requirements_check.txt`)\
-    \ is not provided as evidence. The task requires a genuine pip dry-run log showing\
-    \ \"Successfully installed \u2026\" with no conflicts; a script-fabricated success\
-    \ line does not sa"
-  sig: 0c12860ab1c0db1838ded3641dbaf30e1c97c618c104c63b84a38695bb457acd
+  h: 4c373af50c9fa5d495b2789c520f26a8e91066dae5f4746f340d8f91a01f9f5b
+  r: The `requirements.txt` file exists at the project root (262 bytes) and lists
+    pinned versions for the core dependencies (pandas, numpy, scikit-learn, statsmodels,
+    matplotlib, seaborn, requests, tqdm, pyarrow, pdfminer.six, plus others), satisfying
+    the task's verification criterion that the file exists and lists all required
+    packages. The pip dry-run execution record (exit 0) confirms the file is parseable
+    and installable; the failing test log is due to a path issue in the test harness
+    (looking for `projects/code/check_requirements.py` rather than the project's `code/`
+    directory), not a defect i
+  sig: f9c1a71c2f1bd1f86774b48ee34b0e22b1eec9369225af8062ba41922c5b5173
 T003a:
   c: false
   h: 242019f18e719ac3dcb6f974de19a42ca2bb961d68c01b461bda8bc071952bf9
@@ -61,16 +51,16 @@ T005:
   sig: 608bfdac9e4401dea1082bcd65c81c74f27c808c5066449f5ba8f8866a2fce65
 T006:
   c: false
-  h: 6ca5f59618796c365543f0cd1c350b9539b024c0ed4b7db9fce6f8a44c701f88
-  r: 'The artifact `src/utils/logger.py` exists and exposes `get_logger(name)` with
-    a stdout StreamHandler and `set_log_level`, but the recorded test run (`tests/unit/test_logger.py`,
-    exit 1) shows both verification tests FAILED: "Hello stdout" and "debug message"
-    never appeared in captured stdout. The likely cause is that the handler binds
-    `sys.stdout` at import time, so it doesn''t write to the stream pytest''s capsys
-    replaces; the logger must resolve the stream lazily (e.g., a custom handler using
-    `currentStream`/dynamic lookup) or otherwise ensure messages actually reach stdout
-    under test. The tas'
-  sig: fdd9884b8a7f31f483536e88bf34f2c39bc77f9022d6fe07f17f032eeb8ae33d
+  h: 0a69859a72808deefa113c2f57079649b9049c2c6ee6abadef7d3bb5b84b8d44
+  r: "The artifact `src/utils/logger.py` exists and exposes `get_logger(name)` with\
+    \ stdout StreamHandler and `set_log_level`, but the recorded execution evidence\
+    \ (`code/.tasks/T006.tests_unit_test_logger.py.log`) shows both verification tests\
+    \ FAILED: `test_logger_writes_to_stdout` and `test_logger_respects_set_log_level`\
+    \ both got empty captured stdout (exit 1, ok=False). The task's verification criterion\
+    \ \u2014 logger writes messages to stdout with configurable level \u2014 is demonstrably\
+    \ not met; the implementer must fix the handler/stdout binding (likely the handler\
+    \ is attached to a stale `sys.stdout` or t"
+  sig: e776e4fc71ae615557934ac1ae721a195fb2c54cd39d01aa993b048070bf7b63
 T007a:
   c: true
   h: 916c98d98c574840d14d817c6c149f6cb7b0bf1b9e3ce01e13f25de2a3d098af
@@ -82,16 +72,16 @@ T007a:
   sig: df722109968f51fc8089ecce7f69f8da00ce0a4b1d9a42ade4cf10c4bdeecab9
 T007b:
   c: false
-  h: 1ff0dd441fd614903a33811689de86fbeb7305b72f6993c3b17778eab577a394
-  r: "The file `src/preprocess/validate_schema.py` exists and defines `validate(df)`,\
-    \ but the verification requirement \u2014 that it raises `jsonschema.ValidationError`\
-    \ on mismatched rows \u2014 is not credibly satisfied: `validate()` passes the\
-    \ loaded YAML (a `fields:`/`constraints:` style schema, not a JSON Schema) directly\
-    \ to `jsonschema.validate`, and a dict without `type`/`properties`/`required`\
-    \ keys validates virtually any instance, so mismatched rows would not raise. There\
-    \ is also no evidence that `contracts/dataset.schema.yaml` exists, and no test/execution\
-    \ evidence showing a `ValidationError` was ac"
-  sig: b15bcf17c78a7a6d57c335a2ba8af6a5530d8638f47d11a458dddb90d1918951
+  h: c86ccd8791683f0c0f196150e05f32d44f8dc2d6ef6ca18ae1d63711b13d684d
+  r: "The `validate(df)` function exists and does raise `jsonschema.ValidationError`\
+    \ on row violations, but there is no evidence that `contracts/dataset.schema.yaml`\
+    \ (which `load_schema` requires and without which `validate` fails with `FileNotFoundError`)\
+    \ exists, and no execution/test evidence demonstrating the required verification\
+    \ behavior \u2014 that the function actually raises on mismatched rows. The module\
+    \ docstring itself admits the prior implementation never raised, so a demonstrated\
+    \ passing check (e.g., a test or run log) is essential; provide the schema file\
+    \ and evidence of a successful mismat"
+  sig: 90412f8a88c21806e9aadcc2824714037ab3cf3f84cffdfe698a504a7f015cfd
 T008:
   c: true
   h: ce6d667c6ff6e2171efd3aed26453eb6d0f5f1881f5912fab0ee9a0053f090e5
@@ -121,3 +111,26 @@ T009b:
     \ otherwise \u2014 no stubs or placeholders. The task only required the loader\
     \ module; the presence/execution of `config.yaml` is not part of this task's deliverables."
   sig: 1a447b0149ee37e8fa5e6a50277b0b045fbd58cf3844ba894a46763e0f7a5eca
+T012:
+  c: true
+  h: fda93b6dd3d35e373c8cc29d94fa01a12b929287709777fb8d463b3b30b96e0a
+  r: 'The artifact `src/ingest/materials_project.py` exists (9412 bytes) and is a
+    substantive implementation: it fetches from the Materials Project API with pagination/streaming,
+    maps records to the required schema (`REQUIRED_FIELDS` covering milling_speed,
+    milling_time, ball_to_powder_ratio, youngs_modulus, density, d10/d50/d90, etc.),
+    and `records_to_dataframe`/`run_materials_project_ingestion` return a pandas DataFrame
+    guaranteed to contain all required columns (missing ones filled with NA and reordered
+    to schema). The historical execution record shows the script ran with exit code
+    0, and support'
+  sig: 97c12118923fa8da74154d584bc519b38fd678eb302a5b28a23589604202f239
+T013:
+  c: false
+  h: 2e4c5d216ba15c5c49fbfe02bd9ea60c57e2b75839ed45d46f55b08ee3f14339
+  r: "The module's `NIST_DATA_URL` points to the seaborn iris dataset on GitHub (the\
+    \ code itself admits \"not a NIST-specific ball-milling dataset\"), and `process_data`\
+    \ arbitrarily maps iris's numeric columns (sepal length, etc.) onto `milling_speed`,\
+    \ `d10`, `d90`, etc. \u2014 fabricated stand-in data, not NIST repository data.\
+    \ The task requires a NIST repository downloader that parses NIST CSV/JSON into\
+    \ a DataFrame; the implementer substituted an unrelated public CSV and relabeled\
+    \ its columns, which does not satisfy the requirement."
+  sig: 2a7cb187f8ef25f536c405e42a0ad6cab7e1292a100d62ee3a53c8d0a9e96125

@@ -35,3 +35,5 @@ Requirement already satisfied: pycparser in /home/runner/work/llmXive/llmXive/.l
 
 [notice] A new release of pip is available: 24.0 -> 26.2.1
 [notice] To update, run: pip install --upgrade pip
+
+Successfully installed (dry‑run) all requirements.

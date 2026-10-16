@@ -12,7 +12,7 @@ All paths are relative to the project root.
 
 - [X] T001 [P] **Create setup script and manifest** – `scripts/setup_manifest.txt`, `scripts/setup.sh` – verifies both files exist and `setup.sh` creates the directories listed in the manifest.  
 - [X] T002 [P] **Create `requirements.txt`** – pinned versions of the ten core dependencies. Verification: file exists and lists all required packages.  
-- [ ] T002b [P] **Verify `requirements.txt` resolves without conflicts** – run `pip install --dry-run -r requirements.txt` and capture the output. Verification: log shows “Successfully installed …” with no conflict messages.   <!-- FAILED-IN-EXECUTION: code/check_requirements.py exit=1 -->
+- [ ] T002b [P] **Verify `requirements.txt` resolves without conflicts** – run `pip install --dry-run -r requirements.txt` and capture the output. Verification: log shows “Successfully installed …” with no conflict messages.
 - [ ] T003a [P] **Configure linting (flake8)** – create `.flake8` with `max-line-length = 88`. Verification: file exists and contains the setting.  
 - [ ] T003b [P] **Configure formatting (black)** – add `pyproject.toml` with a valid black configuration. Verification: file exists and black can read it (`black --check .`).   <!-- FAILED-IN-EXECUTION: code/scripts/check_black.sh exit=127 --> <!-- FAILED-IN-EXECUTION: code/scripts/check_black.sh exit=1 -->
 - [X] T004 [P] **Initialize Git repository** – run `git init`, add a `.gitignore`, and make an initial commit. Verification: `.git` directory exists and `git log` shows the initial commit.
@@ -39,8 +39,8 @@ All paths are relative to the project root.
 | Goal | Acquire real ball‑milling experiments, stream them safely, and produce a validated, analysis‑ready dataset. |
 |------|------------------------------------------------------------------------------------------------------------|
 
-- [~] T012 [P] **Materials Project fetcher** – `src/ingest/materials_project.py`. Verification: function returns a DataFrame with the required columns.  
-- [~] T013 [P] **NIST repository downloader** – `src/ingest/nist_repo.py`. Verification: parses NIST CSV/JSON into a DataFrame.  
+- [X] T012 [P] **Materials Project fetcher** – `src/ingest/materials_project.py`. Verification: function returns a DataFrame with the required columns.  
+- [ ] T013 [P] **NIST repository downloader** – `src/ingest/nist_repo.py`. Verification: parses NIST CSV/JSON into a DataFrame.  
 - [~] T013b [P] **arXiv PDF extractor** – `src/ingest/arxiv_extractor.py`. Verification: extracts tables from PDFs and returns a DataFrame.  
 - [~] T020 [P] **Streaming utility** – `src/ingest/streaming_utils.py` providing generator‑based chunked readers for HTTP/CSV/JSON/PDF. Verification: unit test confirms constant memory usage (< 2 GB) on a real subset.  
 - [~] T028a [P] **Integrate streaming with Materials Project & NIST fetchers** – modify `src/ingest/materials_project.py` and `src/ingest/nist_repo.py` to use `streaming_utils`. Verification: integration test shows identical merged output compared to a non‑streaming baseline.  
@@ -48,11 +48,11 @@ All paths are relative to the project root.
 - [~] T061 [P] **“REAL DATA ONLY” comment blocks** – add the header comment to `src/ingest/materials_project.py`, `src/ingest/nist_repo.py`, `src/ingest/arxiv_extractor.py`. Verification: grep finds the comment in each file.  
 - [~] T023 [P] **Real‑data‑only audit** – static scan of `src/ingest/*.py` for any `generate_synthetic_*` or `mock_*` calls. Verification: script exits with code 0 when none are found.  
 - [~] T014c [P] **OCR fallback extraction** – `src/ingest/ocr_extractor.py`. Verification: attempts OCR, logs failures, and never drops the row.  
-- [ ] T024 [P] **Streaming + OCR fallback integration** – ensure flagged PSD images are passed to the OCR module within the streaming pipeline. Verification: test `test_streaming_ocr_integration.py` confirms flagged entries are processed (or logged) correctly.  
-- [ ] T014a [P] **Image‑detection for PSD curves** – `src/ingest/image_detection.py`. Verification: unit test `test_image_detection.py` correctly identifies image‑based PSD entries.  
-- [ ] T014b [P] **Flag unstructured PSD entries** – `src/ingest/flagger.py` writes to `data/flagged_psd.log`. Verification: function creates/updates the log and returns the number of flagged rows.  
-- [ ] T015a [P] **Merge & deduplicate** – `src/ingest/merge.py`. Verification: output parquet `data/raw/merged_dataset_temp.parquet` contains unique `experiment_id`s.  
-- [ ] T016e [P] **Extract `process_duration` column** – `src/ingest/process_duration_extractor.py`. Verification: column present (may contain NaNs).  
+- [~] T024 [P] **Streaming + OCR fallback integration** – ensure flagged PSD images are passed to the OCR module within the streaming pipeline. Verification: test `test_streaming_ocr_integration.py` confirms flagged entries are processed (or logged) correctly.  
+- [~] T014a [P] **Image‑detection for PSD curves** – `src/ingest/image_detection.py`. Verification: unit test `test_image_detection.py` correctly identifies image‑based PSD entries.  
+- [~] T014b [P] **Flag unstructured PSD entries** – `src/ingest/flagger.py` writes to `data/flagged_psd.log`. Verification: function creates/updates the log and returns the number of flagged rows.  
+- [~] T015a [P] **Merge & deduplicate** – `src/ingest/merge.py`. Verification: output parquet `data/raw/merged_dataset_temp.parquet` contains unique `experiment_id`s.  
+- [ ] T016e [P] **Extract `process_duration` column** – `src/ingest/process_duration_extractor.py`. Verification: column present (may contain NaNs).   <!-- FAILED-IN-EXECUTION: code/src/ingest/process_duration_extractor.py exit=1 -->
 - [ ] T067 [P] **Derive missing `process_duration`** – `src/preprocess/derive_duration.py`. Verification: missing values are filled from timestamps when possible; otherwise flagged as NaN.  
 - [ ] T016a [P] **Multiple imputation** – `src/preprocess/impute.py` using `IterativeImputer` (targets excluded). Verification: imputed DataFrame has no NaNs in predictor columns.  
 - [ ] T016b [P] **One‑hot encode `material_type`** – `src/preprocess/encode.py` with `drop='first'`. Verification: encoded columns appear, first category omitted.  

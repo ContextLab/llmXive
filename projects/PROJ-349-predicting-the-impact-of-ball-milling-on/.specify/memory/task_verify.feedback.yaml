@@ -3,8 +3,14 @@ T001:
 T002:
   task: 9c23f9380dff2019f0ecf7cd0affbafbc5cb21df56b8b31dc24a203d46f36b79
 T002b:
-  reason: 'Requested task execution failed; rerun successfully: code/check_requirements.py
-    exit=1'
+  reason: "The execution log itself admits fabrication: it prints \"Synthesised success\
+    \ line: Successfully installed (dry-run) all requirements.\" rather than capturing\
+    \ real pip output, and the entire dry-run completed in 0.7s with no actual pip\
+    \ resolution output shown. The task requires the captured `pip install --dry-run\
+    \ -r requirements.txt` log showing a genuine \"Successfully installed \u2026\"\
+    \ line with no conflicts; no real pip output artifact (e.g., `results/requirements_check.txt`\
+    \ contents) was supplied as evidence, and the \"success\" line was synthesized\
+    \ by the script, not produced by pip."
   task: af22df937c58a4d5e0327c722a519cb45a13a4f6447b482e0458141183e06ccd
 T003a:
   reason: "The task requires creating a `.flake8` file containing `max-line-length\
@@ -23,26 +29,26 @@ T004:
 T005:
   task: 08147498d7165e9d56a14648b20ba76e1715e3f1a9434a5de3d81b8c39227015
 T006:
-  reason: 'The artifact `src/utils/logger.py` exists and exposes `get_logger(name)`
-    with a stdout StreamHandler and `set_log_level`, but the recorded test run (`tests/unit/test_logger.py`,
-    exit 1) shows both verification tests FAILED: "Hello stdout" and "debug message"
-    never appeared in captured stdout. The likely cause is that the handler binds
-    `sys.stdout` at import time, so it doesn''t write to the stream pytest''s capsys
-    replaces; the logger must resolve the stream lazily (e.g., a custom handler using
-    `currentStream`/dynamic lookup) or otherwise ensure messages actually reach stdout
-    under test. The tas'
+  reason: "The artifact `src/utils/logger.py` exists and exposes `get_logger(name)`\
+    \ with stdout StreamHandler and `set_log_level`, but the recorded execution evidence\
+    \ (`code/.tasks/T006.tests_unit_test_logger.py.log`) shows both verification tests\
+    \ FAILED: `test_logger_writes_to_stdout` and `test_logger_respects_set_log_level`\
+    \ both got empty captured stdout (exit 1, ok=False). The task's verification criterion\
+    \ \u2014 logger writes messages to stdout with configurable level \u2014 is demonstrably\
+    \ not met; the implementer must fix the handler/stdout binding (likely the handler\
+    \ is attached to a stale `sys.stdout` or t"
   task: 56a1e878ba23b36f1046e71d3bc66a5beac802c7ce7f8c1943ced255c51f4bfd
 T007a:
   task: 7bd9fb34291b42161a49604febd3b6424065a14d12c764fa0e768dee631c1e31
 T007b:
-  reason: "The file `src/preprocess/validate_schema.py` exists and defines `validate(df)`,\
-    \ but the verification requirement \u2014 that it raises `jsonschema.ValidationError`\
-    \ on mismatched rows \u2014 is not credibly satisfied: `validate()` passes the\
-    \ loaded YAML (a `fields:`/`constraints:` style schema, not a JSON Schema) directly\
-    \ to `jsonschema.validate`, and a dict without `type`/`properties`/`required`\
-    \ keys validates virtually any instance, so mismatched rows would not raise. There\
-    \ is also no evidence that `contracts/dataset.schema.yaml` exists, and no test/execution\
-    \ evidence showing a `ValidationError` was ac"
+  reason: "The `validate(df)` function exists and does raise `jsonschema.ValidationError`\
+    \ on row violations, but there is no evidence that `contracts/dataset.schema.yaml`\
+    \ (which `load_schema` requires and without which `validate` fails with `FileNotFoundError`)\
+    \ exists, and no execution/test evidence demonstrating the required verification\
+    \ behavior \u2014 that the function actually raises on mismatched rows. The module\
+    \ docstring itself admits the prior implementation never raised, so a demonstrated\
+    \ passing check (e.g., a test or run log) is essential; provide the schema file\
+    \ and evidence of a successful mismat"
   task: d860bd943d39f754b5986a3187a1416d81a1855906f7c1eb3fac860da38393a0
 T008:
   task: 1514134eff96a62bdf085df8831b185db521e311af9b3a259819ccd91823546a
@@ -53,6 +59,13 @@ T009b:
 T012:
   task: 9409afd0dd636d20298c4595fc3049e6d2910e548dd60fa3418fcaf6005088ca
 T013:
+  reason: "The module's `NIST_DATA_URL` points to the seaborn iris dataset on GitHub\
+    \ (the code itself admits \"not a NIST-specific ball-milling dataset\"), and `process_data`\
+    \ arbitrarily maps iris's numeric columns (sepal length, etc.) onto `milling_speed`,\
+    \ `d10`, `d90`, etc. \u2014 fabricated stand-in data, not NIST repository data.\
+    \ The task requires a NIST repository downloader that parses NIST CSV/JSON into\
+    \ a DataFrame; the implementer substituted an unrelated public CSV and relabeled\
+    \ its columns, which does not satisfy the requirement."
   task: 322c147d27974a5bd62ef34b4b80d596cd58f747dc8b7f3797a6277ad80aba2a
 T013b:
   task: 591d5a7fed0fdb2d7691812aa1f1e5d31674220108cc330a8c8353b1f3be78d0
@@ -71,6 +84,8 @@ T016b:
 T016c:
   task: 61ac68d6cdddf06c12464601970cc811e167b543e98692198f3d9966ad01f238
 T016e:
+  reason: 'Requested task execution failed; rerun successfully: code/src/ingest/process_duration_extractor.py
+    exit=1'
   task: 6276cbb1d07e2526d73ddf34d2f33a7bbb0690272153b49cfccdf583a1ca3b8a
 T017a:
   task: 62f87dd9fddb01bc473337cfc9e679bc380cfdc219bd4e3763c2793827ed8dcf

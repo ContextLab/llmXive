@@ -1,7 +1,0 @@
-{
-  "task_id": "T024",
-  "fingerprint": "0155a9bcdc52733ba534a4b6084e0947b866e8c3b29f7d226ef803433ce4032e",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'code/src/ingest/streaming_ocr_integration.py': imports nonexistent names from sibling files: `from src.ingest.ocr_extractor import extract_text` (available: DataIngestionError, Optional, Path, _NUMBER_RE, _attempt_ocr_on_image, _extract_numbers_from_text, _parse_args, argparse...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}
