@@ -1,17 +1,19 @@
 status: verified
 kind: pypi_package
 ref: qm9pack
-access_python: 'from qm9pack import get_data
+access_python: 'import pandas as pd
+
+  from qm9pack import get_data
 
 
-  # Load the full QM9 dataset (the typical dataset name is ''qm9'')
+  data = get_data(''qm9'')
 
-  df = get_data(''qm9'')
+  df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
 
 
   print(f"RECORDS={len(df)}")
 
-  print("FIELDS=" + ",".join(df.columns.tolist()))'
+  print("FIELDS=" + ",".join(df.columns))'
 record_count: 130831
 sample_fields:
 - XYZ_file
@@ -45,14 +47,15 @@ sample_fields:
 - A_xz
 - A_yz
 - A_zz
-field_coverage: 0.571
+field_coverage: 0.5
 required_fields:
 - InChIKey
 - SMILES
+- MoleculeID
 - dipole_moment
 - polarizability
 - homo_lumo_gap
 - ir_wavenumbers
 - ir_intensities
-intent: download QM9 dataset and QM9 IR spectra aligned dataset python package dataset
-cache_key: d4ad9b36e19cb24d0bd86a7d365e7dc8551a08a77e52ac5b3c9f0e41f65bc231
+intent: download QM9 dataset and QM9-IR infrared spectra python package dataset
+cache_key: f3f11379bed345f8e2ac6b58a9d378d7fd348ee19783f25d6d1dea8b4217361c

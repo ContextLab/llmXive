@@ -29,26 +29,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py download -> rc=1
-n
-    qm9_path = download_qm9()
-               ^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/download.py", line 17, in download_qm9
-    import qm9pack
-ModuleNotFoundError: No module named 'qm9pack'
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 267, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 251, in main
-    run_download(args)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/main.py", line 150, in run_download
-    download_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/download.py", line 61, in main
-    qm9_path = download_qm9()
-               ^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/download.py", line 17, in download_qm9
-    import qm9pack
-ModuleNotFoundError: No module named 'qm9pack'
+ties-from-vib/code/data/download.py", line 23, in download_qm9
+    df.to_parquet(out_path)
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/util/_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 3113, in to_parquet
+    return to_parquet(
+           ^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 476, in to_parquet
+    impl = get_engine(engine)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
+    raise ImportError(
+ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python code/main.py preprocess -> rc=1
 File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocess.py", line 96, in main
@@ -69,13 +67,13 @@ Trying to import the above resulted in these errors:
  - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 12:10:46 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 14:13:32 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 12:10:47 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 14:13:34 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
@@ -124,13 +122,14 @@ Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A 
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
+import pandas as pd
 from qm9pack import get_data
 
-# Load the full QM9 dataset (the typical dataset name is 'qm9')
-df = get_data('qm9')
+data = get_data('qm9')
+df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
 
 print(f"RECORDS={len(df)}")
-print("FIELDS=" + ",".join(df.columns.tolist()))
+print("FIELDS=" + ",".join(df.columns))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
