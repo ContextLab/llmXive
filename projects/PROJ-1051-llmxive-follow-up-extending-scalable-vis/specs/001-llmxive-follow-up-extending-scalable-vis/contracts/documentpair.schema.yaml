@@ -3,56 +3,30 @@ title: DocumentPair
 type: object
 required:
   - doc_id
-  - plain_text
-  - layout_annotations
-  - image_path
-  - source
+  - text
+  - label
+  - source_url
+  - row_index
 properties:
   doc_id:
     type: string
-    description: "Unique identifier for the page."
-  plain_text:
+    description: "Unique identifier for the corpus row."
+  text:
     type: string
-    description: "Plain text extracted from the page."
-  layout_annotations:
+    description: "Plain text content of the document (non-empty)."
+    minLength: 1
+  label:
+    type: number
+    description: "Overlap / CPU-score label used for downstream evaluation."
+  source_url:
+    type: string
+    description: "Canonical verified dataset URL the row was downloaded from."
+  row_index:
+    type: integer
+    description: "Original row index in the raw parquet."
+  structural_latent:
     type: array
-    description: "List of bounding‑box annotations."
-    items:
-      type: object
-      required:
-        - type
-        - x0
-        - y0
-        - x1
-        - y1
-      properties:
-        type:
-          type: string
-          enum: [text_block, table]
-          description: "Element type."
-        x0:
-          type: number
-          description: "Normalized left coordinate."
-        y0:
-          type: number
-          description: "Normalized top coordinate."
-        x1:
-          type: number
-          description: "Normalized right coordinate."
-        y1:
-          type: number
-          description: "Normalized bottom coordinate."
-  image_path:
-    type: string
-    description: "Filesystem path to the raw scanned image (PNG/JPEG)."
-  source:
-    type: string
-    enum: [real]
-    description: "Provenance of the document (always real in this project)."
-  visual_latent:
-    type: array
-    description: "Optional 512‑dimensional latent vector from frozen visual encoder."
-    minItems: 512
-    maxItems: 512
+    description: "Optional deterministic structural feature vector (distillation target). Dimension D is fixed by the extractor and recorded in provenance.json."
+    minItems: 1
     items:
       type: number

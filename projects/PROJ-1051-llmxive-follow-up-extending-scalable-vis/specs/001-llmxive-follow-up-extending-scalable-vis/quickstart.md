@@ -1,103 +1,55 @@
-# Quickstart: llmXive follow-up: extending "Scalable Visual Pretraining for Language Intelligence"
+# Quickstart: llmXive follow-up (Re-plan v3)
 
-This guide walks a fresh GitHub Actions runner through the complete end‑to‑end pipeline.
-
-## 1. Setup Environment
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-
-# Install exact dependencies
+# 1. Environment
+python -m venv .venv && source .venv/bin/activate
 pip install -r code/requirements.txt
-```
 
-## 2. Verify Data Availability
-```bash
+# 2. Download & verify the real dataset (single verified URL)
 python -m src.data.download \
-    --dataset-name layout_corpus \
-    --output-dir data/raw
-```
-*Programmatically fetches the layout-aware corpus (text + images + layout) using `datasets.load_dataset`. If the dataset is unavailable, the script exits with a clear error message.*
+  --url https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet \
+  --output data/raw/mixsub_overlap.parquet \
+  --provenance data/raw/provenance.json
+# Exits non-zero with a clear message if download fails, checksum mismatch,
+# or row count < minimum (FR-007). Records column inventory + label semantics.
 
-## 3. Preprocess Documents
-```bash
+# 3. Preprocess (schema validation; skips+logs invalid rows)
 python -m src.data.preprocess \
-    --input-dir data/raw/layout_corpus \
-    --output-parquet data/processed/document_pairs.parquet \
-    --schema contracts/documentpair.schema.yaml
-```
-*Validates each record against the schema, ensures image accessibility, and writes a Parquet file, logging any rows with missing layout annotations.*
+  --input data/raw/mixsub_overlap.parquet \
+  --output data/processed/document_pairs.parquet \
+  --schema contracts/documentpair.schema.yaml
 
-## 4. Generate Visual Latents (CPU‑only)
-```bash
-python -m src.data.latent_generator \
-    --input-parquet data/processed/document_pairs.parquet \
-    --output-parquet data/processed/document_pairs_with_latent.parquet \
-    --encoder-name resnet18 \
-    --device cpu
-```
-*Runs ResNet-18 inference and performs a construct validity check (correlation with layout complexity) before saving latents.*
+# 4. Structural latent generation (deterministic, CPU) + non-degeneracy gate
+python -m src.features.structure \
+  --input data/processed/document_pairs.parquet \
+  --output data/processed/document_pairs_with_latent.parquet
+# Exits non-zero with a clear scope-mismatch error if the structural feature
+# matrix is degenerate (after the newline-free feature fallback).
 
-## 5. Create Consistent Train/Val/Test Splits
-```bash
+# 5. Splits
 python -m src.utils.split_generator \
-    --input-parquet data/processed/document_pairs_with_latent.parquet \
-    --output-dir data/splits \
-    --seed 42 \
-    --train-ratio 0.8 --val-ratio 0.1 --test-ratio 0.1
-```
+  --input data/processed/document_pairs_with_latent.parquet \
+  --output-dir data/splits --seed 42
 
-## 6. Train Distilled Model (multiple seeds)
-```bash
-for SEED in {42..71}; do
-  python -m src.models.distilled \
-      --data-parquet data/processed/document_pairs_with_latent.parquet \
-      --splits-dir data/splits \
-      --seed $SEED \
-      --output-dir artifacts/models/distilled_$SEED \
-      --max-epochs 5 \
-      --batch-size 32
+# 6. Train student + per-seed re-trained baseline across seeds
+for SEED in 42 43 44 45 46 47 48 49 50 51; do
+  python -m src.models.distilled  --data data/processed/document_pairs_with_latent.parquet --splits data/splits --seed $SEED --out artifacts/models/distilled_$SEED
+  python -m src.models.baseline   --data data/processed/document_pairs_with_latent.parquet --splits data/splits --seed $SEED --out artifacts/models/baseline_$SEED
 done
-```
 
-## 7. Train Baseline Models (multiple seeds, random projection head)
-```bash
-for SEED in {42..71}; do
-  python -m src.models.baseline \
-      --data-parquet data/processed/document_pairs.parquet \
-      --splits-dir data/splits \
-      --seed $SEED \
-      --output-dir artifacts/models/baseline_$SEED \
-      --max-epochs 5 \
-      --batch-size 32
-done
-```
-*The baseline uses a frozen random projection head to match the augmented model's capacity.*
-
-## 8. Download Downstream Benchmark (DocVQA)
-```bash
-python -m src.data.download \
-    --dataset-name docvqa \
-    --output-dir data/raw/docvqa
-```
-
-## 9. Downstream Evaluation (Val/Test Split)
-```bash
+# 7. Leakage pre-check + downstream evaluation + statistics (val-tuned, test-reported)
 python -m src.eval.downstream \
-    --distilled-dir artifacts/models/distilled_*/ \
-    --baseline-dir artifacts/models/baseline_*/ \
-    --test-data data/raw/docvqa/test.parquet \
-    --val-data data/raw/docvqa/val.parquet \
-    --results-path artifacts/eval/downstream_results.json
-```
-*Tunes hyperparameters on the validation set and reports final metrics on the test set, including paired statistical tests and independence checks.*
+  --models artifacts/models --splits data/splits \
+  --results artifacts/eval/results.json
+# Runs the label-semantics/leakage pre-check first; if the label is a trivial
+# function of the input text, results.json records the leakage finding and no
+# augmented-vs-baseline gain is claimed.
 
-## 10. Inspect Results
-```bash
-cat artifacts/eval/downstream_results.json | python -m json.tool
+# 8. Inspect results (single source of truth)
+python -m json.tool artifacts/eval/results.json
+
+# 9. Contract tests
+pytest tests/ -k contract
 ```
 
-## 11. Reproducibility Check
-```bash
-pytest -k "contract" tests/
-```
+Note: the visual-encoder / image-latent component of the original spec is not executed — no verified dataset provides page images or layout annotations, and FR-008's independence claim is not executable in the reframed design (the latent is a function of the text by construction). See the Scope Revision and Required spec amendments sections of `plan.md`.

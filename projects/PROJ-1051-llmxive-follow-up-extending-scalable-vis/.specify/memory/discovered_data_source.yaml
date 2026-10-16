@@ -1,13 +1,13 @@
 status: none
-intent: DocBank scientific document layout dataset with DocVQA benchmark python package
-  dataset
+intent: download DocBank scientific document dataset with layout annotations and DocVQA
+  reference python package dataset
 required_fields:
 - document_id
-- page_image_path
-- extracted_text
-- layout_bbox_coordinates
-- layout_element_type
 - page_number
-cache_key: 74d373de841c073f29ab77233dc322dd1455f17e8ebd819e380a0dc64ba81237
-searched_at: '2026-10-16T16:19:06.355950+00:00'
+- text
+- layout_boxes
+- layout_labels
+- image_path
+cache_key: daf135ad168326fdeb023716e782e4956c0310f803e6add2b493a42332985bf1
+searched_at: '2026-10-16T16:25:10.054528+00:00'
 retry_count: 1
