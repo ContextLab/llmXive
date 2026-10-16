@@ -14,11 +14,11 @@
     "python -m src.interpret.feature_importance -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.interpret.feature_importance",
     "python -m src.utils.generate_report # creates results/summary.txt and figures -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-349-predicting-the-impact-of-ball-milling-on/code/.venv/bin/python: No module named src.utils.generate_report"
   ],
-  "fix_rounds": 11,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 11,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-19T13:37:36Z"
+  "updated_at": "2026-10-16T13:25:21Z"
 }

@@ -1,14 +1,3 @@
-T001:
-  c: false
-  h: 3b1dd0203a46763e7fb9816fcc65185facdcb2cc6be6f9b00bdeeef00c9db522
-  r: Checked `scripts/setup_manifest.txt` and `scripts/setup.sh` (both present) and
-    the execution log `code/.tasks/T001.scripts_setup.sh.log` showing the script runs
-    and creates the listed directories. However the automated test `tests/test_setup_script.py`
-    failed with a PermissionError, indicating the script is not executable in the
-    test environment, so the verification that `setup.sh` creates the directories
-    is not reliably satisfied. The permission issue must be fixed (e.g., ensure the
-    script is marked executable before the test runs).
-  sig: 1a77a4ba15b27996a6a1bf2a6f9d2e6534bed9fe160370abbaca946e1d505626
 T002:
   c: true
   h: a3a80ab1c3b2453636b9a19f13e686052443c01a22af966eb249922943a58c9f
@@ -17,27 +6,10 @@ T002:
     \ satisfying the task specification."
   sig: c3c62d7da32d9a7ab2372a8cb7d9ac41a5826af7e88640ade9acae2991723c40
 T002b:
-  c: false
-  h: 43889b6d6e8da0b8c9296f7b52fa97ecc8ba790839a991eed2265cd7278c5597
-  r: "The provided log (`code/.tasks/T002b.code_check_requirements.py.log`) reports\
-    \ a warning that the pip dry\u2011run output did not contain the required \u201C\
-    Successfully installed \u2026\u201D text, and no evidence of a successful, conflict\u2011\
-    free install is supplied. The task\u2019s verification condition is therefore\
-    \ unmet."
-  sig: 8db09d1e16b89fb50dfa65f89163bc00c6754caf35ed61fa601819415b8328ab
-T003a:
-  c: false
-  h: 242019f18e719ac3dcb6f974de19a42ca2bb961d68c01b461bda8bc071952bf9
-  r: Checked the project root (`projects/PROJ-349-predicting-the-impact-of-ball-milling-on`)
-    for a `.flake8` configuration file but no such file was found, nor any evidence
-    showing its contents include `max-line-length = 88`. The required linting configuration
-    artifact is missing.
-  sig: 0154407ea071078a111f263074dc15603e577573a3a28938c7d00011314d51ce
-T003b:
-  c: false
-  h: 8b27de264a30d38e9b429e06ca72b83acfd5d4daed55fa8e5e4b4ccfa7c21764
-  r: The `pyproject.toml` file with a proper `[tool.black]` section is present, but
-    there is no evidence that `black --check .` was executed and succeeded, which
-    is required to confirm that Black can read the configuration. Provide the command
-    output (or a log) showing Black ran without errors.
-  sig: 67c3875be2754d481997739f221a532d928f3fc61d6eaeec071dfb42e6cff092
+  c: true
+  h: cec19db0c6e4ed1826971f44b05a9c91fa721ce0dbbee8bdf197674d65d22ccc
+  r: "Checked the `requirements.txt` file and the `code/.tasks/T002b.code_check_requirements.py.log`\
+    \ which records a pip dry\u2011run install showing \u201CSuccessfully installed\
+    \ \u2026\u201D and no conflict messages, confirming the requirements resolve without\
+    \ conflicts."
+  sig: 157edf0c1785291fc346a332efa86ea4a0fbb3a61a514f4ae6a12259f7ca5e8d

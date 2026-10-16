@@ -1,7 +1,10 @@
 status: none
-intent: ball milling experimental data Materials Project NIST Materials Data Repository
-  arXiv python package dataset
+intent: Materials Project NIST Materials Data Repository arXiv ball milling dataset
+  python package dataset
 required_fields:
+- experiment_id
+- source_type
+- source_id
 - milling_speed_rpm
 - milling_time_hours
 - ball_to_powder_ratio
@@ -11,7 +14,6 @@ required_fields:
 - process_duration_hours
 - D10
 - D50
-- D90
-cache_key: 306aa1a02504e6e0c2dc323dc692294cbf783fc1f3316e8d07b4cafa71b960c4
-searched_at: '2026-10-16T13:22:08.489386+00:00'
+cache_key: 4be24a278281febec4bd65f5f48c89d8f4b8b26ffe02945142c5d28c97700bac
+searched_at: '2026-10-16T13:25:19.146020+00:00'
 retry_count: 1

@@ -6,10 +6,9 @@
 # ------------------------------------------------------------
 set -e  # Exit immediately if a command exits with a non-zero status.
 
-# Run Black in check mode on the repository root.
-# The command will output the formatting status; any violations will
-# cause a non‑zero exit code, which makes the task fail.
-black --check .
+# Use the module entrypoint to ensure Black is invoked from the
+# project virtual environment, even if the `black` CLI is not on PATH.
+python -m black --check .
 
 # If we reach this point, Black succeeded.
 echo "Black formatting check passed."

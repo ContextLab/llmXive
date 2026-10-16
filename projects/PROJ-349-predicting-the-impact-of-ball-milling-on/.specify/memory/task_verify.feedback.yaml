@@ -10,11 +10,6 @@ T001:
 T002:
   task: 9c23f9380dff2019f0ecf7cd0affbafbc5cb21df56b8b31dc24a203d46f36b79
 T002b:
-  reason: "The provided log (`code/.tasks/T002b.code_check_requirements.py.log`) reports\
-    \ a warning that the pip dry\u2011run output did not contain the required \u201C\
-    Successfully installed \u2026\u201D text, and no evidence of a successful, conflict\u2011\
-    free install is supplied. The task\u2019s verification condition is therefore\
-    \ unmet."
   task: af22df937c58a4d5e0327c722a519cb45a13a4f6447b482e0458141183e06ccd
 T003a:
   reason: Checked the project root (`projects/PROJ-349-predicting-the-impact-of-ball-milling-on`)
