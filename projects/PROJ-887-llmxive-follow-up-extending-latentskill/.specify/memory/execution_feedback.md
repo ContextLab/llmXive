@@ -8,104 +8,89 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/reports/summary.md: synthetic/fake INPUT data not authorized by the spec — “…nce of weight files. - **Synthetic Data**: **Strictly Prohibited…”
 - code/scripts/generate_dummy_index.py: synthetic/fake INPUT data not authorized by the spec — “…red dependency file with dummy data. """ import os import sy…”
-
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python src/evaluation/runner.py  --vectors data/processed/skill_vectors.npy  --metadata data/processed/skill_metadata.json  --tasks data/raw/composite_tasks.json  --runs 5  --output data/results/eval_log.csv`
-  - script usage: `runner.py [-h] --adapter ADAPTER --task TASK --output OUTPUT`
-  - argparse error: `runner.py: error: the following arguments are required: --adapter, --task`
+- code/src/evaluation/audit_data_integrity.py: synthetic/fake INPUT data not authorized by the spec — “…and data/processed/ for synthetic data or placeholders. Confirm…”
+- code/src/evaluation/audit_data_integrity.py: synthetic/fake INPUT data not authorized by the spec — “…"""Audit a directory for synthetic data or placeholders."""…”
+- src/evaluation/run_sensitivity_sweep.py: synthetic/fake INPUT data not authorized by the spec — “…# Since T022g generated synthetic pairs, we assume they ha…”
+- src/ingestion/generate_synthetic_proxy.py: synthetic/fake INPUT data not authorized by the spec — “…""" T012c: Generate Synthetic Proxy for LoRA Weights.…”
+- src/ingestion/generate_synthetic_proxy.py: synthetic/fake INPUT data not authorized by the spec — “…e status is "failed", it generates synthetic LoRA-like weight matrice…”
+- src/ingestion/generate_synthetic_proxy.py: synthetic/fake INPUT data not authorized by the spec — “…c_weights():     """     Generate synthetic LoRA A and B matrices.…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/scripts/generate_dummy_index.py: synthetic/fake INPUT data not authorized by the spec — “…red dependency file with dummy data. """ import os import sy…”; 4 command(s) failed: python src/ingestion/download_weights.py --output data/raw (rc=1); python src/ingestion/flatten_lora.py --input data/raw --output data/processed (rc=1); python src/evaluation/runner.py  --vectors data/processed/skill_vectors.npy  --metadata data/processed/skill_metadata.json  --tasks data/raw/composite_tasks.json  --runs 5  --output data/results/eval_log.csv (rc=2); 2 declared deliverable(s) absent: data/processed/skill_index.npz; data/results/stats_report.json
+**Summary**: 15 fabricated/simulated-result signal(s) — results are not real measurements: code/reports/summary.md: synthetic/fake INPUT data not authorized by the spec — “…nce of weight files. - **Synthetic Data**: **Strictly Prohibited…”; code/scripts/generate_dummy_index.py: synthetic/fake INPUT data not authorized by the spec — “…red dependency file with dummy data. """ import os import sy…”; code/src/evaluation/audit_data_integrity.py: synthetic/fake INPUT data not authorized by the spec — “…and data/processed/ for synthetic data or placeholders. Confirm…”; 4 run-book script(s) missing (plan/impl path mismatch): python code/main.py --step ingest; python code/main.py --step evaluate; python code/main.py --step report; 4 declared deliverable(s) absent: data/processed/skill_index.npz; data/processed/weights_flattened.npz; data/results/linearity_validation.json
 
 ## Failing / missing run-book commands
 
-- python src/ingestion/download_weights.py --output data/raw -> rc=1
-    2026-08-19 07:51:38,542 - __main__ - INFO - Starting LoRA weights download and validation
+- python -c "import torch, transformers, sentence_transformers; print('All deps OK')" -> rc=1
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-887-llmxive-follow-up-extending-latentskill/src/ingestion/download_weights.py", line 256, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-887-llmxive-follow-up-extending-latentskill/src/ingestion/download_weights.py", line 223, in main
-    ensure_directories()
-TypeError: ensure_directories() missing 1 required positional argument: 'paths'
-- python src/ingestion/flatten_lora.py --input data/raw --output data/processed -> rc=1
-    2026-08-19 07:51:38,665 - __main__ - ERROR - Flatten and normalize failed: 'PosixPath' object is not iterable
-- python src/evaluation/runner.py  --vectors data/processed/skill_vectors.npy  --metadata data/processed/skill_metadata.json  --tasks data/raw/composite_tasks.json  --runs 5  --output data/results/eval_log.csv -> rc=2
-    usage: runner.py [-h] --adapter ADAPTER --task TASK --output OUTPUT
-                 [--model MODEL]
-runner.py: error: the following arguments are required: --adapter, --task
-- python src/evaluation/stats.py  --input data/results/eval_log.csv  --output data/results/stats_summary.json -> rc=1
-    2026-08-19 07:51:39,538 - INFO - Loading report from /home/runner/work/llmXive/llmXive/projects/PROJ-887-llmxive-follow-up-extending-latentskill/data/results/stats_report.json
-2026-08-19 07:51:39,538 - ERROR - Failed to load report: Results file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-887-llmxive-follow-up-extending-latentskill/data/results/stats_report.json
+  File "<string>", line 1, in <module>
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-887-llmxive-follow-up-extending-latentskill/lib/python3.11/site-packages/torch/__init__.py", line 496, in <module>
+    from torch._C import *  # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^
+ImportError: /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-887-llmxive-follow-up-extending-latentskill/lib/python3.11/site-packages/torch/lib/libtorch_cuda.so: undefined symbol: ncclCommResume
+
+- python code/main.py --step ingest -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-887-llmxive-follow-up-extending-latentskill/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-887-llmxive-follow-up-extending-latentskill/code/main.py': [Errno 2] No such file or directory
+
+- python code/main.py --step evaluate -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-887-llmxive-follow-up-extending-latentskill/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-887-llmxive-follow-up-extending-latentskill/code/main.py': [Errno 2] No such file or directory
+
+- python code/main.py --step report -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-887-llmxive-follow-up-extending-latentskill/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-887-llmxive-follow-up-extending-latentskill/code/main.py': [Errno 2] No such file or directory
+
+- python code/utils/seeds.py --verify -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-887-llmxive-follow-up-extending-latentskill/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-887-llmxive-follow-up-extending-latentskill/code/utils/seeds.py': [Errno 2] No such file or directory
+
 
 ## Declared deliverables still missing
 
 - data/processed/skill_index.npz
+- data/processed/weights_flattened.npz
+- data/results/linearity_validation.json
 - data/results/stats_report.json
-
-## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
-
-One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
-
-**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
-
-**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
-
-### `ensure_directories` — defined in `code/src/utils/config.py`; called 7 way(s):
-
-- code/src/evaluation/final_report.py: ensure_directories([output_path.parent])
-- code/src/evaluation/verify_memory_footprint.py: ensure_directories()
-- code/src/ingestion/download_weights.py: ensure_directories([output_path.parent])
-- code/src/ingestion/download_weights.py: ensure_directories([raw_dir])
-- code/src/ingestion/download_weights.py: ensure_directories([status_path.parent])
-- code/src/ingestion/flatten_lora.py: ensure_directories([output_path.parent])
-- code/src/retrieval/vector_db.py: ensure_directories([output_path.parent])
-
-Make `ensure_directories` in `code/src/utils/config.py` accept ALL of the above.
-
-### `get_data_path` — defined in `code/src/utils/config.py`; called 7 way(s):
-
-- code/src/ingestion/download_weights.py: output_path = get_data_path("raw") / dataset_config['output_filename']
-- code/src/ingestion/download_weights.py: raw_dir = get_data_path("raw")
-- code/src/ingestion/download_weights.py: status_path = get_data_path("processed") / "data_fetch_status.json"
-- code/src/utils/config.py: 1. get_data_path() -> returns the data directory root
-- code/src/utils/config.py: 2. get_data_path("raw") -> returns data/raw
-- code/src/utils/config.py: 3. get_data_path(project_root=Path(...)) -> returns data dir for that root
-- code/src/utils/config.py: 4. get_data_path("raw", project_root=Path(...)) -> returns data/raw for that root
-
-Make `get_data_path` in `code/src/utils/config.py` accept ALL of the above.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/skill_index.npz` is declared but was NOT written. Scripts referencing it:
+    - `code/scripts/generate_dummy_index.py` — NOT invoked by the run-book
+    - `code/scripts/run_t014b.py` — NOT invoked by the run-book
+    - `code/scripts/run_t022b.py` — NOT invoked by the run-book
+    - `code/scripts/run_t078.py` — NOT invoked by the run-book
+    - `code/src/evaluation/audit_data_integrity.py` — NOT invoked by the run-book
     - `code/src/evaluation/run_sensitivity_sweep.py` — NOT invoked by the run-book
     - `code/src/retrieval/query.py` — NOT invoked by the run-book
     - `code/src/retrieval/strategies.py` — NOT invoked by the run-book
-    - `code/src/validation/linearity_check.py` — NOT invoked by the run-book
-    - `code/tests/unit/test_vector_db.py` — NOT invoked by the run-book
-    - `code/tests/unit/test_strategies_serialization.py` — NOT invoked by the run-book
-    - `code/tests/unit/test_run_sensitivity_sweep.py` — NOT invoked by the run-book
-    - `code/tests/validate/test_linearity_check.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/skill_index.npz` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/results/stats_report.json` is declared but was NOT written. Scripts referencing it:
+  Make ONE of these WRITE `data/processed/skill_index.npz` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/weights_flattened.npz` is declared but was NOT written. Scripts referencing it:
+    - `code/scripts/run_t078.py` — NOT invoked by the run-book
+    - `code/src/evaluation/audit_data_integrity.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/weights_flattened.npz` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/results/linearity_validation.json` is declared but was NOT written. Scripts referencing it:
+    - `code/src/evaluation/audit_data_integrity.py` — NOT invoked by the run-book
     - `code/src/evaluation/final_report.py` — NOT invoked by the run-book
-    - `code/src/evaluation/stats.py` — NOT invoked by the run-book
     - `code/src/evaluation/report_generator.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/stats_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-
-## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
-
-One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
-
-**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
-
-### `home/runner/work/llmXive/llmXive/projects/PROJ-887-llmxive-follow-up-extending-latentskill/data/results/stats_report.json`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/src/evaluation/final_report.py`, `code/src/evaluation/stats.py`, `code/src/evaluation/report_generator.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-887-llmxive-follow-up-extending-latentskill/data/results/stats_report.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/src/evaluation/final_report.py`, `code/src/evaluation/stats.py`, `code/src/evaluation/report_generator.py`.
+    - `code/src/evaluation/summary_generator.py` — NOT invoked by the run-book
+    - `code/src/utils/plotting.py` — NOT invoked by the run-book
+    - `src/evaluation/final_report.py` — NOT invoked by the run-book
+    - `src/evaluation/summary_generator.py` — NOT invoked by the run-book
+    - `src/utils/plotting.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/results/linearity_validation.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/results/stats_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/src/evaluation/audit_data_integrity.py` — NOT invoked by the run-book
+    - `code/src/evaluation/final_report.py` — NOT invoked by the run-book
+    - `code/src/evaluation/report_generator.py` — NOT invoked by the run-book
+    - `code/src/evaluation/stats.py` — NOT invoked by the run-book
+    - `code/src/evaluation/summary_generator.py` — NOT invoked by the run-book
+    - `code/src/evaluation/verify_specs.py` — NOT invoked by the run-book
+    - `code/src/evaluation/verify_stats_report.py` — NOT invoked by the run-book
+    - `src/evaluation/final_report.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/results/stats_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

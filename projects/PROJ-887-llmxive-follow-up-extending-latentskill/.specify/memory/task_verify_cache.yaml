@@ -1,98 +1,25 @@
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `__init__.py` files in any of the listed `src/*`
-    directories is provided; without file listings or contents we cannot confirm they
-    exist or contain even minimal docstrings. The implementer must add and show these
-    files.
-T022d:
-  c: false
-  h: 744844338eb5a6bd8e20de3fdf6d89b094635d35b8a9532582ab67950513cb7e
-  r: "The required output file `data/results/reconstruction_error.json` is missing,\
-    \ and the provided `src/validation/reconstruction_error.py` snippet is truncated\
-    \ before any code that writes mean/max errors or flags the threshold, so the task\u2019\
-    s output requirement is not satisfied."
-T022e:
-  c: false
-  h: a1c2594c83df488f69ddeb9601365852e5a602f3ab13aaba143e589030fd7281
-  r: "The provided `src/validation/generate_eval_tasks.py` is truncated (the `load_composite_pairs`\
-    \ function ends abruptly and the rest of the script is missing), so it cannot\
-    \ actually generate the required `data/processed/eval_tasks.yaml`. Moreover, the\
-    \ `eval_tasks.yaml` file does not exist in the repository. The task\u2019s output\
-    \ artifact is therefore missing."
-T030b:
-  c: false
-  h: 81e08ce351492fbfb5c35614b68b06fdef3b503ad7d93b8423b5303f34cfc666
-  r: "The required output file `data/results/linearity_correlation.json` does not\
-    \ exist, and the provided `src/validation/linearity_check.py` (partially shown)\
-    \ does not demonstrate reading a threshold from `config.py` or appending a `linearity_valid`\
-    \ boolean to that JSON file. The task\u2019s core requirement is therefore unmet."
-T032b:
-  c: false
-  h: 4f65e5c6389f0525a81f7cb549a932e52be28d43e4f1c929065726a17636928f
-  r: "The provided `src/evaluation/report_generator.py` is truncated, contains a clear\
-    \ syntax error (`report[\"summary\"][\"linearity_validated\"] = ab`) and never\
-    \ writes a `stats_report.json` file. Moreover, there is no implementation of Benjamini\u2011\
-    Hochberg correction for primary or sensitivity p\u2011values, and the required\
-    \ output file `data/results/stats_report.json` does not exist. The task therefore\
-    \ remains unfinished."
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No new or modified test files are present in `tests/unit/`, and no evidence\
-    \ of additional edge\u2011case unit tests is provided. The required artifact (the\
-    \ extra unit tests) is missing, so the task is not satisfied."
-T057:
-  c: false
-  h: 6608a724318bb00a86339d8ae891b0913fc590a9c3be4d226e994ad5dde8608b
-  r: "The repository contains `src/evaluation/stats.py`, but the required output file\
-    \ `data/results/stats_raw.json` is absent, so the raw (uncorrected) p\u2011values\
-    \ are not saved as the task specifies. The missing JSON file must be generated\
-    \ by the script for the task to be considered complete."
-T059a:
+T001:
   c: true
-  h: 752363e7ed966a8049747c293b1cb1e87da57dec3fb36a9a91fc2c004acc9d4b
-  r: "The file\u202F`src/evaluation/verify_runner.py` exists, is non\u2011empty, and\
-    \ implements hardware verification, returning a dict with the key\u202F`runner_core_count`\
-    \ and writing it (along with `is_standard_2_core`) to `data/results/latency_metrics.json`\
-    \ via the configured results path. The required functionality is present."
-T078:
+  h: fb60e42f201cc4be286f079eb4e4df770cebcff3e519be38581bc9ee2291da15
+  r: Checked that `code/`, `tests/`, `data/`, and `reports/` directories exist and
+    each contains a minimal `__init__.py`, and that `pytest -q` runs successfully
+    (test_sanity passed with no import errors).
+  sig: d6899df788ded29a087d68778abe8c3ddf454b9c58fb492d008b3d17f8fac344
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No execution logs, result files, or any other artifacts showing that `cli.py`\
-    \ was run end\u2011to\u2011end with\u202FN=5 runs per task are present, nor any\
-    \ evidence that tasks T001\u2011T077 have been verified as passing. The implementer\
-    \ provided only a feature specification excerpt, which does not satisfy the required\
-    \ deliverable."
-T079:
-  c: false
-  h: 70224a0c8f0ad2f10c845b98366757f4d7b22a01076a2ab1f72ca5b77cecf581
-  r: The required artifact `data/results/stats_report.json` does not exist, so it
-    cannot be checked for the required fields. The task cannot be considered completed
-    until the file is present and contains the specified keys.
-T080:
-  c: false
-  h: 5cf993f5401b10c5d22f985501f7344d1ca3b8aac06d345c02814e6db96b8f5b
-  r: The required artifact `reports/final_report.md` does not exist, so the report
-    cannot be validated for the presence of the mandated sections. The implementer
-    must create the file and ensure it contains the "Statistical Power", "Zero-Variance
-    Incidents", and "Data Integrity" sections.
-T083:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides no README.md file, no `stats_report.json` summary, and
-    no links to generated plots; thus the required artifacts are missing and the task
-    is not satisfied.
-T084:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a reviewed `spec.md` or `plan.md` was provided, nor any final
-    report showing that assumptions and constraints were verified. The required artifacts
-    are missing, so the task is not satisfied.
-T086:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `archive/` directory or any listed files/logs were provided as evidence, so
-    the required artifacts for archiving are missing. The implementer must create
-    a structured `archive/` folder containing all relevant artifacts and logs from
-    the project.
+  h: 58a13bfa81d1b82a0de9fdf5248847d46204699ea5c4a17d65110be496810b99
+  r: "Checked the `requirements.txt` file \u2013 it contains the exact versions required\
+    \ (torch==2.1.0, numpy==1.24.3, sentence\u2011transformers==2.2.2, datasets==2.19.0,\
+    \ bitsandbytes==0.43.1) and is non\u2011empty. However, there is no evidence (e.g.,\
+    \ pip install logs or a successful\u2011run screenshot) showing that `pip install\
+    \ -r requirements.txt` actually completes without conflicts, which the task explicitly\
+    \ requires. Provide installation verification output to complete the task."
+  sig: 7551c67af9f6857521c5e2ad3b040d3408fe94d4fbbb20c06e7670aac8d15f66
+T003:
+  c: true
+  h: 7eccf853cb3573582e76c3bffb883690695731378cfab83e874b9db112f22e91
+  r: "The `code/utils/config.py` file (2454\u202Fbytes) sets a global seed, defines\
+    \ the required path constants via the `llmxive_toolkit.paths` helpers, and includes\
+    \ `OOD_THRESHOLD = 0.5`. Import side\u2011effects print the seed and paths, and\
+    \ the provided pytest log shows the deterministic RNG test passed."
+  sig: c04b1c36b2cf89ce640b17e696cd3e2e2bf1dc38bf3140475d0f5b548c30e8ed

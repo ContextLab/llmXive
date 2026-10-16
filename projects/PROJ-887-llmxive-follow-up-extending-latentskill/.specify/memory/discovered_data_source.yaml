@@ -1,13 +1,17 @@
 status: none
-intent: download LatentSkill LoRA weights ALFWorld Search-QA dataset python package
-  dataset
+intent: download LatentSkill LoRA adapters A B matrices peft examples dataset for
+  ALFWorld Search-QA python package dataset
 required_fields:
 - skill_id
 - task_description
-- vector
-- vector_norm
-- source_benchmark
-- adapter_type
-cache_key: 692951b36249951122824398709fa045eed9dda472523d32ee2c63d9b4a930e0
-searched_at: '2026-09-02T15:24:25.145046+00:00'
+- a_matrix
+- b_matrix
+- flattened_vector
+- normalized_vector
+- vector_dimension
+- source_dataset
+- benchmark
+- dtype
+cache_key: 6cd13ce15658648bccd45840995eb6d5a4ceb23718347c1b43e23bf253414103
+searched_at: '2026-10-16T02:28:56.699454+00:00'
 retry_count: 1
