@@ -1,30 +1,30 @@
 T001:
   c: false
-  h: e8e6065adc7bdd1a97b037ebe15d6e8588c96aa27c773cf021c90e600f60f6ec
-  r: "The manifest and script files exist, but the automated test `tests/test_setup_script.py`\
-    \ fails with a PermissionError, indicating `setup.sh` is not executable and therefore\
-    \ cannot be verified to create the listed directories. The task\u2019s verification\
-    \ step is not satisfied."
-  sig: 057419ef218e5aeb3f449bb61a8ae84879bc0b8f5a154e8288854885a2219f35
+  h: 3b1dd0203a46763e7fb9816fcc65185facdcb2cc6be6f9b00bdeeef00c9db522
+  r: Checked `scripts/setup_manifest.txt` and `scripts/setup.sh` (both present) and
+    the execution log `code/.tasks/T001.scripts_setup.sh.log` showing the script runs
+    and creates the listed directories. However the automated test `tests/test_setup_script.py`
+    failed with a PermissionError, indicating the script is not executable in the
+    test environment, so the verification that `setup.sh` creates the directories
+    is not reliably satisfied. The permission issue must be fixed (e.g., ensure the
+    script is marked executable before the test runs).
+  sig: 1a77a4ba15b27996a6a1bf2a6f9d2e6534bed9fe160370abbaca946e1d505626
 T002:
-  c: false
-  h: 410272cc7d65df94076e867d2eb642a7742e76efc6a6c049376d443514cb51f6
-  r: "The `requirements.txt` file does exist, but it lists 11 packages (including\
-    \ an extra `arxiv` entry) and uses wildcard pins like `pandas==2.2.*` instead\
-    \ of exact version numbers, violating the \u201Cpinned versions of the ten core\
-    \ dependencies\u201D requirement. The test suite also fails because the expected\
-    \ `check_requirements.py` script is not found at the path the test uses. The file\
-    \ must contain exactly ten core packages with exact version pins and the test\
-    \ script location must match the test\u2019s expectations."
-  sig: b26af48110a8725987e1d1ba228b8c78a2a8a20dac5c51d312ffe28046115690
+  c: true
+  h: a3a80ab1c3b2453636b9a19f13e686052443c01a22af966eb249922943a58c9f
+  r: "Checked the `requirements.txt` file (resolved at `projects/PROJ-349-predicting-the-impact-of-ball-milling-on/requirements.txt`,\
+    \ 171\u202Fbytes) which lists exactly ten core dependencies with pinned versions,\
+    \ satisfying the task specification."
+  sig: c3c62d7da32d9a7ab2372a8cb7d9ac41a5826af7e88640ade9acae2991723c40
 T002b:
   c: false
-  h: 8ffcd90308b7a5248400f05ea1e52abc9cd0c7ae665a42a3ffc39943e4e946e3
-  r: "The log `code/.tasks/T002b.code_check_requirements.py.log` reports that the\
-    \ pip dry\u2011run output did **not** contain the required \u201CSuccessfully\
-    \ installed \u2026\u201D text, triggering a warning. Hence the verification step\
-    \ failed and the task\u2019s requirement is not satisfied."
-  sig: 88713a4cd91c8ce89156ea7d758b2c46f6d5e43a5e0f9bf124c0cead629c2eae
+  h: 43889b6d6e8da0b8c9296f7b52fa97ecc8ba790839a991eed2265cd7278c5597
+  r: "The provided log (`code/.tasks/T002b.code_check_requirements.py.log`) reports\
+    \ a warning that the pip dry\u2011run output did not contain the required \u201C\
+    Successfully installed \u2026\u201D text, and no evidence of a successful, conflict\u2011\
+    free install is supplied. The task\u2019s verification condition is therefore\
+    \ unmet."
+  sig: 8db09d1e16b89fb50dfa65f89163bc00c6754caf35ed61fa601819415b8328ab
 T003a:
   c: false
   h: 242019f18e719ac3dcb6f974de19a42ca2bb961d68c01b461bda8bc071952bf9

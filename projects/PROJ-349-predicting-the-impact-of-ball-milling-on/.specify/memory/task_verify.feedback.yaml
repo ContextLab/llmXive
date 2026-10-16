@@ -1,23 +1,20 @@
 T001:
-  reason: "The manifest and script files exist, but the automated test `tests/test_setup_script.py`\
-    \ fails with a PermissionError, indicating `setup.sh` is not executable and therefore\
-    \ cannot be verified to create the listed directories. The task\u2019s verification\
-    \ step is not satisfied."
+  reason: Checked `scripts/setup_manifest.txt` and `scripts/setup.sh` (both present)
+    and the execution log `code/.tasks/T001.scripts_setup.sh.log` showing the script
+    runs and creates the listed directories. However the automated test `tests/test_setup_script.py`
+    failed with a PermissionError, indicating the script is not executable in the
+    test environment, so the verification that `setup.sh` creates the directories
+    is not reliably satisfied. The permission issue must be fixed (e.g., ensure the
+    script is marked executable before the test runs).
   task: 75911b335c43db1195c2d53b65707bf0faae8ace58a8c8979a619b65d0da2851
 T002:
-  reason: "The `requirements.txt` file does exist, but it lists 11 packages (including\
-    \ an extra `arxiv` entry) and uses wildcard pins like `pandas==2.2.*` instead\
-    \ of exact version numbers, violating the \u201Cpinned versions of the ten core\
-    \ dependencies\u201D requirement. The test suite also fails because the expected\
-    \ `check_requirements.py` script is not found at the path the test uses. The file\
-    \ must contain exactly ten core packages with exact version pins and the test\
-    \ script location must match the test\u2019s expectations."
   task: 9c23f9380dff2019f0ecf7cd0affbafbc5cb21df56b8b31dc24a203d46f36b79
 T002b:
-  reason: "The log `code/.tasks/T002b.code_check_requirements.py.log` reports that\
-    \ the pip dry\u2011run output did **not** contain the required \u201CSuccessfully\
-    \ installed \u2026\u201D text, triggering a warning. Hence the verification step\
-    \ failed and the task\u2019s requirement is not satisfied."
+  reason: "The provided log (`code/.tasks/T002b.code_check_requirements.py.log`) reports\
+    \ a warning that the pip dry\u2011run output did not contain the required \u201C\
+    Successfully installed \u2026\u201D text, and no evidence of a successful, conflict\u2011\
+    free install is supplied. The task\u2019s verification condition is therefore\
+    \ unmet."
   task: af22df937c58a4d5e0327c722a519cb45a13a4f6447b482e0458141183e06ccd
 T003a:
   reason: Checked the project root (`projects/PROJ-349-predicting-the-impact-of-ball-milling-on`)
@@ -26,10 +23,8 @@ T003a:
     artifact is missing.
   task: b88a977d230f3aa17192bf61e774277541c07870ab2935208b62336ffeece8c5
 T003b:
-  reason: The `pyproject.toml` file with a proper `[tool.black]` section is present,
-    but there is no evidence that `black --check .` was executed and succeeded, which
-    is required to confirm that Black can read the configuration. Provide the command
-    output (or a log) showing Black ran without errors.
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/check_black.sh
+    exit=127'
   task: 97cdc182e39ed3bfe6a3bdc94cd4fde3458379d32ccddd92811d446e7d3960b0
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/scripts/init_git_repo.py

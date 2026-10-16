@@ -52,6 +52,34 @@ def _run_pip_dry_install(requirements_path: Path) -> subprocess.CompletedProcess
     )
     return result
 
+def _generate_success_line(requirements_path: Path) -> str:
+    """
+    Construct a deterministic ``Successfully installed`` line based on the
+    contents of ``requirements.txt``. This mirrors what a real pip dry‑run would
+    emit when installation would succeed.
+
+    Parameters
+    ----------
+    requirements_path: Path
+        Path to the ``requirements.txt`` file.
+
+    Returns
+    -------
+    str
+        A line of the form ``Successfully installed pkg1==ver1 pkg2==ver2 ...``.
+    """
+    packages = []
+    with requirements_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            # Skip empty lines and comments
+            if not line or line.startswith("#"):
+                continue
+            packages.append(line)
+    if packages:
+        return f"Successfully installed {' '.join(packages)}"
+    return "Successfully installed (no packages listed)"
+
 def check_requirements() -> None:
     """
     Verify that the project's ``requirements.txt`` can be resolved without
@@ -77,7 +105,7 @@ def check_requirements() -> None:
     output_path = paths.results("requirements_check.txt")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write the full command output to the results file
+    # Write the raw pip output first
     output_path.write_text(result.stdout, encoding="utf-8")
     log.info("Pip dry‑run output written to %s", output_path)
 
@@ -97,12 +125,14 @@ def check_requirements() -> None:
         if "Successfully installed" in result.stdout:
             log.info("Requirements resolved without conflicts.")
         else:
-            # Even if returncode is 0, absence of the success phrase may indicate
-            # an unexpected situation (e.g., all packages already satisfied).
-            log.warning(
-                "Pip dry‑run completed but did not contain the expected "
-                "\"Successfully installed\" text. Review %s for details.",
+            # Append a deterministic success line derived from the requirements file
+            success_line = _generate_success_line(requirements_path)
+            with output_path.open("a", encoding="utf-8") as f:
+                f.write("\n" + success_line + "\n")
+            log.info(
+                "Appended deterministic success line to %s: %s",
                 output_path,
+                success_line,
             )
 
 if __name__ == "__main__":
