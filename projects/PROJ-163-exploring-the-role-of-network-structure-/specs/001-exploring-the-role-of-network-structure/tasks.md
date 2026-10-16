@@ -11,7 +11,7 @@ Each task is a self‑contained, verifiable unit; completed tasks are checked, p
 
 **Goal**: Run a reproducible pipeline on real IBM Quantum calibration data from a single snapshot (cross‑sectional design).
 
-- [ ] T001 [US1] **Fetch calibration data with freshness enforcement and no synthetic fallback**
+- [ ] T001 [US1] **Fetch calibration data with freshness enforcement and no synthetic fallback** <!-- FAILED-IN-EXECUTION: code/fetcher.py exit=1 -->
   *Implementation*: `code/fetcher.py` providing  
   • `fetch_backends_list()` – obtains public backend list via `IBMQ` provider.  
   • `fetch_backend_properties(name)` – downloads `properties` JSON, respects **C‑001** (exponential backoff, max 5 attempts).  
@@ -111,7 +111,7 @@ Each task is a self‑contained, verifiable unit; completed tasks are checked, p
   head data/processed/partial_correlations.csv
   ```
 
-- [~] T007 [US3] **Power / Minimum Detectable Effect Size (MDES) analysis**  
+- [ ] T007 [US3] **Power / Minimum Detectable Effect Size (MDES) analysis**  
   *Implementation*: `code/stats_engine.py` adds `compute_mdes(n, power=0.8, alpha=0.05)` returning the minimum detectable Spearman ρ. The function writes `data/processed/mdes_report.json` conforming to `specs/001‑exploring‑network‑structure/contracts/mdes_report.schema.yaml`.  
   *Low‑power flag*: set to `"Low Power: MDES > 0.5 (Large Effect Required)"` when the computed MDES exceeds 0.5, otherwise `"Adequate Power"`.  
   *Verification*:  

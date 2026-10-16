@@ -29,7 +29,7 @@ tests/test_stats_engine.py: 18 warnings
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/test_stats_engine.py::test_apply_benjamini_hochberg_fdr - assert np.True_ is True
-=================== 1 failed, 2 passed, 18 warnings in 0.72s ===================
+=================== 1 failed, 2 passed, 18 warnings in 0.66s ===================
 
 
 - python -m pytest tests/test_integration_fetch.py -v   # live API (rate‑limited) -> rc=4

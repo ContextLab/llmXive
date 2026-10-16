@@ -20,8 +20,8 @@ This module provides:
   - `bootstrap_performance_resampling`
   - `fetch_historical_window`
   - `compare_current_vs_historical`
-- CLI entry point (`python -m code.fetcher --save-snapshots`) that writes
-  JSON files to ``data/raw/{device_id}_{YYYYMMDD_HHMMSS}.json``.
+- CLI entry point (`python -m code.fetcher` or `python code/fetcher.py`) that
+  writes JSON snapshots to ``data/raw/{device_id}_{YYYYMMDD_HHMMSS}.json``.
   The script **does not** fabricate data; if an IBM Quantum token is not
   available it raises a clear ``RuntimeError`` – the caller must provide a
   valid token to obtain real calibration data.
@@ -578,7 +578,7 @@ def main():
     Command‑line interface.
 
     Supported flags:
-    --save-snapshots   Fetch live calibration data and write JSON files.
+    --save-snapshots   Fetch current backend properties and store JSON files.
     """
     import argparse
 
@@ -590,17 +590,13 @@ def main():
     )
     args = parser.parse_args()
 
-    if not args.save_snapshots:
-        parser.print_help()
-        return
-
-    # Require a valid token; do **not** fall back to synthetic data.
+    # Ensure a token is available – required for any real fetch.
     token_present = os.getenv("IBMQ_TOKEN") or os.getenv("QISKIT_IBM_TOKEN")
     if not token_present:
         logger.error("IBMQ token not found – cannot fetch real calibration data.")
         raise RuntimeError("IBMQ token missing; fetching real data is required.")
-    
-    # Perform the real fetch.
+
+    # Perform the fetch regardless of the flag (the flag is kept for backward compatibility).
     try:
         fetch_and_save_snapshots()
     except RuntimeError as e:

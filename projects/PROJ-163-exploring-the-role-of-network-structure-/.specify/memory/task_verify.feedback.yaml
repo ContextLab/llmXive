@@ -1,12 +1,5 @@
 T001:
-  reason: "The required artifacts `data/raw/{device_id}_{YYYYMMDD_HHMMSS}.json` do\
-    \ not exist \u2014 `data/raw/` contains only a `.gitkeep` \u2014 and there is\
-    \ no execution evidence that `f.main()` ever ran or wrote a snapshot (no logs,\
-    \ no test-run output). The code itself is plausible (backoff, freshness, no-synthetic-fallback\
-    \ guard are implemented), but the task explicitly requires at least one real raw\
-    \ JSON snapshot on disk, and none is present; additionally `extract_performance_metrics()`\
-    \ does not return `chip_family` as specified (it's only in a separate helper).\
-    \ The implementer must run the fetcher with a val"
+  reason: 'Requested task execution failed; rerun successfully: code/fetcher.py exit=1'
   task: 23fbfe17b20e71410122d5194478f5730a0131bb777c4a6917c9c15c2f14520c
 T002:
   reason: "The required artifact `data/processed/performance_metrics.csv` does not\
@@ -52,6 +45,10 @@ T006:
     exit=1'
   task: be218cfc1a7b281c0354510544d032ab438c0b68c8f05a6d6af3766694b3507b
 T007:
+  reason: "The `compute_mdes` function is present in `code/stats_engine.py`, but the\
+    \ required output file `data/processed/mdes_report.json` (and the referenced schema)\
+    \ is missing, so the task\u2019s deliverable of a written MDES report does not\
+    \ exist."
   task: 9b485eb0cd41b82583cb2e1a8fd51caf8436359f2ad45bdf717834d510d26707
 T008:
   reason: 'Requested task execution failed; rerun successfully: code/report_generator.py

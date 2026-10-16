@@ -10,6 +10,13 @@ T001:
     \ does not return `chip_family` as specified (it's only in a separate helper).\
     \ The implementer must run the fetcher with a val"
   sig: 73f36b4c77c14287cc872e0d21cb7952cee5ce5cba6e181c20b2c84a05bf0990
+T007:
+  c: false
+  h: 83dc88357e4f180952aec4a14eac0899d102f5c7b02e51e7d5d1e337416e97b8
+  r: "The `compute_mdes` function is present in `code/stats_engine.py`, but the required\
+    \ output file `data/processed/mdes_report.json` (and the referenced schema) is\
+    \ missing, so the task\u2019s deliverable of a written MDES report does not exist."
+  sig: b838cea6534cab0ad2946eb06d37b1d8fb637044c6bd423875bc91a2f7200cdc
 T012:
   c: false
   h: fe44916c2c0d4fdd8054f54a656d9482e299045042ebafcadcb10d0156d72224
