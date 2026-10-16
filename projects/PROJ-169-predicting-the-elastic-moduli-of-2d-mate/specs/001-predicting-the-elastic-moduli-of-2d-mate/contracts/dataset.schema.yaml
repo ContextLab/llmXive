@@ -1,32 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Filtered Materials Dataset Schema"
-description: "Schema for the filtered_materials.csv file containing two-dimensional materials with complete elastic tensors."
+title: "Raw Materials Dataset Schema"
+description: "Schema for the raw parquet file containing 2D material entries with elastic tensors."
 type: "object"
 properties:
   material_id:
     type: "string"
     description: "Unique identifier for the material (e.g., mp-12345)"
+  structure:
+    type: "string"
+    description: "CIF representation of the crystal structure"
+  elastic_tensor:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 6
+    maxItems: 6
+    description: "List of the Voigt components: [C11, C12, C22, C66, C13, C33]"
   formula:
     type: "string"
     description: "Chemical formula (e.g., MoS2)"
   space_group:
     type: "integer"
     description: "Space group number"
-  elastic_tensor:
-    type: "string"
-    description: "JSON string containing the 6-component elastic tensor in Voigt notation"
-    pattern: "^\\[.*\\]$"
-  family:
-    type: "string"
-    description: "Material family classification (e.g., TMD, MXene, Oxide)"
   is_2d:
     type: "boolean"
-    description: "Flag indicating if the material is designated as 2D"
+    description: "Flag indicating the material is two‑dimensional"
 required:
   - material_id
+  - structure
+  - elastic_tensor
   - formula
   - space_group
-  - elastic_tensor
-  - family
   - is_2d
 additionalProperties: false

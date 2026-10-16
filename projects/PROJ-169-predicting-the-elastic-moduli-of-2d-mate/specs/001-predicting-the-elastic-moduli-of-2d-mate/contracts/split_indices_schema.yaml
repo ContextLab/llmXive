@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Split Indices Schema"
+description: "Schema for data/processed/split_indices.json"
+type: "object"
+properties:
+  train_ids:
+    type: "array"
+    items:
+      type: "string"
+  val_ids:
+    type: "array"
+    items:
+      type: "string"
+  test_ids:
+    type: "array"
+    items:
+      type: "string"
+  train_families:
+    type: "array"
+    items:
+      type: "string"
+  val_families:
+    type: "array"
+    items:
+      type: "string"
+  test_families:
+    type: "array"
+    items:
+      type: "string"
+  split_seed:
+    type: "integer"
+  timestamp:
+    type: "string"
+required:
+  - train_ids
+  - val_ids
+  - test_ids
+  - train_families
+  - val_families
+  - test_families
+  - split_seed
+  - timestamp
+additionalProperties: false

@@ -5,23 +5,28 @@ type: "object"
 properties:
   x:
     type: "array"
-    description: "Node features tensor [N_nodes, 10]"
+    description: "Node feature matrix \([N_{\text{nodes}}, F]\) where \(F\) denotes the dimensionality of the node features."
     items:
       type: "array"
+      minItems: 5
+      maxItems: 5
       items:
         type: "number"
   edge_index:
     type: "array"
-    description: "Edge index tensor [2, N_edges]"
+    description: "Edge index tensor [C, N_edges], where C denotes the connectivity dimension encoding source‑target node pairs."
     items:
       type: "array"
       items:
         type: "integer"
+        minimum: 0
   edge_attr:
     type: "array"
-    description: "Edge features tensor [N_edges, 5]"
+    description: "Edge feature matrix \[N_edges, k\] (where k denotes the dimensionality of the edge feature vector)."
     items:
       type: "array"
+      minItems: 2
+      maxItems: 2
       items:
         type: "number"
   y:

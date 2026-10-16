@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Logs Schema"
+description: "Schema for data/results/training_logs.json"
+type: "object"
+properties:
+  device:
+    type: "string"
+    description: "Must be 'cpu'"
+  peak_memory:
+    type: "object"
+    properties:
+      tracemalloc_gb:
+        type: "number"
+      rss_gb:
+        type: "number"
+      limit_gb:
+        type: "number"
+      within_limit:
+        type: "boolean"
+    required:
+      - tracemalloc_gb
+      - rss_gb
+      - limit_gb
+      - within_limit
+  epoch_losses:
+    type: "array"
+    items:
+      type: "number"
+  cross_validation:
+    type: "object"
+    description: "k‑fold CV over train+val pool (FR‑010)"
+    properties:
+      folds:
+        type: "integer"
+      young_mape:
+        type: "object"
+        properties:
+          mean:
+            type: "number"
+          std:
+            type: "number"
+        required:
+          - mean
+          - std
+      shear_mape:
+        type: "object"
+        properties:
+          mean:
+            type: "number"
+          std:
+            type: "number"
+        required:
+          - mean
+          - std
+      poisson_mae:
+        type: "object"
+        properties:
+          mean:
+            type: "number"
+          std:
+            type: "number"
+        required:
+          - mean
+          - std
+    required:
+      - folds
+      - young_mape
+      - shear_mape
+      - poisson_mae
+  megnet_benchmark:
+    type: "string"
+    description: "'executed' or 'descoped' with reason (CPU/memory condition)"
+  disclaimer:
+    type: "string"
+    description: "Embedded scientific‑integrity disclaimer text"
+required:
+  - device
+  - peak_memory
+  - epoch_losses
+  - cross_validation
+  - megnet_benchmark
+  - disclaimer
+additionalProperties: false

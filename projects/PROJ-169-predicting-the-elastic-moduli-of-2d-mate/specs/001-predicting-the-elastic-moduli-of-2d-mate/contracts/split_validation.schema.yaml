@@ -1,1 +1,48 @@
-$schema: "http://json-schema? 
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Split Validation Schema"
+description: "Schema for data/results/split_validation.json"
+type: "object"
+properties:
+  family_disjoint:
+    type: "boolean"
+    description: "True if no family appears in more than one split"
+  overlapping_families:
+    type: "array"
+    items:
+      type: "string"
+    description: "Families found in multiple splits (must be empty on pass)"
+  split_sizes:
+    type: "object"
+    properties:
+      train:
+        type: "integer"
+      val:
+        type: "integer"
+      test:
+        type: "integer"
+    required:
+      - train
+      - val
+      - test
+  num_families:
+    type: "object"
+    properties:
+      train:
+        type: "integer"
+      val:
+        type: "integer"
+      test:
+        type: "integer"
+    required:
+      - train
+      - val
+      - test
+  passed:
+    type: "boolean"
+required:
+  - family_disjoint
+  - overlapping_families
+  - split_sizes
+  - num_families
+  - passed
+additionalProperties: false

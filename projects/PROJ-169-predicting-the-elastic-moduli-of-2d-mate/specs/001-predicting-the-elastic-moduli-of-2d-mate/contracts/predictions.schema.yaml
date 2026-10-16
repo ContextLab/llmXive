@@ -1,22 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Prediction Results Schema"
-description: "Schema for the predictions.csv file containing model outputs and errors."
+title: "Predictions JSON Schema"
+description: "Schema for data/results/predictions.json"
 type: "object"
 properties:
-  material_id:
-    type: "string"
-    description: "Material ID"
-  family:
-    type: "string"
-    description: "Material family"
-  true_young:
-    type: "number"
-    description: "True Young's Modulus (GPa)"
-  pred_yyoung:
-    type: "number"
-    description: "Predicted Young's Modulus (GPa"
-  true_shear:
-    type: "number"
-    description: "True ..."
-    # Note: The original schema had a typo; we keep it as‑is per existing artifact.
-    # No additional  
+  predictions:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        material_id:
+          type: "string"
+        family:
+          type: "string"
+        true_young:
+          type: "number"
+        pred_young:
+          type: "number"
+        true_shear:
+          type: "number"
+        pred_shear:
+          type: "number"
+        true_poisson:
+          type: "number"
+        pred_poisson:
+          type: "number"
+        abs_pct_error_young:
+          type: "number"
+        abs_pct_error_shear:
+          type: "number"
+        abs_error_poisson:
+          type: "number"
+      required:
+        - material_id
+        - family
+        - true_young
+        - pred_young
+        - true_shear
+        - pred_shear
+        - true_poisson
+        - pred_poisson
+        - abs_pct_error_young
+        - abs_pct_error_shear
+        - abs_error_poisson
+required:
+  - predictions
+additionalProperties: false
