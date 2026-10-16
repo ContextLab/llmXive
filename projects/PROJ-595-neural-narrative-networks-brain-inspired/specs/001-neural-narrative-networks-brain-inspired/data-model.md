@@ -4,7 +4,7 @@
 Defines schemas, file formats, and transformation pipelines for all data artifacts. All artifacts reside under `data/` and are version‑tracked via SHA‑256 checksums.
 
 ## Data Flow
-1. **Raw Ingestion** – download OpenNeuro ds001495 parquet (`test-00000-of-00016.parquet`) and ROCStories parquet.  
+1. **Raw Ingestion** – download OpenNeuro ds001495 parquet and ROCStories parquet.  
 2. **Preprocessing** – ROI extraction → HRF‑aligned event averages → combined neural matrix.  
 3. **Story Corpora** –  
    - **Pre‑training Corpus**: ROCStories (pre‑training only) → `data/processed/text/rocstories_pretrain.jsonl`.  
@@ -39,8 +39,8 @@ data/
 │   │   ├── roi_right_hipp.npy
 │   │   └── roi_dlpfc.npy
 │   └── text/
-│       ├── rocstories_pretrain.jsonl   # pre‑training corpus
-│       └── fMRI_story_transcripts.jsonl   # test corpus extracted from OpenNeuro
+│       ├── rocstories_pretrain.jsonl
+│       └── fMRI_story_transcripts.jsonl
 ├── analysis/
 │   ├── rsa_matrices/
 │   │   ├── brain_inspired_rsm.csv
@@ -80,4 +80,3 @@ data/
    - Bar plot of RSA distances with 95 % CI and significance stars.
 
 ---
-

@@ -4,7 +4,7 @@
 - Python 3.11 or newer  
 - `pip` (or `conda`)  
 - Internet access (for dataset download)  
-- At least 7 GB RAM (recommended sufficient memory for headroom)  
+- At least 7 GB RAM (recommended for headroom)  
 
 ## Installation
 ```bash
@@ -33,7 +33,9 @@ python code/data_ingestion/preprocess.py
 
 ## 2. Model Pre‑training (Sparse Autoencoder)
 ```bash
-python code/models/sparse_autoencoder.py --train data/processed/text/rocstories_pretrain.jsonl --output model/sae_pretrained.pt
+python code/models/sparse_autoencoder.py \
+    --train data/processed/text/rocstories_pretrain.jsonl \
+    --output model/sae_pretrained.pt
 ```
 *The training logs will report the sparsity ratio; it must be ≤ 0.20.*
 
@@ -54,7 +56,7 @@ python code/models/generator.py --model baseline \
 ## 4. RSA Analysis & Permutation Test
 ```bash
 python code/analysis/rsa_computation.py   # computes RSA matrices
-python code/analysis/permutation_test.py   # A large number of permutations with early‑stopping
+python code/analysis/permutation_test.py   # 2 000 permutations with early‑stopping
 python code/analysis/visualization.py      # generates heatmaps & bar plot
 ```
 *Key outputs*:
@@ -76,9 +78,8 @@ head data/analysis/results/permutation_test_results.csv
 ## Troubleshooting
 - **MemoryError**: Reduce the number of stories processed (`--max_stories 2000`) or enable chunked loading (`preprocess.py --chunk_size 100`).  
 - **Missing ROI**: If DLPFC mask not found, the pipeline automatically falls back to Harvard‑Oxford coordinates; check the log for the fallback message.  
-- **Insufficient Test Stories**: If fewer than 100 shared stories are found, the pipeline halts with error `E002`. In that case, verify the OpenNeuro dataset version or consider a different open fMRI story dataset.  
+- **Insufficient Test Stories**: If fewer than 100 shared stories are found, the pipeline halts with error `E002`. Verify the OpenNeuro dataset version or consider an alternative open fMRI story dataset.
 
 Enjoy reproducible, brain‑inspired story generation!  
 
 ---
-
