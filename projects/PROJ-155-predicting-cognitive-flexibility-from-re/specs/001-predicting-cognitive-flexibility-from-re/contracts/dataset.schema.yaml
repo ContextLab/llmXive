@@ -53,7 +53,7 @@ properties:
     description: "Tenth principal component of edge‑wise variability."
   Null_Model_P:
     type: number
-    description: "P‑value from **phase‑shuffled surrogate** validation."
+    description: "P‑value from phase‑shuffled surrogate validation."
   Motion_Noise_Residual:
     type: number
     description: "Residual variability after motion‑noise orthogonalization."

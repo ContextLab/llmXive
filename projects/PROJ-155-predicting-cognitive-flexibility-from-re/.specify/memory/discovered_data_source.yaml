@@ -1,12 +1,12 @@
 status: none
-intent: Human Connectome Project resting fMRI NIH Toolbox DCCS Schaefer atlas ConnectomeDB
-  python package dataset
+intent: download HCP ConnectomeDB 1200 subjects resting-state fMRI NIH Toolbox DCCS
+  scores python package dataset
 required_fields:
 - subject_id (string)
-- rsfc_mean (float)
 - age (integer)
-- gender (string)
-- NIH_DCCS_score (float)
-cache_key: 89ac06becee5f395f89b3d0726ff0ccbe7a1e8f14403e6c33240e193d0f902aa
-searched_at: '2026-10-16T18:12:02.453317+00:00'
+- sex (string)
+- rsfc_mean (float)
+- nih_dccs_score (float)
+cache_key: 0f5d01d510992098d5b89f586c88c7c23bb9fe00d381138e4387fea676cb03b4
+searched_at: '2026-10-16T18:14:50.247165+00:00'
 retry_count: 1

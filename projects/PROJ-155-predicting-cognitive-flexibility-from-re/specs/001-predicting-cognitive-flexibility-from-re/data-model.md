@@ -16,7 +16,7 @@ The data model defines the schema of every persisted artifact produced by the pi
 1. **Raw ingestion** → `data/raw/` (checksums).  
 2. **Parcellation** → region‑wise time‑series (`data/processed/{subj}_ts.npy`).  
 3. **Quality filtering** → `exclusion_log.csv` (SC‑001).  
-4. **Dynamic connectivity** → `variability_metrics.csv` (Subject + PCA components).  
+4. **Dynamic connectivity** → `variability_metrics.csv` (Subject + PCA components).  
 5. **Null‑model validation** → `null_validation.csv` (contains `Null_Model_P`, the **phase‑shuffled surrogate** p‑value).  
 6. **Regression & permutation** → `regression_summary.json` (output schema).  
 7. **Final merge** → `final_results.csv` (subject‑level results, FR‑007).  
@@ -25,8 +25,7 @@ All CSV/JSON files are validated against the schemas in `contracts/`.
 
 ## Constraints
 * **No nulls** in required columns (`Subject_ID`, `Age`, `Sex`, `Mean_FD`, `Total_Scan_Time`, `Flexibility_Score`, `PCA_Component_1`, `Status`).  
-* **Value ranges**: `Mean_FD` ≥ 0, `Age` > 0, `Sex` ∈ {“M”, “F”}.  
+* **Value ranges**: `Mean_FD` ≥ 0, `Age` > 0, `Sex` ∈ {"M", "F"}.  
 * **Data types** follow the schema definitions exactly (e.g., integers vs. floats).  
 
 ---
-
