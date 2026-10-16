@@ -1,11 +1,11 @@
-- artifact_hash: 93471121eb06a57669f86c357aa79c5f19d47de694326284d9a996a1e77183ba
-  artifact_path: projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/specs/001-llmxive-follow-up-extending-tide-proacti/quickstart.md
+- artifact_hash: a31bffbac951f88069c8ca38d28ee99fd493e0c56294f2ef9fe218c55464ff68
+  artifact_path: projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/specs/001-llmxive-follow-up-extending-tide-proacti/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: Team10_chat_anonymized.csv
   kind: url
-  value: https://github.com/your-org/llmxive-followup-tide.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/llmxive-followup-tide
-  verified_at: '2026-10-13T16:28:12.466198Z'
+  value: https://huggingface.co/datasets/hclee99/TIDES/resolve/main/Team_10/chat/Team10_chat_anonymized.csv`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/hclee99/TIDES/2057219b353a9e179bad5a75902d196ba9021f67/Team_10%2Fchat%2FTeam10_chat_anonymized.csv?%2Fdatasets%2Fhclee99%2FTIDES%2Fresolve%2Fmain%2FTeam_10%2Fchat%2FTeam10_chat_anonymized.csv=&etag=%22accc65bedac10670e4ac2f869a1333e7e9d89ad6%22
+  verified_at: '2026-10-16T20:27:54.980913Z'

@@ -12,6 +12,7 @@ required:
   - ast_depth
   - import_count
   - cyclomatic_complexity
+  - sha256
 properties:
   instance_id:
     type: string
