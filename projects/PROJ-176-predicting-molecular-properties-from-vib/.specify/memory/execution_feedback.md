@@ -67,13 +67,13 @@ Trying to import the above resulted in these errors:
  - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 14:13:32 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 17:08:52 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 14:13:34 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 17:08:53 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
@@ -122,14 +122,25 @@ Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A 
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
-import pandas as pd
 from qm9pack import get_data
 
+# Load the full QM9 dataset (the required argument is the dataset name)
 data = get_data('qm9')
-df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
 
-print(f"RECORDS={len(df)}")
-print("FIELDS=" + ",".join(df.columns))
+# Count records
+records = len(data)
+print(f"RECORDS={records}")
+
+# Determine field names from the loaded data
+if hasattr(data, "columns"):  # pandas DataFrame or similar
+    fields = list(data.columns)
+elif isinstance(data, (list, tuple)) and data and isinstance(data[0], dict):
+    fields = list(data[0].keys())
+else:
+    fields = []
+
+if fields:
+    print("FIELDS=" + ",".join(fields))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
