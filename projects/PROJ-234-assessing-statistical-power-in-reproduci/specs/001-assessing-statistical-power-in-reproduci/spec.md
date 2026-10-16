@@ -66,7 +66,7 @@ The system must calculate observed statistical power for each extractable datase
 
 ### Functional Requirements
 
-- **FR-001**: System MUST connect to the OpenML API () and retrieve metadata for the top 50 most-downloaded classification datasets (See US-1).
+- **FR-001**: System MUST connect to the OpenML API () and retrieve metadata for the top tier of most-downloaded classification datasets (See US-1).
 - **FR-002**: System MUST filter the retrieved dataset list to retain only entries with non-null publication links OR task IDs (See US-1).
 - **FR-003**: System MUST parse full-text publications (or abstracts as fallback) to extract sample size (N) and effect sizes (e.g., Cohen's d, F-statistic) using regex or lightweight NLP (See US-2).
 - **FR-004**: System MUST calculate observed statistical power using the `statsmodels.stats.power` library for all successfully parsed datasets (See US-3).

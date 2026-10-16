@@ -1,21 +1,22 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PowerAuditResult"
-description: "Schema for the final calculated MDES audit results."
+description: "Schema for the final calculated observed power audit results."
 type: "object"
 properties:
   dataset_id:
     type: "integer"
     description: "FK to DatasetMetadata."
-  calculated_mdes:
+  observed_power:
     type: "number"
     minimum: 0.0
-    description: "Minimum Detectable Effect Size (e.g., Cohen's d)."
+    maximum: 1.0
+    description: "Observed statistical power calculated from extracted parameters."
   target_power:
     type: "number"
-    description: "Target power used (default 0.8)."
+    description: "Power level used for a priori checks (default 0.8)."
   threshold_met:
     type: "boolean"
-    description: "True if MDES <= threshold (e.g., 0.5)."
+    description: "True if observed power ≥ target_power (adequate power)."
   status:
     type: "string"
     enum:
@@ -32,11 +33,16 @@ properties:
     enum:
       - "t-test"
       - "anova"
-      - "z-test"
+      - "logistic"
     description: "Type of statistical test performed."
+  weighted_power:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Power value after applying quintile weighting (optional)."
 required:
   - "dataset_id"
-  - "calculated_mdes"
+  - "observed_power"
   - "target_power"
   - "threshold_met"
   - "status"
