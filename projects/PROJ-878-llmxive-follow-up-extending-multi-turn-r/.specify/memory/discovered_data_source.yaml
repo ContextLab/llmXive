@@ -1,12 +1,15 @@
 status: none
-intent: pip install huggingface datasets GSM8K logical puzzle dataset python package
+intent: ProofWriter logical puzzles dataset with DAG metadata and GSM8K reference
+  python package dataset
 required_fields:
-- instance_id
-- puzzle_text
+- puzzle_id
+- problem_text
+- solution_steps
 - dag_edge_list
-- max_nesting_depth
-- average_branching_factor
-- ground_truth_solution
-cache_key: 800a7b711feeb99f1a2c0f4d1f9f740c94f0a4e36ee945adc18871905c218b93
-searched_at: '2026-10-16T09:29:35.065704+00:00'
+- nesting_depth
+- branching_factor
+- node_count
+- edge_count
+cache_key: ab4e123ec40a52433e379e29b2fae58fd8153229a1881df07e6bc0d965d4567b
+searched_at: '2026-10-16T21:13:01.869615+00:00'
 retry_count: 1

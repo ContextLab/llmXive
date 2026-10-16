@@ -9,12 +9,20 @@ from typing import List, Dict, Any, Optional, Tuple
 
 import networkx as nx
 
+# Compatibility shim: networkx does not provide set_seed; some tests expect it.
+if not hasattr(nx, "set_seed"):
+    def _nx_set_seed(seed: int) -> None:
+        """Fallback seed setter for compatibility with older code/tests."""
+        random.seed(seed)
+    nx.set_seed = _nx_set_seed  # type: ignore
+
 # Import utilities from the shared graph_utils module
 from utils.graph_utils import (
     is_dag,
     nesting_depth,
     branching_factor,
     graph_to_dict,
+    longest_path,
 )
 
 logger = logging.getLogger(__name__)
@@ -313,6 +321,8 @@ def _write_validation_metrics(
 
 def _write_checksums(files: List[Path], checksum_path: Path) -> None:
     """Write SHA‑256 checksum lines compatible with `sha256sum -c`."""
+    # Resolve project root (two levels up from this file)
+    project_root = Path(__file__).resolve().parent.parent
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
     with checksum_path.open("w", encoding="utf-8") as out:
         for file_path in files:
@@ -321,7 +331,8 @@ def _write_checksums(files: List[Path], checksum_path: Path) -> None:
                 for chunk in iter(lambda: f.read(8192), b""):
                     sha256.update(chunk)
             checksum = sha256.hexdigest()
-            rel = file_path.relative_to(Path.cwd())
+            # Store path relative to project root for compatibility with sha256sum -c
+            rel = file_path.resolve().relative_to(project_root)
             out.write(f"{checksum}  {rel}\\n")
 
 def main() -> None:
