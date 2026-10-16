@@ -8,41 +8,45 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download_data.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/download_data.py", line 8, in <module>
-    from utils import setup_logging, get_logger, set_task_id, get_task_id, compute_sha256
-ImportError: cannot import name 'setup_logging' from 'utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/utils/__init__.py)
+2026-10-16 17:32:04 [INFO] [T001] - Starting Data Acquisition (T001)
+2026-10-16 17:32:04 [INFO] [T001] - Downloading HumanEval dataset...
+2026-10-16 17:32:04 [ERROR] [T001] - Data acquisition failed: The 'datasets' library is required. Install it via `pip install datasets`.
 
 - python code/extract_human_reference.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/extract_human_reference.py", line 5, in <module>
-    import pyarrow.parquet as pq
+/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-294-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
     from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
   File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
 ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-- python code/generate_code.py --model primary -> rc=1
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/generate_code.py", line 8, in <module>
-    from utils import setup_logging, get_logger, set_task_id, get_task_id
-ImportError: cannot import name 'setup_logging' from 'utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/utils/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/extract_human_reference.py", line 58, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/extract_human_reference.py", line 54, in main
+    extract_human_references()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/extract_human_reference.py", line 29, in extract_human_references
+    raise ImportError(
+ImportError: The 'datasets' library is required. Install it via `pip install datasets`.
+
+- python code/generate_code.py --model primary -> rc=1
+
+2026-10-16 17:32:05 [INFO] [T012] - Starting Code Generation (T012)
+2026-10-16 17:32:05 [ERROR] [T012] - Human samples not found: data/generated/human_samples.json
 
 - python code/generate_code.py --model sensitivity -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/generate_code.py", line 8, in <module>
-    from utils import setup_logging, get_logger, set_task_id, get_task_id
-ImportError: cannot import name 'setup_logging' from 'utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/utils/__init__.py)
+2026-10-16 17:32:05 [INFO] [T012] - Starting Code Generation (T012)
+2026-10-16 17:32:05 [ERROR] [T012] - Human samples not found: data/generated/human_samples.json
 
 - python code/analyze_metrics.py -> rc=1
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/analyze_metrics.py", line 8, in <module>
     from utils import setup_logging, get_logger, set_task_id, get_task_id, get_timestamp, get_unique_id
-ImportError: cannot import name 'setup_logging' from 'utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/utils/__init__.py)
+ImportError: cannot import name 'get_timestamp' from 'utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/utils/__init__.py)
 
 - python code/stats_analysis.py -> rc=2
 
@@ -50,28 +54,24 @@ ImportError: cannot import name 'setup_logging' from 'utils' (/home/runner/work/
 
 - python code/report_generator.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/report_generator.py", line 9, in <module>
-    from utils import setup_logging, get_logger, set_task_id, get_task_id
-ImportError: cannot import name 'setup_logging' from 'utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/utils/__init__.py)
+2026-10-16 17:32:05 [INFO] [T030] - Starting Report Generation (T030)
+2026-10-16 17:32:05 [ERROR] [T030] - Metrics file not found: data/analysis/metrics.json
 
 - python -m pytest tests/ -> rc=2
-py
-ERROR tests/integration/test_quickstart_e2e.py
+/docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/integration/test_aggregation.py
+ERROR tests/integration/test_metrics.py
 ERROR tests/integration/test_stats_pipeline.py
 ERROR tests/unit/test_aggregation.py
 ERROR tests/unit/test_analyze_metrics_filter.py
-ERROR tests/unit/test_append_sensitivity_comparison.py
 ERROR tests/unit/test_artifact_manager.py
-ERROR tests/unit/test_create_results_dirs.py
-ERROR tests/unit/test_download_data.py
 ERROR tests/unit/test_edge_cases.py
 ERROR tests/unit/test_extract_human_reference.py
 ERROR tests/unit/test_generate_code_api.py
 ERROR tests/unit/test_generate_code_t028a.py
 ERROR tests/unit/test_initialize_model_availability.py
 ERROR tests/unit/test_merge_sensitivity.py
-ERROR tests/unit/test_report.py
 ERROR tests/unit/test_setup_data_dirs.py - NameError: name 'sys' is not defined
 ERROR tests/unit/test_setup_project_structure.py
 ERROR tests/unit/test_setup_structure.py
@@ -80,8 +80,8 @@ ERROR tests/unit/test_t028a_local_fallback.py
 ERROR tests/unit/test_utils_logging.py
 ERROR tests/unit/test_validate_citations.py
 ERROR tests/unit/test_validation.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 26 errors during collection !!!!!!!!!!!!!!!!!!!
-======================= 13 warnings, 26 errors in 1.20s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 20 errors during collection !!!!!!!!!!!!!!!!!!!
+======================= 13 warnings, 20 errors in 0.88s ========================
 
 
 
@@ -104,12 +104,18 @@ Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A 
 ```python
 import datasets
 
-ds_dict = datasets.load_dataset("openai/openai_humaneval")
-total_records = sum(len(split) for split in ds_dict.values())
-print(f"RECORDS={total_records}")
+# Load the dataset without specifying a split to get all available splits
+dataset_dict = datasets.load_dataset("openai/openai_humaneval")
 
-first_split = next(iter(ds_dict.values()))
-print("FIELDS=" + ",".join(first_split.column_names))
+# Compute total number of records across all splits
+total_records = sum(len(split) for split in dataset_dict.values())
+
+# Use the first split to retrieve field names
+first_split = next(iter(dataset_dict.values()))
+field_names = first_split.column_names
+
+print(f"RECORDS={total_records}")
+print("FIELDS=" + ",".join(field_names))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

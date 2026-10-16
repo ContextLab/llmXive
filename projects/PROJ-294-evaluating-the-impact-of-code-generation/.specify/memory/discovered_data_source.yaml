@@ -4,16 +4,26 @@ ref: datasets
 access_python: 'import datasets
 
 
-  ds_dict = datasets.load_dataset("openai/openai_humaneval")
+  # Load the dataset without specifying a split to get all available splits
 
-  total_records = sum(len(split) for split in ds_dict.values())
+  dataset_dict = datasets.load_dataset("openai/openai_humaneval")
+
+
+  # Compute total number of records across all splits
+
+  total_records = sum(len(split) for split in dataset_dict.values())
+
+
+  # Use the first split to retrieve field names
+
+  first_split = next(iter(dataset_dict.values()))
+
+  field_names = first_split.column_names
+
 
   print(f"RECORDS={total_records}")
 
-
-  first_split = next(iter(ds_dict.values()))
-
-  print("FIELDS=" + ",".join(first_split.column_names))'
+  print("FIELDS=" + ",".join(field_names))'
 record_count: 164
 sample_fields:
 - task_id
@@ -21,14 +31,13 @@ sample_fields:
 - canonical_solution
 - test
 - entry_point
-field_coverage: 0.833
+field_coverage: 1.0
 required_fields:
 - task_id
 - prompt
-- entry_point
 - canonical_solution
+- entry_point
 - test
-- language
-intent: download openai humanEval dataset from HuggingFace datasets python package
+intent: download HumanEval dataset from HuggingFace openai_humaneval python package
   dataset
-cache_key: 95d22939ef54d416b5b5693f5324b478c190a837be7d219dc4a9432f29521ea7
+cache_key: 5f3558d1180d5bbe377aaad9e3f91e937d6b2e11ce4ee39354c3f2d4eb7f10f5

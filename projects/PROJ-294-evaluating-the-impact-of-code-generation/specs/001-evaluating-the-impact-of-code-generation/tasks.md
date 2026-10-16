@@ -5,7 +5,7 @@
 
 ## Phase 1: Setup and first end-to-end analysis
 
-- [ ] T001 [US1] Implement reproducible data acquisition and human reference extraction in `code/download_data.py` and `code/extract_human_reference.py` <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1; code/extract_human_reference.py exit=1 -->
+- [ ] T001 [US1] Implement reproducible data acquisition and human reference extraction in `code/download_data.py` and `code/extract_human_reference.py` <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1; code/extract_human_reference.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1; code/extract_human_reference.py exit=1 -->
   - Download HumanEval via `datasets.load_dataset("openai/openai_humaneval", revision=<pinned commit hash>)`, save to `data/raw/humaneval.parquet`, compute SHA256 with `code/utils/hash_utils.py`, and record `checksum`, `commit_hash`, `download_date` in `data/raw/metadata.yaml` (FR-001). A checksum mismatch or failed fetch MUST raise `RuntimeError` — never fall back to synthetic data.
   - Extract `canonical_solution` per task into `data/generated/human_samples.json` (JSONL) with fields `task_id`, `code`, `source="human"`, validating against `specs/.../contracts/human_samples.schema.yaml`.
   - Include `code/utils/seeds.py` pinning `random`/`numpy`/`torch` seeds imported first by all scripts (FR-001, Principle I), and `code/utils/logger.py` emitting ISO-8601 timestamps and `task_id` (FR-007).
