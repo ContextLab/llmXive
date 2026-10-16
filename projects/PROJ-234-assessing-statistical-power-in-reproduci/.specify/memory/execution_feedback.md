@@ -37,12 +37,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/02_parse_publications.py -> rc=1
 
-Raw data file not found: data/raw/openml_metadata_filtered.json
+2026-10-16 02:23:22,516 ERROR __main__: Raw data file not found: data/raw/openml_metadata_filtered.json
 
 - python code/03_compute_sensitivity.py -> rc=1
 
-2026-10-15 23:23:11,486 - __main__ - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed/extracted_params.json
-2026-10-15 23:23:11,486 - __main__ - INFO - Please run code/02_parse_publications.py first to generate extracted_params.json
+2026-10-16 02:23:23,156 - __main__ - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed/extracted_params.json
+2026-10-16 02:23:23,156 - __main__ - INFO - Please run code/02_parse_publications.py first to generate extracted_params.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/03_compute_sensitivity.py", line 262, in <module>
     main()
@@ -52,22 +52,23 @@ Traceback (most recent call last):
 NameError: name 'sys' is not defined
 
 - python -m pytest tests/ -> rc=2
-Xive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/__init__.py)
-____________ ERROR collecting tests/unit/test_power_audit_schema.py ____________
-import file mismatch:
-imported module 'test_power_audit_schema' has this __file__ attribute:
-  /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/tests/contract/test_power_audit_schema.py
-which is not the same as the test file we want to collect:
-  /home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/tests/unit/test_power_audit_schema.py
-HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+sessing-statistical-power-in-reproduci/tests/unit/test_utils_refactor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_utils_refactor.py:7: in <module>
+    from code.utils.oa_checker import is_open_access, check_doi_oa_status
+E   ImportError: cannot import name 'check_doi_oa_status' from 'code.utils.oa_checker' (/home/runner/work/llmXive/llmXive/projects/PROJ-234-assessing-statistical-power-in-reproduci/code/utils/oa_checker.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_07_generate_extraction_stats.py
 ERROR tests/unit/test_compute_sensitivity.py
 ERROR tests/unit/test_ingest_dedup.py - AttributeError: module 'ingest_module...
 ERROR tests/unit/test_performance_harness.py
 ERROR tests/unit/test_power_audit_schema.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.11s ===============================
+ERROR tests/unit/test_utils_refactor.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 6 errors in 1.41s ===============================
 
 
 
@@ -81,15 +82,28 @@ ERROR tests/unit/test_power_audit_schema.py
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `openml` to the project's `requirements.txt` and `pip install openml`.
-- **Verified**: this loads **6435** real records with fields: did, name, version, description_160, uploader, status, format, MajorityClassSize, MaxNominalAttDistinctValues, MinorityClassSize, NumberOfClasses, NumberOfFeatures, NumberOfInstances, NumberOfInstancesWithMissingValues, NumberOfMissingValues, NumberOfNumericFeatures, NumberOfSymbolicFeatures.
+- **Verified**: this loads **6435** real records with fields: dataset_id, name, type, number_of_instances, number_of_features, number_of_classes.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
-import openml
-
+import openml, pandas as pd
 df = openml.datasets.list_datasets(output_format='dataframe')
-print(f'RECORDS={len(df)}')
-print('FIELDS=' + ','.join(df.columns.tolist()))
+mapping = {
+    'did': 'dataset_id',
+    'name': 'name',
+    'format': 'type',
+    'download_count': 'download_count',
+    'NumberOfInstances': 'number_of_instances',
+    'NumberOfFeatures': 'number_of_features',
+    'NumberOfClasses': 'number_of_classes',
+    'default_target_attribute': 'default_target_attribute',
+    'citation': 'citation',
+    'task_id': 'task_id'
+}
+cols = [c for c in mapping if c in df.columns]
+df2 = df[cols].rename(columns=mapping)
+print(f'RECORDS={len(df2)}')
+print('FIELDS=' + ','.join(df2.columns))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

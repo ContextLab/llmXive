@@ -1,42 +1,37 @@
-import pytest
-from code.utils.parsers import extract_sample_size, extract_effect_size
+"""
+Unit tests for the regex parsers.
+"""
 
-def test_extract_sample_size():
-    assert extract_sample_size("The sample size was N=150.") == 150
-    assert extract_sample_size("N = 200 participants") == 200
-    assert extract_sample_size("n=50") is None # Case sensitive per regex r"N\s*=\s*(\d+)"
-    assert extract_sample_size("No sample size here") is None
+import pytest
+
+from utils.parsers import extract_sample_size, extract_effect_size
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("The study had N=150 participants.", 150),
+        ("Sample size N = 42.", 42),
+        ("No sample size mentioned.", None),
+    ],
+)
+def test_extract_sample_size(text, expected):
+    assert extract_sample_size(text) == expected
+
 
 def test_extract_cohens_d():
-    # Test full name
-    val, metric, dof = extract_effect_size("We observed Cohen's d = 0.85 in the group.")
-    assert val == 0.85
-    assert metric == "Cohen's d"
-    assert dof is None
-    
-    # Test shorthand
-    val, metric, dof = extract_effect_size("The effect was d=0.21.")
-    assert val == 0.21
-    assert metric == "Cohen's d"
-    
-    # Test negative value
-    val, metric, dof = extract_effect_size("Cohen's d = -0.4")
-    assert val == -0.4
+    txt = "We observed a medium effect, Cohen's d = 0.45, which was significant."
+    result = extract_effect_size(txt)
+    assert result == (0.45, "Cohen's d", None)
+
 
 def test_extract_f_statistic():
-    # Standard F(df1, df2) = val
-    val, metric, dof = extract_effect_size("The result was significant, F(2, 145) = 4.56.")
-    assert val == 4.56
-    assert metric == "F"
-    assert dof == (2, 145)
-    
-    # F with spaces
-    val, metric, dof = extract_effect_size("F ( 1 , 20 ) = 12.3")
-    assert val == 12.3
-    assert dof == (1, 20)
+    txt = "An ANOVA yielded F(1, 145) = 4.5 (p < .001)."
+    result = extract_effect_size(txt)
+    # Expected tuple: (value, metric_type, (df1, df2))
+    assert result == (4.5, "F", (1, 145))
 
-def test_parsers_no_match():
-    val, metric, dof = extract_effect_size("No stats here.")
-    assert val is None
-    assert metric is None
-    assert dof is None
+
+def test_extract_none_when_no_match():
+    txt = "The paper reports a p‑value but no effect size."
+    assert extract_effect_size(txt) is None

@@ -53,7 +53,7 @@ specification and the project constitution.
   ```  
   **Verify** – `pip install -r requirements.txt --dry-run` succeeds; `yaml.safe_load("config.yaml")` returns a dict containing `limits.max_runtime_hours` and `limits.max_memory_gb`.
 
-- [ ] T003 Populate the `contracts/` directory with the four JSON‑Schema/YAML files required for contract testing.  
+- [X] T003 Populate the `contracts/` directory with the four JSON‑Schema/YAML files required for contract testing.  
   ```
   contracts/dataset_metadata.schema.yaml          # supplied in spec
   contracts/power_audit_result.schema.yaml       # supplied in spec

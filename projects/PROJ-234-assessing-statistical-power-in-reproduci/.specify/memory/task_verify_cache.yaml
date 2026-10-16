@@ -1,12 +1,11 @@
 T001:
   c: false
-  h: fc8e069e29075e30416486d190ba0e1449929c628747e71a05d23bf3d35f4fee
-  r: "The required root directory `projects/PROJ-001-assessing-statistical-power/`\
-    \ does not exist, so none of the specified sub\u2011directories or their `.gitkeep`\
-    \ placeholders are present. The script output claiming success is not evidence\
-    \ of the actual files. The task must create the project tree at the indicated\
-    \ path with a `.gitkeep` in each folder."
-  sig: 72556dfb947f288e23e89264b26e9f24cb53ec3e1a5af528232f76ba29e088fd
+  h: be8bdd950d66bb1c29d5c8a43382f63ec0a1c925347de5e5e592a83dae0025ab
+  r: "The required root folder `projects/PROJ-001-assessing-statistical-power/` does\
+    \ not exist, and the sub\u2011directories (`code/utils`, `tests/unit`, `tests/integration`,\
+    \ `data/raw`, `data/processed`) lack the placeholder `.gitkeep` files that the\
+    \ task mandates."
+  sig: 8add700a06167c47d0037165a5a5e92ff78dd143b7e7a2a29facde2936578c3e
 T002:
   c: true
   h: 13009cbf6bbbe9e79673652dc8abd07a011767bde1c244cbe28b6fa24225b131
@@ -18,22 +17,26 @@ T002:
     exactly.'
   sig: 241b1fb1024a97cc9b36294f94ceb892da376eea69fb127837ae577536a03ac3
 T003:
-  c: false
-  h: 0876c634062a3aed3cfe060eb9eb25fded6396cf6ee2ed55e345297c6f0a824d
-  r: "The four contract files exist and contain plausible YAML, but there is no evidence\
-    \ that they were actually parsed with `yaml.safe_load` nor that a `jsonschema.Draft7Validator`\
-    \ was run against a minimal valid instance for each schema. Execution logs, test\
-    \ scripts, or validation results are missing, so the task\u2019s requirement is\
-    \ not demonstrably satisfied."
-  sig: ace1cdd131cc6d9264cfdb27d3ade111c61c2e991a98a0fb5b129fce4e8426e1
+  c: true
+  h: 8ce3ee34c082aa5b07088f2dc65a45103ddbae29dc4edb515e18b9e2c1e45272
+  r: Checked the four schema files in `contracts/` (dataset_metadata.schema.yaml,
+    power_audit_result.schema.yaml, extracted_params.schema.yaml, report.schema.yaml)
+    and the verification log `code/.tasks/T003.code_verify_contracts.py.log`, which
+    shows each file parses with `yaml.safe_load` and passes `jsonschema.Draft7Validator`
+    against a minimal instance. All required artifacts exist and meet the task criteria.
+  sig: 7deae1a1a9982f19cdc983e2464e6a4b065e3af189f1a33f3f715082daef0187
 T004:
   c: false
-  h: 624e651a02cdfb81c3a2ee4f87d70aec313f6a71ad8d2e3ff4ab131975ae5438
-  r: The `code/utils/api_client.py` lacks the required `fetch_top_classification_datasets`
-    method (test_api_client failure) and `code/utils/oa_checker.py` raises an exception
-    on request failure instead of handling it as the unit test expects (test_oa_checker
-    failure). Consequently, the three required unit tests do not all pass.
-  sig: e304af89c9877a1af066fbe6e0f07b0061f6824f1bfbefdb33344e4351be5efd
+  h: db29fdee4c3e0dffeb8856595701ebe1f67bfbdbae747bf6e17efe4694b72b71
+  r: "Checked the unit\u2011test logs: `tests/unit/test_parsers.py` and `tests/unit/test_oa_checker.py`\
+    \ both pass, but `tests/unit/test_api_client.py` fails because the returned dataset\
+    \ dict uses the key `'did'` instead of the required `'dataset_id'`, causing the\
+    \ assertion `assert \"dataset_id\" in ds` to fail. The API client therefore does\
+    \ not meet the specified interface and the overall test suite does not fully pass.\
+    \ The implementation must be corrected (e.g., rename the key to `dataset_id` and\
+    \ ensure the wrapper raises `DataFetchError` as required) before the task can\
+    \ be considered complete."
+  sig: 4505efe1c9851f4f6e77dfe17eda0a3a1133527fd3bc28eb7f4d5191b9c48b4e
 T005:
   c: false
   h: c5c5425a0e89b8711c01dfb92891c964e15a6f05eb3f2aeec1f6fc273dd0f474

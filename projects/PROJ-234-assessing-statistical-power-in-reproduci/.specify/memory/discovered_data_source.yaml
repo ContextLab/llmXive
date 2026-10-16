@@ -1,44 +1,33 @@
 status: verified
 kind: pypi_package
 ref: openml
-access_python: 'import openml
-
-
-  df = openml.datasets.list_datasets(output_format=''dataframe'')
-
-  print(f''RECORDS={len(df)}'')
-
-  print(''FIELDS='' + '',''.join(df.columns.tolist()))'
+access_python: "import openml, pandas as pd\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
+  mapping = {\n    'did': 'dataset_id',\n    'name': 'name',\n    'format': 'type',\n\
+  \    'download_count': 'download_count',\n    'NumberOfInstances': 'number_of_instances',\n\
+  \    'NumberOfFeatures': 'number_of_features',\n    'NumberOfClasses': 'number_of_classes',\n\
+  \    'default_target_attribute': 'default_target_attribute',\n    'citation': 'citation',\n\
+  \    'task_id': 'task_id'\n}\ncols = [c for c in mapping if c in df.columns]\ndf2\
+  \ = df[cols].rename(columns=mapping)\nprint(f'RECORDS={len(df2)}')\nprint('FIELDS='\
+  \ + ','.join(df2.columns))"
 record_count: 6435
 sample_fields:
-- did
+- dataset_id
 - name
-- version
-- description_160
-- uploader
-- status
-- format
-- MajorityClassSize
-- MaxNominalAttDistinctValues
-- MinorityClassSize
-- NumberOfClasses
-- NumberOfFeatures
-- NumberOfInstances
-- NumberOfInstancesWithMissingValues
-- NumberOfMissingValues
-- NumberOfNumericFeatures
-- NumberOfSymbolicFeatures
-field_coverage: 0.556
+- type
+- number_of_instances
+- number_of_features
+- number_of_classes
+field_coverage: 0.6
 required_fields:
-- did
+- dataset_id
 - name
+- type
+- download_count
+- number_of_instances
+- number_of_features
+- number_of_classes
 - default_target_attribute
-- NumberOfInstances
-- NumberOfFeatures
-- NumberOfClasses
-- Citation
-- TaskID
-- URL
-intent: OpenML Python package download most-downloaded classification datasets metadata
-  python package dataset
-cache_key: bdeef3e0eeb4dde89205c2a73c59789e1c64941e423d7d6d610276148c63ba6e
+- citation
+- task_id
+intent: OpenML Python package dataset
+cache_key: 79625a2da1ea65cda7595df8a2af4fa21642bc480989e0f76dfc48034f745f0e

@@ -1,24 +1,22 @@
 T001:
-  reason: "The required root directory `projects/PROJ-001-assessing-statistical-power/`\
-    \ does not exist, so none of the specified sub\u2011directories or their `.gitkeep`\
-    \ placeholders are present. The script output claiming success is not evidence\
-    \ of the actual files. The task must create the project tree at the indicated\
-    \ path with a `.gitkeep` in each folder."
+  reason: "The required root folder `projects/PROJ-001-assessing-statistical-power/`\
+    \ does not exist, and the sub\u2011directories (`code/utils`, `tests/unit`, `tests/integration`,\
+    \ `data/raw`, `data/processed`) lack the placeholder `.gitkeep` files that the\
+    \ task mandates."
   task: f601b39ee8ebeef163aa6e6481dc773fb45ed763416940616bf51385b1d0b7f6
 T002:
   task: dcaeefa0a2f2e975515379cf97c5d6e62d66b4bd77e2618b25fff8803bcecf91
 T003:
-  reason: "The four contract files exist and contain plausible YAML, but there is\
-    \ no evidence that they were actually parsed with `yaml.safe_load` nor that a\
-    \ `jsonschema.Draft7Validator` was run against a minimal valid instance for each\
-    \ schema. Execution logs, test scripts, or validation results are missing, so\
-    \ the task\u2019s requirement is not demonstrably satisfied."
   task: c3ba56c391eb34f7068d63949a82ded611c6114714cabc83a7dee5381ea163ec
 T004:
-  reason: The `code/utils/api_client.py` lacks the required `fetch_top_classification_datasets`
-    method (test_api_client failure) and `code/utils/oa_checker.py` raises an exception
-    on request failure instead of handling it as the unit test expects (test_oa_checker
-    failure). Consequently, the three required unit tests do not all pass.
+  reason: "Checked the unit\u2011test logs: `tests/unit/test_parsers.py` and `tests/unit/test_oa_checker.py`\
+    \ both pass, but `tests/unit/test_api_client.py` fails because the returned dataset\
+    \ dict uses the key `'did'` instead of the required `'dataset_id'`, causing the\
+    \ assertion `assert \"dataset_id\" in ds` to fail. The API client therefore does\
+    \ not meet the specified interface and the overall test suite does not fully pass.\
+    \ The implementation must be corrected (e.g., rename the key to `dataset_id` and\
+    \ ensure the wrapper raises `DataFetchError` as required) before the task can\
+    \ be considered complete."
   task: d1fd21f1dc24b2ff6d073b1184aa5cb3a834bf28c2cddddeafd37bf81deeb74e
 T005:
   reason: "The ingestion script does not use the provided `api_client` wrapper, filters\

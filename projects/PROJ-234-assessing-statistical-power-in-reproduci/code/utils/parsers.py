@@ -1,16 +1,21 @@
+"""
+Simple regex‑based parsers for extracting statistical parameters from free‑text.
+"""
+
 import re
-from typing import Tuple, Optional
-from .exceptions import DataFetchError
+from typing import Optional, Tuple, List
+
 
 def extract_sample_size(text: str) -> Optional[int]:
     """
-    Extracts sample size from text using regex r"N\s*=\s*(\d+)".
-    Returns int if found, else None.
+    Extract the sample size ``N`` from a text string.
+
+    Looks for patterns like ``N = 123`` (case‑insensitive, optional spaces).
+    Returns the integer value or ``None`` if not found.
     """
     if not text:
         return None
-    
-    match = re.search(r"N\s*=\s*(\d+)", text)
+    match = re.search(r"N\s*=\s*(\d+)", text, flags=re.IGNORECASE)
     if match:
         try:
             return int(match.group(1))
@@ -18,32 +23,72 @@ def extract_sample_size(text: str) -> Optional[int]:
             return None
     return None
 
-def extract_effect_size(text: str) -> Tuple[Optional[float], Optional[str], Optional[Tuple[int, int]]]:
+
+def _extract_cohens_d(text: str) -> Optional[Tuple[float, str, None]]:
     """
-    Extracts effect size from text.
-    Supports Cohen's d and F-statistics.
-    Returns: (value, metric_type, optional_dof_tuple)
+    Extract Cohen's d from text.
+
+    Pattern examples:
+        Cohen's d = 0.45
+        d = -0.23
+    Returns (value, "Cohen's d", None) or ``None``.
+    """
+    pattern = r"(?:Cohen\s*['’]?\s*d|d)\s*=\s*([-\d\.]+)"
+    match = re.search(pattern, text, flags=re.IGNORECASE)
+    if match:
+        try:
+            val = float(match.group(1))
+            return (val, "Cohen's d", None)
+        except ValueError:
+            return None
+    return None
+
+
+def _extract_f_stat(text: str) -> Optional[Tuple[float, str, Tuple[int, int]]]:
+    """
+    Extract an F‑statistic together with its degrees of freedom.
+
+    Pattern example:
+        F(1, 145) = 4.5
+    Returns (F_value, "F", (df1, df2)) or ``None``.
+    """
+    pattern = r"F\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*=\s*([-\d\.]+)"
+    match = re.search(pattern, text, flags=re.IGNORECASE)
+    if match:
+        try:
+            df1 = int(match.group(1))
+            df2 = int(match.group(2))
+            f_val = float(match.group(3))
+            return (f_val, "F", (df1, df2))
+        except ValueError:
+            return None
+    return None
+
+
+def extract_effect_size(text: str) -> Optional[Tuple[float, str, Optional[Tuple[int, int]]]]:
+    """
+    Extract an effect size from free‑text.
+
+    The function first tries to locate a Cohen's d value; if that fails it
+    looks for an F‑statistic.  The returned tuple is:
+
+        (value, metric_type, degrees_of_freedom)
+
+    ``degrees_of_freedom`` is only populated for F‑statistics; for Cohen's d
+    it is ``None``.
     """
     if not text:
-        return None, None, None
+        return None
 
-    # 1. Try Cohen's d: "Cohen's d = 0.5" or "d = 0.5"
-    d_match = re.search(r"(?:Cohen's\s*d|d)\s*=\s*([+-]?\d*\.?\d+)", text, re.IGNORECASE)
-    if d_match:
-        try:
-            return float(d_match.group(1)), "Cohen's d", None
-        except ValueError:
-            pass
+    # Try Cohen's d first
+    d_result = _extract_cohens_d(text)
+    if d_result:
+        return d_result
 
-    # 2. Try F-statistic: "F(2, 145) = 4.5"
-    f_match = re.search(r"F\s*\(([^,]+),\s*([^)]+)\)\s*=\s*([+-]?\d*\.?\d+)", text)
-    if f_match:
-        try:
-            df1 = int(f_match.group(1).strip())
-            df2 = int(f_match.group(2).strip())
-            val = float(f_match.group(3))
-            return val, "F", (df1, df2)
-        except ValueError:
-            pass
+    # Then try F‑statistic
+    f_result = _extract_f_stat(text)
+    if f_result:
+        # f_result already includes the df tuple
+        return f_result
 
-    return None, None, None
+    return None

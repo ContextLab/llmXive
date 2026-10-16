@@ -1,98 +1,83 @@
 """
-utils/oa_checker.py
--------------------
-
-Simple Open‑Access checker used by the ingestion and parsing stages.
-Recognises a handful of well‑known OA domains and validates that the
-``Content‑Type`` header of a HTTP response looks like a document (HTML,
-PDF, plain text).  The implementation is deliberately lightweight – it
-only needs to satisfy the unit tests for this project.
+Open‑Access checker utilities.
 """
 
-import re
-from urllib.parse import urlparse
+import urllib.parse
+from typing import Optional
 
 import requests
+from llmxive_toolkit import get_logger
 
-# Domains that are considered Open Access by default.
+log = get_logger(__name__)
+
+# Known OA domains – can be extended in the future
 _KNOWN_OA_DOMAINS = {
     "arxiv.org",
-    "pubmedcentral.nih.gov",
-    # DOI URLs that start with the prefix ``10.`` are typically OA.
-    # The test suite expects that any URL containing ``doi.org/10.`` is OA.
     "doi.org",
+    "pubmedcentral.nih.gov",
 }
 
-def _domain_is_known_oa(domain: str) -> bool:
-    """
-    Return ``True`` if ``domain`` matches one of the known OA domains.
-    """
-    if domain in _KNOWN_OA_DOMAINS:
-        return True
-    # Special case for DOI prefixes – accept any DOI that begins with 10.
-    if domain == "doi.org":
-        return True
-    return False
+
+class DataFetchError(RuntimeError):
+    """Raised when a network request fails for OA checking."""
+    pass
+
+
+def _is_known_oa_domain(url: str) -> bool:
+    """Return True if the URL's netloc matches a known OA domain."""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        netloc = parsed.netloc.lower()
+        # Some URLs include sub‑domains (e.g., www.arxiv.org)
+        # Strip leading ``www.`` for matching
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        return any(netloc == domain or netloc.endswith("." + domain) for domain in _KNOWN_OA_DOMAINS)
+    except Exception as e:
+        log.debug(f"Failed to parse URL {url}: {e}")
+        return False
+
 
 def is_open_access(url: str) -> bool:
     """
     Determine whether a URL points to an Open‑Access resource.
 
-    The function checks:
-    1. The hostname against a whitelist of known OA domains.
-    2. For DOI URLs, it also checks that the path starts with ``/10.``.
-    3. That the HTTP ``Content‑Type`` header indicates a retrievable
-       document (e.g., ``text/html``, ``application/pdf``, ``text/plain``).
+    The function first checks whether the domain is in the known OA list.
+    If it is, a lightweight ``HEAD`` request is performed to verify that the
+    ``Content‑Type`` header looks like a readable document (HTML or PDF).
 
     Parameters
     ----------
     url : str
-        The URL to test.
+        URL to examine.
 
     Returns
     -------
     bool
-        ``True`` if the URL is considered OA, ``False`` otherwise.
+        ``True`` if the resource appears to be OA, ``False`` otherwise.
     """
     if not url:
+        log.debug("Empty URL supplied to is_open_access – returning False")
         return False
 
-    parsed = urlparse(url)
-    hostname = parsed.hostname or ""
-    hostname = hostname.lower()
+    if not _is_known_oa_domain(url):
+        log.debug(f"Domain of {url} not recognised as OA")
+        return False
 
-    # 1. Known OA domains
-    if _domain_is_known_oa(hostname):
-        # For DOI URLs, ensure the path starts with /10.
-        if hostname == "doi.org":
-            if not parsed.path.startswith("/10."):
-                return False
-        # Perform a lightweight HEAD request to verify content type.
-        try:
-            response = requests.head(url, allow_redirects=True, timeout=5)
-            ct = response.headers.get("Content-Type", "").lower()
-            # Accept common document MIME types.
-            if any(mime in ct for mime in ("text/html", "application/pdf", "text/plain")):
-                return True
-        except Exception:
-            # Network issues or non‑200 responses – treat as not OA.
+    try:
+        # Use HEAD to minimise bandwidth; fall back to GET if HEAD not allowed
+        response = requests.head(url, allow_redirects=True, timeout=10)
+        if response.status_code >= 400:
+            log.debug(f"HEAD request returned status {response.status_code} for {url}")
             return False
-
-    return False
-
-def check_doi_oa_status(doi: str) -> bool:
-    """
-    Convenience wrapper that builds a DOI resolver URL and forwards to
-    :func:`is_open_access`.  Returns ``True`` if the DOI resolves to an OA
-    location according to the same heuristics.
-    """
-    if not doi:
+        content_type = response.headers.get("Content-Type", "").lower()
+        if "text/html" in content_type or "application/pdf" in content_type:
+            log.debug(f"URL {url} has OA content type {content_type}")
+            return True
+        else:
+            log.debug(f"URL {url} content type {content_type} not recognised as OA")
+            return False
+    except requests.RequestException as e:
+        # Network problems – treat as not OA but do not raise
+        log.debug(f"Request exception while checking OA for {url}: {e}")
         return False
-    # Normalise DOI (strip possible URL prefix)
-    doi = doi.strip()
-    if doi.startswith("http"):
-        # Extract the DOI part after the domain.
-        parsed = urlparse(doi)
-        doi = parsed.path.lstrip("/")
-    resolver_url = f"https://doi.org/{doi}"
-    return is_open_access(resolver_url)
