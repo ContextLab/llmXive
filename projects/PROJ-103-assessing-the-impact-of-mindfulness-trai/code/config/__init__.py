@@ -1,3 +1,3 @@
 """
-Configuration package for the mindfulness‑DMN analysis pipeline.
+Configuration package for the project.
 """

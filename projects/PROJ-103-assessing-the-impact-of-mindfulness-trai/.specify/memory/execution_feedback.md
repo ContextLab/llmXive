@@ -50,7 +50,7 @@ ModuleNotFoundError: No module named 'src.config.settings'
 
 - python -m pytest tests/contract/ -v -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.6.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-103-assessing-the-impact-of-mindfulness-trai/bin/python
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-103-assessing-the-impact-of-mindfulness-trai/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
@@ -80,12 +80,12 @@ ERROR tests/unit/test_preprocessing.py
 ERROR tests/unit/test_settings.py
 ERROR tests/unit/test_verify_variables.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 0.65s ===============================
+============================== 5 errors in 0.76s ===============================
 
 
 - python -m pytest tests/integration/test_full_pipeline.py -v -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.6.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-103-assessing-the-impact-of-mindfulness-trai/bin/python
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-103-assessing-the-impact-of-mindfulness-trai/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml

@@ -1,1 +1,3 @@
-# Preprocessing module initialization
+"""
+src.preprocessing package – fMRIPrep runner and related helpers.
+"""

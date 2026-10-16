@@ -1,11 +1,8 @@
 T001:
   c: false
-  h: cf6052a708731a48774f45a4025948fe7fad49917776cc28a2b6a9d262512bd9
-  r: "Checked the directory tree (all required folders exist with `__init__.py`),\
-    \ the `settings.py` definitions (all required keys with type hints are present),\
-    \ and the `seeding.py` wrapper (which correctly re\u2011exports a module that\
-    \ pins NumPy, Python `random`, and optional PyTorch seeds). However, no unit\u2011\
-    test file is provided to demonstrate deterministic output on two runs of a trivial\
-    \ NumPy operation, so the test requirement is unmet. Adding the missing test (e.g.,\
-    \ `tests/unit/test_seeding.py`) will be needed to complete the task."
-  sig: 1b22f99e69afc202787cd1bd63ea8103e07089396a3e8998edcfd9e39ef8cbe6
+  h: 7d4e48eebe306a15182ba8868275b272ae076f34af24d568b74d205009331a7e
+  r: "The `data/raw/` and `data/processed/` directories are missing, and the package\
+    \ directories `code/config/` and `code/utils/` do not contain an `__init__.py`\
+    \ (required for a canonical layout). These omissions mean the task\u2019s directory\u2011\
+    structure and package\u2011initialisation requirements are not satisfied."
+  sig: 015d28004d5f30bf6905ac7f73b79c9f1f3f80e35968517a34f8fb32a9bf7a96
