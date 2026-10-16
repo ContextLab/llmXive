@@ -1,79 +1,12 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing, command output, or file system snapshot was provided to
-    demonstrate that `projects/PROJ-446-predicting-molecular-halide-binding-affi/`
-    actually exists; the response contains only the task description and specifications,
-    not the required artifact. The implementer must supply concrete evidence (e.g.,
-    a directory tree, `ls` output, or a file created inside the directory) showing
-    the directory was created.
-T011:
-  c: false
-  h: cb2e6656503f784bc5a48360d9fd1ea4181cf444d7eb142b029e81b10e761419
-  r: The required file `projects/PROJ-446-predicting-molecular-halide-binding-affi/state.yaml`
-    does not exist; only a generic `state.yaml` elsewhere is present. The task explicitly
-    demands the file at the specified project path with the given content, which is
-    missing.
-T014b:
-  c: false
-  h: b2a7f55651bfff8f7075dca8b59657155b749679b8b7fba29eb37099d5c4aef2
-  r: "The required input `data/raw/filtered_hosts.csv` is missing, and the provided\
-    \ `code/01_data_ingestion.py` excerpt shows no logic that counts `host_id`, updates\
-    \ `data/simulated/state.json`, or logs the exact warning message. Consequently\
-    \ the task\u2019s decision\u2011making requirement is not demonstrated."
-T016a:
-  c: false
-  h: 2adb5162e0e47fe1eeed6ef72b819f7414c1fab3eabe0bddae0faec6d580262e
-  r: "The repository lacks the required input files (`data/raw/descriptors_added.csv`,\
-    \ `data/raw/raw_scrape_cleaned.csv`) and the schema file (`schema.yaml`) needed\
-    \ for the logic and validation steps. The provided `code/01_data_ingestion.py`\
-    \ snippet shows no implementation of the simulated\u2011data generation workflow\
-    \ (checking `state.json`, identifying the most abundant halide, creating 100 synthetic\
-    \ hosts, validating against the schema, or logging the specific warning). The\
-    \ generated `temp_simulated_data.csv` contains only a single repeated host and\
-    \ far fewer than 100 rows, and it was not validated ag"
-T017:
-  c: false
-  h: 03b772f116251b0ad4375b1a8f7070f41dbdd5cb9dc99af5295fee8670b19d22
-  r: "The required output file `data/processed/halide_binding_data.csv` does not exist,\
-    \ so the task\u2019s core deliverable (saving the processed dataset with schema\
-    \ validation) is missing. Consequently the task is not genuinely completed."
-T019a:
-  c: false
-  h: 3130c77cd4503cb0804890980470a87bd11e3e32db391ad35672a6715abd6f39
-  r: "The required model file `data/processed/models/random_forest_model.pkl` does\
-    \ not exist, so the primary output of the task is missing. Additionally, the provided\
-    \ snippet of `code/03_model_training.py` is truncated and does not show that `n_jobs=1`\
-    \ is explicitly set or that the monitoring thread is correctly implemented, leaving\
-    \ those requirements unverified. The next implementer must ensure the script creates\
-    \ and saves the Random Forest model to the specified path and includes the explicit\
-    \ `n_jobs=1` setting with the required resource\u2011monitoring logic."
-T019b:
-  c: false
-  h: 6416bbe4f215362d6fa858f6cc1f2d556694f16b9031acd63a9c632524e84796
-  r: "The required model file `data/processed/models/random_forest_model.pkl` and\
-    \ the output metrics file `data/processed/metrics/random_forest_metrics.json`\
-    \ are absent, and the provided `code/03_model_training.py` snippet shows no logic\
-    \ for loading the model, performing cross\u2011validation, or writing the R\xB2\
-    /RMSE metrics. Consequently the task\u2019s deliverables are not satisfied."
-T020a:
-  c: false
-  h: 802b0d9bb0b99490c031c6946353de9d3305cd02a781e375cc87821666b4e41c
-  r: The required model file `data/processed/models/gradient_boosting_model.pkl` does
-    not exist, so the primary output of the task is missing. Additionally, the provided
-    `code/03_model_training.py` is truncated and does not clearly show the Gradient
-    Boosting training with `n_jobs=1` or the activation of the monitoring thread,
-    making it impossible to confirm those requirements.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No performance\u2011related artifacts (e.g., profiling reports, optimized code,\
-    \ benchmark logs, or documentation showing CPU usage now meets the specified limits)\
-    \ were provided. Without evidence of script optimizations or verification that\
-    \ the CPU constraints are satisfied, the task cannot be considered completed."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a quickstart.md validation run (e.g., execution logs, reproduced
-    results, or a report confirming that the quickstart steps complete successfully)
-    was provided. The required artifact is missing, so the task is not satisfied.
+  h: 3ef52f6c2ad550d71a365bdbc8bf729d9bc873ae7133a0c3b0b5f6eb763a458c
+  r: "The pipeline script never performs the required web\u2011fetch (no `requests`\
+    \ calls, no delay/back\u2011off, no HTML/JSON parsing) and instead reads a pre\u2011\
+    made `raw_scrape.json`. It also falls back to simulated data when host count\u202F\
+    <\u202F50, violating the \u201Cmust raise on fetch failure, no synthetic fallback\u201D\
+    \ rule. The generated CSVs lack the required columns (`halide_identity`, `binding_constant`,\
+    \ `source`) and the required test file `code/tests/test_data_ingestion.py` is\
+    \ missing. The cleaning logic does not handle duplicate host\u2011halide averaging\
+    \ or logging of excluded records."
+  sig: 5578f4bf5e01507f1afbb84ff7257432a0ef07ab7ad3016c80f2866cb911c28d

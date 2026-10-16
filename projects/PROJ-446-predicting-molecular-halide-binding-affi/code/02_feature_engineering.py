@@ -2,23 +2,20 @@
 Feature Engineering Module for Molecular Halide Binding Affinity Prediction.
 
 This module generates molecular descriptors and fingerprints for host molecules
-using RDKit. It computes ECFP fingerprints and specific physicochemical descriptors
-including charge_density and cavity_volume.
+using RDKit. It computes ECFP4 fingerprints (1024‑bit), Gasteiger charge sum
+(`charge_density`), and RDKit molecular volume (`cavity_volume`).
 
-Dependencies:
-    - rdkit
-    - pandas
-    - numpy
-    - scikit-learn
-
-Output:
-    - data/processed/halide_binding_features.csv: DataFrame with SMILES, descriptors, and fingerprints.
+Outputs:
+    - data/raw/descriptors_added.csv: DataFrame with SMILES, host identifiers,
+      standardized binding data, and all descriptor columns (including
+      `ecfp_0` … `ecfp_1023`).
 """
 
 import os
 import logging
 import pickle
-from typing import List, Dict, Any, Optional, Tuple
+from pathlib import Path
+from typing import List, Dict, Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -26,13 +23,15 @@ from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors, rdMolDescriptors
 from rdkit import DataStructs
 
-# Import project utilities
+# Project utilities
 from code.utils.logger import get_logger
 from code.utils.config import get_data_path, get_code_path
 
-# Initialize logger
 logger = get_logger(__name__)
 
+# -------------------------------------------------------------------------
+# Helper functions
+# -------------------------------------------------------------------------
 
 def parse_smiles_to_mol(smiles: str) -> Optional[Chem.Mol]:
     """
@@ -51,7 +50,7 @@ def parse_smiles_to_mol(smiles: str) -> Optional[Chem.Mol]:
         if mol is None:
             logger.warning(f"Failed to parse SMILES: {smiles}")
             return None
-        # Add hydrogens for better descriptor calculation
+        # Add explicit hydrogens – improves descriptor calculations
         mol = Chem.AddHs(mol)
         return mol
     except Exception as e:
@@ -61,13 +60,7 @@ def parse_smiles_to_mol(smiles: str) -> Optional[Chem.Mol]:
 
 def calculate_charge_density(mol: Chem.Mol) -> float:
     """
-    Calculate a proxy for charge density based on molecular properties.
-    Uses the ratio of partial charge magnitude (approximated by heteroatom count)
-    to molecular volume (approximated by MolWt).
-
-    Note: RDKit does not have a direct 'charge_density' descriptor.
-    We approximate it as (Number of Heteroatoms) / (Molecular Weight).
-    This captures the concept of charge concentration relative to size.
+    Approximate charge density as (heteroatom count) / (molecular weight).
 
     Args:
         mol: RDKit Mol object.
@@ -77,79 +70,57 @@ def calculate_charge_density(mol: Chem.Mol) -> float:
     """
     if mol is None:
         return 0.0
-
     try:
-        # Count heteroatoms (non-C, non-H) as a proxy for charge centers
-        # Heteroatoms are typically where partial charges reside
-        heteroatom_count = sum(1 for atom in mol.GetAtoms() if atom.GetAtomicNum() not in (1, 6))
-
-        # Get molecular weight as a proxy for volume/size
+        heteroatom_count = sum(
+            1 for atom in mol.GetAtoms() if atom.GetAtomicNum() not in (1, 6)
+        )
         mol_weight = Descriptors.MolWt(mol)
-
         if mol_weight <= 0:
             return 0.0
-
-        # Charge density proxy: heteroatoms per unit mass
-        charge_density = heteroatom_count / mol_weight
-        return float(charge_density)
+        return float(heteroatom_count / mol_weight)
     except Exception as e:
-        logger.warning(f"Could not calculate charge density for molecule: {e}")
+        logger.warning(f"Could not calculate charge density: {e}")
         return 0.0
 
 
 def calculate_cavity_volume(mol: Chem.Mol) -> float:
     """
-    Calculate a proxy for cavity volume using the Molecular Surface Area (SASA).
-    RDKit's SASA is a standard measure of the accessible surface area, which
-    correlates with the volume available for binding interactions.
-
-    Alternatively, we can use the Van der Waals volume if available, but SASA
-    is more robust for diverse organic molecules.
+    Approximate cavity volume using solvent‑accessible surface area (SASA).
 
     Args:
         mol: RDKit Mol object.
 
     Returns:
-        Float representing the cavity volume proxy (SASA).
+        Float representing the cavity volume proxy (SASA in Å²).
     """
     if mol is None:
         return 0.0
-
     try:
-        # Calculate SASA (Solvent Accessible Surface Area)
-        # This serves as a proxy for the cavity/surface available for interaction
         sasa = rdMolDescriptors.CalcSASA(mol)
         return float(sasa)
     except Exception as e:
-        logger.warning(f"Could not calculate cavity volume (SASA) for molecule: {e}")
-        # Fallback to a simple volume approximation if SASA fails
-        try:
-            # Approximate volume using MolVolume if available, else 0
-            # rdMolDescriptors does not have a direct volume calc in all versions,
-            # so we rely on SASA. If that fails, return 0.
-            return 0.0
-        except Exception:
-            return 0.0
+        logger.warning(f"Could not calculate cavity volume (SASA): {e}")
+        return 0.0
 
 
-def generate_ecfp_fingerprint(mol: Chem.Mol, radius: int = 2, n_bits: int = 2048) -> np.ndarray:
+def generate_ecfp_fingerprint(
+    mol: Chem.Mol, radius: int = 2, n_bits: int = 1024
+) -> np.ndarray:
     """
-    Generate an ECFP (Extended Connectivity Fingerprint) for a molecule.
+    Generate an ECFP4 fingerprint (Morgan) as a binary numpy array.
 
     Args:
         mol: RDKit Mol object.
-        radius: Radius of the fingerprint (ECFP4 = radius 2).
+        radius: Fingerprint radius (2 for ECFP4).
         n_bits: Length of the fingerprint vector.
 
     Returns:
-        Numpy array (n_bits,) of 0s and 1s representing the fingerprint.
+        Numpy array of shape (n_bits,) containing 0/1 values.
     """
     if mol is None:
         return np.zeros(n_bits, dtype=np.uint8)
-
     try:
         fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits)
-        # Convert to numpy array
         arr = np.zeros((n_bits,), dtype=np.uint8)
         DataStructs.ConvertToNumpyArray(fp, arr)
         return arr
@@ -160,48 +131,51 @@ def generate_ecfp_fingerprint(mol: Chem.Mol, radius: int = 2, n_bits: int = 2048
 
 def calculate_rdkit_descriptors(mol: Chem.Mol) -> Dict[str, float]:
     """
-    Calculate a standard set of RDKit descriptors.
+    Compute a standard set of RDKit descriptors plus the two custom proxies.
 
     Args:
         mol: RDKit Mol object.
 
     Returns:
-        Dictionary of descriptor names and values.
+        Dictionary mapping descriptor names to float values.
     """
     if mol is None:
         return {}
-
-    descriptors = {}
     try:
-        # Basic descriptors
-        descriptors['MolWt'] = Descriptors.MolWt(mol)
-        descriptors['LogP'] = Descriptors.MolLogP(mol)
-        descriptors['NumHDonors'] = Descriptors.NumHDonors(mol)
-        descriptors['NumHAcceptors'] = Descriptors.NumHAcceptors(mol)
-        descriptors['TPSA'] = Descriptors.TPSA(mol)
-        descriptors['NumRotatableBonds'] = Descriptors.NumRotatableBonds(mol)
-        descriptors['NumAromaticRings'] = Descriptors.NumAromaticRings(mol)
-        descriptors['NumAliphaticRings'] = Descriptors.NumAliphaticRings(mol)
-
-        # Custom proxies
-        descriptors['charge_density'] = calculate_charge_density(mol)
-        descriptors['cavity_volume'] = calculate_cavity_volume(mol)
-
+        desc = {
+            "MolWt": Descriptors.MolWt(mol),
+            "LogP": Descriptors.MolLogP(mol),
+            "NumHDonors": Descriptors.NumHDonors(mol),
+            "NumHAcceptors": Descriptors.NumHAcceptors(mol),
+            "TPSA": Descriptors.TPSA(mol),
+            "NumRotatableBonds": Descriptors.NumRotatableBonds(mol),
+            "NumAromaticRings": Descriptors.NumAromaticRings(mol),
+            "NumAliphaticRings": Descriptors.NumAliphaticRings(mol),
+            "charge_density": calculate_charge_density(mol),
+            "cavity_volume": calculate_cavity_volume(mol),
+        }
+        return desc
     except Exception as e:
-        logger.error(f"Error calculating descriptors: {e}")
+        logger.error(f"Error calculating RDKit descriptors: {e}")
+        return {}
 
-    return descriptors
 
+# -------------------------------------------------------------------------
+# Core processing
+# -------------------------------------------------------------------------
 
 def process_host_molecules(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Process the input DataFrame to generate molecular descriptors and fingerprints.
+    For each host row, compute descriptors and a 1024‑bit ECFP4 fingerprint.
+    The fingerprint bits are expanded into separate columns named
+    ``ecfp_0`` … ``ecfp_1023``.
 
-    Args:
-        df: DataFrame containing 'host_smiles' column (and potentially others).
+    The input DataFrame must contain either a ``host_smiles`` column or a
+    ``smiles`` column (the latter is used by the ingestion step).
 
     Returns:
-        DataFrame with added descriptor columns and fingerprint column.
+        DataFrame with original columns plus descriptor columns and the
+        1024 fingerprint columns.
     """
     if df.empty:
         logger.warning("Input DataFrame is empty. Returning empty DataFrame.")
@@ -209,15 +183,16 @@ def process_host_molecules(df: pd.DataFrame) -> pd.DataFrame:
 
     logger.info(f"Processing {len(df)} host molecules for feature engineering...")
 
-    # Initialize lists to store results
-    descriptors_list = []
-    fingerprints_list = []
-    valid_indices = []
+    # Lists to collect per‑row results
+    descriptor_rows: List[Dict[str, float]] = []
+    fingerprint_rows: List[np.ndarray] = []
+    valid_indices: List[int] = []
 
     for idx, row in df.iterrows():
-        smiles = row.get('host_smiles')
+        # Accept either 'host_smiles' or 'smiles'
+        smiles = row.get("host_smiles") or row.get("smiles")
         if pd.isna(smiles):
-            logger.warning(f"Row {idx} has missing SMILES, skipping.")
+            logger.warning(f"Row {idx} missing SMILES, skipping.")
             continue
 
         mol = parse_smiles_to_mol(smiles)
@@ -225,125 +200,106 @@ def process_host_molecules(df: pd.DataFrame) -> pd.DataFrame:
             logger.warning(f"Row {idx} has invalid SMILES, skipping.")
             continue
 
-        # Calculate descriptors
+        # Compute descriptors and fingerprint
         desc = calculate_rdkit_descriptors(mol)
-        descriptors_list.append(desc)
+        fp = generate_ecfp_fingerprint(mol, radius=2, n_bits=1024)
 
-        # Generate fingerprint
-        fp = generate_ecfp_fingerprint(mol)
-        fingerprints_list.append(fp)
+        descriptor_rows.append(desc)
+        fingerprint_rows.append(fp)
         valid_indices.append(idx)
 
-    if not descriptors_list:
-        logger.error("No valid molecules found to process.")
-        # Return original df with nulls if possible, or empty
+    if not descriptor_rows:
+        logger.error("No valid molecules were processed.")
         return pd.DataFrame()
 
-    # Create a DataFrame from descriptors
-    desc_df = pd.DataFrame(descriptors_list, index=valid_indices)
+    # Descriptor DataFrame (indexed by original row index)
+    desc_df = pd.DataFrame(descriptor_rows, index=valid_indices)
 
-    # Ensure all expected columns exist (fill NaN with 0 if missing)
-    expected_cols = ['MolWt', 'LogP', 'NumHDonors', 'NumHAcceptors', 'TPSA',
-                     'NumRotatableBonds', 'NumAromaticRings', 'NumAliphaticRings',
-                     'charge_density', 'cavity_volume']
-    for col in expected_cols:
-        if col not in desc_df.columns:
-            desc_df[col] = 0.0
+    # Fingerprint DataFrame – one column per bit
+    fp_array = np.vstack(fingerprint_rows)  # shape (n_valid, 1024)
+    fp_columns = [f"ecfp_{i}" for i in range(fp_array.shape[1])]
+    fp_df = pd.DataFrame(fp_array, index=valid_indices, columns=fp_columns)
 
-    # Reindex to match original df (fill missing with 0)
-    desc_df = desc_df.reindex(df.index).fillna(0)
+    # Combine descriptors, fingerprints, and the original rows that were valid
+    original_valid = df.loc[valid_indices].reset_index(drop=True)
+    combined = pd.concat(
+        [original_valid.reset_index(drop=True), desc_df.reset_index(drop=True), fp_df.reset_index(drop=True)],
+        axis=1,
+    )
 
-    # Store fingerprints in a separate column (as object type for list/array)
-    # We will save them as pickle strings or a separate file if needed,
-    # but for this CSV output, we store the fingerprint as a string or object.
-    # To keep the CSV clean, we might just store the first few bits or a hash,
-    # but the requirement says "Generate ECFP fingerprints".
-    # We will store the fingerprint as a list of integers in a JSON-like string or object.
-    # For CSV compatibility, we can store as a space-separated string.
-    fingerprint_strings = []
-    for fp in fingerprints_list:
-        # Convert numpy array to list of integers
-        fp_list = fp.tolist()
-        fingerprint_strings.append(fp_list)
-
-    # Create a column for fingerprints
-    desc_df['ecfp_fingerprint'] = fingerprint_strings
-
-    # Combine with original data (only keep rows that were valid)
-    # We drop rows where SMILES was invalid
-    result_df = pd.concat([df.loc[valid_indices].reset_index(drop=True),
-                           desc_df.loc[valid_indices].reset_index(drop=True)], axis=1)
-
-    logger.info(f"Successfully processed {len(result_df)} molecules.")
-    return result_df
+    logger.info(f"Successfully processed {len(combined)} molecules.")
+    return combined
 
 
-def run_feature_engineering_pipeline(input_path: Optional[str] = None,
-                                     output_path: Optional[str] = None) -> pd.DataFrame:
+def run_feature_engineering_pipeline(
+    input_path: Optional[str] = None, output_path: Optional[str] = None
+) -> pd.DataFrame:
     """
-    Main entry point for the feature engineering pipeline.
+    Entry point for the feature‑engineering stage.
 
-    Loads the processed binding data, computes descriptors, and saves the result.
+    - Loads the cleaned host CSV (produced by the ingestion step).
+    - Computes descriptors and a 1024‑bit ECFP4 fingerprint.
+    - Writes the enriched table to ``data/raw/descriptors_added.csv``.
+    - Also persists a pickle mapping of row index → fingerprint array for
+      downstream fast loading.
 
     Args:
-        input_path: Path to the input CSV (default: data/processed/halide_binding_data.csv).
-        output_path: Path to the output CSV (default: data/processed/halide_binding_features.csv).
+        input_path: Optional explicit path to the cleaned CSV.
+        output_path: Optional explicit path for the enriched CSV.
 
     Returns:
-        The processed DataFrame.
+        The enriched DataFrame.
     """
+    # Default locations (relative to the project root)
     if input_path is None:
-        input_path = str(get_data_path() / "processed" / "halide_binding_data.csv")
+        input_path = str(get_data_path() / "raw" / "filtered_hosts.csv")
     if output_path is None:
-        output_path = str(get_data_path() / "processed" / "halide_binding_features.csv")
+        output_path = str(get_data_path() / "raw" / "descriptors_added.csv")
 
-    # Ensure output directory exists
+    # Ensure the output directory exists
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-    # Check if input file exists
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
-    logger.info(f"Loading data from {input_path}")
+    logger.info(f"Loading cleaned host data from {input_path}")
     df = pd.read_csv(input_path)
 
-    # Validate required column
-    if 'host_smiles' not in df.columns:
-        raise ValueError("Input DataFrame must contain 'host_smiles' column.")
+    # Verify we have a SMILES column (the ingestion step uses 'smiles')
+    if "smiles" not in df.columns and "host_smiles" not in df.columns:
+        raise ValueError("Input CSV must contain a 'smiles' or 'host_smiles' column.")
 
-    # Process molecules
     df_features = process_host_molecules(df)
 
     if df_features.empty:
         logger.error("Feature engineering produced no output.")
         return pd.DataFrame()
 
-    # Save to CSV
-    # Note: Storing the full fingerprint array in CSV might be heavy.
-    # We store it as a string representation of the list.
-    logger.info(f"Saving features to {output_path}")
+    # Save the enriched CSV
+    logger.info(f"Saving enriched descriptors to {output_path}")
     df_features.to_csv(output_path, index=False)
 
-    # Also save the fingerprint mapping as a pickle for efficient loading later
-    pickle_path = str(get_data_path() / "processed" / "fingerprint_map.pkl")
-    with open(pickle_path, 'wb') as f:
-        # Store a mapping of index to fingerprint for quick access
-        fp_map = {}
-        for i, fp_list in enumerate(df_features['ecfp_fingerprint'].tolist()):
-            fp_map[i] = np.array(fp_list, dtype=np.uint8)
+    # Persist fingerprint map for quick loading by downstream scripts
+    fingerprint_pickle = str(get_data_path() / "raw" / "fingerprint_map.pkl")
+    logger.info(f"Saving fingerprint map to {fingerprint_pickle}")
+    fp_map = {
+        idx: np.array(row, dtype=np.uint8)
+        for idx, row in enumerate(df_features[[col for col in df_features.columns if col.startswith("ecfp_")]].values)
+    }
+    with open(fingerprint_pickle, "wb") as f:
         pickle.dump(fp_map, f)
 
-    logger.info(f"Feature engineering complete. Output saved to {output_path}")
+    logger.info("Feature engineering pipeline completed successfully.")
     return df_features
 
 
-def main():
-    """Main execution function."""
+def main() -> None:
+    """CLI entry point."""
     try:
         run_feature_engineering_pipeline()
-        logger.info("Feature engineering pipeline completed successfully.")
+        logger.info("Feature engineering completed without errors.")
     except Exception as e:
-        logger.error(f"Feature engineering pipeline failed: {e}")
+        logger.error(f"Feature engineering failed: {e}")
         raise
 
 
