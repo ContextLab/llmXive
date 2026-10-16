@@ -28707,7 +28707,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-16T10:12:21.542779+00:00",
+  "generated_at": "2026-10-16T10:17:16.437859+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -48613,7 +48613,7 @@
           ]
         },
         {
-          "contributions": 8,
+          "contributions": 9,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -48641,6 +48641,14 @@
       "id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 371.415017,
+          "ended_at": "2026-10-16T10:15:00.988149Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T10:08:49.573132Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 372.979078,
@@ -48712,14 +48720,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-08T05:43:56.316409Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 93.807498,
-          "ended_at": "2026-10-08T05:43:56.276875Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-08T05:42:22.469377Z"
         }
       ],
       "paper_status": null,
@@ -64061,7 +64061,7 @@
           ]
         },
         {
-          "contributions": 5,
+          "contributions": 6,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -64099,6 +64099,14 @@
       "id": "PROJ-176-predicting-molecular-properties-from-vib",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 457.472536,
+          "ended_at": "2026-10-16T10:15:24.490326Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-16T10:07:47.017790Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 30.518457,
@@ -64170,14 +64178,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "failed",
           "started_at": "2026-10-06T14:31:55.131560Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 14.558729,
-          "ended_at": "2026-10-06T14:31:52.829132Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T14:31:38.270403Z"
         }
       ],
       "paper_status": null,
@@ -129175,6 +129175,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 368.911115,
+          "ended_at": "2026-10-16T10:13:36.199429Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-16T10:07:27.288314Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 373.369242,
           "ended_at": "2026-10-15T09:13:49.421879Z",
           "model": "openai.gpt-oss-120b",
@@ -129244,14 +129252,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "failed",
           "started_at": "2026-10-08T01:30:57.843985Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 13.256874,
-          "ended_at": "2026-10-07T01:31:45.863906Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-10-07T01:31:32.607032Z"
         }
       ],
       "paper_status": null,
@@ -172001,6 +172001,42 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 457.472536,
+      "ended_at": "2026-10-16T10:15:24.490326Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T10:07:47.017790Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 371.415017,
+      "ended_at": "2026-10-16T10:15:00.988149Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-16T10:08:49.573132Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 368.911115,
+      "ended_at": "2026-10-16T10:13:36.199429Z",
+      "failure_reason": "NotADirectoryError: [Errno 20] Not a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-556-llmxive-automation-system-fully-autonomo/code/.tasks/T006.artifact-write.log'",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-556-llmxive-automation-system-fully-autonomo",
+      "project_stage": "analyzed",
+      "severity": "hard",
+      "started_at": "2026-10-16T10:07:27.288314Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 824.622575,
       "ended_at": "2026-10-16T09:55:01.574189Z",
@@ -178017,42 +178053,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-15T08:19:55.263719Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 118.557352,
-      "ended_at": "2026-10-15T08:19:55.260992Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-105-statistical-analysis-of-publicly-availab",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T08:17:56.703640Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.027032,
-      "ended_at": "2026-10-15T08:17:49.083099Z",
-      "failure_reason": "",
-      "model": "deterministic-no-llm",
-      "outcome": "skipped",
-      "project_id": "PROJ-105-statistical-analysis-of-publicly-availab",
-      "project_stage": "in_progress",
-      "severity": "soft",
-      "started_at": "2026-10-15T08:17:49.056067Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 554.528702,
-      "ended_at": "2026-10-15T08:17:33.616905Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-105-statistical-analysis-of-publicly-availab",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-15T08:08:19.088203Z"
     }
   ],
   "reviewed_preprints": [
