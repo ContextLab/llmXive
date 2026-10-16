@@ -1,17 +1,13 @@
 status: none
-intent: download quantization gap dataset gradient norms KL divergence LLM GSM8K Llama-3-8B
-  python package
+intent: hardware validated quantization gap dataset gradient norms GSM8K Llama-3-8B
+  python package dataset
 required_fields:
-- prompt
-- full_precision_output_distribution
-- int8_output_distribution
-- int4_output_distribution
-- fp8_output_distribution
+- prompt_text
+- gradient_norm
+- local_curvature
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
-- gradient_norm
-- local_curvature
-cache_key: 6507f84b7188c6a8ad5fcd2e95cbf1dde295e405c425526615200d9dca424029
-searched_at: '2026-10-16T08:11:37.358581+00:00'
+cache_key: 2b670bba5bab336ed91a6826e3df262814a40fe16e8d35b33873d9e1a1c180aa
+searched_at: '2026-10-16T15:20:46.096297+00:00'
 retry_count: 1
