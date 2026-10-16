@@ -1,23 +1,49 @@
-# Byte-compiled / optimized / DLL files
+# Byte‑compiled / Python cache
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
 
-# Environments
-.venv/
+# Virtual environment
 venv/
-ENV/
+.venv/
 env/
+.env
 
-# IDEs
-.vscode/
-.idea/
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
 
-# Testing/Linting
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Data artefacts (large files)
+data/raw/
+data/processed/
+data/results/
+data/**/*.parquet
+data/**/*.nii*
+data/**/*.npz
+data/**/*.npy
+
+# Logs
+logs/
+*.log
+
+# OS‑specific files
+.DS_Store
+Thumbs.db
+
+# Misc
+.coverage
+htmlcov/
 .pytest_cache/
+.mypy_cache/
 .ruff_cache/
-.black/
+.ruff.toml
+.pylintrc
+.flake8
+.editorconfig
 
-# Project specific
-logs/*.log
-state/*.yaml
+# State directory used by the platform (should not be version‑controlled)
+state/

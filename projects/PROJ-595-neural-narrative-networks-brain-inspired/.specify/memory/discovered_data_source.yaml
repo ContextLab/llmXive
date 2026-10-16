@@ -1,17 +1,19 @@
 status: none
-intent: OpenNeuro ds001495 fMRI dataset ROCStories corpus Harvard-Oxford atlas python
+intent: OpenNeuro ds001495 fMRI Harvard-Oxford atlas ROCStories corpus download python
   package dataset
 required_fields:
 - subject_id
+- session_id
 - run_id
 - timepoint
-- left_hippocampus_signal
-- right_hippocampus_signal
-- dlpfc_signal
+- hippocampus_left_timecourse
+- hippocampus_right_timecourse
+- dlpfc_left_timecourse
+- dlpfc_right_timecourse
 - event_timestamp
-- event_type
 - story_id
-- story_text
-cache_key: 879490fb748bd4c33c2ee41a3c556e5481b659bb462181a7eb6286205a573df8
-searched_at: '2026-10-16T19:21:11.294505+00:00'
+- story_condition
+- story_id
+cache_key: 815bd7dbc1b83e3bc3babc331e1ec28cd6534d3146b3ea3a2902993a7b1ef6b6
+searched_at: '2026-10-16T19:23:09.275186+00:00'
 retry_count: 1

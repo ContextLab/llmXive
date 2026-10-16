@@ -68,6 +68,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/02_load_masks.py` — NOT invoked by the run-book
     - `code/04_extract_roi_timecourses.py` — NOT invoked by the run-book
     - `code/04_extract_roi_timecourses_dlpfc.py` — NOT invoked by the run-book
+    - `code/04_extract_roi_timecourses_right.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/mask_paths.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 

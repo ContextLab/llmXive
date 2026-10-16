@@ -11,14 +11,6 @@ T000.1:
     \ (FR\u2011004)\u201D section explicitly stating the baseline model is a **TinyLSTM\
     \ (quantized transformer)**, satisfying the task\u2019s requirement."
   sig: bd209b95106f4a78e7de55d09cc6e93981522f66aff144e27b3f16aad88dd8cc
-T001:
-  c: false
-  h: fba5170251f1a34e11d1b430afb65c86c6218fe4c4221c9439ab2728c6859732
-  r: The `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/` directories
-    all exist and `code/__init__.py` is present, but there is no evidence of a `.gitignore`
-    file in the project root. Adding a standard `.gitignore` is required to satisfy
-    the task.
-  sig: 49f47a466e64591b7399dfa1a84b08d006bb345f3ae181429458e01356cf7003
 T002:
   c: true
   h: 12158d9c6a9c9bdddc9789c93513c3c8c1e26dfc3ab9f2e08bfb00ee4a9a1c2c

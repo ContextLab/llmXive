@@ -3,10 +3,10 @@ T000:
 T000.1:
   task: a10a4fe69255e02a9f3a9ebbf1b3def8e59bc69e9dda11d3c5c47780cd66de66
 T001:
-  reason: The `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/`
-    directories all exist and `code/__init__.py` is present, but there is no evidence
-    of a `.gitignore` file in the project root. Adding a standard `.gitignore` is
-    required to satisfy the task.
+  reason: Checked that `code/`, `data/raw/`, `data/processed/`, `data/results/`, and
+    `tests/` directories exist and that `code/__init__.py` is present, but no `.gitignore`
+    file was found in the project root (or any listed location). The required `.gitignore`
+    is missing, so the task is not fully satisfied.
   task: 1d6622d350bf7f53e129d88709aa7ce30ccd019a2474e477cc079a15247c2691
 T002:
   task: f093bd0489657adea5be0af52bd205cfcc3817d08b09cd1ac7744cb45e5421f4
