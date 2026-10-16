@@ -1,23 +1,33 @@
 """
-Unit tests for the memory‑limit utilities (code/utils/memory_monitor.py).
+Unit tests for the memory‑monitor utilities.
+
+The tests verify that:
+* ``run_with_limit`` raises ``MemoryLimitExceededError`` when the
+  requested allocation exceeds the 7 GB hard limit.
+* ``run_with_limit`` correctly executes a supplied callable when the
+  allocation is within the limit.
 """
 
 import pytest
 
-from utils.memory_monitor import run_with_limit, MemoryLimitExceededError, memory_limit
+from code.utils.memory_monitor import (
+    MemoryLimitExceededError,
+    run_with_limit,
+)
 
-def test_run_with_limit_raises_when_exceeding():
-    """
-    The helper should raise MemoryLimitExceededError if the requested
-    dummy allocation exceeds the configured limit (default 7 GB).
-    """
-    # The default limit is 7 GB; request something larger.
+
+def dummy_success():
+    """A no‑op function that should succeed under the memory limit."""
+    return "ok"
+
+
+def test_run_with_limit_exceeds_hard_limit():
+    """Requesting more than 7 GB must raise the custom error."""
     with pytest.raises(MemoryLimitExceededError):
-        run_with_limit(limit_gb=memory_limit / 1024 + 0.1)  # just over the limit
+        run_with_limit(8)  # 8 GB > 7 GB hard limit
 
-def test_run_with_limit_passes_when_within_limit():
-    """
-    The helper should silently succeed when the request is within the limit.
-    """
-    # Request well below the default limit.
-    run_with_limit(limit_gb=1.0)  # should not raise
+
+def test_run_with_limit_executes_callable():
+    """A callable that does nothing should run without error."""
+    result = run_with_limit(1, dummy_success)  # 1 GB is well within the limit
+    assert result == "ok"

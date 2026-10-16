@@ -1,61 +1,45 @@
+"""
+Unit test for the CTU‑13 download script (Task T002).
+
+The test invokes the script's ``download_ctu13_dataset`` function and
+verifies that:
+  * The CSV file is created under ``data/raw``.
+  * A corresponding ``*.sha256`` side‑car file exists.
+  * ``config.yaml`` contains the ``active_dataset: ctu13`` entry.
+The test deliberately runs in the CI environment where network access is
+allowed; if the public mirror becomes unavailable the test will raise,
+correctly signalling a failure of the required data source.
+"""
+
 import os
-import pytest
-from unittest.mock import patch, MagicMock
-import urllib.error
+import yaml
 
-def test_calculate_sha256():
-    from data.download_ctu13 import calculate_sha256
-    # Create a temporary file
-    with open("temp_test_file.txt", "w") as f:
-        f.write("test content")
-    
-    hash_val = calculate_sha256("temp_test_file.txt")
-    assert len(hash_val) == 64  # SHA256 hex length
-    
-    os.remove("temp_test_file.txt")
+from llmxive_toolkit import paths
+from code.data.download_ctu13 import download_ctu13_dataset, main
 
-def test_download_file_success():
-    from data.download_ctu13 import download_file
-    # Mock the urlretrieve
-    with patch('urllib.request.urlretrieve') as mock_retrieve:
-        mock_retrieve.return_value = None
-        # Mock os.path.getsize
-        with patch('os.path.getsize', return_value=100):
-            result = download_file("http://example.com/file.pcap", "test_file.pcap")
-            assert result is True
-    if os.path.exists("test_file.pcap"):
-        os.remove("test_file.pcap")
 
-def test_download_file_failure():
-    from data.download_ctu13 import download_file
-    with patch('urllib.request.urlretrieve', side_effect=urllib.error.URLError("Connection failed")):
-        result = download_file("http://example.com/file.pcap", "test_file.pcap")
-        assert result is False
+def test_download_ctu13():
+    # Ensure a clean start – remove any existing artifacts.
+    csv_path = paths.data("raw", "ctu13_scenario1.csv")
+    sha_path = f"{csv_path}.sha256"
+    for p in (csv_path, sha_path):
+        if os.path.exists(p):
+            os.remove(p)
 
-def test_validate_file_exists():
-    from data.download_ctu13 import validate_file
-    # Create a temp file
-    with open("temp_validate.txt", "w") as f:
-        f.write("data")
-    assert validate_file("temp_validate.txt") is True
-    os.remove("temp_validate.txt")
+    # Run the download logic.
+    main()
 
-def test_validate_file_empty():
-    from data.download_ctu13 import validate_file
-    # Create an empty temp file
-    with open("temp_empty.txt", "w") as f:
-        pass
-    assert validate_file("temp_empty.txt") is False
-    os.remove("temp_empty.txt")
+    # Verify CSV exists.
+    assert os.path.isfile(csv_path), "CSV file was not created"
 
-def test_trigger_fallback():
-    from data.download_ctu13 import trigger_fallback
-    with patch('data.download_ctu13.fallback_manager_trigger') as mock_fallback:
-        with patch('sys.exit') as mock_exit:
-            trigger_fallback()
-            mock_fallback.assert_called_once()
-            mock_exit.assert_called_once_with(1)
+    # Verify checksum side‑car exists and is non‑empty.
+    assert os.path.isfile(sha_path), "Checksum file missing"
+    with open(sha_path, "r", encoding="utf-8") as f:
+        content = f.read().strip()
+    assert len(content.split()) == 2, "Checksum file malformed"
 
-# Note: Full integration test for PCAP conversion requires scapy and a real PCAP file.
-# We skip the actual conversion test in this unit test suite to avoid external dependencies.
-# The logic is tested via the mock above.
+    # Verify config.yaml was updated.
+    config_path = paths.code("config.yaml")
+    with open(config_path, "r", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    assert cfg.get("active_dataset") == "ctu13", "Config not updated"

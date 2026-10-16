@@ -7,7 +7,7 @@ All paths are relative to the repository root.
 
 ## Phase 1 – Project bootstrap  
 
-- [ ] **T001** **Create project layout & core utilities**  
+- [X] **T001** **Create project layout & core utilities**  
   *Creates* the top‑level directories `code/`, `data/`, `docs/`, `tests/`, adds minimal `__init__.py` files, writes `requirements.txt` (pinning Python 3.11, `torch`‑CPU, `torch‑geometric`, `networkx`, `scikit‑learn`, `xgboost`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `captum`, `pytest`, `pytest‑memprof`), adds `pyproject.toml` for `ruff`/`black`, implements deterministic seed handling (`code/utils/seed.py`) and a RAM‑limit wrapper (`code/utils/memory_monitor.py`).  
   **Verification**: `tree` shows the directories; `pip install -r requirements.txt` succeeds; `seed.set_seed(42)` yields reproducible RNG state; `memory_monitor.run_with_limit` raises `MemoryLimitError` when a dummy allocation exceeds 7 GB; `jsonschema.validate` passes on sample files.
 
@@ -15,7 +15,7 @@ All paths are relative to the repository root.
 
 ## Phase 2 – Data acquisition & preprocessing  
 
-- [ ] **T002** **Download and register the CTU‑13 NetFlow dataset (mandatory)**   <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 -->
+- [ ] **T002** **Download and register the CTU‑13 NetFlow dataset (mandatory)**   <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_ctu13.py exit=1 -->
   1. Download **CTU‑13 Scenario 1** NetFlow CSV from  
      `[UNRESOLVED-CLAIM: https://www.stratosphereips.org/datasets-ctu13/CTU-13-Dataset/Scenario1/Scenario1-1.csv` — HTTP 404] into `data/raw/ctu13_scenario1.csv`.  
   2. **No fallback**: if the download fails, the task aborts with a clear error message and the pipeline stops (ensuring FR‑001 is not weakened).  

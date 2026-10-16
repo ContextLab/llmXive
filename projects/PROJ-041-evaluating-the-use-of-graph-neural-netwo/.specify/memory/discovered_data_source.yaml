@@ -1,17 +1,16 @@
 status: none
-intent: CTU-13 NetFlow traffic dataset download NF-BoT-IoT-v3 fallback python package
-  dataset
+intent: CTU-13 and NF-BoT-IoT-v3 network traffic download python package dataset
 required_fields:
 - source_ip
 - destination_ip
 - source_port
 - destination_port
 - protocol
-- timestamp
 - packet_count
 - byte_count
-- flow_duration
+- flow_start_time
+- flow_end_time
 - label
-cache_key: 38d582d229824fa52197d186a1bb73a4843a9ba8931f5ec6a8651ac3f6970505
-searched_at: '2026-10-16T03:11:55.078686+00:00'
+cache_key: 9437eca095408af782cef2c3a57e98a4e9bc77a1dcc0045e8a02fe474765db04
+searched_at: '2026-10-16T12:13:59.967061+00:00'
 retry_count: 1

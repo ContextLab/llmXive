@@ -1,12 +1,4 @@
 T001:
-  reason: "The core artifacts exist (directories, `__init__.py` files, `requirements.txt`,\
-    \ `pyproject.toml`, `seed.py`, `memory_monitor.py`), but key requirements fail:\
-    \ (1) `run_with_limit` is a simulated stand-in \u2014 it never executes a function\
-    \ or performs a dummy allocation, it merely compares `limit_gb * 1024` against\
-    \ the configured limit, so it cannot actually wrap work or enforce a real 7 GB\
-    \ RAM constraint as specified; (2) `requirements.txt` pins `tracemalloc==0.1.0`,\
-    \ a nonexistent PyPI package (tracemalloc is stdlib), and `torch==2.3.0+cpu` needs\
-    \ an extra index URL, so `pip install -r requirements."
   task: 7e98edd029a6969dadd7ca0dc6952393bba0c34a8fede7f9ab5a822238a272d4
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/download_ctu13.py

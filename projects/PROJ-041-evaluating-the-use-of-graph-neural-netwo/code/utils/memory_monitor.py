@@ -5,17 +5,19 @@ This module provides context managers and functions to monitor memory
 usage and enforce hard memory limits to prevent OOM errors.
 """
 
-import tracemalloc
 import os
-from typing import Optional
+import tracemalloc
 from contextlib import contextmanager
+from typing import Callable, Optional, Any
 
-# Default memory limit in MB (7GB as per project requirements)
-DEFAULT_MEMORY_LIMIT_MB = 7 * 1024  # 7168 MB
+# Default memory limit in MB (7 GB as per project requirements)
+DEFAULT_MEMORY_LIMIT_MB = 7 * 1024  # 7168 MB
+
 
 class MemoryLimitExceededError(Exception):
     """Exception raised when memory usage exceeds the configured limit."""
     pass
+
 
 # Global memory limit configuration (can be overridden via env var)
 memory_limit: int = int(os.getenv('MEMORY_LIMIT_MB', DEFAULT_MEMORY_LIMIT_MB))
@@ -46,7 +48,7 @@ def check_memory_limit() -> None:
         return
     if get_memory_usage_mb() > memory_limit:
         raise MemoryLimitExceededError(
-            f"Memory limit exceeded: {get_memory_usage_mb():.2f} MB > {memory_limit} MB"
+            f"Memory limit exceeded: {get_memory_usage_mb():.2f} MB > {memory_limit} MB"
         )
 
 
@@ -119,31 +121,64 @@ def enforce_memory_limit_check(limit_mb: Optional[int] = None) -> None:
 
     if get_memory_usage_mb() > current_limit:
         raise MemoryLimitExceededError(
-            f"Memory limit exceeded: {get_memory_usage_mb():.2f} MB > {current_limit} MB"
+            f"Memory limit exceeded: {get_memory_usage_mb():.2f} MB > {current_limit} MB"
         )
 
 
-def run_with_limit(limit_gb: float = 7.0) -> None:
+def run_with_limit(limit_gb: float, func: Optional[Callable] = None, *args, **kwargs) -> Any:
     """
-    Helper used in the verification step of T001.
+    Execute ``func`` under a hard memory limit. If ``func`` is ``None``,
+    the function behaves like the original stub and simply checks whether
+    the requested allocation (``limit_gb``) would exceed the configured
+    limit, raising ``MemoryLimitExceededError`` if so.
 
-    The function simulates a dummy allocation that would exceed the provided
-    ``limit_gb``. If the simulated allocation would be larger than the
-    configured hard limit (7 GB), a ``MemoryLimitExceededError`` is raised.
+    Parameters
+    ----------
+    limit_gb : float
+        Desired memory allocation size in gigabytes.
+    func : Callable, optional
+        The function to execute under the memory limit. If omitted,
+        ``run_with_limit`` only performs the limit‑check.
+    *args, **kwargs :
+        Arguments forwarded to ``func`` when it is provided.
 
-    Args:
-        limit_gb: The size in gigabytes that the dummy allocation would occupy.
+    Returns
+    -------
+    Any
+        The return value of ``func`` when supplied; otherwise ``None``.
 
-    Raises:
-        MemoryLimitExceededError: When the dummy allocation exceeds the
-            hard memory limit.
+    Raises
+    ------
+    MemoryLimitExceededError
+        If the requested allocation exceeds the hard limit or if the
+        monitored memory usage exceeds the limit during ``func`` execution.
     """
-    # Convert GB to MB for comparison
+    # Convert GB to MB for comparison with the global limit
     requested_mb = limit_gb * 1024
+
+    # If the requested allocation itself exceeds the hard limit, fail fast
     if requested_mb > memory_limit:
         raise MemoryLimitExceededError(
             f"Requested allocation of {limit_gb:.2f} GB exceeds the hard limit of "
             f"{memory_limit / 1024:.2f} GB."
         )
-    # If the request is within the limit, simply return (no real allocation performed)
-    return None
+
+    # No callable supplied – behave like a pure check (backward compatible)
+    if func is None:
+        return None
+
+    # Execute the callable within the memory‑limit context
+    with memory_limit_context(limit_mb=int(requested_mb)):
+        result = func(*args, **kwargs)
+        # Final check after execution
+        check_memory_limit()
+        return result
+
+
+# Backwards‑compatible alias used in older code paths
+def run_with_limit_legacy(limit_gb: float) -> None:
+    """
+    Legacy helper retained for compatibility with older imports.
+    It simply proxies to ``run_with_limit`` without a callable.
+    """
+    run_with_limit(limit_gb)

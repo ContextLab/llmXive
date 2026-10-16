@@ -1,6 +1,5 @@
-# Pin Python version requirement (handled via pyproject.toml)
 # Core dependencies (CPU‑only)
-torch==2.3.0+cpu
+torch==2.3.0
 torch-geometric==2.5.0
 networkx==3.2.1
 scikit-learn==1.5.0
@@ -14,4 +13,3 @@ pytest==8.2.2
 pytest-memprof==1.0.0
 datasets==2.19.0
 pyyaml==6.0.2
-tracemalloc==0.1.0
