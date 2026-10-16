@@ -32,20 +32,20 @@
 - [ ] T004 [US1] **Preprocess data** – implement `code/preprocess.py` to (1) load either `data/raw/real_data.parquet` or `data/raw/synthetic_data.csv` based on `download_status.json`, (2) extract motion features `latency` and `smoothness`; derive `lead_time = user_response_trigger - latency` **only if** three independence checks pass (Pearson r < 0.05, partial‑r < 0.05, permutation p > 0.10), (3) aggregate agency questionnaire items into a continuous score (mean, rescaled 0‑100), (4) drop rows with any missing motion or agency values, (5) write the cleaned table to `data/processed/analysis_ready.csv` (conforms to `contracts/dataset.schema.yaml`) and a brief `preprocess_report.json` with row‑count stats.  
   *Verification*: `analysis_ready.csv` contains the required columns and ≥ 100 complete rows; `preprocess_report.json` is valid JSON.
 
-- [ ] T015 [US1] **Compute VIF diagnostics** – implement `code/compute_vif.py` to read `analysis_ready.csv`, compute Variance Inflation Factor for each predictor, exclude any with VIF ≥ 5, and write `data/processed/vif_report.json` (includes per‑feature VIF and boolean `vif_pass`).  
+- [~] T015 [US1] **Compute VIF diagnostics** – implement `code/compute_vif.py` to read `analysis_ready.csv`, compute Variance Inflation Factor for each predictor, exclude any with VIF ≥ 5, and write `data/processed/vif_report.json` (includes per‑feature VIF and boolean `vif_pass`).  
   *Verification*: `vif_report.json` exists, VIF values are numeric, and `vif_pass` correctly reflects the threshold.
 
-- [ ] T016 [US1] **Power analysis** – implement `code/power_analysis.py` to (1) read `analysis_ready.csv`, (2) perform an analytical power calculation for a multiple linear regression with up to three predictors (α = 0.05, target power ≥ 0.80) using `statsmodels.stats.power.FTestPower`, (3) output `data/processed/modeling_config.json` containing `effective_n`, `detectable_f2`, `power`, `sc001_pass` (≥ 100 rows), `power_pass` (≥ 0.80), and an `abort_flag` (true when `effective_n < 80`).  
+- [~] T016 [US1] **Power analysis** – implement `code/power_analysis.py` to (1) read `analysis_ready.csv`, (2) perform an analytical power calculation for a multiple linear regression with up to three predictors (α = 0.05, target power ≥ 0.80) using `statsmodels.stats.power.FTestPower`, (3) output `data/processed/modeling_config.json` containing `effective_n`, `detectable_f2`, `power`, `sc001_pass` (≥ 100 rows), `power_pass` (≥ 0.80), and an `abort_flag` (true when `effective_n < 80`).  
   *Verification*: `modeling_config.json` exists with correctly typed fields.
 
-- [ ] T016b [US1] **Enforce gates before modeling** – implement `code/enforce_gates.py` that reads `modeling_config.json`; if `abort_flag` is true it aborts the pipeline with a clear message. This task must be executed **before any modeling task**.  
+- [~] T016b [US1] **Enforce gates before modeling** – implement `code/enforce_gates.py` that reads `modeling_config.json`; if `abort_flag` is true it aborts the pipeline with a clear message. This task must be executed **before any modeling task**.  
   *Verification*: Pipeline stops with exit code 1 when the gate condition is triggered.
 
 ---
 
 ## Phase 3 – Modeling, Correction & Sensitivity  
 
-- [ ] T021 [US2] **Fit Ordinary Least Squares regression** – implement `code/fit_ols.py` to read `analysis_ready.csv`, fit OLS, compute coefficients, standard errors, raw p‑values, and write `data/results/ols.json`.  
+- [ ] T021 [US2] **Fit Ordinary Least Squares regression** – implement `code/fit_ols.py` to read `analysis_ready.csv`, fit OLS, compute coefficients, standard errors, raw p‑values, and write `data/results/ols.json`.   <!-- FAILED-IN-EXECUTION: code/fit_ols.py exit=1 -->
   *Verification*: `ols.json` contains `coefficients`, `standard_errors`, `p_values`, and a placeholder `cv_metrics` field.
 
 - [ ] T021b [US2] **Fit Ridge regression** – implement `code/fit_ridge.py` (α = 1.0) to produce `data/results/ridge.json` with `alpha`, `coefficients`, and raw p‑values.  

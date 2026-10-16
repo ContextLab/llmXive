@@ -1,10 +1,4 @@
-# Project‑wide Python dependencies
-#
-# Core scientific stack (already present in the execution environment):
-#   numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-#   seaborn, pytest, PyYAML, requests, jsonschema, psutil
-#
-# The ``requests`` library is explicitly listed to guarantee its presence
-# for the OpenML / HuggingFace checks performed by ``code/download_data.py``.
-#
-requests==2.32.3
+openml>=0.14
+pandas>=2.0
+requests>=2.0
+# Existing dependencies (numpy, scipy, scikit-learn, etc.) are provided by the platform.

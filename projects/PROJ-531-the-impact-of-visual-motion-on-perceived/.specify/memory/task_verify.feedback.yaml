@@ -3,23 +3,38 @@ T001:
 T001b:
   task: 36e9097b74eb073014efe060f0af557fed9b6084af8e71c90afba927abad266d
 T002:
-  reason: "Checked `code/download_data.py` and the generated `data/raw/download_status.json`.\
-    \ The script never attempts to download a dataset or create `data/raw/real_data.parquet`\
-    \ (the file is missing), it always returns `instrument_valid = false` via a placeholder\
-    \ stub (no DOI, citation, or Cronbach\u2019s\u202F\u03B1 checks), and it exits\
-    \ with code\u202F0 even when the instrument is invalid. Consequently the required\
-    \ dataset query, instrument validation, raw data saving, and error\u2011exit behavior\
-    \ are not implemented."
+  reason: The script never creates `data/raw/real_data.parquet` (the file is missing)
+    and the generated `download_status.json` contains an invalid `status` value (`"synthetic"`
+    instead of the required `"success"`, `"invalid"` or `"unavailable"`). Moreover,
+    the code only checks a placeholder OpenML Iris dataset, which lacks motion telemetry
+    and agency questionnaire data, so it does not fulfill the required dataset query/validation
+    steps. The task therefore fails to meet the specification.
   task: 756d4182065ae2553b3a729d0a1b5d38ac8c16fb6bb567da019c8c270e4ecc0a
 T002a:
   reason: 'Requested task execution failed; rerun successfully: code/check_instrument_validity.py
     exit=1'
   task: 4773093927a3e3ce6a2c3e3b631945f7e98cf054f129f6705d94481979839506
 T003:
+  reason: "The generated `data/raw/synthetic_data.csv` has the required columns and\
+    \ \u2265150 rows, but the `participant_id` values are simple \u201CP0000\u201D\
+    \ strings rather than UUIDs, violating the specification. Moreover, no evidence\
+    \ (e.g., a script or reported correlation/p\u2011value) is provided to confirm\
+    \ that `user_response_trigger` is independent of `agency_score` (Pearson\u202F\
+    r\u202F<\u202F0.05, permutation\u202Fp\u202F>\u202F0.10). The implementation also\
+    \ does not check `instrument_valid` as required, and would skip generation when\
+    \ `status` is \u201Csynthetic\u201D. These issues must be fixed for the task to\
+    \ be considered complete."
   task: 1581166f1f17e84268519e330c0d9e3d694bcf8094bc9567c5f6d11c2334de1a
 T003a:
+  reason: 'The evidence does not show a `download_status.json` file at any path, nor
+    any content confirming that it contains `"use_synthetic": true` and `"status":
+    "synthetic"`. Without the file or its verified contents, the task requirement
+    is not satisfied.'
   task: 4b21468a03844eb851d80173492ed50e4399defc110ebca245f549d0b3e056e0
 T004:
+  reason: "The `code/preprocess.py` script runs and produces a valid `analysis_ready.csv`\
+    \ with \u2265\u202F100 rows and the required columns, but the required `data/processed/preprocess_report.json`\
+    \ is not present in the listed artifacts, so the task\u2019s deliverable is incomplete."
   task: 3b95947a86a7dd628c33a0506a7078936155506c123491ec085aa46a939846d0
 T009:
   task: 58ce114bf6e04ce7a4527d7e70727127e7457199fb11d28ebe97213774ca29a8
@@ -38,6 +53,7 @@ T016:
 T016b:
   task: b1e07db2697515e915e05ee750b62735c7a2a0f48be730a57612b0771216563b
 T021:
+  reason: 'Requested task execution failed; rerun successfully: code/fit_ols.py exit=1'
   task: bdfad361550458a8a49f5df0de918449d3afbec29a5203589a38dab0c99b3721
 T021b:
   task: d2c4a05081f456d73f19de2160134a9ef58cc685382fa6780799620fdbb2cad3

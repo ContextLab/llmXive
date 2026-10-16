@@ -1,30 +1,55 @@
 T001:
   c: true
-  h: 84e406d1195256056bcc3ae26d5aae90249ef7c44945eb7ab211ae02a53fcaa3
+  h: cc313737e784073404b105bf753764ac67ec9bf44045092abb773f6856674f64
   r: "Checked `docs/scope.md` (contains synthetic\u2011only policy, IRB placeholder\
-    \ reference, and feature\u2011branch citation) and `README.md` (updated with feature\u2011\
-    branch line) plus the link from `quickstart.md` to `docs/scope.md`. All required\
-    \ files exist, are non\u2011empty, and include the stipulated sections."
-  sig: b88322e907d66a2c6ef353f4bb50cc8043e287f345cb60de957a8e602990402f
+    \ reference, and feature\u2011branch citation) and `README.md` (mentions synthetic\u2011\
+    only fallback, links to scope, and cites the feature branch). Both files exist,\
+    \ are non\u2011empty, and `quickstart.md` links to the scope document as required."
+  sig: e95802eb0c8f03b373ca3a652facf30d3826b5b057c129a33bf6ac25d7bbd55e
 T001b:
   c: true
-  h: fa8a9426b293f4ec00c4b0470be241606add34cad739d3a843faa7fb01fe370d
-  r: "The PDF file `protocols/irb_approval.pdf` is present (482\u202Fbytes, valid\
-    \ PDF content) and `docs/scope.md` contains a reference to it as the placeholder\
-    \ IRB approval document. This satisfies the requirement to provide a documented\
-    \ IRB approval (or placeholder) and to reference it in the project scope."
-  sig: 8b2036ff27230d4b3ddfb4796097eeb8584812215e0d523eb79d9d77bde7d2f3
+  h: fb22ca646f0aaebfd76a324664ba23afc7a221565c8f311e0402919e5a13d88f
+  r: "The `protocols/irb_approval.pdf` file is present (482\u202Fbytes, valid PDF\
+    \ with placeholder text) and `docs/scope.md` explicitly references it as the IRB\
+    \ approval placeholder. Both artifacts exist and meet the task\u2019s requirement\
+    \ for a documented (placeholder) IRB approval file."
+  sig: f0249a64890f52e8393450d606f093fa25388747a40ba38916afce0176bcf51f
 T002:
   c: false
-  h: 2453c044d33a73e618c9dbad562f739ac701a67bb1b52f1cff6345d764faaf5d
-  r: "Checked `code/download_data.py` and the generated `data/raw/download_status.json`.\
-    \ The script never attempts to download a dataset or create `data/raw/real_data.parquet`\
-    \ (the file is missing), it always returns `instrument_valid = false` via a placeholder\
-    \ stub (no DOI, citation, or Cronbach\u2019s\u202F\u03B1 checks), and it exits\
-    \ with code\u202F0 even when the instrument is invalid. Consequently the required\
-    \ dataset query, instrument validation, raw data saving, and error\u2011exit behavior\
-    \ are not implemented."
-  sig: 483042d7a46d70cbace15cac6cd0510c017301317303b2f26c67e18cef002f15
+  h: 08b97adc0933e278ad3edb0b5130a6031cbf328d7956c86bdbf8324958bcb9bd
+  r: The script never creates `data/raw/real_data.parquet` (the file is missing) and
+    the generated `download_status.json` contains an invalid `status` value (`"synthetic"`
+    instead of the required `"success"`, `"invalid"` or `"unavailable"`). Moreover,
+    the code only checks a placeholder OpenML Iris dataset, which lacks motion telemetry
+    and agency questionnaire data, so it does not fulfill the required dataset query/validation
+    steps. The task therefore fails to meet the specification.
+  sig: 96799f1e37f4f5591870e21fb9afc606126e6bd331437284725aa36f7765d892
+T003:
+  c: false
+  h: 7d92558062838b5926d1bb9764abdc9b4540e406fcea4a3eb9ea2318ee7d2a66
+  r: "The generated `data/raw/synthetic_data.csv` has the required columns and \u2265\
+    150 rows, but the `participant_id` values are simple \u201CP0000\u201D strings\
+    \ rather than UUIDs, violating the specification. Moreover, no evidence (e.g.,\
+    \ a script or reported correlation/p\u2011value) is provided to confirm that `user_response_trigger`\
+    \ is independent of `agency_score` (Pearson\u202Fr\u202F<\u202F0.05, permutation\u202F\
+    p\u202F>\u202F0.10). The implementation also does not check `instrument_valid`\
+    \ as required, and would skip generation when `status` is \u201Csynthetic\u201D\
+    . These issues must be fixed for the task to be considered complete."
+  sig: 7594a6e640fac1bb69c91acccfa5c3031ff531e2057d4b345b60ea44e6fc6748
+T003a:
+  c: false
+  h: 90ef59459e8d1f793f136b656ab9f434f999ba696557f948738c166d2414754c
+  r: 'The evidence does not show a `download_status.json` file at any path, nor any
+    content confirming that it contains `"use_synthetic": true` and `"status": "synthetic"`.
+    Without the file or its verified contents, the task requirement is not satisfied.'
+  sig: 9ea6bf59f4253615392403670ea71fd91658279d27efeaeb9f0541d0c4faef20
+T004:
+  c: false
+  h: b72a797770110034d0bf18f0a6a1d08bf3b2302b69aab2d85e3595d953215df9
+  r: "The `code/preprocess.py` script runs and produces a valid `analysis_ready.csv`\
+    \ with \u2265\u202F100 rows and the required columns, but the required `data/processed/preprocess_report.json`\
+    \ is not present in the listed artifacts, so the task\u2019s deliverable is incomplete."
+  sig: 60b81713088299355b42980f0401c533a401ded4e84a32881f7ed4f6487dc93c
 T012:
   c: false
   h: 748e34db654f86208819c500fed5f53ea06e453a0c2dd18d0e27d45d827ca8ba

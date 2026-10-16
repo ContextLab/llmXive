@@ -27,8 +27,10 @@ def main() -> None:
     status_path = paths.data("raw", "download_status.json")
 
     if not status_path.is_file():
-        log.error(f"download_status.json not found at {status_path}. "
-                  "Ensure T012 (download_data) has been executed.")
+        log.error(
+            f"download_status.json not found at {status_path}. "
+            "Ensure T012 (download_data) has been executed."
+        )
         sys.exit(1)
 
     try:
