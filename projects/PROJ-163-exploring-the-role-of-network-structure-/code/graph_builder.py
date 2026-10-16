@@ -19,7 +19,7 @@ def build_coupling_graph(coupling_map: List[List[int]]) -> nx.Graph:
     G = nx.Graph()
     if not coupling_map:
         return G
-    
+
     for edge in coupling_map:
         if len(edge) == 2:
             u, v = edge
@@ -33,7 +33,7 @@ def compute_shortest_path_metrics(G: nx.Graph) -> Dict[str, float]:
     """
     if G.number_of_nodes() == 0:
         return {"avg_shortest_path": float('nan'), "diameter": float('nan')}
-    
+
     # Handle disconnected graphs
     if not nx.is_connected(G):
         largest_cc = max(nx.connected_components(G), key=len)
@@ -59,7 +59,7 @@ def compute_clustering_and_assortativity(G: nx.Graph) -> Dict[str, float]:
     """
     if G.number_of_nodes() == 0:
         return {"clustering_coeff": float('nan'), "assortativity": float('nan')}
-    
+
     try:
         # average_clustering is the standard global clustering coefficient
         clustering = nx.average_clustering(G)
@@ -67,7 +67,7 @@ def compute_clustering_and_assortativity(G: nx.Graph) -> Dict[str, float]:
     except ZeroDivisionError:
         clustering = float('nan')
         assortativity = float('nan')
-    
+
     return {"clustering_coeff": clustering, "assortativity": assortativity}
 
 def compute_edge_betweenness_and_spectral_gap(G: nx.Graph) -> Dict[str, float]:
@@ -76,7 +76,7 @@ def compute_edge_betweenness_and_spectral_gap(G: nx.Graph) -> Dict[str, float]:
     """
     if G.number_of_nodes() == 0:
         return {"edge_betweenness_mean": float('nan'), "spectral_gap": float('nan')}
-    
+
     # Edge Betweenness
     try:
         edge_betw = nx.edge_betweenness_centrality(G)
@@ -93,7 +93,7 @@ def compute_edge_betweenness_and_spectral_gap(G: nx.Graph) -> Dict[str, float]:
         eigenvalues = sorted(np.linalg.eigvals(L))
         eigenvalues = [ev.real for ev in eigenvalues]
         eigenvalues.sort()
-        
+
         if len(eigenvalues) < 2:
             spectral_gap = 0.0
         else:
@@ -108,12 +108,12 @@ def process_device_coupling_map(coupling_map: List[List[int]]) -> Dict[str, Any]
     Compute all graph metrics for a single device's coupling map.
     """
     G = build_coupling_graph(coupling_map)
-    
+
     metrics = {}
     metrics.update(compute_shortest_path_metrics(G))
     metrics.update(compute_clustering_and_assortativity(G))
     metrics.update(compute_edge_betweenness_and_spectral_gap(G))
-    
+
     return metrics
 
 def load_raw_snapshots(raw_dir: str) -> List[Dict[str, Any]]:
@@ -126,21 +126,21 @@ def load_raw_snapshots(raw_dir: str) -> List[Dict[str, Any]]:
     if not path.exists():
         logger.warning(f"Raw data directory {raw_dir} does not exist.")
         return snapshots
-    
+
     for file_path in path.glob("*.json"):
         try:
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            
+
             # Extract device_id from filename or content
             device_id = data.get('device_id', file_path.stem.split('_')[0])
             timestamp = data.get('timestamp', datetime.now().isoformat())
             coupling_map = data.get('coupling_map', [])
-            
+
             if not isinstance(coupling_map, list):
                 logger.warning(f"Invalid coupling_map in {file_path}")
                 continue
-                
+
             snapshots.append({
                 "device_id": device_id,
                 "timestamp": timestamp,
@@ -151,7 +151,7 @@ def load_raw_snapshots(raw_dir: str) -> List[Dict[str, Any]]:
             logger.error(f"Failed to parse JSON: {file_path}")
         except Exception as e:
             logger.error(f"Error processing {file_path}: {e}")
-    
+
     return snapshots
 
 def generate_graph_metrics_csv(raw_dir: str, output_path: str) -> None:
@@ -161,19 +161,19 @@ def generate_graph_metrics_csv(raw_dir: str, output_path: str) -> None:
     Columns: device_id, metric_name, value, is_finite
     """
     snapshots = load_raw_snapshots(raw_dir)
-    
+
     if not snapshots:
         logger.error("No raw snapshots found. Cannot generate graph metrics.")
-    
+
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    
+
     rows = []
     for snap in snapshots:
         device_id = snap['device_id']
         coupling_map = snap['coupling_map']
         metrics = process_device_coupling_map(coupling_map)
-        
+
         for metric_name, value in metrics.items():
             is_finite = bool(np.isfinite(value))
             rows.append({
@@ -182,34 +182,39 @@ def generate_graph_metrics_csv(raw_dir: str, output_path: str) -> None:
                 "value": value,
                 "is_finite": is_finite
             })
-    
+
     with open(output_file, 'w', newline='') as f:
         fieldnames = ["device_id", "metric_name", "value", "is_finite"]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
-    
+
     logger.info(f"Wrote {len(rows)} graph metrics to {output_path}")
 
 def main():
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Generate graph metrics CSV from raw snapshots")
     parser.add_argument("--raw-dir", type=str, default="data/raw", help="Path to raw data directory")
-    parser.add_argument("--output", type=str, default="data/processed/graph_metrics.csv", help="Output CSV path")
-    parser.add_argument("--generate-metrics", action="store_true", help="Legacy flag to trigger metric generation")
-    
+    # Support both --output and legacy --out flags
+    parser.add_argument("--output", type=str, default="data/processed/graph_metrics.csv",
+                        help="Output CSV path")
+    parser.add_argument("--out", type=str, help="Alias for --output (legacy flag)")
+
+    parser.add_argument("--generate-metrics", action="store_true",
+                        help="Legacy flag to trigger metric generation")
+
     args = parser.parse_args()
-    
+
+    # Resolve output path, giving precedence to --out if supplied
+    output_path = args.out if args.out is not None else args.output
+
     # Configure logging
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    # If the legacy flag is used, simply run the generation with defaults or provided paths
-    if args.generate_metrics:
-        generate_graph_metrics_csv(args.raw_dir, args.output)
-    else:
-        # Default behavior: run generation with explicit arguments
-        generate_graph_metrics_csv(args.raw_dir, args.output)
+
+    # Run generation (the flag is kept for backward compatibility)
+    if args.generate_metrics or not args.generate_metrics:
+        generate_graph_metrics_csv(args.raw_dir, output_path)
 
 if __name__ == "__main__":
     main()

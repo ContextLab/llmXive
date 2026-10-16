@@ -1,23 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Performance Metrics CSV Schema
-description: Schema for data/processed/performance_metrics.csv
+title: PerformanceMetrics
 type: object
-properties:
-  device_id:
-    type: string
-  timestamp:
-    type: string
-    format: date-time
-  t1_mean:
-    type: number
-  t2_mean:
-    type: number
-  cx_error_mean:
-    type: number
-  readout_error_mean:
-    type: number
-  chip_family:
-    type: string
 required:
   - device_id
   - timestamp
@@ -26,4 +9,24 @@ required:
   - cx_error_mean
   - readout_error_mean
   - chip_family
-additionalProperties: false
+properties:
+  device_id:
+    type: string
+  timestamp:
+    type: string
+    format: date-time
+  t1_mean:
+    type: number
+    minimum: 0
+  t2_mean:
+    type: number
+    minimum: 0
+  cx_error_mean:
+    type: number
+    minimum: 0
+  readout_error_mean:
+    type: number
+    minimum: 0
+  chip_family:
+    type: string
+    enum: [Falcon, Hummingbird, Eagle, Osprey, Condor, Unknown]

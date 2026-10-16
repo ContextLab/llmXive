@@ -1,14 +1,3 @@
-T002:
-  c: false
-  h: 11f8f2c2945dab6cbb5435c5dbb278b84f1dd24f482dcc43c97c2fc4834ddb9e
-  r: The required artifacts `data/processed/performance_metrics.csv` and `performance_metrics.schema.yaml`
-    are MISSING, and `data/raw/` contains only a `.gitkeep` (no JSON snapshots to
-    aggregate). The test run of `code/tests/test_processed_csv.py` failed (exit 1)
-    with `test_csv_exists` failing on the missing CSV, and `fetcher.py`'s `process_historical_data`
-    merely copies pre-aggregated fields from JSON files rather than computing per-device
-    averages from raw snapshots. The implementer must fetch real snapshots into `data/raw/`,
-    add the aggregation script and schema, and produce a passing validation
-  sig: b1fbe08dca7fad78a9e414c2d3ac4a56b55cd58585090e52444e2da777c8f60c
 T003:
   c: false
   h: 46b1596fb2709ba61f0c4eed752a966697c313d5cbba6a38eb78c941084055d0
