@@ -21,10 +21,11 @@ properties:
     required:
       - height
       - width
-    description: "Spatial resolution of the map"
+    description: "Spatial resolution"
   generation_method:
     type: "string"
     enum:
+      - "gbvs"
       - "deepgaze_ii"
       - "gbvs_fallback"
     description: "Method used to generate the map"
@@ -34,14 +35,15 @@ properties:
       - "success"
       - "fallback_used"
       - "failed"
-    description: "Status of the generation"
+    description: "Status of the  generation  in  the  ...  ?  "
   excluded_reason:
     type: "string"
     nullable: true
-    description: "Reason for exclusion if status is failed"
+    description: "Reason          …  …  …  ...  "
 required:
   - stimulus_id
   - map_path
   - resolution
   - generation_method
   - status
+  - excluded_reason

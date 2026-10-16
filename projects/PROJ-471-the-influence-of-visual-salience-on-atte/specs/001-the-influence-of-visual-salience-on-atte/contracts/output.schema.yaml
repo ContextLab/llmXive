@@ -34,10 +34,10 @@ properties:
         description: "Estimate from Model A (intercepts only)"
       model_b_estimate:
         type: "number"
-        description: "Estimate from Model B (intercepts + slopes)"
+        description: "Estimate from Model B (intercepts + slopes"
       stability_metric:
         type: "number"
-        description: "Change in effect size"
+        description: "Change in effect size between models"
     required:
       - model_a_estimate
       - model_b_estimate

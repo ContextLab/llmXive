@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Salience Map Generation (Priority: P1)
 
-The researcher downloads the "Moral Foundations Eye-Tracking Dataset" (OpenNeuro dsXXXX), extracts the 200 stimulus images, and generates pixel-wise computational salience maps using the DeepGaze II model for every image.
+The researcher downloads the "Moral Foundations Eye-Tracking Dataset" (OpenNeuro dsXXXX), extracts the stimulus images, and generates pixel-wise computational salience maps using the DeepGaze II model for every image.
 
 **Why this priority**: This is the foundational data preparation step. Without successfully computing salience maps that align with the stimulus images, no correlation analysis with eye-tracking data can occur. It establishes the predictor variable required for the entire study.
 
@@ -40,7 +40,7 @@ The researcher fits linear mixed-effects models to test the predictive relations
 **Independent Test**: The system can be tested by running the analysis script on the prepared dataset and verifying that a regression summary is produced with p-values for the salience predictor, and that a sensitivity analysis plot is generated showing result stability across model variations.
 
 **Acceptance Scenarios**:
-1. **Given** the aligned dataset of 200 images, **When** the mixed-effects model is fitted, **Then** the output includes a fixed-effect estimate for salience with a p-value, and random intercepts for participants and items.
+1. **Given** the aligned dataset of a substantial number of images, **When** the mixed-effects model is fitted, **Then** the output includes a fixed-effect estimate for salience with a p-value, and random intercepts for participants and items.
 2. **Given** the primary regression result, **When** the sensitivity analysis runs, **Then** it reports the change in the headline association rate across the comparison of Model A (random intercepts only) and Model B (random intercepts and slopes for salience).
 
 ### Edge Cases

@@ -21,21 +21,27 @@ properties:
     description: "Region of Interest type"
   dwell_time_ms:
     type: "number"
-    description: "Dwell time in milliseconds"
+    description: "Dwell time (ms)"
   first_fixation_prob:
     type: "number"
     minimum: 0
     maximum: 1
     description: "Probability of first fixation"
+  fixation_latency_ms:
+    type: "number"
+    description: "Fixation latency (ms)"
   salience_score:
     type: "number"
-    description: "Mean salience score in the ROI"
+    description: "Mean salience within ROI"
   luminance:
     type: "number"
     description: "Average luminance (diagnostic only)"
   contrast:
     type: "number"
     description: "Average contrast (diagnostic only)"
+  edge_density:
+    type: "number"
+    description: "Edge density (diagnostic only)"
   excluded:
     type: "boolean"
     description: "Whether the trial was excluded from analysis"
@@ -46,5 +52,9 @@ required:
   - roi_type
   - dwell_time_ms
   - first_fixation_prob
+  - fixation_latency_ms
   - salience_score
+  - luminance
+  - contrast
+  - edge_density
   - excluded
