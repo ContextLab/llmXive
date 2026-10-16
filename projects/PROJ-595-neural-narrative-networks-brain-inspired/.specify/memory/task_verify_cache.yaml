@@ -17,17 +17,13 @@ T000.1:
     execution order).
   sig: 9cf62c1397459ef8b2071b8e716b4eb670bc53219e81283df4d6985e25fa3733
 T001:
-  c: false
-  h: bd366213e210f3dbe8629c27bb87f71e0db8a4bd4ee3043adfd770ae275f8dd9
-  r: 'The task requires five directories to be created: `code/`, `data/raw/`, `data/processed/`,
-    `data/results/`, and `tests/`. While `code/` and `tests/` directories exist with
-    content, three required directories are **MISSING**: `data/raw/`, `data/processed/`,
-    and `data/results/`. The `code/__init__.py` file exists and is non-empty (51 bytes),
-    satisfying that requirement. However, the `.gitignore` file is not mentioned in
-    the evidence and appears to be missing. The task explicitly requires creating
-    these five directories and a `.gitignore` file as foundational project structure;
-    partial completion'
-  sig: 2255ddc361224efca540f19fdac5a7a84380b494e7ff145ecfd4cecd9983b175
+  c: true
+  h: 900d5a28e9c542d33e591ab06dbd072c9f657e017e274c27f92cd63f69a696b0
+  r: "Checked that `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/`\
+    \ directories exist, that `code/__init__.py` is present with non\u2011empty content,\
+    \ and that a `.gitignore` file exists (verified by the passing `test_gitignore_exists`\
+    \ test)."
+  sig: da9054a22a2618aa213f839d5375472ca31273c260fa9aa0db7c37d2d8b98f63
 T002:
   c: true
   h: 12158d9c6a9c9bdddc9789c93513c3c8c1e26dfc3ab9f2e08bfb00ee4a9a1c2c
@@ -53,38 +49,44 @@ T004:
     \ or stubs. This matches T004's requirement to add the project's linting configuration."
   sig: f1b7446e24d3eb25867274cac5936b2a10115880b13b7d4c17dff80f220fbf6b
 T006:
-  c: false
-  h: 48f081159d80dda189477ccb0663ef7771aaa6721c9f65f472f2f69c7ee5553e
-  r: 'The task requires implementing `code/utils/schema_validation.py` with validators
-    for neural, text, and RSA contracts. While the file exists and contains substantial
-    code with three public validator functions (`validate_neural_data`, `validate_text_data`,
-    `validate_rsa_output`), the implementation is **non-functional** because it depends
-    on schema files that do not exist.
-
-
-    The code attempts to load YAML schema files from `SCHEMA_DIRS` (either `contracts/`
-    or `specs/schemas/` directories) using `_load_schema()`. The three required schemas
-    are:
-
-    - `neural-data.schema.yaml`
-
-    - `text-data.schema.yaml'
-  sig: 0aa4789b2408952cfa7c5458df1038b6393236e1453933220082e9a041645d3a
+  c: true
+  h: 6f27f21c745c4d106ce24abbcc95522f310b42f1aa397aa05c596fb401271b41
+  r: "Checked `code/utils/schema_validation.py` (13\u202FKB) which defines `validate_neural_data`,\
+    \ `validate_text_data`, and `validate_rsa_output` functions, loads the appropriate\
+    \ YAML schema files, and performs file\u2011type specific validation plus a CLI\
+    \ dispatcher, fulfilling the required validators."
+  sig: 2c7c5e215c8480f25489e0175d621d540876a1e96ff5c9ef1c6c4a2c3a334bfa
 T007:
   c: true
-  h: 80169a8f8bfa963f88097c47545acb9d28ae5647ad3abc45e355d4c7482b7940
-  r: "The artifact `code/utils/checksums.py` exists (7816 bytes), is non-empty, and\
-    \ contains a fully functional SHA-256 hashing implementation that directly addresses\
-    \ the task requirement. The module provides:\n\n1. **Core functionality**: `compute_sha256()`\
-    \ for file hashing, `compute_directory_checksums()` for batch operations, `verify_file_integrity()`\
-    \ and `verify_manifest()` for integrity checking, and `write_manifest()` for creating\
-    \ checksum manifests\u2014all using stdlib-only hashlib.\n\n2. **Correctness verified\
-    \ by tests**: The historical execution log shows 20 passing pytest tests covering\
-    \ SHA-256 co"
-  sig: 55f9eb05237bf10609644bdce34cd05833f8b2794e6ef8615d467b5fcb9bcd8c
+  h: c642280110bd18fd835d9cb45aff339709a957970e8904244327e3212073fd43
+  r: "Checked the `code/utils/checksums.py` file (7816\u202Fbytes) which implements\
+    \ `compute_sha256` and related utilities for hashing files and directories, writing\
+    \ and verifying JSON manifests, and provides a CLI entry point. The module is\
+    \ fully functional, non\u2011empty, and matches the SHA\u2011256 hashing requirement."
+  sig: 8317bb03c7053b043ccdaca2b3b534667fd1b32d72699c13d599eb48ab9673ad
+T008:
+  c: true
+  h: 6ac4b54c684f204d4f7cd3106b17a6143f8194413a3e6c8b1f4fff9f27d32de4
+  r: "Checked `code/config.py` (2717\u202Fbytes) which defines `random_seed = 42`,\
+    \ `cpu_only = True`, `max_ram_gb = 7`, and provides a `set_seed()` function that\
+    \ seeds Python, NumPy and PyTorch RNGs. The file exists, is non\u2011empty, and\
+    \ matches all required specifications."
+  sig: 53b532cef1e4f860687a200dee69fc9458e5e6dbc7888ae5c5a44bad6b927d8a
+T009:
+  c: true
+  h: 377ee9870ea141971074d7582e3a2539413a29327228c7fce61575afee19cb33
+  r: "Checked `code/utils/logging_config.py` (6628\u202Fbytes) \u2013 it creates a\
+    \ `logs/pipeline.log` file handler, defines `VALID_ERROR_CODES = {\"E001\",\"\
+    E002\",\"E003\",\"E004\"}`, and provides `log_E001`\u2011`log_E004` functions\
+    \ that emit those codes."
+  sig: 0b7911696b68c592def3ae92c8ac9d2613d6426cc7c6b5f837dd440976f39a26
 T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of `utils/checksums.py` being executed or of a state file being\
-    \ updated is provided; the required artifact (updated state file with checksum\
-    \ entries) is missing, so the task\u2019s requirement is not demonstrably satisfied."
+  c: true
+  h: 50ffd804c4b38498328859e6e16e0a432a9090778ddb84a7f7407861cbab9d75
+  r: "Checked `code/utils/loaders.py` \u2013 it contains a full implementation of\
+    \ `load_chunked_fMRI` that lazily loads NIfTI data, estimates a safe chunk size\
+    \ from the RAM budget, and yields NumPy chunks without ever holding the full 4\u2011\
+    D volume in memory. The test log `code/.tasks/T018.tests_test_loaders.py.log`\
+    \ shows the associated pytest suite ran and both tests (`test_load_chunked_fMRI_basic`\
+    \ and `test_load_chunked_fMRI_invalid_path`) passed, confirming functional behavior."
+  sig: c7fca1b353d9f2687ffc416774d0d651d0904accb24920bf9b953c4ac229e2d0

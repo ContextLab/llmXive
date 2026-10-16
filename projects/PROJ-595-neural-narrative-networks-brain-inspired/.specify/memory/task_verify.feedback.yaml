@@ -3,14 +3,6 @@ T000:
 T000.1:
   task: a10a4fe69255e02a9f3a9ebbf1b3def8e59bc69e9dda11d3c5c47780cd66de66
 T001:
-  reason: 'The task requires five directories to be created: `code/`, `data/raw/`,
-    `data/processed/`, `data/results/`, and `tests/`. While `code/` and `tests/` directories
-    exist with content, three required directories are **MISSING**: `data/raw/`, `data/processed/`,
-    and `data/results/`. The `code/__init__.py` file exists and is non-empty (51 bytes),
-    satisfying that requirement. However, the `.gitignore` file is not mentioned in
-    the evidence and appears to be missing. The task explicitly requires creating
-    these five directories and a `.gitignore` file as foundational project structure;
-    partial completion'
   task: 1d6622d350bf7f53e129d88709aa7ce30ccd019a2474e477cc079a15247c2691
 T002:
   task: f093bd0489657adea5be0af52bd205cfcc3817d08b09cd1ac7744cb45e5421f4
@@ -19,20 +11,6 @@ T003:
 T004:
   task: b40fb3d8acfbc8277b4e431d5afbc935f1db400e1758497e1cfe277c6a9df300
 T006:
-  reason: 'The task requires implementing `code/utils/schema_validation.py` with validators
-    for neural, text, and RSA contracts. While the file exists and contains substantial
-    code with three public validator functions (`validate_neural_data`, `validate_text_data`,
-    `validate_rsa_output`), the implementation is **non-functional** because it depends
-    on schema files that do not exist.
-
-
-    The code attempts to load YAML schema files from `SCHEMA_DIRS` (either `contracts/`
-    or `specs/schemas/` directories) using `_load_schema()`. The three required schemas
-    are:
-
-    - `neural-data.schema.yaml`
-
-    - `text-data.schema.yaml'
   task: f961eab9eff0a622d5a34a37118a437ed850b6eb38046143a90f9c348032f3a2
 T007:
   task: 552576f09b4c3ce08f74be9796640e28adb1b5b1c2907da56a5a07ff7d6ca689
@@ -43,6 +21,7 @@ T009:
 T018:
   task: ba371a4ba123cd4222a10700b96d6e6aa206374aa7a5e3b068b5098bc2a6e7c3
 T050:
+  reason: 'declared artifact(s) missing/empty/invalid: code/main.py'
   task: c665b42fe88212179ce524028baa9b01fbc7cb7d3ea76d280e9a2d232abded39
 T051:
   task: 64f8bb4aa755b2d1ba1fb163a864efe1c8dd1b6154c3d174693e2e59e5fd6953

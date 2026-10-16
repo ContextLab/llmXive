@@ -1,9 +1,18 @@
 status: none
-intent: '### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
-  The researcher MUST be able to download the OpenNeuro fMRI dataset and the ROCStories
-  corpus, extract specific hippocampal and prefrontal ROI timecourses, and format
-  them for immediate analysis. This is the foundational step'
-required_fields: []
-cache_key: f1fd0f141d2545d70027893fa78b415896008cc209feae7cefda03b54275e21b
-searched_at: '2026-10-16T16:33:49.101129+00:00'
+intent: OpenNeuro ds001495 ROCStories dataset download HuggingFace pip python package
+required_fields:
+- subject_id
+- run_id
+- timepoint
+- roi_name
+- bold_timecourse
+- event_timestamp
+- story_condition
+- story_id
+- sentence1
+- sentence2
+- sentence3
+- sentence4
+cache_key: 7d255380c28f1d786ecf957f7c78689d824bcb0bfa2a9ab221b85233c4166f72
+searched_at: '2026-10-16T17:20:16.277539+00:00'
 retry_count: 1

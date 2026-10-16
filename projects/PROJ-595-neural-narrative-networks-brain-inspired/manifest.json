@@ -1,0 +1,26 @@
+{
+  "checksums": [],
+  "commit_hash": "d6fbaec3d9f61d3511a4539204cefbb474e507d1",
+  "datasets": {
+    "openneuro_ds001495": "https://openneuro.org/datasets/ds001495",
+    "rocstories": "https://huggingface.co/datasets/jamestran/roc_stories"
+  },
+  "software_versions": {
+    "black": "24.4.2",
+    "datasets": "2.19.0",
+    "matplotlib": "3.8.4",
+    "nibabel": "5.2.1",
+    "nilearn": "0.10.4",
+    "nltk": "3.8.1",
+    "numpy": "1.26.4",
+    "pandas": "2.2.2",
+    "psutil": "5.9.8",
+    "pytest": "8.2.0",
+    "pyyaml": "6.0.1",
+    "ruff": "0.4.4",
+    "scikit-learn": "1.4.2",
+    "scipy": "1.13.0",
+    "sentence-transformers": "2.7.0",
+    "torch": "2.3.0"
+  }
+}

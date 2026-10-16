@@ -98,4 +98,3 @@ def set_seed(seed: int = None) -> int:
         pass
 
     return seed
-    execute: false

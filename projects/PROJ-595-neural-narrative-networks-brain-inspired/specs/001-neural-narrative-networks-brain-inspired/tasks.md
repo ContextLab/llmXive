@@ -14,7 +14,7 @@ All tasks are written as markdown check‑boxes. Checked boxes (`[X]`) indicate 
 
 ## Phase 1 – Project Setup (completed)
 
-- [ ] T001 Create project directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`. Add `code/__init__.py` and a standard `.gitignore`.  
+- [X] T001 Create project directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`. Add `code/__init__.py` and a standard `.gitignore`.  
 - [X] T002 Add `code/requirements.txt` with pinned versions for `torch`, `datasets`, `nibabel`, `nilearn`, `numpy`, `pandas`, `scikit-learn`, `matplotlib`, `nltk`, `pytest`. **Depends on T001**.  
 - [X] T003 Add minimal `pyproject.toml` configuring `ruff` and `black`. **Depends on T001**.  
 - [X] T004 Add `.ruff.toml` with the project's linting rule set. **Depends on T001**.
@@ -23,11 +23,11 @@ All tasks are written as markdown check‑boxes. Checked boxes (`[X]`) indicate 
 
 ## Phase 2 – Foundational Utilities (completed)
 
-- [ ] T006 [P] Implement `code/utils/schema_validation.py` with validators for neural, text, and RSA contracts.  
+- [X] T006 [P] Implement `code/utils/schema_validation.py` with validators for neural, text, and RSA contracts.  
 - [X] T007 [P] Implement `code/utils/checksums.py` for SHA‑256 hashing of files.  
-- [ ] T008 [P] Add `code/config.py` exposing `random_seed`, `cpu_only=True`, `max_ram_gb=7`, and a `set_seed()` helper.  
-- [ ] T009 [P] Add `code/utils/logging_config.py` that writes to `logs/pipeline.log` and emits error codes E001–E004.  
-- [ ] T018 [P] Implement `code/utils/loaders.py::load_chunked_fMRI()` for streaming large NIfTI files without exceeding RAM.
+- [X] T008 [P] Add `code/config.py` exposing `random_seed`, `cpu_only=True`, `max_ram_gb=7`, and a `set_seed()` helper.  
+- [X] T009 [P] Add `code/utils/logging_config.py` that writes to `logs/pipeline.log` and emits error codes E001–E004.  
+- [X] T018 [P] Implement `code/utils/loaders.py::load_chunked_fMRI()` for streaming large NIfTI files without exceeding RAM.
 
 ---
 
@@ -85,9 +85,9 @@ All tasks are written as markdown check‑boxes. Checked boxes (`[X]`) indicate 
 
 ## Phase 6 – Verification, Reporting & Handoff (optional polish)
 
-- [ ] T050 [US?] Run the full end‑to‑end pipeline from `code/main.py` to confirm that, starting from raw data, all intermediate artifacts are produced and the final `results_summary.csv` matches the specifications.  
-- [ ] T051 [US?] Generate a reproducibility manifest `manifest.json` listing dataset URLs, exact commit hash of the repository, software versions (from `requirements.txt`), and all checksum values.  
-- [ ] T052 [US?] Update `README.md` to include a concise “How to reproduce” section pointing to `manifest.json` and the command `python -m code.main`.  
+- [ ] T050 [US?] Run the full end‑to‑end pipeline from `code/main.py` to confirm that, starting from raw data, all intermediate artifacts are produced and the final `results_summary.csv` matches the specifications.   <!-- FAILED: unspecified -->
+- [~] T051 [US?] Generate a reproducibility manifest `manifest.json` listing dataset URLs, exact commit hash of the repository, software versions (from `requirements.txt`), and all checksum values.  
+- [~] T052 [US?] Update `README.md` to include a concise “How to reproduce” section pointing to `manifest.json` and the command `python -m code.main`.  
 
 *(These polish tasks can be executed after the core research tasks are green‑checked; they are not required for the scientific verdict but improve transparency.)*
 

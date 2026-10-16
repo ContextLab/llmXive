@@ -1,0 +1,23 @@
+type: object
+required:
+  - story_id
+  - story
+properties:
+  story_id:
+    type: string
+  story:
+    type: string
+  event_boundaries:
+    type: array
+    items:
+      type: object
+      required:
+        - start
+        - end
+      properties:
+        start:
+          type: integer
+          minimum: 0
+        end:
+          type: integer
+          minimum: 0
