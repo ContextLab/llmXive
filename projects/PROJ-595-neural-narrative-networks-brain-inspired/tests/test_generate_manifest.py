@@ -1,52 +1,50 @@
 """
-Test suite for the reproducibility manifest generator (T051).
+test_generate_manifest.py
+-------------------------
 
-The test runs the ``code/generate_manifest.py`` script and verifies that
-the produced ``manifest.json`` contains the required top‑level keys and
-that the JSON structure is well‑formed.
+Minimal test that ensures the manifest is created and contains the expected top‑level keys.
+The test runs the ``generate_manifest.py`` script (via subprocess) and then loads the
+resulting JSON file to assert the presence of:
+
+* ``datasets``
+* ``commit_hash``
+* ``software_versions``
+* ``checksums``
+
+The test deliberately does **not** validate the exact values – those depend on the
+environment (e.g. the current Git commit).  It only checks that the structure is
+correct and that at least one checksum entry exists, confirming that the script
+performed a file‑walk.
 """
 
 import json
 import subprocess
+import sys
 from pathlib import Path
 
-def run_manifest_generator():
-    """
-    Execute the manifest generation script. The script is expected to exit
-    with status 0 and create ``manifest.json`` in the repository root.
-    """
-    repo_root = Path(__file__).resolve().parents[2]  # tests/ -> repo root
+def test_manifest_structure(tmp_path):
+    # Run the manifest generator script from the project root
+    repo_root = Path(__file__).resolve().parents[2]  # repository root
     script_path = repo_root / "code" / "generate_manifest.py"
-    result = subprocess.run(
-        ["python", str(script_path)],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-    )
-    assert result.returncode == 0, f"Script failed: {result.stderr}"
-    return repo_root / "manifest.json"
 
-def test_manifest_structure():
-    """
-    Verify that the generated manifest contains all required sections.
-    """
-    manifest_file = run_manifest_generator()
+    # Execute the script; any failure will raise a CalledProcessError
+    subprocess.run([sys.executable, str(script_path)], check=True)
+
+    manifest_file = repo_root / "manifest.json"
     assert manifest_file.is_file(), "manifest.json was not created"
 
-    with manifest_file.open("r", encoding="utf-8") as fh:
-        data = json.load(fh)
+    with manifest_file.open("r", encoding="utf-8") as f:
+        manifest = json.load(f)
 
-    # Required top‑level keys
-    required_keys = {"commit_hash", "datasets", "software_versions", "checksums"}
-    assert required_keys.issubset(data.keys()), f"Missing keys in manifest: {required_keys - data.keys()}"
+    # Top‑level keys
+    for key in ("datasets", "commit_hash", "software_versions", "checksums"):
+        assert key in manifest, f"Missing top‑level key '{key}' in manifest"
 
-    # Basic sanity checks for each section
-    assert isinstance(data["datasets"], dict) and data["datasets"], "datasets section must be a non‑empty dict"
-    assert isinstance(data["software_versions"], dict), "software_versions must be a dict"
-    assert isinstance(data["checksums"], list), "checksums must be a list"
+    # Basic sanity checks
+    assert isinstance(manifest["datasets"], dict) and manifest["datasets"], "datasets dict empty"
+    assert isinstance(manifest["software_versions"], dict), "software_versions not a dict"
+    assert isinstance(manifest["checksums"], dict) and manifest["checksums"], "checksums dict empty"
 
-    # Ensure the commit hash is a non‑empty string (\"N/A\" is acceptable if Git is unavailable)
-    assert isinstance(data["commit_hash"], str) and len(data["commit_hash"]) > 0, "commit_hash must be a non‑empty string"
-
-    # Clean‑up: the test suite may be run multiple times; ensure the file can be overwritten
-    # (no explicit removal needed – the generator overwrites on each run).
+    # The commit hash should be a non‑empty string of hex characters
+    commit = manifest["commit_hash"]
+    assert isinstance(commit, str) and len(commit) >= 7, "commit_hash looks invalid"

@@ -12,13 +12,15 @@ T000.1:
     \ (quantized transformer)**, satisfying the task\u2019s requirement."
   sig: bd209b95106f4a78e7de55d09cc6e93981522f66aff144e27b3f16aad88dd8cc
 T001:
-  c: true
-  h: 0724dc2614c887c7ef08e20a625d0e9e37e3a0a1ae228db6da54cbdf63d895aa
-  r: "Checked the directory listings showing `code/`, `data/raw/`, `data/processed/`,\
-    \ `data/results/`, and `tests/` all present, the `code/__init__.py` file (51\u202F\
-    bytes) exists, and the pytest run (`test_gitignore_exists`) confirms a `.gitignore`\
-    \ file is present. All required artifacts are non\u2011empty and verified."
-  sig: 8a1613f9ad8cd56b9385393bb3a7bcdca37c5bbe135a47e874a1e79e362a3063
+  c: false
+  h: 5226fa5b3b59a7a5361031ec8a0ac98f879121760cc9a257c0305b9f67723f0b
+  r: The `code/` directory, `code/__init__.py` (non-empty docstring), and `tests/`
+    directory exist, but the required `data/raw/`, `data/processed/`, and `data/results/`
+    directories are all reported MISSING at the project root (the `data/` entry inside
+    `code/` is not the requested `data/` tree). Additionally, no `.gitignore` artifact
+    was shown to exist. The implementer must create the three missing `data/` subdirectories
+    and a standard `.gitignore` at the project root.
+  sig: f86bfd5ba1860e86e34667d140a4616c7b809405028cb52318692facfab1928b
 T002:
   c: true
   h: 12158d9c6a9c9bdddc9789c93513c3c8c1e26dfc3ab9f2e08bfb00ee4a9a1c2c
@@ -77,26 +79,33 @@ T009:
   sig: 0b7911696b68c592def3ae92c8ac9d2613d6426cc7c6b5f837dd440976f39a26
 T018:
   c: true
-  h: 50ffd804c4b38498328859e6e16e0a432a9090778ddb84a7f7407861cbab9d75
-  r: "Checked `code/utils/loaders.py` \u2013 it contains a full implementation of\
-    \ `load_chunked_fMRI` that lazily loads NIfTI data, estimates a safe chunk size\
-    \ from the RAM budget, and yields NumPy chunks without ever holding the full 4\u2011\
-    D volume in memory. The test log `code/.tasks/T018.tests_test_loaders.py.log`\
-    \ shows the associated pytest suite ran and both tests (`test_load_chunked_fMRI_basic`\
-    \ and `test_load_chunked_fMRI_invalid_path`) passed, confirming functional behavior."
-  sig: c7fca1b353d9f2687ffc416774d0d651d0904accb24920bf9b953c4ac229e2d0
-T051:
+  h: 2db23733afd18c7e6a3a636371ec5e71c88c8592bfd8778ae4427fc74737c490
+  r: The artifact `code/utils/loaders.py` exists (5.5 KB) and implements `load_chunked_fMRI()`
+    as a generator that lazily slices nibabel's `dataobj` along the time axis, yielding
+    float32 chunks of shape (X, Y, Z, T_chunk) without loading the full 4-D volume,
+    with RAM-aware chunk sizing via `estimate_chunk_size()` using the project's `max_ram_gb`
+    config (7 GB) and psutil available memory. The implementation is real (no stubs/TODOs),
+    handles missing files and non-4D inputs with errors, and matches the task's streaming/memory-bounded
+    requirement.
+  sig: feca21ba13bdb92b78912a4f810f23023ab2b617671f13e115988c196ae52f94
+T050:
   c: false
-  h: da08073d9a87bae6529bde5184debf4f0f5abbccdb136c07044d1959ac54eb74
-  r: "The provided `manifest.json` contains the dataset URLs, commit hash, and software\
-    \ versions, but the `checksums` field is empty instead of listing the required\
-    \ checksum values for the repository files. Consequently the manifest does not\
-    \ fulfill the \u201Call checksum values\u201D part of the task."
-  sig: 1e9c5829cb03d5cc2f32b0d7bafbae225ca5e672d55510fde45d1ef9ba5fa19b
+  h: e9f9443f4cd27bd0f907c6ee776bfd1bd67f06c611c8ced53faabe4b05dead92
+  r: "The `code/main.py` artifact itself admits it is a placeholder: it writes only\
+    \ a header row to `results_summary.csv`, leaves all data columns empty, and \"\
+    deliberately avoids heavy computation or reliance on large external datasets.\"\
+    \ The task required running the full end-to-end pipeline from raw data, producing\
+    \ all intermediate artifacts (ROI timecourses, ROCStories JSONL, generated stories,\
+    \ RSA analyses) and a populated summary CSV \u2014 none of these intermediate\
+    \ artifacts or execution evidence exist, and the summary contains no actual measurements\
+    \ (sparsity, RSA correlations, p-values, story cou"
+  sig: f7cef436cc0a212f9904f1e26a12a6b91610f8869cbf3c1295e00e88fdca6429
 T052:
   c: true
-  h: 0fee7d87f1c4cda7a1d8ac778278a639e8c02408ac093a709d97a8114add2b77
-  r: "The `README.md` (2829\u202Fbytes) contains a \u201CHow to reproduce\u201D section\
-    \ that explicitly references `manifest.json` and includes the command `python\
-    \ -m code.main`. This matches the task\u2019s requirement."
-  sig: 9a0df86b989ee641e6bf71095ad45b0da813b2db6c7c1472e39bbc0615e35123
+  h: 29c9ee48b2b7a143facc37361d4700435ff48f00a2a1c4167e37a80348bb96ed
+  r: The README.md exists (2829 bytes) and contains a "How to Reproduce" section that
+    explicitly references `manifest.json` (section 4, "Reproducibility Manifest")
+    and the command `python -m code.main` (section 3), exactly as T052 requires. The
+    referenced `manifest.json` also exists and is non-empty with real checksums, dataset
+    URLs, and software versions.
+  sig: 56601bf7551695bfe35998c6c9f86cc5fbb43ba94060e83c3a8a7f26af838075

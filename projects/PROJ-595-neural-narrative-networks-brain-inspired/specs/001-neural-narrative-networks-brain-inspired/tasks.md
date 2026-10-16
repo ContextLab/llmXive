@@ -14,7 +14,7 @@ All tasks are written as markdown check‑boxes. Checked boxes (`[X]`) indicate 
 
 ## Phase 1 – Project Setup (completed)
 
-- [X] T001 Create project directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`. Add `code/__init__.py` and a standard `.gitignore`.  
+- [ ] T001 Create project directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`. Add `code/__init__.py` and a standard `.gitignore`.  
 - [X] T002 Add `code/requirements.txt` with pinned versions for `torch`, `datasets`, `nibabel`, `nilearn`, `numpy`, `pandas`, `scikit-learn`, `matplotlib`, `nltk`, `pytest`. **Depends on T001**.  
 - [X] T003 Add minimal `pyproject.toml` configuring `ruff` and `black`. **Depends on T001**.  
 - [X] T004 Add `.ruff.toml` with the project's linting rule set. **Depends on T001**.
@@ -85,7 +85,7 @@ All tasks are written as markdown check‑boxes. Checked boxes (`[X]`) indicate 
 
 ## Phase 6 – Verification, Reporting & Handoff (optional polish)
 
-- [ ] T050 [US?] Run the full end‑to‑end pipeline from `code/main.py` to confirm that, starting from raw data, all intermediate artifacts are produced and the final `results_summary.csv` matches the specifications.   <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T050 [US?] Run the full end‑to‑end pipeline from `code/main.py` to confirm that, starting from raw data, all intermediate artifacts are produced and the final `results_summary.csv` matches the specifications.   <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T051 [US?] Generate a reproducibility manifest `manifest.json` listing dataset URLs, exact commit hash of the repository, software versions (from `requirements.txt`), and all checksum values.  
 - [X] T052 [US?] Update `README.md` to include a concise “How to reproduce” section pointing to `manifest.json` and the command `python -m code.main`.  
 
