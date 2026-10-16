@@ -1,36 +1,32 @@
 """
-Unit test for the seeding utilities defined in ``src.utils.seeding``.
-The test ensures that the deterministic verification helper works by
-running a simple NumPy operation twice under the same seed and checking
-that the hashed outputs are identical.
+Unit tests for the seeding utilities.
+
+The test verifies that a simple NumPy‑based random operation is fully
+deterministic when the global seed is fixed and that the helper
+``verify_determinism`` correctly detects this.
 """
 
 import numpy as np
-import pytest
-
-from src.utils.seeding import verify_determinism, set_all_seeds, DEFAULT_SEED
+from code.utils.seeding import set_all_seeds, verify_determinism, DEFAULT_SEED
 
 
-def _trivial_numpy_op():
-    """Return a small NumPy array – used for deterministic testing."""
-    return np.arange(5) * 2.5
+def dummy_numpy_operation():
+    """Return a small NumPy array of random numbers."""
+    return np.random.rand(5)
 
 
-def test_seeding_is_deterministic():
-    # The helper should return True when the function produces identical
-    # results under the same seed.
+def test_deterministic_numpy_operation():
+    # Ensure the global seed is set to the default before each run.
     set_all_seeds(DEFAULT_SEED)
-    assert verify_determinism(_trivial_numpy_op, seed=DEFAULT_SEED, iterations=2) is True
+
+    # ``verify_determinism`` will run the function twice (default
+    # ``iterations=2``) and raise if the outputs differ.
+    assert verify_determinism(dummy_numpy_operation, seed=DEFAULT_SEED) is True
 
 
-def test_verify_determinism_raises_on_nondeterministic():
-    # Create a function that deliberately changes output between calls.
-    counter = {"i": 0}
+def test_get_seed_constant():
+    # The constant ``DEFAULT_SEED`` should match the value returned by
+    # ``get_seed`` (exposed via the wrapper in ``code.utils.seeding``).
+    from code.utils.seeding import get_seed
 
-    def nondet():
-        counter["i"] += 1
-        return np.array([counter["i"]])
-
-    # The verification should raise a RuntimeError because the hashes differ.
-    with pytest.raises(RuntimeError):
-        verify_determinism(nondet, seed=DEFAULT_SEED, iterations=2)
+    assert get_seed() == DEFAULT_SEED

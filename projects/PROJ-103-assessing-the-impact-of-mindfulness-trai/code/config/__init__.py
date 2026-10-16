@@ -1,1 +1,3 @@
-"""Configuration package for the mindfulness-DMN analysis pipeline."""
+"""
+Configuration subpackage – provides access to core pipeline settings.
+"""

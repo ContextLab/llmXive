@@ -1,19 +1,15 @@
 status: none
-intent: OpenNeuro pre post mindfulness resting state fMRI dataset with AAL atlas python
-  package dataset
+intent: OpenNeuro mindfulness pre post resting state fMRI download python package
+  dataset
 required_fields:
 - subject_id
 - session_label
-- bold_image_path
-- motion_parameters
-- confound_regressors
+- timepoint
+- bold_nifti_path
+- motion_parameters_path
+- confound_regressors_path
 - intervention_metadata
-- acquisition_date
-- scanner_model
-- preprocessing_smoothing_mm
-- preprocessing_bandpass_range_hz
-- mni152_transform_path
-- quality_control_report_path
-cache_key: 07536ee12084f5f5ab9ef34a98dd8be9e6abbce1367b8fc9d7c9fe14a37b3981
-searched_at: '2026-10-16T13:09:50.850373+00:00'
+- mni152_alignment_flag
+cache_key: cd3b5ccac1a4c700734583340e929514aea34e1dd0deade4c1448d1af7438f91
+searched_at: '2026-10-16T21:09:22.661624+00:00'
 retry_count: 1
