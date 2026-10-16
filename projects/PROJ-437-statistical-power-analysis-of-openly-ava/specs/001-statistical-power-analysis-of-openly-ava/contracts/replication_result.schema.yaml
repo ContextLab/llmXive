@@ -13,7 +13,7 @@ properties:
   replication_success:
     type: "integer"
     enum: [0, 1]
-    description: "Binary replication success (1 if known effect detected AND direction matches)"
+    description: "Binary replication success (1 if direction matches AND p < alpha on test set)"
   smoothing_kernel_used:
     type: "number"
     description: "Temporal smoothing kernel applied"
@@ -26,7 +26,7 @@ properties:
     minimum: 1
     description: "Actual sample size used (may be clamped)"
   failure_reason:
-    type: "string"
+    type: ["string", "null"]
     enum: ["GLM_convergence", "data_corruption", "memory_overflow", null]
     description: "Optional failure reason (null if successful)"
   pipeline_config_hash:
@@ -38,6 +38,9 @@ properties:
   target_effect_size:
     type: "number"
     description: "Known ground-truth effect size"
+  magnitude_tolerance_pct:
+    type: "number"
+    description: "Magnitude tolerance used for this iteration (e.g., 20.0 for ±20%)"
 required:
   - effect_size_est
   - p_value
@@ -48,4 +51,5 @@ required:
   - pipeline_config_hash
   - alpha_threshold
   - target_effect_size
+  - magnitude_tolerance_pct
 additionalProperties: false

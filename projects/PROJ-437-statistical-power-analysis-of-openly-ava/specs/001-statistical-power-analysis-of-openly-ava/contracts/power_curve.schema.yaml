@@ -45,6 +45,10 @@ properties:
       sample_size_smoothing_kernel:
         type: "number"
     description: "Coefficients for interaction terms"
+  grid_type:
+    type: "string"
+    enum: ["primary", "fine"]
+    description: "Grid type: primary (10, 20, 40, 60) or fine (10, 15, 20, 30, 40, 50, 60)"
 required:
   - paradigm_type
   - sample_sizes_tested
@@ -53,4 +57,5 @@ required:
   - fdr_corrected
   - alpha_threshold
   - target_effect_size
+  - grid_type
 additionalProperties: false
