@@ -1,12 +1,13 @@
 status: none
-intent: PubLayNet layout-aware scientific document dataset with DocVQA benchmark python
-  package dataset
+intent: DocBank scientific document layout dataset with DocVQA benchmark python package
+  dataset
 required_fields:
 - document_id
-- page_number
-- text
+- page_image_path
+- extracted_text
 - layout_bbox_coordinates
-- image_file_path
-cache_key: 31501953439cfd06d33178f284c225788adf318f129a515e99fea339f9bb265f
-searched_at: '2026-10-16T05:19:56.150078+00:00'
+- layout_element_type
+- page_number
+cache_key: 74d373de841c073f29ab77233dc322dd1455f17e8ebd819e380a0dc64ba81237
+searched_at: '2026-10-16T16:19:06.355950+00:00'
 retry_count: 1

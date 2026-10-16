@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-15T20:10:19Z",
+  "updated_at": "2026-10-16T16:19:06Z",
   "project_id": "PROJ-1051-llmxive-follow-up-extending-scalable-vis",
-  "replan_rounds": 2
+  "replan_rounds": 3
 }

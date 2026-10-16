@@ -43,6 +43,7 @@ def tiny_dataset(tmp_path: Path):
 
 def test_preprocess_creates_parquet(tiny_dataset: Path, tmp_path: Path):
     output_parquet = tmp_path / "out.parquet"
+    # Use the path defined in the spec/quickstart
     schema_path = Path("contracts/documentpair.schema.yaml")
 
     # Run the preprocessing

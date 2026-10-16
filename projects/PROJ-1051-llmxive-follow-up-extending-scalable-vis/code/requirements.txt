@@ -1,8 +1,6 @@
-# Core dependencies (already available in the base environment)
-# Added explicit versions for packages that need to be compatible with the environment
-torch==2.3.0
-torchvision==0.18.0
-transformers==4.44.0
-datasets==2.20.0
-pyarrow==12.0.0
-tqdm
+numpy>=2.0.0
+pytesseract
+pyarrow
+jsonschema
+pandas
+Pillow

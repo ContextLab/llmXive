@@ -12,7 +12,7 @@ The pipeline must run end‑to‑end on real data, stay within CPU‑only constr
   - After filtering for non‑empty `layout_annotations`, log the total `num_valid_pages`. If the count is unexpectedly low (below the spec‑defined minimum, which is currently a placeholder), emit a warning but do **not** enforce a hard numeric threshold.  
   - CI must see exit code 0 and the checksum file present.
 
-- [ ] **T002** [US‑2] Preprocess the raw dataset into canonical `DocumentPair` records and write a Parquet table.  
+- [ ] **T002** [US‑2] Preprocess the raw dataset into canonical `DocumentPair` records and write a Parquet table.   <!-- FAILED-IN-EXECUTION: src/data/preprocess.py exit=1 -->
   **Implementation**: `src/data/preprocess.py` reads the downloaded dataset (triggering a download if the data is missing), runs OCR via `pytesseract` where needed, pairs extracted text with layout boxes, and writes `data/processed/document_pairs.parquet`.  
   **Verification**:  
   - Validate every record against `contracts/documentpair.schema.yaml` with `jsonschema`.  

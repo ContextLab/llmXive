@@ -1,6 +1,3 @@
-# This thin wrapper simply invokes the download script with the arguments
-# required by the quickstart for the layout corpus. It exists so the CI
-# runner can execute the download as a separate artifact.
 import subprocess
 import sys
 from pathlib import Path

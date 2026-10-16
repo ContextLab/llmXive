@@ -2,8 +2,7 @@
 src/data/preprocess.py
 
 This script validates and processes the raw PubLayNet (or fallback) dataset
-into a Parquet file of ``DocumentPair`` records. The CLI now matches the
-quickstart arguments.
+into a Parquet file of ``DocumentPair`` records.
 """
 
 import argparse

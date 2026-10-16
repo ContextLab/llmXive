@@ -20,10 +20,7 @@ import yaml
 from tqdm import tqdm
 
 # NOTE: Importing ``datasets`` lazily inside the function to avoid importing
-# ``pyarrow`` at module import time (pyarrow version conflicts are resolved
-# via the pinned requirement in ``code/requirements.txt``).
-# This also makes the module importable even if the optional dependency is
-# missing, providing a clear error message instead of a hard crash.
+# ``pyarrow`` at module import time if dependencies are broken.
 def _load_dataset(*args, **kwargs):
     try:
         from datasets import load_dataset
@@ -73,7 +70,7 @@ def count_pages_with_layout(dataset_dir: Path) -> int:
 def _fetch_layout_data(dataset_id: str, target_dir: Path, min_pages: int) -> int:
     """Helper to stream a dataset and save images/annotations to disk."""
     try:
-        # Use streaming=True to stay within RAM limits
+        # Use streaming=True to stay within RAM limits (7GB)
         ds = _load_dataset(dataset_id, split="train", streaming=True)
         page_counter = 0
 
@@ -120,9 +117,7 @@ def download_layout_corpus(output_dir: Path, min_pages: int = 10) -> None:
     """
     Download the layout corpus using primary and fallback sources.
     For CI purposes we keep ``min_pages`` intentionally small (default 10)
-    so the script finishes quickly while still exercising the full
-    download‑and‑checksum pipeline. The warning for insufficient pages is
-    retained to satisfy FR‑007.
+    so the script finishes quickly.
     """
     target_dir = output_dir / "layout_corpus"
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -156,7 +151,6 @@ def download_layout_corpus(output_dir: Path, min_pages: int = 10) -> None:
 def download_docvqa(output_dir: Path) -> None:
     """
     Download the DocVQA benchmark dataset.
-    Fixes the 'memoryview' error by using PIL .save() instead of write_bytes().
     """
     from datasets import load_dataset, concatenate_datasets
 
@@ -170,7 +164,6 @@ def download_docvqa(output_dir: Path) -> None:
     for idx, record in tqdm(
         enumerate(combined), total=len(combined), desc="Saving DocVQA"
     ):
-        # record["image"] is a PIL Image object
         image = record["image"]
         img_path = target_dir / f"{idx:06d}.png"
         image.save(img_path)
