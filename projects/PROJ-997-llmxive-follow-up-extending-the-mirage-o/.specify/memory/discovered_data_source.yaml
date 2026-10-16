@@ -1,6 +1,6 @@
 status: none
-intent: GSM8K dataset download python package AND Llama-3-8B model weights Hugging
-  Face hub python package dataset
+intent: "GSM8K benchmark dataset Llama\u20113\u20118B model weights python package\
+  \ dataset"
 required_fields:
 - prompt_text
 - gradient_norm
@@ -8,6 +8,6 @@ required_fields:
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
-cache_key: 6d59686e208cae31e551fd28ab1f0802aebc26d77266d77f96b4ce782bf95159
-searched_at: '2026-10-16T03:11:36.302280+00:00'
+cache_key: ebaaf095771d10fe5709f35ff8e2fea1204156ca3a2cd4eecdffe8a9a1119a88
+searched_at: '2026-10-16T05:10:09.888257+00:00'
 retry_count: 1

@@ -17,11 +17,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet -> rc=1
-
+uggingface.co/datasets/gsm8k/resolve/main/train.jsonl
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 43, in <module>
-    from cli.generate_ground_truth import (
-ModuleNotFoundError: No module named 'cli.generate_ground_truth'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 207, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 199, in main
+    run_wrapper(
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 78, in run_wrapper
+    subset = download_gsm8k_subset(sample_size)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 166, in download_gsm8k_subset
+    response.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/train.jsonl
 
 - python code/models/train_predictor.py --input data/processed/training_sample.parquet --output data/models/gap_predictor.pkl -> rc=2
 
