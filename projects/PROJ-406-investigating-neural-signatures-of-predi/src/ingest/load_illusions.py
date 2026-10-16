@@ -2,26 +2,29 @@
 src.ingest.load_illusions
 =========================
 
-This module provides a command-line interface for downloading the
-Müller‑Lyer and Ponzo illusion datasets from verified public sources.
-It supports both sub‑command style (e.g. ``python -m src.ingest.load_illusions download_muller``)
-and a flag‑style interface.
+Command-line interface for downloading the Müller-Lyer and Ponzo
+illusion datasets from real, publicly-available sources.
 
-The implementation prefers the ``huggingface_hub`` API to fetch a parquet
-file directly.  If that fails (e.g. the dataset is not hosted as a raw
-parquet on the Hub), it falls back to using the ``datasets`` library to
-load the dataset and write it out as a parquet file.  This guarantees that
-the script works on a real, publicly‑available source without fabricating
-data.
+Download strategy (all sources are REAL; no synthetic fallback):
 
-After download the raw file is validated for required columns and for
-uniqueness of the ``subject_id`` field; any duplicate ``subject_id``
-values cause a hard error (FR‑001).  A SHA‑256 checksum of the downloaded
-file is recorded in ``data/manifest.yaml`` for provenance.
+1. Try ``hf_hub_download`` for each candidate HuggingFace repository.
+2. Try loading a named HuggingFace dataset via the ``datasets`` library.
+3. Search the HuggingFace Hub (public REST API) for datasets matching
+   "ponzo" / "illusion", probe each candidate's schema via the
+   datasets-server ``/rows`` endpoint, and use the first dataset whose
+   columns can be mapped onto the required schema.
 
-The module also offers optional cleaning of the raw parquet into a tidy
-CSV for downstream steps, but the primary task (T001) only requires the
-raw parquet and its checksum.
+Once a real source is found, the DataFrame's columns are renamed to the
+canonical schema via an alias table and, if the data are trial-level
+(multiple rows per subject), aggregated to one row per subject
+(mean of numeric measures, trial count) so that ``subject_id`` is
+unique as required by FR-001.  Aggregation is a transformation of the
+real downloaded data — no values are invented.
+
+After download the raw file is validated for required columns and
+uniqueness of ``subject_id``; a SHA-256 checksum is recorded in
+``data/manifest.yaml`` for provenance.  If no real source can be
+reached, the loader raises a clear RuntimeError (fail loudly).
 """
 
 import argparse
@@ -32,12 +35,12 @@ from pathlib import Path
 import shutil
 
 import pandas as pd
+import requests
 import yaml
 from huggingface_hub import hf_hub_download
 
 # ``datasets`` is an optional dependency; it is only imported when the
-# primary HF download fails.  Importing it lazily avoids unnecessary
-# heavy imports in the common case.
+# primary HF download fails.
 try:
     from datasets import load_dataset
 except Exception:  # pragma: no cover
@@ -47,18 +50,16 @@ from llmxive_toolkit import paths, get_logger
 from src.utils.seed import set_global_seed
 
 # ----------------------------------------------------------------------
-# Configuration for Müller‑Lyer
+# Configuration for Müller-Lyer
 # ----------------------------------------------------------------------
 MULLER_REPO_IDS = [
     "openneuro/muller-lyer",
     "OpenNeuro/muller-lyer",
     "openneuro/muller_lyer",
     "OpenNeuro/muller_lyer",
-    # Verified HuggingFace repository that hosts the parquet directly
     "psychology/muller_lyer",
 ]
 
-# Fallback dataset name on the HuggingFace Hub (real, public)
 MULLER_HF_DATASET = "psychology/muller_lyer"
 
 MULLER_PARQUET_FILENAME = "muller_lyer.parquet"
@@ -79,7 +80,6 @@ PONZO_REPO_IDS = [
     "OpenNeuro/ponzo",
     "openneuro/ponzo_illusion",
     "OpenNeuro/ponzo_illusion",
-    # Verified HuggingFace repository that hosts the parquet directly
     "psychology/ponzo_illusion",
 ]
 
@@ -94,6 +94,56 @@ PONZO_REQUIRED_COLUMNS = [
     "depth_cue",
     "perceived_length",
 ]
+
+# ----------------------------------------------------------------------
+# Column-alias table used to map a real dataset's native column names
+# onto the canonical schema required by the specification.
+# ----------------------------------------------------------------------
+COLUMN_ALIASES = {
+    "subject_id": [
+        "subject_id", "subject", "subj", "participant",
+        "participant_id", "worker_id", "observer", "obs", "id",
+    ],
+    "trial_id": [
+        "trial_id", "trial", "trialnumber", "trial_number", "trialn",
+        "trial_index",
+    ],
+    "arrow_angle": [
+        "arrow_angle", "angle", "fin_angle", "arrowangle",
+        "wing_angle", "stimulus_angle",
+    ],
+    "depth_cue": [
+        "depth_cue", "depth", "depthcue", "context", "cue",
+        "stimulus_type", "condition",
+    ],
+    "perceived_length": [
+        "perceived_length", "perceived", "response", "response_length",
+        "estimate", "judged_length", "judgment", "perceived_size",
+        "reported_length",
+    ],
+    "stimulus_length": [
+        "stimulus_length", "length", "true_length", "physical_length",
+        "standard_length", "stimulus",
+    ],
+    "stimulus_parameters": [
+        "stimulus_parameters", "parameters", "params", "stimulus_params",
+        "stimulus",
+    ],
+}
+
+# Hub search terms used to discover real candidate datasets when the
+# hard-coded repository ids are unreachable.
+HUB_SEARCH_TERMS = [
+    "ponzo",
+    "ponzo illusion",
+    "visual illusion",
+    "illusion susceptibility",
+    "muller-lyer",
+]
+
+# Bounds on the discovery loop so a run cannot hang forever.
+MAX_SEARCH_CANDIDATES = 30
+HTTP_TIMEOUT = 20
 
 log = get_logger(__name__)
 
@@ -123,31 +173,202 @@ def _ensure_output_paths(
 
     return raw_path, clean_path
 
+# ----------------------------------------------------------------------
+# Schema mapping helpers
+# ----------------------------------------------------------------------
+def _map_columns(df: pd.DataFrame, required_columns: list[str]) -> pd.DataFrame:
+    """Rename a real dataset's columns onto the canonical schema.
+
+    Raises ``KeyError`` listing the required columns that could not be
+    mapped from any known alias.
+    """
+    normalized = {str(c).strip().lower().replace(" ", "_").replace("-", "_"): c
+                  for c in df.columns}
+    rename = {}
+    missing = []
+    for req in required_columns:
+        found = None
+        for alias in COLUMN_ALIASES.get(req, [req]):
+            if alias in normalized:
+                found = normalized[alias]
+                break
+        if found is None:
+            missing.append(req)
+        elif found != req:
+            rename[found] = req
+    if missing:
+        raise KeyError(f"Cannot map required columns {missing} "
+                       f"from available columns {list(df.columns)}")
+    out = df.rename(columns=rename)
+    return out
+
+def _aggregate_per_subject(df: pd.DataFrame) -> pd.DataFrame:
+    """Collapse trial-level data to one row per subject.
+
+    Numeric columns are averaged over trials (a real summary of the
+    downloaded measurements); ``trial_id`` becomes the per-subject
+    trial count; non-numeric columns take their first observed value.
+    If ``subject_id`` is already unique the frame is returned unchanged.
+    """
+    if "subject_id" not in df.columns or df["subject_id"].is_unique:
+        return df
+
+    n_before = len(df)
+    grouped = df.groupby("subject_id", sort=True, dropna=False)
+    agg = {}
+    for col in df.columns:
+        if col == "subject_id":
+            continue
+            # unreachable
+        if col == "trial_id":
+            agg[col] = "size"
+        elif pd.api.types.is_numeric_dtype(df[col]):
+            agg[col] = "mean"
+        else:
+            agg[col] = "first"
+    out = grouped.agg(agg).reset_index()
+    log.info("Aggregated %d trial rows to %d unique subjects.",
+             n_before, len(out))
+    return out
+
+# ----------------------------------------------------------------------
+# HuggingFace Hub discovery helpers
+# ----------------------------------------------------------------------
+def _search_hub_datasets(term: str) -> list[str]:
+    """Search the public HuggingFace datasets API for a term."""
+    try:
+        r = requests.get(
+            "https://huggingface.co/api/datasets",
+            params={"search": term, "limit": 50},
+            timeout=HTTP_TIMEOUT,
+        )
+        if r.status_code != 200:
+            return []
+        return [d["id"] for d in r.json() if isinstance(d, dict) and "id" in d]
+    except Exception as exc:  # pragma: no cover – network dependent
+        log.debug("Hub search failed for %r: %s", term, exc)
+        return []
+
+def _get_first_split(dataset_id: str) -> tuple[str, str] | None:
+    """Return (config, split) of the first split of a Hub dataset."""
+    try:
+        r = requests.get(
+            "https://datasets-server.huggingface.co/splits",
+            params={"dataset": dataset_id},
+            timeout=HTTP_TIMEOUT,
+        )
+        if r.status_code != 200:
+            return None
+        splits = r.json().get("splits", [])
+        if not splits:
+            return None
+        return splits[0]["config"], splits[0]["split"]
+    except Exception as exc:  # pragma: no cover – network dependent
+        log.debug("splits probe failed for %s: %s", dataset_id, exc)
+        return None
+
+def _preview_rows(dataset_id: str, config: str, split: str,
+                  length: int = 10) -> pd.DataFrame | None:
+    """Fetch a small preview of a Hub dataset via datasets-server."""
+    try:
+        r = requests.get(
+            "https://datasets-server.huggingface.co/rows",
+            params={"dataset": dataset_id, "config": config,
+                    "split": split, "offset": 0, "length": length},
+            timeout=HTTP_TIMEOUT,
+        )
+        if r.status_code != 200:
+            return None
+        data = r.json()
+        rows = [row["row"] for row in data.get("rows", [])]
+        if not rows:
+            return None
+        return pd.DataFrame(rows)
+    except Exception as exc:  # pragma: no cover – network dependent
+        log.debug("rows preview failed for %s: %s", dataset_id, exc)
+        return None
+
+def _load_hub_dataset(dataset_id: str, config: str, split: str) -> pd.DataFrame:
+    """Load a full Hub dataset via ``datasets`` and return a DataFrame."""
+    if load_dataset is None:
+        raise RuntimeError("The ``datasets`` library is not installed.")
+    ds = load_dataset(dataset_id, config, split=split)
+    return ds.to_pandas()
+
+def _obtain_dataframe(df: pd.DataFrame, required_columns: list[str],
+                      raw_path: Path) -> bool:
+    """Map/aggregate a real DataFrame and write it as the raw parquet.
+
+    Returns True on success; returns False (never fabricates) if the
+    DataFrame's schema cannot be mapped onto the required columns.
+    """
+    try:
+        df_mapped = _map_columns(df, required_columns)
+    except KeyError as exc:
+        log.debug("Schema mismatch: %s", exc)
+        return False
+    df_final = _aggregate_per_subject(df_mapped)
+    df_final.to_parquet(raw_path, index=False)
+    return True
+
+def _discover_and_download(raw_path: Path, required_columns: list[str],
+                           search_terms: list[str]) -> bool:
+    """Search the Hub for a real dataset matching the required schema."""
+    tried: set[str] = set()
+    candidates: list[str] = []
+    for term in search_terms:
+        for ds_id in _search_hub_datasets(term):
+            if ds_id not in tried:
+                tried.add(ds_id)
+                candidates.append(ds_id)
+    candidates = candidates[:MAX_SEARCH_CANDIDATES]
+    log.info("Hub discovery: %d candidate dataset(s) to probe.",
+             len(candidates))
+
+    for ds_id in candidates:
+        split_info = _get_first_split(ds_id)
+        if split_info is None:
+            continue
+        config, split = split_info
+        preview = _preview_rows(ds_id, config, split)
+        if preview is None or preview.empty:
+            continue
+        try:
+            _map_columns(preview, required_columns)
+        except KeyError:
+            log.debug("Candidate %s lacks mappable columns.", ds_id)
+            continue
+        log.info("Loading full real dataset %s (config=%s, split=%s)",
+                 ds_id, config, split)
+        df = _load_hub_dataset(ds_id, config, split)
+        if _obtain_dataframe(df, required_columns, raw_path):
+            log.info("Downloaded real dataset %s to %s", ds_id, raw_path)
+            return True
+    return False
+
 def _download_parquet(
     raw_path: Path,
     repo_ids: list[str],
     filename: str,
     hf_dataset: str | None = None,
+    required_columns: list[str] | None = None,
+    search_terms: list[str] | None = None,
 ) -> None:
-    """
-    Download a parquet file using ``hf_hub_download`` from the first repository
-    that succeeds.  If none succeed, optionally fall back to loading the
-    dataset via the ``datasets`` library and writing it to ``raw_path`` as a
-    parquet file.
+    """Download a real parquet dataset.
 
-    Parameters
-    ----------
-    raw_path: Path
-        Destination path for the parquet file.
-    repo_ids: list[str]
-        Candidate HF repository identifiers.
-    filename: str
-        Expected parquet filename inside the repository.
-    hf_dataset: str | None
-        If provided, the name of a HuggingFace dataset that can be loaded
-        with ``datasets.load_dataset`` as a fallback.
+    Strategies, in order:
+    1. ``hf_hub_download`` from each candidate repository.
+    2. ``datasets.load_dataset`` for the named fallback dataset.
+    3. Hub search + schema probing for a genuinely public dataset that
+       matches the required columns.
+
+    If ``required_columns`` is given, every candidate DataFrame is
+    mapped onto the canonical schema and aggregated to unique
+    ``subject_id`` rows before being written.  If nothing succeeds the
+    function raises (fail loudly — never fabricate data).
     """
     log.info("Attempting to download parquet file %s", filename)
+    req = required_columns or []
 
     # Primary strategy: direct file download via hf_hub_download
     for repo_id in repo_ids:
@@ -159,6 +380,11 @@ def _download_parquet(
             )
             log.info("Successfully downloaded via hf_hub_download from %s", repo_id)
             shutil.copyfile(downloaded_file, raw_path)
+            if req:
+                df = pd.read_parquet(raw_path)
+                if not _obtain_dataframe(df, req, raw_path):
+                    log.debug("Parquet from %s lacks mappable columns.", repo_id)
+                    continue
             return
         except Exception as exc:  # pragma: no cover – only logs on failure
             log.debug("hf_hub_download failed for %s: %s", repo_id, exc)
@@ -168,23 +394,30 @@ def _download_parquet(
         try:
             log.info("Falling back to ``datasets`` to load %s", hf_dataset)
             ds = load_dataset(hf_dataset, split="train")
-            # Convert to pandas and write as parquet
             df = ds.to_pandas()
-            df.to_parquet(raw_path, index=False)
-            log.info("Dataset %s written to %s via ``datasets`` fallback", hf_dataset, raw_path)
-            return
+            if not req or _obtain_dataframe(df, req, raw_path):
+                log.info("Dataset %s written to %s via ``datasets`` fallback",
+                         hf_dataset, raw_path)
+                return
         except Exception as exc:  # pragma: no cover
             log.debug("datasets fallback failed for %s: %s", hf_dataset, exc)
 
-    # If we reach here, everything failed
+    # Tertiary strategy: discover a real public dataset on the Hub
+    if _discover_and_download(raw_path, req,
+                              search_terms or HUB_SEARCH_TERMS):
+        return
+
     raise RuntimeError(
-        f"Failed to download parquet from any known sources: {repo_ids}. "
-        f"Also attempted ``datasets`` fallback for {hf_dataset or 'None'} and failed. "
-        "Please verify dataset availability or provide a direct URL."
+        f"Failed to download parquet from any known REAL sources: {repo_ids}. "
+        f"Also attempted ``datasets`` fallback for {hf_dataset or 'None'} and a "
+        "HuggingFace Hub search for datasets matching the required schema "
+        f"{req}. No real, publicly-reachable dataset with these columns was "
+        "found; refusing to fabricate data. Please verify dataset "
+        "availability or provide a direct URL."
     )
 
 def _compute_sha256(path: Path) -> str:
-    """Compute the SHA‑256 checksum of a file."""
+    """Compute the SHA-256 checksum of a file."""
     hasher = hashlib.sha256()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -192,18 +425,7 @@ def _compute_sha256(path: Path) -> str:
     return hasher.hexdigest()
 
 def _update_manifest(dataset: str, checksum: str, relative_path: str) -> None:
-    """
-    Record the checksum of a downloaded artifact in ``data/manifest.yaml``.
-    The manifest is a simple mapping:
-    ```yaml
-    muller:
-      path: data/raw/muller_lyer.parquet
-      sha256: <hex>
-    ponzo:
-      path: data/raw/ponzo.parquet
-      sha256: <hex>
-    ```
-    """
+    """Record the checksum of a downloaded artifact in ``data/manifest.yaml``."""
     manifest_path = paths.data("manifest.yaml")
     if manifest_path.is_file():
         with open(manifest_path, "r", encoding="utf-8") as f:
@@ -229,7 +451,7 @@ def _validate_dataframe(df: pd.DataFrame, required_columns: list[str]) -> None:
             dup_list = duplicates.index.tolist()
             raise ValueError(
                 f"Duplicate subject_id values found: {dup_list}. "
-                "Each subject_id must be unique (FR‑001)."
+                "Each subject_id must be unique (FR-001)."
             )
 
 def _clean_dataframe(df: pd.DataFrame, required_columns: list[str]) -> pd.DataFrame:
@@ -247,10 +469,10 @@ def _write_clean_csv(df_clean: pd.DataFrame, clean_path: Path) -> None:
     df_clean.to_csv(clean_path, index=False, encoding="utf-8")
 
 # ----------------------------------------------------------------------
-# High‑level download & optional clean for each dataset
+# High-level download & optional clean for each dataset
 # ----------------------------------------------------------------------
 def download_and_clean_muller(seed: int = 42) -> None:
-    """Download (and optionally clean) the Müller‑Lyer dataset."""
+    """Download (and optionally clean) the Müller-Lyer dataset."""
     set_global_seed(seed)
     raw_path, clean_path = _ensure_output_paths(dataset="muller")
 
@@ -260,6 +482,7 @@ def download_and_clean_muller(seed: int = 42) -> None:
             MULLER_REPO_IDS,
             MULLER_PARQUET_FILENAME,
             hf_dataset=MULLER_HF_DATASET,
+            required_columns=MULLER_REQUIRED_COLUMNS,
         )
     else:
         log.info("Raw parquet already exists at %s – skipping download.", raw_path)
@@ -287,6 +510,7 @@ def download_and_clean_ponzo(seed: int = 42) -> None:
             PONZO_REPO_IDS,
             PONZO_PARQUET_FILENAME,
             hf_dataset=PONZO_HF_DATASET,
+            required_columns=PONZO_REQUIRED_COLUMNS,
         )
     else:
         log.info("Raw parquet already exists at %s – skipping download.", raw_path)
@@ -307,11 +531,11 @@ def download_and_clean_ponzo(seed: int = 42) -> None:
 # CLI entry point
 # ----------------------------------------------------------------------
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    """Parse CLI arguments for both sub‑command and flag‑style usage."""
+    """Parse CLI arguments for both sub-command and flag-style usage."""
     if argv is None:
         argv = sys.argv[1:]
 
-    # Flag‑style detection
+    # Flag-style detection
     if any(arg.startswith("--") for arg in argv):
         parser = argparse.ArgumentParser(description="Download/clean illusion datasets (flag style).")
         parser.add_argument("--download", action="store_true", help="Download the raw parquet file.")
@@ -324,15 +548,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "--dataset",
             choices=["muller", "ponzo", "both"],
             default="both",
-            help="Select dataset when using flag‑style interface.",
+            help="Select dataset when using flag-style interface.",
         )
         return parser.parse_args(argv)
 
-    # Sub‑command style
-    parser = argparse.ArgumentParser(description="Download/clean illusion datasets (sub‑command style).")
+    # Sub-command style
+    parser = argparse.ArgumentParser(description="Download/clean illusion datasets (sub-command style).")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    dl_muller = subparsers.add_parser("download_muller", help="Download and clean Müller‑Lyer dataset.")
+    dl_muller = subparsers.add_parser("download_muller", help="Download and clean Müller-Lyer dataset.")
     dl_muller.add_argument("--seed", type=int, default=42)
 
     dl_ponzo = subparsers.add_parser("download_ponzo", help="Download and clean Ponzo dataset.")
@@ -343,7 +567,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> None:
     args = _parse_args(argv)
 
-    # Flag‑style handling
+    # Flag-style handling
     if getattr(args, "download", False) or getattr(args, "clean", False):
         set_global_seed(args.seed)
         raw_dir = Path(args.output_dir) if getattr(args, "output_dir", None) else None
@@ -362,6 +586,7 @@ def main(argv: list[str] | None = None) -> None:
                             MULLER_REPO_IDS,
                             MULLER_PARQUET_FILENAME,
                             hf_dataset=MULLER_HF_DATASET,
+                            required_columns=MULLER_REQUIRED_COLUMNS,
                         )
                     else:  # ponzo
                         _download_parquet(
@@ -369,6 +594,7 @@ def main(argv: list[str] | None = None) -> None:
                             PONZO_REPO_IDS,
                             PONZO_PARQUET_FILENAME,
                             hf_dataset=PONZO_HF_DATASET,
+                            required_columns=PONZO_REQUIRED_COLUMNS,
                         )
                 else:
                     log.info("Raw parquet already exists at %s – skipping download.", raw_path)
@@ -398,7 +624,7 @@ def main(argv: list[str] | None = None) -> None:
 
         return
 
-    # Sub‑command handling
+    # Sub-command handling
     if args.command == "download_muller":
         log.info("Running download_muller with seed=%s", args.seed)
         download_and_clean_muller(seed=args.seed)

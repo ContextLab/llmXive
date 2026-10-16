@@ -20,7 +20,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
 
 ### Phase 1 – Data ingestion & preprocessing  
 
-- [ ] **T001** [P1] [US1] Download the Müller‑Lyer training dataset from the verified public source and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 -->
+- [ ] **T001** [P1] [US1] Download the Müller‑Lyer training dataset from the verified public source and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED: unspecified -->
   - **File(s)**: `data/raw/muller_lyer.parquet` (raw).  
   - **Requirement**: **FR‑001** – download dataset; enforce required columns; **subject_id** must be unique (error on duplicates).  
   - **Verification**:  
@@ -29,7 +29,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
     3. Validate that the raw parquet contains columns `subject_id`, `trial_id`, `stimulus_length`, `response_length`, `stimulus_parameters`.  
     4. CI fails if any duplicate `subject_id` values are present.  
 
-- [ ] **T002** [P1] [US2] Download the Ponzo test dataset from the verified HuggingFace URL and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 -->
+- [ ] **T002** [P1] [US2] Download the Ponzo test dataset from the verified HuggingFace URL and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 -->
   - **File(s)**: `data/raw/ponzo.parquet` (raw).  
   - **Requirement**: **FR‑001** – same as T001 for the second dataset; **subject_id** uniqueness enforced.  
   - **Verification**:  
