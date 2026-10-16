@@ -7,7 +7,7 @@ The manifest includes:
   * Exact Git commit hash of the repository (or "N/A" if unavailable)
   * URLs of the primary datasets used in the project
   * Software versions derived from `code/requirements.txt`
-  * All checksum entries from the project's checksum manifest (if present)
+  * SHA‑256 checksums for **all** files in the repository (excluding the manifest itself)
 
 The script is intended to be run from the repository root (or any sub‑directory)
 via:
@@ -19,6 +19,8 @@ non‑zero status if a fatal error occurs (e.g., inability to write the file).
 
 import json
 import subprocess
+import hashlib
+import os
 from pathlib import Path
 import sys
 
@@ -37,10 +39,9 @@ def get_project_root() -> Path:
 def get_git_commit_hash(root: Path) -> str:
     """
     Retrieve the current Git commit hash. If Git is unavailable or the
-    directory is not a Git repository, return ``\"N/A\"``.
+    directory is not a Git repository, return ``"N/A"``.
     """
     try:
-        # Use ``git rev-parse HEAD`` relative to the repository root.
         commit = subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=root, stderr=subprocess.DEVNULL
         )
@@ -66,20 +67,59 @@ def parse_requirements(req_path: Path) -> dict:
                 pkg, ver = line.split("==", 1)
                 versions[pkg.strip()] = ver.strip()
             else:
-                # No pinned version – store the raw spec.
                 versions[line] = None
     return versions
 
-def load_checksums(checksum_path: Path) -> list:
+def compute_file_sha256(file_path: Path) -> str:
+    """
+    Compute the SHA‑256 hash of a single file.
+    """
+    sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+def compute_all_checksums(root: Path) -> list:
+    """
+    Walk the repository tree (starting at ``root``) and compute SHA‑256
+    checksums for every regular file. The returned list contains strings
+    of the form ``"<relative_path>:<sha256>"``.
+    The manifest file itself (``manifest.json``) is excluded to avoid
+    circular dependencies.
+    """
+    checksums = []
+    for dirpath, _, filenames in os.walk(root):
+        for fname in filenames:
+            file_path = Path(dirpath) / fname
+            # Skip the manifest we are about to write (if it already exists)
+            if file_path.name == "manifest.json":
+                continue
+            # Skip hidden files like .gitkeep or editor backups if desired
+            # (not required by the spec, so we include everything else)
+            rel_path = file_path.relative_to(root).as_posix()
+            try:
+                file_hash = compute_file_sha256(file_path)
+                checksums.append(f"{rel_path}:{file_hash}")
+            except Exception as e:
+                # If a file cannot be read, report the issue but continue.
+                sys.stderr.write(f"Warning: could not checksum {rel_path}: {e}\\n")
+    return checksums
+
+def load_checksums(checksum_path: Path, root: Path) -> list:
     """
     Load the checksum manifest (typically ``data/checksums.txt``) and
-    return a list of its lines. If the file does not exist, return an
-    empty list.
+    return a list of its lines. If the file does not exist or is empty,
+    compute checksums for the entire repository on the fly.
     """
-    if not checksum_path.is_file():
-        return []
-    with checksum_path.open("r", encoding="utf-8") as fh:
-        return [ln.rstrip("\n") for ln in fh]
+    if checksum_path.is_file():
+        with checksum_path.open("r", encoding="utf-8") as fh:
+            lines = [ln.rstrip("\n") for ln in fh if ln.strip()]
+        if lines:
+            return lines
+
+    # Fallback: compute checksums dynamically
+    return compute_all_checksums(root)
 
 # -------------------------------------------------------------------------
 # Main manifest generation
@@ -104,9 +144,9 @@ def build_manifest() -> dict:
     req_path = root / "code" / "requirements.txt"
     software_versions = parse_requirements(req_path)
 
-    # 4. Checksums (if the checksum utility has already run)
+    # 4. Checksums (read existing file or compute)
     checksum_path = root / "data" / "checksums.txt"
-    checksums = load_checksums(checksum_path)
+    checksums = load_checksums(checksum_path, root)
 
     manifest = {
         "commit_hash": commit_hash,

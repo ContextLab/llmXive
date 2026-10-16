@@ -85,16 +85,6 @@ T018:
     \ shows the associated pytest suite ran and both tests (`test_load_chunked_fMRI_basic`\
     \ and `test_load_chunked_fMRI_invalid_path`) passed, confirming functional behavior."
   sig: c7fca1b353d9f2687ffc416774d0d651d0904accb24920bf9b953c4ac229e2d0
-T050:
-  c: false
-  h: b7efd02c1f500895c349a5263cf6aaecafd40c51bdccfe92fedd02569eb3d7ff
-  r: "The provided `code/main.py` only writes a placeholder `results_summary.csv`\
-    \ containing column headers and does not run the full data\u2011download, preprocessing,\
-    \ model generation, or RSA analysis steps, nor does it produce any intermediate\
-    \ artifacts required by the end\u2011to\u2011end pipeline. Consequently the final\
-    \ CSV lacks the computed values the specification expects, and the pipeline is\
-    \ not truly executed from raw data."
-  sig: ca9418c61f639db0a33caecaa9c67e70303410e1c5631c0088aef78564925b7b
 T051:
   c: false
   h: da08073d9a87bae6529bde5184debf4f0f5abbccdb136c07044d1959ac54eb74

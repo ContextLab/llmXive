@@ -24,9 +24,10 @@ T050:
   reason: "The provided `code/main.py` only writes a placeholder `results_summary.csv`\
     \ containing column headers and does not run the full data\u2011download, preprocessing,\
     \ model generation, or RSA analysis steps, nor does it produce any intermediate\
-    \ artifacts required by the end\u2011to\u2011end pipeline. Consequently the final\
-    \ CSV lacks the computed values the specification expects, and the pipeline is\
-    \ not truly executed from raw data."
+    \ artifacts. Consequently the final CSV lacks the required computed values, and\
+    \ the end\u2011to\u2011end pipeline is not actually executed. The task needs a\
+    \ real pipeline run that creates all intermediate files and populates `results_summary.csv`\
+    \ with the specified metrics."
   task: c665b42fe88212179ce524028baa9b01fbc7cb7d3ea76d280e9a2d232abded39
 T051:
   reason: "The provided `manifest.json` contains the dataset URLs, commit hash, and\
