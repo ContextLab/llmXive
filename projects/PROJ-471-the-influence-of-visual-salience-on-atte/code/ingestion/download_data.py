@@ -2,21 +2,30 @@
 Real-data ingestion script for the Visual Salience project.
 
 This script verifies the presence of the OpenNeuro Moral Foundations Eye‑Tracking
-Dataset (ds003123) in the expected raw data directory, computes SHA‑256 checksums
+Dataset (ds003123) in the expected raw data directory, attempts to download it
+if missing (using the Hugging Face `datasets` library), computes SHA‑256 checksums
 for all files, and writes a manifest to ``data/raw/checksums.json``. If the dataset
-is not present, the script aborts with a clear ``RuntimeError`` (fail‑loud semantics).
-No synthetic data fallback is performed.
+cannot be fetched, the script aborts with a clear ``RuntimeError`` (fail‑loud
+semantics). No synthetic data fallback is performed.
 """
 import json
 import hashlib
 import logging
+import shutil
+import subprocess
 from datetime import datetime
 from pathlib import Path
-import os
 
 from config import get_paths
 from utils.logging import get_logger
 from utils.versioning import register_artifact
+
+# Attempt to import the Hugging Face datasets library.
+# It is listed in ``requirements.txt`` and will be installed in the environment.
+try:
+    from datasets import load_dataset_builder
+except Exception as e:
+    raise RuntimeError("HuggingFace `datasets` library is required for automatic download.") from e
 
 logger = get_logger(__name__)
 
@@ -28,12 +37,42 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+def download_dataset(raw_dir: Path, dataset_id: str) -> None:
+    """
+    Download the OpenNeuro dataset using the Hugging Face `datasets` library.
+    The dataset is first prepared in its cache directory and then copied into
+    ``raw_dir`` preserving the internal folder hierarchy.
+
+    Args:
+        raw_dir: Destination directory where the dataset should appear.
+        dataset_id: Identifier of the OpenNeuro dataset (e.g., ``ds003123``).
+    """
+    logger.info(f"Dataset '{dataset_id}' not found locally – attempting automatic download.")
+    # The Hugging Face hub stores OpenNeuro datasets under the repo
+    # ``openneuro/<dataset_id>``.
+    repo_id = f"openneuro/{dataset_id}"
+    try:
+        builder = load_dataset_builder(repo_id)
+        logger.info("Preparing dataset (this may take several minutes)...")
+        builder.download_and_prepare()
+    except Exception as e:
+        logger.error(f"Failed to download dataset via Hugging Face hub: {e}")
+        raise RuntimeError("DATA_DOWNLOAD_FAILED") from e
+
+    cache_dir = Path(builder.cache_dir)
+    if not cache_dir.is_dir():
+        raise RuntimeError(f"Cache directory not found after download: {cache_dir}")
+
+    logger.info(f"Copying dataset files from cache '{cache_dir}' to raw directory '{raw_dir}'.")
+    # ``shutil.copytree`` with ``dirs_exist_ok=True`` works for Python >=3.8.
+    shutil.copytree(cache_dir, raw_dir, dirs_exist_ok=True)
+
 def main() -> None:
     """
     Main ingestion pipeline.
 
     Steps:
-    1. Verify that the expected raw data directory exists and contains at least one file.
+    1. Verify (or download) the expected raw data directory.
     2. Compute SHA‑256 checksums for every file under the raw directory.
     3. Write a manifest (including timestamps and file sizes) to ``checksums.json``.
     4. Register the manifest as an artifact.
@@ -46,17 +85,19 @@ def main() -> None:
     logger.info(f"Starting ingestion verification for OpenNeuro dataset: {dataset_id}")
 
     # ----------------------------------------------------------------------
-    # Step 1 – Verify dataset presence
+    # Step 1 – Verify dataset presence; download if missing.
     # ----------------------------------------------------------------------
     if not raw_dir.exists() or not any(p.is_file() for p in raw_dir.rglob("*")):
-        logger.error(
-            f"Dataset directory '{raw_dir}' is missing or empty. "
-            "The pipeline requires the dataset to be placed manually. "
-            "Abort with DATA_MISSING_001."
-        )
-        raise RuntimeError("DATA_MISSING_001: Dataset not found in the expected location.")
+        try:
+            download_dataset(raw_dir, dataset_id)
+        except RuntimeError as e:
+            logger.error(
+                f"Dataset directory '{raw_dir}' is missing and automatic download failed. "
+                "Abort with DATA_MISSING_001."
+            )
+            raise RuntimeError("DATA_MISSING_001: Dataset not found and download failed.") from e
 
-    logger.info(f"Dataset directory found: {raw_dir}")
+    logger.info(f"Dataset directory available: {raw_dir}")
 
     # ----------------------------------------------------------------------
     # Step 2 – Compute checksums

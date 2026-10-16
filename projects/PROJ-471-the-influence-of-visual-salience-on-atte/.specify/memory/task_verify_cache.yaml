@@ -1,11 +1,12 @@
 T001:
   c: false
-  h: 7c40eb9ef4931de4bfc5f2eb2555c87f543ef08e242ff8e256e800ae5b97aeef
-  r: "The repository contains `code/bootstrap.py` and a `code/requirements.txt`, but\
-    \ there is no evidence that the bootstrap script was actually executed successfully\
-    \ (no run log, no proof that it created the directories or wrote the pinned requirements).\
-    \ Moreover, the provided test for the script fails because it cannot monkey\u2011\
-    patch `paths.root`, indicating the script is not currently runnable in the expected\
-    \ environment. A successful execution record (or passing test) and confirmation\
-    \ that the generated `requirements.txt` matches the pinned list are needed."
-  sig: d8d2a0d254ef220149bbccb7bb9a304a590ae1a7507b6473bf112d63e54588d8
+  h: 6173a851bc484defdf40005a90662c58944879fa38feac9be3dd90846b3f3b09
+  r: "The `code/bootstrap.py` script fails its own test (`test_bootstrap_creates_structure`)\
+    \ because it cannot monkey\u2011patch `paths.root`, causing an error and preventing\
+    \ verification that the directory layout and pinned `requirements.txt` are created.\
+    \ Moreover, the repository contains a top\u2011level `requirements.txt` that does\
+    \ not match the pinned list written by the script (the script writes a different\
+    \ file under `code/requirements.txt`). Consequently, the required project layout,\
+    \ the correct requirements file, and a proven runnable entry point are not demonstrably\
+    \ provided."
+  sig: 1fc1d2f3e36ae6554a7bd967f4c1af1933108d489c5462ad9af60f7117522df7

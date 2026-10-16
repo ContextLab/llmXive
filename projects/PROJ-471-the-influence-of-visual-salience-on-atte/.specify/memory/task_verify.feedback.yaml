@@ -1,17 +1,20 @@
 T001:
-  reason: "The repository contains `code/bootstrap.py` and a `code/requirements.txt`,\
-    \ but there is no evidence that the bootstrap script was actually executed successfully\
-    \ (no run log, no proof that it created the directories or wrote the pinned requirements).\
-    \ Moreover, the provided test for the script fails because it cannot monkey\u2011\
-    patch `paths.root`, indicating the script is not currently runnable in the expected\
-    \ environment. A successful execution record (or passing test) and confirmation\
-    \ that the generated `requirements.txt` matches the pinned list are needed."
+  reason: "The `code/bootstrap.py` script fails its own test (`test_bootstrap_creates_structure`)\
+    \ because it cannot monkey\u2011patch `paths.root`, causing an error and preventing\
+    \ verification that the directory layout and pinned `requirements.txt` are created.\
+    \ Moreover, the repository contains a top\u2011level `requirements.txt` that does\
+    \ not match the pinned list written by the script (the script writes a different\
+    \ file under `code/requirements.txt`). Consequently, the required project layout,\
+    \ the correct requirements file, and a proven runnable entry point are not demonstrably\
+    \ provided."
   task: f73df3eb4a107de40d28a304aab021d86a45e204292e85132a20449ae857d4da
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/ingestion/download_data.py
     exit=1'
   task: 23e447be5293f1fd7216cc8ef6faaf10a05101d52d8a229c03fe41d671bb36f0
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/salience/generate_maps.py
+    exit=1'
   task: d8c8e27cda9cf4b96a8880f14eb4422f4bf09c4c024b7c74c536184f4a19ff26
 T004:
   task: efa8f172bed4ed39664c997a033bbcfcbb22a2d37ff4db00bdad40baccd8dbf8

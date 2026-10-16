@@ -1,4 +1,5 @@
-# Core dependencies
+# Pinned requirements for the Visual Salience project
+# Core scientific stack (already available in the runner)
 numpy
 pandas
 scipy
@@ -11,12 +12,10 @@ PyYAML
 requests
 jsonschema
 psutil
-# Project specific
-torch
-torchvision
-datasets
+
+# Additional packages required by the pipeline
+datasets>=2.0.0
 opencv-python
-ultralytics
-detectron2
-pingouin
-openneuro-py
+# Note: ``openneuro`` CLI is optional; the script prefers the Hugging Face
+# ``datasets`` library for automatic download. If the CLI is installed it will
+# be used as a fallback. No extra entry is needed here.

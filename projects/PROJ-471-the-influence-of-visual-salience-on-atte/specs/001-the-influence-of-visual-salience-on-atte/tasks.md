@@ -12,7 +12,7 @@
   **Implementation**: `code/ingestion/download_data.py` uses the OpenNeuro CLI (`openneuro download ds003123 --out data/raw/`) or falls back to `datasets.load_dataset("openneuro/ds003123", streaming=True)`. After download it validates the expected `sub‑*` folders, computes SHA‑256 checksums stored in `data/raw/checksums.json`, and raises `RuntimeError("DATA_MISSING_001")` only if the dataset cannot be fetched. No synthetic data fallback is provided.  
   **Verification**: A test `test_download_success.py` asserts that the script exits 0 when the dataset is present and that `checksums.json` exists and matches the recorded hashes.  
 
-- [ ] T003 [US1] Compute pixel‑wise salience maps for all 200 stimulus images using **DeepGaze II in CPU‑only mode**.  
+- [ ] T003 [US1] Compute pixel‑wise salience maps for all 200 stimulus images using **DeepGaze II in CPU‑only mode**.   <!-- FAILED-IN-EXECUTION: code/salience/generate_maps.py exit=1 -->
   **Implementation**: `code/salience/generate_maps.py` iterates over `data/raw/images/*.png`, loads the DeepGaze II model with `device="cpu"` (no GPU fallback), computes salience, writes `.npy` maps to `data/interim/salience_maps/`, and records metadata (`stimulus_id`, `map_path`, `resolution`, `generation_method="deepgaze_ii"`, `status="success"` or `"failed"` with reason) in `data/interim/salience_metadata.json`. Any failure for an image aborts the run with a logged error (no GBVS fallback).  
   **Verification**: After processing the first 5 images, the corresponding `.npy` files exist, their shapes match the source images, and `salience_metadata.json` validates against `contracts/salience.schema.yaml`.  
 
