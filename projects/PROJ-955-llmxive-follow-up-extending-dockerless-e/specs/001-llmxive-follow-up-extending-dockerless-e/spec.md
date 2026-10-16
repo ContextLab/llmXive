@@ -94,7 +94,7 @@ The system must isolate patches where the static model fails (False Positives an
 
 ## Assumptions
 
-- The SWE-Gym and Multi-SWE-RL datasets contain complete, parseable source code for the 3.7k issues and reliable ground-truth test execution logs (pass/fail) for the same issues.
+- The SWE-Gym and Multi-SWE-RL datasets contain complete, parseable source code for a large set of issues and reliable ground‑truth test execution logs (pass/fail) for the same issues.
 - The `pycg` and `clang-query` tools can be installed and run on a standard GitHub Actions free-tier runner (Ubuntu, 2 CPU, ~7 GB RAM) without requiring GPU acceleration or specialized hardware.
 - The dataset size (thousands of patches) and the resulting graph structures will fit within the memory and disk constraints of the free-tier runner; if memory usage exceeds these limits, the analysis will proceed on a stratified random sample of the dataset.
 - The ground-truth test execution results are independent of the static analysis features, ensuring no circularity in the validation (i.e., the static graphs are not derived from the test execution logs).

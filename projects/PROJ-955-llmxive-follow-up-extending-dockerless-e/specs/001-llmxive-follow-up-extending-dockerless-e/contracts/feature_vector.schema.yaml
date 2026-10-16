@@ -11,6 +11,8 @@ required:
   - avg_shortest_path
   - recursion_depth
   - external_call_count
+  - patch_size
+  - lines_changed
   - label
 properties:
   patch_id:
@@ -38,6 +40,14 @@ properties:
   external_call_count:
     type: "integer"
     minimum: 0
+  patch_size:
+    type: "integer"
+    minimum: 0
+    description: "Size of the raw patch file in bytes."
+  lines_changed:
+    type: "integer"
+    minimum: 0
+    description: "Total number of added plus deleted lines in the diff."
   label:
     type: "string"
     enum: ["pass", "fail"]

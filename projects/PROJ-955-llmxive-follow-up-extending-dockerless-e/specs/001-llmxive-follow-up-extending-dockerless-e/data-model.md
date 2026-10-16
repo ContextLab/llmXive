@@ -1,7 +1,7 @@
 # Data Model: 001-static-dynamic-gap-analysis
 
 ## Overview
-The pipeline works with four core data artifacts, each validated against a JSON/YAML schema stored under `specs/<designated‑identifier>-static-dynamic-gap-analysis/contracts/`. The schemas enable contract‑based testing (`tests/contract/test_contracts.py`) and guarantee reproducibility.
+The pipeline works with four core data artifacts, each validated against a JSON/YAML schema stored under `specs/<identifier>-static-dynamic-gap-analysis/contracts/`. The schemas enable contract‑based testing (`tests/contract/test_contracts.py`) and guarantee reproducibility.
 
 ## Schemas
 
@@ -59,7 +59,7 @@ properties:
 ```
 
 ### 2. `feature_vector.schema.yaml`
-Defines a single row in `features/static_features.csv`.
+Defines a single row in `features/static_features.csv`. Updated to include two additional covariates (`patch_size`, `lines_changed`) that capture edit magnitude.
 
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
@@ -75,6 +75,8 @@ required:
   - avg_shortest_path
   - recursion_depth
   - external_call_count
+  - patch_size
+  - lines_changed
   - label
 properties:
   patch_id:
@@ -102,33 +104,15 @@ properties:
   external_call_count:
     type: "integer"
     minimum: 0
-  label:
-    type: "string"
-    enum: ["pass", "fail"]
-```
-
-### 3. `model_output.schema.yaml` (optional, documented for completeness)
-
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelOutput"
-type: "object"
-required:
-  - patch_id
-  - true_label
-  - predicted_prob
-  - predicted_label
-properties:
-  patch_id:
-    type: "string"
-  true_label:
-    type: "string"
-    enum: ["pass", "fail"]
-  predicted_prob:
-    type: "number"
+  patch_size:
+    type: "integer"
     minimum: 0
-    maximum: 1
-  predicted_label:
+    description: "Size of the raw patch file in bytes."
+  lines_changed:
+    type: "integer"
+    minimum: 0
+    description: "Total number of added plus deleted lines in the diff."
+  label:
     type: "string"
     enum: ["pass", "fail"]
 ```
@@ -150,5 +134,3 @@ Raw Datasets (parquet / jsonl)
 ```
 
 All intermediate files are version‑hashed and stored under `interim/`, `features/`, `models/`, and `reports/` respectively.
-
----

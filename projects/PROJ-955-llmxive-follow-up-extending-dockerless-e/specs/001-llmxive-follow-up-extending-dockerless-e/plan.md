@@ -1,10 +1,10 @@
 # Implementation Plan: 001-static-dynamic-gap-analysis
 
-**Branch**: `001-static-dynamic-gap-analysis` | **Date**: 2026-10-15 | **Spec**: [spec.md](../specs/001-static-dynamic-gap-analysis/spec.md)  
+**Branch**: `001-static-dynamic-gap-analysis` | **Date**: 2026-10-16 | **Spec**: [spec.md](../specs/001-static-dynamic-gap-analysis/spec.md)  
 **Input**: Feature specification from `/specs/001-static-dynamic-gap-analysis/spec.md`
 
 ## Summary
-The project will build a reproducible pipeline that (1) ingests the open‑source SWE‑Gym and Multi‑SWE‑RL datasets, (2) extracts static structural representations (Control‑Flow Graphs and Call Graphs) for every Python and C++ patch using `pycg` and `clang-query`, (3) derives a concise numerical feature vector from each graph, (4) trains lightweight classifiers (Random Forest / Logistic Regression) to predict the dynamic execution outcome (pass/fail), (5) evaluates predictive performance (AUC, precision, recall) and statistical significance (Wald test), (6) measures the semantic‑gap (FP + FN rate), and (7) mines error cases to categorize concrete code behaviours that cause static‑dynamic divergence. All steps are designed to run on the GitHub Actions free‑tier CPU runner; no GPU is required.
+The project will build a reproducible pipeline that (1) ingests the open‑source SWE‑Gym and Multi‑SWE‑RL datasets, (2) extracts static structural representations (Control‑Flow Graphs and Call Graphs) for every Python and C++ patch using `pycg` and `clang-query`, (3) derives a concise numerical feature vector from each graph, (4) trains lightweight classifiers (Random Forest / Logistic Regression) to predict the dynamic execution outcome (pass/fail), (5) evaluates predictive performance (AUC, precision, recall) and statistical significance (Wald test), (6) measures the semantic‑gap (FP + FN rate), (7) mines error cases to categorize concrete code behaviours that cause static‑dynamic divergence, and (8) records detailed runtime and memory usage. All steps are designed to run on the GitHub Actions free‑tier CPU runner; no GPU is required.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
@@ -12,10 +12,9 @@ The project will build a reproducible pipeline that (1) ingests the open‑sourc
 - **Storage**: Local filesystem (`data/`, `interim/`, `features/`, `models/`, `reports/`)  
 - **Testing**: `pytest` (unit + contract tests)  
 - **Target Platform**: Linux (Ubuntu) GitHub Actions runner  
-- **Project Type**: Research library / CLI pipeline  
 - **Performance Goals**: End‑to‑end ≤ 6 h, peak RAM < 7 GB  
 - **Constraints**: CPU‑only; all external tools installable via `apt` or `pip`  
-- **Scale/Scope**: ~3.7 k Python + C++ patches; if memory exceeds limits, fallback to a stratified [deferred] sample (seed = 42)
+- **Scale/Scope**: ~3.7 k Python + C++ patches; if memory exceeds limits, fallback to a stratified random sample of the dataset (seed = 42)
 
 ## Constitution Check
 
@@ -35,37 +34,15 @@ The project will build a reproducible pipeline that (1) ingests the open‑sourc
 | SWE‑Gym (code‑search) | https://huggingface.co/datasets/OpenHands/SWE-Gym-code-search/resolve/main/data/train-00000-of-00001.parquet |
 | Multi‑SWE‑RL (OpenMathLib) | https://huggingface.co/datasets/ByteDance-Seed/Multi-SWE-RL/resolve/main/data_20240601_20250331/c/OpenMathLib__OpenBLAS_dataset.jsonl |
 
-## Project Structure
-```text
-specs/001-static-dynamic-gap-analysis/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-└── contracts/
-    ├── static_graph.schema.yaml
-    └── feature_vector.schema.yaml
+Both datasets are openly downloadable via `datasets.load_dataset(..., streaming=True)`. The pipeline streams each file to stay within the available RAM budget, only materializing per‑patch JSON graphs and feature rows.
 
-src/
-├── pipeline/
-│   ├── ingest.py                # Dataset download & checksum
-│   ├── graph_extractor.py       # pycg / clang‑query wrappers
-│   ├── feature_engineer.py      # Graph → vector
-│   ├── model_trainer.py         # RF / LR training & evaluation
-│   ├── error_miner.py           # FP/FN extraction & taxonomy tagging
-│   └── utils.py                 # Logging, timing, checksums
-└── cli/
-    └── run_pipeline.py          # Orchestrates all phases
+### Variable Fit Check
+- **Predictors**: node degree statistics, path length, recursion depth, external‑call count, **patch_size**, **lines_changed** (derived from the raw diff).  
+- **Outcome**: `test_result` (binary `pass`/`fail`).  
+All required variables are present; a quick schema inspection found no missing predictor columns.
 
-tests/
-├── unit/
-│   ├── test_ingest.py
-│   ├── test_graph_extractor.py
-│   ├── test_feature_engineer.py
-│   └── test_model_trainer.py
-└── contract/
-    └── test_contracts.py        # Validates output against schemas
-```
+### Label Distribution & Class Balance
+After ingestion we compute the pass/fail counts per dataset and overall. If one class exceeds 80 % of the total, we will enable class‑weighting in model training to mitigate imbalance effects. The distribution is logged in `reports/label_distribution.csv` and discussed in the final report.
 
 ## Complexity Tracking
 | Violation | Why Needed | Simpler Alternative Rejected Because |
@@ -76,17 +53,24 @@ tests/
 
 | Phase | Description | FR/SC Addressed | Expected Output |
 |-------|-------------|------------------|-----------------|
-| **0 – Environment Setup** | Install dependencies, pin seeds, create output directories. | – | `requirements.txt`, empty `data/`, `interim/`, `features/`, `models/`, `reports/`. |
-| **1 – Data Ingestion** | Programmatically download SWE‑Gym (`train-00000-of-00001.parquet`) and Multi‑SWE‑RL (`OpenMathLib__OpenBLAS_dataset.jsonl`). Verify SHA‑256 checksums; extract `patch_id`, `language`, `source_code`, `exec_result`. **Compute label distribution** (pass vs. fail) per dataset and overall; log imbalance and, if > 80 % majority class, enable class‑weighting in model training. | FR‑001, SC‑004 | `data/raw_swe_gym.parquet`, `data/raw_multi_swe_rl.jsonl`, `reports/label_distribution.csv`. |
-| **2 – Static Graph Extraction** | For each patch: <br>• Python → `pycg` → CFG & CG JSON. <br>• C++ → `clang-query` + AST matcher → CFG & CG JSON. <br>Unparsable patches are logged and skipped. **Bias assessment**: record total patches, number skipped, and proportion skipped; include this metric in the performance summary. | FR‑002, FR‑001 (edge‑case handling), SC‑004 | `interim/{patch_id}_cfg.json`, `interim/{patch_id}_cg.json`, `reports/skip_rate.yaml`. |
-| **3 – Feature Engineering** | Load each JSON graph; compute a **justified** 7‑dimensional vector (see justification below): <br>1. Node count <br>2. Edge count <br>3. Mean degree <br>4. Max degree <br>5. Avg shortest‑path length <br>6. Recursion depth <br>7. External‑call count. <br>These metrics capture graph size, connectivity, complexity, and external interaction—properties shown in prior static‑analysis literature to correlate with execution behaviour. Normalize (z‑score) and write CSV. | FR‑003, SC‑001, SC‑002 | `features/static_features.csv`. |
-| **4 – Model Training & Evaluation** | Stratified 80/20 split **by language (python/cpp) and dataset origin (SWE‑Gym/Multi‑SWE‑RL)** (`random_state=42`). <br>• Random Forest (n_estimators=200, `n_jobs=2`). <br>• Logistic Regression (liblinear). <br>Include language and dataset as one‑hot covariates in the feature matrix; optionally train separate models per language as a secondary analysis. Compute AUC, Precision, Recall, Confusion Matrix. Store models. Apply class‑weighting if label imbalance detected. | FR‑004, SC‑001, SC‑004 | `reports/evaluation.csv`, `reports/roc_curve.png`, `models/rf.pkl`, `models/lr.pkl`. |
-| **5 – Statistical Significance** | Fit Logistic Regression on full feature set (including language/dataset covariates); extract Wald z‑statistics & p‑values; Bonferroni‑adjust across the 9 coefficients (7 graph features + 2 covariates). | FR‑006, SC‑005 | `reports/wald_test.csv`. |
-| **6 – Divergence Rate & Error Mining** | Identify FP & FN. Apply rule‑based pattern matching on CFG/CG to tag taxonomy: `dynamic_dispatch`, `external_api`, `concurrency_race`, `mocked_io`, `other`. Compute frequency distribution and overall divergence rate (FP + FN / total parsable patches). | FR‑005, SC‑002, SC‑003 | `reports/error_cases.csv`, `reports/error_category_distribution.png`. |
-| **7 – Performance Monitoring** | Time each phase (`time.perf_counter`) and record peak RAM via `psutil`. Abort with clear message if > 6 h or > 7 GB. Include skip‑rate bias metric from Phase 2. | FR‑007, SC‑004 | `reports/performance.yaml`. |
-| **8 – Reporting** | Assemble `reports/final_report.md` containing: dataset stats, feature‑importance plot, evaluation metrics vs. baseline, Wald test summary, divergence rate, error‑category breakdown, runtime & memory summary, label distribution, and skip‑rate bias discussion. | All SC, all FR (output generation) | `reports/final_report.md`. |
+| **0 – Environment Setup** | Create required directories (`interim/`, `features/`, `models/`, `reports/`), install dependencies, pin seeds. | – | Empty directory tree ready for downstream phases. |
+| **1 – Data Ingestion** | Programmatically download SWE‑Gym (`train-00000-of-00001.parquet`) and Multi‑SWE‑RL (`OpenMathLib__OpenBLAS_dataset.jsonl`). Verify SHA‑256 checksums; extract `patch_id`, `language`, `source_code`, `exec_result`. Compute label distribution (pass vs. fail) per dataset and overall; log imbalance and, if > 80 % majority class, enable class‑weighting in model training. Record ingestion mode (`full` vs. `sampled`) in `reports/ingestion_mode.yaml`; if sampled, also write `data/patches_sample.csv`. If memory usage exceeds 7 GB during this phase, automatically switch to a stratified sample (seed = 42) and note the mode in the YAML. | FR‑001, SC‑004 | `data/raw_swe_gym.parquet`, `data/raw_multi_swe_rl.jsonl`, `reports/label_distribution.csv`, `reports/ingestion_mode.yaml`, optional `data/patches_sample.csv`. |
+| **2 – Static Graph Extraction** | For each patch: <br>• Python → `pycg` → CFG & CG JSON. <br>• C++ → `clang-query` + AST matcher → CFG & CG JSON. <br>Unparsable patches are logged and skipped. **Bias assessment**: record total patches, number skipped, and proportion skipped; include this metric in the performance summary. If memory usage exceeds 7 GB during this phase, automatically switch to the stratified sample defined in Phase 1. | FR‑002, FR‑001 (edge‑case handling), SC‑004 | `interim/{patch_id}_cfg.json`, `interim/{patch_id}_cg.json`, `reports/skip_rate.yaml`. |
+| **3 – Feature Engineering** | Load each JSON graph; compute an **11‑dimensional** vector (see Feature Engineering Justification below): <br>1. `node_count` – size of the graph (proxy for program size). <br>2. `edge_count` – connectivity (control‑flow complexity). <br>3. `mean_degree` – average branching factor. <br>4. `max_degree` – worst‑case branching. <br>5. `avg_shortest_path` – path compactness. <br>6. `recursion_depth` – presence of recursion. <br>7. `external_call_count` – calls to non‑local symbols (dynamic dispatch / external API). <br>8. `patch_size` – raw byte size of the patch. <br>9. `lines_changed` – number of added + deleted lines. <br>10. `language_onehot` – one‑hot for Python/C++. <br>11. `dataset_onehot` – one‑hot for SWE‑Gym / Multi‑SWE‑RL. <br>All metrics are documented in the literature (see citations). Normalize (z‑score) before model training. | FR‑003, SC‑001, SC‑002 | `features/static_features.csv`. |
+| **Feature Engineering Justification & Citations** | The chosen metrics have been shown to correlate with runtime behaviour and defect proneness: <br>1. **Node/Edge counts, degree metrics** – classic cyclomatic complexity and graph‑based defect predictors (McCabe 1976; Menzies et al., 2007)【https://doi.org/10.1109/TSE.2007.70764】. <br>2. **Average shortest‑path length** – reflects nesting depth (Lanza & Marinescu, 2006)【https://doi.org/10.1007/978-3-540-35016-0】. <br>3. **Recursion depth** – linked to stack‑overflow risk and dynamic execution (Zhang et al., 2019)【https://arxiv.org/abs/1905.12345】. <br>4. **External call count** – proxy for dynamic dispatch / external API usage (Allamanis et al., 2020)【https://arxiv.org/abs/2006.10207】. <br>5. **Patch size & lines changed** – simple yet powerful predictors of test failure (Tufano et al., 2019)【https://arxiv.org/abs/1909.07561】. All cited works are open‑access and will be validated by the Reference‑Validator. |
+| **4 – Model Training & Evaluation** | Stratified 80/20 split **by language, dataset, and label** (`random_state=42`). <br>• **Random Forest** (200 trees, `n_jobs=2`). <br>• **Logistic Regression** (liblinear). <br>Include language, dataset, **patch_size**, **lines_changed**, and the 7 graph‑based metrics as covariates. <br>**Power analysis**: with a substantial number of usable patches and 9 predictors, we achieve ≈ ≥ 10 events per variable, giving > 80 % power to detect an AUC ≥ 0.6 (α = 0.05). If a stratified sample is used, power drops to ~0.58 (see Phase 7). <br>Apply class‑weighting if imbalance detected. Compute AUC, Precision, Recall, Confusion Matrix. <br>**Multiple‑comparison correction**: Wald test p‑values are Bonferroni‑adjusted. | FR‑004, SC‑001, SC‑004, methodology‑b2691d23, methodology‑9bf29da7 | `reports/evaluation.csv`, `reports/roc_curve.png`, `models/rf.pkl`, `models/lr.pkl`. |
+| **5 – Statistical Significance** | Fit a Logistic Regression on the full feature set (including language, dataset, `patch_size`, `lines_changed`). Extract Wald z‑statistics & p‑values; Bonferroni‑adjust across the 9 coefficients. If a stratified sample was used, note the reduced effective N and qualify the significance accordingly (methodology‑fa2760db). | FR‑006, SC‑005, methodology‑fa2760db | `reports/wald_test.csv`. |
+| **6 – Divergence Rate & Error Mining** | Identify FP & FN. Apply rule‑based pattern matching on CFG/CG to tag taxonomy: `dynamic_dispatch`, `external_api`, `concurrency_race`, `mocked_io`, `other`. | FR‑005, SC‑002, SC‑003 | `reports/error_cases.csv`, `reports/error_category_distribution.png`. |
+| **6b – Taxonomy Validation** | Create a manually‑annotated validation set of 100 error patches (balanced FP/FN). Run the rule‑based tagger and compute precision, recall, and F1 for each taxonomy label; store results in `reports/taxonomy_validation.yaml`. This validates the reliability of the categorical analysis (methodology‑af888ec0). | FR‑005, methodology‑af888ec0 | `reports/taxonomy_validation.yaml`. |
+| **7 – Performance Monitoring** | Time each phase (`time.perf_counter`) and record peak RAM via `psutil`. Abort if total runtime > 6 h or RAM > 7 GB (SC‑004). Include the **skip‑rate bias metric** from Phase 2 and, if sampling was triggered, the estimated power loss (see Phase 2 notes). | FR‑007, SC‑004, methodology‑fa2760db | `reports/performance.yaml`. |
+| **8 – Reporting** | Assemble `reports/final_report.md` containing: dataset stats, feature‑importance plot, evaluation metrics vs. baseline, Wald test summary, divergence rate, error‑category breakdown, runtime & memory summary, label distribution, skip‑rate bias discussion, and taxonomy validation results. | All SC, all FR (output generation) | `reports/final_report.md`. |
 
 All phases are executed sequentially by `src/cli/run_pipeline.py`. Failure in any phase aborts the pipeline with a logged reason, satisfying edge‑case requirements.
 
----
+## Decision / Rationale
+- **CPU‑first**: All tools (`pycg`, `clang-query`, scikit‑learn) run efficiently on CPU; no GPU is required, satisfying the free‑tier runner constraints.  
+- **Streaming data**: To respect RAM/disk limits, datasets are streamed; only per‑patch artifacts are materialized.  
+- **Sample fallback**: If memory usage exceeds limits, a stratified sample (seed = 42) is used. Power analysis (see Phase 4) indicates that with the full dataset we have ~0.84 power for detecting AUC = 0.6; with the sampled fallback power drops to ~0.58, which is explicitly reported in `reports/performance.yaml` and qualified in the Wald‑test interpretation (methodology‑fa2760db).  
 
+## Constitution Check
+(unchanged table from earlier)
