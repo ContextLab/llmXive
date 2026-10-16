@@ -1,5 +1,4 @@
-# Pinned requirements for the Visual Salience project
-# Core scientific stack (already available in the runner)
+# Core scientific stack (already available in the base environment)
 numpy
 pandas
 scipy
@@ -13,9 +12,9 @@ requests
 jsonschema
 psutil
 
-# Additional packages required by the pipeline
-datasets>=2.0.0
+# Additional dependencies required for this project
+datasets
+torch==2.2.0
 opencv-python
-# Note: ``openneuro`` CLI is optional; the script prefers the Hugging Face
-# ``datasets`` library for automatic download. If the CLI is installed it will
-# be used as a fallback. No extra entry is needed here.
+tqdm
+# The DeepGaze II model is fetched via torch.hub; no extra package needed.

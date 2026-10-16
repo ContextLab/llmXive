@@ -1,54 +1,54 @@
 """
-Unit tests for the ``code/bootstrap.py`` script.
+Test suite for the ``code.bootstrap`` script.
 
-The test monkey‑patches ``llmxive_toolkit.paths.root`` to a temporary
-directory, runs ``bootstrap.main()``, and then checks that:
-
-1. All required directories have been created.
-2. A ``requirements.txt`` file exists at the project root.
-3. The contents of the requirements file contain at least one of the
-   pinned dependencies (e.g. ``torch==``) to ensure the correct file was
-   written.
+The test verifies that:
+1. ``bootstrap.main()`` returns exit code 0.
+2. The required project directories are created under a patched
+   ``paths.root``.
+3. The pinned ``requirements.txt`` written by the script matches the
+   expected content defined in ``bootstrap._REQUIREMENTS``.
 """
-
-import sys
-import importlib
+import os
+from pathlib import Path
 
 import pytest
 
-def test_bootstrap_creates_structure(tmp_path, monkeypatch):
-    # Monkey‑patch the project root used by ``llmxive_toolkit.paths``.
-    from llmxive_toolkit import paths
+from llmxive_toolkit import paths
+from code import bootstrap
 
-    monkeypatch.setattr(paths, "root", tmp_path, raising=False)
 
-    # Reload the bootstrap module to ensure it picks up the patched root.
-    bootstrap = importlib.import_module("code.bootstrap")
-    importlib.reload(bootstrap)
+@pytest.fixture
+def temp_root(tmp_path, monkeypatch):
+    """Patch ``paths.root`` to point at a temporary directory."""
+    monkeypatch.setattr(paths, "root", Path(tmp_path))
+    # Ensure helper functions that rely on ``paths.root`` see the patch
+    return Path(tmp_path)
 
-    # Run the bootstrap main function. It returns an exit code (0 on success).
+
+def test_bootstrap_creates_structure_and_requirements(temp_root):
+    # Run the bootstrap script
     exit_code = bootstrap.main()
-    assert exit_code == 0
+    assert exit_code == 0, "Bootstrap script should exit with code 0"
 
-    # Expected directories relative to the patched root.
+    # Expected top‑level directories
     expected_dirs = [
-        "code",
-        "data/raw",
-        "data/interim",
-        "data/processed",
-        "data/results",
-        "code/tests",
-        "docs",
+        paths.code(),
+        paths.data("raw"),
+        paths.data("interim"),
+        paths.data("processed"),
+        paths.data("results"),
+        paths.code("tests"),
+        paths.docs(),
     ]
 
-    for rel_dir in expected_dirs:
-        dir_path = tmp_path / rel_dir
-        assert dir_path.is_dir(), f"Missing directory: {dir_path}"
+    for d in expected_dirs:
+        assert d.is_dir(), f"Expected directory {d} to exist"
 
-    # The requirements.txt file should be at the project root.
-    req_path = tmp_path / "requirements.txt"
-    assert req_path.is_file(), "requirements.txt not found at project root"
+    # Verify the requirements file matches the pinned list
+    req_path = temp_root / "requirements.txt"
+    assert req_path.is_file(), "requirements.txt should be created at project root"
 
-    # Verify that the file contains at least one known pinned dependency.
-    content = req_path.read_text()
-    assert "torch==" in content, "Pinned requirements do not contain expected torch version"
+    with open(req_path, "r", encoding="utf-8") as f:
+        written = f.read().strip()
+    expected = bootstrap._REQUIREMENTS.strip()
+    assert written == expected, "Pinned requirements.txt content does not match expected"

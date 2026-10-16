@@ -1,0 +1,12 @@
+T001:
+  c: false
+  h: 904996988ed8d7908beecd66e6bb9e79143f3d27291b11323844d2d590803689
+  r: 'The recorded execution of `code/tests/test_bootstrap.py` failed (exit 1, `AttributeError:
+    property ''root'' of ''ProjectPaths'' object has no setter`), so there is no evidence
+    that `bootstrap.py` runs successfully, prints the tree, and exits 0. Moreover,
+    the pinned list embedded in `bootstrap.py` (`_REQUIREMENTS`: torch==2.2.0, torchvision,
+    detectron2, ultralytics, pingouin, ruff/black, `python==3.11`, etc.) does not
+    match the actual root `requirements.txt` (numpy/pandas/scipy unpinned, requests,
+    jsonschema, tqdm, no detectron2/ultralytics), so the "generated requirements.txt
+    matches the pinned li'
+  sig: 9887ef98028b972086e06e487f3ded0d71b53ccaeea74e4acddf6f2ceec28507

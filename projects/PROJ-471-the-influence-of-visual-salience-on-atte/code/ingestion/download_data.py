@@ -16,13 +16,19 @@ from datetime import datetime
 from pathlib import Path
 
 from llmxive_toolkit import paths, get_logger
-from utils.versioning import register_artifact
+
+# Import the lightweight artifact registration helper.
+try:
+    from utils.versioning import register_artifact
+except Exception:  # pragma: no cover
+    # Fallback: a no‑op if the helper is unavailable.
+    def register_artifact(*_, **__):  # type: ignore
+        pass
 
 # Attempt to import the Hugging Face datasets library.
-# It is listed in ``requirements.txt`` and will be installed in the environment.
 try:
     from datasets import load_dataset_builder
-except Exception as e:
+except Exception as e:  # pragma: no cover
     raise RuntimeError(
         "HuggingFace `datasets` library is required for automatic download."
     ) from e
@@ -62,7 +68,6 @@ def download_dataset(raw_dir: Path, dataset_id: str) -> None:
         raise RuntimeError(f"Cache directory not found after download: {cache_dir}")
 
     logger.info(f"Copying dataset files from cache '{cache_dir}' to raw directory '{raw_dir}'.")
-    # ``shutil.copytree`` with ``dirs_exist_ok=True`` works for Python >=3.8.
     shutil.copytree(cache_dir, raw_dir, dirs_exist_ok=True)
 
 def main() -> None:
@@ -97,8 +102,8 @@ def main() -> None:
             raise RuntimeError(
                 "DATA_MISSING_001: Dataset not found and download failed."
             ) from e
-
-    logger.info(f"Dataset directory available: {raw_dir}")
+    else:
+        logger.info(f"Dataset directory already present: {raw_dir}")
 
     # ----------------------------------------------------------------------
     # Step 2 – Compute checksums

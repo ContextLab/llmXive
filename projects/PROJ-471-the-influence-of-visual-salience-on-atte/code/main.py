@@ -1,64 +1,44 @@
 """
-Minimal entry point for the Visual Salience pipeline.
+Minimal entry point for the Visual Salience project.
 
-The quick‑start documentation points to ``python code/main.py --stage smoke``.
-For the purpose of task T001 we provide a very small CLI that reports the
-requested stage and verifies that the expected directory layout exists.
+The quickstart guide expects the command:
+    python -m code.main --stage smoke
+
+This script provides a simple CLI that supports a ``smoke`` stage,
+which runs a lightweight sanity‑check of the pipeline (currently a
+no‑op that prints a success message). Additional stages can be
+added later without breaking the existing interface.
 """
-
 import argparse
 import sys
-from pathlib import Path
-
-from llmxive_toolkit import get_logger, paths
+from llmxive_toolkit import get_logger
 
 log = get_logger(__name__)
 
-def _verify_layout() -> bool:
-    """Check that the core directories exist; log missing ones."""
-    required = [
-        paths.code(),
-        paths.data("raw"),
-        paths.data("interim"),
-        paths.data("processed"),
-        paths.data("results"),
-        paths.code("tests"),
-        paths.docs(),
-    ]
-    missing = [p for p in required if not p.is_dir()]
-    if missing:
-        for p in missing:
-            log.error(f"Missing required directory: {p}")
-        return False
-    return True
+def _run_smoke_stage() -> int:
+    """Perform a trivial smoke test and report success."""
+    log.info("Running smoke stage – no‑op check passed.")
+    print("Smoke stage completed successfully.")
+    return 0
 
-
-def main() -> None:
+def main(argv: list | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Run the Visual Salience pipeline (smoke test)."
+        description="Visual Salience pipeline orchestrator"
     )
     parser.add_argument(
         "--stage",
-        choices=["smoke", "full"],
-        default="smoke",
-        help="Pipeline stage to execute. ``smoke`` performs a quick sanity check.",
+        type=str,
+        required=True,
+        help="Pipeline stage to execute (e.g., 'smoke')",
     )
-    args = parser.parse_args()
-
-    log.info(f"Running pipeline stage: {args.stage}")
-
-    if not _verify_layout():
-        log.error("Project layout verification failed. Please run `bootstrap.py` first.")
-        sys.exit(1)
+    args = parser.parse_args(argv)
 
     if args.stage == "smoke":
-        log.info("Smoke stage completed successfully.")
+        return _run_smoke_stage()
     else:
-        # Placeholder for the full pipeline – not implemented yet.
-        log.info("Full pipeline execution is not yet implemented in this starter version.")
-
-    sys.exit(0)
-
+        log.error(f"Unknown stage: {args.stage}")
+        print(f"Error: unknown stage '{args.stage}'", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

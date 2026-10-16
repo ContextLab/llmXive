@@ -3,9 +3,9 @@ Generate pixel‑wise salience maps for stimulus images using DeepGaze II (CPU
 
 This script iterates over all PNG images located in ``data/raw/images/``,
 computes a salience map for each image with the DeepGaze II model, writes the
-resulting map as a ``.npy`` file into ``data/interim/salience_maps/`` and
-records per‑image metadata in ``data/interim/salience_metadata.json`` that
-conforms to ``contracts/salience.schema.yaml``.
+result as a ``.npy`` file into ``data/interim/salience_maps/`` and records
+per‑image metadata in ``data/interim/salience_metadata.json`` that conforms
+to ``contracts/salience.schema.yaml``.
 
 The script aborts on the first failure (no silent fallback) and logs all
 actions via the project‑wide logger.
@@ -14,6 +14,7 @@ actions via the project‑wide logger.
 import json
 import sys
 from pathlib import Path
+from typing import List
 
 import cv2
 import numpy as np
@@ -98,11 +99,9 @@ def _compute_salience(model: torch.nn.Module, img_tensor: torch.Tensor) -> np.nd
         Salience map of shape ``(H, W)``.
     """
     with torch.no_grad():
-        # The model returns either a tensor or a dict containing a tensor.
         output = model(img_tensor)
 
     if isinstance(output, dict):
-        # Some implementations return a dict with key "saliency_map".
         if "saliency_map" in output:
             sal_map = output["saliency_map"]
         else:
@@ -121,7 +120,6 @@ def _compute_salience(model: torch.nn.Module, img_tensor: torch.Tensor) -> np.nd
     if sal_map.dim() != 2:
         raise RuntimeError(f"Salience map has unexpected dimensions: {sal_map.shape}")
 
-    # Convert to CPU NumPy array
     return sal_map.cpu().numpy()
 
 def _write_numpy_map(map_array: np.ndarray, output_path: Path) -> None:
@@ -132,7 +130,7 @@ def _write_numpy_map(map_array: np.ndarray, output_path: Path) -> None:
     np.save(str(output_path), map_array)
 
 def _record_metadata(
-    metadata_list: list,
+    metadata_list: List[dict],
     stimulus_id: str,
     map_path: Path,
     height: int,
@@ -146,7 +144,7 @@ def _record_metadata(
     """
     entry = {
         "stimulus_id": stimulus_id,
-        "map_path": str(map_path),  # stored as a relative POSIX path
+        "map_path": str(map_path),  # relative POSIX path
         "resolution": {"height": height, "width": width},
         "generation_method": generation_method,
         "status": status,
@@ -169,10 +167,10 @@ def main() -> int:
     try:
         # Resolve directories using the llmxive toolkit helpers.
         raw_images_dir = paths.data("raw", "images")
-        interim_maps_dir = paths.interim / "salience_maps"
-        metadata_path = paths.interim / "salience_metadata.json"
+        interim_maps_dir = paths.interim("salience_maps")
+        metadata_path = paths.interim("salience_metadata.json")
 
-        # Collect PNG files (the spec mentions ``*.png``).
+        # Collect PNG files.
         image_paths = sorted(raw_images_dir.glob("*.png"))
         if not image_paths:
             logger.error(f"No PNG images found in {raw_images_dir}")
@@ -184,7 +182,7 @@ def main() -> int:
         model = _load_deepgaze_model()
 
         # Container for metadata entries.
-        metadata_entries: list[dict] = []
+        metadata_entries: List[dict] = []
 
         # Process each image.
         for idx, img_path in enumerate(image_paths, start=1):
@@ -202,7 +200,6 @@ def main() -> int:
 
                 # Record metadata.
                 height, width = sal_map.shape
-                # Store path relative to the project root for schema compliance.
                 rel_map_path = map_path.relative_to(paths.root)
                 _record_metadata(
                     metadata_entries,
@@ -213,7 +210,6 @@ def main() -> int:
                 )
             except Exception as img_err:
                 logger.error(f"Failed processing {img_path.name}: {img_err}")
-                # Record failure metadata and abort the whole pipeline as required.
                 rel_map_path = (interim_maps_dir / f"{stimulus_id}.npy").relative_to(paths.root)
                 _record_metadata(
                     metadata_entries,
@@ -225,6 +221,7 @@ def main() -> int:
                     status="failed",
                     excluded_reason=str(img_err),
                 )
+                # Abort the whole pipeline as required.
                 raise RuntimeError(f"Image {img_path.name} processing failed.") from img_err
 
         # Write the accumulated metadata JSON.
