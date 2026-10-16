@@ -1,14 +1,16 @@
 status: none
-intent: NIST Chemistry WebBook Materials Project polymer degradation dataset python
-  package dataset
+intent: polymer degradation SMILES temperature pH dataset NIST Chemistry WebBook Materials
+  Project python package dataset
 required_fields:
 - smiles
-- temperature_celsius
+- polymer_name
+- temperature_c
 - ph
 - uv_intensity
 - degradation_label
-- polymer_class
-- degradation_products
-cache_key: f15c736001cbd264ab493d925d63690cd003fea17f0eded65a816bd86fc216e7
-searched_at: '2026-10-16T04:15:29.686288+00:00'
+- degradation_products_smiles
+- source_database
+- record_id
+cache_key: 73b8afafbeda8a2848410a0223be177e5d39f3025a18d7a7a5d498a10c9e3108
+searched_at: '2026-10-16T04:35:18.748543+00:00'
 retry_count: 1
