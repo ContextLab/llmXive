@@ -1,15 +1,18 @@
 status: none
-intent: download Materials Project elastic tensor CIF dataset via pymatgen python
-  package python package dataset
+intent: Materials Project elastic tensors and CIF files download via API python package
+  dataset
 required_fields:
 - material_id
-- cif
-- elastic_tensor
-- structure_graph
-- composition
-- spacegroup
-- formation_energy_per_atom
-- band_gap
-cache_key: 3bef7c45acc27c0b972016b9973c1e3884226750c59d102a104b6e38e4dc79e2
-searched_at: '2026-10-16T21:10:59.794567+00:00'
+- formula
+- space_group
+- lattice_parameters
+- atomic_positions
+- cif_content
+- elastic_tensor_6x6
+- bulk_modulus
+- shear_modulus
+- young_modulus
+- poisson_ratio
+cache_key: ba60e2ce86f042f9648843b7a0cf92a71ece74b59d9bcbda6e23a9df9a6a71cc
+searched_at: '2026-10-16T22:09:22.188478+00:00'
 retry_count: 1

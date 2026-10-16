@@ -1,137 +1,134 @@
 # Implementation Plan: Structure-Only Surrogate Model for 2D Material Elastic Moduli
 
-**Branch**: `PROJ-169-surrogate-elastic-moduli` | **Date**: 2026-07-08 | **Spec**: `spec.md`
+**Branch**: `PROJ-169-surrogate-elastic-moduli` | **Date**: 2026-10-16 | **Spec**: `spec.md`  
 **Input**: Feature specification from `spec.md`
 
 ## Summary
-
-This project implements a **Structure-Only Surrogate Model** (lightweight GNN) to predict Young's, Shear, and Poisson's ratios for 2D materials. The model is a fast interpolator of pre-computed DFT data — it does NOT solve the Schrödinger equation or perform first-principles calculations. The pipeline ingests DFT elastic-tensor data from the verified parquet sources listed in `research.md`, constructs PBC-aware graph representations, trains a CPU-only GNN within a 7GB memory budget, and validates inter-family generalization against a composition-only baseline.
-
-This is a **re-plan** addressing five verifier-rejected tasks (T060c, T013f, T017b, T046, T018b) and replacing the unverified `matbench/elasticity` dataset with the verified parquet URLs. Working artifacts (repository scaffolding, loader, graph builder, splitter skeleton, training/eval scripts) are preserved and repaired rather than regenerated.
+Implement a CPU‑only Graph Neural Network (GNN) surrogate that maps crystal‑structure graphs (derived from CIF files) to three elastic‑moduli targets (Young’s, shear, Poisson’s). The pipeline ingests a single verified DFT parquet dataset (if available), builds PBC‑aware graphs, creates a family‑based train/validation/test split, trains a lightweight GNN under a 7 GB RAM ceiling, evaluates against a composition‑only baseline and a composition‑only GNN control, benchmarks inference time, and produces Integrated‑Gradients plus SHAP feature‑importance analysis. All steps are gated by hard exit codes and contract‑validated JSON artifacts.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `torch==2.3.*` (CPU wheels), `torch-geometric==2.5.*`, `pandas`, `pyarrow`, `scikit-learn`, `pymatgen`, `shap`, `huggingface_hub` (pinned in `code/requirements.txt`)
-**Storage**: `data/raw/` (downloaded parquet, checksummed), `data/processed/` (Parquet/JSON/PT), `data/results/` (JSON/MD)
-**Testing**: `pytest` (unit + contract tests against `contracts/*.schema.yaml`)
-**Target Platform**: Linux, GitHub Actions free tier (2 CPU, 7GB RAM, 14GB disk, ≤6h, no GPU)
-**Project Type**: Data science / ML pipeline (CPU-first; no GPU escape hatch needed)
-**Performance Goals**: inference < 100ms per material (SC-003); peak memory ≤ 7GB (SC-004, FR-003)
-**Constraints**: CPU-only; single canonical source per run; no synthetic data; surrogate terminology enforced (FR-006)
-**Scale/Scope**: all valid 2D entries with complete elastic tensors from the verified source (SC-001: >1,000 or all available if fewer)
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `torch==2.3.*` (CPU wheels), `torch-geometric==2.5.*`, `pandas`, `pyarrow`, `scikit-learn`, `pymatgen`, `shap`, `captum` (for Integrated Gradients), `huggingface_hub` (pinned in `code/requirements.txt`)  
+- **Storage**: File‑system under `data/` (raw, processed, results)  
+- **Testing**: `pytest` + contract tests against `contracts/*.schema.yaml`  
+- **Target Platform**: Linux GitHub Actions free tier (2 CPU, 7 GB RAM, 14 GB disk, ≤6 h)  
+- **Constraints**: CPU‑only, single canonical source, ≤7 GB peak memory, inference < 100 ms, no “First‑Principles” terminology in model description (FR‑006).  
 
 ## Constitution Check
+| Principle | How the plan satisfies it |
+|-----------|---------------------------|
+| I. Reproducibility | Fixed random seeds (`code/utils/seeds.py`); deterministic dataset download with SHA‑256 checksum; full pipeline orchestrated by `code/main_pipeline.py`. |
+| II. Verified Accuracy | All citations limited to verified open datasets (if none are available the pipeline aborts). |
+| III. Data Hygiene | Raw parquet never mutated; each transformation writes a new file (e.g., `graphs_v1.parquet`, `split_indices.json`). Checksums recorded. |
+| IV. Single Source of Truth | Every metric in `data/results/*.json` is produced by a single script; no hand‑typed numbers. |
+| V. Versioning Discipline | Artifacts hashed and recorded in the project state file; any change updates `updated_at`. |
+| VI. Numerical Stability & DFT Fidelity | Loader filters for entries with a full 6‑component elastic tensor; `code/physics/tensors.py` computes Young’s, shear, Poisson’s from the tensor using standard continuum‑mechanics formulas (no hard‑coding). |
+| VII. Structural Descriptor Attribution | Feature‑importance step uses Integrated Gradients (Captum) **and** SHAP (KernelExplainer); multicollinearity screened via VIF > 5 before importance ranking. |
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+## Functional Requirement Coverage
+| FR ID | Requirement | Plan Phase / Task |
+|-------|-------------|-------------------|
+| FR‑001 | Ingest CIF + elastic tensors, build graphs | Phase 1 – `loader.py` + `graph_builder.py` (Tasks T013d1‑d4) |
+| FR‑002 | Split generator clustering by chemical family | Phase 1 – `split_generator.py` (Task T013f) |
+| FR‑003 | Train lightweight GNN on CPU, enforce 7 GB limit | Phase 2 – `train.py` (Task T018b) |
+| FR‑004 | Evaluate against composition‑only baseline, report relative MAPE reduction | Phase 2 – `eval_runner.py` (Task T018b) |
+| FR‑005 | Compute Integrated Gradients **and** SHAP values for structural descriptors (no permutation importance) | Phase 3 – `feature_importance.py` (Task T003) |
+| FR‑006 | Generate constitution‑title audit, abort on forbidden terms | Phase 0 – `verify_constitution_title.py` (Task T060c) |
+| FR‑007 | Persist model weights, split indices, validation metrics | Phase 2‑4 – `train.py`, `splitter.py`, `eval_runner.py` (Tasks T018b, T017b) |
+| FR‑008 | Baseline GNN trained on composition‑only features (control) | Phase 2 – `train_composition_gnn.py` (Task T018c) |
+| FR‑009 | Power analysis for detecting ≥10 % MAPE reduction | Phase 5 – `power_analysis.py` (Task T005) |
 
-1. **I. Reproducibility**: seeds pinned in `code/utils/seeds.py`; dataset fetched from the same verified canonical parquet URL each run; SHA-256 checksums recorded under `data/`.
-2. **II. Verified Accuracy**: research.md cites ONLY the three verified URLs; no invented dataset links.
-3. **III. Data Hygiene**: raw parquet preserved unchanged; every derivation writes a new file (`graphs_v1.parquet`, `split_indices.json`, etc.); checksums recorded.
-4. **IV. Single Source of Truth**: every metric in reports traces to one `data/results/*.json` row produced by one `code/` block; no hand-typed numbers.
-5. **V. Versioning Discipline**: artifact content hashes recorded in the project state file; `updated_at` refreshed on change.
-6. **VI. Numerical Stability / DFT Fidelity**: only entries with 6 independent tensor components retained; Young's/shear/Poisson derived exclusively from the elastic tensor via continuum-mechanics relations in `code/physics/tensors.py` — never hard-coded. Accuracy evaluated on held-out families.
-7. **VII. Structural Descriptor Attribution**: importance claims substantiated by permutation importance AND SHAP magnitudes on the final GNN (SC-005, FR-005).
+## Success‑Criterion Coverage
+| SC ID | Requirement | Plan Phase / Task |
+|-------|-------------|-------------------|
+| SC‑001 | Process ≥1 000 valid 2D entries (or all if fewer) | Phase 1 – loader validates count, logs shortfall |
+| SC‑002 | ≥10 % relative MAPE reduction vs composition baseline on unseen families, **statistically significant** (paired‑bootstrap p < 0.05) | Phase 2 – `eval_runner.py` computes baseline and surrogate MAPE, runs **1 000 paired‑bootstrap resamples**, applies Holm‑Bonferroni correction; gates on ≥10 % reduction **and** p < 0.05 |
+| SC‑003 | Inference time < 100 ms per material on CPU | Phase 2 – `inference_benchmark.py` records `avg_inference_time_ms`; gate fails if > 100 ms |
+| SC‑004 | Peak training memory ≤ 7 GB | Phase 2 – `train.py` wraps training in `tracemalloc`; gate fails if limit exceeded |
+| SC‑005 | At least 3 structural descriptors identified via Integrated Gradients **and** SHAP (significant IG attribution & top‑3 SHAP magnitude) after VIF screening | Phase 3 – `feature_importance.py` merges IG and SHAP, applies VIF > 5 filter, gates on ≥3 descriptors |
+| SC‑006 | Power analysis shows ≥80 % power to detect a [deferred] MAPE reduction given the actual test‑set size (≥150 samples) | Phase 5 – `power_analysis.py` runs **1 000 simulations**; aborts if estimated power < 0.8 |
 
-**Title inconsistency (flagged, not silently fixed in plan)**: the constitution title still contains "First-Principles Calculations", which the spec forbids for this surrogate model. Per the spec's FR-006, the pipeline produces `constitution_title_audit.json` and **exits 1** if the forbidden term appears in the title used for reporting. The title amendment itself follows the constitution's amendment procedure (open PR, version bump) — T060b/T060c implement the audit and the amendment.
+## Tasks (ordered to respect data flow)
 
-## Project Structure
+### Phase 0 – Constitution & Title Audit
+- **T060c** – `code/utils/verify_constitution_title.py`  
+  * Scans `constitution.md` for forbidden terms “First‑Principles” or “Schrödinger”.  
+  * Writes `data/results/constitution_title_audit.json` conforming to `contracts/constitution_audit_schema.schema.yaml`.  
+  * Exits 1 on FAIL, 0 on PASS (hard gate for all downstream tasks).
 
-### Documentation (this feature)
+### Phase 1 – Data Pipeline (US1)
+1. **T013d1** – `code/data/loader.py`  
+   * Downloads the primary parquet URL (if none are verified the script aborts with a clear error).  
+   * Verifies SHA‑256 checksum, validates required columns, filters to 2D structures with complete elastic tensors.  
+   * Writes raw file to `data/raw/` and logs entry count (SC‑001).  
+2. **T013d2‑d4** – `code/data/graph_builder.py`  
+   * Parses CIFs with `pymatgen.CifParser`.  
+   * Constructs PBC‑aware atom graphs (node + edge features).  
+   * Saves `data/processed/graphs_v1.parquet` (validated by `contracts/dataset_schema.schema.yaml`).  
+3. **T013f** – `code/data/split_generator.py`  
+   * Loads structures, clusters by *family* = (space group + stoichiometry class) using `StructureMatcher`.  
+   * Performs train/val/test split with pinned seed (70/15/15 %). No family appears in more than one split (leakage check).  
+   * Atomically writes `data/processed/split_indices.json`.  
+4. **T017b** – `code/model/splitter.py`  
+   * Reads `split_indices.json`, checks family disjointness, size distribution.  
+   * Writes `data/results/split_validation.json` (schema `contracts/split_validation.schema.yaml`).  
 
-```text
-specs/PROJ-169-surrogate-elastic-moduli/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-├── contracts/
-└── tasks.md
-```
+### Phase 2 – Model Training & Evaluation (US2)
+5. **T018b** – `code/model/train.py`  
+   * Enforces `torch.device("cpu")` and asserts `torch.cuda.is_available() is False`.  
+   * Wraps training loop in `tracemalloc`; records `peak_memory_gb`.  
+   * Saves `data/processed/model_v1.pt` (state dict + hyperparameters + disclaimer).  
+   * Generates `data/results/training_logs.json`.  
+   * Fails with exit 1 if `peak_memory_gb > 7`.  
+6. **T018b (cont.)** – `code/model/eval_runner.py`  
+   * Loads test split, runs inference, computes per‑property MAPE, RMSE, **1 000 bootstrap 95 % CI** (resamples).  
+   * Trains a Magpie linear‑regression baseline, computes relative MAPE reduction.  
+   * Performs **paired‑bootstrap hypothesis test** (1 000 resamples) with Holm‑Bonferroni correction; requires p < 0.05 and ≥10 % reduction (SC‑002).  
+   * Writes `data/results/predictions.json` and `data/results/generalization_metrics.json` (schema `contracts/results_schema.schema.yaml`).  
+7. **T018c** – `code/model/train_composition_gnn.py` (new)  
+   * Same lightweight MPNN architecture but **only** composition‑derived node features, no edge features.  
+   * Produces `data/results/composition_gnn_metrics.json` for internal comparison.  
+8. **T022** – `code/model/inference_benchmark.py`  
+   * Times inference over the test set, writes `data/results/inference_benchmark.json`.  
+   * Fails if `avg_inference_time_ms > 100`.  
 
-### Source Code (repository root)
+### Phase 3 – Analysis (US3)
+9. **T003** – `code/analysis/feature_importance.py`  
+   * **Integrated Gradients** (Captum) on node/edge embeddings (**Monte-Carlo samples**
 
-```text
-projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/
-├── code/
-│   ├── requirements.txt
-│   ├── main_pipeline.py             # end-to-end orchestrator with hard gates
-│   ├── utils/
-│   │   ├── seeds.py
-│   │   ├── disclaimer_template.py   # T046: DISCLAIMER_TEXT + FEYNMAN_QUOTE (was missing)
-│   │   └── verify_constitution_title.py  # T060c: exit 1 on FAIL + writes audit JSON
-│   ├── physics/
-│   │   └── tensors.py               # tensor -> moduli (Principle VI)
-│   ├── data/
-│   │   ├── loader.py                # verified parquet download + checksum
-│   │   ├── graph_builder.py         # PBC-aware graphs
-│   │   ├── split_generator.py       # T013f: full implementation (was truncated)
-│   │   └── splitter.py              # T017b: validation -> split_validation.json
-│   ├── model/
-│   │   ├── gnn.py
-│   │   ├── train.py                 # T018b: CPU-only, tracemalloc, saves model_v1.pt
-│   │   ├── train_logger.py
-│   │   ├── eval_runner.py           # baseline comparison + predictions.json
-│   │   └── inference_benchmark.py
-│   └── analysis/
-│       └── feature_importance.py    # permutation + SHAP
-├── data/
-│   ├── raw/                         # checksummed parquet
-│   ├── processed/                   # graphs_v1.parquet, split_indices.json, model_v1.pt
-│   └── results/                     # all JSON/MD deliverables
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── contract/
-└── docs/
-    └── methodology.md               # DFT vs Surrogate distinction
-```
+A set of Monte-Carlo samples will be drawn.).  
+   * **SHAP** (KernelExplainer) on a random **Sample subset**
 
-**Structure Decision**: single project layout; strict phase ordering Data → Split → Train → Eval → Analysis → Audit.
+A subset of the samples will be selected for detailed analysis.; reports mean absolute SHAP magnitude per descriptor.  
+   * **Variance Inflation Factor (VIF)** computed for all structural descriptors; descriptors with VIF > 5 are removed before importance ranking.  
+   * Merges IG attributions and SHAP magnitudes, selects descriptors that survive VIF screening and rank in the top‑3 by **both** metrics.  
+   * Writes `data/results/feature_importance_report.md`.  
+   * SC‑005 gate checks ≥3 descriptors.  
 
-## Complexity Tracking
+### Phase 4 – Power Analysis
+10. **T005** – `code/utils/power_analysis.py` (new)  
+    * Simulates paired‑bootstrap power for detecting a [deferred] MAPE reduction given the actual test‑set size.  
+    * Uses **1 000 simulation runs**; reports estimated power in `data/results/power_analysis.json`.  
+    * Aborts if estimated power < 0.8 (SC‑006).  
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Hard gate on constitution title (T060c) | Prevents "First-Principles" mislabeling of a surrogate model (spec §4, FR-006). | Removing the gate propagates a scientific-integrity error. |
-| Inter-family stratified split (T013f/T017b) | Required by SC-002/FR-002; random split allows family memorization. | Random split fails the generalization criterion. |
-| CPU-only + tracemalloc enforcement | FR-003 / SC-004 hard 7GB limit on free-tier runner. | No GPU is available; unenforced memory risks OOM kills. |
-| Both permutation AND SHAP importance | SC-005 and FR-005 require both; SHAP handles collinear descriptors, permutation gives ablation deltas. | Either alone fails SC-005. |
+### Phase 5 – Finalization
+11. **T046** – `code/utils/disclaimer_template.py` (added)  
+    * Defines `DISCLAIMER_TEXT` (“This surrogate interpolates DFT‑computed elastic tensors; it does not solve the Schrödinger equation.”) and `FEYNMAN_QUOTE`.  
+    * Imported by `train_logger.py` and `eval_runner.py`.  
+12. **T008a** – End‑to‑end integration test (subset) via `pytest tests/integration/`.  
+13. **T001c** – Compute and record content hashes for all new artifacts; update project state `updated_at`.  
 
-## Tasks
+All tasks are designed to complete well within the 6‑hour CI window on the free‑tier runner. No GPU escape hatch is required because the model size (≤ 64 hidden units, batch ≤ 32) is fully tractable on CPU.
 
-### Phase 0: Setup & Constitution
-- [X] T001a: Initialize repository structure.
-- [X] T001b: Create initial state yaml.
-- [ ] T060b: Amend constitution title via amendment procedure (remove "First-Principles Calculations"; version bump to 1.1.0).
-- [ ] **T060c (REDO)**: `verify_constitution_title.py` MUST (a) scan the constitution title for forbidden terms ("First-Principles", "Schrödinger Equation"), (b) write `data/results/constitution_title_audit.json` conforming to `contracts/constitution_audit_schema.schema.yaml`, and (c) call `sys.exit(1)` on FAIL and `sys.exit(0)` on PASS. Add a unit test proving both exit codes and the JSON file's existence. **HARD GATE** for all downstream tasks.
+## Statistical Rigor Summary
+- **Bootstrap resamples**: 1 000 for confidence intervals, 1 000 for paired‑bootstrap hypothesis testing.  
+- **Multiple‑comparison correction**: Holm‑Bonferroni applied to the three target‑property tests.  
+- **Power analysis**: 1 000 simulations; success criterion ≥ 80 % power for detecting a [deferred] MAPE reduction with the actual test‑set size.
+- **Causal framing**: All statements explicitly labeled *associational*.  
+- **Collinearity control**: VIF screening (> 5) before importance ranking; no permutation importance used.  
 
-### Phase 1: Data Pipeline (US1 — FR-001, SC-001)
-- [ ] T013d1: Download the verified canonical parquet (URL pinned in `code/data/loader.py` from research.md's verified list); validate schema (`structure`/CIF + `elastic_tensor`); SHA-256 checksum to `data/raw/`.
-- [ ] T013d0_validation: Verify valid-entry count; log if < 1,000 (SC-001 accepts all available if fewer).
-- [ ] T013d2: Parse structures with pymatgen `CifParser`/`Structure.from_dict`; filter to 2D entries and complete 6-component tensors (Principle VI).
-- [ ] T013d3: Build PBC-aware graphs (adaptive covalent cutoff).
-- [ ] T013d4: Save `data/processed/graphs_v1.parquet` (contract-validated).
-- [ ] **T013f (REDO)**: Complete `split_generator.py` — load structures (pickle/parquet → pymatgen Structure), cluster by chemical family (space group + stoichiometry class, with `StructureMatcher` grouping where applicable), `train_test_split` families with pinned seed, **atomically write** `data/processed/split_indices.json` (write temp file + `os.replace`). Unit test: no family appears in both train and test.
-- [ ] **T017b (REDO)**: `splitter.py` validates the split (family disjointness, size distribution, leakage check) and **writes `data/results/split_validation.json`** with per-split counts, family lists, and PASS/FAIL status. Contract test validates the file.
-
-### Phase 2: Model Training (US2 — FR-003, FR-004, SC-002, SC-004)
-- [ ] T016/T018c: Define weighted/normalized-MSE loss and lightweight GNN (2–3 layers, hidden ≤ 64).
-- [ ] **T018b (REDO)**: `train.py` MUST (a) force CPU (`torch.device("cpu")` + assert no CUDA usage), (b) wrap training in `tracemalloc` and record `peak_memory_gb` in `training_logs.json` with `memory_limit_exceeded` flag, (c) **save `data/processed/model_v1.pt`** (state dict + seed + disclaimer), (d) run `eval_runner.py` to produce **`data/results/predictions.json`** on the test set. Hard gate: exit 1 if peak memory > 7GB.
-- [ ] T022: Inference benchmark → `inference_benchmark.json`; hard gate exit 1 if > 100ms/material.
-- [ ] **T046 (REDO)**: Create the missing `code/utils/disclaimer_template.py` defining `DISCLAIMER_TEXT` (scientific-integrity statement: surrogate interpolator, not first-principles; DFT ground truth; interpolation-only validity) and `FEYNMAN_QUOTE`. Unit test asserts both constants are non-empty strings and that `train_logger.py`/`eval_runner.py` import them successfully.
-
-### Phase 3: Evaluation & Analysis (US3 — FR-004, FR-005, SC-002, SC-005)
-- [ ] Tb: Inter-family evaluation: GNN vs composition-only baseline (linear regression on Magpie-style composition features); report relative MAPE reduction and 95% CI for MAPE → `generalization_metrics.json`. SC-002 gate: ≥10% relative MAPE reduction vs baseline.
-- [ ] T003: Feature importance via permutation importance AND SHAP magnitudes; unified ranked list with ablation deltas → `feature_importance_report.md`. SC-005 gate: ≥3 significant descriptors.
-
-### Phase 4: Finalization
-- [ ] T008a: Integration test (end-to-end on a real small subset).
-- [ ] T001c: Compute and record artifact hashes; update state `updated_at`.
-- [ ] T057: Final title audit re-run; `docs/methodology.md` (DFT vs Surrogate distinction).
-
-## Reproducibility Notes
-- Dataset fetched by pinned verified URL each run; checksum verified before use.
-- All seeds pinned via `code/utils/seeds.py`.
-- Memory managed by batch processing (batch 16–32) and streaming row iteration during ingestion.
-- All claims framed as surrogate accuracy relative to DFT ground truth; associational only.
+## Compute Feasibility
+- **CPU‑first**: All steps run on CPU; model fits comfortably within 7 GB RAM.  
+- **Memory management**: Streaming parquet load for ingestion; `tracemalloc` monitors training memory.  
+- **Inference speed**: Expected < 50 ms per graph on the runner (well under the 100 ms SC‑003 limit).  
+- **No GPU escape hatch**: Model size and batch configuration are chosen to be fully tractable on CPU; therefore no GPU fallback is required.

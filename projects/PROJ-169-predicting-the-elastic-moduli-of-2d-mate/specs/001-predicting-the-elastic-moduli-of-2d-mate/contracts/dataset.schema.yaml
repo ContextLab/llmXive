@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Filtered Materials Dataset Schema"
-description: "Schema for the filtered_materials.csv file containing 2D materials with complete elastic tensors."
+description: "Schema for the filtered_materials.csv file containing two-dimensional materials with complete elastic tensors."
 type: "object"
 properties:
   material_id:
