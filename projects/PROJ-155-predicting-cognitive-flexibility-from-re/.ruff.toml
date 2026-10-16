@@ -1,5 +1,4 @@
 # Project-wide ruff configuration.
-#
 # The rule set is intentionally minimal and focused on genuine errors
 # (syntax errors, undefined names, redefinitions, loop-variable leaks)
 # rather than style opinions, so that the lint gate reflects real

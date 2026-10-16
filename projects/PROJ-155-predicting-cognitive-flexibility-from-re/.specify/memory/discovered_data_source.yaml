@@ -1,12 +1,12 @@
 status: none
-intent: Human Connectome Project minimal preprocessing rsfMRI download NIH Toolbox
-  DCCS Schaefer atlas python package dataset
+intent: Human Connectome Project resting fMRI NIH Toolbox DCCS Schaefer atlas ConnectomeDB
+  python package dataset
 required_fields:
 - subject_id (string)
-- rsfc_feature (float)
+- rsfc_mean (float)
 - age (integer)
 - gender (string)
-- dccs_score (float)
-cache_key: b72d6dc153a60fb4c73f0b01c7aad0df944585985b1d740311c17216d0e5f51c
-searched_at: '2026-10-15T20:12:06.235596+00:00'
+- NIH_DCCS_score (float)
+cache_key: 89ac06becee5f395f89b3d0726ff0ccbe7a1e8f14403e6c33240e193d0f902aa
+searched_at: '2026-10-16T18:12:02.453317+00:00'
 retry_count: 1
