@@ -5,22 +5,16 @@ T001b:
 T001c:
   task: 084826839b855410052620199ffc444d772ef56fe1a62eedbfedb5850e875cb5
 T002:
-  reason: 'The provided `requirements.txt` exists but does not meet the task: it uses
-    open-ended `>=` version specifiers instead of exact pinned versions, includes
-    extra unrelated packages, and lists `h5py` rather than the required `hpy`. The
-    file therefore fails to satisfy the specification.'
   task: 289f654333ed2ea0adef7f33ebd54ba5596474802a9ea2a9f255432755974d0f
 T003:
-  reason: The evidence only includes a `requirements.txt` file; there is no `.venv`
-    directory, no record of a virtual environment being created, and no `pip list`
-    output showing that the listed packages (with the required versions) are installed.
-    These required artifacts are missing, so the task is not satisfied.
+  reason: The log shows that a virtual environment was created and `pip install -r
+    requirements.txt` was executed, but it does not include the resulting `pip list`
+    output (or the contents of `data/venv_setup_done.txt`) to prove that all required
+    packages were installed with the exact versions specified. Without that evidence
+    the verification step is missing.
   task: da1ffe2dbaeb556dd42918fe48bf317941dd34d3df20afe906ade2606fa23a36
 T004:
-  reason: The provided `.ruff.toml` is empty and does not contain a `[tool.ruff]`
-    configuration section as required, and there is no execution evidence showing
-    that `ruff check code/` and `black --check code/` were run successfully without
-    errors.
+  reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'
   task: ccfa9188107a42f24a65629707e85fbe5b8fcd079a1a711e27df82a0d3c3e93d
 T005:
   task: 6308031203d5ae99f9ebc0939d9bb4f28f76fe9fa75add50d2529226788d79e8
@@ -33,6 +27,10 @@ T008:
 T009:
   task: a437c11918779924677f518019e860214f75f5a68c64b2977ef9d92866925c3d
 T010:
+  reason: "Checked `code/config_loader.py` (3541\u202Fbytes). It loads variables from\
+    \ a `.env` file (or defaults) but never reads `.env.example`, so it does not meet\
+    \ the requirement to load placeholder keys from that file. The import runs without\
+    \ error, but the core functionality is incomplete."
   task: ba120c61cf5c4ad0631b6a4ceeafb7d9d89d75839b0853c5e406b2c52a34637d
 T011:
   task: 2dcd3537b042d8557adc233bcf75cc81c6da81fad3512fece51c2f045adba6ac
@@ -95,6 +93,10 @@ T034:
 T035:
   task: 11103e5e0ee6ac6bae743f24bb437a3b7dc0c8f8df6707bbf182b286e37f7bc0
 T036a:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/ci.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: f9c0129eecfaedc2b8a07ae4e81f5ec9533f93ccd8c9cf97d33971755007eb88
 T036b:
   task: 95c1f26dc58bcc125ecab8ef8919a65b295fa1dd6b2f95c91464cc0ae3f73299
@@ -154,6 +156,10 @@ T054:
 T055a:
   task: bf7929b65e99743459a0a2cd54e2aceead4c2a9c042e01e0f35002e2f99b2cf6
 T055b:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/...yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: c32d8a21900a06278776cb389590377a6fb1a27309c80751171b775a773cd7de
 T056:
   task: 03fdc310ef8429e680f84ee11a226e55334d57b7d8e66a2f09f6c514b4610c6d

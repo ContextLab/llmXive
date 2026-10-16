@@ -46,10 +46,10 @@
 - [X] T001a [P] Create `code/` directory and `code/__init__.py`
 - [X] T001b [P] Create `code/data/` directory and `code/data/__init__.py`
 - [X] T001c [P] Create `code/analysis/` and `code/validation/` directories with `__init__.py` files. **Verification**: Run `test -d code/analysis && test -d code/validation && test -f code/analysis/__init__.py && test -f code/validation/__init__.py` and verify exit code 0.
-- [ ] T002 [P] Create `requirements.txt` with pinned versions (mne, numpy, scipy, scikit-learn, pandas, statsmodels, hpy, requests, pytest, huggingface_hub)
+- [X] T002 [P] Create `requirements.txt` with pinned versions (mne, numpy, scipy, scikit-learn, pandas, statsmodels, hpy, requests, pytest, huggingface_hub)
 - [ ] T003 [P] **Setup Virtualenv**: Create `.venv` directory and install dependencies from `requirements.txt`. **Verification**: Run `pip list` and confirm all packages from `requirements.txt` are installed with correct versions.
-- [ ] T004 [P] **Configure Linting/Formatting**: Create `.ruff.toml` and `pyproject.toml` with `[tool.black]` and `[tool.ruff]` configuration sections. **Verification**: Run `ruff check code/` and `black --check code/` to ensure successful execution without errors.
-- [~] T010 [P] **Setup Config Management**: Create `code/config_loader.py` to load environment variables from `.env` (or defaults) and `.env.example` with placeholder keys. **Verification**: Run `python -c "from code.config_loader import load; load()"` and verify no errors.
+- [ ] T004 [P] **Configure Linting/Formatting**: Create `.ruff.toml` and `pyproject.toml` with `[tool.black]` and `[tool.ruff]` configuration sections. **Verification**: Run `ruff check code/` and `black --check code/` to ensure successful execution without errors. <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 -->
+- [ ] T010 [P] **Setup Config Management**: Create `code/config_loader.py` to load environment variables from `.env` (or defaults) and `.env.example` with placeholder keys. **Verification**: Run `python -c "from code.config_loader import load; load()"` and verify no errors.
 
 ---
 
@@ -59,14 +59,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T005 Create `code/config.py` defining paths, random seeds, sampling rate threshold (≥500 Hz), trial thresholds (≥100 oddball, ≥300 standard), and time windows
-- [~] T006 [P] Implement `code/__init__.py` and module initialization
+- [X] T005 Create `code/config.py` defining paths, random seeds, sampling rate threshold (≥500 Hz), trial thresholds (≥100 oddball, ≥300 standard), and time windows
+- [X] T006 [P] Implement `code/__init__.py` and module initialization
 - [~] T007 [P] Setup `code/data/__init__.py` and base logging infrastructure <!-- FAILED: unspecified -->
 - [~] T008 Create base `code/data/data_loader.py` skeleton for dataset validation logic
 - [~] T009 Configure error handling and logging infrastructure in `code/utils/logger.py`
 - [~] T011 [P] **Setup**: Document "Real Data" assumption in `docs/README.md` and `code/config.py`, explicitly stating that all data must originate from OpenNeuro datasets and that no synthetic data generation is permitted.
 - [~] T055a [P] **Draft Constitution Amendment**: Create `docs/constitution-amendment-vii.md` explicitly documenting the substitution of behavioral measures with split-half reliability for passive oddball paradigms (as authorized by Plan 'Constitution Check' section), and propose text amendment. **Format**: Markdown document with clear justification, reference to Plan 'Constitution Check', and proposed text amendment. **Verification**: Document created and reviewed.
-- [~] T055b [P] **Propose Amendment**: Open a Pull Request containing `docs/constitution-amendment-vii.md` for governance review. **Status**: ACTIVE (Wait for ratification). **Instruction**: If the PR is not yet merged/ratified, the pipeline MUST HALT and report a Constitution Violation. **Verification**: PR created and linked. **Note**: Execution is blocked on ratification. **Logic**: Implement a check in `code/main.py` or `code/config.py` to verify the existence of an `amendment_ratified` flag in `state/projects/...yaml`. If the flag is missing, raise `ConstitutionViolationError`. **Note**: This task is marked complete upon PR creation and the implementation of the detection logic.
+- [ ] T055b [P] **Propose Amendment**: Open a Pull Request containing `docs/constitution-amendment-vii.md` for governance review. **Status**: ACTIVE (Wait for ratification). **Instruction**: If the PR is not yet merged/ratified, the pipeline MUST HALT and report a Constitution Violation. **Verification**: PR created and linked. **Note**: Execution is blocked on ratification. **Logic**: Implement a check in `code/main.py` or `code/config.py` to verify the existence of an `amendment_ratified` flag in `state/projects/...yaml`. If the flag is missing, raise `ConstitutionViolationError`. **Note**: This task is marked complete upon PR creation and the implementation of the detection logic.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel (dependent on data availability)
 
@@ -140,7 +140,7 @@
 - [~] T033 [US3] Unit test for MNE lead field generation in `tests/unit/analysis/test_source.py`. **Objective**: Verify lead field matrix shape and non-zero values for the ICBM standard model.
 - [~] T034 [P] [US3] Unit test for permutation test logic in `tests/unit/analysis/test_stats.py`
 - [~] T035 [P] [US3] Unit test for split-half reliability calculation in `tests/unit/validation/test_reliability.py`
-- [~] T036a [US3] CI Integration: Create `.github/workflows/ci.yml` from scratch. **Workflow Definition**:
+- [ ] T036a [US3] CI Integration: Create `.github/workflows/ci.yml` from scratch. **Workflow Definition**:
  ```yaml
  name: CI Pipeline
  on: [push, pull_request]

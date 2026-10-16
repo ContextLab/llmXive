@@ -1,19 +1,17 @@
 status: none
-intent: OpenNeuro auditory oddball dataset ds000246 visual oddball dataset MNE-Python
-  python package dataset
+intent: OpenNeuro ds000246 auditory oddball and ds003775 visual oddball python package
+  dataset
 required_fields:
-- raw_eeg
-- raw_meg
-- channel_names
+- subject_id
+- modality
 - sampling_rate
-- event_id
+- channel_names
+- channel_locations
 - trial_type
 - stimulus_onset
-- subject_id
-- age
-- sex
-- session
-- run
-cache_key: a28300eda7e35009e5e4a90fd717eb4cd0aff373b40059fc1b95fc60d3e5391a
-searched_at: '2026-10-10T14:22:07.872546+00:00'
+- event_code
+- eeg_meg_data_matrix (channels x time)
+- trial_index
+cache_key: 8373b7931a7024cb2057cc833a1e044086d6e11a4e981fe8609df955ec8b49bb
+searched_at: '2026-10-16T06:38:36.192764+00:00'
 retry_count: 1

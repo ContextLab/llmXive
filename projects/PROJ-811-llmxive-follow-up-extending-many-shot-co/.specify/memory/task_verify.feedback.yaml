@@ -1,0 +1,144 @@
+T001:
+  reason: "Checked the actual repository tree under `projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/`\
+    \ against the directory layout described in the \u201CProject Structure\u201D\
+    \ section of `plan.md`. The observed layout contains extra top\u2011level entries\
+    \ (e.g., `.runtime-home/`, `.specify/`, `config/`, `docs/`, `figures/`, `idea/`,\
+    \ `pyproject.toml`, a root\u2011level `requirements.txt`) and places the `tests/`\
+    \ directory at the repository root instead of under `code/tests/` as required.\
+    \ Consequently the on\u2011disk structure does not faithfully match the specified\
+    \ tree."
+  task: 4d92892bd98e20d697f5d3582a1306e13b7084b93ca47da4c8edbef4d9e299aa
+T002:
+  task: 2046ff8559655283d679f6c8db4e8087ce5740c1bfcd69f01ffd27b31187f02a
+T003:
+  reason: I inspected the project root (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co`)
+    for any linting/formatting configuration artifacts (e.g., `ruff.toml`, `.ruff.toml`,
+    `pyproject.toml` sections for Black, a `pre-commit` hook, or scripts invoking
+    `ruff`/`black`). No such files or configuration entries were present in the collected
+    evidence, so the requirement to configure linting with Ruff and formatting with
+    Black is not satisfied. Adding the appropriate configuration files and/or scripts
+    is needed.
+  task: 536e33702b3a74afef15b5825ab4e2c3ef19fa56cc85739ac1dabd47bead9485
+T004:
+  reason: The `data/` directory is present, but its `results/` subdirectory is missing,
+    and there is no evidence that an `artifacts/` directory (for checksums) was created.
+    Both are required to satisfy task T004.
+  task: d550138e4c8003a8ada28cb28d58cd08fb687af1dfec1650b92c43328f877a1c
+T005:
+  task: 8195ce2f9f1abeb0b62a83ec97fde9e3a1281f207a5be21ba2df0edc3b722efb
+T006:
+  reason: "The evidence only shows the project root path; no configuration files (e.g.,\
+    \ `.env`, `config.yaml`) or Python modules/functions that load seeds and model\
+    \ paths are present. Consequently, the required environment\u2011configuration\
+    \ management code is missing."
+  task: 544170343cecef013834907377f21bdec1b6a0419b460cc5ae4ad09cf0e85e53
+T007:
+  task: 372a321f1592b545d043ad4968243b255e3d21103f33c479a67f07a66e6b3740
+T008:
+  task: c870ee3a1b89a1e8a7d39f971e572c30081106ce2f9feb9943634d652c9cc6ae
+T009:
+  task: f2b06b3c1fde958c3c632cc3dcca8fb38b8f681e866fc56e3e778080269f5a17
+T010:
+  task: 2ea332f50972714d61b337ac4bdb081f8db5320f4f0c1b2e3e2d3226723625f7
+T011:
+  task: 23af46ea0f64e07affe89be26845637354d7397b101bb135fafd795c596fd85e
+T012:
+  task: b1dcd4baad45b736f5276465a6df8e9cb6a268480283f1066b9d638481cc8a90
+T013a:
+  task: 99b1fee5050cea7070d29e239bd9dc76594ccafa57f1705a1993e10e02271b09
+T013b:
+  task: e744a4ef24135fb676c1ffbcec1e30fcdf86ca6062bab6f78e9d687b89ed90e4
+T014:
+  task: ae8a8c8a8e2d8a6f3e184f2ebe56c8315e8beda27c9f6fdf1ede7541761d4095
+T015:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/gold_standard_annotations.json'
+  task: ce7f521c5860824dc3089d6ebfc01d47351567ac4be862efcca12dc4e3151287
+T015a:
+  task: 1dfd629c5bcc51162954cd729ac98f7d7cdc2bde8a68f2a578ba2dd8b10b215c
+T015b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/gold_standard_annotations.json'
+  task: f6bacf7002695991b786b2f54065aed128affb70b2e4f0085cf617e66b8a6a26
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/gold_standard_validation_report.json'
+  task: c65ec3ee1744fe29077ad1832cce42538e574dcfe45d92c2d590bc70b5cb5bb0
+T017:
+  task: 64f1b64d424d1ba9f5d98ac8a5887f2e5b2794f9f7b13585fdf4212c7a7d48a3
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/dag_manifest.json'
+  task: c42a8ccdd8d2d02aa54235de6ddf2c8a31a08d5bc2639f837f4e3aa63b431e71
+T019:
+  task: b0f1061be66b18956be1564c2b21ffe303765e2fd7aab987329cd32cb87f668e
+T020:
+  task: 4a66ffccdac0437e92f3569d5583929543443aa68a5642fc0e02866c27af299f
+T021:
+  task: 755328a867787e7210112fd6cf432c46bcfabf8093a46a6056282f31bbe66d38
+T022:
+  task: df9c9a042c44d8bfeee3847c2af70efb6189ebedb583eafcdbc3d44c85f325e0
+T023:
+  task: 1bf1445380dbe9704fb2888f16c1256be0cc2f7f8566607c32bd765e7d3d9e8f
+T024a:
+  reason: 'Requested task execution failed; rerun successfully: code/src/run_generate_embeddings.py
+    exit=1'
+  task: 57f3e110a325f292e6cc8c593840b40ae27797b72d46c0ba291d3e77623e8bbf
+T024b:
+  task: ff1f292bcb9a3147f125234144e4e9f950610839cd8993148a0e9302197386d8
+T024c:
+  task: 06f160c7a2013b1e216420d3ccb5d54020bd4bad31523d4fdecc7c3641b8c430
+T025:
+  task: d3784fce07b264efa9497c2d57d14acb6d41e4fe4fc77ba8e7917901273a581d
+T026:
+  task: 1e32069915ba6169899f32183f755f44bb531ba5b3f92b5e307d73456b95f0db
+T027:
+  task: 181a226437d31325836e09221565d22c6a3aee71a5f35b761eb45fdf502d91b4
+T028:
+  task: 8135529daaa753bc2b4fd2e419752b6ee0b97e31cdcf4755d0e92117d65382da
+T029:
+  task: 7367cb45b91a2d519c1b0ff907c4981aeccbb739ce95018baa4c7908cbe8aa77
+T030:
+  task: 9f75e84f6962700981d99afc74905b8d873e1406c93867f855fd591040c57ae1
+T031:
+  task: 48f218e02b2478a8d8f1e9bc6a9ba3f5d2c29a576a2b800e258ba502563f18e5
+T032:
+  task: b02a4ec115ac357a97ed1dde44c59d3c84039622d09687e1c8071b709488d27f
+T033:
+  task: e9bfc8821bcf33ea0cad87d9190547ac6158fe13144ef6117f9dbceef1f62904
+T034:
+  task: 10e4df1c1c449dd49a9fefae08d9bc4c9ce49efb688c973cdccc353ef158b59f
+T035a:
+  task: bb253962345e89feb27b35a9f79c4e7147d6e07bdc6f84577eee7e8fa78bce47
+T035b:
+  task: 067abc5673f827c95de6cb4c502ee308d1949b988ce8bd42d9905c87c022289d
+T035c:
+  task: 0a2e6b0034be72221ff6e79968a3bf1d345bf4eaa4ab3da856c87a99b049012a
+T036:
+  task: c6fdf3c85d41d82200a54166389c337d959b2d8d4b67578b3c140473f282cb59
+T037:
+  task: e7c6add79f77cd55ac067a782d77daf2eb3f9e55720724701c3cb077b24cc8b7
+T038:
+  task: 22398cada2a2c917cd9f1ed516ab04de39b0454573f26974fc32b5b70643cf32
+T039:
+  task: 8934fade38c6c730653f0202012fbf2895c664f3be1978280c63198a2e035da8
+T040:
+  task: 2cb73f55be3644fe211ec232f756d81dfbb86bf298ca583d96a6e3a180d42f48
+T041:
+  task: 742a66a10923338dd4e3794fab157ba51206753406f3b37ac328b24afd3cda3f
+T042:
+  task: cbd3f69749583df648d008caa00aeda59d92358b7f04bba0e90c83b85e68b26c
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: code/tests/unit/'
+  task: 46fb6ab7c519ecb8f066d2abb127ba96a3ce3c0fbda342f8636ff52c47e662d9
+T044:
+  task: 65f646ca0e6459c096f00b39e3ed8154ba6d0981ea331212de176e8300e80591
+T045:
+  task: 23fef39bb94c1f46cd4b0440e34284125d78b2642b7b25745844eaab65c46a76
+T046:
+  task: 84fc77c588fd7427bf2a6bd678a3c945a5f8fe8e7a0018f2e5a33605893b796d
+T047:
+  task: f0ec0821c8a283910d39d85ffda091b36eca58846cee106b5c674cb1667abf44
+T048:
+  reason: 'declared artifact(s) missing/empty/invalid: code/src/validate_splits.py'
+  task: 1ca6ea922441e5da43678973c69970c9cb0f405132ba90057bdaef5e36f235ed
+T049:
+  task: 03b72cc0efa1e270d9a600222de879ee9dd0aaee7be3f9963781b0290c53f96e
+T050:
+  task: fed31b93100744be5fb659e04e4010c6b2df074b5e5140cb700c3326174faf1c

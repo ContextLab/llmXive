@@ -1,3 +1,58 @@
+T001:
+  c: false
+  h: 6cee33e452b66db873016ac50b08e620f4d3885bb3b9d29dedd0e26aa93dcd6c
+  r: "Checked the actual repository tree under `projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/`\
+    \ against the directory layout described in the \u201CProject Structure\u201D\
+    \ section of `plan.md`. The observed layout contains extra top\u2011level entries\
+    \ (e.g., `.runtime-home/`, `.specify/`, `config/`, `docs/`, `figures/`, `idea/`,\
+    \ `pyproject.toml`, a root\u2011level `requirements.txt`) and places the `tests/`\
+    \ directory at the repository root instead of under `code/tests/` as required.\
+    \ Consequently the on\u2011disk structure does not faithfully match the specified\
+    \ tree."
+  sig: 95664acac698fb1a1527c62feb1abec25924d08497aa191c9eaa86554ea98668
+T002:
+  c: true
+  h: d010c21696c07584214d866f907b04a6bcde9a19a35a1a2f779bd0ad5ea83f05
+  r: "Checked the `requirements.txt` file at `projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/requirements.txt`;\
+    \ it exists, is non\u2011empty, and lists all required packages (networkx, llama\u2011\
+    cpp\u2011python, pandas, statsmodels, sentence\u2011transformers, pyyaml, huggingface_hub)."
+  sig: aa1cfd914d5f9dc22b5dcc7e7f0528add0dff10c67d322d0c260d58ddcb5dbbc
+T003:
+  c: false
+  h: 674ab518da67a74bed20516c5fa9965d1edc9ee219701b400be821b817dc287b
+  r: I inspected the project root (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co`)
+    for any linting/formatting configuration artifacts (e.g., `ruff.toml`, `.ruff.toml`,
+    `pyproject.toml` sections for Black, a `pre-commit` hook, or scripts invoking
+    `ruff`/`black`). No such files or configuration entries were present in the collected
+    evidence, so the requirement to configure linting with Ruff and formatting with
+    Black is not satisfied. Adding the appropriate configuration files and/or scripts
+    is needed.
+  sig: 703f9a6035580de8ad41af49e3dc64d55ad784db06da0afc01ffd700804b5a04
+T004:
+  c: false
+  h: 4ef45e5ac4f3716c11c9711b9c3c5eebf5123d141c188db847a1efc61978f5bd
+  r: The `data/` directory is present, but its `results/` subdirectory is missing,
+    and there is no evidence that an `artifacts/` directory (for checksums) was created.
+    Both are required to satisfy task T004.
+  sig: 5d8ad64a6708b94de6322befed759df5493ede9e306a62646bcc13a9b347a6d9
+T005:
+  c: true
+  h: f46c063062062655673fbec98aa84dc208dbca5dfa439f9c63fb2870b1ec5d3b
+  r: "Checked the `code/src/update_state.py` file (12\u202F333\u202Fbytes) which provides\
+    \ functions to compute SHA\u2011256 hashes, load and save a YAML state file, update\
+    \ artifact entries, verify integrity, and a CLI matching the described Constitution\
+    \ Principle\u202FV behavior. The module is non\u2011empty, contains full implementations\
+    \ (no stubs), and fulfills the required artifact\u2011hashing and state\u2011\
+    YAML management functionality."
+  sig: b45efb6e88bc37dea176a44994e856aaed8174e0b3e608186cf58d9ad7ec498a
+T006:
+  c: false
+  h: eee3f8f84a28d79d004c05887306fd3f29450ee8f7669f2e3cc303b74ec94b4d
+  r: "The evidence only shows the project root path; no configuration files (e.g.,\
+    \ `.env`, `config.yaml`) or Python modules/functions that load seeds and model\
+    \ paths are present. Consequently, the required environment\u2011configuration\
+    \ management code is missing."
+  sig: 55bccb29f95b529c6d654e1506fe18d80f7859cabe9d2e8425fc139ca4fcb06c
 T017:
   c: false
   h: 663f952339b707a20f2458ba0dd340e2c3b574e5daa9baa82df4fb1a3ce5de88

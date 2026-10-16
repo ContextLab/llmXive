@@ -18,7 +18,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --stage download_preprocess -> rc=1
-2026-10-10 14:18:36,882 - llmXive.code.config.config - INFO - Configuration module loaded. Paths initialized.
+2026-10-16 06:37:42,123 - llmXive.code.config.config - INFO - Configuration module loaded. Paths initialized.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 18, in <module>
@@ -26,7 +26,7 @@ Traceback (most recent call last):
 ImportError: cannot import name 'STATE_PROJECT_FILE' from 'code.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py)
 
 - python code/main.py --stage extract_metrics -> rc=1
-2026-10-10 14:18:37,057 - llmXive.code.config.config - INFO - Configuration module loaded. Paths initialized.
+2026-10-16 06:37:42,326 - llmXive.code.config.config - INFO - Configuration module loaded. Paths initialized.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 18, in <module>
@@ -34,7 +34,7 @@ Traceback (most recent call last):
 ImportError: cannot import name 'STATE_PROJECT_FILE' from 'code.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py)
 
 - python code/main.py --stage localize_sources -> rc=1
-2026-10-10 14:18:37,232 - llmXive.code.config.config - INFO - Configuration module loaded. Paths initialized.
+2026-10-16 06:37:42,527 - llmXive.code.config.config - INFO - Configuration module loaded. Paths initialized.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 18, in <module>
@@ -42,7 +42,7 @@ Traceback (most recent call last):
 ImportError: cannot import name 'STATE_PROJECT_FILE' from 'code.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py)
 
 - python code/main.py --stage statistical_analysis -> rc=1
-2026-10-10 14:18:37,406 - llmXive.code.config.config - INFO - Configuration module loaded. Paths initialized.
+2026-10-16 06:37:42,728 - llmXive.code.config.config - INFO - Configuration module loaded. Paths initialized.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 18, in <module>
@@ -50,7 +50,7 @@ Traceback (most recent call last):
 ImportError: cannot import name 'STATE_PROJECT_FILE' from 'code.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/config/__init__.py)
 
 - python code/main.py --stage full_run -> rc=1
-2026-10-10 14:18:37,580 - llmXive.code.config.config - INFO - Configuration module loaded. Paths initialized.
+2026-10-16 06:37:42,927 - llmXive.code.config.config - INFO - Configuration module loaded. Paths initialized.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-779-cross-modal-comparison-of-neural-predict/code/main.py", line 18, in <module>
@@ -78,3 +78,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/config.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
   Make ONE of these WRITE `data/results/sensitivity_analysis.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `.github/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

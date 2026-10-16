@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure matching directory tree in `plan.md` Section "Project Structure" (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/`)
+- [ ] T001 Create project structure matching directory tree in `plan.md` Section "Project Structure" (`projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/`)
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (networkx, llama-cpp-python, pandas, statsmodels, sentence-transformers, pyyaml, huggingface_hub)
-- [X] T003 [P] Configure linting (ruff) and formatting (black)
+- [ ] T003 [P] Configure linting (ruff) and formatting (black)
 
 ---
 
@@ -55,14 +55,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup `data/` directory structure (`raw/`, `processed/`, `results/`) and `artifacts/` for checksums
+- [ ] T004 Setup `data/` directory structure (`raw/`, `processed/`, `results/`) and `artifacts/` for checksums
 - [X] T005 [P] Implement `code/src/update_state.py` for Constitution Principle V (artifact hashing and state YAML updates)
-- [X] T006 [P] Setup environment configuration management (load seeds, model paths from `.env` or YAML)
-- [X] T007 Create base data loading utilities for HuggingFace datasets (`aaabiao/DAG_sft`)
-- [X] T008 Implement `code/src/parser.py` skeleton with `networkx` DAG initialization logic
-- [X] T046 [P] Implement real data streaming for the full SFT dataset in `code/src/data_loader.py`. Use `datasets.load_dataset(name, split=..., streaming=True)` to iterate in chunks, accumulating statistics online without loading the full dataset into RAM. Explicitly handle chunking and state accumulation to satisfy FR-001 data preparation scalability. The task must include code that iterates over the streaming dataset, processes each batch, and updates running statistics (e.g., total count, depth distribution) without holding the full dataset in memory.
-- [X] T047 [P] Implement "fail loudly" mechanism in `code/src/data_loader.py`. If the real data fetch fails (network error, missing file), raise a `FileNotFoundError` or `ConnectionError` immediately. DO NOT implement any `try/except` fallback to `generate_synthetic_*()` or mock data. This ensures Constitution Principle III (Data Hygiene) and prevents silent fabrication. **Verification**: Create `code/tests/test_data_loader.py` with a unit test that mocks a network failure and asserts the correct exception is raised.
-- [X] T048 [P] Implement training/test set split validation in `code/src/validate_splits.py`. Load the training set (used for DAG construction) and test set (used for accuracy), compare their IDs, and assert they are disjoint. Raise an error if any overlap is detected, satisfying FR-006 independence requirement. This task involves creating the script and implementing the validation logic.
+- [ ] T006 [P] Setup environment configuration management (load seeds, model paths from `.env` or YAML)
+- [~] T007 Create base data loading utilities for HuggingFace datasets (`aaabiao/DAG_sft`)
+- [~] T008 Implement `code/src/parser.py` skeleton with `networkx` DAG initialization logic
+- [~] T046 [P] Implement real data streaming for the full SFT dataset in `code/src/data_loader.py`. Use `datasets.load_dataset(name, split=..., streaming=True)` to iterate in chunks, accumulating statistics online without loading the full dataset into RAM. Explicitly handle chunking and state accumulation to satisfy FR-001 data preparation scalability. The task must include code that iterates over the streaming dataset, processes each batch, and updates running statistics (e.g., total count, depth distribution) without holding the full dataset in memory.
+- [~] T047 [P] Implement "fail loudly" mechanism in `code/src/data_loader.py`. If the real data fetch fails (network error, missing file), raise a `FileNotFoundError` or `ConnectionError` immediately. DO NOT implement any `try/except` fallback to `generate_synthetic_*()` or mock data. This ensures Constitution Principle III (Data Hygiene) and prevents silent fabrication. **Verification**: Create `code/tests/test_data_loader.py` with a unit test that mocks a network failure and asserts the correct exception is raised.
+- [ ] T048 [P] Implement training/test set split validation in `code/src/validate_splits.py`. Load the training set (used for DAG construction) and test set (used for accuracy), compare their IDs, and assert they are disjoint. Raise an error if any overlap is detected, satisfying FR-006 independence requirement. This task involves creating the script and implementing the validation logic.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,22 +78,22 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [P] [US1] Unit test for cycle detection and invalid trace flagging in `code/tests/test_parser.py`
-- [X] T010 [P] [US1] Unit test for DAG depth calculation logic in `code/tests/test_parser.py`
-- [X] T011 [P] [US1] Integration test for gold-standard correlation validation (r ≥ 0.6) in `code/tests/test_integration.py`
+- [~] T009 [P] [US1] Unit test for cycle detection and invalid trace flagging in `code/tests/test_parser.py`
+- [~] T010 [P] [US1] Unit test for DAG depth calculation logic in `code/tests/test_parser.py`
+- [~] T011 [P] [US1] Integration test for gold-standard correlation validation (r ≥ 0.6) in `code/tests/test_integration.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement CoT trace parser in `code/src/parser.py` to convert text steps to `networkx` DAG nodes/edges
-- [X] T013a [US1] Implement cycle detection logic in `code/src/parser.py`. Detect cycles of length ≤ 5 steps. [UNRESOLVED-CLAIM: c_950ca236 — status=not_enough_info]
-- [X] T013b [US1] Implement incoming edge threshold logic in `code/src/parser.py`. Flag traces where a node has > 3 incoming edges from steps occurring > 10 lines prior. [UNRESOLVED-CLAIM: c_180ac2fa — status=not_enough_info]
-- [X] T014 [US1] Implement "Logical Difficulty Score" calculation (max path depth) in `code/src/parser.py`
-- [X] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, raise a fatal exception and halt execution (unless T015b has generated a template for development). **Production Note**: This file must be populated by human annotation. **Dev Note**: If missing and T015b has run, proceed with template.
-- [X] T015b [US1] Generate a synthetic gold standard template in `data/processed/gold_standard_annotations.json` if the human-annotated file is missing. This template must contain a set of dummy entries with random complexity scores (1-5). [UNRESOLVED-CLAIM: c_aa5e9db6 — status=not_enough_info] to allow development testing. **Note**: In production, this file must be replaced by human-annotated data.
-- [X] T015a [US1] Implement precision and recall calculation for edge detection in `code/src/parser.py`. Compare parsed edges against the gold standard (from T015/T015b) and output `data/processed/parser_validation_metrics.json` with precision ≥ 0.85 and recall ≥ 0.80. This satisfies FR-007 structural accuracy requirement. **Depends on**: T015, T015b.
-- [X] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/gold_standard_validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6). **Depends on**: T014, T015, T015a.
-- [X] T017 [US1] Implement filtering and exclusion logic to remove invalid traces (cycles) from `data/processed/dag_manifest.json` and ensure they are not included in downstream prompt generation (US-001 AC-2)
-- [X] T018 [US1] Generate `data/processed/dag_manifest.json` containing dependency depths for all VALID traces only
+- [~] T012 [US1] Implement CoT trace parser in `code/src/parser.py` to convert text steps to `networkx` DAG nodes/edges
+- [~] T013a [US1] Implement cycle detection logic in `code/src/parser.py`. Detect cycles of length ≤ 5 steps. [UNRESOLVED-CLAIM: c_950ca236 — status=not_enough_info]
+- [~] T013b [US1] Implement incoming edge threshold logic in `code/src/parser.py`. Flag traces where a node has > 3 incoming edges from steps occurring > 10 lines prior. [UNRESOLVED-CLAIM: c_180ac2fa — status=not_enough_info]
+- [~] T014 [US1] Implement "Logical Difficulty Score" calculation (max path depth) in `code/src/parser.py`
+- [ ] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, raise a fatal exception and halt execution (unless T015b has generated a template for development). **Production Note**: This file must be populated by human annotation. **Dev Note**: If missing and T015b has run, proceed with template.
+- [ ] T015b [US1] Generate a synthetic gold standard template in `data/processed/gold_standard_annotations.json` if the human-annotated file is missing. This template must contain a set of dummy entries with random complexity scores (1-5). [UNRESOLVED-CLAIM: c_aa5e9db6 — status=not_enough_info] to allow development testing. **Note**: In production, this file must be replaced by human-annotated data.
+- [~] T015a [US1] Implement precision and recall calculation for edge detection in `code/src/parser.py`. Compare parsed edges against the gold standard (from T015/T015b) and output `data/processed/parser_validation_metrics.json` with precision ≥ 0.85 and recall ≥ 0.80. This satisfies FR-007 structural accuracy requirement. **Depends on**: T015, T015b.
+- [ ] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/gold_standard_validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6). **Depends on**: T014, T015, T015a.
+- [~] T017 [US1] Implement filtering and exclusion logic to remove invalid traces (cycles) from `data/processed/dag_manifest.json` and ensure they are not included in downstream prompt generation (US-001 AC-2)
+- [ ] T018 [US1] Generate `data/processed/dag_manifest.json` containing dependency depths for all VALID traces only
 
 **⚠️ GATING CHECK**: T016 must pass (r ≥ 0.6) AND T017 must complete before Phase 4 can begin.
 
@@ -109,20 +109,20 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Unit test for "Logical Ascending" sort order verification in `code/tests/test_prompt_gen.py`
-- [X] T020 [P] [US2] Unit test for deterministic shuffling with fixed seed in `code/tests/test_prompt_gen.py`
-- [X] T021 [P] [US2] Integration test for prompt file generation across multiple seeds in `code/tests/test_integration.py`
+- [~] T019 [P] [US2] Unit test for "Logical Ascending" sort order verification in `code/tests/test_prompt_gen.py`
+- [~] T020 [P] [US2] Unit test for deterministic shuffling with fixed seed in `code/tests/test_prompt_gen.py`
+- [~] T021 [P] [US2] Integration test for prompt file generation across multiple seeds in `code/tests/test_integration.py`
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement "Logical Ascending" sorter in `code/src/prompt_gen.py` (sort by DAG depth from T018, non-decreasing). **Depends on**: T016 (Validation Pass).
-- [X] T023 [US2] Implement "Logical Random" shuffler in `code/src/prompt_gen.py` (fixed seed, preserve distribution)
-- [ ] T024a [US2] Implement SBERT embedding generation for "Original CDS" (Semantic Curvature) in `code/src/prompt_gen.py`. Use `sentence-transformers/all-MiniLM-L-v` to compute embeddings for each example. Output `data/processed/embeddings.json`. **Clarification**: Per Spec Assumptions, this SBERT-based variance metric IS the required approximation for "Original CDS" since the proprietary implementation is inaccessible. **Depends on**: T018.
+- [~] T022 [US2] Implement "Logical Ascending" sorter in `code/src/prompt_gen.py` (sort by DAG depth from T018, non-decreasing). **Depends on**: T016 (Validation Pass).
+- [~] T023 [US2] Implement "Logical Random" shuffler in `code/src/prompt_gen.py` (fixed seed, preserve distribution)
+- [ ] T024a [US2] Implement SBERT embedding generation for "Original CDS" (Semantic Curvature) in `code/src/prompt_gen.py`. Use `sentence-transformers/all-MiniLM-L-v` to compute embeddings for each example. Output `data/processed/embeddings.json`. **Clarification**: Per Spec Assumptions, this SBERT-based variance metric IS the required approximation for "Original CDS" since the proprietary implementation is inaccessible. **Depends on**: T018. <!-- FAILED-IN-EXECUTION: code/src/run_generate_embeddings.py exit=1 -->
 - [ ] T024b [US2] Implement "Original CDS" (Semantic Curvature) score calculation in `code/src/prompt_gen.py`. Calculate cosine similarity between adjacent sentences in the embeddings (from T024a), then compute the population variance of these similarities as the "Curvature Score". Output `data/processed/curvature_scores.json`. This metric approximates the standard curvature metrics referenced in the spec Assumptions. **Depends on**: T024a.
 - [ ] T024c [US2] Implement "Original CDS" sorting logic in `code/src/prompt_gen.py` using the Curvature Score from T024b (read from `data/processed/curvature_scores.json`).
 - [ ] T025 [US2] Implement prompt template assembler to combine a set of examples into a single prompt string in `code/src/prompt_gen.py`
 - [ ] T026 [US2] Implement batch runner in `code/src/prompt_gen.py` to generate prompts for multiple seeds (default a standard baseline value) across three strategies (Ascending, Random, CDS). This runner must iterate through seeds, apply the sorting logic from T022, T023, and T024c, and save outputs to `data/processed/prompts/` with filenames indicating seed and strategy. This task fully satisfies FR-002. **Depends on**: T022, T023, T024c.
-- [X] T027 [US2] Add validation logic to ensure no duplicate prompt orderings within a strategy group across seeds.
+- [~] T027 [US2] Add validation logic to ensure no duplicate prompt orderings within a strategy group across seeds.
 - [ ] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -139,7 +139,7 @@
 
 - [ ] T029 [P] [US3] Unit test for accuracy calculation and retry logic in `code/tests/test_inference.py`
 - [ ] T030 [P] [US3] Unit test for LMM model fitting and p-value extraction in `code/tests/test_analysis.py`
-- [X] T031 [P] [US3] Integration test for full pipeline (Prompt → Inference → Stats) on a small subset in `code/tests/test_integration.py`
+- [~] T031 [P] [US3] Integration test for full pipeline (Prompt → Inference → Stats) on a small subset in `code/tests/test_integration.py`
 
 ### Implementation for User Story 3
 
@@ -147,12 +147,12 @@
 - [ ] T033 [US3] Implement model selection logic for "Reasoning" vs "Non-Reasoning" classes in `code/src/inference.py`
 - [ ] T034 [US3] Implement result aggregation script to collect accuracy per seed/strategy/model in `code/src/analysis.py`
 - [ ] T035a [US3] Implement Linear Mixed-Effects Model (LMM) in `code/src/analysis.py` (Fixed: Strategy, ModelType, Interaction; Random: Seed, PromptID) to test interaction effects.
-- [X] T035b [US3] Calculate partial eta-squared from the LMM results and append it to `artifacts/stats_report.md`. This task explicitly calculates the effect size required by SC-005 and documents the ANOVA-to-LMM deviation in the report. **Depends on**: T035a.
+- [~] T035b [US3] Calculate partial eta-squared from the LMM results and append it to `artifacts/stats_report.md`. This task explicitly calculates the effect size required by SC-005 and documents the ANOVA-to-LMM deviation in the report. **Depends on**: T035a.
 - [ ] T035c [US3] Perform power analysis justification for the LMM deviation in `code/src/analysis.py`. Use `statsmodels.stats.power` to calculate the statistical power of the planned experiment (n=360 runs) to detect a moderate interaction effect. Append the power analysis results and justification to `artifacts/stats_report.md`, validating the deviation from the spec's FR-004 (two-way ANOVA). **Depends on**: T035a.
 - [ ] T036 [US3] Implement Bonferroni correction for multiple comparisons on post-hoc tests in `code/src/analysis.py`
-- [X] T037 [US3] Generate final statistical report (`artifacts/stats_report.md`) with p-values, effect sizes (partial eta-squared), and the deviation note about ANOVA->LMM.
-- [X] T038 [US3] Implement Levene's test for variance stability – calculate the variance of mean accuracy across multiple seeds, compare between "Logical Ascending" and "Logical Random" using Levene's test (p < 0.10), and append the p-value to `artifacts/stats_report.md`. This task explicitly implements the statistical test required by SC-001.
-- [X] T039 [US3] Add timeout handling and failure logging for inference runs exceeding a prolonged duration limit
+- [~] T037 [US3] Generate final statistical report (`artifacts/stats_report.md`) with p-values, effect sizes (partial eta-squared), and the deviation note about ANOVA->LMM.
+- [~] T038 [US3] Implement Levene's test for variance stability – calculate the variance of mean accuracy across multiple seeds, compare between "Logical Ascending" and "Logical Random" using Levene's test (p < 0.10), and append the p-value to `artifacts/stats_report.md`. This task explicitly implements the statistical test required by SC-001.
+- [~] T039 [US3] Add timeout handling and failure logging for inference runs exceeding a prolonged duration limit
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -162,11 +162,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T040 [P] Documentation updates in `docs/` (Quickstart, Data Model, Contracts)
+- [~] T040 [P] Documentation updates in `docs/` (Quickstart, Data Model, Contracts)
 - [ ] T041 Code cleanup and refactoring of `parser.py` and `inference.py`
-- [X] T042 Performance optimization for DAG parsing: Refactor `parser.py` to achieve < 15 min runtime on 1000 raw/CoT traces; verify by running benchmark script and recording time in `artifacts/perf_log.txt`
-- [X] T043 [P] Additional unit tests (if requested) in `code/tests/unit/`
-- [X] T044 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [~] T042 Performance optimization for DAG parsing: Refactor `parser.py` to achieve < 15 min runtime on 1000 raw/CoT traces; verify by running benchmark script and recording time in `artifacts/perf_log.txt`
+- [ ] T043 [P] Additional unit tests (if requested) in `code/tests/unit/`
+- [~] T044 Run `quickstart.md` validation to ensure end-to-end reproducibility
 - [ ] T045 Verify `data/results.csv` integrity and checksum update via `update_state.py`
 
 ---
