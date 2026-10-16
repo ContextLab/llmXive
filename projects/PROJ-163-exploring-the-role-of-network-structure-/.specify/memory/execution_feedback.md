@@ -12,9 +12,36 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/stats_engine.py: synthetic/fake INPUT data not authorized by the spec — “…ames for unit‑tests that generate synthetic data. """  import os imp…”; 4 command(s) failed: python -m pytest tests/test_stats_engine.py -v (rc=1); python -m pytest tests/test_integration_fetch.py -v   # live API (rate‑limited) (rc=4); python -m code.graph_builder --backend ibmq_manila --out graph_metrics.csv (rc=1); 7 declared deliverable(s) absent: data/processed/correlation_results.csv; data/processed/graph_metrics.csv; data/processed/mdes_report.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/stats_engine.py: synthetic/fake INPUT data not authorized by the spec — “…ames for unit‑tests that generate synthetic data. """  import os imp…”; 5 command(s) failed: python -m pytest tests/test_fetcher.py -v (rc=1); python -m pytest tests/test_stats_engine.py -v (rc=1); python -m pytest tests/test_integration_fetch.py -v   # live API (rate‑limited) (rc=4); 7 declared deliverable(s) absent: data/processed/correlation_results.csv; data/processed/graph_metrics.csv; data/processed/mdes_report.json
 
 ## Failing / missing run-book commands
+
+- python -m pytest tests/test_fetcher.py -v -> rc=1
+operties (qubits, '
+                                                  'gates, measurements)',
+                                   'type': 'object'},
+                    'timestamp': {'description': 'ISO 8601 timestamp of '
+                                                 'the calibration snapshot',
+                                  'format': 'date-time',
+                                  'type': 'string'}},
+     'required': ['device_id', 'timestamp', 'coupling_map', 'properties'],
+     'type': 'object'}
+
+On instance:
+    {'chip_family': 'Falcon',
+     'coupling_map': [[0, 1]],
+     'device_id': 'test_dev',
+     'gates': [{'gate': 'cx',
+                'parameters': [{'name': 'gate_error', 'value': 0.01},
+                               {'name': 'readout_error', 'value': 0.02}]}],
+     'qubits': [[{'name': 'T1', 'value': 0.0001},
+                 {'name': 'T2', 'value': 5e-05}],
+                [{'name': 'T1', 'value': 0.00011},
+                 {'name': 'T2', 'value': 6e-05}]],
+     'timestamp': '2026-10-16T22:11:23.483859+00:00'}
+FAILED tests/test_fetcher.py::test_no_synthetic_fallback - SystemExit: 2
+========================= 2 failed, 2 passed in 1.34s ==========================
+
 
 - python -m pytest tests/test_stats_engine.py -v -> rc=1
 on undefined for t2_mean vs clustering_coeff (constant input).
@@ -29,7 +56,7 @@ tests/test_stats_engine.py: 18 warnings
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/test_stats_engine.py::test_apply_benjamini_hochberg_fdr - assert np.True_ is True
-=================== 1 failed, 2 passed, 18 warnings in 0.66s ===================
+=================== 1 failed, 2 passed, 18 warnings in 0.72s ===================
 
 
 - python -m pytest tests/test_integration_fetch.py -v   # live API (rate‑limited) -> rc=4

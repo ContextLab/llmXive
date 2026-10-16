@@ -11,7 +11,7 @@ Each task is a self‑contained, verifiable unit; completed tasks are checked, p
 
 **Goal**: Run a reproducible pipeline on real IBM Quantum calibration data from a single snapshot (cross‑sectional design).
 
-- [ ] T001 [US1] **Fetch calibration data with freshness enforcement and no synthetic fallback** <!-- FAILED-IN-EXECUTION: code/fetcher.py exit=1 -->
+- [ ] T001 [US1] **Fetch calibration data with freshness enforcement and no synthetic fallback** <!-- FAILED-IN-EXECUTION: code/fetcher.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/fetcher.py exit=1 -->
   *Implementation*: `code/fetcher.py` providing  
   • `fetch_backends_list()` – obtains public backend list via `IBMQ` provider.  
   • `fetch_backend_properties(name)` – downloads `properties` JSON, respects **C‑001** (exponential backoff, max 5 attempts).  

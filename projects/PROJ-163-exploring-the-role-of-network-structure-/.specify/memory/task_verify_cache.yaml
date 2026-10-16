@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: c05f444368449e2e3b353877d8ed2761d3b0d85c0df58f9b361f876253a87f79
-  r: "The required artifacts `data/raw/{device_id}_{YYYYMMDD_HHMMSS}.json` do not\
-    \ exist \u2014 `data/raw/` contains only a `.gitkeep` \u2014 and there is no execution\
-    \ evidence that `f.main()` ever ran or wrote a snapshot (no logs, no test-run\
-    \ output). The code itself is plausible (backoff, freshness, no-synthetic-fallback\
-    \ guard are implemented), but the task explicitly requires at least one real raw\
-    \ JSON snapshot on disk, and none is present; additionally `extract_performance_metrics()`\
-    \ does not return `chip_family` as specified (it's only in a separate helper).\
-    \ The implementer must run the fetcher with a val"
-  sig: 73f36b4c77c14287cc872e0d21cb7952cee5ce5cba6e181c20b2c84a05bf0990
 T007:
   c: false
   h: 83dc88357e4f180952aec4a14eac0899d102f5c7b02e51e7d5d1e337416e97b8
