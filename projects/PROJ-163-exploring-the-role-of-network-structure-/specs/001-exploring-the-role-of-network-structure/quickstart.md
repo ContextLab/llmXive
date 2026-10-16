@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - Python 3.11+  
-- Internet access (to call the IBM Quantum API)  
+- Internet connectivity (to query the IBM Quantum API).  
 - (Optional) IBM Quantum API token for higher rate limits (`QISKIT_IBM_TOKEN` environment variable).
 
 ## Installation
@@ -15,10 +15,10 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Verify dependencies:
+Verify the environment:
 
 ```bash
-python -c "import networkx, pandas, qiskit_ibm_runtime, sklearn, scipy, matplotlib; print('All good')"
+python -c "import networkx, pandas, qiskit_ibm_runtime, pingouin, matplotlib; print('Ready')"
 ```
 
 ## Running the Full Pipeline
@@ -27,24 +27,27 @@ python -c "import networkx, pandas, qiskit_ibm_runtime, sklearn, scipy, matplotl
 python code/main.py
 ```
 
-The script executes the following steps in order:
+The orchestrator executes the steps **in order**:
 
-1. **Fetch** calibration data (`fetcher.py`) – current snapshot + up to 30‑day historical window.  
-2. **Build** graphs & compute metrics (`graph_builder.py`).  
-3. **Analyze** correlations, partial correlations (covariates: `chip_generation`, `qubit_count`, `device_age_days`, `readout_architecture`, `timestamp`, `temperature`), permutation‑test confidence intervals (used when N < 30), FDR correction, and robustness checks (LODO, chip‑family exclusion, time‑window performance comparison, longitudinal stability).  
-4. **Generate** power‑analysis/MDES report (`stats_engine.py`).  
-5. **Visualize** results (`viz.py`) – scatter plots, heatmaps, and MDES summary figures are saved automatically as part of the reporting step (FR‑004).  
-6. **Record** checksums & update project state (`hygiene.py`).
+1. **Fetch** current and 30‑day historical calibration snapshots (`fetcher.py`).  
+2. **Build** undirected coupling graphs and compute topological metrics (`graph_builder.py`).  
+3. **Analyze** correlations, partial correlations, permutation‑based confidence intervals, FDR correction, and robustness checks (LODO, chip‑family exclusion, time‑window comparison) (`stats_engine.py`).  
+4. **Generate** a power‑analysis / MDES report (`stats_engine.py`).  
+5. **Visualize** scatter plots, heatmaps, and MDES summary (`viz.py`).  
+6. **Record** SHA‑256 checksums and update `state/projects/...yaml` (`hygiene.py`).
 
-### Expected Outputs
-- `data/raw/*.json` – raw API snapshots (current and historical).  
-- `data/processed/performance_metrics.csv`  
-- `data/processed/performance_window_metrics.csv` (30‑day averages)  
-- `data/processed/graph_metrics.csv`  
-- `data/processed/correlation_results.csv`  
-- `data/processed/power_analysis.csv` (MDES report)  
-- `data/processed/plots/*.png` – scatter plots & heatmaps.  
-- Updated `state/projects/PROJ-163-...yaml` with artifact hashes.
+### Expected Output Files
+
+| Path | Description |
+|------|-------------|
+| `data/raw/*.json` | Raw JSON calibration snapshots (current + historical). |
+| `data/processed/performance_metrics.csv` | Median performance metrics per device (`source_window="current"`). |
+| `data/processed/performance_window_metrics.csv` | 30‑day averaged performance metrics (`source_window="window"`). |
+| `data/processed/graph_metrics.csv` | Topological descriptors per device. |
+| `data/processed/correlation_results.csv` | Spearman/partial correlation results (schema: `contracts/correlation_results.schema.yaml`). |
+| `data/processed/power_analysis.csv` | MDES and power‑analysis report (schema: `contracts/mdes_report.schema.yaml`). |
+| `data/processed/plots/*.png` | Scatter plots, correlation heatmap, MDES figure. |
+| `state/projects/PROJ-163-...yaml` | Artifact hashes and timestamps for reproducibility. |
 
 ## Testing
 
@@ -52,7 +55,7 @@ The script executes the following steps in order:
 pytest tests/test_fetcher.py -v
 pytest tests/test_graph_builder.py -v
 pytest tests/test_stats_engine.py -v
-pytest tests/test_integration_fetch.py -v   # live API (rate‑limited)
+pytest tests/test_integration_fetch.py -v   # hits live API (rate‑limited)
 ```
 
 All tests must pass; schema validation is performed automatically against the files in `contracts/`.
@@ -67,7 +70,7 @@ python -m code.graph_builder --backend ibmq_manila --out graph_metrics.csv
 python -m code.graph_builder --backend ibmq_manila --output graph_metrics.csv
 ```
 
-The CLI implements a **custom degree assortativity** calculation that yields –1.0 for a 3‑node path, matching the unit‑test expectation.
+The CLI implements a **custom degree assortativity** calculation that yields –1.0 for a 3‑node path, satisfying the unit‑test expectation.
 
 ## Inspection Commands
 
@@ -79,10 +82,9 @@ cat data/processed/power_analysis.csv
 ```
 
 ## Troubleshooting
-- **Rate‑limit errors** – the fetcher retries with exponential backoff; add a token to `QISKIT_IBM_TOKEN` if needed.  
-- **Disconnected graphs** – `spectral_gap` will be set to its baseline (no gap); path‑length metrics are computed on the largest component only.  
-- **Missing metrics** – devices lacking a metric are simply omitted from that specific correlation test.  
-- **Low statistical power** – if `N < 30`, the MDES report will flag the study as exploratory; permutation‑CI are used and bootstrap CIs are omitted.  
+- **Rate‑limit errors** – the fetcher retries with exponential backoff; set `QISKIT_IBM_TOKEN` to increase limits.  
+- **Disconnected graphs** – `spectral_gap` will be 0; path‑length metrics are computed on the largest component only.  
+- **Missing metrics** – devices lacking a metric are omitted from that specific correlation pair.  
+- **Low statistical power** – if `N < 30`, the MDES report will flag the study as exploratory; only effect‑size estimates with permutation‑CI are reported.  
 
 ---
-

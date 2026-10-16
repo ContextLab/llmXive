@@ -1,71 +1,68 @@
 # Data Model: Exploring the Role of Network Structure in Superconducting Qubit Coupling
 
-## Overview
-Defines every entity that flows through the pipeline, from raw API JSON to final correlation results. All artifacts are version‑hashed and recorded in `state/projects/...yaml`.
-
 ## Entities
 
 ### 1. QubitDevice
 | Field | Type | Description |
 |-------|------|-------------|
-| `device_id` | string | Unique backend identifier (e.g., `ibmq_manila`). |
-| `backend_type` | string | `"public"` (all used devices are public). |
-| `chip_generation` | string | Derived generation label (`Eagle`, `Falcon`, …). |
-| `timestamp` | datetime | Calibration snapshot time (ISO‑8601). |
-| `is_fresh` | boolean | True if `timestamp` ≤ 30 days old. |
+| `device_id` | string | Backend identifier (e.g., `ibmq_manila`). |
+| `backend_type` | string | `"public"` (all used devices are publicly accessible). |
+| `chip_generation` | string | Derived from backend name (e.g., *Eagle*, *Falcon*). |
+| `timestamp` | datetime (ISO‑8601) | Calibration snapshot time. |
+| `is_fresh` | boolean | `True` iff `timestamp` ≤ 30 days old (FR‑001). |
 
 ### 2. GraphMetric
 | Field | Type | Description |
 |-------|------|-------------|
 | `device_id` | string | FK → QubitDevice. |
-| `chip_generation` | string | Redundant for easy filtering. |
 | `metric_name` | string | One of `["avg_shortest_path","diameter","clustering_coef","edge_betweenness","degree_assortativity","spectral_gap"]`. |
 | `value` | float | Computed metric value. |
-| `is_finite` | boolean | True if `value` is not NaN/Inf (populated during graph construction). |
-| `component_size` | integer | Size of the largest connected component (used for path‑length metrics; populated during graph construction). |
+| `is_finite` | boolean | `False` if the metric is NaN/Inf (e.g., disconnected graph). |
+| `component_size` | integer | Size of the largest connected component (used for path‑length metrics). |
+| `edge_type` | enum(`active`,`inactive`) | Present only for tunable‑coupler edges (FR‑007). |
 
 ### 3. PerformanceMetric
 | Field | Type | Description |
 |-------|------|-------------|
 | `device_id` | string | FK → QubitDevice. |
 | `metric_name` | string | One of `["T1","T2","gate_error","readout_error","entanglement_fidelity"]`. |
-| `value` | float | Measured value (raw or normalized). |
+| `value` | float | Median (or mean where appropriate) across qubits (FR‑003). |
 | `unit` | string | Units (`us`, `1e-3`, `percent`). |
-| `source_window` | string | `"current"` – performance extracted from the same calibration snapshot as topology; `"window"` – 30‑day averaged performance metrics used for robustness checks. |
-| `timestamp` | datetime | Timestamp of the snapshot the metric originates from (for `current` window) or `null` for aggregated window metrics. |
+| `source_window` | enum(`current`,`window`) | `"current"` for the cross‑sectional snapshot; `"window"` for the 30‑day averaged metrics (FR‑004). |
+| `timestamp` | datetime (ISO‑8601) | Snapshot time for `current` rows; `null` for `window` rows. |
 
 ### 4. CorrelationResult
 | Field | Type | Description |
 |-------|------|-------------|
-| `graph_metric` | string | Name of the topological descriptor. |
-| `performance_metric` | string | Name of the performance indicator. |
-| `spearman_rho` | float | Spearman correlation coefficient (ρ). |
-| `p_value` | float | Raw p‑value for the correlation test. |
+| `graph_metric` | string | Topological descriptor name. |
+| `performance_metric` | string | Performance indicator name. |
+| `spearman_rho` | float | Spearman ρ. |
+| `p_value` | float | Raw p‑value. |
 | `adj_p_value` | float | BH‑FDR adjusted p‑value. |
 | `partial_rho` | float (optional) | Partial correlation controlling for covariates. |
 | `is_significant` | boolean | `adj_p_value < 0.05`. |
-| `exclusion_reason` | string (optional) | Reason for omission (e.g., `missing_data`, `disconnected_graph`). |
+| `exclusion_reason` | string (optional) | Reason for omission (e.g., `missing_data`). |
 
 ### 5. PowerAnalysisResult
 | Field | Type | Description |
 |-------|------|-------------|
-| `sample_size` | integer | Number of devices (N) included in the analysis. |
-| `number_of_tests` | integer | Total metric‑pair hypothesis tests performed. |
+| `sample_size` | integer | Number of devices included (N). |
+| `number_of_tests` | integer | Total topology‑performance hypothesis tests. |
 | `min_detectable_rho` | float | MDES at 80 % power, α = 0.05. |
-| `confidence_interval` | string | 95 % CI for the observed correlations (e.g., `"[0.12, 0.34]"`). |
-| `low_power_flag` | string | `"Low Power: MDES > 0.5 (Large Effect Required)"` or `"Adequate Power"`.|
+| `confidence_interval` | string | 95 % CI for the observed correlation (e.g., `"[0.12, 0.34]"`). |
+| `low_power_flag` | string | `"Low Power: MDES > 0.5 (Large Effect Required)"` or `"Adequate Power"` (FR‑010). |
 
 ## Data Flow
-1. **Raw Ingestion** – `fetcher.py` → `data/raw/{device}_{ts}.json`.  
-2. **Transformation** – `graph_builder.py` → `graph_metrics.csv`; `fetcher.py` → `performance_metrics.csv` (including `source_window`).  
-3. **Analysis** – `stats_engine.py` joins on `device_id`, produces `correlation_results.csv` and `power_analysis.csv`.  
-4. **Visualization** – `viz.py` reads `correlation_results.csv` → PNGs.  
+1. **Raw ingestion** (`fetcher.py`) → `data/raw/{device}_{ts}.json`.  
+2. **Performance extraction** (`fetcher.py`) → `performance_metrics.csv` (conforms to `contracts/performance_metrics.schema.yaml`).  
+3. **Graph construction** (`graph_builder.py`) → `graph_metrics.csv` (conforms to `contracts/graph_metrics.schema.yaml`).  
+4. **Statistical engine** (`stats_engine.py`) joins on `device_id` → `correlation_results.csv` and `power_analysis.csv` (schemas `correlation_results.schema.yaml`, `mdes_report.schema.yaml`).  
+5. **Visualization** (`viz.py`) reads `correlation_results.csv` → PNGs in `data/processed/plots/`.
 
 ## Validation Rules
-- No `NaN`/`Inf` in numeric fields.  
-- All timestamps ISO‑8601.  
+- No `NaN`/`Inf` in numeric fields (`is_finite` must be `True` for finite values).  
+- All timestamps are ISO‑8601 strings.  
 - Unique `(device_id, metric_name)` pairs in `GraphMetric` and `PerformanceMetric`.  
 - Referential integrity: every `device_id` in derived tables must exist in `QubitDevice`.  
 
 ---
-
