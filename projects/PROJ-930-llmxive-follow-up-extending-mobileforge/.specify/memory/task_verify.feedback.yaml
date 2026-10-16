@@ -1,11 +1,11 @@
 T001:
   task: 5e8e50240160bed08f187b67ca3363d4196fb83cac77c5078d3623db9e83cbe2
 T002:
-  reason: The evidence only shows a `requirements.txt` at the project root with the
-    correct pinned versions; the required file under `code/requirements.txt` is listed
-    but its contents are not provided, and no CI install logs are shown. Without confirming
-    the `code/` version contains the exact package list (including the `torch` line)
-    and that it successfully installs, the task is not fully satisfied.
+  reason: "The evidence shows a top\u2011level `requirements.txt` with the correct\
+    \ pinned lines, but the task required the file to be under `code/`. The content\
+    \ of `code/requirements.txt` is not shown, and there is no proof that `pip install\
+    \ -r requirements.txt` succeeded in CI. Both the correct location and CI install\
+    \ verification are missing."
   task: 28ccdfd978eb81e906b1515d924442985c4473e99508b6612a97259b2e9aa60c
 T003:
   task: 4a1af1691cc993ae7f490fab394c7d10dfc1f0d09cdc7e602ee6d90a6fa2970e
@@ -26,6 +26,8 @@ T007:
     to write only project-owned outputs.'
   task: 9471e69d8164a52ed519bf5bafdf255e67bdc8912162f7b0e964902da09f635f
 T008:
+  reason: 'Requested task execution failed; rerun successfully: code/data/raw/download_mobileforge.py
+    exit=1'
   task: c4d2b77723446c2b510b27b395370e5fe8911139579439e99fd43931756deb6a
 T009:
   task: ded99526cb4bdf9fb45b3ffd53bb2d6a4a8d8ede9f7ceeba265024500b313608

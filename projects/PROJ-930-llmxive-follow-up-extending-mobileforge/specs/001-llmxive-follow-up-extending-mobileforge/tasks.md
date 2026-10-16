@@ -62,7 +62,7 @@
 
 ## Phase 3 – Data pipeline (US‑1)
 
-- [ ] T008 [P] Implement `data/raw/download_mobileforge.py` that fetches the official MobileForge logs via `datasets.load_dataset("mobileforge")`.  
+- [ ] T008 [P] Implement `data/raw/download_mobileforge.py` that fetches the official MobileForge logs via `datasets.load_dataset("mobileforge")`.   <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 -->
   - The script writes the raw files under `data/raw/` and verifies SHA‑256 against entries in `data/checksums.json`.  
   - On any network or checksum failure the script raises an exception (no synthetic fallback).  
   **Path**: `code/data/raw/download_mobileforge.py`  

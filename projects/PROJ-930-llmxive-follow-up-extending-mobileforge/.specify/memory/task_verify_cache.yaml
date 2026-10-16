@@ -1,20 +1,12 @@
 T001:
   c: true
-  h: 668c7ea66932e886e3d74c78511ef63efc502b7df8b42babbc5280545cdb9e5d
-  r: "Checked the `setup_dirs.py` log confirming creation of all required sub\u2011\
-    directories under `code/` (data/raw, data/processed, data/evaluation, models,\
-    \ utils, tests/unit, tests/integration) and the existence of the `state/` directory,\
-    \ plus the passing unit tests that verify these paths."
-  sig: 0923abc034e0fe26b98183d2e84a9c296c18fa8c64bed650dc3a4197ed4d475e
-T002:
-  c: false
-  h: 179322f32010edad9fb1156132ba79e5e3b81f1b550f6000a82761f2866db933
-  r: The evidence only shows a `requirements.txt` at the project root with the correct
-    pinned versions; the required file under `code/requirements.txt` is listed but
-    its contents are not provided, and no CI install logs are shown. Without confirming
-    the `code/` version contains the exact package list (including the `torch` line)
-    and that it successfully installs, the task is not fully satisfied.
-  sig: 1e91f3cfbb5956c340a3cf5dd067411a026cb64a9d9304c215c429170b4c9dff
+  h: ef7d82ee5088b2c8513e20a970ac1a8b5f9751d31793c670c1632412155ea6fc
+  r: "Checked the `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/`\
+    \ tree and the `state/` directory; unit tests and the `setup_dirs.py` log confirm\
+    \ that all required sub\u2011directories (`data/raw`, `data/processed`, `data/evaluation`,\
+    \ `models`, `utils`, `tests/unit`, `tests/integration`) and the top\u2011level\
+    \ `state/` directory exist."
+  sig: 6e447af8a2d4456cc33d61d337ccf82bc21375e6eccd19030f3650fae64c5bb8
 T003:
   c: true
   h: fd13fa4a44ecc58aa6780c9371db63490ebf7b789ac2fb259caae79f0117a16b
@@ -22,12 +14,6 @@ T003:
     = 88`) and `.ruff.toml` (contains a `[tool.ruff]` section with `select = ["E",
     "F", "W"]`) at the repository root; both files exist and match the specified contents.
   sig: 428624dec6c7d56c3db651f6a24551e819be046a634120553309ac7e0d10d08b
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `state/` directory or any checksum/versioning files are present in the provided\
-    \ artifacts; without tangible evidence of the directory\u2019s creation and its\
-    \ contents, the requirement cannot be confirmed as satisfied."
 T005:
   c: true
   h: 900084c3b3119181565abdd717eb64b745c8cb9b41e821b53d52a46008d92c00

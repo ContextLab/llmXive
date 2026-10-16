@@ -13,7 +13,7 @@ fixed parameters:
 
 The script aborts if any data‑extraction artifacts already exist (i.e.
 files under ``data/processed``) to enforce the “before extraction” rule.
-The result is written to ``state/validated_n.json`` and conforms to the
+The result is written to ``data/validated_n.json`` and conforms to the
 JSON schema at ``contracts/power_analysis.schema.yaml``.
 """
 
@@ -111,7 +111,7 @@ def write_validated_n(
     output_path: Optional[Path] = None,
 ) -> Path:
     """
-    Write the power‑analysis result to ``state/validated_n.json`` in the
+    Write the power‑analysis result to ``data/validated_n.json`` in the
     format required by ``contracts/power_analysis.schema.yaml``.
 
     Parameters
@@ -120,7 +120,7 @@ def write_validated_n(
         The dictionary returned by ``calculate_required_n``.
     output_path : Path, optional
         Override the default output location. If omitted, the file is written
-        to ``<project_root>/state/validated_n.json``.
+        to ``<project_root>/data/validated_n.json``.
 
     Returns
     -------
@@ -129,9 +129,9 @@ def write_validated_n(
     """
     if output_path is None:
         project_root = get_project_root()
-        state_dir = project_root / "state"
-        state_dir.mkdir(parents=True, exist_ok=True)
-        output_path = state_dir / "validated_n.json"
+        data_dir = project_root / "data"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        output_path = data_dir / "validated_n.json"
     else:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
