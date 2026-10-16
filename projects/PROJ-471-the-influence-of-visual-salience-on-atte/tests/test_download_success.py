@@ -1,51 +1,39 @@
-"""
-Unit test for the ``download_data`` ingestion script (Task T002).
-
-The test runs the script's ``main`` function, then checks that:
-1. ``data/raw/checksums.json`` exists.
-2. The manifest contains at least one file entry.
-3. All listed files are present on disk.
-"""
+import subprocess
 import json
 from pathlib import Path
-
 import pytest
+from llmxive_toolkit import paths
 
-# Import the script's main entry point.
-from code.ingestion.download_data import main as download_main
-
-@pytest.mark.integration
-def test_download_and_checksum(tmp_path, monkeypatch):
+def test_download_script_execution():
     """
-    Run the ingestion script and validate the checksum manifest.
-
-    The test is marked as ``integration`` because it may download a real
-    dataset from Hugging Face. It will be skipped on CI environments that
-    lack internet access.
+    Verify that the download_data.py script executes successfully 
+    and produces the required artifacts.
     """
-    # Ensure a clean state: remove any pre‑existing raw directory.
-    raw_root = Path("data") / "raw"
-    if raw_root.is_dir():
-        # Remove the directory tree to force a fresh download.
-        import shutil
-        shutil.rmtree(raw_root)
+    # Run the download script
+    result = subprocess.run(
+        ["python", "code/ingestion/download_data.py"],
+        capture_output=True,
+        text=True
+    )
+    
+    assert result.returncode == 0, f"Script failed with error: {result.stderr}"
 
-    # Execute the ingestion script. It should raise no exception.
-    download_main()
+    # Verify raw data directory exists
+    raw_dir = paths.data("raw") / "ds003123"
+    assert raw_dir.is_dir(), "Dataset directory ds003123 was not created"
+    
+    # Verify subject folders exist
+    sub_folders = [p for p in raw_dir.iterdir() if p.is_dir() and p.name.startswith("sub-")]
+    assert len(sub_folders) > 0, "No subject folders (sub-*) found in the dataset"
 
-    checksum_path = raw_root / "checksums.json"
-    assert checksum_path.is_file(), "Checksum manifest was not created."
+    # Verify checksums.json exists
+    checksum_file = paths.data("raw") / "checksums.json"
+    assert checksum_file.is_file(), "checksums.json was not created"
 
-    with checksum_path.open("r", encoding="utf-8") as f:
+    # Verify checksums.json content
+    with open(checksum_file, "r", encoding="utf-8") as f:
         manifest = json.load(f)
-
-    # Basic sanity checks on the manifest structure.
-    assert isinstance(manifest, dict), "Manifest should be a dict."
-    files = manifest.get("files")
-    assert isinstance(files, list) and len(files) > 0, "Manifest must list at least one file."
-
-    # Verify that every listed file actually exists.
-    for entry in files:
-        rel_path = Path(entry["path"])
-        absolute_path = raw_root / rel_path
-        assert absolute_path.is_file(), f"Listed file missing on disk: {rel_path}"
+    
+    assert manifest["dataset_id"] == "ds003123"
+    assert len(manifest["files"]) > 0, "Manifest contains no files"
+    assert "timestamp" in manifest

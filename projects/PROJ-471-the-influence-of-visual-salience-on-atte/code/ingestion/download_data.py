@@ -11,8 +11,7 @@ If the dataset cannot be fetched, the script aborts with a clear
 import json
 import hashlib
 import logging
-import shutil
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from llmxive_toolkit import paths, get_logger
@@ -69,17 +68,24 @@ def download_dataset(raw_dir: Path, dataset_id: str) -> None:
             # Ensure the full repository (including large binary files) is fetched.
             allow_patterns=["*"],
         )
-        logger.info(f"Dataset downloaded to cache directory: {cache_dir}")
+        logger.info(f"Dataset downloaded to directory: {cache_dir}")
     except Exception as e:
         logger.error(f"Failed to download dataset via huggingface_hub: {e}")
         raise RuntimeError("DATA_DOWNLOAD_FAILED") from e
 
-    # ``snapshot_download`` already placed files under ``raw_dir``, so nothing
-    # else to copy. Verify that the expected top‑level folder exists.
+    # Verify that the download actually produced files and contains subject folders
     if not raw_dir.is_dir() or not any(p.is_file() for p in raw_dir.rglob("*")):
         raise RuntimeError(
             f"Dataset download completed but no files were found in {raw_dir}"
         )
+    
+    # Validate that we have the expected subject structure (sub-*)
+    if not any(p.name.startswith("sub-") for p in raw_dir.iterdir() if p.is_dir()):
+        raise RuntimeError(
+            f"Dataset downloaded but no subject folders (sub-*) found in {raw_dir}. "
+            "The dataset structure is invalid."
+        )
+        
     logger.info(f"Dataset successfully materialised at {raw_dir}")
 
 def main() -> None:
@@ -123,7 +129,7 @@ def main() -> None:
     logger.info("Computing SHA‑256 checksums for all files in the raw directory...")
     manifest = {
         "dataset_id": dataset_id,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "files": []
     }
 

@@ -1,20 +1,6 @@
-# Project requirements
-# Core scientific stack (already available in the environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional libraries required for this project
-datasets
-torch==2.2.0
-opencv-python
 huggingface_hub
+opencv-python
+torch
+datasets
+ultralytics
+pingouin
