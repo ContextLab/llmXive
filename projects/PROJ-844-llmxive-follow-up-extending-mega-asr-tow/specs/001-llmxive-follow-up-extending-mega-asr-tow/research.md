@@ -8,7 +8,7 @@
 - **Dataset selection**: The only open, programmatically downloadable datasets verified by the system are **Voices‑in‑the‑Wild‑2M** (clean audio & transcripts) and **DNS‑Challenge** (real‑world noisy clips). However, the DNS‑Challenge dataset lacks a verified source in the “Verified Datasets” block, so we cannot rely on it for FR‑018. Instead, we will use a **proxy subset of naturally reverberant clips** from Voices‑in‑the‑Wild‑2M to approximate real‑world noise validation, and we will explicitly note this limitation in the final report.  
 - **Statistical rigor**:  
   - Multiple‑comparison correction via Benjamini‑Hochberg (FDR ≤ 0.05).  
-  - Power analysis using G*Power (effect = 0.02, α = 0.05, power = 0.80) yields required N ≈ 395; with 50 k clips we achieve > 99 % power (FR‑032).  
+  - Power analysis using G*Power (effect = 0.02, α = 0.05, power = 0.80) yields required N ≈ a sufficiently large sample size (on the order of several hundred).; with 50 k clips we achieve > 99 % power (FR‑032).  
   - All findings will be framed associationally (FR‑007).  
   - Collinearity will be monitored via VIF; any VIF > 5 triggers centering/reporting.  
 
@@ -24,18 +24,18 @@
 | Need | Dataset | Access Method | Notes |
 |------|---------|---------------|-------|
 | Clean audio & transcripts, stratification metadata | Voices‑in‑the‑Wild‑2M | `datasets.load_dataset("voices-in-the-wild/2M", streaming=False)` | Stratified sampling (speaker + environment) to obtain ≥ 50 000 clips. |
-| Proxy “real‑world” noisy clips for FR‑018 | Voices‑in-the‑Wild‑2M (reverberant subset) | Filter metadata for high RT60 recordings; select ≥ 50 clips. | Used only because DNS‑Challenge is not a verified source. |
+| Proxy “real‑world” noisy clips for FR‑018 | Voices‑in‑the‑Wild‑2M (reverberant subset) | Filter metadata for high RT60 recordings; select ≥ 50 clips. | Used only because DNS‑Challenge is not a verified source. |
 
 ## Methodology Overview
 
-1. **Power & Human Gate (Phase 0)** – Compute required N (≈ 395) with G*Power; collect ≥ 1 000 human‑annotated transcripts (≥ 3 raters each) from Voices‑in‑the‑Wild‑2M; compute SSS AUC‑ROC ≥ 0.85. If SSS fails, fall back to phoneme‑edit distance for high‑reverb clips (FR‑022). Abort if both fail (FR‑016).  
-2. **Stratified Sampling (FR‑001)** – Load `metadata.csv` from Voices‑in‑the‑Wild‑2M, stratify by `speaker_id` and `environment_id`, random seed = 42, sample 50 000 clip IDs. Record SHA‑256 checksums (Principle III).  
-3. **Distortion Generation (FR‑002, FR‑024)** – Split IDs into four shards; each shard runs on a V100 GPU node (`pyroomacoustics`) applying the Cartesian product of 9 SNR levels × 6 RT60 levels (54 scenarios) per clip for five small ASR models.  
+1. **Power & Human Gate (Phase 0)** – Compute required N (estimated) with G*Power; collect ≥ 1 000 human‑annotated transcripts (≥ 3 raters each) from Voices‑in‑the‑Wild‑2M; compute SSS AUC‑ROC ≥ 0.85. If SSS fails, fall back to phoneme‑edit distance for high‑reverb clips (FR‑022). Abort if both fail (FR‑016).  
+2. **Stratified Sampling (FR‑001)** – Load `metadata.csv` from Voices‑in‑the‑Wild‑2M, stratify by `speaker_id` and `environment_id`, random seed = 42, sample a large number of clip IDs. Record SHA‑256 checksums (Principle III).  
+3. **Distortion Generation (FR‑002, FR‑024)** – Split IDs into four GPU shards; each shard runs on a V100 GPU node (`pyroomacoustics`) applying the Cartesian product of multiple SNR levels × 6 RT60 levels (multiple scenarios) per clip for five small ASR models.  
 4. **Semantic Scoring (FR‑003, FR‑022)** – Encode clean transcript and ASR hypothesis with `sentence‑transformers/all‑MiniLM‑L6‑v2`; compute cosine similarity → SSS. For clips where RT60 > 0.5 s **and** embedding correlation < 0.85, compute phoneme‑edit distance via Montreal Forced Aligner. Log any missing distortion scenarios (FR‑017).  
 5. **Realism Validation (FR‑018 – limited)** – Because DNS‑Challenge is not a verified source, we will **skip** the formal LMSD validation and instead report the proxy approach, noting the limitation.  
-6. **Curve Shape & Inflection (FR‑012, FR‑053)** – Fit a smooth spline to each stress curve, extract the maximum negative derivative (inflection step) and its coordinate. Store shape metrics.  
+6. **Curve Shape & Inflection (FR‑012, FR‑053)** – Fit a smooth spline to each stress curve, extract the maximum negative derivative (inflection step) and its coordinate.  
 7. **Collapse Identification (FR‑021, FR‑020, FR‑010, FR‑036)** – Apply deterministic CCM algorithm, linear interpolation between steps when needed, and also record the step where absolute SSS ≤ 0.5 (Universal Collapse Intensity). Store results in `collapse_points.parquet`.  
-8. **Regression Modeling (FR‑005, FR‑025, FR‑028)** – Train a hierarchical mixed‑effects regression to predict **inflection_step** using predictors: SNR, RT60, SNR², RT60², interaction (SNR × RT60), baseline WER, transcript‑perplexity. Use an 80/20 stratified split (speaker + distortion + difficulty) and 5‑fold CV on training set. Evaluate on held‑out set (R² ≥ 0.6, MAE reported).  
+8. **Regression Modeling (FR‑005, FR‑025, FR‑028)** – Train a hierarchical mixed‑effects regression to predict **inflection_step** using predictors: SNR, RT60, SNR², RT60², interaction (SNR × RT60), baseline WER, and transcript‑perplexity. Use an 80/20 stratified split (speaker + distortion + difficulty) and 5‑fold CV on training set. Evaluate on held‑out set (R² ≥ 0.6, MAE reported).  
 9. **Permutation Baseline (FR‑027)** – Randomly permute acoustic predictor vectors, retrain, and require ΔR² ≥ 0.20.  
 10. **Interaction Significance & Multiple Comparison (FR‑013, FR‑008)** – Fit additive linear model; compare to full interaction model; test interaction term (p < 0.05) and apply Benjamini‑Hochberg correction (FDR ≤ 0.05).  
 11. **Sensitivity Analysis (FR‑006, SC‑002)** – Sweep SSS thresholds {0.45, 0.50, 0.55} and WER multipliers {1.5, 2.0, 2.5}; recompute collapse intensities and refit regression; compute coefficient‑of‑variation of each coefficient across the nine settings; require CV ≤ 0.10.  

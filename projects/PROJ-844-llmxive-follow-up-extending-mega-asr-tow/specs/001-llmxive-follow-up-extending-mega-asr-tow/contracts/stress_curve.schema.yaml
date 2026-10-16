@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Stress Curve"
+title: "StressCurve"
 type: object
 required:
   - curve_id
@@ -42,12 +42,12 @@ properties:
     description: "Word Error Rate (0‑1)"
   hypothesis:
     type: string
-    description: "ASFA ? ? "
+    description: "ASR hypothesis text"
   reference_transcript:
     type: string
-    description: "Ground ? ? "
+    description: "Ground‑truth transcript"
   timestamp:
     type: string
     format: date-time
-    description: "Timestamp ? "
+    description: "Timestamp of record creation"
 additionalProperties: false

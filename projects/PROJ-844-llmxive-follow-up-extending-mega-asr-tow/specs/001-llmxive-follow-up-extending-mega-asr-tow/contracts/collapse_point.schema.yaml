@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: CollapsePoint
+title: "CollapsePoint"
 type: object
 required:
   - clip_id
@@ -35,7 +35,7 @@ properties:
     description: "Index of the step with maximum negative derivative"
   universal_collapse_intensity:
     type: string
-    description: "Step where **absolute SSS ≤ 0.5** (FR‑036)"
+    description: "Step where absolute SSS ≤ 0.5 (FR‑036)"
   metadata:
     type: object
     description: "Baseline metrics for the clean clip"
@@ -49,3 +49,4 @@ properties:
       baseline_wer:
         type: number
         description: "Word Error Rate on the clean clip"
+additionalProperties: false

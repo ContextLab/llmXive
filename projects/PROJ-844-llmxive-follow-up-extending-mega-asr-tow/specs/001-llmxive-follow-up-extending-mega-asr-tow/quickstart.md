@@ -36,8 +36,10 @@ The command executes the following sub‑commands in order:
 3. `asr` – runs the five small ASR models.  
 4. `sss` – computes Semantic Similarity Scores (fallback to phoneme edit distance if needed).  
 5. `collapse` – identifies deterministic collapse points and universal intensity.  
-6. `train_regressor` – fits the hierarchical regression model (predicting inflection step).  
-7. `evaluate` – runs permutation baseline, interaction significance, sensitivity analysis, partial‑correlation, universality checks, and schema validation.
+6. `create_manual_validation` – randomly selects a representative set of stress curves and launches the expert annotation UI (simulated here; in practice this step outputs `data/derived/manual_collapse.parquet`).  
+7. `evaluate_collapse_precision` – computes precision/recall of deterministic collapse identification against the manual set (requires ≥ 0.90 for both).  
+8. `train_regressor` – fits the hierarchical regression model (predicting **annotated collapse intensity**).  
+9. `evaluate` – runs permutation baseline, interaction significance, sensitivity analysis, partial‑correlation, universality checks, and schema validation.
 
 ## 4. Inspect Results
 ```bash
@@ -51,6 +53,13 @@ PY
 python - <<'PY'
 import pandas as pd
 print(pd.read_parquet('data/derived/collapse_points.parquet').describe())
+PY
+
+# Manual validation set (precision/recall)
+python - <<'PY'
+import pandas as pd
+df = pd.read_parquet('data/derived/manual_collapse.parquet')
+print(df[['clip_id','expert_label','collapse_intensity']].head())
 PY
 
 # Critical interaction vectors
@@ -75,6 +84,7 @@ python -m src.pipeline.visualize \
     --output-dir figures/
 ```
 
-All artifacts are reproducible; re‑run with a different seed or sample size to perform sensitivity analyses (FR‑006).
+All artifacts are reproducible; re‑run with a different seed or sample size to perform sensitivity analyses (FR‑006).  
 
 ---
+

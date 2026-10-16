@@ -4,7 +4,7 @@
   "goal": "extract every FR/SC id verbatim, every constraint, every named dataset, and the exact research question",
   "model": "openai.gpt-oss-120b",
   "token_budget": 5333,
-  "created_at": "2026-10-16T00:39:41.270494+00:00",
+  "created_at": "2026-10-16T01:40:22.144996+00:00",
   "entries": [
     {
       "element_id": "e000",

@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: CriticalInteractionVector
+title: "CriticalInteractionVector"
 type: object
 required:
   - model_name
@@ -65,3 +65,4 @@ properties:
   similarity_to_others:
     type: number
     description: "Cosine similarity of this vector to the mean across all models (FR‑051)"
+additionalProperties: false

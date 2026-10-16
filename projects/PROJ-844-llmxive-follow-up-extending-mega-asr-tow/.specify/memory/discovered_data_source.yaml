@@ -1,14 +1,11 @@
 status: none
-intent: Voices-in-the-Wild-2M dataset download python package dataset
+intent: Voices-in-the-Wild-2M dataset download via HuggingFace datasets python package
 required_fields:
-- audio_file_path
+- audio_filepath
 - speaker_id
-- recording_environment
-- transcription
-- language
-- duration_seconds
-- sample_rate_hz
-- metadata_json
-cache_key: 3f336cbdf454b5afc6ecfda4d38e976edb4084dfb23d0f27584ef8a1bfca9053
-searched_at: '2026-10-16T00:27:41.904787+00:00'
+- transcript
+- environment_label
+- duration
+cache_key: 113e9599844f0806453e140712cbceacd49c965ef8356b7575ab938eb230b116
+searched_at: '2026-10-16T01:31:09.374464+00:00'
 retry_count: 1
