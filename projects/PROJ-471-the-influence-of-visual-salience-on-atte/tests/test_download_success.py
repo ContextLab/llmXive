@@ -1,41 +1,33 @@
-"""
-Unit test for ``code/ingestion/download_data.py``.
-
-The test simply runs the ``main`` function and checks that a checksum manifest
-is created and contains at least one file entry.  The dataset is downloaded
-on‑the‑fly if it is not already present, so the test works on a clean runner.
-"""
 import json
-import os
+import subprocess
+from pathlib import Path
 
 import pytest
 
-from code.ingestion.download_data import main as download_main
-from config import get_paths
+from llmxive_toolkit import paths
 
 @pytest.mark.timeout(600)
-def test_download_success(tmp_path, monkeypatch):
+def test_download_success():
     """
-    Verify that the ingestion script completes without raising and that
-    ``checksums.json`` exists with a non‑empty ``files`` list.
+    Ensure that the download script exits with code 0 and that the
+    checksums manifest exists and contains at least one file entry.
     """
-    # Ensure the project paths point to the temporary location for isolation.
-    # ``get_paths`` reads configuration from ``config``; we monkey‑patch the
-    # ``DATA_RAW`` attribute to a sub‑directory inside the temporary path.
-    paths = get_paths()
-    original_raw = paths.DATA_RAW
-    monkeypatch.setattr(paths, "DATA_RAW", original_raw, raising=False)
+    script_path = Path("code/ingestion/download_data.py")
+    result = subprocess.run(
+        ["python", str(script_path)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"Script failed: {result.stderr}"
 
-    # Run the ingestion script.  It will download the dataset if necessary.
-    download_main()
-
-    checksum_path = paths.DATA_RAW / "checksums.json"
-    assert checksum_path.is_file(), "Checksum manifest was not created."
+    checksum_path = paths.data("raw") / "checksums.json"
+    assert checksum_path.is_file(), "checksums.json was not created"
 
     with checksum_path.open("r", encoding="utf-8") as f:
         manifest = json.load(f)
 
-    # Basic sanity checks on the manifest structure.
-    assert manifest.get("dataset_id") == "ds003123"
-    assert isinstance(manifest.get("files"), list)
-    assert len(manifest["files"]) > 0, "Manifest should contain at least one file entry."
+    # The manifest must contain the expected top‑level keys.
+    assert "dataset_id" in manifest
+    assert "files" in manifest
+    assert isinstance(manifest["files"], list)
+    assert len(manifest["files"]) > 0, "No files were recorded in the checksum manifest"

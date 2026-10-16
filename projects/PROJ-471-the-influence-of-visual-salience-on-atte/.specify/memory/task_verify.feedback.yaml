@@ -1,12 +1,10 @@
 T001:
-  reason: "The `code/bootstrap.py` script fails its own test (`test_bootstrap_creates_structure`)\
-    \ because it cannot monkey\u2011patch `paths.root`, causing an error and preventing\
-    \ verification that the directory layout and pinned `requirements.txt` are created.\
-    \ Moreover, the repository contains a top\u2011level `requirements.txt` that does\
-    \ not match the pinned list written by the script (the script writes a different\
-    \ file under `code/requirements.txt`). Consequently, the required project layout,\
-    \ the correct requirements file, and a proven runnable entry point are not demonstrably\
-    \ provided."
+  reason: "The `code/bootstrap.py` test fails (cannot monkey\u2011patch `paths.root`),\
+    \ so the script does not reliably create the required layout or write the pinned\
+    \ `requirements.txt`. Moreover, the existing `requirements.txt` at the project\
+    \ root does not match the pinned list defined in `_REQUIREMENTS`, and there is\
+    \ no evidence that the claimed entry point (`python -m code.main --stage smoke`)\
+    \ runs successfully. The task\u2019s core deliverables are therefore not satisfied."
   task: f73df3eb4a107de40d28a304aab021d86a45e204292e85132a20449ae857d4da
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/ingestion/download_data.py

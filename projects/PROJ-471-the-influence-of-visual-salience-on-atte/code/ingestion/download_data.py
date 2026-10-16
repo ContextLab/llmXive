@@ -12,12 +12,10 @@ import json
 import hashlib
 import logging
 import shutil
-import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from config import get_paths
-from utils.logging import get_logger
+from llmxive_toolkit import paths, get_logger
 from utils.versioning import register_artifact
 
 # Attempt to import the Hugging Face datasets library.
@@ -25,7 +23,9 @@ from utils.versioning import register_artifact
 try:
     from datasets import load_dataset_builder
 except Exception as e:
-    raise RuntimeError("HuggingFace `datasets` library is required for automatic download.") from e
+    raise RuntimeError(
+        "HuggingFace `datasets` library is required for automatic download."
+    ) from e
 
 logger = get_logger(__name__)
 
@@ -48,8 +48,6 @@ def download_dataset(raw_dir: Path, dataset_id: str) -> None:
         dataset_id: Identifier of the OpenNeuro dataset (e.g., ``ds003123``).
     """
     logger.info(f"Dataset '{dataset_id}' not found locally – attempting automatic download.")
-    # The Hugging Face hub stores OpenNeuro datasets under the repo
-    # ``openneuro/<dataset_id>``.
     repo_id = f"openneuro/{dataset_id}"
     try:
         builder = load_dataset_builder(repo_id)
@@ -77,10 +75,11 @@ def main() -> None:
     3. Write a manifest (including timestamps and file sizes) to ``checksums.json``.
     4. Register the manifest as an artifact.
     """
-    paths = get_paths()
+    # Use the llmxive toolkit helpers to locate the raw data root.
+    raw_root = paths.data("raw")            # <project>/data/raw/
     dataset_id = "ds003123"
-    raw_dir = paths.DATA_RAW / dataset_id
-    checksum_file = paths.DATA_RAW / "checksums.json"
+    raw_dir = raw_root / dataset_id          # <project>/data/raw/ds003123/
+    checksum_file = raw_root / "checksums.json"
 
     logger.info(f"Starting ingestion verification for OpenNeuro dataset: {dataset_id}")
 
@@ -95,7 +94,9 @@ def main() -> None:
                 f"Dataset directory '{raw_dir}' is missing and automatic download failed. "
                 "Abort with DATA_MISSING_001."
             )
-            raise RuntimeError("DATA_MISSING_001: Dataset not found and download failed.") from e
+            raise RuntimeError(
+                "DATA_MISSING_001: Dataset not found and download failed."
+            ) from e
 
     logger.info(f"Dataset directory available: {raw_dir}")
 
@@ -111,7 +112,7 @@ def main() -> None:
 
     for file_path in raw_dir.rglob("*"):
         if file_path.is_file():
-            rel_path = file_path.relative_to(paths.DATA_RAW)
+            rel_path = file_path.relative_to(raw_root)
             sha256 = compute_sha256(file_path)
             manifest["files"].append({
                 "path": str(rel_path),
