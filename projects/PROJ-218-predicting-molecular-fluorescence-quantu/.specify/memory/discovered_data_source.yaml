@@ -1,10 +1,10 @@
 status: none
-intent: download fluorescence quantum yield SMILES dataset with experimental FQY values
-  python package dataset
+intent: download fluorescence quantum yield SMILES dataset FluorophoreDB NIST Chemistry
+  WebBook python package dataset
 required_fields:
 - SMILES
-- InChIKey
-- FluorescenceQuantumYield
-cache_key: 2df32fc3029f561c6b93aaa9708b66da606ede1ddbcfc4923ab6d115b77f01e3
-searched_at: '2026-10-16T14:15:16.932234+00:00'
+- fluorescence_quantum_yield
+- molecule_id
+cache_key: e77148ab178f4b473067cfba935b91ab7eae77e66d34c28c84a9de74fbf751d6
+searched_at: '2026-10-16T14:43:17.114697+00:00'
 retry_count: 1
