@@ -12,6 +12,7 @@ required:
   - cx_error_mean
   - readout_error_mean
   - chip_family
+  - source_window
 properties:
   device_id:
     type: string
@@ -19,7 +20,7 @@ properties:
   timestamp:
     type: string
     format: date-time
-    description: ISO‑8601 timestamp when the snapshot was taken.
+    description: ISO‑8601 timestamp when the snapshot was taken (null for window‑averaged rows).
   t1_mean:
     type: number
     description: Mean T1 (seconds) across qubits.
@@ -35,5 +36,8 @@ properties:
   chip_family:
     type: string
     description: Human‑readable chip family derived from the backend name.
-  # No additional properties are allowed.
+  source_window:
+    type: string
+    enum: ["current", "window"]
+    description: Indicates whether the row corresponds to the current snapshot ("current") or the 30‑day averaged performance window ("window").
 additionalProperties: false

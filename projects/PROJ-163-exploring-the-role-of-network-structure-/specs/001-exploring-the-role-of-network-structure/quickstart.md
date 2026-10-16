@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11+  
 - Internet access (to call the IBM Quantum API)  
-- (Optional) IBM Quantum API token for higher rate limits (`QISKIT_IBM_TOKEN` env var).
+- (Optional) IBM Quantum API token for higher rate limits (`QISKIT_IBM_TOKEN` environment variable).
 
 ## Installation
 
@@ -28,17 +28,18 @@ python code/main.py
 ```
 
 The script executes the following steps in order:
+
 1. **Fetch** calibration data (`fetcher.py`) – current snapshot + up to 30‑day historical window.  
 2. **Build** graphs & compute metrics (`graph_builder.py`).  
-3. **Analyze** correlations, partial correlations (with covariates: `chip_generation`, `qubit_count`, `device_age_days`, `readout_architecture`), bootstrap confidence intervals, FDR correction, and robustness checks (LODO, chip‑family exclusion, time‑window performance comparison, longitudinal stability).  
+3. **Analyze** correlations, partial correlations (covariates: `chip_generation`, `qubit_count`, `device_age_days`, `readout_architecture`, `timestamp`, `temperature`), permutation‑test confidence intervals (used when N < 30), FDR correction, and robustness checks (LODO, chip‑family exclusion, time‑window performance comparison, longitudinal stability).  
 4. **Generate** power‑analysis/MDES report (`stats_engine.py`).  
-5. **Visualize** results (`viz.py`).  
+5. **Visualize** results (`viz.py`) – scatter plots, heatmaps, and MDES summary figures are saved automatically as part of the reporting step (FR‑004).  
 6. **Record** checksums & update project state (`hygiene.py`).
 
 ### Expected Outputs
 - `data/raw/*.json` – raw API snapshots (current and historical).  
 - `data/processed/performance_metrics.csv`  
-- `data/processed/performance_window_metrics.csv` (windowed averages over a defined period)  
+- `data/processed/performance_window_metrics.csv` (30‑day averages)  
 - `data/processed/graph_metrics.csv`  
 - `data/processed/correlation_results.csv`  
 - `data/processed/power_analysis.csv` (MDES report)  
@@ -66,7 +67,7 @@ python -m code.graph_builder --backend ibmq_manila --out graph_metrics.csv
 python -m code.graph_builder --backend ibmq_manila --output graph_metrics.csv
 ```
 
-The CLI implements a **custom degree assortativity** calculation that yields -1.0 for a 3‑node path, matching the unit test expectations.
+The CLI implements a **custom degree assortativity** calculation that yields –1.0 for a 3‑node path, matching the unit‑test expectation.
 
 ## Inspection Commands
 
@@ -79,11 +80,9 @@ cat data/processed/power_analysis.csv
 
 ## Troubleshooting
 - **Rate‑limit errors** – the fetcher retries with exponential backoff; add a token to `QISKIT_IBM_TOKEN` if needed.  
-- **Disconnected graphs** – `spectral_gap` will be `0`; path‑length metrics are computed on the largest component only.  
+- **Disconnected graphs** – `spectral_gap` will be set to its baseline (no gap); path‑length metrics are computed on the largest component only.  
 - **Missing metrics** – devices lacking a metric are simply omitted from that specific correlation test.  
-- **Low statistical power** – if `N < 30`, the MDES report will flag the study as exploratory; bootstrap CIs are provided to convey uncertainty.  
+- **Low statistical power** – if `N < 30`, the MDES report will flag the study as exploratory; permutation‑CI are used and bootstrap CIs are omitted.  
 
 ---
-
-
 

@@ -6,7 +6,7 @@ properties:
     description: "Number of devices (N) included in the analysis."
   number_of_tests:
     type: "integer"
-    description: "Total number of metric‑pair hypothesis tests performed."
+    description: "Total metric‑pair hypothesis tests performed."
   min_detectable_rho:
     type: "number"
     description: "Minimum detectable Spearman ρ at 80 % power, α = 0.05."

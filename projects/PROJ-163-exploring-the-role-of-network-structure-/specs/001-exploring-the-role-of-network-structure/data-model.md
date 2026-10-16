@@ -1,7 +1,7 @@
 # Data Model: Exploring the Role of Network Structure in Superconducting Qubit Coupling
 
 ## Overview
-Defines all entities that flow through the pipeline, from raw API JSON to final correlation results. Every artifact is version‑hashed and recorded in `state/projects/...yaml`.
+Defines every entity that flows through the pipeline, from raw API JSON to final correlation results. All artifacts are version‑hashed and recorded in `state/projects/...yaml`.
 
 ## Entities
 
@@ -21,8 +21,8 @@ Defines all entities that flow through the pipeline, from raw API JSON to final 
 | `chip_generation` | string | Redundant for easy filtering. |
 | `metric_name` | string | One of `["avg_shortest_path","diameter","clustering_coef","edge_betweenness","degree_assortativity","spectral_gap"]`. |
 | `value` | float | Computed metric value. |
-| `is_finite` | boolean | True if `value` is not NaN/Inf. |
-| `component_size` | integer | Size of the largest connected component (used for path‑length metrics). |
+| `is_finite` | boolean | True if `value` is not NaN/Inf (populated during graph construction). |
+| `component_size` | integer | Size of the largest connected component (used for path‑length metrics; populated during graph construction). |
 
 ### 3. PerformanceMetric
 | Field | Type | Description |
@@ -31,7 +31,8 @@ Defines all entities that flow through the pipeline, from raw API JSON to final 
 | `metric_name` | string | One of `["T1","T2","gate_error","readout_error","entanglement_fidelity"]`. |
 | `value` | float | Measured value (raw or normalized). |
 | `unit` | string | Units (`us`, `1e-3`, `percent`). |
-| `source_window` | string | `"current"` – performance extracted from the same calibration snapshot as topology. |
+| `source_window` | string | `"current"` – performance extracted from the same calibration snapshot as topology; `"window"` – 30‑day averaged performance metrics used for robustness checks. |
+| `timestamp` | datetime | Timestamp of the snapshot the metric originates from (for `current` window) or `null` for aggregated window metrics. |
 
 ### 4. CorrelationResult
 | Field | Type | Description |
@@ -56,7 +57,7 @@ Defines all entities that flow through the pipeline, from raw API JSON to final 
 
 ## Data Flow
 1. **Raw Ingestion** – `fetcher.py` → `data/raw/{device}_{ts}.json`.  
-2. **Transformation** – `graph_builder.py` → `graph_metrics.csv`; `fetcher.py` → `performance_metrics.csv`.  
+2. **Transformation** – `graph_builder.py` → `graph_metrics.csv`; `fetcher.py` → `performance_metrics.csv` (including `source_window`).  
 3. **Analysis** – `stats_engine.py` joins on `device_id`, produces `correlation_results.csv` and `power_analysis.csv`.  
 4. **Visualization** – `viz.py` reads `correlation_results.csv` → PNGs.  
 
@@ -67,6 +68,4 @@ Defines all entities that flow through the pipeline, from raw API JSON to final 
 - Referential integrity: every `device_id` in derived tables must exist in `QubitDevice`.  
 
 ---
-
-
 

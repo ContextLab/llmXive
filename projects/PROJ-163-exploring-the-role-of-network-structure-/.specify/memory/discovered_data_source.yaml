@@ -1,19 +1,18 @@
 status: none
-intent: IBM Quantum backend properties dataset download via Qiskit IBM Provider python
+intent: IBM Quantum backend properties dataset pip install qiskit-ibm-provider python
   package dataset
 required_fields:
-- device_id
-- backend_name
-- total_qubits
-- connectivity_edges
-- cx_gate_duration_us
-- cx_error_rate
-- measurement_error_rate
+- qubit_pair_edges
+- gate_time_us
+- average_cx_error
+- average_measurement_error
 - timestamp_iso8601
+- device_identifier
+- device_model
+- total_num_qubits
 - days_since_last_firmware_release
 - categorical_descriptor
-- calibration_snapshot_timestamp
-- snapshot_total_qubits
-cache_key: b0a58c8604b81db43a33c5a76202e0d47ada9b96db25fa4c1d598001e785b0d5
-searched_at: '2026-10-16T22:13:00.079608+00:00'
+- calibration_snapshot_id
+cache_key: b399e5eb6eac7f208e805b6c3c2505b572192d1efa73fa7d6d05c36d21eca6db
+searched_at: '2026-10-16T22:15:04.523560+00:00'
 retry_count: 1
