@@ -23,10 +23,14 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration – real, publicly available source
 # ----------------------------------------------------------------------
+# The Juliet Test Suite (SARD) repository is hosted on GitHub.
+# We use the 'master' branch as 'main' was returning 404.
 REPO_ZIP_URL = (
-    "https://github.com/Juliet-Test-Suite/SARD/archive/refs/heads/main.zip"
+    "https://github.com/Juliet-Test-Suite/SARD/archive/refs/heads/master.zip"
 )
-ZIP_MEMBER_PATH = "SARD-main/data/python_vuln.csv"
+# Path inside the zip archive where the CSV lives.
+# Since we use the master branch, the top-level folder is SARD-master.
+ZIP_MEMBER_PATH = "SARD-master/data/python_vuln.csv"
 
 # Destination locations (all under the project root)
 CSV_DEST = paths.data("raw", "juliet", "python_vuln.csv")
