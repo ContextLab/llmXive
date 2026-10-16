@@ -1,14 +1,14 @@
 status: none
-intent: "OpenNeuro M\xFCller-Lyer and Ponzo behavioral datasets download python package\
+intent: "OpenNeuro M\xFCller-Lyer dataset and Ponzo test set download python package\
   \ dataset"
 required_fields:
 - subject_id
 - trial_id
+- stimulus_type
 - stimulus_length
 - response_length
 - stimulus_parameters
 - response
-- stimulus_type
-cache_key: 8b139ac916dc485396de5b12715efaeef1e5b37adfd40dfc28cee210ade7b87c
-searched_at: '2026-10-16T18:46:55.776666+00:00'
+cache_key: 64da88994c940b459bb476092803fab2c5b0f64cb10f01bc7027cbe7b6f36387
+searched_at: '2026-10-16T19:16:49.432944+00:00'
 retry_count: 1

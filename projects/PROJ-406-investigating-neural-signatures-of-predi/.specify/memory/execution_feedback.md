@@ -1,53 +1,61 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
-The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
 
-1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
-2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
-3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
 
-- src/ingest/load_illusions.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.  The module can also be…”
-
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python -m src.ingest.load_illusions  --download  --output-dir data/raw`
-  - script usage: `load_illusions.py [-h] {download_muller} ...`
-  - argparse error: `load_illusions.py: error: argument command: invalid choice: 'data/raw' (choose from 'download_muller')`
-- run-book command: `python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean`
-  - script usage: `load_illusions.py [-h] {download_muller} ...`
-  - argparse error: `load_illusions.py: error: argument command: invalid choice: 'data/raw' (choose from 'download_muller')`
+- `python -m src.ingest.load_illusions  --download  --output-dir data/raw`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/ingest/load_illusions.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data.  The module can also be…”; 5 command(s) failed: python -m src.ingest.load_illusions  --download  --output-dir data/raw (rc=2); python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean (rc=2); python -m src.model.predictive_coding  --input data/clean/clean_muller_lyer.csv  --output data/derived/precision_parameters.csv  --seed 42 (rc=1); 9 declared deliverable(s) absent: data/clean/aligned_subjects.csv; data/clean/clean_muller_lyer.csv; data/clean/clean_ponzo.csv
+**Summary**: 5 command(s) failed: python -m src.ingest.load_illusions  --download  --output-dir data/raw (rc=1); python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean (rc=1); python -m src.model.predictive_coding  --input data/clean/clean_muller_lyer.csv  --output data/derived/precision_parameters.csv  --seed 42 (rc=1); 9 declared deliverable(s) absent: data/clean/aligned_subjects.csv; data/clean/clean_muller_lyer.csv; data/clean/clean_ponzo.csv
 
 ## Failing / missing run-book commands
 
-- python -m src.ingest.load_illusions  --download  --output-dir data/raw -> rc=2
+- python -m src.ingest.load_illusions  --download  --output-dir data/raw -> rc=1
+atasetNotFoundError(
+datasets.exceptions.DatasetNotFoundError: Dataset 'openneuro/muller_lyer' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/openneuro/muller_lyer to ask for access.
 
-usage: load_illusions.py [-h] {download_muller} ...
-load_illusions.py: error: argument command: invalid choice: 'data/raw' (choose from 'download_muller')
+The above exception was the direct cause of the following exception:
 
-- python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean -> rc=2
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 325, in <module>
+    main(sys.argv[1:])
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 296, in main
+    _download_parquet(raw_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 121, in _download_parquet
+    raise RuntimeError(
+RuntimeError: Failed to download dataset 'openneuro/muller_lyer'. Check the identifier and network connectivity.
 
-usage: load_illusions.py [-h] {download_muller} ...
-load_illusions.py: error: argument command: invalid choice: 'data/raw' (choose from 'download_muller')
+- python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 325, in <module>
+    main(sys.argv[1:])
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 302, in main
+    raise RuntimeError(f"Raw parquet not found at {raw_path}. Run with --download first.")
+RuntimeError: Raw parquet not found at data/raw/muller_lyer.parquet. Run with --download first.
 
 - python -m src.model.predictive_coding  --input data/clean/clean_muller_lyer.csv  --output data/derived/precision_parameters.csv  --seed 42 -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/bin/python: Error while finding module specification for 'src.model.predictive_coding' (ModuleNotFoundError: No module named 'src.model')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/bin/python: No module named src.model.predictive_coding
 
 - python -m src.analysis.null_model  --input data/clean/clean_ponzo.csv  --output data/derived/ponzo_susceptibility.csv  --seed 42 -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/bin/python: Error while finding module specification for 'src.analysis.null_model' (ModuleNotFoundError: No module named 'src.analysis')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/bin/python: No module named src.analysis.null_model
 
 - python -m src.analysis.correlation  --precision data/derived/precision_parameters.csv  --susceptibility data/derived/ponzo_susceptibility.csv  --results outputs/correlation_results.json  --fig-dir outputs/figures  --bootstrap 1000  --permute 1000  --seed 42 -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/bin/python: Error while finding module specification for 'src.analysis.correlation' (ModuleNotFoundError: No module named 'src.analysis')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-406-investigating-neural-signatures-of-predi/bin/python: No module named src.analysis.correlation
 
 
 ## Declared deliverables still missing

@@ -3,32 +3,34 @@ src.ingest.load_illusions
 =========================
 
 This module provides a command‑line interface for downloading and cleaning the
-Müller‑Lyer illusion dataset from OpenNeuro.  It is invoked by the CI with::
+Müller‑Lyer illusion dataset from OpenNeuro.  It supports two usage styles:
 
-    python -m src.ingest.load_illusions download_muller
+1. The original sub‑command style used by the verification step::
+   
+   python -m src.ingest.load_illusions download_muller [--seed N]
 
-The command performs two steps:
+2. A flag‑based style used by the quick‑start documentation::
+   
+   python -m src.ingest.load_illusions \\
+       --download \\
+       --output-dir data/raw \\
+       --clean \\
+       --raw-dir data/raw \\
+       --clean-dir data/clean \\
+       --seed 42
 
-1. **Download** the raw parquet file from the verified OpenNeuro repository and
-   store it under ``data/raw/muller_lyer.parquet``.
-2. **Clean** the parquet into a tidy CSV (``data/clean/clean_muller_lyer.csv``)
-   enforcing the presence of required columns, dropping rows with missing values
-   in those columns, and emitting a warning for duplicate ``subject_id`` entries.
+Both styles ultimately call the same internal functions that
+* download the raw parquet file from the verified OpenNeuro collection,
+* clean the data according to the required schema, and
+* write the outputs to the exact paths expected by the pipeline.
 
-The script is deterministic – it seeds NumPy, ``random`` and the Python hash
-seed via :func:`src.utils.seed.set_global_seed`.  All paths are created using the
-``llmxive_toolkit.paths`` helpers which guarantee the target directories exist.
-
-The implementation uses the ``datasets`` library (``datasets.load_dataset``) to
-fetch the OpenNeuro parquet file.  The dataset identifier is hard‑coded to the
-verified OpenNeuro collection ``openneuro/muller_lyer``; if the URL or identifier
-changes the script will raise an informative ``RuntimeError`` rather than silently
-falling back to synthetic data.
+The implementation is deterministic – it seeds NumPy, ``random`` and the
+Python hash seed via :func:`src.utils.seed.set_global_seed`.  All paths are
+created using the ``llmxive_toolkit.paths`` helpers which guarantee the target
+directories exist.
 
 The module can also be imported and the ``download_and_clean`` function called
 programmatically.
-
-----
 """
 
 import argparse
@@ -46,8 +48,6 @@ from src.utils.seed import set_global_seed
 # Configuration
 # ----------------------------------------------------------------------
 # Verified OpenNeuro identifier for the Müller‑Lyer dataset.
-# This identifier is authoritative – if the dataset is moved or renamed the
-# script will raise an error.
 OPENNEURO_DATASET_ID = "openneuro/muller_lyer"
 # The split name used by the OpenNeuro collection – most collections expose a
 # single split called ``train``.
@@ -71,14 +71,42 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _ensure_output_paths() -> tuple[Path, Path]:
+def _ensure_output_paths(
+    raw_dir: Path | None = None, clean_dir: Path | None = None
+) -> tuple[Path, Path]:
     """
     Return the paths for the raw parquet file and the cleaned CSV,
     creating parent directories if necessary.
+
+    Parameters
+    ----------
+    raw_dir : Path | None
+        Directory where the raw parquet should be stored.  If ``None``,
+        the default ``data/raw`` directory (as created by ``paths.data``)
+        is used.
+    clean_dir : Path | None
+        Directory where the cleaned CSV should be stored.  If ``None``,
+        the default ``data/clean`` directory is used.
+
+    Returns
+    -------
+    tuple[Path, Path]
+        (raw_path, clean_path)
     """
-    raw_path = paths.data("raw", "muller_lyer.parquet")
-    clean_path = paths.data("clean", "clean_muller_lyer.csv")
-    # ``paths`` ensures the directories exist.
+    if raw_dir is None:
+        raw_path = paths.data("raw", "muller_lyer.parquet")
+    else:
+        raw_path = raw_dir / "muller_lyer.parquet"
+
+    if clean_dir is None:
+        clean_path = paths.data("clean", "clean_muller_lyer.csv")
+    else:
+        clean_path = clean_dir / "clean_muller_lyer.csv"
+
+    # ``paths`` ensures the parent directories exist.
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    clean_path.parent.mkdir(parents=True, exist_ok=True)
+
     return raw_path, clean_path
 
 def _download_parquet(raw_path: Path) -> None:
@@ -88,7 +116,6 @@ def _download_parquet(raw_path: Path) -> None:
     """
     log.info("Downloading Müller‑Lyer dataset from OpenNeuro (%s)", OPENNEURO_DATASET_ID)
     try:
-        # ``load_dataset`` returns a DatasetDict; we request the specified split.
         ds = load_dataset(OPENNEURO_DATASET_ID, split=OPENNEURO_SPLIT, streaming=False)
     except Exception as exc:
         raise RuntimeError(
@@ -96,15 +123,10 @@ def _download_parquet(raw_path: Path) -> None:
             "Check the identifier and network connectivity."
         ) from exc
 
-    # The dataset is expected to contain a column named ``file`` that holds the
-    # parquet bytes, but many OpenNeuro collections expose the data directly.
-    # We therefore attempt to write the whole dataset to parquet.
     try:
         df = ds.to_pandas()
     except Exception as exc:
-        raise RuntimeError(
-            "Unable to convert the downloaded dataset to a pandas DataFrame."
-        ) from exc
+        raise RuntimeError("Unable to convert the downloaded dataset to a pandas DataFrame.") from exc
 
     log.info("Writing raw parquet to %s", raw_path)
     try:
@@ -186,6 +208,59 @@ def download_and_clean(seed: int = 42) -> None:
 # CLI entry point
 # ----------------------------------------------------------------------
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """
+    Parse command‑line arguments.
+
+    The parser supports two mutually exclusive styles:
+
+    * Sub‑command style (used by the verification step):
+      ``download_muller``
+
+    * Flag‑based style (used by quickstart.md):
+      ``--download`` / ``--clean`` with optional directory arguments.
+    """
+    # Detect flag‑based invocation
+    if any(arg.startswith("--download") or arg.startswith("--clean") for arg in (argv or [])):
+        parser = argparse.ArgumentParser(
+            description="Download and/or clean the Müller‑Lyer illusion dataset."
+        )
+        parser.add_argument(
+            "--download",
+            action="store_true",
+            help="Download the raw parquet file.",
+        )
+        parser.add_argument(
+            "--clean",
+            action="store_true",
+            help="Clean the raw parquet into a tidy CSV.",
+        )
+        parser.add_argument(
+            "--output-dir",
+            type=str,
+            default="data/raw",
+            help="Directory to store the raw parquet file (used with --download).",
+        )
+        parser.add_argument(
+            "--raw-dir",
+            type=str,
+            default="data/raw",
+            help="Directory containing the raw parquet file (used with --clean).",
+        )
+        parser.add_argument(
+            "--clean-dir",
+            type=str,
+            default="data/clean",
+            help="Directory to store the cleaned CSV (used with --clean).",
+        )
+        parser.add_argument(
+            "--seed",
+            type=int,
+            default=42,
+            help="Random seed for deterministic processing (default: 42).",
+        )
+        return parser.parse_args(argv)
+
+    # Fallback to sub‑command style
     parser = argparse.ArgumentParser(
         description="Download and clean the Müller‑Lyer illusion dataset."
     )
@@ -201,12 +276,41 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=42,
         help="Random seed for deterministic processing (default: 42).",
     )
-
     return parser.parse_args(argv)
 
 def main(argv: list[str] | None = None) -> None:
     args = _parse_args(argv)
 
+    # Flag‑based interface
+    if getattr(args, "download", False) or getattr(args, "clean", False):
+        set_global_seed(args.seed)
+
+        # Resolve directories
+        raw_dir = Path(args.output_dir) if getattr(args, "output_dir", None) else None
+        clean_dir = Path(args.clean_dir) if getattr(args, "clean_dir", None) else None
+
+        raw_path, clean_path = _ensure_output_paths(raw_dir, clean_dir)
+
+        if args.download:
+            if not raw_path.is_file():
+                _download_parquet(raw_path)
+            else:
+                log.info("Raw parquet already exists at %s – skipping download.", raw_path)
+
+        if args.clean:
+            if not raw_path.is_file():
+                raise RuntimeError(f"Raw parquet not found at {raw_path}. Run with --download first.")
+            try:
+                df_raw = pd.read_parquet(raw_path)
+            except Exception as exc:
+                raise RuntimeError(f"Unable to read parquet file from {raw_path}") from exc
+
+            df_clean = _clean_dataframe(df_raw)
+            _write_clean_csv(df_clean, clean_path)
+
+        return
+
+    # Sub‑command interface
     if args.command == "download_muller":
         log.info("Running download_muller with seed=%s", args.seed)
         download_and_clean(seed=args.seed)
