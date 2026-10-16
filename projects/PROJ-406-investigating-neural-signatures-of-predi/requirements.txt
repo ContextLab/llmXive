@@ -1,2 +1,8 @@
-huggingface_hub
-pyarrow<17.0.0
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.1
+matplotlib==3.8.4
+seaborn==0.13.2
+datasets==2.18.0
+huggingface_hub==0.23.0
+pyarrow==15.0.0

@@ -19,28 +19,28 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.ingest.load_illusions  --download  --output-dir data/raw -> rc=1
 
-2026-10-16 22:11:16,961 INFO __main__: Attempting to download Müller‑Lyer dataset from OpenNeuro
+2026-10-16 22:14:46,433 INFO __main__: Attempting to download Müller-Lyer dataset from OpenNeuro/HF
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 359, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 211, in <module>
     main(sys.argv[1:])
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 324, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 194, in main
     _download_parquet(raw_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 142, in _download_parquet
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 108, in _download_parquet
     raise RuntimeError(
-RuntimeError: Failed to download parquet file 'muller_lyer.parquet' from any of the known OpenNeuro repositories: ['openneuro/muller-lyer', 'OpenNeuro/muller-lyer', 'openneuro/muller_lyer', 'OpenNeuro/muller_lyer']. Please verify that the dataset is publicly available.
+RuntimeError: Failed to download Müller-Lyer data from any known sources: ['openneuro/muller-lyer', 'OpenNeuro/muller-lyer', 'openneuro/muller_lyer', 'OpenNeuro/muller_lyer']. Please verify dataset availability or provide a direct URL.
 
 - python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean -> rc=1
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 359, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 211, in <module>
     main(sys.argv[1:])
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 332, in main
-    raise RuntimeError(
-RuntimeError: Raw parquet not found at data/raw/muller_lyer.parquet. Run with --download first.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 200, in main
+    raise RuntimeError(f"Raw parquet not found at {raw_path}. Run --download first.")
+RuntimeError: Raw parquet not found at data/raw/muller_lyer.parquet. Run --download first.
 
 - python -m src.model.predictive_coding  --input data/clean/clean_muller_lyer.csv  --output data/derived/precision_parameters.csv  --seed 42 -> rc=1
 
