@@ -30,7 +30,7 @@ This project investigates the correlation between topological properties of supe
 ## Functional Requirements
 
 ### FR-001: Data Freshness
-Devices with calibration data older than 30 days must be excluded from analysis.
+Devices with calibration data that exceed the acceptable freshness interval must be excluded from analysis.
 
 ### FR-002: Metric Extraction
 The system must extract T1, T2, gate errors, readout errors, and coupling maps.
@@ -62,4 +62,4 @@ The system must extract T1, T2, gate errors, readout errors, and coupling maps.
 ## Constraints
 
 - **C-001**: API rate limits must be respected with exponential backoff.
-- **C-002**: Disconnected graphs must result in a spectral gap of 0.
+- **C-002**: Disconnected graphs must result in a spectral gap that vanishes.

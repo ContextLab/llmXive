@@ -2,15 +2,14 @@ status: none
 intent: IBM Quantum backend properties dataset pip install qiskit-ibm-provider python
   package dataset
 required_fields:
-- backend_name
-- device_identifier
+- device_id
 - device_family
-- calibration_timestamp
+- timestamp
 - coupling_map
-- t1_coherence_us
-- t2_coherence_us
+- t1_times
+- t2_times
 - gate_error_rates
 - measurement_error_rates
-cache_key: 2dcafaebaad277a30823d1bedd770e354084eb30b53785d349537091450ee3b6
-searched_at: '2026-10-16T09:20:03.871407+00:00'
+cache_key: 2100e6032ac80559cd71c9c88543779eab7fb85fe8b2a1fd87b767cf849845ef
+searched_at: '2026-10-16T09:21:08.794706+00:00'
 retry_count: 1

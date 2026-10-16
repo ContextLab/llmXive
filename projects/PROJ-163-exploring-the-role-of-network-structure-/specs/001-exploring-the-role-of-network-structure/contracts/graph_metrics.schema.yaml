@@ -1,23 +1,26 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Graph Metrics Schema
-description: Schema for the processed graph metrics CSV data.
-type: object
-properties:
-  device_id:
-    type: string
-    description: The unique identifier of the quantum device.
-  metric_name:
-    type: string
-    description: The name of the graph metric (e.g., 'average_shortest_path', 'clustering_coefficient').
-  value:
-    type: number
-    description: The computed value of the metric.
-  is_finite:
-    type: boolean
-    description: Whether the value is a finite number (handles infinity/NaN cases).
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GraphMetrics"
+description: "Schema for the processed graph metrics CSV data."
+type: "object"
+additionalProperties: false
 required:
   - device_id
   - metric_name
   - value
   - is_finite
-additionalProperties: false
+properties:
+  device_id:
+    type: "string"
+    description: "Unique identifier of the quantum device."
+  metric_name:
+    type: "string"
+    description: "Name of the graph metric (e.g., 'average_shortest_path', 'clustering_coefficient')."
+  value:
+    type: "number"
+    description: "The computed value of the metric."
+  is_finite:
+    type: "boolean"
+    description: "Whether the value is a finite number (handles NaN/Inf)."
+  component_size:
+    type: "integer"
+    description: "Size of the largest connected component (used for filtering)."

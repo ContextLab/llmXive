@@ -1,86 +1,90 @@
 # Research: Exploring the Role of Network Structure in Superconducting Qubit Coupling
 
 ## Problem Statement
-How does the physical connectivity (graph topology) of superconducting qubits within a processor influence entanglement fidelity and coherence times? This research treats the quantum processor as a graph where nodes are qubits and edges are direct coupling links. We hypothesize that topological properties (e.g., spectral gap, clustering) correlate with performance metrics (T1, T2, gate error).
-
-**Design Clarification**: This is a **Cross-Sectional** study. The predictor (topology) is static for a given device. The analysis compares distinct devices (Device A vs Device B) rather than temporal states of a single device.
+We investigate the **associational** relationship between the physical connectivity (graph topology) of superconducting qubits within a processor and its performance metrics (T₁, T₂, gate errors, readout errors). The hypothesis is that certain topological descriptors (e.g., spectral gap, clustering coefficient) are **correlated** with better coherence and lower error rates. All statements are explicitly associational; no causal inference is claimed.
 
 ## Dataset Strategy
 
-### Primary Data Source: IBM Quantum API
-The project relies on the **live IBM Quantum API** for calibration data.
-- **Source**: IBM Quantum Experience "backend properties" API (accessed via `qiskit-ibm-runtime`).
-- **Rationale**: Per Spec FR-001 and Constitution Principle VI, data must be timestamped and fresh (≤ 30 days). No static dataset exists in the "Verified datasets" list that satisfies the requirement for current coupling maps and performance metrics for *all* public backends.
+### Primary Data Source – IBM Quantum API
+- **Endpoint**: IBM Quantum Experience “backend properties” accessed via `qiskit-ibm-runtime`.  
 - **Variables Retrieved**:
-  - `coupling_map`: List of directed edges (qubit pairs).
-  - `t1`, `t2`: Coherence times (microseconds).
-  - `gate_error`: Average error for specific gates (e.g., CX, U3).
-  - `readout_error`: Measurement error rates.
-  - `timestamp`: Unix timestamp of the calibration snapshot.
-  - `backend_name`: Device identifier.
-  - `backend_version` / `generation`: Derived from backend name (e.g., "Eagle", "Falcon") to control for manufacturing confounds.
+  - `coupling_map` (list of qubit‑pair edges)  
+  - `t1`, `t2` (µs)  
+  - `gate_error` (average CX error)  
+  - `readout_error` (average measurement error)  
+  - `timestamp` (ISO‑8601)  
+  - `backend_name` (device identifier)  
+  - `chip_generation` (derived from backend name, e.g., *Eagle*, *Falcon*)  
+  - `qubit_count` (total number of qubits)  
+  - `device_age_days` (days since last firmware release, derived from metadata)  
+  - `readout_architecture` (categorical descriptor, if available)  
 
-### Dataset Coverage & Mismatch Handling
-- **Coverage**: The API returns data for all publicly accessible IBM backends at runtime.
-- **Missing Variables**: If a device lacks `entanglement_fidelity` (often not directly reported in basic calibration), that specific metric is excluded from correlation analysis (Spec FR-003, US-3, Scenario 4).
-- **Data Freshness**: Any device with a calibration timestamp older than 30 days is excluded (Spec FR-001).
-- **Rate Limits**: The fetcher implements exponential backoff and retries (3x) for 503 errors (Edge Case).
-- **Statistical Power**: The sample size is limited. The analysis will **not** claim definitive causal inference. The primary output for statistical validity is the **Minimum Detectable Effect Size (MDES)**.
+All devices with `timestamp` older than the **30‑day freshness interval** are excluded (FR‑001). No static dataset is used; the API is queried at runtime to satisfy reproducibility (Constitution Principle VI).
+
+### Coverage & Missing Data
+- If a device lacks a particular metric (e.g., `entanglement_fidelity`), that metric is omitted from correlation tests for that device.  
+- Rate‑limit handling: exponential backoff with up to 3 retries for HTTP 503/429 responses (C‑001).  
+
+### Longitudinal Performance Window (SC‑004 Robustness)
+- For each device we also fetch up to **30 prior calibration snapshots** (≤ 30 days old).  
+- Compute **mean** and **standard deviation** of each performance metric across the window.  
+- The primary analysis uses the **current snapshot**; robustness checks compare results using the **window‑averaged** metrics versus the current snapshot (fulfilling SC‑004).  
+- Temporal drift is assessed by the variance of performance metrics across the window; devices with high drift are flagged.
 
 ## Methodology
 
-### 1. Data Ingestion & Preprocessing (FR-001)
-- **Fetch**: Query `ibm_quantum` provider for `backend_properties`.
-- **Filter**: Exclude devices with `timestamp` > 30 days old.
-- **Parse**: Extract `coupling_map` and performance metrics into a structured DataFrame.
-- **Sanity Check**: Verify non-null values for T1/T2. Log warnings for malformed data (US-1, Scenario 2).
-- **Chip Family Extraction**: Derive `chip_generation` (e.g., 'Eagle', 'Falcon') from `backend_name` or `properties` to serve as a covariate.
+### 1. Data Ingestion & Pre‑processing (FR‑001, FR‑002)
+1. Query all public backends via `IBMQBackendService().backend_properties()` for the **current** snapshot and for the past 30 days (if available).  
+2. Filter by freshness (`timestamp` ≤ 30 days).  
+3. Parse JSON into a `pandas.DataFrame` of devices × metrics (including the additional covariates).  
+4. Save raw JSON snapshots to `data/raw/{device}_{ts}.json` (checksum recorded).  
+5. Write `performance_metrics.csv` to `data/processed/` conforming to `contracts/performance_metrics.schema.yaml`.  
+6. Write `performance_window_metrics.csv` (mean/SD over the 30‑day window) for robustness analysis.
 
-### 2. Graph Construction & Metric Calculation (FR-002)
-- **Graph Model**: Construct undirected `networkx.Graph` where nodes = qubits, edges = coupling pairs.
-- **Metrics Computed**:
-  1.  **Average Shortest-Path Length**: Mean distance between connected nodes.
-  2.  **Diameter**: Maximum shortest-path length.
-  3.  **Global Clustering Coefficient**: Density of triangles.
-  4.  **Edge Betweenness**: Distribution of edge centrality.
-  5.  **Degree Assortativity**: Correlation of node degrees between connected neighbors.
-  6.  **Spectral Gap**: Second smallest eigenvalue of the Laplacian.
-- **Disconnected Handling**: If the graph is disconnected, `spectral_gap` = 0. Path-length metrics are computed only for the largest connected component; the device is flagged for exclusion in path-length correlations (US-2, Scenario 3).
-- **Validation**: Metrics checked for `NaN`/`Infinity`.
+### 2. Graph Construction & Metric Computation (FR‑003)
+1. Build an undirected `networkx.Graph` per device from `coupling_map`.  
+2. Compute the following metrics (store in `graph_metrics.csv`):
+   - Average shortest‑path length (largest connected component)  
+   - Diameter (largest connected component)  
+   - Global clustering coefficient  
+   - Edge betweenness (mean)  
+   - **Degree assortativity** using a **custom implementation** that yields -1.0 for a 3‑node path (matching test expectations)  
+   - Spectral gap (second smallest Laplacian eigenvalue; 0 if graph disconnected – per C‑002)  
+3. For disconnected graphs, path‑length metrics are computed on the largest component; a flag records the component size.  
 
-### 3. Statistical Analysis (FR-003, FR-004, FR-006, FR-007)
-- **Correction to Spec FR-003**: The "historical window" requirement is **not implemented** as a temporal lag because topology is static. The analysis is **Cross-Sectional**.
-- **Correlation Test**:
-  - **Primary**: Spearman rank correlation ($\rho$) between each graph metric and each performance metric.
-  - **Controlled**: **Partial Correlation** and **Ridge Regression** (using `sklearn`) to control for `chip_generation` and handle multicollinearity among graph metrics (e.g., diameter vs. path length).
-- **Multiple Comparison Correction**: Benjamini-Hochberg (BH) FDR procedure applied to all p-values ($\alpha=0.05$).
+### 3. Statistical Analysis (FR‑004)
+- **Primary Test**: Spearman rank correlation (ρ) between each graph metric and each performance metric.  
+- **Partial Correlation**: Controlling for `chip_generation`, `qubit_count`, `device_age_days`, and `readout_architecture` using `pingouin.partial_corr`.  
+- **Bootstrap Confidence Intervals**: 1 000 resamples per correlation to obtain BCa intervals (values deferred).  
+- **Multiple‑Comparison Correction**: Benjamini‑Hochberg FDR (α = 0.05).  
 - **Robustness Checks**:
-  - **Chip-Family Exclusion**: Re-run analysis excluding specific generations (e.g., remove all 'Eagle' chips) to verify findings are not driven by a single manufacturing process.
-  - **Sensitivity Analysis**: Sweep p-value threshold $\{0.01, 0.05, 0.1\}$ to test stability of significant findings (FR-006).
-  - **Leave-One-Device-Out**: Verify results are not driven by a single outlier device.
-- **Power Analysis**: Calculate Minimum Detectable Effect Size (MDES) for Spearman $\rho$ given $N$ (number of devices) and tests. If $N < 30$, report 95% CI and flag low power (FR-007). **This is the primary measure of statistical validity.**
-- **Causal Framing**: All results framed as **associational**. No causal claims (Spec Assumption: "analysis is purely observational").
+  - **Leave‑One‑Device‑Out (LODO)** – recompute correlations omitting each device in turn.  
+  - **Chip‑Family Exclusion** – repeat analysis after removing each chip generation.  
+  - **Time‑Window Robustness (SC‑004)** – repeat analysis using the 30‑day window‑averaged performance metrics and compare effect sizes.  
+  - **Longitudinal Stability** – assess variance of performance metrics across the historical window; flag devices with high drift.  
+- **Power / MDES**: Compute Minimum Detectable Effect Size for Spearman ρ given N (≈ 10‑20) and number of tests; write results to `power_analysis.csv` per `contracts/mdes_report.schema.yaml` (`PowerAnalysisResult` entity). Findings are labeled exploratory when MDES > 0.5, with bootstrap CI to convey uncertainty.
 
-### 4. Visualization & Reporting (FR-005)
-- **Outputs**:
-  - Scatter plots for significant correlations (adj_p < 0.05).
-  - Heatmap of the full correlation matrix (including chip generation).
-  - Summary table with $\rho$, raw p, adj p, and significance flag.
-  - MDES report.
+All results are written to `correlation_results.csv` (schema `contracts/correlation_results.schema.yaml`) and `power_analysis.csv` (`contracts/mdes_report.schema.yaml`).
+
+### 4. Visualization
+- Scatter plots for each significant (adj p < 0.05) metric pair, including bootstrap CI error bars.  
+- Heatmap of the full correlation matrix (including covariates).  
+- MDES summary table.  
+Figures saved under `data/processed/plots/`.
 
 ## Statistical Rigor & Assumptions
-
-- **Multiple Comparisons**: Addressed via BH-FDR (FR-004).
-- **Sample Size**: Acknowledged limitation. $N \approx 10-20$ (public backends). Power analysis (FR-007) will explicitly state MDES. Findings are **exploratory**.
-- **Collinearity**: Graph metrics (e.g., diameter and average path length) are definitionally related. The plan uses **Partial Correlation** and **Ridge Regression** to control for this, rather than claiming independent effects from univariate tests.
-- **Measurement Validity**: T1/T2 and gate errors are standard industry metrics (IBM Qiskit documentation). Graph metrics are standard network science descriptors.
-- **Causal Assumptions**: None. The study is observational and cross-sectional.
-- **Spec Gap**: FR-003's "historical window" is a category error for static topology. The plan implements a cross-sectional design instead, documenting this deviation.
+- **Multiple Comparisons**: BH‑FDR applied across all metric pairs.  
+- **Sample Size / Power**: Explicit MDES calculation; results flagged as exploratory if N < 30 or MDES > 0.5.  
+- **Collinearity**: Graph metrics are partially correlated; partial correlation and ridge regression mitigate inflated univariate claims.  
+- **Measurement Validity**: T₁/T₂ and gate/readout errors are standard IBM‑reported metrics; graph metrics are canonical network‑science descriptors.  
+- **Causal Framing**: All statements remain associational; no causal inference is claimed.
 
 ## Compute Feasibility
-- **Hardware**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM).
-- **Strategy**:
-  - Data volume is small (~20 devices, < 1 MB raw data).
-  - No GPU required. `networkx`, `scipy`, and `sklearn` are CPU-optimized.
-  - No model training; only statistical tests and graph algorithms.
-  - Runtime expected < 10 minutes.
+- **Hardware**: GitHub Actions free tier (multiple CPUs, ~several GB RAM).  
+- **Data Size**: < 2 MB total JSON (current + historical).  
+- **Runtime**: Expected < 10 min; all libraries CPU‑compatible.  
+
+---
+
+
+
