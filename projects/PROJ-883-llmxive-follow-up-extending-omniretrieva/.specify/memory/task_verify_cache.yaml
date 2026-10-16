@@ -1,15 +1,27 @@
-T003:
+T001:
   c: false
-  h: 26103517721a19c1f7c8b49bae2c04e9192598c34c38cf3142246ae51ccc77f2
-  r: 'The verification unit test run failed for all three sources (exit 1): MS MARCO
-    and Spider fetches raise `DataFetchError` because `datasets` cannot even import
-    (pyarrow requires NumPy 2.0, environment has 1.26.4), and the DBpedia TTL fetch
-    crashes with `AttributeError: ''function'' object has no attribute ''get_dataset_path''`
-    from the buggy `paths.config.get_dataset_path(...)` line in `fetch_dataset`. Additionally,
-    `data_fetcher.py` references `DATASET_URLS` without importing it (a latent `NameError`),
-    so no real row was ever fetched from any source. The implementer must fix the
-    environment/depend'
-  sig: dbe48627fdccd6376176f57d1e5470f535df3117eaf736a163e63708fb3e415b
+  h: d290625f01a611d9ce0ddf961ec6ed680d0eeb15ecd1f58eef17c647aa6d9edd
+  r: 'The skeleton artifacts (directories, requirements.txt, .ruff.toml, pyproject.toml,
+    quickstart.md) all exist and are non-empty, and `python -m code.main` (no args)
+    exited 0 per the historical log. However, the task''s explicit verification criteria
+    are unevidenced: there is no execution record of `ruff check code/` passing, and
+    no record of `python -m code.main --help` exiting 0 (only the no-argument run
+    was logged), while `code/main.py` itself was not inspected to confirm it supports
+    `--help`. The next implementer should run and capture both verification commands
+    (and confirm `main.py` defines '
+  sig: b9c7d78f2fea15d07cf3b698547e2de0ae58e94f0c9204e6775c178cae293f8e
+T002:
+  c: false
+  h: 8862f11a8030a07be75a8b36a85147e259bb24d602aeb9667093c4f460117ee2
+  r: The collector explicitly reports all four required schemas (`query_instance.schema.yaml`,
+    `execution_log.schema.yaml`, `execution_metric.schema.yaml`, `statistics-result.schema.yaml`)
+    as MISSING, and the actual pytest run of `tests/unit/test_contracts.py` failed
+    with "Schema file query_instance.schema.yaml missing" (1 failed, 1 passed). Additionally,
+    the cleanup script `code/cleanup_contracts.py` deleted deprecated schemas from
+    the wrong directory (`specs/001-llmxive-follow-up-extending-omniretrieva/contracts/`
+    instead of `specs/001-structural-mismatch-cost/contracts/`), so the required four
+    c
+  sig: 36af41bbdb3e304cd7d67709afd2c181c2d2e5571f30951dd97332932ff7a4c7
 T004:
   c: false
   h: d7387d4d76f48f117ff050755ab3b9a7cb41039e83d588234d2ca4d082e59619

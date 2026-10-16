@@ -1,2 +1,2 @@
-# Existing dependencies are satisfied by the runner environment.
-# No additional third‑party packages are required for T004.
+datasets
+rdflib

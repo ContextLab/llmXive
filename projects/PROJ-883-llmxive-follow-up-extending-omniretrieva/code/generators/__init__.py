@@ -1,1 +1,2 @@
-"""Generators subpackage."""
+# Package initialization for query generators.
+pass

@@ -1,11 +1,7 @@
-"""Command‑line entry point for synthetic query generation.
+"""Command-line entry point for synthetic query generation.
 
-The module is invoked by ``code.main`` via a subprocess call:
-
-``python -m code.query_generator --levels 1 2 3 4 --count 10 --seed 42``
-
-It parses the arguments, instantiates :class:`SyntheticQueryGenerator`,
-and writes the generated queries to ``data/processed/generation_log.json``.
+This script instantiates the SyntheticQueryGenerator and writes the 
+resulting query instances to data/processed/generation_log.json.
 """
 
 from __future__ import annotations
@@ -14,12 +10,9 @@ import argparse
 from pathlib import Path
 
 from llmxive_toolkit import get_logger, paths
-
-# Import the updated generator.
 from generators.synthetic_query import SyntheticQueryGenerator
 
 log = get_logger(__name__)
-
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -35,8 +28,8 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--count",
         type=int,
-        default=10,
-        help="Total number of queries to generate (distributed across levels).",
+        default=500,
+        help="Total number of queries to generate.",
     )
     parser.add_argument(
         "--seed",
@@ -46,19 +39,33 @@ def _parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-
 def main() -> None:
     args = _parse_args()
 
-    # The generator defaults to the canonical levels; we honour any
-    # user‑provided list for flexibility.
+    # Initialize the generator
     generator = SyntheticQueryGenerator(seed=args.seed, levels=args.levels)
 
     output_path = paths.data("processed", "generation_log.json")
-    log.info("Generating %d synthetic queries (levels=%s) → %s", args.count, args.levels, output_path)
+    log.info("Generating %d synthetic queries (levels=%s) -> %s", args.count, args.levels, output_path)
+    
+    # This will generate queries, validate them against the schema, and save them.
     generator.save_queries(output_path, count=args.count)
-    log.info("Synthetic query generation completed.")
-
+    
+    # Verification of the US-2 requirement: at least 100 high-complexity graph queries.
+    # We can check this by loading the file back.
+    with output_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    
+    high_comp_graph = [
+        q for q in data 
+        if q["source_type"] == "graph" and q["complexity_level"] >= 3
+    ]
+    log.info("Verification: Found %d high-complexity graph queries", len(high_comp_graph))
+    
+    if len(high_comp_graph) < 100:
+        log.warning("High-complexity graph query count (%d) is below target (100).", len(high_comp_graph))
+    
+    log.info("Synthetic query generation completed successfully.")
 
 if __name__ == "__main__":
     main()

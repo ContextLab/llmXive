@@ -1,1 +1,2 @@
-"""Router package initialization."""
+# Package initialization for the router.
+pass

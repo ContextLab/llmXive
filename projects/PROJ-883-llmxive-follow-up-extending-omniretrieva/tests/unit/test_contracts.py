@@ -4,10 +4,10 @@ Each schema is loaded with PyYAML and a sample instance is validated
 against it using jsonschema. The test also ensures that deprecated
 schema files are not present.
 """
-import os
 import pathlib
 import yaml
 import jsonschema
+import pytest
 
 # Base directory for the contracts
 CONTRACTS_DIR = pathlib.Path(__file__).resolve().parents[2] / "specs" / "001-structural-mismatch-cost" / "contracts"
@@ -39,7 +39,7 @@ SCHEMAS = {
         "mismatch_flag": False,
         "delta_latency": 5.2,
         "engine_version": "sqlite-3.41",
-        "throttle_config": "2 cores, 7 GB",
+        "throttle_config": "2 cores, 7 GB",
     },
     "statistics-result.schema.yaml": {
         "cutoff": 3,
@@ -54,6 +54,8 @@ DEPRECATED = [
     "gam_results.schema.yaml",
     "execution_log.schema.yaml_",   # underscore variant
     "execution_metrics.schema.yaml",  # underscore variant
+    "execution-log.schema.yaml",    # hyphen variant
+    "query_result.schema.yaml",
 ]
 
 def test_deprecated_schemas_absent():

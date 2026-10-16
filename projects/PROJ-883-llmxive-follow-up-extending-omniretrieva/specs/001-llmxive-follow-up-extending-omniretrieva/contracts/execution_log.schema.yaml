@@ -1,37 +1,13 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Execution Log
 type: object
 properties:
-  query_id:
-    type: string
-  source_type:
-    type: string
-  complexity_level:
-    type: integer
-  latency_ms:
-    type: number
-  timestamp:
-    type: string
-    format: date-time
-  translation_error:
-    type: boolean
-  success_flag:
-    type: boolean
-  timeout_flag:
-    type: boolean
-  synthetic_flag:
-    type: integer
-  throttling_mode:
-    type: string
-required:
-  - query_id
-  - source_type
-  - complexity_level
-  - latency_ms
-  - timestamp
-  - translation_error
-  - success_flag
-  - timeout_flag
-  - synthetic_flag
-  - throttling_mode
-additionalProperties: false
+  query_id: {type: string}
+  source_type: {type: string, enum: [text, relational, graph]}
+  complexity_level: {type: integer}
+  latency_ms: {type: number}
+  timestamp: {type: string}
+  translation_error: {type: boolean}
+  success_flag: {type: boolean}
+  timeout_flag: {type: boolean}
+  synthetic_flag: {type: integer}
+  throttling_mode: {type: string}
+required: [query_id, source_type, complexity_level, latency_ms, timestamp, translation_error, success_flag, timeout_flag, synthetic_flag, throttling_mode]

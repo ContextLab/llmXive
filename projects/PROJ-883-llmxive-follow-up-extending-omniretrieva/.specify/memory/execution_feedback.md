@@ -7,8 +7,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest -v -> rc=2
-f1866971868/_pytest/pathlib.py:591: in import_path
-    importlib.import_module(module_name)
+dule_name)
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
 <frozen importlib._bootstrap>:1204: in _gcd_import
@@ -26,10 +25,12 @@ tests/unit/test_synthetic_query.py:20: in <module>
 E   ModuleNotFoundError: No module named 'generators.synthetic_query'
 =========================== short test summary info ============================
 ERROR tests/integration/test_latency_pipeline.py
+ERROR tests/integration/test_throttling_abort.py
+ERROR tests/unit/test_config.py
 ERROR tests/unit/test_query_gen.py
 ERROR tests/unit/test_synthetic_query.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 0.49s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 5 errors in 0.32s ===============================
 
 
 

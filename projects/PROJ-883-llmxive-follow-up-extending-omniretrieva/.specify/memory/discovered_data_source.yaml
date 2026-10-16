@@ -1,11 +1,12 @@
 status: none
-intent: download MS MARCO dataset and DBpedia RDF dump python package dataset
+intent: download MS MARCO subset DBpedia RDF synthetic query latency dataset python
+  package dataset
 required_fields:
 - query_id
 - query_text
-- depth
-- source_type
+- plan_depth
 - latency_ms
-cache_key: 6a38d90ddfe5f30aeb3880cc24bf28fc5c54929dd9672d7afeae789f14f07b9d
-searched_at: '2026-10-15T21:12:04.251601+00:00'
+- source_type
+cache_key: 93e456f6a78b7986f9a221927db448bb974bf641e4da37e3d009e526c0c28c90
+searched_at: '2026-10-16T08:19:11.888299+00:00'
 retry_count: 1

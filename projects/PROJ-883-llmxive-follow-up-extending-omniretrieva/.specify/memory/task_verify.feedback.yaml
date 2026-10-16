@@ -1,32 +1,32 @@
 T001:
-  reason: "The actual `data/processed/execution_logs.csv` contains a single placeholder\
-    \ row (`q_dummy_1`, latency 42.0), and the execution log for `code/main.py` says\
-    \ \"Dummy execution log written\" \u2014 yet `quickstart.md` claims the pipeline\
-    \ generates 36 deterministic queries with real wall-clock latency, and `data/results/pipeline_manifest.json`\
-    \ claims `num_queries: 36` with a SHA-256 (`7322685e...`) that does not match\
-    \ the actual file's checksum (`e2deae01...`), i.e., the manifest is fabricated/contradicted\
-    \ by the underlying data. There is also no execution evidence that `ruff check\
-    \ code/` passes or that"
+  reason: 'The skeleton artifacts (directories, requirements.txt, .ruff.toml, pyproject.toml,
+    quickstart.md) all exist and are non-empty, and `python -m code.main` (no args)
+    exited 0 per the historical log. However, the task''s explicit verification criteria
+    are unevidenced: there is no execution record of `ruff check code/` passing, and
+    no record of `python -m code.main --help` exiting 0 (only the no-argument run
+    was logged), while `code/main.py` itself was not inspected to confirm it supports
+    `--help`. The next implementer should run and capture both verification commands
+    (and confirm `main.py` defines'
   task: 5473e379875539bab4a72321bd1fa5a75dafe7efdc28ae6ade9ef5ab17f77dc7
 T002:
-  reason: "The directory listing of `specs/001-structural-mismatch-cost/contracts/`\
-    \ shows the four canonical schemas exist, but the deprecated `analysis_result.schema.yaml`\
-    \ and `gam_results.schema.yaml` and the legacy duplicate `execution_metrics.schema.yaml`\
-    \ are still present (13 entries include them), directly violating the explicit\
-    \ deletion requirement; an extra `execution-log.schema.yaml` hyphen variant and\
-    \ `query_result.schema.yaml` also remain. Additionally, there is no execution\
-    \ evidence (e.g., pytest output) that `tests/unit/test_contracts.py` actually\
-    \ passes \u2014 and it would fail its own `test_dep"
+  reason: The collector explicitly reports all four required schemas (`query_instance.schema.yaml`,
+    `execution_log.schema.yaml`, `execution_metric.schema.yaml`, `statistics-result.schema.yaml`)
+    as MISSING, and the actual pytest run of `tests/unit/test_contracts.py` failed
+    with "Schema file query_instance.schema.yaml missing" (1 failed, 1 passed). Additionally,
+    the cleanup script `code/cleanup_contracts.py` deleted deprecated schemas from
+    the wrong directory (`specs/001-llmxive-follow-up-extending-omniretrieva/contracts/`
+    instead of `specs/001-structural-mismatch-cost/contracts/`), so the required four
+    c
   task: 1f4520c0906c3b44759779d8941cfd7a5ff08023d9fd359a2b78224b00f9a6c6
 T003:
-  reason: 'The verification unit test run failed for all three sources (exit 1): MS
-    MARCO and Spider fetches raise `DataFetchError` because `datasets` cannot even
-    import (pyarrow requires NumPy 2.0, environment has 1.26.4), and the DBpedia TTL
-    fetch crashes with `AttributeError: ''function'' object has no attribute ''get_dataset_path''`
-    from the buggy `paths.config.get_dataset_path(...)` line in `fetch_dataset`. Additionally,
-    `data_fetcher.py` references `DATASET_URLS` without importing it (a latent `NameError`),
-    so no real row was ever fetched from any source. The implementer must fix the
-    environment/depend'
+  reason: "The verification test run failed (exit 1): all three tests failed \u2014\
+    \ MS MARCO and Spider fetches raise `DataFetchError` because `datasets` cannot\
+    \ import (pyarrow requires NumPy 2.0+, environment has 1.26.4), and the DBpedia\
+    \ TTL download returns 404 for `https://raw.githubusercontent.com/RDFWebTools/rdf-samples/master/dbpedia-sample.ttl`,\
+    \ so no real row was fetched from any source. The task explicitly requires a real\
+    \ fetch to succeed and a unit test fetching \u22651 real row per source; the implementer\
+    \ must fix the environment/dependency issue (e.g. pin compatible numpy/pyarrow\
+    \ or handle the import)"
   task: 5939f3dea9e491326c3dc1d03ab907c13a4d5b227199c8d5382eb86a5cf0fa13
 T004:
   reason: "The required output `data/processed/generation_log.json` (\u2265500 queries,\

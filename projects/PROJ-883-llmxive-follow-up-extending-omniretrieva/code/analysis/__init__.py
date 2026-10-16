@@ -1,1 +1,2 @@
-"""Analysis subpackage."""
+# Package initialization for statistical analysis.
+pass
