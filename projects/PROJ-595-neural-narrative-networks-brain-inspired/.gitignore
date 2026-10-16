@@ -3,48 +3,21 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Distribution / packaging
-build/
-dist/
-*.egg-info/
-.eggs/
-
-# Virtual environments
-venv/
+# Environments
 .venv/
+venv/
+ENV/
 env/
 
-# Unit test / coverage
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Large data artifacts (raw downloads, derived neural data)
-data/raw/
-data/processed/
-data/results/
-data/neural/
-data/text/
-*.nii
-*.nii.gz
-*.parquet
-*.npy
-*.npz
-
-# Model weights
-*.pt
-*.pth
-*.onnx
-
-# Logs
-logs/
-*.log
-
-# OS / editor
-.DS_Store
-Thumbs.db
-.idea/
+# IDEs
 .vscode/
+.idea/
 
-# Jupyter
-.ipynb_checkpoints/
+# Testing/Linting
+.pytest_cache/
+.ruff_cache/
+.black/
+
+# Project specific
+logs/*.log
+state/*.yaml

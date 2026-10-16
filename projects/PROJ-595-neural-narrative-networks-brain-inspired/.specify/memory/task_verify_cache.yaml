@@ -13,14 +13,12 @@ T000.1:
   sig: bd209b95106f4a78e7de55d09cc6e93981522f66aff144e27b3f16aad88dd8cc
 T001:
   c: false
-  h: 5226fa5b3b59a7a5361031ec8a0ac98f879121760cc9a257c0305b9f67723f0b
-  r: The `code/` directory, `code/__init__.py` (non-empty docstring), and `tests/`
-    directory exist, but the required `data/raw/`, `data/processed/`, and `data/results/`
-    directories are all reported MISSING at the project root (the `data/` entry inside
-    `code/` is not the requested `data/` tree). Additionally, no `.gitignore` artifact
-    was shown to exist. The implementer must create the three missing `data/` subdirectories
-    and a standard `.gitignore` at the project root.
-  sig: f86bfd5ba1860e86e34667d140a4616c7b809405028cb52318692facfab1928b
+  h: fba5170251f1a34e11d1b430afb65c86c6218fe4c4221c9439ab2728c6859732
+  r: The `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/` directories
+    all exist and `code/__init__.py` is present, but there is no evidence of a `.gitignore`
+    file in the project root. Adding a standard `.gitignore` is required to satisfy
+    the task.
+  sig: 49f47a466e64591b7399dfa1a84b08d006bb345f3ae181429458e01356cf7003
 T002:
   c: true
   h: 12158d9c6a9c9bdddc9789c93513c3c8c1e26dfc3ab9f2e08bfb00ee4a9a1c2c
@@ -90,22 +88,28 @@ T018:
   sig: feca21ba13bdb92b78912a4f810f23023ab2b617671f13e115988c196ae52f94
 T050:
   c: false
-  h: e9f9443f4cd27bd0f907c6ee776bfd1bd67f06c611c8ced53faabe4b05dead92
-  r: "The `code/main.py` artifact itself admits it is a placeholder: it writes only\
-    \ a header row to `results_summary.csv`, leaves all data columns empty, and \"\
-    deliberately avoids heavy computation or reliance on large external datasets.\"\
-    \ The task required running the full end-to-end pipeline from raw data, producing\
-    \ all intermediate artifacts (ROI timecourses, ROCStories JSONL, generated stories,\
-    \ RSA analyses) and a populated summary CSV \u2014 none of these intermediate\
-    \ artifacts or execution evidence exist, and the summary contains no actual measurements\
-    \ (sparsity, RSA correlations, p-values, story cou"
-  sig: f7cef436cc0a212f9904f1e26a12a6b91610f8869cbf3c1295e00e88fdca6429
+  h: df6a65db09f30fcbbd9928f37aab53f5255c15fa2c2e95ef749ee2fc35020ed3
+  r: "The provided `code/main.py` only writes a placeholder CSV with column headers\
+    \ and records a trivial RAM estimate; it does not download data, run preprocessing,\
+    \ generate models, or produce any intermediate artifacts. Consequently the final\
+    \ `results_summary.csv` is empty of real results and the full end\u2011to\u2011\
+    end pipeline is not executed as required. The missing components are the data\
+    \ ingestion steps, intermediate files, and a populated results summary reflecting\
+    \ actual computations."
+  sig: 489298133cbad1b3da66bd2b3192aabfb2203f458ad8431ed7411556b521c742
+T051:
+  c: true
+  h: 9a9681e7b929d67bac887276ac08416d349595a09b2079ddb91ed3c608176792
+  r: "Checked the `manifest.json` file (size\u202F10\u202FKB) which contains the required\
+    \ dataset URLs, the exact git commit hash, software versions matching `requirements.txt`,\
+    \ and a comprehensive list of SHA\u2011256 checksums, and confirmed the passing\
+    \ `tests/test_generate_manifest.py` run that validates its structure."
+  sig: 103f38cb1499443927bab38c03c3a3c9ccd4bd12ca520bafc58a8c512f4b0a78
 T052:
   c: true
-  h: 29c9ee48b2b7a143facc37361d4700435ff48f00a2a1c4167e37a80348bb96ed
-  r: The README.md exists (2829 bytes) and contains a "How to Reproduce" section that
-    explicitly references `manifest.json` (section 4, "Reproducibility Manifest")
-    and the command `python -m code.main` (section 3), exactly as T052 requires. The
-    referenced `manifest.json` also exists and is non-empty with real checksums, dataset
-    URLs, and software versions.
-  sig: 56601bf7551695bfe35998c6c9f86cc5fbb43ba94060e83c3a8a7f26af838075
+  h: ea7e197e7dff73113bf1c9582ceff9a44efb66567a054b300662ed33946671bd
+  r: "Checked the `README.md` file (2829\u202Fbytes) and confirmed it contains a \u201C\
+    ## How to Reproduce\u201D section that (1) references `manifest.json` and (2)\
+    \ instructs the user to run `python -m code.main`. Both required references are\
+    \ present and correctly formatted."
+  sig: 51e8747604579ae12ec7d02aced8438d1ca30dac3e5de475c461904ae7de4c6d

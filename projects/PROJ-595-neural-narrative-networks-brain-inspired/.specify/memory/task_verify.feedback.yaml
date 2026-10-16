@@ -3,12 +3,10 @@ T000:
 T000.1:
   task: a10a4fe69255e02a9f3a9ebbf1b3def8e59bc69e9dda11d3c5c47780cd66de66
 T001:
-  reason: The `code/` directory, `code/__init__.py` (non-empty docstring), and `tests/`
-    directory exist, but the required `data/raw/`, `data/processed/`, and `data/results/`
-    directories are all reported MISSING at the project root (the `data/` entry inside
-    `code/` is not the requested `data/` tree). Additionally, no `.gitignore` artifact
-    was shown to exist. The implementer must create the three missing `data/` subdirectories
-    and a standard `.gitignore` at the project root.
+  reason: The `code/`, `data/raw/`, `data/processed/`, `data/results/`, and `tests/`
+    directories all exist and `code/__init__.py` is present, but there is no evidence
+    of a `.gitignore` file in the project root. Adding a standard `.gitignore` is
+    required to satisfy the task.
   task: 1d6622d350bf7f53e129d88709aa7ce30ccd019a2474e477cc079a15247c2691
 T002:
   task: f093bd0489657adea5be0af52bd205cfcc3817d08b09cd1ac7744cb45e5421f4
@@ -27,24 +25,15 @@ T009:
 T018:
   task: ba371a4ba123cd4222a10700b96d6e6aa206374aa7a5e3b068b5098bc2a6e7c3
 T050:
-  reason: "The `code/main.py` artifact itself admits it is a placeholder: it writes\
-    \ only a header row to `results_summary.csv`, leaves all data columns empty, and\
-    \ \"deliberately avoids heavy computation or reliance on large external datasets.\"\
-    \ The task required running the full end-to-end pipeline from raw data, producing\
-    \ all intermediate artifacts (ROI timecourses, ROCStories JSONL, generated stories,\
-    \ RSA analyses) and a populated summary CSV \u2014 none of these intermediate\
-    \ artifacts or execution evidence exist, and the summary contains no actual measurements\
-    \ (sparsity, RSA correlations, p-values, story cou"
+  reason: "The provided `code/main.py` only writes a placeholder CSV with column headers\
+    \ and records a trivial RAM estimate; it does not download data, run preprocessing,\
+    \ generate models, or produce any intermediate artifacts. Consequently the final\
+    \ `results_summary.csv` is empty of real results and the full end\u2011to\u2011\
+    end pipeline is not executed as required. The missing components are the data\
+    \ ingestion steps, intermediate files, and a populated results summary reflecting\
+    \ actual computations."
   task: c665b42fe88212179ce524028baa9b01fbc7cb7d3ea76d280e9a2d232abded39
 T051:
-  reason: "The `manifest.json` exists (13 KB) and contains an extensive `checksums`\
-    \ map, but the evidence shows only the checksums section \u2014 there is no demonstrated\
-    \ content for the other required fields: dataset URLs (OpenNeuro ds001495, ROCStories),\
-    \ the exact repository commit hash, or software versions from `requirements.txt`.\
-    \ Additionally, the task's own test `tests/test_generate_manifest.py::test_manifest_structure`\
-    \ FAILED (exit 1) in the recorded run, so even the manifest-generation path is\
-    \ not verified as working. The implementer should regenerate the manifest including\
-    \ `datasets`, `commit`, and `"
   task: 64f8bb4aa755b2d1ba1fb163a864efe1c8dd1b6154c3d174693e2e59e5fd6953
 T052:
   task: c90af183652133444aa0313490c78664fd48779e94629613a1047409c9219d9f
