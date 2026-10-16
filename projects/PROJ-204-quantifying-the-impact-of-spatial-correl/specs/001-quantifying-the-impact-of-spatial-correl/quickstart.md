@@ -38,8 +38,9 @@ Key outputs:
 | File | Description |
 |------|-------------|
 | `data/processed/unified_dataset.csv` | Unified table of performance metrics (and any EDS metadata if available). |
-| `data/processed/spatial_metrics.csv` | Autocorrelation‑derived lengths and spectral power (may be empty). |
-| `results/summary_report.csv` | Correlation coefficients, p‑values, BH‑adjusted p‑values, GAM deviance, Δr, and sample counts (conforms to `contracts/results.schema.yaml`). |
+| `data/processed/spatial_metrics.csv` | Autocorrelation‑derived lengths, low‑frequency spectral power, and composite metric (may be empty). |
+| `data/processed/diffusion_lengths.csv` | Estimated diffusion lengths (may be empty). |
+| `results/summary_report.csv` | Correlation coefficients, 95 % CIs, effect‑size q, p‑values, BH‑adjusted p‑values, GAM deviance, Δr, sample counts, and diagnostic flags (conforms to `contracts/results.schema.yaml`). |
 | `results/summary_report.pdf` | Human‑readable summary with plots. |
 | `results/feasibility_report.json` | Re‑used from step 1 for provenance. |
 
@@ -47,6 +48,12 @@ Key outputs:
 ```bash
 # Unit tests for metric extraction (SC‑001)
 pytest tests/unit/test_spatial_metrics.py -v
+
+# Unit test for diffusion‑length estimation (FR‑009)
+pytest tests/unit/test_diffusion_length.py -v
+
+# Unit test for robustness (SC‑003)
+pytest tests/unit/test_robustness.py -v
 
 # Integration test for the whole pipeline (including feasibility logic)
 pytest tests/integration/test_pipeline.py -v
@@ -60,7 +67,8 @@ data/
     ├── unified_dataset.csv
     ├── co_location_status.csv
     ├── depth_status.csv
-    └── spatial_metrics.csv   # May be empty
+    ├── spatial_metrics.csv   # May be empty
+    └── diffusion_lengths.csv # May be empty
 results/
 ├── feasibility_report.json
 ├── summary_report.csv
@@ -72,6 +80,3 @@ logs/
 ## Re‑Running or Updating
 - To **re‑run** with a fresh seed: `python code/utils/seed.py set 42` before `main_pipeline.py`.  
 - To **add new samples** (e.g., after a database update), simply re‑execute `main_pipeline.py`; the feasibility script will automatically detect newly available EDS maps.
-
----
-
