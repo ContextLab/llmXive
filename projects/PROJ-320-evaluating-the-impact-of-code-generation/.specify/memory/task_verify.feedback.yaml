@@ -1,24 +1,29 @@
 T001:
-  reason: Checked `requirements.txt` (present and correctly lists the required packages)
-    and the installation log `code/.tasks/T001.scripts_install_requirements.sh.log`
-    (shows a successful install). However, the task explicitly requires the log to
-    be saved at `logs/requirements_install.log`, which is missing; the provided log
-    is in a different directory. The required log file must be created at the specified
-    path.
+  reason: "The `requirements.txt` file is present and correctly lists the required\
+    \ packages (plus some extras), but there is no evidence that the required log\
+    \ file `logs/requirements_install.log` exists or contains the success message\
+    \ from a clean `pip install -r requirements.txt` run. The provided script log\
+    \ only shows that the script attempted to write the log, not the log\u2019s actual\
+    \ contents. The task therefore remains incomplete."
   task: f1997db1f4e9c2c5a8b454c14f7a9b4f32889d9f87021578cc90eae7f04d69da
 T002:
   task: 5d96c1165af1fd1177c4ec320e8869ca77ff731569d0fd56e79b2c220743e55d
 T003:
-  reason: "The `fetch_github.py` script exists and implements pagination, back\u2011\
-    off, JSONL writing, and checksum generation, but after execution it produced only\
-    \ one JSONL file (`psf_requests_prs.jsonl`) with 200 PRs and **0** `llm`\u2011\
-    labelled rows. The script stopped at the 200\u2011PR cap instead of continuing\
-    \ to the next repository to reach the required minimum of 10 `llm` PRs, and the\
-    \ generated `data/raw/fetch_stats.json` does not record the successful run (it\
-    \ shows empty stats). Consequently the verification condition \u201Cat least 10\
-    \ rows are labelled `llm` (or the fallback list is exhausted)\u201D is not satisfied"
+  reason: "The `code/data/fetch_github.py` script exists and correctly paginates,\
+    \ retries with exponential back\u2011off, writes JSONL and checksum files, and\
+    \ iterates over the repo list. However, after execution only 2\u202FLLM\u2011\
+    labelled PRs were collected (see `data/raw/fetch_stats.json`), and the fallback\
+    \ list was not exhausted (`fallback_exhausted: false`). The verification condition\
+    \ requires either \u226510\u202FLLM rows **or** exhaustion of the repo list, which\
+    \ is not satisfied. The script stops at the 200\u2011PR cap before reaching the\
+    \ LLM target, so it does not meet the task\u2019s acceptance criteria. The implementation\
+    \ must"
   task: 36a0a3227e918b2afb71c3eabdfd2b55953299125bfa250ff68af6f98c6f15d3
 T004:
+  reason: The only artifact present is the `requirements.txt`; there is no `logs/setup_verification.log`
+    nor any evidence that the `python -c "import importlib; importlib.import_module('requests')"`
+    command was run and succeeded after installing the requirements. The required
+    verification log is missing.
   task: 6cac0a6ba31ca08f989f218db7910c147ae2720d94737d1261ee9f5b57890913
 T005:
   reason: "The unit test `tests/unit/test_entropy_detector.py` fails the \u201Cnoisy\

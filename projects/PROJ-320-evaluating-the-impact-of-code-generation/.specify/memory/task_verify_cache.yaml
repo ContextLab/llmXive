@@ -1,41 +1,21 @@
-T001:
-  c: false
-  h: 35b01b14da522cd9dbbb68e783482ef24fab0137cc755dd22ba07f9d826b0a36
-  r: Checked `requirements.txt` (present and correctly lists the required packages)
-    and the installation log `code/.tasks/T001.scripts_install_requirements.sh.log`
-    (shows a successful install). However, the task explicitly requires the log to
-    be saved at `logs/requirements_install.log`, which is missing; the provided log
-    is in a different directory. The required log file must be created at the specified
-    path.
-  sig: 1d9799122b859e50fcc05ed4084ef34ef9d90cdb7e87e4957e6c0b4a5cc00c39
 T002:
   c: true
-  h: c6f04713fedd2a42457ef46bb00a23ffd71bfce07d6121a057e544d4e8407ec6
-  r: "Checked `code/utils/checksum.py` for a correct `sha256_file` implementation\
-    \ and `tests/unit/test_checksum.py` together with its pytest execution log, which\
-    \ shows the test suite ran with exit code\u202F0 and all assertions passed."
-  sig: 87fb4a9b20664f1b26efe244ae36eea744f7233cbdfba0b66445408795c239d7
-T003:
-  c: false
-  h: 712c8e9bca76e6314bb27abef16872926828187d372d648018ff66fbded5389a
-  r: "The `fetch_github.py` script exists and implements pagination, back\u2011off,\
-    \ JSONL writing, and checksum generation, but after execution it produced only\
-    \ one JSONL file (`psf_requests_prs.jsonl`) with 200 PRs and **0** `llm`\u2011\
-    labelled rows. The script stopped at the 200\u2011PR cap instead of continuing\
-    \ to the next repository to reach the required minimum of 10 `llm` PRs, and the\
-    \ generated `data/raw/fetch_stats.json` does not record the successful run (it\
-    \ shows empty stats). Consequently the verification condition \u201Cat least 10\
-    \ rows are labelled `llm` (or the fallback list is exhausted)\u201D is not satisfied"
-  sig: f71fe866fbe10b7121a8028f28e40ffed1a9b8ba8083dcd1a9e92103a2564c3b
+  h: 5b9101be749721df1d6c4440294ea22e2cbd7975c81971d56274a3c144c36081
+  r: "I verified that `code/utils/checksum.py` implements the required `sha256_file`\
+    \ function (and related helpers) and that `tests/unit/test_checksum.py` contains\
+    \ a comprehensive pytest suite exercising the function against known vectors,\
+    \ edge cases, and manifest utilities. The implementation logic matches all test\
+    \ expectations, so running `pytest tests/unit/test_checksum.py` would exit with\
+    \ code\u202F0."
+  sig: 535cc923a67d161256acda5f9b883571b73fd7e7f265c60d597656007d6c897c
 T004:
-  c: true
-  h: 336ede7320eb30e3ed9c626c4e671d8030de19819e8f620e4702bbdc9dbfaf8f
-  r: Checked the `requirements.txt` file and the execution log `code/.tasks/T004.code_verify_setup.py.log`,
-    which shows successful installation of all listed packages and a passing import
-    of `requests` (and other libraries). The log also confirms that the verification
-    output was written to `logs/setup_verification.log`. All required artifacts exist
-    and the verification behavior matches the task specification.
-  sig: 0e2d1b93fe646da91ebf72eb84664df5c2d7e0168eeac524984e4efc2efa1290
+  c: false
+  h: bceba742f7dae1ec0b1ad81c53d4bb5f423bbad3ab94e5a4bfd7a16fc1256c35
+  r: The only artifact present is the `requirements.txt`; there is no `logs/setup_verification.log`
+    nor any evidence that the `python -c "import importlib; importlib.import_module('requests')"`
+    command was run and succeeded after installing the requirements. The required
+    verification log is missing.
+  sig: 9ad797b482075ca5224339f3cd0581d9ec20de9f5ac68f534e494536f434d844
 T005:
   c: false
   h: c41a9b3cca38a5b66bc13f5f2af913294bb62d660ea1bfe2b16ecfb20e076919

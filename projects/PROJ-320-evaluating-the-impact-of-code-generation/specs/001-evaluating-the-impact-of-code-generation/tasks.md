@@ -21,7 +21,7 @@
   5. After each repo, count rows labelled `llm`; if fewer than 10, automatically continue with the next repository defined in `code/utils/config.py` until a total of ≤ 200 PRs is collected.  
   – **Verification**: After running `python -m code.data.fetch_github`, the `data/raw/` directory contains JSONL files respecting the batch size, total PR records ≤ 200, and at least 10 rows are labelled `llm` (or the fallback list is exhausted). All checksum files exist and match the data files.
 
-- [X] T004 Verify Python 3.11 project setup and package installation **using the `requirements.txt` created by T001**.  
+- [ ] T004 Verify Python 3.11 project setup and package installation **using the `requirements.txt` created by T001**.  
   – **Verification**: The command `python -c "import importlib; importlib.import_module('requests')"` runs without ImportError after installing from `requirements.txt`; the verification log is stored at `logs/setup_verification.log`.
 
 - [ ] T005 Implement the secondary entropy detector `code/data/entropy_detector.py`:

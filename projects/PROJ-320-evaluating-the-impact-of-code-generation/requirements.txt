@@ -1,9 +1,9 @@
 # Root-level dependency manifest for PROJ-320 (Evaluating the Impact of
 # Code Generation on Code Review Quality Using LLMs).
 #
-# Versions are intentionally specified as minimum bounds rather than
-# exact pins so that `pip install -r requirements.txt` succeeds cleanly
-# on a fresh Python 3.11 runner regardless of the platform wheel set.
+# Versions are specified as minimum bounds so that
+# `pip install -r requirements.txt` succeeds cleanly on a fresh
+# Python 3.11 runner regardless of the platform wheel set.
 requests>=2.31.0
 pandas>=2.2.0
 scipy>=1.11.0

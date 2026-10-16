@@ -1,9 +1,9 @@
 """GitHub PR fetcher (T003).
 
-Paginates the GitHub REST API in batches of 50 PRs, retries on
-HTTP 429/5xx with exponential back‑off (max 3 retries), writes raw
+Paginate the GitHub REST API in batches of 50 PRs, retry on
+HTTP 429/5xx with exponential back‑off (max 3 retries), write raw
 JSON payloads to ``data/raw/<repo>_prs.jsonl`` plus SHA‑256 checksum
-files, and falls back to the next repository in the prioritized
+files, and fall back to the next repository in the prioritized
 list (``code/utils/config.py`` REPOS) until at least 10 PRs are
 labelled ``llm`` or a total of 200 PRs is collected.
 
@@ -47,6 +47,7 @@ TARGET_LLM_COUNT = 10
 MAX_TOTAL_PRS = 200
 BASE_DELAY = 2.0
 
+# Heuristic markers – kept in sync with ``code/data/classify_prs.py``.
 LLM_BOT_MARKERS = ("copilot-bot", "github-copilot", "copilot")
 INFRA_BOTS = ("dependabot", "github-actions", "renovate", "pre-commit-ci")
 LLM_TEXT_MARKERS = (
@@ -240,8 +241,10 @@ def run_fetch(
     repo_stats: List[Dict[str, Any]] = []
     reached_cap = False  # true if we stopped because of the PR cap
 
+    # Define a modest per‑repo ceiling to keep room for fallback repos.
+    PER_REPO_CAP = 100  # never fetch more than 100 PRs from a single repo
+
     for repo in repo_list:
-        # If we already have enough LLMs we can stop early.
         if total_llm >= target_llm:
             break
 
@@ -250,9 +253,12 @@ def run_fetch(
             reached_cap = True
             break  # cannot fetch more without exceeding the global cap
 
+        # Ensure we leave space for at least one more repo if needed.
+        repo_limit = min(remaining, PER_REPO_CAP)
+
         try:
             prs = fetch_batch(
-                repo, limit=remaining, batch_size=batch_size, max_retries=max_retries
+                repo, limit=repo_limit, batch_size=batch_size, max_retries=max_retries
             )
         except RuntimeError as exc:
             log.error("Failed to fetch from %s: %s", repo, exc)
@@ -280,7 +286,6 @@ def run_fetch(
             reached_cap = True
             break
 
-    # Determine whether we exhausted the repo list without meeting the LLM target.
     fallback_exhausted = (not reached_cap) and (total_llm < target_llm)
 
     summary = {
@@ -305,6 +310,9 @@ def run_fetch(
 
 def combine_prs_to_jsonl(repo_stats: List[Dict[str, Any]], output_path: Path) -> None:
     """Combine all per‑repo JSONL files into a single JSON array file."""
+    if output_path.exists() and output_path.is_dir():
+        raise IsADirectoryError(f"Output path {output_path} is a directory, expected a file.")
+
     combined: List[Dict[str, Any]] = []
     for repo_info in repo_stats:
         jsonl_path = Path(repo_info["jsonl"])
