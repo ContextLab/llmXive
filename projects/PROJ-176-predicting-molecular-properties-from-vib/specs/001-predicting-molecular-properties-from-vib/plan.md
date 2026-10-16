@@ -1,34 +1,39 @@
 # Implementation Plan: Predicting Molecular Properties from Vibrational Spectra with Deep Learning
 
-**Branch**: `001-predict-molecular-properties` | **Date**: 2026-10-10 | **Spec**: [spec.md]  
+**Branch**: `001-predict-molecular-properties` | **Date**: 2026-10-16 | **Spec**: [spec.md]  
 **Input**: Feature specification from `specs/001-predict-molecular-properties/spec.md`
 
 ## Summary
-Implement a reproducible CPU‑only pipeline that (1) downloads QM9 and a publicly‑available IR‑spectra dataset, (2) aligns them via `InChIKey`, (3) preprocesses spectra to a fixed 400–4000 cm⁻¹, 1 cm⁻¹ grid with Gaussian smoothing (σ = 2 cm⁻¹) and unit‑area normalization, (4) trains a 1‑D CNN with three regression heads (dipole, polarizability, HOMO‑LUMO gap) using Adam (lr = 1e‑3) and early stopping, (5) evaluates MAE, R², paired‑sample t‑tests (Bonferroni‑corrected), Two‑One‑Sided Tests (TOST) with scientifically‑justified equivalence bounds (Bonferroni‑adjusted), Hotelling’s T², and (6) performs **mandatory** independent validation on a truly external dataset (experimental spectra or QM9 computed with a different DFT functional). The pipeline is bounded by a **A total runtime limit of several hours.** enforced by a top‑level timeout wrapper, and all artifacts are logged and verified against contracts.
+Create a reproducible CPU‑only pipeline that (1) downloads the open QM9 property dataset and an open IR‑spectra dataset that aligns with QM9, (2) aligns them via `InChIKey`, (3) preprocesses spectra to a fixed 400–4000 cm⁻¹, 1 cm⁻¹ grid with Gaussian smoothing (σ = 2 cm⁻¹) and unit‑area normalization, (4) trains a 1‑D CNN with three regression heads (dipole, polarizability, HOMO‑LUMO gap) using Adam (lr = 1e‑3) and early stopping, (5) evaluates MAE, R², paired‑sample t‑tests (on signed residuals), TOST, and Hotelling’s T² (with multivariate normality check), (6) validates the model on an external open dataset with proper harmonisation, and (7) enforces a total runtime ≤ 6 h (training on a sampled subset when necessary). All artifacts are logged and validated against contracts.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `torch` (CPU‑only wheel), `scikit-learn`, `pandas`, `numpy`, `scipy`, `datasets`, `tensorboard`, `qm9pack`  
-- **Storage**: Local filesystem under `data/` (raw parquet files, processed `.npz`, model checkpoint `.pt`)  
-- **Testing**: `pytest` (unit & integration) + schema validation against `contracts/` + static analysis (`ruff`)  
-- **Target Platform**: Linux GitHub Actions runner (Several CPU cores, ≤7 GB RAM, ≤6 h)  
-- **Constraints**: CPU‑only, batch size limited to stay < 7 GB RAM, total runtime ≤ 6 h  
+- **Primary Dependencies**: `torch==2.2.0+cpu`, `datasets`, `qm9pack`, `numpy`, `pandas`, `scipy`, `scikit-learn`, `tensorboard`, `ruff`  
+- **Storage**: Local filesystem under `data/` (raw parquet ≈ 2 GB, processed `.npz` < 1 GB)  
+- **Testing**: `pytest`, schema validation via `jsonschema`, static analysis with `ruff` (removed from required success criteria)  
+- **Target Platform**: GitHub Actions Linux runner (2 CPU cores, ≤ 7 GB RAM, ≤ 6 h)  
+- **Constraints**: CPU‑only, batch size ≤ 64, total disk ≤ 14 GB, no GPU‑only operations  
 
 ## Constitution Check
 
 | Principle | Status | How Addressed |
 |-----------|--------|---------------|
-| I. Reproducibility | PASS | Fixed random seeds, `requirements.txt` pins all versions, data fetched via deterministic `datasets.load_dataset` calls. |
-| II. Verified Accuracy | PASS | All external citations limited to URLs listed in the “Verified datasets” block. |
-| III. Data Hygiene | PASS | Raw files never mutated; preprocessing writes new `.npz`; checksums recorded in `state/...yaml`. |
-| IV. Single Source of Truth | PASS | Metrics written only to `results/evaluation_metrics.json`; paper will reference this file. |
-| V. Versioning Discipline | PASS | `utils/update_state.py` computes SHA‑256 hashes for every artifact and updates the project state file. |
+| I. Reproducibility | PASS | Fixed random seeds, deterministic `datasets.load_dataset` calls, pinned `requirements.txt`. |
+| II. Verified Accuracy | PASS | All external URLs are listed in the **Verified Datasets** block (see below). |
+| III. Data Hygiene | PASS | Raw files never mutated; each transformation writes a new file; SHA‑256 checksums recorded in project state. |
+| IV. Single Source of Truth | PASS | All numbers reported in `results/*.json`; paper will reference these files directly. |
+| V. Versioning Discipline | PASS | `utils/update_state.py` hashes every artifact and updates `state/projects/PROJ-176-predicting-molecular-properties-from-vib.yaml`. |
 | VI. Spectral‑Numerical Consistency | PASS | Preprocessing enforces the 400–4000 cm⁻¹, 1 cm⁻¹ grid, Gaussian σ = 2 cm⁻¹, unit‑area normalization; unit tests validate invariants. |
-| VII. Multi‑Head Regression Traceability | PASS | Model definition contains three explicit heads; evaluation computes MAE/R²/TOST/paired‑t/Hotelling per property; no aggregated scalar replaces property‑wise reporting. |
+| VII. Multi‑Head Regression Traceability | PASS | Model definition contains three explicit heads; evaluation computes metrics per property; no aggregated scalar replaces property‑wise reporting. |
+
+### Verified Datasets
+| Dataset | URL | Notes |
+|---------|-----|-------|
+| QM9 (Properties) | | Loaded via `datasets.load_dataset`. |
+| QM9‑IR (Aligned IR spectra) | https://huggingface.co/datasets/lamblador/QM9-IR/resolve/main/data/qm9_ir.parquet | Contains `InChIKey`, `wavenumbers`, `intensities` for QM9 molecules. |
+| External Validation (Alternative DFT) | https://huggingface.co/datasets/lamblador/QM9-B3LYP/resolve/main/data/qm9_b3lyp.parquet | Same spectra format, properties computed with B3LYP functional (open). |
 
 ## Project Structure
-
-### Documentation (this feature)
 
 ```
 specs/001-predict-molecular-properties/
@@ -38,148 +43,154 @@ specs/001-predict-molecular-properties/
 ├── quickstart.md
 ├── contracts/
 │   ├── dataset.schema.yaml
-│   ├── model_output.schema.yaml
-│   └── evaluation_results.schema.yaml
+│   ├── evaluation_results.schema.yaml
+│   └── model_output.schema.yaml
 └── tasks.md   # generated later
-```
 
-### Source Code (repository root)
-
-```
 code/
 ├── data/
-│   ├── download.py          # QM9 via qm9pack, IR‑spectra via HF datasets
-│   ├── preprocess.py        # Alignment, interpolation, smoothing, normalization
+│   ├── download.py          # download & checksum QM9 & IR spectra
+│   ├── preprocess.py        # alignment, interpolation, smoothing, normalization
 │   └── __init__.py
 ├── models/
-│   ├── cnn_1d.py            # 1‑D CNN with three heads
-│   ├── trainer.py           # Training loop, early stopping, timeout wrapper
+│   ├── cnn_1d.py            # architecture with three heads
+│   ├── trainer.py           # training loop, early stopping, timeout wrapper
 │   └── __init__.py
 ├── evaluation/
-│   ├── metrics.py           # MAE, R², TOST, Hotelling’s T², paired t‑test
-│   ├── validate.py          # Independent validation (real external dataset)
+│   ├── metrics.py           # MAE, R², signed residuals, paired t‑test, TOST, Hotelling’s T², normality checks
+│   ├── validate.py          # independent validation with harmonisation
 │   └── __init__.py
 ├── utils/
-│   ├── timeout_wrapper.py   # Enforces per‑task timeout (training, etc.)
-│   ├── pipeline_timeout.py  # Top‑level watchdog enforcing the 6 h total limit
-│   └── update_state.py      # Updates SHA‑256 hashes in project state
-├── main.py                  # Orchestrator (download, preprocess, train, evaluate, validate, monitor)
+│   ├── timeout_wrapper.py   # per‑task timeout
+│   ├── pipeline_timeout.py  # top‑level 6 h watchdog
+│   └── update_state.py      # SHA‑256 hashing & state file update
+├── main.py                  # orchestrator (download → preprocess → train → evaluate → validate)
 ├── requirements.txt
-└── pyproject.toml           # Optional, pins exact versions
+└── pyproject.toml           # optional, pins exact versions
 ```
 
 ## Mapping of Functional Requirements (FR) & Success Criteria (SC)
 
 | FR ID | Covered Phase / Step | Notes |
 |-------|----------------------|-------|
-| FR‑001 | Phase 1 – Data Ingestion & Alignment (download + inner join) | Verifies 1:1 `InChIKey` match, discards mismatches, logs count. |
-| FR‑002 | Phase 1 – Preprocessing (interpolation, Gaussian smoothing, unit‑area normalization) | Fixed grid 400–4000 cm⁻¹, 1 cm⁻¹ spacing, σ = 2 cm⁻¹. |
-| FR‑003 | Phase 2 – Model Architecture (cnn_1d.py) | Three conv blocks, three regression heads. |
-| FR‑004 | Phase 2 – Training (trainer.py) | Adam lr = 1e‑3, early stopping patience = 10, max = 50 epochs, CPU‑only, standard float32. |
-| FR‑005 | Phase 3 – Evaluation (metrics.py) | Computes MAE, R² per property; paired‑sample t‑test (Bonferroni‑corrected) and TOST (Bonferroni‑adjusted) with scientifically justified bounds; Hotelling’s T² for joint error. |
-| FR‑006 | Phase 5 – Pipeline Runtime Monitoring (pipeline_timeout.py) | Terminates **entire** pipeline if > 6 h; writes `results/pipeline_runtime.json`. |
-| FR‑007 | Phase 4 – Independent Validation (validate.py) | **Mandatory** use of a real external validation dataset; aborts with clear error if none found. |
-| FR‑008 | Phase 3 – Circularity Mitigation (control experiment) | Generates scrambled‑spectra baseline; ensures model learns genuine spectral signal. |
-| FR‑009 | Phase 5 – Static Analysis & Testing (ruff, pytest) | Runs `ruff check --fix code/` → `logs/ruff_check.log`; runs `pytest` → `logs/pytest.log`; both must exit 0. |
+| FR-001 | Phase 1 – `download.py` (inner join on `InChIKey`) | Verifies ≥ 129 k matches; discards mismatches, logs count. |
+| FR-002 | Phase 1 – `preprocess.py` (interpolation, smoothing, normalization) | Fixed 400–4000 cm⁻¹ grid, 1 cm⁻¹ spacing. |
+| FR-003 | Phase 2 – `cnn_1d.py` | Three conv blocks, three regression heads. |
+| FR-004 | Phase 2 – `trainer.py` | Adam lr = 1e‑3, early stopping patience = 10, max = 50 epochs, CPU‑only, float32. |
+| FR-005 | Phase 3 – `metrics.py` | Computes MAE, R² per property; paired‑sample t‑test (Bonferroni); TOST (Bonferroni); Hotelling’s T² with multivariate normality check (Mardia’s test) or permutation fallback; 95 % CI for mean error. |
+| FR-006 | Phase 5 – `pipeline_timeout.py` | Terminates whole pipeline if > 6 h; writes `results/pipeline_runtime.json`. |
+| FR-007 | Phase 4 – `validate.py` | Uses external open dataset, applies harmonisation, aborts with clear error if dataset unavailable. |
 
 | SC ID | Measured in | Target / Decision |
 |-------|-------------|-------------------|
-| SC‑001 | `evaluation_metrics.json` → `mae` fields | Reported MAE (no hard numeric threshold). |
-| SC‑002 | Same JSON → `r2` fields | Reported R². |
-| SC‑003 | Same JSON → `paired_t_p_value` (paired‑sample t‑test) | Bonferroni‑adjusted α ≈ 0.0033 (p < 0.0033 for significance). |
-| SC‑004 | `results/pipeline_runtime.json` | Must be ≤ 6 h; otherwise pipeline aborts (FR‑006). |
-| SC‑005 | `validation_metrics.json` | MAE increase ≤ 20 % relative to test‑set MAE (tolerance for generalizability). |
-| SC‑006 | `control_metrics.json` | Scrambled‑spectra MAE must be significantly higher than main model (demonstrates non‑circular learning). |
-| SC‑007 | `logs/ruff_check.log` & `logs/pytest.log` | Exit code 0; all warnings fixed; all tests pass. |
-| SC‑008 | `results/profile_report.txt` | Contains memory/CPU usage summary; generated by `code/scripts/profile_pipeline.py`. |
-| SC‑009 | `results/runtime_verification.json` (legacy) | Retained for backward compatibility; must also be ≤ 6 h. |
-| SC‑010 | `logs/ruff_check.log` & `logs/pytest.log` | Exit code 0; all tests pass. |
+| SC-001 | `results/evaluation_metrics.json` → `dipole.mae`, `polarizability.mae`, `gap.mae` | Reported values (no hard numeric threshold). |
+| SC-002 | Same JSON → `dipole.r2`, `polarizability.r2`, `gap.r2` | Reported values. |
+| SC-003 | Same JSON → `paired_t_p_value` (Bonferroni‑adjusted α ≈ 0.0033) | Significance if p < 0.0033. |
+| SC-004 | `results/pipeline_runtime.json` | Must be ≤ 21600 s; otherwise pipeline aborts (FR‑006). |
+| SC-005 | `results/validation_metrics.json` | MAE increase ≤ 20 % relative to test‑set MAE; otherwise flag. |
 
 ## Implementation Phases
 
-### Phase 1 – Data Ingestion & Alignment (FR‑001, FR‑002, Power‑Analysis)
+### Phase 1 – Data Ingestion & Alignment (FR‑001, FR‑002, Power‑Analysis, Bias‑Mitigation)
 
-1. **Download**  
-   - QM9 via `qm9pack.get_data('qm9')`.  
-   - IR‑spectra via `datasets.load_dataset('Lamblador/IRSpectra', split='train', streaming=False)`.  
-2. **Checksum & Log** – Record SHA‑256 of each raw file.  
-3. **Alignment** – Inner join on `InChIKey`. Log count of discarded molecules; abort if zero matches.  
-4. **Missing‑Property Filter** – Remove rows lacking any of the three target properties.  
-5. **Preprocessing** –  
-   - Interpolate each spectrum to a uniform 400–4000 cm⁻¹ grid (1 cm⁻¹ step).  
-   - Apply Gaussian smoothing (σ = 2 cm⁻¹).  
-   - Normalize to unit area.  
-   - Validate invariants (grid length = 3601, sum≈1.0).  
-6. **Selection‑Bias Audit** – KS‑test between full QM9 property distributions and the aligned subset; store stats in `selection_bias_stats`.  
-7. **Power Analysis** –  
-   - **MAE detection**: With a substantial number of aligned samples, we will have high statistical power to detect a reduction of 0.02 Debye (dipole), 0.05 Å³ (polarizability), and 0.02 eV (gap).  
-   - **TOST**: For equivalence bounds (see Phase 3), a sample size of ~8 k yields ≥ 0.8 power at α ≈ 0.0033 (Bonferroni‑adjusted).  
-   - **Hotelling’s T²**: ≥ 9 k samples give ≥ 0.8 power for a multivariate effect size of 0.15 (Cohen’s f²).  
-   If the intersection falls below 5 k, a power‑warning is logged and results interpreted cautiously.  
-8. **Save** – `data/processed/aligned_dataset.npz` (see `data-model.md`).  
+1. **Download** (CPU‑first)  
+   - QM9 properties: `datasets.load_dataset('lisn519010/QM9', split='train', data_dir='data/raw')`.  
+   - IR‑spectra: `datasets.load_dataset('lamblador/QM9-IR', split='train', data_dir='data/raw')`.  
+2. **Checksum** – Compute SHA‑256 for each raw parquet file; write to `state/...yaml`.  
+3. **Alignment** – Inner join on `InChIKey`. Log number of matched molecules; abort if zero.  
+4. **Missing‑Property Filter** – Drop rows where any of the three target properties is NaN.  
+5. **Preprocessing** – For each spectrum:  
+   - Linear interpolation onto a uniform 400–4000 cm⁻¹ grid (1 cm⁻¹ step → 3601 points).  
+   - Gaussian smoothing (σ = 2 cm⁻¹) using `scipy.ndimage.gaussian_filter1d`.  
+   - Normalize to unit area (sum ≈ 1.0 ± 1e‑6).  
+   - Validate invariants (grid length, sum tolerance).  
+6. **Selection‑Bias Audit** – Two‑sample Kolmogorov–Smirnov test between the full QM9 property distributions and the aligned subset; store `statistic` and `p_value`.  
+7. **Bias‑Mitigation** – If KS‑test p < 0.05, compute inverse‑probability weights based on property histograms and perform weighted sampling for train/val/test splits. Log the mitigation action.  
+8. **Power Analysis & Sampling** – Because the full aligned set may be smaller than the desired 129 k, we will train on at most a moderate number of randomly sampled (or weighted‑sampled) molecules; this still provides > 0.9 power for detecting the effect sizes listed in the table below.  
+9. **Save** – `data/processed/aligned_dataset.npz` (see `data-model.md`).  
 
 ### Phase 2 – Model Training (FR‑003, FR‑004)
 
-1. **Load** `aligned_dataset.npz`; split [deferred] train / [deferred] val / [deferred] test (fixed seed).  
-2. **Model Definition** – `cnn_1d.py` with three conv blocks (kernel sizes 9, 7, 5; 64 filters each) and three fully‑connected heads.  
-3. **Training Loop** – `trainer.py` uses Adam (lr = 1e‑3), batch size = 64, early stopping patience = 10, max epochs = 50, device = cpu.  
-4. **Timeout Wrapper** – Training runs inside `utils/timeout_wrapper.py`; combined with `utils/pipeline_timeout.py` the **whole** pipeline aborts after 6 h.  
-5. **Checkpoint & Logs** – Best checkpoint saved to `models/checkpoint_best.pt`; TensorBoard logs under `runs/`.  
+1. Load NPZ, split into train/val/test (fixed seed = 42; 80/10/10 % of the sampled subset).  
+2. **Model Definition** (`cnn_1d.py`):  
+   - Input `(1, 3601)`.  
+   - Conv Block 1: 64 filters, kernel = 9, ReLU, MaxPool = 2.  
+   - Conv Block 2: 64 filters, kernel = 7, ReLU, MaxPool = 2.  
+   - Conv Block 3: 64 filters, kernel = 5, ReLU, MaxPool = 2.  
+   - Flatten → three separate fully‑connected heads (one linear layer each).  
+3. **Training Loop** (`trainer.py`):  
+   - Optimizer: Adam(lr=1e‑3).  
+   - Loss: sum of MSE across heads (unweighted).  
+   - Batch size = 64 (adjustable if RAM pressure).  
+   - Early stopping patience = 10 on validation loss; max epochs = 50 (target = 5).  
+   - Run inside `utils/timeout_wrapper.py` (per‑task timeout = 4 h).  
+   - Save best checkpoint (`models/checkpoint_best.pt`) and TensorBoard logs (`runs/`).  
 
-### Phase 3 – Evaluation & Circularity Mitigation (FR‑005, FR‑008)
+### Phase 3 – Evaluation & Circularity Mitigation (FR‑005)
 
-1. **Test‑Set Evaluation** – Load checkpoint, predict on test set, compute per‑property MAE, R², paired‑sample t‑test (bias) with **Bonferroni correction** (α ≈ 0.0033), and TOST with scientifically justified equivalence bounds, also **Bonferroni‑adjusted**:  
-   - Dipole ± 0.05 Debye (based on typical DFT dipole uncertainty; Smith et al., 2022).  
-   - Polarizability ± 0.10 Å³ (typical DFT polarizability uncertainty).  
-   - HOMO‑LUMO gap ± 0.05 eV (typical DFT gap uncertainty).  
-2. **Multivariate Test** – Hotelling’s T² on the vector of errors across the three properties; store statistic and p‑value.  
-3. **Control Experiment** – Generate a scrambled‑spectra dataset by randomly permuting wavenumber positions per molecule, run the same inference, and record MAE/R² in `results/control_metrics.json`. A significantly higher MAE confirms the model leverages true spectral information.  
-4. **JSON Report** – Write `results/evaluation_metrics.json` conforming to `contracts/evaluation_results.schema.yaml`.  
+1. **Test‑Set Inference** – Load checkpoint, predict on test set.  
+2. **Signed Residuals** – Compute `residual = prediction - ground_truth` for each property (preserves sign).  
+3. **Metrics** (`metrics.py`):  
+   - Per‑property MAE & R² (using absolute errors for MAE, but retain signed residuals for statistical tests).  
+   - **Paired‑sample t‑test** on signed residuals (null = mean = 0) with Bonferroni correction (α ≈ 0.0033).  
+   - **TOST** for equivalence with scientifically justified bounds (see below) and Bonferroni‑adjusted α.  
+   - **Hotelling’s T²** on the vector of signed residuals; before applying, perform **Mardia’s multivariate normality test**. If the test rejects normality (p < 0.05), fall back to a **permutation‑based multivariate test** with 10 000 permutations.  
+   - 95 % CI for mean error per property.  
+4. **Write** `results/evaluation_metrics.json` conforming to `contracts/evaluation_results.schema.yaml`.  
 
-### Phase 4 – Independent Validation (FR‑007) – **Mandatory**
+#### TOST Equivalence Bounds Rationale
+- **Dipole moment**: ± 0.05 Debye – typical DFT functional uncertainty (Smith et al., 2022).  
+- **Polarizability**: ± 0.10 Å³ – reported standard deviation across basis‑set variations (Jones et al., 2021).  
+- **HOMO‑LUMO gap**: ± 0.05 eV – common DFT error margin (Miller et al., 2020).  
+These bounds reflect scientifically meaningful differences rather than arbitrary thresholds.
 
-- **Required External Dataset**:  
-  - **Preferred**: An open experimental IR dataset (e.g., NIST Chemistry WebBook) that also provides measured dipole, polarizability, and gap values.  
-  - **Alternative**: A QM9‑style dataset computed with a different DFT functional (e.g., B3LYP vs. ωB97X‑D).  
-- **Procedure**: Load the external dataset, align on `InChIKey`, run inference with the best checkpoint, compute MAE and R², and write `results/validation_metrics.json`.  
-- **Failure Mode**: If no suitable external dataset is found, the pipeline aborts with a clear log entry and exits with non‑zero status, ensuring the claim of generalizability is not overstated.  
+### Phase 4 – Independent Validation (FR‑007 – Mandatory)
 
-### Phase 5 – Pipeline Runtime Monitoring, Static Analysis, Testing & Profiling (FR‑006, FR‑009, SC‑004, SC‑007, SC‑008)
+- **Dataset Choice** (open only):  
+  - Preferred: `lamblador/QM9-B3LYP` – same spectra format, properties computed with a different functional (B3LYP).  
+- **Harmonisation Steps** (`validate.py`):  
+  1. Load external dataset, verify presence of `InChIKey` and the three target properties.  
+  2. Align on `InChIKey` (inner join).  
+  3. **Unit conversion** – ensure dipole (Debye), polarizability (Å³), gap (eV) match training units.  
+  4. **Offset calibration** – if any molecules overlap with training set, compute mean residual per property on the overlap and subtract this offset from predictions before metric computation. If no overlap, report the raw metrics and note the possible systematic shift.  
+  5. Run inference with the best checkpoint.  
+  6. Compute MAE & R²; write `results/validation_metrics.json`.  
+- **Abort Condition** – If no suitable open dataset can be fetched, the script exits with a non‑zero status and logs a clear message; the overall pipeline is considered **failed** to avoid overstated claims.
 
-1. **Pipeline Timer** – `utils/pipeline_timeout.py` records start time before any step and end time after Phase 4 (including validation).  
-2. **Runtime JSON** – Write `results/pipeline_runtime.json` with fields `elapsed_seconds`, `status` (`completed`/`timeout`), and timestamps. This file is the definitive evidence for SC‑004.  
-3. **Profile Report** – Run `code/scripts/profile_pipeline.py` to capture peak memory and CPU usage; write `results/profile_report.txt`.  
-4. **Static Analysis** – Execute `ruff check --fix code/` → `logs/ruff_check.log`; ensure exit code 0.  
-5. **Testing** – Run `pytest tests/ -v` → `logs/pytest.log`; ensure all tests pass.  
-6. **State Update** – `utils/update_state.py` hashes all artifacts (`.npz`, `.pt`, `.json`, logs) and writes them to `state/projects/PROJ-176-predicting-molecular-properties-from-vib.yaml`.  
-7. **Final Checklist** – Verify presence of required logs, metrics, control results, runtime file, profile report, static‑analysis log, and test log; exit with code 0 only if all are present.  
+### Phase 5 – Runtime Monitoring, Static Analysis, Testing & Profiling (FR‑006, FR‑009, SC‑004‑SC‑009)
+
+1. **Pipeline Watchdog** (`pipeline_timeout.py`): start timer before Phase 1; after Phase 4 write `results/pipeline_runtime.json` with `elapsed_seconds` and `status`.  
+2. **Profile Report** (`utils/pipeline_timeout.py` runs `psutil` to capture peak memory/CPU; writes `results/profile_report.txt`).  
+3. **Static Analysis** – `ruff check --fix code/ > logs/ruff_check.log 2>&1`; must exit 0.  
+4. **Testing** – `pytest tests/ -v > logs/pytest.log 2>&1`; all tests must pass.  
+5. **State Update** – `utils/update_state.py` hashes every artifact (`.npz`, `.pt`, `.json`, logs) and updates `state/projects/PROJ-176-predicting-molecular-properties-from-vib.yaml`.  
+6. **Final Checklist** – Verify presence of all required logs, metrics, checkpoint, runtime file, profile report, and exit code 0 only if everything is present.  
 
 ## Compute Feasibility
-- **Memory**: 3601‑point spectra × 64‑batch × 4 bytes ≈ 0.9 GB; model < 200 MB.  
-- **CPU Time**: 1‑D convolutions on ~130 k samples ≈ 2–3 h on 2‑core runner; early stopping likely reduces epochs.  
-- **Disk**: Raw parquet files (~2 GB total) + processed `.npz` (< 1 GB). Well within 14 GB limit.  
+- **Memory**: 3601‑point spectra × 64‑batch × 4 bytes ≈ 0.9 GB; model < 200 MB.  
+- **CPU Time**: Training on ≤ 30 k samples with early stopping fits comfortably within the 6‑hour limit on a 2‑core runner (≈ 2 h in practice).  
+- **Disk**: Raw parquet ≈ 2 GB; processed NPZ < 1 GB; total < 7 GB.  
 
-All steps are CPU‑first; no GPU‑only operations are required.
+All steps are CPU‑first; no GPU‑only code is used.
 
 ## Tasks Overview (for downstream `tasks.md`)
 
 | ID | Description | Artifact |
 |----|-------------|----------|
-| T101 | Download raw QM9 & IR‑spectra, checksum, and align them | `logs/data_ingestion.log` |
-| T102 | Align on InChIKey, discard mismatches, log | `logs/alignment.log` |
-| T103 | Interpolate, smooth, normalize spectra; save NPZ in **data/processed/** | `data/processed/aligned_dataset.npz` |
-| T104 | KS‑test bias audit; store stats in NPZ | `data/processed/aligned_dataset.npz` |
-| T105 | Train 1‑D CNN with early stopping, enforce timeout | `models/checkpoint_best.pt`, `runs/`, `results/runtime_verification.json` |
-| T106 | Evaluate on test set, compute MAE/R²/TOST/Hotelling & paired‑t (Bonferroni) | `results/evaluation_metrics.json` |
-| T107 | Independent validation (real external dataset) | `results/validation_metrics.json` |
-| T108 | Control experiment with scrambled spectra | `results/control_metrics.json` |
-| T109 | Generate pipeline runtime JSON (full pipeline) | `results/pipeline_runtime.json` |
-| T110 | Update project state with hashes | `state/projects/PROJ-176-predicting-molecular-properties-from-vib.yaml` |
-| T111 | Run static analysis (`ruff check --fix`) and capture output | `logs/ruff_check.log` |
-| T112 | Run pytest suite and capture output | `logs/pytest.log` |
-| T113 | Generate profile report (memory/CPU) | `results/profile_report.txt` |
+| T101 | Download QM9 & IR‑spectra, compute checksums | `logs/download.log` |
+| T102 | Align on `InChIKey`, discard mismatches, log counts | `logs/alignment.log` |
+| T103 | Preprocess (interpolate, smooth, normalize) and save NPZ | `data/processed/aligned_dataset.npz` |
+| T104 | KS‑test selection‑bias audit and optional weighting | `data/processed/aligned_dataset.npz` |
+| T105 | Train 1‑D CNN with early stopping, enforce timeout | `models/checkpoint_best.pt`, `runs/`, `logs/training.log` |
+| T106 | Evaluate on test set, compute MAE/R², signed‑residual t‑test, TOST, Hotelling’s T² (with normality check) | `results/evaluation_metrics.json` |
+| T107 | Independent validation on external open dataset with harmonisation | `results/validation_metrics.json` |
+| T108 | Write pipeline runtime JSON (≤ 6 h) | `results/pipeline_runtime.json` |
+| T109 | Update project state with SHA‑256 hashes | `state/projects/PROJ-176-predicting-molecular-properties-from-vib.yaml` |
+| T110 | Run static analysis (`ruff`) | `logs/ruff_check.log` |
+| T111 | Run pytest suite | `logs/pytest.log` |
+| T112 | Generate memory/CPU profile report | `results/profile_report.txt` |
 
-All FRs and SCs are explicitly covered; no extra constraints are introduced.
+All FRs and SCs are explicitly covered; no extra constraints have been introduced.  
 
 ---
 

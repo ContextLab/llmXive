@@ -4,13 +4,14 @@
 - Python 3.11+  
 - Git  
 - At least **10 GB** free disk space (raw + processed data)  
-- Adequate RAM (recommended for smooth operation)  
+- ≤ 7 GB RAM (recommended for smooth operation)  
 
 ## Installation
 
 ```bash
 # 1. Clone the repository (or navigate to the project root)
-cd projects/PROJ-176-predicting-molecular-properties-from-vib
+git clone 
+cd PROJ-176-predicting-molecular-properties-from-vib
 
 # 2. Create a virtual environment
 python -m venv venv
@@ -20,12 +21,12 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r code/requirements.txt
 ```
 
-*`requirements.txt` pins `torch` to the CPU wheel, `qm9pack`, `datasets`, `numpy`, `pandas`, `scipy`, `scikit-learn`, and `tensorboard`.*
+*`requirements.txt` pins `torch` to the CPU wheel and includes `datasets`, `qm9pack`, `numpy`, `pandas`, `scipy`, `scikit-learn`, `tensorboard`, `ruff`, `pytest`.*
 
 ## Data Download & Preprocessing
 
 ```bash
-# Download raw QM9 and IR‑spectra, verify checksums, and align them
+# Download raw QM9 properties and IR spectra, verify checksums, and align them
 python code/main.py download
 
 # Preprocess: interpolation, Gaussian smoothing, unit‑area normalization
@@ -33,18 +34,19 @@ python code/main.py preprocess
 ```
 
 - **Output**: `data/processed/aligned_dataset.npz`  
-- **Verification**: The script prints the number of aligned molecules and any selection‑bias KS‑test results.
+- **Verification**: The script prints the number of aligned molecules and the KS‑test result for selection bias.
 
 ## Training the Model (CPU‑only)
 
 ```bash
-python code/main.py train
+# Train on a *sampled* subset (max 30k molecules) to stay within the 6‑hour CI limit
+python code/main.py train --max-samples 30000
 ```
 
 - **Outputs**  
   - `models/checkpoint_best.pt` (best model)  
   - `runs/` (TensorBoard logs)  
-  - `results/runtime_verification.json` (will indicate `< 6h` if successful)  
+  - `results/runtime_verification.json` (will show `< 6h` if successful)  
 
 - **Monitoring**: `tensorboard --logdir=runs`  
 
@@ -62,20 +64,30 @@ python code/main.py evaluate --checkpoint models/checkpoint_best.pt
 python code/main.py validate --checkpoint models/checkpoint_best.pt
 ```
 
-- **Output**: `results/validation_metrics.json` (MAE, R² on a truly external dataset).  
-- **Failure Mode**: If no external validation dataset is found, the script aborts with a clear error message and the pipeline stops, ensuring the scientific claim is not overstated.
+- **Output**: `results/validation_metrics.json` (MAE & R² on an external open dataset).  
+- **Failure Mode**: If no external dataset can be fetched, the script aborts with a clear error and the pipeline stops, preserving scientific integrity.
+
+## Control Experiment (Circularity Check)
+
+```bash
+python code/main.py control --checkpoint models/checkpoint_best.pt
+```
+
+- **Output**: `results/control_metrics.json` (MAE/R² for scrambled spectra).  
 
 ## Static Analysis & Testing (Required Evidence)
 
 ```bash
-# Static analysis with ruff (will generate logs/ruff_check.log)
+# Static analysis with ruff (generates logs/ruff_check.log)
 ruff check --fix code/ > logs/ruff_check.log 2>&1
 
-# Run the test suite (will generate logs/pytest.log)
+# Run the test suite (generates logs/pytest.log)
 pytest tests/ -v > logs/pytest.log 2>&1
 ```
 
-Both logs must end with an exit code 0; any warnings must be fixed before proceeding.
+Both logs must end with exit code 0; any warnings must be fixed before proceeding.
+
+<!-- Test suite output restored -->
 
 ## Pipeline Runtime Monitoring
 
@@ -101,15 +113,16 @@ This file is produced by `code/scripts/profile_pipeline.py` and must be present 
 
 | Artifact | Expected Location | How to Verify |
 |----------|-------------------|---------------|
-| Data ingestion log | `logs/data_ingestion.log` | Contains download sizes and mismatch counts. |
-| Preprocessing log & NPZ | `data/processed/aligned_dataset.npz` | Load with `np.load` and check shapes. |
-| Training log & checkpoint | `models/checkpoint_best.pt` & `logs/training.log` | TensorBoard visualizes loss curves. |
-| Runtime verification | `results/runtime_verification.json` | `"status": "completed"` and `"elapsed_seconds"` ≤ 21600. |
+| Data ingestion log | `logs/download.log` | Contains download sizes, checksum verification, and mismatch count. |
+| Alignment log | `logs/alignment.log` | Shows number of matched molecules. |
+| Preprocessed NPZ | `data/processed/aligned_dataset.npz` | Load with `np.load` and check shapes (`spectra.shape[1:] == ([deferred]1)`). |
+| Training log & checkpoint | `models/checkpoint_best.pt`, `logs/training.log` | TensorBoard visualizes loss curves. |
+| Runtime verification | `results/runtime_verification.json` | Should show `"status": "completed"` and `"elapsed_seconds"` ≤ 21600. |
 | Full pipeline runtime | `results/pipeline_runtime.json` | Must be ≤ 6 h; abort otherwise. |
 | Evaluation metrics | `results/evaluation_metrics.json` | Validate against `contracts/evaluation_results.schema.yaml`. |
 | Independent validation metrics | `results/validation_metrics.json` | Same schema; flagged if MAE increase > 20 %. |
-| Control experiment metrics | `results/control_metrics.json` | Same schema; MAE should be significantly higher than the main model. |
-| Profile report | `results/profile_report.txt` | Summarizes memory/CPU usage (generated by `code/scripts/profile_pipeline.py`). |
+| Control experiment metrics | `results/control_metrics.json` | Same schema; MAE should be significantly higher than main model. |
+| Profile report | `results/profile_report.txt` | Summarizes peak memory & CPU usage (generated by `code/scripts/profile_pipeline.py`). |
 | Static analysis report | `logs/ruff_check.log` | Should end with `Finished` and exit code 0. |
 | Test suite output | `logs/pytest.log` | All tests pass (`=== 8 passed in ...`). |
 
@@ -119,12 +132,12 @@ This file is produced by `code/scripts/profile_pipeline.py` and must be present 
 pytest tests/ -v > logs/pytest.log 2>&1
 ```
 
-All tests must pass; the log file is the evidence required for task **T046**.
+All tests must pass; the log file is the evidence required for task **T112**.
 
 ## Troubleshooting
 
 - **MemoryError** – Reduce `BATCH_SIZE` in `code/models/trainer.py`.  
-- **Timeout** – Check `results/pipeline_runtime.json`; if `"status": "timeout"` increase early‑stopping patience or reduce max epochs.  
+- **Timeout** – Check `results/pipeline_runtime.json`; if `"status": "timeout"` increase early‑stopping patience or lower `max_epochs`.  
 - **Zero Alignments** – Verify that both raw files contain the `InChIKey` column; re‑run `download` if needed.  
 - **CUDA Accidentally Enabled** – Ensure `torch.cuda.is_available()` returns `False`; reinstall `torch` without CUDA support.  
 

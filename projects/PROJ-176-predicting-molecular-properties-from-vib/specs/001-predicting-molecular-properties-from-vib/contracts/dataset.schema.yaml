@@ -5,7 +5,7 @@ type: "object"
 properties:
   spectra:
     type: "array"
-    description: "Normalized, smoothed IR spectra. Shape: [N, a single‑channel dimension, (spectral length corresponding to the full resolution of the instrument)]"
+    description: "Normalized, smoothed IR spectra. Shape: [N, single‑channel, 3601]"
     items:
       type: "array"
       items:

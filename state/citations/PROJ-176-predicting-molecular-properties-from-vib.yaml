@@ -1,4 +1,37 @@
-- artifact_hash: f72a35f112998e483d25eb08ece8ef01acb02f689b9f6f41a6bfbce11bd6bffa
+- artifact_hash: 3908f90a427f1f3ed50a556d147658647187c3a32ffae0fa24e77f1e0739708d
+  artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001.parquet
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001.parquet
+  verified_at: '2026-10-16T23:39:57.521194Z'
+- artifact_hash: 3908f90a427f1f3ed50a556d147658647187c3a32ffae0fa24e77f1e0739708d
+  artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/lamblador/QM9-IR/resolve/main/data/qm9_ir.parquet
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/lamblador/QM9-IR/resolve/main/data/qm9_ir.parquet
+  verified_at: '2026-10-16T23:39:57.521194Z'
+- artifact_hash: 3908f90a427f1f3ed50a556d147658647187c3a32ffae0fa24e77f1e0739708d
+  artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/plan.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/lamblador/QM9-B3LYP/resolve/main/data/qm9_b3lyp.parquet
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/lamblador/QM9-B3LYP/resolve/main/data/qm9_b3lyp.parquet
+  verified_at: '2026-10-16T23:39:57.521194Z'
+- artifact_hash: f73928ec9c30fc9f5cfdde1f68be299174f839edac720ac39118d6f56bab12a8
   artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/research.md
   cite_id: c-001
   cited_authors: []
@@ -8,15 +41,37 @@
   value: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001.parquet
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001.parquet
-  verified_at: '2026-10-10T09:58:57.938839Z'
-- artifact_hash: f72a35f112998e483d25eb08ece8ef01acb02f689b9f6f41a6bfbce11bd6bffa
+  verified_at: '2026-10-16T23:40:16.826962Z'
+- artifact_hash: f73928ec9c30fc9f5cfdde1f68be299174f839edac720ac39118d6f56bab12a8
   artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: test-00000-of-00001.parquet
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/Lamblador/IRSpectra/resolve/main/data/test-00000-of-00001.parquet
+  value: https://huggingface.co/datasets/lamblador/QM9-IR/resolve/main/data/qm9_ir.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6915ac6ed75cb39d1ed0b9ff/6fa622d9dd58373f5b9799042319b4f61852839558c45e23a580617cded0e1a2?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&xip=iRqzCDvTviA&Expires=1791629938&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxNWFjNmVkNzVjYjM5ZDFlZDBiOWZmLzZmYTYyMmQ5ZGQ1ODM3M2Y1Yjk3OTkwNDIzMTliNGY2MTg1MjgzOTU1OGM0NWUyM2E1ODA2MTdjZGVkMGUxYTJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnhpcD1pUnF6Q0R2VHZpQSIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxNjI5OTM4fX19XX0_&Signature=MEUCIQCk0g%7EQlI1ggKxtnDxOXXm7xpo1C1ztVhkpR9-MhJbehwIgQ4fYVwZD9o8ceoXA7PBLuiBCIF%7Ec5DD0unzcRZ6SKf4_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-10T09:58:57.938839Z'
+  verified_against_url: https://huggingface.co/datasets/lamblador/QM9-IR/resolve/main/data/qm9_ir.parquet
+  verified_at: '2026-10-16T23:40:16.826962Z'
+- artifact_hash: f73928ec9c30fc9f5cfdde1f68be299174f839edac720ac39118d6f56bab12a8
+  artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/lamblador/QM9-B3LYP/resolve/main/data/qm9_b3lyp.parquet
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/lamblador/QM9-B3LYP/resolve/main/data/qm9_b3lyp.parquet
+  verified_at: '2026-10-16T23:40:16.826962Z'
+- artifact_hash: 367917cf6390a484ae78ab93ce15379fba38e7215f37ce0c161200b00df2bc41
+  artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/PROJ-176-predicting-molecular-properties-from-vib.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-176-predicting-molecular-properties-from-vib
+  verified_at: '2026-10-16T23:40:49.852581Z'
