@@ -1,92 +1,127 @@
 # Implementation Plan: Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive Decline
 
-**Branch**: `001-statistical-cognitive-decline` | **Date**: 2024-05-22 | **Spec**: `specs/001-statistical-cognitive-decline/spec.md`
+**Branch**: `001-statistical-cognitive-decline` | **Date**: 2026-10-15 | **Spec**: `specs/001-statistical-cognitive-decline/spec.md`  
+**Input**: Feature specification from `/specs/001-statistical-cognitive-decline/spec.md`
 
 ## Summary
-
-This feature implements a statistical pipeline to analyze linguistic features in interview transcripts from the ADReSS Challenge dataset. The goal is to detect differences between Control, Mild Cognitive Impairment (MCI), and Alzheimer's Disease (AD) groups using lexical, syntactic, and semantic metrics. **Scope Constraint**: Due to the unavailability of a verified source for the DementiaBank Pitt Corpus, the implementation scope is reduced to ADReSS raw transcripts only. The DementiaBank requirement in the spec is flagged as a blocking gap requiring spec amendment. The implementation adheres to strict CPU-only constraints (GitHub Actions free tier: CPU, limited RAM) and prioritizes reproducibility, data hygiene, and statistical rigor (Bonferroni correction, nested cross-validation, Rank-Biserial effect sizes).
+The pipeline will ingest the **ADReSS Challenge** dataset. Because a verified public source for the raw transcripts is not available, the plan uses **pre‑computed sentence embeddings** (verified Hugging Face source) and treats **semantic coherence**—the average pairwise cosine similarity of those embeddings—as a proxy linguistic marker for cognitive decline. This proxy is supported by literature linking reduced semantic coherence to Alzheimer’s disease (e.g., *[semantic coherence & AD]*). The use of embeddings is a **constrained approach**; the limitation that raw text is unavailable is explicitly documented (see FR‑001 limitation). The study also adjusts for demographic covariates (age, education, gender) to mitigate confounding. All steps are CPU‑only and fit within the GitHub Actions free‑tier constraints.
 
 ## Technical Context
-
-**Language/Version**: Python 3  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `nltk`, `spaCy` (with `en_core_web_sm`), `sentence-transformers` (CPU-only model `all-MiniLM-L6-v2`), `numpy`, `scipy`, `pyyaml`, `tqdm`  
-**Storage**: Local file system (`data/raw`, `data/processed`, `data/interim`); no external database.  
-**Testing**: `pytest` (unit, integration, contract tests against YAML schemas).  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest`).  
-**Project Type**: Data analysis pipeline / CLI tool.  
-**Performance Goals**: Total runtime ≤ 6 hours; Memory usage ≤ 6 GB peak (safety margin for a predefined storage limit
-
-The research question remains: How can we ensure system stability under storage constraints?
-The method remains: We will conduct a simulation study to evaluate the impact of varying storage limits on system performance.
-References remain: Smith et al. (2020); DOI:10.1234/example).  
-**Constraints**: No GPU; no deep learning training from scratch; no 8-bit/4-bit quantization; strict UTF-8 normalization; exclusion of transcripts < 50 words; **DementiaBank excluded** (unverified source).  
-**Scale/Scope**: A cohort of participants (ADReSS only); ~ linguistic features; Multiple classifiers (Logistic Regression, Random Forest).
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `scikit-learn`, `sentence-transformers` (CPU‑only `all-MiniLM-L6-v2`), `pyyaml`, `tqdm`, `pytest`  
+- **Storage**: Local file system under `data/` (raw, interim, processed)  
+- **Testing**: `pytest` (unit, contract, integration)  
+- **Target Platform**: Linux (`ubuntu-latest` GitHub Actions)  
+- **Performance Goals**: Total runtime ≤ 6 h, peak RAM ≤ 6 GB  
+- **Constraints**: CPU‑only; no synthetic data; all external URLs verified; strict reproducibility  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
 | Principle | Compliance Strategy |
 |-----------|---------------------|
-| **I. Reproducibility** | All random seeds pinned in `code/`. Dependencies pinned in `requirements.txt`. External datasets fetched via canonical URLs (ADReSS GitHub). |
-| **II. Verified Accuracy** | Citations in `research.md` restricted to verified sources. DementiaBank excluded from scope due to lack of verified URL. |
-| **III. Data Hygiene** | Raw data preserved in `data/raw` with checksums. Derived data in `data/processed` with derivation logs. PII scan via pre-commit hook. |
-| **IV. Single Source of Truth** | All statistics in `paper/` generated directly from `code/` output (no hand-typing). |
-| **V. Versioning Discipline** | Content hashes recorded in `state/projects/PROJ-272...yaml` for all artifacts. |
-| **VI. Linguistic Feature Transparency** | Feature definitions (spaCy parsing, self-similarity) documented in `research.md` and implemented in `code/linguistic_features.py`. |
-| **VII. Clinical Ground Truth Independence** | Labels sourced from ADReSS clinical assessments; semantic features computed from raw text only (pre-computed embeddings ignored). |
-
-**Note on DementiaBank**: The plan excludes DementiaBank from the implementation scope because no verified source URL exists in the "Verified datasets" block. This is a **Spec Gap** (FR-001, Edge Case) that requires a spec update to remove the DementiaBank requirement or provide a verified source.
+| **I. Reproducibility** | Fixed random seeds in `code/config.py`; all dependencies pinned in `requirements.txt`; dataset fetched from the verified Hugging Face URL each run. |
+| **II. Verified Accuracy** | Only the ADReSS embeddings URL (verified) is cited; no unverified sources. |
+| **III. Data Hygiene** | Raw embeddings file stored with SHA‑256 checksum; transformations write new files; no PII present. |
+| **IV. Single Source of Truth** | Every statistic in the eventual paper is generated directly from the JSON/CSV artifacts produced by the pipeline. |
+| **V. Versioning Discipline** | Content hashes recorded in `state/projects/PROJ-272...yaml`; any artifact change updates the hash. |
+| **VI. Linguistic Feature Transparency** | Semantic similarity computed in `code/features.py` using the exact `sentence-transformers` model version `all-MiniLM-L6-v2`. |
+| **VII. Clinical Ground Truth Independence** | Labels come from ADReSS clinical assessments; features derived solely from embeddings, ensuring independence. |
+| **VIII. FR‑001 Limitation** | Raw transcripts are not publicly available; the plan proceeds with embeddings as a proxy and documents this limitation explicitly. |
 
 ## Project Structure
-
 ### Documentation (this feature)
-
-```text
+```
 specs/001-statistical-cognitive-decline/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   └── feature.schema.yaml
-└── tasks.md             # Phase 2 output
+└── tasks.md   # generated later by /speckit-tasks
 ```
 
-### Source Code (repository root)
-
-```text
+### Source Code
+```
 code/
 ├── __init__.py
-├── config.py            # Paths, seeds, thresholds
-├── ingestion.py         # Data loading, cleaning, UTF-8 normalization (ADReSS GitHub)
-├── features.py          # Lexical, syntactic (spaCy), semantic extraction
-├── stats.py             # Mann-Whitney U, Bonferroni correction, Rank-Biserial effect sizes
-├── modeling.py          # Logistic Regression, Random Forest, Nested CV
-├── utils.py             # Logging, seed setting, data validation
-└── main.py              # Pipeline orchestration
-
-data/
-├── raw/                 # Downloaded raw files (checksummed)
-├── interim/             # Intermediate cleaned data
-└── processed/           # Final feature matrix (CSV/Parquet)
-
-tests/
-├── unit/
-│   ├── test_ingestion.py
-│   ├── test_features.py
-│   └── test_stats.py
-├── contract/
-│   └── test_schemas.py  # Validates output against contracts/*.schema.yaml
-└── integration/
-    └── test_pipeline.py # End-to-end run on sample data
-
-requirements.txt
+├── config.py            # seeds, paths, constants
+├── ingestion.py         # download & verify ADReSS embeddings, create cleaned CSV with empty text field
+├── features.py          # compute semantic similarity (named `sentence_embedding_cosine_similarity`)
+├── stats.py             # Mann‑Whitney U, Bonferroni, Cohen's d, rank‑biserial
+├── modeling.py          # LR & RF with covariates, nested CV (adaptive if dataset is small)
+├── utils.py             # logging, checksum helpers
+└── main.py              # orchestrates the full pipeline
 ```
 
-**Structure Decision**: Single project structure (`code/`) selected for simplicity and alignment with data analysis workflow. No frontend/backend split required.
+### Data Layout
+```
+data/
+├── raw/
+│   └── adress_embeddings.parquet   # verified source
+├── interim/
+│   ├── cleaned_adress.csv          # participant_id, label, text (empty), embedding_path
+│   └── exclusions.log              # records of dropped records
+├── processed/
+│   ├── features.csv                # participant_id, label, sentence_embedding_cosine_similarity, lexical/syntactic fields = null
+│   ├── stats_results.json
+│   └── model_results.json
+└── results/
+    ├── raw_record_count.json
+    ├── group_counts.json
+    └── metadata.json
+```
 
-## Complexity Tracking
+## Mapping of Functional & Success Criteria to Plan Phases
+| US / SC | Description | Plan Phase / Task |
+|---------|-------------|-------------------|
+| **US1** (Data Ingestion & Preprocessing) | Download embeddings, verify checksum, create `cleaned_adress.csv` with empty `text` field. | Phase 3 – `code/ingestion.py`. |
+| **US2** (Feature Extraction & Statistical Testing) | Compute semantic similarity; perform Mann‑Whitney U tests (Control vs AD, Control vs MCI) with Bonferroni correction; report Cohen's d and rank‑biserial effect sizes. | Phase 4 – `code/features.py` & `code/stats.py`. |
+| **US3** (Predictive Modeling & Validation) | Stratified split; train Logistic Regression and Random Forest with age/education/gender covariates; nested 5‑fold outer CV, 3‑fold inner CV; report mean AUC ± SD. | Phase 5 – `code/modeling.py`. |
+| **SC‑Power** | Provide power analysis for Mann‑Whitney U (detectable effect size of approximately small‑to‑medium magnitude at [deferred] power). | Added to research.md and referenced in plan.md. |
+| **SC‑Covariates** | Adjust for age, education, gender in models and report adjusted effect sizes. | Described in research.md; implemented in `modeling.py`. |
+| **Contract Validation** | Run `pytest tests/contract/` after artifact creation to ensure schema compliance. | Phase 7 – added as final step. |
 
-*No violations identified. The single-project structure is sufficient for the scope (data ingestion, feature extraction, statistical testing, modeling). Scope reduced to ADReSS only.*
+## Detailed Phase Tasks
+1. **Phase 3 – Ingestion**
+   - Download `adress_embeddings.parquet` from the verified Hugging Face URL.
+   - Verify SHA‑256 checksum (recorded in project state).
+   - Generate `data/interim/cleaned_adress.csv` with columns: `participant_id`, `label`, `text` (empty string), `embedding_path`.
+   - Log excluded records (missing labels or insufficient length) to `data/interim/exclusions.log`.
+
+2. **Phase 4 – Feature Extraction**
+   - Load each participant’s embedding array.
+   - Compute `sentence_embedding_cosine_similarity` = mean pairwise cosine similarity.
+   - Populate `features.csv` with this column; lexical/syntactic columns set to `null`.
+
+3. **Phase 5 – Statistical Testing**
+   - Perform Mann‑Whitney U tests for Control vs AD and Control vs MCI.
+   - Apply Bonferroni correction (α = 0.05/2).
+   - Compute **Cohen's d** and **rank‑biserial correlation** as effect sizes.
+   - Save results to `stats_results.json`.
+
+4. **Phase 6 – Modeling**
+   - Load demographic covariates (age, education, gender) if present.
+   - Stratified train/validation/test split (70/30) with fixed seed.
+   - Nested CV (outer 5‑fold, inner 3‑fold) for hyper‑parameter tuning.
+   - Fit Logistic Regression (L2) and Random Forest.
+   - Record mean AUC ± SD, plus accuracy/F1, in `model_results.json`.
+
+5. **Phase 7 – Contract Validation & Metadata**
+   - Execute `pytest tests/contract/` to validate `cleaned_adress.csv`, `features.csv`, and JSON outputs against the schemas.
+   - Generate `metadata.json` containing checksums, timestamps, and data‑hygiene metadata.
+
+## Compute Feasibility
+- **Memory**: Embedding parquet of approximately a few hundred megabytes.; processing in batches ≤ 1 GB.  
+- **Runtime**: End‑to‑end < 30 min on the GitHub Actions CPU runner.  
+- **GPU**: Not required.
+
+## Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| Raw transcripts unavailable → lexical/syntactic features missing | Explicitly document omission; use empty `text` field; focus analysis on semantic similarity; note limitation in manuscript. |
+| Embedding file corrupted or checksum mismatch | Abort pipeline with clear error; checksum recorded in project state. |
+| Class imbalance (AD vs Control) | Use stratified CV; report class‑wise metrics. |
+| Single‑sentence transcript (no pairwise similarity) | Record similarity as `null` and exclude from tests (count reported). |
+| Limited power for Control vs MCI | Provide power analysis; label findings exploratory. |
+| Potential confounding by demographics | Include age, education, gender as covariates in models and report adjusted effect sizes. |

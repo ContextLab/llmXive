@@ -1,4 +1,4 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: Dataset Schema
 description: Schema for the cleaned and processed dataset.
 type: object
@@ -11,7 +11,7 @@ properties:
     description: Cognitive status label (Control, MCI, AD).
   text:
     type: string
-    description: Cleaned transcript text.
+    description: Cleaned transcript text (empty string when raw text unavailable).
 required:
   - participant_id
   - label

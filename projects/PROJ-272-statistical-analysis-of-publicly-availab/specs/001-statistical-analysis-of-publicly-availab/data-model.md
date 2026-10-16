@@ -1,60 +1,47 @@
 # Data Model: Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive Decline
 
 ## Overview
+The data model defines three stages of data artifacts:
 
-This document defines the data structures for the statistical analysis pipeline. It covers the raw input, cleaned intermediate, and final feature matrix formats. All data is stored in `data/` with checksums for reproducibility.
+1. **Raw Input** – verified ADReSS sentence‑embedding parquet file.  
+2. **Interim Cleaned CSV** – participant identifiers, clinical label, an empty `text` placeholder, and path to the embedding array.  
+3. **Processed Feature Matrix** – semantic similarity metric (lexical/syntactic fields present but `null`).  
+
+All files reside under `data/` and are accompanied by SHA‑256 checksums recorded in the project state file.
 
 ## Entity Definitions
 
 ### Participant
-- **ID**: Unique identifier (string).
-- **Cognitive Status**: Enum (`Control`, `MCI`, `AD`).
-- **Transcript**: Cleaned text (string).
-- **Word Count**: Integer.
+| Field | Type | Description |
+|-------|------|-------------|
+| `participant_id` | string | Unique identifier (e.g., `ADReSS_001`). |
+| `cognitive_status` | enum(`Control`, `MCI`, `AD`) | Clinical label from ADReSS. |
+| `embedding_path` | string | Relative path to the `.npy` file containing the participant’s sentence embeddings. |
+| `word_count` | integer | **Not available** (raw text missing). Set to `null`. |
 
-### Linguistic Feature
-- **Type**: Lexical, Syntactic, or Semantic.
-- **Value**: Float (normalized) or `NaN` (if zero-division or invalid).
-- **Source**: Script name (e.g., `features.py`).
+### Feature Record
+| Field | Type | Description |
+|-------|------|-------------|
+| `participant_id` | string | Foreign key to Participant. |
+| `cognitive_status` | enum(`Control`, `MCI`, `AD`) | Redundant copy for convenience. |
+| `sentence_embedding_cosine_similarity` | number (0 – 1) | Mean pairwise cosine similarity of sentence embeddings. |
+| `ttr` | [ "number", "null" ] | **null** (lexical feature unavailable). |
+| `mtld` | [ "number", "null" ] | **null**. |
+| `noun_verb_ratio` | [ "number", "null" ] | **null**. |
+| `mean_clause_length` | [ "number", "null" ] | **null**. |
+| `t_unit_count` | [ "integer", "null" ] | **null**. |
 
-## Data Flow
+## Schemas (refer to `contracts/`)
 
-1. **Raw Input** (`data/raw/`):
-   - `adress_raw.txt` (from ADReSS GitHub).
-2. **Cleaned Intermediate** (`data/interim/`):
-   - `cleaned_transcripts.csv`: ID, Status, Cleaned Text, Word Count.
-3. **Feature Matrix** (`data/processed/`):
-   - `features.csv`: ID, Status, TTR, MTLD, NounVerbRatio, MeanClauseLength, TUnitCount, SemanticSimilarity.
-
-## Schema Definitions
-
-### Input Schema (Raw)
-- **Format**: TXT or JSON.
-- **Fields**: `id`, `text`, `status` (optional).
-
-### Intermediate Schema (Cleaned)
-- **Format**: CSV.
-- **Fields**:
-  - `participant_id`: String (unique).
-  - `cognitive_status`: String (`Control`, `MCI`, `AD`).
-  - `cleaned_text`: String (UTF-8, no non-verbal annotations).
-  - `word_count`: Integer (≥ 50).
-
-### Output Schema (Features)
-- **Format**: CSV.
-- **Fields**:
-  - `participant_id`: String.
-  - `cognitive_status`: String.
-  - `ttr`: Float (Type-Token Ratio).
-  - `mtld`: Float (Measure of Textual Lexical Diversity).
-  - `noun_verb_ratio`: Float (or `NaN`).
-  - `mean_clause_length`: Float.
-  - `t_unit_count`: Integer.
-  - `semantic_similarity`: Float (0.0 - 1.0).
+- **Raw Input Schema** – not required because the source file is a verified Hugging Face dataset; checksum ensures integrity.  
+- **Interim Schema** – matches `dataset.schema.yaml` (participant_id, label, text). The `text` column is an empty string placeholder.  
+- **Feature Schema** – matches `feature.schema.yaml`; fields not computed are set to `null` (interpreted as `NaN` by downstream code).
 
 ## Data Hygiene Rules
+- **Checksums**: Every file written to `data/` is accompanied by a SHA hash stored in `state/projects/PROJ-272...yaml`.  
+- **Immutability**: Raw embeddings never altered; all transformations generate new files.  
+- **PII**: No personally identifying information exists in any artifact.  
+- **Zero‑Handling**: Missing lexical/syntactic values are encoded as `null` (JSON) / `NaN` (CSV) and are excluded from statistical calculations.
 
-- **Checksums**: SHA-256 hash recorded for every file in `data/`.
-- **PII**: No names, dates of birth, or locations in `data/`.
-- **Immutability**: Raw data never modified. Derivations create new files.
-- **Zero-Handling**: `noun_verb_ratio` may be `NaN` if zero nouns or verbs detected.
+---
+

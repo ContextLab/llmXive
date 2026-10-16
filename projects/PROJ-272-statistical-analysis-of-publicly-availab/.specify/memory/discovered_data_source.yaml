@@ -1,12 +1,16 @@
 status: none
-intent: download ADReSS Challenge raw speech transcripts dataset python package dataset
+intent: download ADReSS Challenge raw text and DementiaBank Pitt Corpus python package
+  dataset
 required_fields:
 - participant_id
-- transcript_text
-- diagnosis_label
+- audio_path
+- transcript
+- diagnosis
 - age
 - gender
-- audio_file_path
-cache_key: 5c377c2859451eebd0facf8c75b2e3eb8c11b8de6ea26ceb4bb1b20e13516b96
-searched_at: '2026-09-30T16:29:07.891785+00:00'
+- MMSE_score
+- education_years
+- picture_description
+cache_key: a800f74ec41a6dd6a40e884d0698fc0ba823d2660cf739464478ec6c4a2e5e26
+searched_at: '2026-10-16T05:08:37.825282+00:00'
 retry_count: 1
