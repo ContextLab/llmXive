@@ -2,18 +2,20 @@
 setup_skeleton.py
 
 This script creates the canonical project directory tree required for the
-"Predicting Molecular Properties from Vibrational Spectra" feature, adds empty
-`__init__.py` files so that the directories are recognised as Python packages,
-and writes a sorted list of all directories to `results/structure_report.txt`.
+"Predicting Molecular Properties from Vibrational Spectra" project, adds empty
+`__init__.py` files to ensure directories are treated as Python packages,
+and performs the required verification steps:
+1. Compiles the code directory to ensure syntactical correctness.
+2. Generates a sorted report of all directories in the project root.
 """
 
+import os
+import subprocess
 import sys
 from pathlib import Path
-from llmxive_toolkit import paths
 
 def main() -> int:
-    # 1. Define the directory structure as specified in T101
-    # We include the contracts folder as it is required by T102
+    # 1. Define the canonical directory tree as specified in T101
     DIRS = [
         "code",
         "code/data",
@@ -30,38 +32,56 @@ def main() -> int:
         "specs/001-predict-molecular-properties/contracts",
     ]
 
-    # 2. Create directories and __init__.py files
+    # Create directories
     for d in DIRS:
         p = Path(d)
         p.mkdir(parents=True, exist_ok=True)
+
+    # 2. Create empty __init__.py files for Python packages
+    INIT_FILES = [
+        "code/__init__.py",
+        "code/data/__init__.py",
+        "code/models/__init__.py",
+        "code/evaluation/__init__.py",
+        "code/utils/__init__.py",
+        "tests/__init__.py",
+    ]
+    for f in INIT_FILES:
+        Path(f).touch(exist_ok=True)
+
+    # 3. Verification: Run compileall on the code directory
+    # This ensures that the created skeleton (and any existing code) is syntactically valid.
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "compileall", "code/"],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Compilation failed: {e.stderr}")
+        return 1
+
+    # 4. Verification: Generate the structure report
+    # We use the shell command 'find . -type d | sort' as explicitly required by the task verification.
+    # This ensures the output format exactly matches the expectation.
+    try:
+        # Ensure the results directory exists before redirecting
+        Path("results").mkdir(parents=True, exist_ok=True)
         
-        # Create an empty __init__.py for Python packages
-        # These are typically under code/ or tests/
-        if "code" in p.parts or "tests" in p.parts:
-            (p / "__init__.py").touch(exist_ok=True)
+        # Use shell=True to allow the pipe and redirection
+        subprocess.run(
+            "find . -type d | sort > results/structure_report.txt",
+            shell=True,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Structure report generation failed: {e.stderr}")
+        return 1
 
-    # 3. Generate the structure report
-    # Use the toolkit to get the correct results path
-    report_path = paths.results("structure_report.txt")
-    
-    # Find all directories relative to the project root
-    # We use Path(".").rglob("*") to mimic 'find . -type d'
-    all_dirs = []
-    for p in Path(".").rglob("*"):
-        if p.is_dir():
-            try:
-                # Store as string relative to current working directory
-                all_dirs.append(str(p.relative_to(Path.cwd())))
-            except ValueError:
-                continue
-    
-    all_dirs.sort()
-
-    # Write the sorted list to the report file
-    with report_path.open("w", encoding="utf-8") as f:
-        for line in all_dirs:
-            f.write(line + "\n")
-
+    print("Project skeleton created and verified successfully.")
     return 0
 
 if __name__ == "__main__":

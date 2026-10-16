@@ -29,8 +29,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py download -> rc=1
-ties-from-vib/code/data/download.py", line 28, in download_qm9
-    df.to_parquet(out_path)
+-vib/code/data/download.py", line 28, in download_qm9
+    df.to_parquet(out_path, engine='pyarrow')
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/util/_decorators.py", line 333, in wrapper
     return func(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^
@@ -40,13 +40,14 @@ ties-from-vib/code/data/download.py", line 28, in download_qm9
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 476, in to_parquet
     impl = get_engine(engine)
            ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
-    raise ImportError(
-ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 78, in get_engine
+    return PyArrowImpl()
+           ^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 163, in __init__
+    import_optional_dependency(
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/compat/_optional.py", line 138, in import_optional_dependency
+    raise ImportError(msg)
+ImportError: Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
 
 - python code/main.py preprocess -> rc=1
 File "/home/runner/work/llmXive/llmXive/projects/PROJ-176-predicting-molecular-properties-from-vib/code/data/preprocess.py", line 96, in main
@@ -67,13 +68,13 @@ Trying to import the above resulted in these errors:
  - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python code/main.py evaluate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 23:14:04 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 23:18:34 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
 
 - python code/main.py validate --checkpoint models/checkpoint_best.pt -> rc=2
-2026-10-16 23:14:05 - molecular_properties - INFO - Starting molecular properties prediction pipeline
+2026-10-16 23:18:35 - molecular_properties - INFO - Starting molecular properties prediction pipeline
 
 usage: main.py [-h] {download,preprocess,train,evaluate,validate} ...
 main.py: error: unrecognized arguments: --checkpoint models/checkpoint_best.pt
@@ -113,40 +114,6 @@ ERROR: file or directory not found: >
 - data/processed/alignment_report.json
 - data/raw/ir_spectra.parquet
 - data/raw/qm9.parquet
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `qm9pack` to the project's `requirements.txt` and `pip install qm9pack`.
-- **Verified**: this loads **130831** real records with fields: XYZ_file, Index, SMILES, InChi, N_atoms, Stoichiometry, Elements, XYZ_Ang, Mulliken_pop, Harmonic_Freq_cmi, RotA_GHz, RotB_GHz, RotC_GHz, Dipole_debye, Polarizability_bohr3, HOMO_au, LUMO_au, HOMO_LUMO_gap_au, R2_bohr2, ZPVE_au, InternalEnergy_0K_au, InternalEnergy_298K_au, Enthalphy_298K_au, GibbsFreeEnergy_298K_au, Heatcapacity_Cv_cal_mol_K, A_xx, A_xy, A_yy, A_xz, A_yz, A_zz.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import qm9pack
-
-# Load the full QM9 dataset (the typical dataset name is "qm9")
-data = qm9pack.get_data('qm9')
-
-if hasattr(data, "columns"):  # pandas DataFrame
-    records = len(data)
-    fields = list(data.columns)
-elif isinstance(data, (list, tuple)) and data and isinstance(data[0], dict):
-    records = len(data)
-    fields = list(data[0].keys())
-elif isinstance(data, dict):
-    records = 1
-    fields = list(data.keys())
-else:
-    records = len(data) if hasattr(data, "__len__") else 1
-    fields = []
-
-print(f"RECORDS={records}")
-if fields:
-    print(f"FIELDS={','.join(fields)}")
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
