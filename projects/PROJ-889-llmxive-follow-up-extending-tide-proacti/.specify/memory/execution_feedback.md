@@ -1,25 +1,38 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python -m src.data.generate_synthetic   # creates .py files under data/synthetic/`
+  - script usage: `generate_synthetic.py [-h] [--seed SEED] [--count COUNT]`
+  - argparse error: `generate_synthetic.py: error: unrecognized arguments: # creates .py files under data/synthetic/`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 12 command(s) failed: python -m src.data.acquire_real   # downloads, verifies SHA‑256, maps to binary ground_truth_label (rc=1); python -m src.features.extract   # reads all .py files, estimates depth/scope, writes data/features.csv (includes sha256) (rc=1); python -m src.pipelines.tide_lite   # outputs data/tide_lite_enriched.csv (rc=1)
+**Summary**: 13 command(s) failed: python -m src.data.acquire_real   # downloads, verifies SHA‑256, maps to binary ground_truth_label (rc=1); python -m src.data.generate_synthetic   # creates .py files under data/synthetic/ (rc=2); python -m src.features.extract   # reads all .py files, estimates depth/scope, writes data/features.csv (includes sha256) (rc=1)
 
 ## Failing / missing run-book commands
 
 - python -m src.data.acquire_real   # downloads, verifies SHA‑256, maps to binary ground_truth_label -> rc=1
-de-proacti/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 283, in _request_wrapper
-    response = _request_wrapper(
-               ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 307, in _request_wrapper
-    hf_raise_for_status(response)
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/utils/_http.py", line 453, in hf_raise_for_status
-    raise _format(RepositoryNotFoundError, message, response) from e
-huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6ad2899c-4a9ce4506eddadc5666887d0;494509c5-b177-4c8c-8912-aa455de5b6ec)
+Xive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 152, in main
+    records = _load_tide_dataset()
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 119, in _load_tide_dataset
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-Repository Not Found for url: https://huggingface.co/allenai/tide-eval/resolve/main/train.jsonl.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-Invalid username or password.
+- python -m src.data.generate_synthetic   # creates .py files under data/synthetic/ -> rc=2
+
+usage: generate_synthetic.py [-h] [--seed SEED] [--count COUNT]
+generate_synthetic.py: error: unrecognized arguments: # creates .py files under data/synthetic/
 
 - python -m src.features.extract   # reads all .py files, estimates depth/scope, writes data/features.csv (includes sha256) -> rc=1
 

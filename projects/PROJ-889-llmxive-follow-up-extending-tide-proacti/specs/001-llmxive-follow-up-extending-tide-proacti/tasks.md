@@ -8,7 +8,7 @@ The checklist implements the smallest complete study that satisfies every functi
 
 ## Phase 1 – Data acquisition & early sanity check  
 
-- [ ] T001 [US‑1] Download the official TIDE evaluation dataset and generate a synthetic edge‑case corpus.   <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1; src/data/acquire_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 -->
+- [ ] T001 [US‑1] Download the official TIDE evaluation dataset and generate a synthetic edge‑case corpus.   <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1; src/data/acquire_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 -->
   **Path**: `src/data/acquire_real.py` (real download) and `src/data/generate_synthetic.py` (synthetic generation).  
   **Verification**:  
   • Running `python -m src.data.acquire_real` loads the dataset via `datasets.load_dataset("allenai/tide-eval")` without error and writes `data/raw/tide_eval.csv` containing ≥ 200 rows.  

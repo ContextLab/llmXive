@@ -1,7 +1,7 @@
 status: none
-intent: download TIDE code evaluation dataset pip installable python package
+intent: download TIDE evaluation dataset for code analysis python package dataset
 required_fields:
-- code
+- code_string
 - hidden_problem_label
 - ast_depth
 - import_count
@@ -9,7 +9,6 @@ required_fields:
 - dependency_depth
 - semantic_scope
 - syntactic_complexity
-- python package dataset
-cache_key: fd4c5a0a9073621b562e7d06fcdcb01fa79d8f2e17c2831ca861e4aba80f44a3
-searched_at: '2026-10-16T20:33:32.235176+00:00'
+cache_key: 46405800d69a4fb797aa3c4ad3c4ec30fa7d298d3306ac150a256ebb2794bf65
+searched_at: '2026-10-16T21:13:15.934790+00:00'
 retry_count: 1

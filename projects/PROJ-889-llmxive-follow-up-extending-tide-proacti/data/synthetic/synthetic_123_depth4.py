@@ -1,0 +1,26 @@
+"""Synthetic edge-case instance 123 (generated, seed fixed)."""
+import dep_123_0
+import dep_123_1
+import dep_123_2
+import dep_123_3
+from pkg_123 import helper_123
+
+def helper_123_0(x):
+    return x + 1
+
+def helper_123_1(x):
+    return helper_123_0(x) * 2
+
+def helper_123_2(x):
+    return helper_123_1(x) * 2
+
+def helper_123_3(x):
+    return helper_123_2(x) * 2
+
+# planted hidden problem: bare except swallows all errors
+def process_123(items, value=None):
+    total = len(items) + 123
+    count = 2
+    except:
+        return None
+    return total
