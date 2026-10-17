@@ -1,0 +1,39 @@
+T001:
+  reason: "The quickstart.md file exists and contains the required \u201CRun the end\u2011\
+    to\u2011end pipeline\u201D section, but the integration test file `tests/integration/test_end_to_end.py`\
+    \ and the configuration file `config.yaml` are missing, and there is no evidence\
+    \ that `pytest -q tests/integration/test_end_to_end.py` passes or that `python\
+    \ -m src.run_pipeline --config config.yaml` runs successfully and prints \u201C\
+    Pipeline completed\u201D. These artifacts and execution evidence must be provided\
+    \ to satisfy the task."
+  task: efed8fc0e0715b46abc391f9e3251c0229cf0a247e440937386e5036faa32094
+T002:
+  reason: 'Requested task execution failed; rerun successfully: src/curators/curate_failed_figures.py
+    exit=1'
+  task: 01186f3ad9cc47147625c5ad87db58292c6ae0412bebf5fa588dfb22f1f38279
+T003:
+  task: 79c864f462c572423781e6627a4017440fd036bb6ae57fade7c739871685d96e
+T004:
+  task: fddeaa3a88b56842e6328224106c34b41bcb63041f7d6f9e6903da3e85245736
+T005:
+  task: 82861595e1961c72f7939d7b0a69b4f5048efe3a17a56358998e35fadb4f0400
+T006:
+  task: d1ad2d964cae396617392ad712705d39093426fd9fe737668cbecac94fe369a5
+T007:
+  task: b4dfc075ce189d30ef266135117f4628f13d034a921f452706cc33c9906ad1fb
+T008:
+  task: ea90355470f5eda313018c9a9d2165ee4ecd6ac4f8c5ddc7050eeee64241bf01
+T009:
+  task: 4170a1406eb980a62080b0b204eff606c495c05cbf0381c38bb11d652a0cc295
+T010:
+  task: e6f202b764be5fd827839604f70b3e0995260b12b9839ac45188582478f0fbda
+T011:
+  task: 813c3a89333627d2ecfa2dad05f71a701e07cd11a888fd146290ad6de32b6aa0
+T012:
+  task: 5bb83ce859a6ddf5f2ec4f6e64e3c5a79a8c1dbc14dd81aa56de479598e0269f
+T013:
+  task: f9a5d5170fddfbd04b6755490815edff7afbf93d9b4e64c9d2030a903402fa69
+T014:
+  task: 29cc724df0d437fc38a22566dd46c7e0fe2e6d296699ba5ef2e34bb529911f12
+T015:
+  task: e67a6e5fe290fa7cf0dc2fa4445a1e6cd7a30c21b9ceb8d35d1dc6ca47ac557d

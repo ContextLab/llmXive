@@ -78,5 +78,13 @@ pytest -q tests/contract
 ```
 All logs and the final analysis must pass the JSON schema contracts located in `contracts/`.
 
----
+## Run the end‑to‑end pipeline
+The full study pipeline can be executed with a single command. It sequentially runs the data curation, simulation, validation, analysis, and report generation steps, respecting the deterministic configuration defined in `config.yaml`.
 
+```bash
+python -m src.run_pipeline --config config.yaml
+```
+Expected output:
+```
+Pipeline completed
+```

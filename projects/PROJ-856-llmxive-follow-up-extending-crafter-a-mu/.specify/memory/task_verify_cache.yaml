@@ -1,0 +1,11 @@
+T001:
+  c: false
+  h: 062c9844c285f547c70012dab7d5ea527ce7468fdc80f3feefbd9491d98fe41f
+  r: "The quickstart.md file exists and contains the required \u201CRun the end\u2011\
+    to\u2011end pipeline\u201D section, but the integration test file `tests/integration/test_end_to_end.py`\
+    \ and the configuration file `config.yaml` are missing, and there is no evidence\
+    \ that `pytest -q tests/integration/test_end_to_end.py` passes or that `python\
+    \ -m src.run_pipeline --config config.yaml` runs successfully and prints \u201C\
+    Pipeline completed\u201D. These artifacts and execution evidence must be provided\
+    \ to satisfy the task."
+  sig: 7df6bede494814fcbb2fbffd170bec251dad816146b96665c3cc496623b23bbf

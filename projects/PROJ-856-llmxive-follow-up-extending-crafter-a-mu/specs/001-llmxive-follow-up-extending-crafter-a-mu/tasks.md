@@ -14,17 +14,17 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
   - **File**: `quickstart.md` (add a “Run the end‑to‑end pipeline” section).  
   - **Verification**: `pytest -q tests/integration/test_end_to_end.py` passes; the command `python -m src.run_pipeline --config config.yaml` executes without error and prints “Pipeline completed”.  
 
-- [ ] T002 [P] [US1] Implement data‑curation script that downloads a reproducible 50‑figure subset from CrafterBench, injects a single localized error per figure, and writes ground‑truth vectors.  
+- [ ] T002 [P] [US1] Implement data‑curation script that downloads a reproducible 50‑figure subset from CrafterBench, injects a single localized error per figure, and writes ground‑truth vectors.   <!-- FAILED-IN-EXECUTION: src/curators/curate_failed_figures.py exit=1 -->
   - **File**: `src/curators/curate_failed_figures.py` (CLI entry point `--output data/figures/`).  
   - **Verification**: After running `python -m src.curators.curate_failed_figures --num 50`, the directory `data/figures/` contains exactly 50 PNG files and `data/ground_truth/` contains 50 matching JSON vector files; a checksum manifest `data/checksums.txt` is generated.  
 
 - [ ] T003 [P] [US1] Provide two FastAPI interface stubs (structured harness & chat) with a session‑initialisation endpoint that randomises and counterbalances interface order per participant.  
   - **Files**: `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`, `src/interfaces/session.py`.  
-  - **Verification**: `curl -X POST http://localhost:8000/init_session -d '{"participant_id":"test"}'` returns JSON with `"order": ["structured","chat"]` or the reverse; both `/edit` endpoints respond `200 OK`.  
+  - **Verification**: `curl -X POST [UNRESOLVED-CLAIM: http://localhost:8000/init_session — ConnectionError: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /init_session (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))] -d '{"participant_id":"test"}'` returns JSON with `"order": ["structured","chat"]` or the reverse; both `/edit` endpoints respond `200 OK`.  
 
 - [ ] T004 [P] [US2] Add millisecond‑precision interaction logging that writes one JSON line per edit to `data/logs/interactions.jsonl`.  
   - **File**: `src/logger/interaction_logger.py`.  
-  - **Verification**: Simulated edit via `curl -X POST http://localhost:8000/edit …` creates a new line in `data/logs/interactions.jsonl` whose `timestamp_ms` field is an integer and `iteration` increments correctly.  
+  - **Verification**: Simulated edit via `curl -X POST [UNRESOLVED-CLAIM: http://localhost:8000/edit — ConnectionError: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /edit (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))] …` creates a new line in `data/logs/interactions.jsonl` whose `timestamp_ms` field is an integer and `iteration` increments correctly.  
 
 - [ ] T005 [P] [US2] Implement success‑validation utilities that (a) perform exact vector match and (b) compute semantic similarity (≥ 0.95). **A trial is considered successful only if BOTH the vector‑match succeeds AND the semantic similarity score meets the threshold**. The utilities write a `SemanticValidation` record containing `vector_match` (bool) and `semantic_pass` (bool); only trials where **both booleans are true** are counted as successful for downstream analysis.  
   - **Files**: `src/validation/vector_match.py`, `src/validation/semantic_similarity.py`.  
