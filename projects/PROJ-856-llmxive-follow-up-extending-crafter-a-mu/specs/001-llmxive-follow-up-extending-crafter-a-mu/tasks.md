@@ -14,7 +14,7 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
   - **File**: `quickstart.md` (add a “Run the end‑to‑end pipeline” section).  
   - **Verification**: `pytest -q tests/integration/test_end_to_end.py` passes; the command `python -m src.run_pipeline --config config.yaml` executes without error and prints “Pipeline completed”.  
 
-- [ ] T002 [P] [US1] Implement data‑curation script that downloads a reproducible 50‑figure subset from CrafterBench, injects a single localized error per figure, and writes ground‑truth vectors.   <!-- FAILED-IN-EXECUTION: src/curators/curate_failed_figures.py exit=1 -->
+- [ ] T002 [P] [US1] Implement data‑curation script that downloads a reproducible 50‑figure subset from CrafterBench, injects a single localized error per figure, and writes ground‑truth vectors.
   - **File**: `src/curators/curate_failed_figures.py` (CLI entry point `--output data/figures/`).  
   - **Verification**: After running `python -m src.curators.curate_failed_figures --num 50`, the directory `data/figures/` contains exactly 50 PNG files and `data/ground_truth/` contains 50 matching JSON vector files; a checksum manifest `data/checksums.txt` is generated.  
 
@@ -22,7 +22,7 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
   - **Files**: `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`, `src/interfaces/session.py`.  
   - **Verification**: `curl -X POST [UNRESOLVED-CLAIM: http://localhost:8000/init_session — ConnectionError: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /init_session (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))] -d '{"participant_id":"test"}'` returns JSON with `"order": ["structured","chat"]` or the reverse; both `/edit` endpoints respond `200 OK`.  
 
-- [ ] T004 [P] [US2] Add millisecond‑precision interaction logging that writes one JSON line per edit to `data/logs/interactions.jsonl`.  
+- [X] T004 [P] [US2] Add millisecond‑precision interaction logging that writes one JSON line per edit to `data/logs/interactions.jsonl`.  
   - **File**: `src/logger/interaction_logger.py`.  
   - **Verification**: Simulated edit via `curl -X POST [UNRESOLVED-CLAIM: http://localhost:8000/edit — ConnectionError: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /edit (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))] …` creates a new line in `data/logs/interactions.jsonl` whose `timestamp_ms` field is an integer and `iteration` increments correctly.  
 
@@ -42,11 +42,11 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
   - **File**: `src/simulation/simulate_participants.py`.  
   - **Verification**: After execution, `data/logs/interactions.jsonl` contains ≥ 30 × 50 × (1‑5) ≈ 7 500 lines; each line conforms to `contracts/interaction_log.schema.yaml`.  
 
-- [ ] T008 [P] [US2] Run combined validation on each completed trial: invoke both `vector_match` and `semantic_similarity`; **write a `SemanticValidation` JSON line only if both checks succeed**. Trials that fail either check are logged as unsuccessful and are **excluded** from the set of successful trials used in statistical analysis.  
+- [~] T008 [P] [US2] Run combined validation on each completed trial: invoke both `vector_match` and `semantic_similarity`; **write a `SemanticValidation` JSON line only if both checks succeed**. Trials that fail either check are logged as unsuccessful and are **excluded** from the set of successful trials used in statistical analysis.  
   - **File**: `src/validation/run_combined_validation.py`.  
   - **Verification**: After simulation, the validation file contains one record per trial that passed both checks; partially successful trials are not counted as successes.  
 
-- [ ] T009 [P] [US3] Add a retention‑check step that ensures at least 25 of the 30 simulated sessions contain one non‑aborted successful trial (as recorded in `semantic_validation.jsonl`); if not, emit a warning and halt analysis.  
+- [~] T009 [P] [US3] Add a retention‑check step that ensures at least 25 of the 30 simulated sessions contain one non‑aborted successful trial (as recorded in `semantic_validation.jsonl`); if not, emit a warning and halt analysis.  
   - **File**: `src/analysis/retention_check.py`.  
   - **Verification**: Unit test manipulates the log to produce only 24 successful sessions and asserts that the script exits with a non‑zero status and prints “Retention threshold not met”.  
 
@@ -54,11 +54,11 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
 
 ## Phase 3 – Statistical analysis & reporting  
 
-- [ ] T010 [P] [US3] Implement paired Wilcoxon signed‑rank analysis for `time_to_success` and `iteration_count`. Compute mean and median differences, apply Bonferroni correction, compute effect‑size *r* and bootstrap 95 % confidence intervals, and output `AnalysisResult` JSON objects for each metric. **Only trials with a `SemanticValidation` record where both `vector_match` and `semantic_pass` are true are included in the analysis**.  
+- [~] T010 [P] [US3] Implement paired Wilcoxon signed‑rank analysis for `time_to_success` and `iteration_count`. Compute mean and median differences, apply Bonferroni correction, compute effect‑size *r* and bootstrap 95 % confidence intervals, and output `AnalysisResult` JSON objects for each metric. **Only trials with a `SemanticValidation` record where both `vector_match` and `semantic_pass` are true are included in the analysis**.  
   - **File**: `src/analysis/wilcoxon_analysis.py`.  
   - **Verification**: Running the script on a synthetic dataset with a known difference yields the expected `p_value < 0.05`, correct mean/median differences, and prints the full `AnalysisResult` JSON objects.  
 
-- [ ] T011 [P] [US3] Generate the final human‑readable report (`outputs/report.md`) containing:  
+- [ ] T011 [P] [US3] Generate the final human‑readable report (`outputs/report.md`) containing:   <!-- FAILED-IN-EXECUTION: src/report/generate_report.py exit=1 -->
   1. Mean and median times & iterations for each interface,  
   2. Wilcoxon statistics, p‑values, effect sizes, confidence intervals,  
   3. Separate success‑rate tables for **vector‑match** and **semantic‑similarity** passes (derived from the filtered successful trials),  

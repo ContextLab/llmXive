@@ -1,6 +1,17 @@
-datasets>=2.0.0
-opencv-python>=4.9.0
-pillow>=10.0.0
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, pyyaml, requests, jsonschema, psutil) are already provided by the
-# platform and need not be listed here.
+# Core scientific stack (already available in the runner)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for semantic similarity
+torch>=2.0
+torchvision>=0.15

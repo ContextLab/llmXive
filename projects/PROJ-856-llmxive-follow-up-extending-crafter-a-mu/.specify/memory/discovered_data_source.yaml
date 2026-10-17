@@ -1,13 +1,12 @@
 status: none
-intent: download CrafterBench failed figure generation dataset with layout vectors
-  python package dataset
+intent: CrafterBench failed figure generation dataset download python package dataset
 required_fields:
 - figure_id
 - raster_image_path
 - error_type
-- error_location
+- error_location_coordinates
 - ground_truth_layout_vector
-- metadata
-cache_key: 6c2577fe4d25e97b6fcabf7c4237f9640dcddf57ed0b9cb485ca2092dc84f1bf
-searched_at: '2026-10-17T02:29:01.103479+00:00'
+- source_url
+cache_key: 240a37faa9f24cb62e48587612373dc43de62757cac6d995c466b0d796224f30
+searched_at: '2026-10-17T02:40:21.603891+00:00'
 retry_count: 1
