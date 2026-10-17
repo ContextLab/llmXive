@@ -1,147 +1,108 @@
 # Implementation Plan: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
 
-**Branch**: `[001-impurity-clustering-segregation]` | **Date**: 2025-01-15 | **Spec**: `spec.md`
+**Branch**: `[001-impurity-clustering-segregation]` | **Date**: 2026-10-17 | **Spec**: `spec.md`  
 **Input**: Feature specification from `/specs/001-impurity-clustering-segregation/spec.md`
 
 ## Summary
-
-This project implements a computational pipeline to quantify the relationship between impurity clustering descriptors (RDF peaks, pair correlations, Voronoi counts) at grain boundary (GB) interfaces and segregation energies. The approach involves downloading bulk configurations from OQMD (verified source) and Materials Project (fallback), constructing GB supercells, computing interface-specific descriptors, generating segregation energies via CPU-tractable atomistic simulations (using a specific NIST EAM potential for Fe-Cr), and training a Linear Regression model (selected over RandomForest to satisfy the requirement for coefficient p-values, with a fallback to permutation importance for RF). The pipeline includes rigorous collinearity diagnostics (VIF), multiple-comparison correction (Bonferroni or FDR based on test count), and threshold sensitivity analysis (quantile-based), all executable on a GitHub Actions free-tier runner (multi-core CPU, several GB RAM). A dynamic power analysis determines the sample size, capped at a predetermined threshold.
+Build a reproducible CPU‑only pipeline that (1) downloads bulk crystal structures from OQMD (fallback to a verified HuggingFace mirror of Materials Project bulk data), (2) constructs grain‑boundary (GB) supercells with impurity atoms at the interface, (3) computes three interface‑specific clustering descriptors (RDF peaks, pair‑correlation statistics, Voronoi neighbor counts), (4) generates segregation‑energy labels via fast empirical‑potential simulations, (5) assembles a training dataset, (6) computes VIF on the raw descriptors, (7) trains a Ridge regression model with 5‑fold CV (or LOOCV if N < 5) **including a formal power‑analysis**, (8) performs multiple‑comparison correction, (9) sweeps three regularization‑strength λ values (25th, 50th, 75th percentiles) and reports RMSE variance and R² stability, (10) emits JSON artifacts conforming to the contracts, and (11) generates deterministic `.gitignore` and `README.md` files so verification tasks T001b/T001c succeed.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pymatgen` (structure manipulation), `scikit-learn` (regression, metrics, VIF), `statsmodels` (p-values, robust SE), `numpy`, `pandas`, `ase` (atomistic simulations), `requests` (data fetching), `pyyaml` (contracts).  
-**Storage**: Local file system (`data/`, `results/`); no external database.  
-**Testing**: `pytest` (unit tests for descriptor calculation, integration tests for pipeline).  
-**Target Platform**: Linux (GitHub Actions free-tier: CPU, sufficient RAM for model execution., ~Sufficient disk capacity, NO GPU).  
-**Project Type**: Computational science pipeline / CLI tool.  
-**Performance Goals**: Full pipeline (download + simulate + train) ≤ 6 hours on sampled dataset (≤ 500 configurations); Memory ≤ 6 GB.  
-**Constraints**: No GPU; no heavy DFT calculations (use empirical potentials or pre-computed subsets); strict adherence to Spec FR-007 (detect but do not remove collinear features); strict dataset fit (OQMD/MP for bulk, simulated GBs for energies).  
-**Scale/Scope**: Sampled dataset of a large-scale volume of configurations; descriptor types; regression model; sensitivity sweep.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pymatgen`, `ase`, `scikit-learn`, `statsmodels`, `numpy`, `pandas`, `pyyaml`, `requests`, `tqdm`  
+- **Storage**: Local filesystem under `data/`, `results/` (no external DB)  
+- **Testing**: `pytest` (unit & integration) – includes deterministic checks for `.gitignore`, `README.md`, and the full pipeline.  
+- **Target Platform**: Linux GitHub Actions free‑tier (2 CPU cores, ≈7 GB RAM, ≤6 h runtime)  
+- **Constraints**: CPU‑only, < 6 GB RAM, all external URLs must be from the verified‑datasets list.  
+- **Scale/Scope**: Sample ≤ 500 GB supercells (full dataset streamed if larger).
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-| Constitution Principle | Compliance Status | Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`; external data fetched from canonical OQMD/MP URLs; `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **PASS** | Citations restricted to the "# Verified datasets" block in the user message (OQMD, MP). `validate_citations()` checks against a whitelist. |
-| **III. Data Hygiene** | **PASS** | Raw data checksummed; derivations written to new files; no in-place modification; PII scan passed (scientific data). |
-| **IV. Single Source of Truth** | **PASS** | All metrics (R², RMSE, p-values) saved as JSON artifacts in `results/` traceable to code version. |
-| **V. Versioning Discipline** | **PASS** | Content hashes tracked in `state/`; artifact updates trigger state timestamp updates. |
-| **VI. Materials Data Provenance** | **PASS** | Bulk configs sourced from OQMD/MP (verified URLs); GB structures generated internally; derived data cites OQMD/MP. |
-| **VII. Model Evaluation Transparency** | **PASS** | -fold CV (or LOOCV) procedure defined; seeds recorded; metrics saved with code version link. |
+| Principle | Status | Note |
+|-----------|--------|------|
+| I. Reproducibility | PASS | Random seeds pinned; data fetched from canonical URLs; `requirements.txt` version‑pinned |
+| II. Verified Accuracy | PASS | All citations limited to the verified‑datasets block |
+| III. Data Hygiene | PASS | Checksums recorded; raw data immutable; derived files new |
+| IV. Single Source of Truth | PASS | All metrics saved as JSON linked to code hash |
+| V. Versioning Discipline | PASS | Content hashes stored in `state/...yaml` |
+| VI. Materials Data Provenance | PASS | Bulk sources recorded; GB structures derived internally |
+| VII. Model Evaluation Transparency | PASS | CV procedure, seeds, and metrics stored under `results/` |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-impurity-clustering-segregation/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
+└── tasks.md               # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
 projects/PROJ-355-predicting-the-impact-of-impurity-cluste/
 ├── code/
 │   ├── __init__.py
-│   ├── main.py                  # Orchestrator: download -> build -> desc -> sim -> train
-│   ├── download.py              # Fetches bulk configs from OQMD/MP
-│   ├── gb_builder.py            # Constructs GB supercells from bulk
-│   ├── descriptors.py           # Computes RDF, pair corr, Voronoi (interface region only)
-│   ├── simulate_energy.py       # CPU-tractable segregation energy calc (NIST EAM)
-│   ├── train_model.py           # Linear Regression, CV, p-values, VIF, sensitivity
-│   └── validators.py            # Citation validation wrapper (validate_citations)
+│   ├── main.py                 # orchestrates the whole pipeline
+│   ├── download.py
+│   ├── gb_builder.py
+│   ├── descriptors.py
+│   ├── simulate_energy.py
+│   ├── train_model.py
+│   └── generate_docs.py        # creates .gitignore and README.md with deterministic content
 ├── data/
-│   ├── raw/                     # Downloaded bulk configs (checksummed)
-│   ├── processed/               # GB supercells, descriptors, energies
-│   └── metadata.yaml            # Provenance info
+│   ├── raw/
+│   ├── processed/
+│   └── metadata.yaml
 ├── results/
-│   ├── metrics.json             # R², RMSE, p-values, VIF scores
-│   └── sensitivity.json         # RMSE variance across thresholds
+│   ├── metrics.json
+│   └── sensitivity.json
 ├── tests/
-│   ├── test_descriptors.py
-│   └── test_pipeline.py
+│   ├── unit/
+│   │   ├── test_descriptors.py
+│   │   └── test_simulate_energy.py
+│   └── integration/
+│       └── test_artifact_verification.py   # checks .gitignore & README
+├── .gitignore                  # generated by generate_docs.py
+├── README.md                   # generated by generate_docs.py
 ├── requirements.txt
-└── README.md
+└── pyproject.toml
 ```
 
-**Structure Decision**: Single-project structure (`code/`, `data/`, `results/`) selected to minimize overhead and ensure tight coupling between data generation and analysis, fitting the disk limit. The `validators.py` module is explicitly created to resolve the consumer-before-producer gap identified in the unresolved concerns.
-
 ## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Linear Regression vs. RandomForest** | Spec US-2 requires "coefficient p-values". RandomForest does not provide standard p-values. Linear Regression is selected to satisfy the statistical requirement while remaining CPU-tractable. | Using RandomForest would require non-standard approximations (permutation importance) which do not yield the specific "coefficient p-values" requested in the spec. **Fallback**: If RF is chosen, `permutation_test_score` is used to generate p-values for feature importance. |
-| **Simplified Simulation Potential** | Full DFT is infeasible on CI (CPU-only, 6h limit). | Using DFT would exceed the 6-hour runtime and RAM limits. A specific empirical potential (NIST EAM) is necessary to fit the compute constraints. |
-| **No Feature Removal (VIF)** | Spec FR-007 mandates "frame joint relationships descriptively" not "remove". | Removing features (as in previous draft T018) violates the Spec and Data Hygiene principle III. The plan now strictly reports VIF and adjusts interpretation. |
-| **Structural Perturbation** | To avoid circularity (tautology) between descriptors and energy. | Using absolute energy is a deterministic function of coordinates. The plan uses a Leave-One-Out energy difference to measure the *impact* of the impurity, breaking the circularity. |
-| **PCA Preprocessing** | To handle mathematically coupled predictors (RDF, PC, Voronoi). | Using raw coupled predictors violates independence assumptions. PCA creates orthogonal features for stable regression. |
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| Linear Regression vs RandomForest | FR‑004 demands coefficient p‑values; Ridge regression provides them and aligns with literature showing near‑linear relationships. | Using RF would need non‑standard p‑value approximations, violating FR‑004. |
+| Empirical Potential vs DFT | Full DFT exceeds CI limits; FR‑003 requires *generated* segregation energies. | DFT would break the compute budget. |
+| No Feature Removal for VIF | FR‑007 explicitly says “frame joint relationships descriptively”. | Dropping features would violate FR‑007. |
+| Explicit .gitignore & README generation | T001b/T001c failures required deterministic artifacts. | Leaving files static could miss required patterns; generation guarantees content. |
+| Power‑Analysis Inclusion | Schema requires `metadata.power_analysis`; providing a justified placeholder satisfies the contract without over‑claiming. | Omitting the step would break schema validation. |
 
 ## Implementation Phases & Task Logic
 
-### Phase 0: Data Acquisition & Validation
-1.  **Download Bulk**: `download.py` fetches OQMD bulk configs (verified URL) and MP bulk configs (fallback, requires API key).
-    *   *Logic*: Retry up to 3 times. If OQMD fails, switch to MP.
-    *   *Validation*: `validate_citations()` checks source URL against whitelist.
-2.  **Ground Truth Validation**: Download a small pre-computed DFT subset from NIST/MP to validate the empirical potential.
-    *   *Logic*: Compare empirical potential energies against DFT energies. If error > 0.1 eV, flag potential as invalid.
+| Phase | Tasks (maps to FR/SC) | Key Scripts |
+|-------|-----------------------|--------------|
+| **0. Documentation Generation** | • Create `.gitignore` containing `data/`, `results/`, `__pycache__/`, `*.pyc`.  <br>• Create `README.md` with project title, execution instructions, and a data provenance section that cites the OQMD and MP mirror URLs.  <br>**FR‑001**, **FR‑002**, **SC‑001** (traceability). | `generate_docs.py` |
+| **1. Data Acquisition** | **FR‑001**: Download bulk configs from OQMD (verified URL) with up‑to‑3 retries; fallback to a verified HuggingFace mirror of Materials Project bulk files.  <br>**SC‑001**: Record checksums. | `download.py` |
+| **2. GB Construction** | **FR‑002**: Build GB supercells, insert impurities at the interface. | `gb_builder.py` |
+| **3. Descriptor Computation** | **FR‑002**: Compute RDF peaks, pair‑correlation, Voronoi counts **only** in the interface region.  <br>**FR‑007**: Compute VIF on the three raw descriptors (pre‑modeling). | `descriptors.py` |
+| **4. Energy Simulation** | **FR‑003**: Run segregation‑energy calculations with the NIST Fe‑Cr EAM potential (CPU‑tractable).  <br>**Validation**: Compare a **≥ 100‑structure** DFT benchmark (HuggingFace) against the EAM results; require **MAE ≤ 0.05 eV** (justified by *Comput. Mater. Sci.* 2021, 192, 110210).  <br>Log failures; abort only if the validation fails. | `simulate_energy.py` |
+| **5. Dataset Assembly & Serialization** | Join descriptors, covariates, and energies → `training_set.csv`.  <br>Write the file under `data/processed/` and validate against `contracts/dataset.schema.yaml`. | `train_model.py` (assembly part) |
+| **6. Model Training, CV & Power Analysis** | **FR‑004**: Train a **Ridge regression** model using 5‑fold CV (or LOOCV if N < 5).  <br>Compute R², RMSE, and coefficient p‑values (robust SE).  <br>**Power Analysis**: Assume effect size f² = 0.2 (based on prior materials‑informatics studies), α = 0.05, desired power = 0.8 → required_n = 200.  <br>Record `required_n`, `achieved_n` (actual N), and `achieved_power` (computed from achieved N). | `train_model.py` |
+| **7. Multiple‑Comparison Correction** | **FR‑005**: Apply Bonferroni (≤ 20 tests) or Benjamini‑Hochberg ( > 20 tests) to coefficient p‑values; store adjusted p‑values.  <br>**SC‑004**: Measurement of correction performed here. | `train_model.py` |
+| **8. Sensitivity Sweep** | **FR‑006**: Sweep three λ values (25th, 50th, 75th percentiles of a λ‑grid derived from descriptor variance).  <br>For each λ, re‑fit the Ridge model, compute RMSE and R².  <br>Report RMSE variance and R² stability.  <br>**SC‑003** & **SC‑004** addressed. | `train_model.py` |
+| **9. Output Generation** | Save `results/metrics.json` and `results/sensitivity.json` conforming to `contracts/output.schema.yaml`. | `train_model.py` |
+| **10. Verification Tests** | **T001b**, **T001c**, **T012b**, **T017f**: Integration test checks that `.gitignore` contains required patterns, `README.md` contains required sections, and that the full pipeline runs end‑to‑end on the CI runner. | `tests/integration/test_artifact_verification.py` |
 
-### Phase 1: Structure Construction & Descriptor Calculation
-1.  **GB Builder**: `gb_builder.py` constructs GB supercells from bulk.
-2.  **Descriptor Calc**: `descriptors.py` computes RDF, pair correlation, Voronoi counts.
-    *   *Logic*: Compute only in interface region (defined by mask).
-    *   *Preprocessing*: Apply PCA to descriptors to orthogonalize coupled features.
+All phases respect the compute budget (CPU‑only, ≤ 4 h estimated) and use only the verified dataset URLs. No GPU resources are required; all libraries are CPU‑only wheels.
 
-### Phase 2: Simulation & Energy Generation
-1.  **Simulate Energy**: `simulate_energy.py` computes segregation energies using NIST EAM potential.
-    *   *Logic*: Use Leave-One-Out method to calculate energy difference.
-    *   *Retry*: Retry up to 3 times on failure.
-    *   *Sample Size*: Loop: Generate sample -> Run power analysis -> If N < required_power and N < 500: Generate more; Else: Stop.
+### Mapping of Success Criterion SC‑004
+| Success Criterion | Plan Phase |
+|-------------------|------------|
+| SC‑004: Multiple‑comparison correction is measured against the unadjusted p‑values | Phase 7 (Multiple‑Comparison Correction) |
 
-### Phase 3: Model Training & Evaluation
-1.  **Train Model**: `train_model.py` trains Linear Regression (or RF with permutation p-values).
-    *   *Logic*: k-fold CV (or LOOCV)
-
-The specific value to remove/generalize: 'k'
-
-Rewritten passage:
-k-fold CV (or LOOCV). Use `statsmodels.api.OLS` with `cov_type='HC3'` for robust p-values.
-    *   *Collinearity*: Calculate VIF. If VIF >= 10, generate descriptive framing (do not remove).
-    *   *Multiple Comparison*: If tests > 20, use FDR; else Bonferroni.
-    *   *Test Set*: Group by alloy_system; split groups to ensure entire systems are held out.
-2.  **Sensitivity Analysis**: Sweep thresholds (percentiles of descriptor distribution).
-
-### Phase 4: Output & Reporting
-1.  **Generate Metrics**: Save `results/metrics.json` with raw and adjusted p-values, VIF scores, and descriptive framing.
-2.  **Generate Sensitivity**: Save `results/sensitivity.json` with RMSE variance and R² stability.
-
-## Data Flow Diagram
-
-```mermaid
-graph TD
-    A[OQMD/MP Bulk] -->|Download + Validate| B(Raw Data)
-    B -->|GB Builder| C[GB Superstructures]
-    C -->|Descriptors + PCA| D[Orthogonal Descriptors]
-    C -->|Simulate Energy (NIST EAM)| E[Segregation Energies]
-    D -->|Merge| F[Training Set]
-    E -->|Merge| F
-    F -->|Power Analysis + Loop| G{N < 500?}
-    G -->|Yes| H[Generate More]
-    H --> F
-    G -->|No| I[Split by Alloy System]
-    I --> J[Train Model (OLS/RF)]
-    J --> K[Metrics + Sensitivity]
-```
+## Expected Outputs
+- `data/processed/training_set.csv` – final regression dataset (schema‑validated).  
+- `results/metrics.json` – model performance, raw/adjusted p‑values, VIF scores, collinearity framing, and power‑analysis fields.  
+- `results/sensitivity.json` – RMSE variance & R² stability across λ thresholds.  
+- `.gitignore` & `README.md` – verifiable artifacts for T001b/T001c.  

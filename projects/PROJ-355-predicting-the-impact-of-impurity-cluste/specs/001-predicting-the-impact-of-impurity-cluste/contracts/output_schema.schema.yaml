@@ -5,7 +5,7 @@ type: "object"
 properties:
   model_type:
     type: "string"
-    description: "Type of regression model used (e.g., 'RandomForest')."
+    description: "Type of regression model used (e.g., 'RidgeRegression')."
   cross_validation_method:
     type: "string"
     enum:

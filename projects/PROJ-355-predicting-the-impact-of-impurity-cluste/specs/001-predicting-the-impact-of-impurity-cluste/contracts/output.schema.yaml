@@ -1,30 +1,30 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: "Model Output Schema"
-description: "Schema for the regression model metrics and sensitivity analysis results."
+description: "Metrics, diagnostics, and sensitivity results produced by the regression pipeline."
 type: object
 properties:
   model_type:
     type: string
-    description: "Type of model used (e.g., 'LinearRegression', 'RandomForest')."
+    description: "Regression model used (e.g., 'RidgeRegression')."
   cross_validation:
     type: object
-    description: "Cross-validation results."
+    description: "Cross‑validation summary."
     properties:
       folds:
         type: integer
-        description: "Number of folds used (5 or N for LOOCV)."
+        description: "Number of folds (5 or N for LOOCV)."
       r2_mean:
         type: number
         description: "Mean R² across folds."
       r2_std:
         type: number
-        description: "Standard deviation of R² across folds."
+        description: "Standard deviation of R²."
       rmse_mean:
         type: number
         description: "Mean RMSE across folds."
       rmse_std:
         type: number
-        description: "Standard deviation of RMSE across folds."
+        description: "Standard deviation of RMSE."
     required:
       - folds
       - r2_mean
@@ -33,7 +33,7 @@ properties:
       - rmse_std
   coefficients:
     type: array
-    description: "Coefficients and p-values for each feature."
+    description: "Regression coefficients with raw and adjusted p‑values."
     items:
       type: object
       properties:
@@ -45,7 +45,7 @@ properties:
           type: number
         p_value_adjusted:
           type: number
-          description: "P-value after multiple-comparison correction (e.g., Bonferroni or FDR)."
+          description: "Adjusted p‑value after Bonferroni or FDR correction."
       required:
         - feature_name
         - coefficient
@@ -53,22 +53,22 @@ properties:
         - p_value_adjusted
   collinearity:
     type: object
-    description: "Collinearity diagnostics."
+    description: "VIF diagnostics and framing."
     properties:
       vif_scores:
         type: object
         additionalProperties:
           type: number
-        description: "VIF scores for each feature."
+        description: "VIF for each predictor."
       high_collinearity_detected:
         type: boolean
-        description: "True if any VIF >= 10."
+        description: "True if any VIF ≥ 10."
       vif_threshold:
         type: number
         description: "Threshold used for VIF detection (10)."
       descriptive_framing:
         type: string
-        description: "Pre-formatted text explaining joint relationships if VIF >= 10."
+        description: "Joint‑relationship text when VIF ≥ 10."
     required:
       - vif_scores
       - high_collinearity_detected
@@ -76,25 +76,26 @@ properties:
       - descriptive_framing
   sensitivity_analysis:
     type: object
-    description: "Results of the threshold sensitivity sweep."
+    description: "Results of the three‑point threshold sweep."
     properties:
       threshold_values:
         type: array
         items:
           type: number
-        description: "List of 3 threshold values swept (25th, 50th, 75th percentiles)."
+        description: "The three λ values (25th, 50th, 75th percentiles)."
       rmse_variance:
         type: number
         description: "Variance of RMSE across the sweep."
       r2_stability:
         type: number
-        description: "Stability metric (e.g., std dev) of R² across the sweep."
+        description: "Standard deviation of R² across the sweep."
     required:
       - threshold_values
       - rmse_variance
       - r2_stability
   metadata:
     type: object
+    description: "Run‑level provenance."
     properties:
       random_seed:
         type: integer
@@ -107,13 +108,17 @@ properties:
         type: string
       power_analysis:
         type: object
+        description: "Power‑analysis summary."
         properties:
           required_n:
             type: integer
+            description: "Required sample size for desired power."
           achieved_n:
             type: integer
+            description: "Actual number of samples used."
           achieved_power:
             type: number
+            description: "Achieved statistical power given achieved_n."
         required:
           - required_n
           - achieved_n

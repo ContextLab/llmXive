@@ -1,17 +1,17 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: "Training Dataset Schema"
-description: "Schema for the aggregated training dataset containing clustering descriptors and segregation energies."
+description: "Aggregated dataset linking clustering descriptors, covariates, and segregation energies for regression."
 type: object
 properties:
   sample_id:
     type: string
-    description: "Unique identifier for the sample."
+    description: "Unique identifier for the training sample."
   bulk_id:
     type: string
-    description: "Reference to the OQMD/MP bulk configuration ID."
+    description: "Reference to the originating BulkConfiguration."
   gb_id:
     type: string
-    description: "Unique identifier for the grain boundary structure."
+    description: "Identifier of the GrainBoundaryStructure."
   alloy_system:
     type: string
     description: "Alloy family (e.g., 'Fe-Cr')."
@@ -20,46 +20,37 @@ properties:
     description: "Element symbol of the impurity."
   rdf_peak_value:
     type: number
-    description: "Peak value of the radial distribution function at the interface."
+    description: "RDF peak value computed at the GB interface."
   pair_corr_value:
     type: number
-    description: "Pair correlation statistic at the interface."
+    description: "Pair‑correlation statistic at the GB interface."
   voronoi_count:
     type: integer
     description: "Voronoi neighbor count for the impurity at the interface."
-  principal_component_1:
-    type: number
-    description: "First principal component of descriptors (PCA-transformed)."
-  principal_component_2:
-    type: number
-    description: "Second principal component of descriptors (PCA-transformed)."
-  principal_component_3:
-    type: number
-    description: "Third principal component of descriptors (PCA-transformed)."
   local_lattice_strain:
     type: number
     description: "Trace of the strain tensor (covariate)."
   atomic_radius:
     type: number
-    description: "Atomic radius of impurity (covariate)."
+    description: "Atomic radius of the impurity element."
   electronegativity:
     type: number
-    description: "Electronegativity of impurity (covariate)."
+    description: "Electronegativity of the impurity element."
   segregation_energy_eV:
     type: number
-    description: "Simulated segregation energy in eV (Leave-One-Out)."
+    description: "Leave‑One‑Out segregation energy in eV."
   vif_rdf:
     type: number
-    description: "Variance Inflation Factor for the RDF feature."
+    description: "VIF for the RDF descriptor."
   vif_pair:
     type: number
-    description: "Variance Inflation Factor for the pair correlation feature."
+    description: "VIF for the pair‑correlation descriptor."
   vif_voronoi:
     type: number
-    description: "Variance Inflation Factor for the Voronoi count feature."
+    description: "VIF for the Voronoi count descriptor."
   descriptive_framing:
     type: string
-    description: "Pre-formatted text explaining joint relationships if VIF >= 10."
+    description: "Pre‑formatted text explaining joint relationships when VIF ≥ 10."
 required:
   - sample_id
   - bulk_id
@@ -69,9 +60,6 @@ required:
   - rdf_peak_value
   - pair_corr_value
   - voronoi_count
-  - principal_component_1
-  - principal_component_2
-  - principal_component_3
   - local_lattice_strain
   - atomic_radius
   - electronegativity
