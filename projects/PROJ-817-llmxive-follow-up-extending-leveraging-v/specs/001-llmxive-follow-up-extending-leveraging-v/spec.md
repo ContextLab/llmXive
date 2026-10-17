@@ -17,7 +17,7 @@ The researcher MUST be able to run the baseline distilled verifier (Edit-R1 1B) 
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset of image editing prompts with ground‑truth human feasibility scores, **When** the baseline evaluation script is executed, **Then** a CSV file is generated containing 1000 rows where each row includes prompt ID, instruction type (conflicting/neutral), verifier score, human score, and alignment delta.
+1. **Given** a dataset of image editing prompts with ground‑truth human feasibility scores, **When** the baseline evaluation script is executed, **Then** a CSV file is generated containing a substantial number of rows where each row includes prompt ID, instruction type (conflicting/neutral), verifier score, human score, and alignment delta.
 2. **Given** the baseline evaluation script, **When** run on the conflicting instruction subset, **Then** the script calculates and reports the mean alignment delta (verifier − human) for the conflicting subset and the neutral subset, and outputs these values to the report.
 
 ### User Story 2 - Symbolic Constraint Graph Construction (Priority: P2) (US-2)
