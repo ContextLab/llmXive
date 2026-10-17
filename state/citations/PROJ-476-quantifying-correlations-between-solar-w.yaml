@@ -86,7 +86,7 @@
   verification_status: mismatch
   verified_against_url: https://www.spaceweather.gov/products/dst-index
   verified_at: '2026-07-22T09:06:52.931456Z'
-- artifact_hash: c44ace9fdff651bbfc314ed2b3c9dd385fce2cff7ea1fe16503bae6cd8d50b8b
+- artifact_hash: c7bb7779c1122091a340297d87e484b4b9675dfe12be2841db8468ce2e0dd51b
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -96,8 +96,8 @@
   value: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/`
   verification_status: mismatch
   verified_against_url: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/
-  verified_at: '2026-10-17T19:17:55.853232Z'
-- artifact_hash: c44ace9fdff651bbfc314ed2b3c9dd385fce2cff7ea1fe16503bae6cd8d50b8b
+  verified_at: '2026-10-17T19:21:22.710102Z'
+- artifact_hash: c7bb7779c1122091a340297d87e484b4b9675dfe12be2841db8468ce2e0dd51b
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -107,8 +107,8 @@
   value: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swics/level2/`
   verification_status: mismatch
   verified_against_url: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swics/level2/
-  verified_at: '2026-10-17T19:17:55.853232Z'
-- artifact_hash: c44ace9fdff651bbfc314ed2b3c9dd385fce2cff7ea1fe16503bae6cd8d50b8b
+  verified_at: '2026-10-17T19:21:22.710102Z'
+- artifact_hash: c7bb7779c1122091a340297d87e484b4b9675dfe12be2841db8468ce2e0dd51b
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -118,4 +118,4 @@
   value: https://services.swpc.noaa.gov/products/geomagnetic/`
   verification_status: mismatch
   verified_against_url: https://services.swpc.noaa.gov/products/geomagnetic/
-  verified_at: '2026-10-17T19:17:55.853232Z'
+  verified_at: '2026-10-17T19:21:22.710102Z'

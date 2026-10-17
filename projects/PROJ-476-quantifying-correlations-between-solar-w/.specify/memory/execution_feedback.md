@@ -19,40 +19,30 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m code.main --stage all -> rc=1
-se of the following exception:
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 75, in <module>
+ojects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 75, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 59, in main
     run_fetch(args)
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 15, in run_fetch
     fetch_ace(start, end)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 110, in fetch_ace
-    txt_p = _download_text(swepam_url)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 44, in _download_text
-    raise ConnectionError(f"Unable to download {url}") from exc
-ConnectionError: Unable to download https://cdaweb.gsfc.nasa.gov/ftp/pub/data/ace/swepam/level2/ace_swepam_l2_1998.txt
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 132, in fetch_ace
+    swepam_txt = _download_text("https://cdaweb.gsfc.nasa.gov/WS/v1/Download", swepam_params)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 63, in _download_text
+    raise ConnectionError(f"Unable to download {url} with params {params}") from exc
+ConnectionError: Unable to download https://cdaweb.gsfc.nasa.gov/WS/v1/Download with params {'dataset': 'ace/swepam', 'variables': 'N_p,T_p', 'start': '1998-01-01', 'stop': '2020-12-31', 'format': 'csv'}
 
 - python -m code.main --stage fetch --start 1998-01-01 --end 2020-12-31 -> rc=1
-se of the following exception:
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 75, in <module>
+ojects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 75, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 64, in main
     run_fetch(args)
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 15, in run_fetch
     fetch_ace(start, end)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 110, in fetch_ace
-    txt_p = _download_text(swepam_url)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 44, in _download_text
-    raise ConnectionError(f"Unable to download {url}") from exc
-ConnectionError: Unable to download https://cdaweb.gsfc.nasa.gov/ftp/pub/data/ace/swepam/level2/ace_swepam_l2_1998.txt
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 132, in fetch_ace
+    swepam_txt = _download_text("https://cdaweb.gsfc.nasa.gov/WS/v1/Download", swepam_params)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 63, in _download_text
+    raise ConnectionError(f"Unable to download {url} with params {params}") from exc
+ConnectionError: Unable to download https://cdaweb.gsfc.nasa.gov/WS/v1/Download with params {'dataset': 'ace/swepam', 'variables': 'N_p,T_p', 'start': '1998-01-01', 'stop': '2020-12-31', 'format': 'csv'}
 

@@ -19,6 +19,8 @@ T004:
 T005:
   task: 7219e21e4cfc3741ad2048d11a6dcfd1f1cbce977ba85f6799c9eca9afc56576
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/viz/plots.py
+    exit=1'
   task: f09d5953d99d4aed85737e6715426500153151d7a631fac69ecf4165540add88
 T008:
   task: 52a04d4bce72f805b58b6436cbaf7de588bdb5486db68a8311fc15597f5620b0
