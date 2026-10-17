@@ -17,16 +17,16 @@ pip install -r requirements.txt
 
 ## 3. Acquire the real TIDE dataset and generate synthetic edge‑cases
 ```bash
-# Real data: verified TIDE CSV
-python -m src.data.acquire_real   # downloads, verifies SHA‑256, maps to binary ground_truth_label
+# Real data: verified TIDE CSV (download + checksum verification)
+python -m src.data.acquire_real   # creates data/raw/tide.csv and data/raw/tide.sha256
 
-# Synthetic edge‑cases (deterministic)
-python -m src.data.generate_synthetic   # creates .py files under data/synthetic/
+# Synthetic edge‑cases (deterministic, depth capped at 5)
+python -m src.data.generate_synthetic   # creates .py files under data/synthetic/ and synthetic_manifest.csv
 ```
 
 ## 4. Extract structural features
 ```bash
-python -m src.features.extract   # reads all .py files, estimates depth/scope, writes data/features.csv (includes sha256)
+python -m src.features.extract   # reads all .py files, writes data/features.csv (includes sha256)
 ```
 
 ## 5. Run the two detection pipelines
@@ -34,14 +34,14 @@ python -m src.features.extract   # reads all .py files, estimates depth/scope, w
 # Static heuristic (CPU‑only, deterministic)
 python -m src.pipelines.tide_lite   # outputs data/tide_lite_enriched.csv
 
-# Generative LLM (Native CPU distilgpt2, deterministic decoding)
+# Generative LLM (CPU‑native distilgpt2, deterministic decoding)
 python -m src.pipelines.tide_original   # outputs data/tide_original_enriched.csv
 ```
 
 ## 6. Consolidate results and create train/validation splits
 ```bash
 python -m src.pipelines.consolidate   # creates data/merged_results.csv (SSoT)
-python -m src.data.split_data          # writes train/validation index files (seed=42)
+python -m src.data.split_data          # writes train_ids.txt & val_ids.txt (seed=42)
 ```
 
 ## 7. Perform statistical analyses
@@ -63,9 +63,10 @@ pytest -q tests/contract
 ```
 All tests must pass; they confirm that `data/merged_results.csv` conforms to `contracts/detection_results.schema.yaml`.
 
-If everything succeeds, you will have:
-- `outputs/` containing the ROC curve, PDP threshold plots, and McNemar significance plot.  
-- `data/analysis_summary.json` containing the consolidated statistical results.
+If successful, you will have:
+- `outputs/` containing the ROC curve, PDP threshold plots, and McNemar significance bar plot.  
+- `analysis/logistic_summary.json` with coefficients, mean AUC, thresholds, and confidence intervals.  
+- `analysis/mcnemar_results.csv` with raw and corrected p‑values.  
 
 The entire pipeline completes within the CI limits (≈ 4 h CPU time, ≤ 7 GB RAM). No GPU is required.
 
@@ -74,3 +75,5 @@ The entire pipeline completes within the CI limits (≈ 4 h CPU time, ≤ 
 deactivate
 rm -rf .venv data/__pycache__ src/__pycache__
 ```
+
+---

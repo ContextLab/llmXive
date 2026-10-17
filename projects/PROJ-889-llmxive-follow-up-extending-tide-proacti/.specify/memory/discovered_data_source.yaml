@@ -1,14 +1,14 @@
 status: none
-intent: download TIDE code evaluation dataset as pip installable python package dataset
+intent: tide evaluation code dataset download python package synthetic code generator
 required_fields:
+- code_id
 - source_code
-- hidden_problem_label
 - ast_depth
 - import_count
 - cyclomatic_complexity
 - dependency_depth
 - semantic_scope
-- syntactic_complexity
-cache_key: 332831367e5c5b9e8aee3bc86656ac40ae26e88e18af223ae97368829ca633db
-searched_at: '2026-10-17T23:12:49.202387+00:00'
+- hidden_problem_label
+cache_key: 805da9d23246306b50c787bab646caf3af2741f135e43905d9def8c168a7b404
+searched_at: '2026-10-17T23:14:42.021919+00:00'
 retry_count: 1
