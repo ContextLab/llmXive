@@ -22,6 +22,7 @@ import argparse
 import hashlib
 import json
 import random
+import tarfile
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -38,6 +39,26 @@ def _seed_random(seed: int = 42) -> None:
     """Seed all randomness sources for reproducibility."""
     random.seed(seed)
     torch.manual_seed(seed)
+
+def _extract_cifar10_if_needed(cache_dir: Path) -> None:
+    """
+    Ensure that the CIFAR‑10 python files are extracted under ``cache_dir``.
+    The tarball ``cifar-10-python.tar.gz`` is expected to exist at
+    ``cache_dir / "cifar-10-python.tar.gz"`` (it is shipped with the repo).
+    If the extracted folder ``cifar-10-batches-py`` is missing, extract it.
+    """
+    extracted_dir = cache_dir / "cifar-10-batches-py"
+    if extracted_dir.is_dir():
+        return  # already extracted
+
+    tar_path = cache_dir / "cifar-10-python.tar.gz"
+    if not tar_path.is_file():
+        raise FileNotFoundError(
+            f"CIFAR‑10 tarball not found at expected location: {tar_path}"
+        )
+    # Extract with progress (simple)
+    with tarfile.open(tar_path, "r:gz") as tar:
+        tar.extractall(path=cache_dir)
 
 def _load_crafterbench(num: int) -> list[dict]:
     """
@@ -60,11 +81,14 @@ def _load_crafterbench(num: int) -> list[dict]:
     """
     # Use a project‑local cache directory to avoid cluttering the home dir.
     cache_dir = Path("data") / "raw_cifar10"
-    dataset = CIFAR10(root=str(cache_dir), train=True, download=True)
+    # Ensure the tarball is extracted; this is fast and avoids a network download.
+    _extract_cifar10_if_needed(cache_dir)
+
+    # Load the dataset; ``download=False`` because we have the files locally.
+    dataset = CIFAR10(root=str(cache_dir), train=True, download=False)
     samples = []
     for i in range(min(num, len(dataset))):
         pil_img, label = dataset[i]
-        # Convert the torchvision tensor to a Pillow image (already done)
         # Ensure image is RGB
         if pil_img.mode != "RGB":
             pil_img = pil_img.convert("RGB")

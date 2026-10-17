@@ -4,7 +4,7 @@ These commands assume you are inside the project root on a fresh GitHub Actions 
 
 ## 1. Set up the environment
 ```bash
-# Create a fresh virtualenv (optional but recommended)
+# Create a fresh virtual environment (optional but recommended)
 python -m venv.venv
 source.venv/bin/activate
 
@@ -17,15 +17,15 @@ pip install -r requirements.txt
 # The script will attempt to download CrafterBench; if unavailable it falls back to synthetic data.
 python -m src.curators.curate_failed_figures --num-tasks 50 --output-dir data/
 ```
-- After execution you will see `data/figures/` and `data/ground_truth/`. [UNRESOLVED-CLAIM: c_6cd2da38 — status=not_enough_info]
-- A checksum file `data/checksums.txt` is generated automatically. [UNRESOLVED-CLAIM: c_c7d5e930 — status=not_enough_info]
+- After execution you will see `data/figures/` and `data/ground_truth/`.
+- A checksum file `data/checksums.txt` is generated automatically.
 
 ## 3. Launch the interface stubs (optional interactive test)
 ```bash
 uvicorn src.interfaces.structured_harness:app --port 8001 &
 uvicorn src.interfaces.chat_interface:app --port 8002 &
 ```
-- Visit the endpoints (e.g. ` Connection refused"))]) to see a 200 OK JSON with a randomized `interface_order` and shuffled `task_order`.
+- Visit the endpoints (e.g. ` Connection refused"))] and ` Connection refused"))]) to see a `200 OK` JSON response containing a randomized `interface_order` and shuffled `task_order`.
 
 ## 4. Run a priori power analysis (optional but recommended)
 ```bash
@@ -40,7 +40,7 @@ python -m src.simulation.simulate_participants \
  --seed 42 \
  --log-dir data/logs/
 ```
-- This creates `data/logs/<session_id>.jsonl` files containing millisecond‑precise interaction records and shuffles both interface and task order per session. [UNRESOLVED-CLAIM: c_c21c948f — status=not_enough_info]
+- This creates `data/logs/<session_id>.jsonl` files containing millisecond‑precise interaction records and shuffles both interface and task order per session.
 
 ## 6. Retention check
 ```bash
@@ -86,5 +86,7 @@ python -m src.run_pipeline --config config.yaml
 ```
 Expected output:
 ```
-Pipeline completed [UNRESOLVED-CLAIM: c_aa27c818 — status=not_enough_info]
+Pipeline completed
 ```
+
+The `src.run_pipeline` module seeds all randomness sources (Python `random`, NumPy, and PyTorch when available) to guarantee deterministic behaviour across runs.

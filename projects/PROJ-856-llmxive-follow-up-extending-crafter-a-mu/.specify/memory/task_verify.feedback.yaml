@@ -1,6 +1,12 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/run_pipeline.py
-    exit=2'
+  reason: The quickstart.md "Run the end-to-end pipeline" section exists and the run_pipeline
+    execution log shows exit 0 with "Pipeline completed", but there is no evidence
+    that the required verification `pytest -q tests/integration/test_end_to_end.py`
+    was ever run and passed (no pytest execution record), and no artifact evidence
+    that dependencies were actually pinned (no `requirements.txt` content shown, while
+    `config.yaml` is only an empty placeholder comment). The next implementer should
+    provide a passing pytest run record and a real pinned `requirements.txt` (and
+    a substantive `config.yaml`).
   task: efed8fc0e0715b46abc391f9e3251c0229cf0a247e440937386e5036faa32094
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/curators/curate_failed_figures.py
