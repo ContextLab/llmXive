@@ -28708,7 +28708,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-17T00:07:21.023526+00:00",
+  "generated_at": "2026-10-17T00:14:37.039625+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -103714,7 +103714,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-406-investigating-neural-signatures-of-predi.yaml",
         "code": "projects/PROJ-406-investigating-neural-signatures-of-predi/code",
-        "data": null,
+        "data": "projects/PROJ-406-investigating-neural-signatures-of-predi/data",
         "idea": "projects/PROJ-406-investigating-neural-signatures-of-predi/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -103732,7 +103732,7 @@
       },
       "authors": [
         {
-          "contributions": 20,
+          "contributions": 21,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -103789,6 +103789,14 @@
       "id": "PROJ-406-investigating-neural-signatures-of-predi",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 74.795941,
+          "ended_at": "2026-10-17T00:12:52.655713Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-17T00:11:37.859772Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 223.861007,
@@ -103860,14 +103868,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-16T23:27:04.429487Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 368.413092,
-          "ended_at": "2026-10-16T23:26:50.361420Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-16T23:20:41.948328Z"
         }
       ],
       "paper_status": null,
@@ -172423,6 +172423,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 74.795941,
+      "ended_at": "2026-10-17T00:12:52.655713Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-406-investigating-neural-signatures-of-predi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-17T00:11:37.859772Z"
+    },
+    {
       "action": "comment",
       "agent": "personality",
       "display_name": "Richard Feynman (simulated)",
@@ -178469,18 +178481,6 @@
       "project_stage": "analyzed",
       "severity": "ok",
       "started_at": "2026-10-16T03:22:11.739163Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 1134.444592,
-      "ended_at": "2026-10-16T03:26:47.532026Z",
-      "failure_reason": "StagePanelKickback: tasks panel did not converge: 1 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'science'. Routing to 'clarified' with full provenanc",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-492-evaluating-the-statistical-validity-of-p",
-      "project_stage": "clarified",
-      "severity": "soft",
-      "started_at": "2026-10-16T03:07:53.087434Z"
     }
   ],
   "reviewed_preprints": [
