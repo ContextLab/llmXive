@@ -18,19 +18,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.acquire_real   # downloads, verifies SHA‑256, maps to binary ground_truth_label -> rc=1
-return _hf_hub_download_to_cache_dir(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1194, in _hf_hub_download_to_cache_dir
-    _raise_on_head_call_error(head_call_error, force_download, local_files_only)
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1953, in _raise_on_head_call_error
-    raise head_call_error
-huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6ad2cd5c-2b5024424ec5171469dcbaaa;72762313-ad0f-40b8-b2c1-580a483d1b5e)
 
-Repository Not Found for url: https://huggingface.co/datasets/code_x_glue/defect_detection/resolve/main/train.jsonl.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
-For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-Invalid username or password.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 15, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python -m src.data.generate_synthetic   # creates .py files under data/synthetic/ -> rc=1
 c_88_depth4.py\\na6fc0d7920e5b91e8b50667d229d1e5036d938bd208a634bd6e34091a8cd88ac  synthetic_89_depth5.py\\n5a49249a256e3a2207ea4945a154414416cfed29f8f919dfd63d3bfb5ce6b7b7  synthetic_8_depth4.py\\n0ae524d59d1d9216eb933022e0b45ab6e53ff2951f4a7cd8d980c820d4814a0b  synthetic_90_depth1.py\\n9ce52ee40f7aa4681eda6072db88f45c28ecf4ba8adfec2b20e462f0237ccb6e  synthetic_91_depth2.py\\nb8af253ea0127cd4d50553cb64ac528bcf6def51d0f018f3a092d9f016e86a8e  synthetic_92_depth3.py\\nfca54825494e76cdce5db76d5be0bf7f60850eec78fdddd1994141036e2db166  synthetic_93_depth4.py\\n6e753e501ab6c5da118f1df7b4f5b01fba99437c5e0e9b1ba5f97e319977f00e  synthetic_94_depth5.py\\n908098abeb51f0181eac68474797ec667dd47a3863b0b3f6fa85a52dcfbded3f  synthetic_95_depth1.py\\n5ca4420e64aaa78b023eeec7252f3bd5a52bce5942dd783b843c4b52b2d92c16  synthetic_96_depth2.py\\n6e84d48bca497f5fc61d463fb3d0144bfd95829e258b86160dbdb99823de7b97  synthetic_97_depth3.py\\n0493a3eb84de5107cdce15277c3f40cdfa0e09c38dbf3f4a66fbd45c2a8a352a  synthetic_98_depth4.py\\nd392b4b77f28994625aa691c9498099be21668b45cafa8f7b362a5332460a548  synthetic_99_depth5.py\\nd6f447c7bc5b80a065bf7d49eea358590f7997240fc3f2724911fdcbe5bafd0c  synthetic_9_depth5.py\\n'

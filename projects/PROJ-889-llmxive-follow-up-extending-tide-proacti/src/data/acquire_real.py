@@ -4,11 +4,7 @@ acquire_real.py
 Downloads a real, publicly accessible code‑with‑hidden‑problems evaluation
 dataset from the HuggingFace hub and materialises it on disk.
 
-Uses the CodeXGLUE defect‑detection dataset as a verified real source
-(the originally referenced `allenai/tide-eval` repository does not exist).
-
-The loader FAILS LOUDLY if the real fetch fails; there is no synthetic
-fallback.
+Uses the CodeXGLUE defect‑detection dataset as a verified real source.
 """
 
 import hashlib
@@ -16,7 +12,7 @@ import json
 import sys
 from pathlib import Path
 
-from huggingface_hub import hf_hub_download
+from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -27,11 +23,8 @@ log = get_logger(__name__)
 # tractable while far exceeding the >= 200 requirement (SC‑005).
 REAL_SAMPLE_SIZE = 500
 
-# Correct repository identifier for the CodeXGLUE defect‑detection dataset.
-# The dataset lives under the `code_x_glue` organization with the
-# sub‑repo `defect_detection`.
-DATASET_REPO = "code_x_glue/defect_detection"
-DATASET_FILENAME = "train.jsonl"
+# Repository identifier for the CodeXGLUE defect‑detection dataset.
+DATASET_NAME = "code_x_glue/defect_detection"
 
 def _sha256_of_file(file_path: Path) -> str:
     """Return the hexadecimal SHA‑256 digest of *file_path*."""
@@ -111,33 +104,20 @@ def _load_tide_dataset() -> list:
     """
     log.info(
         f"Downloading real evaluation dataset from HuggingFace hub "
-        f"({DATASET_REPO}, file={DATASET_FILENAME})..."
+        f"({DATASET_NAME})..."
     )
-    # ``hf_hub_download`` fetches the file without pulling in heavy
-    # dependencies like ``datasets`` (which would require ``pyarrow``).
-    file_path = hf_hub_download(
-        repo_id=DATASET_REPO,
-        filename=DATASET_FILENAME,
-        repo_type="dataset",
-    )
+    # ``load_dataset`` handles authentication internally; public datasets
+    # are accessible without a token.
+    ds = load_dataset(DATASET_NAME, split="train")
     records = []
-    with open(file_path, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                rec = json.loads(line)
-            except json.JSONDecodeError:
-                log.warning("Skipping malformed JSON line.")
-                continue
-            # The CodeXGLUE dataset uses the field name ``func`` for the
-            # source snippet and ``label`` for the binary defect flag.
-            if not isinstance(rec.get("func"), str):
-                continue
-            records.append(rec)
-            if len(records) >= REAL_SAMPLE_SIZE:
-                break
+    for rec in ds:
+        # The CodeXGLUE dataset uses the field name ``func`` for the
+        # source snippet and ``label`` for the binary defect flag.
+        if not isinstance(rec.get("func"), str):
+            continue
+        records.append({"func": rec["func"], "label": int(rec.get("label", 0))})
+        if len(records) >= REAL_SAMPLE_SIZE:
+            break
     log.info(f"Loaded {len(records)} real records (prefix of training split).")
     return records
 

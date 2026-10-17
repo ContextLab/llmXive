@@ -1,8 +1,4 @@
-# Existing dependencies are already available in the base environment.
-# Adding huggingface_hub for direct dataset download without pyarrow.
-huggingface_hub>=0.20.0
-# Pin versions that are known to work with the provided environment.
-pandas==2.2.2
-numpy==1.26.4
-# The rest of the required libraries (datasets, transformers, etc.) are
-# declared in the project’s original requirements.txt; they remain unchanged.
+datasets==2.20.0
+# Existing environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil, llmxive_toolkit
