@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+type: "object"
+required:
+  - result_id
+  - metric
+  - structured_median
+  - chat_median
+  - wilcoxon_stat
+  - p_value
+  - effect_size_r
+  - ci_lower
+  - ci_upper
+  - bonferroni_corrected
+properties:
+  result_id:
+    type: "string"
+    description: "Unique identifier for the analysis result."
+  metric:
+    type: "string"
+    enum: ["time_to_success", "iteration_count"]
+    description: "Which metric the result pertains to."
+  structured_median:
+    type: "number"
+    description: "Median value for the Structured Harness."
+  chat_median:
+    type: "number"
+    description: "Median value for the Chat Interface."
+  wilcoxon_stat:
+    type: "number"
+    description: "Wilcoxon signed‑rank test statistic (W)."
+  p_value:
+    type: "number"
+    description: "Two‑sided p‑value from the Wilcoxon test."
+  effect_size_r:
+    type: "number"
+    description: "Effect size r = Z / sqrt(N)."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95 % confidence interval for the median difference."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95 % confidence interval for the median difference."
+  bonferroni_corrected:
+    type: "boolean"
+    description: "True if the p‑value has been Bonferroni‑adjusted for multiple outcomes."
