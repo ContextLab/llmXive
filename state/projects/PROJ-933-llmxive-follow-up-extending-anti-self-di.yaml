@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T07:28:16.188635Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-933-llmxive-follow-up-extending-anti-self-di
-last_run_id: bfd875c1-448c-4197-af48-d0be19754b61
+last_run_id: 579e4f67-7ab1-4c89-a03e-e003f8402568
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/specs/001-llmxive-follow-up-extending-anti-self-di
 title: 'llmXive follow-up: extending "Anti-Self-Distillation for Reasoning RL via
   Pointwise Mutual Informati"'
-updated_at: '2026-10-17T13:20:32.756186Z'
+updated_at: '2026-10-17T13:26:18.648866Z'

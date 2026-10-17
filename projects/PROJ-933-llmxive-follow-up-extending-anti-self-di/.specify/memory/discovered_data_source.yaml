@@ -1,12 +1,10 @@
 status: none
-intent: download BigBench Hard Ethics UltraFeedback openbmb datasets via HuggingFace
-  python package dataset
+intent: download bigbench abstract_narrative_understanding and ethics datasets via
+  huggingface datasets python package dataset
 required_fields:
-- prompt
+- prompt_id
+- prompt_text
 - rationales
-- rationale_text
-- rationale_quality
-- rationale_id
-cache_key: 7c479bafa533bbf9cd1ca41a1bf1d7a69238283d7b751984e87230ce0b96eb9a
-searched_at: '2026-10-12T00:53:23.241491+00:00'
+cache_key: 885c53bd0a943f83df54c86ea907bbc1bc0261e01160d83cf37dd72f330f1da7
+searched_at: '2026-10-17T13:26:18.619748+00:00'
 retry_count: 1

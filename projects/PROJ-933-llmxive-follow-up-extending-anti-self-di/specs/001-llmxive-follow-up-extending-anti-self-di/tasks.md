@@ -3,7 +3,7 @@
 **Inputs**: spec.md, plan.md, data-model, contracts, reviewer feedback.
 
 ## Phase 0 – Project setup
-- [ ] T001 [P] [US1] Project setup, pinned `requirements.txt`, `config/settings.yaml` (seed 2026, hyperparameters, 5‑hour timeout), `quickstart.md`, and pre‑study power analysis in `code/analysis/statistical_test.py` producing `results/pre_study_power.json` with `power >= 0.8` (d=0.5, α=0.05). Verified previously.
+- [ ] T001 [P] [US1] Project setup, pinned `requirements.txt`, `config/settings.yaml` (seed 2026, hyperparameters, 5‑hour timeout), `quickstart.md`, and pre‑study power analysis in `code/analysis/statistical_test.py` producing `results/pre_study_power.json` with `power >= 0.8` (d=0.5, α=0.05). Verified previously. <!-- FAILED-IN-EXECUTION: code/analysis/statistical_test.py exit=5 -->
 
 ## Phase 1 – Data acquisition & preprocessing
 - [ ] T003 [US1] **Data download & checksum**: download BigBench Hard and Ethics via `datasets.load_dataset(..., streaming=True)`, compute SHA256 checksums for each shard, write `data/raw/checksums.json`. Abort if download fails. Verification: `checksums.json` exists and matches downloaded files.
