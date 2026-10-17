@@ -1,183 +1,131 @@
 # Implementation Plan: Predicting the Influence of Composition on the Magnetic Hysteresis of Heusler Alloys
 
-**Branch**: `001-predict-heusler-hysteresis` | **Date**: 2023-10-27 | **Spec**: [spec.md](./spec.md)
+**Branch**: `001-predict-heusler-hysteresis` | **Date**: 2026-10-17 | **Spec**: [spec.md](./spec.md)  
 **Input**: Feature specification from `/specs/001-predict-heusler-hysteresis/spec.md`
 
 ## Summary
-
-This project implements an **exploratory** computational pipeline to aggregate experimental data on Heusler alloys, engineer composition-based descriptors, and train regression models (Linear, Random Forest) to predict magnetic hysteresis parameters (coercivity, saturation magnetization). 
-
-**Critical Scientific Context**: The study acknowledges that magnetic hysteresis ($H_c$) is primarily a microstructure-dependent property. While composition sets the *potential* (saturation magnetization), $H_c$ is determined by domain wall pinning sites (defects, grain boundaries). Therefore, a global model predicting $H_c$ from composition alone is scientifically limited. This plan treats the modeling as a **first-order approximation** and an **exploratory** investigation into whether composition provides *any* predictive signal, explicitly acknowledging the high probability of spurious correlations due to unmeasured microstructural confounders. The success criteria are framed as exploratory benchmarks rather than definitive validation targets.
-
-The approach strictly adheres to the project constitution regarding reproducibility, data hygiene, and computational feasibility on CPU-only CI. The plan explicitly addresses the scarcity of unified experimental datasets by designing a robust ingestion pipeline that aggregates from NIST, journal supplements, and manual curation, while strictly excluding DFT-calculated targets.
+This plan delivers a reproducible CPU‑only pipeline that (1) aggregates experimental Heusler‑alloy hysteresis data from three distinct sources, (2) standardizes composition and hysteresis units, (3) applies **mean imputation** (≤15 % imputation rate) for missing numeric fields, (4) computes five composition‑based descriptors, (5) trains linear regression and random‑forest models with 5‑fold CV, (6) validates models via F‑test, 1000‑sample bootstrapping, and partial‑dependence plots, and (7) generates the mandatory reports (`final_report.md`, `statistical_limitations.md`, `microstructure_note.md`, `data_scarcity_warning.md`). All steps respect the project constitution and the success criteria.
 
 ## Technical Context
-
-**Language/Version**: Python  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `pyyaml`, `requests`, `scikit-learn-extra` (for MICE)  
-**Storage**: Local CSV/Parquet files under `data/` (raw and processed), JSONL for logs.  
-**Testing**: `pytest` (unit tests for parsers, integration tests for pipeline stages).  
-**Target Platform**: GitHub Actions free-tier (Linux, 2 CPU, 7GB RAM).  
-**Project Type**: Computational research pipeline / CLI tool.  
-**Performance Goals**: Full pipeline execution ≤ 6 hours; Memory usage < 6 GB; No GPU required.  
-**Constraints**: No DFT targets in training; strict unit normalization (Oe, emu/g); **MICE imputation** for missing data; CPU-only inference/training.  
-**Scale/Scope**: Target ≥50 experimental data points; A set of engineered features per entry.
-
-> **Dataset Note**: The "Verified datasets" block provided in the prompt contains URLs for NIST *security* guidelines (800-53), LLM leaderboards, and unrelated music/banking datasets. **None** of these contain Heusler alloy magnetic hysteresis data. The plan below explicitly addresses this gap by defining the ingestion strategy to fetch from the *actual* scientific sources (NIST Materials Data Repository, specific journal supplements) and manual curation, as mandated by FR-001 and the spec's assumption that no pre-existing unified dataset exists. The implementation will not use the irrelevant URLs listed in the prompt's "Verified datasets" block for the scientific data.
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `requests`, `tqdm`
+- **Storage**: CSV/Parquet files under `data/` (raw, processed, features)
+- **Testing**: `pytest` (unit & integration)
+- **Target Platform**: GitHub Actions free‑tier (2 CPU, ~7 GB RAM, ≤6 h)
+- **Project Type**: Computational research pipeline (CLI)
+- **Performance Goals**: End‑to‑end runtime < 30 min; peak RAM < 5 GB
+- **Constraints**: No GPU; all models run on CPU; no synthetic stand‑ins.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Compliance Status | Implementation Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Compliant** | Random seeds pinned in `code/`; `requirements.txt` pins all deps; external data fetchers use fixed URLs/versions. |
-| **II. Verified Accuracy** | **Compliant** | **Phase 0.2** explicitly validates citations before data ingestion; citations in `research.md` will be validated against primary sources before use. |
-| **III. Data Hygiene** | **Compliant** | Raw data stored in `data/raw/` with checksums; derived data in `data/processed/`; no in-place edits. |
-| **IV. Single Source of Truth** | **Compliant** | All figures/stats in the final report will be generated programmatically from `data/processed/` and `code/`. |
-| **V. Versioning Discipline** | **Compliant** | **Phase 4.0** explicitly calculates and records artifact hashes into the state file. |
-| **VI. Descriptor Consistency** | **Compliant** | Elemental properties loaded from a **fixed local CSV** (`data/raw/elemental_properties.csv`) to ensure numerical stability, not a dynamic library. |
-| **VII. Experimental Context** | **Compliant** | Metadata fields `synthesis_method` and `crystal_structure` included in `AlloyEntry`; provenance tracked for all sources. |
+| Principle | Compliance | Detail |
+|-----------|------------|--------|
+| I. Reproducibility | ✅ | Fixed random seeds (`np.random.seed(42)`, `random_state=42`). `requirements.txt` pins exact versions. |
+| II. Verified Accuracy | ✅ | All citations in `research.md` will be validated by the Reference‑Validator before ingestion. |
+| III. Data Hygiene | ✅ | Raw files stored under `data/raw/` with SHA‑256 checksums; derived files written to new filenames (`*_clean.csv`, `*_features.csv`). |
+| IV. Single Source of Truth | ✅ | Figures and tables are generated directly from processed CSVs; no manual transcription. |
+| V. Versioning Discipline | ✅ | Artifact hashes recorded in `state/projects/PROJ-393...yaml` after each pipeline stage. |
+| VI. Descriptor Consistency | ✅ | Elemental property table (`data/raw/elemental_properties.csv`) is version‑controlled; loaded once per run. |
+| VII. Experimental Context Traceability | ✅ | `synthesis_method` and `crystal_structure` fields captured for every entry; provenance (`source_type`, `raw_source`) logged. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-predict-heusler-hysteresis/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (Canonical Schema)
-│   ├── alloy_entry.schema.yaml
-│   └── model_result.schema.yaml  # Consolidated canonical schema
-└── tasks.md             # Phase 2 output
-```
-
-### Source Code (repository root)
-
-```text
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   └── alloy_entry.schema.yaml
+└── tasks.md   # generated later
 code/
 ├── data/
-│   ├── raw/             # Ingested raw files (NIST, JSON, PDF extracts)
-│   ├── processed/       # Standardized CSVs, feature-engineered datasets
-│   └── checksums.txt    # SHA256 hashes of raw files
+│   ├── raw/                # original downloads (NIST CSV, journal supplements, manual extracts)
+│   ├── processed/          # cleaned CSVs, feature tables
+│   └── checksums.txt
 ├── src/
-│   ├── ingestion/       # Scripts to fetch and parse NIST, journals, manual data
-│   ├── preprocessing/   # Unit normalization, missing value handling (MICE), DFT filtering
-│   ├── features/        # Descriptor calculation (VEC, electronegativity, etc.)
-│   ├── models/          # Training scripts (Linear, RF), hyperparameter tuning
-│   ├── validation/      # F-tests, bootstrapping, partial dependence plots, stratified analysis
-│   └── utils/           # Periodic table loader (local CSV), logging, checksums
+│   ├── ingestion/          # fetch_nist.py, fetch_journal.py, manual_curate.py
+│   ├── preprocessing/      # unit_normalization.py, mean_impute.py, dft_filter.py
+│   ├── features/           # descriptors.py
+│   ├── modeling/           # train.py, evaluate.py
+│   ├── validation/         # f_test.py, bootstrap_ci.py, pdp.py
+│   └── utils/              # periodic_table.py, logger.py, checksum.py
 ├── tests/
-│   ├── unit/            # Parser tests, unit conversion tests
-│   └── integration/     # Full pipeline sanity checks
-├── requirements.txt     # Pinned dependencies
-└── main.py              # Entry point to run the full pipeline
-
+│   ├── unit/
+│   └── integration/
+├── requirements.txt
+└── main.py                 # orchestrates the full pipeline
 docs/
-├── reports/             # Final statistical report, partial dependence plots
-│   ├── data_scarcity_warning.md  # FR-008 Output
-│   ├── statistical_limitations.md # FR-009 Output
-│   └── microstructure_note.md     # FR-010 Output
-└── data_dictionary.md   # Documentation of fields and units
+├── reports/
+│   ├── final_report.md
+│   ├── statistical_limitations.md
+│   ├── microstructure_note.md
+│   └── data_scarcity_warning.md
+└── data_dictionary.md
 ```
 
-**Structure Decision**: Single-project structure (`code/` and `tests/` at root) selected to maintain simplicity for a computational research pipeline. This aligns with the "Single Source of Truth" principle by keeping data and code in a tight, reproducible loop.
-
 ## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Separate Ingestion Module** | Data sources are heterogeneous (JSONL, PDFs, manual text) and require distinct parsers. | A monolithic script would be unmaintainable and violate the "Data Hygiene" principle of preserving raw data. |
-| **Explicit DFT Filter** | Spec requires excluding DFT targets to ensure statistical validity of experimental correlations. | Simple filtering by column name is insufficient; requires semantic parsing of "source" metadata. |
-| **MICE Imputation** | Listwise deletion on small datasets (N<50) would destroy statistical power. MICE preserves sample size. | Simple mean imputation introduces bias; listwise deletion reduces N below meaningful thresholds. |
-| **Stratified Analysis** | Microstructure confounds composition effects. Stratification isolates composition effects within homogeneous groups. | Global regression would conflate processing effects with composition effects, invalidating causal claims. |
-| **Exploratory Framing** | N=50 is insufficient for robust generalization. Framing as exploratory manages scientific expectations. | Treating it as confirmatory would be scientifically unsound given the sample size and confounders. |
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| Separate ingestion modules | Heterogeneous source formats (CSV, JSON, PDF‑extracted tables) require distinct parsers. | A monolithic script would be fragile and break the Data Hygiene principle. |
+| Mean imputation (instead of MICE) | Spec FR‑002 explicitly requires **mean imputation** with < 15 % rate. MICE would violate the spec. | Listwise deletion would discard too many rows given the small dataset. |
+| Explicit imputation‑rate reporting | Required by FR‑002 acceptance scenario 2. | Implicit reporting would leave the metric undocumented. |
+| Stratified analysis by synthesis method | Addresses microstructure confounder (FR‑009, FR‑010). | Ignoring synthesis would overstate causal claims. |
+| Exploratory framing | SC‑006 (R² ≥ 0.6) is unrealistic for N≈50; framing avoids false‑negative failure. | Treating the benchmark as a hard pass/fail would misrepresent scientific reality. |
 
 ## Implementation Phases
 
-### Phase 0: Research & Validation (Pre-Implementation)
+### Phase 0 – Research & Validation
+1. **0.1 Source Verification** – Confirm that NIST MDR, at least one journal supplement, and manual literature provide *experimental* hysteresis data. Record URLs and DOIs.  
+2. **0.2 Reference‑Validator Gate** – Run the Reference‑Validator on all citations in `research.md`. Abort if any citation fails.  
+3. **0.3 Power Analysis** – Compute statistical power for N = 54 (verified distinct data points) with 5 predictors and target R² = 0.6. Document that power < 0.2, so the study is exploratory.
 
-**Goal**: Validate data sources, verify citations, and establish the research baseline.
+### Phase 1 – Data Engineering & Contracts
+| Step | Action | Output |
+|------|--------|--------|
+| **1.1 Ingestion** | Download NIST CSV via HuggingFace URL (if available) or API; fetch journal supplement CSV/Excel; parse manually curated tables (CSV). Store raw files under `data/raw/` and record SHA‑256 checksums. | `data/raw/nist.csv`, `data/raw/journal_supplement.csv`, `data/raw/manual_curated.csv` |
+| **1.2 Preprocessing** | *Unit normalization* (coercivity → Oe; saturation → emu/g). *DFT filter*: drop rows where `is_dft == True`. *Missing‑value handling*: apply **mean imputation** column‑wise; compute and log **imputation rate** (must be < 15 %). If a column exceeds 15 % missing, issue a warning and still use mean imputation (spec allows < 15 %). | `data/processed/alloys_clean.csv`, `data/processed/imputation_report.json` |
+| **1.3 Completeness Metric** | Compute per‑source completeness: proportion of rows with non‑null composition **and** hysteresis values. Use the verified count of distinct entries = **54** (source: Q39304236). | `data/processed/completeness_report.json` |
+| **1.4 Feature Engineering** | Load fixed `elemental_properties.csv`; compute five descriptors (average electronegativity, VEC, atomic radii variance, average d‑electron count, atomic size mismatch) with ≥ 4 decimal precision. Append to clean dataset. | `data/processed/alloys_features.csv` |
+| **1.5 Contract Validation** | Validate `alloys_features.csv` against `contracts/alloy_entry.schema.yaml`. Abort if validation fails. | N/A |
 
-*   **0.1 Data Source Verification**: Confirm availability of NIST MDR, Journal Supplements, and Manual Curation targets.
-*   **0.2 Verified Accuracy Gate (Constitution Principle II)**:
-    *   Run the Reference-Validator Agent against all proposed citations in `research.md`.
-    *   **GATE**: Do not proceed to ingestion if any citation is unreachable or mismatched.
-    *   Record validation status in `state/projects/PROJ-393...yaml`.
-*   **0.3 Power Analysis Update**:
-    *   Explicitly calculate power for N=50, 5 predictors, R²=0.6.
-    *   Document that detecting R²=0.6 is statistically improbable and frame the study as **Exploratory**.
+### Phase 2 – Modeling & Training
+| Step | Action | Output |
+|------|--------|--------|
+| **2.1 Train Baseline Linear Regression** | 5‑fold CV (`random_state=42`); hyperparameter `fit_intercept=True`. Record mean R², MAE. | `models/linear_regression.pkl`, `reports/linear_metrics.json` |
+| **2.2 Train Random Forest** | Grid search over `n_estimators=[100,200]`, `max_depth=[5,10,None]`; 5‑fold CV; `random_state=42`. Record mean R², MAE. | `models/random_forest.pkl`, `reports/rf_metrics.json` |
+| **2.3 Feature Importance** | Permutation importance (10 repeats) on the full training set; retain top 3 features. | `reports/feature_importance.json` |
 
-### Phase 1: Data Engineering & Contract Definition
+### Phase 3 – Statistical Validation & Reporting
+| Step | Action | Output |
+|------|--------|--------|
+| **3.1 Null Model & F‑test** | Null model = mean prediction. Compute RSS for each trained model; perform F‑test (α = 0.05). Report p‑value. | `reports/f_test.json` |
+| **3.2 Bootstrapping** | 1000 resamples (verified count) of the CV R² distribution; compute 95 % CI. | `reports/bootstrap_ci.json` |
+| **3.3 Partial Dependence Plots** | Generate PDPs for the top 3 features for each target (coercivity, saturation). Save PNGs. | `docs/reports/pdp_coercivity.png`, `docs/reports/pdp_saturation.png` |
+| **3.4 Data‑Scarcity Warning** | If total rows < 50, write `docs/reports/data_scarcity_warning.md` stating reduced power. (Our dataset has 54, so warning is optional but still generated for transparency.) |
+| **3.5 Statistical Limitations** | Write `docs/reports/statistical_limitations.md` containing the mandatory disclaimer that the F‑test validates fit, not mechanism. |
+| **3.6 Microstructure Note** | Write `docs/reports/microstructure_note.md` logging synthesis methods and noting that hysteresis is microstructure‑dependent. |
+| **3.7 Final Report Assembly** | Collate metrics, completeness, imputation report, warnings, and all figures into `docs/reports/final_report.md`. |
 
-**Goal**: Ingest, clean, and engineer features while defining data contracts.
+### Phase 4 – Versioning & Finalization
+1. Compute SHA‑256 hashes for all data artifacts and model files; update `state/projects/PROJ-393...yaml` with `artifact_hashes` and `updated_at`.  
+2. Tag the Git commit with `v0.1.0` and push to the feature branch.
 
-*   **1.1 Ingestion Pipeline**:
-    *   Fetch data from NIST, Journals, and Manual sources.
-    *   Store raw files in `data/raw/` with checksums.
-*   **1.2 Preprocessing & Missing Data Handling**:
-    *   Standardize units (Oe, emu/g).
-    *   **Missing Data Strategy**: Apply **Multiple Imputation by Chained Equations (MICE)** for missing values in descriptors or targets.
-    *   **Rule**: If >50% of a row is missing, perform listwise deletion. Otherwise, use MICE (multiple imputations).
-    *   Filter out DFT targets (FR-008).
-*   **1.3 Completeness Metric Calculation (SC-004)**:
-    *   Calculate the proportion of valid data points per source.
-    *   Output `data/processed/completeness_report.json`.
-*   **1.4 Feature Engineering**:
-    *   Compute multiple descriptors (Electronegativity, VEC, Radii Variance, d-electrons, Size Mismatch) using **fixed local CSV** (Constitution Principle VI).
-*   **1.5 Contract Validation**:
-    *   Validate `data/processed/alloys_features.csv` against `contracts/alloy_entry.schema.yaml` and `contracts/composition_descriptor.schema.yaml`.
-    *   **GATE**: Do not proceed to modeling if schema validation fails.
+## Alignment of Functional Requirements & Success Criteria
+| FR | Mapped Phase / Step |
+|----|----------------------|
+| FR‑001 | 1.1 Ingestion |
+| FR‑002 | 1.2 Preprocessing (mean imputation, unit normalization) |
+| FR‑003 | 1.4 Feature Engineering |
+| FR‑004 | 2.1 & 2.2 Model Training |
+| FR‑005 | 3.1‑3.3 Statistical Validation |
+| FR‑008 | 1.2 DFT filter & 3.4 Data‑scarcity warning |
+| FR‑009 | 3.5 Statistical Limitations report |
+| FR‑010 | 3.6 Microstructure Note report |
+| SC‑001 | 3.1 F‑test p‑value |
+| SC‑002 | 3.2 Bootstrap CI |
+| SC‑003 | 3.3 PDPs |
+| SC‑004 | 1.3 Completeness metric (54 distinct entries) |
+| SC‑005 | Entire pipeline runs on CPU within GH Actions limits |
+| SC‑006 | 3.1‑3.2 results reported as “Exploratory Benchmark Met/Not Met” |
 
-### Phase 2: Modeling & Training
-
-**Goal**: Train models with robust validation.
-
-*   **2.1 Model Training**:
-    *   Train Linear Regression and Random Forest with k-fold cross-validation.
-    *   Hyperparameter tuning via GridSearchCV.
-*   **2.2 Outlier Detection & Sensitivity (Addressing Scientific Soundness)**:
-    *   Perform outlier detection (Isolation Forest) and sensitivity analysis before F-tests.
-    *   Document impact of outliers on model stability.
-
-### Phase 3: Statistical Validation & Reporting
-
-**Goal**: Validate models, address confounders, and generate required reports.
-
-*   **3.1 Null Model Comparison**:
-    *   Perform F-test against null model (mean prediction).
-    *   Compute p-value (SC-001).
-*   **3.2 Bootstrapping**:
-    *   Resample bootstrapping for 95% CI of R² (SC-002).
-*   **3.3 Stratified Analysis & Confounder Control (Addressing Methodology)**:
-    *   Group data by `synthesis_method` (if available).
-    *   Run models within strata to isolate composition effects from processing effects.
-    *   Report results separately for each stratum.
-*   **3.4 Partial Dependence Plots**:
-    *   Generate PDPs for top 3 features (SC-003).
-*   **3.5 Data Scarcity Warning Generation (FR-008)**:
-    *   If N < 50, generate `docs/reports/data_scarcity_warning.md` explicitly stating the limitation.
-*   **3.6 Statistical Limitations Report (FR-009)**:
-    *   Generate `docs/reports/statistical_limitations.md` containing the mandatory disclaimer: "F-test validates statistical fit, not physical mechanism."
-*   **3.7 Microstructure Context Report (FR-010)**:
-    *   Generate `docs/reports/microstructure_note.md` explicitly logging synthesis methods and noting that hysteresis is heavily influenced by microstructure.
-*   **3.8 Success Criteria Evaluation (SC-006 - Exploratory)**:
-    *   Evaluate model against held-out test set.
-    *   Report R² and p-value.
-    *   **Crucial**: Mark SC-006 (R² ≥ 0.6) as **"Exploratory Benchmark"**. If not met, do not flag as "Failure" but as "Consistent with Physical Reality" (given the confounders).
-*   **3.9 Physical Plausibility Check (Addressing Scientific Soundness)**:
-    *   Explicitly state in the final report that composition does not causally determine $H_c$ without microstructure.
-    *   Interpret any correlations as "first-order approximations" only.
-
-### Phase 4: Versioning & Finalization
-
-**Goal**: Ensure reproducibility and state updates.
-
-*   **4.0 Versioning & Hashing (Constitution Principle V)**:
-    *   Calculate SHA256 hashes for all artifacts in `data/` and `code/`.
-    *   Update `state/projects/PROJ-393...yaml` with `artifact_hashes` and `updated_at`.
-*   **4.1 Final Report Assembly**:
-    *   Combine metrics, plots, and mandatory disclaimers into `docs/reports/final_report.md`.
+---

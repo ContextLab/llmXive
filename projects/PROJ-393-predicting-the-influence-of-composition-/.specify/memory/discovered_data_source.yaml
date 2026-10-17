@@ -1,14 +1,12 @@
 status: none
-intent: Heusler alloy magnetic hysteresis experimental dataset NIST Materials Project
-  python package dataset
+intent: Heusler alloy magnetic hysteresis coercivity saturation magnetization experimental
+  dataset NIST Materials Project python package dataset
 required_fields:
-- alloy_id
-- composition
-- element_fractions
-- coercivity_Oe
-- saturation_magnetization_emu_per_g
-- measurement_temperature_K
-- source
-cache_key: 50757aa1df3a60c7d975264463b0f47d53b1bb68b809bee6b7d1d370a35d1769
-searched_at: '2026-08-09T13:58:00.892606+00:00'
+- alloy composition (atomic fractions)
+- coercivity (Oe)
+- saturation magnetization (emu/g)
+- data source
+- experimental vs calculated flag
+cache_key: 4ac9de2fbebf5f8e877d8acd1ab0e6dbce67dfbc90746e96e5a8b5a5f7133ea7
+searched_at: '2026-10-17T07:31:17.939328+00:00'
 retry_count: 1
