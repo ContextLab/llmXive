@@ -1,4 +1,12 @@
 T001:
+  reason: "The quickstart.md contains all required content (command, four UQ methods,\
+    \ 2000-sample cap, seed-42 first-N rule, Wilcoxon rationale, Formation-Energy\
+    \ proxy note) and the schema YAML lists exactly the eight required columns. However,\
+    \ the task's Check requires a tiny test script that loads the schema YAML, asserts\
+    \ the column set, and exits 0 \u2014 no such script exists in the evidence, and\
+    \ no execution evidence (exit code, test output) was provided. Additionally, the\
+    \ supporting artifacts `results/per_sample_errors_schema_example.csv` and `results/per_sample_errors_schema.json`\
+    \ list only 7 columns ("
   task: f4402e0775c234c7998237d3b91e84b177c6e616dda4e7b8c9ec36c0e7ce14bf
 T002:
   reason: "The required data artifacts (`data/raw/band_gap.csv`, `formation_energy.csv`,\

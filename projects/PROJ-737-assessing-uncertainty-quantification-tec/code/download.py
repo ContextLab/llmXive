@@ -4,7 +4,8 @@ Download and prepare raw material property datasets.
 This module provides utilities to download three verified CSV datasets
 (Band Gap, Formation Energy, Thermal Conductivity) from HuggingFace,
 cap them to a maximum of 5 000 rows deterministically, compute a SHA‑256
-checksum, and write accompanying metadata JSON files.
+checksum, and write accompanying metadata JSON files as well as a
+checksum manifest.
 
 The public API matches the signatures declared in the project
 specification and is used by ``code/main.py`` and the test suite
@@ -14,12 +15,12 @@ specification and is used by ``code/main.py`` and the test suite
 import hashlib
 import json
 import logging
-import os
 from pathlib import Path
 from typing import Dict
 
 import pandas as pd
 import requests
+from huggingface_hub import hf_hub_download
 
 # ----------------------------------------------------------------------
 # Logger
@@ -27,9 +28,10 @@ import requests
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
-# Constants
+# Constants & Public aliases (required by the test suite)
 # ----------------------------------------------------------------------
-DATASETS_INFO = {
+# Internal mapping used by the implementation
+_DATASETS_INFO = {
     "band_gap": {
         "url": "https://huggingface.co/datasets/oqmd/band_gap/resolve/main/band_gap.csv",
         "property_name": "band_gap",
@@ -44,8 +46,20 @@ DATASETS_INFO = {
     },
 }
 
+# Public constants expected by ``code/tests/test_download.py``
+DATASETS: Dict[str, Dict[str, str]] = {
+    dataset_id: {"url": info["url"], "filename": f"{dataset_id}.csv"}
+    for dataset_id, info in _DATASETS_INFO.items()
+}
+
+# Directory where raw CSVs are stored
+DATA_RAW_DIR: Path = Path(__file__).parents[1] / "data" / "raw"
+
+# Path to the checksum manifest file
+CHECKSUM_MANIFEST: Path = DATA_RAW_DIR / "checksum_manifest.txt"
+
+# Maximum number of rows to retain after capping
 MAX_ROWS = 5_000  # hard cap for the thin pipeline (as required by T002)
-SEED = 42  # deterministic seed for any random operation (not used here but kept for future extensibility)
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -161,7 +175,7 @@ def write_metadata(
 
 def _download_csv(url: str) -> pd.DataFrame:
     """
-    Download a CSV file from ``url`` using ``requests`` and return a DataFrame.
+    Download a CSV file from ``url`` using ``huggingface_hub`` and return a DataFrame.
 
     Any HTTP error raises an exception; the caller must handle it.
 
@@ -176,12 +190,22 @@ def _download_csv(url: str) -> pd.DataFrame:
         Parsed CSV data.
     """
     logger.info(f"Downloading CSV from {url}")
-    response = requests.get(url, timeout=30)
-    response.raise_for_status()
-    # ``pandas.read_csv`` can read from a ``BytesIO`` object.
-    from io import BytesIO
 
-    return pd.read_csv(BytesIO(response.content))
+    # The HuggingFace resolve URL has the form:
+    #   https://huggingface.co/datasets/<repo>/resolve/main/<filename>
+    # We extract <repo> (e.g. "oqmd/band_gap") and <filename>.
+    parts = url.split("/")
+    try:
+        idx = parts.index("datasets")
+    except ValueError as exc:
+        raise ValueError(f"Unexpected URL format for HuggingFace dataset: {url}") from exc
+
+    repo_id = "/".join(parts[idx + 1 : idx + 3])  # organization/dataset
+    filename = parts[-1]
+
+    # ``hf_hub_download`` will raise if the file cannot be retrieved.
+    local_path = hf_hub_download(repo_id=repo_id, filename=filename, repo_type="dataset")
+    return pd.read_csv(local_path)
 
 
 def _download_and_save(dataset_id: str, url: str, dest_path: Path) -> pd.DataFrame:
@@ -216,7 +240,7 @@ def _download_and_save(dataset_id: str, url: str, dest_path: Path) -> pd.DataFra
 
     # Write metadata JSON
     metadata_path = dest_path.with_name(f"{dest_path.stem}_metadata.json")
-    property_name = DATASETS_INFO[dataset_id]["property_name"]
+    property_name = _DATASETS_INFO[dataset_id]["property_name"]
     write_metadata(
         dataset_id=dataset_id,
         source_url=url,
@@ -232,16 +256,27 @@ def _download_and_save(dataset_id: str, url: str, dest_path: Path) -> pd.DataFra
 def download_all() -> None:
     """
     Download all required datasets, cap them, compute checksums,
-    and write accompanying metadata JSON files.
+    and write accompanying metadata JSON files and a checksum manifest.
 
     The function aborts loudly on any failure (e.g., network error,
     HTTP error, or unexpected file format) by propagating the exception.
     """
-    raw_dir = Path(__file__).parents[1] / "data" / "raw"
+    raw_dir = DATA_RAW_DIR
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    for dataset_id, info in DATASETS_INFO.items():
+    manifest_entries = []
+
+    for dataset_id, info in _DATASETS_INFO.items():
         url = info["url"]
         dest_csv = raw_dir / f"{dataset_id}.csv"
         logger.info(f"Processing dataset '{dataset_id}'")
+        # Download, cap, write CSV & metadata
         _download_and_save(dataset_id, url, dest_csv)
+
+        # Record entry for the manifest (checksum of the capped CSV)
+        checksum = compute_sha256(dest_csv)
+        manifest_entries.append(f"{dataset_id},{dest_csv.name},{checksum}")
+
+    # Write (or overwrite) the checksum manifest
+    CHECKSUM_MANIFEST.write_text("\n".join(manifest_entries) + "\n")
+    logger.info(f"Wrote checksum manifest to {CHECKSUM_MANIFEST}")

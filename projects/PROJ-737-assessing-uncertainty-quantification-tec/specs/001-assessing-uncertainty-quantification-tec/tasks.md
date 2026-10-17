@@ -10,7 +10,7 @@ The checklist below implements the smallest complete, reproducible study that sa
 
 **Goal**: Verify that the pipeline runs on a tiny real‑data subset before scaling up.
 
-- [X] T001 [US1] **Document runnable command and verify per‑sample schema**  
+- [ ] T001 [US1] **Document runnable command and verify per‑sample schema**  
   *Create* `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` containing the command `python -m code.main --thin`.  The document must describe the four UQ methods (GPR, MC‑Dropout, Deep Ensemble, Split‑Conformal), the 2000‑sample training cap, the deterministic “first‑N rows, seed 42” sampling rule, the paired Wilcoxon test rationale, and the Formation‑Energy proxy note.  
   *Verify* that `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml` lists exactly the columns `sample_id, dataset, method, prediction, lower_bound, upper_bound, ground_truth, abs_error`.  
   *Path*: `specs/001-assessing-uncertainty-quantification-tec/quickstart.md`, `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`  

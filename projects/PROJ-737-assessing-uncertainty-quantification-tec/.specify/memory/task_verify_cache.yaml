@@ -1,12 +1,15 @@
 T001:
-  c: true
-  h: 8a16b65d5edd956c5fd10c3c9980bbce1bd305d56dc85633ab1d9dfd49418e18
-  r: The quickstart.md exists and contains the required `python -m code.main --thin`
-    command plus all required content (four UQ methods, 2000-sample cap, first-N/seed-42
-    rule, paired Wilcoxon rationale, Formation-Energy proxy note). The schema YAML
-    lists exactly the eight required columns, and the test script `code/tests/test_per_sample_schema.py`
-    was executed via pytest and passed (exit 0).
-  sig: 5a39947354a89238899a69dc8b435171b4c7675f9c62f70b0baddd872a1f9097
+  c: false
+  h: bd0bd703c12116116ae268a876db716116faabc3ba441ca64b4b7964fc528b51
+  r: "The quickstart.md contains all required content (command, four UQ methods, 2000-sample\
+    \ cap, seed-42 first-N rule, Wilcoxon rationale, Formation-Energy proxy note)\
+    \ and the schema YAML lists exactly the eight required columns. However, the task's\
+    \ Check requires a tiny test script that loads the schema YAML, asserts the column\
+    \ set, and exits 0 \u2014 no such script exists in the evidence, and no execution\
+    \ evidence (exit code, test output) was provided. Additionally, the supporting\
+    \ artifacts `results/per_sample_errors_schema_example.csv` and `results/per_sample_errors_schema.json`\
+    \ list only 7 columns ("
+  sig: 32800fe6b066bbf547a2c41c642a5100e23e0a7148ac43cdeabcac81b7cfe6d6
 T002:
   c: false
   h: 499486865dae8fa6863041192b8007ebbcf3c1d5c53e2a902b40b1340716b231
