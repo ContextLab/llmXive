@@ -1,20 +1,23 @@
 T001:
-  c: true
-  h: fc02b4fa6e261dfe2017aa1a9d1aa437ce3383cfa13514ac55fb7916bbb646f5
-  r: "Checked the repository tree showing `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/`,\
-    \ `data/`, and `outputs/` directories exist, and the CI log from `create_directory_tree.py`\
-    \ confirms that all required sub\u2011directories (`code/data/raw`, `code/data/processed`,\
-    \ `code/data/evaluation`, `code/models`, `code/utils`, `code/tests/unit`, `code/tests/integration`,\
-    \ plus top\u2011level `data/` and `outputs/`) were created successfully."
-  sig: 375cbc3897340903549912164b72a9229fd2580acef2960a46ed1c7c61be3153
-T002:
   c: false
-  h: 5a1a7d41f06825abc54bf89fbf77a76c412b4d70e6c1abeb23ed0da3bf0513c6
-  r: "Checked `code/requirements.txt` \u2013 it contains exactly the 11 required lines.\
-    \ However, the required CI log `outputs/install_log.txt` is missing, so we have\
-    \ no evidence that the `pip install -r code/requirements.txt` step actually ran\
-    \ without error. The task is therefore incomplete."
-  sig: f76e3bc1113f4e192729740a6725aa64d420da0aabbacdd6ecec86548aa031ee
+  h: eac9883ab3015700944795fd1f67b239d7d81ee90e5eae431cc1412dcc2ce6e7
+  r: The task requires creating `code/{data/raw,data/processed,data/evaluation,models,utils,tests/unit,tests/integration}`
+    plus top-level `data/` and `outputs/`. The evidence confirms `code/data/`, `code/tests/`,
+    `code/utils/`, `data/processed/`, `data/`, and `outputs/` exist, but the `code/`
+    listing (25 entries) contains no `models/` directory, `data/` shows only `processed/`
+    (no `raw/`), and there is no evidence of `code/data/evaluation/`, `tests/unit/`,
+    or `tests/integration/`. The implementer must actually create the missing directories
+    (e.g., `code/models`, `code/data/raw`, `code/data/evaluati
+  sig: af3922ecc7397c790185c2e678dc98bb9bea560c612f1b69a2325f98eeb364df
+T002:
+  c: true
+  h: 353f8386735d3b81ece8c70a08176a95fc3827dee3fff27dd7f53ed4be640396
+  r: '`code/requirements.txt` exists with exactly the 11 required pinned lines (trailing
+    newline only difference, no extra packages), and `outputs/install_log.txt` shows
+    a real `pip install -r code/requirements.txt` run where all 11 pinned packages
+    resolved successfully with no errors, corroborated by the exit-0 execution record
+    of `code/install_deps.sh`.'
+  sig: 80f8f2e53d90fb41a2c58bd6bb6cb0fb9d2930aa70b04e4f224efd65a6549c78
 T003:
   c: true
   h: 616aa762119b08312d9124c1ef38bba2ebb4c56194bfa29bd99f08424ed3faca
@@ -24,12 +27,12 @@ T003:
   sig: fb4755242a69f46ee757348904c6fc112e35d85fffd9e360a7d05d0ed9dbfc1d
 T004:
   c: true
-  h: c49d9b5f9265d51f56d09e6226813fae32672da356ffe5a9d4ba83bb2f319706
-  r: "Checked the existence and contents of `data/checksums.json` (empty `{}`) and\
-    \ `outputs/reproducibility_meta.json` (contains a non\u2011empty `\"seed\"` and\
-    \ a timestamp). Unit test logs and execution logs confirm both files were created\
-    \ correctly and are valid JSON."
-  sig: 1b590474522fee92cd8669f2b834bbfcab07c3f2402d7010eee4846848cecfc1
+  h: 19843a29d64fd5c13c8ecdc96578e59234488508c43368e1f59418450320cc8e
+  r: 'Both required artifacts exist and are valid JSON: `data/checksums.json` is the
+    intentionally empty `{}` placeholder (task says it need only exist at this stage),
+    and `outputs/reproducibility_meta.json` contains a non-empty integer `"seed"`
+    (1101310393) plus a timestamp, matching the task''s stated requirements.'
+  sig: eefc666148c6c4249595d4be18fb2bd35ed81a0de182ff0d35a8dc68261ae9eb
 T005:
   c: true
   h: e370bb4b1b066c5731391298932463fbb7e0aadd2b24f5e474cf096083f56401
@@ -39,3 +42,25 @@ T005:
     \ and `get_screenshot()` with proper exception handling, and the module imports\
     \ without error."
   sig: f70528b16cd1690ca05337a8fd20cf2c6d37812378611ef27a8daa3c911ee245
+T006:
+  c: true
+  h: 48db0d947e87c826cf7c93e1014e53f1d7f84ea4fe852af41132e93e8c20f16b
+  r: 'The file `code/utils/metrics.py` exists (2996 bytes) and contains both required
+    classes with the exact signatures: `SuccessRate.compute(success_flags: List[bool])
+    -> float` returning a value in [0,1] (0.0 for empty input), and `StepEfficiency.compute(steps_taken,
+    optimal_steps) -> float` returning a non-negative ratio of averages with sensible
+    edge-case handling. The implementation is real, not a stub or placeholder, and
+    matches the task''s documented ranges.'
+  sig: 96229dc32ebc6176fc4df46fdc0370d5b284ab9427d41fbfc9ec2d6e53cb297a
+T007:
+  c: true
+  h: 785d4344df479898c47e97d3ad51b8176756c7519bc5b44d7b37d18ede85c2f3
+  r: "The script `code/utils/power_analysis.py` exists and implements a real statsmodels-based\
+    \ power calculation (GofChisquarePower, an acceptable McNemar-appropriate estimator\
+    \ per the task's \"e.g.\" wording), enforces the before-extraction rule by aborting\
+    \ if `data/processed` is non-empty, and writes `outputs/power_analysis.json` containing\
+    \ `n_required: 197` (consistent with the actual statsmodels result for h=0.2,\
+    \ \u03B1=0.05, power=0.8) plus the full parameters block matching the schema's\
+    \ required fields. The JSON conforms to `contracts/power_analysis.schema.yaml`\
+    \ (all required keys present, no additio"
+  sig: 3214a2d4c729cc039f6605b34f247269107bae0b87b536f33b89e775c8f43aae

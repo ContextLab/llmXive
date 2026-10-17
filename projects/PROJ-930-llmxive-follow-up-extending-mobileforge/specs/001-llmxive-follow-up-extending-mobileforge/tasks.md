@@ -6,11 +6,11 @@
 
 ## Phase 1 – Project bootstrap (infrastructure only)
 
-- [X] T001 **Create the full directory tree required for the study**  
+- [ ] T001 **Create the full directory tree required for the study**  
   *Creates* `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/{data/raw,data/processed,data/evaluation,models,utils,tests/unit,tests/integration}` and `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/data/`, `projects/PROJ-930-llmxive-follow-up-extending-mobileforge/outputs/`.  
   **Verification** – after running the task, a `tree` (or equivalent) shows all listed directories; CI checks that each path exists.
 
-- [ ] T002 **Write a pinned `requirements.txt` under `code/`** containing exactly the 11 required lines (no extra packages).  
+- [X] T002 **Write a pinned `requirements.txt` under `code/`** containing exactly the 11 required lines (no extra packages).  
   ```text
   torch==2.2.2
   transformers==4.41.0
@@ -45,13 +45,13 @@
   **Path**: `code/utils/emulator.py`  
   **Verification** – `python -c "import utils.emulator as e; assert hasattr(e, 'launch_emulator')"` runs without import errors; unit‑test scaffold is present (see T006).
 
-- [~] T006 **Implement `utils/metrics.py`** providing two lightweight classes:  
+- [X] T006 **Implement `utils/metrics.py`** providing two lightweight classes:  
   - `SuccessRate` with method `compute(success_flags: List[bool]) -> float`.  
   - `StepEfficiency` with method `compute(steps_taken: List[int], optimal_steps: List[int]) -> float`.  
   **Path**: `code/utils/metrics.py`  
   **Verification** – both classes importable and methods return values in the documented ranges (0‑1 for success rate, ≥0 for efficiency).
 
-- [~] T007 **Implement `utils/power_analysis.py`** that performs the a‑priori McNemar power calculation (target Power = 0.8, effect size h = 0.2, α = 0.05, baseline p₀ = 0.5).  
+- [X] T007 **Implement `utils/power_analysis.py`** that performs the a‑priori McNemar power calculation (target Power = 0.8, effect size h = 0.2, α = 0.05, baseline p₀ = 0.5).  
   - Uses a McNemar‑appropriate power estimator (e.g., `statsmodels.stats.power.NormalIndPower` approximation).  
   - Writes the result to `outputs/power_analysis.json` conforming to `contracts/power_analysis.schema.yaml`.  
   - Exits with a clear error if any data‑extraction artifact already exists (enforces the “before extraction” rule).  
@@ -62,7 +62,7 @@
 
 ## Phase 3 – Data pipeline (US‑1)
 
-- [ ] T008 **Implement `data/raw/download_mobileforge.py`** that fetches the official MobileForge logs via the HuggingFace Hub:   <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 -->
+- [ ] T008 **Implement `data/raw/download_mobileforge.py`** that fetches the official MobileForge logs via the HuggingFace Hub:   <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 -->
   ```python
   from datasets import load_dataset
   ds = load_dataset("mobileforge/logs", split="train", streaming=False)
