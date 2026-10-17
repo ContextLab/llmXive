@@ -2,7 +2,7 @@
 
 **Inputs**: `specs/001-assessing-uncertainty-quantification-tec/spec.md`, `plan.md`, `data-model.md`, `contracts/`
 
-This checklist implements the smallest complete, reproducible study satisfying all functional, non-functional, and success-criteria requirements. The four UQ methods are named explicitly (GPR, MC-Dropout, Deep Ensemble, Split-Conformal) — resolving the reviewer's concern that the spec never named the techniques under comparison — and Formation Energy is documented throughout as the qualified proxy for Elastic Modulus per the spec amendment, with the construct-validity caveat carried into the results account. T002 and T003 are reopened for redo: the previous T002 artifacts contained seaborn example data (Iris/Tips/Planets) rather than real materials datasets, and T003's pipeline exited 1.
+This checklist implements the smallest complete, reproducible study satisfying all functional, non-functional, and success-criteria requirements. The four UQ methods are named explicitly (GPR, MC-Dropout, Deep Ensemble, Split-Conformal), resolving the reviewer's concern that the spec never named the techniques under comparison. Formation Energy is documented throughout as the qualified proxy for Elastic Modulus per the spec amendment, and the construct-validity caveat (thermodynamic stability vs. mechanical stiffness; narrowed physical diversity — two of three datasets share electronic/thermodynamic character) is carried into the results account. T002 and T003 are reopened for redo: the previous T002 artifacts contained seaborn example data (Iris/Tips/Planets) rather than real materials datasets, and T003's pipeline exited 1.
 
 ---
 
@@ -57,31 +57,27 @@ This checklist implements the smallest complete, reproducible study satisfying a
   - Generate `figures/sensitivity_tradeoff.png` (coverage vs. interval width, faceted by method and dataset) with `matplotlib`.
   - **Verification**: `code/tests/test_sensitivity.py` asserts the set of `nominal_coverage` values equals `{0.80, 0.81, …, 0.99}`, validates numeric ranges, and opens the PNG. Exit 0.
 
-- [ ] T008 [US1] **Model-constraint enforcement and performance monitoring**
+- [ ] T008 [US1] **Model-constraint enforcement, performance monitoring, and reproducibility smoke test**
   - Wrap the full pipeline with a `psutil` resource monitor recording total wall-clock time and peak memory; assert `total_duration_seconds < 3600` and `memory_peak_mb ≤ 2000` (NFR-001) and write `data/results/performance_log.json`.
   - After each training run, assert: Deep Ensemble ≤ 3 sub-models, MC-Dropout ≤ 200 passes, all torch models on `device="cpu"`, no quantization (FR-002). Log any violation to `data/results/model_constraints.log` and abort on limit breach.
+  - Ensure all stochastic processes use fixed seeds (`np.random.seed`, `torch.manual_seed`, seeded splits) — NFR-003. Add `code/tests/smoke_test.py` that re-runs the thin pipeline and asserts all metric values in `data/results/metrics_raw.csv` match a stored reference `code/tests/reference/metrics_raw_ref.csv` within 1e-8; any mismatch raises `AssertionError`.
   - Validate every generated CSV (per-sample, metrics, statistical, cost, sensitivity, uq_methods, pipeline_log) against its contract; abort on violation with details in `data/results/schema_validation.log`.
   - **Verification**: `code/tests/test_all_validations.py` runs these checks end-to-end; exit 0.
 
-- [ ] T009 [US1] **Reproducibility smoke test with fixed seeds**
-  - Ensure all stochastic processes use fixed seeds (`np.random.seed`, `torch.manual_seed`, seeded splits) — NFR-003.
-  - Add `code/tests/smoke_test.py` that re-runs the thin pipeline and asserts all metric values in `data/results/metrics_raw.csv` match a stored reference `code/tests/reference/metrics_raw_ref.csv` within 1e-8.
-  - **Verification**: the smoke test exits with status 0; any mismatch raises `AssertionError`.
-
-- [ ] T010 [US1] **Summary tables and reliability diagrams**
+- [ ] T009 [US1] **Summary tables and reliability diagrams**
   - Implement `code/visualize_summary.py` aggregating calibration error, sharpness, and cost metrics into `data/results/summary.csv` with columns `dataset_id, method_id, calibration_error, sharpness, train_time_s, inference_time_s, peak_ram_mb`.
   - Implement `code/visualize_reliability.py` producing `figures/reliability_diagrams.png` (one panel per dataset, all four methods overlaid).
   - **Verification**: `code/tests/test_visualization.py` validates `summary.csv` column names/types and asserts both PNG files exist and are readable. Exit 0.
 
 ## Phase 3 — Reproducible results and paper handoff
 
-- [ ] T011 [US1] **Methods/results account and paper-stage handoff**
+- [ ] T010 [US1] **Methods/results account and paper-stage handoff**
   - Write a concise methods and results account in `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` linked to the actual output rows in `data/results/` and figure files: which of the four named UQ methods (GPR, MC-Dropout, Deep Ensemble, Split-Conformal) achieved lowest calibration error and sharpest intervals per dataset, significance outcomes after Bonferroni, and honest reporting of any null results or partial failures (NFR-002 partial results).
   - Explicitly state the construct-validity limitation: Formation Energy is a proxy for Elastic Modulus (thermodynamic stability vs. mechanical stiffness), so conclusions about elastic-property UQ performance are qualitative; two of the three datasets share an electronic/thermodynamic character, narrowing the physical-diversity claim of the original question.
   - Document the paper-stage handoff: exact commands (`python -m code.main`, `python -m code.main --thin`), locations of all CSVs and figures required for the manuscript, and the pinned `requirements.txt`. Paper layout, PDF compilation, and publication belong to the paper pipeline.
   - **Verification**: `code/tests/test_handoff.py` asserts every artifact path referenced in the handoff exists and that the documented commands parse. Exit 0.
 
-- [ ] T012 [US1] **Final end-to-end verification**
+- [ ] T011 [US1] **Final end-to-end verification**
   - Execute the full pipeline (`python -m code.main`) from its declared inputs, then run `code/tests/test_all_validations.py` and the integration test `code/tests/test_full_pipeline.py` confirming: all required CSVs and figures exist and pass schema validation; model-constraint and performance limits hold; the reproducibility smoke test passes.
   - **Verification**: the full command sequence exits with status 0 and prints `READY`; the project is then ready for the next `/speckit.analyze` run.
 
@@ -93,16 +89,16 @@ This checklist implements the smallest complete, reproducible study satisfying a
 - **FR-002 (model constraints)**: T003, T004, T008 (CPU-only, ≤ 2M params, ensemble ≤ 3, MC passes ≤ 200, no quantization).
 - **FR-003 (featurization, caps, stratified splits)**: T002, T003.
 - **FR-004 (paired Wilcoxon)**: T006; no t-test/ANOVA anywhere.
-- **FR-005 / SC-002 (output CSVs with schemas)**: T003–T005, T007, T010.
-- **SC-001 (pipeline execution)**: T003, T004, T012.
+- **FR-005 / SC-002 (output CSVs with schemas)**: T003–T005, T007, T009.
+- **SC-001 (pipeline execution)**: T003, T004, T011.
 - **SC-003 (significance)**: T006.
 - **SC-004 (sensitivity sweep 0.80–0.99, step 0.01)**: T007.
 - **SC-005 (three datasets)**: T002, T004.
-- **NFR-001 (time/memory)**: T008. **NFR-002 (graceful partial results)**: T004 (uq_methods status/error_msg). **NFR-003 (seeds, pinned deps)**: T009, T011.
+- **NFR-001 (time/memory)**: T008. **NFR-002 (graceful partial results)**: T004 (uq_methods status/error_msg). **NFR-003 (seeds, pinned deps)**: T008, T010.
 - **US1/US2/US3**: T003–T004 / T005 / T006–T007.
 
-Execution order: T001 → T002 → T003 (thin end-to-end) → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012. T006 and T007 depend on T004/T005 outputs; T009 depends on T005; T012 depends on all prior tasks.
+Execution order: T001 → T002 → T003 (thin end-to-end) → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011. T006 and T007 depend on T004/T005 outputs; T008 depends on T005; T011 depends on all prior tasks.
 
 ## Revision behavior
 
-T002 and T003 were rejected by the independent verifier (T002 downloaded seaborn example data instead of the real materials datasets; T003's pipeline exited 1) and are reopened above with package-based real-data fetches, an explicit rejection of seaborn example sets in the verification step, and a fail-loudly, no-silent-exception requirement in the thin pipeline. Reviewer feedback on the spec's method-naming and the Formation Energy proxy is addressed by naming the four UQ methods explicitly in T001/T003/T011 and by carrying the construct-validity qualification (including the narrowed physical-diversity claim) through T002 and T011. All other tasks remain pending; no completed artifacts are erased.
+T002 and T003 were rejected by the independent verifier (T002 downloaded seaborn example data instead of the real materials datasets; T003's pipeline exited 1) and are reopened above with package-based real-data fetches, an explicit rejection of seaborn example sets in the verification step, and a fail-loudly, no-silent-exception requirement in the thin pipeline. Reviewer feedback on the spec's method-naming and the Formation Energy proxy is addressed by naming the four UQ methods explicitly in T001/T003/T010 and by carrying the construct-validity qualification (including the narrowed physical-diversity claim) through T002 and T010. The previous T008/T009 and T010/T011 pairs were consolidated into single tasks (T008, T009) without dropping any acceptance criteria, keeping the list within the preferred task-count range. All other tasks remain pending; no completed artifacts are erased.
