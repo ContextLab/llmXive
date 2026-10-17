@@ -1,9 +1,8 @@
 T001:
-  c: false
-  h: b612c44f3a3eadeb89b61746bc15e46cf2ce1af7e649fca991b034414d29914e
-  r: "The repository contains `requirements.txt` and `code/utils/io_utils.py` that\
-    \ set the seeds, and a passing seed\u2011consistency test, but there is no artifact\
-    \ showing that a virtual environment was created and that `pip freeze` was run\
-    \ to verify the installed (pinned) package versions. Provide a pip\u2011freeze\
-    \ output (or similar proof) and, if required, exact version pins in `requirements.txt`."
-  sig: c90922e55e0428bbef880c28c9aa61ac7c8c3e64094e7f00d1106b2bb4062aea
+  c: true
+  h: ffad128667086242cb09c14556cca29e3a017c0b76a7b6c6456f8e0002283ff7
+  r: "Checked `requirements.txt` (present and used in a passing requirements\u2011\
+    match test), `code/utils/io_utils.py` (sets seeds to 42 on import via config),\
+    \ and the pytest logs confirming both the requirements match and seed\u2011consistency\
+    \ tests succeed."
+  sig: 5f88d458ef04f6ea0fd97f46ed2e58778ac3a3ad9f341c1d3ae9c61f744fa1e2

@@ -1,9 +1,4 @@
 T001:
-  reason: "The repository contains `requirements.txt` and `code/utils/io_utils.py`\
-    \ that set the seeds, and a passing seed\u2011consistency test, but there is no\
-    \ artifact showing that a virtual environment was created and that `pip freeze`\
-    \ was run to verify the installed (pinned) package versions. Provide a pip\u2011\
-    freeze output (or similar proof) and, if required, exact version pins in `requirements.txt`."
   task: e3af1dd229ffe87236b521b8abbf52daaad1346096b67eb2ee51221d5f6555e0
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data_loader.py

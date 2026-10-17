@@ -12,6 +12,7 @@ import hashlib
 import json
 import logging
 import time
+import zipfile
 from pathlib import Path
 from typing import List
 
@@ -65,18 +66,25 @@ def _search_zenodo() -> List[dict]:
 
 def _choose_download_url(records: List[dict]) -> str:
     """
-    From the list of Zenodo records, pick the first CSV file URL.
+    From the list of Zenodo records, pick the first CSV or ZIP file URL.
     """
     for rec in records:
         files = rec.get("files", [])
         for f in files:
             filename = f.get("key", "")
-            if filename.lower().endswith(".csv"):
+            lower_name = filename.lower()
+            if lower_name.endswith(".csv") or lower_name.endswith(".zip"):
                 download_url = f.get("links", {}).get("download")
                 if download_url:
-                    log.info("Selected file '%s' from record %s.", filename, rec.get("id"))
+                    log.info(
+                        "Selected file '%s' from record %s.",
+                        filename,
+                        rec.get("id"),
+                    )
                     return download_url
-    raise FileNotFoundError("No CSV file found in the searched Zenodo records.")
+    raise FileNotFoundError(
+        "No CSV or ZIP file found in the searched Zenodo records."
+    )
 
 def _download_with_retries(url: str, dest_path: Path) -> None:
     """
@@ -97,9 +105,42 @@ def _download_with_retries(url: str, dest_path: Path) -> None:
         except Exception as e:
             attempt += 1
             wait = BACKOFF_FACTOR ** attempt
-            log.warning("Download failed (%s). Retrying in %s seconds...", e, wait)
+            log.warning(
+                "Download failed (%s). Retrying in %s seconds...", e, wait
+            )
             time.sleep(wait)
-    raise FileNotFoundError(f"Failed to download after {MAX_RETRIES} attempts: {url}")
+    raise FileNotFoundError(
+        f"Failed to download after {MAX_RETRIES} attempts: {url}"
+    )
+
+def _extract_zip_if_needed(zip_path: Path, target_csv_path: Path) -> None:
+    """
+    If the downloaded file is a ZIP archive, extract the first CSV
+    inside and move it to ``target_csv_path``.
+    """
+    if zip_path.suffix.lower() != ".zip":
+        return  # nothing to do
+
+    log.info("Extracting ZIP archive %s", zip_path)
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        csv_names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
+        if not csv_names:
+            raise FileNotFoundError(
+                f"No CSV files found inside ZIP archive {zip_path}"
+            )
+        # Extract the first CSV file
+        first_csv = csv_names[0]
+        extracted_path = zf.extract(first_csv, path=zip_path.parent)
+        extracted_path = Path(extracted_path)
+        # Move/rename to the desired final location
+        extracted_path.rename(target_csv_path)
+        log.info(
+            "Extracted CSV %s from ZIP and saved to %s",
+            first_csv,
+            target_csv_path,
+        )
+    # Remove the original ZIP file to keep the data folder tidy
+    zip_path.unlink(missing_ok=True)
 
 def _validate_dataframe(df: pd.DataFrame) -> None:
     """
@@ -180,10 +221,20 @@ def main() -> None:
     records = _search_zenodo()
     download_url = _choose_download_url(records)
 
-    # Step 2: Download with retry logic
-    _download_with_retries(download_url, raw_csv_path)
+    # Temporary download location (could be .csv or .zip)
+    temp_download_path = raw_csv_path.with_suffix(".tmp")
 
-    # Step 3: Load and validate
+    # Step 2: Download with retry logic
+    _download_with_retries(download_url, temp_download_path)
+
+    # Step 3: If the file is a ZIP archive, extract the CSV inside
+    if temp_download_path.suffix.lower() == ".zip":
+        _extract_zip_if_needed(temp_download_path, raw_csv_path)
+    else:
+        # Assume it's the final CSV; rename to the expected path
+        temp_download_path.rename(raw_csv_path)
+
+    # Step 4: Load and validate
     try:
         df = pd.read_csv(raw_csv_path)
     except Exception as e:
@@ -191,7 +242,7 @@ def main() -> None:
 
     _validate_dataframe(df)
 
-    # Step 4: Write checksum
+    # Step 5: Write checksum
     _write_sha256(raw_csv_path, checksum_path)
 
     log.info("Data loader completed successfully.")
