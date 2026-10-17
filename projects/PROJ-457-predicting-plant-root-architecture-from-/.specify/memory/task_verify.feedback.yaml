@@ -1,17 +1,19 @@
 T001:
-  reason: "The `directory_structure.txt` file exists, but it is placed inside the\
-    \ project subdirectory (`projects/PROJ-457\u2011.../directory_structure.txt`)\
-    \ while the CI test `tests/test_directory_structure.py` looks for the file two\
-    \ levels up (`projects/directory_structure.txt`). Consequently both test assertions\
-    \ fail, so the required verification artifact is not in the expected location.\
-    \ Relocate or duplicate `directory_structure.txt` to the path the test checks\
-    \ (or adjust the test) to satisfy the task."
+  reason: "The `directory_structure.txt` correctly lists all six required directories,\
+    \ and the test file `tests/test_directory_structure.py` is present, but the actual\
+    \ `artifacts/` and `artifacts/logs/` directories are not found in the repository\
+    \ (the collector only reports `code/`, `tests/`, `data/raw/`, and `data/processed/`).\
+    \ Since the CI test checks that each listed directory exists, the missing `artifacts/`\
+    \ hierarchy means the task\u2019s verification requirement is not met. Adding\
+    \ those directories (or placeholder files) will satisfy the task."
   task: 9aa69aa37d912c53530c04191abcc244e3c7686539cf63c74d1d2a6e49d78e67
 T002:
-  reason: "The `code/requirements.txt` file exists and contains pinned versions, but\
-    \ there is no provided evidence that `pip install -r code/requirements.txt` was\
-    \ executed and exited with code\u202F0 as required. The implementer must supply\
-    \ execution logs or test results confirming a successful installation."
+  reason: "The `code/requirements.txt` file exists and is correctly populated, but\
+    \ the CI test `tests/test_requirements_install.py` runs `pip install -r /home/runner/.../projects/code/requirements.txt`,\
+    \ which cannot find the file (the actual path is `projects/PROJ-457-.../code/requirements.txt`).\
+    \ Consequently the pip install step exits with code\u202F1, violating the task\u2019\
+    s verification condition. The file must be reachable at the expected location\
+    \ or the test path must be corrected."
   task: 55c3e4c607265d65f23cbddac9049476c74d4b0191af6516479c18a48908ed2f
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'

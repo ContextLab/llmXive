@@ -1,19 +1,21 @@
 T001:
   c: false
-  h: 87b1dd99a171156356862503fc00274e642e6b97ab8f83fdc217f5d3f37a3059
-  r: "The `directory_structure.txt` file exists, but it is placed inside the project\
-    \ subdirectory (`projects/PROJ-457\u2011.../directory_structure.txt`) while the\
-    \ CI test `tests/test_directory_structure.py` looks for the file two levels up\
-    \ (`projects/directory_structure.txt`). Consequently both test assertions fail,\
-    \ so the required verification artifact is not in the expected location. Relocate\
-    \ or duplicate `directory_structure.txt` to the path the test checks (or adjust\
-    \ the test) to satisfy the task."
-  sig: cb07378a759fe67e8e38669561940cb41f24576b82480fb7e037ae96bcd7def1
+  h: c4af10e0b1c13ab41ce9e503281a1efdc34e991ad9a34b5acf99ba0c68ca481e
+  r: "The `directory_structure.txt` correctly lists all six required directories,\
+    \ and the test file `tests/test_directory_structure.py` is present, but the actual\
+    \ `artifacts/` and `artifacts/logs/` directories are not found in the repository\
+    \ (the collector only reports `code/`, `tests/`, `data/raw/`, and `data/processed/`).\
+    \ Since the CI test checks that each listed directory exists, the missing `artifacts/`\
+    \ hierarchy means the task\u2019s verification requirement is not met. Adding\
+    \ those directories (or placeholder files) will satisfy the task."
+  sig: 0672d4b769f22c78b148d52c62bd0aa2c4e1d3690734cb179f7d1356aae438df
 T002:
   c: false
-  h: 4ab75f539dcef0fdf591b10643cf72d9877c32014894121c8f6fafe45cfd0628
-  r: "The `code/requirements.txt` file exists and contains pinned versions, but there\
-    \ is no provided evidence that `pip install -r code/requirements.txt` was executed\
-    \ and exited with code\u202F0 as required. The implementer must supply execution\
-    \ logs or test results confirming a successful installation."
-  sig: b9e00d94217f836098038044596e967c0f4fbfde5c40d01531f977164defb9ec
+  h: 039caf8de171be620e68dc394263c10df2bba42a693e75d5860b9cb03f10f37a
+  r: "The `code/requirements.txt` file exists and is correctly populated, but the\
+    \ CI test `tests/test_requirements_install.py` runs `pip install -r /home/runner/.../projects/code/requirements.txt`,\
+    \ which cannot find the file (the actual path is `projects/PROJ-457-.../code/requirements.txt`).\
+    \ Consequently the pip install step exits with code\u202F1, violating the task\u2019\
+    s verification condition. The file must be reachable at the expected location\
+    \ or the test path must be corrected."
+  sig: b04f1b1503bdcf58da4fcd09af165b9e2eca310896a076520e93ded46ff59702

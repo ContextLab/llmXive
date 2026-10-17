@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 import json
+import yaml
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -185,7 +186,7 @@ def main():
     This function assumes T014b has set p_n_available in state.json.
     """
     config = get_config()
-    logger = setup_logging(config)
+    logger = setup_logging()  # Use default logger configuration
 
     logger.info("Starting T015c: Filter by Missing Nutrients")
 

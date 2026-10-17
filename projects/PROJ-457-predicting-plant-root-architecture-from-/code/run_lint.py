@@ -2,10 +2,9 @@
 
 This script is part of task **T003** and ensures that the codebase
 conforms to the formatting and style rules defined in ``pyproject.toml``
-(for Black) and ``.flake8`` (for Flake8). The script formats the code
-with Black (instead of only checking) and runs Flake8 with ``exit-zero``
-enabled, guaranteeing a successful exit code when the tools run
-without internal errors.
+(for Black) and the Flake8 configuration embedded in the same file.
+It formats the code with Black (in check‑only mode) and runs Flake8.
+The script exits with code 0 only when both tools report no issues.
 """
 
 import subprocess
@@ -33,21 +32,20 @@ def main() -> None:
     # Resolve the project root (two levels up from this file)
     project_root = Path(__file__).resolve().parent.parent
 
-    # Black: use the configuration file located in the repository root.
+    # Black: run in check‑only mode so it only verifies formatting
     black_config = project_root / "pyproject.toml"
-    # Run Black in formatting mode (no ``--check``) so it always succeeds
-    # unless there is an internal error.
     _run_command(
         [
             "black",
             "--config",
             str(black_config),
+            "--check",
             str(project_root),
         ]
     )
 
-    # Flake8: point explicitly at the config file in the repository root.
-    flake8_config = project_root / ".flake8"
+    # Flake8: it reads its configuration from the same pyproject.toml
+    flake8_config = project_root / "pyproject.toml"
     _run_command(
         [
             "flake8",

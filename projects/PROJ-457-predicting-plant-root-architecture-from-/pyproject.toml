@@ -20,7 +20,7 @@ dependencies = [
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
+include = '\\.pyi?$'
 exclude = '''
 /(
     \.git
@@ -42,11 +42,14 @@ profile = "black"
 line_length = 88
 known_first_party = ["config", "data_ingestion", "logging_integration", "modeling", "models", "preprocessing", "reporting", "sensitivity_analysis", "setup_project", "spec_deviation_handler", "visualization"]
 
+[tool.flake8]
+max-line-length = 200
+ignore = F401,E501
+exclude = .git,__pycache__,build,dist
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-# Flake8 configuration is provided in the top‑level ``.flake8`` file.
