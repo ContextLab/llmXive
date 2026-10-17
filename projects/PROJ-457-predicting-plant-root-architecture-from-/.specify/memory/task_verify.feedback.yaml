@@ -6,6 +6,13 @@ T003:
   reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'
   task: da39d763c02550f0958dfb63d0c3de8042c95c21941f70dd45a8a77c6687593d
 T004:
+  reason: '`code/config.py` and `code/models.py` exist with real, substantive implementations
+    (config loader with defaults, `setup_logging()` creating `artifacts/logs/`, and
+    the two required dataclasses). However, the required `config.yaml.template` is
+    absent from the evidence (only `config.yaml` exists, which is a different artifact),
+    and there is no execution evidence that `setup_logging()` actually ran and created
+    a log file in `artifacts/logs/`. The implementer must add `config.yaml.template`
+    and provide run evidence for the verification command.'
   task: de902993f2c779d0d2960774a2cf2ab3fa086e3f754be1263aa62fe6478d208c
 T005:
   task: aa591468dc7b0f017f9080a0a5f945b4fe022b884f0df9c5c7dad5cdc5c79bc3

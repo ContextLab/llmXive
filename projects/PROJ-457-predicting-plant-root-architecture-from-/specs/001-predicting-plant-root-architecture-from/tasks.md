@@ -14,11 +14,11 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
   *Path*: `code/requirements.txt`  
   *Verification*: `ls code/requirements.txt` must return the file; `pip install -r code/requirements.txt` must exit with code 0.
 
-- [ ] T003 Add linting configuration (`pyproject.toml` with Black & Flake8 settings) and a wrapper script `code/run_lint.py` that exits with code 0 only when lint passes. <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 -->
+- [ ] T003 Add linting configuration (`pyproject.toml` with Black & Flake8 settings) and a wrapper script `code/run_lint.py` that exits with code 0 only when lint passes. <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 -->
   *Path*: `pyproject.toml`, `code/run_lint.py`  
   *Verification*: CI step `python code/run_lint.py` must return exit 0; failing lint will cause the task to remain unchecked.
 
-- [X] T004 Implement a configuration loader, logging setup, and the base data‑model classes `RootPhenotypeRecord` and `SoilNutrientRecord`. Also create a template config file.  
+- [ ] T004 Implement a configuration loader, logging setup, and the base data‑model classes `RootPhenotypeRecord` and `SoilNutrientRecord`. Also create a template config file.  
   *Paths*: `code/config.py` (loader & `setup_logging()`), `code/models.py` (dataclasses for the two records), `config.yaml.template` (empty template).  
   *Verification*:  
     1. `python -c "import code.config; code.config.setup_logging()"` creates a log file in `artifacts/logs/`.  

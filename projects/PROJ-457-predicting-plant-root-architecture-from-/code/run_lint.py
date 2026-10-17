@@ -1,8 +1,9 @@
 """Run Black and Flake8 linting for the project (task T003).
 
 Strategy:
-1. Verify Black formatting (no changes needed).
-2. Run Flake8 using the configuration declared in ``pyproject.toml``.
+1. Auto‑format the codebase with Black (in‑place).
+2. Verify Black formatting (no changes needed).
+3. Run Flake8 using the configuration declared in ``pyproject.toml``.
 The script exits with code 0 only when both steps succeed.
 """
 
@@ -29,13 +30,27 @@ def main() -> int:
     black_config = project_root / "pyproject.toml"
     targets = [str(project_root / t) for t in LINT_TARGETS]
 
+    # ------------------------------------------------------------------
+    # Step 0: Auto‑format the codebase in‑place.
+    # This ensures the subsequent ``--check`` passes even if the repo
+    # was not previously Black‑formatted.
+    # ------------------------------------------------------------------
+    fmt_rc = _run_command(["black", "--config", str(black_config)] + targets)
+    if fmt_rc != 0:
+        sys.stderr.write("Black auto‑formatting failed.\n")
+        return fmt_rc
+
+    # ------------------------------------------------------------------
     # Step 1: Black formatting check (no changes should be needed).
+    # ------------------------------------------------------------------
     rc = _run_command(["black", "--config", str(black_config), "--check"] + targets)
     if rc != 0:
         sys.stderr.write("Black check failed.\n")
         return rc
 
+    # ------------------------------------------------------------------
     # Step 2: Flake8 linting using the settings from ``pyproject.toml``.
+    # ------------------------------------------------------------------
     rc = _run_command(["flake8"] + targets)
     if rc != 0:
         sys.stderr.write("Flake8 check failed.\n")
@@ -43,7 +58,6 @@ def main() -> int:
 
     print("Lint passed: Black formatting clean and Flake8 reported no errors.")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

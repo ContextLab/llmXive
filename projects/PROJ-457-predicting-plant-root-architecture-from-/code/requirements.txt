@@ -1,19 +1,21 @@
-# Core dependencies (exact pinned versions) for PROJ-457
-# Predicting Plant Root Architecture from Soil Nutrient Availability
+# Pinned dependencies for the project.
+# Core scientific stack (already used elsewhere in the project)
 pandas==2.2.1
 numpy==1.26.4
 scikit-learn==1.4.2
 statsmodels==0.14.2
-matplotlib==3.8.4
 seaborn==0.13.2
-datasets==2.18.0
+matplotlib==3.8.4
 pyyaml==6.0.1
-scipy==1.13.0
-tqdm==4.66.2
-pyarrow==15.0.2
-jsonschema==4.21.1
-requests==2.31.0
-
-# Linting tools required by T003a-T003c
-black==24.2.0
+geopandas==0.14.2
+# Linting tools required for T003
+black==24.3.0
 flake8==7.0.0
+# Additional utilities used by the pipeline
+requests==2.32.3
+tqdm==4.66.2
+datasets==2.18.0
+# The following are already available in the base environment but are
+# listed for reproducibility; they will be ignored if already installed.
+scipy==1.13.0
+# End of requirements.
