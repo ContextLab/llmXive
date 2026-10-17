@@ -1,20 +1,4 @@
-download FAILED 2026-10-17T00:16:04.384167+00:00
+download OK 2026-10-17T00:23:24.888404+00:00
 dataset: OSTShushack/ExtractionDataset
-error: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/data/raw/download_mobileforge.py", line 81, in main
-    raw_dir = download()
-              ^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/data/raw/download_mobileforge.py", line 65, in download
-    from datasets import load_dataset  # imported here so errors surface clearly
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-930-llmxive-follow-up-extending-mobileforge/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-930-llmxive-follow-up-extending-mobileforge/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-930-llmxive-follow-up-extending-mobileforge/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-
+saved_to: /home/runner/work/llmXive/llmXive/projects/PROJ-930-llmxive-follow-up-extending-mobileforge/data/raw/mobileforge_logs
+files_checksummed: 13

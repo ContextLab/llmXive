@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-16T04:19:18Z",
+  "updated_at": "2026-10-17T00:30:06Z",
   "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
   "replan_rounds": 1
 }

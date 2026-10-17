@@ -1,1 +1,15 @@
-{}
+{
+  ".cache/huggingface/.gitignore": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+  ".cache/huggingface/download/.gitattributes.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  ".cache/huggingface/download/.gitattributes.metadata": "1af65acfcf8827e64d1f2042aabec22b06edf3c9df2215b4e52fd4aeec2ccc74",
+  ".cache/huggingface/download/README.md.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  ".cache/huggingface/download/README.md.metadata": "705fb1d00da7113d7024701dbb76e04624b9019f629892ad1c33c1e99ce13df8",
+  ".cache/huggingface/download/data/test-00000-of-00001.parquet.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  ".cache/huggingface/download/data/test-00000-of-00001.parquet.metadata": "5c3aab60bb8b93b6a2dc6fc540e4c70830e0c71ac12a665bf87a529d23727112",
+  ".cache/huggingface/download/data/train-00000-of-00001.parquet.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  ".cache/huggingface/download/data/train-00000-of-00001.parquet.metadata": "0ea40b92eca5c9c64292d459b848cfd71f198918c3e159b3fc9e24f580c4b185",
+  ".gitattributes": "e7a120ab07b1bc5b486be249e9fc6c83d59448d0093e1dfebe95d1566d9cafc0",
+  "README.md": "7107bae720b6bb21906df4519c5dec2a5efa9f7089e96dc9cd19a91eb32fff09",
+  "data/test-00000-of-00001.parquet": "f70adb5239c2968164b98b9594ccd999f0015b41fe70cc71db4b3f722d6a3020",
+  "data/train-00000-of-00001.parquet": "09d807108a2976a01517e07d93d67aa23883e2dbfd17252c258731b381b01162"
+}

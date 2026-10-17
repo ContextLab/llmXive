@@ -1,23 +1,17 @@
 T001:
-  c: false
-  h: eac9883ab3015700944795fd1f67b239d7d81ee90e5eae431cc1412dcc2ce6e7
-  r: The task requires creating `code/{data/raw,data/processed,data/evaluation,models,utils,tests/unit,tests/integration}`
-    plus top-level `data/` and `outputs/`. The evidence confirms `code/data/`, `code/tests/`,
-    `code/utils/`, `data/processed/`, `data/`, and `outputs/` exist, but the `code/`
-    listing (25 entries) contains no `models/` directory, `data/` shows only `processed/`
-    (no `raw/`), and there is no evidence of `code/data/evaluation/`, `tests/unit/`,
-    or `tests/integration/`. The implementer must actually create the missing directories
-    (e.g., `code/models`, `code/data/raw`, `code/data/evaluati
-  sig: af3922ecc7397c790185c2e678dc98bb9bea560c612f1b69a2325f98eeb364df
+  c: true
+  h: 21f64f469473e745ca5d35e856f2d51a402e8bed5105cd9ea6d871b19910aa2f
+  r: Checked the `setup_directory_tree.py` log (which reports creation of all required
+    directories) and the passing unit test `test_directory_tree_t001.py` confirming
+    those directories exist in the repository.
+  sig: 92365641a6ed249b55be6dce763593f21cd53378cf191e3f80786daf41a656d3
 T002:
   c: true
-  h: 353f8386735d3b81ece8c70a08176a95fc3827dee3fff27dd7f53ed4be640396
-  r: '`code/requirements.txt` exists with exactly the 11 required pinned lines (trailing
-    newline only difference, no extra packages), and `outputs/install_log.txt` shows
-    a real `pip install -r code/requirements.txt` run where all 11 pinned packages
-    resolved successfully with no errors, corroborated by the exit-0 execution record
-    of `code/install_deps.sh`.'
-  sig: 80f8f2e53d90fb41a2c58bd6bb6cb0fb9d2930aa70b04e4f224efd65a6549c78
+  h: b0f37bd062be81f13dceeff9e2b4053d7376699ef105783825501c2b20c0e22f
+  r: "Checked `code/requirements.txt` \u2013 it contains exactly the 11 specified\
+    \ pinned lines with no extras, and `outputs/install_log.txt` shows the `pip install\
+    \ -r code/requirements.txt` step completed without errors."
+  sig: b147515c84acaabc1fc23aea0f303d61659cbb20c14a07177efee231f6a324c4
 T003:
   c: true
   h: 616aa762119b08312d9124c1ef38bba2ebb4c56194bfa29bd99f08424ed3faca
@@ -27,12 +21,12 @@ T003:
   sig: fb4755242a69f46ee757348904c6fc112e35d85fffd9e360a7d05d0ed9dbfc1d
 T004:
   c: true
-  h: 19843a29d64fd5c13c8ecdc96578e59234488508c43368e1f59418450320cc8e
-  r: 'Both required artifacts exist and are valid JSON: `data/checksums.json` is the
-    intentionally empty `{}` placeholder (task says it need only exist at this stage),
-    and `outputs/reproducibility_meta.json` contains a non-empty integer `"seed"`
-    (1101310393) plus a timestamp, matching the task''s stated requirements.'
-  sig: eefc666148c6c4249595d4be18fb2bd35ed81a0de182ff0d35a8dc68261ae9eb
+  h: c422d72f1c4f1546d6ee619e079ee2c15d98441460462ce1554b959d8e70a636
+  r: "The `data/checksums.json` file exists and is valid JSON (shown with its contents),\
+    \ and `outputs/reproducibility_meta.json` exists, is valid JSON, and includes\
+    \ a non\u2011empty `\"seed\"` field (value\u202F1101310393). Both artifacts meet\
+    \ the task\u2019s verification criteria."
+  sig: b5b337252009acef91072c34821e69611996dd2360046fdc07807be4e30b7814
 T005:
   c: true
   h: e370bb4b1b066c5731391298932463fbb7e0aadd2b24f5e474cf096083f56401
@@ -54,13 +48,10 @@ T006:
   sig: 96229dc32ebc6176fc4df46fdc0370d5b284ab9427d41fbfc9ec2d6e53cb297a
 T007:
   c: true
-  h: 785d4344df479898c47e97d3ad51b8176756c7519bc5b44d7b37d18ede85c2f3
-  r: "The script `code/utils/power_analysis.py` exists and implements a real statsmodels-based\
-    \ power calculation (GofChisquarePower, an acceptable McNemar-appropriate estimator\
-    \ per the task's \"e.g.\" wording), enforces the before-extraction rule by aborting\
-    \ if `data/processed` is non-empty, and writes `outputs/power_analysis.json` containing\
-    \ `n_required: 197` (consistent with the actual statsmodels result for h=0.2,\
-    \ \u03B1=0.05, power=0.8) plus the full parameters block matching the schema's\
-    \ required fields. The JSON conforms to `contracts/power_analysis.schema.yaml`\
-    \ (all required keys present, no additio"
-  sig: 3214a2d4c729cc039f6605b34f247269107bae0b87b536f33b89e775c8f43aae
+  h: d65a5445ced4d5365652ea32050238cb0b39c2eb54a950dc2fab1a223047edf9
+  r: "Checked `code/utils/power_analysis.py` for the required power\u2011calculation\
+    \ logic, pre\u2011extraction guard, and JSON output path; verified that `outputs/power_analysis.json`\
+    \ exists, contains an integer `n_required`\u202F\u2265\u202F1 with the full `parameters`\
+    \ block, and conforms to `contracts/power_analysis.schema.yaml`. All artifacts\
+    \ are present, non\u2011empty, and meet the task specifications."
+  sig: a68496bfe5f45c823e49a5ac38fc7aa9264304255f557c94a6814973bb1cab39

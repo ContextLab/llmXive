@@ -1,11 +1,4 @@
 T001:
-  reason: The task requires creating `code/{data/raw,data/processed,data/evaluation,models,utils,tests/unit,tests/integration}`
-    plus top-level `data/` and `outputs/`. The evidence confirms `code/data/`, `code/tests/`,
-    `code/utils/`, `data/processed/`, `data/`, and `outputs/` exist, but the `code/`
-    listing (25 entries) contains no `models/` directory, `data/` shows only `processed/`
-    (no `raw/`), and there is no evidence of `code/data/evaluation/`, `tests/unit/`,
-    or `tests/integration/`. The implementer must actually create the missing directories
-    (e.g., `code/models`, `code/data/raw`, `code/data/evaluati
   task: 0b95ce60d5289d14226227233e721cb10e6685a45f625b0b69464950b8334e59
 T002:
   task: b3772d14fb0e795473d2175e5c351b1f5239d20ce32e2630de995fdace6e8d47
@@ -20,10 +13,15 @@ T006:
 T007:
   task: 47e9695df357f279967c27d39ecc4c50e5e9a6f860b91d64eb3e1581ce09a52d
 T008:
-  reason: 'Requested task execution failed; rerun successfully: code/data/raw/download_mobileforge.py
-    exit=1'
+  reason: "The script at `code/data/raw/download_mobileforge.py` exists and writes\
+    \ checksums, but it does **not** fetch the required dataset `mobileforge/logs`\
+    \ via `datasets.load_dataset` as specified; it instead downloads `OSTShushack/ExtractionDataset`\
+    \ using `huggingface_hub.snapshot_download`. This deviates from the task\u2019\
+    s core requirement, so the implementation is not considered complete."
   task: eb9dd80f416e32c7d89376215bcdc951dc82cf4c65a76388463fe800a6581fce
 T009:
+  reason: 'Requested task execution failed; rerun successfully: code/data/raw/validate_extraction_dataset.py
+    exit=1'
   task: 26f49bb3ba6f508ab49d8cbfdaad944c94f9c4899a9e2926e28a579152c8261c
 T010:
   task: 85da004ed37ccb17ca870111a32528557183d9671af7c037bf32752f1a82584e
