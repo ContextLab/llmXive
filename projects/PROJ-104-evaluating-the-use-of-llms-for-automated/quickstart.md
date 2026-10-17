@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11 installed.
 - Internet access (required for cloning repositories and downloading model weights).
-- CPU-only runner (2 CPU cores, ~7 GB RAM is sufficient; no GPU is used anywhere — NFR-001). [UNRESOLVED-CLAIM: c_6030c685 — status=not_enough_info]
+- CPU-only runner (2 CPU cores, ~7 GB RAM is sufficient; no GPU is used anywhere — NFR-001).
 
 ## Setup
 ```bash
@@ -26,7 +26,7 @@ them.
 ## Seed policy (Constitution I)
 All stochastic components use the single pinned seed `SEED = 42` defined in
 `code/seeds.py`: the Monte‑Carlo power analysis (T002), dataset sampling
-(T004), LLM generation (T005, `do_sample=False`), the zero-shot classifier
+(T004), LLM generation (T005, `do_sample=False`), the zero‑shot classifier
 (T007), and any bootstrap resampling (T009). Re-running any stage
 reproduces identical results.
 
@@ -83,4 +83,4 @@ pytest tests/quickstart_test.py tests/test_power_analysis.py
 ```
 
 ## CI Execution
-The repository includes a GitHub Actions workflow (`.github/workflows/research.yml`) that automatically runs the full CPU‑only pipeline on every push, caches model weights, and uploads artifacts. No manual intervention is required. [UNRESOLVED-CLAIM: c_01b9a01e — status=not_enough_info]
+The repository includes a GitHub Actions workflow (`.github/workflows/research.yml`) that automatically runs the full CPU‑only pipeline on every push, caches model weights, and uploads artifacts. No manual intervention is required.

@@ -98,3 +98,70 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: "2 CPU cores and ~7 GB RAM are sufficient for CPU\u2011only runner, no\
+    \ GPU used"
+  claim_id: c_0d492a52
+  context: "The prerequisites list specifies a CPU\u2011only runner (2 CPU cores,\
+    \ ~7 GB RAM is sufficient; no GPU is used anywhere)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "CPU\u2011only runner (2 CPU cores, ~7\u202FGB RAM is sufficient; no GPU\
+    \ is used anywhere)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-17T08:18:16Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_e6cb2d66
+  context: "Running the quick smoke test loads a tiny synthetic commit pair and completes\
+    \ in well under 30\u202Fseconds and requires no model downloads."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "It completes in well under 30\u202Fseconds and requires no model downloads"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T08:18:16Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: power analysis report includes estimated power for sample size 500
+  claim_id: c_af6acb96
+  context: "The Monte\u2011Carlo power analysis writes results/power_report.md; the\
+    \ report contains the estimated power for n = 500."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The report contains the estimated power for n = 500
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T08:18:16Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: "GitHub Actions workflow runs full CPU\u2011only pipeline on every push"
+  claim_id: c_c679eb9d
+  context: "The CI Execution section states the repository includes a GitHub Actions\
+    \ workflow that automatically runs the full CPU\u2011only pipeline on every push."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The repository includes a GitHub Actions workflow that automatically\
+    \ runs the full CPU\u2011only pipeline on every push"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T08:18:16Z'

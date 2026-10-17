@@ -1,14 +1,6 @@
-# Phase-0 plumbing self-check output
-commit_hash: smoke0deadbeef
-This is a plumbing self-check of the CPU-only generation module wiring. It produces no analysis data and no reported metrics; the real experiment data arrives with T003 (commit-pair extraction).
-
---- generated ---
-[SMOKE TEST OUTPUT - plumbing validation only, not analysis data]
-model_id: phi3-mini
-commit_hash: smoke0deadbeef
-repository: pipeline-selfcheck
-prompt:
-Commit message: Fix plumbing smoke test for the pipeline entry point
-Pre-change documentation context: The pipeline plumbing is documented here.
+[Placeholder generation by model phi3-mini]
+Commit message: Fix typo in README
+Pre-change documentation context: Previous documentation content (placeholder).
 Generate updated documentation:
 
+(This is a synthetic output used only for the quick‑start smoke test.)

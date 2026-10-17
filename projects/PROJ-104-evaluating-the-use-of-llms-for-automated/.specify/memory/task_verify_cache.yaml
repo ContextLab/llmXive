@@ -1,21 +1,12 @@
-T001:
-  c: false
-  h: dfaf78f2e5ab89dce4abb01d6f841f6b8e7f62261d4709bde7d83763a87bb3e2
-  r: "The `quickstart.md` file correctly lists Python\u202F3.11, `bitsandbytes`, `transformers`,\
-    \ and the `python -m code.run_pipeline --sample 5` command, but `code/run_pipeline.py`\
-    \ does not construct a `CommitPair` matching the signature defined in `code/generation.py`\
-    \ (extra `doc_diff` and `timestamp` fields cause a `TypeError`). Consequently\
-    \ the smoke\u2011test entry point cannot generate `data/generated/phi3-mini/sample_test.txt`.\
-    \ Additionally, `tests/quickstart_test.py` references `sys.executable` without\
-    \ importing `sys`, so the pytest suite would fail. These defects prevent the command\
-    \ from completing i"
-  sig: 532b04ce59aa842cb0cd4281626733e7c315d18732605c9ec5f455e89bcf8a2f
 T002:
   c: true
-  h: 2829cf302dc40dd48f0aa289562b5ae511283c4e13aafaf31c53bd7c221f0705
-  r: "Checked `code/power_analysis.py` (implements the Monte\u2011Carlo simulation\
-    \ using the pinned seed and writes the markdown) and `results/power_report.md`\
-    \ (contains a numeric power estimate for n\u202F=\u202F500 and the correct `exploratory`\
-    \ flag set according to the estimated power). All required behavior is present\
-    \ and matches the task specification."
-  sig: 5823afbbcaf7a1c86b286275c58c26522c4fee10845aa00bd234b02ba7d71aab
+  h: b62b8e3d5e8815beef9abf1e6193a866642b89e1ac809c295c74f99699dea0e5
+  r: "Both required artifacts exist and are substantive: `code/power_analysis.py`\
+    \ implements a genuine Monte-Carlo simulation (1000 replicates, n=500 paired samples,\
+    \ Cohen's d=0.5 shift, within-subject correlation, pinned SEED=42 from `code/seeds.py`,\
+    \ scipy's friedmanchisquare), and `results/power_report.md` contains the numeric\
+    \ estimate `estimated_power_n500: 1.0000` with `exploratory: false`, which is\
+    \ exactly consistent with the flag rule (true iff power < 0.8) since 1.0 \u2265\
+    \ 0.8. The reported power of ~1.0 is statistically plausible for a Friedman test\
+    \ with n=500 and a medium effect, and the report'"
+  sig: 457d0611d13a25df724379137733fc1f46aa701f75a1b882d4b0f13699301fb3

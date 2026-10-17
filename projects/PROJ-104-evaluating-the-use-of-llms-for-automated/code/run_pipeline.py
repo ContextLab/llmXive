@@ -12,6 +12,7 @@ import sys
 
 from llmxive_toolkit import get_logger, paths
 
+# Import the placeholder generation module and its data class.
 from code.generation import generate_documentation, CommitPair  # noqa: F401
 from code.power_analysis import run_power_analysis
 from code.data_extraction import main as data_extraction_main
@@ -20,13 +21,12 @@ log = get_logger(__name__)
 
 def run_smoke_test() -> int:
     """Phase‑0 smoke test: generate a single placeholder file."""
-    # Use a tiny synthetic commit pair defined locally.
+    # Use a tiny synthetic commit pair matching the CommitPair signature.
     pair = CommitPair(
         commit_hash="synthetic",
         commit_message="Fix typo in README",
+        prev_doc_snippet="Previous documentation content (placeholder).",
         repository_name="synthetic-repo",
-        doc_diff="--- a/README.md\n+++ b/README.md\n@@ -1 +1 @@\n-Readme\n+README",
-        timestamp="2024-01-01T00:00:00Z",
     )
     output = generate_documentation(pair, model_id="phi3-mini")
     out_path = paths.data("generated", "phi3-mini", "sample_test.txt")

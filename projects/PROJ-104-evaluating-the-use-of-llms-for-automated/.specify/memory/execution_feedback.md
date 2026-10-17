@@ -8,67 +8,32 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- data/raw/commit_pairs.csv: self-declared fabricated metric — “…hat your reported numbers are NOT real measurements: they are drawn from `random…”
+- data/raw/commit_pairs.csv: self-declared fabricated metric — “…m`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautolo…”
+- data/raw/commit_pairs.csv: self-declared fabricated metric — “…ver offload). Never present a simulated number as a measurement.  - code/ana…”
+- data/raw/commit_pairs.csv: self-declared fabricated metric — “…esult signal(s) — results are not real measurements: code/analysis/generate_sens…”
 - code/run_pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…un the smoke test with a synthetic sample (ignores other stages)."…”
-- data/repos/pandas/pandas/core/groupby/groupby.py: synthetic/fake INPUT data not authorized by the spec — “…index_sample = None  # Dummy sample          if isinstance(i…”
-- data/repos/pandas/pandas/core/reshape/encoding.py: synthetic/fake INPUT data not authorized by the spec — “…al data decoded from the dummy input-data.      Raises     --…”
-- data/repos/pandas/pandas/core/reshape/encoding.py: synthetic/fake INPUT data not authorized by the spec — “…`` ``data`` contains non-dummy data.         * When the pass…”
-- data/repos/pandas/pandas/core/reshape/encoding.py: synthetic/fake INPUT data not authorized by the spec — “…he columns of the passed dummy data should only include 1's…”
-- data/repos/pandas/pandas/core/reshape/encoding.py: synthetic/fake INPUT data not authorized by the spec — “…d DataFrame contains non-dummy data") from err      # collec…”
+- data/raw/commit_pairs.csv: synthetic/fake INPUT data not authorized by the spec — “…ity_report.py: synthetic/fake INPUT data not authorized by the sp…”
+- data/raw/commit_pairs.csv: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”
+- data/raw/commit_pairs.csv: synthetic/fake INPUT data not authorized by the spec — “…e/research.md: synthetic/fake INPUT data not authorized by the sp…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/run_pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…un the smoke test with a synthetic sample (ignores other stages)."…”; data/repos/pandas/pandas/core/groupby/groupby.py: synthetic/fake INPUT data not authorized by the spec — “…index_sample = None  # Dummy sample          if isinstance(i…”; data/repos/pandas/pandas/core/reshape/encoding.py: synthetic/fake INPUT data not authorized by the spec — “…al data decoded from the dummy input-data.      Raises     --…”; 2 command(s) failed: python -m code.run_pipeline --sample 5 (rc=1); python -m pytest tests/quickstart_test.py tests/test_power_analysis.py (rc=1); 1 declared deliverable(s) absent: data/gold_standard/annotations.json
+**Summary**: 59 fabricated/simulated-result signal(s) — results are not real measurements: data/raw/commit_pairs.csv: self-declared fabricated metric — “…hat your reported numbers are NOT real measurements: they are drawn from `random…”; data/raw/commit_pairs.csv: self-declared fabricated metric — “…m`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautolo…”; data/raw/commit_pairs.csv: self-declared fabricated metric — “…ver offload). Never present a simulated number as a measurement.  - code/ana…”; 1 command(s) failed: python -m code.run_pipeline --full (rc=-1); 1 declared deliverable(s) absent: data/gold_standard/annotations.json
 
 ## Failing / missing run-book commands
 
-- python -m code.run_pipeline --sample 5 -> rc=1
+- python -m code.run_pipeline --full -> rc=-1
+Power analysis: estimated power for n=500 is 1.0000; exploratory=False
+Wrote /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/results/power_report.md
 
-2026-10-17 07:13:34,083 INFO __main__: Running smoke test with 5 sample(s)
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/run_pipeline.py", line 89, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/run_pipeline.py", line 80, in main
-    return run_smoke_test()
-           ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/run_pipeline.py", line 24, in run_smoke_test
-    pair = CommitPair(
-           ^^^^^^^^^^^
-TypeError: CommitPair.__init__() got an unexpected keyword argument 'doc_diff'
+2026-10-17 08:18:59,472 INFO __main__: Running full pipeline
+2026-10-17 08:18:59,472 INFO __main__: Running power analysis...
+2026-10-17 08:19:42,258 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
+2026-10-17 08:19:42,259 INFO __main__: Running data extraction...
+2026-10-17 08:19:42,259 INFO code.data_extraction: Repo already cloned at /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/repos/pandas, pulling latest.
 
-- python -m pytest tests/quickstart_test.py tests/test_power_analysis.py -> rc=1
-___________________ test_smoke_test ________________________________
-
-    def test_smoke_test():
-        """Run the smoke test and verify the placeholder file exists."""
-        result = subprocess.run(
->           [sys.executable, "-m", "code.run_pipeline", "--sample", "1"],
-            capture_output=True,
-            text=True,
-        )
-E       NameError: name 'sys' is not defined
-
-tests/quickstart_test.py:12: NameError
-______________________________ test_full_pipeline ______________________________
-
-    def test_full_pipeline():
-        """Run the full pipeline and verify that the commit‑pair CSV is created."""
-        result = subprocess.run(
->           [sys.executable, "-m", "code.run_pipeline", "--full"],
-            capture_output=True,
-            text=True,
-        )
-E       NameError: name 'sys' is not defined
-
-tests/quickstart_test.py:23: NameError
-=========================== short test summary info ============================
-FAILED tests/quickstart_test.py::test_smoke_test - NameError: name 'sys' is n...
-FAILED tests/quickstart_test.py::test_full_pipeline - NameError: name 'sys' i...
-========================= 2 failed, 5 passed in 5.30s ==========================
-
-
+[TIMEOUT after 120s]
 
 ## Declared deliverables still missing
 
