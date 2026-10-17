@@ -42,6 +42,11 @@ profile = "black"
 line_length = 88
 known_first_party = ["config", "data_ingestion", "logging_integration", "modeling", "models", "preprocessing", "reporting", "sensitivity_analysis", "setup_project", "spec_deviation_handler", "visualization"]
 
+[tool.flake8]
+max-line-length = 200
+select = "E9,F63,F7,F82"
+exclude = ".git,__pycache__,build,dist,venv,.venv"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

@@ -3,14 +3,7 @@ T001:
 T002:
   task: 55c3e4c607265d65f23cbddac9049476c74d4b0191af6516479c18a48908ed2f
 T003:
-  reason: "The task explicitly requires `pyproject.toml` with **Black & Flake8 settings**,\
-    \ but the file only contains `[tool.black]` (plus isort/pytest) \u2014 no Flake8\
-    \ configuration section at all; Flake8 settings were moved entirely into `code/run_lint.py`\
-    \ command-line flags, which is not what was asked. Additionally, the recorded\
-    \ exit-0 run is vacuous (\"No Python files are present to be formatted\"), so\
-    \ there is no evidence the wrapper actually validates lint on real source files.\
-    \ Fix: add a Flake8 settings section (e.g. `[tool.flake8]` or documented equivalent)\
-    \ to `pyproject.toml` and demonstrate a non-tr"
+  reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'
   task: da39d763c02550f0958dfb63d0c3de8042c95c21941f70dd45a8a77c6687593d
 T004:
   task: de902993f2c779d0d2960774a2cf2ab3fa086e3f754be1263aa62fe6478d208c
