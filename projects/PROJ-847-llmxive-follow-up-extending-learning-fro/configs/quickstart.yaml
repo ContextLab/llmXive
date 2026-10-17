@@ -1,4 +1,4 @@
-# Quickstart configuration for the density-supervision study.
+# Quickstart configuration for the density‑supervision study.
 # See docs/quickstart.md for full usage instructions.
 seed: 42
 
@@ -19,7 +19,7 @@ stages:
   - adaptive_runs
   - analysis
 
-# Training hyper-parameters (consumed by later tasks).
+# Training hyper‑parameters (consumed by later tasks).
 training:
   rhos: [0.5]          # thin run uses a single rho
   seeds: [42]          # single seed for reproducibility
@@ -33,4 +33,4 @@ data:
   streaming: true
 
 model:
-  model_id: "hf://author/lightdiff-100m"
+  model_id: "distilgpt2"

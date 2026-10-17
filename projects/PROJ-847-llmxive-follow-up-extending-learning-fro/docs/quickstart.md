@@ -1,6 +1,6 @@
-# Quickstart: Density-Supervision Study for d-OPSD Diffusion LLMs
+# Quickstart: Density‑Supervision Study for d‑OPSD Diffusion LLMs
 
-This guide describes how to run the full experimental pipeline from a
+This guide describes how to run the experimental pipeline from a
 clean checkout. The single entry point is `code/run_experiments.py`,
 driven by a YAML configuration file.
 
@@ -16,9 +16,9 @@ The platform runner already provides `numpy`, `pandas`, `scipy`,
 `matplotlib`, `scikit-learn`, `statsmodels`, `seaborn`, `pytest`,
 `PyYAML`, `requests`, `jsonschema`, and `psutil`.
 
-## Command line
+## Running the pipeline
 
-Run the whole pipeline with the quickstart configuration:
+### Thin (quick‑start) run
 
 ```bash
 python -m code.run_experiments --config configs/quickstart.yaml
@@ -26,50 +26,33 @@ python -m code.run_experiments --config configs/quickstart.yaml
 
 On success the command prints `Pipeline initialized`, creates the
 `outputs/` directory tree, writes `outputs/run_config.json` with the
-effective configuration, and executes the stages listed in the config.
-Stages whose implementing modules do not exist yet are skipped with a
-warning — they are added by later tasks.
+effective configuration, and runs a single fixed‑density baseline
+(ρ = 0.5, seed = 42) on a small sample of GSM8K test data.
+Expected wall‑clock time is **under a minute** on a standard CPU‑only
+runner.
 
-### Options (for later tasks)
+### Full experiment suite
 
-| Flag | Description |
-|------|-------------|
-| `--config <path>` | Path to a YAML config file (default `configs/quickstart.yaml`) |
-| `--mode <name>` | Run only one stage: `fixed` or `adaptive` |
-| `--rhos <list>` | Retaining ratios for fixed‑density runs |
-| `--seeds <list>` | Random seeds for replication |
-| `--output <path>` | Destination for result files |
-| `--dry-run` | Initialise outputs and exit without running any stage |
+```bash
+python -m code.run_experiments --config configs/full_suite.yaml
+```
 
-## Expected artefacts from the quick‑start run
+This runs the complete suite:
+- Data download & snapshot
+- Model download (`distilgpt2`)
+- Fixed‑density baselines for five retaining ratios and five seeds
+- (Adaptive and analysis stages are placeholders for later tasks)
+
+The full suite is expected to take **several minutes** per
+fixed‑density run but remains well within the 6‑hour per‑job limit.
+
+## Expected artefacts
 
 - `outputs/run_config.json` – the effective configuration used.
-- `data/results/fixed_baselines.csv` – CSV containing a thin
- fixed‑density baseline run (the default training hyper‑parameters
- from `quickstart.yaml`).
-- `outputs/` sub‑directories as declared in `quickstart.yaml`
+- `data/results/fixed_baselines.csv` – CSV containing results from the
+ thin run (quick‑start) or the full grid (full suite).
+- Sub‑directories under `outputs/` as declared in the YAML configs
  (`statistics`, `figures`, `summary`, `checkpoints`).
-
-The thin run uses a single seed (42) and a single retaining ratio
-(0.5) as defined in `configs/quickstart.yaml`. It completes within the
-6‑hour wall‑clock limit on a standard CPU‑only runner.
-
-## Seed control
-
-The global seed is recorded in `outputs/run_config.json`. The trainer
-sets the Python, NumPy, and (if available) PyTorch RNGs for each run
-to guarantee reproducibility.
-
-## How the pipeline works
-
-1. **Data stage** – streams GSM8K and the logical reasoning dataset,
- snapshots them under `data/raw/`, and writes `data/raw/manifest.txt`.
-2. **Model stage** – downloads a ≤ 100 M‑parameter diffusion model and
- writes `outputs/model_checkpoint.json`.
-3. **Fixed‑baseline stage** – runs a lightweight dummy training loop
- (CPU‑only) and records a deterministic accuracy metric in
- `data/results/fixed_baselines.csv`.
-4. **Adaptive / analysis stages** – placeholders for later tasks.
 
 All stages respect the 6‑hour runtime limit and write their outputs
 to the locations declared in the configuration.

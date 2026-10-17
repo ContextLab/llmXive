@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "39da807684788669f77b779360be565b3ae46834f224709fb5a682d81edcba70",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'code/data.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`.\n[implementer] refusing to write 'tests/test_dummy.py': imports nonexistent names from sibling files: `from code.trainer import _dummy_accuracy` (available: Iterable, List, Path, _exact_match, _run_one_configuration, _set_global_seed, annotations, csv...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

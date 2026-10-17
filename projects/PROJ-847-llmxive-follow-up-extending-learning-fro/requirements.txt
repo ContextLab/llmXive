@@ -1,4 +1,4 @@
-numpy>=2.0.0
-pyarrow>=12.0.0
-datasets>=2.19.0
-torch==2.3.0
+# Core dependencies are pre‑installed in the platform.
+# Additional third‑party packages required by this task:
+transformers>=4.40.0
+tqdm>=4.66.0

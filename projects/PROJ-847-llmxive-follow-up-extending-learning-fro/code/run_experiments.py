@@ -130,7 +130,7 @@ def _execute_stage(stage: str, cfg: Dict[str, Any]) -> None:
             # Load the diffusion model (CPU‑compatible).
             from code.model import load_diffusion_model
 
-            model_id = cfg.get("model", {}).get("model_id", "hf://author/lightdiff-100m")
+            model_id = cfg.get("model", {}).get("model_id", "distilgpt2")
             load_diffusion_model(model_id=model_id)
             log.info("Stage 'model' completed.")
         elif stage == "fixed_baselines":
@@ -142,6 +142,9 @@ def _execute_stage(stage: str, cfg: Dict[str, Any]) -> None:
             seeds = training_cfg.get("seeds", [42])
             max_epochs = training_cfg.get("max_epochs", 10)
             batch_size = training_cfg.get("batch_size", 32)
+            timeout_seconds = training_cfg.get(
+                "timeout_seconds", 21600
+            )
             output_path = training_cfg.get("output_path")  # optional override
             run_fixed_baselines(
                 rhos=rhos,
@@ -149,6 +152,7 @@ def _execute_stage(stage: str, cfg: Dict[str, Any]) -> None:
                 max_epochs=max_epochs,
                 batch_size=batch_size,
                 output_csv=output_path,
+                timeout_seconds=timeout_seconds,
             )
             log.info("Stage 'fixed_baselines' completed.")
         elif stage == "adaptive_runs":

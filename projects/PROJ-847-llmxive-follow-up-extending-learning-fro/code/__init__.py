@@ -1,1 +1,1 @@
-"""llmXive density-supervision study package."""
+# Package marker for the ``code`` module directory.
