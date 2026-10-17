@@ -1,2 +1,1 @@
-openneuro-py
-jsonschema
+datasets>=2.0.0

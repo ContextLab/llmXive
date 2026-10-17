@@ -8,8 +8,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/src/data/download.py --check-only -> rc=1
 
-2026-10-17 04:37:22,218 INFO __main__: Fetching file list for dataset ds000233...
-2026-10-17 04:37:22,529 ERROR __main__: Pipeline failed: Cannot access OpenNeuro dataset ds000233 API: 404 Client Error: Not Found for url: https://openneuro.org/api/datasets/ds000233/files
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-232-investigating-the-relationship-between-b/code/src/data/download.py", line 16, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-232-investigating-the-relationship-between-b/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-232-investigating-the-relationship-between-b/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-232-investigating-the-relationship-between-b/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/src/data/preprocess.py --subjects 50 --mode cpu -> rc=1
 
