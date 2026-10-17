@@ -42,23 +42,23 @@ def verify_bmrq_column(csv_path: Path, required_columns: Set[str] = None) -> Tup
     """
     if required_columns is None:
         required_columns = REQUIRED_BMRQ_COLUMNS
-    
+
     if not csv_path.exists():
         logger.error(f"BMRQ CSV file not found: {csv_path}")
         return False, required_columns
-    
+
     try:
         import pandas as pd
         df = pd.read_csv(csv_path)
         available_columns = set(df.columns)
         missing = required_columns - available_columns
         all_present = len(missing) == 0
-        
+
         if all_present:
             logger.info(f"BMRQ verification passed: all {len(required_columns)} required columns present")
         else:
             logger.warning(f"BMRQ verification failed: missing {len(missing)} columns: {missing}")
-        
+
         return all_present, missing
     except Exception as e:
         logger.error(f"Error reading BMRQ CSV: {e}")
@@ -85,6 +85,7 @@ The following required BMRQ columns were not found in the dataset:
         report_content += f"- `{col}`\n"
 
     report_content += f"""
+
 ## Impact
 
 These missing variables prevent the execution of the following analysis steps:
@@ -126,30 +127,42 @@ def _fetch_dataset_file_index(dataset: str) -> List[dict]:
         - 'download_url' (direct URL to the file)
     The OpenNeuro API returns JSON for the “files” endpoint.
     """
-    # Try the version‑aware endpoint first (most reliable)
-    url_versioned = f"{OPENNEURO_API_ROOT}/{dataset}/versions/latest/files?download=0"
-    logger.info(f"Fetching OpenNeuro file index from {url_versioned}")
+    # Attempt the snapshot endpoint first (most reliable for public datasets)
+    url_snapshot = f"{OPENNEURO_API_ROOT}/{dataset}/snapshots/latest/files?download=0"
+    logger.info(f"Fetching OpenNeuro file index from {url_snapshot}")
     try:
-        resp = requests.get(url_versioned, timeout=30)
+        resp = requests.get(url_snapshot, timeout=30)
         resp.raise_for_status()
         file_index = resp.json()
         if isinstance(file_index, list):
             return file_index
         else:
-            raise RuntimeError("Unexpected response format from versioned endpoint.")
-    except Exception as e_version:
-        # Fallback to the legacy endpoint (kept for backward compatibility)
-        url_legacy = f"{OPENNEURO_API_ROOT}/{dataset}/files?download=0"
-        logger.warning(f"Versioned endpoint failed ({e_version}); trying legacy endpoint {url_legacy}")
+            raise RuntimeError("Unexpected response format from snapshot endpoint.")
+    except Exception as e_snapshot:
+        logger.warning(f"Snapshot endpoint failed ({e_snapshot}); trying version‑aware endpoint.")
+        # Version‑aware endpoint (legacy)
+        url_versioned = f"{OPENNEURO_API_ROOT}/{dataset}/versions/latest/files?download=0"
         try:
-            resp = requests.get(url_legacy, timeout=30)
+            resp = requests.get(url_versioned, timeout=30)
             resp.raise_for_status()
             file_index = resp.json()
-            if not isinstance(file_index, list):
-                raise RuntimeError("Unexpected response format from legacy endpoint.")
-            return file_index
-        except Exception as e_legacy:
-            raise RuntimeError(f"Failed to retrieve file index for dataset {dataset}: {e_legacy}")
+            if isinstance(file_index, list):
+                return file_index
+            else:
+                raise RuntimeError("Unexpected response format from versioned endpoint.")
+        except Exception as e_version:
+            logger.warning(f"Versioned endpoint failed ({e_version}); trying legacy endpoint.")
+            # Legacy endpoint
+            url_legacy = f"{OPENNEURO_API_ROOT}/{dataset}/files?download=0"
+            try:
+                resp = requests.get(url_legacy, timeout=30)
+                resp.raise_for_status()
+                file_index = resp.json()
+                if not isinstance(file_index, list):
+                    raise RuntimeError("Unexpected response format from legacy endpoint.")
+                return file_index
+            except Exception as e_legacy:
+                raise RuntimeError(f"Failed to retrieve file index for dataset {dataset}: {e_legacy}")
 
 
 def _select_behavioral_file(file_index: List[dict]) -> Tuple[str, str]:
@@ -202,7 +215,7 @@ def download_behavioral_data(data_dir: Path, dataset: str = "ds000233") -> Path:
     file_index = _fetch_dataset_file_index(dataset)
     filename, url = _select_behavioral_file(file_index)
     local_path = data_dir / Path(filename).name
-    
+
     logger.info(f"Downloading behavioral file {filename} → {local_path}")
     try:
         with requests.get(url, stream=True, timeout=60) as r:
@@ -213,7 +226,7 @@ def download_behavioral_data(data_dir: Path, dataset: str = "ds000233") -> Path:
                         f.write(chunk)
     except Exception as e:
         raise RuntimeError(f"Failed to download behavioral file {filename}: {e}")
-    
+
     return local_path
 
 
@@ -226,15 +239,15 @@ def download_subject_data(subject_id: str, dataset: str, raw_dir: Path) -> bool:
     """
     subj_dir = raw_dir / subject_id
     subj_dir.mkdir(parents=True, exist_ok=True)
-    
+
     try:
         file_index = _fetch_dataset_file_index(dataset)
         subject_files = _select_subject_func_files(file_index, subject_id)
-        
+
         if not subject_files:
             logger.warning(f"No functional NIfTI files found for subject {subject_id}")
             return False
-        
+
         checksums: List[str] = []
         for remote_path, url in subject_files:
             local_file_path = subj_dir / Path(remote_path).name
@@ -249,13 +262,13 @@ def download_subject_data(subject_id: str, dataset: str, raw_dir: Path) -> bool:
             except Exception as e:
                 logger.error(f"Failed to download {remote_path} for {subject_id}: {e}")
                 return False
-            
+
             sha = calculate_file_checksum(local_file_path)
             checksums.append(f"{sha}  {local_file_path.name}")
-        
+
         checksum_file = subj_dir / "checksums.sha256"
         checksum_file.write_text("\n".join(checksums))
-        
+
         return True
     except Exception as e:
         logger.error(f"Failed to download data for subject {subject_id}: {e}")
@@ -272,32 +285,32 @@ def main():
     parser.add_argument("--simulate-missing-bmrq", action="store_true", help="Simulate missing BMRQ columns")
     parser.add_argument("--check-only", action="store_true", help="Only verify BMRQ availability")
     args = parser.parse_args()
-    
+
     raw_data_dir = paths.data("raw")
     dataset_id = "ds000233"
-    
+
     try:
         # --------------------------------------------------------------
         # Step 1: Obtain (or verify) the behavioral table
         # --------------------------------------------------------------
         beh_path = download_behavioral_data(raw_data_dir, dataset_id)
-        
+
         # --------------------------------------------------------------
         # Step 2: Verify required BMRQ columns
         # --------------------------------------------------------------
         cols_to_check = REQUIRED_BMRQ_COLUMNS
         if args.simulate_missing_bmrq:
             cols_to_check = {"NON_EXISTENT_COLUMN"}
-        
+
         all_present, missing = verify_bmrq_column(beh_path, required_columns=cols_to_check)
         if not all_present:
             generate_data_gap_report(missing, paths.data("data_gap_report.md"))
             sys.exit(1)
-        
+
         if args.check_only:
             logger.info("BMRQ availability check completed successfully.")
             return
-        
+
         # --------------------------------------------------------------
         # Step 3: Subject‑specific downloads (if requested)
         # --------------------------------------------------------------
@@ -307,20 +320,20 @@ def main():
             # Determine which column holds the subject identifiers
             subj_col = "subject_id" if "subject_id" in df.columns else df.columns[0]
             subject_list = df[subj_col].head(args.subjects).astype(str).tolist()
-            
+
             logger.info(f"Downloading raw data for {len(subject_list)} subjects...")
             success_count = 0
             for sid in subject_list:
                 clean_sid = sid.replace("sub-", "")
                 if download_subject_data(clean_sid, dataset_id, raw_data_dir):
                     success_count += 1
-            
+
             logger.info(f"Successfully downloaded {success_count}/{len(subject_list)} subjects.")
             if success_count == 0 and len(subject_list) > 0:
                 raise RuntimeError("Total failure: No subjects were successfully downloaded.")
         else:
             logger.info("No subject count specified. Only behavioral data downloaded.")
-        
+
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         sys.exit(1)

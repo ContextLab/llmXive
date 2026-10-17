@@ -1,13 +1,13 @@
 status: none
-intent: OpenNeuro ds000233 HCP music task resting fMRI BMRQ Schaefer200 atlas python
-  package dataset
+intent: HCP 1200 music task OpenNeuro ds000233 Schaefer200 atlas download python package
+  dataset
 required_fields:
 - subject_id
 - resting_state_fmri_nifti_path
 - BMRQ_total_score
 - BMRQ_subscale_scores
+- framewise_displacement
 - functional_connectivity_matrix
-- schaefer200_atlas_labels
-cache_key: ac081b25268b903e1c54e7636db996270d1fdd96215928ea33a62f51a9cb47fa
-searched_at: '2026-10-17T13:08:15.587167+00:00'
+cache_key: 161f473f7da42b34ce53a0c2d7d3c2351016ef0b84cf09098fa9a113bf860c8f
+searched_at: '2026-10-17T15:06:48.193404+00:00'
 retry_count: 1
