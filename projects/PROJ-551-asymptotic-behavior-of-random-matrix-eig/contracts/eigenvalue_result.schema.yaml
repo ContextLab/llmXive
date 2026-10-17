@@ -1,0 +1,9 @@
+type: object
+properties:
+  run_id: { type: string, format: uuid }
+  eigenvalue_index: { type: integer }
+  value: { type: number }
+  is_outlier: { type: boolean }
+  theoretical_bbp: { type: number }
+  deviation: { type: number }
+required: [run_id, eigenvalue_index, value, is_outlier, theoretical_bbp, deviation]

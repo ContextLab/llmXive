@@ -1,19 +1,22 @@
 import logging
 from pathlib import Path
-from llmxive_toolkit import paths
 
 def get_project_paths():
+    root = Path(__file__).resolve().parent.parent
     return {
-        "root": paths.root,
-        "raw": paths.data("raw"),
-        "processed": paths.data("processed"),
-        "logs": paths.data("logs"),
-        "figures": paths.figures(),
+        'root': root,
+        'raw': root / 'data/raw',
+        'processed': root / 'data/processed',
+        'results': root / 'data/results',
+        'figures': root / 'data/figures',
+        'logs': root / 'data/logs',
+        'contracts': root / 'contracts'
     }
 
 def ensure_directories():
-    p = get_project_paths()
-    for folder in p.values():
-        folder.mkdir(parents=True, exist_ok=True)
+    paths = get_project_paths()
+    for p in paths.values():
+        p.mkdir(parents=True, exist_ok=True)
 
-OUTLIER_TOLERANCE = 0.05
+def get_outlier_tolerance():
+    return 1e-10

@@ -35,10 +35,26 @@ def test_single_run_json_schema():
 
 def test_outlier_logic():
     """Verify that the outlier rule (value > edge + 0.05) is correctly applied."""
-    with open("data/processed/single_run_results.json", 'r') as f:
+    result_path = Path("data/processed/single_run_results.json")
+    with open(result_path, 'r') as f:
         data = json.load(f)
     
     edge = data["empirical_bulk_edge"]
     for eig in data["eigenvalues"]:
         expected_outlier = eig["value"] > (edge + 0.05)
-        assert eig["is_outlier"] == expected_outlier
+        assert eig["is_outlier"] == expected_outlier, f"Outlier flag mismatch for value {eig['value']} with edge {edge}"
+
+def test_reproducibility():
+    """Verify that running the same params produces the same top eigenvalue."""
+    import subprocess
+    cmd = ["python", "code/main.py", "--mode", "single", "--N", "1000", "--seed", "42", "--theta", "2.5", "--k", "1", "--pattern", "diagonal"]
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    data = json.loads(res.stdout)
+    top_val = data["eigenvalues"][0]["value"]
+    
+    # Compare against the recorded file
+    with open("data/processed/single_run_results.json", 'r') as f:
+        recorded = json.load(f)
+    recorded_val = recorded["eigenvalues"][0]["value"]
+    
+    assert abs(top_val - recorded_val) < 1e-6
