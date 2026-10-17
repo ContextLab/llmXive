@@ -8,7 +8,7 @@ required:
   - weighted_mean_atomic_radius
   - electronegativity_variance
   - vec
-  - atomic_size_mismatch
+  - atomic_size_coefficient_of_variation
   - source_method
   - amorphous_flag
   - checksum
@@ -18,14 +18,24 @@ properties:
     description: "Unique Materials Project identifier, e.g., 'mp-12345'."
   composition:
     type: string
-    description: "Stoichiometric formula"
+    description: "Stoichiometric formula, e.g., 'Zr50Cu40Al10'."
   cte:
     type: number
-    description: "Coefficient of thermal …"
-  cte:
+    description: "Coefficient of thermal expansion (1/K)."
+  weighted_mean_atomic_radius:
     type: number
-    description: "Coefficient ..."
-  cte:
-    duplicate
-  cack:
-    ...
+    description: "Weighted mean atomic radius (pm)."
+  electronegativity_variance:
+    type: number
+    description: "Weighted variance of Pauling electronegativity."
+  vec:
+    type: type: number
+    description: "Valence electron concentration (e⁻/un"
+  vec:
+    type: number
+    description: "Valence electron concentration (e⁻/atom"
+  atomic_size_coefficient_of_variation:
+    type: number
+    description: "Weighted    …  
+
+

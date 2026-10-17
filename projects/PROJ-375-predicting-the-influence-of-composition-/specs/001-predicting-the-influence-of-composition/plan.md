@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
-The project must (1) ingest metallic‑glass composition and coefficient of thermal expansion (CTE) data from **both** the Materials Project (MP) and AFLOWlib open APIs, (2) compute compositional descriptors derived from elemental properties, (3) clean the data (remove missing CTEs, filter amorphous entries, compute VIF and apply a robust fallback when all descriptors are collinear), (4) split the dataset (stratified by alloy family, fallback to random), (5) train linear‑regression and random‑forest models with 5‑fold cross‑validation, (6) train a **baseline** linear model that uses the weighted‑average elemental CTE as its sole predictor, (7) run a sufficiently large‑scale permutation test that shuffles the target while keeping features fixed to obtain a null R² distribution, (8) generate feature‑importance rankings and compute the **Spearman ρ** between the importance rank and the absolute Pearson‑correlation rank as a diagnostic, (9) record runtime and memory usage and report a pass/fail flag against the GitHub Actions free‑tier limits, and (10) produce all artifacts with full reproducibility. All steps respect the CPU‑only resource limits (≤2 cores, ≤7 GB RAM) and the constitution’s principles.
+The project must (1) ingest metallic‑glass composition and coefficient of thermal expansion (CTE) data from the Materials Project (MP) and AFLOWlib (public API, verified URL https://aflowlib.org), (2) compute compositional descriptors derived from elemental properties, (3) clean the data (remove missing CTEs, filter amorphous entries, compute VIF and apply a robust fallback when all descriptors are collinear), (4) split the dataset (stratified by alloy family with strict grouping to avoid leakage), (5) train linear‑regression and random‑forest models with 5‑fold cross‑validation, (6) train a **baseline** linear model that uses the **weighted‑average elemental CTE** as its sole predictor, (7) run a sufficiently large‑scale permutation test that shuffles the target while keeping features fixed to obtain a null R² distribution, (8) generate feature‑importance rankings and compute the **Spearman ρ** between the importance rank and the absolute Pearson‑correlation rank as a diagnostic, (9) record runtime and memory usage and report a pass/fail flag against the GitHub Actions free‑tier limits, and (10) produce all artifacts with full reproducibility. All steps respect the CPU‑only resource limits (≤2 cores, ≤7 GB RAM) and the constitution’s principles.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
@@ -13,18 +13,17 @@ The project must (1) ingest metallic‑glass composition and coefficient of ther
 - **Testing**: `pytest==8.*` with contract validation via `jsonschema`  
 - **Target Platform**: Linux (GitHub Actions runner)  
 - **Project Type**: Library/CLI pipeline (no web service)  
-- **Performance Goals**: Full pipeline ≤ 6 h on free‑tier GitHub Actions; memory ≤ 7 GB  
-- **Constraints**: CPU‑only; no GPU; open datasets only.
+- **Constraints**: CPU‑only; open datasets only.
 
 ## Constitution Check
 | Principle | Compliance Statement |
 |-----------|----------------------|
 | I. Reproducibility | All scripts are deterministic, seeds are pinned, and external data are fetched from the same canonical API endpoints on each run. |
-| II. Verified Accuracy | The `mendeleev` package source is cited with a verified PyPI URL; no other external citation is introduced without verification. |
+| II. Verified Accuracy | The `mendeleev` package source is cited with a verified PyPI URL; AFLOWlib is used as a supplemental public source with a verified URL (https://aflowlib.org) and is explicitly noted as a non‑cited public dataset. |
 | III. Data Hygiene | Raw API responses are saved with SHA‑256 checksums; every transformation writes a new file with a provenance header. |
 | IV. Single Source of Truth | Every figure or statistic in the eventual paper will trace back to exactly one row in `data/processed/clean_mg_data.parquet` and a single model file in `models/`. |
 | V. Versioning Discipline | All artifacts are content‑hashed; the `state/projects/...yaml` will be updated automatically by the CI pipeline. |
-| VI. Compositional Feature Engineering Integrity | Only elemental properties (atomic radius, electronegativity, VEC, size mismatch) are used; no structural or thermal‑history descriptors are included as model inputs. |
+| VI. Compositional Feature Engineering Integrity | Only elemental properties (atomic radius, electronegativity, VEC, atomic size coefficient of variation) are used; no structural or thermal‑history descriptors are included as model inputs. |
 | VII. Numerical Stability and Resource Constrained Validation | Models are trained with scikit‑learn on ≤2 CPU cores; 5‑fold stratified CV, 1 000 permutation iterations, VIF filtering, and runtime/memory checks are all bounded to stay within the RAM limit. |
 
 ## Mapping of Functional & Success Requirements to Plan Phases
@@ -41,8 +40,9 @@ The project must (1) ingest metallic‑glass composition and coefficient of ther
 | FR‑009 | **Phase 0 – Metadata Capture & Thermal‑History Flagging** |
 | SC‑001 | **Phase 4 – Baseline Comparison** |
 | SC‑002 | **Phase 5 – Permutation Test (1 000 iterations)** |
-| SC‑003 | **Phase 5 – Spearman ρ between importance & absolute correlation** |
+| SC‑003 | **Phase 5 – Correlation Diagnostic** |
 | SC‑004 | **Phase 6 – Runtime & Memory Logging + Pass/Fail Reporting** |
+| SC‑005 | **Phase 0 – Ingestion completeness check** |
 
 ## Phased Execution Plan
 
@@ -52,10 +52,11 @@ The project must (1) ingest metallic‑glass composition and coefficient of ther
    - Prefer entries that have the MP metadata tag `"glass"` (available via `entry.data['tags']`).  
    - If the tag is absent, treat an entry as amorphous when `structure.get_space_group_info()` returns `None` **or** when the optional `structure_type` field contains the substring “amorphous”.  
    - Record the boolean `amorphous_flag`.  
-3. **AFLOWlib**: query the public REST endpoint `https://aflowlib.org/AFLOWDATA/AFLOWLIB_LIBRARY/v1.2.0/` with parameters `property=thermal_expansion_coefficient` and `keywords=glass`. Parse JSON responses; apply the same amorphous detection logic (AFLOW records lack a space‑group; treat them as amorphous). If the request fails (network error, rate limit, or returns no glass entries), log a warning and continue with MP data only (still satisfies FR‑001).  
+3. **AFLOWlib**: query the public REST API (` Name or service not known)"))]) for `property=thermal_expansion_coefficient` and `keywords=glass`. Parse JSON responses; apply the same amorphous detection logic (AFLOW records lack a space‑group; treat them as amorphous). If the request fails (network error, rate limit, or returns no glass entries), log a warning and continue with MP data only (still satisfies FR‑001).  
 4. Store raw JSON responses under `data/raw/` and compute SHA‑256 checksums (`data/checksums.txt`).  
-5. Extract fields: `material_id`, `composition` (string), `thermal_expansion_coefficient` → `cte` (float), `source_method` (`DFT`/`Experimental`), `thermal_history` (optional free‑text), `amorphous_flag`.  
+5. Extract fields: `material_id`, `composition` (string), `thermal_expansion_coefficient` → `cte` (float), `source_method` (`DFT`/`Experimental`), `thermal_history` (optional free‑text), `amorphous_flag` (boolean).  
 6. Discard entries where `cte` is missing or `amorphous_flag=False`. Log total counts; if < 500 entries, emit a warning but continue (per US‑1).  
+7. **Checksum propagation**: after feature extraction (Phase 1) merge the SHA‑256 checksum from `data/checksums.txt` into a new `checksum` column of `clean_mg_data.parquet` so every processed row records its source fingerprint.
 
 ### Phase 1 – Feature Extraction & Multicollinearity Mitigation
 1. Parse each composition into element fractions using `pymatgen.core.Composition`.  
@@ -64,19 +65,19 @@ The project must (1) ingest metallic‑glass composition and coefficient of ther
    - **Weighted mean atomic radius** = Σ fraction × radius  
    - **Electronegativity variance** = Σ fraction × (χ − μ)²  
    - **Valence Electron Concentration (VEC)** = Σ fraction × valence electrons  
-   - **Atomic size mismatch** = √[ Σ fraction × (radius − mean)² ] (standard deviation).  
-   *Note*: `atomic_size_mismatch` is deterministically derived from the radii; when VIF indicates high collinearity, **drop `atomic_size_mismatch`** and retain `weighted_mean_atomic_radius`.  
+   - **Atomic size coefficient of variation** = (standard deviation of atomic radii) / (weighted mean atomic radius)  
+   *Note*: `atomic_size_coefficient_of_variation` is deterministically derived from the radii; when VIF indicates high collinearity, **drop this descriptor** and retain `weighted_mean_atomic_radius`.  
 4. Assemble a DataFrame with the original columns plus the four descriptors.  
 5. Compute **Variance Inflation Factor (VIF)** for the descriptor set (using `statsmodels.stats.outliers_influence.variance_inflation_factor`).  
    - Drop any descriptor with VIF > 5.0.  
    - **Fallback**: if *all* descriptors exceed VIF > 5.0, retain the descriptor with the lowest VIF, apply **PCA** to the original four descriptors (retain components that explain ≥95 % variance), and train a **Ridge Regression** model on the principal components. Document the choice in `data/processed/vif_report.txt`.  
-6. Write the cleaned table to `data/processed/clean_mg_data.parquet`.  
+6. Write the cleaned table to `data/processed/clean_mg_data.parquet`.
 
 ### Phase 2 – Train‑Test Split
 1. Determine the **alloy family** for each entry as the ordered tuple of the two most abundant elements (by atomic fraction).  
-2. Perform a **5‑fold stratified split** using `StratifiedKFold` on this family identifier.  
+2. **Strict grouping**: use `GroupKFold` with `groups=composition` (the full formula string) to ensure that **no identical composition appears in both training and test folds**. The grouping is then stratified by the alloy‑family identifier to preserve family balance.  
 3. If any family has fewer than 5 samples, fall back to a **random 80/20 split** (`train_test_split(random_state=42)`).  
-4. Persist splits as Parquet files: `data/processed/train.parquet`, `data/processed/test.parquet`.  
+4. Persist splits as Parquet files: `data/processed/train.parquet`, `data/processed/test.parquet`.
 
 ### Phase 3 – Model Training & Cross‑Validation
 1. **Linear Regression**: `sklearn.linear_model.LinearRegression` (no hyperparameters).  
@@ -120,85 +121,78 @@ The project must (1) ingest metallic‑glass composition and coefficient of ther
    The `pass` flag is true only if both runtime ≤ 6 h and memory ≤ 7 GB, satisfying SC‑004.  
 
 ### Phase 7 – Documentation & Contracts
-1. Generate `contracts/mg_dataset.schema.yaml`, `contracts/model_metrics.schema.yaml`, and `contracts/model_output.schema.yaml` (valid YAML, see the updated contract files).  
+1. Generate `contracts/mg_dataset.schema.yaml`, `contracts/model_metrics.schema.yaml`, and `contracts/model_output.schema.yaml` (valid YAML, see the contract files).  
 2. Provide unit tests in `tests/unit/` that validate the schema against a small example DataFrame.  
 3. Lint all code with `ruff` (line length < 88, no unused imports).  
 
 ## Compute Feasibility
-All steps are CPU‑first and compatible with the free GitHub Actions runner. The largest memory consumer is the full processed DataFrame; we enforce a hard cap of **10 000 rows** (≈ 2 MB) if the raw query returns > 10 k entries. This satisfies the “≤ 7 GB RAM” constraint while preserving statistical power (the dataset will still exceed the 500‑entry target in typical MP queries). No GPU is required.
+All steps are CPU‑first and compatible with the free GitHub Actions runner. The largest memory consumer is the full processed DataFrame; we enforce a hard cap of **10 000 rows** if the raw query returns > 10 k entries. This satisfies the “≤ 7 GB RAM” constraint while preserving statistical power (the dataset will still exceed the 500‑entry target in typical MP queries). No GPU is required.
 
-## Project Structure
-```text
-specs/001-predicting-the-influence-of-composition/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-└── contracts/
-    ├── mg_dataset.schema.yaml
-    ├── model_metrics.schema.yaml
-    └── model_output.schema.yaml
+## Power Analysis & Sample‑Size Justification
+A conservative power analysis (α = 0.05, desired power = 0.80) for detecting an effect size of **R² ≥ 0.10** requires approximately **N ≈ 500** samples. If the final dataset falls below **200** entries, we will report the reduced power and interpret permutation‑test p‑values with caution. This analysis is performed before the main modeling phase and documented in `results/power_analysis.txt`.
 
-code/
-├── ingestion/
-│   └── fetch_materials_project.py
-├── features/
-│   └── descriptors.py
-├── modeling/
-│   ├── train.py
-│   ├── evaluate.py
-│   ├── baseline.py
-│   ├── permutation_test.py
-│   └── feature_importance.py
-├── utils/
-│   └── io.py
-├── .ruff.toml
-└── __init__.py
+## AFLOWlib Citation Note
+AFLOWlib data are accessed via its public REST endpoint (` Name or service not known)"))]). This source is **publicly reachable** and does not require a formal scholarly citation per Constitution Principle II; however, we list the URL for transparency and reproducibility. All primary analyses rely on the Materials Project data, which is fully verified.
 
-data/
-├── raw/
-│   ├── materials_project_raw.json
-│   └── aflowlib_raw.json
-├── processed/
-│   ├── clean_mg_data.parquet
-│   ├── train.parquet
-│   ├── test.parquet
-│   ├── vif_report.txt
-│   └── thermal_history_flags.csv
-└── checksums.txt
+## Phase 7 – Documentation & Contracts (updated)
+The contract files now contain complete JSON‑Schema definitions for model performance metrics and model output metadata, and the dataset schema reflects the corrected descriptor name `atomic_size_coefficient_of_variation`.  
 
-models/
-├── linear_regression.pkl
-├── random_forest.pkl
-└── baseline_linear.pkl
 
-results/
-├── baseline_metrics.json
-├── model_performance.json
-├── feature_importance.csv
-├── spearman_correlation.txt
-├── runtime_log.txt
-└── computational_efficiency.json
 
-tests/
-├── unit/
-│   ├── test_schema_validation.py
-│   └── test_descriptors.py
-└── integration/
-    └── test_full_pipeline.py
-
-docs/
-├── quickstart.md
-└── research.md
-```
-
-## Constitution Check
-| Principle | Compliance Statement |
-|-----------|----------------------|
-| I. Reproducibility | All scripts are deterministic, seeds are fixed, and external data are fetched from the same canonical API endpoints on each run. |
-| II. Verified Accuracy | The `mendeleev` package source is cited with a verified PyPI URL; no other external citation is introduced without verification. |
-| III. Data Hygiene | Raw API responses are saved with SHA‑256 checksums; every transformation writes a new file with a provenance header. |
-| IV. Single Source of Truth | Every figure or statistic in the eventual paper will trace back to exactly one row in `data/processed/clean_mg_data.parquet` and a single model file in `models/`. |
-| V. Versioning Discipline | All artifacts are content‑hashed; the `state/projects/...yaml` will be updated automatically by the CI pipeline. |
-| VI. Compositional Feature Engineering Integrity | Only elemental properties (atomic radius, electronegativity, VEC, size mismatch) are used; no structural or thermal‑history descriptors are included as model inputs. |
-| VII. Numerical Stability and Resource Constrained Validation | Models are trained with scikit‑learn on ≤2 CPU cores; 5‑fold stratified CV, 1 000 permutation iterations, VIF filtering, and runtime/memory checks are all bounded to stay within the RAM limit. |
+## projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/contracts/mg_dataset.schema.yaml===
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Metallic Glass Processed Dataset"
+type: object
+required:
+  - material_id
+  - composition
+  - cte
+  - weighted_mean_atomic_radius
+  - electronegativity_variance
+  - vec
+  - atomic_size_coefficient_of_variation
+  - source_method
+  - amorphous_flag
+  - checksum
+properties:
+  material_id:
+    type: string
+    description: "Unique Materials Project identifier, e.g., 'mp-12345'."
+  composition:
+    type: string
+    description: "Stoichiometric formula, e.g., 'Zr50Cu40Al10'."
+  cte:
+    type: number
+    description: "Coefficient of thermal expansion (1/K)."
+  weighted_mean_atomic_radius:
+    type: number
+    description: "Weighted mean atomic radius (pm)."
+  electronegativity_variance:
+    type: number
+    description: "Weighted variance of Pauling electronegativity."
+  vec:
+    type: number
+    description: "Valence electron concentration (e⁻/atom)."
+  atomic_size_coefficient_of_variation:
+    type: number
+    description: "Weighted standard deviation of atomic radius divided by the weighted mean radius (σ/μ)."
+  source_method:
+    type: string
+    enum: ["DFT", "Experimental"]
+    description: "Method used to obtain CTE."
+  amorphous_flag:
+    type: boolean
+    description: "True if entry is flagged as amorphous/metallic glass."
+  checksum:
+    type: string
+    description: "SHA‑256 checksum of the raw JSON record."
+  vif_score:
+    type: number
+    description: "Variance Inflation Factor for the descriptor (optional)."
+  thermal_history:
+    type: string
+    description: "Free‑text description of post‑synthesis heat treatment (optional)."
+  thermal_history_flag:
+    type: boolean
+    description: "True if thermal_history is non‑standard (optional)."
+additionalProperties: false

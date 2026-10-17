@@ -12,7 +12,7 @@ export MP_API_KEY="YOUR_API_KEY_HERE"
 
 ## Installation
 ```bash
-git clone https://github.com/your-org/metallic-glass-cte.git
+git clone 
 cd metallic-glass-cte
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
@@ -25,12 +25,12 @@ ruff check .   # lint check (optional)
 | Step | Command | Description |
 |------|---------|-------------|
 | 0 | `python -m pip install -r requirements.txt` | Install pinned dependencies. |
-| 1 | `python -m code.ingestion.fetch_materials_project` | Pull **raw** MP data (including the Thermal Properties endpoint) and **AFLOWlib** data, save to `data/raw/`, compute checksum. |
+| 1 | `python -m code.ingestion.fetch_materials_project` | Pull **raw** MP data (including the Thermal Properties endpoint) and **AFLOWlib** data (public API, no verified URL), save to `data/raw/`, compute checksum. |
 | 2 | `python -m code.features.descriptors` | Generate the four compositional descriptors, compute VIF, apply fallback (PCA + Ridge) if needed, and write `data/processed/clean_mg_data.parquet`. |
-| 3 | `python -m code.modeling.train` | Perform stratified split (by alloy family), CV, hyper‑parameter search, and save final models to `models/`. |
+| 3 | `python -m code.modeling.train` | Perform stratified split (by alloy family) using GroupKFold on the full composition string, CV, hyper‑parameter search for both linear regression and random forest models, and save final models to `models/`. |
 | 4 | `python -m code.modeling.baseline` | Train a baseline linear regression model that uses the **weighted‑average elemental CTE** as its sole predictor, evaluate on the test set, and write `results/baseline_metrics.json`. |
 | 5 | `python -m code.modeling.evaluate` | Evaluate on test set, compute R², MAE, RMSE, and write `results/model_performance.json`. |
-| 6 | `python -m code.modeling.permutation_test` | Run 1 000 permutation iterations, output p‑value and null distribution (`results/permutation_null_distribution.npy`). |
+| 6 | `python -m code.modeling.permutation_test` | Run a substantial number of permutation iterations, output p‑value and null distribution (`results/permutation_null_distribution.npy`). |
 | 7 | `python -m code.modeling.feature_importance` | Produce `results/feature_importance.csv` and `results/spearman_correlation.txt`. |
 | 8 | `python -m code.utils.log_resources` | Append runtime and memory usage to `results/runtime_log.txt` and generate `results/computational_efficiency.json`. |
 
@@ -46,7 +46,7 @@ PY
 
 # Validate the schema
 python - <<'PY'
-import json, yaml, jsonschema, pandas as pd
+import yaml, jsonschema, pandas as pd
 with open('contracts/mg_dataset.schema.yaml') as f:
     schema = yaml.safe_load(f)
 df = pd.read_parquet('data/processed/clean_mg_data.parquet')
@@ -89,3 +89,4 @@ docs/
 ├── quickstart.md
 └── research.md
 ```
+
