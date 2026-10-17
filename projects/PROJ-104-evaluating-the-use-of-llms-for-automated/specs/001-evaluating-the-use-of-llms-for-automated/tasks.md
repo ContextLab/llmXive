@@ -13,7 +13,7 @@ The goal is to produce a reproducible, end‑to‑end pipeline that satisfies ev
 
 ## Phase 0 – Project scaffolding & early sanity check
 
-- [ ] **T001** [P?] [US1] **Create quick‑start documentation and a minimal runnable entry point**
+- [X] **T001** [P?] [US1] **Create quick‑start documentation and a minimal runnable entry point**
   - **Artifact(s)**: `quickstart.md`, `code/run_pipeline.py`
   - Write a short "Getting started" guide that lists required Python 3.11 packages, how to install `bitsandbytes` and `transformers`, and the command `python -m code.run_pipeline --sample 5`.
   - Implement `run_pipeline` to load a tiny hard‑coded commit pair (one synthetic example used **only** as a smoke test of plumbing, never as analysis data) and invoke the generation module (CPU-only) to produce a single output file under `data/generated/phi3-mini/sample_test.txt`.
@@ -23,7 +23,7 @@ The goal is to produce a reproducible, end‑to‑end pipeline that satisfies ev
 
 ## Phase 1 – Power‑analysis (sample‑size justification)
 
-- [ ] **T002** [P?] [US1] **Monte‑Carlo power analysis for the Friedman test**
+- [ ] **T002** [P?] [US1] **Monte‑Carlo power analysis for the Friedman test** <!-- FAILED-IN-EXECUTION: code/run_pipeline.py exit=1 -->
   - **Artifact(s)**: `code/power_analysis.py`, `results/power_report.md`
   - **Justification (spec‑rooted)**: the spec's "Assumption about statistical validity" requires that, if power for the Friedman test is low, results be framed as exploratory rather than definitive; this task operationalizes that assumption and supports the interpretation of SC‑004 / FR‑005. It is therefore a spec‑mandated validity check, not scope expansion.
   - Simulate paired precision scores for three models under varying effect sizes using the pinned seed from `code/seeds.py` (T014); estimate the probability of detecting a medium effect (Cohen's d ≈ 0.5) with 500 samples.

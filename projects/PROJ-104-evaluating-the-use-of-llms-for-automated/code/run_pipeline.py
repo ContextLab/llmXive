@@ -1,12 +1,10 @@
-"""Pipeline entry point for the LLM fidelity evaluation project.
+"""Single entry point for the LLM fidelity evaluation pipeline.
 
-Phase 0 (T001): a minimal runnable smoke test. It loads one tiny
-hard-coded synthetic commit pair (used ONLY to test the plumbing,
-never as analysis data), invokes the CPU-only generation module, and
-writes a single output file to ``data/generated/phi3-mini/sample_test.txt``.
-
-Later phases (T003+) extend this entry point with ``--full`` for the
-end-to-end run over the real dataset.
+``python -m code.run_pipeline --sample 5`` runs the Phase-0 plumbing
+smoke test; ``python -m code.run_pipeline --full`` runs every
+implemented pipeline stage in order. Stages that arrive with later
+tasks are reported as pending; the run still exits 0 so the run-book
+stays executable at every point of the project.
 """
 
 from __future__ import annotations
@@ -17,56 +15,92 @@ import time
 from llmxive_toolkit import get_logger, paths
 
 from code.generation import CommitPair, generate_documentation
+from code.power_analysis import run_power_analysis
 
 log = get_logger(__name__)
 
-# One tiny synthetic commit pair, used ONLY as a smoke test of the
-# plumbing. It is never part of the analysis dataset (see T003 for the
-# real data extraction from pandas/requests/scikit-learn/flask/django).
+# Tiny hard-coded synthetic commit pair used ONLY as a plumbing smoke
+# test (never analysis data).
 SMOKE_TEST_PAIR = CommitPair(
-    commit_hash="0" * 40,
-    commit_message="DOC: clarify retry behaviour of Session.request in docs",
-    repository_name="smoke-test",
-    prev_doc_snippet="Session.request(...) sends the request and returns the response.",
+    commit_hash="smoke0deadbeef",
+    commit_message="Fix plumbing smoke test for the pipeline entry point",
+    prev_doc_snippet="The pipeline plumbing is documented here.",
 )
 
+# Stages implemented so far, in pipeline order.
+STAGES = {
+    "power_analysis": run_power_analysis,
+}
 
-def run_smoke_test() -> "paths.root.__class__":
+# Stages that arrive with later tasks (T003-T010).
+PENDING_STAGES = [
+    "data_extraction (T003)",
+    "gold_annotation (T004)",
+    "generation (T005)",
+    "entity_extraction_surface (T006)",
+    "entity_extraction_intent (T007)",
+    "fidelity_scoring (T008)",
+    "statistical_analysis (T009)",
+    "visualization (T010)",
+]
+
+
+def run_smoke_test() -> paths.root.__class__:
     """Run the Phase-0 plumbing smoke test and write its output file."""
-    start = time.time()
-    output_text = generate_documentation(SMOKE_TEST_PAIR, model_id="phi3-mini")
+    generated = generate_documentation(SMOKE_TEST_PAIR)
     out_path = paths.data("generated", "phi3-mini", "sample_test.txt")
-    with open(out_path, "w", encoding="utf-8") as fh:
-        fh.write(output_text)
-    elapsed = time.time() - start
-    log.info("smoke test complete in %.2fs; wrote %s", elapsed, out_path)
+    content = (
+        "# Phase-0 smoke test output (synthetic input only)\n"
+        f"commit_hash: {SMOKE_TEST_PAIR.commit_hash}\n"
+        "This is a plumbing smoke test of the CPU-only generation "
+        "module. The input pair is synthetic and is never used as "
+        "analysis data.\n\n"
+        "--- generated ---\n"
+        f"{generated}\n"
+    )
+    out_path.write_text(content, encoding="utf-8")
+    log.info("Smoke test wrote %s", out_path)
     return out_path
 
 
+def run_full_pipeline() -> int:
+    """Run every implemented pipeline stage in order; return exit code."""
+    implemented = []
+    for name, stage_fn in STAGES.items():
+        log.info("Running stage: %s", name)
+        stage_fn()
+        implemented.append(name)
+    print(f"implemented stages: {', '.join(implemented)}")
+    print(f"pending stages (later tasks): {', '.join(PENDING_STAGES)}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="LLM fidelity evaluation pipeline")
+    parser = argparse.ArgumentParser(
+        description="LLM fidelity evaluation pipeline entry point"
+    )
     parser.add_argument(
         "--sample",
         type=int,
-        default=5,
-        help="number of samples for a smoke-test / small run (Phase 0 uses 1 synthetic pair)",
+        default=None,
+        metavar="N",
+        help="run the Phase-0 plumbing smoke test (N is informational)",
     )
     parser.add_argument(
         "--full",
         action="store_true",
-        help="run the full end-to-end pipeline over the real dataset (implemented in T003+)",
+        help="run every implemented pipeline stage",
     )
     args = parser.parse_args(argv)
 
     if args.full:
-        # Full pipeline stages are implemented by tasks T002-T010.
-        raise NotImplementedError(
-            "the full pipeline is implemented by tasks T002-T010; "
-            "use --sample for the Phase-0 smoke test"
-        )
+        return run_full_pipeline()
 
-    out_path = run_smoke_test()
-    print(f"Smoke test OK: wrote {out_path}")
+    n = args.sample if args.sample is not None else 5
+    start = time.time()
+    run_smoke_test()
+    elapsed = time.time() - start
+    print(f"Smoke test OK ({elapsed:.1f}s, sample size {n})")
     return 0
 
 

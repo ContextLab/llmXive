@@ -1,0 +1,11 @@
+T001:
+  c: true
+  h: 0565394b7a57f682f99558c54f4d3fd3a6ecba093ec667d41c498aba89a3e384
+  r: 'Both required artifacts exist and are substantive: `quickstart.md` covers Python
+    3.11 prerequisites, `pip install transformers bitsandbytes`, and the `python -m
+    code.run_pipeline --sample 5` command; `code/run_pipeline.py` loads a hard-coded
+    synthetic commit pair, invokes the CPU-only generation module, and writes `data/generated/phi3-mini/sample_test.txt`.
+    Execution logs confirm the CLI ran with `--sample 5` (exit 0, ~0s) and `pytest
+    tests/quickstart_test.py` passed all 4 tests including the <30 s CLI check and
+    output-file existence. The generation module''s deterministic placeholder is accept'
+  sig: 2cd5bdd2d5bbdf5c147e6a410bc8e96eb15f35c49490cb17857034f1d4473a98

@@ -20,7 +20,8 @@ pip install -r requirements.txt
 pip install transformers bitsandbytes
 ```
 `transformers` and `bitsandbytes` are needed only for the model-inference
-stage (T005); the Phase-0 smoke test runs without them.
+stage (T005); the Phase-0 smoke test and the power analysis run without
+them.
 
 ## Seed policy (Constitution I)
 All stochastic components use the single pinned seed `SEED = 42` defined in
@@ -36,21 +37,40 @@ python -m code.run_pipeline --sample 5
 This loads one tiny hard-coded synthetic commit pair (a plumbing smoke
 test only — never analysis data), invokes the CPU-only generation module,
 and writes `data/generated/phi3-mini/sample_test.txt`. It completes in
-[deferred] and requires no model downloads.
+well [deferred] and requires no model downloads.
+
+## Power analysis (Phase 1)
+```bash
+python -m code.power_analysis
+```
+Runs the Monte-Carlo power analysis for the Friedman test (T002) with the
+pinned seed and writes `results/power_report.md`. The report contains the
+estimated power for n = 500 and an `exploratory` flag that is `true`
+exactly when the estimated power is below 0.8; downstream statistical
+reporting (T009) honors this flag. The same stage also runs as part of
+`python -m code.run_pipeline --full`.
 
 ## Running the Full Pipeline
 ```bash
 python -m code.run_pipeline --full
 ```
 **What happens:**
-1. Repositories (`pandas`, `requests`, `scikit-learn`, `flask`, `django`) are cloned (cached on subsequent runs).
-2. Commits from the last two years that touch `.md`/`.rst` are extracted → `data/raw/commit_pairs.csv`.
-3. A random subset is sampled for gold-standard annotation.
-4. Each LLM (Phi-3-mini, Gemma-2-2b, Llama-3.2-3B) generates a documentation update per commit on CPU, with a 60 s timeout and up to 2 retries.
-5. Entities are extracted, verified (regex + AST + `git grep`), and fidelity metrics are computed.
-6. Statistical tests (power analysis, Friedman/ANOVA with Holm-Bonferroni correction) and visualizations are saved under `results/`.
+1. The Monte-Carlo power analysis runs → `results/power_report.md`.
+2. Repositories (`pandas`, `requests`, `scikit-learn`, `flask`, `django`) are cloned (cached on subsequent runs).
+3. Commits from the last two years that touch `.md`/`.rst` are extracted → `data/raw/commit_pairs.csv`.
+4. A random subset is sampled for gold-standard annotation.
+5. Each LLM (Phi-3-mini, Gemma-2-2b, Llama-3.2-3B) generates a documentation update per commit on CPU, with a 60 s timeout and up to 2 retries.
+6. Entities are extracted, verified (regex + AST + `git grep`), and fidelity metrics are computed.
+7. Statistical tests (Friedman/ANOVA with Holm-Bonferroni correction, honoring the power report's `exploratory` flag) and visualizations are saved under `results/`.
+
+Until the remaining tasks land, `--full` runs every implemented stage
+(currently the Phase-0 smoke test plumbing and the Phase-1 power
+analysis), reports the not-yet-implemented stages as pending, and exits
+successfully so the run-book stays executable at every point in the
+project.
 
 ## Inspecting Results
+- **Power analysis**: `results/power_report.md`.
 - **Dataset**: `data/raw/commit_pairs.csv` (validated against `contracts/commitpair.schema.yaml`).
 - **Generated outputs**: `data/generated/<model_id>/`.
 - **Metrics**: `data/processed/fidelity_metrics.csv` (validated against `contracts/fidelity.schema.yaml`).
@@ -59,7 +79,7 @@ python -m code.run_pipeline --full
 
 ## Running the tests
 ```bash
-pytest tests/quickstart_test.py
+pytest tests/quickstart_test.py tests/test_power_analysis.py
 ```
 
 ## CI Execution

@@ -1,5 +1,5 @@
 status: none
-intent: download commit message documentation diff dataset from GitHub python package
+intent: GitHub commit messages documentation diff dataset huggingface python package
   dataset
 required_fields:
 - commit_hash
@@ -8,7 +8,7 @@ required_fields:
 - documentation_diff
 - repository_name
 - commit_date
-- author_name
-cache_key: 6e74073353b0b4a5c530a882e8a80ffb68fed2bed76ebc1a9d97002f4f6ff9bf
-searched_at: '2026-10-17T05:07:08.141123+00:00'
+- language
+cache_key: 2089aa404695071becf49c89c29ba927f945403ec77cd307e81cb1a39d75b73e
+searched_at: '2026-10-17T05:40:54.751860+00:00'
 retry_count: 1
