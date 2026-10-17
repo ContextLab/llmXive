@@ -18,10 +18,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/ingestion.py -> rc=1
-2026-10-17 19:06:00,695 - llmXive - INFO - Starting T006: data ingestion and merging
-2026-10-17 19:06:00,696 - llmXive - INFO - Fetching verified dataset: https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
-2026-10-17 19:06:03,108 - llmXive - INFO - Downloaded 11774 rows x 4 cols from https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
-2026-10-17 19:06:03,109 - llmXive - INFO - Normalised columns: ['class', 'filename', 'image', 'text']
+2026-10-17 20:08:17,621 - llmXive - INFO - Starting T006: data ingestion and merging
+2026-10-17 20:08:17,621 - llmXive - INFO - Fetching verified dataset: https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+2026-10-17 20:08:19,711 - llmXive - INFO - Downloaded 11774 rows x 4 cols from https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+2026-10-17 20:08:19,715 - llmXive - INFO - Normalised columns: ['class', 'filename', 'image', 'text']
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/ingestion.py", line 279, in <module>
@@ -32,8 +32,8 @@ Traceback (most recent call last):
 RuntimeError: Verified dataset does not contain phosphorus/nitrogen columns; cannot compute nutrient merge.
 
 - python code/preprocessing.py -> rc=1
-2026-10-17 19:06:03,842 - llmXive - INFO - Starting preprocessing pipeline (T016)...
-2026-10-17 19:06:03,842 - llmXive - ERROR - Preprocessing pipeline failed: Input file data/processed/merged_root_soil.csv not found. Run data_ingestion.py (T015) first.
+2026-10-17 20:08:20,558 - llmXive - INFO - Starting preprocessing pipeline (T016)...
+2026-10-17 20:08:20,558 - llmXive - ERROR - Preprocessing pipeline failed: Input file data/processed/merged_root_soil.csv not found. Run data_ingestion.py (T015) first.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/preprocessing.py", line 240, in <module>
