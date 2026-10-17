@@ -35,25 +35,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_data_ingestion.py -> rc=1
-a_pipeline
+ in run_data_pipeline
     raw_records = build_raw_records()
                   ^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 239, in build_raw_records
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 249, in build_raw_records
     pc_records = fetch_pubchem_records(halide)
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 149, in fetch_pubchem_records
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 156, in fetch_pubchem_records
     response = _request_with_backoff(url, max_retries, base_delay)
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 126, in _request_with_backoff
     response.raise_for_status()
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
     raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 404 Client Error: PUGREST.NotFound for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/fluoride%20crown%20ether/property/IsomericSMILES,InChI,XLogP3/JSON
+requests.exceptions.HTTPError: 404 Client Error: PUGREST.NotFound for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/crown%20ether/property/IsomericSMILES,InChI,XLogP3/JSON
 
 - python code/03_model_training.py -> rc=1
 
-2026-10-17 01:20:13,848 - __main__ - INFO - Starting model training pipeline...
-2026-10-17 01:20:13,848 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
+2026-10-17 07:17:31,416 - __main__ - INFO - Starting model training pipeline...
+2026-10-17 07:17:31,416 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/03_model_training.py", line 331, in <module>
     main()
@@ -66,7 +66,7 @@ FileNotFoundError: Preprocessed data not found at data/processed/halide_binding_
 
 - python code/04_feature_analysis.py -> rc=1
 
-2026-10-17 01:20:15,045 - __main__ - INFO - Starting Feature Analysis (US3)...
+2026-10-17 07:17:32,900 - __main__ - INFO - Starting Feature Analysis (US3)...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/04_feature_analysis.py", line 236, in <module>
     main()

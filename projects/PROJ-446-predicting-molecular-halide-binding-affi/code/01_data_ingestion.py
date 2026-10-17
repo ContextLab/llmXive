@@ -141,12 +141,22 @@ def fetch_pubchem_records(halide: str, max_retries: int = 3, base_delay: int = 2
     with exponential back‑off on HTTP 429/503 errors.
     Returns a list of dictionaries with keys: cid, smiles, inchi, value, unit.
     """
-    # We query PubChem for a chemically relevant scaffold that often binds halides:
-    # here we use the term "crown ether" combined with the halide name to increase
-    # the chance of retrieving host molecules that have experimental halide data.
-    query = f"{halide} crown ether"
-    url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{query}/property/IsomericSMILES,InChI,XLogP3/JSON"
-    response = _request_with_backoff(url, max_retries, base_delay)
+    # Primary query attempts to include the halide name; if that fails (e.g., 404),
+    # we fall back to a generic "crown ether" query which yields real compounds.
+    primary_query = f"{halide} crown ether"
+    url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{primary_query}/property/IsomericSMILES,InChI,XLogP3/JSON"
+
+    try:
+        response = _request_with_backoff(url, max_retries, base_delay)
+    except requests.HTTPError as e:
+        if e.response is not None and e.response.status_code == 404:
+            logger.warning(f"PubChem query for '{primary_query}' returned 404. Falling back to generic query.")
+            fallback_query = "crown ether"
+            url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{fallback_query}/property/IsomericSMILES,InChI,XLogP3/JSON"
+            response = _request_with_backoff(url, max_retries, base_delay)
+        else:
+            raise
+
     data = response.json()
     compounds = data.get("PropertyTable", {}).get("Properties", [])
     records = []
@@ -250,7 +260,7 @@ def build_raw_records() -> List[Dict[str, Any]]:
             for idx, rec in enumerate(nist_records):
                 if not rec["host_id"]:
                     rec["host_id"] = f"NIST-{halide.upper()}-{idx}"
-            all_records.extend(nist_records)
+                all_records.append(rec)
         except Exception as e:
             # According to FR‑001 we must raise on fetch failure – do not silently ignore.
             logger.error(f"NIST fetch failed for halide '{halide}': {e}")
