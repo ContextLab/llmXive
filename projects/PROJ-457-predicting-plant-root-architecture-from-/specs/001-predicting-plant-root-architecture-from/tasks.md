@@ -14,7 +14,7 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
   *Path*: `code/requirements.txt`  
   *Verification*: `ls code/requirements.txt` must return the file; `pip install -r code/requirements.txt` must exit with code 0.
 
-- [ ] T003 Add linting configuration (`pyproject.toml` with Black & Flake8 settings) and a wrapper script `code/run_lint.py` that exits with code 0 only when lint passes. <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=123 -->
+- [ ] T003 Add linting configuration (`pyproject.toml` with Black & Flake8 settings) and a wrapper script `code/run_lint.py` that exits with code 0 only when lint passes. <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=123 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=123 -->
   *Path*: `pyproject.toml`, `code/run_lint.py`  
   *Verification*: CI step `python code/run_lint.py` must return exit 0; failing lint will cause the task to remain unchecked.
 

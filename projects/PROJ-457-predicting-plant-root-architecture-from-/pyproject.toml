@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "predict-root-architecture"
 version = "0.1.0"
 description = "Predicting Plant Root Architecture from Soil Nutrient Availability"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "pandas",
     "scikit-learn",
@@ -15,11 +15,13 @@ dependencies = [
     "matplotlib",
     "pyyaml",
     "geopandas",
+    "black",
+    "flake8",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py311']
 include = '\\.pyi?$'
 exclude = '''
 /(

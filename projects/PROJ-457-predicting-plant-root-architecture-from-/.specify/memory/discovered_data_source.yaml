@@ -1,16 +1,17 @@
 status: none
-intent: download merged root phenotype and soil nutrient dataset Hugging Face python
+intent: RootReader PlantPheno merged root phenotype soil phosphorus nitrogen python
   package dataset
 required_fields:
 - species
-- observation_id
 - root_length
-- root_volume
 - root_surface_area
+- root_volume
 - root_diameter
-- root_mass
-- phosphorus_concentration
-- nitrogen_concentration
-cache_key: 900cf2e13e3acf9094568a88887e2cf7c89f919fcbd4af4d9b2429f5b9e715ea
-searched_at: '2026-10-17T20:09:06.703211+00:00'
+- root_branching_factor
+- soil_phosphorus
+- soil_nitrogen
+- root_phosphorus
+- root_nitrogen
+cache_key: 280d0c403fbb53cd80c66155225855ee6058660dbcfc7ba8b93239b59cd1897a
+searched_at: '2026-10-17T22:09:07.666618+00:00'
 retry_count: 1

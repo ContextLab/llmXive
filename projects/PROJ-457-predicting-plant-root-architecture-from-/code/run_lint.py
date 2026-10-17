@@ -4,33 +4,37 @@ Strategy:
 1. Auto-format the codebase with Black (in-place).
 2. Verify Black formatting (no changes needed).
 3. Run Flake8 using the configuration declared in `pyproject.toml`.
-   Since Flake8 does not natively read pyproject.toml, this script
-   extracts the settings and passes them as CLI arguments.
-The script exits with code 0 only when both steps succeed.
 """
 
 import subprocess
 import sys
+import os
 from pathlib import Path
 
 try:
     import tomllib  # Python 3.11+
 except ImportError:
-    import tomli as tomllib  # Fallback for older versions if installed
+    import tomli as tomllib
 
 # Directories holding first-party Python sources to lint.
 LINT_TARGETS = ["code", "tests"]
 
 def _run_command(command: list) -> int:
     """Execute a command, streaming output; return its exit code."""
-    proc = subprocess.run(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-    )
-    sys.stdout.write(proc.stdout)
-    return proc.returncode
+    try:
+        proc = subprocess.run(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=False
+        )
+        if proc.stdout:
+            sys.stdout.write(proc.stdout)
+        return proc.returncode
+    except FileNotFoundError:
+        sys.stderr.write(f"Error: Command '{command[0]}' not found. Is it installed?\n")
+        return 127
 
 def main() -> int:
     project_root = Path(__file__).resolve().parent.parent
@@ -42,8 +46,12 @@ def main() -> int:
         return 1
 
     # Load config for Flake8
-    with open(pyproject_path, "rb") as f:
-        config = tomllib.load(f)
+    try:
+        with open(pyproject_path, "rb") as f:
+            config = tomllib.load(f)
+    except Exception as e:
+        sys.stderr.write(f"Failed to parse pyproject.toml: {e}\n")
+        return 1
 
     flake8_config = config.get("tool", {}).get("flake8", {})
     max_line_length = flake8_config.get("max-line-length", 88)
@@ -53,23 +61,25 @@ def main() -> int:
     # ------------------------------------------------------------------
     # Step 0: Auto-format the codebase in-place.
     # ------------------------------------------------------------------
+    # We format the pyproject.toml and the source directories.
     fmt_rc = _run_command(["black", str(pyproject_path)] + targets)
     if fmt_rc != 0:
-        sys.stderr.write("Black auto-formatting failed.\n")
-        return fmt_rc
+        sys.stderr.write("Black auto-formatting encountered an error.\n")
+        # We don't necessarily fail here if formatting just happened,
+        # but if the tool is missing (127), we must fail.
+        if fmt_rc == 127:
+            return 127
 
     # ------------------------------------------------------------------
     # Step 1: Black formatting check.
     # ------------------------------------------------------------------
     rc = _run_command(["black", "--check", str(pyproject_path)] + targets)
     if rc != 0:
-        sys.stderr.write("Black check failed.\n")
+        sys.stderr.write("Black check failed: files are not formatted.\n")
         return rc
 
     # ------------------------------------------------------------------
     # Step 2: Flake8 linting.
-    # We pass the settings from pyproject.toml explicitly because
-    # flake8 does not read pyproject.toml by default.
     # ------------------------------------------------------------------
     flake8_cmd = ["flake8"]
     if select:
