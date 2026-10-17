@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ## 2. Verify data availability
 ```bash
-# The script will attempt to download CrafterBench; if unavailable it falls back to synthetic data.
+# The script will attempt to download CrafterBench (via CIFAR-10); if unavailable it falls back to synthetic data.
 python -m src.curators.curate_failed_figures --num-tasks 50 --output-dir data/
 ```
 - After execution you will see `data/figures/` and `data/ground_truth/`.
@@ -25,7 +25,7 @@ python -m src.curators.curate_failed_figures --num-tasks 50 --output-dir data/
 uvicorn src.interfaces.structured_harness:app --port 8001 &
 uvicorn src.interfaces.chat_interface:app --port 8002 &
 ```
-- Visit the endpoints (e.g. ` Connection refused"))]) to see a `200 OK` JSON response containing a randomized `interface_order` and shuffled `task_order`.
+- Visit the endpoints (e.g., ` Connection refused"))]) to see a `200 OK` JSON response containing a randomized `interface_order` and shuffled `task_order`.
 
 ## 4. Run a priori power analysis (optional but recommended)
 ```bash
@@ -40,7 +40,7 @@ python -m src.simulation.simulate_participants \
  --seed 42 \
  --log-dir data/logs/
 ```
-- This creates `data/logs/<session_id>.jsonl` files containing millisecond‑precise interaction records and shuffles both interface and task order per session.
+- This creates `data/logs/interactions.jsonl` files containing millisecond‑precise interaction records and shuffles both interface and task order per session.
 
 ## 6. Retention check
 ```bash

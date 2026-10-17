@@ -16,7 +16,11 @@ def seed_all(seed: int = 42) -> None:
     """Seed all common random number generators for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    # torch.manual_seed(seed) # Only if torch is installed/imported
+    try:
+        import torch
+        torch.manual_seed(seed)
+    except ImportError:
+        pass
 
 def run_with_args(func, args):
     """Helper to call a main() function that uses argparse by mocking sys.argv."""

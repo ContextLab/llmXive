@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-17T05:17:43Z",
-  "project_id": "PROJ-856-llmxive-follow-up-extending-crafter-a-mu"
+  "updated_at": "2026-10-17T17:25:48Z",
+  "project_id": "PROJ-856-llmxive-follow-up-extending-crafter-a-mu",
+  "replan_rounds": 1
 }
