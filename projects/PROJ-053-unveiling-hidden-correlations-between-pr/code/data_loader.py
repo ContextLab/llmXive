@@ -37,6 +37,9 @@ MIN_SAMPLES = 50
 MAX_RETRIES = 3
 BACKOFF_FACTOR = 2  # exponential back‑off multiplier (seconds)
 
+# Acceptable file extensions (CSV, ZIP, Excel)
+ACCEPTED_EXTENSIONS = (".csv", ".zip", ".xlsx", ".xls")
+
 # ----------------------------------------------------------------------
 # Logging
 # ----------------------------------------------------------------------
@@ -66,14 +69,15 @@ def _search_zenodo() -> List[dict]:
 
 def _choose_download_url(records: List[dict]) -> str:
     """
-    From the list of Zenodo records, pick the first CSV or ZIP file URL.
+    From the list of Zenodo records, pick the first file URL whose
+    extension matches one of ACCEPTED_EXTENSIONS.
     """
     for rec in records:
         files = rec.get("files", [])
         for f in files:
             filename = f.get("key", "")
             lower_name = filename.lower()
-            if lower_name.endswith(".csv") or lower_name.endswith(".zip"):
+            if any(lower_name.endswith(ext) for ext in ACCEPTED_EXTENSIONS):
                 download_url = f.get("links", {}).get("download")
                 if download_url:
                     log.info(
@@ -83,7 +87,7 @@ def _choose_download_url(records: List[dict]) -> str:
                     )
                     return download_url
     raise FileNotFoundError(
-        "No CSV or ZIP file found in the searched Zenodo records."
+        f"No file with extensions {ACCEPTED_EXTENSIONS} found in the searched Zenodo records."
     )
 
 def _download_with_retries(url: str, dest_path: Path) -> None:
@@ -105,13 +109,9 @@ def _download_with_retries(url: str, dest_path: Path) -> None:
         except Exception as e:
             attempt += 1
             wait = BACKOFF_FACTOR ** attempt
-            log.warning(
-                "Download failed (%s). Retrying in %s seconds...", e, wait
-            )
+            log.warning("Download failed (%s). Retrying in %s seconds...", e, wait)
             time.sleep(wait)
-    raise FileNotFoundError(
-        f"Failed to download after {MAX_RETRIES} attempts: {url}"
-    )
+    raise FileNotFoundError(f"Failed to download after {MAX_RETRIES} attempts: {url}")
 
 def _extract_zip_if_needed(zip_path: Path, target_csv_path: Path) -> None:
     """
@@ -128,19 +128,29 @@ def _extract_zip_if_needed(zip_path: Path, target_csv_path: Path) -> None:
             raise FileNotFoundError(
                 f"No CSV files found inside ZIP archive {zip_path}"
             )
-        # Extract the first CSV file
         first_csv = csv_names[0]
         extracted_path = zf.extract(first_csv, path=zip_path.parent)
         extracted_path = Path(extracted_path)
-        # Move/rename to the desired final location
         extracted_path.rename(target_csv_path)
         log.info(
             "Extracted CSV %s from ZIP and saved to %s",
             first_csv,
             target_csv_path,
         )
-    # Remove the original ZIP file to keep the data folder tidy
     zip_path.unlink(missing_ok=True)
+
+def _convert_excel_to_csv(excel_path: Path, target_csv_path: Path) -> None:
+    """
+    Convert an Excel file (.xlsx or .xls) to CSV.
+    """
+    log.info("Converting Excel file %s to CSV %s", excel_path, target_csv_path)
+    try:
+        df = pd.read_excel(excel_path, engine="openpyxl")
+    except Exception as e:
+        raise ValueError(f"Failed to read Excel file {excel_path}: {e}")
+    df.to_csv(target_csv_path, index=False)
+    log.info("Conversion to CSV completed.")
+    excel_path.unlink(missing_ok=True)
 
 def _validate_dataframe(df: pd.DataFrame) -> None:
     """
@@ -221,17 +231,19 @@ def main() -> None:
     records = _search_zenodo()
     download_url = _choose_download_url(records)
 
-    # Temporary download location (could be .csv or .zip)
+    # Temporary download location (could be .csv, .zip, .xlsx, .xls)
     temp_download_path = raw_csv_path.with_suffix(".tmp")
 
     # Step 2: Download with retry logic
     _download_with_retries(download_url, temp_download_path)
 
-    # Step 3: If the file is a ZIP archive, extract the CSV inside
+    # Step 3: Handle archive / Excel conversion
     if temp_download_path.suffix.lower() == ".zip":
         _extract_zip_if_needed(temp_download_path, raw_csv_path)
+    elif temp_download_path.suffix.lower() in (".xlsx", ".xls"):
+        _convert_excel_to_csv(temp_download_path, raw_csv_path)
     else:
-        # Assume it's the final CSV; rename to the expected path
+        # Assume it's a CSV; rename to the expected path
         temp_download_path.rename(raw_csv_path)
 
     # Step 4: Load and validate
@@ -246,7 +258,6 @@ def main() -> None:
     _write_sha256(raw_csv_path, checksum_path)
 
     log.info("Data loader completed successfully.")
-
 
 if __name__ == "__main__":
     main()

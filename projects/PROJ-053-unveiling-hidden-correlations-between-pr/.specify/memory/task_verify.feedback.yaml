@@ -5,10 +5,21 @@ T002:
     exit=1'
   task: f2ff47f5634c7ce56db0583595f8756207e27c2b61c0a45178b52e0144399404
 T003:
+  reason: The required files `code/preprocessing.py`, `data/processed/train.csv`,
+    `data/processed/test.csv`, and `data/processed/preprocessing.log` are all missing,
+    and the provided test `tests/test_preprocessing.py` fails because no raw CSV is
+    found, so the preprocessing pipeline never produces the expected outputs.
   task: 59d2a3f6095e3a30b5ca2b9a333df9fad54934ec8539c5fdd308768e7f2a151e
 T004:
+  reason: The required model scripts (`code/models/gpr_model.py`, `code/models/baseline.py`)
+    and the saved model artifacts (`results/model/gpr_model.joblib` and `baseline_model.joblib`)
+    are absent, and the metrics JSON does not contain the exact key `rmse_percentage_range`
+    (it has `rmse_percentage_of_range` instead). These missing/incorrect artifacts
+    prevent the task from being considered complete.
   task: 12c0e36ab1d195b6f78c9dd9604ce3db3e2702bdbe33c7b941b860343f413dc2
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/importance.py
+    exit=1'
   task: e4d7e34f8e34c194f9cffd276895242d106de2709c0d1d95568669eaad749a4a
 T006:
   task: 9ea2130ae516c3302fa7dc2957b7674aab7cdae8d895c886e27a3fff7b299317

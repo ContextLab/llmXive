@@ -20,9 +20,7 @@ def test_data_loader_execution(tmp_path, monkeypatch):
     """
     Execute the data loader and validate its outputs.
     """
-    # Ensure the default data directories point inside the temporary directory
-    # to avoid contaminating the repository data folder during the test run.
-    # Monkey‑patch the paths.data function to redirect output.
+    # Redirect the llmxive_toolkit paths to a temporary directory
     original_data = paths.data
 
     def redirected_data(*parts: str) -> Path:

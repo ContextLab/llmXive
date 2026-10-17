@@ -24,7 +24,7 @@ This research implementation follows a linear pipeline: data acquisition → pre
   Implement `code/models/gpr_model.py` using `GaussianProcessRegressor` with an RBF kernel and 5‑fold CV for hyperparameter optimization. Implement a `LinearRegression` baseline in `code/models/baseline.py`. Calculate R², RMSE, MAE, **RMSE expressed as a percentage of the observed target range (`rmse_percentage_range`)**, and ΔR² (GPR vs baseline) on the test set. Store all metrics in `results/metrics.json`.  
   *Verification*: `results/metrics.json` contains all required metrics (including `rmse_percentage_range`); repeated runs with seed 42 produce byte‑identical model artifacts.
 
-- [ ] T005 [P] **Permutation Importance and Baseline Correlation** → `results/permutation_importance.json`  
+- [ ] T005 [P] **Permutation Importance and Baseline Correlation** → `results/permutation_importance.json`   <!-- FAILED-IN-EXECUTION: code/analysis/importance.py exit=1 -->
   Implement `code/analysis/importance.py` to rank processing parameters using permutation importance. Calculate the Spearman rank correlation between the GPR rankings and a baseline ranking from `data/literature_baseline_importance.json` (produced by T015). Update `results/metrics.json` with the `importance_correlation` score.  
   *Verification*: `results/permutation_importance.json` contains entries for all predictors; correlation score is recorded in the metrics file.
 

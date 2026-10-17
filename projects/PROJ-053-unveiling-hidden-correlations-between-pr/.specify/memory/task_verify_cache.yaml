@@ -6,3 +6,20 @@ T001:
     \ and the pytest logs confirming both the requirements match and seed\u2011consistency\
     \ tests succeed."
   sig: 5f88d458ef04f6ea0fd97f46ed2e58778ac3a3ad9f341c1d3ae9c61f744fa1e2
+T003:
+  c: false
+  h: a47cc7bd361ce4a220059d536160e345c3c3ecdc6122aaeef3e4d9cab4ac53ec
+  r: The required files `code/preprocessing.py`, `data/processed/train.csv`, `data/processed/test.csv`,
+    and `data/processed/preprocessing.log` are all missing, and the provided test
+    `tests/test_preprocessing.py` fails because no raw CSV is found, so the preprocessing
+    pipeline never produces the expected outputs.
+  sig: 3cdfd0d7520fe3c6bb5ee29850f6d8f9ca974a7e8e429abf07ebf86d6088e951
+T004:
+  c: false
+  h: d826ca342e92c406c748c17c15eef465ec42421713b06e72be8f2ab07e029f0b
+  r: The required model scripts (`code/models/gpr_model.py`, `code/models/baseline.py`)
+    and the saved model artifacts (`results/model/gpr_model.joblib` and `baseline_model.joblib`)
+    are absent, and the metrics JSON does not contain the exact key `rmse_percentage_range`
+    (it has `rmse_percentage_of_range` instead). These missing/incorrect artifacts
+    prevent the task from being considered complete.
+  sig: 8059a55db79db3aaae463de85177235373aacbfeb659d50b783c230d55a36404

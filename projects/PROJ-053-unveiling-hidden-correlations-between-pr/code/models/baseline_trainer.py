@@ -1,39 +1,62 @@
 import os
-import sys
 import json
 import logging
 import numpy as np
-from typing import Dict, Any, Optional, Tuple, List
+import pandas as pd
+import joblib
+from pathlib import Path
+from typing import Tuple, Dict, Any, Optional, List
 
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
-logger = logging.getLogger(__name__)
+from config import (
+    get_processed_data_dir,
+    get_results_dir,
+    ensure_directories,
+    get_logger,
+)
 
-def train_linear_baseline(X_train: np.ndarray, y_train: np.ndarray) -> LinearRegression:
-    """
-    Train a Linear Regression model on the provided training data.
-    
-    Args:
-        X_train: Scaled training features.
-        y_train: Training targets.
-        
-    Returns:
-        Trained LinearRegression model.
-    """
-    logger.info("Training Linear Regression Baseline...")
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    logger.info("Linear Regression Baseline training complete.")
-    return model
+logger = get_logger(__name__)
 
 def main():
     """
-    Main entry point for baseline training (standalone test).
-    In the full pipeline, this is called by main_save.py.
+    Entry point for the baseline (Linear Regression) training step.
+    Loads the processed train CSV, trains a LinearRegression model on the
+    first target column, and saves the model artifact to
+    <project>/results/model/baseline_model.joblib.
     """
-    logger.warning("baseline_trainer.py main() is not intended for standalone execution without data loading.")
-    logger.warning("Please use main_save.py for the full pipeline.")
+    logger.info("Starting baseline training step...")
+    processed_dir = Path(get_processed_data_dir())
+    train_path = processed_dir / "train.csv"
+    test_path = processed_dir / "test.csv"
+
+    if not train_path.exists() or not test_path.exists():
+        logger.error("Processed train or test CSV not found.")
+        raise FileNotFoundError("Processed data files missing.")
+
+    train_df = pd.read_csv(train_path)
+
+    # Determine target columns (use the first available)
+    target_cols = [c for c in ["yield_strength", "ductility"] if c in train_df.columns]
+    if not target_cols:
+        raise ValueError("No target columns found in training data.")
+    target = target_cols[0]
+
+    feature_cols = [c for c in train_df.columns if c not in target_cols]
+
+    X_train = train_df[feature_cols].values
+    y_train = train_df[target].values
+
+    # Train Linear Regression baseline
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+
+    # Save model
+    model_dir = Path(get_results_dir()) / "model"
+    ensure_directories([model_dir])
+    model_path = model_dir / "baseline_model.joblib"
+    joblib.dump(model, model_path)
+    logger.info(f"Baseline model saved to {model_path}")
 
 if __name__ == "__main__":
     main()
