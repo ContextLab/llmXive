@@ -27,9 +27,7 @@ properties:
     type: string
     enum:
       - "wilcoxon_signed_rank"
-      - "welch_t"
-      - "mann_whitney_u"
-    description: "Type of statistical test used."
+    description: "Statistical test used."
   significant:
     type: boolean
     description: "True if p < alpha."
@@ -37,7 +35,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "The significance level used for the test (e.g., 0.05)."
+    description: "Significance level used for the test (e.g., 0.05)."
   correction:
     type: string
     enum:

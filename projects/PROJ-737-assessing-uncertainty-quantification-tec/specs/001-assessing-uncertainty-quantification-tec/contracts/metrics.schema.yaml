@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "EvaluationMetricSchema"
-description: "Schema for the evaluation metrics output (Calibration Error, Sharpness)."
+description: "Schema for the evaluation metrics output (Calibration Error, Sharpness, Coverage Error)."
 type: object
 properties:
   dataset_id:
@@ -28,7 +28,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "Target coverage level (e.g., a high proportion)."
+    description: "Target coverage level (only for interval metrics)."
   timestamp:
     type: string
     format: date-time

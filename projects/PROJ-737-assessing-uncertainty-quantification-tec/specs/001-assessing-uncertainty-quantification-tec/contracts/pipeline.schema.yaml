@@ -38,6 +38,7 @@ properties:
       required:
         - step_name
         - status
+        - duration_seconds
   memory_peak_mb:
     type: number
     description: "Peak memory usage in MB"
@@ -51,3 +52,4 @@ required:
   - steps
   - memory_peak_mb
   - total_duration_seconds
+additionalProperties: false

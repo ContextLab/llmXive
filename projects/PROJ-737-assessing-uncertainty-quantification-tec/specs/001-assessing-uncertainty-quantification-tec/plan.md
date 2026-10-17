@@ -1,49 +1,32 @@
 # Implementation Plan: Assessing Uncertainty Quantification Techniques for Materials Property Predictions
 
-**Branch**: `001-assessing-uq-techniques` | **Date**: 2026-10-11 | **Spec**: `specs/001-assessing-uncertainty-quantification-tec/spec.md`  
+**Branch**: `001-assessing-uq-techniques` | **Date**: 2026-10-17 | **Spec**: `specs/001-assessing-uncertainty-quantification-tec/spec.md`  
 **Input**: Feature specification from `specs/001-assessing-uncertainty-quantification-tec/spec.md`
 
 ## Summary
-Implement a fully reproducible, CPU‑only pipeline that:
-
-1. **Downloads** three verified open‑access materials datasets (Band Gap & Formation Energy from OQMD; Thermal Conductivity from AFLOW) using the HuggingFace `datasets` library, verifying checksums and source URLs.  
-2. **Featurizes** raw compositions/structures with `matminer` (fallback to elemental fractions via `pymatgen` if needed).  
-3. **Trains** four uncertainty‑quantification (UQ) models respecting FR‑002 constraints, using a **uniform training sample cap of 2000 examples** for *all* methods to avoid confounding:  
-   - Gaussian Process Regression (GPR) – `sklearn` implementation, limited to **2000 points**.  
-   - Monte‑Carlo Dropout MLP – `torch` with ≤ 2 M parameters, **50** stochastic passes (≤ 200 allowed).  
-   - Deep Ensemble of identical MLPs – each trained with a distinct seed.  
-   - Split‑Conformal XGBoost – `xgboost` regressor with calibration hold‑out; nominal coverage swept 0.80‑0.99.  
-4. **Computes** per‑sample Prediction Interval **Calibration Error (ECE)** using the **standard binning‑based approach** and **Sharpness** defined as the **mean interval width (U − L)**.  
-5. **Runs** paired Wilcoxon signed‑rank tests (FR‑004) for each metric across all method pairs and datasets, applying **Bonferroni correction** (α ≈ 0.00278).  
-6. **Performs** a sensitivity analysis on the split‑conformal method across the coverage sweep (SC‑004).  
-7. **Persists** a **UQMethod registry** (`results/uq_methods.csv`) capturing `method_id`, `baseline_model`, `hyperparams`, `n_iterations`, `status`, and `error_msg`.  
-8. **Writes** a **pipeline execution log** (`results/pipeline_log.csv`) adhering to `contracts/pipeline.schema.yaml`.  
-9. **Writes** all result CSVs adhering to the schemas defined in `contracts/`.  
-
-All steps are orchestrated in `code/main.py` (US‑1) and are guaranteed to terminate within 1 h and ≤ 2 GB RAM (NFR‑001, VI).
+Create a fully reproducible, CPU‑only pipeline that (1) downloads three open‑access materials datasets, (2) featurizes compositions with `matminer`, (3) trains four UQ‑enabled models under a strict **2000‑sample training cap**, (4) computes calibration error and sharpness, (5) runs paired Wilcoxon signed‑rank tests with Bonferroni correction, (6) performs a coverage‑sweep sensitivity analysis for split‑conformal prediction, and (7) writes all results to CSV files that conform to explicit JSON‑schema contracts.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `xgboost`, `torch`, `matminer`, `datasets`, `scipy`, `pyyaml`  
-- **Storage**: Local filesystem under `data/` (raw, processed) and `results/` (metrics, stats, logs)  
-- **Testing**: `pytest` for unit and integration tests (including dataset checksum verification)  
-- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ≤ 2 GB RAM)  
-- **Performance Goals**: End‑to‑end ≤ 1 h, peak RAM ≤ 2 GB (VI)  
-- **Constraints**: CPU‑only, no GPU, no 8‑bit quantization, max ensemble size = 3, MC‑Dropout passes ≤ 200 (FR‑002)  
+- **Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `xgboost`, `torch==2.2.0+cpu`, `matminer`, `datasets`, `pyyaml`, `scipy`  
+- **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `results/`)  
+- **Testing**: `pytest` (unit + integration) – includes schema validation tests for every CSV output.  
+- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ≤ 2 GB RAM, no GPU).  
+- **Constraints**: CPU‑only, max ensemble = 3, MC‑Dropout ≤ 200 passes, training cap = 2000 samples per dataset (FR‑002).  
+- **Performance Goals**: End‑to‑end ≤ 1 h, peak RAM ≤ 2 GB (VI).
 
 ## Constitution Check
 | Principle | Status | Notes |
 |-----------|--------|-------|
-| I. Reproducibility | PASS | Fixed seeds (`np.random.seed`, `torch.manual_seed`), deterministic `datasets` loading, pinned `requirements.txt`. |
-| II. Verified Accuracy | PASS | All dataset URLs are from the verified list (see `research.md`). |
+| I. Reproducibility | PASS | Fixed seeds (`np.random.seed(42)`, `torch.manual_seed(42)`), deterministic data splits, pinned `requirements.txt`. |
+| II. Verified Accuracy | PASS | All dataset URLs are listed in `research.md` and verified via the “# Verified datasets” block. |
 | III. Data Hygiene | PASS | Raw files checksummed; derived files written anew with provenance metadata. |
-| IV. Single Source of Truth | PASS | All numbers generated by `code/` scripts; no manual transcription. |
-| V. Versioning Discipline | PASS | Artifact hashes recorded in project state; every change updates `updated_at`. |
-| VI. Computational‑Budget Discipline | PASS | Uniform training cap, lightweight models, CPU‑only libraries keep RAM ≤ 2 GB and runtime ≤ 1 h. |
-| VII. Statistical‑Rigor Standard | PASS | Paired Wilcoxon tests on per‑sample ECE and Sharpness, α = 0.05 with Bonferroni correction; effect sizes reported. |
+| IV. Single Source of Truth | PASS | All numbers are generated by the pipeline; no manual transcription. |
+| V. Versioning Discipline | PASS | Artifact hashes recorded in project state; any change updates `updated_at`. |
+| VI. Computational‑Budget Discipline | PASS | Uniform 2000‑sample cap and lightweight models keep RAM ≤ 2 GB and runtime ≤ 1 h. |
+| VII. Statistical‑Rigor Standard | PASS | Paired Wilcoxon tests on per‑sample metrics, α = 0.05 with Bonferroni correction; effect sizes reported. |
 
 ## Project Structure
-### Documentation (this feature)
 ```
 specs/001-assessing-uncertainty-quantification-tec/
 ├── plan.md
@@ -52,22 +35,20 @@ specs/001-assessing-uncertainty-quantification-tec/
 ├── quickstart.md
 ├── contracts/
 │   ├── dataset.schema.yaml
-│   ├── metrics.schema.yaml
 │   ├── per_sample_errors.schema.yaml
 │   ├── pipeline.schema.yaml
 │   └── stats.schema.yaml
-└── tasks.md
+└── tasks.md               # generated later by /speckit-tasks
 ```
 
-### Source Code (repository root)
 ```
 projects/PROJ-737-assessing-uncertainty-quantification-tec/
 ├── data/
-│   ├── raw/                # downloaded CSVs (checksummed)
+│   ├── raw/                # downloaded CSVs
 │   └── processed/          # featurized splits
 ├── code/
 │   ├── __init__.py
-│   ├── download.py         # uses `datasets` to fetch OQMD & AFLOW, writes checksum file
+│   ├── download.py         # dataset fetch + checksum
 │   ├── featurize.py        # matminer pipelines, fallback to elemental fractions
 │   ├── models/
 │   │   ├── __init__.py
@@ -76,87 +57,73 @@ projects/PROJ-737-assessing-uncertainty-quantification-tec/
 │   │   ├── deep_ensemble.py
 │   │   └── conformal.py
 │   ├── metrics/
-│   │   └── evaluation.py   # standard ECE (binned) & Sharpness (interval width)
+│   │   └── evaluation.py   # ECE & Sharpness
 │   ├── stats/
 │   │   └── significance.py # paired Wilcoxon + Bonferroni
-│   ├── pipeline.py         # orchestrates all phases, writes `uq_methods.csv` and `pipeline_log.csv`
-│   └── main.py             # CLI entry point (US‑1)
+│   ├── pipeline.py         # orchestrates all phases, writes all CSVs
+│   └── main.py             # CLI entry point (`python -m code.main`)
 ├── results/
+│   ├── per_sample_errors.csv
 │   ├── metrics_*.csv
 │   ├── statistical_report.csv
 │   ├── sensitivity_conformal.csv
-│   ├── uq_methods.csv      # registry of UQMethod entities
-│   ├── pipeline_log.csv    # conforms to `contracts/pipeline.schema.yaml`
-│   └── summary.csv
+│   ├── uq_methods.csv
+│   ├── pipeline_log.csv
+│   └── cost_metrics.csv    # runtime & memory per method
 ├── tests/
 │   ├── unit/
 │   └── integration/
 ├── requirements.txt
 └── README.md
 ```
-**Structure Decision**: A single‑project layout with clear modular sub‑packages keeps the orchestrated script simple, aligns with US‑1, and satisfies FR‑001–FR‑005.
 
-## Data‑Model Mapping
-| Pipeline Step | Data‑Model Entity |
-|---------------|-------------------|
-| `download.py` → raw CSV + checksum | **MaterialsDataset** (`contracts/dataset.schema.yaml`) |
-| `featurize.py` → processed CSV with feature columns | **MaterialsDataset** (updated `features` list) |
-| Model training (4 methods) | **UQMethod** (persisted in `results/uq_methods.csv`) |
-| Per‑sample predictions & intervals | **per_sample_errors** (`contracts/per_sample_errors.schema.yaml`) |
-| Metric calculation (ECE, Sharpness) | **EvaluationMetric** (`contracts/metrics.schema.yaml`) |
-| Paired Wilcoxon tests | **StatisticalTestResult** (`contracts/stats.schema.yaml`) |
-| Sensitivity sweep (conformal coverage) | **EvaluationMetric** (multiple rows with different `nominal_coverage`) |
-| Pipeline execution log | **PipelineExecution** (`contracts/pipeline.schema.yaml`) |
+**Structure Decision**: A single‑project layout with clearly separated `code/`, `data/`, and `results/` directories satisfies US‑1 (single orchestrated script) while keeping the codebase simple for the CPU‑only runner.
 
-## Complexity Tracking
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Proxy for Elastic Modulus | No open Elastic Modulus dataset; Formation Energy is the closest open property. | Dropping to two datasets would breach SC‑005 (requirement to process three datasets). |
-| Uniform training cap (2000) | Guarantees fair comparison across methods; avoids GPR bias. | Using full 5 k for other methods would introduce unequal training set sizes (methodology‑09d7589b). |
-| Standard ECE (binned) | Aligns with community‑accepted calibration metric; resolves methodology‑61382eee. | Retaining non‑standard per‑sample deviation would compromise validity. |
-| Power‑analysis strategy (≥200 test samples + bootstrap) | Mitigates low power after Bonferroni correction (methodology‑6439f717). | Ignoring power limitations would leave results under‑powered. |
-| Pipeline log generation | Ensures `pipeline.schema.yaml` contract is exercised (plan_consistency‑fa56b89d). | Omitting log would leave contract unused. |
-| Persist UQMethod registry | Bridges gap between plan and data‑model (plan_consistency‑3546fe7b). | Implicit handling would violate data‑model completeness. |
-| Sharpness definition correction | Guarantees metric consistency (scientific_soundness‑3d614172). | Using absolute error would misrepresent interval quality. |
+## Functional Requirement Mapping
+| FR / SC | Pipeline Phase | Description |
+|--------|----------------|-------------|
+| FR‑001 (datasets) | `download.py` | Downloads OQMD Band Gap, OQMD Formation Energy, AFLOW Thermal Conductivity via `datasets`. |
+| FR‑002 (CPU constraints) | All model modules | Enforce 2000‑sample cap, ensemble ≤ 3, MC‑Dropout ≤ 200 passes, use CPU‑only wheels. |
+| FR‑003 (featurization) | `featurize.py` | `matminer` composition featurizers; fallback to elemental fractions. |
+| FR‑004 (paired Wilcoxon) | `stats/significance.py` | Paired Wilcoxon on per‑sample ECE and Sharpness vectors; Bonferroni correction. |
+| FR‑005 (CSV schemas) | `pipeline.py` | Writes `per_sample_errors.csv`, `metrics_*.csv`, `statistical_report.csv`, `sensitivity_conformal.csv` adhering to contracts. |
+| SC‑001 (pipeline runs) | `main.py` | Orchestrates end‑to‑end execution; exits with code 0 on success. |
+| SC‑002 (metric calculation) | `metrics/evaluation.py` | Computes ECE and Sharpness for every method/dataset. |
+| SC‑003 (statistical significance) | `stats/significance.py` | Generates `statistical_report.csv`. |
+| SC‑004 (sensitivity sweep) | `models/conformal.py` | Sweeps nominal coverage 0.80–0.99 (step 0.01). |
+| SC‑005 (dataset coverage) | `download.py` + `featurize.py` | Ensures all three datasets are processed; logs missing ones as `partial_success`. |
 
-## Statistical Analysis Plan (Revised)
-- **Metrics per sample**:  
-  - **Calibration Error (ECE)** – standard binning: divide predictions into *M* equal‑probability bins, compute `|mean(confidence) − empirical_coverage|` per bin, average.  
-  - **Sharpness** – mean prediction‑interval width `mean(U − L)` across the test set.  
-- **Test**: Paired Wilcoxon signed‑rank on the *vector of per‑sample* ECE values and on the *vector of Sharpness values* for each pair of methods, using the *same* test set (paired design, FR‑004).  
-- **α**: 0.05, **Bonferroni correction** across the Pairwise comparisons covering all method‑pair and dataset combinations (i.e., each of the method pairs evaluated on each dataset). → adjusted α ≈ 0.00278.  
-- **Effect size**: Reported via rank‑biserial correlation with 95 % bootstrap confidence intervals.  
+## Task List (for `/speckit-tasks` – not part of this output)
+1. **T001** – Verify that `quickstart.md` states the **2000‑sample training cap** (fixed).  
+2. **T002** – Implement and test `code/download.py`; integration test must pass (`exit 0`).  
+3. **T003** – Implement `code/main.py` entry point; must exit `0` on successful run.  
+4. **T004** – Ensure `pipeline.py` produces **four** CSVs with full content (`per_sample_errors.csv`, `uq_methods.csv`, `pipeline_log.csv`, `cost_metrics.csv`).  
+5. **T005** – Implement `metrics/evaluation.py` to generate `metrics_*.csv`; integration test must pass.
 
-## Compute Feasibility & Constraints
-- **RAM**: ≤ 2 GB via uniform training cap (2000 samples) and lightweight models.  
-- **Time**: ≤ 1 h by sequential training, early stopping, and batched MC‑Dropout inference.  
-- **CPU‑only**: All libraries installed with CPU‑only wheels; no CUDA.  
-- **Fallbacks**: If `matminer` fails, elemental fraction vectors are generated with pure `pandas`/`pymatgen`.  
+Each task will be verified by unit/integration tests that load the CSVs and validate against the corresponding JSON‑schema contracts.
 
-## Power Analysis (Concrete Strategy)
-- **Test set size**: Enforce **≥ 200** test samples per dataset (subject to the 2000‑sample cap).  
-- **Bootstrap**: Perform a sufficient number of bootstrap resamples of the paired differences. to obtain confidence intervals for the Wilcoxon statistic, improving robustness under the stringent Bonferroni α.  
-- **Effect‑size reporting**: Alongside p‑values, report rank‑biserial correlation and its bootstrap confidence interval.  
-- **Transparency**: Any residual power limitation will be explicitly reported in the final results table.
+## Compute Feasibility & GPU Escape Hatch
+All chosen libraries have pure‑CPU wheels. No GPU is required. Should any library unexpectedly require CUDA (e.g., a stray `torch.cuda.is_available()` call), the plan explicitly logs the failure and continues with CPU fallback, ensuring the CI runner never aborts.
 
-## Assumptions & Risks
-- Verified URLs remain reachable; failures are logged and the pipeline proceeds with remaining datasets (partial_success).  
-- **Construct Validity**: Formation Energy is a proxy for Elastic Modulus; conclusions about mechanical stiffness are qualitative and will be qualified (see `research.md`).  
-- `matminer` and `pymatgen` install without GPU dependencies on the CI runner.  
-- Uniform training cap may slightly reduce performance of methods that could benefit from more data, but ensures fair comparison.
+## Power Analysis & Statistical Rigor
+- **Test‑set size**: Enforced ≥ 200 samples per dataset (after the 2000‑sample cap).  
+- **Bootstrap**: 1000 bootstrap resamples of paired differences for confidence intervals on Wilcoxon statistics.  
+- **Effect size**: Rank‑biserial correlation with 95 % bootstrap CI.  
+- **Multiple‑testing**: Bonferroni across 18 pairwise comparisons (6 method pairs × 3 datasets) → adjusted α ≈ 0.00278.
 
-## Construct Validity
-Elastic Modulus measures mechanical stiffness, while Formation Energy reflects thermodynamic stability. They are correlated but not equivalent. Because an open, directly downloadable Elastic Modulus dataset is unavailable, Formation Energy is used as a scientifically reasonable proxy. All conclusions about UQ performance on Elastic Modulus will be **qualitative** and qualified accordingly.
+## Risks & Mitigations
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Dataset URL becomes unreachable | Pipeline failure | `download.py` logs failure, marks dataset as “skipped” and continues with remaining datasets (partial_success). |
+| `matminer` installation issues on the runner | Feature extraction stall | Fallback to elemental‑fraction vectors generated with `pymatgen` only. |
+| Training cap too restrictive for GPR (O(N³) scaling) | Longer runtime | GPR uses `GaussianProcessRegressor` with `optimizer=None` and a fixed subset of 2000 points; training time stays < 5 min. |
+| Insufficient power after Bonferroni | Non‑significant results | Power analysis is reported; if power < 0.8, results are flagged as exploratory. |
 
-## Pipeline Execution Log
-`code/pipeline.py` will emit `results/pipeline_log.csv` containing fields defined in `contracts/pipeline.schema.yaml` (run_id, timestamp, status, steps, memory_peak_mb, total_duration_seconds). This satisfies the pipeline contract and provides a reproducible audit trail.
-
-## UQMethod Registry
-`code/pipeline.py` will also generate `results/uq_methods.csv` with columns: `method_id, baseline_model, hyperparams, n_iterations, status, error_msg`. This fulfills the data‑model requirement for the `UQMethod` entity.
+## Deliverables
+- Fully documented `plan.md` (this file).  
+- `research.md` detailing dataset strategy, UQ methods, metrics, and statistical plan.  
+- `data-model.md` describing all entities and their JSON‑schema contracts.  
+- `quickstart.md` with exact command line usage and explicit **2000‑sample training cap** statement.  
+- Contracts under `contracts/` (four YAML files) that will be used by the verifier.
 
 ---
-
-
-## Quickstart (updated to reflect new artifacts)
-See `quickstart.md` for usage instructions, including the generation of `results/pipeline_log.csv` and `results/uq_methods.csv`.
-

@@ -27,8 +27,8 @@ properties:
     description: "Number of validation samples."
   n_test:
     type: integer
-    minimum: 1
-    description: "Number of test samples."
+    minimum: 200
+    description: "Number of test samples (≥ 200)."
   features:
     type: array
     items:

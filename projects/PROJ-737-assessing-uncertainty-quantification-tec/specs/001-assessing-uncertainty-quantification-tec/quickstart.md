@@ -1,29 +1,54 @@
 # Quickstart: Assessing Uncertainty Quantification Techniques
 
-## Runnable Command
+## Running the Full Pipeline
 
-To run the thin end-to-end analysis (using a small subset of data for verification), execute:
+The pipeline can be executed in two modes:
+
+| Mode | Description | When to use |
+|------|-------------|-------------|
+| **Thin verification** (`--thin`) | Uses the first 500 samples of each dataset; skips the conformal coverage sweep. | Quick CI sanity check (≈ 2 min). |
+| **Full analysis** (default) | Processes the full allowed training set (capped at **2000 samples per dataset**) and runs the complete conformal sweep. | Official reproducible run (≤ 1 h). |
 
 ```bash
+# Install pinned dependencies
+pip install -r requirements.txt
+
+# Thin run (verifies that everything works)
 python -m code.main --thin
+
+# Full run (produces the final research artifacts)
+python -m code.main
 ```
 
-## Pipeline Overview
+### What the Pipeline Does
+1. **Downloads** the three open datasets (Band Gap, Thermal Conductivity, Formation Energy).  
+2. **Featurizes** compositions using `matminer`; falls back to elemental fractions if needed.  
+3. **Splits** each dataset into stratified train/val/test sets (test ≥ 200 samples).  
+4. **Trains** four UQ models under a **2000‑sample training cap** (FR‑002).  
+5. **Generates** prediction intervals, computes **Calibration Error (ECE)** and **Sharpness** per sample.  
+6. **Runs** paired Wilcoxon signed‑rank tests with Bonferroni correction; reports effect sizes.  
+7. **Sweeps** nominal coverage 0.80–0.99 for the split‑conformal method (SC‑004).  
+8. **Writes** all results to CSV files that conform to the schemas in `contracts/`.  
 
-This pipeline evaluates and compares four Uncertainty Quantification (UQ) methods for materials property prediction:
-1. **Gaussian Process Regression (GPR)**: Provides Bayesian uncertainty estimates.
-2. **Monte-Carlo Dropout (MC-Dropout)**: Approximates Bayesian inference via stochastic forward passes.
-3. **Deep Ensemble**: Aggregates predictions from multiple independently initialized models.
-4. **Split-Conformal Prediction**: Provides distribution-free coverage guarantees using a calibration set.
+### Expected Outputs
+All files are placed under `results/`:
 
-### Key Constraints and Rules
-- **Training Cap**: To ensure computational efficiency and fair comparison, training is capped at **[deferred] samples** per method per dataset.
-- **Deterministic Sampling**: To guarantee reproducibility, the pipeline employs a "first-N rows" sampling rule using a fixed random seed (**seed 42**).
-- **Statistical Rigor**: Method comparisons are performed using the **paired Wilcoxon signed-rank test**. This test is used because predictions for different UQ methods are paired on the same test samples, allowing for a rigorous assessment of whether one method consistently outperforms another in calibration or sharpness.
-- **Property Proxy**: Due to the unavailability of a public, programmatically accessible Elastic Modulus dataset, **Formation Energy** (from OQMD) is used as a proxy. All conclusions regarding mechanical stiffness are qualified as qualitative.
+| File | Description | Contract |
+|------|-------------|----------|
+| `per_sample_errors.csv` | Sample‑level predictions, bounds, and absolute errors. | `contracts/per_sample_errors.schema.yaml` |
+| `metrics_*.csv` | Calibration error, sharpness, and coverage error per method/dataset. | `contracts/evaluation_metric.schema.yaml` (implicit) |
+| `statistical_report.csv` | Paired Wilcoxon p‑values, significance flags, effect sizes. | `contracts/stats.schema.yaml` |
+| `sensitivity_conformal.csv` | Coverage‑sweep results for split‑conformal. | `contracts/evaluation_metric.schema.yaml` |
+| `uq_methods.csv` | Registry of each UQ method, hyperparameters, status. | `contracts/uq_method.schema.yaml` (implicit) |
+| `pipeline_log.csv` | Execution log with step‑wise status, runtimes, memory usage. | `contracts/pipeline.schema.yaml` |
+| `cost_metrics.csv` | Runtime and peak RAM for each method (supports VI). | `contracts/cost_metric.schema.yaml` (implicit) |
 
-## Expected Outputs
+### Reproducibility Guarantees
+- Random seeds are fixed (`np.random.seed(42)`, `torch.manual_seed(42)`).  
+- All data downloads are deterministic (same URL, same checksum).  
+- The same `requirements.txt` is used on every runner.
 
-The pipeline generates the following primary artifacts:
-- `data/results/per_sample_errors.csv`: Detailed predictions, bounds, and errors for every sample, conforming to the contract in `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`.
-- `data/results/pipeline_run.json`: Execution log documenting the run status and resource usage.
+### Construct Validity Reminder
+Formation Energy is used as a proxy for Elastic Modulus due to data availability constraints. All statements about mechanical stiffness are qualified accordingly (see `research.md`).
+
+---
