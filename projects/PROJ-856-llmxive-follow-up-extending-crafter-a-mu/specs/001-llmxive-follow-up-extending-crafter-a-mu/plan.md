@@ -1,35 +1,33 @@
 # Implementation Plan: llmXive follow-up: extending "Crafter: A Multi‑Agent Harness for Editable Scientific Figure Generation"
 
-**Branch**: `001-llmxive-cognitive-load` | **Date**: 2026-10-16 | **Spec**: [spec.md](./spec.md)  
+**Branch**: `001-llmxive-cognitive-load` | **Date**: 2026-10-17 | **Spec**: [spec.md](./spec.md)  
 **Input**: Feature specification from `/specs/001-llmxive-cognitive-load/spec.md`
 
 ## Summary
-The project must (1) curate a reproducible set of a representative sample of failed figure instances (or a synthetic equivalent), (2) provide two editing interfaces (structured harness & chat), (3) instrument automatic millisecond‑precision logging, (4) validate success via **either** an exact vector match **or** a semantic similarity score ≥ 0.95, (5) run a paired Wilcoxon signed‑rank test on “time‑to‑success” and “iteration count”, and (6) generate a final report containing descriptive statistics, confidence intervals, and independent success‑rate breakdowns. All steps are designed to run on the GitHub Actions free‑tier CPU runner; no GPU is required.
+The study compares a structured typed-edit harness against a natural-language chat interface to measure cognitive load (latency and iterations) when correcting scientific figures. The plan implements a full instrumentation and analysis pipeline. **Crucially**, the pipeline distinguishes between *Software Verification* (using synthetic data/participants to test code logic) and *Research Execution* (using real CrafterBench data and human participants to generate results). All components run on the GitHub Actions free-tier CPU runner.
 
 ## Technical Context
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scipy==1.13.*`, `opencv-python==4.9.*` (for image handling), `torchvision==0.18.*` (lightweight visual similarity model, CPU‑only), `fastapi==0.111.*` (interface stubs), `uvicorn==0.30.*` (dev server)  
-**Storage**: File‑system under `data/` (raw figures, ground‑truth vectors, logs)  
-**Testing**: `pytest==8.2.*` plus contract‑based validation (`jsonschema`)  
-**Target Platform**: Linux (GitHub Actions runner)  
-**Project Type**: Library + CLI utilities (data curation, simulation, analysis)  
-**Performance Goals**: End‑to‑end pipeline ≤ 6 h wall‑clock on 2 CPU cores, ≤ 7 GB RAM  
-**Constraints**: Must obey Constitution Principles I‑VII; all random seeds pinned; no external authentication required.  
-**Scale/Scope**: Multiple figure tasks × A sufficient number of simulated participants. ≈ 1 500 logged sessions (synthetic) for pipeline validation; real‑world study later uses same code.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scipy==1.13.*`, `opencv-python==4.9.*`, `torchvision==0.18.*` (CPU-only ResNet-18), `fastapi==0.111.*`, `uvicorn==0.30.*`, `pytest==8.2.*`, `jsonschema==4.22.*`, `statsmodels==0.14.*`  
+- **Storage**: File-system under `data/`  
+- **Testing**: `pytest` with contract validation (`tests/contract/`)  
+- **Target Platform**: Linux (GitHub Actions runner)  
+- **Performance Goals**: End-to-end pipeline ≤ 6 h wall-clock, ≤ 7 GB RAM, ≤ 2 CPU cores  
+- **Constraints**: Must satisfy all Constitution Principles I-VII; random seeds pinned (`seed=42`).  
 
 ## Constitution Check
 | Principle | How the plan satisfies it |
 |-----------|---------------------------|
-| I. Reproducibility | All scripts are deterministic (seed = 42), data fetched from open URLs or generated synthetically, and full command line documented in `quickstart.md`. |
-| II. Verified Accuracy | No external citations are introduced beyond the spec; any future citation will be validated by the Reference‑Validator. |
-| III. Data Hygiene | Checksums recorded in `data/checksums.txt`; every transformation writes a new file with provenance metadata. |
-| IV. Single Source of Truth | Every figure statistic originates from the JSON logs in `data/logs/` and is referenced directly in the report. |
-| V. Versioning Discipline | All artifacts are version‑controlled; the plan references content hashes via the CI‑generated `state/projects/...yaml`. |
-| VI. Human‑Subject Interaction Logging | Logging schema (`contracts/interaction_log.schema.yaml`) enforces immutable raw logs before aggregation. |
-| VII. Ground‑Truth Validation Protocol | Validation step (`run_validation.py`) records **both** exact vector comparison **and** semantic similarity; a trial is marked *success* if **either** criterion passes, satisfying the dual‑check requirement while keeping the metrics independent. |
+| I. Reproducibility | All scripts are deterministic (global seed 42). Data are fetched from canonical sources or generated via fixed seeds for verification. |
+| II. Verified Accuracy | The plan explicitly flags the CrafterBench source as 'Unverified' in `research.md` and treats the lack of a verified URL as a blocking issue for final research results. |
+| III. Data Hygiene | `data/checksums.txt` records SHA-256 checksums for every file. Transformations create new files with provenance metadata. |
+| IV. Single Source of Truth | Every figure statistic originates from immutable JSON logs in `data/logs/` and is referenced directly in `outputs/report.md`. |
+| V. Versioning Discipline | All artifacts live under version control; CI generates content hashes stored in `state/projects/...yaml`. |
+| VI. Human‑Subject Interaction Logging | `contracts/interaction_log.schema.yaml` enforces immutable raw logs. Real human sessions provide the only valid data for cognitive load inference. |
+| VII. Ground‑Truth Validation Protocol | `run_validation.py` executes both exact vector comparison **and** semantic similarity; success requires **both** to pass. |
 
 ## Project Structure
-### Documentation (this feature)
+### Documentation
 ```
 specs/001-llmxive-cognitive-load/
 ├── plan.md
@@ -42,54 +40,47 @@ specs/001-llmxive-cognitive-load/
     └── analysis_result.schema.yaml
 ```
 
-### Source Code (repository root)
+### Source Code
 ```
 src/
 ├── curators/
-│   └── curate_failed_figures.py      # downloads / synthesizes 50 figures
+│   └── curate_failed_figures.py          # Real data curation; --verify-only for synthetic
 ├── interfaces/
-│   ├── structured_harness.py         # FastAPI endpoint stub
-│   └── chat_interface.py             # FastAPI endpoint stub
+│   ├── structured_harness.py             # FastAPI endpoint /edit (typed commands)
+│   ├── chat_interface.py                 # FastAPI endpoint /edit (natural language)
+│   └── session.py                        # /init_session returns counterbalanced order
 ├── logger/
-│   └── interaction_logger.py         # JSON log writer
+│   └── interaction_logger.py             # JSONL writer, millisecond timestamps
 ├── validation/
-│   ├── vector_match.py               # exact comparison
-│   └── semantic_similarity.py        # lightweight CNN similarity (CPU)
+│   ├── vector_match.py                   # exact JSON vector equality (no hard-coding)
+│   ├── semantic_similarity.py            # ResNet-18 cosine similarity (no hard-coding)
+│   └── run_validation.py                 # orchestrates both; writes SemanticValidation records
 ├── analysis/
-│   └── wilcoxon_analysis.py          # paired test & CI report generator
+│   ├── wilcoxon_analysis.py              # paired Wilcoxon, Bonferroni, effect size, CI
+│   └── retention_check.py                # verifies ≥25 of 30 sessions have ≥1 success
 ├── simulation/
-│   └── simulate_participants.py      # synthetic driver
-└── utils/
-    └── seeds.py                      # central seed management
+│   ├── power_analysis.py                 # Wilcoxon-appropriate power analysis
+│   ├── simulate_participants.py          # high-volume synthetic driver for CI verification
+│   └── human_data_collection.py          # stub for real participant data ingestion
+├── utils/
+│   ├── seeds.py                          # central seed management
+│   └── checksums.py                      # helper to compute SHA-256
+└── run_pipeline.py                       # orchestrates all steps in order
 ```
 
-### Tests
-```
-tests/
-├── contract/
-│   └── test_contracts.py
-└── integration/
-    └── test_end_to_end.py
-```
-
-## Complexity Tracking
-No constitution violations identified; the plan adheres to all non‑negotiable principles.
-
-## Phase‑by‑Phase Task Breakdown (maps to FR/SC)
+## Phase‑by‑Phase Task Breakdown
 
 | Phase | Description | FR/SC addressed |
 |-------|-------------|-----------------|
-| **0 – Setup** | Pin dependencies, create `requirements.txt`, set random seed. | I, II, III, V |
-| **1 – Data Curation** | `curate_failed_figures.py` either downloads verified subset (none found → synthetic generation) and injects localized errors; produces `data/figures/` and `data/ground_truth/`. | FR‑001, SC‑004 |
-| **2 – Interface Provisioning & Task Randomization** | FastAPI stubs for Structured Harness & Chat Interface; expose `/init_session` (randomized, counterbalanced order). Additionally, per‑session shuffle of the 50 figure tasks to counterbalance fatigue/learning effects. | FR‑002, methodology‑d0e858cf |
-| **3 – Logging Instrumentation** | `interaction_logger.py` writes per‑edit JSON entries with millisecond timestamps, iteration count, payload. | FR‑003, VI |
-| **4 – Power Analysis (a priori)** | Compute required N for a medium effect (d≈0.5) at α=0.05 using `statsmodels.stats.power.TTestPower`; abort if planned N < required. | methodology‑ef8d85e0 |
-| **5 – Success Validation** | Run `vector_match.py` **or** (`semantic_similarity.py` score ≥ 0.95). Record both outcomes in a `SemanticValidation` JSON line (see new contract). A trial is marked *success* if **either** condition passes. | FR‑004, FR‑005, VII, scientific_soundness‑473faa82 |
-| **6 – Simulation of Participants** | Synthetic driver (`simulate_participants.py`) iterates over participants, randomizes interface and task order, and generates realistic edit sequences. | SC‑004 (synthetic N = 30) |
-| **7 – Retention Check** | After simulation, verify that ≥ 25 of the 30 sessions contain at least one non‑aborted successful trial; if not, raise a warning and halt analysis. | spec_coverage‑e27c0ff2 |
-| **8 – Statistical Analysis** | `wilcoxon_analysis.py` reads logs and SemanticValidation records, computes paired differences for `time_to_success` & `iteration_count`, performs Wilcoxon signed‑rank test (no normality check), applies Bonferroni correction for two outcomes, calculates effect size *r* and bootstrap 95 % CI. | FR‑006, SC‑001, SC‑002, SC‑003 |
-| **9 – Report Generation** | `generate_report.py` produces `outputs/report.md` with tables, p‑values, effect sizes, confidence intervals, and **independent** success‑rate breakdowns (vector‑match success, semantic‑similarity success). | FR‑007, SC‑005 |
-| **10 – Validation & Contracts** | Contract tests ensure logs conform to `interaction_log.schema.yaml`, `semantic_validation.schema.yaml`, and analysis output to `analysis_result.schema.yaml`. | All FR/SC (ensures integrity) |
-
----
-
+| **0 – Environment Setup** | Create `requirements.txt`, pin seed = 42, add `state/` checksum logic. | I, III, V |
+| **1 – Data Curation** | `curate_failed_figures.py` attempts to download the real CrafterBench subset. If no verified URL is found, the script exits with an error (blocking FR-001). A `--verify-only` flag allows generation of a deterministic synthetic surrogate (seed=42) for software testing only. | FR-001 (real required), SC-004 |
+| **2 – Interface Provisioning** | `session.py` implements `/init_session` (counterbalanced order). `structured_harness.py` and `chat_interface.py` expose `/edit` endpoints. **Verification**: Implementer must provide logs showing 200 OK responses via `curl` for both interfaces. | FR-002, VI |
+| **3 – Logging Instrumentation** | `interaction_logger.py` writes JSONL logs with millisecond precision. **Verification**: Implementer must demonstrate a log entry produced by a real `/edit` call that matches `interaction_log.schema.yaml`. | FR-003, VI |
+| **4 – Power Analysis** | `power_analysis.py` computes minimum required N for Wilcoxon (effect size d≈0.5, α=0.05). Pipeline aborts if planned N < required. | SC-004 |
+| **5 – Success Validation** | `run_validation.py` iterates over tasks. `vector_match.py` and `semantic_similarity.py` MUST compute actual results (hard-coded booleans are forbidden). Success requires **both** checks to pass. Results written to `SemanticValidation` records. | FR-004, FR-005, VII |
+| **6 – Human Data Collection** | `human_data_collection.py` provides a CLI stub for ingesting logs from the actual study. This is the **only** phase that produces research-valid "objective latency" results. | VI, SC-001, SC-002 |
+| **7 – Pipeline Verification (CI)** | `simulate_participants.py` generates [deferred] deterministic log entries (30 sessions) using the logger to verify the pipeline's capacity and schema compliance. These are **not** used for research inference. | SC-004 (verification) |
+| **8 – Retention Check** | `retention_check.py` parses logs, counts sessions with ≥1 success, and fails if < 25. Must handle default log directory paths to avoid argparse errors. | SC-004 |
+| **9 – Statistical Analysis** | `wilcoxon_analysis.py` runs paired Wilcoxon tests on `time_to_success` and `iteration_count` without normality pre-tests. Applies Bonferroni correction and calculates effect size *r*. | FR-006, SC-001, SC-002, SC-003 |
+| **10 – Report Generation** | `generate_report.py` consumes `analysis_results.jsonl` to produce `outputs/report.md` containing medians, p-values, and success-rate tables. | FR-007, SC-005 |
+| **11 – Contract Validation** | `pytest -q tests/contract` validates all JSONL files against schemas. | All FR/SC |

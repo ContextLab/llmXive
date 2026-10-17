@@ -22,7 +22,7 @@ properties:
     description: "Identifier of the figure task."
   timestamp_ms:
     type: "integer"
-    description: "Epoch time in milliseconds when the edit was submitted."
+    description: "Epoch time in milliseconds when the edit submitted."
   iteration:
     type: "integer"
     minimum: 1

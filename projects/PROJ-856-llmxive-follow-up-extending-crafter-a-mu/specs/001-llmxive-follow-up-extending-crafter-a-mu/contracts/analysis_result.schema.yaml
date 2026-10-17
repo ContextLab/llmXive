@@ -19,7 +19,7 @@ properties:
   metric:
     type: "string"
     enum: ["time_to_success", "iteration_count"]
-    description: "Which metric the result pertains to."
+    description: "Metric the result pertains to."
   structured_median:
     type: "number"
     description: "Median value for the Structured Harness."
@@ -43,4 +43,4 @@ properties:
     description: "Upper bound of the 95 % confidence interval for the median difference."
   bonferroni_corrected:
     type: "boolean"
-    description: "True if the p‑value has been Bonferroni‑adjusted for multiple outcomes."
+    description: "True if the p‑value has been corrected for multiple outcomes."
