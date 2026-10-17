@@ -1,21 +1,17 @@
-"""Synthetic edge‑case instance 48 (generated, seed fixed)."""
+"""Synthetic edge-case instance 48."""
 import dep_48_0
 import dep_48_1
 import dep_48_2
 import dep_48_3
 from pkg_48 import helper_48
 
-def helper_48_0(x):
-    return x + 1
+def helper_48_0(x): return x + 1
 
-def helper_48_1(x):
-    return helper_48_0(x) * 2
+def helper_48_1(x): return helper_48_0(x) * 2
 
-def helper_48_2(x):
-    return helper_48_1(x) * 2
+def helper_48_2(x): return helper_48_1(x) * 2
 
-def helper_48_3(x):
-    return helper_48_2(x) * 2
+def helper_48_3(x): return helper_48_2(x) * 2
 
 def process_48(items, value=None):
     if value is not None and value > 0:

@@ -1,4 +1,3 @@
-# Project dependencies
 datasets==2.20.0
 transformers==4.41.2
 torch==2.2.2
@@ -8,4 +7,3 @@ statsmodels==0.14.2
 pandas==2.2.2
 numpy==1.26.4
 matplotlib==3.9.0
-huggingface_hub>=0.20.0

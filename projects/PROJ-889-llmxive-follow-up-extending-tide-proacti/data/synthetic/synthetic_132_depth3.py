@@ -1,17 +1,14 @@
-"""Synthetic edge‑case instance 132 (generated, seed fixed)."""
+"""Synthetic edge-case instance 132."""
 import dep_132_0
 import dep_132_1
 import dep_132_2
 from pkg_132 import helper_132
 
-def helper_132_0(x):
-    return x + 1
+def helper_132_0(x): return x + 1
 
-def helper_132_1(x):
-    return helper_132_0(x) * 2
+def helper_132_1(x): return helper_132_0(x) * 2
 
-def helper_132_2(x):
-    return helper_132_1(x) * 2
+def helper_132_2(x): return helper_132_1(x) * 2
 
 def process_132(items, value=None):
     if value is not None and value > 0:

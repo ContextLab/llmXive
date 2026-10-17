@@ -1,16 +1,13 @@
-"""Synthetic edge‑case instance 32 (generated, seed fixed)."""
+"""Synthetic edge-case instance 32."""
 import dep_32_0
 import dep_32_1
 import dep_32_2
 
-def helper_32_0(x):
-    return x + 1
+def helper_32_0(x): return x + 1
 
-def helper_32_1(x):
-    return helper_32_0(x) * 2
+def helper_32_1(x): return helper_32_0(x) * 2
 
-def helper_32_2(x):
-    return helper_32_1(x) * 2
+def helper_32_2(x): return helper_32_1(x) * 2
 
 def process_32(items, value=None):
     if value is not None and value > 0:

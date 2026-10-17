@@ -1,24 +1,19 @@
-"""Synthetic edge‑case instance 44 (generated, seed fixed)."""
+"""Synthetic edge-case instance 44."""
 import dep_44_0
 import dep_44_1
 import dep_44_2
 import dep_44_3
 import dep_44_4
 
-def helper_44_0(x):
-    return x + 1
+def helper_44_0(x): return x + 1
 
-def helper_44_1(x):
-    return helper_44_0(x) * 2
+def helper_44_1(x): return helper_44_0(x) * 2
 
-def helper_44_2(x):
-    return helper_44_1(x) * 2
+def helper_44_2(x): return helper_44_1(x) * 2
 
-def helper_44_3(x):
-    return helper_44_2(x) * 2
+def helper_44_3(x): return helper_44_2(x) * 2
 
-def helper_44_4(x):
-    return helper_44_3(x) * 2
+def helper_44_4(x): return helper_44_3(x) * 2
 
 def process_44(items, value=None):
     if value is not None and value > 0:

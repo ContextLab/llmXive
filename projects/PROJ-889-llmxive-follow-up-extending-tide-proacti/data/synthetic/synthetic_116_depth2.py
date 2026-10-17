@@ -1,12 +1,10 @@
-"""Synthetic edge‑case instance 116 (generated, seed fixed)."""
+"""Synthetic edge-case instance 116."""
 import dep_116_0
 import dep_116_1
 
-def helper_116_0(x):
-    return x + 1
+def helper_116_0(x): return x + 1
 
-def helper_116_1(x):
-    return helper_116_0(x) * 2
+def helper_116_1(x): return helper_116_0(x) * 2
 
 def process_116(items, value=None):
     if value is not None and value > 0:

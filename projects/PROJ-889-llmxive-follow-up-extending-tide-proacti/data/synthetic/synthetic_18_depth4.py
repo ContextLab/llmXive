@@ -1,21 +1,17 @@
-"""Synthetic edge‑case instance 18 (generated, seed fixed)."""
+"""Synthetic edge-case instance 18."""
 import dep_18_0
 import dep_18_1
 import dep_18_2
 import dep_18_3
 from pkg_18 import helper_18
 
-def helper_18_0(x):
-    return x + 1
+def helper_18_0(x): return x + 1
 
-def helper_18_1(x):
-    return helper_18_0(x) * 2
+def helper_18_1(x): return helper_18_0(x) * 2
 
-def helper_18_2(x):
-    return helper_18_1(x) * 2
+def helper_18_2(x): return helper_18_1(x) * 2
 
-def helper_18_3(x):
-    return helper_18_2(x) * 2
+def helper_18_3(x): return helper_18_2(x) * 2
 
 def process_18(items, value=None):
     if value is not None and value > 0:

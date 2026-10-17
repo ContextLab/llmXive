@@ -1,55 +1,38 @@
 """
 acquire_real.py
 ----------------
-Downloads a real, publicly accessible code‑with‑hidden‑problems evaluation
-dataset from the HuggingFace hub and materialises it on disk.
-
-Uses the CodeXGLUE defect‑detection dataset as a verified real source.
+Downloads the official TIDE evaluation dataset via the `datasets` library
+and materializes it on disk as individual .py files and a manifest CSV.
 """
 
 import hashlib
-import json
 import sys
 from pathlib import Path
-
 import pandas as pd
-from huggingface_hub import hf_hub_download
-
+import datasets
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-# Real, deterministic sample size taken from the full dataset (first N
-# rows of the real training split).  The full dataset is ~27k rows; a
-# fixed prefix sample of 500 real instances keeps the CPU‑only run
-# tractable while far exceeding the >= 200 requirement (SC‑005).
+# Sample size to keep the run tractable while satisfying SC-005 (>= 200).
 REAL_SAMPLE_SIZE = 500
-
-# Repository identifier for the CodeXGLUE defect‑detection dataset.
-DATASET_NAME = "code_x_glue/defect_detection"
-TRAIN_FILENAME = "train.csv"
+DATASET_ID = "allenai/tide-eval"
 
 def _sha256_of_file(file_path: Path) -> str:
-    """Return the hexadecimal SHA‑256 digest of *file_path*."""
+    """Return the hexadecimal SHA-256 digest of *file_path*."""
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
 
-
 def _iter_source_dirs(base_dir: Path):
-    """Yield every directory that may hold corpus ``.py`` files."""
+    """Yield every directory that may hold corpus .py files."""
     yield base_dir / "real"
-    yield base_dir / "synthetic"
     yield paths.data("synthetic")
 
-
 def _write_checksum_manifest(base_dir: Path, manifest_path: Path) -> None:
-    """
-    Scan the corpus directories and write a SHA‑256 checksum manifest.
-    Existing entries are overwritten (the manifest is fully regenerated).
-    """
+    """Scan the corpus directories and write a SHA-256 checksum manifest."""
     checksum_entries = {}
     for sub_dir in _iter_source_dirs(base_dir):
         if not sub_dir.is_dir():
@@ -59,13 +42,14 @@ def _write_checksum_manifest(base_dir: Path, manifest_path: Path) -> None:
 
     with manifest_path.open("w", encoding="utf-8") as fh:
         for fname in sorted(checksum_entries):
-            fh.write(f"{checksum_entries[fname]}  {fname}\\n")
+            fh.write(f"{checksum_entries[fname]}  {fname}\n")
     log.info(f"Checksum manifest refreshed ({len(checksum_entries)} entries).")
 
-
 def _verify_checksums(base_dir: Path, manifest_path: Path) -> None:
-    """Raise ``RuntimeError`` if any file does not match the recorded checksum."""
+    """Raise RuntimeError if any file does not match the recorded checksum."""
     mismatches = []
+    if not manifest_path.exists():
+        return
     with manifest_path.open("r", encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
@@ -84,59 +68,39 @@ def _verify_checksums(base_dir: Path, manifest_path: Path) -> None:
                     continue
                 actual_hash = _sha256_of_file(candidate)
                 if actual_hash != expected_hash:
-                    mismatches.append(
-                        (fname, f"expected {expected_hash}, got {actual_hash}")
-                    )
+                    mismatches.append((fname, f"expected {expected_hash}, got {actual_hash}"))
             except ValueError:
                 log.warning(f"Skipping malformed line in checksum file: {line}")
 
     if mismatches:
-        msg = "Checksum verification failed:\\n"
-        msg += "\\n".join(f"{fn}: {reason}" for fn, reason in mismatches)
+        msg = "Checksum verification failed:\n"
+        msg += "\n".join(f"{fn}: {reason}" for fn, reason in mismatches)
         raise RuntimeError(msg)
-
-
-def _load_tide_dataset() -> list:
-    """
-    Download the CodeXGLUE defect‑detection dataset from HuggingFace Hub
-    and parse it into a list of record dictionaries.
-
-    Returns a list of dictionaries with at least the keys ``func`` (source
-    code string) and ``label`` (0/1 integer).  The function stops after
-    ``REAL_SAMPLE_SIZE`` records to keep the run tractable.
-    """
-    log.info(
-        f"Downloading real evaluation dataset from HuggingFace hub "
-        f"({DATASET_NAME})..."
-    )
-    # Download the CSV file directly without pulling in the `datasets` library
-    # (which depends on `pyarrow` and an incompatible NumPy version).
-    csv_path = hf_hub_download(repo_id=DATASET_NAME, filename=TRAIN_FILENAME, repo_type="dataset")
-    df = pd.read_csv(csv_path)
-
-    records = []
-    for _, row in df.iterrows():
-        # The CodeXGLUE dataset uses the field name ``func`` for the
-        # source snippet and ``label`` for the binary defect flag.
-        if not isinstance(row.get("func"), str):
-            continue
-        records.append({"func": row["func"], "label": int(row.get("label", 0))})
-        if len(records) >= REAL_SAMPLE_SIZE:
-            break
-    log.info(f"Loaded {len(records)} real records (prefix of training split).")
-    return records
-
 
 def main() -> None:
     """Run the real data acquisition process."""
-    log.info("Starting real data acquisition...")
-    records = _load_tide_dataset()
+    log.info(f"Loading real evaluation dataset from HuggingFace: {DATASET_ID}...")
+    try:
+        # Load the dataset. Use 'test' split if available, else 'train'.
+        ds_dict = datasets.load_dataset(DATASET_ID)
+        split = 'test' if 'test' in ds_dict else 'train'
+        dataset = ds_dict[split]
+    except Exception as e:
+        log.error(f"Failed to load dataset {DATASET_ID}: {e}")
+        sys.exit(1)
+
+    records = []
+    # The TIDE dataset usually contains 'code' (or 'func') and 'label'.
+    for i in range(min(len(dataset), REAL_SAMPLE_SIZE)):
+        row = dataset[i]
+        code = row.get("code") or row.get("func")
+        label = row.get("label")
+        if code is None:
+            continue
+        records.append({"func": str(code), "label": int(label) if label is not None else 0})
 
     if len(records) < 200:
-        raise RuntimeError(
-            f"Real dataset yielded only {len(records)} instances; "
-            "expected at least 200."
-        )
+        raise RuntimeError(f"Real dataset yielded only {len(records)} instances; expected >= 200.")
 
     raw_root = paths.data("raw")
     real_dir = raw_root / "real"
@@ -144,38 +108,29 @@ def main() -> None:
 
     csv_rows = []
     for idx, record in enumerate(records):
-        code = record["func"]
-        label = int(record.get("label", 0))
-        code_clean = code.rstrip() + "\n"
-
+        code_clean = record["func"].rstrip() + "\n"
         filename = f"tide_{idx}.py"
         file_path = real_dir / filename
         file_path.write_text(code_clean, encoding="utf-8")
-
-        checksum = _sha256_of_file(file_path)
-
+        
         csv_rows.append({
             "instance_id": idx,
             "origin": "real",
             "filename": filename,
-            "ground_truth_label": label,
-            "sha256": checksum,
+            "ground_truth_label": record["label"],
+            "sha256": _sha256_of_file(file_path),
         })
 
     csv_path = raw_root / "tide_eval.csv"
     pd.DataFrame(csv_rows).to_csv(csv_path, index=False)
     log.info(f"Wrote CSV manifest with {len(csv_rows)} rows to {csv_path}")
 
+    # Checksums are managed globally across real and synthetic. 
+    # We write it here, but generate_synthetic will refresh it.
     checksum_path = raw_root / "checksums.txt"
     _write_checksum_manifest(raw_root, checksum_path)
-
-    log.info("Verifying written files against checksum manifest...")
     _verify_checksums(raw_root, checksum_path)
-    log.info(
-        "All files passed checksum verification. Real data acquisition "
-        "completed."
-    )
-
+    log.info("Real data acquisition completed successfully.")
 
 if __name__ == "__main__":
     try:

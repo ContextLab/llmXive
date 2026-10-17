@@ -1,9 +1,8 @@
-"""Synthetic edge‑case instance 90 (generated, seed fixed)."""
+"""Synthetic edge-case instance 90."""
 import dep_90_0
 from pkg_90 import helper_90
 
-def helper_90_0(x):
-    return x + 1
+def helper_90_0(x): return x + 1
 
 def process_90(items, value=None):
     if value is not None and value > 0:

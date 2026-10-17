@@ -1,8 +1,7 @@
-"""Synthetic edge‑case instance 190 (generated, seed fixed)."""
+"""Synthetic edge-case instance 190."""
 import dep_190_0
 
-def helper_190_0(x):
-    return x + 1
+def helper_190_0(x): return x + 1
 
 def process_190(items, value=None):
     if value is not None and value > 0:
