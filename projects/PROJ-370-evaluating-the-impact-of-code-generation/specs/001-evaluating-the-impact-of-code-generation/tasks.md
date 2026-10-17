@@ -15,10 +15,10 @@ canonical format:
 
 ## Phase 1 – Project scaffolding & core pipeline utilities
 
-- [X] T001 [P] Verify that the required directory layout exists – `code/`
+- [ ] T001 [P] Verify that the required directory layout exists – `code/`
     *Verification*: Run `mkdir -p code/src/{config,extraction,detection,inference,analysis,reporting,pipeline,cli} code/tests/{unit,integration,contract} code/data/{raw,annotations,derived,results} code/logs specs/001-eval-llm-review-quality/contracts` and confirm all directories are created via `ls -R code/`.
 
-- [ ] T002 [P] [FR‑001] Add `requirements.txt` (pinned `datasets`, `transformers`, `scikit‑learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`, `detectgpt`) and a configuration module `code/src/config/settings.py` that defines hyper‑parameters, path constants, random seeds, and `TARGET_REPOS = ["microsoft/vscode", "pytorch/pytorch", "tensorflow/tensorflow"]` – `code/requirements.txt`, `code/src/config/settings.py`
+- [X] T002 [P] [FR‑001] Add `requirements.txt` (pinned `datasets`, `transformers`, `scikit‑learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`, `detectgpt`) and a configuration module `code/src/config/settings.py` that defines hyper‑parameters, path constants, random seeds, and `TARGET_REPOS = ["microsoft/vscode", "pytorch/pytorch", "tensorflow/tensorflow"]` – `code/requirements.txt`, `code/src/config/settings.py`
     *Verification*: `pip install -r code/requirements.txt` succeeds; `python -c "import code.src.config.settings as s; assert s.TARGET_REPOS"` runs without error.
 
 - [ ] T003 [P] Create a `pyproject.toml` configuring **ruff** and **black** (line‑length 88, exclude patterns) and a GitHub Actions workflow that runs `ruff check` and `black --check` – `pyproject.toml`, `.github/workflows/ci.yml`

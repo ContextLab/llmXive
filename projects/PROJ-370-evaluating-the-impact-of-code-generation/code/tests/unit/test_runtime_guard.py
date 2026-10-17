@@ -6,6 +6,7 @@ past and write a JSON‑lines ``timeout`` event to ``logs/timeout.log``.
 """
 import sys
 import time
+import json
 from pathlib import Path
 
 import pytest

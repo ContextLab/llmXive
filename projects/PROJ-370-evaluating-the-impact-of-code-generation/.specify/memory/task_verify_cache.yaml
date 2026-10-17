@@ -1,24 +1,28 @@
 T001:
-  c: true
-  h: 523439ed345e621040e9e0b85ed56b8c031c515f7534d1a983933f1775c22a61
-  r: "Checked the `code/` directory tree and the `.tasks/T001.code_setup_project_structure.py.log`,\
-    \ which confirm that all required sub\u2011directories (src/*, tests/*, data/*,\
-    \ logs, and specs/001\u2011eval\u2011llm\u2011review\u2011quality/contracts) were\
-    \ created. The directory layout matches the specification."
-  sig: 03d4aaac2147c7324f5931a7362ee52c2450a49a5ff0a04c2c011546849a601b
-T002:
   c: false
-  h: 13ff49a43ae95ea579debe77b2478e958460fda4626b6a3cfd2a3c08d61ddc46
-  r: "The `code/src/config/settings.py` file is missing, and `code/requirements.txt`\
-    \ does not pin the `detectgpt` package (it appears without a version specifier),\
-    \ violating the task\u2019s specification."
-  sig: f0e6790575e27d843f0fdc9d6971de954cc6996bea4c56890e7f6b969e4c0b7a
+  h: 96dc7895414d1e8953c2b24d474d3c3d4516021573bdb20476d5d7ff5842ebc8
+  r: "The evidence shows a `code/` tree with `src/` and `tests/` files, but the required\
+    \ sub\u2011directories `code/tests/unit`, `code/tests/integration`, `code/tests/contract`,\
+    \ `code/data/results`, `code/logs`, and `specs/001-eval-llm-review-quality/contracts`\
+    \ are not present in the listed artifacts. These missing folders mean the directory\
+    \ layout verification task is not satisfied."
+  sig: dc0a2154b74a87f235e37e5a9b6e9245752b50c89b49887e7644931112594663
+T002:
+  c: true
+  h: b5a8ea256c440033176e5189dc2bb651c3103a9f15be1ec763462b82a9250b58
+  r: "Checked `code/requirements.txt` which pins all required packages including `detectgpt`,\
+    \ and verified `code/src/config/settings.py` defines the requested hyper\u2011\
+    parameters, path constants, random seeds, and the exact `TARGET_REPOS` list. The\
+    \ provided pytest log confirms the module imports correctly and the settings are\
+    \ accessible."
+  sig: ab69c76a3653a4c68d3094d7a3a2479925b3d8b75316c50e5d29ec80f1043bbe
 T004:
   c: false
-  h: c07396fbb47a6ae09f7af7adcf6d86d3b736199f733547b800ffe5b84bec0a8b
-  r: 'The `logging_utils.py` and its test pass, but `test_runtime_guard.py` fails
-    (NameError: `json` not imported), so `pytest` does not exit with 0. Additionally,
-    the required schema file `contracts/run_log_event_schema.yaml` is missing, meaning
-    the logger cannot be verified to produce conformant events. Fix the test (import
-    `json`) and provide the schema file to satisfy the task.'
-  sig: 3b76cb70f1884788752fe79060993821c0efb789f40543d863131c11bcdb2bd8
+  h: 1eb8fcdaa8d097d517f7976990f75730c94029d7cd3805c84d4764153867f12b
+  r: "The `runtime_guard` implementation and its tests are present and pass (see the\
+    \ recorded pytest run for `test_runtime_guard.py`). However, there is no execution\
+    \ evidence that `test_logging_utils.py` runs successfully; the required verification\
+    \ step \u201C`pytest -q code/tests/unit/test_logging_utils.py code/tests/unit/test_runtime_guard.py`\
+    \ returns exit 0\u201D is not demonstrated. Provide a pytest run showing both\
+    \ unit tests passing."
+  sig: af7c8c5bc8ddc7a00601294c921d0da7b29719fe9dbfb4e1fe9f24160ef37f01
