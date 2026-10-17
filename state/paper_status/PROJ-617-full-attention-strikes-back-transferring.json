@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-10-17T06:14:09.393975+00:00"
+    "audited_at": "2026-10-17T06:57:19.453658+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-617-full-attention-strikes-back-transferring",
-  "updated_at": "2026-10-17T06:14:09.393988+00:00"
+  "updated_at": "2026-10-17T06:57:19.453669+00:00"
 }
