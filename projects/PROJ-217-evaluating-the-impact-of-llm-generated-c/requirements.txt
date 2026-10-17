@@ -1,5 +1,7 @@
 # Project dependencies
-# Core packages (already available in the environment) are not listed here.
-# Added packages required for the download script.
-pandas
+# Core libraries are pre‑installed (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil).
+# Additional packages required for the download stage:
+datasets==2.19.0
 pyarrow
+tqdm
