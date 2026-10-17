@@ -4,7 +4,7 @@
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] Download the curated refractive‑index dataset as a **CSV** via `wget` from the verified URL, verify its SHA‑256 checksum, and store it under `data/raw/ri_dataset.csv`.  
+- [ ] **T001** [US1] Download the curated refractive‑index dataset as a **CSV** via `wget` from the verified URL, verify its SHA‑256 checksum, and store it under `data/raw/ri_dataset.csv`.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   *File*: `code/data/download.py`  
   *Verification*:  
   • Checksum matches the published value (recorded in `state/download_checksum.txt`).  

@@ -1,0 +1,4 @@
+# Project‑specific dependencies (beyond the default environment)
+datasets>=2.16.1
+pyyaml>=6.0
+jsonschema>=4.0.0

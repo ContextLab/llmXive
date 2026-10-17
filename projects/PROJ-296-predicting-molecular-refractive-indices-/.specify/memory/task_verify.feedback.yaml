@@ -1,4 +1,6 @@
 T001:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
   task: 77ba7f8ca6b34d7f2b0f93dab31b48bea5c3891b1da9384d311d21245487c92e
 T002:
   task: 4f8e48045d24aca4a969e73b471b2e49cec8ab6ca70144915b135e3ec232de81

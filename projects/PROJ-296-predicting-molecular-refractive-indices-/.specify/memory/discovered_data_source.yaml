@@ -1,10 +1,8 @@
 status: none
-intent: ChEMBL refractive_index RI chembl-2025-randomized-smiles-cleaned-rdkit-descriptors
-  SMILES dataset python package dataset
+intent: refractive_index dataset Hugging Face download python package dataset
 required_fields:
 - smiles
 - refractive_index
-- molecular_weight
-cache_key: c8f564696c47acab6e8d11c984f7064871107221a76dfa8e0bef5f8ab722d2ef
-searched_at: '2026-10-17T03:11:52.181473+00:00'
+cache_key: d6a2ecc290e2bf716175fa3c1a6c0f2e768e1dcc24be89307000522ca9b6531a
+searched_at: '2026-10-17T03:33:01.056189+00:00'
 retry_count: 1
