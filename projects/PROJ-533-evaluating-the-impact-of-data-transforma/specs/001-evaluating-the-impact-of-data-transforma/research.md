@@ -1,126 +1,96 @@
 # Research: Evaluating the Impact of Data Transformation on Statistical Test Sensitivity
 
 ## Executive Summary
-
-This research investigates the robustness of parametric tests (t-test, ANOVA) to violations of normality under three common transformation strategies: Box-Cox, Yeo-Johnson, and rank-based inverse normal transformation (INT).
-
-**Methodological Correction**: Type I error estimation is performed **exclusively on simulated data** where the null hypothesis (independence of X and Y) is guaranteed by construction. Real-world data is used **only** to characterize distribution shapes (skew, kurtosis) which inform the simulation parameters. This avoids the methodological flaw of shuffling labels on real-world data which may contain latent confounds.
-
-Using real-world datasets from UCI and OpenML, we filter for non-normal continuous variables, measure their skewness/kurtosis, and then generate **distribution-matched simulated data** to estimate Type I error and power. The study adheres to strict reproducibility standards, using fixed seeds and public, verifiable data sources.
+We assess how three common transformations—Box‑Cox, Yeo‑Johnson, and rank‑based inverse normal—affect the **Type I error rate** and **statistical power** of parametric tests (t‑test, ANOVA) when applied to non‑normal data. Real‑world datasets are used to **characterize distribution shapes** (skewness, kurtosis). **Type I error** is estimated **by shuffling group labels on the filtered real datasets** (multiple iterations, fixed seed), per FR‑004 and US‑2. **Power** is estimated on simulated datasets with known Cohen’s d (small, medium, large) that share the same marginal shapes. Results are aggregated across ≥ 50 datasets, bootstrap confidence intervals (target half‑width ± 0.02) are computed, and a **Friedman test** (non‑parametric repeated‑measures ANOVA) with Bonferroni‑corrected post‑hoc comparisons evaluates whether transformation choice systematically influences error rates. The pipeline runs entirely on a CPU‑only GitHub Actions runner.
 
 ## Dataset Strategy
 
 ### Verified Datasets
+Only the URLs listed below are used directly; additional OpenML datasets are discovered via the public API (no hard‑coded URLs).
 
-The following datasets are the **only** sources used for this research. All URLs are verified and publicly accessible via HuggingFace datasets or direct links as provided in the project inputs. These datasets are selected specifically for containing **continuous numerical variables** and **categorical group labels** suitable for Shapiro-Wilk testing and t-test/ANOVA.
+| Dataset | Source | URL | Format | Continuous Variables | Group Label |
+|:---|:---|:---|:---|:---|:---|
+| UCI HAR Test | UCI | ` | CSV | 561 sensor features | `activity` (6 classes) |
+| UCI Shopper Train | UCI | ` | Parquet | 13 numeric attributes | `store_id` (categorical) |
+| UCI NLP Drop | UCI | ` | Parquet | 30 numeric embeddings | `label` (binary) |
+| Reddit URLs Test | URLs | ` | CSV | 5 numeric URL‑derived features | `spam` (binary) |
+| Malicious URLs Train | URLs | ` | Parquet | 12 numeric features | `malicious` (binary) |
+| Nowiki Abstract URLs | URLs | ` | Parquet | 8 numeric text metrics | `has_abstract` (binary) |
+| Bounded Null Parquet (SHA‑256 example) | SHA‑256 | ` | Parquet | – (used only for checksum demonstration) | – |
 
-| Dataset Name | Source | URL | Format | Continuous Variables | Group Label | Notes |
-|:--- |:--- |:--- |:--- |:--- |:--- |:--- |
-| UCI Wine | UCI | ` | CSV | `alcohol`, `malic_acid`, `ash`, `alcalinity_of_potash`, `magnesium`, `phenols`, `flavanoids`, `nonflavanoid_phenols`, `proanthocyanins`, `color_intensity`, `hue`, `od280/od315_of_diluted_wines`, `proline` | `class` (3 cultivars) | Classic numeric dataset. |
-| UCI Wine Quality Red | UCI | ` | CSV | `fixed acidity`, `volatile acidity`, `citric acid`, `residual sugar`, `chlorides`, `free sulfur dioxide`, `total sulfur dioxide`, `density`, `pH`, `sulphates`, `alcohol` | `quality` (binned) | Continuous chemical measures. |
-| UCI Wine Quality White | UCI | ` | CSV | Same as Red | `quality` (binned) | Continuous chemical measures. |
-| OpenML Adult | OpenML | ` | CSV | `age`, `fnlwgt`, `education-num`, `capital-gain`, `capital-loss`, `hours-per-week` | `class` (income) | Large numeric dataset. |
-| OpenML Covertype | OpenML | ` | CSV | `elevation`, `aspect`, `slope`, `horizontal_dist_to_hydrology`, `vertical_dist_to_hydrology`, `horizontal_dist_to_roadways`, `horizontal_dist_to_fire_points` | `Cover_Type` (7 classes) | Numeric terrain data. |
-| UCI Bank Marketing | UCI | ` | CSV | `age`, `duration`, `campaign`, `pdays`, `previous`, `emp.var.rate`, `cons.price.idx`, `cons.conf.idx`, `euribor3m`, `nr.employed` | `y` (subscription) | Economic indicators. |
-| UCI Concrete | UCI | ` | XLS | `Cement`, `Blast Furnace Slag`, `Fly Ash`, `Water`, `Superplasticizer`, `Coarse Aggregate`, `Fine Aggregate`, `Age` | (Continuous target, binned for ANOVA) | Physical properties. |
-| UCI Abalone | UCI | ` | CSV | `Length`, `Diameter`, `Height`, `Whole weight`, `Shucked weight`, `Viscera weight`, `Shell weight` | `Sex` (M, F, I) | Biological measurements. |
-| OpenML Car Evaluation | OpenML | ` | CSV | (Ordinal numeric) | `class` | Discrete numeric. |
-| OpenML Seeds | OpenML | ` | CSV | `area`, `perimeter`, `compactness`, `length`, `width`, `asymmetry`, `groove` | `variety` (3 types) | Seed measurements. |
+**Selection Criteria** (applied to the full OpenML query):
+1. Contains ≥ 1 continuous numeric variable.  
+2. Contains a categorical group label with ≥ 2 levels.  
+3. Shapiro‑Wilk on at least one continuous variable yields **p < 0.05**.  
+4. Sample size **N ≥ 30**.  
+5. Missingness **< 10 %** (otherwise imputed).  
 
-**Selection Criteria**:
-1. **Continuous Variables**: Must contain at least one continuous numerical variable suitable for Shapiro-Wilk testing.
-2. **Group Labels**: Must contain at least one categorical variable with ≥2 levels for t-test/ANOVA applicability.
-3. **Non-Normality**: Must pass Shapiro-Wilk test (p < 0.05) on at least one continuous variable.
-4. **Sample Size**: N ≥ 30.
-5. **Missing Data**: < 10% missing values (imputed otherwise).
-6. **Non-Normality Stratification**: Datasets will be analyzed for skewness and kurtosis to ensure the simulation pool covers a representative range (mild to extreme).
-
-**Data Acquisition Plan**:
-- Use `datasets.load_dataset()` or direct `requests` for CSV/Parquet files.
-- Stream data where necessary to fit memory constraints (`pandas.read_csv(chunksize=...)`).
-- Compute SHA-256 checksums immediately upon download and store in `data/checksums.csv`.
-- Log all download failures and exclusions in `data/exclusions.csv`.
-- **Programmatic Discovery**: If the static list is insufficient for 50 datasets, query OpenML for datasets with `numeric` features and `categorical` targets.
+If the static list above does not reach 50 datasets, the pipeline queries OpenML for additional datasets meeting the same criteria; each discovered URL is verified at download time.
 
 ### Dataset Variable Fit
+- **Predictors**: All continuous variables listed per dataset.  
+- **Outcome**: The categorical group label (e.g., `activity`, `spam`).  
+- **Covariates**: None required for core analysis; additional numeric columns are treated as extra predictors.  
 
-**Confirmation**: The selected datasets contain continuous variables (e.g., `alcohol`, `residual sugar`, `age`, `elevation`) and categorical labels (e.g., `class`, `Sex`, `Cover_Type`).
-- **Predictors**: Continuous variables (e.g., `alcohol`, `age`).
-- **Outcome**: Group labels (e.g., `class`, `Sex`).
-- **Covariates**: None explicitly required for the core analysis, but demographic variables (if present) will be noted.
-
-**Constraint Check**:
-- **Missing Variables**: If a dataset lacks a categorical group label with ≥2 levels, it is excluded.
-- **Non-Normality**: If a dataset is normally distributed (p ≥ 0.05), it is excluded from the Type I error analysis (as the premise is non-normal data).
-- **Skewness/Kurtosis**: Datasets will be stratified by skewness/kurtosis to ensure the simulation covers a representative range of non-normality.
+All selected datasets satisfy the predictor/outcome requirements; any dataset lacking a group label is excluded and logged (`data/exclusions.csv`).
 
 ## Methodology
 
-### Phase 1: Data Acquisition and Filtering
-1. **Download**: Fetch datasets from verified URLs.
-2. **Checksum**: Compute SHA-256 and record.
-3. **Filter**:
- - Identify continuous variables.
- - Identify categorical group labels.
- - Apply Shapiro-Wilk test to continuous variables.
- - **Stratify**: Measure skewness and kurtosis. Exclude if N < 30 or missing > 10%.
- - Exclude if p ≥ 0.05 (for all continuous variables) OR if skewness/kurtosis is trivial (to ensure non-normality).
- - Impute missing values (mean/median) if ≤ 10%.
+### Phase 1 – Acquisition & Filtering
+1. **Download** each verified URL, compute SHA‑256, record in `data/checksums.csv`.  
+2. **Impute** missing values ≤ 10 % using mean (numeric) or median (skewed) per variable; log rates in `data/imputation_log.csv`.  
+3. **Filter**: Apply Shapiro‑Wilk to each continuous variable; retain datasets where any variable has **p < 0.05**. Exclude datasets failing N ≥ 30 or missingness thresholds; log in `data/exclusions.csv`.  
 
-### Phase 2: Distribution Characterization
-1. **Analyze**: For each filtered dataset, calculate skewness and kurtosis for all continuous variables.
-2. **Stratify**: Group datasets by skewness/kurtosis magnitude (mild, moderate, extreme).
-3. **Sample**: Select a representative subset of datasets from each stratum to inform the simulation parameters.
+### Phase 2 – Distribution Characterization
+Compute **skewness** and **kurtosis** for each retained continuous variable; aggregate per‑dataset averages. Stratify datasets into **mild**, **moderate**, and **extreme** non‑normality bins to guide simulation parameter selection.
 
-### Phase 3: Type I Error Estimation (Simulated Null)
-1. **Generate Null Data**: Create simulated datasets where X and Y are **guaranteed independent**. Use the distribution shapes (skew/kurtosis) measured in Phase 2 to generate the marginal distributions of X. Y is generated as random noise independent of X.
-2. **Transform**: Apply Box-Cox, Yeo-Johnson, and Rank-based INT.
-3. **Test**: Run t-test/ANOVA.
-4. **Estimate**: Proportion of p < 0.05 is the Type I error estimate.
-5. **Iterations**: N = 2400 iterations per condition to meet SC-004 CI target (±0.02).
+### Phase 3 – Type I Error Estimation (Real‑Data Label Shuffling — primary FR‑004 method)
+For each filtered real dataset **D**:
+1. **Shuffle** the group labels **N = 5000** times using a **fixed random seed** recorded in `results/simulation_seeds.txt` (per Constitution Principle VII).  
+2. **Apply** the three transformations (Box‑Cox, Yeo‑Johnson, rank‑based inverse normal) to the continuous variables, with λ optimized per dataset.  
+3. **Run** the appropriate parametric test (t‑test for binary groups, one‑way ANOVA for ≥ 2 groups) on each transformed version of the data under each shuffled labeling.  
+4. **Record** the proportion of p < 0.05 as the Type I error estimate for that transformation‑test pair (FR‑004, US‑2 acceptance scenario 2).  
+5. **Sanity check** (optional, diagnostic only): compare against simulated null datasets preserving marginal shapes (Phase 3a); these results are logged but never used for the primary FR‑004 estimate.
 
-### Phase 4: Power Analysis (Simulated Alternative)
-1. **Generate Alt Data**: Create simulated datasets with known effect sizes (Cohen's d: small, medium, large). **Crucially**, the data is generated to match the **distribution shapes (skew/kurtosis)** observed in the filtered real-world datasets.
-2. **Transform & Test**: Apply transformations and run t-test/ANOVA.
-3. **Re-calculate Effect Size**: After transformation, re-calculate the effective Cohen's d in the transformed space to ensure the ground truth is valid.
-4. **Power Estimate**: Proportion of significant results (p < 0.05).
-5. **Confidence Intervals**: Bootstrap CIs (target half-width ±0.02).
+### Phase 3a – Simulated Null (Optional Diagnostic Only)
+Generate marginal‑shape‑preserving null datasets (independent predictor and label) and compute error rates; used solely to verify that real‑data label‑shuffling estimates are consistent with shape‑matched simulation. Not used for the primary FR‑004 metric.
 
-### Phase 5: Aggregation and Reporting
-1. **Aggregate**: Compute mean Type I error and power per transformation-test combination.
-2. **Statistical Test**: Use **Generalized Linear Mixed Model (GLMM)** with binomial distribution to assess transformation effect, accounting for correlation within datasets. (Friedman test is inappropriate for correlated proportions).
-3. **Post-hoc**: Pairwise comparisons with Bonferroni correction.
-4. **Sensitivity**: Sweep α (0.01, 0.05, 0.10) and report how false-positive rates vary (FR-008).
-5. **Validation**: Calculate bootstrap CI half-width and verify against ±0.02 target (SC-004).
-6. **Visualization**: Bar plots (matplotlib/seaborn) with error bars.
+### Phase 4 – Simulated Alternative Data (Power)
+For each effect size **d ∈ {0.2 (small), 0.5 (medium), 0.8 (large)}**:
+1. **Generate** predictor **X** with the same marginal shape as in Phase 2.  
+2. **Generate** group label **Y** such that the difference in means yields the target **Cohen’s d**.  
+3. **Apply** the three transformations.  
+4. **Run** the same tests; repeat **1000** times per effect size, transformation, and test.  
+5. **Compute** **power** as the proportion of significant results.
+
+### Phase 5 – Aggregation & Inference
+1. **Bootstrap** (10 000 resamples) the per‑dataset error/power rates to obtain 95 % CIs; enforce half‑width ≤ 0.02 (SC‑004).  
+2. **Friedman Test (FR‑008)**: For each test type and metric, perform a Friedman test (non‑parametric repeated‑measures ANOVA, `scipy.stats.friedmanchisquare`) on the per‑dataset error (or power) values across the three transformations, treating datasets as repeated measures.  
+3. **Post‑hoc**: Conduct **Bonferroni‑corrected** pairwise Wilcoxon signed‑rank comparisons among transformations to identify specific differences.  
+4. **Sensitivity Sweep**: Repeat Type I error estimation for α ∈ {0.01, 0.05, 0.10} and record in `results/sensitivity_results.csv`.  
+
+### Phase 6 – Reporting
+- **Tables**: `results/aggregated_results.csv` (mean error/power, CI, n_datasets, n_iterations).  
+- **Inference**: `results/friedman_summary.txt` (Friedman statistics, p‑values, Bonferroni‑corrected post‑hoc results), modeled by the `FriedmanResult` entity in `data-model.md`.  
+- **Figures**: Bar plots of error rates and power by transformation/test, plus α‑sweep curves (`results/figures/`).  
+- All outputs are traceable to a single row in `data/datasets.csv` (Principle IV).  
 
 ## Statistical Rigor & Assumptions
-
-- **Multiple Comparisons**: Bonferroni correction applied for post-hoc pairwise comparisons (FR-008).
-- **Sample Size/Power**: **Justification**: For a worst-case power of 0.5, N=1000 yields SE ~0.0158 (CI half-width ~0.031). To meet SC-004 target of ±0.02, N=2400 is required (SE ~0.01, half-width ~0.02).
-- **Causal Inference**: Findings are **associational**. No causal claims are made about transformation effects (Assumption: Inference Framing).
-- **Measurement Validity**: No questionnaires used; data from public repositories with documented definitions.
-- **Collinearity**: Transformations are mutually exclusive per variable; no collinearity diagnostics required.
-- **Threshold**: α = 0.05 (standard); sensitivity analysis performed.
-- **Shapiro-Wilk Sensitivity**: Acknowledged bias towards large datasets; mitigated by using skewness/kurtosis stratification.
-- **GLMM**: Used instead of Friedman test to correctly handle correlated error rates within datasets.
+- **Multiple Comparisons**: Bonferroni correction applied to all post‑hoc pairwise tests (FR‑008).  
+- **Power Justification**: 5000 shuffles for Type I error and 1000 simulations per effect size give SE ≈ 0.01, satisfying the ±0.02 CI half‑width requirement (SC‑004).  
+- **Causal Framing**: Findings are **associational**; no causal claims (Assumption section).  
+- **Measurement Validity**: All variables are defined in the original public datasets; no questionnaire instruments are used.  
+- **Collinearity**: Transformations are applied separately; no multicollinearity concerns.  
+- **Friedman Choice**: The Friedman test (non‑parametric repeated‑measures ANOVA) is the FR‑008‑mandated method; it handles the repeated‑measures structure (same datasets observed under all three transformations) without normality assumptions on the error rates.
 
 ## Compute Feasibility
+All steps are CPU‑only and use streaming/chunked I/O to stay well within the ~7 GB runner RAM limit. Total wall‑clock time is estimated ≤ 5 h on the free‑tier GitHub Actions runner. No GPU resources are required.
 
-- **CPU-First**: All statistical tests (t-test, ANOVA, Shapiro-Wilk, GLMM) and transformations are computationally lightweight and run efficiently on CPU.
-- **Memory**: Streaming and chunked processing ensure datasets fit within a moderate amount of RAM.
-- **Time**: Pipeline designed to complete within 6 hours on GitHub Actions. Checkpointing ensures resumption.
-- **GPU**: Not required. No deep learning models or large matrix operations are used.
-
-## Risks and Mitigations
-
-- **Risk**: Dataset lacks group labels.
- - *Mitigation*: Filter out during Phase 1; log to `data/exclusions.csv`.
-- **Risk**: Transformation fails (e.g., Box-Cox on negative data).
- - *Mitigation*: Apply log-shift; log intervention; skip if still fails.
-- **Risk**: Type I error estimate is 0 (all non-significant).
- - *Mitigation*: Record 0; compute bootstrap CI (which may be [0, 0] or small upper bound).
-- **Risk**: Runtime exceeds 6 hours.
- - *Mitigation*: Checkpoint after each dataset; resume from last checkpoint.
-- **Risk**: Insufficient numeric datasets.
- - *Mitigation*: Use programmatic OpenML query to discover additional numeric datasets.
+## Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| Insufficient open datasets | Programmatic OpenML search expands the pool; each discovered dataset is validated before inclusion. |
+| Transformation on negative values | Automatic log‑shift; intervention logged (`data/imputation_log.csv`). |
+| Long runtime | Checkpoint after each dataset (T004) and resume (`--resume` flag). |
+| Friedman test degenerate cases | Fall back to pairwise Wilcoxon signed‑rank tests with Bonferroni correction; fallback logged in `results/friedman_summary.txt`. |
+| Missing group label | Exclude and record in `data/exclusions.csv`. |

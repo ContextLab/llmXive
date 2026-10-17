@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Result Schema"
+description: "Schema for alpha‑sweep sensitivity analysis."
+type: object
+properties:
+  sens_id:
+    type: string
+    description: "Unique ID."
+  transformation:
+    type: string
+    enum:
+      - "box_cox"
+      - "yeo_johnson"
+      - "rank_based"
+    description: "Method used."
+  test_type:
+    type: string
+    enum:
+      - "t_test"
+      - "anova"
+    description: "Test used."
+  alpha:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Significance threshold."
+  error_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Observed error rate at given alpha."
+  n_iterations:
+    type: integer
+    minimum: 1
+    description: "Total iterations."
+required:
+  - sens_id
+  - transformation
+  - test_type
+  - alpha
+  - error_rate
+  - n_iterations
+additionalProperties: false

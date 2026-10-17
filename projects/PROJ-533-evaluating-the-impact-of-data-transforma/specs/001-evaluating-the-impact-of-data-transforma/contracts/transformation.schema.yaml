@@ -26,7 +26,7 @@ properties:
   intervention_log:
     type: string
     nullable: true
-    description: "Log of interventions (e.g., 'log-shift applied for negative values')."
+    description: "Log of interventions (e.g., 'log‑shift applied for negative values')."
   status:
     type: string
     enum:

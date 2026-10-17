@@ -29,7 +29,7 @@ properties:
   log_message:
     type: string
     nullable: true
-    description: "Intervention log (e.g., 'log-shift applied for negative values')"
+    description: "Intervention log (e.g., 'log‑shift applied for negative values')"
 required:
   - dataset_id
   - variable_name

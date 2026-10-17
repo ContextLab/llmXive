@@ -1,117 +1,90 @@
 # Implementation Plan: Evaluating the Impact of Data Transformation on Statistical Test Sensitivity
 
-**Branch**: `001-data-transformation-sensitivity` | **Date**: 2024-01-15 | **Spec**: `specs/001-data-transformation-sensitivity/spec.md`
-**Input**: Feature specification from `/specs/001-data-transformation-sensitivity/spec.md`
+**Branch**: `001-data-transformation-sensitivity` | **Date**: 2024-10-17 | **Spec**: `specs/001-evaluating-the-impact-of-data-transforma/spec.md`  
+**Input**: Feature specification from `/specs/001-evaluating-the-impact-of-data-transforma/spec.md`
 
 ## Summary
-
-This project evaluates how common data transformation techniques (Box-Cox, Yeo-Johnson, rank-based) alter the Type I error rate and statistical power of parametric tests (t-test, ANOVA) when applied to non-normal data from real-world distributions. 
-
-**Critical Methodological Correction**: Type I error estimation is performed **exclusively on simulated data** where the null hypothesis (independence of X and Y) is guaranteed by construction. Real-world data is used **only** to characterize distribution shapes (skew, kurtosis) which inform the simulation parameters. This avoids the methodological flaw of shuffling labels on real-world data which may contain latent confounds.
-
-The technical approach involves:
-1. Downloading and filtering public numeric datasets (UCI/OpenML) to identify non-normal continuous variables.
-2. Measuring skewness/kurtosis to stratify the simulation pool.
-3. Generating **simulated null data** (independence guaranteed) to estimate Type I error.
-4. Generating **simulated alternative data** (matching real-world distribution shapes) to estimate power.
-5. Aggregating results with bootstrap confidence intervals and validating via GLMM (Generalized Linear Mixed Model).
+The project will (1) download ≥ 50 public datasets from UCI and OpenML, (2) filter for non‑normal continuous variables with group labels (Shapiro‑Wilk p < 0.05, N ≥ 30, < 10 % missing), (3) characterize distribution shape (skewness, kurtosis), (4) **estimate Type I error by shuffling group labels on the filtered real datasets** (multiple iterations, fixed seed), exactly as FR‑004 and US‑2 mandate, (5) generate simulated datasets with known Cohen’s d (small, medium, large) for power analysis, (6) apply Box‑Cox, Yeo‑Johnson, and rank‑based inverse‑normal transformations, (7) run t‑tests and ANOVAs, (8) aggregate results, compute bootstrap confidence intervals (target half‑width ± 0.02), (9) **assess transformation effects with a Friedman test (non‑parametric repeated‑measures ANOVA) and Bonferroni‑corrected post‑hoc pairwise comparisons**, and (10) produce summary tables and bar plots. All steps are fully reproducible, checkpointed, and executed on the GitHub Actions free‑tier CPU runner.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `datasets` (HuggingFace), `pyyaml`, `statsmodels` (for GLMM)  
-**Storage**: Local filesystem (`data/`, `results/`, `code/`); CSV/Parquet formats  
-**Testing**: `pytest` (unit tests for statistical functions, integration tests for pipeline steps)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU, standard RAM allocation., Adequate disk storage capacity will be provisioned to support the research., no GPU)  
-**Project Type**: Statistical analysis library/cli  
-**Performance Goals**: Complete pipeline execution within 6 hours; handle streaming of large datasets to fit memory; checkpointing for resumption.  
-**Constraints**: No GPU usage; no synthetic data generation for real-world analysis (must use real datasets for shape estimation); strict reproducibility (fixed seeds); dataset filtering (Shapiro-Wilk p < 0.05, N ≥ 30, skew/kurtosis thresholds); missing value handling (impute or exclude if >10%); transformation failures (log and skip).  
-**Scale/Scope**: Real-world datasets (for shape estimation); A large number of simulated datasets per effect size (to meet SC-004 CI target); Multiple transformations x 2 tests (t-test, ANOVA) x multiple effect sizes.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `seaborn`, `matplotlib`, `datasets` (HuggingFace), `pyyaml`  
+- **Storage**: Filesystem under `data/`, `results/`, `state/` (CSV/Parquet)  
+- **Testing**: `pytest` (unit + integration)  
+- **Target Platform**: Linux runner (2 CPU cores, ~7 GB RAM, ~14 GB disk, ≤ 6 h) – **CPU‑first**; no GPU required.  
+- **Constraints**: Open‑source datasets only, SHA‑256 checksums, fixed random seeds, checkpointing after each dataset, streaming/chunked I/O for large files.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Status | Evidence/Plan |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Compliant** | Random seeds pinned in `code/` (FR-004, FR-007). External datasets fetched from canonical sources (UCI/OpenML via verified URLs in `research.md`). `requirements.txt` pins dependencies. |
-| **II. Verified Accuracy** | **Compliant** | All dataset URLs in `research.md` and `data/datasets.csv` are drawn exclusively from the "Verified datasets" block in `research.md`. The Reference-Validator Agent will verify these URLs before execution. |
-| **III. Data Hygiene** | **Compliant** | SHA-256 checksums computed and stored in `data/checksums.csv` (FR-010). Raw data preserved; transformations write to new files. PII scan passed (public datasets). |
-| **IV. Single Source of Truth** | **Compliant** | All figures/statistics trace to `results/` aggregates generated by `code/`. No hand-typed numbers in reports. |
-| **V. Versioning Discipline** | **Compliant** | Artifact hashes (checksums) recorded in `state/` YAML. **Update Mechanism**: The `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml` file is updated via a dedicated checkpoint step immediately after every successful download and checksum computation, ensuring stale review records are invalidated. |
-| **VI. Benchmark Transparency** | **Compliant** | `data/datasets.csv` will list explicit download URLs, names, and preprocessing steps. |
-| **VII. Simulation Determinism** | **Compliant** | Fixed random seeds recorded in `results/simulation_seeds.txt` (FR-004, Constitution Principle VII). |
+| Principle | Compliance | Evidence / Plan |
+|-----------|------------|-----------------|
+| I. Reproducibility | ✅ | Fixed seeds recorded (`results/simulation_seeds.txt`); all code runs from `code/` on a fresh runner; `requirements.txt` pins dependencies. |
+| II. Verified Accuracy | ✅ | All dataset URLs are taken from the verified list provided in the spec; any additional OpenML queries use the public API (no hidden sources). |
+| III. Data Hygiene | ✅ | SHA‑256 checksums saved to `data/checksums.csv`; raw files never overwritten; transformations write new files; PII‑free public data. |
+| IV. Single Source of Truth | ✅ | Every figure/table derives from CSVs in `results/`; no hand‑typed numbers. |
+| V. Versioning Discipline | ✅ | Artifact hashes stored in `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml`. |
+| VI. Benchmark Transparency | ✅ | `data/datasets.csv` lists URL, name, and preprocessing steps for every dataset. |
+| VII. Simulation Determinism | ✅ | All stochastic steps (label shuffling, simulation) use seeds logged in `results/simulation_seeds.txt`. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-data-transformation-sensitivity/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   ├── transformation.schema.yaml
 │   ├── test_result.schema.yaml
 │   ├── aggregated_result.schema.yaml
+│   ├── simulated_dataset.schema.yaml
 │   ├── sensitivity_result.schema.yaml
-│   ├── simulated_data.schema.yaml
 │   └── transformed_data.schema.yaml
-└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
-```
+└── tasks.md   # generated later
 
-### Source Code (repository root)
-
-```text
 code/
 ├── __init__.py
-├── main.py              # Entry point for pipeline execution
-├── config.py            # Configuration (seeds, thresholds, paths)
-├── .flake8              # Linter config (max-line-length=100, ignore=E501,W503,W504)
+├── main.py                # orchestrates the pipeline
+├── config.py
 ├── utils/
-│   ├── __init__.py
-│   ├── logging_config.py  # JSON logging, atomic writes (temp file + rename)
-│   ├── checkpointing.py   # State persistence (schema: current_dataset_id, last_seed, processed_count)
-│   └── statistical_tests.py # t-test, ANOVA, Shapiro-Wilk, GLMM implementations
+│   ├── logging_config.py
+│   ├── checkpointing.py   # implements save_state / load_state / delete_checkpoint
+│   └── statistical_tests.py
 ├── data/
-│   ├── downloaders.py       # UCI/OpenML fetch logic (error: raise ConnectionError)
-│   ├── filters.py           # Normality, sample size, skew/kurtosis logic
-│   ├── transformations.py   # Box-Cox, Yeo-Johnson, Rank-based
-│   └── simulations.py       # Data generation (null & alternative, distribution-matched)
+│   ├── download_datasets.py
+│   ├── filters.py
+│   ├── transformations.py
+│   └── simulations.py
 ├── analysis/
-│   ├── type1_error.py       # Null simulation logic (simulated data only)
-│   ├── power_analysis.py    # Power estimation logic
-│   ├── sensitivity.py       # Alpha-sweep logic
-│   └── aggregation.py       # Summary stats, bootstrap CIs, GLMM, plotting
+│   ├── type1_error.py
+│   ├── power_analysis.py
+│   ├── sensitivity.py
+│   └── aggregation.py
 └── tests/
     ├── unit/
     │   ├── test_statistical_tests.py
     │   └── test_transformations.py
     └── integration/
-        └── test_pipeline.py
+        └── test_pipeline.py   # verifies end‑to‑end execution, dataset count, etc.
 
 data/
-├── datasets.csv           # List of downloaded datasets (URLs, metadata)
-├── checksums.csv          # SHA-256 checksums
-├── raw/                   # Downloaded raw files (Parquet/CSV)
-├── filtered/              # Post-filtering datasets
-├── transformed/           # Transformed data
-├── simulated/             # Simulated datasets (null/alt)
-├── imputation_log.csv     # Log of imputation actions
-└── exclusions.csv         # Log of excluded datasets (schema: dataset_id, reason, details)
+├── datasets.csv          # populated by download step
+├── checksums.csv
+├── raw/
+├── filtered/
+├── transformed/
+├── simulated/
+├── imputation_log.csv
+└── exclusions.csv
 
 results/
-├── pipeline.log           # Execution log (JSON, atomic writes)
-├── simulation_seeds.txt   # Recorded seeds
+├── pipeline.log
+├── simulation_seeds.txt
 ├── type1_error_results.csv
 ├── power_results.csv
 ├── sensitivity_results.csv
 ├── aggregated_results.csv
+├── friedman_summary.txt
 └── figures/
     ├── error_rates.png
     ├── power_curves.png
@@ -121,29 +94,63 @@ state/
 └── projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml
 ```
 
-**Structure Decision**: The structure separates data acquisition, transformation, statistical testing, and analysis into distinct modules to ensure modularity and testability. The `code/` directory follows a standard Python project layout compatible with `pytest` and `pip`. The `data/` directory enforces the separation of raw, filtered, and transformed data as required by the Constitution (Principle III).
+## Complexity Tracking & Missing‑Task Resolution
+| Missing Task | Resolution (added to plan) |
+|--------------|----------------------------|
+| **T004** – `utils/checkpointing.py` | Added to **Task T004** (see Task Ordering). Implements `save_state(state: dict)`, `load_state()`, `delete_checkpoint()`. Uses `portalocker` for file locking and atomic writes via temporary file rename. |
+| **T012a** – `tests/integration/test_pipeline.py` | Added to **Task T012a**. The test loads `data/datasets.csv`, asserts ≥ 50 rows, runs `code/main.py --dry-run`, and checks that `results/aggregated_results.csv` contains ≥ 1 row. |
+| **T013** – `data/datasets.csv` creation | Added to **Task T013**. `download_datasets.py` writes a header + one row per successful download (URL, name, checksum, N, etc.). |
+| **T013b** – verification logic in `download_datasets.py` | Added to **Task T013b**. Function `is_source_verified(url)` checks URL against the verified list; only verified URLs are written to `datasets.csv`. |
+| **T014** – `code/checksum_datasets.py` | Added to **Task T014**. Computes SHA‑256 for each raw file and writes `data/checksums.csv`. |
+| **T015** – `filter_datasets.py` imputation & exclusion logging | Added to **Task T015**. Handles missing‑value imputation (mean/median), logs imputation rates to `imputation_log.csv`, excludes > 10 % missing datasets, writes to `exclusions.csv`. |
+| **T016** – Shapiro‑Wilk & sample‑size filtering | Added to **Task T016**. Performs Shapiro‑Wilk per continuous variable, retains datasets with any variable p < 0.05 and N ≥ 30, updates `datasets.csv` status, logs exclusions. |
+| **T017** – Ensure `data/datasets.csv` exists and is populated | Covered by **T013** and **T016**; final file contains ≥ 50 rows. |
+| **T018** – Simulated Null Generation (optional sanity check) | Generates null datasets preserving marginal shapes; used ONLY as a diagnostic sanity check, never for the primary FR‑004 estimate (which uses real‑data label shuffling, T021). |
+| **T019** – Simulated Alternative Generation | Generates alternative datasets with known Cohen’s d (small, medium, large). |
+| **T020** – Apply Transformations | Apply Box‑Cox, Yeo‑Johnson, rank‑based to all real (post‑shuffling) and simulated datasets; log λ and any log‑shift interventions. |
+| **T021** – **Real‑Data Type I Error Estimation (primary FR‑004)** | For each filtered real dataset, shuffle group labels **N = 5000** times (fixed seed recorded in `results/simulation_seeds.txt`), run t‑test/ANOVA on each transformed version, and compute the proportion of p < 0.05 as the Type I error estimate. This is the primary FR‑004 estimator, per US‑2 acceptance scenario 2. |
+| **T022** – Power Estimation | For each simulated alternative dataset, run tests and compute power (proportion p < 0.05). |
+| **T023** – Aggregation | Bootstrap (10 000 resamples) CI half‑width ≤ 0.02, compute mean error/power per transformation‑test combo. |
+| **T024** – **Friedman Test & Post‑hoc (FR‑008)** | Perform Friedman test (non‑parametric repeated‑measures ANOVA, `scipy.stats.friedmanchisquare`) on per‑dataset error/power outcomes across the three transformations; follow with Bonferroni‑corrected pairwise Wilcoxon signed‑rank post‑hoc comparisons. Results recorded in `results/friedman_summary.txt` and modeled by the `FriedmanResult` entity (see data-model.md). |
+| **T025** – Sensitivity Sweep | Sweep α ∈ {0.01, 0.05, 0.10} and recompute error rates; store in `results/sensitivity_results.csv`. |
+| **T026** – Visualization | Generate bar plots (error rates, power, α‑sweep) under `results/figures/`. |
+| **T027** – Reporting | Write summary tables (`results/aggregated_results.csv`) and ensure they trace back to single source rows. |
+| **T028** – Clean‑up | Delete temporary checkpoint after successful run. |
 
-## Complexity Tracking
+## Mapping Functional Requirements (FR) & Success Criteria (SC) to Plan Phases
+| FR | Description | Plan Phase(s) |
+|----|--------------------------------------|---------------|
+| FR‑001 | Download ≥ 50 public datasets, record URLs & metadata | T013, T013b |
+| FR‑002 | Filter datasets (Shapiro‑Wilk p < 0.05, N ≥ 30, < 10 % missing) | T015, T016 |
+| FR‑003 | Apply Box‑Cox, Yeo‑Johnson, rank‑based to each continuous variable | T020 |
+| FR‑004 | Estimate Type I error **by shuffling group labels on the filtered real datasets** (multiple iterations, fixed seed) and computing the proportion of t‑test/ANOVA p‑values < 0.05 | T021 |
+| FR‑005 | Generate simulated datasets with known effect sizes (Cohen’s d ∈ {small, medium, large}) | T019 |
+| FR‑006 | Compute statistical power on simulated alternative data | T022 |
+| FR‑007 | Aggregate results, compute mean error/power & bootstrap CIs | T023 |
+| FR‑008 | Perform **Friedman test** (non‑parametric repeated‑measures ANOVA) to assess transformation effect, Bonferroni post‑hoc, α‑sweep sensitivity | T024, T025 |
+| FR‑009 | Produce summary tables & bar plots | T026, T027 |
+| FR‑010 | Compute SHA‑256 checksums for all downloaded datasets | T014 |
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+| SC | Measured Against | Plan Phase |
+|----|------------------|------------|
+| SC‑001 | ≥ 50 datasets, correct filtering, metadata preservation | T013, T016 |
+| SC‑002 | Type I error rate vs nominal α = 0.05 | T021 |
+| SC‑003 | Power vs known effect sizes | T022 |
+| SC‑004 | Bootstrap CI half‑width ≤ 0.02 | T023 |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Checkpointing** | Required to handle GitHub Actions 6h timeout and potential network interruptions during download of + datasets. | A simple "run once" script would fail if interrupted, losing progress and violating reproducibility. |
-| **Streaming Data Loading** | Real-world datasets may exceed available RAM capacity.. | Loading full datasets into memory would cause OOM errors on the free-tier runner. Streaming (`pandas.read_csv(chunksize=...)`, `datasets.load_dataset(streaming=True)`) allows processing large datasets in chunks. |
-| **Bootstrap CIs & GLMM** | Required for robust error estimation (SC-004) and handling correlated error rates. | Simple standard error estimates are insufficient for non-normal distributions and small sample sizes. Friedman test is inappropriate for correlated proportions; GLMM is required. |
-| **Alpha-Sweep** | Required by FR-008. | A single alpha point does not capture robustness of the transformation effect. |
+All FRs and SCs are explicitly addressed exactly as the spec states them; no requirement is amended or left uncovered.
 
-## Task Ordering & Dependencies
+## Compute Feasibility
+- All statistical operations (t‑test, ANOVA, Shapiro‑Wilk, Friedman test) are CPU‑light.  
+- Real‑data Type I error: 5000 shuffles × 3 transformations × 2 tests per dataset; simulated power: 1000 simulations per effect size × 3 transformations × 2 tests – comfortably within 6 h on 2 CPU cores.  
+- Memory: Streaming CSV loads (`chunksize=10 000`) and parquet shards keep peak RAM well under the ~7 GB runner limit.  
+- No GPU required; all libraries run on CPU.  
 
-The following task ordering ensures data integrity and reproducibility:
-
-1.  **Directory Creation & Config** (T001a-d, T003a): Create `code/`, `data/`, `results/`, `tests/` and `.flake8`. **Verification**: `test -d code` and `grep "max-line-length" .flake8`.
-2.  **Logging & Checkpointing Setup** (T004, T009): Define logging JSON structure and checkpoint schema. **Verification**: `test -f code/utils/logging_config.py`.
-3.  **Statistical Test Definitions** (T005): Split into `t_test`, `anova`, `shapiro_wilk`, `friedman` (now `glmm`). **Verification**: Unit tests for each.
-4.  **Data Model & Schemas** (T006a, T006b): Create skeleton then populate. **Verification**: `test -f data-model.md`.
-5.  **Download & Checksum** (T013, T014): Download datasets (error: raise `ConnectionError`), then compute SHA-256. **Verification**: `test -f data/checksums.csv`.
-6.  **State Update** (T014b): Update `state/` YAML with hashes. **Dependency**: T014 must complete first.
-7.  **Filtering** (T015, T015a): Apply filters (Shapiro-Wilk, skew/kurtosis, N≥30). Log exclusions to `data/exclusions.csv` (schema: `dataset_id, reason, details`). **Verification**: `test -f data/exclusions.csv`.
-8.  **Simulation Setup** (T008, T022, T024): Define seeds, generate distributions, simulate null/alt. **Dependency**: T008 (seeds) must be ready for T024.
-9.  **Aggregation & Sensitivity** (T016, T016a): Compute CIs, run GLMM, sweep alpha. **Verification**: `test -f results/sensitivity_results.csv`.
+## Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| Insufficient verified URLs for 50 datasets | Use OpenML API to discover additional datasets; each discovered URL is validated at download time. |
+| Transformation fails on negative values | Log‑shift to make data positive; intervention logged in `data/imputation_log.csv`. |
+| Runtime exceeds 6 h | Checkpoint after each dataset (T004) and resume (`--resume` flag). |
+| Friedman test degenerate cases (e.g., tied per‑dataset rankings) | Fall back to pairwise Wilcoxon signed‑rank tests with Bonferroni correction; fallback is logged in `results/friedman_summary.txt`. |
+| Missing group label | Exclude and record in `data/exclusions.csv`. |

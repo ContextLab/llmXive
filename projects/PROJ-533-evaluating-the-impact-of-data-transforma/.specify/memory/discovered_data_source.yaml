@@ -1,10 +1,13 @@
 status: none
-intent: UCI Machine Learning Repository OpenML download continuous features group
-  label datasets python package dataset
+intent: download UCI Machine Learning Repository OpenML datasets via HuggingFace python
+  package dataset
 required_fields:
-- continuous_features
-- group_label_categorical
-- sample_size_n
-cache_key: 2830a2c9abd817e49e80f9745002aa4c8f15be698ee525ef08a4cae0df9ddfef
-searched_at: '2026-09-24T15:41:05.770986+00:00'
+- dataset_name
+- source_url
+- continuous_feature_names
+- group_label_name
+- sample_size
+- metadata
+cache_key: bbf6cc54b87d25e96da8e86cc52e7fe71747c74cba5018d042bebc98827dfce9
+searched_at: '2026-10-17T23:32:33.304084+00:00'
 retry_count: 1

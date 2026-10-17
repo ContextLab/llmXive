@@ -1,115 +1,75 @@
 # Quickstart: Evaluating the Impact of Data Transformation on Statistical Test Sensitivity
 
 ## Prerequisites
-
--   Python 3.11 or higher
--   `pip` package manager
--   Access to the internet (for downloading datasets)
--   ~14 GB disk space (for raw data and intermediate files)
+- Python 3.11+  
+- `pip` (Python package manager)  
+- Internet access (to download datasets)  
+- ~14 GB free disk space  
 
 ## Installation
+```bash
+# 1. Clone the repository (or navigate to the project root)
+git clone 
+cd PROJ-533-evaluating-the-impact-of-data-transforma
 
-1.  **Clone the Repository** (or navigate to the project root).
-2.  **Create a Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` includes `scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `datasets`, `pyyaml`, `statsmodels`.*
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-## Project Structure
-
-```text
-.
-├── code/                 # Source code
-│   ├── main.py           # Entry point
-│   ├── .flake8           # Linter config
-│   └── ...
-├── data/                 # Data directory (created on first run)
-├── results/              # Output directory (created on first run)
-└── tests/                # Test suite
+# 3. Install pinned dependencies
+pip install -r code/requirements.txt
 ```
 
-## Running the Pipeline
-
-### 1. Full Pipeline Execution
-
-Run the entire pipeline from download to aggregation:
-
+## Running the Full Pipeline
 ```bash
 python code/main.py --config code/config.yaml
 ```
+What happens:
+1. **Downloads** verified datasets, computes SHA‑256 checksums.  
+2. **Filters** for non‑normal continuous variables and imputes missing values.  
+3. **Characterizes** distribution shape (skewness, kurtosis).  
+4. **Estimates Type I error** by **shuffling group labels on the filtered real datasets** (multiple iterations, fixed seed).  
+5. **Generates** simulated datasets with known effect sizes for power analysis.  
+6. **Applies** Box‑Cox, Yeo‑Johnson, and rank‑based inverse‑normal transformations.  
+7. **Runs** t‑tests/ANOVAs on both real (for Type I) and simulated (for power) data.  
+8. **Aggregates** results, computes bootstrap confidence intervals (target half‑width ± 0.02).  
+9. **Assesses transformation effects** with a **Friedman test** and Bonferroni‑corrected pairwise post‑hoc comparisons.  
+10. **Produces** summary tables (`results/aggregated_results.csv`) and figures (`results/figures/`).  
 
-**What this does**:
--   Downloads datasets from verified URLs.
--   Computes checksums.
--   Filters datasets (normality, sample size, skew/kurtosis).
--   Generates simulated data (null & alternative).
--   Applies transformations.
--   Runs Type I error simulations (null) and Power simulations (alternative).
--   Aggregates results, runs GLMM, and sweeps alpha.
--   Generates plots.
--   Saves logs and state.
+### Step‑by‑Step (optional)
+| Step | Command |
+|------|---------|
+| Download & filter | `python code/data/download_datasets.py && python code/data/filters.py` |
+| Simulate data | `python code/data/simulations.py` |
+| Transform & test | `python code/data/transformations.py && python code/utils/statistical_tests.py` |
+| Aggregate & analyze | `python code/analysis/aggregation.py` |
+| Visualization | `python code/analysis/visualization.py` |
 
-### 2. Step-by-Step Execution
-
-#### Download and Filter
-```bash
-python code/data/downloaders.py
-python code/data/filters.py
-```
-
-#### Transform and Test
-```bash
-python code/data/transformations.py
-python code/utils/statistical_tests.py
-```
-
-#### Simulate and Aggregate
-```bash
-python code/data/simulations.py
-python code/analysis/aggregation.py
-```
-
-### 3. Running Tests
-
-Run the unit and integration tests to verify correctness:
-
-```bash
-pytest tests/ -v
-```
-
-### 4. Checkpointing
-
-If the pipeline is interrupted, resume from the last checkpoint:
-
+## Checkpointing & Resumption
+If the run is interrupted (e.g., CI timeout), a checkpoint is written to `results/checkpoint.json`. To resume:
 ```bash
 python code/main.py --resume
 ```
 
-The checkpoint file is located at `results/checkpoint.json` (schema: `current_dataset_id`, `last_seed`, `processed_count`).
+## Verifying Outputs
+```bash
+# Log file
+cat results/pipeline.log
 
-## Verifying Results
+# Aggregated statistics
+head -n 20 results/aggregated_results.csv
 
-1.  **Check Logs**:
-    ```bash
-    cat results/pipeline.log
-    ```
-2.  **Inspect Aggregated Results**:
-    ```bash
-    cat results/aggregated_results.csv
-    ```
-3.  **View Plots**:
-    Open `results/figures/error_rates.png` and `results/figures/power_curves.png`.
+# Figures
+display results/figures/error_rates.png
+display results/figures/power_curves.png
+```
 
 ## Troubleshooting
+- **Dataset download failures** – Verify network connectivity; URLs are listed in `data/datasets.csv`.  
+- **Transformation errors** – Check `data/imputation_log.csv` for log‑shift interventions.  
+- **Memory errors** – The pipeline streams large files; ensure the runner has at least 4 GB RAM.  
+- **Friedman test non‑convergence** – Review `results/friedman_summary.txt`; a fallback pairwise Wilcoxon signed‑rank test will be used automatically.  
+- **Missing group label** – Exclude and record in `data/exclusions.csv`.  
 
--   **Missing Datasets**: Ensure network access and verify URLs in `data/datasets.csv`.
--   **Transformation Failures**: Check `data/imputation_log.csv` for skipped variables.
--   **Runtime Errors**: Ensure you have enough disk space and memory (streaming is enabled by default via `pandas.read_csv(chunksize=...)` and `datasets.load_dataset(streaming=True)`).
--   **Checksum Mismatch**: Verify the SHA-256 hash in `data/checksums.csv` matches the downloaded file.
--   **GLMM Convergence**: If GLMM fails to converge, check for extreme class imbalance in the simulated data.
+---
+
