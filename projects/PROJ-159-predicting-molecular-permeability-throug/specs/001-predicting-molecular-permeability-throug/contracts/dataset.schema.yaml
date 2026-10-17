@@ -1,10 +1,10 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Gas-MOF Pair Dataset Schema"
+title: "Gas‑Framework Pair Dataset Schema"
 type: "object"
 properties:
   pair_id:
     type: "string"
-    description: "Unique identifier for the gas-MOF pair"
+    description: "Unique identifier for the gas‑framework pair"
   molecule_smiles:
     type: "string"
     description: "SMILES string of the permeant molecule"
@@ -31,7 +31,7 @@ properties:
             type: "number"
   framework_id:
     type: "string"
-    description: "Identifier for the porous framework (e.g., MOF-1)"
+    description: "Identifier for the porous framework (e.g., MOF‑1)"
   framework_graph:
     type: "object"
     properties:
@@ -66,24 +66,24 @@ properties:
         type: "array"
         items:
           type: "number"
-  target_geometric_proxy:
+  experimental_permeability:
     type: "number"
-    description: "Computed geometric proxy (Surface Area or Pore Volume) derived from structure"
+    description: "Log₁₀‑transformed experimental permeability (peer‑reviewed source)"
   source_url:
     type: "string"
     description: "URL of the verified dataset source"
   hand_crafted_features:
     type: "object"
     properties:
-      molecular_weight:
+      surface_area:
         type: "number"
-      atom_count:
-        type: "integer"
-      framework_density:
+      pore_volume:
         type: "number"
-      unit_cell_volume:
+      largest_cavity_diameter:
         type: "number"
-    description: "Simple descriptors used for the linear baseline (MW, Atom Count, Density, Unit Cell Volume). Note: Surface Area and Pore Volume are NOT included here as they are the target."
+      accessible_surface_area:
+        type: "number"
+    description: "Exactly the four descriptors required for the linear‑regression baseline"
 required:
   - pair_id
   - molecule_smiles
@@ -91,7 +91,8 @@ required:
   - framework_id
   - framework_graph
   - cross_edges
-  - target_geometric_proxy
+  - experimental_permeability
   - source_url
   - hand_crafted_features
 additionalProperties: false
+

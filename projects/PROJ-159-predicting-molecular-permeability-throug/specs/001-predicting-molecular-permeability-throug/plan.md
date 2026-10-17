@@ -1,132 +1,123 @@
 # Implementation Plan: Predicting Molecular Permeability Through Porous Materials Using Graph Neural Networks
 
-**Branch**: `001-predict-molecular-permeability-gnn` | **Date**: 2026-06-26 | **Spec**: `specs/001-predicting-molecular-permeability-throug/spec.md`
+**Branch**: `001-predict-molecular-permeability-gnn` | **Date**: 2026-10-17 | **Spec**: `specs/001-predict-molecular-permeability-gnn/spec.md`
 
 ## Summary
+The project will build a reproducible **CPU‑only** pipeline that (1) downloads open‑source MOF and Zeolite crystal structures, (2) constructs heterogeneous graphs linking gas molecules (SMILES) to framework atoms, (3) **requires a peer‑reviewed, publicly available experimental permeability dataset** (FR‑001, FR‑016) for target values, (4) trains a shallow heterogeneous GNN and three baselines, (5) runs stratified 5‑fold cross‑validation, (6) conducts an ablation study, (7) performs a sensitivity sweep over non‑covalent contact thresholds {0.30, 0.50, 0.70} nm, (8) computes SHAP‑based feature importance, (9) carries out a power analysis with a justified medium effect size (Cohen’s d = 0.5), and (10) reports all metrics, runtime, and power in JSON files validated against contracts.
 
-**Scope Adjustment Notice**: The original spec required predicting *experimental* gas permeability. The "Verified datasets" block lacks a verified source for experimental permeability labels. Consequently, this plan pivots the scope to **predicting geometric transport proxies (Surface Area, Pore Volume)** derived from the available structural datasets (CoRE MOF 2019, IZA Zeolite). The research question is reframed: "Does a joint heterogeneous graph representation better predict complex geometric transport properties than simple descriptors?" This allows the pipeline to execute and validate the *structural representation hypothesis* without fabricating experimental data.
+> **Dataset Availability Note** – If the required experimental permeability dataset is not found among the verified sources, the pipeline aborts with a clear error message; no proxy targets are fabricated.
 
-This project implements a computational pipeline to predict geometric transport proxies for porous materials using a Heterogeneous Graph Neural Network (GNN). The system ingests crystallographic data, constructs joint molecule-framework graphs with cross-edges, computes geometric targets, and trains a CPU-optimized regression model. The plan strictly adheres to the project's resource constraints (7GB RAM, 4h runtime) and ensures all functional requirements (FR-001 to FR-009) are addressed by interpreting "permeability" as the computed geometric proxy where experimental data is unavailable.
+All **Functional Requirements (FR‑001 – FR‑018)** and **Success Criteria (SC‑001 – SC‑013)** are addressed by concrete plan phases, each named with the FR/SC it satisfies.
 
 ## Technical Context
-
-**Language/Version**: Python 3.x  
-**Primary Dependencies**: `torch`, `torch-geometric`, `rdkit`, `pymatgen`, `scikit-learn`, `pandas`, `datasets` (HuggingFace)  
-**Storage**: Local temporary files in `data/` (streamed or sampled), model checkpoints in `code/checkpoints/`  
-**Testing**: `pytest` (unit tests for graph construction, integration tests for pipeline end-to-end)  
-**Target Platform**: Linux (GitHub Actions Free Tier: A limited number of CPU cores and a moderate amount of RAM
-
-The research question, method, and references remain unchanged as per the planning document requirements.)  
-**Project Type**: Computational Research Pipeline / CLI  
-**Performance Goals**: Total pipeline runtime ≤ 4 hours; Model training ≤ 100 epochs with early stopping.  
-**Constraints**: CPU-only execution (no local GPU); A manageable subset of gas-MOF pairs will be selected for training to fit memory constraints.; No causal claims (associational only).  
-**Scale/Scope**: A substantial set of valid gas-MOF pairs (if available); k-fold stratified cross-validation
-
-The specific value to remove/generalize: 'k'
-
-Rewritten passage:
-k-fold stratified cross-validation.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `torch==2.2.2`, `torch-geometric==2.5.3`, `rdkit-pypi==2023.9.5`, `pymatgen==2024.2.23`, `scikit-learn==1.4.2`, `pandas==2.2.2`, `datasets==2.18.0`  
+- **Target Platform**: Linux GitHub Actions free tier (2 CPU cores, ≤7 GB RAM, ≤4 h total runtime)  
+- **Constraints**: CPU‑only execution, max 500 gas‑framework pairs, batch size ≤16, early stopping patience = 10, max 100 epochs (FR‑004).  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Status | Action / Mapping |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | Random seeds pinned in `code/`. External datasets fetched via verified HuggingFace URLs. `requirements.txt` pins all versions. |
-| **II. Verified Accuracy** | **Pass** | All dataset URLs in `research.md` are restricted to the "Verified datasets" block. Target values are *computed* from verified structures using `pymatgen`, ensuring SSoT. |
-| **III. Data Hygiene** | **Pass** | Raw data downloaded to `data/raw/` (checksummed). Derived graphs and computed targets saved to `data/processed/`. No in-place modification. |
-| **IV. Single Source of Truth** | **Pass** | All metrics (RMSE, r) generated by code and logged to JSON; paper values auto-extracted from these logs. Target is derived from structure + computation code (pymatgen), not external labels. The SSoT is the structural data and the computation code. |
-| **V. Versioning Discipline** | **Pass** | Artifacts (data, models) will carry content hashes in `state/...yaml`. |
-| **VI. Joint Structural Representation** | **Pass** | Plan explicitly defines heterogeneous graph nodes (molecule/framework) and cross-edges (non-covalent) per FR-002 and FR-006. |
-| **VII. Computational Resource Constrained** | **Pass** | Plan limits dataset to a manageable subset of pairs., uses CPU-only PyG, enforces 100 epochs/early stopping, and validates against sufficient RAM resources/4h limits. |
+| Principle | Compliance | Note |
+|---|---|---|
+| I. Reproducibility | ✅ | Fixed seeds, deterministic loaders, `requirements.txt` pins versions. |
+| II. Verified Accuracy | ✅ | Uses only the three verified URLs; no fabricated permeability targets. |
+| III. Data Hygiene | ✅ | Downloads checksummed; transformations write new files under `data/processed/`. |
+| IV. Single Source of Truth | ✅ | Metrics generated by code, figures read from those files. |
+| V. Versioning Discipline | ✅ | Artifacts hashed and recorded in `state/...yaml`. |
+| VI. Joint Structural Representation Integrity | ✅ | Heterogeneous graphs with explicit cross‑edges (FR‑002, FR‑006). |
+| VII. Computational Resource Constrained Validation | ✅ | Dataset limited to 500 pairs, shallow GNN, CPU‑only, runtime ≤4 h (FR‑004, SC‑005). |
 
 ## Project Structure
-
-### Documentation (this feature)
-
-```text
+```
 specs/001-predict-molecular-permeability-gnn/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   └── model_output.schema.yaml
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+└── tasks.md   # generated later by /speckit-tasks
 ```
 
-### Source Code (repository root)
-
-```text
+```
 code/
 ├── __init__.py
 ├── requirements.txt
-├── config.py            # Hyperparameters, paths, seeds
+├── config.py                # seeds, hyper‑params, paths
 ├── data/
-│   ├── __init__.py
-│   ├── download.py      # FR-001: Download and verify datasets
-│   ├── preprocess.py    # FR-001, FR-002: Graph construction, filtering
-│   ├── compute_targets.py # NEW: Compute geometric proxies (SA, PV) from structures
-│   └── loaders.py       # Streaming/Chunking logic
+│   ├── download.py          # FR‑001, FR‑016
+│   ├── preprocess.py        # FR‑001, FR‑002, FR‑014
+│   └── loaders.py           # streaming logic
 ├── models/
 │   ├── __init__.py
-│   ├── gnn.py           # FR-003: Heterogeneous GNN definition
-│   ├── baselines.py     # FR-005: Linear Regression, GCN
-│   └── ablation.py      # FR-006: Ablated model variant
+│   ├── gnn.py               # FR‑003
+│   ├── baselines.py         # FR‑005, FR‑011, FR‑015 (see descriptor list)
+│   └── ablation.py          # FR‑006
 ├── training/
-│   ├── train.py         # FR-004, FR-009: Training loop, CV
-│   ├── eval.py          # FR-005, FR-008: Metrics, reporting
-│   └── sensitivity.py   # FR-007: Threshold sweep
+│   ├── train.py             # FR‑004, FR‑009, FR‑017, FR‑018
+│   ├── eval.py              # FR‑005, FR‑008
+│   └── sensitivity.py       # FR‑007
+├── analysis/
+│   ├── feature_importance.py # SC‑007 (SHAP)
+│   └── power_analysis.py    # FR‑017
 ├── utils/
-│   ├── graph_utils.py   # SMILES parsing, CIF parsing, edge construction
-│   └── logging.py       # Reproducible logging
-└── main.py              # Orchestration script
-
-tests/
-├── contract/
-│   └── test_schemas.py  # Validates output against contracts/
-├── integration/
-│   └── test_pipeline.py # End-to-end download->compute->train->eval
-└── unit/
-    ├── test_graph_build.py
-    └── test_metrics.py
+│   ├── graph_utils.py
+│   └── logging.py
+└── main.py                  # orchestrates steps
 ```
 
-**Structure Decision**: Single `code/` directory with modular sub-packages (`data`, `models`, `training`) to ensure isolation and easy testing. This structure supports the "CPU-first" constraint by keeping dependencies localized and avoiding complex build systems.
+## Mapping of Requirements to Plan Phases
+| Phase / Script | FR(s) addressed | SC(s) addressed |
+|---|---|---|
+| `download.py` | FR‑001, FR‑016 | SC‑013 |
+| `preprocess.py` | FR‑001, FR‑002, FR‑014 | SC‑009 |
+| `gnn.py` | FR‑003, FR‑006, FR‑014 | SC‑003 |
+| `baselines.py` | FR‑005, FR‑011, FR‑015 (uses **surface_area, pore_volume, largest_cavity_diameter, accessible_surface_area**) | SC‑001, SC‑010, SC‑011 |
+| `train.py` | FR‑004, FR‑009, FR‑017, FR‑018 | SC‑006, SC‑012 |
+| `eval.py` | FR‑005, FR‑008 | SC‑001, SC‑002, SC‑005 |
+| `ablation.py` | FR‑006 | SC‑003 |
+| `sensitivity.py` | FR‑007 | SC‑004 |
+| `feature_importance.py` | FR‑010 | SC‑007 |
+| `power_analysis.py` | FR‑017 | SC‑012 |
+| `main.py --step download_preprocess` | FR‑001‑FR‑002, FR‑016 | SC‑009 |
+| `main.py --step train_evaluate` | FR‑004‑FR‑009, FR‑017‑FR‑018 | SC‑005‑SC‑006‑SC‑012 |
+| `main.py --step ablation_sensitivity` | FR‑006‑FR‑007, FR‑010 | SC‑003‑SC‑004‑SC‑007 |
+
+## Additional Plan Elements (Addressing Missing SCs)
+
+1. **Feature‑Importance (SC‑007)** – `analysis/feature_importance.py` computes SHAP values for both molecular and framework node/edge attributes and writes `feature_importance.json` containing the top‑5 features per side.
+2. **Stratified CV Verification (SC‑008)** – `training/train.py` includes a routine that checks each fold contains a proportional representation of each gas type and at least **5 samples per gas**; otherwise the pipeline aborts with an informative error.
+3. **Late‑Fusion Baseline Reporting (SC‑011)** – `models/baselines.py` trains the separate‑GCN late‑fusion model; `training/eval.py` records its RMSE alongside the other baselines in `metrics.json`.
+4. **Sensitivity Thresholds (FR‑007, SC‑004)** – thresholds are fixed to `{0.30, 0.50, 0.70}` nm; the sweep is executed in `training/sensitivity.py`.
+5. **Power Analysis Effect Size** – `analysis/power_analysis.py` assumes a medium effect size (Cohen’s d = 0.5) based on prior permeability studies and computes achieved power using `statsmodels`. The result is stored in `model_output.schema.yaml` under `power_achieved`.
+6. **Minimum Per‑Stratum Sample Size** – before CV, `train.py` asserts each gas type has ≥ 5 pairs; if not, the run stops with a clear message (addresses methodology‑beba24da).
 
 ## Complexity Tracking
+| Violation | Why Needed | Simpler Alternative Rejected |
+|---|---|---|
+| **Heterogeneous Graph** | Core to hypothesis (Principle VI) & FR‑002, FR‑006. | Homogeneous graph would remove cross‑edge information, violating FR‑006. |
+| **Stratified 5‑fold CV** | Required by FR‑009, SC‑006 for stability on ≤ 500 samples. | Simple train/test split would not meet SC‑006. |
+| **CPU‑only** | Must respect free‑tier CI resources (Principle VII). | GPU‑only would be infeasible on CI. |
+| **Experimental Permeability Target** | FR‑016 mandates true permeability; using proxies breaks construct validity. | Using geometric proxies would violate FR‑016 and scientific soundness. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Heterogeneous Graph** | Essential for FR-002 and FR-006 (Joint Representation). | A homogeneous graph would merge molecule and framework atoms, destroying the distinct chemical identity required to model cross-interactions (non-covalent contacts) explicitly. |
-| **Stratified -Fold CV** | Required by FR-009 for small dataset stability. | Simple train/test split is insufficient for <500 samples; high variance in metrics would make SC-006 (stability) impossible to measure. |
-| **CPU-Only GNN** | Mandatory by Constitution Principle VII and CI constraints. | GPU-based training is infeasible on the free-tier runner; the plan uses a scaled-down CPU implementation (small batch, shallow layers) to ensure execution. |
+## Implementation Tasks (high‑level)
+1. **Data download & checksum** (`download.py`).  
+2. **Graph construction** (`preprocess.py`) – node/edge features, distance cutoffs (0.35 nm for neighbor edges).  
+3. **Dataset validation** – schema check (`contracts/dataset.schema.yaml`).  
+4. **Model definition** (`gnn.py`).  
+5. **Baseline models** (`baselines.py`).  
+6. **Training loop** with early stopping, stratified CV (`train.py`).  
+7. **Evaluation & metric aggregation** (`eval.py`).  
+8. **Ablation study** (`ablation.py`).  
+9. **Sensitivity sweep** (`sensitivity.py`).  
+10. **Feature‑importance via SHAP** (`analysis/feature_importance.py`).  
+11. **Power analysis with justified effect size** (`analysis/power_analysis.py`).  
+12. **Runtime logging** (`utils/logging.py`).  
+13 **Contract validation** (`tests/contract/test_schemas.py`).  
+14. **End‑to‑end integration test** (`tests/integration/test_pipeline.py`) – runs on a 10‑pair subset (requires experimental dataset).  
 
-## Scope & Spec Contradiction Resolution
+All tasks respect the 4‑hour wall‑clock bound and 7 GB RAM ceiling.
 
-**Note to Reviewers**: The original spec (FR-001, SC-001, SC-002) mandates predicting *experimental* permeability. The "Verified datasets" block lacks a source for these labels. This plan **cannot** satisfy the spec's original requirement without fabricating data.
-- **Resolution**: The plan redefines the target variable as **Geometric Transport Proxies** (Surface Area, Pore Volume) computed from the available structural data using `pymatgen`.
-- **Impact**: FR-001 is satisfied by downloading structures and computing targets. SC-001/SC-002 now measure the ability to predict *these proxies* rather than experimental permeability.
-- **Action Required**: The spec (spec.md) must be updated to reflect this scope reduction. The current plan proceeds with the *computed target* interpretation.
-- **Fallback Mechanism**: If experimental permeability data is missing (which it is), the pipeline proceeds by computing geometric proxies from the verified structural data. This is a defined success condition for this scope, not a failure.
-- **Spec Contradiction**: The spec (FR-005, SC-002, Assumptions) explicitly requires experimental data and uses SA/PV as baseline inputs. The plan resolves this by using SA/PV as the *target* and simple descriptors (MW, Density) as baseline inputs. This flag is raised for a "kickback" to update the spec.
+---
 
-## Power Analysis & Limitations
 
-- **Sample Size**: ~500 pairs. This is likely underpowered for complex GNNs to detect subtle improvements over baselines in absolute prediction accuracy.
-- **Strategy**: The study focuses on the **direction of improvement** and the **statistical significance of the delta** (ablation study) rather than absolute predictive power.
-- **Reporting**: All results will explicitly state the power limitation. Success is defined as "demonstrating the feasibility of the joint encoding hypothesis" (i.e., that cross-edges improve prediction of complex 3D properties) rather than "achieving state-of-the-art prediction accuracy."
-- **Justification**: For a sample size of ~500, a complex GNN may not achieve high absolute accuracy. However, the ablation study (removing cross-edges) provides a robust test of the *hypothesis* (that joint encoding is necessary) even if the absolute prediction error is high. The study is designed to validate the *representation*, not to build a production-grade predictor.
-
-## Revised Success Criteria (Mapping to Plan)
-
-- **SC-001**: The prediction error (RMSE) of the heterogeneous GNN is measured against the RMSE of the linear regression baseline (using simple descriptors) to determine the improvement from joint encoding. (See FR-005)
-- **SC-002**: The Pearson correlation coefficient (r) between predicted and **computed** log₁₀(Geometric Proxy) is measured and reported for interpretation of model utility relative to the baseline. (See FR-005)
-- **SC-003**: The performance delta (ΔRMSE) between the full heterogeneous model and the ablated model (no cross-edges) is measured to quantify the value of joint graph representation. (See FR-006)
-- **SC-004**: The variance in RMSE across the sensitivity sweep **{0.01, 0.05, 0.1} nm** is measured to validate the robustness of the contact threshold. (See FR-007)
-- **SC-005**: The total wall-clock time for the entire pipeline (download to evaluation) is measured against a predefined time limit. to ensure feasibility. (See FR-004)
-- **SC-006**: The standard deviation of RMSE and Pearson r across the 5 cross-validation folds is measured to assess model stability on small datasets. (See FR-009)
