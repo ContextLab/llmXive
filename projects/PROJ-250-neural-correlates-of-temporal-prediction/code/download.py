@@ -156,9 +156,16 @@ def sha256_file(path, chunk_size=1024 * 1024):
             h.update(chunk)
     return h.hexdigest()
 
+def _subject_has_eeg(keys):
+    """Return True if the list of S3 keys for a subject contains any EEG modality files."""
+    for k in keys:
+        if "/eeg/" in k.lower() or k.lower().endswith("events.tsv"):
+            return True
+    return False
+
 def download_subjects(n_subjects, raw_dir):
     """
-    Download the dataset via S3, extract the requested number of subjects,
+    Download the dataset via S3, extract the requested number of subjects that contain EEG data,
     and return a list of all extracted file paths.
     """
     raw_dir = Path(raw_dir)
@@ -178,13 +185,24 @@ def download_subjects(n_subjects, raw_dir):
         if subj.startswith("sub-"):
             subj_to_keys.setdefault(subj, []).append(key)
 
-    subjects = sorted(subj_to_keys.keys(), key=lambda s: int(re.sub(r"\D", "", s) or 0))
-    selected = subjects if n_subjects == 0 else subjects[:n_subjects]
-    print(f"Dataset has {len(subjects)} subjects; downloading {len(selected)}: {selected}")
+    # Keep only subjects that have EEG data (or events.tsv)
+    subjects_with_eeg = [
+        s for s, ks in subj_to_keys.items() if _subject_has_eeg(ks)
+    ]
+    subjects_with_eeg.sort(key=lambda s: int(re.sub(r"\D", "", s) or 0))
+
+    if not subjects_with_eeg:
+        raise RuntimeError("No subjects with EEG data found in the dataset.")
+
+    selected = subjects_with_eeg if n_subjects == 0 else subjects_with_eeg[:n_subjects]
+    print(f"Dataset has {len(subjects_with_eeg)} EEG subjects; downloading {len(selected)}: {selected}")
 
     downloaded_files = []
     for subj in selected:
         for key in subj_to_keys[subj]:
+            # Skip non‑EEG files to keep download size modest
+            if "/eeg/" not in key.lower() and not key.lower().endswith("events.tsv"):
+                continue
             rel_path = Path(*Path(key).parts[1:])  # drop the top-level dataset folder
             dest_path = raw_dir / rel_path
             file_url = f"{S3_BASE}/{key}"
