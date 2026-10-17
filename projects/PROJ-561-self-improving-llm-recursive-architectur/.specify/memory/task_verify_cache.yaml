@@ -20,40 +20,42 @@ T001:
   sig: a0cbdedaf27d1edda3223ca2e57d4fc4378ffafe70b4d7654d85ad2c04dfde28
 T001a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: 'I looked for a `pipeline/loader.py` file containing a `verify_urls(urls: List[str])`
-    implementation and for an accompanying test that checks unreachable URLs raise
-    an error, but no such files or code were presented. The required function and
-    its verification test are missing, so the task is not satisfied.'
+  h: 7dbe80ba3162c9ee9e90bb0f48507b94172e1d4a41c34eb28638d3c6d3c1dd74
+  r: The `tests/unit/test_data_loader.py` file exists and contains detailed tests
+    for `verify_urls`, but the test suite cannot be collected/run because importing
+    `code/pipeline/loader.py` (required for the `exponential_backoff` decorator) raises
+    an `ImportError` from the `datasets` library, which depends on a newer NumPy/pyarrow
+    version. This import error aborts test execution, so the required unit test does
+    not actually pass. The task needs the import issue resolved (e.g., make the `datasets`
+    import lazy or adjust dependencies) so the tests can run successfully.
+  sig: 3a23f1e07e17ead111eadf985e38e9b1baadf301a8d7996419a685d84ae65b29
 T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test files, or documentation for `download_and_checksum(dataset_name,\
-    \ dest_path)` were provided, nor any evidence that a SHA\u2011256 checksum file\
-    \ is written or that a verification test was added. The required implementation\
-    \ and its test are missing."
+  c: true
+  h: 9de0ccd01c45d59e66926f08d82c397c02b96dc8c30ac98daa66a19579df7c69
+  r: "The unit test file `tests/unit/test_data_loader.py` exists and contains concrete\
+    \ tests for `download_and_checksum`, including checksum validation and idempotency\
+    \ checks. The implementation of `download_and_checksum` in `code/pipeline/loader.py`\
+    \ provides the required functionality that the tests exercise. All required artifacts\
+    \ are present and non\u2011placeholder."
+  sig: 3721fdd00e34cee46aabb9b381067793aa89142fe948140d2669ee8740639731
 T001c:
   c: true
-  h: e1e87909139dc17215b4a820ea42611ff9bc4e29e11d077d5c2e6e4681d140f6
-  r: 'The implementation exists in `code/utils/data_loader.py` (re-exported via top-level
-    `utils/data_loader.py`): `verify_urls` performs HEAD requests wrapped by the `exponential_backoff`
-    decorator from `pipeline/loader` (30s initial delay, 5 retries, per FR-011) and
-    raises `ValueError` naming the unreachable URL. The required unit tests in `tests/unit/test_data_loader.py`
-    mock HTTP with `responses`, cover both the success and failure/retry paths (asserting
-    6 calls = 1 + 5 retries), and match the task''s verification requirement; no execution
-    logs were supplied, but the artifacts'' content genuinely '
-  sig: f8b969f12cabc5b9ce9db52fda3d1b66ab46d76569932075f2c5c8c863df30c2
+  h: 99d99da67dcf01627da859fcf500b39786326c119af2f1476e472bb8d98dcb46
+  r: "Checked `utils/data_loader.py` (re\u2011exports `verify_urls`), the core implementation\
+    \ in `code/utils/data_loader.py` (uses the `exponential_backoff` decorator from\
+    \ `code/pipeline/loader.py`), and the unit tests in `tests/unit/test_data_loader.py`\
+    \ which verify correct success/failure behavior and the FR\u2011011 back\u2011\
+    off schedule. All required artifacts exist and meet the specification."
+  sig: b5b767a7c3d76b70adc9e0697fdf850f88be2c08022e234e07967342fa7a13ed
 T001d:
   c: true
-  h: 19fbb0c4eef148be7a200f59850458dd7dee06e1d30a8e085d48e5193f0b48cd
-  r: '`code/pipeline/loader.py` contains a real, non-stub `download_and_checksum(dataset_name,
-    dest_path)` that downloads via HuggingFace `datasets`, computes a SHA-256 directory
-    checksum, and writes a `SHA256SUM` file alongside the data (with idempotent caching),
-    and `tests/unit/test_data_loader.py` adds substantive unit tests verifying the
-    returned 64-char digest, the SHA256SUM file''s existence/content, and consistency
-    with `calculate_directory_checksum`. The stubs present in the file are for other,
-    later tasks (load_openwebtext etc.), not this deliverable.'
-  sig: 34ff751262f5a46eff4464f9f8bacea9879e0b33e020084fdd99097d0614fa04
+  h: 8613d044f7e3d5104a3dd346c71399f6fddc0af34fa0d3e0973e9c89fdfb50af
+  r: "Checked `code/pipeline/loader.py` for a functional `download_and_checksum` that\
+    \ writes a `SHA256SUM` file and returns a 64\u2011char SHA\u2011256 digest, and\
+    \ verified the corresponding unit tests in `tests/unit/test_data_loader.py` that\
+    \ assert correct file creation, checksum matching, and idempotence. All required\
+    \ artifacts exist and meet the specification."
+  sig: 83cd74fd5edb343ae2ef54fea7a65d57c32f57d3ce189250250bd75921ed061f
 T001e:
   c: true
   h: dcf72f37c8a2e14a93eaf93e1645156696b0015203bcafe80ba7c3e2c1d85128
@@ -99,6 +101,14 @@ T007:
   r: No code for `run_bootstrap_and_regression` is present, nor evidence that it reads
     `NUM_RESAMPLES` from `config.py` or that a verification test was added. The required
     implementation and test artifacts are missing.
+T008:
+  c: false
+  h: 18df09178b58221943c16464f51f85bb56ffb251a4fc92d02b2333ecae84f4d0
+  r: "The unit\u2011test `test_parse_research_md` fails because `config.MAX_PARAM_INCREASE_RATIO`\
+    \ is read as\u202F1.0 instead of being clamped to\u202F0.30, violating the requirement\
+    \ that any value from `research.md` exceeding 0.30 must be capped. The `config.py`\
+    \ therefore does not correctly enforce the ratio limit."
+  sig: 86e202a0708fba1fdd607be6e8e1f8bc5fa53d386ddc1a70fa234f482edf4922
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

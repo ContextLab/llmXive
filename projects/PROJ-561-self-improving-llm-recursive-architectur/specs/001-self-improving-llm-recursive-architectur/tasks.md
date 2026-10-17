@@ -21,7 +21,7 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [X] T001 [S] Create project directory layout (`code/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`, `data/raw/`, `data/processed/`, `results/`, `state/`) and add `__init__.py` files.  
+- [ ] T001 [S] Create project directory layout (`code/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`, `data/raw/`, `data/processed/`, `results/`, `state/`) and add `__init__.py` files.  
   **Verification**: `python -c "import os; assert os.path.exists('code/tests/unit/__init__.py') and os.path.isdir('data/raw') and os.path.isdir('results') and os.path.isdir('state')"`.
 
 - [X] T001f [S] Author `data-model.md` documenting the entities and data flow defined in the project plan. **Verification**: `test -f data-model.md`.
@@ -33,7 +33,7 @@
 ## Phase 2: Foundational (Blocking Prerequisites)
 
 - [ ] T001a [P] Unit test for `verify_urls` (see `tests/unit/test_data_loader.py`).  
-- [ ] T001b [P] Unit test for `download_and_checksum` (see `tests/unit/test_data_loader.py`).  
+- [X] T001b [P] Unit test for `download_and_checksum` (see `tests/unit/test_data_loader.py`).  
 - [ ] T005a [P] Implement dataset loaders for OpenWebText, GSM8K, ARC‑Challenge, BoolQ with fail‑fast logic and streaming support; use back‑off from T005b. **Verification**: ensure training and eval splits are disjoint and generate `data/disjoint_check_report.json`.  
 - [ ] T006 [P] Implement `models/loader.py` CPU‑only loader for the GPT‑2 checkpoint. **Verification**: `device='cpu'` after load.  
 - [ ] T013 [P] Define `ModificationProposal` Pydantic schema. **Verification**: schema validation unit test.  

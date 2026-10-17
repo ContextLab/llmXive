@@ -4136,3 +4136,92 @@
   source_type: external
   status: verified
   updated_at: '2026-10-10T20:21:31Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/download_and_checksum.md
+  attempts: 1
+  canonical: 64-character SHA-256 hex digest is returned
+  claim_id: c_7a710370
+  context: "The test_download_and_checksum_writes_sha256 verifies that a real HuggingFace\
+    \ dataset is downloaded, a 64\u2011character SHA\u2011256 hex digest is returned,\
+    \ the SHA256SUM file is created, and its contents match an independently computed\
+    \ directory checksum."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "a 64\u2011character SHA\u2011256 hex digest is returned"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:52:51Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/download_and_checksum.md
+  attempts: 1
+  canonical: SHA256SUM file is created
+  claim_id: c_7032fa0b
+  context: "The test_download_and_checksum_writes_sha256 verifies that a real HuggingFace\
+    \ dataset is downloaded, a 64\u2011character SHA\u2011256 hex digest is returned,\
+    \ the SHA256SUM file is created, and its contents match an independently computed\
+    \ directory checksum."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the SHA256SUM file is created
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:52:51Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/download_and_checksum.md
+  attempts: 1
+  canonical: SHA256SUM file contents match independently computed directory checksum
+  claim_id: c_e8842a1e
+  context: "The test_download_and_checksum_writes_sha256 verifies that a real HuggingFace\
+    \ dataset is downloaded, a 64\u2011character SHA\u2011256 hex digest is returned,\
+    \ the SHA256SUM file is created, and its contents match an independently computed\
+    \ directory checksum."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: its contents match an independently computed directory checksum
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:52:52Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/download_and_checksum.md
+  attempts: 1
+  canonical: second call reuses existing checksum file without re-downloading data
+  claim_id: c_4d9ea99d
+  context: "The test_download_and_checksum_is_idempotent confirms that a second call\
+    \ re\u2011uses the existing checksum file without re\u2011downloading the data."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "a second call re\u2011uses the existing checksum file without re\u2011\
+    downloading the data"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:52:53Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/download_and_checksum.md
+  attempts: 1
+  canonical: real HuggingFace dataset is downloaded
+  claim_id: c_bbfe9f15
+  context: "The test_download_and_checksum_writes_sha256 verifies that a real HuggingFace\
+    \ dataset is downloaded, a 64\u2011character SHA\u2011256 hex digest is returned,\
+    \ the SHA256SUM file is created, and its contents match an independently computed\
+    \ directory checksum."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: a real HuggingFace dataset is downloaded
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:52:53Z'

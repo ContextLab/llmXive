@@ -1,8 +1,19 @@
 T000:
   task: bd3f92369379323d2a3a34092b212b803c0d343f1179a04c848228d05900a651
 T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
   task: 41d86f5f79220498c08713948ec0666223639c869325451b3c3782c5fb570468
 T001a:
+  reason: The `tests/unit/test_data_loader.py` file exists and contains detailed tests
+    for `verify_urls`, but the test suite cannot be collected/run because importing
+    `code/pipeline/loader.py` (required for the `exponential_backoff` decorator) raises
+    an `ImportError` from the `datasets` library, which depends on a newer NumPy/pyarrow
+    version. This import error aborts test execution, so the required unit test does
+    not actually pass. The task needs the import issue resolved (e.g., make the `datasets`
+    import lazy or adjust dependencies) so the tests can run successfully.
   task: a773c7bcd09d8183636339cef8dfd733cff1d2cb158f40c17e2f1e3f09ae41d6
 T001b:
   task: 30781d71e0b835ac06a7244912c0796fda1a3169c71e1ce8317944b81cc0f6bd
@@ -31,6 +42,10 @@ T006:
 T007:
   task: 6734771e56757a7c941de7e69a1511dd6436ee96adbef48e5333c8805b81c426
 T008:
+  reason: "The unit\u2011test `test_parse_research_md` fails because `config.MAX_PARAM_INCREASE_RATIO`\
+    \ is read as\u202F1.0 instead of being clamped to\u202F0.30, violating the requirement\
+    \ that any value from `research.md` exceeding 0.30 must be capped. The `config.py`\
+    \ therefore does not correctly enforce the ratio limit."
   task: 7cb4848b7ae94f7508c55441cbeed71f2d982e984ba6e5aa81e8bdba4e620d95
 T009:
   task: c3dc3da55e4f709eef50a2133cd55ce3c45feb7b61bdda2000caf27d57a0e911

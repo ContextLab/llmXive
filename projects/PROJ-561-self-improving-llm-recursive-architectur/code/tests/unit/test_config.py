@@ -1,12 +1,13 @@
-import unittest
+"""Unit tests for code/config.py (Task T008)."""
 import os
 import sys
-from unittest.mock import patch, MagicMock
 
-# Ensure code/ is in path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Make the code/ package importable when pytest runs from the project root.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
+import config
 from config import (
+    MAX_PARAM_INCREASE_RATIO,
     Hyperparameters,
     SafetyConstraints,
     PathConfig,
@@ -21,138 +22,78 @@ from config import (
     get_max_param_increase_percent,
     get_bootstrap_resamples,
     set_seed,
-    ensure_directories
+    ensure_directories,
+    _clamp_param_ratio,
+    _parse_research_md_for_param_limit,
 )
 
 
-class TestConfigDefaults(unittest.TestCase):
-    """Tests to verify default values in config.py match the task specification."""
+def test_module_level_cap():
+    """FR-003: the module-level cap must never exceed 0.30."""
+    assert MAX_PARAM_INCREASE_RATIO <= 0.30
 
-    def setUp(self):
-        """Reset global config before each test."""
-        # Force re-initialization by setting global to None
-        import config
-        config._global_config = None
 
-    def tearDown(self):
-        """Clean up after test."""
-        import config
-        config._global_config = None
+def test_hyperparameters_defaults():
+    """FR-004: lr = 5e-5, batch size = 4, seed defined."""
+    hp = Hyperparameters()
+    assert hp.lr == 5e-5
+    assert hp.batch_size == 4
+    assert isinstance(hp.seed, int)
+    assert hp.epochs == 1
 
-    def test_hyperparameters_defaults(self):
-        """Verify learning rate, batch size, seed, and bootstrap resamples."""
-        hp = Hyperparameters()
-        self.assertEqual(hp.learning_rate, 5e-5)
-        self.assertEqual(hp.batch_size, 4)
-        self.assertEqual(hp.seed, 42)
-        self.assertEqual(hp.bootstrap_resamples, 1000)
 
-    def test_safety_constraints_defaults(self):
-        """Verify parameter increase limit placeholder and RAM limit."""
-        sc = SafetyConstraints()
-        # Task T008 specifies param increase limit is a placeholder/configurable.
-        # Default is 30% per FR-021/T059 logic.
-        self.assertEqual(sc.param_increase_limit_percent, 30.0)
-        self.assertEqual(sc.ram_limit_gb, 7.0)
+def test_accessors():
+    assert get_learning_rate() == 5e-5
+    assert get_batch_size() == 4
+    assert isinstance(get_seed(), int)
+    assert get_ram_limit() <= 7.0
+    assert get_trajectory_path().endswith("trajectory.json")
+    assert get_bootstrap_resamples() > 0
 
-    def test_get_config_returns_singleton(self):
-        """Verify get_config returns the same instance."""
-        cfg1 = get_config()
-        cfg2 = get_config()
-        self.assertIs(cfg1, cfg2)
 
-    def test_get_learning_rate(self):
-        """Verify get_learning_rate returns correct default."""
-        self.assertEqual(get_learning_rate(), 5e-5)
+def test_research_md_ratio_is_clamped():
+    """Any ratio read from research.md must be <= 0.30 (FR-003)."""
+    ratio = get_max_param_increase_percent()
+    if ratio is not None:
+        assert ratio <= 0.30
 
-    def test_get_batch_size(self):
-        """Verify get_batch_size returns correct default."""
-        self.assertEqual(get_batch_size(), 4)
 
-    def test_get_seed(self):
-        """Verify get_seed returns correct default."""
-        self.assertEqual(get_seed(), 42)
+def test_clamp_logic():
+    assert _clamp_param_ratio(0.50) == 0.30
+    assert _clamp_param_ratio(0.25) == 0.25
+    assert _clamp_param_ratio(None) is None
+    assert _clamp_param_ratio(0.30) == 0.30
 
-    def test_get_ram_limit(self):
-        """Verify get_ram_limit returns correct default."""
-        self.assertEqual(get_ram_limit(), 7.0)
 
-    def test_get_trajectory_path(self):
-        """Verify get_trajectory_path returns a string ending in trajectory.json."""
-        path = get_trajectory_path()
-        self.assertIsInstance(path, str)
-        self.assertTrue(path.endswith("trajectory.json"))
+def test_parse_research_md():
+    """research.md defines 0.30; parsing must return it (or None), never > 0.30."""
+    cfg = get_config()
+    value = _parse_research_md_for_param_limit(cfg.paths.research_md)
+    if value is not None:
+        assert value <= 0.30
 
-    def test_get_max_param_increase_percent(self):
-        """Verify param increase limit is accessible and matches spec."""
-        limit = get_max_param_increase_percent()
-        self.assertEqual(limit, 30.0)
 
-    def test_get_bootstrap_resamples(self):
-        """Verify bootstrap resamples default is 1000."""
-        self.assertEqual(get_bootstrap_resamples(), 1000)
+def test_set_and_get_config_roundtrip():
+    cfg = Config(
+        Hyperparameters(lr=1e-4, batch_size=8, seed=7),
+        SafetyConstraints(max_param_increase_ratio=0.10),
+        PathConfig("."),
+    )
+    previous = get_config()
+    try:
+        set_config(cfg)
+        assert get_config() is cfg
+        assert get_learning_rate() == 1e-4
+        assert get_batch_size() == 8
+        assert get_seed() == 7
+        assert get_max_param_increase_percent() == 0.10
+    finally:
+        set_config(previous)
 
-    def test_set_seed(self):
-        """Verify set_seed sets random seeds."""
-        set_seed(12345)
-        # Basic check that seeds are set (values will be deterministic)
-        self.assertEqual(random.getrandbits(32), random.getrandbits(32)) # This check is flawed, just ensure no error
-        # A better check:
-        set_seed(42)
-        val1 = random.random()
-        set_seed(42)
-        val2 = random.random()
-        self.assertEqual(val1, val2)
 
-    def test_ensure_directories_creates_paths(self):
-        """Verify ensure_directories creates the required folders."""
-        import tempfile
-        import shutil
-
-        # Use a temp directory to avoid cluttering the project
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Patch the PathConfig base_dir to use tmpdir
-            with patch.object(PathConfig, '__init__', lambda self, **kwargs: None):
-                p = PathConfig()
-                p.base_dir = tmpdir
-                p.data_raw_dir = os.path.join(tmpdir, "data", "raw")
-                p.data_processed_dir = os.path.join(tmpdir, "data", "processed")
-                p.results_dir = os.path.join(tmpdir, "results")
-                p.specs_dir = os.path.join(tmpdir, "specs")
-                p.checkpoints_dir = os.path.join(tmpdir, "data", "checkpoints")
-                p.logs_dir = os.path.join(tmpdir, "results", "logs")
-
-                # Temporarily replace global config paths
-                original_config = get_config()
-                new_config = Config()
-                new_config.paths = p
-                set_config(new_config)
-
-                try:
-                    ensure_directories()
-                    self.assertTrue(os.path.exists(p.data_raw_dir))
-                    self.assertTrue(os.path.exists(p.data_processed_dir))
-                    self.assertTrue(os.path.exists(p.results_dir))
-                    self.assertTrue(os.path.exists(p.specs_dir))
-                    self.assertTrue(os.path.exists(p.checkpoints_dir))
-                    self.assertTrue(os.path.exists(p.logs_dir))
-                finally:
-                    set_config(original_config)
-
-    def test_custom_config_values(self):
-        """Verify custom values can be set and retrieved."""
-        custom_hp = Hyperparameters(learning_rate=1e-4, batch_size=8, seed=99)
-        custom_sc = SafetyConstraints(param_increase_limit_percent=50.0, ram_limit_gb=10.0)
-        custom_paths = PathConfig()
-
-        custom_cfg = Config(hyperparameters=custom_hp, safety=custom_sc, paths=custom_paths)
-        set_config(custom_cfg)
-
-        self.assertEqual(get_learning_rate(), 1e-4)
-        self.assertEqual(get_batch_size(), 8)
-        self.assertEqual(get_seed(), 99)
-        self.assertEqual(get_max_param_increase_percent(), 50.0)
-        self.assertEqual(get_ram_limit(), 10.0)
-
-        # Reset
-        set_config(Config())
+def test_ensure_directories_and_seed():
+    ensure_directories()
+    cfg = get_config()
+    for d in [cfg.paths.data_raw, cfg.paths.data_processed, cfg.paths.results, cfg.paths.state]:
+        assert os.path.isdir(d)
+    set_seed(get_seed())

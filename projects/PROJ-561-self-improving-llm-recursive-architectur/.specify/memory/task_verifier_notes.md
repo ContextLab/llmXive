@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — the task writes platform-owned path(s) inside the project: `state/` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T008** — The unit‑test `test_parse_research_md` fails because `config.MAX_PARAM_INCREASE_RATIO` is read as 1.0 instead of being clamped to 0.30, violating the requirement that any value from `research.md` exceeding 0.30 must be capped. The `config.py` therefore does not correctly enforce the ratio limit.
+- **T001a** — The `tests/unit/test_data_loader.py` file exists and contains detailed tests for `verify_urls`, but the test suite cannot be collected/run because importing `code/pipeline/loader.py` (required for the `exponential_backoff` decorator) raises an `ImportError` from the `datasets` library, which depends on a newer NumPy/pyarrow version. This import error aborts test execution, so the required unit test does not actually pass. The task needs the import issue resolved (e.g., make the `datasets` import lazy or adjust dependencies) so the tests can run successfully.
