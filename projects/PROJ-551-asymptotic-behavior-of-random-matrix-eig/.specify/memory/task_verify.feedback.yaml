@@ -1,10 +1,23 @@
 T001:
   task: 41c074c53775c934ca2c2654a1dd7298465541c896c78b71ec05fe2a164a2d97
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  reason: "All required artifacts exist and the command ran successfully (log shows\
+    \ Peak Memory 0.085\u20130.194 GB, JSON has 10 eigenvalue records, checksum matches\
+    \ the raw matrix, quickstart contains the exact command). However, the Wigner\
+    \ matrix construction is scientifically wrong: `_generate_wigner` symmetrizes\
+    \ via `A = (A + A.T) / 2` before the `1/\u221AN` scaling, which halves the off-diagonal\
+    \ variance, so the bulk edge is \u2248 \u221A2 \u2248 1.414 \u2014 exactly what\
+    \ the results show (eigenvalues 2\u201310 cluster at 1.33\u20131.41, `empirical_bulk_edge`\
+    \ = 1.32) instead of the semicircle edge 2.0 required by the spec and by the outli"
   task: 3452e915417763de69f8ba41c70acbad37b8141d929eb69b38a9c8d2d1809cf7
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
+  reason: "The execution logs show the top eigenvalue is 2.703139682868358 (both stored\
+    \ and recomputed, with the reproducibility check passing), but the task claim\
+    \ asserts the top eigenvalue is 2.901642355090901 \u2014 a direct contradiction\
+    \ with the actual run evidence. Additionally, no collector-confirmed artifact\
+    \ paths (results JSON, logs, checksums) were provided for inspection, so the claimed\
+    \ outputs cannot be verified beyond the historical logs, and the claim's own reported\
+    \ number is fabricated or from a different run."
   task: 1b986fda368ef26d2f8fb67c3372c16ccc715366535a698061c1b1ad247eb23f
 T004:
   reason: The script `code/analysis/threshold_sweep.py` correctly implements the theoretical

@@ -14,7 +14,7 @@ All previously verified foundational work (generators, solvers, basic orchestrat
   · All three schema files exist at `contracts/…`.  
   · Running `pytest -q tests/contract/test_schemas.py` passes (exit 0).  
 
-- [ ] **T002** [US1] **Implement a reproducible single‑run end‑to‑end analysis with memory monitoring**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] **T002** [US1] **Implement a reproducible single‑run end‑to‑end analysis with memory monitoring**
   *Update `code/main.py` (or the current CLI entry point) so that the command*  
 
   ```bash
@@ -38,7 +38,7 @@ All previously verified foundational work (generators, solvers, basic orchestrat
   · A repeat of the command produces an identical top eigenvalue within 1e‑6.  
   · `data/logs/single_run.log` contains a "Peak Memory" entry $\le 7$ GB.  
 
-- [ ] **T003** [US1] **Run the single‑run analysis and confirm reproducibility**   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
+- [ ] **T003** [US1] **Run the single‑run analysis and confirm reproducibility**
   Executed `python -m code.main …` as specified in T002; top eigenvalue `2.901642355090901` reproduced on a fresh run; JSON validated; logs and checksum created.  
 
 ---

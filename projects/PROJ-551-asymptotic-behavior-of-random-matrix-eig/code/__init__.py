@@ -1,1 +1,1 @@
-# This file makes the `code` directory a Python package.
+"""Project source package (PROJ-551). Makes `python -m code.main` resolvable."""

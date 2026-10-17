@@ -2010,3 +2010,35 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-17T22:12:40Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: theoretical edge of random matrix eigenvalues is 2.0
+  claim_id: c_7ed104bc
+  context: The top eigenvalue should exceed 2.05 (outlier) when theta > 1, because
+    outlier detection uses the theoretical edge 2.0 plus tolerance 0.05
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: theoretical edge 2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-17T22:20:56Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: top eigenvalue exceeds 2.05 when theta > 1
+  claim_id: c_056e45be
+  context: The top eigenvalue should exceed 2.05 (outlier) when theta > 1, because
+    outlier detection uses the theoretical edge 2.0 plus tolerance 0.05
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The top eigenvalue should exceed 2.05 (outlier) when theta > 1
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T22:20:56Z'

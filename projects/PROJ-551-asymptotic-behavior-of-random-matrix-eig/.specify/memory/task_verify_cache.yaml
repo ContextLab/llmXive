@@ -1,15 +1,38 @@
 T001:
   c: true
-  h: ca9cb7b233d252f3d1616b4d99dcff060a28311d0adf6dbe298ffbc16880fac2
-  r: "All three schema files (`simulation_run.schema.yaml`, `eigenvalue_result.schema.yaml`,\
-    \ `aggregated_threshold.schema.yaml`) are present in `contracts/` (confirmed by\
-    \ the directory listing), and `tests/contract/test_schemas.py` is a substantive,\
-    \ well-formed pytest module that loads the schemas, validates them as Draft7 JSON\
-    \ Schema, and validates every JSON/CSV artifact in `data/processed/` against the\
-    \ appropriate contract. The historical platform run of `pytest` exited 0 (1 passed,\
-    \ 2 skipped \u2014 the artifact-validation tests skip gracefully when the pipeline\
-    \ hasn't produced data yet, which is a re"
-  sig: 1888027c6f4acacec4d7193361e6c8f6eae62d2f00e7222bba5c8dad1f41d054
+  h: 79817943bd9c3f22bdca389f0ba37ec12715f0a577522f1a8245591e1f8244b0
+  r: 'All three schema files exist under `contracts/` (confirmed by the directory
+    listing: simulation_run, eigenvalue_result, aggregated_threshold .schema.yaml),
+    and `tests/contract/test_schemas.py` is a substantive, non-stub module that loads
+    each schema via `jsonschema.Draft7Validator.check_schema` and validates every
+    JSON/CSV artifact in `data/processed/` against the appropriate contract. The historical
+    execution record shows `pytest` exiting 0 with the schema-existence test passing;
+    the artifact-validation tests skipped only because no processed data existed at
+    that time, and the current `single'
+  sig: 46e31ee5fe418e5ca520c3cbe79778f740f34d51675d4716db923f37b1e5e6c2
+T002:
+  c: false
+  h: 172fdca548bb7b0e248bf723ceca44365a3c919ca2844041cd07374f471298f4
+  r: "All required artifacts exist and the command ran successfully (log shows Peak\
+    \ Memory 0.085\u20130.194 GB, JSON has 10 eigenvalue records, checksum matches\
+    \ the raw matrix, quickstart contains the exact command). However, the Wigner\
+    \ matrix construction is scientifically wrong: `_generate_wigner` symmetrizes\
+    \ via `A = (A + A.T) / 2` before the `1/\u221AN` scaling, which halves the off-diagonal\
+    \ variance, so the bulk edge is \u2248 \u221A2 \u2248 1.414 \u2014 exactly what\
+    \ the results show (eigenvalues 2\u201310 cluster at 1.33\u20131.41, `empirical_bulk_edge`\
+    \ = 1.32) instead of the semicircle edge 2.0 required by the spec and by the outli"
+  sig: a1103e621c90fa8b2155d6a4b6312eaf9e3de0e39f93b31a7c5dcc62868a18d7
+T003:
+  c: false
+  h: fa781f1d38730b5ceef25231a09f23dba3d9df581247ae9dc8aa9b299f5ae329
+  r: "The execution logs show the top eigenvalue is 2.703139682868358 (both stored\
+    \ and recomputed, with the reproducibility check passing), but the task claim\
+    \ asserts the top eigenvalue is 2.901642355090901 \u2014 a direct contradiction\
+    \ with the actual run evidence. Additionally, no collector-confirmed artifact\
+    \ paths (results JSON, logs, checksums) were provided for inspection, so the claimed\
+    \ outputs cannot be verified beyond the historical logs, and the claim's own reported\
+    \ number is fabricated or from a different run."
+  sig: 9469e26256f4ab48542f8aa79f6c66f0a2352fb4dd1948ac589e84acb473df8b
 T004:
   c: false
   h: c47065700be0905bd6ce5e250ef5f5249293954ff29363a0286a0bccddc02052

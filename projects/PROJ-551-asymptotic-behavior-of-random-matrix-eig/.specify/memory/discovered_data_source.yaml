@@ -1,14 +1,12 @@
 status: none
-intent: synthetic random matrix ensemble dataset with perturbation patterns python
-  package dataset
+intent: synthetic matrix generation library with perturbation patterns python package
+  dataset
 required_fields:
 - matrix
 - perturbation_type
 - seed
-- eigenvalues
 - theoretical_edge
-- empirical_edge
-- schema_version
-cache_key: e8c7edfb3ffb83fefcd8ffc9ca35d11e1ac2f715957a23d7e989d0848df5269d
-searched_at: '2026-10-17T22:13:50.601449+00:00'
+- FR_001_compliance
+cache_key: d76605f55909e7efd2e55baeec23ac9ae164fdb53eac8554fbc46606a8ee7c32
+searched_at: '2026-10-17T22:28:43.849047+00:00'
 retry_count: 1
