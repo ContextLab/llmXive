@@ -10,8 +10,8 @@ output_dirs:
   - checkpoints
 
 # Pipeline stages to execute, in order. Stages whose implementing
-# modules do not exist yet are skipped with a warning; they are
-# added by subsequent tasks (data, model, trainer, analysis).
+# modules do not exist yet are skipped with a warning; they are added
+# by subsequent tasks (data, model, trainer, analysis).
 stages:
   - data
   - model
@@ -21,10 +21,10 @@ stages:
 
 # Training hyper-parameters (consumed by later tasks).
 training:
-  rhos: [0.1, 0.3, 0.5, 0.7, 0.9]
-  seeds: [42, 43, 44]
-  max_epochs: 10
-  batch_size: 32
+  rhos: [0.5]          # thin run uses a single rho
+  seeds: [42]          # single seed for reproducibility
+  max_epochs: 2        # very short run for quickstart
+  batch_size: 16
   adaptive: false
   timeout_seconds: 21600
 

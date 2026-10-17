@@ -221,3 +221,39 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-14T13:09:47Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: thin run uses seed 42 and retaining ratio 0.5
+  claim_id: c_e65f4782
+  context: "The thin run uses a single seed (42) and a single retaining ratio (0.5)\
+    \ as defined in `configs/quickstart.yaml`. It completes within the 6\u2011hour\
+    \ wall\u2011clock limit on a standard CPU\u2011only runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The thin run uses a single seed (42) and a single retaining ratio (0.5)
+    as defined in `configs/quickstart.yaml`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T21:13:07Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline completes within 6 hour wall-clock limit
+  claim_id: c_9b538e67
+  context: "The thin run uses a single seed (42) and a single retaining ratio (0.5)\
+    \ as defined in `configs/quickstart.yaml`. It completes within the 6\u2011hour\
+    \ wall\u2011clock limit on a standard CPU\u2011only runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "It completes within the 6\u2011hour wall\u2011clock limit on a standard\
+    \ CPU\u2011only runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T21:13:07Z'

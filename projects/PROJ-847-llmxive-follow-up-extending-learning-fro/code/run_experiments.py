@@ -1,12 +1,14 @@
 """Entry‑point for the density‑supervision study.
 
-This script now supports two modes of operation:
+This script supports two modes of operation:
 
 1. **Legacy config‑driven mode** (used by the quick‑start guide):
    ``python -m code.run_experiments --config <yaml>``
    - Loads the YAML configuration.
    - Creates the ``outputs/`` directory tree defined in the config.
    - Writes the effective configuration to ``outputs/run_config.json``.
+   - Executes the pipeline stages listed in the configuration (if the
+     corresponding implementation modules exist).
    - Prints ``Pipeline initialized`` on success.
 
 2. **Explicit CLI mode** for fixed‑density or adaptive runs:
@@ -108,17 +110,72 @@ def _write_run_config(cfg: Dict[str, Any], output_root: Path) -> None:
     log.info("Wrote effective run configuration to %s", run_cfg_path)
 
 # ----------------------------------------------------------------------
+# Stage execution helpers
+# ----------------------------------------------------------------------
+def _execute_stage(stage: str, cfg: Dict[str, Any]) -> None:
+    """Execute a single pipeline stage if its implementation exists.
+
+    Missing implementations are logged as warnings and skipped – this
+    matches the quick‑start expectation that early stages may be added
+    later (e.g., adaptive runs, analysis).
+    """
+    try:
+        if stage == "data":
+            # Download & snapshot raw datasets.
+            from code.data import download_all
+
+            download_all()
+            log.info("Stage 'data' completed.")
+        elif stage == "model":
+            # Load the diffusion model (CPU‑compatible).
+            from code.model import load_diffusion_model
+
+            model_id = cfg.get("model", {}).get("model_id", "hf://author/lightdiff-100m")
+            load_diffusion_model(model_id=model_id)
+            log.info("Stage 'model' completed.")
+        elif stage == "fixed_baselines":
+            # Run fixed‑density baseline experiments.
+            from code.trainer import run_fixed_baselines
+
+            training_cfg = cfg.get("training", {})
+            rhos = training_cfg.get("rhos", [0.1, 0.3, 0.5, 0.7, 0.9])
+            seeds = training_cfg.get("seeds", [42])
+            max_epochs = training_cfg.get("max_epochs", 10)
+            batch_size = training_cfg.get("batch_size", 32)
+            output_path = training_cfg.get("output_path")  # optional override
+            run_fixed_baselines(
+                rhos=rhos,
+                seeds=seeds,
+                max_epochs=max_epochs,
+                batch_size=batch_size,
+                output_csv=output_path,
+            )
+            log.info("Stage 'fixed_baselines' completed.")
+        elif stage == "adaptive_runs":
+            # Adaptive runs are not yet implemented in this task.
+            log.warning("Stage 'adaptive_runs' is not implemented yet; skipping.")
+        elif stage == "analysis":
+            # Analysis is also out of scope for T001.
+            log.warning("Stage 'analysis' is not implemented yet; skipping.")
+        else:
+            log.warning("Unknown stage '%s' – skipping.", stage)
+    except Exception as exc:
+        # Do not abort the whole pipeline; log and continue.
+        log.error("Error executing stage '%s': %s", stage, exc)
+        raise
+
+# ----------------------------------------------------------------------
 # Mode implementations
 # ----------------------------------------------------------------------
 def _run_fixed_mode(args: argparse.Namespace) -> None:
-    """Execute fixed‑density baseline experiments."""
+    """Execute fixed‑density baseline experiments via CLI arguments."""
     if not args.rhos or not args.seeds or not args.output:
         log.error(
             "Fixed mode requires --rhos, --seeds and --output arguments."
         )
         sys.exit(1)
 
-    # Import lazily to avoid heavy dependencies (e.g., torch) when not needed.
+    # Import lazily to avoid heavy dependencies when not needed.
     try:
         from code.trainer import run_fixed_baselines
     except Exception as exc:
@@ -170,6 +227,16 @@ def main(argv=None) -> int:
         # Initialise output directories and write the effective config.
         output_root = _initialize_outputs(cfg)
         _write_run_config(cfg, output_root)
+
+        # Execute the pipeline stages in the order defined by the config.
+        for stage in cfg.get("stages", []):
+            try:
+                _execute_stage(stage, cfg)
+            except Exception:
+                # If a stage fails, abort the pipeline – the quick‑start
+                # expects a thin run that succeeds, so we surface the error.
+                log.error("Pipeline aborted due to failure in stage '%s'.", stage)
+                return 1
 
         # Signal successful initialization as required by the task.
         print("Pipeline initialized")

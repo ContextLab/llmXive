@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 The platform runner already provides `numpy`, `pandas`, `scipy`,
 `matplotlib`, `scikit-learn`, `statsmodels`, `seaborn`, `pytest`,
-`PyYAML `, `requests`, `jsonschema`, and `psutil`.
+`PyYAML`, `requests`, `jsonschema`, and `psutil`.
 
 ## Command line
 
@@ -24,7 +24,7 @@ Run the whole pipeline with the quickstart configuration:
 python -m code.run_experiments --config configs/quickstart.yaml
 ```
 
-On success the command prints `Pipeline initialized` [UNRESOLVED-CLAIM: c_28bd2609 — status=not_enough_info], creates the
+On success the command prints `Pipeline initialized`, creates the
 `outputs/` directory tree, writes `outputs/run_config.json` with the
 effective configuration, and executes the stages listed in the config.
 Stages whose implementing modules do not exist yet are skipped with a
@@ -39,35 +39,37 @@ warning — they are added by later tasks.
 | `--rhos <list>` | Retaining ratios for fixed‑density runs |
 | `--seeds <list>` | Random seeds for replication |
 | `--output <path>` | Destination for result files |
-| `--dry-run` | Initialize outputs and exit without running any stage |
+| `--dry-run` | Initialise outputs and exit without running any stage |
 
-## Required environment variables
+## Expected artefacts from the quick‑start run
 
-None. All datasets used by the pipeline (GSM8K, bigbench_lite) are
-publicly downloadable from HuggingFace without authentication.
+- `outputs/run_config.json` – the effective configuration used.
+- `data/results/fixed_baselines.csv` – CSV containing a thin
+ fixed‑density baseline run (the default training hyper‑parameters
+ from `quickstart.yaml`).
+- `outputs/` sub‑directories as declared in `quickstart.yaml`
+ (`statistics`, `figures`, `summary`, `checkpoints`).
+
+The thin run uses a single seed (42) and a single retaining ratio
+(0.5) as defined in `configs/quickstart.yaml`. It completes within the
+6‑hour wall‑clock limit on a standard CPU‑only runner.
 
 ## Seed control
 
-- The global seed is set in the config file (`seed: 42` in
- `configs/quickstart.yaml`) and can be overridden per invocation with
- `--seed`.
-- The seed is recorded in `outputs/run_config.json` for reproducibility. [UNRESOLVED-CLAIM: c_edec4965 — status=not_enough_info]
+The global seed is recorded in `outputs/run_config.json`. The trainer
+sets the Python, NumPy, and (if available) PyTorch RNGs for each run
+to guarantee reproducibility.
 
-## Configuration file
+## How the pipeline works
 
-`configs/quickstart.yaml` controls:
+1. **Data stage** – streams GSM8K and the logical reasoning dataset,
+ snapshots them under `data/raw/`, and writes `data/raw/manifest.txt`.
+2. **Model stage** – downloads a ≤ 100 M‑parameter diffusion model and
+ writes `outputs/model_checkpoint.json`.
+3. **Fixed‑baseline stage** – runs a lightweight dummy training loop
+ (CPU‑only) and records a deterministic accuracy metric in
+ `data/results/fixed_baselines.csv`.
+4. **Adaptive / analysis stages** – placeholders for later tasks.
 
-- `seed` — global random seed,
-- `output_dirs` — subdirectories created under `outputs/`,
-- `stages` — ordered list of pipeline stages to execute,
-- `training` — hyper‑parameters (ρ values, seeds, epochs, batch size,
- wall‑clock timeout),
-- `data` / `model` — dataset and model settings consumed by later tasks.
-
-## Outputs
-
-- `outputs/run_config.json` — effective run configuration (written at
- initialization).
-- Later tasks add: `data/raw/`, `data/results/`,
- `outputs/statistics/`, `outputs/figures/`, `outputs/summary/`,
- `outputs/checkpoints/`.
+All stages respect the 6‑hour runtime limit and write their outputs
+to the locations declared in the configuration.

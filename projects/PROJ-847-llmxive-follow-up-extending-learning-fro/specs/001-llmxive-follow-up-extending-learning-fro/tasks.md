@@ -14,11 +14,11 @@ This revision repairs the rejected data/model tasks (real streaming GSM8K fetch,
 
 ## Phase 1 – Setup & first end‑to‑end run
 
-- [ ] **T001** [US‑1] **Create a reproducible entry‑point, configs, and quick‑start guide**
+- [~] **T001** [US‑1] **Create a reproducible entry‑point, configs, and quick‑start guide**
   - Implement a CLI script `code/run_experiments.py` that parses a YAML config and triggers the pipeline. Define TWO configs: `configs/quickstart.yaml` (thin smoke path: loads data sample, loads model, runs ONE thin training run — i.e., T004 — and exits) and `configs/full_suite.yaml` (the complete experiment suite: T004–T012). Document in `docs/quickstart.md` which config regenerates which artifact set and the expected wall-clock cost of each.
   - **Verification**: Running `python -m code.run_experiments --config configs/quickstart.yaml` prints “Pipeline initialized”, creates `data/results/`, and completes the thin run without errors; `--config configs/full_suite.yaml` is documented as the full regeneration path.
 
-- [ ] **T002** [US‑1] **Download & stream GSM8K (train + test) and the bigbench logical subset with a fail‑loudly loader** (REDO — verifier rejected: `code/data.py` exit=1)
+- [ ] **T002** [US‑1] **Download & stream GSM8K (train + test) and the bigbench logical subset with a fail‑loudly loader** (REDO — verifier rejected: `code/data.py` exit=1) <!-- FAILED-IN-EXECUTION: code/data.py exit=1 -->
   - Rewrite `code/data.py` so that `load_gsm8k(split)` internally uses exactly `datasets.load_dataset("openai/gsm8k", "main", split=split, streaming=True)` and `load_bigbench_lite()` uses `datasets.load_dataset("bigbench_lite")` filtered to the logical‑deduction task, per the plan’s Verified Datasets table. **Both loaders return MATERIALIZED fixed samples as Python lists** (built via `itertools.islice` on the stream): the first 2,000 GSM8K train examples, the first 500 GSM8K test examples, and the first 500 bigbench logical-deduction examples. State the sample sizes and their representativeness limitations in `data/raw/manifest.txt` alongside dataset identifiers and byte sizes.
   - The loader MUST raise immediately (no `try/except` fallback, no synthetic/mock data) if the real fetch fails, so the execution stage can discover a verified source and retry. Process in chunks so peak RAM stays ≤ 6 GB.
   - **Verification**: `python -c "from code.data import load_gsm8k; d=load_gsm8k('test'); print(len(d))"` exits 0, prints 500 (the loader returns a materialized list, so `len()` is valid); `len(load_bigbench_lite()) == 500`; `data/raw/manifest.txt` lists both real dataset identifiers with sizes; a deliberately broken identifier raises, not falls back.

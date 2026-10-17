@@ -11,76 +11,29 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/trainer.py: self-declared fabricated metric — “…U and generates deterministic dummy results suitable for the baseline st…”
 - code/trainer.py: self-declared fabricated metric — “…* Computes a deterministic dummy accuracy based on the seed and the…”
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python code/data.py --download`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/trainer.py: self-declared fabricated metric — “…U and generates deterministic dummy results suitable for the baseline st…”; code/trainer.py: self-declared fabricated metric — “…* Computes a deterministic dummy accuracy based on the seed and the…”; 4 command(s) failed: python code/data.py --download (rc=1); python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv (rc=1); python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json (rc=1); 1 declared deliverable(s) absent: data/results/fixed_baselines.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/trainer.py: self-declared fabricated metric — “…U and generates deterministic dummy results suitable for the baseline st…”; code/trainer.py: self-declared fabricated metric — “…* Computes a deterministic dummy accuracy based on the seed and the…”; 5 command(s) failed: python -m src.llmxive.data --download (rc=1); python -m src.llmxive.cli.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44 45 46 47 48 49 50 51  --output outputs/fixed_baselines.json (rc=1); python -m src.llmxive.cli.run_experiments  --mode adaptive  --seeds 42 43 44 45 46 47 48 49 50 51  --output outputs/adaptive_run.json (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/data.py --download -> rc=1
-xist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'math' doesn't exist on the Hub or cannot be accessed.
+- python -m src.llmxive.data --download -> rc=1
 
-The above exception was the direct cause of the following exception:
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/bin/python: Error while finding module specification for 'src.llmxive.data' (ModuleNotFoundError: No module named 'src')
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 157, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 151, in main
-    download_all()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 104, in download_all
-    n_log = _snapshot_to_jsonl(load_bigbench_lite(), logical_path)
-                               ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-847-llmxive-follow-up-extending-learning-fro/code/data.py", line 65, in load_bigbench_lite
-    raise RuntimeError(f"Failed to load Logical dataset {LOGICAL_ID}: {exc}") from exc
-RuntimeError: Failed to load Logical dataset math: Dataset 'math' doesn't exist on the Hub or cannot be accessed.
+- python -m src.llmxive.cli.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44 45 46 47 48 49 50 51  --output outputs/fixed_baselines.json -> rc=1
 
-- python -m code.run_experiments  --mode fixed  --rhos 0.1 0.3 0.5 0.7 0.9  --seeds 42 43 44  --output outputs/fixed_baselines.csv -> rc=1
-nload
-    return _hf_hub_download_to_cache_dir(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1194, in _hf_hub_download_to_cache_dir
-    _raise_on_head_call_error(head_call_error, force_download, local_files_only)
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1953, in _raise_on_head_call_error
-    raise head_call_error
-huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6acfa9e0-786ab1f943517a9c5e1526aa;61d7563c-d9ea-4669-9369-de2902046dad)
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/bin/python: Error while finding module specification for 'src.llmxive.cli.run_experiments' (ModuleNotFoundError: No module named 'src')
 
-Repository Not Found for url: https://huggingface.co/author/lightdiff-100m/resolve/main/pytorch_model.bin.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
-For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-Invalid username or password.
+- python -m src.llmxive.cli.run_experiments  --mode adaptive  --seeds 42 43 44 45 46 47 48 49 50 51  --output outputs/adaptive_run.json -> rc=1
 
-- python -m code.run_experiments  --mode adaptive  --seeds 42 43 44  --output outputs/adaptive_run.json -> rc=1
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/bin/python: Error while finding module specification for 'src.llmxive.cli.run_experiments' (ModuleNotFoundError: No module named 'src')
 
-2026-10-14 16:12:17,010 ERROR __main__: Adaptive mode not yet implemented in this task.
+- python -m src.llmxive.cli.run_experiments  --mode control_shuffle  --seeds 42 43 44 45 46 47 48 49 50 51  --output outputs/control_shuffle.json -> rc=1
 
-- python -m code.analysis  --fixed outputs/fixed_baselines.csv  --adaptive outputs/adaptive_run.json  --outdir outputs/statistics -> rc=1
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/bin/python: Error while finding module specification for 'src.llmxive.cli.run_experiments' (ModuleNotFoundError: No module named 'src')
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/bin/python: No module named code.analysis
+- python -m src.llmxive.analysis  --fixed outputs/fixed_baselines.json  --adaptive outputs/adaptive_run.json  --control outputs/control_shuffle.json  --outdir outputs/statistics -> rc=1
 
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-847-llmxive-follow-up-extending-learning-fro/bin/python: Error while finding module specification for 'src.llmxive.analysis' (ModuleNotFoundError: No module named 'src')
 
-## Declared deliverables still missing
-
-- data/results/fixed_baselines.csv
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/results/fixed_baselines.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/run_experiments.py` — IS a run-book command
-    - `code/trainer.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/fixed_baselines.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
