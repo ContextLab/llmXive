@@ -126,17 +126,30 @@ def _fetch_dataset_file_index(dataset: str) -> List[dict]:
         - 'download_url' (direct URL to the file)
     The OpenNeuro API returns JSON for the “files” endpoint.
     """
-    url = f"{OPENNEURO_API_ROOT}/{dataset}/files?download=0"
-    logger.info(f"Fetching OpenNeuro file index from {url}")
+    # Try the version‑aware endpoint first (most reliable)
+    url_versioned = f"{OPENNEURO_API_ROOT}/{dataset}/versions/latest/files?download=0"
+    logger.info(f"Fetching OpenNeuro file index from {url_versioned}")
     try:
-        resp = requests.get(url, timeout=30)
+        resp = requests.get(url_versioned, timeout=30)
         resp.raise_for_status()
         file_index = resp.json()
-        if not isinstance(file_index, list):
-            raise RuntimeError("Unexpected response format from OpenNeuro files endpoint.")
-        return file_index
-    except Exception as e:
-        raise RuntimeError(f"Failed to retrieve file index for dataset {dataset}: {e}")
+        if isinstance(file_index, list):
+            return file_index
+        else:
+            raise RuntimeError("Unexpected response format from versioned endpoint.")
+    except Exception as e_version:
+        # Fallback to the legacy endpoint (kept for backward compatibility)
+        url_legacy = f"{OPENNEURO_API_ROOT}/{dataset}/files?download=0"
+        logger.warning(f"Versioned endpoint failed ({e_version}); trying legacy endpoint {url_legacy}")
+        try:
+            resp = requests.get(url_legacy, timeout=30)
+            resp.raise_for_status()
+            file_index = resp.json()
+            if not isinstance(file_index, list):
+                raise RuntimeError("Unexpected response format from legacy endpoint.")
+            return file_index
+        except Exception as e_legacy:
+            raise RuntimeError(f"Failed to retrieve file index for dataset {dataset}: {e_legacy}")
 
 
 def _select_behavioral_file(file_index: List[dict]) -> Tuple[str, str]:

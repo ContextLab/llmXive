@@ -2,14 +2,15 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python src/analysis/stats.py --output results/analysis_results.csv; python src/analysis/visualize.py --input results/analysis_results.csv; 4 command(s) failed: python code/src/data/download.py --check-only (rc=1); python code/src/data/preprocess.py --subjects 50 --mode cpu (rc=1); python src/analysis/connectivity.py --subjects 50 (rc=1); 1 declared deliverable(s) absent: data/preprocessing/run_log.json
+**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python src/analysis/stats.py --output results/analysis_results.csv; python src/analysis/visualize.py --input results/analysis_results.csv; 4 command(s) failed: python src/data/download.py --check-only (rc=1); python code/src/data/preprocess.py --subjects 50 --mode cpu (rc=1); python src/analysis/connectivity.py --subjects 50 (rc=1); 1 declared deliverable(s) absent: data/preprocessing/run_log.json
 
 ## Failing / missing run-book commands
 
-- python code/src/data/download.py --check-only -> rc=1
+- python src/data/download.py --check-only -> rc=1
 
-2026-10-17 12:08:18,773 INFO __main__: Fetching OpenNeuro file index from https://openneuro.org/crn/datasets/ds000233/files?download=0
-2026-10-17 12:08:19,046 ERROR __main__: Pipeline failed: Failed to retrieve file index for dataset ds000233: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000233/files?download=0
+2026-10-17 13:07:29,664 INFO code.src.data.download: Fetching OpenNeuro file index from https://openneuro.org/crn/datasets/ds000233/versions/latest/files?download=0
+2026-10-17 13:07:29,820 WARNING code.src.data.download: Versioned endpoint failed (404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000233/versions/latest/files?download=0); trying legacy endpoint https://openneuro.org/crn/datasets/ds000233/files?download=0
+2026-10-17 13:07:29,978 ERROR code.src.data.download: Pipeline failed: Failed to retrieve file index for dataset ds000233: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000233/files?download=0
 
 - python code/src/data/preprocess.py --subjects 50 --mode cpu -> rc=1
 
