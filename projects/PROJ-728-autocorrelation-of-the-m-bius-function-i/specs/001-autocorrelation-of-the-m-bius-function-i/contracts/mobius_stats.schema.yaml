@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Autocorrelation Statistics Schema"
-description: "Schema for the autocorrelation_stats.csv output file."
+description: "Schema for the autocorrelation_stats.csv output file. The p_value field reflects a two‑sided p‑value derived from a **5,000‑permutation** test."
 type: object
 properties:
   interval_start:
@@ -22,7 +22,7 @@ properties:
     maximum: 1.0
   p_value:
     type: number
-    description: "Two-sided p-value from the 1,000-permutation test."
+    description: "Two-sided p-value from the 5,000‑permutation test."
     minimum: 0.0
     maximum: 1.0
   adjusted_p_value:
