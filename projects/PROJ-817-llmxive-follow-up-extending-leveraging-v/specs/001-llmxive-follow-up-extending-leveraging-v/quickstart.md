@@ -20,10 +20,15 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 ```
+Note: if `python -m spacy download en_core_web_sm` fails with a
+`numpy.dtype size changed` binary-incompatibility error, the venv's
+`spacy`/`thinc` wheels were built against a different numpy ABI; fix by
+reinstalling a matching pair (e.g. `pip install -U "spacy>=3.7,<3.8"
+"numpy<2"`) before continuing. This affects only the parser stage (T003).
 
 ## 3. Data download & curation
 ```bash
-python -m code.src.data.download           # streams the real InstructPix2Pix train split; writes data/raw/prompts_sample.parquet (first 2,000 real prompts with row SHA-256 checksums)
+python -m code.src.data.download           # streams the real InstructPix2Pix train split; writes data/raw/prompts_sample.parquet (an initial subset of real prompts with row SHA-256 checksums)
 python -m code.src.data.curate             # creates data/results/curated_prompts.csv (adds synthetic_score)
 python -m code.src.data.conflict_generator # injects contradictions into neutral prompts → conflicting set
 ```
@@ -31,14 +36,15 @@ python -m code.src.data.conflict_generator # injects contradictions into neutral
 ### Input provenance (T001)
 - **Dataset ID**: `timbrooks/instructpix2pix` (Hugging Face)
 - **Split**: `train`
-- **Streaming rule**: `datasets.load_dataset("timbrooks/instructpix2pix", split="train", streaming=True)` — the full stream is scanned in chunks of 500 rows without loading it into RAM. Fallback: the canonical HF parquet files at `https://huggingface.co/datasets/timbrooks/instructpix2pix`.
+- **Streaming rule**: `datasets.load_dataset("timbrooks/instructpix2pix", split="train", streaming=True)` — the full stream is scanned in fixed-size chunks without loading it into RAM.
+- **Real fallbacks** (same dataset, no synthetic data, used only if the primary loader fails on the runner): (1) the dataset's canonical auto-converted parquet shards listed by the official HF datasets-server API (`https://datasets-server.huggingface.co/parquet?dataset=timbrooks/instructpix2pix`) and the Hub parquet API (`https://huggingface.co/api/datasets/timbrooks/instructpix2pix/parquet/default/train`), streamed shard-by-shard with `load_dataset("parquet", data_files=<url>, streaming=True)`; (2) the datasets-server `/rows` API (paginated real rows). The source actually used is recorded in `data/raw/prompts_sample_provenance.json`.
 - **Checksums**: each output row carries a SHA-256 checksum over its `(edit_prompt, original_prompt, edit_type)` values; the output file's own SHA-256 is recorded in `data/raw/prompts_sample_provenance.json`.
-- **Output**: `data/raw/prompts_sample.parquet` — the first [deferred] real `(image, edit_prompt)` prompt texts with non-null prompts and checksums. The loader raises on any fetch error; there is no synthetic fallback.
+- **Output**: `data/raw/prompts_sample.parquet` — a sample of real `(image, edit_prompt)` prompt texts with non-null prompts and checksums, sized for exploratory analysis. The loader raises on any fetch error; there is no synthetic fallback.
 - **Runnable command**: `python -m code.src.data.download`
 
 ## 4. Human feasibility validation (required for primary evaluation)
 ```bash
-python -m code.src.data.human_annotation   # launches a lightweight web form or MTurk batch for **all 1000 prompts**
+python -m code.src.data.human_annotation   # launches a lightweight web form or MTurk batch for the full set of prompts
 # Results are saved to data/results/human_validation.csv and merged into data/results/curated_prompts.csv as the `human_score` column.
 ```
 
@@ -71,6 +77,7 @@ python -m code.src.analysis.report          # writes data/results/report.json an
 | File | Description |
 |------|-------------|
 | `data/raw/prompts_sample.parquet` | First [deferred] real InstructPix2Pix prompt texts with row SHA-256 checksums. |
+| `data/raw/prompts_sample_provenance.json` | Dataset ID, split, streaming rule, source used, output SHA-256. |
 | `data/results/curated_prompts.csv` | Prompt text + synthetic & **human** feasibility scores. |
 | `data/results/graphs/*.json` | One graph per prompt (structural abstraction only). |
 | `data/results/baseline_scores.csv` | Verifier scores without graph context (aligned to human scores). |

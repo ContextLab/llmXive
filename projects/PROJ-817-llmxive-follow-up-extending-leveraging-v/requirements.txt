@@ -1,7 +1,2 @@
-# Core dependencies required for the project.
-# The base environment already provides: numpy (will be upgraded), pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil.
-# Additional packages needed for this project:
-datasets==2.21.0
-numpy>=2.0
-spacy==3.7.4
+datasets>=2.19.0
+pyarrow>=15.0.0

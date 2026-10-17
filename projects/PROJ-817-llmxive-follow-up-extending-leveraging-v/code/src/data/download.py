@@ -1,15 +1,24 @@
 """Download the real InstructPix2Pix prompt source data (T001).
 
 Streams the full ``timbrooks/instructpix2pix`` train split via
-``datasets.load_dataset(..., streaming=True)`` (falling back to the
-canonical HF parquet files at
-https://huggingface.co/datasets/timbrooks/instructpix2pix), iterating in
-chunks so the stream is scanned without loading it into RAM, and writes
-the first N_PROMPTS real ``(image, edit_prompt)`` prompt texts with row
-SHA-256 checksums to ``data/raw/prompts_sample.parquet``.
+``datasets.load_dataset(..., streaming=True)``. Because the Hub-side
+dataset loader can be unavailable on some runners (renamed repos,
+removed loading scripts, ``datasets>=3`` incompatibilities), the module
+falls back to REAL, canonical sources of the SAME dataset, in order:
 
-The loader fails loudly on any fetch error — there is NO synthetic/mock
-fallback, ever.
+1. ``datasets.load_dataset("timbrooks/instructpix2pix", split="train",
+   streaming=True)`` (primary, per spec).
+2. The dataset's auto-converted parquet shards listed by the official
+   HF datasets-server API
+   (``https://datasets-server.huggingface.co/parquet?dataset=...``),
+   streamed one shard at a time with
+   ``load_dataset("parquet", data_files=<url>, streaming=True)``.
+3. The parquet URLs published by the Hub API endpoint
+   ``https://huggingface.co/api/datasets/timbrooks/instructpix2pix/parquet/default/train``.
+4. The datasets-server ``/rows`` API (paginated real rows).
+
+Every fallback serves REAL rows of the SAME dataset; there is NO
+synthetic/mock fallback, ever, and any fetch error raises loudly.
 
 Run:  python -m code.src.data.download
 """
@@ -30,10 +39,15 @@ DATASET_ID = "timbrooks/instructpix2pix"
 SPLIT = "train"
 N_PROMPTS = 2000
 CHUNK_SIZE = 500
-PARQUET_URLS = [
-    "https://huggingface.co/datasets/timbrooks/instructpix2pix/resolve/main/data/train-00000-of-00002-b9a5e2f7f2831e41.parquet",
-    "https://huggingface.co/datasets/timbrooks/instructpix2pix/resolve/main/data/train-00001-of-00002-8f6b8f4b3a2f5b2f.parquet",
-]
+
+DATASETS_SERVER_PARQUET = (
+    "https://datasets-server.huggingface.co/parquet"
+)
+HUB_API_PARQUET = (
+    "https://huggingface.co/api/datasets/timbrooks/instructpix2pix/"
+    "parquet/default/train"
+)
+DATASETS_SERVER_ROWS = "https://datasets-server.huggingface.co/rows"
 
 OUTPUT_PATH = paths.data("raw", "prompts_sample.parquet")
 PROVENANCE_PATH = paths.data("raw", "prompts_sample_provenance.json")
@@ -67,17 +81,96 @@ def _iter_stream_hf():
         yield row
 
 
-def _iter_stream_parquet():
-    """Fallback path: read the canonical HF parquet files chunk by chunk."""
+def _parquet_urls_from_datasets_server() -> list[str]:
+    """Real parquet shard URLs from the official HF datasets-server API."""
+    import requests
+
+    resp = requests.get(
+        DATASETS_SERVER_PARQUET,
+        params={"dataset": DATASET_ID},
+        timeout=60,
+    )
+    resp.raise_for_status()
+    files = resp.json().get("parquet_files", [])
+    urls = [f["url"] for f in files if f.get("split") == SPLIT]
+    if not urls:
+        raise RuntimeError(
+            f"datasets-server returned no train parquet files for {DATASET_ID}"
+        )
+    return sorted(urls)
+
+
+def _parquet_urls_from_hub_api() -> list[str]:
+    """Real parquet shard URLs from the Hub parquet API endpoint."""
+    import requests
+
+    resp = requests.get(HUB_API_PARQUET, timeout=60)
+    resp.raise_for_status()
+    urls = list(resp.json())
+    if not urls:
+        raise RuntimeError(
+            f"Hub parquet API returned no train files for {DATASET_ID}"
+        )
+    return sorted(urls)
+
+
+def _iter_parquet_shards(urls: list[str]):
+    """Fallback path: stream real canonical parquet shards one by one."""
     from datasets import load_dataset
 
-    for url in PARQUET_URLS:
+    for url in urls:
         log.info("Streaming canonical parquet shard: %s", url)
         ds = load_dataset(
             "parquet", data_files=url, split="train", streaming=True
         )
         for row in ds:
             yield row
+
+
+def _iter_stream_parquet():
+    """Fallback path: real parquet shards, server-listed then Hub-listed."""
+    try:
+        urls = _parquet_urls_from_datasets_server()
+    except Exception as exc:  # noqa: BLE001 - try the other real source
+        log.warning(
+            "datasets-server parquet listing failed (%s); trying Hub API",
+            exc,
+        )
+        urls = _parquet_urls_from_hub_api()
+    yield from _iter_parquet_shards(urls)
+
+
+def _iter_rows_api():
+    """Last real fallback: paginated real rows from the datasets-server."""
+    import requests
+
+    offset = 0
+    page = 100
+    while True:
+        resp = requests.get(
+            DATASETS_SERVER_ROWS,
+            params={
+                "dataset": DATASET_ID,
+                "config": "default",
+                "split": SPLIT,
+                "offset": offset,
+                "length": page,
+            },
+            timeout=120,
+        )
+        resp.raise_for_status()
+        rows = resp.json().get("rows", [])
+        if not rows:
+            return
+        for wrapped in rows:
+            row = wrapped.get("row", {})
+            # The rows API returns images as URL dicts; keep text fields.
+            if isinstance(row.get("edit_prompt"), dict):
+                row["edit_prompt"] = row["edit_prompt"].get("text")
+            if isinstance(row.get("original_prompt"), dict):
+                row["original_prompt"] = row["original_prompt"].get("text")
+            yield row
+        offset += len(rows)
 
 
 def collect_prompt_sample(
@@ -87,60 +180,85 @@ def collect_prompt_sample(
 
     Raises on any fetch error — no synthetic fallback.
     """
-    try:
-        row_iter = _iter_stream_hf()
-        source = (
-            f"datasets.load_dataset('{DATASET_ID}', split='{SPLIT}', streaming=True)"
-        )
-    except Exception as exc:  # noqa: BLE001 - fail loudly, then try fallback
-        log.warning(
-            "HF streaming loader failed (%s); trying canonical parquet shards",
-            exc,
-        )
-        row_iter = _iter_stream_parquet()
-        source = "canonical HF parquet shards (" + "; ".join(PARQUET_URLS) + ")"
+    attempts = [
+        (
+            "datasets.load_dataset('timbrooks/instructpix2pix', "
+            "split='train', streaming=True)",
+            _iter_stream_hf,
+        ),
+        (
+            "canonical HF parquet shards via datasets-server/Hub API",
+            _iter_stream_parquet,
+        ),
+        (
+            "datasets-server /rows API (paginated real rows)",
+            _iter_rows_api,
+        ),
+    ]
 
     records: list[dict] = []
     scanned = 0
-    chunk: list[dict] = []
+    source = None
 
-    def flush(chunk: list[dict]) -> None:
-        for row in chunk:
-            prompt = row.get("edit_prompt")
-            if prompt is None or not str(prompt).strip():
-                continue
-            records.append(
-                {
-                    "edit_prompt": str(prompt),
-                    "original_prompt": row.get("original_prompt"),
-                    "edit_type": row.get("edit_type"),
-                    "checksum": _row_checksum(row),
-                }
-            )
+    for source, stream_factory in attempts:
+        records = []
+        scanned = 0
+        chunk: list[dict] = []
 
-    try:
-        for row in row_iter:
-            scanned += 1
-            chunk.append(row)
-            if len(chunk) >= chunk_size:
-                flush(chunk)
-                chunk = []
-                log.info(
-                    "Scanned %d streamed rows; kept %d prompts",
-                    scanned,
-                    len(records),
+        def flush(chunk: list[dict]) -> None:
+            for row in chunk:
+                prompt = row.get("edit_prompt")
+                if prompt is None or not str(prompt).strip():
+                    continue
+                records.append(
+                    {
+                        "edit_prompt": str(prompt),
+                        "original_prompt": row.get("original_prompt"),
+                        "edit_type": row.get("edit_type"),
+                        "checksum": _row_checksum(row),
+                    }
                 )
-                if len(records) >= n_prompts:
-                    break
-        if chunk and len(records) < n_prompts:
-            flush(chunk)
-    except Exception:
-        log.exception("REAL data fetch failed while streaming %s", source)
-        raise
+
+        try:
+            row_iter = stream_factory()
+            for row in row_iter:
+                scanned += 1
+                chunk.append(row)
+                if len(chunk) >= chunk_size:
+                    flush(chunk)
+                    chunk = []
+                    log.info(
+                        "Scanned %d streamed rows; kept %d prompts",
+                        scanned,
+                        len(records),
+                    )
+                    if len(records) >= n_prompts:
+                        break
+            if chunk and len(records) < n_prompts:
+                flush(chunk)
+        except Exception:
+            log.exception(
+                "REAL data fetch failed while streaming (source: %s)",
+                source,
+            )
+            if stream_factory is attempts[-1][1]:
+                raise
+            log.warning("Falling back to the next REAL source")
+            continue
+
+        if len(records) >= n_prompts:
+            break
+        log.warning(
+            "Source %s yielded only %d valid prompts (< %d); "
+            "trying the next REAL source",
+            source,
+            len(records),
+            n_prompts,
+        )
 
     if len(records) < n_prompts:
         raise RuntimeError(
-            f"Real stream yielded only {len(records)} valid prompts "
+            f"All REAL sources yielded only {len(records)} valid prompts "
             f"(needed {n_prompts}); refusing to fabricate data."
         )
 
@@ -173,13 +291,18 @@ def main() -> int:
         "streaming_rule": (
             "datasets.load_dataset('timbrooks/instructpix2pix', "
             "split='train', streaming=True), full stream scanned in "
-            f"chunks of {CHUNK_SIZE} rows; fallback: canonical HF parquet shards"
+            f"chunks of {CHUNK_SIZE} rows; real fallbacks: canonical "
+            "parquet shards listed by the HF datasets-server /parquet "
+            "API and the Hub parquet API, then the datasets-server "
+            "/rows API — all serving the same real dataset"
         ),
         "source_used": df.attrs["source"],
         "rows_scanned": df.attrs["scanned_rows"],
         "n_rows_written": int(len(df)),
         "n_prompts_target": N_PROMPTS,
-        "checksum_algorithm": "sha256 over (edit_prompt, original_prompt, edit_type) JSON",
+        "checksum_algorithm": (
+            "sha256 over (edit_prompt, original_prompt, edit_type) JSON"
+        ),
         "output_file": str(OUTPUT_PATH),
         "output_sha256": hashlib.sha256(OUTPUT_PATH.read_bytes()).hexdigest(),
     }
