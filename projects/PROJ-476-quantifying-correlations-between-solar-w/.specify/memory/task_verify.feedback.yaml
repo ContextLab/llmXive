@@ -1,4 +1,12 @@
 T001:
+  reason: "The directory hierarchy and `specs/001-quantifying-correlations-between-solar-w/quickstart.md`\
+    \ (containing the required `python -m code.main --stage all` command) are present.\
+    \ However, there is no evidence that `code/main.py` (or `code/__init__.py`) exists\
+    \ \u2014 the collector only confirmed the `code/data/`, `code/analysis/`, `code/viz/`,\
+    \ and `code/tests/` subdirectories \u2014 so the required runnable entry point\
+    \ for `python -m code.main --help` is missing, and no execution evidence shows\
+    \ the verification command exits 0. Add `code/main.py` with a `--stage`/`--help`\
+    \ CLI (plus `code/__init__.py`) and d"
   task: d57b6dbabc16d1e7d22f1ddec3f16421e48727461789f674b20132268debc58b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/fetch_ace.py

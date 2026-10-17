@@ -1,12 +1,15 @@
 T001:
-  c: true
-  h: bd30df94ebcfbb0733f4f567f10aa2ba34bec7edd67ccd9e3de4472f0144b7c3
-  r: "The directory hierarchy (`code/data/`, `code/analysis/`, `code/viz/`, `code/tests/`,\
-    \ `data/raw/`, `data/processed/`, `results/`, `figures/`) is present, the `specs/001-quantifying-correlations-between-solar-w/quickstart.md`\
-    \ file exists and contains the exact command `python -m code.main --stage all`,\
-    \ and the log `code/.tasks/T001.code_main.py.log` shows that `python -m code.main\
-    \ --help` runs successfully with exit code\u202F0."
-  sig: 784fb7dd858795e8a2c063da88f5ac2cd620cac0a945bdc8b0164e784ebaefe9
+  c: false
+  h: 784c5d8110c6e6a6f19d193c74a138ea8652ce0436cc83b801fa74e48b762161
+  r: "The directory hierarchy and `specs/001-quantifying-correlations-between-solar-w/quickstart.md`\
+    \ (containing the required `python -m code.main --stage all` command) are present.\
+    \ However, there is no evidence that `code/main.py` (or `code/__init__.py`) exists\
+    \ \u2014 the collector only confirmed the `code/data/`, `code/analysis/`, `code/viz/`,\
+    \ and `code/tests/` subdirectories \u2014 so the required runnable entry point\
+    \ for `python -m code.main --help` is missing, and no execution evidence shows\
+    \ the verification command exits 0. Add `code/main.py` with a `--stage`/`--help`\
+    \ CLI (plus `code/__init__.py`) and d"
+  sig: 048581941f10f0505f705f62e443c65457111122c7908a88ef9eeb67ea1d0e04
 T005:
   c: false
   h: 58b418a2cc42df68ff97c0487ecc9331459d9653698b02507efd69cd0785c4ab

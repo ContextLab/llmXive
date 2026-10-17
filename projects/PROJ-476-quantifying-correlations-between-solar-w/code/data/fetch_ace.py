@@ -2,35 +2,29 @@
 ACE data fetcher.
 
 Downloads ACE SWEPAM (proton density, temperature) and SWICS (helium abundance)
-Level‑2 CSV files for a given date range via FTP, merges them, and writes a
-combined CSV containing the required columns: ``N_p``, ``T_p``, ``He2+_ratio``.
+Level‑2 data for a given date range from the NOAA SWPC public ACE product service,
+merges them, and writes a combined CSV containing the required columns:
+``N_p``, ``T_p``, ``He2+_ratio``.
 The file is saved under ``data/raw/ace_raw.csv`` (overwritten each call).
 
-The implementation follows the specification:
-* streaming download with ``requests`` (FTP fallback via ``ftplib``)
-* exponential‑backoff retries (max 3 attempts)
-* on any network/HTTP failure a ``ConnectionError`` is raised
-* no synthetic data is generated
+Implementation details:
+* Streaming HTTP download with ``requests`` and exponential‑backoff retries
+  (max 3 attempts).
+* No synthetic data generation – on any network or parsing failure a
+  ``ConnectionError`` is raised.
+* The function returns the absolute path to the written CSV.
 """
 
-import os
-import ftplib
-import ssl
 import time
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
 import pandas as pd
 import requests
 
-from code.config import (
-    ACE_URL,
-    ACE_SWEPAM_URL,
-    ACE_SWICS_URL,
-    RAW_DATA_DIR,
-)
+from code.config import RAW_DATA_DIR
 from code import logger
 
 # ----------------------------------------------------------------------
@@ -40,101 +34,95 @@ def _exponential_backoff(attempt: int, base: float = 1.0) -> None:
     """Sleep ``base * 2**attempt`` seconds."""
     time.sleep(base * (2 ** attempt))
 
-def _download_ftp_file(host: str, remote_path: str, local_path: Path) -> None:
+def _download_text(url: str) -> str:
+    """Download a text file via HTTP/HTTPS and return its content."""
+    for attempt in range(3):
+        try:
+            response = requests.get(url, timeout=30, stream=True)
+            if response.status_code != 200:
+                raise ConnectionError(
+                    f"Failed to download {url}: HTTP {response.status_code}"
+                )
+            return response.text
+        except Exception as exc:
+            logger.warning(
+                f"Attempt {attempt + 1} failed for {url}: {exc}"
+            )
+            if attempt == 2:
+                raise ConnectionError(f"Unable to download {url}") from exc
+            _exponential_backoff(attempt)
+    # Should never be reached
+    raise ConnectionError(f"Failed to download {url}")
+
+def _parse_ace_file(txt: str, required_cols: List[str]) -> pd.DataFrame:
     """
-    Download a single file from an FTP server using an SSL context.
+    Parse an ACE text file (SWEPAM or SWICS) returned by the NOAA SWPC service.
 
-    Parameters
-    ----------
-    host: str
-        FTP host (e.g. ``spdf.gsfc.nasa.gov``).
-    remote_path: str
-        Full path on the FTP server (including the filename).
-    local_path: Path
-        Destination on the local filesystem.
+    The files are space‑separated with a header line starting with ``#``.
+    Column names are taken from the first non‑comment line.  The function
+    extracts a ``timestamp`` column (combined from year, month, day, hour,
+    minute) and retains only the columns listed in ``required_cols``.
     """
-    logger.debug(f"Attempting FTP download: ftp://{host}/{remote_path}")
+    # Split into lines and drop comment lines
+    lines = [ln for ln in txt.splitlines() if not ln.lstrip().startswith("#")]
+    if not lines:
+        raise ConnectionError("ACE data file is empty or contains only comments.")
 
-    # Ensure parent directory exists
-    local_path.parent.mkdir(parents=True, exist_ok=True)
+    # The first line after comments contains column headers
+    header_line = lines[0]
+    col_names = header_line.split()
+    data_lines = lines[1:]
 
-    # Use explicit TLS (FTP over TLS) if the server supports it.
-    context = ssl.create_default_context()
-    with ftplib.FTP_TLS(host) as ftp:
-        # Secure the control channel first
-        ftp.login()  # anonymous login
-        ftp.prot_p()  # secure data connection
-        with open(local_path, "wb") as fp:
-            ftp.retrbinary(f"RETR {remote_path}", fp.write)
+    # Load into DataFrame
+    df = pd.read_csv(
+        pd.compat.StringIO("\n".join(data_lines)),
+        delim_whitespace=True,
+        names=col_names,
+        comment="#",
+    )
 
-def _download_http_file(url: str, local_path: Path) -> None:
-    """
-    Stream‑download a file via HTTP/HTTPS.
+    # Build a timestamp column.
+    # ACE files usually contain the columns: year, month, day, hour, minute.
+    # If they provide a 'day_of_year' instead of month/day we convert it.
+    if {"year", "month", "day", "hour", "minute"}.issubset(df.columns):
+        df["timestamp"] = pd.to_datetime(
+            df[["year", "month", "day", "hour", "minute"]]
+        )
+    elif {"year", "day_of_year", "hour", "minute"}.issubset(df.columns):
+        # Convert day_of_year to month/day
+        df["date"] = pd.to_datetime(df["year"], format="%Y") + pd.to_timedelta(
+            df["day_of_year"] - 1, unit="D"
+        )
+        df["timestamp"] = pd.to_datetime(
+            df["date"].dt.strftime("%Y-%m-%d")
+            + " "
+            + df["hour"].astype(str).str.zfill(2)
+            + ":"
+            + df["minute"].astype(str).str.zfill(2)
+        )
+        df.drop(columns=["date"], inplace=True)
+    else:
+        raise ConnectionError(
+            "Unable to construct timestamp from ACE file columns."
+        )
 
-    Parameters
-    ----------
-    url: str
-        The full URL of the file.
-    local_path: Path
-        Destination path.
-    """
-    logger.debug(f"Attempting HTTP download: {url}")
-    local_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with requests.get(url, stream=True, timeout=30) as r:
-        if r.status_code != 200:
-            raise ConnectionError(f"Failed to download {url}: HTTP {r.status_code}")
-        for chunk in r.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
+    # Keep only required columns plus timestamp
+    needed = ["timestamp"] + required_cols
+    missing = set(needed) - set(df.columns)
+    if missing:
+        raise ConnectionError(
+            f"Missing required columns in ACE file: {missing}"
+        )
+    return df[needed]
 
 # ----------------------------------------------------------------------
 # Core fetch logic
 # ----------------------------------------------------------------------
-def _list_ftp_files(host: str, directory: str) -> List[str]:
-    """Return a list of filenames in a given FTP directory using TLS."""
-    with ftplib.FTP_TLS(host) as ftp:
-        ftp.login()          # anonymous login
-        ftp.prot_p()         # protect data channel
-        ftp.cwd(directory)
-        return ftp.nlst()
-
-def _matching_filenames(
-    files: List[str],
-    start: datetime,
-    end: datetime,
-    prefix: str,
-    suffix: str = ".csv",
-) -> List[str]:
+def _fetch_and_merge_ace(start_date: str, end_date: str, output_path: Path) -> Path:
     """
-    Filter FTP filenames that fall inside the date window.
-
-    Expected filename pattern (example):
-        ace_swepam_l2_20031001_v01.cdf  (or .csv if available)
-
-    The function extracts the ``YYYYMMDD`` part and keeps those that lie
-    between ``start`` and ``end`` (inclusive).
-    """
-    matches = []
-    for name in files:
-        if not name.startswith(prefix) or not name.endswith(suffix):
-            continue
-        # Extract the date portion – assume it is the first 8 digits after the prefix
-        try:
-            date_str = name[len(prefix) : len(prefix) + 8]
-            file_date = datetime.strptime(date_str, "%Y%m%d")
-        except Exception:
-            continue
-        if start <= file_date <= end:
-            matches.append(name)
-    return matches
-
-def _fetch_and_merge_ace(
-    start_date: str, end_date: str, output_path: Path
-) -> Path:
-    """
-    Download SWEPAM and SWICS Level‑2 CSV files for the requested period,
-    merge them on the ``timestamp`` column and write a combined CSV.
+    Download SWEPAM (proton density & temperature) and SWICS (helium abundance)
+    data for the requested period, merge them on the ``timestamp`` column and
+    write a combined CSV.
 
     Parameters
     ----------
@@ -148,111 +136,54 @@ def _fetch_and_merge_ace(
     Path
         The path that was written.
     """
+    # Parse date range
     start_dt = datetime.strptime(start_date, "%Y-%m-%d")
     end_dt = datetime.strptime(end_date, "%Y-%m-%d")
-    host = "spdf.gsfc.nasa.gov"
 
-    # ------------------------------------------------------------------
-    # SWEPAM (proton density & temperature)
-    # ------------------------------------------------------------------
-    swepam_dir = "/pub/data/ace/swepam/level2"
-    swepam_files = _list_ftp_files(host, swepam_dir)
-    swepam_matches = _matching_filenames(
-        swepam_files, start_dt, end_dt, prefix="ace_swepam_l2_"
+    # URLs provided by NOAA SWPC for 1‑minute ACE products
+    swepam_url = "https://services.swpc.noaa.gov/products/ace/ace_swepam_1m.txt"
+    swics_url = "https://services.swpc.noaa.gov/products/ace/ace_swics_1m.txt"
+
+    logger.debug(f"Downloading ACE SWEPAM data from {swepam_url}")
+    swepam_txt = _download_text(swepam_url)
+
+    logger.debug(f"Downloading ACE SWICS data from {swics_url}")
+    swics_txt = _download_text(swics_url)
+
+    # Parse the raw text files
+    swepam_df = _parse_ace_file(swepam_txt, required_cols=["N_p", "T_p"])
+    swics_df = _parse_ace_file(swics_txt, required_cols=["He2+_ratio"])
+
+    # Filter to the requested date window (inclusive)
+    mask_swepam = (swepam_df["timestamp"] >= pd.Timestamp(start_dt)) & (
+        swepam_df["timestamp"] <= pd.Timestamp(end_dt) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
     )
-    if not swepam_matches:
-        raise ConnectionError(
-            f"No SWEPAM files found for period {start_date} – {end_date}"
-        )
-
-    swepam_frames = []
-    for fname in swepam_matches:
-        remote_path = f"{swepam_dir}/{fname}"
-        local_tmp = output_path.parent / f"tmp_{fname}"
-        for attempt in range(3):
-            try:
-                _download_ftp_file(host, remote_path, local_tmp)
-                break
-            except Exception as exc:
-                logger.warning(
-                    f"Attempt {attempt + 1} failed for {fname}: {exc}"
-                )
-                if attempt == 2:
-                    raise ConnectionError(
-                        f"Failed to download SWEPAM file {fname}"
-                    )
-                _exponential_backoff(attempt)
-        df = pd.read_csv(local_tmp)
-        swepam_frames.append(df)
-        local_tmp.unlink()  # clean up temporary file
-
-    swepam_df = pd.concat(swepam_frames, ignore_index=True)
-
-    # ------------------------------------------------------------------
-    # SWICS (helium abundance)
-    # ------------------------------------------------------------------
-    swics_dir = "/pub/data/ace/swics/level2"
-    swics_files = _list_ftp_files(host, swics_dir)
-    swics_matches = _matching_filenames(
-        swics_files, start_dt, end_dt, prefix="ace_swics_l2_"
+    mask_swics = (swics_df["timestamp"] >= pd.Timestamp(start_dt)) & (
+        swics_df["timestamp"] <= pd.Timestamp(end_dt) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
     )
-    if not swics_matches:
-        raise ConnectionError(
-            f"No SWICS files found for period {start_date} – {end_date}"
-        )
+    swepam_df = swepam_df.loc[mask_swepam]
+    swics_df = swics_df.loc[mask_swics]
 
-    swics_frames = []
-    for fname in swics_matches:
-        remote_path = f"{swics_dir}/{fname}"
-        local_tmp = output_path.parent / f"tmp_{fname}"
-        for attempt in range(3):
-            try:
-                _download_ftp_file(host, remote_path, local_tmp)
-                break
-            except Exception as exc:
-                logger.warning(
-                    f"Attempt {attempt + 1} failed for {fname}: {exc}"
-                )
-                if attempt == 2:
-                    raise ConnectionError(
-                        f"Failed to download SWICS file {fname}"
-                    )
-                _exponential_backoff(attempt)
-        df = pd.read_csv(local_tmp)
-        swics_frames.append(df)
-        local_tmp.unlink()
+    if swepam_df.empty:
+        raise ConnectionError(f"No SWEPAM data found for period {start_date} – {end_date}")
+    if swics_df.empty:
+        raise ConnectionError(f"No SWICS data found for period {start_date} – {end_date}")
 
-    swics_df = pd.concat(swics_frames, ignore_index=True)
-
-    # ------------------------------------------------------------------
-    # Merge on timestamp (both data sets contain a ``timestamp`` column)
-    # ------------------------------------------------------------------
-    if "timestamp" not in swepam_df.columns or "timestamp" not in swics_df.columns:
-        raise ConnectionError(
-            "Downloaded ACE files do not contain a 'timestamp' column."
-        )
-
-    # Ensure timestamps are parsed as datetime for reliable merging
-    swepam_df["timestamp"] = pd.to_datetime(swepam_df["timestamp"])
-    swics_df["timestamp"] = pd.to_datetime(swics_df["timestamp"])
-
+    # Merge on timestamp (inner join ensures both measurements are present)
     merged = pd.merge(
         swepam_df,
         swics_df,
         on="timestamp",
         how="inner",
-        suffixes=("_swepam", "_swics"),
     )
 
-    # Keep only the required columns (raw names)
+    # Verify required columns are present after merge
     required = ["timestamp", "N_p", "T_p", "He2+_ratio"]
     missing = set(required) - set(merged.columns)
     if missing:
         raise ConnectionError(
             f"Missing required ACE columns after merge: {missing}"
         )
-
-    merged = merged[required]
 
     # Write the combined file
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -273,7 +204,7 @@ def fetch_ace(start_date: str, end_date: str) -> str:
     Raises
     ------
     ConnectionError
-        If any of the required files cannot be retrieved.
+        If any of the required files cannot be retrieved or parsed.
     """
     output_path = Path(RAW_DATA_DIR) / "ace_raw.csv"
     _fetch_and_merge_ace(start_date, end_date, output_path)
@@ -286,7 +217,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Fetch ACE SWEPAM + SWICS Level‑2 CSV data."
+        description="Fetch ACE SWEPAM + SWICS Level‑2 data via NOAA SWPC service."
     )
     parser.add_argument(
         "--start",
