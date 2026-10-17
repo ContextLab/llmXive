@@ -1,17 +1,11 @@
-# Core scientific stack (already available in the runner)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependencies required for semantic similarity
-torch>=2.0
-torchvision>=0.15
+# Pinned dependencies for the llmXive follow‑up project.
+# Packages that are already provided by the runtime (numpy, pandas,
+# scipy, scikit-learn, matplotlib, seaborn, pytest, PyYAML,
+# requests, jsonschema, psutil) are omitted.
+pillow==10.4.0
+fastapi==0.111.0
+uvicorn==0.30.0
+torch==2.3.0
+torchvision==0.18.0
+# The versions above are chosen to be compatible with Python 3.11
+# and to work on CPU‑only runners used in CI.

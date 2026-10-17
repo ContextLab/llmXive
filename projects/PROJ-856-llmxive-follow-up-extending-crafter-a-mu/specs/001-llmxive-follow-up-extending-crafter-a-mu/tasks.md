@@ -14,7 +14,7 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
   - **File**: `quickstart.md` (add a “Run the end‑to‑end pipeline” section).  
   - **Verification**: `pytest -q tests/integration/test_end_to_end.py` passes; the command `python -m src.run_pipeline --config config.yaml` executes without error and prints “Pipeline completed”.  
 
-- [ ] T002 [P] [US1] Implement data‑curation script that downloads a reproducible 50‑figure subset from CrafterBench, injects a single localized error per figure, and writes ground‑truth vectors.
+- [ ] T002 [P] [US1] Implement data‑curation script that downloads a reproducible 50‑figure subset from CrafterBench, injects a single localized error per figure, and writes ground‑truth vectors. <!-- FAILED-IN-EXECUTION: src/curators/curate_failed_figures.py exit=-1 (TIMEOUT) -->
   - **File**: `src/curators/curate_failed_figures.py` (CLI entry point `--output data/figures/`).  
   - **Verification**: After running `python -m src.curators.curate_failed_figures --num 50`, the directory `data/figures/` contains exactly 50 PNG files and `data/ground_truth/` contains 50 matching JSON vector files; a checksum manifest `data/checksums.txt` is generated.  
 
@@ -42,11 +42,11 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
   - **File**: `src/simulation/simulate_participants.py`.  
   - **Verification**: After execution, `data/logs/interactions.jsonl` contains ≥ 30 × 50 × (1‑5) ≈ 7 500 lines; each line conforms to `contracts/interaction_log.schema.yaml`.  
 
-- [~] T008 [P] [US2] Run combined validation on each completed trial: invoke both `vector_match` and `semantic_similarity`; **write a `SemanticValidation` JSON line only if both checks succeed**. Trials that fail either check are logged as unsuccessful and are **excluded** from the set of successful trials used in statistical analysis.  
+- [ ] T008 [P] [US2] Run combined validation on each completed trial: invoke both `vector_match` and `semantic_similarity`; **write a `SemanticValidation` JSON line only if both checks succeed**. Trials that fail either check are logged as unsuccessful and are **excluded** from the set of successful trials used in statistical analysis.  
   - **File**: `src/validation/run_combined_validation.py`.  
   - **Verification**: After simulation, the validation file contains one record per trial that passed both checks; partially successful trials are not counted as successes.  
 
-- [~] T009 [P] [US3] Add a retention‑check step that ensures at least 25 of the 30 simulated sessions contain one non‑aborted successful trial (as recorded in `semantic_validation.jsonl`); if not, emit a warning and halt analysis.  
+- [ ] T009 [P] [US3] Add a retention‑check step that ensures at least 25 of the 30 simulated sessions contain one non‑aborted successful trial (as recorded in `semantic_validation.jsonl`); if not, emit a warning and halt analysis.  
   - **File**: `src/analysis/retention_check.py`.  
   - **Verification**: Unit test manipulates the log to produce only 24 successful sessions and asserts that the script exits with a non‑zero status and prints “Retention threshold not met”.  
 
@@ -54,7 +54,7 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
 
 ## Phase 3 – Statistical analysis & reporting  
 
-- [~] T010 [P] [US3] Implement paired Wilcoxon signed‑rank analysis for `time_to_success` and `iteration_count`. Compute mean and median differences, apply Bonferroni correction, compute effect‑size *r* and bootstrap 95 % confidence intervals, and output `AnalysisResult` JSON objects for each metric. **Only trials with a `SemanticValidation` record where both `vector_match` and `semantic_pass` are true are included in the analysis**.  
+- [X] T010 [P] [US3] Implement paired Wilcoxon signed‑rank analysis for `time_to_success` and `iteration_count`. Compute mean and median differences, apply Bonferroni correction, compute effect‑size *r* and bootstrap 95 % confidence intervals, and output `AnalysisResult` JSON objects for each metric. **Only trials with a `SemanticValidation` record where both `vector_match` and `semantic_pass` are true are included in the analysis**.  
   - **File**: `src/analysis/wilcoxon_analysis.py`.  
   - **Verification**: Running the script on a synthetic dataset with a known difference yields the expected `p_value < 0.05`, correct mean/median differences, and prints the full `AnalysisResult` JSON objects.  
 

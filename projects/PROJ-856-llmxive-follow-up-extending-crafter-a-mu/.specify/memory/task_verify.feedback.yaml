@@ -7,13 +7,8 @@ T001:
     s verification condition is not met."
   task: efed8fc0e0715b46abc391f9e3251c0229cf0a247e440937386e5036faa32094
 T002:
-  reason: "The script `src/curators/curate_failed_figures.py` exists and creates 50\
-    \ PNGs, 50 JSON files, and a checksum manifest, but it never downloads any data\
-    \ from CrafterBench\u2014instead it generates synthetic placeholder images (see\
-    \ the `_load_crafterbench` function). The task explicitly requires downloading\
-    \ a reproducible 50\u2011figure subset from CrafterBench, which is not fulfilled.\
-    \ The implementation is therefore a placeholder rather than the required data\u2011\
-    curation logic."
+  reason: 'Requested task execution failed; rerun successfully: src/curators/curate_failed_figures.py
+    exit=-1 (TIMEOUT)'
   task: 01186f3ad9cc47147625c5ad87db58292c6ae0412bebf5fa588dfb22f1f38279
 T003:
   reason: "The three required files (`structured_harness.py`, `chat_interface.py`,\
@@ -49,8 +44,24 @@ T007:
     \ the schema\u201D and minimum\u2011line\u2011count requirements."
   task: b4dfc075ce189d30ef266135117f4628f13d034a921f452706cc33c9906ad1fb
 T008:
+  reason: "The provided `src/validation/run_combined_validation.py` is only a thin\
+    \ wrapper that re\u2011exports `run_validation.main`; the real logic lives in\
+    \ `run_validation.py`. That script merely compares each ground\u2011truth file\
+    \ and image to itself, always succeeds, never processes actual trial predictions,\
+    \ and does not log trials that fail either check. Consequently it does not truly\
+    \ \u201Cinvoke both `vector_match` and `semantic_similarity` on each completed\
+    \ trial\u201D nor record unsuccessful trials as required. The implementation must\
+    \ be revised to validate real trial outputs, write a `SemanticValidation` line\
+    \ on"
   task: ea90355470f5eda313018c9a9d2165ee4ecd6ac4f8c5ddc7050eeee64241bf01
 T009:
+  reason: "The `src/analysis/retention_check.py` script exists and implements a threshold\
+    \ check, but the unit test fails because the script requires a `--log-dir` argument\
+    \ and aborts with an argparse error before performing the retention logic. Consequently\
+    \ the test never reaches the non\u2011zero exit and \u201CRetention threshold\
+    \ not met\u201D message, so the verification step is not satisfied. The script\
+    \ needs a default log\u2011directory (or the test must supply the argument) and\
+    \ must ensure the expected warning message is produced under the test conditions."
   task: 4170a1406eb980a62080b0b204eff606c495c05cbf0381c38bb11d652a0cc295
 T010:
   task: e6f202b764be5fd827839604f70b3e0995260b12b9839ac45188582478f0fbda

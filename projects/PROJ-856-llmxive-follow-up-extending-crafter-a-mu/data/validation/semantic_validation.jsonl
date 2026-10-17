@@ -14,14 +14,14 @@
 {"figure_id": "20", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
 {"figure_id": "21", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
 {"figure_id": "22", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998211860657}
-{"figure_id": "23", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999999403953552}
+{"figure_id": "23", "vector_match": true, "semantic_pass": true, "similarity_score": 1.000000238418579}
 {"figure_id": "24", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998807907104}
 {"figure_id": "25", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
 {"figure_id": "26", "vector_match": true, "semantic_pass": true, "similarity_score": 1.000000238418579}
 {"figure_id": "27", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998807907104}
 {"figure_id": "28", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000003576278687}
 {"figure_id": "29", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "3", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
+{"figure_id": "3", "vector_match": true, "semantic_pass": true, "similarity_score": 1.000000238418579}
 {"figure_id": "30", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998211860657}
 {"figure_id": "31", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
 {"figure_id": "32", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
@@ -30,7 +30,7 @@
 {"figure_id": "35", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999999403953552}
 {"figure_id": "36", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
 {"figure_id": "37", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "38", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999999403953552}
+{"figure_id": "38", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
 {"figure_id": "39", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999999403953552}
 {"figure_id": "4", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
 {"figure_id": "40", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999999403953552}
@@ -46,5 +46,5 @@
 {"figure_id": "5", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998807907104}
 {"figure_id": "6", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
 {"figure_id": "7", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0}
-{"figure_id": "8", "vector_match": true, "semantic_pass": true, "similarity_score": 0.9999998807907104}
+{"figure_id": "8", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
 {"figure_id": "9", "vector_match": true, "semantic_pass": true, "similarity_score": 1.0000001192092896}
