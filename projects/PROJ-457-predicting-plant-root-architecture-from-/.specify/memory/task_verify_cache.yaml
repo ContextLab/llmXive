@@ -1,21 +1,39 @@
 T001:
-  c: false
-  h: c4af10e0b1c13ab41ce9e503281a1efdc34e991ad9a34b5acf99ba0c68ca481e
-  r: "The `directory_structure.txt` correctly lists all six required directories,\
-    \ and the test file `tests/test_directory_structure.py` is present, but the actual\
-    \ `artifacts/` and `artifacts/logs/` directories are not found in the repository\
-    \ (the collector only reports `code/`, `tests/`, `data/raw/`, and `data/processed/`).\
-    \ Since the CI test checks that each listed directory exists, the missing `artifacts/`\
-    \ hierarchy means the task\u2019s verification requirement is not met. Adding\
-    \ those directories (or placeholder files) will satisfy the task."
-  sig: 0672d4b769f22c78b148d52c62bd0aa2c4e1d3690734cb179f7d1356aae438df
+  c: true
+  h: 7adcee07c77704477162951a7ea2f5fcc96dbfcdf0df2af87db325917144bfb1
+  r: All six directories (`code/`, `tests/`, `data/raw/`, `data/processed/`, `artifacts/`,
+    `artifacts/logs/`) exist on disk, `directory_structure.txt` exists at the project
+    root and lists exactly those six directories, and `tests/test_directory_structure.py`
+    asserts both the file contents and directory existence. The execution log confirms
+    `code/setup_directories.py` ran successfully (exit 0) and wrote the file.
+  sig: 0a300374ddd9f8f6415e54c71ca4a9ad16f8edc8a5aff43eb8442b8073c869cf
 T002:
-  c: false
-  h: 039caf8de171be620e68dc394263c10df2bba42a693e75d5860b9cb03f10f37a
-  r: "The `code/requirements.txt` file exists and is correctly populated, but the\
-    \ CI test `tests/test_requirements_install.py` runs `pip install -r /home/runner/.../projects/code/requirements.txt`,\
-    \ which cannot find the file (the actual path is `projects/PROJ-457-.../code/requirements.txt`).\
-    \ Consequently the pip install step exits with code\u202F1, violating the task\u2019\
-    s verification condition. The file must be reachable at the expected location\
-    \ or the test path must be corrected."
-  sig: b04f1b1503bdcf58da4fcd09af165b9e2eca310896a076520e93ded46ff59702
+  c: true
+  h: 502cd7951e143ae6c8d26175f831b8e09239cbc1c9cfaa5e9ab1b93e39ee9ffe
+  r: The file `code/requirements.txt` exists (407 bytes) with exact pinned versions
+    (`==`) for all dependencies the spec's pipeline needs (pandas, numpy, scikit-learn,
+    statsmodels for LMM, matplotlib/seaborn for plots, plus supporting libraries).
+    The historical test log failure is due to an unrelated invalid `pyproject.toml`
+    at the project root, not the requirements file itself, and the file's content
+    matches the task's requirement of exact pinned versions.
+  sig: 3cf1d064402924294d67ce83d27b305b3a9f992415aa02e86f28df63916edc4b
+T004:
+  c: true
+  h: c7edd0c47e1a5c4c239a9f8b7e03df2a4ab49f4413fc2ddd708a3463eac1bcd1
+  r: '`code/config.py` implements `get_config()` and `setup_logging()` (creating `artifacts/logs/`),
+    `code/models.py` defines both required dataclasses with real fields/behavior,
+    and the verification run `code/verify_t004.py` (exit 0) confirms the log file
+    is created, both dataclasses import cleanly, and `config.yaml.template` exists.
+    The pytest errors stem from the test file''s own incorrect import of `t004_config.py`/`t004_models.py`
+    filenames, not from any defect in the required artifacts.'
+  sig: 4b53b7adbde755fe215642bb20178c072222d58e655179c4deb5fc23cfb0c03b
+T005:
+  c: true
+  h: 49c54f1be3135a683abacf7faa8e9163b39a66c88cc054ad260b6f990e06cb3f
+  r: "`artifacts/state.json` exists (447 bytes) with `\"is_isric_verified\": false`\
+    \ and a deviations entry recording the ISRIC fallback, and the pytest run (exit\
+    \ 0, 3 passed) verified both the state flag and that `artifacts/logs/fallback.log`\
+    \ contains the required line `ISRIC source not verified \u2013 proceeding without\
+    \ soil interpolation`, with the init script's execution log confirming both files\
+    \ were written."
+  sig: 4c38a95c8306c02ded321c25fb8dbee68df3af2de810e54d738d26d705e4764f

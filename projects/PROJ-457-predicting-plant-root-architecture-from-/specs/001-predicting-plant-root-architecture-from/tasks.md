@@ -6,30 +6,30 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
 
 ---
 
-- [ ] T001 Create the project directory skeleton (`code/`, `tests/`, `data/raw/`, `data/processed/`, `artifacts/`, `artifacts/logs/`) and verify its existence by committing a `directory_structure.txt` file that lists the created directories.  
+- [X] T001 Create the project directory skeleton (`code/`, `tests/`, `data/raw/`, `data/processed/`, `artifacts/`, `artifacts/logs/`) and verify its existence by committing a `directory_structure.txt` file that lists the created directories.  
   *Path*: `directory_structure.txt` (project root)  
   *Verification*: `cat directory_structure.txt` must contain all six directories; CI test `tests/test_directory_structure.py` asserts their presence.
 
-- [ ] T002 Write `code/requirements.txt` with exact pinned versions for all dependencies required by the specification.  
+- [X] T002 Write `code/requirements.txt` with exact pinned versions for all dependencies required by the specification.  
   *Path*: `code/requirements.txt`  
   *Verification*: `ls code/requirements.txt` must return the file; `pip install -r code/requirements.txt` must exit with code 0.
 
-- [ ] T003 Add linting configuration (`pyproject.toml` with Black & Flake8 settings) and a wrapper script `code/run_lint.py` that exits with code 0 only when lint passes.   <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 -->
+- [ ] T003 Add linting configuration (`pyproject.toml` with Black & Flake8 settings) and a wrapper script `code/run_lint.py` that exits with code 0 only when lint passes.
   *Path*: `pyproject.toml`, `code/run_lint.py`  
   *Verification*: CI step `python code/run_lint.py` must return exit 0; failing lint will cause the task to remain unchecked.
 
-- [ ] T004 Implement a configuration loader, logging setup, and the base data‑model classes `RootPhenotypeRecord` and `SoilNutrientRecord`. Also create a template config file.  
+- [X] T004 Implement a configuration loader, logging setup, and the base data‑model classes `RootPhenotypeRecord` and `SoilNutrientRecord`. Also create a template config file.  
   *Paths*: `code/config.py` (loader & `setup_logging()`), `code/models.py` (dataclasses for the two records), `config.yaml.template` (empty template).  
   *Verification*:  
     1. `python -c "import code.config; code.config.setup_logging()"` creates a log file in `artifacts/logs/`.  
     2. Importing `code.models` yields the two dataclasses without error.  
     3. `config.yaml.template` exists and is listed by `ls`.
 
-- [ ] T005 Initialise the project state file with an ISRIC‑verification flag and log any deviation.  
+- [X] T005 Initialise the project state file with an ISRIC‑verification flag and log any deviation.  
   *Path*: `artifacts/state.json` (JSON with at least `"is_isric_verified": false`) and `artifacts/logs/fallback.log` (must contain the line `ISRIC source not verified – proceeding without soil interpolation`).  
   *Verification*: `jq .is_isric_verified artifacts/state.json` returns `false`; the log file contains the required message.
 
-- [ ] T006 Write the data-ingestion and merging script: download root phenotype data from **RootReader** and **PlantPheno**, download soil nutrient data from **ISRIC**, merge using geographic matching with nearest-neighbor interpolation (≤ 10km), and compute `merge_success_rate` (SC-001). Fail loudly if any required source cannot be fetched.  
+- [ ] T006 Write the data-ingestion and merging script: download root phenotype data from **RootReader** and **PlantPheno**, download soil nutrient data from **ISRIC**, merge using geographic matching with nearest-neighbor interpolation (≤ 10km), and compute `merge_success_rate` (SC-001). Fail loudly if any required source cannot be fetched.   <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 -->
   *Path*: `code/ingestion.py` → output `data/raw/merged_dataset.parquet`  
   *Verification*:  
     1. Running `python code/ingestion.py` creates `data/raw/merged_dataset.parquet`.  

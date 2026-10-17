@@ -42,7 +42,6 @@ class RootPhenotypeRecord:
         """
         if not self.species:
             return False
-        # Basic validity: at least one root metric present
         has_metric = any(
             [
                 self.root_length is not None,
@@ -57,8 +56,6 @@ class RootPhenotypeRecord:
 class SoilNutrientRecord:
     """
     Represents soil nutrient data associated with a root phenotype record.
-    Per Spec Deviation, we do not merge ISRIC; this record holds P/N data
-    if present in the primary source or a direct merge.
     """
 
     phosphorus: Optional[float] = None  # mg/kg or ppm
@@ -74,7 +71,6 @@ class SoilNutrientRecord:
     def is_complete_for_analysis(self) -> bool:
         """
         Checks if critical nutrients (P and N) are present.
-        Per US1 constraint: rows with missing P/N are excluded, not imputed.
         """
         return self.phosphorus is not None and self.nitrogen is not None
 

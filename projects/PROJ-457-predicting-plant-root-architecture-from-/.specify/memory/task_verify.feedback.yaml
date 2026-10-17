@@ -1,28 +1,24 @@
 T001:
-  reason: "The `directory_structure.txt` correctly lists all six required directories,\
-    \ and the test file `tests/test_directory_structure.py` is present, but the actual\
-    \ `artifacts/` and `artifacts/logs/` directories are not found in the repository\
-    \ (the collector only reports `code/`, `tests/`, `data/raw/`, and `data/processed/`).\
-    \ Since the CI test checks that each listed directory exists, the missing `artifacts/`\
-    \ hierarchy means the task\u2019s verification requirement is not met. Adding\
-    \ those directories (or placeholder files) will satisfy the task."
   task: 9aa69aa37d912c53530c04191abcc244e3c7686539cf63c74d1d2a6e49d78e67
 T002:
-  reason: "The `code/requirements.txt` file exists and is correctly populated, but\
-    \ the CI test `tests/test_requirements_install.py` runs `pip install -r /home/runner/.../projects/code/requirements.txt`,\
-    \ which cannot find the file (the actual path is `projects/PROJ-457-.../code/requirements.txt`).\
-    \ Consequently the pip install step exits with code\u202F1, violating the task\u2019\
-    s verification condition. The file must be reachable at the expected location\
-    \ or the test path must be corrected."
   task: 55c3e4c607265d65f23cbddac9049476c74d4b0191af6516479c18a48908ed2f
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'
+  reason: "The task explicitly requires `pyproject.toml` with **Black & Flake8 settings**,\
+    \ but the file only contains `[tool.black]` (plus isort/pytest) \u2014 no Flake8\
+    \ configuration section at all; Flake8 settings were moved entirely into `code/run_lint.py`\
+    \ command-line flags, which is not what was asked. Additionally, the recorded\
+    \ exit-0 run is vacuous (\"No Python files are present to be formatted\"), so\
+    \ there is no evidence the wrapper actually validates lint on real source files.\
+    \ Fix: add a Flake8 settings section (e.g. `[tool.flake8]` or documented equivalent)\
+    \ to `pyproject.toml` and demonstrate a non-tr"
   task: da39d763c02550f0958dfb63d0c3de8042c95c21941f70dd45a8a77c6687593d
 T004:
   task: de902993f2c779d0d2960774a2cf2ab3fa086e3f754be1263aa62fe6478d208c
 T005:
   task: aa591468dc7b0f017f9080a0a5f945b4fe022b884f0df9c5c7dad5cdc5c79bc3
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion.py
+    exit=1'
   task: 3dadda41460f840c8a924adc47d4111a852330c04db6ea98e30a7af1d9314a4d
 T007:
   task: e5cc76c48dd5082dad3dfd36f10bf0f63f22adaa90b154adfd409eccbb25d360
