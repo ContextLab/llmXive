@@ -2,8 +2,8 @@
 src.ingest.load_illusions
 =========================
 
-Command-line interface for downloading the Müller-Lyer and Ponzo
-illusion datasets from real, publicly-available sources.
+Command-line interface for downloading the Müller‑Lyer and Ponzo
+illusion datasets from real, publicly‑available sources.
 
 Download strategy (all sources are REAL; no synthetic fallback):
 
@@ -11,18 +11,23 @@ Download strategy (all sources are REAL; no synthetic fallback):
 2. Try loading a named HuggingFace dataset via the ``datasets`` library.
 3. Search the HuggingFace Hub (public REST API) for datasets matching
    "ponzo" / "illusion", probe each candidate's schema via the
-   datasets-server ``/rows`` endpoint, and use the first dataset whose
+   datasets‑server ``/rows`` endpoint, and use the first dataset whose
    columns can be mapped onto the required schema.
+4. **Fallback to CSV download** – if a parquet file is not present in the
+   repository but a CSV with the same base name exists, download the CSV,
+   read it with pandas, and write it out as a parquet file.  This expands
+   the pool of real datasets while still guaranteeing that the final
+   artifact is a parquet file as required by downstream code.
 
 Once a real source is found, the DataFrame's columns are renamed to the
-canonical schema via an alias table and, if the data are trial-level
+canonical schema via an alias table and, if the data are trial‑level
 (multiple rows per subject), aggregated to one row per subject
 (mean of numeric measures, trial count) so that ``subject_id`` is
-unique as required by FR-001.  Aggregation is a transformation of the
+unique as required by FR‑001.  Aggregation is a transformation of the
 real downloaded data — no values are invented.
 
 After download the raw file is validated for required columns and
-uniqueness of ``subject_id``; a SHA-256 checksum is recorded in
+uniqueness of ``subject_id``; a SHA‑256 checksum is recorded in
 ``data/manifest.yaml`` for provenance.  If no real source can be
 reached, the loader raises a clear RuntimeError (fail loudly).
 """
@@ -50,7 +55,7 @@ from llmxive_toolkit import paths, get_logger
 from src.utils.seed import set_global_seed
 
 # ----------------------------------------------------------------------
-# Configuration for Müller-Lyer
+# Configuration for Müller‑Lyer
 # ----------------------------------------------------------------------
 MULLER_REPO_IDS = [
     "openneuro/muller-lyer",
@@ -63,6 +68,7 @@ MULLER_REPO_IDS = [
 MULLER_HF_DATASET = "psychology/muller_lyer"
 
 MULLER_PARQUET_FILENAME = "muller_lyer.parquet"
+MULLER_CSV_FILENAME = "muller_lyer.csv"  # fallback name
 
 MULLER_REQUIRED_COLUMNS = [
     "subject_id",
@@ -86,6 +92,7 @@ PONZO_REPO_IDS = [
 PONZO_HF_DATASET = "psychology/ponzo_illusion"
 
 PONZO_PARQUET_FILENAME = "ponzo.parquet"
+PONZO_CSV_FILENAME = "ponzo.csv"  # fallback name
 
 PONZO_REQUIRED_COLUMNS = [
     "subject_id",
@@ -96,7 +103,7 @@ PONZO_REQUIRED_COLUMNS = [
 ]
 
 # ----------------------------------------------------------------------
-# Column-alias table used to map a real dataset's native column names
+# Column‑alias table used to map a real dataset's native column names
 # onto the canonical schema required by the specification.
 # ----------------------------------------------------------------------
 COLUMN_ALIASES = {
@@ -132,7 +139,7 @@ COLUMN_ALIASES = {
 }
 
 # Hub search terms used to discover real candidate datasets when the
-# hard-coded repository ids are unreachable.
+# hard‑coded repository ids are unreachable.
 HUB_SEARCH_TERMS = [
     "ponzo",
     "ponzo illusion",
@@ -203,13 +210,7 @@ def _map_columns(df: pd.DataFrame, required_columns: list[str]) -> pd.DataFrame:
     return out
 
 def _aggregate_per_subject(df: pd.DataFrame) -> pd.DataFrame:
-    """Collapse trial-level data to one row per subject.
-
-    Numeric columns are averaged over trials (a real summary of the
-    downloaded measurements); ``trial_id`` becomes the per-subject
-    trial count; non-numeric columns take their first observed value.
-    If ``subject_id`` is already unique the frame is returned unchanged.
-    """
+    """Collapse trial‑level data to one row per subject."""
     if "subject_id" not in df.columns or df["subject_id"].is_unique:
         return df
 
@@ -219,7 +220,6 @@ def _aggregate_per_subject(df: pd.DataFrame) -> pd.DataFrame:
     for col in df.columns:
         if col == "subject_id":
             continue
-            # unreachable
         if col == "trial_id":
             agg[col] = "size"
         elif pd.api.types.is_numeric_dtype(df[col]):
@@ -269,7 +269,7 @@ def _get_first_split(dataset_id: str) -> tuple[str, str] | None:
 
 def _preview_rows(dataset_id: str, config: str, split: str,
                   length: int = 10) -> pd.DataFrame | None:
-    """Fetch a small preview of a Hub dataset via datasets-server."""
+    """Fetch a small preview of a Hub dataset via datasets‑server."""
     try:
         r = requests.get(
             "https://datasets-server.huggingface.co/rows",
@@ -353,13 +353,15 @@ def _download_parquet(
     hf_dataset: str | None = None,
     required_columns: list[str] | None = None,
     search_terms: list[str] | None = None,
+    fallback_csv: str | None = None,
 ) -> None:
-    """Download a real parquet dataset.
+    """Download a real parquet (or CSV fallback) dataset.
 
     Strategies, in order:
-    1. ``hf_hub_download`` from each candidate repository.
-    2. ``datasets.load_dataset`` for the named fallback dataset.
-    3. Hub search + schema probing for a genuinely public dataset that
+    1. ``hf_hub_download`` for each candidate repository (parquet).
+    2. ``hf_hub_download`` for a CSV fallback, then convert to parquet.
+    3. ``datasets.load_dataset`` for the named fallback dataset.
+    4. Hub search + schema probing for a genuinely public dataset that
        matches the required columns.
 
     If ``required_columns`` is given, every candidate DataFrame is
@@ -370,7 +372,7 @@ def _download_parquet(
     log.info("Attempting to download parquet file %s", filename)
     req = required_columns or []
 
-    # Primary strategy: direct file download via hf_hub_download
+    # Primary strategy: direct parquet download via hf_hub_download
     for repo_id in repo_ids:
         try:
             downloaded_file = hf_hub_download(
@@ -387,9 +389,29 @@ def _download_parquet(
                     continue
             return
         except Exception as exc:  # pragma: no cover – only logs on failure
-            log.debug("hf_hub_download failed for %s: %s", repo_id, exc)
+            log.debug("hf_hub_download parquet failed for %s: %s", repo_id, exc)
 
-    # Secondary strategy: use the ``datasets`` library if available
+    # Secondary strategy: CSV fallback download via hf_hub_download
+    if fallback_csv:
+        for repo_id in repo_ids:
+            try:
+                downloaded_file = hf_hub_download(
+                    repo_id=repo_id,
+                    filename=fallback_csv,
+                    repo_type="dataset",
+                )
+                log.info("Successfully downloaded CSV fallback from %s", repo_id)
+                df = pd.read_csv(downloaded_file)
+                if req and not _obtain_dataframe(df, req, raw_path):
+                    log.debug("CSV from %s lacks mappable columns.", repo_id)
+                    continue
+                # Write converted parquet
+                df.to_parquet(raw_path, index=False)
+                return
+            except Exception as exc:  # pragma: no cover
+                log.debug("hf_hub_download CSV fallback failed for %s: %s", repo_id, exc)
+
+    # Tertiary strategy: use the ``datasets`` library if available
     if hf_dataset is not None and load_dataset is not None:
         try:
             log.info("Falling back to ``datasets`` to load %s", hf_dataset)
@@ -402,7 +424,7 @@ def _download_parquet(
         except Exception as exc:  # pragma: no cover
             log.debug("datasets fallback failed for %s: %s", hf_dataset, exc)
 
-    # Tertiary strategy: discover a real public dataset on the Hub
+    # Quaternary strategy: discover a real public dataset on the Hub
     if _discover_and_download(raw_path, req,
                               search_terms or HUB_SEARCH_TERMS):
         return
@@ -417,7 +439,7 @@ def _download_parquet(
     )
 
 def _compute_sha256(path: Path) -> str:
-    """Compute the SHA-256 checksum of a file."""
+    """Compute the SHA‑256 checksum of a file."""
     hasher = hashlib.sha256()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -469,10 +491,10 @@ def _write_clean_csv(df_clean: pd.DataFrame, clean_path: Path) -> None:
     df_clean.to_csv(clean_path, index=False, encoding="utf-8")
 
 # ----------------------------------------------------------------------
-# High-level download & optional clean for each dataset
+# High‑level download & optional clean for each dataset
 # ----------------------------------------------------------------------
 def download_and_clean_muller(seed: int = 42) -> None:
-    """Download (and optionally clean) the Müller-Lyer dataset."""
+    """Download (and optionally clean) the Müller‑Lyer dataset."""
     set_global_seed(seed)
     raw_path, clean_path = _ensure_output_paths(dataset="muller")
 
@@ -483,6 +505,7 @@ def download_and_clean_muller(seed: int = 42) -> None:
             MULLER_PARQUET_FILENAME,
             hf_dataset=MULLER_HF_DATASET,
             required_columns=MULLER_REQUIRED_COLUMNS,
+            fallback_csv=MULLER_CSV_FILENAME,
         )
     else:
         log.info("Raw parquet already exists at %s – skipping download.", raw_path)
@@ -511,6 +534,7 @@ def download_and_clean_ponzo(seed: int = 42) -> None:
             PONZO_PARQUET_FILENAME,
             hf_dataset=PONZO_HF_DATASET,
             required_columns=PONZO_REQUIRED_COLUMNS,
+            fallback_csv=PONZO_CSV_FILENAME,
         )
     else:
         log.info("Raw parquet already exists at %s – skipping download.", raw_path)
@@ -531,11 +555,11 @@ def download_and_clean_ponzo(seed: int = 42) -> None:
 # CLI entry point
 # ----------------------------------------------------------------------
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    """Parse CLI arguments for both sub-command and flag-style usage."""
+    """Parse CLI arguments for both sub‑command and flag‑style usage."""
     if argv is None:
         argv = sys.argv[1:]
 
-    # Flag-style detection
+    # Flag‑style detection
     if any(arg.startswith("--") for arg in argv):
         parser = argparse.ArgumentParser(description="Download/clean illusion datasets (flag style).")
         parser.add_argument("--download", action="store_true", help="Download the raw parquet file.")
@@ -548,15 +572,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "--dataset",
             choices=["muller", "ponzo", "both"],
             default="both",
-            help="Select dataset when using flag-style interface.",
+            help="Select dataset when using flag‑style interface.",
         )
         return parser.parse_args(argv)
 
-    # Sub-command style
-    parser = argparse.ArgumentParser(description="Download/clean illusion datasets (sub-command style).")
+    # Sub‑command style
+    parser = argparse.ArgumentParser(description="Download/clean illusion datasets (sub‑command style).")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    dl_muller = subparsers.add_parser("download_muller", help="Download and clean Müller-Lyer dataset.")
+    dl_muller = subparsers.add_parser("download_muller", help="Download and clean Müller‑Lyer dataset.")
     dl_muller.add_argument("--seed", type=int, default=42)
 
     dl_ponzo = subparsers.add_parser("download_ponzo", help="Download and clean Ponzo dataset.")
@@ -567,7 +591,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> None:
     args = _parse_args(argv)
 
-    # Flag-style handling
+    # Flag‑style handling
     if getattr(args, "download", False) or getattr(args, "clean", False):
         set_global_seed(args.seed)
         raw_dir = Path(args.output_dir) if getattr(args, "output_dir", None) else None
@@ -587,6 +611,7 @@ def main(argv: list[str] | None = None) -> None:
                             MULLER_PARQUET_FILENAME,
                             hf_dataset=MULLER_HF_DATASET,
                             required_columns=MULLER_REQUIRED_COLUMNS,
+                            fallback_csv=MULLER_CSV_FILENAME,
                         )
                     else:  # ponzo
                         _download_parquet(
@@ -595,6 +620,7 @@ def main(argv: list[str] | None = None) -> None:
                             PONZO_PARQUET_FILENAME,
                             hf_dataset=PONZO_HF_DATASET,
                             required_columns=PONZO_REQUIRED_COLUMNS,
+                            fallback_csv=PONZO_CSV_FILENAME,
                         )
                 else:
                     log.info("Raw parquet already exists at %s – skipping download.", raw_path)
@@ -624,7 +650,7 @@ def main(argv: list[str] | None = None) -> None:
 
         return
 
-    # Sub-command handling
+    # Sub‑command handling
     if args.command == "download_muller":
         log.info("Running download_muller with seed=%s", args.seed)
         download_and_clean_muller(seed=args.seed)

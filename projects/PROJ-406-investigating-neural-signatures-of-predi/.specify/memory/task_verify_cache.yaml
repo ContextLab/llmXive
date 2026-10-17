@@ -1,11 +1,12 @@
 T000:
-  c: true
-  h: 8dd6a2f95337503c62d917d186dc4bf047a911ba305d57e0570faa53fe62a308
-  r: 'The required artifacts all exist and match the spec: `src/utils/seed.py` implements
-    `set_global_seed(42)` seeding `random` and NumPy, `src/__init__.py` imports and
-    applies it on package import, and `outputs/seed_verification.log` contains exactly
-    two identical lines (`0.3745401188473625`), which is the correct first draw from
-    `np.random.seed(42)`, confirming the verification command was run twice with identical
-    results. The one failing test in the historical record (`test_seed_verification_script_creates_log`)
-    fails due to a test-infrastructure bug (monkeypatching a read-only `ProjectPaths.roo'
-  sig: 1cfb594efe334cd4ea612a84f2be76e39c581f58601b934de68674a094241028
+  c: false
+  h: c79ba3c421e285ae53c8abc1156cbbdaa329c593475b2e1f21ff18475f8f0a6e
+  r: "The source files `src/utils/seed.py` and `src/__init__.py` exist and correctly\
+    \ implement `set_global_seed(42)` with package-import seeding, but the required\
+    \ verification artifact `outputs/seed_verification.log` is MISSING \u2014 the\
+    \ task explicitly requires running the seed-print command twice and capturing\
+    \ the two identical output lines in that log, and there is no execution evidence\
+    \ of reproducibility at all. The implementer must run the verification command\
+    \ twice, append both outputs to `outputs/seed_verification.log`, and confirm the\
+    \ two lines are identical."
+  sig: ac6c52740eb24c240a49e48caf89c8d57717e6a6c80fce9ec4e01c783da23294
