@@ -63,7 +63,7 @@ The system must evaluate the physics‑teacher model against a neural‑teacher 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate a sufficiently large set of synthetic video sequences of 16 frames each using a deterministic CPU physics engine (e.g., Box2D) and record ground‑truth state vectors (See US‑01).
+- **FR-001**: System MUST generate a sufficiently large set of synthetic video sequences of a modest length (e.g., on the order of tens of frames) each using a deterministic CPU physics engine (e.g., Box2D) and record ground‑truth state vectors (See US‑01).
 - **FR-002**: System MUST train a 2‑step autoregressive diffusion student model (≈ 50 M parameters) using the physics‑derived trajectories as the teacher signal, optimizing for pixel‑space MSE loss (See US‑02).
 - **FR-003**: System MUST execute the entire training and inference pipeline on a CPU‑only environment without requiring CUDA, GPU acceleration, or 8‑bit/4‑bit quantization libraries (See US‑02).
 - **FR-004**: System MUST compute Structural Similarity Index (SSIM), Peak Signal‑to‑Noise Ratio (PSNR), and Learned Perceptual Image Patch Similarity (LPIPS) metrics for both the physics‑teacher and neural‑teacher models on the same test set (See US‑03).

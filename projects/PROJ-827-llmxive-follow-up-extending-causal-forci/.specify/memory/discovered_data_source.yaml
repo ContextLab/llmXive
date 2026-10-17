@@ -1,0 +1,17 @@
+status: none
+intent: CLEVRER synthetic video physics dataset with ground truth state vectors python
+  package dataset
+required_fields:
+- video_file_path
+- frame_index
+- object_id
+- object_type
+- position_x
+- position_y
+- velocity_x
+- velocity_y
+- orientation_angle
+- angular_velocity
+cache_key: ac2e3f6780cb8bfd91459aa5cbfa876620f82e64a728ddff803f061ea6a48d03
+searched_at: '2026-10-17T11:20:51.838097+00:00'
+retry_count: 1

@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PhysicsTrajectory"
+description: "Deterministic state‑vector trajectory for a multi‑frame simulation."
+type: object
+required:
+  - sequence_id
+  - seed
+  - time_step
+  - states
+  - checksum
+properties:
+  sequence_id:
+    type: string
+    description: "Unique identifier, e.g., 'traj_000123'."
+  seed:
+    type: integer
+    description: "Random seed used to initialise the Box2D world."
+  time_step:
+    type: number
+    description: "Fixed integration time‑step (seconds)."
+  states:
+    type: array
+    description: "List of multiple state dictionaries."
+    items:
+      type: object
+      required:
+        - frame_index
+        - positions
+        - velocities
+      properties:
+        frame_index:
+          type: integer
+        positions:
+          type: array
+          items:
+            type: number
+        velocities:
+          type: array
+          items:
+            type: number
+  checksum:
+    type: string
+    description: "SHA256 checksum of the `.npz` file storing the trajectory."
