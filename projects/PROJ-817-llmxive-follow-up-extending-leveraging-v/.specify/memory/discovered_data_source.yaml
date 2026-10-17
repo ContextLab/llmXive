@@ -1,13 +1,11 @@
 status: none
-intent: Image Editing Prompts Dataset with human feasibility scores python package
-  dataset
+intent: OpenEdit image editing prompts with human feasibility scores dataset python
+  package dataset
 required_fields:
 - prompt_id
-- instruction_type
 - prompt_text
+- instruction_type
 - human_feasibility_score
-- verifier_score
-- alignment_delta
-cache_key: 61edec383506de6d905dc738ee76c1ab3bc133b455f422b31b188c4d5e552c69
-searched_at: '2026-10-17T01:36:45.997708+00:00'
+cache_key: 2af3869fec1fb6ac15eafa4176fcf7840c70a288cf48635b105e4ae82fc97f25
+searched_at: '2026-10-17T02:03:31.102421+00:00'
 retry_count: 1

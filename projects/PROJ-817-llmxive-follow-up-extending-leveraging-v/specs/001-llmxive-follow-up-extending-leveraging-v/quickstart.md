@@ -1,11 +1,11 @@
 # Quickstart: llmXive Verifier Graph Augmentation Study
 
-This guide walks a researcher through a single CI‑compatible run that reproduces all results.
+This guide walks a researcher through a single CI-compatible run that reproduces all results.
 
 ## 1. Prerequisites
-- GitHub Actions runner (or local Linux environment) with Python 3.11.
-- Internet access to download the InstructPix2Pix shards.
-- Optional: GPU access (Kaggle free GPU) – the pipeline will automatically offload if necessary.
+- GitHub Actions runner (or local Linux environment) with Python 3.11.
+- Internet access to download the InstructPix2Pix data.
+- Optional: GPU access (Kaggle free GPU) — the pipeline will automatically offload if necessary.
 
 ## 2. Setup
 ```bash
@@ -23,61 +23,67 @@ python -m spacy download en_core_web_sm
 
 ## 3. Data download & curation
 ```bash
-python -m src.data.download               # pulls the three parquet files into data/raw/
-python -m src.data.curate                 # creates data/curated_prompts.csv (adds synthetic_score)
-python -m src.data.conflict_generator     # injects contradictions into neutral prompts → conflicting set
+python -m code.src.data.download           # streams the real InstructPix2Pix train split; writes data/raw/prompts_sample.parquet (first 2,000 real prompts with row SHA-256 checksums)
+python -m code.src.data.curate             # creates data/results/curated_prompts.csv (adds synthetic_score)
+python -m code.src.data.conflict_generator # injects contradictions into neutral prompts → conflicting set
 ```
+
+### Input provenance (T001)
+- **Dataset ID**: `timbrooks/instructpix2pix` (Hugging Face)
+- **Split**: `train`
+- **Streaming rule**: `datasets.load_dataset("timbrooks/instructpix2pix", split="train", streaming=True)` — the full stream is scanned in chunks of 500 rows without loading it into RAM. Fallback: the canonical HF parquet files at `https://huggingface.co/datasets/timbrooks/instructpix2pix`.
+- **Checksums**: each output row carries a SHA-256 checksum over its `(edit_prompt, original_prompt, edit_type)` values; the output file's own SHA-256 is recorded in `data/raw/prompts_sample_provenance.json`.
+- **Output**: `data/raw/prompts_sample.parquet` — the first [deferred] real `(image, edit_prompt)` prompt texts with non-null prompts and checksums. The loader raises on any fetch error; there is no synthetic fallback.
+- **Runnable command**: `python -m code.src.data.download`
 
 ## 4. Human feasibility validation (required for primary evaluation)
 ```bash
-python -m src.data.human_annotation       # launches a lightweight web form or MTurk batch for **all 1000 prompts**
-# Results are saved to data/human_validation.csv and merged into data/curated_prompts.csv as the `human_score` column.
+python -m code.src.data.human_annotation   # launches a lightweight web form or MTurk batch for **all 1000 prompts**
+# Results are saved to data/results/human_validation.csv and merged into data/results/curated_prompts.csv as the `human_score` column.
 ```
 
 ## 5. Symbolic graph construction
 ```bash
-python -m src.parser.graph_builder         # reads curated_prompts.csv, writes JSON graphs to data/constraint_graphs/
-# Logs runtime; should finish < 30 minutes (SC‑002).
+python -m code.src.parser.graph_builder     # reads data/results/curated_prompts.csv, writes JSON graphs to data/results/graphs/
+# Logs runtime; should finish < 30 minutes (SC-002).
 ```
 
 ## 6. Baseline verifier evaluation
 ```bash
-python -m src.verifier.baseline            # produces data/baseline_scores.csv
+python -m code.src.verifier.baseline        # produces data/results/baseline_scores.csv
 # This script will request a CUDA device; if unavailable it will trigger the GPU escape hatch.
-# Baseline runtime must be ≤ 2 h (SC‑009) and will be logged automatically.
+# Baseline runtime must be ≤ 2 h (SC-009) and will be logged automatically.
 ```
 
-## 7. Graph‑augmented verifier evaluation
+## 7. Graph-augmented verifier evaluation
 ```bash
-python -m src.verifier.augmented           # produces data/augmented_scores.csv and control condition files
+python -m code.src.verifier.augmented       # produces data/results/augmented_scores.csv and control condition files
 ```
 
 ## 8. Statistical analysis & report generation
 ```bash
-python -m src.analysis.stats               # runs paired tests (conflicting & neutral), control comparison, robustness check, correlation, correction
-python -m src.analysis.report              # writes analysis/report.json and report.csv
-# The report includes SC‑001 (mean diff), SC‑004 (p < 0.05), SC‑005 (robustness p ≥ 0.05), SC‑006 (baseline mean ± SD), SC‑007 (Pearson r ≥ 0.5), SC‑008 (effect size ≥ 0.5).
+python -m code.src.analysis.stats           # runs paired tests (conflicting & neutral), control comparison, robustness check, correlation, correction
+python -m code.src.analysis.report          # writes data/results/report.json and report.csv
+# The report includes SC-001 (mean diff), SC-004 (p < 0.05), SC-005 (robustness p ≥ 0.05), SC-006 (baseline mean ± SD), SC-007 (Pearson r ≥ 0.5), SC-008 (effect size ≥ 0.5).
 ```
 
 ## 9. Expected outputs
 | File | Description |
 |------|-------------|
-| `data/curated_prompts.csv` | Prompt text + synthetic & **human** feasibility scores. |
-| `data/constraint_graphs/*.json` | One graph per prompt (structural abstraction only). |
-| `data/baseline_scores.csv` | Verifier scores without graph context (aligned to human scores). |
-| `data/augmented_scores.csv` | Verifier scores with graph context and control runs. |
-| `analysis/report.json` | Full statistical results, runtime, memory usage, baseline runtime, correlation. |
-| `analysis/report.csv` | Human‑readable table for inclusion in the paper. |
+| `data/raw/prompts_sample.parquet` | First [deferred] real InstructPix2Pix prompt texts with row SHA-256 checksums. |
+| `data/results/curated_prompts.csv` | Prompt text + synthetic & **human** feasibility scores. |
+| `data/results/graphs/*.json` | One graph per prompt (structural abstraction only). |
+| `data/results/baseline_scores.csv` | Verifier scores without graph context (aligned to human scores). |
+| `data/results/augmented_scores.csv` | Verifier scores with graph context and control runs. |
+| `data/results/report.json` | Full statistical results, runtime, memory usage, baseline runtime, correlation. |
+| `data/results/report.csv` | Human-readable table for inclusion in the paper. |
 
 ## 10. Verification
 Run the contract tests to ensure schema compliance:
 ```bash
-pytest tests/contract/test_evaluation_report.py
+pytest code/tests/test_evaluation_report.py
 ```
 All tests must pass before the CI job is considered successful.
 
 ## 11. GPU Escape Hatch Note
-If the runner reports `torch.cuda.is_available() == False`, the verifier scripts automatically switch to the Kaggle GPU escape hatch (the platform will re‑run the same command on a free GPU). No code changes are required; just ensure the `torch` and `transformers` versions support `device="cuda"`.
-
----
-
+If the runner reports `torch.cuda.is_available() == False`, the verifier scripts automatically switch to the Kaggle GPU escape hatch (the platform will re-run the same command on a free GPU). No code changes are required; just ensure the `torch` and `transformers` versions support `device="cuda"`.
