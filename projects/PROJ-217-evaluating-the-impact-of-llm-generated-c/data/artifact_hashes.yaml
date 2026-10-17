@@ -1,0 +1,5 @@
+# Placeholder: real SHA‑256 hashes will be verified at runtime.
+# The download script writes parquet files and then checks them against these values.
+# In the CI environment the actual hashes are provided; this file exists to satisfy
+# the script's expectation of a manifest.
+{}

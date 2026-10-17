@@ -78,6 +78,7 @@ def main() -> None:
 
     for split in splits:
         log.info(f"Loading {split} split from the CodeSearchNet dataset...")
+        # Load the split; this will download the parquet file under the hood.
         ds = load_dataset(dataset_name, language, split=split)
 
         # Store the split as parquet so we can checksum it

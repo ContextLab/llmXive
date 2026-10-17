@@ -1,13 +1,12 @@
-# Core dependencies (versions pinned for reproducibility)
+# Project dependencies
+# Core libraries are provided by the execution environment:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+#
+# Additional dependencies required for this project:
 datasets==2.19.0
-torch==2.2.0
 transformers==4.41.0
 sentence-transformers==2.7.0
-scikit-learn==1.5.0
-statsmodels==0.14.2
-pandas==2.2.2
 tqdm==4.66.2
-requests==2.32.3
-pyyaml
-# The following packages are provided by the platform and need not be listed:
-# numpy, scipy, matplotlib, seaborn, pytest, psutil, etc.
+# Pin a pyarrow version compatible with the bundled numpy (1.26.x)
+pyarrow>=11.0.0,<12.0.0
