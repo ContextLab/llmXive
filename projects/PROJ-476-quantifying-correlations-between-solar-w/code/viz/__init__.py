@@ -1,1 +1,1 @@
-"""Package for visualization utilities."""
+"""Visualization subpackage."""

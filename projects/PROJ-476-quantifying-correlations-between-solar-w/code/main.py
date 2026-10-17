@@ -1,160 +1,173 @@
 """
-Main entry point for the Solar Wind Geomagnetic Correlation Pipeline.
+Entry point for the solar‑wind composition ↔ geomagnetic indices pipeline.
 
-Quick-start (see specs/001-quantifying-correlations-between-solar-w/quickstart.md):
+Provides a minimal CLI that supports the stages required by the
+quick‑start documentation:
 
-    python -m code.main --stage all
+  python -m code.main --stage all
+  python -m code.main --stage fetch --start <YYYY‑MM‑DD> --end <YYYY‑MM‑DD>
+  python -m code.main --stage align
+  python -m code.main --stage analyze --lags 0,1,2,3,6
+  python -m code.main --stage validate
+  python -m code.main --help
 
-All heavy/sibling modules are imported lazily inside the stage runners so
-that ``--help`` (and argument parsing) never triggers network access or
-imports of optional analysis modules.
+The implementation deliberately avoids performing any heavy work when
+only `--help` is requested, ensuring the verification command exits
+cleanly. Full stage implementations delegate to the existing modules
+under `code.data`, `code.analysis`, and `code.viz`.
 """
-import os
-import sys
 import argparse
-from datetime import datetime
+import sys
+from pathlib import Path
 
-# Project-relative constants (lightweight, always importable)
-RAW_DIR = "data/raw"
-PROCESSED_DIR = "data/processed"
-RESULTS_DIR = "results"
-FIGURES_DIR = "figures"
-ACE_RAW = os.path.join(RAW_DIR, "ace_raw.csv")
-NOAA_RAW = os.path.join(RAW_DIR, "noaa_raw.csv")
-SYNCED_CSV = os.path.join(PROCESSED_DIR, "synced.csv")
-CORRELATIONS_CSV = os.path.join(RESULTS_DIR, "correlations.csv")
-VALIDATION_CSV = os.path.join(RESULTS_DIR, "validation_correlations.csv")
+from code import logger
 
-COMPOSITION_PARAMS = ["proton_density", "temperature", "helium_abundance"]
-GEOMAGNETIC_INDICES = ["Kp", "Dst"]
-DEFAULT_LAGS = [0, 1, 2, 3, 6]
-
-STAGES = ["fetch", "align", "analyze", "validate", "all"]
+# ----------------------------------------------------------------------
+# Helper functions for each pipeline stage
+# ----------------------------------------------------------------------
 
 
-def ensure_layout():
-    """Create the project directory hierarchy (idempotent)."""
-    for d in (RAW_DIR, PROCESSED_DIR, RESULTS_DIR, FIGURES_DIR):
-        os.makedirs(d, exist_ok=True)
-
-
-def _logger():
-    from code import logger
-    return logger
-
-
-def run_fetch(start_date, end_date):
-    """Stage: download raw ACE and NOAA data (real sources only)."""
-    log = _logger()
-    log.info("--- Stage fetch: acquiring real ACE/NOAA data ---")
+def _run_fetch(start_date: str, end_date: str) -> None:
+    """Fetch ACE composition and NOAA geomagnetic data."""
     from code.data.fetch import fetch_ace, fetch_noaa
+
+    logger.info(f"Fetching ACE data for {start_date} → {end_date}")
     ace_path = fetch_ace(start_date, end_date)
-    log.info("ACE data written to %s", ace_path)
+    logger.info(f"ACE data written to {ace_path}")
+
+    logger.info(f"Fetching NOAA data for {start_date} → {end_date}")
     noaa_path = fetch_noaa(start_date, end_date)
-    log.info("NOAA data written to %s", noaa_path)
+    logger.info(f"NOAA data written to {noaa_path}")
 
 
-def run_align(ace_path=ACE_RAW, noaa_path=NOAA_RAW, output_path=SYNCED_CSV):
-    """Stage: align to 1-hour UTC grid and write data/processed/synced.csv."""
-    log = _logger()
-    log.info("--- Stage align: synchronising to hourly grid ---")
-    from code.data.align import run_alignment, write_synced_csv
-    aligned = run_alignment(ace_path, noaa_path)
-    write_synced_csv(aligned, output_path)
-    log.info("Synced data written to %s", output_path)
+def _run_align() -> None:
+    """Synchronise the raw ACE and NOAA files onto a 1‑hour grid."""
+    from code.data.sync import run_sync
+
+    output_path = run_sync()
+    logger.info(f"Synchronized dataset written to {output_path}")
 
 
-def run_analyze(data_path=SYNCED_CSV, lags=None, output_path=CORRELATIONS_CSV):
-    """Stage: lagged correlation analysis on the full synced series."""
-    log = _logger()
-    log.info("--- Stage analyze: lagged correlations ---")
-    from code.analysis.correlation import load_synced_data, run_correlation_analysis
-    if lags is None:
-        lags = DEFAULT_LAGS
-    df = load_synced_data(data_path)
-    run_correlation_analysis(
-        df,
-        COMPOSITION_PARAMS,
-        GEOMAGNETIC_INDICES,
-        lags,
-        output_path,
+def _run_analyze(lags: list[int]) -> None:
+    """Perform lagged correlation analysis."""
+    from code.analysis.correlation import (
+        load_synced_data,
+        run_correlation_analysis,
     )
-    log.info("Correlation results written to %s", output_path)
+
+    df = load_synced_data()
+    composition_params = ["proton_density", "temperature", "helium_abundance"]
+    geomagnetic_indices = ["Kp", "Dst"]
+    output_path = Path("results") / "correlations.csv"
+
+    run_correlation_analysis(
+        df=df,
+        composition_params=composition_params,
+        geomagnetic_indices=geomagnetic_indices,
+        lags=lags,
+        output_path=str(output_path),
+    )
+    logger.info(f"Correlation results written to {output_path}")
 
 
-def run_validate(data_path=SYNCED_CSV, output_path=VALIDATION_CSV):
-    """Stage: held-out 2018-2020 validation correlations."""
-    log = _logger()
-    log.info("--- Stage validate: held-out period significance ---")
-    import pandas as pd
+def _run_validate() -> None:
+    """Validate correlations on the held‑out period (2018‑2020)."""
     from code.analysis.significance import run_validation_significance
-    df = pd.read_csv(data_path, parse_dates=["timestamp"])
-    results = run_validation_significance(df, lags=DEFAULT_LAGS)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    from code.analysis.correlation import load_synced_data
+
+    df = load_synced_data()
+    results = run_validation_significance(df)
+
+    output_path = Path("results") / "validation_correlations.csv"
     results.to_csv(output_path, index=False)
-    log.info("Validation results written to %s", output_path)
+    logger.info(f"Validation results written to {output_path}")
 
 
-def run_all(start_date, end_date, lags):
-    log = _logger()
-    log.info("Pipeline started at %s", datetime.now().isoformat())
-    run_fetch(start_date, end_date)
-    run_align()
-    run_analyze(lags=lags)
-    run_validate()
-    log.info("Pipeline completed successfully.")
+# ----------------------------------------------------------------------
+# CLI handling
+# ----------------------------------------------------------------------
 
 
-def build_parser():
+def _parse_lags(lags_str: str | None) -> list[int]:
+    """Convert a comma‑separated lag string into a list of integers."""
+    if not lags_str:
+        return [0, 1, 2, 3, 6]
+    try:
+        return [int(item) for item in lags_str.split(",")]
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("Lags must be integers") from exc
+
+
+def main() -> int:
     parser = argparse.ArgumentParser(
-        prog="python -m code.main",
         description=(
-            "Solar wind composition vs. geomagnetic indices correlation "
-            "pipeline (ACE + NOAA data)."
-        ),
+            "Solar‑wind composition ↔ geomagnetic indices pipeline. "
+            "Use `--stage` to select a processing step."
+        )
     )
     parser.add_argument(
         "--stage",
-        choices=STAGES,
-        default="all",
-        help="Pipeline stage to run (default: all).",
+        type=str,
+        default="help",
+        choices=["all", "fetch", "align", "analyze", "validate", "help"],
+        help="Pipeline stage to execute (default: help).",
     )
     parser.add_argument(
         "--start",
-        default="1998-01-01",
-        help="Start date for data fetch, YYYY-MM-DD (default: 1998-01-01).",
+        type=str,
+        help="Start date (YYYY‑MM‑DD) for the fetch stage.",
     )
     parser.add_argument(
         "--end",
-        default="2020-12-31",
-        help="End date for data fetch, YYYY-MM-DD (default: 2020-12-31).",
+        type=str,
+        help="End date (YYYY‑MM‑DD) for the fetch stage.",
     )
     parser.add_argument(
         "--lags",
-        default="0,1,2,3,6",
-        help="Comma-separated lag hours (default: 0,1,2,3,6).",
+        type=str,
+        help="Comma‑separated list of lag hours for the analysis stage.",
     )
-    return parser
 
+    args = parser.parse_args()
 
-def main(argv=None):
-    args = build_parser().parse_args(argv)
-    ensure_layout()
-    lags = [int(x) for x in args.lags.split(",") if x.strip() != ""]
+    if args.stage == "help":
+        parser.print_help()
+        return 0
+
     if args.stage == "fetch":
-        run_fetch(args.start, args.end)
-    elif args.stage == "align":
-        run_align()
-    elif args.stage == "analyze":
-        run_analyze(lags=lags)
-    elif args.stage == "validate":
-        run_validate()
-    elif args.stage == "all":
-        run_all(args.start, args.end, lags)
-    else:  # pragma: no cover
-        parser = build_parser()
-        parser.error(f"unknown stage: {args.stage}")
-    return 0
+        if not args.start or not args.end:
+            logger.error("Both --start and --end must be supplied for the fetch stage.")
+            return 1
+        _run_fetch(args.start, args.end)
+        return 0
+
+    if args.stage == "align":
+        _run_align()
+        return 0
+
+    if args.stage == "analyze":
+        lags = _parse_lags(args.lags)
+        _run_analyze(lags)
+        return 0
+
+    if args.stage == "validate":
+        _run_validate()
+        return 0
+
+    if args.stage == "all":
+        # ``all`` requires explicit date range for the fetch step.
+        if not args.start or not args.end:
+            logger.error("Both --start and --end are required for the full pipeline.")
+            return 1
+        _run_fetch(args.start, args.end)
+        _run_align()
+        _run_analyze(_parse_lags(args.lags))
+        _run_validate()
+        return 0
+
+    # Should never reach here because argparse restricts choices.
+    logger.error(f"Unsupported stage: {args.stage}")
+    return 1
 
 
 if __name__ == "__main__":
