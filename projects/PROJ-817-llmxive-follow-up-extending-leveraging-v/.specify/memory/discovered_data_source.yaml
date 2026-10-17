@@ -1,11 +1,11 @@
 status: none
-intent: Image Editing Prompt Feasibility Dataset InstructPix2Pix download python package
-  dataset
+intent: download image editing instruction dataset with human feasibility scores balanced
+  conflicting neutral HuggingFace python package dataset
 required_fields:
 - prompt_id
 - prompt_text
 - instruction_type
 - human_feasibility_score
-cache_key: 340126f33f2e6e40d2239235519750751ebdd3ea4a58ee2627bad4fe960aaf5c
-searched_at: '2026-10-17T03:17:34.413396+00:00'
+cache_key: d1ccc9eb4907444ff43f8187c5790b2b3f6960dc90dec4d028c758367d7254a4
+searched_at: '2026-10-17T04:09:33.677729+00:00'
 retry_count: 1

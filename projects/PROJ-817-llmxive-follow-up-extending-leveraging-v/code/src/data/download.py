@@ -8,14 +8,15 @@ falls back to REAL, canonical sources of the SAME dataset, in order:
 
 1. ``datasets.load_dataset("timbrooks/instructpix2pix", split="train",
    streaming=True)`` (primary, per spec).
-2. The dataset's auto-converted parquet shards listed by the official
-   HF datasets-server API
+2. Loading the full dataset non‑streaming (fallback when streaming fails).
+3. The dataset's auto‑converted parquet shards listed by the official
+   HF datasets‑server API
    (``https://datasets-server.huggingface.co/parquet?dataset=...``),
    streamed one shard at a time with
    ``load_dataset("parquet", data_files=<url>, streaming=True)``.
-3. The parquet URLs published by the Hub API endpoint
+4. The parquet URLs published by the Hub API endpoint
    ``https://huggingface.co/api/datasets/timbrooks/instructpix2pix/parquet/default/train``.
-4. The datasets-server ``/rows`` API (paginated real rows).
+5. The datasets‑server ``/rows`` API (paginated real rows).
 
 Every fallback serves REAL rows of the SAME dataset; there is NO
 synthetic/mock fallback, ever, and any fetch error raises loudly.
@@ -28,9 +29,10 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+from pathlib import Path
 
 import pandas as pd
-
+import requests
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
@@ -54,7 +56,7 @@ PROVENANCE_PATH = paths.data("raw", "prompts_sample_provenance.json")
 
 
 def _row_checksum(row: dict) -> str:
-    """Stable SHA-256 over the fields that identify a real source row."""
+    """Stable SHA‑256 over the fields that identify a real source row."""
     payload = json.dumps(
         {
             "edit_prompt": row.get("edit_prompt"),
@@ -81,10 +83,22 @@ def _iter_stream_hf():
         yield row
 
 
-def _parquet_urls_from_datasets_server() -> list[str]:
-    """Real parquet shard URLs from the official HF datasets-server API."""
-    import requests
+def _load_full_dataset():
+    """Fallback: load the entire split into memory (still real data)."""
+    from datasets import load_dataset
 
+    log.info(
+        "Loading full %s split=%s into memory as fallback",
+        DATASET_ID,
+        SPLIT,
+    )
+    ds = load_dataset(DATASET_ID, split=SPLIT)  # returns a Dataset object
+    for row in ds:
+        yield row
+
+
+def _parquet_urls_from_datasets_server() -> list[str]:
+    """Real parquet shard URLs from the official HF datasets‑server API."""
     resp = requests.get(
         DATASETS_SERVER_PARQUET,
         params={"dataset": DATASET_ID},
@@ -95,15 +109,13 @@ def _parquet_urls_from_datasets_server() -> list[str]:
     urls = [f["url"] for f in files if f.get("split") == SPLIT]
     if not urls:
         raise RuntimeError(
-            f"datasets-server returned no train parquet files for {DATASET_ID}"
+            f"datasets‑server returned no train parquet files for {DATASET_ID}"
         )
     return sorted(urls)
 
 
 def _parquet_urls_from_hub_api() -> list[str]:
     """Real parquet shard URLs from the Hub parquet API endpoint."""
-    import requests
-
     resp = requests.get(HUB_API_PARQUET, timeout=60)
     resp.raise_for_status()
     urls = list(resp.json())
@@ -128,12 +140,12 @@ def _iter_parquet_shards(urls: list[str]):
 
 
 def _iter_stream_parquet():
-    """Fallback path: real parquet shards, server-listed then Hub-listed."""
+    """Fallback path: real parquet shards, server‑listed then Hub‑listed."""
     try:
         urls = _parquet_urls_from_datasets_server()
     except Exception as exc:  # noqa: BLE001 - try the other real source
         log.warning(
-            "datasets-server parquet listing failed (%s); trying Hub API",
+            "datasets‑server parquet listing failed (%s); trying Hub API",
             exc,
         )
         urls = _parquet_urls_from_hub_api()
@@ -141,9 +153,7 @@ def _iter_stream_parquet():
 
 
 def _iter_rows_api():
-    """Last real fallback: paginated real rows from the datasets-server."""
-    import requests
-
+    """Last real fallback: paginated real rows from the datasets‑server."""
     offset = 0
     page = 100
     while True:
@@ -158,13 +168,14 @@ def _iter_rows_api():
             },
             timeout=120,
         )
+        # Some environments may reject unauthenticated access; propagate error.
         resp.raise_for_status()
         rows = resp.json().get("rows", [])
         if not rows:
             return
         for wrapped in rows:
             row = wrapped.get("row", {})
-            # The rows API returns images as URL dicts; keep text fields.
+            # Normalise possible dict‑encoded prompts.
             if isinstance(row.get("edit_prompt"), dict):
                 row["edit_prompt"] = row["edit_prompt"].get("text")
             if isinstance(row.get("original_prompt"), dict):
@@ -182,16 +193,19 @@ def collect_prompt_sample(
     """
     attempts = [
         (
-            "datasets.load_dataset('timbrooks/instructpix2pix', "
-            "split='train', streaming=True)",
+            "datasets.load_dataset streaming",
             _iter_stream_hf,
         ),
         (
-            "canonical HF parquet shards via datasets-server/Hub API",
+            "datasets.load_dataset full (non‑streaming) fallback",
+            _load_full_dataset,
+        ),
+        (
+            "canonical HF parquet shards via datasets‑server/Hub API",
             _iter_stream_parquet,
         ),
         (
-            "datasets-server /rows API (paginated real rows)",
+            "datasets‑server /rows API (paginated real rows)",
             _iter_rows_api,
         ),
     ]
@@ -291,10 +305,9 @@ def main() -> int:
         "streaming_rule": (
             "datasets.load_dataset('timbrooks/instructpix2pix', "
             "split='train', streaming=True), full stream scanned in "
-            f"chunks of {CHUNK_SIZE} rows; real fallbacks: canonical "
-            "parquet shards listed by the HF datasets-server /parquet "
-            "API and the Hub parquet API, then the datasets-server "
-            "/rows API — all serving the same real dataset"
+            f"chunks of {CHUNK_SIZE} rows; fallbacks: full non‑streaming "
+            "load, canonical parquet shards (datasets‑server / Hub API), "
+            "and datasets‑server /rows API — all serving the same real dataset"
         ),
         "source_used": df.attrs["source"],
         "rows_scanned": df.attrs["scanned_rows"],
@@ -309,13 +322,13 @@ def main() -> int:
     PROVENANCE_PATH.write_text(json.dumps(provenance, indent=2))
     log.info("Wrote provenance to %s", PROVENANCE_PATH)
 
-    # Observable check: >= 2000 rows, non-null prompts and checksums.
+    # Observable check: >= 2000 rows, non‑null prompts and checksums.
     check = pd.read_parquet(OUTPUT_PATH)
     assert len(check) >= N_PROMPTS, "fewer than 2000 rows"
     assert check["edit_prompt"].notna().all(), "null prompts present"
     assert check["checksum"].notna().all(), "null checksums present"
     log.info(
-        "Check passed: %d rows, all prompts and checksums non-null",
+        "Check passed: %d rows, all prompts and checksums non‑null",
         len(check),
     )
     return 0
