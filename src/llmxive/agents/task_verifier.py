@@ -42,8 +42,13 @@ from llmxive.claims.task_requirements import read_task_document
 from llmxive.project_paths import _ROOTED_PATH_RE, declared_existing_files
 from llmxive.project_paths import declared_paths as _declared_paths
 from llmxive.project_paths import resolve_project_path as _evidence_path
+from llmxive.speckit.task_lines import (
+    EXECUTION_FAILURE_RE,
+    TaskFormatError,
+    mask_fenced_code,
+    task_continuation,
+)
 from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
-from llmxive.speckit.task_lines import TaskFormatError, mask_fenced_code, task_continuation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -212,7 +217,6 @@ def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | Non
     are all missing/empty/invalid, or ``(None, "")`` when the task is genuinely
     ambiguous (no detectable artifact path, or a mixed/partial state) and must go
     to the semantic verifier."""
-    from llmxive.speckit.task_lines import EXECUTION_FAILURE_RE
     failure = EXECUTION_FAILURE_RE.search(task_text)
     if failure:
         return "reject", "Requested task execution failed; rerun successfully: " + failure.group(1)
@@ -399,11 +403,20 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
             continue
         if f.suffix == ".py":
             python_sources.append(f)
+        # Which run produced the file being judged. When that is another
+        # task's script, a section this task wrote may have been regenerated
+        # away, and the reason for a rejection should be able to say so.
+        from llmxive.speckit.output_writers import last_writer
+        writer = last_writer(project_dir.resolve(), f.relative_to(project_dir.resolve()).as_posix(),
+                             execution_log_dir)
         chunks.append(
             f"- `{rel}` (resolved: `{f.relative_to(project_dir.resolve())}`, "
             + (f"repository-relative: `{f.relative_to(repository_root)}`, "
                if repository_root is not None else "")
-            + f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
+            + f"{size} bytes, sha256={digest}"
+            + (f", last written by a run of `{writer[0]}`" + (f" for {writer[1]}" if writer[1] else "")
+               if writer else "")
+            + f"):\n```\n{head}\n```"
             + ("" if size <= limit else "\n…(truncated)")
         )
     chunks.extend(_pattern_evidence(project_dir, task_text))
@@ -567,6 +580,15 @@ _TASK_LINE_RE = re.compile(r"^(\s*-\s*)\[([ xX~])\](\s.*)$")
 #: route the whole project to ``research_full_revision``. Incomplete work must
 #: never count as done.
 REJECT_CAP = 3
+#: Rejections that were not a fresh judgement of new work: the platform's own
+#: run of the task's script failed, a declared artifact is absent, or the redo
+#: changed nothing the verifier is shown and the stored verdict was replayed.
+#: They are bounded separately from ``REJECT_CAP``. Across fourteen acceptance
+#: runs (2026-10-11) about half of the "rejected 3x" events included such a
+#: strike, and the verifier went on to accept 20-38% of tasks on each attempt
+#: after a third consecutive rejection, so a debugging round is not evidence
+#: that a task cannot be verified.
+STALL_CAP = 2 * REJECT_CAP
 #: Max verifier LLM calls per tick (bounds cost). Deterministic accepts/rejects and
 #: evidence-hash cache hits are FREE and do NOT count against this — so the huge
 #: ``[~]`` backlog drains without a bigger cap; only genuinely ambiguous residue
@@ -744,6 +766,32 @@ def _mark_counts(lines: list[str]) -> dict[str, int]:
     return out
 
 
+def _append_ledger(path: Path, entries: list[dict[str, str]]) -> None:
+    """Append this pass's decisions to the project's verification ledger.
+
+    The reject counters say how many strikes a task has; nothing recorded what
+    each strike WAS. An audit of fourteen runs could count "rejected 3x" events
+    (about 65) and the verifier model's own three-in-a-row rejections (30) but
+    not what made up the difference. One JSON line per decision, never read by
+    the pipeline: ``kind`` is ``accepted``, ``judged`` (a fresh model verdict),
+    ``replayed`` (the stored verdict for unchanged evidence), ``failed_run``,
+    ``missing_artifact`` or ``unverifiable``.
+    """
+    if not entries:
+        return
+    import datetime
+    import json
+
+    stamp = datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds")
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as stream:
+            for entry in entries:
+                stream.write(json.dumps({"at": stamp, **entry}, sort_keys=True) + "\n")
+    except OSError as exc:  # a measurement must never fail the pass it measures
+        LOGGER.warning("[task-verifier] could not append to %s: %s", path, exc)
+
+
 def run_verification_pass(
     project_dir: Path,
     tasks_path: Path,
@@ -816,12 +864,14 @@ def run_verification_pass(
                 if key.startswith(namespace) and (namespace or not key.startswith("paper:"))}
 
     accepted = 0
+    #: One entry per decision this pass made, appended to the project's ledger.
+    ledger: list[dict[str, str]] = []
     rejected: list[tuple[str, str]] = []
     deferred: list[str] = []
     unverifiable_flagged: list[str] = []
     budget = cap
     keys = task_keys(lines)  # unique + churn-stable; see task_keys()
-    current_feedback: dict[str, dict[str, str]] = {}
+    current_feedback: dict[str, dict[str, Any]] = {}
     changed_keys: set[str] = set()
     for i, key in keys.items():
         match = _TASK_LINE_RE.match(lines[i])
@@ -835,6 +885,8 @@ def run_verification_pass(
             current_feedback[key] = {"task": signature}
             if previous.get("reason"):
                 current_feedback[key]["reason"] = str(previous["reason"])
+            if isinstance(previous.get("stalls"), int) and previous["stalls"] > 0:
+                current_feedback[key]["stalls"] = previous["stalls"]
         else:
             current_feedback[key] = {"task": signature}
             # Unbound legacy counts cannot establish repeated failure of THIS
@@ -861,20 +913,32 @@ def run_verification_pass(
         accepted += 1
         reject_counts.pop(key, None)
         feedback[key].pop("reason", None)
+        feedback[key].pop("stalls", None)
+        ledger.append({"task": key, "kind": "accepted"})
 
-    def _reject(i: int, m: re.Match[str], rest: str, key: str, reason: str) -> None:
-        count = int(reject_counts.get(key, 0)) + 1
-        reject_counts[key] = count
+    def _reject(i: int, m: re.Match[str], rest: str, key: str, reason: str, *,
+                judged: bool, kind: str) -> None:
+        # ``judged`` is a verdict of the verifier model. A rejection decided
+        # from the filesystem alone (see STALL_CAP) is counted apart from it.
+        ledger.append({"task": key, "kind": kind, "reason": reason.strip()[:200]})
+        if judged:
+            count = int(reject_counts.get(key, 0)) + 1
+            reject_counts[key] = count
+        else:
+            count = int(feedback[key].get("stalls", 0)) + 1
+            feedback[key]["stalls"] = count
         lines[i] = f"{m.group(1)}[ ]{rest}"
         rejected.append((key, reason))
         feedback[key]["reason"] = reason.strip()[:600]
-        if count >= REJECT_CAP:
+        if count >= (REJECT_CAP if judged else STALL_CAP):
             _unv.record_unverifiable(project_id, namespace + key, reason, repo_root=repo_root)
             reject_counts.pop(key, None)
+            feedback[key].pop("stalls", None)
             cache.pop(key, None)
             unv_keys.add(key)
             if key not in unverifiable_flagged:
                 unverifiable_flagged.append(key)
+            ledger.append({"task": key, "kind": "unverifiable"})
             LOGGER.warning(
                 "[task-verifier] %r rejected %dx — recording UNVERIFIABLE and "
                 "reopening [ ] (project routes to research_full_revision; never "
@@ -911,7 +975,8 @@ def run_verification_pass(
             _accept(i, m, rest, key)
             continue
         if det == "reject":
-            _reject(i, m, rest, key, det_reason)
+            _reject(i, m, rest, key, det_reason, judged=False,
+                    kind="failed_run" if EXECUTION_FAILURE_RE.search(task_text) else "missing_artifact")
             continue
 
         # (C) Ambiguous residue → evidence-hash cache, else bounded semantic LLM.
@@ -926,6 +991,7 @@ def run_verification_pass(
         ):
             complete: bool | None = cached["c"]
             reason = str(cached.get("r") or "(cached verdict; evidence unchanged)")
+            fresh = False
         elif budget <= 0:
             # Over the per-tick LLM cap with no cache hit → DEFER to a later tick.
             if mark != "~":
@@ -934,6 +1000,7 @@ def run_verification_pass(
             continue
         else:
             budget -= 1
+            fresh = True
             verdict = verify_task(
                 task_text=task_text,
                 evidence=evidence,
@@ -957,7 +1024,10 @@ def run_verification_pass(
         if complete is True:
             _accept(i, m, rest, key)
         elif complete is False:
-            _reject(i, m, rest, key, reason)
+            # A replayed verdict still counts: the redo changed nothing the
+            # verifier is shown. How often that happens was not measurable from
+            # past runs, so it is recorded (see the ledger) rather than changed.
+            _reject(i, m, rest, key, reason, judged=True, kind="judged" if fresh else "replayed")
         else:  # deferred (backend outage / unparseable)
             lines[i] = f"{m.group(1)}[~]{rest}"
             deferred.append(key)
@@ -987,6 +1057,7 @@ def run_verification_pass(
         atomic_write_text(feedback_path, yaml.safe_dump(feedback, sort_keys=True))
     else:
         feedback_path.unlink(missing_ok=True)
+    _append_ledger(state_path.with_suffix(".ledger.jsonl"), ledger)
     _write_notes(notes_path, [
         (key, entry["reason"]) for key, entry in feedback.items() if entry.get("reason")
     ])
@@ -1111,6 +1182,7 @@ def _write_notes(notes_path: Path, rejected: list[tuple[str, str]]) -> None:
 __all__ = [
     "DEFAULT_VERIFY_CAP",
     "REJECT_CAP",
+    "STALL_CAP",
     "VERIFIER_TEMPERATURE",
     "TaskVerdict",
     "claimed_done_keys",
