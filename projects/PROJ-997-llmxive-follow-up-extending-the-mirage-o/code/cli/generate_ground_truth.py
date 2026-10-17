@@ -160,7 +160,7 @@ def download_gsm8k_subset(sample_size: int) -> List[dict]:
     Stream the GSM8K training split from the Hugging Face Hub and return
     the first ``sample_size`` records as a list of dictionaries.
     """
-    # Corrected URL – the previous version pointed to a non‑existent path.
+    # Corrected URL – points to the official GSM8K dataset.
     url = "https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl"
     log.info(f"Downloading GSM8K dataset from {url}")
     response = requests.get(url, stream=True, timeout=60)

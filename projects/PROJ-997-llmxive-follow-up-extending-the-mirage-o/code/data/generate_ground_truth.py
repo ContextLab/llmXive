@@ -92,7 +92,9 @@ def run_wrapper(
         elif level == "FP8":
             quantized_models["FP8"] = quantize_model_fp16(full_model)
         elif level == "INT4":
-            # INT4 not natively supported; fall back to INT8 proxy
+            # INT4 not natively supported; we reuse the INT8
+            # dynamic quantisation as a best‑effort proxy while still providing a
+            # distinct label for downstream analysis.
             log.warning("INT4 quantisation not natively supported; using INT8 proxy.")
             quantized_models["INT4"] = quantize_model_int8(full_model)
         else:

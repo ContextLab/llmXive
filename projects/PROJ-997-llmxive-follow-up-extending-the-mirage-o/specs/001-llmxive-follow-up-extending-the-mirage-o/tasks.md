@@ -15,7 +15,7 @@ Only scientific‑level actions appear; generic scaffolding (directory creation,
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T015 [US001] Generate Ground Truth Data `code/cli/generate_ground_truth.py`   <!-- FAILED-IN-EXECUTION: code/cli/generate_ground_truth.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1; code/cli/validate_dataset_stats.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1; code/cli/validate_dataset_stats.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/cli/generate_ground_truth.py exit=1 -->
+- [ ] T015 [US001] Generate Ground Truth Data `code/cli/generate_ground_truth.py`   <!-- FAILED-IN-EXECUTION: code/cli/generate_ground_truth.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1; code/cli/validate_dataset_stats.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1; code/cli/validate_dataset_stats.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/cli/generate_ground_truth.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1 -->
     • verification: script completes without error; Parquet file contains ≥ 100 successful samples per quantization level; `data/processed/dataset_stats.json` reports a statistically significant non‑zero KL portion (p < 0.05).
 
 - [ ] T016 [US001] Validate Dataset Statistics `code/cli/validate_dataset_stats.py`   <!-- FAILED-IN-EXECUTION: code/cli/validate_dataset_stats.py exit=1 -->
