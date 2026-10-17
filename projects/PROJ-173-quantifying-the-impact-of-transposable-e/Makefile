@@ -1,23 +1,15 @@
-.PHONY: install lint format test clean
+.PHONY: format lint test
 
-install:
-    pip install -r requirements.txt
-
-lint:
-    ruff check code/ tests/
-
+# Run Black formatter
 format:
-    black code/ tests/
-    ruff check --fix code/ tests/
+	@echo "Running Black formatter..."
+	python -m black code
 
+# Run Ruff linter
+lint:
+	@echo "Running Ruff linter..."
+	python -m ruff check code
+
+# Run tests (existing test suite)
 test:
-    python -m pytest tests/ -v
-
-clean:
-    find . -type d -name "__pycache__" -exec rm -r {} +
-    find . -type f -name "*.pyc" -delete
-    find . -type f -name "*.pyo" -delete
-    rm -rf .pytest_cache/
-    rm -rf htmlcov/
-    rm -rf .coverage
-    rm -rf coverage.xml
+	pytest -v

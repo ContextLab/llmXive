@@ -1,12 +1,32 @@
 T001:
   task: 0654c5f7e323a7348364a460ed7da6426100a1e681814aa82c789b0caf6c87ec
 T002:
+  reason: "The `code/utils/io.py` and `code/utils/logging.py` modules import `utils.config`,\
+    \ but the package hierarchy is `code/utils`, so the correct import should be `code.utils.config`.\
+    \ As written, importing these modules raises `ImportError`. Additionally, `config.py`\
+    \ never calls `random.seed(42)` at import time, contrary to the task description.\
+    \ Consequently the required import\u2011ability and automatic seed setting are\
+    \ not satisfied."
   task: e022e889504497095ccd526eeac00879399e1ef50d000c37e2c61e61f1410fc7
 T003:
+  reason: "The required configuration files `.ruff.toml` and `pyproject.toml` are\
+    \ present and correctly contain the Python\u202F3.11 target and Black line\u2011\
+    length\u202F=\u202F88, but there is no provided evidence (e.g., command\u2011\
+    line output or logs) that `ruff check .` and `black --check .` actually run successfully\
+    \ with exit code\u202F0. Execution evidence is needed to complete the task."
   task: 46d2b16fc03609b360d00a5f7d0f2f621f77125810537e753f7370dd44be7b0b
 T004:
+  reason: "Checked `code/ingestion/tng_loader.py`, `data/raw/tng100/` and `data/metadata.yaml`.\
+    \ The raw data directory contains no `*.hdf5` files and the metadata file does\
+    \ not list any SHA\u2011256 checksum entries, so the required download, integrity\
+    \ verification, and metadata update have not been performed."
   task: 54ad0762f41687a4816638c3e8aa0a6ac24ab83fa57684b790cffa1b05f8ff69
 T005:
+  reason: The required output file `data/processed/halo_shapes.csv` and its schema
+    `halo_schema.schema.yaml` are missing, so the CSV cannot be validated against
+    the schema. Additionally, `code/processing/shape_metrics.py` provides `bin_halo_by_shape`
+    instead of the specified `assign_shape_bin` function. These gaps prevent the task
+    from being fully satisfied.
   task: e9892ca4738e8d0a5bac13b2c8c69d7c391d2faf2a919a83c0c65674b500a18f
 T006:
   task: 553fd88692342366ebb2a5d248afa26c75fbbd637ba2c1727a76bd6f03633d0e

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Placeholder run script for the project skeleton.
-# Users can customize this script to invoke the pipeline.
+# Placeholder runner for the PROJ-756 imbalance-effects pipeline.
+# The full pipeline entry point is: python -m code.main --full-pipeline
 set -e
-echo "Running PROJ-756-assessing-dataset-imbalance-effects-on-m pipeline..."
+echo "PROJ-756 skeleton created. Run: python -m code.main --full-pipeline"

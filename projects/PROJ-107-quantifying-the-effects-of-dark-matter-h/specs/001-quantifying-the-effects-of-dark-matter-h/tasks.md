@@ -9,7 +9,7 @@ Each task lists the artifact paths it creates and an automated verification step
 
 ## Phase 1 – Project scaffolding & core utilities  
 
-- [ ] **T001** [US‑0] Create the full project directory hierarchy and verify its existence.  
+- [X] **T001** [US‑0] Create the full project directory hierarchy and verify its existence.  
   - **Paths created**:  
     - `code/ingestion/`, `code/processing/`, `code/analysis/`, `code/utils/`, `code/tests/`  
     - `data/raw/tng100/`, `data/raw/millennium/`, `data/processed/`  

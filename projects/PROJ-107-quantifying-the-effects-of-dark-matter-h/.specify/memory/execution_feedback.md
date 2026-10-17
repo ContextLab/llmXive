@@ -1,92 +1,40 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --step ingest --dataset tng100`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step ingest --dataset tng100`
-- run-book command: `python code/main.py --step compute_shapes`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step compute_shapes`
-- run-book command: `python code/main.py --step null_control --iterations 10000`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step null_control --iterations 10000`
-- run-book command: `python code/main.py --step analyze --mass-match`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step analyze --mass-match`
-- run-book command: `python code/main.py --step sensitivity --thresholds "0.45,0.55,0.75,0.85"`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step sensitivity --thresholds 0.45,0.55,0.75,0.85`
-- run-book command: `python code/main.py --step report`
-  - script usage: `main.py [-h] [--config CONFIG]`
-  - argparse error: `main.py: error: unrecognized arguments: --step report`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 command(s) failed: python code/main.py --step ingest --dataset tng100 (rc=2); python code/main.py --step compute_shapes (rc=2); python code/main.py --step null_control --iterations 10000 (rc=2); 4 declared deliverable(s) absent: data/processed/alignment_angles.csv; data/processed/galaxy_properties.csv; data/processed/halo_shapes.csv
+**Summary**: 2 command(s) failed: python code/main.py --stage ingestion (rc=1); python -m pytest code/tests/ -v (rc=2); 4 declared deliverable(s) absent: data/processed/alignment_angles.csv; data/processed/galaxy_properties.csv; data/processed/halo_shapes.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py --step ingest --dataset tng100 -> rc=2
+- python code/main.py --stage ingestion -> rc=1
 
-usage: main.py [-h] [--config CONFIG]
-               [--stage {dry_run,ingestion,processing,statistics,alignment,report}]
-main.py: error: unrecognized arguments: --step ingest --dataset tng100
-
-- python code/main.py --step compute_shapes -> rc=2
-
-usage: main.py [-h] [--config CONFIG]
-               [--stage {dry_run,ingestion,processing,statistics,alignment,report}]
-main.py: error: unrecognized arguments: --step compute_shapes
-
-- python code/main.py --step null_control --iterations 10000 -> rc=2
-
-usage: main.py [-h] [--config CONFIG]
-               [--stage {dry_run,ingestion,processing,statistics,alignment,report}]
-main.py: error: unrecognized arguments: --step null_control --iterations 10000
-
-- python code/main.py --step analyze --mass-match -> rc=2
-
-usage: main.py [-h] [--config CONFIG]
-               [--stage {dry_run,ingestion,processing,statistics,alignment,report}]
-main.py: error: unrecognized arguments: --step analyze --mass-match
-
-- python code/main.py --step sensitivity --thresholds "0.45,0.55,0.75,0.85" -> rc=2
-
-usage: main.py [-h] [--config CONFIG]
-               [--stage {dry_run,ingestion,processing,statistics,alignment,report}]
-main.py: error: unrecognized arguments: --step sensitivity --thresholds 0.45,0.55,0.75,0.85
-
-- python code/main.py --step report -> rc=2
-
-usage: main.py [-h] [--config CONFIG]
-               [--stage {dry_run,ingestion,processing,statistics,alignment,report}]
-main.py: error: unrecognized arguments: --step report
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/code/main.py", line 182, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/code/main.py", line 178, in main
+    success = stage_map[args.stage](config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/code/main.py", line 35, in run_ingestion_stage
+    log_pipeline_start(logger, "T011", "Ingestion")
+TypeError: log_pipeline_start() takes from 0 to 1 positional arguments but 3 were given
 
 - python -m pytest code/tests/ -v -> rc=2
-init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-<frozen importlib._bootstrap>:1204: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1176: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:690: in _load_unlocked
-    ???
-/home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
-    exec(co, module.__dict__)
-code/tests/test_stats_regression.py:12: in <module>
-    from analysis.stats import linear_regression_with_mass_control, run_statistical_tests
-E   ImportError: cannot import name 'linear_regression_with_mass_control' from 'analysis.stats' (/home/runner/work/llmXive/llmXive/projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/code/analysis/stats.py)
+.__dict__)
+code/tests/test_stats.py:14: in <module>
+    from code.analysis.stats import (
+E   ImportError: cannot import name 'kruskal_wallis_test' from 'code.analysis.stats' (/home/runner/work/llmXive/llmXive/projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/code/analysis/stats.py)
+=============================== warnings summary ===============================
+code/tests/test_pipeline_runner.py:230
+  /home/runner/work/llmXive/llmXive/projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/code/tests/test_pipeline_runner.py:230: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR code/tests/test_logging.py
-ERROR code/tests/test_pipeline_runner.py
-ERROR code/tests/test_stats_regression.py
+ERROR code/tests/test_alignment_report.py
+ERROR code/tests/test_pipeline.py
+ERROR code/tests/test_stats.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.31s ===============================
+=================== 1 skipped, 1 warning, 3 errors in 1.10s ====================
 
 
 

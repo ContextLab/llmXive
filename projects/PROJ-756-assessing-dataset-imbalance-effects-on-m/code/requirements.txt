@@ -1,15 +1,20 @@
-pandas
-scikit-learn
-shap
-magpie
-datasets
-numpy
-scipy
-pyyaml
-cvxpy
-requests
-pyarrow
-pydantic
-pytest
-ruff
-black
+# Pinned dependencies for PROJ-756: Assessing Dataset Imbalance Effects on
+# Materials Property Predictions.
+# Core scientific stack (versions pinned per T002 specification).
+pandas==2.2.*
+scikit-learn==1.5.*
+shap==0.45.*
+magpie==0.2.*
+datasets==2.19.*
+numpy==1.26.*
+scipy==1.13.*
+pyyaml==6.0.*
+cvxpy==1.5.*
+
+# Supporting dependencies required by the pipeline modules.
+requests==2.32.*
+pyarrow==16.1.*
+pydantic==2.7.*
+pytest==8.2.*
+ruff==0.4.*
+black==24.4.*

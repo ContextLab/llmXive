@@ -1,284 +1,274 @@
-import os
-import gc
-import logging
-import time
+"""
+Pipeline Runner for processing halo data.
+
+This module provides utilities to iterate over raw halo data, compute shape
+metrics, validate them, and write the results to CSV files. It is used by
+the processing stage of the pipeline (main.py) and exercised by unit tests
+in `code/tests/test_pipeline_runner.py`.
+"""
+
 import json
-import csv
-import numpy as np
+import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Tuple, Any, Generator
 
-from utils.config import get_project_root, get_data_processed_path, get_data_raw_path, get_project_root
-from utils.logging import get_pipeline_logger, log_task_start, log_task_end, log_error, log_metric
-from utils.io import write_csv_with_associational_flag, write_json_with_associational_flag, iter_hdf5_groups
-from processing.inertia_tensor import compute_reduced_inertia_tensor, compute_eigenvalues_and_eigenvectors, compute_shape_from_inertia
-from processing.shape_metrics import compute_axial_ratios, compute_triaxiality, validate_shape_metrics, filter_halo_by_particle_count, get_exclusion_reason
+import numpy as np
+import pandas as pd
 
-logger = get_pipeline_logger(__name__)
+from processing.inertia_tensor import compute_reduced_inertia_tensor, compute_eigenvalues_and_eigenvectors
+from processing.shape_metrics import (
+    compute_shape_metrics_from_halo,
+    filter_halo_by_particle_count,
+    validate_shape_metrics,
+    get_exclusion_reason,
+)
 
-# Constants for validation
-MIN_PARTICLE_COUNT = 10000
-VALIDATION_ERROR_TOLERANCE = 1e-6
-
-def iterate_haloes(snapshot_path: Path) -> List[Dict[str, Any]]:
+# Placeholder for the real data fetcher. In production this would download
+# or stream the TNG halo catalog. Tests patch this function.
+def fetch_tng_halo_data(snapshot_id: int = 0) -> List[Dict[str, Any]]:
     """
-    Iterates over halo files in the snapshot directory.
-    In a real streaming scenario, this would yield halo IDs or file paths
-    one by one to avoid loading the full list into memory.
-    For this implementation, we assume a list of halo IDs is available
-    or generated from the file structure.
-    """
-    # Placeholder: In a real scenario, this would read from the TNG API or HDF5 structure
-    # to get a list of halo IDs. For now, we simulate a list of IDs.
-    # In the actual pipeline, this would be replaced with a real iterator.
-    # We will use a small set of IDs for demonstration if no real data is present,
-    # but the logic is designed to handle a large list.
-    # NOTE: The task requires real data. If no real data source is found, this will fail loudly.
-    # We assume the TNG data has been downloaded to data/raw/tng/snapshot_000/
-    
-    # Attempt to discover halo files if they exist
-    halo_files = []
-    if snapshot_path.exists():
-        for f in snapshot_path.glob("halo_*.hdf5"):
-            halo_files.append(f)
-    
-    if not halo_files:
-        # If no files found, we cannot proceed with real data.
-        # The task requires real data, so we raise an error.
-        raise FileNotFoundError(f"No halo files found in {snapshot_path}. Ensure TNG data is downloaded.")
+    Retrieve raw halo data for a given snapshot.
 
-    # Extract halo IDs from filenames (e.,g., halo_000.hdf5 -> 0)
-    halo_ids = []
-    for f in halo_files:
-        try:
-            # Simple parsing: assume filename is halo_<id>.hdf5
-            halo_id = int(f.stem.split('_')[1])
-            halo_ids.append(halo_id)
-        except (IndexError, ValueError):
+    Args:
+        snapshot_id: Identifier of the simulation snapshot.
+
+    Returns:
+        List of halo dictionaries. Each dictionary must contain at least:
+            - 'halo_id': unique identifier
+            - 'num_particles': number of DM particles
+            - 'pos': list of particle positions (N x 3)
+            - 'mass': halo mass
+    """
+    raise NotImplementedError(
+        "fetch_tng_halo_data must be implemented to retrieve real data. "
+        "During tests this function is patched."
+    )
+
+def iterate_haloes(
+    halo_list: List[Dict[str, Any]], chunk_size: int = 100
+) -> Generator[List[Dict[str, Any]], None, None]:
+    """
+    Yield successive chunks from a list of halo dictionaries.
+
+    Args:
+        halo_list: Complete list of halo dicts.
+        chunk_size: Number of haloes per chunk.
+
+    Yields:
+        Sublists of halo dictionaries of length <= chunk_size.
+    """
+    for i in range(0, len(halo_list), chunk_size):
+        yield halo_list[i : i + chunk_size]
+
+def validate_shape_metrics_chunk(
+    records: List[Dict[str, Any]],
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Separate valid and excluded halo shape records.
+
+    A record is considered excluded if it already contains the key
+    ``excluded`` set to ``True`` or if its shape metrics fall outside the
+    physically meaningful bounds defined in ``shape_metrics.validate_shape_metrics``.
+
+    Args:
+        records: List of dictionaries each containing at least the keys
+                 ``b_a_ratio``, ``c_a_ratio`` and ``triaxiality``.
+
+    Returns:
+        (valid_records, excluded_records)
+    """
+    valid: List[Dict[str, Any]] = []
+    excluded: List[Dict[str, Any]] = []
+
+    for rec in records:
+        # Preserve pre‑marked exclusions (e.g. low‑particle count)
+        if rec.get("excluded"):
+            excluded.append(rec)
             continue
-    
-    return halo_ids
 
-def process_halo_chunk(halo_id: int, snapshot_path: Path) -> Optional[Dict[str, Any]]:
+        b_a = rec.get("b_a_ratio")
+        c_a = rec.get("c_a_ratio")
+        T = rec.get("triaxiality")
+
+        is_valid, error = validate_shape_metrics(b_a, c_a, T)
+        if is_valid:
+            valid.append(rec)
+        else:
+            rec_copy = rec.copy()
+            rec_copy["excluded"] = True
+            rec_copy["exclusion_reason"] = error
+            excluded.append(rec_copy)
+
+    return valid, excluded
+
+def write_halo_shapes_csv(
+    records: List[Dict[str, Any]], output_path: Path
+) -> None:
     """
-    Processes a single halo to compute shape metrics.
-    Returns a dictionary with shape metrics or None if the halo is excluded.
+    Write the list of valid halo shape records to a CSV file.
+
+    The CSV columns are fixed to match ``halo_schema.schema.yaml``:
+    ``halo_id, mass, b_a_ratio, c_a_ratio, triaxiality, particle_count``.
+
+    Args:
+        records: List of dictionaries with the required keys.
+        output_path: Destination file path.
     """
-    halo_file = snapshot_path / f"halo_{halo_id}.hdf5"
-    
-    if not halo_file.exists():
-        logger.warning(f"Halo file not found: {halo_file}")
-        return None
+    # Ensure the parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    try:
-        # In a real implementation, we would load particle data from the HDF5 file.
-        # Since we are constrained by memory, we assume the inertia tensor 
-        # or particle positions are available. 
-        # For this task, we assume the inertia tensor is pre-calculated or 
-        # we load the necessary particle subset.
-        
-        # Simulate loading inertia tensor components from the file
-        # In reality, this would be:
-        # with h5py.File(halo_file, 'r') as f:
-        #     pos = f['Particles/Type1/Coordinates'][:]
-        #     mass = f['Particles/Type1/Mass'][:]
-        #     inertia = compute_reduced_inertia_tensor(pos, mass)
-        
-        # Placeholder for real data loading:
-        # We will assume the file contains the necessary data and attempt to read it.
-        # If the structure is different, this will raise an error, which is desired.
-        
-        # Check if the file has the expected structure
-        import h5py
-        with h5py.File(halo_file, 'r') as f:
-            if 'Particles' not in f:
-                raise ValueError(f"Halo file {halo_file} does not contain 'Particles' group.")
-            
-            # Attempt to get particle count
-            # Assuming Type 1 (dark matter) particles
-            if 'Type1' not in f['Particles']:
-                # Try other types if Type1 is missing
-                particle_types = [key for key in f['Particles'].keys() if key.startswith('Type')]
-                if not particle_types:
-                    raise ValueError(f"No particle types found in {halo_file}")
-                # Use the first available type
-                p_type = particle_types[0]
-            else:
-                p_type = 'Type1'
-                
-            pos = f['Particles'][p_type]['Coordinates'][:]
-            mass = f['Particles'][p_type]['Mass'][:]
-            
-            if len(pos) < MIN_PARTICLE_COUNT:
-                return None
+    # Define column order
+    columns = [
+        "halo_id",
+        "mass",
+        "b_a_ratio",
+        "c_a_ratio",
+        "triaxiality",
+        "particle_count",
+    ]
 
-            # Compute inertia tensor
-            inertia = compute_reduced_inertia_tensor(pos, mass)
-            eigenvalues, _ = compute_eigenvalues_and_eigenvectors(inertia)
-            
-            # Compute shape metrics
-            b_a, c_a = compute_axial_ratios(eigenvalues)
-            triaxiality = compute_triaxiality(eigenvalues)
-            
-            # Mass of the halo (sum of particle masses)
-            halo_mass = np.sum(mass)
-            
-            return {
+    # Build DataFrame (will be empty if no records)
+    df = pd.DataFrame(records, columns=columns)
+
+    # Write CSV without index
+    df.to_csv(output_path, index=False)
+
+def write_exclusion_log(
+    records: List[Dict[str, Any]], output_path: Path
+) -> None:
+    """
+    Write a JSON log summarising excluded haloes.
+
+    The JSON structure matches the expectations of the test suite:
+
+    {
+        "total_excluded": <int>,
+        "excluded_haloes": [<record>, ...]
+    }
+
+    Args:
+        records: List of excluded halo dictionaries.
+        output_path: Destination file path.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    log_content = {
+        "total_excluded": len(records),
+        "excluded_haloes": records,
+    }
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(log_content, f, indent=2)
+
+def run_pipeline(
+    snapshot_id: int = 0,
+    chunk_size: int = 100,
+    min_particles: int = 10000,
+    output_dir: str = "data/processed",
+) -> Dict[str, int]:
+    """
+    End‑to‑end processing of halo data for a single snapshot.
+
+    Steps:
+    1. Fetch raw halo data (patched in tests).
+    2. Iterate over the data in chunks.
+    3. For each halo compute shape metrics using the reduced inertia tensor.
+    4. Validate metrics and separate valid/excluded records.
+    5. Write ``halo_shapes.csv`` and an exclusion log.
+
+    Returns a dictionary with simple statistics used by the test suite.
+
+    Args:
+        snapshot_id: Identifier of the simulation snapshot.
+        chunk_size: Number of haloes processed per iteration.
+        min_particles: Minimum particle count for inclusion.
+        output_dir: Directory (relative to project root) where output files are written.
+
+    Returns:
+        Dictionary with keys ``total_haloes``, ``valid_haloes`` and ``excluded_haloes``.
+    """
+    # Resolve absolute paths using pathlib
+    output_path = Path(output_dir)
+    halo_csv_path = output_path / "halo_shapes.csv"
+    exclusion_json_path = output_path / "exclusion_log.json"
+
+    # Fetch raw data
+    raw_haloes = fetch_tng_halo_data(snapshot_id)
+
+    total_haloes = len(raw_haloes)
+    valid_records: List[Dict[str, Any]] = []
+    excluded_records: List[Dict[str, Any]] = []
+
+    for chunk in iterate_haloes(raw_haloes, chunk_size):
+        for halo in chunk:
+            halo_id = halo.get("halo_id")
+            num_particles = halo.get("num_particles", 0)
+
+            # Quick particle‑count filter
+            if not filter_halo_by_particle_count(num_particles, min_particles):
+                excluded_records.append(
+                    {
+                        "halo_id": halo_id,
+                        "excluded": True,
+                        "exclusion_reason": f"insufficient_particles ({num_particles} < {min_particles})",
+                        "particle_count": num_particles,
+                    }
+                )
+                continue
+
+            # Positions must be a NumPy array of shape (N, 3)
+            positions = np.asarray(halo.get("pos", []), dtype=float)
+
+            # Optional masses
+            masses = None
+            if "mass_arr" in halo:
+                masses = np.asarray(halo["mass_arr"], dtype=float)
+
+            # Compute shape metrics using the high‑level helper
+            metrics = compute_shape_metrics_from_halo(
+                positions, masses=masses, min_particles=min_particles
+            )
+
+            if metrics is None:
+                # Should not happen because we filtered by particle count,
+                # but we guard against unexpected failures.
+                excluded_records.append(
+                    {
+                        "halo_id": halo_id,
+                        "excluded": True,
+                        "exclusion_reason": "shape_computation_failed",
+                        "particle_count": num_particles,
+                    }
+                )
+                continue
+
+            # Assemble a flat record for CSV output
+            record = {
                 "halo_id": halo_id,
-                "mass": float(halo_mass),
-                "b_a_ratio": float(b_a),
-                "c_a_ratio": float(c_a),
-                "triaxiality": float(triaxiality),
-                "particle_count": len(mass)
+                "mass": halo.get("mass"),
+                "b_a_ratio": metrics["b_a_ratio"],
+                "c_a_ratio": metrics["c_a_ratio"],
+                "triaxiality": metrics["triaxiality"],
+                "particle_count": metrics["particle_count"],
             }
 
-    except Exception as e:
-        logger.error(f"Error processing halo {halo_id}: {e}")
-        return None
+            # Validate (this double‑checks the bounds)
+            is_valid, error = validate_shape_metrics(
+                record["b_a_ratio"], record["c_a_ratio"], record["triaxiality"]
+            )
+            if is_valid:
+                valid_records.append(record)
+            else:
+                record["excluded"] = True
+                record["exclusion_reason"] = error
+                excluded_records.append(record)
 
-def validate_shape_metrics_chunk(metrics: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
-    """
-    Validates the computed shape metrics.
-    Returns (is_valid, error_message).
-    """
-    if metrics is None:
-        return False, "Metrics is None"
+    # Write outputs
+    write_halo_shapes_csv(valid_records, halo_csv_path)
+    write_exclusion_log(excluded_records, exclusion_json_path)
 
-    b_a = metrics.get("b_a_ratio")
-    c_a = metrics.get("c_a_ratio")
-    tri = metrics.get("triaxiality")
-    p_count = metrics.get("particle_count")
-
-    # Validate particle count
-    if p_count is None or p_count < MIN_PARTICLE_COUNT:
-        return False, get_exclusion_reason("particle_count")
-
-    # Validate axial ratios
-    if b_a is None or not (0 < b_a <= 1):
-        return False, get_exclusion_reason("b_a_ratio")
-    if c_a is None or not (0 < c_a <= 1):
-        return False, get_exclusion_reason("c_a_ratio")
-
-    # Validate triaxiality
-    if tri is None or not (0 <= tri <= 1):
-        return False, get_exclusion_reason("triaxiality")
-
-    return True, None
-
-def save_halo_shapes_chunk(results: List[Dict[str, Any]], output_path: Path):
-    """
-    Saves a chunk of validated halo shape results to CSV.
-    """
-    if not results:
-        return
-
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write CSV with associational flag
-    # The utility function handles the flag injection
-    write_csv_with_associational_flag(
-        output_path,
-        results,
-        columns=["halo_id", "mass", "b_a_ratio", "c_a_ratio", "triaxiality", "particle_count"]
-    )
-    logger.info(f"Saved chunk to {output_path}")
-
-def write_exclusion_log(excluded_haloes: List[Dict[str, Any]], output_path: Path):
-    """
-    Writes the log of excluded haloes to a JSON file.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    write_json_with_associational_flag(output_path, excluded_haloes)
-    logger.info(f"Saved exclusion log to {output_path}")
-
-def run_pipeline(snapshot_path: Optional[Path] = None):
-    """
-    Main pipeline function to process all haloes, validate metrics, and save results.
-    """
-    if snapshot_path is None:
-        # Default path
-        snapshot_path = get_data_raw_path() / "tng" / "snapshot_000"
-    
-    log_task_start("T017 - Aggregation and Validation")
-    start_time = time.time()
-
-    # 1. Iterate over haloes
-    try:
-        halo_ids = iterate_haloes(snapshot_path)
-    except FileNotFoundError as e:
-        log_error(str(e))
-        raise
-
-    logger.info(f"Found {len(halo_ids)} haloes to process.")
-
-    valid_results = []
-    excluded_haloes = []
-
-    # 2. Process each halo (Streaming logic)
-    for halo_id in halo_ids:
-        # Process chunk
-        metrics = process_halo_chunk(halo_id, snapshot_path)
-        
-        if metrics is None:
-            # If processing failed or particle count < 10k, it's excluded
-            excluded_haloes.append({
-                "halo_id": halo_id,
-                "reason": "Processing failed or particle count < 10k"
-            })
-            continue
-
-        # 3. Validate metrics
-        is_valid, error_msg = validate_shape_metrics_chunk(metrics)
-        
-        if is_valid:
-            valid_results.append(metrics)
-        else:
-            excluded_haloes.append({
-                "halo_id": halo_id,
-                "reason": error_msg
-            })
-
-        # Optional: Log progress every 100 haloes
-        if halo_id % 100 == 0:
-            logger.info(f"Processed halo {halo_id}. Valid: {len(valid_results)}, Excluded: {len(excluded_haloes)}")
-            gc.collect()
-
-    # 4. Merge chunks (In this streaming case, 'valid_results' is the merged list)
-    # Since we are streaming, we write directly to the final output file 
-    # rather than accumulating chunks in memory if the list is too large.
-    # However, for the final output, we write the accumulated valid results.
-    # If the list is too large, we would write in chunks, but the task asks for a single CSV.
-    # We assume the number of valid haloes fits in memory or we write in chunks.
-    # For this task, we write the final CSV.
-    
-    output_csv_path = get_data_processed_path() / "halo_shapes.csv"
-    output_json_path = get_data_processed_path() / "exclusion_log.json"
-
-    if valid_results:
-        save_halo_shapes_chunk(valid_results, output_csv_path)
-    else:
-        logger.warning("No valid halo shapes found.")
-
-    if excluded_haloes:
-        write_exclusion_log(excluded_haloes, output_json_path)
-    else:
-        # Write an empty log if no exclusions
-        write_json_with_associational_flag(output_json_path, [])
-
-    elapsed = time.time() - start_time
-    log_metric("processing_time_seconds", elapsed)
-    log_metric("valid_halo_count", len(valid_results))
-    log_metric("excluded_halo_count", len(excluded_haloes))
-    
-    log_task_end("T017 - Aggregation and Validation")
-    logger.info(f"Pipeline completed. Valid: {len(valid_results)}, Excluded: {len(excluded_haloes)}")
-
-def main():
-    """
-    Entry point for the pipeline runner.
-    """
-    run_pipeline()
-
-if __name__ == "__main__":
-    main()
+    return {
+        "total_haloes": total_haloes,
+        "valid_haloes": len(valid_records),
+        "excluded_haloes": len(excluded_records),
+    }

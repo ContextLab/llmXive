@@ -72,12 +72,12 @@ def generate_gene_models(output_path: str, num_genes: int = 1000, seed: int = 42
     return genes
 
 def generate_te_genotypes(output_path: str, num_tes: int = 500, num_lines: int = 200, seed: int = 42) -> List[Dict]:
-    """Generates mock TE presence genotypes.
+    """Generates mock TE presence genotypes and writes them to CSV.
 
-    Generates raw data including monomorphic TEs. 
-    Frequencies are drawn from a uniform distribution [0.05, 0.95] initially, 
-    but some may fall outside the polymorphic range [0.05, 0.95] by chance 
-    or to test filtering logic.
+    Generates raw data including monomorphic TEs. Frequencies for polymorphic
+    TEs are drawn from a uniform distribution [0.05, 0.95] to satisfy FR‑008.
+    A 10% chance creates a monomorphic TE (all 0 or all 1) to test filtering.
+    The resulting CSV contains columns: te_id, chrom, pos, line_0 ... line_{num_lines-1}.
     """
     set_random_seed(seed)
     tes = []
@@ -86,13 +86,13 @@ def generate_te_genotypes(output_path: str, num_tes: int = 500, num_lines: int =
         chrom = f"chr{random.choice(['2L', '2R', '3L', '3R', 'X'])}"
         pos = random.randint(1000, 1000000)
 
-        # Generate presence/absence vector for lines
-        # 10% chance to be monomorphic (all 0 or all 1)
+        # 10% chance to be monomorphic
         if random.random() < 0.1:
             is_present = 1 if random.random() > 0.5 else 0
             presence_vector = [is_present] * num_lines
         else:
-            p = random.uniform(0.01, 0.99)
+            # Polymorphic TE frequencies between 5% and 95%
+            p = random.uniform(0.05, 0.95)
             presence_vector = [1 if random.random() < p else 0 for _ in range(num_lines)]
 
         te_data = {
@@ -103,7 +103,22 @@ def generate_te_genotypes(output_path: str, num_tes: int = 500, num_lines: int =
         }
         tes.append(te_data)
 
-    # Return the raw list; writing is handled later after filtering
+    # Write raw CSV
+    csv_rows = []
+    for te in tes:
+        row = {
+            "te_id": te["te_id"],
+            "chrom": te["chrom"],
+            "pos": te["pos"]
+        }
+        for idx, val in enumerate(te["presence_vector"]):
+            row[f"line_{idx}"] = val
+        csv_rows.append(row)
+
+    fieldnames = ["te_id", "chrom", "pos"] + [f"line_{i}" for i in range(num_lines)]
+    write_csv(output_path, csv_rows, fieldnames)
+    logger.info(f"Generated {num_tes} raw TE genotypes to {output_path}")
+
     return tes
 
 def generate_expression_data(output_path: str, gene_models: List[Dict], num_lines: int = 200, seed: int = 42) -> List[Dict]:
@@ -338,7 +353,7 @@ def main():
 
     # 2. Generate TE Genotypes (raw)
     te_raw_path = os.path.join(raw_dir, "te_genotypes_raw.csv")
-    # The raw TE file is not written directly; we keep the list for filtering.
+    # The raw TE file is now written directly by generate_te_genotypes.
     te_genotypes = generate_te_genotypes(te_raw_path, num_tes=num_tes, num_lines=num_lines, seed=seed)
 
     # 3. Filter Monomorphic TEs (T008)

@@ -1,14 +1,16 @@
 status: none
-intent: IllustrisTNG-100 public data release halo catalog FoF halo dataset python
-  package dataset
+intent: download IllustrisTNG-100 halo catalog and reduced inertia tensor python package
+  dataset
 required_fields:
 - halo_id
-- fof_halo_id
-- mass
+- fof_group_id
 - virial_radius
+- halo_center_x
+- halo_center_y
+- halo_center_z
 - num_dm_particles
 - dm_particle_positions
-- snapshot_number
-cache_key: b1041acea0b16ef1c816213f47ea4dacbe6da094682ff48d417601b46788a0e9
-searched_at: '2026-10-12T16:17:32.469810+00:00'
+- dm_particle_masses
+cache_key: 9484c4b0a319d90e37b5519ab72372edb5ec8ac1c3658a203491d7db45964c2f
+searched_at: '2026-10-17T03:43:45.482124+00:00'
 retry_count: 1

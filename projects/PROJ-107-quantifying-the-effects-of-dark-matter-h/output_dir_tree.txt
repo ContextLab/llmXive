@@ -1,0 +1,13 @@
+outputs/
+├── figures/
+└── reports/
+
+docs/
+
+code/
+├── .tasks/
+├── analysis/
+├── ingestion/
+├── processing/
+├── tests/
+└── utils/

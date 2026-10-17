@@ -1,0 +1,5 @@
+data/
+├── processed/
+└── raw/
+    ├── millennium/
+    └── tng100/

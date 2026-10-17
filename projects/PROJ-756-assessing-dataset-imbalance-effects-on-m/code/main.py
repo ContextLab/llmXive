@@ -1,34 +1,43 @@
 """
-Entry‑point CLI for the Assessing Dataset Imbalance Effects on Materials Property Predictions project.
+Entry-point CLI for the Assessing Dataset Imbalance Effects on Materials
+Property Predictions project.
 
 Supported flags:
-  --full-pipeline   Run the complete end‑to‑end pipeline (ingestion → SHAP analysis).
+  --full-pipeline   Run the complete end-to-end pipeline (ingestion -> SHAP).
   --include-mp      Attempt to download Materials Project data (requires MP_API_KEY).
   --fallback-mode   Force fallback mode (skip MP even if API key is present).
   --streaming       Use streaming mode for dataset downloads where supported.
 
-The implementation is intentionally lightweight: it parses the arguments,
-validates combinations, and prints a short status message.  Full pipeline
-orchestration is delegated to the individual modules (ingestion, descriptors,
-training, etc.) which can be invoked separately via their own CLIs.
+The pipeline steps are delegated to the sibling modules, invoked as
+subprocesses so each stage runs with its own CLI and isolated imports:
+ingestion -> descriptors -> imbalance -> baseline training -> resampling ->
+balanced training -> evaluation -> SHAP analysis.
 """
 import argparse
+import subprocess
 import sys
-from pathlib import Path
 
-# Import the module‑level logger from the toolkit for optional logging.
-from llmxive_toolkit import get_logger
+from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
+PROJECT_ROOT = paths.root
+
+
 def parse_args(argv=None):
+    """Parse CLI arguments. Uses sys.argv when argv is None."""
     parser = argparse.ArgumentParser(
-        description="Project CLI for dataset‑imbalance assessment pipeline"
+        prog="python -m code.main",
+        description=(
+            "Project CLI for assessing dataset imbalance effects on "
+            "materials property predictions."
+        ),
     )
     parser.add_argument(
         "--full-pipeline",
         action="store_true",
-        help="Execute the full pipeline (ingestion, descriptor computation, training, evaluation, SHAP).",
+        help="Execute the full pipeline (ingestion, descriptors, training, "
+             "evaluation, SHAP).",
     )
     parser.add_argument(
         "--include-mp",
@@ -38,7 +47,8 @@ def parse_args(argv=None):
     parser.add_argument(
         "--fallback-mode",
         action="store_true",
-        help="Force fallback mode – skip Materials Project even if API key is available.",
+        help="Force fallback mode - skip Materials Project even if an API "
+             "key is available. Overrides --include-mp.",
     )
     parser.add_argument(
         "--streaming",
@@ -47,94 +57,92 @@ def parse_args(argv=None):
     )
     return parser.parse_args(argv)
 
+
+def _pipeline_steps(args):
+    """Build the ordered list of pipeline commands (module, argv) to run."""
+    ingestion_flags = []
+    if args.streaming:
+        ingestion_flags.append("--streaming")
+
+    steps = [
+        ("code.ingestion",
+         ingestion_flags + ["--output-dir", "data/raw"]),
+        ("code.descriptors", []),
+        ("code.imbalance", []),
+        # training.py takes positional <data_path> <output_dir>
+        ("code.training",
+         ["data/processed/descriptors.parquet", "artifacts/models/baseline"]),
+        ("code.resampling", []),
+        ("code.training",
+         ["data/processed/balanced_dataset.parquet", "artifacts/models/balanced"]),
+        ("code.evaluation", []),
+        ("code.shap_analysis", []),
+    ]
+    return steps
+
+
+def run_pipeline(args):
+    """
+    Execute the pipeline stages described by the parsed arguments.
+
+    Returns 0 on success. Raises RuntimeError (fail loudly) if any stage
+    exits with a non-zero status code. When --full-pipeline is not set,
+    no stages are executed.
+    """
+    if not args.full_pipeline:
+        log.info(
+            "No pipeline execution requested "
+            "(use --full-pipeline to run all stages)."
+        )
+        return 0
+
+    if args.fallback_mode:
+        log.info(
+            "Fallback mode active: Materials Project data will be skipped "
+            "even if MP_API_KEY is set (FR-008)."
+        )
+    elif args.include_mp:
+        log.info(
+            "Materials Project inclusion requested; ingestion will probe "
+            "availability via MP_API_KEY."
+        )
+    if args.streaming:
+        log.info("Streaming mode enabled for dataset downloads.")
+
+    for module, module_args in _pipeline_steps(args):
+        cmd = [sys.executable, "-m", module] + list(module_args)
+        log.info("Running stage: %s", " ".join(cmd))
+        result = subprocess.run(cmd, cwd=str(PROJECT_ROOT))
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"Pipeline stage '{module}' failed with exit code "
+                 f"{result.returncode}."
+            )
+
+    log.info("Full pipeline executed successfully.")
+    return 0
+
+
 def main(argv=None):
+    """Parse arguments, validate flag combinations, and run the pipeline."""
     args = parse_args(argv)
 
-    # Basic validation of mutually exclusive flags
+    # --fallback-mode overrides --include-mp (FR-008 fallback semantics)
     if args.fallback_mode and args.include_mp:
-        log.error("Cannot use --fallback-mode together with --include-mp.")
-        sys.exit(1)
+        log.warning(
+            "--fallback-mode overrides --include-mp; "
+            "Materials Project will be skipped."
+        )
+        args.include_mp = False
 
-    # Summarise the requested actions
     log.info("CLI arguments parsed:")
-    log.info(f"  full_pipeline   = {args.full_pipeline}")
-    log.info(f"  include_mp      = {args.include_mp}")
-    log.info(f"  fallback_mode   = {args.fallback_mode}")
-    log.info(f"  streaming       = {args.streaming}")
+    log.info("  full_pipeline = %s", args.full_pipeline)
+    log.info("  include_mp    = %s", args.include_mp)
+    log.info("  fallback_mode = %s", args.fallback_mode)
+    log.info("  streaming     = %s", args.streaming)
 
-    if args.full_pipeline:
-        # Import and invoke the sub‑modules lazily to avoid unnecessary work
-        try:
-            from ingestion import main as ingestion_main
-            from descriptors import main as descriptors_main
-            from training import main as training_main
-            from evaluation import main as evaluation_main
-            from shap_analysis import main as shap_main
+    return run_pipeline(args)
 
-            # Ingestion
-            ingestion_args = ["--streaming"] if args.streaming else []
-            ingestion_main(ingestion_args)
-
-            # Descriptor computation
-            descriptors_args = [
-                "--input", "data/raw/merged_raw.parquet",
-                "--output", "data/processed/processed.parquet",
-            ]
-            if args.streaming:
-                descriptors_args.append("--streaming")
-            descriptors_main(descriptors_args)
-
-            # Baseline training (skewed)
-            training_args = [
-                "--input", "data/processed/processed.parquet",
-                "--strategy", "skewed",
-                "--output", "artifacts/models/baseline/",
-            ]
-            training_main(training_args)
-
-            # Resampling & balanced training
-            # (Assuming resampling script follows a similar CLI pattern)
-            from resampling import main as resampling_main
-            resampling_args = [
-                "--input", "data/processed/processed.parquet",
-                "--output", "data/processed/balanced.parquet",
-            ]
-            if args.streaming:
-                resampling_args.append("--streaming")
-            resampling_main(resampling_args)
-
-            training_balanced_args = [
-                "--input", "data/processed/balanced.parquet",
-                "--strategy", "balanced",
-                "--output", "artifacts/models/balanced/",
-            ]
-            training_main(training_balanced_args)
-
-            # Evaluation
-            evaluation_args = [
-                "--baseline", "artifacts/models/baseline/",
-                "--balanced", "artifacts/models/balanced/",
-                "--output", "results/comparison_report.csv",
-            ]
-            evaluation_main(evaluation_args)
-
-            # SHAP analysis
-            shap_args = [
-                "--models", "artifacts/models/",
-                "--output", "results/shap_comparison.json",
-            ]
-            shap_main(shap_args)
-
-            log.info("Full pipeline executed successfully.")
-        except Exception as exc:
-            log.error(f"An error occurred while executing the full pipeline: {exc}")
-            sys.exit(1)
-    else:
-        # When not running the full pipeline, simply acknowledge the flags.
-        log.info("No pipeline execution requested. Exiting after argument parsing.")
-
-    # Normal termination
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,9 +1,46 @@
+T001:
+  c: true
+  h: bf016ba60197d6503eb8265299385e32e8b28c324b11f7d891df177c91c85567
+  r: Checked the directory listings, the generated `data_dir_tree.txt` and `output_dir_tree.txt`
+    files, and the passing `test_directory_structure.py` log which confirms the required
+    hierarchy exists and was verified with a successful command execution.
+  sig: 3464904f8a0b226a5e30aa676d379e675d26035fb35d3010cbec24c307b06a7f
 T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `docs/` directory being present in the repository is provided;\
-    \ the implementer did not supply any artifact confirming the directory\u2019s\
-    \ existence. The required deliverable is missing."
+  h: 1fdc860c8e579501e2f53371b8c08216dd5f80d6ffa3e11766527e057bed344b
+  r: "The `code/utils/io.py` and `code/utils/logging.py` modules import `utils.config`,\
+    \ but the package hierarchy is `code/utils`, so the correct import should be `code.utils.config`.\
+    \ As written, importing these modules raises `ImportError`. Additionally, `config.py`\
+    \ never calls `random.seed(42)` at import time, contrary to the task description.\
+    \ Consequently the required import\u2011ability and automatic seed setting are\
+    \ not satisfied."
+  sig: 8f1e3524412ab3cdca6391d84d278b29dda19aab4a2065a05c88e742c1afbb9b
+T003:
+  c: false
+  h: 40ff0f12200c4c9e52e7bd22701289673f2b584bf0633debe2984b360bb3711c
+  r: "The required configuration files `.ruff.toml` and `pyproject.toml` are present\
+    \ and correctly contain the Python\u202F3.11 target and Black line\u2011length\u202F\
+    =\u202F88, but there is no provided evidence (e.g., command\u2011line output or\
+    \ logs) that `ruff check .` and `black --check .` actually run successfully with\
+    \ exit code\u202F0. Execution evidence is needed to complete the task."
+  sig: e1ee3c9db2eb3b14ca298b738acde0d40ecf1fc012dbc69cc32574845f4c5a34
+T004:
+  c: false
+  h: ec422309e486e77db89327a441f3d25f49ee5dbbe35fbe68c22e04d9a3c5ef1f
+  r: "Checked `code/ingestion/tng_loader.py`, `data/raw/tng100/` and `data/metadata.yaml`.\
+    \ The raw data directory contains no `*.hdf5` files and the metadata file does\
+    \ not list any SHA\u2011256 checksum entries, so the required download, integrity\
+    \ verification, and metadata update have not been performed."
+  sig: 27ae93fec4196b529378ce12ff7bb5060805f6bc9d27fc77a6a139d3634dc5a5
+T005:
+  c: false
+  h: 075a43f54a5b3415c0a8acc4265db6b6bf84560a02dcff51f6ce74593194da49
+  r: The required output file `data/processed/halo_shapes.csv` and its schema `halo_schema.schema.yaml`
+    are missing, so the CSV cannot be validated against the schema. Additionally,
+    `code/processing/shape_metrics.py` provides `bin_halo_by_shape` instead of the
+    specified `assign_shape_bin` function. These gaps prevent the task from being
+    fully satisfied.
+  sig: 64c013d2efe5da9c32ac6bcaffed3758b9aa84b781d5070310f5dda644c661f1
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

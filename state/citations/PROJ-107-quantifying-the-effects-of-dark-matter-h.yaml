@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://www.tng-project.org/data/
   verified_at: '2026-07-03T11:41:37.838257Z'
-- artifact_hash: 8fd9a00656d8d488c97671febd94968d1efa3bbf26ddd3ac18f039134617b27d
+- artifact_hash: ff265bce71c55d47ad85e6be183c5441b71dc65a99f29014119aedf90ee4ec4f
   artifact_path: projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/specs/001-quantifying-the-effects-of-dark-matter-h/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://www.tng-project.org/api/
   verification_status: pending
   verified_against_url: https://www.tng-project.org/api/
-  verified_at: '2026-07-03T11:42:06.378087Z'
+  verified_at: '2026-10-17T03:41:31.509906Z'

@@ -1,19 +1,17 @@
 status: none
-intent: download DGRP genotype TE insertion and RNA-seq expression dataset FlyBase
-  python package dataset
+intent: "download DGRP TE insertion calls and RNA\u2011seq expression dataset python\
+  \ package dataset"
 required_fields:
 - line_id
 - te_id
-- te_chrom
-- te_start
-- te_end
+- te_presence
 - gene_id
-- gene_chrom
-- gene_start
-- gene_end
-- te_genotype
-- gene_expression
+- expression_value
 - pc1
-cache_key: af0eaf9ce4a6d1459966d924a0044671bc2080d3d508172bcae4144504ff0b19
-searched_at: '2026-10-12T12:22:15.917765+00:00'
+- pc2
+- pc3
+- pc4
+- pc5
+cache_key: e25b0175a477ee5245d7e147217a465acaa1c8cabf3d99df6394a8cf44bd5120
+searched_at: '2026-10-17T03:48:40.988557+00:00'
 retry_count: 1

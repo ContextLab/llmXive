@@ -57,7 +57,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 **Note on Execution**: Tasks T004-T008 all write to `code/data_generator.py`. They must be implemented **sequentially** (not in parallel) to avoid file conflicts and respect internal dependencies (e.g., T006A depends on T006).
 
-- [ ] T004 [P] Implement `code/data_generator.py` function to generate Mock TE genotypes CSV. Must simulate a substantial number of lines with TE presence frequencies between **0.05 and 0.95** (to ensure sufficient power and exclude monomorphic TEs per FR-008). The function must generate **raw data including monomorphic TEs**; filtering is handled by T008. (FR-001, FR-008)
+- [X] T004 [P] Implement `code/data_generator.py` function to generate Mock TE genotypes CSV. Must simulate a substantial number of lines with TE presence frequencies between **0.05 and 0.95** (to ensure sufficient power and exclude monomorphic TEs per FR-008). The function must generate **raw data including monomorphic TEs**; filtering is handled by T008. (FR-001, FR-008)
 - [X] T004A [P] Implement `code/data_generator.py` function to generate Mock gene expression TPM matrix CSV. Must simulate expression values for multiple lines with realistic variance, and handle zero/near-zero values by adding a small constant (e.g., 1e-6). (FR-001)
 - [X] T004B [P] Implement `code/data_generator.py` function to generate Mock population PCs CSV and set `quantification_method: TEaware` in the mock dataset metadata/schema. This task ensures the Mock data satisfies Constitution Principle VII. (FR-001, Constitution Principle VII)
 - [~] T005 [P] Implement `code/utils.py` for logging, checksumming, and random seed management (ensure reproducibility)
