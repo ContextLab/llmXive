@@ -14,7 +14,7 @@ All previously verified foundational work (generators, solvers, basic orchestrat
   · All three schema files exist at `contracts/…`.  
   · Running `pytest -q tests/contract/test_schemas.py` passes (exit 0).  
 
-- [ ] **T002** [US1] **Implement a reproducible single‑run end‑to‑end analysis with memory monitoring**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] **T002** [US1] **Implement a reproducible single‑run end‑to‑end analysis with memory monitoring**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Update `code/main.py` (or the current CLI entry point) so that the command*  
 
   ```bash

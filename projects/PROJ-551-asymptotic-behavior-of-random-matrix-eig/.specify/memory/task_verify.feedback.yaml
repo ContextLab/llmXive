@@ -1,12 +1,12 @@
 T001:
   reason: "The three schema files do exist under `contracts/` (the collector's \"\
-    MISSING\" entries were bare-filename lookups; the directory listing confirms all\
-    \ three) and `tests/contract/test_schemas.py` is a substantive, well-formed test\
-    \ module. However, there is no execution evidence that `pytest -q tests/contract/test_schemas.py`\
-    \ was actually run and exited 0 \u2014 no test output, log, or report is supplied\
-    \ \u2014 and the schema files' contents are not shown, so I cannot confirm they\
-    \ are valid JSON Schema that the existing artifact `data/processed/single_run_results.json`\
-    \ actually validates against (e.g., that"
+    MISSING\" entries were bare filenames; the directory listing confirms all three),\
+    \ and `tests/contract/test_schemas.py` is a substantive, well-formed validator.\
+    \ However, the task's verification explicitly requires that `pytest -q tests/contract/test_schemas.py`\
+    \ passes with exit 0, and no execution evidence (test run log, pytest output,\
+    \ or exit-code record) was supplied \u2014 the claim of a passing test is unverified,\
+    \ and the test would exercise `data/processed/single_run_results.json` against\
+    \ the simulation_run schema, whose actual"
   task: 41c074c53775c934ca2c2654a1dd7298465541c896c78b71ec05fe2a164a2d97
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'

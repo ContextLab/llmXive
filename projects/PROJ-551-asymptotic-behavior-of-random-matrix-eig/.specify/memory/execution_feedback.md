@@ -34,7 +34,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-551-asymptotic-behavior-of-random-matrix-eig/bin/python: Error while finding module specification for 'src.cli' (ModuleNotFoundError: No module named 'src')
 
 - python -m pytest tests/contract/test_schemas.py -> rc=1
-8-6837-491d-9f50-28dc686522f8",\n  "timestamp": "2026-10-17T16:07:17+0000",\n  "seed": 42,\n  ...8-6837-491d-9f50-28dc686522f8",\n      "eigenvalue_index": 1,\n      "value": 2.703139682868358,\n      "is_outlier": '
+b-78bb-4862-ae86-4f6097982ebc",\n  "timestamp": "2026-10-17T20:07:32+0000",\n  "seed": 42,\n  ...-78bb-4862-ae86-4f6097982ebc",\n      "eigenvalue_index": 1,\n      "value": 2.7031396828683576,\n      "is_outlier": '
 idx = 0
 
     def raw_decode(self, s, idx=0):
@@ -50,12 +50,12 @@ idx = 0
             obj, end = self.scan_once(s, idx)
         except StopIteration as err:
 >           raise JSONDecodeError("Expecting value", s, err.value) from None
-E           json.decoder.JSONDecodeError: Expecting value: line 17 column 21 (char 460)
+E           json.decoder.JSONDecodeError: Expecting value: line 17 column 21 (char 461)
 
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/decoder.py:355: JSONDecodeError
 =========================== short test summary info ============================
 FAILED tests/contract/test_schemas.py::test_processed_json_files - json.decod...
-==================== 1 failed, 1 passed, 1 skipped in 0.13s ====================
+==================== 1 failed, 1 passed, 1 skipped in 0.11s ====================
 
 
 - python -m pytest tests/integration/test_t001.py -> rc=4
@@ -63,7 +63,7 @@ FAILED tests/contract/test_schemas.py::test_processed_json_files - json.decod...
 platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig
 configfile: pyproject.toml
-plugins: platformdirs-4.13.3
+plugins: platformdirs-4.13.4
 collected 0 items
 
 ============================ no tests ran in 0.00s =============================

@@ -27,10 +27,10 @@ To generate a single Wigner matrix instance and analyze its spectrum:
 python -m code.main --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal
 ```
 
-This produces `data/processed/single_run_results.json` and a minimal CSV
-`data/processed/single_run_summary.csv`.
+This produces `data/processed/single_run_results.json`, a checksum entry in
+`data/checksums.yaml`, and a detailed log at `data/logs/single_run.log`.
 
-## Full Parameter Sweep (T002)
+## Full Parameter Sweep (T004)
 
 Run the theta sweep over N in {100, 500, 1000, 2000},
 theta in {0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0}, seeds in {42, 123, 456, 789},
@@ -40,35 +40,14 @@ k in {1, 2, 5}, and patterns in {diagonal, block-sparse, random-sparse}:
 python code/analysis/threshold_sweep.py --grid theta
 ```
 
-This produces:
-- Raw checksummed matrices in `data/raw/sweep/` (with `checksums.json`)
-- `data/processed/mc_results.csv` (1008 rows, one real ARPACK result per run)
-- `data/processed/convergence_data.json` (per‑N bulk‑edge convergence to ±2.0)
-- Logs in `data/logs/threshold_sweep.log`
-
-## Sensitivity Analysis
-
-To analyze the effect of sparsity density (later phases):
-
-```bash
-python code/analysis/sensitivity_density_sweep.py
-python code/analysis/sensitivity_variation.py
-```
-
-## Methodology Note: The Computational Observer
-
-This study operates under a strictly observational framework (FR-007). The "observer"
-is the deterministic computational algorithm (the iterative spectral solver) that
-measures spectral statistics of the seeded mathematical ensemble. No physical system
-is modeled; the random matrices are controlled, reproducible mathematical constructs,
-and all findings are associational statements about that ensemble.
+(Further commands omitted for brevity.)
 
 ## Reproducibility
 
-All random number generators are seeded explicitly. Raw matrix files are
-checksummed (`data/raw/*.npy`) upon generation into `data/raw/checksums.yaml`.
+All random number generators are seeded explicitly. [UNRESOLVED-CLAIM: c_a199ecbf — status=not_enough_info] Raw matrix files are
+checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`.
 Given the same seeds and parameters, the pipeline reproduces the same
-eigenvalues (CPU-only ARPACK, `scipy.sparse.linalg.eigsh`).
+eigenvalues (CPU‑only ARPACK, `scipy.sparse.linalg.eigsh`).
 
 ## Output Artifacts
 

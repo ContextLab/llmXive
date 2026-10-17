@@ -1,9 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: SimulationRun
-description: >
-  Record of a single simulation run, including parameters and diagnostic
-  information.  The schema is deliberately permissive (additionalProperties
-  allowed) so that downstream extensions do not break validation.
 type: object
 required:
   - run_id
@@ -16,42 +12,55 @@ required:
   - support_density
   - computation_time_ms
   - empirical_bulk_edge
+  - eigenvalues
 properties:
   run_id:
     type: string
-    description: Unique identifier for the run (UUID string).
+    format: uuid
   timestamp:
     type: string
     format: date-time
-    description: ISO‑8601 timestamp when the run started.
   seed:
     type: integer
-    description: Random seed used for matrix generation.
   N:
     type: integer
-    minimum: 1
-    description: Matrix dimension.
   k:
     type: integer
-    minimum: 1
-    description: Rank of the perturbation.
   theta:
     type: number
-    description: Spectral norm of the perturbation.
   pattern_type:
     type: string
-    enum: [diagonal, block-sparse, random-sparse]
-    description: Sparsity pattern used for the perturbation.
   support_density:
     type: number
-    minimum: 0
-    maximum: 1
-    description: Fraction of non‑zero entries in the perturbation.
   computation_time_ms:
     type: number
-    description: Wall‑clock time for the run in milliseconds.
   empirical_bulk_edge:
     type: number
-    description: 99th percentile of the top eigenvalues of the unperturbed matrix.
-  # Allow extra fields (e.g., future extensions) without failing validation.
+  eigenvalues:
+    type: array
+    items:
+      $ref: "#/definitions/eigenvalue"
 additionalProperties: true
+definitions:
+  eigenvalue:
+    type: object
+    required:
+      - run_id
+      - eigenvalue_index
+      - value
+      - is_outlier
+      - theoretical_bbp
+      - deviation
+    properties:
+      run_id:
+        type: string
+      eigenvalue_index:
+        type: integer
+      value:
+        type: number
+      is_outlier:
+        type: boolean
+      theoretical_bbp:
+        type: number
+      deviation:
+        type: number

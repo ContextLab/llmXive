@@ -1,27 +1,15 @@
 T001:
   c: false
-  h: 82fb2dfc6ab75ef35125e62484335fcb8773b1f66a0a55ed56ea89a40261b367
+  h: 5424f15303a6fc4ddb8291e6bdccb30249f6ca2d8f2d967faa9089553149ebb5
   r: "The three schema files do exist under `contracts/` (the collector's \"MISSING\"\
-    \ entries were bare-filename lookups; the directory listing confirms all three)\
-    \ and `tests/contract/test_schemas.py` is a substantive, well-formed test module.\
-    \ However, there is no execution evidence that `pytest -q tests/contract/test_schemas.py`\
-    \ was actually run and exited 0 \u2014 no test output, log, or report is supplied\
-    \ \u2014 and the schema files' contents are not shown, so I cannot confirm they\
-    \ are valid JSON Schema that the existing artifact `data/processed/single_run_results.json`\
-    \ actually validates against (e.g., that"
-  sig: e34ed3dd72b4f677ce5663f3836329781db9c76abfa7c4a9dc944460876a7c74
-T002:
-  c: false
-  h: 359fc929062c81c0367d3beb0f7fc1050c2c051dd94c2da62ceb7874d8ac024a
-  r: 'The required run artifacts are missing: `data/raw/matrix_N1000_seed42.npy`,
-    `data/processed/single_run_results.json`, and `data/logs/single_run.log` all do
-    not exist, so there is no evidence the command was ever executed or that its outputs
-    (eigenvalues, outlier flags, peak-memory log entry) were produced. Additionally,
-    `main.py` does `from utils.config import ...`, which will fail under the required
-    invocation `python -m code.main` from the project root (it would need `code.utils.config`),
-    and the existing `data/checksums.yaml` has a different structure (nested N/seed/sha256
-    record) than what'
-  sig: 66f41bc02fbfb8b301db24d0218d0dd9c64be78ad192170874a1290d68b981a6
+    \ entries were bare filenames; the directory listing confirms all three), and\
+    \ `tests/contract/test_schemas.py` is a substantive, well-formed validator. However,\
+    \ the task's verification explicitly requires that `pytest -q tests/contract/test_schemas.py`\
+    \ passes with exit 0, and no execution evidence (test run log, pytest output,\
+    \ or exit-code record) was supplied \u2014 the claim of a passing test is unverified,\
+    \ and the test would exercise `data/processed/single_run_results.json` against\
+    \ the simulation_run schema, whose actual"
+  sig: 0c96c6538f5a0f441863fc49f260c1b7e2685c72b1c560ea9450a6e699c5d271
 T004:
   c: false
   h: c47065700be0905bd6ce5e250ef5f5249293954ff29363a0286a0bccddc02052

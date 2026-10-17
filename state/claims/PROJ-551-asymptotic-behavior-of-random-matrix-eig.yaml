@@ -1921,3 +1921,59 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces same eigenvalues given same seeds and parameters
+  claim_id: c_f82298d8
+  context: "All random number generators are seeded explicitly. Raw matrix files are\
+    \ checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`. Given\
+    \ the same seeds and parameters, the pipeline reproduces the same eigenvalues\
+    \ (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Given the same seeds and parameters, the pipeline reproduces the same\
+    \ eigenvalues (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T20:07:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: all random number generators are seeded explicitly
+  claim_id: c_a199ecbf
+  context: "All random number generators are seeded explicitly. Raw matrix files are\
+    \ checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`. Given\
+    \ the same seeds and parameters, the pipeline reproduces the same eigenvalues\
+    \ (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All random number generators are seeded explicitly.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T20:07:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: raw matrix files are checksummed upon generation
+  claim_id: c_906f8dc5
+  context: "All random number generators are seeded explicitly. Raw matrix files are\
+    \ checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`. Given\
+    \ the same seeds and parameters, the pipeline reproduces the same eigenvalues\
+    \ (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Raw matrix files are checksummed (`data/raw/*.npy`) upon generation into
+    `data/checksums.yaml`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T20:07:43Z'

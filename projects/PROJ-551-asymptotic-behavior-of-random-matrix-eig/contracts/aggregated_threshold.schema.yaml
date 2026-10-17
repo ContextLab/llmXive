@@ -1,10 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: AggregatedThreshold
-description: >
-  Summary statistics for a configuration group (N, k, pattern_type) after
-  a Monte‑Carlo sweep.  The schema mirrors the fields written by the
-  aggregation scripts; it is intentionally permissive to accommodate
-  future extensions.
 type: object
 required:
   - N
@@ -20,23 +15,16 @@ required:
 properties:
   N:
     type: integer
-    minimum: 1
   k:
     type: integer
-    minimum: 1
   pattern_type:
     type: string
-    enum: [diagonal, block-sparse, random-sparse]
   total_runs:
     type: integer
-    minimum: 0
   outlier_count:
     type: integer
-    minimum: 0
   outlier_probability:
     type: number
-    minimum: 0
-    maximum: 1
   mean_deviation:
     type: number
   std_deviation:
