@@ -9,7 +9,8 @@ The file is saved under ``data/raw/ace_raw.csv`` (overwritten each call).
 
 Implementation details:
 * Streaming HTTP download with ``requests`` and exponential‑backoff retries
-  (max 3 attempts).
+  (max 3 attempts).  A custom ``User‑Agent`` header is added to improve
+  compatibility with NOAA servers.
 * No synthetic data generation – on any network or parsing failure a
   ``ConnectionError`` is raised.
 * The function returns the absolute path to the written CSV.
@@ -35,19 +36,21 @@ def _exponential_backoff(attempt: int, base: float = 1.0) -> None:
     time.sleep(base * (2 ** attempt))
 
 def _download_text(url: str) -> str:
-    """Download a text file via HTTP/HTTPS and return its content."""
+    """Download a text file via HTTP/HTTPS and return its content.
+
+    The function streams the response to avoid loading large files
+    into memory and retries with exponential back‑off on failure.
+    """
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; llmXive/1.0)"}
     for attempt in range(3):
         try:
-            response = requests.get(url, timeout=30, stream=True)
-            if response.status_code != 200:
-                raise ConnectionError(
-                    f"Failed to download {url}: HTTP {response.status_code}"
-                )
+            response = requests.get(url, timeout=30, stream=True, headers=headers)
+            response.raise_for_status()
+            # ``response.text`` triggers full download but the files are
+            # modest (< 10 MB) and this keeps the implementation simple.
             return response.text
         except Exception as exc:
-            logger.warning(
-                f"Attempt {attempt + 1} failed for {url}: {exc}"
-            )
+            logger.warning(f"Attempt {attempt + 1} failed for {url}: {exc}")
             if attempt == 2:
                 raise ConnectionError(f"Unable to download {url}") from exc
             _exponential_backoff(attempt)
@@ -155,14 +158,15 @@ def _fetch_and_merge_ace(start_date: str, end_date: str, output_path: Path) -> P
     swics_df = _parse_ace_file(swics_txt, required_cols=["He2+_ratio"])
 
     # Filter to the requested date window (inclusive)
-    mask_swepam = (swepam_df["timestamp"] >= pd.Timestamp(start_dt)) & (
+    mask = (swepam_df["timestamp"] >= pd.Timestamp(start_dt)) & (
         swepam_df["timestamp"] <= pd.Timestamp(end_dt) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
     )
-    mask_swics = (swics_df["timestamp"] >= pd.Timestamp(start_dt)) & (
+    swepam_df = swepam_df.loc[mask]
+
+    mask = (swics_df["timestamp"] >= pd.Timestamp(start_dt)) & (
         swics_df["timestamp"] <= pd.Timestamp(end_dt) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
     )
-    swepam_df = swepam_df.loc[mask_swepam]
-    swics_df = swics_df.loc[mask_swics]
+    swics_df = swics_df.loc[mask]
 
     if swepam_df.empty:
         raise ConnectionError(f"No SWEPAM data found for period {start_date} – {end_date}")

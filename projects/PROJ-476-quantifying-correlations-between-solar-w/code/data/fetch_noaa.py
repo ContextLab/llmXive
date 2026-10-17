@@ -19,9 +19,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-from code.config import (
-    RAW_DATA_DIR,
-)
+from code.config import RAW_DATA_DIR
 from code import logger
 
 # ----------------------------------------------------------------------
@@ -33,18 +31,14 @@ def _exponential_backoff(attempt: int, base: float = 1.0) -> None:
 
 def _download_text(url: str) -> str:
     """Download a text file via HTTP/HTTPS and return its content."""
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; llmXive/1.0)"}
     for attempt in range(3):
         try:
-            response = requests.get(url, timeout=30, stream=True)
-            if response.status_code != 200:
-                raise ConnectionError(
-                    f"Failed to download {url}: HTTP {response.status_code}"
-                )
+            response = requests.get(url, timeout=30, stream=True, headers=headers)
+            response.raise_for_status()
             return response.text
         except Exception as exc:
-            logger.warning(
-                f"Attempt {attempt + 1} failed for {url}: {exc}"
-            )
+            logger.warning(f"Attempt {attempt + 1} failed for {url}: {exc}")
             if attempt == 2:
                 raise ConnectionError(f"Unable to download {url}") from exc
             _exponential_backoff(attempt)
@@ -67,9 +61,7 @@ def _parse_kp(txt: str) -> pd.DataFrame:
             continue
         year, month, day, hour, kp = parts[:5]
         try:
-            ts = datetime(
-                int(year), int(month), int(day), int(hour)
-            )
+            ts = datetime(int(year), int(month), int(day), int(hour))
             kp_val = float(kp)
         except ValueError:
             continue
@@ -92,9 +84,7 @@ def _parse_dst(txt: str) -> pd.DataFrame:
             continue
         year, month, day, hour, dst = parts[:5]
         try:
-            ts = datetime(
-                int(year), int(month), int(day), int(hour)
-            )
+            ts = datetime(int(year), int(month), int(day), int(hour))
             dst_val = float(dst)
         except ValueError:
             continue
@@ -118,7 +108,6 @@ def _fetch_and_merge_noaa(output_path: Path) -> Path:
     Path
         The path that was written.
     """
-    # Use HTTPS endpoints provided by NOAA SWPC
     kp_url = "https://services.swpc.noaa.gov/products/geomagnetic/kp.txt"
     dst_url = "https://services.swpc.noaa.gov/products/geomagnetic/dst.txt"
 
@@ -171,8 +160,6 @@ def fetch_noaa(start_date: str, end_date: str) -> str:
     ConnectionError
         If the remote files cannot be retrieved or parsed.
     """
-    # The NOAA service does not support date‑restricted downloads; we
-    # download the complete files and let downstream stages slice them.
     output_path = Path(RAW_DATA_DIR) / "noaa_raw.csv"
     _fetch_and_merge_noaa(output_path)
     return str(output_path)

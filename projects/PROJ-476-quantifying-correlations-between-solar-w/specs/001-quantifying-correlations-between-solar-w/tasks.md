@@ -26,7 +26,7 @@ The following checklist implements the complete end‑to‑end scientific study 
 
     exits with status 0 and the quick‑start file contains the command line above.
 
-- [ ] **T002** [P] [US1] Implement real‑data fetchers in `code/data/fetch_ace.py` and `code/data/fetch_noaa.py`.   <!-- FAILED-IN-EXECUTION: code/data/fetch_ace.py exit=2; code/data/fetch_noaa.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_ace.py exit=-1; code/data/fetch_noaa.py exit=-1 --> <!-- FAILED: unspecified -->
+- [ ] **T002** [P] [US1] Implement real‑data fetchers in `code/data/fetch_ace.py` and `code/data/fetch_noaa.py`.   <!-- FAILED-IN-EXECUTION: code/data/fetch_ace.py exit=2; code/data/fetch_noaa.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_ace.py exit=-1; code/data/fetch_noaa.py exit=-1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/data/fetch_ace.py exit=1; code/data/fetch_noaa.py exit=1 -->
   - Functions: `fetch_ace(start_date: str, end_date: str) -> pathlib.Path` and `fetch_noaa(start_date: str, end_date: str) -> pathlib.Path`.  
   - Use the verified URLs:  
 
