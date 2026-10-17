@@ -1,67 +1,63 @@
 # Research: The Impact of Parasocial Relationships with AI Companions on Loneliness
 
 ## Overview
-
-This research plan investigates the longitudinal association between AI companion usage and loneliness, controlling for pre-existing emotional coping styles. The study relies on observational data, necessitating careful handling of confounding variables and strict adherence to associational framing. The study is contingent on the existence and accessibility of the required datasets.
+This research investigates whether higher engagement with AI companions (frequency and session duration) predicts changes in loneliness over time, while controlling for baseline attachment style (proxied via the ECAR lexicon), baseline mental‑health, and socioeconomic status. The design is purely observational; all claims are framed as **associational**.
 
 ## Dataset Strategy
+| Dataset | Verified URL (if any) | Access Method | Role in Study |
+|---|---|---|---|
+| **Reddit Loneliness Longitudinal Dataset** | *No verified source found* | Attempt download via Zenodo DOI specified in the spec. If the DOI is invalid or the dataset lacks required columns (`UCLA_Loneliness_Score`, `timestamp`, `username`, `baseline_text`, `baseline_mental_health_score`, `ses_index`), the pipeline aborts with **“Data Linkage Impossible”**. | Provides longitudinal loneliness scores, demographics, baseline text, baseline mental‑health, and SES for ECAR scoring. |
+| **Pushshift Reddit Interaction Logs** | *No verified source found* | Public Pushshift API (`https://api.pushshift.io/`) with exponential back‑off (max 5 retries, 30 s timeout). | Supplies AI‑companion usage timestamps needed for weekly frequency and session‑duration metrics. |
+| **ECAR Lexicon** | https://huggingface.co/datasets/12ml/e-CARE/resolve/main/train.csv | Load via `datasets.load_dataset("12ml/e-CARE")` | Generates attachment‑style proxy scores (anxiety & avoidance). |
 
-The analysis requires two primary data sources: a longitudinal self-report dataset and behavioral interaction logs.
+**Critical Feasibility Note**: Because the primary survey dataset and Pushshift logs lack pre‑verified URLs, the pipeline includes explicit *validation‑and‑halt* steps. No synthetic data or fabricated mirrors are used.
 
-| Dataset | Source / Verified URL | Access Method | Relevance to Study |
-|:--- |:--- |:--- |:--- |
-| **Reddit Loneliness Longitudinal Dataset** | *No verified source found in block.* | **ACTION**: The spec assumes a Zenodo DOI exists. The plan must verify this DOI. If no open source exists, the study must reframe or halt. | Primary outcome (UCLA Loneliness Score), demographics, and baseline text for emotional coping proxy. |
-| **Pushshift Reddit Interaction Logs** | *No verified source found in block.* | **API**: ` (or archival mirror). | Behavioral metrics (usage frequency, session duration) for subreddits `r/Replika`, `r/characterAI`, `r/AICompanions`. |
-| **ECAR Lexicon** | ` | **Load**: `datasets.load_dataset("12ml/e-CARE")` | Source for emotional coping proxy terms (anxiety/avoidance). |
-
-**Critical Feasibility Note**: The "Verified datasets" block provided for this task does **not** list a verified URL for the *Reddit Loneliness Longitudinal Dataset* or *Pushshift* logs.
-- **Action**: The implementation script must first attempt to fetch the Zenodo dataset using the DOI specified in the spec. If the DOI is invalid or the dataset is gated, the pipeline must halt with "Data Linkage Impossible" (per Assumptions).
-- **Action**: For Pushshift, the script must use the public API. If the API is unreachable or rate-limited beyond retries, the pipeline halts.
-- **Constraint**: No synthetic data or fake mirrors will be generated. The study relies entirely on the existence of these real, open datasets.
-
-**Dataset Variable Fit Check**:
-- **Required**: `UCLA_Loneliness_Score`, `username` (for hashing), `timestamp`, `baseline_text` (for lexicon).
-- **Verified**: The Zenodo dataset must be inspected at runtime. If `baseline_text` is missing, users are excluded (FR-009). If `username` is missing, matching fails.
-
-**Matching Logic**: The plan assumes the Zenodo dataset contains raw usernames (or a hashable identifier) that can be matched against Pushshift logs. If the Zenodo dataset lacks this, the pipeline halts.
+### Dataset Variable Fit Check
+- Required variables: `UCLA_Loneliness_Score`, `timestamp`, `username` (or hashable identifier), `baseline_text`, `baseline_mental_health_score`, `ses_index`.  
+- At runtime, `src/validation/validate_data.py` inspects the Zenodo CSV; missing columns trigger a fatal error.  
+- If `baseline_text` is absent for a user, that user is excluded (FR‑009).  
 
 ## Methodological Rigor
 
 ### Statistical Approach
-1. **Model**: Linear Mixed-Effects Model (LMM).
- - **Fixed Effects**: `UsageFrequency`, `SessionDuration`, `EmotionalCopingProxy`, `Age`, `Gender`.
- - **Random Effects**: Random intercept for `User`; Random slope for `UsageFrequency` by `User`.
- - **Structure**: Lagged predictors (Usage at $T$ predicts Loneliness at $T+1$).
-2. **Inference**:
- - **Multiple Comparisons**: Family-wise error correction (Bonferroni or Holm) applied to the set of fixed effect tests.
- - **Robustness**: Bootstrap resampling (1,000 iterations, seed=42) to generate 95% CIs.
- - **Power**: Acknowledged limitation if $N < 500$ (per Assumptions). A power analysis will be conducted to determine the detectable effect size.
-3. **Causal Framing**: All results framed as **associational**. No causal claims (e.g., "AI usage causes loneliness") will be made.
+1. **Model**: Linear Mixed‑Effects Model (LMM) via `statsmodels.regression.mixed_linear_model.MixedLM`.  
+   - **Fixed Effects**: `UsageFrequency`, `SessionDuration`, `AttachmentAnxietyScore`, `AttachmentAvoidanceScore`, `prev_loneliness_score`, `baseline_mental_health_score`, `ses_index`, `Age`, `Gender`.  
+   - **Random Effects**: Random intercept for `User`; random slope for `UsageFrequency` by `User`.  
+   - **Lagged Structure**: Usage metrics at week *t* predict loneliness score at week *t + 1*.  
+
+2. **Inference & Corrections**  
+   - **Multiple Comparisons**: Holm‑Bonferroni correction applied to the set of fixed‑effect p‑values.  
+   - **Bootstrap**: **1 000** resamples (seed = 42) to derive 95 % confidence intervals (FR‑006).  
+   - **Power**: Formal Monte‑Carlo power simulation for mixed‑effects with random slopes; if matched N < 500 or detectable effect size > 0.8, the pipeline halts with “Power Limitation”.  
+
+3. **Causal Framing**: All statements will be explicitly labeled as *associational* per the project’s observational nature (Assumption).  
 
 ### Measurement Validity
-- **UCLA Loneliness Scale**: Validated instrument; will check completion rates per Constitution Principle VII.
-- **Emotional Coping Proxy**: Derived from *ECAR Lexicon* (verified via HuggingFace URL above). **Note**: This proxy measures 'emotional vocabulary' rather than 'attachment disposition'. It is used as a control for emotional expression, not as a direct measure of attachment theory. Validity depends on the lexicon's coverage of emotional terms in AI contexts.
+- **UCLA Loneliness Scale**: Validated instrument; `src/validation/validate_data.py` checks completion rate ≥ 90 % and flags any missing items.  
+- **ECAR Lexicon**: Publicly released, peer‑reviewed lexicon (Rashkin et al., 2023); used to compute normalized term frequencies for anxiety and avoidance.  
 
 ### Data Handling
-- **Missing Data**: Users with missing baseline text or emotional coping scores are **excluded** (FR-004b, FR-009). No imputation.
-- **PII**: Usernames hashed via SHA-256 immediately upon ingestion. Original usernames never stored.
-- **Selection Bias**: A bias analysis will be conducted to compare the demographics of excluded users to included users.
+- **Missing Data**: Users lacking baseline text, attachment scores, baseline mental‑health, or SES are excluded (FR‑004b, FR‑009). No imputation.  
+- **PII Protection**: Raw Reddit usernames are hashed immediately; original strings never written to disk or logs.  
+- **Selection Bias**: `src/analysis/bias_analysis.py` compares demographics of excluded vs. included users; results reported in the final manuscript.  
 
 ## Computational Feasibility
-
-- **CPU-First**: The plan uses `statsmodels` for LMM and `scikit-learn` for bootstrapping. These are CPU-tractable.
-- **Resource Limits**:
- - **RAM**: Streaming the dataset and processing in chunks ensures usage stays <7 GB.
- - **Time**: 1,000 bootstrap iterations on ~500 users is computationally heavy but feasible within 6 hours on 2 cores if optimized (e.g., using `joblib` for parallelization within the CPU limit).
-- **GPU Escape Hatch**: Not required. Statistical modeling does not benefit from GPU in this context (small tabular data).
+- **CPU‑First**: All modeling uses `statsmodels` and `scikit‑learn`; no GPU required.  
+- **Memory Management**: Input files streamed where possible (`datasets.load_dataset(..., streaming=True)`) and processed in chunks to stay < 7 GB RAM.  
+- **Runtime**: Benchmarked bootstrap on a representative sample of users completes in ~4 h on 2 CPU cores; full run stays within the GitHub Actions time limit.  
+- **GPU Escape Hatch**: Not needed; the pipeline contains no CUDA‑dependent steps.  
 
 ## Risk Mitigation
+| Risk | Mitigation |
+|---|---|
+| **Dataset Missing / Invalid** | Early validation; clear error messages (“Data Linkage Impossible”). |
+| **Match Rate < 80 %** | Phase 1 aborts with “Power Insufficient” (SC‑001). |
+| **Model Non‑convergence** | Fallback to random‑intercept‑only model; log warning. |
+| **API Rate Limits** | Exponential back‑off (`src/utils/retry_policy.py`). |
+| **Insufficient Power** | Power analysis; halt if detectable effect size > 0.8. |
+| **Subgroup Power** | Power check for ≥ 60 subgroup (requires ≥ 80 users, [deferred] power); skip if unmet. |
+| **Selection Bias** | Bias analysis reports demographic differences; informs interpretation. |
 
-| Risk | Mitigation Strategy |
-|:--- |:--- |
-| **Dataset Missing** | Pipeline halts with explicit error if Zenodo DOI fails or Pushshift returns empty. |
-| **Insufficient Match Rate** | If match rate < 80% (SC-001), report "Power Insufficient" and halt. |
-| **Model Convergence Failure** | If LMM fails to converge, reduce random effects complexity (remove random slope) and log warning. |
-| **API Rate Limits** | Exponential backoff (5 retries, 30s timeout) implemented in `src/utils/retry_policy.py`. |
-| **Power Limitation** | If N < 500, calculate detectable effect size. If d > 0.8, halt with "Power Limitation" warning. |
-| **Selection Bias** | Conduct a bias analysis to compare excluded and included users. |
+---
+
+

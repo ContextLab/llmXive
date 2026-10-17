@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: MatchedUsersDataset
-description: Schema for the unified analysis-ready dataset containing matched users and longitudinal records.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MatchedUsersDataset"
+description: "Schema for the unified analysis‑ready dataset containing matched users and longitudinal records."
 type: object
 properties:
   user_id:
@@ -9,11 +9,11 @@ properties:
     pattern: "^[a-f0-9]{64}$"
   age:
     type: integer
-    description: "Self-reported age."
+    description: "Self‑reported age."
     minimum: 0
   gender:
     type: string
-    description: "Self-reported gender."
+    description: "Self‑reported gender."
   attachment_anxiety_score:
     type: number
     description: "Normalized frequency of anxiety terms from ECAR Lexicon."
@@ -22,6 +22,16 @@ properties:
   attachment_avoidance_score:
     type: number
     description: "Normalized frequency of avoidance terms from ECAR Lexicon."
+    minimum: 0.0
+    maximum: 1.0
+  baseline_mental_health_score:
+    type: number
+    description: "Baseline mental‑health self‑report score (e.g., PHQ‑9 total)."
+    minimum: 0.0
+    maximum: 100.0
+  ses_index:
+    type: number
+    description: "Socio‑economic status index (normalized 0‑1)."
     minimum: 0.0
     maximum: 1.0
   records:
@@ -37,17 +47,29 @@ properties:
         loneliness_score:
           type: number
           description: "UCLA Loneliness Scale score."
+        prev_loneliness_score:
+          type: number
+          description: "Loneliness score from the previous week (lagged outcome)."
         usage_frequency:
           type: number
           description: "Count of AI interactions in the preceding week."
         session_duration:
           type: number
           description: "Total duration of AI interactions in the preceding week (minutes)."
+        baseline_mental_health_score:
+          type: number
+          description: "Baseline mental‑health score (copied from UserProfile)."
+        ses_index:
+          type: number
+          description: "SES index (copied from UserProfile)."
       required:
         - timestamp
         - loneliness_score
+        - prev_loneliness_score
         - usage_frequency
         - session_duration
+        - baseline_mental_health_score
+        - ses_index
     minItems: 1
 required:
   - user_id
@@ -55,5 +77,7 @@ required:
   - gender
   - attachment_anxiety_score
   - attachment_avoidance_score
+  - baseline_mental_health_score
+  - ses_index
   - records
 additionalProperties: false

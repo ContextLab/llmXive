@@ -1,31 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Weekly Aggregates Dataset"
+title: "WeeklyAggregatesDataset"
 description: "Schema for the CSV/Parquet file produced after data ingestion and temporal aggregation."
 type: object
 properties:
   week_start:
     type: string
     format: date
-    description: "ISO-8601 date representing the start of the week (Monday)."
+    description: "ISO‑8601 date representing the start of the week (Monday)."
   avg_loneliness_score:
     type: number
     minimum: 0
-    maximum: 20
+    maximum: 100
     description: "Average UCLA Loneliness Scale score for the given week."
   total_ai_activity:
     type: integer
     minimum: 0
-    description: "Total number of AI-companion interactions during the week."
+    description: "Total number of AI‑companion interactions during the week."
   avg_emotional_coping_anxiety:
     type: ["number", "null"]
     minimum: 0
     maximum: 1
-    description: "Average anxiety subscale (0 = no anxiety terms, 1 = max observed frequency) based on ECR-S keywords. Null if no text available."
+    description: "Average anxiety subscale (0 = no anxiety terms, 1 = max observed frequency) based on ECAR keywords. Null if no text available."
   avg_emotional_coping_avoidance:
     type: ["number", "null"]
     minimum: 0
     maximum: 1
-    description: "Average avoidance subscale based on ECR-S keywords. Null if no text available."
+    description: "Average avoidance subscale based on ECAR keywords. Null if no text available."
   n_respondents:
     type: integer
     minimum: 0
@@ -33,7 +33,7 @@ properties:
   lagged_activity:
     type: ["integer", "null"]
     minimum: 0
-    description: "Total AI activity from the previous week (T-1). Null for the first week (T0)."
+    description: "Total AI activity from the previous week (T‑1). Null for the first week (T0)."
   missing_attachment_flag:
     type: boolean
     description: "True if emotional coping scores were imputed as neutral (0.0) due to missing text data."
