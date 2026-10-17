@@ -14,13 +14,15 @@ Usage: python code/download.py --subjects 2
 """
 
 import argparse
+import csv
+import hashlib
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
-import zipfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import requests
@@ -52,7 +54,7 @@ def _strip_ns(tag):
     return tag.split("}")[-1]
 
 # ----------------------------------------------------------------------
-# Helper functions (unchanged from original where still useful)
+# Helper functions (unchanged where still useful)
 # ----------------------------------------------------------------------
 def s3_list(prefix, delimiter=None):
     """List objects in the public OpenNeuro S3 bucket under `prefix` (paginated)."""
@@ -117,7 +119,7 @@ def resolve_dataset_prefix():
     )
 
 # ----------------------------------------------------------------------
-# Core download logic (new implementation using the official OpenNeuro zip)
+# Core download logic (new implementation using S3 listing)
 # ----------------------------------------------------------------------
 def fetch_file(url, dest, max_retries=3):
     """Fetch one file via curl (fallback wget). Fails loudly; no synthetic fallback."""
@@ -156,74 +158,41 @@ def sha256_file(path, chunk_size=1024 * 1024):
 
 def download_subjects(n_subjects, raw_dir):
     """
-    Download the dataset as a zip archive, extract the requested number of subjects,
+    Download the dataset via S3, extract the requested number of subjects,
     and return a list of all extracted file paths.
     """
     raw_dir = Path(raw_dir)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    zip_url = f"https://openneuro.org/datasets/{CANONICAL_DATASET_ID}/download?type=raw"
-    zip_path = raw_dir / f"{CANONICAL_DATASET_ID}.zip"
+    prefix = resolve_dataset_prefix()
+    all_keys, _ = s3_list(prefix)
 
-    if not zip_path.is_file():
-        print(f"Downloading dataset zip from {zip_url}")
-        fetch_file(zip_url, zip_path)
-    else:
-        print(f"Using cached zip at {zip_path}")
+    # Map subject IDs to their file keys
+    subj_to_keys = {}
+    for key in all_keys:
+        # Expect keys like "ds004510/sub-01/..."
+        parts = key.split("/")
+        if len(parts) < 2:
+            continue
+        subj = parts[1]
+        if subj.startswith("sub-"):
+            subj_to_keys.setdefault(subj, []).append(key)
 
-    # Extract zip to a temporary location
-    temp_extract_dir = raw_dir / "_tmp_extracted"
-    if temp_extract_dir.exists():
-        shutil.rmtree(temp_extract_dir)
-    temp_extract_dir.mkdir(parents=True)
+    subjects = sorted(subj_to_keys.keys(), key=lambda s: int(re.sub(r"\D", "", s) or 0))
+    selected = subjects if n_subjects == 0 else subjects[:n_subjects]
+    print(f"Dataset has {len(subjects)} subjects; downloading {len(selected)}: {selected}")
 
-    with zipfile.ZipFile(zip_path, "r") as zf:
-        # Identify all subject directories inside the zip (they start with "sub-")
-        subject_dirs = set()
-        for member in zf.namelist():
-            parts = member.split("/")
-            if len(parts) > 1 and parts[0].startswith("sub-"):
-                subject_dirs.add(parts[0])
-        subjects = sorted(
-            subject_dirs,
-            key=lambda s: int(re.sub(r"\D", "", s) or 0)
-        )
-        selected = subjects if n_subjects == 0 else subjects[:n_subjects]
-        print(f"Dataset has {len(subjects)} subjects; extracting {len(selected)}: {selected}")
+    downloaded_files = []
+    for subj in selected:
+        for key in subj_to_keys[subj]:
+            rel_path = Path(*Path(key).parts[1:])  # drop the top-level dataset folder
+            dest_path = raw_dir / rel_path
+            file_url = f"{S3_BASE}/{key}"
+            print(f"Downloading {file_url} -> {dest_path}")
+            fetch_file(file_url, dest_path)
+            downloaded_files.append(dest_path)
 
-        # Extract top‑level (non‑subject) files
-        for member in zf.namelist():
-            if "/" not in member.rstrip("/"):
-                zf.extract(member, temp_extract_dir)
-
-        # Extract selected subject files
-        for member in zf.namelist():
-            for subj in selected:
-                if member.startswith(f"{subj}/"):
-                    zf.extract(member, temp_extract_dir)
-                    break
-
-    # Move extracted content up one level if the zip includes a top‑level folder
-    # (e.g., ds004510/...). Detect and flatten it.
-    top_level_items = list(temp_extract_dir.iterdir())
-    if len(top_level_items) == 1 and top_level_items[0].is_dir():
-        inner = top_level_items[0]
-        for item in inner.iterdir():
-            shutil.move(str(item), raw_dir)
-    else:
-        for item in top_level_items:
-            shutil.move(str(item), raw_dir)
-
-    # Clean up temporary directory
-    shutil.rmtree(temp_extract_dir, ignore_errors=True)
-
-    # Gather all extracted file paths
-    extracted_files = []
-    for root, _, files in os.walk(raw_dir):
-        for f in files:
-            extracted_files.append(Path(root) / f)
-
-    return extracted_files
+    return downloaded_files
 
 def record_checksums(files, raw_dir):
     """Record SHA-256 checksums of downloaded files."""
