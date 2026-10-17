@@ -2,116 +2,70 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 command(s) failed: python code/run_pipeline.py (rc=1); python code/run_pipeline.py (rc=1); 6 declared deliverable(s) absent: data/dataset.csv; data/dataset_filtered.csv; data/dataset_intermediate.csv
+**Summary**: 8 run-book script(s) missing (plan/impl path mismatch): python code/download_cod.py --output data/raw/cod.jsonl; python code/generate_smiles.py  --input data/raw/cod.jsonl  --output data/processed/with_smiles.csv; python code/compute_descriptors.py  --input data/processed/with_smiles.csv  --output data/processed/with_descriptors.csv; 1 command(s) failed: python -m pytest tests/ (rc=2); 1 declared deliverable(s) absent: data/dataset_filtered.csv
 
 ## Failing / missing run-book commands
 
-- python code/run_pipeline.py -> rc=1
-    elease of pandas (pandas 3.0),
-(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
-but was not found to be installed on your system.
-If this would cause problems for you,
-please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
-        
-  import pandas as pd
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 256, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 204, in main
-    setup_logging()
-TypeError: setup_logging() missing 1 required positional argument: 'name'
-2026-08-28 09:11:29 - ERROR - Step code/parse_cif.py raised CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python', 'code/parse_cif.py']' returned non-zero exit status 1.
-2026-08-28 09:11:29 - ERROR - Pipeline failed at step: code/parse_cif.py
-2026-08-28 09:11:29 - ERROR - Pipeline execution failed. Failed steps: ['code/parse_cif.py']
-- python code/run_pipeline.py -> rc=1
-    elease of pandas (pandas 3.0),
-(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
-but was not found to be installed on your system.
-If this would cause problems for you,
-please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
-        
-  import pandas as pd
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 256, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 204, in main
-    setup_logging()
-TypeError: setup_logging() missing 1 required positional argument: 'name'
-2026-08-28 09:11:32 - ERROR - Step code/parse_cif.py raised CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python', 'code/parse_cif.py']' returned non-zero exit status 1.
-2026-08-28 09:11:32 - ERROR - Pipeline failed at step: code/parse_cif.py
-2026-08-28 09:11:32 - ERROR - Pipeline execution failed. Failed steps: ['code/parse_cif.py']
+- python code/download_cod.py --output data/raw/cod.jsonl -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-511-predicting-molecular-packing-efficiency-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/download_cod.py': [Errno 2] No such file or directory
+
+- python code/generate_smiles.py  --input data/raw/cod.jsonl  --output data/processed/with_smiles.csv -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-511-predicting-molecular-packing-efficiency-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/generate_smiles.py': [Errno 2] No such file or directory
+
+- python code/compute_descriptors.py  --input data/processed/with_smiles.csv  --output data/processed/with_descriptors.csv -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-511-predicting-molecular-packing-efficiency-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/compute_descriptors.py': [Errno 2] No such file or directory
+
+- python code/encode_smiles.py  --input data/processed/with_descriptors.csv  --output data/processed/full_feature_matrix.csv -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-511-predicting-molecular-packing-efficiency-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/encode_smiles.py': [Errno 2] No such file or directory
+
+- python code/train_model.py  --data data/processed/full_feature_matrix.csv  --model-primary data/artifacts/model_primary.pt  --model-full data/artifacts/model_full.pt -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-511-predicting-molecular-packing-efficiency-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/train_model.py': [Errno 2] No such file or directory
+
+- python code/evaluate_model.py  --model data/artifacts/model_primary.pt  --data data/processed/full_feature_matrix.csv  --output data/artifacts/validation_report.json -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-511-predicting-molecular-packing-efficiency-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/evaluate_model.py': [Errno 2] No such file or directory
+
+- python code/sensitivity_analysis.py  --model data/artifacts/model_primary.pt  --data data/processed/full_feature_matrix.csv  --output data/artifacts/sensitivity_results.json -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-511-predicting-molecular-packing-efficiency-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/sensitivity_analysis.py': [Errno 2] No such file or directory
+
+- python code/report_generator.py  --validation data/artifacts/validation_report.json  --output data/artifacts/report.html -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-511-predicting-molecular-packing-efficiency-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/report_generator.py': [Errno 2] No such file or directory
+
+- python -m pytest tests/ -> rc=2
+ named 'evaluate'
+_ ERROR collecting projects/PROJ-511-predicting-molecular-packing-efficiency-/tests/unit/test_add_3d_descriptors.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/tests/unit/test_add_3d_descriptors.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_add_3d_descriptors.py:13: in <module>
+    from add_3d_descriptors import (
+E   ImportError: cannot import name 'generate_conformer' from 'add_3d_descriptors' (/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/tests/unit/../../code/add_3d_descriptors.py)
+=========================== short test summary info ============================
+ERROR tests/integration/test_train_evaluate.py
+ERROR tests/unit/test_add_3d_descriptors.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 2.47s ===============================
+
+
 
 ## Declared deliverables still missing
 
-- data/dataset.csv
 - data/dataset_filtered.csv
-- data/dataset_intermediate.csv
-- data/dataset_with_metrics.csv
-- data/features_matrix.npy
-- data/targets.npy
-
-## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
-
-One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
-
-**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
-
-**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
-
-### `log_processing_statistics` — defined in `code/error_handling.py`; called 4 way(s):
-
-- code/error_handling.py: - log_processing_statistics(success, failure)
-- code/error_handling.py: - log_processing_statistics(success, failure, total)
-- code/error_handling.py: - log_processing_statistics(success, failure, total, start_time, end_time)
-- code/parse_cif.py: log_processing_statistics(success_count, failure_count, len(cif_files), start_time, end_time)
-
-Make `log_processing_statistics` in `code/error_handling.py` accept ALL of the above.
-
-### `setup_logging` — defined in `code/utils.py`; called 9 way(s):
-
-- code/cif_loader.py: setup_logging()
-- code/extract_physics_features.py: logger = setup_logging(__name__)
-- code/feature_assembly.py: setup_logging()
-- code/cif_parsing.py: setup_logging()
-- code/compute_RAW_metrics.py: setup_logging(level=logging.INFO)
-- code/parse_cif.py: setup_logging()
-- code/add_3d_descriptors.py: logger = setup_logging("add_3d_descriptors")
-- code/train.py: setup_logging()
-- code/cif_utils.py: setup_logging()
-
-Make `setup_logging` in `code/utils.py` accept ALL of the above.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/dataset.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/cif_loader.py` — NOT invoked by the run-book
-    - `code/feature_assembly.py` — NOT invoked by the run-book
-    - `code/data_loader_utils.py` — NOT invoked by the run-book
-    - `code/compute_RAW_metrics.py` — NOT invoked by the run-book
-    - `code/filter_dataset.py` — NOT invoked by the run-book
-    - `code/logging_utils.py` — NOT invoked by the run-book
-    - `code/parse_cif.py` — NOT invoked by the run-book
-    - `code/run_pipeline.py` — IS a run-book command
-  Make ONE of these WRITE `data/dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/dataset_filtered.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/filter_dataset.py` — NOT invoked by the run-book
     - `code/add_3d_descriptors.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/dataset_filtered.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/dataset_intermediate.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/compute_RAW_metrics.py` — NOT invoked by the run-book
-    - `code/parse_cif.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/dataset_intermediate.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/dataset_with_metrics.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/compute_RAW_metrics.py` — NOT invoked by the run-book
     - `code/filter_dataset.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/dataset_with_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/features_matrix.npy` is declared but was NOT written. Scripts referencing it:
-    - `code/feature_assembly.py` — NOT invoked by the run-book
-    - `code/train.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/features_matrix.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/targets.npy` is declared but was NOT written. Scripts referencing it:
-    - `code/feature_assembly.py` — NOT invoked by the run-book
-    - `code/train.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/targets.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+  Make ONE of these WRITE `data/dataset_filtered.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

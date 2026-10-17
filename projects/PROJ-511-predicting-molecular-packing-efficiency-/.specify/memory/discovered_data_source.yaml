@@ -1,12 +1,16 @@
 status: none
-intent: Crystallography Open Database organic CIF download python package dataset
+intent: download organic crystal CIFs with SMILES from Crystallography Open Database
+  python package dataset
 required_fields:
 - cif_id
 - smiles
+- smiles_source
 - packing_coefficient
-- atom_count
-- source_url
-- smiles_generated_flag
-cache_key: f44810814fb123e88cb87c9acd9aaf37cf1a37d0f6db785c39d56b4475275e58
-searched_at: '2026-10-11T08:33:34.490686+00:00'
+- unit_cell_volume
+- lattice_parameters
+- atom_count_nonhydrogen
+- download_url
+- generation_flag
+cache_key: e10f32dd825885580028da4dfde6acef7790d7eb332c3d797ebcb3a980aaec32
+searched_at: '2026-10-17T06:31:36.395170+00:00'
 retry_count: 1

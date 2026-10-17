@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "c87d1a82d52a2445d4d5152f74c36fad33cf51bdfeee05aa68121cad59fb155e",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'utils.py': `code/utils.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root."
+}
