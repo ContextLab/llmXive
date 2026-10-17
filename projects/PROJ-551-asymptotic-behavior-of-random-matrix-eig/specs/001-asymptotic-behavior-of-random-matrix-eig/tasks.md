@@ -11,7 +11,7 @@ All previously completed foundational tasks (generators, solvers, models, grids,
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] **REDO (rejected artifact)**: Run a single‑run end‑to‑end analysis and record its results to `data/processed/single_run_results.json` by executing
+- [ ] T001 [US1] **REDO (rejected artifact)**: Run a single‑run end‑to‑end analysis and record its results to `data/processed/single_run_results.json` by executing <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
 
   ```bash
   code/main.py --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal

@@ -1,22 +1,26 @@
 import logging
 from pathlib import Path
 
-def get_project_paths():
-    root = Path(__file__).resolve().parent.parent
-    return {
-        'root': root,
-        'raw': root / 'data/raw',
-        'processed': root / 'data/processed',
-        'results': root / 'data/results',
-        'figures': root / 'data/figures',
-        'logs': root / 'data/logs',
-        'contracts': root / 'contracts'
-    }
+OUTLIER_TOLERANCE = 1e-10
 
 def ensure_directories():
-    paths = get_project_paths()
-    for p in paths.values():
-        p.mkdir(parents=True, exist_ok=True)
+    """Ensure all required project directories exist."""
+    dirs = [
+        Path("data/raw"),
+        Path("data/processed"),
+        Path("data/logs"),
+        Path("data/figures"),
+        Path("contracts"),
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
-def get_outlier_tolerance():
-    return 1e-10
+def get_project_paths():
+    """Return a dictionary of key project paths."""
+    return {
+        "raw": Path("data/raw"),
+        "processed": Path("data/processed"),
+        "logs": Path("data/logs"),
+        "figures": Path("data/figures"),
+        "contracts": Path("contracts"),
+    }

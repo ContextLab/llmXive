@@ -1,27 +1,29 @@
 type: object
 properties:
-  run_id: { type: string, format: uuid }
-  timestamp: { type: string, format: date-time }
-  seed: { type: integer }
-  N: { type: integer }
-  k: { type: integer }
-  theta: { type: number }
-  pattern_type: { type: string, enum: [diagonal, block-sparse, random-sparse] }
-  support_density: { type: [number, "null"] }
-  computation_time_ms: { type: number }
-  empirical_bulk_edge: { type: number }
+  run_id:
+    type: string
+    format: uuid
+  timestamp:
+    type: string
+    format: date-time
+  seed:
+    type: integer
+  N:
+    type: integer
+  k:
+    type: integer
+  theta:
+    type: number
+  pattern_type:
+    type: string
+  support_density:
+    type: ["number", "null"]
+  computation_time_ms:
+    type: number
+  empirical_bulk_edge:
+    type: number
   eigenvalues:
     type: array
-    items: { $ref: '#/definitions/eigenvalue_result' }
+    items:
+      $ref: 'eigenvalue_result.schema.yaml'
 required: [run_id, timestamp, seed, N, k, theta, pattern_type, computation_time_ms, empirical_bulk_edge, eigenvalues]
-definitions:
-  eigenvalue_result:
-    type: object
-    properties:
-      run_id: { type: string, format: uuid }
-      eigenvalue_index: { type: integer }
-      value: { type: number }
-      is_outlier: { type: boolean }
-      theoretical_bbp: { type: number }
-      deviation: { type: number }
-    required: [run_id, eigenvalue_index, value, is_outlier, theoretical_bbp, deviation]
