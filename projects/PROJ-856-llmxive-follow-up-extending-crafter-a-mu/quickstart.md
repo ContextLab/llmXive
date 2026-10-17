@@ -25,7 +25,7 @@ python -m src.curators.curate_failed_figures --num-tasks 50 --output-dir data/
 uvicorn src.interfaces.structured_harness:app --port 8001 &
 uvicorn src.interfaces.chat_interface:app --port 8002 &
 ```
-- Visit the endpoints (e.g. ` Connection refused"))] and ` Connection refused"))]) to see a `200 OK` JSON response containing a randomized `interface_order` and shuffled `task_order`.
+- Visit the endpoints (e.g. ` Connection refused"))]) to see a `200 OK` JSON response containing a randomized `interface_order` and shuffled `task_order`.
 
 ## 4. Run a priori power analysis (optional but recommended)
 ```bash

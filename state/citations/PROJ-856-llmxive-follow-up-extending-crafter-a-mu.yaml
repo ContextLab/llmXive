@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: http://localhost:8002/init_session
   verified_at: '2026-10-17T02:27:19.389525Z'
-- artifact_hash: 2290fbf1a55ce77369212ae96840699923795f610e6fef19397ed6907ee13832
+- artifact_hash: f662cd923b5cb3d7ee9f251b5aa170df487a592b476360521b72206c047645b3
   artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -30,19 +30,8 @@
   value: http://localhost:8001/init_session`
   verification_status: unreachable
   verified_against_url: http://localhost:8001/init_session
-  verified_at: '2026-10-17T04:10:10.624162Z'
-- artifact_hash: 2290fbf1a55ce77369212ae96840699923795f610e6fef19397ed6907ee13832
-  artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: http://localhost:8002/init_session`
-  verification_status: unreachable
-  verified_against_url: http://localhost:8002/init_session
-  verified_at: '2026-10-17T04:10:10.624162Z'
-- artifact_hash: 209ff599f06c0080cf2e32612514761f6dd6fce6de8b03ae0d0a119467cf9a44
+  verified_at: '2026-10-17T11:31:03.612654Z'
+- artifact_hash: 7a9c7dc98598fe04497894924e03b5e8c179016b7817e5942ff0ef60fda5dc65
   artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/specs/001-llmxive-follow-up-extending-crafter-a-mu/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +41,8 @@
   value: http://localhost:8000/init_session
   verification_status: unreachable
   verified_against_url: http://localhost:8000/init_session
-  verified_at: '2026-10-17T05:15:05.004638Z'
-- artifact_hash: 209ff599f06c0080cf2e32612514761f6dd6fce6de8b03ae0d0a119467cf9a44
+  verified_at: '2026-10-17T11:31:13.254302Z'
+- artifact_hash: 7a9c7dc98598fe04497894924e03b5e8c179016b7817e5942ff0ef60fda5dc65
   artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/specs/001-llmxive-follow-up-extending-crafter-a-mu/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,4 +52,4 @@
   value: http://localhost:8000/edit
   verification_status: unreachable
   verified_against_url: http://localhost:8000/edit
-  verified_at: '2026-10-17T05:15:05.004638Z'
+  verified_at: '2026-10-17T11:31:13.254302Z'

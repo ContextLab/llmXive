@@ -1,100 +1,75 @@
-"""
-src.run_pipeline
------------------
-Entry point for the end‑to‑end study pipeline.
-
-The script reads a minimal configuration file, seeds all
-randomness sources for deterministic behaviour, and then
-(in a full implementation) would orchestrate the various
-pipeline stages (data curation, simulation, validation,
-analysis, reporting).  For the purpose of the initial
-quick‑start verification we simply confirm that the script
-runs without error and prints the expected completion message.
-"""
-
 import argparse
 import sys
 import random
 import numpy as np
+import yaml
 from pathlib import Path
 
-try:
-    import yaml  # PyYAML is available in the base environment
-except ImportError as exc:
-    raise ImportError("PyYAML is required to parse the configuration file") from exc
-
-# Optional: torch may not be installed in every environment,
-# but it is listed in requirements.txt.  Import lazily.
-try:
-    import torch
-except Exception:  # pragma: no cover
-    torch = None  # type: ignore
+# Import the main entry points from the project modules
+from src.curators.curate_failed_figures import main as curate_main
+from src.simulation.simulate_participants import main as simulate_main
+from src.validation.run_validation import main as validate_main
+from src.analysis.wilcoxon_analysis import main as analyze_main
+from src.report.generate_report import main as report_main
 
 def seed_all(seed: int = 42) -> None:
-    """
-    Seed the common random number generators for reproducibility.
-
-    Parameters
-    ----------
-    seed : int
-        The seed value to use for ``random``, ``numpy`` and (if available) ``torch``.
-    """
+    """Seed all common random number generators for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    if torch is not None:
-        torch.manual_seed(seed)
+    # torch.manual_seed(seed) # Only if torch is installed/imported
 
-def _build_arg_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Run the full study pipeline."
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="config.yaml",
-        help="Path to a YAML configuration file (default: config.yaml).",
-    )
-    return parser
+def run_with_args(func, args):
+    """Helper to call a main() function that uses argparse by mocking sys.argv."""
+    import unittest.mock as mock
+    with mock.patch.object(sys, 'argv', ['src.run_pipeline'] + args):
+        func()
 
 def main() -> int:
-    """
-    Execute the pipeline.
-
-    Returns
-    -------
-    int
-        Exit code (0 for success, non‑zero for failure).
-    """
-    parser = _build_arg_parser()
+    parser = argparse.ArgumentParser(description="Run the end-to-end study pipeline.")
+    parser.add_argument("--config", type=str, default="config.yaml", help="Path to config file")
     args = parser.parse_args()
 
     config_path = Path(args.config)
-    if not config_path.is_file():
-        sys.stderr.write(f"Configuration file not found: {config_path}\\n")
+    if not config_path.exists():
+        print(f"Error: Config file {args.config} not found.")
         return 1
 
-    # Load configuration (we only need the seed for deterministic runs).
-    try:
-        with config_path.open("r", encoding="utf-8") as f:
-            config = yaml.safe_load(f) or {}
-    except yaml.YAMLError as exc:
-        sys.stderr.write(f"Error parsing configuration file: {exc}\\n")
-        return 1
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
 
-    seed = config.get("seed", 42)
+    seed = config.get('seed', 42)
+    num_tasks = config.get('num_tasks', 50)
+    participants = config.get('participants', 30)
+
     seed_all(seed)
+    print(f"Pipeline started with seed {seed}...")
 
-    # In a complete pipeline we would invoke the following stages:
-    #   1. Data curation
-    #   2. Participant simulation
-    #   3. Validation (vector match + semantic similarity)
-    #   4. Statistical analysis
-    #   5. Report generation
-    # For the initial quick‑start verification we simply acknowledge
-    # that the script ran successfully.
+    try:
+        # 1. Data Curation
+        print("Running data curation...")
+        run_with_args(curate_main, ["--num-tasks", str(num_tasks), "--output-dir", "data/"])
 
-    print("Pipeline completed")
-    return 0
+        # 2. Simulation
+        print("Running participant simulation...")
+        run_with_args(simulate_main, ["--participants", str(participants), "--seed", str(seed), "--log-dir", "data/logs/"])
+
+        # 3. Validation
+        print("Running combined validation...")
+        run_with_args(validate_main, ["--log-dir", "data/logs/", "--ground-truth-dir", "data/ground_truth/", "--output-dir", "data/validation/"])
+
+        # 4. Analysis
+        print("Running statistical analysis...")
+        run_with_args(analyze_main, ["--validation-dir", "data/validation/", "--output-dir", "outputs/"])
+
+        # 5. Report Generation
+        print("Generating final report...")
+        run_with_args(report_main, ["--validation-dir", "data/validation/", "--output-dir", "outputs/"])
+
+        print("Pipeline completed")
+        return 0
+    except Exception as e:
+        print(f"Pipeline failed: {e}")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,12 +1,6 @@
 T001:
-  reason: 'The required artifacts are only partially present: `quickstart.md` has
-    the "Run the end-to-end pipeline" section, but there is no evidence `src/run_pipeline.py`,
-    `requirements.txt` (pinned dependencies), or any execution output exists, and
-    no evidence the pytest run or the pipeline command ever succeeded. Critically,
-    the integration test itself is broken: it computes `project_root = Path(__file__).parents[2]`,
-    which is the repository root (the test lives at `<project>/tests/integration/`,
-    so parents[2] is above the project directory), so `python -m src.run_pipeline
-    --config config.yaml` would'
+  reason: 'Requested task execution failed; rerun successfully: src/run_pipeline.py
+    exit=-1 (TIMEOUT)'
   task: efed8fc0e0715b46abc391f9e3251c0229cf0a247e440937386e5036faa32094
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/curators/curate_failed_figures.py

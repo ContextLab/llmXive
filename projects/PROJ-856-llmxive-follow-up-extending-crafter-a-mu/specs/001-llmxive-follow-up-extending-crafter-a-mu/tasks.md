@@ -10,7 +10,7 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
 
 ## Phase 1 – Setup, data curation & first end‑to‑end run  
 
-- [ ] T001 [P] [US1] Create a deterministic environment, pin dependencies, and document the runnable command.
+- [ ] T001 [P] [US1] Create a deterministic environment, pin dependencies, and document the runnable command. <!-- FAILED-IN-EXECUTION: src/run_pipeline.py exit=-1 (TIMEOUT) -->
   - **File**: `quickstart.md` (add a “Run the end‑to‑end pipeline” section).  
   - **Verification**: `pytest -q tests/integration/test_end_to_end.py` passes; the command `python -m src.run_pipeline --config config.yaml` executes without error and prints “Pipeline completed”.  
 
