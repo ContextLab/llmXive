@@ -1790,3 +1790,66 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-07T00:54:52Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: mc_results.csv contains 1008 rows, one ARPACK result per run
+  claim_id: c_f84a7108
+  context: Output artifacts of the full theta sweep over the specified parameter grid.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: data/processed/mc_results.csv (1008 rows, one real ARPACK result per run)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:14Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: "bulk-edge eigenvalues converge to \xB12.0 per matrix size N"
+  claim_id: c_19eef189
+  context: The sweep records convergence of the bulk spectral edge to the Wigner semicircle
+    edge.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "data/processed/convergence_data.json (per-N bulk-edge convergence to\
+    \ \xB12.0)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:14Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: sweep memory usage stays under 7 GB for N=2000
+  claim_id: c_e147bc37
+  context: Troubleshooting note about memory errors in the full parameter sweep.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep is optimized to stay under 7 GB for N=2000.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces identical eigenvalues given same seeds and parameters
+  claim_id: c_a43a5aa9
+  context: Reproducibility statement about the seeded random matrix pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Given the same seeds and parameters, the pipeline reproduces the same
+    eigenvalues (CPU-only ARPACK, scipy.sparse.linalg.eigsh).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:15Z'

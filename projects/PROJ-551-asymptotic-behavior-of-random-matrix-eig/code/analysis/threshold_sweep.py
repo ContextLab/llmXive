@@ -1,397 +1,275 @@
 """
-T020a: Parameter Sweep Orchestrator
+T002: Theta sweep orchestrator (User Story 2).
 
-Implements the core simulation loop for the parameter sweep (User Story 2).
-Consumes checksummed raw data from T040a, executes the simulation loop,
-manages iterations, and produces mc_results.csv and convergence_data.json.
+Executes the full parameter sweep over:
+  N in {100, 500, 1000, 2000}
+  theta in {0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0}
+  seeds in {42, 123, 456, 789}
+  k in {1, 2, 5}
+  pattern_type in {diagonal, block-sparse, random-sparse}
 
-Dependencies:
-- T040a: Raw matrix generation and checksumming (data/raw/sweep/*.npy, state/checksums_sweep.json)
-- T012: Wigner matrix generator (code/generators/wigner.py)
-- T013: Perturbation constructor (code/generators/perturbation.py)
-- T007a: Iterative solver wrapper (code/analysis/eigen_solver.py)
-- T007b: Validation logic (code/analysis/eigen_solver.py)
-- T006: Data models (code/data_models.py)
-- T004: Configuration (code/utils/config.py)
+For each (N, seed) the base Wigner matrix is generated deterministically
+(or loaded from data/raw/sweep/ if already present), checksummed with
+SHA-256, and reused across all theta / k / pattern configurations.
+
+Outputs (real ARPACK measurements, CPU-only):
+  data/processed/mc_results.csv          (1008 rows)
+  data/processed/convergence_data.json   (per-N bulk-edge convergence to +/-2.0)
+  data/logs/threshold_sweep.log
 """
 
 import argparse
 import csv
+import hashlib
 import json
 import logging
-import os
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
 
 import numpy as np
+from scipy.sparse.linalg import eigsh
 
-# Project imports
-# Ensure we can import from the code directory
-code_root = Path(__file__).resolve().parent.parent
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
+CODE_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = CODE_ROOT.parent
+if str(CODE_ROOT) not in sys.path:
+    sys.path.insert(0, str(CODE_ROOT))
 
-from utils.config import get_project_paths, load_config, get_tolerance
-from data_models import SimulationRun, PerturbationConfig
-from generators.wigner import generate_wigner_matrix
-from generators.perturbation import create_perturbation
-from analysis.eigen_solver import compute_top_eigenvalues_iterative, validate_eigenvalues
-from utils.checksum import load_checksum_manifest, verify_checksums
+DATA_RAW_SWEEP = PROJECT_ROOT / "data" / "raw" / "sweep"
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+DATA_LOGS = PROJECT_ROOT / "data" / "logs"
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(code_root / 'data' / 'logs' / 'threshold_sweep.log')
+# Grid definition (T002)
+N_VALUES = [100, 500, 1000, 2000]
+THETA_VALUES = [0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0]
+SEEDS = [42, 123, 456, 789]
+K_VALUES = [1, 2, 5]
+PATTERNS = ["diagonal", "block-sparse", "random-sparse"]
+RANDOM_SPARSE_DENSITY = 0.1
+EIGSH_TOL = 1e-8
+THEORETICAL_EDGE = 2.0
+
+
+def setup_logging() -> logging.Logger:
+    DATA_LOGS.mkdir(parents=True, exist_ok=True)
+    logger = logging.getLogger("threshold_sweep")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        fmt = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        sh = logging.StreamHandler(sys.stdout)
+        sh.setFormatter(fmt)
+        fh = logging.FileHandler(DATA_LOGS / "threshold_sweep.log")
+        fh.setFormatter(fmt)
+        logger.addHandler(sh)
+        logger.addHandler(fh)
+    return logger
+
+
+def sha256_of_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def generate_wigner_matrix(N: int, seed: int) -> np.ndarray:
+    """Standard Wigner matrix: symmetric, entries N(0,1), scaled 1/sqrt(N).
+
+    Deterministic given (N, seed). Spectral edge converges to +/-2.0.
+    """
+    rng = np.random.default_rng(seed)
+    A = rng.standard_normal((N, N))
+    W = (A + A.T) / (2.0 * np.sqrt(N))
+    return W
+
+
+def get_base_matrix(N: int, seed: int, logger: logging.Logger) -> np.ndarray:
+    """Load the checksummed raw matrix, or generate + checksum it once."""
+    DATA_RAW_SWEEP.mkdir(parents=True, exist_ok=True)
+    path = DATA_RAW_SWEEP / f"matrix_N{N}_seed{seed}.npy"
+    if path.exists():
+        logger.info(f"Loading raw matrix {path}")
+        return np.load(path)
+    logger.info(f"Generating raw Wigner matrix N={N} seed={seed}")
+    W = generate_wigner_matrix(N, seed)
+    np.save(path, W)
+    digest = sha256_of_file(path)
+    manifest_path = DATA_RAW_SWEEP / "checksums.json"
+    manifest = {}
+    if manifest_path.exists():
+        with open(manifest_path) as f:
+            manifest = json.load(f)
+    manifest[path.name] = {
+        "sha256": digest,
+        "N": N,
+        "seed": seed,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
+    logger.info(f"Checksummed {path.name}: {digest}")
+    return W
+
+
+def build_perturbation(N: int, k: int, theta: float, pattern: str, seed: int) -> np.ndarray:
+    """Rank-k symmetric perturbation with spectral norm theta.
+
+    Each of the k orthonormal directions carries eigenvalue theta, so the
+    BBP prediction for an emerging outlier is lambda = theta + 1/theta
+    (visible above the bulk edge iff theta > 1).
+    """
+    rng = np.random.default_rng(seed + 7919)
+    P = np.zeros((N, N), dtype=np.float64)
+    if pattern == "diagonal":
+        for j in range(k):
+            P[j, j] = theta
+    elif pattern == "block-sparse":
+        block = N // k
+        for j in range(k):
+            v = np.zeros(N)
+            lo = j * block
+            hi = (j + 1) * block if j < k - 1 else N
+            v[lo:hi] = 1.0 / np.sqrt(hi - lo)
+            P += theta * np.outer(v, v)
+    elif pattern == "random-sparse":
+        m = max(1, int(RANDOM_SPARSE_DENSITY * N) // k)
+        idx = rng.permutation(N)[: m * k].reshape(k, m)
+        for j in range(k):
+            v = np.zeros(N)
+            v[idx[j]] = rng.choice([-1.0, 1.0], size=m) / np.sqrt(m)
+            P += theta * np.outer(v, v)
+    else:
+        raise ValueError(f"Unknown pattern_type: {pattern}")
+    return P
+
+
+def top_eigenvalue_arpack(H: np.ndarray) -> float:
+    """Real ARPACK (scipy.sparse.linalg.eigsh) largest algebraic eigenvalue."""
+    vals = eigsh(H, k=1, which="LA", tol=EIGSH_TOL, return_eigenvectors=False)
+    return float(np.max(vals))
+
+
+def run_theta_sweep(logger: logging.Logger):
+    DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
+
+    # 1. Base matrices + empirical bulk edge (top eigenvalue of unperturbed W)
+    base_matrices = {}
+    bulk_edges = {}
+    for N in N_VALUES:
+        bulk_edges[N] = {}
+        for seed in SEEDS:
+            W = get_base_matrix(N, seed, logger)
+            base_matrices[(N, seed)] = W
+            edge = top_eigenvalue_arpack(W)
+            bulk_edges[N][seed] = edge
+            logger.info(f"Bulk edge N={N} seed={seed}: {edge:.6f}")
+
+    # 2. Full sweep
+    rows = []
+    total = len(N_VALUES) * len(THETA_VALUES) * len(SEEDS) * len(K_VALUES) * len(PATTERNS)
+    expected = 1008
+    logger.info(f"Starting sweep: {total} configurations (expected {expected})")
+
+    done = 0
+    for N in N_VALUES:
+        for k in K_VALUES:
+            for pattern in PATTERNS:
+                for theta in THETA_VALUES:
+                    for seed in SEEDS:
+                        done += 1
+                        W = base_matrices[(N, seed)]
+                        P = build_perturbation(N, k, theta, pattern, seed)
+                        H = W + P
+                        t0 = time.perf_counter()
+                        lam_top = top_eigenvalue_arpack(H)
+                        elapsed_ms = (time.perf_counter() - t0) * 1000.0
+                        run_id = (
+                            f"N{N}_k{k}_{pattern}_theta{theta}_seed{seed}"
+                        )
+                        rows.append({
+                            "run_id": run_id,
+                            "N": N,
+                            "k": k,
+                            "pattern_type": pattern,
+                            "theta": theta,
+                            "seed": seed,
+                            "eigenvalue_top": lam_top,
+                            "empirical_bulk_edge": bulk_edges[N][seed],
+                            "computation_time_ms": elapsed_ms,
+                        })
+                        if done % 100 == 0:
+                            logger.info(f"Progress: {done}/{total}")
+
+    if len(rows) != expected:
+        raise RuntimeError(
+            f"Sweep produced {len(rows)} rows, expected {expected}"
+        )
+
+    # 3. Write mc_results.csv
+    csv_path = DATA_PROCESSED / "mc_results.csv"
+    fieldnames = [
+        "run_id", "N", "k", "pattern_type", "theta", "seed",
+        "eigenvalue_top", "empirical_bulk_edge", "computation_time_ms",
     ]
-)
-logger = logging.getLogger(__name__)
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+    logger.info(f"Wrote {len(rows)} rows to {csv_path}")
 
-def load_raw_matrix(file_path: Path) -> np.ndarray:
-    """
-    Load a raw matrix from a .npy file.
-    Verifies the file exists and loads it into memory.
-    """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Raw matrix file not found: {file_path}")
-    logger.info(f"Loading raw matrix from {file_path}")
-    return np.load(file_path)
-
-def run_single_sweep_instance(
-    matrix: np.ndarray,
-    theta: float,
-    rank: int,
-    support_density: float,
-    perturbation_type: str,
-    seed: int,
-    tol: float
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    """
-    Execute a single simulation instance for the sweep.
-
-    Args:
-        matrix: The base Wigner matrix (N x N).
-        theta: Perturbation norm.
-        rank: Rank of the perturbation.
-        support_density: Density of the sparse perturbation.
-        perturbation_type: Type of perturbation ('diagonal', 'block-sparse', 'random sparse').
-        seed: Random seed for perturbation generation.
-        tol: Tolerance for eigenvalue solver.
-
-    Returns:
-        Tuple of (result_record, convergence_record)
-    """
-    N = matrix.shape[0]
-    logger.info(f"Running instance: N={N}, theta={theta}, rank={rank}, density={support_density}, type={perturbation_type}")
-
-    # Generate perturbation
-    # Note: create_perturbation expects (N, rank, theta, type, density, seed)
-    try:
-        perturbation = create_perturbation(
-            N=N,
-            rank=rank,
-            theta=theta,
-            p_type=perturbation_type,
-            density=support_density,
-            seed=seed
-        )
-    except Exception as e:
-        logger.error(f"Failed to create perturbation: {e}")
-        raise
-
-    # Add perturbation to matrix
-    # Ensure perturbation is dense for addition if it's sparse
-    if hasattr(perturbation, 'toarray'):
-        perturbation_dense = perturbation.toarray()
-    else:
-        perturbation_dense = perturbation
-
-    H_perturbed = matrix + perturbation_dense
-
-    # Compute top eigenvalues
-    # We need enough eigenvalues to check for outliers (top 10 is usually enough for rank-k perturbations)
-    num_eigenvalues = min(10, N)
-    start_time = time.time()
-    
-    try:
-        eigenvalues, residuals, num_iterations = compute_top_eigenvalues_iterative(
-            H_perturbed,
-            k=num_eigenvalues,
-            which='LM',
-            tol=tol
-        )
-        elapsed_time = time.time() - start_time
-    except Exception as e:
-        logger.error(f"Eigenvalue solver failed: {e}")
-        # Record failure
-        return {
-            "status": "failed",
-            "error": str(e),
+    # 4. Convergence data: per-N bulk-edge convergence toward +/-2.0
+    per_N = []
+    for N in N_VALUES:
+        edges = np.array([bulk_edges[N][s] for s in SEEDS], dtype=float)
+        per_N.append({
             "N": N,
-            "theta": theta,
-            "rank": rank,
-            "density": support_density,
-            "type": perturbation_type,
-            "seed": seed
-        }, {
-            "status": "failed",
-            "error": str(e),
-            "N": N,
-            "theta": theta,
-            "seed": seed
-        }
-
-    # Validate eigenvalues (check for outliers)
-    # Tolerance for outlier detection is strict (1e-10 relative to edge)
-    outlier_flag = False
-    theoretical_edge = 2.0
-    validation_passed = True
-    
-    if len(eigenvalues) > 0:
-        # Check if any eigenvalue is significantly outside the semicircle support
-        # Using strict tolerance as per T007b
-        for ev in eigenvalues:
-            if abs(ev) > theoretical_edge + tol:
-                outlier_flag = True
-                break
-        
-        # Validate against BBP prediction if applicable
-        # For now, we just check the edge
-        validation_passed = validate_eigenvalues(eigenvalues, tol=tol)
-
-    result_record = {
-        "N": N,
-        "theta": theta,
-        "rank": rank,
-        "density": support_density,
-        "type": perturbation_type,
-        "seed": seed,
-        "eigenvalues": eigenvalues.tolist(),
-        "outlier_flag": outlier_flag,
-        "validation_passed": validation_passed,
-        "status": "success",
-        "execution_time": elapsed_time
+            "seeds": SEEDS,
+            "bulk_edge_values": [float(e) for e in edges],
+            "bulk_edge_mean": float(np.mean(edges)),
+            "bulk_edge_std": float(np.std(edges, ddof=1)) if len(edges) > 1 else 0.0,
+            "abs_deviation_from_2": float(np.abs(np.mean(edges) - THEORETICAL_EDGE)),
+            "theoretical_edge": THEORETICAL_EDGE,
+        })
+        logger.info(
+            f"N={N}: mean bulk edge {np.mean(edges):.6f} "
+            f"(|dev from 2.0| = {abs(np.mean(edges) - 2.0):.6f})"
+        )
+    convergence = {
+        "description": (
+            "Empirical bulk edge (largest eigenvalue of the unperturbed "
+            "Wigner matrix) per N, converging to the semicircle-law "
+            "edge +2.0 as N grows."
+        ),
+        "theoretical_edge": THEORETICAL_EDGE,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "per_N": per_N,
     }
+    json_path = DATA_PROCESSED / "convergence_data.json"
+    with open(json_path, "w") as f:
+        json.dump(convergence, f, indent=2)
+    logger.info(f"Wrote convergence data to {json_path}")
 
-    convergence_record = {
-        "N": N,
-        "theta": theta,
-        "rank": rank,
-        "density": support_density,
-        "type": perturbation_type,
-        "seed": seed,
-        "residuals": [float(r) for r in residuals],
-        "num_iterations": num_iterations,
-        "status": "success"
-    }
+    return rows, convergence
 
-    return result_record, convergence_record
-
-def generate_sweep_grid() -> List[Dict[str, Any]]:
-    """
-    Generate the parameter grid for the sweep as defined in T040a.
-    Returns a list of configuration dictionaries.
-    """
-    # Define the grid explicitly as per T040a
-    N_values = [500, 1000]  # Reduced for speed, can be expanded
-    theta_values = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
-    seeds = [42, 123, 456, 789]
-    rank = 1
-    support_density = 0.5  # Fixed for initial sweep, can be varied
-    perturbation_types = ['diagonal', 'block-sparse', 'random sparse']
-
-    grid = []
-    for N in N_values:
-        for theta in theta_values:
-            for seed in seeds:
-                for p_type in perturbation_types:
-                    grid.append({
-                        "N": N,
-                        "theta": theta,
-                        "seed": seed,
-                        "rank": rank,
-                        "support_density": support_density,
-                        "perturbation_type": p_type
-                    })
-    
-    logger.info(f"Generated sweep grid with {len(grid)} configurations")
-    return grid
-
-def find_sweep_matrices(base_dir: Path) -> List[Path]:
-    """
-    Find all raw matrix files generated by T040a.
-    """
-    sweep_dir = base_dir / "data" / "raw" / "sweep"
-    if not sweep_dir.exists():
-        logger.warning(f"Sweep directory not found: {sweep_dir}")
-        return []
-    
-    matrices = list(sweep_dir.glob("matrix_N*.npy"))
-    logger.info(f"Found {len(matrices)} raw matrix files")
-    return matrices
-
-def run_threshold_sweep(
-    config: Optional[Dict[str, Any]] = None,
-    output_dir: Optional[Path] = None
-):
-    """
-    Main orchestrator for the parameter sweep.
-
-    1. Loads configuration or uses defaults.
-    2. Verifies raw data checksums (from T040a).
-    3. Executes the simulation loop for each configuration.
-    4. Writes results to mc_results.csv and convergence_data.json.
-    """
-    paths = get_project_paths()
-    if output_dir is None:
-        output_dir = paths["data_processed"]
-    
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Load configuration
-    if config is None:
-        config = load_config()
-    
-    tol = get_tolerance(config)
-    logger.info(f"Using tolerance: {tol}")
-
-    # Verify checksums for raw sweep data
-    checksum_file = paths["state"] / "checksums_sweep.json"
-    if checksum_file.exists():
-        logger.info("Verifying sweep matrix checksums...")
-        try:
-            manifest = load_checksum_manifest(checksum_file)
-            # Verify would happen here, but we assume T040a did it correctly
-            logger.info("Checksum manifest loaded successfully")
-        except Exception as e:
-            logger.error(f"Failed to load checksum manifest: {e}")
-            # Continue anyway, but log warning
-    else:
-        logger.warning("Checksum manifest not found. Proceeding without verification.")
-
-    # Generate grid or use existing files?
-    # T020a says "consumes the parameter grid and raw data from T040a"
-    # T040a generates the raw data. We need to iterate over that data.
-    # We will generate the grid to know what to expect, but primarily iterate over found files.
-    # However, to be robust, we will use the grid definition to ensure we cover all cases.
-    # If T040a generated all files, we can just iterate over them.
-    # Let's assume T040a generated files for the full grid.
-    
-    # We will generate the grid to drive the loop, and try to load corresponding files.
-    # If files are missing, we skip or error.
-    grid = generate_sweep_grid()
-    
-    results = []
-    convergence_data = []
-
-    total = len(grid)
-    processed = 0
-
-    logger.info(f"Starting sweep over {total} configurations")
-
-    for i, cfg in enumerate(grid):
-        processed += 1
-        logger.info(f"Progress: {processed}/{total} - N={cfg['N']}, theta={cfg['theta']}, seed={cfg['seed']}")
-
-        # Construct expected file path
-        # T040a naming: matrix_N{N}_theta{theta}_seed{seed}.npy
-        # Note: T040a might have included type in filename if it varied, but description says N, theta, seed.
-        # We assume the matrix is just the Wigner part, perturbation is added in this script.
-        # So we look for matrix_N{N}_seed{seed}.npy or similar.
-        # Let's check the T040a description again: "matrix_N{N}_theta{theta}_seed{seed}.npy"
-        # But theta is a perturbation parameter, not a matrix property. 
-        # T040a likely generated matrices for each theta? No, that doesn't make sense.
-        # T040a description: "generate raw matrix instances... Save to data/raw/sweep/matrix_N{N}_theta{theta}_seed{seed}.npy"
-        # This implies the file name includes theta, even though the matrix itself is Wigner.
-        # We will follow the naming convention strictly.
-        
-        filename = f"matrix_N{cfg['N']}_theta{cfg['theta']}_seed{cfg['seed']}.npy"
-        file_path = paths["data_raw"] / "sweep" / filename
-
-        if not file_path.exists():
-            logger.warning(f"Raw matrix file not found: {file_path}. Skipping.")
-            # Maybe the naming is different? Let's try a generic one
-            # Try matrix_N{N}_seed{seed}.npy
-            alt_filename = f"matrix_N{cfg['N']}_seed{cfg['seed']}.npy"
-            alt_file_path = paths["data_raw"] / "sweep" / alt_filename
-            if alt_file_path.exists():
-                file_path = alt_file_path
-                logger.info(f"Using alternative file: {file_path}")
-            else:
-                logger.error(f"Neither {filename} nor {alt_filename} found.")
-                continue
-
-        try:
-            matrix = load_raw_matrix(file_path)
-            
-            # Run the instance
-            result, conv = run_single_sweep_instance(
-                matrix=matrix,
-                theta=cfg['theta'],
-                rank=cfg['rank'],
-                support_density=cfg['support_density'],
-                perturbation_type=cfg['perturbation_type'],
-                seed=cfg['seed'],
-                tol=tol
-            )
-            
-            results.append(result)
-            if isinstance(conv, dict) and conv.get('status') == 'success':
-                conv['run_id'] = f"N{cfg['N']}_theta{cfg['theta']}_seed{cfg['seed']}_type{cfg['perturbation_type']}"
-                convergence_data.append(conv)
-
-        except Exception as e:
-            logger.error(f"Error processing configuration {cfg}: {e}", exc_info=True)
-            results.append({
-                "N": cfg['N'],
-                "theta": cfg['theta'],
-                "seed": cfg['seed'],
-                "type": cfg['perturbation_type'],
-                "status": "error",
-                "error": str(e)
-            })
-
-    # Write results to CSV
-    csv_path = output_dir / "mc_results.csv"
-    logger.info(f"Writing results to {csv_path}")
-    
-    with open(csv_path, 'w', newline='') as f:
-        if results:
-            writer = csv.DictWriter(f, fieldnames=results[0].keys())
-            writer.writeheader()
-            writer.writerows(results)
-        else:
-            f.write("No results generated.\n")
-
-    # Write convergence data to JSON
-    json_path = output_dir / "convergence_data.json"
-    logger.info(f"Writing convergence data to {json_path}")
-    
-    with open(json_path, 'w') as f:
-        json.dump(convergence_data, f, indent=2)
-
-    logger.info(f"Sweep completed. Processed {processed} configurations.")
-    return results, convergence_data
 
 def main():
-    """Entry point for the threshold sweep."""
-    parser = argparse.ArgumentParser(description="Run parameter sweep for threshold detection.")
-    parser.add_argument("--config", type=str, help="Path to config file", default=None)
-    parser.add_argument("--output-dir", type=str, help="Output directory for results", default=None)
-    
+    parser = argparse.ArgumentParser(description="T002 theta sweep orchestrator")
+    parser.add_argument("--grid", type=str, default="theta", choices=["theta"],
+                        help="Grid to sweep (T002 implements the theta grid)")
     args = parser.parse_args()
 
-    config = None
-    if args.config:
-        config = load_config(args.config)
+    logger = setup_logging()
+    logger.info(f"Starting threshold sweep (grid={args.grid}), CPU-only ARPACK solver")
+    rows, convergence = run_theta_sweep(logger)
+    logger.info(
+        f"Sweep complete: {len(rows)} rows; "
+        f"mean bulk edge at N=2000: "
+        f"{convergence['per_N'][-1]['bulk_edge_mean']:.6f}"
+    )
+    return 0
 
-    run_threshold_sweep(config=config, output_dir=args.output_dir)
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

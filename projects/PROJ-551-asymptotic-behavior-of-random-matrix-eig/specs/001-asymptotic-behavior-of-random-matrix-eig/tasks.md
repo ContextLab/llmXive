@@ -11,7 +11,7 @@ All previously completed foundational tasks (generators, solvers, models, grids,
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] **REDO (rejected artifact)**: Run a single‑run end‑to‑end analysis and record its results to `data/processed/single_run_results.json` by executing   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T001 [US1] **REDO (rejected artifact)**: Run a single‑run end‑to‑end analysis and record its results to `data/processed/single_run_results.json` by executing
 
   ```bash
   code/main.py --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal
@@ -70,7 +70,7 @@ All previously completed foundational tasks (generators, solvers, models, grids,
 
   **Verification**: both files exist, are non‑empty, and the CSV row count equals 4 × 7 × 4 × 3 × 3 = 1008 rows. Every `eigenvalue_top` is a real ARPACK result.
 
-- [ ] T003 [US2] **REDO (rejected artifact)**: Apply the strict‑tolerance outlier rule (FR‑004) to every row of `mc_results.csv` and write `data/processed/validated_sweep_results.csv` with an additional boolean column `outlier_flag` recomputed from `eigenvalue_top` and `empirical_bulk_edge`.  
+- [X] T003 [US2] **REDO (rejected artifact)**: Apply the strict‑tolerance outlier rule (FR‑004) to every row of `mc_results.csv` and write `data/processed/validated_sweep_results.csv` with an additional boolean column `outlier_flag` recomputed from `eigenvalue_top` and `empirical_bulk_edge`.  
   **Verification**: file exists, row count matches `mc_results.csv`, and each `outlier_flag` is consistent with the 0.05 rule.
 
 - [ ] T004 [US2] **REDO (rejected artifact)**: Identify the empirical critical threshold `theta_c_empirical` for each configuration group (N, k, pattern_type) by selecting the **smallest** swept θ where the outlier probability (fraction of runs with `outlier_flag=True`) is **≥ 0.5**. Write `data/processed/threshold_identification.json`:

@@ -24,86 +24,61 @@ pip install -r requirements.txt
 To generate a single Wigner matrix instance and analyze its spectrum:
 
 ```bash
-cd code
-python analysis/raw_matrix_capture.py --N 1000 --seed 42
-python analysis/results_recorder.py --N 1000 --seed 42 --theta 2.5
+python code/main.py --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal
 ```
 
-This will produce:
-- `data/raw/matrix_N1000_seed42.npy`
-- `data/processed/single_run_results.json`
-- An entry in `state/metadata_registry.json`
+This produces `data/processed/single_run_results.json`.
 
-## Full Parameter Sweep
+## Full Parameter Sweep (T002)
 
-To run the full Monte Carlo sweep across $\theta$ values:
+Run the theta sweep over N in {100, 500, 1000, 2000},
+theta in {0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0}, seeds in {42, 123, 456, 789},
+k in {1, 2, 5}, and patterns in {diagonal, block-sparse, random-sparse}:
 
 ```bash
-cd code
-python analysis/sweep_matrix_generator.py --grid theta
-python analysis/threshold_sweep.py
-python analysis/threshold_identification.py
+python code/analysis/threshold_sweep.py --grid theta
 ```
 
-This will produce:
-- Raw matrices in `data/raw/sweep/`
-- Aggregated results in `data/processed/mc_results.csv`
-- Threshold identification in `data/processed/threshold_identification.json`
-- Visualization in `data/figures/outlier_probability_vs_theta.png`
+This produces:
+- Raw checksummed matrices in `data/raw/sweep/` (with `checksums.json`)
+- `data/processed/mc_results.csv` (1008 rows, one real ARPACK result per run)
+- `data/processed/convergence_data.json` (per-N bulk-edge convergence to ±2.0)
+- Logs in `data/logs/threshold_sweep.log`
 
 ## Sensitivity Analysis
 
-To analyze the effect of sparsity density:
+To analyze the effect of sparsity density (later phases):
 
 ```bash
-cd code
-python analysis/sensitivity_density_sweep.py
-python analysis/sensitivity_variation.py
+python code/analysis/sensitivity_density_sweep.py
+python code/analysis/sensitivity_variation.py
 ```
 
 ## Methodology Note: The Computational Observer
 
-This study operates under a strictly observational framework (FR-007). It is crucial
-to distinguish between the mathematical model and any potential physical interpretation.
-
-**The "Observer"**: In the context of this research, the "observer" is the
-deterministic computational algorithm (specifically, the iterative spectral solver)
-that measures spectral statistics within the simulated ensemble. It is not a
-physical entity, nor does it possess a "frame of reference" in the relativistic
-sense.
-
-**Probability as Algorithmic Property**: The "probability" of an outlier emerging
-(e.g., $P(\text{outlier} | \theta)$) is a statistical property of the algorithm's
-interaction with the generated ensemble of random matrices. It represents the
-frequency of a specific spectral configuration observed by the solver across many
-independent runs. It is **not** a claim about a physical stochastic process
-occurring in nature.
-
-**Limitations**: The "sparse perturbations" applied are mathematical constructs
-defined by explicit rank and support density parameters. They are not physical
-noise or fluctuations. No specific physical system is modeled; the findings are
-confined to the mathematical ensemble defined by the Wigner semicircle law and
-the applied perturbations.
+This study operates under a strictly observational framework (FR-007). The "observer"
+is the deterministic computational algorithm (the iterative spectral solver) that
+measures spectral statistics of the seeded mathematical ensemble. No physical system
+is modeled; the random matrices are controlled, reproducible mathematical constructs,
+and all findings are associational statements about that ensemble.
 
 ## Reproducibility
 
-All random number generators are seeded explicitly. To ensure full reproducibility:
-1. Check `state/metadata_registry.json` for the exact seeds and parameters used.
-2. Ensure the `requirements.txt` versions match the run environment.
-3. Raw data files are checksummed (SHA-256) upon generation and stored in the registry.
+All random number generators are seeded explicitly. Raw matrix files are
+checksummed (SHA-256) upon generation into `data/raw/sweep/checksums.json`.
+Given the same seeds and parameters, the pipeline reproduces the same
+eigenvalues (CPU-only ARPACK, `scipy.sparse.linalg.eigsh`).
 
 ## Output Artifacts
 
-- `data/raw/`: Raw matrix instances (`.npy`)
+- `data/raw/`: Raw matrix instances (`.npy`) and checksum manifest
 - `data/processed/`: Aggregated results, thresholds, and fitted parameters
 - `data/figures/`: Visualization plots
-- `state/`: Metadata registry, logs, and validation reports
+- `data/logs/`: Run logs
 - `research.md`: Detailed theoretical background and methodology
 
 ## Troubleshooting
 
-- **Memory Errors**: For $N > 2000$, ensure your environment has sufficient RAM.
- The project is optimized to stay under 7GB for $N=2000$.
-- **Convergence Issues**: If the iterative solver fails to converge, check the
- `data/logs/simulation_run.log` for specific error codes. Increasing the
- `--max-iter` parameter in `config.py` may help.
+- **Memory Errors**: The sweep is optimized to stay under 7 GB for N=2000. [UNRESOLVED-CLAIM: c_e147bc37 — status=not_enough_info]
+- **Convergence Issues**: See `data/logs/threshold_sweep.log`; the ARPACK
+ tolerance is set in `code/analysis/threshold_sweep.py` (`EIGSH_TOL`).

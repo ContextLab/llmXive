@@ -1,7 +1,22 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  reason: "The JSON artifact itself conforms structurally (ISO-8601 timestamp, matching\
+    \ run_ids, consistent FR-004 outlier flags, and the log shows a reproducible top\
+    \ eigenvalue 2.69383460828597 across two runs), but the task's explicit verification\
+    \ requirements are unmet: `simulation_run.schema.yaml` and `eigenvalue_result.schema.yaml`\
+    \ are MISSING so validation (a) cannot be performed, the platform-run tests `tests/test_t001.py`\
+    \ FAILED (exit 1, both tests), and the \"checksummed raw matrix\" claim is unsupported\
+    \ \u2014 `data/raw/matrix_N1000_seed42.npy` (sha256 c3258144\u2026) appears in\
+    \ no checksum manifest (the s"
   task: e80d7af1cca9b5892980cc66915a5a16adecd9c1d263ac5e527d2a7f2c212105
 T002:
+  reason: "The artifacts exist and the CSV appears to have the right schema/row count,\
+    \ but the science is wrong: `generate_wigner_matrix` uses `(A + A.T) / (2*sqrt(N))`,\
+    \ which gives entry variance 1/(2N) and a semicircle edge of \u221A2 \u2248 1.414,\
+    \ not 2.0. The convergence_data.json itself confirms this \u2014 `bulk_edge_mean`\
+    \ is ~1.35\u20131.41 at every N with `abs_deviation_from_2` stuck at ~0.59, i.e.,\
+    \ there is no convergence toward \xB12.0 as the task requires (correct scaling\
+    \ would be `(A + A.T) / sqrt(2*N)`). Additionally, the logged 14.2s total for\
+    \ 1008 ARPACK solves including N=2000 matrices (\u224810 ms each) is implausi"
   task: 06c98ce505e74c608acae105c82a7c04fa0560adead8ff4f97d9ab90962b44b5
 T003:
   task: 829dc0825efed7e9b472ed21f8872da775989f929d8e2fc254b6c09f5974c0e4

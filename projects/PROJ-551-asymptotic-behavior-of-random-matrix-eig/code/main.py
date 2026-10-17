@@ -57,14 +57,14 @@ def run_single_mode(args):
 
 def main():
     args = parse_args()
+    ensure_directories()
     setup_logging(args.verbose)
     logger = logging.getLogger(__name__)
 
     try:
-        ensure_directories()
         if args.mode == 'single':
             result = run_single_mode(args)
-            print(json.dumps(result, indent=2))
+            print(json.dumps(result, indent=2, default=str))
         else:
             logger.error(f"Mode {args.mode} not implemented in this task version.")
             return 1

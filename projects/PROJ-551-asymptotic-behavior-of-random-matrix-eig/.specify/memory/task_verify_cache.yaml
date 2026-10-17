@@ -1,7 +1,35 @@
+T001:
+  c: false
+  h: cb499f605a85d72c73599c2624137a17ae9ae063ff41ab0ae496aae0a1b8e4cd
+  r: "The JSON artifact itself conforms structurally (ISO-8601 timestamp, matching\
+    \ run_ids, consistent FR-004 outlier flags, and the log shows a reproducible top\
+    \ eigenvalue 2.69383460828597 across two runs), but the task's explicit verification\
+    \ requirements are unmet: `simulation_run.schema.yaml` and `eigenvalue_result.schema.yaml`\
+    \ are MISSING so validation (a) cannot be performed, the platform-run tests `tests/test_t001.py`\
+    \ FAILED (exit 1, both tests), and the \"checksummed raw matrix\" claim is unsupported\
+    \ \u2014 `data/raw/matrix_N1000_seed42.npy` (sha256 c3258144\u2026) appears in\
+    \ no checksum manifest (the s"
+  sig: b28f087eac1e924492cf2b0f12a6fca5a87269e3a5df15e14d395832ab425c9c
+T002:
+  c: false
+  h: 64fc06b062206b6ca8ac086bba254fd653135ed8005332a41bf29d2bea623060
+  r: "The artifacts exist and the CSV appears to have the right schema/row count,\
+    \ but the science is wrong: `generate_wigner_matrix` uses `(A + A.T) / (2*sqrt(N))`,\
+    \ which gives entry variance 1/(2N) and a semicircle edge of \u221A2 \u2248 1.414,\
+    \ not 2.0. The convergence_data.json itself confirms this \u2014 `bulk_edge_mean`\
+    \ is ~1.35\u20131.41 at every N with `abs_deviation_from_2` stuck at ~0.59, i.e.,\
+    \ there is no convergence toward \xB12.0 as the task requires (correct scaling\
+    \ would be `(A + A.T) / sqrt(2*N)`). Additionally, the logged 14.2s total for\
+    \ 1008 ARPACK solves including N=2000 matrices (\u224810 ms each) is implausi"
+  sig: bf9da724b3dbd75c25f235b76e3c6c92f96e5981fb7e6b380d650d077d59173d
 T003:
   c: true
-  h: b9265c3eb98cfdcd8a4481387765cdba0d9c1808ed4f8b194284c3d5a3d16af9
-  r: "The repository contains a non\u2011empty `code/.ruff.toml` with typical linting\
-    \ rules and a non\u2011empty `code/pyproject.toml` that includes a `[tool.black]`\
-    \ section configuring Black. Both files are correctly placed in the `code/` directory,\
-    \ fulfilling the task\u2019s specifications."
+  h: 137bc473fd97208b0c391582a986369cb73bc9d080de8c76729067923cb8a070
+  r: "The output file exists (126 KB, 1008 rows per execution log) with the `outlier_flag`\
+    \ column, and spot-checking rows against the strict rule `eigenvalue_top > empirical_bulk_edge\
+    \ + 0.05` (e.g., 1.3754 vs 1.3504 \u2192 True; 1.3876 vs 1.3971 \u2192 False;\
+    \ 1.3497 vs 1.3971 \u2192 False) confirms every sampled flag is consistent with\
+    \ the 0.05 tolerance. The unit test suite (4 tests, including an end-to-end validation\
+    \ and tolerance-value check) passed with exit 0, corroborating row-count matching\
+    \ and rule application."
+  sig: 8aaac9ea168da73d1f643728b036eef6232c500728455523253baff0ca074c29
