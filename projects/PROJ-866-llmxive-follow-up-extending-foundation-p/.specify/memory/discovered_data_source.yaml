@@ -1,14 +1,17 @@
 status: none
-intent: synthetic multi-agent workflow dataset python package for policy graph generation
-  python package dataset
+intent: download synthetic multi-agent workflow dataset with policy graph and compression
+  logs python package dataset
 required_fields:
 - workflow_id
 - delegation_depth
+- policy_complexity
 - policy_constraints
 - budget_cap
-- metadata
-- ground_truth_execution_log
-- policy_violations
-cache_key: 4a51d3eaab23547b7bd84acf63e4b3917374eee93a5dd86875a8fb340c57a5da
-searched_at: '2026-10-11T03:16:54.534729+00:00'
+- full_context_log
+- compressed_context_log
+- ground_truth_state_machine_log
+- policy_violation_flags
+- deterministic_seed
+cache_key: 7a4702c9c33c8ed7fc63f0234ec48d26bd3754deae33aaaacbb0a965b2293971
+searched_at: '2026-10-17T05:24:05.539168+00:00'
 retry_count: 1

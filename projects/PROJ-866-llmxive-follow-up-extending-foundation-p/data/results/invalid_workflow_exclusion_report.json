@@ -1,0 +1,10 @@
+{
+  "total_invalid_workflows": 0,
+  "invalid_workflows_found_in_processed": [],
+  "invalid_workflows_found_in_csv": [],
+  "threshold_json_exists": false,
+  "status": "PASS",
+  "details": {
+    "message": "All invalid workflows correctly excluded from analysis."
+  }
+}
