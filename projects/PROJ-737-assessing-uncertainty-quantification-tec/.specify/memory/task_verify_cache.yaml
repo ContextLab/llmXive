@@ -9,16 +9,16 @@ T001:
   sig: 5a39947354a89238899a69dc8b435171b4c7675f9c62f70b0baddd872a1f9097
 T002:
   c: false
-  h: 398e4999d6059e1e13ad72d67b57fffcffa7022a35f7a41032443288517ff711
-  r: 'The required data artifacts (`data/raw/*.csv` and `data/raw/*_metadata.json`)
-    do not exist at all, and the recorded test run failed at collection (exit 2) with
-    an ImportError (pyarrow/NumPy incompatibility), so no download ever succeeded.
-    Additionally, `code/download.py` deviates from spec: it uses `load_dataset(repo)`
-    instead of the exact verified `resolve/main/*.csv` URLs, records non-matching
-    `source_url` values, uses `df.sample` rather than `itertools.islice` with seed
-    42, and the test file imports symbols (`DATASETS`, `DATA_RAW_DIR`, `CHECKSUM_MANIFEST`)
-    that `download.py` never defines.'
-  sig: 5b1908f6ea920b83fd9dbfb7f88065e740a6966a310c021772401c1b58d53bdd
+  h: 499486865dae8fa6863041192b8007ebbcf3c1d5c53e2a902b40b1340716b231
+  r: "The required data artifacts (`data/raw/band_gap.csv`, `formation_energy.csv`,\
+    \ `thermal_conductivity.csv`, and all `*_metadata.json` files) do not exist \u2014\
+    \ `data/raw/` contains only a `checksum_manifest.txt`. The recorded test run failed:\
+    \ the download aborted with a 401 Unauthorized from the HuggingFace URL, so no\
+    \ real data was ever fetched. Additionally, the test file imports `DATASETS`,\
+    \ `DATA_RAW_DIR`, `CHECKSUM_MANIFEST` which don't match the current `download.py`\
+    \ API (`DATASETS_INFO`, no manifest writer), indicating the code and tests are\
+    \ inconsistent and unexecuted successfully. The impleme"
+  sig: 12590681da09e32bf1eae791a02243fe7877f571bb398c0e3b802f2274fbabc3
 T004:
   c: false
   h: dabf8cc249f9efbad1d55426a39cc8500e18855514e00d69992707b82f3a935c

@@ -1,2 +1,19 @@
-# Additional third‑party dependencies required by the pipeline
-datasets
+# Core dependencies (already provided by the platform)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional packages required for the full pipeline
+xgboost
+torch
+matminer
+pymatgen

@@ -7,34 +7,36 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m code.main --thin -> rc=1
- line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 31, in <module>
-    from download import download_all
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 14, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-737-assessing-uncertainty-quantification-tec/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-737-assessing-uncertainty-quantification-tec/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-737-assessing-uncertainty-quantification-tec/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+e "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 363, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 223, in main
+    download_all()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 247, in download_all
+    _download_and_save(dataset_id, url, dest_csv)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 206, in _download_and_save
+    df_full = _download_csv(url)
+              ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 180, in _download_csv
+    response.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/oqmd/band_gap/resolve/main/band_gap.csv
 
 - python code/main.py  --max-samples 2000  --mc-dropout-passes 50  --ensemble-size 3  --coverage-sweep-start 0.80  --coverage-sweep-stop 0.99  --coverage-sweep-step 0.01  --seed 42 -> rc=1
-ost recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 31, in <module>
-    from download import download_all
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 14, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-737-assessing-uncertainty-quantification-tec/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-737-assessing-uncertainty-quantification-tec/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-737-assessing-uncertainty-quantification-tec/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+e "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 363, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 223, in main
+    download_all()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 247, in download_all
+    _download_and_save(dataset_id, url, dest_csv)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 206, in _download_and_save
+    df_full = _download_csv(url)
+              ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 180, in _download_csv
+    response.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/oqmd/band_gap/resolve/main/band_gap.csv
 
 
 ## Declared deliverables still missing

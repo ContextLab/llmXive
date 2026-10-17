@@ -1,52 +1,117 @@
 """
-Download module for the UQ pipeline.
-Fetches three materials datasets from HuggingFace using the `datasets` library,
-caps them to a deterministic 5 000‑row subset, computes SHA‑256 checksums,
-and writes accompanying metadata JSON files.
+Download and prepare raw material property datasets.
+
+This module provides utilities to download three verified CSV datasets
+(Band Gap, Formation Energy, Thermal Conductivity) from HuggingFace,
+cap them to a maximum of 5 000 rows deterministically, compute a SHA‑256
+checksum, and write accompanying metadata JSON files.
+
+The public API matches the signatures declared in the project
+specification and is used by ``code/main.py`` and the test suite
+``code/tests/test_download.py``.
 """
+
 import hashlib
 import json
 import logging
+import os
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict
 
 import pandas as pd
-from datasets import load_dataset
-from llmxive_toolkit import paths, get_logger
-
-log = get_logger(__name__)
+import requests
 
 # ----------------------------------------------------------------------
-# Helper utilities
+# Logger
+# ----------------------------------------------------------------------
+logger = logging.getLogger(__name__)
+
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+DATASETS_INFO = {
+    "band_gap": {
+        "url": "https://huggingface.co/datasets/oqmd/band_gap/resolve/main/band_gap.csv",
+        "property_name": "band_gap",
+    },
+    "formation_energy": {
+        "url": "https://huggingface.co/datasets/oqmd/formation_energy/resolve/main/formation_energy.csv",
+        "property_name": "formation_energy",
+    },
+    "thermal_conductivity": {
+        "url": "https://huggingface.co/datasets/aflow/thermal_conductivity/resolve/main/thermal_conductivity.csv",
+        "property_name": "thermal_conductivity",
+    },
+}
+
+MAX_ROWS = 5_000  # hard cap for the thin pipeline (as required by T002)
+SEED = 42  # deterministic seed for any random operation (not used here but kept for future extensibility)
+
+# ----------------------------------------------------------------------
+# Helper functions
 # ----------------------------------------------------------------------
 def compute_sha256(filepath: Path) -> str:
-    """Compute SHA‑256 checksum of a file."""
+    """
+    Compute the SHA‑256 checksum of a file.
+
+    Parameters
+    ----------
+    filepath: Path
+        Path to the file whose checksum should be computed.
+
+    Returns
+    -------
+    str
+        Hexadecimal SHA‑256 digest.
+    """
     sha256 = hashlib.sha256()
     with filepath.open("rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            sha256.update(chunk)
-    return sha256.hexdigest()
+        for block in iter(lambda: f.read(8192), b""):
+            sha256.update(block)
+    checksum = sha256.hexdigest()
+    logger.debug(f"Computed SHA‑256 for {filepath}: {checksum}")
+    return checksum
 
 
 def cap_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Cap the dataframe to a deterministic 5 000‑row subset.
-    Uses a fixed random seed (42) for reproducibility.
-    """
-    max_rows = 5000
-    if len(df) <= max_rows:
-        return df
+    Deterministically cap a DataFrame to ``MAX_ROWS`` rows.
 
-    df = df.sample(n=max_rows, random_state=42).reset_index(drop=True)
-    log.info(f"Capped dataframe to {max_rows} rows")
-    return df
+    The first ``MAX_ROWS`` rows are retained; this operation is
+    deterministic because it does not involve any random sampling.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Input DataFrame.
+
+    Returns
+    -------
+    pd.DataFrame
+        Possibly truncated DataFrame with at most ``MAX_ROWS`` rows.
+    """
+    if len(df) <= MAX_ROWS:
+        logger.debug(f"Dataset already within cap ({len(df)} ≤ {MAX_ROWS})")
+        return df
+    capped = df.iloc[:MAX_ROWS].reset_index(drop=True)
+    logger.info(f"Capped dataset from {len(df)} to {MAX_ROWS} rows")
+    return capped
 
 
 def save_dataframe(df: pd.DataFrame, target_path: Path) -> None:
-    """Write a DataFrame to CSV without the index."""
+    """
+    Write a DataFrame to CSV without the index.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame to write.
+    target_path: Path
+        Destination file path (including filename).
+    """
     target_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(target_path, index=False)
-    log.info(f"Wrote CSV to {target_path}")
+    logger.info(f"Wrote CSV to {target_path}")
 
 
 def write_metadata(
@@ -58,7 +123,28 @@ def write_metadata(
     metadata_path: Path,
     property_name: str,
 ) -> None:
-    """Write a JSON metadata file with the required fields."""
+    """
+    Write a JSON metadata file for a downloaded dataset.
+
+    The JSON contains the fields required by the task specification.
+
+    Parameters
+    ----------
+    dataset_id: str
+        Identifier of the dataset (e.g., ``band_gap``).
+    source_url: str
+        Exact URL used for the download.
+    original_n: int
+        Number of rows in the original, un‑capped CSV.
+    used_n: int
+        Number of rows actually written to the capped CSV.
+    checksum: str
+        SHA‑256 checksum of the written CSV file.
+    metadata_path: Path
+        Path where the JSON file will be saved.
+    property_name: str
+        Human‑readable name of the target property.
+    """
     metadata = {
         "dataset_id": dataset_id,
         "source_url": source_url,
@@ -68,80 +154,94 @@ def write_metadata(
         "checksum": checksum,
     }
     metadata_path.parent.mkdir(parents=True, exist_ok=True)
-    metadata_path.write_text(json.dumps(metadata, indent=2))
-    log.info(f"Wrote metadata to {metadata_path}")
+    with metadata_path.open("w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+    logger.info(f"Wrote metadata JSON to {metadata_path}")
 
 
-# ----------------------------------------------------------------------
-# Core download logic
-# ----------------------------------------------------------------------
-_DATASET_SPECS: Dict[str, Dict[str, Any]] = {
-    "band_gap": {
-        "repo": "oqmd/band_gap",
-        "property_name": "band_gap",
-        "source_url": "https://huggingface.co/datasets/oqmd/band_gap",
-    },
-    "formation_energy": {
-        "repo": "oqmd/formation_energy",
-        "property_name": "formation_energy",
-        "source_url": "https://huggingface.co/datasets/oqmd/formation_energy",
-    },
-    "thermal_conductivity": {
-        "repo": "aflow/thermal_conductivity",
-        "property_name": "thermal_conductivity",
-        "source_url": "https://huggingface.co/datasets/aflow/thermal_conductivity",
-    },
-}
-
-
-def _download_and_save(dataset_id: str, repo: str, dest_path: Path) -> pd.DataFrame:
+def _download_csv(url: str) -> pd.DataFrame:
     """
-    Download a dataset from the HuggingFace hub using the ``datasets`` library,
-    convert it to a pandas DataFrame, and write it as CSV to ``dest_path``.
-    Returns the loaded DataFrame.
+    Download a CSV file from ``url`` using ``requests`` and return a DataFrame.
+
+    Any HTTP error raises an exception; the caller must handle it.
+
+    Parameters
+    ----------
+    url: str
+        Direct URL to the CSV file.
+
+    Returns
+    -------
+    pd.DataFrame
+        Parsed CSV data.
     """
-    log.info(f"Downloading dataset '{dataset_id}' from repo '{repo}'")
-    # Load the full training split (most datasets expose a single split named 'train')
-    ds = load_dataset(repo, split="train")
-    df = ds.to_pandas()
-    save_dataframe(df, dest_path)
-    return df
+    logger.info(f"Downloading CSV from {url}")
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
+    # ``pandas.read_csv`` can read from a ``BytesIO`` object.
+    from io import BytesIO
+
+    return pd.read_csv(BytesIO(response.content))
+
+
+def _download_and_save(dataset_id: str, url: str, dest_path: Path) -> pd.DataFrame:
+    """
+    Download a dataset CSV, write the **capped** version to ``dest_path``,
+    and return the original (un‑capped) DataFrame.
+
+    Parameters
+    ----------
+    dataset_id: str
+        Identifier of the dataset.
+    url: str
+        URL to download.
+    dest_path: Path
+        Destination path for the capped CSV.
+
+    Returns
+    -------
+    pd.DataFrame
+        Original (full) DataFrame before capping.
+    """
+    df_full = _download_csv(url)
+    original_n = len(df_full)
+    df_capped = cap_dataframe(df_full)
+    used_n = len(df_capped)
+
+    # Write the capped CSV (this is what downstream code expects in ``data/raw``)
+    save_dataframe(df_capped, dest_path)
+
+    # Compute checksum of the written file
+    checksum = compute_sha256(dest_path)
+
+    # Write metadata JSON
+    metadata_path = dest_path.with_name(f"{dest_path.stem}_metadata.json")
+    property_name = DATASETS_INFO[dataset_id]["property_name"]
+    write_metadata(
+        dataset_id=dataset_id,
+        source_url=url,
+        original_n=original_n,
+        used_n=used_n,
+        checksum=checksum,
+        metadata_path=metadata_path,
+        property_name=property_name,
+    )
+    return df_full
 
 
 def download_all() -> None:
     """
-    Download all required datasets, cap them to 5 000 rows,
-    compute checksums, and write metadata JSON files.
+    Download all required datasets, cap them, compute checksums,
+    and write accompanying metadata JSON files.
+
+    The function aborts loudly on any failure (e.g., network error,
+    HTTP error, or unexpected file format) by propagating the exception.
     """
-    raw_dir = paths.data("raw")
+    raw_dir = Path(__file__).parents[1] / "data" / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    for dataset_id, spec in _DATASET_SPECS.items():
-        csv_path = raw_dir / f"{dataset_id}.csv"
-        metadata_path = raw_dir / f"{dataset_id}_metadata.json"
-
-        # Step 1 – download raw CSV (or fetch via datasets)
-        df = _download_and_save(dataset_id, spec["repo"], csv_path)
-
-        # Record original size before capping
-        original_n = len(df)
-
-        # Step 2 – cap to deterministic 5 000 rows
-        df_capped = cap_dataframe(df)
-
-        # Overwrite the CSV with the capped version
-        save_dataframe(df_capped, csv_path)
-
-        # Step 3 – compute checksum of the capped CSV
-        checksum = compute_sha256(csv_path)
-
-        # Step 4 – write metadata JSON
-        write_metadata(
-            dataset_id=dataset_id,
-            source_url=spec["source_url"],
-            original_n=original_n,
-            used_n=len(df_capped),
-            checksum=checksum,
-            metadata_path=metadata_path,
-            property_name=spec["property_name"],
-        )
+    for dataset_id, info in DATASETS_INFO.items():
+        url = info["url"]
+        dest_csv = raw_dir / f"{dataset_id}.csv"
+        logger.info(f"Processing dataset '{dataset_id}'")
+        _download_and_save(dataset_id, url, dest_csv)

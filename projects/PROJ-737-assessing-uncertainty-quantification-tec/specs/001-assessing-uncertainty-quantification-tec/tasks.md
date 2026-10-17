@@ -28,7 +28,7 @@ The checklist below implements the smallest complete, reproducible study that sa
   *Verification*: `code/tests/test_download.py` loads each metadata JSON, asserts the CSV exists, checksum matches, `n_samples_used ≤ 5000`, the `source_url` matches the verified URL above, and that the CSV contains a `composition` column and a numeric target with ≥ 100 non‑null rows.  
   *Path*: `code/download.py`, `data/raw/*.csv`, `data/raw/*_metadata.json`, `code/tests/test_download.py`
 
-- [ ] T003 [US1] **Featurize, split, and run a thin end‑to‑end analysis on a 100‑sample subset**   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T003 [US1] **Featurize, split, and run a thin end‑to‑end analysis on a 100‑sample subset**   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Implement* `code/featurize.py` to convert the `composition` column to feature vectors with `matminer` (fallback to elemental‑fraction vectors via `pymatgen` if any featurizer fails).  Write the processed files to `data/processed/<dataset_id>.csv`.  
   *Perform* a stratified 70 %/15 %/15 % train/val/test split by target‑property range; save split indices to `data/processed/<dataset_id>_split.json`.  
   *Implement* the four UQ method modules in `code/models/`:  
