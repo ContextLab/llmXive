@@ -12,13 +12,13 @@ T001:
   sig: 0b1ff4190933d189d7fc4a443d581cbfd1d9dd8f4d5c6f408c0239a4fa7837c6
 T002:
   c: true
-  h: 09dc7db13dfa8e7d254b0e9967eb4d38444f3b6821680ee3c1870e8d3fdd5f90
-  r: "Both required artifacts exist and are substantive: `code/power_analysis.py`\
-    \ implements a genuine Monte-Carlo simulation (1000 replicates, paired three-model\
-    \ design with within-subject correlation, scipy Friedman test, pinned seed 42\
-    \ from `code/seeds.py`), and `results/power_report.md` contains a numeric power\
-    \ estimate for n=500 (`estimated_power_n500: 1.0000`) plus an `exploratory: false`\
-    \ flag, which is exactly consistent with the code's rule (flag true iff power\
-    \ < 0.8) since 1.0 \u2265 0.8. The reported power of ~1.0 is statistically plausible\
-    \ for n=500 with d=0.5, and the report's design paramete"
-  sig: 033f21aa3b3a83efca338da7cce32592572a74474656e8ecbf162a5106c7c8d9
+  h: d9afe2acf1abb777ca7fe3772e8388c5ba3a5707554e6cc3dc0a89af6999fc11
+  r: 'Both required artifacts exist and are substantive: `code/power_analysis.py`
+    implements a genuine Monte-Carlo simulation (1000 replicates, paired three-model
+    design with within-subject correlation, Friedman test via scipy, pinned seed 42
+    from `code/seeds.py`), and `results/power_report.md` contains a numeric power
+    estimate for n=500 (`estimated_power_n500: 1.0000`) with an `exploratory: false`
+    flag that is exactly consistent with the code''s rule (flag true iff power < 0.8).
+    The reported power of ~1.0 is statistically plausible for a medium effect (d=0.5)
+    with n=500 paired samples, so the report'
+  sig: 63652aba87952643d0eeab8044f3fe82b0ea155e6e0ce3be56b9621a8bdfc1a8
