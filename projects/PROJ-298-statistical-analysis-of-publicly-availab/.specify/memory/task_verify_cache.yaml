@@ -1,3 +1,20 @@
+T002:
+  c: true
+  h: c0f025a92c53c60c1f5b0e9c88a5ea731853461152a577ca621a0138c3cfd5d7
+  r: "The `code/requirements.txt` file (resolved at `code/requirements.txt`, 234\u202F\
+    bytes) was examined and contains pinned versions of all required packages: pandas,\
+    \ scipy, statsmodels, scikit-learn, matplotlib, seaborn, pyaml, nbformat, psutil,\
+    \ and datasets. No required entry is missing, satisfying the task specification."
+  sig: eafe3e3cef222adab91aebf75ab8739ea2820a89846dfaeb43ffa9df9118e474
+T003:
+  c: false
+  h: 5d22498b4f0dab9135aa03a8c9565f0b74d612776f7ff3d2666bdd21acef4f92
+  r: "The `code/utils/hygiene.py` file exists, but the required state file `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml`\
+    \ is missing, and the unit test that checks hash calculation and state update\
+    \ fails because the state file is not created. Consequently, there is no evidence\
+    \ that running the helper records the correct SHA\u2011256 hash in the state YAML.\
+    \ The task\u2019s core requirement is therefore unmet."
+  sig: fcab6e4929f6444c91576267164e02d732bb65458254245af36ec34aa2ccdd9b
 T007:
   c: false
   h: eee54c9bb29a5ad6d5f43520ed3e43e4b81a79ee4211eda85c4734dc991c2104
@@ -21,61 +38,3 @@ T018:
   r: The required artifact `data/processed/trend_results.json` does not exist on disk,
     so the aggregation and finalization step cannot be verified. The implementer must
     create this file with the expected aggregated trend results.
-T030:
-  c: false
-  h: 2f56a0ce1aee02017613f437a30ed604b7e986766986fe679a2fbe4c12bf423a
-  r: The `code/analysis/clustering.py` file is truncated and does not contain a complete
-    implementation of the Cluster Label Alignment Score (the function is cut off).
-    Additionally, the required taxonomy file `data/taxonomy/survey_2023.json` is missing
-    from the repository. Both the core logic and the necessary data source are absent,
-    so the task is not genuinely fulfilled.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file with the required step\u2011by\u2011step reproducibility\
-    \ instructions is present, nor are there any documented updates to `projects/PROJ-298-statistical-analysis-of-publicly-availab/README.md`.\
-    \ The implementer provided no artifacts to verify that the documentation was created\
-    \ or modified."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No cleaned or refactored code files under `code/analysis/` are provided, nor
-    any linting reports or evidence that lint checks were run. The required artifacts
-    (updated source code and linting output) are missing, so the task is not satisfied.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `tests/unit/` files containing new unit tests for the Mann\u2011Kendall,\
-    \ Jaccard, or ADF functions are present; the provided evidence contains only the\
-    \ task description and no actual test code or files, so the required artifact\
-    \ is missing."
-T037a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact such as a requirements file, environment configuration, or a documented\
-    \ virtual\u2011environment setup script is present; the claim that dependencies\
-    \ are installed and a virtual environment is ready cannot be verified from any\
-    \ provided evidence. The implementer must supply concrete files (e.g., `requirements.txt`,\
-    \ `environment.yml`, `setup.sh`, or a reproducible `pipenv/conda` environment)\
-    \ and proof that they have been successfully created."
-T037b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No execution logs, timing records, or any evidence that the `quickstart.md`\
-    \ scripts were run on a CPU\u2011only runner are present. The required artifact\
-    \ (recorded total execution time \u2264\u202F6\u202Fhours) is missing."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No generated reports or visualizations were provided, so there is no way to\
-    \ verify that the mandatory limitation disclosure (\"Limitation: All findings\
-    \ are associational and do not imply causality.\") appears in every artifact as\
-    \ required by FR\u2011011. The implementer must supply the actual report files\
-    \ and visualization outputs for inspection."
-T053:
-  c: false
-  h: 171508999e8d81c2ab8bea9ab4bb2fc2c82cdc38be760ebf6621ba91755f0989
-  r: "The provided `clustering.py` defines a logging helper but never calls it, and\
-    \ the required log file `data/processed/clustering_warnings.log` does not exist.\
-    \ Consequently the fallback\u2011skip\u2011and\u2011log behavior for Levenshtein\
-    \ distances\u202F>\u202F2 is not demonstrated. The task remains unfinished."

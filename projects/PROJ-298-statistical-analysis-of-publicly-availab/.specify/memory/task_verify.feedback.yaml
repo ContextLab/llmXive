@@ -1,0 +1,57 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: cacfcba633ca4ebf97ba8d3acb2e3d393302e280c6ede79bffa8e0b59e8edf61
+T002:
+  task: 6db6aa9e4a251a04c55b5139aced4f10e812a9bb510cce527f44d8761c873d3f
+T003:
+  reason: "The `code/utils/hygiene.py` file exists, but the required state file `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml`\
+    \ is missing, and the unit test that checks hash calculation and state update\
+    \ fails because the state file is not created. Consequently, there is no evidence\
+    \ that running the helper records the correct SHA\u2011256 hash in the state YAML.\
+    \ The task\u2019s core requirement is therefore unmet."
+  task: 41807f2ac1606dd9c10ae77e52a125ed6c4a879566a66040fdfdf0448672972a
+T004:
+  task: c20d7779381a25c0fffc1402e6a742d6ac481faf9aca148bef91954a4041cc20
+T005:
+  task: d44a823e2f3abb797d5deefaf94412d100ca5eadb72294e5e91bbf3c2e65be28
+T006:
+  task: e38503dd01d63a5800b567b6ba98fa5da65d8659f69b5661722044866e0fa597
+T007:
+  task: 39724adbfa13a23f53bb38edb67cbb928f60bceee951310a8bd77987ffc6c056
+T008:
+  task: 49a3f57d49f7c0435e6f8068f68c33a4db488364e7cb18e1ae888c63ad45ed35
+T009:
+  task: ac52385a4979bafa327f268075e61b458591350a5ed080762f9261337dafb19c
+T010:
+  task: eb721366ed7bb8e746daf59bdb06ef248de4899a75cb5e19113e3a6baf38cc2e
+T010a:
+  task: 55764d2064958970554625b510144b7701388ecc170181fb090425bbd50cf8e5
+T011:
+  task: b0a2dea4c30ad5c7ff9b51ff5af215d160017a231c4c8b7bf023fafb7f7d5b51
+T012:
+  task: b38e5cac80b0b3f2ddd9f8cca115fc51983432db516b01b2cb2f531a0b9a1b08
+T012a:
+  task: e21b5df47eed9eaccb7a54ad5acd9d27dc73bc9aaaae32847ecdec26213bbfcd
+T013:
+  task: 0b17bc2f643858f967f445a0c6ab93007195ba718f07a8acc97ff04213d330a9
+T014:
+  task: fe83a38bcfea8cd889dfc3a76bf0cd30c6d2d08be8150d8e6f1c7a75ad2bfe69
+T015:
+  task: 009f60d264552b30a9431abbb533acc4b810f5a9dcbf7ebcad9e412de4ac7946
+T016:
+  task: ef317d1f4acc8b1972a6b3d8c2254c0e5db9e9ffced2e9fba767025369400ed2
+T017:
+  task: 4c4752faad34365ce86740d47f917a481ad3fb93375e5ba055c7c0940e1eb22a
+T018:
+  task: 6e94086387abf95585e39fdb76c09358772367095cbcf949b3b508857f7cf40c
+T019:
+  task: 9f8e2c617465a13ab56a0048138b21765cd9d798ff28b7091d0b19278973f918
+T020:
+  task: c3d4a5fe50f562fa144d0b2755ebf3b6c2f7dc813a37ed67afb95d53325cf0c7
+T021:
+  task: 2246e5ac05cf2ae21693a8d36c9b36026a44906da94270a70bb2118b136d9a83
+T022:
+  task: 57985703af4450077f0331ec2a6c9fd184404622a60524ecbec1bef191f2fbbd

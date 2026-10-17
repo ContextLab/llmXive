@@ -9,7 +9,7 @@ The list below groups related work into 15 substantive research tasks covering a
 - [ ] T001 [P] Create project root `projects/PROJ-298-statistical-analysis-of-publicly-availab/` with sub‑directories `code/`, `tests/`, `data/`, `notebooks/`, `state/`, `data/raw/`, `data/processed/`, `data/events/`, `data/taxonomy/`.  
   - Verify directory hierarchy exists and is writable.  
 
-- [ ] T002 [P] Add `code/requirements.txt` listing pinned versions of `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `nbformat`, `psutil`, `datasets`.  
+- [X] T002 [P] Add `code/requirements.txt` listing pinned versions of `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `nbformat`, `psutil`, `datasets`.  
   - Verify the file contains all expected packages (search for each name).  
 
 - [ ] T003 [P] Implement `code/utils/hygiene.py` for SHA‑256 hashing of primary artifacts and automatic updates of `state/projects/PROJ-298‑statistical‑analysis‑of‑publicly‑availab.yaml`.  

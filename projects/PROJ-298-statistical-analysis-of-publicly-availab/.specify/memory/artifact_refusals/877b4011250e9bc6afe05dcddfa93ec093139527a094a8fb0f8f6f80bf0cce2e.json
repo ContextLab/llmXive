@@ -1,0 +1,7 @@
+{
+  "task_id": "T004",
+  "fingerprint": "e2197865b7734c311dc3b5c535508113bbfcac1c5365b7e4ebe931d278bf5c37",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/utils/contract_validation.py': unresolved names ['sys'] \u2014 likely missing imports. Add the necessary `import` or `from ... import ...` statements.\n[implementer] refusing to write 'tests/test_contract_validation.py': imports nonexistent names from sibling files: `from code.utils.contract_validation import _default_contracts_dir` (available: Any, ContractValidationError, Dict, List, Optional, Path, Tuple, Union...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}
