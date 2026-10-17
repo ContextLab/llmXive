@@ -24,27 +24,9 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; 3 command(s) failed: python code/main.py --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal (rc=1); python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse (rc=2); python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3 (rc=2); 10 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_data.json; data/processed/mc_results.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; 2 command(s) failed: python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse (rc=2); python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3 (rc=2); 7 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/sensitivity_density_sweep.csv; data/processed/sensitivity_metadata.json
 
 ## Failing / missing run-book commands
-
-- python code/main.py --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal -> rc=1
-r/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 108, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 78, in main
-    logger = _setup_file_logging()
-             ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 34, in _setup_file_logging
-    logging.FileHandler(log_file, mode="a", encoding="utf-8"),
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
-    return open_func(self.baseFilename, self.mode,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-IsADirectoryError: [Errno 21] Is a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/data/logs'
 
 - python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse -> rc=2
 
@@ -62,12 +44,9 @@ main.py: error: unrecognized arguments: --densities 0.1,0.2,0.3
 ## Declared deliverables still missing
 
 - data/figures/outlier_probability_vs_theta.png
-- data/processed/convergence_data.json
-- data/processed/mc_results.csv
 - data/processed/sensitivity_density_sweep.csv
 - data/processed/sensitivity_metadata.json
 - data/processed/sensitivity_variation.csv
-- data/processed/single_run_results.json
 - data/processed/threshold_identification.json
 - data/processed/threshold_sweep_results.csv
 - data/processed/validated_sweep_results.csv
@@ -79,19 +58,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/figures/outlier_probability_vs_theta.png` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/plot_outlier_probability.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/figures/outlier_probability_vs_theta.png` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/convergence_data.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/threshold_sweep.py` — NOT invoked by the run-book
-    - `code/analysis/threshold_sweep_runner.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/convergence_data.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/mc_results.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/fit_utils.py` — NOT invoked by the run-book
-    - `code/analysis/monte_carlo_runner.py` — NOT invoked by the run-book
-    - `code/analysis/threshold_analysis_runner.py` — NOT invoked by the run-book
-    - `code/analysis/threshold_identification_raw.py` — NOT invoked by the run-book
-    - `code/analysis/threshold_sweep.py` — NOT invoked by the run-book
-    - `code/analysis/threshold_sweep_runner.py` — NOT invoked by the run-book
-    - `code/analysis/validate_sweep_results.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/mc_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/sensitivity_density_sweep.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/generate_sensitivity_report.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity_analysis.py` — NOT invoked by the run-book
@@ -106,12 +72,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/generate_sensitivity_report.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity_variation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_variation.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/single_run_results.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/results_recorder.py` — NOT invoked by the run-book
-    - `code/analysis/task019b_traceability.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
-    - `code/utils/results_logger.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/single_run_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/threshold_identification.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/critical_threshold_report.py` — NOT invoked by the run-book
     - `code/analysis/fit_utils.py` — NOT invoked by the run-book
@@ -127,6 +87,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/threshold_sweep_aggregator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/threshold_sweep_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/validated_sweep_results.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/apply_outlier_rule.py` — NOT invoked by the run-book
     - `code/analysis/critical_threshold_report.py` — NOT invoked by the run-book
     - `code/analysis/fit_utils.py` — NOT invoked by the run-book
     - `code/analysis/plot_outlier_probability.py` — NOT invoked by the run-book

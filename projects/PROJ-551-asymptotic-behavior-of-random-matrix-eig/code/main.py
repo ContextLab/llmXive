@@ -23,8 +23,8 @@ def _setup_file_logging():
     Configure a file logger that writes to data/logs/simulation_run.log.
     This satisfies the requirement for a log artifact.
     """
-    paths = get_project_paths()
-    log_file = paths.get("logs") or paths.get("data_logs") or (Path("data") / "logs" / "simulation_run.log")
+    # Use a concrete file path rather than a directory path returned by get_project_paths
+    log_file = Path("data") / "logs" / "simulation_run.log"
     log_file.parent.mkdir(parents=True, exist_ok=True)
 
     logging.basicConfig(

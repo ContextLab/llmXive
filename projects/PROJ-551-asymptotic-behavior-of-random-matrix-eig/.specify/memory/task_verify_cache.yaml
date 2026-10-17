@@ -1,12 +1,14 @@
 T002:
-  c: false
-  h: a2e899e3bfb9d23a2c5b4d91452c47e3e61ba0e0370992f7d66f5fcd2b0b5e51
-  r: "The required output artifacts `data/processed/mc_results.csv` and `data/processed/convergence_data.json`\
-    \ are both MISSING \u2014 only the `threshold_sweep.py` script exists. The task\
-    \ requires the sweep to have actually been executed (1008 rows of real ARPACK\
-    \ results plus convergence data), not merely the orchestrator code; the implementer\
-    \ must run the script and produce both non-empty output files."
-  sig: 25fb6a7792018b4f79bc219e8408b548f34ccbd390e81703e163eab2cf19544d
+  c: true
+  h: 635d26a2c9c772dfe9e9a3301f18bf4f6ce76ea51ff14b1adfda21e2734bd029
+  r: "The script, CSV (121 KB, correct 9 columns, values consistent with real ARPACK\
+    \ runs), and convergence JSON all exist and match the required grid; the execution\
+    \ log shows a real 1008-configuration run with checksummed raw matrices and bulk\
+    \ edges converging to 2.0 (1.915 \u2192 1.998), and the test log confirms the\
+    \ 1008-row count and JSON structure. The corrected 1/\u221AN Wigner scaling addresses\
+    \ the prior rejection, and eigenvalue trends (outliers emerging for \u03B8 > 1)\
+    \ are physically consistent with the BBP prediction."
+  sig: 0a3681f99ecd1c0e6c7195085ca52465aea0e6125f70cee106ab258b05ec075c
 T003:
   c: true
   h: 137bc473fd97208b0c391582a986369cb73bc9d080de8c76729067923cb8a070
