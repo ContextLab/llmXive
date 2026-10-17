@@ -18,15 +18,15 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.acquire_real   # downloads, verifies SHA‑256, maps to binary ground_truth_label -> rc=1
-urn _hf_hub_download_to_cache_dir(
+return _hf_hub_download_to_cache_dir(
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1194, in _hf_hub_download_to_cache_dir
     _raise_on_head_call_error(head_call_error, force_download, local_files_only)
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1953, in _raise_on_head_call_error
     raise head_call_error
-huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6ad2ae40-0a2b871712d997b94ebfc2db;0458a000-9d82-462c-9e91-f8224d60ead8)
+huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6ad2cd5c-2b5024424ec5171469dcbaaa;72762313-ad0f-40b8-b2c1-580a483d1b5e)
 
-Repository Not Found for url: https://huggingface.co/datasets/code_x_glue/cc_defect_detection/resolve/main/train.jsonl.
+Repository Not Found for url: https://huggingface.co/datasets/code_x_glue/defect_detection/resolve/main/train.jsonl.
 Please make sure you specified the correct `repo_id` and `repo_type`.
 If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
 For more details, see https://huggingface.co/docs/huggingface_hub/authentication

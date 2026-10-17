@@ -29,8 +29,8 @@ REAL_SAMPLE_SIZE = 500
 
 # Correct repository identifier for the CodeXGLUE defect‑detection dataset.
 # The dataset lives under the `code_x_glue` organization with the
-# sub‑repo `cc_defect_detection`.
-DATASET_REPO = "code_x_glue/cc_defect_detection"
+# sub‑repo `defect_detection`.
+DATASET_REPO = "code_x_glue/defect_detection"
 DATASET_FILENAME = "train.jsonl"
 
 def _sha256_of_file(file_path: Path) -> str:

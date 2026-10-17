@@ -1,5 +1,5 @@
 status: none
-intent: download TIDE evaluation dataset from HuggingFace python package dataset
+intent: download TIDE Python code evaluation dataset pip install python package dataset
 required_fields:
 - code
 - hidden_problem_label
@@ -9,6 +9,6 @@ required_fields:
 - dependency_depth
 - semantic_scope
 - syntactic_complexity
-cache_key: 303d1ff5d59cb95d71719a86427f4efdf0e8c8bd8b00d05f15cc7729ab4bad25
-searched_at: '2026-10-16T23:10:34.479934+00:00'
+cache_key: 34e2a33dc0ef5e400fc9e36daaab1452f4a26b9c1994be0070f56c9f45a0e78c
+searched_at: '2026-10-17T01:20:56.983044+00:00'
 retry_count: 1
