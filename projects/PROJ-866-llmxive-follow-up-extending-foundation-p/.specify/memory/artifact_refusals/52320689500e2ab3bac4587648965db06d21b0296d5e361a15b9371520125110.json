@@ -1,7 +1,0 @@
-{
-  "task_id": "T101",
-  "fingerprint": "030cf58d1ae5b0ed7b2546d2882825f8d8835693e9e672d7a5bf2a0a74ff3ab9",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'tests/integration/test_compression.py': imports nonexistent names from sibling files: `from engines.compressed_context import CompressedContextEngine` (available: build_parser, main, run_engine); `from engines.full_context import FullContextEngine` (available: build_parser, main, run_engine). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

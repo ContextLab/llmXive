@@ -48,7 +48,7 @@ class TestLoadExecutionLog:
             assert result is None
     
     def test_load_nonexistent_file(self):
-        """Test loading a non-existent file."""
+        """Test loading a non‑existent file."""
         log_path = Path("/nonexistent/path/file.json")
         result = load_execution_log(log_path)
         assert result is None
@@ -160,7 +160,7 @@ class TestFilterInvalidWorkflows:
             assert "invalid-1" in summary["invalid_workflow_ids"]
     
     def test_filter_nonexistent_directory(self):
-        """Test filtering a non-existent directory."""
+        """Test filtering a non‑existent directory."""
         logs_dir = Path("/nonexistent/directory")
         valid_workflows, invalid_workflows = filter_invalid_workflows(logs_dir)
         

@@ -23,22 +23,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-866-llmxive-follow-up-extending-foundation-p/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/src/cli/run_simulation.py': [Errno 2] No such file or directory
 
 - python -m pytest -v -> rc=2
--up-extending-foundation-p/tests/contract/../../engines/compressed_context.py)
-_ ERROR collecting projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/unit/test_invalid_workflow_filter.py _
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/unit/test_invalid_workflow_filter.py'.
+llecting ... collected 127 items / 1 error
+
+==================================== ERRORS ====================================
+_ ERROR collecting projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/contract/test_save_processed_logs_schema.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/contract/test_save_processed_logs_schema.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_invalid_workflow_filter.py:13: in <module>
-    from engines.invalid_workflow_filter import (
-E   ModuleNotFoundError: No module named 'engines.invalid_workflow_filter'
+tests/contract/test_save_processed_logs_schema.py:13: in <module>
+    from engines.save_processed_logs import save_processed_logs, load_json_file
+E   ModuleNotFoundError: No module named 'engines.save_processed_logs'
 =========================== short test summary info ============================
 ERROR tests/contract/test_save_processed_logs_schema.py
-ERROR tests/integration/test_compression.py
-ERROR tests/unit/test_invalid_workflow_filter.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 1.26s ===============================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 1.04s ===============================
 
 
 
@@ -58,7 +58,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/utils/data_hygiene_audit.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/compressed_context_logs.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/full_context_logs.json` is declared but was NOT written. Scripts referencing it:
-    - `code/engines/full_context.py` — NOT invoked by the run-book
     - `code/main.py` — NOT invoked by the run-book
     - `code/utils/data_hygiene_audit.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/full_context_logs.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

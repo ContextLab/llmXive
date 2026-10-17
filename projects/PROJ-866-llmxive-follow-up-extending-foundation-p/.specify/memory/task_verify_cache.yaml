@@ -1,0 +1,12 @@
+T101:
+  c: false
+  h: 7d82809295f3e74def4101d2e2784e010b06ac26232e8828fb8d480e15c7b414
+  r: "`code/main.py` exists and its content genuinely implements the generate \u2192\
+    \ compress \u2192 analyze orchestration with loud schema-validation failures,\
+    \ and the `--help` run is evidenced (exit 0, all flags documented). However, the\
+    \ task's other two verification requirements have no execution evidence: there\
+    \ is no record of a smoke run (`python code/main.py --generate --compress --analyze\
+    \ --n-workflows 20` exiting 0) and no record of `pytest` under `code/` passing\
+    \ \u2014 the only historical execution is the 0.1s help invocation. Additionally,\
+    \ the `data/results/` artifacts (e.g. `run_metrics.json` with durat"
+  sig: a1441016f873990c57ef680f6e2f07e48cd821863181a7f8cae1a01a9f12a23f

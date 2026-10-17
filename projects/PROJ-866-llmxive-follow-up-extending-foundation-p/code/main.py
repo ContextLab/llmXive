@@ -7,24 +7,11 @@ Orchestrator for the llmXive follow‑up project (feature
 
 Implements the full pipeline in one command:
 
-    generate → execute (full context + compressed context) → analyze
+    generate → execute (full and compressed) → analyze
 
 The orchestrator reuses existing modules under ``code/`` (the deterministic
 workflow generator, the full/compressed execution engines, and the
 trade‑off analysis pipeline in ``code/analysis/tradeoff_model.py``).
-
-The implementation follows a *detect‑and‑skip* strategy:
-
-* If the required artifact already exists (e.g. ``data/raw/workflows.json``),
-  the step validates the file against its contract and proceeds.
-* If the artifact is missing, the step attempts to invoke the corresponding
-  script **only if the script exists**; otherwise it aborts with a clear
-  error message.  This avoids hard‑coded paths to non‑existent files while
-  still ensuring that a complete run produces all declared outputs.
-
-The orchestrator fails loudly (non‑zero exit) on any subprocess failure,
-missing/empty output artifact, or schema‑validation error.  Token counting
-throughout the pipeline uses the ``cl100k_base`` tokenizer (FR‑009).
 
 Usage:
     python code/main.py --generate --compress --analyze

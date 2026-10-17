@@ -33,7 +33,3 @@ def test_full_vs_compressed():
         assert "policy_violations" in compressed_log
 
     print("All compression integration tests passed.")
-
-
-if __name__ == "__main__":
-    test_full_vs_compressed()

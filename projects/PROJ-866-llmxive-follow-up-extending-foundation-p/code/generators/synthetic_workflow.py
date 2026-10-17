@@ -1,100 +1,101 @@
 """
-Synthetic Workflow Generator
-----------------------------
+code/generators/synthetic_workflow.py
+-------------------------------------
 
-This module provides a deterministic generator for synthetic multi‑agent
-workflows used throughout the llmXive follow‑up project. It is invoked
-directly by the pipeline orchestrator (`code/main.py`) and also imported
-by the test suite (`generators.synthetic_workflow`).
+Deterministic synthetic workflow generator.
 
-The generator produces a list of workflow dictionaries, each containing:
-  * ``id`` – a unique string identifier.
-  * ``metadata`` – a mapping with at least ``depth`` and ``complexity``.
-  * Additional fields may be added later without breaking the contract.
-
-The deterministic design guarantees exactly 20 distinct delegation depths
-(0‑19) with a minimum of 25 workflows per depth when the total count is
-500 (the default used in the experiments). The random number generator
-is seeded to ensure reproducibility across runs.
+The script can be used as a command‑line tool (via ``--count``, ``--seed`` and
+``--output``) or imported as a module exposing the ``SyntheticWorkflowGenerator``
+class.  The generated workflows conform to ``contracts/workflow.schema.yaml``.
 """
 
 import argparse
 import json
+import random
 from pathlib import Path
 from typing import List, Dict
-import random
+
+DEFAULT_SEED = 42
+
 
 class SyntheticWorkflowGenerator:
-    """Generate deterministic synthetic workflows.
+    """Generate a list of synthetic workflow dictionaries.
 
-    Parameters
-    ----------
-    seed: int
-        Seed for the deterministic random number generator.
+    Each workflow contains a minimal directed graph with ``nodes`` and ``edges``,
+    plus a ``metadata`` block required by the schema.  The generation is fully
+    deterministic given a ``seed`` and ``count``.
     """
 
-    def __init__(self, seed: int = 42):
+    def __init__(self, seed: int = DEFAULT_SEED):
         self.seed = seed
-        self._rng = random.Random(seed)
+        self.rng = random.Random(seed)
+
+    def _make_node(self, idx: int) -> Dict:
+        """Create a single node dictionary."""
+        return {
+            "id": f"node-{idx}",
+            "type": "agent",
+            "constraints": [
+                {
+                    "id": f"constraint-{idx}",
+                    "type": "budget_cap",
+                    "compliant": self.rng.choice([True, False]),
+                }
+            ],
+        }
+
+    def _make_edge(self, src_idx: int, dst_idx: int) -> Dict:
+        """Create a directed edge from ``src_idx`` to ``dst_idx``."""
+        return {"source": f"node-{src_idx}", "target": f"node-{dst_idx}"}
 
     def generate_workflows(self, count: int) -> List[Dict]:
-        """Generate ``count`` synthetic workflow specifications.
-
-        The generator creates exactly 20 distinct ``depth`` values (0‑19)
-        and distributes the workflows uniformly across those depths.
-        Each workflow receives a random ``complexity`` value between 1
-        and 5 (inclusive). The ``id`` field is a zero‑padded string.
-
-        Parameters
-        ----------
-        count: int
-            Number of workflows to generate. Must be a multiple of 20
-            to guarantee the minimum‑per‑depth requirement; otherwise
-            the remaining workflows are distributed starting from depth 0.
-
-        Returns
-        -------
-        List[Dict]
-            List of workflow dictionaries.
-        """
-        if count <= 0:
-            raise ValueError("count must be a positive integer")
-
-        workflows: List[Dict] = []
-        depths = 20  # fixed number of distinct depths required by tests
-
+        """Generate ``count`` workflow objects."""
+        workflows = []
         for i in range(count):
-            depth = i % depths
-            # Random complexity per workflow; deterministic because of the seeded RNG
-            complexity = self._rng.randint(1, 5)
+            depth = self.rng.randint(1, 5)          # delegation depth
+            complexity = self.rng.randint(1, 10)    # arbitrary complexity metric
+            node_count = depth + 1                  # simple chain plus root
+            nodes = [self._make_node(j) for j in range(node_count)]
+            edges = [
+                self._make_edge(j, j + 1) for j in range(node_count - 1)
+            ]
 
             workflow = {
-                "id": f"wf_{i:04d}",
+                "id": f"workflow-{i}",
+                "nodes": nodes,
+                "edges": edges,
                 "metadata": {
                     "depth": depth,
                     "complexity": complexity,
+                    "node_count": node_count,
+                    "edge_count": len(edges),
                 },
             }
             workflows.append(workflow)
-
         return workflows
 
-def _parse_args() -> argparse.Namespace:
+    def write_to_file(self, workflows: List[Dict], output_path: Path) -> None:
+        """Serialize ``workflows`` as a JSON array to ``output_path``."""
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("w", encoding="utf-8") as fh:
+            json.dump(workflows, fh, indent=2)
+
+def _parse_args(argv: List[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        prog="synthetic_workflow_generator",
-        description="Generate deterministic synthetic workflows for the llmXive pipeline."
+        prog="synthetic_workflow",
+        description="Generate deterministic synthetic workflows."
     )
     parser.add_argument(
         "--count",
         type=int,
         required=True,
-        help="Number of workflows to generate (e.g., 500)."
+        help="Number of workflows to generate."
     )
     parser.add_argument(
         "--seed",
         type=int,
-        default=42,
-        help="Random seed for deterministic generation (default: 42)."
+        default=DEFAULT_SEED,
+        help="Random seed for deterministic generation."
     )
     parser.add_argument(
         "--output",
@@ -102,19 +103,13 @@ def _parse_args() -> argparse.Namespace:
         required=True,
         help="Path to write the generated workflows JSON file."
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
-def main() -> int:
-    args = _parse_args()
+def main(argv: List[str] | None = None) -> int:
+    args = _parse_args(argv)
     generator = SyntheticWorkflowGenerator(seed=args.seed)
     workflows = generator.generate_workflows(count=args.count)
-
-    # Ensure the output directory exists
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write the list of workflows as a JSON array
-    args.output.write_text(json.dumps(workflows, indent=2), encoding="utf-8")
-    print(f"[synthetic_workflow] generated {len(workflows)} workflows → {args.output}")
+    generator.write_to_file(workflows, args.output)
     return 0
 
 if __name__ == "__main__":

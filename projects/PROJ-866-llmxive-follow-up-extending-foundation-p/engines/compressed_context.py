@@ -1,12 +1,8 @@
 """
-Wrapper for the compressed‑context execution engine.
+engines.compressed_context
+---------------------------
 
-This module makes ``engines.compressed_context`` importable while
-delegating all functionality to the implementation in
-``code.engines.compressed_context``.
+Re‑export of the compressed‑context engine implementation.
 """
-from code.engines.compressed_context import (  # noqa: F401
-    run_engine,
-    build_parser,
-    main,
-)
+
+from code.engines.compressed_context import *  # noqa: F401,F403

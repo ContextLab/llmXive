@@ -1,11 +1,8 @@
 """
-Wrapper for the full‑context execution engine.
+engines.full_context
+--------------------
 
-This module makes ``engines.full_context`` importable while delegating
-all functionality to the implementation in ``code.engines.full_context``.
+Re‑export of the full‑context engine implementation.
 """
-from code.engines.full_context import (  # noqa: F401
-    run_engine,
-    build_parser,
-    main,
-)
+
+from code.engines.full_context import *  # noqa: F401,F403
