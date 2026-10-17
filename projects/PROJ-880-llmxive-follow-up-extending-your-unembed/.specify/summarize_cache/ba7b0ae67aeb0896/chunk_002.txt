@@ -1,0 +1,31 @@
+- **SC-007**: Correlation analyses are performed on **at least ten languages**; results include Pearson $r$, two‑tailed $p$‑value, and 95 % confidence interval, ensuring sufficient statistical power. (See FR‑016)
+- **SC-008**: All external dataset URLs are listed with verification timestamps and source citations in the final report, satisfying constitutional verification requirements. (See FR‑012)
+- **SC-009**: The ablation analysis (FR‑032) must yield a non‑significant correlation with WALS (p > 0.05), confirming that the original correlation is not driven by spurious frequency structure.
+- **SC-010**: The uniform‑frequency baseline (FR‑029) must show that language‑specific shift vectors differ significantly from the uniform baseline (p < 0.05), demonstrating genuine language‑driven effects.
+
+## Implementation Plan
+
+| Phase | Description | Primary Artifacts (stored under `data/derived/`) |
+|-------|-------------|---------------------------------------------------|
+| 1 | Load model weights, extract $W_U$, perform SVD to obtain top‑100 edge spectrum vectors (per language mask as per FR‑028). | `edge_spectrum.json` (conforms to `edge_spectrum.schema.yaml`) |
+| 2 | Acquire language‑filtered Common Crawl subsets (verified URLs from FR‑006), compute token frequency distributions, generate `frequency_list_{lang}.json` for each language. | `frequency_list_{lang}.json` |
+| 3 | Apply vocabulary mapping layer (size 11 200), compute token attribution and overlap ratios, store `token_attribution_{model}.json`. | `token_attribution_{model}.json` |
+| 4 | Compute mean embeddings via $W_U^{+} \times f$, compute uniform‑frequency baseline embeddings, and perform correlation analyses (FR‑029). Produce `validation.json`. | `validation.json` |
+| 5 | Run permutation test with ≥ 10 000 iterations, generate `permutation_test.json` containing component p‑values and Bonferroni‑adjusted combined p‑value, and create `similarity_metric.json`. | `permutation_test.json`, `similarity_metric.json` |
+| 6 | Conduct bootstrap resampling of token‑frequency observations, generate `bootstrap_test.json` (FR‑025) and `similarity_report.json` with 95 % CIs. | `bootstrap_test.json`, `similarity_report.json` |
+| 7 | Perform paired‑architecture control analyses (FR‑027) and ablation study (FR‑032), generate adjusted similarity reports and ablation results. | `control_analysis.json`, `ablation_report.json` |
+| 8 | Assemble all results, compute final feasibility metrics, and produce `feasibility_report.json`. | `feasibility_report.json` |
+
+All artifacts are validated against their respective JSON‑schema contracts (FR‑013) and timestamps/URL verifications are recorded (FR‑012, FR‑017).
+
+## Assumptions
+
+- The Hugging Face `transformers` library and `numpy` are available and sufficient to load the model weights and perform SVD on the unembedding matrices without GPU acceleration.
+- The "edge spectrum" is defined as the top‑100 singular vectors where $k = 100$, relative to the full matrix dimension, ensuring the subspace extraction fits within available RAM constraints.
+- The language‑filtered Common Crawl subsets for all target languages are publicly accessible via the verified URLs listed in FR‑006 and can be downloaded during the Data Acquisition phase.
+- The permutation test is computationally tractable on a standard multi‑core CPU for **≥ 10 000** iterations; if the runtime exceeds the 5‑hour threshold the system must log a warning and abort, requiring the user to allocate additional resources (as enforced by FR‑004).
+- The "mean embedding" projection method using the pseudo‑inverse of $W_U$ is a valid approximation for the "common sense" prior as proposed in the original EmbedFilter paper, with the understanding that it computes the vocabulary centroid in the unembedding space.
+- The models (Llama‑3, Mistral, BLOOM) are available in a format compatible with the `load_in_8bit` or `device_map="cpu"` parameters if necessary, but standard float32 loading is preferred to avoid CUDA dependencies.
+- The WALS database is accessible via a public API or downloadable CSV, and the mapping from model language codes to WALS language identifiers is deterministic.
+- Multilingual SentEval STS benchmarks are available for the target languages to provide an independent performance metric.
+- All contract schemas referenced are defined in the `contracts/` directory and are syntactically valid JSON Schema files.

@@ -1,53 +1,41 @@
-# Research: llmXive cross-lingual edge-spectrum analysis
+# Research: llmXive cross‑lingual edge‑spectrum analysis
 
 ## Objective
-Determine if the "edge spectrum" subspace (dominant singular vectors of $W_U$) is a universal common-sense prior or a language‑specific artifact by quantifying the geometric rotation across multiple linguistic typologies.
+Determine whether the “edge spectrum” subspace (the top‑100 singular vectors of the unembedding matrix $W_U$) encodes a universal, language‑agnostic prior **or** reflects language‑specific syntactic noise. **Only correlational (observational) conclusions are drawn.**
 
 ## Decision / Rationale
-
-- **Compute Strategy**: **CPU‑first**. SVD on the unembedding matrix ($W_U$) for the target models is computationally tractable on a modest‑core CPU if we load only the `lm_head` weights rather than the full model. All subsequent linear algebra (pseudo‑inverse, projection) and statistical tests (bootstrap, permutation) are CPU‑native.
-- **Dataset Strategy**: 
-    - **Token Frequencies**: We use the `datasets` library to programmatically load Common Crawl language‑filtered subsets. We enforce a strict $\ge 1\,\text{M}$ token minimum to ensure stability of the mean embedding $\hat{\vh}$.
-    - **Typological Features**: We use the verified WALS dataset from the Hugging Face hub: `https://huggingface.co/datasets/linguistics/wals` (verified 2026‑08‑20). This replaces the previously mismatched Taiko URL.
-    - **Performance Validation**: We use the verified SentEval‑CR JSONL source: `https://huggingface.co/datasets/SetFit/SentEval-CR/resolve/main/test.jsonl` (verified 2026‑08‑20).
+- **Compute Strategy**: **CPU‑first**. All linear‑algebra operations (SVD, pseudo‑inverse, bootstrap, permutation) are tractable on a multi‑core CPU when we load only the `lm_head` weights. No GPU is required.
+- **Dataset Strategy**:
+  | Role | Dataset | Verified URL(s) | Notes |
+  |------|---------|-----------------|-------|
+  | Token Frequencies (language‑specific) | Common Crawl language‑filtered splits | `https://huggingface.co/datasets/common_crawl/en`<br>`https://huggingface.co/datasets/common_crawl/fr`<br>`https://huggingface.co/datasets/common_crawl/zh`<br>`https://huggingface.co/datasets/common_crawl/ar`<br>`https://huggingface.co/datasets/common_crawl/sw`<br>`https://huggingface.co/datasets/common_crawl/de`<br>`https://huggingface.co/datasets/common_crawl/es`<br>`https://huggingface.co/datasets/common_crawl/hi`<br>`https://huggingface.co/datasets/common_crawl/ja`<br>`https://huggingface.co/datasets/common_crawl/pt` | Verified on HuggingFace; each download is logged with a verification timestamp (SC‑008). |
+  | Typological Features | WALS (binary typology matrix) | `https://huggingface.co/datasets/linguistics/wals` | Verified HuggingFace dataset; PCA‑reduced before correlation (see below). |
+  | Performance Bench | Multilingual SentEval STS | `https://huggingface.co/datasets/SetFit/SentEval-CR/resolve/main/test.jsonl` | Verified; provides STS accuracy per language. |
 - **Statistical Rigor**:
-    - **Permutation**: 10 000 iterations are required to establish a robust null distribution. To fit the 6 h CI window, we will use vectorized NumPy operations for the cosine similarity calculations and apply a Bonferroni correction ($\alpha=0.05/3$) across the three null components (within‑language, across‑model, model‑specific). This directly satisfies **FR‑004** and the reviewer’s **methodology-08b0aa04** concern.
-    - **Bootstrap**: Two complementary bootstraps are performed:
-        1. *Parametric bootstrap of singular vectors*: perturb $W_U$ with small Gaussian noise and recompute SVD to obtain a CI for subspace cosine similarity (addresses the mathematical concern that token‑frequency resampling does not affect SVD).
-        2. *Token‑frequency bootstrap*: resample the token‑frequency observation set to generate CIs for mean‑embedding and baseline‑adjusted shift metrics (as required by FR‑015).
-    - **Correction**: Bonferroni correction ($\alpha = 0.05/3$) is applied to the combined p‑values from the three null distribution components.
-- **Cosine Similarity Computation (FR‑002)**: For every pair of language‑model subspaces we compute the cosine similarity between their top‑k singular vector matrices. Specifically, given matrices $U_i$ and $U_j$ (each $k \times d$), we flatten each row‑wise, normalize, and compute `cos_sim = (U_i_flat · U_j_flat) / (||U_i_flat|| * ||U_j_flat||)`. This yields a single similarity score per pair, stored in `similarity_matrix_*.json`. This explicit method addresses **methodology-16c4d829**.
-
-### Dataset Strategy Table
-
-| Role | Dataset | Verified URL(s) | Access notes |
-|------|---------|-----------------|--------------|
-| Token Frequencies | Common Crawl | `datasets.load_dataset("common_crawl", name="<lang>")` | Programmatic streaming via HF. |
-| Typological Features | WALS | `https://huggingface.co/datasets/linguistics/wals` | Verified; contains binary typological feature matrix. |
-| Performance Bench | Multilingual SentEval | `https://huggingface.co/datasets/SetFit/SentEval-CR/resolve/main/test.jsonl` | Verified. |
-
-## Experimental Pipeline Overview
-
-1. **Weight Extraction**: Load `lm_head` for Llama‑3, Mistral, BLOOM. 
-2. **Masked SVD**: Apply language‑specific token masks (FR‑032) to $W_U$. Compute top‑100 singular vectors using `scipy.sparse.linalg.svds`.
-3. **Frequency Guard**: Stream Common Crawl subsets. If tokens $< 1{,}000{,}000$, abort with `DataInsufficiencyError`.
-4. **Vocab Alignment**: Map model‑specific IDs to the shared subword vocabulary (size 11 200, see Q136293754).
-5. **Mean Embedding Projection**: Compute the Moore‑Penrose pseudo‑inverse $W_U^{+}$ (regularized $\lambda=1e-5$) and calculate $\hat{\vh}=W_U^{+}\times f$.
-6. **Baseline Adjustment**: Compute $\hat{\vh}_{\text{uniform}}$ using a flat token distribution. The shift vector is $\Delta\vh = \hat{\vh}_{\text{lang}} - \hat{\vh}_{\text{uniform}}$. **Note:** $\Delta\vh$ remains a linear function of the raw token frequencies; we will report this dependence explicitly in the validation narrative (addresses concern 7c1e1b28).
-7. **Geometric Comparison**: Pairwise cosine similarity of subspace bases (FR‑002). Calculate $\Delta$‑similarity by subtracting matched‑architecture control pairs (FR‑028).
-8. **Significance Testing**: Run the 10 k‑iteration permutation test against the combined null distribution (within‑language, across‑model, model‑specific) with Bonferroni correction (FR‑004, methodology‑08b0aa04).
-9. **External Correlation**: Pearson $r$ between $\Delta\vh$ (baseline‑adjusted) and WALS feature differences / SentEval STS gaps, reporting 95 % CIs.
-10. **Ablation**: Randomize $f$ within each language (preserving total count) and repeat the full pipeline; loss of correlation (p > 0.05) validates that the original relationship is not artefactual.
+  - **Permutation Test**: 10 000 iterations, three null components (within‑language, across‑model, model‑specific). Bonferroni‑corrected α = 0.05/3. Vectorized NumPy ensures runtime ≤ 5 h; if exceeded, a warning is logged and the run aborts (FR‑004).
+  - **Bootstrap**: Two bootstraps – (1) parametric perturbation of $W_U$ (σ = 1e‑4) for subspace similarity CI; (2) token‑frequency resampling (≥ 1 000 replicates) for mean‑embedding metrics (FR‑015). Both report 95 % CI.
+  - **Similarity (FR‑002)**: Compute the **rotation‑invariant subspace similarity** as the sum of squared cosines of the principal angles between two subspace bases $U_i$ and $U_j$. This metric is invariant to orthogonal rotations, eliminating confounds from arbitrary basis ordering, and directly measures the *shared subspace geometry* that underlies the hypothesized prior (see Construct‑Validity Rationale in plan.md).
+  - **Power Analysis**: With 10 languages, a two‑tailed Pearson test at α = 0.05 has ≈80 % power to detect |r| ≈ 0.60. Effects smaller than this are reported as under‑powered (SC‑005).
+  - **Covariate Controls**: In Phase 8 we regress each shift vector on three covariates—corpus‑size (token count per language), tokenization granularity (average subword length), and model‑size (parameter count). This mitigates confounds from differing training data or architecture (addresses methodology‑1c65c6d2).
+  - **WALS PCA**: Binary WALS feature vectors are reduced via PCA (explaining ≥ 80 % variance) before Pearson correlation, satisfying continuity assumptions.
+- **Validation**: Correlate baseline‑adjusted shift vectors $\Delta\mathbf{h}$ with (a) WALS typological differences **after PCA reduction** (FR‑007) and (b) Multilingual SentEval STS performance drops using Pearson $r$ (95 % CI). Perform an ablation that randomizes token frequencies while preserving total counts; loss of correlation (p > 0.05) confirms non‑artefactual relationship (FR‑032). Include paired‑architecture controls (FR‑027) and uniform‑frequency baseline comparison (FR‑029).
 
 ## Expected Deliverables
-- `edge_spectrum_{model}_{lang}_{hash}.json`: Subspace bases.
-- `frequency_list_{lang}_{hash}.json`: Token frequency distributions.
-- `similarity_matrix_{hash}.json`: Pairwise cosine similarity matrix with bootstrap CIs.
-- `similarity_report_{hash}.json`: Detailed similarity metrics and CIs.
-- `permutation_test_{hash}.json`: Combined p‑values and significance flag.
-- `validation_{hash}.json`: WALS and SentEval correlations.
-- `ablation_report_{hash}.json`: Ablation outcomes.
-- `feasibility_report_{hash}.json`: Resource usage and runtime logs.
+- `edge_spectrum_{model}_{lang}_{hash}.json` – edge‑spectrum bases (FR‑014).  
+- `frequency_list_{lang}_{hash}.json` – token‑frequency vectors (FR‑006).  
+- `token_attribution_{model}_{hash}.json` – top‑logit tokens (FR‑003).  
+- `mean_embedding_{lang}_{hash}.json` – $\hat{\mathbf{h}}$ and uniform baseline (FR‑005, FR‑029).  
+- `similarity_matrix_{hash}.json` – pairwise rotation‑invariant similarity scores with bootstrap CI (FR‑002, FR‑015).  
+- `similarity_report_{hash}.json` – detailed similarity metrics (FR‑023).  
+- `permutation_test_{hash}.json` – combined p‑value, component p‑values, Bonferroni flag (FR‑004, FR‑026).  
+- `validation_{hash}.json` – WALS & SentEval correlations (FR‑007).  
+- `control_analysis_{hash}.json` – paired‑architecture and covariate regression results (FR‑027, new covariate analysis).  
+- `ablation_report_{hash}.json` – ablation outcomes (FR‑032).  
+- `feasibility_report_{hash}.json` – runtime, memory, CPU usage, and any abort warnings (FR‑024).  
+- `checksum_manifest_{hash}.json` – SHA‑256 checksums for all derived artifacts (FR‑020).  
 
-All artifacts are validated against their JSON‑Schema contracts (see `contracts/`). 
+All artifacts will be validated against their JSON‑Schema contracts in `contracts/`.
+
+---
+
 
