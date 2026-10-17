@@ -1,20 +1,18 @@
 T001:
-  reason: "The directory hierarchy and `specs/001-quantifying-correlations-between-solar-w/quickstart.md`\
-    \ (containing the required `python -m code.main --stage all` command) are present.\
-    \ However, there is no evidence that `code/main.py` (or `code/__init__.py`) exists\
-    \ \u2014 the collector only confirmed the `code/data/`, `code/analysis/`, `code/viz/`,\
-    \ and `code/tests/` subdirectories \u2014 so the required runnable entry point\
-    \ for `python -m code.main --help` is missing, and no execution evidence shows\
-    \ the verification command exits 0. Add `code/main.py` with a `--stage`/`--help`\
-    \ CLI (plus `code/__init__.py`) and d"
   task: d57b6dbabc16d1e7d22f1ddec3f16421e48727461789f674b20132268debc58b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/fetch_ace.py
     exit=2; code/data/fetch_noaa.py exit=2'
   task: 055ce390ee9b49c294d699087b93a6985e594b6f5e3d8a3c9f3588bbfc12414c
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/data/sync.py
-    exit=1'
+  reason: The required test `code/tests/test_sync.py` is MISSING, so the mandated
+    verification (`pytest code/tests/test_sync.py::test_sync_monthly`) cannot pass.
+    The output `data/processed/synced.csv` contains only 24 rows covering a single
+    day (2003-10-01) of obviously synthetic, perfectly-linear fixture data (no real
+    ACE/NOAA raw data exists in `data/raw/`), not a representative month of real data;
+    the fixture fallback fabricates the "real data" requirement. Additionally, no
+    interpolated rows exist (all `interpolated_flag=False`), so the gap-interpolation
+    behavior is untested/undemonstrated, and the s
   task: 80ab4d5bf43742922af56d184458765fc3d4842f9e145dddea2776fb3c40d877
 T004:
   task: 7aea0caec9c38c9be64c19846f86d6ce9e0caf264abc1be341926049ba029c59

@@ -1,0 +1,7 @@
+{
+  "task_id": "T004",
+  "fingerprint": "96fdf8351c2fe48b6e75e4ca3546bef81244bbbde9852c42bcf1c4eb2a7b37fd",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/test_correlation_output.py': SyntaxError at line 47: unterminated triple-quoted string literal (detected at line 47). Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 1633"
+}

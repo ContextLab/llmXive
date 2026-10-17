@@ -1,8 +1,12 @@
 """
-Package initializer for the `code` module.
-Sets up a shared logger instance used across submodules.
+Package initializer for the solar‑wind composition pipeline.
+
+Exposes a project‑wide logger that can be imported as
+``from code import logger`` throughout the code‑base.
 """
 from llmxive_toolkit import get_logger
 
-# Create a logger for the package; submodules can import `logger` from `code`.
+# Create a logger for the package; modules import this name.
 logger = get_logger(__name__)
+
+__all__ = ["logger"]

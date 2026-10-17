@@ -1,15 +1,25 @@
 T001:
+  c: true
+  h: 2c082243be0bc9fb91eec011074446a939e4a68a720574a629432f746ed54579
+  r: All required directories (`code/data/`, `code/analysis/`, `code/viz/`, `code/tests/`,
+    `data/raw/`, `data/processed/`, `results/`, `figures/`) exist and are non-empty,
+    `specs/001-quantifying-correlations-between-solar-w/quickstart.md` exists and
+    contains the exact command `python -m code.main --stage all`, and the execution
+    log shows `python -m code.main --help` exited 0 with a proper usage message, satisfying
+    the verification command's requirements.
+  sig: c5fa218bf9d475f82fb94e56562bd8404394643e7055ba21ed6bf167d4ca62b4
+T003:
   c: false
-  h: 784c5d8110c6e6a6f19d193c74a138ea8652ce0436cc83b801fa74e48b762161
-  r: "The directory hierarchy and `specs/001-quantifying-correlations-between-solar-w/quickstart.md`\
-    \ (containing the required `python -m code.main --stage all` command) are present.\
-    \ However, there is no evidence that `code/main.py` (or `code/__init__.py`) exists\
-    \ \u2014 the collector only confirmed the `code/data/`, `code/analysis/`, `code/viz/`,\
-    \ and `code/tests/` subdirectories \u2014 so the required runnable entry point\
-    \ for `python -m code.main --help` is missing, and no execution evidence shows\
-    \ the verification command exits 0. Add `code/main.py` with a `--stage`/`--help`\
-    \ CLI (plus `code/__init__.py`) and d"
-  sig: 048581941f10f0505f705f62e443c65457111122c7908a88ef9eeb67ea1d0e04
+  h: dbae956e04fd0efe1a0bd3c0c2c40550cbc39e9a5bbdf4525db2c38efdd93f50
+  r: The required test `code/tests/test_sync.py` is MISSING, so the mandated verification
+    (`pytest code/tests/test_sync.py::test_sync_monthly`) cannot pass. The output
+    `data/processed/synced.csv` contains only 24 rows covering a single day (2003-10-01)
+    of obviously synthetic, perfectly-linear fixture data (no real ACE/NOAA raw data
+    exists in `data/raw/`), not a representative month of real data; the fixture fallback
+    fabricates the "real data" requirement. Additionally, no interpolated rows exist
+    (all `interpolated_flag=False`), so the gap-interpolation behavior is untested/undemonstrated,
+    and the s
+  sig: e1e2737addb6df3af958c7842d139ce25ed4510f042cea4fd2b52487d79ea483
 T005:
   c: false
   h: 58b418a2cc42df68ff97c0487ecc9331459d9653698b02507efd69cd0785c4ab

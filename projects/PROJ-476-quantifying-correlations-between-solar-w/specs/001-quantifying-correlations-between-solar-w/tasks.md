@@ -8,7 +8,7 @@ The following checklist implements the complete end‑to‑end scientific study 
 
 ## Phase 1 – Data acquisition, synchronisation, and first end‑to‑end run  
 
-- [ ] **T001** [P] [US1] Create the project layout and a runnable quick‑start command.  
+- [X] **T001** [P] [US1] Create the project layout and a runnable quick‑start command.  
   - Create the directory hierarchy under the project root: `code/data/`, `code/analysis/`, `code/viz/`, `code/tests/`, `data/raw/`, `data/processed/`, `results/`, `figures/`.  
   - Add `specs/001-quantifying-correlations-between-solar-w/quickstart.md` that documents the exact CLI invocation:  
 
@@ -26,7 +26,7 @@ The following checklist implements the complete end‑to‑end scientific study 
 
     exits with status 0 and the quick‑start file contains the command line above.
 
-- [ ] **T002** [P] [US1] Implement real‑data fetchers in `code/data/fetch_ace.py` and `code/data/fetch_noaa.py`.   <!-- FAILED-IN-EXECUTION: code/data/fetch_ace.py exit=2; code/data/fetch_noaa.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_ace.py exit=-1; code/data/fetch_noaa.py exit=-1 -->
+- [ ] **T002** [P] [US1] Implement real‑data fetchers in `code/data/fetch_ace.py` and `code/data/fetch_noaa.py`.   <!-- FAILED-IN-EXECUTION: code/data/fetch_ace.py exit=2; code/data/fetch_noaa.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_ace.py exit=-1; code/data/fetch_noaa.py exit=-1 --> <!-- FAILED: unspecified -->
   - Functions: `fetch_ace(start_date: str, end_date: str) -> pathlib.Path` and `fetch_noaa(start_date: str, end_date: str) -> pathlib.Path`.  
   - Use the verified URLs:  
 
@@ -46,7 +46,7 @@ The following checklist implements the complete end‑to‑end scientific study 
 
     creates CSVs whose headers contain `N_p`, `T_p`, `He2+_ratio` (ACE) and `Kp`, `Dst` (NOAA).  A forced network outage (e.g., disconnecting internet) causes the command to raise `ConnectionError`.
 
-- [ ] **T003** [P] [US1] Synchronise and resample the two data streams in `code/data/sync.py`.   <!-- FAILED-IN-EXECUTION: code/data/sync.py exit=1 -->
+- [ ] **T003** [P] [US1] Synchronise and resample the two data streams in `code/data/sync.py`.
   - Load the raw ACE and NOAA CSVs, verify the presence of required variables (`N_p`, `T_p`, `He2+_ratio`, `Kp`, `Dst`). Abort with a clear error message if any are missing (FR‑006, SC‑002).  
   - Convert timestamps to UTC, resample both series to a **1‑hour** grid.  
   - Interpolate linearly over gaps **≤ 6 h**; for each interpolated interval log a warning and set `interpolated_flag = True`.  
