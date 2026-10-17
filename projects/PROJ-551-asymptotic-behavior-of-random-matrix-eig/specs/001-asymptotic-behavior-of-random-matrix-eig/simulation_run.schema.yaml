@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: SimulationRun
+type: object
+required:
+  - run_id
+  - timestamp
+  - seed
+  - N
+  - k
+  - theta
+  - pattern_type
+  - support_density
+  - computation_time_ms
+  - empirical_bulk_edge
+  - eigenvalues
+properties:
+  run_id:
+    type: string
+    format: uuid
+  timestamp:
+    type: string
+    format: date-time
+  seed:
+    type: integer
+  N:
+    type: integer
+    minimum: 1
+  k:
+    type: integer
+    minimum: 1
+  theta:
+    type: number
+  pattern_type:
+    type: string
+    enum: [diagonal, block-sparse, random-sparse]
+  support_density:
+    type: ["number", "null"]
+    minimum: 0
+    maximum: 1
+  computation_time_ms:
+    type: number
+    minimum: 0
+  empirical_bulk_edge:
+    type: number
+  eigenvalues:
+    type: array
+    minItems: 10
+    maxItems: 10
+    items:
+      $ref: "#/definitions/eigenvalue_result"
+definitions:
+  eigenvalue_result:
+    type: object
+    required:
+      - run_id
+      - eigenvalue_index
+      - value
+      - is_outlier
+      - theoretical_bbp
+      - deviation
+    properties:
+      run_id:
+        type: string
+        format: uuid
+      eigenvalue_index:
+        type: integer
+        minimum: 1
+      value:
+        type: number
+      is_outlier:
+        type: boolean
+      theoretical_bbp:
+        type: number
+      deviation:
+        type: number

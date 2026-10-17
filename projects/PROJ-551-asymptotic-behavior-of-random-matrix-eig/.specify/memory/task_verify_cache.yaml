@@ -1,14 +1,12 @@
 T002:
-  c: true
-  h: de0ecc454586dc854c4e2da0d418e3a606982b141d7a1d6c388e9a64afc382eb
-  r: "Both artifacts exist and are non-empty: `mc_results.csv` (121 KB, correct 9-column\
-    \ header, values consistent with the log's real ARPACK run) and `convergence_data.json`\
-    \ (per-N bulk edges converging to 2.0, matching the execution log exactly). The\
-    \ historical execution record shows exit 0 with the full 1008-configuration sweep,\
-    \ checksummed raw matrices, and the corrected 1/\u221AN scaling (bulk edge \u2248\
-    1.998 at N=2000), and the CSV size/content is consistent with 1008 data rows covering\
-    \ the full grid."
-  sig: 8eaeff7d6fe772381d1fb93f7baec99fa6009ba5f62f96dff45c234d3b9640e2
+  c: false
+  h: a2e899e3bfb9d23a2c5b4d91452c47e3e61ba0e0370992f7d66f5fcd2b0b5e51
+  r: "The required output artifacts `data/processed/mc_results.csv` and `data/processed/convergence_data.json`\
+    \ are both MISSING \u2014 only the `threshold_sweep.py` script exists. The task\
+    \ requires the sweep to have actually been executed (1008 rows of real ARPACK\
+    \ results plus convergence data), not merely the orchestrator code; the implementer\
+    \ must run the script and produce both non-empty output files."
+  sig: 25fb6a7792018b4f79bc219e8408b548f34ccbd390e81703e163eab2cf19544d
 T003:
   c: true
   h: 137bc473fd97208b0c391582a986369cb73bc9d080de8c76729067923cb8a070

@@ -9,10 +9,56 @@ root = Path(__file__).resolve().parent.parent
 if str(root) not in sys.path:
     sys.path.insert(0, str(root))
 
-from utils.config import ensure_directories
+# Project utilities
+from utils.config import ensure_directories, get_project_paths
 from analysis.simulation_loop import run_single_simulation
 from analysis.results_recorder import save_single_run_results
 from analysis.simulation_logging import log_simulation_start, log_simulation_end
+
+# Generator for raw Wigner matrices (used if the required raw file is missing)
+from generators.wigner import generate_wigner_matrix
+
+def _setup_file_logging():
+    """
+    Configure a file logger that writes to data/logs/simulation_run.log.
+    This satisfies the requirement for a log artifact.
+    """
+    paths = get_project_paths()
+    log_file = paths.get("logs") or paths.get("data_logs") or (Path("data") / "logs" / "simulation_run.log")
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler(log_file, mode="a", encoding="utf-8"),
+            logging.StreamHandler(sys.stdout),
+        ],
+    )
+    return logging.getLogger(__name__)
+
+def _ensure_raw_matrix(N: int, seed: int) -> Path:
+    """
+    Ensure that the raw matrix file ``data/raw/matrix_N{N}_seed{seed}.npy`` exists.
+    If it does not, generate it using the project's Wigner matrix generator
+    and store it under the expected path.
+    """
+    raw_dir = Path("data") / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    raw_path = raw_dir / f"matrix_N{N}_seed{seed}.npy"
+    if not raw_path.exists():
+        # Generate the matrix and save it
+        logging.info(f"Raw matrix not found at {raw_path}. Generating on‑the‑fly.")
+        matrix = generate_wigner_matrix(N, seed=seed)
+        # The generator returns a dense NumPy array; save as .npy
+        with open(raw_path, "wb") as f:
+            # Use NumPy's .save to preserve dtype/shape
+            import numpy as np
+            np.save(f, matrix)
+        logging.info(f"Generated raw matrix saved to {raw_path}")
+    else:
+        logging.info(f"Found existing raw matrix at {raw_path}")
+    return raw_path
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Random Matrix Eigenvalue Analysis")
@@ -27,8 +73,13 @@ def parse_args():
 
 def main():
     args = parse_args()
+    # Prepare directories (processed, logs, etc.)
     ensure_directories()
-    
+    logger = _setup_file_logging()
+
+    # Ensure the required raw matrix exists; the simulation loop expects it.
+    _ensure_raw_matrix(args.N, args.seed)
+
     if args.mode == 'single':
         params = {
             'N': args.N,
@@ -37,18 +88,20 @@ def main():
             'k': args.k,
             'pattern': args.pattern
         }
+        logger.info(f"Starting single simulation with params: {params}")
         log_simulation_start(params)
         try:
             result = run_single_simulation(params)
             log_simulation_end(result)
             save_single_run_results(result, args.output)
+            logger.info(f"Single run results written to {args.output}")
             print(json.dumps(result, indent=2))
             return 0
         except Exception as e:
-            logging.error(f"Simulation failed: {e}")
+            logger.error(f"Simulation failed: {e}", exc_info=True)
             return 1
     else:
-        print(f"Mode {args.mode} not implemented in this task.")
+        logger.error(f"Mode {args.mode} not implemented in this task.")
         return 1
 
 if __name__ == "__main__":

@@ -1,14 +1,12 @@
 T001:
-  reason: "The output JSON exists and its content is plausible (top eigenvalue 2.878\
-    \ near BBP 2.9, outlier flag consistent with FR-004), but several explicitly required\
-    \ artifacts are missing: `data/raw/matrix_N1000_seed42.npy` (the task says the\
-    \ script loads the checksummed raw matrix \u2014 no such file or `checksums_raw.json`\
-    \ entry exists on disk), the schema files `simulation_run.schema.yaml` and `eigenvalue_result.schema.yaml`\
-    \ (so validation criterion (a) cannot be checked), and `data/logs/simulation_run.log`\
-    \ (required log output is absent, giving no execution evidence). Additionally,\
-    \ the contract in the"
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: e80d7af1cca9b5892980cc66915a5a16adecd9c1d263ac5e527d2a7f2c212105
 T002:
+  reason: "The required output artifacts `data/processed/mc_results.csv` and `data/processed/convergence_data.json`\
+    \ are both MISSING \u2014 only the `threshold_sweep.py` script exists. The task\
+    \ requires the sweep to have actually been executed (1008 rows of real ARPACK\
+    \ results plus convergence data), not merely the orchestrator code; the implementer\
+    \ must run the script and produce both non-empty output files."
   task: 06c98ce505e74c608acae105c82a7c04fa0560adead8ff4f97d9ab90962b44b5
 T003:
   reason: 'declared artifact(s) missing/empty/invalid: data/processed/validated_sweep_results.csv'

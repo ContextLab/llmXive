@@ -11,42 +11,49 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”
 - code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse`
-  - script usage: `main.py [-h] [--mode {single,sweep,sensitivity}] [--N N] [--seed SEED]`
-  - argparse error: `main.py: error: unrecognized arguments: --iterations 100 --patterns diagonal,block-sparse,random-sparse`
-- run-book command: `python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3`
-  - script usage: `main.py [-h] [--mode {single,sweep,sensitivity}] [--N N] [--seed SEED]`
-  - argparse error: `main.py: error: unrecognized arguments: --densities 0.1,0.2,0.3`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; 2 command(s) failed: python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse (rc=2); python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3 (rc=2); 7 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/sensitivity_density_sweep.csv; data/processed/sensitivity_metadata.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; 3 command(s) failed: python code/main.py --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal (rc=1); python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse (rc=1); python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3 (rc=1); 10 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_data.json; data/processed/mc_results.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse -> rc=2
+- python code/main.py --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal -> rc=1
 
-usage: main.py [-h] [--mode {single,sweep,sensitivity}] [--N N] [--seed SEED]
-               [--theta THETA] [--k K] [--pattern PATTERN] [--output OUTPUT]
-main.py: error: unrecognized arguments: --iterations 100 --patterns diagonal,block-sparse,random-sparse
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 19, in <module>
+    from generators.wigner import generate_wigner_matrix
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/generators/__init__.py", line 4, in <module>
+    from .wigner import generate_wigner_matrix, save_raw_wigner_matrix, main
+ImportError: cannot import name 'save_raw_wigner_matrix' from 'generators.wigner' (/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/generators/wigner.py)
 
-- python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3 -> rc=2
+- python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse -> rc=1
 
-usage: main.py [-h] [--mode {single,sweep,sensitivity}] [--N N] [--seed SEED]
-               [--theta THETA] [--k K] [--pattern PATTERN] [--output OUTPUT]
-main.py: error: unrecognized arguments: --densities 0.1,0.2,0.3
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 19, in <module>
+    from generators.wigner import generate_wigner_matrix
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/generators/__init__.py", line 4, in <module>
+    from .wigner import generate_wigner_matrix, save_raw_wigner_matrix, main
+ImportError: cannot import name 'save_raw_wigner_matrix' from 'generators.wigner' (/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/generators/wigner.py)
+
+- python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3 -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 19, in <module>
+    from generators.wigner import generate_wigner_matrix
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/generators/__init__.py", line 4, in <module>
+    from .wigner import generate_wigner_matrix, save_raw_wigner_matrix, main
+ImportError: cannot import name 'save_raw_wigner_matrix' from 'generators.wigner' (/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/generators/wigner.py)
 
 
 ## Declared deliverables still missing
 
 - data/figures/outlier_probability_vs_theta.png
+- data/processed/convergence_data.json
+- data/processed/mc_results.csv
 - data/processed/sensitivity_density_sweep.csv
 - data/processed/sensitivity_metadata.json
 - data/processed/sensitivity_variation.csv
+- data/processed/single_run_results.json
 - data/processed/threshold_identification.json
 - data/processed/threshold_sweep_results.csv
 - data/processed/validated_sweep_results.csv
@@ -58,6 +65,19 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/figures/outlier_probability_vs_theta.png` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/plot_outlier_probability.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/figures/outlier_probability_vs_theta.png` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/convergence_data.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/threshold_sweep.py` — NOT invoked by the run-book
+    - `code/analysis/threshold_sweep_runner.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/convergence_data.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/mc_results.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/fit_utils.py` — NOT invoked by the run-book
+    - `code/analysis/monte_carlo_runner.py` — NOT invoked by the run-book
+    - `code/analysis/threshold_analysis_runner.py` — NOT invoked by the run-book
+    - `code/analysis/threshold_identification_raw.py` — NOT invoked by the run-book
+    - `code/analysis/threshold_sweep.py` — NOT invoked by the run-book
+    - `code/analysis/threshold_sweep_runner.py` — NOT invoked by the run-book
+    - `code/analysis/validate_sweep_results.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/mc_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/sensitivity_density_sweep.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/generate_sensitivity_report.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity_analysis.py` — NOT invoked by the run-book
@@ -72,6 +92,12 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/generate_sensitivity_report.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity_variation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_variation.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/single_run_results.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/results_recorder.py` — NOT invoked by the run-book
+    - `code/analysis/task019b_traceability.py` — NOT invoked by the run-book
+    - `code/main.py` — IS a run-book command
+    - `code/utils/results_logger.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/single_run_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/threshold_identification.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/critical_threshold_report.py` — NOT invoked by the run-book
     - `code/analysis/fit_utils.py` — NOT invoked by the run-book
