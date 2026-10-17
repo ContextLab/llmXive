@@ -20,7 +20,6 @@ from typing import Dict
 
 import pandas as pd
 import requests
-from huggingface_hub import hf_hub_download
 
 # ----------------------------------------------------------------------
 # Logger
@@ -175,7 +174,7 @@ def write_metadata(
 
 def _download_csv(url: str) -> pd.DataFrame:
     """
-    Download a CSV file from ``url`` using ``huggingface_hub`` and return a DataFrame.
+    Download a CSV file from ``url`` using ``requests`` and return a DataFrame.
 
     Any HTTP error raises an exception; the caller must handle it.
 
@@ -190,22 +189,21 @@ def _download_csv(url: str) -> pd.DataFrame:
         Parsed CSV data.
     """
     logger.info(f"Downloading CSV from {url}")
-
-    # The HuggingFace resolve URL has the form:
-    #   https://huggingface.co/datasets/<repo>/resolve/main/<filename>
-    # We extract <repo> (e.g. "oqmd/band_gap") and <filename>.
-    parts = url.split("/")
+    response = requests.get(url, stream=True, timeout=30)
     try:
-        idx = parts.index("datasets")
-    except ValueError as exc:
-        raise ValueError(f"Unexpected URL format for HuggingFace dataset: {url}") from exc
+        response.raise_for_status()
+    except requests.HTTPError as exc:
+        logger.error(f"Failed to download {url}: {exc}")
+        raise
 
-    repo_id = "/".join(parts[idx + 1 : idx + 3])  # organization/dataset
-    filename = parts[-1]
+    # Read the CSV directly from the response content.
+    # ``pd.read_csv`` can accept a file‑like object; we use BytesIO.
+    from io import BytesIO
 
-    # ``hf_hub_download`` will raise if the file cannot be retrieved.
-    local_path = hf_hub_download(repo_id=repo_id, filename=filename, repo_type="dataset")
-    return pd.read_csv(local_path)
+    content = BytesIO(response.content)
+    df = pd.read_csv(content)
+    logger.debug(f"Downloaded {len(df)} rows from {url}")
+    return df
 
 
 def _download_and_save(dataset_id: str, url: str, dest_path: Path) -> pd.DataFrame:

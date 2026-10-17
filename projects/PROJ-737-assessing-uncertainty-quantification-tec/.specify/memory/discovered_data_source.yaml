@@ -1,10 +1,10 @@
 status: none
-intent: download OQMD band gap and formation energy per atom dataset via matminer
+intent: OQMD and AFLOW band gap and formation energy dataset download via matminer
   python package dataset
 required_fields:
 - composition
 - band_gap
 - formation_energy_per_atom
-cache_key: 2e28fc0773cf7f8c718142a0fd883a971b0222d56b3f903d22a7ea598ddf8449
-searched_at: '2026-10-17T19:12:23.957071+00:00'
+cache_key: a3fbb6e9d385eef947651ac59338c5e84372dd053667f99f3baf453037f4201b
+searched_at: '2026-10-17T20:12:32.722705+00:00'
 retry_count: 1

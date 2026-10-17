@@ -1,22 +1,16 @@
 T001:
-  reason: "The quickstart.md contains all required content (command, four UQ methods,\
-    \ 2000-sample cap, seed-42 first-N rule, Wilcoxon rationale, Formation-Energy\
-    \ proxy note) and the schema YAML lists exactly the eight required columns. However,\
-    \ the task's Check requires a tiny test script that loads the schema YAML, asserts\
-    \ the column set, and exits 0 \u2014 no such script exists in the evidence, and\
-    \ no execution evidence (exit code, test output) was provided. Additionally, the\
-    \ supporting artifacts `results/per_sample_errors_schema_example.csv` and `results/per_sample_errors_schema.json`\
-    \ list only 7 columns ("
+  reason: "The quickstart.md and schema YAML exist with correct content (command,\
+    \ four methods, 2000-sample cap, seed-42 first-N rule, Wilcoxon rationale, Formation-Energy\
+    \ proxy note; exact 8 columns). However, the required check \u2014 a tiny test\
+    \ script that loads the schema YAML, asserts the column set, and exits 0 \u2014\
+    \ fails: `code/tests/test_per_sample_schema.py` exited 1 with a FileNotFoundError\
+    \ because it resolves the schema path relative to the repo root (`projects/specs/...`)\
+    \ instead of the project root (`projects/PROJ-737-.../specs/...`). Fix the path\
+    \ resolution in the test (e.g., anchor to the project"
   task: f4402e0775c234c7998237d3b91e84b177c6e616dda4e7b8c9ec36c0e7ce14bf
 T002:
-  reason: "The required data artifacts (`data/raw/band_gap.csv`, `formation_energy.csv`,\
-    \ `thermal_conductivity.csv`, and all `*_metadata.json` files) do not exist \u2014\
-    \ `data/raw/` contains only a `checksum_manifest.txt`. The recorded test run failed:\
-    \ the download aborted with a 401 Unauthorized from the HuggingFace URL, so no\
-    \ real data was ever fetched. Additionally, the test file imports `DATASETS`,\
-    \ `DATA_RAW_DIR`, `CHECKSUM_MANIFEST` which don't match the current `download.py`\
-    \ API (`DATASETS_INFO`, no manifest writer), indicating the code and tests are\
-    \ inconsistent and unexecuted successfully. The impleme"
+  reason: 'Requested task execution failed; rerun successfully: code/tests/test_download.py
+    exit=1'
   task: 845ce2fdea7c4dbfd47030040cfc1d3fc8b380d5e093a02fb2f73e5da27d8b21
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
