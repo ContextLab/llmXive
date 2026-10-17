@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "7f0597631cde584b886f8738011f8dca9f81d3b927f9d1b3a2b838d1a09a1571",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/unit/test_download_cod.py': imports nonexistent names from sibling files: `from download_cod import COD_BASE_URL` (available: Dict, List, Path, Structure, argparse, download_cifs, fetch_cif, is_organic_and_small...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

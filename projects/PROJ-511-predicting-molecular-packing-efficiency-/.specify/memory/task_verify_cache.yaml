@@ -1,3 +1,11 @@
+T001:
+  c: false
+  h: e49d0375fab5092c279e72ebefb6b5344b9ecd8fc8e55e46bd3606f46270f664
+  r: "The provided `code/constants.py` and `data/source_verification.json` exist and\
+    \ contain the required fields, but there is no evidence that the README was updated\
+    \ with the version tag, nor any proof (e.g., a curl log or test output) that the\
+    \ COD URL was actually reachable (HTTP\u202F200) as required for verification."
+  sig: 56c6128c27a47b0750a15f757e7d3f37c0b8b6b72a5f79610a8eaa486cc3afdb
 T015:
   c: false
   h: 3a4e0915e0874e4e7930c47c217869fd84a5bd780aaaf62fc5267b91122c663a

@@ -1,4 +1,8 @@
 T001:
+  reason: "The provided `code/constants.py` and `data/source_verification.json` exist\
+    \ and contain the required fields, but there is no evidence that the README was\
+    \ updated with the version tag, nor any proof (e.g., a curl log or test output)\
+    \ that the COD URL was actually reachable (HTTP\u202F200) as required for verification."
   task: bf39ee372b11394bd29d8cacf6d491076cea11b338cd89dbffaef49d5f4f9df0
 T002:
   task: 02bb89ef630fc5c826a814c281b5fa7bc126d9f5265a1c19e1d5d3de9ed331b9

@@ -1,17 +1,10 @@
-rdkit==2024.3.5
-torch==2.3.0+cpu
-scikit-learn==1.5.0
-pandas==2.2.2
-numpy==1.26.4
-requests==2.32.3
-tqdm==4.66.4
-jinja2==3.1.4
-statsmodels==0.14.2
-scipy==1.13.1
-matplotlib==3.9.0
-seaborn==0.13.2
-pyyaml==6.0.1
-jsonschema==4.22.0
-# Additional dependencies required by the pipeline but not explicitly listed in task description
-# to ensure compatibility with the provided API surface (e.g., cifio, biopython if needed later)
-# Note: torch-cpu is handled via the +cpu index flag in the torch line above
+# Project dependencies
+# Existing environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil
+#
+# Additional packages required for the COD download task
+pymatgen>=2023.9.0
+# rdkit is already available in the base environment for other tasks,
+# but we list it here for clarity.
+rdkit>=2023.9.0
