@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 67ef45c0d4ca03e783dc8ba18574cee4f67a29ce29c2e243e5e1d5e0957455fb
+  artifact_path: projects/PROJ-296-predicting-molecular-refractive-indices-/specs/001-predicting-molecular-refractive-indices/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/chemistry/ri_dataset`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/chemistry/ri_dataset
+  verified_at: '2026-10-17T03:27:44.419768Z'
+- artifact_hash: cd75f3cd70c7b1d9153601e94362a92ebb646b6182caa14a323b352fdfb746a8
+  artifact_path: projects/PROJ-296-predicting-molecular-refractive-indices-/specs/001-predicting-molecular-refractive-indices/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: torch-2.0.0+cpu.html
+  kind: url
+  value: https://data.pyg.org/whl/torch-2.0.0+cpu.html
+  verification_status: pending
+  verified_against_url: https://data.pyg.org/whl/torch-2.0.0+cpu.html
+  verified_at: '2026-10-17T03:28:09.054651Z'

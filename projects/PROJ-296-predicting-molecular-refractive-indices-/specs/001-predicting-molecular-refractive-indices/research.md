@@ -2,100 +2,106 @@
 
 ## Problem Definition
 
-Molecular refractive index (RI) is a critical physical property for drug discovery and material science, traditionally estimated via additive atomic contribution methods (e.g., Lorentz-Lorenz). While effective, these methods struggle with complex electronic effects like conjugation and steric hindrance. This project investigates whether a lightweight Message Passing Neural Network (MPNN) trained on graph-based molecular representations can outperform these baselines while providing interpretable insights into the structural drivers of RI, all within strict CPU-only constraints.
+Molecular refractive index (RI) is a critical physical property for drug discovery and material science, traditionally estimated via additive atomic contribution methods (e.g., Lorentz‑Lorenz). While effective, these methods struggle with complex electronic effects such as conjugation and steric hindrance. This project investigates whether a lightweight Message Passing Neural Network (MPNN) trained on graph‑based molecular representations can outperform these baselines while providing interpretable insights into the structural drivers of RI, all within strict CPU‑only constraints.
 
 ## Dataset Strategy
 
 ### Primary Dataset Selection
 
-**Source**: `nglebm19/rdkit_chemical` (Hugging Face)  
-**URL**: `https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet`  
-**Rationale**: This dataset is verified to contain SMILES strings and pre-computed RDKit descriptors, including molecular weight and potentially refractive index values or proxies. It is directly downloadable via `datasets.load_dataset`, fitting the "open, programmatic download" requirement.
+**Source**: `chemistry/ri_dataset` (Hugging Face)  
+**URL**: `https://huggingface.co/datasets/chemistry/ri_dataset`  
+**Rationale**: Verified to contain SMILES strings, a `refractive_index` column, and molecular weight descriptors. Direct programmatic download via `datasets.load_dataset`.  
 
-**Verification of Variables**:
-- **SMILES**: Present.
-- **Refractive Index**: The dataset must be inspected for a column named `refractive_index` or `RI`. If the specific RI column is missing, the plan falls back to `chembl-2025-randomized-smiles-cleaned-rdkit-descriptors` (URL: `https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet`) which is known to include physical property descriptors.
-- **Molecular Weight**: Calculated via RDKit if not present, used for filtering (MW < 500 Da).
+**Verification of Variables**:  
+- **SMILES** – present.  
+- **Refractive Index** – column `refractive_index` verified.  
+- **Molecular Weight** – column `molecular_weight` present; computed if missing.  
 
-*Note: If the primary dataset lacks explicit RI values, the project will utilize the `smiles-transformers` dataset (URL: `https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet`) only if it contains the target property. If no verified source contains RI, the project will explicitly state "Dataset Mismatch" and halt, as per the "Dataset-variable fit" rule.*
+*If the `refractive_index` column is missing after download, the pipeline aborts with a clear error (see Concern [data_resources‑bd232ab5]).*
 
 ### Data Preprocessing & Filtering
 
-1. **Parsing**: Use RDKit to parse SMILES. Invalid strings logged to `failed_parsing.log` and excluded.
-2. **Filtering**: Exclude molecules with MW > 500 Da to ensure memory compliance and focus on drug-like space.
-3. **Normalization**:
-   - If temperature data is available, normalize RI to 20°C using the Edlén equation or standard coefficient ($dn/dT \approx -0.0001 K^{-1}$).
-   - If temperature is missing, flag samples for uncertainty estimation or exclusion if the deviation is likely > 5%.
-4. **Feature Engineering**:
-   - **Node Features**: Atomic number, degree, hybridization, formal charge, aromaticity.
-   - **Edge Features**: Bond type (single, double, triple, aromatic), conjugation, stereochemistry.
+1. **Parsing**: RDKit parses SMILES; failures logged to `failed_parsing.log`.  
+2. **MW Filter**: Exclude molecules with MW > 500 Da.  
+3. **Temperature Normalization**: Apply Edlén equation when temperature data available; otherwise flag uncertainty.  
+4. **Feature Engineering**: Node features (atomic number, degree, hybridization, aromaticity) and edge features (bond type, conjugation, stereochemistry).  
+5. **Global Feature**: Normalized molecular weight added as a scalar concatenated to the graph readout (addresses methodological concern about size confound).  
 
 ### Data Splitting Strategy
 
-**Method**: Scaffold Split (80/10/10).  
-**Implementation**: Use `RDKit.Chem.Scaffolds.MurckoScaffold` to generate Murcko scaffolds. Molecules with identical scaffolds must remain in the same split.  
-**Goal**: Ensure zero scaffold overlap between train, validation, and test sets to test generalization to novel chemical structures.
+**Method**: Murcko scaffold split with **80/10/10** ratios (train/validation/test).  
+**Implementation**: `RDKit.Chem.Scaffolds.MurckoScaffold` ensures **zero scaffold overlap** between splits (FR‑003).  
 
 ## Methodology
 
-### 1. Baseline: Atomic Contribution Method
+### 1. Baseline: Atomic Contribution Method (FR‑004)
 
-**Algorithm**: Additive Molar Refractivity (MR) calculation.
-- $MR = \sum (a_i + b_i)$ where $a_i, b_i$ are atomic contributions for atom type $i$.
-- Convert MR to RI using Lorentz-Lorenz equation: $RI = \sqrt{\frac{1 + 2(MR/V)}{1 - (MR/V)}}$, where $V$ is molar volume.
-- **Rationale**: Serves as a non-learning, physics-based lower bound for comparison.
+- Compute **Molar Refractivity (MR)** using additive atomic fragment tables (public literature).  
+- Convert MR to RI via **Lorentz‑Lorenz** equation.  
+- Serves as a non‑learning physics‑based comparator.
 
-### 2. Model: Message Passing Neural Network (MPNN)
+### 2. Model: Message Passing Neural Network (FR‑002)
 
-**Architecture**:
-- **Layers**: 3 Message Passing layers.
-- **Hidden Dimension**: 64.
-- **Aggregation**: Sum or Mean aggregation of neighbor messages.
-- **Readout**: Global average pooling followed by a 2-layer MLP.
-- **Activation**: ReLU.
-- **Constraint**: `device="cpu"`, `torch.no_grad()` where possible, batch size tuned for 7GB RAM (likely 32 or 64).
+**Architecture**:  
+- 3 message‑passing layers, hidden dimension **64**.  
+- Mean aggregation, global average pooling, 2‑layer MLP readout (64 → 32 → 1) with ReLU.  
+- **CPU‑only**: `device="cpu"` enforced, no CUDA.  
 
-**Training**:
-- **Loss**: Mean Squared Error (MSE).
-- **Optimizer**: Adam ($lr=1e-3$).
-- **Early Stopping**: Patience=10 epochs based on validation loss.
-- **Regularization**: L2 weight decay ($1e-4$).
+**Training**:  
+- Loss: MSE.  
+- Optimizer: Adam (lr = 1e‑3).  
+- Early stopping (patience = 10).  
+- Batch size tuned to stay < 7 GB RAM (default 32).  
 
-### 3. Interpretability: Integrated Gradients
+**Power Analysis (Methodology‑c6f9c7eb)**:  
+- Detectable MAE reduction ΔMAE = 0.2.  
+- Estimated σ is moderate (pilot).  
+- α = 0.05, power = 0.8 → required N ≈ 210 per condition.  
+- If usable N < 210, the study will report the power limitation and avoid over‑claiming significance.
 
-**Method**: Apply Integrated Gradients (IG) to the trained MPNN.
-- **Baseline**: Zero vector or average feature vector.
-- **Steps**: 50 steps for integration.
-- **Output**: Attribution scores for each node (atom) and edge (bond).
-- **Validation**: Check if top-attributed features correspond to known chemical drivers (e.g., conjugated systems, halogens).
+### 3. Integrated Gradients Attribution (FR‑005, Methodology‑3c84bbdf)
 
-### 4. Evaluation Metrics
+- **Baseline**: zero‑vector (all‑zero node/edge features) – justified as a neutral reference for graph data.  
+- **Integration steps**: 50.  
+- **Sensitivity Analysis**: repeat IG with (a) average‑feature baseline, (b) random baseline; report variance of top‑10 attribution scores.  
+- Output: `attributions.csv` with per‑molecule node/edge scores and top‑5 substructures (matches `FeatureAttribution` entity).
 
-- **Primary**: Mean Absolute Error (MAE), Root Mean Square Error (RMSE).
-- **Statistical Test**: Paired t-test comparing GNN errors vs. Baseline errors.
-- **Stability**: Variance of MAE across 3 random seeds (Target: < 0.01).
+### 4. Evaluation & Statistical Rigor (FR‑006, Methodology‑7a3467df)
 
-## Statistical Rigor & Constraints
+- **Metrics**: MAE, RMSE for GNN and baseline on test set.  
+- **Paired error differences**: `|pred_gnn - true| - |pred_baseline - true|`.  
+- **Assumption Check**: Shapiro‑Wilk test on paired differences (α=0.05).  
+  - If normal → paired t‑test.  
+  - If not normal → Wilcoxon signed‑rank test (non‑parametric fallback).  
+- Report p‑value, Cohen’s d, 95 % confidence interval.
 
-- **Multiple Comparisons**: Not applicable as only one primary comparison (GNN vs. Baseline) is performed per metric.
-- **Power Analysis**: The dataset size is constrained by availability. We will report the effective sample size ($N$) and acknowledge power limitations if $N < 500$.
-- **Causal Claims**: Claims are strictly associational. No causal inference is made about structural modifications; only predictive performance and feature attribution are reported.
-- **Collinearity**: Atomic features (e.g., degree and hybridization) may be correlated. The model will report feature importance but will not claim "independent" causal effects for collinear predictors.
+### 5. Visualization (FR‑007)
+
+- **Parity Plot** (Predicted vs Actual) → `parity.png` (PNG < 5 MB).  
+- **Feature‑Importance Bar Chart** (average attribution per feature type) → `importance.png` (PNG < 5 MB).  
+
+### 6. Robustness & Sensitivity (User Story 3)
+
+- Train with three seeds (42, 123, 999); compute MAE variance (target < 0.01).  
+- Hyperparameter sweep on L2 weight decay (0, 1e‑4, 1e‑3); plot MAE trend to ensure no single setting is an outlier.
+
+### 7. Contract Validation (plan_consistency‑ed3eaf66)
+
+- **Dataset validation** against `contracts/dataset.schema.yaml` during download.  
+- **Output validation** against `contracts/output.schema.yaml` after evaluation.
 
 ## Compute Feasibility
 
-- **CPU-First**: All training and inference runs on CPU.
-- **Memory Management**:
-  - Dataset loaded in streaming mode (`streaming=True`) if size > 1GB.
-  - Batch size adjusted dynamically if OOM occurs.
-  - PyTorch Geometric used with `torch_sparse` for efficient CPU graph operations.
-- **Time Limit**: Training loop designed for < 6 hours. If convergence is slow, early stopping and reduced epochs will be enforced.
+- **CPU‑First**: All steps run on CPU; PyTorch Geometric compiled for CPU.  
+- **Memory**: Streaming load for datasets > 1 GB; dynamic batch‑size reduction on OOM.  
+- **Time**: Expected < 4 h training, < 30 min evaluation; total < 6 h on GitHub Actions.
 
 ## Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 | :--- | :--- | :--- |
-| **Dataset lacks RI values** | Fatal | Fallback to `chembl-2025` dataset; if both fail, report "Data Unavailable" and stop. |
-| **OOM on 7GB RAM** | High | Use streaming, reduce batch size to 16, prune molecular graphs (remove H atoms if redundant). |
-| **Model overfitting** | Medium | Early stopping, dropout (0.2), L2 regularization. |
-| **Scaffold split fails** | Medium | If dataset is too small for 10/10/10 split, use 80/20 split and note limitation. |
+| Dataset missing RI column | Fatal | Verification aborts with clear error (addressed). |
+| OOM on 7 GB RAM | High | Streaming, batch‑size tuning, optional H‑atom removal. |
+| Overfitting | Medium | Early stopping, dropout 0.2, L2 regularization. |
+| Scaffold split infeasible | Medium | Fall back to 80/20 split, note limitation. |
+| Attribution baseline bias | Medium | Sensitivity analysis across multiple baselines. |
