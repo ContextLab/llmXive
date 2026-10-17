@@ -1,0 +1,43 @@
+T001:
+  reason: "The repository contains `requirements.txt` and `code/utils/io_utils.py`\
+    \ that set the seeds, and a passing seed\u2011consistency test, but there is no\
+    \ artifact showing that a virtual environment was created and that `pip freeze`\
+    \ was run to verify the installed (pinned) package versions. Provide a pip\u2011\
+    freeze output (or similar proof) and, if required, exact version pins in `requirements.txt`."
+  task: e3af1dd229ffe87236b521b8abbf52daaad1346096b67eb2ee51221d5f6555e0
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data_loader.py
+    exit=1'
+  task: f2ff47f5634c7ce56db0583595f8756207e27c2b61c0a45178b52e0144399404
+T003:
+  task: 59d2a3f6095e3a30b5ca2b9a333df9fad54934ec8539c5fdd308768e7f2a151e
+T004:
+  task: 12c0e36ab1d195b6f78c9dd9604ce3db3e2702bdbe33c7b941b860343f413dc2
+T005:
+  task: e4d7e34f8e34c194f9cffd276895242d106de2709c0d1d95568669eaad749a4a
+T006:
+  task: 9ea2130ae516c3302fa7dc2957b7674aab7cdae8d895c886e27a3fff7b299317
+T008:
+  task: d64eefa8aaa919babd93ce1e889ce93522e690faa32425264fda8509a35da728
+T009:
+  task: cf7dfb7fdf9bbd3bb2512c4ea81e6884ed349d713deb4e85497cc86024d44902
+T010:
+  task: 226629fb494bb1ac9214f87c79f0882aa102678b297f0e2c3ea7b7511e338c45
+T011:
+  task: 6dfdb0284c9259b8f186b628fa8716b047e0bb80a04337012446991cdc283c6d
+T012:
+  task: 898ebeffa406d59e84eaf18d5769ddc8aa0a55246501baa6e2932f0da24f1b77
+T013:
+  task: b66c780687af8622da66fa410d4f0c77f51d03c82514292140413538106c9c31
+T015:
+  task: 5f93db27f9ba3198e206a6a7a086a4ad2e7012f7424ab1ba40ac3362f3dd3ae7
+T016:
+  task: 633da142f0c264c61ccca000c5bad59a81fbdc68a58560bcc846e98bfa17a5be
+T017:
+  task: 341e18e7aea51216652e3e4760f3774c192f50bff8001ddec002d13a49a72ed2
+T018:
+  task: 08590fd60edee973c30143eadf9ef17014d591e51c0c4940a69c9c94b0163675
+T019:
+  task: 0d2f5aecf7c0c83400cfb7e672af529cedaf617350abbc7c818420ae20ffc713
+T057:
+  task: 4f123ce00e37bb87fdbd04a67d8085889957ee49d4a30d553c0ff0dc0ff7e1c3

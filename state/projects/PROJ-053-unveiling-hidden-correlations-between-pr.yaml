@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T19:38:20.160566Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-053-unveiling-hidden-correlations-between-pr
-last_run_id: 4d0a9016-440b-4f86-b857-bd5cca39d8fe
+last_run_id: 2e79637a-5c6a-47cf-856c-41f6340d957c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr
 title: Unveiling Hidden Correlations Between Processing Parameters and Mechanical
   Properties in Additively Manufactured Alloys
-updated_at: '2026-10-17T18:33:49.273995Z'
+updated_at: '2026-10-17T18:35:49.842362Z'

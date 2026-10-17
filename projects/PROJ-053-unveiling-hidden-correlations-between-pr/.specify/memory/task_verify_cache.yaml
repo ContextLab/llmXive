@@ -1,51 +1,9 @@
-T022:
+T001:
   c: false
-  h: f2075164f7ebdae0f2b4511124f9bff4fe77365d6ab88b9af9e5e3997f649854
-  r: "The required `data/processed/preprocessing.log` file does not exist, so no log\
-    \ entries were written for imputation counts, dropped columns, or normalization\
-    \ statistics. The task\u2019s core artifact is missing."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data, or visualization files were provided showing that `normalization_bounds.json`
-    was read and used to label axes with physical units in the T034/T035 visualizations.
-    The required artifact (updated visualization scripts and resulting figures with
-    annotated units) is missing.
-T039:
-  c: false
-  h: 594f126da85c10677372bbe2279981b62c3873352c7b292688929721252c773d
-  r: The `code/config.py` correctly defines `TIME_LIMIT_SECONDS = 21600`, but `code/main.py`
-    only logs an error when the limit is exceeded instead of asserting or issuing
-    a CRITICAL warning, and it does not raise an exception. Moreover, the required
-    output file `results/metrics.json` is missing, indicating the runtime metrics
-    are not actually being saved. The implementer must add a proper assertion/critical
-    log and ensure `save_runtime_metrics` creates the `results/metrics.json` file.
-T043:
-  c: false
-  h: 7b9f48edf3535b2b63dbb3e3256021713f871af478cd9e0c25cc10dc2a21e89d
-  r: The `results/confounder_analysis.json` file is absent, and there is no evidence
-    that the required result directories (`results/contour_plots/` and `results/uncertainty_heatmaps/`)
-    were created. Moreover, the `main_e2e.py` script does not set or enforce `PYTHONHASHSEED=0`.
-    These missing artifacts and requirements mean the task is not fully satisfied.
-T044:
-  c: false
-  h: ad6b66c618528ea6eb7a5409ea964d212c3170b2578ec8fc5480458bf023be5a
-  r: "The `docs/paper.md` file exists but the required `results/confounder_analysis.json`\
-    \ is missing, and the paper does not clearly incorporate the scope\u2011reduction\
-    \ log (T016A) nor explicitly reference the baseline importance source from T031.\
-    \ These omissions mean the task\u2019s full requirements are not satisfied."
-T051:
-  c: true
-  h: 5523aeb83cb8d2138b0e6858a71a503f23552ce430b66f1566d537e269c7a69d
-  r: "The `tests/unit/test_download.py` file exists (7\u202FKB) and defines three\
-    \ test cases: one confirming no exception when the file exists, one asserting\
-    \ a `SystemExit` (via `sys.exit`) with exit code\u202F1 when the file is missing,\
-    \ and a third test (truncated in the preview) intended to verify the error\u2011\
-    message content. This matches the task\u2019s requirement to test both the exception\
-    \ and its message."
-T055:
-  c: false
-  h: 5b6fb6626fb7055cd5da181e6aa980bd75e8519c7687dd74899ed358c0c63f47
-  r: The `code/models/residual_analysis.py` file is present, but the required output
-    file `results/residual_analysis.json` does not exist, so the deliverable and verification
-    condition are not satisfied.
+  h: b612c44f3a3eadeb89b61746bc15e46cf2ce1af7e649fca991b034414d29914e
+  r: "The repository contains `requirements.txt` and `code/utils/io_utils.py` that\
+    \ set the seeds, and a passing seed\u2011consistency test, but there is no artifact\
+    \ showing that a virtual environment was created and that `pip freeze` was run\
+    \ to verify the installed (pinned) package versions. Provide a pip\u2011freeze\
+    \ output (or similar proof) and, if required, exact version pins in `requirements.txt`."
+  sig: c90922e55e0428bbef880c28c9aa61ac7c8c3e64094e7f00d1106b2bb4062aea
