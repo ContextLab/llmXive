@@ -1,3 +1,5 @@
-datasets>=2.19.0
-pyarrow>=15.0.0
-tqdm>=4.66.2
+# Project dependencies
+# Core packages (already available in the environment) are not listed here.
+# Added packages required for the download script.
+pandas
+pyarrow
