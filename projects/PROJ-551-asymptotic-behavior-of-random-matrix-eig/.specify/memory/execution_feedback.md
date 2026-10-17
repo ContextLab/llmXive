@@ -12,46 +12,57 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”
 - code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- data/processed/single_run_results.json: metric is null/NaN (support_density) — not a real measurement
-- every produced artifact is gitignored (data/processed/single_run_results.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse`
-  - script usage: `main.py [-h] [--mode MODE] [--N N] [--seed SEED] [--theta THETA]`
-  - argparse error: `main.py: error: unrecognized arguments: --iterations 100 --patterns diagonal,block-sparse,random-sparse`
-- run-book command: `python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3`
-  - script usage: `main.py [-h] [--mode MODE] [--N N] [--seed SEED] [--theta THETA]`
-  - argparse error: `main.py: error: unrecognized arguments: --densities 0.1,0.2,0.3`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/config.py: function `get_seed` returns a bare RNG draw (line 106) — a reported value computed from no real input; code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; 1 hollow-result signal(s) — the analysis ran but computed nothing: data/processed/single_run_results.json: metric is null/NaN (support_density) — not a real measurement; every produced artifact is gitignored (data/processed/single_run_results.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse (rc=2); python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3 (rc=2); 5 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/sensitivity_density_sweep.csv; data/processed/sensitivity_metadata.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/config.py: function `get_seed` returns a bare RNG draw (line 106) — a reported value computed from no real input; code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; 6 command(s) failed: python -m src.cli run  --mode single  --N 1000  --theta 2.5  --k 1  --pattern diagonal  --seed 42 (rc=1); python -m src.cli sweep  --N 2000  --theta-grid 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0  --k 1 2 5  --patterns diagonal block-sparse random-sparse  --iterations 500  --seed-start 1000 (rc=1); python -m src.cli sensitivity  --N 1500  --theta 1.5  --k 2  --pattern random-sparse  --densities 0.05 0.1 0.2 0.3 0.4 0.5  --iterations 500  --seed-start 5000 (rc=1); 5 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/sensitivity_density_sweep.csv; data/processed/sensitivity_metadata.json
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse -> rc=2
+- python -m src.cli run  --mode single  --N 1000  --theta 2.5  --k 1  --pattern diagonal  --seed 42 -> rc=1
 
-usage: main.py [-h] [--mode MODE] [--N N] [--seed SEED] [--theta THETA]
-               [--k K] [--pattern PATTERN] [--output OUTPUT]
-main.py: error: unrecognized arguments: --iterations 100 --patterns diagonal,block-sparse,random-sparse
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-551-asymptotic-behavior-of-random-matrix-eig/bin/python: Error while finding module specification for 'src.cli' (ModuleNotFoundError: No module named 'src')
 
-- python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3 -> rc=2
+- python -m src.cli sweep  --N 2000  --theta-grid 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0  --k 1 2 5  --patterns diagonal block-sparse random-sparse  --iterations 500  --seed-start 1000 -> rc=1
 
-usage: main.py [-h] [--mode MODE] [--N N] [--seed SEED] [--theta THETA]
-               [--k K] [--pattern PATTERN] [--output OUTPUT]
-main.py: error: unrecognized arguments: --densities 0.1,0.2,0.3
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-551-asymptotic-behavior-of-random-matrix-eig/bin/python: Error while finding module specification for 'src.cli' (ModuleNotFoundError: No module named 'src')
+
+- python -m src.cli sensitivity  --N 1500  --theta 1.5  --k 2  --pattern random-sparse  --densities 0.05 0.1 0.2 0.3 0.4 0.5  --iterations 500  --seed-start 5000 -> rc=1
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-551-asymptotic-behavior-of-random-matrix-eig/bin/python: Error while finding module specification for 'src.cli' (ModuleNotFoundError: No module named 'src')
+
+- python -m src.cli finite_size  --Ns 500 1000 1500 2000  --theta 1.5  --k 1  --pattern diagonal  --iterations 500  --seed-start 8000 -> rc=1
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-551-asymptotic-behavior-of-random-matrix-eig/bin/python: Error while finding module specification for 'src.cli' (ModuleNotFoundError: No module named 'src')
+
+- python -m pytest tests/contract/test_schemas.py -> rc=1
+c_estimate', ...}
+
+tests/contract/test_schemas.py:75: AssertionError
+=============================== warnings summary ===============================
+tests/contract/test_schemas.py:6
+tests/contract/test_schemas.py:6
+  /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/tests/contract/test_schemas.py:6: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import Draft7Validator, RefResolver
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/contract/test_schemas.py::test_processed_json_files - jsonschema...
+FAILED tests/contract/test_schemas.py::test_processed_csv_files - AssertionEr...
+=================== 2 failed, 1 passed, 2 warnings in 0.24s ====================
+
+
+- python -m pytest tests/integration/test_t001.py -> rc=4
+============================= test session starts ==============================
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
+rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig
+configfile: pyproject.toml
+plugins: platformdirs-4.13.3
+collected 0 items
+
+============================ no tests ran in 0.00s =============================
+
+ERROR: file or directory not found: tests/integration/test_t001.py
+
 
 
 ## Declared deliverables still missing
@@ -84,7 +95,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/sensitivity_variation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_variation.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/threshold_sweep_results.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/threshold_fit.py` — NOT invoked by the run-book
+    - `code/analysis/aggregate_thresholds.py` — NOT invoked by the run-book
     - `code/analysis/threshold_sweep_aggregator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/threshold_sweep_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project

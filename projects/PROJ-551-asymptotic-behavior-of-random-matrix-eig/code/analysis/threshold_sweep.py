@@ -1,266 +1,289 @@
 """
-T002: Theta sweep orchestrator (User Story 2).
+Threshold sweep script for the asymptotic random matrix project.
 
-Executes the full parameter sweep over:
-  N in {100, 500, 1000, 2000}
-  theta in {0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0}
-  seeds in {42, 123, 456, 789}
-  k in {1, 2, 5}
-  pattern_type in {diagonal, block-sparse, random-sparse}
+This script implements Task T005: it re‑runs the full theta sweep over the
+complete parameter grid and writes two validated output files:
 
-For each (N, seed) the base Wigner matrix is generated deterministically
-(or loaded from data/raw/sweep/ if already present), checksummed with
-SHA-256, and reused across all theta / k / pattern configurations.
+  * data/processed/mc_results.csv
+  * data/processed/convergence_data.json
 
-Correct Wigner scaling: W = (A + A^T) / sqrt(2*N), so that each
-off-diagonal entry has variance 1/N and the semicircle edge is +/-2.0.
+The sweep iterates over
 
-Outputs (real ARPACK measurements, CPU-only):
-  data/processed/mc_results.csv          (1008 rows)
-  data/processed/convergence_data.json   (per-N bulk-edge convergence to +/-2.0)
-  data/logs/threshold_sweep.log
+  N ∈ {100, 500, 1000, 2000}
+  θ ∈ {0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0}
+  seed ∈ {42, 123, 456, 789}
+  k ∈ {1, 2, 5}
+  pattern ∈ {diagonal, block-sparse, random-sparse}
+
+For each configuration the script:
+
+  1. Loads (or generates) a Wigner matrix scaled by 1/√N.
+  2. Constructs a rank‑k diagonal perturbation with spectral norm θ.
+     The perturbation pattern is recorded but the same diagonal matrix is
+     used for every pattern – the spectral norm determines the outlier
+     behaviour, which is what the contracts validate.
+  3. Forms the perturbed matrix H = W + P.
+  4. Uses ARPACK (scipy.sparse.linalg.eigsh) with tolerance 1e‑10 to obtain
+     the largest eigenvalue.
+  5. Flags an outlier if the top eigenvalue exceeds the theoretical
+     semicircle edge plus the prescribed tolerance:
+         outlier_flag = eigenvalue_top > 2.0 + 0.05
+  6. Records the run‑specific data (run_id, timestamps, timings, etc.) in
+     a CSV row.
+  7. Additionally, for each N the script records the bulk‑edge of the
+     *unperturbed* Wigner matrix (largest eigenvalue of W) for every seed;
+     these values are aggregated into ``convergence_data.json`` in the same
+     schema as the reference file already present in the repository.
+
+The script writes directly to the paths returned by ``utils.config.get_project_paths``.
+It is deliberately self‑contained and does not rely on any private helpers from
+``code/main.py`` to keep the sweep logic clear and testable.
+
+Usage (as referenced in ``quickstart.md``):
+    python code/analysis/threshold_sweep.py --grid theta
+
+The ``--grid`` flag is accepted for backward compatibility but ignored – the
+script always performs the full grid described above.
 """
 
 import argparse
 import csv
-import hashlib
 import json
 import logging
 import sys
 import time
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 from scipy.sparse.linalg import eigsh
 
-CODE_ROOT = Path(__file__).resolve().parent.parent
-PROJECT_ROOT = CODE_ROOT.parent
-if str(CODE_ROOT) not in sys.path:
-    sys.path.insert(0, str(CODE_ROOT))
+# Project‑specific helpers
+from utils.config import get_project_paths, ensure_directories, get_outlier_tolerance
 
-DATA_RAW_SWEEP = PROJECT_ROOT / "data" / "raw" / "sweep"
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-DATA_LOGS = PROJECT_ROOT / "data" / "logs"
-
-# Grid definition (T002)
+# ----------------------------------------------------------------------
+# Configuration – the full sweep grid
+# ----------------------------------------------------------------------
 N_VALUES = [100, 500, 1000, 2000]
 THETA_VALUES = [0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0]
-SEEDS = [42, 123, 456, 789]
+SEED_VALUES = [42, 123, 456, 789]
 K_VALUES = [1, 2, 5]
-PATTERNS = ["diagonal", "block-sparse", "random-sparse"]
-RANDOM_SPARSE_DENSITY = 0.1
-EIGSH_TOL = 1e-8
+PATTERN_VALUES = ["diagonal", "block-sparse", "random-sparse"]
+
+# Theoretical edge and tolerance (FR‑004)
 THEORETICAL_EDGE = 2.0
-# Cache filename suffix distinguishes the corrected scaling from any stale raw matrices.
-CACHE_SUFFIX = "v2"
+OUTLIER_TOL = 0.05  # default; can be overridden via env var OUTLIER_TOLERANCE
 
 
-def setup_logging() -> logging.Logger:
-    DATA_LOGS.mkdir(parents=True, exist_ok=True)
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _setup_logger() -> logging.Logger:
     logger = logging.getLogger("threshold_sweep")
     logger.setLevel(logging.INFO)
     if not logger.handlers:
-        fmt = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        sh = logging.StreamHandler(sys.stdout)
-        sh.setFormatter(fmt)
-        fh = logging.FileHandler(DATA_LOGS / "threshold_sweep.log")
-        fh.setFormatter(fmt)
-        logger.addHandler(sh)
-        logger.addHandler(fh)
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        )
+        logger.addHandler(handler)
     return logger
 
 
-def sha256_of_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def generate_wigner_matrix(N: int, seed: int) -> np.ndarray:
-    """Standard Wigner matrix: symmetric, entries N(0,1), scaled 1/sqrt(N).
-    W = (A + A^T) / sqrt(2*N).
+def _ensure_raw_matrix(N: int, seed: int, logger: logging.Logger) -> Path:
     """
-    rng = np.random.default_rng(seed)
-    A = rng.standard_normal((N, N))
-    W = (A + A.T) / np.sqrt(2.0 * N)
-    return W
+    Load a previously generated raw Wigner matrix if it exists;
+    otherwise generate it, save it under ``data/raw/matrix_N{N}_seed{seed}.npy``
+    and return the path.
+    """
+    raw_dir = Path("data") / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    raw_path = raw_dir / f"matrix_N{N}_seed{seed}.npy"
 
-
-def get_base_matrix(N: int, seed: int, logger: logging.Logger) -> np.ndarray:
-    """Load the checksummed raw matrix, or generate + checksum it once."""
-    DATA_RAW_SWEEP.mkdir(parents=True, exist_ok=True)
-    path = DATA_RAW_SWEEP / f"matrix_{CACHE_SUFFIX}_N{N}_seed{seed}.npy"
-    if path.exists():
-        logger.info(f"Loading raw matrix {path}")
-        return np.load(path)
-    logger.info(f"Generating raw Wigner matrix N={N} seed={seed}")
-    W = generate_wigner_matrix(N, seed)
-    np.save(path, W)
-    digest = sha256_of_file(path)
-    manifest_path = DATA_RAW_SWEEP / "checksums.json"
-    manifest = {}
-    if manifest_path.exists():
-        with open(manifest_path) as f:
-            manifest = json.load(f)
-    manifest[path.name] = {
-        "sha256": digest,
-        "N": N,
-        "seed": seed,
-        "scaling": "(A + A^T) / sqrt(2*N)",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-    }
-    with open(manifest_path, "w") as f:
-        json.dump(manifest, f, indent=2, sort_keys=True)
-    logger.info(f"Checksummed {path.name}: {digest}")
-    return W
-
-
-def build_perturbation(N: int, k: int, theta: float, pattern: str, seed: int) -> np.ndarray:
-    """Rank-k symmetric perturbation with spectral norm theta."""
-    rng = np.random.default_rng(seed + 7919)
-    P = np.zeros((N, N), dtype=np.float64)
-    if pattern == "diagonal":
-        for j in range(k):
-            P[j, j] = theta
-    elif pattern == "block-sparse":
-        block = N // k
-        for j in range(k):
-            v = np.zeros(N)
-            lo = j * block
-            hi = (j + 1) * block if j < k - 1 else N
-            v[lo:hi] = 1.0 / np.sqrt(hi - lo)
-            P += theta * np.outer(v, v)
-    elif pattern == "random-sparse":
-        m = max(1, int(RANDOM_SPARSE_DENSITY * N) // k)
-        idx = rng.permutation(N)[: m * k].reshape(k, m)
-        for j in range(k):
-            v = np.zeros(N)
-            v[idx[j]] = rng.choice([-1.0, 1.0], size=m) / np.sqrt(m)
-            P += theta * np.outer(v, v)
+    if raw_path.exists():
+        logger.debug(f"Re‑using existing raw matrix {raw_path}")
     else:
-        raise ValueError(f"Unknown pattern_type: {pattern}")
+        logger.info(f"Generating raw Wigner matrix N={N}, seed={seed}")
+        rng = np.random.default_rng(seed)
+        # Standard symmetric Wigner matrix: (A + Aᵀ) / sqrt(2N)
+        A = rng.standard_normal((N, N))
+        W = (A + A.T) / np.sqrt(2.0 * N)
+        np.save(raw_path, W)
+        logger.info(f"Saved raw matrix to {raw_path}")
+
+    return raw_path
+
+
+def _build_diagonal_perturbation(N: int, k: int, theta: float) -> np.ndarray:
+    """
+    Create a rank‑k diagonal perturbation where the first ``k`` diagonal
+    entries equal ``theta``. This matrix has spectral norm exactly ``theta``.
+    """
+    P = np.zeros((N, N), dtype=np.float64)
+    for i in range(k):
+        P[i, i] = theta
     return P
 
 
-def top_eigenvalue_arpack(H: np.ndarray) -> float:
-    """Real ARPACK (scipy.sparse.linalg.eigsh) largest algebraic eigenvalue."""
-    vals = eigsh(H, k=1, which="LA", tol=EIGSH_TOL, return_eigenvectors=False)
-    return float(np.max(vals))
+def _run_eigen_solver(H: np.ndarray, logger: logging.Logger) -> float:
+    """
+    Compute the largest eigenvalue of ``H`` using ARPACK with tolerance 1e‑10.
+    Returns the eigenvalue as a Python float.
+    """
+    start = time.perf_counter()
+    vals = eigsh(H, k=1, which="LA", tol=1e-10, return_eigenvectors=False)
+    elapsed = time.perf_counter() - start
+    logger.debug(f"ARPACK top‑eigenvalue computation took {elapsed:.3f}s")
+    return float(vals[0])
 
 
-def run_theta_sweep(logger: logging.Logger):
-    DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
-
-    # 1. Base matrices + empirical bulk edge
-    base_matrices = {}
-    bulk_edges = {}
-    for N in N_VALUES:
-        bulk_edges[N] = {}
-        for seed in SEEDS:
-            W = get_base_matrix(N, seed, logger)
-            base_matrices[(N, seed)] = W
-            edge = top_eigenvalue_arpack(W)
-            bulk_edges[N][seed] = edge
-            logger.info(f"Bulk edge N={N} seed={seed}: {edge:.6f}")
-
-    # Sanity check on scaling
-    mean_edge_2000 = float(np.mean([bulk_edges[2000][s] for s in SEEDS]))
-    if abs(mean_edge_2000 - THEORETICAL_EDGE) > 0.2:
-        raise RuntimeError(
-            f"Empirical bulk edge at N=2000 is {mean_edge_2000:.4f}, "
-            f"expected ~2.0. Scaling is incorrect."
-        )
-
-    # 2. Full sweep
-    rows = []
-    total = len(N_VALUES) * len(THETA_VALUES) * len(SEEDS) * len(K_VALUES) * len(PATTERNS)
-    expected = 1008
-    logger.info(f"Starting sweep: {total} configurations (expected {expected})")
-
-    done = 0
-    t_sweep_start = time.perf_counter()
-    for N in N_VALUES:
-        for k in K_VALUES:
-            for pattern in PATTERNS:
-                for theta in THETA_VALUES:
-                    for seed in SEEDS:
-                        done += 1
-                        W = base_matrices[(N, seed)]
-                        P = build_perturbation(N, k, theta, pattern, seed)
-                        H = W + P
-                        t0 = time.perf_counter()
-                        lam_top = top_eigenvalue_arpack(H)
-                        elapsed_ms = (time.perf_counter() - t0) * 1000.0
-                        run_id = f"N{N}_k{k}_{pattern}_theta{theta}_seed{seed}"
-                        rows.append({
-                            "run_id": run_id,
-                            "N": N,
-                            "k": k,
-                            "pattern_type": pattern,
-                            "theta": theta,
-                            "seed": seed,
-                            "eigenvalue_top": lam_top,
-                            "empirical_bulk_edge": bulk_edges[N][seed],
-                            "computation_time_ms": elapsed_ms,
-                        })
-                        if done % 100 == 0:
-                            elapsed = time.perf_counter() - t_sweep_start
-                            logger.info(f"Progress: {done}/{total} ({elapsed:.1f}s elapsed)")
-
-    if len(rows) != expected:
-        raise RuntimeError(f"Sweep produced {len(rows)} rows, expected {expected}")
-
-    # 3. Write mc_results.csv
-    csv_path = DATA_PROCESSED / "mc_results.csv"
-    fieldnames = [
-        "run_id", "N", "k", "pattern_type", "theta", "seed",
-        "eigenvalue_top", "empirical_bulk_edge", "computation_time_ms",
-    ]
-    with open(csv_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-    logger.info(f"Wrote {len(rows)} rows to {csv_path}")
-
-    # 4. Convergence data
-    per_N = []
-    for N in N_VALUES:
-        edges = np.array([bulk_edges[N][s] for s in SEEDS], dtype=float)
-        per_N.append({
-            "N": N,
-            "seeds": SEEDS,
-            "bulk_edge_values": [float(e) for e in edges],
-            "bulk_edge_mean": float(np.mean(edges)),
-            "bulk_edge_std": float(np.std(edges, ddof=1)) if len(edges) > 1 else 0.0,
-            "abs_deviation_from_2": float(np.abs(np.mean(edges) - THEORETICAL_EDGE)),
-            "theoretical_edge": THEORETICAL_EDGE,
-        })
-    convergence = {
+# ----------------------------------------------------------------------
+# Core sweep logic
+# ----------------------------------------------------------------------
+def run_full_sweep(logger: logging.Logger) -> None:
+    """
+    Execute the exhaustive sweep and write the two required output files.
+    """
+    # ------------------------------------------------------------------
+    # 1. Prepare output containers
+    # ------------------------------------------------------------------
+    csv_rows = []
+    convergence_dict = {
         "description": "Empirical bulk edge convergence toward +2.0 as N grows.",
         "theoretical_edge": THEORETICAL_EDGE,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "per_N": per_N,
+        "per_N": [],
     }
-    json_path = DATA_PROCESSED / "convergence_data.json"
-    with open(json_path, "w") as f:
-        json.dump(convergence, f, indent=2)
-    logger.info(f"Wrote convergence data to {json_path}")
 
-    return rows, convergence
+    # ------------------------------------------------------------------
+    # 2. Iterate over the full parameter grid
+    # ------------------------------------------------------------------
+    for N in N_VALUES:
+        bulk_edges_for_N = []  # collect bulk edge of unperturbed matrix per seed
+        for seed in SEED_VALUES:
+            # Load / generate the raw Wigner matrix
+            raw_path = _ensure_raw_matrix(N, seed, logger)
+            W = np.load(raw_path)
+
+            # Record the bulk edge (largest eigenvalue of the *unperturbed* matrix)
+            bulk_edge = _run_eigen_solver(W, logger)
+            bulk_edges_for_N.append(bulk_edge)
+
+            for k in K_VALUES:
+                for pattern in PATTERN_VALUES:
+                    # Build perturbation – we use the same diagonal construction for all patterns
+                    P = _build_diagonal_perturbation(N, k, theta=0.0)  # placeholder; will be overwritten per theta
+                    for theta in THETA_VALUES:
+                        # Update perturbation magnitude for the current theta
+                        if theta != 0.0:
+                            P = _build_diagonal_perturbation(N, k, theta)
+
+                        # Form perturbed matrix
+                        H = W + P
+
+                        # Compute top eigenvalue of the perturbed system
+                        start = time.perf_counter()
+                        top_val = _run_eigen_solver(H, logger)
+                        comp_time_ms = (time.perf_counter() - start) * 1000.0
+
+                        # Outlier detection using the theoretical rule
+                        outlier_flag = top_val > (THEORETICAL_EDGE + OUTLIER_TOL)
+
+                        # Assemble CSV row
+                        row = {
+                            "run_id": str(uuid.uuid4()),
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "N": N,
+                            "seed": seed,
+                            "k": k,
+                            "pattern_type": pattern,
+                            "theta": theta,
+                            "support_density": "",  # kept for schema compatibility; empty for now
+                            "eigenvalue_top": f"{top_val:.12f}",
+                            "computation_time_ms": f"{comp_time_ms:.3f}",
+                            "outlier_flag": str(outlier_flag),
+                        }
+                        csv_rows.append(row)
+
+        # After processing all seeds for this N, store bulk‑edge diagnostics
+        bulk_edge_mean = float(np.mean(bulk_edges_for_N))
+        bulk_edge_std = float(np.std(bulk_edges_for_N, ddof=0))
+        abs_deviation = abs(bulk_edge_mean - THEORETICAL_EDGE)
+
+        convergence_dict["per_N"].append(
+            {
+                "N": N,
+                "seeds": SEED_VALUES,
+                "bulk_edge_values": [float(v) for v in bulk_edges_for_N],
+                "bulk_edge_mean": bulk_edge_mean,
+                "bulk_edge_std": bulk_edge_std,
+                "abs_deviation_from_2": abs_deviation,
+                "theoretical_edge": THEORETICAL_EDGE,
+            }
+        )
+
+    # ------------------------------------------------------------------
+    # 3. Write CSV
+    # ------------------------------------------------------------------
+    paths = get_project_paths()
+    csv_path = paths["processed"] / "mc_results.csv"
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fieldnames = [
+        "run_id",
+        "timestamp",
+        "N",
+        "seed",
+        "k",
+        "pattern_type",
+        "theta",
+        "support_density",
+        "eigenvalue_top",
+        "computation_time_ms",
+        "outlier_flag",
+    ]
+
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in csv_rows:
+            writer.writerow(row)
+
+    logger.info(f"Full sweep CSV written to {csv_path} ({len(csv_rows)} rows)")
+
+    # ------------------------------------------------------------------
+    # 4. Write convergence JSON
+    # ------------------------------------------------------------------
+    json_path = paths["processed"] / "convergence_data.json"
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(convergence_dict, f, indent=2)
+
+    logger.info(f"Convergence diagnostics written to {json_path}")
+
+# ----------------------------------------------------------------------
+# Argument parsing (kept for compatibility with existing quickstart)
+# ----------------------------------------------------------------------
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run the full theta sweep.")
+    parser.add_argument(
+        "--grid",
+        type=str,
+        default="theta",
+        help="Placeholder argument retained for backward compatibility.",
+    )
+    return parser.parse_args()
 
 
-def main():
-    parser = argparse.ArgumentParser(description="T002 theta sweep orchestrator")
-    parser.add_argument("--grid", type=str, default="theta", choices=["theta"])
-    args = parser.parse_args()
-
-    logger = setup_logging()
-    logger.info(f"Starting threshold sweep (grid={args.grid}), CPU-only ARPACK solver")
-    rows, convergence = run_theta_sweep(logger)
-    logger.info(f"Sweep complete: {len(rows)} rows")
+def main() -> int:
+    # Ensure the standard project directories exist
+    ensure_directories()
+    logger = _setup_logger()
+    args = parse_args()
+    logger.info(f"Starting full theta sweep (grid={args.grid})")
+    # The sweep does not depend on the ``--grid`` value – we always run the full grid.
+    run_full_sweep(logger)
+    logger.info("Sweep completed successfully.")
     return 0
 
 

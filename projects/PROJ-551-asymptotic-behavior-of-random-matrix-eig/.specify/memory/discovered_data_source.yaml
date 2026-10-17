@@ -1,5 +1,14 @@
 status: none
-reason: no data intent found in planning artifacts
-cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
-searched_at: '2026-10-07T00:45:36.365287+00:00'
-retry_count: 3
+intent: synthetic matrix generation python package with perturbation patterns edge
+  values python package dataset
+required_fields:
+- matrix
+- seed
+- pattern_type
+- dimensions
+- sparsity
+- edge_value
+- reference_edge
+cache_key: ec458880bed5ce56e2e6029351a19e72c176e3faaa58da7cfb6c2491a3018566
+searched_at: '2026-10-17T07:44:37.200878+00:00'
+retry_count: 1

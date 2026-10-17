@@ -1,8 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+$id: "simulation_run.schema.yaml"
+title: "SimulationRun"
 type: object
+required:
+  - run_id
+  - timestamp
+  - seed
+  - N
+  - k
+  - theta
+  - pattern_type
+  - support_density
+  - computation_time_ms
+  - empirical_bulk_edge
+  - eigenvalues
 properties:
   run_id:
     type: string
-    format: uuid
   timestamp:
     type: string
     format: date-time
@@ -17,7 +31,9 @@ properties:
   pattern_type:
     type: string
   support_density:
-    type: ["number", "null"]
+    type:
+      - number
+      - "null"
   computation_time_ms:
     type: number
   empirical_bulk_edge:
@@ -25,5 +41,5 @@ properties:
   eigenvalues:
     type: array
     items:
-      $ref: 'eigenvalue_result.schema.yaml'
-required: [run_id, timestamp, seed, N, k, theta, pattern_type, computation_time_ms, empirical_bulk_edge, eigenvalues]
+      $ref: "eigenvalue_result.schema.yaml#"
+additionalProperties: false

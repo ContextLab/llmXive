@@ -1,32 +1,71 @@
+T001:
+  c: false
+  h: ea130f056d1766d5a680c7064259210059c6148824b380d7daa0c062f48c8cda
+  r: "The three schema files do exist under `contracts/` (the collector's \"MISSING\"\
+    \ entries are just unnormalized path lookups; the directory listing confirms all\
+    \ three files), but the required test does not pass: the recorded run of `tests/contract/test_schemas.py`\
+    \ exited 1 with 2 failures \u2014 `test_processed_json_files` fails with a `RefResolutionError`\
+    \ (the `$ref` resolution to `eigenvalue_result.schema.yaml` fails because the\
+    \ resolver tries to JSON-parse the YAML file), and `test_processed_csv_files`\
+    \ fails because `mc_results.csv` lacks the required aggregated-threshold columns.\
+    \ The task explicitl"
+  sig: c476c2a3469b04028416c9275d3da8e1ab3723e6c89492796bed7e207d037ab9
 T002:
   c: true
-  h: b093a06b98f64aadecd123c7577a66894b6842bb28371eb880046c224b2a6f8c
-  r: "The sweep script exists and its execution log (exit 0, 17.6s) shows all 16 base\
-    \ matrices generated with SHA-256 checksums, bulk edges matching the convergence\
-    \ JSON exactly, and progress through 1008 configurations; `mc_results.csv` (121,445\
-    \ bytes, ~120 bytes/row, consistent with 1008 data rows plus header) contains\
-    \ the required columns with real ARPACK eigenvalues that vary plausibly with \u03B8\
-    \ and pattern, and `convergence_data.json` records per-N bulk-edge convergence\
-    \ toward 2.0 (deviation shrinking from 0.085 at N=100 to 0.0016 at N=2000)."
-  sig: 8ccacc9428331f2292a8f31d515fd6b6d19c3c5ac71e2bc589de632b5ae5a315
+  h: 170d7aced4974da18ea0cd15cb2f05f8e6ef1fbd3dc96e025e18bb92d67cf73a
+  r: "I verified `code/main.py` implements all nine requirements (1/\u221AN Wigner\
+    \ generation, rank-1 diagonal \u03B8=2.5 perturbation, `eigsh` tol=1e-10 top-10,\
+    \ outlier rule `> 2.05`, JSON with run + 10 eigenvalue records sharing one `run_id`,\
+    \ checksums.yaml entry, log with psutil peak memory, SC-001 MemoryError enforcement),\
+    \ and the execution log shows a successful exit-0 run producing exactly those\
+    \ artifacts: `single_run_results.json` (top eigenvalue 2.9016423\u2026, correctly\
+    \ flagged outlier), `checksums.yaml` matching the raw matrix sha256, and `single_run.log`\
+    \ with \"Peak memory usage: 0.077 GB\". Reproducibil"
+  sig: b4c11b03f49fe39c48d9b48ca17d90a998b00bc7c553dcb75f8eb81a141fac4f
 T003:
-  c: true
-  h: d33b2312bbe7966c377915d7cc1cd8d800383cee05b2fe49f55311e590c8ee09
-  r: "The file `data/processed/validated_sweep_results.csv` exists (125 KB) with the\
-    \ required `outlier_flag` column, and the execution log shows `code/analysis/apply_outlier_rule.py`\
-    \ ran successfully (exit 0) reading `mc_results.csv` and applying the strict rule\
-    \ `eigenvalue_top > empirical_bulk_edge + 0.05`. Spot-checking many rows across\
-    \ all pattern types confirms every flag matches that rule (e.g., 1.8656 vs 1.8891\
-    \ \u2192 False; 2.0260 vs 2.0188 \u2192 True; 1.9933 vs 1.9970 \u2192 False),\
-    \ and the row structure mirrors the mc_results schema."
-  sig: ef5b274224ab01fbfa1df3195e98e9d56e8afbd31c8dcdb43a3ef2ae3508be48
+  c: false
+  h: 7c216126553ee902adec1840f84b0aa401c923251d2d4a2c7243d94b7ca6dcfe
+  r: "The task requires an actual single-run execution (`python -m code.main \u2026\
+    `) with its output JSON, run logs, and a checksum artifact, but the only evidence\
+    \ is a passing pytest test and an unrelated outlier-rule script log \u2014 no\
+    \ run output JSON, no execution log recording the claimed eigenvalue `2.901642355090901`,\
+    \ and no checksum file were found on disk. The test passing does not substitute\
+    \ for the run artifacts themselves; the implementer must produce and preserve\
+    \ the actual run's results JSON, log, and checksum."
+  sig: adc318d9d1c0798821ad0d92523a70f065e46e0dd53ea144638c9a3900d15012
 T004:
   c: true
-  h: cab26a29991a37a5f1718175ec7ffa9279bf47a945a9eb963ddbf188eb2442ba
-  r: "The artifact `data/processed/threshold_identification.json` exists (5644 bytes),\
-    \ is valid JSON, contains all 36 (N, k, pattern_type) groups across N\u2208{100,500,1000,2000},\
-    \ k\u2208{1,2,5}, and three pattern types, with each `theta_c_empirical` drawn\
-    \ from the swept \u03B8 grid (0.8\u20131.5) and the required `method` and `overall_theta_c`\
-    \ fields. The execution log confirms the script ran (exit 0), read `validated_sweep_results.csv`,\
-    \ and processed 36 groups with overall theta_c 1.2, matching the JSON contents."
-  sig: 8cf8dbfbf6a7d5c1db6e5aca3549e460e8ff72777332ebbd405136a8989c3416
+  h: 99bbe2f3d5851d3cfebbdfe89769883348cc630e244c438572e0a2a33b581e1f
+  r: "The script `code/analysis/threshold_sweep.py` computes `outlier_flag = top_val\
+    \ > (THEORETICAL_EDGE + OUTLIER_TOL)` with THEORETICAL_EDGE=2.0 and OUTLIER_TOL=0.05,\
+    \ and writes all required columns (run_id, N, k, pattern_type, theta, seed, eigenvalue_top,\
+    \ computation_time_ms, plus extras). The regenerated `mc_results.csv` (125,997\
+    \ bytes \u2248 1008 rows at ~125 bytes/row) spot-checks consistently with the\
+    \ theoretical rule (e.g., eigenvalue 1.973\u2192False, 2.133\u2192True, 2.485\u2192\
+    True), confirming the empirical-bulk-edge rule was replaced."
+  sig: 9f3281f1fdc461b5a0e0bc0742308a4040a96ea67186f9b68f45a68fe5510e25
+T005:
+  c: false
+  h: e0addcedb54012b1a56fe3d8a0a530deb7320017e1629e7630652a56361d481e
+  r: "The sweep ran (1008 rows = 4N \xD7 7\u03B8 \xD7 4 seeds \xD7 3k \xD7 3 patterns,\
+    \ matching the grid) and both output files exist with the `outlier_flag` column\
+    \ and convergence diagnostics, but the task's explicit verification requirement\
+    \ \u2014 that the T001 schema-validation test runs without error on the new files\
+    \ \u2014 is not met: the recorded run of `tests/test_schemas.py` exited 1 with\
+    \ all 4 tests failing (`Unresolvable: eigenvalue_result.schema.yaml#`, a broken\
+    \ `$ref` in the schemas). Additionally, the CSV shows identical `eigenvalue_top`\
+    \ values across all three pattern types for the same (N, seed, k, \u03B8) and\
+    \ sub-2"
+  sig: 1f9bc99d19b6ad2c2e2a4c75d2fb52041a975a72ec43de05457c532428c08449
+T006:
+  c: true
+  h: 51ae34bfc970256fb623eaec7ca2e5ad6bdd97066bd5518bf9d5c28a7230a859
+  r: "The script `code/analysis/threshold_fit.py` exists and implements the required\
+    \ sigmoid fit via `scipy.optimize.curve_fit` with 5-fold CV over seeds, and the\
+    \ execution log shows it ran successfully over all 36 (N, k, pattern) groups,\
+    \ producing `data/processed/threshold_statistical.json` with 36 entries each containing\
+    \ `theta_c_statistical` and a finite confidence_interval, matching the stated\
+    \ verification criteria. (Note: identical theta_c values across pattern types\
+    \ within each (N,k) suggest the upstream `mc_results.csv` may not vary by pattern\
+    \ \u2014 a data-quality concern for the upstream task, n"
+  sig: 3db2244af85c721b9f990c0152cdc8e093ce2194b191b4a4d76b6774c73f1e3c

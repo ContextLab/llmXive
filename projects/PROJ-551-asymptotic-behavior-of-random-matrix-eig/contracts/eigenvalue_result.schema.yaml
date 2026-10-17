@@ -1,8 +1,17 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+$id: "eigenvalue_result.schema.yaml"
+title: "EigenvalueResult"
 type: object
+required:
+  - run_id
+  - eigenvalue_index
+  - value
+  - is_outlier
+  - theoretical_bbp
+  - deviation
 properties:
   run_id:
     type: string
-    format: uuid
   eigenvalue_index:
     type: integer
   value:
@@ -13,4 +22,4 @@ properties:
     type: number
   deviation:
     type: number
-required: [run_id, eigenvalue_index, value, is_outlier, theoretical_bbp, deviation]
+additionalProperties: false

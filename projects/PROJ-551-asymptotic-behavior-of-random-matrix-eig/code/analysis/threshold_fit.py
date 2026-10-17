@@ -1,285 +1,299 @@
 """
-Curve fitting module to estimate critical theta_c from binary outlier probability data.
+Threshold fitting script for Task T006.
 
-Implements logistic regression-like fitting to determine the phase transition threshold
-where outlier eigenvalues emerge with probability > 0.5.
+This script reads the Monte‑Carlo sweep results (``mc_results.csv``), groups
+the data by configuration ``(N, k, pattern_type)`` and fits a logistic
+(sigmoid) model to the binary outlier flag as a function of the perturbation
+norm ``theta``.  For each group a 5‑fold cross‑validation over the seed
+dimension is performed: the set of seeds is split into five folds, the model
+is fitted on four folds and evaluated on the held‑out fold; the fitted
+critical threshold ``theta_c`` from each fold is averaged to obtain a
+statistically robust estimate.  A simple 95 % confidence interval is
+derived from the variability of the cross‑validated ``theta_c`` values.
+
+The results are written to ``data/processed/threshold_statistical.json`` in
+a schema‑compatible format:
+
+{
+    "generated_at": "<ISO‑8601 timestamp>",
+    "threshold_estimates": [
+        {
+            "N": <int>,
+            "k": <int>,
+            "pattern_type": "<str>",
+            "theta_c_statistical": <float>,
+            "confidence_interval": {"lower": <float>, "upper": <float>}
+        },
+        ...
+    ]
+}
+
+The script can be invoked directly:
+
+    python -m code.analysis.threshold_fit
+
+or via the CLI entry point defined in ``if __name__ == '__main__'``.
 """
-import os
+
+import argparse
 import json
 import logging
-import numpy as np
-from scipy.optimize import curve_fit
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Any
+from typing import Dict, List, Tuple
 
+import numpy as np
+import pandas as pd
+from scipy.optimize import curve_fit
+
+# Project utilities
 from utils.config import get_project_paths, ensure_directories
 
 logger = logging.getLogger(__name__)
 
-def sigmoid_function(theta: np.ndarray, theta_c: float, slope: float) -> np.ndarray:
-    """
-    Sigmoid function modeling the probability of outlier emergence.
-    
+# ----------------------------------------------------------------------
+# Sigmoid model
+# ----------------------------------------------------------------------
+def sigmoid(theta: np.ndarray, theta_c: float, slope: float) -> np.ndarray:
+    """Logistic sigmoid used to model outlier probability.
+
     P(outlier) = 1 / (1 + exp(-slope * (theta - theta_c)))
-    
-    Args:
-        theta: Array of perturbation norm values
-        theta_c: Critical threshold parameter (where probability = 0.5)
-        slope: Steepness of the transition
-        
-    Returns:
-        Predicted probabilities for each theta value
     """
     return 1.0 / (1.0 + np.exp(-slope * (theta - theta_c)))
 
-def load_sweep_results(input_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Load aggregated sweep results from CSV.
-    
-    Args:
-        input_path: Path to the threshold_sweep_results.csv file
-        
-    Returns:
-        Tuple of (theta_values, N_values, outlier_probabilities)
-        
-    Raises:
-        FileNotFoundError: If the input file does not exist
-        ValueError: If the file format is invalid or missing required columns
-    """
-    import csv
-    
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Sweep results file not found: {input_path}")
-    
-    theta_list = []
-    prob_list = []
-    n_list = []
-    
-    with open(input_path, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        required_cols = {'theta', 'N', 'outlier_probability'}
-        if not required_cols.issubset(set(reader.fieldnames or [])):
-            raise ValueError(f"Missing required columns. Found: {reader.fieldnames}, Required: {required_cols}")
-        
-        for row in reader:
-            try:
-                theta = float(row['theta'])
-                N = int(row['N'])
-                prob = float(row['outlier_probability'])
-                
-                theta_list.append(theta)
-                n_list.append(N)
-                prob_list.append(prob)
-            except (ValueError, KeyError) as e:
-                logger.warning(f"Skipping invalid row: {row}, error: {e}")
-                continue
-    
-    if not theta_list:
-        raise ValueError("No valid data rows found in sweep results")
-        
-    return np.array(theta_list), np.array(n_list), np.array(prob_list)
 
-def fit_critical_threshold(
-    theta: np.ndarray, 
-    probabilities: np.ndarray,
-    initial_guess: Optional[Tuple[float, float]] = None
-) -> Tuple[float, float, Dict[str, Any]]:
+# ----------------------------------------------------------------------
+# Helper: fit a sigmoid to (theta, outlier_flag) data
+# ----------------------------------------------------------------------
+def _fit_sigmoid(
+    theta: np.ndarray, outlier_flag: np.ndarray
+) -> Tuple[float, float]:
+    """Fit the sigmoid model and return (theta_c, slope).
+
+    Raises
+    ------
+    RuntimeError
+        If curve fitting fails.
     """
-    Fit the sigmoid model to empirical outlier probability data to estimate theta_c.
-    
-    Args:
-        theta: Array of perturbation norm values
-        probabilities: Array of observed outlier probabilities (0.0 to 1.0)
-        initial_guess: Optional tuple (theta_c_init, slope_init) for curve_fit
-        
-    Returns:
-        Tuple of (theta_c, slope, fit_info_dict)
-        
-    Raises:
-        RuntimeError: If curve fitting fails to converge
-    """
-    if len(theta) < 2:
-        raise ValueError("Need at least 2 data points for curve fitting")
-    
-    if initial_guess is None:
-        # Heuristic initial guess: theta_c near where prob ~ 0.5
-        mid_idx = np.argmin(np.abs(probabilities - 0.5))
-        theta_c_init = float(theta[mid_idx])
-        # Estimate slope from the steepest part of the curve
-        if len(theta) > 2:
-            sorted_idx = np.argsort(theta)
-            sorted_theta = theta[sorted_idx]
-            sorted_prob = probabilities[sorted_idx]
-            # Approximate derivative
-            deltas = np.diff(sorted_prob) / np.diff(sorted_theta)
-            max_slope_idx = np.argmax(np.abs(deltas))
-            slope_init = float(deltas[max_slope_idx])
-            if abs(slope_init) < 1e-6:
-                slope_init = 1.0
-        else:
-            slope_init = 1.0
-        initial_guess = (theta_c_init, slope_init)
-    
-    logger.info(f"Initial guess for fitting: theta_c={initial_guess[0]:.4f}, slope={initial_guess[1]:.4f}")
-    
+    # Ensure inputs are 1‑D float arrays
+    theta = np.asarray(theta, dtype=float).ravel()
+    outlier_flag = np.asarray(outlier_flag, dtype=float).ravel()
+
+    if theta.size < 2:
+        raise ValueError("At least two data points are required for fitting.")
+
+    # Heuristic initial guess: theta where probability ≈ 0.5
+    # and a moderate slope.
     try:
-        popt, pcov = curve_fit(
-            sigmoid_function,
+        prob = outlier_flag
+        mid_idx = np.argmin(np.abs(prob - 0.5))
+        theta_c_init = float(theta[mid_idx])
+    except Exception:
+        theta_c_init = float(np.median(theta))
+
+    slope_init = 1.0  # default slope
+
+    p0 = (theta_c_init, slope_init)
+
+    try:
+        popt, _ = curve_fit(
+            sigmoid,
             theta,
-            probabilities,
-            p0=initial_guess,
+            outlier_flag,
+            p0=p0,
             bounds=([0.0, -np.inf], [np.inf, np.inf]),
-            maxfev=5000
+            maxfev=5000,
         )
-        
         theta_c, slope = popt
-        
-        # Calculate standard errors if covariance is available
-        if pcov is not None:
-            perr = np.sqrt(np.diag(pcov))
-            theta_c_err = float(perr[0])
-            slope_err = float(perr[1])
-        else:
-            theta_c_err = None
-            slope_err = None
-        
-        # Calculate R-squared
-        y_pred = sigmoid_function(theta, theta_c, slope)
-        ss_res = np.sum((probabilities - y_pred) ** 2)
-        ss_tot = np.sum((probabilities - np.mean(probabilities)) ** 2)
-        r_squared = 1.0 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
-        
-        fit_info = {
-            'theta_c': float(theta_c),
-            'slope': float(slope),
-            'theta_c_std_error': float(theta_c_err) if theta_c_err is not None else None,
-            'slope_std_error': float(slope_err) if slope_err is not None else None,
-            'r_squared': float(r_squared),
-            'converged': True,
-            'n_data_points': len(theta),
-            'initial_guess': list(initial_guess)
-        }
-        
-        logger.info(f"Fitting converged: theta_c={theta_c:.6f}, slope={slope:.6f}, R²={r_squared:.4f}")
-        return theta_c, slope, fit_info
-        
-    except Exception as e:
-        logger.error(f"Curve fitting failed: {e}")
-        raise RuntimeError(f"Failed to fit critical threshold: {e}")
+        return float(theta_c), float(slope)
+    except Exception as exc:
+        raise RuntimeError(f"Curve fitting failed: {exc}") from exc
 
-def run_curve_fitting(
-    input_csv_path: str,
-    output_json_path: str,
-    matrix_size: Optional[int] = None
-) -> Dict[str, Any]:
+
+# ----------------------------------------------------------------------
+# Cross‑validation over seeds
+# ----------------------------------------------------------------------
+def _cross_validate_group(df_group: pd.DataFrame) -> Tuple[float, Tuple[float, float]]:
+    """Perform a 5‑fold CV over the ``seed`` column.
+
+    Returns
+    -------
+    mean_theta_c : float
+        Mean of the fitted critical thresholds across folds.
+    ci : tuple (lower, upper)
+        Simple 95 % confidence interval based on the empirical standard
+        deviation of the fold estimates.
     """
-    Main entry point to run curve fitting on sweep results.
-    
-    Args:
-        input_csv_path: Path to threshold_sweep_results.csv
-        output_json_path: Path to write threshold_fit_params.json
-        matrix_size: Optional filter to fit only data for a specific N
-        
-    Returns:
-        Dictionary containing fitting results and metadata
+    seeds = sorted(df_group["seed"].unique())
+    if len(seeds) < 2:
+        raise ValueError("Not enough distinct seeds for cross‑validation.")
+
+    # Split seeds into (up to) five folds, preserving order for reproducibility.
+    n_folds = min(5, len(seeds))
+    folds: List[List[int]] = [[] for _ in range(n_folds)]
+    for idx, s in enumerate(seeds):
+        folds[idx % n_folds].append(s)
+
+    theta_c_vals: List[float] = []
+
+    for fold_idx, holdout_seeds in enumerate(folds):
+        # Training data: all rows whose seed is NOT in holdout_seeds
+        train_mask = ~df_group["seed"].isin(holdout_seeds)
+        train_df = df_group[train_mask]
+
+        if train_df.empty:
+            logger.debug(
+                f"Fold {fold_idx + 1}/{n_folds}: no training data after hold‑out; skipping."
+            )
+            continue
+
+        theta = train_df["theta"].values
+        flag = train_df["outlier_flag"].astype(int).values
+
+        try:
+            theta_c, _ = _fit_sigmoid(theta, flag)
+            theta_c_vals.append(theta_c)
+        except RuntimeError as exc:
+            logger.warning(
+                f"Fold {fold_idx + 1}/{n_folds}: fitting failed for N={df_group['N'].iloc[0]}, "
+                f"k={df_group['k'].iloc[0]}, pattern={df_group['pattern_type'].iloc[0]} – {exc}"
+            )
+            continue
+
+    if not theta_c_vals:
+        raise RuntimeError("All folds failed to produce a fit.")
+
+    theta_c_arr = np.array(theta_c_vals)
+    mean_theta_c = float(theta_c_arr.mean())
+    std_theta_c = float(theta_c_arr.std(ddof=1)) if len(theta_c_vals) > 1 else 0.0
+
+    # 95 % CI using normal approximation
+    ci_half_width = 1.96 * std_theta_c / np.sqrt(len(theta_c_vals))
+    lower = mean_theta_c - ci_half_width
+    upper = mean_theta_c + ci_half_width
+    return mean_theta_c, (float(lower), float(upper))
+
+
+# ----------------------------------------------------------------------
+# Main orchestration
+# ----------------------------------------------------------------------
+def run_threshold_fitting(
+    input_csv: str,
+    output_json: str,
+) -> Dict[str, List[Dict]]:
+    """Read ``mc_results.csv``, fit per‑configuration sigmoids, and write JSON.
+
+    Parameters
+    ----------
+    input_csv : str
+        Path to the Monte‑Carlo sweep CSV (must contain columns
+        ``N``, ``k``, ``pattern_type``, ``theta``, ``seed``, ``outlier_flag``).
+    output_json : str
+        Destination JSON file for the statistical threshold estimates.
+
+    Returns
+    -------
+    dict
+        The JSON object that was written to disk.
     """
-    logger.info(f"Loading sweep results from: {input_csv_path}")
-    theta_all, n_all, prob_all = load_sweep_results(input_csv_path)
-    
-    if matrix_size is not None:
-        mask = (n_all == matrix_size)
-        if not np.any(mask):
-            raise ValueError(f"No data found for matrix size N={matrix_size}")
-        theta = theta_all[mask]
-        probabilities = prob_all[mask]
-        logger.info(f"Filtered to N={matrix_size}: {len(theta)} data points")
-    else:
-        # Aggregate by theta across all N (simple mean)
-        unique_thetas = np.unique(theta_all)
-        theta = unique_thetas
-        probabilities = np.array([np.mean(prob_all[theta_all == t]) for t in unique_thetas])
-        logger.info(f"Aggregated across all N: {len(theta)} unique theta values")
-    
-    logger.info(f"Fitting sigmoid model to {len(theta)} data points")
-    theta_c, slope, fit_info = fit_critical_threshold(theta, probabilities)
-    
-    # Prepare output
-    result = {
-        'fit_parameters': fit_info,
-        'data_summary': {
-            'input_file': input_csv_path,
-            'matrix_size_filter': matrix_size,
-            'unique_thetas': [float(t) for t in theta],
-            'probabilities': [float(p) for p in probabilities]
-        },
-        'metadata': {
-            'model': 'sigmoid',
-            'formula': 'P(outlier) = 1 / (1 + exp(-slope * (theta - theta_c)))',
-            'theoretical_bbp_threshold': 1.0,
-            'timestamp': datetime.now().isoformat()
-        }
+    logger.info(f"Loading Monte‑Carlo results from {input_csv}")
+    df = pd.read_csv(input_csv)
+
+    required_cols = {"N", "k", "pattern_type", "theta", "seed", "outlier_flag"}
+    missing = required_cols - set(df.columns)
+    if missing:
+        raise ValueError(f"Input CSV is missing required columns: {missing}")
+
+    # Group by configuration (N, k, pattern_type)
+    groups = df.groupby(["N", "k", "pattern_type"])
+
+    results: List[Dict] = []
+
+    for (N, k, pattern), group_df in groups:
+        logger.info(f"Processing group N={N}, k={k}, pattern={pattern}")
+
+        try:
+            theta_c, (ci_low, ci_high) = _cross_validate_group(group_df)
+        except Exception as exc:
+            logger.error(
+                f"Failed to obtain a statistical estimate for N={N}, k={k}, pattern={pattern}: {exc}"
+            )
+            continue
+
+        results.append(
+            {
+                "N": int(N),
+                "k": int(k),
+                "pattern_type": str(pattern),
+                "theta_c_statistical": theta_c,
+                "confidence_interval": {"lower": ci_low, "upper": ci_high},
+            }
+        )
+
+    # ------------------------------------------------------------------
+    # Write JSON output
+    # ------------------------------------------------------------------
+    output_path = Path(output_json)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    payload = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "threshold_estimates": results,
     }
-    
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_json_path)
-    if output_dir:
-        ensure_directories([output_dir])
-    
-    # Write results
-    with open(output_json_path, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Wrote fitting results to: {output_json_path}")
-    return result
 
-def main():
-    """Command-line entry point for threshold curve fitting."""
-    import argparse
-    from datetime import datetime
-    
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+
+    logger.info(f"Statistical threshold estimates written to {output_path}")
+    return payload
+
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description='Estimate critical theta_c from outlier probability data'
+        description="Fit sigmoid curves per configuration and produce statistical threshold estimates."
     )
     parser.add_argument(
-        '--input', '-i',
+        "--input",
+        "-i",
         type=str,
-        default='data/processed/threshold_sweep_results.csv',
-        help='Path to threshold_sweep_results.csv'
+        default="data/processed/mc_results.csv",
+        help="Path to the Monte‑Carlo results CSV (default: data/processed/mc_results.csv)",
     )
     parser.add_argument(
-        '--output', '-o',
+        "--output",
+        "-o",
         type=str,
-        default='data/processed/threshold_fit_params.json',
-        help='Path to write threshold_fit_params.json'
+        default="data/processed/threshold_statistical.json",
+        help="Path to write the statistical threshold JSON (default: data/processed/threshold_statistical.json)",
     )
     parser.add_argument(
-        '--matrix-size', '-n',
-        type=int,
-        default=None,
-        help='Filter to specific matrix size N (optional)'
-    )
-    parser.add_argument(
-        '--log-level',
+        "--log-level",
         type=str,
-        default='INFO',
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
-        help='Logging level'
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Logging verbosity (default: INFO)",
     )
-    
-    args = parser.parse_args()
-    
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
     logging.basicConfig(
         level=getattr(logging, args.log_level),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    
+
     try:
-        result = run_curve_fitting(args.input, args.output, args.matrix_size)
-        print(f"Successfully fitted critical threshold: theta_c = {result['fit_parameters']['theta_c']:.6f}")
+        run_threshold_fitting(args.input, args.output)
         return 0
-    except Exception as e:
-        logging.error(f"Failed to run curve fitting: {e}")
+    except Exception as exc:
+        logger.error(f"Threshold fitting terminated with an error: {exc}")
         return 1
 
-if __name__ == '__main__':
-    exit(main())
+
+if __name__ == "__main__":
+    sys.exit(main())

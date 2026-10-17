@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+$id: "aggregated_threshold.schema.yaml"
+title: "AggregatedThreshold"
+type: object
+required:
+  - N
+  - k
+  - pattern_type
+  - total_runs
+  - outlier_count
+  - outlier_probability
+  - mean_deviation
+  - std_deviation
+  - theta_c_estimate
+  - theta_c_confidence
+properties:
+  N:
+    type: integer
+  k:
+    type: integer
+  pattern_type:
+    type: string
+  total_runs:
+    type: integer
+  outlier_count:
+    type: integer
+  outlier_probability:
+    type: number
+  mean_deviation:
+    type: number
+  std_deviation:
+    type: number
+  theta_c_estimate:
+    type: number
+  theta_c_confidence:
+    type:
+      - object
+      - "null"
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+    required: [lower, upper]
+    additionalProperties: false
+additionalProperties: false

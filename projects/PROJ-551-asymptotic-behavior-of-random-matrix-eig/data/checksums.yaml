@@ -1,0 +1,5 @@
+matrix_N1000_seed42.npy:
+  N: 1000
+  generated_at: '2026-10-17T07:39:46.534263+00:00'
+  seed: 42
+  sha256: 1f9299fd1324d4af3f3656c5e89e0b80285e8020b90fd0ccf2613a81041a2020
