@@ -6,13 +6,13 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
 
 ---  
 
-- [ ] T000 [P0] [US0] **Quickstart setup** – clone the repository, create a virtual environment, install pinned dependencies, pull required Docker images, and run the orchestrator script.   <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 -->
+- [ ] T000 [P0] [US0] **Quickstart setup** – clone the repository, create a virtual environment, install pinned dependencies, pull required Docker images, and run the orchestrator script.   <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED: unspecified -->
   *Path*: `scripts/quickstart.sh` (script to be created)  
   *Verification*:  
   1. After running the script, `python -m src.run_pipeline --seed 42 --max-pairs 300` executes without import or Docker‑image errors.  
   2. Logs are written to `logs/quickstart.log` and contain entries confirming virtualenv activation, successful `pip install -r requirements.txt`, Docker pulls for `returntocorp/semgrep:1.46.0` and `sonarqube:9.9-community`, and successful pipeline start.
 
-- [ ] T001 [P1] [US1] **Download the Juliet Test Suite (SARD) vulnerable Python snippets** from the verified URL `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/python_vuln.csv` — HTTP 404].   <!-- FAILED-IN-EXECUTION: src/run_pipeline.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/run_pipeline.py exit=2 -->
+- [ ] T001 [P1] [US1] **Download the Juliet Test Suite (SARD) vulnerable Python snippets** from the verified URL `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/python_vuln.csv` — HTTP 404].   <!-- FAILED-IN-EXECUTION: src/run_pipeline.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/run_pipeline.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/download_devign.py exit=1; code/download_juliet.py exit=1 -->
   *Path*: `data/raw/juliet/python_vuln.csv`  
   *Verification*:  
   1. SHA‑256 checksum of the downloaded file matches the value recorded in `data/checksums.json`.  

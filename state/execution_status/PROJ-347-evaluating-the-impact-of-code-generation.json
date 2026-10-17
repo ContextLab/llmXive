@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-15T18:14:12Z",
+  "updated_at": "2026-10-17T10:14:02Z",
   "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
-  "replan_rounds": 1
+  "replan_rounds": 2
 }
