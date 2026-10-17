@@ -1,8 +1,7 @@
 """
 Thin end‑to‑end pipeline (T003)
 
-This script replaces the previous placeholder implementation in ``code/main.py``.
-It runs a reproducible 100‑sample pipeline for each of the three material datasets,
+This script runs a reproducible 100‑sample pipeline for each of the three material datasets,
 trains a baseline XGBoost regressor and the four UQ methods (GPR, MC‑Dropout,
 Deep Ensemble, Split‑Conformal XGBoost), and writes the unified per‑sample
 predictions to ``data/results/per_sample_errors.csv``.  It also produces a
@@ -113,7 +112,6 @@ def _run_method(method_name: str, data_dict: dict, extra_args: dict):
             data_dict["X_test"], data_dict["y_test"]
         )
     elif method_name == "mc_dropout":
-        # ``run_mc_dropout`` expects a dict with the split arrays and a dataset name.
         return run_mc_dropout(
             {
                 "X_train": data_dict["X_train"],
@@ -236,18 +234,13 @@ def main() -> None:
         dataset_id = csv_path.stem  # e.g. "band_gap"
         log.info(f"Processing dataset: {dataset_id}")
 
-        # Process with the global MAX_SAMPLES env var (ensures 100‑sample cap)
+        # Ensure the cap is applied for the thin run
         os.environ["MAX_SAMPLES"] = str(args.max_samples)
 
         proc_start = time.time()
+        # ``process_dataset`` now returns the split dict directly when a single
+        # dataset name is supplied.
         data_dict = process_dataset(dataset_name=dataset_id, cap=args.max_samples)
-        # ``process_dataset`` writes processed CSVs and returns the split arrays.
-        # Ensure the returned dict contains the expected keys.
-        required_keys = {"X_train", "y_train", "X_test", "y_test"}
-        if not required_keys.issubset(data_dict):
-            raise RuntimeError(
-                f"process_dataset for {dataset_id} missing keys: {required_keys - data_dict.keys()}"
-            )
         steps.append(
             {
                 "step_name": f"process_{dataset_id}",

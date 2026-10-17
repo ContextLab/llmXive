@@ -1,9 +1,20 @@
 T001:
   c: true
-  h: 9086d75e15a5f169c01259dcdf044a7e07a1f3074a56774ea9ae71e4ebd60d78
-  r: "Checked that all required directories exist (including `data/processed`, `data/results`,\
-    \ `figures`, etc.) and that `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
-    \ lists the eight required columns, including `abs_error`. The verification script\
-    \ ran successfully (exit\u202F0) and printed \u201CSchema and directory verification\
-    \ passed\u201D."
-  sig: 16a02b6f5f20adc1bcb5bb7dad490e8c8673e4a449ae86e74d65a4d926901260
+  h: 9018c74b34ce0ca24b0e19ffc70caf7c31ea87649f0e069993110d2446225db5
+  r: "Checked `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` (contains\
+    \ the required command and full description), `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
+    \ (lists exactly the eight required columns), and the test script `code/tests/test_per_sample_schema.py`\
+    \ which loads the schema, asserts the column set, and exits with status\u202F\
+    0."
+  sig: e7c285f4458338bd4cc8785840d626057a40d6ad6f8629537b275d843c3ae114
+T002:
+  c: false
+  h: 22dd2cf136ecd969f87d91cbbe80f34393c77c178465f6d7110d9064e54fd53b
+  r: I inspected `code/download.py` (present) and the required output artifacts. The
+    three CSV files (`data/raw/band_gap.csv`, `formation_energy.csv`, `thermal_conductivity.csv`)
+    and their corresponding metadata JSON files are absent, and the checksum manifest
+    is missing. Running the provided `code/tests/test_download.py` fails with a 401
+    error during download and errors due to missing files, confirming that the implementation
+    does not produce the required datasets, metadata, or manifest. The task therefore
+    lacks the essential artifacts and does not meet the specification.
+  sig: 3a649a2427b764d389976a5f82290f2b42d3e6890fff1605d031a4773115bbb5

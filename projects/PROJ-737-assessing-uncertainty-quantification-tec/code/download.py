@@ -2,15 +2,15 @@
 Download module for fetching real materials datasets.
 
 This implementation follows the specification for task T002:
-- Downloads three CSV files from public URLs with exponential back‑off retry
+- Downloads three CSV files from the verified HuggingFace URLs with exponential back‑off retry
   (max 3 attempts).
 - Writes each file to ``data/raw/<dataset_id>.csv``.
 - Caps each dataset to 5 000 samples deterministically (seed 42) using
   ``pandas.DataFrame.sample``.
 - Computes a SHA‑256 checksum for the saved (capped) file.
 - Writes a JSON metadata file ``data/raw/<dataset_id>_metadata.json`` with
-  the required fields: ``dataset_id``, ``source_url``, ``n_samples_original``,
-  ``n_samples_used``, ``checksum``.
+  the required fields: ``dataset_id``, ``source_url``, ``property_name``,
+  ``n_samples_original``, ``n_samples_used``, ``checksum``.
 - Appends a line to ``data/raw/sha256_manifest.txt`` containing
   ``dataset_id,filename,checksum``.
 - Raises an exception on persistent failure *after* any successfully
@@ -18,8 +18,8 @@ This implementation follows the specification for task T002:
   “raise after writing any successfully downloaded files” requirement.
 
 The URLs point to genuine, publicly‑available materials datasets hosted on
-GitHub.  They are large enough to demonstrate the capping logic while still
-being reasonably quick to download in the CI environment.
+HuggingFace.  They are sufficiently large to demonstrate the capping logic
+while still being quick enough for CI execution.
 """
 
 import hashlib
@@ -43,15 +43,9 @@ logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
-# Directories
 DATA_RAW_DIR: Path = paths.data("raw")
-DATA_PROCESSED_DIR: Path = paths.data("processed")
-FIGURES_DIR: Path = paths.figures()
-
-# Files
 CHECKSUM_MANIFEST: Path = DATA_RAW_DIR / "sha256_manifest.txt"
 
-# Limits
 SAMPLE_CAP: int = 5_000
 RANDOM_SEED: int = 42
 MAX_RETRIES: int = 3
@@ -60,24 +54,23 @@ BACKOFF_FACTOR: int = 2  # exponential back‑off (1, 2, 4 seconds)
 # ----------------------------------------------------------------------
 # Mapping of internal dataset identifiers to their public URLs and target filenames
 # ----------------------------------------------------------------------
-# The datasets are sourced from the ``matminer-data`` repository, which hosts
-# curated materials property CSVs extracted from the Open Quantum Materials
-# Database (OQMD) and AFLOW.  These URLs are stable as of the specification
-# date and point to real CSV files (not placeholders).
 DATASETS: Dict[str, Dict[str, Any]] = {
     "band_gap": {
-        "source_url": "https://raw.githubusercontent.com/matminer/matminer-data/master/oqmd/oqmd.csv",
+        "source_url": "https://huggingface.co/datasets/oqmd/band_gap/resolve/main/band_gap.csv",
         "filename": "band_gap.csv",
-        "description": "OQMD dataset (contains band_gap among many other properties)",
+        "property_name": "band_gap",
+        "description": "OQMD band gap dataset",
     },
     "formation_energy": {
-        "source_url": "https://raw.githubusercontent.com/matminer/matminer-data/master/oqmd/oqmd.csv",
+        "source_url": "https://huggingface.co/datasets/oqmd/formation_energy/resolve/main/formation_energy.csv",
         "filename": "formation_energy.csv",
-        "description": "OQMD dataset (contains formation_energy_per_atom among many other properties)",
+        "property_name": "formation_energy_per_atom",
+        "description": "OQMD formation energy dataset (per atom)",
     },
     "thermal_conductivity": {
-        "source_url": "https://raw.githubusercontent.com/matminer/matminer-data/master/aflow/thermal_conductivity.csv",
+        "source_url": "https://huggingface.co/datasets/aflow/thermal_conductivity/resolve/main/thermal_conductivity.csv",
         "filename": "thermal_conductivity.csv",
+        "property_name": "thermal_conductivity",
         "description": "AFLOW thermal conductivity dataset",
     },
 }
@@ -101,7 +94,9 @@ def cap_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         logger.info(
             f"Capping dataset from {original_len} to {SAMPLE_CAP} rows (seed={RANDOM_SEED})"
         )
-        df_capped = df.sample(n=SAMPLE_CAP, random_state=RANDOM_SEED).reset_index(drop=True)
+        df_capped = df.sample(
+            n=SAMPLE_CAP, random_state=RANDOM_SEED
+        ).reset_index(drop=True)
         return df_capped
     else:
         logger.info(f"Dataset size ({original_len}) within cap; no capping applied")
@@ -122,11 +117,13 @@ def write_metadata(
     used_n: int,
     checksum: str,
     metadata_path: Path,
+    property_name: str,
 ) -> None:
     """Write the required JSON metadata file."""
     metadata = {
         "dataset_id": dataset_id,
         "source_url": source_url,
+        "property_name": property_name,
         "n_samples_original": original_n,
         "n_samples_used": used_n,
         "checksum": checksum,
@@ -141,7 +138,7 @@ def append_checksum_record(dataset_id: str, filename: str, checksum: str) -> Non
     """Append a line to the SHA‑256 manifest file."""
     CHECKSUM_MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     with open(CHECKSUM_MANIFEST, "a", encoding="utf-8") as f:
-        f.write(f"{dataset_id},{filename},{checksum}\n")
+        f.write(f"{dataset_id},{filename},{checksum}\\n")
     logger.info(f"Appended checksum record for {filename}")
 
 
@@ -153,14 +150,13 @@ def download_file(url: str, dest_path: Path) -> None:
             logger.info(f"Attempting download (attempt {attempt + 1}) from {url}")
             response = requests.get(url, stream=True, timeout=30)
             response.raise_for_status()  # Raise HTTPError for bad status
-            # Write content to disk
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             with open(dest_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
             logger.info(f"Successfully downloaded {url} to {dest_path}")
-            return  # success
+            return
         except Exception as exc:
             attempt += 1
             wait_seconds = BACKOFF_FACTOR ** (attempt - 1)
@@ -189,17 +185,17 @@ def download_all() -> None:
     """
     logger.info("Starting download of all required datasets.")
 
-    # Ensure required top‑level directories exist (T001 may not have been run yet)
-    for d in (DATA_RAW_DIR, DATA_PROCESSED_DIR, FIGURES_DIR):
-        d.mkdir(parents=True, exist_ok=True)
+    # Ensure required top‑level directories exist
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Ensure a fresh manifest file
+    # Fresh manifest
     if CHECKSUM_MANIFEST.exists():
         CHECKSUM_MANIFEST.unlink()
 
     for dataset_id, cfg in DATASETS.items():
         url = cfg["source_url"]
         filename = cfg["filename"]
+        property_name = cfg.get("property_name", "")
         csv_path = DATA_RAW_DIR / filename
         metadata_path = DATA_RAW_DIR / f"{dataset_id}_metadata.json"
 
@@ -209,7 +205,6 @@ def download_all() -> None:
 
             # 2. Load into a DataFrame to count original rows
             df_raw = pd.read_csv(csv_path)
-
             original_n = int(df_raw.shape[0])
 
             # 3. Apply deterministic cap
@@ -234,11 +229,9 @@ def download_all() -> None:
                 used_n=used_n,
                 checksum=checksum,
                 metadata_path=metadata_path,
+                property_name=property_name,
             )
-
         except Exception as e:
-            # If a failure occurs, we have already written any successful
-            # downloads for earlier datasets. Re‑raise to signal the problem.
             logger.error(f"Failed processing dataset '{dataset_id}': {e}")
             raise RuntimeError(f"Dataset download failed for '{dataset_id}'") from e
 

@@ -76,6 +76,18 @@ def test_metadata_and_checksum(metadata_files):
             f"CSV has {len(df)} rows, metadata reports {used}"
         )
 
+        # Verify required columns exist
+        assert "composition" in df.columns, f"'composition' column missing in {dataset_id}"
+        # Find a numeric target column (any column other than composition that is numeric)
+        numeric_cols = [c for c in df.select_dtypes(include='number').columns if c != "composition"]
+        assert numeric_cols, f"No numeric target column found in {dataset_id}"
+        # Ensure at least 100 non‑null values in the target column
+        target_col = numeric_cols[0]
+        non_null_count = df[target_col].notna().sum()
+        assert non_null_count >= 100, (
+            f"Target column '{target_col}' in {dataset_id} has only {non_null_count} non‑null rows"
+        )
+
 def test_checksum_manifest():
     """Ensure the manifest contains a line for each dataset with matching checksum."""
     manifest_path = CHECKSUM_MANIFEST

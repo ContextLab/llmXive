@@ -1,41 +1,32 @@
 T001:
-  task: 48651dd18438fb43f64c945c946058fa0785d2ef6c465ab0efb02282f5b8dfd3
+  task: f4402e0775c234c7998237d3b91e84b177c6e616dda4e7b8c9ec36c0e7ce14bf
 T002:
-  reason: The `code/download.py` script and its tests succeed, but the downloaded
-    files are not the required materials datasets. The CSVs contain the Iris, Tips,
-    and Planets example data from seaborn, and the metadata `source_url` fields point
-    to those unrelated URLs instead of the OQMD/AFLOW URLs specified in the task.
-    Consequently the core requirement of fetching the three real materials property
-    datasets is not met.
-  task: 882ecaf0c1e977451ab1a731fa7d3f5eb6103418339993daeed6a0d9938e6f9b
+  reason: I inspected `code/download.py` (present) and the required output artifacts.
+    The three CSV files (`data/raw/band_gap.csv`, `formation_energy.csv`, `thermal_conductivity.csv`)
+    and their corresponding metadata JSON files are absent, and the checksum manifest
+    is missing. Running the provided `code/tests/test_download.py` fails with a 401
+    error during download and errors due to missing files, confirming that the implementation
+    does not produce the required datasets, metadata, or manifest. The task therefore
+    lacks the essential artifacts and does not meet the specification.
+  task: 845ce2fdea7c4dbfd47030040cfc1d3fc8b380d5e093a02fb2f73e5da27d8b21
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: 09e67e6bef0218880ed780ae56e282d560f7957fc6d4d6cca4d77f16971dc4aa
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
+  task: 6cf50967374866b9dc7ba7599adb27fceb52c7205cb1a0b683d9fbd1ec808c4a
 T004:
-  task: e74be0cf571cd489c632500cc94e3aa213851b9e04f6ccc801813058434dbc93
+  task: 1ab12d746d5c81f58ba3fee13b365b206001b083610bbdf5ee1490d1216661f1
 T005:
-  task: 484d0ed728c5488ba14817b0f9aaeab20cf35ca5161ab3b353360de141b5477b
+  task: fc2def00d82b5ba4ab4cd2c475f4e8ab0b1724337ce2aad77743d06bd1eb81da
 T006:
-  task: db65c6fba4bc370b4e901e3790f3681b92c432eed185b9d818e8ec3c5ff037a4
+  task: b43fa293b482d0bbff02bce9d46753172f0ba0459eda835be99840b0664702d0
 T007:
-  task: b69957bdde72c87214c63b09f857c7f9a55830f002482001f17683a04b928914
+  task: e8649b796287c151a0117e4c7522f542ee9faecc4cbd6e86d0ee78c3bc246c0c
 T008:
-  task: 3c105c9ae8488f1f2a628ef610d6131f5d11b2202ab54021952533038ebd85a7
+  task: c36182712d99056eb619a3b5452ab5dbfb9d11c073443a638d79936a886e01f9
 T009:
-  task: 1174fcc29344718b1964431526d04d66100c0524a0c628b683a4d39d7ac62c78
+  task: e68bc24872fe933d08e27f5567ef9a59e1d4d735feb552af46c545b240b51e42
 T010:
-  task: f3eb97e5e9d4c2608cc961c99e192e9577f45229212e098288b4e62d4731422d
+  task: f245f64a8d9e020467c28d9c71406d0930020d5942727d14fed26913b5fb3188
 T011:
-  task: 13c41ea767ec50b9d5d62d7d6f8df448ec46e2a038d35b316583d6ee3aece55b
+  task: ef132ac1ba6a231ea7cc21c75e34204859174af785139755aec4ae4b64cfd7b9
 T012:
-  task: 0b8e2af37bc9a24ea09b5b902378d7c319f3dad956f42441b92687dd4d34c563
-T013:
-  task: 9f997ee9ee970d6f93c0c1141352735930e7566ac44d6829714c5706cf370d8f
-T014:
-  task: 98b2ccd01b55b8973efa4f31ee02c054ba3ccdccd1ec8808b844953025ae6830
-T016:
-  task: a738091f4d06d59ee3efa035f7b4205d93865c2ed3af9413a94b06765e67367e
-T021:
-  task: 1464e85c759e6fbfda27f924b3671846f97b2601e4ef944f0bae6c84f28eb83a
-T022:
-  task: 571d22a5909ae7c0d2505d010c9c8cf520d9967c446e0d2b9c9035c4879687d3
+  task: 6610c4a51be9591555376685e224060b7dca31919d6ab07e757f89980a9d9114

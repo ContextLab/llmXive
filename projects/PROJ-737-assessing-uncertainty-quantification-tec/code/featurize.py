@@ -233,6 +233,12 @@ def process_dataset(
     For each dataset the returned dictionary contains:
         X_train, y_train, X_val, y_val, X_test, y_test
     and the processed CSV files are saved under ``data/processed``.
+
+    If ``dataset_name`` is provided, only that dataset is processed and the
+    function returns the split dictionary for that single dataset (rather than
+    the full mapping).  This adjustment simplifies downstream callers such as
+    ``code/main.py`` which expect a direct dict when a single dataset is
+    requested.
     """
     raw_dir = Path(__file__).parents[1] / "data" / "raw"
     processed_dir = Path(__file__).parents[1] / "data" / "processed"
@@ -281,7 +287,7 @@ def process_dataset(
             logger.debug(f"Wrote {split_name} split to {out_path}")
 
         # Assemble dict for model runners
-        all_data[name] = {
+        split_dict = {
             "X_train": X_train,
             "y_train": y_train,
             "X_val": X_val,
@@ -289,6 +295,12 @@ def process_dataset(
             "X_test": X_test,
             "y_test": y_test,
         }
+
+        if dataset_name:
+            # Single‑dataset mode: return immediately
+            return split_dict
+
+        all_data[name] = split_dict
 
         # Optional memory clean‑up
         gc.collect()

@@ -1,29 +1,42 @@
 # Quickstart: Assessing Uncertainty Quantification Techniques
 
-## Prerequisites
-
-- Python 3.11+  
-- Git  
-- Internet access (for dataset download)  
-- ≤ 2 GB RAM (GitHub Actions runner or local machine)
-
-## Installation
+## Command
 
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd projects/PROJ-737-assessing-uncertainty-quantification-tec
-git checkout 001-assessing-uq-techniques
-
-# Create and activate a virtual environment
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-
-# Install pinned dependencies
-pip install -r code/requirements.txt
+python -m code.main --thin
 ```
 
-## Running the Full Pipeline
+## What this runs
+
+- **Four UQ methods** are evaluated:
+  1. **Gaussian Process Regression (GPR)**
+  2. **Monte‑Carlo Dropout (MC‑Dropout)**
+  3. **Deep Ensemble**
+  4. **Split‑Conformal prediction**
+
+- **Training sample cap** – each method is trained on at most **2000 samples** per dataset (the pipeline enforces this cap automatically).
+
+- **Deterministic sampling rule** – the pipeline selects the first *N* rows of each raw dataset using a fixed random seed (`seed=42`). This guarantees reproducible “first‑N rows” subsampling across runs.
+
+- **Statistical comparison** – after predictions are generated, a **paired Wilcoxon signed‑rank test** is performed on the per‑sample error vectors of each method pair. This test respects the paired nature of the predictions (same test set) and provides a rigorous significance assessment.
+
+- **Proxy property note** – the **Formation Energy** dataset is used as a proxy for **Elastic Modulus** (the original Elastic Modulus dataset is not publicly available). All conclusions about mechanical stiffness are qualified accordingly.
+
+## Expected outputs
+
+Running the command creates the following artefacts (all under the project root):
+
+- `data/raw/` – downloaded CSVs (checked‑summed).
+- `data/processed/` – featurized train/val/test splits.
+- `data/results/per_sample_errors.csv` – per‑sample predictions adhering to the schema defined in `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`.
+- `data/results/pipeline_run.json` – execution log conforming to the pipeline schema.
+- Additional CSV/PNG artefacts produced by later tasks (metrics, statistical reports, figures, etc.).
+
+The thin run operates on a **100‑sample** subset of each dataset (overridden by `--thin`) but still respects the 2000‑sample cap and the deterministic sampling rule.
+
+## Re‑run
+
+To execute the full pipeline (all datasets, full caps) use the command from the main quickstart guide:
 
 ```bash
 python code/main.py \
@@ -35,34 +48,3 @@ python code/main.py \
     --coverage-sweep-step 0.01 \
     --seed 42
 ```
-
-### Optional Flags
-
-| Flag | Description |
-|------|-------------|
-| `--dataset <id>` | Run only on a specific dataset (`band_gap`, `thermal_conductivity`, `formation_energy`). |
-| `--method <id>` | Run only a single UQ method (`gpr`, `mc_dropout`, `deep_ensemble`, `conformal`). |
-| `--max-samples N` | Upper bound on samples per dataset to respect RAM limits (default = 2000). |
-| `--seed <int>` | Override the default random seed. |
-
-## Expected Outputs
-
-- `data/raw/` – downloaded CSVs (checksummed).  
-- `data/processed/` – featurized train/val/test splits (automatically created).  
-- `results/metrics_*.csv` – Calibration Error, Sharpness, Coverage per method.  
-- `results/statistical_report.csv` – Paired Wilcoxon p‑values & significance flags (conforms to `contracts/stats.schema.yaml`).  
-- `results/sensitivity_conformal.csv` – Coverage sweep results.  
-- `results/uq_methods.csv` – Registry of UQMethod entities (method_id, baseline_model, hyperparams, n_iterations, status, error_msg).  
-- `results/pipeline_log.csv` – Execution log adhering to `contracts/pipeline.schema.yaml`.  
-- `logs/execution.log` – Timestamped step‑by‑step log (including memory usage).  
-
-## Troubleshooting
-
-- **MemoryError**: Reduce `--max-samples` (e.g., to 1500).  
-- **Dataset download failure**: Verify internet connectivity; the script logs the exact URL that failed.  
-- **GPR convergence issues**: The pipeline will automatically down‑sample to ≤ 2000 points and retry.  
-- **Missing `pipeline_log.csv`**: Ensure you are running `code/main.py` (the orchestrator) rather than individual modules.  
-
----
-
-

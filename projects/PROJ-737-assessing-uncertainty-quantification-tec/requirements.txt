@@ -1,2 +1,8 @@
-matminer==0.7.3
-pymatgen==2024.1.1
+# Existing dependencies (provided by the platform) are omitted from this list.
+# Add only those that are not already available.
+datasets
+huggingface_hub
+matminer
+pymatgen
+torch
+xgboost
