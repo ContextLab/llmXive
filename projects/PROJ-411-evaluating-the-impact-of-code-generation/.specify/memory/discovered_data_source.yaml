@@ -1,0 +1,19 @@
+status: none
+intent: download GHTorrent pull request metadata with LLM provenance labels python
+  package dataset
+required_fields:
+- repository_name
+- pull_request_id
+- pull_request_url
+- creation_timestamp
+- merge_timestamp
+- author_login
+- author_association
+- comment_count
+- review_comment_count
+- review_timestamp_list
+- lines_added
+- lines_deleted
+cache_key: ad09362312c171397484a59c094ca299320f48bb6e7702bec9a28492e93513ac
+searched_at: '2026-10-17T12:24:46.484541+00:00'
+retry_count: 1

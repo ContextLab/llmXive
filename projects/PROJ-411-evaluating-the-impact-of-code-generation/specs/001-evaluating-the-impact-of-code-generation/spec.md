@@ -13,7 +13,7 @@ The system MUST extract pull request metadata from a curated list of public GitH
 
 **Why this priority**: This is the foundational step. Without a reliable, automated method to distinguish between LLM and human code, no comparative analysis of review burden can occur. This represents the core data acquisition capability.
 
-**Independent Test**: Can be fully tested by running the extraction script against a small, fixed set of 10 known repositories and verifying that the output CSV contains the correct `provenance` label for each PR based on manual ground-truth verification of an initial subset of samples.
+**Independent Test**: Can be fully tested by running the extraction script against a small, fixed set of known repositories. and verifying that the output CSV contains the correct `provenance` label for each PR based on manual ground-truth verification of an initial subset of samples.
 
 **Acceptance Scenarios**:
 
