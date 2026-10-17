@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "7dcae22eb3d57b9df83817b21f705ffe279892685dd9a3aff3da5cc335711528",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'tests/quickstart_test.py': SyntaxError at line 50: invalid syntax. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 2000"
+}
