@@ -15,32 +15,32 @@ required:
 properties:
   test_name:
     type: string
-    description: "Name of the statistical test (e.g., t-test, Mann-Whitney U)."
+    description: "Name of the statistical test (e.g., independent-samples t-test, Mann-Whitney U, chi-square)."
   metric:
     type: string
-    description: "Metric compared (e.g., review_active_seconds)."
+    description: "Metric compared (e.g., review_active_seconds, comment_density, issue_severity)."
   group_a_n:
     type: integer
-    description: "Sample size of LLM-generated group."
+    description: "Sample size of the LLM-generated group."
   group_b_n:
     type: integer
-    description: "Sample size of Human-written group."
+    description: "Sample size of the Human-written group."
   test_statistic:
     type: number
-    description: "t value or U statistic."
+    description: "t value, U statistic, or chi-square statistic."
   p_value:
     type: number
-    description: "Raw p‑value before correction."
+    description: "Raw p-value before correction."
   effect_size:
     type: number
-    description: "Cohen's d or rank‑biserial correlation."
+    description: "Cohen's d, rank-biserial correlation, or Cramer's V."
   effect_size_type:
     type: string
-    enum: ["cohen_d", "rank_biserial"]
-    description: "Indicates which effect‑size metric is reported."
+    enum: ["cohen_d", "rank_biserial", "cramers_v"]
+    description: "Which effect-size metric is reported."
   significance:
     type: boolean
     description: "True if p_value < bonferroni_corrected_alpha."
   bonferroni_corrected_alpha:
     type: number
-    description: "Alpha after Bonferroni correction (0.05 divided by number of primary tests)."
+    description: "Alpha after Bonferroni correction (0.05 divided by the number of primary tests)."

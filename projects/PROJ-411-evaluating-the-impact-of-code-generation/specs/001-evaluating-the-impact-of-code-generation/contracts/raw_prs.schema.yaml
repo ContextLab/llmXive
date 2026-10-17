@@ -1,0 +1,54 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Raw Pull Request Record"
+type: object
+required:
+  - pr_id
+  - repo_name
+  - created_at
+  - merged_at
+  - additions
+  - deletions
+  - comment_count
+  - commit_message
+properties:
+  pr_id:
+    type: integer
+    description: "Unique identifier of the pull request on GitHub."
+  repo_name:
+    type: string
+    description: "Full repository name (owner/repo)."
+  created_at:
+    type: string
+    format: date-time
+    description: "Timestamp when the PR was opened (ISO-8601)."
+  merged_at:
+    type: [string, "null"]
+    format: date-time
+    description: "Timestamp when the PR was merged (ISO-8601; null if never merged)."
+  additions:
+    type: integer
+    description: "Number of lines added."
+  deletions:
+    type: integer
+    description: "Number of lines removed."
+  comment_count:
+    type: integer
+    description: "Total number of review comments on the PR."
+  commit_message:
+    type: string
+    description: "Commit message of the PR head commit; scanned for LLM tool keywords (e.g., Copilot, GPT, Codeium)."
+  diff_text:
+    type: [string, "null"]
+    description: "Unified diff of the PR; used for diff-pattern provenance signals. Optional: absence is reported by the Phase-0 schema map."
+  file_headers:
+    type: [string, "null"]
+    description: "Concatenated file-header comments from changed files; highest-precedence provenance signal. Optional: absence is reported by the Phase-0 schema map."
+  labels:
+    type: array
+    items:
+      type: string
+    description: "GitHub labels attached to the PR; source for issue_severity."
+  first_comment_timestamp:
+    type: [string, "null"]
+    format: date-time
+    description: "Timestamp of the earliest review comment (ISO-8601); required by FR-016 for review_active_seconds. If absent in the source data, the pipeline falls back to review_duration_seconds and reports a limitation."
