@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 5fc36dbf6abee05de3156d47ee86071c94a7585ce0ec940fca723ee2730dec9a
+  artifact_path: projects/PROJ-159-predicting-molecular-permeability-throug/specs/001-predicting-molecular-permeability-throug/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1038/s41586
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1038/s41586
+  verified_at: '2026-10-17T16:22:04.242683Z'
