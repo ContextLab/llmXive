@@ -1,7 +1,7 @@
 # Quickstart Guide: The Impact of Perceived Control Over Digital Environments on Anxiety
 
 ## Overview
-A reproducible, CPU‑only pipeline that downloads a public tweet dataset, scores anxiety, extracts a metadata‑based control proxy, runs a statistically rigorous correlation analysis, and visualizes the result.
+A reproducible, CPU‑only pipeline that downloads a public tweet dataset, scores anxiety, extracts a metadata‑based control proxy, runs a statistically rigorous correlation analysis, verifies the statistical workflow, and visualizes the result.
 
 ## Prerequisites
 - Python 3.11+
@@ -26,7 +26,8 @@ This executes, in order:
 3. Control proxy extraction (`proxy_extractor.py`)
 4. Merge & confidence filtering
 5. Shapiro‑Wilk test, correlation selection, significance flag (`statistical_test.py`)
-6. Scatter plot with regression line (`plot_results.py`)
+6. **Statistical verification** (`tests/integration/test_pipeline.py` runs automatically as part of the pipeline)
+7. Scatter plot with regression line (`plot_results.py`)
 
 **Expected runtime**: ~1.5 h for 20 k posts on a 2‑core runner.  
 **Peak memory**: < 5 GB.
@@ -61,6 +62,7 @@ Key integration tests verify:
 - Presence and schema compliance of all JSON/CSV artifacts.
 - Correct execution of Shapiro‑Wilk, method selection, and `is_significant` flag (addresses AC‑008 – AC‑010).
 - Graceful handling of download failures (SC‑003).
+- **Statistical verification** (T106) that the analysis results were derived as specified.
 
 ## Troubleshooting
 - **Missing dataset URL**: The required dataset lacks a verified URL; the pipeline will attempt to download it via `datasets.load_dataset`. If the download fails, the run aborts with a clear error (no synthetic data generated).  

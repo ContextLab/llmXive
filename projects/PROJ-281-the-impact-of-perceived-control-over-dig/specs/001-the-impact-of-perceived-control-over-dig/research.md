@@ -1,7 +1,7 @@
 # Research: The Impact of Perceived Control Over Digital Environments on Anxiety
 
 ## Executive Summary
-We examine whether metadata‑derived “perceived control” scores correlate with anxiety levels extracted from tweet text. The study uses a publicly available HuggingFace dataset, a CPU‑only RoBERTa‑base emotion model, and classical statistical tests. All code runs reproducibly on a free‑tier CI runner.
+We examine whether metadata‑derived “perceived control” scores correlate with anxiety levels extracted from tweet text. The study uses a publicly available HuggingFace dataset, a CPU‑only RoBERTa‑base emotion model, and classical statistical tests. All code runs reproducibly on a free‑tier CI runner. A dedicated verification step (T106) ensures that the Shapiro‑Wilk test, method selection, and significance flag are correctly applied.
 
 ## Dataset Strategy
 | Dataset | Verified URL | Contains Required Fields? | Notes |
@@ -29,6 +29,9 @@ If the model lacks an explicit “anxiety” label, we map “fear” and “sad
 6. **Multiple Comparisons**: Only one primary test is performed; no correction needed, but the plan notes the policy for future extensions.  
 7. **Output**: `analysis_results.json` containing all fields defined in `contracts/analysis.schema.yaml` (correlation method, coefficient, p‑value, significance flag, normality p‑value, sample size, confidence threshold).
 
+### Verification (T106)
+An integration test reloads the raw `final_analysis.csv`, recomputes the Shapiro‑Wilk tests, confirms that the recorded `correlation_method` matches the decision rule, and asserts that `is_significant` aligns with the p‑value threshold. This guarantees that AC‑008 – AC‑010 are not only present in the output file but are *actually* derived from the prescribed statistical procedure.
+
 All statistical decisions are pre‑registered in the pipeline; no post‑hoc hacking.
 
 ## Decision / Rationale
@@ -36,6 +39,6 @@ All statistical decisions are pre‑registered in the pipeline; no post‑hoc ha
 - **RoBERTa‑base**: Balances accuracy and inference speed on CPU.  
 - **Metadata‑only Proxy**: Enforces Constitution Principle VI (measurement independence) and SC‑002.  
 - **Dataset Choice**: The selected HF dataset is openly downloadable; lacking `filter_applied` is an unavoidable limitation, but the proxy remains valid via timestamp regularity.  
-- **Statistical Rigor**: Shapiro‑Wilk normality test, conditional method selection, and explicit significance flag satisfy AC‑008 – AC‑010 and meet the methodological standards required for quantitative correlation studies.
+- **Statistical Rigor**: Shapiro‑Wilk normality test, conditional method selection, explicit significance flag, and a dedicated verification step (T106) satisfy AC‑008 – AC‑010 and meet methodological standards for quantitative correlation studies.
 
 ---
