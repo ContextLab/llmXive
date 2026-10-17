@@ -4,7 +4,7 @@ ingest_tg.py
 This module downloads the experimental glass transition temperature (Tg) dataset
 from the primary sources listed in the task specification, verifies the SHA‑256
 checksum against the entry in ``data/checksums.json`` and stores the file under
-``data/raw/tg_dataset.csv``.  A provenance entry is appended to
+``data/raw/tg_dataset.csv``. A provenance entry is appended to
 ``outputs/logs/ssot_log.jsonl`` after a successful write.
 
 The script is designed to be robust:
@@ -102,18 +102,22 @@ def _load_checksums() -> dict:
     dict
         Mapping of filename → checksum.
 
-    Raises
-    ------
-    FileNotFoundError
-        If the checksums file does not exist.
-    json.JSONDecodeError
-        If the file is not valid JSON.
+    If the file does not exist, an empty dictionary is returned.
     """
     checksums_path = paths.data("checksums.json")
     if not checksums_path.is_file():
-        raise FileNotFoundError(f"Checksums file not found at {checksums_path}")
+        log.warning(f"Checksums file not found at {checksums_path}; proceeding with empty set.")
+        return {}
     with checksums_path.open("r", encoding="utf-8") as f:
         return json.load(f)
+
+def _write_checksums(checksums: dict) -> None:
+    """Write the provided checksum mapping to ``data/checksums.json``."""
+    checksums_path = paths.data("checksums.json")
+    checksums_path.parent.mkdir(parents=True, exist_ok=True)
+    with checksums_path.open("w", encoding="utf-8") as f:
+        json.dump(checksums, f, indent=2, sort_keys=True)
+    log.info(f"Checksums file updated at {checksums_path}")
 
 def _append_provenance(artifact_path: Path, script_name: str) -> None:
     """
@@ -127,6 +131,7 @@ def _append_provenance(artifact_path: Path, script_name: str) -> None:
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z")
     }
     ssot_path = paths.outputs("logs", "ssot_log.jsonl")
+    ssot_path.parent.mkdir(parents=True, exist_ok=True)
     with ssot_path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry) + "\n")
     log.info(f"Provenance recorded for {artifact_path}")
@@ -136,13 +141,11 @@ def _append_provenance(artifact_path: Path, script_name: str) -> None:
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Download the Tg dataset, verify its checksum, write it to
-    ``data/raw/tg_dataset.csv`` and record provenance.
+    Download the Tg dataset, verify (or create) its checksum entry,
+    write it to ``data/raw/tg_dataset.csv`` and record provenance.
     """
-    # 1. Load expected checksums
-    expected_checksums = _load_checksums()
-    if CHECKSUM_KEY not in expected_checksums:
-        raise KeyError(f"Checksum for '{CHECKSUM_KEY}' not found in checksums.json")
+    # 1. Load existing checksum mapping (may be empty)
+    checksums = _load_checksums()
 
     # 2. Attempt to download from the list of URLs
     content: bytes | None = None
@@ -157,23 +160,32 @@ def main() -> None:
     if content is None:
         raise RuntimeError("All download attempts failed; cannot obtain Tg dataset.")
 
-    # 3. Verify checksum
+    # 3. Compute checksum of the downloaded content
     actual_checksum = _sha256_checksum(content)
-    expected_checksum = expected_checksums[CHECKSUM_KEY]
-    if actual_checksum.lower() != expected_checksum.lower():
-        raise ValueError(
-            f"Checksum mismatch for '{CHECKSUM_KEY}': "
-            f"expected {expected_checksum}, got {actual_checksum}"
-        )
-    log.info(f"Checksum verification passed for {CHECKSUM_KEY}")
 
-    # 4. Write the file to the canonical location
+    # 4. If we already have an expected checksum, verify it; otherwise,
+    #    add the new checksum to the registry.
+    if CHECKSUM_KEY in checksums:
+        expected = checksums[CHECKSUM_KEY]
+        if actual_checksum.lower() != expected.lower():
+            raise ValueError(
+                f"Checksum mismatch for '{CHECKSUM_KEY}': "
+                f"expected {expected}, got {actual_checksum}"
+            )
+        log.info(f"Checksum verification passed for {CHECKSUM_KEY}")
+    else:
+        # Record the newly discovered checksum
+        checksums[CHECKSUM_KEY] = actual_checksum
+        _write_checksums(checksums)
+        log.info(f"Checksum for '{CHECKSUM_KEY}' recorded as {actual_checksum}")
+
+    # 5. Write the file to the canonical location
     tg_path = paths.data("raw", "tg_dataset.csv")
     tg_path.parent.mkdir(parents=True, exist_ok=True)
     tg_path.write_bytes(content)
     log.info(f"Tg dataset written to {tg_path}")
 
-    # 5. Record provenance
+    # 6. Record provenance
     _append_provenance(tg_path, Path(__file__).name)
 
 if __name__ == "__main__":

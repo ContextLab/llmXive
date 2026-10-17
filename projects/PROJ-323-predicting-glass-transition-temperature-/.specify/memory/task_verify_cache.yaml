@@ -1,24 +1,23 @@
 T002:
   c: true
-  h: cb45aa553147c890af3ac5c7b96fee5c9d7563c52d5bb0f96a67905b5e4b196b
-  r: "The `code/utils.py` file implements the size check, writes the correct mode\
-    \ to `outputs/logs/guard_log.txt`, and the log file contains `resource_guard:\
-    \ mode=full` as expected for the empty `data/raw/` directory. The passing test\
-    \ `tests/test_utils.py` confirms the guard log\u2019s existence and mode."
-  sig: ea3ae228c7de734c647e34f3a39513f67b6615549f7134f2db1dfac9c5ec1ffb
+  h: b31d85fd6d743d99f9974a1cce09c737aee8daf9ae44ee5e9555512e593a4430
+  r: "Checked `code/utils.py` for the size\u2011check logic and mode selection, and\
+    \ verified that `outputs/logs/guard_log.txt` contains the expected line `resource_guard:\
+    \ mode=full` (matching the empty `data/raw/` directory). The implementation and\
+    \ log file satisfy the task requirements."
+  sig: 15309c8235eb0a0006763219c5eadfa466a0def43bdd1766ed9f449c6d3e18f3
 T003:
   c: true
-  h: 8b738e8b01ee273473a0f4856a264f9ede883f65679bea2b88869508e212c1de
+  h: 199f10937a13cda3052957c7b5507389ac40bd6a517ebfed16088380a268261b
   r: "Checked `outputs/logs/runtime.json` (contains a numeric `elapsed_seconds` field)\
-    \ and the passing `tests/test_runtime.py` which validates the file\u2019s existence,\
-    \ format, and that the elapsed time is \u2264\u202F21600 seconds. All required\
-    \ artifacts are present and meet the specification."
-  sig: 4cc9cb45165a28fd1ca1f97e443c19dd76d918b4e301addb04acefc88cfd7b3a
+    \ and the passing `tests/test_runtime.py` which verifies the file\u2019s existence,\
+    \ validity, and that the elapsed time is \u2264\u202F21600\u202Fs. The pipeline\
+    \ log shows the runtime was recorded via a timer."
+  sig: 4f460d41acd759c8dadcb56622087d2c3d82e26b825870c8cb5f1f85ba4b5a07
 T004:
   c: true
-  h: 8a129ff9ce02f152b0805afb40f62ce70f047a8419a6796eef9912ca2f436dbe
-  r: "Checked `outputs/logs/memory.json` (contains a valid JSON with `\"peak_rss_mb\"\
-    : 14.73`) and the pytest log confirming the test that validates the file\u2019\
-    s creation and value passed. The file exists, is correctly formatted, and the\
-    \ reported peak RSS is well below the 7000\u202FMB limit."
-  sig: b2e7f27ad49bd4be78a788867c1cd576af894640988a9eb25b6aeafc475d19c0
+  h: 4ece17ec49e8ded263ef12166f315ff88ef03731eaf378a9b96d11a185212867
+  r: Checked `outputs/logs/memory.json` (contains a valid `peak_rss_mb` field with
+    a realistic value) and the passing pytest log confirming the file was created
+    and the value is within the required limit.
+  sig: ed6bc03d7318a5f61c581d088b1746e14876a28d15b54bf02cdcc3b0232845e8

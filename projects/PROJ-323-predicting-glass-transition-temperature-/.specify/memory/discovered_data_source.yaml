@@ -1,11 +1,13 @@
 status: none
-intent: Polymer Genome Project NIST WebBook polymer Tg SMILES python package dataset
+intent: Polymer Genome Project downloadable dataset SMILES Tg Python package
 required_fields:
 - polymer_id
+- polymer_name
 - smiles
-- tg
-- polymer_class
-- composition
-cache_key: 7eaec8e535dfa17c622cd5b2a26cd8ea7a30e92fecd22fc45a4bd9947a638557
-searched_at: '2026-10-17T17:20:35.522329+00:00'
+- glass_transition_temperature
+- polymer_type
+- blend_components
+- source_database
+cache_key: 41d51d3ee9c8bbc240410f013bc68232f330d462934a709c0e9181c088d84e55
+searched_at: '2026-10-17T17:21:44.827137+00:00'
 retry_count: 1

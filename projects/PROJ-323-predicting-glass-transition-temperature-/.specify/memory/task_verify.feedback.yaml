@@ -1,8 +1,5 @@
 T001:
-  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/ci.yml`
-    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'
   task: 7e4eddc679f54554f8d7127c3f8f6b8d2f1ad457346865e0f340449a33e09ef1
 T002:
   task: 55856d38d4423673fbac314f9392eede6e94e3eda37a1c9a546faf1dfb9cd7a9

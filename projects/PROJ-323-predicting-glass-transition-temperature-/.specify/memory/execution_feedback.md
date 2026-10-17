@@ -8,22 +8,26 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m code.ingest --check -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-323-predicting-glass-transition-temperature-/bin/python: No module named code.ingest
+2026-10-17 17:21:21,560 ERROR __main__: Checksums file missing at /home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/data/checksums.json
 
 - python -m pytest -m contract -> rc=5
-============================= test session starts ==============================
+======================
 platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-collected 6 items / 6 deselected / 0 selected
+collected 7 items / 7 deselected / 0 selected
 
 =============================== warnings summary ===============================
+tests/test_ingest_check.py:19
+  /home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/tests/test_ingest_check.py:19: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.timeout(300)
+
 tests/test_memory_usage.py:20
   /home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/tests/test_memory_usage.py:20: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
     @pytest.mark.timeout(300)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================= 6 deselected, 1 warning in 0.28s =======================
+====================== 7 deselected, 2 warnings in 0.26s =======================
 
 
 
@@ -37,6 +41,7 @@ tests/test_memory_usage.py:20
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/checksums.json` is declared but was NOT written. Scripts referencing it:
+    - `code/ingest.py` — IS a run-book command
     - `code/ingest_tg.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/tg_dataset.csv` is declared but was NOT written. Scripts referencing it:
