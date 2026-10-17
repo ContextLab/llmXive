@@ -28,14 +28,17 @@ from pathlib import Path
 import requests
 import yaml
 from jsonschema import validate
-from llmxive_toolkit import paths
+from llmxive_toolkit import paths, get_logger
 
 from verify_references import (
     CANONICAL_DATASET_ID,
     S3_BASE,
     collect_events,
     verify_dataset_id,
+    verify_conditions,
 )
+
+log = get_logger(__name__)
 
 SCHEMA_PATH = (
     paths.root
@@ -47,6 +50,7 @@ SCHEMA_PATH = (
 
 
 def _strip_ns(tag):
+    """Strip XML namespace from tag."""
     return tag.split("}")[-1]
 
 
@@ -60,8 +64,13 @@ def s3_list(prefix, delimiter=None):
             params["delimiter"] = delimiter
         if token:
             params["continuation-token"] = token
-        resp = requests.get(S3_BASE, params=params, timeout=60)
-        resp.raise_for_status()
+        try:
+            resp = requests.get(S3_BASE, params=params, timeout=60)
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            raise RuntimeError(
+                "Failed to list S3 objects under %s: %s" % (prefix, exc)
+            )
         root = ET.fromstring(resp.text)
         for child in root:
             name = _strip_ns(child.tag)
@@ -120,19 +129,28 @@ def resolve_dataset_prefix():
     )
 
 
-def fetch_file(url, dest):
+def fetch_file(url, dest, max_retries=3):
     """Fetch one file via curl (fallback wget). Fails loudly; no synthetic fallback."""
     dest.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Try curl first
     curl_cmd = [
-        "curl", "-fSL", "--retry", "3", "--connect-timeout", "30",
+        "curl", "-fSL", "--retry", str(max_retries), 
+        "--connect-timeout", "60", "--max-time", "300",
         "-o", str(dest), url,
     ]
-    proc = subprocess.run(curl_cmd)
+    proc = subprocess.run(curl_cmd, capture_output=True, text=True)
     if proc.returncode == 0:
         return
-    print("curl failed (%d) for %s; trying wget..." % (proc.returncode, url), file=sys.stderr)
-    wget_cmd = ["wget", "-q", "--tries", "3", "--timeout", "60", "-O", str(dest), url]
-    proc2 = subprocess.run(wget_cmd)
+    
+    log.warning("curl failed (%d) for %s; trying wget...", proc.returncode, url)
+    
+    # Fallback to wget
+    wget_cmd = [
+        "wget", "-q", "--tries", str(max_retries), 
+        "--timeout", "60", "-O", str(dest), url
+    ]
+    proc2 = subprocess.run(wget_cmd, capture_output=True, text=True)
     if proc2.returncode != 0:
         raise RuntimeError(
             "FAILED to download %s (curl rc=%d, wget rc=%d). No fallback data "
@@ -141,6 +159,7 @@ def fetch_file(url, dest):
 
 
 def sha256_file(path, chunk_size=1024 * 1024):
+    """Compute SHA-256 hash of a file."""
     h = hashlib.sha256()
     with open(path, "rb") as fh:
         for chunk in iter(lambda: fh.read(chunk_size), b""):
@@ -149,6 +168,7 @@ def sha256_file(path, chunk_size=1024 * 1024):
 
 
 def download_subjects(n_subjects, raw_dir):
+    """Download n_subjects from ds004510, iteratively (one subject at a time)."""
     prefix = resolve_dataset_prefix()
     keys, _ = s3_list(prefix)
     if not keys:
@@ -185,19 +205,23 @@ def download_subjects(n_subjects, raw_dir):
         print("Downloading %s" % remainder)
         fetch_file(url, dest)
         downloaded.append(dest)
+    
     # Then subject files, one subject at a time (iterative; bounded memory).
     for subj in selected:
+        print("Processing subject: %s" % subj)
         for key in sorted(subject_files[subj]):
             remainder = key[len(prefix):]
             dest = raw_dir / remainder
             url = "%s/%s" % (S3_BASE, key)
-            print("Downloading %s" % remainder)
+            print("  Downloading %s" % remainder)
             fetch_file(url, dest)
             downloaded.append(dest)
+    
     return downloaded
 
 
 def record_checksums(files, raw_dir):
+    """Record SHA-256 checksums of downloaded files."""
     checksums_path = raw_dir / "checksums.json"
     checksums = {}
     if checksums_path.exists():
@@ -205,10 +229,12 @@ def record_checksums(files, raw_dir):
             checksums = json.loads(checksums_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             checksums = {}
+    
     for f in files:
         rel = str(f.relative_to(raw_dir))
         checksums[rel] = sha256_file(f)
         print("SHA-256 %s  %s" % (checksums[rel][:16] + "...", rel))
+    
     checksums_path.write_text(
         json.dumps(checksums, indent=2, sort_keys=True), encoding="utf-8"
     )
@@ -224,22 +250,26 @@ def validate_metadata(raw_dir):
             "No standard/deviant stimulus types found in events metadata; "
             "cannot build dataset metadata rows."
         )
+    
     schema = yaml.safe_load(SCHEMA_PATH.read_text(encoding="utf-8"))
     alias_c = {"simple": "simple", "complex": "complex"}
     alias_s = {
         "standard": "standard", "std": "standard",
         "deviant": "deviant", "dev": "deviant",
     }
+    
     rows = []
     for events_path in sorted(Path(raw_dir).rglob("*events.tsv")):
         subj_m = re.search(r"(sub-[A-Za-z0-9]+)", str(events_path))
         if not subj_m:
             continue
         subject_id = subj_m.group(1)
+        
         with open(events_path, newline="", encoding="utf-8") as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             headers = reader.fieldnames or []
             rows_raw = list(reader)
+        
         cond_col = "condition_label" if "condition_label" in headers else None
         if cond_col is None:
             for h in headers:
@@ -247,6 +277,7 @@ def validate_metadata(raw_dir):
                 if vals & set(alias_c):
                     cond_col = h
                     break
+        
         stim_col = "stimulus_type" if "stimulus_type" in headers else None
         if stim_col is None:
             for h in headers:
@@ -254,8 +285,10 @@ def validate_metadata(raw_dir):
                 if vals & set(alias_s):
                     stim_col = h
                     break
+        
         if cond_col is None or stim_col is None:
             continue
+        
         for r in rows_raw:
             c = alias_c.get(str(r.get(cond_col) or "").strip().lower())
             s = alias_s.get(str(r.get(stim_col) or "").strip().lower())
@@ -271,6 +304,7 @@ def validate_metadata(raw_dir):
             validate(row, schema)
             if row not in rows:
                 rows.append(row)
+    
     out = paths.results("dataset_metadata.json")
     out.write_text(json.dumps(rows, indent=2), encoding="utf-8")
     print(
@@ -303,7 +337,6 @@ def main():
 
     # FR-012(2) / FR-008: pre-analysis condition gate (halts with the exact
     # FR-008 message if 'complex' is missing).
-    from verify_references import verify_conditions
     verify_conditions(raw_dir)
 
     validate_metadata(raw_dir)

@@ -17,7 +17,9 @@ import sys
 from pathlib import Path
 
 import requests
-from llmxive_toolkit import paths
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
 
 CANONICAL_DATASET_ID = "ds004510"
 OPENNEURO_URL = "https://openneuro.org/datasets/" + CANONICAL_DATASET_ID

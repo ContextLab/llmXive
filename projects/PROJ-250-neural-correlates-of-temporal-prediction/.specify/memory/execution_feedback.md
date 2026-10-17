@@ -7,13 +7,23 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download.py --subjects 2 -> rc=-1
- 0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  1 92.5M    1  968k    0     0  1335k      0  0:01:11 --:--:--  0:01:11 1334k 46 92.5M   46 43.4M    0     0  24.9M      0  0:00:03  0:00:01  0:00:02 24.9M100 92.5M  100 92.5M    0     0  36.3M      0  0:00:02  0:00:02 --:--:-- 36.3M
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  2 98.4M    2 2858k    0     0  3544k      0  0:00:28 --:--:--  0:00:28 3542k 54 98.4M   54 53.8M    0     0  29.6M      0  0:00:03  0:00:01  0:00:02 29.6M100 98.4M  100 98.4M    0     0  38.5M      0  0:00:02  0:00:02 --:--:-- 38.5M
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  1  121M    1 2174k    0     0  2517k      0  0:00:49 --:--:--  0:00:49 2516k 50  121M   50 61.1M    0     0  33.1M      0  0:00:03  0:00:01  0:00:02 33.1M
+essed_data/UTS03/imagined_speech/alpha_repeat-2.hf5
+Downloading derivative/preprocessed_data/UTS03/imagined_speech/bravo_repeat-1.hf5
+Downloading derivative/preprocessed_data/UTS03/imagined_speech/bravo_repeat-2.hf5
+Downloading derivative/preprocessed_data/UTS03/imagined_speech/charlie_repeat-1.hf5
+Downloading derivative/preprocessed_data/UTS03/imagined_speech/charlie_repeat-2.hf5
+Downloading derivative/preprocessed_data/UTS03/imagined_speech/delta_repeat-1.hf5
+Downloading derivative/preprocessed_data/UTS03/imagined_speech/delta_repeat-2.hf5
+Downloading derivative/preprocessed_data/UTS03/imagined_speech/echo_repeat-1.hf5
+Downloading derivative/preprocessed_data/UTS03/imagined_speech/echo_repeat-2.hf5
+Downloading derivative/preprocessed_data/UTS03/perceived_movie/laluna.hf5
+Downloading derivative/preprocessed_data/UTS03/perceived_movie/partlycloudy.hf5
+Downloading derivative/preprocessed_data/UTS03/perceived_movie/presto.hf5
+Downloading derivative/preprocessed_data/UTS03/perceived_movie/sintel.hf5
+Downloading derivative/preprocessed_data/UTS03/perceived_multispeaker/attend-F.hf5
+Downloading derivative/preprocessed_data/UTS03/perceived_multispeaker/attend-M.hf5
+
+
 [TIMEOUT after 120s]
 - python code/preprocess.py -> rc=2
 
@@ -32,6 +42,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
+plugins: platformdirs-4.13.3
 collected 0 items
 
 ============================ no tests ran in 0.00s =============================

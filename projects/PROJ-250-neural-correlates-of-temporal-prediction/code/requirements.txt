@@ -1,0 +1,10 @@
+mne>=1.7.0
+numpy
+pandas
+scipy
+statsmodels
+matplotlib
+seaborn
+jsonschema
+pyyaml
+requests
