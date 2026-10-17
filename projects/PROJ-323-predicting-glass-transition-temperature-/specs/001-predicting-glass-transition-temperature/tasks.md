@@ -11,21 +11,21 @@ The checklist implements a reproducible end‑to‑end pipeline that respects al
 - [ ] T001 Configure CI timeout – Add `timeout-minutes: 360` to `.github/workflows/ci.yml` to enforce a hard 6‑hour limit on the entire workflow.  
   - **Verification**: CI logs contain `Job timed out after 6 hours` when the limit is hit; otherwise the job completes normally.  
 
-- [ ] T002 Implement pre‑run size check – In `code/utils.py` compute the total size of `data/raw/`.  
+- [X] T002 Implement pre‑run size check – In `code/utils.py` compute the total size of `data/raw/`.  
   *If size > 7 GB, set mode to `"streaming"` and log `resource_guard: mode=streaming`; else set mode to `"full"` and log `resource_guard: mode=full`.*  
   - **Verification**: `outputs/logs/guard_log.txt` contains the chosen mode; downstream scripts read this flag before loading data.  
 
-- [ ] T003 Record pipeline runtime – Wrap the whole pipeline in a timer (e.g., `time.perf_counter`) and write total elapsed seconds to `outputs/logs/runtime.json` (`{ "elapsed_seconds": … }`).  
+- [X] T003 Record pipeline runtime – Wrap the whole pipeline in a timer (e.g., `time.perf_counter`) and write total elapsed seconds to `outputs/logs/runtime.json` (`{ "elapsed_seconds": … }`).  
   - **Verification**: `runtime.json` exists, contains a numeric field, and CI asserts `elapsed_seconds <= 21600`.  
 
-- [ ] T004 Record peak memory usage – Use `psutil` to capture peak RSS memory during the run and write to `outputs/logs/memory.json` (`{ "peak_rss_mb": … }`).  
+- [X] T004 Record peak memory usage – Use `psutil` to capture peak RSS memory during the run and write to `outputs/logs/memory.json` (`{ "peak_rss_mb": … }`).  
   - **Verification**: `memory.json` exists and CI asserts `peak_rss_mb <= 7000`.  
 
 ---  
 
 ## Phase 1️⃣ – Data Ingestion & Integrity  
 
-- [ ] T005 Download experimental $T_g$ dataset – Fetch the verified CSV files from the primary sources:  
+- [ ] T005 Download experimental $T_g$ dataset – Fetch the verified CSV files from the primary sources:   <!-- FAILED-IN-EXECUTION: code/ingest_tg.py exit=1 -->
   * Polymer Genome Project: `[UNRESOLVED-CLAIM: https://polymergenome.org/api/v1/tg_dataset.csv` — HTTP 404]  
   * NIST WebBook (via API): `[UNRESOLVED-CLAIM: https://webbook.nist.gov/cgi/cgi2/chemistry/chemistry-download?type=tg&format=csv` — HTTP 404]  
   Verify SHA‑256 checksums (recorded in `data/checksums.json`) and store under `data/raw/tg_dataset.csv`.  

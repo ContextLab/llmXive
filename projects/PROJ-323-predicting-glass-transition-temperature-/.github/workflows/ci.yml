@@ -1,0 +1,34 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Verify data integrity
+        run: |
+          python -m code.ingest --check
+
+      - name: Run full pipeline
+        run: |
+          python -m code.run_all --seed 42 --max-memory-gb 6 --timeout-hours 5
+
+      - name: Run contract tests
+        run: |
+          pytest -m contract -v

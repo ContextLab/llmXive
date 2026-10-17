@@ -1,0 +1,50 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/ci.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 7e4eddc679f54554f8d7127c3f8f6b8d2f1ad457346865e0f340449a33e09ef1
+T002:
+  task: 55856d38d4423673fbac314f9392eede6e94e3eda37a1c9a546faf1dfb9cd7a9
+T003:
+  task: 8b60d8e4edad2d0f635b23315602b9d544ed6506f9ee3f456281844dea2e2be8
+T004:
+  task: 4257520485b1efcb49ecfb0cf7b87993c45d9c1101a42754b61c5c4d41fdcd48
+T005:
+  reason: 'Requested task execution failed; rerun successfully: code/ingest_tg.py
+    exit=1'
+  task: 4725a6138e92e1464700a5f9265e20e79e644d2362c1e4d86eaf66f4944a9064
+T006:
+  task: 3d6f6f79bdd5f99a8eca5ffbe2463f21157274f1ef1c20b058ec7b626caa2594
+T007:
+  task: 0c80fbdc6cc9d5dce3fc3d3a0b22b61febd4a90da20ec355166bb9139423c6e7
+T008:
+  task: b90a92e48cea22aea28bbb7d4ac4b804c079ca5c8110af44e4e02ad62a08cd9a
+T009:
+  task: 39a00213381b87a7edafcf1f688a9d853b9957fb243bdb79b6552bfa62ad3c3d
+T010:
+  task: f0412b4acf49201e764cbcba859941fc4100f785f47d308e6c0ec4fec80e3583
+T011:
+  task: 0485e975446ed709484cae35ba382d548da459f4785bae561aa4124080ca6f21
+T012:
+  task: 8a5924ad7bde6bd83c1fc2aef706b400611ed596a011dde7b5e93614e8abbc2f
+T013:
+  task: 6d4329f50aee6f39c98b7eb7b7b103cbdc3bb3a0f45ba420548d49ad0bd68cc6
+T014:
+  task: 76b118d7f3cd97ec0ab6d1b8d3ae44718205bbf16309779de21828d094ed408e
+T016:
+  task: 89fa14ff29bcec68fb20e718adc44e89f96755889223cca32cc1d6962cd38087
+T017:
+  task: 034145c8fd6109b3046f055970937dcc510d16365127c119740c414b900b6cf8
+T018:
+  task: ed818007bb815518af128423a0853c9f27403dcfe6a068be65d65c902719b2c5
+T019:
+  task: 05f4649fc67958a53ed6e8782c8144a6f0ac33989f1f58b941540a3428f39cf0
+T021:
+  task: 6fede95752591bedff8d6585d3a3044f6cf8e5be6ba622ac25c6cb2d9a0ed6fe
+T022:
+  task: a8ebdc60f7d6ab4968895aa2c695ce767206a1af506e0d61485a99f245004f31
+T023:
+  task: 925f40129d04cfc4198f6fd2862fed7a878e642e89475c7e60eb1c2cca99f5f2
+T025:
+  task: 7acedaf8d6449b5d5f27513c92f2db830a853f3388bc79929fbeda29354b4262
