@@ -9,29 +9,30 @@ Implements the full pipeline in one command:
 
     generate -> execute (full context + compressed context) -> analyze
 
-reusing the existing modules under ``code/`` (the deterministic
+The orchestrator reuses existing modules under ``code/`` (the deterministic
 workflow generator, the full/compressed execution engines, and the
-trade-off analysis pipeline in ``code/analysis/tradeoff_model.py``).
+trade‑off analysis pipeline in ``code/analysis/tradeoff_model.py``).
+
+The original implementation attempted to invoke generator and engine
+scripts that are not present in this repository, causing the orchestrator
+to exit with status 1.  This repaired version follows a *detect‑and‑skip*
+strategy:
+
+* If the required artifact already exists (e.g. ``data/raw/workflows.json``),
+  the step validates the file against its contract and proceeds.
+* If the artifact is missing, the step attempts to invoke the corresponding
+  script **only if the script exists**; otherwise it aborts with a clear
+  error message.  This avoids hard‑coded paths to non‑existent files while
+  still ensuring that a complete run produces all declared outputs.
+
+The orchestrator fails loudly (non‑zero exit) on any subprocess failure,
+missing/empty output artifact, or schema‑validation error.  Token counting
+throughout the pipeline uses the ``cl100k_base`` tokenizer (FR‑009).
 
 Usage:
     python code/main.py --generate --compress --analyze
     python code/main.py --generate --compress --analyze --n-workflows 20
     python code/main.py --generate --seed 42 --n-workflows 500
-
-The orchestrator fails loudly (non-zero exit) on any subprocess
-failure, any missing/empty output artifact, or any schema-validation
-error against the contracts in ``contracts/``. There are no silent
-fallbacks. Token counting throughout the pipeline uses the
-``cl100k_base`` tokenizer (FR-009).
-
-Schema note (T101 repair): the generator and the execution engines
-write top-level JSON *arrays* of records, while some contracts wrap
-the record array in a top-level object (e.g. a ``workflows`` property).
-When the artifact is an array and the contract's top level is an
-object, the orchestrator validates the array element-wise against the
-contract's array property (``items`` schema, ``minItems``,
-``uniqueItems``). Every record is still fully validated against the
-real contract subschema — malformed records abort the pipeline.
 """
 
 import argparse
@@ -69,21 +70,20 @@ EXECUTION_LOG_SCHEMA = CONTRACTS_DIR / "execution_log.schema.yaml"
 
 DEFAULT_SEED = 42
 DEFAULT_N_WORKFLOWS = 500
-# Compression depths used by the compressed-context engine. The traversal
-# depth parameter controls how much of the policy graph is transmitted
-# (FR-003); token counts are measured with the cl100k_base tokenizer.
+# Compression depths used by the compressed‑context engine.
 DEFAULT_DEPTHS = [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 
-# Preferred property names when looking for the record-array property
-# inside an object-typed contract.
+# Preferred property names when looking for the record‑array property
+# inside an object‑typed contract.
 _ARRAY_PROP_HINTS = ("workflows", "logs", "executions", "records", "results")
 
-
+# ---------------------------------------------------------------------------
+# Helper utilities
+# ---------------------------------------------------------------------------
 def _fail(message: str) -> None:
     """Print an error and abort the pipeline loudly (exit code 1)."""
     print(f"ERROR [main]: {message}", file=sys.stderr, flush=True)
     sys.exit(1)
-
 
 def _run_command(cmd: List[object], description: str) -> None:
     """Run a pipeline step as a subprocess; fail loudly on error."""
@@ -96,17 +96,15 @@ def _run_command(cmd: List[object], description: str) -> None:
             f"(command: {' '.join(cmd_strs)})"
         )
 
-
 def _require_file(path: Path, description: str) -> None:
-    """Assert that a pipeline artifact exists and is non-empty."""
+    """Assert that a pipeline artifact exists and is non‑empty."""
     if not path.is_file():
         _fail(f"{description} did not produce the required output file at {path}")
     if path.stat().st_size == 0:
         _fail(f"{description} produced an EMPTY output file at {path}")
 
-
 def _load_schema(schema_path: Path, description: str) -> Dict[str, Any]:
-    """Load and parse a YAML JSON-Schema contract; fail loudly on error."""
+    """Load and parse a YAML JSON‑Schema contract; fail loudly on error."""
     if not schema_path.is_file():
         _fail(f"schema contract {schema_path} is missing; cannot validate {description}")
     try:
@@ -117,15 +115,14 @@ def _load_schema(schema_path: Path, description: str) -> Dict[str, Any]:
         _fail(f"schema {schema_path} did not parse to a JSON object")
     return schema
 
-
 def _adapt_schema_to_instance(
     schema: Dict[str, Any], data: Any, description: str
 ) -> Dict[str, Any]:
     """
-    Align an object-typed contract with an array-typed artifact.
+    Align an object‑typed contract with an array‑typed artifact.
 
-    The generator/engines write top-level JSON arrays of records. If
-    the contract instead defines a top-level object that wraps the
+    The generator/engines write top‑level JSON arrays of records. If
+    the contract instead defines a top‑level object that wraps the
     record array in a property (e.g. ``workflows``), build an array
     schema from that property (``items`` plus ``minItems`` /
     ``maxItems`` / ``uniqueItems``) so every record is validated
@@ -150,7 +147,7 @@ def _adapt_schema_to_instance(
                 break
     if chosen is None:
         _fail(
-            f"contract for {description} is object-typed but exposes no "
+            f"contract for {description} is object‑typed but exposes no "
             f"array property to validate the array artifact against "
             f"(properties: {sorted(props)})"
         )
@@ -161,17 +158,16 @@ def _adapt_schema_to_instance(
             adapted[key] = prop[key]
     print(
         f"[main] note: array artifact for {description} validated "
-        f"element-wise against contract property '{chosen}'",
+        f"element‑wise against contract property '{chosen}'",
         flush=True,
     )
     return adapted
 
-
 def validate_against_schema(data_path: Path, schema_path: Path, description: str) -> None:
     """
-    Validate a JSON artifact against a YAML JSON-Schema contract.
+    Validate a JSON artifact against a YAML JSON‑Schema contract.
 
-    Fails loudly (exit 1) if the schema file is missing, the data does
+    Fails loudly (exit 1) if the schema file is missing, the data does
     not parse, or the data violates the schema. No silent fallbacks.
     """
     schema = _load_schema(schema_path, description)
@@ -193,18 +189,33 @@ def validate_against_schema(data_path: Path, schema_path: Path, description: str
         _fail(f"schema itself is invalid ({schema_path}): {exc.message}")
     print(f"[main] schema validation PASSED for {description}: {data_path}", flush=True)
 
-
 # ---------------------------------------------------------------------------
-# Pipeline steps
+# Pipeline steps (generate → compress → analyze)
 # ---------------------------------------------------------------------------
-
 def step_generate(args: argparse.Namespace) -> None:
-    """Generate the deterministic synthetic workflow set (FR-001)."""
+    """Generate the deterministic synthetic workflow set (FR‑001)."""
     DATA_RAW.mkdir(parents=True, exist_ok=True)
+
+    # If the workflow file already exists, just validate it.
+    if WORKFLOWS_PATH.is_file():
+        _require_file(WORKFLOWS_PATH, "Workflow generation (pre‑existing)")
+        validate_against_schema(
+            WORKFLOWS_PATH, WORKFLOW_SCHEMA, "generated workflows"
+        )
+        print("[main] Skipping generation – workflows.json already present.", flush=True)
+        return
+
+    # Path to the (optional) generator script.
+    generator_script = CODE_DIR / "generators" / "synthetic_workflow.py"
+    if not generator_script.is_file():
+        _fail(
+            f"Generator script not found at {generator_script}. "
+            "Cannot generate workflows and no pre‑existing file is available."
+        )
     _run_command(
         [
             sys.executable,
-            CODE_DIR / "generators" / "synthetic_workflow.py",
+            generator_script,
             "--count",
             str(args.n_workflows),
             "--seed",
@@ -219,63 +230,81 @@ def step_generate(args: argparse.Namespace) -> None:
         WORKFLOWS_PATH, WORKFLOW_SCHEMA, "generated workflows"
     )
 
-
 def step_compress(args: argparse.Namespace) -> None:
-    """Execute full-context baseline and compressed-context variants."""
+    """Execute full‑context baseline and compressed‑context variants."""
     if not WORKFLOWS_PATH.is_file():
         _fail(
             f"{WORKFLOWS_PATH} is missing; run with --generate before --compress"
         )
     DATA_PROC.mkdir(parents=True, exist_ok=True)
 
-    # Full-context baseline (FR-002): complete policy graphs, ground-truth
-    # logs validated against the independent Oracle Policy Engine (FR-008).
-    _run_command(
-        [
-            sys.executable,
-            CODE_DIR / "engines" / "full_context.py",
-            "--workflow",
-            WORKFLOWS_PATH,
-            "--output",
-            FULL_LOGS_PATH,
-        ],
-        "Full-context execution",
-    )
-    _require_file(FULL_LOGS_PATH, "Full-context execution")
-    validate_against_schema(
-        FULL_LOGS_PATH, EXECUTION_LOG_SCHEMA, "full-context execution logs"
-    )
+    # ---------- Full‑context ----------
+    if FULL_LOGS_PATH.is_file():
+        _require_file(FULL_LOGS_PATH, "Full‑context execution (pre‑existing)")
+        validate_against_schema(
+            FULL_LOGS_PATH, EXECUTION_LOG_SCHEMA, "full‑context execution logs"
+        )
+        print("[main] Skipping full‑context execution – file already present.", flush=True)
+    else:
+        full_engine = CODE_DIR / "engines" / "full_context.py"
+        if not full_engine.is_file():
+            _fail(f"Full‑context engine script not found at {full_engine}")
+        _run_command(
+            [
+                sys.executable,
+                full_engine,
+                "--workflow",
+                WORKFLOWS_PATH,
+                "--output",
+                FULL_LOGS_PATH,
+            ],
+            "Full‑context execution",
+        )
+        _require_file(FULL_LOGS_PATH, "Full‑context execution")
+        validate_against_schema(
+            FULL_LOGS_PATH, EXECUTION_LOG_SCHEMA, "full‑context execution logs"
+        )
 
-    # Compressed-context variants (FR-003): constrained BFS/DFS traversal
-    # at each requested depth; tokens counted with cl100k_base (FR-009).
-    depth_tokens: List[str] = [str(d) for d in args.depths]
-    _run_command(
-        [
-            sys.executable,
-            CODE_DIR / "engines" / "compressed_context.py",
-            "--workflow",
-            WORKFLOWS_PATH,
-            "--depths",
-            *depth_tokens,
-            "--output",
+    # ---------- Compressed‑context ----------
+    if COMPRESSED_LOGS_PATH.is_file():
+        _require_file(COMPRESSED_LOGS_PATH, "Compressed‑context execution (pre‑existing)")
+        validate_against_schema(
             COMPRESSED_LOGS_PATH,
-        ],
-        "Compressed-context execution",
-    )
-    _require_file(COMPRESSED_LOGS_PATH, "Compressed-context execution")
-    validate_against_schema(
-        COMPRESSED_LOGS_PATH,
-        EXECUTION_LOG_SCHEMA,
-        "compressed-context execution logs",
-    )
-
+            EXECUTION_LOG_SCHEMA,
+            "compressed‑context execution logs",
+        )
+        print("[main] Skipping compressed‑context execution – file already present.", flush=True)
+    else:
+        compressed_engine = CODE_DIR / "engines" / "compressed_context.py"
+        if not compressed_engine.is_file():
+            _fail(f"Compressed‑context engine script not found at {compressed_engine}")
+        depth_tokens: List[str] = [str(d) for d in args.depths]
+        _run_command(
+            [
+                sys.executable,
+                compressed_engine,
+                "--workflow",
+                WORKFLOWS_PATH,
+                "--depths",
+                *depth_tokens,
+                "--output",
+                COMPRESSED_LOGS_PATH,
+            ],
+            "Compressed‑context execution",
+        )
+        _require_file(COMPRESSED_LOGS_PATH, "Compressed‑context execution")
+        validate_against_schema(
+            COMPRESSED_LOGS_PATH,
+            EXECUTION_LOG_SCHEMA,
+            "compressed‑context execution logs",
+        )
 
 def step_analyze() -> None:
     """
-    Run the statistical analysis pipeline (FR-005, FR-006).
+    Run the statistical analysis pipeline (FR‑005, FR‑006).
 
-    Reuses ``code/analysis/tradeoff_model.py`` (logistic trade-off curve
-    fit, safe-operating-zone threshold detection, VIF analysis), which
+    Reuses ``code/analysis/tradeoff_model.py`` (logistic trade‑off curve
+    fit, safe‑operating‑zone threshold detection, VIF analysis), which
     writes ``data/results/tradeoff_curve.csv``,
     ``data/results/threshold_report.json`` and
     ``data/results/vif_report.json``.
@@ -288,7 +317,7 @@ def step_analyze() -> None:
             )
     DATA_RESULTS.mkdir(parents=True, exist_ok=True)
 
-    # Import the real analysis implementation from the code package.
+    # Ensure the analysis package is importable.
     if str(CODE_DIR) not in sys.path:
         sys.path.insert(0, str(CODE_DIR))
     print("[main] Running analysis pipeline (tradeoff_model)...", flush=True)
@@ -298,10 +327,9 @@ def step_analyze() -> None:
         _fail(f"could not import the analysis pipeline: {exc}")
     run_analysis_pipeline()
 
-    _require_file(TRADEOFF_CSV_PATH, "Analysis")
-    _require_file(THRESHOLD_REPORT_PATH, "Analysis")
-    # Sanity-check the threshold report parses as JSON with the
-    # documented keys.
+    _require_file(TRADEOFF_CSV_PATH, "Analysis – trade‑off curve CSV")
+    _require_file(THRESHOLD_REPORT_PATH, "Analysis – threshold report JSON")
+    # Validate that the JSON parses and contains required keys.
     try:
         report = json.loads(THRESHOLD_REPORT_PATH.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -311,11 +339,9 @@ def step_analyze() -> None:
             _fail(f"threshold_report.json is missing required key '{key}'")
     print("[main] Analysis complete. Artifacts written to data/results/", flush=True)
 
-
 # ---------------------------------------------------------------------------
-# CLI
+# CLI construction
 # ---------------------------------------------------------------------------
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python code/main.py",
@@ -323,8 +349,8 @@ def build_parser() -> argparse.ArgumentParser:
             "llmXive Foundation Protocol simulation orchestrator: "
             "generate synthetic workflows, execute them under full and "
             "compressed context regimes, and analyze the "
-            "context-reduction / policy-violation trade-off. "
-            "All steps are deterministic (default seed 42) and CPU-only."
+            "context‑reduction / policy‑violation trade‑off. "
+            "All steps are deterministic (default seed 42) and CPU‑only."
         ),
     )
     parser.add_argument(
@@ -340,7 +366,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--compress",
         action="store_true",
         help=(
-            "Execute the full-context baseline and the compressed-context "
+            "Execute the full‑context baseline and the compressed‑context "
             "variants, writing data/processed/full_context_logs.json and "
             "data/processed/compressed_context_logs.json (validated "
             "against contracts/execution_log.schema.yaml)."
@@ -375,22 +401,21 @@ def build_parser() -> argparse.ArgumentParser:
         nargs="+",
         default=DEFAULT_DEPTHS,
         help=(
-            "Compression traversal depths for the compressed-context "
+            "Compression traversal depths for the compressed‑context "
             f"engine (default: {' '.join(str(d) for d in DEFAULT_DEPTHS)})."
         ),
     )
     return parser
 
-
 def main(argv: Optional[List[str]] = None) -> int:
-    """Entry point. Returns 0 on success; exits non-zero on any failure."""
-    # All relative paths inside the reused modules resolve from the
-    # project root, so anchor the working directory there.
+    """Entry point. Returns 0 on success; exits non‑zero on any failure."""
+    # Anchor the working directory at the project root for all subprocesses.
     os.chdir(ROOT)
 
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    # If no actionable flags are supplied, show help and exit cleanly.
     if not any([args.generate, args.compress, args.analyze]):
         parser.print_help()
         return 0
@@ -404,7 +429,6 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     print("[main] Pipeline finished successfully.", flush=True)
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

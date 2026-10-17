@@ -2,7 +2,7 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_simulation.py --generate  --seed 42  --count 500; python src/cli/run_simulation.py --execute --mode full; python src/cli/run_simulation.py --execute --mode compressed  --depths 0,1,2,3,4,5,6,7,8,9,10; 1 command(s) failed: python -m pytest -v (rc=1); 3 declared deliverable(s) absent: data/processed/compressed_context_logs.json; data/processed/full_context_logs.json; figures/tradeoff_curve.png
+**Summary**: 4 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_simulation.py --generate  --seed 42  --count 500; python src/cli/run_simulation.py --execute --mode full; python src/cli/run_simulation.py --execute --mode compressed  --depths 0,1,2,3,4,5,6,7,8,9,10; 1 command(s) failed: python -m pytest -v (rc=2); 3 declared deliverable(s) absent: data/processed/compressed_context_logs.json; data/processed/full_context_logs.json; figures/tradeoff_curve.png
 
 ## Failing / missing run-book commands
 
@@ -22,21 +22,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-866-llmxive-follow-up-extending-foundation-p/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/src/cli/run_simulation.py': [Errno 2] No such file or directory
 
-- python -m pytest -v -> rc=1
-ld_basic
-FAILED tests/unit/test_threshold_detection.py::TestDetectThresholdWithCorrection::test_detect_threshold_with_bonferroni
-FAILED tests/unit/test_threshold_detection.py::TestDetectThresholdWithCorrection::test_rounding_to_two_decimals
-FAILED tests/unit/test_threshold_detection.py::TestDetectThresholdWithCorrection::test_empty_logs_handling
-FAILED tests/unit/test_tradeoff_model.py::test_fit_tradeoff_curve_empty_logs
-FAILED tests/unit/test_tradeoff_model.py::test_load_processed_logs_empty_directory
-FAILED tests/unit/test_tradeoff_model.py::test_load_processed_logs_with_valid_json
-FAILED tests/unit/test_verify_invalid_exclusion.py::test_verify_exclusion_success
-FAILED tests/unit/test_verify_invalid_exclusion.py::test_verify_exclusion_failure
-FAILED tests/unit/test_verify_oracle_independence.py::test_no_violations_in_clean_file
-FAILED tests/unit/test_verify_oracle_independence.py::test_violation_detected_execution_call
-FAILED tests/unit/test_verify_oracle_independence.py::test_violation_detected_direct_execution_import
-FAILED tests/unit/test_vif_analysis.py::test_save_vif_report - AttributeError...
-=================== 81 failed, 48 passed, 1 warning in 1.86s ===================
+- python -m pytest -v -> rc=2
+text.py)
+_ ERROR collecting projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/unit/test_generator.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/unit/test_generator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_generator.py:7: in <module>
+    from generators.synthetic_workflow import SyntheticWorkflowGenerator
+E   ImportError: cannot import name 'SyntheticWorkflowGenerator' from 'generators.synthetic_workflow' (/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/code/generators/synthetic_workflow.py)
+=========================== short test summary info ============================
+ERROR tests/integration/test_compression.py
+ERROR tests/unit/test_generator.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 1.31s ===============================
 
 
 
@@ -55,6 +56,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/utils/data_hygiene_audit.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/compressed_context_logs.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/full_context_logs.json` is declared but was NOT written. Scripts referencing it:
+    - `code/engines/full_context.py` — NOT invoked by the run-book
     - `code/main.py` — NOT invoked by the run-book
     - `code/utils/data_hygiene_audit.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/full_context_logs.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
@@ -65,7 +67,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/main.py` — NOT invoked by the run-book
     - `code/utils/data_hygiene_audit.py` — NOT invoked by the run-book
     - `code/utils/verify_data_consistency.py` — NOT invoked by the run-book
-    - `code/utils/verify_invalid_workflow_exclusion.py` — IS a run-book command
   Make ONE of these WRITE `figures/tradeoff_curve.png` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
