@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 18250,
+    "total_contributions": 18251,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2233,
+      "contribution_count": 2234,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -28708,7 +28708,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-17T21:30:08.686996+00:00",
+  "generated_at": "2026-10-17T22:04:54.033094+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -94477,17 +94477,18 @@
         "paper_tasks": null,
         "plan": "projects/PROJ-347-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/plan.md",
         "reviews_paper": null,
-        "reviews_research": null,
+        "reviews_research": "projects/PROJ-347-evaluating-the-impact-of-code-generation/reviews/research",
         "spec": "projects/PROJ-347-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/spec.md",
         "tasks": "projects/PROJ-347-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md"
       },
       "authors": [
         {
-          "contributions": 24,
+          "contributions": 25,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "clarifier",
+            "freeman-dyson-simulated",
             "implementer",
             "planner",
             "tasker"
@@ -94520,6 +94521,14 @@
           "roles": [
             "brainstorm_submitter"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "personality"
+          ]
         }
       ],
       "citation_summary": {
@@ -94541,6 +94550,14 @@
       "id": "PROJ-347-evaluating-the-impact-of-code-generation",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "personality",
+          "duration_s": 18.452042,
+          "ended_at": "2026-10-17T22:04:38.849401+00:00",
+          "model": "zai-org.glm-5.3",
+          "outcome": "committed",
+          "started_at": "2026-10-17T22:04:20.397359+00:00"
+        },
         {
           "agent": "tasker",
           "duration_s": 254.829283,
@@ -94612,21 +94629,24 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-15T18:12:15.311540Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 22.187376,
-          "ended_at": "2026-10-15T18:12:15.307283Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-15T18:11:53.119907Z"
         }
       ],
       "paper_status": null,
       "phase_group": "research_speckit",
       "points_paper_total": 0.0,
       "points_research_total": 0.0,
-      "reviews": [],
+      "reviews": [
+        {
+          "excerpt": "The spec contains a genuine internal contradiction and a quiet circularity. FR-012 demands \"at least 300 paired samples,\" yet US-1's acceptance scenario and US-2's both operate on 50 pairs with no stated path from 50 to 300. More substantively, US-1 scenario 1 requires 'exactly 50 LLM-generated vuln",
+          "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-347-evaluating-the-impact-of-code-generation/reviews/research/freeman-dyson-simulated__2026-10-17__research.md",
+          "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-347-evaluating-the-impact-of-code-generation/reviews/research/freeman-dyson-simulated__2026-10-17__research.md",
+          "review_path": "projects/PROJ-347-evaluating-the-impact-of-code-generation/reviews/research/freeman-dyson-simulated__2026-10-17__research.md",
+          "reviewed_at": "2026-10-17T22:04:38.829923Z",
+          "reviewer_kind": "personality",
+          "reviewer_name": "Freeman Dyson (simulated)",
+          "verdict": "minor_revision"
+        }
+      ],
       "revision_history": [],
       "revision_spec_path": null,
       "speckit_paper_dir": null,
@@ -173271,6 +173291,24 @@
   ],
   "recent_activity": [
     {
+      "action": "comment",
+      "agent": "personality",
+      "display_name": "Freeman Dyson (simulated)",
+      "duration_s": 18.452042,
+      "ended_at": "2026-10-17T22:04:38.849401+00:00",
+      "excerpt": "The spec contains a genuine internal contradiction and a quiet circularity. FR-012 demands \"at least 300 paired samples,\" yet US-1's acceptance scenario and US-2's both operate on 50 pairs with no stated path from 50 to 300. More substanti\u2026",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "model_kind": "personality_simulator",
+      "outcome": "committed",
+      "personality_slug": "freeman-dyson",
+      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
+      "project_stage": "tasked",
+      "review_path": "projects/PROJ-347-evaluating-the-impact-of-code-generation/reviews/research/freeman-dyson-simulated__2026-10-17__research.md",
+      "severity": "ok",
+      "started_at": "2026-10-17T22:04:20.397359+00:00"
+    },
+    {
       "agent": "planner",
       "duration_s": 815.232039,
       "ended_at": "2026-10-17T21:29:12.918987Z",
@@ -179329,18 +179367,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T19:23:58.342512Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 6.319974,
-      "ended_at": "2026-10-16T19:22:39.271001Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-16T19:22:32.951027Z"
     }
   ],
   "reviewed_preprints": [
