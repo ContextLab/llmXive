@@ -1,56 +1,51 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: "Training Dataset Schema"
-description: "Aggregated dataset linking clustering descriptors, covariates, and segregation energies for regression."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Dataset Row Schema"
+description: "One row of data/processed/training_set.csv linking interface-only clustering descriptors, covariates, and EAM segregation energy."
 type: object
 properties:
   sample_id:
     type: string
-    description: "Unique identifier for the training sample."
+    description: "Unique training-sample identifier."
   bulk_id:
     type: string
-    description: "Reference to the originating BulkConfiguration."
+    description: "Originating BulkConfiguration identifier."
   gb_id:
     type: string
-    description: "Identifier of the GrainBoundaryStructure."
+    description: "GrainBoundaryStructure identifier."
   alloy_system:
     type: string
-    description: "Alloy family (e.g., 'Fe-Cr')."
+    description: "Alloy family, e.g. 'Fe-Cr'."
   impurity_species:
     type: string
     description: "Element symbol of the impurity."
   rdf_peak_value:
     type: number
-    description: "RDF peak value computed at the GB interface."
+    description: "RDF peak descriptor computed in the GB interface region."
   pair_corr_value:
     type: number
-    description: "Pair‑correlation statistic at the GB interface."
+    description: "Pair-correlation statistic computed in the GB interface region."
   voronoi_count:
     type: integer
-    description: "Voronoi neighbor count for the impurity at the interface."
+    description: "Voronoi neighbor count for the impurity in the interface region."
+  cluster_size:
+    type: number
+    description: "Mean nearest‑neighbor distance among impurity atoms within the interface region (used for FR‑009)."
   local_lattice_strain:
     type: number
-    description: "Trace of the strain tensor (covariate)."
+    description: "Covariate: trace of the local strain tensor around the interface."
   atomic_radius:
     type: number
-    description: "Atomic radius of the impurity element."
+    description: "Covariate: impurity atomic radius (from standard elemental property tables)."
   electronegativity:
     type: number
-    description: "Electronegativity of the impurity element."
+    description: "Covariate: impurity electronegativity (from standard elemental property tables)."
   segregation_energy_eV:
     type: number
-    description: "Leave‑One‑Out segregation energy in eV."
-  vif_rdf:
-    type: number
-    description: "VIF for the RDF descriptor."
-  vif_pair:
-    type: number
-    description: "VIF for the pair‑correlation descriptor."
-  vif_voronoi:
-    type: number
-    description: "VIF for the Voronoi count descriptor."
-  descriptive_framing:
+    description: "Leave‑one‑out EAM segregation energy in eV."
+  split:
     type: string
-    description: "Pre‑formatted text explaining joint relationships when VIF ≥ 10."
+    enum: ["train", "test"]
+    description: "Deterministic train/test assignment from the pinned seed."
 required:
   - sample_id
   - bulk_id
@@ -60,12 +55,10 @@ required:
   - rdf_peak_value
   - pair_corr_value
   - voronoi_count
+  - cluster_size
   - local_lattice_strain
   - atomic_radius
   - electronegativity
   - segregation_energy_eV
-  - vif_rdf
-  - vif_pair
-  - vif_voronoi
-  - descriptive_framing
+  - split
 additionalProperties: false

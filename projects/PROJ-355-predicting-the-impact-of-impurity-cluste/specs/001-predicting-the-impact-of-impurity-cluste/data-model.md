@@ -1,45 +1,53 @@
 # Data Model: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
 
 ## Overview
-The pipeline transforms raw bulk structures into a training dataset that couples interface‑specific clustering descriptors with segregation‑energy targets. All entities are versioned, checksummed, and stored as immutable CSV/JSON files.
+
+The pipeline transforms real OQMD records into reconstructed bulk structures, GB supercells, interface‑only clustering descriptors, EAM segregation energies, and a schema‑validated training dataset. All artifacts are checksummed (SHA‑256 in `data/metadata.yaml`); raw data is immutable; every derivation writes a new file with documented provenance.
 
 ## Entity Definitions
 
 | Entity | Fields | Description |
 |--------|--------|-------------|
-| **BulkConfiguration** | `id` (str), `formula` (str), `lattice` (list[float]), `atoms` (list[dict]), `source_url` (str), `source_type` (enum["OQMD","MaterialsProject"]) | Raw bulk crystal from OQMD or the verified MP mirror. |
-| **GrainBoundaryStructure** | `id` (str), `bulk_id` (str), `boundary_plane` (str), `misorientation_angle` (float), `supercell_atoms` (list[dict]), `interface_mask` (list[bool]) | GB supercell with impurity atoms placed at the interface. |
-| **ClusteringDescriptor** | `gb_id` (str), `impurity_species` (str), `descriptor_type` (enum["rdf_peak","pair_correlation","voronoi_count"]), `value` (float), `interface_only` (bool) | Numeric descriptor computed **only** in the interface region. |
-| **Covariate** | `gb_id` (str), `local_lattice_strain` (float), `atomic_radius` (float), `electronegativity` (float) | Additional predictors to control for confounding. |
-| **SegregationEnergy** | `gb_id` (str), `impurity_species` (str), `energy_eV` (float), `potential_used` (str), `simulation_status` (enum["SUCCESS","FAILED","RETRY_EXHAUSTED"]), `simulation_time_s` (float) | Leave‑One‑Out segregation energy from empirical‑potential simulation. |
-| **TrainingSample** | `sample_id` (str), `features` (list[float]), `target` (float), `alloy_system` (str), `vif_scores` (object), `descriptive_framing` (str) | Row fed to the regression model. |
+| **OQMDRecord** | `record_id` (str), `name` (str), `formula` (str), `spacegroup` (int), `volume_per_atom` (float), `source_url` (str) | One row from the verified OQMD loader; persisted immutably under `data/raw/`. |
+| **BulkConfiguration** | `bulk_id` (str), `record_id` (str), `formula` (str), `spacegroup` (int), `lattice` (list), `sites` (list[dict]), `derivation` (str) | Bulk structure reconstructed from formula + spacegroup via pymatgen (`Structure.from_spacegroup`) using `volume_per_atom` to estimate lattice constants; `derivation` documents the reconstruction method. |
+| **GrainBoundaryStructure** | `gb_id` (str), `bulk_id` (str), `boundary_plane` (str), `misorientation_angle` (float), `sites` (list[dict]), `interface_mask` (list[bool]), `impurity_species` (str), `n_impurity` (int) | GB supercell with impurities inserted at the interface; zero‑impurity cases filtered with logged counts (edge case). |
+| **ClusteringDescriptor** | `gb_id` (str), `impurity_species` (str), `descriptor_type` (enum: rdf_peak, pair_correlation, voronoi_count), `value` (float), `interface_only` (bool, always true) | One of the three FR‑002 descriptor types, computed only within the interface region **after** EAM relaxation. |
+| **SegregationEnergy** | `gb_id` (str), `impurity_species` (str), `energy_eV` (float), `method` (enum: EAM), `potential_name` (str), `status` (enum: SUCCESS, FAILED) | Leave‑one‑out segregation energy from EAM simulation; ≥200 configurations; missing‑energy entries excluded with counts and a >5 % warning. |
+| **ValidationRecord** | `benchmark_source` (str or null), `n_benchmark` (int), `mae_eV` (float or null), `status` (enum: VALIDATED, DATA_UNAVAILABLE) | FR‑011 EAM‑vs‑DFT validation result; `DATA_UNAVAILABLE` records the explicit no‑verified‑source limitation. |
+| **TrainingSample** | `sample_id` (str), `gb_id` (str), `alloy_system` (str), `impurity_species` (str), `rdf_peak_value` (float), `pair_corr_value` (float), `voronoi_count` (int), `cluster_size` (float), `local_lattice_strain` (float), `atomic_radius` (float), `electronegativity` (float), `segregation_energy_eV` (float), `split` (enum: train, test) | Row of `data/processed/training_set.csv`, validated against `contracts/dataset.schema.yaml`. **Derivations:** `cluster_size` = mean nearest‑neighbor distance among interface impurities (derived from the same neighbor list used for Voronoi counts); `local_lattice_strain` = trace of the local strain tensor around the interface; `atomic_radius` and `electronegativity` are taken from standard elemental property tables (cited in code). |
+| **HypothesisResult** | `feature_name` (str), `coefficient` (float), `p_value_raw` (float), `p_value_adjusted` (float), `significance_changed` (bool) | Row of the US‑3 report; aggregated into `results/hypothesis_report.json`. |
 
-## Data Flow Diagram
+## Data Flow
+
 ```mermaid
 graph TD
-    A[OQMD/MP Bulk Files] -->|download.py| B[Raw BulkConfiguration CSV]
-    B -->|gb_builder.py| C[GrainBoundaryStructure JSON]
-    C -->|descriptors.py| D[ClusteringDescriptor CSV]
-    C -->|simulate_energy.py| E[SegregationEnergy CSV]
-    D & E & Covariate CSV -->|train_model.py| F[TrainingSample CSV]
-    F -->|metrics.json & sensitivity.json| G[Results]
+    A[Verified OQMD loader] -->|download.py + checksums| B[data/raw OQMDRecord]
+    B -->|gb_builder.py reconstruction| C[BulkConfiguration]
+    C -->|GB supercell + impurity insertion| D[GrainBoundaryStructure]
+    D -->|descriptors.py (post‑relaxation)| E[ClusteringDescriptor + VIF report]
+    D -->|simulate_energy.py EAM| F[SegregationEnergy]
+    F -->|validate_potential.py| G[ValidationRecord]
+    E & F & G -->|train_model.py assembly| H[TrainingSample CSV]
+    H -->|train/CV/power/correction| I[results/metrics.json + hypothesis_report.json]
+    H -->|plots.py| J[cluster_size_vs_segregation.png]
 ```
 
+## Validation Constraints (FR/SC mapping)
+
+- **FR‑001**: `download.py` uses the verified loader with ≤3 retries; `[DATA_UNAVAILABLE]` logged on permanent failure.
+- **FR‑002**: `descriptors.py` emits all three descriptor types per impurity, interface‑only (`interface_only = true`) **after** relaxation.
+- **FR‑003**: ≥200 configurations with linked descriptors + energies in the training set (generated via EAM).
+- **FR‑004a/b**: both models trained under 5‑fold CV (LOOCV if N < 5); p‑values for the linear model.
+- **FR‑005/SC‑003**: adjusted p‑values + significance‑change count in `hypothesis_report.json`.
+- **FR‑007/FR‑012/SC‑004**: VIF on the three raw descriptors before any PCA/dimensionality reduction; threshold VIF = 10; JSON report for VIF ≥ 10.
+- **FR‑008**: power‑analysis fields (f² = 0.15, α = 0.05, predictor count = 7) in `metrics.json`.
+- **FR‑009/SC‑005**: per‑alloy‑system PNG with 95 % CIs.
+- **FR‑010**: linearity‑assessment record (scatter plots + residual diagnostics + verdict).
+- **FR‑011/SC‑006**: ValidationRecord with MAE ≤ 0.1 eV against a DFT benchmark (≥30 samples) **if** a verified benchmark is available; otherwise the status is `DATA_UNAVAILABLE`.
+- **SC‑001/SC‑002**: permutation‑test p‑value for R², per‑system R², held‑out RMSE with 95 % CIs.
+
 ## Hygiene & Provenance
-- **Checksums**: SHA‑256 recorded in `data/metadata.yaml` for every raw and processed file.
-- **Immutability**: Raw files never overwritten; each transformation writes a new file with a timestamped name.
-- **Metadata**: `data/metadata.yaml` captures source URLs, potential version, random seeds, and code hash.
-- **Missing Data Handling**: Samples lacking a segregation‑energy label or with zero impurity atoms are excluded and logged (FR‑007 edge case).
 
-## Validation Constraints (directly map to FR/SC)
-- **FR‑001**: `download.py` enforces ≤ 3 retries; logs `[DATA_UNAVAILABLE]` on permanent failure.
-- **FR‑002**: `descriptors.py` outputs three descriptor types per impurity, computed only inside the interface mask.
-- **FR‑003**: `simulate_energy.py` produces segregation‑energy entries; optional DFT validation is performed only as a sanity check.
-- **FR‑004**: `train_model.py` computes R², RMSE, and coefficient p‑values for each CV fold.
-- **FR‑005**: Multiple‑comparison correction applied inside `train_model.py`.
-- **FR‑006**: Sensitivity sweep over three λ values (25th, 50th, 75th percentiles) reports RMSE variance and R² stability.
-- **FR‑007**: VIF computed on the three raw descriptors before modeling; if any VIF ≥ 10, `descriptive_framing` is populated.
-- **SC‑001–SC‑005**: All are recorded in `results/metrics.json` and `results/sensitivity.json` per the output schema.
-
-## Dataset Output
-The assembled training set is written to `data/processed/training_set.csv` and validated against `contracts/dataset.schema.yaml`. The file contains the fields listed in the schema (see that contract).
+- SHA‑256 checksums for every raw and processed file in `data/metadata.yaml`; raw files never modified in place.
+- `data/metadata.yaml` records the OQMD dataset id, loader configuration, random seeds, EAM potential name/version, and code hash.
+- No PII (crystallographic data only).

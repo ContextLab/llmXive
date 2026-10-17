@@ -1,70 +1,172 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
-description: "Schema for the metrics and sensitivity analysis results."
+description: "Schema for the metrics and sensitivity analysis results (authoritative copy of output.schema.yaml)."
 type: "object"
 properties:
   model_type:
     type: "string"
-    description: "Type of regression model used (e.g., 'RidgeRegression')."
-  cross_validation_method:
-    type: "string"
-    enum:
-      - "5-fold"
-      - "LOOCV"
-    description: "Cross-validation strategy used."
-  metrics:
+    description: "Primary model selected by the FR-010 linearity assessment, e.g. 'LinearRegression' or 'RandomForest'."
+  cross_validation:
     type: "object"
     properties:
-      r_squared:
+      method:
+        type: "string"
+        enum: ["5-fold", "LOOCV"]
+      folds:
+        type: "integer"
+      r2_mean:
         type: "number"
-        description: "Coefficient of determination."
+      r2_std:
+        type: "number"
+      rmse_mean:
+        type: "number"
+      rmse_std:
+        type: "number"
+    required: ["method", "folds", "r2_mean", "r2_std", "rmse_mean", "rmse_std"]
+  held_out_test:
+    type: "object"
+    properties:
+      n_test:
+        type: "integer"
+        description: "Number of held-out samples (at least 50)."
+      r2:
+        type: "number"
       rmse:
         type: "number"
-        description: "Root Mean Square Error."
-      p_values:
-        type: "array"
-        items:
+      permutation_p_value:
+        type: "number"
+        description: "SC-001 permutation-test p-value for R2."
+      ci95_available:
+        type: "boolean"
+        description: "Whether 95 percent prediction intervals were produced."
+    required: ["n_test", "r2", "rmse", "permutation_p_value", "ci95_available"]
+  per_system_r2:
+    type: "array"
+    description: "SC-001: R2 per alloy system (at least 3 systems)."
+    items:
+      type: "object"
+      properties:
+        alloy_system:
+          type: "string"
+        n_samples:
+          type: "integer"
+        r2:
           type: "number"
-        description: "Adjusted p-values for coefficients."
+      required: ["alloy_system", "n_samples", "r2"]
+  collinearity:
+    type: "object"
+    properties:
+      vif_threshold:
+        type: "number"
+        description: "Threshold for flagging collinearity (10)."
       vif_scores:
         type: "object"
         additionalProperties:
           type: "number"
-        description: "Variance Inflation Factor for each predictor."
-      sample_size:
-        type: "integer"
-        description: "Number of samples used in training."
-    required:
-      - r_squared
-      - rmse
-      - p_values
-      - vif_scores
-      - sample_size
-  sensitivity_analysis:
-    type: "object"
-    properties:
-      parameter_name:
-        type: "string"
-        description: "Name of the swept parameter (e.g., 'regularization_strength')."
-      threshold_values:
+      high_collinearity_detected:
+        type: "boolean"
+      flagged_groups:
         type: "array"
         items:
-          type: "number"
-        description: "List of threshold values tested."
-      rmse_variance:
+          type: "object"
+          properties:
+            predictors:
+              type: "array"
+              items:
+                type: "string"
+            max_vif:
+              type: "number"
+            descriptive_summary:
+              type: "string"
+              description: "One-sentence descriptive framing of the joint relationship."
+          required: ["predictors", "max_vif", "descriptive_summary"]
+    required: ["vif_threshold", "vif_scores", "high_collinearity_detected", "flagged_groups"]
+  linearity_assessment:
+    type: "object"
+    properties:
+      appears_linear:
+        type: "boolean"
+        description: "FR-010 verdict from scatter plots and residual analysis."
+      evidence:
+        type: "string"
+        description: "Description of scatter/residual diagnostics supporting the verdict."
+    required: ["appears_linear", "evidence"]
+  power_analysis:
+    type: "object"
+    properties:
+      effect_size_f2:
         type: "number"
-        description: "Variance of RMSE across the sweep."
-      r_squared_stability:
+        description: "0.15 per FR-008."
+      alpha:
         type: "number"
-        description: "Standard deviation of R² across the sweep."
-    required:
-      - parameter_name
-      - threshold_values
-      - rmse_variance
-      - r_squared_stability
+        description: "0.05 per FR-008."
+      target_power:
+        type: "number"
+        description: "0.80 per FR-008."
+      required_n:
+        type: "integer"
+      achieved_n:
+        type: "integer"
+      achieved_power:
+        type: "number"
+      meets_requirement:
+        type: "boolean"
+    required: ["effect_size_f2", "alpha", "target_power", "required_n", "achieved_n", "achieved_power", "meets_requirement"]
+  eam_validation:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum: ["VALIDATED", "DATA_UNAVAILABLE"]
+        description: "FR-011 result; DATA_UNAVAILABLE records the missing verified DFT benchmark."
+      n_benchmark:
+        type: "integer"
+        description: "Number of DFT benchmark samples used (0 when unavailable)."
+      mae_eV:
+        type: "number"
+        description: "Mean absolute error vs DFT benchmark in eV."
+      threshold_eV:
+        type: "number"
+        description: "0.1 eV per FR-011."
+      note:
+        type: "string"
+        description: "Explanation when status is DATA_UNAVAILABLE."
+    required: ["status", "n_benchmark", "threshold_eV"]
+  preprocessing:
+    type: "object"
+    properties:
+      n_zero_impurity_excluded:
+        type: "integer"
+        description: "Count of zero-impurity configurations filtered."
+      n_missing_energy_excluded:
+        type: "integer"
+        description: "Count of entries excluded for missing segregation energy."
+      missing_energy_rate:
+        type: "number"
+        description: "Exclusion rate; warning issued if above 0.05."
+    required: ["n_zero_impurity_excluded", "n_missing_energy_excluded", "missing_energy_rate"]
+  metadata:
+    type: "object"
+    properties:
+      random_seed:
+        type: "integer"
+      date:
+        type: "string"
+      code_version_hash:
+        type: "string"
+      data_source:
+        type: "string"
+        description: "Verified OQMD loader identifier."
+    required: ["random_seed", "date", "code_version_hash", "data_source"]
 required:
   - model_type
-  - cross_validation_method
-  - metrics
-  - sensitivity_analysis
+  - cross_validation
+  - held_out_test
+  - per_system_r2
+  - collinearity
+  - linearity_assessment
+  - power_analysis
+  - eam_validation
+  - preprocessing
+  - metadata
 additionalProperties: false

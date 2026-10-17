@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Hypothesis Testing Report Schema"
+description: "results/hypothesis_report.json: US-3 report of raw and multiple-comparison-adjusted p-values with a textual summary."
+type: object
+properties:
+  correction_method:
+    type: string
+    enum: ["bonferroni", "fdr-bh"]
+    description: "FR-005 correction applied when more than one hypothesis is tested."
+  alpha:
+    type: number
+    description: "Significance level (0.05)."
+  n_hypotheses:
+    type: integer
+    description: "Number of hypothesis tests run."
+  predictors:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        coefficient:
+          type: number
+        p_value_raw:
+          type: number
+        p_value_adjusted:
+          type: number
+        significant_raw:
+          type: boolean
+        significant_adjusted:
+          type: boolean
+        significance_changed:
+          type: boolean
+          description: "True if significance status at alpha changed after correction."
+      required:
+        - feature_name
+        - coefficient
+        - p_value_raw
+        - p_value_adjusted
+        - significant_raw
+        - significant_adjusted
+        - significance_changed
+  n_significance_changes:
+    type: integer
+    description: "SC-003: count of predictors whose significance changed after correction."
+  summary:
+    type: string
+    description: "Free-text summary of the overall statistical conclusions."
+required:
+  - correction_method
+  - alpha
+  - n_hypotheses
+  - predictors
+  - n_significance_changes
+  - summary
+additionalProperties: false

@@ -1,41 +1,47 @@
 # Implementation Plan: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
 
-**Branch**: `[001-impurity-clustering-segregation]` | **Date**: 2026-10-17 | **Spec**: `spec.md`  
+**Branch**: `[001-impurity-clustering-segregation]` | **Date**: 2026-10-17 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-impurity-clustering-segregation/spec.md`
 
 ## Summary
-Build a reproducible CPU‑only pipeline that (1) downloads bulk crystal structures from OQMD (fallback to a verified HuggingFace mirror of Materials Project bulk data), (2) constructs grain‑boundary (GB) supercells with impurity atoms at the interface, (3) computes three interface‑specific clustering descriptors (RDF peaks, pair‑correlation statistics, Voronoi neighbor counts), (4) generates segregation‑energy labels via fast empirical‑potential simulations, (5) assembles a training dataset, (6) computes VIF on the raw descriptors, (7) trains a Ridge regression model with 5‑fold CV (or LOOCV if N < 5) **including a formal power‑analysis**, (8) performs multiple‑comparison correction, (9) sweeps three regularization‑strength λ values (25th, 50th, 75th percentiles) and reports RMSE variance and R² stability, (10) emits JSON artifacts conforming to the contracts, and (11) generates deterministic `.gitignore` and `README.md` files so verification tasks T001b/T001c succeed.
+
+Build a reproducible CPU‑only pipeline that (1) loads real OQMD records via the verified `datasets.load_dataset("jablonkagroup/oqmd", name="raw_data")` recipe, (2) reconstructs bulk crystal structures from composition + `volume_per_atom` using pymatgen prototypes, (3) builds grain‑boundary (GB) supercells, inserts impurities at the interface, (4) computes three interface‑region clustering descriptors (RDF peaks, pair‑correlation statistics, Voronoi neighbor counts) **after** EAM relaxation, (5) generates segregation‑energy labels with **validated** EAM potentials for three alloy systems, (6) assembles a ≥200‑sample training dataset across ≥3 alloy systems, (7) runs VIF collinearity diagnostics **before** any dimensionality reduction, (8) performs a grouped 5‑fold (or LOOCV if N < 5) cross‑validation split using `GroupKFold` on `gb_id` to avoid leakage, (9) conducts the FR‑008 power analysis (f² = 0.15, α = 0.05, predictor count = 7) and confirms ≥ 0.80 power, (10) applies multiple‑comparison correction and emits the US‑3 hypothesis‑testing JSON report, (11) generates the FR‑009 cluster‑size vs. segregation‑energy plot with 95 % CIs per alloy system, and (12) implements the FR‑011 EAM‑vs‑DFT validation harness (reports `[DATA_UNAVAILABLE]` if no benchmark is found). FR‑006 was removed from the spec; no regularization sweep is planned.
 
 ## Technical Context
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `pymatgen`, `ase`, `scikit-learn`, `statsmodels`, `numpy`, `pandas`, `pyyaml`, `requests`, `tqdm`  
-- **Storage**: Local filesystem under `data/`, `results/` (no external DB)  
-- **Testing**: `pytest` (unit & integration) – includes deterministic checks for `.gitignore`, `README.md`, and the full pipeline.  
-- **Target Platform**: Linux GitHub Actions free‑tier (2 CPU cores, ≈7 GB RAM, ≤6 h runtime)  
-- **Constraints**: CPU‑only, < 6 GB RAM, all external URLs must be from the verified‑datasets list.  
-- **Scale/Scope**: Sample ≤ 500 GB supercells (full dataset streamed if larger).
+
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `datasets`, `pymatgen`, `ase`, `scikit-learn`, `statsmodels`, `numpy`, `pandas`, `matplotlib`, `pyyaml`, `pytest` (versions pinned in `requirements.txt`)
+- **Storage**: Local filesystem under `data/` (raw immutable, processed derived) and `results/` (JSON artifacts)
+- **Testing**: `pytest` (unit + integration, including artifact‑content verification for T001b/T001c)
+- **Target Platform**: GitHub Actions free‑tier Linux runner (2 CPU cores, ~7 GB RAM, ~14 GB disk, CPU‑only, ≤6 h/job)
+- **Constraints**: CPU‑first; all dataset access via the verified OQMD loader; no fabricated URLs; random seeds pinned
+- **Scale/Scope**: ≥200 training samples across ≥3 alloy systems; ≥50 held‑out test samples; ≥30‑sample DFT benchmark IF a verified source is supplied (see Scope Notes)
 
 ## Constitution Check
+
 | Principle | Status | Note |
 |-----------|--------|------|
-| I. Reproducibility | PASS | Random seeds pinned; data fetched from canonical URLs; `requirements.txt` version‑pinned |
-| II. Verified Accuracy | PASS | All citations limited to the verified‑datasets block |
-| III. Data Hygiene | PASS | Checksums recorded; raw data immutable; derived files new |
-| IV. Single Source of Truth | PASS | All metrics saved as JSON linked to code hash |
-| V. Versioning Discipline | PASS | Content hashes stored in `state/...yaml` |
-| VI. Materials Data Provenance | PASS | Bulk sources recorded; GB structures derived internally |
-| VII. Model Evaluation Transparency | PASS | CV procedure, seeds, and metrics stored under `results/` |
+| I. Reproducibility | PASS | Seeds pinned in `code/`; OQMD fetched via the single verified `datasets` loader; `requirements.txt` pinned |
+| II. Verified Accuracy | PASS | Only verified URLs cited; fabricated URLs (prior DFT‑FeCr mirror, MP bulk parquet) removed |
+| III. Data Hygiene | PASS | SHA‑256 checksums in `data/metadata.yaml`; raw files immutable; derivations write new files |
+| IV. Single Source of Truth | PASS | Every metric/figure traces to one `data/` row and one `code/` block; no hand‑typed numbers |
+| V. Versioning Discipline | PASS | Content hashes recorded; `state/...yaml` `updated_at` maintained |
+| VI. Materials Data Provenance | PASS | OQMD records via verified loader; dataset id recorded in `data/metadata.yaml`; derived structures cite OQMD source |
+| VII. Model Evaluation Transparency | PASS | CV procedure, split seed, R²/RMSE/p‑values/CIs saved as JSON under `results/`, linked to code hash |
 
 ## Project Structure
+
 ```text
-specs/001-impurity-clustering-segregation/
+specs/001-predicting-the-impact-of-impurity-cluste/
 ├── plan.md
 ├── research.md
 ├── data-model.md
 ├── quickstart.md
 ├── contracts/
 │   ├── dataset.schema.yaml
-│   └── output.schema.yaml
+│   ├── output.schema.yaml
+│   ├── output_schema.schema.yaml   ← authoritative copy of output.schema.yaml
+│   └── report.schema.yaml
 └── tasks.md               # generated later by /speckit-tasks
 ```
 
@@ -43,66 +49,101 @@ specs/001-impurity-clustering-segregation/
 projects/PROJ-355-predicting-the-impact-of-impurity-cluste/
 ├── code/
 │   ├── __init__.py
-│   ├── main.py                 # orchestrates the whole pipeline
-│   ├── download.py
-│   ├── gb_builder.py
-│   ├── descriptors.py
-│   ├── simulate_energy.py
-│   ├── train_model.py
-│   └── generate_docs.py        # creates .gitignore and README.md with deterministic content
+│   ├── main.py               # orchestrates the full pipeline
+│   ├── download.py           # verified OQMD loader + checksums
+│   ├── gb_builder.py         # bulk reconstruction + GB supercells + impurity insertion
+│   ├── descriptors.py        # RDF / pair‑correlation / Voronoi descriptors + VIF
+│   ├── simulate_energy.py    # EAM segregation energies
+│   ├── validate_potential.py # FR‑011 EAM‑vs‑DFT validation harness
+│   ├── train_model.py        # FR‑004a/b, FR‑008, FR‑010, FR‑005, SC‑001/002/003
+│   ├── report.py             # US‑3 JSON hypothesis report
+│   └── plots.py              # FR‑009 figure
 ├── data/
-│   ├── raw/
+│   ├── raw/                  # immutable OQMD‑derived records
 │   ├── processed/
 │   └── metadata.yaml
 ├── results/
 │   ├── metrics.json
-│   └── sensitivity.json
+│   ├── hypothesis_report.json
+│   └── cluster_size_vs_segregation.png
 ├── tests/
 │   ├── unit/
 │   │   ├── test_descriptors.py
-│   │   └── test_simulate_energy.py
+│   │   ├── test_gb_builder.py
+│   │   └── test_train_model.py
 │   └── integration/
-│       └── test_artifact_verification.py   # checks .gitignore & README
-├── .gitignore                  # generated by generate_docs.py
-├── README.md                   # generated by generate_docs.py
-├── requirements.txt
-└── pyproject.toml
+│       └── test_artifact_verification.py
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
-## Complexity Tracking
-| Violation | Why Needed | Simpler Alternative Rejected |
-|-----------|------------|------------------------------|
-| Linear Regression vs RandomForest | FR‑004 demands coefficient p‑values; Ridge regression provides them and aligns with literature showing near‑linear relationships. | Using RF would need non‑standard p‑value approximations, violating FR‑004. |
-| Empirical Potential vs DFT | Full DFT exceeds CI limits; FR‑003 requires *generated* segregation energies. | DFT would break the compute budget. |
-| No Feature Removal for VIF | FR‑007 explicitly says “frame joint relationships descriptively”. | Dropping features would violate FR‑007. |
-| Explicit .gitignore & README generation | T001b/T001c failures required deterministic artifacts. | Leaving files static could miss required patterns; generation guarantees content. |
-| Power‑Analysis Inclusion | Schema requires `metadata.power_analysis`; providing a justified placeholder satisfies the contract without over‑claiming. | Omitting the step would break schema validation. |
+**Structure Decision**: single‑project layout (Option 1) — a linear research pipeline with no frontend/backend split.
+
+## Scope Notes (data‑availability limitations)
+
+1. **FR‑011 DFT benchmark**: No verified open DFT segregation‑energy benchmark exists. Consequently, the validation harness will report `[DATA_UNAVAILABLE]` and a structured limitation record unless a verified source is added later. No synthetic DFT data will be fabricated.
+
+2. **OQMD record fields**: The verified loader supplies composition, spacegroup, and `volume_per_atom`. **These records do NOT include atomic coordinates or explicit lattice parameters.** To obtain usable bulk structures we **synthetically reconstruct** them using `pymatgen`’s `Structure.from_spacegroup`, deriving lattice constants from `volume_per_atom`. This reconstruction is a documented derivation, cited to the OQMD record ID, and recorded in `data/metadata.yaml`. **This synthetic step is a deviation from the spec’s literal “download bulk configuration files” requirement**, which expects full structure files; the limitation is explicitly noted and justified by the lack of an open, unauthenticated source for full bulk files.
+
+3. **Materials Project data**: Access to Materials Project bulk files requires API authentication and is not programmatically reachable on the free CI runner. **Therefore the pipeline omits Materials Project downloads**, using **only** the verified OQMD dataset. This omission is a **recorded deviation** (see Materials Project Deviation below) and is reflected in the reproducibility statement.
+
+4. **Segregation‑energy labels**: Because no open literature database of segregation‑energy measurements exists, energies are **generated in‑house** with validated EAM potentials (see Phase 4). This satisfies FR‑003 via a justified deviation (see FR‑003 Deviation below).
+
+## Materials Project Deviation
+
+**FR‑001 originally required downloading bulk configuration files from both Materials Project **and** OQMD using `wget`/`curl`.** The Materials Project API requires an API key and cannot be accessed anonymously on the CI runner. To remain fully reproducible on the free runner, the plan **excludes Materials Project** and relies exclusively on the OQMD dataset (which is openly downloadable). This deviation is recorded here and justified by the lack of an open, unauthenticated Materials Project endpoint. The limitation is reflected in the reproducibility check (Constitution VI) and will be documented in the final report.
 
 ## Implementation Phases & Task Logic
 
 | Phase | Tasks (maps to FR/SC) | Key Scripts |
-|-------|-----------------------|--------------|
-| **0. Documentation Generation** | • Create `.gitignore` containing `data/`, `results/`, `__pycache__/`, `*.pyc`.  <br>• Create `README.md` with project title, execution instructions, and a data provenance section that cites the OQMD and MP mirror URLs.  <br>**FR‑001**, **FR‑002**, **SC‑001** (traceability). | `generate_docs.py` |
-| **1. Data Acquisition** | **FR‑001**: Download bulk configs from OQMD (verified URL) with up‑to‑3 retries; fallback to a verified HuggingFace mirror of Materials Project bulk files.  <br>**SC‑001**: Record checksums. | `download.py` |
-| **2. GB Construction** | **FR‑002**: Build GB supercells, insert impurities at the interface. | `gb_builder.py` |
-| **3. Descriptor Computation** | **FR‑002**: Compute RDF peaks, pair‑correlation, Voronoi counts **only** in the interface region.  <br>**FR‑007**: Compute VIF on the three raw descriptors (pre‑modeling). | `descriptors.py` |
-| **4. Energy Simulation** | **FR‑003**: Run segregation‑energy calculations with the NIST Fe‑Cr EAM potential (CPU‑tractable).  <br>**Validation**: Compare a **≥ 100‑structure** DFT benchmark (HuggingFace) against the EAM results; require **MAE ≤ 0.05 eV** (justified by *Comput. Mater. Sci.* 2021, 192, 110210).  <br>Log failures; abort only if the validation fails. | `simulate_energy.py` |
-| **5. Dataset Assembly & Serialization** | Join descriptors, covariates, and energies → `training_set.csv`.  <br>Write the file under `data/processed/` and validate against `contracts/dataset.schema.yaml`. | `train_model.py` (assembly part) |
-| **6. Model Training, CV & Power Analysis** | **FR‑004**: Train a **Ridge regression** model using 5‑fold CV (or LOOCV if N < 5).  <br>Compute R², RMSE, and coefficient p‑values (robust SE).  <br>**Power Analysis**: Assume effect size f² = 0.2 (based on prior materials‑informatics studies), α = 0.05, desired power = 0.8 → required_n = 200.  <br>Record `required_n`, `achieved_n` (actual N), and `achieved_power` (computed from achieved N). | `train_model.py` |
-| **7. Multiple‑Comparison Correction** | **FR‑005**: Apply Bonferroni (≤ 20 tests) or Benjamini‑Hochberg ( > 20 tests) to coefficient p‑values; store adjusted p‑values.  <br>**SC‑004**: Measurement of correction performed here. | `train_model.py` |
-| **8. Sensitivity Sweep** | **FR‑006**: Sweep three λ values (25th, 50th, 75th percentiles of a λ‑grid derived from descriptor variance).  <br>For each λ, re‑fit the Ridge model, compute RMSE and R².  <br>Report RMSE variance and R² stability.  <br>**SC‑003** & **SC‑004** addressed. | `train_model.py` |
-| **9. Output Generation** | Save `results/metrics.json` and `results/sensitivity.json` conforming to `contracts/output.schema.yaml`. | `train_model.py` |
-| **10. Verification Tests** | **T001b**, **T001c**, **T012b**, **T017f**: Integration test checks that `.gitignore` contains required patterns, `README.md` contains required sections, and that the full pipeline runs end‑to‑end on the CI runner. | `tests/integration/test_artifact_verification.py` |
+|-------|-----------------------|-------------|
+| **1. Data Acquisition** | **FR‑001**: Load real OQMD records via `datasets.load_dataset("jablonkagroup/oqmd", name="raw_data")` (verified recipe); retry ≤3 attempts, log `[DATA_UNAVAILABLE]` on permanent failure. | `download.py` |
+| **2. GB Construction** | Reconstruct bulk structures from formula + `volume_per_atom` using pymatgen prototypes (see **Methodology‑b8e4f567**); build GB supercells; insert impurity atoms at the interface; filter zero‑impurity configurations with logged counts (edge case). | `gb_builder.py` |
+| **3. Descriptor Computation & Collinearity** | **FR‑002**: compute RDF peaks, pair‑correlation statistics, Voronoi neighbor counts **after** EAM relaxation, only within the interface mask. **FR‑007/FR‑012**: compute VIF on the three raw descriptors before any dimensionality reduction; emit JSON collinearity report (VIF ≥ 10 flagged). **Scientific‑soundness‑d32e…**: descriptors are extracted from the relaxed structure to keep them independent of insertion geometry. **Scientific‑soundness‑e1c…**: `cluster_size` = mean nearest‑neighbor distance among interface impurities (derived from the same neighbor list used for Voronoi counts). | `descriptors.py` |
+| **4. Energy Simulation** | **FR‑003** (deviation): generate segregation energies with **validated EAM potentials** for three alloy systems (Fe‑Cr, Ni‑Al, Cu‑Zn). **Methodology‑a306aa59**: each potential is cited with its NIST repository URL and DOI. ≥200 configurations; log missing‑energy entries; warn if exclusion >5 %. | `simulate_energy.py` |
+| **5. EAM‑vs‑DFT Validation Harness** | **FR‑011/SC‑006**: compare EAM energies against a DFT benchmark if available; otherwise write a `[DATA_UNAVAILABLE]` limitation record. | `validate_potential.py` |
+| **6. Dataset Assembly** | Join descriptors, covariates, and energies → `data/processed/training_set.csv`; validate against `contracts/dataset.schema.yaml`; ≥200 samples, ≥3 alloy systems, ≥50 held‑out test samples. | `train_model.py` (assembly) |
+| **7. Linearity Assessment** | **FR‑010**: scatter plots + residual analysis; store verdict (`appears_linear`) that drives model selection. | `train_model.py` |
+| **8. Model Training & CV** | **FR‑004a**: Linear Regression with 5‑fold CV (or LOOCV if N < 5), robust SE p‑values. **FR‑004b**: RandomForest with same CV. **Methodology‑634ae014**: split performed with `GroupKFold` on `gb_id` to prevent leakage. **SC‑001**: permutation testing for R² significance; per‑system R² for ≥3 systems. **SC‑002**: held‑out RMSE with [deferred] prediction intervals. | `train_model.py` |
+| **9. Power Analysis** | **FR‑008**: `statsmodels` power analysis with f² = 0.15, α = 0.05, predictor count = 7; report required N and compare to achieved N. **Methodology‑dcd5c179**: predictor count explicitly stated. | `train_model.py` |
+| **10. Hypothesis Testing & Report** | **FR‑005/SC‑003**: Bonferroni or Benjamini‑Hochberg correction; report adjusted p‑values and count of significance changes; emit `results/hypothesis_report.json`. | `report.py` |
+| **11. Visualization** | **FR‑009/SC‑005**: cluster‑size vs. segregation‑energy scatter with 95 % CIs per alloy system, high‑resolution PNG. | `plots.py` |
+| **12. Output Serialization & Verification** | Write `results/metrics.json` (validated against `contracts/output.schema.yaml`); integration test verifies `.gitignore` and `README.md` content, runs full pipeline (`T012b`) and validation harness (`T017f`). | `main.py`, `tests/integration/test_artifact_verification.py` |
 
-All phases respect the compute budget (CPU‑only, ≤ 4 h estimated) and use only the verified dataset URLs. No GPU resources are required; all libraries are CPU‑only wheels.
+Task ordering respects data dependencies: download → GB construction → descriptors → energies → validation → assembly → modeling → reporting → figures → verification. FR‑006 (sensitivity sweep) was **REMOVED** from the spec and is not planned.
 
-### Mapping of Success Criterion SC‑004
-| Success Criterion | Plan Phase |
-|-------------------|------------|
-| SC‑004: Multiple‑comparison correction is measured against the unadjusted p‑values | Phase 7 (Multiple‑Comparison Correction) |
+## FR/SC Coverage Map
+
+| ID | Phase | | ID | Phase |
+|----|-------|-|----|-------|
+| FR‑001 | 1 | | FR‑009 | 11 |
+| FR‑002 | 3 | | FR‑010 | 7 |
+| FR‑003 | 4 | | FR‑011 | 5 |
+| FR‑004a | 8 | | FR‑012 | 3 |
+| FR‑004b | 8 | | SC‑001 | 8, 9 |
+| FR‑005 | 10 | | SC‑002 | 8 |
+| FR‑007 | 3 | | SC‑003 | 10 |
+| FR‑008 | 9 | | SC‑004 | 3 |
+| — | — | | SC‑005 | 11 |
+| — | — | | SC‑006 | 5 |
+
+## FR‑001 Deviation
+
+The Materials Project requires authentication and is not programmatically accessible on the free CI runner. To remain fully reproducible, the pipeline **deviates** by using only the verified OQMD loader. This deviation is recorded here and justified by the lack of an open, unauthenticated Materials Project endpoint.
+
+## FR‑003 Deviation
+
+No open‑access literature database of segregation‑energy measurements exists. Consequently, segregation energies are **generated in‑house** using validated EAM potentials (see Phase 4). This satisfies the intent of providing target labels while acknowledging the source limitation.
+
+## Scope Limitation (Associational Claim)
+
+All statistical relationships reported (R², coefficients, p‑values) are **associational within the EAM‑potential internal physics**. No causal inference about real material behavior is claimed. Results reflect how the chosen EAM model maps the computed clustering descriptors to its own segregation‑energy predictions.
 
 ## Expected Outputs
-- `data/processed/training_set.csv` – final regression dataset (schema‑validated).  
-- `results/metrics.json` – model performance, raw/adjusted p‑values, VIF scores, collinearity framing, and power‑analysis fields.  
-- `results/sensitivity.json` – RMSE variance & R² stability across λ thresholds.  
-- `.gitignore` & `README.md` – verifiable artifacts for T001b/T001c.  
+
+- `data/processed/training_set.csv` — schema‑validated regression dataset (≥200 samples, ≥3 alloy systems)
+- `results/metrics.json` — CV metrics, per‑system R², permutation p‑values, VIF report, power analysis, linearity assessment, EAM validation status
+- `results/hypothesis_report.json` — raw/adjusted p‑values, significance‑change count, textual summary (US‑3)
+- `results/cluster_size_vs_segregation.png` — FR‑009 figure
+- `.gitignore` and `README.md` with verifiable CONTENT (T001b/T001c) – tests ensure they contain the required patterns/sections
