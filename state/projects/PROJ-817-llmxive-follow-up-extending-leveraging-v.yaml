@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T20:20:13.972667Z'
-current_stage: clarified
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-817-llmxive-follow-up-extending-leveraging-v
-last_run_id: 7a7f39ef-ae35-42d4-bd59-1d7b2db5a8dc
+last_run_id: 80373d2e-4e3c-4f2b-925c-eafb8a110892
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/specs/001-llmxive-follow-up-extending-leveraging-v
 title: 'llmXive follow-up: extending "Leveraging Verifier-Based Reinforcement Learning
   in Image Editing"'
-updated_at: '2026-10-07T21:35:02.812869Z'
+updated_at: '2026-10-17T01:32:39.913586Z'

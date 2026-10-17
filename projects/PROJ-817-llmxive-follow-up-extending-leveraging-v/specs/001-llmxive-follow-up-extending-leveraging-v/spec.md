@@ -9,7 +9,7 @@
 
 ### User Story 1 - Baseline Verifier Evaluation on Conflicting Instructions (Priority: P1)
 
-The researcher MUST be able to run the baseline distilled verifier (Edit-R1 1B) on a curated dataset of N image editing prompts (target N=1000, split into 500 conflicting and 500 neutral) and generate a CSV report containing the verifier's alignment scores against human-annotated feasibility scores for each prompt.
+The researcher MUST be able to run the baseline distilled verifier (Edit-R1 1B) on a curated dataset of N image editing prompts (target N=1000, split into many conflicting and A substantial number of neutral.) and generate a CSV report containing the verifier's alignment scores against human-annotated feasibility scores for each prompt.
 
 **Why this priority**: This establishes the failure mode hypothesis. Without quantifying the baseline degradation on conflicting instructions, the proposed graph augmentation cannot be evaluated. It is the essential control condition for the entire study.
 
@@ -28,7 +28,7 @@ The system MUST parse natural language instructions into directed constraint gra
 
 **Why this priority**: This is the core innovation (the intervention). The graph module must function independently of the neural verifier to ensure it is a valid preprocessing layer. It provides the structural guidance hypothesized to mitigate reasoning degradation.
 
-**Independent Test**: The researcher provides a set of 50 conflicting instructions to the parser module and verifies the output JSON contains valid graph structures with identified contradiction edges and temporal dependencies. The total CPU runtime for the curated dataset of instructions must be ≤ 30 minutes on a standard 2-core runner, and no GPU memory is allocated.
+**Independent Test**: The researcher provides a set of multiple conflicting instructions to the parser module and verifies the output JSON contains valid graph structures with identified contradiction edges and temporal dependencies. The total CPU runtime for the curated dataset of instructions must be ≤ 30 minutes on a standard 2-core runner, and no GPU memory is allocated.
 
 **Acceptance Scenarios**:
 

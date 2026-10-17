@@ -1,0 +1,15 @@
+status: none
+intent: download Image Editing Prompts Dataset and COCO Captions for feasibility scores
+  python package dataset
+required_fields:
+- prompt_id
+- prompt_text
+- instruction_type
+- human_feasibility_score
+- ground_truth_edit_outcome
+- image_id
+- verifier_score
+- alignment_delta
+cache_key: 6476f2e04352caef3fb27476d9c8db18d9f23f99d59cb1424d4d5b8329e3470b
+searched_at: '2026-10-17T01:19:55.760342+00:00'
+retry_count: 1
