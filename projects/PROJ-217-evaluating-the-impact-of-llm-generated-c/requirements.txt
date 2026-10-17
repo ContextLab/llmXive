@@ -1,0 +1,13 @@
+# Core dependencies (versions pinned for reproducibility)
+datasets==2.19.0
+torch==2.2.0
+transformers==4.41.0
+sentence-transformers==2.7.0
+scikit-learn==1.5.0
+statsmodels==0.14.2
+pandas==2.2.2
+tqdm==4.66.2
+requests==2.32.3
+pyyaml
+# The following packages are provided by the platform and need not be listed:
+# numpy, scipy, matplotlib, seaborn, pytest, psutil, etc.
