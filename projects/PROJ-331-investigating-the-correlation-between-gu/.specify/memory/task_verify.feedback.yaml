@@ -3,11 +3,14 @@ T001:
     exit=1; code/src/pipeline/ingest.py exit=1'
   task: 063d19d7b82df387ebe83a34f748333a124d9faa6a305865380f7f91df3d4306
 T002:
-  reason: "The `preprocess.py` module cannot be imported because the required `skbio`\
-    \ package is not installed, causing the test suite to error out. Moreover, the\
-    \ expected output files `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
-    \ are absent from the repository. Both issues prevent the task\u2019s verification\
-    \ tests from running and the required artifacts from being produced."
+  reason: "The repository contains a full `preprocess.py` implementation that meets\
+    \ the functional steps (loading, merging, filtering, zero\u2011taxa removal, CLR\
+    \ with pseudocount, deterministic top\u2011100 selection), and the test suite\
+    \ passes on temporary output directories. However, the required output artifacts\
+    \ `data/processed/filtered_samples.parquet` and `data/processed/clr_abundances.parquet`\
+    \ are **missing** from the project tree, so the task\u2019s deliverables are not\
+    \ present. The next implementer must ensure the pipeline writes these two Parquet\
+    \ files to the specified `data/processed/` location (or include t"
   task: a9108afb3ad685a072dc55335635e13be1d914b2c9aea5dc3aded3e2e1f7d351
 T003:
   reason: "The required output files `data/processed/patient_taxon_slopes.parquet`\

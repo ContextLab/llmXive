@@ -1,1 +1,8 @@
-pyarrow
+# Project dependencies
+# Core scientific stack (already available in the environment):
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+#
+# Additional packages required for the preprocessing stage:
+scikit-bio>=0.6,<0.7
+pyarrow>=16.0,<17.0

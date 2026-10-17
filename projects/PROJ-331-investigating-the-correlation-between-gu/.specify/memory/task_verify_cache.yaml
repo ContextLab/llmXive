@@ -1,3 +1,15 @@
+T002:
+  c: false
+  h: df15f054548dbcc0e2016c68307a6facc2a0dc93164afde735f8957ace87bd5d
+  r: "The repository contains a full `preprocess.py` implementation that meets the\
+    \ functional steps (loading, merging, filtering, zero\u2011taxa removal, CLR with\
+    \ pseudocount, deterministic top\u2011100 selection), and the test suite passes\
+    \ on temporary output directories. However, the required output artifacts `data/processed/filtered_samples.parquet`\
+    \ and `data/processed/clr_abundances.parquet` are **missing** from the project\
+    \ tree, so the task\u2019s deliverables are not present. The next implementer\
+    \ must ensure the pipeline writes these two Parquet files to the specified `data/processed/`\
+    \ location (or include t"
+  sig: ed54505f73a6d5d185692f9a91b5b9387ffd4133802f3a48530b1501b5bdfd44
 T005:
   c: true
   h: 7e10206c68a821d6f3862f187bd9ebadbdfc898aebbbe2d42290d24338eccda4
