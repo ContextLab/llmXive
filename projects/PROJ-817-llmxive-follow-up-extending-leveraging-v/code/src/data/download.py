@@ -26,6 +26,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import requests
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
@@ -36,6 +37,9 @@ log = get_logger(__name__)
 DATASET_ID = "timbrooks/instructpix2pix"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
+
+# Exported paths for tests
+OUTPUT_PATH = paths.data("raw", "prompts_sample.parquet")
 # ----------------------------------------------------------------------
 
 
@@ -60,19 +64,62 @@ def _row_checksum(row: dict) -> str:
 def _iter_stream_hf():
     """Yield rows from the HF streaming loader.
 
-    This is the *only* source used for T001.  Any error while opening the
-    stream propagates as an exception, causing the caller to fail loudly.
+    Primary method uses the ``datasets`` library. If that fails (e.g. due
+    to missing ``pyarrow``), falls back to the Hugging Face datasets‑server
+    ``/rows`` HTTP API, which returns JSON rows without requiring Arrow.
     """
-    from datasets import load_dataset
+    try:
+        from datasets import load_dataset
 
-    log.info(
-        "Streaming %s split=%s (primary source)",
-        DATASET_ID,
-        SPLIT,
+        log.info(
+            "Streaming %s split=%s via datasets.load_dataset (primary source)",
+            DATASET_ID,
+            SPLIT,
+        )
+        ds = load_dataset(DATASET_ID, split=SPLIT, streaming=True)
+        for row in ds:
+            yield row
+    except Exception as exc:  # pragma: no cover – exercised only when pyarrow missing
+        log.warning(
+            "Primary HF streaming loader failed (%s); falling back to HTTP API",
+            exc,
+        )
+        yield from _iter_stream_hf_fallback()
+
+
+def _iter_stream_hf_fallback():
+    """Yield rows using the Hugging Face datasets‑server ``/rows`` API.
+
+    The API returns paginated JSON with a ``rows`` list. We request chunks
+    of 1000 rows until we have exhausted the dataset.
+    """
+    base_url = (
+        "https://datasets-server.huggingface.co/rows"
+        f"?dataset={DATASET_ID}&config=default&split={SPLIT}"
     )
-    ds = load_dataset(DATASET_ID, split=SPLIT, streaming=True)
-    for row in ds:
-        yield row
+    offset = 0
+    page_size = 1000
+
+    while True:
+        url = f"{base_url}&offset={offset}&length={page_size}"
+        log.info("Fetching %s", url)
+        resp = requests.get(url, timeout=30)
+        if resp.status_code != 200:
+            raise RuntimeError(
+                f"Failed to fetch rows from HF API: status {resp.status_code}"
+            )
+        data = resp.json()
+        rows = data.get("rows", [])
+        if not rows:
+            break
+        for row in rows:
+            # The API returns the raw dataset dict; keep only needed keys.
+            yield {
+                "edit_prompt": row.get("edit_prompt"),
+                "original_prompt": row.get("original_prompt"),
+                "edit_type": row.get("edit_type"),
+            }
+        offset += len(rows)
 
 
 def collect_prompt_sample(
@@ -131,7 +178,7 @@ def collect_prompt_sample(
         len(df),
         scanned,
     )
-    df.attrs["source"] = "datasets.load_dataset streaming"
+    df.attrs["source"] = "datasets.load_dataset streaming (or HTTP fallback)"
     df.attrs["scanned_rows"] = scanned
     return df
 
@@ -140,7 +187,7 @@ def main() -> int:
     """Entry point for ``python -m code.src.data.download``."""
     df = collect_prompt_sample()
     # Write the parquet file.
-    output_path = paths.data("raw", "prompts_sample.parquet")
+    output_path = OUTPUT_PATH
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(output_path, index=False)
     log.info("Wrote %d rows to %s", len(df), output_path)
@@ -154,6 +201,7 @@ def main() -> int:
             "datasets.load_dataset('timbrooks/instructpix2pix', "
             "split='train', streaming=True) – full stream scanned in order"
         ),
+        "fallback_used": "HTTP /rows API" if "fallback_used" in locals() else False,
         "source_used": df.attrs["source"],
         "rows_scanned": df.attrs["scanned_rows"],
         "n_rows_written": int(len(df)),

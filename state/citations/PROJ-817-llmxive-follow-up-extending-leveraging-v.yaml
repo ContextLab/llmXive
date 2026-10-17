@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/api/datasets/timbrooks/instructpix2pix/parquet/default/train
   verified_at: '2026-10-17T03:10:16.293459Z'
-- artifact_hash: 9bf646e7ecac1d410c9c133f1259cff19573e8ed0d666c0d435b5502baaadf6b
+- artifact_hash: 9788120fc8c41e15c6cef851ca4707846c9d6d28432ff827d282658cd5af1990
   artifact_path: projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/specs/001-llmxive-follow-up-extending-leveraging-v/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://huggingface.co/datasets/timbrooks/instructpix2pix`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/timbrooks/instructpix2pix
-  verified_at: '2026-10-17T05:07:07.238831Z'
+  verified_at: '2026-10-17T08:07:36.074822Z'
