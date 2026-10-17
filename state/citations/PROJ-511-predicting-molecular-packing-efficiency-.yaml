@@ -1,25 +1,3 @@
-- artifact_hash: 4ea6423881bcb6e38c5dc83294489d4c2116cd6a9104624db032d52314e23c1c
-  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: schema#
-  kind: url
-  value: http://json-schema.org/draft-07/schema#
-  verification_status: pending
-  verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-08-28T09:19:53.785033Z'
-- artifact_hash: 4ea6423881bcb6e38c5dc83294489d4c2116cd6a9104624db032d52314e23c1c
-  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: van der Waals Volumes and Radii
-  kind: doi
-  value: 10.1021/j100785a001
-  verification_status: pending
-  verified_against_url: https://doi.org/10.1021/j100785a001
-  verified_at: '2026-08-28T09:19:53.785033Z'
 - artifact_hash: 799bbfeef57f11c9d4a37d1e4c345c7f41b6d563e51375a0d6b513509203033f
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/spec.md
   cite_id: c-001
@@ -64,3 +42,36 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1021/j100785a001
   verified_at: '2026-10-11T08:53:17.735910Z'
+- artifact_hash: e567f85dfdb0c7b6fb1178bd5979183ad5b87d20625bd81a2ec4600f4813eaba
+  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Crystallography Open Database
+  kind: url
+  value: https://www.crystallography.net/cod/`
+  verification_status: pending
+  verified_against_url: https://www.crystallography.net/cod/
+  verified_at: '2026-10-17T06:24:44.209155Z'
+- artifact_hash: e567f85dfdb0c7b6fb1178bd5979183ad5b87d20625bd81a2ec4600f4813eaba
+  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Crystallography Open Database
+  kind: url
+  value: https://www.crystallography.net/cod/
+  verification_status: pending
+  verified_against_url: https://www.crystallography.net/cod/
+  verified_at: '2026-10-17T06:24:44.209155Z'
+- artifact_hash: e567f85dfdb0c7b6fb1178bd5979183ad5b87d20625bd81a2ec4600f4813eaba
+  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Crystallography Open Database: Search results'
+  kind: url
+  value: https://www.crystallography.net/cod/result?format=ids&a=el1=C&strictmin=1&strictmax=50`
+  verification_status: pending
+  verified_against_url: https://www.crystallography.net/cod/result?format=ids&a=el1=C&strictmin=1&strictmax=50
+  verified_at: '2026-10-17T06:24:44.209155Z'
