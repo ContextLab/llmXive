@@ -1,18 +1,15 @@
 """
 NOAA geomagnetic index fetcher.
 
-Downloads hourly Kp and Dst indices from the official NOAA service, merges them on their timestamps
-and writes a CSV containing the required columns ``Kp`` and ``Dst`` (plus ``timestamp``).
+Downloads hourly Kp and Dst indices from the official NOAA service, 
+filters them for the date range, and writes a CSV containing 
+the required columns `Kp` and `Dst`.
 
-The implementation respects the specification:
-* streaming HTTP download with ``requests``
-* exponential‑backoff retries (max 3 attempts)
-* raises ``ConnectionError`` on any network problem
-* never falls back to synthetic data
+The file is saved as `data/raw/noaa_<YYYYMM>.csv`.
 """
 
-import logging
 import time
+import logging
 from datetime import datetime
 from pathlib import Path
 
@@ -22,11 +19,8 @@ import requests
 from code.config import RAW_DATA_DIR
 from code import logger
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
 def _exponential_backoff(attempt: int, base: float = 1.0) -> None:
-    """Sleep ``base * 2**attempt`` seconds."""
+    """Sleep base * 2**attempt seconds."""
     time.sleep(base * (2 ** attempt))
 
 def _download_text(url: str) -> str:
@@ -34,7 +28,7 @@ def _download_text(url: str) -> str:
     headers = {"User-Agent": "Mozilla/5.0 (compatible; llmXive/1.0)"}
     for attempt in range(3):
         try:
-            response = requests.get(url, timeout=30, stream=True, headers=headers)
+            response = requests.get(url, timeout=60, stream=True, headers=headers)
             response.raise_for_status()
             return response.text
         except Exception as exc:
@@ -42,15 +36,11 @@ def _download_text(url: str) -> str:
             if attempt == 2:
                 raise ConnectionError(f"Unable to download {url}") from exc
             _exponential_backoff(attempt)
-    # Should never reach here
     raise ConnectionError(f"Failed to download {url}")
 
-def _parse_kp(txt: str) -> pd.DataFrame:
-    """
-    Parse the NOAA Kp index text file.
-
-    Expected format (space‑separated):
-        YYYY MM DD HH  Kp
+def _parse_index(txt: str, col_name: str) -> pd.DataFrame:
+    """Parse NOAA index text files (Kp or Dst).
+    Expected format: YYYY MM DD HH Value
     """
     records = []
     for line in txt.strip().splitlines():
@@ -59,130 +49,64 @@ def _parse_kp(txt: str) -> pd.DataFrame:
         parts = line.split()
         if len(parts) < 5:
             continue
-        year, month, day, hour, kp = parts[:5]
         try:
-            ts = datetime(int(year), int(month), int(day), int(hour))
-            kp_val = float(kp)
-        except ValueError:
+            ts = datetime(int(parts[0]), int(parts[1]), int(parts[2]), int(parts[3]))
+            val = float(parts[4])
+            records.append({"timestamp": ts, col_name: val})
+        except (ValueError, IndexError):
             continue
-        records.append({"timestamp": ts, "Kp": kp_val})
     return pd.DataFrame(records)
 
-def _parse_dst(txt: str) -> pd.DataFrame:
+def fetch_noaa(start_date: str, end_date: str) -> str:
     """
-    Parse the NOAA Dst index text file.
-
-    Expected format (space‑separated):
-        YYYY MM DD HH  Dst
+    Fetch NOAA Kp and Dst geomagnetic indices.
+    Writes to data/raw/noaa_<YYYYMM>.csv.
     """
-    records = []
-    for line in txt.strip().splitlines():
-        if not line or line.startswith("#"):
-            continue
-        parts = line.split()
-        if len(parts) < 5:
-            continue
-        year, month, day, hour, dst = parts[:5]
-        try:
-            ts = datetime(int(year), int(month), int(day), int(hour))
-            dst_val = float(dst)
-        except ValueError:
-            continue
-        records.append({"timestamp": ts, "Dst": dst_val})
-    return pd.DataFrame(records)
-
-# ----------------------------------------------------------------------
-# Core fetch logic
-# ----------------------------------------------------------------------
-def _fetch_and_merge_noaa(output_path: Path) -> Path:
-    """
-    Download Kp and Dst files, merge on timestamp and write CSV.
-
-    Parameters
-    ----------
-    output_path : Path
-        Destination CSV (``data/raw/noaa_raw.csv``).
-
-    Returns
-    -------
-    Path
-        The path that was written.
-    """
+    start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+    end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+    
+    yyyymm = start_dt.strftime("%Y%m")
+    output_path = Path(RAW_DATA_DIR) / f"noaa_{yyyymm}.csv"
+    
+    # SWPC endpoints for current/recent indices
     kp_url = "https://services.swpc.noaa.gov/products/geomagnetic/kp.txt"
     dst_url = "https://services.swpc.noaa.gov/products/geomagnetic/dst.txt"
-
+    
     logger.debug(f"Downloading Kp from {kp_url}")
     kp_text = _download_text(kp_url)
     logger.debug(f"Downloading Dst from {dst_url}")
     dst_text = _download_text(dst_url)
-
-    kp_df = _parse_kp(kp_text)
-    dst_df = _parse_dst(dst_text)
-
-    if kp_df.empty:
-        raise ConnectionError("Downloaded Kp file is empty or malformed.")
-    if dst_df.empty:
-        raise ConnectionError("Downloaded Dst file is empty or malformed.")
-
-    # Merge on timestamp (inner join ensures both indices present)
+    
+    kp_df = _parse_index(kp_text, "Kp")
+    dst_df = _parse_index(dst_text, "Dst")
+    
+    if kp_df.empty or dst_df.empty:
+        raise ConnectionError("Downloaded NOAA files are empty or malformed.")
+    
+    # Merge on timestamp
     merged = pd.merge(kp_df, dst_df, on="timestamp", how="inner")
-
-    # Verify required columns
-    if not {"Kp", "Dst", "timestamp"}.issubset(merged.columns):
-        raise ConnectionError(
-            "Merged NOAA data missing required columns after download."
-        )
-
-    # Write CSV
+    
+    # Filter to requested window
+    mask = (merged["timestamp"] >= pd.Timestamp(start_dt)) & \
+           (merged["timestamp"] <= pd.Timestamp(end_dt) + pd.Timedelta(days=1))
+    merged = merged.loc[mask]
+    
+    if merged.empty:
+        # If the SWPC files (which are short-term) don't cover the historical range,
+        # we raise a ConnectionError as the data is effectively unavailable at this endpoint.
+        raise ConnectionError(f"No NOAA data found for period {start_date} to {end_date} at SWPC endpoint.")
+    
     output_path.parent.mkdir(parents=True, exist_ok=True)
     merged.to_csv(output_path, index=False)
     logger.info(f"NOAA data written to {output_path}")
-    return output_path
-
-# ----------------------------------------------------------------------
-# Public API
-# ----------------------------------------------------------------------
-def fetch_noaa(start_date: str, end_date: str) -> str:
-    """
-    Fetch NOAA Kp and Dst geomagnetic indices.
-
-    The start/end dates are accepted for API compatibility but the
-    NOAA service provides a single continuous file; the function ignores
-    the date limits and writes the full series to ``data/raw/noaa_raw.csv``.
-
-    Returns
-    -------
-    str
-        Absolute path to the written CSV.
-
-    Raises
-    ------
-    ConnectionError
-        If the remote files cannot be retrieved or parsed.
-    """
-    output_path = Path(RAW_DATA_DIR) / "noaa_raw.csv"
-    _fetch_and_merge_noaa(output_path)
+    
     return str(output_path)
 
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
 if __name__ == "__main__":
     import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Fetch NOAA Kp and Dst geomagnetic indices."
-    )
-    parser.add_argument(
-        "--start",
-        required=True,
-        help="Start date (YYYY‑MM‑DD) – kept for compatibility",
-    )
-    parser.add_argument(
-        "--end",
-        required=True,
-        help="End date (YYYY‑MM‑DD) – kept for compatibility",
-    )
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--start", required=True)
+    parser.add_argument("--end", required=True)
     args = parser.parse_args()
     try:
         path = fetch_noaa(args.start, args.end)

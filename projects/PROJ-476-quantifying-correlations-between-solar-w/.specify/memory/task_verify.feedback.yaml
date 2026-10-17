@@ -1,4 +1,12 @@
 T001:
+  reason: "The directory hierarchy and `specs/001-quantifying-correlations-between-solar-w/quickstart.md`\
+    \ (containing the required `python -m code.main --stage all` command) are confirmed\
+    \ present. However, the task's core deliverable \u2014 a runnable quick-start\
+    \ \u2014 is unevidenced: no `code/main.py` (or `code/__main__.py`) appears anywhere\
+    \ in the collected artifacts, and there is no execution evidence that `python\
+    \ -m code.main --help` (the task's own verification command) exits 0. The next\
+    \ implementer must add the `code.main` CLI module and provide evidence of a successful\
+    \ `--help` run."
   task: d57b6dbabc16d1e7d22f1ddec3f16421e48727461789f674b20132268debc58b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/fetch_ace.py

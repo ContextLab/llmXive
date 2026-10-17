@@ -30,22 +30,23 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m code.main --stage all -> rc=1
 
-2026-10-17 13:10:19,830 ERROR code: Both --start and --end are required for the full pipeline.
+2026-10-17 14:08:30,987 ERROR code: Both --start and --end are required for the full pipeline.
 
 - python -m code.main --stage fetch --start 1998-01-01 --end 2020-12-31 -> rc=1
-())
+le_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 179, in <module>
+    sys.exit(main())
              ^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 153, in main
     _run_fetch(args.start, args.end)
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 40, in _run_fetch
     ace_path = fetch_ace(start_date, end_date)
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 214, in fetch_ace
-    _fetch_and_merge_ace(start_date, end_date, output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 151, in _fetch_and_merge_ace
-    swepam_txt = _download_text(swepam_url)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 55, in _download_text
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 113, in fetch_ace
+    txt_p = _download_text(swepam_url)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 44, in _download_text
     raise ConnectionError(f"Unable to download {url}") from exc
-ConnectionError: Unable to download https://services.swpc.noaa.gov/products/ace/ace_swepam_1m.txt
+ConnectionError: Unable to download https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/ace_swepam_l2_1998.txt
 
