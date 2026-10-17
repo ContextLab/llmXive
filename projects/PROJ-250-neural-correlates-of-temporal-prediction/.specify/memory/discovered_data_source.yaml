@@ -1,15 +1,18 @@
 status: none
-intent: OpenNeuro ds004510 EEG auditory oddball dataset download python package dataset
+intent: OpenNeuro ds004510 EEG dataset download MNE-Python fetch_openneuro python
+  package dataset
 required_fields:
-- raw EEG signal matrix
-- channel names
-- sampling rate (Hz)
-- event timestamps/onsets
-- event codes/IDs
-- condition labels (simple/complex, standard/deviant)
-- subject identifier
-- montage information (e.g., mastoid reference)
-- "epoch time window specifications (-200 to 500\u202Fms)"
-cache_key: 1fbc00322036a0f1e993dda4dd5bc365c9b23ba4f4d3ca791c78cbd3ea5ff621
-searched_at: '2026-10-17T16:16:38.658179+00:00'
+- raw_eeg_signal
+- sampling_rate
+- channel_names
+- event_onset_times
+- stimulus_type
+- condition_label
+- subject_id
+- age
+- sex
+- session_id
+- bids_metadata
+cache_key: 0c883df7e25d65d6f113c98a10022d7e75918ec69631ba1cfdedf744439b545c
+searched_at: '2026-10-17T22:19:04.586373+00:00'
 retry_count: 1

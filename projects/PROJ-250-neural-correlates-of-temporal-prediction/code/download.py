@@ -100,10 +100,12 @@ def s3_list(prefix, delimiter=None):
 def resolve_dataset_prefix():
     """Return the S3 key prefix holding current ds004510 files (versioned if applicable)."""
     base = CANONICAL_DATASET_ID + "/"
-    keys, prefixes = s3_list(base)
+    # Use '/' delimiter to obtain CommonPrefixes (possible version folders)
+    keys, prefixes = s3_list(base, delimiter="/")
     if keys:
-        # Flat layout
+        # Flat layout (no versioning)
         return base
+    # Look for versioned prefixes like '1.0.0/'
     version_prefixes = [
         p.rstrip("/")
         for p in prefixes
@@ -195,7 +197,7 @@ def download_subjects(n_subjects, raw_dir):
     subjects_with_eeg = [
         s for s, ks in subj_to_keys.items() if _subject_has_eeg(ks)
     ]
-    subjects_with_eeg.sort(key=lambda s: int(re.sub(r"\\D", "", s) or 0))
+    subjects_with_eeg.sort(key=lambda s: int(re.sub(r"\D", "", s) or 0))
 
     if not subjects_with_eeg:
         raise RuntimeError("No subjects with EEG data found in the dataset.")
@@ -206,7 +208,7 @@ def download_subjects(n_subjects, raw_dir):
     downloaded_files = []
     for subj in selected:
         for key in subj_to_keys[subj]:
-            # Skip non‑EEG files to keep download size modest
+            # Skip non‑EEG files to keep download size modest, but keep events.tsv
             if "/eeg/" not in key.lower() and not key.lower().endswith("events.tsv"):
                 continue
             rel_path = Path(*Path(key).parts[1:])  # drop the top-level dataset folder
