@@ -212,9 +212,7 @@ def main():
     logger.info(f"Loaded dataset with {initial_rows} rows")
 
     # Apply missing nutrient filter
-    df_filtered, excluded_count = filter_by_missing_nutrients(
-        df, p_n_available, logger
-    )
+    df_filtered, excluded_count = filter_by_missing_nutrients(df, p_n_available, logger)
 
     final_rows = len(df_filtered)
     logger.info(

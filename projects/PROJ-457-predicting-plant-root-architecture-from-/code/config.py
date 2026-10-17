@@ -7,6 +7,7 @@ from typing import Any, Dict
 
 CONFIG_PATH = Path(__file__).parent.parent / "config.yaml"
 
+
 def get_config() -> Dict[str, Any]:
     """
     Loads configuration from config.yaml.
@@ -17,16 +18,17 @@ def get_config() -> Dict[str, Any]:
             "LOG_LEVEL": "INFO",
             "LOG_PATH": "logs/pipeline.log",
             "SEED": 42,
-            "DATA_PATH": "data"
+            "DATA_PATH": "data",
         }
-    
-    with open(CONFIG_PATH, 'r') as f:
+
+    with open(CONFIG_PATH, "r") as f:
         return yaml.safe_load(f)
+
 
 def setup_logging(log_level: str = "INFO") -> logging.Logger:
     """
     Configures logging to file and console.
-    
+
     Reads LOG_LEVEL and LOG_PATH from config.yaml if available.
     Creates the log directory if it does not exist.
     """
@@ -41,28 +43,30 @@ def setup_logging(log_level: str = "INFO") -> logging.Logger:
         cfg_log_path = "logs/pipeline.log"
 
     level = getattr(logging, cfg_level.upper(), logging.INFO)
-    
+
     logger = logging.getLogger("llmXive")
     logger.setLevel(level)
-    
+
     # Clear existing handlers to prevent duplicates on re-calls
     logger.handlers = []
-    
+
     # Console handler
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-    
+
     # File handler
     log_file = Path(cfg_log_path)
     if not log_file.parent.exists():
         log_file.parent.mkdir(parents=True, exist_ok=True)
-    
+
     fh = logging.FileHandler(log_file)
     fh.setLevel(level)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
-    
+
     return logger

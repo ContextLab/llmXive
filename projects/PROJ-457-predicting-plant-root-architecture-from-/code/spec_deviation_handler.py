@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 from config import get_config, setup_logging
 
+
 def get_deviations_path() -> Path:
     """
     Returns the path to the deviations log file.
@@ -15,6 +16,7 @@ def get_deviations_path() -> Path:
     log_dir.mkdir(parents=True, exist_ok=True)
     return log_dir / "deviation.log"
 
+
 def load_deviations() -> List[Dict[str, Any]]:
     """
     Loads existing deviations from the deviation log.
@@ -24,7 +26,7 @@ def load_deviations() -> List[Dict[str, Any]]:
     path = get_deviations_path()
     if not path.exists():
         return []
-    
+
     deviations = []
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
@@ -37,6 +39,7 @@ def load_deviations() -> List[Dict[str, Any]]:
                     # If it's plain text, store as a text entry
                     deviations.append({"raw_text": line, "type": "text"})
     return deviations
+
 
 def save_deviations(deviations: List[Dict[str, Any]]) -> None:
     """
@@ -51,6 +54,7 @@ def save_deviations(deviations: List[Dict[str, Any]]) -> None:
             else:
                 f.write(json.dumps(dev) + "\n")
 
+
 def record_spec_deviation_fr002() -> None:
     """
     Records FR-002 deviation: ISRIC merge excluded.
@@ -59,7 +63,7 @@ def record_spec_deviation_fr002() -> None:
         "id": "FR-002",
         "description": "ISRIC merge excluded due to lack of verified source",
         "type": "spec_deviation",
-        "status": "recorded"
+        "status": "recorded",
     }
     deviations = load_deviations()
     # Check if already exists
@@ -67,6 +71,7 @@ def record_spec_deviation_fr002() -> None:
         deviations.append(entry)
         save_deviations(deviations)
         logging.info("Recorded FR-002 deviation")
+
 
 def record_spec_deviation_fr003() -> None:
     """
@@ -76,7 +81,7 @@ def record_spec_deviation_fr003() -> None:
         "id": "FR-003",
         "description": "KNN imputation excluded to preserve statistical validity; missing nutrients are excluded",
         "type": "spec_deviation",
-        "status": "recorded"
+        "status": "recorded",
     }
     deviations = load_deviations()
     # Check if already exists
@@ -85,6 +90,7 @@ def record_spec_deviation_fr003() -> None:
         save_deviations(deviations)
         logging.info("Recorded FR-003 deviation")
 
+
 def main() -> None:
     """
     Main entry point for recording spec deviations.
@@ -92,16 +98,17 @@ def main() -> None:
     """
     config = get_config()
     logger = setup_logging(config)
-    
+
     logger.info("Starting spec deviation handler")
-    
+
     # Record FR-002 (ISRIC exclusion)
     record_spec_deviation_fr002()
-    
+
     # Record FR-003 (KNN exclusion)
     record_spec_deviation_fr003()
-    
+
     logger.info("Spec deviation recording complete")
+
 
 if __name__ == "__main__":
     main()

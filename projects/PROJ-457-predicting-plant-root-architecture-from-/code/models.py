@@ -3,13 +3,16 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
 
+
 class DataSourceType(Enum):
     """Enumeration of data source types to identify manipulated vs. natural conditions."""
+
     OBSERVATIONAL = "observational"
     MANIPULATED = "manipulated"
     CONTROLLED = "controlled"
     EXPERIMENTAL = "experimental"
     UNKNOWN = "unknown"
+
 
 @dataclass
 class RootPhenotypeRecord:
@@ -17,6 +20,7 @@ class RootPhenotypeRecord:
     Represents a single record of root phenotype data.
     Corresponds to the structure expected from PlantPheno or RootReader datasets.
     """
+
     species: str
     root_length: Optional[float] = None
     branching_density: Optional[float] = None
@@ -39,12 +43,15 @@ class RootPhenotypeRecord:
         if not self.species:
             return False
         # Basic validity: at least one root metric present
-        has_metric = any([
-            self.root_length is not None,
-            self.branching_density is not None,
-            self.surface_area is not None
-        ])
+        has_metric = any(
+            [
+                self.root_length is not None,
+                self.branching_density is not None,
+                self.surface_area is not None,
+            ]
+        )
         return has_metric
+
 
 @dataclass
 class SoilNutrientRecord:
@@ -53,9 +60,10 @@ class SoilNutrientRecord:
     Per Spec Deviation, we do not merge ISRIC; this record holds P/N data
     if present in the primary source or a direct merge.
     """
+
     phosphorus: Optional[float] = None  # mg/kg or ppm
-    nitrogen: Optional[float] = None    # mg/kg or ppm
-    potassium: Optional[float] = None   # mg/kg or ppm
+    nitrogen: Optional[float] = None  # mg/kg or ppm
+    potassium: Optional[float] = None  # mg/kg or ppm
     ph: Optional[float] = None
     organic_matter: Optional[float] = None
     texture_class: Optional[str] = None
@@ -70,15 +78,17 @@ class SoilNutrientRecord:
         """
         return self.phosphorus is not None and self.nitrogen is not None
 
+
 @dataclass
 class MergedPhenotypeNutrientRecord:
     """
     Composite record combining RootPhenotypeRecord and SoilNutrientRecord.
     This is the primary unit of analysis for the modeling phase.
     """
+
     root: RootPhenotypeRecord
     soil: Optional[SoilNutrientRecord] = None
-    
+
     @property
     def species(self) -> str:
         return self.root.species
@@ -90,26 +100,28 @@ class MergedPhenotypeNutrientRecord:
     def to_dict(self) -> Dict[str, Any]:
         """Flattens the record into a dictionary suitable for DataFrame conversion."""
         base = {
-            'species': self.root.species,
-            'root_length': self.root.root_length,
-            'branching_density': self.root.branching_density,
-            'surface_area': self.root.surface_area,
-            'diameter': self.root.diameter,
-            'total_root_mass': self.root.total_root_mass,
-            'data_source': self.root.data_source,
-            'data_source_type': self.root.data_source_type.value,
-            'location_lat': self.root.location_lat,
-            'location_lon': self.root.location_lon,
-            'study_id': self.root.study_id,
+            "species": self.root.species,
+            "root_length": self.root.root_length,
+            "branching_density": self.root.branching_density,
+            "surface_area": self.root.surface_area,
+            "diameter": self.root.diameter,
+            "total_root_mass": self.root.total_root_mass,
+            "data_source": self.root.data_source,
+            "data_source_type": self.root.data_source_type.value,
+            "location_lat": self.root.location_lat,
+            "location_lon": self.root.location_lon,
+            "study_id": self.root.study_id,
         }
         if self.soil:
-            base.update({
-                'phosphorus': self.soil.phosphorus,
-                'nitrogen': self.soil.nitrogen,
-                'potassium': self.soil.potassium,
-                'ph': self.soil.ph,
-                'organic_matter': self.soil.organic_matter,
-                'texture_class': self.soil.texture_class,
-                'depth_cm': self.soil.depth_cm,
-            })
+            base.update(
+                {
+                    "phosphorus": self.soil.phosphorus,
+                    "nitrogen": self.soil.nitrogen,
+                    "potassium": self.soil.potassium,
+                    "ph": self.soil.ph,
+                    "organic_matter": self.soil.organic_matter,
+                    "texture_class": self.soil.texture_class,
+                    "depth_cm": self.soil.depth_cm,
+                }
+            )
         return base

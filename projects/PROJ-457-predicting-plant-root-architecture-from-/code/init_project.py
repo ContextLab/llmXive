@@ -12,6 +12,7 @@ import logging
 from llmxive_toolkit import paths, get_logger
 from config import setup_logging
 
+
 def _create_directories() -> None:
     """
     Create the required project directories if they do not already exist.
@@ -31,6 +32,7 @@ def _create_directories() -> None:
         # `exist_ok=True` makes the operation safe to repeat.
         d.mkdir(parents=True, exist_ok=True)
 
+
 def main() -> None:
     """
     Entry point for the init script.
@@ -47,7 +49,8 @@ def main() -> None:
         logging.basicConfig(level=logging.INFO)
         get_logger(__name__).warning(
             "Failed to run project config.setup_logging(): %s. "
-            "Falling back to basic logging configuration.", exc
+            "Falling back to basic logging configuration.",
+            exc,
         )
 
     logger = get_logger(__name__)  # Project‑wide logger
@@ -58,17 +61,21 @@ def main() -> None:
 
     logger.info(
         "Created/verified required directories: %s",
-        ", ".join(str(d) for d in [
-            paths.code(),
-            paths.tests(),
-            paths.data("raw"),
-            paths.data("processed"),
-            paths.artifacts(),
-            paths.logs(),
-        ])
+        ", ".join(
+            str(d)
+            for d in [
+                paths.code(),
+                paths.tests(),
+                paths.data("raw"),
+                paths.data("processed"),
+                paths.artifacts(),
+                paths.logs(),
+            ]
+        ),
     )
 
     logger.info("Project initialization complete.")
+
 
 if __name__ == "__main__":
     main()

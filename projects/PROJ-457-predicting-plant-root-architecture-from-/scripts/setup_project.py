@@ -2,8 +2,10 @@
 Script to verify and create the project directory structure.
 This script ensures all required directories exist as per T001.
 """
+
 import os
 from pathlib import Path
+
 
 def create_structure():
     base = Path(__file__).parent.parent
@@ -30,6 +32,7 @@ def create_structure():
     for dir_path in required_dirs:
         status = "✓" if dir_path.exists() else "✗"
         print(f"{status} {dir_path.relative_to(base)}")
+
 
 if __name__ == "__main__":
     create_structure()

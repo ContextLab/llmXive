@@ -1,125 +1,36 @@
 T001:
-  reason: The evidence shows the `code/` and `tests/` directories exist and a log
-    from `init_project.py` claims to have created `data/raw`, `data/processed`, `artifacts/`,
-    and `logs`, but there is no concrete artifact listing or directory entries confirming
-    those four directories actually exist in the repository. Without those directories
-    present, the required project structure is not fully satisfied.
-  task: 1d489524e1a22585e6a25f5844e320c186b1d37cba9490f12553f667e33e23f8
-T002a/T002b `code/requirements.txt` created and versions pinned.:
-  task: e61161056787a54fba2ef6f6fc48680783de2c7347d02a2699dcd5f611501578
-"T003a\u2013T003c":
+  reason: "The `directory_structure.txt` file exists, but it is placed inside the\
+    \ project subdirectory (`projects/PROJ-457\u2011.../directory_structure.txt`)\
+    \ while the CI test `tests/test_directory_structure.py` looks for the file two\
+    \ levels up (`projects/directory_structure.txt`). Consequently both test assertions\
+    \ fail, so the required verification artifact is not in the expected location.\
+    \ Relocate or duplicate `directory_structure.txt` to the path the test checks\
+    \ (or adjust the test) to satisfy the task."
+  task: 9aa69aa37d912c53530c04191abcc244e3c7686539cf63c74d1d2a6e49d78e67
+T002:
+  reason: "The `code/requirements.txt` file exists and contains pinned versions, but\
+    \ there is no provided evidence that `pip install -r code/requirements.txt` was\
+    \ executed and exited with code\u202F0 as required. The implementer must supply\
+    \ execution logs or test results confirming a successful installation."
+  task: 55c3e4c607265d65f23cbddac9049476c74d4b0191af6516479c18a48908ed2f
+T003:
   reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'
-  task: cc4c26754afe55141d158268b760494779c49598f9b50edaa5f5a7e84aa0786d
-? T004/T006/T007/T008 `code/config.py`, logging setup, base data models (`RootPhenotypeRecord`,
-  `SoilNutrientRecord`), `config.yaml.template`.
-: reason: "Checked `code/config.py` \u2013 it contains the requested configuration\
-    \ loader and a functional `setup_logging` implementation. However, there is no\
-    \ evidence of the required base data model classes (`RootPhenotypeRecord`, `SoilNutrientRecord`)\
-    \ in any file, and the `config.yaml.template` file is absent (only a concrete\
-    \ `config.yaml` is present). These missing artifacts prevent the task from being\
-    \ fully satisfied."
-  task: 9fa566c00c2964088a119fe2424285f11ed00f351dcbbd9cf80d20589685bed4
-? "T010/T012/T021/T022/T031 Unit and integration tests for preprocessing, species\u2011\
-  stratified splits, model pipeline, and file\u2011size constraint."
-: reason: "The implementer provided no concrete test files (e.g., `tests/test_preprocessing.py`,\
-    \ integration test scripts, or CI configuration) in the `projects/PROJ-457\u2011\
-    ...` directory, nor any evidence (logs, coverage reports) that such unit or integration\
-    \ tests were executed and passed. Without the actual test artifacts, the requirement\
-    \ for \u201Cunit and integration tests for preprocessing, species\u2011stratified\
-    \ splits, model pipeline, and file\u2011size constraint\u201D is not satisfied.\
-    \ The next implementer must add the missing test code and evidence of successful\
-    \ runs."
-  task: 24d41ef1ad6979ca18c6df7ec2600d9b2171757088e1fb47f75bdd985418909b
-? "T013/T013b/T014/T014d/T015c\u2013T015m/T035a\u2013T035c Data ingestion from the\
-  \ verified HuggingFace merged\u2011dataset sources (fail\u2011loudly, no synthetic\
-  \ fallback), ISRIC\u2011unavailable path, P/N availability check, AM\u2011001 amendment\
-  \ record (`artifacts/sc_amendments.json`), FR\u2011012 observational filtering,\
-  \ missing\u2011nutrient exclusion per AM\u2011001, species\u2011count filtering\
-  \ (n\u226520), species counts and SC\u2011001/SC\u2011005 metrics in `artifacts/reports/metrics.json`\
-  \ and `artifacts/reports/success_criteria_status.json`, deviation logs."
-: reason: "The evidence provided contains only a project\u2011root mapping and no\
-    \ actual files; the required artifacts (`artifacts/sc_amendments.json`, `artifacts/reports/metrics.json`,\
-    \ `artifacts/reports/success_criteria_status.json`, deviation logs, and the ingestion\
-    \ pipeline that enforces the HuggingFace, ISRIC, FR\u2011012, AM\u2011001, and\
-    \ species\u2011count rules) are missing or unverified. Without these concrete\
-    \ files and their contents, the task\u2019s data\u2011ingestion and reporting\
-    \ requirements cannot be confirmed."
-  task: bd93bce380798f9173ba4d31dcc07ee94b0f75b471d43fbe0eea00c4af9bf636
-? "T014a/T015g State file `artifacts/state.json` initialized; ISRIC verified\u2011\
-  source check performed \u2014 no verified ISRIC source exists; deviation logged,\
-  \ `is_isric_verified: false`."
-: reason: "The provided `artifacts/state.json` exists but its contents lack the required\
-    \ `is_isric_verified` flag (and any explicit indication that an ISRIC verified\u2011\
-    source check was performed). Without this field set to `false` and a logged deviation,\
-    \ the task\u2019s specification is not satisfied."
-  task: 733186bf741676a8d7d44b7eed2afff75e11674c7eccf848ebf1cfcf59866921
-T016:
-  task: b504ca69a4adba80d39b616cb3be9ab81ee28e265acbfc83a7705a3406cb0beb
-? "T023\u2013T026b/T027 `code/modeling.py`: `GroupKFold` species\u2011stratified CV,\
-  \ Linear Mixed\u2011Effects Model (REML, Satterthwaite, species random intercept),\
-  \ Random Forest baseline (max_depth=5), F\u2011test, F\u2011test verification log,\
-  \ multiple\u2011comparison correction."
-: task: 3da4af59ab56f368e7f8961dce197e37a4a3261cd09d2fbf3c8428ee2b2e2333
-"T028a\u2013T028c":
-  task: ab326ba92bffa9ec1acceb601e6a674c1078ace10531f62b50fa7c52cb9d019d
-"T029a\u2013T029d":
-  task: e8909152aab7287c1348904a32755e00486ff661b4649d7f755eecfe15ef38e3
-? "T032/T033 `code/visualization.py`: partial dependence plots (5th\u201395th percentile\
-  \ range), PNG output with \u2264100\u202FMB enforcement."
-: task: 21e8109c7710f573f087861604f63d97fbb06a77036fe78641b87c83f5ccbd03
-? "T034a\u2013T034e/T034d/T036 `code/reporting.py`: deviation logs read, metrics read,\
-  \ final report compiled with associational framing, causal\u2011language scan, report\
-  \ written to `artifacts/reports/final_report.md`, literature comparison table included."
-: task: 869baea023feb31eb7654faccc89a8c1e24e09b8dc268d0427e97ce0b352c575
-T037a/T037/T038/T039 State file artifact hashes, README/docs update, quickstart validation.:
-  task: f6c403905b293553213f0b44c71774aa8f21ee9071dccae2f1baba7df7186355
-T101:
-  task: 252fde34f99294c34b911f76445452ad3a2c22c1552cd373da3b91d7f8850253
-T102:
-  task: 8c6700b310c0fcf1054c2ee03897a482858aa1630f5cd64d01a5c3655db310c0
-T103:
-  task: 16585b07a358931619bd6ef89f0182521e9502b798764456a8bcbeafc3697aad
-T104:
-  task: 47a9ec9c6bcaaeb68b133bc825ec1336100f4acfe1d1d9c07edb22c2d65cae2d
-T105:
-  task: c9ba707e98bbb7e315f2f3d726ecc597e4f0b8e5a40f7331e2fb0ec5232a8294
-T106:
-  task: 3aa7d054a39c91b4af2ead32771e83ca104bc814fc8d5fb4d8377b2f81eb953a
-T107:
-  task: 5a81dad77725db74602c35de65efde82a34fbb09da338a9e5f049016472cee34
-T108:
-  task: 2dc21f0bc26788ff363392c3b94e99003bb1e03daea67b0f4487c487442e1cf8
-T109:
-  task: c858631e914de58f23e0a66ec59ba54fdd71574f825ae778ede2a3b4c6119f6d
-T110:
-  task: 61938a9614e57c1adcdf4ce0e7b0fc0eb84a81f10c1f9e170a1d90ff65567df4
-T111:
-  task: 34485623e0abf81063404210b7ed2209ec3f4aca0914534bfda492a222cb7411
-T112:
-  task: 1234c38314e61a0b49ea72f8d120265cd1c3ef116c92cb79aa5e408eecac662b
-T113:
-  task: e5b2183d39c798a8793ae9e9e12ce7e6aa951daebac3caf98115ae06bb86ddb6
-T114:
-  task: 7b9b88b46c9694504b7c07b4f7aa247efef9e7bd3ce9a25fa6a8987222e784c0
-T115:
-  task: d14f565f134103ee02f856e992e6b80b034a4fb0dd57e831826b7106d4e22320
-T116:
-  task: 1b613db8cad00922d24089c42b7159a1e6e2c67f9eb86f397bba0ba5b6eede7c
-T117:
-  task: ac142f0a7db2b83b9e70375061f4658ed2370612663ac55eb3d2afd803cabcbf
-T118:
-  task: 5074597036b5614c7a51ededa81632005e2bfd72fb66ca07c2ee973a2020f4af
-T119:
-  task: 688cdc6654932bc8019ca3598cb1383eef276d7f3455c40ad14eb359b2590b54
-T120:
-  task: 6431d7760c53b93eda0a5d1bc1738b2028044b8c0f94ce90d439fe43c8cbc320
-T121:
-  task: 1f46ff7eabade33a86f0ce7ce2035b746da0153e391f76463c322cbd257c51eb
-T122:
-  task: 318896216c00086f359d71361e5698971492f4e70d2066ce567a65534ce19a8a
-T123:
-  task: 171651e53b9a3ac8d3587787e83adf7a56c16bb1fc40ecffbb8c710fd52e8f52
-T124:
-  task: 4cc2425765a229bcee0f1b1d26bb4b01e2e02770303787c14bbf65d631fbd5e6
-T125:
-  task: 92268f18c2661a48cb9a7d5f5864ee21d9798ca9f9e7219113e32e8114c4c7ee
+  task: da39d763c02550f0958dfb63d0c3de8042c95c21941f70dd45a8a77c6687593d
+T004:
+  task: de902993f2c779d0d2960774a2cf2ab3fa086e3f754be1263aa62fe6478d208c
+T005:
+  task: aa591468dc7b0f017f9080a0a5f945b4fe022b884f0df9c5c7dad5cdc5c79bc3
+T006:
+  task: 3dadda41460f840c8a924adc47d4111a852330c04db6ea98e30a7af1d9314a4d
+T007:
+  task: e5cc76c48dd5082dad3dfd36f10bf0f63f22adaa90b154adfd409eccbb25d360
+T008:
+  task: 6fad6873bd2d4d799b64ee40f58dc2ff8ef97d4afbff8ccd91848abfe84187fa
+T009:
+  task: e56ac5d0459579b96d5773fd8fa4d1ee9e17359c4e8debe3004f244bf4985988
+T010:
+  task: e99864c0f1f09e90e18096fba428a5b28371b174bbcc221eee20048fdfb69b0b
+T011:
+  task: 4a7871fd3981a15225cb05ac2ce2fb91a0a7cb12cd48c1e0d1b80af677b7c711
+T012:
+  task: 3e4e8a2e17f1a650959517cc4658d15117159f8a42385bc777991539f85f750c

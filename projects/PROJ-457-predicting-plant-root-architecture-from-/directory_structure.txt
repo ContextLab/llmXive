@@ -1,0 +1,6 @@
+code/
+tests/
+data/raw/
+data/processed/
+artifacts/
+artifacts/logs/

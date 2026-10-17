@@ -9,7 +9,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/data_ingestion.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/data_ingestion.py", line 240, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/data_ingestion.py", line 238, in <module>
     sys.exit(main())
              ^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/data_ingestion.py", line 187, in main
@@ -21,14 +21,14 @@ Traceback (most recent call last):
 NameError: name 'yaml' is not defined
 
 - python code/preprocessing.py -> rc=1
-2026-10-17 15:24:13,468 - llmXive - INFO - Starting preprocessing pipeline (T016)...
-2026-10-17 15:24:13,469 - llmXive - ERROR - Preprocessing pipeline failed: Input file data/processed/merged_root_soil.csv not found. Run data_ingestion.py (T015) first.
+2026-10-17 15:31:39,391 - llmXive - INFO - Starting preprocessing pipeline (T016)...
+2026-10-17 15:31:39,392 - llmXive - ERROR - Preprocessing pipeline failed: Input file data/processed/merged_root_soil.csv not found. Run data_ingestion.py (T015) first.
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/preprocessing.py", line 204, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/preprocessing.py", line 240, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/preprocessing.py", line 140, in main
-    raise FileNotFoundError(f"Input file {input_path} not found. Run data_ingestion.py (T015) first.")
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/preprocessing.py", line 163, in main
+    raise FileNotFoundError(
 FileNotFoundError: Input file data/processed/merged_root_soil.csv not found. Run data_ingestion.py (T015) first.
 
 - python code/visualization.py -> rc=1
