@@ -1,15 +1,15 @@
 status: none
-intent: download huggingface model hub unembedding matrices Llama 3 Mistral BLOOM
-  python package dataset
+intent: download transformer model unembedding matrices Common Crawl token frequencies
+  WALS typological features python package dataset
 required_fields:
 - model_name
-- unembedding_matrix (W_U) tensor
+- unembedding_matrix
 - vocab_size
-- embedding_dimension
-- language (e.g., English, multilingual)
-- WALS_language_id
-- WALS_feature_name
-- WALS_feature_value
-cache_key: aacb02e47b290ea3ae538d44ff1460540e30e9371a06ce960ca6c27332c85928
-searched_at: '2026-10-09T14:21:32.267837+00:00'
+- token
+- token_frequency
+- language_iso_code
+- wals_feature_name
+- wals_feature_value
+cache_key: d4b9fc60acd47150e0a80abd574fc169d3b15b0e06679cb29936650f80eab275
+searched_at: '2026-10-17T14:10:57.444099+00:00'
 retry_count: 1
