@@ -34,7 +34,7 @@ import yaml
 from scipy.sparse.linalg import eigsh
 
 # Project‑specific utilities
-from utils.config import get_project_paths
+from utils.config import get_project_paths, get_outlier_tolerance
 
 # ----------------------------------------------------------------------
 # Helper functions

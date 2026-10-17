@@ -1,29 +1,36 @@
 T001:
-  c: false
-  h: 2b8a07f5d91750101e51c461eca74b89dc4311ec6801052b4ab5c7d23dad7b83
-  r: "The three required schema files (`contracts/simulation_run.schema.yaml`, `contracts/eigenvalue_result.schema.yaml`,\
-    \ `contracts/aggregated_threshold.schema.yaml`) are reported as missing and no\
-    \ content for them is provided, so we cannot verify that proper JSON\u2011Schema\
-    \ definitions were created. Consequently the contract\u2011validation test, while\
-    \ present and passing, cannot be confirmed to validate against the intended schemas.\
-    \ The task therefore remains incomplete."
-  sig: b2913d9c2c5c33c2c9f2fc889d1e82f28746586d6a52557ec687f9637f3f846f
+  c: true
+  h: c6beaa71f9abd7abde772de5c3ee42c01c8a50faba45c719d6252cba98b93eb4
+  r: "The three schema files (`simulation_run.schema.yaml`, `eigenvalue_result.schema.yaml`,\
+    \ `aggregated_threshold.schema.yaml`) are present in `contracts/` (confirmed by\
+    \ the directory listing; the bare-name MISSING entries resolve to those files),\
+    \ and `tests/contract/test_schemas.py` is a substantive, non-stub validator that\
+    \ checks schema validity and validates all JSON/CSV artifacts in `data/processed/`.\
+    \ The recorded pytest run exited 0 (1 passed, 2 skipped \u2014 skips are legitimate\
+    \ since `data/processed/` currently contains only `.gitkeep`, i.e., no artifacts\
+    \ have been produced yet, and the test sti"
+  sig: 206d569c764dd495e232996b3453bed36578bea79ad88f3e1cf48fd6eeb1b07d
 T002:
-  c: true
-  h: 47fbaca7d021bf599698a8ae1083a311ac13a0cf1eafb5fc172cb71e9add6829
-  r: Checked `code/main.py`, the generated raw matrix file, the JSON results, checksum
-    YAML, log file, and `quickstart.md`; all required artifacts exist, contain correct
-    data, and the script implements the specified behavior and memory limit.
-  sig: a034a57b6e3bcd0a132fc91a78bfdfa7e1c8493316363d771781006b64de6f8a
+  c: false
+  h: 359fc929062c81c0367d3beb0f7fc1050c2c051dd94c2da62ceb7874d8ac024a
+  r: 'The required run artifacts are missing: `data/raw/matrix_N1000_seed42.npy`,
+    `data/processed/single_run_results.json`, and `data/logs/single_run.log` all do
+    not exist, so there is no evidence the command was ever executed or that its outputs
+    (eigenvalues, outlier flags, peak-memory log entry) were produced. Additionally,
+    `main.py` does `from utils.config import ...`, which will fail under the required
+    invocation `python -m code.main` from the project root (it would need `code.utils.config`),
+    and the existing `data/checksums.yaml` has a different structure (nested N/seed/sha256
+    record) than what'
+  sig: 66f41bc02fbfb8b301db24d0218d0dd9c64be78ad192170874a1290d68b981a6
 T004:
-  c: true
-  h: 6be13fe0b2dccde3b0dc1490f18ba7187a80a2636906bffbba2f904c21db9440
-  r: "Checked `code/analysis/threshold_sweep.py` \u2013 it uses the theoretical rule\
-    \ `eigenvalue_top > 2.0 + 0.05` and writes the exact required columns. Verified\
-    \ `data/processed/mc_results.csv` exists, has 1008 data rows (as logged) and its\
-    \ header matches the required column order, with outlier flags consistent with\
-    \ the theoretical threshold."
-  sig: cd84898c9dc40b983cd0591740f24afeaecc1cf530f2671288d5afa1b7aa07e1
+  c: false
+  h: c47065700be0905bd6ce5e250ef5f5249293954ff29363a0286a0bccddc02052
+  r: The script `code/analysis/threshold_sweep.py` correctly implements the theoretical
+    rule (`outlier_flag = eigenvalue_top > 2.0 + 0.05`) and the required columns,
+    but the required output artifact `data/processed/mc_results.csv` does not exist
+    on disk, so the verification criteria (1008 rows, spot-check of outlier flags)
+    cannot be met. The implementer must actually run the sweep to generate the CSV.
+  sig: 1999088976fb6d3ad7c499daf7b82589619bb08b0487786ee7c5b16c4523b115
 T005:
   c: false
   h: 62fa087eb0b368d5552be4708d616d82dc58739179e0f119159d7c69329c9316

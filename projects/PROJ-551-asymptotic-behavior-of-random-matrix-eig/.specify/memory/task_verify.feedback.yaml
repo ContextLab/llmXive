@@ -1,17 +1,24 @@
 T001:
-  reason: "The three required schema files (`contracts/simulation_run.schema.yaml`,\
-    \ `contracts/eigenvalue_result.schema.yaml`, `contracts/aggregated_threshold.schema.yaml`)\
-    \ are reported as missing and no content for them is provided, so we cannot verify\
-    \ that proper JSON\u2011Schema definitions were created. Consequently the contract\u2011\
-    validation test, while present and passing, cannot be confirmed to validate against\
-    \ the intended schemas. The task therefore remains incomplete."
   task: 41c074c53775c934ca2c2654a1dd7298465541c896c78b71ec05fe2a164a2d97
 T002:
+  reason: 'The required run artifacts are missing: `data/raw/matrix_N1000_seed42.npy`,
+    `data/processed/single_run_results.json`, and `data/logs/single_run.log` all do
+    not exist, so there is no evidence the command was ever executed or that its outputs
+    (eigenvalues, outlier flags, peak-memory log entry) were produced. Additionally,
+    `main.py` does `from utils.config import ...`, which will fail under the required
+    invocation `python -m code.main` from the project root (it would need `code.utils.config`),
+    and the existing `data/checksums.yaml` has a different structure (nested N/seed/sha256
+    record) than what'
   task: 3452e915417763de69f8ba41c70acbad37b8141d929eb69b38a9c8d2d1809cf7
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: 1b986fda368ef26d2f8fb67c3372c16ccc715366535a698061c1b1ad247eb23f
 T004:
+  reason: The script `code/analysis/threshold_sweep.py` correctly implements the theoretical
+    rule (`outlier_flag = eigenvalue_top > 2.0 + 0.05`) and the required columns,
+    but the required output artifact `data/processed/mc_results.csv` does not exist
+    on disk, so the verification criteria (1008 rows, spot-check of outlier flags)
+    cannot be met. The implementer must actually run the sweep to generate the CSV.
   task: dfc2823c51c22c8c8409b814af0fa05517874d142de6d7131c5ccdd45b84d2a5
 T005:
   reason: "The required `data/processed/mc_results.csv` and `data/processed/convergence_data.json`\

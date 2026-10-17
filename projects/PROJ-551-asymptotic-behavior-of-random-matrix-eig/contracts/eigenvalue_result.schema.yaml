@@ -1,8 +1,8 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: EigenvalueResult
 description: >
-  A single eigenvalue record produced by a simulation run. Self-contained:
-  no external $ref.
+  Individual eigenvalue measurement from a SimulationRun.  The schema
+  captures the value, its index, and whether it is flagged as an outlier.
 type: object
 required:
   - run_id
@@ -14,21 +14,21 @@ required:
 properties:
   run_id:
     type: string
-    minLength: 1
+    description: Identifier of the parent SimulationRun.
   eigenvalue_index:
     type: integer
-    minimum: 0
+    minimum: 1
+    description: 1‑based index of the eigenvalue (largest = 1).
   value:
     type: number
-    description: Computed eigenvalue.
+    description: Numeric eigenvalue.
   is_outlier:
     type: boolean
-    description: True iff value > 2.0 + 0.05 (theoretical semicircle edge + tolerance).
+    description: Flag set by the theoretical rule (value > 2.0 + 0.05).
   theoretical_bbp:
     type: number
-    description: BBP-predicted outlier location for this perturbation, if any.
+    description: The perturbation norm theta supplied for the run.
   deviation:
     type: number
-    description: Deviation of the eigenvalue from the theoretical edge (2.0).
-  timestamp:
-    type: string
+    description: Difference between the eigenvalue and the supplied theta.
+additionalProperties: true
