@@ -1,71 +1,121 @@
 # Tasks: Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys
 
-**Inputs**: Active `spec.md`, `plan.md`, data-model.md, contracts (dataset, model_output, visualization schemas), prior tasks.md with verified work.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contract schemas, any existing verified artifacts.  
+The list follows the required `- [ ] T### [P?] [USx?] description …` format.  
+Checked boxes (`- [x]`) indicate work that has already been verified by the platform; unchecked boxes are pending.
 
-**Organization**: Consolidated from the prior task list into substantive research tasks. Verified completed work (schema validation, config, preprocessing/model/viz unit tests, GPR trainer, baseline, metrics, stratified analysis, contour/heatmap/PDP plots, linting, download/independence unit tests) is preserved as checked. Pending work is regrouped without dropping any acceptance criterion. Paths are relative to the project root (`code/`, `data/`, `results/`, `docs/`).
+---
 
-## Phase 1: Setup and first end-to-end analysis
+- [ ] T000 [P] **Initialize Environment**  
+  - *Steps*: Set up the virtual environment, install pinned dependencies from `requirements.txt`, and configure global random seeds (`np.random.seed(42)`, `random.seed(42)`).  
+  - *Verification*: `pip freeze` matches pinned versions and a test script confirms seed consistency across runs.
 
-- [ ] T001 [P] [US1] Establish the runnable pipeline entry point and real data source. Implement `code/data/download.py` to fetch the NIST AM-Bench (Zenodo) AM alloy dataset via a concrete reachable URL (Zenodo record download or `requests` with retry + backoff, max 3 attempts); on failure raise `FileNotFoundError` with the exact message "No verified source found for AM-Machine-Learning dataset. Automated download failed after retries. Please manually place a valid CSV file at `data/raw/am_raw_data.csv`." — NO synthetic/mock fallback anywhere (FR-001, edge case: download failure). Save raw CSV to `data/raw/am_raw_data.csv`. Document the runnable command (`python code/main.py --stage ingest`) in the feature's `quickstart.md`.
-  - Verify: script downloads real data or fails loudly with the exact message; no `generate_synthetic`/`mock`/random fallback exists in `code/data/download.py`.
+- [ ] T001 [P] [US1] **Download the NIST AM‑Bench dataset** to `data/raw/am_raw_data.csv`  
+  - *Requirement*: Use the exact Zenodo URL (e.g., `[UNRESOLVED-CLAIM: https://zenodo.org/record/ — HTTP 404]<id>/files/am_bench.csv?download=1`). Implement retry + exponential back‑off (max 3 attempts). On permanent failure raise `FileNotFoundError` with the message **“No verified source found for AM‑Machine‑Learning dataset. Automated download failed after retries. Please manually place a valid CSV file at `data/raw/am_raw_data.csv`.”**. No synthetic fallback is permitted.  
+  - *Verification*: After running `python -m code.data.download` the file exists, its SHA‑256 checksum matches the published record, and the script exits with status 0. The CI log contains the exact retry messages.
 
-- [ ] T002 [US1] Complete data validation and preprocessing (FR-001, FR-002, US-1 acceptance scenarios 1–3, edge cases). In `code/data/preprocess.py` (reusing the verified `schema_validator.py`, `config.py`, logger, and unit tests already in place):
-  - Validate N ≥ 50; if fewer, halt with the exact error "Insufficient data for GPR training; minimum 50 samples required."
-  - Detect zero-variance features (e.g., Layer Thickness), log a warning, exclude them; if VIF > 5 for any predictor, log a warning and record derived columns (e.g., `energy_density`) in `data/processed/excluded_columns.yaml` rather than feeding them to the model (Constitution VII).
-  - Run source-independence validation in `code/data/validate_source_independence.py`: predictor and target column sets must be strictly disjoint; halt on any overlap or missing `data/raw/source_independence_log.txt` (JSON `{"predictors": [...], "targets": [...]}`) with a clear Constitution Principle VII error.
-  - Scope detection: if `fatigue_life` is absent, log `[SCOPE] Reduced scope: fatigue_life missing; analysis restricted to yield_strength and ductility.` to `data/processed/preprocessing.log` and write `data/processed/target_config.json` with `{"active_targets": ["yield_strength", "ductility"]}`.
-  - Median-impute missing numeric values (log imputation counts), one-hot encode `alloy_type` into `is_<type>` binary columns and drop the original, stratified train/test split (70/15/15) BEFORE scaling, fit `MinMaxScaler` on train only, save `data/processed/train.csv`, `test.csv`, `normalization_bounds.json`, `original_target.npy`, and imputation/dropped-column/normalization entries in `data/processed/preprocessing.log`.
-  - Verify: processed CSVs have no missing values, all normalized columns strictly within [0,1], binary alloy columns present, log entries recorded; `tests/unit/test_preprocess.py` and `tests/integration/test_pipeline.py` pass.
+- [ ] T002 [P] [US1] **Validate and preprocess the raw CSV** → `data/processed/train.csv`, `data/processed/test.csv`, `data/processed/preprocessing.log`  
+  - *Steps*  
+    1. Load `data/raw/am_raw_data.csv`; abort with **“Insufficient data for GPR training; minimum 50 samples required.”** if `len(df) < 50`.  
+    2. Detect zero‑variance columns; log a warning and drop them.  
+    3. Run source‑independence check (predictor columns ≠ target columns); abort with a clear Constitution VII error if violated.  
+    4. If `fatigue_life` is missing, log a scope‑reduction notice and set `active_targets` to `["yield_strength", "ductility"]` in `data/processed/target_config.json`.  
+    5. Median‑impute numeric missing values (record imputation counts).  
+    6. One‑hot encode `alloy_type` → `is_<type>` binary columns; drop the original column.  
+    7. Perform a stratified 70/15/15 split (train/val/test) **before** scaling. Fit a `MinMaxScaler` on the train split only and apply to all splits.  
+    8. Write the three CSVs, `normalization_bounds.json`, and a detailed log file.  
+  - *Verification*: `tests/unit/test_preprocess.py` passes; the three processed CSVs contain **no missing values**, all numeric columns are within `[0, 1]`, and the log records each operation.
 
-- [ ] T003 [US2] Run the first end-to-end GPR analysis on the real preprocessed data. Wire `code/main.py` to execute ingest → preprocess → train → evaluate using the verified `code/models/gpr_trainer.py` (RBF kernel, 5-fold CV maximizing log marginal likelihood, seed 42), `code/models/baseline_trainer.py` (linear regression), and `code/models/metrics.py`. Produce `results/metrics.json` conforming to `model_output.schema.yaml` with real measured `r2_score`, `rmse`, `mae`, `rmse_percentage_range` (null if test-set range < 1e-6), `baseline_r2`, `delta_r2`, `percentage_improvement`, optimized `hyperparameters` (length_scale, sigma), and `sample_size`/`sampling_method`/`representativeness_limitation` documentation keys (T054 revision concern). Save the serialized GPR model artifact.
-  - Verify: `results/metrics.json` exists, validates against the schema, and all values are computed from the real dataset; repeated runs with seed 42 produce identical metrics and artifacts (US-2 scenario 3).
+- [ ] T003 [P] [US2] **Train Gaussian Process Regression (GPR) and Linear baseline**, serialize model, and produce `results/metrics.json`  
+  - *Implementation*  
+    - Use `sklearn.gaussian_process.GaussianProcessRegressor` with an RBF kernel.  
+    - Optimize hyper‑parameters via 5‑fold CV (maximizing log‑marginal likelihood) seeded with `42`.  
+    - Train a `LinearRegression` baseline on the same folds.  
+    - Save the final GPR model to `results/model/gpr_model.joblib`.  
+    - Compute R², RMSE, MAE on the held‑out test set, `rmse_percentage_range`, and the baseline R².  
+    - **Explicitly compute ΔR² (GPR R² - Baseline R²) to validate non-linear advantage (SC-001).**  
+    - Record hyper‑parameters (`length_scale`, `sigma`) and the total pipeline runtime (`runtime_seconds`).  
+  - *Verification*: `results/metrics.json` validates against `specs/…/model_output.schema.yaml`; repeated runs with seed 42 yield byte‑identical `metrics.json` and `gpr_model.joblib`.
 
-**Checkpoint**: The documented command executes end-to-end on real data and its numerical outputs are checkable. No report writing from expected or invented results.
+- [ ] T004 [US3] **Compute permutation importance and correlate with baseline** → `results/permutation_importance.json` and update `results/metrics.json` with `importance_correlation`  
+  - *Steps*  
+    1. Run permutation importance over all predictor features using the trained GPR (10 repeats).  
+    2. Write a JSON list of `{ "feature_name": <str>, "importance_score": <float> }` to `results/permutation_importance.json`.  
+    3. Load `data/baseline_importance.json` if present; otherwise load `data/literature_baseline_importance.json`. If neither exists, the task MUST fail with a `FileNotFoundError` indicating the baseline required for SC-004 is missing.  
+    4. Compute Spearman rank correlation between the GPR importance ranking and the chosen baseline; store the value as `importance_correlation` inside `results/metrics.json`.  
+  - *Verification*: The importance JSON contains an entry for every predictor, the correlation field is present in `results/metrics.json`, and `tests/unit/test_importance.py` passes.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T006 [US3] **Quantify predictive uncertainty and flag high‑uncertainty regions** → `results/high_uncertainty_regions.csv` and update `results/metrics.json` with `high_uncertainty_ratio`  
+  - *Procedure*  
+    1. Use the GPR to predict mean and standard deviation on the test set.  
+    2. Compute the median σ; flag any test sample with σ > 2 × median.  
+    3. Write the flagged samples (original parameter values) to `results/high_uncertainty_regions.csv`.  
+    4. Store the fraction of flagged samples as `high_uncertainty_ratio` in `results/metrics.json`.  
+  - *Verification*: The CSV is non‑empty when applicable, the ratio lies in `[0, 1]`, and `tests/unit/test_uncertainty.py` confirms the threshold logic.
 
-- [ ] T004 [US3] Compute permutation importance and correlate against a baseline (FR-006, SC-004). Using the trained GPR, compute permutation importance over all predictor features and write `results/permutation_importance.json` (feature_name, importance_score per feature). Then in `code/analysis/importance.py`: load `data/baseline_importance.json` if present, else `data/literature_baseline_importance.json`, else fall back to a stability analysis (re-computed importance across CV folds) and log that SC-004 is "Partially Met" — never raise on a missing baseline. Compute Spearman rank correlation between model importance and the baseline and record it as `importance_correlation` in `results/metrics.json`.
-  - Verify: importance file lists every feature with real scores; correlation value or documented fallback present in `results/metrics.json`; `tests/unit/test_importance.py` passes.
+- [ ] T007 **Residual analysis** → update `results/metrics.json` with `residual_analysis`  
+  - *Steps*  
+    1. Compute residuals on the test set (observed − predicted).  
+    2. Test for heteroscedasticity using the Breusch‑Pagan test (or Spearman correlation of |residual| vs. fitted values).  
+    3. Record `{ "heteroscedasticity_detected": <bool>, "method_used": "<method name>" }` directly into `results/metrics.json` under the `residual_analysis` key to ensure schema compliance.  
+    4. Additionally, write per‑alloy stratified performance (`R²`, `RMSE`, `MAE`) to `results/confounder_analysis.json`.  
+  - *Verification*: The `residual_analysis` object exists within `results/metrics.json`, conforms to the schema defined in `model_output.schema.yaml`, and `tests/unit/test_residuals.py` passes.
 
-- [ ] T005 [US3] Quantify uncertainty and flag high-uncertainty regimes (FR-007, SC-003, US-3 scenario 2). In `code/analysis/uncertainty.py`: extract predictive means and standard deviations on the test set, compute the fraction of test samples with σ > 2× median σ, record `high_uncertainty_ratio` in `results/metrics.json`, and write the coordinates of flagged parameter regions to `results/high_uncertainty_regions.csv` for future data-collection prioritization.
-  - Verify: ratio in [0,1] present in `results/metrics.json`; CSV lists real parameter coordinates of flagged regions; `tests/unit/test_viz.py` threshold test passes.
+- [ ] T008 [P] [US3] **Generate all required visualizations** → PNG files in `results/plots/` with side‑car JSON metadata  
+  - *Outputs*  
+    1. Contour plot of predicted **Yield Strength** over *Laser Power* × *Scan Speed* (`results/plots/yield_strength_contour.png`).  
+    2. Contour plot for **Ductility** (`results/plots/ductility_contour.png`).  
+    3. Uncertainty heatmap overlay (red where σ > 2 × median) for each property (`*_uncertainty.png`).  
+    4. Partial dependence plots for the top‑3 features from permutation importance (`*_pdp.png`).  
+  - *Metadata*: For each PNG, create a side‑car JSON matching `visualization.schema.yaml` (e.g., `results/plots/yield_strength_contour.json`).  
+  - *Verification*: Each PNG ≤ 5 MB, side‑car JSON validates, and `tests/integration/test_visualization.py` confirms alignment with flagged regions.
 
-- [ ] T006 [US2] Produce the residual analysis and confounder report (plan T055/T030, SC-001 support). In `code/models/residual_analysis.py`: analyze GPR test-set residuals for heteroscedasticity (e.g., Breusch-Pagan or Spearman correlation of |residual| with fitted values) and non-linearity via a permutation test comparing GPR R² to the linear baseline; write `results/residual_analysis.json` with `heteroscedasticity_detected` (boolean) and `method_used`. Ensure per-alloy stratified metrics from the verified `code/models/stratified_analysis.py` are written to `results/confounder_analysis.json`.
-  - Verify: `results/residual_analysis.json` exists (prior rejection: file was missing) with real computed values; `results/confounder_analysis.json` contains per-alloy-type R²/RMSE/MAE.
+- [ ] T005 [P] **Validate contract schemas against generated artifacts**  
+  - *Artifacts to validate*: `data/processed/train.csv` / `test.csv` (against `dataset.schema.yaml`), `results/metrics.json` (against `model_output.schema.yaml`), and each visualization side‑car JSON (against `visualization.schema.yaml`).  
+  - *Implementation*: Run `jsonschema.validate` for each file; on failure raise a descriptive exception indicating which schema and which property violated.  
+  - *Verification*: Execution of `python -m code.schema_validator` exits with status 0; no exceptions are logged.
 
-- [ ] T007 [US3] Generate all specified figures from the validated outputs (FR-005, US-3 scenarios 1–3). Using the verified `code/viz/contour_plots.py`, `code/viz/importance.py`: generate contour plots of predicted yield strength (and ductility) over laser power × scan speed in physical units (via `normalization_bounds.json`), uncertainty heatmaps with σ > 2× median regions colored red, and partial dependence plots for the top-3 parameters from `results/permutation_importance.json`. Write PNGs (each ≤ 5 MB) to `results/plots/` with sidecar JSON metadata conforming to `visualization.schema.yaml` (file_name, x_axis, y_axis, z_axis, uncertainty_flag, max/median uncertainty).
-  - Verify: PNGs and sidecar JSONs exist and match the schema; heatmap red regions correspond to flagged cells from T005; `tests/integration/test_pipeline.py` viz tests pass.
+- [ ] T009 [P] **Profile runtime and memory** → `results/runtime.json` and `results/memory_profile.json`  
+  - *Procedure*  
+    1. Wrap the full pipeline in a timer; write total seconds to `results/runtime.json`.  
+    2. Use `memory_profiler` (or `tracemalloc`) to capture peak memory during GPR training; store `max_memory_mb` in `results/memory_profile.json`.  
+  - *Verification*: Both JSON files exist with numeric fields; `tests/unit/test_profile.py` passes.
 
-- [ ] T008 [P] Add runtime, memory, and feasibility checks (SC-005, plan T040/T047). Wrap the full pipeline in a timer and write `results/runtime.json` with `runtime_seconds` and `feasibility_status` ("PASSED"/"FAILED", warning only, never abort) compared against the free-tier CI limit when `GITHUB_ACTIONS` is set. Profile peak memory during GPR training (memory_profiler or `resource`/tracemalloc) and write `results/memory_profile.json` with `max_memory_mb` and status; if usage ≥ 7340 MB or N > 500, apply the sparse-GPR fallback in `code/models/gpr_trainer.py` (inducing-point/FITC-style approximation, documented in `requirements.txt` if a new dependency is added) and re-profile.
-  - Verify: both JSON artifacts contain real measured values; runtime recorded in `results/metrics.json` as `runtime_seconds`.
+- [ ] T010 [P] **Write methods & results draft** → `docs/paper.md`  
+  - *Content*  
+    - Cite every metric, importance ranking, uncertainty ratio, and residual finding to the exact location in `results/` (e.g., “R² = 0.62 (see `results/metrics.json → r2_score`).”).  
+    - Include provenance of the NIST AM‑Bench dataset and any scope reductions.  
+    - Discuss limitations (epistemic‑only uncertainty, sample‑size representativeness, any heteroscedasticity detected).  
+    - No hand‑typed numbers; all values are program‑derived.  
+  - *Verification*: A script (`code/docs/verify_refs.py`) parses `docs/paper.md` and confirms that every numeric claim has a matching JSON path; it exits with status 0.
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] T011 [P] **Finalize reproducibility hand‑off** → update `README.md`/`quickstart.md` and confirm full re‑run reproducibility  
+  - *Actions*  
+    1. Add installation steps, pinned `requirements.txt`, and the exact command `python -m code.main --stage full`.  
+    2. Document manual data‑placement fallback instructions.  
+    3. In a clean CI run, delete `data/processed/`, `results/`, and `code/models/gpr_model.joblib`; then re‑execute the full command with `PYTHONHASHSEED=0` and seed 42.  
+    4. Verify that the newly generated `results/metrics.json` and `results/model/gpr_model.joblib` are byte‑identical to the originals (use `sha256sum`).  
+    5. Record the successful reproducibility statement in the final section of `docs/paper.md`.  
+  - *Verification*: The CI job completes without test failures, the checksum comparison succeeds, and `tests/integration/test_reproducibility.py` passes.
 
-- [ ] T009 [US1] [US2] [US3] Write the methods/results account in `docs/paper.md` (draft) linked directly to the actual output cells: metrics from `results/metrics.json`, importance ranking, uncertainty ratio, residual/confounder findings, and the generated figures. Include explicit data provenance (NIST AM-Bench source and access date), the scope-reduction log entry if `fatigue_life` was absent, which importance baseline source was used (user JSON, literature, or stability fallback), and honest limitations (epistemic-only uncertainty; sample size and representativeness constraints from T003's documentation keys). Describe negative findings (e.g., GPR not beating the linear baseline) honestly rather than thresholding.
-  - Verify: every numeric claim in `docs/paper.md` traces to a `results/` artifact; no hand-typed values.
+---  
 
-- [ ] T010 [US1] Finalize reproducibility and paper-stage handoff. Update `README.md`/`quickstart.md` with installation steps, pinned `requirements.txt`, the documented end-to-end command, and manual data placement instructions ("Download a valid AM alloy dataset and save it as `data/raw/am_raw_data.csv`"). Re-run the full documented workflow from `data/raw/am_raw_data.csv` with `PYTHONHASHSEED=0` and seed 42, confirm identical `results/metrics.json` and model artifacts, confirm all unit/integration tests pass, and record the paper-stage handoff (layout, PDF compilation, publication belong to the subsequent paper pipeline) in `docs/paper.md` final version.
-  - Verify: fresh re-run reproduces byte-identical metrics; tests green; handoff section present.
+### Dependency & Requirement Coverage
 
-## Dependencies and requirement coverage
+| Spec Requirement | Task(s) | Command to demonstrate |
+|------------------|---------|------------------------|
+| FR‑001 (real download, ≥50 samples) | T001, T002 | `python -m code.data.download` |
+| FR‑002 (impute, normalize, encode) | T002 | `pytest tests/unit/test_preprocess.py` |
+| FR‑003 (GPR RBF, 5‑fold CV) | T003 | `python -m code.models.gpr_trainer` |
+| FR‑004 (R², RMSE, MAE JSON) | T003 | inspect `results/metrics.json` |
+| FR‑005 (contour & heatmap) | T008 | view PNGs in `results/plots/` |
+| FR‑006 (permutation importance) | T004 | `cat results/permutation_importance.json` |
+| FR‑007 (σ > 2× median flag) | T006 | `cat results/high_uncertainty_regions.csv` |
+| SC‑001 (GPR vs linear baseline) | T003, T007 | `grep delta_r2 results/metrics.json` |
+| SC‑002 (RMSE % of range) | T003 | `grep rmse_percentage_range results/metrics.json` |
+| SC‑003 (high‑uncertainty fraction) | T006 | `grep high_uncertainty_ratio results/metrics.json` |
+| SC‑004 (importance correlation) | T004 | `grep importance_correlation results/metrics.json` |
+| SC‑005 (runtime feasibility) | T009 | `cat results/runtime.json` |
+| Schema validation | T005 | `python -m code.schema_validator` |
 
-| Requirement | Task(s) | Demonstrating command |
-|---|---|---|
-| FR-001 (download/validate ≥50 samples, real source) | T001, T002 | `python code/main.py --stage ingest` |
-| FR-002 (impute, normalize, encode) | T002 | `pytest tests/unit/test_preprocess.py` |
-| FR-003 (GPR RBF, 5-fold CV) | T003 | `python code/main.py --stage train` |
-| FR-004 (R²/RMSE/MAE JSON) | T003 | inspect `results/metrics.json` vs schema |
-| FR-005 (contour plots, heatmaps) | T007 | inspect `results/plots/` + sidecars |
-| FR-006 (permutation importance) | T004 | inspect `results/permutation_importance.json` |
-| FR-007 (σ > 2× median flags) | T005 | inspect `results/high_uncertainty_regions.csv` |
-| SC-001 (GPR vs linear baseline) | T003, T006 | `delta_r2` in `results/metrics.json` |
-| SC-002 (RMSE % of range) | T003 | `rmse_percentage_range` |
-| SC-003 (high-uncertainty fraction) | T005 | `high_uncertainty_ratio` |
-| SC-004 (importance correlation) | T004 | `importance_correlation` |
-| SC-005 (runtime feasibility) | T008 | `results/runtime.json` |
-
-Execution order: T001 → T002 → T003 → (T004, T005, T006 in sequence after T003; T007 after T004+T005; T008 after T003) → T009 → T010. T008 is [P] relative to T004–T007 (different files). Research scripts write only project-owned paths (`data/`, `results/`, `code/`, `docs/`); platform state under `state/` is never touched.
-
-## Revision behavior
-
-Verified completed work (T006/T007/T009/T010/T011–T013, T022–T027, T030, T033–T037, T046, T051, T052 from the prior list) is preserved inside the consolidated tasks above; their acceptance criteria are carried forward, not erased. The two verifier rejections are addressed: the missing `schema.yaml` artifact is covered by T002's schema validation against the active contracts, and the missing `results/residual_analysis.json` is the explicit deliverable of T006. Analyze revision concerns (no synthetic fallback — T001; sample-size documentation — T003; sparse GPR — T008; strict source-independence disjointness — T002) are folded into the consolidated tasks without duplication.
+Execution order (implicit from dependencies): T000 → T001 → T002 → T003 → T004 → T006 → T007 → T008 → T005 → T009 → T010 → T011. Tasks marked `[P]` act on distinct files and thus may run in parallel where no data‑flow conflict exists.

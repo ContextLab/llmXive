@@ -54,3 +54,14 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXX
   verified_at: '2026-10-07T19:22:04.726276Z'
+- artifact_hash: 50b709e5edd11dc7d07940dc8bde94e0ffaa73cd4661e7d9d62591db5460b1db
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/record/
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/record/
+  verified_at: '2026-10-17T18:23:16.670240Z'
