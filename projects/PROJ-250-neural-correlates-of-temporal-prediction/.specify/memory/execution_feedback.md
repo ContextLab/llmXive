@@ -10,12 +10,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Dataset ID verified: ds004510 matches the canonical OpenNeuro source (https://openneuro.org/datasets/ds004510).
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 330, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 336, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 316, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 322, in main
     files = download_subjects(args.subjects, raw_dir)
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 195, in download_subjects
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 201, in download_subjects
     raise RuntimeError("No subjects with EEG data found in the dataset.")
 RuntimeError: No subjects with EEG data found in the dataset.
 
@@ -39,7 +39,7 @@ configfile: pyproject.toml
 plugins: platformdirs-4.13.3
 collected 0 items
 
-============================ no tests ran in 0.07s =============================
+============================ no tests ran in 0.09s =============================
 
 
 

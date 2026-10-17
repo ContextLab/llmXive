@@ -158,8 +158,14 @@ def sha256_file(path, chunk_size=1024 * 1024):
 
 def _subject_has_eeg(keys):
     """Return True if the list of S3 keys for a subject contains any EEG modality files."""
+    eeg_exts = {".edf", ".set", ".bdf", ".fif", ".eeg", ".json"}
     for k in keys:
-        if "/eeg/" in k.lower() or k.lower().endswith("events.tsv"):
+        low = k.lower()
+        # Accept any file inside an 'eeg' folder with a known EEG extension
+        if "/eeg/" in low and any(low.endswith(ext) for ext in eeg_exts):
+            return True
+        # events.tsv is also required for condition verification
+        if low.endswith("events.tsv"):
             return True
     return False
 
@@ -189,7 +195,7 @@ def download_subjects(n_subjects, raw_dir):
     subjects_with_eeg = [
         s for s, ks in subj_to_keys.items() if _subject_has_eeg(ks)
     ]
-    subjects_with_eeg.sort(key=lambda s: int(re.sub(r"\D", "", s) or 0))
+    subjects_with_eeg.sort(key=lambda s: int(re.sub(r"\\D", "", s) or 0))
 
     if not subjects_with_eeg:
         raise RuntimeError("No subjects with EEG data found in the dataset.")
