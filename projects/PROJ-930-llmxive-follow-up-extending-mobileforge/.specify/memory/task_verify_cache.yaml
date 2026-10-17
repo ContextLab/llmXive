@@ -1,17 +1,19 @@
 T001:
   c: true
-  h: 21f64f469473e745ca5d35e856f2d51a402e8bed5105cd9ea6d871b19910aa2f
-  r: Checked the `setup_directory_tree.py` log (which reports creation of all required
-    directories) and the passing unit test `test_directory_tree_t001.py` confirming
-    those directories exist in the repository.
-  sig: 92365641a6ed249b55be6dce763593f21cd53378cf191e3f80786daf41a656d3
+  h: 91319a7baf9c33106138f78458259fa2a2733232ec47375956b78b4dc1f2a03a
+  r: "The collector shows the `code/` directory with the expected subfolders (data/raw,\
+    \ data/processed, data/evaluation, models, utils, tests/unit, tests/integration)\
+    \ and the top\u2011level `data/` and `outputs/` directories exist. The `setup_directory_tree.py`\
+    \ log confirms each required path was created, and the unit test `test_directory_tree_t001.py`\
+    \ passed, verifying the full directory tree."
+  sig: 0f8bb55402007e2725dc245ed90864af545ab5f3ba310269e6693b3b5f422722
 T002:
   c: true
-  h: b0f37bd062be81f13dceeff9e2b4053d7376699ef105783825501c2b20c0e22f
+  h: 26a905a1140fd50bb46c4d03f5caf13bf7955086d74f7e501e7fb5ed043718af
   r: "Checked `code/requirements.txt` \u2013 it contains exactly the 11 specified\
-    \ pinned lines with no extras, and `outputs/install_log.txt` shows the `pip install\
-    \ -r code/requirements.txt` step completed without errors."
-  sig: b147515c84acaabc1fc23aea0f303d61659cbb20c14a07177efee231f6a324c4
+    \ pinned lines with no extras. The CI log `outputs/install_log.txt` shows `pip\
+    \ install -r code/requirements.txt` completing without errors."
+  sig: 89e31e7f970a685fd0ca2a71466909aec394fa4d91775aef66e074dfa3f1637f
 T003:
   c: true
   h: 616aa762119b08312d9124c1ef38bba2ebb4c56194bfa29bd99f08424ed3faca
@@ -48,10 +50,9 @@ T006:
   sig: 96229dc32ebc6176fc4df46fdc0370d5b284ab9427d41fbfc9ec2d6e53cb297a
 T007:
   c: true
-  h: d65a5445ced4d5365652ea32050238cb0b39c2eb54a950dc2fab1a223047edf9
-  r: "Checked `code/utils/power_analysis.py` for the required power\u2011calculation\
-    \ logic, pre\u2011extraction guard, and JSON output path; verified that `outputs/power_analysis.json`\
+  h: de8a3a4501b13ff1c959d9b0d49f3aa3a00576b6645a8ea01f66828b50a31ca3
+  r: "Checked `code/utils/power_analysis.py` \u2013 it enforces the \u201Cbefore extraction\u201D\
+    \ rule, uses a statsmodels power estimator, and writes the result; verified `outputs/power_analysis.json`\
     \ exists, contains an integer `n_required`\u202F\u2265\u202F1 with the full `parameters`\
-    \ block, and conforms to `contracts/power_analysis.schema.yaml`. All artifacts\
-    \ are present, non\u2011empty, and meet the task specifications."
-  sig: a68496bfe5f45c823e49a5ac38fc7aa9264304255f557c94a6814973bb1cab39
+    \ block and conforms to `contracts/power_analysis.schema.yaml`."
+  sig: c13853fd5c856710ae75518c2c883ab592068c535e44848fc5f9497c2d317f52

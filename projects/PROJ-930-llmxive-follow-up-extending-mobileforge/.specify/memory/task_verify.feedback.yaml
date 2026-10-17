@@ -13,11 +13,8 @@ T006:
 T007:
   task: 47e9695df357f279967c27d39ecc4c50e5e9a6f860b91d64eb3e1581ce09a52d
 T008:
-  reason: "The script at `code/data/raw/download_mobileforge.py` exists and writes\
-    \ checksums, but it does **not** fetch the required dataset `mobileforge/logs`\
-    \ via `datasets.load_dataset` as specified; it instead downloads `OSTShushack/ExtractionDataset`\
-    \ using `huggingface_hub.snapshot_download`. This deviates from the task\u2019\
-    s core requirement, so the implementation is not considered complete."
+  reason: 'Requested task execution failed; rerun successfully: code/data/raw/download_mobileforge.py
+    exit=1'
   task: eb9dd80f416e32c7d89376215bcdc951dc82cf4c65a76388463fe800a6581fce
 T009:
   reason: 'Requested task execution failed; rerun successfully: code/data/raw/validate_extraction_dataset.py
