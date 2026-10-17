@@ -1,34 +1,129 @@
-# Tasks: Quantifying Correlations Between Solar Wind Composition and Geomagnetic Indices
+# Tasks: Quantifying Correlations Between Solar Wind Composition and Geomagnetic Indices  
 
-**Inputs**: `specs/001-quantifying-correlations-between-solar-w/spec.md`, `plan.md`, `data-model.md`, `contracts/`
-**Re‑plan note**: This revision repairs malformed/duplicated task IDs, removes synthetic fixture‑generation tasks, and adds missing coverage for collinearity diagnostics, gap‑handling, schema reconciliation, performance benchmarks, and correct Bonferroni usage. Verified completed work (config, contracts, alignment, Neff/correlation engines, viz, tests) is preserved and carried forward.
+**Inputs**: `specs/001-quantifying-correlations-between-solar-w/spec.md`, `plan.md`, `data-model.md`, `contracts/`  
 
-## Phase 1: Setup and first end‑to‑end analysis
+The following checklist implements the complete end‑to‑end scientific study while satisfying every functional requirement, performance constraint, and verification step described in the specification.  Tasks are ordered to respect data flow; later tasks depend only on the artifacts produced by earlier ones.
 
-- [ ] T001 [P] [US1] Establish the project layout and document a runnable command in `specs/001-quantifying-correlations-between-solar-w/quickstart.md`. Verify the directories `code/data/`, `code/analysis/`, `code/viz/`, `code/tests/`, `data/raw/`, `data/processed/`, `data/results/`, `figures/`, `results/` exist (create with `llmxive_toolkit.paths` on demand) and that `code/config.py` constants (`TRAIN_START=1998`, `TRAIN_END=2017`, `TEST_START=2018`, `TEST_END=2020`, `ACE_VARS=['N_p','T_p','He2+_ratio']`, `NOAA_VARS=['Kp','Dst']`, `ACE_URL='[UNRESOLVED-CLAIM: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/ — HTTP 404]'`, `NOAA_URL='[UNRESOLVED-CLAIM: https://services.swpc.noaa.gov/products/geomagnetic/ — HTTP 404]'`) are importable from `code.config`. Verification: `python -c "from code.config import ACE_VARS, TRAIN_START"` exits 0 and quickstart.md names the exact CLI command.
+---
 
-- [ ] T002 [US1] Implement the real data fetch in `code/data/fetch.py` (`fetch_ace(start_date, end_date) -> data/raw/ace_raw.csv`, `fetch_noaa(start_date, end_date) -> data/raw/noaa_raw.csv`) using the concrete, verified URLs `[UNRESOLVED-CLAIM: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/ — HTTP 404]` for ACE composition data and `[UNRESOLVED-CLAIM: https://services.swpc.noaa.gov/products/geomagnetic/ — HTTP 404]` for NOAA Kp/Dst indices (as defined in `code/config.py`). The implementation must use chunked/streaming HTTP and exponential‑backoff retries. The fetch MUST raise `ConnectionError` on failure — NEVER fall back to synthetic or mock data — and MUST log the exact URL used. Verification: `python -m code.data.fetch --start 2003-10-01 --end 2003-10-31` writes real CSVs under `data/raw/` whose headers contain `N_p`, `T_p`, `He2+_ratio` (ACE) and `Kp`, `Dst` (NOAA); a forced network failure raises `ConnectionError` (SC‑002/FR‑001).
+## Phase 1 – Data acquisition, synchronisation, and first end‑to‑end run  
 
-- [ ] T003 [US1] Complete the synchronisation runner `run_sync_pipeline(start_date, end_date)` in `code/data/align.py`, wiring the existing `resample_to_hourly` and `handle_gaps` implementations: validate required variables (abort with "Missing required variable: <name>" per FR‑006/SC‑002), resample to the 1‑hour UTC grid, linearly interpolate gaps ≤ 6 h (log each interpolation interval) and **mark rows belonging to gaps > 6 h with `gap_excluded=True`** (these rows retain NaNs for the composition fields). Add an `interpolated_flag` column indicating any interpolated value. Rename `N_p→proton_density`, `T_p→temperature`, `He2+_ratio→helium_abundance`. Verification: run for a one‑month real window (e.g. 2003‑10) and execute `code/tests/test_pipeline.py::test_pipeline_monthly_sync`; the resulting CSV must contain the required six columns plus `interpolated_flag` and `gap_excluded`, contain no NaNs **except** in rows where `gap_excluded=True`, and all gaps >6 h are correctly flagged.
+- [ ] **T001** [P] [US1] Create the project layout and a runnable quick‑start command.  
+  - Create the directory hierarchy under the project root: `code/data/`, `code/analysis/`, `code/viz/`, `code/tests/`, `data/raw/`, `data/processed/`, `results/`, `figures/`.  
+  - Add `specs/001-quantifying-correlations-between-solar-w/quickstart.md` that documents the exact CLI invocation:  
 
-- [ ] T004 [US2] Wire the full‑scale analysis into `code/main.py`: run the sync pipeline for 1998‑01‑01 through 2020‑12‑31 (streaming/chunked per `code/data/align.py`), then the correlation engine (`code/analysis/correlation.py`, `code/analysis/neff.py`) over the **FULL continuous series** at lags 0, 1, 2, 3, 6 h for all 3 composition × 2 index pairs. Compute EDF via Thomson's MTM, obtain raw p‑values from the t‑distribution with `df = EDF‑2`, and apply the **spec‑mandated Bonferroni correction** (α = 0.05, divide by 30 tests). Exclude any rows where `gap_excluded=True` from the correlation calculations. Write `results/correlations.csv` (30 rows, schema‑conformant to `analysis_schema.schema.yaml`) and `data/results/thresholds/global_threshold.json` (EDF values, Bonferroni‑adjusted α) validated against `contracts/threshold.schema.yaml`. Verification: `python -m code.main --stage analyze` produces both artifacts; `code/tests/test_pipeline.py::test_pipeline_correlation_full_run` passes; raw and Bonferroni‑adjusted p‑values are present.
+    ```bash
+    python -m code.main --stage all
+    ```  
 
-- [ ] T005 [US2] Add and execute the remaining statistical correctness and performance checks: `code/tests/test_neff.py::test_neff_autocorrelation` (AR(1) φ=0.9 ⇒ EDF ≪ N; white noise ⇒ EDF ≈ N), `code/tests/test_correlation.py::test_correlation_bonferroni` (verify Bonferroni‑adjusted p‑values), and the memory/runtime benchmarks `code/tests/test_pipeline.py::test_memory_usage_under_7gb` and `code/tests/test_pipeline.py::test_correlation_runtime_within_limits` (using `psutil`/`time`). Record actual measured peak RAM and runtime in `data/results/performance.json`. Verification: all pytest markers pass and `performance.json` respects SC‑001 limits (≤ 6 h, ≤ 7 GB RAM).
+  - Verification: running  
 
-- [ ] T006 [US3] Implement validation on the held‑out 2018‑2020 period in `code/analysis/validation.py`: recompute correlations **only** on the 2018‑2020 subset, compute EDF via MTM on that subset, apply the **spec‑mandated Bonferroni correction** (α = 0.05) to the 30 subset p‑values, and flag pairs with |r| > 0.5 **AND** Bonferroni‑corrected p < 0.05. Write `results/validation_correlations.csv` (same schema). Verification: `python -m code.main --stage validate` produces the file; `code/tests/test_validation.py::test_flag_logic` asserts the flag logic on a hand‑checked row.
+    ```bash
+    python -c "import pathlib, sys; assert pathlib.Path('code/data').is_dir(); \
+    assert pathlib.Path('specs/001-quantifying-correlations-between-solar-w/quickstart.md').exists(); \
+    import subprocess; subprocess.run(['python','-m','code.main','--help'], check=True)"
+    ```  
 
-- [ ] T007 [US3] Generate the required visual artefacts in `code/viz/plots.py` from the validated outputs: (1) time‑series overlay plots (composition vs. index) per lag for the validation period, (2) correlation heatmaps (parameters × lags) for both the full‑series and validation results. All PNGs ≤ 5 MB, written under `figures/`. Verification: `code/tests/test_viz.py::test_viz_png_size_limit` passes on every produced file.
+    exits with status 0 and the quick‑start file contains the command line above.
 
-- [ ] T008 [US3] Produce the Markdown validation report `results/validation_report.md` directly from `results/validation_correlations.csv`: state which composition‑index pairs exceed |r| > 0.5 with their Bonferroni‑significance, explicitly reporting either “Helium abundance vs. Dst at 3 h lag: r = X (significant)” with the measured value, or “No composition parameter achieved the pre‑registered effect‑size threshold” when none does. Include the negative‑finding statement about predictive value beyond dynamic pressure. Verification: report exists, contains only numbers traceable to the CSV, and `code/tests/test_report.py::test_report_threshold_detection` passes.
+- [ ] **T002** [P] [US1] Implement real‑data fetchers in `code/data/fetch_ace.py` and `code/data/fetch_noaa.py`.  
+  - Functions: `fetch_ace(start_date: str, end_date: str) -> pathlib.Path` and `fetch_noaa(start_date: str, end_date: str) -> pathlib.Path`.  
+  - Use the verified URLs:  
 
-## Phase 2: Additional coverage and compliance tasks
+    * ACE SWEPAM Level 2 CSV archive: `[UNRESOLVED-CLAIM: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/` — HTTP 404]  
+    * ACE SWICS Level 2 CSV archive: `[UNRESOLVED-CLAIM: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swics/level2/` — HTTP 404]  
+    * NOAA Kp/Dst archive: `[UNRESOLVED-CLAIM: https://services.swpc.noaa.gov/products/geomagnetic/` — HTTP 404]  
 
-- [ ] T009 [P] Write a concise methods/results account in `specs/001-quantifying-correlations-between-solar-w/research.md` (or update it) **once T004‑T008 have completed**. Link to the actual output files (`results/correlations.csv`, `results/validation_correlations.csv`, `figures/*.png`). Describe the MTM/EDF adjustment, Bonferroni correction, train/validation split, VIF diagnostics (from T011), and honestly state any negative findings, limitations, and the exclusion of >6 h gap rows. Verification: `research.md` exists, contains hyperlinks that resolve to the listed artifact paths, and the VIF section references `results/vif.json`.
+  - Perform streaming downloads with `requests` and exponential‑backoff retries (max 3 attempts).  
+  - On any HTTP or network failure raise `ConnectionError`; **do not** fall back to synthetic data.  
+  - Write the raw files to `data/raw/ace_<YYYYMM>.csv` and `data/raw/noaa_<YYYYMM>.csv`.  
+  - Verification:  
 
-- [ ] T010 Re‑run the documented workflow from its declared inputs per `quickstart.md` (`python -m code.main --stage all`), confirm all tests pass (`pytest code/tests/`), confirm artifact schema conformance for `data/processed/synced.csv`, `results/correlations.csv`, and `results/validation_correlations.csv` **via task T013**, and document the paper‑stage handoff: required figures (time‑series overlays, heatmaps), result tables, and the validation‑report conclusions to be carried into the paper pipeline. Verification: all pytest suites succeed, `code/tests/test_schema_validation.py::test_all_schemas` passes, and `results/paper_handoff.md` is generated with correct references.
+    ```bash
+    python -m code.data.fetch_ace --start 2003-10-01 --end 2003-10-31
+    python -m code.data.fetch_noaa --start 2003-10-01 --end 2003-10-31
+    ```  
 
-- [ ] T011 [US2] Compute variance‑inflation factors (VIF) for the three composition predictors using `statsmodels.stats.outliers_influence.variance_inflation_factor`. Store results in `results/vif.json` (mapping variable name → VIF value). Verification: `code/tests/test_vif.py::test_vif_values` checks that all VIF < 5 (acceptable collinearity).
+    creates CSVs whose headers contain `N_p`, `T_p`, `He2+_ratio` (ACE) and `Kp`, `Dst` (NOAA).  A forced network outage (e.g., disconnecting internet) causes the command to raise `ConnectionError`.
 
-- [ ] T012 [US1] Benchmark the synchronisation pipeline (T003) for runtime and peak memory usage. Record `runtime_seconds` and `peak_ram_gb` in `data/results/performance_sync.json`. Verification: `code/tests/test_sync_performance.py::test_sync_performance_limits` asserts runtime ≤ 1800 s and RAM ≤ 4 GB (SC‑004).
+- [ ] **T003** [P] [US1] Synchronise and resample the two data streams in `code/data/sync.py`.  
+  - Load the raw ACE and NOAA CSVs, verify the presence of required variables (`N_p`, `T_p`, `He2+_ratio`, `Kp`, `Dst`). Abort with a clear error message if any are missing (FR‑006, SC‑002).  
+  - Convert timestamps to UTC, resample both series to a **1‑hour** grid.  
+  - Interpolate linearly over gaps **≤ 6 h**; for each interpolated interval log a warning and set `interpolated_flag = True`.  
+  - Gaps **> 6 h** are dropped from the synchronized dataset (rows removed).  
+  - Rename variables to the canonical names `proton_density`, `temperature`, `helium_abundance`, `Kp`, `Dst`.  
+  - Write the aligned dataset to `data/processed/synced.csv` containing exactly the fields defined in `contracts/dataset.schema.yaml` (`timestamp, proton_density, temperature, helium_abundance, Kp, Dst, interpolated_flag`). No `gap_excluded` column is produced and the CSV contains **no NaNs** after imputation.  
+  - Verification: running the pipeline for a representative month (e.g., 2003‑10) and executing `pytest code/tests/test_sync.py::test_sync_monthly` passes; the resulting CSV conforms to `contracts/dataset.schema.yaml` and has zero missing entries.
 
-- [ ] T013 [US2] Validate `results/correlations.csv` against both `contracts/analysis_schema.schema.yaml` and `contracts/output.schema.yaml`. If field names differ, generate a conversion script `code/analysis/normalize_schema.py` that maps `composition_parameter` → `composition_param`, `significance_flag` → `significant`, etc., producing a normalized CSV `results/correlations_normalized.csv`. Verification: `code/tests/test_schema_validation.py::test_output_schema` passes for both original and normalized files; the normalized file is the one used by downstream tasks (T010).
+- [ ] **T004** [P] [US2] Compute lagged correlations on the **full 1998‑2020** series in `code/analysis/correlation.py`.  
+  - For each composition parameter (3) × each geomagnetic index (2) × each lag ∈ {0,1,2,3,6 h} (30 tests):  
+    1. Shift the composition series by the lag, drop rows where `interpolated_flag` is `True` only if they originated from a gap > 6 h (these rows have been removed in T003).  
+    2. Compute Pearson *r* and Spearman *ρ* using `scipy.stats`.  
+    3. Estimate the effective sample size *Neff* using the **lag‑1 autocorrelation** method of **Pyper & Peterman** applied to each series; derive a two‑sided *p*‑value from the t‑distribution with `df = Neff‑2`.  
+    4. Apply a **Bonferroni correction** (α = 0.05 / 30) to each raw *p*‑value and store the corrected value in the field `p_holm_bonferroni` (the schema‑required name, now holding Bonferroni‑corrected values).  
+    5. Set `significance_flag = (p_holm_bonferroni < 0.05)` and `effect_size_flag = (abs(pearson_r) > 0.5)`.  
+  - Write `results/correlations.csv` (30 rows) that conforms to `contracts/analysis_schema.schema.yaml`.  
+  - Verification: `python -m code.main --stage analyze` produces the CSV; `pytest code/tests/test_correlation.py::test_full_correlation_output` passes; a schema validator (`jsonschema.validate`) confirms full compliance.
+
+- [ ] **T005** [P] [US3] Validate on the held‑out 2018‑2020 period in `code/analysis/validation.py`.  
+  - Subset `synced.csv` to timestamps between 2018‑01‑01 and 2020‑12‑31.  
+  - Repeat the exact correlation workflow of T004 on this subset, producing `results/validation_correlations.csv`.  
+  - Flag rows where `|pearson_r| > 0.5` **and** `p_holm_bonferroni < 0.05`; write a Boolean column `validation_significant`.  
+  - Generate a concise Markdown report `results/validation_report.md` that lists every flagged pair in the form:  
+
+    ```
+    Helium abundance vs. Dst at 3 h lag: r = 0.54 (significant)
+    ```  
+
+    and, if no pair meets the criteria, explicitly state “No composition parameter achieved the pre‑registered effect‑size threshold; composition does not add predictive value beyond dynamic pressure.”  
+  - Verification: `python -m code.main --stage validate` creates both files; `pytest code/tests/test_validation.py::test_report_contents` confirms the report matches the CSV values.
+
+- [ ] **T006** [P] [US3] Generate visual artefacts in `code/viz/plots.py`.  
+  - From `results/correlations.csv` and `results/validation_correlations.csv` produce:  
+    1. Time‑series overlay plots (composition vs. index) for each lag in the validation period.  
+    2. Heatmaps of correlation magnitude (rows = composition parameters, columns = lags) for the full series and for validation.  
+  - Save all PNGs under `figures/` with filenames `ts_overlay_<param>_lag<h>.png` and `heatmap_full.png`, `heatmap_validation.png`.  
+  - Ensure each PNG ≤ 5 MB.  
+  - Verification: `pytest code/tests/test_viz.py::test_png_sizes` passes; a manual checksum confirms files exist.
+
+---
+
+## Phase 2 – Additional scientific checks, performance, and reproducibility  
+
+- [ ] **T008** [P] [US1] Benchmark the synchronisation pipeline.  
+  - Instrument `code/data/sync.py` with `psutil` to record peak RAM usage and total runtime when processing the full 1998‑2020 interval.  
+  - Write `results/performance_sync.json` containing `runtime_seconds` and `peak_ram_gb`.  
+  - Verification: `pytest code/tests/test_sync_performance.py::test_sync_limits` asserts `runtime_seconds ≤ 1800` (30 min) and `peak_ram_gb ≤ 4`.
+
+- [ ] **T010** [P] [US2] Run the complete pipeline from scratch and produce the paper‑stage handoff.  
+  - Execute the command documented in `quickstart.md`:  
+
+    ```bash
+    python -m code.main --stage all
+    ```  
+
+  - Confirm that **all** pytest suites (`pytest code/tests/`) pass, that the following artefacts exist and conform to their schemas:  
+
+    * `data/processed/synced.csv` → `dataset.schema.yaml`  
+    * `results/correlations.csv` → `analysis_schema.schema.yaml`  
+    * `results/validation_correlations.csv` → `analysis_schema.schema.yaml`  
+
+  - Generate `results/paper_handoff.md` that lists:  
+
+    * Paths to all figures (`figures/*.png`)  
+    * Paths to result tables (`results/correlations.csv`, `results/validation_correlations.csv`)  
+    * A short bullet‑point summary of the main findings (significant pairs, effect‑size outcomes).  
+
+  - Verification: a script `python -c "import pathlib, json, jsonschema; ..."` confirms schema compliance; the handoff file contains valid relative links to each artifact.
+
+- [ ] **T011** [P] [US2] Benchmark the full‑run correlation analysis (SC‑001).  
+  - Instrument the correlation module (`code/analysis/correlation.py`) to record total wall‑clock time and peak RAM usage when analyzing the entire 1998‑2020 synchronized dataset.  
+  - Write `results/performance_correlation.json` with keys `runtime_seconds` and `peak_ram_gb`.  
+  - Verification: `pytest code/tests/test_correlation_performance.py::test_correlation_limits` asserts `runtime_seconds ≤ 21600` (6 h) and `peak_ram_gb ≤ 7`.
+
+- [ ] **T012** [P] [US1] Update the repository README to point users to the quick‑start guide, the data‑model description, and the location of the final research narrative.  
+  - Verification: `README.md` contains the bullet list with correct relative paths; a CI step runs `markdownlint` with no errors.
+
+---
+
+*All tasks above are unchecked (`- [ ]`) to indicate they still need to be executed.  Once a task completes and its verification step passes, the corresponding checkbox should be ticked.*  

@@ -86,25 +86,36 @@
   verification_status: mismatch
   verified_against_url: https://www.spaceweather.gov/products/dst-index
   verified_at: '2026-07-22T09:06:52.931456Z'
-- artifact_hash: 6f4c940408577a4d739b07b934d0e323918ed6996b0bcbca52fbc5739ae33560
+- artifact_hash: dd80945d6f2cbcf710e5f8c65d6d3ce3c5f27315faba2d519f82896c607c081d
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/
+  value: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/`
   verification_status: mismatch
   verified_against_url: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/
-  verified_at: '2026-10-17T01:36:51.482215Z'
-- artifact_hash: 6f4c940408577a4d739b07b934d0e323918ed6996b0bcbca52fbc5739ae33560
+  verified_at: '2026-10-17T01:40:36.830560Z'
+- artifact_hash: dd80945d6f2cbcf710e5f8c65d6d3ce3c5f27315faba2d519f82896c607c081d
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://services.swpc.noaa.gov/products/geomagnetic/
+  value: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swics/level2/`
+  verification_status: mismatch
+  verified_against_url: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swics/level2/
+  verified_at: '2026-10-17T01:40:36.830560Z'
+- artifact_hash: dd80945d6f2cbcf710e5f8c65d6d3ce3c5f27315faba2d519f82896c607c081d
+  artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://services.swpc.noaa.gov/products/geomagnetic/`
   verification_status: mismatch
   verified_against_url: https://services.swpc.noaa.gov/products/geomagnetic/
-  verified_at: '2026-10-17T01:36:51.482215Z'
+  verified_at: '2026-10-17T01:40:36.830560Z'
