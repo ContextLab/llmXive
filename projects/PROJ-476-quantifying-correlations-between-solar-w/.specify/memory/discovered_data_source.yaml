@@ -1,5 +1,6 @@
 status: none
-intent: download ACE SWEPAM Level 2 ACE SWICS Level 2 NOAA Kp Dst python package dataset
+intent: download ACE SWEPAM SWICS CDAWeb solar wind data and NOAA Kp Dst indices python
+  package dataset
 required_fields:
 - timestamp
 - proton_density
@@ -7,6 +8,6 @@ required_fields:
 - helium_abundance
 - Kp
 - Dst
-cache_key: 1b570aed0904e68c77ef5b57e0466c903e4785b60ae6d79481b82cf467941b27
-searched_at: '2026-10-17T14:09:23.137467+00:00'
+cache_key: 8521ce40f3c333ae82323e1595af5e314cc92e302d2737e88a24010e21b022b2
+searched_at: '2026-10-17T15:10:28.005921+00:00'
 retry_count: 1
