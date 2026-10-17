@@ -10,3 +10,15 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1211.0189
   verified_at: '2026-10-09T12:43:31.122937Z'
+- artifact_hash: aae715094ff2e441a1636886f61772ed1847f151ac280c49cacacf5623876124
+  artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/specs/001-autocorrelation-of-the-m-bius-function-i/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "[1211.0189] Uncertainty principles connected with the M\xF6bius\
+    \ inversion formula"
+  kind: url
+  value: https://arxiv.org/abs/1211.0189
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1211.0189
+  verified_at: '2026-10-17T20:27:10.773544Z'
