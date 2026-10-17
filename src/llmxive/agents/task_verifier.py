@@ -42,8 +42,13 @@ from llmxive.claims.task_requirements import read_task_document
 from llmxive.project_paths import _ROOTED_PATH_RE, declared_existing_files
 from llmxive.project_paths import declared_paths as _declared_paths
 from llmxive.project_paths import resolve_project_path as _evidence_path
+from llmxive.speckit.task_lines import (
+    EXECUTION_FAILURE_RE,
+    TaskFormatError,
+    mask_fenced_code,
+    task_continuation,
+)
 from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
-from llmxive.speckit.task_lines import TaskFormatError, mask_fenced_code, task_continuation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -212,7 +217,6 @@ def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | Non
     are all missing/empty/invalid, or ``(None, "")`` when the task is genuinely
     ambiguous (no detectable artifact path, or a mixed/partial state) and must go
     to the semantic verifier."""
-    from llmxive.speckit.task_lines import EXECUTION_FAILURE_RE
     failure = EXECUTION_FAILURE_RE.search(task_text)
     if failure:
         return "reject", "Requested task execution failed; rerun successfully: " + failure.group(1)
@@ -336,6 +340,52 @@ def _imports_toolkit(source: Path) -> bool:
     return bool(_TOOLKIT_IMPORT_RE.search(head))
 
 
+_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tif", ".tiff", ".webp"}
+
+
+def _image_evidence(image: Path) -> str:
+    """What can be measured about an image, and the record of what it shows.
+
+    The bytes of a PNG decoded as text told the verifier nothing, and tasks
+    that named what a figure must show were rejected for "no evidence the
+    image shows that" on every attempt (2026-10-11). This reports the pixel
+    size and how much of the image differs from its background, measured
+    here, and quotes the ``.figure.json`` record that
+    ``llmxive_toolkit.save_figure`` writes from the figure object.
+    """
+    from llmxive.project_toolkit.llmxive_toolkit.figures import record_path
+
+    lines = []
+    try:
+        from PIL import Image
+
+        with Image.open(image) as picture:
+            picture.load()
+            small = picture.convert("RGB").resize((min(picture.width, 256), min(picture.height, 256)))
+            counts = sorted((count for count, _ in small.getcolors(maxcolors=256 * 256)), reverse=True)
+            other = 1 - counts[0] / sum(counts)
+            lines.append(
+                f"image measured by the platform: {picture.format} {picture.width}x{picture.height} px; "
+                f"{other:.1%} of pixels differ from the most common colour"
+                + (" (a blank or nearly blank image)" if other < 0.005 else ""))
+    except Exception as exc:  # an unreadable image is itself the evidence
+        lines.append(f"image could NOT be opened as an image: {type(exc).__name__}: {exc}")
+    record = record_path(image)
+    if record.is_file():
+        try:
+            text = record.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            text = f"(unreadable: {exc})"
+        lines.append(
+            f"what the figure shows, as recorded in `{record.name}` when it was saved "
+            "(titles, axes, legend, plotted series):\n" + text[:6000])
+    else:
+        lines.append(
+            f"no `{record.name}` beside it: the figure was not saved with "
+            "`llmxive_toolkit.save_figure`, so nothing readable says what it shows")
+    return "\n".join(lines)
+
+
 def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
     """Collect the artifacts a task references (head of each) as evidence text.
 
@@ -397,13 +447,25 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
         except OSError as exc:
             chunks.append(f"- `{rel}`: unreadable ({exc})")
             continue
+        if f.suffix.lower() in _IMAGE_SUFFIXES:
+            head = _image_evidence(f)
+            limit = size  # measured, not quoted: nothing was cut off
         if f.suffix == ".py":
             python_sources.append(f)
+        # Which run produced the file being judged. When that is another
+        # task's script, a section this task wrote may have been regenerated
+        # away, and the reason for a rejection should be able to say so.
+        from llmxive.speckit.output_writers import last_writer
+        writer = last_writer(project_dir.resolve(), f.relative_to(project_dir.resolve()).as_posix(),
+                             execution_log_dir)
         chunks.append(
             f"- `{rel}` (resolved: `{f.relative_to(project_dir.resolve())}`, "
             + (f"repository-relative: `{f.relative_to(repository_root)}`, "
                if repository_root is not None else "")
-            + f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
+            + f"{size} bytes, sha256={digest}"
+            + (_WRITER_NOTE.format(script=writer[0]) + (f" for {writer[1]}" if writer[1] else "")
+               if writer else "")
+            + f"):\n```\n{head}\n```"
             + ("" if size <= limit else "\n…(truncated)")
         )
     chunks.extend(_pattern_evidence(project_dir, task_text))
@@ -444,6 +506,11 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
     return "\n".join(chunks)
 
 
+_EXECUTION_RECORD_READ_BYTES = 200_000
+_EXECUTION_RECORD_BUDGET = 17_000
+_EXECUTION_RECORD_LIMIT = 10
+
+
 def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
     """Expose bounded, task-specific execution records rather than hiding success.
 
@@ -455,7 +522,7 @@ def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log
         return ""
     task_id = match.group(1)
     root = project_dir.resolve()
-    records = []
+    found = []
     candidates = sorted((project_dir / execution_log_dir).glob(f"{task_id}.*.log"),
                         key=lambda p: p.stat().st_mtime_ns, reverse=True)
     for path in candidates:
@@ -465,7 +532,7 @@ def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log
             with path.open("rb") as stream:
                 digest = hashlib.file_digest(stream, "sha256").hexdigest()
                 stream.seek(0)
-                body = stream.read(6001).decode("utf-8", errors="replace")
+                body = stream.read(_EXECUTION_RECORD_READ_BYTES).decode("utf-8", errors="replace")
         except OSError:
             continue
         header = re.match(r"# (.+?) \(exit -?\d+,", body)
@@ -473,24 +540,45 @@ def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log
         # record to match this exact task's filename before using its evidence.
         if not header or path.name != f"{task_id}.{header.group(1).replace('/', '_')}.log":
             continue
-        records.append(f"### {path.relative_to(project_dir)} (sha256 {digest})\n"
-                       + body[:6000] + ("\n[Log truncated]" if len(body) > 6000 else ""))
-        if len(records) == 3:
-            break
-    if not records:
+        found.append((path, digest, body))
+    if not found:
         return ""
+    # Every command the task ran gets a record. Showing the newest three had
+    # the verifier report "no log for `test_integration.py`" for a task with
+    # eight (batch 3 run 2, 2026-10-11). The shared budget shrinks each record
+    # instead; past _EXECUTION_RECORD_LIMIT only the header line is shown.
+    share = min(6000, _EXECUTION_RECORD_BUDGET // min(len(found), _EXECUTION_RECORD_LIMIT))
+    records = []
+    for index, (path, digest, body) in enumerate(found):
+        title = f"### {path.relative_to(project_dir)} (sha256 {digest})\n"
+        if index >= _EXECUTION_RECORD_LIMIT:
+            records.append(title + body.split("\n", 1)[0] + "\n[Log truncated]")
+        elif len(body) > share:
+            # The exit line is at the head and a pytest summary at the tail.
+            records.append(title + body[: share // 2] + "\n[...]\n" + body[-(share - share // 2):]
+                           + "\n[Log truncated]")
+        else:
+            records.append(title + body)
     return ("# Historical execution records for this task\n"
             "These record actual commands, exit codes and timings. They do not prove "
             "later edits were executed; current artifacts, final execution freshness "
             "and scientific correctness must still be checked.\n" + "\n".join(records))
 
 
+#: Which run last wrote a file, as the evidence header says it. The verifier
+#: reads it; it is not part of what was verified (see ``_verification_hash``).
+_WRITER_NOTE = ", last written by a run of `{script}`"
+_WRITER_NOTE_RE = re.compile(r", last written by a run of `[^`\n]*`(?: for \S+)?(?=\):\n)")
+
+
 def _verification_hash(
     task_text: str, spec: str, evidence: str, *, model: str = DEFAULT_MODEL,
 ) -> str:
     # A new verifier policy/model must reconsider stale literal-path decisions.
+    # Who last rewrote a file is not evidence about its contents: the same
+    # bytes regenerated by another task's run must not reopen an acceptance.
     return _evidence_hash("\n".join((
-        _SYSTEM_PROMPT, model, task_text, spec, evidence,
+        _SYSTEM_PROMPT, model, task_text, spec, _WRITER_NOTE_RE.sub("", evidence),
     )))
 
 
@@ -567,6 +655,15 @@ _TASK_LINE_RE = re.compile(r"^(\s*-\s*)\[([ xX~])\](\s.*)$")
 #: route the whole project to ``research_full_revision``. Incomplete work must
 #: never count as done.
 REJECT_CAP = 3
+#: Rejections that were not a fresh judgement of new work: the platform's own
+#: run of the task's script failed, a declared artifact is absent, or the redo
+#: changed nothing the verifier is shown and the stored verdict was replayed.
+#: They are bounded separately from ``REJECT_CAP``. Across fourteen acceptance
+#: runs (2026-10-11) about half of the "rejected 3x" events included such a
+#: strike, and the verifier went on to accept 20-38% of tasks on each attempt
+#: after a third consecutive rejection, so a debugging round is not evidence
+#: that a task cannot be verified.
+STALL_CAP = 2 * REJECT_CAP
 #: Max verifier LLM calls per tick (bounds cost). Deterministic accepts/rejects and
 #: evidence-hash cache hits are FREE and do NOT count against this — so the huge
 #: ``[~]`` backlog drains without a bigger cap; only genuinely ambiguous residue
@@ -635,6 +732,41 @@ def claimed_done_keys(tasks_text: str) -> set[str]:
         if m and m.group(2) in ("x", "X"):
             out.add(key)
     return out
+
+
+def _definition_signature(lines: list[str], i: int, rest: str) -> str:
+    """Hash of what task line ``i`` asks for, without marks and annotations."""
+    definition = rest.strip() + task_continuation(lines, i)
+    definition = re.sub(r"<!--.*?-->", "", definition, flags=re.DOTALL)
+    return _evidence_hash(" ".join(_VOLATILE_MARK_RE.sub("", definition).split()))
+
+
+def definition_signatures(tasks_text: str) -> dict[str, str]:
+    """``{task key: signature of its current definition}``.
+
+    A re-plan reuses task ids for different work (batch 1, 2026-10-11: 40 of 74
+    ids carried more than one definition within a run), so a history kept per
+    id alone mixes unrelated tasks.
+    """
+    lines = tasks_text.splitlines()
+    out: dict[str, str] = {}
+    for i, key in task_keys(lines).items():
+        match = _TASK_LINE_RE.match(lines[i])
+        if match is not None:
+            out[key] = _definition_signature(lines, i, match.group(3))
+    return out
+
+
+def rejection_reason(project_dir: Path, tasks_path: Path, key: str) -> str:
+    """Why the verifier last rejected task ``key``, or ``""``."""
+    import yaml
+
+    path = task_verification_state_path(project_dir, tasks_path).with_suffix(".feedback.yaml")
+    try:
+        entry = (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get(key)
+    except (OSError, yaml.YAMLError, AttributeError):
+        return ""
+    return str(entry.get("reason") or "") if isinstance(entry, dict) else ""
 
 
 def task_verification_state_path(project_dir: Path, tasks_path: Path) -> Path:
@@ -744,6 +876,44 @@ def _mark_counts(lines: list[str]) -> dict[str, int]:
     return out
 
 
+#: What each ledger decision settles on the task's scorecard. A failed run is
+#: already recorded by the implementer that ran it; ``unverifiable`` is a
+#: routing outcome, not a measurement.
+_LEDGER_VALUES: dict[str, dict[str, int]] = {
+    "accepted": {"judge": 1},
+    "judged": {"judge": 0},
+    "replayed": {"judge": 0},
+    "missing_artifact": {"files": 0},
+}
+
+
+def _append_ledger(path: Path, entries: list[dict[str, str]]) -> None:
+    """Append this pass's decisions to the project's verification ledger.
+
+    The reject counters say how many strikes a task has; nothing recorded what
+    each strike WAS. An audit of fourteen runs could count "rejected 3x" events
+    (about 65) and the verifier model's own three-in-a-row rejections (30) but
+    not what made up the difference. One JSON line per decision, never read by
+    the pipeline: ``kind`` is ``accepted``, ``judged`` (a fresh model verdict),
+    ``replayed`` (the stored verdict for unchanged evidence), ``failed_run``,
+    ``missing_artifact``, ``unverifiable`` or ``postponed`` (an accepted task
+    whose files changed, held until no task is open).
+    """
+    if not entries:
+        return
+    import datetime
+    import json
+
+    stamp = datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds")
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as stream:
+            for entry in entries:
+                stream.write(json.dumps({"at": stamp, **entry}, sort_keys=True) + "\n")
+    except OSError as exc:  # a measurement must never fail the pass it measures
+        LOGGER.warning("[task-verifier] could not append to %s: %s", path, exc)
+
+
 def run_verification_pass(
     project_dir: Path,
     tasks_path: Path,
@@ -816,25 +986,26 @@ def run_verification_pass(
                 if key.startswith(namespace) and (namespace or not key.startswith("paper:"))}
 
     accepted = 0
+    #: One entry per decision this pass made, appended to the project's ledger.
+    ledger: list[dict[str, str]] = []
     rejected: list[tuple[str, str]] = []
     deferred: list[str] = []
     unverifiable_flagged: list[str] = []
     budget = cap
     keys = task_keys(lines)  # unique + churn-stable; see task_keys()
-    current_feedback: dict[str, dict[str, str]] = {}
+    current_feedback: dict[str, dict[str, Any]] = {}
     changed_keys: set[str] = set()
     for i, key in keys.items():
         match = _TASK_LINE_RE.match(lines[i])
         assert match is not None
-        definition = match.group(3).strip() + task_continuation(lines, i)
-        definition = re.sub(r"<!--.*?-->", "", definition, flags=re.DOTALL)
-        definition = " ".join(_VOLATILE_MARK_RE.sub("", definition).split())
-        signature = _evidence_hash(definition)
+        signature = _definition_signature(lines, i, match.group(3))
         previous = feedback.get(key)
         if isinstance(previous, dict) and previous.get("task") == signature:
             current_feedback[key] = {"task": signature}
             if previous.get("reason"):
                 current_feedback[key]["reason"] = str(previous["reason"])
+            if isinstance(previous.get("stalls"), int) and previous["stalls"] > 0:
+                current_feedback[key]["stalls"] = previous["stalls"]
         else:
             current_feedback[key] = {"task": signature}
             # Unbound legacy counts cannot establish repeated failure of THIS
@@ -861,20 +1032,32 @@ def run_verification_pass(
         accepted += 1
         reject_counts.pop(key, None)
         feedback[key].pop("reason", None)
+        feedback[key].pop("stalls", None)
+        ledger.append({"task": key, "kind": "accepted"})
 
-    def _reject(i: int, m: re.Match[str], rest: str, key: str, reason: str) -> None:
-        count = int(reject_counts.get(key, 0)) + 1
-        reject_counts[key] = count
+    def _reject(i: int, m: re.Match[str], rest: str, key: str, reason: str, *,
+                judged: bool, kind: str) -> None:
+        # ``judged`` is a verdict of the verifier model. A rejection decided
+        # from the filesystem alone (see STALL_CAP) is counted apart from it.
+        ledger.append({"task": key, "kind": kind, "reason": reason.strip()[:200]})
+        if judged:
+            count = int(reject_counts.get(key, 0)) + 1
+            reject_counts[key] = count
+        else:
+            count = int(feedback[key].get("stalls", 0)) + 1
+            feedback[key]["stalls"] = count
         lines[i] = f"{m.group(1)}[ ]{rest}"
         rejected.append((key, reason))
         feedback[key]["reason"] = reason.strip()[:600]
-        if count >= REJECT_CAP:
+        if count >= (REJECT_CAP if judged else STALL_CAP):
             _unv.record_unverifiable(project_id, namespace + key, reason, repo_root=repo_root)
             reject_counts.pop(key, None)
+            feedback[key].pop("stalls", None)
             cache.pop(key, None)
             unv_keys.add(key)
             if key not in unverifiable_flagged:
                 unverifiable_flagged.append(key)
+            ledger.append({"task": key, "kind": "unverifiable"})
             LOGGER.warning(
                 "[task-verifier] %r rejected %dx — recording UNVERIFIABLE and "
                 "reopening [ ] (project routes to research_full_revision; never "
@@ -911,12 +1094,31 @@ def run_verification_pass(
             _accept(i, m, rest, key)
             continue
         if det == "reject":
-            _reject(i, m, rest, key, det_reason)
+            _reject(i, m, rest, key, det_reason, judged=False,
+                    kind="failed_run" if EXECUTION_FAILURE_RE.search(task_text) else "missing_artifact")
             continue
 
         # (C) Ambiguous residue → evidence-hash cache, else bounded semantic LLM.
         evidence = gather_evidence(project_dir, task_text, execution_log_dir="paper/.tasks" if namespace else "code/.tasks")
         ev_hash = _verification_hash(task_text, spec_context, evidence, model=model)
+        cached = cache.get(key)
+        # An ACCEPTED task whose evidence changed since: another task is still
+        # being implemented and may change these files again. Judging it now
+        # spends a verdict (and, on a flip, a strike toward re-planning the
+        # whole project) on a state that will not be the final one. Hold it
+        # under review and judge it once nothing is open. Missing files and
+        # failed runs were already rejected above, without waiting.
+        if (
+            isinstance(cached, dict)
+            and cached.get("c") is True
+            and cached.get("h") != ev_hash
+            and authentic_verdict(project_dir, tasks_path, key, cached)
+            and any((other := _TASK_LINE_RE.match(row)) and other.group(2) == " " for row in lines)
+        ):
+            lines[i] = f"{m.group(1)}[~]{rest}"
+            deferred.append(key)
+            ledger.append({"task": key, "kind": "postponed"})
+            continue
         cached = cache.get(key)
         if (
             isinstance(cached, dict)
@@ -926,6 +1128,7 @@ def run_verification_pass(
         ):
             complete: bool | None = cached["c"]
             reason = str(cached.get("r") or "(cached verdict; evidence unchanged)")
+            fresh = False
         elif budget <= 0:
             # Over the per-tick LLM cap with no cache hit → DEFER to a later tick.
             if mark != "~":
@@ -934,6 +1137,7 @@ def run_verification_pass(
             continue
         else:
             budget -= 1
+            fresh = True
             verdict = verify_task(
                 task_text=task_text,
                 evidence=evidence,
@@ -957,7 +1161,10 @@ def run_verification_pass(
         if complete is True:
             _accept(i, m, rest, key)
         elif complete is False:
-            _reject(i, m, rest, key, reason)
+            # A replayed verdict still counts: the redo changed nothing the
+            # verifier is shown. How often that happens was not measurable from
+            # past runs, so it is recorded (see the ledger) rather than changed.
+            _reject(i, m, rest, key, reason, judged=True, kind="judged" if fresh else "replayed")
         else:  # deferred (backend outage / unparseable)
             lines[i] = f"{m.group(1)}[~]{rest}"
             deferred.append(key)
@@ -987,6 +1194,14 @@ def run_verification_pass(
         atomic_write_text(feedback_path, yaml.safe_dump(feedback, sort_keys=True))
     else:
         feedback_path.unlink(missing_ok=True)
+    _append_ledger(state_path.with_suffix(".ledger.jsonl"), ledger)
+    # The same decisions as numbers per criterion (see speckit.scorecard).
+    from llmxive.speckit import scorecard
+    for entry in ledger:
+        values = _LEDGER_VALUES.get(entry["kind"])
+        if values:
+            scorecard.record(state_path.parent, entry["task"], entry["kind"], dict(values),
+                             definition=str(feedback.get(entry["task"], {}).get("task", "")))
     _write_notes(notes_path, [
         (key, entry["reason"]) for key, entry in feedback.items() if entry.get("reason")
     ])
@@ -1111,6 +1326,7 @@ def _write_notes(notes_path: Path, rejected: list[tuple[str, str]]) -> None:
 __all__ = [
     "DEFAULT_VERIFY_CAP",
     "REJECT_CAP",
+    "STALL_CAP",
     "VERIFIER_TEMPERATURE",
     "TaskVerdict",
     "claimed_done_keys",

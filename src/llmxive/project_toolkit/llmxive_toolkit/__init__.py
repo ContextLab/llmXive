@@ -19,12 +19,13 @@ used by models that have seen many logging helpers and remember none exactly.
 
 from __future__ import annotations
 
+import importlib as _importlib
 import logging as _logging
 import os as _os
 import sys as _sys
 from pathlib import Path as _Path
 
-__all__ = ["ProjectPaths", "get_logger", "paths", "project_root", "setup_logging"]
+__all__ = ["ProjectPaths", "get_logger", "paths", "project_root", "save_figure", "setup_logging"]
 
 _ROOT_ENV = "LLMXIVE_PROJECT_ROOT"
 _FORMAT = "%(asctime)s %(levelname)s %(name)s: %(message)s"
@@ -171,3 +172,14 @@ def get_logger(name: object = None, level: object = "INFO", log_file: object = N
 
 #: The other name this helper is most often written under (290 of 545 projects).
 setup_logging = get_logger
+
+
+def save_figure(*args: object, **options: object) -> _Path:
+    """Save a matplotlib figure AND a record of what it shows.
+
+    ``save_figure(fig, paths.figures("tv.png"))`` writes ``figures/tv.png`` and
+    ``figures/tv.figure.json`` (titles, axis labels and scales, legend entries,
+    and every plotted series with its number of points and its ranges). The
+    record is how anyone who cannot open the image can confirm what is in it.
+    """
+    return _importlib.import_module("llmxive_toolkit.figures").save_figure(*args, **options)

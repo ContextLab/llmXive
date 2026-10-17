@@ -193,3 +193,50 @@ def test_output_producer_runs_with_relative_project_path(tmp_path, monkeypatch):
     result = sandbox.run_python_script(project_dir=project.relative_to(tmp_path), script_relpath="code/run.py")
     assert result.ok, result.stderr
     assert (project / "result.txt").read_text() == "computed"
+
+
+_STAMPED = (
+    "import time\nfrom pathlib import Path\n"
+    "Path('data').mkdir(exist_ok=True)\n"
+    "Path('data/counts.csv').write_text(f'n,stamp\\n1,{time.time_ns()}\\n')\n"
+)
+
+
+def test_a_clean_run_book_is_not_rerun_until_something_it_depends_on_changes(tmp_path):
+    """Batch 6 run 3 (2026-10-12): each rerun rewrote a run-time column, which
+    withdrew eleven accepted tasks per step against six verdicts per step."""
+    project, _ = _project(tmp_path, _STAMPED)
+    out = project / "data/counts.csv"
+    run_implementation_preview(project)
+    first = out.read_text()
+    run_implementation_preview(project)
+    assert out.read_text() == first
+    # A changed script, a changed test, and a missing output each bring a rerun.
+    (project / "code/run.py").write_text(_STAMPED + "# changed\n")
+    run_implementation_preview(project)
+    second = out.read_text()
+    assert second != first
+    (project / "tests").mkdir()
+    (project / "tests/test_counts.py").write_text("def test_nothing():\n    pass\n")
+    run_implementation_preview(project)
+    third = out.read_text()
+    assert third != second
+    out.unlink()
+    run_implementation_preview(project)
+    assert out.is_file()
+
+
+def test_a_failed_run_book_is_run_again(tmp_path):
+    project, _ = _project(tmp_path, (
+        "from pathlib import Path\n"
+        "marker = Path('code/ran.once')\n"
+        "if not marker.exists():\n"
+        "    marker.write_text('x')\n"
+        "    raise RuntimeError('first run fails')\n"
+        "Path('data').mkdir(exist_ok=True)\n"
+        "Path('data/counts.csv').write_text('n\\n1\\n')\n"
+    ))
+    run_implementation_preview(project)
+    assert not (project / "data/counts.csv").exists()
+    run_implementation_preview(project)
+    assert (project / "data/counts.csv").is_file()

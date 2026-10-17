@@ -35,6 +35,7 @@ Public API:
 from __future__ import annotations
 
 import re
+from pathlib import Path
 
 from ._diff_guard import looks_like_diff
 from .task_lines import TASK_LINE_RE, TaskFormatError, mask_fenced_code, validate_open_tasks
@@ -61,6 +62,7 @@ def check_legacy_guards(
     filename: str,
     new_content: str,
     original_content: str,
+    project_dir: Path | None = None,
 ) -> list[str]:
     """Run the FR-031 pre-filter guards on a proposed writeback.
 
@@ -71,6 +73,9 @@ def check_legacy_guards(
         original_content: the on-disk content the rewrite would replace
             (used for the FR-012 constraint-preservation check on
             spec.md).
+        project_dir: the ``projects/<id>`` directory the file belongs to,
+            when it is a project's. A tasks.md naming a platform-owned path
+            is then refused too.
 
     Returns:
         A list of human-readable refusal messages. An empty list means
@@ -95,6 +100,9 @@ def check_legacy_guards(
     if filename == "tasks.md":
         try:
             validate_open_tasks(new_content)
+            from llmxive.execution.platform_paths import refuse_platform_path_tasks
+
+            refuse_platform_path_tasks(new_content, project_dir)
         except TaskFormatError as exc:
             return [f"refusing tasks.md writeback: {exc}"]
         n_ids = _tasks_task_id_count(new_content)

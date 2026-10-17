@@ -220,10 +220,13 @@ class _GuardedReviser:
             original_content = artifacts.get(key, "")
             if new_content == original_content:
                 continue  # no change → nothing to guard
+            from llmxive.execution.platform_paths import project_dir_of
+
             refusals = check_legacy_guards(
                 filename=filename,
                 new_content=new_content,
                 original_content=original_content,
+                project_dir=project_dir_of(key),
             )
             if not refusals:
                 continue
