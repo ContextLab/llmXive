@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-10-17T06:04:30.472247+00:00'
+last_used: alan-turing
+last_used_at: '2026-10-17T08:05:34.740999+00:00'
 last_outcome: committed
 history:
-- slug: albert-einstein
-  started_at: '2026-06-26T22:27:55.410233+00:00'
-  ended_at: '2026-06-26T22:55:45.082963+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: dan-rockmore
   started_at: '2026-06-26T22:55:45.082963+00:00'
   ended_at: '2026-06-26T23:31:12.075283+00:00'
@@ -1295,3 +1290,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-104-evaluating-the-use-of-llms-for-automated/reviews/research/ada-lovelace-simulated__2026-10-17__research.md
+- slug: alan-turing
+  started_at: '2026-10-17T06:04:30.472247+00:00'
+  ended_at: '2026-10-17T08:05:34.740999+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-375-predicting-the-influence-of-composition-/reviews/research/alan-turing-simulated__2026-10-17__research.md
