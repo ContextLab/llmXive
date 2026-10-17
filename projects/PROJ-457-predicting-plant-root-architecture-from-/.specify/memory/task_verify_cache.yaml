@@ -1,75 +1,68 @@
-T003b:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting output or report files are provided; there is no evidence that `black
-    --check code/` and `flake8 code/` were run or that they produced zero errors.
-    The required artifact (a linting verification result) is missing.
-T004:
-  c: false
-  h: 279b47b8e5a8d8775611d97d9571dca9b03f6496d315db7bf32d89db3e6a9412
-  r: The provided `code/config.py` exists, but it relies on a `config.yaml` file that
-    is missing, so it cannot actually load the required paths, seeds, and constants.
-    The task explicitly calls for loading these values from `config.yaml`, which is
-    absent. The implementation also contains a minor bug (uses `sys` without importing
-    it), further indicating the artifact is not a complete, functional solution.
-T009:
-  c: false
-  h: 197f937af6ab1142301ddb09a0c28e5fd53b771887770ce30c1a335f8731e126
-  r: "The provided `tests/contract/test_schemas.py` does not contain the required\
-    \ `test_merged_dataset_schema_validates_columns` function and appears focused\
-    \ on a different schema; moreover, the referenced `contracts/dataset.schema.yaml`\
-    \ file is missing entirely. The task\u2019s required contract test and schema\
-    \ artifact are absent."
-T014a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `artifacts/state.json` file was presented or described, and there is no evidence
-    that such a file exists or contains valid JSON. The required artifact is missing,
-    so the task is not satisfied.
-T015d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., script output, log file, or filtered dataset) was provided\
-    \ showing the count of species and rows excluded when applying the n\u202F\u2265\
-    \u202F20 filter, so the requirement cannot be verified. The implementer must supply\
-    \ the actual filtering code/run results and the corresponding log entries."
-T015h:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: 'No `logs/deviation.log` file or its contents were provided, so we cannot verify
-    that the required log entry `"FR-003: KNN imputation excluded to preserve statistical
-    validity; missing nutrients are excluded"` exists. The implementer must supply
-    the log file with the exact entry.'
-T015i:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `logs/deviation.log` file was provided, nor any excerpt showing
-    entries for FR-002 and FR-003. Without the actual log file contents, we cannot
-    confirm that the required deviations have been recorded. The implementer must
-    supply the log file with the appropriate entries.
-T026b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, log file, or other artifact was provided that reads F\u2011test p\u2011\
-    values, checks they lie in [0,\u202F1], and writes the required \u201CF-test verification\
-    \ passed/failed\u201D message. Without such evidence the task\u2019s requirement\
-    \ is not demonstrated."
-T028a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `artifacts/literature_ranges.json` file or verification script is present,
-    and there are no cited literature sources. The required output and evidence are
-    missing, so the task is not satisfied.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a final report section, table, or narrative) was provided\
-    \ that compares the model coefficients to published literature to assess biological\
-    \ plausibility. The required evidence of literature\u2011based verification is\
-    \ missing."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of updated files in `docs/` or modifications to `README.md` is provided;
-    the claim lacks any actual documentation artifacts to verify. The required documentation
-    updates are missing.
+  h: b8f7816b4a3c641a0eeec54b1f731ec68e3a68fb0368463468a286198464cfbf
+  r: The evidence shows the `code/` and `tests/` directories exist and a log from
+    `init_project.py` claims to have created `data/raw`, `data/processed`, `artifacts/`,
+    and `logs`, but there is no concrete artifact listing or directory entries confirming
+    those four directories actually exist in the repository. Without those directories
+    present, the required project structure is not fully satisfied.
+  sig: 786a173262e4dfe349ad4261bf0f61a55afd2c94a29e9604edff6638d5bccb3c
+T002a/T002b `code/requirements.txt` created and versions pinned.:
+  c: true
+  h: e5c7c021576d0e05908112866af40dcd292b59071384d1cf13751bd48f2b7f81
+  r: "The `code/requirements.txt` file was found at the expected location (`code/requirements.txt`,\
+    \ 269\u202Fbytes) and contains explicit version pins for all listed packages (e.g.,\
+    \ `pandas==2.2.1`, `numpy==1.26.4`, etc.). This satisfies the task\u2019s requirement\
+    \ to create the file with pinned versions."
+  sig: 454395334c6b541315ff25fddcf334905e23c5e7edbb67d5b71005fd181dd441
+? T004/T006/T007/T008 `code/config.py`, logging setup, base data models (`RootPhenotypeRecord`,
+  `SoilNutrientRecord`), `config.yaml.template`.
+: c: false
+  h: 2678610ceb6b110f291cf7a2d00b5d43c6cf22df59936f10abab3e5023fe8511
+  r: "Checked `code/config.py` \u2013 it contains the requested configuration loader\
+    \ and a functional `setup_logging` implementation. However, there is no evidence\
+    \ of the required base data model classes (`RootPhenotypeRecord`, `SoilNutrientRecord`)\
+    \ in any file, and the `config.yaml.template` file is absent (only a concrete\
+    \ `config.yaml` is present). These missing artifacts prevent the task from being\
+    \ fully satisfied."
+  sig: 9e428fc85cdcbac5cfe22a10e82374cb41f179e3b57fe6eac3b7f0c80b83b955
+? "T010/T012/T021/T022/T031 Unit and integration tests for preprocessing, species\u2011\
+  stratified splits, model pipeline, and file\u2011size constraint."
+: c: false
+  h: d5f4b7eb4df0e9e636fff990f7772df61a1e35837556a79ebdde1783e374c687
+  r: "The implementer provided no concrete test files (e.g., `tests/test_preprocessing.py`,\
+    \ integration test scripts, or CI configuration) in the `projects/PROJ-457\u2011\
+    ...` directory, nor any evidence (logs, coverage reports) that such unit or integration\
+    \ tests were executed and passed. Without the actual test artifacts, the requirement\
+    \ for \u201Cunit and integration tests for preprocessing, species\u2011stratified\
+    \ splits, model pipeline, and file\u2011size constraint\u201D is not satisfied.\
+    \ The next implementer must add the missing test code and evidence of successful\
+    \ runs."
+  sig: 816c0adbaa913dd915488c9b5b818a6987324eb084c150e876ed4f70efbafc4f
+? "T013/T013b/T014/T014d/T015c\u2013T015m/T035a\u2013T035c Data ingestion from the\
+  \ verified HuggingFace merged\u2011dataset sources (fail\u2011loudly, no synthetic\
+  \ fallback), ISRIC\u2011unavailable path, P/N availability check, AM\u2011001 amendment\
+  \ record (`artifacts/sc_amendments.json`), FR\u2011012 observational filtering,\
+  \ missing\u2011nutrient exclusion per AM\u2011001, species\u2011count filtering\
+  \ (n\u226520), species counts and SC\u2011001/SC\u2011005 metrics in `artifacts/reports/metrics.json`\
+  \ and `artifacts/reports/success_criteria_status.json`, deviation logs."
+: c: false
+  h: df2b5f8523ee6f2e85c573969cb75cc95fcb1ae60bf8ad5098b4a14ba0a0b2a3
+  r: "The evidence provided contains only a project\u2011root mapping and no actual\
+    \ files; the required artifacts (`artifacts/sc_amendments.json`, `artifacts/reports/metrics.json`,\
+    \ `artifacts/reports/success_criteria_status.json`, deviation logs, and the ingestion\
+    \ pipeline that enforces the HuggingFace, ISRIC, FR\u2011012, AM\u2011001, and\
+    \ species\u2011count rules) are missing or unverified. Without these concrete\
+    \ files and their contents, the task\u2019s data\u2011ingestion and reporting\
+    \ requirements cannot be confirmed."
+  sig: dc04fac8b14641568bf5f56e473cec60fed99c0b03f78999684583f9e8d0539f
+? "T014a/T015g State file `artifacts/state.json` initialized; ISRIC verified\u2011\
+  source check performed \u2014 no verified ISRIC source exists; deviation logged,\
+  \ `is_isric_verified: false`."
+: c: false
+  h: 3e4864b66fd3cbb9de093de26ae79e5e041cab5453315e8e7f86fef72782ec54
+  r: "The provided `artifacts/state.json` exists but its contents lack the required\
+    \ `is_isric_verified` flag (and any explicit indication that an ISRIC verified\u2011\
+    source check was performed). Without this field set to `false` and a logged deviation,\
+    \ the task\u2019s specification is not satisfied."
+  sig: 7a6aa3ef417e52f0deeb89cd640f7a5b0d926e64667ab30d262fbaea8a7c0fa7

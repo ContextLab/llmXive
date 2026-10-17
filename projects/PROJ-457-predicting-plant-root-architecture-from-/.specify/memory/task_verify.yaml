@@ -1,14 +1,20 @@
-T003b: 2
-T009: 2
-T014a: 2
-T015d: 1
-T015e: 2
-T015h: 2
-T015i: 1
-T026b: 1
-T028a: 1
-T029c: 1
-T035a: 2
-T035b: 2
-T036: 1
-T037: 1
+T001: 1
+"T003a\u2013T003c": 1
+? T004/T006/T007/T008 `code/config.py`, logging setup, base data models (`RootPhenotypeRecord`,
+  `SoilNutrientRecord`), `config.yaml.template`.
+: 1
+? "T010/T012/T021/T022/T031 Unit and integration tests for preprocessing, species\u2011\
+  stratified splits, model pipeline, and file\u2011size constraint."
+: 1
+? "T013/T013b/T014/T014d/T015c\u2013T015m/T035a\u2013T035c Data ingestion from the\
+  \ verified HuggingFace merged\u2011dataset sources (fail\u2011loudly, no synthetic\
+  \ fallback), ISRIC\u2011unavailable path, P/N availability check, AM\u2011001 amendment\
+  \ record (`artifacts/sc_amendments.json`), FR\u2011012 observational filtering,\
+  \ missing\u2011nutrient exclusion per AM\u2011001, species\u2011count filtering\
+  \ (n\u226520), species counts and SC\u2011001/SC\u2011005 metrics in `artifacts/reports/metrics.json`\
+  \ and `artifacts/reports/success_criteria_status.json`, deviation logs."
+: 1
+? "T014a/T015g State file `artifacts/state.json` initialized; ISRIC verified\u2011\
+  source check performed \u2014 no verified ISRIC source exists; deviation logged,\
+  \ `is_isric_verified: false`."
+: 1

@@ -12,18 +12,18 @@ Paths are relative to the project directory. Source in `code/`, tests in `tests/
 
 - [ ] T001 Project directory structure, logging, and repository initialization (`code/`, `tests/`, `data/raw`, `data/processed`, `artifacts/`, `logs/`).
 - [X] T002a/T002b `code/requirements.txt` created and versions pinned.
-- [ ] T003a–T003c Linting configuration and Black/Flake8 checks pass.
-- [X] T004/T006/T007/T008 `code/config.py`, logging setup, base data models (`RootPhenotypeRecord`, `SoilNutrientRecord`), `config.yaml.template`.
-- [X] T014a/T015g State file `artifacts/state.json` initialized; ISRIC verified‑source check performed — no verified ISRIC source exists; deviation logged, `is_isric_verified: false`.
-- [X] T010/T012/T021/T022/T031 Unit and integration tests for preprocessing, species‑stratified splits, model pipeline, and file‑size constraint.
-- [X] T013/T013b/T014/T014d/T015c–T015m/T035a–T035c Data ingestion from the verified HuggingFace merged‑dataset sources (fail‑loudly, no synthetic fallback), ISRIC‑unavailable path, P/N availability check, AM‑001 amendment record (`artifacts/sc_amendments.json`), FR‑012 observational filtering, missing‑nutrient exclusion per AM‑001, species‑count filtering (n≥20), species counts and SC‑001/SC‑005 metrics in `artifacts/reports/metrics.json` and `artifacts/reports/success_criteria_status.json`, deviation logs.
+- [ ] T003a–T003c Linting configuration and Black/Flake8 checks pass. <!-- FAILED-IN-EXECUTION: code/run_lint.py exit=1 -->
+- [ ] T004/T006/T007/T008 `code/config.py`, logging setup, base data models (`RootPhenotypeRecord`, `SoilNutrientRecord`), `config.yaml.template`.
+- [ ] T014a/T015g State file `artifacts/state.json` initialized; ISRIC verified‑source check performed — no verified ISRIC source exists; deviation logged, `is_isric_verified: false`.
+- [ ] T010/T012/T021/T022/T031 Unit and integration tests for preprocessing, species‑stratified splits, model pipeline, and file‑size constraint.
+- [ ] T013/T013b/T014/T014d/T015c–T015m/T035a–T035c Data ingestion from the verified HuggingFace merged‑dataset sources (fail‑loudly, no synthetic fallback), ISRIC‑unavailable path, P/N availability check, AM‑001 amendment record (`artifacts/sc_amendments.json`), FR‑012 observational filtering, missing‑nutrient exclusion per AM‑001, species‑count filtering (n≥20), species counts and SC‑001/SC‑005 metrics in `artifacts/reports/metrics.json` and `artifacts/reports/success_criteria_status.json`, deviation logs.
 - [ ] T016 `code/preprocessing.py`: log‑transformation of root metrics (`log(x + 1e-6)`), global z‑score normalization of nutrients, conditional on `p_n_available`.
-- [X] T023–T026b/T027 `code/modeling.py`: `GroupKFold` species‑stratified CV, Linear Mixed‑Effects Model (REML, Satterthwaite, species random intercept), Random Forest baseline (max_depth=5), F‑test, F‑test verification log, multiple‑comparison correction.
+- [~] T023–T026b/T027 `code/modeling.py`: `GroupKFold` species‑stratified CV, Linear Mixed‑Effects Model (REML, Satterthwaite, species random intercept), Random Forest baseline (max_depth=5), F‑test, F‑test verification log, multiple‑comparison correction.
 - [ ] T028a–T028c Literature range fetch/verification (`artifacts/literature_ranges.json`, `literature_verified` flag), sensitivity analysis (`artifacts/sensitivity/sensitivity_analysis.json`), literature comparison and plausibility verdict.
 - [ ] T029a–T029d Final model metrics JSON (`artifacts/reports/model_metrics.json`) with adjusted R², RMSE, p‑values, CV mean R², `sc002_met` boolean.
-- [X] T032/T033 `code/visualization.py`: partial dependence plots (5th–95th percentile range), PNG output with ≤100 MB enforcement.
-- [X] T034a–T034e/T034d/T036 `code/reporting.py`: deviation logs read, metrics read, final report compiled with associational framing, causal‑language scan, report written to `artifacts/reports/final_report.md`, literature comparison table included.
-- [X] T037a/T037/T038/T039 State file artifact hashes, README/docs update, quickstart validation.
+- [~] T032/T033 `code/visualization.py`: partial dependence plots (5th–95th percentile range), PNG output with ≤100 MB enforcement.
+- [~] T034a–T034e/T034d/T036 `code/reporting.py`: deviation logs read, metrics read, final report compiled with associational framing, causal‑language scan, report written to `artifacts/reports/final_report.md`, literature comparison table included.
+- [~] T037a/T037/T038/T039 State file artifact hashes, README/docs update, quickstart validation.
 
 ## Phase 1: Repair rejected contract artifacts (verifier‑flagged)
 
