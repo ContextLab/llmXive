@@ -1,11 +1,1 @@
-- artifact_hash: 05949253dbfb9d65e8ee8f5f2276412930549350515b42a7375d328033d1ac24
-  artifact_path: projects/PROJ-250-neural-correlates-of-temporal-prediction/specs/001-neural-correlates-of-temporal-prediction/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://openneuro.org/crn/datasets/ds004510/`
-  verification_status: mismatch
-  verified_against_url: https://openneuro.org/crn/datasets/ds004510/
-  verified_at: '2026-10-17T08:17:04.571626Z'
+[]
