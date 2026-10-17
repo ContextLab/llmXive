@@ -1,11 +1,23 @@
-# Pinned dependencies for the llmXive follow‑up project.
-# Packages that are already provided by the runtime (numpy, pandas,
-# scipy, scikit-learn, matplotlib, seaborn, pytest, PyYAML,
-# requests, jsonschema, psutil) are omitted.
-pillow==10.4.0
-fastapi==0.111.0
-uvicorn==0.30.0
+# Pinning exact versions ensures a deterministic environment across CI runs.
+# Core scientific stack (already provided by the runner) is left unpinned.
+#
+# Additional packages required by the project:
 torch==2.3.0
 torchvision==0.18.0
-# The versions above are chosen to be compatible with Python 3.11
-# and to work on CPU‑only runners used in CI.
+fastapi==0.111.0
+uvicorn==0.30.0
+pillow==10.3.0
+# The following are already guaranteed in the base environment, but are
+# listed for completeness:
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+scikit-learn==1.5.0
+statsmodels==0.14.2
+seaborn==0.13.2
+matplotlib==3.9.0
+pytest==8.2.2
+PyYAML==6.0.2
+requests==2.32.3
+jsonschema==4.22.0
+psutil==5.9.8

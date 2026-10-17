@@ -1,10 +1,6 @@
 T001:
-  reason: "The `quickstart.md` does contain a \u201CRun the end\u2011to\u2011end pipeline\u201D\
-    \ section, but the required verification fails: the integration test `tests/integration/test_end_to_end.py`\
-    \ exits with an error (the subprocess call to `python -m src.run_pipeline --config\
-    \ config.yaml` returns a non\u2011zero status), so the pipeline does not run successfully\
-    \ and does not print \u201CPipeline completed\u201D. Consequently the task\u2019\
-    s verification condition is not met."
+  reason: 'Requested task execution failed; rerun successfully: src/run_pipeline.py
+    exit=2'
   task: efed8fc0e0715b46abc391f9e3251c0229cf0a247e440937386e5036faa32094
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/curators/curate_failed_figures.py
@@ -21,6 +17,14 @@ T003:
     \ the task."
   task: 79c864f462c572423781e6627a4017440fd036bb6ae57fade7c739871685d96e
 T004:
+  reason: "The logger module `src/logger/interaction_logger.py` exists and looks functional,\
+    \ but the verification requirement was not met: the curl POST to `/edit` failed\
+    \ with connection refused, and the existing `data/logs/interactions.jsonl` entries\
+    \ are explicitly synthetic (\"synthetic edit N for figure_X\") with a schema (`session_id`,\
+    \ `task_id`, `mode`, `payload` as string) that does not match what this logger\
+    \ writes (`participant_id`, `figure_id`, `interface`, `payload` as dict) \u2014\
+    \ so no line in the log was demonstrably produced by this logger. The implementer\
+    \ must demonstrate a real logged edit (e.g."
   task: fddeaa3a88b56842e6328224106c34b41bcb63041f7d6f9e6903da3e85245736
 T005:
   reason: "The `vector_match.py` utility writes a `SemanticValidation` record with\

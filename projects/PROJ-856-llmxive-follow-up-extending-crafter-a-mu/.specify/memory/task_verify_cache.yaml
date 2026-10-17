@@ -10,13 +10,17 @@ T003:
     \ and showing successful curl responses is needed to satisfy the task."
   sig: 0964a7884081b65ac998762d77fe96c6df574648e379c8ae3445dde6118c9e31
 T004:
-  c: true
-  h: 0168d522fe7a2b7fc95e1a27d76c20bf774c1a09a4e3c4fe8ba94684875128f4
-  r: "Checked `src/logger/interaction_logger.py` (implements millisecond\u2011precision\
-    \ logging to `data/logs/interactions.jsonl`) and the non\u2011empty `data/logs/interactions.jsonl`\
-    \ file (contains integer `timestamp_ms` and correctly incremented `iteration`\
-    \ per edit). The passing pytest confirms correct behavior."
-  sig: a4bb182fd28cca20cdc698eb3cb1d98a82eced4944963387b2bb2a6261905927
+  c: false
+  h: c35eb45495b2ae45cbe820c900dd5c540024d3773a145bb364ebbddf5921369d
+  r: "The logger module `src/logger/interaction_logger.py` exists and looks functional,\
+    \ but the verification requirement was not met: the curl POST to `/edit` failed\
+    \ with connection refused, and the existing `data/logs/interactions.jsonl` entries\
+    \ are explicitly synthetic (\"synthetic edit N for figure_X\") with a schema (`session_id`,\
+    \ `task_id`, `mode`, `payload` as string) that does not match what this logger\
+    \ writes (`participant_id`, `figure_id`, `interface`, `payload` as dict) \u2014\
+    \ so no line in the log was demonstrably produced by this logger. The implementer\
+    \ must demonstrate a real logged edit (e.g."
+  sig: 241a6e9bed4a5ff24cdfbb7537f35aa7dfaae57087435d700936469147b12d76
 T005:
   c: false
   h: 8efccb4c62f3a6f7710f7e8ac05d775e20102b264fe76ec24eb3e689a81340bf

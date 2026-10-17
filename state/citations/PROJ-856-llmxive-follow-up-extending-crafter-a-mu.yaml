@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: http://localhost:8002/init_session
   verified_at: '2026-10-17T02:27:19.389525Z'
-- artifact_hash: 2c9627af05d6f6157d1ff15aa4c228f226e4d13d304afc3751d0ae1e007d6145
+- artifact_hash: d63e1ea3b08af45461514d59ddf563a5c5ec4147c844058e37300c020e40f3f6
   artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/specs/001-llmxive-follow-up-extending-crafter-a-mu/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: http://localhost:8000/init_session
   verification_status: unreachable
   verified_against_url: http://localhost:8000/init_session
-  verified_at: '2026-10-17T02:47:45.946468Z'
-- artifact_hash: 2c9627af05d6f6157d1ff15aa4c228f226e4d13d304afc3751d0ae1e007d6145
+  verified_at: '2026-10-17T03:10:03.055425Z'
+- artifact_hash: d63e1ea3b08af45461514d59ddf563a5c5ec4147c844058e37300c020e40f3f6
   artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/specs/001-llmxive-follow-up-extending-crafter-a-mu/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -41,4 +41,4 @@
   value: http://localhost:8000/edit
   verification_status: unreachable
   verified_against_url: http://localhost:8000/edit
-  verified_at: '2026-10-17T02:47:45.946468Z'
+  verified_at: '2026-10-17T03:10:03.055425Z'

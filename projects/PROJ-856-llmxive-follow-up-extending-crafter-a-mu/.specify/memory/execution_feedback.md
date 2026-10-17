@@ -7,7 +7,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.curators.curate_failed_figures --num-tasks 50 --output-dir data/ -> rc=-1
-0498071 [01:44<56:00, 49108.69it/s]    3%|▎         | 5505024/170498071 [01:45<1:03:53, 43041.74it/s]  3%|▎         | 5537792/170498071 [01:46<54:58, 50018.13it/s]    3%|▎         | 5570560/170498071 [01:46<51:12, 53681.60it/s]  3%|▎         | 5603328/170498071 [01:47<52:10, 52677.56it/s]  3%|▎         | 5636096/170498071 [01:47<52:54, 51938.78it/s]  3%|▎         | 5668864/170498071 [01:48<53:19, 51524.52it/s]  3%|▎         | 5701632/170498071 [01:49<56:11, 48877.17it/s]  3%|▎         | 5734400/170498071 [01:49<52:50, 51965.16it/s]  3%|▎         | 5767168/170498071 [01:50<53:08, 51657.95it/s]  3%|▎         | 5799936/170498071 [01:51<53:17, 51515.70it/s]  3%|▎         | 5832704/170498071 [01:51<57:27, 47768.56it/s]  3%|▎         | 5865472/170498071 [01:52<56:18, 48731.60it/s]  3%|▎         | 5898240/170498071 [01:53<1:04:38, 42442.92it/s]  3%|▎         | 5931008/170498071 [01:53<54:02, 50746.41it/s]    3%|▎         | 5963776/170498071 [01:54<51:31, 53218.94it/s]  4%|▎         | 5996544/170498071 [01:55<51:50, 52890.18it/s]  4%|▎         | 6029312/170498071 [01:56<59:14, 46275.12it/s]  4%|▎         | 6062080/170498071 [01:56<49:59, 54816.68it/s]
+Downloading https://cave.cs.toronto.edu/kriz/cifar-10-python.tar.gz to data/raw_cifar10/cifar-10-python.tar.gz
+
+0.0%0.0%0.1%0.1%0.1%0.1%0.1%0.2%0.2%0.2%0.2%0.2%0.2%0.3%0.3%0.3%0.3%0.3%0.4%0.4%0.4%0.4%0.4%0.5%0.5%0.5%0.5%0.5%0.6%0.6%0.6%0.6%0.6%0.7%0.7%0.7%0.7%0.7%0.7%0.8%0.8%0.8%0.8%0.8%0.9%0.9%0.9%0.9%0.9%1.0%1.0%1.0%1.0%1.0%1.1%1.1%1.1%1.1%1.1%1.2%1.2%1.2%1.2%1.2%1.2%1.3%1.3%1.3%1.3%1.3%1.4%1.4%1.4%1.4%1.4%1.5%1.5%1.5%1.5%1.5%1.6%1.6%1.6%1.6%1.6%1.7%1.7%1.7%1.7%1.7%1.7%1.8%1.8%1.8%1.8%1.8%1.9%1.9%1.9%1.9%1.9%2.0%2.0%2.0%2.0%2.0%2.1%2.1%2.1%2.1%2.1%2.2%2.2%2.2%2.2%2.2%2.2%2.3%2.3%2.3%2.3%2.3%2.4%2.4%2.4%2.4%2.4%2.5%2.5%2.5%2.5%2.5%2.6%2.6%2.6%2.6%2.6%2.7%2.7%2.7%2.7%2.7%2.7%2.8%2.8%2.8%
 [TIMEOUT after 120s]
 - python -m src.utils.check_retention --log-dir data/logs/ --min-valid 25 -> rc=1
 
@@ -15,7 +17,7 @@ Error processing validation file: "Successful validation record missing session 
 
 - python -m src.analysis.wilcoxon_analysis  --validation-dir data/validation/  --output-dir outputs/ -> rc=1
 
-2026-10-17 02:49:51,711 ERROR __main__: Validation records missing required columns: {'iteration_count', 'interface', 'time_to_success_ms', 'participant_id'}
+2026-10-17 03:12:07,734 ERROR __main__: Validation records missing required columns: {'participant_id', 'interface', 'iteration_count', 'time_to_success_ms'}
 
 - python -m pytest -q tests/contract -> rc=4
 

@@ -10,7 +10,7 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
 
 ## Phase 1 – Setup, data curation & first end‑to‑end run  
 
-- [ ] T001 [P] [US1] Create a deterministic environment, pin dependencies, and document the runnable command.  
+- [ ] T001 [P] [US1] Create a deterministic environment, pin dependencies, and document the runnable command.   <!-- FAILED-IN-EXECUTION: src/run_pipeline.py exit=2 -->
   - **File**: `quickstart.md` (add a “Run the end‑to‑end pipeline” section).  
   - **Verification**: `pytest -q tests/integration/test_end_to_end.py` passes; the command `python -m src.run_pipeline --config config.yaml` executes without error and prints “Pipeline completed”.  
 
@@ -22,7 +22,7 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
   - **Files**: `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`, `src/interfaces/session.py`.  
   - **Verification**: `curl -X POST [UNRESOLVED-CLAIM: http://localhost:8000/init_session — ConnectionError: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /init_session (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))] -d '{"participant_id":"test"}'` returns JSON with `"order": ["structured","chat"]` or the reverse; both `/edit` endpoints respond `200 OK`.  
 
-- [X] T004 [P] [US2] Add millisecond‑precision interaction logging that writes one JSON line per edit to `data/logs/interactions.jsonl`.  
+- [ ] T004 [P] [US2] Add millisecond‑precision interaction logging that writes one JSON line per edit to `data/logs/interactions.jsonl`.  
   - **File**: `src/logger/interaction_logger.py`.  
   - **Verification**: Simulated edit via `curl -X POST [UNRESOLVED-CLAIM: http://localhost:8000/edit — ConnectionError: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /edit (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))] …` creates a new line in `data/logs/interactions.jsonl` whose `timestamp_ms` field is an integer and `iteration` increments correctly.  
 

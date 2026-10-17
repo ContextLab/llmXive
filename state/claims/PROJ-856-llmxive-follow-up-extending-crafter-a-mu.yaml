@@ -1,0 +1,79 @@
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: data/figures and data/ground_truth directories are created after execution
+  claim_id: c_6cd2da38
+  context: Step 2 bullet list after running the data curation script.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: After execution you will see `data/figures/` and `data/ground_truth/`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T03:10:03Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: checksum file data/checksums.txt is generated automatically
+  claim_id: c_c7d5e930
+  context: Step 2 bullet list after running the data curation script.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A checksum file `data/checksums.txt` is generated automatically.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T03:10:03Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: 200 OK JSON with randomized interface_order and shuffled task_order is
+    returned by endpoints
+  claim_id: c_b27ae0f0
+  context: Step 3 description of launching the interface stubs and visiting endpoints.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Visit the endpoints to see a 200\u202FOK JSON with a randomized `interface_order`\
+    \ and shuffled `task_order`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T03:10:03Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: simulation creates log files with millisecond-precise interaction records
+    and shuffles interface and task order per session
+  claim_id: c_c21c948f
+  context: Step 5 simulation of participant sessions.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This creates `data/logs/<session_id>.jsonl` files containing millisecond\u2011\
+    precise interaction records and shuffles both interface and task order per session."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T03:10:03Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: pipeline outputs 'Pipeline completed'
+  claim_id: c_aa27c818
+  context: Final command expected output after running the full pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Pipeline completed
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T03:10:03Z'
