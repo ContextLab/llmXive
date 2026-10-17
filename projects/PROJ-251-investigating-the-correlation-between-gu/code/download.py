@@ -38,6 +38,7 @@ from pathlib import Path
 from typing import List, Tuple, Optional
 
 import requests
+import pandas as pd  # <-- added import for pandas
 
 # llmxive toolkit helpers for consistent path handling
 from llmxive_toolkit import paths, get_logger

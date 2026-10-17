@@ -1,11 +1,12 @@
 T010:
-  c: true
-  h: 65b4ed02b569c4b41a7e371ea341551c4fc93e4b231cb3cebe20fb0a7f09d508
-  r: "Checked `code/download.py` (implements the discovery logic) and `data/research/sra_status.json`\
-    \ (contains the required `status` and `use_synthetic` keys). The script runs,\
-    \ performs the HF query, and writes a valid status file, satisfying the task\u2019\
-    s artifact and verification requirements."
-  sig: f47f55443a21dde694c21565c02ed9f8fc09a5b57821aad58d9c3d3859ab2870
+  c: false
+  h: 209943e0edb3e6f1f49e2e4d37430c8dcbd192f4a818b4d1dda1ab564a1fbde5
+  r: "The `data/research/sra_status.json` reports `\"status\": \"no_real_data\"` and\
+    \ `\"use_synthetic\": true`, and the script aborts without downloading the required\
+    \ `data/raw/otutable.csv` and `data/raw/serology.csv`. Consequently no real paired\
+    \ microbiome\u2011serology dataset was discovered or verified, which is the core\
+    \ requirement of the task."
+  sig: ecfa2da1a6f38af038af0ee08981ee65167543a3f21f8e59df1a8c89115a06ee
 T011b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,14 +1,14 @@
 status: none
-intent: Human Microbiome Flu Vaccine Immunogenicity Study NCBI SRA Human Microbiome
-  Project dataset python package dataset
+intent: NCBI SRA 16S rRNA OTU and serology dataset NCBI Disease SRA Imagenet bw_spec_cls_4_00_s_clr
+  python package dataset
 required_fields:
 - subject_id
-- baseline_otu_counts_or_relative_abundance
-- baseline_hai_titer
-- post_vaccination_hai_titer
 - age
 - sex
-- additional_covariates
-cache_key: 1c6fb069910e46b747b57fcbae7a3cada6361974b7527a7a9026138c053783a0
-searched_at: '2026-10-15T17:20:34.319299+00:00'
+- baseline_otu_taxa
+- baseline_otu_relative_abundance
+- pre_vaccination_antibody_titer
+- post_vaccination_antibody_titer
+cache_key: 74ab0885de61777ef8c3d0dba5c7317dc2b1228823096db0f5f6f23d80ce6d47
+searched_at: '2026-10-17T18:24:51.276344+00:00'
 retry_count: 1
