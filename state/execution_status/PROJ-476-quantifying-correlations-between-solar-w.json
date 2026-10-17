@@ -9,13 +9,13 @@
     "python code/main.py analyze --data data/processed/synced.csv --lags 0,1,2,3,6 -> rc=1\n    2026-07-22 09:33:22,810 - solar_wind - INFO - --- Phase 4: Lagged Correlation Analysis ---\n2026-07-22 09:33:22,810 - solar_wind - ERROR - Failed to run correlation analysis: load_synced_data() takes 0 positional arguments but 1 was given\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py\", line 257, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-bet",
     "python code/main.py validate --data data/processed/synced.csv --test-start 2018-01-01 --test-end 2020-12-31 -> rc=1\n    2026-07-22 09:33:24,057 - solar_wind - INFO - --- Phase 5: Validation & Reporting ---\n2026-07-22 09:33:24,057 - solar_wind - ERROR - Failed to run validation: run_validation_report() got an unexpected keyword argument 'data_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py\", line 257, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-476-quanti"
   ],
-  "fix_rounds": 2,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "data_unreachable",
   "evidence": [
     "python code/main.py fetch --start 1998-01-01 --end 2020-12-31"
   ],
-  "updated_at": "2026-07-22T09:33:25Z"
+  "updated_at": "2026-10-17T02:22:46Z"
 }

@@ -1,9 +1,8 @@
 """
 NOAA geomagnetic index fetcher.
 
-Downloads hourly Kp and Dst indices from the official NOAA FTP/HTTPS
-service, merges them on their timestamps and writes a CSV containing the
-required columns ``Kp`` and ``Dst`` (plus ``timestamp``).
+Downloads hourly Kp and Dst indices from the official NOAA service, merges them on their timestamps
+and writes a CSV containing the required columns ``Kp`` and ``Dst`` (plus ``timestamp``).
 
 The implementation respects the specification:
 * streaming HTTP download with ``requests``
@@ -21,7 +20,6 @@ import pandas as pd
 import requests
 
 from code.config import (
-    NOAA_KP_DST_URL,
     RAW_DATA_DIR,
 )
 from code import logger
@@ -120,9 +118,9 @@ def _fetch_and_merge_noaa(output_path: Path) -> Path:
     Path
         The path that was written.
     """
-    # NOAA provides separate files; we use the standard HTTP endpoints.
-    kp_url = f"{NOAA_KP_DST_URL}kp.txt"
-    dst_url = f"{NOAA_KP_DST_URL}dst.txt"
+    # Use HTTPS endpoints provided by NOAA SWPC
+    kp_url = "https://services.swpc.noaa.gov/products/geomagnetic/kp.txt"
+    dst_url = "https://services.swpc.noaa.gov/products/geomagnetic/dst.txt"
 
     logger.debug(f"Downloading Kp from {kp_url}")
     kp_text = _download_text(kp_url)

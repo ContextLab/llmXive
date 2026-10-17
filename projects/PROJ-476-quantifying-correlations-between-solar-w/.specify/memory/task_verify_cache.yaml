@@ -1,13 +1,12 @@
 T001:
   c: true
-  h: 895c31fc7f736a26f2150bdbbd1292c3520d17353290db20acb1a35090a276dd
-  r: "The directory hierarchy (code/data, code/analysis, code/viz, code/tests, data/raw,\
-    \ data/processed, results, figures) is present, and the quickstart markdown at\
-    \ `specs/001-quantifying-correlations-between-solar-w/quickstart.md` contains\
-    \ the exact command `python -m code.main --stage all`. The log `code/.tasks/T001.code_main.py.log`\
-    \ shows that `python -m code.main --help` runs successfully, confirming the runnable\
-    \ quick\u2011start command."
-  sig: 300c309add58bb45712353a4b5ed14ae28250dae1bc5ed60e42b87fdaa2a4d66
+  h: bd30df94ebcfbb0733f4f567f10aa2ba34bec7edd67ccd9e3de4472f0144b7c3
+  r: "The directory hierarchy (`code/data/`, `code/analysis/`, `code/viz/`, `code/tests/`,\
+    \ `data/raw/`, `data/processed/`, `results/`, `figures/`) is present, the `specs/001-quantifying-correlations-between-solar-w/quickstart.md`\
+    \ file exists and contains the exact command `python -m code.main --stage all`,\
+    \ and the log `code/.tasks/T001.code_main.py.log` shows that `python -m code.main\
+    \ --help` runs successfully with exit code\u202F0."
+  sig: 784fb7dd858795e8a2c063da88f5ac2cd620cac0a945bdc8b0164e784ebaefe9
 T005:
   c: false
   h: 58b418a2cc42df68ff97c0487ecc9331459d9653698b02507efd69cd0785c4ab

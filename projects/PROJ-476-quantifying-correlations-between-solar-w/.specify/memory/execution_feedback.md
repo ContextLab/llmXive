@@ -7,42 +7,46 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m code.main --stage all -> rc=1
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 278, in fetch_ace
+ode/data/fetch_ace.py", line 279, in fetch_ace
     _fetch_and_merge_ace(start_date, end_date, output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 158, in _fetch_and_merge_ace
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 159, in _fetch_and_merge_ace
     swepam_files = _list_ftp_files(host, swepam_dir)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 97, in _list_ftp_files
-    ftp.login()
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 412, in login
-    resp = self.sendcmd('USER ' + user)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 281, in sendcmd
-    return self.getresp()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 99, in _list_ftp_files
+    ftp.cwd(directory)
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 625, in cwd
+    return self.voidcmd(cmd)
+           ^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 286, in voidcmd
+    return self.voidresp()
+           ^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 259, in voidresp
+    resp = self.getresp()
            ^^^^^^^^^^^^^^
   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 254, in getresp
     raise error_perm(resp)
-ftplib.error_perm: 550 SSL/TLS required on the control channel
+ftplib.error_perm: 550 /pub/data/ace/swepam/level2: No such file or directory
 
 - python -m code.main --stage fetch --start 1998-01-01 --end 2020-12-31 -> rc=1
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 278, in fetch_ace
+ode/data/fetch_ace.py", line 279, in fetch_ace
     _fetch_and_merge_ace(start_date, end_date, output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 158, in _fetch_and_merge_ace
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 159, in _fetch_and_merge_ace
     swepam_files = _list_ftp_files(host, swepam_dir)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 97, in _list_ftp_files
-    ftp.login()
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 412, in login
-    resp = self.sendcmd('USER ' + user)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 281, in sendcmd
-    return self.getresp()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch_ace.py", line 99, in _list_ftp_files
+    ftp.cwd(directory)
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 625, in cwd
+    return self.voidcmd(cmd)
+           ^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 286, in voidcmd
+    return self.voidresp()
+           ^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 259, in voidresp
+    resp = self.getresp()
            ^^^^^^^^^^^^^^
   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/ftplib.py", line 254, in getresp
     raise error_perm(resp)
-ftplib.error_perm: 550 SSL/TLS required on the control channel
+ftplib.error_perm: 550 /pub/data/ace/swepam/level2: No such file or directory
 
 - python -m code.main --stage align -> rc=1
 rrelations-between-solar-w/code/data/align.py", line 11, in load_raw_ace
@@ -67,7 +71,7 @@ FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/ace_raw.csv'
 
 - python -m code.main --stage analyze --lags 0,1,2,3,6 -> rc=1
 
-2026-10-17 02:19:31,556 - solar_wind - INFO - --- Stage analyze: lagged correlations ---
+2026-10-17 02:21:52,780 - solar_wind - INFO - --- Stage analyze: lagged correlations ---
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
@@ -120,6 +124,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/thresholds.py` — NOT invoked by the run-book
     - `code/config.py` — NOT invoked by the run-book
     - `code/data/align.py` — NOT invoked by the run-book
+    - `code/data/sync.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
-    - `code/tests/test_pipeline.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/synced.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

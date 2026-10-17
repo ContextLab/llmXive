@@ -61,8 +61,9 @@ def _download_ftp_file(host: str, remote_path: str, local_path: Path) -> None:
     # Use explicit TLS (FTP over TLS) if the server supports it.
     context = ssl.create_default_context()
     with ftplib.FTP_TLS(host) as ftp:
-        ftp.login()  # anonymous
-        ftp.prot_p()  # switch to secure data connection
+        # Secure the control channel first
+        ftp.login()  # anonymous login
+        ftp.prot_p()  # secure data connection
         with open(local_path, "wb") as fp:
             ftp.retrbinary(f"RETR {remote_path}", fp.write)
 
@@ -83,18 +84,18 @@ def _download_http_file(url: str, local_path: Path) -> None:
     with requests.get(url, stream=True, timeout=30) as r:
         if r.status_code != 200:
             raise ConnectionError(f"Failed to download {url}: HTTP {r.status_code}")
-        with open(local_path, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
+        for chunk in r.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
 
 # ----------------------------------------------------------------------
 # Core fetch logic
 # ----------------------------------------------------------------------
 def _list_ftp_files(host: str, directory: str) -> List[str]:
-    """Return a list of filenames in a given FTP directory."""
-    with ftplib.FTP(host) as ftp:
-        ftp.login()
+    """Return a list of filenames in a given FTP directory using TLS."""
+    with ftplib.FTP_TLS(host) as ftp:
+        ftp.login()          # anonymous login
+        ftp.prot_p()         # protect data channel
         ftp.cwd(directory)
         return ftp.nlst()
 

@@ -5,6 +5,8 @@ T002:
     exit=2; code/data/fetch_noaa.py exit=2'
   task: 055ce390ee9b49c294d699087b93a6985e594b6f5e3d8a3c9f3588bbfc12414c
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/data/sync.py
+    exit=1'
   task: 80ab4d5bf43742922af56d184458765fc3d4842f9e145dddea2776fb3c40d877
 T004:
   task: 7aea0caec9c38c9be64c19846f86d6ce9e0caf264abc1be341926049ba029c59

@@ -46,7 +46,7 @@ The following checklist implements the complete end‑to‑end scientific study 
 
     creates CSVs whose headers contain `N_p`, `T_p`, `He2+_ratio` (ACE) and `Kp`, `Dst` (NOAA).  A forced network outage (e.g., disconnecting internet) causes the command to raise `ConnectionError`.
 
-- [ ] **T003** [P] [US1] Synchronise and resample the two data streams in `code/data/sync.py`.  
+- [ ] **T003** [P] [US1] Synchronise and resample the two data streams in `code/data/sync.py`.   <!-- FAILED-IN-EXECUTION: code/data/sync.py exit=1 -->
   - Load the raw ACE and NOAA CSVs, verify the presence of required variables (`N_p`, `T_p`, `He2+_ratio`, `Kp`, `Dst`). Abort with a clear error message if any are missing (FR‑006, SC‑002).  
   - Convert timestamps to UTC, resample both series to a **1‑hour** grid.  
   - Interpolate linearly over gaps **≤ 6 h**; for each interpolated interval log a warning and set `interpolated_flag = True`.  
