@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-10-17T10:04:48.052042+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-10-17T12:05:05.283843+00:00'
 last_outcome: committed
 history:
-- slug: daniel-kahneman
-  started_at: '2026-06-26T23:31:12.075283+00:00'
-  ended_at: '2026-06-26T23:53:08.658130+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-620-perception-or-prejudice-can-mllms-go-bey/paper/reviews/daniel-kahneman-simulated__2026-06-26__paper.md
 - slug: david-krakauer
   started_at: '2026-06-26T23:53:08.658130+00:00'
   ended_at: '2026-06-27T00:36:34.845385+00:00'
@@ -1299,3 +1292,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-193-predicting-battery-degradation-from-publ/reviews/research/albert-einstein-simulated__2026-10-17__research.md
+- slug: dan-rockmore
+  started_at: '2026-10-17T10:04:48.052042+00:00'
+  ended_at: '2026-10-17T12:05:05.283843+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-827-llmxive-follow-up-extending-causal-forci/reviews/research/dan-rockmore-simulated__2026-10-17__research.md
