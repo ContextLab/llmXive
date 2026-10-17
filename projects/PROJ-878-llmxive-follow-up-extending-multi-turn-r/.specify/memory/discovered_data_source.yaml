@@ -1,15 +1,14 @@
 status: none
-intent: ProofWriter logical puzzles dataset with DAG metadata and GSM8K reference
-  python package dataset
+intent: ProofWriter logical reasoning dataset DAG metadata download python package
 required_fields:
 - puzzle_id
-- problem_text
-- solution_steps
-- dag_edge_list
+- puzzle_text
+- dag_edges
 - nesting_depth
 - branching_factor
-- node_count
-- edge_count
-cache_key: ab4e123ec40a52433e379e29b2fae58fd8153229a1881df07e6bc0d965d4567b
-searched_at: '2026-10-16T21:13:01.869615+00:00'
+- ground_truth_solution
+- node_labels
+- metadata
+cache_key: f6ce7aadd34c499e4a38677026e87f6c5ba6a92cbfc407184386bbe5d82c2e1e
+searched_at: '2026-10-17T00:16:43.541779+00:00'
 retry_count: 1

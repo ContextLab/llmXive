@@ -1,12 +1,12 @@
 T002:
   c: false
-  h: 549a639099be5ca6e5739ea084b832e132290615989db1a8081cf6e8b7acafa6
-  r: "The test file `code/tests/test_graph_generator.py` exists, but the recorded\
-    \ test run shows both parametrized tests fail with an `AttributeError` because\
-    \ `networkx` has no `set_seed` function (line\u202F23 in `graph_generator.py`).\
-    \ Consequently the schema\u2011conformance and orthogonalization checks never\
-    \ succeed, so the required contract and integration tests do not pass after T003.\
-    \ The generator code must be corrected (e.g., remove the invalid `nx.set_seed`\
-    \ call or use a proper RNG seed) and the tests re\u2011run to achieve a passing\
-    \ result."
-  sig: 3bf141e03bad4153db150f96655d213b197505889eac4cf2327d4d591fd8e585
+  h: e6392a3feda9d6be5d6b3bbf104c57928e2ce33357e98b0f4b2c057fe3fa8230
+  r: 'The test file `code/tests/test_graph_generator.py` exists and is substantive,
+    but there is no evidence of a passing pytest run, and the tests cannot actually
+    pass: `code/graph_generator.py` uses `Any` in type annotations (`Tuple[List[Any],
+    List[Any]]`, `Dict[str, Any]`) without importing `Any` from `typing`, which raises
+    `NameError` at import/collection time, so `pytest code/tests/test_graph_generator.py`
+    would fail immediately. Additionally, `test_nx_set_seed_compatibility` calls `nx.set_seed`,
+    which is not a real networkx API, and `_write_validation_metrics` writes `cycle_rate`
+    as the placeh'
+  sig: 79b5320d065969fdfa61141f14281b051324130786caff11cae3a27a041f61c7
