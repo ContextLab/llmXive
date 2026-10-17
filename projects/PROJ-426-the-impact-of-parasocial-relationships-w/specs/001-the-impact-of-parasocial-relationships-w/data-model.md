@@ -1,8 +1,8 @@
 # Data Model: The Impact of Parasocial Relationships with AI Companions on Loneliness
 
 ## Entity Overview
-1. **UserProfile** – static demographics, attachment‑style proxy, baseline mental‑health, and SES.  
-2. **LongitudinalRecord** – one observation per week (loneliness score + usage metrics + covariates).  
+1. **UserProfile** – static demographics, attachment‑style proxy, and match status.  
+2. **LongitudinalRecord** – one observation per week (loneliness score + usage metrics + attachment scores).  
 3. **WeeklyAggregates** – derived weekly summary used for modeling.  
 4. **ModelResult** – JSON representation of the fitted mixed‑effects model and bootstrap output.
 
@@ -16,8 +16,6 @@
 | `gender` | string | Self‑reported gender. |
 | `attachment_anxiety_score` | number (0‑1) | Normalized ECAR anxiety term frequency. |
 | `attachment_avoidance_score` | number (0‑1) | Normalized ECAR avoidance term frequency. |
-| `baseline_mental_health_score` | number (0‑100) | Baseline mental‑health self‑report (e.g., PHQ‑9 total). |
-| `ses_index` | number (0‑1) | Socio‑economic status index (normalized). |
 | `match_status` | string | `"matched"` or `"excluded"` (e.g., missing text). |
 
 ### LongitudinalRecord
@@ -30,19 +28,14 @@
 | `prev_loneliness_score` | number | Loneliness score from the previous week (lagged outcome). |
 | `usage_frequency` | number | Count of AI‑companion interactions in the preceding week. |
 | `session_duration` | number | Total minutes of AI‑companion interaction in the preceding week. |
-| `baseline_mental_health_score` | number | Baseline mental‑health score (copied from `UserProfile`). |
-| `ses_index` | number | SES index (copied from `UserProfile`). |
 | `attachment_anxiety_score` | number (0‑1) | Copied from `UserProfile`. |
 | `attachment_avoidance_score` | number (0‑1) | Copied from `UserProfile`. |
-| `age` | integer | Copied from `UserProfile`. |
-| `gender` | string | Copied from `UserProfile`. |
-| `lag_usage_frequency` | number | Usage frequency at *t‑1* (for lagged predictor). |
 
 ### WeeklyAggregates
 | Field | Type | Description |
 |---|---|---|
 | `week_start` | date (ISO‑8601) | Monday of the week. |
-| `avg_loneliness_score` | number (0‑80) | Mean UCLA score that week. |
+| `avg_loneliness_score` | number (0‑100) | Mean UCLA score that week. |
 | `total_ai_activity` | integer | Sum of `usage_frequency` across users. |
 | `avg_emotional_coping_anxiety` | ["number","null"] | Mean anxiety proxy (0‑1); null if no text. |
 | `avg_emotional_coping_avoidance` | ["number","null"] | Mean avoidance proxy (0‑1); null if no text. |
@@ -69,9 +62,9 @@
 4. **Modeling** → `data/results/model_summary.json` (conforms to `ModelResult` schema).  
 
 ## Constraints & Validation Rules
-- `user_id` must be unique.  
+- `user_id` must be a 64‑character hex string (SHA‑256).  
 - `loneliness_score` must be within the UCLA scale range (20‑80).  
-- No nulls in `usage_frequency`, `session_duration`, `baseline_mental_health_score`, or `ses_index` for included records.  
+- No nulls in `usage_frequency`, `session_duration`, `attachment_anxiety_score`, `attachment_avoidance_score` for included records.  
 - Temporal ordering: each `LongitudinalRecord` timestamp must be strictly increasing per user; `prev_loneliness_score` references the prior week’s `loneliness_score`.  
 
 ---

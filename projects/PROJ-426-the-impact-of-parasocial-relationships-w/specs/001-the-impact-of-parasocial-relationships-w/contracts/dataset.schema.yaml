@@ -24,16 +24,6 @@ properties:
     description: "Normalized frequency of avoidance terms from ECAR Lexicon."
     minimum: 0.0
     maximum: 1.0
-  baseline_mental_health_score:
-    type: number
-    description: "Baseline mental‑health self‑report score (e.g., PHQ‑9 total)."
-    minimum: 0.0
-    maximum: 100.0
-  ses_index:
-    type: number
-    description: "Socio‑economic status index (normalized 0‑1)."
-    minimum: 0.0
-    maximum: 1.0
   records:
     type: array
     description: "List of longitudinal observations for this user."
@@ -56,20 +46,20 @@ properties:
         session_duration:
           type: number
           description: "Total duration of AI interactions in the preceding week (minutes)."
-        baseline_mental_health_score:
+        attachment_anxiety_score:
           type: number
-          description: "Baseline mental‑health score (copied from UserProfile)."
-        ses_index:
+          description: "Anxiety subscale from ECAR Lexicon (copied from UserProfile)."
+        attachment_avoidance_score:
           type: number
-          description: "SES index (copied from UserProfile)."
+          description: "Avoidance subscale from ECAR Lexicon (copied from UserProfile)."
       required:
         - timestamp
         - loneliness_score
         - prev_loneliness_score
         - usage_frequency
         - session_duration
-        - baseline_mental_health_score
-        - ses_index
+        - attachment_anxiety_score
+        - attachment_avoidance_score
     minItems: 1
 required:
   - user_id
@@ -77,7 +67,5 @@ required:
   - gender
   - attachment_anxiety_score
   - attachment_avoidance_score
-  - baseline_mental_health_score
-  - ses_index
   - records
 additionalProperties: false

@@ -26,14 +26,14 @@ pip install -r requirements.txt
 python src/main.py --mode ingest_and_match
 ```
 - **Output**: `data/processed/matched_users.parquet`  
-- **Log**: `logs/ingest.log` (includes match‑rate, validation warnings, and any username‑hash mismatch report).  
+- **Log**: `logs/ingest.log` (includes match‑rate, validation warnings, and any “Data Linkage Impossible” or “Power Insufficient” errors).  
 
 ### Step 2 – Model Fitting & Bootstrapping
 ```bash
 python src/main.py --mode fit_model
 ```
 - **Output**: `data/results/model_summary.json`  
-- **Note**: This step runs **1 000** bootstrap iterations (seed = 42) and is optimized to complete ≤ 6 h on a CPU‑only runner (parallelized with `joblib`). If memory usage exceeds 7 GB, the pipeline will automatically down‑sample to [deferred] of users (validated by the power simulation).
+- **Note**: This step runs **1 000** bootstrap iterations (seed = 42) and is optimized to complete ≤ 6 h on a CPU‑only runner (parallelized with `joblib`). If the matched dataset fails the SC‑006 size check (≥ 600 participants with ≥ 6 months data), the pipeline aborts before this step.
 
 ### Step 3 – Contract Validation
 ```bash
@@ -45,23 +45,23 @@ All schemas under `contracts/` are validated against the generated artifacts.
 
 | Artifact | Description |
 |---|---|
-| `data/processed/matched_users.parquet` | Unified dataset with ≥ 80 % match rate (SC‑001). |
+| `data/processed/matched_users.parquet` | Unified dataset with ≥ 80 % match rate and ≥ 600 participants with ≥ 6 months of longitudinal scores (SC‑006). |
 | `data/results/model_summary.json` | Fixed‑effect estimates, p‑values, 95 % bootstrap CIs, marginal R², and subgroup results (SC‑002, SC‑003). |
 | `logs/model.log` | Runtime duration; should be ≤ 6 h (SC‑004). |
 
 ## Project Directory Structure
 ```
 PROJECT_ROOT/
-├─ code/
+├─ src/
 │  ├─ main.py
 │  ├─ ingest/
 │  │  └─ ... (data fetching scripts)
 │  ├─ match/
 │  │  └─ ... (user matching scripts)
 │  ├─ utils/
-│  │  └─ ... (helper utilities)
+│  │  └─ retry_policy.py
 │  ├─ validation/
-│  │  └─ ... (data validation scripts)
+│  │  └─ validate_match.py
 │  └─ models/
 │     └─ mixed_effects.py
 ├─ data/
@@ -92,12 +92,11 @@ PROJECT_ROOT/
 
 | Symptom | Likely Cause | Remedy |
 |---|---|---|
-| `Data Linkage Impossible` | Zenodo DOI invalid or required columns missing. | Verify DOI; if unavailable, the study cannot proceed. |
-| `Power Insufficient` | Matched users < 500 or match rate < 80 %. | Review data availability; consider expanding the download window or using an alternative open dataset. |
-| `Lexicon Missing` | ECAR lexicon file not found at the verified URL. | Ensure internet connectivity; the URL is `https://huggingface.co/datasets/12ml/e-CARE/resolve/main/train.csv`. |
+| `Data Linkage Impossible` | Zenodo DOI invalid or required columns missing. | Verify DOI; if unavailable, obtain an open substitute dataset. |
+| `Power Insufficient` | Matched users < 500 or match‑rate < 80 % or SC‑006 thresholds not met. | Review download window, increase sample, or provide a larger open dataset. |
+| `Lexicon Missing` | ECAR lexicon file not reachable. | Check internet connectivity; the URL is `https://huggingface.co/datasets/12ml/e-CARE/resolve/main/train.csv`. |
 | Model fails to converge | Random‑slope structure too complex for data. | The pipeline will automatically fallback to a random‑intercept‑only model and log a warning. |
 | Subgroup analysis skipped | Fewer than 80 users aged ≥ 60. | The pipeline will report a power warning and omit subgroup results. |
 
 ---
-
 
