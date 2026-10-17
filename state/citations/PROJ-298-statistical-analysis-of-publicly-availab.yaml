@@ -31,14 +31,14 @@
   verification_status: mismatch
   verified_against_url: https://dn720201.ca.archive.org/0/items/stackexchange/stackoverflow.com-PostsTags.7z
   verified_at: '2026-07-09T22:47:53.740105Z'
-- artifact_hash: 147a1f80a52a5ad5bb3fcc7694e5a1441897417038c1f51a756d9ee16398d4ac
+- artifact_hash: fdaef38ecdd28cbe62fc23d50a34704cbd326d0e223d148dc6b022dc53f40a5f
   artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://archive.org/.../PostsTags.parquet`
+  value: https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.parquet`
   verification_status: mismatch
-  verified_against_url: https://archive.org/.../PostsTags.parquet
-  verified_at: '2026-10-17T10:15:09.258319Z'
+  verified_against_url: https://dn760107.eu.archive.org/0/items/stackexchange/stackoverflow.com-PostsTags.parquet
+  verified_at: '2026-10-17T10:17:39.629957Z'
