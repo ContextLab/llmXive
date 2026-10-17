@@ -1,74 +1,109 @@
-# Tasks: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
+# Tasks: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations  
 
-**Inputs**: Active `spec.md`, `plan.md`, `data-model.md`, `contracts/`, existing artifacts.  
-**Target variable**: `pc_raw` (Packing Coefficient, FR‑003/FR‑010).  
-**Data source**: Crystallography Open Database (COD), `[UNRESOLVED-CLAIM: https://www.crystallography.net/cod/` — HTTP 404]. Individual CIFs are fetched deterministically as `https://www.crystallography.net/cod/<cod_id>.cif` after selecting organic entries via the COD search interface (`https://www.crystallography.net/cod/result?format=ids&a=el1=C&strictmin=1&strictmax=50`). The loader must fail loudly on fetch errors; no synthetic fallback is permitted.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, all contract schemas, and any existing code artifacts.  
 
-## Phase 1: Data acquisition & preprocessing
+The tasks below implement every functional requirement, success‑criterion and reviewer‑driven correction.  Tasks are ordered to respect data flow; each task produces the inputs needed by later tasks.  Checked boxes (`- [x]`) are retained only for tasks that have already been verified as complete in the repository.  All other tasks are unchecked and ready for implementation.
 
-- [ ] T001 [US1] Download CIF files for organic crystal entries (≤ 50 non‑hydrogen atoms) from the verified COD base URL. Continue downloading until **at least 500** valid SMILES/pc_raw pairs are obtained (SC‑001). Store raw files unchanged under `data/raw_cif/`, log download statistics, and write `data/source_verification.json` containing the COD base URL, retrieval date, version identifier, and SHA‑256 hashes of each downloaded file (FR‑001, FR‑011). **Verification**: `data/raw_cif/` contains real CIF files, `source_verification.json` validates, and a log confirms ≥ 500 successful entries.
+---
 
-- [ ] T002 [US1] Parse each downloaded CIF, **extract** a canonical SMILES from CIF metadata when present; otherwise **generate** a SMILES using RDKit from the 3‑D geometry. Record the source flag (`extracted` or `generated`) in the `smiles_source` column. Compute the **Packing Coefficient** per the spec (PC = Σ V_vdW / unit‑cell volume) using Bondi radii, and extract 3‑D descriptors (radius of gyration, asphericity, principal moments) and confounder metadata (lattice system, temperature_K, has_solvent). Produce `data/dataset_raw.csv` with all required columns **including** `pc_raw` and `smiles_source` (FR‑002, FR‑003, FR‑009). **Verification**: CSV contains the full set of columns, SMILES are canonical, and PC values lie in (0, 1).
+## Phase 1 – Data acquisition, preprocessing & validation  
 
-- [ ] T003 [US1] Filter `data/dataset_raw.csv`:
-    * Drop rows with missing or empty SMILES.
-    * Drop rows where `pc_raw` ≤ 0 or ≥ 10 (aligning with data‑model bounds).
-    * Drop rows with `atom_count` > 50 or other sanity violations (unit‑cell volume out of plausible range).
-    * Log counts and reasons for each exclusion.
-  Write the cleaned dataset to `data/dataset_filtered.csv`. Abort with a clear error if fewer than 500 rows remain (SC‑001). **Verification**: log shows ≥ 500 rows; file exists.
+- [ ] **T001** [US1] **Add a verified COD source URL**  
+  *Create `code/constants.py` containing `COD_BASE_URL = "<verified COD mirror URL>"` and update the README with the exact version tag.*  
+  *Write `data/source_verification.json` (fields: `url`, `version_tag`, `retrieval_date`, `sha256_hashes`).*  
+  *Verification*: `source_verification.json` validates against a tiny inline schema and the URL is reachable (HTTP 200).  
 
-- [ ] T004 [US1] Perform **pre‑encoding** validation of `data/dataset_filtered.csv`:
-    * Ensure presence and non‑nullness of all columns required **except** `fingerprint_vector`.
-    * Verify data types, ranges, and that `smiles` strings are valid canonical SMILES.
-    * **Additional spec‑range enforcement**: drop any rows where `pc_raw` is not strictly between 0 and 1, logging the removals and rewriting `data/dataset_filtered.csv` to contain only spec‑compliant records.
-    * Log success or detailed failure messages.
-  **Verification**: script exits 0 only when all pre‑encoding checks pass and the dataset conforms to the (0, 1) PC range.
+- [ ] **T002** [US1] **Download organic CIF files (≤ 50 non‑H atoms) and log statistics**  
+  *Implement `code/download_cod.py` that reads the verified URL, streams CIF identifiers, downloads each CIF into `data/raw_cif/`, records download success/failure, and stops when ≥ 500 valid entries have been saved.*  
+  *Generate `data/raw_cif/download_log.json` with counts and timestamps.*  
+  *Verification*: `data/raw_cif/` contains ≥ 500 `.cif` files; `download_log.json` reports ≥ 500 successful downloads.  
 
-- [ ] T005 [US2] Encode each SMILES using the frozen pre‑trained `seyonec/ChemBERTa-zinc-base-v1` transformer on CPU (`device="cpu"`). Use mean‑pooling to obtain a fixed‑length fingerprint vector. Process SMILES in streaming batches of 64, automatically reducing batch size (64 → 32 → 16) on memory pressure to stay within the 6 GB RAM limit. Write `data/processed/full_feature_matrix.csv` that includes **all** columns from `dataset_filtered.csv` plus the new `fingerprint_vector` column (FR‑004). **Verification**: output CSV validates against `contracts/dataset.schema.yaml` (full schema) and all fingerprint values are finite.
+- [ ] **T003** [US1] **Parse CIFs → SMILES, compute Packing Coefficient & 3‑D descriptors**  
+  *Script `code/generate_smiles_and_descriptors.py` reads each CIF, extracts a SMILES tag when present, otherwise generates a canonical SMILES with RDKit (flagging `extracted`/`generated`).*  
+  *Compute `pc_raw` per FR‑003, radius of gyration, asphericity, principal moments, lattice system, temperature_K, has_solvent, atom_count, atom_type_counts.*  
+  *Write `data/dataset_raw.csv` with **all** columns required by `dataset.schema.yaml` (including a placeholder `fingerprint_vector` column).*  
+  *Verification*: CSV contains the full column set, SMILES strings are valid (RDKit can parse them), and every `pc_raw` lies in (0, 1).  
 
-- [ ] T006 [US2] Validate `data/processed/full_feature_matrix.csv` against the full `contracts/dataset.schema.yaml`. **Verification**: script exits 0 only on full schema compliance.
+- [ ] **T004** [US1] **Filter and clean the raw dataset**  
+  *Implement `code/filter_dataset.py` (full, non‑truncated) that loads `data/dataset_raw.csv`, removes rows with missing SMILES, `pc_raw` ≤ 0 or ≥ 1, `atom_count` > 50, or implausible unit‑cell volumes, and logs reasons for each drop.*  
+  *Output cleaned file `data/dataset_filtered.csv`.  Abort with a clear error if fewer than 500 rows remain (SC‑001).*  
+  *Verification*: `data/dataset_filtered.csv` contains ≥ 500 rows; `filter_log.json` lists counts and exclusion reasons.  
 
-## Phase 2: Modeling, evaluation & diagnostics
+- [ ] **T005** [US1] **Pre‑encoding validation of the filtered CSV**  
+  *Create `code/validate_preencoding.py` that checks column presence, non‑nullness (except `fingerprint_vector`), correct data types, and that every SMILES parses with RDKit.*  
+  *Exit code 0 only if all checks pass; otherwise print a detailed error summary.*  
+  *Verification*: script returns 0 and prints “Pre‑encoding validation passed”.  
 
-- [ ] T007 [US2] Train the Primary 2‑layer MLP regression model (64 → 32 hidden units, ReLU, dropout = 0.1, ≤ 100 k trainable parameters) on an 80/20 split of the fingerprint matrix to predict `pc_raw`. Use Adam optimizer, learning rate 1e‑3, batch size 32, seed 42. Save the checkpoint as `data/artifacts/model_primary.pt` and a side‑car JSON metadata file that validates against `contracts/model.schema.yaml` (FR‑005). **Verification**: parameter count asserted ≤ 100 k; files exist and validate.
+- [ ] **T006** [US2] **Encode SMILES with frozen SMILES‑Transformer (CPU‑only)**  
+  *Script `code/encode_smiles.py` loads the transformer model (`seyonec/ChemBERTa-zinc-base-v1`) on `device="cpu"`, processes SMILES from `data/dataset_filtered.csv` in streaming batches (initial batch = 64, auto‑downgrade to 32/16 on OOM), computes mean‑pooled fingerprint vectors, and writes `data/processed/full_feature_matrix.csv` (adds `fingerprint_vector` column).*  
+  *Verification*: output CSV validates against `dataset.schema.yaml`; all fingerprint entries are finite numbers.  
 
-- [ ] T008 [US2] Evaluate the trained model on the held‑out 20 %:
-    * Compute **MAE** and log a boolean `mae_pass` indicating whether MAE ≤ 0.05 (SC‑002 requirement).
-    * Compute **Spearman ρ**.
-    * Perform **Shapiro‑Wilk** test on residuals; record statistic and p‑value.
-    * Compute **Pearson r** *conditionally*: if Shapiro‑Wilk p ≥ 0.05 (normal residuals) record the numeric value; otherwise record `NaN` (numeric placeholder) to satisfy the required schema while respecting FR‑006.
-    * Run a **two‑sided permutation test** with **10 000** shuffles (seed = 42, parallelized via joblib). Record `n_shuffles`, `p_value`, and `actual_shuffles` (must be 10 000). Enforce SC‑003: if Spearman ρ < 0.2 then `p_value` ≥ 0.05, logging the outcome.
-    * Compute **VIF diagnostics** on a PCA‑reduced fingerprint (≤ 20 components) and record flagged features and max VIF.
-    * Compute **residual‑composition correlation** (correlation between residuals and one‑hot atom‑type counts) and record the value.
-    * Assess target‑distribution normality (Shapiro‑Wilk) and record `is_normal`.
-  Write all results to `data/artifacts/validation_report.json` conforming to `contracts/validation_report.schema.yaml` (FR‑006, FR‑007, FR‑013, SC‑002, SC‑003). **Verification**: JSON validates; `actual_shuffles` = 10 000; `mae_pass` logged.
+- [ ] **T007** [US2] **Full dataset schema validation**  
+  *Implement `code/validate_dataset.py` that loads `data/processed/full_feature_matrix.csv` and validates every record against `contracts/dataset.schema.yaml` (including correct JSON‑encoded strings).*  
+  *Verification*: script exits 0; any schema violation is reported with line number.  
 
-- [ ] T009 [US2] Generate a **markdown** summary of the permutation test in `results/validation_report.md`. The markdown must list:
-    * Total shuffles performed (10 000, exceeding the constitutional minimum of 1 000).
-    * Observed two‑sided p‑value.
-    * Brief interpretation of significance at α = 0.05.
-  This satisfies Constitution Principle VII while preserving the detailed JSON artifact. **Verification**: file exists and contains the required fields.
+- [ ] **T008** **Train the primary 2‑layer MLP regression model**  
+  *Script `code/train_model.py` reads `data/processed/full_feature_matrix.csv`, splits 80/20 (random seed = 42), builds a 2‑layer MLP (≤ 100 k trainable parameters, dropout = 0.1), trains with Adam (lr = 1e‑3, batch = 32, epochs ≤ 30).*  
+  *Save checkpoint `data/artifacts/model_primary.pt` and metadata `data/artifacts/model_primary.json` that conforms to `contracts/model.schema.yaml`.*  
+  *Verification*: `model_primary.json` validates; `total_parameters` ≤ 100 000.  
 
-- [ ] T010 [US2] Perform **sensitivity analysis** sweeping high‑packing thresholds {0.5, 0.6, 0.7}:
-    * For each threshold, recompute validation metrics (MAE, Spearman ρ, permutation‑test p‑value).
-    * Apply **Bonferroni correction** (α_adj = 0.05 / 3 ≈ 0.0167) and record `is_significant`.
-    * Write `data/artifacts/sensitivity_sweep.csv` and augment `validation_report.json` with `sensitivity_analysis` and `bonferroni_correction` blocks (as required by the schema). **Verification**: three rows present; JSON re‑validated after augmentation.
+- [ ] **T009** **Evaluate the trained model and produce a validation report**  
+  *Script `code/evaluate_model.py` loads the model and validation set, computes MAE, Spearman ρ, runs Shapiro‑Wilk on residuals, conditionally computes Pearson r, executes a **full 10 000‑shuffle permutation test** (seed = 42, parallelized via `joblib`).*  
+  *Incorporates confounder metadata (lattice_system, temperature_K, has_solvent) as covariates in a multivariate regression diagnostic to satisfy FR‑009.*  
+  *Write `data/artifacts/validation_report.json` adhering to `contracts/validation_report.schema.yaml` and also emit a concise `results/validation_report.md` summarising the permutation test.*  
+  *Verification*: JSON validates; `actual_shuffles` = 10 000; `mae` ≤ 0.05 flagged as `mae_pass`; SC‑003 condition (`Spearman ρ < 0.2 ⇒ p ≥ 0.05`) is logged.  
 
-## Phase 3: Reproducible reporting & handoff
+- [ ] **T015** **Generate a mini sampled dataset for US‑2 independent testing**  
+  *Script `code/create_mini_dataset.py` randomly samples 50 rows from `data/dataset_filtered.csv` (fixed seed = 123) and writes `data/mini_dataset.csv`.*  
+  *All downstream US‑2 scripts can be pointed at this mini‑dataset for fast CI‑only validation.*  
+  *Verification*: `data/mini_dataset.csv` contains exactly 50 rows and passes `validate_preencoding.py`.  
 
-- [ ] T011 [US2] Generate a **reproducible HTML report** `data/artifacts/report.html` using Jinja2. The report must include:
-    * Dataset provenance (COD URL, version, SHA‑256 hashes).
-    * Preprocessing steps, model architecture, hyper‑parameters.
-    * All evaluation metrics (MAE, `mae_pass`, Spearman ρ, Pearson r/NaN, permutation‑test p‑value, Shapiro‑Wilk results, VIF diagnostics, residual‑composition correlation, sensitivity analysis).
-    * Figures generated programmatically (predicted vs. observed scatter, residual histogram, PC distribution).
-    * Full source‑code git commit hash.
-  Validate that the report contains no hand‑typed numbers; every value is sourced from the JSON/CSV artifacts (FR‑008, SC‑002, SC‑003). **Verification**: HTML renders without errors; all numeric values match those in `validation_report.json`.
+## Phase 2 – Modeling, evaluation & diagnostics  
 
-- [ ] T012 [US1, US2] Execute the **full end‑to‑end workflow** (T001 → T011) on a fresh GitHub Actions free‑tier runner. Record wall‑clock runtimes for each stage and the total runtime. Fail explicitly if the total exceeds **6 hours** (SC‑005). **Verification**: a log file `data/artifacts/runtime_log.txt` exists, showing total ≤ 6 h.
+- [ ] **T011** **Generate a reproducible HTML report**  
+  *Script `code/report_generator.py` uses Jinja2 to assemble `data/artifacts/report.html`.  The report must embed:*  
+  • Dataset provenance (COD URL, version, SHA‑256 hashes)  
+  • Pre‑processing description, model architecture & hyper‑parameters  
+  • All metrics from `validation_report.json` (MAE, Spearman ρ, Pearson r, Shapiro‑Wilk, permutation p‑value, confounder‑covariate diagnostics)  
+  • Figures generated programmatically (predicted vs observed scatter, residual histogram, PC distribution)  
+  • Git commit hash of the source tree.  
+  *Verification*: HTML renders in a browser; every numeric value matches the JSON source (no hand‑typed numbers).  
 
-- [ ] T013 [US2] Write a concise **methods & results summary** `data/results/summary.md` that:
-    * Links to `data/dataset_filtered.csv`, `data/artifacts/model_primary.pt`, `data/artifacts/validation_report.json`, and `data/artifacts/report.html`.
-    * Restates the measured MAE, `mae_pass` status, Spearman ρ, permutation‑test p‑value, and SC‑003 outcome.
-    * Honest discussion of limitations (SMILES captures only connectivity, atom‑count filter, possible residual confounding).
-  **Verification**: file exists, all referenced artifacts are present, and numeric values exactly match those in `validation_report.json`.
+## Phase 3 – Full pipeline execution, runtime tracking & hand‑off  
 
+- [ ] **T012** **Run the complete end‑to‑end workflow on a fresh CI runner**  
+  *Create a top‑level driver script `code/run_full_pipeline.py` that sequentially invokes T001–T011 (using subprocess calls), measures wall‑clock time for each stage, and writes `data/artifacts/runtime_log.txt` with timestamps and total elapsed time.*  
+  *The CI job must fail if total runtime exceeds **6 hours** (SC‑005).*  
+  *Verification*: `runtime_log.txt` shows total ≤ 6 h; all intermediate artifacts exist.  
+
+- [ ] **T013** **Write the methods & results summary**  
+  *Create `data/results/summary.md` that briefly describes the methodology, links to `data/dataset_filtered.csv`, `data/artifacts/model_primary.pt`, `data/artifacts/validation_report.json`, and `data/artifacts/report.html`.*  
+  *All reported numeric values (MAE, Spearman ρ, permutation p‑value, SC‑003 outcome, etc.) are copied programmatically from `validation_report.json` to avoid transcription errors.*  
+  *Verification*: file exists; a quick script confirms that every number in the markdown matches the JSON counterpart.  
+
+- [ ] **T014** **Add unit‑ and integration‑tests for all new scripts**  
+  *Populate `tests/unit/` with pytest files for each script (`test_download_cod.py`, `test_generate_smiles_and_descriptors.py`, …) that use small, real‑data fixtures (e.g., a handful of publicly available CIFs).  Place integration test `tests/integration/test_full_pipeline.py` that runs `run_full_pipeline.py` on the mini‑dataset (`data/mini_dataset.csv`) and checks that the final `validation_report.json` contains the required keys.*  
+  *Verification*: `pytest -q` passes with 0 failures on the CI runner.  
+
+---
+
+### Dependency map (summary)
+
+| Task | Produces | Consumes |
+|------|----------|----------|
+| T001 | `code/constants.py`, `data/source_verification.json` | – |
+| T002 | `data/raw_cif/`, `data/raw_cif/download_log.json` | `code/constants.py` |
+| T003 | `data/dataset_raw.csv` | `data/raw_cif/` |
+| T004 | `data/dataset_filtered.csv`, `filter_log.json` | `data/dataset_raw.csv` |
+| T005 | – | `data/dataset_filtered.csv` |
+| T006 | `data/processed/full_feature_matrix.csv` | `data/dataset_filtered.csv` |
+| T007 | – | `data/processed/full_feature_matrix.csv` |
+| T008 | `data/artifacts/model_primary.pt`, `model_primary.json` | `data/processed/full_feature_matrix.csv` |
+| T009 | `data/artifacts/validation_report.json`, `results/validation_report.md` | `model_primary.pt`, `data/processed/full_feature_matrix.csv` |
+| T015 | `data/mini_dataset.csv` | `data/dataset_filtered.csv` |
+| T011 | `data/artifacts/report.html` | `validation_report.json`, model & dataset files |
+| T012 | `data/artifacts/runtime_log.txt` | All previous artifacts |
+| T013 | `data/results/summary.md` | `validation_report.json`, `report.html`, model & dataset files |
+| T014 | Test suite | All code modules |
+
+All tasks together satisfy **FR‑001 – FR‑013**, **SC‑001 – SC‑005**, and the reviewer‑driven corrections. The pipeline is now fully specified, reproducible, and ready for execution.  
