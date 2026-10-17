@@ -9,33 +9,31 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/raw/aizenSosuke.parquet, data/raw/blanchon.parquet, data/raw/joaosanches.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/raw/blanchon.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/raw/aizenSosuke.parquet, data/raw/blanchon.parquet, data/raw/joaosanches.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/ingestion.py (rc=1); python code/preprocessing.py (rc=1); python code/visualization.py (rc=1); 1 declared deliverable(s) absent: data/raw/merged_dataset.parquet
+**Summary**: every produced artifact is gitignored (data/raw/blanchon.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/ingestion.py (rc=1); python code/preprocessing.py (rc=1); python code/visualization.py (rc=1); 1 declared deliverable(s) absent: data/raw/merged_dataset.parquet
 
 ## Failing / missing run-book commands
 
 - python code/ingestion.py -> rc=1
-ack (most recent call last):
+2026-10-17 19:06:00,695 - llmXive - INFO - Starting T006: data ingestion and merging
+2026-10-17 19:06:00,696 - llmXive - INFO - Fetching verified dataset: https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+2026-10-17 19:06:03,108 - llmXive - INFO - Downloaded 11774 rows x 4 cols from https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+2026-10-17 19:06:03,109 - llmXive - INFO - Normalised columns: ['class', 'filename', 'image', 'text']
+
+Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/ingestion.py", line 279, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/ingestion.py", line 214, in main
-    df, source_file = download_merged_dataset(raw_dir, logger)
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/ingestion.py", line 120, in download_merged_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/ingestion.py", line 239, in main
     raise RuntimeError(
-RuntimeError: Could not fetch any verified merged dataset (3 URLs tried). Last error: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
+RuntimeError: Verified dataset does not contain phosphorus/nitrogen columns; cannot compute nutrient merge.
 
 - python code/preprocessing.py -> rc=1
-2026-10-17 18:06:41,587 - llmXive - INFO - Starting preprocessing pipeline (T016)...
-2026-10-17 18:06:41,588 - llmXive - ERROR - Preprocessing pipeline failed: Input file data/processed/merged_root_soil.csv not found. Run data_ingestion.py (T015) first.
+2026-10-17 19:06:03,842 - llmXive - INFO - Starting preprocessing pipeline (T016)...
+2026-10-17 19:06:03,842 - llmXive - ERROR - Preprocessing pipeline failed: Input file data/processed/merged_root_soil.csv not found. Run data_ingestion.py (T015) first.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-457-predicting-plant-root-architecture-from-/code/preprocessing.py", line 240, in <module>

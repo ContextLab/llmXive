@@ -1,21 +1,23 @@
 T001:
   c: true
-  h: 90356d8e54275c1c026218a42023a2e62de45097162e48aafa9e4758a8b74fe3
-  r: '`directory_structure.txt` exists at the project root and its contents are exactly
-    the six required directories (code/, tests/, data/raw/, data/processed/, artifacts/,
-    artifacts/logs/), satisfying the stated `cat` verification. The collector confirms
-    four of the six directories exist on disk with non-empty contents, and `tests/test_directory_structure.py`
-    is a real test that asserts both the file''s exact contents and on-disk existence
-    of all six directories, matching the task''s CI verification requirement.'
-  sig: 8d5180d06dbf51eca42b5cf081a48af64234740efbb46563c80579ad4179a6e6
+  h: af05cd74f6b6e1515f0b99635f792853080d98da0fafcd4da4b2b200eccea687
+  r: The `directory_structure.txt` file exists at the project root and lists all six
+    required directories (code/, tests/, data/raw/, data/processed/, artifacts/, artifacts/logs/),
+    and `tests/test_directory_structure.py` asserts both the file's contents and on-disk
+    existence of each directory. The collector confirms the code/, tests/, data/raw/,
+    and data/processed/ directories exist with content; no evidence contradicts the
+    presence of artifacts/ and artifacts/logs/.
+  sig: 08f3422a62c028b0aae87d32bdfc3c426badee6e673cdde374bfabe968156ba6
 T002:
   c: true
-  h: d3a808744c408db59f5f741ec5c8951722080ae6ee7bb31780c6cac0e2ce2314
-  r: The file `code/requirements.txt` exists (569 bytes) with exact pinned versions
-    (`==`) for all dependencies covering the spec's needs (pandas, numpy, scikit-learn,
-    statsmodels for LMM, seaborn/matplotlib for plots, plus linting tools for T003).
-    No unpinned entries, placeholders, or stubs; content matches the task's requirement.
-  sig: 03d2c3739e5acd23c3ae42158875bf789bcb394aaecd3d2ee658f84ef4379493
+  h: be85bf38ccfe0d30406ff407e4a1cf9c1eca525399f669ca3a4c609aa03098a2
+  r: 'The file `code/requirements.txt` exists (261 bytes) and contains exact pinned
+    (`==`) versions for all dependencies the specification''s pipeline requires: pandas/numpy
+    for data handling, scikit-learn for the random forest and KNN imputation, statsmodels
+    for the LMM, matplotlib/seaborn for partial dependence plots, plus supporting
+    libraries. No stubs or unpinned entries; the verification conditions (file exists,
+    installable) are plausibly satisfied by well-formed pinned requirements.'
+  sig: c07cffb71c8f69e72da4cccc95ed695a3590dd7038da22434e4931ffa447d207
 T004:
   c: false
   h: 8eb8e86e92eb9c597e5b29cc566e99d73e51d15152e90868d8ce0b80be9214ec
