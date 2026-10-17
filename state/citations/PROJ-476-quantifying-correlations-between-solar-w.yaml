@@ -96,7 +96,7 @@
   value: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/`
   verification_status: mismatch
   verified_against_url: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swepam/level2/
-  verified_at: '2026-10-17T01:40:36.830560Z'
+  verified_at: '2026-10-17T01:40:59.551838Z'
 - artifact_hash: dd80945d6f2cbcf710e5f8c65d6d3ce3c5f27315faba2d519f82896c607c081d
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
   cite_id: c-002
@@ -107,7 +107,7 @@
   value: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swics/level2/`
   verification_status: mismatch
   verified_against_url: https://cdaweb.gsfc.nasa.gov/pub/data/ace/swics/level2/
-  verified_at: '2026-10-17T01:40:36.830560Z'
+  verified_at: '2026-10-17T01:40:59.551838Z'
 - artifact_hash: dd80945d6f2cbcf710e5f8c65d6d3ce3c5f27315faba2d519f82896c607c081d
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
   cite_id: c-003
@@ -118,4 +118,4 @@
   value: https://services.swpc.noaa.gov/products/geomagnetic/`
   verification_status: mismatch
   verified_against_url: https://services.swpc.noaa.gov/products/geomagnetic/
-  verified_at: '2026-10-17T01:40:36.830560Z'
+  verified_at: '2026-10-17T01:40:59.551838Z'
