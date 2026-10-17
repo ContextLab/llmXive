@@ -1,12 +1,9 @@
 T001:
-  reason: "The quickstart.md and schema YAML exist with correct content (command,\
-    \ four methods, 2000-sample cap, seed-42 first-N rule, Wilcoxon rationale, Formation-Energy\
-    \ proxy note; exact 8 columns). However, the required check \u2014 a tiny test\
-    \ script that loads the schema YAML, asserts the column set, and exits 0 \u2014\
-    \ fails: `code/tests/test_per_sample_schema.py` exited 1 with a FileNotFoundError\
-    \ because it resolves the schema path relative to the repo root (`projects/specs/...`)\
-    \ instead of the project root (`projects/PROJ-737-.../specs/...`). Fix the path\
-    \ resolution in the test (e.g., anchor to the project"
+  reason: 'The schema YAML correctly lists the eight required columns and the test
+    script passed (exit 0), but `quickstart.md` contains a placeholder for a required
+    fact: the training cap reads "**[deferred] samples**" instead of documenting the
+    2000-sample cap. The task explicitly requires the document to state the 2000-sample
+    training cap, so this is an unmet requirement that must be fixed.'
   task: f4402e0775c234c7998237d3b91e84b177c6e616dda4e7b8c9ec36c0e7ce14bf
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/tests/test_download.py

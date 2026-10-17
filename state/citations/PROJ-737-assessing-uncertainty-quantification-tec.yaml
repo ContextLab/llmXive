@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/aflow/aflow
   verified_at: '2026-10-11T21:30:41.750013Z'
-- artifact_hash: c908ed44ba788e94cd410139271c59e6afa259d5da48fbd43e98811c531be58e
+- artifact_hash: 46fa8991d8ea2c6fec1ceabdd579f0bc31b3369c4d33691764679d057efa428b
   artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://huggingface.co/datasets/oqmd/band_gap/resolve/main/band_gap.csv`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/oqmd/band_gap/resolve/main/band_gap.csv
-  verified_at: '2026-10-17T20:09:44.937768Z'
-- artifact_hash: c908ed44ba788e94cd410139271c59e6afa259d5da48fbd43e98811c531be58e
+  verified_at: '2026-10-17T21:13:42.405748Z'
+- artifact_hash: 46fa8991d8ea2c6fec1ceabdd579f0bc31b3369c4d33691764679d057efa428b
   artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://huggingface.co/datasets/oqmd/formation_energy/resolve/main/formation_energy.csv`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/oqmd/formation_energy/resolve/main/formation_energy.csv
-  verified_at: '2026-10-17T20:09:44.937768Z'
-- artifact_hash: c908ed44ba788e94cd410139271c59e6afa259d5da48fbd43e98811c531be58e
+  verified_at: '2026-10-17T21:13:42.405748Z'
+- artifact_hash: 46fa8991d8ea2c6fec1ceabdd579f0bc31b3369c4d33691764679d057efa428b
   artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://huggingface.co/datasets/aflow/thermal_conductivity/resolve/main/thermal_conductivity.csv`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/aflow/thermal_conductivity/resolve/main/thermal_conductivity.csv
-  verified_at: '2026-10-17T20:09:44.937768Z'
+  verified_at: '2026-10-17T21:13:42.405748Z'

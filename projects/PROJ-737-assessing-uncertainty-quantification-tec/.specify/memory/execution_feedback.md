@@ -2,7 +2,7 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 command(s) failed: python -m code.main --thin (rc=1); python code/main.py  --max-samples 2000  --mc-dropout-passes 50  --ensemble-size 3  --coverage-sweep-start 0.80  --coverage-sweep-stop 0.99  --coverage-sweep-step 0.01  --seed 42 (rc=1); 4 declared deliverable(s) absent: data/results/cost_metrics.csv; data/results/metrics_raw.csv; data/results/pipeline_log.csv
+**Summary**: 1 command(s) failed: python -m code.main --thin (rc=1); 4 declared deliverable(s) absent: data/results/cost_metrics.csv; data/results/metrics_raw.csv; data/results/pipeline_log.csv
 
 ## Failing / missing run-book commands
 
@@ -11,28 +11,12 @@ e "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-qua
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 223, in main
     download_all()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 272, in download_all
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 274, in download_all
     _download_and_save(dataset_id, url, dest_csv)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 228, in _download_and_save
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 230, in _download_and_save
     df_full = _download_csv(url)
               ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 194, in _download_csv
-    response.raise_for_status()
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/oqmd/band_gap/resolve/main/band_gap.csv
-
-- python code/main.py  --max-samples 2000  --mc-dropout-passes 50  --ensemble-size 3  --coverage-sweep-start 0.80  --coverage-sweep-stop 0.99  --coverage-sweep-step 0.01  --seed 42 -> rc=1
-e "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 363, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/main.py", line 223, in main
-    download_all()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 272, in download_all
-    _download_and_save(dataset_id, url, dest_csv)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 228, in _download_and_save
-    df_full = _download_csv(url)
-              ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 194, in _download_csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-737-assessing-uncertainty-quantification-tec/code/download.py", line 199, in _download_csv
     response.raise_for_status()
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
     raise HTTPError(http_error_msg, response=self)

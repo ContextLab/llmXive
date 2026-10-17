@@ -3,7 +3,7 @@ Download and prepare raw material property datasets.
 
 This module provides utilities to download three verified CSV datasets
 (Band Gap, Formation Energy, Thermal Conductivity) from HuggingFace,
-cap them to a maximum of 5 000 rows deterministically, compute a SHA‑256
+cap them to a maximum of 5,000 rows deterministically, compute a SHA-256
 checksum, and write accompanying metadata JSON files as well as a
 checksum manifest.
 
@@ -17,6 +17,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict
+from io import BytesIO
 
 import pandas as pd
 import requests
@@ -24,6 +25,7 @@ import requests
 # ----------------------------------------------------------------------
 # Logger
 # ----------------------------------------------------------------------
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
@@ -65,7 +67,7 @@ MAX_ROWS = 5_000  # hard cap for the thin pipeline (as required by T002)
 # ----------------------------------------------------------------------
 def compute_sha256(filepath: Path) -> str:
     """
-    Compute the SHA‑256 checksum of a file.
+    Compute the SHA-256 checksum of a file.
 
     Parameters
     ----------
@@ -75,14 +77,14 @@ def compute_sha256(filepath: Path) -> str:
     Returns
     -------
     str
-        Hexadecimal SHA‑256 digest.
+        Hexadecimal SHA-256 digest.
     """
     sha256 = hashlib.sha256()
     with filepath.open("rb") as f:
         for block in iter(lambda: f.read(8192), b""):
             sha256.update(block)
     checksum = sha256.hexdigest()
-    logger.debug(f"Computed SHA‑256 for {filepath}: {checksum}")
+    logger.debug(f"Computed SHA-256 for {filepath}: {checksum}")
     return checksum
 
 
@@ -104,7 +106,7 @@ def cap_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         Possibly truncated DataFrame with at most ``MAX_ROWS`` rows.
     """
     if len(df) <= MAX_ROWS:
-        logger.debug(f"Dataset already within cap ({len(df)} ≤ {MAX_ROWS})")
+        logger.debug(f"Dataset already within cap ({len(df)} <= {MAX_ROWS})")
         return df
     capped = df.iloc[:MAX_ROWS].reset_index(drop=True)
     logger.info(f"Capped dataset from {len(df)} to {MAX_ROWS} rows")
@@ -148,15 +150,15 @@ def write_metadata(
     source_url: str
         Exact URL used for the download.
     original_n: int
-        Number of rows in the original, un‑capped CSV.
+        Number of rows in the original, un-capped CSV.
     used_n: int
         Number of rows actually written to the capped CSV.
     checksum: str
-        SHA‑256 checksum of the written CSV file.
+        SHA-256 checksum of the written CSV file.
     metadata_path: Path
         Path where the JSON file will be saved.
     property_name: str
-        Human‑readable name of the target property.
+        Human-readable name of the target property.
     """
     metadata = {
         "dataset_id": dataset_id,
@@ -189,7 +191,10 @@ def _download_csv(url: str) -> pd.DataFrame:
         Parsed CSV data.
     """
     logger.info(f"Downloading CSV from {url}")
-    response = requests.get(url, stream=True, timeout=30)
+    # HuggingFace often requires a User-Agent to avoid 401/403 errors for programmatic access
+    headers = {"User-Agent": "llmXive-research-agent/1.0"}
+    response = requests.get(url, stream=True, timeout=30, headers=headers)
+    
     try:
         response.raise_for_status()
     except requests.HTTPError as exc:
@@ -197,9 +202,6 @@ def _download_csv(url: str) -> pd.DataFrame:
         raise
 
     # Read the CSV directly from the response content.
-    # ``pd.read_csv`` can accept a file‑like object; we use BytesIO.
-    from io import BytesIO
-
     content = BytesIO(response.content)
     df = pd.read_csv(content)
     logger.debug(f"Downloaded {len(df)} rows from {url}")
@@ -209,7 +211,7 @@ def _download_csv(url: str) -> pd.DataFrame:
 def _download_and_save(dataset_id: str, url: str, dest_path: Path) -> pd.DataFrame:
     """
     Download a dataset CSV, write the **capped** version to ``dest_path``,
-    and return the original (un‑capped) DataFrame.
+    and return the original (un-capped) DataFrame.
 
     Parameters
     ----------
@@ -278,3 +280,6 @@ def download_all() -> None:
     # Write (or overwrite) the checksum manifest
     CHECKSUM_MANIFEST.write_text("\n".join(manifest_entries) + "\n")
     logger.info(f"Wrote checksum manifest to {CHECKSUM_MANIFEST}")
+
+if __name__ == "__main__":
+    download_all()

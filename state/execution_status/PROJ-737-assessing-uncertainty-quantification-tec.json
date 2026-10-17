@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-17T20:13:00Z",
+  "updated_at": "2026-10-17T21:15:24Z",
   "project_id": "PROJ-737-assessing-uncertainty-quantification-tec",
-  "replan_rounds": 2
+  "replan_rounds": 3
 }

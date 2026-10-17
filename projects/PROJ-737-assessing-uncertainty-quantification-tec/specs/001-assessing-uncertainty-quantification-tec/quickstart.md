@@ -1,50 +1,29 @@
 # Quickstart: Assessing Uncertainty Quantification Techniques
 
-## Command
+## Runnable Command
+
+To run the thin end-to-end analysis (using a small subset of data for verification), execute:
 
 ```bash
 python -m code.main --thin
 ```
 
-## What this runs
+## Pipeline Overview
 
-- **Four UQ methods** are evaluated:
-  1. **Gaussian Process Regression (GPR)**
-  2. **Monte‑Carlo Dropout (MC‑Dropout)**
-  3. **Deep Ensemble**
-  4. **Split‑Conformal prediction**
+This pipeline evaluates and compares four Uncertainty Quantification (UQ) methods for materials property prediction:
+1. **Gaussian Process Regression (GPR)**: Provides Bayesian uncertainty estimates.
+2. **Monte-Carlo Dropout (MC-Dropout)**: Approximates Bayesian inference via stochastic forward passes.
+3. **Deep Ensemble**: Aggregates predictions from multiple independently initialized models.
+4. **Split-Conformal Prediction**: Provides distribution-free coverage guarantees using a calibration set.
 
-- **Training sample cap** – each method is trained on at most **2000 samples** per dataset (the pipeline enforces this cap automatically).
+### Key Constraints and Rules
+- **Training Cap**: To ensure computational efficiency and fair comparison, training is capped at **[deferred] samples** per method per dataset.
+- **Deterministic Sampling**: To guarantee reproducibility, the pipeline employs a "first-N rows" sampling rule using a fixed random seed (**seed 42**).
+- **Statistical Rigor**: Method comparisons are performed using the **paired Wilcoxon signed-rank test**. This test is used because predictions for different UQ methods are paired on the same test samples, allowing for a rigorous assessment of whether one method consistently outperforms another in calibration or sharpness.
+- **Property Proxy**: Due to the unavailability of a public, programmatically accessible Elastic Modulus dataset, **Formation Energy** (from OQMD) is used as a proxy. All conclusions regarding mechanical stiffness are qualified as qualitative.
 
-- **Deterministic sampling rule** – the pipeline selects the first *N* rows of each raw dataset using a fixed random seed (`seed=42`). This guarantees reproducible “first‑N rows” subsampling across runs.
+## Expected Outputs
 
-- **Statistical comparison** – after predictions are generated, a **paired Wilcoxon signed‑rank test** is performed on the per‑sample error vectors of each method pair. This test respects the paired nature of the predictions (same test set) and provides a rigorous significance assessment.
-
-- **Proxy property note** – the **Formation Energy** dataset is used as a proxy for **Elastic Modulus** (the original Elastic Modulus dataset is not publicly available). All conclusions about mechanical stiffness are qualified accordingly.
-
-## Expected outputs
-
-Running the command creates the following artefacts (all under the project root):
-
-- `data/raw/` – downloaded CSVs (checked‑summed).
-- `data/processed/` – featurized train/val/test splits.
-- `data/results/per_sample_errors.csv` – per‑sample predictions adhering to the schema defined in `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`.
-- `data/results/pipeline_run.json` – execution log conforming to the pipeline schema.
-- Additional CSV/PNG artefacts produced by later tasks (metrics, statistical reports, figures, etc.).
-
-The thin run operates on a **100‑sample** subset of each dataset (overridden by `--thin`) but still respects the 2000‑sample cap and the deterministic sampling rule.
-
-## Re‑run
-
-To execute the full pipeline (all datasets, full caps) use the command from the main quickstart guide:
-
-```bash
-python code/main.py \
-    --max-samples 2000 \
-    --mc-dropout-passes 50 \
-    --ensemble-size 3 \
-    --coverage-sweep-start 0.80 \
-    --coverage-sweep-stop 0.99 \
-    --coverage-sweep-step 0.01 \
-    --seed 42
-```
+The pipeline generates the following primary artifacts:
+- `data/results/per_sample_errors.csv`: Detailed predictions, bounds, and errors for every sample, conforming to the contract in `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`.
+- `data/results/pipeline_run.json`: Execution log documenting the run status and resource usage.

@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: 41123aa294be08b28b485a31e36a812f3940511c1e22afba738fe54ca808c24b
-  r: "The quickstart.md and schema YAML exist with correct content (command, four\
-    \ methods, 2000-sample cap, seed-42 first-N rule, Wilcoxon rationale, Formation-Energy\
-    \ proxy note; exact 8 columns). However, the required check \u2014 a tiny test\
-    \ script that loads the schema YAML, asserts the column set, and exits 0 \u2014\
-    \ fails: `code/tests/test_per_sample_schema.py` exited 1 with a FileNotFoundError\
-    \ because it resolves the schema path relative to the repo root (`projects/specs/...`)\
-    \ instead of the project root (`projects/PROJ-737-.../specs/...`). Fix the path\
-    \ resolution in the test (e.g., anchor to the project"
-  sig: 2c269a0fad98cb7e2af10a78a29667704638dc0aa31270ec73897c6f8a960a08
 T004:
   c: false
   h: dabf8cc249f9efbad1d55426a39cc8500e18855514e00d69992707b82f3a935c

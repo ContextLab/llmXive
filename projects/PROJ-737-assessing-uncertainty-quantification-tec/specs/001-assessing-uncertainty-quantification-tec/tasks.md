@@ -16,7 +16,7 @@ The checklist below implements the smallest complete, reproducible study that sa
   *Path*: `specs/001-assessing-uncertainty-quantification-tec/quickstart.md`, `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`  
   *Check*: a tiny test script loads the schema YAML, asserts the column set, and exits 0.
 
-- [ ] T002 [US1] **Download three real materials datasets via verified URLs**   <!-- FAILED-IN-EXECUTION: code/tests/test_download.py exit=1 -->
+- [ ] T002 [US1] **Download three real materials datasets via verified URLs**   <!-- FAILED-IN-EXECUTION: code/tests/test_download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
   *Implement* `code/download.py` that uses the HuggingFace `datasets` library (or `urllib`) to fetch the exact CSVs:  
 
   1. **Band Gap** – OQMD CSV from `https://huggingface.co/datasets/oqmd/band_gap/resolve/main/band_gap.csv` → `data/raw/band_gap.csv`  

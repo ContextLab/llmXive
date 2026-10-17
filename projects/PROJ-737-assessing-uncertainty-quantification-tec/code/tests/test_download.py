@@ -1,7 +1,7 @@
 """
 Test for T002 – verifies that each downloaded dataset's metadata is correct,
-the CSV file exists, its SHA‑256 checksum matches the recorded value, and the
-number of samples used does not exceed the 5 000 cap.
+the CSV file exists, its SHA-256 checksum matches the recorded value, and the
+number of samples used does not exceed the 5,000 cap.
 """
 
 import json
@@ -17,10 +17,8 @@ from download import DATASETS, DATA_RAW_DIR, CHECKSUM_MANIFEST
 def metadata_files():
     """Collect all metadata JSON files produced by ``download_all``."""
     # Ensure the download step has been executed before tests run.
-    # If the files are missing, the fixture will raise, causing the test suite to fail.
     from download import download_all
-
-    download_all()  # Idempotent – will overwrite existing files if present.
+    download_all()
 
     meta_paths = []
     for dataset_id in DATASETS.keys():
@@ -30,7 +28,7 @@ def metadata_files():
     return meta_paths
 
 def compute_sha256(filepath: Path) -> str:
-    """Utility to compute SHA‑256 checksum of a file."""
+    """Utility to compute SHA-256 checksum of a file."""
     h = hashlib.sha256()
     with open(filepath, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -68,7 +66,6 @@ def test_metadata_and_checksum(metadata_files):
         used = int(meta["n_samples_used"])
         assert used <= 5000, f"Dataset {dataset_id} exceeds cap: {used} rows"
 
-        # Verify that the recorded original sample count matches the file before capping
         # Load the raw CSV (which is already capped on disk) and compare shape to n_samples_used
         df = pd.read_csv(csv_path)
         assert len(df) == used, (
@@ -81,11 +78,11 @@ def test_metadata_and_checksum(metadata_files):
         # Find a numeric target column (any column other than composition that is numeric)
         numeric_cols = [c for c in df.select_dtypes(include='number').columns if c != "composition"]
         assert numeric_cols, f"No numeric target column found in {dataset_id}"
-        # Ensure at least 100 non‑null values in the target column
+        # Ensure at least 100 non-null values in the target column
         target_col = numeric_cols[0]
         non_null_count = df[target_col].notna().sum()
         assert non_null_count >= 100, (
-            f"Target column '{target_col}' in {dataset_id} has only {non_null_count} non‑null rows"
+            f"Target column '{target_col}' in {dataset_id} has only {non_null_count} non-null rows"
         )
 
 def test_checksum_manifest():
