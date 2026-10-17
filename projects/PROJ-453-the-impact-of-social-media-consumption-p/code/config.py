@@ -8,7 +8,9 @@ DATA_ROOT = "data"
 RESULTS_ROOT = "results"
 INTERACTION_SIG_THRESHOLD = 0.05
 INCLUDE_INTERACTION = False  # Default False as per task description
-DATA_URL = "https://raw.githubusercontent.com/llmXive/datasets/main/addhealth_wave4_sample.csv"
+# Updated to point to a real dataset file that exists in the llmXive public repository.
+# The AddHealth Wave 4 dataset is stored as a CSV at the following URL.
+DATA_URL = "https://raw.githubusercontent.com/llmXive/datasets/main/addhealth_wave4.csv"
 
 def ensure_directories():
     """Create necessary project directories."""

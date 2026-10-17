@@ -1,0 +1,97 @@
+T000:
+  reason: "The `contracts/dataset.schema.yaml` does not define the required columns\
+    \ listed in the task (it has `self_reported_switching_frequency` and `participant_id`\
+    \ instead of `switching_index` and `switching_frequency`). The `contracts/output.schema.yaml`\
+    \ omits a top\u2011level `vif_scores` key (it is nested under `diagnostics`),\
+    \ so the schema does not match the specified output structure. These mismatches\
+    \ must be corrected for the task to be complete."
+  task: 30dd3142c5ae567454c7d4651270588561fe259a01e5b2b223aa2fff321c7ceb
+T001:
+  reason: "The provided `code/00_feasibility_check.py` loops through the required\
+    \ candidates and writes a JSON report, but it never implements the proxy\u2011\
+    check logic required when primary variables are absent (no search for WCST or\
+    \ other proxies, nor the mandated error message). Consequently the script does\
+    \ not fully satisfy the task specification."
+  task: 094e0c644fe1f741adbc7978d00e947bc8c8ab4211aa267b08b475d8739a9d8e
+T004:
+  reason: "The provided `code/00_schema_validation.py` does not meet the specification:\
+    \ it lacks the required `wget`/`curl` download step, uses undefined `Dict`/`Any`\
+    \ (no import), raises a ValueError with extra text instead of the exact message,\
+    \ and the expected output file `results/schema_validation_status.json` is absent.\
+    \ Consequently the schema\u2011validation task is not correctly implemented."
+  task: 8c0d09958c122df168cfba7ffb73130aff13c08a9f7a03caaed8cbc7fe884b13
+T005:
+  reason: "The evidence shows the required Python files and config files, but there\
+    \ is no proof that the required directories (`data/raw`, `data/processed`, `results/models`,\
+    \ `results/figures`, `tests`, `contracts`, `research`) were created, nor is a\
+    \ `data/.gitkeep` file present. Without these artifacts the \u201CProject Setup\u201D\
+    \ task is not fully satisfied."
+  task: f235c7af45ce44421e73132b13f0e794b198b26bd4713d9f0e32c3314094f6a6
+T010:
+  task: ab60327ab9eb37144de2bfc0a26ace7a0a89e9186ac0a8890a38ebe76a7f3518
+T015:
+  task: 8b3c42d6a561721f3716a21f695d20464b4a89aa3080a11e32ca0faf5177ba32
+T016a:
+  reason: "The `data/instrument_sources.yaml` is only a placeholder (note says \u201C\
+    Placeholder for actual instrument documentation\u201D) and provides no evidence\
+    \ that URLs were validated or that full citation details were fetched. The `code/02_score.py`\
+    \ script does not implement the required scoring logic: `load_raw_data` raises\
+    \ `NotImplementedError` and the main routine simply skips execution, so the transformation\
+    \ from raw responses to the platform\u2011switching frequency score is not realized.\
+    \ Both artifacts need complete, functional implementations."
+  task: 1208608e86d3d9edb11ef1771b09e25756d6de32900b4fd13bf05283bd8e130e
+T017:
+  task: 3db9ab946a593fb7fa948d5cd437cf95a10174d888cc2f64521903cf3bb9056f
+T017a:
+  reason: 'Requested task execution failed; rerun successfully: code/01_ingest.py
+    exit=1'
+  task: 5e7b485b295a17c71ee234a8861b0d1d7fe41ee38ed4835e78e3374cd6a92036
+T020:
+  task: 15983f1572026fce015cefe9d5e85e2b9a877e4ce80d7ca8b8dacfbe3058cbdf
+T021:
+  task: 41f34521b3df87a3c89e60cee305bc22879e67538c96f0f54b203b03aa756c06
+T022:
+  task: f70837aa3a23a33f155fc4848f25146c15d362b5060878df48c0ffe61617cecb
+T023:
+  task: ad4c69466902bf0a243f85e25940890b61b386df7ce71f6630e0cba8a857819c
+T024:
+  task: 9c337766df96c3e69f40a8995a4c34e518307bca771d6c9234f9918cd3cdde1d
+T025:
+  task: af938e51d1ded34c87be1cb3ce5485736c9f76ce650ef0ccde8f4fc019ee115c
+T026:
+  task: bd525bb8bab051798a174ce1a33955ece4c410042e0f35231dd66b7dd78ec8ad
+T027:
+  task: d5d97b5682340ebaa45c79ed1ba281181ff66f466a10efb9dd855c1b5ca925ff
+T035a:
+  task: 56412331d9cb49d8e4b4604427814179ccd9dd7bc9e1b0bb2447ed8639efd3cc
+T035b:
+  task: 175d92c82889a0474eb02b000a693657b2a9f8d565733dae012827bf04765359
+T036:
+  task: 15c25e2a8e91f4ab99e21c16af828a5406fde0a2333dcd872abab6804d1006ad
+T037:
+  task: a5c7754b244564485303fbaf4016b3ba64d2db4c7225727a8f3ab4e4d7c566f5
+T038:
+  task: bd5afc16719c595be9c713906d969be8c6091154666ee0df1b60a0dd0ed62e8b
+T039:
+  task: 098335fb628e9c25ead8e7d4827c984f5f4e1625d9ef1df51af45d0f5baf24ba
+T041:
+  task: e6d6dd265c0bcdd4e761ef1449146665db4f17a3b71e8860feafbf744d2dea80
+T042:
+  task: d88e7889d751af10c4734eb214ea63cd7fd6bba8d53330ff2794e5e9a0aab9fa
+T043:
+  task: 6761b6df56230e96c514ff51755eb432bb8736269aee749e24004779549f136c
+T045:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_residual_logic.py'
+  task: 2f989883aa99ee615dbda013e2e46d533891e36e4b234cf9c05760ac8dd45dbd
+T046:
+  task: 879d83444625f9c6d80467591b6085ae44505f64cbc765f60d4bfcb49c5bdeec
+T047:
+  task: 1089ce0b73a636650bdc0d22eb07b91173223f326b2180194195fb905dcf713d
+T048:
+  task: ca115a28a0d56d51eda21ea9bcf94c8ce3bfa7e74445876d1445f6e8e5935dc8
+T049:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_data_fetch.py'
+  task: 0a88938b9b959b2ce2baf8e68069f7c891dbbb17edac3cc53b0e5a1311d78c04
+T050:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_engineering.py'
+  task: f62f863eaf3c6c0f69c3ee6eb007a09cc28f9c7ea51954b3d1c9c8dfbf7245af

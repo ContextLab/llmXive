@@ -26,13 +26,13 @@
 **⚠️ CRITICAL**: If this phase fails for ALL candidate datasets (including proxy/merge attempts), the project halts immediately with a "Data Gap" error. No data is downloaded.
 **⚠️ NOTE**: This phase includes schema definition (T000) and instrument documentation (T016a) to break circular dependencies with Phase 1.
 
-- [X] T000 [P0] **Schema Definition**: Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`.
+- [ ] T000 [P0] **Schema Definition**: Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`.
  - **Actions**:
  1. Create `contracts/dataset.schema.yaml` defining expected columns: `switching_index`, `cognitive_flexibility_score`, `age`, `total_screen_time`, `num_platforms`, `switching_frequency`.
  2. Create `contracts/output.schema.yaml` defining model output structure: `coefficients`, `p_values`, `r_squared`, `vif_scores`, `diagnostics`.
  - **Dependency**: T005 (Setup must exist to create `contracts/` directory).
 
-- [X] T001 [P0] **Feasibility & Variable Check**: Implement `code/00_feasibility_check.py` to perform a lightweight check to verify the URL is accessible and the dataset contains tabular data.
+- [ ] T001 [P0] **Feasibility & Variable Check**: Implement `code/00_feasibility_check.py` to perform a lightweight check to verify the URL is accessible and the dataset contains tabular data.
  - **Logic**:
  1. **Define Candidates**: Loop through the following specific candidate datasets: `nrc/addhealth_wave4`, `hilda/hilda_2023`, `ess/ess_round10`.
  2. **Verify IDs & Fetch**: For each candidate, verify the ID exists by attempting to fetch the dataset card via `wget` or `curl` from `. If invalid, fallback to the next candidate or halt. **DO NOT use `datasets` library.**
@@ -42,7 +42,7 @@
  6. **Structured Output**: Write `results/feasibility_status.json` with fields: `status` (PASS/FAIL), `dataset_id` (selected dataset or null), `message` (details), `proxy_used` (boolean), `merged_datasets` (list). If PASS, include `proxy_used` (true/false) and `merged_datasets` (list).
  - **Dependency**: T005, T000.
 
-- [X] T004 [P0] **Schema Validation**: Implement `code/00_schema_validation.py` to validate the fetched data against `contracts/dataset.schema.yaml` after feasibility (T001) but before full ingestion (T015).
+- [ ] T004 [P0] **Schema Validation**: Implement `code/00_schema_validation.py` to validate the fetched data against `contracts/dataset.schema.yaml` after feasibility (T001) but before full ingestion (T015).
  - **Logic**:
  1. **Read Feasibility**: Read `results/feasibility_status.json`. Ensure status is PASS.
  2. **Fetch Sample**: Use **`wget` or `curl`** to fetch the same sample used in T001.
@@ -50,7 +50,7 @@
  4. **Output**: Write `results/schema_validation_status.json` with `status` (PASS/FAIL) and `details`.
  - **Dependency**: T001, T000, T005.
 
-- [X] T016a [P0] **Instrument Documentation**: Create `data/instrument_sources.yaml` documenting survey sources AND implement the scoring logic script.
+- [ ] T016a [P0] **Instrument Documentation**: Create `data/instrument_sources.yaml` documenting survey sources AND implement the scoring logic script.
  - **Logic**:
  1. **Map URLs**: Construct a mapping of Dataset ID to Dataset Card URL using the pattern `.
  2. **Fetch Citations**: For each candidate dataset, fetch the dataset card documentation and parse the 'Citation' field to find the original validation source for the survey instruments.
@@ -58,7 +58,7 @@
  4. **Implement Scoring Script**: Create `code/02_score.py` (or similar) that implements the reproducible transformation logic from raw survey responses to the "platform-switching frequency" score as defined in the Constitution Principle VI. This script MUST be documented and executable.
  - **Dependency**: T001, T004, T005.
 
-- [ ] T017a [P0] **Ingestion Setup**: Prepare `code/01_ingest.py` for instrumentation.
+- [ ] T017a [P0] **Ingestion Setup**: Prepare `code/01_ingest.py` for instrumentation. <!-- FAILED-IN-EXECUTION: code/01_ingest.py exit=1 -->
  - **Logic**:
  1. Define helper functions for data loading.
  2. Prepare the structure for instrument documentation integration.
@@ -70,7 +70,7 @@
 
 **Purpose**: Project initialization, basic structure, contract definitions, and schema validation.
 
-- [X] T005 [P] **Project Setup**: Create project directories and configuration files.
+- [ ] T005 [P] **Project Setup**: Create project directories and configuration files.
  - **Actions**:
  1. Create directories: `data/raw`, `data/processed`, `code`, `results/models`, `results/figures`, `tests`, `contracts`, `research`.
  2. Create `code/__init__.py`, `data/.gitkeep`.
@@ -128,9 +128,9 @@
  - **Output Schema**: `participant_id` (int), `age` (float), `total_screen_time` (float), `num_platforms` (int), `switching_frequency` (float), `switching_index` (float), `cognitive_flexibility_score` (float).
  - **Dependency**: T015, T017a.
 
-- [X] T020 [US1] **Logging**: (DELETED - Merged into T010)
+- [~] T020 [US1] **Logging**: (DELETED - Merged into T010)
 
-- [X] T024 [US1] **Correlation Calculation**: Calculate correlation for residualization.
+- [~] T024 [US1] **Correlation Calculation**: Calculate correlation for residualization.
  - **Logic**:
  1. Load `data/processed/participants_cleaned.csv`.
  2. Calculate Pearson correlation between `switching_index` and `total_screen_time`.
@@ -196,13 +196,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T021 [P] [US2] **Test Model Output Schema**: Implement `tests/contract/test_model_output.py::test_output_matches_schema`.
+- [~] T021 [P] [US2] **Test Model Output Schema**: Implement `tests/contract/test_model_output.py::test_output_matches_schema`.
  - **Verification**: Assert that `results/models/regression_summary.json` matches `contracts/output.schema.yaml` structure.
 
-- [X] T022 [P] [US2] **Test VIF Calculation**: Implement `tests/unit/test_vif.py::test_vif_calculation_correctness`.
+- [~] T022 [P] [US2] **Test VIF Calculation**: Implement `tests/unit/test_vif.py::test_vif_calculation_correctness`.
  - **Verification**: Assert that VIF calculation for a known matrix (e.g., identity or simple correlation) returns expected values within tolerance.
 
-- [X] T023 [P] [US2] **Test Causal Language Scanner**: Implement `tests/unit/test_causal_language.py::test_scanner_detects_forbidden_terms`.
+- [~] T023 [P] [US2] **Test Causal Language Scanner**: Implement `tests/unit/test_causal_language.py::test_scanner_detects_forbidden_terms`.
  - **Verification**: Assert that the scanner returns True for strings containing "causes" and False for neutral strings.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
@@ -248,10 +248,10 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T035a [P] [US3] **Test Visuals Generation - Regression**: Implement `tests/integration/test_visuals.py::test_regression_plot_exists`.
+- [~] T035a [P] [US3] **Test Visuals Generation - Regression**: Implement `tests/integration/test_visuals.py::test_regression_plot_exists`.
  - **Verification**: Assert that `results/figures/regression_plot.png` exists and is a valid image file.
 
-- [X] T035b [P] [US3] **Test Visuals Generation - Sensitivity**: Implement `tests/integration/test_visuals.py::test_sensitivity_table_exists`.
+- [~] T035b [P] [US3] **Test Visuals Generation - Sensitivity**: Implement `tests/integration/test_visuals.py::test_sensitivity_table_exists`.
  - **Verification**: Assert that `results/figures/sensitivity_table.png` exists and is a valid image file.
 
 **Checkpoint**: All user stories should now be independently functional.
@@ -262,25 +262,25 @@
 
 **Purpose**: Improvements that affect multiple user stories.
 
-- [X] T041 [P] **Create Documentation**: Implement `docs/README.md` and `docs/quickstart.md`.
+- [~] T041 [P] **Create Documentation**: Implement `docs/README.md` and `docs/quickstart.md`.
  - **Verification**: Assert that `docs/README.md` exists and contains a "Getting Started" section with installation instructions.
 
-- [X] T042 [P] **Add Docstrings**: Refactor code for clarity by adding docstrings.
+- [~] T042 [P] **Add Docstrings**: Refactor code for clarity by adding docstrings.
  - **Verification**: Run `pydocstyle` or similar linter and ensure no missing docstring errors for public functions.
 
-- [X] T043 [P] **Test Empty DataFrame**: Implement edge case tests for empty data.
+- [~] T043 [P] **Test Empty DataFrame**: Implement edge case tests for empty data.
 
-- [X] T045 [P] **Verify Residual Model Validation**: Implement `tests/unit/test_residual_logic.py::test_residual_logic`.
+- [ ] T045 [P] **Verify Residual Model Validation**: Implement `tests/unit/test_residual_logic.py::test_residual_logic`.
 
-- [X] T046 [P] **Validate Documentation Style**: Run `pydocstyle` and style checks.
+- [~] T046 [P] **Validate Documentation Style**: Run `pydocstyle` and style checks.
 
-- [X] T047 [P] **Performance Refactoring**: Refactor code for performance.
+- [~] T047 [P] **Performance Refactoring**: Refactor code for performance.
 
-- [X] T048 [P] **Test Missing Value Exclusion**: Implement `tests/unit/test_edge_cases.py::test_missing_value_exclusion`.
+- [~] T048 [P] **Test Missing Value Exclusion**: Implement `tests/unit/test_edge_cases.py::test_missing_value_exclusion`.
 
-- [X] T049 [P] **Verify Real Data Fetch Fails Loudly**: Implement `tests/unit/test_data_fetch.py::test_fetch_fails_loudly`.
+- [ ] T049 [P] **Verify Real Data Fetch Fails Loudly**: Implement `tests/unit/test_data_fetch.py::test_fetch_fails_loudly`.
 
-- [X] T050 [P] **Verify No Synthetic Fallback in Engineering**: Implement `tests/unit/test_engineering.py::test_no_synthetic_fallback`.
+- [ ] T050 [P] **Verify No Synthetic Fallback in Engineering**: Implement `tests/unit/test_engineering.py::test_no_synthetic_fallback`.
 
 ## Dependencies & Execution Order
 

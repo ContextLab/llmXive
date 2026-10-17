@@ -1,0 +1,7 @@
+{
+  "task_id": "T000",
+  "fingerprint": "4c3a1b652cd0a9487a52bca52bd2645d78fcb6a106700838082f83a63cb23c2c",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-code-generation-performance-outcomes/spec.md'"
+}

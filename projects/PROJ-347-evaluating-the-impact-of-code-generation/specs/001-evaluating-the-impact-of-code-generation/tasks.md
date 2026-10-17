@@ -1,120 +1,112 @@
-# Tasks: Evaluating the Impact of Code Generation on Software Security
+- [ ] T002 [US-1] **Download human‑written vulnerable code** – fetch the Python subset of the Devign dataset (which includes known vulnerability labels) via the HuggingFace `datasets` library, streaming to avoid large memory use. Store the raw records under `data/raw/devign/`.  
+  *Path*: `src/ingest/download_devign.py`  
+  *Verification*:  
+  1. The script finishes without error and creates `data/raw/devign/devign_train.jsonl`.  
+  2. A SHA‑256 checksum of the downloaded shard is recorded in `data/checksums.json` and matches the value reported by the dataset.  
 
-**Inputs**: `spec.md`, `plan.md`, data‑model contracts, and the research requirements listed therein.  
-The checklist implements the smallest complete end‑to‑end study that satisfies every functional requirement (FR‑001 … FR‑007) and success‑criterion (SC‑001 … SC‑005).  
-Tasks are ordered to respect data flow; later tasks depend on the outputs of earlier ones.
+- [ ] T003 [US-1] **Filter and retain only qualified Python snippets** – keep rows that (a) have a non‑empty `code` field, (b) possess a known `vulnerability_label`, and (c) are labelled as Python. Abort with an informative error if fewer than five distinct OWASP Top 10 categories remain. Write the filtered table to `data/processed/human_samples.csv`.  
+  *Path*: `src/ingest/filter_devign.py`  
+  *Verification*:  
+  1. `data/processed/human_samples.csv` contains ≥ 300 rows (to satisfy the power analysis) and a header with `functionality_id,code,vulnerability_label,language`.  
+  2. `data/logs/filter.log` lists the distinct vulnerability categories; the count is ≥ 5.  
 
----  
+- [ ] T004 [US-1] **Generate LLM‑equivalent snippets** – for every `functionality_id` in `human_samples.csv` invoke the open‑source model **Salesforce/codegen‑350M‑multi** via the `transformers` pipeline (`temperature=0`, `max_new_tokens=512`). Seed all RNGs (`numpy`, `random`, `torch`) with 42 and retry up to three times on API errors. Store the generated code in `data/generated/llm_samples.csv` and record the process in `data/logs/generation.log`.  
+  *Path*: `src/llm/generate.py`  
+  *Verification*:  
+  1. The number of rows in `llm_samples.csv` exactly matches the number of rows in `human_samples.csv`.  
+  2. `generation.log` contains the seed, total API call count, and any unrecoverable failures (none for a successful run).  
 
-- [ ] T000 [P0] [US0] **Quickstart setup** – clone the repository, create a virtual environment, install pinned dependencies, pull required Docker images, and run the orchestrator script.   <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/quickstart.sh exit=1 --> <!-- FAILED: unspecified -->
+- [ ] T005 [US-1] **Validate functional equivalence, security pattern, and compute SC‑001** – for each human/LLM pair:  
+  1. Parse with Python `ast` → `syntax_valid`.  
+  2. Run the unit‑test suite bundled with the Devign sample (via `pytest --cov=.`) and require coverage ≥ 90 %; also compute semantic similarity using `sentence‑transformers/all‑mpnet‑base‑v2` and require a cosine score ≥ 0.85. Both conditions must be satisfied (AND).  
+  3. Execute the security‑focused pattern test (`validate/security_pattern.py`) to ensure input‑sanitisation checks pass.  
+  4. Set `functional_equivalence_verified` to true only when **syntax_valid** is true, both coverage ≥ 90 % **and** similarity ≥ 0.85 hold, **and** the security pattern test succeeds.  
+  5. Persist each validated snippet under `data/validated/human/<functionality_id>.py` and `data/validated/llm/<functionality_id>.py`.  
+  6. Write a summary CSV `data/validated/validated_pairs.csv` with columns `functionality_id,source,syntax_valid,functional_equivalence_verified`.  
+  *Path*: `src/validate/validate_pairs.py`  
+  *Verification*:  
+  1. Compute `SC‑001 = (number of LLM samples with functional_equivalence_verified = true) / (total LLM samples)`. The script asserts `SC‑001 ≥ 0.85`; otherwise it aborts with a clear message.  
+  2. Every row in `validated_pairs.csv` has the two boolean flags, and the corresponding `.py` files exist and are syntactically valid.  
+
+- [ ] T016 **Compute code‑size metrics** – for each validated CodeSample (both human and LLM), calculate lines‑of‑code using `radon` and cyclomatic complexity using `radon.complexity`. Append these metrics to the `CodeSample` records and write `data/metrics/code_metrics.csv` (columns: `sample_id,source,functionality_id,lines_of_code,cyclomatic_complexity`).  
+  *Path*: `src/validate/compute_metrics.py`  
+  *Verification*:  
+  1. The CSV contains a row for every validated sample and all numeric fields are non‑negative integers.  
+  2. Schema validation against `code_sample.schema.yaml` passes.  
+
+- [ ] T001 **Quickstart setup** – create a virtual environment, install pinned dependencies, pull required Docker images, and run a minimal pipeline on 5 paired samples to confirm the orchestration works.  
   *Path*: `scripts/quickstart.sh` (script to be created)  
   *Verification*:  
-  1. After running the script, `python -m src.run_pipeline --seed 42 --max-pairs 300` executes without import or Docker‑image errors.  
-  2. Logs are written to `logs/quickstart.log` and contain entries confirming virtualenv activation, successful `pip install -r requirements.txt`, Docker pulls for `returntocorp/semgrep:1.46.0` and `sonarqube:9.9-community`, and successful pipeline start.
+  1. After `bash scripts/quickstart.sh` finishes, the command `python -m src.run_pipeline --seed 42 --max-pairs 5` exits with code 0.  
+  2. `logs/quickstart.log` contains lines confirming virtual‑env activation, successful `pip install -r requirements.txt`, Docker pulls for `returntocorp/semgrep:1.46.0` and `sonarqube:9.9-community`, and a final “Pipeline completed” message.  
 
-- [ ] T001 [P1] [US1] **Download the Juliet Test Suite (SARD) vulnerable Python snippets** from the verified URL `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/Juliet-Test-Suite/SARD/master/python_vuln.csv` — HTTP 404].   <!-- FAILED-IN-EXECUTION: src/run_pipeline.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/run_pipeline.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/download_devign.py exit=1; code/download_juliet.py exit=1 -->
-  *Path*: `data/raw/juliet/python_vuln.csv`  
+- [ ] T006 [US-2] **Run the static‑analysis toolchain** – execute the three open‑source scanners on the validated directories:  
+  * Semgrep (`returntocorp/semgrep:1.46.0`) → `data/results/semgrep_human.json` / `semgrep_llm.json`  
+  * SonarQube Community Edition (`sonarqube:9.9-community`) via the official scanner → `data/results/sonarqube_human.json` / `sonarqube_llm.json`  
+  * Bandit (`bandit==1.7.8`) → `data/results/bandit_human.json` / `bandit_llm.json`  
+  The runner monitors memory; any process exceeding 6 GB is terminated, the event logged in `data/logs/<tool>_oom.log`, and the offending sample is skipped.  
+  *Path*: `src/analysis/static_tools.py`  
   *Verification*:  
-  1. SHA‑256 checksum of the downloaded file matches the value recorded in `data/checksums.json`.  
-  2. The file is readable and contains a header row with a `code` column.  
+  1. Each JSON file is well‑formed, contains at least one finding, and can be opened with `json.load`.  
+  2. `data/logs/memory_monitor.log` shows peak RAM ≤ 6 GB for every tool.  
+  3. The total wall‑clock time for the three tools is ≤ 30 minutes on the test batch of 5 pairs (as proved by the quickstart run).  
 
-- [ ] T002 [P1] [US1] **Filter the downloaded CSV** to retain only rows that (a) contain a non‑empty `code` field, (b) have a known `vulnerability_label`, and (c) are Python (`language == "python"`). Write the filtered dataset to `data/processed/human_python.csv`. Abort with an error if the filtered set contains fewer than **five distinct OWASP vulnerability types**.  
+- [ ] T007 [US-3] **Normalize findings to the contract schema** – ingest the six JSON result files, map fields to the `VulnerabilityFinding` schema (e.g., Semgrep `confidence` → `confidence_score`; SonarQube severity → normalized confidence: CRITICAL = 1.0, HIGH = 0.75, MEDIUM = 0.5, LOW = 0.25; Bandit severity mapped similarly). Write a unified Parquet file `data/interim/vuln_findings.parquet`.  
+  *Path*: `src/analysis/normalize_findings.py`  
   *Verification*:  
-  1. `data/processed/human_python.csv` has ≥ 100 rows, no missing `code` or `vulnerability_label`.  
-  2. `data/logs/filter.log` records the distinct OWASP categories (must be ≥ 5).  
+  1. `pytest tests/contract/test_contracts.py` passes for the Parquet file.  
+  2. The Parquet file contains findings for ≥ 5 distinct OWASP categories that also appear in the ground‑truth dataset.  
 
-- [ ] T003 [P1] [US1] **Generate functionally equivalent vulnerable snippets** for every entry in `data/processed/human_python.csv` using the lightweight open‑source model **Salesforce/codegen‑350M‑multi** via the HuggingFace `transformers` pipeline (`temperature=0`, `max_new_tokens=512`). Seed the RNGs (`numpy.random.seed(42)`, `random.seed(42)`) and retry up to three times on API errors. Store generated snippets in `data/generated/llm_samples.json` and record the run in `data/logs/generation.log`.  
+- [ ] T008 [US-3] **Create the PairOutcome table** – for every `functionality_id` and every vulnerability type, set `human_flag` = 1 if any finding (after normalization) exists for the human sample, otherwise 0; similarly for `llm_flag`. Write the result to `data/interim/pair_outcomes.csv`.  
+  *Path*: `src/analysis/construct_pair_outcomes.py`  
   *Verification*:  
-  1. The number of generated samples equals the number of human samples.  
-  2. `data/logs/generation.log` contains the seed, API call counts, and any unrecoverable failures.  
+  1. Row count equals `total_pairs × number_of_vulnerability_types`.  
+  2. Each (`functionality_id`, `vulnerability_type`) combination appears exactly once.  
 
-- [ ] T004 [P1] [US1] **Validate each generated snippet**:  
-  1. Perform a syntax check with Python `ast` → add a `syntax_valid` flag.  
-  2. Assess functional equivalence **either** by executing the unit‑test suite supplied with the Juliet sample (`pytest --cov=.`) **or** by computing semantic similarity with `sentence‑transformers/all‑mpnet‑base‑v2`; accept if coverage ≥ 90 % **or** similarity ≥ 0.85.  
-  Write a consolidated CSV `data/validated/validated_samples.csv` containing `sample_id, source, functionality_id, syntax_valid, functional_equivalence_verified`. Persist each validated snippet under `data/validated/human/<functionality_id>_human.py` and `data/validated/llm/<functionality_id>_llm.py`.  
+- [ ] T009 [US-3] **Primary statistical comparison** – load `pair_outcomes.csv` and, for each vulnerability type, perform McNemar’s test (`statsmodels.stats.contingency_tables.mcnemar`). If any cell of the 2 × 2 table is zero, re‑run with `exact=True`. Apply a Bonferroni correction across all tested types. Write the final table to `data/outputs/analysis_results.csv` following the `AnalysisResult` schema (including `p_value_adj`, `is_significant`, `test_method`).  
+  *Path*: `src/stats/mcnemar_test.py`  
   *Verification*:  
-  1. Compute **SC‑001** = `valid_llm / total_prompts`; assert SC‑001 ≥ 0.85.  
-  2. All rows have `functional_equivalence_verified` set appropriately; per‑sample files exist and are syntactically valid.  
+  1. The CSV contains the columns required by the schema and passes schema validation.  
+  2. At least one row has `is_significant = true` **or** the file includes a comment line stating “No significant differences (all adjusted p ≥ 0.05)”.  
 
-- [ ] T005 [P2] [US2] **Run Semgrep** (Docker image `returntocorp/semgrep:1.46.0`) on the validated code directories `data/validated/human/` and `data/validated/llm/`. Output JSON results to `data/results/semgrep_human.json` and `data/results/semgrep_llm.json`.  
+- [ ] T017 **Verify OWASP category coverage (SC‑005)** – read `analysis_results.csv` and ensure that for each OWASP Top 10 category present in the original dataset there is at least one vulnerability finding (human or LLM). Fail the pipeline with a clear error if any required category is missing.  
+  *Path*: `src/validation/owasp_coverage_check.py`  
   *Verification*:  
-  1. Each run completes within the 6‑hour job limit.  
-  2. `memory_monitor.py` ensures peak RAM ≤ 6 GB; OOM events are logged in `data/logs/semgrep_oom.log` and offending samples are skipped.  
-  3. Both JSON files are readable and contain at least one finding.  
+  1. Script exits with code 0 only when every required category has ≥ 1 finding; otherwise it logs missing categories and exits with non‑zero status.  
 
-- [ ] T006 [P2] [US2] **Run SonarQube Community Edition** (Docker image `sonarqube:9.9-community`) on the same validated code sets via the official scanner. Export findings through the SonarQube REST API to `data/results/sonarqube_human.json` and `data/results/sonarqube_llm.json`.  
-  *Verification*:  
-  1. Resource constraints identical to T005; OOM events logged in `data/logs/sonarqube_oom.log`.  
-  2. HTTP 200 for each export; both JSON files are readable and contain at least one finding.  
-
-- [ ] T007 [P3] [US3] **Normalize findings** from Semgrep and SonarQube to the `VulnerabilityFinding` schema and write a unified Parquet file `data/interim/vuln_findings.parquet`. Map SonarQube severity to a numeric confidence (CRITICAL = 1.0, HIGH = 0.75, MEDIUM = 0.5, LOW = 0.25).  
-  *Verification*:  
-  1. `tests/contract/test_contracts.py` passes.  
-  2. The Parquet file contains findings for ≥ 5 distinct OWASP vulnerability types that also appear in the ground‑truth dataset.  
-
-- [ ] T008 [P3] [US3] **Construct the PairOutcome table** required for the paired McNemar test. For every `functionality_id` and every vulnerability type, record `human_flag` (1 if a finding exists for the human sample, else 0) and `llm_flag` (similarly for the LLM sample). Write the result to `data/interim/pair_outcomes.csv`.  
-  *Verification*:  
-  1. Each pair appears exactly once per vulnerability type.  
-  2. Row count equals `total_pairs × number_of_vulnerability_types`.  
-
-- [ ] T015 [FR‑004] **Compute bias‑correction factors and apply them**:  
-  1. Split the validated dataset into a training subset (80 %) and a held‑out validation subset (20 %).  
-  2. Run Semgrep and SonarQube on the held‑out subset to obtain true positives/false positives against the known Juliet labels, and compute precision and recall for each tool.  
-  3. Derive weighting factors (e.g., inverse‑precision) and apply them to the raw vulnerability counts from T007, producing bias‑corrected counts saved as `data/processed/bias_corrected_counts.csv`.  
-  *Verification*:  
-  1. The precision/recall calculation script outputs a summary JSON (`data/outputs/precision_recall.json`).  
-  2. `bias_corrected_counts.csv` contains the same columns as the raw counts plus a `weight` column, and downstream statistical tasks (T009) consume this file.  
-
-- [ ] T009 [P3] [US3] **Perform statistical comparison**:  
-  1. For each vulnerability type, apply McNemar’s test (`statsmodels.stats.contingency_tables.mcnemar`) on the **bias‑corrected** counts produced by T015.  
-  2. If any cell in the 2×2 table is zero, re‑run with `exact=True`.  
-  3. Apply Bonferroni correction across all tested types.  
-  Write the final results to `data/outputs/analysis_results.csv` following the `AnalysisResult` schema (including `p_value_adj`, `is_significant`, `test_method`).  
-  *Verification*:  
-  1. All required columns are present.  
-  2. At least one type yields `is_significant = true` **or** the report explicitly states “no significant differences” with the adjusted p‑values.  
-
-- [ ] T010 [P3] [US3] **Conduct a sensitivity sweep** over confidence thresholds `{0.0, 0.5, 0.9}`. For each threshold, repeat the aggregation (T008) and statistical test (T009) using the bias‑corrected data, and store the outcomes in `data/outputs/sensitivity_results.csv` (additional column `confidence_threshold`).  
+- [ ] T010 [US-3] **Confidence‑threshold sensitivity sweep** – repeat the aggregation (T008) and statistical test (T009) for three confidence cut‑offs: `default‑0.05`, `default`, and `default+0.05` (e.g., 0.45, 0.5, 0.55 for Semgrep confidence). Append a `confidence_threshold` column to each result row and write the combined table to `data/outputs/sensitivity_results.csv`.  
+  *Path*: `src/stats/sensitivity_sweep.py`  
   *Verification*:  
   1. The CSV contains three rows per vulnerability type (one per threshold).  
-  2. Variation in `p_value_adj` across thresholds is recorded.  
+  2. Variation in `p_value_adj` across thresholds is recorded and can be plotted.  
 
-- [ ] T011 [P3] [US4] **Audit a random subset** of flagged findings: select ≥ 20 % of findings (stratified by vulnerability type) using a fixed seed (`42`). Run a lightweight fuzzing harness (`afl‑fast` in Docker) or a manual reviewer script on those samples; update the `validated_by_audit` flag and write `data/validation/audit_results.csv`. Log the process in `data/logs/audit.log`.  
+- [ ] T011 [US-3] **Random audit of flagged findings** – select ≥ 20 % of all findings (stratified by vulnerability type) using a fixed seed 42. For each selected finding run CodeQL (`ghcr.io/github/codeql-action:latest`) and a lightweight fuzzing harness (`afl‑fast` in Docker) to confirm true/false status. Update the `validated_by_audit` flag in the Parquet file and export the audit log to `data/validation/audit_results.csv`. Log the process in `data/logs/audit.log`.  
+  *Path*: `src/audit/manual_audit.py`  
   *Verification*:  
-  1. The number of audited samples matches the target proportion.  
-  2. `audit.log` records pass/fail outcomes and the calibration factor derived from the audit.  
+  1. The number of audited rows matches the ≥ 20 % target.  
+  2. `audit.log` records pass/fail outcomes and the derived calibration factor.  
 
-- [ ] T012 [P3] [US5] **Generate visualisations**:  
-  1. Bar‑chart comparing vulnerability rates between human and LLM code → `figures/vuln_rate_comparison.png`.  
-  2. Line‑chart showing sensitivity‑sweep p‑values → `figures/sensitivity_plot.png`.  
-  Use `matplotlib` with a deterministic style (seeded random colour map).  
-  *Verification*: Both PNG files are non‑empty, readable, and referenced in the final report.  
+- [ ] T014 **Measure pipeline performance** – wrap the full pipeline execution (`src/run_pipeline.py`) with a script that records start/end timestamps and monitors peak RAM via `psutil`. Write `data/logs/pipeline_performance.log` containing `total_runtime_seconds` and `peak_ram_gb`. CI asserts `total_runtime_seconds ≤ 21600` (6 h) and `peak_ram_gb ≤ 7`.  
+  *Path*: `scripts/performance_monitor.sh`  
+  *Verification*: After a full run on the target 300‑pair dataset, the log shows values within the limits; the CI job fails if they exceed.  
 
-- [ ] T013 [P3] [US5] **Assemble the final markdown report** `report/report.md` containing:  
+- [ ] T013 **Assemble the final markdown report** – create `report/report.md` containing:  
   * Dataset statistics (size, SC‑001 compliance).  
   * Table of raw counts and Bonferroni‑adjusted p‑values (from `analysis_results.csv`).  
   * Significance statements and discussion of limitations.  
   * Embedded figures (`![](../figures/vuln_rate_comparison.png)`, `![](../figures/sensitivity_plot.png)`).  
   * Description of the manual audit process and its outcomes.  
-  * Links to all primary output artifacts (`data/outputs/*`).  
-  *Verification*: The report builds without broken links; `pytest tests/test_report.py` parses the markdown and confirms that every referenced file exists.  
+  * Links to all primary output artifacts (`data/outputs/*`, `data/interim/*`).  
+  *Verification*: `pytest tests/test_report.py` parses the markdown, confirms that every referenced file exists, and that the report contains a non‑empty “Results” section.  
 
-- [ ] T014 [SC‑004] **Measure pipeline performance**: a wrapper script records start/end timestamps and monitors peak RAM usage (via `psutil`). After the final task, write `data/logs/pipeline_performance.log` containing `total_runtime_seconds` and `peak_ram_gb`.  
-  *Verification*: CI asserts `total_runtime_seconds ≤ 21600` (6 h) and `peak_ram_gb ≤ 7`; failure aborts the run.  
+- [ ] T015 **Compute precision and recall per static‑analysis tool (satisfies FR-008)** – using the ground‑truth vulnerability labels from the Devign dataset, compare each tool’s findings (from `vuln_findings.parquet`) against the true labels to calculate precision and recall per tool and per OWASP category. Write `data/metrics/precision_recall.csv`.  
+  *Path*: `src/validation/precision_recall.py`  
+  *Verification*:  
+  1. CSV contains columns `tool_source,vulnerability_type,precision,recall`.  
+  2. All values are between 0 and 1 and the file passes schema‑agnostic sanity checks.  
 
----  
-
-## Dependency Summary
-
-| Requirement | Covered by Task(s) |
-|-------------|--------------------|
-| FR‑001, SC‑001 | T001‑T004 |
-| FR‑002, SC‑004 | T005‑T006, T014 |
-| FR‑003, SC‑005 | T007 |
-| FR‑004 | T008‑T011, T015 |
-| FR‑005 | T012‑T013 |
-| FR‑006 | T010 |
-| FR‑007 | T002, T004 (exclusion logic) |
-| Quickstart setup | T000 |
-
-All tasks are currently unchecked; execution in the order presented will produce a fully reproducible end‑to‑end analysis that satisfies the specification and the success criteria.  
+- [ ] T012 **Generate visualisations** – using `matplotlib` with a deterministic style (seeded RNG for colours):  
+  1. Bar‑chart comparing vulnerability rates between human and LLM code → `figures/vuln_rate_comparison.png`.  
+  2. Line‑chart showing how `p_value_adj` varies across the three confidence thresholds → `figures/sensitivity_plot.png`.  
+  *Path*: `src/report/figures.py`  
+  *Verification*: Both PNG files are non‑empty, openable with standard image viewers, and their filenames appear in the final markdown report.  

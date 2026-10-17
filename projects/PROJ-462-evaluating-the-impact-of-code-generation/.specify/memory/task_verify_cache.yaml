@@ -8,10 +8,11 @@ T000:
   sig: 906d78ed13bf81c3cb0c785c4e9a4fca8eaf7aa285a1c3defab06e83fdf01dd9
 T001a:
   c: true
-  h: 979b0bdf83a4cdbb6f5fc5734b7f956f732aaaf9cb8aad2e1b1209bcb17e8959
-  r: "The evidence shows a `code/` directory at the repository root (15 entries, confirmed\
-    \ SHA\u2011256 hash), satisfying the sole requirement to create that directory."
-  sig: 6fbc2b4ee6a25ae4ebbff54dc426e72fac5ab1f52f1f029a13592f72484e8555
+  h: 5403d8f5df8cfd1f2f58f74386d9bad017ca38cfc929f23c80648fa7b1a84b5b
+  r: "The collector confirms that a `code/` directory exists at the repository root\
+    \ (14 entries, sha256\u202F=\u202F850e9d823bf4c1dd352f591b47494f1aa6ec790283a682ed38f851c929b6b574).\
+    \ This satisfies the sole requirement of task T001a."
+  sig: d7e1865e3524f745bb397655bfa9cce1bada9c41754692f6553fff83a8a3cd86
 T001b:
   c: false
   h: fd09da42c633253d05c66a1891092dde030cd27daca975b98d83736c9b713f3c
@@ -21,11 +22,45 @@ T001b:
   sig: 9ed5b4938e71932f4809fb91ab2f1e0af4b5aaa936d5384702d3036d0ac4f56a
 T001c:
   c: true
-  h: 4f0916c96bbd2c3a608b70a9a461627fed855160459a973fbc9de24407dfd699
-  r: The evidence shows a `tests/` directory containing the required `unit/`, `integration/`,
-    and `contract/` subdirectories, each populated with files, confirming the requested
-    structure is present.
-  sig: e4cd0a73ba2edc2f1176c710ad00978ae452ea463baf9e3b5cb903ad991395a1
+  h: e6f1d10e86500d5b035fc709106ce266b532124285454b3755d80c4506c57b7e
+  r: "The evidence shows a `tests/` directory present at the project root containing\
+    \ the required subdirectories `tests/unit/`, `tests/integration/`, and `tests/contract/`,\
+    \ each populated with multiple files (e.g., `test_anova.py`, `test_export_pipeline.py`,\
+    \ `test_analysis_schema.py`). This satisfies the task\u2019s sole requirement\
+    \ of creating the specified test directory hierarchy."
+  sig: 480cd82201563929d84e3664c0a38981509f874ad473dbe45adf2f1379f0c585
+T001d:
+  c: false
+  h: be616c476d9a6e76aebf41b7941f4624ca7c5c7fd60355e65205f40432fd8dd2
+  r: "The evidence does not show a `.gitignore` file at the repository root nor any\
+    \ indication that a Git repository has been initialized (e.g., a `.git` directory).\
+    \ Without these artifacts, the task \u201CInitialize git repository and create\
+    \ `.gitignore` for Python at repository root\u201D is not satisfied."
+  sig: d036c1aded62ea0b0183059bf8ed112b9217cdb7d6a46d208b42c79644ce6823
+T002a:
+  c: true
+  h: a5fc47712d215558bef58afa9287d1c908f959f0a95437d41f4be663104483b2
+  r: "Checked `code/requirements.txt` (149\u202Fbytes) which contains all required\
+    \ dependency specifications (pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, scikit-learn>=1.3.0,\
+    \ matplotlib>=3.7.0, pyyaml>=6.0) and is a valid, non\u2011empty file."
+  sig: 537477296dfc3d2414f22a844dcc1216f041651e17b0b6ca465ae50530fbe8f9
+T002b:
+  c: false
+  h: 06ff4a049a0c76bdb1bf5b3cee223784836c9e8791e2af1ec20f5cddc8ce5913
+  r: "The only artifact present is the `code/requirements.txt` file; there is no evidence\
+    \ of a virtual environment being created, activated, or of `pip install -r code/requirements.txt`\
+    \ being run (e.g., no logs, scripts, or environment snapshots). The task\u2019\
+    s core requirement\u2014to install the dependencies in a virtualenv\u2014is therefore\
+    \ unmet."
+  sig: dfefa4bd6f00979f0e7cda12da23a1c1d8d24a4cc51ac2c453e119d6c25178a7
+T003a:
+  c: false
+  h: d29d24287780930e2f5de40ab22ae2fb517051eabc7cbe4d1df054155782ff7d
+  r: "The evidence contains no files or configuration showing that the Black formatter\
+    \ was added to the development environment (e.g., no `pyproject.toml`, `requirements-dev.txt`,\
+    \ or pre\u2011commit config referencing Black). Consequently, the required artifact\
+    \ for installing Black is missing."
+  sig: 3ec1dbefdcf39667b67ae817a0858afa71eb7bd7f9971045a90208f7f412de6e
 T049:
   c: false
   h: 50d31fab027b4050bf27b08e1a48054712ed1505977f42d4270559e41d443b7f
