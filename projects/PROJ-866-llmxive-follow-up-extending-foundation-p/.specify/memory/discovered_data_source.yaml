@@ -1,15 +1,16 @@
 status: none
-intent: synthetic multi-agent workflow generation dataset pm4py python package dataset
+intent: pm4py synthetic multi-agent workflow generation python package dataset
 required_fields:
 - workflow_id
 - delegation_depth
-- policy_constraints
-- budget_cap
-- full_context_log
-- compressed_context_log
-- policy_nodes
+- policy_constraints_count
+- budget_cap_value
+- workflow_metadata
+- full_context_execution_log
+- compressed_context_execution_log
 - policy_violations
-- deterministic_seed
-cache_key: 4cfff68d1e2276bb4b718f89c538e6460650d18e6371b4c7d5384b35aa830bf6
-searched_at: '2026-10-17T14:15:24.143315+00:00'
+- generation_seed
+- generation_timestamp
+cache_key: d7dd10e3af3aafd7768f5d661f4349aef7b1eb7241a8b3cabbb64b8027eb1d42
+searched_at: '2026-10-17T20:08:26.866362+00:00'
 retry_count: 1

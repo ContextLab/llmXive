@@ -1,1 +1,1 @@
-# Ensure pytest discovers the test package. No additional code required.
+# This file makes the ``tests`` directory a package for pytest discovery.

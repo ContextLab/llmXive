@@ -2,21 +2,18 @@
 code/main.py
 ------------
 
-Orchestrator for the llmXive follow-up project
-(feature 001-policy-compression-tradeoff).
+Orchestrator for the llmXive follow‑up project (feature
+001‑policy‑compression‑tradeoff).
 
 Implements the full pipeline in one command:
 
-    generate -> execute (full context + compressed context) -> analyze
+    generate → execute (full context + compressed context) → analyze
 
 The orchestrator reuses existing modules under ``code/`` (the deterministic
 workflow generator, the full/compressed execution engines, and the
 trade‑off analysis pipeline in ``code/analysis/tradeoff_model.py``).
 
-The original implementation attempted to invoke generator and engine
-scripts that are not present in this repository, causing the orchestrator
-to exit with status 1.  This repaired version follows a *detect‑and‑skip*
-strategy:
+The implementation follows a *detect‑and‑skip* strategy:
 
 * If the required artifact already exists (e.g. ``data/raw/workflows.json``),
   the step validates the file against its contract and proceeds.
@@ -205,7 +202,7 @@ def step_generate(args: argparse.Namespace) -> None:
         print("[main] Skipping generation – workflows.json already present.", flush=True)
         return
 
-    # Path to the (optional) generator script.
+    # Path to the generator script.
     generator_script = CODE_DIR / "generators" / "synthetic_workflow.py"
     if not generator_script.is_file():
         _fail(

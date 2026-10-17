@@ -2,7 +2,7 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_simulation.py --generate  --seed 42  --count 500; python src/cli/run_simulation.py --execute --mode full; python src/cli/run_simulation.py --execute --mode compressed  --depths 0,1,2,3,4,5,6,7,8,9,10; 1 command(s) failed: python -m pytest -v (rc=2); 3 declared deliverable(s) absent: data/processed/compressed_context_logs.json; data/processed/full_context_logs.json; figures/tradeoff_curve.png
+**Summary**: 4 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_simulation.py --generate  --seed 42  --count 500; python src/cli/run_simulation.py --execute --mode full; python src/cli/run_simulation.py --execute --mode compressed  --depths 0,1,2,3,4,5,6,7,8,9,10; 1 command(s) failed: python -m pytest -v (rc=2); 4 declared deliverable(s) absent: data/processed/compressed_context_logs.json; data/processed/full_context_logs.json; data/raw/workflows.json
 
 ## Failing / missing run-book commands
 
@@ -23,21 +23,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-866-llmxive-follow-up-extending-foundation-p/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/src/cli/run_simulation.py': [Errno 2] No such file or directory
 
 - python -m pytest -v -> rc=2
-text.py)
-_ ERROR collecting projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/unit/test_generator.py _
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/unit/test_generator.py'.
+-up-extending-foundation-p/tests/contract/../../engines/compressed_context.py)
+_ ERROR collecting projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/unit/test_invalid_workflow_filter.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/unit/test_invalid_workflow_filter.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_generator.py:7: in <module>
-    from generators.synthetic_workflow import SyntheticWorkflowGenerator
-E   ImportError: cannot import name 'SyntheticWorkflowGenerator' from 'generators.synthetic_workflow' (/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/code/generators/synthetic_workflow.py)
+tests/unit/test_invalid_workflow_filter.py:13: in <module>
+    from engines.invalid_workflow_filter import (
+E   ModuleNotFoundError: No module named 'engines.invalid_workflow_filter'
 =========================== short test summary info ============================
+ERROR tests/contract/test_save_processed_logs_schema.py
 ERROR tests/integration/test_compression.py
-ERROR tests/unit/test_generator.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.31s ===============================
+ERROR tests/unit/test_invalid_workflow_filter.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 1.26s ===============================
 
 
 
@@ -45,6 +46,7 @@ ERROR tests/unit/test_generator.py
 
 - data/processed/compressed_context_logs.json
 - data/processed/full_context_logs.json
+- data/raw/workflows.json
 - figures/tradeoff_curve.png
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -60,6 +62,16 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/main.py` — NOT invoked by the run-book
     - `code/utils/data_hygiene_audit.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/full_context_logs.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/workflows.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/tradeoff_model.py` — NOT invoked by the run-book
+    - `code/analysis/vif_analyzer.py` — NOT invoked by the run-book
+    - `code/engines/compressed_context.py` — NOT invoked by the run-book
+    - `code/engines/full_context.py` — NOT invoked by the run-book
+    - `code/engines/invalid_workflow_filter.py` — NOT invoked by the run-book
+    - `code/generators/synthetic_workflow.py` — NOT invoked by the run-book
+    - `code/main.py` — NOT invoked by the run-book
+    - `code/services/executor.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/workflows.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `figures/tradeoff_curve.png` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/generate_regression_data.py` — NOT invoked by the run-book
     - `code/analysis/tradeoff_model.py` — NOT invoked by the run-book
