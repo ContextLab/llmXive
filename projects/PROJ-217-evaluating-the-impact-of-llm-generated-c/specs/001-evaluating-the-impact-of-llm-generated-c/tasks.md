@@ -7,7 +7,7 @@ The tasks below are ordered to respect data flow and to produce an early end‑t
 
 ---
 
-- [ ] T001 [US1] **Download & validate CodeSearchNet Python snippets**   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [ ] T001 [US1] **Download & validate CodeSearchNet Python snippets**   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   *Create* `data/raw_snippets.jsonl` containing `snippet_id`, `code`, and `human_comment`; write malformed records to `data/excluded_records.json`.  
   *Verification*:  
   – SHA‑256 checksums of the three source parquet files match the values recorded in `data/artifact_hashes.yaml`.  
