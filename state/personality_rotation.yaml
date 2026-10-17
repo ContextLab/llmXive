@@ -1,12 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-10-16T22:06:51.845024+00:00'
+last_used: richard-feynman
+last_used_at: '2026-10-17T00:06:47.692766+00:00'
 last_outcome: committed
 history:
-- slug: stephen-wolfram
-  started_at: '2026-06-26T19:35:24.894093+00:00'
-  ended_at: '2026-06-26T20:35:59.152351+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: ada-lovelace
   started_at: '2026-06-26T20:35:59.152351+00:00'
   ended_at: '2026-06-26T21:32:17.146266+00:00'
@@ -1291,3 +1286,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-531-the-impact-of-visual-motion-on-perceived/reviews/research/marie-curie-simulated__2026-10-16__research.md
+- slug: richard-feynman
+  started_at: '2026-10-16T22:06:51.845024+00:00'
+  ended_at: '2026-10-17T00:06:47.692766+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-176-predicting-molecular-properties-from-vib/reviews/research/richard-feynman-simulated__2026-10-17__research.md
