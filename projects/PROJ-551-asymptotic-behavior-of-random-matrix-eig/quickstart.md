@@ -1,65 +1,55 @@
-# Quickstart Guide: Asymptotic Behavior of Random Matrix Eigenvalues
-
-## Overview
-
-This project investigates the asymptotic behavior of eigenvalues in large random matrices
-subjected to sparse perturbations. The core objective is to empirically verify the
-BBP (Baik-Ben Arous-Péché) phase transition threshold $\theta_c$ and analyze the
-sensitivity of this threshold to the sparsity density of the perturbation.
+# Quickstart: Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations
 
 ## Prerequisites
-
-- Python 3.9+
-- Dependencies listed in `code/requirements.txt`
+- Python 3.11 or newer
+- At least **7 GB RAM** and **14 GB free disk**
+- No GPU required (CPU‑only)
 
 ## Installation
 
 ```bash
-cd code
-pip install -r requirements.txt
+# 1. Clone the repository
+git clone <repo_url>
+cd PROJ-551-asymptotic-behavior-of-random-matrix-eig
+
+# 2. Install dependencies
+pip install -r code/requirements.txt
 ```
 
-## Quick Run (Single Instance)
+## Running the Analyses
 
-To generate a single Wigner matrix instance and analyze its spectrum:
-
+### 1. Single‑run sanity check (T002)
 ```bash
 python -m code.main --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal
 ```
+*Expected*: A JSON report in `data/processed/single_run_results.json` containing one `SimulationRun` and ten `EigenvalueResult` entries. The top eigenvalue should exceed `2.05` (outlier) when `theta > 1`.
 
-This produces `data/processed/single_run_results.json`, a checksum entry in
-`data/checksums.yaml`, and a detailed log at `data/logs/single_run.log`.
-
-## Full Parameter Sweep (T004)
-
-Run the theta sweep over N in {100, 500, 1000, 2000},
-theta in {0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0}, seeds in {42, 123, 456, 789},
-k in {1, 2, 5}, and patterns in {diagonal, block-sparse, random-sparse}:
-
+### 2. Full parameter sweep
 ```bash
 python code/analysis/threshold_sweep.py --grid theta
 ```
+*Output*: `data/processed/mc_results.csv`.
 
-(Further commands omitted for brevity.)
+### 3. Sparsity sensitivity
+```bash
+python code/analysis/sensitivity_analysis.py
+```
+*Output*: `data/processed/sensitivity_results.parquet`.
 
-## Reproducibility
+### 4. Finite‑size analysis
+```bash
+python code/analysis/finite_size.py
+```
+*Output*: `data/processed/finite_size_results.parquet`.
 
-All random number generators are seeded explicitly. [UNRESOLVED-CLAIM: c_a199ecbf — status=not_enough_info] Raw matrix files are
-checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`.
-Given the same seeds and parameters, the pipeline reproduces the same
-eigenvalues (CPU‑only ARPACK, `scipy.sparse.linalg.eigsh`).
+## Verifying Results
 
-## Output Artifacts
+### Schema validation
+```bash
+pytest tests/contract/test_schemas.py
+```
 
-- `data/raw/`: Raw matrix instances (`.npy`) and checksum manifest
-- `data/processed/`: Aggregated results, thresholds, and fitted parameters
-- `data/figures/`: Visualization plots
-- `data/logs/`: Run logs
-- `research.md`: Detailed theoretical background and methodology
-
-## Troubleshooting
-
-- **Memory Errors**: `N` too large for available RAM | Reduce `--N` to ≤ 1500 or enable streaming mode (`--stream`).
-- **ARPACK did not converge**: `tol` too strict or maxiter insufficient | Increase `--maxiter` (default 1000) or relax `--tol` (default 1e‑10).
-- **Schema validation fails**: Output file corrupted or missing required fields | Re‑run the failing phase; ensure the corresponding schema file exists under `contracts/`.
-- **Test T001 fails**: Seed mismatch or nondeterministic RNG usage | Verify that all random calls use the same `numpy.random.default_rng(seed)` instance.
+### Reproducibility check
+```bash
+pytest tests/integration/test_t001.py
+```

@@ -1,12 +1,14 @@
 status: none
-intent: synthetic random matrix ensemble edge eigenvalue 2 FR-001 python package dataset
+intent: synthetic random matrix ensemble dataset with perturbation patterns python
+  package dataset
 required_fields:
 - matrix
 - perturbation_type
 - seed
+- eigenvalues
 - theoretical_edge
 - empirical_edge
-- sparsity_pattern
-cache_key: 48da2d3b7172aec0a1cd77676cf27b6d40df03ff893effb86062f954be75b33f
-searched_at: '2026-10-17T20:08:39.846667+00:00'
+- schema_version
+cache_key: e8c7edfb3ffb83fefcd8ffc9ca35d11e1ac2f715957a23d7e989d0848df5269d
+searched_at: '2026-10-17T22:13:50.601449+00:00'
 retry_count: 1

@@ -6,7 +6,7 @@ Draft7Validator is sufficient and no RefResolver is needed.
 
 If data/processed/ contains no artifacts yet (early pipeline stages),
 the artifact-validation tests skip gracefully rather than fail: the
-schemas themselves are still checked unconditionally.
+schemas themselves are checked unconditionally.
 """
 import csv
 import json
@@ -90,7 +90,10 @@ def test_processed_json_files(schemas):
 
     for file_path in json_files:
         with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError as e:
+                pytest.fail(f"Malformed JSON in {file_path.name}: {e}")
 
         if isinstance(data, dict) and "eigenvalues" in data:
             # Full SimulationRun record

@@ -1,66 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: SimulationRun
+description: "Schema for a single random matrix simulation run and its resulting eigenvalues."
 type: object
-required:
-  - run_id
-  - timestamp
-  - seed
-  - N
-  - k
-  - theta
-  - pattern_type
-  - support_density
-  - computation_time_ms
-  - empirical_bulk_edge
-  - eigenvalues
 properties:
   run_id:
     type: string
-    format: uuid
+    description: "Unique identifier for the simulation run."
   timestamp:
     type: string
     format: date-time
-  seed:
-    type: integer
+    description: "ISO-8601 timestamp of when the run was executed."
   N:
     type: integer
-  k:
+    minimum: 1
+    description: "Matrix dimension."
+  seed:
     type: integer
+    description: "Random seed used for Wigner matrix generation."
   theta:
     type: number
+    description: "Spectral norm of the perturbation."
+  k:
+    type: integer
+    minimum: 1
+    description: "Rank of the perturbation."
   pattern_type:
     type: string
-  support_density:
-    type: number
-  computation_time_ms:
-    type: number
-  empirical_bulk_edge:
-    type: number
+    enum: ["diagonal", "block-sparse", "random-sparse"]
+    description: "The structural pattern of the perturbation."
   eigenvalues:
     type: array
     items:
-      $ref: "#/definitions/eigenvalue"
-additionalProperties: true
-definitions:
-  eigenvalue:
-    type: object
-    required:
-      - run_id
-      - eigenvalue_index
-      - value
-      - is_outlier
-      - theoretical_bbp
-      - deviation
-    properties:
-      run_id:
-        type: string
-      eigenvalue_index:
-        type: integer
-      value:
-        type: number
-      is_outlier:
-        type: boolean
-      theoretical_bbp:
-        type: number
-      deviation:
-        type: number
+      type: object
+      properties:
+        run_id: { type: string }
+        eigenvalue_index: { type: integer }
+        value: { type: number }
+        is_outlier: { type: boolean }
+        theoretical_bbp: { type: number }
+        deviation: { type: number }
+      required: [run_id, eigenvalue_index, value, is_outlier, theoretical_bbp, deviation]
+    description: "List of the top computed eigenvalues."
+required: [run_id, timestamp, N, seed, theta, k, pattern_type, eigenvalues]

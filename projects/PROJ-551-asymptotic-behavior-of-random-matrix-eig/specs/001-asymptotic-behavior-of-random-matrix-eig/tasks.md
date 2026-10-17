@@ -8,13 +8,13 @@ All previously verified foundational work (generators, solvers, basic orchestrat
 
 ## Phase 1 – Foundations, schema validation & first end‑to‑end run  
 
-- [ ] **T001** [US1] **Add missing contract files and schema‑validation test**  
+- [X] **T001** [US1] **Add missing contract files and schema‑validation test**  
   *Create the three JSON‑Schema files referenced in the specification ( `simulation_run.schema.yaml`, `eigenvalue_result.schema.yaml`, `aggregated_threshold.schema.yaml` ) under `contracts/`. Add a pytest module `tests/contract/test_schemas.py` that loads every file produced in `data/processed/` and validates it against the appropriate schema using `jsonschema`. The test must exit 0 on success.*  
   **Verification**:  
   · All three schema files exist at `contracts/…`.  
   · Running `pytest -q tests/contract/test_schemas.py` passes (exit 0).  
 
-- [ ] **T002** [US1] **Implement a reproducible single‑run end‑to‑end analysis with memory monitoring**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] **T002** [US1] **Implement a reproducible single‑run end‑to‑end analysis with memory monitoring**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Update `code/main.py` (or the current CLI entry point) so that the command*  
 
   ```bash

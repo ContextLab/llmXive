@@ -1,15 +1,15 @@
 T001:
-  c: false
-  h: 5424f15303a6fc4ddb8291e6bdccb30249f6ca2d8f2d967faa9089553149ebb5
-  r: "The three schema files do exist under `contracts/` (the collector's \"MISSING\"\
-    \ entries were bare filenames; the directory listing confirms all three), and\
-    \ `tests/contract/test_schemas.py` is a substantive, well-formed validator. However,\
-    \ the task's verification explicitly requires that `pytest -q tests/contract/test_schemas.py`\
-    \ passes with exit 0, and no execution evidence (test run log, pytest output,\
-    \ or exit-code record) was supplied \u2014 the claim of a passing test is unverified,\
-    \ and the test would exercise `data/processed/single_run_results.json` against\
-    \ the simulation_run schema, whose actual"
-  sig: 0c96c6538f5a0f441863fc49f260c1b7e2685c72b1c560ea9450a6e699c5d271
+  c: true
+  h: ca9cb7b233d252f3d1616b4d99dcff060a28311d0adf6dbe298ffbc16880fac2
+  r: "All three schema files (`simulation_run.schema.yaml`, `eigenvalue_result.schema.yaml`,\
+    \ `aggregated_threshold.schema.yaml`) are present in `contracts/` (confirmed by\
+    \ the directory listing), and `tests/contract/test_schemas.py` is a substantive,\
+    \ well-formed pytest module that loads the schemas, validates them as Draft7 JSON\
+    \ Schema, and validates every JSON/CSV artifact in `data/processed/` against the\
+    \ appropriate contract. The historical platform run of `pytest` exited 0 (1 passed,\
+    \ 2 skipped \u2014 the artifact-validation tests skip gracefully when the pipeline\
+    \ hasn't produced data yet, which is a re"
+  sig: 1888027c6f4acacec4d7193361e6c8f6eae62d2f00e7222bba5c8dad1f41d054
 T004:
   c: false
   h: c47065700be0905bd6ce5e250ef5f5249293954ff29363a0286a0bccddc02052

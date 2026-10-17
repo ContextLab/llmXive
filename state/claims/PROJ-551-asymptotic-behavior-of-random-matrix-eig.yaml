@@ -1977,3 +1977,36 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-17T20:07:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: single_run_results.json contains one SimulationRun and ten EigenvalueResult
+    entries
+  claim_id: c_f4413808
+  context: 'Expected: A JSON report in data/processed/single_run_results.json containing
+    one SimulationRun and ten EigenvalueResult entries.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A JSON report in data/processed/single_run_results.json containing one
+    SimulationRun and ten EigenvalueResult entries
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T22:12:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: top eigenvalue exceeds 2.05 when theta > 1
+  claim_id: c_74fe3203
+  context: The top eigenvalue should exceed 2.05 (outlier) when theta > 1.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The top eigenvalue should exceed 2.05 (outlier) when theta > 1
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T22:12:40Z'

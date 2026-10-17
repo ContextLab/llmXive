@@ -34,28 +34,29 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-551-asymptotic-behavior-of-random-matrix-eig/bin/python: Error while finding module specification for 'src.cli' (ModuleNotFoundError: No module named 'src')
 
 - python -m pytest tests/contract/test_schemas.py -> rc=1
-b-78bb-4862-ae86-4f6097982ebc",\n  "timestamp": "2026-10-17T20:07:32+0000",\n  "seed": 42,\n  ...-78bb-4862-ae86-4f6097982ebc",\n      "eigenvalue_index": 1,\n      "value": 2.7031396828683576,\n      "is_outlier": '
-idx = 0
-
-    def raw_decode(self, s, idx=0):
-        """Decode a JSON document from ``s`` (a ``str`` beginning with
-        a JSON document) and return a 2-tuple of the Python
-        representation and the index in ``s`` where the document ended.
+   """Validate every JSON file in data/processed/ against the appropriate schema.
     
-        This can be used to decode a JSON document from a string that may
-        have extraneous data at the end.
-    
+        Skips gracefully when no JSON artifacts have been produced yet
+        (e.g. before the simulation pipeline has been run).
         """
-        try:
-            obj, end = self.scan_once(s, idx)
-        except StopIteration as err:
->           raise JSONDecodeError("Expecting value", s, err.value) from None
-E           json.decoder.JSONDecodeError: Expecting value: line 17 column 21 (char 461)
+        assert PROCESSED_DIR.is_dir(), f"Processed data directory missing: {PROCESSED_DIR}"
+    
+        json_files = sorted(PROCESSED_DIR.glob("*.json"))
+        if not json_files:
+            pytest.skip("No JSON artifacts found in data/processed/ yet - pipeline not run")
+    
+        for file_path in json_files:
+            with open(file_path, "r", encoding="utf-8") as f:
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError as e:
+>                   pytest.fail(f"Malformed JSON in {file_path.name}: {e}")
+E                   Failed: Malformed JSON in single_run_results.json: Expecting value: line 17 column 21 (char 466)
 
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/decoder.py:355: JSONDecodeError
+tests/contract/test_schemas.py:96: Failed
 =========================== short test summary info ============================
-FAILED tests/contract/test_schemas.py::test_processed_json_files - json.decod...
-==================== 1 failed, 1 passed, 1 skipped in 0.11s ====================
+FAILED tests/contract/test_schemas.py::test_processed_json_files - Failed: Ma...
+==================== 1 failed, 1 passed, 1 skipped in 0.13s ====================
 
 
 - python -m pytest tests/integration/test_t001.py -> rc=4
