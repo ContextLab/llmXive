@@ -2,32 +2,21 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python src/analysis/stats.py --output results/analysis_results.csv; python src/analysis/visualize.py --input results/analysis_results.csv; 4 command(s) failed: python src/data/download.py --check-only (rc=1); python code/src/data/preprocess.py --subjects 50 --mode cpu (rc=1); python src/analysis/connectivity.py --subjects 50 (rc=1); 1 declared deliverable(s) absent: data/preprocessing/run_log.json
+**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python src/analysis/stats.py --output results/analysis_results.csv; python src/analysis/visualize.py --input results/analysis_results.csv; 4 command(s) failed: python src/data/download.py --check-only (rc=1); python src/data/preprocess.py --subjects 50 --mode cpu (rc=1); python src/analysis/connectivity.py --subjects 50 (rc=1); 1 declared deliverable(s) absent: data/preprocessing/run_log.json
 
 ## Failing / missing run-book commands
 
 - python src/data/download.py --check-only -> rc=1
 
-2026-10-17 15:06:24,222 INFO code.src.data.download: Fetching OpenNeuro file index from https://openneuro.org/crn/datasets/ds000233/snapshots/latest/files?download=0
-2026-10-17 15:06:24,467 WARNING code.src.data.download: Snapshot endpoint failed (404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000233/snapshots/latest/files?download=0); trying version‑aware endpoint.
-2026-10-17 15:06:24,589 WARNING code.src.data.download: Versioned endpoint failed (404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000233/versions/latest/files?download=0); trying legacy endpoint.
-2026-10-17 15:06:24,761 ERROR code.src.data.download: Pipeline failed: Failed to retrieve file index for dataset ds000233: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000233/files?download=0
+2026-10-17 19:16:46,366 INFO code.src.data.download: Fetching OpenNeuro file index from https://openneuro.org/api/v1/datasets/ds000233/files
+2026-10-17 19:16:46,477 ERROR code.src.data.download: Pipeline failed: Failed to retrieve file index for dataset ds000233: 404 Client Error: Not Found for url: https://openneuro.org/api/v1/datasets/ds000233/files
 
-- python code/src/data/preprocess.py --subjects 50 --mode cpu -> rc=1
+- python src/data/preprocess.py --subjects 50 --mode cpu -> rc=1
+2026-10-17 19:16:46,640 - code.src.data.preprocess - INFO - Ensured directory: data/preprocessing
+2026-10-17 19:16:46,640 - code.src.data.preprocess - INFO - Ensured directory: data/preprocessing/motion_metrics
+2026-10-17 19:16:46,640 - code.src.data.preprocess - INFO - Ensured directory: data/preprocessing/excluded
+2026-10-17 19:16:46,640 - code.src.data.preprocess - ERROR - No subjects identified for processing.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-232-investigating-the-relationship-between-b/code/src/data/preprocess.py", line 295, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-232-investigating-the-relationship-between-b/code/src/data/preprocess.py", line 272, in main
-    subjects = [d.name.replace("sub-", "") for d in (base_path / "preprocessing").iterdir() 
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-232-investigating-the-relationship-between-b/code/src/data/preprocess.py", line 272, in <listcomp>
-    subjects = [d.name.replace("sub-", "") for d in (base_path / "preprocessing").iterdir() 
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py", line 931, in iterdir
-    for name in os.listdir(self):
-                ^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'data/preprocessing'
 
 - python src/analysis/connectivity.py --subjects 50 -> rc=1
 
@@ -60,7 +49,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/preprocessing/run_log.json` is declared but was NOT written. Scripts referencing it:
     - `code/src/analysis/connectivity.py` — NOT invoked by the run-book
-    - `code/src/data/preprocess.py` — IS a run-book command
+    - `code/src/data/preprocess.py` — NOT invoked by the run-book
     - `code/tests/unit/test_preprocess_motion_exclusion.py` — NOT invoked by the run-book
     - `src/analysis/connectivity.py` — IS a run-book command
   Make ONE of these WRITE `data/preprocessing/run_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

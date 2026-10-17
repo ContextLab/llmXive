@@ -1,8 +1,7 @@
 """
 Data download module for OpenNeuro ds000233.
 Handles streaming metadata, verifying BMRQ columns, and downloading raw NIfTI data.
-This implementation avoids the HuggingFace `datasets` dependency (which requires
-`pyarrow` and a newer NumPy) and instead uses the public OpenNeuro REST API.
+Updated to use the current OpenNeuro API endpoints.
 """
 import argparse
 import hashlib
@@ -10,7 +9,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import List, Set, Tuple
+from typing import List, Set, Tuple, Dict
 
 import requests
 
@@ -26,7 +25,9 @@ REQUIRED_BMRQ_COLUMNS = {
     "sex",
 }
 
-
+# ----------------------------------------------------------------------
+# Helper functions for checksum handling
+# ----------------------------------------------------------------------
 def calculate_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
     """Calculate SHA256 checksum of a file."""
     hash_func = hashlib.new(algorithm)
@@ -36,6 +37,9 @@ def calculate_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
     return hash_func.hexdigest()
 
 
+# ----------------------------------------------------------------------
+# BMRQ verification utilities
+# ----------------------------------------------------------------------
 def verify_bmrq_column(csv_path: Path, required_columns: Set[str] = None) -> Tuple[bool, Set[str]]:
     """
     Verify that the BMRQ CSV contains all required columns.
@@ -113,78 +117,60 @@ The pipeline has halted. Please resolve the data gap before proceeding.
 
 
 # ----------------------------------------------------------------------
-# Helper functions that talk directly to the OpenNeuro REST API
+# OpenNeuro API interaction
 # ----------------------------------------------------------------------
+# Current stable OpenNeuro API base (v1)
+OPENNEURO_API_ROOT = "https://openneuro.org/api/v1/datasets"
 
-OPENNEURO_API_ROOT = "https://openneuro.org/crn/datasets"
 
-
-def _fetch_dataset_file_index(dataset: str) -> List[dict]:
+def _fetch_dataset_file_index(dataset: str) -> List[Dict]:
     """
-    Retrieve a list of file descriptors for a given OpenNeuro dataset.
-    Each descriptor includes at least:
-        - 'filename' (relative path inside the dataset)
-        - 'download_url' (direct URL to the file)
-    The OpenNeuro API returns JSON for the “files” endpoint.
+    Retrieve a list of file descriptors for a given OpenNeuro dataset using the v1 API.
+    Each descriptor will contain at least:
+        - 'path' : relative path inside the dataset
+        - 'filename' : same as 'path' (kept for backward compatibility)
     """
-    # Attempt the snapshot endpoint first (most reliable for public datasets)
-    url_snapshot = f"{OPENNEURO_API_ROOT}/{dataset}/snapshots/latest/files?download=0"
-    logger.info(f"Fetching OpenNeuro file index from {url_snapshot}")
+    url = f"{OPENNEURO_API_ROOT}/{dataset}/files"
+    logger.info(f"Fetching OpenNeuro file index from {url}")
     try:
-        resp = requests.get(url_snapshot, timeout=30)
+        resp = requests.get(url, timeout=30)
         resp.raise_for_status()
         file_index = resp.json()
-        if isinstance(file_index, list):
-            return file_index
-        else:
-            raise RuntimeError("Unexpected response format from snapshot endpoint.")
-    except Exception as e_snapshot:
-        logger.warning(f"Snapshot endpoint failed ({e_snapshot}); trying version‑aware endpoint.")
-        # Version‑aware endpoint (legacy)
-        url_versioned = f"{OPENNEURO_API_ROOT}/{dataset}/versions/latest/files?download=0"
-        try:
-            resp = requests.get(url_versioned, timeout=30)
-            resp.raise_for_status()
-            file_index = resp.json()
-            if isinstance(file_index, list):
-                return file_index
-            else:
-                raise RuntimeError("Unexpected response format from versioned endpoint.")
-        except Exception as e_version:
-            logger.warning(f"Versioned endpoint failed ({e_version}); trying legacy endpoint.")
-            # Legacy endpoint
-            url_legacy = f"{OPENNEURO_API_ROOT}/{dataset}/files?download=0"
-            try:
-                resp = requests.get(url_legacy, timeout=30)
-                resp.raise_for_status()
-                file_index = resp.json()
-                if not isinstance(file_index, list):
-                    raise RuntimeError("Unexpected response format from legacy endpoint.")
-                return file_index
-            except Exception as e_legacy:
-                raise RuntimeError(f"Failed to retrieve file index for dataset {dataset}: {e_legacy}")
+        if not isinstance(file_index, list):
+            raise RuntimeError("Unexpected response format from OpenNeuro file index.")
+        # Normalise keys: ensure each entry has 'filename' and 'download_url' for later use
+        normalized = []
+        for entry in file_index:
+            path = entry.get("path") or entry.get("filename") or entry.get("name")
+            if not path:
+                continue
+            normalized.append({
+                "filename": path,
+                "download_url": f"https://openneuro.org/crn/datasets/{dataset}/download/{path}?download=1"
+            })
+        return normalized
+    except Exception as e:
+        raise RuntimeError(f"Failed to retrieve file index for dataset {dataset}: {e}")
 
 
-def _select_behavioral_file(file_index: List[dict]) -> Tuple[str, str]:
+def _select_behavioral_file(file_index: List[Dict]) -> Tuple[str, str]:
     """
-    From the full file index, locate the behavioral (BMRQ) file.
-    Preference is given to files whose name contains 'bmrq' or 'beh' and
-    ends with .tsv or .csv.
+    Locate the behavioral (BMRQ) file within the dataset file index.
+    Preference is given to files whose name contains 'bmrq' or 'beh' and ends
+    with .tsv or .csv.
     Returns a tuple (filename, download_url).
     """
     for entry in file_index:
-        filename = entry.get("filename") or entry.get("path") or entry.get("name")
+        filename = entry.get("filename")
         if not filename:
             continue
         lower = filename.lower()
         if ("bmrq" in lower or "beh" in lower) and (lower.endswith(".tsv") or lower.endswith(".csv")):
-            download_url = entry.get("download_url") or entry.get("url")
-            if download_url:
-                return filename, download_url
+            return filename, entry["download_url"]
     raise FileNotFoundError("No behavioral BMRQ file found in the dataset.")
 
 
-def _select_subject_func_files(file_index: List[dict], subject_id: str) -> List[Tuple[str, str]]:
+def _select_subject_func_files(file_index: List[Dict], subject_id: str) -> List[Tuple[str, str]]:
     """
     Return a list of (filename, download_url) for all functional NIfTI files
     belonging to the given subject.
@@ -192,20 +178,17 @@ def _select_subject_func_files(file_index: List[dict], subject_id: str) -> List[
     prefix = f"sub-{subject_id}/func/"
     selected = []
     for entry in file_index:
-        filename = entry.get("filename") or entry.get("path") or entry.get("name")
+        filename = entry.get("filename")
         if not filename:
             continue
         if filename.startswith(prefix) and filename.lower().endswith(".nii.gz"):
-            download_url = entry.get("download_url") or entry.get("url")
-            if download_url:
-                selected.append((filename, download_url))
+            selected.append((filename, entry["download_url"]))
     return selected
 
 
 # ----------------------------------------------------------------------
 # Public download functions
 # ----------------------------------------------------------------------
-
 def download_behavioral_data(data_dir: Path, dataset: str = "ds000233") -> Path:
     """
     Download the behavioral (BMRQ) file from OpenNeuro.
@@ -268,7 +251,6 @@ def download_subject_data(subject_id: str, dataset: str, raw_dir: Path) -> bool:
 
         checksum_file = subj_dir / "checksums.sha256"
         checksum_file.write_text("\n".join(checksums))
-
         return True
     except Exception as e:
         logger.error(f"Failed to download data for subject {subject_id}: {e}")
@@ -278,7 +260,6 @@ def download_subject_data(subject_id: str, dataset: str, raw_dir: Path) -> bool:
 # ----------------------------------------------------------------------
 # CLI entry point
 # ----------------------------------------------------------------------
-
 def main():
     parser = argparse.ArgumentParser(description="Download and verify OpenNeuro ds000233 data")
     parser.add_argument("--subjects", type=int, help="Number of subjects to download")
