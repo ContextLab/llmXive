@@ -1,26 +1,4 @@
-- artifact_hash: 58e17795003fad2497a4023227039198c96a6cdbb33ad8890ad0ede35717ee37
-  artifact_path: projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/specs/001-llmxive-follow-up-extending-leveraging-v/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://datasets-server.huggingface.co/parquet?dataset=timbrooks/instructpix2pix`
-  verification_status: pending
-  verified_against_url: https://datasets-server.huggingface.co/parquet?dataset=timbrooks/instructpix2pix
-  verified_at: '2026-10-17T03:10:16.293459Z'
-- artifact_hash: 58e17795003fad2497a4023227039198c96a6cdbb33ad8890ad0ede35717ee37
-  artifact_path: projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/specs/001-llmxive-follow-up-extending-leveraging-v/quickstart.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/api/datasets/timbrooks/instructpix2pix/parquet/default/train`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/api/datasets/timbrooks/instructpix2pix/parquet/default/train
-  verified_at: '2026-10-17T03:10:16.293459Z'
-- artifact_hash: 9788120fc8c41e15c6cef851ca4707846c9d6d28432ff827d282658cd5af1990
+- artifact_hash: 6a698d21a8ad4848852a9a6accb0d8162e34e78d8260114a6c8c06227eb265ec
   artifact_path: projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/specs/001-llmxive-follow-up-extending-leveraging-v/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +8,4 @@
   value: https://huggingface.co/datasets/timbrooks/instructpix2pix`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/timbrooks/instructpix2pix
-  verified_at: '2026-10-17T08:07:36.074822Z'
+  verified_at: '2026-10-17T11:09:18.111338Z'

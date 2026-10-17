@@ -37,7 +37,7 @@ python -m code.src.data.conflict_generator # injects contradictions into neutral
 - **Dataset ID**: `timbrooks/instructpix2pix` (Hugging Face)
 - **Split**: `train`
 - **Streaming rule**: `datasets.load_dataset("timbrooks/instructpix2pix", split="train", streaming=True)` — the full stream is scanned in fixed-size chunks without loading it into RAM.
-- **Real fallbacks** (same dataset, no synthetic data, used only if the primary loader fails on the runner): (1) the dataset's canonical auto-converted parquet shards listed by the official HF datasets-server API (`https://datasets-server.huggingface.co/parquet?dataset=timbrooks/instructpix2pix`) and the Hub parquet API (`https://huggingface.co/api/datasets/timbrooks/instructpix2pix/parquet/default/train`), streamed shard-by-shard with `load_dataset("parquet", data_files=<url>, streaming=True)`; (2) the datasets-server `/rows` API (paginated real rows). The source actually used is recorded in `data/raw/prompts_sample_provenance.json`.
+- **Real fallbacks** (same dataset, no synthetic data, used only if the primary loader fails on the runner): (1) the dataset's canonical auto-converted parquet shards listed by the official HF datasets-server API and the Hub parquet API, streamed shard-by-shard with `load_dataset("parquet", data_files=<url>, streaming=True)`. The source actually used is recorded in `data/raw/prompts_sample_provenance.json`.
 - **Checksums**: each output row carries a SHA-256 checksum over its `(edit_prompt, original_prompt, edit_type)` values; the output file's own SHA-256 is recorded in `data/raw/prompts_sample_provenance.json`.
 - **Output**: `data/raw/prompts_sample.parquet` — a sample of real `(image, edit_prompt)` prompt texts with non-null prompts and checksums, sized for exploratory analysis. The loader raises on any fetch error; there is no synthetic fallback.
 - **Runnable command**: `python -m code.src.data.download`
@@ -76,7 +76,7 @@ python -m code.src.analysis.report          # writes data/results/report.json an
 ## 9. Expected outputs
 | File | Description |
 |------|-------------|
-| `data/raw/prompts_sample.parquet` | First [deferred] real InstructPix2Pix prompt texts with row SHA-256 checksums. |
+| `data/raw/prompts_sample.parquet` | An initial subset of real InstructPix2Pix prompt texts with row SHA-256 checksums. |
 | `data/raw/prompts_sample_provenance.json` | Dataset ID, split, streaming rule, source used, output SHA-256. |
 | `data/results/curated_prompts.csv` | Prompt text + synthetic & **human** feasibility scores. |
 | `data/results/graphs/*.json` | One graph per prompt (structural abstraction only). |
@@ -93,4 +93,4 @@ pytest code/tests/test_evaluation_report.py
 All tests must pass before the CI job is considered successful.
 
 ## 11. GPU Escape Hatch Note
-If the runner reports `torch.cuda.is_available() == False`, the verifier scripts automatically switch to the Kaggle GPU escape hatch (the platform will re-run the same command on a free GPU). No code changes are required; just ensure the `torch` and `transformers` versions support `device="cuda"`.
+If the runner reports `torch.cuda.is_available() == False`, the verifier scripts automatically switch to the Kaggle GPU escape hatch (the platform will re-run the same command on a free GPU). No code changes are required; just ensure that the `torch` and `transformers` versions support `device="cuda"`.

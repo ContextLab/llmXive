@@ -1,10 +1,11 @@
 status: none
-intent: image editing prompts feasibility scores dataset python package dataset
+intent: PromptBench image editing instruction feasibility scores dataset python package
+  dataset
 required_fields:
 - prompt_id
-- instruction_type
 - prompt_text
+- instruction_type
 - human_feasibility_score
-cache_key: b93397e25b50187500755813918bc529cd2f8e398a8c802fa2cf82c370f501e5
-searched_at: '2026-10-17T08:08:22.177497+00:00'
+cache_key: 27f2428d6b22281b431c0c0c83f030e44cdd7527d515fba8993e00a7296abf40
+searched_at: '2026-10-17T11:12:01.154736+00:00'
 retry_count: 1
