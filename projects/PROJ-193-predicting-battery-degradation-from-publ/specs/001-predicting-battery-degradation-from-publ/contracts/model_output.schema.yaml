@@ -1,0 +1,90 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Prediction Output"
+description: "Predictions, uncertainty intervals, and coverage statistics for each held-out test cell."
+type: object
+required:
+  - model_version
+  - predictions
+  - metrics
+properties:
+  model_version:
+    type: string
+    description: "Identifier/hash of the trained model artifact."
+  predictions:
+    type: array
+    description: "Per-cell prediction records for the held-out test set."
+    items:
+      type: object
+      required:
+        - cell_id
+        - protocol
+        - predicted_fade
+        - true_fade
+        - ci_lower
+        - ci_upper
+      properties:
+        cell_id:
+          type: string
+        protocol:
+          type: string
+          description: "Cycling protocol of the test cell (unseen during training)."
+        predicted_fade:
+          type: number
+        true_fade:
+          type: number
+          description: "Measured final capacity fade from the dataset (SC-001)."
+        ci_lower:
+          type: number
+          description: "Lower bound of the Monte Carlo dropout prediction interval."
+        ci_upper:
+          type: number
+          description: "Upper bound of the Monte Carlo dropout prediction interval."
+        feature_importance_scores:
+          type: object
+          description: "Optional per-feature contribution scores (SHAP/permutation/attention)."
+  metrics:
+    type: object
+    required:
+      - r2_test
+      - rmse_test
+      - r2_unseen_protocol
+      - ci_coverage
+    properties:
+      r2_test:
+        type: number
+        description: "R-squared on the full held-out test set."
+      rmse_test:
+        type: number
+        description: "RMSE on the full held-out test set."
+      r2_unseen_protocol:
+        type: number
+        description: "R-squared restricted to cells with unseen cycling protocols (SC-004)."
+      r2_unseen_protocol_ci95:
+        type: array
+        description: "95 percent confidence interval bounds for the unseen-protocol R-squared."
+        items:
+          type: number
+      ci_coverage:
+        type: number
+        description: "Proportion of true fade values inside prediction intervals (SC-006, target >= 0.90)."
+      r2_baseline:
+        type: number
+        description: "Hand-crafted incremental-capacity baseline R-squared (FR-009)."
+      delta_r2_vs_baseline:
+        type: number
+        description: "Bi-LSTM R-squared minus baseline R-squared (SC-007, target >= 0.05)."
+      power_analysis:
+        type: object
+        description: "Sample-size/power result for detecting delta R-squared = 0.05 at alpha = 0.05 (FR-014)."
+        properties:
+          n_test_cells:
+            type: integer
+          achieved_power:
+            type: number
+          note:
+            type: string
+          delta_r2_ci95:
+            type: array
+            description: "95 % confidence interval for the observed ΔR²."
+            items:
+              type: number

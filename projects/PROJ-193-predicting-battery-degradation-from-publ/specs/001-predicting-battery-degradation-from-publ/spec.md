@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Pre-processing Pipeline (Priority: P1) (See US-1)
 
-As a researcher, I want to download the **Battery Archive** dataset (DOI), parse raw voltage/current/temperature CSVs, and construct normalized input sequences (first 50 cycles) with a known target (final capacity fade), so that I can establish a reproducible data foundation for model training.
+As a researcher, I want to download the **Battery Archive** dataset (DOI), parse raw voltage/current/temperature CSVs, and construct normalized input sequences (initial cycles) with a known target (final capacity fade), so that I can establish a reproducible data foundation for model training.
 
 **Why this priority**: Without clean, aligned, and normalized data, no model can be trained or evaluated. This is the foundational step that enables all subsequent modeling and analysis.
 
@@ -18,13 +18,13 @@ As a researcher, I want to download the **Battery Archive** dataset (DOI), parse
 **Acceptance Scenarios**:
 
 1. **Given** the Battery Archive dataset (DOI) is accessible, **When** the ingestion script executes, **Then** it must successfully download and extract all CSV files for cells with complete cycling histories.
-2. **Given** raw CSV files are downloaded, **When** the pre‑processing script runs, **Then** it must resample all traces to a uniform 100 time‑steps per cycle, normalize features per cell **using statistics computed only from the first 50 cycles** (see FR‑010), and output a single structured file where the input shape is `(N_cells, 50_cycles, 100_time‑steps, 3_channels)` and the target shape is `(N_cells, 1)`.
+2. **Given** raw CSV files are downloaded, **When** the pre‑processing script runs, **Then** it must resample all traces to a uniform time‑step resolution per cycle, normalize features per cell **using statistics computed only from the first 50 cycles** (see FR‑010), and output a single structured file where the input shape is `(N_cells, 50_cycles, 100_time‑steps, 3_channels)` and the target shape is `(N_cells, 1)`.
 
 ---
 
 ### User Story 2 - CPU‑Tractable Bi‑LSTM Model Training (Priority: P2) (See US-2)
 
-As a researcher, I want to train a Bi‑LSTM model (2 layers, 64 units) on the pre‑processed sequences using Adam optimizer with early stopping, such that the model fits within the 6‑hour GitHub Actions free‑tier CPU limit and **aims** to achieve an R² ≥ 0.80 on a held‑out test set.
+As a researcher, I want to train a Bi‑LSTM model (multiple layers, 64 units) on the pre‑processed sequences using Adam optimizer with early stopping, such that the model fits within the free‑tier CPU time limit of GitHub Actions and **aims** to achieve an R² ≥ 0.80 on a held‑out test set.
 
 **Why this priority**: This is the core research engine. It must be computationally feasible on free‑tier infrastructure (no GPU) to ensure the project can reach completion without external hardware dependencies.
 
@@ -47,8 +47,8 @@ As a researcher, I want to apply permutation importance, SHAP analysis, and atte
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained Bi‑LSTM model, **When** the interpretability script runs, **Then** it must generate a SHAP summary plot showing the top 10 most influential time‑steps and channels, a permutation importance table, and attention weight visualizations.
-2. **Given** the importance results, **When** analyzed, **Then** the system must produce a ranked table of **all** early‑cycle features (voltage, current, temperature across cycles 1‑50) with quantitative contribution scores; the top‑5 features will be used for an independent linear‑regression check (see SC‑009) and a literature‑anchored validation (see SC‑010).
+1. **Given** a trained Bi‑LSTM model, **When** the interpretability script runs, **Then** it must generate a SHAP summary plot showing the most influential time‑steps and channels, a permutation importance table, and attention weight visualizations.
+2. **Given** the importance results, **When** analyzed, **Then** the system must produce a ranked table of **all** early‑cycle features (voltage, current, temperature across cycles 1‑50) with quantitative contribution scores; the most salient features will be used for an independent linear‑regression check (see SC‑009) and a literature‑anchored validation (see SC‑010).
 
 ### Edge Cases
 

@@ -1,33 +1,40 @@
 # Implementation Plan: Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Networks
 
-**Branch**: `001-predict-battery-degradation` | **Date**: 2026-10-17 | **Spec**: [link to spec.md]  
+**Branch**: `001-predict-battery-degradation` | **Date**: 2026-10-17 | **Spec**: [link to spec.md]
 **Input**: Feature specification from `/specs/001-predict-battery-degradation/spec.md`
 
 ## Summary
-The project aims to (1) ingest publicly‑available battery cycling data, (2) build a CPU‑tractable Bi‑LSTM model to predict final capacity fade from the early cycles, (3) assess model performance and interpretability, and (4) compare against a hand‑crafted baseline. **Current limitation**: No open dataset that provides the required multi‑channel (voltage, current, temperature) time‑series and final capacity‑fade target is publicly downloadable. Consequently, the core research question cannot be answered with the available data at this time. The pipeline will therefore be demonstrated on a **generic CSV placeholder** (illustrative only) until a suitable open dataset is identified. All code is written to seamlessly accept a real dataset once it becomes available.
+
+**BLOCKING DATA-AVAILABILITY FINDING.** The spec requires the Battery Archive dataset (batteryarchive.org, FR-001, FR-012: “No other dataset source may be substituted”). No verified, programmatically downloadable source for Battery Archive exists in the verified‑dataset block. Consequently:
+
+- All pipeline code (ingestion, preprocessing, model, evaluation, interpretability) is written against the Battery Archive CSV schema and can be unit‑tested on hand‑crafted fixture files (under `tests/fixtures/`).  
+- Result‑producing steps are **blocked** until a verified open mirror of the Battery Archive (or an approved substitute) is provided or FR‑001 is relaxed.  
+- The plan therefore includes clear error messages rather than fabricating data.
 
 ## Technical Context
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `torch==2.3.0`, `numpy`, `pandas`, `scikit-learn`, `shap`, `matplotlib`, `datasets`, `hydra-core`  
-- **Storage**: File‑system (raw CSVs → processed `.npz` tensors)  
-- **Testing**: `pytest` for contract validation (`processed_dataset.schema.yaml` **and** `model_output.schema.yaml`)  
-- **Target Platform**: Linux x86_64 GitHub Actions runner (CPU only)  
-- **Performance Goals**: Entire pipeline ≤ 6 h, peak RAM ≤ 7 GB, disk ≤ 14 GB (illustrative for placeholder data)  
-- **Constraints**: CPU‑only execution; deterministic random seeds for reproducibility  
+
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `torch==2.3.0` (CPU), `numpy`, `pandas`, `scikit-learn`, `shap`, `matplotlib`, `statsmodels` (power analysis), `jsonschema` (contract tests)
+- **Storage**: `data/raw/` (immutable CSVs, checksummed), `data/processed/` (NPZ tensors, versioned)
+- **Testing**: `pytest` for contract validation (`processed_dataset.schema.yaml`, `model_output.schema.yaml`) using fixture data only.
+- **Target Platform**: GitHub Actions free‑tier (2 CPU, ~7 GB RAM, ~14 GB disk, ≤6 h, no GPU)
+- **Constraints**: CPU‑only (FR-003); no synthetic data (FR-012); deterministic seeds.
 
 ## Constitution Check
+
 | Principle | Compliance Statement |
 |-----------|----------------------|
-| I. Reproducibility | Fixed seeds, deterministic splits, and data fetches from canonical URLs (or synthetic placeholder) are recorded. |
-| II. Verified Accuracy | No external citations beyond the verified placeholder URL. |
-| III. Data Hygiene | Raw CSV (or synthetic placeholder) is checksum‑verified; transformations write new files with provenance metadata. |
-| IV. Single Source of Truth | Every figure/table is generated directly from pipeline artifacts. |
-| V. Versioning Discipline | All artifacts are hashed and recorded in `state/projects/PROJ-193-...yaml`. |
-| VI. Temporal Sequence Integrity | Input sequences preserve original cycle order; no truncation beyond the defined 50‑cycle window. |
-| VII. Protocol‑Agnostic Validation | **Deferred** – not applicable with placeholder data; will be enabled when a real multi‑protocol dataset is available. |
+| I. Reproducibility | Seeds pinned; data fetched from canonical URL (once provided); deterministic pipelines. |
+| II. Verified Accuracy | No new citations; data‑source limitation explicitly reported. |
+| III. Data Hygiene | Raw CSVs checksummed; transformations write new files with provenance metadata. |
+| IV. Single Source of Truth | All figures/metrics will be generated from pipeline artifacts; none hand‑typed. |
+| V. Versioning Discipline | Content‑hashes recorded in project state YAML. |
+| VI. Temporal Sequence Integrity | Sequences preserve cycle order; resampling interpolates, with no truncation beyond the first 50 cycles. |
+| VII. Protocol‑Agnostic Validation | Held‑out protocol split defined (≥10 cells, ≥2 protocols) – executable once data is present. |
 
 ## Project Structure
-```
+
+```text
 specs/001-predict-battery-degradation/
 ├── plan.md
 ├── research.md
@@ -36,91 +43,102 @@ specs/001-predict-battery-degradation/
 ├── contracts/
 │   ├── processed_dataset.schema.yaml
 │   └── model_output.schema.yaml
-└── tasks.md   # generated later
-```
+└── tasks.md   # generated by /speckit-tasks
 
-### Source Code Layout
-```
 src/
 ├── data/
-│   ├── ingest.py          # download & raw parsing (placeholder)
-│   ├── preprocess.py      # resampling, normalization, sequence building
-│   └── utils.py
+│   ├── ingest.py          # download with retry×3 (60 s backoff), checksum, filter incomplete cells
+│   ├── preprocess.py      # resample to 100 steps/cycle, leakage‑free normalization (first 50 cycles only),
+│   │                       # filter cells with ≥ 100 cycles, build (N, 50, 100, 3) tensors, split (train/val/held‑out)
+│   └── utils.py           # checksum, provenance helpers
 ├── model/
-│   ├── bilstm.py          # Bi‑LSTM definition
-│   ├── train.py           # training loop with early stopping & sweep
-│   └── evaluate.py        # test set evaluation, confidence intervals
+│   ├── bilstm.py          # plain 2‑layer Bi‑LSTM (64 units each), CPU‑only
+│   ├── train.py           # Adam, early stopping, 30‑min hyper‑parameter sweep (lr, hidden size);
+│   │                       # default fallback on timeout, logs runtime/memory usage
+│   ├── evaluate.py        # R², RMSE, MC‑dropout (10 passes) + **split‑conformal calibration** for 90 % PI,
+│   │                       # coverage stats, power analysis (ΔR² = 0.05, α = 0.05)
+│   └── baseline.py        # Incremental‑capacity features derived **only from cycles 1‑50**
 ├── interpret/
 │   ├── shap_analysis.py
 │   ├── permutation_importance.py
-│   └── attention_attribution.py
+│   ├── integrated_gradients.py    # gradient‑×‑input as third attribution method
+│   ├── feature_aggregation.py    # aggregates raw time‑step importances to per‑cycle/channel,
+│   │                               # computes derived early‑cycle signatures (voltage variance,
+│   │                               # current slope, temperature fluctuation) for SC‑009/SC‑010
+│   └── literature_mapping.py     # maps aggregated signatures to literature‑cited features
 └── cli/
-    └── main.py            # entry point wrapper
+    └── main.py
+
 tests/
 ├── contract/
 │   ├── test_processed_schema.py
 │   └── test_model_output_schema.py
 └── unit/
     ├── test_preprocess.py
-    └── test_model.py
+    ├── test_model.py
+    └── test_ingest.py
 ```
 
+**Structure Decision**: modular stages allow independent execution and testing; each stage is runnable on the CI runner with streaming where needed.
+
 ## Complexity Tracking
-All non‑negotiable constitution principles are respected. The plan now **explicitly flags** the dataset limitation, defers scientific claims, and adjusts expectations for SC‑001, SC‑004, and power analysis.
+
+No constitution violations beyond the noted data‑availability gap. All other functional requirements are mapped to concrete phases.
 
 ## Task Mapping (FR / SC Coverage)
 
-| FR / SC | Plan Phase / Step | Description |
-|---------|-------------------|-------------|
-| **FR-001** | Phase 0 – `src/data/ingest.py` | **Pending dataset**: code ready to ingest any CSV with required columns once an open source is identified. |
-| **FR-002** | Phase 0 – `src/data/preprocess.py` | Resample to 100 time‑steps/cycle, normalize using first‑50‑cycle stats, construct `(N, 50, 100, 3)` tensors (placeholder currently produces dummy tensors). |
-| **FR-003** | Phase 1 – `src/model/bilstm.py` | Define multi‑layer Bi‑LSTM (64 units each) using PyTorch CPU backend. |
-| **FR-004** | Phase 1 – `src/model/train.py` | Hyperparameter sweep (learning‑rate ∈ {1e‑3,5e‑4}, hidden size ∈ {64,128}) limited to **30 min** wall‑clock; early stopping (patience = 5). |
-| **FR-005** | Phase 2 – `src/interpret/*` | Permutation importance, SHAP (KernelExplainer, 100 background samples), and attention‑based attribution (illustrative). |
-| **FR-006** | Phase 2 – `src/model/evaluate.py` | Compute R², RMSE on held‑out test set (placeholder target). |
-| **FR-007** | Phase 2 – `src/model/evaluate.py` | Monte Carlo dropout (10 stochastic passes) → prediction intervals & coverage stats (illustrative). |
-| **FR-008** | Phase 2 – `src/interpret/attention_attribution.py` | Separate attention‑based attribution pipeline. |
-| **FR-009** | Phase 2 – `src/model/evaluate.py` | Baseline hand‑crafted incremental‑capacity features → linear regression; compare R² (illustrative). |
-| **FR-010** | Phase 0 – `src/data/preprocess.py` | Normalization computed exclusively from cycles 1‑50. |
-| **SC-001** | **Deferred** – placeholder lacks true capacity‑fade target; R² will be reported as illustrative only when real data become available. |
-| **SC-002** | Phase 0‑2 – CI monitoring | Log runtime, memory, disk; enforce ≤ 6 h, ≤ 7 GB RAM, ≤ 14 GB disk (illustrative). |
-| **SC-003** | Phase 2 – interpretability | Compute Spearman ρ between permutation and SHAP rankings (≥ 0.7) on placeholder data. |
-| **SC-004** | **Deferred** – no genuine protocol variation in placeholder; will be enabled with real data. |
-| **SC-005** | Phase 0 – ingestion log | Percentage of cells retained after filtering (placeholder). |
-| **SC-006** | Phase 2 – uncertainty | Coverage of 90 % CI (illustrative; deferred target). |
-| **SC-007** | Phase 2 – baseline comparison | Ensure Bi‑LSTM R² exceeds baseline by ≥ 0.05 (illustrative). |
-| **SC-008** | Duplicate of SC‑003 (consistency). |
-| **SC-009** | Phase 2 – linear regression on top‑5 features | Train linear model on top‑5 identified features; compare R² to full model (≥ 50 %). |
+| FR / SC | Plan Phase / Step | Status |
+|---------|-------------------|--------|
+| **FR-001** | Phase 1 – `src/data/ingest.py` | Code written; **execution blocked** (no verified source). |
+| **FR-002** | Phase 1 – `src/data/preprocess.py` | Implemented; unit‑tested on fixtures. |
+| **FR-003** | Phase 2 – `src/model/bilstm.py` | Implemented **plain** Bi‑LSTM (no attention). |
+| **FR-004** | Phase 2 – `src/model/train.py` | Implemented: Adam, early stopping, 30‑min sweep, fallback on timeout. |
+| **FR-005** | Phase 3 – `src/interpret/*` | Implemented: SHAP, permutation importance, **Integrated Gradients** (replaces attention). |
+| **FR-006** | Phase 3 – `src/model/evaluate.py` | Implemented; **metrics blocked** until real data. |
+| **FR-007** | Phase 3 – `src/model/evaluate.py` | MC‑dropout + **split‑conformal calibration**; blocked on real data. |
+| **FR-008** | *Not satisfiable with current FR‑003* | **Blocked** – requires spec revision to either allow an attention layer or replace FR‑008 with an alternative attribution method. |
+| **FR-009** | Phase 3 – `src/model/baseline.py` | Baseline features limited to cycles 1‑50; blocked on real data. |
+| **FR-010** | Phase 1 – `preprocess.py` | Normalization statistics computed from cycles 1‑50 only; unit test enforces. |
+| **FR-011** | Phase 1 – `preprocess.py` | Protocol‑family holdout split (≥10 cells, ≥2 protocols, **≥30 cells total** with ≥100 cycles); blocked on real data. |
+| **FR-012** | All phases | Enforced: no synthetic data path; fixtures are test‑only. |
+| **FR-013** | Phase 4 – `tests/contract/` | Contract tests for both schemas; runnable on fixtures. |
+| **FR-014** | Phase 3 – `evaluate.py` | Power for ΔR² = 0.05 computed on *actual* split sizes via `statsmodels`. If achieved power < 0.8, the limitation is reported and ΔR² is presented with a 95 % CI (methodology‑8d7a0a60). |
+| **SC-001** | Phase 3 | Blocked – needs real targets. |
+| **SC-002** | All phases | Runtime/memory/disk logging implemented; values reported only from real runs. |
+| **SC-004** | Phase 3 | Blocked – requires ≥10 unseen‑protocol cells. |
+| **SC-005** | Phase 1 | Completeness ratio logged; blocked on real data. |
+| **SC-006** | Phase 3 | Coverage computed from **calibrated** intervals; blocked on real data. |
+| **SC-007** | Phase 3 | ΔR² vs. baseline computed; reported with 95 % CI; if power < 0.8 the CI is the decision metric (methodology‑8d7a0a60). |
+| **SC-008** | Phase 3 | Spearman ρ between permutation and SHAP rankings; reported with CI; blocked on real data. |
+| **SC-009** | Phase 3 | Linear regression on **top‑5 aggregated features** (derived signatures) evaluated on a **disjoint held‑out set**; selection performed on training cells only, inference on unseen‑protocol test cells; p‑values corrected via Benjamini–Hochberg. |
+| **SC-010** | Phase 3 | Mapping of aggregated features to literature signatures defined in `literature_mapping.py`; ≥3 matches required; blocked on real data. |
 
-All steps are ordered so that data download → preprocessing → model definition → training → evaluation → interpretation → reporting. Steps that depend on real battery data are clearly marked as **illustrative** pending dataset acquisition.
+## Statistical Rigor
 
-## Statistical Rigor (added)
+- **Multiple comparisons**: Benjamini–Hochberg FDR applied to the five p‑values in SC‑009; single Spearman test (SC‑008) reported unadjusted.
+- **Power/sample size**: FR‑014 power analysis computed on actual split sizes; if achieved power < 0.8 the limitation is reported and ΔR² is presented with its 95 % CI (methodology‑8d7a0a60).
+- **Causal framing**: Observational data; all claims are associational.
+- **Measurement validity**: Will be documented from Battery Archive metadata once data is obtained.
+- **Collinearity**: Baseline incremental‑capacity features are limited to cycles 1‑50; VIF will be reported; no independent‑effect language used.
 
-- **Multiple‑Comparison**: Only a single Spearman correlation is computed for attribution consistency; no correction needed. If additional per‑feature tests are added, a Benjamini‑Hochberg FDR will be applied.
-- **Power / Sample‑Size**: The placeholder dataset contains **≈ 1 000** rows after filtering. Power analysis for detecting a ΔR² = 0.05 with α = 0.05 and N ≈ 1 000 yields > 80 % power *for the synthetic target*. This does **not** guarantee power for a real battery dataset, which would likely require many more cells. The limitation is noted.
-- **Causal‑Inference Assumptions**: All analyses are observational; conclusions are framed as *associational*. No causal claims are made.
-- **Measurement Validity**: Battery sensor calibrations are assumed validated per original dataset documentation (not available for the placeholder). This limitation is noted in the discussion.
-- **Collinearity**: Voltage, current, and temperature traces are time‑series; multicollinearity is assessed via variance‑inflation factor on flattened features. High VIFs are reported but do not invalidate attribution rankings (they are based on model‑internal gradients/attention).
+## Execution Plan Summary
 
-## Execution Plan Summary (mirrors `plan.md`)
+1. **Phase 0 – Scaffolding**: pin requirements, create module skeletons, configure logger.
+2. **Phase 1 – Data pipeline** (`ingest.py`, `preprocess.py`, `utils.py`): download with retry ×3 (60 s backoff), checksum raw files, filter cells with **≥ 100 cycles** and complete histories, resample, leakage‑free normalization (first 50 cycles only), build tensors, protocol‑holdout split (≥10 cells, ≥2 protocols). Unit tests on fixtures.
+3. **Phase 2 – Model** (`bilstm.py`, `train.py`): CPU‑only plain Bi‑LSTM (2×64) **without** attention, Adam, early stopping, 30‑min hyper‑parameter sweep, fallback defaults.
+4. **Phase 3 – Evaluation & Interpretation** (`evaluate.py`, `baseline.py`, `interpret/*`):  
+   - Metrics (R², RMSE) on full and unseen‑protocol test sets.  
+   - MC‑dropout intervals **calibrated via split‑conformal prediction** (SC‑006).  
+   - Power analysis (FR‑014).  
+   - SHAP, permutation importance, **Integrated Gradients** (replaces attention).  
+   - **Feature Aggregation** to collapse raw attributions into per‑cycle/channel summaries and compute **derived early‑cycle signatures** (voltage variance, current slope, temperature fluctuation) for SC‑009 and SC‑010.  
+   - Spearman consistency (SC‑008).  
+   - Linear regression on top‑5 aggregated features selected on training split, evaluated on disjoint held‑out set; BH correction applied.  
+   All result production gated on real data availability.
+5. **Phase 4 – Contracts & Reporting**: schema validation, result JSON/figures generation (only when data present).
 
-1. **Ingestion (`src/data/ingest.py`)** – download verified placeholder CSVs, checksum, filter rows with complete records.  
-2. **Preprocessing (`src/data/preprocess.py`)** – (a) resample each trace to 100 time‑steps per cycle (placeholder: interpolate dummy column), (b) normalize using means/stds from cycles 1‑50 only, (c) assemble tensors of shape `(N, 50, 100, 3)`.  
-3. **Model Definition (`src/model/bilstm.py`)** – Bi‑LSTM with 2 layers, 64 hidden units, `torch.nn.LSTM(bidirectional=True)`.  
-4. **Training (`src/model/train.py`)** – train/validation split (80/20), early stopping (patience = 5), hyperparameter grid limited to 30 min wall‑clock.  
-5. **Evaluation (`src/model/evaluate.py`)** – compute R², RMSE on held‑out test set (placeholder target), Monte Carlo dropout intervals, coverage stats (illustrative).  
-6. **Baseline Comparison (`src/model/baseline.py`)** – hand‑crafted incremental‑capacity features → linear regression; compare R² (illustrative).  
-7. **Interpretability (`src/interpret/*.py`)** – SHAP (KernelExplainer, 100 background samples), permutation importance (scikit‑learn), attention weight extraction; compute Spearman ρ between rankings.  
-8. **Reporting (`src/cli/main.py`)** – generate JSON/YAML result files, Matplotlib figures (SHAP summary, importance bar, attention heatmaps).  
+Ordering respects data‑download → preprocessing → model fitting → evaluation → figure generation.
 
-All steps are logged via `llmxive_toolkit.get_logger`, and artifacts are version‑hashed.
+## Constitution Alignment Summary
 
-## Testing Addendum
-Contract tests now include validation of both `processed_dataset.schema.yaml` **and** `model_output.schema.yaml`:
-
-```bash
-pytest -q tests/contract/test_processed_schema.py
-pytest -q tests/contract/test_model_output_schema.py
-```
-
-These ensure that both the processed dataset and model predictions conform to their respective schemas.
+All steps respect the constitution; the only open violation is the data‑availability gap (FR‑001), which is explicitly flagged for spec revision.
