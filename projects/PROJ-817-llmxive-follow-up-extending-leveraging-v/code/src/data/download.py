@@ -57,8 +57,11 @@ def _iter_stream_hf():
     """Primary path: stream the full HF dataset without loading it in RAM."""
     from datasets import load_dataset
 
-    log.info("Streaming %s split=%s (full stream, chunked iteration)",
-             DATASET_ID, SPLIT)
+    log.info(
+        "Streaming %s split=%s (full stream, chunked iteration)",
+        DATASET_ID,
+        SPLIT,
+    )
     ds = load_dataset(DATASET_ID, split=SPLIT, streaming=True)
     for row in ds:
         yield row
@@ -70,24 +73,30 @@ def _iter_stream_parquet():
 
     for url in PARQUET_URLS:
         log.info("Streaming canonical parquet shard: %s", url)
-        ds = load_dataset("parquet", data_files=url, split="train",
-                          streaming=True)
+        ds = load_dataset(
+            "parquet", data_files=url, split="train", streaming=True
+        )
         for row in ds:
             yield row
 
 
-def collect_prompt_sample(n_prompts: int = N_PROMPTS,
-                          chunk_size: int = CHUNK_SIZE) -> pd.DataFrame:
+def collect_prompt_sample(
+    n_prompts: int = N_PROMPTS, chunk_size: int = CHUNK_SIZE
+) -> pd.DataFrame:
     """Scan the real stream in chunks; keep the first n_prompts valid rows.
 
     Raises on any fetch error — no synthetic fallback.
     """
     try:
         row_iter = _iter_stream_hf()
-        source = f"datasets.load_dataset('{DATASET_ID}', split='{SPLIT}', streaming=True)"
+        source = (
+            f"datasets.load_dataset('{DATASET_ID}', split='{SPLIT}', streaming=True)"
+        )
     except Exception as exc:  # noqa: BLE001 - fail loudly, then try fallback
-        log.warning("HF streaming loader failed (%s); trying canonical "
-                    "parquet shards", exc)
+        log.warning(
+            "HF streaming loader failed (%s); trying canonical parquet shards",
+            exc,
+        )
         row_iter = _iter_stream_parquet()
         source = "canonical HF parquet shards (" + "; ".join(PARQUET_URLS) + ")"
 
@@ -116,8 +125,11 @@ def collect_prompt_sample(n_prompts: int = N_PROMPTS,
             if len(chunk) >= chunk_size:
                 flush(chunk)
                 chunk = []
-                log.info("Scanned %d streamed rows; kept %d prompts",
-                         scanned, len(records))
+                log.info(
+                    "Scanned %d streamed rows; kept %d prompts",
+                    scanned,
+                    len(records),
+                )
                 if len(records) >= n_prompts:
                     break
         if chunk and len(records) < n_prompts:
@@ -138,8 +150,12 @@ def collect_prompt_sample(n_prompts: int = N_PROMPTS,
         raise RuntimeError("Null prompt or checksum in collected sample.")
     if df["checksum"].duplicated().any():
         raise RuntimeError("Duplicate row checksums in collected sample.")
-    log.info("Collected %d real prompts from %d scanned rows "
-             "(source: %s)", len(df), scanned, source)
+    log.info(
+        "Collected %d real prompts from %d scanned rows (source: %s)",
+        len(df),
+        scanned,
+        source,
+    )
     df.attrs["source"] = source
     df.attrs["scanned_rows"] = scanned
     return df
@@ -157,7 +173,7 @@ def main() -> int:
         "streaming_rule": (
             "datasets.load_dataset('timbrooks/instructpix2pix', "
             "split='train', streaming=True), full stream scanned in "
-            "chunks of %d rows; fallback: canonical HF parquet shards" % CHUNK_SIZE
+            f"chunks of {CHUNK_SIZE} rows; fallback: canonical HF parquet shards"
         ),
         "source_used": df.attrs["source"],
         "rows_scanned": df.attrs["scanned_rows"],
@@ -175,8 +191,10 @@ def main() -> int:
     assert len(check) >= N_PROMPTS, "fewer than 2000 rows"
     assert check["edit_prompt"].notna().all(), "null prompts present"
     assert check["checksum"].notna().all(), "null checksums present"
-    log.info("Check passed: %d rows, all prompts and checksums non-null",
-             len(check))
+    log.info(
+        "Check passed: %d rows, all prompts and checksums non-null",
+        len(check),
+    )
     return 0
 
 

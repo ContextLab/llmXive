@@ -1,1 +1,1 @@
-# data acquisition and curation package
+# Package marker for the data subpackage.
