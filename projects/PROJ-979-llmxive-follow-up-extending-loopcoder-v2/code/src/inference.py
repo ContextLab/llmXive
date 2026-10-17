@@ -29,7 +29,6 @@ if not logger.handlers:
 @dataclass
 class SandboxResult:
     """Result of a single inference step for a problem."""
-
     task_id: str
     k: int
     output: str
@@ -43,11 +42,7 @@ def load_model(
     model_name: str = get_config_value("MODEL_NAME"),
     device: str = "cpu",
 ) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
-    """
-    Load the CodeLlama model.
-
-    Raises a clear ``RuntimeError`` if the model identifier cannot be resolved.
-    """
+    """Load the CodeLlama model."""
     try:
         logger.info(f"Loading model {model_name} on {device}")
         tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
@@ -75,13 +70,7 @@ def generate_solution(
     temperature: float = 0.7,
     top_p: float = 0.95,
 ) -> str:
-    """
-    Generate a single solution for ``prompt``.
-
-    The function respects the global temperature/top‑p settings (pulled from config
-    if not overridden) and returns the generated code block (or the whole response
-    if no markdown fences are present).
-    """
+    """Generate a single solution for ``prompt``."""
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     with torch.no_grad():
         outputs = model.generate(
@@ -93,7 +82,6 @@ def generate_solution(
             pad_token_id=tokenizer.eos_token_id,
         )
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    # Extract the first code block if markdown fences are present
     if "```python" in response:
         start = response.find("```python") + len("```python")
         end = response.find("```", start)
@@ -108,13 +96,7 @@ def generate_solution(
 
 
 def execute_code_in_sandbox(code: str, test_case: Dict[str, Any]) -> Tuple[bool, str]:
-    """
-    Very light‑weight sandbox: we only check that the code parses.
-
-    In a full implementation this would run the supplied ``test_case`` against the
-    generated solution in an isolated environment. For the purposes of the
-    reproducibility pipeline we keep it deterministic and avoid external side‑effects.
-    """
+    """Light‑weight sandbox that only checks Python syntax."""
     try:
         ast.parse(code)
         return True, ""
@@ -131,19 +113,13 @@ def load_input_problems(filepath: str) -> List[Dict[str, Any]]:
 def detect_convergence(
     results: List[SandboxResult], task_id: str
 ) -> Tuple[Optional[int], bool, int]:
-    """
-    Determine the first ``k`` at which the solution is correct.
-
-    Returns ``(first_correct_step, censored, time_to_event)`` where ``censored`` is
-    ``True`` when no correct solution was found within the supplied ``k_range``.
-    """
+    """Determine the first ``k`` at which the solution is correct."""
     task_res = [r for r in results if r.task_id == task_id]
     task_res.sort(key=lambda r: r.k)
     for r in task_res:
         if r.is_correct:
             return r.k, False, r.k
-    # No correct answer found → censored at the maximum k
-    max_k = max(r.k for r in task_res) if task_res else 0
+    max_k = max((r.k for r in task_res), default=0)
     return None, True, max_k
 
 
@@ -153,12 +129,7 @@ def ensure_output_dir(path: str) -> None:
 
 
 def save_convergence_results(results: List[SandboxResult], output_path: str) -> None:
-    """
-    Write all ``SandboxResult`` rows to ``output_path``.
-
-    The CSV schema matches the one required by downstream analysis modules:
-    ``task_id, k, output, is_correct, first_correct_step, censored, time_to_event``.
-    """
+    """Write all ``SandboxResult`` rows to ``output_path`` as CSV."""
     ensure_output_dir(output_path)
     fieldnames = [
         "task_id",
@@ -185,16 +156,7 @@ def run_iterative_inference(
     device: str,
     seed: int,
 ) -> None:
-    """
-    Core driver for the iterative refinement experiment.
-
-    Parameters
-    ----------
-    input_path: path to a JSON file containing problem dictionaries
-    output_path: destination CSV for convergence results
-    k_range: list of integers (e.g. [1,2,3])
-    model_name, device, seed: passed to ``load_model`` and used for reproducibility
-    """
+    """Core driver for the iterative refinement experiment."""
     set_global_seed(seed)
     problems = load_input_problems(input_path)
     model, tokenizer = load_model(model_name=model_name, device=device)
@@ -211,10 +173,8 @@ def run_iterative_inference(
         task_step_results: List[SandboxResult] = []
 
         for k in k_range:
-            # Deterministic seeds per step
-            set_global_seed(seed + k)
+            set_global_seed(seed + k)  # deterministic per step
 
-            # Build the prompt for the current refinement step
             cur_prompt = prompt
             if previous_output:
                 cur_prompt += f"\n\nPrevious attempt (k={k-1}):\n{previous_output}\n\nRefined attempt (k={k}):"
@@ -250,24 +210,27 @@ def run_iterative_inference(
                 r.time_to_event = toe
             all_results.extend(task_step_results)
 
-    # Write any exclusions for downstream debugging
     if exclusion_log:
         excl_path = Path(output_path).with_name("exclusions.json")
         with open(excl_path, "w", encoding="utf-8") as f:
             json.dump(exclusion_log, f, indent=2)
         logger.info(f"Exclusion log written to {excl_path}")
 
-    # Persist the main results CSV
     save_convergence_results(all_results, output_path)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Iterative inference for convergence analysis")
-    parser.add_argument("--input", type=str, required=True, help="Path to input JSON (e.g., filtered_splits.json)")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=str(Path(get_config_value("DATA_DIR", "data")) / "processed" / "filtered_splits.json"),
+        help="Path to input JSON (e.g., filtered_splits.json)",
+    )
     parser.add_argument(
         "--output",
         type=str,
-        required=True,
+        default=str(Path(get_config_value("OUTPUT_DIR", "data/processed") ) / "convergence_results_core.csv"),
         help="Path to output CSV (e.g., convergence_results_core.csv)",
     )
     parser.add_argument(

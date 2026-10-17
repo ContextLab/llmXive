@@ -1,14 +1,26 @@
-status: none
-intent: HumanEval MBPP code generation benchmarks open source python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import sys\nfrom datasets import load_dataset, concatenate_datasets\n\
+  \n# Load the full HumanEval dataset (namespace/name required)\nds_dict = load_dataset(\"\
+  openai/openai_humaneval\")\n\n# Merge all available splits into a single Dataset\n\
+  all_ds = concatenate_datasets([ds_dict[split] for split in ds_dict])\n\nrecord_count\
+  \ = len(all_ds)\nif record_count == 0:\n    raise ValueError(\"No records loaded\"\
+  )\n\nprint(f\"RECORDS={record_count}\")\n\nsample = all_ds[0]\nprint(f\"FIELDS={','.join(sample.keys())}\"\
+  )"
+record_count: 164
+sample_fields:
+- task_id
+- prompt
+- canonical_solution
+- test
+- entry_point
+field_coverage: 1.0
 required_fields:
 - task_id
 - prompt
 - canonical_solution
 - test_cases
-- initial_entropy
-- convergence_steps
-- converged
-- sample_outputs
-cache_key: 940e4f6d8dbe106de5d943289dd4199d53789f3f9576aa7761e4ee653d0d3b1f
-searched_at: '2026-10-17T09:22:33.653229+00:00'
-retry_count: 1
+intent: download HumanEval and MBPP code generation datasets via Hugging Face datasets
+  python package dataset
+cache_key: fcc075595d622a92889e456d92446d91db6a6e705abe3f8ebe8480360f4487de

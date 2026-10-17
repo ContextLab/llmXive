@@ -34,6 +34,36 @@ shell script must be an existing project-local .sh file
 - data/processed/convergence_results_sensitivity.csv
 - data/processed/entropy_results.csv
 
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **164** real records with fields: task_id, prompt, canonical_solution, test, entry_point.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import sys
+from datasets import load_dataset, concatenate_datasets
+
+# Load the full HumanEval dataset (namespace/name required)
+ds_dict = load_dataset("openai/openai_humaneval")
+
+# Merge all available splits into a single Dataset
+all_ds = concatenate_datasets([ds_dict[split] for split in ds_dict])
+
+record_count = len(all_ds)
+if record_count == 0:
+    raise ValueError("No records loaded")
+
+print(f"RECORDS={record_count}")
+
+sample = all_ds[0]
+print(f"FIELDS={','.join(sample.keys())}")
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
@@ -60,5 +90,5 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/scripts/run_survival_assumptions.py` — NOT invoked by the run-book
     - `code/src/aggregation.py` — NOT invoked by the run-book
     - `code/src/analysis.py` — NOT invoked by the run-book
-    - `code/src/logging_utils.py` — NOT invoked by the run-book
+    - `code/src/entropy.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/entropy_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

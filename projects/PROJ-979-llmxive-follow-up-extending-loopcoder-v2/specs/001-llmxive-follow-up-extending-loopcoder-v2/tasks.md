@@ -7,7 +7,7 @@
 
 ## Phase 0 – Core infrastructure (already verified)
 
-- [ ] T000‑config [P] **Environment & config constants** – `code/src/config.py`   <!-- FAILED-IN-EXECUTION: code/src/entropy.py exit=2; code/src/inference.py exit=2 -->
+- [ ] T000‑config [P] **Environment & config constants** – `code/src/config.py`   <!-- FAILED-IN-EXECUTION: code/src/entropy.py exit=2; code/src/inference.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/src/entropy.py exit=1; code/src/inference.py exit=1 -->
   *Defines seeds, model‑temperature, `ENTROPY_N_SAMPLES = 10`, `CONVERGENCE_K_RANGE = [1,2,3]`, `NON_INFERIORITY_DELTA = 0.05`, etc.*  
   *Verification:* `code/src/config.py` imports without error and constants match specification.
 

@@ -7,8 +7,6 @@ import hashlib
 import json
 import logging
 import os
-import random
-import time
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
@@ -38,51 +36,29 @@ def load_model(
 ) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
     Load a causal language model and its tokenizer.
-
-    Parameters
-    ----------
-    model_name: str
-        HuggingFace model identifier.
-    device: str
-        ``"cuda"`` or ``"cpu"``.
-    temperature, top_p: float
-        Sampling parameters that will be used for generation.
-
-    Returns
-    -------
-    model, tokenizer
     """
     logger.info(f"Loading model {model_name} on {device}")
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_name, trust_remote_code=True
-        )
-        # Ensure a pad token exists for generation
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_name, trust_remote_code=True
+    )
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
 
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-            device_map="auto" if device == "cuda" else None,
-            trust_remote_code=True,
-        )
-        if device == "cpu":
-            model = model.to(torch.float32)
-        model.eval()
-        logger.info("Model loaded successfully")
-        return model, tokenizer
-    except Exception as e:
-        logger.error(f"Failed to load model {model_name}: {e}")
-        raise
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+        device_map="auto" if device == "cuda" else None,
+        trust_remote_code=True,
+    )
+    if device == "cpu":
+        model = model.to(torch.float32)
+    model.eval()
+    logger.info("Model loaded successfully")
+    return model, tokenizer
 
 
 def normalize_ast(code_str: str) -> Optional[str]:
-    """
-    Normalise a piece of Python code by parsing it to an AST and unparsing it.
-
-    Returns ``None`` if the code cannot be parsed.
-    """
+    """Normalise a piece of Python code by parsing it to an AST and unparsing it."""
     try:
         tree = ast.parse(code_str)
         return ast.unparse(tree)
@@ -100,9 +76,7 @@ def generate_samples(
     top_p: float = 0.95,
     max_new_tokens: int = 512,
 ) -> List[str]:
-    """
-    Generate ``n_samples`` completions for ``prompt``.
-    """
+    """Generate ``n_samples`` completions for ``prompt``."""
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     samples: List[str] = []
 
@@ -118,7 +92,6 @@ def generate_samples(
                 eos_token_id=tokenizer.eos_token_id,
             )
         generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        # Strip the original prompt if it appears in the generated text
         if prompt in generated:
             generated = generated.split(prompt, 1)[1]
         samples.append(generated.strip())
@@ -126,10 +99,7 @@ def generate_samples(
 
 
 def cluster_samples(samples: List[str]) -> Dict[str, int]:
-    """
-    Cluster generated samples by the hash of their normalised AST.
-    Returns a mapping ``hash -> count``.
-    """
+    """Cluster generated samples by the hash of their normalised AST."""
     clusters: Dict[str, int] = {}
     for sample in samples:
         norm = normalize_ast(sample)
@@ -141,9 +111,7 @@ def cluster_samples(samples: List[str]) -> Dict[str, int]:
 
 
 def compute_shannon_entropy(cluster_counts: Dict[str, int]) -> float:
-    """
-    Compute Shannon entropy (base‑2) from a dictionary of cluster counts.
-    """
+    """Compute Shannon entropy (base‑2) from a dictionary of cluster counts."""
     total = sum(cluster_counts.values())
     if total == 0:
         return 1e-9  # minimal non‑zero entropy
@@ -173,30 +141,17 @@ def process_entropy_for_dataset(
 ) -> None:
     """
     Compute entropy for every problem in ``dataset_path`` and write a CSV.
-
-    Parameters
-    ----------
-    dataset_path: str
-        JSON or CSV file containing at least ``task_id`` and ``prompt`` columns.
-    output_path: str
-        Destination CSV for ``task_id`` and ``entropy`` (plus optional exclusion info).
-    reference_path: Optional[str]
-        Path to an unseen validation set – not used for entropy itself but retained for
-        backward compatibility with earlier pipeline versions.
-    model_name, device, n_samples, seed, sample_size: as described in the module docstring.
     """
     set_global_seed(seed)
 
-    # Resolve model hyper‑parameters from the central config
     temperature = float(get_config_value("MODEL_TEMP", 0.7))
     top_p = float(get_config_value("MODEL_TOP_P", 0.95))
 
-    # Load the model once
     model, tokenizer = load_model(
         model_name, device=device, temperature=temperature, top_p=top_p
     )
 
-    # Load the dataset
+    # Load dataset (JSON or CSV)
     if dataset_path.endswith(".json"):
         with open(dataset_path, "r") as f:
             data = json.load(f)
@@ -205,12 +160,11 @@ def process_entropy_for_dataset(
     else:
         raise ValueError(f"Unsupported dataset format: {dataset_path}")
 
-    # Optional size limit for quick‑run / CPU validation
     if sample_size is not None:
         data = data[:sample_size]
 
-    # Load reference set only for logging – failures are non‑fatal
-    if reference_path is not None and os.path.exists(reference_path):
+    # Optional reference set (only for logging)
+    if reference_path and os.path.exists(reference_path):
         try:
             _ = load_reference_set(reference_path)
             logger.info("Reference set loaded for sanity checking")
@@ -243,7 +197,6 @@ def process_entropy_for_dataset(
                 temperature=temperature,
                 top_p=top_p,
             )
-            # Discard completely empty samples
             valid_samples = [s for s in samples if s.strip()]
             if not valid_samples:
                 exclusion_log.append(
@@ -257,7 +210,6 @@ def process_entropy_for_dataset(
 
             clusters = cluster_samples(valid_samples)
             if not clusters:
-                # All samples malformed – assign minimal entropy but record exclusion
                 exclusion_log.append(
                     {
                         "task_id": task_id,
@@ -273,7 +225,6 @@ def process_entropy_for_dataset(
             entropy = compute_shannon_entropy(clusters)
             results.append({"task_id": task_id, "entropy": entropy, "exclusion_reason": None})
         except Exception as exc:
-            # Any unexpected error – log and continue with minimal entropy
             err_msg = str(exc)
             exclusion_log.append(
                 {"task_id": task_id, "reason": "Processing error", "error": err_msg}
@@ -286,12 +237,13 @@ def process_entropy_for_dataset(
         if (idx + 1) % 10 == 0:
             logger.info(f"Processed {idx + 1}/{len(data)} problems")
 
-    # Write the main CSV
+    # Write main CSV
     out_df = pd.DataFrame(results)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     out_df.to_csv(output_path, index=False)
     logger.info(f"Entropy results written to {output_path}")
 
-    # Write the exclusion log alongside the CSV
+    # Write exclusion log
     exclusion_path = Path(output_path).with_name("exclusion_log.json")
     with open(exclusion_path, "w") as f:
         json.dump(exclusion_log, f, indent=2)
@@ -299,14 +251,24 @@ def process_entropy_for_dataset(
 
 
 def main() -> None:
-    """CLI entry point."""
+    """CLI entry point with sensible defaults."""
     import argparse
 
     parser = argparse.ArgumentParser(
         description="Compute entropy for a set of code generation problems"
     )
-    parser.add_argument("--input", type=str, required=True, help="Path to input dataset")
-    parser.add_argument("--output", type=str, required=True, help="Destination CSV")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=str(Path(get_config_value("DATA_DIR", "data")) / "processed" / "filtered_splits.json"),
+        help="Path to input dataset",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(Path(get_config_value("OUTPUT_DIR", "data/processed") ) / "entropy_results.csv"),
+        help="Destination CSV",
+    )
     parser.add_argument(
         "--reference",
         type=str,
@@ -320,14 +282,29 @@ def main() -> None:
         help="HuggingFace model identifier",
     )
     parser.add_argument(
-        "--device", type=str, default="cuda", choices=["cpu", "cuda"], help="Execution device"
+        "--device",
+        type=str,
+        default="cuda",
+        choices=["cpu", "cuda"],
+        help="Execution device",
     )
     parser.add_argument(
-        "--n-samples", type=int, default=int(get_config_value("ENTROPY_N_SAMPLES", 10)), help="Samples per problem"
+        "--n-samples",
+        type=int,
+        default=int(get_config_value("ENTROPY_N_SAMPLES", 10)),
+        help="Samples per problem",
     )
-    parser.add_argument("--seed", type=int, default=int(get_config_value("RANDOM_SEED", 42)), help="Random seed")
     parser.add_argument(
-        "--sample-size", type=int, default=None, help="Process only the first N problems (for quick runs)"
+        "--seed",
+        type=int,
+        default=int(get_config_value("RANDOM_SEED", 42)),
+        help="Random seed",
+    )
+    parser.add_argument(
+        "--sample-size",
+        type=int,
+        default=None,
+        help="Process only the first N problems (for quick runs)",
     )
 
     args = parser.parse_args()
