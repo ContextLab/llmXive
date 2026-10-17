@@ -11,7 +11,7 @@ This is a re-plan: the prior task list was rejected for format (task tables/fenc
   - Create `code/config.py` defining: `SEED=42`, `GEO_ACCESSIONS=["GSE131907", "GSE111322", "GSE150728"]`, `SAMPLE_CELLS_THRESHOLD=10000`, `SAMPLE_SIZE=5000`, `LEIDEN_RESOLUTIONS=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]`, `SILHOUETTE_THRESHOLDS=[0.4,0.5,0.6]`, `MEMORY_LIMIT_BYTES=7000000000`, `RUNTIME_LIMIT_SECONDS=21600`, `K_GEOMETRY=15`.
   - Create `quickstart.md` documenting the single runnable command: `python code/main.py`.
   - Create `code/requirements.txt` pinning: `scanpy`, `anndata`, `leidenalg`, `umap-learn`, `scikit-learn`, `statsmodels`, `pandas`, `pyarrow`, `numpy`, `scipy`, `matplotlib`, `psutil`, `GEOparse`, `jsonschema`.
-  - Write `results/dir_listing.txt` produced by executing `python -c "import subprocess; open('results/dir_listing.txt','w').write(subprocess.run(['find','data','figures','code','results','-type','d'],capture_output=True,text=True).stdout)"` AFTER `code/main.py --setup` (or `llmxive_toolkit.paths`) has created `data/raw/`, `data/processed/`, `data/embeddings/`, `data/clustering/`, `data/metrics/`, `data/results/`, `figures/`, `paper/`, `code/tests/`. The listing file is the reviewer-required proof that the directories exist on disk.
+  - After `code/main.py --setup` (or `llmxive_toolkit.paths`) has created `data/raw/`, `data/processed/`, `data/embeddings/`, `data/clustering/`, `data/metrics/`, `data/results/`, `figures/`, `paper/`, `code/tests/`, write `results/dir_listing.txt` by executing `python -c "import subprocess; open('results/dir_listing.txt','w').write(subprocess.run(['find','data','figures','code','results','-type','d'],capture_output=True,text=True).stdout)"`. The listing file is the reviewer-required proof that the directories exist on disk.
   - *Verification*: `python -c "from code.config import SEED, GEO_ACCESSIONS; assert SEED==42 and len(GEO_ACCESSIONS)==3"` exits 0. `results/dir_listing.txt` exists and contains the strings `data/raw`, `data/processed`, `data/embeddings`, `data/clustering`, `data/metrics`, `figures`, `code/tests`. `quickstart.md` contains the exact command `python code/main.py`.
 
 - [ ] T002 [P] [US1] **Implement the complete resource-monitoring utility and generate `results/monitoring.csv`**
@@ -34,7 +34,7 @@ This is a re-plan: the prior task list was rejected for format (task tables/fenc
   - Create `code/preprocess.py` that, for each `"Available"` dataset in `data/manifest.json`:
     * Loads the raw count matrix (CSV/MTX/HDF5 via scanpy), validates non-negative integer counts, and extracts ground-truth cell-type labels from GEO metadata (writing them to `data/processed/{dataset_id}_labels.csv` with columns `cell_id,label`); if labels are missing, records the dataset as fidelity-aborted (spec edge case) but still produces embeddings/diagnostics.
     * Applies log-CPM: `log2((counts / row_sum) * 1e6 + 1)`.
-    * Selects highly variable genes via scanpy's Seurat-style variance-stabilizing dispersion (`sc.pp.highly_variable_genes`, flavor="seurat"`); retains the top 2000 HVGs (elbow-based dynamic N permitted, recorded in output).
+    * Selects highly variable genes via scanpy's Seurat-style variance-stabilizing dispersion (`sc.pp.highly_variable_genes`, `flavor="seurat"`); retains the top 2000 HVGs (elbow-based dynamic N permitted, recorded in output).
     * If `n_cells > config.SAMPLE_CELLS_THRESHOLD`, deterministically samples exactly `config.SAMPLE_SIZE` cells (seed derived from `config.SEED` and `dataset_id`); the SAME sampled subset feeds all downstream steps.
     * Computes **global linearity** = `sklearn.manifold.trustworthiness(high_dim_sampled, pca30_of_sampled, n_neighbors=config.K_GEOMETRY)` and **local continuity** = `sklearn.manifold.trustworthiness(pca30_of_sampled, high_dim_sampled, n_neighbors=config.K_GEOMETRY)` (FR-002/FR-003, k=15). If `n_cells < 500`, logs a warning and stores `null` (spec edge case).
     * Writes `data/processed/{dataset_id}_matrix.parquet` (cells × HVGs) and `data/processed/{dataset_id}_geometric.json` with keys `trustworthiness`, `local_continuity`, `n_cells_sampled`, `n_genes_hvg`, `n_genes_original`.
@@ -57,7 +57,7 @@ This is a re-plan: the prior task list was rejected for format (task tables/fenc
   - Create `code/metrics.py` that joins cluster labels with ground-truth labels from `data/processed/{dataset_id}_labels.csv` and computes `adjusted_rand_score` and `normalized_mutual_info_score` per (dataset, method); if labels are missing or clustering is `"Unavailable"`, writes `"Unavailable"` for that row. Writes `data/metrics/fidelity_results.csv` with columns `embedding_id,method,dataset_id,ari,nmi,silhouette_score,optimal_resolution` conforming to `specs/001-statistical-evaluation-of-dimensionality/contracts/fidelity_results.schema.yaml` (the `silhouette_threshold` column carries the primary threshold 0.5).
   - *Verification*: Each clusters CSV has `n_cells_sampled` rows; `cluster_label` is a non-negative int or the literal `"Unavailable"`; `fidelity_results.csv` has one row per (dataset, method) with numeric ARI/NMI in [0,1] or `"Unavailable"`, and passes `python -m jsonschema` validation when read as JSON rows against the fidelity contract.
 
-**Checkpoint**: `python code/main.py --stage fidelity` (added in T009) executes end-to-end on real downloaded data and produces real result rows under `data/metrics/` and `data/results/`. No report writing from invented results.
+**Checkpoint**: `python code/main.py` (added in T009) executes end-to-end on real downloaded data and produces real result rows under `data/metrics/` and `data/results/`. No report writing from invented results.
 
 ## Phase 2: Complete the study and validate its evidence
 
@@ -107,23 +107,21 @@ This is a re-plan: the prior task list was rejected for format (task tables/fenc
 
 ## Dependencies and requirement coverage
 
-| Requirement | Satisfying Task(s) | Artifact(s) |
-|---|---|---|
-| FR-001 (download/preprocess datasets) | T003, T004 | `data/manifest.json`, `data/processed/*_matrix.parquet` |
-| FR-002 (global linearity, Trustworthiness k=15) | T004 | `data/processed/*_geometric.json` |
-| FR-003 (local continuity, LCA k=15) | T004 | `data/processed/*_geometric.json` |
-| FR-004 (PCA/t-SNE/UMAP embeddings) | T005 | `data/embeddings/*.csv` |
-| FR-005 (ARI/NMI vs ground truth) | T006 | `data/metrics/fidelity_results.csv` |
-| FR-006 (mixed-effects / ANOVA model) | T007 | `results/statistical_result.json` |
-| FR-007 (sensitivity sweep) | T008 | `results/sensitivity_analysis.json`, `figures/sensitivity_plot.png` |
-| FR-008 (Benjamini-Hochberg correction) | T007 | `results/statistical_result.json` |
-| SC-001 (variance < 0.05) | T008 | `results/sensitivity_analysis.json` |
-| SC-002 (FDR-corrected method effect) | T007 | `results/statistical_result.json` |
-| SC-003 (peak RAM ≤ 7 GB) | T002, T010 | `results/monitoring.csv`, `results/validation_report.txt` |
-| SC-004 (runtime ≤ 21,600 s) | T002, T009 | `results/monitoring.csv`, `results/validation_report.txt` |
-| SC-005 (VIF < 5) | T007 | `results/statistical_result.json` |
-| Spec edge cases (low cell count, missing labels, Leiden failure) | T004, T006 | warnings/nulls/"Unavailable" handling |
-| US-1 / US-2 / US-3 | T001–T012 | full pipeline artifacts |
+- **FR-001** (download/preprocess datasets) — T003, T004 → `data/manifest.json`, `data/processed/*_matrix.parquet`
+- **FR-002** (global linearity, Trustworthiness k=15) — T004 → `data/processed/*_geometric.json`
+- **FR-003** (local continuity, LCA k=15) — T004 → `data/processed/*_geometric.json`
+- **FR-004** (PCA/t-SNE/UMAP embeddings) — T005 → `data/embeddings/*.csv`
+- **FR-005** (ARI/NMI vs ground truth) — T006 → `data/metrics/fidelity_results.csv`
+- **FR-006** (mixed-effects / ANOVA model) — T007 → `results/statistical_result.json`
+- **FR-007** (sensitivity sweep) — T008 → `results/sensitivity_analysis.json`, `figures/sensitivity_plot.png`
+- **FR-008** (Benjamini-Hochberg correction) — T007 → `results/statistical_result.json`
+- **SC-001** (variance < 0.05) — T008 → `results/sensitivity_analysis.json`
+- **SC-002** (FDR-corrected method effect) — T007 → `results/statistical_result.json`
+- **SC-003** (peak RAM ≤ 7 GB) — T002, T010 → `results/monitoring.csv`, `results/validation_report.txt`
+- **SC-004** (runtime ≤ 21,600 s) — T002, T009 → `results/monitoring.csv`, `results/validation_report.txt`
+- **SC-005** (VIF < 5) — T007 → `results/statistical_result.json`
+- **Spec edge cases** (low cell count, missing labels, Leiden failure) — T004, T006 → warnings/nulls/"Unavailable" handling
+- **US-1 / US-2 / US-3** — T001–T012 → full pipeline artifacts
 
 **Execution order**: T001 → T002 → T003 → T004 → T005 → T006 → T007 ↔ T008 → T009 → T010 → T011 → T012.
 
