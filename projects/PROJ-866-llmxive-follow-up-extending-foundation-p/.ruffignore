@@ -1,5 +1,0 @@
-# Ignore ruff in these directories
-__pycache__
-.venv
-venv
-.git

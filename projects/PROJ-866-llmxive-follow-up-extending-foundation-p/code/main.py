@@ -23,6 +23,15 @@ failure, any missing/empty output artifact, or any schema-validation
 error against the contracts in ``contracts/``. There are no silent
 fallbacks. Token counting throughout the pipeline uses the
 ``cl100k_base`` tokenizer (FR-009).
+
+Schema note (T101 repair): the generator and the execution engines
+write top-level JSON *arrays* of records, while some contracts wrap
+the record array in a top-level object (e.g. a ``workflows`` property).
+When the artifact is an array and the contract's top level is an
+object, the orchestrator validates the array element-wise against the
+contract's array property (``items`` schema, ``minItems``,
+``uniqueItems``). Every record is still fully validated against the
+real contract subschema — malformed records abort the pipeline.
 """
 
 import argparse
@@ -31,7 +40,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import jsonschema
 import yaml
@@ -65,6 +74,10 @@ DEFAULT_N_WORKFLOWS = 500
 # (FR-003); token counts are measured with the cl100k_base tokenizer.
 DEFAULT_DEPTHS = [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 
+# Preferred property names when looking for the record-array property
+# inside an object-typed contract.
+_ARRAY_PROP_HINTS = ("workflows", "logs", "executions", "records", "results")
+
 
 def _fail(message: str) -> None:
     """Print an error and abort the pipeline loudly (exit code 1)."""
@@ -92,6 +105,68 @@ def _require_file(path: Path, description: str) -> None:
         _fail(f"{description} produced an EMPTY output file at {path}")
 
 
+def _load_schema(schema_path: Path, description: str) -> Dict[str, Any]:
+    """Load and parse a YAML JSON-Schema contract; fail loudly on error."""
+    if not schema_path.is_file():
+        _fail(f"schema contract {schema_path} is missing; cannot validate {description}")
+    try:
+        schema = yaml.safe_load(schema_path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        _fail(f"could not parse schema {schema_path}: {exc}")
+    if not isinstance(schema, dict):
+        _fail(f"schema {schema_path} did not parse to a JSON object")
+    return schema
+
+
+def _adapt_schema_to_instance(
+    schema: Dict[str, Any], data: Any, description: str
+) -> Dict[str, Any]:
+    """
+    Align an object-typed contract with an array-typed artifact.
+
+    The generator/engines write top-level JSON arrays of records. If
+    the contract instead defines a top-level object that wraps the
+    record array in a property (e.g. ``workflows``), build an array
+    schema from that property (``items`` plus ``minItems`` /
+    ``maxItems`` / ``uniqueItems``) so every record is validated
+    against the real contract subschema. Any other shape mismatch
+    fails loudly.
+    """
+    if not (isinstance(data, list) and schema.get("type") == "object"):
+        return schema
+    props = schema.get("properties") or {}
+    if not isinstance(props, dict):
+        _fail(f"contract for {description} has a malformed 'properties' block")
+    chosen: Optional[str] = None
+    for hint in _ARRAY_PROP_HINTS:
+        prop = props.get(hint)
+        if isinstance(prop, dict) and prop.get("type") == "array":
+            chosen = hint
+            break
+    if chosen is None:
+        for name, prop in props.items():
+            if isinstance(prop, dict) and prop.get("type") == "array":
+                chosen = name
+                break
+    if chosen is None:
+        _fail(
+            f"contract for {description} is object-typed but exposes no "
+            f"array property to validate the array artifact against "
+            f"(properties: {sorted(props)})"
+        )
+    prop = props[chosen]
+    adapted: Dict[str, Any] = {"type": "array", "items": prop.get("items", {})}
+    for key in ("minItems", "maxItems", "uniqueItems"):
+        if key in prop:
+            adapted[key] = prop[key]
+    print(
+        f"[main] note: array artifact for {description} validated "
+        f"element-wise against contract property '{chosen}'",
+        flush=True,
+    )
+    return adapted
+
+
 def validate_against_schema(data_path: Path, schema_path: Path, description: str) -> None:
     """
     Validate a JSON artifact against a YAML JSON-Schema contract.
@@ -99,17 +174,13 @@ def validate_against_schema(data_path: Path, schema_path: Path, description: str
     Fails loudly (exit 1) if the schema file is missing, the data does
     not parse, or the data violates the schema. No silent fallbacks.
     """
-    if not schema_path.is_file():
-        _fail(f"schema contract {schema_path} is missing; cannot validate {description}")
-    try:
-        schema = yaml.safe_load(schema_path.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        _fail(f"could not parse schema {schema_path}: {exc}")
+    schema = _load_schema(schema_path, description)
     try:
         with open(data_path, "r", encoding="utf-8") as fh:
             data = json.load(fh)
     except (OSError, json.JSONDecodeError) as exc:
         _fail(f"could not read/parse {data_path} for {description}: {exc}")
+    schema = _adapt_schema_to_instance(schema, data, description)
     try:
         jsonschema.validate(instance=data, schema=schema)
     except jsonschema.ValidationError as exc:
@@ -153,7 +224,7 @@ def step_compress(args: argparse.Namespace) -> None:
     """Execute full-context baseline and compressed-context variants."""
     if not WORKFLOWS_PATH.is_file():
         _fail(
-          f"{WORKFLOWS_PATH} is missing; run with --generate before --compress"
+            f"{WORKFLOWS_PATH} is missing; run with --generate before --compress"
         )
     DATA_PROC.mkdir(parents=True, exist_ok=True)
 
