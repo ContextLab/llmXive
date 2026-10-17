@@ -1,8 +1,8 @@
 status: none
-intent: "OEIS A008683 M\xF6bius function sympy python package dataset"
+intent: "download M\xF6bius function values dataset OEIS A008683 python package dataset"
 required_fields:
 - n
 - mu
-cache_key: a3bc32ee9c3716cc9e1674ffaf15558758171dc61d001d36d98de0fae734849a
-searched_at: '2026-10-09T16:18:56.679149+00:00'
+cache_key: 04d1f2fff083adb65539475d6946dc91e53e4b59d7f7e6a2f1420a3b59384680
+searched_at: '2026-10-17T17:06:20.431066+00:00'
 retry_count: 1

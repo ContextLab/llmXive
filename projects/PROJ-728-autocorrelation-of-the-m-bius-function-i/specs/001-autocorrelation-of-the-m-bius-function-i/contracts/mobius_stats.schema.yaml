@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Autocorrelation Statistics Schema
-description: Schema for the autocorrelation_stats.csv output file.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Autocorrelation Statistics Schema"
+description: "Schema for the autocorrelation_stats.csv output file."
 type: object
 properties:
   interval_start:
@@ -25,6 +25,11 @@ properties:
     description: "Two-sided p-value from the 1,000-permutation test."
     minimum: 0.0
     maximum: 1.0
+  adjusted_p_value:
+    type: number
+    description: "Benjamini‑Hochberg adjusted p-value."
+    minimum: 0.0
+    maximum: 1.0
   ci_lower:
     type: number
     description: "2.5th percentile of the null distribution."
@@ -43,14 +48,20 @@ properties:
     type: string
     description: "Status of sensitivity analysis."
     enum: ["stable", "sensitive", "not_applicable"]
+  theoretical_variance:
+    type: number
+    description: "Theoretical variance under the Prime Number Theorem (PNT) assumption."
+    minimum: 0.0
 required:
   - interval_start
   - interval_length
   - lag
   - autocorrelation
   - p_value
+  - adjusted_p_value
   - ci_lower
   - ci_upper
   - zero_count
   - sensitivity_flag
+  - theoretical_variance
 additionalProperties: false

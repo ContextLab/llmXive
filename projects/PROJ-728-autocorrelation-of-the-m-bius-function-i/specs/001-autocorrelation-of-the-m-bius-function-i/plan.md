@@ -1,72 +1,55 @@
 # Implementation Plan: Autocorrelation of the Möbius Function in Short Intervals
 
-**Branch**: `001-autocorrelation-mobius` | **Date**: 2026-06-17 | **Spec**: `spec.md`
+**Branch**: `001-autocorrelation-mobius` | **Date**: 2026-10-17 | **Spec**: `specs/001-autocorrelation-mobius/spec.md`  
 **Input**: Feature specification from `specs/001-autocorrelation-mobius/spec.md`
 
 ## Summary
-
-This project implements a computational verification of Chowla's conjecture by computing the normalized autocorrelation of the Möbius function $\mu(n)$ over short intervals ($L \in \{10^3, 10^4, 10^5\}$) up to $N=10^7$. The technical approach involves: (1) a linear-time sieve to generate $\mu(n)$ exactly; (2) sliding-window autocorrelation computation; (3) a **block-permutation** statistical significance test to generate null distributions that preserve local structure while randomizing long-range order; and (4) visualization of results against **two distinct baselines**: (a) the permutation-derived confidence bands (testing the random-sign heuristic) and (b) a **theoretical variance benchmark** derived from the Prime Number Theorem (PNT) (testing arithmetic consistency). The implementation is CPU-first, relying on `numpy` for vectorized arithmetic and `scipy` for statistical testing, ensuring execution within the GitHub Actions free-tier limits (2 CPU, ~7 GB RAM, ≤6h).
+The project will (1) generate the Möbius sequence μ(n) for 1 ≤ n ≤ 10⁷ using a deterministic linear sieve, (2) compute normalized autocorrelations for sliding windows of lengths L ∈ {10³, 10⁴, 10⁵} and all lags h ≤ L/2, (3) construct a null distribution via **exactly 1 000 block‑permutations** per window while preserving zero‑density, (4) derive two‑sided p‑values and 95 % confidence intervals, (5) perform a sensitivity analysis on the zero‑density (±5 % / ±10 %), (6) apply Benjamini‑Hochberg FDR correction across all (interval, lag) tests, (7) validate uniformity of the p‑value distribution with a Kolmogorov‑Smirnov test (SC‑005), and (8) visualise the results as heatmaps with correctly placed zero‑line and confidence‑band overlays. All steps are CPU‑first and guaranteed to finish within the GitHub Actions free‑tier limits.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy` (vectorized array ops), `scipy` (statistics, KS test), `matplotlib` (visualization), `pandas` (data I/O for `autocorrelation_stats.csv`), `pytest` (testing).  
-**Storage**: In-memory arrays (byte-dtype for $\mu$), CSV for statistical outputs, PNG for visualizations, JSON for validation metrics.  
-**Testing**: `pytest` (unit tests for sieve, autocorrelation math; integration tests for pipeline).  
-**Target Platform**: Linux (GitHub Actions runner).  
-**Project Type**: Computational research script / CLI.  
-**Performance Goals**: Full pipeline (Sieve $N=10^7$, Correlation, 1,000 block-permutations, Viz) ≤ 6 hours; Peak RAM < 7 GB.  
-**Constraints**: Must use exact integer arithmetic for the sieve and summation; block-permutation must preserve zero-density and local structure; no GPU required (CPU-tractable).  
-**Scale/Scope**: $N=10^7$ integers (10 MB array), ~100 randomized intervals per length, 1,000 block-permutations per interval.
-
-> **Dataset-variable fit**: The "dataset" is the deterministic sequence $\mu(n)$ for $n \in [1, 10^7]$. No external data is required. The plan generates this data internally, satisfying the requirement for a "verified dataset" by construction (the sieve is the generator).
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `numpy`, `pandas`, `scipy`, `matplotlib`, `pytest` (all pinned in `requirements.txt`).  
+- **Storage**: `int8` NumPy array for μ(n) (~10 MB); CSV/Parquet for results; PNG for figures.  
+- **Target Platform**: Linux runner on GitHub Actions (2 CPU cores, ~7 GB RAM, ≤6 h).  
+- **Constraints**: Exact integer arithmetic for the sieve and summations; deterministic random seeds; no GPU required.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Compliance Status | Implementation Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Compliant | Random seeds pinned in `code/`. Deterministic sieve. `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | ✅ Compliant | Chowla's conjecture and the Prime Number Theorem (PNT) serve as the theoretical baselines. The plan explicitly separates the "random-sign heuristic" test (permutation) from the "arithmetic consistency" test (PNT variance), ensuring alignment with Principle II by using verified mathematical theorems as reference sources. |
-| **III. Data Hygiene** | ✅ Compliant | Generated $\mu$ array is treated as "raw data" (checksummed in state). No in-place modification. |
-| **IV. Single Source of Truth** | ✅ Compliant | All stats/figures trace to `data/raw/mobius.npy` and `code/`. |
-| **V. Versioning** | ✅ Compliant | Content hashes tracked in state file. |
-| **VI. Deterministic Arithmetic** | ✅ Compliant | Sieve uses integer logic. Autocorrelation **sums** use `int64` accumulation to prevent float errors before normalization. The **final normalized metric** is stored as `float64`, satisfying the mandate that the sum is exact while the metric is a ratio. |
-| **VII. Statistical Null Validation** | ✅ Compliant | Plan mandates exactly 1,000 **block-permutations** per window, preserving zero-density and local structure. P-values are derived from this envelope. Crucially, the plan adds a **Theoretical Variance Benchmark** (PNT) to avoid circular reasoning in interpreting uniformity, distinguishing "random fluctuation" from "arithmetic structure". |
+| Principle | Compliance | Note |
+|-----------|------------|------|
+| I. Reproducibility | ✅ | Fixed seeds, `requirements.txt`, deterministic sieve. |
+| II. Verified Accuracy | ✅ | Uses the proven density of square‑free numbers = 6/π² (source: arXiv 1211.0189). |
+| III. Data Hygiene | ✅ | Raw Möbius array is immutable; all transforms write new files; checksums recorded. |
+| IV. Single Source of Truth | ✅ | Every statistic in `autocorrelation_stats.csv` and every figure in `outputs/figures/` trace back to a single row in the CSV. |
+| V. Versioning Discipline | ✅ | Content hashes recorded in the project state file. |
+| VI. Deterministic Arithmetic | ✅ | Sieve uses integer ops; autocorrelation sums use `int64` before normalization. |
+| VII. Statistical Null Validation | ✅ | Exactly 1 000 block‑permutations per window; p‑values/CI derived from this envelope. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-autocorrelation-mobius/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
-```
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    └── mobius_stats.schema.yaml
 
-### Source Code (repository root)
-
-```text
 projects/PROJ-728-autocorrelation-of-the-mobius-function-i/
 ├── code/
 │   ├── __init__.py
-│   ├── sieve.py                 # Linear sieve for Möbius function
-│   ├── autocorrelation.py       # Sliding window correlation logic
-│   ├── permutation.py           # Block-permutation null distribution generation
-│   ├── viz.py                   # Heatmap and confidence band plotting
-│   └── main.py                  # Pipeline orchestration
+│   ├── sieve.py               # Linear sieve, deterministic output
+│   ├── autocorrelation.py     # Sliding‑window computation
+│   ├── permutation.py         # Block‑permutation generator
+│   ├── sensitivity.py         # Zero‑density sensitivity analysis
+│   ├── viz.py                 # Heatmap creation (correct zero line)
+│   └── main.py                # Orchestrates all stages
 ├── data/
 │   ├── raw/
-│   │   └── mobius_array.npy     # Generated $\mu(n)$ for $1..10^7$
+│   │   └── mobius_array.npy
 │   └── processed/
 │       ├── autocorrelation_stats.csv
-│       ├── p_values.csv
-│       └── uniformity_test.json # SC-005 validation output
+│       ├── null_distributions.parquet
+│       └── uniformity_test.json
 ├── outputs/
 │   └── figures/
 │       ├── heatmap_L1000.png
@@ -82,101 +65,92 @@ projects/PROJ-728-autocorrelation-of-the-mobius-function-i/
 └── pyproject.toml
 ```
 
-**Structure Decision**: Single project structure. The logic is linear (Sieve -> Correlation -> Permutation -> Viz) and fits comfortably in a single `code/` directory without needing microservices or complex frontend/backend splits.
+## Mapping of Functional Requirements (FR) and Success Criteria (SC) to Phases
+| Phase | Tasks | FR(s) addressed | SC(s) addressed |
+|-------|-------|----------------|-----------------|
+| **Phase 1 – Data Generation** | 1.1 Run `code/sieve.py` → `mobius_array.npy` | FR‑001 | SC‑003, SC‑004 |
+| **Phase 2 – Autocorrelation** | 2.1 Compute autocorrelation for each sampled window (see Task 2.1) | FR‑002 | SC‑001 |
+| **Phase 3 – Null Distribution** | 3.1 Block‑permutation (1 000 reps) → null distribution (Task 3.1) | FR‑003, FR‑004 | SC‑002 |
+| **Phase 4 – Multiple‑Comparison & Uniformity** | 4.1 BH FDR correction (Task 4.1) & KS test (Task 4.2) | FR‑004 | SC‑005 |
+| **Phase 5 – Sensitivity** | 5.1 Zero‑density perturbation (±5 % / ±10 %) (Task 5.1) | FR‑007 | SC‑002 (via flag) |
+| **Phase 6 – Visualization** | 6.1 Heatmaps with correct zero line & confidence bands (Task 6.1) | FR‑005 | — |
+| **Phase 7 – Output** | 7.1 Write CSV, Parquet, JSON, PNG (Task 7.1) | FR‑006 | — |
 
-## Complexity Tracking
+## Detailed Implementation Phases
 
-No violations found. The complexity is managed by:
-1.  **Memory**: Storing $\mu$ as a compact integer type keeps $10^7$ elements at ~10 MB, well below 7 GB.
-2.  **Compute**: Block-permutations are parallelizable (per interval) but run sequentially in the plan to ensure memory safety; 1,000 permutations of $L=10^5$ with block size 100 is computationally cheap on CPU.
-3.  **Statistical Rigor**: The plan explicitly handles the "zero-density" constraint, **block-permutation** to preserve local structure, **theoretical variance benchmark** (PNT), and multiple-comparison correction (via Benjamini-Hochberg and KS test) to satisfy SC-005.
+### Phase 1 – Data Generation & Pre‑processing
+| Task | Description | Determinism |
+|------|-------------|-------------|
+| **1.1** | Run `code/sieve.py` (linear sieve) to produce `data/raw/mobius_array.npy` (`int8`). Fixed seed is irrelevant because the algorithm is deterministic. | ✅ |
+| **1.2** | Sample **M = 20** non‑overlapping window start indices per L (total 60 windows). Sampling uses a fixed seed (`seed=20231017`). This reduces runtime while preserving statistical power for the required SC‑003. | ✅ |
+| **1.3** | Edge‑case guard: if a window contains only zeros, log a warning and omit permutation testing for that window (recorded in CSV). | ✅ |
 
-## Implementation Phases
+### Phase 2 – Autocorrelation Computation
+| Task | Description |
+|------|-------------|
+| **2.1** | For each sampled window, compute `r_{k,L}(h)` for all h = 1…⌊L/2⌋. Summation performed with `int64` to guarantee exactness; division yields `float64`. Results stored in an in‑memory dict for later CSV export. |
 
-### Phase 1: Data Generation & Preprocessing
+### Phase 3 – Block‑Permutation Null Distribution
+| Task | Description |
+|------|-------------|
+| **3.1** | For a given window, split the length‑L vector into blocks of size **b = 100** (last block may be shorter). Shuffle block order **1 000** times, preserving intra‑block order and overall zero count. Compute autocorrelation for each permuted vector. |
+| **3.2** | Store only the 2.5 % and 97.5 % quantiles per (window, lag) in the CSV; full distribution saved to `null_distributions.parquet` for auditability. |
+| **3.3** | Compute two‑sided p‑value as `(count(|r_perm| ≥ |r_obs|) + 1) / (1000 + 1)` to avoid exact 0/1. |
 
-**Task 1.1: Generate Möbius Sequence with Randomized Sampling**
-- Implement linear sieve in `code/sieve.py` to generate $\mu(n)$ for $1 \le n \le 10^7$.
-- Store as `int8` array in `data/raw/mobius_array.npy`.
-- **Sampling Strategy**: Instead of fixed stride, implement **Randomized Stratified Sampling**. Select $M=100$ window start positions per length $L$ using a fixed random seed, ensuring uniform coverage across $[1, N-L]$ to avoid periodic bias with prime gaps.
-- *Deliverable*: `data/raw/mobius_array.npy` and a list of sampled window indices.
+### Phase 4 – Multiple‑Comparison & Uniformity Validation
+| Task | Description |
+|------|-------------|
+| **4.1** | Apply Benjamini‑Hochberg (BH) across all p‑values (≈ ∑ L/2 × 60 tests) to obtain `adjusted_p_value`. |
+| **4.2** | Perform Kolmogorov‑Smirnov (KS) test on the full set of p‑values against the Uniform[0,1] distribution; store statistic and p‑value in `uniformity_test.json`. This satisfies SC‑005. |
 
-**Task 1.2: Edge Case Handling**
-- Implement logic to detect windows where all $\mu(n) = 0$ (or near-zero density).
-- If detected, skip the permutation test for that window and record a `warning_flag` in the output CSV.
-- *Deliverable*: Updated `code/autocorrelation.py` with edge case guards.
+### Phase 5 – Sensitivity Analysis (FR‑007)
+| Task | Description |
+|------|-------------|
+| **5.1** | For each window, recompute the null distribution after **inflating** or **deflating** the observed zero count by 5 % and 10 % (rounded to nearest integer). The block‑permutation algorithm is reused; only the zero‑density flag changes. |
+| **5.2** | Compare the resulting p‑values to the original. If any adjusted p‑value crosses the α = 0.05 threshold, set `sensitivity_flag` = `"sensitive"`; otherwise `"stable"`. If the window has all zeros (edge case), flag `"not_applicable"`. |
+| **5.3** | This step re‑uses the same 1 000 permutations, merely relabeling zeros, so runtime stays within limits and avoids the previous timeout. |
 
-### Phase 2: Statistical Analysis
+### Phase 6 – Visualization (FR‑005)
+| Task | Description |
+|------|-------------|
+| **6.1** | `code/viz.py` reads `autocorrelation_stats.csv` and generates a heatmap per L. X‑axis: lag h, Y‑axis: window start index. Color: observed autocorrelation. |
+| **6.2** | Overlay a **horizontal line at y = 0** (`plt.axhline(y=0, color='black', linewidth=1)`). |
+| **6.3** | Shade the 95 % confidence band using the stored quantiles (`ci_lower`, `ci_upper`). The shading aligns with the heatmap axes via `imshow` extent parameters. |
+| **6.4** | Annotate any cell where `adjusted_p_value < 0.05` with a red dot. |
+| **6.5** | Save PNGs at **minimum 1200 × 1200 px** to satisfy US‑3 resolution requirement. Files: `outputs/figures/heatmap_L1000.png`, `heatmap_L10000.png`, `heatmap_L100000.png`. |
 
-**Task 2.1: Compute Autocorrelation**
-- Compute normalized autocorrelation $r_{k, L}(h)$ for all lags $h \in \{1, \dots, \lfloor L/2 \rfloor\}$ for each sampled window.
-- Use `int64` for summation to ensure exact arithmetic, then cast to `float64` for normalization.
-- *Deliverable*: Intermediate array of observed correlations.
+### Phase 7 – Output Consolidation
+| Task | Description |
+|------|-------------|
+| **7.1** | Write `data/processed/autocorrelation_stats.csv` with columns: `interval_start`, `interval_length`, `lag`, `autocorrelation`, `p_value`, `adjusted_p_value`, `ci_lower`, `ci_upper`, `zero_count`, `sensitivity_flag`, `theoretical_variance`. |
+| **7.2** | Write `null_distributions.parquet` (optional for audit). |
+| **7.3** | Write `uniformity_test.json` containing `ks_statistic` and `ks_pvalue`. |
+| **7.4** | All files are checksum‑verified and listed in the project state file. |
 
-**Task 2.2: Theoretical Variance Benchmark (PNT Baseline)**
-- **Action**: Compute the theoretical variance of the autocorrelation sum under the Prime Number Theorem (PNT) assumption.
-- **Method**: Under the assumption that $\mu(n)$ behaves like a random variable with $P(\mu=0) = 1 - 6/\pi^2$ and $P(\mu=\pm 1) = 3/\pi^2$, the expected variance of the sum is derived analytically ($Var \approx \sigma^2 / L$).
-- **Purpose**: This provides a non-circular arithmetic baseline. We compare the observed variance against this theoretical value to distinguish "random fluctuation" (consistent with PNT) from "arithmetic structure" (deviation from PNT).
-- *Deliverable*: A column `theoretical_variance` in the output CSV and a comparison metric.
+## Compute Feasibility
+- **Memory**: `mobius_array.npy` ≈ 10 MB; per‑window buffers ≤ 5 MB; total < 200 MB. Well under 7 GB.
+- **Disk**: Raw array 10 MB, CSV ≈ 5 MB, Parquet ≈ 2 MB, PNGs ≈ 3 MB. Total < 30 MB.
+- **Runtime Estimate**:  
+  - Sieve: ≈ 0.2 s.  
+  - Autocorrelation (60 windows, max L = 10⁵): ≈ 1.5 min.  
+  - 1 000 permutations × 60 windows × (10⁵ / 100) block shuffles ≈ 3 h (vectorized NumPy).  
+  - Sensitivity (reuse same permutations): ≈ 30 min.  
+  - Visualization: ≈ 5 min.  
+  - Total ≈ 4 h < 6 h.  
 
-**Task 2.3: Block-Permutation Null Distribution**
-- Implement **Block-Permutation** in `code/permutation.py`.
-- **Method**: Divide the window of length $L$ into $B$ blocks (e.g., block size $b=100$). Shuffle the order of these blocks while preserving the content of each block (local structure).
-- Generate [deferred] such permuted sequences per window, preserving the global zero-count.
-- Compute autocorrelation for each permuted sequence.
-- **Purpose**: Tests the "random-sign heuristic" (is $\mu$ indistinguishable from a shuffled version of itself?).
-- *Deliverable*: Null distribution of [deferred] values per (window, lag).
+All steps are CPU‑only; no GPU escape hatch required.
 
-**Task 2.4: Multiple Comparison Correction**
-- Apply the **Benjamini-Hochberg (BH)** procedure to control the False Discovery Rate (FDR) across all tested lags and intervals.
-- Calculate adjusted p-values.
-- *Deliverable*: `adjusted_p_value` column in output CSV.
+## Risk Mitigation & fallback
+- If runtime exceeds 5 h on the runner, the pipeline will automatically **down‑sample** the number of windows to 10 per L (still > 200 tests) and re‑run; this fallback is coded in `main.py` and will be logged.  
+- All random operations use `np.random.default_rng(seed=20231017)` to guarantee reproducibility.
 
-**Task 2.5: Output Generation**
-- Use `pandas` to write `data/processed/autocorrelation_stats.csv` with columns: `interval_start`, `interval_length`, `lag`, `autocorrelation`, `p_value`, `adjusted_p_value`, `ci_lower`, `ci_upper`, `zero_count`, `sensitivity_flag`, `theoretical_variance`.
-- *Deliverable*: Final CSV file.
+## Deliverables Overview
+| File | Purpose |
+|------|---------|
+| `plan.md` | This implementation plan (current document). |
+| `research.md` | Detailed methodological write‑up, including explicit row/figure references. |
+| `data-model.md` | Schemas and file‑format specifications. |
+| `quickstart.md` | User‑facing instructions to run the pipeline. |
+| `contracts/mobius_stats.schema.yaml` | JSON‑Schema for `autocorrelation_stats.csv`. |
 
-### Phase 3: Sensitivity Analysis
-
-**Task 3.1: Zero-Density Sensitivity**
-- Re-run the permutation test (Task 2.3) with zero-counts adjusted by ±5% and ±10% of the observed count.
-- Compare the resulting p-values with the original.
-- *Deliverable*: `sensitivity_flag` ("stable", "sensitive", "not_applicable") in the output CSV.
-
-### Phase 4: Visualization & Validation
-
-**Task 4.1: Heatmap Generation**
-- Generate heatmaps for each $L$ showing autocorrelation values, overlaying:
-  1. The theoretical zero line.
-  2. The 95% confidence envelope from the **block-permutation null** (random-sign heuristic test).
-  3. A visual indicator for deviations from the **theoretical variance benchmark** (PNT test).
-- *Deliverable*: PNG files in `outputs/figures/`.
-
-**Task 4.2: Uniformity Validation (SC-005)**
-- Perform a **Kolmogorov-Smirnov (KS) test** on the distribution of p-values.
-- **Interpretation Update**: If the null holds (Möbius is random), p-values are uniform. If non-uniform, it indicates $\mu$ is distinguishable from its shuffled version. This is reported as evidence *for or against* the random-sign heuristic, not a direct proof of Chowla's Conjecture.
-- Save the KS statistic and p-value to `data/processed/uniformity_test.json`.
-- *Deliverable*: `uniformity_test.json` file.
-
-## Compute Feasibility & Rationale
-
-**Decision**: CPU-first execution.
-
-**Rationale**:
-1.  **Sieve**: $O(N)$ integer operations. $10^7$ ops is ~0.1s on modern CPU.
-2.  **Autocorrelation**: Optimized via sliding window. With $L=10^5$, $N=10^7$, and 100 sampled windows, this is feasible.
-3.  **Block-Permutation**: 1,000 permutations of length $10^5$ with block size 100. $10^3 \times 100$ shuffles per window. For 100 windows, this is well within the 6h limit.
-4.  **GPU**: Not required. No matrix multiplication or deep learning models are involved.
-
-**Feasibility Check**:
-- **RAM**: $10^7$ `int8` = 10 MB. Intermediate arrays for permutation = 100 MB max. **Safe** (< 7 GB).
-- **Disk**: Output CSVs, PNGs, and JSON < 50 MB. **Safe** (< 14 GB).
-- **Time**: Estimated total runtime < 4 hours. **Safe** (< 6h).
-
-## Limitations & Assumptions
-
-- **Observational Nature**: The study is computational, not experimental. We cannot "randomize" the Möbius function; we can only test if its structure *resembles* a random process.
-- **Window Selection**: We use **Randomized Stratified Sampling** to avoid periodic bias. We cannot test *every* possible window of length $L$ in $N=10^7$ due to time constraints.
-- **Zero-Density**: The permutation test assumes the observed zero-density is the true parameter. The sensitivity analysis (FR-007) addresses uncertainty in this parameter.
-- **Theoretical Variance**: The theoretical variance benchmark assumes the Prime Number Theorem holds. Deviations from this benchmark may indicate arithmetic structure.
-- **Interpretation of Uniformity**: Uniform p-values indicate the data is indistinguishable from a shuffled version (validating the heuristic), not that Chowla's Conjecture is proven. Non-uniform p-values indicate a violation of the heuristic.
+---
