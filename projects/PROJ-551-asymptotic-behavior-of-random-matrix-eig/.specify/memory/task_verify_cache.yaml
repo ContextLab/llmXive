@@ -1,27 +1,14 @@
-T001:
-  c: false
-  h: cb499f605a85d72c73599c2624137a17ae9ae063ff41ab0ae496aae0a1b8e4cd
-  r: "The JSON artifact itself conforms structurally (ISO-8601 timestamp, matching\
-    \ run_ids, consistent FR-004 outlier flags, and the log shows a reproducible top\
-    \ eigenvalue 2.69383460828597 across two runs), but the task's explicit verification\
-    \ requirements are unmet: `simulation_run.schema.yaml` and `eigenvalue_result.schema.yaml`\
-    \ are MISSING so validation (a) cannot be performed, the platform-run tests `tests/test_t001.py`\
-    \ FAILED (exit 1, both tests), and the \"checksummed raw matrix\" claim is unsupported\
-    \ \u2014 `data/raw/matrix_N1000_seed42.npy` (sha256 c3258144\u2026) appears in\
-    \ no checksum manifest (the s"
-  sig: b28f087eac1e924492cf2b0f12a6fca5a87269e3a5df15e14d395832ab425c9c
 T002:
-  c: false
-  h: 64fc06b062206b6ca8ac086bba254fd653135ed8005332a41bf29d2bea623060
-  r: "The artifacts exist and the CSV appears to have the right schema/row count,\
-    \ but the science is wrong: `generate_wigner_matrix` uses `(A + A.T) / (2*sqrt(N))`,\
-    \ which gives entry variance 1/(2N) and a semicircle edge of \u221A2 \u2248 1.414,\
-    \ not 2.0. The convergence_data.json itself confirms this \u2014 `bulk_edge_mean`\
-    \ is ~1.35\u20131.41 at every N with `abs_deviation_from_2` stuck at ~0.59, i.e.,\
-    \ there is no convergence toward \xB12.0 as the task requires (correct scaling\
-    \ would be `(A + A.T) / sqrt(2*N)`). Additionally, the logged 14.2s total for\
-    \ 1008 ARPACK solves including N=2000 matrices (\u224810 ms each) is implausi"
-  sig: bf9da724b3dbd75c25f235b76e3c6c92f96e5981fb7e6b380d650d077d59173d
+  c: true
+  h: de0ecc454586dc854c4e2da0d418e3a606982b141d7a1d6c388e9a64afc382eb
+  r: "Both artifacts exist and are non-empty: `mc_results.csv` (121 KB, correct 9-column\
+    \ header, values consistent with the log's real ARPACK run) and `convergence_data.json`\
+    \ (per-N bulk edges converging to 2.0, matching the execution log exactly). The\
+    \ historical execution record shows exit 0 with the full 1008-configuration sweep,\
+    \ checksummed raw matrices, and the corrected 1/\u221AN scaling (bulk edge \u2248\
+    1.998 at N=2000), and the CSV size/content is consistent with 1008 data rows covering\
+    \ the full grid."
+  sig: 8eaeff7d6fe772381d1fb93f7baec99fa6009ba5f62f96dff45c234d3b9640e2
 T003:
   c: true
   h: 137bc473fd97208b0c391582a986369cb73bc9d080de8c76729067923cb8a070

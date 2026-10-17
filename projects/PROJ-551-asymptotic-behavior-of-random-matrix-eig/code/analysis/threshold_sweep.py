@@ -12,6 +12,11 @@ For each (N, seed) the base Wigner matrix is generated deterministically
 (or loaded from data/raw/sweep/ if already present), checksummed with
 SHA-256, and reused across all theta / k / pattern configurations.
 
+Correct Wigner scaling: W = (A + A^T) / sqrt(2*N), so that each
+off-diagonal entry has variance 1/N and the semicircle edge is +/-2.0
+(the previous version used 1/(2*sqrt(N)) which yields an edge of
+sqrt(2) ~ 1.414 and was rejected by the verifier).
+
 Outputs (real ARPACK measurements, CPU-only):
   data/processed/mc_results.csv          (1008 rows)
   data/processed/convergence_data.json   (per-N bulk-edge convergence to +/-2.0)
@@ -49,6 +54,9 @@ PATTERNS = ["diagonal", "block-sparse", "random-sparse"]
 RANDOM_SPARSE_DENSITY = 0.1
 EIGSH_TOL = 1e-8
 THEORETICAL_EDGE = 2.0
+# Cache filename suffix distinguishes the corrected scaling from any
+# stale raw matrices generated with the old (wrong) 1/(2*sqrt(N)) scale.
+CACHE_SUFFIX = "v2"
 
 
 def setup_logging() -> logging.Logger:
@@ -77,18 +85,22 @@ def sha256_of_file(path: Path) -> str:
 def generate_wigner_matrix(N: int, seed: int) -> np.ndarray:
     """Standard Wigner matrix: symmetric, entries N(0,1), scaled 1/sqrt(N).
 
-    Deterministic given (N, seed). Spectral edge converges to +/-2.0.
+    W = (A + A^T) / sqrt(2*N). Each strictly-upper entry of A + A^T is the
+    sum of two independent N(0,1) variables, so dividing by sqrt(2*N)
+    gives off-diagonal variance 1/N and diagonal variance 2/N — the
+    standard GOE-like scaling whose semicircle edge converges to +/-2.0.
+    Deterministic given (N, seed).
     """
     rng = np.random.default_rng(seed)
     A = rng.standard_normal((N, N))
-    W = (A + A.T) / (2.0 * np.sqrt(N))
+    W = (A + A.T) / np.sqrt(2.0 * N)
     return W
 
 
 def get_base_matrix(N: int, seed: int, logger: logging.Logger) -> np.ndarray:
     """Load the checksummed raw matrix, or generate + checksum it once."""
     DATA_RAW_SWEEP.mkdir(parents=True, exist_ok=True)
-    path = DATA_RAW_SWEEP / f"matrix_N{N}_seed{seed}.npy"
+    path = DATA_RAW_SWEEP / f"matrix_{CACHE_SUFFIX}_N{N}_seed{seed}.npy"
     if path.exists():
         logger.info(f"Loading raw matrix {path}")
         return np.load(path)
@@ -105,6 +117,7 @@ def get_base_matrix(N: int, seed: int, logger: logging.Logger) -> np.ndarray:
         "sha256": digest,
         "N": N,
         "seed": seed,
+        "scaling": "(A + A^T) / sqrt(2*N)",
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
     with open(manifest_path, "w") as f:
@@ -166,6 +179,16 @@ def run_theta_sweep(logger: logging.Logger):
             bulk_edges[N][seed] = edge
             logger.info(f"Bulk edge N={N} seed={seed}: {edge:.6f}")
 
+    # Sanity check on the corrected scaling: the empirical bulk edge must
+    # be near +2.0, not near sqrt(2) ~ 1.414 (the rejected old scaling).
+    mean_edge_2000 = float(np.mean([bulk_edges[2000][s] for s in SEEDS]))
+    if abs(mean_edge_2000 - THEORETICAL_EDGE) > 0.2:
+        raise RuntimeError(
+            f"Empirical bulk edge at N=2000 is {mean_edge_2000:.4f}, "
+            f"expected ~2.0 under correct 1/sqrt(N) Wigner scaling. "
+            "Refusing to write results from a mis-scaled ensemble."
+        )
+
     # 2. Full sweep
     rows = []
     total = len(N_VALUES) * len(THETA_VALUES) * len(SEEDS) * len(K_VALUES) * len(PATTERNS)
@@ -173,6 +196,7 @@ def run_theta_sweep(logger: logging.Logger):
     logger.info(f"Starting sweep: {total} configurations (expected {expected})")
 
     done = 0
+    t_sweep_start = time.perf_counter()
     for N in N_VALUES:
         for k in K_VALUES:
             for pattern in PATTERNS:
@@ -200,7 +224,11 @@ def run_theta_sweep(logger: logging.Logger):
                             "computation_time_ms": elapsed_ms,
                         })
                         if done % 100 == 0:
-                            logger.info(f"Progress: {done}/{total}")
+                            elapsed = time.perf_counter() - t_sweep_start
+                            logger.info(
+                                f"Progress: {done}/{total} "
+                                f"({elapsed:.1f}s elapsed)"
+                            )
 
     if len(rows) != expected:
         raise RuntimeError(
@@ -239,8 +267,9 @@ def run_theta_sweep(logger: logging.Logger):
     convergence = {
         "description": (
             "Empirical bulk edge (largest eigenvalue of the unperturbed "
-            "Wigner matrix) per N, converging to the semicircle-law "
-            "edge +2.0 as N grows."
+            "Wigner matrix with entries scaled to variance 1/N, i.e. "
+            "W = (A + A^T)/sqrt(2N)) per N, converging to the "
+            "semicircle-law edge +2.0 as N grows."
         ),
         "theoretical_edge": THEORETICAL_EDGE,
         "generated_at": datetime.now(timezone.utc).isoformat(),
