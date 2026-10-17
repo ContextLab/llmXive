@@ -62,7 +62,7 @@
 
 ## Phase 3 – Data pipeline (US‑1)
 
-- [ ] T008 **Implement `data/raw/download_mobileforge.py`** that fetches the official MobileForge logs via the HuggingFace Hub: <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 -->
+- [ ] T008 **Implement `data/raw/download_mobileforge.py`** that fetches the official MobileForge logs via the HuggingFace Hub: <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/raw/download_mobileforge.py exit=1 -->
   ```python
   from datasets import load_dataset
   ds = load_dataset("mobileforge/logs", split="train", streaming=False)

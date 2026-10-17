@@ -36,7 +36,7 @@ platform linux -- Python 3.11.17, pytest-8.2.2, pluggy-1.7.0 -- /home/runner/wor
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-930-llmxive-follow-up-extending-mobileforge
 configfile: pyproject.toml
-plugins: platformdirs-4.13.3
+plugins: platformdirs-4.13.4
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================

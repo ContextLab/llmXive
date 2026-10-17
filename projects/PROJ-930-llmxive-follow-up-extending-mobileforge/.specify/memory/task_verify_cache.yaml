@@ -1,21 +1,21 @@
 T001:
   c: false
-  h: 8e254ccd5355d56c30c316154c54abd90c8deb499d0061f0a6dd5ff45bb9344a
-  r: 'The task requires specific subdirectories, but the evidence shows they are missing:
-    `code/` contains no `models/` directory, `code/data/` shows only `processed/`
-    (no `raw/` or `evaluation/`), and `code/tests/` shows no `unit/` or `integration/`
-    subdirectories. The implementer created many unrelated setup scripts (setup_dirs.py,
-    create_directory_tree.py, etc.) but the actual required directory tree is not
-    present.'
-  sig: 24863ee1986e00f9fb5b06a63d35008d859853bd26f82fc1e1dec4f26a86fd87
+  h: 85d9cba1dbeed3e5517d7fb0a4ed526220b8bd908ecb776275c5e735680e9780
+  r: "The collector's listing of `code/data/` shows only `processed/` plus files \u2014\
+    \ `data/raw/` and `data/evaluation/` are absent, and there is no evidence that\
+    \ `tests/unit/` and `tests/integration/` exist (the `tests/` directory's contents\
+    \ are not shown). The task requires all of `code/{data/raw, data/processed, data/evaluation,\
+    \ tests/unit, tests/integration}` plus `data/` and `outputs/`; the run log's success\
+    \ message is not corroborated by the actual tree."
+  sig: cfb68f9e6d9605ffa516664753f811ec85fb8e03f4a92bd825fe02e47b349b21
 T002:
   c: true
-  h: f0a2cfcc6642e51c20e9c9bf31f56c79fe303ff4a5a7bc1ac93e9af2e0b1afb0
+  h: a4058b11e04f1b28683c64d0857bf1932023e001230d094917c783a28d0ffab5
   r: '`code/requirements.txt` exists with exactly the 11 required pinned lines (trailing
     newline only difference, no extra packages), and `outputs/install_log.txt` shows
-    a real `pip install -r code/requirements.txt` run resolving all 11 pins without
-    error.'
-  sig: e3c6e0f5ff207fae3421dd564f3da4396f973260e525514dcdc31c48c2c0671d
+    a real `pip install -r code/requirements.txt` run resolving all 11 pinned packages
+    without errors.'
+  sig: 2daad4d222e1ae7c66e558cbc0702551614c426c0488e97a59e7169e2062ee08
 T003:
   c: true
   h: 616aa762119b08312d9124c1ef38bba2ebb4c56194bfa29bd99f08424ed3faca
@@ -52,13 +52,13 @@ T006:
   sig: 96229dc32ebc6176fc4df46fdc0370d5b284ab9427d41fbfc9ec2d6e53cb297a
 T007:
   c: true
-  h: 8d1d17cf3cc76a09e5ba26d8d43a3c92652701037d241c126b751620ee141296
-  r: "The script `code/utils/power_analysis.py` exists and implements the required\
-    \ calculation via statsmodels (`GofChisquarePower.solve_power` with h=0.2, \u03B1\
-    =0.05, power=0.8, p\u2080=0.5), enforces the \"before extraction\" rule by aborting\
-    \ if `data/processed` is non-empty, and writes `outputs/power_analysis.json`,\
-    \ which exists with integer `n_required=197` (matching the analytically expected\
-    \ (1.96+0.8416)\xB2/0.04 \u2248 196.2 rounded up) plus the full `parameters` block\
-    \ and timestamp, conforming to the schema (all required fields present, `p0_source`\
-    \ is a valid string, no additional properties)."
-  sig: 5c6a3c924697ab24e5900689b3d0de85f24fc26e3bfaaa12f3de27ed37ff6606
+  h: 8ca0e4960819a4fbaf1d17bfec9899f5cae5b790a9d0202b926b9f4d09985674
+  r: "The script `code/utils/power_analysis.py` exists and implements a real statsmodels-based\
+    \ power calculation (GofChisquarePower with Cohen's h=0.2, \u03B1=0.05, power=0.8,\
+    \ p\u2080=0.5), enforces the \"before extraction\" rule by aborting if `data/processed`\
+    \ is non-empty, and writes `outputs/power_analysis.json`. The output file exists\
+    \ with `n_required=197` (matching the standard (z_{\u03B1/2}+z_\u03B2)\xB2/h\xB2\
+    \ \u2248 196.2 rounded up), a full `parameters` block, and a timestamp, all conforming\
+    \ to the schema's required fields and types (p0_source is a free string per the\
+    \ schema)."
+  sig: 60a4dcc4a3293bcbacbe8fd8c9ce72a1a13e9f93f80b25a40dab6b69240229df
