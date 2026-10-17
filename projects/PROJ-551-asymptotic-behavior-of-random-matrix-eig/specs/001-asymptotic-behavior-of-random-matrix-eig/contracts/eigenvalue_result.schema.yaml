@@ -1,4 +1,4 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: EigenvalueResult
 description: Schema for the computed eigenvalues of a perturbed Wigner matrix.
 type: object
@@ -16,7 +16,7 @@ properties:
     description: "The computed eigenvalue."
   is_outlier:
     type: boolean
-    description: "True if eigenvalue exceeds the empirical bulk edge + tolerance."
+    description: "True if eigenvalue exceeds the theoretical semicircle edge (2.0) plus tolerance (0.05)."
   theoretical_bbp:
     type: number
     description: "Theoretical BBP outlier location (theta + 1/theta) - Reference only."

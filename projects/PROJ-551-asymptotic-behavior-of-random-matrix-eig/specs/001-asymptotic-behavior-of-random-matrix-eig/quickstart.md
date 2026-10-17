@@ -1,86 +1,130 @@
 # Quickstart: Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations
 
 ## Prerequisites
-
-- Python 3.11+
-- pip (package installer)
-- A terminal with at least 14 GB free disk space (for intermediate data) and 7 GB RAM.
+- Python 3.11 or newer
+- `git` (to clone the repository)
+- At least **7 GB RAM** and **14 GB free disk** on the CI runner or local machine
+- No GPU required (CPU‑only)
 
 ## Installation
 
-1. **Clone the Repository** (or navigate to the project directory):
-   ```bash
-   cd projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig
-   ```
-
-2. **Create a Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install Dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: `requirements.txt` pins `numpy`, `scipy`, `pandas`, `pytest`, `pyyaml`, `scikit-learn`.*
-
-## Running the Simulation
-
-### 1. Single Instance Test (FR-001, FR-002)
-Verify the system can generate a matrix and detect an outlier.
-
 ```bash
-python code/main.py --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal
+# 1. Clone the repository
+git clone 
+cd PROJ-551-asymptotic-behavior-of-random-matrix-eig
+
+# 2. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+# 3. Install exact dependencies
+pip install -r code/requirements.txt
 ```
-**Expected Output**: A JSON report showing at least one eigenvalue $> \text{empirical\_bulk\_edge} + 0.05$.
 
-### 2. Full Parameter Sweep (FR-005, FR-006)
-Execute the full study (100 iterations per configuration). This may take 1-2 hours.
+`code/requirements.txt` pins:
+```
+numpy==1.26.*
+scipy==1.12.*
+pandas==2.2.*
+pyarrow==15.*
+pydantic==2.*
+matplotlib==3.8.*
+tqdm==4.66.*
+jsonschema==4.22.*
+```
 
+## Running the Analyses
+
+### 1. Single‑run sanity check (FR‑001 – FR‑004)
 ```bash
-python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse
+python -m src.cli run \
+    --mode single \
+    --N 1000 \
+    --theta 2.5 \
+    --k 1 \
+    --pattern diagonal \
+    --seed 42
 ```
-**Output**: Aggregated results saved to `data/processed/sweep_results.parquet`, including $\theta_c$ estimates.
+*Expected*: A JSON report in `data/processed/run_<run_id>.json` containing one `SimulationRun` and ten `EigenvalueResult` entries. The top eigenvalue should exceed `2.05` (outlier) when `theta > 1`, because outlier detection uses the **theoretical edge 2.0 plus tolerance 0.05** (not an empirical bulk estimate).
 
-### 3. Sensitivity Analysis (FR-006)
-Run the sensitivity sweep on sparsity density.
-
+### 2. Full parameter sweep (FR‑005)
 ```bash
-python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3
+python -m src.cli sweep \
+    --N 2000 \
+    --theta-grid 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 \
+    --k 1 2 5 \
+    --patterns diagonal block-sparse random-sparse \
+    --iterations 500 \
+    --seed-start 1000
 ```
+*Output*: `data/processed/sweep_results.parquet` (validated against `aggregated_threshold.schema.yaml`). Runtime ≈ a few hours on the CI runner.
+
+### 3. Sparsity sensitivity (FR‑006)
+```bash
+python -m src.cli sensitivity \
+    --N 1500 \
+    --theta 1.5 \
+    --k 2 \
+    --pattern random-sparse \
+    --densities 0.05 0.1 0.2 0.3 0.4 0.5 \
+    --iterations 500 \
+    --seed-start 5000
+```
+*Output*: `data/processed/sensitivity_results.parquet`.
+
+### 4. Finite‑size analysis (new phase)
+```bash
+python -m src.cli finite_size \
+    --Ns 500 1000 1500 2000 \
+    --theta 1.5 \
+    --k 1 \
+    --pattern diagonal \
+    --iterations 500 \
+    --seed-start 8000
+```
+*Output*: `data/processed/finite_size_results.parquet` showing how bulk edge and outlier probability vary with \(N\).
 
 ## Verifying Results
 
-1. **Check Checksums**:
-   Ensure data integrity by running:
-   ```bash
-   python code/utils/checksum.py --verify
-   ```
-   This compares file hashes against `state/...yaml`.
+### Schema validation
+```bash
+pytest tests/contract/test_schemas.py
+```
+All tests must pass (exit code 0). This ensures every JSON/Parquet file conforms to the contracts.
 
-2. **Visualize Thresholds**:
-   Use the provided notebook (if available) or a simple script:
-   ```python
-   import pandas as pd
-   import matplotlib.pyplot as plt
+### Reproducibility check (T001)
+```bash
+pytest tests/integration/test_t001.py
+```
+The test re‑runs a single configuration and asserts that the top eigenvalue matches the stored reference within `1e-6`.
 
-   df = pd.read_parquet("data/processed/sweep_results.parquet")
-   # Plot outlier_probability vs theta for different patterns
-   for pattern in df['pattern_type'].unique():
-       subset = df[df['pattern_type'] == pattern]
-       plt.plot(subset['theta'], subset['outlier_probability'], label=pattern)
-       # Plot estimated theta_c
-       if 'theta_c_estimate' in subset.columns:
-           plt.axvline(x=subset['theta_c_estimate'].mean(), label=f'{pattern} theta_c')
-   plt.axvline(x=1.0, color='r', linestyle='--', label='Theoretical Threshold (Dense)')
-   plt.legend()
-   plt.show()
-   ```
+### Visual inspection
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Example: outlier probability vs. theta for each pattern
+df = pd.read_parquet("data/processed/sweep_results.parquet")
+for pat in df["pattern_type"].unique():
+    sub = df[df["pattern_type"] == pat]
+    plt.plot(sub["theta"], sub["outlier_probability"], label=pat)
+plt.axvline(x=1.0, color="red", linestyle="--", label="Theoretical θ_c")
+plt.xlabel("Perturbation norm θ")
+plt.ylabel("Outlier probability")
+plt.legend()
+plt.show()
+```
+The plot should display a sigmoid‑like rise near the theoretical threshold (θ ≈ the predicted critical point)..
 
 ## Troubleshooting
 
-- **Memory Error**: If you encounter `MemoryError`, reduce `--N` to 1000 or 500. The iterative solver should handle $N=2000$, but system overhead can vary.
-- **Solver Non-Convergence**: If `eigsh` fails to converge, check the `tol` parameter in `code/analysis/eigen_solver.py`. The default is `1e-10`.
-- **No Outliers**: If $\theta < 1.0$, no outliers are expected. Ensure $\theta \ge 1.0$ for the sweep.
-- **Dense Matrix Warning**: The system uses dense matrices for Wigner ensembles. Ensure sufficient RAM (7GB is sufficient for N=2000).
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| **MemoryError** | `N` too large for available RAM | Reduce `--N` to ≤ 1500 or enable streaming mode (`--stream`). |
+| **ARPACK did not converge** | `tol` too strict or maxiter insufficient | Increase `--maxiter` (default 1000) or relax `--tol` (default 1e‑10). |
+| **Schema validation fails** | Output file corrupted or missing required fields | Re‑run the failing phase; ensure the corresponding schema file exists under `contracts/`. |
+| **Test T001 fails** | Seed mismatch or nondeterministic RNG usage | Verify that all random calls use the same `numpy.random.default_rng(seed)` instance. |
+
+---
+
+

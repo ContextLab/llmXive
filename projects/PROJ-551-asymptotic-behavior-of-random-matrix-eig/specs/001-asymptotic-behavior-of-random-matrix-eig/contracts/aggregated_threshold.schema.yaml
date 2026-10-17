@@ -1,4 +1,4 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: AggregatedThreshold
 description: Schema for aggregated statistics of outlier emergence across multiple runs.
 type: object
