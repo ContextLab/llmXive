@@ -1,8 +1,9 @@
 status: none
-intent: "OEIS M\xF6bius function values A008683 download python package dataset"
+intent: "download OEIS A008683 M\xF6bius function values up to 10 million python package\
+  \ dataset"
 required_fields:
 - n
 - mu
-cache_key: cdf2b6d5b293848d1eeed34a3b56e48b99e6e13c03db8cc419527371397be458
-searched_at: '2026-10-17T20:06:23.048671+00:00'
+cache_key: 3a36195925cbdb0b964ef6d2f9cafa8b3859823b648dc18a41e649e3d36bf057
+searched_at: '2026-10-17T20:28:23.666500+00:00'
 retry_count: 1

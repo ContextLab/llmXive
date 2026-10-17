@@ -1,11 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Autocorrelation Statistics Schema"
-description: "Schema for the autocorrelation_stats.csv output file. The p_value field reflects a two‑sided p‑value derived from a **5,000‑permutation** test."
+description: "Schema for rows of autocorrelation_stats.csv. p_value is a two-sided p-value from a 1,000-permutation zero-preserving sign-shuffle test (minimum resolution 1/1001)."
 type: object
 properties:
   interval_start:
     type: integer
-    description: "Starting index k of the window in the Möbius sequence."
+    description: "Starting index k of the window in the Mobius sequence."
     minimum: 1
   interval_length:
     type: integer
@@ -17,40 +17,40 @@ properties:
     minimum: 1
   autocorrelation:
     type: number
-    description: "Observed normalized autocorrelation value."
+    description: "Observed normalized autocorrelation; NaN only for all-zero windows."
     minimum: -1.0
     maximum: 1.0
   p_value:
     type: number
-    description: "Two-sided p-value from the 5,000‑permutation test."
-    minimum: 0.0
+    description: "Two-sided permutation p-value with +1 correction."
+    exclusiveMinimum: 0.0
     maximum: 1.0
   adjusted_p_value:
     type: number
-    description: "Benjamini‑Hochberg adjusted p-value."
-    minimum: 0.0
+    description: "Benjamini-Hochberg FDR-adjusted p-value."
+    exclusiveMinimum: 0.0
     maximum: 1.0
   ci_lower:
     type: number
-    description: "2.5th percentile of the null distribution."
+    description: "2.5th percentile of the permutation null distribution."
     minimum: -1.0
     maximum: 1.0
   ci_upper:
     type: number
-    description: "97.5th percentile of the null distribution."
+    description: "97.5th percentile of the permutation null distribution."
     minimum: -1.0
     maximum: 1.0
   zero_count:
     type: integer
-    description: "Number of zeros in the specific window."
+    description: "Number of zeros in the window."
     minimum: 0
   sensitivity_flag:
     type: string
-    description: "Status of sensitivity analysis."
+    description: "Outcome of the zero-density sensitivity analysis."
     enum: ["stable", "sensitive", "not_applicable"]
   theoretical_variance:
     type: number
-    description: "Theoretical variance under the Prime Number Theorem (PNT) assumption: σ²/L where σ² = (6/π²)(1 − 6/π²)."
+    description: "Theoretical variance sigma^2/L with sigma^2 = (6/pi^2)(1 - 6/pi^2)."
     minimum: 0.0
 required:
   - interval_start

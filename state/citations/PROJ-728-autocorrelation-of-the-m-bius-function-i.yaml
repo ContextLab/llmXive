@@ -22,3 +22,26 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1211.0189
   verified_at: '2026-10-17T20:27:10.773544Z'
+- artifact_hash: 216056b9cb5c5a9c400da2bc0e2fe924479e05361191ffba8895f1783a9176b3
+  artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/specs/001-autocorrelation-of-the-m-bius-function-i/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "[1211.0189] Uncertainty principles connected with the M\xF6bius\
+    \ inversion formula"
+  kind: url
+  value: https://arxiv.org/abs/1211.0189
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1211.0189
+  verified_at: '2026-10-17T20:42:29.761157Z'
+- artifact_hash: 0c0d58bf2968490d67abba566de54d3fc8e0925fee97bbf532b83c9b30c1491e
+  artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/specs/001-autocorrelation-of-the-m-bius-function-i/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/autocorr-mobius.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/autocorr-mobius
+  verified_at: '2026-10-17T20:43:03.717465Z'
