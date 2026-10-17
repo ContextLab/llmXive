@@ -39,6 +39,7 @@ REPOS = {
 
 # Two‑year window (relative to now)
 SINCE_DATE = (datetime.now(timezone.utc) - timedelta(days=2 * 365)).date()
+SINCE_DATE_STR = SINCE_DATE.strftime("%Y-%m-%d")
 
 # Minimum number of pairs required by the specification
 MIN_PAIRS = 500
@@ -106,22 +107,17 @@ def _run_git(args: List[str], cwd: Path) -> str:
     return result.stdout
 
 def _clone_repo(repo_url: str, dest: Path) -> None:
-    """Clone a repo if not already cloned."""
+    """Clone a repo if not already cloned. Use shallow-since to optimize."""
     if dest.exists():
         log.info("Repo already cloned at %s, pulling latest.", dest)
-        _run_git(["pull"], cwd=dest)
+        try:
+            _run_git(["pull"], cwd=dest)
+        except subprocess.CalledProcessError:
+            log.warning("Pull failed for %s; may need to re-clone.", dest)
     else:
-        log.info("Cloning %s into %s", repo_url, dest)
-        _run_git(["clone", "--depth", "1", repo_url, str(dest)], cwd=dest.parent)
-
-def _fetch_full_history(repo_path: Path) -> None:
-    """Ensure we have enough history (at least two years)."""
-    # Unshallow the repository to get full history if it was shallow.
-    try:
-        _run_git(["fetch", "--unshallow"], cwd=repo_path)
-    except subprocess.CalledProcessError:
-        # Repository may already be complete; ignore errors.
-        pass
+        log.info("Cloning %s into %s (shallow since %s)", repo_url, dest, SINCE_DATE_STR)
+        # Using --shallow-since is significantly faster than full clone or --unshallow
+        _run_git(["clone", f"--shallow-since={SINCE_DATE_STR}", repo_url, str(dest)], cwd=dest.parent)
 
 def _iter_commits(repo_path: Path) -> List[dict]:
     """Yield commit dictionaries for commits within the two‑year window."""
@@ -138,7 +134,11 @@ def _iter_commits(repo_path: Path) -> List[dict]:
     for line in log_output.splitlines():
         if not line.strip():
             continue
-        commit_hash, ts_str, subject = line.split("|", 2)
+        # Split by the first two pipes only to preserve pipes in commit messages
+        parts = line.split("|", 2)
+        if len(parts) < 3:
+            continue
+        commit_hash, ts_str, subject = parts
         commit_dt = datetime.fromtimestamp(int(ts_str), tz=timezone.utc)
         if commit_dt.date() < SINCE_DATE:
             continue
@@ -168,19 +168,16 @@ def _get_doc_diff(repo_path: Path, commit_hash: str, files: List[str]) -> str:
     """Return concatenated diff for the given files in the commit."""
     if not files:
         return ""
-    # Use git show to get patches for the selected files
     diff_parts = []
     for f in files:
         try:
-            patch = _run_git(
-                ["show", f"{commit_hash}:{f}"], cwd=repo_path
-            )
-        except subprocess.CalledProcessError:
-            # fallback to diff view if the file was deleted/added
+            # Use git show <hash> -- <file> to get the actual diff/patch
             patch = _run_git(
                 ["show", commit_hash, "--", f], cwd=repo_path
             )
-        diff_parts.append(patch)
+            diff_parts.append(patch)
+        except subprocess.CalledProcessError:
+            log.debug("Could not get diff for file %s in commit %s", f, commit_hash)
     return "\n".join(diff_parts).strip()
 
 # ----------------------------------------------------------------------
@@ -197,7 +194,6 @@ def extract_commit_pairs() -> List[dict]:
     for repo_label, repo_url in REPOS.items():
         repo_path = repos_base / repo_label
         _clone_repo(repo_url, repo_path)
-        _fetch_full_history(repo_path)
 
         log.info("Processing repository %s (%s)", repo_label, repo_url)
 
@@ -243,18 +239,22 @@ def extract_commit_pairs() -> List[dict]:
 
 def main() -> int:
     """Run the extraction pipeline and write outputs."""
-    rows = extract_commit_pairs()
-    if len(rows) < MIN_PAIRS:
-        log.error(
-            "Insufficient commit‑pair rows collected: %d (required %d).",
-            len(rows),
-            MIN_PAIRS,
-        )
-        return 1
+    try:
+        rows = extract_commit_pairs()
+        if len(rows) < MIN_PAIRS:
+            log.error(
+                "Insufficient commit‑pair rows collected: %d (required %d).",
+                len(rows),
+                MIN_PAIRS,
+            )
+            return 1
 
-    write_csv(rows)
-    update_metadata(CSV_PATH)
-    return 0
+        write_csv(rows)
+        update_metadata(CSV_PATH)
+        return 0
+    except Exception as e:
+        log.exception("Data extraction failed: %s", e)
+        return 1
 
 if __name__ == "__main__":
     raise SystemExit(main())

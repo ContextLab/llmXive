@@ -1,12 +1,4 @@
 T001:
-  reason: "The smoke-test command itself works (`--sample 5` exited 0 in 0.1s and\
-    \ wrote `data/generated/phi3-mini/sample_test.txt`), but the required verification\
-    \ `pytest tests/quickstart_test.py` does NOT pass: the recorded run timed out\
-    \ after 600s (exit -1), almost certainly because `test_full_pipeline_smoke` invokes\
-    \ `--full`, which triggers the slow repo-cloning data-extraction stage \u2014\
-    \ the quickstart test must complete quickly, not hang. Additionally, `quickstart.md`\
-    \ contains broken install commands (`python -m venv.venv` and `source.venv/bin/activate`\
-    \ are missing spaces), so the documented setup step"
   task: 6b37783f11eef2536d57ee4e06fbf80be45c24746a75a43127f9d575e4a5e5b5
 T002:
   task: 12a64c34cf48d4d8b4fbdb2c73b5b33bf6c31aa035a69bbca164ce6233248ff1

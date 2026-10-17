@@ -16,7 +16,6 @@ python -m venv.venv
 source.venv/bin/activate
 pip install -r requirements.txt
 ```
-The `requirements.txt` includes core research packages: `numpy`, `pandas`, `scipy`, `matplotlib`, `scikit-learn`, `statsmodels`, `seaborn`, `pytest`, `PyYAML`, `requests`, `jsonschema`, `psutil`, `gitpython`, `datasets`, `tqdm`, and `astor`.
 
 ## Model-inference dependencies (CPU-only, 4-bit quantization)
 ```bash
@@ -31,7 +30,7 @@ All stochastic components use the single pinned seed `SEED = 42` defined in `cod
 ```bash
 python -m code.run_pipeline --sample 5
 ```
-This loads one tiny hard-coded synthetic commit pair (a plumbing smoke test only — never analysis data), invokes the CPU-only generation module, and writes `data/generated/phi3-mini/sample_test.txt`. It completes in well under 30 seconds and requires no model downloads. [UNRESOLVED-CLAIM: c_add59b88 — status=not_enough_info]
+This loads one tiny hard-coded commit pair (a plumbing smoke test only — never analysis data), invokes the CPU-only generation module, and writes `data/generated/phi3-mini/sample_test.txt`. It completes in well under 30 seconds [UNRESOLVED-CLAIM: c_e91f946d — status=not_enough_info] and requires no model downloads.
 
 ## Power analysis (Phase 1)
 ```bash

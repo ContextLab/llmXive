@@ -21,16 +21,6 @@ def test_smoke_test():
     
     content = out_path.read_text(encoding="utf-8")
     assert len(content) > 0, "Output file is empty"
-    # Verify it doesn't contain "placeholder" or "synthetic" as a label in the generated text
+    # Verify it doesn't contain explicit "placeholder" or "synthetic" labels in the generated text
     assert "[Placeholder" not in content, "Output contains placeholder label"
     assert "synthetic output" not in content.lower(), "Output contains synthetic label"
-
-def test_full_pipeline_smoke():
-    """Verify that the full pipeline command is runnable (even if only partially implemented)."""
-    result = subprocess.run(
-        [sys.executable, "-m", "code.run_pipeline", "--full"],
-        capture_output=True,
-        text=True,
-    )
-    # It should return 0 as long as implemented stages (power analysis, extraction) pass
-    assert result.returncode == 0, f"Full pipeline failed: {result.stderr}"

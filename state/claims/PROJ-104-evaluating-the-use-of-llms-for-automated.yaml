@@ -202,3 +202,21 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-17T11:09:01Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: Phase 0 smoke test completes in under 30 seconds
+  claim_id: c_e91f946d
+  context: "This loads one tiny hard-coded commit pair (a plumbing smoke test only\
+    \ \u2014 never analysis data), invokes the CPU-only generation module, and writes\
+    \ data/generated/phi3-mini/sample_test.txt. It completes in well under 30 seconds\
+    \ and requires no model downloads."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:09:03Z'

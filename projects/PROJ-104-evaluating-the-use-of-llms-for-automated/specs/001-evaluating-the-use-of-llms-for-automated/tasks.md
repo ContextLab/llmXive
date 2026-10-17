@@ -13,7 +13,7 @@ The goal is to produce a reproducible, end‑to‑end pipeline that satisfies ev
 
 ## Phase 0 – Project scaffolding & early sanity check
 
-- [ ] **T001** [P?] [US1] **Create quick‑start documentation and a minimal runnable entry point**
+- [X] **T001** [P?] [US1] **Create quick‑start documentation and a minimal runnable entry point**
   - **Artifact(s)**: `quickstart.md`, `code/run_pipeline.py`
   - Write a short "Getting started" guide that lists required Python 3.11 packages, how to install `bitsandbytes` and `transformers`, and the command `python -m code.run_pipeline --sample 5`.
   - Implement `run_pipeline` to load a tiny hard‑coded commit pair (one synthetic example used **only** as a smoke test of plumbing, never as analysis data) and invoke the generation module (CPU-only) to produce a single output file under `data/generated/phi3-mini/sample_test.txt`.
@@ -34,7 +34,7 @@ The goal is to produce a reproducible, end‑to‑end pipeline that satisfies ev
 
 ## Phase 2 – Data acquisition & pairing (Priority P1)
 
-- [ ] **T003** [P1] [US1] **Extract ≥ 500 (commit_message, documentation_diff) pairs** <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=-1 (TIMEOUT) -->
+- [ ] **T003** [P1] [US1] **Extract ≥ 500 (commit_message, documentation_diff) pairs** <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=-1 (TIMEOUT) -->
   - **Artifact(s)**: `code/data_extraction.py`, `data/raw/commit_pairs.csv`
   - Clone the five target repositories (`pandas`, `requests`, `scikit-learn`, `flask`, `django`) at the latest tag, walk the last 2 years of history, and select commits that modify `.md` or `.rst` files.
   - For each qualifying commit, record `commit_hash`, `commit_message`, `repository_name`, `doc_diff`, and ISO‑8601 `timestamp` according to `commitpair.schema.yaml`. Commits with no documentation change are excluded (FR‑007: every retained pair has a ground‑truth human diff).

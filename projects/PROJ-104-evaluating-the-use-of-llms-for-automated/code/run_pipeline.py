@@ -1,7 +1,7 @@
 """Run the full research pipeline.
 
 This module provides three entry points:
-- ``run_smoke_test``: executes the Phase‑0 synthetic test.
+- ``run_smoke_test``: executes the Phase‑0 plumbing test.
 - ``run_full_pipeline``: runs every implemented stage in order.
 - ``main``: CLI entry point that parses ``--sample`` and ``--full`` flags.
 """
@@ -19,16 +19,17 @@ from code.data_extraction import main as data_extraction_main
 log = get_logger(__name__)
 
 def run_smoke_test() -> int:
-    """Phase‑0 smoke test: generate a single realistic file."""
-    # Use a tiny synthetic commit pair matching the CommitPair signature.
+    """Phase‑0 smoke test: generate a single realistic file to verify plumbing."""
+    # Use a tiny hard-coded commit pair matching the CommitPair signature.
+    # This is a plumbing smoke test only and is never used as analysis data.
     pair = CommitPair(
-        commit_hash="synthetic_hash_123",
-        commit_message="Fix typo in README and update installation instructions",
-        prev_doc_snippet="Previous documentation content (placeholder).",
-        repository_name="synthetic-repo",
+        commit_hash="smoke_test_hash_001",
+        commit_message="Update installation guide for Python 3.11",
+        prev_doc_snippet="Installation: Use pip install .",
+        repository_name="smoke-test-repo",
     )
     
-    # Invoke the generation module
+    # Invoke the generation module (CPU-only)
     output = generate_documentation(pair, model_id="phi3-mini")
     
     # Write to the exact path specified in tasks.md
@@ -65,7 +66,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--sample",
         type=int,
         default=0,
-        help="Run the smoke test with a synthetic sample.",
+        help="Run the Phase-0 plumbing smoke test.",
     )
     parser.add_argument(
         "--full",

@@ -1,15 +1,15 @@
 T001:
-  c: false
-  h: e6c9803b45d38415d3676e01f9c2cc1d91011181cb026d1d17a94f505c07949b
-  r: "The smoke-test command itself works (`--sample 5` exited 0 in 0.1s and wrote\
-    \ `data/generated/phi3-mini/sample_test.txt`), but the required verification `pytest\
-    \ tests/quickstart_test.py` does NOT pass: the recorded run timed out after 600s\
-    \ (exit -1), almost certainly because `test_full_pipeline_smoke` invokes `--full`,\
-    \ which triggers the slow repo-cloning data-extraction stage \u2014 the quickstart\
-    \ test must complete quickly, not hang. Additionally, `quickstart.md` contains\
-    \ broken install commands (`python -m venv.venv` and `source.venv/bin/activate`\
-    \ are missing spaces), so the documented setup step"
-  sig: 0b1ff4190933d189d7fc4a443d581cbfd1d9dd8f4d5c6f408c0239a4fa7837c6
+  c: true
+  h: b6a3975a189398a2814b1467643e45963cf5d0e44e94cbafc1015af5bd35da81
+  r: 'Both required artifacts exist and match the task: `quickstart.md` documents
+    Python 3.11, `pip install transformers bitsandbytes`, and the `python -m code.run_pipeline
+    --sample 5` command; `code/run_pipeline.py` loads a tiny hard-coded commit pair,
+    invokes the generation module, and writes `data/generated/phi3-mini/sample_test.txt`
+    (present, non-empty, 291 bytes). Execution logs confirm `--sample 5` exited 0
+    in 0.1 s and `pytest tests/quickstart_test.py` passed (1 passed), satisfying the
+    stated verification criteria; the template-based generation is acceptable here
+    since the task explicitly sco'
+  sig: 419879cc2f18314c3bc5ab3b2d7474c18811dd4236f9cee734bf358ffa45514d
 T002:
   c: true
   h: d9afe2acf1abb777ca7fe3772e8388c5ba3a5707554e6cc3dc0a89af6999fc11
