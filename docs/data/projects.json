@@ -28708,7 +28708,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-17T08:39:05.526529+00:00",
+  "generated_at": "2026-10-17T09:09:47.824591+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -71224,7 +71224,7 @@
       },
       "authors": [
         {
-          "contributions": 6,
+          "contributions": 7,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -71281,6 +71281,14 @@
       "id": "PROJ-217-evaluating-the-impact-of-llm-generated-c",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 40.749937,
+          "ended_at": "2026-10-17T09:06:19.339478Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-17T09:05:38.589541Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 29.47134,
@@ -71352,14 +71360,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-11T01:34:44.405964Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1092.970426,
-          "ended_at": "2026-10-11T00:30:39.711970Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-11T00:12:26.741544Z"
         }
       ],
       "paper_status": null,
@@ -76558,7 +76558,7 @@
           ]
         },
         {
-          "contributions": 3,
+          "contributions": 4,
           "kind": "llm",
           "name": "zai-org.glm-5.3",
           "roles": [
@@ -76602,6 +76602,14 @@
       "id": "PROJ-250-neural-correlates-of-temporal-prediction",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 266.251471,
+          "ended_at": "2026-10-17T08:39:13.389474Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-17T08:34:47.138003Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 236.875211,
@@ -76673,14 +76681,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-01T18:25:42.489106Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 18.606657,
-          "ended_at": "2026-06-28T22:56:44.650076Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-06-28T22:56:26.043419Z"
         }
       ],
       "paper_status": null,
@@ -172876,6 +172876,30 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 40.749937,
+      "ended_at": "2026-10-17T09:06:19.339478Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-217-evaluating-the-impact-of-llm-generated-c",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-17T09:05:38.589541Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 266.251471,
+      "ended_at": "2026-10-17T08:39:13.389474Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-250-neural-correlates-of-temporal-prediction",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-17T08:34:47.138003Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 236.875211,
       "ended_at": "2026-10-17T08:32:20.703231Z",
       "failure_reason": "",
@@ -178909,30 +178933,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-16T13:23:29.383921Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 15.807538,
-      "ended_at": "2026-10-16T13:23:29.381530Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-349-predicting-the-impact-of-ball-milling-on",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-16T13:23:13.573992Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.374739,
-      "ended_at": "2026-10-16T13:23:13.571572Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-349-predicting-the-impact-of-ball-milling-on",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-16T13:22:59.196833Z"
     }
   ],
   "reviewed_preprints": [
