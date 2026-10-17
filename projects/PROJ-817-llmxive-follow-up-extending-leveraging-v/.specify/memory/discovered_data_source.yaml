@@ -1,11 +1,11 @@
 status: none
-intent: download image editing instruction dataset with human feasibility scores balanced
-  conflicting neutral HuggingFace python package dataset
+intent: downloadable image editing prompts dataset with human feasibility scores conflicting
+  neutral python package dataset
 required_fields:
 - prompt_id
-- prompt_text
 - instruction_type
+- prompt_text
 - human_feasibility_score
-cache_key: d1ccc9eb4907444ff43f8187c5790b2b3f6960dc90dec4d028c758367d7254a4
-searched_at: '2026-10-17T04:09:33.677729+00:00'
+cache_key: cd01b92e149544eaeacf3eafbcb8bf4cc0e097cf5d11197efc41bb0050bbd4c8
+searched_at: '2026-10-17T05:07:55.439562+00:00'
 retry_count: 1
