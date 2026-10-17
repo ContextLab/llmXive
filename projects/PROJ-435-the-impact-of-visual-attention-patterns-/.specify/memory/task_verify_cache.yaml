@@ -1,21 +1,3 @@
-T001:
-  c: false
-  h: e65c41f13a3fe3a337b53c51911f172fc6b7512200e67b029ad4341ad9859765
-  r: The only artifact provided is the `scripts/init_project.py` script, which merely
-    calls a `setup_data_structure` function that is not present in the evidence, and
-    no actual directories (`code/`, `data/raw/`, `data/derived/`, `data/processed/`,
-    `tests/`, `state/`) are shown to exist. The required project structure is therefore
-    missing.
-T002:
-  c: false
-  h: e5c1c6dfd4f47a90ce3a27a483cde93ac06585769d747b8de121403adac3bdd6
-  r: "The `requirements.txt` and `pyproject.toml` files exist and contain the required\
-    \ pinned dependencies and `[tool.black]` / `[tool.ruff]` sections, but there is\
-    \ no provided evidence (e.g., command output logs) that `pip install -r requirements.txt`\
-    \ succeeds, that `ruff --version` and `black --version` run without error, or\
-    \ that `ruff check code/` reports zero lint failures. Without this execution evidence\
-    \ the task\u2019s verification criteria are unmet."
-  sig: 5084cc7b20553f0693e69e0dc061af0ca9e964f696c68d21fb473280ffbf8d6e
 T003:
   c: false
   h: cc5411c06e4b93eddba50a3297f9e9b296e3256ac53c570ce4df8cd6ab408bed

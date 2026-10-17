@@ -1,19 +1,13 @@
 status: none
-intent: download Misleading Headlines eye tracking dataset belief ratings python package
-  dataset
+intent: eye tracking misleading headlines belief ratings cognitive reflection score
+  python package dataset
 required_fields:
-- participant_id
-- trial_id
-- timestamp
-- gaze_x
-- gaze_y
-- fixation_id
+- headline_text
+- belief_rating
+- cognitive_reflection_score
 - fixation_duration
 - roi_type
-- bounding_box_x1
-- bounding_box_y1
-- bounding_box_x2
-- bounding_box_y2
-cache_key: 77cd372ddbc08c2f5592315603bfa4301782a8801855408ab714c8df7625ffc6
-searched_at: '2026-10-14T18:24:36.609127+00:00'
+- bounding_box_coordinates
+cache_key: 1e1fd2acc01e40469728f5f69f4be8fff2af0c639f7516a61230820e698f2ac2
+searched_at: '2026-10-17T12:39:42.006927+00:00'
 retry_count: 1
