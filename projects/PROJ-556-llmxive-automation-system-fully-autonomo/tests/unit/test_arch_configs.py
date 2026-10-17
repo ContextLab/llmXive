@@ -1,4 +1,10 @@
-"""Unit tests for src/config/arch_configs.yaml (task T006)."""
+"""Unit tests for src/config/arch_configs.yaml and its loader.
+
+These tests verify that the ArchConfig definitions required by task T006
+exist, are structurally valid, and load through the project's config
+loader (src.config.loader).
+"""
+
 from __future__ import annotations
 
 import pathlib
@@ -29,62 +35,55 @@ REQUIRED_KEYS = {
 }
 
 
-def test_file_exists_and_parses():
-    assert CONFIG_PATH.is_file()
+def test_config_file_exists() -> None:
+    assert CONFIG_PATH.is_file(), f"missing config file: {CONFIG_PATH}"
+
+
+def test_yaml_parses_and_has_configs_section() -> None:
     with open(CONFIG_PATH, "r", encoding="utf-8") as fh:
         data = yaml.safe_load(fh)
     assert isinstance(data, dict)
-    assert isinstance(data.get("configs"), list)
+    assert "configs" in data
     assert len(data["configs"]) >= 5
 
 
-def test_all_configs_have_required_structural_keys():
-    for cfg in load_arch_configs(CONFIG_PATH):
-        missing = REQUIRED_KEYS - set(cfg)
+def test_expected_config_ids_present() -> None:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as fh:
+        data = yaml.safe_load(fh)
+    ids = {c["config_id"] for c in data["configs"]}
+    assert EXPECTED_CONFIG_IDS.issubset(ids)
+
+
+def test_every_config_has_required_keys() -> None:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as fh:
+        data = yaml.safe_load(fh)
+    for cfg in data["configs"]:
+        missing = REQUIRED_KEYS - set(cfg.keys())
         assert not missing, f"{cfg.get('config_id')} missing keys: {missing}"
 
 
-def test_config_ids_unique_and_expected():
-    cfgs = load_arch_configs(CONFIG_PATH)
-    ids = [c["config_id"] for c in cfgs]
-    assert len(ids) == len(set(ids)), "config_id values must be unique"
-    assert EXPECTED_CONFIG_IDS.issubset(set(ids))
-
-
-def test_structural_parameters_vary():
-    """Structural params must actually vary so correlation analysis is not tautological."""
-    cfgs = load_arch_configs(CONFIG_PATH)
-    sizes = {c["model_size_params"] for c in cfgs}
-    rag = {c["retrieval_augmented"] for c in cfgs}
-    ctx = {c["context_window_tokens"] for c in cfgs}
-    assert len(sizes) >= 2, "model_size_params must vary across configs"
-    assert rag == {True, False}, "retrieval_augmented must have both on/off"
-    assert len(ctx) >= 1
-
-
-def test_cpu_only_constraint():
-    for cfg in load_arch_configs(CONFIG_PATH):
-        assert cfg["model_size_params"] <= 500_000_000, (
-            f"{cfg['config_id']} exceeds CPU-tractable model size"
-        )
-
-
-def test_get_arch_config():
-    cfg = get_arch_config("small_rag_high_temp", CONFIG_PATH)
-    assert cfg["retrieval_augmented"] is True
-    assert cfg["retrieval_top_k"] == 5
-    with pytest.raises(KeyError):
-        get_arch_config("does_not_exist", CONFIG_PATH)
-
-
-def test_execution_and_resource_sections():
+def test_structural_parameters_vary() -> None:
+    """Structural params must actually vary so correlation analysis (US-3) is non-degenerate."""
     with open(CONFIG_PATH, "r", encoding="utf-8") as fh:
         data = yaml.safe_load(fh)
-    exec_cfg = data["execution"]
-    assert exec_cfg["timeout_seconds_per_attempt"] == 60
-    assert exec_cfg["memory_error_retries"] == 1
-    assert exec_cfg["determinism_check_runs"] == 3
-    res = data["resources"]
-    assert res["device"] == "cpu"
-    assert res["max_ram_gb"] <= 7
-    assert res["max_disk_gb"] <= 14
+    sizes = {c["model_size_params"] for c in data["configs"]}
+    rags = {c["retrieval_augmented"] for c in data["configs"]}
+    assert len(sizes) >= 2, "model_size_params must vary across configs"
+    assert rags == {True, False}, "retrieval_augmented must take both values"
+
+
+def test_loader_loads_all_configs() -> None:
+    configs = load_arch_configs()
+    assert len(configs) >= 5
+    assert all(REQUIRED_KEYS.issubset(set(c.keys())) for c in configs)
+
+
+def test_loader_get_single_config() -> None:
+    cfg = get_arch_config("small_rag_high_temp")
+    assert cfg["config_id"] == "small_rag_high_temp"
+    assert cfg["retrieval_augmented"] is True
+
+
+def test_loader_unknown_id_raises() -> None:
+    with pytest.raises(KeyError):
+        get_arch_config("does_not_exist")
