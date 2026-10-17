@@ -1,5 +1,5 @@
 status: none
-intent: CDAWeb ACE SWEPAM SWICS NOAA SWPC Kp Dst python package dataset
+intent: NASA CDAWeb ACE SWEPAM ACE SWICS NOAA Kp Dst indices python package dataset
 required_fields:
 - timestamp
 - proton_density
@@ -7,6 +7,6 @@ required_fields:
 - helium_abundance
 - Kp
 - Dst
-cache_key: 3d339054712766c50e007c96b050ff713585576cbbe159620576850f7b90595c
-searched_at: '2026-10-17T19:24:48.563785+00:00'
+cache_key: 9714ed08ef08003bff6e9feaf15c49a103d6ddead5426110accc71a6c381d8b1
+searched_at: '2026-10-17T19:32:25.409786+00:00'
 retry_count: 1

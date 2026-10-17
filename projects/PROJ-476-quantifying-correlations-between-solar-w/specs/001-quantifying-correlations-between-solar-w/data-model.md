@@ -2,66 +2,63 @@
 
 ## Entities
 
-### SolarWindRecord
-
-Represents a single hourly measurement of solar wind composition.
+### SolarWindRecord (raw, from ACE via cdasws)
 
 | Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `timestamp` | `datetime` | UTC timestamp (hourly resolution) | ACE Level 2 |
-| `proton_density` | `float` | Proton density ($cm^{-3}$) | ACE SWEPAM (`N_p`) |
-| `temperature` | `float` | Proton temperature (K) | ACE SWEPAM (`T_p`) |
-| `helium_abundance` | `float` | Helium abundance (He$^{2+}$/H$^+$ ratio, %) | ACE SWICS (`He2+_ratio`) |
+|:---|:---|:---|:---|
+| `timestamp` | `datetime` | UTC epoch of measurement | ACE SWEPAM / SWICS Level 2 |
+| `N_p` | `float` | Proton density (cm⁻³) | ACE SWEPAM |
+| `T_p` | `float` | Proton temperature (K) | ACE SWEPAM |
+| `He2+_ratio` | `float` | He²⁺/H⁺ abundance ratio | ACE SWICS |
 
-### GeomagneticRecord
-
-Represents a single hourly measurement of geomagnetic activity.
+### GeomagneticRecord (raw)
 
 | Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `timestamp` | `datetime` | UTC timestamp (hourly resolution) | NOAA SWPC |
-| `Kp` | `float` | Planetary K-index (0–9, 1/3 steps) | NOAA |
-| `Dst` | `float` | Disturbance Storm Time index (nT) | NOAA |
+|:---|:---|:---|:---|
+| `timestamp` | `datetime` | UTC timestamp (hourly) | NOAA SWPC / Kyoto WDC |
+| `Kp` | `float` | Planetary K-index (0–9, thirds) | NOAA SWPC |
+| `Dst` | `float` | Disturbance Storm Time index (nT) | Kyoto WDC |
 
-### SynchronizedRecord
-
-The unified record after alignment (1-hour grid).
+### SynchronizedRecord (`data/processed/synced.csv`)
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `timestamp` | `datetime` | Common UTC timestamp |
-| `proton_density` | `float` | Interpolated if missing |
-| `temperature` | `float` | Interpolated if missing |
-| `helium_abundance` | `float` | Interpolated if missing |
-| `Kp` | `float` | Interpolated if missing |
-| `Dst` | `float` | Interpolated if missing |
-| `interpolated_flag` | `bool` | True if any value was interpolated |
+|:---|:---|:---|
+| `timestamp` | `datetime` (ISO‑8601 UTC) | Common 1‑hour grid timestamp |
+| `proton_density` | `float` | cm⁻³; interpolated if gap ≤ 6 h |
+| `temperature` | `float` | K; interpolated if gap ≤ 6 h |
+| `helium_abundance` | `float` | He²⁺/H⁺ ratio; interpolated if gap ≤ 6 h |
+| `Kp` | `float` | 0–9 |
+| `Dst` | `float` | nT |
+| `interpolated_flag` | `bool` | True if any value in the row was linearly interpolated |
 
-### CorrelationResult
-
-The output of the statistical analysis.
+### CorrelationResult (`results/correlations.csv`, `results/validation_correlations.csv`, `results/full_correlations.csv`)
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `composition_param` | `str` | One of: `proton_density`, `temperature`, `helium_abundance` |
-| `geomagnetic_index` | `str` | One of: `Kp`, `Dst` |
-| `lag_hours` | `int` | Lag in hours (0, 1, 2, 3, 6) |
-| `pearson_r` | `float` | Pearson correlation coefficient |
-| `spearman_rho` | `float` | Spearman rank correlation coefficient |
-| `p_raw` | `float` | Raw p-value (using $N_{eff}$) |
-| `p_bonferroni` | `float` | Bonferroni-corrected p-value |
-| `significant` | `bool` | True if `p_bonferroni` < 0.05 |
-| `effect_size_large` | `bool` | True if `abs(pearson_r)` > 0.5 |
+|:---|:---|:---|
+| `composition_parameter` | `str` | `proton_density` \| `temperature` \| `helium_abundance` |
+| `geomagnetic_index` | `str` | `Kp` \| `Dst` |
+| `lag_hours` | `int` | 0, 1, 2, 3, or 6 |
+| `pearson_r` | `float` | Pearson coefficient |
+| `spearman_rho` | `float` | Spearman coefficient |
+| `n_eff` | `float` | Pyper & Peterman effective sample size |
+| `p_raw` | `float` | raw p‑value (t‑approx, df = n_eff − 2) |
+| `p_bonferroni` | `float` | min(1, 30 × p_raw) |
+| `significant` | `bool` | True if p_bonferroni < 0.05 |
+| `effect_size_large` | `bool` | True if |pearson_r| > 0.5 |
+| `evaluability_flag` | `bool` | False if valid observations < 30 **or** n_eff < 30 (data_resources‑9faf82e0) |
 
 ## Data Flow
 
-1.  **Fetch**: Raw CSVs from ACE/NOAA → `data/raw/`.
-2.  **Sync**: Parse, align, interpolate → `data/processed/synced.csv`.
-3.  **Analyze**: Compute correlations → `results/correlations.csv`.
-4.  **Validate**: Filter for hold-out period, check thresholds → `results/validation_report.md`.
+1. **Fetch** → `data/raw/{ace_swpam.csv, ace_swics.csv, kp.txt, dst.txt}` + `checksums.json`.  
+2. **Sync** → `data/processed/synced.csv` (7 columns).  
+3. **Analyze** → `results/correlations.csv` (training 1998‑2017).  
+4. **Full‑period** → `results/full_correlations.csv` (1998‑2020).  
+5. **Validate** → `results/validation_correlations.csv`, `results/validation_report.md`.  
+6. **Plot** → `figures/*.png`.
 
 ## Constraints
 
-*   **Missing Variables**: If `helium_abundance` is missing for > 6 hours, the pipeline aborts (FR-006).
-*   **Interpolation**: Max gap for interpolation is 6 hours. Larger gaps are flagged and excluded.
-*   **Lag Range**: Only 0, 1, 2, 3, 6 hours are analyzed.
+- Missing required variable ⇒ abort with logged variable name (SC‑002).  
+- Interpolation only for gaps ≤ 6 h; longer gaps excluded from correlations.  
+- Lags restricted to 0, 1, 2, 3, 6 h.  
+- Evaluability floor: at least 30 valid observations **and** `n_eff ≥ 30`; otherwise `evaluability_flag` = False.

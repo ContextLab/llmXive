@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CorrelationResult"
-description: "Schema for the output of the lagged correlation analysis."
+description: "Schema for one row of results/correlations.csv and results/validation_correlations.csv."
 type: object
 properties:
   composition_parameter:
@@ -9,13 +9,13 @@ properties:
       - proton_density
       - temperature
       - helium_abundance
-    description: "The solar wind variable being tested."
+    description: "Solar wind composition variable under test."
   geomagnetic_index:
     type: string
     enum:
       - Kp
       - Dst
-    description: "The geomagnetic variable being tested."
+    description: "Geomagnetic index under test."
   lag_hours:
     type: integer
     enum:
@@ -24,33 +24,50 @@ properties:
       - 2
       - 3
       - 6
-    description: "Time lag in hours."
+    description: "Lag in hours (composition leading the index)."
   pearson_r:
     type: number
+    minimum: -1
+    maximum: 1
     description: "Pearson correlation coefficient."
   spearman_rho:
     type: number
+    minimum: -1
+    maximum: 1
     description: "Spearman rank correlation coefficient."
+  n_eff:
+    type: number
+    exclusiveMinimum: 2
+    description: "Pyper & Peterman effective sample size for this pair."
   p_raw:
     type: number
-    description: "Raw p-value adjusted for effective degrees of freedom (EDF) using Thomson's MTM."
-  p_holm_bonferroni:
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value computed with df = n_eff - 2."
+  p_bonferroni:
     type: number
-    description: "Holm-Bonferroni-corrected p-value (family-wise error rate controlled)."
-  significance_flag:
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni‑corrected p‑value, min(1, 30 * p_raw)."
+  significant:
     type: boolean
-    description: "True if p_holm_bonferroni < 0.05."
-  effect_size_flag:
+    description: "True if p_bonferroni < 0.05."
+  effect_size_large:
     type: boolean
-    description: "True if absolute(pearson_r) > 0.5."
+    description: "True if abs(pearson_r) > 0.5."
+  evaluability_flag:
+    type: boolean
+    description: "False if valid observations < 30 or n_eff < 30 (data_resources‑9faf82e0)."
 required:
   - composition_parameter
   - geomagnetic_index
   - lag_hours
   - pearson_r
   - spearman_rho
+  - n_eff
   - p_raw
-  - p_holm_bonferroni
-  - significance_flag
-  - effect_size_flag
+  - p_bonferroni
+  - significant
+  - effect_size_large
+  - evaluability_flag
 additionalProperties: false

@@ -2,82 +2,82 @@
 
 ## Summary of Scientific Question
 
-The study investigates the associational relationship between solar wind composition parameters (proton density, temperature, helium abundance) and geomagnetic indices (Kp, Dst) over a multi-year period. Specifically, it tests whether variations in composition predict geomagnetic disturbances at lags of 0 to 6 hours, using rigorous statistical controls for multiple comparisons (Holm-Bonferroni) and autocorrelation (Thomson's Multitaper Method).
+How do variations in solar‑wind composition (proton density, proton temperature, helium abundance) relate associatively to geomagnetic disturbance intensity as measured by Kp and Dst, at response lags of 0–6 hours, over the 1998–2020 interval? The study computes lagged Pearson and Spearman correlations on the **full continuous hourly series** (no storm filtering, avoiding selection bias), with p‑values adjusted for autocorrelation via the Pyper & Peterman effective sample size and a **plain Bonferroni** correction over the full 30‑test family, validated on a held‑out 2018–2020 period.
 
 ## Dataset Strategy
 
-### Verified Datasets
+**Verified‑source status (mandatory disclosure)**: the "# Verified datasets" block supplied for this project contains **no URLs** for ACE solar‑wind or geomagnetic‑index data. Consequently the pipeline cites **no external URLs**. The required datasets are accessed through well‑known programmatic channels:
 
-The plan relies on the following verified, canonical public sources. **Note**: The "Verified datasets" block in the initial prompt contained unrelated speech/text data. This plan uses the **standard public sources** for solar wind physics, which are the only sources containing the required variables.
+| Dataset | Required variables | Canonical source (named, URL not verified here) | Access method |
+|:---|:---|:---|:---|
+| ACE SWEPAM Level 2 | `N_p` (cm⁻³), `T_p` (K) | NASA CDAWeb – dataset **AC_H0_SWE** | `cdasws` Python client (official CDAWeb web service; no authentication) |
+| ACE SWICS Level 2 | `He2+_ratio` (He²⁺/H⁺ ratio) | NASA CDAWeb – dataset **AC_H2_SWE** | `cdasws` Python client |
+| Planetary Kp (hourly, 0–9 in thirds) | `Kp` | NOAA SWPC / GFZ Potsdam – file **kp.txt** | Direct HTTP GET of the public text/CSV product |
+| Hourly Dst (nT) | `Dst` | Kyoto WDC for Geomagnetism (mirrored by NOAA SWPC) – file **dst.txt** | Direct HTTP GET of the public text product |
 
-1. **ACE Solar Wind Composition**:
- * **Source**: NASA CDAWeb (Coordinated Data Analysis Web).
- * **Dataset**: ACE SWEPAM Level 2 (Proton Density, Temperature) and ACE SWICS Level 2 (Helium Abundance).
- * **URL**: `
- * **Access Method**: Programmatic download via CDAWeb API or direct FTP/HTTP to `.
- * **Variables**: `N_p` (cm⁻³), `T_p` (K), `He2+_ratio` (%).
+**Variable‑fit check**: these are the exact variables named in FR‑006 (`N_p`, `T_p`, `He2+_ratio`, `Kp`, `Dst`). If any variable is absent from a downloaded file, the pipeline aborts with an explicit error (SC‑002).
 
-2. **NOAA Geomagnetic Indices**:
- * **Source**: NOAA Space Weather Prediction Center (SWPC).
- * **Dataset**: Kp Planetary Indices and Dst Index.
- * **URL**: ` and `.
- * **Access Method**: Direct CSV/ASCII download from the SWPC website.
- * **Variables**: `kp` (0–9), `dst` (nT).
-
-**Data Acquisition Strategy**:
-* **Fetch**: Download Level 2 data for 1998–2020.
-* **Sync**: Resample to 1-hour UTC grid.
-* **Interpolation**: Linear interpolation for gaps ≤ 6 hours.
-* **Validation**: Ensure all required columns exist; abort if missing.
+**Coverage risk (data_resources‑9faf82e0)**: ACE SWICS helium abundance suffers from substantial data gaps after 2011. In the 2018‑2020 validation window many hourly helium entries are missing; gaps > 6 h are excluded, and if the number of valid helium observations falls below the **evaluability floor** (see Phase 3) the pair is reported as “insufficient data”.
 
 ## Statistical Methodology
 
-### Correlation Analysis
+- **Metrics**: Pearson r and Spearman ρ.  
+- **Lags**: 0, 1, 2, 3, 6 hours (composition leading the index).  
+- **Scope**: full continuous series, 1998‑2020 (training/validation split is only for out‑of‑sample reporting).  
+- **Test family**: 30 tests (3 parameters × 2 indices × 5 lags).
 
-* **Metrics**: Pearson $r$ and Spearman $\rho$.
-* **Lags**: 0, 1, 2, 3, 6 hours.
-* **Scope**: Full continuous time series (not filtered for storms) to avoid selection bias.
-* **Hypothesis Tests**: 30 tests (3 vars × 2 indices × 5 lags).
+### Autocorrelation adjustment (FR‑010)
 
-### Autocorrelation Adjustment (FR-010 Replacement)
+Raw p‑values use the **Pyper & Peterman (1979)** effective sample size:
 
-* **Problem**: Solar wind and geomagnetic time series exhibit long-range dependence (/f noise) and 27-day solar rotation cycles. Simple lag-1 autocorrelation (Pyper & Peterman) is insufficient and leads to under-corrected p-values (false positives).
-* **Solution**: Use **Thomson's Multitaper Method (MTM)** to estimate the spectral density and calculate **Effective Degrees of Freedom (EDF)**.
- * **Method**: MTM provides a robust estimate of the spectral density $S(f)$ by averaging multiple orthogonal tapers (Slepian sequences).
- * **EDF Calculation**: $EDF = \frac{(\int S(f) df)^2}{\int S^2(f) df} \times \frac{N}{B}$, where $B$ is the bandwidth. This accounts for the true correlation structure.
- * **Implementation**: Use `nitime` or `scipy.signal` multitaper implementation.
-* **Application**: Calculate the t-statistic for correlation: $t = r \sqrt{\frac{EDF - 2}{1 - r^2}}$. Compute raw p-value from the t-distribution with $df = EDF - 2$.
+```
+N_eff = N * (1 − r1x * r1y) / (1 + r1x * r1y)
+```
 
-### Multiple Comparison Correction (FR-004 Replacement)
+where `r1x` and `r1y` are the lag‑1 autocorrelations of the **non‑interpolated** series (computed on points that were not linearly filled). The test statistic is  
 
-* **Method**: **Holm-Bonferroni Step-Down Procedure**.
-* **Reason**: The 5 lags for a single variable pair are not independent (overlapping time windows). Bonferroni is overly conservative. Holm-Bonferroni controls the Family-Wise Error Rate (FWER) while maintaining higher power for dependent tests.
-* **Procedure**:
- 1. Calculate raw p-values for all 30 tests.
- 2. Sort p-values: $p_{(1)} \le p_{(2)} \le... \le p_{(30)}$.
- 3. For $i = 1$ to 30: if $p_{(i)} < \frac{0.05}{30 - i + 1}$, reject $H_{(i)}$; else stop.
-* **Reporting**: Raw p-value and Holm-Bonferroni-corrected p-value for each test.
+```
+t = r * sqrt((N_eff − 2) / (1 − r²))
+```  
 
-### Effect Size Threshold (SC-003 Compliance)
+with `df = N_eff − 2`. This formulation is applied to **both Pearson and Spearman** coefficients; for Spearman the t‑approximation is a common but approximate practice (methodology‑27dc277a, scientific_soundness‑2439c4e0).
 
-* **Threshold**: $|r| > 0.5$ (pre-registered).
-* **Validation**: Check if any pair in the held-out set (2018–2020) exceeds this threshold with **Holm-Bonferroni-corrected** significance.
-* **Validation Procedure**:
- 1. Compute correlations on 2018–2020 data ONLY.
- 2. Compute **EDF** using MTM on 2018–2020 data ONLY.
- 3. Apply **Holm-Bonferroni** correction to the 30 p-values from 2018–2020.
- 4. Flag pairs where $|r| > 0.5$ AND Holm-Bonferroni $p < 0.05$.
+### Multiple comparisons (FR‑004)
+
+Plain **Bonferroni** correction across all 30 tests:  
+
+```
+p_bonf = min(1, 30 * p_raw)
+```  
+
+A pair is flagged significant when `p_bonf < 0.05`. The same procedure is recomputed on the validation‑period p‑values.
+
+### Effect‑size benchmark
+
+Pre‑registered threshold |r| > 0.5. For context, prior heliophysics work reported a strong coupling pair with |r| = **0.72** (source: arXiv:1105.6272, https://arxiv.org/abs/1105.6272).
+
+### Sensitivity Checks – Detrending (methodology‑e4c34b53)
+
+To guard against spurious correlations driven by solar‑cycle‑scale trends, we also compute the 30 lagged correlations on:
+1. **First‑differences** of each series.  
+2. **27‑day running‑mean detrended** series (x – rolling_mean_27d, y – rolling_mean_27d).  
+
+These alternative results are saved in `results/detrended_correlations.csv` and reported alongside the primary table for transparency.
 
 ## Statistical Rigor & Limitations
 
-* **Observational Nature**: All findings are **associational**. No causal claims.
-* **Collinearity**: Proton density and helium abundance may be correlated. Variance Inflation Factor (VIF) will be calculated; results reported descriptively without claiming independent effects.
-* **Power**: The large sample size (multi-year × 8760 hours) provides high power, but the effective sample size is reduced by autocorrelation (accounted for by MTM).
-* **Missing Data**: Gaps > 6 hours are excluded, potentially reducing power slightly.
+- **Observational**: findings are associational only.  
+- **Power**: ~175 k hourly training observations; effective sample size reduces power but remains ample; no separate power analysis is feasible for a fixed historical record.  
+- **Collinearity**: variance‑inflation factors are computed and reported descriptively; no independent‑effect claims are made.  
+- **Missing data**: gaps ≤ 6 h are linear‑interpolated (logged); gaps > 6 h are excluded, reducing `N_eff`.  
+- **Lag scope**: effects beyond 6 h are out of scope (FR‑003).  
+- **Evaluability floor (data_resources‑9faf82e0)**: a composition‑index‑lag pair is marked “not evaluable” if **fewer than 30 valid (non‑missing) observations** remain after interpolation **or** `N_eff < 30`. Such pairs are omitted from significance testing and reported as lacking sufficient data.
 
-## Decision Rationale
+## Decision / Rationale
 
-* **CPU-First**: The analysis involves classical statistics (correlation, p-values) on a large-scale dataset. This is trivial for a CPU. No GPU is required.
-* **Data Source**: The plan uses the standard public sources (CDAWeb/NOAA) to ensure **real results**. The provided "Verified datasets" block in the prompt was invalid for this domain.
-* **Validation**: The 2018–2020 hold-out period ensures the model is not overfitting to the training data (1998–2017). The EDF and correction are recalculated independently for the test set to ensure validity.
-* **Methodology**: Thomson's MTM is superior to lag-1 methods for geophysical time series with long-range dependence. Holm-Bonferroni is superior to Bonferroni for dependent lagged tests.
+- **CPU‑first**: all computations are classical statistics on ~200 k rows; well within CI limits.  
+- **Fetch redesign**: explicit CDAWeb dataset IDs (`AC_H0_SWE`, `AC_H2_SWE`) and NOAA/Kyoto file names eliminate prior T002 failures.  
+- **Statistics**: reverted to spec‑mandated plain Bonferroni and Pyper & Peterman N_eff; Spearman p‑values use the same t‑approximation with a clear disclaimer.  
+- **Plotting**: matplotlib only; seaborn removed after prior crash.  
+- **Validation report wording**: limited to statements about the 30 bivariate correlations; no reference to dynamic pressure (scientific_soundness‑7f8d5579, ‑4696f05a).  
+

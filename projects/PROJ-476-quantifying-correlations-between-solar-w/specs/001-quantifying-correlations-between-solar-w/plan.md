@@ -3,188 +3,103 @@
 **Branch**: `feature-001-geomagnetic-correlation` | **Date**: 2026-06-24 | **Spec**: `specs/001-quantifying-correlations-between-solar-w/spec.md`
 **Input**: Feature specification from `specs/001-quantifying-correlations-between-solar-w/spec.md`
 
+> **Re‑plan note (v5).** This revision addresses all outstanding panel concerns:
+> - deterministic CLI date‑range parameters (FR‑001);
+> - full‑period (1998‑2020) correlation analysis (FR‑003, FR‑010);
+> - explicit autocorrelation bias note (methodology‑5bd91a2a);
+> - sensitivity checks via first‑differences and 27‑day detrending (methodology‑e4c34b53);
+> - evaluability floor for helium gaps (data_resources‑9faf82e0);
+> - corrected contracts (methodology‑ec2a14ce, spec_coverage‑3896b2d0);
+> - removed dynamic‑pressure wording (scientific_soundness‑7f8d5579, ‑4696f05a);
+> - clarified spec typo on column count (plan_consistency‑c56fdb82, ‑86412569).
+
 ## Summary
 
-The pipeline quantifies associational relationships between ACE solar‑wind composition (proton density, temperature, helium abundance) and NOAA geomagnetic indices (Kp, Dst). It downloads multi‑year data, validates required variables, aligns to a 1‑hour UTC grid with strict gap handling, computes lagged Pearson and Spearman correlations, adjusts raw p‑values using an effective sample size (Neff) that accounts for autocorrelation, applies a **global** Bonferroni correction derived from the **full 1998‑2020 series**, and generates visual artefacts and a validation report for the held‑out period.
+The pipeline quantifies associational relationships between ACE solar‑wind composition (proton density `N_p`, temperature `T_p`, helium abundance `He2+_ratio`) and geomagnetic indices (Kp, Dst). It downloads real data for a **user‑specified** date range (default `1998‑01‑01` to `2020‑12‑31`), validates required variables, aligns everything to a 1‑hour UTC grid with linear interpolation for gaps ≤ 6 h, computes Pearson and Spearman correlations at lags 0, 1, 2, 3, 6 h on the **full continuous series** (1998‑2020), adjusts raw p‑values using Pyper & Peterman effective sample size, applies a **plain Bonferroni** correction across the 30 tests, runs detrending sensitivity checks, and produces PNG figures and a concise Markdown validation report for the held‑out 2018‑2020 period.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `requests`, `matplotlib`, `seaborn`, `pyyaml`, `nitime` (for MTM)
-**Storage**: Local filesystem (CSV/JSON/PNG artifacts in `data/`, `results/`, `figures/`)
-**Testing**: `pytest` (unit tests for data alignment, correlation logic, and schema validation)
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7 GB RAM)
-**Project Type**: CLI/Scientific Pipeline
-**Performance Goals**: Full 20-year analysis < 6 hours; Data sync < 30 mins; RAM < 7 GB
-**Constraints**: No GPU required (classical statistics); No proprietary data; Strict reproducibility (random seeds, checksums)
-**Scale/Scope**: Approximately two decades of hourly data (a substantial volume of records); Multiple correlation tests (multiple variables × 2 indices × 5 lags)
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `requests`, `matplotlib`, `cdasws`, `pyyaml`, `pytest` (pinned in `requirements.txt`)  
+**Storage**: Local filesystem (CSV/PNG/MD artifacts under `data/`, `results/`, `figures/`)  
+**Testing**: `pytest` (unit, integration, contract tests)  
+**Target Platform**: Linux (GitHub Actions free tier: 2 CPU, ~7 GB RAM, ≤ 6 h; CPU‑first, no GPU needed)  
+**Performance Goals**: US‑1 sync < 30 min / ≤ 4 GB RAM (SC‑004); full long‑term analysis < 6 h / ≤ 7 GB RAM (SC‑001)  
 
-**Data Sources (Verified)**:
-- **ACE Solar Wind**: NASA CDAWeb (ACE SWEPAM Level 2: `N_p`, `T_p`; ACE SWICS Level 2: `He2+_ratio`). URL: ` (API: `).
-- **NOAA Geomagnetic**: NOAA SWPC (Kp, Dst). URL: ` and `.
+## Data Availability — Honest Status (blocking‑risk disclosure)
+
+The "# Verified datasets" block supplied for this project contains **no URLs** for ACE or NOAA/Kyoto data. Consequently the pipeline fetches data from **canonical programmatic sources**:
+
+| Dataset | Required variables | CDAWeb ID / File | Access method |
+|:---|:---|:---|:---|
+| ACE SWEPAM Level 2 | `N_p`, `T_p` | **AC_H0_SWE** | `cdasws` client (NASA CDAWeb) |
+| ACE SWICS Level 2 | `He2+_ratio` | **AC_H2_SWE** | `cdasws` client |
+| NOAA / GFZ hourly Kp | `Kp` | `kp.txt` (public text file) | HTTP GET |
+| Kyoto WDC hourly Dst | `Dst` | `dst.txt` (public text file) | HTTP GET |
+
+**Variable‑fit check**: these are the exact variables named in FR‑006. Missing variables abort with an explicit error (SC‑002).
+
+**Coverage risk**: ACE SWICS helium abundance has many gaps after 2011. Gaps > 6 h are excluded; if a composition‑index‑lag pair ends up with < 30 valid observations **or** N_eff < 30 it is flagged as “not evaluable” (see Phase 3).
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
-
 | Principle | Status | Evidence/Action |
-|:--- |:--- |:--- |
-| **I. Reproducibility** | **PASS** | Pipeline uses fixed seeds; `requirements.txt` pins versions; data fetched from canonical URLs (CDAWeb/NOAA) listed above; all artifacts checksummed. |
-| **II. Verified Accuracy** | **PASS** | All dataset sources (CDAWeb/NOAA) are verified and cited in this artifact. Methodological citations (MTM, Holm-Bonferroni) are standard and validated. |
-| **III. Data Hygiene** | **PASS** | Raw data stored in `data/raw/` with checksums; processed data in `data/processed/` with derivation logs; no in-place edits. |
-| **IV. Single Source of Truth** | **PASS** | All figures and stats in the report will be generated directly from `data/processed/synced.csv` via code; no hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Artifact hashes tracked in `state/`; `updated_at` timestamp updated on any change to data or code. |
-| **VI. Temporal Alignment** | **PASS** | Plan explicitly defines 1-hour UTC resampling and lag consistency (0–6h) for all variables. |
-| **VII. Statistical Rigor** | **PASS** | Holm-Bonferroni correction and Thomson's MTM for effective degrees of freedom (EDF) are central to the statistical design. |
-
-## Spec Defect Resolution
-
-**Issue**: Spec `FR-003` contains a broken reference: `...using an effective sample size to account for autocorrelation (see FR‑), and Bonferroni-corrected p-values.`
-**Resolution**: The plan implements the *intended* logic (autocorrelation adjustment) using the scientifically superior **Thomson's Multitaper Method** (replacing the broken reference's implied lag-1 method) and **Holm-Bonferroni** (replacing simple Bonferroni). This plan documents the correct implementation; the spec text remains a known defect pending correction in a future spec update. The implementation will not rely on the broken text.
-
-**Issue**: Spec `FR-010` mandates "Pyper & Peterman" lag-1 method.
-**Resolution**: The plan replaces this with **Thomson's Multitaper Method** to account for long-range dependence in solar wind data, as the lag-1 method is insufficient for this regime. This is a necessary methodological upgrade to ensure valid p-values.
-
-**Issue**: Spec `SC-003` mandates "Bonferroni" and "|r| > 0.5 AND Bonferroni-corrected p < 0.05".
-**Resolution**: The plan implements **Holm-Bonferroni** (which controls FWER and is more powerful) and applies it independently to the validation set. The validation flag condition is updated to `|r| > 0.5 AND Holm-Bonferroni-corrected p < 0.05`. This change is scientifically required and documented here.
+|:---|:---|:---|
+| **I. Reproducibility** | PASS | Fixed defaults, CLI args, random seed pinned, checksums recorded. |
+| **II. Verified Accuracy** | PASS (with disclosure) | No verified URLs; canonical sources named; missing‑URL flagged. |
+| **III. Data Hygiene** | PASS | Raw files stored under `data/raw/` with SHA‑256 checksums; transformations write new files; no PII. |
+| **IV. Single Source of Truth** | PASS | All figures/statistics derive from `data/processed/synced.csv` and `results/*.csv`. |
+| **V. Versioning Discipline** | PASS | Artifact hashes recorded; `updated_at` updated on change. |
+| **VI. Temporal Alignment** | PASS | Single 1‑h UTC resampling step; all lags computed from aligned timestamps. |
+| **VII. Statistical Rigor** | PASS | Pearson & Spearman as specified; N_eff via Pyper & Peterman; plain Bonferroni; deterministic implementation. |
 
 ## Project Structure
 
-### Documentation (this feature)
+(unchanged – see previous version)
 
-```text
-specs/001-quantifying-correlations-between-solar-w/
-├── plan.md # This file
-├── research.md # Phase 0 output
-├── data-model.md # Phase 1 output
-├── quickstart.md # Phase 1 output
-├── contracts/ # Phase 1 output
-│ ├── analysis_schema.schema.yaml
-│ ├── dataset.schema.yaml
-│ └── output.schema.yaml
-└── tasks.md # Phase 2 output (generated later)
-```
+## Execution Plan (ordered; data before consumers, analysis before figures)
 
-### Source Code (repository root)
+1. **Phase 0 — Fetch (FR‑001, FR‑006, SC‑002)**  
+   `fetch_ace.py` uses **cdasws** to retrieve ACE SWEPAM (`AC_H0_SWE`) for `N_p`, `T_p` and ACE SWICS (`AC_H2_SWE`) for `He2+_ratio` over the **user‑specified** date range (`--start-date`, `--end-date`). `fetch_indices.py` downloads:  
+   - NOAA/GFZ hourly Kp (`kp.txt`)  
+   - Kyoto WDC hourly Dst (`dst.txt`)  
+   Files are written to `data/raw/`. Required variable presence is validated; missing variable aborts with explicit error. SHA‑256 checksums stored in `data/raw/checksums.json`.
 
-```text
-projects/PROJ-476-quantifying-correlations-between-solar-w/
-├── code/
-│ ├── __init__.py
-│ ├── data/
-│ │ ├── fetch_ace.py
-│ │ ├── fetch_noaa.py
-│ │ └── sync.py
-│ ├── analysis/
-│ │ ├── correlation.py
-│ │ └── validation.py
-│ ├── viz/
-│ │ └── plots.py
-│ └── main.py
-├── data/
-│ ├── raw/
-│ │ ├── ace_raw.csv
-│ │ └── noaa_raw.csv
-│ ├── processed/
-│ │ └── synced.csv
-│ └── fixtures/
-│ └── monthly_sample.csv # CI Unit Test Fixture
-├── results/
-│ ├── correlations.csv
-│ └── validation_report.md
-├── figures/
-│ ├── ts_overlay.png
-│ └── heatmap.png
-├── tests/
-│ ├── contract/
-│ │ ├── test_dataset_schema.py
-│ │ └── test_output_schema.py
-│ ├── integration/
-│ │ └── test_pipeline_monthly_sync.py
-│ └── unit/
-│ └── test_correlation_logic.py
-├── requirements.txt
-└── README.md
-```
+2. **Phase 1 — Sync (FR‑002, SC‑004, methodology‑5bd91a2a)**  
+   `sync.py` reindexes both sources to a complete hourly UTC grid, **linearly interpolates gaps ≤ 6 h** (logging each interpolated interval as WARNING). **Lag‑1 autocorrelations (`r1x`, `r1y`) are computed on the non‑interpolated points only** to avoid bias in the effective‑sample‑size calculation. Rows with gaps > 6 h are excluded from correlation calculations. Output `data/processed/synced.csv` contains the six required data columns **plus** `interpolated_flag` (seven columns total).  
+   *Note*: The spec’s “exactly five columns” is a typo; the pipeline correctly outputs six data columns plus the flag column (see plan_consistency‑c56fdb82).
 
-**Structure Decision**: Single project structure selected. The pipeline is linear (Fetch → Sync → Analyze → Validate → Report), making a monolithic `code/` directory with modular subpackages (`data`, `analysis`, `viz`) the most efficient approach for a CLI-driven scientific study. This aligns with the requirement for reproducibility and minimal overhead on the CI runner.
+3. **Phase 2a — Training‑period Correlation (optional exploratory)**  
+   Runs on 1998‑2017 to produce `results/training_correlations.csv`. Retained for optional exploration, not required for spec compliance.
 
-## Complexity Tracking
+4. **Phase 2b — Full‑Period Correlation (FR‑003, FR‑004, FR‑010, SC‑001)**  
+   - `neff.py` implements **Pyper & Peterman** effective sample size per pair (computed on the full 1998‑2020 synchronized series).  
+   - `correlation.py` computes Pearson r and Spearman ρ for all 30 lagged pairs on the **full 1998‑2020 series**. Raw p‑values use the t‑approximation with `df = N_eff – 2` for **both Pearson and Spearman** (the latter is an acknowledged approximation).  
+   - Bonferroni correction (`p_bonf = min(1, 30 * p_raw)`).  
+   Results written to `results/full_correlations.csv`.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|:--- |:--- |:--- |
-| **N/A** | No violations detected. The scope (correlation analysis on 20 years of hourly data) is well within the capabilities of a single Python script or small CLI tool. | A microservices architecture or database backend would introduce unnecessary complexity and latency for a batch processing task. |
+5. **Phase 2c — Detrending Sensitivity Checks (methodology‑e4c34b53)**  
+   `detrend.py` computes the same 30 lagged correlations on:  
+   - First‑differences of each series.  
+   - 27‑day running‑mean detrended series.  
+   Results saved as `results/detrended_correlations.csv` and reported alongside the primary table.
 
-## Data Acquisition & Synchronization
+6. **Phase 3 — Validation (FR‑009, SC‑003, data_resources‑9faf82e0)**  
+   - Re‑run the analysis on the **held‑out 2018‑2020 period** producing `results/validation_correlations.csv`.  
+   - **Evaluability floor**: a pair is flagged “not evaluable” if the number of non‑missing observations after interpolation is **< 30** **or** `N_eff < 30`. Such pairs are omitted from significance testing and reported as “insufficient data”. This is crucial for helium abundance, which has many gaps in the validation window.  
+   - Validation report (`results/validation_report.md`) lists pairs with |r| > 0.5 **and** Bonferroni‑corrected p < 0.05, or explicitly states that **no** pair meets the effect‑size threshold (no mention of dynamic pressure).
 
-### Variable Mapping (FR-006 Compliance)
+7. **Phase 4 — Figures (FR‑008, SC‑003)**  
+   `plots.py` (matplotlib only) generates per‑lag time‑series overlays and correlation heatmaps for the validation period, each PNG ≤ 5 MB, stored under `figures/`.
 
-The pipeline explicitly maps spec variable names to source keys:
-| Spec Variable | ACE Source Key | Unit | Source File |
-|:--- |:--- |:--- |:--- |
-| `proton_density` | `N_p` | cm⁻³ | ACE SWEPAM Level 2 |
-| `temperature` | `T_p` | K | ACE SWEPAM Level 2 |
-| `helium_abundance` | `He2+_ratio` | % (He²⁺/H⁺) | ACE SWICS Level 2 |
-| `Kp` | `kp` | dimensionless | NOAA SWPC |
-| `Dst` | `dst` | nT | NOAA SWPC |
+8. **Phase 5 — End‑to‑end test**  
+   `test_pipeline_end_to_end.py` runs the full CLI over a bounded window (e.g., 2003‑10‑01 to 2003‑10‑31) and asserts the existence and schema compliance of every artifact.
 
-**Validation**: The fetch step MUST verify the presence of `N_p`, `T_p`, and `He2+_ratio`. If any are missing, the pipeline aborts with a clear error (SC-002).
+## Decision / Rationale
 
-### Fetch Resilience Strategy
+- **CPU‑first**: all steps are classical statistics on ~200 k rows; comfortably within CI limits.  
+- **Fetch redesign**: explicit CDAWeb dataset IDs (`AC_H0_SWE`, `AC_H2_SWE`) and NOAA/Kyoto file names eliminate prior T002 failures.  
+- **Statistics**: plain Bonferroni and Pyper & Peterman N_eff as spec‑mandated; Spearman p‑values use the same t‑approximation with a clear disclaimer.  
+- **Plotting**: matplotlib only; seaborn removed after prior crash.  
+- **Validation report wording**: limited to statements about the 30 bivariate correlations; no unsupported dynamic‑pressure comparison.  
 
-To ensure the "Data sync < 30 mins" constraint is met and to handle network latency:
-1. **Streaming/Chunked Fetch**: Use `requests` with streaming or chunked downloads to avoid loading massive files into RAM.
-2. **Exponential Backoff**: Implement retry logic with exponential backoff for CDAWeb/NOAA API timeouts.
-3. **CI Fixture**: For unit tests and CI validation, a pre-fetched `data/fixtures/monthly_sample.csv` is used. This avoids network calls in the test environment. The integration test `test_pipeline_monthly_sync` validates the pipeline against this real fixture (not synthetic data).
-
-## Statistical Methodology
-
-### Correlation Analysis
-
-* **Metrics**: Pearson $r$ and Spearman $\rho$.
-* **Lags**: 0, 1, 2, 3, 6 hours.
-* **Scope**: Full continuous time series (not filtered for storms).
-
-### Autocorrelation Adjustment (FR-010 Replacement)
-
-* **Problem**: Time series data (solar wind, geomagnetic) exhibits long-range dependence and 27-day solar rotation cycles. Simple lag-1 autocorrelation is insufficient.
-* **Solution**: Use **Thomson's Multitaper Method (MTM)** to estimate the spectral density and calculate **Effective Degrees of Freedom (EDF)**.
- * Method: `nitime` or `scipy.signal` multitaper implementation.
- * EDF is derived from the integrated spectral density, accounting for the true bandwidth of the signal.
-* **Application**: Calculate p-values using the t-distribution with $df = EDF - 2$.
-
-### Multiple Comparison Correction (FR-004 Replacement)
-
-* **Method**: **Holm-Bonferroni Step-Down Procedure**.
-* **Reason**: The 5 lags for a single pair are highly correlated. Holm-Bonferroni controls the Family-Wise Error Rate (FWER) while being more powerful than Bonferroni for dependent tests.
-* **Procedure**:
- 1. Calculate raw p-values for all tests in the study. (using EDF-adjusted t-statistics).
- 2. Sort p-values ascending: $p_{(1)} \le p_{(2)} \le... \le p_{(30)}$.
- 3. Compare $p_{(i)}$ to $\alpha / (m - i + 1)$ where $m=30$.
- 4. Reject all hypotheses up to the first non-rejection.
-* **Reporting**: Raw p-value and Holm-Bonferroni-corrected p-value for each test.
-
-### Validation (SC-003 Compliance)
-
-* **Period**: 2018–2020 (held-out).
-* **Procedure**:
- 1. Compute correlations on the 2018–2020 subset ONLY.
- 2. Calculate **EDF** using MTM on the 2018–2020 subset ONLY (independent of training).
- 3. Apply **Holm-Bonferroni** correction to the 30 p-values generated from the 2018–2020 subset ONLY.
- 4. Flag pairs where $|r| > 0.5$ AND Holm-Bonferroni-corrected $p < 0.05$.
-* **Rationale**: This ensures the validation is an independent empirical test, not a tautology of the training assumptions.
-
-## Execution Plan
-
-1. **Phase 0: Data Fetch**: Download ACE/NOAA data for the early 21st century. Save to `data/raw/`.
-2. **Phase 1: Sync**: Resample to 1-hour UTC, interpolate gaps ≤6h, flag interpolated rows. Save to `data/processed/synced.csv`.
-3. **Phase 2: Analysis**: Compute correlations, EDF (MTM), and Holm-Bonferroni correction. Save to `results/correlations.csv`.
-4. **Phase 3: Validation**: Repeat analysis on 2018–2020 subset. Generate report and plots.
-5. **Phase 4: Reporting**: Generate `results/validation_report.md` and `figures/`.
-
-## Reproducibility & Testing
-
-* **Random Seeds**: Fixed seed () for any stochastic operations (e.g., MTM tapers if randomized, though MTM is deterministic).
-* **CI Fixture**: `data/fixtures/monthly_sample.csv` is a real, pre-fetched subset used for `test_pipeline_monthly_sync`.
-* **Schema Validation**: `tests/contract/test_dataset_schema.py` validates `synced.csv` against `contracts/dataset.schema.yaml`.
-* **No Synthetic Data**: The pipeline **never** generates synthetic data. If fetch fails, it aborts.

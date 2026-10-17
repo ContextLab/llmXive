@@ -1,23 +1,39 @@
 # Quickstart
 
-Run the full pipeline with the following command:
+Install pinned dependencies and run the full pipeline:
 
 ```bash
-python -m code.main --stage all
+python -m pip install -r requirements.txt
+# Example: user‑specified date range (defaults shown)
+python -m code.main --stage all --start-date 1998-01-01 --end-date 2020-12-31
 ```
 
-This executes every stage in order: fetch (real ACE/NOAA downloads), align
-(writes `data/processed/synced.csv`), analyze (writes
-`results/correlations.csv`), and validate (writes
-`results/validation_correlations.csv`).
-
-Individual stages can be run separately:
+Stages (in order; each writes verifiable files):
 
 ```bash
-python -m code.main --stage fetch --start 1998-01-01 --end 2020-12-31
-python -m code.main --stage align
-python -m code.main --stage analyze --lags 0,1,2,3,6
+# Fetch data for a **user‑specified** window (default shown above)
+python -m code.main --stage fetch --start-date 1998-01-01 --end-date 2020-12-31
+
+# Align and interpolate to 1‑hour UTC grid
+python -m code.main --stage sync
+
+# Full‑period (1998‑2020) correlation analysis
+python -m code.main --stage analyze
+
+# Detrending sensitivity checks (first‑difference & 27‑day detrended)
+python -m code.main --stage detrend
+
+# Validation on 2018‑2020 hold‑out
 python -m code.main --stage validate
+
+# Generate figures (PNG ≤ 5 MB each)
+python -m code.main --stage report
 ```
 
-Use `python -m code.main --help` for the full list of options.
+Run the test suite (unit + contract + integration):
+
+```bash
+python -m pytest tests/ -v
+```
+
+If `--stage fetch` fails, the pipeline aborts with an explicit error naming the missing variable or unreachable source; do not retry with fixture data — the study requires the real downloads.
