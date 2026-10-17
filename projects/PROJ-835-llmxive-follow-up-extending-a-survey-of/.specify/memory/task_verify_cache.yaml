@@ -1,3 +1,55 @@
+T002:
+  c: false
+  h: 457c62709994afe5632bbee0afcd32d870975e209ba74d5ceaa2a78d3a561cc6
+  r: The only artifact is `requirements.txt`, which exists but does not pin exact
+    versions (e.g., it uses `>=` and omits a version for `torch`). The task explicitly
+    required a **pinned** `requirements.txt` for the listed packages, so the provided
+    file does not meet the specification.
+  sig: e5a926454e4f36ff24784cf589645a70ef625de19e0e222cda9b9c759dd17da0
+T003:
+  c: false
+  h: ab0a13432d893bbf61603f15bcacac9ade8bfe05ea2bbf5978c090a086ff855f
+  r: The evidence only shows the project root location; no linting or formatting configuration
+    files (e.g., `pyproject.toml` with Black settings, `ruff.toml` or `.ruff.toml`,
+    or a `.pre-commit-config.yaml`) are present or referenced. Without these artifacts,
+    the task of configuring Ruff and Black is not satisfied. Adding the appropriate
+    config files (and optionally CI integration) is required.
+  sig: 584542d8bd03b7e57d5841f9715d8f8e21f2bf657c3b50410d8d8fab835e9370
+T004:
+  c: true
+  h: 165da9d45418348e389e5fcf1060f99b353e3807dab1e07ebfb7c1caaf269d5f
+  r: "Checked the provided `src/utils/config.py` (resolved at `code/src/utils/config.py`).\
+    \ It defines functions for setting random seeds, resolving and ensuring project\u2011\
+    relative paths, and loading/saving project state (JSON/YAML) plus hash utilities,\
+    \ fully satisfying the task\u2019s requirements."
+  sig: 6aed5a1fbb075b14a7f7114776daefbaddef1200cc86455aee68102672f368a9
+T005:
+  c: false
+  h: bb5d54903b3397efcb7a1b4c4fd304330ad833f3f7caec906ccffe27af38e14b
+  r: "The `tests/contract/` directory is present with the expected files, but no evidence\
+    \ of the actual contents of `schema_validator.py` (or the test modules) is provided,\
+    \ so we cannot confirm that functional schema\u2011validation utilities for YAML/JSON\
+    \ artifacts were implemented. The implementer must supply the source code showing\
+    \ the validation logic (e.g., loading schemas, using `jsonschema` or similar)\
+    \ and non\u2011empty test files that exercise it."
+  sig: e1cc14712ea50167f040a063af39b636f1183f0a993804a1b3f71c4fc4180c8e
+T007a:
+  c: true
+  h: a8f10fab789f0657f3e76f469fa96b38442e724f30fc118252879a404dda2505
+  r: "Checked the `src/utils/stats.py` file (9980\u202Fbytes) which defines `compute_benign_statistics`\
+    \ using `sklearn.covariance.LedoitWolf`, and provides full Mahalanobis\u2011distance\
+    \ computation functions with proper input validation and logging. The implementation\
+    \ is complete and matches the task\u2019s requirement."
+  sig: 5d60dd987aca74fbd502dec42514e45436f7732c3e6cf6eefd2a65db44317b87
+T007b:
+  c: true
+  h: c3aef33011cf8bb41930de3010e83e43b7ed60d338dcb87ab1069ed926379d1a
+  r: "Checked the artifact `src/utils/stats.py` (9980\u202Fbytes) which contains a\
+    \ full Mahalanobis\u2011distance utility implementation with module\u2011level\
+    \ and function\u2011level docstrings, logging, type hints, and concrete code.\
+    \ The file is non\u2011empty and matches the requested path and documentation\
+    \ requirement."
+  sig: a1e0f2bd6b023845d460ae9a0b2de5e8b3bca2b33b6b72d47da8f33b5304052b
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

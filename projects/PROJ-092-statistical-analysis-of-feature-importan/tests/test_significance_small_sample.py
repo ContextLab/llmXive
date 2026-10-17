@@ -1,111 +1,106 @@
-import pytest
+"""Tests for T024: small sample size handling (n < 10) in significance_test.py."""
 import os
-import csv
-import tempfile
-import math
-from code.significance_test import mann_kendall_test, block_permutation_test, run_significance_tests
+import sys
+import json
 
-class TestSmallSampleHandling:
-    """Tests for T024: Small sample size constraints (n < 10) and permutation reliance."""
+import pytest
 
-    def test_mann_kendall_small_sample_returns_values(self):
-        """Verify MK test runs but returns values that should be flagged as unreliable for n < 10."""
-        # Create a small dataset (n=5)
-        data = [0.1, 0.2, 0.3, 0.4, 0.5]
-        tau, p, trend = mann_kendall_test(data)
-        
-        assert isinstance(tau, float)
-        assert isinstance(p, float)
-        assert trend in ["monotonic increase", "monotonic decrease", "no trend"]
-        # For perfect increase, trend should be increase
-        assert trend == "monotonic increase"
+CODE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "code")
+if CODE_DIR not in sys.path:
+  sys.path.insert(0, CODE_DIR)
 
-    def test_block_permutation_small_sample(self):
-        """Verify block permutation test works on small samples."""
-        data = [0.1, 0.2, 0.3, 0.4, 0.5]
-        p_val = block_permutation_test(data, n_resamples=100)
-        
-        assert 0.0 <= p_val <= 1.0
-        # For a perfect trend, p-value should be low (significant)
-        assert p_val < 0.1
+from significance_test import (
+  block_permutation_test,
+  is_small_sample,
+  mann_kendall_test,
+  run_significance_tests,
+)
 
-    def test_run_significance_switches_to_permutation(self):
-        """Test that run_significance_tests uses permutation for n < 10."""
-        # Create a temporary CSV with 4 rows (n=4 < 10)
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as tmp_in:
-            writer = csv.DictWriter(tmp_in, fieldnames=['window_t', 'window_t+1', 'rho', 'p_value'])
-            writer.writeheader()
-            # 4 windows -> 3 transitions? No, 4 rows in input means 4 rho values.
-            # Let's create 4 rho values.
-            rows = [
-                {'window_t': '1', 'window_t+1': '2', 'rho': '0.9', 'p_value': '0.0'},
-                {'window_t': '2', 'window_t+1': '3', 'rho': '0.8', 'p_value': '0.0'},
-                {'window_t': '3', 'window_t+1': '4', 'rho': '0.7', 'p_value': '0.0'},
-                {'window_t': '4', 'window_t+1': '5', 'rho': '0.6', 'p_value': '0.0'},
-            ]
-            writer.writerows(rows)
-            input_path = tmp_in.name
 
-        output_path = input_path.replace('.csv', '_final.csv')
+class TestSmallSampleDetection:
+  def test_n_below_10_is_small(self):
+    assert is_small_sample([0.9, 0.8, 0.7, 0.6, 0.5]) is True
 
-        try:
-            result = run_significance_tests(input_path, output_path)
-            
-            # Verify the result indicates permutation was used
-            assert result['n'] == 4
-            assert result['method_used'] == 'block_permutation'
-            assert 'p_value' in result
-            assert 0.0 <= result['p_value'] <= 1.0
+  def test_n_above_10_is_not_small(self):
+    assert is_small_sample([0.5] * 12) is False
 
-            # Verify the output file contains the method tag
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows_out = list(reader)
-                assert len(rows_out) == 4
-                assert 'p_value_method' in rows_out[0]
-                assert all(row['p_value_method'] == 'block_permutation' for row in rows_out)
-        finally:
-            if os.path.exists(input_path):
-                os.remove(input_path)
-            if os.path.exists(output_path):
-                os.remove(output_path)
+  def test_boundary_n_10_is_not_small(self):
+    assert is_small_sample([0.5] * 10) is False
 
-    def test_run_significance_uses_mk_for_large_sample(self):
-        """Test that run_significance_tests uses Mann-Kendall for n >= 10."""
-        # Create a temporary CSV with 12 rows (n=12 >= 10)
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as tmp_in:
-            writer = csv.DictWriter(tmp_in, fieldnames=['window_t', 'window_t+1', 'rho', 'p_value'])
-            writer.writeheader()
-            # 12 rho values
-            rows = []
-            for i in range(12):
-                rows.append({
-                    'window_t': str(i), 
-                    'window_t+1': str(i+1), 
-                    'rho': str(0.9 - (i * 0.05)), 
-                    'p_value': '0.0'
-                })
-            writer.writerows(rows)
-            input_path = tmp_in.name
 
-        output_path = input_path.replace('.csv', '_final.csv')
+class TestMannKendall:
+  def test_increasing_sequence(self):
+    tau, direction, p = mann_kendall_test([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+    assert tau == pytest.approx(1.0)
+    assert direction == "monotonic increase"
+    assert p < 0.05
 
-        try:
-            result = run_significance_tests(input_path, output_path)
-            
-            # Verify the result indicates MK approximation was used
-            assert result['n'] == 12
-            assert result['method_used'] == 'mann_kendall_approx'
-            assert 'p_value' in result
-            assert 0.0 <= result['p_value'] <= 1.0
+  def test_decreasing_sequence_reports_decrease(self):
+    tau, direction, _ = mann_kendall_test([0.9, 0.8, 0.7, 0.65, 0.6])
+    assert tau < 0
+    assert direction == "monotonic decrease"
 
-            # Verify the output file contains the method tag
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows_out = list(reader)
-                assert all(row['p_value_method'] == 'mann_kendall_approx' for row in rows_out)
-        finally:
-            if os.path.exists(input_path):
-                os.remove(input_path)
-            if os.path.exists(output_path):
-                os.remove(output_path)
+  def test_too_few_points_neutral(self):
+    tau, direction, p = mann_kendall_test([0.5])
+    assert tau == 0.0
+    assert p == 1.0
+
+
+class TestBlockPermutation:
+  def test_p_value_in_range_small_sample(self):
+    rhos = [0.95, 0.90, 0.85, 0.80, 0.70, 0.60]
+    p = block_permutation_test(rhos)
+    assert 0.0 <= p <= 1.0
+
+  def test_constant_sequence_p_is_one(self):
+    # No trend: every permutation has statistic 0 >= observed 0.
+    p = block_permutation_test([0.5, 0.5, 0.5, 0.5, 0.5])
+    assert p == pytest.approx(1.0)
+
+  def test_strong_monotonic_trend_small_p(self):
+    rhos = [0.99, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3]
+    p = block_permutation_test(rhos)
+    # Only a shift of 0 (identity) reproduces the fully ordered
+    # sequence, so the exact p-value is small.
+    assert p <= 1.0 / 8.0 + 1e-9
+
+  def test_deterministic_with_seed(self):
+    rhos = [0.8, 0.75, 0.7, 0.68, 0.6]
+    p1 = block_permutation_test(rhos, n_resamples=500)
+    p2 = block_permutation_test(rhos, n_resamples=500)
+    assert p1 == p2
+
+  def test_insufficient_data_returns_one(self):
+    assert block_permutation_test([0.5]) == 1.0
+
+
+class TestRunSignificanceTests:
+  def _write_csv(self, tmp_path, rhos):
+    path = tmp_path / "drift_metrics.csv"
+    lines = ["window_t,window_t1,rho,spearman_p_value"]
+    for i, r in enumerate(rhos):
+      lines.append(f"{i},{i + 1},{r},0.01")
+    path.write_text("\n".join(lines) + "\n")
+    return str(path)
+
+  def test_small_sample_report_uses_permutation_p(self, tmp_path):
+    rhos = [0.95, 0.90, 0.85, 0.80, 0.70]  # n = 5 < 10
+    csv_path = self._write_csv(tmp_path, rhos)
+    out_path = tmp_path / "p_values.json"
+    result = run_significance_tests(csv_path, str(out_path))
+    assert result["small_sample"] is True
+    assert result["n_observations"] == 5
+    # Reported p-value must be the permutation p-value (FR-008).
+    assert result["p_value"] == result.get("p_value")
+    assert "permutation" in result["method"]
+    assert result["trend_direction"] == "monotonic decrease"
+    # Output file written to disk.
+    assert out_path.is_file()
+    with open(out_path) as f:
+          saved = json.load(f)
+    assert saved["small_sample"] is True
+    assert "p_value" in saved
+
+  def test_missing_input_fails_loudly(self, tmp_path):
+    with pytest.raises(FileNotFoundError):
+      run_significance_tests(str(tmp_path / "nope.csv"), str(tmp_path / "out.json"))

@@ -1,7 +1,10 @@
 """
 drift_analysis.py
-Implements pairwise drift calculation between consecutive windows of feature importance rankings.
-Generates `outputs/drift_metrics.csv` containing Spearman rho, p-values and significance flags.
+Implements pairwise drift calculation between consecutive windows of feature
+importance rankings (Window T vs Window T+1) per FR-004.
+
+Generates ``outputs/drift_metrics.csv`` containing Spearman rho, p-values and
+significance flags for every adjacent window pair.
 """
 
 import csv
@@ -9,7 +12,6 @@ import json
 import logging
 import os
 import sys
-from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
@@ -19,14 +21,14 @@ from scipy.stats import spearmanr
 # Logger setup
 # ----------------------------------------------------------------------
 def setup_module_logger() -> logging.Logger:
-    """Initialize and return a module‑level logger."""
+    """Initialize and return a module-level logger."""
     logger = logging.getLogger(__name__)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
             fmt="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
-        )
+          )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)
@@ -46,8 +48,10 @@ def load_importance_profiles(profiles_path: str) -> List[Dict[str, Any]]:
 
     Returns a list of dictionaries with those keys. ``window_id`` is cast to ``int``.
     """
-    if not os.path.exists(profiles_path):
-        raise FileNotFoundError(f"Importance profiles file not found: {profiles_path}")
+    if not profiles_path or not os.path.exists(profiles_path):
+        raise FileNotFoundError(
+            "Importance profiles file not found: {}".format(profiles_path)
+        )
 
     profiles: List[Dict[str, Any]] = []
     with open(profiles_path, newline="", encoding="utf-8") as csvfile:
@@ -55,21 +59,19 @@ def load_importance_profiles(profiles_path: str) -> List[Dict[str, Any]]:
         required = {"window_id", "feature_name", "importance_score"}
         if not required.issubset(reader.fieldnames or []):
             raise ValueError(
-                f"CSV missing required columns. Expected at least {required}"
+                "CSV missing required columns. Expected at least {}".format(required)
             )
         for row in reader:
             try:
                 row["window_id"] = int(row["window_id"])
                 row["importance_score"] = float(row["importance_score"])
             except Exception as exc:
-                raise ValueError(f"Invalid row data {row}: {exc}") from exc
+                raise ValueError("Invalid row data {}: {}".format(row, exc)) from exc
             profiles.append(row)
     logger.info("Loaded %d importance rows from %s", len(profiles), profiles_path)
     return profiles
 
-def extract_window_rankings(
-    profiles: List[Dict[str, Any]]
-) -> Dict[int, List[str]]:
+def extract_window_rankings(profiles: List[Dict[str, Any]]) -> Dict[int, List[str]]:
     """
     Convert the flat list of importance rows into a mapping
     ``window_id -> ordered list of feature names`` sorted by descending importance.
@@ -83,7 +85,7 @@ def extract_window_rankings(
 
     rankings: Dict[int, List[str]] = {}
     for win, feats in window_to_features.items():
-        # Sort by importance descending; tie‑break by feature name for determinism
+        # Sort by importance descending; tie-break by feature name for determinism
         sorted_feats = sorted(feats, key=lambda x: (-x[1], x[0]))
         rankings[win] = [f for f, _ in sorted_feats]
 
@@ -103,25 +105,43 @@ def calculate_rank_correlation(
         raise ValueError(
             "Ranking lists must contain the same set of features for correlation"
         )
+    if len(rankings_t) < 2:
+        raise ValueError(
+            "Need at least two features to compute a rank correlation"
+        )
 
-    # Map feature -> rank (0‑based)
+    # Map feature -> rank (0-based)
     rank_map_t = {feat: idx for idx, feat in enumerate(rankings_t)}
     rank_map_t1 = {feat: idx for idx, feat in enumerate(rankings_t1)}
 
-    # Build parallel rank arrays
-    ranks_t = np.array([rank_map_t[feat] for feat in rankings_t])
-    ranks_t1 = np.array([rank_map_t1[feat] for feat in rankings_t])
+    # Build parallel rank arrays over a common feature order
+    common_order = sorted(rankings_t)
+    ranks_t = np.array([rank_map_t[feat] for feat in common_order], dtype=float)
+    ranks_t1 = np.array([rank_map_t1[feat] for feat in common_order], dtype=float)
 
     rho, p_val = spearmanr(ranks_t, ranks_t1)
-    return float(rho), float(p_val)
+    rho = float(rho)
+    p_val = float(p_val)
+    if np.isnan(rho):
+        # Degenerate (e.g. constant rankings): report no correlation
+        rho, p_val = 0.0, 1.0
+    return rho, p_val
 
 def load_null_baseline(null_baseline_path: str) -> Dict[str, Any]:
     """
-    Load the null‑baseline JSON generated by ``code/null_baseline.py``.
+    Load the null-baseline JSON generated by ``code/null_baseline.py``.
     Expected keys include at least ``mean`` (mean rho of shuffled runs).
+
+    If the path is empty or the file does not exist yet, an empty dict is
+    returned so pairwise drift computation can still proceed (the null
+    mean rho column is then reported as NaN).
     """
-    if not os.path.exists(null_baseline_path):
-        raise FileNotFoundError(f"Null baseline file not found: {null_baseline_path}")
+    if not null_baseline_path or not os.path.exists(null_baseline_path):
+        logger.warning(
+            "Null baseline file not found at %s - proceeding without null baseline",
+            null_baseline_path,
+        )
+        return {}
     with open(null_baseline_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     logger.info("Loaded null baseline from %s", null_baseline_path)
@@ -129,12 +149,12 @@ def load_null_baseline(null_baseline_path: str) -> Dict[str, Any]:
 
 def load_p_values_from_significance_test(p_values_path: str) -> Dict[int, float]:
     """
-    Load block‑permutation test p‑values produced by ``code/significance_test.py``.
-    The JSON format maps a window‑pair index (e.g., ``"0"`` for windows 0‑1) to a p‑value.
+    Load block-permutation test p-values produced by ``code/significance_test.py``.
+    The JSON format maps a window-pair index (e.g., ``"0"`` for windows 0-1) to a p-value.
     """
-    if not os.path.exists(p_values_path):
+    if not p_values_path or not os.path.exists(p_values_path):
         logger.warning(
-            "P‑values file not found at %s – proceeding without external p‑values",
+            "P-values file not found at %s - proceeding without external p-values",
             p_values_path,
         )
         return {}
@@ -144,7 +164,7 @@ def load_p_values_from_significance_test(p_values_path: str) -> Dict[int, float]
     return {int(k): float(v) for k, v in data.items()}
 
 # ----------------------------------------------------------------------
-# Core drift computation
+# Core drift computation (T017: pairwise Window T vs Window T+1, FR-004)
 # ----------------------------------------------------------------------
 def compute_pairwise_drift(
     rankings: Dict[int, List[str]],
@@ -153,10 +173,10 @@ def compute_pairwise_drift(
 ) -> List[Dict[str, Any]]:
     """
     For each consecutive window pair (t, t+1) compute the Spearman rho and
-    associated p‑value.  The function also incorporates the null‑baseline
-    mean rho and marks a pair as ``significant`` when the Spearman p‑value
-    is below 0.05 (or when an external block‑permutation p‑value is provided
-    and below 0.05).
+    associated p-value.  The function also incorporates the null-baseline
+    mean rho and marks a pair as ``significant`` when the p-value
+    is below 0.05 (preferring an external block-permutation p-value when
+    one is provided for that pair).
 
     Returns a list of dictionaries, each representing one pair.
     """
@@ -164,18 +184,39 @@ def compute_pairwise_drift(
         raise ValueError("No rankings supplied to compute_pairwise_drift")
 
     sorted_windows = sorted(rankings.keys())
+    if len(sorted_windows) < 2:
+        logger.warning(
+            "Only one window available - no pairwise drift can be computed"
+        )
+        return []
+
     drift_metrics: List[Dict[str, Any]] = []
 
-    null_mean_rho = float(null_baseline.get("mean", np.nan))
+    null_mean_rho = null_baseline.get("mean", None)
+    null_mean_rho = float(null_mean_rho) if null_mean_rho is not None else float("nan")
 
     for idx in range(len(sorted_windows) - 1):
         w_t = sorted_windows[idx]
         w_t1 = sorted_windows[idx + 1]
-        rho, spearman_p = calculate_rank_correlation(
-            rankings[w_t], rankings[w_t1]
-        )
 
-        # Prefer the block‑permutation p‑value if it exists for this pair
+        # Windows may have different feature sets after per-window variance
+        # dropping; intersect to the common features for a valid comparison.
+        feats_t = rankings[w_t]
+        feats_t1 = rankings[w_t1]
+        common = sorted(set(feats_t) & set(feats_t1))
+        if len(common) < 2:
+            logger.warning(
+                "Pair %s-%s has fewer than 2 common features - skipping pair",
+                w_t,
+                w_t1,
+            )
+            continue
+        list_t = [f for f in feats_t if f in set(common)]
+        list_t1 = [f for f in feats_t1 if f in set(common)]
+
+        rho, spearman_p = calculate_rank_correlation(list_t, list_t1)
+
+        # Prefer the block-permutation p-value if it exists for this pair
         block_p = p_values.get(idx, spearman_p)
 
         metric: Dict[str, Any] = {
@@ -189,8 +230,8 @@ def compute_pairwise_drift(
         }
         drift_metrics.append(metric)
 
-        logger.debug(
-            "Pair %d‑%d: rho=%.4f, spearman_p=%.4g, block_p=%.4g, significant=%s",
+        logger.info(
+            "Pair %s-%s: rho=%.4f, spearman_p=%.4g, block_p=%.4g, significant=%s",
             w_t,
             w_t1,
             rho,
@@ -206,11 +247,13 @@ def flag_high_drift(
     drift_metrics: List[Dict[str, Any]], p_values: Dict[int, float]
 ) -> List[Dict[str, Any]]:
     """
-    Legacy helper kept for compatibility – it simply re‑evaluates the
-    ``significant`` flag using the supplied ``p_values`` (if any).
+    Re-evaluate the ``significant`` flag using the supplied ``p_values`` (if any).
+    A pair is flagged as high drift only when its p-value < 0.05 (FR-004b).
     """
     for idx, metric in enumerate(drift_metrics):
-        block_p = p_values.get(idx, metric.get("block_permutation_p", metric["spearman_p_value"]))
+        block_p = p_values.get(
+            idx, metric.get("block_permutation_p", metric["spearman_p_value"])
+        )
         metric["significant"] = block_p < 0.05
     return drift_metrics
 
@@ -223,7 +266,9 @@ def save_drift_metrics(drift_metrics: List[Dict[str, Any]], output_path: str) ->
     Columns: window_t, window_t1, rho, spearman_p_value, block_permutation_p,
              null_mean_rho, significant
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    out_dir = os.path.dirname(output_path)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     fieldnames = [
         "window_t",
         "window_t1",
@@ -249,16 +294,18 @@ def run_drift_analysis(
     null_baseline_path: str,
     p_values_path: str,
     output_path: str,
-) -> None:
+) -> List[Dict[str, Any]]:
     """
-    End‑to‑end driver for the drift analysis step.
+    End-to-end driver for the drift analysis step.
 
     1. Load importance profiles CSV.
-    2. Convert them into per‑window ranking lists.
-    3. Load null‑baseline statistics (mean rho of shuffled runs).
-    4. Load block‑permutation p‑values (optional).
-    5. Compute pairwise drift metrics.
+    2. Convert them into per-window ranking lists.
+    3. Load null-baseline statistics (mean rho of shuffled runs, optional).
+    4. Load block-permutation p-values (optional).
+    5. Compute pairwise drift metrics for every Window T vs Window T+1.
     6. Persist the results to ``output_path``.
+
+    Returns the computed drift metrics.
     """
     logger.info("Starting drift analysis")
     profiles = load_importance_profiles(profiles_path)
@@ -267,23 +314,24 @@ def run_drift_analysis(
     p_values = load_p_values_from_significance_test(p_values_path)
 
     drift_metrics = compute_pairwise_drift(rankings, p_values, null_baseline)
-    # The flag_high_drift step is retained for backward compatibility
+    # Re-evaluate the significance flags with any external p-values (FR-004b)
     drift_metrics = flag_high_drift(drift_metrics, p_values)
 
     save_drift_metrics(drift_metrics, output_path)
     logger.info("Drift analysis completed successfully")
+    return drift_metrics
 
 # ----------------------------------------------------------------------
 # CLI entry point
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Command‑line interface.
+    Command-line interface.
 
     Expected positional arguments (in order):
         1. Path to ``importance_profiles.csv``
-        2. Path to ``null_baseline.json``
-        3. Path to block‑permutation p‑values JSON (may be empty string if not available)
+        2. Path to ``null_baseline.json`` (may be empty string if not available)
+        3. Path to block-permutation p-values JSON (may be empty string if not available)
         4. Desired output CSV path for drift metrics
 
     Example:
@@ -292,7 +340,8 @@ def main() -> None:
     """
     if len(sys.argv) != 5:
         print(
-            "Usage: python drift_analysis.py <profiles_csv> <null_json> <p_values_json> <output_csv>"
+            "Usage: python drift_analysis.py <profiles_csv> <null_json> "
+            "<p_values_json> <output_csv>"
         )
         sys.exit(1)
 

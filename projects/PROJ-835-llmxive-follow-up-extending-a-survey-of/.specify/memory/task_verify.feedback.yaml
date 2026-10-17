@@ -1,0 +1,101 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: efad87c9577179235b848b05ff84b79b6b1266b744e344748cd896bc8bfc2046
+T002:
+  reason: The only artifact is `requirements.txt`, which exists but does not pin exact
+    versions (e.g., it uses `>=` and omits a version for `torch`). The task explicitly
+    required a **pinned** `requirements.txt` for the listed packages, so the provided
+    file does not meet the specification.
+  task: d35d3a7df2b0fef63a2f9fc815628e54aabe9465921e54d518f1874230e7dab3
+T003:
+  reason: The evidence only shows the project root location; no linting or formatting
+    configuration files (e.g., `pyproject.toml` with Black settings, `ruff.toml` or
+    `.ruff.toml`, or a `.pre-commit-config.yaml`) are present or referenced. Without
+    these artifacts, the task of configuring Ruff and Black is not satisfied. Adding
+    the appropriate config files (and optionally CI integration) is required.
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  task: bfbba0eaabe28d6be9c6310f9ebf6791b8d62e9f8fe481be9892c3c0c09a7434
+T005:
+  reason: "The `tests/contract/` directory is present with the expected files, but\
+    \ no evidence of the actual contents of `schema_validator.py` (or the test modules)\
+    \ is provided, so we cannot confirm that functional schema\u2011validation utilities\
+    \ for YAML/JSON artifacts were implemented. The implementer must supply the source\
+    \ code showing the validation logic (e.g., loading schemas, using `jsonschema`\
+    \ or similar) and non\u2011empty test files that exercise it."
+  task: 67bac5e329015bcfb29c25399e5db53c8f55221b88e7c460f0e089afd2d8c53f
+T006:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: f1f0503db33339d41313b0f25eab92f779470c3923a1cb9b1f872ea5ab52ced6
+T007a:
+  task: 96ef7e1e472aa7c940cf62527ea609a9ca1feacc03e8a47fd317604bf4fbb45f
+T007b:
+  task: df3153f2a340ebfee50b117330055ce0df0be752b31becad1b733fa0edc56359
+T008:
+  task: 1944cc9e67a722f363fdae15302b90c14b2e761a3c0230e522d801bded374059
+T009:
+  task: 713dcf7a4adf5d7679cab419301a05e15c7efcc7aadfba26e47efb9de8b2fcc6
+T010:
+  task: 43c9bf22d645f235faaadec3326523d3438736a0b3bb1a9f83a2576ce83bb5ad
+T011:
+  task: 30f0e0441904d655b2310b40df50758be419e3264605c4df0e573f8798a0906f
+T011b:
+  task: 59fb5a61c1821fb350540729bb20b8d83c71c2a5f2be65763770475819389e33
+T012:
+  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
+    exit=1'
+  task: f8273bf5e36c37733a953b94fa4b0419d0df42d18b0ef8d502b317aa14b99a69
+T013:
+  task: ab26fc1d09cd15f769a7495dcccfe7745f8f75773256d40b0178afdb4a78a212
+T014:
+  task: 72307c69668a841e7ef403f90e8db30a7e9477b752233be7ea719f09a90af4c8
+T015:
+  task: 098804243e947f624c185527748086a37238d2b50782b6cd90ea732469a941be
+T016:
+  task: 95d0d1d906409909894c843cd06e76bcad4d44535e1fd83e90778806bd547dcd
+T018:
+  task: ca5ee85edeea2b3894b077e8cb84011f5e3ca3fea09e82ff7b354dadc161fd5a
+T019:
+  task: 382c3c1661012266c374c5e79500edd928ffa731af11e5a25fe0b8a1e46f04af
+T020:
+  task: 0f9f7c9b381ad115d22fe6b2eeb6be29f9229a24629d4f6dd039880a0d28ec5d
+T021:
+  task: 0e99884e2c7be4f2af85f41a4fd0cfdb358bf6082f0d3977f46182ee988b8113
+T022:
+  task: f470c46f3b6164e3b29e3e66d05de20aa9ca38eace53914099a55d906ac1daab
+T022b:
+  task: 1f1d761388c00c6966b450152d739606a14e8e8bfdebce7a7097bfecbeabdff1
+T023:
+  task: 220601d69620c35489d065a39373fbadc0b96eb07f94326102015f30ebeff4af
+T024:
+  task: 0196b76d75a7c2f78114393103bd3a56cd583cdc59e19daebe3a7406b7df3551
+T025:
+  task: 71162d89a963c054b068c62987e6e1a2f7cb017e8bfc4615e80775c6aad0809c
+T026:
+  task: 6b3a2d3c6fcaf011a4a5205fc6ce91b6a601985227b3fa1f47e98a87ae357708
+T027:
+  task: d13331f59444198925517543cb73d9600f86673090c5d3da3348a3dd3b442e26
+T027b:
+  task: 7524e8edda8f22d4ddd5bbb5affa55af61e6bfa990a183d194338c09e9e64363
+T028:
+  task: bf58fc147460780795e3e6451d9645849696d84856fb71aa53629076f09a5350
+T029:
+  task: 62cdd9850b5f6dfb30a43fdcba718e97bb79e058b316f4220dc5461c4dd5165f
+T030:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: e50713ccfc598d412c0b4a85bbf145a330cee7e0010f9a2282c97e6dfe5974d6
+T031:
+  task: fa9cc828636a7e7bf113fa4107b3ab207d181d1d3336e18f590fd77d316903d7
+T032:
+  task: 7fda29b4370898c26001d59b6d1785ab8ab9813c2ca73cb54c1e861c63d2d834
+T033:
+  task: 551c4f8b3baaedc49ef95e04620396ccde1a2e0ca783aecaac026823fd1299d9

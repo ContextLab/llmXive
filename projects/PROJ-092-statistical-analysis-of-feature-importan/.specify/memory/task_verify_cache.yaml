@@ -1,46 +1,62 @@
 T001:
   c: true
-  h: 4a7d611a42b885e36203795e6eba1815b017f3c8519b52c77f27b591fe7d0f17
-  r: The project root `projects/PROJ-092-statistical-analysis-of-feature-importan/`
-    is present and contains the expected hierarchy (e.g., `code/`, `data/`, `outputs/`,
-    `tests/`, configuration files, README, etc.). This satisfies the requirement to
-    create the project structure per the implementation plan.
+  h: 7c3f44b98f81b7f5d24dab3ad7783dc9f484e79abe8a6bcb428925c227489b43
+  r: "The project directory `projects/PROJ-092-statistical-analysis-of-feature-importan/`\
+    \ exists with all required structure (code/, data/raw, data/processed, outputs/,\
+    \ figures/, tests/, specs/, etc.), and the evidence files confirm all required\
+    \ directories exist (`directory_structure.json` shows `all_exist: true`) and lint/tooling\
+    \ configs (pyproject.toml with black/isort/pylint sections, .flake8) are valid\
+    \ (`all_ok: true`). This task only required creating the project structure per\
+    \ the implementation plan, which the artifacts substantiate; the US1\u2013US3\
+    \ analysis deliverables are separate later tasks."
+  sig: 0b109cde0586d44d0a332038ba86621c6326907bd602e072efa72d2802369a4a
 T002:
-  c: false
-  h: 7b7cec1294d290196dbf7d3356dcddbaa6bc7f24df5c4b30b50d967f09bfeca2
-  r: "The `code/requirements.txt` file exists but lists only package names without\
-    \ version pins, violating the \u201Cpinned dependencies\u201D requirement of the\
-    \ task. Version specifications (e.g., `pandas==1.5.3`) need to be added."
+  c: true
+  h: a865d8151ca2ea803d6fd8d9d900486b71781677205b4f6c676205f07d541533
+  r: The `code/requirements.txt` exists (191 bytes) with pinned versions for all libraries
+    needed by the spec (pandas, numpy, scikit-learn, scipy, requests, pytest), a Python
+    3.11 comment, and no placeholders or stubs.
+  sig: 2cb2c0643c1e16eee357d3fcd2b73a42efbde5ecddfc57ce6ca31d51271f009e
 T003:
-  c: false
-  h: 97781c83705cc794ea1141df2b66c2a833203a5f9e95bf2206634c58120dcd56
-  r: "The evidence only shows the project root path; no linting or formatting configuration\
-    \ files (e.g., `.flake8`, `.pylintrc`, `pyproject.toml`/`setup.cfg` with black/isort\
-    \ settings) are present or referenced. Without these artifacts, the requirement\
-    \ to configure flake8, pylint, black, and isort is not satisfied. Adding the appropriate\
-    \ config files and confirming they are non\u2011empty will be needed."
+  c: true
+  h: 1828025706a50936b16cf111e9bf8d8202d0e16b6d4ff1f21fe5892f75280d4e
+  r: The verification script `code/verify_lint_config.py` ran with exit code 0 and
+    confirmed `code/pyproject.toml` exists with black, isort, and pylint sections,
+    and `code/.flake8` exists with expected options (exclude, max-line-length, max-complexity,
+    per-file-ignores, etc.), matching the task's requirement to configure flake8/pylint
+    and black/isort.
+  sig: d2261f7474585fc63fce7b066383b352b7b0daf073ec7a4a57e477503b99d822
 T004:
-  c: false
-  h: aab3869efb33216ef7593591cf78907ec8f1fb69150a3ef906d3fc14e8ca1dae
-  r: The evidence provided does not show the existence of the required directories
-    `data/raw`, `data/processed`, or `outputs` within the project root, nor any files
-    confirming they were created. Without concrete proof that these folders were set
-    up, the task requirement is not satisfied.
+  c: true
+  h: 989cd112feb26c13ba14e9772c97d8cb664a614beef3ccbb66f5fe11b5e21494
+  r: 'The execution log for `code/setup_data_dirs.py` shows exit code 0 with all four
+    required directories (`data/raw`, `data/processed`, `outputs`, plus `figures`)
+    confirmed to exist (`all_exist: True`), matching the task''s requirement of setting
+    up the data directory structure.'
+  sig: 8567997c07d25e9131d4fbeec7c8d4f06af262cae5076186f60b0625e17fbe6e
 T005:
   c: true
-  h: ed5e25b7b5024c99d253d9cdc4e7bb96dec5cc857fd11e7cf6840dcd2f7fe07e
-  r: "Checked `code/download.py`, which exists, is non\u2011empty, and contains a\
-    \ functional implementation that programmatically downloads a UCI dataset, saves\
-    \ it, and verifies the file (size and hash) as required by FR\u2011001."
+  h: 2f29b1ae905a9a7ae2a423c93de2cba75cd416359339708bb57ed1640b39e470
+  r: '`code/download.py` exists (6 KB) and implements FR-001: it programmatically
+    downloads the UCI Electricity Load Diagrams dataset via `requests` streaming,
+    verifies existence/size/hash, and has a working `main()` with proper error handling
+    and exit codes. The placeholder `EXPECTED_HASH` is a minor weakness (hash mismatches
+    are accepted with a warning), but the download-and-verify requirement itself is
+    genuinely implemented, and the imported `utils.config`/`utils.logger` modules
+    exist with matching content.'
+  sig: 982129130e3ef350e8f4b618b90f3096e422988b68c5ca036d915b20926d987a
 T006:
   c: false
-  h: a91c516d830443031d6ab55bb9115f1a09886c990b480070e50ab36ed8b634d1
-  r: The `code/utils/` directory contains the expected files (`config.py`, `logger.py`,
-    etc.), but no evidence of their contents is provided. Without seeing the actual
-    implementation, we cannot confirm that a base configuration and a functional logging
-    infrastructure were created as required. The implementer must supply the source
-    code (or execution evidence) showing that these modules define configuration settings
-    and a working logger.
+  h: 658876fcbd75c868ed2837a8b2fcfcb57a944c963da5c5305bac9e89b43c086c
+  r: "The required files (`code/utils/config.py`, `logger.py`, `stats_aggregator.py`,\
+    \ `__init__.py`) exist, but no evidence shows their contents are substantive (no\
+    \ source shown), and the only execution record \u2014 `tests/test_utils_infrastructure.py`\
+    \ \u2014 failed with exit code 4 due to `NameError: name 'pytest' is not defined`\
+    \ in `tests/conftest.py` (missing `import pytest`), so the infrastructure has\
+    \ never been demonstrated to pass its tests. Fix the conftest import bug, re-run\
+    \ the test suite to a passing state, and ensure the utils modules contain real\
+    \ configuration/logging logic rather than placeholde"
+  sig: 9a926978b706f7170175397189e075b68c57d909c010bb0640d9ddd559826f07
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

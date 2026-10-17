@@ -1,0 +1,10 @@
+status: none
+intent: AudioBench jailbreak benign audio dataset download huggingface python package
+  dataset
+required_fields:
+- audio_filepath
+- audio
+- label
+cache_key: f0c63c16c57ca6d7062810e4b1654f9e2f9a419c101567ce611cbcc9c344477c
+searched_at: '2026-10-17T07:23:09.140721+00:00'
+retry_count: 1

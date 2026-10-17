@@ -1,5 +1,8 @@
-pandas
-numpy
-scikit-learn
-scipy
-requests
+# Pinned dependencies for PROJ-092: Statistical Analysis of Feature Importance Drift
+# Python 3.11
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.1
+scipy==1.13.1
+requests==2.32.3
+pytest==8.3.2

@@ -1,98 +1,146 @@
-"""
-Unit tests for the pairwise drift calculation implemented in ``code/drift_analysis.py``.
-The tests use a tiny synthetic dataset (real CSV files are created on‑the‑fly)
-to verify that the core functions behave as expected.
-"""
-
-import csv
-import json
+"""Unit tests for the pairwise drift calculation logic (T017, FR-004)."""
 import os
-import tempfile
-from pathlib import Path
+import sys
 
 import pytest
+
+# Make code/ importable regardless of the working directory
+sys.path.insert(
+    0,
+    os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "code"
+    ),
+)
 
 from drift_analysis import (
     calculate_rank_correlation,
     compute_pairwise_drift,
     extract_window_rankings,
-    load_importance_profiles,
+    flag_high_drift,
     save_drift_metrics,
 )
 
-@pytest.fixture
-def synthetic_profiles_path():
-    """Create a minimal but realistic importance_profiles.csv file."""
-    rows = [
-        {"window_id": "0", "feature_name": "A", "importance_score": "0.9"},
-        {"window_id": "0", "feature_name": "B", "importance_score": "0.5"},
-        {"window_id": "0", "feature_name": "C", "importance_score": "0.1"},
-        {"window_id": "1", "feature_name": "A", "importance_score": "0.8"},
-        {"window_id": "1", "feature_name": "B", "importance_score": "0.6"},
-        {"window_id": "1", "feature_name": "C", "importance_score": "0.2"},
-    ]
-    with tempfile.NamedTemporaryFile(mode="w", delete=False, newline="", suffix=".csv") as tmp:
-        writer = csv.DictWriter(tmp, fieldnames=["window_id", "feature_name", "importance_score"])
-        writer.writeheader()
-        writer.writerows(rows)
-        return tmp.name
 
-def test_load_and_extract(synthetic_profiles_path):
-    profiles = load_importance_profiles(synthetic_profiles_path)
-    assert len(profiles) == 6
-    rankings = extract_window_rankings(profiles)
-    assert rankings[0] == ["A", "B", "C"]
-    assert rankings[1] == ["A", "B", "C"]
+class TestCalculateRankCorrelation:
+    def test_identical_rankings(self):
+        a = ["f1", "f2", "f3", "f4"]
+        rho, p = calculate_rank_correlation(a, list(a))
+        assert rho == pytest.approx(1.0)
+        assert p < 0.05
 
-def test_calculate_rank_correlation():
-    rankings_t = ["A", "B", "C"]
-    rankings_t1 = ["A", "C", "B"]
-    rho, p = calculate_rank_correlation(rankings_t, rankings_t1)
-    # With only three items the exact rho is -0.5
-    assert abs(rho + 0.5) < 1e-6
-    assert 0.0 < p <= 1.0
+    def test_reversed_rankings(self):
+        a = ["f1", "f2", "f3", "f4"]
+        b = ["f4", "f3", "f2", "f1"]
+        rho, _ = calculate_rank_correlation(a, b)
+        assert rho == pytest.approx(-1.0)
 
-def test_compute_pairwise_and_save(tmp_path: Path):
-    # Use the synthetic profiles from the fixture
-    profiles_path = synthetic_profiles_path()
-    profiles = load_importance_profiles(profiles_path)
-    rankings = extract_window_rankings(profiles)
+    def test_mismatched_features_raise(self):
+        with pytest.raises(ValueError):
+            calculate_rank_correlation(["f1", "f2"], ["f1", "f3"])
 
-    # Minimal null baseline and empty p‑value dict
-    null_baseline = {"mean": 0.0}
-    p_values = {}
+    def test_too_few_features_raise(self):
+        with pytest.raises(ValueError):
+            calculate_rank_correlation(["f1"], ["f1"])
 
-    drift = compute_pairwise_drift(rankings, p_values, null_baseline)
-    assert len(drift) == 1
-    assert drift[0]["window_t"] == 0
-    assert drift[0]["window_t1"] == 1
 
-    output_csv = tmp_path / "drift_metrics.csv"
-    save_drift_metrics(drift, str(output_csv))
+class TestComputePairwiseDrift:
+    def _rankings(self):
+        return {
+            0: ["a", "b", "c", "d"],
+            1: ["a", "b", "c", "d"],
+            2: ["d", "c", "b", "a"],
+            3: ["b", "a", "d", "c"],
+        }
 
-    # Verify CSV content
-    with open(output_csv, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-        assert len(rows) == 1
-        assert rows[0]["window_t"] == "0"
-        assert rows[0]["window_t1"] == "1"
+    def test_all_consecutive_pairs_computed(self):
+        metrics = compute_pairwise_drift(self._rankings(), {}, {})
+        assert len(metrics) == 3
+        pairs = [(m["window_t"], m["window_t1"]) for m in metrics]
+        assert pairs == [(0, 1), (1, 2), (2, 3)]
 
-# Helper to obtain the fixture path inside a test function
-def synthetic_profiles_path():
-    # Re‑use the fixture implementation logic without pytest fixture injection
-    rows = [
-        {"window_id": "0", "feature_name": "A", "importance_score": "0.9"},
-        {"window_id": "0", "feature_name": "B", "importance_score": "0.5"},
-        {"window_id": "0", "feature_name": "C", "importance_score": "0.1"},
-        {"window_id": "1", "feature_name": "A", "importance_score": "0.8"},
-        {"window_id": "1", "feature_name": "B", "importance_score": "0.6"},
-        {"window_id": "1", "feature_name": "C", "importance_score": "0.2"},
-    ]
-    fd, path = tempfile.mkstemp(suffix=".csv")
-    os.close(fd)
-    with open(path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["window_id", "feature_name", "importance_score"])
-        writer.writeheader()
-        writer.writerows(rows)
-    return path
+    def test_rho_values(self):
+        metrics = compute_pairwise_drift(self._rankings(), {}, {})
+        assert metrics[0]["rho"] == pytest.approx(1.0)
+        assert metrics[1]["rho"] == pytest.approx(-1.0)
+        assert -1.0 <= metrics[2]["rho"] <= 1.0
+
+    def test_block_p_value_preferred(self):
+        p_values = {0: 0.5}
+        metrics = compute_pairwise_drift(self._rankings(), p_values, {})
+        assert metrics[0]["block_permutation_p"] == 0.5
+        assert metrics[0]["significant"] is False
+
+    def test_null_baseline_mean_used(self):
+        metrics = compute_pairwise_drift(
+            self._rankings(), {}, {"mean": 0.25}
+        )
+        assert metrics[0]["null_mean_rho"] == pytest.approx(0.25)
+
+    def test_empty_rankings_raise(self):
+        with pytest.raises(ValueError):
+            compute_pairwise_drift({}, {}, {})
+
+    def test_single_window_yields_no_pairs(self):
+        metrics = compute_pairwise_drift({0: ["a", "b"]}, {}, {})
+        assert metrics == []
+
+    def test_disjoint_feature_sets_skipped(self):
+        rankings = {
+            0: ["a", "b", "c"],
+            1: ["x", "y", "z"],
+            2: ["a", "b", "c"],
+        }
+        metrics = compute_pairwise_drift(rankings, {}, {})
+        # Pair 0-1 has no common features; pair 1-2 neither
+        assert metrics == []
+
+    def test_common_subset_features(self):
+        rankings = {
+            0: ["a", "b", "c", "d"],
+            1: ["b", "a", "c"],  # 'd' dropped in window 1
+        }
+        metrics = compute_pairwise_drift(rankings, {}, {})
+        assert len(metrics) == 1
+        assert metrics[0]["rho"] == pytest.approx(1.0)
+
+
+class TestFlagHighDrift:
+    def test_flagging(self):
+        metrics = [
+            {"spearman_p_value": 0.01, "block_permutation_p": 0.01},
+            {"spearman_p_value": 0.01, "block_permutation_p": 0.9},
+        ]
+        flagged = flag_high_drift(metrics, {})
+        assert flagged[0]["significant"] is True
+        assert flagged[1]["significant"] is False
+
+
+class TestExtractRankingsAndSave:
+    def test_extract_orders_by_importance_desc(self):
+        profiles = [
+            {"window_id": 1, "feature_name": "x", "importance_score": 0.1},
+            {"window_id": 1, "feature_name": "y", "importance_score": 0.5},
+            {"window_id": 2, "feature_name": "y", "importance_score": 0.2},
+            {"window_id": 2, "feature_name": "x", "importance_score": 0.3},
+        ]
+        rankings = extract_window_rankings(profiles)
+        assert rankings[1] == ["y", "x"]
+        assert rankings[2] == ["x", "y"]
+
+    def test_save_drift_metrics_writes_csv(self, tmp_path):
+        metrics = [
+            {
+                "window_t": 0,
+                "window_t1": 1,
+                "rho": 0.9,
+                "spearman_p_value": 0.05,
+                "block_permutation_p": 0.04,
+                "null_mean_rho": 0.2,
+                "significant": True,
+            }
+        ]
+        out = tmp_path / "drift_metrics.csv"
+        save_drift_metrics(metrics, str(out))
+        content = out.read_text()
+        assert "window_t,window_t1,rho" in content
+        assert "0,1,0.9" in content

@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `models/`, `results/`, `state/`)
-- [X] T002 Initialize Python 3.11 project with pinned `requirements.txt` (torch-cpu, transformers, scikit-learn, pandas, soundfile, datasets)
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `models/`, `results/`, `state/`)
+- [ ] T002 Initialize Python 3.11 project with pinned `requirements.txt` (torch-cpu, transformers, scikit-learn, pandas, soundfile, datasets)
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -56,12 +56,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. This includes verifying the statistical methodology override and data schemas.
 
 - [X] T004 Implement `src/utils/config.py` for random seeds, path management, and state file I/O
-- [X] T005 [P] Setup `tests/contract/` directory and schema validation utilities for YAML/JSON artifacts
-- [X] T006 [P] Create `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml` with initial `artifact_hashes` map
-- [ ] T007a [P] Implement `src/utils/stats.py` Mahalanobis distance calculation logic using `LedoitWolf` covariance estimator (FR-006)
-- [ ] T007b [P] Save the implemented Mahalanobis utility to `src/utils/stats.py` with proper documentation
-- [ ] T008 Configure error handling and logging infrastructure (global logger with file and console handlers)
-- [ ] T009 Setup environment configuration to enforce CPU-only execution (`os.environ["CUDA_VISIBLE_DEVICES"]=""`)
+- [ ] T005 [P] Setup `tests/contract/` directory and schema validation utilities for YAML/JSON artifacts
+- [ ] T006 [P] Create `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml` with initial `artifact_hashes` map
+- [X] T007a [P] Implement `src/utils/stats.py` Mahalanobis distance calculation logic using `LedoitWolf` covariance estimator (FR-006)
+- [X] T007b [P] Save the implemented Mahalanobis utility to `src/utils/stats.py` with proper documentation
+- [~] T008 Configure error handling and logging infrastructure (global logger with file and console handlers)
+- [~] T009 Setup environment configuration to enforce CPU-only execution (`os.environ["CUDA_VISIBLE_DEVICES"]=""`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,7 +71,7 @@
 
 **Goal**: Extract fixed-dimensional latent embeddings from audio samples using a frozen, lightweight encoder on CPU-only environment.
 
-- [ ] T011b [US1] Implement `src/data/verify_labels.py` to perform an automated check for the *absence* of latent-space correlation in dataset metadata; fail the pipeline if such correlation is detected (FR-007) <!-- FAILED: unspecified -->
+- [~] T011b [US1] Implement `src/data/verify_labels.py` to perform an automated check for the *absence* of latent-space correlation in dataset metadata; fail the pipeline if such correlation is detected (FR-007) <!-- FAILED: unspecified -->
 
 **Checkpoint**: Label independence verified - safe to proceed with embedding extraction
 
@@ -85,13 +85,13 @@
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [X] T010 [P] [US1] Contract test for embedding output schema in `tests/contract/test_embedding_schema.py`
-- [X] T011 [P] [US1] Integration test for error handling (corrupted files) in `tests/integration/test_error_handling.py`
+- [~] T010 [P] [US1] Contract test for embedding output schema in `tests/contract/test_embedding_schema.py`
+- [~] T011 [P] [US1] Integration test for error handling (corrupted files) in `tests/integration/test_error_handling.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch verified datasets (LALM subsets); if unavailable, implement fallback logic to generate 'verified benign TTS + random noise' data (FR-007, FR-005) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T013 [P] [US1] Implement `src/data/preprocess.py` to load audio, skip corrupted files gracefully, and validate label independence (FR-005)
+- [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch verified datasets (LALM subsets); if unavailable, implement fallback logic to generate 'verified benign TTS + random noise' data (FR-007, FR-005) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [~] T013 [P] [US1] Implement `src/data/preprocess.py` to load audio, skip corrupted files gracefully, and validate label independence (FR-005)
 - [ ] T014 [US1] Implement `src/data/embed.py` to load `distil-whisper-base` (CPU-only), extract embeddings in batches (size=32), and save to `data/embeddings.parquet` (Parquet format) (FR-001)
 - [ ] T015 [US1] Add dimensionality validation logic to ensure encoder output matches expected `AudioEmbedding` shape before saving
 - [ ] T016 [US1] Implement resource logging for embedding extraction phase (time per batch, peak RAM)
@@ -108,8 +108,8 @@
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [X] T018 [P] [US2] Contract test for model artifact schema in `tests/contract/test_model_schema.py`
-- [X] T019 [P] [US2] Integration test for train/test split integrity in `tests/integration/test_data_split.py`
+- [~] T018 [P] [US2] Contract test for model artifact schema in `tests/contract/test_model_schema.py`
+- [~] T019 [P] [US2] Integration test for train/test split integrity in `tests/integration/test_data_split.py`
 
 ### Implementation for User Story 2
 
@@ -132,16 +132,16 @@
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [X] T025 [P] [US3] Contract test for evaluation report schema in `tests/contract/test_report_schema.py` (Written BEFORE T027/T029; depends on spec.md/contracts schema definition, not implementation tasks)
-- [X] T026 [P] [US3] Integration test for full pipeline resource constraints in `tests/integration/test_resource_limits.py`
+- [~] T025 [P] [US3] Contract test for evaluation report schema in `tests/contract/test_report_schema.py` (Written BEFORE T027/T029; depends on spec.md/contracts schema definition, not implementation tasks)
+- [~] T026 [P] [US3] Integration test for full pipeline resource constraints in `tests/integration/test_resource_limits.py`
 
 ### Implementation for User Story 3
 
-- [X] T027 [P] [US3] Implement `src/models/eval.py` to calculate Precision, Recall, F1-score and compare against stratified random baseline (FR-003)
+- [~] T027 [P] [US3] Implement `src/models/eval.py` to calculate Precision, Recall, F1-score and compare against stratified random baseline (FR-003)
 - [ ] T027b [US3] Implement `src/models/eval.py` to read `data/anomaly_scores.parquet` (from T022b), calculate Pearson correlation (r) between Mahalanobis distance and jailbreak labels, **perform hypothesis test**, and verify threshold (p < 0.05 or r > 0.3) as required by SC-005; save results to `results/correlation.json`
-- [X] T028 [US3] Implement `src/models/eval.py` to profile RAM usage (`tracemalloc`/`psutil`) and total wall-clock time (FR-004)
+- [~] T028 [US3] Implement `src/models/eval.py` to profile RAM usage (`tracemalloc`/`psutil`) and total wall-clock time (FR-004)
 - [ ] T029 [US3] Generate `results/report.md` containing all metrics and `results/resource_log.json`
-- [X] T030 [US3] Implement state update logic to compute SHA-256 hashes for all artifacts and update `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml`
+- [ ] T030 [US3] Implement state update logic to compute SHA-256 hashes for all artifacts and update `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml`
 
 **Checkpoint**: Sensitivity analysis complete; US3 functional and testable independently
 
