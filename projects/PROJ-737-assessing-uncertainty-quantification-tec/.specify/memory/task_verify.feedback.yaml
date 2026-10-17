@@ -1,20 +1,30 @@
 T001:
   task: f4402e0775c234c7998237d3b91e84b177c6e616dda4e7b8c9ec36c0e7ce14bf
 T002:
-  reason: I inspected `code/download.py` (present) and the required output artifacts.
-    The three CSV files (`data/raw/band_gap.csv`, `formation_energy.csv`, `thermal_conductivity.csv`)
-    and their corresponding metadata JSON files are absent, and the checksum manifest
-    is missing. Running the provided `code/tests/test_download.py` fails with a 401
-    error during download and errors due to missing files, confirming that the implementation
-    does not produce the required datasets, metadata, or manifest. The task therefore
-    lacks the essential artifacts and does not meet the specification.
+  reason: 'The `data/raw/` directory contains no CSV or metadata JSON files, and the
+    test suite cannot even be collected because `code/download.py` imports the `datasets`
+    library, which fails to load due to a NumPy version mismatch (`ImportError: pyarrow
+    requires NumPy 2.0`). Consequently the required artifacts (`data/raw/*.csv` and
+    `data/raw/*_metadata.json`) are absent and the verification tests cannot run.
+    The task must provide the actual downloaded (capped) CSVs and corresponding metadata
+    JSONs, and ensure the download code runs without import errors.'
   task: 845ce2fdea7c4dbfd47030040cfc1d3fc8b380d5e093a02fb2f73e5da27d8b21
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: 6cf50967374866b9dc7ba7599adb27fceb52c7205cb1a0b683d9fbd1ec808c4a
 T004:
+  reason: "Checked `code/pipeline.py` (exists) and the result files. `data/results/per_sample_errors.csv`\
+    \ is present but contains only the header (no rows), and the required files `data/results/uq_methods.csv`,\
+    \ `data/results/pipeline_log.csv`, and `data/results/cost_metrics.csv` are missing.\
+    \ Consequently the integration test fails and the pipeline does not satisfy the\
+    \ task\u2019s requirements. The next implementer must run the pipeline to generate\
+    \ all four CSVs with full content (including \u2265200 test samples per dataset\
+    \ and entries for every dataset\u2011method pair) and ensure they conform to the\
+    \ specified schemas"
   task: 1ab12d746d5c81f58ba3fee13b365b206001b083610bbdf5ee1490d1216661f1
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/metrics/generate_metrics_raw.py
+    exit=1; code/main.py exit=1'
   task: fc2def00d82b5ba4ab4cd2c475f4e8ab0b1724337ce2aad77743d06bd1eb81da
 T006:
   task: b43fa293b482d0bbff02bce9d46753172f0ba0459eda835be99840b0664702d0

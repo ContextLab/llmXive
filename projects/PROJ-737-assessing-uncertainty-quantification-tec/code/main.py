@@ -178,6 +178,18 @@ def _parse_cli() -> argparse.Namespace:
         default=0.01,
         help="Step size for coverage sweep (ignored in thin run).",
     )
+    # New flags to align with quickstart / full‑run command
+    parser.add_argument(
+        "--thin",
+        action="store_true",
+        help="Run the thin (100‑sample) pipeline. Equivalent to leaving defaults.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility (used by downstream modules).",
+    )
     return parser.parse_args()
 
 # ----------------------------------------------------------------------
@@ -185,6 +197,9 @@ def _parse_cli() -> argparse.Namespace:
 # ----------------------------------------------------------------------
 def main() -> None:
     args = _parse_cli()
+
+    # Ensure deterministic behaviour globally
+    np.random.seed(args.seed)
 
     # ------------------------------------------------------------------
     # Step 0 – project skeleton
@@ -279,6 +294,12 @@ def main() -> None:
                     }
                 )
                 raise
+
+            # ----------------------------------------------------------------
+            # Cast numeric columns to the correct dtypes (float64) to satisfy schema
+            # ----------------------------------------------------------------
+            for col in ["prediction", "lower_bound", "upper_bound", "ground_truth"]:
+                result_df[col] = result_df[col].astype(float)
 
             # Add required identifier columns
             result_df["sample_id"] = [

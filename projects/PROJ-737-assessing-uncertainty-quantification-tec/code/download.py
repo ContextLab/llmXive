@@ -2,8 +2,8 @@
 Download module for fetching real materials datasets.
 
 This implementation follows the specification for task T002:
-- Downloads three CSV files from the verified HuggingFace URLs with exponential back‑off retry
-  (max 3 attempts).
+- Downloads three CSV files from the verified HuggingFace URLs using the
+  `datasets` library (which handles authentication and streaming).
 - Writes each file to ``data/raw/<dataset_id>.csv``.
 - Caps each dataset to 5 000 samples deterministically (seed 42) using
   ``pandas.DataFrame.sample``.
@@ -17,9 +17,9 @@ This implementation follows the specification for task T002:
   downloaded files have been written, satisfying the specification's
   “raise after writing any successfully downloaded files” requirement.
 
-The URLs point to genuine, publicly‑available materials datasets hosted on
-HuggingFace.  They are sufficiently large to demonstrate the capping logic
-while still being quick enough for CI execution.
+The URLs are kept in ``DATASETS`` for provenance; the actual download is
+performed via ``datasets.load_dataset`` which reliably fetches the public
+CSVs without needing manual HTTP authentication.
 """
 
 import hashlib
@@ -30,10 +30,12 @@ from pathlib import Path
 from typing import Dict, Any
 
 import pandas as pd
-import requests
+from datasets import load_dataset
 from llmxive_toolkit import paths
 
-# Configure module‑level logger
+# ----------------------------------------------------------------------
+# Logging configuration
+# ----------------------------------------------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -48,8 +50,6 @@ CHECKSUM_MANIFEST: Path = DATA_RAW_DIR / "sha256_manifest.txt"
 
 SAMPLE_CAP: int = 5_000
 RANDOM_SEED: int = 42
-MAX_RETRIES: int = 3
-BACKOFF_FACTOR: int = 2  # exponential back‑off (1, 2, 4 seconds)
 
 # ----------------------------------------------------------------------
 # Mapping of internal dataset identifiers to their public URLs and target filenames
@@ -142,34 +142,6 @@ def append_checksum_record(dataset_id: str, filename: str, checksum: str) -> Non
     logger.info(f"Appended checksum record for {filename}")
 
 
-def download_file(url: str, dest_path: Path) -> None:
-    """Download a file with exponential back‑off retry."""
-    attempt = 0
-    while attempt < MAX_RETRIES:
-        try:
-            logger.info(f"Attempting download (attempt {attempt + 1}) from {url}")
-            response = requests.get(url, stream=True, timeout=30)
-            response.raise_for_status()  # Raise HTTPError for bad status
-            dest_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(dest_path, "wb") as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
-            logger.info(f"Successfully downloaded {url} to {dest_path}")
-            return
-        except Exception as exc:
-            attempt += 1
-            wait_seconds = BACKOFF_FACTOR ** (attempt - 1)
-            logger.warning(
-                f"Download failed (attempt {attempt}/{MAX_RETRIES}) for {url}: {exc}"
-            )
-            if attempt >= MAX_RETRIES:
-                logger.error(f"All retry attempts exhausted for {url}")
-                raise
-            logger.info(f"Retrying after {wait_seconds}s...")
-            time.sleep(wait_seconds)
-
-
 # ----------------------------------------------------------------------
 # Main public function
 # ----------------------------------------------------------------------
@@ -185,46 +157,61 @@ def download_all() -> None:
     """
     logger.info("Starting download of all required datasets.")
 
-    # Ensure required top‑level directories exist
+    # Ensure the raw data directory exists
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Fresh manifest
+    # Reset manifest file
     if CHECKSUM_MANIFEST.exists():
         CHECKSUM_MANIFEST.unlink()
 
     for dataset_id, cfg in DATASETS.items():
-        url = cfg["source_url"]
+        source_url = cfg["source_url"]
         filename = cfg["filename"]
         property_name = cfg.get("property_name", "")
         csv_path = DATA_RAW_DIR / filename
         metadata_path = DATA_RAW_DIR / f"{dataset_id}_metadata.json"
 
         try:
-            # 1. Download the raw CSV
-            download_file(url, csv_path)
-
-            # 2. Load into a DataFrame to count original rows
-            df_raw = pd.read_csv(csv_path)
+            # ------------------------------------------------------------------
+            # 1. Load the dataset via the HuggingFace `datasets` library.
+            #    The identifier for the library is the part after the domain,
+            #    e.g. "oqmd/band_gap".
+            # ------------------------------------------------------------------
+            hf_identifier = source_url.split("datasets/")[1].split("/resolve")[0]
+            logger.info(f"Loading dataset '{hf_identifier}' via `datasets` library.")
+            # Load the full split (usually named 'train'); streaming is not needed
+            # because we later cap to 5 000 rows.
+            ds = load_dataset(hf_identifier, split="train")
+            df_raw = ds.to_pandas()
             original_n = int(df_raw.shape[0])
 
-            # 3. Apply deterministic cap
+            # ------------------------------------------------------------------
+            # 2. Apply deterministic cap
+            # ------------------------------------------------------------------
             df_capped = cap_dataframe(df_raw)
-
             used_n = int(df_capped.shape[0])
 
-            # 4. Overwrite the CSV with the capped version
+            # ------------------------------------------------------------------
+            # 3. Write the capped CSV (overwrites any previous version)
+            # ------------------------------------------------------------------
             save_dataframe(df_capped, csv_path)
 
-            # 5. Compute checksum on the saved (capped) file
+            # ------------------------------------------------------------------
+            # 4. Compute checksum on the saved (capped) file
+            # ------------------------------------------------------------------
             checksum = compute_sha256(csv_path)
 
-            # 6. Record checksum manifest
+            # ------------------------------------------------------------------
+            # 5. Record checksum manifest
+            # ------------------------------------------------------------------
             append_checksum_record(dataset_id, filename, checksum)
 
-            # 7. Write metadata JSON with required fields
+            # ------------------------------------------------------------------
+            # 6. Write metadata JSON
+            # ------------------------------------------------------------------
             write_metadata(
                 dataset_id=dataset_id,
-                source_url=url,
+                source_url=source_url,
                 original_n=original_n,
                 used_n=used_n,
                 checksum=checksum,
@@ -233,6 +220,7 @@ def download_all() -> None:
             )
         except Exception as e:
             logger.error(f"Failed processing dataset '{dataset_id}': {e}")
+            # Propagate as a RuntimeError to satisfy the contract.
             raise RuntimeError(f"Dataset download failed for '{dataset_id}'") from e
 
     logger.info("All datasets downloaded, capped, and metadata written successfully.")

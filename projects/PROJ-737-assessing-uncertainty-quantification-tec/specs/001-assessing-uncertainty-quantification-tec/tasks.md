@@ -59,7 +59,7 @@ The checklist below implements the smallest complete, reproducible study that sa
   *Verification*: `code/tests/test_full_pipeline.py` validates all CSVs against their contracts, asserts every method‑dataset combination is present, and checks `n_test ≥ 200`.  Exit 0.  
   *Path*: `code/pipeline.py`, `data/results/per_sample_errors.csv`, `data/results/uq_methods.csv`, `data/results/pipeline_log.csv`, `data/results/cost_metrics.csv`, `code/tests/test_full_pipeline.py`
 
-- [ ] T005 [US2] **Compute calibration error, sharpness, and coverage metrics**  
+- [ ] T005 [US2] **Compute calibration error, sharpness, and coverage metrics**   <!-- FAILED-IN-EXECUTION: code/metrics/generate_metrics_raw.py exit=1; code/main.py exit=1 -->
   *Implement* `code/metrics/evaluation.py` that reads `data/results/per_sample_errors.csv` and, for each dataset‑method pair, calculates:  
 
   1. **Calibration Error (ECE)** – standard equal‑probability binning over prediction‑interval confidence.  

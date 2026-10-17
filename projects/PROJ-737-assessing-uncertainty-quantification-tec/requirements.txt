@@ -1,8 +1,4 @@
-# Existing dependencies (provided by the platform) are omitted from this list.
-# Add only those that are not already available.
+# Existing dependencies are provided by the platform.
+# Add any additional third‑party packages required by the project.
+
 datasets
-huggingface_hub
-matminer
-pymatgen
-torch
-xgboost
