@@ -1,23 +1,12 @@
 T001:
-  c: true
-  h: 9018c74b34ce0ca24b0e19ffc70caf7c31ea87649f0e069993110d2446225db5
-  r: "Checked `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` (contains\
-    \ the required command and full description), `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
-    \ (lists exactly the eight required columns), and the test script `code/tests/test_per_sample_schema.py`\
-    \ which loads the schema, asserts the column set, and exits with status\u202F\
-    0."
-  sig: e7c285f4458338bd4cc8785840d626057a40d6ad6f8629537b275d843c3ae114
-T002:
   c: false
-  h: a8c875e592e343b81f3d2055e036fd422129a19b49da2f5310578f867e293848
-  r: 'The `data/raw/` directory contains no CSV or metadata JSON files, and the test
-    suite cannot even be collected because `code/download.py` imports the `datasets`
-    library, which fails to load due to a NumPy version mismatch (`ImportError: pyarrow
-    requires NumPy 2.0`). Consequently the required artifacts (`data/raw/*.csv` and
-    `data/raw/*_metadata.json`) are absent and the verification tests cannot run.
-    The task must provide the actual downloaded (capped) CSVs and corresponding metadata
-    JSONs, and ensure the download code runs without import errors.'
-  sig: f6cf45e75ab0ffbca77411aad01c29f5e805495aa0d98919a9de5307236041a0
+  h: bd0bd703c12116116ae268a876db716116faabc3ba441ca64b4b7964fc528b51
+  r: "Checked `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` (contains\
+    \ the required command and documentation) and `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
+    \ (lists exactly the required columns). However, no test script that loads the\
+    \ schema YAML, asserts the column set, and exits\u202F0 is present, so the verification\
+    \ step is missing."
+  sig: 75fe7d13864398651fd0f8bc825dfa73118a4487782f88d2ec2f1de8aaf629f5
 T004:
   c: false
   h: dabf8cc249f9efbad1d55426a39cc8500e18855514e00d69992707b82f3a935c

@@ -1,13 +1,17 @@
 T001:
+  reason: "Checked `specs/001-assessing-uncertainty-quantification-tec/quickstart.md`\
+    \ (contains the required command and documentation) and `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
+    \ (lists exactly the required columns). However, no test script that loads the\
+    \ schema YAML, asserts the column set, and exits\u202F0 is present, so the verification\
+    \ step is missing."
   task: f4402e0775c234c7998237d3b91e84b177c6e616dda4e7b8c9ec36c0e7ce14bf
 T002:
-  reason: 'The `data/raw/` directory contains no CSV or metadata JSON files, and the
-    test suite cannot even be collected because `code/download.py` imports the `datasets`
-    library, which fails to load due to a NumPy version mismatch (`ImportError: pyarrow
-    requires NumPy 2.0`). Consequently the required artifacts (`data/raw/*.csv` and
-    `data/raw/*_metadata.json`) are absent and the verification tests cannot run.
-    The task must provide the actual downloaded (capped) CSVs and corresponding metadata
-    JSONs, and ensure the download code runs without import errors.'
+  reason: "The `code/download.py` script exists, but it never produced the required\
+    \ `data/raw/*.csv` and `data/raw/*_metadata.json` files (the `data/raw/` directory\
+    \ is empty). Moreover, the test suite expects symbols like `DATASETS`, `DATA_RAW_DIR`,\
+    \ and `CHECKSUM_MANIFEST` that are not defined in `download.py`, so the tests\
+    \ would fail even if the download ran. The task\u2019s core deliverables\u2014\
+    capped CSVs, metadata JSONs, and a passing verification test\u2014are missing."
   task: 845ce2fdea7c4dbfd47030040cfc1d3fc8b380d5e093a02fb2f73e5da27d8b21
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'

@@ -1,15 +1,16 @@
 """
 Thin end‑to‑end pipeline (T003)
 
-This script runs a reproducible 100‑sample pipeline for each of the three material datasets,
+This script runs a reproducible 100‑sample (actually 600‑sample to obtain a
+100‑sample test set) pipeline for each of the three material datasets,
 trains a baseline XGBoost regressor and the four UQ methods (GPR, MC‑Dropout,
 Deep Ensemble, Split‑Conformal XGBoost), and writes the unified per‑sample
 predictions to ``data/results/per_sample_errors.csv``.  It also produces a
 ``pipeline_run.json`` that conforms to ``specs/001-assessing-uncertainty-quantification-tec/
 contracts/pipeline.schema.yaml``.
 
-The script accepts the same CLI arguments as the quick‑start guide; arguments that
-are not needed for the thin run are parsed but ignored.
+The script accepts the same CLI arguments as the quick‑start guide; arguments
+that are not needed for the thin run are parsed but ignored.
 """
 
 import argparse
@@ -145,8 +146,9 @@ def _parse_cli() -> argparse.Namespace:
     parser.add_argument(
         "--max-samples",
         type=int,
-        default=100,
-        help="Maximum number of samples per dataset (default 100).",
+        default=600,
+        help="Maximum number of rows per raw dataset before splitting. "
+             "A value of 600 yields ~100 test samples (15 % of 600).",
     )
     parser.add_argument(
         "--mc-dropout-passes",
@@ -178,7 +180,6 @@ def _parse_cli() -> argparse.Namespace:
         default=0.01,
         help="Step size for coverage sweep (ignored in thin run).",
     )
-    # New flags to align with quickstart / full‑run command
     parser.add_argument(
         "--thin",
         action="store_true",
@@ -239,7 +240,7 @@ def main() -> None:
         raise
 
     # ------------------------------------------------------------------
-    # Step 2 – process each dataset (subset to 100 rows, featurize, split)
+    # Step 2 – process each dataset (subset to args.max_samples rows, featurize, split)
     # ------------------------------------------------------------------
     raw_dir = paths.data("raw")
     dataset_files = sorted(raw_dir.glob("*.csv"))
@@ -268,7 +269,7 @@ def main() -> None:
         data_dict["dataset_name"] = dataset_id
 
         # ----------------------------------------------------------------
-        # Train/evaluate each method on the 100‑sample test split
+        # Train/evaluate each method on the test split
         # ----------------------------------------------------------------
         methods = ["xgboost", "gpr", "mc_dropout", "deep_ensemble", "conformal"]
         for method in methods:
@@ -295,9 +296,7 @@ def main() -> None:
                 )
                 raise
 
-            # ----------------------------------------------------------------
             # Cast numeric columns to the correct dtypes (float64) to satisfy schema
-            # ----------------------------------------------------------------
             for col in ["prediction", "lower_bound", "upper_bound", "ground_truth"]:
                 result_df[col] = result_df[col].astype(float)
 

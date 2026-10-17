@@ -1,12 +1,10 @@
 status: none
-intent: matminer OQMD band gap formation energy dataset python package dataset
+intent: download OQMD band gap and formation energy datasets via matminer python package
+  dataset
 required_fields:
-- material_id
 - composition
 - band_gap
 - formation_energy_per_atom
-- elastic_modulus_proxy
-- thermal_conductivity
-cache_key: 0e6e44e820d6160ab517ea595f28d448a1fc7d3f79acae5c75e4ea9fc85c9e5e
-searched_at: '2026-10-11T21:21:49.762849+00:00'
+cache_key: 3fc6d07633141b26933b672ac4f271e1ab371aa43a4f3e23f9560e1a8c882b07
+searched_at: '2026-10-17T17:17:35.721995+00:00'
 retry_count: 1
