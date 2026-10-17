@@ -12,7 +12,9 @@ import json
 import sys
 from pathlib import Path
 
-from datasets import load_dataset
+import pandas as pd
+from huggingface_hub import hf_hub_download
+
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -25,6 +27,7 @@ REAL_SAMPLE_SIZE = 500
 
 # Repository identifier for the CodeXGLUE defect‑detection dataset.
 DATASET_NAME = "code_x_glue/defect_detection"
+TRAIN_FILENAME = "train.csv"
 
 def _sha256_of_file(file_path: Path) -> str:
     """Return the hexadecimal SHA‑256 digest of *file_path*."""
@@ -106,16 +109,18 @@ def _load_tide_dataset() -> list:
         f"Downloading real evaluation dataset from HuggingFace hub "
         f"({DATASET_NAME})..."
     )
-    # ``load_dataset`` handles authentication internally; public datasets
-    # are accessible without a token.
-    ds = load_dataset(DATASET_NAME, split="train")
+    # Download the CSV file directly without pulling in the `datasets` library
+    # (which depends on `pyarrow` and an incompatible NumPy version).
+    csv_path = hf_hub_download(repo_id=DATASET_NAME, filename=TRAIN_FILENAME, repo_type="dataset")
+    df = pd.read_csv(csv_path)
+
     records = []
-    for rec in ds:
+    for _, row in df.iterrows():
         # The CodeXGLUE dataset uses the field name ``func`` for the
         # source snippet and ``label`` for the binary defect flag.
-        if not isinstance(rec.get("func"), str):
+        if not isinstance(row.get("func"), str):
             continue
-        records.append({"func": rec["func"], "label": int(rec.get("label", 0))})
+        records.append({"func": row["func"], "label": int(row.get("label", 0))})
         if len(records) >= REAL_SAMPLE_SIZE:
             break
     log.info(f"Loaded {len(records)} real records (prefix of training split).")
@@ -158,8 +163,6 @@ def main() -> None:
         })
 
     csv_path = raw_root / "tide_eval.csv"
-    import pandas as pd
-
     pd.DataFrame(csv_rows).to_csv(csv_path, index=False)
     log.info(f"Wrote CSV manifest with {len(csv_rows)} rows to {csv_path}")
 
