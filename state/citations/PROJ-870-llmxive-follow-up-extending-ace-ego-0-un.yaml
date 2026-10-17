@@ -1,1 +1,11 @@
-[]
+- artifact_hash: b0739653c49e5745f6ed3026ee300f296fe5c396723d3c4f00bcdb563c9cefe1
+  artifact_path: projects/PROJ-870-llmxive-follow-up-extending-ace-ego-0-un/specs/001-llmxive-follow-up-extending-ace-ego-0-un/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1101/2023.04.01.535123
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1101/2023.04.01.535123
+  verified_at: '2026-10-17T06:18:19.043982Z'
