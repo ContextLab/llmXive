@@ -1,4 +1,12 @@
 T001:
+  reason: The required `configs/full_suite.yaml` is explicitly MISSING from the project,
+    and `data/results/` (which the verification says the quickstart run must create)
+    also does not exist, with no execution evidence that `python -m code.run_experiments
+    --config configs/quickstart.yaml` ever ran successfully. Additionally, `docs/quickstart.md`
+    cannot document which artifacts `full_suite.yaml` regenerates or its wall-clock
+    cost since that config doesn't exist, and the quickstart config's "thin run" actually
+    delegates to a trainer that fabricates accuracy values via a deterministic dummy
+    formula rather t
   task: 946988814012fd93c20310c32728090617bbeaf4d698c7087ae8bca0c05318be
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data.py exit=1'

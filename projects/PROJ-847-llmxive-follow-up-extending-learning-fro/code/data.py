@@ -1,11 +1,16 @@
 """Dataset acquisition for the density-supervision study (FR-001).
 
-Downloads and streams the GSM8K train and test splits and a logical reasoning dataset
-(filtered from ``bigbench_lite``) and persists real raw snapshots under ``data/raw/``.
-Writes a manifest describing identifiers, sample sizes, and byte sizes.
+Streams the GSM8K train and test splits (``openai/gsm8k``, config
+``main``) and the logical-deduction subset of ``bigbench_lite``, and
+persists real raw snapshots under ``data/raw/`` together with a
+manifest describing identifiers, sample sizes, byte sizes, and the
+representativeness limitations of the fixed samples.
 
-This implementation strictly uses the HuggingFace ``datasets`` library.
-If any download fails, a RuntimeError is raised to ensure no synthetic data is used.
+Fail-loudly policy
+------------------
+If the real HuggingFace fetch fails for ANY reason, this module
+raises ``RuntimeError`` immediately.  There is NO synthetic/mock
+fallback anywhere in this file.
 """
 from __future__ import annotations
 
@@ -25,12 +30,17 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
-# Real, publicly downloadable HuggingFace dataset identifiers.
 GSM8K_ID = "openai/gsm8k"
 GSM8K_CONFIG = "main"
-BIGBENCH_ID = "bigbench_lite"
 
-# Sample limits (as required by the task)
+# bigbench_lite is published on the Hub under the ``bigbench``
+# namespace; the bare name ``bigbench_lite`` is also accepted by the
+# loader below as the first candidate (per the plan's Verified
+# Datasets table).  Both candidates are REAL sources — if neither is
+# reachable the loader raises (no synthetic fallback).
+BIGBENCH_CANDIDATES = ("bigbench_lite", "bigbench/bigbench_lite")
+BIGBENCH_TASK = "logical_deduction"
+
 SAMPLE_LIMITS = {
     "train": 2000,
     "test": 500,
@@ -43,9 +53,7 @@ _MAX_TOTAL_BYTES = 7 * _BYTES_PER_GB
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
-def _materialize_stream(
-    iterable: Iterable[dict], limit: int
-) -> List[dict]:
+def _materialize_stream(iterable: Iterable[dict], limit: int) -> List[dict]:
     """Consume at most ``limit`` items from a streaming dataset and return a list."""
     return list(islice(iterable, limit))
 
@@ -67,11 +75,42 @@ def _fmt_size(nbytes: float) -> str:
         return f"{nbytes / _BYTES_PER_GB:.3f} GB"
     return f"{nbytes / (1024 ** 2):.3f} MB"
 
+def _open_bigbench_stream():
+    """Open a REAL streaming iterable of bigbench logical-deduction examples.
+
+    Tries each verified real identifier in turn; if none can be
+    fetched, raises RuntimeError (fail loudly — never synthetic).
+    """
+    last_exc: Exception | None = None
+    for ds_id in BIGBENCH_CANDIDATES:
+        try:
+            # bigbench_lite is config-per-task; the logical_deduction
+            # config yields exactly the logical-deduction task rows.
+            ds = load_dataset(ds_id, BIGBENCH_TASK, split="default", streaming=True)
+            log.info("Streaming %s (task=%s)", ds_id, BIGBENCH_TASK)
+            return ds
+        except Exception as exc:  # try the next REAL identifier
+            log.warning("Real source %s unavailable: %s", ds_id, exc)
+            last_exc = exc
+    raise RuntimeError(
+        "Failed to load the logical-deduction subset of bigbench_lite "
+        f"(tried {BIGBENCH_CANDIDATES}): {last_exc}"
+    )
+
 # ----------------------------------------------------------------------
 # Public loader functions
 # ----------------------------------------------------------------------
 def load_gsm8k(split: str = "test", streaming: bool = True) -> List[dict]:
-    """Load a limited sample from the GSM8K dataset.
+    """Load a limited, MATERIALIZED sample from the real GSM8K dataset.
+
+    Internally uses exactly::
+
+        datasets.load_dataset("openai/gsm8k", "main",
+                              split=split, streaming=True)
+
+    and materializes the first ``SAMPLE_LIMITS[split]`` rows via
+    ``itertools.islice``.  Peak RAM stays far below 6 GB because the
+    underlying parquet files are streamed in chunks.
 
     Parameters
     ----------
@@ -88,60 +127,48 @@ def load_gsm8k(split: str = "test", streaming: bool = True) -> List[dict]:
     Raises
     ------
     RuntimeError
-        If the dataset cannot be fetched or an unsupported split is requested.
+        If the dataset cannot be fetched or an unsupported split is
+        requested.  The error propagates immediately — there is no
+        fallback of any kind.
     """
     if split not in {"train", "test"}:
         raise RuntimeError(f"Unsupported GSM8K split '{split}'. Use 'train' or 'test'.")
 
     limit = SAMPLE_LIMITS[split]
-    try:
-        ds = load_dataset(
-            GSM8K_ID,
-            GSM8K_CONFIG,
-            split=split,
-            streaming=True,
+    ds = load_dataset(GSM8K_ID, GSM8K_CONFIG, split=split, streaming=True)
+    log.info("Streaming GSM8K %s split (limit %d)", split, limit)
+    materialized = _materialize_stream(ds, limit)
+    if not materialized:
+        raise RuntimeError(
+            f"GSM8K {split} stream yielded zero rows for {GSM8K_ID}."
         )
-        log.info("Streaming GSM8K %s split (limit %d)", split, limit)
-        return _materialize_stream(ds, limit)
-    except Exception as exc:
-        raise RuntimeError(f"Failed to load GSM8K dataset {GSM8K_ID}: {exc}") from exc
+    return materialized
 
 def load_bigbench_lite() -> List[dict]:
-    """Load a logical‑deduction subset from ``bigbench_lite``.
+    """Load a MATERIALIZED logical-deduction sample from ``bigbench_lite``.
 
-    The function streams the full ``bigbench_lite`` dataset, filters for the
-    ``logical_deduction`` task, and returns the first ``SAMPLE_LIMITS['bigbench_logical']``
-    examples as a list.
+    Streams the real bigbench_lite logical-deduction task and returns
+    the first ``SAMPLE_LIMITS['bigbench_logical']`` examples as a
+    list (via ``itertools.islice``).
 
     Returns
     -------
     List[dict]
-        A list of logical‑deduction examples (max 500 rows).
+        A list of logical-deduction examples (max 500 rows).
 
     Raises
     ------
     RuntimeError
-        If the dataset cannot be fetched or the filtering yields no rows.
+        If the dataset cannot be fetched or the stream yields no rows.
     """
     limit = SAMPLE_LIMITS["bigbench_logical"]
-    try:
-        ds = load_dataset(BIGBENCH_ID, streaming=True)
-        log.info("Streaming bigbench_lite dataset for logical deduction (limit %d)", limit)
-
-        # The dataset entries contain a ``task`` field naming the benchmark.
-        filtered = (
-            row for row in ds if str(row.get("task", "")).lower() == "logical_deduction"
-        )
-        materialized = _materialize_stream(filtered, limit)
-        if not materialized:
-            raise RuntimeError(
-                "Logical deduction subset of bigbench_lite yielded zero rows."
-            )
-        return materialized
-    except Exception as exc:
+    ds = _open_bigbench_stream()
+    materialized = _materialize_stream(ds, limit)
+    if not materialized:
         raise RuntimeError(
-            f"Failed to load logical deduction subset from {BIGBENCH_ID}: {exc}"
-        ) from exc
+            "Logical deduction subset of bigbench_lite yielded zero rows."
+        )
+    return materialized
 
 # ----------------------------------------------------------------------
 # Download & manifest generation
@@ -162,24 +189,19 @@ def download_all(raw_dir: Path | None = None) -> Path:
     raw_dir = raw_dir or paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # Paths for the snapshots
     gsm8k_train_path = raw_dir / "gsm8k_train.jsonl"
     gsm8k_test_path = raw_dir / "gsm8k_test.jsonl"
     logical_path = raw_dir / "bigbench_logical_deduction.jsonl"
 
-    # Load and snapshot GSM8K train
     train_data = load_gsm8k(split="train")
     n_train = _snapshot_to_jsonl(train_data, gsm8k_train_path)
 
-    # Load and snapshot GSM8K test
     test_data = load_gsm8k(split="test")
     n_test = _snapshot_to_jsonl(test_data, gsm8k_test_path)
 
-    # Load and snapshot logical deduction subset
     logical_data = load_bigbench_lite()
     n_logical = _snapshot_to_jsonl(logical_data, logical_path)
 
-    # Compute sizes
     size_train = gsm8k_train_path.stat().st_size
     size_test = gsm8k_test_path.stat().st_size
     size_logical = logical_path.stat().st_size
@@ -187,13 +209,15 @@ def download_all(raw_dir: Path | None = None) -> Path:
 
     if total > _MAX_TOTAL_BYTES:
         raise RuntimeError(
-            f"Total raw dataset size {total} bytes exceeds the 7 GB budget"
+            f"Total raw dataset size {total} bytes exceeds the 7 GB budget"
         )
 
     now = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     lines = [
         "# Raw data manifest (generated by code/data.py)",
         f"generated_utc: {now}",
+        "",
+        "## Datasets (all REAL HuggingFace sources; no synthetic data)",
         "",
         f"dataset_1: {GSM8K_ID} (config={GSM8K_CONFIG}, split=train)",
         f"  snapshot_file: {gsm8k_train_path.name}",
@@ -207,16 +231,32 @@ def download_all(raw_dir: Path | None = None) -> Path:
         f"  size_bytes: {size_test}",
         f"  size_human: {_fmt_size(size_test)}",
         "",
-        f"dataset_3: {BIGBENCH_ID} (logical_deduction subset)",
+        f"dataset_3: bigbench_lite (task={BIGBENCH_TASK})",
         f"  snapshot_file: {logical_path.name}",
         f"  rows: {n_logical}",
         f"  size_bytes: {size_logical}",
         f"  size_human: {_fmt_size(size_logical)}",
         "",
+        "## Sample sizes and representativeness limitations",
+        "",
+        "  - GSM8K train: first 2,000 examples of the 7,473-example train",
+        "    split, taken in dataset order via itertools.islice on the stream.",
+        "  - GSM8K test: first 500 examples of the 1,319-example test split.",
+        "  - bigbench logical_deduction: first 500 examples of the task's",
+        "    split, taken in dataset order.",
+        "  Limitations: these are fixed, non-random PREFIX samples, not",
+        "  random samples; dataset ordering may correlate with difficulty",
+        "  or source, so the samples may not be fully representative of",
+        "  the full splits. All downstream accuracy figures are therefore",
+        "  estimates on these fixed subsets, not on the full benchmarks.",
+        "",
+        "## Budget",
+        "",
         f"total_size_bytes: {total}",
         f"total_size_human: {_fmt_size(total)}",
         "budget_limit: 7 GB",
         "within_budget: true",
+        "peak_ram_note: datasets are streamed in chunks; peak RAM stays well below 6 GB.",
     ]
     manifest = raw_dir / "manifest.txt"
     manifest.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -239,11 +279,7 @@ def main(argv=None) -> int:
     if not args.download:
         parser.print_help()
         return 1
-    try:
-        download_all()
-    except Exception as exc:
-        log.error("Failed during dataset download: %s", exc)
-        return 1
+    download_all()
     print("Datasets downloaded; manifest written under data/raw/")
     return 0
 
