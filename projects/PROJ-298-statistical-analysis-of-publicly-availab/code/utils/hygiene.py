@@ -10,6 +10,7 @@ This module provides utilities to:
 import hashlib
 import json
 import os
+import time
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
@@ -35,10 +36,10 @@ def calculate_sha256(file_path: str) -> str:
     """
     sha256_hash = hashlib.sha256()
     path = Path(file_path)
-    
+
     if not path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-    
+
     try:
         with open(path, "rb") as f:
             # Read in chunks to handle large files without loading entirely into memory
@@ -73,10 +74,10 @@ def load_state(state_path: Optional[str] = None) -> Dict[str, Any]:
         Dictionary containing the state data. Returns an empty dict if file doesn't exist.
     """
     path = Path(state_path or DEFAULT_STATE_PATH)
-    
+
     if not path.exists():
         return {}
-    
+
     try:
         with open(path, "r", encoding="utf-8") as f:
             return yaml.safe_load(f) or {}
@@ -93,12 +94,47 @@ def save_state(state: Dict[str, Any], state_path: Optional[str] = None) -> None:
         state_path: Optional override for the state file path.
     """
     path = Path(state_path or DEFAULT_STATE_PATH)
-    
+
     # Ensure parent directory exists
     path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     with open(path, "w", encoding="utf-8") as f:
         yaml.safe_dump(state, f, default_flow_style=False, sort_keys=False)
+
+
+def initialize_state_file(state_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Initialize a new state file with default structure if it doesn't exist.
+
+    Args:
+        state_path: Optional override for the state file path.
+
+    Returns:
+        The initialized state dictionary.
+    """
+    path = Path(state_path or DEFAULT_STATE_PATH)
+
+    if path.exists():
+        return load_state(state_path)
+
+    state = {
+        "project_id": "PROJ-298-statistical-analysis-of-publicly-availab",
+        "version": "1.0.0",
+        "initialized_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "artifacts": {
+            "raw": {},
+            "processed": {},
+            "visuals": {},
+            "taxonomies": {}
+        },
+        "metadata": {
+            "python_version": "3.11",
+            "dependencies": []
+        }
+    }
+
+    save_state(state, state_path)
+    return state
 
 
 def update_artifact_checksums(
@@ -120,84 +156,45 @@ def update_artifact_checksums(
 
     Returns:
         The updated state dictionary.
-    
+
     Raises:
         FileNotFoundError: If any of the artifact paths do not exist.
     """
+    # Ensure the state file exists before we attempt to update it.
+    state_file_path = state_path or DEFAULT_STATE_PATH
+    if not Path(state_file_path).exists():
+        initialize_state_file(state_file_path)
+
     state = load_state(state_path)
-    
+
     # Initialize structure if missing
     if "artifacts" not in state:
         state["artifacts"] = {}
-    
+
     if artifact_type not in state["artifacts"]:
         state["artifacts"][artifact_type] = {}
-    
-    current_checksums = {}
-    
+
     for path_str in artifact_paths:
         p = Path(path_str)
         if not p.exists():
             raise FileNotFoundError(f"Artifact not found for checksum update: {path_str}")
-        
+
         # Use relative path from project root if possible, otherwise absolute
         try:
             rel_path = p.resolve().relative_to(Path.cwd())
             key = str(rel_path)
         except ValueError:
             key = str(p.resolve())
-        
+
         checksum = calculate_sha256(str(p))
-        current_checksums[key] = checksum
-        
-        # Update state
         state["artifacts"][artifact_type][key] = {
             "checksum": checksum,
             "last_updated": str(p.stat().st_mtime)
         }
-    
+
     # Save updated state
     save_state(state, state_path)
-    
-    return state
 
-
-def initialize_state_file(state_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Initialize a new state file with default structure if it doesn't exist.
-
-    Args:
-        state_path: Optional override for the state file path.
-
-    Returns:
-        The initialized state dictionary.
-    """
-    path = Path(state_path or DEFAULT_STATE_PATH)
-    
-    if path.exists():
-        return load_state(state_path)
-    
-    state = {
-        "project_id": "PROJ-298-statistical-analysis-of-publicly-availab",
-        "version": "1.0.0",
-        "initialized_at": str(Path.cwd().joinpath("now").stat().st_mtime) if False else "init", # Placeholder for time
-        "artifacts": {
-            "raw": {},
-            "processed": {},
-            "visuals": {},
-            "taxonomies": {}
-        },
-        "metadata": {
-            "python_version": "3.11",
-            "dependencies": []
-        }
-    }
-    
-    # Clean up placeholder time logic for actual use
-    import time
-    state["initialized_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    
-    save_state(state, state_path)
     return state
 
 
@@ -207,7 +204,7 @@ def main() -> None:
     Demonstrates usage of hashing and state management.
     """
     import sys
-    
+
     if len(sys.argv) < 2:
         print("Usage: python -m utils.hygiene <command> [args]")
         print("Commands:")
@@ -215,9 +212,9 @@ def main() -> None:
         print("  init_state                : Initialize the state file")
         print("  update_checksums <path1> [path2...] : Update checksums for artifacts")
         sys.exit(1)
-    
+
     command = sys.argv[1]
-    
+
     if command == "hash":
         if len(sys.argv) < 3:
             print("Error: File path required for 'hash' command.")
@@ -229,7 +226,7 @@ def main() -> None:
         except Exception as e:
             print(f"Error: {e}")
             sys.exit(1)
-    
+
     elif command == "init_state":
         try:
             state = initialize_state_file()
@@ -238,7 +235,7 @@ def main() -> None:
         except Exception as e:
             print(f"Error initializing state: {e}")
             sys.exit(1)
-    
+
     elif command == "update_checksums":
         if len(sys.argv) < 3:
             print("Error: At least one artifact path required.")
@@ -251,7 +248,7 @@ def main() -> None:
         except Exception as e:
             print(f"Error updating checksums: {e}")
             sys.exit(1)
-    
+
     else:
         print(f"Unknown command: {command}")
         sys.exit(1)

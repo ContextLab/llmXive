@@ -7,23 +7,57 @@ T001:
 T002:
   task: 6db6aa9e4a251a04c55b5139aced4f10e812a9bb510cce527f44d8761c873d3f
 T003:
-  reason: "The `code/utils/hygiene.py` file exists, but the required state file `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml`\
-    \ is missing, and the unit test that checks hash calculation and state update\
-    \ fails because the state file is not created. Consequently, there is no evidence\
-    \ that running the helper records the correct SHA\u2011256 hash in the state YAML.\
-    \ The task\u2019s core requirement is therefore unmet."
+  reason: "The module `code/utils/hygiene.py` exists and implements SHA-256 hashing\
+    \ plus state-file updates, but the required state YAML (`state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml`)\
+    \ is MISSING on disk, and the recorded test run (`tests/unit/test_hygiene.py`)\
+    \ FAILED with exit 1: \"State file was not created\" \u2014 the test expected\
+    \ the state file at the project-root-relative path but it was never produced.\
+    \ The task's verification requirement (running the helper on a sample file records\
+    \ the correct hash in the state YAML) is therefore not demonstrated; the implementer\
+    \ must fix the p"
   task: 41807f2ac1606dd9c10ae77e52a125ed6c4a879566a66040fdfdf0448672972a
 T004:
+  reason: "The module `code/utils/contract_validation.py` exists and its 2 unit tests\
+    \ pass, but those tests only exercise `enforce_contract` on synthetic fixtures\
+    \ \u2014 there is no evidence the validator was run against the actual JSON artifacts\
+    \ in the project, nor that the contracts in `specs/001-statistical-analysis-of-publicly-availab/contracts/`\
+    \ exist and were matched to artifacts (the collector shows no contracts directory\
+    \ or JSON artifacts, and no execution log of a full validation run). The task's\
+    \ second requirement \u2014 \"Verify the validator passes on all existing JSON\
+    \ files\" \u2014 is therefore unverified;"
   task: c20d7779381a25c0fffc1402e6a742d6ac481faf9aca148bef91954a4041cc20
 T005:
+  reason: "The module exists and contains the exact disclaimer string in `add_disclaimer_to_png`/`inject_disclaimer_into_html`,\
+    \ but the recorded test run (`tests/test_templates_disclaimer.py`, exit 1) shows\
+    \ `test_apply_disclaimer_to_directory` FAILED \u2014 after applying the disclaimer\
+    \ across a directory, validation found no disclosure (`assert False is True`),\
+    \ meaning the directory-wide injection required to stamp every generated output\
+    \ does not actually work. Additionally, the primary header/footer templates (`DEFAULT_LIMITATION_HEADER`,\
+    \ `NOTEBOOK_HEADER_TEMPLATE`, `PLOT_ANNOTATION_TEMPLATE`) do not contai"
   task: d44a823e2f3abb797d5deefaf94412d100ca5eadb72294e5e91bbf3c2e65be28
 T006:
+  reason: 'declared artifact(s) missing/empty/invalid: data/taxonomy/survey_2023.json'
   task: e38503dd01d63a5800b567b6ba98fa5da65d8659f69b5661722044866e0fa597
 T007:
+  reason: 'The file `data/events/reference_calendar.json` exists, is valid JSON with
+    a consistent schema, and passes its test, but the evidence shows it was not downloaded
+    from a verified source: the download script ran in 0.1s with no network activity
+    and simply wrote a hardcoded list of events (source field is the vague "Historical
+    Tech Events", not a verifiable URL/plan-listed source). The task explicitly requires
+    downloading from the verified source listed in the plan; a locally fabricated
+    calendar of plausible events is a synthetic stand-in. The implementer should replace
+    the script with an actual f'
   task: 39724adbfa13a23f53bb38edb67cbb928f60bceee951310a8bd77987ffc6c056
 T008:
+  reason: 'The required artifact `data/raw/PostsTags.parquet` is MISSING (collector-confirmed),
+    and the historical test run shows all 3 tests failing: the download script exited
+    1 after the source URL returned 401/404, and the parquet file was never created.
+    No readable parquet with the expected schema exists, so the task''s core deliverable
+    is not done.'
   task: 49a3f57d49f7c0435e6f8068f68c33a4db488364e7cb18e1ae888c63ad45ed35
 T009:
+  reason: 'Requested task execution failed; rerun successfully: code/data/preprocess.py
+    exit=1'
   task: ac52385a4979bafa327f268075e61b458591350a5ed080762f9261337dafb19c
 T010:
   task: eb721366ed7bb8e746daf59bdb06ef248de4899a75cb5e19113e3a6baf38cc2e

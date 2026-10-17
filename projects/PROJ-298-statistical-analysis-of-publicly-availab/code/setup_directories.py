@@ -11,7 +11,6 @@ under the project root (the directory containing this script's
   - tests/
   - data/
   - notebooks/
-  - state/
   - data/raw/
   - data/processed/
   - data/events/
@@ -20,6 +19,10 @@ under the project root (the directory containing this script's
 After creation, the script attempts to write and delete a temporary
 file in each directory to confirm writability. If any check fails,
 the script exits with a non‑zero status and logs the error.
+
+**Note:** The platform owns the top‑level ``state/`` directory for
+internal bookkeeping. This script deliberately avoids creating or
+modifying that directory to respect platform ownership.
 """
 
 import sys
@@ -65,7 +68,6 @@ def main() -> int:
         project_root / "tests",
         project_root / "data",
         project_root / "notebooks",
-        project_root / "state",
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "data" / "events",

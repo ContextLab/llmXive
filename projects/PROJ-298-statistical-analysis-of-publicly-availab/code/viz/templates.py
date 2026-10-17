@@ -15,9 +15,9 @@ import textwrap
 # Standard limitation disclosure text as per FR-011
 # This text must appear in all visualizations and reports
 DEFAULT_LIMITATION_HEADER = """
-================================================================================
+================================================================================================
 LIMITATION DISCLOSURE
-================================================================================
+================================================================================================
 This analysis is subject to the following limitations:
 1. Data Source: Stack Overflow public dump (posts and tags only)
 2. Time Period: Limited to the available data range in the dump
@@ -27,17 +27,17 @@ This analysis is subject to the following limitations:
 6. Seasonality Detection: STL decomposition requires sufficient seasonal cycles; short series may yield unreliable components
 7. Clustering: Jaccard similarity captures co-occurrence but not semantic relatedness
 8. Causality: Correlation does not imply causation; observed relationships require domain validation
-================================================================================
+================================================================================================
 """
 
 DEFAULT_LIMITATION_FOOTER = """
-================================================================================
+================================================================================================
 END OF LIMITATION DISCLOSURE
-================================================================================
+================================================================================================
 For methodology details, see: docs/methodology.md
 For data provenance, see: data/processed/*.json (with SHA-256 hashes)
 Last updated: {timestamp}
-================================================================================
+================================================================================================
 """
 
 # Notebook-specific template with markdown formatting
@@ -50,7 +50,7 @@ This analysis is subject to the following limitations:
 2. **Time Period**: Limited to the available data range in the dump
 3. **Tag Normalization**: Tags are lowercased and trimmed; some semantic variations may persist
 4. **External Correlation**: GitHub/NPM mapping is approximate and may miss relevant projects
-5. **Statistical Power**: Some trends classified as "Insufficient Data" may have low statistical power (MDES > observed effect)
+5. **Statistical Power**: Some trends classified as "Insufficient Data" may have low statistical power (MDES)
 6. **Seasonality Detection**: STL decomposition requires sufficient seasonal cycles; short series may yield unreliable components
 7. **Clustering**: Jaccard similarity captures co-occurrence but not semantic relatedness
 8. **Causality**: Correlation does not imply causation; observed relationships require domain validation
@@ -277,3 +277,124 @@ def validate_limitation_injection(
         "format": fmt,
         "message": f"Limitation disclosure found ({fmt} format)"
     }
+
+# ----------------------------------------------------------------------
+# Additional helpers for generic output types (PNG, HTML)
+# ----------------------------------------------------------------------
+def add_disclaimer_to_png(png_path: Path, disclaimer_text: Optional[str] = None) -> None:
+    """
+    Overlay a disclaimer footer onto an existing PNG image.
+
+    The function loads the PNG with matplotlib, adds a semi‑transparent
+    textbox containing the disclaimer, and overwrites the original file.
+
+    Args:
+        png_path: Path to the PNG file to modify.
+        disclaimer_text: Custom disclaimer text. If None, a short default
+                         statement is used.
+    """
+    import matplotlib.pyplot as plt
+    import matplotlib.image as mpimg
+
+    if not png_path.exists():
+        raise FileNotFoundError(f"PNG file not found: {png_path}")
+
+    # Load the image
+    img = mpimg.imread(png_path)
+
+    # Create a figure matching the image size
+    fig, ax = plt.subplots(figsize=(img.shape[1] / 100, img.shape[0] / 100), dpi=100)
+    ax.imshow(img)
+    ax.axis('off')
+
+    # Prepare disclaimer text
+    if disclaimer_text is None:
+        disclaimer_text = "Limitation: All findings are associational and do not imply causality."
+
+    # Add a textbox in the lower‑right corner
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.6)
+    ax.text(
+        0.99, 0.01, disclaimer_text,
+        transform=ax.transAxes,
+        fontsize=8,
+        verticalalignment='bottom',
+        horizontalalignment='right',
+        bbox=props
+    )
+
+    # Save back to the same path
+    fig.savefig(png_path, dpi=100, bbox_inches='tight', pad_inches=0)
+    plt.close(fig)
+
+def inject_disclaimer_into_html(html_path: Path, disclaimer_text: Optional[str] = None) -> None:
+    """
+    Append a disclaimer footer to an HTML report.
+
+    The function inserts the disclaimer just before the closing </body> tag
+    (if present) or appends it to the end of the file.
+
+    Args:
+        html_path: Path to the HTML file.
+        disclaimer_text: Custom disclaimer HTML. If None, a short default
+                         paragraph is used.
+    """
+    if not html_path.exists():
+        raise FileNotFoundError(f"HTML file not found: {html_path}")
+
+    with open(html_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    if disclaimer_text is None:
+        disclaimer_text = (
+            "<div style='border-top:1px solid #ccc; padding-top:10px; "
+            "margin-top:20px; font-size:0.9em; color:#555;'>"
+            "<strong>Limitation:</strong> All findings are associational and do not "
+            "imply causality."
+            "</div>"
+        )
+
+    # Avoid duplicate insertion
+    if disclaimer_text.strip() in content:
+        return  # Already present
+
+    insertion = f"\n{disclaimer_text}\n"
+    if "</body>" in content.lower():
+        # Insert before the closing body tag (case‑insensitive)
+        parts = content.rsplit("</body>", 1)
+        content = parts[0] + insertion + "</body>" + parts[1]
+    else:
+        content = content + insertion
+
+    with open(html_path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+def apply_disclaimer_to_directory(
+    directory: Path,
+    png_suffix: str = ".png",
+    html_suffix: str = ".html",
+    disclaimer_text: Optional[str] = None
+) -> None:
+    """
+    Walk a directory tree and inject the disclaimer into all PNG and HTML files.
+
+    Args:
+        directory: Root directory to search.
+        png_suffix: File extension for images (default '.png').
+        html_suffix: File extension for HTML reports (default '.html').
+        disclaimer_text: Custom disclaimer to use for both image and HTML.
+                         If None, defaults are applied per format.
+    """
+    if not directory.is_dir():
+        raise NotADirectoryError(f"Not a directory: {directory}")
+
+    for path in directory.rglob(f"*{png_suffix}"):
+        try:
+            add_disclaimer_to_png(path, disclaimer_text)
+        except Exception as e:
+            raise RuntimeError(f"Failed to inject disclaimer into PNG {path}: {e}")
+
+    for path in directory.rglob(f"*{html_suffix}"):
+        try:
+            inject_disclaimer_into_html(path, disclaimer_text)
+        except Exception as e:
+            raise RuntimeError(f"Failed to inject disclaimer into HTML {path}: {e}")

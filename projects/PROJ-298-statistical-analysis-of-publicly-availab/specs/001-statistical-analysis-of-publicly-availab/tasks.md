@@ -36,7 +36,7 @@ The list below groups related work into 15 substantive research tasks covering a
 
 ## Phase 3 – Pre‑processing  
 
-- [ ] T009 [P] Implement `code/data/preprocess.py` to:  
+- [ ] T009 [P] Implement `code/data/preprocess.py` to:   <!-- FAILED-IN-EXECUTION: code/data/preprocess.py exit=1 -->
   - normalize tag strings (lower‑case, trim),  
   - aggregate monthly counts for the period 2015‑01‑01 → 2023‑12‑01,  
   - filter out tags with < 12 months of data,  
