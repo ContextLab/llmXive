@@ -1,12 +1,4 @@
 T001:
-  reason: "The on-disk `requirements.txt` (huggingface_hub, opencv-python, torch,\
-    \ datasets, ultralytics, pingouin) does not match the pinned list in `code/bootstrap.py`\
-    \ (which pins `torch==2.2.0` and includes `detectron2`), so the task's own verification\
-    \ criterion \u2014 \"the generated requirements.txt matches the pinned list\"\
-    \ \u2014 fails; the historical log shows bootstrap once wrote the pinned file,\
-    \ but the current artifact contradicts it. Additionally, there is no execution\
-    \ evidence that the advertised entry point `python -m code.main --stage smoke`\
-    \ actually runs (only `bootstrap.py` exit 0 is recorded). Fix b"
   task: f73df3eb4a107de40d28a304aab021d86a45e204292e85132a20449ae857d4da
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/ingestion/download_data.py

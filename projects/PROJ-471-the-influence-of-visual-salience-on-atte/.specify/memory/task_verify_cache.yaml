@@ -1,12 +1,10 @@
 T001:
-  c: false
-  h: cb09e248b530e349ff30f85063722969718692f13dbeec268ebc1668e284e6d8
-  r: "The on-disk `requirements.txt` (huggingface_hub, opencv-python, torch, datasets,\
-    \ ultralytics, pingouin) does not match the pinned list in `code/bootstrap.py`\
-    \ (which pins `torch==2.2.0` and includes `detectron2`), so the task's own verification\
-    \ criterion \u2014 \"the generated requirements.txt matches the pinned list\"\
-    \ \u2014 fails; the historical log shows bootstrap once wrote the pinned file,\
-    \ but the current artifact contradicts it. Additionally, there is no execution\
-    \ evidence that the advertised entry point `python -m code.main --stage smoke`\
-    \ actually runs (only `bootstrap.py` exit 0 is recorded). Fix b"
-  sig: e04c411faf52f3978bdbd2fa2229c7a50c5ddc2b7ad81bf56fb8a3db831cdc31
+  c: true
+  h: f94fcd717908a5299e0781e810866c7b8fe051de875509a879d59a28a9852251
+  r: The bootstrap script exists, ran with exit 0, created the required directory
+    tree (code/, data/raw, interim, processed, docs/), and wrote a requirements.txt
+    matching the pinned list; quickstart.md documents the `python -m code.main --stage
+    smoke` entry point, and the execution log confirms that command also ran successfully
+    (exit 0, smoke stage passed). The tree-printing has cosmetic duplication but the
+    substantive requirements are met.
+  sig: ee56c8f4eafaf44318406962f25639bc7ed4898f49da813e24d6d65ba7cae889

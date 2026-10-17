@@ -1,6 +1,7 @@
 huggingface_hub
 opencv-python
-torch
+torch==2.2.0
 datasets
 ultralytics
 pingouin
+detectron2
