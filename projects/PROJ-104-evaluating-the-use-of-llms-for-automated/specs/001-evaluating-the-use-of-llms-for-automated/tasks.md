@@ -41,7 +41,7 @@ The goal is to produce a reproducible, end‑to‑end pipeline that satisfies ev
   - Compute and record the SHA‑256 checksum of `commit_pairs.csv` in `data/metadata.yaml` (see T013); the file is written once and never modified in place.
   - **Verification**: `data/raw/commit_pairs.csv` contains ≥ 500 rows, each row passes schema validation (`pytest tests/contract/test_commitpair_schema.py`), a log entry confirms the number of skipped commits (e.g., "no documentation change"), and `data/metadata.yaml` contains the file's checksum.
 
-- [ ] **T004** [P1] [US1] **Gold‑standard intent annotation via two deterministic automated annotators**
+- [ ] **T004** [P1] [US1] **Gold‑standard intent annotation via two deterministic automated annotators** <!-- FAILED-IN-EXECUTION: code/gold_annotation.py exit=1 -->
   - **Artifact(s)**: `data/gold_standard/annotations.json`, `code/gold_annotation.py`
   - Randomly sample 50 commit pairs from `commit_pairs.csv` using the pinned seed (T014).
   - Run **two independent deterministic annotator agents** (fixed prompts, pinned seeds, temperature 0) that each label technical‑intent entities in the sampled pairs using the rubric in the spec. Determinism makes this step fully executable end‑to‑end without live human annotators while preserving the two‑rater design required to compute agreement.

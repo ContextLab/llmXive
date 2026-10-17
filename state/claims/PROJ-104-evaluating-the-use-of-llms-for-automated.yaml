@@ -1,0 +1,100 @@
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: 2 CPU cores and ~7 GB RAM are sufficient for the pipeline
+  claim_id: c_6030c685
+  context: Prerequisites list mentions a CPU-only runner (2 CPU cores, ~7 GB RAM is
+    sufficient; no GPU is used anywhere).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "CPU-only runner (2 CPU cores, ~7 GB RAM is sufficient; no GPU is used\
+    \ anywhere \u2014 NFR-001)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_2638788f
+  context: "The quick smoke test loads a tiny synthetic commit pair, runs generation,\
+    \ and writes output, completing in well under 30\u202Fseconds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "It completes in well under 30\u202Fseconds and requires no model downloads."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: power analysis report estimated power for sample size n=500
+  claim_id: c_0f472417
+  context: "The Monte\u2011Carlo power analysis writes results/power_report.md, which\
+    \ contains the estimated power for n = 500."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The report contains the estimated power for n = 500
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: exploratory flag is true when estimated power is below 0.8
+  claim_id: c_ce2e4dce
+  context: The power report includes an `exploratory` flag that is true exactly when
+    the estimated power is below 0.8.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: exploratory flag that is true exactly when the estimated power is below
+    0.8
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: GitHub Actions workflow automatically runs full CPU-only pipeline on
+    every push
+  claim_id: c_d76f9386
+  context: "CI Execution section describes a GitHub Actions workflow that runs the\
+    \ full CPU\u2011only pipeline on every push."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The repository includes a GitHub Actions workflow (.github/workflows/research.yml)\
+    \ that automatically runs the full CPU\u2011only pipeline on every push, caches\
+    \ model weights, and uploads artifacts."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/quickstart.md
+  attempts: 1
+  canonical: full pipeline runs without manual intervention
+  claim_id: c_01b9a01e
+  context: The CI workflow runs automatically without manual intervention.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No manual intervention is required.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T07:12:09Z'

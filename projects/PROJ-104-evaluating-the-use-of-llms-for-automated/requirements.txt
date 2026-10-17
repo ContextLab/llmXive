@@ -1,3 +1,8 @@
-gitpython
-pyyaml
-PyGithub
+# Existing dependencies (standard library packages are omitted)
+# PyYAML, requests, jsonschema, etc. are pre‑installed in the environment.
+# Additional dependency required for data extraction:
+#
+# No extra pip packages are needed; the script uses the system `git` binary.
+#
+# If you wish to install optional GitPython support, uncomment the line below:
+# gitpython==3.1.43

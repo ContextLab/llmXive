@@ -1,20 +1,21 @@
 T001:
   c: false
-  h: 2063199ad35f0d1f4a172cfd98607e99612652bd8676d4c5a26256f5cbdc3e21
-  r: "The quickstart.md and code/run_pipeline.py files exist and appear to implement\
-    \ the described guide and smoke\u2011test pipeline, and the generated file data/generated/phi3-mini/sample_test.txt\
-    \ is present. However, there is no execution evidence showing that `python -m\
-    \ code.run_pipeline --sample 5` actually completes in under\u202F30\u202Fseconds\
-    \ and creates the output file, nor any proof that `pytest tests/quickstart_test.py`\
-    \ runs and passes. Without logs or test run results, the verification step required\
-    \ by the task is missing."
-  sig: a480763c643d88a3f646e8752f7f31a79a8c44f8fe057a470afa45bb266b66d6
+  h: dfaf78f2e5ab89dce4abb01d6f841f6b8e7f62261d4709bde7d83763a87bb3e2
+  r: "The `quickstart.md` file correctly lists Python\u202F3.11, `bitsandbytes`, `transformers`,\
+    \ and the `python -m code.run_pipeline --sample 5` command, but `code/run_pipeline.py`\
+    \ does not construct a `CommitPair` matching the signature defined in `code/generation.py`\
+    \ (extra `doc_diff` and `timestamp` fields cause a `TypeError`). Consequently\
+    \ the smoke\u2011test entry point cannot generate `data/generated/phi3-mini/sample_test.txt`.\
+    \ Additionally, `tests/quickstart_test.py` references `sys.executable` without\
+    \ importing `sys`, so the pytest suite would fail. These defects prevent the command\
+    \ from completing i"
+  sig: 532b04ce59aa842cb0cd4281626733e7c315d18732605c9ec5f455e89bcf8a2f
 T002:
   c: true
-  h: d9afe2acf1abb777ca7fe3772e8388c5ba3a5707554e6cc3dc0a89af6999fc11
-  r: "Checked `code/power_analysis.py` for correct Monte\u2011Carlo simulation using\
-    \ the pinned seed and proper power\u2011threshold logic, and verified that `results/power_report.md`\
-    \ contains a numeric power estimate for n\u202F=\u202F500 and the `exploratory`\
-    \ flag set to `false` (matching the computed power\u202F=\u202F1.0, which is \u2265\
-    \u202F0.8)."
-  sig: 0754dca718b5a4a72447dde09685a9562c69de6c76e8b34c26f3656887453712
+  h: 2829cf302dc40dd48f0aa289562b5ae511283c4e13aafaf31c53bd7c221f0705
+  r: "Checked `code/power_analysis.py` (implements the Monte\u2011Carlo simulation\
+    \ using the pinned seed and writes the markdown) and `results/power_report.md`\
+    \ (contains a numeric power estimate for n\u202F=\u202F500 and the correct `exploratory`\
+    \ flag set according to the estimated power). All required behavior is present\
+    \ and matches the task specification."
+  sig: 5823afbbcaf7a1c86b286275c58c26522c4fee10845aa00bd234b02ba7d71aab
