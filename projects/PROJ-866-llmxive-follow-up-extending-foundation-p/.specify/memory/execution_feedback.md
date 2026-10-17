@@ -2,7 +2,7 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_simulation.py --generate  --seed 42  --count 500; python src/cli/run_simulation.py --execute --mode full; python src/cli/run_simulation.py --execute --mode compressed  --depths 0,1,2,3,4,5,6,7,8,9,10; 1 command(s) failed: python -m pytest -v (rc=2); 4 declared deliverable(s) absent: data/processed/compressed_context_logs.json; data/processed/full_context_logs.json; data/raw/workflows.json
+**Summary**: 4 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_simulation.py --generate  --seed 42  --count 500; python src/cli/run_simulation.py --execute --mode full; python src/cli/run_simulation.py --execute --mode compressed  --depths 0,1,2,3,4,5,6,7,8,9,10; 1 command(s) failed: python -m pytest -v (rc=2); 3 declared deliverable(s) absent: data/processed/compressed_context_logs.json; data/processed/full_context_logs.json; figures/tradeoff_curve.png
 
 ## Failing / missing run-book commands
 
@@ -38,7 +38,7 @@ E   ModuleNotFoundError: No module named 'engines.save_processed_logs'
 =========================== short test summary info ============================
 ERROR tests/contract/test_save_processed_logs_schema.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.04s ===============================
+=============================== 1 error in 1.25s ===============================
 
 
 
@@ -46,7 +46,6 @@ ERROR tests/contract/test_save_processed_logs_schema.py
 
 - data/processed/compressed_context_logs.json
 - data/processed/full_context_logs.json
-- data/raw/workflows.json
 - figures/tradeoff_curve.png
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -61,16 +60,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/main.py` — NOT invoked by the run-book
     - `code/utils/data_hygiene_audit.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/full_context_logs.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/workflows.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/tradeoff_model.py` — NOT invoked by the run-book
-    - `code/analysis/vif_analyzer.py` — NOT invoked by the run-book
-    - `code/engines/compressed_context.py` — NOT invoked by the run-book
-    - `code/engines/full_context.py` — NOT invoked by the run-book
-    - `code/engines/invalid_workflow_filter.py` — NOT invoked by the run-book
-    - `code/generators/synthetic_workflow.py` — NOT invoked by the run-book
-    - `code/main.py` — NOT invoked by the run-book
-    - `code/services/executor.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/workflows.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `figures/tradeoff_curve.png` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/generate_regression_data.py` — NOT invoked by the run-book
     - `code/analysis/tradeoff_model.py` — NOT invoked by the run-book
