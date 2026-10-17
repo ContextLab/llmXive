@@ -1,14 +1,10 @@
 T002:
-  c: true
-  h: 635d26a2c9c772dfe9e9a3301f18bf4f6ce76ea51ff14b1adfda21e2734bd029
-  r: "The script, CSV (121 KB, correct 9 columns, values consistent with real ARPACK\
-    \ runs), and convergence JSON all exist and match the required grid; the execution\
-    \ log shows a real 1008-configuration run with checksummed raw matrices and bulk\
-    \ edges converging to 2.0 (1.915 \u2192 1.998), and the test log confirms the\
-    \ 1008-row count and JSON structure. The corrected 1/\u221AN Wigner scaling addresses\
-    \ the prior rejection, and eigenvalue trends (outliers emerging for \u03B8 > 1)\
-    \ are physically consistent with the BBP prediction."
-  sig: 0a3681f99ecd1c0e6c7195085ca52465aea0e6125f70cee106ab258b05ec075c
+  c: false
+  h: a2e899e3bfb9d23a2c5b4d91452c47e3e61ba0e0370992f7d66f5fcd2b0b5e51
+  r: The required output files `data/processed/mc_results.csv` and `data/processed/convergence_data.json`
+    are missing; without these artifacts the sweep results cannot be verified, so
+    the task is not satisfied.
+  sig: f8b4e7f9cef96d90b1c3cf3cf98dcf16f0dbf61e45b348761098f724902cc03e
 T003:
   c: true
   h: 137bc473fd97208b0c391582a986369cb73bc9d080de8c76729067923cb8a070
