@@ -16,20 +16,12 @@ from pathlib import Path
 
 from llmxive_toolkit import paths, get_logger
 
-# Import the lightweight artifact registration helper.
-try:
-    from utils.versioning import register_artifact
-except Exception:  # pragma: no cover
-    # Fallback: a no‑op if the helper is unavailable.
-    def register_artifact(*_, **__):  # type: ignore
-        pass
-
 # Import huggingface_hub for reliable dataset download.
 try:
     from huggingface_hub import snapshot_download
-except Exception as e:  # pragma: no cover
+except ImportError as e:
     raise RuntimeError(
-        "The `huggingface_hub` library is required for automatic download."
+        "The `huggingface_hub` library is required for automatic download. Please install it via pip."
     ) from e
 
 logger = get_logger(__name__)
@@ -59,16 +51,17 @@ def download_dataset(raw_dir: Path, dataset_id: str) -> None:
     repo_id = f"openneuro/{dataset_id}"
     try:
         # ``snapshot_download`` returns the root directory of the downloaded repo.
-        cache_dir = snapshot_download(
+        # We use local_dir to ensure the files are placed exactly where the project expects them.
+        snapshot_download(
             repo_id=repo_id,
             repo_type="dataset",
             local_dir=raw_dir,
-            # Force a fresh download each run to avoid stale caches.
+            # Force a fresh download each run to avoid stale caches in the runner environment.
             resume_download=False,
             # Ensure the full repository (including large binary files) is fetched.
             allow_patterns=["*"],
         )
-        logger.info(f"Dataset downloaded to directory: {cache_dir}")
+        logger.info(f"Dataset downloaded to directory: {raw_dir}")
     except Exception as e:
         logger.error(f"Failed to download dataset via huggingface_hub: {e}")
         raise RuntimeError("DATA_DOWNLOAD_FAILED") from e
@@ -96,7 +89,6 @@ def main() -> None:
     1. Verify (or download) the expected raw data directory.
     2. Compute SHA‑256 checksums for every file under the raw directory.
     3. Write a manifest (including timestamps and file sizes) to ``checksums.json``.
-    4. Register the manifest as an artifact.
     """
     # Use the llmxive toolkit helpers to locate the raw data root.
     raw_root = paths.data("raw")            # <project>/data/raw/
@@ -133,6 +125,7 @@ def main() -> None:
         "files": []
     }
 
+    # Iterate through all files in the dataset directory
     for file_path in raw_dir.rglob("*"):
         if file_path.is_file():
             rel_path = file_path.relative_to(raw_root)
@@ -151,16 +144,6 @@ def main() -> None:
         json.dump(manifest, f, indent=2)
 
     logger.info(f"Checksum manifest written to {checksum_file}")
-
-    # ----------------------------------------------------------------------
-    # Step 4 – Register artifact
-    # ----------------------------------------------------------------------
-    register_artifact(
-        file_path=checksum_file,
-        artifact_type="checksum_manifest",
-        description="SHA‑256 manifest for OpenNeuro ds003123"
-    )
-
     logger.info("Ingestion verification completed successfully.")
 
 if __name__ == "__main__":

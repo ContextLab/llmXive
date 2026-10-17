@@ -5,8 +5,7 @@ It checks that the OpenNeuro Moral Foundations Eye‑Tracking dataset
 (ds003123) is present under ``data/raw/`` and that a checksum manifest
 (``data/raw/checksums.json``) exists and matches the files on disk.
 If any check fails, a ``RuntimeError`` with the code ``DATA_MISSING_001``
-is raised – this matches the behaviour expected by the quick‑start
-validation step.
+is raised.
 """
 import json
 import hashlib

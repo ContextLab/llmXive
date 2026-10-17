@@ -32,5 +32,6 @@ def test_download_success():
     assert len(manifest["files"]) > 0, "Manifest should contain a list of files."
     
     # Verify at least one file in manifest exists on disk
-    first_file_rel_path = Path(manifest["files"][0]["path"])
-    assert (raw_root / first_file_rel_path).is_file(), "File listed in manifest should exist on disk."
+    if manifest["files"]:
+        first_file_rel_path = Path(manifest["files"][0]["path"])
+        assert (raw_root / first_file_rel_path).is_file(), "File listed in manifest should exist on disk."
