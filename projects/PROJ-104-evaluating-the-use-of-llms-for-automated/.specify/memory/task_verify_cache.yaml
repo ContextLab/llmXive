@@ -1,18 +1,20 @@
 T001:
-  c: true
-  h: eea2480ea0a93aad3cffb489903f70dd6c0f9ae0f068ca052fd5f3af55b03edb
-  r: "Checked `quickstart.md` (contains the required guide, package install instructions,\
-    \ and the `python -m code.run_pipeline --sample 5` command) and `code/run_pipeline.py`\
-    \ (runs the smoke\u2011test, writes `data/generated/phi3-mini/sample_test.txt`).\
-    \ The pytest suite passes and the CLI finishes under 30\u202Fs, producing the\
-    \ expected output file."
-  sig: 6801613ca1cd7e48336ea96a490dbcfaf332ae003b5a710622d5aab5388474cb
+  c: false
+  h: 2063199ad35f0d1f4a172cfd98607e99612652bd8676d4c5a26256f5cbdc3e21
+  r: "The quickstart.md and code/run_pipeline.py files exist and appear to implement\
+    \ the described guide and smoke\u2011test pipeline, and the generated file data/generated/phi3-mini/sample_test.txt\
+    \ is present. However, there is no execution evidence showing that `python -m\
+    \ code.run_pipeline --sample 5` actually completes in under\u202F30\u202Fseconds\
+    \ and creates the output file, nor any proof that `pytest tests/quickstart_test.py`\
+    \ runs and passes. Without logs or test run results, the verification step required\
+    \ by the task is missing."
+  sig: a480763c643d88a3f646e8752f7f31a79a8c44f8fe057a470afa45bb266b66d6
 T002:
   c: true
-  h: 437a0f01c7600aa2f2607f014d806fdd0b3b5d7c0ffd95144ddd5758cf28ddb7
+  h: d9afe2acf1abb777ca7fe3772e8388c5ba3a5707554e6cc3dc0a89af6999fc11
   r: "Checked `code/power_analysis.py` for correct Monte\u2011Carlo simulation using\
-    \ the pinned seed, the generation of a markdown report with a numeric power estimate\
-    \ for n\u202F=\u202F500, and the conditional `exploratory` flag; verified `results/power_report.md`\
-    \ contains the expected values and that all five pytest checks (including both\
-    \ flag branches) passed."
-  sig: 517645796b45f82e74fe67eae07e3287b42aecf982d25f1a5d2127f13315f376
+    \ the pinned seed and proper power\u2011threshold logic, and verified that `results/power_report.md`\
+    \ contains a numeric power estimate for n\u202F=\u202F500 and the `exploratory`\
+    \ flag set to `false` (matching the computed power\u202F=\u202F1.0, which is \u2265\
+    \u202F0.8)."
+  sig: 0754dca718b5a4a72447dde09685a9562c69de6c76e8b34c26f3656887453712

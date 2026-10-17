@@ -1,14 +1,15 @@
 """Data extraction script for T003.
 
-This script clones the five target repositories, walks the last two
-years of commit history, extracts commits that modify documentation
-files (.md or .rst), and writes a CSV file
+This script uses the GitHub API (via PyGithub) to fetch commit
+information from the five target repositories. It collects commits
+from the last two years that modify documentation files
+(extensions .md, .rst, .txt) and writes a CSV file
 `data/raw/commit_pairs.csv` with the required fields:
 
     commit_hash,commit_message,repository_name,doc_diff,timestamp
 
 After writing the CSV it computes its SHA‑256 checksum and records it
-in `data/metadata.yaml`.  A log entry reports how many commits were
+in `data/metadata.yaml`. A log entry reports how many commits were
 skipped because they did not modify documentation files.
 
 The script is intended to be run via:
@@ -18,29 +19,29 @@ from __future__ import annotations
 
 import csv
 import hashlib
-import subprocess
-import sys
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
 
-from llmxive_toolkit import get_logger, paths
+import yaml
+from github import Github
 
-log = get_logger(__name__)
+from llmxive_toolkit import paths, get_logger
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
 REPOS = {
-    "pandas": "https://github.com/pandas-dev/pandas.git",
-    "requests": "https://github.com/psf/requests.git",
-    "scikit-learn": "https://github.com/scikit-learn/scikit-learn.git",
-    "flask": "https://github.com/pallets/flask.git",
-    "django": "https://github.com/django/django.git",
+    "pandas": "pandas-dev/pandas",
+    "requests": "psf/requests",
+    "scikit-learn": "scikit-learn/scikit-learn",
+    "flask": "pallets/flask",
+    "django": "django/django",
 }
 
 # Two‑year window (relative to now)
-SINCE_DATE = (datetime.utcnow() - timedelta(days=2 * 365)).date().isoformat()
+SINCE_DATE = (datetime.utcnow() - timedelta(days=2 * 365)).date()
 
 # Minimum number of pairs required by the specification
 MIN_PAIRS = 500
@@ -49,84 +50,11 @@ MIN_PAIRS = 500
 CSV_PATH = paths.data("raw", "commit_pairs.csv")
 METADATA_PATH = paths.data("metadata.yaml")
 
+log = get_logger(__name__)
+
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
-def run_git(args: List[str], cwd: Path | None = None) -> str:
-    """Run a git command and return its stdout as a string."""
-    result = subprocess.run(
-        ["git"] + args,
-        cwd=cwd,
-        text=True,
-        capture_output=True,
-        check=True,
-    )
-    return result.stdout.strip()
-
-def clone_repo(name: str, url: str, dest: Path) -> None:
-    """Clone a repository shallowly (only commits from the last two years)."""
-    if dest.exists():
-        log.info("Repo %s already cloned at %s", name, dest)
-        return
-    log.info("Cloning %s into %s (shallow since %s)", name, dest, SINCE_DATE)
-    # --filter=blob:none reduces download size; --shallow-since limits history.
-    run_git(
-        [
-            "clone",
-            "--depth=1",
-            f"--shallow-since={SINCE_DATE}",
-            "--filter=blob:none",
-            "--no-checkout",
-            url,
-            str(dest),
-        ]
-    )
-    # Checkout the working tree (needed for diff generation)
-    run_git(["checkout", "HEAD"], cwd=dest)
-
-def get_commits(repo_dir: Path) -> List[str]:
-    """Return a list of commit hashes in the last two years (newest first)."""
-    log.info("Listing commits for %s since %s", repo_dir.name, SINCE_DATE)
-    commits = run_git(
-        ["rev-list", "--since", SINCE_DATE, "--all"],
-        cwd=repo_dir,
-    ).splitlines()
-    return commits
-
-def commit_modifies_doc(repo_dir: Path, commit: str) -> List[str]:
-    """Return a list of documentation files (.md/.rst) changed in the commit."""
-    changed = run_git(
-        ["diff-tree", "--no-commit-id", "--name-only", "-r", commit],
-        cwd=repo_dir,
-    ).splitlines()
-    doc_files = [f for f in changed if f.lower().endswith((".md", ".rst"))]
-    return doc_files
-
-def get_commit_message(repo_dir: Path, commit: str) -> str:
-    return run_git(
-        ["log", "-1", "--format=%B", commit],
-        cwd=repo_dir,
-    )
-
-def get_commit_timestamp(repo_dir: Path, commit: str) -> str:
-    """Return ISO‑8601 timestamp of the commit (author date)."""
-    return run_git(
-        ["show", "-s", "--format=%cI", commit],
-        cwd=repo_dir,
-    )
-
-def get_doc_diff(repo_dir: Path, commit: str, files: List[str]) -> str:
-    """Return the diff for the given documentation files in a commit."""
-    # Use git show to get the diff for the selected files only.
-    diff_parts = []
-    for f in files:
-        diff = run_git(
-            ["show", commit, "--", f],
-            cwd=repo_dir,
-        )
-        diff_parts.append(diff)
-    return "\n".join(diff_parts)
-
 def write_csv(rows: List[dict]) -> None:
     """Write rows to the CSV file with the required header order."""
     CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -151,61 +79,80 @@ def update_metadata(file_path: Path) -> None:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
     checksum = sha256.hexdigest()
-    METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-    # Preserve any existing entries; we only need to ensure this file is recorded.
-    try:
-        import yaml
 
-        if METADATA_PATH.exists():
-            with METADATA_PATH.open("r", encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-        else:
-            data = {}
-    except Exception as e:
-        log.error("Failed to read existing metadata.yaml: %s", e)
+    METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if METADATA_PATH.exists():
+        with METADATA_PATH.open("r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+    else:
         data = {}
-    data[str(file_path.relative_to(paths.root))] = checksum
+    # Store path relative to project root
+    rel_path = str(file_path.relative_to(paths.root))
+    data[rel_path] = checksum
     with METADATA_PATH.open("w", encoding="utf-8") as f:
         yaml.safe_dump(data, f, sort_keys=False)
     log.info("Recorded checksum for %s in %s", file_path.name, METADATA_PATH)
 
 # ----------------------------------------------------------------------
-# Main extraction logic
+# Main extraction logic using PyGithub
 # ----------------------------------------------------------------------
 def extract_commit_pairs() -> List[dict]:
     """Iterate over the target repositories and collect commit‑pair rows."""
     rows: List[dict] = []
     skipped = 0
+    g = Github()  # unauthenticated; respects rate limits
 
-    for repo_name, repo_url in REPOS.items():
-        clone_dir = paths.data("raw", "cloned_repos", repo_name)
-        clone_repo(repo_name, repo_url, clone_dir)
+    for repo_label, repo_full_name in REPOS.items():
+        log.info("Processing repository %s (%s)", repo_label, repo_full_name)
+        repo = g.get_repo(repo_full_name)
 
-        commits = get_commits(clone_dir)
-        log.info("Found %d commits in %s", len(commits), repo_name)
+        for commit in repo.get_commits():
+            # Stop early if we already have enough rows
+            if len(rows) >= MIN_PAIRS:
+                log.info("Reached required %d commit‑pair rows; stopping early.", MIN_PAIRS)
+                return rows
 
-        for commit_hash in commits:
-            doc_files = commit_modifies_doc(clone_dir, commit_hash)
+            commit_date = commit.commit.author.date
+            if commit_date.date() < SINCE_DATE:
+                # Commits are ordered newest‑first; once we hit older than window we can break.
+                break
+
+            # Gather documentation files changed in this commit
+            doc_files = [
+                f
+                for f in commit.files
+                if f.filename.lower().endswith((".md", ".rst", ".txt"))
+            ]
+
             if not doc_files:
                 skipped += 1
                 continue
 
-            # Build the row
+            # Build a concatenated diff for all documentation files in this commit
+            doc_diff = "\n".join(
+                (f.patch or "") for f in doc_files
+            ).strip()
+
+            if not doc_diff:
+                # No diff content (unlikely but possible); treat as no doc change.
+                skipped += 1
+                continue
+
             row = {
-                "commit_hash": commit_hash,
-                "commit_message": get_commit_message(clone_dir, commit_hash),
-                "repository_name": repo_name,
-                "doc_diff": get_doc_diff(clone_dir, commit_hash, doc_files),
-                "timestamp": get_commit_timestamp(clone_dir, commit_hash),
+                "commit_hash": commit.sha,
+                "commit_message": commit.commit.message,
+                "repository_name": repo.full_name,
+                "doc_diff": doc_diff,
+                "timestamp": commit.commit.author.date.isoformat(),
             }
             rows.append(row)
 
-            if len(rows) >= MIN_PAIRS:
-                log.info(
-                    "Reached required %d commit‑pair rows; stopping early.",
-                    MIN_PAIRS,
-                )
-                return rows
+        log.info(
+            "Finished repo %s: collected %d rows so far, %d commits skipped (no doc change).",
+            repo_label,
+            len(rows),
+            skipped,
+        )
 
     log.info(
         "Extraction finished: %d rows collected, %d commits skipped (no doc change).",
@@ -230,4 +177,4 @@ def main() -> int:
     return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

@@ -1,33 +1,13 @@
-status: verified
-kind: pypi_package
-ref: PyGithub
-access_python: "import json\nfrom github import Github\n\ng = Github()\nrepo = g.get_repo(\"\
-  torvalds/linux\")\nrecords = []\nfor i, commit in enumerate(repo.get_commits()):\n\
-  \    if i >= 10:\n        break\n    sha = commit.sha\n    msg = commit.commit.message\n\
-  \    date = commit.commit.author.date.isoformat()\n    for f in commit.files:\n\
-  \        path = f.filename\n        diff = f.patch or \"\"\n        doc_diff = diff\
-  \ if path.lower().endswith((\".md\", \".rst\", \".txt\")) else \"\"\n        records.append({\n\
-  \            \"commit_hash\": sha,\n            \"commit_message\": msg,\n     \
-  \       \"documentation_diff\": doc_diff,\n            \"file_path\": path,\n  \
-  \          \"repo_name\": repo.full_name,\n            \"author_date\": date,\n\
-  \        })\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=commit_hash,commit_message,documentation_diff,file_path,repo_name,author_date\"\
-  )"
-record_count: 67
-sample_fields:
-- commit_hash
-- commit_message
-- documentation_diff
-- file_path
-- repo_name
-- author_date
-field_coverage: 1.0
+status: none
+intent: GitHub commit documentation diff dataset from open source repositories HuggingFace
+  python package dataset
 required_fields:
-- commit_hash
 - commit_message
+- commit_hash
 - documentation_diff
-- file_path
-- repo_name
-- author_date
-intent: download commit message and documentation diff dataset GitHub paired python
-  package dataset
-cache_key: cb9695fe1d82050556033c7f32d747d2b20234389b3f129095f77255162f5015
+- repository_name
+- commit_timestamp
+- documentation_file_path
+cache_key: 2deda827d3d94450ba03f83135f1ac0e7d1097bcf2269bb3edaf80bae5eef642
+searched_at: '2026-10-17T06:20:26.912243+00:00'
+retry_count: 1
