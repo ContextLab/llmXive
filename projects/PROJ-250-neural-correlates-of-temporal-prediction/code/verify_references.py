@@ -1,4 +1,4 @@
-"""FR-012 reference-verification gates for PROJ-250.
+"""FR-012 reference-verification gates for PROJ-250-neural-correlates-of-temporal-prediction.
 
 Implements the three Reference-Validator checks:
   * verify_dataset_id()  -- dataset ID / URL against the canonical OpenNeuro source (pre-download gate)
