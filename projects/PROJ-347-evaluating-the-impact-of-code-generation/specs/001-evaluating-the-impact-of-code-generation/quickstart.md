@@ -3,7 +3,7 @@
 ## Prerequisites
 1. **GitHub Actions runner** (or local Linux environment with ≥ 2 CPU cores, ~7 GB RAM).  
 2. **Python 3.11**.  
-3. **Docker** (required for Semgrep & SonarQube).  
+3. **Docker** (required for Semgrep, SonarQube, and CodeQL).  
 4. **Hugging Face token** (optional; set `HF_TOKEN` if you encounter rate limits).
 
 ## Setup
@@ -16,9 +16,12 @@ cd PROJ-347-evaluating-the-impact-of-code-generation
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt   # pins all versions
+
 # Pull required Docker images (first run will download them)
 docker pull returntocorp/semgrep:1.46.0
 docker pull sonarqube:9.9-community
+docker pull ghcr.io/github/codeql-action:latest   # CodeQL secondary validator
+# Bandit is installed via pip above; no Docker image needed.
 ```
 
 ## Run the Full Pipeline
@@ -26,16 +29,16 @@ docker pull sonarqube:9.9-community
 python -m src.run_pipeline \
     --seed 42 \
     --max-pairs 300 \
-    --confidence-thresholds 0.0 0.5 0.9
+    --confidence-thresholds 0.45 0.5 0.55
 ```
 - `--seed` fixes all randomness for reproducibility.  
 - `--max-pairs` caps the number of paired samples (default aligns with the power analysis).  
-- `--confidence-thresholds` triggers the sensitivity sweep.
+- `--confidence-thresholds` triggers the **±0.05** sensitivity sweep.
 
 The orchestrator performs the following phases automatically:
 1. **Data download & LLM generation** (Phase 0).  
-2. **Syntax & functional equivalence checks**.  
-3. **Static analysis** with Semgrep & SonarQube (Phase 1).  
+2. **Syntax & functional equivalence checks** (both unit‑test coverage ≥ 90 % **and** similarity ≥ 0.85).  
+3. **Static analysis** with Semgrep, SonarQube **and** CodeQL (Phase 1).  
 4. **Aggregation, bias‑correction, and paired statistical testing** (Phase 2).  
 5. **Sensitivity analysis** across confidence cutoffs.  
 6. **Random audit of ≥ 20 % flagged findings** (Phase 3).  
@@ -74,13 +77,25 @@ jobs:
         run: |
           docker pull returntocorp/semgrep:1.46.0
           docker pull sonarqube:9.9-community
+          docker pull ghcr.io/github/codeql-action:latest
       - name: Run pipeline
         run: |
           source .venv/bin/activate
-          python -m src.run_pipeline --seed 42 --max-pairs 300 --confidence-thresholds 0.0 0.5 0.9
+          python -m src.run_pipeline --seed 42 --max-pairs 300 --confidence-thresholds 0.45 0.5 0.55
       - name: Verify RAM & Time limits
         run: python -m src.check_limits   # asserts ≤6 GB RAM, ≤6 h total
+      - name: Verify LLM validity ratio (SC-001)
+        run: |
+          python -c "
+import json, pandas as pd
+meta = json.load(open('data/checksums.json'))
+valid = meta['llm_valid_pairs']
+total = meta['llm_total_pairs']
+ratio = valid/total
+assert ratio >= 0.85, f'LLM valid ratio {ratio:.2%} < 85%'
+"
 ```
-The CI will fail if any of the Constitution checks or Success Criteria are violated.
+The CI will fail if any of the Constitution checks, Success Criteria, or the new SC‑001 proportion check are violated.
 
 ---
+

@@ -1,16 +1,13 @@
 status: none
-intent: Juliet SARD, Devign, CodeXGLUE, OWASP Top10 LLM vulnerable code datasets pip
-  installable python package dataset
+intent: Devign CodeXGLUE OWASP Top 10 vulnerable code python package dataset
 required_fields:
-- sample_id
-- code
-- language
-- cwe_id
-- vulnerability_type
+- snippet_id
 - function_name
-- prompt_text
-- generated_code
-- generation_id
-cache_key: e752c303ce7826021a6230e0fbc888dbf59e5a7389b241c7f0bb98cef5136e52
-searched_at: '2026-10-17T10:15:52.235712+00:00'
+- code_snippet
+- programming_language
+- owasp_category
+- cve_reference
+- description
+cache_key: 99cb41fe391932eaed79ae843749b9e0b6055075b6f27875375bc3d93b9973e3
+searched_at: '2026-10-17T10:35:40.345779+00:00'
 retry_count: 1

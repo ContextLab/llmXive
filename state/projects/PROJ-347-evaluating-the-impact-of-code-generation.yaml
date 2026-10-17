@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T08:59:58.963205Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-347-evaluating-the-impact-of-code-generation
-last_run_id: 90aa1b17-b2ba-4ca8-b54f-21d26d6c98d3
+last_run_id: 6959309d-843f-4831-93bf-2f552ef27b07
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-347-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: 'Evaluating the Impact of Code Generation on Software Security: A Static Analysis
   Study'
-updated_at: '2026-10-17T10:34:03.635406Z'
+updated_at: '2026-10-17T10:48:26.257641Z'

@@ -21,12 +21,15 @@ All schemas are validated by the test suite (`tests/contract/test_contracts.py`)
 - `syntax_valid` (bool).  
 - `functional_equivalence_verified` (bool).  
 - `raw_content` (string).  
-- `language` (string, e.g., `"python"`).
+- `language` (string, e.g., `"python"`).  
+- `lines_of_code` (integer, optional) – **LOC** metric required by FR‑011.  
+- `cyclomatic_complexity` (integer, optional) – computed via radon (confounder metric).  
+- `length` (integer, optional) – token count (retained for possible secondary analyses).
 
 ### VulnerabilityFinding
 - `finding_id` (UUID).  
 - `code_sample_id` (UUID).  
-- `tool_source` (`"semgrep"` | `"sonarqube"`).  
+- `tool_source` (`"semgrep"` | `"sonarqube"` | `"bandit"` | `"codeql"`).  
 - `vulnerability_type` (string, OWASP category).  
 - `severity` (`"LOW"` | `"MEDIUM"` | `"HIGH"` | `"CRITICAL"`).  
 - `line_number` (int ≥ 1).  
@@ -55,3 +58,4 @@ All schemas are validated by the test suite (`tests/contract/test_contracts.py`)
 These definitions are formally captured in the YAML contracts provided alongside this document.
 
 ---
+

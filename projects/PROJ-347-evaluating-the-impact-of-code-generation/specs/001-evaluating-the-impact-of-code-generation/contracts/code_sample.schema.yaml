@@ -26,18 +26,22 @@ properties:
     description: "Result of syntax parsing."
   functional_equivalence_verified:
     type: boolean
-    description: "True if unit‑test coverage ≥ 90 % **or** semantic similarity ≥ 0.85 **and** security‑focused pattern test passes."
+    description: "True if unit‑test coverage ≥ 90 % **and** semantic similarity ≥ 0.85 **and** security‑focused pattern test passes."
   raw_content:
     type: string
     description: "The actual source code."
   language:
     type: string
     description: "Programming language (e.g., python, c)."
-  length:
+  lines_of_code:
     type: integer
-    description: "Token count of the source code (optional confounder metric)."
     minimum: 0
+    description: "Lines of code (LOC) metric required by FR‑011."
   cyclomatic_complexity:
     type: integer
-    description: "Cyclomatic complexity computed via radon (optional confounder metric)."
     minimum: 0
+    description: "Cyclomatic complexity computed via radon (optional confounder metric)."
+  length:
+    type: integer
+    minimum: 0
+    description: "Token count of the source code (optional secondary metric)."
