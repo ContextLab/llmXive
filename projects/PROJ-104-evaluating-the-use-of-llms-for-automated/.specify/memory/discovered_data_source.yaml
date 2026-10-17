@@ -1,0 +1,14 @@
+status: none
+intent: download commit message documentation diff dataset from GitHub python package
+  dataset
+required_fields:
+- commit_hash
+- commit_message
+- documentation_file_path
+- documentation_diff
+- repository_name
+- commit_date
+- author_name
+cache_key: 6e74073353b0b4a5c530a882e8a80ffb68fed2bed76ebc1a9d97002f4f6ff9bf
+searched_at: '2026-10-17T05:07:08.141123+00:00'
+retry_count: 1

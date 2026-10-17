@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CommitPair"
+type: object
+required:
+  - commit_hash
+  - commit_message
+  - repository_name
+  - doc_diff
+  - timestamp
+properties:
+  commit_hash:
+    type: string
+    pattern: "^[0-9a-f]{40}$"
+    description: "Full SHA‑1 hash of the commit."
+  commit_message:
+    type: string
+    minLength: 1
+    description: "Original commit message."
+  repository_name:
+    type: string
+    enum: ["pandas", "requests", "scikit-learn", "flask", "django"]
+    description: "Name of the source repository."
+  doc_diff:
+    type: string
+    minLength: 1
+    description: "Unified diff of documentation files changed in the commit."
+  timestamp:
+    type: string
+    format: date-time
+    description: "UTC timestamp of the commit."
+  metadata:
+    type: object
+    description: "Optional provenance information (author, URL, etc.)."
+additionalProperties: false
