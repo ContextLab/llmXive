@@ -24,10 +24,11 @@ pip install -r requirements.txt
 To generate a single Wigner matrix instance and analyze its spectrum:
 
 ```bash
-python code/main.py --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal
+python -m code.main --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal
 ```
 
-This produces `data/processed/single_run_results.json`.
+This produces `data/processed/single_run_results.json` and a minimal CSV
+`data/processed/single_run_summary.csv`.
 
 ## Full Parameter Sweep (T002)
 
@@ -42,7 +43,7 @@ python code/analysis/threshold_sweep.py --grid theta
 This produces:
 - Raw checksummed matrices in `data/raw/sweep/` (with `checksums.json`)
 - `data/processed/mc_results.csv` (1008 rows, one real ARPACK result per run)
-- `data/processed/convergence_data.json` (per-N bulk-edge convergence to ±2.0)
+- `data/processed/convergence_data.json` (per‑N bulk‑edge convergence to ±2.0)
 - Logs in `data/logs/threshold_sweep.log`
 
 ## Sensitivity Analysis
@@ -65,7 +66,7 @@ and all findings are associational statements about that ensemble.
 ## Reproducibility
 
 All random number generators are seeded explicitly. Raw matrix files are
-checksummed (SHA-256) upon generation into `data/raw/sweep/checksums.json`.
+checksummed (`data/raw/*.npy`) upon generation into `data/raw/checksums.yaml`.
 Given the same seeds and parameters, the pipeline reproduces the same
 eigenvalues (CPU-only ARPACK, `scipy.sparse.linalg.eigsh`).
 
@@ -79,6 +80,7 @@ eigenvalues (CPU-only ARPACK, `scipy.sparse.linalg.eigsh`).
 
 ## Troubleshooting
 
-- **Memory Errors**: The sweep is optimized to stay under 7 GB for N=2000. [UNRESOLVED-CLAIM: c_e147bc37 — status=not_enough_info]
-- **Convergence Issues**: See `data/logs/threshold_sweep.log`; the ARPACK
- tolerance is set in `code/analysis/threshold_sweep.py` (`EIGSH_TOL`).
+- **Memory Errors**: `N` too large for available RAM | Reduce `--N` to ≤ 1500 or enable streaming mode (`--stream`).
+- **ARPACK did not converge**: `tol` too strict or maxiter insufficient | Increase `--maxiter` (default 1000) or relax `--tol` (default 1e‑10).
+- **Schema validation fails**: Output file corrupted or missing required fields | Re‑run the failing phase; ensure the corresponding schema file exists under `contracts/`.
+- **Test T001 fails**: Seed mismatch or nondeterministic RNG usage | Verify that all random calls use the same `numpy.random.default_rng(seed)` instance.

@@ -13,7 +13,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; 6 command(s) failed: python -m src.cli run  --mode single  --N 1000  --theta 2.5  --k 1  --pattern diagonal  --seed 42 (rc=1); python -m src.cli sweep  --N 2000  --theta-grid 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0  --k 1 2 5  --patterns diagonal block-sparse random-sparse  --iterations 500  --seed-start 1000 (rc=1); python -m src.cli sensitivity  --N 1500  --theta 1.5  --k 2  --pattern random-sparse  --densities 0.05 0.1 0.2 0.3 0.4 0.5  --iterations 500  --seed-start 5000 (rc=1); 9 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_data.json; data/processed/mc_results.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; 6 command(s) failed: python -m src.cli run  --mode single  --N 1000  --theta 2.5  --k 1  --pattern diagonal  --seed 42 (rc=1); python -m src.cli sweep  --N 2000  --theta-grid 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0  --k 1 2 5  --patterns diagonal block-sparse random-sparse  --iterations 500  --seed-start 1000 (rc=1); python -m src.cli sensitivity  --N 1500  --theta 1.5  --k 2  --pattern random-sparse  --densities 0.05 0.1 0.2 0.3 0.4 0.5  --iterations 500  --seed-start 5000 (rc=1); 8 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_data.json; data/processed/mc_results.csv
 
 ## Failing / missing run-book commands
 
@@ -34,29 +34,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-551-asymptotic-behavior-of-random-matrix-eig/bin/python: Error while finding module specification for 'src.cli' (ModuleNotFoundError: No module named 'src')
 
 - python -m pytest tests/contract/test_schemas.py -> rc=1
-ed(PROCESSED_DIR.glob("*.json"))
->       assert json_files, "No JSON artifacts found in data/processed/"
-E       AssertionError: No JSON artifacts found in data/processed/
-E       assert []
+ation_time_ms': 63.30494999997427, 'eigenvalues': [{'deviation': 0.851642355090902, 'eigenvalue_ind...': False, 'run_id': 'def348d2-beec-4836-b994-d94222ca2dac', ...}, ...], 'empirical_bulk_edge': 2.0003950533337433, ...}
+schema = {'$schema': 'http://json-schema.org/draft-07/schema#', 'description': 'Record of a single simulation run: parameters (...ect'}, 'minItems': 1, 'type': 'array'}, ...}, 'required': ['run_id', 'timestamp', 'N', 'seed', 'theta', 'k', ...], ...}
+label = 'single_run_results.json'
 
-tests/contract/test_schemas.py:80: AssertionError
-___________________________ test_processed_csv_files ___________________________
+    def _validate_against(data, schema, label):
+        errors = sorted(Draft7Validator(schema).iter_errors(data), key=str)
+        if errors:
+            msgs = "; ".join(e.message for e in errors[:5])
+>           raise AssertionError(f"{label} failed schema validation: {msgs}")
+E           AssertionError: single_run_results.json failed schema validation: None is not of type 'number', 'string'
 
-    def test_processed_csv_files():
-        """CSV artifacts: aggregated-threshold CSVs must carry the contract columns;
-        other CSVs must at least have a non-empty, parseable header."""
-        assert PROCESSED_DIR.is_dir(), f"Processed data directory missing: {PROCESSED_DIR}"
-    
-        csv_files = sorted(PROCESSED_DIR.glob("*.csv"))
->       assert csv_files, "No CSV artifacts found in data/processed/"
-E       AssertionError: No CSV artifacts found in data/processed/
-E       assert []
-
-tests/contract/test_schemas.py:117: AssertionError
+tests/contract/test_schemas.py:76: AssertionError
 =========================== short test summary info ============================
 FAILED tests/contract/test_schemas.py::test_processed_json_files - AssertionE...
-FAILED tests/contract/test_schemas.py::test_processed_csv_files - AssertionEr...
-========================= 2 failed, 1 passed in 0.12s ==========================
+========================= 1 failed, 2 passed in 0.07s ==========================
 
 
 - python -m pytest tests/integration/test_t001.py -> rc=4
@@ -81,7 +73,6 @@ ERROR: file or directory not found: tests/integration/test_t001.py
 - data/processed/sensitivity_density_sweep.csv
 - data/processed/sensitivity_metadata.json
 - data/processed/sensitivity_variation.csv
-- data/processed/single_run_results.json
 - data/processed/threshold_statistical.json
 - data/processed/threshold_sweep_results.csv
 
@@ -120,12 +111,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/generate_sensitivity_report.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity_variation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_variation.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/single_run_results.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/results_recorder.py` — NOT invoked by the run-book
-    - `code/analysis/task019b_traceability.py` — NOT invoked by the run-book
-    - `code/main.py` — NOT invoked by the run-book
-    - `code/utils/results_logger.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/single_run_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/threshold_statistical.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/aggregate_thresholds.py` — NOT invoked by the run-book
     - `code/analysis/threshold_fit.py` — NOT invoked by the run-book

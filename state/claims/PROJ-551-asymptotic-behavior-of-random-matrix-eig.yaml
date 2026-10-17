@@ -1853,3 +1853,71 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-17T00:44:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: quick run generates single_run_results.json and single_run_summary.csv
+  claim_id: c_3983e158
+  context: The quick run command `python -m code.main --mode single --N 1000 --seed
+    42 --theta 2.5 --k 1 --pattern diagonal` produces these files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Running the quick single instance command produces data/processed/single_run_results.json
+    and a minimal CSV data/processed/single_run_summary.csv
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: mc_results.csv contains 1008 rows each with a real ARPACK result
+  claim_id: c_adec8ad5
+  context: Running the theta sweep over specified grids creates several artifacts,
+    including mc_results.csv.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The full parameter sweep produces data/processed/mc_results.csv with 1008
+    rows, one real ARPACK result per run
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: bulk-edge convergence to plusminus 2.0 recorded in convergence_data.json
+  claim_id: c_e5c79116
+  context: "The sweep output includes convergence_data.json documenting bulk\u2011\
+    edge convergence."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The convergence_data.json file records per\u2011N bulk\u2011edge convergence\
+    \ to \xB12.0"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces identical eigenvalues with identical seeds and parameters
+  claim_id: c_6ef89ebe
+  context: Reproducibility section states that with explicit seeding the same eigenvalues
+    are obtained.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Given the same seeds and parameters, the pipeline reproduces the same
+    eigenvalues
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'

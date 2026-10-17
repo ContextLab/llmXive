@@ -8,13 +8,13 @@ All previously verified foundational work (generators, solvers, basic orchestrat
 
 ## Phase 1 – Foundations, schema validation & first end‑to‑end run  
 
-- [ ] **T001** [US1] **Add missing contract files and schema‑validation test**  
+- [X] **T001** [US1] **Add missing contract files and schema‑validation test**  
   *Create the three JSON‑Schema files referenced in the specification ( `simulation_run.schema.yaml`, `eigenvalue_result.schema.yaml`, `aggregated_threshold.schema.yaml` ) under `contracts/`. Add a pytest module `tests/contract/test_schemas.py` that loads every file produced in `data/processed/` and validates it against the appropriate schema using `jsonschema`. The test must exit 0 on success.*  
   **Verification**:  
   · All three schema files exist at `contracts/…`.  
   · Running `pytest -q tests/contract/test_schemas.py` passes (exit 0).  
 
-- [ ] **T002** [US1] **Implement a reproducible single‑run end‑to‑end analysis with memory monitoring**  
+- [X] **T002** [US1] **Implement a reproducible single‑run end‑to‑end analysis with memory monitoring**  
   *Update `code/main.py` (or the current CLI entry point) so that the command*  
 
   ```bash
@@ -38,7 +38,7 @@ All previously verified foundational work (generators, solvers, basic orchestrat
   · A repeat of the command produces an identical top eigenvalue within 1e‑6.  
   · `data/logs/single_run.log` contains a "Peak Memory" entry $\le 7$ GB.  
 
-- [ ] **T003** [US1] **Run the single‑run analysis and confirm reproducibility**  
+- [ ] **T003** [US1] **Run the single‑run analysis and confirm reproducibility**   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
   Executed `python -m code.main …` as specified in T002; top eigenvalue `2.901642355090901` reproduced on a fresh run; JSON validated; logs and checksum created.  
 
 ---

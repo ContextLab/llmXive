@@ -1,9 +1,8 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-$id: "eigenvalue_result.schema.yaml"
+$schema: http://json-schema.org/draft-07/schema#
 title: EigenvalueResult
 description: >
-  A single computed eigenvalue record, tied to a parent run_id, with the
-  outlier flag determined by the theoretical semicircle edge (2.0 + 0.05).
+  A single eigenvalue record produced by a simulation run. Self-contained:
+  no external $ref.
 type: object
 required:
   - run_id
@@ -21,10 +20,15 @@ properties:
     minimum: 0
   value:
     type: number
+    description: Computed eigenvalue.
   is_outlier:
     type: boolean
+    description: True iff value > 2.0 + 0.05 (theoretical semicircle edge + tolerance).
   theoretical_bbp:
     type: number
+    description: BBP-predicted outlier location for this perturbation, if any.
   deviation:
     type: number
-additionalProperties: true
+    description: Deviation of the eigenvalue from the theoretical edge (2.0).
+  timestamp:
+    type: string

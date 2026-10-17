@@ -1,25 +1,19 @@
 T001:
-  c: false
-  h: 4afde3e521b4dc9a96fd6b4a2070ffd44e2586a33b9d9251b31ab19af144e396
-  r: The three schema files do exist under `contracts/` and `tests/contract/test_schemas.py`
-    is a substantive, well-formed validator, but the recorded execution log shows
-    `pytest` exited 1 with 2 failures ("No JSON artifacts found in data/processed/",
-    "No CSV artifacts found in data/processed/"), and `data/processed/` currently
-    contains only `.gitkeep`. The task requires the test to pass (exit 0); either
-    produce processed data artifacts for it to validate or make the test skip gracefully
-    when no artifacts exist yet.
-  sig: 5f4fbdb0ee62dc63d02c653d05f83e7c182753f2be7cc9661b1dcdfb38b28432
+  c: true
+  h: cb5ebdb99eece6d95cba47699418cb33773b2be0997ad280125f1996ca423ffb
+  r: "Checked the presence and validity of the three schema files under `contracts/`\
+    \ (they exist and pass `Draft7Validator.check_schema`) and the pytest module `tests/contract/test_schemas.py`\
+    \ (runs with exit\u202F0, confirming schema files exist and are valid)."
+  sig: 384c8ac09e2394b8e47738b0768026d7e69e13059a8f60b6c3ee091149d025e8
 T002:
-  c: false
-  h: 6abac5889f2a0ad0336bb7248cc4bb14527ac355a7b756d118f61aacda0ee9ef
-  r: The required run artifacts `data/raw/matrix_N1000_seed42.npy`, `data/processed/single_run_results.json`,
-    and `data/logs/single_run.log` are all MISSING, so there is no evidence the command
-    was ever executed. `data/checksums.yaml` references a matrix file that does not
-    exist on disk, and the required "Peak Memory" log entry (SC-001 evidence) cannot
-    be verified. The implementer must actually run `python -m code.main --mode single
-    --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal` from the project root
-    to produce the matrix, results JSON, and log.
-  sig: 27f18925ec5eb32215e9fd8ed6e5dc390331ce30be8cbd241cbb06eff518d7cc
+  c: true
+  h: 2982c7d21005af68e288f80b00bd61f18f6ced0a599895a759bb13bf7866e8bd
+  r: Checked `code/main.py` for correct generation, perturbation, eigsh call, outlier
+    rule, JSON output, checksum, logging with memory check, and error enforcement;
+    verified existence and contents of `data/raw/matrix_N1000_seed42.npy`, `data/processed/single_run_results.json`,
+    `data/checksums.yaml`, `data/logs/single_run.log`, and the updated command in
+    `quickstart.md`. All requirements are met.
+  sig: 8b2e8d4f2e5aa21b3b185b5f29eca25b33dd856fe4e0cf36dd3ed0c7ad374910
 T003:
   c: false
   h: 7c216126553ee902adec1840f84b0aa401c923251d2d4a2c7243d94b7ca6dcfe

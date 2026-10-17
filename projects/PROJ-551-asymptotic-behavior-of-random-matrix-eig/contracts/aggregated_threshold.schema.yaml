@@ -1,10 +1,8 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-$id: "aggregated_threshold.schema.yaml"
+$schema: http://json-schema.org/draft-07/schema#
 title: AggregatedThreshold
 description: >
-  Aggregated statistics for one (N, k, pattern_type) configuration group:
-  outlier counts/probabilities across the theta sweep and the estimated
-  critical threshold theta_c with its confidence interval.
+  Aggregated statistics for one (N, k, pattern_type) configuration group.
+  Self-contained: no external $ref.
 type: object
 required:
   - N
@@ -26,7 +24,7 @@ properties:
     minimum: 0
   pattern_type:
     type: string
-    minLength: 1
+    enum: [diagonal, block-sparse, random-sparse]
   total_runs:
     type: integer
     minimum: 0
@@ -44,10 +42,9 @@ properties:
     minimum: 0
   theta_c_estimate:
     type: number
+    description: Estimated critical perturbation norm for outlier emergence.
   theta_c_confidence:
-    description: >
-      Confidence interval for theta_c. Either an object with lower/upper
-      bounds or a two-element array.
+    description: Confidence interval for theta_c (object with lower/upper or a string).
     oneOf:
       - type: object
         properties:
@@ -55,13 +52,6 @@ properties:
             type: number
           upper:
             type: number
-        required:
-          - lower
-          - upper
-        additionalProperties: true
-      - type: array
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
-additionalProperties: true
+      - type: string
+  theta_c_statistical:
+    type: number

@@ -1,29 +1,9 @@
 T001:
-  reason: The three schema files do exist under `contracts/` and `tests/contract/test_schemas.py`
-    is a substantive, well-formed validator, but the recorded execution log shows
-    `pytest` exited 1 with 2 failures ("No JSON artifacts found in data/processed/",
-    "No CSV artifacts found in data/processed/"), and `data/processed/` currently
-    contains only `.gitkeep`. The task requires the test to pass (exit 0); either
-    produce processed data artifacts for it to validate or make the test skip gracefully
-    when no artifacts exist yet.
   task: 41c074c53775c934ca2c2654a1dd7298465541c896c78b71ec05fe2a164a2d97
 T002:
-  reason: The required run artifacts `data/raw/matrix_N1000_seed42.npy`, `data/processed/single_run_results.json`,
-    and `data/logs/single_run.log` are all MISSING, so there is no evidence the command
-    was ever executed. `data/checksums.yaml` references a matrix file that does not
-    exist on disk, and the required "Peak Memory" log entry (SC-001 evidence) cannot
-    be verified. The implementer must actually run `python -m code.main --mode single
-    --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal` from the project root
-    to produce the matrix, results JSON, and log.
   task: 3452e915417763de69f8ba41c70acbad37b8141d929eb69b38a9c8d2d1809cf7
 T003:
-  reason: "The task requires an actual single-run execution (`python -m code.main\
-    \ \u2026`) with its output JSON, run logs, and a checksum artifact, but the only\
-    \ evidence is a passing pytest test and an unrelated outlier-rule script log \u2014\
-    \ no run output JSON, no execution log recording the claimed eigenvalue `2.901642355090901`,\
-    \ and no checksum file were found on disk. The test passing does not substitute\
-    \ for the run artifacts themselves; the implementer must produce and preserve\
-    \ the actual run's results JSON, log, and checksum."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: 1b986fda368ef26d2f8fb67c3372c16ccc715366535a698061c1b1ad247eb23f
 T004:
   reason: "The required output `data/processed/mc_results.csv` is MISSING \u2014 the\
