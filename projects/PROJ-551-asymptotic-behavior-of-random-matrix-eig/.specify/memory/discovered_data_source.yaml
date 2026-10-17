@@ -1,15 +1,12 @@
 status: none
-intent: synthetic random matrix benchmark dataset perturbation patterns edge reference
-  arXiv python package dataset
+intent: download synthetic matrices perturbation patterns python package dataset
 required_fields:
-- matrix_id
-- matrix_type
-- perturbation_type
+- matrix
 - seed
-- dimensions
+- pattern_type
+- schema_version
 - theoretical_edge
-- empirical_edge
-- matrix_data
-cache_key: 36c9f3eb379c172d37911ee305cd687f30c1263c82aaa8ae00db9e8884fe5ae0
-searched_at: '2026-10-17T14:15:32.079987+00:00'
+- empirical_bulk_edge
+cache_key: 1ceca51135b2ed02c71c0d1277be86e5e6d84b8112e503620e9318898161ea22
+searched_at: '2026-10-17T14:18:35.414242+00:00'
 retry_count: 1

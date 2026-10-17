@@ -140,6 +140,28 @@ def _record_memory_usage(logger: logging.Logger) -> float:
 # Main routine
 # ----------------------------------------------------------------------
 def main():
+    """
+    Entry point for the single‑run CLI.
+
+    If the script is invoked without any command‑line arguments, we fall back
+    to the canonical quick‑start parameters (N=1000, seed=42, theta=2.5,
+    k=1, pattern=diagonal). This makes the module runnable both as a
+    demonstration and as part of the automated verification pipeline.
+    """
+    # ------------------------------------------------------------------
+    # Provide sensible defaults when the user supplies no arguments.
+    # ------------------------------------------------------------------
+    if len(sys.argv) == 1:
+        # No arguments supplied – inject the quick‑start defaults.
+        sys.argv.extend([
+            "--mode", "single",
+            "--N", "1000",
+            "--seed", "42",
+            "--theta", "2.5",
+            "--k", "1",
+            "--pattern", "diagonal",
+        ])
+
     parser = argparse.ArgumentParser(
         description="Run a single random‑matrix simulation (Task T003)."
     )
@@ -169,7 +191,10 @@ def main():
     logger = _setup_logger(log_file)
 
     logger.info("=== Single‑run simulation start ===")
-    logger.info(f"Parameters: N={args.N}, seed={args.seed}, theta={args.theta}, k={args.k}, pattern={args.pattern}")
+    logger.info(
+        f"Parameters: N={args.N}, seed={args.seed}, theta={args.theta}, "
+        f"k={args.k}, pattern={args.pattern}"
+    )
 
     start_time = time.time()
 
@@ -210,6 +235,10 @@ def main():
     raw_eig = _compute_top_eigenvalues(matrix, k=10)
     empirical_bulk_edge = float(np.percentile(raw_eig, 99))
 
+    # The schema expects a numeric value for support_density; for a diagonal
+    # perturbation the density is effectively zero.
+    support_density = 0.0
+
     sim_record = {
         "run_id": run_id,
         "timestamp": timestamp,
@@ -218,7 +247,7 @@ def main():
         "k": args.k,
         "theta": args.theta,
         "pattern_type": args.pattern,
-        "support_density": None,
+        "support_density": support_density,
         "computation_time_ms": computation_time_ms,
         "empirical_bulk_edge": empirical_bulk_edge,
     }

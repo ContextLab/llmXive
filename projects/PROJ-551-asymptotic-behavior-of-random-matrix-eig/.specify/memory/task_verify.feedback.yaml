@@ -1,4 +1,10 @@
 T001:
+  reason: "The three required schema files (`contracts/simulation_run.schema.yaml`,\
+    \ `contracts/eigenvalue_result.schema.yaml`, `contracts/aggregated_threshold.schema.yaml`)\
+    \ are reported as missing and no content for them is provided, so we cannot verify\
+    \ that proper JSON\u2011Schema definitions were created. Consequently the contract\u2011\
+    validation test, while present and passing, cannot be confirmed to validate against\
+    \ the intended schemas. The task therefore remains incomplete."
   task: 41c074c53775c934ca2c2654a1dd7298465541c896c78b71ec05fe2a164a2d97
 T002:
   task: 3452e915417763de69f8ba41c70acbad37b8141d929eb69b38a9c8d2d1809cf7
@@ -6,34 +12,18 @@ T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: 1b986fda368ef26d2f8fb67c3372c16ccc715366535a698061c1b1ad247eb23f
 T004:
-  reason: "The required output `data/processed/mc_results.csv` is MISSING \u2014 the\
-    \ verification criterion (1008 rows with theoretical-rule `outlier_flag`) cannot\
-    \ be checked, and there is no execution evidence the script was ever run. Additionally,\
-    \ the script's CSV fieldnames include extra columns (`timestamp`, `support_density`)\
-    \ beyond the required `run_id,N,k,pattern_type,theta,seed,eigenvalue_top,computation_time_ms,outlier_flag`,\
-    \ and the `from utils.config import ...` import is not demonstrably resolvable\
-    \ from the script's location."
   task: dfc2823c51c22c8c8409b814af0fa05517874d142de6d7131c5ccdd45b84d2a5
 T005:
-  reason: "The sweep ran (1008 rows = 4N \xD7 7\u03B8 \xD7 4 seeds \xD7 3k \xD7 3\
-    \ patterns, matching the grid) and both output files exist with the `outlier_flag`\
-    \ column and convergence diagnostics, but the task's explicit verification requirement\
-    \ \u2014 that the T001 schema-validation test runs without error on the new files\
-    \ \u2014 is not met: the recorded run of `tests/test_schemas.py` exited 1 with\
-    \ all 4 tests failing (`Unresolvable: eigenvalue_result.schema.yaml#`, a broken\
-    \ `$ref` in the schemas). Additionally, the CSV shows identical `eigenvalue_top`\
-    \ values across all three pattern types for the same (N, seed, k, \u03B8) and\
-    \ sub-2"
+  reason: "The required `data/processed/mc_results.csv` and `data/processed/convergence_data.json`\
+    \ files are present, but the schema\u2011validation test (T001) fails: the test\
+    \ cannot find `contracts/simulation_run.schema.yaml` and also reports the CSV\
+    \ as missing, indicating the verification step does not succeed. The missing schema\
+    \ file (and any path adjustments needed for the test) must be added for the task\
+    \ to be considered complete."
   task: ba70ecbb633019d7efafc7dc1f9ee5baec66cd0d534b6bdfaf4446177b42d12e
 T006:
-  reason: "The required output artifact `data/processed/threshold_statistical.json`\
-    \ is MISSING \u2014 the script `code/analysis/threshold_fit.py` exists and looks\
-    \ substantive, but there is no evidence it was ever run (no JSON with 36 group\
-    \ entries, no `theta_c_statistical`/`confidence_interval` values). Additionally,\
-    \ the script imports `from utils.config import ...` while the module lives at\
-    \ `code/utils/config.py`, so `python -m code.analysis.threshold_fit` would likely\
-    \ fail with an ImportError; the implementer must fix the import, run the fit against\
-    \ `mc_results.csv`, and write the JSON."
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/threshold_fit.py
+    exit=1'
   task: fdfc19fdf7b6ed489f24381d3265c93ae63300fffb26d9fa6ffa9b0cadb0f4a5
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/analysis/aggregate_thresholds.py

@@ -8,7 +8,7 @@ All previously verified foundational work (generators, solvers, basic orchestrat
 
 ## Phase 1 – Foundations, schema validation & first end‑to‑end run  
 
-- [X] **T001** [US1] **Add missing contract files and schema‑validation test**  
+- [ ] **T001** [US1] **Add missing contract files and schema‑validation test**  
   *Create the three JSON‑Schema files referenced in the specification ( `simulation_run.schema.yaml`, `eigenvalue_result.schema.yaml`, `aggregated_threshold.schema.yaml` ) under `contracts/`. Add a pytest module `tests/contract/test_schemas.py` that loads every file produced in `data/processed/` and validates it against the appropriate schema using `jsonschema`. The test must exit 0 on success.*  
   **Verification**:  
   · All three schema files exist at `contracts/…`.  
@@ -45,7 +45,7 @@ All previously verified foundational work (generators, solvers, basic orchestrat
 
 ## Phase 2 – Full parameter sweep, validation, and aggregation  
 
-- [ ] **T004** [US2] **Correct the theta‑sweep script to use the theoretical outlier rule**  
+- [X] **T004** [US2] **Correct the theta‑sweep script to use the theoretical outlier rule**  
   *Modify `code/analysis/threshold_sweep.py` so that every row written to `data/processed/mc_results.csv` records `outlier_flag` based on `value > 2.0 + 0.05` (the theoretical edge) rather than the empirical bulk edge. The script must also write the unchanged columns `run_id,N,k,pattern_type,theta,seed,eigenvalue_top,computation_time_ms`.*  
   **Verification**:  
   · `mc_results.csv` exists, row count equals 4 × 7 × 4 × 3 × 3 = 1008.  
@@ -59,7 +59,7 @@ All previously verified foundational work (generators, solvers, basic orchestrat
 
   **Verification**: same as T004 plus the schema‑validation test (T001) runs without error on the newly generated files.  
 
-- [ ] **T006** [US2] **Fit sigmoid curves and store statistical threshold estimates**  
+- [ ] **T006** [US2] **Fit sigmoid curves and store statistical threshold estimates**   <!-- FAILED-IN-EXECUTION: code/analysis/threshold_fit.py exit=1 -->
   *Create `code/analysis/threshold_fit.py` (or extend the existing analysis module) that, for each configuration group (N, k, pattern_type), fits a logistic function to `outlier_flag` vs θ using `scipy.optimize.curve_fit`. Perform a 5‑fold cross‑validation over the seed dimension (split seeds into 5 folds, fit on 4, evaluate on 1, average the fitted `θ_c`). Write the results to `data/processed/threshold_statistical.json` following the schema shown in the plan.*  
 
   **Verification**: JSON is well‑formed, contains an entry for every (N,k,pattern) group (4 × 3 × 3 = 36), and each entry includes `theta_c_statistical` and a finite `confidence_interval`.  

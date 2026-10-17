@@ -47,8 +47,12 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 
+# ----------------------------------------------------------------------
 # Project utilities
-from utils.config import get_project_paths, ensure_directories
+# ----------------------------------------------------------------------
+# The project uses ``llmxive_toolkit.paths`` to obtain standard directories.
+# This avoids dependence on the (unavailable) ``utils.config`` module.
+from llmxive_toolkit import paths as llm_paths
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +80,6 @@ def _fit_sigmoid(
     RuntimeError
         If curve fitting fails.
     """
-    # Ensure inputs are 1‑D float arrays
     theta = np.asarray(theta, dtype=float).ravel()
     outlier_flag = np.asarray(outlier_flag, dtype=float).ravel()
 
@@ -84,7 +87,6 @@ def _fit_sigmoid(
         raise ValueError("At least two data points are required for fitting.")
 
     # Heuristic initial guess: theta where probability ≈ 0.5
-    # and a moderate slope.
     try:
         prob = outlier_flag
         mid_idx = np.argmin(np.abs(prob - 0.5))
@@ -92,8 +94,7 @@ def _fit_sigmoid(
     except Exception:
         theta_c_init = float(np.median(theta))
 
-    slope_init = 1.0  # default slope
-
+    slope_init = 1.0
     p0 = (theta_c_init, slope_init)
 
     try:
@@ -129,7 +130,6 @@ def _cross_validate_group(df_group: pd.DataFrame) -> Tuple[float, Tuple[float, f
     if len(seeds) < 2:
         raise ValueError("Not enough distinct seeds for cross‑validation.")
 
-    # Split seeds into (up to) five folds, preserving order for reproducibility.
     n_folds = min(5, len(seeds))
     folds: List[List[int]] = [[] for _ in range(n_folds)]
     for idx, s in enumerate(seeds):
@@ -138,7 +138,6 @@ def _cross_validate_group(df_group: pd.DataFrame) -> Tuple[float, Tuple[float, f
     theta_c_vals: List[float] = []
 
     for fold_idx, holdout_seeds in enumerate(folds):
-        # Training data: all rows whose seed is NOT in holdout_seeds
         train_mask = ~df_group["seed"].isin(holdout_seeds)
         train_df = df_group[train_mask]
 
@@ -168,7 +167,6 @@ def _cross_validate_group(df_group: pd.DataFrame) -> Tuple[float, Tuple[float, f
     mean_theta_c = float(theta_c_arr.mean())
     std_theta_c = float(theta_c_arr.std(ddof=1)) if len(theta_c_vals) > 1 else 0.0
 
-    # 95 % CI using normal approximation
     ci_half_width = 1.96 * std_theta_c / np.sqrt(len(theta_c_vals))
     lower = mean_theta_c - ci_half_width
     upper = mean_theta_c + ci_half_width
@@ -179,17 +177,17 @@ def _cross_validate_group(df_group: pd.DataFrame) -> Tuple[float, Tuple[float, f
 # Main orchestration
 # ----------------------------------------------------------------------
 def run_threshold_fitting(
-    input_csv: str,
-    output_json: str,
+    input_csv: Path,
+    output_json: Path,
 ) -> Dict[str, List[Dict]]:
     """Read ``mc_results.csv``, fit per‑configuration sigmoids, and write JSON.
 
     Parameters
     ----------
-    input_csv : str
+    input_csv : Path
         Path to the Monte‑Carlo sweep CSV (must contain columns
         ``N``, ``k``, ``pattern_type``, ``theta``, ``seed``, ``outlier_flag``).
-    output_json : str
+    output_json : Path
         Destination JSON file for the statistical threshold estimates.
 
     Returns
@@ -205,7 +203,6 @@ def run_threshold_fitting(
     if missing:
         raise ValueError(f"Input CSV is missing required columns: {missing}")
 
-    # Group by configuration (N, k, pattern_type)
     groups = df.groupby(["N", "k", "pattern_type"])
 
     results: List[Dict] = []
@@ -231,21 +228,18 @@ def run_threshold_fitting(
             }
         )
 
-    # ------------------------------------------------------------------
-    # Write JSON output
-    # ------------------------------------------------------------------
-    output_path = Path(output_json)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    output_json.parent.mkdir(parents=True, exist_ok=True)
 
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "threshold_estimates": results,
     }
 
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_json, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
 
-    logger.info(f"Statistical threshold estimates written to {output_path}")
+    logger.info(f"Statistical threshold estimates written to {output_json}")
     return payload
 
 
@@ -260,14 +254,14 @@ def parse_args() -> argparse.Namespace:
         "--input",
         "-i",
         type=str,
-        default="data/processed/mc_results.csv",
+        default=str(llm_paths.processed("mc_results.csv")),
         help="Path to the Monte‑Carlo results CSV (default: data/processed/mc_results.csv)",
     )
     parser.add_argument(
         "--output",
         "-o",
         type=str,
-        default="data/processed/threshold_statistical.json",
+        default=str(llm_paths.processed("threshold_statistical.json")),
         help="Path to write the statistical threshold JSON (default: data/processed/threshold_statistical.json)",
     )
     parser.add_argument(
@@ -288,7 +282,7 @@ def main() -> int:
     )
 
     try:
-        run_threshold_fitting(args.input, args.output)
+        run_threshold_fitting(Path(args.input), Path(args.output))
         return 0
     except Exception as exc:
         logger.error(f"Threshold fitting terminated with an error: {exc}")

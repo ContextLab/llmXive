@@ -1,54 +1,39 @@
 T001:
-  c: true
-  h: cb5ebdb99eece6d95cba47699418cb33773b2be0997ad280125f1996ca423ffb
-  r: "Checked the presence and validity of the three schema files under `contracts/`\
-    \ (they exist and pass `Draft7Validator.check_schema`) and the pytest module `tests/contract/test_schemas.py`\
-    \ (runs with exit\u202F0, confirming schema files exist and are valid)."
-  sig: 384c8ac09e2394b8e47738b0768026d7e69e13059a8f60b6c3ee091149d025e8
+  c: false
+  h: 2b8a07f5d91750101e51c461eca74b89dc4311ec6801052b4ab5c7d23dad7b83
+  r: "The three required schema files (`contracts/simulation_run.schema.yaml`, `contracts/eigenvalue_result.schema.yaml`,\
+    \ `contracts/aggregated_threshold.schema.yaml`) are reported as missing and no\
+    \ content for them is provided, so we cannot verify that proper JSON\u2011Schema\
+    \ definitions were created. Consequently the contract\u2011validation test, while\
+    \ present and passing, cannot be confirmed to validate against the intended schemas.\
+    \ The task therefore remains incomplete."
+  sig: b2913d9c2c5c33c2c9f2fc889d1e82f28746586d6a52557ec687f9637f3f846f
 T002:
   c: true
-  h: 2982c7d21005af68e288f80b00bd61f18f6ced0a599895a759bb13bf7866e8bd
-  r: Checked `code/main.py` for correct generation, perturbation, eigsh call, outlier
-    rule, JSON output, checksum, logging with memory check, and error enforcement;
-    verified existence and contents of `data/raw/matrix_N1000_seed42.npy`, `data/processed/single_run_results.json`,
-    `data/checksums.yaml`, `data/logs/single_run.log`, and the updated command in
-    `quickstart.md`. All requirements are met.
-  sig: 8b2e8d4f2e5aa21b3b185b5f29eca25b33dd856fe4e0cf36dd3ed0c7ad374910
-T003:
-  c: false
-  h: 7c216126553ee902adec1840f84b0aa401c923251d2d4a2c7243d94b7ca6dcfe
-  r: "The task requires an actual single-run execution (`python -m code.main \u2026\
-    `) with its output JSON, run logs, and a checksum artifact, but the only evidence\
-    \ is a passing pytest test and an unrelated outlier-rule script log \u2014 no\
-    \ run output JSON, no execution log recording the claimed eigenvalue `2.901642355090901`,\
-    \ and no checksum file were found on disk. The test passing does not substitute\
-    \ for the run artifacts themselves; the implementer must produce and preserve\
-    \ the actual run's results JSON, log, and checksum."
-  sig: adc318d9d1c0798821ad0d92523a70f065e46e0dd53ea144638c9a3900d15012
+  h: 47fbaca7d021bf599698a8ae1083a311ac13a0cf1eafb5fc172cb71e9add6829
+  r: Checked `code/main.py`, the generated raw matrix file, the JSON results, checksum
+    YAML, log file, and `quickstart.md`; all required artifacts exist, contain correct
+    data, and the script implements the specified behavior and memory limit.
+  sig: a034a57b6e3bcd0a132fc91a78bfdfa7e1c8493316363d771781006b64de6f8a
 T004:
-  c: false
-  h: 1e75859ca918eda02d76db1c2633b81bcef39efb62e33462bea2b4dd11dba07d
-  r: "The required output `data/processed/mc_results.csv` is MISSING \u2014 the verification\
-    \ criterion (1008 rows with theoretical-rule `outlier_flag`) cannot be checked,\
-    \ and there is no execution evidence the script was ever run. Additionally, the\
-    \ script's CSV fieldnames include extra columns (`timestamp`, `support_density`)\
-    \ beyond the required `run_id,N,k,pattern_type,theta,seed,eigenvalue_top,computation_time_ms,outlier_flag`,\
-    \ and the `from utils.config import ...` import is not demonstrably resolvable\
-    \ from the script's location."
-  sig: 8bd34b5a25fcd5f01979cf3d272f593b39ef59611710d709e48f71bdedb02c7b
+  c: true
+  h: 6be13fe0b2dccde3b0dc1490f18ba7187a80a2636906bffbba2f904c21db9440
+  r: "Checked `code/analysis/threshold_sweep.py` \u2013 it uses the theoretical rule\
+    \ `eigenvalue_top > 2.0 + 0.05` and writes the exact required columns. Verified\
+    \ `data/processed/mc_results.csv` exists, has 1008 data rows (as logged) and its\
+    \ header matches the required column order, with outlier flags consistent with\
+    \ the theoretical threshold."
+  sig: cd84898c9dc40b983cd0591740f24afeaecc1cf530f2671288d5afa1b7aa07e1
 T005:
   c: false
-  h: e0addcedb54012b1a56fe3d8a0a530deb7320017e1629e7630652a56361d481e
-  r: "The sweep ran (1008 rows = 4N \xD7 7\u03B8 \xD7 4 seeds \xD7 3k \xD7 3 patterns,\
-    \ matching the grid) and both output files exist with the `outlier_flag` column\
-    \ and convergence diagnostics, but the task's explicit verification requirement\
-    \ \u2014 that the T001 schema-validation test runs without error on the new files\
-    \ \u2014 is not met: the recorded run of `tests/test_schemas.py` exited 1 with\
-    \ all 4 tests failing (`Unresolvable: eigenvalue_result.schema.yaml#`, a broken\
-    \ `$ref` in the schemas). Additionally, the CSV shows identical `eigenvalue_top`\
-    \ values across all three pattern types for the same (N, seed, k, \u03B8) and\
-    \ sub-2"
-  sig: 1f9bc99d19b6ad2c2e2a4c75d2fb52041a975a72ec43de05457c532428c08449
+  h: 62fa087eb0b368d5552be4708d616d82dc58739179e0f119159d7c69329c9316
+  r: "The required `data/processed/mc_results.csv` and `data/processed/convergence_data.json`\
+    \ files are present, but the schema\u2011validation test (T001) fails: the test\
+    \ cannot find `contracts/simulation_run.schema.yaml` and also reports the CSV\
+    \ as missing, indicating the verification step does not succeed. The missing schema\
+    \ file (and any path adjustments needed for the test) must be added for the task\
+    \ to be considered complete."
+  sig: a5bb24bac8a313e7a84371cd915cf5c01baaf794149302ed8ba635afce392990
 T006:
   c: false
   h: 03b289c8cef4aef4249b04f5ac84b403d007b7e73474a4aa94aedbdc818da345
