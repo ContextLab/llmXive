@@ -1,15 +1,15 @@
 T001:
   c: true
-  h: b6a3975a189398a2814b1467643e45963cf5d0e44e94cbafc1015af5bd35da81
-  r: 'Both required artifacts exist and match the task: `quickstart.md` documents
-    Python 3.11, `pip install transformers bitsandbytes`, and the `python -m code.run_pipeline
-    --sample 5` command; `code/run_pipeline.py` loads a tiny hard-coded commit pair,
-    invokes the generation module, and writes `data/generated/phi3-mini/sample_test.txt`
-    (present, non-empty, 291 bytes). Execution logs confirm `--sample 5` exited 0
-    in 0.1 s and `pytest tests/quickstart_test.py` passed (1 passed), satisfying the
-    stated verification criteria; the template-based generation is acceptable here
-    since the task explicitly sco'
-  sig: 419879cc2f18314c3bc5ab3b2d7474c18811dd4236f9cee734bf358ffa45514d
+  h: 40f5a3bcd9a9817c4b71407cfb3120da146865244ba77672b600e68d33ef68d7
+  r: 'Both artifacts exist and match the task: `quickstart.md` documents Python 3.11
+    prerequisites, `pip install transformers bitsandbytes`, and the `python -m code.run_pipeline
+    --sample 5` command; `code/run_pipeline.py` loads a hard-coded smoke-test commit
+    pair, invokes the generation module, and writes `data/generated/phi3-mini/sample_test.txt`
+    (present, non-empty, 291 bytes). Execution logs confirm the command ran with exit
+    0 in 0.1 s and `pytest tests/quickstart_test.py` passed (1 passed); the generation
+    module''s deterministic template is acceptable for this Phase-0 plumbing task
+    since the real'
+  sig: 8b05db25df7ad06eb13613a56f789865e025f39fa2fc29d0691c981b918b29b6
 T002:
   c: true
   h: d9afe2acf1abb777ca7fe3772e8388c5ba3a5707554e6cc3dc0a89af6999fc11

@@ -1,12 +1,12 @@
 status: none
-intent: GitHub commit messages and documentation diff dataset HuggingFace python package
-  dataset
+intent: GitHub commit message documentation diff paired dataset HuggingFace repository
+  python package dataset
 required_fields:
 - commit_hash
 - commit_message
 - documentation_diff
 - repository_name
 - commit_timestamp
-cache_key: 24c4828653d8d6ea6c506ecf356feabd0c0b207c8bfe8391c6ae68e178153e69
-searched_at: '2026-10-17T14:20:51.098617+00:00'
+cache_key: 6b326229fc1e4c9e673f0270737fb6b2451dc918236b1b1f5b6350b5cc021ebf
+searched_at: '2026-10-17T14:36:28.572696+00:00'
 retry_count: 1

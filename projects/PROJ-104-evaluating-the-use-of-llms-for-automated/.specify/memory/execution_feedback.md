@@ -2,21 +2,21 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python -m code.run_pipeline --full (rc=-1); 2 declared deliverable(s) absent: data/gold_standard/annotations.json; data/raw/commit_pairs.csv
+**Summary**: 1 command(s) failed: python -m code.run_pipeline --full (rc=1); 2 declared deliverable(s) absent: data/gold_standard/annotations.json; data/raw/commit_pairs.csv
 
 ## Failing / missing run-book commands
 
-- python -m code.run_pipeline --full -> rc=-1
-Power analysis: estimated power for n=500 is 1.0000; exploratory=False
-Wrote /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/results/power_report.md
+- python -m code.run_pipeline --full -> rc=1
+ready cloned at /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/repos/scikit-learn, pulling latest.
+2026-10-17 14:35:20,608 INFO code.data_extraction: Processing repository scikit-learn (https://github.com/scikit-learn/scikit-learn.git)
+2026-10-17 14:35:20,623 INFO code.data_extraction: Finished repo scikit-learn: collected 0 rows so far, 0 commits skipped (no doc change).
+2026-10-17 14:35:20,623 INFO code.data_extraction: Repo already cloned at /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/repos/pandas, pulling latest.
+2026-10-17 14:35:20,975 INFO code.data_extraction: Processing repository pandas (https://github.com/pandas-dev/pandas.git)
+2026-10-17 14:35:20,990 INFO code.data_extraction: Finished repo pandas: collected 0 rows so far, 0 commits skipped (no doc change).
+2026-10-17 14:35:20,990 INFO code.data_extraction: Extraction finished: 0 rows collected, 0 commits skipped (no doc change).
+2026-10-17 14:35:20,990 ERROR code.data_extraction: Insufficient commit‑pair rows collected: 0 (required 500).
+2026-10-17 14:35:20,990 ERROR __main__: Data extraction failed with exit code 1
 
-2026-10-17 14:17:32,463 INFO __main__: Running full pipeline
-2026-10-17 14:17:32,463 INFO __main__: Running power analysis...
-2026-10-17 14:18:33,282 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
-2026-10-17 14:18:33,283 INFO __main__: Running data extraction...
-2026-10-17 14:18:33,283 INFO code.data_extraction: Repo already cloned at /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/repos/pandas, pulling latest.
-
-[TIMEOUT after 120s]
 
 ## Declared deliverables still missing
 

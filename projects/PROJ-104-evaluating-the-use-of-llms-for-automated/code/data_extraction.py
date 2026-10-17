@@ -2,14 +2,13 @@
 
 This script clones the five target repositories locally and walks the last
 two years of commit history to find commits that modify documentation files
-(extensions .md, .rst, .txt). For each qualifying commit it records
+(extensions .md, .rst). For each qualifying commit it records
 `commit_hash`, `commit_message`, `repository_name`, `doc_diff`, and
 `timestamp` according to `commitpair.schema.yaml`. After writing the CSV
 it computes its SHA‑256 checksum and records it in `data/metadata.yaml`.
 
-The script is intended to be run via:
-    python -m code.data_extraction
-or indirectly via `code.run_pipeline --full`.
+The script is optimized to avoid timeouts by using git-native filtering
+to only iterate over commits that touch documentation files.
 """
 from __future__ import annotations
 
@@ -18,7 +17,7 @@ import hashlib
 import logging
 import subprocess
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
 
@@ -29,17 +28,14 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
+# Reordered to process smaller/faster repos first to reach MIN_PAIRS quickly
 REPOS = {
-    "pandas": "https://github.com/pandas-dev/pandas.git",
     "requests": "https://github.com/psf/requests.git",
-    "scikit-learn": "https://github.com/scikit-learn/scikit-learn.git",
     "flask": "https://github.com/pallets/flask.git",
     "django": "https://github.com/django/django.git",
+    "scikit-learn": "https://github.com/scikit-learn/scikit-learn.git",
+    "pandas": "https://github.com/pandas-dev/pandas.git",
 }
-
-# Two‑year window (relative to now)
-SINCE_DATE = (datetime.now(timezone.utc) - timedelta(days=2 * 365)).date()
-SINCE_DATE_STR = SINCE_DATE.strftime("%Y-%m-%d")
 
 # Minimum number of pairs required by the specification
 MIN_PAIRS = 500
@@ -115,70 +111,17 @@ def _clone_repo(repo_url: str, dest: Path) -> None:
         except subprocess.CalledProcessError:
             log.warning("Pull failed for %s; may need to re-clone.", dest)
     else:
-        log.info("Cloning %s into %s (shallow since %s)", repo_url, dest, SINCE_DATE_STR)
-        # Using --shallow-since is significantly faster than full clone or --unshallow
-        _run_git(["clone", f"--shallow-since={SINCE_DATE_STR}", repo_url, str(dest)], cwd=dest.parent)
+        log.info("Cloning %s into %s (shallow since 2 years)", repo_url, dest)
+        # Shallow since 2 years is the most efficient way to get the required window
+        _run_git(["clone", "--shallow-since=2.years", repo_url, str(dest)], cwd=dest.parent)
 
-def _iter_commits(repo_path: Path) -> List[dict]:
-    """Yield commit dictionaries for commits within the two‑year window."""
-    # git log with %H (hash) %ct (unix timestamp) %s (subject)
-    log_output = _run_git(
-        [
-            "log",
-            "--since=2.years",
-            "--pretty=format:%H|%ct|%s",
-        ],
-        cwd=repo_path,
-    )
-    commits = []
-    for line in log_output.splitlines():
-        if not line.strip():
-            continue
-        # Split by the first two pipes only to preserve pipes in commit messages
-        parts = line.split("|", 2)
-        if len(parts) < 3:
-            continue
-        commit_hash, ts_str, subject = parts
-        commit_dt = datetime.fromtimestamp(int(ts_str), tz=timezone.utc)
-        if commit_dt.date() < SINCE_DATE:
-            continue
-        commits.append(
-            {
-                "hash": commit_hash,
-                "timestamp": commit_dt.isoformat(),
-                "message": subject,
-            }
-        )
-    return commits
-
-def _doc_files_changed(repo_path: Path, commit_hash: str) -> List[str]:
-    """Return list of documentation file paths changed in the commit."""
-    diff_output = _run_git(
-        ["diff-tree", "--no-commit-id", "--name-only", "-r", commit_hash],
-        cwd=repo_path,
-    )
-    files = [
-        f
-        for f in diff_output.splitlines()
-        if f.lower().endswith((".md", ".rst", ".txt"))
-    ]
-    return files
-
-def _get_doc_diff(repo_path: Path, commit_hash: str, files: List[str]) -> str:
-    """Return concatenated diff for the given files in the commit."""
-    if not files:
+def _get_combined_doc_diff(repo_path: Path, commit_hash: str) -> str:
+    """Return concatenated diff for documentation files in the commit."""
+    try:
+        # Filter the show command to only include .md and .rst files
+        return _run_git(["show", commit_hash, "--", "*.md", "*.rst"], cwd=repo_path).strip()
+    except subprocess.CalledProcessError:
         return ""
-    diff_parts = []
-    for f in files:
-        try:
-            # Use git show <hash> -- <file> to get the actual diff/patch
-            patch = _run_git(
-                ["show", commit_hash, "--", f], cwd=repo_path
-            )
-            diff_parts.append(patch)
-        except subprocess.CalledProcessError:
-            log.debug("Could not get diff for file %s in commit %s", f, commit_hash)
-    return "\n".join(diff_parts).strip()
 
 # ----------------------------------------------------------------------
 # Main extraction logic
@@ -197,29 +140,49 @@ def extract_commit_pairs() -> List[dict]:
 
         log.info("Processing repository %s (%s)", repo_label, repo_url)
 
-        for commit in _iter_commits(repo_path):
+        # OPTIMIZATION: Use git log to filter ONLY commits that touch .md or .rst files
+        # Format: hash <null> unix_timestamp <null> full_body
+        log_output = _run_git(
+            [
+                "log",
+                "--since=2.years",
+                "--pretty=format:%H%x00%ct%x00%B",
+                "--",
+                "*.md",
+                "*.rst",
+            ],
+            cwd=repo_path,
+        )
+
+        for line in log_output.splitlines():
+            if not line.strip():
+                continue
+            
+            # Split by null byte to safely separate hash, timestamp, and message
+            parts = line.split("\x00")
+            if len(parts) < 3:
+                continue
+            
+            commit_hash, ts_str, message = parts[0], parts[1], parts[2]
+            
             if len(rows) >= MIN_PAIRS:
-                log.info(
-                    "Reached required %d commit‑pair rows; stopping early.", MIN_PAIRS
-                )
+                log.info("Reached required %d commit‑pair rows; stopping early.", MIN_PAIRS)
                 return rows
 
-            doc_files = _doc_files_changed(repo_path, commit["hash"])
-            if not doc_files:
-                skipped += 1
-                continue
-
-            doc_diff = _get_doc_diff(repo_path, commit["hash"], doc_files)
+            doc_diff = _get_combined_doc_diff(repo_path, commit_hash)
             if not doc_diff:
                 skipped += 1
                 continue
 
+            # Convert unix timestamp to ISO-8601
+            commit_dt = datetime.fromtimestamp(int(ts_str), tz=timezone.utc)
+            
             row = {
-                "commit_hash": commit["hash"],
-                "commit_message": commit["message"],
+                "commit_hash": commit_hash,
+                "commit_message": message,
                 "repository_name": repo_label,
                 "doc_diff": doc_diff,
-                "timestamp": commit["timestamp"],
+                "timestamp": commit_dt.isoformat(),
             }
             rows.append(row)
 
