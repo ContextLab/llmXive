@@ -13,67 +13,71 @@ The system must generate a deterministic "teacher" trajectory using a CPU-based 
 
 **Why this priority**: This is the foundational differentiator of the project. Without a valid, deterministic physics signal, the core hypothesis (replacing neural teachers with physics solvers) cannot be tested. It is the primary data source for the entire experiment.
 
-**Independent Test**: Can be fully tested by running the data generation script, verifying that the output includes both rendered frames and state vectors (position, velocity) for [deferred] sequences, and confirming that the physics solver runs entirely on CPU without GPU errors.
+**Independent Test**: Can be fully tested by running the data generation script, verifying that the output includes both rendered frames and state vectors (position, velocity) for a substantial set of training sequences, and confirming that the physics solver runs entirely on CPU without GPU errors.
 
 **Acceptance Scenarios**:
 
-1. **Given** a set of initial state vectors for rigid bodies or fluid particles, **When** the physics engine simulates 16 frames of motion, **Then** the system outputs a video sequence and a corresponding trajectory of state vectors that strictly adheres to the defined physical laws (e.g., conservation of momentum).
-2. **Given** a request to generate [deferred] sequences, **When** the generation process completes, **Then** the system produces [deferred] valid video files and metadata files, with zero corruption or simulation crashes.
+1. **Given** a set of initial state vectors for rigid bodies or fluid particles, **When** the physics engine simulates 16 frames of motion, **Then** the system outputs a video sequence and a corresponding trajectory of state vectors that strictly adheres to the defined physical laws (e.g., conservation of momentum) with **deterministic** outcomes (identical results on repeated runs with the same seed).
+2. **Given** a request to generate **[deferred]** sequences, **When** the generation process completes, **Then** the system produces valid video files and metadata files, with **zero corruption** and **no NaN** values in any state vector.
 3. **Given** a specific physics parameter set (e.g., friction coefficient = 0.5), **When** the simulation runs, **Then** the resulting trajectory reflects the exact deterministic outcome of that parameter, with no stochastic noise introduced by the solver itself.
 
 ---
 
 ### User Story 2 - Student Model Training with Physics Teacher (Priority: P2)
 
-The system must train a lightweight, 2-step autoregressive diffusion student model using the generated physics trajectories as the teacher signal, minimizing pixel-space MSE loss to learn the mapping from current frame + physics trajectory to the next frame.
+The system must train a lightweight, 2-step autoregressive diffusion student model using the generated physics trajectories as the teacher signal, minimizing pixel‑space MSE loss to learn the mapping from current frame + physics trajectory to the next frame.
 
-**Why this priority**: This implements the core "distillation" mechanism. It tests whether the student model can successfully learn from the physics teacher. It is independent of the baseline comparison but dependent on the data generation from US-01.
+**Why this priority**: This implements the core "distillation" mechanism. It tests whether the student model can successfully learn from the physics teacher. It is independent of the baseline comparison but dependent on the data generation from US‑01.
 
-**Independent Test**: Can be fully tested by initiating the training job, monitoring the loss curve to ensure it decreases, and verifying that the trained model can generate a single 16-frame sequence that visually resembles the physics input without requiring the neural teacher.
+**Independent Test**: Can be fully tested by initiating the training job, monitoring the loss curve to ensure it meets the convergence criteria, and verifying that the trained model can generate a single 16‑frame sequence that visually resembles the physics input without requiring the neural teacher.
 
 **Acceptance Scenarios**:
 
-1. **Given** the physics-generated dataset and the student model architecture, **When** the training loop executes for the defined epochs, **Then** the Mean Squared Error (MSE) loss on the validation set decreases monotonically and converges below a threshold of 0.05.
-2. **Given** a trained student model and a new physics trajectory, **When** the model generates a 16-frame sequence, **Then** the output frames exhibit structural consistency with the input trajectory (e.g., objects move in the correct direction and speed) as verified by a manual visual check or SSIM > 0.8.
-3. **Given** the CPU-only constraint, **When** the training job runs, **Then** it completes within the 6-hour GitHub Actions limit and consumes less than 7 GB of RAM, without triggering OOM errors or requiring GPU acceleration.
+1. **Given** the physics‑generated dataset (**[deferred]** sequences) and the student model architecture, **When** the training loop executes for the defined epochs, **Then** the final validation MSE meets the convergence criteria defined in **SC‑002** and the relative improvement over the first epoch is at least 10 %.
+2. **Given** a trained student model and a new physics trajectory, **When** the model generates a 16‑frame sequence, **Then** the output frames exhibit structural consistency with the input trajectory (e.g., objects move in the correct direction and speed) as verified by a manual visual check **or** a Structural Similarity Index (SSIM) that meets the fidelity criteria defined in **SC‑003**.
+3. **Given** the CPU‑only constraint, **When** the training job runs, **Then** it completes within the 6‑hour GitHub Actions limit and consumes less than 7 GB of RAM, without triggering OOM errors or requiring GPU acceleration.
 
 ---
 
 ### User Story 3 - Comparative Evaluation and Statistical Significance (Priority: P3)
 
-The system must evaluate the physics-teacher model against a neural-teacher baseline using Structural Similarity (SSIM), PSNR, and LPIPS metrics, and perform a paired t-test to determine if the performance gap is statistically significant.
+The system must evaluate the physics‑teacher model against a neural‑teacher baseline using Structural Similarity (SSIM), Peak Signal‑to‑Noise Ratio (PSNR), and LPIPS metrics, and perform a paired t‑test to determine if the performance gap is statistically significant.
 
-**Why this priority**: This provides the empirical answer to the research question. It quantifies the trade-off between physical plausibility and generative richness. It depends on the successful training of both models (US-02 and the baseline).
+**Why this priority**: This provides the empirical answer to the research question. It quantifies the trade‑off between physical plausibility and generative richness. It depends on the successful training of both models (US‑02 and the baseline defined in FR‑007).
 
-**Independent Test**: Can be fully tested by running the evaluation script on the held-out test set, generating the metric tables, and verifying that the statistical test (p-value) is computed correctly to determine significance.
+**Independent Test**: Can be fully tested by running the evaluation script on the held‑out test set (**[deferred]** sequences), generating the metric tables, and verifying that the statistical test (p‑value) is computed correctly to determine significance.
 
 **Acceptance Scenarios**:
 
-1. **Given** the predictions from the physics-teacher model and the neural-teacher baseline, **When** the evaluation script runs, **Then** it outputs SSIM, PSNR, and LPIPS scores for both models on the same [deferred] test sequences.
-2. **Given** the paired metric scores from both models, **When** the statistical analysis is performed, **Then** a paired t-test returns a p-value < 0.05 (or > 0.05) indicating whether the difference in performance is statistically significant.
-3. **Given** the ablation parameters (e.g., varying friction), **When** the ablation study is run, **Then** the system produces a comparison table showing how changes in physical realism correlate with changes in the LPIPS texture metric.
+1. **Given** the predictions from the physics‑teacher model and the neural‑teacher baseline, **When** the evaluation script runs on the **[deferred]** held‑out test sequences, **Then** it outputs SSIM, PSNR, and LPIPS scores for both models on the same test sequences.
+2. **Given** the paired metric scores from both models, **When** the statistical analysis is performed, **Then** a paired t‑test returns a p‑value for SSIM and a p‑value for LPIPS; each p‑value is compared against α = 0.05 (Bonferroni‑adjusted α = 0.025) and the report indicates whether the difference is statistically significant for each metric.
+3. **Given** the ablation parameters (e.g., varying friction coefficient), **When** the ablation study is run, **Then** the system performs a linear regression of LPIPS (or FID) against the friction coefficient, reports Pearson r, the corresponding p‑value, and produces a comparison table showing how changes in physical realism correlate with changes in the fidelity (LPIPS) and richness (FID) metrics.
 
 ### Edge Cases
 
 - **What happens when** the physics simulation produces a collision or instability that results in NaN (Not a Number) values in the state vectors? **System handles** this by detecting NaNs during data generation, discarding the sequence, and logging a warning to ensure the training set remains clean.
-- **How does the system handle** a scenario where the physics solver's time-step integration drifts significantly from the rendered frame rate? **System handles** this by enforcing a fixed, small time-step in the solver that aligns exactly with the 16-frame sequence duration, ensuring temporal consistency.
-- **What happens when** the student model fails to converge due to the physics signal being too "rigid" (lacking gradient information for texture)? **System handles** this by implementing a fallback to a higher learning rate schedule or adding a small amount of synthetic noise to the teacher signal to provide a gradient, recorded as an assumption in the methodology.
+- **How does the system handle** a scenario where the physics solver's time‑step integration drifts significantly from the rendered frame rate? **System handles** this by enforcing a fixed, small time‑step in the solver that aligns exactly with the 16‑frame sequence duration, ensuring temporal consistency.
+- **What happens when** the student model fails to converge (validation MSE > 0.07 after 20 epochs)? **System handles** this by switching to a higher learning‑rate schedule for the remaining epochs; if convergence still fails, the run is aborted and the failure is logged for later analysis.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate 5,000 synthetic video sequences of 16 frames each using a deterministic CPU physics engine (e.g., Box2D) and record ground-truth state vectors (See US-01).
-- **FR-002**: System MUST train a 2-step autoregressive diffusion student model (approx. 50M parameters) using the physics-derived trajectories as the teacher signal, optimizing for pixel-space MSE loss (See US-02).
-- **FR-003**: System MUST execute the entire training and inference pipeline on a CPU-only environment without requiring CUDA, GPU acceleration, or 8-bit/4-bit quantization libraries (See US-02).
-- **FR-004**: System MUST compute Structural Similarity Index (SSIM), Peak Signal-to-Noise Ratio (PSNR), and Learned Perceptual Image Patch Similarity (LPIPS) metrics for both the physics-teacher and neural-teacher models on the same test set (See US-03).
-- **FR-005**: System MUST perform a paired t-test on the SSIM and LPIPS scores between the two models to determine statistical significance at a threshold of p < 0.05 (See US-03).
+- **FR-001**: System MUST generate a sufficiently large set of synthetic video sequences of 16 frames each using a deterministic CPU physics engine (e.g., Box2D) and record ground‑truth state vectors (See US‑01).
+- **FR-002**: System MUST train a 2‑step autoregressive diffusion student model (≈ 50 M parameters) using the physics‑derived trajectories as the teacher signal, optimizing for pixel‑space MSE loss (See US‑02).
+- **FR-003**: System MUST execute the entire training and inference pipeline on a CPU‑only environment without requiring CUDA, GPU acceleration, or 8‑bit/4‑bit quantization libraries (See US‑02).
+- **FR-004**: System MUST compute Structural Similarity Index (SSIM), Peak Signal‑to‑Noise Ratio (PSNR), and Learned Perceptual Image Patch Similarity (LPIPS) metrics for both the physics‑teacher and neural‑teacher models on the same test set (See US‑03).
+- **FR-005**: System MUST perform a paired t‑test on the SSIM and LPIPS scores between the two models to determine statistical significance (See US‑03).
+- **FR-006**: System MUST verify that each generated video sequence is reproducibly identical on repeated runs with the same random seed and contains no NaN or corrupted frames (See US‑01).
+- **FR-007**: System MUST construct a neural‑teacher baseline by training an identical student model on the original Causal Forcing++ dataset using the same architecture and training hyper‑parameters as FR‑002 (See US‑03).
+- **FR-008**: System MUST conduct an ablation study varying physics‑simulation complexity (e.g., friction coefficient, elasticity, fluid dynamics) and record the impact on fidelity (LPIPS) and richness (FID) metrics (See US‑03).
+- **FR-009**: System MUST compute the Fréchet Inception Distance (FID) between generated videos and neural‑teacher baseline videos to quantify generative richness (See SC‑009).
 
 ### Key Entities
 
 - **PhysicsTrajectory**: A sequence of state vectors (position, velocity, deformation) generated deterministically by the physics engine, serving as the causal prior.
 - **StudentModel**: A lightweight autoregressive diffusion model trained to predict future frames given the current frame and the PhysicsTrajectory.
-- **EvaluationMetrics**: A dataset containing SSIM, PSNR, and LPIPS scores paired with the corresponding video sequence ID for statistical comparison.
+- **EvaluationMetrics**: A dataset containing SSIM, PSNR, LPIPS, and FID scores paired with the corresponding video sequence ID for statistical comparison.
 
 ## Success Criteria
 
@@ -81,18 +85,22 @@ The system must evaluate the physics-teacher model against a neural-teacher base
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The convergence rate of the physics-teacher student model (measured by validation MSE loss) is measured against the baseline neural-teacher model to assess learning efficiency (See US-02).
-- **SC-002**: The structural fidelity of generated frames (measured by SSIM and PSNR) is measured against the ground-truth physics frames to validate dynamic consistency (See US-03).
-- **SC-003**: The loss of generative richness (measured by LPIPS) is measured against the neural-teacher baseline to quantify the trade-off between physical plausibility and texture synthesis (See US-03).
-- **SC-004**: The statistical significance of the performance gap (measured by p-value from paired t-test) is measured against the standard alpha threshold of 0.05 to determine if the observed differences are non-random (See US-03).
-- **SC-005**: The computational feasibility (measured by total wall-clock time and peak RAM usage) is measured against the GitHub Actions free-tier constraints (≤6 hours, ≤7 GB RAM) to ensure the method is deployable on edge devices (See US-02).
+- **SC-001**: Data‑generation validity: deterministic reproducibility (identical outputs on repeated runs) and zero‑corruption rate (≤ 0 % NaN or broken files) for all **[deferred]** sequences (See US‑01).
+- **SC-002**: Convergence of student model training: final validation MSE ≤ 0.05 (pixels normalized to [0,1]) and ≥ 10 % relative improvement over the first epoch (See US‑02).
+- **SC-003**: Fidelity of generated frames: SSIM ≥ 0.80 and LPIPS ≤ 0.30 when compared against ground‑truth physics frames (See US‑03).
+- **SC-004**: Statistical significance of performance gap: paired t‑test on sequence‑level SSIM and LPIPS scores with Bonferroni‑adjusted α = 0.025; report p‑values and significance decisions (See US‑03).
+- **SC-005**: Computational feasibility: total wall‑clock time ≤ 6 hours and peak RAM usage ≤ 7 GB on GitHub Actions free tier (See US‑02).
+- **SC-006**: Ablation study reporting: linear regression results (Pearson r, p‑value) for LPIPS (and FID) versus physics‑complexity parameters, plus a comparison table summarising metric trends (See US‑03).
+- **SC-007**: Richness assessment: FID computed between physics‑teacher generated videos and neural‑teacher baseline videos; lower FID indicates higher similarity to baseline richness (See SC‑009).
+- **SC-008**: Baseline model training success: neural‑teacher baseline achieves validation MSE ≤ 0.05 within the same compute constraints (See FR‑007).
+- **SC-009**: Fréchet Inception Distance (FID) measurement: compute FID between the set of physics‑teacher generated videos (**[deferred]** sequences) and the corresponding neural‑teacher baseline videos; report the numeric FID value and interpret lower values as higher generative richness (See US‑03).
 
 ## Assumptions
 
-- **Assumption about dataset-variable fit**: The selected CPU physics engine (Box2D or simplified Navier-Stokes) can generate sufficient state vectors (position, velocity) to fully define the causal trajectory for the 16-frame sequences; if the engine lacks a specific variable (e.g., deformation for soft bodies), the simulation will use a rigid-body approximation, and this limitation is noted as a scope boundary.
-- **Assumption about inference framing**: Since the study uses synthetic data generated by a deterministic engine, the findings regarding "causal signal" are strictly associational within the context of the simulation; no claims of real-world causal inference are made for physical phenomena outside the simulation parameters.
-- **Assumption about multiplicity & power**: The sample size of [deferred] sequences is assumed to provide sufficient statistical power (≥0.8) to detect a medium effect size in the paired t-test; if the power is lower, the results will be interpreted as exploratory with a limitation noted.
-- **Assumption about threshold justification & sensitivity**: The decision cutoff for "statistical significance" is fixed at p < 0.05 based on community standards; a sensitivity analysis will sweep the alpha threshold over {0.01, 0.05, 0.1} to verify that the headline conclusion (significant vs. not significant) remains stable across this range.
-- **Assumption about measurement validity**: The LPIPS metric is assumed to be a valid proxy for "generative richness" and "texture loss" in this context, as it is a standard perceptual metric validated in prior literature (e.g., Zhang et al., 2018).
-- **Assumption about predictor collinearity**: Since the physics trajectory is the sole predictor for the dynamic signal, there is no risk of collinearity between predictors; however, the correlation between the physics signal and the final pixel output is treated as the primary dependent relationship, not independent effects.
-- **Assumption about compute feasibility**: The 50M parameter student model and the [deferred] sequence dataset will fit within the ~7 GB RAM and ~14 GB disk constraints of the GitHub Actions free runner, allowing the entire training and evaluation pipeline to complete within 6 hours without GPU acceleration.
+- **Dataset sufficiency**: The selected CPU physics engine (Box2D or simplified Navier‑Stokes) can generate sufficient state vectors (position, velocity) to fully define the causal trajectory for the 16‑frame sequences; if the engine lacks deformation variables, a rigid‑body approximation is used, and this limitation is noted as a scope boundary.
+- **Synthetic‑only scope**: Findings regarding “causal signal” are strictly associational within the context of the synthetic simulation; no claims of real‑world causal inference are made.
+- **Statistical power**: With **[deferred]** generated sequences and a **[deferred]**‑sequence held‑out test set, the paired t‑test attains ≥ 0.8 power to detect a medium effect size (Cohen’s d ≈ 0.5) for SSIM; if power is lower, results are interpreted as exploratory.
+- **Threshold justification & sensitivity**: The α = 0.05 significance threshold follows community standards; a sensitivity analysis sweeps α over {0.01, 0.05, 0.10} to verify robustness of conclusions.
+- **Metric validity**: LPIPS is used as a fidelity metric against ground‑truth physics frames, reflecting how closely generated frames match the deterministic source. FID is used as a richness metric, capturing perceptual diversity relative to the neural‑teacher baseline (Zhang et al., 2018; Heusel et al., 2017).
+- **Predictor singularity**: Since the physics trajectory is the sole predictor for the dynamic signal, there is no risk of collinearity between predictors; correlation between the physics signal and final pixel output is treated as the primary dependent relationship.
+- **Compute feasibility**: The 50 M‑parameter student model and the **[deferred]**‑sequence dataset fit within the ~7 GB RAM and ~14 GB disk constraints of the GitHub Actions free runner, allowing the entire pipeline to complete within 6 hours without GPU acceleration.
