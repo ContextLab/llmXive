@@ -1,12 +1,24 @@
 T001:
+  c: true
+  h: 8a16b65d5edd956c5fd10c3c9980bbce1bd305d56dc85633ab1d9dfd49418e18
+  r: The quickstart.md exists and contains the required `python -m code.main --thin`
+    command plus all required content (four UQ methods, 2000-sample cap, first-N/seed-42
+    rule, paired Wilcoxon rationale, Formation-Energy proxy note). The schema YAML
+    lists exactly the eight required columns, and the test script `code/tests/test_per_sample_schema.py`
+    was executed via pytest and passed (exit 0).
+  sig: 5a39947354a89238899a69dc8b435171b4c7675f9c62f70b0baddd872a1f9097
+T002:
   c: false
-  h: bd0bd703c12116116ae268a876db716116faabc3ba441ca64b4b7964fc528b51
-  r: "Checked `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` (contains\
-    \ the required command and documentation) and `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
-    \ (lists exactly the required columns). However, no test script that loads the\
-    \ schema YAML, asserts the column set, and exits\u202F0 is present, so the verification\
-    \ step is missing."
-  sig: 75fe7d13864398651fd0f8bc825dfa73118a4487782f88d2ec2f1de8aaf629f5
+  h: 398e4999d6059e1e13ad72d67b57fffcffa7022a35f7a41032443288517ff711
+  r: 'The required data artifacts (`data/raw/*.csv` and `data/raw/*_metadata.json`)
+    do not exist at all, and the recorded test run failed at collection (exit 2) with
+    an ImportError (pyarrow/NumPy incompatibility), so no download ever succeeded.
+    Additionally, `code/download.py` deviates from spec: it uses `load_dataset(repo)`
+    instead of the exact verified `resolve/main/*.csv` URLs, records non-matching
+    `source_url` values, uses `df.sample` rather than `itertools.islice` with seed
+    42, and the test file imports symbols (`DATASETS`, `DATA_RAW_DIR`, `CHECKSUM_MANIFEST`)
+    that `download.py` never defines.'
+  sig: 5b1908f6ea920b83fd9dbfb7f88065e740a6966a310c021772401c1b58d53bdd
 T004:
   c: false
   h: dabf8cc249f9efbad1d55426a39cc8500e18855514e00d69992707b82f3a935c

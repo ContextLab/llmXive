@@ -1,4 +1,2 @@
-# Existing dependencies are provided by the platform.
-# Add any additional third‑party packages required by the project.
-
+# Additional third‑party dependencies required by the pipeline
 datasets

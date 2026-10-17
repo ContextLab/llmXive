@@ -1,17 +1,14 @@
 T001:
-  reason: "Checked `specs/001-assessing-uncertainty-quantification-tec/quickstart.md`\
-    \ (contains the required command and documentation) and `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml`\
-    \ (lists exactly the required columns). However, no test script that loads the\
-    \ schema YAML, asserts the column set, and exits\u202F0 is present, so the verification\
-    \ step is missing."
   task: f4402e0775c234c7998237d3b91e84b177c6e616dda4e7b8c9ec36c0e7ce14bf
 T002:
-  reason: "The `code/download.py` script exists, but it never produced the required\
-    \ `data/raw/*.csv` and `data/raw/*_metadata.json` files (the `data/raw/` directory\
-    \ is empty). Moreover, the test suite expects symbols like `DATASETS`, `DATA_RAW_DIR`,\
-    \ and `CHECKSUM_MANIFEST` that are not defined in `download.py`, so the tests\
-    \ would fail even if the download ran. The task\u2019s core deliverables\u2014\
-    capped CSVs, metadata JSONs, and a passing verification test\u2014are missing."
+  reason: 'The required data artifacts (`data/raw/*.csv` and `data/raw/*_metadata.json`)
+    do not exist at all, and the recorded test run failed at collection (exit 2) with
+    an ImportError (pyarrow/NumPy incompatibility), so no download ever succeeded.
+    Additionally, `code/download.py` deviates from spec: it uses `load_dataset(repo)`
+    instead of the exact verified `resolve/main/*.csv` URLs, records non-matching
+    `source_url` values, uses `df.sample` rather than `itertools.islice` with seed
+    42, and the test file imports symbols (`DATASETS`, `DATA_RAW_DIR`, `CHECKSUM_MANIFEST`)
+    that `download.py` never defines.'
   task: 845ce2fdea7c4dbfd47030040cfc1d3fc8b380d5e093a02fb2f73e5da27d8b21
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
