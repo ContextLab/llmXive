@@ -8,17 +8,20 @@ already available in the execution environment (numpy, etc.).
 """
 
 import os
-import random
 from pathlib import Path
 from typing import Dict, Any, Optional
 
 # ----------------------------------------------------------------------
 # Default configuration constants
 # ----------------------------------------------------------------------
-# Tolerance used by the outlier detection rule (FR‑004):
-# an eigenvalue is considered an outlier if it exceeds the empirical bulk
-# edge by more than this amount.
+# Tolerance used by the outlier detection rule (FR-004):
+# an eigenvalue is considered an outlier if it exceeds the theoretical
+# semicircle edge (2.0) by more than this amount.
 DEFAULT_OUTLIER_TOLERANCE: float = 0.05
+
+# Deterministic default base seed (SC-003: full reproducibility via
+# fixed seeds — never draw a seed from system entropy).
+DEFAULT_BASE_SEED: int = 42
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -60,14 +63,14 @@ def ensure_directories(base_path: Optional[Path] = None) -> None:
 
 def get_project_paths(base_path: Optional[Path] = None) -> Dict[str, Path]:
     """
-    Return a dictionary with the most common project‑relative paths.
+    Return a dictionary with the most common project-relative paths.
 
     The keys match the ones used by the existing analysis scripts:
 
-    - ``processed``   → ``data/processed``
-    - ``figures``     → ``data/figures``
-    - ``raw``         → ``data/raw``
-    - ``data_logs``   → ``data/logs``
+    - ``processed``   -> ``data/processed``
+    - ``figures``     -> ``data/figures``
+    - ``raw``         -> ``data/raw``
+    - ``data_logs``   -> ``data/logs``
 
     Parameters
     ----------
@@ -89,11 +92,12 @@ def get_project_paths(base_path: Optional[Path] = None) -> Dict[str, Path]:
 
 def get_seed() -> int:
     """
-    Generate a random seed for Monte‑Carlo runs.
+    Return the base seed for Monte-Carlo runs.
 
-    The function reads the environment variable ``BASE_SEED``; if it is not
-    set, a fresh random 32‑bit integer is produced.  This helper is used by
-    the sensitivity‑analysis scripts to obtain a reproducible starting point.
+    The seed is read from the environment variable ``BASE_SEED`` if set
+    and well-formed; otherwise the fixed deterministic default
+    ``DEFAULT_BASE_SEED`` (42) is returned.  The seed is never drawn from
+    system entropy so that every run is fully reproducible (SC-003).
     """
     env_seed = os.getenv("BASE_SEED")
     if env_seed is not None:
@@ -101,6 +105,4 @@ def get_seed() -> int:
             return int(env_seed)
         except ValueError:
             pass
-    # ``random`` is seeded from system entropy, which is acceptable for
-    # generating a fresh base seed.
-    return random.randint(0, 2**31 - 1)
+    return DEFAULT_BASE_SEED

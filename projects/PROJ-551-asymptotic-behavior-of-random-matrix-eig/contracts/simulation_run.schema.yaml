@@ -1,45 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 $id: "simulation_run.schema.yaml"
-title: "SimulationRun"
+title: SimulationRun
+description: >
+  Record of a single simulation run: parameters (N, seed, theta, rank,
+  sparsity pattern) and the computed top eigenvalues with outlier flags.
 type: object
 required:
   - run_id
-  - timestamp
-  - seed
   - N
-  - k
+  - seed
   - theta
-  - pattern_type
-  - support_density
-  - computation_time_ms
-  - empirical_bulk_edge
   - eigenvalues
 properties:
   run_id:
     type: string
-  timestamp:
-    type: string
-    format: date-time
-  seed:
-    type: integer
+    minLength: 1
   N:
     type: integer
-  k:
+    minimum: 1
+  seed:
     type: integer
+    minimum: 0
   theta:
     type: number
+    minimum: 0
+  k:
+    type: integer
+    minimum: 0
   pattern_type:
     type: string
-  support_density:
-    type:
-      - number
-      - "null"
-  computation_time_ms:
+    enum:
+      - diagonal
+      - block-sparse
+      - random-sparse
+      - random sparse
+  density:
     type: number
-  empirical_bulk_edge:
-    type: number
+    minimum: 0
+    maximum: 1
+  timestamp:
+    description: ISO-8601 timestamp of the run.
+    type: string
   eigenvalues:
     type: array
     items:
-      $ref: "eigenvalue_result.schema.yaml#"
-additionalProperties: false
+      type: number
+  is_outlier:
+    type: boolean
+  top_eigenvalue:
+    type: number
+  peak_memory_mb:
+    type: number
+    minimum: 0
+  checksum:
+    type: string
+additionalProperties: true

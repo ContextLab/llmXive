@@ -1,6 +1,9 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 $id: "eigenvalue_result.schema.yaml"
-title: "EigenvalueResult"
+title: EigenvalueResult
+description: >
+  A single computed eigenvalue record, tied to a parent run_id, with the
+  outlier flag determined by the theoretical semicircle edge (2.0 + 0.05).
 type: object
 required:
   - run_id
@@ -12,8 +15,10 @@ required:
 properties:
   run_id:
     type: string
+    minLength: 1
   eigenvalue_index:
     type: integer
+    minimum: 0
   value:
     type: number
   is_outlier:
@@ -22,4 +27,4 @@ properties:
     type: number
   deviation:
     type: number
-additionalProperties: false
+additionalProperties: true

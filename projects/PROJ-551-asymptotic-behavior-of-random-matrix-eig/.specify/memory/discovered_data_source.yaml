@@ -1,14 +1,15 @@
 status: none
-intent: synthetic matrix generation python package with perturbation patterns edge
-  values python package dataset
+intent: synthetic sparse matrix benchmark with perturbation patterns python package
+  dataset
 required_fields:
-- matrix
-- seed
-- pattern_type
+- matrix_id
 - dimensions
-- sparsity
-- edge_value
-- reference_edge
-cache_key: ec458880bed5ce56e2e6029351a19e72c176e3faaa58da7cfb6c2491a3018566
-searched_at: '2026-10-17T07:44:37.200878+00:00'
+- sparsity_pattern
+- seed
+- theoretical_edge_eigenvalue
+- empirical_edge_eigenvalue
+- generation_method
+- schema_version
+cache_key: 4b5433adc13f3b9f195662eca13d9fc9c359dfcf10ea9d772c0ae23ed8bad5e9
+searched_at: '2026-10-17T08:14:47.091792+00:00'
 retry_count: 1

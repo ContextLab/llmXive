@@ -1,14 +1,20 @@
 T001:
-  reason: "The three schema files do exist under `contracts/` (the collector's \"\
-    MISSING\" entries are just unnormalized path lookups; the directory listing confirms\
-    \ all three files), but the required test does not pass: the recorded run of `tests/contract/test_schemas.py`\
-    \ exited 1 with 2 failures \u2014 `test_processed_json_files` fails with a `RefResolutionError`\
-    \ (the `$ref` resolution to `eigenvalue_result.schema.yaml` fails because the\
-    \ resolver tries to JSON-parse the YAML file), and `test_processed_csv_files`\
-    \ fails because `mc_results.csv` lacks the required aggregated-threshold columns.\
-    \ The task explicitl"
+  reason: The three schema files do exist under `contracts/` and `tests/contract/test_schemas.py`
+    is a substantive, well-formed validator, but the recorded execution log shows
+    `pytest` exited 1 with 2 failures ("No JSON artifacts found in data/processed/",
+    "No CSV artifacts found in data/processed/"), and `data/processed/` currently
+    contains only `.gitkeep`. The task requires the test to pass (exit 0); either
+    produce processed data artifacts for it to validate or make the test skip gracefully
+    when no artifacts exist yet.
   task: 41c074c53775c934ca2c2654a1dd7298465541c896c78b71ec05fe2a164a2d97
 T002:
+  reason: The required run artifacts `data/raw/matrix_N1000_seed42.npy`, `data/processed/single_run_results.json`,
+    and `data/logs/single_run.log` are all MISSING, so there is no evidence the command
+    was ever executed. `data/checksums.yaml` references a matrix file that does not
+    exist on disk, and the required "Peak Memory" log entry (SC-001 evidence) cannot
+    be verified. The implementer must actually run `python -m code.main --mode single
+    --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal` from the project root
+    to produce the matrix, results JSON, and log.
   task: 3452e915417763de69f8ba41c70acbad37b8141d929eb69b38a9c8d2d1809cf7
 T003:
   reason: "The task requires an actual single-run execution (`python -m code.main\
@@ -20,6 +26,13 @@ T003:
     \ the actual run's results JSON, log, and checksum."
   task: 1b986fda368ef26d2f8fb67c3372c16ccc715366535a698061c1b1ad247eb23f
 T004:
+  reason: "The required output `data/processed/mc_results.csv` is MISSING \u2014 the\
+    \ verification criterion (1008 rows with theoretical-rule `outlier_flag`) cannot\
+    \ be checked, and there is no execution evidence the script was ever run. Additionally,\
+    \ the script's CSV fieldnames include extra columns (`timestamp`, `support_density`)\
+    \ beyond the required `run_id,N,k,pattern_type,theta,seed,eigenvalue_top,computation_time_ms,outlier_flag`,\
+    \ and the `from utils.config import ...` import is not demonstrably resolvable\
+    \ from the script's location."
   task: dfc2823c51c22c8c8409b814af0fa05517874d142de6d7131c5ccdd45b84d2a5
 T005:
   reason: "The sweep ran (1008 rows = 4N \xD7 7\u03B8 \xD7 4 seeds \xD7 3k \xD7 3\
@@ -33,6 +46,14 @@ T005:
     \ sub-2"
   task: ba70ecbb633019d7efafc7dc1f9ee5baec66cd0d534b6bdfaf4446177b42d12e
 T006:
+  reason: "The required output artifact `data/processed/threshold_statistical.json`\
+    \ is MISSING \u2014 the script `code/analysis/threshold_fit.py` exists and looks\
+    \ substantive, but there is no evidence it was ever run (no JSON with 36 group\
+    \ entries, no `theta_c_statistical`/`confidence_interval` values). Additionally,\
+    \ the script imports `from utils.config import ...` while the module lives at\
+    \ `code/utils/config.py`, so `python -m code.analysis.threshold_fit` would likely\
+    \ fail with an ImportError; the implementer must fix the import, run the fit against\
+    \ `mc_results.csv`, and write the JSON."
   task: fdfc19fdf7b6ed489f24381d3265c93ae63300fffb26d9fa6ffa9b0cadb0f4a5
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/analysis/aggregate_thresholds.py

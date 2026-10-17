@@ -1,27 +1,25 @@
 T001:
   c: false
-  h: ea130f056d1766d5a680c7064259210059c6148824b380d7daa0c062f48c8cda
-  r: "The three schema files do exist under `contracts/` (the collector's \"MISSING\"\
-    \ entries are just unnormalized path lookups; the directory listing confirms all\
-    \ three files), but the required test does not pass: the recorded run of `tests/contract/test_schemas.py`\
-    \ exited 1 with 2 failures \u2014 `test_processed_json_files` fails with a `RefResolutionError`\
-    \ (the `$ref` resolution to `eigenvalue_result.schema.yaml` fails because the\
-    \ resolver tries to JSON-parse the YAML file), and `test_processed_csv_files`\
-    \ fails because `mc_results.csv` lacks the required aggregated-threshold columns.\
-    \ The task explicitl"
-  sig: c476c2a3469b04028416c9275d3da8e1ab3723e6c89492796bed7e207d037ab9
+  h: 4afde3e521b4dc9a96fd6b4a2070ffd44e2586a33b9d9251b31ab19af144e396
+  r: The three schema files do exist under `contracts/` and `tests/contract/test_schemas.py`
+    is a substantive, well-formed validator, but the recorded execution log shows
+    `pytest` exited 1 with 2 failures ("No JSON artifacts found in data/processed/",
+    "No CSV artifacts found in data/processed/"), and `data/processed/` currently
+    contains only `.gitkeep`. The task requires the test to pass (exit 0); either
+    produce processed data artifacts for it to validate or make the test skip gracefully
+    when no artifacts exist yet.
+  sig: 5f4fbdb0ee62dc63d02c653d05f83e7c182753f2be7cc9661b1dcdfb38b28432
 T002:
-  c: true
-  h: 170d7aced4974da18ea0cd15cb2f05f8e6ef1fbd3dc96e025e18bb92d67cf73a
-  r: "I verified `code/main.py` implements all nine requirements (1/\u221AN Wigner\
-    \ generation, rank-1 diagonal \u03B8=2.5 perturbation, `eigsh` tol=1e-10 top-10,\
-    \ outlier rule `> 2.05`, JSON with run + 10 eigenvalue records sharing one `run_id`,\
-    \ checksums.yaml entry, log with psutil peak memory, SC-001 MemoryError enforcement),\
-    \ and the execution log shows a successful exit-0 run producing exactly those\
-    \ artifacts: `single_run_results.json` (top eigenvalue 2.9016423\u2026, correctly\
-    \ flagged outlier), `checksums.yaml` matching the raw matrix sha256, and `single_run.log`\
-    \ with \"Peak memory usage: 0.077 GB\". Reproducibil"
-  sig: b4c11b03f49fe39c48d9b48ca17d90a998b00bc7c553dcb75f8eb81a141fac4f
+  c: false
+  h: 6abac5889f2a0ad0336bb7248cc4bb14527ac355a7b756d118f61aacda0ee9ef
+  r: The required run artifacts `data/raw/matrix_N1000_seed42.npy`, `data/processed/single_run_results.json`,
+    and `data/logs/single_run.log` are all MISSING, so there is no evidence the command
+    was ever executed. `data/checksums.yaml` references a matrix file that does not
+    exist on disk, and the required "Peak Memory" log entry (SC-001 evidence) cannot
+    be verified. The implementer must actually run `python -m code.main --mode single
+    --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal` from the project root
+    to produce the matrix, results JSON, and log.
+  sig: 27f18925ec5eb32215e9fd8ed6e5dc390331ce30be8cbd241cbb06eff518d7cc
 T003:
   c: false
   h: 7c216126553ee902adec1840f84b0aa401c923251d2d4a2c7243d94b7ca6dcfe
@@ -34,16 +32,16 @@ T003:
     \ the actual run's results JSON, log, and checksum."
   sig: adc318d9d1c0798821ad0d92523a70f065e46e0dd53ea144638c9a3900d15012
 T004:
-  c: true
-  h: 99bbe2f3d5851d3cfebbdfe89769883348cc630e244c438572e0a2a33b581e1f
-  r: "The script `code/analysis/threshold_sweep.py` computes `outlier_flag = top_val\
-    \ > (THEORETICAL_EDGE + OUTLIER_TOL)` with THEORETICAL_EDGE=2.0 and OUTLIER_TOL=0.05,\
-    \ and writes all required columns (run_id, N, k, pattern_type, theta, seed, eigenvalue_top,\
-    \ computation_time_ms, plus extras). The regenerated `mc_results.csv` (125,997\
-    \ bytes \u2248 1008 rows at ~125 bytes/row) spot-checks consistently with the\
-    \ theoretical rule (e.g., eigenvalue 1.973\u2192False, 2.133\u2192True, 2.485\u2192\
-    True), confirming the empirical-bulk-edge rule was replaced."
-  sig: 9f3281f1fdc461b5a0e0bc0742308a4040a96ea67186f9b68f45a68fe5510e25
+  c: false
+  h: 1e75859ca918eda02d76db1c2633b81bcef39efb62e33462bea2b4dd11dba07d
+  r: "The required output `data/processed/mc_results.csv` is MISSING \u2014 the verification\
+    \ criterion (1008 rows with theoretical-rule `outlier_flag`) cannot be checked,\
+    \ and there is no execution evidence the script was ever run. Additionally, the\
+    \ script's CSV fieldnames include extra columns (`timestamp`, `support_density`)\
+    \ beyond the required `run_id,N,k,pattern_type,theta,seed,eigenvalue_top,computation_time_ms,outlier_flag`,\
+    \ and the `from utils.config import ...` import is not demonstrably resolvable\
+    \ from the script's location."
+  sig: 8bd34b5a25fcd5f01979cf3d272f593b39ef59611710d709e48f71bdedb02c7b
 T005:
   c: false
   h: e0addcedb54012b1a56fe3d8a0a530deb7320017e1629e7630652a56361d481e
@@ -58,14 +56,14 @@ T005:
     \ sub-2"
   sig: 1f9bc99d19b6ad2c2e2a4c75d2fb52041a975a72ec43de05457c532428c08449
 T006:
-  c: true
-  h: 51ae34bfc970256fb623eaec7ca2e5ad6bdd97066bd5518bf9d5c28a7230a859
-  r: "The script `code/analysis/threshold_fit.py` exists and implements the required\
-    \ sigmoid fit via `scipy.optimize.curve_fit` with 5-fold CV over seeds, and the\
-    \ execution log shows it ran successfully over all 36 (N, k, pattern) groups,\
-    \ producing `data/processed/threshold_statistical.json` with 36 entries each containing\
-    \ `theta_c_statistical` and a finite confidence_interval, matching the stated\
-    \ verification criteria. (Note: identical theta_c values across pattern types\
-    \ within each (N,k) suggest the upstream `mc_results.csv` may not vary by pattern\
-    \ \u2014 a data-quality concern for the upstream task, n"
-  sig: 3db2244af85c721b9f990c0152cdc8e093ce2194b191b4a4d76b6774c73f1e3c
+  c: false
+  h: 03b289c8cef4aef4249b04f5ac84b403d007b7e73474a4aa94aedbdc818da345
+  r: "The required output artifact `data/processed/threshold_statistical.json` is\
+    \ MISSING \u2014 the script `code/analysis/threshold_fit.py` exists and looks\
+    \ substantive, but there is no evidence it was ever run (no JSON with 36 group\
+    \ entries, no `theta_c_statistical`/`confidence_interval` values). Additionally,\
+    \ the script imports `from utils.config import ...` while the module lives at\
+    \ `code/utils/config.py`, so `python -m code.analysis.threshold_fit` would likely\
+    \ fail with an ImportError; the implementer must fix the import, run the fit against\
+    \ `mc_results.csv`, and write the JSON."
+  sig: 300e364b57954c3612367c842b465facec9be9583426efce117673cd572f1ed1
