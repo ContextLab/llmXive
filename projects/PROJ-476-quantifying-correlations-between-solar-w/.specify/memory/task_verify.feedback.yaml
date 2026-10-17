@@ -1,6 +1,13 @@
 T001:
+  reason: The required directory hierarchy exists, and the quickstart.md file contains
+    the documented command, but there is no `code/main.py` (or equivalent `code/main`
+    module) to make `python -m code.main --stage all` runnable, so the verification
+    script would fail. Add a `code/main.py` (or appropriate entry point) that implements
+    the CLI and `--help` option.
   task: d57b6dbabc16d1e7d22f1ddec3f16421e48727461789f674b20132268debc58b
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data/fetch_ace.py
+    exit=2; code/data/fetch_noaa.py exit=2'
   task: 055ce390ee9b49c294d699087b93a6985e594b6f5e3d8a3c9f3588bbfc12414c
 T003:
   task: 80ab4d5bf43742922af56d184458765fc3d4842f9e145dddea2776fb3c40d877

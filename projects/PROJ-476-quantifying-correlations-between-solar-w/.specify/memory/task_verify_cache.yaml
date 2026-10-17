@@ -1,10 +1,12 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing, command output, or any other proof that the specified folders
-    (`code/data`, `code/analysis`, `code/viz`, `code/tests`, `artifacts/figures`,
-    `artifacts/reports`, `state/`) were actually created is present. Without such
-    evidence the task requirement cannot be confirmed.
+  h: 8855253b7f1edaf499295f1fd97028c1f0023640eb6aebd6978335a3380e8b6f
+  r: The required directory hierarchy exists, and the quickstart.md file contains
+    the documented command, but there is no `code/main.py` (or equivalent `code/main`
+    module) to make `python -m code.main --stage all` runnable, so the verification
+    script would fail. Add a `code/main.py` (or appropriate entry point) that implements
+    the CLI and `--help` option.
+  sig: 1d8b1e0ca8b0bfe1a26bfb04d1094fab18a3a8f99dfe69f0791548ef29a8ad67
 T005:
   c: false
   h: 58b418a2cc42df68ff97c0487ecc9331459d9653698b02507efd69cd0785c4ab

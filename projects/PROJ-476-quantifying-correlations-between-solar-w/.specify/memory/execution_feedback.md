@@ -13,11 +13,9 @@ Traceback (most recent call last):
   File "<frozen runpy>", line 88, in _run_code
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 21, in <module>
     from code.data.fetch import fetch_ace, fetch_noaa
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/__init__.py", line 4, in <module>
-    from .fetch import fetch_ace, fetch_noaa
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch.py", line 25, in <module>
     from code.config import (
-ImportError: cannot import name 'NOAA_KP_DST_URL' from 'code.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/config.py)
+ImportError: cannot import name 'MAX_MEMORY_GB' from 'code.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/config.py)
 
 
 ## Declared deliverables still missing

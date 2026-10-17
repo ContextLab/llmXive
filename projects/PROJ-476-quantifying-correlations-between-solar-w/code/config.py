@@ -32,13 +32,17 @@ NOAA_VARS = ['Kp', 'Dst']
 # If these URLs are unreachable, the pipeline MUST fail loudly.
 # ACE URL: FTP path to Level 2 data (SWEPAM/SWICS)
 # Note: For HTTP access, a mirror or specific file path might be needed.
-# We use the official NASA SPDF FTP path as the primary source.
 ACE_URL = "ftp://spdf.gsfc.nasa.gov/pub/data/ace/"
 
 # NOAA URL: FTP path to Kp/Dst indices
 # Note: NOAA data is often available via FTP. We use the official NOAA URL.
-# If HTTP is required, a mirror might be needed, but we stick to the verified source.
 NOAA_URL = "ftp://ftp.ngdc.noaa.gov/STP/space-weather/geomagnetic_indices/kp/"
+
+# Specific sub‑paths used by the fetch module.
+# These constants satisfy imports expected by ``code.data.fetch``.
+ACE_SWEPAM_URL = ACE_URL + "swepam/level2/"
+ACE_SWICS_URL = ACE_URL + "swics/level2/"
+NOAA_KP_DST_URL = NOAA_URL  # NOAA Kp/Dst data resides under this FTP path.
 
 # Alternative HTTP URLs if FTP is not accessible (for robustness in testing environments)
 # These are mirrors or specific file links if available.
@@ -79,3 +83,7 @@ VALIDATION_REPORT_MD = "artifacts/reports/validation_report.md"
 DATASET_SCHEMA = "contracts/dataset.schema.yaml"
 ANALYSIS_SCHEMA = "contracts/analysis_schema.yaml"
 THRESHOLD_SCHEMA = "contracts/threshold.schema.yaml"
+
+# Streaming / chunk size for large‑file processing
+# Used by alignment and Neff calculation utilities.
+STREAMING_CHUNK_SIZE = 100_000
