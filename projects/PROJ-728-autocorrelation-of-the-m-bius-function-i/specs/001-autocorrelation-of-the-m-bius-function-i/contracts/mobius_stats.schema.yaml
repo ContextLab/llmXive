@@ -50,7 +50,7 @@ properties:
     enum: ["stable", "sensitive", "not_applicable"]
   theoretical_variance:
     type: number
-    description: "Theoretical variance under the Prime Number Theorem (PNT) assumption."
+    description: "Theoretical variance under the Prime Number Theorem (PNT) assumption: σ²/L where σ² = (6/π²)(1 − 6/π²)."
     minimum: 0.0
 required:
   - interval_start
