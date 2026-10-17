@@ -1,152 +1,107 @@
-# Tasks: Assessing Uncertainty Quantification Techniques for Materials Property Predictions  
+# Tasks: Assessing Uncertainty Quantification Techniques for Materials Property Predictions
 
-**Inputs**: `specs/001-assessing-uncertainty-quantification-tec/spec.md`, `plan.md`, `data-model.md`, `contracts/`  
+**Inputs**: `specs/001-assessing-uncertainty-quantification-tec/spec.md`, `plan.md`, `data-model.md`, `contracts/`
 
-The checklist implements the smallest complete, reproducible study that satisfies **all** functional, non‑functional, and success‑criteria requirements in the specification.  
-Unchecked items indicate work that still needs to be performed (or re‑performed after a failure).  
-Checked items have been verified to meet their contract and are retained.
+This checklist implements the smallest complete, reproducible study satisfying all functional, non-functional, and success-criteria requirements. The four UQ methods are named explicitly (GPR, MC-Dropout, Deep Ensemble, Split-Conformal), the three datasets are fetched via installable package recipes (real, reachable sources), and Formation Energy is documented as the qualified proxy for Elastic Modulus per the spec amendment.
 
 ---
 
-## Phase 1 – Setup and first end‑to‑end analysis  
+## Phase 1 — Setup and first end-to-end analysis
 
-- [ ] **T001** [US1] **Create required project directories and verify the per‑sample schema includes `abs_error`**  
-  - Create empty directories (if they do not already exist):  
-    `data/raw/`, `data/processed/`, `data/results/`, `figures/`, `code/models/`, `code/metrics/`, `code/stats/`, `code/utils/`, `tests/unit/`, `tests/integration/`.  
-  - Verify that `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml` contains the columns `sample_id, dataset, method, prediction, lower_bound, upper_bound, ground_truth, abs_error`.  
-  - **Verification** (run from the project root):  
-    ```bash
-    python - <<'PY'
-    import yaml, pathlib, sys
-    schema_path = pathlib.Path('specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml')
-    schema = yaml.safe_load(schema_path.read_text())
-    cols = {c['name'] for c in schema['columns']}
-    required = {'sample_id','dataset','method','prediction','lower_bound','upper_bound','ground_truth','abs_error'}
-    assert cols == required, f"Missing columns: {required - cols}"
-    for d in ['data/processed','data/results','figures']:
-        assert pathlib.Path(d).is_dir(), f"Missing required directory: {d}"
-    print("Schema and directory verification passed")
-    PY
-    ```  
-    The command must exit with status 0.
+- [ ] T001 [US1] **Establish code layout, quickstart command, and verify the per-sample schema**
+  - Document a runnable command (`python -m code.main`) in `specs/001-assessing-uncertainty-quantification-tec/quickstart.md`, including the uniform 2000-sample training cap, the deterministic sampling rule (fixed seed 42, first-N rows per plan), the rationale for paired Wilcoxon tests, and the qualified note that Formation Energy substitutes for Elastic Modulus (construct-validity caveat).
+  - Verify `specs/001-assessing-uncertainty-quantification-tec/contracts/per_sample_errors.schema.yaml` contains exactly the columns `sample_id, dataset, method, prediction, lower_bound, upper_bound, ground_truth, abs_error`.
+  - **Verification** (from the project root): a short Python check loads the schema YAML, asserts the column set matches, and exits with status 0. Directory creation is not a task — `llmxive_toolkit.paths` creates output folders on demand.
 
-- [ ] **T002** [US1] **Download the three real materials datasets with robust retry and deterministic capping**  
-  - Implement `code/download.py` to fetch the following CSVs (all URLs are publicly reachable as of the specification date):  
-    1. **Band Gap** – `https://raw.githubusercontent.com/materialsproject/oqmd-data/master/band_gap.csv` → `data/raw/band_gap.csv`  
-    2. **Formation Energy** – `https://raw.githubusercontent.com/materialsproject/oqmd-data/master/formation_energy.csv` → `data/raw/formation_energy.csv`  
-    3. **Thermal Conductivity** – `https://raw.githubusercontent.com/aflow/aflow-data/master/thermal_conductivity.csv` → `data/raw/thermal_conductivity.csv`  
-  - Use exponential‑backoff retry (max 3 attempts) on any HTTP error. On persistent failure, raise an exception *after* writing any successfully downloaded files.  
-  - After each successful download, compute the SHA‑256 checksum and write a metadata file `data/raw/<dataset_id>_metadata.json` containing: `dataset_id`, `source_url`, `n_samples_original`, `n_samples_used`, `checksum`.  
-  - **Cap** each dataset at **5 000** samples (deterministic seed 42, `itertools.islice`). Record the cap size in the metadata file.  
-  - **Verification**: a test `code/tests/test_download.py` loads each metadata JSON, confirms the file exists, checksum matches, and `n_samples_used ≤ 5000`. The test must exit with status 0.
+- [ ] T002 [US1] **Download the three real materials datasets via package-based fetches (REDO — previous artifacts contained seaborn example data)**
+  - Implement `code/download.py` fetching REAL materials datasets through `matminer.datasets.load_dataset` (installable package, no guessed raw URLs):
+    1. **Band Gap** — `load_dataset("matbench_expt_gap")` (experimental band gaps, composition-based) → `data/raw/band_gap.csv`
+    2. **Formation Energy** — `load_dataset("matbench_mp_e_form")` (MP formation energies) → `data/raw/formation_energy.csv`
+    3. **Thermal Conductivity** — `load_dataset("boltztrap_mp")` (BoltzTraP thermal/electronic transport on MP compounds) → `data/raw/thermal_conductivity.csv`
+  - The loader must FAIL LOUDLY: on any fetch error, raise — never fall back to synthetic, mock, seaborn-example, or randomly generated data. No `try/except` that substitutes placeholder CSVs.
+  - After each download, compute the SHA-256 checksum of the written CSV and write `data/raw/<dataset_id>_metadata.json` with `dataset_id`, `source_url` (the matminer dataset name/registry URL), `property_name`, `n_samples_original`, `n_samples_used`, `checksum`.
+  - Cap each dataset at 5000 rows deterministically (fixed seed 42, first-N via `itertools.islice` or seeded sample); record the cap in the metadata.
+  - **Verification**: `code/tests/test_download.py` loads each metadata JSON, asserts the CSV exists, the checksum matches, `n_samples_used ≤ 5000`, the `source_url`/dataset name refers to the correct materials dataset (not Iris/Tips/Planets), and the CSV contains a composition column and a numeric target column with ≥ 100 non-null rows. Exit status 0.
 
-- [ ] **T003** [US1] **Thin end‑to‑end run on a 100‑sample subset with full schema validation**  
-  - Subset each downloaded dataset to the first 100 rows (seed 42) and write `data/processed/<dataset_id>_subset.csv`.  
-  - Featurize using `matminer` (fallback to simple composition fractions via `pymatgen` if `matminer` import fails). Store the processed files as `data/processed/<dataset_id>.csv`.  
-  - Perform a stratified 70 %/15 %/15 % train/val/test split by target property range; save split indices in `data/processed/<dataset_id>_split.json`.  
-  - Train a baseline **XGBoost** regressor and the four UQ methods (GPR, MC‑Dropout MLP with ≤ 200 passes, Deep Ensemble of ≤ 3 MLPs, Split‑Conformal XGBoost) **only on the 100‑sample split**.  
-  - Write per‑sample predictions (including lower/upper bounds) to a **single** `data/results/per_sample_errors.csv` that conforms to the per‑sample schema (including `abs_error`).  
-  - Record pipeline execution metadata in `data/results/pipeline_run.json` adhering to `specs/001-assessing-uncertainty-quantification-tec/contracts/pipeline.schema.yaml`.  
-  - **Verification**: run `code/tests/test_thin_pipeline.py` which (a) validates `per_sample_errors.csv` against the schema, (b) validates `pipeline_run.json` against its schema, and (c) asserts that exactly 100 test samples were processed for each dataset. Exit status 0 indicates success.
+- [ ] T003 [US1] **Featurize, split, and run a thin end-to-end analysis on a 100-sample subset (REDO — previous run exited 1)**
+  - Implement `code/featurize.py`: convert compositions to feature vectors with `matminer` featurizers (fallback to elemental-fraction vectors via `pymatgen` if a featurizer fails — the fallback is a different REAL featurization, not synthetic data). Write `data/processed/<dataset_id>.csv`.
+  - Perform a stratified 70/15/15 train/val/test split by target-property range (FR-003); save split indices in `data/processed/<dataset_id>_split.json`.
+  - Implement the four UQ methods in `code/models/` — `gpr.py` (sklearn GPR, ≤ 2000 training points), `mc_dropout.py` (torch MLP ≤ 2M params, 50 stochastic passes, `device="cpu"`), `deep_ensemble.py` (ensemble of 3 MLPs, distinct seeds), `conformal.py` (XGBoost + split-conformal calibration hold-out) — each returning point predictions and lower/upper bounds on the test set.
+  - Run the thin pipeline on the first 100 rows per dataset: train all four methods, write per-sample rows to `data/results/per_sample_errors.csv` with columns exactly `sample_id, dataset, method, prediction, lower_bound, upper_bound, ground_truth, abs_error`, and write `data/results/pipeline_run.json` conforming to `contracts/pipeline.schema.yaml`.
+  - **Verification**: `code/tests/test_thin_pipeline.py` validates `per_sample_errors.csv` against the per-sample schema, validates `pipeline_run.json` against `contracts/pipeline.schema.yaml`, and asserts all four methods produced rows for each dataset subset. The command `python -m code.main --thin` must exit with status 0.
 
-- [ ] **T016** [FR-001] **Validate processed dataset files against `dataset.schema.yaml`**  
-  - For each dataset CSV produced in `data/processed/`, load the file and validate it against `specs/001-assessing-uncertainty-quantification-tec/contracts/dataset.schema.yaml` using a pytest validator.  
-  - The test must fail if any required field is missing, types are incorrect, or checksum mismatches.  
-  - **Verification**: `code/tests/test_dataset_schema.py` runs the validator; exit 0 on success.
+## Phase 2 — Complete the study and validate its evidence
 
-- [ ] **T004** [US1] **Full‑scale pipeline on all three capped datasets (≤ 5 000 samples) with unified outputs**  
-  - Re‑run the complete pipeline (download → featurize → split → train all four UQ methods) on the capped datasets from `data/raw/`.  
-  - Persist per‑sample predictions for **all** dataset × method combinations in the **single** `data/results/per_sample_errors.csv` (columns exactly `sample_id, dataset, method, prediction, lower_bound, upper_bound, ground_truth, abs_error`).  
-  - Collect cost metrics (training time, inference time, peak RAM) for each run and write `data/results/cost_metrics.csv` with columns `dataset_id, method_id, train_time_s, inference_time_s, peak_ram_mb`.  
-  - **Verification**: `code/tests/test_full_pipeline.py` validates both CSVs against their contracts (schema for per‑sample errors and a simple numeric schema for cost metrics). The test must pass with exit 0.
+- [ ] T004 [US1] **Full-scale pipeline on all three capped datasets with uniform 2000-sample training cap**
+  - Extend `code/pipeline.py` to run download → featurize → split → train all four UQ methods on the full capped datasets (≤ 5000 rows, uniform training cap of 2000 examples for all methods to avoid confounding). Enforce ≥ 200 test samples per dataset (power analysis) and stratified splits.
+  - Persist per-sample predictions for all dataset × method combinations in the single `data/results/per_sample_errors.csv` (schema columns exactly as above).
+  - Write the UQMethod registry `data/results/uq_methods.csv` with columns `method_id, baseline_model, hyperparams, n_iterations, status, error_msg` (data-model entity), and the pipeline execution log `data/results/pipeline_log.csv` conforming to `contracts/pipeline.schema.yaml` (run_id, timestamp, status, steps, memory_peak_mb, total_duration_seconds).
+  - Record cost metrics per run in `data/results/cost_metrics.csv` with columns `dataset_id, method_id, train_time_s, inference_time_s, peak_ram_mb`.
+  - **Verification**: `code/tests/test_full_pipeline.py` validates the CSVs against their contracts, asserts every method–dataset combination is present, and asserts n_test ≥ 200 per dataset. Exit 0.
 
-- [ ] **T005** [US2] **Calculate calibration error, sharpness, and coverage metrics with timestamps**  
-  - Implement `code/metrics/evaluation.py` to read `per_sample_errors.csv` and compute for each dataset‑method pair:  
-    * Calibration Error (ECE for prediction intervals)  
-    * Sharpness (average interval width)  
-    * Coverage Error (|empirical – nominal|).  
-  - Write a single CSV `data/results/metrics_raw.csv` that conforms to `specs/001-assessing-uncertainty-quantification-tec/contracts/metrics.schema.yaml`. Required columns: `dataset_id, method_id, metric_type, value, nominal_coverage, timestamp`. Use the current ISO‑8601 timestamp for each row.  
-  - **Verification**: `code/tests/test_metrics.py` loads the CSV, checks schema compliance, and asserts that `timestamp` parses as ISO‑8601. Exit 0 on success.
+- [ ] T005 [US2] **Compute calibration error, sharpness, and coverage metrics**
+  - Implement `code/metrics/evaluation.py` reading `data/results/per_sample_errors.csv` and computing per dataset–method pair: Calibration Error (standard binned ECE over prediction intervals), Sharpness (mean interval width `U − L`), and Coverage Error (`|empirical − nominal|`).
+  - Write `data/results/metrics_raw.csv` conforming to `contracts/metrics.schema.yaml` with columns `dataset_id, method_id, metric_type, value, nominal_coverage, timestamp` (ISO-8601 timestamps).
+  - **Verification**: `code/tests/test_metrics.py` validates schema compliance, asserts all four methods × three datasets are covered, and that timestamps parse as ISO-8601. Exit 0.
 
-- [ ] **T022** [US2] **Generate reference metrics file for reproducibility smoke test**  
-  - After T005 completes on the thin 100‑sample pipeline, copy `data/results/metrics_raw.csv` to `tests/reference/metrics_raw_ref.csv`.  
-  - Record the path in `tests/reference/README.md` for traceability.  
-  - **Verification**: `code/tests/test_reference_exists.py` asserts the reference file exists; exit 0.
+- [ ] T006 [US3] **Paired Wilcoxon signed-rank significance testing with Bonferroni correction**
+  - Implement `code/stats/significance.py`: for each dataset, generate all 6 unique method pairs and run paired Wilcoxon signed-rank tests on per-sample errors (same test set, paired design — FR-004; no independent-sample t-tests or ANOVA).
+  - Apply Bonferroni correction across all method-pair × dataset combinations (18 tests; adjusted α ≈ 0.00278). Report rank-biserial effect sizes with bootstrap 95% confidence intervals.
+  - Write `data/results/statistical_report.csv` conforming to `contracts/stats.schema.yaml` with fields `dataset_id, method_a, method_b, metric_type, p_value, test_type ("wilcoxon_signed_rank"), significant, alpha, correction ("bonferroni")`.
+  - **Verification**: `code/tests/test_statistics.py` validates the CSV against the schema, asserts `test_type` is only `wilcoxon_signed_rank`, and that the `significant` flag uses the Bonferroni-adjusted α. Exit 0.
 
-- [ ] **T006** [US3] **Paired Wilcoxon signed‑rank significance testing with contract‑compliant CSV**  
-  - For each dataset, generate all **6 unique method pairs** and perform a Wilcoxon signed‑rank test on the per‑sample absolute errors.  
-  - Produce `data/results/statistical_report.csv` where each row follows `specs/001-assessing-uncertainty-quantification-tec/contracts/stats.schema.yaml`. Required fields: `dataset_id, method_a, method_b, metric_type, p_value, test_type ("wilcoxon_signed_rank"), significant, alpha (0.05), correction ("bonferroni")`.  
-  - **Verification**: `code/tests/test_statistics.py` validates the CSV against the schema and checks that the Bonferroni‑adjusted α = 0.05/18 ≈ 0.00278 is used for the `significant` flag. Exit 0.
+- [ ] T007 [US3] **Conformal coverage sensitivity sweep and trade-off figure**
+  - Sweep nominal coverage from 0.80 to 0.99 in steps of exactly 0.01 (SC-004) for the split-conformal method (and interval-producing equivalents for the other methods where applicable). For each level compute empirical coverage and average interval width.
+  - Write `data/results/sensitivity_report.csv` with columns `dataset_id, method_id, nominal_coverage, empirical_coverage, avg_interval_width`.
+  - Generate `figures/sensitivity_tradeoff.png` (coverage vs. interval width, faceted by method and dataset) with `matplotlib`.
+  - **Verification**: `code/tests/test_sensitivity.py` asserts the set of `nominal_coverage` values equals `{0.80, 0.81, …, 0.99}`, validates numeric ranges, and opens the PNG. Exit 0.
 
-- [ ] **T021** [FR-004] **Validate statistical results against `statistics.schema.yaml`**  
-  - Load `data/results/statistical_report.csv` and validate it against `specs/001-assessing-uncertainty-quantification-tec/contracts/statistics.schema.yaml`. Ensure that `test_type` is only `wilcoxon_signed_rank`.  
-  - **Verification**: `code/tests/test_statistics_schema.py` runs the validator; exit 0 on success.
+- [ ] T008 [US1] **Model-constraint enforcement and performance monitoring**
+  - Wrap the full pipeline with a `psutil` resource monitor recording total wall-clock time and peak memory; assert `total_duration_seconds < 3600` and `memory_peak_mb ≤ 2000` (NFR-001) and write `data/results/performance_log.json`.
+  - After each training run, assert: Deep Ensemble ≤ 3 sub-models, MC-Dropout ≤ 200 passes, all torch models on `device="cpu"`, no quantization (FR-002). Log any violation to `data/results/model_constraints.log` and abort on limit breach.
+  - Validate every generated CSV (per-sample, metrics, statistical, cost, sensitivity, uq_methods, pipeline_log) against its contract; abort on violation with details in `data/results/schema_validation.log`.
+  - **Verification**: `code/tests/test_all_validations.py` runs these checks end-to-end; exit 0.
 
-- [ ] **T007** [US3] **Conformal coverage sensitivity sweep for all UQ methods**  
-  - Sweep nominal coverage levels from **0.80** to **0.99** (step 0.01) for each of the four UQ methods. For each level compute empirical coverage and average interval width.  
-  - Save results to `data/results/sensitivity_report.csv` with columns `dataset_id, method_id, nominal_coverage, empirical_coverage, avg_interval_width`.  
-  - Generate a plot `figures/sensitivity_tradeoff.png` (coverage vs. interval width) faceted by method and dataset using `matplotlib`.  
-  - **Verification**: `code/tests/test_sensitivity.py` validates the CSV (numeric ranges, non‑negative) and asserts that the set of `nominal_coverage` values equals `{0.80,0.81,…,0.99}` (exact step size). It also asserts that the PNG file can be opened with `PIL.Image`. Exit 0.
+- [ ] T009 [US1] **Reproducibility smoke test with fixed seeds**
+  - Ensure all stochastic processes use fixed seeds (`np.random.seed`, `torch.manual_seed`, seeded splits) — NFR-003.
+  - Add `code/tests/smoke_test.py` that re-runs the thin pipeline and asserts all metric values in `data/results/metrics_raw.csv` match a stored reference `code/tests/reference/metrics_raw_ref.csv` within 1e-8.
+  - **Verification**: the smoke test exits with status 0; any mismatch raises `AssertionError`.
 
-- [ ] **T008** [US1] **Reproducibility smoke test on the 100‑sample pipeline**  
-  - Add `code/tests/smoke_test.py` that re‑runs the thin pipeline (T003) and asserts that **all metric values** in `data/results/metrics_raw.csv` are identical (within 1e‑8) to the stored reference file `tests/reference/metrics_raw_ref.csv`.  
-  - The test must exit with status 0; any mismatch raises an `AssertionError`.
+- [ ] T010 [US1] **Summary tables and reliability diagrams**
+  - Implement `code/visualize_summary.py` aggregating calibration error, sharpness, and cost metrics into `data/results/summary.csv` with columns `dataset_id, method_id, calibration_error, sharpness, train_time_s, inference_time_s, peak_ram_mb`.
+  - Implement `code/visualize_reliability.py` producing `figures/reliability_diagrams.png` (one panel per dataset, all four methods overlaid).
+  - **Verification**: `code/tests/test_visualization.py` validates `summary.csv` column names/types and asserts both PNG files exist and are readable. Exit 0.
 
-- [ ] **T009** [US1] **Generate summary tables and reliability diagrams with validation**  
-  - Implement `code/visualize_summary.py` to aggregate calibration error, sharpness, and cost metrics into `results/summary.csv` (project‑root `results/`). Columns: `dataset_id, method_id, calibration_error, sharpness, train_time_s, inference_time_s, peak_ram_mb`.  
-  - Implement `code/visualize_reliability.py` to produce a multi‑panel reliability diagram `figures/reliability_diagrams.png` (one panel per dataset, all four methods overlaid).  
-  - **Verification**: `code/tests/test_visualization.py` validates `summary.csv` against a simple numeric schema and checks that both PNG files exist and are readable. Exit 0.
+## Phase 3 — Reproducible results and paper handoff
 
-- [ ] **T010** [US1] **Documentation, quick‑start guide, and paper‑stage handoff with hash verification**  
-  - Populate `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` with:  
-    * One‑line command to run the full pipeline (`python -m code.main`).  
-    * Description of the 5 000‑sample cap and deterministic sampling rule.  
-    * Rationale for choosing Wilcoxon signed‑rank (paired nature, constitutional compliance).  
-    * Note about the substitution of Formation Energy for Elastic Modulus.  
-  - Create `specs/001-assessing-uncertainty-quantification-tec/handoff.md` documenting:  
-    * Exact command used to generate all results.  
-    * SHA‑256 hashes of the three raw dataset files and of the final `results/summary.csv`.  
-    * Locations of all CSVs and figures required for the manuscript.  
-  - **Verification**: `code/tests/test_handoff.py` recomputes the hashes of the referenced files and asserts they match the values recorded in `handoff.md`. Exit 0.
+- [ ] T011 [US1] **Methods/results account and paper-stage handoff**
+  - Write a concise methods and results account in `specs/001-assessing-uncertainty-quantification-tec/quickstart.md` linked to the actual output rows in `data/results/` and figure files: which method achieved lowest calibration error and sharpest intervals per dataset, significance outcomes after Bonferroni, and honest reporting of any null results or partial failures (NFR-002 partial results).
+  - Explicitly state the construct-validity limitation: Formation Energy is a proxy for Elastic Modulus (thermodynamic stability vs. mechanical stiffness), so conclusions about elastic-property UQ performance are qualitative.
+  - Document the paper-stage handoff: exact commands (`python -m code.main`, `python -m code.main --thin`), locations of all CSVs and figures required for the manuscript, and the pinned `requirements.txt`. Paper layout, PDF compilation, and publication belong to the paper pipeline.
+  - **Verification**: `code/tests/test_handoff.py` asserts every artifact path referenced in the handoff exists and that the documented commands parse. Exit 0.
 
-- [ ] **T011** [US1] **Pin all dependencies and verify a clean installation**  
-  - Ensure `requirements.txt` exists at the repository root and that every line follows `package==X.Y.Z`.  
-  - In a fresh virtual environment, run `pip install -r requirements.txt` and capture the installed package list.  
-  - Write the outcome to `data/results/requirements_check.json` with the structure:  
-    ```json
-    {
-      "status": "success",
-      "installed": ["pkg1==1.2.3", "pkg2==4.5.6", ...]
-    }
-    ```  
-  - **Verification**: `code/tests/test_requirements.py` compares the `installed` list against the pinned versions; any discrepancy raises an error. Exit 0.
+- [ ] T012 [US1] **Final end-to-end verification**
+  - Execute the full pipeline (`python -m code.main`) from its declared inputs, then run `code/tests/test_all_validations.py` and the integration test `code/tests/test_full_pipeline.py` confirming: all required CSVs and figures exist and pass schema validation; model-constraint and performance limits hold; the reproducibility smoke test passes.
+  - **Verification**: the full command sequence exits with status 0 and prints `READY`; the project is then ready for the next `/speckit.analyze` run.
 
-- [ ] **T012** [US1] **Create entry‑point script and integration test**  
-  - Add `code/main.py` that imports `code/pipeline.py` and executes `run_pipeline()` with default arguments (process all three datasets, full 5 000‑sample cap).  
-  - Add `tests/integration/test_pipeline.py` which invokes `python -m code.main` and asserts the existence of all expected result files:  
-    `data/results/per_sample_errors.csv`, `data/results/metrics_raw.csv`, `data/results/statistical_report.csv`, `data/results/sensitivity_report.csv`, `results/summary.csv`, `figures/reliability_diagrams.png`.  
-  - The test must exit with status 0.
+---
 
-- [ ] **T013** [FR‑002, NFR‑001] **Enforce model‑constraint limits, monitor performance, and validate all CSV contracts**  
-  - After each model training run, assert:  
-    * Deep‑Ensemble creates ≤ 3 sub‑models.  
-    * MC‑Dropout uses ≤ 200 stochastic forward passes.  
-    * All torch models are instantiated with `device="cpu"` and `torch.backends.openmp.enabled=False`.  
-    * Log any violations to `data/results/model_constraints.log` and abort the pipeline if limits are exceeded.  
-  - Wrap the full pipeline (T004) with a resource monitor (`psutil`) that records total wall‑clock time and peak memory usage. After completion, assert `total_duration_seconds < 3600` and `memory_peak_mb <= 2000`. Write these measurements to `data/results/performance_log.json`.  
-  - After each CSV generation step (per‑sample, metrics, statistical, cost, sensitivity, summary), run a schema validator that checks column names, types, and value ranges against the corresponding contract file. Abort on any violation and write details to `data/results/schema_validation.log`.  
-  - **Verification**: `code/tests/test_all_validations.py` runs the above checks end‑to‑end; it must exit with status 0.
+## Dependencies and requirement coverage
 
-- [ ] **T014** [US1] **Final end‑to‑end verification and readiness for analysis**  
-  - Execute the full pipeline (`python -m code.main`) on the capped datasets.  
-  - Run `code/tests/test_all_validations.py` to confirm that:  
-    * All required CSVs and figures exist and pass schema validation.  
-    * Model‑constraint and performance limits are satisfied.  
-    * Dependency check (T011) succeeded.  
-    * Documentation and handoff hashes are correct (T010).  
-  - If all checks pass, the project is ready for the next `/speckit.analyze` run.  
-  - **Verification**: this task is considered complete when the script exits with status 0 and prints “READY”.  
+- **FR-001 (real datasets)**: T002 (matminer package fetches: matbench_expt_gap, matbench_mp_e_form, boltztrap_mp; fail-loudly, no synthetic fallback).
+- **FR-002 (model constraints)**: T003, T004, T008 (CPU-only, ≤ 2M params, ensemble ≤ 3, MC passes ≤ 200, no quantization).
+- **FR-003 (featurization, caps, stratified splits)**: T002, T003.
+- **FR-004 (paired Wilcoxon)**: T006; no t-test/ANOVA anywhere.
+- **FR-005 / SC-002 (output CSVs with schemas)**: T003–T005, T007, T010.
+- **SC-001 (pipeline execution)**: T003, T004, T012.
+- **SC-003 (significance)**: T006.
+- **SC-004 (sensitivity sweep 0.80–0.99, step 0.01)**: T007.
+- **SC-005 (three datasets)**: T002, T004.
+- **NFR-001 (time/memory)**: T008. **NFR-002 (graceful partial results)**: T004 (uq_methods status/error_msg). **NFR-003 (seeds, pinned deps)**: T009, T011.
+- **US1/US2/US3**: T003–T004 / T005 / T006–T007.
 
----  
+Execution order: T001 → T002 → T003 (thin end-to-end) → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012. T006 and T007 depend on T004/T005 outputs; T009 depends on T005; T012 depends on all prior tasks.
 
-*All tasks follow the canonical checklist format `- [ ] T### [USx?] description …` with indented verification steps.  The ordering respects data flow: directory creation → data download → thin pipeline → full pipeline → metrics → statistical tests → sensitivity → reproducibility → visualization → documentation → dependency & entry‑point → constraints & validation → final readiness.*
+## Revision behavior
+
+T002 and T003 were rejected by the independent verifier (T002 downloaded seaborn example data instead of the real materials datasets; T003's pipeline exited 1) and are reopened above with package-based real-data fetches and a fail-loudly loader. All other tasks remain pending; no completed artifacts are erased. Reviewer feedback on the spec's method-naming and the Formation Energy proxy is addressed by naming the four UQ methods explicitly and carrying the construct-validity qualification through T002 and T011.
