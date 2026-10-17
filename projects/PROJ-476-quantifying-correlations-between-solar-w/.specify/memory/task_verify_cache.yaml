@@ -1,12 +1,13 @@
 T001:
-  c: false
-  h: 8855253b7f1edaf499295f1fd97028c1f0023640eb6aebd6978335a3380e8b6f
-  r: The required directory hierarchy exists, and the quickstart.md file contains
-    the documented command, but there is no `code/main.py` (or equivalent `code/main`
-    module) to make `python -m code.main --stage all` runnable, so the verification
-    script would fail. Add a `code/main.py` (or appropriate entry point) that implements
-    the CLI and `--help` option.
-  sig: 1d8b1e0ca8b0bfe1a26bfb04d1094fab18a3a8f99dfe69f0791548ef29a8ad67
+  c: true
+  h: 895c31fc7f736a26f2150bdbbd1292c3520d17353290db20acb1a35090a276dd
+  r: "The directory hierarchy (code/data, code/analysis, code/viz, code/tests, data/raw,\
+    \ data/processed, results, figures) is present, and the quickstart markdown at\
+    \ `specs/001-quantifying-correlations-between-solar-w/quickstart.md` contains\
+    \ the exact command `python -m code.main --stage all`. The log `code/.tasks/T001.code_main.py.log`\
+    \ shows that `python -m code.main --help` runs successfully, confirming the runnable\
+    \ quick\u2011start command."
+  sig: 300c309add58bb45712353a4b5ed14ae28250dae1bc5ed60e42b87fdaa2a4d66
 T005:
   c: false
   h: 58b418a2cc42df68ff97c0487ecc9331459d9653698b02507efd69cd0785c4ab

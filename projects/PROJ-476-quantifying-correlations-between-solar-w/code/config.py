@@ -27,33 +27,22 @@ ACE_VARS = ['N_p', 'T_p', 'He2+_ratio']
 # NOAA Variables (Kp, Dst indices)
 NOAA_VARS = ['Kp', 'Dst']
 
+# Memory limits (used by the fetch and streaming utilities)
+MAX_MEMORY_GB = 7  # SC-001: full-run analysis must stay within 7 GB RAM
+
 # Verified Data Source URLs
 # These URLs are the single source of truth for data acquisition.
 # If these URLs are unreachable, the pipeline MUST fail loudly.
 # ACE URL: FTP path to Level 2 data (SWEPAM/SWICS)
-# Note: For HTTP access, a mirror or specific file path might be needed.
 ACE_URL = "ftp://spdf.gsfc.nasa.gov/pub/data/ace/"
 
 # NOAA URL: FTP path to Kp/Dst indices
-# Note: NOAA data is often available via FTP. We use the official NOAA URL.
 NOAA_URL = "ftp://ftp.ngdc.noaa.gov/STP/space-weather/geomagnetic_indices/kp/"
 
-# Specific sub‑paths used by the fetch module.
-# These constants satisfy imports expected by ``code.data.fetch``.
+# Specific sub-paths used by the fetch module.
 ACE_SWEPAM_URL = ACE_URL + "swepam/level2/"
 ACE_SWICS_URL = ACE_URL + "swics/level2/"
 NOAA_KP_DST_URL = NOAA_URL  # NOAA Kp/Dst data resides under this FTP path.
-
-# Alternative HTTP URLs if FTP is not accessible (for robustness in testing environments)
-# These are mirrors or specific file links if available.
-# ACE HTTP Mirror (example, may not be official)
-# ACE_HTTP_URL = "https://spdf.gsfc.nasa.gov/pub/data/ace/"
-
-# NOAA HTTP Mirror (example)
-# NOAA_HTTP_URL = "https://www.ngdc.noaa.gov/stp/space-weather/geomagnetic_indices/kp/"
-
-# We use the FTP URLs as the primary source as per the verified data source requirement.
-# If the environment does not support FTP, the fetch functions will fail loudly.
 
 # Output Paths
 RAW_DATA_DIR = "data/raw"
@@ -84,6 +73,6 @@ DATASET_SCHEMA = "contracts/dataset.schema.yaml"
 ANALYSIS_SCHEMA = "contracts/analysis_schema.yaml"
 THRESHOLD_SCHEMA = "contracts/threshold.schema.yaml"
 
-# Streaming / chunk size for large‑file processing
+# Streaming / chunk size for large-file processing
 # Used by alignment and Neff calculation utilities.
 STREAMING_CHUNK_SIZE = 100_000

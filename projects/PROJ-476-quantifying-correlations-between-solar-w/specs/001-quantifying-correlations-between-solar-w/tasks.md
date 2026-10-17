@@ -8,7 +8,7 @@ The following checklist implements the complete end‑to‑end scientific study 
 
 ## Phase 1 – Data acquisition, synchronisation, and first end‑to‑end run  
 
-- [ ] **T001** [P] [US1] Create the project layout and a runnable quick‑start command.  
+- [X] **T001** [P] [US1] Create the project layout and a runnable quick‑start command.  
   - Create the directory hierarchy under the project root: `code/data/`, `code/analysis/`, `code/viz/`, `code/tests/`, `data/raw/`, `data/processed/`, `results/`, `figures/`.  
   - Add `specs/001-quantifying-correlations-between-solar-w/quickstart.md` that documents the exact CLI invocation:  
 
