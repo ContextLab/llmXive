@@ -10,16 +10,16 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - data/raw/commit_pairs.csv: self-declared fabricated metric — “…hat your reported numbers are NOT real measurements: they are drawn from `random…”
 - data/raw/commit_pairs.csv: self-declared fabricated metric — “…m`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautolo…”
-- data/raw/commit_pairs.csv: self-declared fabricated metric — “…ver offload). Never present a simulated number as a measurement.  - code/ana…”
-- data/raw/commit_pairs.csv: self-declared fabricated metric — “…esult signal(s) — results are not real measurements: code/analysis/generate_sens…”
-- code/run_pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…un the smoke test with a synthetic sample (ignores other stages)."…”
-- data/raw/commit_pairs.csv: synthetic/fake INPUT data not authorized by the spec — “…ity_report.py: synthetic/fake INPUT data not authorized by the sp…”
-- data/raw/commit_pairs.csv: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”
-- data/raw/commit_pairs.csv: synthetic/fake INPUT data not authorized by the spec — “…e/research.md: synthetic/fake INPUT data not authorized by the sp…”
+- data/raw/commit_pairs.csv: self-declared fabricated metric — “…ver offload). Never present a simulated number as a measurement.  - code/src…”
+- data/raw/commit_pairs.csv: self-declared fabricated metric — “…ter..."")     model = None  # Placeholder     metrics = {         ""accuracy"": 0.…”
+- data/raw/commit_pairs.csv: self-declared fabricated metric — “…esult signal(s) — results are not real measurements: code/src/router_evaluation.…”
+- data/raw/commit_pairs.csv: self-declared fabricated metric — “…ter..."")     model = None  # Placeholder     metrics = {         ""accuracy"": 0.…”
+- data/repos/django/docs/howto/csp.txt: self-declared fabricated metric — “…`~django.utils.csp.CSP.NONCE` placeholder value in the CSP    settings. This…”
+- data/repos/django/docs/intro/tutorial03.txt: self-declared fabricated metric — “…too -- these will display the placeholder results and voting pages.  When some…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 59 fabricated/simulated-result signal(s) — results are not real measurements: data/raw/commit_pairs.csv: self-declared fabricated metric — “…hat your reported numbers are NOT real measurements: they are drawn from `random…”; data/raw/commit_pairs.csv: self-declared fabricated metric — “…m`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautolo…”; data/raw/commit_pairs.csv: self-declared fabricated metric — “…ver offload). Never present a simulated number as a measurement.  - code/ana…”; 1 command(s) failed: python -m code.run_pipeline --full (rc=-1); 1 declared deliverable(s) absent: data/gold_standard/annotations.json
+**Summary**: 12 fabricated/simulated-result signal(s) — results are not real measurements: data/raw/commit_pairs.csv: self-declared fabricated metric — “…hat your reported numbers are NOT real measurements: they are drawn from `random…”; data/raw/commit_pairs.csv: self-declared fabricated metric — “…m`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautolo…”; data/raw/commit_pairs.csv: self-declared fabricated metric — “…ver offload). Never present a simulated number as a measurement.  - code/src…”; 2 command(s) failed: python -m code.run_pipeline --full (rc=-1); python -m pytest tests/quickstart_test.py tests/test_power_analysis.py (rc=-1); 1 declared deliverable(s) absent: data/gold_standard/annotations.json
 
 ## Failing / missing run-book commands
 
@@ -27,11 +27,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Power analysis: estimated power for n=500 is 1.0000; exploratory=False
 Wrote /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/results/power_report.md
 
-2026-10-17 08:18:59,472 INFO __main__: Running full pipeline
-2026-10-17 08:18:59,472 INFO __main__: Running power analysis...
-2026-10-17 08:19:42,258 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
-2026-10-17 08:19:42,259 INFO __main__: Running data extraction...
-2026-10-17 08:19:42,259 INFO code.data_extraction: Repo already cloned at /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/repos/pandas, pulling latest.
+2026-10-17 09:20:56,776 INFO __main__: Running full pipeline
+2026-10-17 09:20:56,776 INFO __main__: Running power analysis...
+2026-10-17 09:21:39,624 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
+2026-10-17 09:21:39,624 INFO __main__: Running data extraction...
+2026-10-17 09:21:39,624 INFO code.data_extraction: Repo already cloned at /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/repos/pandas, pulling latest.
+
+[TIMEOUT after 120s]
+- python -m pytest tests/quickstart_test.py tests/test_power_analysis.py -> rc=-1
+============================= test session starts ==============================
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
+rootdir: /home/runner/work/llmXive/llmXive
+configfile: pyproject.toml
+collected 7 items
+
+tests/quickstart_test.py ..                                              [ 28%]
+tests/test_power_analysis.py ....
 
 [TIMEOUT after 120s]
 

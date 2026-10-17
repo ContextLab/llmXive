@@ -35,9 +35,9 @@ reproduces identical results.
 python -m code.run_pipeline --sample 5
 ```
 This loads one tiny hard‑coded synthetic commit pair (a plumbing smoke
-test only — never analysis data), invokes the CPU‑only generation module,
+test only — never analysis data), invokes the CPU-only generation module,
 and writes `data/generated/phi3-mini/sample_test.txt`. It completes in
-well under 30 seconds and requires no model downloads.
+well under 30 seconds and requires no model downloads.
 
 ## Power analysis (Phase 1)
 ```bash
@@ -59,14 +59,14 @@ python -m code.run_pipeline --full
 2. Repositories (`pandas`, `requests`, `scikit-learn`, `flask`, `django`) are cloned (cached on subsequent runs).
 3. Commits from the last two years that touch `.md`/`.rst` are extracted → `data/raw/commit_pairs.csv`.
 4. A random subset is sampled for gold‑standard annotation.
-5. Each LLM (Phi-3-mini, Gemma-2‑2b, Llama-3.2‑3B) generates a documentation update per commit on CPU, with a 60 s timeout and up to 2 retries.
+5. Each LLM (Phi-3-mini, Gemma-2-2b, Llama-3.2-3B) generates a documentation update per commit on CPU, with a 60 s timeout and up to 2 retries.
 6. Entities are extracted, verified (regex + AST + `git grep`), and fidelity metrics are computed.
 7. Statistical tests (Friedman/ANOVA with Holm‑Bonferroni correction, honoring the power report's `exploratory` flag) and visualizations are saved under `results/`.
 
 Until the remaining tasks land, `--full` runs every implemented stage
-(currently the Phase‑0 smoke test plumbing and the Phase‑1 power
-analysis), reports the not‑yet‑implemented stages as pending, and exits
-successfully so the run‑book stays executable at every point in the
+(currently the Phase-0 smoke test plumbing and the Phase-1 power analysis),
+reports the not-yet-implemented stages as pending, and exits
+successfully so the run-book stays executable at every point in the
 project.
 
 ## Inspecting Results
@@ -83,4 +83,4 @@ pytest tests/quickstart_test.py tests/test_power_analysis.py
 ```
 
 ## CI Execution
-The repository includes a GitHub Actions workflow (`.github/workflows/research.yml`) that automatically runs the full CPU‑only pipeline on every push, caches model weights, and uploads artifacts. No manual intervention is required.
+The repository includes a GitHub Actions workflow (`.github/workflows/research.yml`) that automatically runs the full CPU-only pipeline on every push, caches model weights, and uploads artifacts. No manual intervention is required.

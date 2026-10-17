@@ -1,12 +1,24 @@
+T001:
+  c: false
+  h: e6c9803b45d38415d3676e01f9c2cc1d91011181cb026d1d17a94f505c07949b
+  r: "The smoke-test command itself works (`--sample 5` exited 0 in 0.1s and wrote\
+    \ `data/generated/phi3-mini/sample_test.txt`), but the required verification `pytest\
+    \ tests/quickstart_test.py` does NOT pass: the recorded run timed out after 600s\
+    \ (exit -1), almost certainly because `test_full_pipeline_smoke` invokes `--full`,\
+    \ which triggers the slow repo-cloning data-extraction stage \u2014 the quickstart\
+    \ test must complete quickly, not hang. Additionally, `quickstart.md` contains\
+    \ broken install commands (`python -m venv.venv` and `source.venv/bin/activate`\
+    \ are missing spaces), so the documented setup step"
+  sig: 0b1ff4190933d189d7fc4a443d581cbfd1d9dd8f4d5c6f408c0239a4fa7837c6
 T002:
   c: true
-  h: b62b8e3d5e8815beef9abf1e6193a866642b89e1ac809c295c74f99699dea0e5
+  h: 09dc7db13dfa8e7d254b0e9967eb4d38444f3b6821680ee3c1870e8d3fdd5f90
   r: "Both required artifacts exist and are substantive: `code/power_analysis.py`\
-    \ implements a genuine Monte-Carlo simulation (1000 replicates, n=500 paired samples,\
-    \ Cohen's d=0.5 shift, within-subject correlation, pinned SEED=42 from `code/seeds.py`,\
-    \ scipy's friedmanchisquare), and `results/power_report.md` contains the numeric\
-    \ estimate `estimated_power_n500: 1.0000` with `exploratory: false`, which is\
-    \ exactly consistent with the flag rule (true iff power < 0.8) since 1.0 \u2265\
-    \ 0.8. The reported power of ~1.0 is statistically plausible for a Friedman test\
-    \ with n=500 and a medium effect, and the report'"
-  sig: 457d0611d13a25df724379137733fc1f46aa701f75a1b882d4b0f13699301fb3
+    \ implements a genuine Monte-Carlo simulation (1000 replicates, paired three-model\
+    \ design with within-subject correlation, scipy Friedman test, pinned seed 42\
+    \ from `code/seeds.py`), and `results/power_report.md` contains a numeric power\
+    \ estimate for n=500 (`estimated_power_n500: 1.0000`) plus an `exploratory: false`\
+    \ flag, which is exactly consistent with the code's rule (flag true iff power\
+    \ < 0.8) since 1.0 \u2265 0.8. The reported power of ~1.0 is statistically plausible\
+    \ for n=500 with d=0.5, and the report's design paramete"
+  sig: 033f21aa3b3a83efca338da7cce32592572a74474656e8ecbf162a5106c7c8d9

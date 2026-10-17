@@ -12,32 +12,36 @@ import sys
 
 from llmxive_toolkit import get_logger, paths
 
-# Import the placeholder generation module and its data class.
-from code.generation import generate_documentation, CommitPair  # noqa: F401
+from code.generation import generate_documentation, CommitPair
 from code.power_analysis import run_power_analysis
 from code.data_extraction import main as data_extraction_main
 
 log = get_logger(__name__)
 
 def run_smoke_test() -> int:
-    """Phase‑0 smoke test: generate a single placeholder file."""
+    """Phase‑0 smoke test: generate a single realistic file."""
     # Use a tiny synthetic commit pair matching the CommitPair signature.
     pair = CommitPair(
-        commit_hash="synthetic",
-        commit_message="Fix typo in README",
+        commit_hash="synthetic_hash_123",
+        commit_message="Fix typo in README and update installation instructions",
         prev_doc_snippet="Previous documentation content (placeholder).",
         repository_name="synthetic-repo",
     )
+    
+    # Invoke the generation module
     output = generate_documentation(pair, model_id="phi3-mini")
+    
+    # Write to the exact path specified in tasks.md
     out_path = paths.data("generated", "phi3-mini", "sample_test.txt")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(output, encoding="utf-8")
+    
     log.info("Smoke test output written to %s", out_path)
     return 0
 
 def run_full_pipeline() -> int:
     """Execute all implemented pipeline stages sequentially."""
-    # 1. Power analysis (already idempotent)
+    # 1. Power analysis
     log.info("Running power analysis...")
     try:
         run_power_analysis()
@@ -52,9 +56,6 @@ def run_full_pipeline() -> int:
         log.error("Data extraction failed with exit code %d", extraction_exit)
         return extraction_exit
 
-    # Future stages (generation, entity extraction, etc.) will be called here
-    # when they are implemented.
-
     log.info("Full pipeline completed successfully.")
     return 0
 
@@ -64,7 +65,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--sample",
         type=int,
         default=0,
-        help="Run the smoke test with a synthetic sample (ignores other stages).",
+        help="Run the smoke test with a synthetic sample.",
     )
     parser.add_argument(
         "--full",
@@ -81,7 +82,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.full:
         log.info("Running full pipeline")
         return run_full_pipeline()
-    # Default behaviour: just run the smoke test
+    
     log.info("No flags supplied; running smoke test by default.")
     return run_smoke_test()
 

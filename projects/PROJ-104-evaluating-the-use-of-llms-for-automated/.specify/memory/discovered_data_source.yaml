@@ -1,13 +1,12 @@
 status: none
-intent: GitHub commit documentation diff dataset SOTorrent HuggingFace python package
-  dataset
+intent: GitHub documentation diff commit dataset python package dataset
 required_fields:
-- commit_hash
 - commit_message
-- documentation_diff
-- repository_name
-- commit_date
-- doc_file_path
-cache_key: ff6a8e24ca25f15d6e60faa95f7074caf90d72a5a4d83acb1f2909bdeabfb7c7
-searched_at: '2026-10-17T08:23:30.552734+00:00'
+- commit_hash
+- doc_diff
+- repo_name
+- file_path
+- commit_timestamp
+cache_key: f2b9bd2237975c91cddf21c5a943ab0bfb53a7b8c337fde55883b5b8a9bf0264
+searched_at: '2026-10-17T09:26:14.543315+00:00'
 retry_count: 1
