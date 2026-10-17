@@ -41,7 +41,7 @@ configfile: pyproject.toml
 plugins: platformdirs-4.13.4
 collected 0 items
 
-============================ no tests ran in 0.01s =============================
+============================ no tests ran in 0.00s =============================
 
 ERROR: file or directory not found: tests/integration/test_t001.py
 

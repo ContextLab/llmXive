@@ -15,6 +15,7 @@ Steps:
 6. Writes a checksum entry for the raw matrix in data/checksums.yaml.
 7. Logs the run to data/logs/single_run.log including peak memory (RSS).
 8. Enforces SC-001: fails if peak memory exceeds 7 GB.
+9. Updates quickstart.md with the exact command line shown above.
 """
 
 import argparse
@@ -57,12 +58,27 @@ def _setup_logger(log_path: Path) -> logging.Logger:
 
 
 def _generate_wigner(N: int, seed: int) -> np.ndarray:
-    """Generate a symmetric Wigner matrix scaled by 1/sqrt(N)."""
+    """
+    Generate a GOE (Gaussian Orthogonal Ensemble) Wigner matrix with the
+    correct scaling so that the bulk edge of the spectrum converges to ±2.
+
+    Construction:
+    - Off‑diagonal entries: (X_ij + X_ji) / sqrt(2N) where X_ij ~ N(0,1)
+    - Diagonal entries:   X_ii / sqrt(N)   where X_ii ~ N(0,1)
+
+    This yields variance 1/N for off‑diagonal elements and 2/N for the
+    diagonal, matching the standard GOE definition.
+    """
     rng = np.random.default_rng(seed)
-    A = rng.standard_normal((N, N))
-    A = (A + A.T) / 2.0
-    A /= np.sqrt(N)
-    return A
+    # Generate a matrix of standard normals
+    X = rng.standard_normal((N, N))
+
+    # Symmetrize with proper scaling for GOE
+    # Off‑diagonal: (X_ij + X_ji) / sqrt(2N)
+    # Diagonal:   X_ii / sqrt(N)
+    off_diag = (X + X.T) / np.sqrt(2 * N)
+    np.fill_diagonal(off_diag, np.diag(X) / np.sqrt(N))
+    return off_diag
 
 
 def _load_or_create_matrix(N: int, seed: int, raw_dir: Path, logger: logging.Logger) -> Path:

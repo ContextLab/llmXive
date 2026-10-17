@@ -1,27 +1,22 @@
 T001:
-  c: true
-  h: 79817943bd9c3f22bdca389f0ba37ec12715f0a577522f1a8245591e1f8244b0
-  r: 'All three schema files exist under `contracts/` (confirmed by the directory
-    listing: simulation_run, eigenvalue_result, aggregated_threshold .schema.yaml),
-    and `tests/contract/test_schemas.py` is a substantive, non-stub module that loads
-    each schema via `jsonschema.Draft7Validator.check_schema` and validates every
-    JSON/CSV artifact in `data/processed/` against the appropriate contract. The historical
-    execution record shows `pytest` exiting 0 with the schema-existence test passing;
-    the artifact-validation tests skipped only because no processed data existed at
-    that time, and the current `single'
-  sig: 46e31ee5fe418e5ca520c3cbe79778f740f34d51675d4716db923f37b1e5e6c2
-T002:
   c: false
-  h: 172fdca548bb7b0e248bf723ceca44365a3c919ca2844041cd07374f471298f4
-  r: "All required artifacts exist and the command ran successfully (log shows Peak\
-    \ Memory 0.085\u20130.194 GB, JSON has 10 eigenvalue records, checksum matches\
-    \ the raw matrix, quickstart contains the exact command). However, the Wigner\
-    \ matrix construction is scientifically wrong: `_generate_wigner` symmetrizes\
-    \ via `A = (A + A.T) / 2` before the `1/\u221AN` scaling, which halves the off-diagonal\
-    \ variance, so the bulk edge is \u2248 \u221A2 \u2248 1.414 \u2014 exactly what\
-    \ the results show (eigenvalues 2\u201310 cluster at 1.33\u20131.41, `empirical_bulk_edge`\
-    \ = 1.32) instead of the semicircle edge 2.0 required by the spec and by the outli"
-  sig: a1103e621c90fa8b2155d6a4b6312eaf9e3de0e39f93b31a7c5dcc62868a18d7
+  h: afa4b8a36bf7186373ebc32b8f4782c17e00cbee5b35f3e9bf8abe184a75837c
+  r: "The three required schema files are listed in the `contracts/` directory, but\
+    \ their contents are not provided, so we cannot verify they are valid JSON\u2011\
+    Schema documents. Moreover, there is no execution evidence showing that `pytest\
+    \ -q tests/contract/test_schemas.py` actually runs and exits\u202F0. The implementer\
+    \ must supply the schema file contents and proof that the test suite passes."
+  sig: edefc36dadf29f26bb7111f5365dbf0af0ed41956399be52c3cf868b9722fca4
+T002:
+  c: true
+  h: 3dde34bf1a8144f38dd74ab2a1122bb231de018a46dbd6cf0975a3c451183c29
+  r: "Checked that `code/main.py` implements the required steps, that the generated\
+    \ raw matrix `data/raw/matrix_N1000_seed42.npy` exists, that `data/processed/single_run_results.json`\
+    \ contains the SimulationRun and ten EigenvalueResult entries with correct outlier\
+    \ logic, that `data/checksums.yaml` and `data/logs/single_run.log` are written\
+    \ (log shows peak memory\u202F0.086\u202FGB), and that `quickstart.md` includes\
+    \ the exact command line. All artifacts are present and meet the task specifications."
+  sig: 665ed1009fe81f3efc8151347fdfff7b3692e69644a6b8aa301aff2df6aaee54
 T003:
   c: false
   h: fa781f1d38730b5ceef25231a09f23dba3d9df581247ae9dc8aa9b299f5ae329

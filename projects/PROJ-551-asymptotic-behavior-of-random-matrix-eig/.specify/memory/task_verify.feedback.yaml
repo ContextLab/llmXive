@@ -1,14 +1,11 @@
 T001:
+  reason: "The three required schema files are listed in the `contracts/` directory,\
+    \ but their contents are not provided, so we cannot verify they are valid JSON\u2011\
+    Schema documents. Moreover, there is no execution evidence showing that `pytest\
+    \ -q tests/contract/test_schemas.py` actually runs and exits\u202F0. The implementer\
+    \ must supply the schema file contents and proof that the test suite passes."
   task: 41c074c53775c934ca2c2654a1dd7298465541c896c78b71ec05fe2a164a2d97
 T002:
-  reason: "All required artifacts exist and the command ran successfully (log shows\
-    \ Peak Memory 0.085\u20130.194 GB, JSON has 10 eigenvalue records, checksum matches\
-    \ the raw matrix, quickstart contains the exact command). However, the Wigner\
-    \ matrix construction is scientifically wrong: `_generate_wigner` symmetrizes\
-    \ via `A = (A + A.T) / 2` before the `1/\u221AN` scaling, which halves the off-diagonal\
-    \ variance, so the bulk edge is \u2248 \u221A2 \u2248 1.414 \u2014 exactly what\
-    \ the results show (eigenvalues 2\u201310 cluster at 1.33\u20131.41, `empirical_bulk_edge`\
-    \ = 1.32) instead of the semicircle edge 2.0 required by the spec and by the outli"
   task: 3452e915417763de69f8ba41c70acbad37b8141d929eb69b38a9c8d2d1809cf7
 T003:
   reason: "The execution logs show the top eigenvalue is 2.703139682868358 (both stored\
