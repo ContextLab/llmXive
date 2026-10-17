@@ -1,23 +1,15 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/src/data/download.py --check-only`
-  - script usage: `download.py [-h] [--subjects SUBJECTS] [--simulate-missing-bmrq]`
-  - argparse error: `download.py: error: unrecognized arguments: --check-only`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python src/analysis/stats.py --output results/analysis_results.csv; python src/analysis/visualize.py --input results/analysis_results.csv; 4 command(s) failed: python code/src/data/download.py --check-only (rc=2); python code/src/data/preprocess.py --subjects 50 --mode cpu (rc=1); python src/analysis/connectivity.py --subjects 50 (rc=1); 1 declared deliverable(s) absent: data/preprocessing/run_log.json
+**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python src/analysis/stats.py --output results/analysis_results.csv; python src/analysis/visualize.py --input results/analysis_results.csv; 4 command(s) failed: python code/src/data/download.py --check-only (rc=1); python code/src/data/preprocess.py --subjects 50 --mode cpu (rc=1); python src/analysis/connectivity.py --subjects 50 (rc=1); 1 declared deliverable(s) absent: data/preprocessing/run_log.json
 
 ## Failing / missing run-book commands
 
-- python code/src/data/download.py --check-only -> rc=2
+- python code/src/data/download.py --check-only -> rc=1
 
-usage: download.py [-h] [--subjects SUBJECTS] [--simulate-missing-bmrq]
-download.py: error: unrecognized arguments: --check-only
+2026-10-17 04:37:22,218 INFO __main__: Fetching file list for dataset ds000233...
+2026-10-17 04:37:22,529 ERROR __main__: Pipeline failed: Cannot access OpenNeuro dataset ds000233 API: 404 Client Error: Not Found for url: https://openneuro.org/api/datasets/ds000233/files
 
 - python code/src/data/preprocess.py --subjects 50 --mode cpu -> rc=1
 

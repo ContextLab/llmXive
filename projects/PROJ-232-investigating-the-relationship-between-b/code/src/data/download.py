@@ -6,6 +6,7 @@ import os
 import sys
 import hashlib
 import argparse
+import requests
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
@@ -104,68 +105,79 @@ The pipeline has halted. Please resolve the data gap before proceeding.
 
 def download_behavioral_data(data_dir: Path, dataset: str = "ds000233") -> Path:
     """
-    Download behavioral data (BMRQ) from OpenNeuro.
+    Download behavioral data (BMRQ) from OpenNeuro using the public API.
     """
-    from openneuro import OpenNeuro
-    client = OpenNeuro()
     data_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Downloading metadata for dataset {dataset}...")
+    logger.info(f"Fetching file list for dataset {dataset}...")
     try:
-        dataset_info = client.get_dataset(dataset)
+        response = requests.get(f"https://openneuro.org/api/datasets/{dataset}/files")
+        response.raise_for_status()
+        files = response.json()
     except Exception as e:
-        raise FileNotFoundError(f"Cannot access OpenNeuro dataset {dataset}: {e}")
+        raise RuntimeError(f"Cannot access OpenNeuro dataset {dataset} API: {e}")
     
-    behavioral_file = None
-    for file_info in dataset_info.get('files', []):
+    behavioral_file_path = None
+    for file_info in files:
         path = file_info.get('path', '').lower()
         if ('beh' in path or 'bmrq' in path) and (path.endswith('.tsv') or path.endswith('.csv')):
-            behavioral_file = file_info
+            behavioral_file_path = file_info.get('path')
             break
     
-    if not behavioral_file:
+    if not behavioral_file_path:
         raise FileNotFoundError(f"No behavioral data file found in dataset {dataset}.")
     
-    file_name = Path(behavioral_file['path']).name
-    file_path = data_dir / file_name
+    file_name = Path(behavioral_file_path).name
+    local_path = data_dir / file_name
     
-    logger.info(f"Downloading {behavioral_file['path']} to {file_path}...")
+    logger.info(f"Downloading {behavioral_file_path} to {local_path}...")
     try:
-        client.download_file(dataset, behavioral_file['path'], str(data_dir))
+        download_url = f"https://openneuro.org/api/datasets/{dataset}/files/{behavioral_file_path}"
+        with requests.get(download_url, stream=True) as r:
+            r.raise_for_status()
+            with open(local_path, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
     except Exception as e:
-        raise RuntimeError(f"Download failed: {e}")
+        raise RuntimeError(f"Download failed for {behavioral_file_path}: {e}")
     
-    return file_path
+    return local_path
 
 def download_subject_data(subject_id: str, dataset: str, raw_dir: Path) -> bool:
     """
     Download raw rs-fMRI NIfTI files for a subject and compute checksums.
     """
-    from openneuro import OpenNeuro
-    client = OpenNeuro()
-    
     subj_dir = raw_dir / subject_id
     subj_dir.mkdir(parents=True, exist_ok=True)
     
     try:
+        response = requests.get(f"https://openneuro.org/api/datasets/{dataset}/files")
+        response.raise_for_status()
+        all_files = response.json()
+        
         # Identify files for this subject (specifically rs-fMRI NIfTIs)
-        # Pattern: sub-<id>/func/*_bold.nii.gz
-        files = client.list_files(dataset, pattern=f"sub-{subject_id}/func/*.nii.gz")
-        if not files:
+        # Pattern: sub-<id>/func/*.nii.gz
+        subject_files = [f['path'] for f in all_files if f['path'].startswith(f"sub-{subject_id}/func/") and f['path'].endswith(".nii.gz")]
+        
+        if not subject_files:
             logger.warning(f"No fMRI files found for subject {subject_id}")
             return False
         
         checksums = []
-        for file_info in files:
-            remote_path = file_info['path']
+        for remote_path in subject_files:
             local_file_path = subj_dir / Path(remote_path).name
             
             logger.info(f"Downloading {remote_path} for {subject_id}...")
-            client.download_file(dataset, remote_path, str(subj_dir))
-            
-            # Compute checksum
-            sha = calculate_file_checksum(local_file_path)
-            checksums.append(f"{sha}  {local_file_path.name}")
+            download_url = f"https://openneuro.org/api/datasets/{dataset}/files/{remote_path}"
+            with requests.get(download_url, stream=True) as r:
+                r.raise_for_status()
+                with open(local_file_path, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                
+                # Compute checksum
+                sha = calculate_file_checksum(local_file_path)
+                checksums.append(f"{sha}  {local_file_path.name}")
         
         # Save checksums to file
         checksum_file = subj_dir / "checksums.sha256"
@@ -181,6 +193,7 @@ def main():
     parser = argparse.ArgumentParser(description="Download and verify OpenNeuro ds000233 data")
     parser.add_argument("--subjects", type=int, help="Number of subjects to download")
     parser.add_argument("--simulate-missing-bmrq", action="store_true", help="Simulate missing BMRQ columns")
+    parser.add_argument("--check-only", action="store_true", help="Only verify BMRQ availability")
     args = parser.parse_args()
     
     raw_data_dir = paths.data("raw")
@@ -200,6 +213,10 @@ def main():
             generate_data_gap_report(missing, paths.data("data_gap_report.md"))
             sys.exit(1)
         
+        if args.check_only:
+            logger.info("BMRQ availability check completed successfully.")
+            return
+
         # 3. Subject-specific downloads
         if args.subjects:
             import pandas as pd
@@ -211,7 +228,7 @@ def main():
             logger.info(f"Downloading raw data for {len(subject_list)} subjects...")
             success_count = 0
             for sid in subject_list:
-                # Clean subject ID to match OpenNeuro format if necessary
+                # Clean subject ID to match OpenNeuro format (remove 'sub-' if present)
                 clean_sid = sid.replace("sub-", "")
                 if download_subject_data(clean_sid, dataset_id, raw_data_dir):
                     success_count += 1

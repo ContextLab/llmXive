@@ -1,10 +1,13 @@
 status: none
-intent: OpenNeuro ds000233 HCP 1200 Subjects Release resting-state fMRI BMRQ scores
-  python package dataset
+intent: OpenNeuro ds000233 music emotion fMRI BMRQ behavioral scores python package
+  dataset
 required_fields:
 - resting-state fMRI NIfTI files
-- BMRQ behavioral scores
+- BMRQ (Barcelona Music Reward Questionnaire) scores
 - subject ID
-cache_key: e37b05996066b225e129848a6497ea503b45397e568c4eacfae305983a4b8298
-searched_at: '2026-10-17T04:34:29.606342+00:00'
+- functional connectivity matrices (Pearson correlation, symmetric, [-1,1], diagonal=1.0)
+- framewise displacement (FD) metric
+- Schaefer 200 atlas region labels
+cache_key: aa8128ad820d32d9238c27f1c81f1d3c652d704d3004a0cc5a6f015cf874eed8
+searched_at: '2026-10-17T04:38:58.696816+00:00'
 retry_count: 1

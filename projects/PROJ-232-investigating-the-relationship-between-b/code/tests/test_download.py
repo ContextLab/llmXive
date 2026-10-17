@@ -1,7 +1,6 @@
 import pytest
 import pandas as pd
 import yaml
-import json
 from pathlib import Path
 from jsonschema import validate, ValidationError
 from llmxive_toolkit import paths
@@ -40,6 +39,7 @@ def test_schema_validation():
         schema = yaml.safe_load(f)
     
     # Mock a downloaded record (mapped from CSV names to schema names)
+    # Note: BMRQ_Total in CSV -> bmrq_total in schema
     record = {
         "subject_id": "sub-01",
         "age": 25,
