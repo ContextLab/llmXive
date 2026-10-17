@@ -1,0 +1,228 @@
+# Step 4: Visualize and compile the final report
+python code/visualization.py
+```
+
+### Expected Outputs
+- Clean dataset: `data/processed/merged_dataset.parquet`  
+- Metrics JSON: `artifacts/metrics.json` (includes power analysis, merge success rate, and all SC booleans)  
+- Partial dependence PNGs: `artifacts/reports/plots/*.png` (total ≤ 100 MB)  
+- Final PDF report: `artifacts/reports/final_report.pdf` (contains the mandatory associational statement; causal wording checked)  
+
+## Contract Validation
+
+```bash
+pytest tests/contract/test_schemas.py
+```
+
+All tests should pass. Failure indicates schema mismatches or missing artifacts.
+
+## Troubleshooting
+- **Merged dataset unavailable** – The pipeline will abort with a clear error logged in `artifacts/logs/fallback.log`. Ensure at least one of the verified merged dataset URLs is reachable.  
+- **MemoryError** – Reduce dataset size by limiting to the top 5 species: `python code/preprocessing.py --max-species 5`.  
+- **Schema test failures** – Ensure the three schema files exist under `contracts/` and that the dataset columns match the schema (nullability for `phosphorus`/`nitrogen` is allowed).  
+
+---
+
+
+
+## projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/contracts/dataset.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MergedDataset"
+description: "Schema for the cleaned and merged root phenotype and soil nutrient dataset."
+type: "object"
+properties:
+  species:
+    type: "string"
+    description: "Scientific name of the plant species."
+  root_length:
+    type: "number"
+    description: "Log-transformed total root length."
+  branching_density:
+    type: "number"
+    description: "Log-transformed branching density."
+  surface_area:
+    type: "number"
+    description: "Log-transformed root surface area."
+  phosphorus:
+    type: "number"
+    description: "Z-scored phosphorus concentration. May be null if soil data unavailable."
+    nullable: true
+  nitrogen:
+    type: "number"
+    description: "Z-scored nitrogen concentration. May be null if soil data unavailable."
+    nullable: true
+  soil_moisture:
+    type: "number"
+    description: "Optional soil moisture covariate."
+    nullable: true
+  temperature:
+    type: "number"
+    description: "Optional temperature covariate."
+    nullable: true
+  elevation:
+    type: "number"
+    description: "Optional elevation covariate."
+    nullable: true
+  data_source_type:
+    type: "string"
+    description: "Type of data source (observational/experimental)."
+  sample_size_per_species:
+    type: "integer"
+    description: "Number of observations for the species after filtering."
+required:
+  - species
+  - root_length
+  - branching_density
+  - surface_area
+  - data_source_type
+additionalProperties: false
+
+## projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/contracts/model_results.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResults"
+description: "Schema for the output of the LMM and Random Forest modeling phase."
+type: "object"
+properties:
+  lmm_results:
+    type: "object"
+    properties:
+      adjusted_r_squared:
+        type: "number"
+        description: "Adjusted R-squared value for the LMM."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error."
+      coefficients:
+        type: "object"
+        description: "Mapping predictor → {coefficient, p_value, corrected_p_value}."
+        additionalProperties:
+          type: "object"
+          properties:
+            coefficient:
+              type: "number"
+            p_value:
+              type: "number"
+            corrected_p_value:
+              type: "number"
+          required:
+            - coefficient
+            - p_value
+            - corrected_p_value
+      p_values:
+        type: "object"
+        description: "Mapping predictor → p-value (redundant for convenience)."
+        additionalProperties:
+          type: "number"
+    required:
+      - adjusted_r_squared
+      - rmse
+      - coefficients
+      - p_values
+  rf_results:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+        description: "R-squared value for the Random Forest."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error."
+    required:
+      - r_squared
+      - rmse
+  cv_metrics:
+    type: "object"
+    properties:
+      mean_out_of_sample_r2:
+        type: "number"
+        description: "Mean R-squared from species‑stratified cross‑validation."
+    required:
+      - mean_out_of_sample_r2
+  success_criteria:
+    type: "object"
+    properties:
+      sc_002_met:
+        type: "boolean"
+        description: "True if LMM R² is within 5 % of RF R² (SC‑002)."
+      sc_003_met:
+        type: "boolean"
+        description: "True if nutrient coefficient p-values < 0.05 after correction (SC‑003)."
+      sc_006_met:
+        type: "boolean"
+        description: "True if sensitivity analysis confirms biological plausibility (SC‑006)."
+      power_achieved:
+        type: "number"
+        description: "Achieved statistical power for detecting a medium effect size."
+    required:
+      - sc_002_met
+      - sc_003_met
+      - sc_006_met
+      - power_achieved
+required:
+  - lmm_results
+  - rf_results
+  - cv_metrics
+  - success_criteria
+additionalProperties: false
+
+## projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/contracts/output.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FinalReportOutput"
+description: "Schema for the final report artifacts and summary metrics."
+type: "object"
+properties:
+  report_file:
+    type: "string"
+    description: "Path to the generated PDF report."
+  plots:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of paths to generated PNG plots."
+  total_plot_size_mb:
+    type: "number"
+    description: "Total size of plot files in MB (must be ≤ 100)."
+  associational_statement:
+    type: "string"
+    description: "Explicit statement confirming findings are associational, not causal."
+  deviations:
+    type: "array"
+    items:
+      type: "string"
+    description: "Logged deviation messages (e.g., merged dataset unavailable, imputation decisions)."
+  success_criteria:
+    type: "object"
+    properties:
+      sc_001_met:
+        type: "boolean"
+        description: "True if proportion of merged datasets meets SC‑001; null if not measurable."
+      sc_002_met:
+        type: "boolean"
+        description: "True if LMM R² within 5 % of RF R² (SC‑002)."
+      sc_003_met:
+        type: "boolean"
+        description: "True if nutrient coefficients significant (SC‑003)."
+      sc_004_met:
+        type: "boolean"
+        description: "True if total plot size ≤ 100 MB (SC‑004)."
+      sc_005_met:
+        type: "boolean"
+        description: "True if species exclusion count recorded (SC‑005)."
+      sc_006_met:
+        type: "boolean"
+        description: "True if sensitivity analysis passes (SC‑006) or is marked N/A."
+    required:
+      - sc_001_met
+      - sc_002_met
+      - sc_003_met
+      - sc_004_met
+      - sc_005_met
+      - sc_006_met
+required:
+  - report_file
+  - plots
+  - total_plot_size_mb
+  - associational_statement
+  - deviations
+  - success_criteria
+additionalProperties: false

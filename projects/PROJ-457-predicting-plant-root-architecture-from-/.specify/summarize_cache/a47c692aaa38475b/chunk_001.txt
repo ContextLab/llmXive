@@ -1,0 +1,62 @@
+| **T024** | **Sensitivity Analysis**: load literature effect‑size ranges (`datasets.load_dataset("plantphysio/effect_size_ranges")`). If unavailable, fall back to hard‑coded typical effect ranges (±10 %). Compare each LMM coefficient to these ranges (FR‑011, FR‑028, SC‑006). | FR‑011, FR‑028, SC‑006 | T017 |
+| **T025** | **Leave‑One‑Species‑Out Bias Assessment** (FR‑027): iteratively refit the LMM leaving out each species; compute maximum absolute change in any nutrient coefficient; flag if >5 % and record in metrics. | FR‑027, SC‑008 | T017 |
+| **T026** | **Imputation Bias Assessment** (new): quantify distributional shift introduced by the two‑stage imputation (species‑mean then k‑NN) by comparing pre‑ and post‑imputation summary statistics; log the bias metric. | methodology-e0fd1fb5, FR‑025 | T014 |
+| **T027** | Generate **Partial Dependence Plots** for each nutrient–trait pair using the 5‑th to 95‑th percentile of nutrient values in the training set; save PNGs to `artifacts/reports/plots/`; verify total PNG size ≤ 100 MB (FR‑007, SC‑004). | FR‑007, SC‑004 | T018 |
+| **T028** | Assemble **metrics JSON** (`artifacts/metrics.json`) containing: <br>• LMM & RF results (adjusted R², RMSE, coefficients, corrected p‑values) <br>• CV metrics <br>• Multiple‑comparison flags <br>• VIF warnings <br>• Power result <br>• Sensitivity verdict <br>• Bias‑assessment results (imputation & leave‑one‑species‑out) <br>• `merge_success_rate` (FR‑023) <br>• Boolean flags for SC‑001‑SC‑011. | FR‑023, SC‑001‑SC‑011 | T019‑T027 |
+| **T029** | Compile **final PDF report** (`artifacts/reports/final_report.pdf`) that: <br>• Summarizes methodology, results, visualizations <br>• Includes the exact sentence “All findings are presented as associational relationships; no causal inference is claimed.” (FR‑009) <br>• Lists deviation logs (e.g., merged‑dataset abort, imputation decisions). | FR‑009, FR‑022, FR‑029, SC‑001‑SC‑011 | T027, T028 |
+| **T030** | **Associational Language Verification**: scan the report markdown for causal keywords (`cause`, `effect`, `lead to`, `driven by`) before PDF conversion; fail the run if any are found (FR‑009). | FR‑009 | T029 |
+| **T031** | **Report Statement Check**: ensure the associational statement is present in the final markdown; fail if missing (FR‑009). | FR‑009 | T029 |
+| **T032** | Run **contract tests** (`pytest tests/contract/test_schemas.py`). Ensure all three schemas validate their respective artifacts. | – | T003‑T005, T028, T029 |
+| **T033** | **Checksum Computation**: compute SHA‑256 checksums for every raw file in `data/raw/` and record them in `state/projects/PROJ-457-predicting-plant-root-architecture-from-.yaml` and `artifacts/logs/checksum.log`. | III. Data Hygiene | T001 |
+| **T034** | **Log Fallback / Abort Decisions**: write any dataset‑availability decisions (e.g., merged dataset unavailable → abort) to `artifacts/logs/fallback.log`. | II. Verified Accuracy | T008 |
+| **T035** | **Designate SSoT**: record the SHA‑256 hash of `artifacts/metrics.json` as the canonical Single Source of Truth in `state/projects/PROJ-457-predicting-plant-root-architecture-from-.yaml`. | I. Single Source of Truth | T028 |
+| **T036** | Record **content hashes** for every generated artifact (datasets, metrics, plots, report, schemas) into `state/projects/PROJ-457-predicting-plant-root-architecture-from-.yaml` (Principle V). | – | T028, T029, T032 |
+| **T037** | Update `README.md` with a **Quickstart** link to `quickstart.md`. | – | T001 |
+| **T038** | Document **random seeds** (`SEED = 42`) in `code/utils.py` and reference them in all scripts. | – | T001 |
+
+*All tasks are CPU‑compatible; no GPU is required.*  
+
+---
+
+
+
+## projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+# Research: Predicting Plant Root Architecture from Soil Nutrient Availability
+
+## Research Question
+How do observational soil phosphorus (P) and nitrogen (N) concentrations associate with plant root architectural traits (total length, branching density, surface area) across multiple species?
+
+## Dataset Strategy
+
+| Dataset | Source | Verified URL(s) | Status | Strategy |
+|---------|--------|-----------------|--------|----------|
+| **MergedDataset (pre‑joined root + soil)** | Hugging Face | https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet <br> https://huggingface.co/datasets/joaosanches/merged_dataset_no_duplicates/resolve/main/data/train-00000-of-00001.parquet <br> https://huggingface.co/datasets/aizenSosuke/merged_dataset/resolve/main/data/train-00000-of-00001.parquet | **Verified** | Primary source for both root metrics and soil nutrients. The pipeline **requires** at least one of these merged datasets; if none can be downloaded, the run aborts with a logged error (Task T008). |
+| **PlantPheno (root phenotypes only)** | Hugging Face | https://huggingface.co/datasets/davidkartchner/plant-phenotype/resolve/main/PPR_train_corpus.txt <br> https://huggingface.co/datasets/envedabio/plant-phenotype/resolve/main/PPR_test_corpus.txt | **Verified** | Used only as a fallback **when a merged dataset is unavailable**; however, the core analysis (nutrient‑architecture association) is **not** performed without soil nutrient columns. |
+| **Literature nutrient ranges (sensitivity)** | Hugging Face | https://huggingface.co/datasets/plantphysio/nutrient_ranges/resolve/main/data.parquet | **Verified** | Provides physiological ranges for sensitivity analysis (Task T024). |
+| **RootReader** | – | *No verified source* | **Unavailable** | Not used because no verified download URL exists. |
+| **ISRIC‑World Soil Information** | – | *No verified source* | **Unavailable** | Not used; merged dataset already contains soil chemistry. |
+
+**Decision / Rationale**  
+- **CPU‑First**: All preprocessing, modeling, and visualization steps run comfortably on the free‑tier CPU runner; no GPU is required.  
+- **Data Availability**: The analysis hinges on a merged dataset that contains both root and nutrient data. If none of the verified merged datasets can be fetched, the pipeline aborts (recorded in `artifacts/logs/fallback.log`). This satisfies the data‑resources concern and avoids a wrong‑dataset situation.  
+- **Success‑Criteria Alignment**: The proportion of root phenotype datasets successfully merged with soil nutrient data (`merge_success_rate`) is computed in Task T028; if the merged dataset is unavailable, the metric is set to `null` and noted.
+
+## Statistical Methodology
+
+1. **Preprocessing**  
+   - Keep only rows where `data_source_type == "observational"` (FR‑012).  
+   - Exclude species with fewer than **30** observations (SC‑005, aligns with power analysis).  
+   - Log‑transform root metrics (`log(x + 1e-6)`).  
+   - Z‑score normalize nutrient columns (when present).  
+   - **Missing‑Data Policy (FR‑025)**:  
+     * For each species, compute the proportion of missing P or N.  
+     * If >30 % missing for a nutrient → **exclude** the species (log exclusion).  
+     * If ≤30 % missing → impute missing values with the species‑level mean (log imputation).  
+   - Remaining rows with any missing nutrient after species‑level imputation are dropped.  
+   - This policy satisfies FR‑025 and ensures the dataset meets FR‑001 requirements.
+
+2. **A Priori Power Analysis (FR‑024)**  
+   - Before any filtering, compute the required per‑species sample size to achieve ≥80 % power for detecting a medium effect size (Cohen f² = 0.15) at α = 0.05 using `statsmodels.stats.power.FTestPower`.  
+   - The calculation yields a requirement of **≥30** observations per species. The subsequent filtering step (T010) enforces this threshold, guaranteeing the study is adequately powered (SC‑009).  
+
+3. **Modeling**  
