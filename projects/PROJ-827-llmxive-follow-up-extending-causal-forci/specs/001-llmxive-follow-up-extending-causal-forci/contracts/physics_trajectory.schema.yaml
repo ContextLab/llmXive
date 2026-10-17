@@ -20,7 +20,7 @@ properties:
     description: "Fixed integration time‑step (seconds)."
   states:
     type: array
-    description: "List of multiple state dictionaries."
+    description: "List of per‑frame state dictionaries."
     items:
       type: object
       required:
@@ -40,4 +40,4 @@ properties:
             type: number
   checksum:
     type: string
-    description: "SHA256 checksum of the `.npz` file storing the trajectory."
+    description: "SHA256 checksum of the .npz file storing the trajectory."

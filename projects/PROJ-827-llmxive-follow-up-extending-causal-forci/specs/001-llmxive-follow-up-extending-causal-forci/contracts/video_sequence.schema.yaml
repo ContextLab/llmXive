@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "VideoSequence"
+description: "Rendered multi‑frame MP4 video paired with a PhysicsTrajectory."
+type: object
+required:
+  - sequence_id
+  - video_path
+  - trajectory_checksum
+  - frame_rate
+properties:
+  sequence_id:
+    type: string
+    description: "Unique identifier matching the associated PhysicsTrajectory."
+  video_path:
+    type: string
+    description: "Relative path to the .mp4 file stored under data/physics/... ."
+  trajectory_checksum:
+    type: string
+    description: "SHA256 checksum of the linked .npz trajectory file."
+  frame_rate:
+    type: number
+    description: "Frames per second; fixed to a consistent frame rate for all sequences."

@@ -1,17 +1,19 @@
 status: none
-intent: CLEVRER synthetic video physics dataset with ground truth state vectors python
-  package dataset
+intent: download PHYRE physical reasoning dataset with Box2D trajectories python package
+  dataset
 required_fields:
-- video_file_path
-- frame_index
+- video_file_or_frame_sequence
 - object_id
-- object_type
+- frame_number
 - position_x
 - position_y
 - velocity_x
 - velocity_y
-- orientation_angle
+- angular_position
 - angular_velocity
-cache_key: ac2e3f6780cb8bfd91459aa5cbfa876620f82e64a728ddff803f061ea6a48d03
-searched_at: '2026-10-17T11:20:51.838097+00:00'
+- simulation_seed
+- world_parameters (e.g., friction, restitution)
+- object_type
+cache_key: c306967a6392078bdaeacbc6bf72f8bdc1f8e487deefb5810ef4dd3820e3cc54
+searched_at: '2026-10-17T11:46:10.786795+00:00'
 retry_count: 1

@@ -64,7 +64,7 @@ The system must evaluate the physics‑teacher model against a neural‑teacher 
 ### Functional Requirements
 
 - **FR-001**: System MUST generate a sufficiently large set of synthetic video sequences of a modest length (e.g., on the order of tens of frames) each using a deterministic CPU physics engine (e.g., Box2D) and record ground‑truth state vectors (See US‑01).
-- **FR-002**: System MUST train a 2‑step autoregressive diffusion student model (≈ 50 M parameters) using the physics‑derived trajectories as the teacher signal, optimizing for pixel‑space MSE loss (See US‑02).
+- **FR-002**: System MUST train a 2‑step autoregressive diffusion student model (≈ tens of M parameters) using the physics‑derived trajectories as the teacher signal, optimizing for pixel‑space MSE loss (See US‑02).
 - **FR-003**: System MUST execute the entire training and inference pipeline on a CPU‑only environment without requiring CUDA, GPU acceleration, or 8‑bit/4‑bit quantization libraries (See US‑02).
 - **FR-004**: System MUST compute Structural Similarity Index (SSIM), Peak Signal‑to‑Noise Ratio (PSNR), and Learned Perceptual Image Patch Similarity (LPIPS) metrics for both the physics‑teacher and neural‑teacher models on the same test set (See US‑03).
 - **FR-005**: System MUST perform a paired t‑test on the SSIM and LPIPS scores between the two models to determine statistical significance (See US‑03).
@@ -101,6 +101,6 @@ The system must evaluate the physics‑teacher model against a neural‑teacher 
 - **Synthetic‑only scope**: Findings regarding “causal signal” are strictly associational within the context of the synthetic simulation; no claims of real‑world causal inference are made.
 - **Statistical power**: With **[deferred]** generated sequences and a **[deferred]**‑sequence held‑out test set, the paired t‑test attains ≥ 0.8 power to detect a medium effect size (Cohen’s d ≈ 0.5) for SSIM; if power is lower, results are interpreted as exploratory.
 - **Threshold justification & sensitivity**: The α = 0.05 significance threshold follows community standards; a sensitivity analysis sweeps α over {0.01, 0.05, 0.10} to verify robustness of conclusions.
-- **Metric validity**: LPIPS is used as a fidelity metric against ground‑truth physics frames, reflecting how closely generated frames match the deterministic source. FID is used as a richness metric, capturing perceptual diversity relative to the neural‑teacher baseline (Zhang et al., 2018; Heusel et al., 2017).
+- **Metric validity**: LPIPS is used as a fidelity metric against ground‑truth physics frames, reflecting how closely generated frames match the deterministic source. FID is used as a richness metric, capturing perceptual diversity relative to the neural‑teacher baseline (Zhang et al.; Heusel et al., 2017).
 - **Predictor singularity**: Since the physics trajectory is the sole predictor for the dynamic signal, there is no risk of collinearity between predictors; correlation between the physics signal and final pixel output is treated as the primary dependent relationship.
 - **Compute feasibility**: The 50 M‑parameter student model and the **[deferred]**‑sequence dataset fit within the ~7 GB RAM and ~14 GB disk constraints of the GitHub Actions free runner, allowing the entire pipeline to complete within 6 hours without GPU acceleration.

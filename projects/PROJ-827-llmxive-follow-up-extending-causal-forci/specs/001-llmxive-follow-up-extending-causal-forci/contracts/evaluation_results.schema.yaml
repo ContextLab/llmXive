@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "EvaluationResults"
-description: "Aggregated per‑sequence metrics and statistical summaries."
+description: "Per‑sequence real measurements of model fidelity. All values are computed from actual model outputs; placeholder values are prohibited."
 type: object
 required:
   - sequence_id
@@ -8,7 +8,6 @@ required:
   - ssim
   - psnr
   - lpips
-  - fid
 properties:
   sequence_id:
     type: string
@@ -16,7 +15,7 @@ properties:
   model_type:
     type: string
     enum:
-      - "physics_teacher"
+      - "student_physics_teacher"
       - "neural_teacher"
     description: "Which model generated the prediction."
   ssim:
@@ -35,7 +34,10 @@ properties:
   fid:
     type: number
     minimum: 0.0
-    description: "Fréchet Inception Distance between generated set and baseline."
+    description: "Optional set‑level Fréchet Inception Distance against the baseline set (reported per model in outputs/metrics/fid.csv)."
+  trajectory_pixel_corr:
+    type: number
+    description: "Pearson correlation between physics velocities and optical‑flow vectors computed on student‑generated frames."
   additional_info:
     type: object
     description: "Optional free‑form fields (e.g., friction coefficient for ablation)."
