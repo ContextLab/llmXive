@@ -118,8 +118,8 @@ def _clone_repo(repo_url: str, dest: Path) -> None:
 def _get_combined_doc_diff(repo_path: Path, commit_hash: str) -> str:
     """Return concatenated diff for documentation files in the commit."""
     try:
-        # Filter the show command to only include .md and .rst files
-        return _run_git(["show", commit_hash, "--", "*.md", "*.rst"], cwd=repo_path).strip()
+        # Use recursive pathspec to ensure we catch documentation in subdirectories
+        return _run_git(["show", commit_hash, "--", ":(glob)**/*.md", ":(glob)**/*.rst"], cwd=repo_path).strip()
     except subprocess.CalledProcessError:
         return ""
 
@@ -141,6 +141,7 @@ def extract_commit_pairs() -> List[dict]:
         log.info("Processing repository %s (%s)", repo_label, repo_url)
 
         # OPTIMIZATION: Use git log to filter ONLY commits that touch .md or .rst files
+        # Use recursive pathspecs (:(glob)**/*.ext) to ensure we find files in subdirectories.
         # Format: hash <null> unix_timestamp <null> full_body
         log_output = _run_git(
             [
@@ -148,8 +149,8 @@ def extract_commit_pairs() -> List[dict]:
                 "--since=2.years",
                 "--pretty=format:%H%x00%ct%x00%B",
                 "--",
-                "*.md",
-                "*.rst",
+                ":(glob)**/*.md",
+                ":(glob)**/*.rst",
             ],
             cwd=repo_path,
         )
@@ -175,7 +176,11 @@ def extract_commit_pairs() -> List[dict]:
                 continue
 
             # Convert unix timestamp to ISO-8601
-            commit_dt = datetime.fromtimestamp(int(ts_str), tz=timezone.utc)
+            try:
+                commit_dt = datetime.fromtimestamp(int(ts_str), tz=timezone.utc)
+            except (ValueError, TypeError):
+                skipped += 1
+                continue
             
             row = {
                 "commit_hash": commit_hash,

@@ -1,12 +1,13 @@
 status: none
-intent: GitHub commit message documentation diff paired dataset HuggingFace repository
+intent: download GitHub Commit Diff Dataset for commit_message_documentation_diff_pairs
   python package dataset
 required_fields:
 - commit_hash
 - commit_message
+- documentation_file_path
 - documentation_diff
 - repository_name
-- commit_timestamp
-cache_key: 6b326229fc1e4c9e673f0270737fb6b2451dc918236b1b1f5b6350b5cc021ebf
-searched_at: '2026-10-17T14:36:28.572696+00:00'
+- commit_date
+cache_key: 679d8f3b7e21762ab306244869c128bd1a47ab21b20d94b3194b4daff19873e6
+searched_at: '2026-10-17T15:22:41.863111+00:00'
 retry_count: 1

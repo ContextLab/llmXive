@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-17T08:24:05Z",
-  "project_id": "PROJ-104-evaluating-the-use-of-llms-for-automated"
+  "updated_at": "2026-10-17T15:23:39Z",
+  "project_id": "PROJ-104-evaluating-the-use-of-llms-for-automated",
+  "replan_rounds": 1
 }
