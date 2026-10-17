@@ -1,10 +1,10 @@
 status: none
-intent: download bigbench abstract_narrative_understanding and ethics datasets via
+intent: download BigBench abstract_narrative_understanding ethics auto_debugging via
   huggingface datasets python package dataset
 required_fields:
 - prompt_id
 - prompt_text
 - rationales
-cache_key: 885c53bd0a943f83df54c86ea907bbc1bc0261e01160d83cf37dd72f330f1da7
-searched_at: '2026-10-17T13:26:18.619748+00:00'
+cache_key: 466c77d07600b45c32c50ee7c8ba50b0000c32c094a1937e6edf46eb347d914d
+searched_at: '2026-10-17T13:29:18.674481+00:00'
 retry_count: 1
