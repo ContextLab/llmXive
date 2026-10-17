@@ -1,17 +1,6 @@
-- artifact_hash: 7f8e1a6317d1cfe2c31f0a39a64377872544122124202bea798886317a24a168
+- artifact_hash: 466b8827658d33f13f50e811ddf4f84ab0cfadfe52749b335566badf22fb6d6b
   artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/andrewssobral/gbvs`
-  verification_status: mismatch
-  verified_against_url: https://github.com/andrewssobral/gbvs
-  verified_at: '2026-10-16T09:30:31.578549Z'
-- artifact_hash: 7f8e1a6317d1cfe2c31f0a39a64377872544122124202bea798886317a24a168
-  artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: "qiuweihao/laion_4_to_3_deepgaze \xB7 Datasets at Hugging Face"
@@ -19,10 +8,10 @@
   value: https://huggingface.co/datasets/qiuweihao/laion_4_to_3_deepgaze/...`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/qiuweihao/laion_4_to_3_deepgaze
-  verified_at: '2026-10-16T09:30:31.578549Z'
-- artifact_hash: 7f8e1a6317d1cfe2c31f0a39a64377872544122124202bea798886317a24a168
+  verified_at: '2026-10-17T12:37:30.233948Z'
+- artifact_hash: 466b8827658d33f13f50e811ddf4f84ab0cfadfe52749b335566badf22fb6d6b
   artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
-  cite_id: c-003
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: "abdullahmeda/yolov8-table-detection \xB7 Datasets at Hugging Face"
@@ -30,10 +19,10 @@
   value: https://huggingface.co/datasets/abdullahmeda/yolov8-table-detection/...`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/abdullahmeda/yolov8-table-detection
-  verified_at: '2026-10-16T09:30:31.578549Z'
-- artifact_hash: 7f8e1a6317d1cfe2c31f0a39a64377872544122124202bea798886317a24a168
+  verified_at: '2026-10-17T12:37:30.233948Z'
+- artifact_hash: 466b8827658d33f13f50e811ddf4f84ab0cfadfe52749b335566badf22fb6d6b
   artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/research.md
-  cite_id: c-004
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: "xiaomoguhzz/catseg_detectron2_data \xB7 Datasets at Hugging Face"
@@ -41,4 +30,4 @@
   value: https://huggingface.co/datasets/xiaomoguhzz/catseg_detectron2_data/...`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/xiaomoguhzz/catseg_detectron2_data
-  verified_at: '2026-10-16T09:30:31.578549Z'
+  verified_at: '2026-10-17T12:37:30.233948Z'

@@ -35,13 +35,25 @@ properties:
     description: "Mean salience within ROI"
   luminance:
     type: "number"
-    description: "Average luminance (diagnostic only)"
+    description: "Average luminance (diagnostic)"
   contrast:
     type: "number"
-    description: "Average contrast (diagnostic only)"
+    description: "Average contrast (diagnostic)"
   edge_density:
     type: "number"
-    description: "Edge density (diagnostic only)"
+    description: "Edge density (diagnostic)"
+  moral_valence:
+    description: "Moral valence score or binary moral/neutral classification"
+    oneOf:
+      - type: "number"
+      - type: "string"
+        enum:
+          - "moral"
+          - "neutral"
+  scene_complexity:
+    type: "integer"
+    minimum: 0
+    description: "Number of detected objects in scene"
   excluded:
     type: "boolean"
     description: "Whether the trial was excluded from analysis"
@@ -57,4 +69,6 @@ required:
   - luminance
   - contrast
   - edge_density
+  - moral_valence
+  - scene_complexity
   - excluded

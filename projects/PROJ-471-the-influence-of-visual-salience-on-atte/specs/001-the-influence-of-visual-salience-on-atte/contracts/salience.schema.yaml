@@ -35,11 +35,10 @@ properties:
       - "success"
       - "fallback_used"
       - "failed"
-    description: "Status of the  generation  in  the  ...  ?  "
+    description: "Status of the generation"
   excluded_reason:
-    type: "string"
-    nullable: true
-    description: "Reason          …  …  …  ...  "
+    type: ["string", "null"]
+    description: "Reason for failure, if any"
 required:
   - stimulus_id
   - map_path

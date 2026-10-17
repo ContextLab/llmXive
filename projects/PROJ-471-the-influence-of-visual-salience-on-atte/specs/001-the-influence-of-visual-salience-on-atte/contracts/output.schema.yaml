@@ -8,7 +8,7 @@ properties:
     description: "Identifier for the model run"
   fixed_effect_estimate:
     type: "number"
-    description: "Fixed effect estimate for salience"
+    description: "Fixed effect estimate for salience (post-orthogonalization if applied)"
   p_value:
     type: "number"
     minimum: 0
@@ -34,14 +34,24 @@ properties:
         description: "Estimate from Model A (intercepts only)"
       model_b_estimate:
         type: "number"
-        description: "Estimate from Model B (intercepts + slopes"
+        description: "Estimate from Model B (intercepts + slopes)"
       stability_metric:
         type: "number"
-        description: "Change in effect size between models"
+        description: "Absolute change in effect size between models"
     required:
       - model_a_estimate
       - model_b_estimate
       - stability_metric
+  collinearity_report:
+    type: "object"
+    properties:
+      pre_orthogonalization_vif:
+        type: "object"
+        description: "VIF values before orthogonalization (if computed)"
+      post_orthogonalization_vif:
+        type: "object"
+        description: "VIF values after orthogonalization (if applied)"
+    description: "Collinearity diagnostics"
   disclaimer:
     type: "string"
     description: "Disclaimer block"
@@ -51,7 +61,7 @@ properties:
     enum:
       - "valid"
       - "invalid"
-    description: "Power analysis status"
+    description: "Power analysis status (based on simulation with n_participants=50, trials_per_participant=100)"
 required:
   - model_id
   - fixed_effect_estimate
@@ -59,5 +69,6 @@ required:
   - p_value_fdr_corrected
   - confidence_interval
   - sensitivity_analysis
+  - collinearity_report
   - disclaimer
   - power_status

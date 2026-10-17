@@ -53,7 +53,7 @@ The researcher fits linear mixed-effects models to test the predictive relations
 
 ### Functional Requirements
 
-- **FR-001**: System MUST compute pixel-wise salience maps for all 200 stimulus images using the DeepGaze II model in CPU-only mode (See US-1).
+- **FR-001**: System MUST compute pixel-wise salience maps for all stimulus images using the DeepGaze II model in CPU-only mode (See US-1).
 - **FR-002**: System MUST parse raw eye-tracking data to extract first-fixation probability, dwell time, and fixation latency for predefined morally relevant regions (See US-2).
 - **FR-003**: System MUST align the computed salience scores with the extracted eye-tracking metrics on a per-trial basis using unique trial identifiers (See US-2).
 - **FR-004**: System MUST fit a linear mixed-effects model with salience as a fixed predictor and random intercepts for participants and items (See US-3).
@@ -75,8 +75,8 @@ The researcher fits linear mixed-effects models to test the predictive relations
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
 
-- **SC-001**: The proportion of successfully generated salience maps is measured against the total number of stimulus images (200) (See FR-001, US-1).
-- **SC-002**: The computational resource usage (RAM and CPU time) for the salience generation step is measured against the GitHub Actions free-tier limits (7 GB RAM, 6 hours) (See FR-001, US-1).
+- **SC-001**: The proportion of successfully generated salience maps is measured against the total number of stimulus images. (See FR-001, US-1).
+- **SC-002**: The computational resource usage (RAM and CPU time) for the salience generation step is measured against the GitHub Actions free-tier limits (several GB RAM, 6 hours) (See FR-001, US-1).
 - **SC-003**: The statistical significance of the salience predictor in the mixed-effects model is measured against the adjusted alpha level (after FDR correction) AND the study power must be ≥ 0.8; if power < 0.8, the study is deemed "Invalid for inference" regardless of p-value (See FR-006, US-3).
 - **SC-004**: The stability of the headline association rate is measured across the comparison of Model A and Model B to ensure robustness (See FR-005, US-3).
 - **SC-005**: The proportion of trials successfully aligned is measured against the total available trials (target: [deferred]) (See FR-003, US-2).
