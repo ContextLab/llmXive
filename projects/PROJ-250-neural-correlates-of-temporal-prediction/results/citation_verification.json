@@ -1,0 +1,36 @@
+{
+  "citation_count": 3,
+  "all_verified": true,
+  "citations": [
+    {
+      "id": "stein2021",
+      "title": "Frequency and frequency modulation share the same predictive encoding mechanisms in human auditory cortex",
+      "authors": "Jasmin Stein, Katharina von Kriegstein, Alejandro Tabas",
+      "year": 2021,
+      "source": "arXiv",
+      "url": "https://arxiv.org/abs/2110.13690",
+      "http_status": 200,
+      "status": "verified"
+    },
+    {
+      "id": "schilling2022",
+      "title": "Predictive coding and stochastic resonance as fundamental principles of auditory perception",
+      "authors": "Achim Schilling, William Sedley, Richard Gerum, Claus Metzner, Konstantin Tziridis, et al.",
+      "year": 2022,
+      "source": "arXiv",
+      "url": "https://arxiv.org/abs/2204.03354",
+      "http_status": 200,
+      "status": "verified"
+    },
+    {
+      "id": "zhang2025",
+      "title": "Deviance Detection and Regularity Sensitivity in Dissociated Neuronal Cultures",
+      "authors": "Zhuo Zhang, Amit Yaron, Dai Akita, Tomoyo Isoguchi Shiramatsu, Zenas C. Chao, et al.",
+      "year": 2025,
+      "source": "arXiv",
+      "url": "https://arxiv.org/abs/2502.20753",
+      "http_status": 200,
+      "status": "verified"
+    }
+  ]
+}

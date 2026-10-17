@@ -21,30 +21,41 @@
 
 The pipeline is executed in sequence via the `code/` directory.
 
+### 0. Reference verification gates (FR-012)
+```bash
+python code/verify_references.py --stage dataset
+python code/verify_references.py --stage citations
+```
+- Verifies the dataset ID/URL against the canonical OpenNeuro source before any download.
+- Verifies all citations against their named primary sources and writes
+  `data/results/citation_verification.json` before any report is written.
+
 ### 1. Data Acquisition
 ```bash
-python code/download.py
+python code/download.py --subjects 2
 ```
-- Downloads an OpenNeuro dataset.
-- Verifies checksums and metadata.
+- Downloads the OpenNeuro ds004510 dataset (2 subjects for the first
+  end-to-end pass; `--subjects 0` for the full cohort).
+- Verifies checksums (`data/raw/checksums.json`) and metadata
+  (`data/results/dataset_metadata.json`), and runs the condition gate.
 - **Halt Condition**: Stops if the "complex" condition is missing from the dataset.
 
 ### 2. Preprocessing
 ```bash
 python code/preprocess.py
 ```
-- Applies a low-frequency bandpass filter (up to 40 Hz).
+- Applies the 1–40 Hz bandpass filter.
 - Performs ICA artifact rejection.
 - Re-references to average mastoids.
-- Subtracts baseline (pre-stimulus mean over a standard temporal window preceding stimulus onset).
-- Segments data into epochs (pre-stimulus to post-stimulus window).
+- Subtracts baseline (mean of −200 to 0 ms).
+- Segments data into epochs (−200 to 500 ms).
 
 ### 3. Analysis
 ```bash
 python code/analysis.py
 ```
 - Computes MMN amplitude/latency.
-- Validates SNR above a standard threshold using SEM denominator.
+- Validates SNR ≥ 3.0 using the pre-stimulus baseline standard deviation.
 - Generates canonical MMN topography template from 'simple' condition.
 - Performs topographic consistency check (simple vs. template).
 - Performs topographic validity check (complex vs. template).
@@ -55,17 +66,19 @@ python code/analysis.py
 ```bash
 python code/visualize.py
 ```
-- Generates ERP waveforms, scalp maps, and significance plots in `results/figures/`.
+- Generates ERP waveforms, scalp maps, and significance plots in `data/results/figures/`.
 
 ## Validation
 
 Run the contract tests to ensure data integrity and statistical validity:
 ```bash
-pytest tests/
+pytest code/tests/
 ```
 This verifies:
-- `results/metrics.csv` matches `contracts/output.schema.yaml`.
-- `results/stats.json` matches `contracts/stats.schema.yaml`.
-- Signal validity logic (SNR above a standard threshold using SEM) is correctly applied.
+- `data/results/metrics.csv` matches `contracts/output.schema.yaml`.
+- `data/results/stats.json` matches `contracts/output.schema.yaml`.
+- Per-subject rows in `data/results/metrics_per_subject.csv` match
+  `contracts/metrics_per_subject.schema.yaml`.
+- Signal validity logic (SNR ≥ 3.0 using the baseline SD) is correctly applied.
 - FDR-corrected p-values are used for significance flags.
 - Topographic consistency and validity checks are properly distinguished.

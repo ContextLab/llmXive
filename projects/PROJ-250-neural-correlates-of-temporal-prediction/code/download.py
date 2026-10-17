@@ -16,6 +16,7 @@ Usage: python code/download.py --subjects 2
 """
 
 import argparse
+import csv
 import hashlib
 import json
 import re
@@ -87,23 +88,36 @@ def s3_list(prefix, delimiter=None):
 
 
 def resolve_dataset_prefix():
-    """Return the S3 key prefix holding current ds004510 files (versioned if applicable)."""
+    """Return the S3 key prefix holding current ds004510 files (versioned if applicable).
+
+    ds004510 is stored FLAT under ds004510/ in the OpenNeuro S3 bucket (its
+    CommonPrefixes are subject directories like ds004510/sub-UTS01/, NOT version
+    directories). Only descend into a sub-directory when it is a genuine
+    semantic-version directory (e.g. '1.2.0') and the dataset has no files at
+    the top level.
+    """
     base = CANONICAL_DATASET_ID + "/"
-    _, versions = s3_list(base, delimiter="/")
-    versions = [v.rstrip("/") for v in versions]
-    if not versions:
-        # No version directories: dataset stored flat under ds004510/
-        keys, _ = s3_list(base)
-        if not keys:
-            raise RuntimeError(
-                "No objects found under s3://%s; dataset %s is not reachable."
-                % (S3_BASE, CANONICAL_DATASET_ID)
-            )
+    keys, prefixes = s3_list(base)
+    if keys:
+        # Files exist directly under ds004510/ -> flat layout; use it as-is.
         return base
-    versions.sort(key=lambda v: tuple(int(x) for x in v.split(".") if x.isdigit()))
-    latest = versions[-1]
-    print("Resolved dataset version: %s (latest of %s)" % (latest, versions))
-    return base + latest + "/"
+    version_prefixes = [
+        p.rstrip("/")
+        for p in prefixes
+        if re.fullmatch(r"\d+(\.\d+)*", p.rstrip("/"))
+    ]
+    if version_prefixes:
+        version_prefixes.sort(
+            key=lambda v: tuple(int(x) for x in v.split("."))
+        )
+        latest = version_prefixes[-1]
+        print("Resolved dataset version: %s (latest of %s)"
+              % (latest, version_prefixes))
+        return base + latest + "/"
+    raise RuntimeError(
+        "No objects found under s3://%s/%s; dataset %s is not reachable."
+        % (S3_BASE, base, CANONICAL_DATASET_ID)
+    )
 
 
 def fetch_file(url, dest):
@@ -152,12 +166,15 @@ def download_subjects(n_subjects, raw_dir):
         else:
             root_files.append(key)
 
-    subjects = sorted(subject_files.keys(), key=lambda s: int(re.sub(r"\D", "", s) or 0))
+    subjects = sorted(
+        subject_files.keys(), key=lambda s: int(re.sub(r"\D", "", s) or 0)
+    )
     if n_subjects > 0:
         selected = subjects[:n_subjects]
     else:
         selected = subjects
-    print("Dataset has %d subjects; downloading %d: %s" % (len(subjects), len(selected), selected))
+    print("Dataset has %d subjects; downloading %d: %s"
+          % (len(subjects), len(selected), selected))
 
     downloaded = []
     # Root BIDS metadata files first (participants.tsv, dataset_description.json, ...).
@@ -192,7 +209,9 @@ def record_checksums(files, raw_dir):
         rel = str(f.relative_to(raw_dir))
         checksums[rel] = sha256_file(f)
         print("SHA-256 %s  %s" % (checksums[rel][:16] + "...", rel))
-    checksums_path.write_text(json.dumps(checksums, indent=2, sort_keys=True), encoding="utf-8")
+    checksums_path.write_text(
+        json.dumps(checksums, indent=2, sort_keys=True), encoding="utf-8"
+    )
     print("Checksums for %d files recorded in %s" % (len(files), checksums_path))
     return checksums
 
@@ -206,36 +225,37 @@ def validate_metadata(raw_dir):
             "cannot build dataset metadata rows."
         )
     schema = yaml.safe_load(SCHEMA_PATH.read_text(encoding="utf-8"))
+    alias_c = {"simple": "simple", "complex": "complex"}
+    alias_s = {
+        "standard": "standard", "std": "standard",
+        "deviant": "deviant", "dev": "deviant",
+    }
     rows = []
     for events_path in sorted(Path(raw_dir).rglob("*events.tsv")):
-        subj_m = re.search(r"(sub-\d+)", str(events_path))
+        subj_m = re.search(r"(sub-[A-Za-z0-9]+)", str(events_path))
         if not subj_m:
             continue
         subject_id = subj_m.group(1)
-        import csv as _csv
         with open(events_path, newline="", encoding="utf-8") as fh:
-          reader = _csv.DictReader(fh, delimiter="\t")
-          headers = reader.fieldnames or []
-          rows_raw = list(reader)
+            reader = csv.DictReader(fh, delimiter="\t")
+            headers = reader.fieldnames or []
+            rows_raw = list(reader)
         cond_col = "condition_label" if "condition_label" in headers else None
         if cond_col is None:
             for h in headers:
                 vals = {str(r.get(h) or "").strip().lower() for r in rows_raw}
-                if vals & {"simple", "complex"}:
+                if vals & set(alias_c):
                     cond_col = h
                     break
         stim_col = "stimulus_type" if "stimulus_type" in headers else None
         if stim_col is None:
             for h in headers:
                 vals = {str(r.get(h) or "").strip().lower() for r in rows_raw}
-                if vals & {"standard", "std", "deviant", "dev"}:
+                if vals & set(alias_s):
                     stim_col = h
                     break
         if cond_col is None or stim_col is None:
             continue
-        alias_c = {"simple": "simple", "complex": "complex"}
-        alias_s = {"standard": "standard", "std": "standard",
-                   "deviant": "deviant", "dev": "deviant"}
         for r in rows_raw:
             c = alias_c.get(str(r.get(cond_col) or "").strip().lower())
             s = alias_s.get(str(r.get(stim_col) or "").strip().lower())
