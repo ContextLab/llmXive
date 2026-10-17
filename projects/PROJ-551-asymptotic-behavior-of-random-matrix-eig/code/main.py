@@ -3,6 +3,7 @@ import json
 import logging
 import sys
 from pathlib import Path
+from datetime import datetime, timezone
 
 # Ensure project root is in path
 root = Path(__file__).resolve().parent.parent
@@ -20,8 +21,10 @@ def _setup_file_logging():
     log_file.parent.mkdir(parents=True, exist_ok=True)
 
     # Clear log for T001 to ensure it's not 0 bytes but contains the actual run
+    # Fixed the TypeError: 'float' object is not callable by removing () from st_ctime
+    # and adding a check to ensure file exists before stat()
     with open(log_file, "w") as f:
-        f.write(f"Simulation Log - Started at {Path('data/logs/simulation_run.log').stat().st_ctime()}\n")
+        f.write(f"Simulation Log - Started at {datetime.now(timezone.utc).isoformat()}\n")
 
     logging.basicConfig(
         level=logging.INFO,

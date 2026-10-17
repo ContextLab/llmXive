@@ -13,9 +13,7 @@ For each (N, seed) the base Wigner matrix is generated deterministically
 SHA-256, and reused across all theta / k / pattern configurations.
 
 Correct Wigner scaling: W = (A + A^T) / sqrt(2*N), so that each
-off-diagonal entry has variance 1/N and the semicircle edge is +/-2.0
-(the previous version used 1/(2*sqrt(N)) which yields an edge of
-sqrt(2) ~ 1.414 and was rejected by the verifier).
+off-diagonal entry has variance 1/N and the semicircle edge is +/-2.0.
 
 Outputs (real ARPACK measurements, CPU-only):
   data/processed/mc_results.csv          (1008 rows)
@@ -54,8 +52,7 @@ PATTERNS = ["diagonal", "block-sparse", "random-sparse"]
 RANDOM_SPARSE_DENSITY = 0.1
 EIGSH_TOL = 1e-8
 THEORETICAL_EDGE = 2.0
-# Cache filename suffix distinguishes the corrected scaling from any
-# stale raw matrices generated with the old (wrong) 1/(2*sqrt(N)) scale.
+# Cache filename suffix distinguishes the corrected scaling from any stale raw matrices.
 CACHE_SUFFIX = "v2"
 
 
@@ -84,12 +81,7 @@ def sha256_of_file(path: Path) -> str:
 
 def generate_wigner_matrix(N: int, seed: int) -> np.ndarray:
     """Standard Wigner matrix: symmetric, entries N(0,1), scaled 1/sqrt(N).
-
-    W = (A + A^T) / sqrt(2*N). Each strictly-upper entry of A + A^T is the
-    sum of two independent N(0,1) variables, so dividing by sqrt(2*N)
-    gives off-diagonal variance 1/N and diagonal variance 2/N — the
-    standard GOE-like scaling whose semicircle edge converges to +/-2.0.
-    Deterministic given (N, seed).
+    W = (A + A^T) / sqrt(2*N).
     """
     rng = np.random.default_rng(seed)
     A = rng.standard_normal((N, N))
@@ -127,12 +119,7 @@ def get_base_matrix(N: int, seed: int, logger: logging.Logger) -> np.ndarray:
 
 
 def build_perturbation(N: int, k: int, theta: float, pattern: str, seed: int) -> np.ndarray:
-    """Rank-k symmetric perturbation with spectral norm theta.
-
-    Each of the k orthonormal directions carries eigenvalue theta, so the
-    BBP prediction for an emerging outlier is lambda = theta + 1/theta
-    (visible above the bulk edge iff theta > 1).
-    """
+    """Rank-k symmetric perturbation with spectral norm theta."""
     rng = np.random.default_rng(seed + 7919)
     P = np.zeros((N, N), dtype=np.float64)
     if pattern == "diagonal":
@@ -167,7 +154,7 @@ def top_eigenvalue_arpack(H: np.ndarray) -> float:
 def run_theta_sweep(logger: logging.Logger):
     DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
 
-    # 1. Base matrices + empirical bulk edge (top eigenvalue of unperturbed W)
+    # 1. Base matrices + empirical bulk edge
     base_matrices = {}
     bulk_edges = {}
     for N in N_VALUES:
@@ -179,14 +166,12 @@ def run_theta_sweep(logger: logging.Logger):
             bulk_edges[N][seed] = edge
             logger.info(f"Bulk edge N={N} seed={seed}: {edge:.6f}")
 
-    # Sanity check on the corrected scaling: the empirical bulk edge must
-    # be near +2.0, not near sqrt(2) ~ 1.414 (the rejected old scaling).
+    # Sanity check on scaling
     mean_edge_2000 = float(np.mean([bulk_edges[2000][s] for s in SEEDS]))
     if abs(mean_edge_2000 - THEORETICAL_EDGE) > 0.2:
         raise RuntimeError(
             f"Empirical bulk edge at N=2000 is {mean_edge_2000:.4f}, "
-            f"expected ~2.0 under correct 1/sqrt(N) Wigner scaling. "
-            "Refusing to write results from a mis-scaled ensemble."
+            f"expected ~2.0. Scaling is incorrect."
         )
 
     # 2. Full sweep
@@ -209,9 +194,7 @@ def run_theta_sweep(logger: logging.Logger):
                         t0 = time.perf_counter()
                         lam_top = top_eigenvalue_arpack(H)
                         elapsed_ms = (time.perf_counter() - t0) * 1000.0
-                        run_id = (
-                            f"N{N}_k{k}_{pattern}_theta{theta}_seed{seed}"
-                        )
+                        run_id = f"N{N}_k{k}_{pattern}_theta{theta}_seed{seed}"
                         rows.append({
                             "run_id": run_id,
                             "N": N,
@@ -225,15 +208,10 @@ def run_theta_sweep(logger: logging.Logger):
                         })
                         if done % 100 == 0:
                             elapsed = time.perf_counter() - t_sweep_start
-                            logger.info(
-                                f"Progress: {done}/{total} "
-                                f"({elapsed:.1f}s elapsed)"
-                            )
+                            logger.info(f"Progress: {done}/{total} ({elapsed:.1f}s elapsed)")
 
     if len(rows) != expected:
-        raise RuntimeError(
-            f"Sweep produced {len(rows)} rows, expected {expected}"
-        )
+        raise RuntimeError(f"Sweep produced {len(rows)} rows, expected {expected}")
 
     # 3. Write mc_results.csv
     csv_path = DATA_PROCESSED / "mc_results.csv"
@@ -247,7 +225,7 @@ def run_theta_sweep(logger: logging.Logger):
         writer.writerows(rows)
     logger.info(f"Wrote {len(rows)} rows to {csv_path}")
 
-    # 4. Convergence data: per-N bulk-edge convergence toward +/-2.0
+    # 4. Convergence data
     per_N = []
     for N in N_VALUES:
         edges = np.array([bulk_edges[N][s] for s in SEEDS], dtype=float)
@@ -260,17 +238,8 @@ def run_theta_sweep(logger: logging.Logger):
             "abs_deviation_from_2": float(np.abs(np.mean(edges) - THEORETICAL_EDGE)),
             "theoretical_edge": THEORETICAL_EDGE,
         })
-        logger.info(
-            f"N={N}: mean bulk edge {np.mean(edges):.6f} "
-            f"(|dev from 2.0| = {abs(np.mean(edges) - 2.0):.6f})"
-        )
     convergence = {
-        "description": (
-            "Empirical bulk edge (largest eigenvalue of the unperturbed "
-            "Wigner matrix with entries scaled to variance 1/N, i.e. "
-            "W = (A + A^T)/sqrt(2N)) per N, converging to the "
-            "semicircle-law edge +2.0 as N grows."
-        ),
+        "description": "Empirical bulk edge convergence toward +2.0 as N grows.",
         "theoretical_edge": THEORETICAL_EDGE,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "per_N": per_N,
@@ -285,18 +254,13 @@ def run_theta_sweep(logger: logging.Logger):
 
 def main():
     parser = argparse.ArgumentParser(description="T002 theta sweep orchestrator")
-    parser.add_argument("--grid", type=str, default="theta", choices=["theta"],
-                        help="Grid to sweep (T002 implements the theta grid)")
+    parser.add_argument("--grid", type=str, default="theta", choices=["theta"])
     args = parser.parse_args()
 
     logger = setup_logging()
     logger.info(f"Starting threshold sweep (grid={args.grid}), CPU-only ARPACK solver")
     rows, convergence = run_theta_sweep(logger)
-    logger.info(
-        f"Sweep complete: {len(rows)} rows; "
-        f"mean bulk edge at N=2000: "
-        f"{convergence['per_N'][-1]['bulk_edge_mean']:.6f}"
-    )
+    logger.info(f"Sweep complete: {len(rows)} rows")
     return 0
 
 

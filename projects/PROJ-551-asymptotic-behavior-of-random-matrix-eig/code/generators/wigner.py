@@ -2,10 +2,11 @@ import numpy as np
 
 def generate_wigner_matrix(N: int, seed: int) -> np.ndarray:
     """
-    Generate a Wigner matrix with standard scaling (1/sqrt(N)).
-    The matrix is symmetric: W = (A + A^T) / sqrt(2N) where A is i.i.d. N(0,1).
+    Generate a symmetric Wigner matrix with standard scaling (1/sqrt(N)).
+    W = (A + A^T) / sqrt(2*N) ensures off-diagonal variance is 1/N,
+    leading to a semicircle edge at +/- 2.0.
     """
-    np.random.seed(seed)
-    A = np.random.randn(N, N)
-    W = (A + A.T) / np.sqrt(2 * N)
+    rng = np.random.default_rng(seed)
+    A = rng.standard_normal((N, N))
+    W = (A + A.T) / np.sqrt(2.0 * N)
     return W

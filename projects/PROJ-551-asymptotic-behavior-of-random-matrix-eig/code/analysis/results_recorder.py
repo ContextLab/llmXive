@@ -1,8 +1,9 @@
 import json
 from pathlib import Path
 
-def save_single_run_results(result: dict, output_path: str):
+def save_single_run_results(result: dict, output_path: str) -> None:
+    """Writes simulation results to a JSON file."""
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2)

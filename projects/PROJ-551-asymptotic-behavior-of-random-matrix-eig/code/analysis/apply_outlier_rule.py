@@ -15,7 +15,7 @@ The script can be run directly:
 
 or with explicit paths:
 
-    python code/analysis/apply_outlier_rule.py --input path/to/mc_results.csv \\
+    python code/analysis/apply_outlier_rule.py --input path/to/mc_results.csv \
                                               --output path/to/validated.csv
 """
 
@@ -63,6 +63,9 @@ def apply_outlier_rule(
     """
     if logger is None:
         logger = _setup_logging()
+
+    if not input_csv.exists():
+        raise FileNotFoundError(f"Input file not found: {input_csv}. Ensure T002 has produced mc_results.csv.")
 
     logger.info(f"Reading sweep results from {input_csv}")
     df = pd.read_csv(input_csv)

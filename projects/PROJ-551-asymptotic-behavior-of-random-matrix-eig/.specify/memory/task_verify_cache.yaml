@@ -1,18 +1,32 @@
 T002:
-  c: false
-  h: a2e899e3bfb9d23a2c5b4d91452c47e3e61ba0e0370992f7d66f5fcd2b0b5e51
-  r: The required output files `data/processed/mc_results.csv` and `data/processed/convergence_data.json`
-    are missing; without these artifacts the sweep results cannot be verified, so
-    the task is not satisfied.
-  sig: f8b4e7f9cef96d90b1c3cf3cf98dcf16f0dbf61e45b348761098f724902cc03e
+  c: true
+  h: b093a06b98f64aadecd123c7577a66894b6842bb28371eb880046c224b2a6f8c
+  r: "The sweep script exists and its execution log (exit 0, 17.6s) shows all 16 base\
+    \ matrices generated with SHA-256 checksums, bulk edges matching the convergence\
+    \ JSON exactly, and progress through 1008 configurations; `mc_results.csv` (121,445\
+    \ bytes, ~120 bytes/row, consistent with 1008 data rows plus header) contains\
+    \ the required columns with real ARPACK eigenvalues that vary plausibly with \u03B8\
+    \ and pattern, and `convergence_data.json` records per-N bulk-edge convergence\
+    \ toward 2.0 (deviation shrinking from 0.085 at N=100 to 0.0016 at N=2000)."
+  sig: 8ccacc9428331f2292a8f31d515fd6b6d19c3c5ac71e2bc589de632b5ae5a315
 T003:
   c: true
-  h: 137bc473fd97208b0c391582a986369cb73bc9d080de8c76729067923cb8a070
-  r: "The output file exists (126 KB, 1008 rows per execution log) with the `outlier_flag`\
-    \ column, and spot-checking rows against the strict rule `eigenvalue_top > empirical_bulk_edge\
-    \ + 0.05` (e.g., 1.3754 vs 1.3504 \u2192 True; 1.3876 vs 1.3971 \u2192 False;\
-    \ 1.3497 vs 1.3971 \u2192 False) confirms every sampled flag is consistent with\
-    \ the 0.05 tolerance. The unit test suite (4 tests, including an end-to-end validation\
-    \ and tolerance-value check) passed with exit 0, corroborating row-count matching\
-    \ and rule application."
-  sig: 8aaac9ea168da73d1f643728b036eef6232c500728455523253baff0ca074c29
+  h: d33b2312bbe7966c377915d7cc1cd8d800383cee05b2fe49f55311e590c8ee09
+  r: "The file `data/processed/validated_sweep_results.csv` exists (125 KB) with the\
+    \ required `outlier_flag` column, and the execution log shows `code/analysis/apply_outlier_rule.py`\
+    \ ran successfully (exit 0) reading `mc_results.csv` and applying the strict rule\
+    \ `eigenvalue_top > empirical_bulk_edge + 0.05`. Spot-checking many rows across\
+    \ all pattern types confirms every flag matches that rule (e.g., 1.8656 vs 1.8891\
+    \ \u2192 False; 2.0260 vs 2.0188 \u2192 True; 1.9933 vs 1.9970 \u2192 False),\
+    \ and the row structure mirrors the mc_results schema."
+  sig: ef5b274224ab01fbfa1df3195e98e9d56e8afbd31c8dcdb43a3ef2ae3508be48
+T004:
+  c: true
+  h: cab26a29991a37a5f1718175ec7ffa9279bf47a945a9eb963ddbf188eb2442ba
+  r: "The artifact `data/processed/threshold_identification.json` exists (5644 bytes),\
+    \ is valid JSON, contains all 36 (N, k, pattern_type) groups across N\u2208{100,500,1000,2000},\
+    \ k\u2208{1,2,5}, and three pattern types, with each `theta_c_empirical` drawn\
+    \ from the swept \u03B8 grid (0.8\u20131.5) and the required `method` and `overall_theta_c`\
+    \ fields. The execution log confirms the script ran (exit 0), read `validated_sweep_results.csv`,\
+    \ and processed 36 groups with overall theta_c 1.2, matching the JSON contents."
+  sig: 8cf8dbfbf6a7d5c1db6e5aca3549e460e8ff72777332ebbd405136a8989c3416
