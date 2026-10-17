@@ -1,61 +1,188 @@
 # Tasks: Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations
 
-**Inputs**: Active `spec.md`, `plan.md`, `specs/001-asymptotic-behavior-of-random-matrix-eig/` (data-model.md, contracts/), prior verified artifacts under `code/`, `data/`, and prior reviewer feedback.
+**Inputs**: Active `spec.md`, `plan.md`, `specs/001-asymptotic-behavior-of-random-matrix-eig/` (data-model.md, contracts/), prior verified artifacts under `code/`, `data/`, and prior reviewer/verifier feedback.
 
-This is a research implementation plan. The foundational generators, solvers, models, and documentation tasks (formerly T001–T019b, T035–T074 families) are verified and preserved below as completed. The remaining open work is the execution and validation of the theta sweep (US2) and density sensitivity (US3) pipelines, whose result artifacts were previously missing or invalid and are reopened here with deterministic, file-based verification.
+All previously completed foundational tasks (generators, solvers, models, grids, orchestrator, documentation) remain unchanged and verified. The remaining open work focuses on execution, validation, and reproducible reporting.
 
 ## Task format and paths
 
 - `- [ ] T### [P?] [USx?] description with exact artifact paths`.
-- Paths are relative to the project directory. Existing source lives in `code/` (generators, analysis, utils, data_models, main.py) with tests in `tests/`; results go to `data/processed/` and `data/figures/`. No new `src/` tree is created.
-- All simulation outputs are written to project-owned `data/` paths only; platform state (run registries, artifact hashes) is owned by the platform and never written by research scripts.
+- Paths are relative to the project root. Source lives in `code/`, results in `data/processed/`, figures in `data/figures/`, logs in `data/logs/`. No `state/` paths are used.
 
-## Phase 1: Setup and first end-to-end analysis
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Goal**: A runnable end-to-end analysis on a small valid case, producing real result rows under `data/`.
+- [ ] T001 [US1] **REDO (rejected artifact)**: Run a single‑run end‑to‑end analysis and record its results to `data/processed/single_run_results.json` by executing  
 
-- [ ] T001 Establish the existing code layout (`code/generators/`, `code/analysis/`, `code/utils/`, `code/data_models.py`, `code/main.py`, `tests/`), pinned dependencies in `code/requirements.txt` (numpy, scipy, pydantic, matplotlib, pandas, scikit-learn), and a documented runnable command in the active feature's `quickstart.md`. The mathematical domain (Wigner matrices scaled by $1/\sqrt{N}$, deterministic sparse perturbations of rank $k \in \{1,2,5\}$, $\theta \in [1.0, 3.0]$) is validated against the spec's Key Assumptions.
-- [ ] T002 Implement the primary computation and focused correctness tests: Wigner generator in `code/generators/wigner.py`, perturbation constructor (diagonal, block-sparse, random-sparse with rank preservation) in `code/generators/perturbation.py`, ARPACK-based iterative eigen solver with configurable tolerance in `code/analysis/eigen_solver.py`, and outlier-validation logic relative to the semicircle edge ±2.0 in `code/analysis/eigen_solver.py`. Unit tests in `tests/unit/test_wigner.py`, `tests/unit/test_perturbation.py`, `tests/unit/test_sparsity_utils.py` verify mean/variance scaling, rank/sparsity preservation, and mask generation. Invalid inputs (N outside [100, 2000], θ outside [1.0, 3.0]) are rejected.
-- [ ] T003 Connect the entry point to the computation and run a small valid case: `code/main.py` single-run mode loads the checksummed raw matrix `data/raw/matrix_N1000_seed42.npy` and the reusable `run_single_simulation(params)` in `code/analysis/simulation_loop.py`, computes top eigenvalues via ARPACK, applies outlier validation, and logs structured JSON run metadata (seed, parameters, timestamp) to `data/logs/simulation_run.log`. Verified: a rank-1 diagonal perturbation with θ=2.5 yields an eigenvalue beyond the bulk edge.
+  ```bash
+  code/main.py --mode single --N 1000 --seed 42 --theta 2.5 --k 1 --pattern diagonal
+  ```
 
-**Checkpoint**: The documented command executes and its numerical outputs can be checked against the BBP prediction $\lambda = \theta + 1/\theta$.
+  The script loads the checksummed raw matrix `data/raw/matrix_N1000_seed42.npy`, builds a rank‑1 diagonal perturbation with spectral norm θ = 2.5, computes the top 10 eigenvalues with ARPACK (`scipy.sparse.linalg.eigsh`), and writes a JSON document that **fully conforms** to the `SimulationRun` and `EigenvalueResult` contracts:
+
+  ```json
+  {
+    "run_id": "<uuid>",
+    "timestamp": "<ISO‑8601>",
+    "seed": 42,
+    "N": 1000,
+    "k": 1,
+    "theta": 2.5,
+    "pattern_type": "diagonal",
+    "support_density": null,
+    "computation_time_ms": <float>,
+    "empirical_bulk_edge": <float>,
+    "eigenvalues": [
+      {
+        "run_id": "<same uuid>",
+        "eigenvalue_index": 1,
+        "value": <float>,
+        "is_outlier": <bool>,
+        "theoretical_bbp": 2.5 + 1/2.5,
+        "deviation": <float>
+      },
+      … (indices 2‑10)
+    ]
+  }
+  ```
+
+  **Verification**:  
+  (a) the JSON validates against both `simulation_run.schema.yaml` and `eigenvalue_result.schema.yaml`;  
+  (b) `timestamp` is present and ISO‑8601 formatted;  
+  (c) each eigenvalue entry contains the matching `run_id`;  
+  (d) a deterministic reproducibility check re‑runs the same command and asserts the recorded top eigenvalue matches the newly computed one within 1e‑6;  
+  (e) the outlier rule follows FR‑004 (`value > empirical_bulk_edge + 0.05`).  
+  The command is also listed in `quickstart.md` and logs are written to `data/logs/simulation_run.log`.
 
 ## Phase 2: Complete the study and validate its evidence
 
-- [ ] T004 [US1] **REDO (rejected artifact)**: Record single-run results to `data/processed/single_run_results.json` by extending `code/analysis/simulation_loop.py` (and `code/main.py` single-run mode) to serialize the completed run. The file MUST conform to the `SimulationRun`/`EigenvalueResult` contracts in `specs/001-asymptotic-behavior-of-random-matrix-eig/contracts/`: schema `{"run_id": str, "N": int, "seed": int, "theta": float, "k": int, "pattern_type": str, "eigenvalues": list of {index, value, is_outlier, theoretical_bbp, deviation}, "empirical_bulk_edge": float, "computation_time_ms": float}`. Verification: the file exists, is non-empty valid JSON, parses against the contract, and `theoretical_bbp` equals $\theta + 1/\theta$ for the top eigenvalue. (Depends on T003.)
-- [ ] T005 [US2] **REDO (rejected artifacts)**: Execute the theta sweep with the generic orchestrator in `code/analysis/threshold_sweep.py` over the grid defined in the prior sweep data (N ∈ [100, 500, 1000, 2000], θ ∈ [1.5, 2.0, 2.5, 3.0], seeds [42, 123, 456, 789], k ∈ {1, 2, 5}, pattern types diagonal/block-sparse/random-sparse), consuming checksummed raw matrices and the reusable simulation loop. Note: θ=3.5 from the earlier grid violated the contract maximum of 3.0 and is dropped. Output `data/processed/mc_results.csv` with columns `run_id, N, k, pattern_type, theta, seed, eigenvalue_top, outlier_flag, empirical_bulk_edge` (one real computed row per run, no placeholder rows), and `data/processed/convergence_data.json` recording per-N bulk-edge convergence toward ±2.0. Verification: both files exist, are non-empty, row count equals the full grid product, and every `eigenvalue_top` is a real ARPACK-computed value. (Depends on T003.)
-- [ ] T006 [US2] **REDO (rejected artifacts)**: Apply the strict-tolerance outlier validation (from `code/analysis/eigen_solver.py`, outlier iff value > empirical_bulk_edge + 0.05 per FR-004) to every row of `data/processed/mc_results.csv` and write `data/processed/validated_sweep_results.csv` with the same columns plus boolean `outlier_flag` recomputed from the recorded values. Verification: file exists, non-empty, same row count as `mc_results.csv`, and each row's `outlier_flag` is consistent with its recorded `eigenvalue_top` and `empirical_bulk_edge` under the 0.05 rule. (Depends on T005.)
-- [ ] T007 [US2] **REDO (rejected artifact)**: Identify the empirical critical threshold $\theta_c$ from `data/processed/validated_sweep_results.csv` (input from T006) using the direct empirical sweep method: for each (N, k, pattern_type) group, find the θ where the outlier probability crosses from < 10% to > 90%. Write `data/processed/threshold_identification.json` with schema `{"groups": [{"N": int, "k": int, "pattern_type": str, "theta_c_empirical": float, "method": "direct_empirical_sweep"}], "overall_theta_c": float}`. Verification: file exists, is valid JSON, every grid group appears, and each `theta_c_empirical` is one of the swept θ values or the midpoint between the bracketing θ values. (Depends on T006.)
-- [ ] T008 [US2] Statistical supplement: fit logistic regression (scikit-learn, `solver='liblinear'`, 5-fold cross-validation; feature `theta`, target `outlier_flag`) per group on `data/processed/validated_sweep_results.csv` and write `data/processed/threshold_statistical.json` with schema `{"groups": [{"N": int, "k": int, "pattern_type": str, "theta_c_statistical": float, "confidence_interval": [float, float], "method": "logistic_regression_5cv"}]}`. Verification: file exists, valid JSON, CI bounds are finite and ordered, and the statistical $\theta_c$ is compared against T007's empirical value in the aggregation step. (Depends on T006.)
-- [ ] T009 [US2] Aggregate validated results and fitted parameters into `data/processed/threshold_sweep_results.csv` conforming to the `AggregatedThreshold` contract (config_id, N, k, pattern_type, theta, total_runs, outlier_count, outlier_probability, mean_deviation, std_deviation, theta_c_estimate, theta_c_confidence), combining T006 rows with T007/T008 fits. Then run `code/analysis/validate_data.py` to instantiate Pydantic models per row and write `data/logs/validation_log.txt` recording pass/fail per row. Verification: CSV exists, non-empty, one row per (N, k, pattern, θ) configuration, and the validation log shows all rows PASS. (Depends on T007, T008.)
-- [ ] T010 [US3] Execute the density sensitivity sweep using the orchestrator in `code/analysis/threshold_sweep.py` with `--grid-file data/configs/density_grid.json --grid-type density`: support density p ∈ {0.1, 0.2, 0.3, 0.4, 0.5} for random-sparse perturbations, N ∈ [100, 500, 1000], seeds [42, 123], fixed θ grid spanning the transition region. Output `data/processed/sensitivity_density_sweep.csv` (columns `run_id, N, k, pattern_type, density, theta, seed, eigenvalue_top, outlier_flag`) and `data/processed/sensitivity_metadata.json` recording a `PerturbationConfig` (rank, support_density, type) per run per the data model. Verification: both files exist, non-empty, row count equals the density-grid product, and each row's density is recorded. (Depends on T005's orchestrator.)
-- [ ] T011 [US3] Compute the variation of the critical threshold across density levels: group `data/processed/sensitivity_density_sweep.csv` by density, estimate $\theta_c$ per (N, density) via the same direct empirical method as T007, and write `data/processed/sensitivity_variation.csv` with schema `density, N, mean_theta_c, std_dev` (std across seeds). Verification: file exists, non-empty, one row per (density, N), and the report in T012 references these actual numbers. (Depends on T010.)
-- [ ] T012 [US2/US3] Generate figures and the sensitivity report directly from validated outputs: `data/figures/outlier_probability_vs_theta.png` (outlier probability vs θ per pattern type, from `data/processed/threshold_sweep_results.csv`) and `data/figures/sensitivity_theta_c_vs_density.png` (θ_c vs density, from `data/processed/sensitivity_variation.csv`). Update `data/processed/sensitivity_report.md` to state, from the actual computed numbers, whether $\theta_c$ shifts with density and by how much, including the T008 logistic-regression cross-check and its confidence intervals. Verification: both PNGs exist and are non-trivial image files; the report cites the actual values from the CSVs. (Depends on T009, T011.)
+- [ ] T002 [US2] **REDO (rejected artifact)**: Execute the theta sweep using `code/analysis/threshold_sweep.py` over the grid:
 
-**Checkpoint**: All required runs complete; artifacts match the actual computations. Checks are ordered after their prerequisites (T006 after T005; T007/T008 after T006; T009 after T007/T008; T012 after T009/T011).
+  - **N** ∈ {100, 500, 1000, 2000}  
+  - **θ** ∈ {0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0}  *(includes values below the theoretical BBP threshold)*  
+  - **seeds** ∈ {42, 123, 456, 789}  
+  - **k** ∈ {1, 2, 5}  
+  - **pattern_type** ∈ {diagonal, block-sparse, random-sparse}
+
+  The orchestrator consumes checksummed raw matrices and writes:
+
+  - `data/processed/mc_results.csv` with columns `run_id,N,k,pattern_type,theta,seed,eigenvalue_top,empirical_bulk_edge,computation_time_ms`.  
+  - `data/processed/convergence_data.json` recording per‑N bulk‑edge convergence toward ±2.0.
+
+  **Verification**: both files exist, are non‑empty, and the CSV row count equals 4 × 7 × 4 × 3 × 3 = 1008 rows. Every `eigenvalue_top` is a real ARPACK result.
+
+- [ ] T003 [US2] **REDO (rejected artifact)**: Apply the strict‑tolerance outlier rule (FR‑004) to every row of `mc_results.csv` and write `data/processed/validated_sweep_results.csv` with an additional boolean column `outlier_flag` recomputed from `eigenvalue_top` and `empirical_bulk_edge`.  
+  **Verification**: file exists, row count matches `mc_results.csv`, and each `outlier_flag` is consistent with the 0.05 rule.
+
+- [ ] T004 [US2] **REDO (rejected artifact)**: Identify the empirical critical threshold `theta_c_empirical` for each configuration group (N, k, pattern_type) by selecting the **smallest** swept θ where the outlier probability (fraction of runs with `outlier_flag=True`) is **≥ 0.5**. Write `data/processed/threshold_identification.json`:
+
+  ```json
+  {
+    "groups": [
+      {"N":100,"k":1,"pattern_type":"diagonal","theta_c_empirical":1.5,"method":"empirical_50pct_crossing"},
+      …
+    ],
+    "overall_theta_c": 1.8
+  }
+  ```
+
+  **Verification**: JSON is valid, every (N,k,pattern) appears, and each `theta_c_empirical` is one of the swept θ values.
+
+- [ ] T005 [US2] **REDO (rejected artifact)**: Fit a sigmoid curve to the outlier probability vs θ for each (N, k, pattern_type) using **SciPy’s `curve_fit`** (no external scikit‑learn dependency). Perform 5‑fold cross‑validation manually by splitting the seed dimension. Write `data/processed/threshold_statistical.json`:
+
+  ```json
+  {
+    "groups": [
+      {
+        "N":100,
+        "k":1,
+        "pattern_type":"diagonal",
+        "theta_c_statistical":1.62,
+        "confidence_interval":[1.55,1.69],
+        "method":"sigmoid_curve_fit_5cv"
+      },
+      …
+    ]
+  }
+  ```
+
+  **Verification**: JSON is valid, confidence intervals are finite and ordered, and each `theta_c_statistical` is compared to the empirical value in the aggregation step.
+
+- [ ] T006 [US2] **REDO (rejected artifact)**: **Aggregate** validated sweep results **per configuration group** (N, k, pattern_type) into `data/processed/threshold_sweep_results.csv` that conforms to the `AggregatedThreshold` contract. For each group we compute:
+
+  - `total_runs` = number of seeds × number of θ values (4 × 7 = 28)  
+  - `outlier_count` = sum of runs with any outlier (as identified in T003)  
+  - `outlier_probability` = outlier_count / total_runs  
+  - `mean_deviation` / `std_deviation` = statistics of `deviation` from `EigenvalueResult` for outlier runs  
+  - `theta_c_estimate` / `theta_c_confidence` = values from T005 (repeated for each row of the group)
+
+  The CSV therefore has **one row per (N, k, pattern_type) group** (4 × 3 × 3 = 36 rows). Run `code/analysis/validate_data.py` to instantiate Pydantic models for each row and write `data/logs/validation_log.txt` with PASS/FAIL per row.  
+  **Verification**: CSV exists, 36 rows, all rows PASS validation against `aggregated_threshold.schema.yaml`.
+
+- [ ] T007 [US3] **REDO (rejected artifact)**: Execute the density‑sensitivity sweep with `code/analysis/threshold_sweep.py --grid-file data/configs/density_grid.json --grid-type density`. The grid file now contains an explicit specification:
+
+  ```json
+  {
+    "theta_values": [0.8,1.0,1.2,1.5,2.0,2.5,3.0],
+    "densities": [0.1,0.2,0.3,0.4,0.5],
+    "N_values": [100,500,1000],
+    "k": 1,
+    "pattern_type": "random-sparse",
+    "seeds": [42,123,456,789]
+  }
+  ```
+
+  The orchestrator writes:
+
+  - `data/processed/sensitivity_density_sweep.csv` (columns `run_id,N,k,pattern_type,density,theta,seed,eigenvalue_top,outlier_flag`)  
+  - `data/processed/sensitivity_metadata.json` recording the `PerturbationConfig` for each run.  
+
+  **Verification**: both files exist, non‑empty, and row count equals 3 × 5 × 7 × 4 = 420 rows.
+
+- [ ] T008 [US3] **REDO (rejected artifact)**: Compute variation of the critical threshold across densities. For each (density, N) pair, use the 50 % crossing rule (as in T004) to obtain `theta_c`. Write `data/processed/sensitivity_variation.csv`:
+
+  ```csv
+  density,N,mean_theta_c,std_dev
+  0.1,100,1.52,0.00
+  0.2,100,1.55,0.00
+  …
+  ```
+
+  If fewer than three seeds are available for a given (density, N) the `std_dev` column is set to `0.0` with a note that the estimate is based on limited data.  
+  **Verification**: file exists, one row per (density,N) (5 × 3 = 15 rows), numeric values present, std_dev ≥ 0.0.
+
+- [ ] T009 [US2/US3] **REDO (rejected artifact)**: Generate figures and a sensitivity report:
+
+  - `data/figures/outlier_probability_vs_theta.png` (outlier probability vs θ per pattern type, from `threshold_sweep_results.csv`).  
+  - `data/figures/sensitivity_theta_c_vs_density.png` (θ_c vs density, from `sensitivity_variation.csv`).  
+  - `data/processed/sensitivity_report.md` summarizing the empirical and statistical θ_c estimates, stating whether density shifts the threshold and quoting actual numbers.  
+
+  **Verification**: PNGs are non‑trivial image files; the markdown cites concrete values from the CSVs.
 
 ## Phase 3: Reproducible results and paper handoff
 
-- [ ] T013 Write a concise methods/results account in the project's `research.md` (already containing the mathematical-ensemble framing, scope-and-limitations sections, and the observational-nature statements addressing prior reviewer critiques — preserve them). Add a Results section linked to the actual artifacts: `data/processed/threshold_sweep_results.csv`, `threshold_identification.json`, `threshold_statistical.json`, `sensitivity_variation.csv`, and the figures from T012. Describe the empirical $\theta_c$ per pattern type, agreement or deviation from the BBP prediction $\theta_c = 1$, the density sensitivity finding, and negative findings/limitations (finite N, seed count, CPU-only ARPACK solvers) honestly. Verification: the document references each artifact path and quotes actual numeric values from them. (Depends on T012.)
-- [ ] T014 Re-run the documented workflow from `quickstart.md` from its declared inputs (raw matrices + grids), confirm the unit/integration tests pass (`tests/unit/`, `tests/integration/test_sweep.py`), confirm the deterministic sanity check (N=100, θ=2.5, seed=42 reproduces the top eigenvalue within 1e-6 of the recorded baseline), and document the paper-stage handoff in `research.md`: the paper stage will receive the result tables, figures, and the methods account, and is responsible for layout, PDF compilation, and publication. Verification: a re-run log under `data/logs/` records the commands executed, test pass counts, and the sanity-check delta. (Depends on T013.)
+- [ ] T010 Write a concise methods/results account in `research.md` (preserving existing sections) and add a **Results** section that references the actual artifacts:
+
+  `data/processed/threshold_sweep_results.csv`, `threshold_identification.json`, `threshold_statistical.json`, `sensitivity_variation.csv`, and the two PNGs. Quote the empirical `theta_c` per pattern and the observed density effect, and discuss limitations (finite N, seed count, CPU‑only ARPACK).  
+
+  **Verification**: the document contains hyperlinks to each artifact and includes at least one quoted numeric value from each.
+
+- [ ] T011 Re‑run the documented workflow from `quickstart.md`, confirm all unit and integration tests pass (`tests/unit/`, `tests/integration/test_sweep.py`), and verify the deterministic sanity check (N = 100, θ = 2.5, seed = 42) reproduces the top eigenvalue within 1e‑6 of the baseline. Log the full re‑run under `data/logs/rerun.log`.  
+
+  **Verification**: test suite passes, `rerun.log` exists, and the sanity‑check delta is recorded and ≤ 1e‑6.
 
 ## Dependencies and requirement coverage
 
-| Requirement | Tasks | Demonstration |
-|---|---|---|
-| Wigner generation, $1/\sqrt{N}$ scaling, seeds (FR-001) | T002, T003 | `tests/unit/test_wigner.py`; `data/raw/matrix_N1000_seed42.npy` |
-| Sparse perturbations, rank/sparsity fidelity (FR-002) | T002, T010 | `tests/unit/test_perturbation.py`; `sensitivity_metadata.json` |
-| Outlier detection vs bulk edge + 0.05 (FR-004) | T002, T006 | `validated_sweep_results.csv` consistency check |
-| BBP threshold sweep $\theta_c$ (FR-005) | T005–T009 | `threshold_identification.json`, `threshold_statistical.json` |
-| Sparsity sensitivity (FR-006) | T010–T012 | `sensitivity_variation.csv`, `sensitivity_report.md` |
-| Observational framing, no physical observer (FR-007) | T013 (preserved prior sections) | `research.md` Sections 2–3 |
-| Reproducibility, contracts, CPU-only | T014, all outputs under `data/` | re-run log; contract-conformant JSON/CSV |
+| Requirement (Spec Objective / Key Assumption) | Tasks |
+|---|---|
+| Objective 1 (Wigner generation, scaling) | T001, T002 |
+| Objective 2 (Sparse perturbations, rank & pattern) | T002, T007 |
+| Objective 3 (Top eigenvalue computation) | T001, T002 |
+| Objective 4 (θ sweep & critical threshold) | T002–T006 |
+| Objective 5 (Sparsity density sensitivity) | T007–T009 |
+| FR‑004 (outlier detection rule) | T001, T003, T007, T008 |
+| FR‑007 (observational nature) | T010 |
+| Validation criteria (semicircle edge, reproducibility) | T001, T011 |
+| CPU‑only execution & real data usage | All tasks (explicitly state CPU‑only) |
+| No GPU acceleration | All tasks (CPU‑only solvers) |
 
-Execution order: T004 and T005 may proceed in parallel after T003; T006 → (T007, T008) → T009 → T012; T010 → T011 → T012; T013 → T014.
-
-## Revision behavior
-
-- Verified work (former T001–T019b, T026–T040c, T051–T074 families: generators, solvers, models, grids, orchestrator, documentation, review responses) is preserved as completed in Phase 1; no completed task is reopened.
-- The four verifier-rejected artifacts (single_run_results.json, mc_results.csv + convergence_data.json, validated_sweep_results.csv, threshold_identification.json) are reopened as T004–T007 with explicit file-existence, schema, and content-consistency verification.
-- Corrections against the original study: θ=3.5 removed from the sweep grid (contract maximum is 3.0); all research-script outputs moved to project-owned `data/` paths (platform-owned `state/` paths are no longer task deliverables); the speculative "theta_c per run" column in the sensitivity sweep is replaced by per-(density, N) estimation in T011, since a single run cannot yield a threshold.
-- No requirement was dropped; the earlier phases' documentation and review-response content is carried in the preserved artifacts and consolidated into T013's handoff.
+All tasks respect CPU‑only execution, real data usage, and the constitution’s reproducibility and data‑hygiene principles.
