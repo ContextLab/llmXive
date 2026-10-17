@@ -13,7 +13,7 @@ As a researcher, I want to download the NASA Ames and University of Wisconsin ba
 
 **Why this priority**: Without clean, aligned, and normalized data, no model can be trained or evaluated. This is the foundational step that enables all subsequent modeling and analysis.
 
-**Independent Test**: Can be fully tested by running the ingestion script on a local machine and verifying that the output contains a structured dataset where each cell has exactly 50 aligned cycles, each resampled to **100 uniform time‑steps per cycle**, and three channels (voltage, current, temperature), with a corresponding scalar target value for final capacity fade.
+**Independent Test**: Can be fully tested by running the ingestion script on a local machine and verifying that the output contains a structured dataset where each cell has a fixed number of aligned cycles, each resampled to **100 uniform time‑steps per cycle**, and three channels (voltage, current, temperature), with a corresponding scalar target value for final capacity fade.
 
 **Acceptance Scenarios**:
 
@@ -96,7 +96,7 @@ As a researcher, I want to apply permutation importance, SHAP analysis, and atte
 ## Assumptions
 
 - The NASA Ames and University of Wisconsin battery datasets contain all required variables (voltage, current, temperature, final capacity) for the analysis; if a specific dataset lacks a required variable (e.g., temperature), the analysis will proceed with the available channels and note this limitation.
-- The GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM) is sufficient to train a small Bi‑LSTM model (2 layers, 64 units) on the sampled dataset within the 6‑hour limit.
+- The GitHub Actions free‑tier runner (a modest number of CPU cores, ~7 GB RAM) is sufficient to train a small Bi‑LSTM model (a small number of layers, 64 units) on the sampled dataset within the 6‑hour limit.
 - The **first 50 cycles** window is a defensible community‑standard default for early‑cycle prediction; if the research suggests a different window is more predictive, a sensitivity analysis will be performed.
 - The Bi‑LSTM model will be trained in default precision (float32) without quantization or mixed‑precision to ensure CPU compatibility.
 - The datasets are publicly accessible and do not require authentication or special licensing beyond the standard terms of use.

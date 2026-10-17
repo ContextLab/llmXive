@@ -1,0 +1,14 @@
+status: none
+intent: download NASA Ames and University of Wisconsin battery datasets python package
+  dataset
+required_fields:
+- cell_id
+- cycle_number
+- time_step
+- voltage
+- current
+- temperature
+- final_capacity_fade
+cache_key: 0f739e6da16c33b37b09899ab34d9b2224bcf8bfe8e53a2ac9e11e9abffe99b5
+searched_at: '2026-10-17T09:19:19.522554+00:00'
+retry_count: 1
