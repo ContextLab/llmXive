@@ -1,13 +1,11 @@
 status: none
-intent: Random Matrix Theory synthetic matrices perturbation patterns edge reference
-  arXiv 0812.2602 python package dataset
+intent: synthetic matrices perturbation patterns reference values python package dataset
 required_fields:
 - matrix
 - seed
 - perturbation_type
 - theoretical_edge
-- empirical_bulk_edge
 - schema_version
-cache_key: a5a56d8807a51a62ce4f7cfb1fddd449f5a02cdecc8384ee7fc0dc8c5da82cf4
-searched_at: '2026-10-17T15:08:35.213416+00:00'
+cache_key: d77c024d375014ebdb15e087b21f1c786fb0768b85528570f5baa025339c1e0d
+searched_at: '2026-10-17T16:09:12.466078+00:00'
 retry_count: 1

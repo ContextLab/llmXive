@@ -13,7 +13,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; 5 command(s) failed: python -m src.cli run  --mode single  --N 1000  --theta 2.5  --k 1  --pattern diagonal  --seed 42 (rc=1); python -m src.cli sweep  --N 2000  --theta-grid 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0  --k 1 2 5  --patterns diagonal block-sparse random-sparse  --iterations 500  --seed-start 1000 (rc=1); python -m src.cli sensitivity  --N 1500  --theta 1.5  --k 2  --pattern random-sparse  --densities 0.05 0.1 0.2 0.3 0.4 0.5  --iterations 500  --seed-start 5000 (rc=1); 9 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_data.json; data/processed/mc_results.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; 6 command(s) failed: python -m src.cli run  --mode single  --N 1000  --theta 2.5  --k 1  --pattern diagonal  --seed 42 (rc=1); python -m src.cli sweep  --N 2000  --theta-grid 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0  --k 1 2 5  --patterns diagonal block-sparse random-sparse  --iterations 500  --seed-start 1000 (rc=1); python -m src.cli sensitivity  --N 1500  --theta 1.5  --k 2  --pattern random-sparse  --densities 0.05 0.1 0.2 0.3 0.4 0.5  --iterations 500  --seed-start 5000 (rc=1); 8 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_data.json; data/processed/mc_results.csv
 
 ## Failing / missing run-book commands
 
@@ -32,6 +32,31 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python -m src.cli finite_size  --Ns 500 1000 1500 2000  --theta 1.5  --k 1  --pattern diagonal  --iterations 500  --seed-start 8000 -> rc=1
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-551-asymptotic-behavior-of-random-matrix-eig/bin/python: Error while finding module specification for 'src.cli' (ModuleNotFoundError: No module named 'src')
+
+- python -m pytest tests/contract/test_schemas.py -> rc=1
+8-6837-491d-9f50-28dc686522f8",\n  "timestamp": "2026-10-17T16:07:17+0000",\n  "seed": 42,\n  ...8-6837-491d-9f50-28dc686522f8",\n      "eigenvalue_index": 1,\n      "value": 2.703139682868358,\n      "is_outlier": '
+idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 17 column 21 (char 460)
+
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/decoder.py:355: JSONDecodeError
+=========================== short test summary info ============================
+FAILED tests/contract/test_schemas.py::test_processed_json_files - json.decod...
+==================== 1 failed, 1 passed, 1 skipped in 0.13s ====================
+
 
 - python -m pytest tests/integration/test_t001.py -> rc=4
 ============================= test session starts ==============================
@@ -55,7 +80,6 @@ ERROR: file or directory not found: tests/integration/test_t001.py
 - data/processed/sensitivity_density_sweep.csv
 - data/processed/sensitivity_metadata.json
 - data/processed/sensitivity_variation.csv
-- data/processed/single_run_results.json
 - data/processed/threshold_statistical.json
 - data/processed/threshold_sweep_results.csv
 
@@ -94,13 +118,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/generate_sensitivity_report.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity_variation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_variation.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/single_run_results.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/fix_single_run_json.py` — NOT invoked by the run-book
-    - `code/analysis/results_recorder.py` — NOT invoked by the run-book
-    - `code/analysis/task019b_traceability.py` — NOT invoked by the run-book
-    - `code/main.py` — NOT invoked by the run-book
-    - `code/utils/results_logger.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/single_run_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/threshold_statistical.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/aggregate_thresholds.py` — NOT invoked by the run-book
     - `code/analysis/threshold_fit.py` — NOT invoked by the run-book

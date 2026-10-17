@@ -1,5 +1,5 @@
 """
-Single‑run entry point for the random‑matrix study (Task T003).
+Single‑run entry point for the random‑matrix study (Task T002).
 
 This script can be executed as a module:
 
@@ -10,11 +10,10 @@ It performs the following steps:
 1. Generates (or loads) a Wigner matrix ``data/raw/matrix_N<N>_seed<seed>.npy``.
    Scaling is 1/sqrt(N) as required by the specification.
 2. Constructs a rank‑1 diagonal perturbation with spectral norm ``theta``.
-3. Calls the project's eigen‑solver to obtain the top‑10 eigenvalues.
+3. Calls ARPACK via ``scipy.sparse.linalg.eigsh`` to obtain the top‑10 eigenvalues.
 4. Flags outliers using the theoretical rule ``value > 2.0 + 0.05``.
-5. Writes a JSON file ``data/processed/single_run_results.json`` that
-   contains a ``SimulationRun`` record and an array of ten
-   ``EigenvalueResult`` records (nested under the same ``run_id``).
+5. Writes a JSON file ``data/processed/single_run_results.json`` containing a
+   ``SimulationRun`` record and an array of ten ``EigenvalueResult`` records.
 6. Updates ``data/checksums.yaml`` with the SHA‑256 checksum of the raw matrix.
 7. Logs the full run to ``data/logs/single_run.log`` (including peak memory usage).
 8. Enforces SC‑001: raises an error if peak memory exceeds 7 GB.
@@ -33,8 +32,8 @@ import psutil
 import yaml
 from scipy.sparse.linalg import eigsh
 
-# Project‑specific utilities
-from utils.config import get_project_paths, get_outlier_tolerance
+# llmxive_toolkit provides convenient path helpers.
+from llmxive_toolkit import paths as llm_paths
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -93,7 +92,6 @@ def _create_diagonal_perturbation(N: int, theta: float) -> np.ndarray:
 
 def _compute_top_eigenvalues(matrix: np.ndarray, k: int = 10) -> np.ndarray:
     """Compute the top‑k eigenvalues using ARPACK (eigsh)."""
-    # eigsh works on symmetric matrices; which='LA' gives largest algebraic.
     eigenvalues, _ = eigsh(matrix, k=k, which="LA", tol=1e-10, maxiter=1000)
     # eigsh returns eigenvalues in ascending order; reverse for descending.
     return np.sort(eigenvalues)[::-1]
@@ -111,7 +109,6 @@ def _write_checksum(matrix_path: Path, checksum_path: Path, logger: logging.Logg
     with open(matrix_path, "rb") as f:
         sha256 = hashlib.sha256(f.read()).hexdigest()
 
-    # Load existing manifest if present
     if checksum_path.is_file():
         with open(checksum_path, "r", encoding="utf-8") as f:
             manifest = yaml.safe_load(f) or {}
@@ -142,28 +139,9 @@ def _record_memory_usage(logger: logging.Logger) -> float:
 def main():
     """
     Entry point for the single‑run CLI.
-
-    If the script is invoked without any command‑line arguments, we fall back
-    to the canonical quick‑start parameters (N=1000, seed=42, theta=2.5,
-    k=1, pattern=diagonal). This makes the module runnable both as a
-    demonstration and as part of the automated verification pipeline.
     """
-    # ------------------------------------------------------------------
-    # Provide sensible defaults when the user supplies no arguments.
-    # ------------------------------------------------------------------
-    if len(sys.argv) == 1:
-        # No arguments supplied – inject the quick‑start defaults.
-        sys.argv.extend([
-            "--mode", "single",
-            "--N", "1000",
-            "--seed", "42",
-            "--theta", "2.5",
-            "--k", "1",
-            "--pattern", "diagonal",
-        ])
-
     parser = argparse.ArgumentParser(
-        description="Run a single random‑matrix simulation (Task T003)."
+        description="Run a single random‑matrix simulation (Task T002)."
     )
     parser.add_argument("--mode", required=True, choices=["single"])
     parser.add_argument("--N", type=int, required=True, help="Matrix dimension")
@@ -178,14 +156,11 @@ def main():
     )
     args = parser.parse_args()
 
-    # ------------------------------------------------------------------
-    # Resolve project paths
-    # ------------------------------------------------------------------
-    paths = get_project_paths()
-    raw_dir = paths["raw"]
-    processed_dir = paths["processed"]
-    logs_dir = paths["logs"]
-    checksums_path = paths["root"] / "data" / "checksums.yaml"
+    # Resolve project directories using llmxive_toolkit
+    raw_dir = llm_paths.data("raw")
+    processed_dir = llm_paths.data("processed")
+    logs_dir = llm_paths.data("logs")
+    checksum_path = llm_paths.data("checksums.yaml")
 
     log_file = logs_dir / "single_run.log"
     logger = _setup_logger(log_file)
@@ -198,35 +173,35 @@ def main():
 
     start_time = time.time()
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 1. Load or generate raw Wigner matrix
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     matrix_path = _load_or_create_matrix(args.N, args.seed, raw_dir, logger)
     matrix = np.load(matrix_path)
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 2. Build perturbation
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     if args.pattern != "diagonal":
         logger.error("Only the 'diagonal' pattern is supported for the single‑run task.")
         sys.exit(1)
 
     perturbation = _create_diagonal_perturbation(args.N, args.theta)
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 3. Form the perturbed matrix and compute eigenvalues
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     perturbed = matrix + perturbation
     top_vals = _compute_top_eigenvalues(perturbed, k=10)
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 4. Determine outlier flags (theoretical rule)
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     outlier_flags = [_is_outlier(v) for v in top_vals]
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 5. Assemble JSON payload
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     run_id = str(uuid.uuid4())
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())
     computation_time_ms = (time.time() - start_time) * 1000.0
@@ -235,8 +210,7 @@ def main():
     raw_eig = _compute_top_eigenvalues(matrix, k=10)
     empirical_bulk_edge = float(np.percentile(raw_eig, 99))
 
-    # The schema expects a numeric value for support_density; for a diagonal
-    # perturbation the density is effectively zero.
+    # For a diagonal perturbation the density is effectively zero.
     support_density = 0.0
 
     sim_record = {
@@ -276,14 +250,14 @@ def main():
         json.dump(output_json, f, indent=2)
     logger.info(f"Wrote SimulationRun JSON to {json_path}")
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 6. Write checksum manifest
-    # ------------------------------------------------------------------
-    _write_checksum(matrix_path, checksums_path, logger)
+    # --------------------------------------------------------------
+    _write_checksum(matrix_path, checksum_path, logger)
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # 7. Memory usage & SC‑001 enforcement
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     peak_gb = _record_memory_usage(logger)
     if peak_gb > 7.0:
         logger.error(f"Peak memory {peak_gb:.2f} GB exceeds the 7 GB limit (SC‑001).")

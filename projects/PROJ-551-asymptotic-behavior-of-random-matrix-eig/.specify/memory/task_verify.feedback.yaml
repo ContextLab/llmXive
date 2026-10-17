@@ -1,14 +1,15 @@
 T001:
+  reason: "The three schema files do exist under `contracts/` (the collector's \"\
+    MISSING\" entries were bare-filename lookups; the directory listing confirms all\
+    \ three) and `tests/contract/test_schemas.py` is a substantive, well-formed test\
+    \ module. However, there is no execution evidence that `pytest -q tests/contract/test_schemas.py`\
+    \ was actually run and exited 0 \u2014 no test output, log, or report is supplied\
+    \ \u2014 and the schema files' contents are not shown, so I cannot confirm they\
+    \ are valid JSON Schema that the existing artifact `data/processed/single_run_results.json`\
+    \ actually validates against (e.g., that"
   task: 41c074c53775c934ca2c2654a1dd7298465541c896c78b71ec05fe2a164a2d97
 T002:
-  reason: 'The required run artifacts are missing: `data/raw/matrix_N1000_seed42.npy`,
-    `data/processed/single_run_results.json`, and `data/logs/single_run.log` all do
-    not exist, so there is no evidence the command was ever executed or that its outputs
-    (eigenvalues, outlier flags, peak-memory log entry) were produced. Additionally,
-    `main.py` does `from utils.config import ...`, which will fail under the required
-    invocation `python -m code.main` from the project root (it would need `code.utils.config`),
-    and the existing `data/checksums.yaml` has a different structure (nested N/seed/sha256
-    record) than what'
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 3452e915417763de69f8ba41c70acbad37b8141d929eb69b38a9c8d2d1809cf7
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
