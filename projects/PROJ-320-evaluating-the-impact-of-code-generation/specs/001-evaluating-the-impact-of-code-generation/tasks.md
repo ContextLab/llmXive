@@ -7,7 +7,7 @@
 
 ### User Story 1 – Data Acquisition and LLM Classification (US-1)
 
-- [ ] T001 Create a root‑level `requirements.txt` (path: `requirements.txt`) listing `requests`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`, `pydantic`. Record the installation log at `logs/requirements_install.log`.  
+- [ ] T001 Create a root‑level `requirements.txt` (path: `requirements.txt`) listing `requests`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`, `pydantic`. Record the installation log at `logs/requirements_install.log`.   <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 -->
   – **Verification**: `pip install -r requirements.txt` on a clean runner finishes without error; the log contains the success message and is committed.
 
 - [X] T002 Implement a checksum utility `code/utils/checksum.py` exposing `sha256_file(path: str) -> str`. Add a unit test `tests/unit/test_checksum.py`.  

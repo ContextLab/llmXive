@@ -1,18 +1,19 @@
 status: none
-intent: download real GitHub pull request dataset pip installable python package dataset
+intent: GitHub pull request dataset download GHTorrent archive pip install ghapi python
+  package dataset
 required_fields:
-- repo_full_name
-- pull_number
+- id
+- url
+- repository_full_name
 - title
 - body
 - author_login
+- author_type
 - created_at
 - merged_at
+- state
 - additions
 - deletions
-- changed_files
-- commit_sha
-- commit_message
-cache_key: d1a7a920ffb8d74e27c59e5f344019786871c7a9ad50472b335adf52696c52ec
-searched_at: '2026-10-16T07:25:42.936803+00:00'
+cache_key: d1dc9fb12473ac9ede225a60dad4c18744472588d67ead14c76094375227d14d
+searched_at: '2026-10-17T09:18:03.537485+00:00'
 retry_count: 1

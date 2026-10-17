@@ -1,10 +1,6 @@
 T001:
-  reason: "The `requirements.txt` file is present and correctly lists the required\
-    \ packages (plus some extras), but there is no evidence that the required log\
-    \ file `logs/requirements_install.log` exists or contains the success message\
-    \ from a clean `pip install -r requirements.txt` run. The provided script log\
-    \ only shows that the script attempted to write the log, not the log\u2019s actual\
-    \ contents. The task therefore remains incomplete."
+  reason: 'Requested task execution failed; rerun successfully: code/install_requirements.py
+    exit=1'
   task: f1997db1f4e9c2c5a8b454c14f7a9b4f32889d9f87021578cc90eae7f04d69da
 T002:
   task: 5d96c1165af1fd1177c4ec320e8869ca77ff731569d0fd56e79b2c220743e55d
