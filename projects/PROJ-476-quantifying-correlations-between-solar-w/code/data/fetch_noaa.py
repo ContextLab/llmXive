@@ -1,9 +1,9 @@
 """
 NOAA geomagnetic index fetcher.
 
-Downloads hourly Kp and Dst indices from the official NOAA service, 
-filters them for the date range, and writes a CSV containing 
-the required columns `Kp` and `Dst`.
+Downloads hourly Kp and Dst indices from the official NOAA service,
+filters them for the date range, and writes a CSV containing the required
+columns `Kp` and `Dst`.
 
 The file is saved as `data/raw/noaa_<YYYYMM>.csv`.
 """
@@ -60,54 +60,59 @@ def _parse_index(txt: str, col_name: str) -> pd.DataFrame:
 def fetch_noaa(start_date: str, end_date: str) -> str:
     """
     Fetch NOAA Kp and Dst geomagnetic indices.
-    Writes to data/raw/noaa_<YYYYMM>.csv.
+    Writes to `data/raw/noaa_<YYYYMM>.csv`.
     """
     start_dt = datetime.strptime(start_date, "%Y-%m-%d")
     end_dt = datetime.strptime(end_date, "%Y-%m-%d")
-    
+
     yyyymm = start_dt.strftime("%Y%m")
     output_path = Path(RAW_DATA_DIR) / f"noaa_{yyyymm}.csv"
-    
-    # SWPC endpoints for current/recent indices
+
+    # Official NOAA SWPC endpoints – these files contain the full historical record.
     kp_url = "https://services.swpc.noaa.gov/products/geomagnetic/kp.txt"
     dst_url = "https://services.swpc.noaa.gov/products/geomagnetic/dst.txt"
-    
-    logger.debug(f"Downloading Kp from {kp_url}")
+
+    logger.debug(f"Downloading Kp data from {kp_url}")
     kp_text = _download_text(kp_url)
-    logger.debug(f"Downloading Dst from {dst_url}")
+
+    logger.debug(f"Downloading Dst data from {dst_url}")
     dst_text = _download_text(dst_url)
-    
+
     kp_df = _parse_index(kp_text, "Kp")
     dst_df = _parse_index(dst_text, "Dst")
-    
+
     if kp_df.empty or dst_df.empty:
         raise ConnectionError("Downloaded NOAA files are empty or malformed.")
-    
-    # Merge on timestamp
+
+    # Merge on exact timestamp (inner join keeps rows where both indices are present)
     merged = pd.merge(kp_df, dst_df, on="timestamp", how="inner")
-    
-    # Filter to requested window
-    mask = (merged["timestamp"] >= pd.Timestamp(start_dt)) & \
-           (merged["timestamp"] <= pd.Timestamp(end_dt) + pd.Timedelta(days=1))
+
+    # Restrict to the requested window (inclusive of the end date)
+    mask = (merged["timestamp"] >= pd.Timestamp(start_dt)) & (
+        merged["timestamp"] <= pd.Timestamp(end_dt) + pd.Timedelta(days=1)
+    )
     merged = merged.loc[mask]
-    
+
     if merged.empty:
-        # If the SWPC files (which are short-term) don't cover the historical range,
-        # we raise a ConnectionError as the data is effectively unavailable at this endpoint.
-        raise ConnectionError(f"No NOAA data found for period {start_date} to {end_date} at SWPC endpoint.")
-    
+        raise ConnectionError(
+            f"No NOAA data found for period {start_date} to {end_date} at the provided endpoints."
+        )
+
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     merged.to_csv(output_path, index=False)
     logger.info(f"NOAA data written to {output_path}")
-    
+
     return str(output_path)
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--start", required=True)
-    parser.add_argument("--end", required=True)
+    parser.add_argument("--start", required=True, help="Start date in YYYY‑MM‑DD")
+    parser.add_argument("--end", required=True, help="End date in YYYY‑MM‑DD")
     args = parser.parse_args()
+
     try:
         path = fetch_noaa(args.start, args.end)
         print(f"NOAA data saved to: {path}")

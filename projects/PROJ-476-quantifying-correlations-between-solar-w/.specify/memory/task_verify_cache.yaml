@@ -1,15 +1,13 @@
 T001:
-  c: false
-  h: f648c6f3e065e90e3167cd6e72fd8247daf6369cce40120cda614bf5b2686380
-  r: "The directory hierarchy and `specs/001-quantifying-correlations-between-solar-w/quickstart.md`\
-    \ (containing the required `python -m code.main --stage all` command) are confirmed\
-    \ present. However, the task's core deliverable \u2014 a runnable quick-start\
-    \ \u2014 is unevidenced: no `code/main.py` (or `code/__main__.py`) appears anywhere\
-    \ in the collected artifacts, and there is no execution evidence that `python\
-    \ -m code.main --help` (the task's own verification command) exits 0. The next\
-    \ implementer must add the `code.main` CLI module and provide evidence of a successful\
-    \ `--help` run."
-  sig: 6c649b5ed4a7092e70daeb8c62deae643f4f91ff941d2a6b0eb7e809b9ca4161
+  c: true
+  h: 5ee2806a6cea75abe776f7bb1c681fc24191ae43d871814eaa8852b5c983f2eb
+  r: "The directory hierarchy (code/data, code/analysis, code/viz, code/tests, data/raw,\
+    \ data/processed, results, figures) exists as listed, the quickstart markdown\
+    \ at `specs/001-quantifying-correlations-between-solar-w/quickstart.md` contains\
+    \ the exact line `python -m code.main --stage all`, and the log `code/.tasks/T001.code_main.py.log`\
+    \ confirms that `python -m code.main --help` runs successfully with exit code\u202F\
+    0."
+  sig: edf07770b35a1ed272a824609bd1ba624d0d2bf89d7d8b6fe3fcebda0b49d516
 T003:
   c: false
   h: dbae956e04fd0efe1a0bd3c0c2c40550cbc39e9a5bbdf4525db2c38efdd93f50
