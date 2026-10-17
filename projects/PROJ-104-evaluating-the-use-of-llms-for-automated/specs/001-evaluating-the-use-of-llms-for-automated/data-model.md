@@ -22,7 +22,7 @@ The data model defines the canonical JSON/YAML structures used throughout the pi
 | `model_id` | string | Identifier: `phi3-mini`, `gemma2-2b`, `llama3.2-3b` | enum |
 | `generated_text` | string | Full documentation update produced by the LLM | non‑empty |
 | `generation_time_s` | number | Wall‑clock seconds spent generating | minimum: 0 |
-| `status` | string | `success`, `generation_failed` | enum |
+| `status` | string | `success` or `generation_failed` | enum |
 | `log` | string | Optional error or retry log | – |
 
 ### 3. EntitySet (`entityset.schema.yaml`)
@@ -30,7 +30,7 @@ The data model defines the canonical JSON/YAML structures used throughout the pi
 |-------|------|-------------|-------------|
 | `sample_id` | string | `{commit_hash}_{model_id}` | – |
 | `entities` | array of object | List of extracted entities | – |
-| Entity object fields: |
+| **Entity object** |  |  |  |
 | `text` | string | Raw entity string | – |
 | `type` | string | `surface` or `intent` | enum |
 | `source` | string | `human` or `generated` | enum |
@@ -49,15 +49,12 @@ The data model defines the canonical JSON/YAML structures used throughout the pi
 | `timestamp` | string | When the metric was computed (ISO‑8601) | format: date-time |
 
 ## Derivation Flow
-1. **Raw Extraction** → `CommitPair` CSV → `commitpair.schema.yaml` validation.  
-2. **Generation** → `GeneratedOutput` JSON → schema validation.  
-3. **Entity Extraction** on both human `doc_diff` and `generated_text` → `EntitySet`. Surface entities are verified via **combined `git grep` and AST parsing** to avoid false‑negative hallucination counts.  
-4. **Scoring** compares human vs. generated EntitySets → `FidelityMetric`.  
+1. **Raw Extraction** → `CommitPair` CSV → validated against `commitpair.schema.yaml`.  
+2. **Generation** → `GeneratedOutput` JSON → validated against `generatedoutput.schema.yaml`.  
+3. **Entity Extraction** on both human `doc_diff` and `generated_text` → `EntitySet` JSON; surface entities are verified via combined `git grep` and AST parsing.  
+4. **Scoring** compares human vs. generated `EntitySet` → `FidelityMetric` JSON.  
 5. **Aggregation** (`data/processed/fidelity_metrics.csv`) is derived from all `FidelityMetric` rows.
 
 All intermediate files retain the original checksum in `data/metadata.yaml` to satisfy the Data Hygiene principle. The inclusion of `entityset.schema.yaml` in the contract validation step ensures schema consistency across the pipeline.
 
 ---
-
-
-
