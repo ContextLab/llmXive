@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: 657d70f62cac874aa9b2a3fde19aec0636336626add4a6c5a34432e136c9d0a7
-  r: The quickstart.md "Run the end-to-end pipeline" section exists and the run_pipeline
-    execution log shows exit 0 with "Pipeline completed", but there is no evidence
-    that the required verification `pytest -q tests/integration/test_end_to_end.py`
-    was ever run and passed (no pytest execution record), and no artifact evidence
-    that dependencies were actually pinned (no `requirements.txt` content shown, while
-    `config.yaml` is only an empty placeholder comment). The next implementer should
-    provide a passing pytest run record and a real pinned `requirements.txt` (and
-    a substantive `config.yaml`).
-  sig: cb225666ec9ddb53e655c536366550779c250522157be365f676df2c5b39f019
 T003:
   c: false
   h: 694f4bf6c0be62d0fede119411e75ac1c90038d77fb6665207d6723c890fc2ea

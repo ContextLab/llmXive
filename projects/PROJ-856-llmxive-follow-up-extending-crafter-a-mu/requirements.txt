@@ -1,11 +1,9 @@
-# Project dependencies
-# Core scientific stack (pre‑installed in the execution environment)
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-#
-# Additional packages required for this project
-pillow==10.3.*
-torch==2.3.*
-torchvision==0.18.*
-fastapi==0.111.*
-uvicorn==0.30.*
+# Pin exact versions for reproducibility
+torch==2.2.2
+torchvision==0.17.2
+fastapi==0.111.0
+uvicorn==0.30.0
+statsmodels==0.14.2
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.0

@@ -14,7 +14,7 @@ The tasks below implement the smallest complete end‑to‑end study that satisf
   - **File**: `quickstart.md` (add a “Run the end‑to‑end pipeline” section).  
   - **Verification**: `pytest -q tests/integration/test_end_to_end.py` passes; the command `python -m src.run_pipeline --config config.yaml` executes without error and prints “Pipeline completed”.  
 
-- [ ] T002 [P] [US1] Implement data‑curation script that downloads a reproducible 50‑figure subset from CrafterBench, injects a single localized error per figure, and writes ground‑truth vectors. <!-- FAILED-IN-EXECUTION: src/curators/curate_failed_figures.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: src/curators/curate_failed_figures.py exit=1 -->
+- [ ] T002 [P] [US1] Implement data‑curation script that downloads a reproducible 50‑figure subset from CrafterBench, injects a single localized error per figure, and writes ground‑truth vectors. <!-- FAILED-IN-EXECUTION: src/curators/curate_failed_figures.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: src/curators/curate_failed_figures.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/curators/curate_failed_figures.py exit=-1 (TIMEOUT) -->
   - **File**: `src/curators/curate_failed_figures.py` (CLI entry point `--output data/figures/`).  
   - **Verification**: After running `python -m src.curators.curate_failed_figures --num 50`, the directory `data/figures/` contains exactly 50 PNG files and `data/ground_truth/` contains 50 matching JSON vector files; a checksum manifest `data/checksums.txt` is generated.  
 
