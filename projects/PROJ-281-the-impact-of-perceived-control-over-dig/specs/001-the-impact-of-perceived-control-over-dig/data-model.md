@@ -1,55 +1,78 @@
-# Data Model: 001-perceived-control-anxiety
+# Data Model: The Impact of Perceived Control Over Digital Environments on Anxiety
 
 ## Overview
+Defines immutable, version‑controlled data artifacts that flow through the pipeline while preserving the separation between text‑derived anxiety scores and metadata‑derived control proxies.
 
-This document defines the data structures used throughout the pipeline, ensuring strict separation between text-derived features (anxiety) and metadata-derived features (control).
+## Entity Schemas
 
-## Entity Definitions
+### 1. `SocialPost` (Raw)
+| Field | Type | Description |
+|-------|------|-------------|
+| `post_id` | string | Unique identifier (from source). |
+| `text` | string | Tweet content. |
+| `timestamp` | datetime (ISO‑8601) | Posting time. |
+| `user_id` | string | Anonymized user identifier. |
+| `filter_applied` *(optional)* | boolean | Flag indicating a content‑filter or edit flag; may be absent. |
 
-### 1. SocialPost (Raw)
-The raw record ingested from the dataset.
-- `post_id` (string): Unique identifier for the post.
-- `text` (string): The content of the post.
-- `timestamp` (datetime): Time of posting.
-- `user_id` (string): Unique identifier for the user.
-- `metadata` (dict): Additional fields (e.g., `filter_applied`, `likes`, `retweets`). Note: `filter_applied` is a raw field if available.
+*Stored as `data/raw/social_media.csv` (checksum recorded).*
 
-### 2. AnxietyScoreRecord
-Output of the NLP inference step.
-- `post_id` (string): Foreign key to `SocialPost`.
-- `anxiety_score` (float): Continuous score [0.0, 1.0].
-- `confidence_score` (float): Maximum probability of the predicted class [0.0, 1.0].
-- `predicted_class` (string): The emotion class predicted by the model.
-- `excluded` (boolean): True if `confidence_score` < 0.6.
-- **File Mapping**: Saved to `data/processed/scoring_results.csv`.
+### 2. `AnxietyScoreRecord`
+| Field | Type | Description |
+|-------|------|-------------|
+| `post_id` | string | FK to `SocialPost`. |
+| `anxiety_score` | float ∈[0,1] | Sum of anxiety‑related emotion probabilities. |
+| `confidence_score` | float ∈[0,1] | Max class probability from the model. |
+| `predicted_class` | string | Emotion class with highest probability. |
+| `excluded` | boolean | True if `confidence_score` < 0.6. |
 
-### 3. ControlProxyRecord
-Output of the metadata extraction step.
-- `post_id` (string): Foreign key to `SocialPost`.
-- `control_proxy` (float): Calculated score based on metadata.
-- `filter_flag` (boolean): Derived from raw `filter_applied` metadata (True if present).
-- `timestamp_regularity` (float): Metric of posting consistency (0.0 to 1.0).
-- **File Mapping**: Saved to `data/processed/proxy_results.csv`.
+*Saved to `data/processed/scoring_results.csv`.*
 
-### 4. AnalysisResult
-Final merged record for statistical testing.
-- `post_id` (string)
-- `anxiety_score` (float)
-- `control_proxy` (float)
-- `valid` (boolean): True if `anxiety_score` is valid and confidence >= 0.6.
-- **File Mapping**: Saved to `data/processed/final_analysis.csv`.
+### 3. `ControlProxyRecord`
+| Field | Type | Description |
+|-------|------|-------------|
+| `post_id` | string | FK to `SocialPost`. |
+| `filter_flag` | boolean | Derived from `filter_applied` (False if column missing). |
+| `timestamp_regularity` | float ∈[0,1] | Normalized inverse‑std of inter‑post intervals per user. |
+| `control_proxy` | float ∈[0,1] | Weighted combination (0.6 × `filter_flag` + 0.4 × `timestamp_regularity`). |
 
-## Processing Pipeline Flow
+*Saved to `data/processed/proxy_results.csv`.*
 
-1. **Ingest**: `SocialPost` (Raw) -> `data/raw/ingested.csv`
-2. **Score**: `SocialPost` -> `anxiety_scoring.py` -> `AnxietyScoreRecord` -> `data/processed/scoring_results.csv`
-3. **Proxy**: `SocialPost` -> `proxy_extractor.py` -> `ControlProxyRecord` -> `data/processed/proxy_results.csv`
-4. **Merge**: Join `AnxietyScoreRecord` and `ControlProxyRecord` on `post_id`.
-5. **Filter**: Remove rows where `confidence_score` < 0.6.
-6. **Analyze**: `AnalysisResult` -> `statistical_test.py` -> `AnalysisResult` (final) -> `data/processed/final_analysis.csv`.
+### 4. `AnalysisResult`
+| Field | Type | Description |
+|-------|------|-------------|
+| `post_id` | string | FK to `SocialPost`. |
+| `anxiety_score` | float | From `AnxietyScoreRecord`. |
+| `control_proxy` | float | From `ControlProxyRecord`. |
+| `valid` | boolean | True if not excluded by confidence threshold. |
 
-## Data Hygiene Rules
+*Saved to `data/processed/final_analysis.csv`.*
 
-- **Immutability**: Raw data in `data/raw/` is never modified.
-- **Checksums**: Every file in `data/` is checksummed (SHA-256).
-- **PII**: `user_id` is hashed or anonymized before any analysis if it contains PII.
+### 5. `StatisticalSummary` (JSON)
+Conforms to `contracts/analysis.schema.yaml` and includes:
+- `correlation_method`
+- `correlation_coefficient`
+- `p_value`
+- `is_significant`
+- `normality_test_p_value`
+- `sample_size`
+- `confidence_threshold`
+
+### 6. `CoverageReport` (JSON)
+Tracks:
+- total rows ingested,
+- rows after language/gibberish filter,
+- rows with valid anxiety scores,
+- rows excluded by confidence,
+- checksum verification status.
+
+## Processing Flow
+1. **Ingestion** → `SocialPost` → `data/raw/social_media.csv`  
+2. **Anxiety Scoring** → `AnxietyScoreRecord` → `data/processed/scoring_results.csv`  
+3. **Proxy Extraction** → `ControlProxyRecord` → `data/processed/proxy_results.csv`  
+4. **Merge & Filter** → `AnalysisResult` → `data/processed/final_analysis.csv`  
+5. **Statistical Test** → `StatisticalSummary` → `data/processed/analysis_results.json`  
+6. **Coverage Report** → `data/processed/coverage_report.json`
+
+All files are immutable after creation; any re‑run produces new versioned files with updated hashes.
+
+---
