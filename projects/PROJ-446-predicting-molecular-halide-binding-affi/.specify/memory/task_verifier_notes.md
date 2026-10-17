@@ -2,4 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — The output artifacts are empty: `data/raw/raw_scrape.json` contains `[]` and both `raw_scrape_cleaned.csv` and `filtered_hosts.csv` contain only a header row with zero data rows, directly violating the requirement that each CSV exist "with non-empty rows containing host_id, smiles, halide_identity, binding_constant, solvent, source." The fetching logic is also fundamentally wrong for the task: `fetch_pubchem_records` queries PubChem for the halide ion itself (e.g., "fluoride") as if it were a host molecule, fabricates `solvent: "acetonitrile"` and `value: None` defaults, and never retrieves ac
+- **T001** — Requested task execution failed; rerun successfully: code/01_data_ingestion.py exit=1

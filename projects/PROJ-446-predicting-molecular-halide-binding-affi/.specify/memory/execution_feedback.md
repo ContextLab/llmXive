@@ -26,18 +26,34 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/raw/filtered_hosts.csv, data/raw/raw_scrape.json, data/raw/raw_scrape_cleaned.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/raw/descriptors_added.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…nput file – fall back to simulated data if the real file is miss…”; code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {simulated_path}")…”; code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…Error(f"Neither real nor simulated input file found (tried {input…”; every produced artifact is gitignored (data/raw/filtered_hosts.csv, data/raw/raw_scrape.json, data/raw/raw_scrape_cleaned.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/03_model_training.py (rc=1); python code/04_feature_analysis.py (rc=1); python code/05_statistical_reporting.py (rc=1); 8 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
+**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…nput file – fall back to simulated data if the real file is miss…”; code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Loading simulated data from {simulated_path}")…”; code/02_feature_engineering.py: synthetic/fake INPUT data not authorized by the spec — “…Error(f"Neither real nor simulated input file found (tried {input…”; every produced artifact is gitignored (data/raw/descriptors_added.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/01_data_ingestion.py (rc=1); python code/03_model_training.py (rc=1); python code/04_feature_analysis.py (rc=1); 10 declared deliverable(s) absent: data/processed/feature_analysis.json; data/processed/feature_interpretation_summary.csv; data/processed/halide_binding_data.csv
 
 ## Failing / missing run-book commands
 
+- python code/01_data_ingestion.py -> rc=1
+a_pipeline
+    raw_records = build_raw_records()
+                  ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 239, in build_raw_records
+    pc_records = fetch_pubchem_records(halide)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 149, in fetch_pubchem_records
+    response = _request_with_backoff(url, max_retries, base_delay)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/01_data_ingestion.py", line 126, in _request_with_backoff
+    response.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: PUGREST.NotFound for url: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/fluoride%20crown%20ether/property/IsomericSMILES,InChI,XLogP3/JSON
+
 - python code/03_model_training.py -> rc=1
 
-2026-10-16 22:08:59,676 - __main__ - INFO - Starting model training pipeline...
-2026-10-16 22:08:59,676 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
+2026-10-17 01:20:13,848 - __main__ - INFO - Starting model training pipeline...
+2026-10-17 01:20:13,848 - __main__ - ERROR - Unexpected error: Preprocessed data not found at data/processed/halide_binding_data.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/03_model_training.py", line 331, in <module>
     main()
@@ -50,7 +66,7 @@ FileNotFoundError: Preprocessed data not found at data/processed/halide_binding_
 
 - python code/04_feature_analysis.py -> rc=1
 
-2026-10-16 22:09:00,710 - __main__ - INFO - Starting Feature Analysis (US3)...
+2026-10-17 01:20:15,045 - __main__ - INFO - Starting Feature Analysis (US3)...
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-446-predicting-molecular-halide-binding-affi/code/04_feature_analysis.py", line 236, in <module>
     main()
@@ -87,7 +103,9 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXi
 - data/processed/physical_plausibility.json
 - data/processed/power_status.json
 - data/processed/statistical_summary.json
-- data/raw/descriptors_added.csv
+- data/raw/filtered_hosts.csv
+- data/raw/raw_scrape.json
+- data/raw/raw_scrape_cleaned.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -132,8 +150,16 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/07_validate_quickstart.py` — NOT invoked by the run-book
     - `code/08_update_state_hashes.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/statistical_summary.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/descriptors_added.csv` is declared but was NOT written. Scripts referencing it:
+- `data/raw/filtered_hosts.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
     - `code/02_feature_engineering.py` — IS a run-book command
-    - `code/02_save_processed_data.py` — NOT invoked by the run-book
     - `code/07_validate_quickstart.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/descriptors_added.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+  Make ONE of these WRITE `data/raw/filtered_hosts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/raw_scrape.json` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+    - `code/07_validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/raw_scrape.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/raw_scrape_cleaned.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+    - `code/07_validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/raw_scrape_cleaned.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
