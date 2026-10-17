@@ -23,7 +23,7 @@ The goal is to produce a reproducible, end‑to‑end pipeline that satisfies ev
 
 ## Phase 1 – Power‑analysis (sample‑size justification)
 
-- [ ] **T002** [P?] [US1] **Monte‑Carlo power analysis for the Friedman test** <!-- FAILED-IN-EXECUTION: code/run_pipeline.py exit=1 -->
+- [X] **T002** [P?] [US1] **Monte‑Carlo power analysis for the Friedman test**
   - **Artifact(s)**: `code/power_analysis.py`, `results/power_report.md`
   - **Justification (spec‑rooted)**: the spec's "Assumption about statistical validity" requires that, if power for the Friedman test is low, results be framed as exploratory rather than definitive; this task operationalizes that assumption and supports the interpretation of SC‑004 / FR‑005. It is therefore a spec‑mandated validity check, not scope expansion.
   - Simulate paired precision scores for three models under varying effect sizes using the pinned seed from `code/seeds.py` (T014); estimate the probability of detecting a medium effect (Cohen's d ≈ 0.5) with 500 samples.
@@ -34,7 +34,7 @@ The goal is to produce a reproducible, end‑to‑end pipeline that satisfies ev
 
 ## Phase 2 – Data acquisition & pairing (Priority P1)
 
-- [ ] **T003** [P1] [US1] **Extract ≥ 500 (commit_message, documentation_diff) pairs**
+- [ ] **T003** [P1] [US1] **Extract ≥ 500 (commit_message, documentation_diff) pairs** <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 -->
   - **Artifact(s)**: `code/data_extraction.py`, `data/raw/commit_pairs.csv`
   - Clone the five target repositories (`pandas`, `requests`, `scikit-learn`, `flask`, `django`) at the latest tag, walk the last 2 years of history, and select commits that modify `.md` or `.rst` files.
   - For each qualifying commit, record `commit_hash`, `commit_message`, `repository_name`, `doc_diff`, and ISO‑8601 `timestamp` according to `commitpair.schema.yaml`. Commits with no documentation change are excluded (FR‑007: every retained pair has a ground‑truth human diff).

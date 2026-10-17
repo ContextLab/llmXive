@@ -1,58 +1,60 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
-
-The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
-
-1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
-2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
-3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
-
-- code/run_pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…ase-0 smoke test output (synthetic input only)\n"         f"commi…”
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/run_pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…ase-0 smoke test output (synthetic input only)\n"         f"commi…”; 3 command(s) failed: python -m code.run_pipeline --sample 5 (rc=1); python -m code.run_pipeline --full (rc=1); python -m pytest tests/quickstart_test.py tests/test_power_analysis.py (rc=2)
+**Summary**: run-book completed but produced no data/figure artifacts; 1 declared deliverable(s) absent: data/raw/commit_pairs.csv
 
 ## Failing / missing run-book commands
 
-- python -m code.run_pipeline --sample 5 -> rc=1
+- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/run_pipeline.py", line 24, in <module>
-    SMOKE_TEST_PAIR = CommitPair(
-                      ^^^^^^^^^^^
-TypeError: CommitPair.__init__() missing 1 required positional argument: 'repository_name'
+## Declared deliverables still missing
 
-- python -m code.run_pipeline --full -> rc=1
+- data/raw/commit_pairs.csv
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/run_pipeline.py", line 24, in <module>
-    SMOKE_TEST_PAIR = CommitPair(
-                      ^^^^^^^^^^^
-TypeError: CommitPair.__init__() missing 1 required positional argument: 'repository_name'
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 
-- python -m pytest tests/quickstart_test.py tests/test_power_analysis.py -> rc=2
-============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
-rootdir: /home/runner/work/llmXive/llmXive
-configfile: pyproject.toml
-collected 5 items / 1 error
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
-==================================== ERRORS ====================================
-_ ERROR collecting projects/PROJ-104-evaluating-the-use-of-llms-for-automated/tests/quickstart_test.py _
-tests/quickstart_test.py:11: in <module>
-    from code.run_pipeline import SMOKE_TEST_PAIR, run_smoke_test
-code/run_pipeline.py:24: in <module>
-    SMOKE_TEST_PAIR = CommitPair(
-E   TypeError: CommitPair.__init__() missing 1 required positional argument: 'repository_name'
-=========================== short test summary info ============================
-ERROR tests/quickstart_test.py - TypeError: CommitPair.__init__() missing 1 r...
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.17s ===============================
+- **Install**: add `PyGithub` to the project's `requirements.txt` and `pip install PyGithub`.
+- **Verified**: this loads **67** real records with fields: commit_hash, commit_message, documentation_diff, file_path, repo_name, author_date.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
+```python
+import json
+from github import Github
 
+g = Github()
+repo = g.get_repo("torvalds/linux")
+records = []
+for i, commit in enumerate(repo.get_commits()):
+    if i >= 10:
+        break
+    sha = commit.sha
+    msg = commit.commit.message
+    date = commit.commit.author.date.isoformat()
+    for f in commit.files:
+        path = f.filename
+        diff = f.patch or ""
+        doc_diff = diff if path.lower().endswith((".md", ".rst", ".txt")) else ""
+        records.append({
+            "commit_hash": sha,
+            "commit_message": msg,
+            "documentation_diff": doc_diff,
+            "file_path": path,
+            "repo_name": repo.full_name,
+            "author_date": date,
+        })
+print(f"RECORDS={len(records)}")
+print("FIELDS=commit_hash,commit_message,documentation_diff,file_path,repo_name,author_date")
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
+## Declared deliverables NOT produced — make the run-book produce them
+
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+
+- `data/raw/commit_pairs.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/data_extraction.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/commit_pairs.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

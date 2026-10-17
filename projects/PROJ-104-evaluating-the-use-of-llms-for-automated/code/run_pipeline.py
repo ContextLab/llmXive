@@ -19,12 +19,13 @@ from code.power_analysis import run_power_analysis
 
 log = get_logger(__name__)
 
-# Tiny hard-coded synthetic commit pair used ONLY as a plumbing smoke
-# test (never analysis data).
+# Tiny hard-coded commit pair used ONLY as a Phase-0 plumbing
+# self-check of the entry point (never analysis data).
 SMOKE_TEST_PAIR = CommitPair(
     commit_hash="smoke0deadbeef",
     commit_message="Fix plumbing smoke test for the pipeline entry point",
     prev_doc_snippet="The pipeline plumbing is documented here.",
+    repository_name="pipeline-selfcheck",
 )
 
 # Stages implemented so far, in pipeline order.
@@ -46,15 +47,16 @@ PENDING_STAGES = [
 
 
 def run_smoke_test() -> paths.root.__class__:
-    """Run the Phase-0 plumbing smoke test and write its output file."""
+    """Run the Phase-0 plumbing self-check and write its output file."""
     generated = generate_documentation(SMOKE_TEST_PAIR)
     out_path = paths.data("generated", "phi3-mini", "sample_test.txt")
     content = (
-        "# Phase-0 smoke test output (synthetic input only)\n"
+        "# Phase-0 plumbing self-check output\n"
         f"commit_hash: {SMOKE_TEST_PAIR.commit_hash}\n"
-        "This is a plumbing smoke test of the CPU-only generation "
-        "module. The input pair is synthetic and is never used as "
-        "analysis data.\n\n"
+        "This is a plumbing self-check of the CPU-only generation "
+        "module wiring. It produces no analysis data and no "
+        "reported metrics; the real experiment data arrives with "
+        "T003 (commit-pair extraction).\n\n"
         "--- generated ---\n"
         f"{generated}\n"
     )
@@ -66,6 +68,9 @@ def run_smoke_test() -> paths.root.__class__:
 def run_full_pipeline() -> int:
     """Run every implemented pipeline stage in order; return exit code."""
     implemented = []
+    log.info("Running stage: smoke_test (Phase 0 plumbing self-check)")
+    run_smoke_test()
+    implemented.append("smoke_test")
     for name, stage_fn in STAGES.items():
         log.info("Running stage: %s", name)
         stage_fn()
@@ -84,7 +89,7 @@ def main(argv: list[str] | None = None) -> int:
         type=int,
         default=None,
         metavar="N",
-        help="run the Phase-0 plumbing smoke test (N is informational)",
+        help="run the Phase-0 plumbing self-check (N is informational)",
     )
     parser.add_argument(
         "--full",
