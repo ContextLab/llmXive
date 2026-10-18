@@ -28708,7 +28708,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-18T06:21:09.606309+00:00",
+  "generated_at": "2026-10-18T06:35:29.315023+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -66315,7 +66315,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-187-evaluating-the-statistical-properties-of.yaml",
         "code": "projects/PROJ-187-evaluating-the-statistical-properties-of/code",
-        "data": "projects/PROJ-187-evaluating-the-statistical-properties-of/data",
+        "data": null,
         "idea": "projects/PROJ-187-evaluating-the-statistical-properties-of/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
