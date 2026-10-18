@@ -1,14 +1,16 @@
 status: none
-intent: baseline psychology dataset SART OSPAN PSS-10 PANAS python package dataset
+intent: SART OSPAN PSS-10 PANAS baseline dataset download OpenNeuro python package
+  dataset
 required_fields:
 - participant_id
-- assessment_timestamp
+- session
+- timestamp
 - sart_commission_errors
-- sart_reaction_time_mean
+- sart_omission_errors
 - ospan_total_score
 - pss10_total_score
-- panas_positive_affect_score
-- panas_negative_affect_score
-cache_key: f4bdeeb8a4d435145bcde184ca6c3694443b7899eeb1342ed36f54602c46e0e2
-searched_at: '2026-10-18T06:44:28.679275+00:00'
+- panas_positive_score
+- panas_negative_score
+cache_key: 49da90f0970328ac245578239ffa4c916357237341bc13db770286f188788dc4
+searched_at: '2026-10-18T06:46:52.794461+00:00'
 retry_count: 1

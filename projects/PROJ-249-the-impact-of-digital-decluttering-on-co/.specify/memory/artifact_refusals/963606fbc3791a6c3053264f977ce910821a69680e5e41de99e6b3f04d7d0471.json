@@ -1,7 +1,0 @@
-{
-  "task_id": "T003",
-  "fingerprint": "6dce70ee15182a4f9142ebee5707f739f356d60cb1bafd0b43934a3af196bc32",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'code/validation/simulate_study.py': imports nonexistent names from sibling files: `from code.scoring.sart import score_sart` (available: Any, Dict, List, np, score_sart_session, score_sart_trial); `from code.scoring.ospan import score_ospan` (available: Any, Dict, List, Union, score_ospan_session, score_ospan_trial). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

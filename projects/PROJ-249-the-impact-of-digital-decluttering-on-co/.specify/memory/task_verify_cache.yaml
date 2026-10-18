@@ -1,20 +1,21 @@
 T001:
-  c: true
-  h: fa9cb6df632240f45dada11b36047bd0362c914672c1d265b8a1ba716f11fb41
-  r: "Checked the directory layout, `quickstart.md` command, `code/config/study_config.yaml`\
-    \ keys, `code/requirements.txt` pinning, and `data/checksums.sha256` manifest;\
-    \ all required artifacts exist, contain the correct content, and the documented\
-    \ command runs end\u2011to\u2011end without error."
-  sig: 983435a153ee26e815652d397d4ce8b657bc879426135a6853aef33f589530d8
-T002:
   c: false
-  h: 7a9ba8d966a3c13355fce9ae4b692ab557c873feeb6a9eb8176d5d1856c78f07
-  r: "The scoring modules exist, but the unit\u2011test suite `code/tests/test_scoring.py`\
-    \ fails (six tests error with `NameError: name 'pytest' is not defined`). Because\
-    \ the required tests do not all pass, the task\u2019s verification condition is\
-    \ not satisfied. The missing import (and any related test fixes) must be added\
-    \ for the test suite to succeed."
-  sig: 4479a049f048cfeaf765bd2cf4b90ad110a39af05bdef4aa644885e37267cc38
+  h: 99d30a58f77059803d405808c8c37fe0c0896fcda8be0954dcb615506d437ee7
+  r: The required `data/checksums.sha256` manifest file is missing, so the checksum
+    requirement is not satisfied despite the correct directory layout, config file,
+    quickstart command, and pinned requirements. The task cannot be considered complete
+    until the manifest file is present and includes checksums for all files under
+    `data/`.
+  sig: 2890334bc350320eb5100a49aea0a8f4cd919ae6cb0f4e30afcb8d1a59e64aec
+T002:
+  c: true
+  h: 1d1c0285e8a4fc76bcf5bfbae090cb255615166a92fe8611d8c619ecb2c781ff
+  r: "Checked the scoring modules (`sart.py`, `ospan.py`, `pss10.py`, `panas.py`)\
+    \ and the unit\u2011test suite `code/tests/test_scoring.py`; all functions implement\
+    \ the required logic, the pilot\u2011check test loads a config, generates synthetic\
+    \ data, validates RT bounds and low\u2011attention flag, and the pytest run shows\
+    \ all 12 tests (including the pilot check) passed."
+  sig: 646ff3bed45813c4ad69ad297dd99c8c7bea811adf98a352b773bf4414e96890
 T009:
   c: false
   h: 4597374f973ff302b8c066b016acbdd6656e3a50917d9c2ce369b9ffe4cb8fd8
