@@ -24,7 +24,7 @@ The platform runner already provides `numpy`, `pandas`, `scipy`,
 python -m code.run_experiments --config configs/quickstart.yaml
 ```
 
-On success the command prints `Pipeline initialized`, creates the
+On success the command prints `Pipeline initialized` [UNRESOLVED-CLAIM: c_52396f5a — status=not_enough_info], creates the
 `outputs/` directory tree, writes `outputs/run_config.json` with the
 effective configuration, and runs a single fixed‑density baseline
 (ρ = 0.5, seed = 42) on a tiny placeholder dataset. Expected wall‑clock
@@ -39,7 +39,7 @@ python -m code.run_experiments --config configs/full_suite.yaml
 This runs the complete suite:
 - Data placeholder creation
 - Model download (`distilgpt2`)
-- Fixed‑density baselines for five retaining ratios and five seeds
+- Fixed‑density baselines for five retaining ratios and five seeds [UNRESOLVED-CLAIM: c_6d2694e9 — status=not_enough_info]
 - (Adaptive and analysis stages are placeholders for later tasks)
 
 The full suite is expected to take **a few minutes** per fixed‑density
@@ -53,5 +53,5 @@ run but remains well within the 6‑hour per‑job limit.
 - Sub‑directories under `outputs/` as declared in the YAML configs
  (`statistics`, `figures`, `summary`, `checkpoints`).
 
-All stages respect the 6‑hour runtime limit and write their outputs
+All stages respect the 6‑hour runtime limit [UNRESOLVED-CLAIM: c_35e79a28 — status=not_enough_info] and write their outputs
 to the locations declared in the configuration.

@@ -98,7 +98,8 @@ def _initialize_outputs(cfg: Dict[str, Any]) -> Path:
 
     Returns the path to the top‑level ``outputs`` directory.
     """
-    output_root = paths.outputs()
+    # Use a plain pathlib Path to avoid reliance on paths.outputs() signature.
+    output_root = Path("outputs")
     output_root.mkdir(parents=True, exist_ok=True)
 
     # Create any sub‑directories listed under ``output_dirs`` in the config.
@@ -157,7 +158,6 @@ def _placeholder_fixed_baselines_stage(
         writer.writerow(["rho", "seed", "example_metric"])
         for rho in rhos:
             for seed in seeds:
-                # The metric is a placeholder numeric value.
                 writer.writerow([rho, seed, 0.0])
     log.info(
         "Placeholder fixed‑baseline results written to %s (rhos=%s, seeds=%s)",

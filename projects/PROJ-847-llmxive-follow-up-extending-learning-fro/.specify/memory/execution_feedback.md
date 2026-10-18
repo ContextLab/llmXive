@@ -23,7 +23,7 @@ ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python -m src.llmxive.cli.run_experiments  --mode adaptive  --seeds 42 43 44 45 46 47 48 49 50 51  --output outputs/adaptive_run.json -> rc=1
 
-2026-10-18 05:08:47,074 ERROR code.run_experiments: Adaptive mode not yet implemented in this task.
+2026-10-18 11:09:32,011 ERROR code.run_experiments: Adaptive mode not yet implemented in this task.
 
 - python -m src.llmxive.analysis  --fixed outputs/fixed_baselines.json  --adaptive outputs/adaptive_run.json  --control outputs/control_shuffle.json  --outdir outputs/statistics -> rc=1
 

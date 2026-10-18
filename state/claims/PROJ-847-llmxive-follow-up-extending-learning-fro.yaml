@@ -311,3 +311,90 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T00:18:28Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: command prints Pipeline initialized
+  claim_id: c_52396f5a
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline on a tiny placeholder dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: On success the command prints `Pipeline initialized`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:09:29Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: creates outputs directory tree
+  claim_id: c_cc00153f
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline on a tiny placeholder dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: creates the `outputs/` directory tree
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:09:29Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: expected wall-clock time under a minute
+  claim_id: c_f09cbbd7
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline on a tiny placeholder dataset.\
+    \ Expected wall\u2011clock time is under a minute on a standard CPU\u2011only\
+    \ runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected wall\u2011clock time is under a minute on a standard CPU\u2011\
+    only runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:09:29Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: "all stages respect 6\u2011hour runtime limit"
+  claim_id: c_35e79a28
+  context: "All stages respect the 6\u2011hour runtime limit and write their outputs\
+    \ to the locations declared in the configuration."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All stages respect the 6\u2011hour runtime limit"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:09:29Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: fixed-density baselines for five retaining ratios and five seeds
+  claim_id: c_6d2694e9
+  context: "This runs the complete suite: Data placeholder creation; Model download\
+    \ (`distilgpt2`); Fixed\u2011density baselines for five retaining ratios and five\
+    \ seeds; (Adaptive and analysis stages are placeholders for later tasks)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Fixed\u2011density baselines for five retaining ratios and five seeds"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:09:29Z'
