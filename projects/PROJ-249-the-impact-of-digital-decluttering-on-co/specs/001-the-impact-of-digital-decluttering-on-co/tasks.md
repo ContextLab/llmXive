@@ -1,126 +1,82 @@
-# Tasks: The Impact of Digital Decluttering on Cognitive Performance and Well‑being  
+# Tasks: The Impact of Digital Decluttering on Cognitive Performance and Well-being
 
-**Input**: Design documents from `/specs/001-digital-decluttering-study/`  
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `data‑model.md`, `contracts/`  
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/` (dataset, compliance, analysis schemas), original idea, prior verification feedback.
+**Scope note**: This environment cannot recruit human participants; per the plan, the pipeline is validated on an explicitly authorized seeded simulation of the study design (Phase 0 Step 3), with the simulation clearly labeled as pipeline validation, not as empirical evidence about decluttering. All statistics reported as "results" derive from this declared simulation; the report must state this limitation honestly. The narrowing of FR-001/FR-002 (human recruitment, web-interface administration) to this simulation scope is recorded under "Spec amendments flagged for kickback" below — it must be ratified in `spec.md` before the research stage closes.
 
-## Phase 1 – Project setup & early end‑to‑end run  
+## Spec amendments flagged for kickback (spec.md is not editable in this pass)
 
-- [ ] T001.1 [P] Create the top‑level project directory tree  
-  `projects/PROJ-249-the-impact-of-digital-decluttering-on-co/{data/{raw,processed,compliance},code,tests,results,docs}`  
-  *Verification*: `cat projects/PROJ-249-the-impact-of-digital-decluttering-on-co/structure.log` must list all directories.  
+The following spec-level changes are required to make the tasks and spec consistent; they are recorded here and must be applied to `spec.md` upstream. No task weakens any FR/SC constraint; each item below stages or clarifies, never relaxes:
 
-- [ ] T001.2 [P] Create `requirements.txt` with pinned versions of the scientific stack (`pandas`, `numpy`, `scipy`, `scikit‑learn`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`).  
-  *Verification*: `pip install -r requirements.txt` succeeds without version conflicts.  
+1. **FR-001 / FR-002**: replace the human-recruitment and "via a web interface" clauses with the simulation-scope equivalents (pseudonymous simulated participants; instrument logic implemented per the OSF reference algorithms in `code/scoring/`), since no human recruitment or web deployment is possible in this environment.
+2. **FR-006**: amend the fallback trigger from "Shapiro-Wilk p < 0.05" to "convergence failure of the bootstrap" (matching the plan's Critical Methodological Note), because data-dependent normality switching inflates Type I error. T006 implements the statistically correct rule.
+3. **FR-009**: amend "pre-study pilot check (n=5)" to a synthetic pilot check (n=5 simulated pilot participants) verifying RT ranges and scoring against the reference logic — covered by T002.
+4. **SC-001–SC-004**: reword as pre/post *association* criteria (statistically significant change with effect size ≥ 0.2), not causal attribution, since the one-group pre/post design cannot support causal claims. T010 evaluates them in this association framing.
+5. **FR-008 interpretation**: "four outcome variables" is interpreted as four outcome *domains* (attention, working memory, stress, mood); mood comprises PANAS-PA and PANAS-NA. Holm-Bonferroni is applied across all five hypothesis tests (see T006).
+6. **plan.md path inconsistency**: plan.md names `results/statistical_summary.json` and a root-level `tests/` directory, while the constitution's data-hygiene principle requires all data artifacts under `data/`; tasks use `data/results/statistical_summary.json` and `code/tests/`. The plan's Project Structure should be amended to match; the Single Source of Truth file is `data/results/statistical_summary.json`.
 
-- [ ] T003 [P] Configure linting (`flake8`) and formatting (`black`) tools.  
-  *Verification*: `flake8 .` and `black --check .` both exit with status 0.  
+## Phase 1 — Setup and first end-to-end analysis
 
-- [ ] T004 [P] Set up the data sub‑folders `data/raw/`, `data/processed/`, `data/compliance/`.  
-  *Verification*: `ls data/` shows the three directories.  
+- [ ] T001 [P] [US1] Establish the project layout, configuration, pinned dependencies, and checksum manifest.
+  Create `code/` (with `scoring/`, `analysis/`, `validation/`, `viz/`), `code/tests/`, `data/raw/`, `data/processed/`, `data/results/`, and document a single runnable command (e.g. `python -m code.pipeline.run_all --config code/config/study_config.yaml`) in the feature's `quickstart.md`. Create `code/config/study_config.yaml` with exactly these keys: `seed` (int), `n_participants` (int), `dropout_rate` (float), `effect_sizes` (per-metric dict: SART, Ospan, PSS-10, PANAS-PA, PANAS-NA), `practice_effect_grid` ([0.0, 0.2, 0.4]), `bootstrap_resamples` (10000), `start_date` (ISO date), `pilot_n` (5). Create `code/requirements.txt` pinning every Python dependency (constitution Reproducibility Requirement). Initialize `data/checksums.sha256` as the checksum manifest for all files under `data/` (constitution Principle III); it starts covering `code/config/study_config.yaml`-derived raw outputs as they appear and is appended to by every later task that writes under `data/`.
+  *Verification*: the documented command executes end-to-end on the seeded simulation config without error; `quickstart.md` names it exactly; `code/requirements.txt` lists pinned versions; `study_config.yaml` contains all listed keys.
 
-## Phase 2 – Core infrastructure (blocking prerequisites)  
+- [ ] T002 [US1] Implement instrument scoring functions with OSF-reference logic tests and the synthetic pilot check.
+  Implement `code/scoring/sart.py` (commission errors, RT filter 100–5000 ms operating on trial-level records, accuracy check < 50% → `low_attention`), `code/scoring/ospan.py` (partial-credit span), `code/scoring/pss10.py` (0–40 sum), `code/scoring/panas.py` (PA/NA subscale sums) plus focused unit tests in `code/tests/test_scoring.py` covering range bounds and edge cases (FR-002, FR-003, FR-009). The SART/Ospan functions take trial-level raw response rows (per-trial RT and accuracy/response) as input — the data structure produced by T003's `data/raw/trial_level/` files. Include the pilot check (FR-009, synthetic form per flagged amendment 3): generate n=5 simulated pilot participants (from `pilot_n` in the config) with trial-level SART/Ospan responses, verify all RTs fall within 100–5000 ms, and verify the scoring output matches the reference logic on hand-checked fixtures.
+  *Verification*: `pytest code/tests/test_scoring.py` passes including the n=5 pilot check; every score falls in its psychometric range.
 
-- [ ] T005 [US1] Implement **pseudonymous participant ID generator** and registration pipeline (`code/pipeline/register_participant.py`).  
-  *Outputs*: `data/raw/participant_registry.csv` (columns `participant_id`, `recruitment_id`, `status`).  
-  *Verification*: All IDs match regex `^P\d{3}$`; duplicate `recruitment_id`s raise `ValueError`.  
+- [ ] T003 [US1] Generate the deterministic seeded study simulation and produce the first real result rows.
+  Complete `code/validation/simulate_study.py` (repairing the truncated `synthetic_baseline.py` work — see the explicit filename mapping in the revision notes below): read seed and parameters from `code/config/study_config.yaml`, simulate N participants (IDs matching `^P\d{3}$`) with baseline and post phases for SART, Ospan, PSS-10, PANAS-PA, PANAS-NA, including dropout after Day 3 and a low-attention case. Write: (a) `data/raw/participants.csv` instantiating the `Participant` entity (participant_id, enrollment_date, optional demographics — data-model.md); (b) `data/raw/trial_level/sart_trials.csv` (participant_id, phase, trial_index, rt_ms, is_target, response, accuracy) and `data/raw/trial_level/ospan_trials.csv` (participant_id, phase, trial_index, item, response, correct) — the trial-level raw responses required by Constitution VI and consumed by T002's RT filter and accuracy check; (c) `data/raw/simulated_measurements.csv` (scored single-value records conforming to `contracts/dataset.schema.yaml`, derived from the trial files via `code/scoring/`); (d) `data/raw/compliance_logs/` (one CSV per participant, conforming to `contracts/compliance.schema.yaml`). The script must be deterministic (single seeded RNG) and must raise on config errors — no fallback to placeholder data. Append SHA-256 checksums for every new `data/raw/` file to `data/checksums.sha256`. Then run a thin end-to-end slice (first 5 participants) through scoring into `data/results/smoke_results.json` and append its checksum to the manifest.
+  *Verification*: re-running produces byte-identical CSVs; `pytest code/tests/test_simulate_study.py` checks schema conformance, ID pattern, value ranges, determinism, and that trial-level files exist with RT/accuracy columns; `data/results/smoke_results.json` exists with per-metric mean change values; `sha256sum -c data/checksums.sha256` passes for all recorded entries.
 
-- [ ] T006 [US1] **OSF instrument verification** (`code/validation/verify_osf_instruments.py`).  
-  *Steps*: download SART & Ospan v2.1+ to `data/raw/osf_instruments/`, compute SHA‑256, compare to reference hashes stored in `contracts/instrument_hashes.yaml`.  
-  *Output*: `results/instrument_verification.json` with field `"status": "verified"` or `"failed"`.  
-  *Verification*: Pipeline aborts with a clear exception if verification fails.  
+## Phase 2 — Complete the study and validate its evidence
 
-- [ ] T007 [US1] **Synthetic baseline data generator** (`code/validation/synthetic_baseline.py`).  
-  *Config*: `code/config/synthetic_data_config.yaml` (seed, means, stds for each metric).  
-  *Outputs*: `data/raw/synthetic_baseline.csv` (columns `id,participant_id,phase,metric_type,value,timestamp,quality_flag`).  
-  *Verification*: Running the script creates the CSV; a checksum file `data/raw/synthetic_baseline.sha256` is written; all metric values fall within psychometrically plausible ranges (e.g., SART commission errors > 0, PSS‑10 0‑40).  
+- [ ] T004 [US2] Implement the compliance-log pipeline.
+  `code/compliance/parse_logs.py` reads `data/raw/compliance_logs/`, applies the rules (social media ≤ 30 min, `news_consumption=False`, `notifications_off=True` → compliant), computes per-participant weekly compliance percentage, and writes `data/processed/aggregated_compliance.csv` and `data/processed/compliance_flags.json` (FR-004, FR-010). Plausibility validation: 0 ≤ minutes ≤ 1440, flag out-of-range and the "0 minutes all 7 days" extreme case without exclusion (edge cases in spec). Append SHA-256 checksums for both `data/processed/` outputs to `data/checksums.sha256`.
+  *Verification*: `pytest code/tests/test_compliance.py` covers compliant/non-compliant days, out-of-range entries, and the extreme case; `sha256sum -c data/checksums.sha256` passes.
 
-- [ ] T008 [US1] **Monte Carlo power simulation** (`code/analysis/power_simulation.py`).  
-  *Input*: synthetic baseline from T007.  
-  *Procedure*: 1 000 iterations, effect size d = 0.5, bootstrap CI & Holm‑Bonferroni correction.  
-  *Output*: `results/power_analysis.json` with keys `power_estimate` (float), `iterations` (int), `effect_size` (float).  
-  *Verification*: JSON file exists and `power_estimate` is a number between 0 and 1.  
+- [ ] T005 [US3] Implement merge, dropout handling, and change scores.
+  Complete `code/pipeline/merge_data.py` (repairing the truncated work): join measurements with compliance, exclude participants missing post-intervention data from paired analysis while retaining their baseline in `data/processed/descriptive_baseline.csv`, record exclusions with reasons in `data/processed/exclusions.json`, and compute `post − baseline` change scores into `data/processed/change_scores.csv` (FR-005; spec edge cases). Low-attention flagging derives from T002's accuracy check applied to the trial-level files in `data/raw/trial_level/`. Append SHA-256 checksums for all three `data/processed/` outputs to `data/checksums.sha256`.
+  *Verification*: missing input files raise a clear error (no silent fallback); `pytest code/tests/test_merge.py` verifies dropout exclusion, low-attention flagging, and change-score arithmetic; `sha256sum -c data/checksums.sha256` passes.
 
-- [ ] T009 [US2] **Compliance‑log pipeline** (`code/compliance/parse_logs.py`, `code/compliance/rules_engine.py`, `code/validation/compliance_plausibility.py`).  
-  *Inputs*: raw daily logs in `data/raw/compliance_logs/` (one CSV per participant).  
-  *Outputs*:  
-    - `data/compliance/aggregated_compliance.csv` (participant‑level weekly compliance score).  
-    - `data/compliance/flags.json` containing flags for implausible entries and the edge‑case “0 minutes all 7 days”.  
-  *Verification*: Unit tests in `tests/unit/` confirm that ≤30 min social‑media, `news_consumption=False`, `notifications_off=True` yields `is_compliant=True`; violations are flagged but not excluded.  
+- [ ] T006 [US3] Implement the primary statistical analysis.
+  `code/analysis/run_analysis.py`: 10,000-resample bootstrap CIs for mean change per metric (primary), Wilcoxon signed-rank only as convergence-failure fallback (never triggered by Shapiro-Wilk — see flagged amendment 2), Cohen's d with 95% CI, and Holm-Bonferroni correction. **Correction family (pinned)**: five hypothesis tests are run (SART, Ospan, PSS-10, PANAS-PA, PANAS-NA) and Holm-Bonferroni is applied across all five; FR-008's "four outcome variables" refers to four outcome domains, with mood comprising PANAS-PA/NA (flagged amendment 5). Output `data/results/statistical_summary.json` conforming to `contracts/analysis.schema.yaml` — one entry per metric with `method_used`. Append its checksum to `data/checksums.sha256`.
+  *Verification*: `pytest code/tests/test_analysis.py` includes a known-effect simulation where corrected p < 0.05 and a null-effect simulation where it is not; schema validation test passes; CI bounds enclose the empirical mean; the correction is applied over exactly 5 tests.
 
-## Phase 3 – Baseline collection & data merging  
+- [ ] T007 [US1] Run the Monte Carlo power simulation.
+  Complete `code/analysis/power_simulation.py` (repairing the truncated work): 1,000 iterations, d = 0.5, Holm-Bonferroni-corrected testing, writing `data/results/power_analysis.json` with keys `power_estimate` (float in [0,1]), `iterations`, `effect_size`, plus the N needed for 80% power. Append its checksum to `data/checksums.sha256`. **Recorded ordering divergence**: the plan places this in Phase 0, but T007 consumes only `study_config.yaml` (no analysis artifact); it is sequenced after T006 so the shared bootstrap/testing utilities it reuses from `code/analysis/` already exist. This is a deliberate, recorded re-sequencing, not a data-flow violation.
+  *Verification*: file exists with the required keys; rerun reproduces `power_estimate` within Monte Carlo tolerance given the fixed seed; `sha256sum -c data/checksums.sha256` passes.
 
-- [ ] T010 [US1] **Baseline data collection pipeline** (`code/pipeline/collect_baseline.py`).  
-  *Workflow*: reads `data/raw/synthetic_baseline.csv`, registers participants (T005), validates instrument scores, writes `data/raw/baseline_raw.csv`.  
-  *Verification*: `baseline_raw.csv` conforms to `contracts/dataset.schema.yaml` (checked by `tests/contract/test_baseline_schema.py`).  
+- [ ] T008 [US3] Add sensitivity and robustness checks and record outcomes.
+  `code/analysis/sensitivity.py`: (a) re-run the primary analysis excluding low-compliance participants (< 50% compliant days) and comparing to the primary estimate; (b) per the FR-011 requirement and since no objective screen-time subset exists, write `data/results/sensitivity_report.md` documenting the self-report limitation and its direction of bias; (c) per reviewer feedback on the one-group pre/post design, add a practice-effects sensitivity analysis with the **exact pinned grid** — practice effects of 0.0, 0.2, and 0.4 SD (from `practice_effect_grid` in the config), applied to SART and Ospan only (the practice-sensitive cognitive tasks; PSS-10/PANAS are excluded) — re-estimating effects under each assumed practice increment and reporting how conclusions change; write results to `data/results/sensitivity_analysis.json`. Append checksums for both new `data/results/` files to `data/checksums.sha256`.
+  *Verification*: `pytest code/tests/test_sensitivity.py` passes and asserts the exact 3-value grid on the two cognitive metrics; the report explicitly discusses the no-control-condition limitation and practice sensitivity; `sha256sum -c data/checksums.sha256` passes.
 
-- [ ] T011 [US3] **Merge baseline, post‑intervention, and compliance data; compute change scores** (`code/pipeline/merge_data.py`).  
-  *Inputs*: `data/raw/baseline_raw.csv`, `data/raw/post_intervention_raw.csv` (to be supplied by the web interface), `data/compliance/aggregated_compliance.csv`.  
-  *Outputs*:  
-    - `data/processed/merged_data.csv` (long format, one row per metric per participant, with columns `participant_id, phase, metric_type, value`).  
-    - `data/processed/change_scores.csv` (computed as `post‑baseline`).  
-  *Verification*: Script aborts with a clear error if any required input file is missing; the resulting CSV passes schema validation (`contracts/dataset.schema.yaml`).  
+## Phase 3 — Results, figures, and paper handoff
 
-## Phase 4 – Statistical analysis  
+- [ ] T009 [US3] Generate figures directly from validated outputs.
+  `code/viz/generate_plots.py` reads `data/processed/change_scores.csv` and `data/results/statistical_summary.json` to produce `figures/change_distribution_<metric>.png` and `figures/effect_sizes.png` (forest plot with CIs) for all metrics. Depends only on T005 and T006 outputs (not T008).
+  *Verification*: files exist as non-empty PNGs; no figure contains values absent from the summary JSON.
 
-- [ ] T012 [US3] **Primary bootstrap analysis** (`code/analysis/run_bootstrap.py`).  
-  *Input*: `data/processed/change_scores.csv`.  
-  *Procedure*: 10 000 resamples per metric, compute mean change and 95 % CI.  
-  *Output*: `data/processed/bootstrap_results.json` (per‑metric `mean_change`, `ci_lower`, `ci_upper`).  
-  *Verification*: JSON file exists; a sanity‑check test confirms CI bounds enclose the empirical mean.  
+- [ ] T010 [P] [US3] Compile the results account and paper-stage handoff.
+  Write `data/results/final_report.md` linking every statistic to `data/results/statistical_summary.json` and every figure to its file: methods (scoring, bootstrap, Holm-Bonferroni over 5 tests), power analysis (T007), sensitivity and limitations (T008 — simulation-only evidence, no control condition, practice effects, self-report compliance), and success-criteria evaluation against SC-001–SC-005 **in their association framing** (pre/post statistical change with Cohen's d ≥ 0.2 and Holm-Bonferroni corrected p < 0.05 — explicitly not causal attribution, per flagged amendment 4). Include a named paper-stage handoff listing layout/PDF/publication requirements without implementing them. Re-verify the checksum manifest: run `sha256sum -c data/checksums.sha256` and confirm every file recorded in the manifest (covering `data/raw/`, `data/processed/`, and `data/results/` outputs from T003–T008) matches; the verification scope is exactly the files recorded in the manifest, which by construction includes every data artifact this task list produces.
+  *Verification*: integration test `code/tests/test_end_to_end.py` runs the documented command from `quickstart.md` on a fresh checkout and asserts the report contains the required sections, that all cited numbers match the JSON, and that `sha256sum -c data/checksums.sha256` exits 0.
 
-- [ ] T013 [US3] **Convergence detection & fallback Wilcoxon test** (`code/analysis/convergence_detector.py` + `code/analysis/wilcoxon_fallback.py`).  
-  *Trigger*: If `run_bootstrap.py` writes a `bootstrap_status.json` flag `convergence_failed`.  
-  *Output*: `data/processed/fallback_results.json` with Wilcoxon `p_value` and effect direction.  
-  *Verification*: Unit test `tests/unit/test_fallback_trigger.py` forces a failure and checks that the fallback file is produced.  
+## Dependencies and requirement coverage
 
-- [ ] T014 [US3] **Effect‑size calculation & Holm‑Bonferroni correction** (`code/analysis/effect_sizes.py` & `code/analysis/holm_bonferroni.py`).  
-  *Inputs*: bootstrap (or fallback) results.  
-  *Outputs*: `results/statistical_summary.json` conforming to `contracts/analysis.schema.yaml` (includes `method_used`, `effect_size_cohen_d`, `p_value_corrected`).  
-  *Verification*: A schema validation test (`tests/contract/test_analysis_schema.py`) passes; corrected p‑values are ≤ 0.05 for at least one metric when the simulated data contains a true effect.  
+| Requirement | Task(s) | Order |
+|---|---|---|
+| Config, requirements.txt, checksum manifest (constitution) | T001 | first |
+| FR-002/003/009 (instruments, scoring, synthetic n=5 pilot) | T002 | after T001 |
+| FR-001 (simulated IDs), Participant registry, trial-level raw data (Constitution VI) | T003 | after T002 |
+| FR-004/010 (compliance) | T004 | after T003 |
+| FR-005 (change scores, dropouts) | T005 | after T004 |
+| FR-006/007/008 (statistics; Holm-Bonferroni over 5 tests) | T006 | after T005 |
+| Power simulation (plan Phase 0; re-sequenced with recorded justification) | T007 | after T006 |
+| FR-011, practice-effect sensitivity (pinned 0/0.2/0.4 SD grid on SART/Ospan) | T008 | after T006 |
+| SC-001–SC-005 figures | T009 | after T005/T006 (no T008 dependency) |
+| SC-001–SC-005 reporting, checksum re-verification, paper handoff | T010 | after T007, T008, T009 |
 
-## Phase 5 – Visualization & reporting  
+Execution order: T001 → T002 → T003 → T004 → T005 → T006 → (T007, T008) → T009 → T010. T009 depends only on T005 and T006; only T010 consumes T008's sensitivity outputs.
 
-- [ ] T015 [US3] **Generate figures** (`code/viz/generate_plots.py`).  
-  *Outputs*: `figures/boxplot_<metric>.png` and `figures/change_distribution_<metric>.png` for all four outcomes.  
-  *Verification*: Files exist and are non‑empty PNGs; a quick‑look test confirms image dimensions ≥ 400 px.  
+## Revision behavior
 
-- [ ] T016 [US3] **Compile final study report** (`code/report/generate_report.py`).  
-  *Sections*:  
-    1. Summary of methods (links to `quickstart.md`).  
-    2. Power‑analysis summary (from T008).  
-    3. Sensitivity‑analysis discussion (FR‑011).  
-    4. Statistical summary table (from T014).  
-    5. Figures (from T015).  
-    6. Quality‑report (data‑quality flags, dropout & attention‑check warnings).  
-    7. Reproducibility manifest (see T017).  
-  *Output*: `results/final_report.md`.  
-  *Verification*: End‑to‑end test `tests/integration/test_end_to_end_pipeline.py` runs the full pipeline on synthetic data and asserts that `final_report.md` contains the headings “Statistical Summary”, “Power Analysis”, and “Quality Report”.  
-
-- [ ] T017 [US3] **Create reproducibility manifest** (`code/utils/generate_manifest.py`).  
-  *Contents*: random seed values, SHA‑256 checksums of all raw input files, `requirements.txt` hash, and software version snapshot.  
-  *Output*: `results/reproducibility_manifest.json`.  
-  *Verification*: Manifest is validated by `tests/unit/test_manifest_schema.py`.  
-
-## Phase 6 – Data‑quality & edge‑case handling (cross‑cutting)  
-
-- [ ] T018 [US3] **Dropout handling** (`code/pipeline/handle_dropouts.py`).  
-  *Logic*: participants missing post‑intervention data are excluded from paired tests but retained in `data/processed/descriptive_baseline.csv`.  
-  *Output*: `data/processed/exclusions.json` listing IDs with reason `missing_post_data`.  
-
-- [ ] T019 [US3] **Attention‑check validation** (`code/validation/attention_check.py`).  
-  *Rule*: SART accuracy < 50 % → flag as `low_quality`; flagged IDs are appended to `exclusions.json` with reason `low_sart_accuracy`.  
-
-- [ ] T020 [US2] **Extreme compliance case flag** (enhancement to `code/validation/compliance_plausibility.py`).  
-  *Rule*: if a participant reports `social_media_minutes == 0` for all 7 days, add flag `extreme_compliance` to `data/compliance/flags.json` but do **not** exclude from analysis.  
-
-## Phase 7 – Review & polish (already verified)  
-
-- [ ] T021 [P] Write `README.md` with installation, data‑generation, and analysis‑pipeline sections.  
-- [ ] T022 [P] Write `quickstart.md` with a step‑by‑step command‑line guide.  
-- [ ] T023 [P] Refactor `code/scoring/` and `code/analysis/` to keep cyclomatic complexity < 10 (unit‑test coverage ≥ 90 %).  
-- [ ] T024 [P] Performance optimisation of bootstrap loops (vectorised NumPy implementation) achieving ≥ 20 % runtime reduction (measured on CI).  
-- [ ] T025 [P] Run end‑to‑end reproducibility check (`quickstart.md` script) and confirm that a fresh checkout produces identical `final_report.md` and `statistical_summary.json`.  
-
----  
-
-**Note** – All unchecked tasks above (T007‑T020) have been reopened or added to address the verification failures reported for `T009`, `T010`, and `T031`. The duplicate task identifier `T039` has been removed; the remaining visualisation task (`T015`) retains the original functionality.
+Prior malformed task identities (T001.1/T001.2-style sub-IDs, duplicate T039, empty bracket labels) are replaced by the canonical `T###` sequence above; their requirements are preserved within the grouped tasks. The three verifier-rejected deliverables are repaired inside T003, T007, and T005 respectively. **Explicit filename mapping for the verifier-rejected T003/T009 deliverable**: the rejected `code/validation/synthetic_baseline.py` is replaced by `code/validation/simulate_study.py`, and the rejected `data/raw/synthetic_baseline.csv` is replaced by `data/raw/simulated_measurements.csv` (plus the new trial-level files `data/raw/trial_level/sart_trials.csv` and `data/raw/trial_level/ospan_trials.csv` and the registry `data/raw/participants.csv`); the expected filenames are exactly these, not the originals. Reviewer feedback on the absent control condition is addressed by the practice-effects sensitivity analysis in T008 and the association framing in T010 (with the SC-001–SC-004 rewording flagged for spec kickback) rather than by changing the study design mid-course. Checksum coverage: `data/checksums.sha256` is created in T001 and appended to by every task writing under `data/` (T003: raw + smoke result; T004/T005: processed; T006/T007/T008: results), so T010's re-verification covers every data artifact the task list produces.
