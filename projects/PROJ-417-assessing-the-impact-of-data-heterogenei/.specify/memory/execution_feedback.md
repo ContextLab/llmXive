@@ -19,13 +19,15 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/scripts/fetch_openml.py   # writes data/raw/cochrane_base.csv -> rc=1
 ============================================================
-FETCHING VERIFIED BASE META-ANALYSIS DATASET
+FETCHING VERIFIED BASE META‑ANALYSIS DATASET
 ============================================================
-Fetching verified meta-analysis base data from:
-  https://raw.githubusercontent.com/wviechtb/metafor/master/data/dat.bcg.dat
+Fetching verified meta‑analysis base data from:
+  SUCCESS: downloaded from https://www.openml.org/data/v1/download/4210
 ============================================================
 
-ERROR: REAL_DATA_FETCH_FAILED: unable to download the base meta-analysis dataset from https://raw.githubusercontent.com/wviechtb/metafor/master/data/dat.bcg.dat: HTTP Error 404: Not Found
+  WARNING: REAL_DATA_FETCH_FAILED: unable to download from https://raw.githubusercontent.com/wviechtb/metafor/master/data/dat.bcg.dat: HTTP Error 404: Not Found
+  WARNING: REAL_DATA_FETCH_FAILED: unable to download from https://raw.githubusercontent.com/wviechtb/metafor/master/data/dat.bcg: HTTP Error 404: Not Found
+ERROR: REAL_DATA_FETCH_FAILED: downloaded data yielded fewer than 5 usable trials (got 0).
 
 - python -m pytest tests/unit/ -> rc=1
 unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_sensitivity
@@ -40,7 +42,7 @@ ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_sav
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-============= 12 failed, 65 passed, 13 warnings, 6 errors in 2.96s =============
+============= 12 failed, 65 passed, 13 warnings, 6 errors in 1.74s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -55,7 +57,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 0.54s =========================
+========================= 1 failed, 1 warning in 0.52s =========================
 
 
 
