@@ -1,12 +1,36 @@
 type: object
 required:
-- injected_true_effect
-- injected_tau2
-- N_studies
+  - replicate_id
+  - tau_squared
+  - true_effect
+  - study_effects
+  - study_se
+  - study_sizes
+  - k
+  - sweep_type
 properties:
-  injected_true_effect:
-    type: number
-  injected_tau2:
-    type: number
-  N_studies:
+  replicate_id:
     type: integer
+  tau_squared:
+    type: number
+  true_effect:
+    type: number
+  study_effects:
+    type: array
+    items:
+      type: number
+  study_se:
+    type: array
+    items:
+      type: number
+  study_sizes:
+    type: array
+    items:
+      type: integer
+  k:
+    type: integer
+  sweep_type:
+    type: string
+    enum:
+      - primary
+      - sensitivity

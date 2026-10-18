@@ -1,18 +1,37 @@
 type: object
 required:
-- I_squared
-- Q
-- reliability_flag
-- injected_true_effect
-- injected_tau2
+  - dataset_id
+  - estimator_type
+  - pooled_effect
+  - ci_lower
+  - ci_upper
+  - tau_squared_est
+  - i_squared
+  - q_statistic
+  - coverage_flag
+  - convergence_warning
 properties:
-  I_squared:
+  dataset_id:
+    type: integer
+  estimator_type:
+    type: string
+    enum:
+      - FixedEffects
+      - DerSimonianLaird
+      - REML
+  pooled_effect:
     type: number
-  Q:
+  ci_lower:
     type: number
-  reliability_flag:
+  ci_upper:
+    type: number
+  tau_squared_est:
+    type: number
+  i_squared:
+    type: number
+  q_statistic:
+    type: number
+  coverage_flag:
     type: boolean
-  injected_true_effect:
-    type: number
-  injected_tau2:
-    type: number
+  convergence_warning:
+    type: boolean

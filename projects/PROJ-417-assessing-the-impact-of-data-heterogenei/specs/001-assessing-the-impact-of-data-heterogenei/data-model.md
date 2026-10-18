@@ -1,57 +1,64 @@
 # Data Model: Assessing the Impact of Data Heterogeneity on Meta-Analysis Results
 
 ## 1. Overview
-This document defines the data structures for the simulation engine, ensuring strict typing and validation via YAML schemas.
+The pipeline stores three core artifact types, each validated against a JSON/YAML schema in `contracts/`. All files live under `data/results/`.
 
 ## 2. Entities
 
 ### 2.1 SimulatedDataset
-Represents a single synthetic meta-analysis instance.
-*   **Fields**:
-    *   `replicate_id`: Unique integer identifier.
-    *   `tau_squared`: The injected between-study variance (ground truth).
-    *   `true_effect`: The fixed true effect size used for generation.
-    *   `study_effects`: List of floats (generated effect sizes).
-    *   `study_se`: List of floats (standard errors).
-    *   `study_sizes`: List of integers (sample sizes, used for SE derivation).
-    *   `k`: Number of studies.
-    *   `sweep_type`: Enum (`primary`, `sensitivity`) to distinguish SC-004 sweep.
+| Field | Type | Description |
+|-------|------|-------------|
+| `replicate_id` | integer | Unique identifier for the replicate (1‑based). |
+| `tau_squared` | number | Injected between‑study variance (ground truth). |
+| `true_effect` | number | Fixed true effect size used for generation (0.5). |
+| `study_effects` | array[number] | Generated effect sizes $y_{i,r}$. |
+| `study_se` | array[number] | Corresponding standard errors $\sigma_i$. |
+| `study_sizes` | array[integer] | Sample sizes $N_i$ used to derive SEs. |
+| `k` | integer | Number of studies in this replicate. |
+| `sweep_type` | string (enum: `primary`, `sensitivity`) | Indicates which sweep the replicate belongs to. |
 
 ### 2.2 EstimationResult
-Represents the output of applying an estimator to a `SimulatedDataset`.
-*   **Fields**:
-    *   `dataset_id`: Reference to the source dataset.
-    *   `estimator_type`: Enum (`FixedEffects`, `DerSimonianLaird`, `REML`).
-    *   `pooled_effect`: Calculated pooled effect size.
-    *   `ci_lower`: Lower bound of 95% CI.
-    *   `ci_upper`: Upper bound of 95% CI.
-    *   `tau_squared_est`: Estimated between-study variance.
-    *   `i_squared`: Heterogeneity statistic $I^2$.
-    *   `q_statistic`: Cochran's Q.
-    *   `coverage_flag`: Boolean (True if `true_effect` $\in$ [CI_lower, CI_upper]).
-    *   `convergence_warning`: Boolean (True if REML failed to converge).
+| Field | Type | Description |
+|-------|------|-------------|
+| `dataset_id` | integer | Links to `replicate_id` of the source `SimulatedDataset`. |
+| `estimator_type` | string (enum: `FixedEffects`, `DerSimonianLaird`, `REML`) | Which estimator was applied. |
+| `pooled_effect` | number | Estimated overall effect. |
+| `ci_lower` | number | Lower bound of the 95 % confidence interval. |
+| `ci_upper` | number | Upper bound of the 95 % confidence interval. |
+| `tau_squared_est` | number | Estimated between‑study variance (≥ 0). |
+| `i_squared` | number | $I^2$ heterogeneity statistic (0‑[deferred]). |
+| `q_statistic` | number | Cochran’s $Q$. |
+| `coverage_flag` | boolean | True if `true_effect` lies within `[ci_lower, ci_upper]`. |
+| `convergence_warning` | boolean | True only for REML when convergence failed (fallback used). |
+
+*All `EstimationResult` records are stored **exclusively** in the JSON‑lines file `data/results/simulation_raw.json` alongside their originating `SimulatedDataset`. No separate CSV file is used, satisfying Principle IV (Single Source of Truth).*
 
 ### 2.3 AggregatedMetric
-Summary statistics for a specific $\tau^2$ level and estimator.
-*   **Fields**:
-    *   `tau_squared`: The heterogeneity level.
-    *   `estimator_type`: The estimator used.
-    *   `sweep_type`: Enum (`primary`, `sensitivity`).
-    *   `mean_bias`: Average of (pooled_effect - true_effect).
-    *   `coverage_rate`: Proportion of `coverage_flag` = True.
-    *   `coverage_deviation`: `coverage_rate` - 0.95.
-    *   `coverage_ci_lower`: Lower bound of Wilson Score Interval for coverage.
-    *   `coverage_ci_upper`: Upper bound of Wilson Score Interval for coverage.
-    *   `binomial_p_value`: Result of exact binomial test against nominal coverage.
-    *   `bias_test_p_value`: Result of Kruskal-Wallis or Dunn's test.
-    *   `report_framing`: String (e.g., "associational") for SC-005 compliance.
+| Field | Type | Description |
+|-------|------|-------------|
+| `tau_squared` | number | The τ² level being summarised. |
+| `estimator_type` | string (enum as above) | Estimator whose metrics are aggregated. |
+| `sweep_type` | string (enum: `primary`, `sensitivity`) | Sweep provenance. |
+| `mean_bias` | number | Mean of `pooled_effect − true_effect`. |
+| `coverage_rate` | number | Proportion of replicates with `coverage_flag=True`. |
+| `coverage_deviation` | number | `coverage_rate − 0.95`. |
+| `coverage_ci_lower` | number | Wilson‑score lower bound for coverage. |
+| `coverage_ci_upper` | number | Wilson‑score upper bound for coverage. |
+| `binomial_p_value` | number | Exact binomial test p‑value (Bonferroni‑adjusted). |
+| `bias_test_p_value` | number | Kruskal‑Wallis (or Dunn’s post‑hoc) p‑value for bias differences across τ² levels. |
+| `report_framing` | string | Must be `"associational"` per SC‑005. |
 
 ## 3. File Formats
-*   **Raw/Processed Data**: CSV (for study-level data).
-*   **Simulation Output**: JSON (for `SimulatedDataset` and `EstimationResult` records) to preserve float precision and structure.
-*   **Aggregated Results**: CSV (for `AggregatedMetric` tables).
+* **SimulatedDataset & EstimationResult** – stored together as JSON‑lines (`.jsonl`) in `simulation_raw.json`. Each line conforms to its respective schema.  
+* **AggregatedMetric** – CSV (`aggregated_metrics.csv`) with column names matching the table above.  
+* **Plots** – PNG files (`coverage_vs_tau2.png`, `mean_bias_vs_tau2.png`).  
+* **Report** – Markdown (`report.md`).  
 
 ## 4. Validation Strategy
-All data written to `data/results/` must pass validation against the schemas defined in `contracts/`.
-*   **Schema Enforcement**: Python `pydantic` or `jsonschema` will be used to validate JSON outputs before aggregation.
-*   **Checksums**: SHA-256 checksums generated for all files in `data/results/`.
+* **Schema enforcement** – `jsonschema` validates each JSON line on write; `pandas` validates CSV columns against `aggregated_metric.schema.yaml`.  
+* **Checksums** – SHA‑256 hashes of every file recorded in `state/project_state.yaml`.  
+* **Unit tests** – Verify that generated objects satisfy schemas (`tests/unit/test_generator.py`, `test_estimators.py`).  
+
+---
+
+

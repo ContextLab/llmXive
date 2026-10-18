@@ -1,21 +1,44 @@
 type: object
 required:
-- tau2_level
-- coverage_rate
-- mean_bias
-- p_value_binomial
-- p_value_normality_test
-- test_type_bias_comparison
+  - tau_squared
+  - estimator_type
+  - sweep_type
+  - mean_bias
+  - coverage_rate
+  - coverage_deviation
+  - coverage_ci_lower
+  - coverage_ci_upper
+  - binomial_p_value
+  - bias_test_p_value
+  - report_framing
 properties:
-  tau2_level:
+  tau_squared:
+    type: number
+  estimator_type:
+    type: string
+    enum:
+      - FixedEffects
+      - DerSimonianLaird
+      - REML
+  sweep_type:
+    type: string
+    enum:
+      - primary
+      - sensitivity
+  mean_bias:
     type: number
   coverage_rate:
     type: number
-  mean_bias:
+  coverage_deviation:
     type: number
-  p_value_binomial:
+  coverage_ci_lower:
     type: number
-  p_value_normality_test:
+  coverage_ci_upper:
     type: number
-  test_type_bias_comparison:
+  binomial_p_value:
+    type: number
+  bias_test_p_value:
+    type: number
+  report_framing:
     type: string
+    description: "Must be 'associational' per SC‑005"
