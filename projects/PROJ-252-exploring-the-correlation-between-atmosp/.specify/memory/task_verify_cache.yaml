@@ -1,12 +1,12 @@
 T001:
-  c: true
-  h: 9955528d0ce11749ddf842bdc1b384c70c9dd08e7bfac28549737d2febf29b7c
-  r: I checked `requirements.txt` (all 11 required exact pins present, plus an extra
-    pinned pyarrow), `code/seed_init.py` (sets `random.seed(42)` and `np.random.seed(42)`
-    and writes `logs/seed_initialization.log` with the exact line "Seeds set to 42"),
-    and `docs/quickstart.md` (contains the exact required single command `pip install
-    -r requirements.txt && python -m code.seed_init && python -m code.main`). All
-    three required artifacts exist, are non-empty, and match the task's stated content;
-    the seed script's behavior is deterministic and directly produces the required
-    log line, and no other task's
-  sig: 449e4db4246f8e5a1d43f7d3966018c25215336d76d82861f2c539d9d62e32d9
+  c: false
+  h: 4a455ffbd3cf674ac0a9dfcd39634b8a34f2241f91098453d015fc7a41d517b9
+  r: "`requirements.txt` is not fully pinned: its first 15 lines list unpinned packages\
+    \ (`pandas`, `numpy`, `scipy`, `scikit-learn`, `requests`, `tqdm` \xD73, `pyyaml`,\
+    \ `datasets`, `statsmodels`, `memory_profiler`, `huggingface_hub`, `xarray`, `netCDF4`)\
+    \ before the pinned block, so `pip install -r requirements.txt` would install\
+    \ unpinned versions and fail the \"no unpinned warnings\" verification; it also\
+    \ contains duplicate entries and a stray comment. The file must contain only the\
+    \ exact version pins (e.g., `numpy==1.26.4`, ..., `huggingface_hub==0.23.0`) with\
+    \ no bare package names. `code/seed_init.py` "
+  sig: 3497cf531f937b4f9e8f9e04838429aadf53e48ae3bf9eb0f98d67a19202f9b2

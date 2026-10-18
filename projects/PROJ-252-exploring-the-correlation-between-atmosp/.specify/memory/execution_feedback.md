@@ -32,11 +32,16 @@ ERROR: file or directory not found: #
 
 
 - python -m code.download -> rc=1
-2026-10-18 11:09:33,258 - __main__ - INFO - Starting T002: Data Acquisition Pipeline.
-2026-10-18 11:09:33,259 - __main__ - INFO - Missing raw files. Starting download.
-2026-10-18 11:09:33,259 - __main__ - INFO - Downloading NOAA pressure dataset from https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
-2026-10-18 11:09:33,379 - __main__ - ERROR - Failed to download NOAA pressure data: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
-2026-10-18 11:09:33,380 - __main__ - CRITICAL - T002 failed: Critical failure downloading NOAA data: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
+:47,981 - __main__ - INFO - Downloading NOAA pressure dataset via huggingface_hub.
+2026-10-18 11:11:48,099 - __main__ - WARNING - huggingface_hub download failed: 401 Client Error. (Request ID: Root=1-6ad4a974-4e5f4bbe5fc714cb4403fb40;8ca5092c-e239-4961-b6ee-7342d3e9b227)
+
+Repository Not Found for url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated.
+Invalid username or password.
+2026-10-18 11:11:48,100 - __main__ - INFO - Downloading NOAA pressure dataset from https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
+2026-10-18 11:11:48,215 - __main__ - ERROR - Failed to download NOAA pressure data: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
+2026-10-18 11:11:48,215 - __main__ - CRITICAL - T002 failed: Critical failure downloading NOAA data: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
 
 
 - python code/preprocess.py -> rc=1
@@ -47,7 +52,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'geopandas'
 
 - python code/analysis.py -> rc=1
- 11:09:34 - __main__ - INFO - Starting analysis pipeline.
+ 11:11:49 - __main__ - INFO - Starting analysis pipeline.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 317, in <module>
@@ -78,7 +83,7 @@ FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_earthq
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_pressure_anomaly_schema_validates_valid_data
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_pressure_anomaly_schema_rejects_missing_fields
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_required_fields_match_spec
-============================== 7 failed in 0.09s ===============================
+============================== 7 failed in 0.08s ===============================
 
 
 

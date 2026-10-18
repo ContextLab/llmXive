@@ -13,6 +13,12 @@ import yaml
 import pandas as pd
 import xarray as xr
 
+# Attempt to import huggingface_hub for reliable file download
+try:
+    from huggingface_hub import hf_hub_download
+except ImportError:
+    hf_hub_download = None
+
 # Configure logger
 logging.basicConfig(
     level=logging.INFO,
@@ -42,7 +48,7 @@ DEFAULT_CONFIG = {
 }
 
 def get_robust_session() -> requests.Session:
-    """Create a requests session with retries and browser-like headers to avoid 401/403 errors."""
+    """Create a requests session with retries and browser-like headers."""
     session = requests.Session()
     retry_strategy = Retry(
         total=5,
@@ -54,7 +60,7 @@ def get_robust_session() -> requests.Session:
     session.mount("https://", adapter)
     session.mount("http://", adapter)
 
-    # Use a common browser User-Agent to prevent being blocked by HuggingFace/USGS
+    # Use a common browser User-Agent to prevent being blocked
     session.headers.update({
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
@@ -89,18 +95,35 @@ def _sha256_of_file(path: Path) -> str:
 def download_noaa_pressure() -> None:
     """Download the full NOAA NCEP/NCAR sea‑level pressure dataset."""
     RAW_PRESSURE_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    # Preferred method: huggingface_hub (handles redirects and auth)
+    if hf_hub_download is not None:
+        try:
+            logger.info("Downloading NOAA pressure dataset via huggingface_hub.")
+            downloaded_path = hf_hub_download(
+                repo_id="noaa/ncep-reanalysis-pressures",
+                filename="mslp_daily.nc",
+                repo_type="dataset"
+            )
+            # Move the downloaded file to the expected location
+            Path(downloaded_path).rename(RAW_PRESSURE_PATH)
+            logger.info("Pressure dataset download complete via huggingface_hub.")
+            return
+        except Exception as e:
+            logger.warning(f"huggingface_hub download failed: {e}")
+
+    # Fallback: direct HTTP GET (may require authentication)
     url = "https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc"
     session = get_robust_session()
     try:
         logger.info(f"Downloading NOAA pressure dataset from {url}")
-        # Use stream=True for large files
         with session.get(url, stream=True, timeout=180) as r:
             r.raise_for_status()
             with open(RAW_PRESSURE_PATH, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1024 * 1024):  # 1MB chunks
+                for chunk in r.iter_content(chunk_size=1024 * 1024):
                     if chunk:
                         f.write(chunk)
-        logger.info("Pressure dataset download complete.")
+        logger.info("Pressure dataset download complete via direct HTTP.")
     except Exception as e:
         logger.error(f"Failed to download NOAA pressure data: {e}")
         raise RuntimeError(f"Critical failure downloading NOAA data: {e}")
@@ -147,11 +170,11 @@ def _count_pressure_records() -> int:
 def main() -> int:
     logger.info("Starting T002: Data Acquisition Pipeline.")
     try:
-        # 1. Load or create configuration
+        # Load or create configuration
         cfg = load_config()
         needs_download = False
 
-        # 2. Determine whether we need to (re)download
+        # Determine whether we need to (re)download
         if not (RAW_PRESSURE_PATH.exists() and RAW_USGS_PATH.exists()):
             logger.info("Missing raw files. Starting download.")
             needs_download = True
@@ -192,7 +215,7 @@ def main() -> int:
             pressure_record_count = cfg.get("pressure_record_count", 0)
             usgs_row_count = cfg.get("expected_earthquake_count", 0)
 
-        # 3. Final verification – ensure files exist
+        # Final verification – ensure files exist
         if not (RAW_PRESSURE_PATH.exists() and RAW_USGS_PATH.exists()):
             raise FileNotFoundError("One or more raw data files are missing after download step.")
 
@@ -212,7 +235,7 @@ def main() -> int:
                     f"USGS row count out of tolerance: expected {expected_usgs_count}, got {actual_usgs_count}"
                 )
 
-        # 4. Write success log
+        # Write success log
         LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(LOG_PATH, "w", encoding="utf-8") as log_f:
             log_f.write(f"Pressure data downloaded: {final_pressure_count} days\\n")
