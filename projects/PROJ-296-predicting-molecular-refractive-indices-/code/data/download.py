@@ -10,18 +10,16 @@ The script is intended to be run as a stand‑alone command:
 
 It performs the following steps:
 
-1. Download the dataset file from a verified public URL.
-2. Write the file to ``data/raw/ri_dataset.csv`` (creating the ``raw``
+1. Download the dataset via the Hugging Face ``datasets`` library.
+2. Persist the file to ``data/raw/ri_dataset.csv`` (creating the ``raw``
    directory if necessary).
-3. Compute the SHA‑256 checksum of the written file.
+3. Compute the SHA‑256 checksum of the persisted file.
 4. Compare the checksum with the expected value stored in
    ``state/download_checksum.txt``.  If the file does not exist, the
    computed checksum is written there for future runs.
 5. Load the CSV with ``pandas`` and perform a minimal validation of the
    required columns (``smiles`` and ``refractive_index``).  The validation
-   is deliberately lightweight because the full schema (which includes
-   node/edge features) is intended for the processed data.  This step
-   aborts with a clear error message if any validation fails.
+   aborts with a clear error message if any check fails.
 
 All paths are resolved via the ``llmxive_toolkit.paths`` helper which
 guarantees that the required directories exist.
@@ -32,22 +30,22 @@ import json
 from pathlib import Path
 
 import pandas as pd
-import requests
 import yaml
 from jsonschema import Draft7Validator, ValidationError
 
 from llmxive_toolkit import paths, get_logger
+
+# The ``datasets`` library is used to fetch the canonical dataset from
+# Hugging Face.  It is listed in ``requirements.txt``.
+from datasets import load_dataset
 
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Direct download URL for the public refractive‑index CSV dataset.
-# Updated to the current default branch (``main``) of the upstream repo.
-DATASET_URL = (
-    "https://raw.githubusercontent.com/zhanglab/ri-dataset/main/ri_dataset.csv"
-)
+# Hugging Face dataset identifier for the refractive‑index dataset.
+HF_DATASET_ID = "zhanglab/ri-dataset"
 
 # Destination for the raw CSV file.
 RAW_CSV_PATH = paths.data("raw", "ri_dataset.csv")
@@ -84,22 +82,22 @@ def write_checksum(checksum: str) -> None:
 
 def download_dataset() -> pd.DataFrame:
     """
-    Download the dataset CSV from the public URL and return it as a
-    ``pandas.DataFrame``.
+    Download the dataset via the Hugging Face ``datasets`` library and
+    return it as a ``pandas.DataFrame``.
     """
-    log.info(f"Downloading dataset from {DATASET_URL} …")
-    response = requests.get(DATASET_URL, timeout=30)
-    if response.status_code != 200:
-        raise RuntimeError(
-            f"Failed to download dataset: HTTP {response.status_code}"
-        )
-    # Load into pandas directly from the downloaded content.
+    log.info(f"Downloading dataset '{HF_DATASET_ID}' via huggingface_hub …")
     try:
-        df = pd.read_csv(pd.compat.StringIO(response.text))
+        ds = load_dataset(HF_DATASET_ID, split="train")
     except Exception as exc:
-        log.error(f"Failed to parse CSV content: {exc}")
-        raise
-    log.info(f"Loaded {len(df)} records from the dataset.")
+        raise RuntimeError(f"Failed to load dataset '{HF_DATASET_ID}': {exc}") from exc
+
+    # Convert the Dataset object to a pandas DataFrame.
+    try:
+        df = ds.to_pandas()
+    except Exception as exc:
+        raise RuntimeError(f"Failed to convert dataset to pandas DataFrame: {exc}") from exc
+
+    log.info(f"Loaded {len(df)} records from the Hugging Face dataset.")
     return df
 
 
