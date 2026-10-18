@@ -18,7 +18,7 @@ All tasks are expressed as canonical checklist items; unchecked boxes indicate w
   *Instrument the pipeline (via `code/runtime.py`) to record start/end timestamps for each major stage (data acquisition, prompt engineering, synthetic generation, feature extraction, timestamp simulation, matching, analysis, sensitivity, visualization, report generation). This instrumentation is integrated at the entry point of the pipeline so that all subsequent tasks automatically emit timing data.*  
   - **Verification**: After a full pipeline run, `data/processed/runtime_report.json` exists, contains a `stage_times` mapping for every stage, and `total_seconds` ≤ 21 600. Running `python -m code.verification` exits with status 0.
 
-- [ ] T002 [US‑1] **Data acquisition – stream PR metadata via GitHub REST API**  
+- [ ] T002 [US‑1] **Data acquisition – stream PR metadata via GitHub REST API**   <!-- FAILED-IN-EXECUTION: code/data_acquisition.py exit=1 -->
   *Implement `code/data_acquisition.py` to stream PR metadata (creation time, merge time, review comments, CI duration, file changes) for three verified GitHub repositories that satisfy ≥ 1 000 stars and ≥ 100 PRs. Use the GitHub **REST** API with exponential backoff (via `tenacity`) to respect rate limits. Store each repository’s PR parquet file under `data/raw/<owner>_<repo>.parquet` and cache commit messages in `data/raw/commit_messages.parquet`.*  
   - **Verification**: Each `<owner>_<repo>.parquet` file exists, conforms to `pull_request.schema.yaml`, and contains > 0 rows; `commit_messages.parquet` exists with columns `pr_id` and `commit_message`; rate‑limit handling is logged and no unhandled 403 errors occur.
 

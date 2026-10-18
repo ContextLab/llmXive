@@ -1,19 +1,19 @@
 status: none
-intent: GitHub pull request metadata with synthetic code from GH Archive python package
-  dataset
+intent: download GitHub repositories pull request metadata GHTorrent GH Archive dataset
+  python package
 required_fields:
 - repository_id
 - repository_name
-- repository_full_name
-- repository_url
-- repository_stars
-- repository_forks
+- repository_owner
+- stars_count
+- forks_count
+- primary_language
 - pull_request_id
 - pull_request_number
-- pull_request_url
 - pull_request_created_at
-- pull_request_closed_at
 - pull_request_merged_at
-cache_key: 5ea4a46914562e850faa2dda8886b5a9af6b5a100ca49e4d66f1f59fdd9eeee0
-searched_at: '2026-10-12T11:52:46.198041+00:00'
+- pull_request_closed_at
+- pull_request_author
+cache_key: acd8aec08505e4fafafbd8925dcfa395cba3ea16c37f03cd644bcb3c54d6d7b2
+searched_at: '2026-10-18T04:43:48.173144+00:00'
 retry_count: 1

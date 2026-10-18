@@ -1,35 +1,25 @@
+T001:
+  c: false
+  h: 3f8c3f39b790444770b1d7b3ca36809bbd6a06647c1ab9d61ffee963dfc73786
+  r: "The skeleton directories (`code/`, `data/`, `tests/`, `docs/`) exist, but `requirements.txt`\
+    \ does not pin exact versions for all listed packages (e.g., scikit\u2011learn,\
+    \ statsmodels, scipy, radon, transformers, torch, matplotlib, seaborn, codecarbon,\
+    \ datasets are missing or only mentioned in a comment). No evidence is provided\
+    \ that `pip install -r requirements.txt` runs successfully in a fresh virtual\
+    \ environment. The task therefore remains incomplete."
+  sig: 4f85b828ccab978c688a99322994a29ef4f18491a6293b777f65e15d58eaa050
 T003:
   c: false
   h: 56e32c036cb77551798260d9e620e6bec0799fbcad7d4369efac866abb619716
   r: The repository contains a `pyproject.toml` with Black and Ruff settings, but
     the required separate `.ruff.toml` file is missing, so the task of creating both
     configuration files is not fully satisfied.
-T014b:
+T014:
   c: false
-  h: 395e729580155dbb895f57fb0b8c4d8fbe33a70c688add21a3c3049b51cdf018
-  r: "The repository contains `code/data_acquisition/prompt_generator.py`, but the\
-    \ script never creates the required `data/processed/prompt_cohort.parquet` or\
-    \ `generation_failure_log.json` files (both are missing). Moreover, the visible\
-    \ code does not show loading a quantized CodeLlama\u20117B model on CUDA or handling\
-    \ auto\u2011offload, so the core generation logic and output generation are not\
-    \ demonstrated. The task\u2019s primary deliverable is therefore not satisfied."
-T030:
-  c: false
-  h: bb139126efcadb2e3aac3e9a9e75881d8a33931a50b3c41a9662bb602aa767ae
-  r: The repository lacks the required data files (`data/processed/merged_features.parquet`
-    and `data/processed/covariate_config.json`) and does not contain the expected
-    output `data/processed/sensitivity_summary.json`. Without these inputs the script
-    cannot be executed, and the verification step cannot be satisfied.
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tests/unit/` directory or test files were presented; the evidence does not
-    show any additional unit tests added, so the required artifact is missing.
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts (scripts, datasets, analysis results, or visualizations) are present\
-    \ to demonstrate that the required data acquisition, synthetic code generation,\
-    \ propensity\u2011score matching, statistical testing, or sensitivity analysis\
-    \ have been implemented. Consequently the task\u2019s core deliverables are missing,\
-    \ and the claim does not satisfy the specification."
+  h: 217d85f4aea7fda77b63acd0c05d9282881e3ad1b3c1467a68e9ff67481b4cb5
+  r: "The repository contains the instrumentation module `code/runtime.py`, and the\
+    \ verification script runs without error, but the required output file `data/processed/runtime_report.json`\
+    \ is missing and there is no evidence that it includes a `stage_times` entry for\
+    \ every listed stage or that `total_seconds` \u2264\u202F21600. Additionally,\
+    \ integration of the recorder with the actual pipeline entry point is not demonstrated."
+  sig: 5eab73bfe4c72297b812a11b8770f60cb31ed56d7fb2773ae50e9a00889b15c3

@@ -1,0 +1,43 @@
+T001:
+  reason: "The skeleton directories (`code/`, `data/`, `tests/`, `docs/`) exist, but\
+    \ `requirements.txt` does not pin exact versions for all listed packages (e.g.,\
+    \ scikit\u2011learn, statsmodels, scipy, radon, transformers, torch, matplotlib,\
+    \ seaborn, codecarbon, datasets are missing or only mentioned in a comment). No\
+    \ evidence is provided that `pip install -r requirements.txt` runs successfully\
+    \ in a fresh virtual environment. The task therefore remains incomplete."
+  task: 8590e09b1dffe53fee82926ca7f85abd4391695f1caaf97a1ec5a6c4f741aae7
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data_acquisition.py
+    exit=1'
+  task: 0387e7cc5ed471f32b6ac8c4e1948a0407706154c0eb7ff32937b989b7cf17eb
+T003:
+  task: a7912f4737cf44b164d753255305dccea5eaa6828fbaba6fdb7eed73dd7c930a
+T004:
+  task: df279900e200776d45fe5ee4f607b6a88a86c4e0f8f31130eae13ece29ab021a
+T005:
+  task: 326934481a62ef1f7a160c4acea3afba6e37194e459e799a1eb26c067a1d693e
+T006:
+  task: a4a8c225f2a430e3159ea6a48f9148696e7afa1134b5a48078587f5f99b413e7
+T007:
+  task: 370e31a2dcfbd735e9e20c709fa3d9dea3f9e55c7a2e20355934aa9386155061
+T008:
+  task: 74de2e34fbde2457e0de4f6052c4d76431f79d8a7d18ca9445e7d7d24c4a1339
+T009:
+  task: 6abefbfcddf5e7ea4a2333ca6534fd61b7e83060ed5def640a9d23b5b7b39422
+T010:
+  task: ec395d62320a505759e4954cd9b2cf65ce73a41f983fe9310d733bc7df07b9ea
+T011:
+  task: b31fa934cbb165828a0a5d07ab543edb6e7b9d501e5cad7997dbc9cb783d65a8
+T012:
+  task: 7ea93ba00932c8f2f817bb14b88749364f62cd68fa1c4403c6a786951cc9adce
+T013:
+  task: 62e513034d6881bf00a182bbc09be10a496a85850785e08b6205bc2add0fc163
+T014:
+  reason: "The repository contains the instrumentation module `code/runtime.py`, and\
+    \ the verification script runs without error, but the required output file `data/processed/runtime_report.json`\
+    \ is missing and there is no evidence that it includes a `stage_times` entry for\
+    \ every listed stage or that `total_seconds` \u2264\u202F21600. Additionally,\
+    \ integration of the recorder with the actual pipeline entry point is not demonstrated."
+  task: 8126075a3476aa13c9550aa360f2ecd078c28197cad19bce1e6fce5993ebff57
+T015:
+  task: 6f798c352024caa92a9361c7814e40a1b1adb75f7e4e376a286d2becfff1c710
