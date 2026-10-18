@@ -1,21 +1,16 @@
-[lint]
+[tool.ruff]
+# Maximum line length
+line-length = 100
+# Target Python version
+target-version = "py311"
+# Enable selected linting rules
 select = [
     "E",   # pycodestyle errors
+    "F",   # pyflakes
     "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-    "RUF", # Ruff-specific rules
+    "C90", # McCabe complexity
+    "I",   # import sorting
+    "N",   # naming conventions
 ]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-]
-
-[format]
-line-length = 88
-indent-style = "space"
-quote-style = "double"
-skip-magic-trailing-comma = false
+# Ignore specific rules if needed
+ignore = []
