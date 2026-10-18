@@ -10,14 +10,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Dataset ID verified: ds004510 matches the canonical OpenNeuro source (https://openneuro.org/datasets/ds004510).
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 338, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 344, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 324, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 330, in main
     files = download_subjects(args.subjects, raw_dir)
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 203, in download_subjects
-    raise RuntimeError("No subjects with EEG data found in the dataset.")
-RuntimeError: No subjects with EEG data found in the dataset.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 201, in download_subjects
+    raise RuntimeError("No subjects with EEG or events.tsv files found in the dataset.")
+RuntimeError: No subjects with EEG or events.tsv files found in the dataset.
 
 - python code/preprocess.py -> rc=2
 
@@ -39,7 +39,7 @@ configfile: pyproject.toml
 plugins: platformdirs-4.13.4
 collected 0 items
 
-============================ no tests ran in 0.15s =============================
+============================ no tests ran in 0.08s =============================
 
 
 

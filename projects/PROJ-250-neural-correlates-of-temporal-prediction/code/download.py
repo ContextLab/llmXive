@@ -121,7 +121,7 @@ def resolve_dataset_prefix():
     )
 
 # ----------------------------------------------------------------------
-# Core download logic (new implementation using S3 listing)
+# Core download logic (enhanced to robustly detect EEG subjects)
 # ----------------------------------------------------------------------
 def fetch_file(url, dest, max_retries=3):
     """Fetch one file via curl (fallback wget). Fails loudly; no synthetic fallback."""
@@ -158,23 +158,30 @@ def sha256_file(path, chunk_size=1024 * 1024):
             h.update(chunk)
     return h.hexdigest()
 
-def _subject_has_eeg(keys):
-    """Return True if the list of S3 keys for a subject contains any EEG modality files."""
+def _extract_subject_id_from_key(key):
+    """
+    Extract the BIDS subject identifier (e.g., 'sub-01') from an S3 key.
+    Returns None if not found.
+    """
+    m = re.search(r"/(sub-[A-Za-z0-9]+)(/|$)", f"/{key}")
+    if m:
+        return m.group(1)
+    return None
+
+def _is_eeg_file(key):
+    """Return True if the key points to a known EEG data file."""
     eeg_exts = {".edf", ".set", ".bdf", ".fif", ".eeg", ".json"}
-    for k in keys:
-        low = k.lower()
-        # Accept any file inside an 'eeg' folder with a known EEG extension
-        if "/eeg/" in low and any(low.endswith(ext) for ext in eeg_exts):
-            return True
-        # events.tsv is also required for condition verification
-        if low.endswith("events.tsv"):
-            return True
-    return False
+    low = key.lower()
+    return "/eeg/" in low and any(low.endswith(ext) for ext in eeg_exts)
+
+def _is_events_file(key):
+    """Return True if the key is an events.tsv file."""
+    return key.lower().endswith("events.tsv")
 
 def download_subjects(n_subjects, raw_dir):
     """
-    Download the dataset via S3, extract the requested number of subjects that contain EEG data,
-    and return a list of all extracted file paths.
+    Download the dataset via S3, extract the requested number of subjects that contain
+    EEG data (or at least an events.tsv), and return a list of all extracted file paths.
     """
     raw_dir = Path(raw_dir)
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -182,35 +189,34 @@ def download_subjects(n_subjects, raw_dir):
     prefix = resolve_dataset_prefix()
     all_keys, _ = s3_list(prefix)
 
-    # Map subject IDs to their file keys
+    # Map subject IDs to their relevant file keys
     subj_to_keys = {}
     for key in all_keys:
-        # Expect keys like "ds004510/sub-01/..."
-        parts = key.split("/")
-        if len(parts) < 2:
-            continue
-        subj = parts[1]
-        if subj.startswith("sub-"):
-            subj_to_keys.setdefault(subj, []).append(key)
+        if _is_eeg_file(key) or _is_events_file(key):
+            subj = _extract_subject_id_from_key(key)
+            if subj:
+                subj_to_keys.setdefault(subj, []).append(key)
 
-    # Keep only subjects that have EEG data (or events.tsv)
-    subjects_with_eeg = [
-        s for s, ks in subj_to_keys.items() if _subject_has_eeg(ks)
-    ]
-    subjects_with_eeg.sort(key=lambda s: int(re.sub(r"\D", "", s) or 0))
+    if not subj_to_keys:
+        raise RuntimeError("No subjects with EEG or events.tsv files found in the dataset.")
 
-    if not subjects_with_eeg:
-        raise RuntimeError("No subjects with EEG data found in the dataset.")
+    # Sort subjects numerically where possible for reproducibility
+    sorted_subjects = sorted(
+        subj_to_keys.keys(),
+        key=lambda s: int(re.sub(r"\D", "", s) or 0)
+    )
 
-    selected = subjects_with_eeg if n_subjects == 0 else subjects_with_eeg[:n_subjects]
-    print(f"Dataset has {len(subjects_with_eeg)} EEG subjects; downloading {len(selected)}: {selected}")
+    if n_subjects == 0:
+        selected_subjects = sorted_subjects
+    else:
+        selected_subjects = sorted_subjects[:n_subjects]
+
+    print(f"Dataset has {len(sorted_subjects)} EEG subjects; downloading {len(selected_subjects)}: {selected_subjects}")
 
     downloaded_files = []
-    for subj in selected:
+    for subj in selected_subjects:
         for key in subj_to_keys[subj]:
-            # Skip non‑EEG files to keep download size modest, but keep events.tsv
-            if "/eeg/" not in key.lower() and not key.lower().endswith("events.tsv"):
-                continue
+            # Keep all EEG files and the events.tsv for the subject
             rel_path = Path(*Path(key).parts[1:])  # drop the top-level dataset folder
             dest_path = raw_dir / rel_path
             file_url = f"{S3_BASE}/{key}"

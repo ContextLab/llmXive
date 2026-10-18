@@ -1,18 +1,18 @@
 status: none
-intent: OpenNeuro ds004510 EEG dataset download MNE-Python fetch_openneuro python
-  package dataset
+intent: download OpenNeuro ds004510 EEG dataset as python package dataset
 required_fields:
-- raw_eeg_signal
+- subject_id
+- session_id
+- run_id
+- event_type
+- stimulus_onset
+- stimulus_type
+- condition
+- epoch_start_time
+- epoch_end_time
 - sampling_rate
 - channel_names
-- event_onset_times
-- stimulus_type
-- condition_label
-- subject_id
-- age
-- sex
-- session_id
-- bids_metadata
-cache_key: 0c883df7e25d65d6f113c98a10022d7e75918ec69631ba1cfdedf744439b545c
-searched_at: '2026-10-17T22:19:04.586373+00:00'
+- eeg_signal_matrix
+cache_key: 21dcdc4dc88a0545ecc605d38becca229f54dc7d4b59b212f2a3dd7ab239e135
+searched_at: '2026-10-18T09:17:12.490248+00:00'
 retry_count: 1
