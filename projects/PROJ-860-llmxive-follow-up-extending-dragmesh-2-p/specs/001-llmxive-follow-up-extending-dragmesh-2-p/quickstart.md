@@ -21,6 +21,18 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+## Fetch the DragMesh‑2 data (required before any experiment)
+
+```bash
+python code/data_loader.py
+```
+
+This command streams the DragMesh‑2 dataset from the HuggingFace Hub,
+writes a line‑delimited JSON manifest to
+`data/raw/dragmesh_manifest.jsonl`, and verifies that the file is
+non‑empty.  It will **raise** on any network or dataset‑access error
+(fail‑loud semantics).
+
 ## Running the Full Experiment
 
 ```bash
@@ -72,4 +84,5 @@ If any metric fails, the script exits with a non‑zero status and prints a help
 python code/main.py --mode full --seed $RANDOM
 ```
 
-Each run is fully reproducible given the seed; the checksum of all generated files will differ, and the new hashes are recorded automatically.
+Each run is fully reproducible given the seed; the checksum of all generated files will differ,
+and the new hashes are recorded automatically.

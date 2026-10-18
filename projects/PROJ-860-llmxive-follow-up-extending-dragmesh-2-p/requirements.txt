@@ -1,0 +1,18 @@
+# Core dependencies (already in the platform)
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional required packages for this project
+pybullet
+torch==2.2.0+cpu
+datasets

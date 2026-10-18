@@ -1,47 +1,8 @@
-T005c:
-  c: false
-  h: 3d328d26dd8377421c23a7cf586fb408356c1f3d6c40f71af3a176d93e8a5514
-  r: "The `verify_manifest.py` script records the checksum under `artifact_hashes['data_raw_manifest']`\
-    \ instead of the required `artifact_hashes.data_raw`, and the state YAML file\
-    \ does not contain any entry for the manifest hash. Moreover, no manifest file\
-    \ is present to compute a SHA256, and the script\u2019s truncated portion does\
-    \ not show the required `FileNotFoundError` handling. The task\u2019s core requirement\u2014\
-    recording the manifest\u2019s SHA256 in the correct field after confirming the\
-    \ file exists\u2014is therefore unmet."
-T008c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No execution logs, output files, or any other artifact showing that `validate_citations.py`\
-    \ was run against the DragMesh\u20112 and PICA baseline citations is present.\
-    \ Consequently there is no evidence that citations were validated or that the\
-    \ pipeline would halt on a failure. The required proof of execution and its result\
-    \ is missing."
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No result files, logs, or benchmark outputs are present in the indicated directory,\
-    \ and there is no evidence that `tracemalloc` was used, that wall\u2011clock time\
-    \ and peak memory were measured, or that the required assertions (\u2264\u202F\
-    6\u202Fh, \u2264\u202F7\u202FGB) were satisfied. The implementer must provide\
-    \ the actual benchmark run logs and metrics saved under `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/data/results/`."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `validate_citations.py` script, test suite, or verification results are present
-    in the provided artifacts. Without the script and evidence that it has been run
-    against all data sources, the task requirement is not satisfied. The implementer
-    must supply the script and concrete pass/fail output for each data source.
-T036:
-  c: false
-  h: 8bf67d5c0303767d305b084975b0162ad2a0b8c2f816bb558a043e4d16d5a30c
-  r: "The required unit test file `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_estimator_filter.py`\
-    \ does not exist in the repository, so the task\u2019s deliverable is missing.\
-    \ The implementer must add the test file with appropriate moving\u2011average\
-    \ filter tests."
-T038:
-  c: false
-  h: d149aa7fb27d2a90c687692240374af8ccbc2e5c391df70bb00fc789ade5be46
-  r: "The required unit test file `tests/unit/test_estimator_clamping.py` does not\
-    \ exist in the repository, so no test code is present to verify the range\u2011\
-    clamping logic. The task\u2019s primary artifact is missing, making the claim\
-    \ unfulfilled."
+T017:
+  c: true
+  h: 97b4c8344f244059550b3bd461e61c108cf2d0cf3a3ae2378311cc6ea50a495c
+  r: "The `amendment_proposal.md` file (3313\u202Fbytes, resolved at `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/amendment_proposal.md`)\
+    \ is present and contains a version header, a clear description of adding a paired\u2011\
+    t\u2011test analysis, and references to Constitution Principle\u202FVII, satisfying\
+    \ the task\u2019s documentation and versioning requirements."
+  sig: 62d5f9f9deb278cc5874fc6cae467f589edc80a10aee27b7a0a4c2a7c039615c

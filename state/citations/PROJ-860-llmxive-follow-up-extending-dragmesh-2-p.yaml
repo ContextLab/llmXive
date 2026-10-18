@@ -31,20 +31,9 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Gaussian_filter
   verified_at: '2026-10-14T03:24:23.719635Z'
-- artifact_hash: 9ad8eb81094750508e3e525e231fc50b7c071575ea525ac12fda838fa5dda8b0
+- artifact_hash: 81aa2fe50ea6e53a2a501cb39301bd0a9e9a6d526fac2fc42f470286f856752a
   artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/quickstart.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/llmxive-follow-up-extending-dragmesh-2-p.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/llmxive-follow-up-extending-dragmesh-2-p
-  verified_at: '2026-10-14T03:24:57.355652Z'
-- artifact_hash: 9ad8eb81094750508e3e525e231fc50b7c071575ea525ac12fda838fa5dda8b0
-  artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/quickstart.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: cpu
@@ -52,4 +41,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-10-14T03:24:57.355652Z'
+  verified_at: '2026-10-18T16:30:48.074512Z'
