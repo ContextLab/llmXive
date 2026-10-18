@@ -11,5 +11,8 @@
   ".gitattributes": "e7a120ab07b1bc5b486be249e9fc6c83d59448d0093e1dfebe95d1566d9cafc0",
   "README.md": "7107bae720b6bb21906df4519c5dec2a5efa9f7089e96dc9cd19a91eb32fff09",
   "data/test-00000-of-00001.parquet": "f70adb5239c2968164b98b9594ccd999f0015b41fe70cc71db4b3f722d6a3020",
-  "data/train-00000-of-00001.parquet": "09d807108a2976a01517e07d93d67aa23883e2dbfd17252c258731b381b01162"
+  "data/train-00000-of-00001.parquet": "09d807108a2976a01517e07d93d67aa23883e2dbfd17252c258731b381b01162",
+  "data/raw/mobileforge_logs/data-00000-of-00001.arrow": "5112643da9510b12e9fb3686ade7502f6537a8082cf69c59d43f6f3b8035e651",
+  "data/raw/mobileforge_logs/dataset_info.json": "8089539ae2b7e47f7c34e9ea1ac5d8b97b352a1355bb2c8a049dd37cbf135218",
+  "data/raw/mobileforge_logs/state.json": "e09555eb5af8fb995d9d0b90c8699a8b91dac72cf2cae8efa0fdfd0fa60ac630"
 }

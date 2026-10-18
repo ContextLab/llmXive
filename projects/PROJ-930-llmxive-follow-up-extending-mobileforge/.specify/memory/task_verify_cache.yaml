@@ -1,20 +1,23 @@
 T001:
   c: true
-  h: 61c2c13b091949fa0586aaa02f02d686f97bd775ad0d33b226d43d3178be8f74
-  r: The execution log for `code/setup_project_dirs.py` (exit 0) confirms all nine
-    required directories were created (`code/data/{raw,processed,evaluation}`, `code/models`,
-    `code/utils`, `code/tests/{unit,integration}`, `data`, `outputs`), and the collector's
-    directory listings confirm `code/` (containing `data/`, `models/`, `utils/`, `tests/`),
-    `data/`, and `outputs/` currently exist with content. The task only required creating
-    the directory tree, which is satisfied.
-  sig: d88c4e980412c64e523bb251f6488737dd25eb301bd2eb94f51239964a604435
+  h: 6d8cea2b37ba5e37ab03fdedb7c2f1320786ba3c35bd7794a3fd62ec8030117a
+  r: 'The execution log for `code/setup_project_dirs.py` (exit 0) explicitly confirms
+    creation of all nine required paths: `code/data/{raw,processed,evaluation}`, `code/models`,
+    `code/utils`, `code/tests/{unit,integration}`, `data`, and `outputs`, and the
+    collector confirms the top-level `code/`, `data/`, and `outputs/` directories
+    exist with their expected subdirectories (e.g., `data/raw`, `data/processed`)
+    populated with real artifacts. No evidence contradicts the current existence of
+    these directories.'
+  sig: d10fb47465909599d41346d6fb0da694fd6b985b8e9b23e835f967a65f511ad7
 T002:
-  c: true
-  h: 4cd7faa464bf275d7ee27e8a0685eb36ac6d12ffd3f3dd538ed42a03dd84eb02
-  r: '`code/requirements.txt` exists with exactly the 11 required pinned lines (trailing
-    newline only difference), and `outputs/install_log.txt` shows a real `pip install
-    -r code/requirements.txt` run resolving all 11 pins without error.'
-  sig: 9a991cde087fbbfdeab29eef02a5da30a443a1da98ea67e5df4c7b0826be6fb4
+  c: false
+  h: 2e8c1a223c0ad9f80e95894e9aebb0a168a383e87ba7db36d127c4fabd67b6c3
+  r: '`code/requirements.txt` exists and the install log at `outputs/install_log.txt`
+    shows a successful `pip install -r code/requirements.txt`, but the file contains
+    12 lines: the 11 required pins plus an extra `pyarrow==14.0.1`, violating the
+    "exactly the 11 required lines (no extra packages)" requirement. Remove the pyarrow
+    line (the root-level `requirements.txt` shows the correct 11-line content).'
+  sig: fe87d73c7931b468f6375bf07490b11e32e69115b0ff179002c97b720466ff63
 T003:
   c: true
   h: 616aa762119b08312d9124c1ef38bba2ebb4c56194bfa29bd99f08424ed3faca
@@ -24,12 +27,12 @@ T003:
   sig: fb4755242a69f46ee757348904c6fc112e35d85fffd9e360a7d05d0ed9dbfc1d
 T004:
   c: true
-  h: c422d72f1c4f1546d6ee619e079ee2c15d98441460462ce1554b959d8e70a636
-  r: "The `data/checksums.json` file exists and is valid JSON (shown with its contents),\
-    \ and `outputs/reproducibility_meta.json` exists, is valid JSON, and includes\
-    \ a non\u2011empty `\"seed\"` field (value\u202F1101310393). Both artifacts meet\
-    \ the task\u2019s verification criteria."
-  sig: b5b337252009acef91072c34821e69611996dd2360046fdc07807be4e30b7814
+  h: df399a1479f38959af4b1b5852ae437312cb35899434ac517079fe37ca604d2d
+  r: "Both artifacts exist and are valid JSON: `data/checksums.json` (populated by\
+    \ later download tasks, which is fine \u2014 it need only exist at this stage)\
+    \ and `outputs/reproducibility_meta.json`, which contains a non-empty `\"seed\"\
+    ` field (1101310393) plus a timestamp, exactly as required."
+  sig: 37d6f916009fc17fea9f0c7788d9d33e2a9d4a083f11e9334f85873e2aff544f
 T005:
   c: true
   h: e370bb4b1b066c5731391298932463fbb7e0aadd2b24f5e474cf096083f56401
@@ -51,12 +54,25 @@ T006:
   sig: 96229dc32ebc6176fc4df46fdc0370d5b284ab9427d41fbfc9ec2d6e53cb297a
 T007:
   c: true
-  h: f018c893505a4d1d0b53aa9aeecb2986b67069bfb36adfa66a600aeca169b18a
+  h: ede909f2f0e666e11fc6c75928e220aa71a5515282fac22e22c3e1c3b6a037d9
   r: "The script `code/utils/power_analysis.py` exists and implements a real statsmodels-based\
-    \ power calculation (GofChisquarePower with effect size 0.2, \u03B1=0.05, power\
-    \ 0.8, p\u2080=0.5), enforces the \"before extraction\" rule by aborting if `data/processed`\
-    \ is non-empty, and writes schema-conformant output. The output `outputs/power_analysis.json`\
-    \ contains `n_required: 197` (consistent with the documented calculation, ceil\
-    \ of ~196.2) plus the full `parameters` block and timestamp, matching the schema's\
-    \ required fields and types."
-  sig: b57761aab7639b381e85a7e42e05c58f630b5668095429b1b015a9180aac5306
+    \ power calculation (GofChisquarePower, a chi-square-based estimator appropriate\
+    \ for McNemar's paired binary design), enforces the \"before extraction\" rule\
+    \ by aborting if `data/processed` is non-empty, and writes the schema-conformant\
+    \ output. The output `outputs/power_analysis.json` contains `n_required: 197`\
+    \ (consistent with the known chi-square solution for h=0.2, \u03B1=0.05, power=0.8,\
+    \ ceil to 197) plus the full required `parameters` block and timestamp, matching\
+    \ the schema's required fields and `additionalPr"
+  sig: 280024bad71e85918adea5e7719bc4f87738a41b27dda7830092444145468072
+T008:
+  c: true
+  h: 91d7a886adb5562a1638dbdf67d840ffaac354d070429aa4bba34480114e33c5
+  r: The script exists at the canonical path `code/data/raw/download_mobileforge.py`,
+    was actually executed (exit 0, real HuggingFace download of 10,426 train examples
+    shown in stderr), saved the dataset to `data/raw/mobileforge_logs` (3 files whose
+    SHA-256 hashes appear in `data/checksums.json`), raises on network/checksum errors
+    with no synthetic fallback, and wrote the success log `outputs/download_log.txt`
+    matching the run. The dataset ID differs from the task's illustrative snippet
+    (`OSTShushack/ExtractionDataset` vs `mobileforge/logs`), but the script documents
+    this as the Plan/Quickstart-spe
+  sig: 674e691ca493ee247283b7f2cbb7d451229ecd0b52a9d776b14db65918ffebff
