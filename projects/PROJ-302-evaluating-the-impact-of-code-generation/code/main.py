@@ -27,11 +27,16 @@ import importlib
 import argparse
 import sys
 import logging
+from pathlib import Path
 
 from llmxive_toolkit import get_logger
 from code.runtime import init_runtime, stage, write_report
 
 log = get_logger(__name__)
+
+# Ensure the ``logs`` directory exists before any stage that may create
+# file handlers (e.g., ``code.analysis.matching``) is imported.
+Path("logs").mkdir(parents=True, exist_ok=True)
 
 # Mapping from stage name to the module that implements it.
 # Adjust these imports if the actual module names differ.
