@@ -52,11 +52,11 @@ pytest tests/
 
 The suite checks:
 
-* Schema compliance for generated JSON/CSV files
-* Correct outlier flagging and normalisation
-* Proper Benjamini‑Hochberg correction (`p_fdr ≥ p_raw`)
-* Presence of required phrasing constraints in the final report
-* End‑to‑end execution producing all expected artefacts
+* Schema compliance for generated JSON/CSV files [UNRESOLVED-CLAIM: c_56fb5a29 — status=not_enough_info]
+* Correct outlier flagging and normalisation [UNRESOLVED-CLAIM: c_40739b7d — status=not_enough_info]
+* Proper Benjamini‑Hochberg correction (`p_fdr ≥ p_raw`) [UNRESOLVED-CLAIM: c_b26fa2a0 — status=not_enough_info]
+* Presence of required phrasing constraints in the final report [UNRESOLVED-CLAIM: c_0251814f — status=not_enough_info]
+* End‑to‑end execution producing all expected artefacts [UNRESOLVED-CLAIM: c_7c4922c4 — status=not_enough_info]
 
 ## Troubleshooting
 
@@ -69,7 +69,7 @@ The suite checks:
 
 If you use this pipeline in your research, please cite the OpenNeuro dataset:
 
-> OpenNeuro. ds000208: Cyberball social exclusion dataset. [UNRESOLVED-CLAIM: c_43c6a74e — status=not_enough_info] https://openneuro.org/datasets/ds000208
+> OpenNeuro. ds000208: Cyberball social exclusion dataset. https://openneuro.org/datasets/ds000208
 
 ---
 

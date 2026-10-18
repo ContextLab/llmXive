@@ -1,7 +1,9 @@
-pandas
+pandas>=2.0
 numpy
 scipy
 statsmodels
+pyarrow
 pyyaml
 requests
-datasets
+# The following packages are already provided by the base environment:
+#   matplotlib, seaborn, pytest, etc. No need to list them here.

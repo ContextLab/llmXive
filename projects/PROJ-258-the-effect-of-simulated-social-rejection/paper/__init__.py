@@ -1,3 +1,3 @@
 """
-Marker file for the paper package.
+Paper package placeholder.
 """

@@ -4168,3 +4168,97 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-18T01:43:57Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/quickstart.md
+  attempts: 1
+  canonical: ingest OpenNeuro Cyberball dataset ds000208
+  claim_id: c_af3b1b10
+  context: 'The command performs the following actions in sequence: 1. Ingest the
+    OpenNeuro Cyberball dataset (`ds000208`).'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Ingest the OpenNeuro Cyberball dataset (`ds000208`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-18T01:48:13Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/quickstart.md
+  attempts: 1
+  canonical: schema compliance for generated JSON CSV files
+  claim_id: c_56fb5a29
+  context: 'The suite checks: * Schema compliance for generated JSON/CSV files'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Schema compliance for generated JSON/CSV files
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T01:48:14Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/quickstart.md
+  attempts: 1
+  canonical: correct outlier flagging and normalisation
+  claim_id: c_40739b7d
+  context: 'The suite checks: * Correct outlier flagging and normalisation'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Correct outlier flagging and normalisation
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T01:48:14Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/quickstart.md
+  attempts: 1
+  canonical: proper Benjamini-Hochberg correction p_fdr greater or equal p_raw
+  claim_id: c_b26fa2a0
+  context: "The suite checks: * Proper Benjamini\u2011Hochberg correction (`p_fdr\
+    \ \u2265 p_raw`)"
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Proper Benjamini\u2011Hochberg correction (`p_fdr \u2265 p_raw`)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T01:48:15Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/quickstart.md
+  attempts: 1
+  canonical: presence of required phrasing constraints in final report
+  claim_id: c_0251814f
+  context: 'The suite checks: * Presence of required phrasing constraints in the final
+    report'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Presence of required phrasing constraints in the final report
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T01:48:16Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/quickstart.md
+  attempts: 1
+  canonical: end-to-end execution producing all expected artefacts
+  claim_id: c_7c4922c4
+  context: "The suite checks: * End\u2011to\u2011end execution producing all expected\
+    \ artefacts"
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "End\u2011to\u2011end execution producing all expected artefacts"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T01:48:16Z'

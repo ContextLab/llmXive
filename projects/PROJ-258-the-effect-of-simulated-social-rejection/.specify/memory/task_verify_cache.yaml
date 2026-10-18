@@ -1,8 +1,16 @@
 T001:
+  c: true
+  h: 71ee2d8b3e6434dd17a59e81539ba32f6bf76cc71d601a5e76e4c8824769b3da
+  r: Checked that all required directories exist with `__init__.py` placeholders,
+    that `requirements.txt` contains the specified packages, and that `quickstart.md`
+    is present, lists the command `python -m code.pipeline`, and that a test confirms
+    `import pandas` runs without error.
+  sig: ff1d9a51e54f46ca498ab4b04607a9152c886a0dd1c07d1b551cc679296f5a22
+T003:
   c: false
-  h: bb0ce76f0929c0a338de6389a71cf2f1bd7f0fe244b78326b90fa1fc93979e8b
-  r: "The required directories and `__init__.py` placeholders, `requirements.txt`,\
-    \ and `quickstart.md` (which lists `python -m code.pipeline`) are present, but\
-    \ there is no evidence that `python -c \"import pandas\"` was executed successfully;\
-    \ the task\u2019s verification step is missing."
-  sig: 6a3dc18e1fdcce47bf3348079e5dac836325d1cfc117ae82e5dd2f93fcc803bf
+  h: b457e03011d939223c283a4ea16596c1f88ad41686f7fb90c22b936cb711b0e6
+  r: The verification shows that neither `data/raw/ds003392.parquet` nor the fallback
+    `data/interim/reward_unavailable.json` exist, and the provided ingestion test
+    fails (missing parquet engine and SystemExit). Consequently the required download
+    or recorded unavailability artifact is absent, so the task is not satisfied.
+  sig: 73ee78679b2c02a18ec3b75e8b6d98b256586f11bc87477fad0e6df1de561f5a

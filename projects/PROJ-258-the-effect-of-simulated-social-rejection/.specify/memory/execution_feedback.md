@@ -1,48 +1,61 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/raw/ds000208.parquet, data/raw/metadata_ds000208.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- run-book command: `python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208`
-  - script usage: `ingest.py [-h] --dataset-url DATASET_URL [--output-dir OUTPUT_DIR]`
-  - argparse error: `ingest.py: error: the following arguments are required: --dataset-url`
 - run-book command: `python code/report.py  --analysis results/analysis_output.json  --outlier-sensitivity results/outlier_sensitivity.json  --design data/interim/design_branch.json  --output paper/report.md`
   - script usage: `report.py [-h] --input INPUT --output OUTPUT`
   - argparse error: `report.py: error: the following arguments are required: --input`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 command(s) failed: python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 (rc=2); python code/preprocess.py  --input data/raw/ds000208.parquet  --output data/processed/analysis_ready_ds000208.csv (rc=1); python code/analyze.py  --data data/processed/analysis_ready_ds000208.csv  --output results/analysis_output.json (rc=1); 1 declared deliverable(s) absent: data/processed/metadata.json
+**Summary**: every produced artifact is gitignored (data/raw/ds000208.parquet, data/raw/metadata_ds000208.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 command(s) failed: python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 (rc=1); python code/preprocess.py  --input data/raw/ds000208.parquet  --output data/processed/analysis_ready_ds000208.csv (rc=1); python code/analyze.py  --data data/processed/analysis_ready_ds000208.csv  --output results/analysis_output.json (rc=1); 2 declared deliverable(s) absent: data/interim/reward_unavailable.json; data/processed/metadata.json
 
 ## Failing / missing run-book commands
 
-- python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 -> rc=2
+- python code/ingest.py  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"  --out-dir data/raw  --dataset-id ds000208 -> rc=1
 
-usage: ingest.py [-h] --dataset-url DATASET_URL [--output-dir OUTPUT_DIR]
-                 [--dataset-id DATASET_ID]
-ingest.py: error: the following arguments are required: --dataset-url
+2026-10-18 01:49:54,262 - INFO - Downloading https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet → data/raw/ds000208.parquet
+2026-10-18 01:49:54,534 - INFO - Remote file size: 0.432 GB
+2026-10-18 01:49:57,925 - INFO - Download complete (464086010 bytes).
+2026-10-18 01:49:58,342 - INFO - Metadata written to data/raw/metadata_ds000208.json
+2026-10-18 01:49:58,342 - INFO - Citation written to data/raw/CITATION.md
+2026-10-18 01:49:58,342 - INFO - Adding task column to data/raw/ds000208.parquet
+2026-10-18 01:49:58,346 - ERROR - Failed to read parquet file data/raw/ds000208.parquet: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python code/preprocess.py  --input data/raw/ds000208.parquet  --output data/processed/analysis_ready_ds000208.csv -> rc=1
-l-rejection/code/preprocess.py", line 337, in run_preprocessing
-    df = pd.read_csv(input_path)
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1026, in read_csv
-    return _read(filepath_or_buffer, kwds)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 620, in _read
-    parser = TextFileReader(filepath_or_buffer, **kwds)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1620, in __init__
     self._engine = self._make_engine(f, self.engine)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1880, in _make_engine
-    self.handles = get_handle(
-                   ^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 873, in get_handle
-    handle = open(
-             ^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/ds000208.parquet'
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1898, in _make_engine
+    return mapping[engine](f, **self.options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/c_parser_wrapper.py", line 93, in __init__
+    self._reader = parsers.TextReader(src, **kwds)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "parsers.pyx", line 574, in pandas._libs.parsers.TextReader.__cinit__
+  File "parsers.pyx", line 663, in pandas._libs.parsers.TextReader._get_header
+  File "parsers.pyx", line 874, in pandas._libs.parsers.TextReader._tokenize_rows
+  File "parsers.pyx", line 891, in pandas._libs.parsers.TextReader._check_tokenize_status
+  File "parsers.pyx", line 2053, in pandas._libs.parsers.raise_parser_error
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0x98 in position 155: invalid start byte
 
 - python code/analyze.py  --data data/processed/analysis_ready_ds000208.csv  --output results/analysis_output.json -> rc=1
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -89,7 +102,11 @@ usage: report.py [-h] --input INPUT --output OUTPUT
 report.py: error: the following arguments are required: --input
 
 - python -m pytest tests/ -> rc=2
-est' (/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/ingest.py)
+ml
+plugins: anyio-4.15.1
+collecting ... collected 60 items / 1 error
+
+==================================== ERRORS ====================================
 __________________ ERROR collecting tests/test_performance.py __________________
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/tests/test_performance.py'.
 Hint: make sure your test modules/packages have valid Python names.
@@ -100,21 +117,24 @@ tests/test_performance.py:19: in <module>
     from performance_monitor import (
 E   ImportError: cannot import name 'MAX_RUNTIME_SECONDS' from 'performance_monitor' (/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/performance_monitor.py)
 =========================== short test summary info ============================
-ERROR tests/test_ingest_manifest.py
 ERROR tests/test_performance.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.90s ===============================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.76s ===============================
 
 
 
 ## Declared deliverables still missing
 
+- data/interim/reward_unavailable.json
 - data/processed/metadata.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/interim/reward_unavailable.json` is declared but was NOT written. Scripts referencing it:
+    - `code/ingest.py` — IS a run-book command
+  Make ONE of these WRITE `data/interim/reward_unavailable.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/metadata.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis.py` — NOT invoked by the run-book
     - `code/analyze.py` — IS a run-book command

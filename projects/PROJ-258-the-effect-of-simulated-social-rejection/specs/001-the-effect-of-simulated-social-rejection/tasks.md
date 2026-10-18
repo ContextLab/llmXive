@@ -6,7 +6,7 @@
 
 *Goal*: Build a runnable pipeline that can be executed on a small real input and produce a complete set of result artifacts.
 
-- [ ] T001 [US‑1] **Create project layout and dependency file**  
+- [X] T001 [US‑1] **Create project layout and dependency file**  
   *Create the directories `code/`, `code/utils/`, `data/raw/`, `data/interim/`, `data/processed/`, `results/`, `paper/`, `tests/` with placeholder `__init__.py` files; write `requirements.txt` (pandas ≥ 2.0, numpy, scipy, statsmodels, pyarrow, pyyaml, requests); generate `quickstart.md` documenting the single‑command pipeline `python -m code.pipeline`.  
   **Verification**: `quickstart.md` exists, lists the command, and `python -c "import pandas"` runs without error; directory tree matches the plan.
 
@@ -18,7 +18,7 @@
   *Attempt to download `ds003392.parquet` to `data/raw/ds003392.parquet` using the same logic as T002. If the dataset is not publicly available, record the absence in `data/interim/reward_unavailable.json` and continue with a Between‑Subjects design.*  
   **Verification**: Successful download yields `metadata_ds003392.json` and `CITATION.md`; if unavailable, `reward_unavailable.json` exists with `"available": false`.
 
-- [ ] T004 [US‑1] **Validate raw datasets against schemas**  
+- [ ] T004 [US‑1] **Validate raw datasets against schemas**   <!-- FAILED-IN-EXECUTION: code/validate.py exit=1 -->
   *Run `code/validate.py` on each parquet file, checking required columns (`participant_id`, `condition`, `reaction_time`, `mood_rating`), value ranges, and that both `rejection` and `control` conditions appear. Write validation reports `data/interim/ingest_validation_ds000208.json` and, when present, `data/interim/ingest_validation_ds003392.json`. Abort with exit 1 on any failure.*  
   **Verification**: Validation scripts return exit 0; JSON reports contain `"status": "pass"`; missing columns or size violations cause a non‑zero exit.
 

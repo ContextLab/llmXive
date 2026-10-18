@@ -1,3 +1,1 @@
-"""
-Top‑level package for the Social Rejection analysis project.
-"""
+# Package marker for the project code directory. No runtime side‑effects.

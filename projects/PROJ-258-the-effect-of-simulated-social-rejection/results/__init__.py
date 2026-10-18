@@ -1,3 +1,3 @@
 """
-Marker file for the results package.
+Results package placeholder.
 """
