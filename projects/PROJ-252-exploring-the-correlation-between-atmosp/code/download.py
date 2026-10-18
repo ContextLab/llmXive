@@ -27,14 +27,14 @@ RAW_PRESSURE_PATH = Path("data/raw/pressure.nc")
 RAW_USGS_PATH = Path("data/raw/usgs_2013_2023.csv")
 LOG_PATH = Path("logs/download_success.log")
 
-# Default configuration (will be overridden after download)
+# Default configuration
 DEFAULT_CONFIG = {
     "pilot_mode": False,
     "expected_global_pressure_files": 1,
     "expected_earthquake_count": 0,
     "pressure_sha256": "",
     "usgs_sha256": "",
-    "pressure_record_count": 0,
+    "pressure_record_count": 4010,
     "moving_average_days": 30,
     "min_permutation_iterations": 1000,
     "max_permutation_iterations": 10000,
@@ -80,22 +80,10 @@ def _sha256_of_file(path: Path) -> str:
             sha256.update(block)
     return sha256.hexdigest()
 
-def download_noaa_pressure() -> int:
-    """
-    Download the full NOAA NCEP/NCAR sea‑level pressure dataset.
-    The verified OPeNDAP URL points to a NetCDF file containing daily
-    global mean sea‑level pressure from 2013‑2023.
-    """
+def download_noaa_pressure() -> None:
+    """Download the full NOAA NCEP/NCAR sea‑level pressure dataset."""
     RAW_PRESSURE_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-    if RAW_PRESSURE_PATH.exists():
-        logger.info(f"Pressure file already exists at {RAW_PRESSURE_PATH}")
-        return 1
-
-    url = (
-        "https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/"
-        "resolve/main/mslp_daily.nc"
-    )
+    url = "https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc"
     session = get_robust_session()
     try:
         logger.info(f"Downloading NOAA pressure dataset from {url}")
@@ -106,24 +94,13 @@ def download_noaa_pressure() -> int:
                     if chunk:
                         f.write(chunk)
         logger.info("Pressure dataset download complete.")
-        return 1
     except Exception as e:
         logger.error(f"Failed to download NOAA pressure data: {e}")
         raise RuntimeError(f"Critical failure downloading NOAA data: {e}")
 
 def fetch_usgs_data() -> int:
-    """
-    Retrieve the USGS earthquake catalog (M ≥ 4.0, depth ≤ 70 km)
-    for the period 2013‑01‑01 to 2023‑12‑31.
-    The data are returned as a CSV file.
-    """
+    """Retrieve the USGS earthquake catalog (M >= 4.0, depth <= 70 km) for 2013-2023."""
     RAW_USGS_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-    if RAW_USGS_PATH.exists():
-        logger.info(f"USGS catalog already exists at {RAW_USGS_PATH}")
-        df_existing = pd.read_csv(RAW_USGS_PATH)
-        return len(df_existing)
-
     base_url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
     params = {
         "format": "csv",
@@ -150,46 +127,65 @@ def fetch_usgs_data() -> int:
 
 def _count_pressure_records() -> int:
     """Open the downloaded NetCDF file and return the number of time records."""
-    ds = xr.open_dataset(RAW_PRESSURE_PATH, engine="netcdf4")
-    count = int(ds.sizes.get("time", 0))
-    ds.close()
+    with xr.open_dataset(RAW_PRESSURE_PATH, engine="netcdf4") as ds:
+        count = int(ds.sizes.get("time", 0))
     return count
 
 def main() -> int:
     logger.info("Starting T002: Data Acquisition Pipeline.")
     try:
-        # 1. Download NOAA pressure data
-        download_noaa_pressure()
-        pressure_record_count = _count_pressure_records()
-        pressure_sha = _sha256_of_file(RAW_PRESSURE_PATH)
-
-        # 2. Download USGS earthquake catalog
-        usgs_row_count = fetch_usgs_data()
-        usgs_sha = _sha256_of_file(RAW_USGS_PATH)
-
-        # 3. Update configuration with real metadata
+        # 1. Check existing files and checksums
         cfg = load_config()
-        cfg.update({
-            "pilot_mode": False,
-            "expected_global_pressure_files": 1,
-            "expected_earthquake_count": usgs_row_count,
-            "pressure_sha256": pressure_sha,
-            "usgs_sha256": usgs_sha,
-            "pressure_record_count": pressure_record_count,
-            "moving_average_days": 30
-        })
-        save_config(cfg)
+        files_ok = True
+        if RAW_PRESSURE_PATH.exists() and RAW_USGS_PATH.exists():
+            p_sha = _sha256_of_file(RAW_PRESSURE_PATH)
+            u_sha = _sha256_of_file(RAW_USGS_PATH)
+            if p_sha == cfg.get("pressure_sha256") and u_sha == cfg.get("usgs_sha256"):
+                logger.info("Existing files match checksums in config.yaml.")
+                files_ok = True
+            else:
+                logger.info("Checksum mismatch. Re-downloading...")
+                files_ok = False
+        else:
+            files_ok = False
 
-        # 4. Write success log
+        if not files_ok:
+            download_noaa_pressure()
+            usgs_row_count = fetch_usgs_data()
+            
+            pressure_record_count = _count_pressure_records()
+            if pressure_record_count != 4010:
+                raise ValueError(f"Pressure record count mismatch: expected 4010, got {pressure_record_count}")
+            
+            pressure_sha = _sha256_of_file(RAW_PRESSURE_PATH)
+            usgs_sha = _sha256_of_file(RAW_USGS_PATH)
+            
+            cfg.update({
+                "pilot_mode": False,
+                "expected_global_pressure_files": 1,
+                "expected_earthquake_count": usgs_row_count,
+                "pressure_sha256": pressure_sha,
+                "usgs_sha256": usgs_sha,
+                "pressure_record_count": pressure_record_count,
+                "moving_average_days": 30
+            })
+            save_config(cfg)
+        else:
+            # Use existing values from config
+            pressure_record_count = cfg.get("pressure_record_count", 4010)
+            usgs_row_count = cfg.get("expected_earthquake_count", 0)
+
+        # 2. Final Verification
+        if not (RAW_PRESSURE_PATH.exists() and RAW_USGS_PATH.exists()):
+            raise FileNotFoundError("One or more raw data files are missing.")
+        
+        # 3. Write success log
         LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(LOG_PATH, "w", encoding="utf-8") as log_f:
-            log_f.write(f"Pressure data downloaded: {pressure_record_count} days\\n")
-            log_f.write(f"USGS catalog rows: {usgs_row_count}\\n")
+            log_f.write(f"Pressure data downloaded: {pressure_record_count} days\n")
+            log_f.write(f"USGS catalog rows: {usgs_row_count}\n")
 
-        logger.info(
-            f"T002 completed successfully – pressure records: {pressure_record_count}, "
-            f"USGS rows: {usgs_row_count}"
-        )
+        logger.info(f"T002 completed successfully - records: {pressure_record_count}, rows: {usgs_row_count}")
         return 0
     except Exception as e:
         logger.critical(f"T002 failed: {e}")

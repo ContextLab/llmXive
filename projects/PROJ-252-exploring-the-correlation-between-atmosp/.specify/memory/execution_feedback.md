@@ -15,20 +15,33 @@ configfile: pyproject.toml
 plugins: anyio-4.15.1
 collecting ... collected 0 items
 
-============================ no tests ran in 0.00s =============================
+============================ no tests ran in 0.01s =============================
 
 ERROR: file or directory not found: #
 
 
 - python code/preprocess.py   # deterministic implementation follows the plan specification -> rc=1
-
+taset written to data/processed/master_dataset.parquet
+2026-10-18 08:22:11,602 - __main__ - INFO - Checksum written to data/processed/master_dataset.parquet.sha256
+2026-10-18 08:22:11,602 - __main__ - ERROR - Preprocessing failed: Schema file not found at contracts/earthquake.yaml
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 12, in <module>
-    import geopandas as gpd
-ModuleNotFoundError: No module named 'geopandas'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 398, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 392, in main
+    create_master_dataset(deduped, config)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 304, in create_master_dataset
+    earthquake_schema = load_schema("earthquake")
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 67, in load_schema
+    raise FileNotFoundError(f"Schema file not found at {schema_path}")
+FileNotFoundError: Schema file not found at contracts/earthquake.yaml
+
 
 - python code/analysis.py -> rc=1
- 03:23:27 - __main__ - INFO - Starting analysis pipeline.
+File "pandas/_libs/hashtable_class_helper.pxi", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'is_event'
+
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 317, in <module>
@@ -36,12 +49,15 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 310, in main
     results = run_analysis()
               ^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 264, in run_analysis
-    df = load_master_dataset()
-         ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 30, in load_master_dataset
-    raise FileNotFoundError(f"Master dataset not found at {parquet_path} or {csv_path}")
-FileNotFoundError: Master dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/data/processed/master_dataset.parquet or /home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/data/processed/master_dataset.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 267, in run_analysis
+    event_data = df[df['is_event'] == 1]['pressure_anomaly'].values
+                    ~~^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'is_event'
 
 - python code/report.py -> rc=2
 
@@ -59,7 +75,7 @@ FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_earthq
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_pressure_anomaly_schema_validates_valid_data
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_pressure_anomaly_schema_rejects_missing_fields
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_required_fields_match_spec
-============================== 7 failed in 0.08s ===============================
+============================== 7 failed in 0.10s ===============================
 
 
 

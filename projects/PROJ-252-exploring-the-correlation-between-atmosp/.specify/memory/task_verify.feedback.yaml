@@ -1,10 +1,4 @@
 T001:
-  reason: "Checked `requirements.txt` (contains the required exact pins) and `code/seed_init.py`\
-    \ (writes \u201CSeeds set to 42\u201D). However, there is no evidence that `logs/seed_initialization.log`\
-    \ was actually created with that line, nor any execution record of the quick\u2011\
-    start command (`pip install \u2026 && python -m code.seed_init && python -m code.main`)\
-    \ showing exit code\u202F0 and the log file content. These artifacts are required\
-    \ to confirm the task is truly complete."
   task: 3af5d3362ff3d56ec1abffd3ad8bbf90febd26802fa80b24b683d52deaf90e24
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'

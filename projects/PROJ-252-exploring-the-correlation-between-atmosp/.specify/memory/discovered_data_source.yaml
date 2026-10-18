@@ -1,19 +1,18 @@
 status: none
-intent: download NOAA NCEP/NCAR reanalysis surface pressure and USGS earthquake catalog
+intent: NOAA NCEP NCAR sea level pressure USGS earthquake catalog ENSO PDO indices
   python package dataset
 required_fields:
 - event_id
 - time
-- magnitude
+- mag
 - depth
 - latitude
 - longitude
 - mslp
-- pressure_anomaly
-- control_window_label
 - year
 - month
 - enso_phase
-cache_key: 512399e0b68c70d2a7994a78d9c0f568ad6ad111703a99d51b02c3e4cf691a7e
-searched_at: '2026-10-18T03:24:25.058189+00:00'
+- pdo_phase
+cache_key: 7dd0a294496cb251d23791b3add1c650a2085de96b178292d504ffcae7b06e76
+searched_at: '2026-10-18T08:24:13.162385+00:00'
 retry_count: 1

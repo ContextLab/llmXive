@@ -8,7 +8,7 @@ The checklist below contains **10 substantive research tasks** that together sat
 
 ## Phase 1 – Project setup & reproducibility  
 
-- [ ] **T001** [P] [US‑1] **Freeze all dependencies, create a seed‑initialisation script, and document a runnable quick‑start command**  
+- [X] **T001** [P] [US‑1] **Freeze all dependencies, create a seed‑initialisation script, and document a runnable quick‑start command**  
   *Creates*  
   - `requirements.txt` with exact version pins (e.g., `numpy==1.26.4`, `pandas==2.2.2`, `scipy==1.13.0`, `xarray==2024.2.0`, `netCDF4==1.6.5`, `requests==2.31.0`, `tqdm==4.66.2`, `pyyaml==6.0.1`, `datasets==2.19.0`, `statsmodels==0.14.2`, `memory_profiler==0.61.0`).  
   - `code/seed_init.py` that sets `np.random.seed(42)` and `random.seed(42)`, writes `logs/seed_initialization.log` containing the exact line “Seeds set to 42”.  
@@ -26,7 +26,7 @@ The checklist below contains **10 substantive research tasks** that together sat
 
 ## Phase 2 – Data acquisition & validation  
 
-- [ ] **T002** [P] [US‑1] **Download the full NOAA NCEP/NCAR sea‑level pressure dataset (2013‑2023) and the USGS earthquake catalog (M ≥ 4.0, depth ≤ 70 km)**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
+- [ ] **T002** [P] [US‑1] **Download the full NOAA NCEP/NCAR sea‑level pressure dataset (2013‑2023) and the USGS earthquake catalog (M ≥ 4.0, depth ≤ 70 km)**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
   *Features*  
   - Uses the verified OPeNDAP URL `https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc` streamed with `xarray.open_dataset(..., chunks={"time":30})`.  
   - Retrieves the USGS catalog via the public API:  
