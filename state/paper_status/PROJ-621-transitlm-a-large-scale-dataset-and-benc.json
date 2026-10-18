@@ -11,12 +11,12 @@
         "page": 37
       }
     ],
-    "audited_at": "2026-10-18T23:13:53.504188+00:00"
+    "audited_at": "2026-10-18T23:39:40.871661+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-621-transitlm-a-large-scale-dataset-and-benc",
-  "updated_at": "2026-10-18T23:13:53.504200+00:00"
+  "updated_at": "2026-10-18T23:39:40.871675+00:00"
 }
