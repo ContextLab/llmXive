@@ -97,7 +97,7 @@
   verification_status: pending
   verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE36520
   verified_at: '2026-10-14T03:38:30.715579Z'
-- artifact_hash: 66899360daf51bfcb09965f2928ffc713292302e14c2e54d0e766ad3586e3b3d
+- artifact_hash: c6c5fecb860e612250c355385f125000bb52a6ef01f0a83c18a93edc22ff1053
   artifact_path: projects/PROJ-010-quantitative-analysis-of-gene-expression/specs/001-quantitative-analysis-of-gene-expression/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -107,4 +107,4 @@
   value: https://huggingface.co/datasets/BICCN/human_mtg_scRNA`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/BICCN/human_mtg_scRNA
-  verified_at: '2026-10-18T17:27:41.730732Z'
+  verified_at: '2026-10-18T17:29:04.602217Z'
