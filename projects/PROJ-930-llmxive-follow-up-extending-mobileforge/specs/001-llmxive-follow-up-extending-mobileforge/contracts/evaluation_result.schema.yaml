@@ -85,6 +85,7 @@ properties:
           type: "number"
       variance:
         type: "number"
+        description: "Variance in success rates across thresholds."
     required:
       - "thresholds"
       - "success_rates"

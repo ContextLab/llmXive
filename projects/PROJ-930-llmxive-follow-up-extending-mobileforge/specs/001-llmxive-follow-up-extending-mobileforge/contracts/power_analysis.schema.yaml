@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PowerAnalysis"
-description: "Schema for the a priori power analysis output."
+description: "Schema for the a priori power analysis output for McNemar's test."
 type: "object"
 properties:
   n_required:
@@ -15,9 +15,14 @@ properties:
         minimum: 0
         maximum: 1
         description: "Target statistical power (e.g., 0.8)."
-      effect_size:
+      expected_discordant_proportion:
         type: "number"
-        description: "Desired Cohen's h effect size (≥ 0.2)."
+        minimum: 0
+        maximum: 1
+        description: "Estimated proportion of discordant pairs (b + c) / N from pilot."
+      odds_ratio:
+        type: "number"
+        description: "Estimated odds ratio between distilled and baseline models."
       significance_level:
         type: "number"
         minimum: 0
@@ -33,7 +38,8 @@ properties:
         description: "Source of baseline rate estimate ('Pilot Run' or 'Fallback 0.5')."
     required:
       - power_target
-      - effect_size
+      - expected_discordant_proportion
+      - odds_ratio
       - significance_level
       - baseline_rate
       - p0_source

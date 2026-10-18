@@ -26,7 +26,7 @@ properties:
           description: "The ground truth action sequence."
         trajectory_id:
           type: "string"
-          description: "Unique identifier for the trajectory."
+          description: "Unique ID of the source trajectory."
         status:
           type: "string"
           enum:
@@ -35,21 +35,6 @@ properties:
             - "failed"
             - "initial_success"
           description: "Trajectory status filter."
-  metadata:
-    type: "object"
-    required:
-      - "source_log"
-      - "filter_criteria"
-      - "extraction_timestamp"
-    properties:
-      source_log:
-        type: "string"
-      filter_criteria:
-        type: "string"
-      extraction_timestamp:
-        type: "string"
-        format: "date-time"
 required:
   - "triples"
-  - "metadata"
 additionalProperties: false

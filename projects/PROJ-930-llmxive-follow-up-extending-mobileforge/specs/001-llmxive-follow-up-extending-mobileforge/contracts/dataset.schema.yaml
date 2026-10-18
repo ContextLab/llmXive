@@ -39,9 +39,7 @@ properties:
       filtering_criteria:
         type: "string"
         description: "Criteria used to filter the data."
-    required:
-      - source_log
-      - filtering_criteria
+    # metadata is optional; absence does not cause validation failure
 required:
   - triples
-  - metadata
+additionalProperties: false
