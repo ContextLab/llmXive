@@ -1,19 +1,18 @@
 status: none
-intent: download NOAA NCEP/NCAR daily surface pressure reanalysis and USGS 2013-2023
-  M4 earthquake catalog python package dataset
+intent: NOAA NCEP/NCAR reanalysis surface pressure and USGS ComCat earthquake catalog
+  2013-2023 python package dataset
 required_fields:
 - event_id
-- time
+- origin_time
 - magnitude
-- depth
+- depth_km
 - latitude
 - longitude
-- mslp
-- pressure_anomaly
+- surface_pressure_hpa
+- pressure_anomaly_hpa
+- control_window_label
 - year
 - month
-- enso_phase
-- pdo_phase
-cache_key: 1733790b08a2c37e767bf70d1624d255e83452bd5d066c3b74713044bb74093b
-searched_at: '2026-10-18T11:12:58.855941+00:00'
+cache_key: dc98dc991116016510f366cef2798fcb502d75b0cf471bf56486f3c4259baaf6
+searched_at: '2026-10-18T12:24:06.750193+00:00'
 retry_count: 1

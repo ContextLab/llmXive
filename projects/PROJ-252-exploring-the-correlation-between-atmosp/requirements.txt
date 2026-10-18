@@ -1,19 +1,4 @@
-pandas
-numpy
-scipy
-scikit-learn
-requests
-tqdm
-pyyaml
-datasets
-statsmodels
-memory_profiler
-huggingface_hub
-xarray
-netCDF4
-tqdm
-tqdm
-# Existing pinned versions from T001 (example, actual versions may differ)
+# Pinned dependencies for reproducible environment
 numpy==1.26.4
 pandas==2.2.2
 scipy==1.13.0
@@ -25,5 +10,5 @@ pyyaml==6.0.1
 datasets==2.19.0
 statsmodels==0.14.2
 memory_profiler==0.61.0
-# Added huggingface_hub for reliable dataset download
 huggingface_hub==0.23.0
+scikit-learn==1.5.0

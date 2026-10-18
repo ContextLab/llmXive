@@ -1,16 +1,5 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python -m code.download`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/report.py; 5 command(s) failed: python -m pytest tests/   # should exit with a success status (rc=4); python -m code.download (rc=1); python code/preprocess.py (rc=1); 1 declared deliverable(s) absent: data/raw/usgs_2013_2023.csv
@@ -23,7 +12,6 @@ platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/wor
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp
 configfile: pyproject.toml
-plugins: anyio-4.15.1
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================
@@ -32,16 +20,11 @@ ERROR: file or directory not found: #
 
 
 - python -m code.download -> rc=1
-:47,981 - __main__ - INFO - Downloading NOAA pressure dataset via huggingface_hub.
-2026-10-18 11:11:48,099 - __main__ - WARNING - huggingface_hub download failed: 401 Client Error. (Request ID: Root=1-6ad4a974-4e5f4bbe5fc714cb4403fb40;8ca5092c-e239-4961-b6ee-7342d3e9b227)
-
-Repository Not Found for url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated.
-Invalid username or password.
-2026-10-18 11:11:48,100 - __main__ - INFO - Downloading NOAA pressure dataset from https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
-2026-10-18 11:11:48,215 - __main__ - ERROR - Failed to download NOAA pressure data: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
-2026-10-18 11:11:48,215 - __main__ - CRITICAL - T002 failed: Critical failure downloading NOAA data: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
+2026-10-18 12:21:38,279 - __main__ - INFO - Starting T002: Data Acquisition Pipeline.
+2026-10-18 12:21:38,280 - __main__ - INFO - Missing raw files. Starting download.
+2026-10-18 12:21:38,280 - __main__ - INFO - Opening NOAA pressure dataset via OPeNDAP: https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis.dailyavgs/pressure/mslp.nc
+2026-10-18 12:21:38,551 - __main__ - ERROR - Failed to open OPeNDAP dataset: [Errno -90] NetCDF: file not found: 'https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis.dailyavgs/pressure/mslp.nc'
+2026-10-18 12:21:38,551 - __main__ - CRITICAL - T002 failed: Critical failure opening NOAA OPeNDAP dataset: [Errno -90] NetCDF: file not found: 'https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis.dailyavgs/pressure/mslp.nc'
 
 
 - python code/preprocess.py -> rc=1
@@ -52,7 +35,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'geopandas'
 
 - python code/analysis.py -> rc=1
- 11:11:49 - __main__ - INFO - Starting analysis pipeline.
+ 12:21:39 - __main__ - INFO - Starting analysis pipeline.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py", line 317, in <module>
@@ -83,7 +66,7 @@ FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_earthq
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_pressure_anomaly_schema_validates_valid_data
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_pressure_anomaly_schema_rejects_missing_fields
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_required_fields_match_spec
-============================== 7 failed in 0.08s ===============================
+============================== 7 failed in 0.07s ===============================
 
 
 

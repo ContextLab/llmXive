@@ -13,12 +13,6 @@ import yaml
 import pandas as pd
 import xarray as xr
 
-# Attempt to import huggingface_hub for reliable file download
-try:
-    from huggingface_hub import hf_hub_download
-except ImportError:
-    hf_hub_download = None
-
 # Configure logger
 logging.basicConfig(
     level=logging.INFO,
@@ -93,40 +87,35 @@ def _sha256_of_file(path: Path) -> str:
     return sha256.hexdigest()
 
 def download_noaa_pressure() -> None:
-    """Download the full NOAA NCEP/NCAR sea‑level pressure dataset."""
+    """
+    Download the full NOAA NCEP/NCAR sea‑level pressure dataset via OPeNDAP
+    and write it to the expected raw data location.
+    """
     RAW_PRESSURE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    # Preferred method: huggingface_hub (handles redirects and auth)
-    if hf_hub_download is not None:
-        try:
-            logger.info("Downloading NOAA pressure dataset via huggingface_hub.")
-            downloaded_path = hf_hub_download(
-                repo_id="noaa/ncep-reanalysis-pressures",
-                filename="mslp_daily.nc",
-                repo_type="dataset"
-            )
-            # Move the downloaded file to the expected location
-            Path(downloaded_path).rename(RAW_PRESSURE_PATH)
-            logger.info("Pressure dataset download complete via huggingface_hub.")
-            return
-        except Exception as e:
-            logger.warning(f"huggingface_hub download failed: {e}")
-
-    # Fallback: direct HTTP GET (may require authentication)
-    url = "https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc"
-    session = get_robust_session()
+    # Public OPeNDAP URL for the NCEP/NCAR reanalysis mean sea‑level pressure
+    opendap_url = (
+        "https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis.dailyavgs/pressure/mslp.nc"
+    )
+    logger.info(f"Opening NOAA pressure dataset via OPeNDAP: {opendap_url}")
     try:
-        logger.info(f"Downloading NOAA pressure dataset from {url}")
-        with session.get(url, stream=True, timeout=180) as r:
-            r.raise_for_status()
-            with open(RAW_PRESSURE_PATH, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1024 * 1024):
-                    if chunk:
-                        f.write(chunk)
-        logger.info("Pressure dataset download complete via direct HTTP.")
+        # Open lazily with chunking to avoid loading the full array into memory
+        ds = xr.open_dataset(opendap_url, engine="netcdf4", chunks={"time": 30})
+        # Force evaluation of dimensions to ensure the remote file is reachable
+        _ = ds.sizes.get("time")
     except Exception as e:
-        logger.error(f"Failed to download NOAA pressure data: {e}")
-        raise RuntimeError(f"Critical failure downloading NOAA data: {e}")
+        logger.error(f"Failed to open OPeNDAP dataset: {e}")
+        raise RuntimeError(f"Critical failure opening NOAA OPeNDAP dataset: {e}")
+
+    logger.info("Saving the pressure dataset to local NetCDF file.")
+    try:
+        # Write the dataset to the local raw path
+        ds.to_netcdf(RAW_PRESSURE_PATH)
+    except Exception as e:
+        logger.error(f"Failed to write pressure NetCDF to disk: {e}")
+        raise RuntimeError(f"Critical failure writing pressure data: {e}")
+
+    logger.info("Pressure dataset download and save completed successfully.")
 
 def fetch_usgs_data() -> int:
     """Retrieve the USGS earthquake catalog (M >= 4.0, depth <= 70 km) for 2013-2023."""
@@ -189,7 +178,7 @@ def main() -> int:
                 needs_download = True
 
         if needs_download:
-            # Download pressure data
+            # Download pressure data via OPeNDAP
             download_noaa_pressure()
 
             # Download USGS catalog and capture row count
