@@ -24,36 +24,17 @@ pip install -r requirements.txt
 
 ## Run the Full Pipeline
 
-The pipeline uses deterministic library calls; no custom download script is required.
+The pipeline follows the ordered steps required by the specification.
 
 ```bash
 # Step 0: Verify installation (optional)
 pytest tests/   # should exit with a success status
 
-# Step 1: Load raw datasets (USGS catalog, global pressure, ENSO/PDO indices)
-python - <<'PY'
-from datasets import load_dataset
-import pandas as pd
-
-# USGS earthquake catalog
-eq = load_dataset("mnemoraorg/usgs-global-earthquake-catalog", split="train")
-print(f"Loaded {len(eq)} earthquake records")
-
-# Global pressure dataset (streamed NetCDF)
-import xarray as xr
-pressure = xr.open_dataset(
-    "https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc",
-    chunks={"time": 30}
-)
-print(f"Pressure dataset time dimension: {pressure.sizes['time']}")
-
-# ENSO/PDO climate indices
-enso = load_dataset("noaa/enso-pdo-indices", split="train")
-print(f"Loaded ENSO/PDO index with {len(enso)} monthly records")
-PY
+# Step 1: Download raw datasets (NOAA pressure and USGS earthquake catalog)
+python -m code.download
 
 # Step 2: Preprocess – interpolation, anomaly calculation, filtering
-python code/preprocess.py   # deterministic implementation follows the plan specification
+python code/preprocess.py
 
 # Step 3: Statistical analysis (KS test, permutation, bootstrap, sensitivity, FDR correction)
 python code/analysis.py
@@ -64,9 +45,12 @@ python code/report.py
 
 ### Expected Outputs
 
+- `data/raw/pressure.nc` – full NOAA NCEP/NCAR sea‑level pressure NetCDF file (2013‑2023).  
+- `data/raw/usgs_2013_2023.csv` – USGS earthquake catalog (M ≥ 4.0, depth ≤ 70 km).  
+- `logs/download_success.log` – log confirming successful download and record counts.  
 - `data/processed/analysis_ready.parquet` – analysis‑ready table.  
-- `data/processed/analysis_results.json` – p‑values, effect sizes, robustness metrics, bootstrap success rates.  
-- `paper/results.md` – human‑readable summary with pilot disclaimer, power‑analysis note, climate‑index stratification details, and explicit associational framing.  
+- `data/processed/analysis_results.json` – statistical results, effect sizes, and robustness metrics.  
+- `docs/pilot_report.md` – human‑readable summary with pilot disclaimer and associational framing.  
 
 ## Validation
 

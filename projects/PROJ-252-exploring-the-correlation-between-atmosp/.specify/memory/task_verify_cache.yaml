@@ -1,12 +1,12 @@
 T001:
-  c: false
-  h: e0cf9d69626c8e890c08b44865b1044929111f8c06e50ca933e997d004b9f648
-  r: "`requirements.txt` and `code/seed_init.py` match the spec (all pins present,\
-    \ seeds set to 42, log line written), but `docs/quickstart.md` does not contain\
-    \ the required single quick-start command `pip install -r requirements.txt &&\
-    \ python -m code.seed_init && python -m code.main` \u2014 it instead documents\
-    \ a multi-step pipeline (`python code/download.py`, `preprocess.py`, etc.) and\
-    \ never mentions `seed_init` at all. Additionally, there is no evidence `logs/seed_initialization.log`\
-    \ was ever created (no run/execution evidence), and the seed script relies on\
-    \ `paths.path` without ensuring the `logs/` d"
-  sig: eae28d2e58e4575558aed58abf65ea242540a33ace34be79534a1ab4838c66ce
+  c: true
+  h: 9955528d0ce11749ddf842bdc1b384c70c9dd08e7bfac28549737d2febf29b7c
+  r: I checked `requirements.txt` (all 11 required exact pins present, plus an extra
+    pinned pyarrow), `code/seed_init.py` (sets `random.seed(42)` and `np.random.seed(42)`
+    and writes `logs/seed_initialization.log` with the exact line "Seeds set to 42"),
+    and `docs/quickstart.md` (contains the exact required single command `pip install
+    -r requirements.txt && python -m code.seed_init && python -m code.main`). All
+    three required artifacts exist, are non-empty, and match the task's stated content;
+    the seed script's behavior is deterministic and directly produces the required
+    log line, and no other task's
+  sig: 449e4db4246f8e5a1d43f7d3966018c25215336d76d82861f2c539d9d62e32d9

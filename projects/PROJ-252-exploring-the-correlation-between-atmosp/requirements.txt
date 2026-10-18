@@ -1,3 +1,5 @@
+# Frozen dependencies for the atmospheric pressure and earthquake pipeline
+# Exact version pins as required by T001
 numpy==1.26.4
 pandas==2.2.2
 scipy==1.13.0
@@ -9,4 +11,4 @@ pyyaml==6.0.1
 datasets==2.19.0
 statsmodels==0.14.2
 memory_profiler==0.61.0
-geopandas==0.14.4
+pyarrow==16.0.0

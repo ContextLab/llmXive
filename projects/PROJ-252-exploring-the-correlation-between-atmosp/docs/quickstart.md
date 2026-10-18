@@ -5,59 +5,33 @@
 - Python 3.11 or newer
 - `git`
 - Internet access (for data download)
-- ~Adequate free disk space (approximately GB)
+- Sufficient free disk space
 
-## Setup
-
-```bash
-# 1. Clone repository
-git clone <repo-url>
-cd projects/PROJ-252-exploring-the-correlation-between-atmosp
-
-# 2. Create and activate virtual environment
-python -m venv.venv
-source.venv/bin/activate # Windows:.venv\Scripts\activate
-
-# 3. Install frozen dependencies (exact versions are pinned in requirements.txt)
-pip install -r requirements.txt
-```
-
-## Run the Full Pipeline
-
-The pipeline now includes an explicit data‑download step.
+## Setup & Run
 
 ```bash
-# Step 0: Verify installation (optional)
-pytest tests/ # should exit with a success status
-
-# Step 1: Download raw datasets (USGS catalog, global pressure)
-python code/download.py
-
-# Step 2: Preprocess – interpolation, anomaly calculation, filtering
-python code/preprocess.py # deterministic implementation follows the plan specification
-
-# Step 3: Statistical analysis (KS test, permutation, bootstrap, sensitivity, FDR correction)
-python code/analysis.py
-
-# Step 4: Generate the final report
-python code/report.py
+# Install exact dependency versions and run the full pipeline
+pip install -r requirements.txt && python -m code.seed_init && python -m code.main
 ```
 
-### Expected Outputs
+This single command:
+1. Installs the frozen dependencies listed in `requirements.txt`.
+2. Initializes deterministic random seeds (writes `logs/seed_initialization.log` containing the line **“Seeds set to 42”**).
+3. Executes the project's main entry point (`code/main.py`) which runs the complete analysis pipeline.
 
-- `data/raw/pressure.nc` – raw NOAA pressure NetCDF file.
-- `data/raw/usgs_2013_2023.csv` – raw USGS earthquake catalog.
-- `logs/download_success.log` – log confirming successful download.
-- `data/processed/analysis_ready.parquet` – analysis‑ready table.
-- `data/processed/analysis_results.json` – p‑values, effect sizes, robustness metrics, bootstrap success rates.
-- `paper/results.md` – human‑readable summary with pilot disclaimer, power‑analysis note, climate‑index stratification details, and explicit associational framing.
+## Expected Outputs
+
+- `logs/seed_initialization.log` – confirms seed initialization.
+- `data/processed/analysis_ready.parquet` – analysis‑ready dataset.
+- `data/processed/analysis_results.json` – statistical results and conclusions.
+- `paper/results.md` – human‑readable report summarising findings.
 
 ## Validation
 
-Run the contract tests to ensure schema compliance:
+After the command completes, verify that `logs/seed_initialization.log` exists and contains the exact string:
 
-```bash
-pytest tests/contract/
+```
+Seeds set to 42
 ```
 
-All tests must pass (exit code 0) before proceeding to manuscript preparation.
+If the log file is present and the command exits with status 0, the quick‑start has succeeded.

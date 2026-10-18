@@ -4338,3 +4338,37 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T03:19:38Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline command exits with status 0
+  claim_id: c_0d34d587
+  context: "If the log file is present and the command exits with status\u202F0, the\
+    \ quick\u2011start has succeeded."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The command exits with status 0
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:07:18Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline generates expected output files
+  claim_id: c_c8f38335
+  context: "The quick\u2011start command produces several expected output files: logs/seed_initialization.log,\
+    \ data/processed/analysis_ready.parquet, data/processed/analysis_results.json,\
+    \ and paper/results.md."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline generates logs/seed_initialization.log, data/processed/analysis_ready.parquet,
+    data/processed/analysis_results.json, and paper/results.md
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:07:19Z'
