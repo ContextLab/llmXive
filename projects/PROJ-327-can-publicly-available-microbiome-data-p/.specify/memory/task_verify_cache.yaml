@@ -1,15 +1,30 @@
 T001:
-  c: true
-  h: 83752b02eb84e85e392a304efe106938391c1adcb8e64a48150d8b4464c6d33f
-  r: Checked `code/acquire.py` for the required download and checksum logic and the
-    two unit tests in `tests/unit/test_acquire.py` which verify the correct RuntimeError
-    is raised for missing files and missing checksum entries; both tests pass.
-  sig: d752c9941046857dd8344194449c67c5264dfaeb54eabe341b79dfe30fdc69db
+  c: false
+  h: a70f2da7bd3f2d29a602ece3b5082592be1bbac2d391cc76c4e5a88f9d22cfc2
+  r: "Checked `code/acquire.py` (function present) and `tests/unit/test_acquire.py`\
+    \ (contains only SRA\u2011related tests; no `test_metabolomics_missing_file` or\
+    \ `test_metabolomics_missing_checksum`). The required metabolomics\u2011specific\
+    \ unit tests are absent, and the expected `data/raw/metabolomics/` directory/file\
+    \ is missing, so the task\u2019s verification criteria are not met."
+  sig: 1d1254ab3aa98a52a2c7ecb38338fd7ec3b0ee06a6f13a68ab29b2b6d2afb6dc
 T002:
   c: false
-  h: 38b2f9423744482630fcd0db3b95a0aa79699005915f1bf6471b9e4a2487b54b
-  r: The `data/raw/sra_fastq/` directory is empty and `data/checksums/checksums.txt`
-    contains no entries for any FASTQ files. No test verifies that `download_sra_fastq`
-    actually creates `.fastq.gz` files or records their checksums, so the required
-    download artifact is missing.
-  sig: e462a854aae0ccde3c7c2cba4a177141788d2edae00e15d37d51ec1655696a22
+  h: 3d345688ebbc9a1a7df69646374673236937a6c0298ef2e16cb7843ffaddcd5f
+  r: "The `code/acquire.py` script does download the FASTQ files and records SHA\u2011\
+    256 checksums (evidence: files in `data/raw/sra_fastq/` and entries in `data/checksums/checksums.txt`),\
+    \ and the unit test passes. However, the implementation does **not** use the required\
+    \ `pysradb` or `sra-tools` libraries as stipulated in the task specification;\
+    \ it downloads directly via `requests`. This violates the explicit requirement\
+    \ that the download function \u201Cuses pysradb/sra-tools\u201D. The task therefore\
+    \ remains incomplete."
+  sig: a370bfa571ea3199e9576deda38892a963d850e7884b617c82d428d56555fd9d
+T003:
+  c: false
+  h: b5d238b49082d0f7d01313fa5fa75ca4bf24decd4012817b1a46db8b2d5400bb
+  r: "The `code/curate.py` script falls back to a pure\u2011Python counting method\
+    \ because the R `dada2` package (via rpy2) is unavailable, violating the \u201C\
+    must use DADA2 (via rpy2) \u2013 no fallback\u201D requirement. Additionally,\
+    \ `tests/unit/test_curate.py::test_main_creates_file` fails due to a missing `Path`\
+    \ import in the monkey\u2011patched lambda. Both issues must be fixed for the\
+    \ task to be considered complete."
+  sig: c465a0fb6f6d94fc0dc51f3e65fb61f3b8b81a504db341179f9c04dbc9395288

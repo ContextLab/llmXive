@@ -1,4 +1,4 @@
-- artifact_hash: 3d9c9ecb5e0831578ccab333061ca2769a79069b29e6b35b5775543bb5f1783a
+- artifact_hash: df402229c6e0579013b3b4bee74177bb6db678c55e41bb44a06d46e9967ec229
   artifact_path: projects/PROJ-327-can-publicly-available-microbiome-data-p/specs/001-can-publicly-available-microbiome-data-p/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://ftp.ebi.ac.uk/pub/databases/metabolights/MTBLS1234/files/MTBLS1234.tsv`
   verification_status: mismatch
   verified_against_url: https://ftp.ebi.ac.uk/pub/databases/metabolights/MTBLS1234/files/MTBLS1234.tsv
-  verified_at: '2026-10-18T15:42:09.941162Z'
+  verified_at: '2026-10-18T15:54:06.854213Z'

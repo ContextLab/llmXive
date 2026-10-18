@@ -1,13 +1,26 @@
 T001:
+  reason: "Checked `code/acquire.py` (function present) and `tests/unit/test_acquire.py`\
+    \ (contains only SRA\u2011related tests; no `test_metabolomics_missing_file` or\
+    \ `test_metabolomics_missing_checksum`). The required metabolomics\u2011specific\
+    \ unit tests are absent, and the expected `data/raw/metabolomics/` directory/file\
+    \ is missing, so the task\u2019s verification criteria are not met."
   task: e12052aa04b9dc2cd311da3b4e00ee56a1664433394c8bb6c3226e1eb8093bad
 T002:
-  reason: The `data/raw/sra_fastq/` directory is empty and `data/checksums/checksums.txt`
-    contains no entries for any FASTQ files. No test verifies that `download_sra_fastq`
-    actually creates `.fastq.gz` files or records their checksums, so the required
-    download artifact is missing.
+  reason: "The `code/acquire.py` script does download the FASTQ files and records\
+    \ SHA\u2011256 checksums (evidence: files in `data/raw/sra_fastq/` and entries\
+    \ in `data/checksums/checksums.txt`), and the unit test passes. However, the implementation\
+    \ does **not** use the required `pysradb` or `sra-tools` libraries as stipulated\
+    \ in the task specification; it downloads directly via `requests`. This violates\
+    \ the explicit requirement that the download function \u201Cuses pysradb/sra-tools\u201D\
+    . The task therefore remains incomplete."
   task: 304fdf59f64a708d2f05d9cdf963f9d73eae2681825fdfccabe8d82142253864
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/curate.py exit=1'
+  reason: "The `code/curate.py` script falls back to a pure\u2011Python counting method\
+    \ because the R `dada2` package (via rpy2) is unavailable, violating the \u201C\
+    must use DADA2 (via rpy2) \u2013 no fallback\u201D requirement. Additionally,\
+    \ `tests/unit/test_curate.py::test_main_creates_file` fails due to a missing `Path`\
+    \ import in the monkey\u2011patched lambda. Both issues must be fixed for the\
+    \ task to be considered complete."
   task: 0aad51b29a3195d74707f3b5b50362d72a6cc0f30c3d7b013f6a7f03177e445e
 T004:
   task: 711e646d793eed330047828684aa76ae80ed877cc2bfd7a7b4c1eefcc1242868
