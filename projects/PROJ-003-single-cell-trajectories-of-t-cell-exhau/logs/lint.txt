@@ -1,16 +1,507 @@
-=== ruff check . ===
-ruff failed
-  Cause: Failed to load configuration `/home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/.ruff.toml`
-  Cause: Failed to parse /home/runner/work/llmXive/llmXive/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/.ruff.toml
-  Cause: TOML parse error at line 18, column 1
+== ruff check . ==
+F401 [*] `os` imported but unused
+ --> code/install_sra_toolkit.py:1:8
+  |
+1 | import os
+  |        ^^
+2 | import subprocess
+3 | import sys
+  |
+help: Remove unused import: `os`
+  |
+  - import os
+1 | import subprocess
+  |
+
+F401 [*] `os` imported but unused
+  --> code/preprocess.py:12:8
    |
-18 | line-length = 88
-   | ^^^^^^^^^^^
-unknown field `line-length`, expected one of `exclude`, `preview`, `indent-style`, `quote-style`, `nested-string-quote-style`, `skip-magic-trailing-comma`, `line-ending`, `docstring-code-format`, `docstring-code-line-length`
+10 | import argparse
+11 | import logging
+12 | import os
+   |        ^^
+13 | import subprocess
+14 | import sys
+   |
+help: Remove unused import: `os`
+   |
+11 | import logging
+   - import os
+12 | import subprocess
+   |
 
-ruff exit code: 0
+F841 Local variable `result` is assigned to but never used
+  --> code/preprocess.py:90:9
+   |
+89 |     try:
+90 |         result = subprocess.run(
+   |         ^^^^^^
+91 |             cmd,
+92 |             check=True,
+   |
+help: Remove assignment to unused variable `result`
+   |
+89 |     try:
+   -         result = subprocess.run(
+90 +         subprocess.run(
+91 |             cmd,
+   |
+note: This is an unsafe fix and may change runtime behavior
 
-=== black --check . ===
-All done! ✨ 🍰 ✨
-23 files would be left unchanged.
-black exit code: 0
+F401 [*] `pathlib.Path` imported but unused
+ --> code/run_setup.py:2:21
+  |
+1 | import sys
+2 | from pathlib import Path
+  |                     ^^^^
+help: Remove unused import: `pathlib.Path`
+  |
+1 | import sys
+  - from pathlib import Path
+2 |
+  |
+
+F401 [*] `os` imported but unused
+  --> code/setup_config.py:11:8
+   |
+ 9 | """
+10 |
+11 | import os
+   |        ^^
+12 | import random
+13 | import sys
+   |
+help: Remove unused import: `os`
+   |
+10 |
+   - import os
+11 | import random
+   |
+
+F401 [*] `sys` imported but unused
+  --> code/setup_config.py:13:8
+   |
+11 | import os
+12 | import random
+13 | import sys
+   |        ^^^
+14 | from pathlib import Path
+15 | from typing import Any, Dict, Optional
+   |
+help: Remove unused import: `sys`
+   |
+12 | import random
+   - import sys
+13 | from pathlib import Path
+   |
+
+F401 [*] `os` imported but unused
+ --> code/setup_directories.py:8:8
+  |
+6 | """
+7 |
+8 | import os
+  |        ^^
+9 | from pathlib import Path
+  |
+help: Remove unused import: `os`
+  |
+7 |
+  - import os
+8 | from pathlib import Path
+  |
+
+F401 [*] `pandas` imported but unused
+ --> tests/conftest.py:7:18
+  |
+5 | import pytest
+6 | import numpy as np
+7 | import pandas as pd
+  |                  ^^
+8 | from pathlib import Path
+  |
+help: Remove unused import: `pandas`
+  |
+6 | import numpy as np
+  - import pandas as pd
+7 | from pathlib import Path
+  |
+
+F841 Local variable `result` is assigned to but never used
+  --> tests/integration/test_trajectory_reconstruction.py:32:9
+   |
+30 |     # Run the velocity script
+31 |     try:
+32 |         result = subprocess.run(
+   |         ^^^^^^
+33 |             [
+34 |                 sys.executable,
+   |
+help: Remove assignment to unused variable `result`
+   |
+31 |     try:
+   -         result = subprocess.run(
+32 +         subprocess.run(
+33 |             [
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+F401 `scanpy` imported but unused; consider using `importlib.util.find_spec` to test for availability
+  --> tests/integration/test_trajectory_reconstruction.py:54:26
+   |
+52 |     # Verify required fields
+53 |     try:
+54 |         import scanpy as sc
+   |                          ^^
+55 |         import anndata as ad
+   |
+help: Remove unused import: `scanpy`
+
+F401 [*] `sys` imported but unused
+  --> tests/test_linting_config.py:8:8
+   |
+ 6 | import subprocess
+ 7 | import os
+ 8 | import sys
+   |        ^^^
+ 9 | import tempfile
+10 | import shutil
+   |
+help: Remove unused import: `sys`
+  |
+7 | import os
+  - import sys
+8 | import tempfile
+  |
+
+F401 [*] `tempfile` imported but unused
+  --> tests/test_linting_config.py:9:8
+   |
+ 7 | import os
+ 8 | import sys
+ 9 | import tempfile
+   |        ^^^^^^^^
+10 | import shutil
+   |
+help: Remove unused import: `tempfile`
+  |
+8 | import sys
+  - import tempfile
+9 | import shutil
+  |
+
+F401 [*] `shutil` imported but unused
+  --> tests/test_linting_config.py:10:8
+   |
+ 8 | import sys
+ 9 | import tempfile
+10 | import shutil
+   |        ^^^^^^
+11 |
+12 | import pytest
+   |
+help: Remove unused import: `shutil`
+   |
+9  | import tempfile
+   - import shutil
+10 |
+   |
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_linting_config.py:12:8
+   |
+10 | import shutil
+11 |
+12 | import pytest
+   |        ^^^^^^
+13 |
+14 | PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+   |
+help: Remove unused import: `pytest`
+   |
+11 |
+   - import pytest
+12 |
+   |
+
+F401 [*] `tempfile` imported but unused
+  --> tests/test_setup_directories.py:9:8
+   |
+ 8 | import os
+ 9 | import tempfile
+   |        ^^^^^^^^
+10 | from pathlib import Path
+11 | import pytest
+   |
+help: Remove unused import: `tempfile`
+  |
+8 | import os
+  - import tempfile
+9 | from pathlib import Path
+  |
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_setup_directories.py:11:8
+   |
+ 9 | import tempfile
+10 | from pathlib import Path
+11 | import pytest
+   |        ^^^^^^
+12 | import sys
+   |
+help: Remove unused import: `pytest`
+   |
+10 | from pathlib import Path
+   - import pytest
+11 | import sys
+   |
+
+E402 Module level import not at top of file
+  --> tests/test_setup_directories.py:18:1
+   |
+16 | sys.path.insert(0, str(code_dir))
+17 |
+18 | from setup_directories import setup_directories
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Move module level imports to top of file
+
+F401 [*] `setup_directories.setup_directories` imported but unused
+  --> tests/test_setup_directories.py:18:31
+   |
+16 | sys.path.insert(0, str(code_dir))
+17 |
+18 | from setup_directories import setup_directories
+   |                               ^^^^^^^^^^^^^^^^^
+help: Remove unused import: `setup_directories.setup_directories`
+   |
+17 |
+   - from setup_directories import setup_directories
+18 |
+   |
+
+F401 [*] `unittest.mock.Mock` imported but unused
+ --> tests/unit/test_download_data.py:2:45
+  |
+1 | import unittest
+2 | from unittest.mock import patch, MagicMock, Mock
+  |                                             ^^^^
+3 | import subprocess
+4 | import os
+  |
+help: Remove unused import: `unittest.mock.Mock`
+  |
+1 | import unittest
+  - from unittest.mock import patch, MagicMock, Mock
+2 + from unittest.mock import patch, MagicMock
+3 | import subprocess
+  |
+
+F401 [*] `os` imported but unused
+ --> tests/unit/test_download_data.py:4:8
+  |
+2 | from unittest.mock import patch, MagicMock, Mock
+3 | import subprocess
+4 | import os
+  |        ^^
+5 | import sys
+6 | from pathlib import Path
+  |
+help: Remove unused import: `os`
+  |
+3 | import subprocess
+  - import os
+4 | import sys
+  |
+
+F401 [*] `json` imported but unused
+  --> tests/unit/test_download_data.py:8:8
+   |
+ 6 | from pathlib import Path
+ 7 | import tempfile
+ 8 | import json
+   |        ^^^^
+ 9 |
+10 | # Add the code directory to the path for imports
+   |
+help: Remove unused import: `json`
+  |
+7 | import tempfile
+  - import json
+8 |
+  |
+
+E402 Module level import not at top of file
+  --> tests/unit/test_download_data.py:14:1
+   |
+12 | sys.path.insert(0, str(code_dir))
+13 |
+14 | from download_data import check_sra_toolkit, get_sra_ids_for_gse, download_sra, TARGET_GSE_IDS
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Move module level imports to top of file
+
+F401 [*] `json` imported but unused
+ --> tests/unit/test_fork_point_schema.py:6:8
+  |
+4 | """
+5 |
+6 | import json
+  |        ^^^^
+7 | import os
+8 | import yaml
+  |
+help: Remove unused import: `json`
+  |
+5 |
+  - import json
+6 | import os
+  |
+
+F401 [*] `os` imported but unused
+ --> tests/unit/test_fork_point_schema.py:7:8
+  |
+6 | import json
+7 | import os
+  |        ^^
+8 | import yaml
+9 | import pytest
+  |
+help: Remove unused import: `os`
+  |
+6 | import json
+  - import os
+7 | import yaml
+  |
+
+F401 [*] `os` imported but unused
+ --> tests/unit/test_install_sra_toolkit.py:1:8
+  |
+1 | import os
+  |        ^^
+2 | import subprocess
+3 | import tempfile
+  |
+help: Remove unused import: `os`
+  |
+  - import os
+1 | import subprocess
+  |
+
+F401 [*] `tempfile` imported but unused
+ --> tests/unit/test_install_sra_toolkit.py:3:8
+  |
+1 | import os
+2 | import subprocess
+3 | import tempfile
+  |        ^^^^^^^^
+4 | from pathlib import Path
+5 | from unittest.mock import patch, MagicMock
+  |
+help: Remove unused import: `tempfile`
+  |
+2 | import subprocess
+  - import tempfile
+3 | from pathlib import Path
+  |
+
+F401 [*] `pytest` imported but unused
+ --> tests/unit/test_preprocess.py:5:8
+  |
+3 | """
+4 |
+5 | import pytest
+  |        ^^^^^^
+6 | import numpy as np
+7 | import pandas as pd
+  |
+help: Remove unused import: `pytest`
+  |
+4 |
+  - import pytest
+5 | import numpy as np
+  |
+
+F401 [*] `preprocess.python_preprocess` imported but unused
+  --> tests/unit/test_preprocess.py:11:24
+   |
+ 9 | from pathlib import Path
+10 | import tempfile
+11 | from preprocess import python_preprocess
+   |                        ^^^^^^^^^^^^^^^^^
+help: Remove unused import: `preprocess.python_preprocess`
+   |
+10 | import tempfile
+   - from preprocess import python_preprocess
+11 |
+   |
+
+F401 [*] `tempfile` imported but unused
+  --> tests/unit/test_preprocess_wrapper.py:12:8
+   |
+11 | import os
+12 | import tempfile
+   |        ^^^^^^^^
+13 | from pathlib import Path
+14 | from unittest.mock import patch, MagicMock
+   |
+help: Remove unused import: `tempfile`
+   |
+11 | import os
+   - import tempfile
+12 | from pathlib import Path
+   |
+
+F401 [*] `pytest` imported but unused
+  --> tests/unit/test_preprocess_wrapper.py:15:8
+   |
+13 | from pathlib import Path
+14 | from unittest.mock import patch, MagicMock
+15 | import pytest
+   |        ^^^^^^
+16 |
+17 | # Import the module under test
+   |
+help: Remove unused import: `pytest`
+   |
+14 | from unittest.mock import patch, MagicMock
+   - import pytest
+15 |
+   |
+
+F401 [*] `os` imported but unused
+  --> tests/unit/test_sra_toolkit_install.py:10:8
+   |
+ 8 | """
+ 9 |
+10 | import os
+   |        ^^
+11 | import subprocess
+12 | import sys
+   |
+help: Remove unused import: `os`
+   |
+9  |
+   - import os
+10 | import subprocess
+   |
+
+F821 Undefined name `pytest`
+  --> tests/unit/test_sra_toolkit_install.py:42:18
+   |
+40 |                 1, ["test"], stderr="error message"
+41 |             )
+42 |             with pytest.raises(SystemExit):
+   |                  ^^^^^^
+43 |                 run_command(["fake_command"], "Test failure")
+   |
+
+F821 Undefined name `pytest`
+   --> tests/unit/test_sra_toolkit_install.py:116:14
+    |
+115 |         # This should raise SystemExit
+116 |         with pytest.raises(SystemExit):
+    |              ^^^^^^
+117 |             verify_sra_toolkit()
+    |
+
+Found 33 errors.
+[*] 26 fixable with `--fix` (2 unsafe fixes available with `--fix --unsafe-fixes`).

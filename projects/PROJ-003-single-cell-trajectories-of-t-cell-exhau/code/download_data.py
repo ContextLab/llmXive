@@ -47,10 +47,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-GEO_METADATA_URL = (
-    "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi"
-    "?acc={acc}&targ=self&form=text"
-)
+GEO_METADATA_URL = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi" "?acc={acc}&targ=self&form=text"
 
 DEFAULT_DATASETS = ["GSE136103", "GSE127465", "GSE111075", "GSE138852"]
 
@@ -58,7 +55,7 @@ DEFAULT_DATASETS = ["GSE136103", "GSE127465", "GSE111075", "GSE138852"]
 # markers and T-cell identity markers.  Comparison is case-insensitive so
 # both human (PDCD1) and mouse (Pdcd1) symbols match.
 MARKER_GENES = [
-    "PDCD1",   # PD-1
+    "PDCD1",  # PD-1
     "LAG3",
     "TOX",
     "HAVCR2",
@@ -72,23 +69,28 @@ MARKER_GENES = [
     "CD8A",
     "CD8B",
     "GZMB",
-    "LDHA",    # metabolic markers
+    "LDHA",  # metabolic markers
     "SLC2A1",
     "HK2",
     "PFKFB3",
 ]
 
 MAX_RETRIES = 5
-MAX_FILE_BYTES = 1_500_000_000        # skip single files larger than 1.5 GB
-TOTAL_BUDGET_BYTES = 5_000_000_000    # total download budget per run
-TIME_BUDGET_SECONDS = 520             # wall-clock guard for the whole run
-MAX_EXTRA_FILES = 3                   # extra (non-primary) files per dataset
+MAX_FILE_BYTES = 1_500_000_000  # skip single files larger than 1.5 GB
+TOTAL_BUDGET_BYTES = 5_000_000_000  # total download budget per run
+TIME_BUDGET_SECONDS = 520  # wall-clock guard for the whole run
+MAX_EXTRA_FILES = 3  # extra (non-primary) files per dataset
 
 _SCHEMA_CANDIDATES = [
-    Path("specs") / "001-single-cell-trajectories-of-t-cell-exhaustion"
-    / "contracts" / "dataset.schema.yaml",
-    Path("..") / "specs" / "001-single-cell-trajectories-of-t-cell-exhaustion"
-    / "contracts" / "dataset.schema.yaml",
+    Path("specs")
+    / "001-single-cell-trajectories-of-t-cell-exhaustion"
+    / "contracts"
+    / "dataset.schema.yaml",
+    Path("..")
+    / "specs"
+    / "001-single-cell-trajectories-of-t-cell-exhaustion"
+    / "contracts"
+    / "dataset.schema.yaml",
 ]
 
 
@@ -180,9 +182,7 @@ def _fetch_geo_metadata(gse_id: str) -> Dict[str, Any]:
                 elif line.startswith("!Series_title") and not title:
                     title = line.split("=", 1)[1].strip()
             if not suppl:
-                raise RuntimeError(
-                    f"GEO metadata for {gse_id} lists no supplementary files"
-                )
+                raise RuntimeError(f"GEO metadata for {gse_id} lists no supplementary files")
             # de-duplicate, preserve order
             return {
                 "title": title,
@@ -192,7 +192,10 @@ def _fetch_geo_metadata(gse_id: str) -> Dict[str, Any]:
             last_exc = e
             logger.warning(
                 "Metadata fetch attempt %d/%d for %s failed: %s",
-                attempt, MAX_RETRIES, gse_id, e,
+                attempt,
+                MAX_RETRIES,
+                gse_id,
+                e,
             )
             time.sleep(2 * attempt)
     raise RuntimeError(f"Failed to fetch GEO metadata for {gse_id}: {last_exc}")
@@ -216,9 +219,7 @@ def _candidate_score(url: str) -> int:
     """Rank a supplementary URL: lower score = better count-matrix candidate."""
     name = url.lower()
     tabular = name.endswith((".csv", ".tsv", ".csv.gz", ".tsv.gz"))
-    known_ext = tabular or name.endswith(
-        (".txt", ".txt.gz", ".mtx", ".mtx.gz", ".h5", ".h5ad")
-    )
+    known_ext = tabular or name.endswith((".txt", ".txt.gz", ".mtx", ".mtx.gz", ".h5", ".h5ad"))
     keyword = any(k in name for k in _KEYWORDS)
     if not known_ext:
         return 4
@@ -257,8 +258,7 @@ def _download_file(url: str, dest_path: Path) -> None:
                 size = int(r.headers.get("Content-Length", 0) or 0)
                 if size and size > MAX_FILE_BYTES:
                     raise RuntimeError(
-                        f"{url} is too large ({size} bytes > "
-                        f"{MAX_FILE_BYTES} budget)"
+                        f"{url} is too large ({size} bytes > " f"{MAX_FILE_BYTES} budget)"
                     )
                 with dest_path.open("wb") as out_file:
                     for chunk in r.iter_content(1 << 20):
@@ -271,7 +271,10 @@ def _download_file(url: str, dest_path: Path) -> None:
             last_exc = e
             logger.warning(
                 "Download attempt %d/%d for %s failed: %s",
-                attempt, MAX_RETRIES, url, e,
+                attempt,
+                MAX_RETRIES,
+                url,
+                e,
             )
             if dest_path.exists():
                 dest_path.unlink()
@@ -308,10 +311,7 @@ def _extract_genes_and_dims(path: Path) -> Tuple[List[str], int, int]:
         elif "," in first_line:
             delim = ","
         else:
-            raise RuntimeError(
-                f"Cannot detect delimiter in {path.name} "
-                "(expected tab or comma)"
-            )
+            raise RuntimeError(f"Cannot detect delimiter in {path.name} " "(expected tab or comma)")
         f.seek(0)
         reader = csv.reader(f, delimiter=delim)
         try:
@@ -378,7 +378,7 @@ def compute_marker_fraction(
 # ---------------------------------------------------------------------------
 def _load_schema(project_root: Path) -> Optional[Dict[str, Any]]:
     for cand in _SCHEMA_CANDIDATES:
-        p = (cand if cand.is_absolute() else project_root / cand)
+        p = cand if cand.is_absolute() else project_root / cand
         if p.exists():
             with p.open("r") as f:
                 return yaml.safe_load(f)
@@ -395,8 +395,7 @@ def _validate_entry(entry: Dict[str, Any], schema: Optional[Dict[str, Any]]) -> 
     jsonschema.validate(instance=entry, schema=schema)
 
 
-def _update_manifest(project_root: Path, dataset_id: str,
-                     entry: Dict[str, Any]) -> None:
+def _update_manifest(project_root: Path, dataset_id: str, entry: Dict[str, Any]) -> None:
     """Write a schema-valid Dataset entry into ``data/manifest.yaml``."""
     manifest_path = project_root / "data" / "manifest.yaml"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -431,9 +430,13 @@ def _configure_logging(project_root: Path) -> None:
     )
 
 
-def _process_dataset(gse: str, raw_root: Path, project_root: Path,
-                     schema: Optional[Dict[str, Any]],
-                     start_time: float) -> Dict[str, Any]:
+def _process_dataset(
+    gse: str,
+    raw_root: Path,
+    project_root: Path,
+    schema: Optional[Dict[str, Any]],
+    start_time: float,
+) -> Dict[str, Any]:
     """Download and validate a single GEO dataset; return the manifest entry."""
     logger.info("Processing %s ...", gse)
     gse_dir = raw_root / gse
@@ -446,12 +449,14 @@ def _process_dataset(gse: str, raw_root: Path, project_root: Path,
         urls = meta["supplementary_files"]
         logger.info(
             "Found %d supplementary file(s) for %s via GEO metadata endpoint",
-            len(urls), gse,
+            len(urls),
+            gse,
         )
     except RuntimeError:
         logger.warning(
             "GEO metadata endpoint failed for %s; falling back to the "
-            "NCBI FTP supplementary directory listing", gse,
+            "NCBI FTP supplementary directory listing",
+            gse,
         )
         base = _geo_series_ftp_base(gse)
         names = _list_ftp_directory(base)
@@ -477,12 +482,14 @@ def _process_dataset(gse: str, raw_root: Path, project_root: Path,
         filename = url.rstrip("/").split("/")[-1]
         dest = counts_dir / filename
         size = _remote_size(url)
-        if dest.exists() and dest.stat().st_size > 0 and (
-                size is None or dest.stat().st_size == size):
+        if (
+            dest.exists()
+            and dest.stat().st_size > 0
+            and (size is None or dest.stat().st_size == size)
+        ):
             logger.info("Reusing existing file %s", dest)
         else:
-            if not primary and size and (
-                    downloaded_bytes + size > TOTAL_BUDGET_BYTES):
+            if not primary and size and (downloaded_bytes + size > TOTAL_BUDGET_BYTES):
                 logger.info("Skipping %s (total budget)", filename)
                 continue
             _download_file(url, dest)
@@ -518,7 +525,10 @@ def _process_dataset(gse: str, raw_root: Path, project_root: Path,
     fraction, found, missing = compute_marker_fraction(genes)
     logger.info(
         "Marker-gene fraction for %s: %.3f (%d/%d present; missing: %s)",
-        gse, fraction, len(found), len(MARKER_GENES),
+        gse,
+        fraction,
+        len(found),
+        len(MARKER_GENES),
         ", ".join(missing) if missing else "none",
     )
     if fraction < 0.80:
@@ -529,8 +539,7 @@ def _process_dataset(gse: str, raw_root: Path, project_root: Path,
 
     entry = {
         "dataset_id": gse,
-        "source": "NCBI GEO accession metadata endpoint "
-                  f"({GEO_METADATA_URL.format(acc=gse)})",
+        "source": "NCBI GEO accession metadata endpoint " f"({GEO_METADATA_URL.format(acc=gse)})",
         "raw_counts_path": str(primary_file.relative_to(project_root)),
         "metadata_path": "",
         "checksum": checksums[primary_file.name],
@@ -585,12 +594,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    gse_ids = [
-        part
-        for token in args.datasets
-        for part in token.split(",")
-        if part.strip()
-    ]
+    gse_ids = [part for token in args.datasets for part in token.split(",") if part.strip()]
 
     project_root = Path(__file__).resolve().parent.parent
     _configure_logging(project_root)
@@ -619,7 +623,8 @@ def main() -> None:
         sys.exit(1)
     logger.info(
         "All %d dataset(s) downloaded, checksummed and validated "
-        "(marker_gene_fraction >= 0.80).", len(gse_ids),
+        "(marker_gene_fraction >= 0.80).",
+        len(gse_ids),
     )
 
 

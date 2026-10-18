@@ -1,16 +1,9 @@
-[tool.ruff]
-# Maximum line length
-line-length = 100
-# Target Python version
+# Ruff configuration (native .ruff.toml format).
+# NOTE: `line-length` is a TOP-LEVEL field in this format; placing it
+# under a section header (e.g. [lint]) causes "unknown field" errors.
+line-length = 88
 target-version = "py311"
-# Enable selected linting rules
-select = [
-    "E",   # pycodestyle errors
-    "F",   # pyflakes
-    "W",   # pycodestyle warnings
-    "C90", # McCabe complexity
-    "I",   # import sorting
-    "N",   # naming conventions
-]
-# Ignore specific rules if needed
-ignore = []
+extend-exclude = ["venv", "data", "logs"]
+
+[lint]
+select = ["E4", "E7", "E9", "F"]

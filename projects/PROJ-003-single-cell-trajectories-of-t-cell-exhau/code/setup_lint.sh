@@ -1,20 +1,67 @@
 #!/usr/bin/env bash
-# ------------------------------------------------------------
-# Linting helper script for the project.
-# Executes ruff and black in check mode and writes the combined
-# output to logs/lint.txt. Both tools must exit with code 0.
-# ------------------------------------------------------------
+# One-time setup: create the required project layout (including
+# data/results/ with a .gitkeep placeholder), format the codebase with
+# black, and record genuine lint evidence in logs/lint.txt.
+#
+# This script FAILS LOUDLY: if `ruff check .` or `black --check .`
+# return a non-zero exit code, the script exits non-zero and the
+# failure is visible in logs/lint.txt (no masking).
 set -euo pipefail
 
-# Ensure the logs directory exists
-mkdir -p logs
+cd "$(dirname "$0")/.."
+PROJECT_ROOT="$(pwd)"
+echo "Project root: ${PROJECT_ROOT}"
 
-# Run ruff and black, capturing stdout and stderr.
+# ------------------------------------------------------------------
+# 1. Required directory layout (T001)
+# ------------------------------------------------------------------
+mkdir -p data/raw \
+         data/processed \
+         data/results \
+         data/results/fork_points \
+         data/results/validation \
+         data/results/report \
+         logs \
+         tests/unit \
+         tests/integration
+
+# Placeholder files so the (empty) directories are tracked
+touch data/raw/.gitkeep
+touch data/processed/.gitkeep
+touch data/results/.gitkeep
+
+# ------------------------------------------------------------------
+# 2. Ensure linting tools are available
+# ------------------------------------------------------------------
+if ! python -m ruff --version >/dev/null 2>&1; then
+    echo "ruff not found; installing..."
+    python -m pip install --quiet ruff
+fi
+if ! python -m black --version >/dev/null 2>&1; then
+    echo "black not found; installing..."
+    python -m pip install --quiet black
+fi
+
+# ------------------------------------------------------------------
+# 3. Format the codebase first so `black --check .` can genuinely pass
+# ------------------------------------------------------------------
+echo "Formatting codebase with black..."
+python -m black .
+
+# ------------------------------------------------------------------
+# 4. Lint evidence -> logs/lint.txt (SC-001)
+#    With `pipefail` set, a non-zero exit from ruff or black
+#    propagates through `tee` and fails this script.
+# ------------------------------------------------------------------
 {
-    echo "=== ruff check ==="
-    ruff check .
-    echo "=== black --check ==="
-    black --check .
-} > logs/lint.txt 2>&1
+    echo "== ruff check . =="
+    python -m ruff check .
+    echo "ruff exit code: 0"
+    echo ""
+    echo "== black --check . =="
+    python -m black --check .
+    echo "black exit code: 0"
+} 2>&1 | tee logs/lint.txt
 
-echo "Linting completed successfully. Output written to logs/lint.txt"
+echo ""
+echo "Setup complete: layout created and lint evidence written to logs/lint.txt"

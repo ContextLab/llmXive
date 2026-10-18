@@ -7,14 +7,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_data.py  --datasets GSE136103 GSE127465 GSE111075 GSE138852  --output data/raw/ -> rc=-1
-rajectories-of-t-cell-exhau/data/raw/GSE111075/counts/GSE111075_RAW.tar
-2026-10-18 12:17:07,398 - INFO - Marker-gene fraction for GSE111075: 0.000 (0/18 present; missing: PDCD1, LAG3, TOX, HAVCR2, TIGIT, CTLA4, ENTPD1, LAYN, TNFRSF9, CD3D, CD3E, CD8A, CD8B, GZMB, LDHA, SLC2A1, HK2, PFKFB3)
-2026-10-18 12:17:07,398 - ERROR - Failed to process GSE111075: FR-010 violated for GSE111075: marker_gene_fraction 0.000 < 0.80. Missing markers: PDCD1, LAG3, TOX, HAVCR2, TIGIT, CTLA4, ENTPD1, LAYN, TNFRSF9, CD3D, CD3E, CD8A, CD8B, GZMB, LDHA, SLC2A1, HK2, PFKFB3
-2026-10-18 12:17:07,402 - INFO - Processing GSE138852 ...
-2026-10-18 12:17:07,495 - WARNING - Metadata fetch attempt 1/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-18 12:17:09,579 - WARNING - Metadata fetch attempt 2/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-18 12:17:13,671 - WARNING - Metadata fetch attempt 3/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
-2026-10-18 12:17:19,753 - WARNING - Metadata fetch attempt 4/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+0.000 (0/18 present; missing: PDCD1, LAG3, TOX, HAVCR2, TIGIT, CTLA4, ENTPD1, LAYN, TNFRSF9, CD3D, CD3E, CD8A, CD8B, GZMB, LDHA, SLC2A1, HK2, PFKFB3)
+2026-10-18 13:11:40,151 - ERROR - Failed to process GSE111075: FR-010 violated for GSE111075: marker_gene_fraction 0.000 < 0.80. Missing markers: PDCD1, LAG3, TOX, HAVCR2, TIGIT, CTLA4, ENTPD1, LAYN, TNFRSF9, CD3D, CD3E, CD8A, CD8B, GZMB, LDHA, SLC2A1, HK2, PFKFB3
+2026-10-18 13:11:40,154 - INFO - Processing GSE138852 ...
+2026-10-18 13:11:40,192 - WARNING - Metadata fetch attempt 1/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 13:11:42,232 - WARNING - Metadata fetch attempt 2/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 13:11:46,268 - WARNING - Metadata fetch attempt 3/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 13:11:52,309 - WARNING - Metadata fetch attempt 4/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
+2026-10-18 13:12:00,346 - WARNING - Metadata fetch attempt 5/5 for GSE138852 failed: GEO metadata for GSE138852 lists no supplementary files
 
 
 [TIMEOUT after 120s]

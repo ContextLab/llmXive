@@ -10,7 +10,7 @@ The goal is to deliver a fully reproducible, CPU‑only pipeline that satisfies 
 | Goal | Run a thin, reproducible pipeline on a single GEO dataset and verify the project scaffolding. |
 |------|-----------------------------------------------------------------------------------------------|
 
-- [ ] **T001** Create the required project layout, **add a `data/results/` directory with a placeholder file**, configure linting/formatting, and document a runnable command in `quickstart.md`.
+- [ ] **T001** Create the required project layout, **add a `data/results/` directory with a placeholder file**, configure linting/formatting, and document a runnable command in `quickstart.md`. <!-- FAILED-IN-EXECUTION: code/setup_lint.sh exit=1 -->
   - **File path**: `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/` (tree) and `quickstart.md`.  
   - **Verification**:  
     - `tree` shows `data/results/` containing a placeholder (e.g., `.gitkeep`).  

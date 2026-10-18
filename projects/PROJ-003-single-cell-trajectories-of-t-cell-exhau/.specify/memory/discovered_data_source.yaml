@@ -1,12 +1,14 @@
 status: none
-intent: download GEO scRNAseq GSE136103 GSE111075 GSE138852 python package dataset
+intent: "GEO scRNA\u2011seq count matrix downloader python package for scVelo analysis\
+  \ python package dataset"
 required_fields:
-- cell_barcode
-- gene_id
 - gene_symbol
+- gene_id
+- cell_barcode
 - raw_counts
-- mitochondrial_percent
-- sample_metadata
-cache_key: 0712a5c372a20f9513e9e23eb6a6b3b7a7eea81a5bf9c2532b1498a5a7d308ac
-searched_at: '2026-10-18T12:18:32.666552+00:00'
+- sample_accession
+- mitochondrial_gene_percentage
+- cell_quality_metrics
+cache_key: 457be40db928cbcd042ed10a556b833b51610c04d417cd638557982c38f832e2
+searched_at: '2026-10-18T13:13:08.686437+00:00'
 retry_count: 1

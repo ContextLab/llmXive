@@ -1,12 +1,6 @@
 T001:
-  reason: "The layout, `data/results/.gitkeep`, and `quickstart.md` (with `python\
-    \ -m code.run_all` and a usage example) are present, and unit tests pass. However,\
-    \ `logs/lint.txt` shows `ruff check .` actually FAILED \u2014 it could not parse\
-    \ `.ruff.toml` (\"unknown field `line-length`\" at line 18) \u2014 and the setup\
-    \ script merely reported \"ruff exit code: 0\" by masking the failure, so the\
-    \ requirement that ruff genuinely pass with exit code 0 is not met. Fix `.ruff.toml`\
-    \ (e.g., move `line-length` under `[tool.ruff]`/`[lint]` correctly or use `pyproject.toml`)\
-    \ so `ruff check .` truly exits 0, then regenerate `logs/"
+  reason: 'Requested task execution failed; rerun successfully: code/setup_lint.sh
+    exit=1'
   task: b9685e3620b819631a0c75f53f51b94993da653bd7647440589048b348e9e414
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download_data.py
