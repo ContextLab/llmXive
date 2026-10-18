@@ -30,9 +30,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 FETCHING OPENML DATASET
 ============================================================
 Fetching OpenML dataset ID 4210 ...
+API metadata fetch failed (HTTP Error 412: Precondition Failed); trying direct download URL ...
 ============================================================
 
-ERROR: REAL_DATA_FETCH_FAILED: unable to retrieve OpenML metadata for dataset 4210: HTTP Error 412: Precondition Failed
+ERROR: REAL_DATA_FETCH_FAILED: downloaded file failed CSV validation.
 
 - python code/main.py --mode dry-run --replicates-per-level 10 --tau-values 0 0.1 --seed 42 -> rc=2
 
@@ -55,7 +56,7 @@ ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_sav
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-============= 12 failed, 65 passed, 13 warnings, 6 errors in 1.49s =============
+============= 12 failed, 65 passed, 13 warnings, 6 errors in 1.03s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -70,7 +71,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 0.42s =========================
+========================= 1 failed, 1 warning in 0.43s =========================
 
 
 

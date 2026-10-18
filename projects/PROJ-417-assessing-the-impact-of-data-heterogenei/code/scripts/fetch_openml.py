@@ -5,7 +5,8 @@ canonical base file for the project.
 The script:
 1. Queries the OpenML API for dataset 4210.
 2. Retrieves the download URL from the JSON description.
-3. Downloads the file (CSV or ZIP containing a CSV).
+3. Downloads the file (CSV or ZIP containing a CSV). If the API response
+   does not provide a usable URL, a direct‑download fallback URL is tried.
 4. Validates that the CSV contains at least one effect‑size column and one
    standard‑error column and that it has ≥ 5 data rows.
 5. Writes the validated CSV to ``data/raw/cochrane_base.csv``.
@@ -30,7 +31,10 @@ from llmxive_toolkit import paths
 # Configuration
 # ----------------------------------------------------------------------
 OPENML_DATASET_ID = 4210
+# Primary API endpoint – returns JSON metadata with a download URL
 OPENML_API_URL = f"https://www.openml.org/api/v1/json/data/{OPENML_DATASET_ID}"
+# Direct download fallback – returns the raw CSV (no JSON wrapper)
+DIRECT_DOWNLOAD_URL = f"https://www.openml.org/data/v1/download/{OPENML_DATASET_ID}?format=csv"
 OUTPUT_PATH = paths.data("raw", "cochrane_base.csv")
 MIN_ROWS = 5
 
@@ -40,7 +44,11 @@ MIN_ROWS = 5
 def _download(url: str, timeout: int = 60) -> bytes:
     """Download raw bytes from ``url``."""
     req = urllib.request.Request(
-        url, headers={"User-Agent": "llmxive-PROJ-417/1.0"}
+        url,
+        headers={
+            "User-Agent": "llmxive-PROJ-417/1.0",
+            "Accept": "*/*",
+        },
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
@@ -74,22 +82,6 @@ def _validate_csv_bytes(content: bytes) -> bool:
     except Exception:
         return False
 
-def _validate_csv_file(path: Path) -> bool:
-    """Validate a CSV file on disk."""
-    try:
-        with open(path, "r", newline="", encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f)
-            headers = reader.fieldnames
-            if not headers:
-                return False
-            has_effect, has_se = _list_effect_se_columns(headers)
-            if not (has_effect and has_se):
-                return False
-            row_count = sum(1 for _ in reader)
-            return row_count >= MIN_ROWS
-    except Exception:
-        return False
-
 # ----------------------------------------------------------------------
 # Main fetching logic
 # ----------------------------------------------------------------------
@@ -107,35 +99,41 @@ def fetch_openml_dataset() -> Path:
 
     print(f"Fetching OpenML dataset ID {OPENML_DATASET_ID} ...")
 
-    # Step 1: Get dataset description JSON
+    # --------------------------------------------------------------
+    # Step 1 – try the official OpenML API JSON metadata route
+    # --------------------------------------------------------------
     try:
         raw_json = _download(OPENML_API_URL)
         description = json.loads(raw_json.decode("utf-8"))
-    except Exception as exc:
-        raise FileNotFoundError(
-            f"REAL_DATA_FETCH_FAILED: unable to retrieve OpenML metadata for "
-            f"dataset {OPENML_DATASET_ID}: {exc}"
-        ) from exc
-
-    # Extract the download URL
-    try:
         download_url = description["data_set_description"]["url"]
     except Exception as exc:
-        raise FileNotFoundError(
-            f"REAL_DATA_FETCH_FAILED: OpenML metadata missing 'url' field: {exc}"
-        ) from exc
+        # If the API route fails, we fall back to the direct CSV URL.
+        # The fallback is still considered a *real* source; we do not
+        # fabricate data. Any subsequent validation failure will raise.
+        print(
+            f"API metadata fetch failed ({exc}); trying direct download URL ..."
+        )
+        download_url = None
 
-    # Step 2: Download the file (could be CSV or ZIP)
+    # --------------------------------------------------------------
+    # Step 2 – download the dataset (either from the metadata URL or
+    #          the known direct CSV URL)
+    # --------------------------------------------------------------
     try:
-        raw_data = _download(download_url)
+        if download_url:
+            raw_data = _download(download_url)
+        else:
+            raw_data = _download(DIRECT_DOWNLOAD_URL)
     except Exception as exc:
         raise FileNotFoundError(
             f"REAL_DATA_FETCH_FAILED: unable to download dataset file from "
-            f"{download_url}: {exc}"
+            f"{download_url or DIRECT_DOWNLOAD_URL}: {exc}"
         ) from exc
 
-    # Step 3: Determine if we received a zip archive
-    if download_url.lower().endswith(".zip") or zipfile.is_zipfile(
+    # --------------------------------------------------------------
+    # Step 3 – handle ZIP archives or plain CSV
+    # --------------------------------------------------------------
+    if (download_url and download_url.lower().endswith(".zip")) or zipfile.is_zipfile(
         io.BytesIO(raw_data)
     ):
         # Inspect zip members for a CSV that validates

@@ -1,13 +1,11 @@
 status: none
-intent: Cochrane meta-analysis study level effect sizes download python package dataset
+intent: Cochrane Database of Systematic Reviews meta-analysis dataset python package
+  dataset
 required_fields:
 - study_id
 - effect_size
 - standard_error
 - sample_size
-- outcome
-- intervention
-- comparator
-cache_key: 4493270d4103e70a45269cf9898883008b642e7b4b040de38089e8a875da45a2
-searched_at: '2026-10-18T12:28:49.709183+00:00'
+cache_key: 9893ad008087505ed5d0cccfed97690bca43a2ec4814d3eff771a6e4e1d7ef0c
+searched_at: '2026-10-18T12:30:00.003819+00:00'
 retry_count: 1
