@@ -1,1 +1,1 @@
-"""Scoring modules for cognitive and questionnaire tasks."""
+"""Instrument scoring modules (SART, Ospan, PSS-10, PANAS)."""

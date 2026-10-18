@@ -1,0 +1,17 @@
+status: none
+intent: download SART Ospan PSS-10 PANAS dataset from OpenNeuro or ICPSR python package
+  dataset
+required_fields:
+- participant_id
+- session_timestamp
+- sart_commission_errors
+- sart_omission_errors
+- ospan_total_score
+- pss10_total_score
+- panas_positive_affect_score
+- panas_negative_affect_score
+- age
+- gender
+cache_key: ee0a268a7c759d64bf5c46346ecaf6b658653cbaea271e79b23176f99534e80c
+searched_at: '2026-10-18T06:34:16.131783+00:00'
+retry_count: 1
