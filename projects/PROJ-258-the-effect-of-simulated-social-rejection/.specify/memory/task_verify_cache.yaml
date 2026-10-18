@@ -1,11 +1,11 @@
 T001:
   c: true
-  h: 71ee2d8b3e6434dd17a59e81539ba32f6bf76cc71d601a5e76e4c8824769b3da
-  r: Checked that all required directories exist with `__init__.py` placeholders,
-    that `requirements.txt` contains the specified packages, and that `quickstart.md`
-    is present, lists the command `python -m code.pipeline`, and that a test confirms
-    `import pandas` runs without error.
-  sig: ff1d9a51e54f46ca498ab4b04607a9152c886a0dd1c07d1b551cc679296f5a22
+  h: 0e160fbd151b100e1092a98610148836357c2a80e53cf36459ce5f98e88eab04
+  r: The directory tree with `__init__.py` placeholders exists for all required folders,
+    `requirements.txt` contains the specified packages, and `quickstart.md` lists
+    the `python -m code.pipeline` command. The `test_imports.py` log confirms that
+    `import pandas` succeeds, and `test_structure.py` verifies the expected layout.
+  sig: 9aad7b2d99e90cf4d27e252b42c1d8e3d03eba92efebc5744e66569b5656a5ee
 T003:
   c: false
   h: b457e03011d939223c283a4ea16596c1f88ad41686f7fb90c22b936cb711b0e6

@@ -5,5 +5,3 @@ statsmodels
 pyarrow
 pyyaml
 requests
-# The following packages are already provided by the base environment:
-#   matplotlib, seaborn, pytest, etc. No need to list them here.

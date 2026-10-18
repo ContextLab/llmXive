@@ -43,7 +43,7 @@ from typing import Dict, Any, List
 import pandas as pd
 import requests
 
-from config import get_path, MAX_RAM_GB
+from config import get_path
 
 # ----------------------------------------------------------------------
 # Logging configuration
@@ -62,6 +62,12 @@ CITATION_TEXT = (
     "OpenNeuro. ds000208: Cyberball social exclusion dataset. "
     "https://openneuro.org/datasets/ds000208"
 )
+
+# Default RAM limit in GB (fallback if not defined in config)
+try:
+    from config import MAX_RAM_GB  # type: ignore
+except Exception:
+    MAX_RAM_GB = 7.0
 
 # ----------------------------------------------------------------------
 # Helper functions
