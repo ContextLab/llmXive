@@ -10,10 +10,10 @@
     "python code/analysis/tradeoff_model.py --full data/processed/full_context_logs.json --compressed data/processed/compressed_context_logs.json -> rc=1\n    No logs found for analysis."
   ],
   "fix_rounds": 0,
-  "model_tier": 1,
+  "model_tier": 2,
   "total_attempts": 1,
   "replan_rounds": 1,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-17T14:15:30Z"
+  "updated_at": "2026-10-18T02:10:13Z"
 }

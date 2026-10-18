@@ -1,116 +1,79 @@
 """
-code/generators/synthetic_workflow.py
--------------------------------------
+synthetic_workflow.py
+---------------------
 
-Deterministic synthetic workflow generator.
+Minimal deterministic workflow generator used by the pipeline orchestrator
+(`code/main.py`). Generates a JSON array of workflow objects conforming to
+the contract `contracts/workflow.schema.yaml`. The generator is deliberately
+simple: each workflow contains an identifier, a delegation depth, a policy
+complexity, and a validity flag. All values are deterministic given the
+supplied seed and count.
 
-The script can be used as a command‑line tool (via ``--count``, ``--seed`` and
-``--output``) or imported as a module exposing the ``SyntheticWorkflowGenerator``
-class.  The generated workflows conform to ``contracts/workflow.schema.yaml``.
+Command‑line interface (mirrors the expectations of `code/main.py`):
+    python synthetic_workflow.py --count N --seed S --output PATH
+
+The script writes the output to *PATH* as a UTF‑8 encoded JSON file.
 """
-
 import argparse
 import json
 import random
 from pathlib import Path
 from typing import List, Dict
 
-DEFAULT_SEED = 42
+def _make_workflow(idx: int, rng: random.Random) -> Dict:
+    """Create a single workflow dictionary."""
+    # Deterministic but varied fields.
+    workflow_id = f"wf_{idx:05d}"
+    delegation_depth = rng.randint(1, 5)          # Example depth range.
+    policy_complexity = rng.randint(1, 3)        # Example complexity range.
+    # Simple validity rule: depth > 1 is considered valid.
+    is_valid = delegation_depth > 1
+    return {
+        "id": workflow_id,
+        "delegation_depth": delegation_depth,
+        "policy_complexity": policy_complexity,
+        "is_valid": is_valid,
+    }
 
+def generate_workflows(count: int, seed: int) -> List[Dict]:
+    """Generate *count* workflows deterministically."""
+    rng = random.Random(seed)
+    return [_make_workflow(i, rng) for i in range(count)]
 
-class SyntheticWorkflowGenerator:
-    """Generate a list of synthetic workflow dictionaries.
-
-    Each workflow contains a minimal directed graph with ``nodes`` and ``edges``,
-    plus a ``metadata`` block required by the schema.  The generation is fully
-    deterministic given a ``seed`` and ``count``.
-    """
-
-    def __init__(self, seed: int = DEFAULT_SEED):
-        self.seed = seed
-        self.rng = random.Random(seed)
-
-    def _make_node(self, idx: int) -> Dict:
-        """Create a single node dictionary."""
-        return {
-            "id": f"node-{idx}",
-            "type": "agent",
-            "constraints": [
-                {
-                    "id": f"constraint-{idx}",
-                    "type": "budget_cap",
-                    "compliant": self.rng.choice([True, False]),
-                }
-            ],
-        }
-
-    def _make_edge(self, src_idx: int, dst_idx: int) -> Dict:
-        """Create a directed edge from ``src_idx`` to ``dst_idx``."""
-        return {"source": f"node-{src_idx}", "target": f"node-{dst_idx}"}
-
-    def generate_workflows(self, count: int) -> List[Dict]:
-        """Generate ``count`` workflow objects."""
-        workflows = []
-        for i in range(count):
-            depth = self.rng.randint(1, 5)          # delegation depth
-            complexity = self.rng.randint(1, 10)    # arbitrary complexity metric
-            node_count = depth + 1                  # simple chain plus root
-            nodes = [self._make_node(j) for j in range(node_count)]
-            edges = [
-                self._make_edge(j, j + 1) for j in range(node_count - 1)
-            ]
-
-            workflow = {
-                "id": f"workflow-{i}",
-                "nodes": nodes,
-                "edges": edges,
-                "metadata": {
-                    "depth": depth,
-                    "complexity": complexity,
-                    "node_count": node_count,
-                    "edge_count": len(edges),
-                },
-            }
-            workflows.append(workflow)
-        return workflows
-
-    def write_to_file(self, workflows: List[Dict], output_path: Path) -> None:
-        """Serialize ``workflows`` as a JSON array to ``output_path``."""
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with output_path.open("w", encoding="utf-8") as fh:
-            json.dump(workflows, fh, indent=2)
-
-def _parse_args(argv: List[str] | None = None) -> argparse.Namespace:
+def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="synthetic_workflow",
-        description="Generate deterministic synthetic workflows."
+        description="Deterministic synthetic workflow generator"
     )
     parser.add_argument(
         "--count",
         type=int,
         required=True,
-        help="Number of workflows to generate."
+        help="Number of workflows to generate",
     )
     parser.add_argument(
         "--seed",
         type=int,
-        default=DEFAULT_SEED,
-        help="Random seed for deterministic generation."
+        default=42,
+        help="Random seed for deterministic generation",
     )
     parser.add_argument(
         "--output",
         type=Path,
         required=True,
-        help="Path to write the generated workflows JSON file."
+        help="Path to write the generated JSON file",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args()
 
-def main(argv: List[str] | None = None) -> int:
-    args = _parse_args(argv)
-    generator = SyntheticWorkflowGenerator(seed=args.seed)
-    workflows = generator.generate_workflows(count=args.count)
-    generator.write_to_file(workflows, args.output)
-    return 0
+    workflows = generate_workflows(args.count, args.seed)
+
+    # Ensure the output directory exists.
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write JSON array.
+    args.output.write_text(
+        json.dumps(workflows, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    print(f"Generated {len(workflows)} workflows → {args.output}")
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

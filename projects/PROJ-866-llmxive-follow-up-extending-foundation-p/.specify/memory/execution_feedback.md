@@ -23,22 +23,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-866-llmxive-follow-up-extending-foundation-p/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/src/cli/run_simulation.py': [Errno 2] No such file or directory
 
 - python -m pytest -v -> rc=2
-llecting ... collected 127 items / 1 error
-
-==================================== ERRORS ====================================
-_ ERROR collecting projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/contract/test_save_processed_logs_schema.py _
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/contract/test_save_processed_logs_schema.py'.
+e/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/tests/unit/test_generator.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/contract/test_save_processed_logs_schema.py:13: in <module>
-    from engines.save_processed_logs import save_processed_logs, load_json_file
-E   ModuleNotFoundError: No module named 'engines.save_processed_logs'
+tests/unit/test_generator.py:7: in <module>
+    from generators.synthetic_workflow import SyntheticWorkflowGenerator
+generators/__init__.py:9: in <module>
+    from code.generators.synthetic_workflow import SyntheticWorkflowGenerator  # noqa: F401
+E   ImportError: cannot import name 'SyntheticWorkflowGenerator' from 'code.generators.synthetic_workflow' (/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/code/generators/synthetic_workflow.py)
 =========================== short test summary info ============================
 ERROR tests/contract/test_save_processed_logs_schema.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.25s ===============================
+ERROR tests/integration/test_compression.py
+ERROR tests/unit/test_generator.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 1.09s ===============================
 
 
 
