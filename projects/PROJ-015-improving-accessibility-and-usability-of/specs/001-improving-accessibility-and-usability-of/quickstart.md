@@ -23,7 +23,7 @@
  ```bash
  pip install -r requirements.txt
  ```
- *Note: `requirements.txt` includes `streamlit`, `scipy`, `pandas`, `seaborn`, `pyyaml`, `statsmodels`.*
+ *Note: `requirements.txt` includes `streamlit`, `scipy`, `pandas`, `seaborn`, `pyyaml`, `statsmodels`, `numpy`, `pytest`, and other pinned packages.*
 
 ## 3. Running the Simulator (Data Collection)
 
@@ -36,7 +36,7 @@ streamlit run code/app.py
 - The app will open in your browser (default: `).
 - **Instruction**: Recruit participants via disability advocacy groups. Provide them with the URL.
 - **Data Output**: Session data is saved to `data/raw/` automatically as participants complete tasks.
-- **Counterbalancing**: The app automatically assigns the order (Traditional->Explainable or vice versa) based on a Latin Square logic.
+- **Counterbalancing**: The app automatically assigns the order (Traditional→Explainable or vice versa) based on a Latin Square logic.
 - **Pilot Study**: Run a pilot with N=5 participants first to validate task difficulty.
 
 ## 4. Running the Analysis Pipeline
@@ -44,7 +44,7 @@ streamlit run code/app.py
 Once you have collected data (minimum N=30 sessions recommended), run the analysis:
 
 ```bash
-python code/analysis.py
+python -m code.analysis.run_analysis --mode pilot
 ```
 
 This script will:
@@ -52,7 +52,7 @@ This script will:
 2. Filter out incomplete sessions (including those with missing SUS items).
 3. Compute SUS scores and metrics (including explanation engagement time).
 4. Check normality (Shapiro-Wilk) and run Repeated Measures ANOVA or Friedman Test.
-5. Apply Holm-Bonferroni correction.
+5. Apply Holm‑Bonferroni correction.
 6. Compute observed power.
 7. Generate `data/processed/metrics_summary.csv`.
 8. Generate `figures/completion_time.png`, `figures/error_count.png`, `figures/sus_score.png`, `figures/explanation_engagement.png`.
@@ -73,7 +73,7 @@ pytest tests/ -v
 To verify reproducibility (Constitution Principle I):
 
 1. Delete `data/processed/`, `figures/`, and `docs/power_report.md`.
-2. Re-run `python code/analysis.py`.
+2. Re-run `python -m code.analysis.run_analysis --mode pilot`.
 3. Verify that the output files are identical (checksums match).
 
 ## 7. Troubleshooting
@@ -82,4 +82,4 @@ To verify reproducibility (Constitution Principle I):
 - **Port Conflict**: If `streamlit run` fails due to port 8501, use `streamlit run code/app.py --server.port 8502`.
 - **Validation Errors**: If the pipeline fails, check `data/raw/invalid_sessions.json` to see which sessions were rejected and why.
 - **Power Warning**: If the power report indicates low power (<0.8), the study may need more participants.
-- **Non-Normal Data**: If Shapiro-Wilk indicates non-normality, the script will automatically switch to the Friedman Test and log the change.
+- **Non-Normal Data**: If Shapiro‑Wilk indicates non‑normality, the script will automatically switch to the Friedman Test and log the change.

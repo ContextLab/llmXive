@@ -1,0 +1,49 @@
+T001:
+  reason: "The required directories `data/results/`, `data/external/`, and `figures/`\
+    \ are missing from the project layout. Consequently the task\u2019s specification\
+    \ to create those folders is not satisfied. (Requirements.txt and quickstart.md\
+    \ are present, but the missing directories cause the overall task to be incomplete.)"
+  task: 8c30c5762b5ef8d39faaf9c529207c862a40b6355a72ed340d42ad192de55fbf
+T002:
+  reason: "The validator imports a relaxed schema at `specs/001-improving-accessibility-and-usability-of/contracts/session_relaxed.schema.yaml`,\
+    \ but this file is missing, causing an import\u2011time `FileNotFoundError` and\
+    \ preventing the data loader (and its tests) from running. Add the required schema\
+    \ file (or correct the path) so that `validator.validate_session` can load it\
+    \ and the tests can execute."
+  task: cf64f86f5dd2550d7310bbf7cc3a6417acd4d16c02c5864217f8d6453db8f4a1
+T003:
+  reason: 'declared artifact(s) missing/empty/invalid: code/app.py, code/counterbalance.py'
+  task: 1804dfb59fb1259701e889cb4b9731e4dae046dfec73405e615409e3801aaf70
+T004:
+  reason: "The `code/analysis/data_cleaner.py` file exists and implements the required\
+    \ functions, but the pipeline\u2019s output file `data/processed/metrics_summary.csv`\
+    \ is missing, the accompanying `metrics.schema.yaml` is absent, and the integration\
+    \ test `tests/integration/test_cleaning.py` does not exist, so the task\u2019\
+    s verification criteria are not met."
+  task: cd5db3f8f2bbe172531c99ea22f5be48654c79886f9f5c90e21fa37c5d47ead4
+T005:
+  task: 6c7971158b43228dd14174d58a8deb110ec7700489f3c911084a1c0465ec6bf9
+T006:
+  task: c860740bc0aabf6749c115e3ee75a243aa489d8ef697970a6f7f4197954e2d8a
+T007:
+  task: 356fdb07f5b46d414abf1b5cde475c3c893018b73d8b90f6117b0bb490d5bc53
+T008:
+  task: 3e091cc8ffaf289442b3de6839961d9716adb1db83d0bb2988609d9d82093588
+T009:
+  task: f774afe6dbc9c82049432ae5f46feb73094455ae866d9ef24c40ed3ddf5a2740
+T010:
+  task: bc2222d87020fee9a73324b49f14b89454f7fc9bd6843d00b6ef0d9ea71399aa
+T011:
+  task: 5ff3b0178c71fccda29232295e0e111e745131382aaf8d44766a3bed72a30437
+T012:
+  task: d547baf5bf5912b48f63603be0d32bdb932114d2ea00b438aa76321a5bf7cd18
+T013:
+  task: 2f821e90059b32fee9f926cede21341eac93a820fef29435f365c74449138716
+T014:
+  task: 3fe79339ab928c39ecc98748d1a6e65f237de5de00cea50cc7de95f5a4a6ad16
+T015:
+  task: bac42dc5a20a46eb4da58769a86704c2153fedf2649f6d866e60815288e1c48d
+T016:
+  task: 8c432fd376eda0f74b728db206206450aadab32683e73dfe1588a30149d18b8a
+T017:
+  task: cb7f6781f50f77e14265e74935b5cba4f06e43403969b3ef862a03e29c4e59cb

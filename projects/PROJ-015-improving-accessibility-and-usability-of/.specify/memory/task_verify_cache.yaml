@@ -1,74 +1,26 @@
-T019b:
+T001:
   c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: "The required file `contracts/session.schema.yaml` does not exist (the only referenced\
-    \ `schema.yaml` is missing), so no schema defining the listed fields is present.\
-    \ The task\u2019s deliverable is absent, thus the requirement is not satisfied."
-T019d:
+  h: 9acd7f7a530dd9e97fccb73846f062a54299e17061ec6e59ef5028f76d1f158a
+  r: "The required directories `data/results/`, `data/external/`, and `figures/` are\
+    \ missing from the project layout. Consequently the task\u2019s specification\
+    \ to create those folders is not satisfied. (Requirements.txt and quickstart.md\
+    \ are present, but the missing directories cause the overall task to be incomplete.)"
+  sig: 0ed43b830d17898bfa2acc00209f1c6097a81ad807c17140ed5e22bbe867b373
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code artifacts (e.g., modified `app.py` showing a call to `validate_session`
-    before writing to `data/raw/`, or updated `validator.py` integration) were provided.
-    Without visible changes or evidence that a `ValueError` is raised on validation
-    failure, the task requirement is not demonstrably satisfied.
-T021a:
+  h: 69a587fd8a783e3424ca9195fb99575fa0aa34a1ad61499d334bdfb787f90f9a
+  r: "The validator imports a relaxed schema at `specs/001-improving-accessibility-and-usability-of/contracts/session_relaxed.schema.yaml`,\
+    \ but this file is missing, causing an import\u2011time `FileNotFoundError` and\
+    \ preventing the data loader (and its tests) from running. Add the required schema\
+    \ file (or correct the path) so that `validator.validate_session` can load it\
+    \ and the tests can execute."
+  sig: c2aa6c9a0a892a30aca2416e02c866c7af23f4542aa6888b469ac9647f1b02ec
+T004:
   c: false
-  h: a7af662d47ca73f9f567315aac7a482e1c388c84348f6ef817c77b8eb40006d6
-  r: "The repository contains `code/analysis/data_cleaner.py`, but the file is truncated\
-    \ and does not show the full implementation (e.g., the cleaning, imputation, and\
-    \ CSV export logic). Moreover, the required output file `data/processed/cleaned_sessions.csv`\
-    \ is absent. Without a generated cleaned CSV, the task\u2019s deliverable is not\
-    \ met."
-T023a:
-  c: false
-  h: 6e69ef7d99f72ac89b8e0a241834f7b8eabd32c749f2a7ea11a28b3a06f89d86
-  r: "The repository contains a partially\u2011implemented `run_anova_rm` function\
-    \ (the file is truncated and does not show writing the required `metrics_summary.csv`).\
-    \ Moreover, the expected output file `data/processed/metrics_summary.csv` is missing\
-    \ entirely, so the task\u2019s output artifact is not present. The implementation\
-    \ must be completed and the CSV generated to satisfy the requirement."
-T025c:
-  c: false
-  h: 0e6411352582c301acc6e22c53bb7a5656aad676f67ce4d537edb61d421fa80f
-  r: "The `execute_pipeline` function exists but calls wrappers (`log_normality_test`,\
-    \ `run_anova_pipeline`, etc.) instead of the exact required functions `shapiro_wilk()`,\
-    \ `anova_rm()`, `holm_bonferroni()`, and `descriptive_stats()`. Moreover, the\
-    \ script never writes import\u2011error information to `data/processed/error_log.txt`\
-    \ and that file is absent. The task\u2019s specification is therefore not fully\
-    \ satisfied."
-T031b:
-  c: false
-  h: ff6eae213a55acae8829c6639e5d2691cb6173170fc535320d89b4af48bf6ea1
-  r: The required schema file `contracts/session.schema.yaml` is missing, so there
-    is nothing for the simulator to validate against. Moreover, the provided `simulator.py`
-    snippet only imports validation utilities but does not show any actual call to
-    `load_schema` or `validate_session` on the generated sessions. Both the schema
-    artifact and concrete validation implementation are absent.
-T035a:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The response includes a non\u2011empty updated `spec.md` excerpt where FR\u2011\
-    002 is replaced with the required \u201CRatified Amendment\u201D text, explicitly\
-    \ mandating Repeated Measures ANOVA, adding Holm\u2011Bonferroni correction, and\
-    \ removing the Levene\u2019s test and T\u2011Test/Wilcoxon decision tree. This\
-    \ matches the task\u2019s deliverable."
-T098:
-  c: true
-  h: 5194eb1e7a6c806e526bc4169d97d0c899cdcb771b7dac9e41fbff79858ac37f
-  r: "The `check_full_recruitment_ready()` function is fully implemented in `code/analysis/run_analysis.py`,\
-    \ containing logic to verify the existence of `data/pilot_report.md` and to detect\
-    \ success markers, raising `DataValidationError` when appropriate. The required\
-    \ artifact (the function) exists and meets the task\u2019s specification."
-T108:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `run_analysis.py` file containing a `precondition_check()` function
-    was provided, nor any indication that such a check raises an error when `cleaned_sessions.csv`
-    is absent. The required code artifact is missing, so the task is not satisfied.
-T113:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a modified `run_analysis.py` containing checksum logic, nor any
-    files showing the comparison of `report_summary.txt` with the two source CSVs.
-    The required artifact (checksum verification implementation) is missing, so the
-    task is not satisfied.
+  h: 950922452a2cd4aa3dd9c41445b5e613c438864978ed0c74bd948822a3fa3bd5
+  r: "The `code/analysis/data_cleaner.py` file exists and implements the required\
+    \ functions, but the pipeline\u2019s output file `data/processed/metrics_summary.csv`\
+    \ is missing, the accompanying `metrics.schema.yaml` is absent, and the integration\
+    \ test `tests/integration/test_cleaning.py` does not exist, so the task\u2019\
+    s verification criteria are not met."
+  sig: 2d83f663b1df142680170c09e691fdb31499706b966f6df6b0f6773347779774
