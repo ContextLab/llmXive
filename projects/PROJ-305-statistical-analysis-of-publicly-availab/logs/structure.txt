@@ -35,10 +35,15 @@
 │   ├── .gitkeep
 │   ├── .ruff.toml
 │   ├── .tasks
+│   │   ├── T001.code_create_structure.py.log
+│   │   ├── T002.src_data_download.py.log
+│   │   ├── T002.tests_unit_test_download.py.log
 │   │   └── T016b.atomize.yaml
 │   ├── Makefile
 │   ├── README.md
 │   ├── __init__.py
+│   ├── __pycache__
+│   │   └── __init__.cpython-311.pyc
 │   ├── contracts
 │   │   ├── .gitkeep
 │   │   ├── dataset.schema.yaml
@@ -69,6 +74,7 @@
 │   ├── src
 │   │   ├── .gitkeep
 │   │   ├── __init__.py
+│   │   ├── __pycache__
 │   │   ├── analysis
 │   │   ├── data
 │   │   ├── main.py
@@ -86,13 +92,16 @@
 ├── data
 │   ├── .gitkeep
 │   ├── processed
-│   └── raw
+│   ├── raw
+│   │   └── 2020
+│   └── results
 ├── figures
 │   └── .gitkeep
 ├── idea
 │   ├── research_question_validation.md
 │   └── statistical-analysis-of-publicly-availab.md
 ├── logs
+│   ├── download.log
 │   ├── lint.txt
 │   └── structure.txt
 ├── output
@@ -100,6 +109,7 @@
 │   ├── figures
 │   └── temporal_profiles
 ├── pyproject.toml
+├── quickstart.md
 ├── requirements.txt
 ├── scripts
 │   ├── format.sh
@@ -128,11 +138,13 @@
 │   └── validation
 └── tests
     ├── .gitkeep
+    ├── fixtures
     ├── integration
     │   ├── test_pipeline.py
     │   ├── test_signal_detection.py
     │   └── test_temporal_profiles.py
     └── unit
+        ├── __pycache__
         ├── test_bh_correction.py
         ├── test_disproportionality.py
         ├── test_download.py
@@ -142,4 +154,4 @@
         ├── test_validate.py
         └── test_validate_e_schema_missing.py
 
-46 directories, 97 files
+52 directories, 103 files

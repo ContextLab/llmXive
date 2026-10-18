@@ -53,3 +53,136 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-11T23:07:44Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: full 2020-2023 VAERS parquet file downloaded
+  claim_id: c_cf4ebf17
+  context: "Step 2 of the execution downloads the full 2020\u20112023 VAERS parquet\
+    \ file from the URL defined in the script."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Downloads the full 2020\u20112023 VAERS parquet file from `...` (actual\
+    \ URL defined in the script)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:57Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: SHA-256 checksum written to data/checksums.txt
+  claim_id: c_2b8293bf
+  context: "During the download step the script writes a SHA\u2011256 checksum to\
+    \ data/checksums.txt."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Writes SHA\u2011256 checksum to `data/checksums.txt`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: exits with E_SCHEMA_MISSING when required columns are absent
+  claim_id: c_ea546c09
+  context: The validation script aborts with error code E_SCHEMA_MISSING if required
+    columns are missing.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Exits with `E_SCHEMA_MISSING` if any of `VAX_TYPE`, `SOC_CODE`, `REPT_DATE`
+    are absent.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: all JSON-schema contracts pass
+  claim_id: c_a7c12640
+  context: The verification step runs pytest against the contract tests and requires
+    all JSON-schema contracts to pass.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All JSON\u2011schema contracts must pass."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: output signals.csv contains ROR PRR IC with adjusted p-values
+  claim_id: c_1c12eb52
+  context: "After running the full analysis pipeline, the resulting signals.csv file\
+    \ contains disproportionality metrics with adjusted p\u2011values."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`output/signals.csv` \u2013 table of ROR/PRR/IC with adjusted p\u2011\
+    values."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: PNG plots for top signals generated in output/temporal_profiles
+  claim_id: c_2a8de9bb
+  context: The pipeline creates temporal profiling PNG plots for the top signals in
+    the output/temporal_profiles directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: PNG plots for the top signals are saved in `output/temporal_profiles/`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: sensitivity_analysis.csv contains delta metrics versus Flu baseline
+  claim_id: c_274aed6d
+  context: "A flu\u2011only sensitivity analysis is written to output/sensitivity_analysis.csv,\
+    \ reporting delta metrics compared to the Flu baseline."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`output/sensitivity_analysis.csv` \u2013 \u0394\u2011metrics vs. Flu\
+    \ baseline."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: output report.md includes summary, memory usage, and limitations
+  claim_id: c_b55adc26
+  context: The final step generates a markdown report summarizing findings, memory
+    usage, and study limitations.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`output/report.md` \u2013 human\u2011readable summary, memory usage,\
+    \ and limitations."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'

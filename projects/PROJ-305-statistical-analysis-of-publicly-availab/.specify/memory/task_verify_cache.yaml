@@ -1,38 +1,10 @@
-T002:
-  c: true
-  h: 0acb25cee8512674e740cd53cfa932eb129b079d944de6daa5c3f4f8dd877c3e
-  r: The README.md exists (279 bytes) and contains the exact required title "Statistical
-    Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports" plus a
-    one-sentence description of the pipeline. The .gitignore is not shown in the evidence,
-    but the README content satisfies the primary verification; the title grep requirement
-    is met by the confirmed file contents.
-  sig: 0c3df69659c1a9c0140b591f5ecb221a4a119aa14c373a436c4d5b2b5e81081b
-T004:
-  c: true
-  h: 4f2e7181cd6b3d50e3c3e5521f98fd64a87303a471742ce1350678e1c1de4625
-  r: All three destination files (`contracts/dataset.schema.yaml`, `contracts/signal.schema.yaml`,
-    `contracts/soc_cluster.schema.yaml`) exist, are non-empty, and are byte-identical
-    to their spec sources (matching sha256 hashes). The verification command's `data/processed/dummy.csv`
-    is missing, but that file belongs to a later preprocessing task, not this copy
-    task; the schemas themselves are well-formed YAML matching the spec contracts.
-  sig: f3650f69aad5edf7963d6f475f0038816473b8e8568dd904c67288e4764a577a
-T005:
+T001:
   c: false
-  h: a7027dddc7cc65bc23505d7222cc6f499ce49b9bc304aa38048f343a31160686
-  r: "The `src/utils/plots.py` file contains a literal placeholder \u2014 a comment\
-    \ saying \"the original content of the file is omitted for brevity\" \u2014 instead\
-    \ of the actual `plot_weekly_counts`, `plot_signal_table`, etc. functions that\
-    \ the provided `tests/unit/test_plots.py` imports from `src.utils.plots`, so those\
-    \ tests would fail with ImportError. Additionally, the required verification evidence\
-    \ is absent: `logs/config_import.txt` does not exist, `output/figures/` is empty\
-    \ (no PNGs), and there is no test-run evidence; the two required functions exist\
-    \ only in a file whose other content is fabricated/omi"
-  sig: 257c8769dfea138d4bc421f7a2d37339c93756400d98ba83c9d01b70907a61b5
-T011:
-  c: false
-  h: 0beb49ae10367e9e876108cccf2b55350f7bc2fdd826b3d2fc7cc80b6f5b871d
-  r: The repository lacks `src/data/validate.py`, so the unit tests cannot even import
-    the functions they are meant to test. Moreover, the provided `tests/unit/test_validate.py`
-    (truncated) does not contain a test that asserts an `E_SCHEMA_MISSING` exception
-    is raised for missing columns; it only checks for a generic `SystemExit`. Both
-    the required source file and the specific test for `E_SCHEMA_MISSING` are missing.
+  h: cb938d6644443bfe4eabc0da0c099126bab4b599ed3e3eb38de670017dd6f629
+  r: "The required directory tree and a non\u2011empty `logs/structure.txt` are present,\
+    \ and `quickstart.md` exists, but the quickstart documentation does **not** contain\
+    \ the exact runnable command `python -m src.main` (it shows `python src/main.py`\
+    \ instead). This violates the task\u2019s specification, so the artifact is incomplete.\
+    \ Adding the correct command (and confirming the grep\u2011count verification)\
+    \ is needed."
+  sig: 1f2eedd997c5cb6977669e753381edf5969fe6311c12e678c7b3777ef8069980

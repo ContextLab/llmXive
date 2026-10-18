@@ -1,77 +1,114 @@
 """
-Script to create the required project directory tree and capture a
-filesystem snapshot (up to depth 3) in logs/structure.txt.
+Script to establish the required project layout and capture a filesystem
+snapshot for verification (T001).
+
+It creates all directories listed in ``REQUIRED_DIRS`` relative to the
+repository root and writes a tree‑like listing (up to depth 3) to
+``logs/structure.txt``.  If the external ``tree`` command is unavailable,
+a pure‑Python fallback walks the directory tree and produces a similar
+output.
 """
 
-import sys
+import os
+import subprocess
 from pathlib import Path
+from typing import List
 
-# List of directories that must exist for the project
+# ----------------------------------------------------------------------
+# Configuration – list of directories that must exist for the project.
+# ----------------------------------------------------------------------
 REQUIRED_DIRS = [
-    "src",
-    "src/data",
-    "src/analysis",
-    "src/utils",
-    "src/validation",
-    "tests",
-    "data",
-    "data/raw",
-    "data/processed",
-    "output",
-    "output/figures",
-    "output/temporal_profiles",
-    "contracts",
-    "logs",
+    Path("src/data"),
+    Path("src/analysis"),
+    Path("src/utils"),
+    Path("src/validation"),
+    Path("tests/unit"),
+    Path("tests/integration"),
+    Path("tests/fixtures"),
+    Path("data/raw"),
+    Path("data/processed"),
+    Path("data/results"),
+    Path("output/figures"),
+    Path("output/temporal_profiles"),
+    Path("logs"),
 ]
 
-
+# ----------------------------------------------------------------------
+# Helper: create all required directories (including parents).
+# ----------------------------------------------------------------------
 def _create_directories(root: Path) -> None:
-    """
-    Create all directories listed in REQUIRED_DIRS under the given root.
-    """
+    """Create every directory in ``REQUIRED_DIRS`` under ``root``."""
     for rel_dir in REQUIRED_DIRS:
         dir_path = root / rel_dir
         dir_path.mkdir(parents=True, exist_ok=True)
 
+# ----------------------------------------------------------------------
+# Helper: generate a tree‑like snapshot using the system ``tree`` command.
+# ----------------------------------------------------------------------
+def _run_tree(root: Path, max_depth: int = 3) -> str:
+    """Run ``tree -a -L <max_depth>``; fallback to Python if unavailable."""
+    try:
+        completed = subprocess.run(
+            ["tree", "-a", f"-L{max_depth}", str(root)],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        return completed.stdout
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        # ``tree`` not installed or failed – use Python fallback.
+        return _python_tree_fallback(root, max_depth)
 
-def _write_snapshot(root: Path, output_file: Path, max_depth: int = 3) -> None:
+# ----------------------------------------------------------------------
+# Python fallback that mimics ``tree`` output (directories only).
+# ----------------------------------------------------------------------
+def _python_tree_fallback(root: Path, max_depth: int = 3) -> str:
     """
-    Write a simple tree‑like snapshot of the directory hierarchy up to
-    ``max_depth``. The format is lightweight – each line contains the
-    relative path of a file or directory (directories end with a slash).
+    Walk ``root`` up to ``max_depth`` levels and return a string where each
+    line is a relative path (directories end with a slash).  The format is
+    deliberately simple – it only needs to contain one line per directory
+    for the verification step.
     """
-    lines = []
+    lines: List[str] = []
 
-    root = root.resolve()
-
-    def walk(current: Path, depth: int) -> None:
-        if depth > max_depth:
+    def _walk(current: Path, current_depth: int) -> None:
+        if current_depth > max_depth:
             return
-        for entry in sorted(current.iterdir()):
-            rel = entry.relative_to(root)
-            line = str(rel) + ("/" if entry.is_dir() else "")
-            lines.append(line)
-            if entry.is_dir():
-                walk(entry, depth + 1)
+        rel = current.relative_to(root)
+        # Root itself is printed as '.' by ``tree`` – we mimic that.
+        prefix = "." if rel == Path("") else str(rel)
+        # Ensure directories end with a slash.
+        lines.append(f"{prefix}/")
+        for child in sorted(current.iterdir()):
+            if child.is_dir():
+                _walk(child, current_depth + 1)
 
-    walk(root, 0)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    output_file.write_text("\n".join(lines), encoding="utf-8")
+    _walk(root, 0)
+    return "\n".join(lines) + "\n"
 
-
+# ----------------------------------------------------------------------
+# Main entry point.
+# ----------------------------------------------------------------------
 def main() -> None:
     """
-    Main entry point:
-    1. Create the required directory tree.
-    2. Write the snapshot to logs/structure.txt.
+    Create the directory layout and write ``logs/structure.txt``.
+    The function exits with status 0 on success; any unexpected exception
+    will cause a non‑zero exit code (allowing the runner to surface the
+    failure).
     """
-    root = Path.cwd()
-    _create_directories(root)
-    snapshot_path = root / "logs" / "structure.txt"
-    _write_snapshot(root, snapshot_path, max_depth=3)
-    print(f"Directory snapshot written to {snapshot_path}")
-    sys.exit(0)
+    project_root = Path.cwd()
+    # 1. Create required directories.
+    _create_directories(project_root)
 
+    # 2. Capture the filesystem snapshot.
+    snapshot = _run_tree(project_root, max_depth=3)
+
+    # 3. Write the snapshot to the expected location.
+    logs_dir = project_root / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    output_file = logs_dir / "structure.txt"
+    output_file.write_text(snapshot, encoding="utf-8")
 
 if __name__ == "__main__":
     main()

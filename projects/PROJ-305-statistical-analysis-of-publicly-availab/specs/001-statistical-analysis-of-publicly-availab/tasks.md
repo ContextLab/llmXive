@@ -14,7 +14,7 @@ The goal is a reproducible, CPU‑only pipeline that (1) downloads real VAERS 20
   - Document the runnable command (`python -m src.main`) and input provenance in `quickstart.md`.  
   - **Verification**: `test -s logs/structure.txt` and a grep count of listed directories must succeed.
 
-- [ ] T002 [US1] Download the real VAERS 2020–2023 CSV archives and the bundled MedDRA→SOC mapping.  
+- [ ] T002 [US1] Download the real VAERS 2020–2023 CSV archives and the bundled MedDRA→SOC mapping.   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   - Implement `src/data/download.py` to stream‑download for each year Y ∈ {2020,2021,2022,2023} the three official HHS CSV zip files:  
     * `[UNRESOLVED-CLAIM: https://vaers.hhs.gov/data/datasets/{Y}VAERSDATA.csv.zip` — HTTP 404]  
     * `[UNRESOLVED-CLAIM: https://vaers.hhs.gov/data/datasets/{Y}VAERSVAX.csv.zip` — HTTP 404]  

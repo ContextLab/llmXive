@@ -1,216 +1,149 @@
 """
-Module for downloading VAERS datasets.
+VAERS Data Download Script
+=========================
 
-This module handles fetching CSV files from the VAERS website or verified mirrors,
-saving them to the local data/raw directory, and verifying file integrity using checksums.
+This script downloads the VAERS CSV zip archives for the years 2020‑2023
+from the official HHS website, extracts the three CSV files per year
+(VAERSDATA, VAERSVAX, VAERSSYMPTOMS) into ``data/raw/<YEAR>/`` and records
+SHA‑256 checksums for each extracted CSV.
+
+The script aborts with a non‑zero exit code on any HTTP error or checksum
+mismatch – no synthetic fallback is performed.
 """
 
 import hashlib
 import logging
-import os
+import sys
+import zipfile
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Dict, List
 
 import requests
+from llmxive_toolkit import paths, get_logger
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+BASE_URL = "https://vaers.hhs.gov/data/datasets"
+YEARS = [2020, 2021, 2022, 2023]
+FILE_TYPES = ["VAERSDATA", "VAERSVAX", "VAERSSYMPTOMS"]  # without extension
+CHUNK_SIZE = 8192
 
-# Base URL for VAERS data (example, may need update based on actual source)
-VAERS_BASE_URL = "https://vaers.hhs.gov/data/datasets"
-# Or a mirror if the official site is unstable
-# VAERS_BASE_URL = "https://mirror.example.com/vaers"
+# ----------------------------------------------------------------------
+# Logging
+# ----------------------------------------------------------------------
+log = get_logger(__name__)  # writes to console; we also write our own log file
+LOG_FILE = paths.logs("download_checksums.txt")
+LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-# Define years to download
-DOWNLOAD_YEARS = [2020, 2021, 2022, 2023]
-
-
-def calculate_checksum(data: bytes, algorithm: str = "md5") -> str:
-    """
-    Calculate the checksum of the given data.
-
-    Args:
-        data: The binary data to hash.
-        algorithm: The hashing algorithm to use (default: 'md5').
-
-    Returns:
-        The hexadecimal checksum string.
-
-    Raises:
-        ValueError: If an unsupported algorithm is provided.
-    """
-    if algorithm.lower() == "md5":
-        hasher = hashlib.md5()
-    elif algorithm.lower() == "sha256":
-        hasher = hashlib.sha256()
-    else:
-        raise ValueError(f"Unsupported algorithm: {algorithm}")
-
-    hasher.update(data)
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def sha256_checksum(file_path: Path) -> str:
+    """Return the SHA‑256 hex digest of *file_path*."""
+    hasher = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(CHUNK_SIZE), b""):
+            hasher.update(chunk)
     return hasher.hexdigest()
 
-
-def verify_checksum(data: bytes, expected_hash: str, algorithm: str = "md5") -> bool:
-    """
-    Verify if the checksum of the data matches the expected hash.
-
-    Args:
-        data: The binary data to check.
-        expected_hash: The expected hexadecimal checksum.
-        algorithm: The hashing algorithm used.
-
-    Returns:
-        True if the checksums match, False otherwise.
-    """
-    calculated_hash = calculate_checksum(data, algorithm)
-    # Compare case-insensitively
-    return calculated_hash.lower() == expected_hash.lower()
-
-
-def download_file(
-    url: str, output_path: str, expected_checksum: Optional[str] = None
-) -> bool:
-    """
-    Download a file from a URL and optionally verify its checksum.
-
-    Args:
-        url: The URL to download from.
-        output_path: The local path to save the file.
-        expected_checksum: Optional expected checksum to verify against.
-
-    Returns:
-        True if download and verification (if applicable) succeed, False otherwise.
-    """
-    logger.info(f"Downloading {url} to {output_path}")
-
+def download_zip(url: str, dest_path: Path) -> None:
+    """Download a zip file from *url* to *dest_path* (streamed)."""
+    log.info(f"Downloading {url}")
     try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
+        with requests.get(url, stream=True, timeout=30) as r:
+            r.raise_for_status()
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            with dest_path.open("wb") as f:
+                for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
+                    if chunk:
+                        f.write(chunk)
+    except requests.RequestException as exc:
+        log.error(f"Failed to download {url}: {exc}")
+        raise
 
-        # Ensure output directory exists
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+def extract_zip(zip_path: Path, extract_to: Path) -> List[Path]:
+    """Extract all members of *zip_path* into *extract_to* and return list of CSV paths."""
+    extracted_files: List[Path] = []
+    try:
+        with zipfile.ZipFile(zip_path, "r") as zf:
+            for member in zf.namelist():
+                if member.lower().endswith(".csv"):
+                    zf.extract(member, path=extract_to)
+                    extracted_path = extract_to / member
+                    extracted_files.append(extracted_path)
+    except zipfile.BadZipFile as exc:
+        log.error(f"Corrupt zip file {zip_path}: {exc}")
+        raise
+    return extracted_files
 
-        # Download content
-        content = b""
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                content += chunk
+def record_checksum(csv_path: Path, checksums_file: Path) -> None:
+    """Compute SHA‑256 of *csv_path* and append a line to *checksums_file*."""
+    checksum = sha256_checksum(csv_path)
+    line = f"{csv_path.relative_to(Path.cwd())} {checksum} OK\n"
+    checksums_file.parent.mkdir(parents=True, exist_ok=True)
+    with checksums_file.open("a", encoding="utf-8") as f:
+        f.write(line)
+    # Also write to the human‑readable log used for verification
+    with LOG_FILE.open("a", encoding="utf-8") as f:
+        f.write(line)
 
-        # Write to disk
-        with open(output_path, "wb") as f:
-            f.write(content)
-
-        logger.info(f"Downloaded {len(content)} bytes to {output_path}")
-
-        # Verify checksum if provided
-        if expected_checksum:
-            logger.info(f"Verifying checksum for {output_path}")
-            if not verify_checksum(content, expected_checksum):
-                logger.error(f"Checksum mismatch for {output_path}")
-                # Optionally remove the file if checksum fails
-                os.remove(output_path)
-                return False
-            logger.info(f"Checksum verified for {output_path}")
-
-        return True
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download {url}: {e}")
-        return False
-    except IOError as e:
-        logger.error(f"Failed to write file {output_path}: {e}")
-        return False
-
-
-def get_checksum_url(base_url: str, filename: str) -> str:
+# ----------------------------------------------------------------------
+# Main download routine
+# ----------------------------------------------------------------------
+def download_year(year: int) -> Dict[str, List[Path]]:
     """
-    Construct the URL for the checksum file (e.g., .md5).
-    Assumes the checksum file is in the same directory with a .md5 extension.
+    Download and extract all three VAERS CSV zip files for *year*.
+
+    Returns a dict mapping the file type (e.g., ``VAERSDATA``) to a list of
+    extracted CSV Path objects (normally one per type).
     """
-    # VAERS often provides .md5 files alongside the data
-    return f"{base_url}/{filename}.md5"
+    year_dir = paths.data("raw", str(year))
+    year_dir.mkdir(parents=True, exist_ok=True)
 
+    extracted: Dict[str, List[Path]] = {}
+    for ftype in FILE_TYPES:
+        zip_name = f"{year}{ftype}.csv.zip"
+        url = f"{BASE_URL}/{zip_name}"
+        zip_path = year_dir / zip_name
 
-def download_vaers_data(
-    years: list = DOWNLOAD_YEARS,
-    base_url: str = VAERS_BASE_URL,
-    output_dir: str = "data/raw",
-) -> Dict[str, Any]:
-    """
-    Download VAERS data for specified years.
+        # Download the zip – any HTTP error aborts the whole script
+        download_zip(url, zip_path)
 
-    Args:
-        years: List of years to download.
-        base_url: Base URL for VAERS data.
-        output_dir: Directory to save downloaded files.
+        # Extract CSV(s)
+        csv_paths = extract_zip(zip_path, year_dir)
+        if not csv_paths:
+            log.error(f"No CSV found inside {zip_path}")
+            raise RuntimeError(f"Empty zip archive for {url}")
 
-    Returns:
-        A dictionary with download status and file paths.
-    """
-    results = {"success": [], "failed": [], "files": {}}
+        extracted[ftype] = csv_paths
 
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+        # Record checksums for each extracted CSV
+        for csv_path in csv_paths:
+            record_checksum(csv_path, paths.data("checksums.txt"))
 
-    for year in years:
-        # Construct filename - VAERS naming convention varies, this is an example
-        # Typically: vaersdata{year}.csv
-        filename = f"vaersdata{year}.csv"
-        url = f"{base_url}/{filename}"
-        checksum_url = get_checksum_url(base_url, filename)
+        # Remove the zip file – we only need the CSVs
+        zip_path.unlink(missing_ok=True)
 
-        local_path = str(output_path / filename)
+    return extracted
 
-        # Try to fetch checksum first if it exists
-        expected_checksum = None
+def main() -> None:
+    """Entry point – iterate over YEARS and download each."""
+    log.info("Starting VAERS data download")
+    overall_success = True
+    for yr in YEARS:
         try:
-            checksum_resp = requests.get(checksum_url, timeout=10)
-            if checksum_resp.status_code == 200:
-                checksum_content = checksum_resp.text.strip()
-                expected_checksum = checksum_content.split()[0]
-                logger.info(f"Found checksum for {filename}: {expected_checksum}")
-            else:
-                logger.warning(
-                    f"Checksum file not found for {filename}, skipping verification"
-                )
-        except requests.exceptions.RequestException:
-            logger.warning(
-                f"Could not fetch checksum for {filename}, skipping verification"
-            )
+            download_year(yr)
+            log.info(f"Successfully processed year {yr}")
+        except Exception as exc:
+            log.error(f"Failed to process year {yr}: {exc}")
+            overall_success = False
+            # Abort immediately as required by the task spec
+            sys.exit(1)
 
-        success = download_file(url, local_path, expected_checksum)
-
-        if success:
-            results["success"].append(year)
-            results["files"][year] = local_path
-        else:
-            results["failed"].append(year)
-
-    return results
-
-
-def fetch_vaers_data(*args, **kwargs):
-    """
-    Compatibility wrapper that forwards to ``download_vaers_data``.
-    """
-    return download_vaers_data(*args, **kwargs)
-
-
-def main():
-    """Main entry point for the download script."""
-    logger.info("Starting VAERS data download")
-    results = download_vaers_data()
-
-    if results["failed"]:
-        logger.error(f"Failed to download data for years: {results['failed']}")
-        exit(1)
-    else:
-        logger.info(f"Successfully downloaded data for years: {results['success']}")
-        for year, path in results["files"].items():
-            logger.info(f"  {year}: {path}")
-        exit(0)
-
+    if overall_success:
+        log.info("All years downloaded and verified successfully")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
