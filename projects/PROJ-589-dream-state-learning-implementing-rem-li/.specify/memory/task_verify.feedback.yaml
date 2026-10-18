@@ -1,9 +1,6 @@
 T001:
-  reason: "The `code/requirements.txt` and `code/config.py` files exist and the config\
-    \ module imports cleanly (as shown by the pytest log), but there is no recorded\
-    \ evidence that `pip install -r code/requirements.txt` was actually run and succeeded.\
-    \ Add a command\u2011execution log (or similar proof) showing the pip install\
-    \ completing without errors."
+  reason: 'Requested task execution failed; rerun successfully: code/install_deps.py
+    exit=1'
   task: c1c042daeb1e86fb984ff3075e3d3961b6603d6a951d3dfafe44e3aac19a881f
 T002a:
   task: a646a90bad7336a59fbc351037e9ab92d2350a493ef9e668aa7d170e92cfffce

@@ -6,7 +6,7 @@
 
 **Goal**: Establish the environment and execute a thin, end-to-end training and evaluation run on real GLUE subsets to verify the Wake/Dream cycle.
 
-- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and `code/config.py` with CPU-only enforcement and memory limits (6.3 GB).
+- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and `code/config.py` with CPU-only enforcement and memory limits (6.3 GB). <!-- FAILED-IN-EXECUTION: code/install_deps.py exit=1 -->
     - Verification: `pip install -r code/requirements.txt` completes and `code/config.py` is importable without errors.
 - [ ] T002a [US1] Implement core Wake/Dream logic: 20-step warm-up, BERT-style random token masking, DAE reconstruction loss combined with knowledge-distillation loss (Teacher-Student distribution matching), entropy-based batch retries, and perplexity-based dream phase skipping (skip if perplexity > 50 against held-out corpus). `code/models/trainer.py`, `code/data/augment.py`.
     - Verification: Unit tests in `tests/unit/test_trainer.py` confirm warm-up duration, that low-entropy batches trigger retries, and that high-perplexity batches trigger a phase skip.

@@ -39,10 +39,10 @@ ImportError: pyarrow requires NumPy 2.0 or newer, found 1.24.3
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/train.py': [Errno 2] No such file or directory
 
 - python code/eval.py --results-dir data/results/ -> rc=1
-:36,105 - __main__ - INFO - Loaded 2 result files
-2026-10-18 01:32:36,105 - __main__ - INFO - Running statistical analysis
-2026-10-18 01:32:36,105 - __main__ - WARNING - Insufficient results for paired statistical analysis
-2026-10-18 01:32:36,105 - __main__ - INFO - Generating evaluation report
+:22,807 - __main__ - INFO - Loaded 2 result files
+2026-10-18 01:34:22,807 - __main__ - INFO - Running statistical analysis
+2026-10-18 01:34:22,807 - __main__ - WARNING - Insufficient results for paired statistical analysis
+2026-10-18 01:34:22,808 - __main__ - INFO - Generating evaluation report
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/eval.py", line 200, in <module>
