@@ -1,5 +1,5 @@
 # Configuration template for Predicting Plant Root Architecture
-# Copy this file to config.yaml and adjust values as needed.
+# Copy this file to config.yaml and modify as needed.
 
 DATA_PATH: "data"
 RAW_DATA_PATH: "data/raw"

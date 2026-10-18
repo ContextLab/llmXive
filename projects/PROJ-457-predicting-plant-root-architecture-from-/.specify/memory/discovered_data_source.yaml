@@ -1,16 +1,13 @@
 status: none
-intent: RootReader PlantPheno merged root soil dataset Hugging Face literature nutrient
-  ranges ISRIC python package dataset
+intent: RootReader PlantPheno merged root-soil dataset literature ranges ISRIC python
+  package dataset
 required_fields:
 - species
+- observation_id
 - root_length
-- root_surface_area
-- root_volume
 - root_diameter
-- root_branching_factor
 - phosphorus_concentration
 - nitrogen_concentration
-- observation_id
-cache_key: 329a5a2b39dce0443ad1f75c235c3a3748524b59b74ed2761e9b8a351e6236bf
-searched_at: '2026-10-18T01:29:37.597993+00:00'
+cache_key: a440e2f08a8abc3bad8110f54601294a1ad6783067006d10e83adb522a16150f
+searched_at: '2026-10-18T01:44:47.206342+00:00'
 retry_count: 1

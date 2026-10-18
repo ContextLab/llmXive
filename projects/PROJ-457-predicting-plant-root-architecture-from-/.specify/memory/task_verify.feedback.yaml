@@ -5,12 +5,10 @@ T002:
 T003:
   task: da39d763c02550f0958dfb63d0c3de8042c95c21941f70dd45a8a77c6687593d
 T004:
-  reason: "The collector's artifact listing includes `code/config.py`, `code/models.py`,\
-    \ and `config.yaml`, but the required `config.yaml.template` is not present among\
-    \ the resolved artifacts \u2014 only a passing test log asserts it exists, which\
-    \ is not file evidence. The implementer must actually create `config.yaml.template`\
-    \ at the project root (and it should be a meaningful template of the config keys,\
-    \ not merely absent)."
+  reason: "The repository contains `code/config.py` and `code/models.py` with the\
+    \ required functionality, but the required `config.yaml.template` file is not\
+    \ present in the listed artifacts. Without this template the task\u2019s third\
+    \ requirement is unmet."
   task: de902993f2c779d0d2960774a2cf2ab3fa086e3f754be1263aa62fe6478d208c
 T005:
   task: aa591468dc7b0f017f9080a0a5f945b4fe022b884f0df9c5c7dad5cdc5c79bc3

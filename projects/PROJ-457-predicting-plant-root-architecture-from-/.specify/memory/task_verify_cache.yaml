@@ -1,12 +1,12 @@
 T001:
   c: true
-  h: 1abe9a99245c5f366f3b53e5206e0fd9dde6213b3e1e460a0633917a59af8d9f
-  r: All six required directories (`code/`, `tests/`, `data/raw/`, `data/processed/`,
-    `artifacts/`, `artifacts/logs/`) exist on disk, and `directory_structure.txt`
-    at the project root lists exactly those six directories. The CI test `tests/test_directory_structure.py`
-    asserts both the file's contents and the directories' existence, matching the
-    task's verification requirement.
-  sig: 708525a20049f12ea7a281a2a0768435e63d1f12120e9e0abc94d7b899b65b84
+  h: bddd073ad7de56ff2793f2272e845096c6c3c1fc4204deeb068d480ea87354f7
+  r: "Checked that `directory_structure.txt` exists at the project root, contains\
+    \ exactly the six required directory paths, and that the `tests/test_directory_structure.py`\
+    \ test script (which verifies both the file\u2019s contents and the actual presence\
+    \ of those directories) aligns with the existing directory skeleton. All required\
+    \ directories are present, satisfying the task\u2019s specification."
+  sig: 2f92ff7c7a6a6969b6a859f2604b73ce47e90e213a6801a276c7240c970d53f0
 T002:
   c: true
   h: 3910f930130bde4d66eb89aa507425f1596d9beb48d4274040be2511ba5e8052
@@ -25,16 +25,6 @@ T003:
     exited 0 (the "No Python files" message just reflects that lint targets were empty
     at that time, which is acceptable for this standalone config task).'
   sig: 79e10e3ccbe5f7a8ed6207c3b14ef0178dd8a50d4227994da33921514f1b1fb9
-T004:
-  c: false
-  h: 7b7e82b0d4741c0a02eabe4ec9730ee3e93ec81a043748197e793148db280692
-  r: "The collector's artifact listing includes `code/config.py`, `code/models.py`,\
-    \ and `config.yaml`, but the required `config.yaml.template` is not present among\
-    \ the resolved artifacts \u2014 only a passing test log asserts it exists, which\
-    \ is not file evidence. The implementer must actually create `config.yaml.template`\
-    \ at the project root (and it should be a meaningful template of the config keys,\
-    \ not merely absent)."
-  sig: ebcb6f38a93770b8f9364053d1845f79ca7a0970380111aad8d334448685b3e8
 T005:
   c: true
   h: cd4030a256afd23e49e6385455afdb7518c10d08274fbe91b05e35ec1891ad04

@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-17T19:10:21Z",
-  "project_id": "PROJ-457-predicting-plant-root-architecture-from-"
+  "updated_at": "2026-10-18T01:44:54Z",
+  "project_id": "PROJ-457-predicting-plant-root-architecture-from-",
+  "replan_rounds": 1
 }

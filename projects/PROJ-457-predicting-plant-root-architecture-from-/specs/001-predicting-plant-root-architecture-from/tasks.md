@@ -29,7 +29,7 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
   *Path*: `artifacts/state.json` (JSON with at least `"is_isric_verified": false`) and `artifacts/logs/fallback.log` (must contain the line `ISRIC source not verified – proceeding without soil interpolation`).  
   *Verification*: `jq .is_isric_verified artifacts/state.json` returns `false`; the log file contains the required message.
 
-- [ ] T006 Write the data-ingestion and merging script: download root phenotype data from **RootReader** and **PlantPheno**, download soil nutrient data from **ISRIC**, merge using geographic matching with nearest-neighbor interpolation (≤ 10km), and compute `merge_success_rate` (SC-001). Fail loudly if any required source cannot be fetched.   <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 -->
+- [ ] T006 Write the data-ingestion and merging script: download root phenotype data from **RootReader** and **PlantPheno**, download soil nutrient data from **ISRIC**, merge using geographic matching with nearest-neighbor interpolation (≤ 10km), and compute `merge_success_rate` (SC-001). Fail loudly if any required source cannot be fetched.   <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 -->
   *Path*: `code/ingestion.py` → output `data/raw/merged_dataset.parquet`  
   *Verification*:  
     1. Running `python code/ingestion.py` creates `data/raw/merged_dataset.parquet`.  

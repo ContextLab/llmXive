@@ -37,7 +37,7 @@ def test_metrics_contain_merge_success_rate():
 
 
 def test_merge_nearest_soil_respects_radius():
-    """Nearest-neighbour matching must not attach soil beyond 10 km."""
+    """Nearest‑neighbour matching must not attach soil beyond 10 km."""
     from ingestion import compute_merge_success_rate, merge_nearest_soil
 
     root = pd.DataFrame(

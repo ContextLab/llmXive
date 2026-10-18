@@ -2,15 +2,15 @@
 
 Downloads a verified merged root-phenotype + soil-nutrient dataset from
 Hugging Face (verified URLs from research.md), normalises columns,
-performs geographic nearest-neighbour soil matching (<= 10 km) when
-separate soil records are available, computes ``merge_success_rate``
-(SC-001 / FR-023) and writes:
+performs geographic nearest‑neighbour soil matching (<= 10 km) without
+re‑using soil points, computes ``merge_success_rate`` (SC-001 / FR-023)
+and writes:
 
   * ``data/raw/merged_dataset.parquet``
-  * ``artifacts/reports/metrics.json``  (contains ``merge_success_rate``)
+  * ``artifacts/reports/metrics.json`` (contains ``merge_success_rate``)
 
-The script FAILS LOUDLY if no verified source can be fetched — there is
-no synthetic fallback.
+The script FAILS LOUDLY if no verified source can be fetched or if none
+contain the required nutrient columns. No synthetic fallback is used.
 """
 
 import json
@@ -33,7 +33,7 @@ VERIFIED_MERGED_DATASET_URLS: List[str] = [
 
 MAX_MERGE_DISTANCE_KM = 10.0
 
-# Canonical column names -> accepted aliases (case-insensitive).
+# Canonical column names -> accepted aliases (case‑insensitive).
 COLUMN_ALIASES: Dict[str, List[str]] = {
     "species": ["species", "species_name", "scientific_name", "taxon"],
     "root_length": ["root_length", "total_root_length", "rootlength"],
@@ -87,9 +87,11 @@ def normalise_columns(df: pd.DataFrame) -> pd.DataFrame:
 def download_merged_dataset(
     raw_dir: Path, logger=None
 ) -> Tuple[pd.DataFrame, str]:
-    """Download the first reachable verified merged dataset.
+    """Download the first reachable verified merged dataset that contains
+    the required nutrient columns.
 
-    Raises RuntimeError if none of the verified URLs can be fetched.
+    Raises RuntimeError if none of the verified URLs can be fetched or if
+    none contain the needed columns.
     """
     raw_dir.mkdir(parents=True, exist_ok=True)
     last_error: Optional[Exception] = None
@@ -105,6 +107,14 @@ def download_merged_dataset(
             df = pd.read_parquet(dest)
             if df.empty:
                 raise ValueError("downloaded dataset is empty")
+            # Verify required nutrient columns are present
+            if not all(col in df.columns for col in NUTRIENT_COLUMNS):
+                if logger:
+                    logger.warning(
+                        "Dataset %s does not contain required nutrient columns; trying next source.",
+                        url,
+                    )
+                continue  # try next URL
             if logger:
                 logger.info(
                     "Downloaded %d rows x %d cols from %s",
@@ -118,7 +128,7 @@ def download_merged_dataset(
             if logger:
                 logger.warning("Fetch failed for %s: %s", url, exc)
     raise RuntimeError(
-        "Could not fetch any verified merged dataset "
+        "Could not fetch any verified merged dataset with required nutrient columns "
         f"({len(VERIFIED_MERGED_DATASET_URLS)} URLs tried). "
         f"Last error: {last_error}"
     )
@@ -147,48 +157,62 @@ def merge_nearest_soil(
     soil_df: pd.DataFrame,
     max_distance_km: float = MAX_MERGE_DISTANCE_KM,
 ) -> pd.DataFrame:
-    """Attach soil nutrient values to root records via nearest-neighbour
+    """Attach soil nutrient values to root records via nearest‑neighbour
     geographic matching within ``max_distance_km``.
 
-    ``soil_df`` must contain latitude/longitude and the nutrient columns;
-    rows beyond the radius keep NaN nutrients (counted as unmerged).
+    Each soil point may be used **once only** (greedy matching). Rows
+    beyond the radius keep NaN nutrients (counted as unmerged).
     """
     out = root_df.copy()
+
+    # Ensure required coordinate columns exist
     if not {"latitude", "longitude"}.issubset(soil_df.columns):
         raise ValueError("soil_df must contain latitude/longitude columns")
     if not {"latitude", "longitude"}.issubset(root_df.columns):
         raise ValueError("root_df must contain latitude/longitude columns")
 
+    # Prepare soil and root tables (drop rows without coordinates)
     soil = soil_df.dropna(subset=["latitude", "longitude"]).reset_index(drop=True)
-    roots = root_df.dropna(subset=["latitude", "longitude"])
+    roots = root_df.dropna(subset=["latitude", "longitude"]).reset_index()
 
-    if soil.empty or roots.empty:
-        for col in NUTRIENT_COLUMNS:
-            if col not in out.columns:
-                out[col] = np.nan
-        return out
-
-    dist = _haversine_km(
-        roots["latitude"].to_numpy(),
-        roots["longitude"].to_numpy(),
-        soil["latitude"].to_numpy(),
-        soil["longitude"].to_numpy(),
-    )  # shape: (n_soil, n_root)
-    nearest_idx = np.argmin(dist, axis=0)
-    nearest_dist = dist[nearest_idx, np.arange(dist.shape[1])]
-    within = nearest_dist <= max_distance_km
-
+    # Initialise nutrient columns with NaN if they are missing
     for col in NUTRIENT_COLUMNS:
-        if col in soil.columns:
-            values = soil[col].to_numpy()[nearest_idx]
-            values = np.where(within, values, np.nan)
-            out.loc[roots.index, col] = values
-        elif col not in out.columns:
+        if col not in out.columns:
             out[col] = np.nan
     out["merge_distance_km"] = np.nan
-    out.loc[roots.index, "merge_distance_km"] = np.where(
-        within, nearest_dist, np.nan
-    )
+
+    if soil.empty or roots.empty:
+        return out
+
+    used_soil_idxs = set()
+
+    # Greedy matching: iterate over roots in original order
+    for _, root in roots.iterrows():
+        lat_r, lon_r = root["latitude"], root["longitude"]
+        # Compute distances to all soil points
+        distances = _haversine_km(
+            [lat_r], [lon_r], soil["latitude"].to_numpy(), soil["longitude"].to_numpy()
+        ).flatten()  # shape (n_soil,)
+
+        # Mask out already‑used soil points and enforce max distance
+        valid_mask = np.array(
+            [(i not in used_soil_idxs) and (dist <= max_distance_km) for i, dist in enumerate(distances)]
+        )
+
+        if not valid_mask.any():
+            # No suitable soil point for this root
+            continue
+
+        # Choose the nearest available soil point
+        nearest_idx = np.argmin(np.where(valid_mask, distances, np.inf))
+        used_soil_idxs.add(nearest_idx)
+
+        # Assign nutrient values and distance
+        for col in NUTRIENT_COLUMNS:
+            if col in soil.columns:
+                out.at[root["index"], col] = soil.at[nearest_idx, col]
+        out.at[root["index"], "merge_distance_km"] = distances[nearest_idx]
+
     return out
 
 
@@ -210,49 +234,46 @@ def main() -> int:
     reports_dir = Path(config["REPORTS_PATH"])
     reports_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Download the verified merged dataset (fails loudly).
+    # 1. Download a verified merged dataset that contains nutrient columns
     df, source_file = download_merged_dataset(raw_dir, logger)
-    df = normalise_columns(df)
-    logger.info(
-        "Normalised columns: %s", sorted(df.columns.tolist())
-    )
 
-    # 2. Geographic nearest-neighbour soil matching (<= 10 km) when the
-    #    source provides a separate soil table; the verified merged
-    #    datasets already carry nutrient columns, in which case the
-    #    pre-merged values are used directly.
+    # 2. Normalise column names to canonical identifiers
+    df = normalise_columns(df)
+    logger.info("Normalised columns: %s", sorted(df.columns.tolist()))
+
+    # 3. Perform geographic nearest‑neighbour soil interpolation (<= 10 km)
+    #    Only if the dataset does not already have nutrient columns fully populated.
     has_coords = {"latitude", "longitude"}.issubset(df.columns)
-    has_nutrients = all(c in df.columns for c in NUTRIENT_COLUMNS)
+    has_nutrients = all(col in df.columns for col in NUTRIENT_COLUMNS)
     if has_coords and has_nutrients:
+        # Build a soil reference table (rows that have nutrient values)
         soil_rows = df[NUTRIENT_COLUMNS + ["latitude", "longitude"]].dropna(
             subset=NUTRIENT_COLUMNS + ["latitude", "longitude"]
         )
         if not soil_rows.empty:
             logger.info(
-                "Applying nearest-neighbour soil interpolation "
-                "(<= %.1f km) over %d soil reference points",
+                "Applying nearest‑neighbour soil interpolation (<= %.1f km) over %d soil reference points",
                 MAX_MERGE_DISTANCE_KM,
                 len(soil_rows),
             )
             df = merge_nearest_soil(df, soil_rows)
     elif not has_nutrients:
         raise RuntimeError(
-            "Verified dataset does not contain phosphorus/nitrogen "
-            "columns; cannot compute nutrient merge."
+            "Verified dataset does not contain phosphorus/nitrogen columns; cannot compute nutrient merge."
         )
 
-    # 3. Ensure required output columns exist.
+    # 4. Ensure required output columns exist.
     for col in ROOT_COLUMNS + NUTRIENT_COLUMNS + ["data_source_type"]:
         if col not in df.columns:
             df[col] = np.nan
     if "species" not in df.columns:
         raise RuntimeError("Verified dataset lacks a species column")
 
-    # 4. Compute merge_success_rate (SC-001).
+    # 5. Compute merge_success_rate (SC-001).
     merge_success_rate = compute_merge_success_rate(df)
     logger.info("merge_success_rate = %.4f", merge_success_rate)
 
-    # 5. Write outputs.
+    # 6. Write outputs.
     out_path = raw_dir / "merged_dataset.parquet"
     df.to_parquet(out_path, index=False)
     logger.info("Wrote merged dataset to %s", out_path)
@@ -260,9 +281,7 @@ def main() -> int:
     metrics = {
         "merge_success_rate": merge_success_rate,
         "total_root_records": int(len(df)),
-        "merged_root_records": int(
-            df[NUTRIENT_COLUMNS].notna().all(axis=1).sum()
-        ),
+        "merged_root_records": int(df[NUTRIENT_COLUMNS].notna().all(axis=1).sum()),
         "source_file": source_file,
         "max_merge_distance_km": MAX_MERGE_DISTANCE_KM,
     }
@@ -271,6 +290,7 @@ def main() -> int:
         json.dump(metrics, f, indent=2)
     logger.info("Wrote metrics to %s", metrics_path)
 
+    # Print JSON for quick inspection (not required by pipeline)
     print(json.dumps({"merge_success_rate": merge_success_rate}))
     return 0
 
