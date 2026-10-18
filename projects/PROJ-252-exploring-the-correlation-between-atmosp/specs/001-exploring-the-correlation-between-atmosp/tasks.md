@@ -26,7 +26,7 @@ The checklist below contains **10 substantive research tasks** that together sat
 
 ## Phase 2 – Data acquisition & validation  
 
-- [ ] **T002** [P] [US‑1] **Download the full NOAA NCEP/NCAR sea‑level pressure dataset (2013‑2023) and the USGS earthquake catalog (M ≥ 4.0, depth ≤ 70 km)**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
+- [ ] **T002** [P] [US‑1] **Download the full NOAA NCEP/NCAR sea‑level pressure dataset (2013‑2023) and the USGS earthquake catalog (M ≥ 4.0, depth ≤ 70 km)**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
   *Features*  
   - Uses the verified OPeNDAP URL `https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc` streamed with `xarray.open_dataset(..., chunks={"time":30})`.  
   - Retrieves the USGS catalog via the public API:  

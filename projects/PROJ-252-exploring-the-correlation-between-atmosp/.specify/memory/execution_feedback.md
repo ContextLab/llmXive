@@ -15,15 +15,15 @@ configfile: pyproject.toml
 plugins: anyio-4.15.1
 collecting ... collected 0 items
 
-============================ no tests ran in 0.01s =============================
+============================ no tests ran in 0.00s =============================
 
 ERROR: file or directory not found: #
 
 
 - python code/preprocess.py   # deterministic implementation follows the plan specification -> rc=1
 taset written to data/processed/master_dataset.parquet
-2026-10-18 08:22:11,602 - __main__ - INFO - Checksum written to data/processed/master_dataset.parquet.sha256
-2026-10-18 08:22:11,602 - __main__ - ERROR - Preprocessing failed: Schema file not found at contracts/earthquake.yaml
+2026-10-18 08:27:57,241 - __main__ - INFO - Checksum written to data/processed/master_dataset.parquet.sha256
+2026-10-18 08:27:57,242 - __main__ - ERROR - Preprocessing failed: Schema file not found at contracts/earthquake.yaml
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py", line 398, in <module>
     main()
@@ -75,7 +75,7 @@ FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_earthq
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_pressure_anomaly_schema_validates_valid_data
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_pressure_anomaly_schema_rejects_missing_fields
 FAILED tests/contract/test_data_schema.py::TestDataSchemaValidation::test_required_fields_match_spec
-============================== 7 failed in 0.10s ===============================
+============================== 7 failed in 0.09s ===============================
 
 
 

@@ -1,6 +1,6 @@
 status: none
-intent: NOAA NCEP NCAR sea level pressure USGS earthquake catalog ENSO PDO indices
-  python package dataset
+intent: NOAA NCEP NCAR sea level pressure and USGS Earthquake Catalog python package
+  dataset
 required_fields:
 - event_id
 - time
@@ -13,6 +13,6 @@ required_fields:
 - month
 - enso_phase
 - pdo_phase
-cache_key: 7dd0a294496cb251d23791b3add1c650a2085de96b178292d504ffcae7b06e76
-searched_at: '2026-10-18T08:24:13.162385+00:00'
+cache_key: 37c2ac6d439cb0305b502cab7ab4afdd3bbf6e139ce38a4ca4a79f37d45186c1
+searched_at: '2026-10-18T08:29:59.457603+00:00'
 retry_count: 1
