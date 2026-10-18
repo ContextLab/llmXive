@@ -238,7 +238,7 @@ def main() -> None:
             # FP8 is not directly supported; we use FP16 as a realistic proxy.
             quantized_models["FP8"] = quantize_model_fp16(full_model)
         elif level == "INT4":
-            # INT4 quantisation is not natively supported in torch; we reuse the INT8
+            # INT4 quantisation is not natively supported; we reuse the INT8
             # dynamic quantisation as a best‑effort proxy while still providing a
             # distinct label for downstream analysis.
             log.warning("INT4 quantisation not natively supported; using INT8 proxy.")

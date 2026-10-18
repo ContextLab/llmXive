@@ -93,7 +93,7 @@ def main() -> None:
         description=(
             "Validate that the generated dataset exhibits a statistically "
             "significant non‑zero KL divergence.  If the statistics file is "
-            "missing, it will be computed from the training sample parquet "
+            "missing, it will be created from the training sample parquet "
             "file."
         )
     )

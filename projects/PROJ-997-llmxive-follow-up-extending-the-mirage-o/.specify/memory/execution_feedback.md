@@ -10,27 +10,27 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/src/cli/run_proxy_loop.py: self-declared fabricated metric — “…on't have logits here,     we simulate the score based on the correctness of t…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet`
+  - script usage: `generate_ground_truth.py [-h] --model MODEL --levels {INT4,INT8,FP8}`
+  - argparse error: `generate_ground_truth.py: error: the following arguments are required: --stats-output`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/cli/run_proxy_loop.py: self-declared fabricated metric — “…on't have logits here,     we simulate the score based on the correctness of t…”; 2 run-book script(s) missing (plan/impl path mismatch): python code/models/train_predictor.py --input data/processed/training_sample.parquet --output data/models/gap_predictor.pkl; python code/models/evaluate_predictor.py --model data/models/gap_predictor.pkl --data data/processed/training_sample.parquet --output data/metrics/metrics.json; 1 command(s) failed: python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet (rc=1); 1 declared deliverable(s) absent: data/processed/dataset_stats.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/cli/run_proxy_loop.py: self-declared fabricated metric — “…on't have logits here,     we simulate the score based on the correctness of t…”; 2 run-book script(s) missing (plan/impl path mismatch): python code/models/train_predictor.py --input data/processed/training_sample.parquet --output data/models/gap_predictor.pkl; python code/models/evaluate_predictor.py --model data/models/gap_predictor.pkl --data data/processed/training_sample.parquet --output data/metrics/metrics.json; 1 command(s) failed: python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet (rc=2); 1 declared deliverable(s) absent: data/processed/dataset_stats.json
 
 ## Failing / missing run-book commands
 
-- python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet -> rc=1
-uggingface.co/datasets/gsm8k/resolve/main/train.jsonl
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 209, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 201, in main
-    run_wrapper(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/data/generate_ground_truth.py", line 78, in run_wrapper
-    subset = download_gsm8k_subset(sample_size)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 167, in download_gsm8k_subset
-    response.raise_for_status()
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/train.jsonl
+- python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet -> rc=2
+
+usage: generate_ground_truth.py [-h] --model MODEL --levels {INT4,INT8,FP8}
+                                [{INT4,INT8,FP8} ...]
+                                [--sample-size SAMPLE_SIZE] --output OUTPUT
+                                --stats-output STATS_OUTPUT
+generate_ground_truth.py: error: the following arguments are required: --stats-output
 
 - python code/models/train_predictor.py --input data/processed/training_sample.parquet --output data/models/gap_predictor.pkl -> rc=2
 
