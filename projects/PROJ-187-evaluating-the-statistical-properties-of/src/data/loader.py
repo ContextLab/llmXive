@@ -1,27 +1,31 @@
 """Real-data loading and preprocessing for the statistical fidelity study.
 
 Loads three verified real tabular benchmarks (Adult via OpenML, UCI-HAR and
-UCI-Shopper via HuggingFace ``datasets``), snapshots the raw data under
-``data/raw/<name>/`` with SHA-256 checksums, imputes missing values, encodes
-categorical columns as integer codes, applies the FR-009 RAM mitigation if
-peak RSS exceeds 6.5 GB, and writes an 80/20 train/hold-out split (seed 123)
-to ``data/processed/<name>/{train,holdout}.parquet`` plus a provenance
+UCI-Shopper via HuggingFace ``datasets``, with direct fetch of the plan's
+verified HTTPS URLs as a secondary real-source path), snapshots the raw
+data under ``data/raw/<name>/`` with SHA-256 checksums, imputes missing
+values, encodes categorical columns as integer codes, applies the FR-009
+RAM mitigation if peak RSS exceeds 6.5 GB, and writes an 80/20
+train/hold-out split (seed 123) to
+``data/processed/<name>/{train,holdout}.parquet`` plus a provenance
 ``metadata.yaml`` and ``preprocess_log.txt``.
 
-The loader fails loudly on any fetch failure: no synthetic or mock fallback
-exists anywhere in this module.
+The loader fails loudly on any fetch failure: no synthetic or mock
+fallback exists anywhere in this module. Every fallback path between
+loaders below is a REAL source (the plan's verified dataset URLs).
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import logging
 from pathlib import Path
 from typing import Callable, Dict, List, Tuple
 
-import numpy as np
 import pandas as pd
 import psutil
+import requests
 import yaml
 from sklearn.model_selection import train_test_split
 
@@ -35,10 +39,26 @@ RAM_LIMIT_BYTES = int(6.5 * 1024 ** 3)  # strict headroom below the 7 GB hard li
 MAX_ROWS_AFTER_MITIGATION = 10_000
 HIGH_CARDINALITY_THRESHOLD = 50
 
+HAR_VERIFIED_URL = (
+    "https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/train.csv"
+)
+SHOPPER_VERIFIED_URL = (
+    "https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/"
+    "data/train-00000-of-00001-3316810f8df41d3a.parquet"
+)
+
 
 # ---------------------------------------------------------------------------
 # Raw loaders (real sources only; failures propagate loudly)
 # ---------------------------------------------------------------------------
+
+def _fetch_bytes(url: str) -> bytes:
+    """Fetch a verified URL, raising loudly on any HTTP failure."""
+    resp = requests.get(url, timeout=180)
+    resp.raise_for_status()
+    if not resp.content:
+        raise RuntimeError(f"empty response body from {url}")
+    return resp.content
 
 def load_adult() -> pd.DataFrame:
     """UCI Adult via OpenML dataset id 1590 (verified source)."""
@@ -53,30 +73,65 @@ def load_adult() -> pd.DataFrame:
     return df
 
 def load_har() -> pd.DataFrame:
-    """UCI Human Activity Recognition via HuggingFace udayl/UCI_HAR."""
-    from datasets import load_dataset
+    """UCI Human Activity Recognition via HuggingFace udayl/UCI_HAR.
 
-    # The repository exposes its CSV files under the "csv_files" config
-    # (the verified source URL is csv_files/train.csv); fall back to the
-    # default config, which resolves to the same real data.
+    Primary path is ``datasets.load_dataset("udayl/UCI_HAR",
+    split="train")`` exactly as specified in tasks.md; if the Hub library
+    cannot serve the repository (e.g. script-based dataset incompatibil-
+    ity), the plan's verified HTTPS URL for the same real data is fetched
+    directly. Both paths are real data; if both fail the error propagates.
+    """
+    errors: List[str] = []
+    for kwargs in (
+        {"split": "train"},
+        {"name": "csv_files", "split": "train"},
+    ):
+        try:
+            from datasets import load_dataset
+
+            ds = load_dataset("udayl/UCI_HAR", **kwargs)
+            df = ds.to_pandas()
+            if df is None or len(df) == 0:
+                raise RuntimeError("empty dataframe from udayl/UCI_HAR")
+            return df
+        except Exception as exc:  # real-source fallback below, never synthetic
+            errors.append(f"load_dataset({kwargs!r}) failed: {exc}")
     try:
-        ds = load_dataset("udayl/UCI_HAR", "csv_files", split="train")
-    except Exception:
-        ds = load_dataset("udayl/UCI_HAR", split="train")
-    df = ds.to_pandas()
-    if df is None or len(df) == 0:
-        raise RuntimeError("HF dataset udayl/UCI_HAR split=train returned no data")
-    return df
+        content = _fetch_bytes(HAR_VERIFIED_URL)
+        df = pd.read_csv(io.BytesIO(content))
+        if df is None or len(df) == 0:
+            raise RuntimeError("empty dataframe from verified HAR URL")
+        return df
+    except Exception as exc:
+        errors.append(f"direct fetch of {HAR_VERIFIED_URL} failed: {exc}")
+    raise RuntimeError(
+        "all real-source fetches for UCI-HAR failed: " + " | ".join(errors)
+    )
 
 def load_shopper() -> pd.DataFrame:
     """UCI Online Shoppers Purchasing Intention via HF jlh/uci-shopper."""
-    from datasets import load_dataset
+    errors: List[str] = []
+    try:
+        from datasets import load_dataset
 
-    ds = load_dataset("jlh/uci-shopper", split="train")
-    df = ds.to_pandas()
-    if df is None or len(df) == 0:
-        raise RuntimeError("HF dataset jlh/uci-shopper split=train returned no data")
-    return df
+        ds = load_dataset("jlh/uci-shopper", split="train")
+        df = ds.to_pandas()
+        if df is None or len(df) == 0:
+            raise RuntimeError("empty dataframe from jlh/uci-shopper")
+        return df
+    except Exception as exc:  # real-source fallback below, never synthetic
+        errors.append(f"load_dataset failed: {exc}")
+    try:
+        content = _fetch_bytes(SHOPPER_VERIFIED_URL)
+        df = pd.read_parquet(io.BytesIO(content))
+        if df is None or len(df) == 0:
+            raise RuntimeError("empty dataframe from verified shopper URL")
+        return df
+    except Exception as exc:
+        errors.append(f"direct fetch of {SHOPPER_VERIFIED_URL} failed: {exc}")
+    raise RuntimeError(
+        "all real-source fetches for UCI-Shopper failed: " + " | ".join(errors)
+    )
 
 
 LOADERS: Dict[str, Tuple[Callable[[], pd.DataFrame], str]] = {
@@ -100,6 +155,17 @@ def sha256_file(path: Path) -> str:
 def current_rss_bytes() -> int:
     return psutil.Process().memory_info().rss
 
+def _sanitize_for_parquet(df: pd.DataFrame) -> pd.DataFrame:
+    """Make mixed-type object columns parquet-writable without losing NaNs."""
+    for col in df.columns:
+        if df[col].dtype == object:
+            mask = df[col].notna()
+            if mask.any():
+                vals = df.loc[mask, col]
+                if not all(isinstance(v, str) for v in vals.head(1000).tolist()):
+                    df.loc[mask, col] = vals.astype(str)
+    return df
+
 def _is_categorical(series: pd.Series) -> bool:
     return (
         series.dtype == object
@@ -121,6 +187,7 @@ def _relpath(p: Path) -> str:
 
 def process_dataset(name: str, df: pd.DataFrame, source: str) -> None:
     """Snapshot raw data, preprocess, split, and write all artifacts."""
+    df = _sanitize_for_parquet(df.copy())
     log_lines: List[str] = [f"dataset={name}", f"source={source}",
                             f"raw_rows={len(df)}",
                             f"raw_columns={df.shape[1]}"]
@@ -151,6 +218,7 @@ def process_dataset(name: str, df: pd.DataFrame, source: str) -> None:
             mode = df[col].mode(dropna=True)
             df[col] = df[col].fillna(mode.iloc[0]) if len(mode) else df[col]
         else:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
             df[col] = df[col].fillna(df[col].median())
     if dropped_all_nan:
         df = df.drop(columns=dropped_all_nan)
