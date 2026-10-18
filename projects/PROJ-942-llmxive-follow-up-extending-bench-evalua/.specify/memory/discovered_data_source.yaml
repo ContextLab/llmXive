@@ -1,0 +1,13 @@
+status: none
+intent: download pi-bench interaction traces dataset python package dataset
+required_fields:
+- dialogue_id
+- turn_index
+- speaker
+- utterance_text
+- timestamp
+- ground_truth_intent
+- intent_label
+cache_key: d9a1e5c8441453fb123d53e368f74ae109e2e3b72d467023747367693f5a3ed7
+searched_at: '2026-10-18T02:19:33.600663+00:00'
+retry_count: 1

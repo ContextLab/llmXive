@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Intent Graph Schema"
+type: object
+description: 'Schema for the directed Intent Graph produced from a $\pi$‑Bench task.'
+properties:
+  nodes:
+    type: array
+    description: "List of intent nodes"
+    items:
+      type: object
+      required: [id, label, confidence]
+      properties:
+        id:
+          type: string
+          description: "Unique node identifier"
+        label:
+          type: string
+          description: "Intent label (e.g., \"Explicit Goal\", \"Conflict Detected\")"
+        confidence:
+          type: number
+          description: "Confidence score between 0 and 1"
+  edges:
+    type: array
+    description: "List of directed edges representing dependencies"
+    items:
+      type: object
+      required: [source, target, type]
+      properties:
+        source:
+          type: string
+          description: "Node id of the source"
+        target:
+          type: string
+          description: "Node id of the target"
+        type:
+          type: string
+          description: "Dependency type (e.g., \"temporal\", \"causal\", \"conflict_resolution\")"
+required: [nodes, edges]
+additionalProperties: false
+
