@@ -1,35 +1,34 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "TaxonomyCentroid"
-description: "Schema for the fixed vector embedding of a risk category in the AgentDoG 1.5 taxonomy."
+description: "Mean embedding vector for one AgentDoG 1.5 safety category."
 type: "object"
 properties:
-  category_id:
+  category:
     type: "string"
-    description: "Unique identifier for the category (e.g., 'P1-Prompt-Injection')."
-    minLength: 1
-  category_name:
+    enum: ["Safety", "Privacy", "Bias", "Jailbreak"]
+  description:
     type: "string"
-    description: "Human-readable name of the risk category."
     minLength: 1
-  definition:
-    type: "string"
-    description: "Original text definition from the taxonomy."
-    minLength: 1
-  embedding_vector:
+    description: "Category definition from the AgentDoG 1.5 taxonomy."
+  embedding:
     type: "array"
-    description: "384-dimensional float vector (normalized)."
     items:
       type: "number"
     minItems: 384
     maxItems: 384
+    description: "384-dim all-MiniLM-L6-v2 embedding, L2-normalized."
+  n_samples:
+    type: "integer"
+    minimum: 100
+    description: "Number of curated example logs used (must be >= 100, FR-004)."
   source_version:
     type: "string"
-    description: "Version of the taxonomy source used."
     minLength: 1
+    description: "Revision id of agentdog/safety-v1 used."
 required:
-  - category_id
-  - category_name
-  - definition
-  - embedding_vector
+  - category
+  - description
+  - embedding
+  - n_samples
   - source_version
 additionalProperties: false

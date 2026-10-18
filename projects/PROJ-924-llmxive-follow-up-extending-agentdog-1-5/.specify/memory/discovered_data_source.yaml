@@ -1,5 +1,8 @@
 status: none
-reason: no data intent found in planning artifacts
-cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
-searched_at: '2026-08-13T16:40:02.638976+00:00'
-retry_count: 3
+intent: bigcode the-stack dataset huggingface datasets library python package dataset
+required_fields:
+- code
+- label
+cache_key: 437c757aeb26a35dc10df96bc94674d3df21bb09bf863cf1e21005f76707acbd
+searched_at: '2026-10-18T20:28:10.128259+00:00'
+retry_count: 1

@@ -1,73 +1,57 @@
 # Research: Zero-Shot Drift Detection for AgentDoG 1.5
 
 ## Overview
-This research validates the feasibility of using centroid embeddings for zero-shot drift detection within the strict resource constraints of a GitHub Actions free-tier runner (GB RAM, 2 CPU cores). It confirms the availability of the required datasets and models and outlines the statistical methodology.
 
-## Verified Datasets
+Feasibility research for centroid-based zero-shot drift detection under GitHub Actions free-tier constraints (2 CPU cores, ~7 GB RAM, ≤6 h, no GPU). Confirms models fit CPU/RAM budget, defines the statistical methodology, and documents data acquisition strategy.
 
-The following datasets are verified as open, directly downloadable, and suitable for the AgentDoG 1.5 taxonomy validation. Note: A perfect "AgentDoG" dataset is not publicly available. We use a **Safety-Proxy** strategy for methodological testing only. The final validation requires a human-annotated dataset, but a publicly available source is currently lacking.
+## Verified Datasets & Models
 
-| Dataset Name | Source | Verified URL | Notes |
+No independently re-verified URL list was supplied for this planning round; per the verified-accuracy rule, no URLs are fabricated. Sources below are named as asserted by the spec (which states `agentdog/safety-v1` is "publicly accessible and verified") and by well-known canonical identifiers.
+
+| Component | Identity | Access method | Notes |
 | :--- | :--- | :--- | :--- |
-| **All-MiniLM-L6-v2** | Hugging Face | `https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2` | CPU-friendly embedding model (low memory footprint). |
-| **google/flan-t5-small** | Hugging Face | `https://huggingface.co/google/flan-t5-small` | Baseline model. Moderate RAM usage. Fits within the 7GB budget. |
-
-*Note: The "Safety-Proxy" datasets are used to test the *methodology* of drift detection. The "Novel" ground truth is defined by human annotators on this proxy data. A verified public source for the human-annotated dataset is currently unavailable.*
+| Taxonomy example logs | `agentdog/safety-v1` (Hugging Face dataset) | `datasets.load_dataset("agentdog/safety-v1")` | Spec-mandated; must contain ≥100 labeled examples per category (Safety, Privacy, Bias, Jailbreak). **Verification step in Phase 0**: if the load fails or a category has <100 examples, this is a blocking data-availability gap to surface for scope revision — no substitute dataset is planned. |
+| Embedding model | `sentence-transformers/all-MiniLM-L6-v2` | `SentenceTransformer("all-MiniLM-L6-v2")` | ~80 MB, CPU-friendly (Constitution Principle VII). 384-dim embeddings. |
+| Baseline model | `google/flan-t5-small` | `AutoModelForSeq2SeqLM` / `AutoTokenizer` | ~300 MB fp32; fits 7 GB RAM on CPU. |
+| Novel-log corpus | Public GitHub issue threads | GitHub REST API `GET /repos/{owner}/{repo}/issues` (unauthenticated, seeded repo list, post-2025 filter) | FR-014: ≥500 logs. Real data, PII-scrubbed. |
 
 ## Dataset Strategy
 
 | Component | Strategy | Source |
 | :--- | :--- | :--- |
-| **Input Logs** | Stream from Hugging Face `datasets` library (bigcode/the-stack subset). | Verified HF Dataset |
-| **Centroids** | Compute mean embedding of labeled examples per category. | Derived from Input |
-| **Human Annotations** | Ingested from `data/human_annotations.json` (external input). | External (Manual) - **no public source** |
-| **Novelty Ground Truth** | Defined by human annotators as patterns *outside* the scope of the 4 safety categories. | Human-Defined |
+| Centroid examples | ≥100 curated logs per category from `agentdog/safety-v1` | HF dataset (canonical id) |
+| Scored logs | Full `agentdog/safety-v1` log set + ≥500 GitHub-issue novel corpus | Both real sources above |
+| Human annotations | External manual input, `data/human_annotations.json` | Three blinded human annotators; **no public source — code never generates it** |
+| Gold standard | Majority vote over 3 annotators ("novel attack" = novel; "known attack"/"benign" = benign) | Derived from human input |
 
 ## Model & Methodology
 
 ### Embedding Generation
-- **Model**: `sentence-transformers/all-MiniLM-L6-v2`.
-- **Rationale**: Specifically chosen for its small footprint (~80MB) and high performance on semantic similarity tasks. It runs efficiently on CPU.
-- **Batch Size**: 64 (Verified Fact: `2410.21676`).
+- Model: `all-MiniLM-L6-v2`, **batch size = 64** (verified fact, arXiv:2410.21676, https://arxiv.org/abs/2410.21676).
+- CPU-only; embeddings L2-normalized before centroid computation.
 
 ### Drift Scoring
-- **Method**: Cosine Distance.
-- **Formula**: $D = 1 - \frac{A \cdot B}{||A|| ||B||}$
-- **Centroids**: For each safety category $C$, compute $Centroid_C = \frac{1}{N} \sum_{i=1}^{N} Embedding(log_i)$ where $log_i \in C$.
-- **Drift Score**: $Score = \min_{C} (Distance(Embedding(log), Centroid_C))$.
+- Centroid per category: mean of normalized member embeddings, re-normalized.
+- Drift score: cosine distance $D = 1 - \frac{u \cdot c}{\|u\|\|c\|}$ to each centroid; `drift_score = min_C D`, range [0, 2].
+- `review_flag = drift_score >= 0.5` (pre-registered operating point, FR-002).
+
+### Statistical Validation (associational framing; no causal claims)
+- **Inter-annotator agreement**: mean pairwise Cohen's Kappa over the 3 annotator pairs on the 3-way label; gate κ ≥ 0.6.
+- **Separation**: Mann-Whitney U on drift scores, human-novel vs human-benign; p < 0.05, rank-biserial correlation ≥ 0.5. Computed on the FR-017 full-range random sample (≥100 logs) to avoid range restriction.
+- **Regression**: logistic regression novel ~ drift_score (scikit-learn + statsmodels-style Wald p-value); report coefficient p-value and AUC-ROC.
+- **Bin contrast**: chi-squared test of "novel" proportion, high-drift vs low-drift bins; reject null at α = 0.05.
+- **Multiple comparisons**: the family {Mann-Whitney U, logistic coefficient, chi-squared} is reported with Holm-adjusted p-values alongside the pre-registered unadjusted thresholds (numeric family size [deferred] to execution).
+- **Power**: sample size is fixed by FR-017 (≥100), not by a power calculation; the report explicitly acknowledges this limitation and gives confidence intervals for all effect sizes.
 
 ### Baseline Comparison
-- **Model**: `google/flan-t5-small`.
-- **Task**: Zero-shot classification of "Is this log novel/harmful?" (Specific prompt: "Is this text a novel safety threat not covered by standard categories?").
-- **Constraint**: Runs on CPU. If memory error occurs, fallback to `google/flan-t5-small` quantized or a smaller variant.
-- **AUC Calculation**: The AUC-ROC is calculated against the **human-labeled "Novel"** (1/0), not against the model's own output.
+- `google/flan-t5-small` zero-shot: prompt "Is this text a novel safety threat not covered by standard categories? Answer yes or no."; score = P(yes). AUC-ROC against human gold standard; baseline validity gate AUC ≥ 0.70 (FR-016). Drift method flagged "computationally efficient alternative" if within 0.10 AUC and latency ≤ 0.5 × baseline. Latency measured per-log on identical CPU hardware, median over repeated runs.
 
-### Statistical Validation
-- **US-01 (Drift Separation)**:
-  - Test: Mann-Whitney U test between **Human-Labeled Novel** and **Human-Labeled Benign** groups.
-  - Metric: Cohen's d (Effect size).
-  - Significance: $p < 0.05$.
-- **US-02 (Human Agreement)**:
-  - Metric: Cohen's Kappa ($\kappa$) for agreement between System Flag and Human Label.
-  - Method: Logistic regression is used separately to estimate the odds ratio of a log being labeled "Novel" given its drift score.
-- **US-03 (Baseline)**:
-  - Metric: AUC-ROC.
-  - Threshold: Drift AUC $\ge$ (Flan-T5 AUC - 0.10).
+## Compute Feasibility Analysis (CPU-first; no GPU escape hatch needed)
 
-## Compute Feasibility Analysis
-
-- **RAM**:
-  - `all-MiniLM-L6-v2`: ~80MB.
-  - `google/flan-t5-small`: ~300MB.
-  - Data (Streaming): < 500MB overhead.
-  - Context/Activation: A conservative estimate of approximately 3-4 GB for 10k logs with batch size 64.
-  - **Total**: < 5GB. Well within 7GB limit.
-- **CPU**:
-  - Embedding a large-scale set of logs @ a moderate batch size: ~15-20 minutes on 2 cores.
-  - Flan-T5 Inference: **4-6 hours** (conservative estimate for 10k logs on 2-core CPU).
-  - **Total**: < 6 hours. Within 6-hour limit.
-- **GPU**: Not required. The plan explicitly avoids GPU dependencies.
+- **RAM**: MiniLM ~80 MB + flan-t5-small ~300 MB + batch-64 activations + streamed data < 2 GB total. Well within 7 GB.
+- **Runtime**: embedding ~10k logs at batch 64 on 2 cores ≈ 15–30 min; flan-t5-small inference on the annotated subset (a few hundred logs) ≈ 1–2 h; statistics trivial. Total well under 6 h.
+- **GPU**: not required — both models are small CPU-native transformers; no method in this study lacks a faithful CPU form, so no Kaggle offload is planned.
 
 ## Decision Rationale
 
-The choice of `all-MiniLM-L6-v2` and `google/flan-t5-small` is driven by the strict **CPU-first** requirement. These models are the smallest viable options that maintain semantic fidelity. The decision to **exclude** a GPU escape hatch is a direct response to Constitution Principle VII, ensuring the project remains reproducible on the free-tier runner without external dependencies. The **strict human validation gate** ensures that the "Zero-Shot Drift Validity" is not merely a theoretical exercise but a verified empirical result. The **Safety-Proxy** dataset strategy acknowledges the lack of a perfect public dataset while allowing for methodological validation.
+CPU-first throughout: MiniLM and flan-t5-small are deliberately small models that run faithfully on the free-tier runner, satisfying Constitution Principle VII without any GPU dependency. The human-validation hard gate (Principle VI) is preserved: all validity metrics derive exclusively from real three-annotator data; missing human data yields an `Incomplete` status rather than a simulated substitute. `agentdog/safety-v1` is used as mandated by the spec, with a Phase-0 verification step rather than a silent substitution. GitHub-issue acquisition (FR-014) uses the public REST API with a seeded repository list for reproducibility.

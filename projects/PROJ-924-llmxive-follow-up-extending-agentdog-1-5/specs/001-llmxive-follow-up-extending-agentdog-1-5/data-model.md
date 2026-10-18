@@ -1,127 +1,47 @@
 # Data Model: Zero-Shot Drift Detection
 
 ## Overview
-This document defines the data structures, schemas, and transformation logic for the AgentDoG 1.5 drift detection pipeline.
+
+Entities, schemas, and transformation logic for the drift detection pipeline.
 
 ## Entities
 
-### 1. Log Entry
-The raw input from the safety taxonomy dataset.
-- `log_id`: Unique identifier for the log.
-- `content`: Text content of the log.
-- `label`: Ground truth category (Safety, Privacy, Bias, Jailbreak) or `null` if unlabeled.
+### 1. LogEntry (`contracts/agent_log.schema.yaml`)
+- `log_id`: string, unique (hash of content + source).
+- `text`: string, raw log content (PII-scrubbed for GitHub-derived logs).
+- `source`: string — `"agentdog/safety-v1"` or `"github-issues"`.
+- `timestamp`: ISO 8601 string or null.
+- `label`: category ("Safety"|"Privacy"|"Bias"|"Jailbreak") or null (unlabeled/novel-corpus logs).
 
-### 2. Centroid
-The aggregate embedding for a safety category.
-- `category`: String (e.g., "Safety").
-- `embedding`: List of floats (dimensions for MiniLM).
-- `n_samples`: Integer count of logs used.
+### 2. TaxonomyCentroid (`contracts/taxonomy_centroid.schema.yaml`)
+- `category`: one of the four taxonomy categories.
+- `description`: category definition.
+- `embedding`: 384 floats (normalized mean of ≥100 member embeddings).
+- `n_samples`: int, ≥100 (FR-004).
+- `source_version`: dataset revision id.
 
-### 3. Drift Score
-The output of the drift detection phase.
-- `log_id`: Reference to Log Entry.
-- `drift_score`: Cosine distance to the nearest centroid (0.0 = identical, 2.0 = maximally different).
-- `nearest_centroid`: String (Category name).
-- `review_flag`: Boolean indicating if the score exceeds the threshold.
+### 3. DriftScoreRecord (`contracts/drift_output.schema.yaml`)
+- `log_id`, `drift_score` (float, [0.0, 2.0]), `nearest_centroid` (category), `review_flag` (bool, `drift_score >= 0.5`).
 
-### 4. Human Annotation
-The validation data ingested from human reviewers.
-- `log_id`: Reference to Log Entry.
-- `annotator_id`: String.
-- `is_novel`: Boolean (1 = novel/harmful, 0 = benign).
-- `confidence`: Float (0-1).
-- **Novelty Definition**: `is_novel=1` is assigned ONLY if the annotator confirms the pattern is **outside the scope** of the 4 safety categories (Safety, Privacy, Bias, Jailbreak).
+### 4. HumanAnnotation (`contracts/human_annotation.schema.yaml`)
+- `log_id`, `annotator_id` (exactly three distinct annotators), `label` ∈ {"novel attack", "known attack", "benign"}.
+- Derived gold standard: majority vote; "novel" iff majority label == "novel attack", else "benign".
 
-## Schemas
-
-### Input Schema (Dataset)
-```yaml
-type: object
-properties:
-  log_id:
-    type: string
-  content:
-    type: string
-  label:
-    type: ["string", "null"]
-required:
-  - log_id
-  - content
-```
-
-### Output Schema (Drift Score)
-```yaml
-type: object
-properties:
-  log_id:
-    type: string
-  drift_score:
-    type: number
-    minimum: 0.0
-    maximum: 2.0
-  nearest_centroid:
-    type: string
-    enum: ["Safety", "Privacy", "Bias", "Jailbreak"]
-  review_flag:
-    type: boolean
-required:
-  - log_id
-  - drift_score
-  - nearest_centroid
-  - review_flag
-```
-
-### Validation Schema (Human Annotation)
-```yaml
-type: object
-properties:
-  log_id:
-    type: string
-  annotator_id:
-    type: string
-  is_novel:
-    type: integer
-    enum: [0, 1]
-  confidence:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-required:
-  - log_id
-  - annotator_id
-  - is_novel
-```
+### 5. MetricsBundle (`data/processed/metrics.json`)
+- kappa_mean, mannwhitney_p, rank_biserial, logistic_coef_p, auc_drift, auc_flant5, latency ratios, chi2 stats, resource usage, holm-adjusted p-values.
 
 ## Transformation Logic
 
-1. **Centroid Generation**:
-   - Group logs by `label`.
-   - Generate embeddings for each group.
-   - Compute mean vector for each group.
-   - Store as `Centroid`.
-
-2. **Drift Scoring**:
-   - For each `log_id`, generate embedding.
-   - Compute cosine distance to all 4 centroids.
-   - Select minimum distance as `drift_score`.
-   - Set `review_flag` if `drift_score > threshold`.
-   - **Novelty Logic**: A log is considered "Novel" (for validation) if `drift_score` is high (far from ALL centroids) AND the human annotator confirms it is outside the 4 categories.
-
-3. **Stratification**:
-   - Sort logs by `drift_score`.
- - Select **top [deferred]** (High Drift) and **bottom [deferred]** (Low Drift) for human annotation.
-   - Create `annotation_batch` for human review.
-   - **Rationale**: The 10% threshold captures the extreme tails of the distribution where novelty is most likely to be found, balancing sensitivity and specificity.
-
-4. **Validation Metrics**:
-   - **Cohen's Kappa**: Compute between `is_novel` (Human) and `review_flag` (System).
-   - **Mann-Whitney U**: Compare `drift_score` distribution between `is_novel=1` (Human-Labeled Novel) and `is_novel=0` (Human-Labeled Benign).
-   - **Logistic Regression**: Estimate odds ratio of `is_novel=1` given `drift_score`.
+1. **Load & scrub** (FR-004, FR-014): load `agentdog/safety-v1`; fetch ≥500 post-2025 GitHub issue logs; PII-scrub; checksum raw files (Principle III); write `data/raw/`.
+2. **Centroid generation** (FR-003, FR-004): group labeled logs by category; embed with MiniLM (batch 64); mean + renormalize; verify n ≥ 100 per category.
+3. **Drift scoring** (FR-001, FR-002): embed all logs; cosine distance to 4 centroids; min = `drift_score`; `review_flag = drift_score >= 0.5`.
+4. **Stratification & sampling** (FR-005, FR-017): high-drift = top [deferred] quantile, low-drift = bottom [deferred] quantile; seeded random sample of ≥100 logs across full drift range.
+5. **Blinded batches** (FR-006): annotation batch files contain only `log_id` + `text` (no scores, no bins).
+6. **Gold standard & validation** (FR-007–FR-009, FR-015, FR-017): majority vote; kappa; Mann-Whitney U + rank-biserial; logistic regression; chi-squared across bins; Holm correction; all on the FR-017 sample (bin test on binned logs).
+7. **Baseline & report** (FR-010–FR-013, FR-016): flan-t5-small AUC + latency; resource measurement; report generated from `metrics.json` only.
 
 ## Constraints
 
-- **Batch Size**: 64 (Fixed).
-- **Random Seed**: 42.
-- **Max RAM**: 7GB (Streaming enforced).
-- **Threshold**: `review_flag` threshold is a parameter, not a hardcoded constant, to allow tuning.
-- **Novelty Definition**: `is_novel=1` requires explicit human confirmation of "outside scope".
+- `RANDOM_SEED = 42`; `BATCH_SIZE = 64` (verified fact, arXiv:2410.21676); `MAX_RAM_GB = 7`; `DRIFT_THRESHOLD = 0.5` (pre-registered, FR-002 — not tunable at analysis time).
+- Raw data immutable; all derivations to new files; no PII in committed data.
+- Human annotations are external input; never generated by code.
