@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 18319,
+    "total_contributions": 18320,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2270,
+      "contribution_count": 2271,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-18T14:37:48.224466+00:00",
+  "generated_at": "2026-10-18T15:09:20.418868+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29211,6 +29211,11 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-825-llmxive-follow-up-extending-self-distill",
+          "project_id": "PROJ-825-llmxive-follow-up-extending-self-distill",
+          "title": "llmXive follow-up: extending \"Self-Distilled Agentic Reinforcement Learning\""
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-555-investigating-the-potential-benefits-of-",
           "project_id": "PROJ-555-investigating-the-potential-benefits-of-",
           "title": "Investigating the Potential Benefits of Ecotourism in Regenerating Deforested Areas"
@@ -29229,11 +29234,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-015-improving-accessibility-and-usability-of",
           "project_id": "PROJ-015-improving-accessibility-and-usability-of",
           "title": "Improving Accessibility and Usability of Complex Computer Systems for People with Disabilities"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau",
-          "project_id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
-          "title": "Single-Cell Trajectories of T-Cell Exhaustion"
         }
       ],
       "inputs": [
@@ -74184,7 +74184,7 @@
         "paper_supplement": null,
         "paper_supplement_source": null,
         "paper_tasks": null,
-        "plan": null,
+        "plan": "projects/PROJ-233-predicting-the-diffusion-coefficient-of-/specs/001-predicting-the-diffusion-coefficient-of/plan.md",
         "reviews_paper": null,
         "reviews_research": null,
         "spec": "projects/PROJ-233-predicting-the-diffusion-coefficient-of-/specs/001-predicting-the-diffusion-coefficient-of/spec.md",
@@ -74205,6 +74205,14 @@
         {
           "contributions": 1,
           "kind": "llm",
+          "name": "openai.gpt-oss-120b",
+          "roles": [
+            "clarifier"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
           "name": "zai-org.glm-5.3",
           "roles": [
             "clarifier"
@@ -74219,9 +74227,9 @@
       },
       "created_at": "2026-05-04T01:02:23.568477+00:00",
       "current_artifact": {
-        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-233-predicting-the-diffusion-coefficient-of-/specs/001-predicting-the-diffusion-coefficient-of/spec.md",
-        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-233-predicting-the-diffusion-coefficient-of-/specs/001-predicting-the-diffusion-coefficient-of/spec.md",
-        "repo_path": "projects/PROJ-233-predicting-the-diffusion-coefficient-of-/specs/001-predicting-the-diffusion-coefficient-of/spec.md",
+        "github_url": "https://github.com/ContextLab/llmXive/blob/main/projects/PROJ-233-predicting-the-diffusion-coefficient-of-/specs/001-predicting-the-diffusion-coefficient-of/plan.md",
+        "raw_url": "https://raw.githubusercontent.com/ContextLab/llmXive/main/projects/PROJ-233-predicting-the-diffusion-coefficient-of-/specs/001-predicting-the-diffusion-coefficient-of/plan.md",
+        "repo_path": "projects/PROJ-233-predicting-the-diffusion-coefficient-of-/specs/001-predicting-the-diffusion-coefficient-of/plan.md",
         "type": "markdown"
       },
       "current_stage": "clarified",
@@ -74230,6 +74238,22 @@
       "id": "PROJ-233-predicting-the-diffusion-coefficient-of-",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "clarifier",
+          "duration_s": 76.445491,
+          "ended_at": "2026-10-18T14:42:50.209551Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T14:41:33.764060Z"
+        },
+        {
+          "agent": "planner",
+          "duration_s": 646.949296,
+          "ended_at": "2026-10-18T14:41:20.526921Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-18T14:30:33.577625Z"
+        },
         {
           "agent": "clarifier",
           "duration_s": 672.734952,
@@ -74298,7 +74322,7 @@
       "speckit_research_dir": "projects/PROJ-233-predicting-the-diffusion-coefficient-of-/specs/001-predicting-the-diffusion-coefficient-of",
       "submitter": null,
       "title": "Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors",
-      "updated_at": "2026-10-18T14:30:18.573683+00:00",
+      "updated_at": "2026-10-18T14:42:50.211638+00:00",
       "upstream_feedback": null
     },
     {
@@ -147898,7 +147922,7 @@
           ]
         },
         {
-          "contributions": 20,
+          "contributions": 22,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -147938,12 +147962,28 @@
         "repo_path": "projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "analyzed",
+      "current_stage": "in_progress",
       "description": "Verdict: pass The question asks about the fundamental source of stability in the SDAR framework: whether the gating signal's efficacy arises from the privileged information of a teacher model or from the statistical properties of the student's own uncertainty. This is a substantive inquiry into the mechanism of\u2026",
       "field": "computer science",
       "id": "PROJ-825-llmxive-follow-up-extending-self-distill",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 9.102816,
+          "ended_at": "2026-10-18T14:35:39.438563Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T14:35:30.335747Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 6.040857,
+          "ended_at": "2026-10-18T14:27:35.677334Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-18T14:27:29.636477Z"
+        },
         {
           "agent": "tasker",
           "duration_s": 0.026392,
@@ -148007,22 +148047,6 @@
           "model": "google.gemma-4-31B-it",
           "outcome": "success",
           "started_at": "2026-10-14T00:18:09.135991Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 397.632694,
-          "ended_at": "2026-10-13T18:16:25.024139Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-13T18:09:47.391445Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 18.822548,
-          "ended_at": "2026-10-13T13:23:07.644763Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-13T13:22:48.822215Z"
         }
       ],
       "paper_status": null,
@@ -148036,7 +148060,7 @@
       "speckit_research_dir": "projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill",
       "submitter": null,
       "title": "llmXive follow-up: extending \"Self-Distilled Agentic Reinforcement Learning\"",
-      "updated_at": "2026-10-18T14:27:21.869396+00:00",
+      "updated_at": "2026-10-18T14:35:16.454379+00:00",
       "upstream_feedback": null
     },
     {
@@ -173803,6 +173827,42 @@
   "recent_activity": [
     {
       "agent": "clarifier",
+      "duration_s": 76.445491,
+      "ended_at": "2026-10-18T14:42:50.209551Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-233-predicting-the-diffusion-coefficient-of-",
+      "project_stage": "clarified",
+      "severity": "ok",
+      "started_at": "2026-10-18T14:41:33.764060Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 646.949296,
+      "ended_at": "2026-10-18T14:41:20.526921Z",
+      "failure_reason": "StagePanelKickback: plan panel did not converge: 2 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full prove",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-233-predicting-the-diffusion-coefficient-of-",
+      "project_stage": "clarified",
+      "severity": "soft",
+      "started_at": "2026-10-18T14:30:33.577625Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 9.102816,
+      "ended_at": "2026-10-18T14:35:39.438563Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-825-llmxive-follow-up-extending-self-distill",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T14:35:30.335747Z"
+    },
+    {
+      "agent": "clarifier",
       "duration_s": 672.734952,
       "ended_at": "2026-10-18T14:30:18.571932Z",
       "failure_reason": "",
@@ -173814,6 +173874,18 @@
       "started_at": "2026-10-18T14:19:05.836980Z"
     },
     {
+      "agent": "implementer",
+      "duration_s": 6.040857,
+      "ended_at": "2026-10-18T14:27:35.677334Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-825-llmxive-follow-up-extending-self-distill",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-18T14:27:29.636477Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 0.026392,
       "ended_at": "2026-10-18T14:27:21.867534Z",
@@ -173821,7 +173893,7 @@
       "model": "deterministic-no-llm",
       "outcome": "skipped",
       "project_id": "PROJ-825-llmxive-follow-up-extending-self-distill",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "soft",
       "started_at": "2026-10-18T14:27:21.841142Z"
     },
@@ -173833,7 +173905,7 @@
       "model": "zai-org.glm-5.3",
       "outcome": "success",
       "project_id": "PROJ-825-llmxive-follow-up-extending-self-distill",
-      "project_stage": "analyzed",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-18T14:07:02.936211Z"
     },
@@ -179818,54 +179890,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-17T10:18:24.456761Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 34.986888,
-      "ended_at": "2026-10-17T10:18:24.454785Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-298-statistical-analysis-of-publicly-availab",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-17T10:17:49.467897Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 140.458815,
-      "ended_at": "2026-10-17T10:17:41.843381Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-298-statistical-analysis-of-publicly-availab",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-17T10:15:21.384566Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 628.680165,
-      "ended_at": "2026-10-17T10:15:09.472194Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-298-statistical-analysis-of-publicly-availab",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-17T10:04:40.792029Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 313.71644,
-      "ended_at": "2026-10-17T10:14:02.426503Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-10-17T10:08:48.710063Z"
     }
   ],
   "reviewed_preprints": [
