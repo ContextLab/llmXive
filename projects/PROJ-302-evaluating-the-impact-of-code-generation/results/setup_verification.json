@@ -130,8 +130,8 @@
     {
       "package": "codecarbon",
       "status": "error",
-      "pinned_version": "2.2.0",
-      "error": "mutable default <class 'codecarbon.core.units.Energy'> for field energy_delta is not allowed: use default_factory"
+      "pinned_version": "2.1.0",
+      "error": "mutable default <class 'codecarbon.core.units.Energy'> for field energy_reading is not allowed: use default_factory"
     },
     {
       "package": "tenacity",
@@ -144,8 +144,8 @@
     {
       "package": "codecarbon",
       "status": "error",
-      "pinned_version": "2.2.0",
-      "error": "mutable default <class 'codecarbon.core.units.Energy'> for field energy_delta is not allowed: use default_factory"
+      "pinned_version": "2.1.0",
+      "error": "mutable default <class 'codecarbon.core.units.Energy'> for field energy_reading is not allowed: use default_factory"
     }
   ],
   "success": false

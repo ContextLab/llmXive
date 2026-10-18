@@ -18,5 +18,5 @@ pytest==7.4.0
 ruff==0.0.287
 black==23.7.0
 pyarrow==13.0.0
-codecarbon==2.2.0
+codecarbon==2.1.0
 tenacity==8.2.3
